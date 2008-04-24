@@ -1,0 +1,79 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.google.gson</groupId>
+  <artifactId>gson</artifactId>
+  <packaging>jar</packaging>
+  <version>0.8</version>
+  <name>gson</name>
+  <url>http://google-gson.code.google.com/</url>
+  
+  <repositories>
+    <repository>
+      <id>objectweb-snapshot</id>
+      <name>ObjectWeb Maven Repository</name>
+      <url>http://maven.objectweb.org/maven2-snapshot</url>
+    </repository>
+  </repositories>
+  
+  <dependencies>
+    <dependency>
+      <groupId>com.google.common</groupId>
+      <artifactId>google-collect</artifactId>
+      <version>0.5-SNAPSHOT</version>
+      <scope>compile</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.5</source>
+          <target>1.5</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-eclipse-plugin</artifactId>
+        <configuration>
+          <downloadSources>true</downloadSources>
++         <downloadJavadocs>true</downloadJavadocs>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>javacc-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>javacc</id>
+            <goals>
+              <goal>javacc</goal>
+            </goals>
+            <configuration>
+              <sourceDirectory>src/main/javacc</sourceDirectory>
+              <outputDirectory>target/generated-src/main/java</outputDirectory>
+              <timestampDirectory>target/generated-src/javacc-timestamp</timestampDirectory>
+              <packageName>com.google.gson.parser</packageName>
+            </configuration>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>net.java.dev.javacc</groupId>
+            <artifactId>javacc</artifactId>
+            <version>4.0</version>
+          </dependency>
+        </dependencies>
+      </plugin>      
+    </plugins>
+  </build>
+</project>
