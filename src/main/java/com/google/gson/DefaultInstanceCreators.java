@@ -21,6 +21,8 @@ import com.google.common.collect.Maps;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -77,8 +79,9 @@ final class DefaultInstanceCreators {
     map.put(SortedSet.class, treeSetCreator);
 // Supported for JDK 1.6 only    map.put(NavigableSet.class, treeSetCreator);
 
-    // Added enum instance creator
+    // Add enum instance creator
     map.put(Enum.class, new EnumCreator());
+    map.put(URL.class, new UrlCreator());    
 
     return map;
   }
@@ -158,6 +161,16 @@ final class DefaultInstanceCreators {
   private static class TreeSetCreator implements InstanceCreator<TreeSet<?>> {
     public TreeSet<?> createInstance(Type type) {
       return new TreeSet<Object>();
+    }
+  }
+  
+  private static class UrlCreator implements InstanceCreator<URL> {
+    public URL createInstance(Type type) {
+      try {
+        return new URL("http://google.com/");
+      } catch (MalformedURLException e) {
+        throw new RuntimeException(e);
+      }
     }
   }
 }

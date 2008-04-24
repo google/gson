@@ -39,8 +39,8 @@ final class DefaultJsonSerializers {
   @SuppressWarnings("unchecked")
   private static class EnumSerializer<T extends Enum> implements JsonSerializer<T> {
 
-    public void toJson(T src, JsonBuilder json) {
-      json.makeScalar(src.name());
+    public JsonElement toJson(T src) {
+      return new JsonPrimitive(src.name());
     }
   }
 }

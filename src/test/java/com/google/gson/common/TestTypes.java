@@ -256,7 +256,7 @@ public class TestTypes {
     private SortedSet<Character> sortedSet;
 //    private NavigableSet<String> navigableSet;
 
-    public ClassWithSubInterfacesOfCollection() {
+    ClassWithSubInterfacesOfCollection() {
     }
 
     public ClassWithSubInterfacesOfCollection(List<Integer> list, Queue<Long> queue, Set<Float> set,

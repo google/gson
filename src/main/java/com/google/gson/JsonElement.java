@@ -88,14 +88,6 @@ public abstract class JsonElement {
     throw new UnsupportedOperationException();
   }
   
-  public char getAsChar() {
-    throw new UnsupportedOperationException();
-  }
-  
-  public Character getAsCharacter() {
-    throw new UnsupportedOperationException();
-  }
-  
   public Object getAsObject() {
     throw new UnsupportedOperationException();    
   }

@@ -28,10 +28,22 @@ import java.util.Map;
  * @author Inderjeet Singh
  */
 public final class JsonObject extends JsonElement {
-  private Map<String, JsonElement> members = Maps.newHashMap();
+  // We are using a linked hash map because it is important to preserve
+  // the order in which elements are inserted. This is needed to ensure
+  // that the fields of an object are inserted in the order they were 
+  // defined in the class. 
+  private Map<String, JsonElement> members = Maps.newLinkedHashMap();
 
   public void add(String property, JsonElement value) {
     members.put(property, value);
+  }
+  
+  public void addProperty(String property, String value) {
+    members.put(property, new JsonPrimitive(value));
+  }
+  
+  public void addProperty(String property, Number value) {
+    members.put(property, new JsonPrimitive(value));
   }
   
   public boolean has(String property) {

@@ -16,6 +16,8 @@
 
 package com.google.gson;
 
+import com.google.common.base.Preconditions;
+
 /**
  * A class representing a Json primitive value. A primitive value 
  * is either a String, a Java primitive, or a Java primitive 
@@ -26,6 +28,11 @@ package com.google.gson;
 public final class JsonPrimitive extends JsonElement {
   
   private Object value;
+  
+  @SuppressWarnings("unchecked")
+  private static final Class[] PRIMITIVE_TYPES = {int.class, long.class, short.class, float.class, 
+    double.class, byte.class, boolean.class, Integer.class, Long.class, Short.class, Float.class, 
+    Double.class, Byte.class, Boolean.class}; 
 
   public JsonPrimitive(Boolean bool) {
     this.value = bool;
@@ -39,10 +46,39 @@ public final class JsonPrimitive extends JsonElement {
     this.value = string;
   }
   
-  public JsonPrimitive(Character character) {
-    this.value = character;
+  public JsonPrimitive(Character c) {
+    this.value = String.valueOf(c);
   }
   
+  public JsonPrimitive(char c) {
+    this.value = String.valueOf(c);
+  }
+  
+  public JsonPrimitive(Object primitive) {
+    if (primitive instanceof Character) {
+      // convert characters to strings since in JSON, characters are represented as a single 
+      // chacater string 
+      char c = ((Character)primitive).charValue();
+      this.value = String.valueOf(c);
+    } else {
+      Preconditions.checkArgument(primitive instanceof Number || primitive instanceof String ||
+          isPrimitive(primitive));
+      this.value = primitive;
+    }
+  }
+  
+  @SuppressWarnings("unchecked")
+  private boolean isPrimitive(Object primitive) {
+    Class<?> classOfPrimitive = primitive.getClass();
+    
+    for (Class standardPrimitive : PRIMITIVE_TYPES) {
+      if (classOfPrimitive.isAssignableFrom(standardPrimitive)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   public boolean isBoolean() {
     return value instanceof Boolean;
   }
@@ -95,20 +131,6 @@ public final class JsonPrimitive extends JsonElement {
     return ((Number) value).shortValue();
   }
   
-  public boolean isChar() {
-    return value instanceof Character;
-  }
-  
-  @Override
-  public char getAsChar() {
-    return ((Character) value).charValue();
-  }
-  
-  @Override
-  public Character getAsCharacter() {
-    return (Character) value;
-  }
-  
   @Override
   public int getAsInt() {
     return ((Number) value).intValue();
@@ -122,7 +144,14 @@ public final class JsonPrimitive extends JsonElement {
   @Override
   protected void toJson(StringBuilder sb) {
     if (value != null) {
-      sb.append(value);
+      if (value instanceof String) {
+        sb.append('"');
+        sb.append(value);
+        sb.append('"');
+        
+      } else {
+        sb.append(value);
+      }
     }
   }
 }

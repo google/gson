@@ -63,8 +63,6 @@ final class JsonPrimitiveDeserializationVisitor<T> extends JsonDeserializationVi
       target = (T) jsonPrimitive.getAsBooleanWrapper();
     } else if (jsonPrimitive.isNumber()) {
       target = (T) jsonPrimitive.getAsNumber();
-    } else if (jsonPrimitive.isChar()) {
-      target = (T) jsonPrimitive.getAsCharacter();
     } else if (jsonPrimitive.isString()) {
       target = (T) jsonPrimitive.getAsString();
     } else {

@@ -28,9 +28,8 @@ package com.google.gson;
 public interface JsonSerializer<T> {
     
   /**
-   * Adds the corresponding Json for src 
    * @param src the object that needs to be converted to Json
-   * @param writer The context where json can be added
+   * @return a JsonElement corresponding to the specified object 
    */
-  public void toJson(T src, JsonBuilder writer);
+  public JsonElement toJson(T src);
 }
