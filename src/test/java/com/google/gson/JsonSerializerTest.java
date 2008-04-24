@@ -47,7 +47,6 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.NavigableSet;
 import java.util.Queue;
 import java.util.Set;
 import java.util.SortedSet;
@@ -209,9 +208,9 @@ public class JsonSerializerTest extends TestCase {
     Queue<Long> queue = Lists.newLinkedList(0L, 1L, 2L, 3L);
     Set<Float> set = Sets.newTreeSet(0.1F, 0.2F, 0.3F, 0.4F);
     SortedSet<Character> sortedSet = Sets.newTreeSet('a', 'b', 'c', 'd');
-    NavigableSet<String> navigableSet = Sets.newTreeSet("abc", "def", "ghi", "jkl");
+//    NavigableSet<String> navigableSet = Sets.newTreeSet("abc", "def", "ghi", "jkl");
     ClassWithSubInterfacesOfCollection target =
-        new ClassWithSubInterfacesOfCollection(list, queue, set, sortedSet, navigableSet);
+        new ClassWithSubInterfacesOfCollection(list, queue, set, sortedSet/*, navigableSet */);
     assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 

@@ -25,7 +25,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.List;
-import java.util.NavigableSet;
 import java.util.Queue;
 import java.util.Set;
 import java.util.SortedSet;
@@ -255,18 +254,18 @@ public class TestTypes {
     private Queue<Long> queue;
     private Set<Float> set;
     private SortedSet<Character> sortedSet;
-    private NavigableSet<String> navigableSet;
+//    private NavigableSet<String> navigableSet;
 
     public ClassWithSubInterfacesOfCollection() {
     }
 
     public ClassWithSubInterfacesOfCollection(List<Integer> list, Queue<Long> queue, Set<Float> set,
-        SortedSet<Character> sortedSet, NavigableSet<String> navigableSet) {
+        SortedSet<Character> sortedSet /* NavigableSet<String> navigableSet*/) {
       this.list = list;
       this.queue = queue;
       this.set = set;
       this.sortedSet = sortedSet;
-      this.navigableSet = navigableSet;
+//      this.navigableSet = navigableSet;
     }
 
     public String getExpectedJson() {
@@ -279,9 +278,10 @@ public class TestTypes {
       sb.append("\"set\":");
       append(sb, set).append(",");
       sb.append("\"sortedSet\":");
-      append(sb, sortedSet).append(",");
+      append(sb, sortedSet);
+/*      sb.append(",");
       sb.append("\"navigableSet\":");
-      append(sb, navigableSet);
+      append(sb, navigableSet); */
       sb.append("}");
       return sb.toString();
     }
@@ -295,9 +295,10 @@ public class TestTypes {
       sb.append("set:");
       appendForString(sb, set).append(",");
       sb.append("sortedSet:");
-      appendForString(sb, sortedSet).append(",");
+      appendForString(sb, sortedSet);
+/*      sb.append(",");
       sb.append("navigableSet:");
-      appendForString(sb, navigableSet);
+      appendForString(sb, navigableSet); */
       sb.append("}");
       return sb.toString();
     }

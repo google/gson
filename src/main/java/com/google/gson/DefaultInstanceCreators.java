@@ -22,11 +22,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Collection;
-import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.NavigableSet;
 import java.util.Queue;
 import java.util.Set;
 import java.util.SortedSet;
@@ -71,13 +69,13 @@ final class DefaultInstanceCreators {
     map.put(Collection.class, linkedListCreator);
     map.put(List.class, linkedListCreator);
     map.put(Queue.class, linkedListCreator);
-    map.put(Deque.class, linkedListCreator);
+// Supported for JDK 1.6 only    map.put(Deque.class, linkedListCreator);
 
     // Add Set instance creators
     InstanceCreator<TreeSet<?>> treeSetCreator = new TreeSetCreator();
     map.put(Set.class, treeSetCreator);
     map.put(SortedSet.class, treeSetCreator);
-    map.put(NavigableSet.class, treeSetCreator);
+// Supported for JDK 1.6 only    map.put(NavigableSet.class, treeSetCreator);
 
     // Added enum instance creator
     map.put(Enum.class, new EnumCreator());
