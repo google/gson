@@ -99,4 +99,12 @@ public abstract class JsonElement {
   public Object getAsObject() {
     throw new UnsupportedOperationException();    
   }
+  
+  public String toJson() {
+    StringBuilder sb = new StringBuilder();
+    toJson(sb);
+    return sb.toString();
+  }
+  
+  protected abstract void toJson(StringBuilder sb);
 }

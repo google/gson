@@ -142,4 +142,13 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
       throw new IllegalStateException();
     }
   }
+
+  @Override
+  protected void toJson(StringBuilder sb) {
+    sb.append('[');
+    for (JsonElement element : elements) {
+      element.toJson(sb);
+    }
+    sb.append(']');
+  }  
 }

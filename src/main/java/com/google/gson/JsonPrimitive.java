@@ -118,4 +118,11 @@ public final class JsonPrimitive extends JsonElement {
   public Object getAsObject() {
     return value;
   }
+
+  @Override
+  protected void toJson(StringBuilder sb) {
+    if (value != null) {
+      sb.append(value);
+    }
+  }
 }
