@@ -255,7 +255,14 @@ public final class Gson {
    * @return JSON representation of src
    */
   public String toJson(Object src, Type typeOfSrc) {
-    throw new UnsupportedOperationException();
+    if (src == null) {
+      return "";
+    }
+    ObjectNavigator on = navigatorFactory.create(src, typeOfSrc);
+    JsonSerializationVisitor visitor = new JsonSerializationVisitor(navigatorFactory, serializers);
+    on.accept(visitor);
+    JsonElement jsonElement = visitor.getJsonElement();
+    return jsonElement == null ? "" : jsonElement.toJson();
   }
 
   /**

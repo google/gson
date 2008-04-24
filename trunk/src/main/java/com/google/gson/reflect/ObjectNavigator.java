@@ -140,10 +140,14 @@ public final class ObjectNavigator {
         } else { // must be a collection
           visitor.visitCollection((Collection<?>)obj, objType);
         }
-      } else if (objTypeInfo.isPrimitiveOrStringAndNotAnArray()) {
-        visitor.visitPrimitiveValue(obj);
       } else if (objTypeInfo.getTopLevelClass().isEnum()) {
         visitor.visitEnum(obj, objType);
+      } else if (objTypeInfo.isPrimitiveOrStringAndNotAnArray()) {
+        visitor.visitPrimitiveValue(obj);
+      } else if (objType == Object.class) {
+        // If we do NOT have any type information for the object, try
+        // treating it as a primitive
+        visitor.visitPrimitiveValue(obj);
       } else {
         if (!visitor.visitUsingCustomHandler(obj, objType)) {
           visitor.startVisitingObject(obj);

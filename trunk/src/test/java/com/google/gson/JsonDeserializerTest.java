@@ -293,8 +293,9 @@ public class JsonDeserializerTest extends TestCase {
 
   public void testSubInterfacesOfCollection() {
     String json = "{\"list\":[0,1,2,3],\"queue\":[0,1,2,3],\"set\":[0.1,0.2,0.3,0.4],"
-        + "\"sortedSet\":[\"a\",\"b\",\"c\",\"d\"],"
-        + "\"navigableSet\":[\"abc\",\"def\",\"ghi\",\"jkl\"]}";
+        + "\"sortedSet\":[\"a\",\"b\",\"c\",\"d\"]"
+//        + ",\"navigableSet\":[\"abc\",\"def\",\"ghi\",\"jkl\"]"
+        + "}";
     ClassWithSubInterfacesOfCollection target = gson.fromJson(
         ClassWithSubInterfacesOfCollection.class, json);
     assertEquals(json, target.getExpectedJson());

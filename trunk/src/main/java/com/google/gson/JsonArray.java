@@ -117,15 +117,6 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   }
   
   @Override 
-  public char getAsChar() {
-    if (elements.size() == 1) {
-      return elements.get(0).getAsChar();
-    } else {
-      throw new IllegalStateException();
-    }
-  }
-  
-  @Override 
   public boolean getAsBoolean() {
     if (elements.size() == 1) {
       return elements.get(0).getAsBoolean();
@@ -146,7 +137,13 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   @Override
   protected void toJson(StringBuilder sb) {
     sb.append('[');
+    boolean first = true;
     for (JsonElement element : elements) {
+      if (first) {
+        first = false;
+      } else {
+        sb.append(',');
+      }      
       element.toJson(sb);
     }
     sb.append(']');

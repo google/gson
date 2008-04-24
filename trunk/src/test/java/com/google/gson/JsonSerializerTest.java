@@ -128,16 +128,16 @@ public class JsonSerializerTest extends TestCase {
 
   public void testStringValue() throws Exception {
     String value = "someRandomStringValue";
-    assertEquals("[\"" + value + "\"]", gson.toJson(value));
+    assertEquals('"' + value + '"', gson.toJson(value));
   }
 
   public void testPrimitiveIntegerAutoboxed() {
-    assertEquals("[1]", gson.toJson(1));
+    assertEquals("1", gson.toJson(1));
   }
 
   public void testPrimitiveBooleanAutoboxed() {
-    assertEquals("[true]", gson.toJson(true));
-    assertEquals("[false]", gson.toJson(false));
+    assertEquals("true", gson.toJson(true));
+    assertEquals("false", gson.toJson(false));
   }
 
   public void testArrayOfOneValue() {
@@ -217,11 +217,11 @@ public class JsonSerializerTest extends TestCase {
   public void testCustomSerializers() {
     gson.registerSerializer(ClassWithCustomTypeConverter.class,
         new JsonSerializer<ClassWithCustomTypeConverter>() {
-      public void toJson(ClassWithCustomTypeConverter src, JsonBuilder json) {
-        JsonBuilder.ObjectBuilder obj = json.makeObject();
-        obj.addScalar("time", src.getUrl().toExternalForm());
-        obj.addScalar("value", src.getValue());
-        obj.finish();
+      public JsonElement toJson(ClassWithCustomTypeConverter src) {
+        JsonObject json = new JsonObject();
+        json.addProperty("url", src.getUrl().toExternalForm());
+        json.addProperty("value", src.getValue());
+        return json;
       }
     });
     ClassWithCustomTypeConverter target = new ClassWithCustomTypeConverter();
@@ -230,8 +230,8 @@ public class JsonSerializerTest extends TestCase {
 
   public void testNestedCustomSerializers() {
     gson.registerSerializer(URL.class, new JsonSerializer<URL>() {
-      public void toJson(URL src, JsonBuilder json) {
-        json.makeScalar(src.toExternalForm());
+      public JsonElement toJson(URL src) {
+        return new JsonPrimitive(src.toExternalForm());
       }
     });
     ClassWithCustomTypeConverter target = new ClassWithCustomTypeConverter();
@@ -255,11 +255,11 @@ public class JsonSerializerTest extends TestCase {
 
   private static class MyParameterizedSerializer<T>
       implements JsonSerializer<MyParameterizedType<T>> {
-    public void toJson(MyParameterizedType<T> src, JsonBuilder json) {
+    public JsonElement toJson(MyParameterizedType<T> src) {
+      JsonObject json = new JsonObject();
       T value = src.getValue();
-      JsonBuilder.ObjectBuilder obj = json.makeObject();
-      obj.addScalar(value.getClass().getSimpleName(), value);
-      obj.finish();
+      json.add(value.getClass().getSimpleName(), new JsonPrimitive(value));
+      return json;
     }
   }
 
@@ -277,7 +277,7 @@ public class JsonSerializerTest extends TestCase {
 
   public void testTopLevelEnum() {
     MyEnum target = MyEnum.VALUE1;
-    assertEquals("[" + target.getExpectedJson() + "]", gson.toJson(target));
+    assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 
   public void testClassWithEnumField() {
