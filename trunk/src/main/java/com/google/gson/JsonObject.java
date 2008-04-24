@@ -49,4 +49,22 @@ public final class JsonObject extends JsonElement {
   public JsonArray getAsArray(String property) {
     return (JsonArray) members.get(property);
   }
+
+  @Override
+  protected void toJson(StringBuilder sb) {
+    sb.append('{');
+    boolean first = true;
+    for (Map.Entry<String, JsonElement> entry : members.entrySet()) {
+      if (first) {
+        first = false;
+      } else {
+        sb.append(',');
+      }
+      sb.append('\"');
+      sb.append(entry.getKey());
+      sb.append("\":");
+      entry.getValue().toJson(sb);
+    }
+    sb.append('}');
+  }
 }
