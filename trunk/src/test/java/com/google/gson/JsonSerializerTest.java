@@ -43,6 +43,7 @@ import junit.framework.TestCase;
 
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
+import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
@@ -321,5 +322,11 @@ public class JsonSerializerTest extends TestCase {
     String urlValue = "http://google.com/";
     URL url = new URL(urlValue);
     assertEquals('"' + urlValue + '"', gson.toJson(url));    
+  }
+  
+  public void testDefaultSupportForUri() throws Exception {
+    String uriValue = "http://google.com/";
+    URI uri = new URI(uriValue);
+    assertEquals('"' + uriValue + '"', gson.toJson(uri));    
   }
 }
