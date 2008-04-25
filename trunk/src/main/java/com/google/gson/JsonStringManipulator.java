@@ -25,7 +25,7 @@ package com.google.gson;
  * 
  * @author Inderjeet Singh
  */
-public class JsonStringManipulator {
+public final class JsonStringManipulator {
   
   private final String json; 
   

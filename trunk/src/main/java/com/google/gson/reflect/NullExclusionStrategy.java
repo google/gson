@@ -26,7 +26,7 @@ import java.lang.reflect.Field;
  *
  * @author Joel Leitch
  */
-class NullExclusionStrategy implements ExclusionStrategy {
+final class NullExclusionStrategy implements ExclusionStrategy {
 
   public boolean shouldSkipField(Field f) {
     return false;

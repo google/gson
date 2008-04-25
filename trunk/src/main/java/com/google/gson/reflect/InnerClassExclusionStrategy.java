@@ -23,7 +23,7 @@ import java.lang.reflect.Field;
  *
  * @author Joel Leitch
  */
-public class InnerClassExclusionStrategy implements ExclusionStrategy {
+public final class InnerClassExclusionStrategy implements ExclusionStrategy {
 
   public boolean shouldSkipField(Field f) {
     return isAnonymousOrLocal(f.getType());

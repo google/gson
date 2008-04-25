@@ -30,7 +30,7 @@ import java.util.Map;
  *
  * @param <T> The handler that will be looked up by type
  */
-public class ParameterizedTypeHandlerMap<T> {
+public final class ParameterizedTypeHandlerMap<T> {
 
   private final Map<Type, T> map = Maps.newHashMap();
 

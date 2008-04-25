@@ -30,7 +30,7 @@ import java.util.Collection;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class ModifierBasedExclusionStrategy implements ExclusionStrategy {
+public final class ModifierBasedExclusionStrategy implements ExclusionStrategy {
   private final boolean skipSyntheticField;
   private final Collection<Integer> modifiers;
 

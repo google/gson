@@ -30,7 +30,7 @@ package com.google.gson;
  *
  * @author Joel Leitch
  */
-public class ParseException extends RuntimeException {
+public final class ParseException extends RuntimeException {
   static final long serialVersionUID = -4086729973971783390L;
 
   public ParseException(String msg) {
