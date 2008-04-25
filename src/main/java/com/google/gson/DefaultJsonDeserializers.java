@@ -20,6 +20,8 @@ import com.google.common.collect.Maps;
 
 import java.lang.reflect.Type;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Map;
 
@@ -36,6 +38,7 @@ final class DefaultJsonDeserializers {
     Map<Type, JsonDeserializer<?>> map = Maps.newHashMap();
     map.put(Enum.class, new EnumDeserializer());
     map.put(URL.class, new UrlDeserializer());
+    map.put(URI.class, new UriDeserializer());
     return map;
   }
 
@@ -53,6 +56,16 @@ final class DefaultJsonDeserializers {
         return new URL(json.getAsString());
       } catch (MalformedURLException e) {
         throw new ParseException(e);
+      }
+    }    
+  }
+  
+  private static class UriDeserializer implements JsonDeserializer<URI> {
+    public URI fromJson(Type typeOfT, JsonElement json) throws ParseException {
+      try {
+	  	return new URI(json.getAsString());
+      } catch (URISyntaxException e) {
+	    throw new ParseException(e);
       }
     }    
   }

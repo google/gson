@@ -43,6 +43,7 @@ import junit.framework.TestCase;
 
 import java.lang.reflect.Type;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Iterator;
@@ -458,5 +459,12 @@ public class JsonDeserializerTest extends TestCase {
     String json = '"' + urlValue + '"';
     URL target = gson.fromJson(URL.class, json);
     assertEquals(urlValue, target.toExternalForm());
+  }
+  
+  public void testDefaultSupportForUri() throws Exception {
+    String uriValue = "http://google.com/";
+    String json = '"' + uriValue + '"';
+    URI target = gson.fromJson(URI.class, json);
+    assertEquals(uriValue, target.toASCIIString());
   }
 }
