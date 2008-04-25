@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package com.google.gson.reflect;
 
-import com.google.gson.MemoryRefStack;
+import com.google.gson.reflect.MemoryRefStack;
 
 import junit.framework.TestCase;
 

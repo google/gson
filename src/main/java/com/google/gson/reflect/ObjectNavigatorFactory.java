@@ -16,7 +16,6 @@
 
 package com.google.gson.reflect;
 
-import com.google.gson.MemoryRefStack;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;

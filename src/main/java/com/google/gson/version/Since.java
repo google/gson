@@ -32,7 +32,7 @@ import java.lang.annotation.Target;
 public @interface Since {
   /**
    * the value indicating a version number since this member
-   * or type has been present.
+   * or type has been present. 
    */
-  double value() default -1.0;
+  double value() default VersionConstants.IGNORE_VERSIONS;
 }

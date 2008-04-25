@@ -21,7 +21,7 @@ package com.google.gson;
  * 
  * This class is useful if you need to work with the JSON elements exactly as 
  * they appear in the original JSON string. This is required, for example, 
- * when you are signing (or verifying signature) a JSON fragment.  
+ * when you are signing (or verifying signature of) a JSON fragment.  
  * 
  * @author Inderjeet Singh
  */

@@ -36,7 +36,7 @@ import java.util.logging.Logger;
  *
  * @author Joel Leitch
  */
-final class MappedObjectConstructor implements ObjectConstructor {
+public final class MappedObjectConstructor implements ObjectConstructor {
   private final Logger log = Logger.getLogger(getClass().getName());
 
   private final ParameterizedTypeHandlerMap<InstanceCreator<?>> instanceCreatorMap =

@@ -37,11 +37,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * This is the main class that a user of Gson will use. Gson is typically 
+ * used by first constructing a {@link #Gson()} object and then invoking 
+ * {@link #toJson(Object)} or {@link #fromJson(Class, String)} methods on it.
+ * You can also use {@link GsonBuilder} to build a Gson instance with options 
+ * such as versioning support. 
+ * 
  * This is a facade class which abstracts the details of the underlying JSON
- * serialization and deserialization subsystems. This is the main class that
- * a user of Gson will use. Gson is typically used by first constructing a
- * {@link #Gson()} object and then invoking {@link #toJson(Object)} or
- * {@link #fromJson(Class, String)} methods on it.
+ * serialization and deserialization subsystems. 
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
