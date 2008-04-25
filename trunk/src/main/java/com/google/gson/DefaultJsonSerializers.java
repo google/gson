@@ -19,6 +19,7 @@ package com.google.gson;
 import com.google.common.collect.Maps;
 
 import java.lang.reflect.Type;
+import java.net.URL;
 import java.util.Map;
 
 /**
@@ -33,6 +34,7 @@ final class DefaultJsonSerializers {
   static Map<Type, JsonSerializer<?>> getDefaultSerializers() {
     Map<Type, JsonSerializer<?>> map = Maps.newHashMap();
     map.put(Enum.class, new EnumSerializer());
+    map.put(URL.class, new UrlSerializer());
     return map;
   }
 
@@ -42,5 +44,12 @@ final class DefaultJsonSerializers {
     public JsonElement toJson(T src) {
       return new JsonPrimitive(src.name());
     }
+  }
+  
+  private static class UrlSerializer implements JsonSerializer<URL> {
+
+    public JsonElement toJson(URL src) {
+      return new JsonPrimitive(src.toExternalForm());
+    }    
   }
 }

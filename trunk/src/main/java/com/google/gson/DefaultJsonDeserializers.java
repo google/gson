@@ -19,6 +19,8 @@ package com.google.gson;
 import com.google.common.collect.Maps;
 
 import java.lang.reflect.Type;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Map;
 
 /**
@@ -33,14 +35,25 @@ final class DefaultJsonDeserializers {
   static Map<Type, JsonDeserializer<?>> getDefaultDeserializers() {
     Map<Type, JsonDeserializer<?>> map = Maps.newHashMap();
     map.put(Enum.class, new EnumDeserializer());
+    map.put(URL.class, new UrlDeserializer());
     return map;
   }
 
   @SuppressWarnings("unchecked")
   private static class EnumDeserializer<T extends Enum> implements JsonDeserializer<T> {
-
+    @SuppressWarnings("cast")
     public T fromJson(Type classOfT, JsonElement json) throws ParseException {
       return (T) Enum.valueOf((Class<T>)classOfT, json.getAsString());
     }
+  }
+  
+  private static class UrlDeserializer implements JsonDeserializer<URL> {
+    public URL fromJson(Type typeOfT, JsonElement json) throws ParseException {
+      try {
+        return new URL(json.getAsString());
+      } catch (MalformedURLException e) {
+        throw new ParseException(e);
+      }
+    }    
   }
 }

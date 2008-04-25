@@ -219,23 +219,23 @@ public class JsonSerializerTest extends TestCase {
         new JsonSerializer<ClassWithCustomTypeConverter>() {
       public JsonElement toJson(ClassWithCustomTypeConverter src) {
         JsonObject json = new JsonObject();
-        json.addProperty("url", src.getUrl().toExternalForm());
-        json.addProperty("value", src.getValue());
+        json.addProperty("bag", 5);
+        json.addProperty("value", 25);
         return json;
       }
     });
     ClassWithCustomTypeConverter target = new ClassWithCustomTypeConverter();
-    assertEquals(target.getExpectedJson(), gson.toJson(target));
+    assertEquals("{\"bag\":5,\"value\":25}", gson.toJson(target));
   }
 
   public void testNestedCustomSerializers() {
-    gson.registerSerializer(URL.class, new JsonSerializer<URL>() {
-      public JsonElement toJson(URL src) {
-        return new JsonPrimitive(src.toExternalForm());
+    gson.registerSerializer(BagOfPrimitives.class, new JsonSerializer<BagOfPrimitives>() {
+      public JsonElement toJson(BagOfPrimitives src) {
+        return new JsonPrimitive(6);
       }
     });
     ClassWithCustomTypeConverter target = new ClassWithCustomTypeConverter();
-    assertEquals(target.getExpectedJson(), gson.toJson(target));
+    assertEquals("{\"bag\":6,\"value\":10}", gson.toJson(target));
   }
 
   public void testArrayOfObjects() {
@@ -315,5 +315,11 @@ public class JsonSerializerTest extends TestCase {
     Gson gson = new GsonBuilder().setVersion(1.0).create();
     BagOfPrimitives target = new BagOfPrimitives(10, 20, false, "stringValue");
     assertEquals(target.getExpectedJson(), gson.toJson(target));    
+  }
+  
+  public void testDefaultSupportForUrl() throws Exception {
+    String urlValue = "http://google.com/";
+    URL url = new URL(urlValue);
+    assertEquals('"' + urlValue + '"', gson.toJson(url));    
   }
 }

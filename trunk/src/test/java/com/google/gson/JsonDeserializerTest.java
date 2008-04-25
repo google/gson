@@ -340,33 +340,26 @@ public class JsonDeserializerTest extends TestCase {
         new JsonDeserializer<ClassWithCustomTypeConverter>() {
       public ClassWithCustomTypeConverter fromJson(Type typeOfT, JsonElement json) {
         JsonObject jsonObject = json.getAsJsonObject();
-        String url = jsonObject.get("url").getAsString();
-        int value = jsonObject.get("value").getAsInt();
-        try {
-          return new ClassWithCustomTypeConverter(new URL(url), value);
-        } catch (MalformedURLException e) {
-          throw new ParseException(e);
-        }
+        int value = jsonObject.get("bag").getAsInt();
+        return new ClassWithCustomTypeConverter(new BagOfPrimitives(value, 
+            value, false, ""), value);
       }
     });
-    String json = new ClassWithCustomTypeConverter().getExpectedJson();
+    String json = "{\"bag\":5,\"value\":25}";
     ClassWithCustomTypeConverter target = gson.fromJson(ClassWithCustomTypeConverter.class, json);
-    assertEquals(json, target.getExpectedJson());
+    assertEquals(5, target.getBag().getIntValue());
   }
 
   public void testNestedCustomTypeConverters() {
-    gson.registerDeserializer(URL.class, new JsonDeserializer<URL>() {
-      public URL fromJson(Type typeOfT, JsonElement json) throws ParseException {
-        try {
-          return new URL(json.getAsString());
-        } catch (MalformedURLException e) {
-          throw new ParseException(e);
-        }
+    gson.registerDeserializer(BagOfPrimitives.class, new JsonDeserializer<BagOfPrimitives>() {
+      public BagOfPrimitives fromJson(Type typeOfT, JsonElement json) throws ParseException {
+        int value = json.getAsInt();
+        return new BagOfPrimitives(value, value, false, "");
       }
     });
-    String json = new ClassWithCustomTypeConverter().getExpectedJson();
+    String json = "{\"bag\":7,\"value\":25}";
     ClassWithCustomTypeConverter target = gson.fromJson(ClassWithCustomTypeConverter.class, json);
-    assertEquals(json, target.getExpectedJson());
+    assertEquals(7, target.getBag().getIntValue());
   }
 
   public void testArrayOfObjects() {
@@ -458,5 +451,12 @@ public class JsonDeserializerTest extends TestCase {
     ClassWithPrivateNoArgsConstructor target =
       gson.fromJson(ClassWithPrivateNoArgsConstructor.class, "{\"a\":20}");
     assertEquals(20, target.a);
+  }
+  
+  public void testDefaultSupportForUrl() throws Exception {
+    String urlValue = "http://google.com/";
+    String json = '"' + urlValue + '"';
+    URL target = gson.fromJson(URL.class, json);
+    assertEquals(urlValue, target.toExternalForm());
   }
 }

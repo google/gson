@@ -55,6 +55,10 @@ public class TestTypes {
       this.stringValue = stringValue;
     }
 
+    public int getIntValue() {
+      return intValue;
+    }
+    
     public String getExpectedJson() {
       StringBuilder sb = new StringBuilder();
       sb.append("{");
@@ -367,34 +371,31 @@ public class TestTypes {
   }
 
   public static class ClassWithCustomTypeConverter {
-    private final URL url;
+    private final BagOfPrimitives bag;
     private final int value;
 
-    private static URL makeDummyUrl() {
-      try {
-        return new URL("http://google.com/");
-      } catch (MalformedURLException e) {
-        throw new RuntimeException(e);
-      } 
-    }
-    
     public ClassWithCustomTypeConverter() {
-      this(makeDummyUrl(), 10);
+      this(new BagOfPrimitives(), 10);
     }
 
-    public ClassWithCustomTypeConverter(URL url, int value) {
-      this.url = url;
+    public ClassWithCustomTypeConverter(int value) {
+      this(new BagOfPrimitives(value, value, false, ""), value);
+    }
+    
+    public ClassWithCustomTypeConverter(BagOfPrimitives bag, int value) {
+      this.bag = bag;
       this.value = value;
     }
 
-    public URL getUrl() {
-      return url;
+    public BagOfPrimitives getBag() {
+      return bag;
     }
+    
     public String getExpectedJson() {
-      return "{\"url\":\"" + url.toExternalForm() + "\",\"value\":" + value + "}";
+      return "{\"url\":\"" + bag.getExpectedJson() + "\",\"value\":" + value + "}";
     }
     public String getExpectedString() {
-      return "{url:" + url.toExternalForm() + ",value:" + value + "}";
+      return "{url:" + bag.getExpectedJson() + ",value:" + value + "}";
     }
     public int getValue() {
       return value;
