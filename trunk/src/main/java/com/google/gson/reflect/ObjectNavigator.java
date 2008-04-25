@@ -144,7 +144,7 @@ public final class ObjectNavigator {
         visitor.visitEnum(obj, objType);
       } else if (objTypeInfo.isPrimitiveOrStringAndNotAnArray()) {
         visitor.visitPrimitiveValue(obj);
-      } else if (objType == Object.class) {
+      } else if (objType == Object.class && isPrimitive(obj)) {
         // If we do NOT have any type information for the object, try
         // treating it as a primitive
         visitor.visitPrimitiveValue(obj);
@@ -190,5 +190,22 @@ public final class ObjectNavigator {
 
   private static boolean isCollectionOrArray(TypeInfo<?> typeInfo) {
     return Collection.class.isAssignableFrom(typeInfo.getTopLevelClass()) || typeInfo.isArray();
+  }
+  
+  @SuppressWarnings("unchecked")
+  private static final Class[] PRIMITIVE_TYPES = {int.class, long.class, short.class, float.class, 
+    double.class, byte.class, boolean.class, Integer.class, Long.class, Short.class, Float.class, 
+    Double.class, Byte.class, Boolean.class}; 
+
+  @SuppressWarnings("unchecked")
+  public static boolean isPrimitive(Object primitive) {
+    Class<?> classOfPrimitive = primitive.getClass();
+    
+    for (Class standardPrimitive : PRIMITIVE_TYPES) {
+      if (standardPrimitive.isAssignableFrom(classOfPrimitive)) {
+        return true;
+      }
+    }
+    return false;
   }
 }

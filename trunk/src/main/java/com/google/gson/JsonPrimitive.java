@@ -17,6 +17,7 @@
 package com.google.gson;
 
 import com.google.common.base.Preconditions;
+import com.google.gson.reflect.ObjectNavigator;
 
 /**
  * A class representing a Json primitive value. A primitive value 
@@ -29,11 +30,6 @@ public final class JsonPrimitive extends JsonElement {
   
   private Object value;
   
-  @SuppressWarnings("unchecked")
-  private static final Class[] PRIMITIVE_TYPES = {int.class, long.class, short.class, float.class, 
-    double.class, byte.class, boolean.class, Integer.class, Long.class, Short.class, Float.class, 
-    Double.class, Byte.class, Boolean.class}; 
-
   public JsonPrimitive(Boolean bool) {
     this.value = bool;
   }
@@ -57,28 +53,16 @@ public final class JsonPrimitive extends JsonElement {
   public JsonPrimitive(Object primitive) {
     if (primitive instanceof Character) {
       // convert characters to strings since in JSON, characters are represented as a single 
-      // chacater string 
+      // character string 
       char c = ((Character)primitive).charValue();
       this.value = String.valueOf(c);
     } else {
       Preconditions.checkArgument(primitive instanceof Number || primitive instanceof String ||
-          isPrimitive(primitive));
+          ObjectNavigator.isPrimitive(primitive));
       this.value = primitive;
     }
   }
   
-  @SuppressWarnings("unchecked")
-  private boolean isPrimitive(Object primitive) {
-    Class<?> classOfPrimitive = primitive.getClass();
-    
-    for (Class standardPrimitive : PRIMITIVE_TYPES) {
-      if (classOfPrimitive.isAssignableFrom(standardPrimitive)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   public boolean isBoolean() {
     return value instanceof Boolean;
   }
