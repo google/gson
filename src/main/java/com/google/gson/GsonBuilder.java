@@ -34,7 +34,7 @@ import java.util.List;
  * 
  * @author Inderjeet Singh
  */
-public class GsonBuilder {
+public final class GsonBuilder {
   
   private double ignoreVersionsAfter;
   private ModifierBasedExclusionStrategy modifierBasedExclusionStrategy;

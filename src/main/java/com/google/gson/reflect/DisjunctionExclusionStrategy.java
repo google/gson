@@ -28,7 +28,7 @@ import java.util.Collection;
  *
  * @author Joel Leitch
  */
-public class DisjunctionExclusionStrategy implements ExclusionStrategy {
+public final class DisjunctionExclusionStrategy implements ExclusionStrategy {
   private final Collection<ExclusionStrategy> strategies;
 
   public DisjunctionExclusionStrategy(ExclusionStrategy... strategies) {

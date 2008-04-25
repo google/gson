@@ -28,7 +28,7 @@ import java.lang.reflect.Field;
  *
  * @author Joel Leitch
  */
-public class VersionExclusionStrategy implements ExclusionStrategy {
+public final class VersionExclusionStrategy implements ExclusionStrategy {
   private final double version;
 
   public VersionExclusionStrategy(double version) {

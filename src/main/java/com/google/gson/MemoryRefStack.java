@@ -27,7 +27,7 @@ import java.util.Stack;
  *
  * @author Joel Leitch
  */
-public class MemoryRefStack<T> {
+public final class MemoryRefStack<T> {
   private final Stack<T> stack = new Stack<T>();
 
   /**
