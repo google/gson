@@ -17,7 +17,6 @@
 package com.google.gson.reflect;
 
 import com.google.common.base.Preconditions;
-import com.google.gson.MemoryRefStack;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;

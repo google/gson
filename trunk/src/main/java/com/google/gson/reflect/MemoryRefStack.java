@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package com.google.gson.reflect;
 
 import com.google.common.base.Preconditions;
 
@@ -27,7 +27,7 @@ import java.util.Stack;
  *
  * @author Joel Leitch
  */
-public final class MemoryRefStack<T> {
+final class MemoryRefStack<T> {
   private final Stack<T> stack = new Stack<T>();
 
   /**
