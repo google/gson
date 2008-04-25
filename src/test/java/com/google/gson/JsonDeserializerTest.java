@@ -89,6 +89,27 @@ public class JsonDeserializerTest extends TestCase {
     assertEquals(value, actual);
   }
 
+  @SuppressWarnings("unchecked")
+  public void testRawCollectionOfBagOfPrimitives() {
+    try {
+      BagOfPrimitives bag = new BagOfPrimitives(10, 20, false, "stringValue");
+      String json = '[' + bag.getExpectedJson() + ',' + bag.getExpectedJson() + ']';
+      Collection target = gson.fromJson(Collection.class, json);
+      assertEquals(2, target.size());
+      for (BagOfPrimitives bag1 : (Collection<BagOfPrimitives>) target) {
+        assertEquals(bag.getExpectedJson(), bag1.getExpectedJson());
+      }
+      fail("Raw collection of objects should not work");
+    } catch (ParseException expected) {      
+    }
+  }
+  
+  public void testReallyLongValues() {
+    String json = "333961828784581";
+    long value = gson.fromJson(Long.class, json);
+    assertEquals(333961828784581L, value);
+  }
+
   public void testStringValueAsSingleElementArray() throws Exception {
     String value = "someRandomStringValue";
     String actual = gson.fromJson(String.class, "[\"" + value + "\"]");
@@ -189,8 +210,16 @@ public class JsonDeserializerTest extends TestCase {
     String json = "[0,1,2,3,4,5,6,7,8,9]";
     Type collectionType = new TypeToken<Collection<Integer>>() { }.getType();
     Collection<Integer> target = gson.fromJson(collectionType, json);
-    Collection<Integer> expected = ImmutableList.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-    assertEqualContents(expected, target);
+    int[] expected = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    MoreAsserts.assertEquals(expected, toIntArray(target));
+  }
+
+  @SuppressWarnings("unchecked")
+  public void testRawCollectionOfInteger() {
+    String json = "[0,1,2,3,4,5,6,7,8,9]";
+	Collection<Integer> target = gson.fromJson(Collection.class, json);
+	Collection<Integer> expected = ImmutableList.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+	MoreAsserts.assertEquals(toIntArray(expected), toIntArray(target));
   }
 
   public void testListOfIntegerCollections() throws Exception {
@@ -204,18 +233,23 @@ public class JsonDeserializerTest extends TestCase {
     }
 
     for (int i = 0; i < 3; i++) {
-      assertEqualContents(expected.get(i), target.get(i));
+      MoreAsserts.assertEquals(toIntArray(expected.get(i)), toIntArray(target.get(i)));
     }
   }
-
-  private static void assertEqualContents(Collection<Integer> ints1,
-      Collection<Integer> ints2) {
-    assertEquals(ints1.size(), ints2.size());
-    Iterator<Integer> it2 = ints2.iterator();
-    for (Integer int1 : ints1) {
-      Integer int2 = it2.next();
-      assertEquals(int1, int2);
+  
+  @SuppressWarnings("unchecked")
+  private static int[] toIntArray(Collection collection) {
+    int[] ints = new int[collection.size()];
+    int i = 0;
+    for (Iterator iterator = collection.iterator(); iterator.hasNext(); ++i) {
+      Object obj = iterator.next();
+      if (obj instanceof Integer) {
+        ints[i] = ((Integer)obj).intValue();
+      } else if (obj instanceof Long) {
+        ints[i] = ((Long)obj).intValue();
+      }
     }
+    return ints;
   }
 
   public void testClassWithTransientFields() throws Exception {
@@ -351,7 +385,8 @@ public class JsonDeserializerTest extends TestCase {
       implements JsonDeserializer<MyParameterizedType<T>> {
     @SuppressWarnings("unchecked")
     public MyParameterizedType<T> fromJson(Type typeOfT, JsonElement json) throws ParseException {
-      String className = new TypeInfo<Object>(typeOfT).getGenericClass().getSimpleName();
+      Type genericClass = new TypeInfo<Object>(typeOfT).getGenericClass();
+      String className = new TypeInfo<Object>(genericClass).getTopLevelClass().getSimpleName();
       T value = (T) json.getAsJsonObject().get(className).getAsObject();
       return new MyParameterizedType<T>(value);
     }
@@ -370,17 +405,17 @@ public class JsonDeserializerTest extends TestCase {
   }
 
   public void testParameterizedTypesWithCustomDeserializer() {
-    Type ptIntegerType = new TypeToken<MyParameterizedType<Integer>>() {}.getType();
+    Type ptIntegerType = new TypeToken<MyParameterizedType<Long>>() {}.getType();
     Type ptStringType = new TypeToken<MyParameterizedType<String>>() {}.getType();
-    gson.registerDeserializer(ptIntegerType, new MyParameterizedDeserializer<Integer>());
+    gson.registerDeserializer(ptIntegerType, new MyParameterizedDeserializer<Long>());
     gson.registerDeserializer(ptStringType, new MyParameterizedDeserializer<String>());
     gson.registerInstanceCreator(ptIntegerType,
-        new MyParameterizedTypeInstanceCreator<Integer>(0));
+        new MyParameterizedTypeInstanceCreator<Long>(new Long(0)));
     gson.registerInstanceCreator(ptStringType,
         new MyParameterizedTypeInstanceCreator<String>(""));
 
-    String json = new MyParameterizedType<Integer>(10).getExpectedJson();
-    MyParameterizedType<Integer> intTarget = gson.fromJson(ptIntegerType, json);
+    String json = new MyParameterizedType<Long>(new Long(10)).getExpectedJson();
+    MyParameterizedType<Long> intTarget = gson.fromJson(ptIntegerType, json);
     assertEquals(json, intTarget.getExpectedJson());
 
     json = new MyParameterizedType<String>("abc").getExpectedJson();

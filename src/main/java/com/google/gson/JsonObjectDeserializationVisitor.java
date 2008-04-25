@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import com.google.gson.reflect.ObjectNavigator;
 import com.google.gson.reflect.ObjectNavigatorFactory;
 import com.google.gson.reflect.TypeInfo;
 
@@ -93,6 +94,9 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
         JsonArray jsonArray = jsonObject.get(fName).getAsJsonArray();
         for (JsonElement jsonChild : jsonArray) {          
           Object child = visitChild(childType, jsonChild);
+          if (childType == Object.class && !ObjectNavigator.isPrimitive(child)) {
+            throw new ParseException(fName + " can not be a raw collection. Try making it a genericized collection instead");
+          }
           collection.add(child);
         }
       } else {

@@ -22,6 +22,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+@SuppressWarnings("all")
 public final class JsonParser {
 
 }
@@ -144,7 +145,7 @@ private JsonPrimitive JsonNumber() :
     } else if (fracpart != null) {
       n = new Double(intpart + fracpart); 
     } else {
-      n = new Integer(intpart);
+      n = new Long(intpart);
     }
     return new JsonPrimitive(n); 
   }

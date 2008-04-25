@@ -19,6 +19,7 @@ package com.google.gson.reflect;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Collection;
 
 /**
  * Class that represents a constructor or method parameter.  The class in which
@@ -32,14 +33,18 @@ public class TypeInfo<T> {
   private final Class<T> topLevel;
   private final Class<?> componentType;
   private final Class<?> secondLevel;
-  private final Class<?> genericOfTopLevel;
+  private final Type genericOfTopLevel;
 
-  private TypeInfo(Class<T> topLevel, boolean isArray, Class<?> genericClass) {
+  private TypeInfo(Class<T> topLevel, boolean isArray, Type genericClass) {
     this.isArray = isArray;
     this.topLevel = topLevel;
     Class<?> rootComponentType = topLevel;
-    while (rootComponentType.isArray()) {
-      rootComponentType = rootComponentType.getComponentType();
+//    if (Collection.class.isAssignableFrom(rootComponentType)) {
+//      genericClass
+//    } else {
+      while (rootComponentType.isArray()) {
+        rootComponentType = rootComponentType.getComponentType();
+//      }
     }
     componentType = rootComponentType;
     this.secondLevel = (topLevel.isArray() ? topLevel.getComponentType() : topLevel);
@@ -82,7 +87,7 @@ public class TypeInfo<T> {
     return topLevel.isEnum();
   }
 
-  public Class<?> getGenericClass() {
+  public Type getGenericClass() {
     return genericOfTopLevel;
   }
 
@@ -99,11 +104,11 @@ public class TypeInfo<T> {
     }
   }
 
-  private static Class<?> toGenericClass(Type type) {
+  private static Type toGenericClass(Type type) {
     if (type instanceof Class) {
       return Object.class;
     } else if (type instanceof ParameterizedType) {
-      return toClass(((ParameterizedType)type).getActualTypeArguments()[0]);
+      return ((ParameterizedType)type).getActualTypeArguments()[0];
     } else if (type instanceof GenericArrayType) {
       return toGenericClass(((GenericArrayType)type).getGenericComponentType());
     } else {

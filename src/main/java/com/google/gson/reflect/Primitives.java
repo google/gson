@@ -116,5 +116,5 @@ public final class Primitives {
     @SuppressWarnings("unchecked")
     Class<T> unwrapped = (Class<T>) WRAPPER_TO_PRIMITIVE_TYPE.get(type);
     return (unwrapped == null) ? type : unwrapped;
-  }
+  }  
 }
