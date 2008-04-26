@@ -59,7 +59,7 @@ public final class MappedObjectConstructor implements ObjectConstructor {
     }
   }
 
-  public final Object constructArray(Type type, int length) {
+  public Object constructArray(Type type, int length) {
     return Array.newInstance(TypeInfo.toClass(type), length);
   }
 

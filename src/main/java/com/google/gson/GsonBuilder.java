@@ -16,6 +16,8 @@
 
 package com.google.gson;
 
+import java.util.List;
+
 import com.google.common.collect.Lists;
 import com.google.gson.reflect.DisjunctionExclusionStrategy;
 import com.google.gson.reflect.ExclusionStrategy;
@@ -24,9 +26,6 @@ import com.google.gson.reflect.ModifierBasedExclusionStrategy;
 import com.google.gson.reflect.ObjectNavigatorFactory;
 import com.google.gson.version.VersionConstants;
 import com.google.gson.version.VersionExclusionStrategy;
-
-import java.lang.reflect.Modifier;
-import java.util.List;
 
 /**
  * Use this builder to construct a Gson instance in situations where
@@ -66,8 +65,9 @@ public final class GsonBuilder {
    * marked transient or static. This method will override that behavior. 
    *  
    * @param modifiers the field modifiers. You must use the modifiers
-   *        specified in the {@link Modifier} class. For example, 
-   *        {@link Modifier#TRANSIENT}, {@link Modifier#STATIC}
+   *        specified in the {@link java.lang.reflect.Modifier} class. For example, 
+   *        {@link java.lang.reflect.Modifier#TRANSIENT}, 
+   *        {@link java.lang.reflect.Modifier#STATIC}
    */
   public GsonBuilder excludeFieldsWithModifiers(int... modifiers) {
     boolean skipSynthetics = true;

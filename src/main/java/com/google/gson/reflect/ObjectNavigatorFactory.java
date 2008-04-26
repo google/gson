@@ -16,8 +16,6 @@
 
 package com.google.gson.reflect;
 
-
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 /**
@@ -61,7 +59,7 @@ public final class ObjectNavigatorFactory {
    *
    * @param srcObject object to navigate
    * @param type the "actual" type of this {@code srcObject}.  NOTE: this can
-   *        be a {@link ParameterizedType} rather than a {@link Class}.
+   *        be a {@link java.lang.reflect.ParameterizedType} rather than a {@link Class}.
    * @return a new instance of a {@link ObjectNavigator} ready to navigate the
    *         {@code srcObject} while taking into consideration the
    *         {@code type}.

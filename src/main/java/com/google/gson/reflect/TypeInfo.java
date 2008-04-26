@@ -19,7 +19,6 @@ package com.google.gson.reflect;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Collection;
 
 /**
  * Class that represents a constructor or method parameter.  The class in which
@@ -39,12 +38,8 @@ public class TypeInfo<T> {
     this.isArray = isArray;
     this.topLevel = topLevel;
     Class<?> rootComponentType = topLevel;
-//    if (Collection.class.isAssignableFrom(rootComponentType)) {
-//      genericClass
-//    } else {
-      while (rootComponentType.isArray()) {
-        rootComponentType = rootComponentType.getComponentType();
-//      }
+    while (rootComponentType.isArray()) {
+      rootComponentType = rootComponentType.getComponentType();
     }
     componentType = rootComponentType;
     this.secondLevel = (topLevel.isArray() ? topLevel.getComponentType() : topLevel);

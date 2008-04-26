@@ -75,10 +75,8 @@ public final class JsonStringManipulator {
             count++;
           }
         }
-      } else if (data[index] == matchingEnd) {
-        if (!isEscapedCharacter(data, index)) {
-          count--;
-        }
+      } else if (data[index] == matchingEnd && !isEscapedCharacter(data, index)) {
+        count--;
       }
       if (count == 0) {
         return index;
