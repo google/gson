@@ -40,12 +40,10 @@ final class ParameterizedTypeHandlerMap<T> {
 
   public T getHandlerFor(Type type) {
     T handler = map.get(type);
-    if (handler == null) {
-      // see if a handler for a non-generic version is registered
-      if (type instanceof ParameterizedType) {
-        Type rawType = ((ParameterizedType)type).getRawType();
-        handler = map.get(rawType);
-      }
+    if (handler == null && type instanceof ParameterizedType) {
+      // a handler for a non-generic version is registered, so use that
+      Type rawType = ((ParameterizedType)type).getRawType();
+      handler = map.get(rawType);
     }
     return handler;
   }
