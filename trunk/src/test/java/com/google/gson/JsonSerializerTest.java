@@ -220,7 +220,8 @@ public class JsonSerializerTest extends TestCase {
   public void testCustomSerializers() {
     gson.registerSerializer(ClassWithCustomTypeConverter.class,
         new JsonSerializer<ClassWithCustomTypeConverter>() {
-      public JsonElement toJson(ClassWithCustomTypeConverter src, JsonSerializer.Context context) {
+      public JsonElement toJson(ClassWithCustomTypeConverter src, Type typeOfSrc, 
+          JsonSerializer.Context context) {
         JsonObject json = new JsonObject();
         json.addProperty("bag", 5);
         json.addProperty("value", 25);
@@ -233,7 +234,8 @@ public class JsonSerializerTest extends TestCase {
 
   public void testNestedCustomSerializers() {
     gson.registerSerializer(BagOfPrimitives.class, new JsonSerializer<BagOfPrimitives>() {
-      public JsonElement toJson(BagOfPrimitives src, JsonSerializer.Context context) {
+      public JsonElement toJson(BagOfPrimitives src, Type typeOfSrc, 
+          JsonSerializer.Context context) {
         return new JsonPrimitive(6);
       }
     });
@@ -258,10 +260,11 @@ public class JsonSerializerTest extends TestCase {
 
   private static class MyParameterizedSerializer<T>
       implements JsonSerializer<MyParameterizedType<T>> {
-    public JsonElement toJson(MyParameterizedType<T> src, JsonSerializer.Context context) {
+    public JsonElement toJson(MyParameterizedType<T> src, Type classOfSrc, 
+        JsonSerializer.Context context) {
       JsonObject json = new JsonObject();
       T value = src.getValue();
-      json.add(value.getClass().getSimpleName(), new JsonPrimitive(value));
+      json.add(value.getClass().getSimpleName(), context.serialize(value));
       return json;
     }
   }
@@ -334,7 +337,8 @@ public class JsonSerializerTest extends TestCase {
 
   public void testMap() throws Exception {
     Map<String, Integer> map = Maps.immutableMap("a", 1, "b", 2);
-    String json = gson.toJson(map);
+    Type typeOfMap = new TypeToken<Map<String, Integer>>() {}.getType();
+    String json = gson.toJson(map, typeOfMap);
     assertTrue(json.contains("\"a\":1"));
     assertTrue(json.contains("\"b\":2"));
   }

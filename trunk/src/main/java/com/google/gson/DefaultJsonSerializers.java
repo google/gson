@@ -16,13 +16,14 @@
 
 package com.google.gson;
 
+import com.google.common.collect.Maps;
+import com.google.gson.reflect.MapTypeInfo;
+
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.Map;
-
-import com.google.common.collect.Maps;
 
 /**
  * Default JSON serializers for common Java types
@@ -45,21 +46,21 @@ final class DefaultJsonSerializers {
   @SuppressWarnings("unchecked")
   private static class EnumSerializer<T extends Enum> implements JsonSerializer<T> {
 
-    public JsonElement toJson(T src, JsonSerializer.Context context) {
+    public JsonElement toJson(T src, Type typeOfSrc, JsonSerializer.Context context) {
       return new JsonPrimitive(src.name());
     }
   }
   
   private static class UrlSerializer implements JsonSerializer<URL> {
 	  
-    public JsonElement toJson(URL src, JsonSerializer.Context context) {
+    public JsonElement toJson(URL src, Type typeOfSrc, JsonSerializer.Context context) {
       return new JsonPrimitive(src.toExternalForm());
     }    
   }
   
   private static class UriSerializer implements JsonSerializer<URI> {
 
-    public JsonElement toJson(URI src, JsonSerializer.Context context) {
+    public JsonElement toJson(URI src, Type typeOfSrc, JsonSerializer.Context context) {
       return new JsonPrimitive(src.toASCIIString());
     }    
   }
@@ -68,14 +69,15 @@ final class DefaultJsonSerializers {
   private static class MapSerializer implements JsonSerializer<Map> {
 
     @SuppressWarnings("unchecked")
-    public JsonElement toJson(Map src, JsonSerializer.Context context) {
+    public JsonElement toJson(Map src, Type typeOfSrc, JsonSerializer.Context context) {
       JsonObject map = new JsonObject();
+      Type childType = new MapTypeInfo(typeOfSrc).getValueType();     
       for (Iterator iterator = src.entrySet().iterator(); iterator.hasNext(); ) {
         Map.Entry entry = (Map.Entry) iterator.next();
-        JsonElement valueElement = context.serialize(entry.getValue());
+        JsonElement valueElement = context.serialize(entry.getValue(), childType);
         map.add(entry.getKey().toString(), valueElement);
       }
       return map;
     }    
-  }
+  }  
 }

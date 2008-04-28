@@ -83,7 +83,7 @@ public final class MappedObjectConstructor implements ObjectConstructor {
     }
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "cast"})
   private <T> Constructor<T> getNoArgsConstructor(Type typeOfT) {
     TypeInfo<T> typeInfo = new TypeInfo<T>(typeOfT);
     Class<T> clazz = (Class<T>) typeInfo.getTopLevelClass();

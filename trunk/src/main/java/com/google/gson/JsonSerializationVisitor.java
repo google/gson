@@ -107,7 +107,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
       throw new RuntimeException("Register a JsonSerializer for Enum or "
           + obj.getClass().getName());
     }    
-    assignToRoot(serializer.toJson(obj, context));
+    assignToRoot(serializer.toJson(obj, objType, context));
   }
 
   public void visitObjectField(Field f, Object obj) {
@@ -130,7 +130,8 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
 
   private JsonElement getJsonElementForChild(Type fieldType, Object fieldValue) {
     ObjectNavigator on = factory.create(fieldValue, fieldType);
-    JsonSerializationVisitor childVisitor = new JsonSerializationVisitor(factory, serializers, context);
+    JsonSerializationVisitor childVisitor = 
+        new JsonSerializationVisitor(factory, serializers, context);
     on.accept(childVisitor);
     return childVisitor.getJsonElement();
   }
@@ -159,7 +160,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
       serializer = serializers.getHandlerFor(Map.class);
     }    
     if (serializer != null) {
-      assignToRoot(serializer.toJson(obj, context));
+      assignToRoot(serializer.toJson(obj, objType, context));
       return true;
     } else {
       return false;
