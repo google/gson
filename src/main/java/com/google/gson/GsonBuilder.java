@@ -83,6 +83,7 @@ public final class GsonBuilder {
    * white-space.
    *  
    * @param formatter the new formatter to use
+   * @see JsonPrintFormatter
    */
   public GsonBuilder setFormatter(JsonFormatter formatter) {
     this.formatter = formatter;
