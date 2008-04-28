@@ -19,6 +19,8 @@ package com.google.gson;
 import com.google.common.collect.Maps;
 
 import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 
 /**
  * A class representing an object type in Json. An object consists of 
@@ -45,7 +47,10 @@ public final class JsonObject extends JsonElement {
   public void addProperty(String property, Number value) {
     members.put(property, new JsonPrimitive(value));
   }
-  
+
+  public Set<Entry<String, JsonElement>> getEntries() {
+    return members.entrySet();
+  }
   public boolean has(String property) {
     return members.containsKey(property);
   }

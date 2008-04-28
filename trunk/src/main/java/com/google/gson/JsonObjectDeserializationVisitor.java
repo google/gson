@@ -36,8 +36,9 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
   @SuppressWarnings("unchecked")
   JsonObjectDeserializationVisitor(JsonElement json, Type type,
       ObjectNavigatorFactory factory, ObjectConstructor objectConstructor,
-      TypeAdapter typeAdapter, ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers) {
-    super(json, factory, objectConstructor, typeAdapter, deserializers);
+      TypeAdapter typeAdapter, ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers, 
+      JsonDeserializer.Context context) {
+    super(json, factory, objectConstructor, typeAdapter, deserializers, context);
     this.target = (T) objectConstructor.construct(type);
   }
 
