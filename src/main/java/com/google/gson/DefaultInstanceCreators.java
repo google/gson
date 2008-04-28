@@ -24,6 +24,7 @@ import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -79,8 +80,9 @@ final class DefaultInstanceCreators {
     map.put(SortedSet.class, treeSetCreator);
 // Supported for JDK 1.6 only    map.put(NavigableSet.class, treeSetCreator);
 
-    // Add enum instance creator
+    // Add instance creators for other common objects
     map.put(Enum.class, new EnumCreator());
+    map.put(Map.class, new MapCreator());
     map.put(URL.class, new UrlCreator());    
 
     return map;
@@ -172,5 +174,13 @@ final class DefaultInstanceCreators {
         throw new RuntimeException(e);
       }
     }
+  }
+  
+  private static class MapCreator implements InstanceCreator<Map> {
+
+    @SuppressWarnings("unchecked")
+    public Map createInstance(Type type) {
+      return new LinkedHashMap();
+    }    
   }
 }

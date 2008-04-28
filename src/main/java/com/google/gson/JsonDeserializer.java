@@ -29,6 +29,10 @@ import java.lang.reflect.Type;
  * generic type of the T.
  */
 public interface JsonDeserializer<T> {
+  
+  public interface Context {
+    public <T> T deserialize(Type typeOfT, JsonElement json) throws ParseException;
+  }
 
   /**
    * @param typeOfT The type of the Object to deserialize to
@@ -38,5 +42,5 @@ public interface JsonDeserializer<T> {
    * @throws ParseException if json is not in the expected format of
    *         {@code typeofT}
    */
-  public T fromJson(Type typeOfT, JsonElement json) throws ParseException;
+  public T fromJson(Type typeOfT, JsonElement json, Context context) throws ParseException;
 }

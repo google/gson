@@ -38,8 +38,9 @@ final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisito
   @SuppressWarnings("unchecked")
   JsonArrayDeserializationVisitor(JsonArray jsonArray, Type arrayType,
       ObjectNavigatorFactory factory, ObjectConstructor objectConstructor,
-      TypeAdapter typeAdapter, ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers) {
-    super(jsonArray, factory, objectConstructor, typeAdapter, deserializers);
+      TypeAdapter typeAdapter, ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers, 
+      JsonDeserializer.Context context) {
+    super(jsonArray, factory, objectConstructor, typeAdapter, deserializers, context);
 
     TypeInfo<T> arrayTypeInfo = new TypeInfo<T>(arrayType);
     this.componentType = arrayTypeInfo.getSecondLevelClass();

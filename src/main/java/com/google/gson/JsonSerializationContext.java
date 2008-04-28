@@ -5,6 +5,11 @@ import java.lang.reflect.Type;
 import com.google.gson.reflect.ObjectNavigator;
 import com.google.gson.reflect.ObjectNavigatorFactory;
 
+/**
+ * An implementation of serialization context for Gson
+ * 
+ * @author Inderjeet Singh
+ */
 final class JsonSerializationContext implements JsonSerializer.Context {
   
   private final ObjectNavigatorFactory factory;

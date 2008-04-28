@@ -264,9 +264,7 @@ public final class Gson {
     }
     ObjectNavigator on = navigatorFactory.create(src, typeOfSrc);
     JsonSerializer.Context context = new JsonSerializationContext(navigatorFactory, serializers);
-    JsonSerializationVisitor visitor = new JsonSerializationVisitor(navigatorFactory, serializers, context);
-    on.accept(visitor);
-    JsonElement jsonElement = visitor.getJsonElement();
+    JsonElement jsonElement = context.serialize(src, typeOfSrc);
     return jsonElement == null ? "" : jsonElement.toJson();
   }
 
@@ -301,53 +299,13 @@ public final class Gson {
       StringReader reader = new StringReader(json);
       JsonParser parser = new JsonParser(reader);
       JsonElement root = parser.parse();
-      if (root.isArray()) {
-        return (T) fromJsonArray(typeOfT, root.getAsJsonArray());
-      } else if (root.isObject()) {
-        return (T) fromJsonObject(typeOfT, root.getAsJsonObject());
-      } else if (root.isPrimitive()) {
-        return (T) fromJsonPrimitive(typeOfT, root.getAsJsonPrimitive());
-      } else {
-        throw new ParseException("Failed parsing JSON source: " + json + " to Json");
-      }
+      JsonDeserializer.Context context = new JsonDeserializationContext(navigatorFactory, 
+          deserializers, objectConstructor, typeAdapter);
+      return context.deserialize(typeOfT, root);
     } catch (TokenMgrError e) {
       throw new ParseException("Failed parsing JSON source: " + json + " to Json", e);
     } catch (com.google.gson.parser.ParseException e) {
       throw new ParseException("Failed parsing JSON source: " + json + " to Json", e);
     }
-  }
-
-  @SuppressWarnings("unchecked")
-  private <T> T fromJsonArray(Type arrayType, JsonArray jsonArray) throws ParseException {
-    JsonArrayDeserializationVisitor<T> visitor = new JsonArrayDeserializationVisitor<T>(
-        jsonArray, arrayType, navigatorFactory, objectConstructor, typeAdapter, deserializers);
-    Object target = visitor.getTarget();
-    ObjectNavigator on = navigatorFactory.create(target, arrayType);
-    on.accept(visitor);
-    return visitor.getTarget();
-  }
-
-  @SuppressWarnings("unchecked")
-  private <T> T fromJsonObject(Type typeOfT, JsonObject jsonObject) throws ParseException {
-    JsonObjectDeserializationVisitor<T> visitor = new JsonObjectDeserializationVisitor<T>(
-        jsonObject, typeOfT, navigatorFactory, objectConstructor, typeAdapter, deserializers);
-    Object target = visitor.getTarget();
-    ObjectNavigator on = navigatorFactory.create(target, typeOfT);
-    on.accept(visitor);
-    return visitor.getTarget();
-  }
-  
-  @SuppressWarnings("unchecked")
-  private <T> T fromJsonPrimitive(Type typeOfT, JsonPrimitive json) throws ParseException {
-    JsonPrimitiveDeserializationVisitor<T> visitor = new JsonPrimitiveDeserializationVisitor<T>(
-        json, typeOfT, navigatorFactory, objectConstructor, typeAdapter, deserializers);
-    Object target = visitor.getTarget();
-    ObjectNavigator on = navigatorFactory.create(target, typeOfT);
-    on.accept(visitor);
-    target = visitor.getTarget();
-    if (typeOfT instanceof Class) {
-      target = typeAdapter.adaptType(target, (Class) typeOfT);
-    }
-    return (T) target;    
   }
 }

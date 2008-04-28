@@ -17,12 +17,15 @@
 package com.google.gson;
 
 import com.google.common.collect.Maps;
+import com.google.gson.reflect.MapTypeInfo;
+import com.google.gson.reflect.TypeInfo;
 
 import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -37,6 +40,7 @@ final class DefaultJsonDeserializers {
   static Map<Type, JsonDeserializer<?>> getDefaultDeserializers() {
     Map<Type, JsonDeserializer<?>> map = Maps.newHashMap();
     map.put(Enum.class, new EnumDeserializer());
+    map.put(Map.class, new MapDeserializer());
     map.put(URL.class, new UrlDeserializer());
     map.put(URI.class, new UriDeserializer());
     return map;
@@ -45,13 +49,13 @@ final class DefaultJsonDeserializers {
   @SuppressWarnings("unchecked")
   private static class EnumDeserializer<T extends Enum> implements JsonDeserializer<T> {
     @SuppressWarnings("cast")
-    public T fromJson(Type classOfT, JsonElement json) throws ParseException {
+    public T fromJson(Type classOfT, JsonElement json, JsonDeserializer.Context context) throws ParseException {
       return (T) Enum.valueOf((Class<T>)classOfT, json.getAsString());
     }
   }
   
   private static class UrlDeserializer implements JsonDeserializer<URL> {
-    public URL fromJson(Type typeOfT, JsonElement json) throws ParseException {
+    public URL fromJson(Type typeOfT, JsonElement json, JsonDeserializer.Context context) throws ParseException {
       try {
         return new URL(json.getAsString());
       } catch (MalformedURLException e) {
@@ -61,12 +65,29 @@ final class DefaultJsonDeserializers {
   }
   
   private static class UriDeserializer implements JsonDeserializer<URI> {
-    public URI fromJson(Type typeOfT, JsonElement json) throws ParseException {
+    public URI fromJson(Type typeOfT, JsonElement json, JsonDeserializer.Context context) throws ParseException {
       try {
 	  	return new URI(json.getAsString());
       } catch (URISyntaxException e) {
 	    throw new ParseException(e);
       }
-    }    
+    }
+  }
+  
+  @SuppressWarnings("unchecked")
+  private static class MapDeserializer implements JsonDeserializer<Map> {
+
+    @SuppressWarnings("unchecked")
+    public Map fromJson(Type typeOfT, JsonElement json, JsonDeserializer.Context context) 
+        throws ParseException {
+      // Using linked hash map to preserve order in which elements are entered
+      Map<String, Object> map = new LinkedHashMap<String, Object>();
+      Type childType = new MapTypeInfo(typeOfT).getValueType();     
+      for (Map.Entry<String, JsonElement> entry : json.getAsJsonObject().getEntries()) {
+        Object value = context.deserialize(childType, entry.getValue());
+        map.put(entry.getKey(), value);
+      }
+      return map;
+    }
   }
 }

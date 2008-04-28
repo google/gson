@@ -340,7 +340,8 @@ public class JsonDeserializerTest extends TestCase {
   public void testCustomDeserializer() {
     gson.registerDeserializer(ClassWithCustomTypeConverter.class,
         new JsonDeserializer<ClassWithCustomTypeConverter>() {
-      public ClassWithCustomTypeConverter fromJson(Type typeOfT, JsonElement json) {
+      public ClassWithCustomTypeConverter fromJson(Type typeOfT, JsonElement json, 
+          JsonDeserializer.Context context) {
         JsonObject jsonObject = json.getAsJsonObject();
         int value = jsonObject.get("bag").getAsInt();
         return new ClassWithCustomTypeConverter(new BagOfPrimitives(value, 
@@ -354,7 +355,8 @@ public class JsonDeserializerTest extends TestCase {
 
   public void testNestedCustomTypeConverters() {
     gson.registerDeserializer(BagOfPrimitives.class, new JsonDeserializer<BagOfPrimitives>() {
-      public BagOfPrimitives fromJson(Type typeOfT, JsonElement json) throws ParseException {
+      public BagOfPrimitives fromJson(Type typeOfT, JsonElement json, 
+          JsonDeserializer.Context context) throws ParseException {
         int value = json.getAsInt();
         return new BagOfPrimitives(value, value, false, "");
       }
@@ -379,7 +381,8 @@ public class JsonDeserializerTest extends TestCase {
   private static class MyParameterizedDeserializer<T>
       implements JsonDeserializer<MyParameterizedType<T>> {
     @SuppressWarnings("unchecked")
-    public MyParameterizedType<T> fromJson(Type typeOfT, JsonElement json) throws ParseException {
+    public MyParameterizedType<T> fromJson(Type typeOfT, JsonElement json, 
+        JsonDeserializer.Context context) throws ParseException {
       Type genericClass = new TypeInfo<Object>(typeOfT).getGenericClass();
       String className = new TypeInfo<Object>(genericClass).getTopLevelClass().getSimpleName();
       T value = (T) json.getAsJsonObject().get(className).getAsObject();
@@ -470,10 +473,10 @@ public class JsonDeserializerTest extends TestCase {
   }
   
   public void testMap() throws Exception {
-    String json = "{{'a':1}{'b':2'}}";
+    String json = "{\"a\":1,\"b\":2}";
     Type typeOfMap = new TypeToken<Map<String,Integer>>(){}.getType();
     Map<String, Integer> target = gson.fromJson(typeOfMap, json);
-    assertEquals(1, target.get('a').intValue());
-    assertEquals(1, target.get('b').intValue());
+    assertEquals(1, target.get("a").intValue());
+    assertEquals(2, target.get("b").intValue());
   }
 }

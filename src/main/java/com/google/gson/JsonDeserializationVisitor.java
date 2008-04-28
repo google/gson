@@ -43,16 +43,19 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
   protected final ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers;
   protected T target;
   protected final JsonElement json;
+  private final JsonDeserializer.Context context;
 
   public JsonDeserializationVisitor(JsonElement json, ObjectNavigatorFactory factory,
       ObjectConstructor objectConstructor, TypeAdapter typeAdapter,
-      ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers) {
+      ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers, 
+      JsonDeserializer.Context context) {
     Preconditions.checkNotNull(json);
     this.factory = factory;
     this.objectConstructor = objectConstructor;
     this.typeAdapter = typeAdapter;
     this.deserializers = deserializers;
     this.json = json;
+    this.context = context;
   }
 
   T getTarget() {
@@ -69,14 +72,14 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
       throw new RuntimeException("Register a JsonDeserializer for Enum or "
           + obj.getClass().getName());
     }
-    target = deserializer.fromJson(objType, json);
+    target = deserializer.fromJson(objType, json, context);
   }
 
   @SuppressWarnings("unchecked")
   public final boolean visitUsingCustomHandler(Object obj, Type objType) {
     JsonDeserializer<T> deserializer = (JsonDeserializer<T>) deserializers.getHandlerFor(objType);
     if (deserializer != null) {
-      target = deserializer.fromJson(objType, json);
+      target = deserializer.fromJson(objType, json, context);
       return true;
     } else {
       return false;
@@ -87,7 +90,7 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
   final Object visitChildAsObject(Type childType, JsonElement jsonChild) {
     JsonDeserializationVisitor<?> childVisitor = 
       new JsonObjectDeserializationVisitor<Object>(jsonChild, childType, 
-          factory, objectConstructor, typeAdapter, deserializers);
+          factory, objectConstructor, typeAdapter, deserializers, context);
     return visitChild(childType, childVisitor);      
   }
 
@@ -95,7 +98,7 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
   final Object visitChildAsArray(Type childType, JsonArray jsonChild) {
     JsonDeserializationVisitor<?> childVisitor = 
       new JsonArrayDeserializationVisitor<Object>(jsonChild.getAsJsonArray(), childType, 
-          factory, objectConstructor, typeAdapter, deserializers);
+          factory, objectConstructor, typeAdapter, deserializers, context);
     return visitChild(childType, childVisitor);      
   }
 
