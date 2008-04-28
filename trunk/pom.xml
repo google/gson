@@ -63,7 +63,6 @@
               <sourceDirectory>src/main/javacc</sourceDirectory>
               <outputDirectory>target/generated-src/main/java</outputDirectory>
               <timestampDirectory>target/generated-src/javacc-timestamp</timestampDirectory>
-              <packageName>com.google.gson.parser</packageName>
             </configuration>
           </execution>
         </executions>

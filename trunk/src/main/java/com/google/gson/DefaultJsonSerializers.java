@@ -21,6 +21,8 @@ import com.google.common.collect.Maps;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -35,6 +37,7 @@ final class DefaultJsonSerializers {
   static Map<Type, JsonSerializer<?>> getDefaultSerializers() {
     Map<Type, JsonSerializer<?>> map = Maps.newHashMap();
     map.put(Enum.class, new EnumSerializer());
+    map.put(Map.class, new MapSerializer());
     map.put(URL.class, new UrlSerializer());
     map.put(URI.class, new UriSerializer());
     return map;
@@ -43,22 +46,37 @@ final class DefaultJsonSerializers {
   @SuppressWarnings("unchecked")
   private static class EnumSerializer<T extends Enum> implements JsonSerializer<T> {
 
-    public JsonElement toJson(T src) {
+    public JsonElement toJson(T src, JsonSerializer.Context context) {
       return new JsonPrimitive(src.name());
     }
   }
   
   private static class UrlSerializer implements JsonSerializer<URL> {
 	  
-    public JsonElement toJson(URL src) {
+    public JsonElement toJson(URL src, JsonSerializer.Context context) {
       return new JsonPrimitive(src.toExternalForm());
     }    
   }
   
   private static class UriSerializer implements JsonSerializer<URI> {
 
-    public JsonElement toJson(URI src) {
+    public JsonElement toJson(URI src, JsonSerializer.Context context) {
       return new JsonPrimitive(src.toASCIIString());
+    }    
+  }
+  
+  @SuppressWarnings("unchecked")
+  private static class MapSerializer implements JsonSerializer<Map> {
+
+    @SuppressWarnings("unchecked")
+    public JsonElement toJson(Map src, JsonSerializer.Context context) {
+      JsonObject map = new JsonObject();
+      for (Iterator iterator = src.entrySet().iterator(); iterator.hasNext(); ) {
+        Map.Entry entry = (Map.Entry) iterator.next();
+        JsonElement valueElement = context.serialize(entry.getValue());
+        map.add(entry.getKey().toString(), valueElement);
+      }
+      return map;
     }    
   }
 }
