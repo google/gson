@@ -16,18 +16,16 @@
 
 package com.google.gson.common;
 
-import com.google.common.collect.Lists;
-import com.google.gson.InstanceCreator;
-import com.google.gson.reflect.Primitives;
-
 import java.lang.reflect.Type;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Collection;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.SortedSet;
+
+import com.google.common.collect.Lists;
+import com.google.gson.InstanceCreator;
+import com.google.gson.reflect.Primitives;
 
 /**
  * Types used for testing JSON serialization and deserialization

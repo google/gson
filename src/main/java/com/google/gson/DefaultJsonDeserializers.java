@@ -16,10 +16,6 @@
 
 package com.google.gson;
 
-import com.google.common.collect.Maps;
-import com.google.gson.reflect.MapTypeInfo;
-import com.google.gson.reflect.TypeInfo;
-
 import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -27,6 +23,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import com.google.common.collect.Maps;
+import com.google.gson.reflect.MapTypeInfo;
 
 /**
  * Default JSON deserializers for common Java types
