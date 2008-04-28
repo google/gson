@@ -28,7 +28,9 @@ import com.google.gson.reflect.ObjectNavigatorFactory;
 import com.google.gson.version.VersionConstants;
 import com.google.gson.version.VersionExclusionStrategy;
 
+import java.io.PrintWriter;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -64,19 +66,23 @@ public final class Gson {
   private final ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers =
       new ParameterizedTypeHandlerMap<JsonDeserializer<?>>();
 
+  private final JsonFormatter formatter;
+
   static final TypeAdapter DEFAULT_TYPE_ADAPTER = 
       new TypeAdapterNotRequired(new PrimitiveTypeAdapter());
   
   static final ModifierBasedExclusionStrategy DEFAULT_MODIFIER_BASED_EXCLUSION_STRATEGY =
       new ModifierBasedExclusionStrategy(true, new int[] { Modifier.TRANSIENT, Modifier.STATIC });
 
+  static final JsonFormatter DEFAULT_JSON_FORMATTER = new CompactJsonFormatter();
+  
   /**
    * Constructs a Gson object that skips inner class references and ignores
    * all object versioning information
    */
   public Gson() {
     this(new ObjectNavigatorFactory(createExclusionStrategy(VersionConstants.IGNORE_VERSIONS)),
-        new MappedObjectConstructor(), DEFAULT_TYPE_ADAPTER);
+        new MappedObjectConstructor(), DEFAULT_TYPE_ADAPTER, DEFAULT_JSON_FORMATTER);
   }
   
   /**
@@ -87,14 +93,15 @@ public final class Gson {
     *       new {@link ObjectNavigator} instance.
    */
   Gson(ObjectNavigatorFactory factory) {
-    this(factory, new MappedObjectConstructor(), DEFAULT_TYPE_ADAPTER);
+    this(factory, new MappedObjectConstructor(), DEFAULT_TYPE_ADAPTER, DEFAULT_JSON_FORMATTER);
   }
 
   Gson(ObjectNavigatorFactory factory, MappedObjectConstructor objectConstructor,
-      TypeAdapter typeAdapter) {
+      TypeAdapter typeAdapter, JsonFormatter formatter) {
     this.navigatorFactory = factory;
     this.objectConstructor = objectConstructor;
     this.typeAdapter = typeAdapter;
+    this.formatter = formatter;
 
     Map<Type, JsonSerializer<?>> defaultSerializers =
       DefaultJsonSerializers.getDefaultSerializers();
@@ -263,7 +270,9 @@ public final class Gson {
     }
     JsonSerializer.Context context = new JsonSerializationContext(navigatorFactory, serializers);
     JsonElement jsonElement = context.serialize(src, typeOfSrc);
-    return jsonElement == null ? "" : jsonElement.toJson();
+    StringWriter writer = new StringWriter();
+    formatter.format(jsonElement, new PrintWriter(writer));
+    return jsonElement == null ? "" : writer.toString();
   }
 
   /**
