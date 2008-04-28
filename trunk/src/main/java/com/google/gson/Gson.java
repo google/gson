@@ -74,7 +74,7 @@ public final class Gson {
   static final ModifierBasedExclusionStrategy DEFAULT_MODIFIER_BASED_EXCLUSION_STRATEGY =
       new ModifierBasedExclusionStrategy(true, new int[] { Modifier.TRANSIENT, Modifier.STATIC });
 
-  static final JsonFormatter DEFAULT_JSON_FORMATTER = new CompactJsonFormatter();
+  static final JsonFormatter DEFAULT_JSON_FORMATTER = new JsonCompactFormatter();
   
   /**
    * Constructs a Gson object that skips inner class references and ignores

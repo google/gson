@@ -135,7 +135,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   }
 
   @Override
-  protected void toJson(StringBuilder sb) {
+  protected void toString(StringBuilder sb) {
     sb.append('[');
     boolean first = true;
     for (JsonElement element : elements) {
@@ -144,8 +144,8 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
       } else {
         sb.append(',');
       }      
-      element.toJson(sb);
+      element.toString(sb);
     }
     sb.append(']');
-  }  
+  }
 }

@@ -124,9 +124,9 @@ public final class JsonPrimitive extends JsonElement {
   public Object getAsObject() {
     return value;
   }
-
+  
   @Override
-  protected void toJson(StringBuilder sb) {
+  protected void toString(StringBuilder sb) {
     if (value != null) {
       if (value instanceof String) {
         sb.append('"');
