@@ -16,14 +16,13 @@
 
 package com.google.gson;
 
-import com.google.common.collect.Maps;
-
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import com.google.common.collect.Maps;
 
 /**
  * Default JSON serializers for common Java types
