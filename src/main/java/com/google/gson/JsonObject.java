@@ -68,7 +68,7 @@ public final class JsonObject extends JsonElement {
   }
 
   @Override
-  protected void toJson(StringBuilder sb) {
+  protected void toString(StringBuilder sb) {
     sb.append('{');
     boolean first = true;
     for (Map.Entry<String, JsonElement> entry : members.entrySet()) {
@@ -80,7 +80,7 @@ public final class JsonObject extends JsonElement {
       sb.append('\"');
       sb.append(entry.getKey());
       sb.append("\":");
-      entry.getValue().toJson(sb);
+      entry.getValue().toString(sb);
     }
     sb.append('}');
   }

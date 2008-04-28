@@ -92,11 +92,28 @@ public abstract class JsonElement {
     throw new UnsupportedOperationException();    
   }
   
-  public String toJson() {
+  @Override
+  public String toString() {
     StringBuilder sb = new StringBuilder();
-    toJson(sb);
+    toString(sb);
     return sb.toString();
   }
   
-  protected abstract void toJson(StringBuilder sb);
+  protected abstract void toString(StringBuilder sb);
+  
+  interface Visitor {
+    void visit(JsonPrimitive primitive);
+    void visit(JsonObject object);
+    void visit(JsonArray array);
+  }
+  
+  void accept(Visitor visitor) {
+    if (isArray()) {
+      visitor.visit(getAsJsonArray());
+    } else if (isPrimitive()) {
+      visitor.visit(getAsJsonPrimitive());
+    } else { // JsonObject
+      visitor.visit(getAsJsonObject());
+    }
+  }  
 }
