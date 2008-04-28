@@ -39,6 +39,7 @@ public final class GsonBuilder {
   private ModifierBasedExclusionStrategy modifierBasedExclusionStrategy;
   private InnerClassExclusionStrategy innerClassExclusionStrategy;
   private TypeAdapter typeAdapter;
+  private JsonFormatter formatter;
   
   public GsonBuilder() {
     // setup default values    
@@ -46,6 +47,7 @@ public final class GsonBuilder {
     innerClassExclusionStrategy = new InnerClassExclusionStrategy();    
     modifierBasedExclusionStrategy = Gson.DEFAULT_MODIFIER_BASED_EXCLUSION_STRATEGY;    
     typeAdapter = Gson.DEFAULT_TYPE_ADAPTER;
+    formatter = Gson.DEFAULT_JSON_FORMATTER;
   }
   
   /**
@@ -76,6 +78,18 @@ public final class GsonBuilder {
   }
   
   /**
+   * Setup Gson with a new formatting strategy other than the default strategu 
+   * which is to provide a compact representation that eliminates all unneeded 
+   * white-space.
+   *  
+   * @param formatter the new formatter to use
+   */
+  public GsonBuilder setFormatter(JsonFormatter formatter) {
+    this.formatter = formatter;
+    return this;
+  }
+  
+  /**
    * @return an instance of Gson configured with the parameters set 
    *         in this builder
    */
@@ -89,6 +103,6 @@ public final class GsonBuilder {
     ExclusionStrategy exclusionStrategy = new DisjunctionExclusionStrategy(strategies);
     ObjectNavigatorFactory objectNavigatorFactory = new ObjectNavigatorFactory(exclusionStrategy);
     MappedObjectConstructor objectConstructor = new MappedObjectConstructor();
-    return new Gson(objectNavigatorFactory, objectConstructor, typeAdapter);
+    return new Gson(objectNavigatorFactory, objectConstructor, typeAdapter, formatter);
   }
 }
