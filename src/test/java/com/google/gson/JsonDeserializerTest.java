@@ -48,6 +48,7 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Small test for Json Deserialization
@@ -466,5 +467,13 @@ public class JsonDeserializerTest extends TestCase {
     String json = '"' + uriValue + '"';
     URI target = gson.fromJson(URI.class, json);
     assertEquals(uriValue, target.toASCIIString());
+  }
+  
+  public void testMap() throws Exception {
+    String json = "{{'a':1}{'b':2'}}";
+    Type typeOfMap = new TypeToken<Map<String,Integer>>(){}.getType();
+    Map<String, Integer> target = gson.fromJson(typeOfMap, json);
+    assertEquals(1, target.get('a').intValue());
+    assertEquals(1, target.get('b').intValue());
   }
 }

@@ -16,7 +16,22 @@
 
 package com.google.gson;
 
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
+import java.net.URI;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+import java.util.SortedSet;
+
+import junit.framework.TestCase;
+
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.common.TestTypes.ArrayOfArrays;
 import com.google.gson.common.TestTypes.ArrayOfObjects;
@@ -38,19 +53,6 @@ import com.google.gson.reflect.ModifierBasedExclusionStrategy;
 import com.google.gson.reflect.ObjectNavigatorFactory;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.version.Since;
-
-import junit.framework.TestCase;
-
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
-import java.net.URI;
-import java.net.URL;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Queue;
-import java.util.Set;
-import java.util.SortedSet;
 
 /**
  * Small test for Json Serialization
@@ -218,7 +220,7 @@ public class JsonSerializerTest extends TestCase {
   public void testCustomSerializers() {
     gson.registerSerializer(ClassWithCustomTypeConverter.class,
         new JsonSerializer<ClassWithCustomTypeConverter>() {
-      public JsonElement toJson(ClassWithCustomTypeConverter src) {
+      public JsonElement toJson(ClassWithCustomTypeConverter src, JsonSerializer.Context context) {
         JsonObject json = new JsonObject();
         json.addProperty("bag", 5);
         json.addProperty("value", 25);
@@ -231,7 +233,7 @@ public class JsonSerializerTest extends TestCase {
 
   public void testNestedCustomSerializers() {
     gson.registerSerializer(BagOfPrimitives.class, new JsonSerializer<BagOfPrimitives>() {
-      public JsonElement toJson(BagOfPrimitives src) {
+      public JsonElement toJson(BagOfPrimitives src, JsonSerializer.Context context) {
         return new JsonPrimitive(6);
       }
     });
@@ -256,7 +258,7 @@ public class JsonSerializerTest extends TestCase {
 
   private static class MyParameterizedSerializer<T>
       implements JsonSerializer<MyParameterizedType<T>> {
-    public JsonElement toJson(MyParameterizedType<T> src) {
+    public JsonElement toJson(MyParameterizedType<T> src, JsonSerializer.Context context) {
       JsonObject json = new JsonObject();
       T value = src.getValue();
       json.add(value.getClass().getSimpleName(), new JsonPrimitive(value));
@@ -328,5 +330,12 @@ public class JsonSerializerTest extends TestCase {
     String uriValue = "http://google.com/";
     URI uri = new URI(uriValue);
     assertEquals('"' + uriValue + '"', gson.toJson(uri));    
+  }
+
+  public void testMap() throws Exception {
+    Map<String, Integer> map = Maps.immutableMap("a", 1, "b", 2);
+    String json = gson.toJson(map);
+    assertTrue(json.contains("\"a\":1"));
+    assertTrue(json.contains("\"b\":2"));
   }
 }

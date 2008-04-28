@@ -17,6 +17,7 @@
 package com.google.gson;
 
 import com.google.common.collect.Lists;
+import com.google.gson.JsonSerializer.Context;
 import com.google.gson.parser.JsonParser;
 import com.google.gson.parser.TokenMgrError;
 import com.google.gson.reflect.DisjunctionExclusionStrategy;
@@ -262,7 +263,8 @@ public final class Gson {
       return "";
     }
     ObjectNavigator on = navigatorFactory.create(src, typeOfSrc);
-    JsonSerializationVisitor visitor = new JsonSerializationVisitor(navigatorFactory, serializers);
+    JsonSerializer.Context context = new JsonSerializationContext(navigatorFactory, serializers);
+    JsonSerializationVisitor visitor = new JsonSerializationVisitor(navigatorFactory, serializers, context);
     on.accept(visitor);
     JsonElement jsonElement = visitor.getJsonElement();
     return jsonElement == null ? "" : jsonElement.toJson();

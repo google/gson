@@ -16,6 +16,8 @@
 
 package com.google.gson;
 
+import java.lang.reflect.Type;
+
 /**
  * Interface representing a custom serializer for Json.   
  * 
@@ -26,10 +28,15 @@ package com.google.gson;
  * T. 
  */
 public interface JsonSerializer<T> {
+  public interface Context {
+    public JsonElement serialize(Object src);
     
+    public JsonElement serialize(Object src, Type typeOfSrc);
+  }
+  
   /**
    * @param src the object that needs to be converted to Json
    * @return a JsonElement corresponding to the specified object 
    */
-  public JsonElement toJson(T src);
+  public JsonElement toJson(T src, Context context);
 }

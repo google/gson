@@ -25,6 +25,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * A visitor that adds JSON elements corresponding to each field of an object
@@ -37,12 +38,16 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   private final ObjectNavigatorFactory factory;
   private final ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers;
   
+  private final JsonSerializer.Context context; 
+  
   private JsonElement root;
-
+  
   JsonSerializationVisitor(ObjectNavigatorFactory factory, 
-      ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers) {
+      ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers, 
+      JsonSerializer.Context context) {
     this.factory = factory;
     this.serializers = serializers;
+    this.context = context;
   }
 
   public void endVisitingObject(Object node) {
@@ -102,7 +107,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
       throw new RuntimeException("Register a JsonSerializer for Enum or "
           + obj.getClass().getName());
     }    
-    assignToRoot(serializer.toJson(obj));
+    assignToRoot(serializer.toJson(obj, context));
   }
 
   public void visitObjectField(Field f, Object obj) {
@@ -125,7 +130,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
 
   private JsonElement getJsonElementForChild(Type fieldType, Object fieldValue) {
     ObjectNavigator on = factory.create(fieldValue, fieldType);
-    JsonSerializationVisitor childVisitor = new JsonSerializationVisitor(factory, serializers);
+    JsonSerializationVisitor childVisitor = new JsonSerializationVisitor(factory, serializers, context);
     on.accept(childVisitor);
     return childVisitor.getJsonElement();
   }
@@ -150,8 +155,11 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   @SuppressWarnings("unchecked")
   public boolean visitUsingCustomHandler(Object obj, Type objType) {
     JsonSerializer serializer = serializers.getHandlerFor(objType);
+    if (serializer == null && obj instanceof Map) {
+      serializer = serializers.getHandlerFor(Map.class);
+    }    
     if (serializer != null) {
-      assignToRoot(serializer.toJson(obj));
+      assignToRoot(serializer.toJson(obj, context));
       return true;
     } else {
       return false;
