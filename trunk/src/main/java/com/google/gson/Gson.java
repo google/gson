@@ -299,7 +299,7 @@ public final class Gson {
       JsonElement root = parser.parse();
       JsonDeserializer.Context context = new JsonDeserializationContext(navigatorFactory, 
           deserializers, objectConstructor, typeAdapter);
-      return context.deserialize(typeOfT, root);
+      return (T) context.deserialize(typeOfT, root);
     } catch (TokenMgrError e) {
       throw new ParseException("Failed parsing JSON source: " + json + " to Json", e);
     } catch (com.google.gson.parser.ParseException e) {
