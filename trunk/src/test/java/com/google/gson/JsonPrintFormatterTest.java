@@ -17,16 +17,17 @@ import java.util.List;
  */
 public class JsonPrintFormatterTest extends TestCase {
   private static int INDENTATION_SIZE = 2;
-  private static int PRINT_MARGIN = 80;
+  private static int PRINT_MARGIN = 100;
+  private static int RIGHT_MARGIN = 8;
 
-  private static boolean DEBUG = true;
+  private static boolean DEBUG = false;
 
   private Gson gson;
 
   @Override
   protected void setUp() throws Exception {
     super.setUp();
-    JsonFormatter formatter = new JsonPrintFormatter(PRINT_MARGIN, INDENTATION_SIZE);
+    JsonFormatter formatter = new JsonPrintFormatter(PRINT_MARGIN, INDENTATION_SIZE, RIGHT_MARGIN);
     gson = new GsonBuilder().setFormatter(formatter).create();
   }
 
@@ -60,7 +61,7 @@ public class JsonPrintFormatterTest extends TestCase {
       if (c == '\n') {
         position = 0;
       }
-      assertTrue(position < PRINT_MARGIN + JsonPrintFormatter.RIGHT_MARGIN);
+      assertTrue(position < PRINT_MARGIN + RIGHT_MARGIN);
     }
   }
 }
