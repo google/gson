@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson.reflect;
+package com.google.gson;
 
 import com.google.common.base.Preconditions;
 
@@ -29,7 +29,7 @@ import java.util.Collection;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public final class ObjectNavigator {
+final class ObjectNavigator {
 
   public interface Visitor {
     /**

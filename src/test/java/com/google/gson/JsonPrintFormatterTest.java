@@ -19,7 +19,7 @@ public class JsonPrintFormatterTest extends TestCase {
   private static int INDENTATION_SIZE = 2;
   private static int PRINT_MARGIN = 80;
 
-  private static boolean DEBUG = false;
+  private static boolean DEBUG = true;
 
   private Gson gson;
 
@@ -60,7 +60,7 @@ public class JsonPrintFormatterTest extends TestCase {
       if (c == '\n') {
         position = 0;
       }
-      assert(position < PRINT_MARGIN);
+      assertTrue(position < PRINT_MARGIN + JsonPrintFormatter.RIGHT_MARGIN);
     }
   }
 }

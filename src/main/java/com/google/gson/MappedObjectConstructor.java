@@ -16,7 +16,6 @@
 
 package com.google.gson;
 
-import com.google.gson.reflect.TypeInfo;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
@@ -36,7 +35,7 @@ import java.util.logging.Logger;
  *
  * @author Joel Leitch
  */
-public final class MappedObjectConstructor implements ObjectConstructor {
+final class MappedObjectConstructor implements ObjectConstructor {
   private final Logger log = Logger.getLogger(getClass().getName());
 
   private final ParameterizedTypeHandlerMap<InstanceCreator<?>> instanceCreatorMap =

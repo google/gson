@@ -1,5 +1,6 @@
 package com.google.gson;
 
+
 import java.io.PrintWriter;
 import java.util.Map;
 
@@ -15,7 +16,7 @@ public class JsonPrintFormatter implements JsonFormatter {
   private final int printMargin;
   private final int indentationSize;
   
-  private static final int RIGHT_MARGIN = 4;
+  static final int RIGHT_MARGIN = 4;
 
   public JsonPrintFormatter() {
     this(80, 2);

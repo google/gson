@@ -22,13 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Lists;
-import com.google.gson.reflect.DisjunctionExclusionStrategy;
-import com.google.gson.reflect.ExclusionStrategy;
-import com.google.gson.reflect.InnerClassExclusionStrategy;
-import com.google.gson.reflect.ModifierBasedExclusionStrategy;
-import com.google.gson.reflect.ObjectNavigatorFactory;
 import com.google.gson.version.VersionConstants;
-import com.google.gson.version.VersionExclusionStrategy;
 
 /**
  * Use this builder to construct a Gson instance in situations where

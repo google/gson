@@ -25,7 +25,7 @@ import java.util.SortedSet;
 
 import com.google.common.collect.Lists;
 import com.google.gson.InstanceCreator;
-import com.google.gson.reflect.Primitives;
+import com.google.gson.Primitives;
 
 /**
  * Types used for testing JSON serialization and deserialization

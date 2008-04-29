@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson.reflect;
+package com.google.gson;
 
 import java.lang.reflect.Type;
 
@@ -25,7 +25,7 @@ import java.lang.reflect.Type;
  *
  * @author Joel Leitch
  */
-public final class ObjectNavigatorFactory {
+final class ObjectNavigatorFactory {
   private final ExclusionStrategy strategy;
   private final MemoryRefStack<Object> stack;
 

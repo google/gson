@@ -17,7 +17,6 @@
 package com.google.gson;
 
 import com.google.common.base.Preconditions;
-import com.google.gson.reflect.ObjectNavigator;
 
 /**
  * A class representing a Json primitive value. A primitive value 

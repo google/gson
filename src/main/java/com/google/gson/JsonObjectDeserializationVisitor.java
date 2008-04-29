@@ -16,9 +16,6 @@
 
 package com.google.gson;
 
-import com.google.gson.reflect.ObjectNavigator;
-import com.google.gson.reflect.ObjectNavigatorFactory;
-import com.google.gson.reflect.TypeInfo;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;

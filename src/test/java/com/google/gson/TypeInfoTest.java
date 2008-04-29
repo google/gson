@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-package com.google.gson.reflect;
+package com.google.gson;
+
+import com.google.gson.TypeInfo;
+import com.google.gson.reflect.TypeToken;
 
 import junit.framework.TestCase;
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson.reflect;
+package com.google.gson;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -28,7 +28,7 @@ import java.util.Collection;
  *
  * @author Joel Leitch
  */
-public final class DisjunctionExclusionStrategy implements ExclusionStrategy {
+final class DisjunctionExclusionStrategy implements ExclusionStrategy {
   private final Collection<ExclusionStrategy> strategies;
 
   public DisjunctionExclusionStrategy(ExclusionStrategy... strategies) {

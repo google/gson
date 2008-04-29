@@ -46,7 +46,6 @@ import com.google.gson.common.TestTypes.MyParameterizedType;
 import com.google.gson.common.TestTypes.Nested;
 import com.google.gson.common.TestTypes.PrimitiveArray;
 import com.google.gson.common.TestTypes.SubTypeOfNested;
-import com.google.gson.reflect.TypeInfo;
 import com.google.gson.reflect.TypeToken;
 
 /**

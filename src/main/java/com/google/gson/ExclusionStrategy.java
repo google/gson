@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson.reflect;
+package com.google.gson;
 
 import java.lang.reflect.Field;
 
@@ -30,7 +30,7 @@ import java.lang.reflect.Field;
  *
  * @author Joel Leitch
  */
-public interface ExclusionStrategy {
+interface ExclusionStrategy {
 
   /**
    * @param f the field object that is under test

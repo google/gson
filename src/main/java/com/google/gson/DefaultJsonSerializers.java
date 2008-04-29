@@ -17,7 +17,6 @@
 package com.google.gson;
 
 import com.google.common.collect.Maps;
-import com.google.gson.reflect.MapTypeInfo;
 
 import java.lang.reflect.Type;
 import java.net.URI;
