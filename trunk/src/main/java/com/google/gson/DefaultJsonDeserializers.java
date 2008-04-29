@@ -25,7 +25,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
-import com.google.gson.reflect.MapTypeInfo;
 
 /**
  * Default JSON deserializers for common Java types

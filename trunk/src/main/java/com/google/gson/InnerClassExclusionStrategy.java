@@ -14,31 +14,26 @@
  * limitations under the License.
  */
 
-package com.google.gson.reflect;
+package com.google.gson;
 
-import com.google.gson.reflect.NullExclusionStrategy;
-
-import junit.framework.TestCase;
+import java.lang.reflect.Field;
 
 /**
- * Unit test for the {@link NullExclusionStrategy} class.
+ * Strategy for excluding inner classes.
  *
  * @author Joel Leitch
  */
-public class NullExclusionStrategyTest extends TestCase {
-  private NullExclusionStrategy strategy;
+final class InnerClassExclusionStrategy implements ExclusionStrategy {
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
-    strategy = new NullExclusionStrategy();
+  public boolean shouldSkipField(Field f) {
+    return isAnonymousOrLocal(f.getType());
   }
 
-  public void testNeverSkipsClass() throws Exception {
-    assertFalse(strategy.shouldSkipClass(String.class));
+  public boolean shouldSkipClass(Class<?> clazz) {
+    return isAnonymousOrLocal(clazz);
   }
 
-  public void testNeverSkipsField() throws Exception {
-    assertFalse(strategy.shouldSkipField("".getClass().getFields()[0]));
+  private boolean isAnonymousOrLocal(Class<?> clazz) {
+    return clazz.isAnonymousClass() || clazz.isLocalClass();
   }
 }

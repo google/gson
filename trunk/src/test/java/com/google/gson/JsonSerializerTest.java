@@ -49,8 +49,6 @@ import com.google.gson.common.TestTypes.MyParameterizedType;
 import com.google.gson.common.TestTypes.Nested;
 import com.google.gson.common.TestTypes.PrimitiveArray;
 import com.google.gson.common.TestTypes.SubTypeOfNested;
-import com.google.gson.reflect.ModifierBasedExclusionStrategy;
-import com.google.gson.reflect.ObjectNavigatorFactory;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.version.Since;
 

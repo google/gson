@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.google.gson.version;
+package com.google.gson;
 
 import com.google.common.base.Preconditions;
-import com.google.gson.reflect.ExclusionStrategy;
+import com.google.gson.version.Since;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;

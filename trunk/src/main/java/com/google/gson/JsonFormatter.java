@@ -1,5 +1,6 @@
 package com.google.gson;
 
+
 import java.io.PrintWriter;
 
 /**

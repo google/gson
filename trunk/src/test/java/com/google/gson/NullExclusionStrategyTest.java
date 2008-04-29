@@ -14,25 +14,31 @@
  * limitations under the License.
  */
 
-package com.google.gson.reflect;
+package com.google.gson;
 
-import java.lang.reflect.Field;
+import com.google.gson.NullExclusionStrategy;
+
+import junit.framework.TestCase;
 
 /**
- * This acts as a "Null Object" pattern for the {@link ExclusionStrategy}.
- * Passing an instance of this class into the {@link ObjectNavigator} will
- * make the {@link ObjectNavigator} parse/visit every field of the object
- * being navigated.
+ * Unit test for the {@link NullExclusionStrategy} class.
  *
  * @author Joel Leitch
  */
-final class NullExclusionStrategy implements ExclusionStrategy {
+public class NullExclusionStrategyTest extends TestCase {
+  private NullExclusionStrategy strategy;
 
-  public boolean shouldSkipField(Field f) {
-    return false;
+  @Override
+  protected void setUp() throws Exception {
+    super.setUp();
+    strategy = new NullExclusionStrategy();
   }
 
-  public boolean shouldSkipClass(Class<?> clazz) {
-    return false;
+  public void testNeverSkipsClass() throws Exception {
+    assertFalse(strategy.shouldSkipClass(String.class));
+  }
+
+  public void testNeverSkipsField() throws Exception {
+    assertFalse(strategy.shouldSkipField("".getClass().getFields()[0]));
   }
 }

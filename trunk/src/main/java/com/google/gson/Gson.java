@@ -19,14 +19,7 @@ package com.google.gson;
 import com.google.common.collect.Lists;
 import com.google.gson.parser.JsonParser;
 import com.google.gson.parser.TokenMgrError;
-import com.google.gson.reflect.DisjunctionExclusionStrategy;
-import com.google.gson.reflect.ExclusionStrategy;
-import com.google.gson.reflect.InnerClassExclusionStrategy;
-import com.google.gson.reflect.ModifierBasedExclusionStrategy;
-import com.google.gson.reflect.ObjectNavigator;
-import com.google.gson.reflect.ObjectNavigatorFactory;
 import com.google.gson.version.VersionConstants;
-import com.google.gson.version.VersionExclusionStrategy;
 
 import java.io.PrintWriter;
 import java.io.StringReader;

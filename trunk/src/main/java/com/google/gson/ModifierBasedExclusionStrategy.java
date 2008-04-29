@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson.reflect;
+package com.google.gson;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -30,7 +30,7 @@ import java.util.Collection;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public final class ModifierBasedExclusionStrategy implements ExclusionStrategy {
+final class ModifierBasedExclusionStrategy implements ExclusionStrategy {
   private final boolean skipSyntheticField;
   private final Collection<Integer> modifiers;
 

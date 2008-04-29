@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.google.gson.common;
+package com.google.gson;
 
-import com.google.gson.reflect.ExclusionStrategy;
+import com.google.gson.ExclusionStrategy;
 
 import java.lang.reflect.Field;
 

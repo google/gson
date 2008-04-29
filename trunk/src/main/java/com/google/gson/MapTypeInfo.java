@@ -1,9 +1,9 @@
-package com.google.gson.reflect;
+package com.google.gson;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
-public final class MapTypeInfo {
+final class MapTypeInfo {
   
   private final ParameterizedType mapType;
 

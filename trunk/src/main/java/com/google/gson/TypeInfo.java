@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson.reflect;
+package com.google.gson;
 
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
@@ -27,7 +27,7 @@ import java.lang.reflect.Type;
  *
  * @author Joel Leitch
  */
-public class TypeInfo<T> {
+class TypeInfo<T> {
   private final boolean isArray;
   private final Class<T> topLevel;
   private final Class<?> componentType;

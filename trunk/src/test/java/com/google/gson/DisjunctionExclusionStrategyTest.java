@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package com.google.gson.reflect;
+package com.google.gson;
 
 import com.google.common.collect.ImmutableList;
-import com.google.gson.common.MockExclusionStrategy;
+import com.google.gson.DisjunctionExclusionStrategy;
+import com.google.gson.ExclusionStrategy;
 
 import junit.framework.TestCase;
 

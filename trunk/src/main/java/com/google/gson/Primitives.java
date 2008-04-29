@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson.reflect;
+package com.google.gson;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

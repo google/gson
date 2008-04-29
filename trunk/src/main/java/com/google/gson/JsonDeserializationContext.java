@@ -2,8 +2,6 @@ package com.google.gson;
 
 import java.lang.reflect.Type;
 
-import com.google.gson.reflect.ObjectNavigator;
-import com.google.gson.reflect.ObjectNavigatorFactory;
 
 /**
  * implementation of a deserialization context for Gson

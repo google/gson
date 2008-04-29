@@ -14,26 +14,25 @@
  * limitations under the License.
  */
 
-package com.google.gson.reflect;
+package com.google.gson;
 
 import java.lang.reflect.Field;
 
 /**
- * Strategy for excluding inner classes.
+ * This acts as a "Null Object" pattern for the {@link ExclusionStrategy}.
+ * Passing an instance of this class into the {@link ObjectNavigator} will
+ * make the {@link ObjectNavigator} parse/visit every field of the object
+ * being navigated.
  *
  * @author Joel Leitch
  */
-public final class InnerClassExclusionStrategy implements ExclusionStrategy {
+final class NullExclusionStrategy implements ExclusionStrategy {
 
   public boolean shouldSkipField(Field f) {
-    return isAnonymousOrLocal(f.getType());
+    return false;
   }
 
   public boolean shouldSkipClass(Class<?> clazz) {
-    return isAnonymousOrLocal(clazz);
-  }
-
-  private boolean isAnonymousOrLocal(Class<?> clazz) {
-    return clazz.isAnonymousClass() || clazz.isLocalClass();
+    return false;
   }
 }
