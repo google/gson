@@ -12,19 +12,23 @@ import java.util.Map;
  * @author Inderjeet Singh
  */
 public class JsonPrintFormatter implements JsonFormatter {
-  
+
   private final int printMargin;
   private final int indentationSize;
+  private final int rightMargin;
   
-  static final int RIGHT_MARGIN = 4;
+  public static final int DEFAULT_PRINT_MARGIN = 80;
+  public static final int DEFAULT_INDENTATION_SIZE = 2;
+  public static final int DEFAULT_RIGHT_MARGIN = 4;
 
   public JsonPrintFormatter() {
-    this(80, 2);
+    this(DEFAULT_PRINT_MARGIN, DEFAULT_INDENTATION_SIZE, DEFAULT_RIGHT_MARGIN);
   }
   
-  public JsonPrintFormatter(int printMargin, int indentationSize) {
+  public JsonPrintFormatter(int printMargin, int indentationSize, int rightMargin) {
     this.printMargin = printMargin;
     this.indentationSize = indentationSize;
+    this.rightMargin = rightMargin;
   }
 
   private class JsonWriter {
@@ -49,6 +53,7 @@ public class JsonPrintFormatter implements JsonFormatter {
     
     void fieldSeparator() {
       getLine().append(':');
+      breakLineIfNeeded();
     }
     
     void elementSeparator() {
@@ -79,7 +84,7 @@ public class JsonPrintFormatter implements JsonFormatter {
     }
     
     private void breakLineIfNeeded() {
-      if (getLine().length() > printMargin - RIGHT_MARGIN) {
+      if (getLine().length() > printMargin - rightMargin) {
         finishLine();
       }
     }
