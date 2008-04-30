@@ -16,8 +16,8 @@
 
 package com.google.gson;
 
-import com.google.gson.parser.JsonParser;
-import com.google.gson.parser.TokenMgrError;
+import com.google.gson.JsonParser;
+import com.google.gson.TokenMgrError;
 import com.google.gson.version.VersionConstants;
 
 import java.io.PrintWriter;
@@ -273,11 +273,11 @@ public final class Gson {
    * @param classOfT the class of T
    * @param json the string from which the object is to be deserialized
    * @return an object of type T from the string
-   * @throws ParseException if json is not a valid representation for an object
+   * @throws JsonParseException if json is not a valid representation for an object
    *         of type classOfT.
    */
   @SuppressWarnings("unchecked")
-  public <T> T fromJson(Class<T> classOfT, String json) throws ParseException {
+  public <T> T fromJson(Class<T> classOfT, String json) throws JsonParseException {
     return (T) fromJson((Type) classOfT, json);
   }
 
@@ -290,11 +290,11 @@ public final class Gson {
    * @param typeOfT the specific generic type of T
    * @param json the string from which the object is to be deserialized
    * @return an object of type T from the string
-   * @throws ParseException if json is not a valid representation for an object
+   * @throws JsonParseException if json is not a valid representation for an object
    *         of type typeOfT.
    */
   @SuppressWarnings("unchecked")
-  public <T> T fromJson(Type typeOfT, String json) throws ParseException {
+  public <T> T fromJson(Type typeOfT, String json) throws JsonParseException {
     try {
       StringReader reader = new StringReader(json);
       JsonParser parser = new JsonParser(reader);
@@ -303,9 +303,9 @@ public final class Gson {
           deserializers, objectConstructor, typeAdapter);
       return (T) context.deserialize(typeOfT, root);
     } catch (TokenMgrError e) {
-      throw new ParseException("Failed parsing JSON source: " + json + " to Json", e);
-    } catch (com.google.gson.parser.ParseException e) {
-      throw new ParseException("Failed parsing JSON source: " + json + " to Json", e);
+      throw new JsonParseException("Failed parsing JSON source: " + json + " to Json", e);
+    } catch (ParseException e) {
+      throw new JsonParseException("Failed parsing JSON source: " + json + " to Json", e);
     }
   }
 }
