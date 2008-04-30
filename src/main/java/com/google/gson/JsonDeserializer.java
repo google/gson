@@ -31,7 +31,7 @@ import java.lang.reflect.Type;
 public interface JsonDeserializer<T> {
   
   public interface Context {
-    public <T> T deserialize(Type typeOfT, JsonElement json) throws ParseException;
+    public <T> T deserialize(Type typeOfT, JsonElement json) throws JsonParseException;
   }
 
   /**
@@ -39,8 +39,8 @@ public interface JsonDeserializer<T> {
    * @param json The Json data being deserialized
    * @return a deserialized object of the specified type typeOfT
    *         which is a subclass for {@code T}
-   * @throws ParseException if json is not in the expected format of
+   * @throws JsonParseException if json is not in the expected format of
    *         {@code typeofT}
    */
-  public T fromJson(Type typeOfT, JsonElement json, Context context) throws ParseException;
+  public T fromJson(Type typeOfT, JsonElement json, Context context) throws JsonParseException;
 }

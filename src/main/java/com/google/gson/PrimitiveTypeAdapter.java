@@ -40,13 +40,13 @@ final class PrimitiveTypeAdapter implements TypeAdapter {
           Constructor<?> constructor = aClass.getConstructor(String.class);
           return (T) constructor.newInstance(from.toString());
         } catch (NoSuchMethodException e) {
-          throw new ParseException(e);
+          throw new JsonParseException(e);
         } catch (IllegalAccessException e) {
-          throw new ParseException(e);
+          throw new JsonParseException(e);
         } catch (InvocationTargetException e) {
-          throw new ParseException(e);
+          throw new JsonParseException(e);
         } catch (InstantiationException e) {
-          throw new ParseException(e);
+          throw new JsonParseException(e);
         }
       }
     } else if (Enum.class.isAssignableFrom(to)) {

@@ -25,7 +25,7 @@ final class JsonDeserializationContext implements JsonDeserializer.Context {
   }
 
   @SuppressWarnings("unchecked")
-  public <T> T deserialize(Type typeOfT, JsonElement json) throws ParseException {
+  public <T> T deserialize(Type typeOfT, JsonElement json) throws JsonParseException {
     if (json.isArray()) {
       return (T) fromJsonArray(typeOfT, json.getAsJsonArray(), this);
     } else if (json.isObject()) {
@@ -33,13 +33,13 @@ final class JsonDeserializationContext implements JsonDeserializer.Context {
     } else if (json.isPrimitive()) {
       return (T) fromJsonPrimitive(typeOfT, json.getAsJsonPrimitive(), this);
     } else {
-      throw new ParseException("Failed parsing JSON source: " + json + " to Json");
+      throw new JsonParseException("Failed parsing JSON source: " + json + " to Json");
     }
   }  
   
   @SuppressWarnings("unchecked")
   private <T> T fromJsonArray(Type arrayType, JsonArray jsonArray, 
-      JsonDeserializer.Context context) throws ParseException {
+      JsonDeserializer.Context context) throws JsonParseException {
     JsonArrayDeserializationVisitor<T> visitor = new JsonArrayDeserializationVisitor<T>(
         jsonArray, arrayType, navigatorFactory, objectConstructor, typeAdapter, deserializers, 
         context);
@@ -51,7 +51,7 @@ final class JsonDeserializationContext implements JsonDeserializer.Context {
 
   @SuppressWarnings("unchecked")
   private <T> T fromJsonObject(Type typeOfT, JsonObject jsonObject, 
-      JsonDeserializer.Context context) throws ParseException {
+      JsonDeserializer.Context context) throws JsonParseException {
     JsonObjectDeserializationVisitor<T> visitor = new JsonObjectDeserializationVisitor<T>(
         jsonObject, typeOfT, navigatorFactory, objectConstructor, typeAdapter, deserializers, 
         context);
@@ -63,7 +63,7 @@ final class JsonDeserializationContext implements JsonDeserializer.Context {
   
   @SuppressWarnings("unchecked")
   private <T> T fromJsonPrimitive(Type typeOfT, JsonPrimitive json, 
-      JsonDeserializer.Context context) throws ParseException {
+      JsonDeserializer.Context context) throws JsonParseException {
     JsonPrimitiveDeserializationVisitor<T> visitor = new JsonPrimitiveDeserializationVisitor<T>(
         json, typeOfT, navigatorFactory, objectConstructor, typeAdapter, deserializers, context);
     Object target = visitor.getTarget();

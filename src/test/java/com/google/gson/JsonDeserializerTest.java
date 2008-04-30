@@ -66,12 +66,12 @@ public class JsonDeserializerTest extends TestCase {
     try {
       gson.fromJson(BagOfPrimitives.class, "adfasdf1112,,,\":");
       fail("Bad JSON should throw a ParseException");
-    } catch (ParseException expected) { }
+    } catch (JsonParseException expected) { }
 
     try {
       gson.fromJson(BagOfPrimitives.class, "{adfasdf1112,,,\":}");
       fail("Bad JSON should throw a ParseException");
-    } catch (ParseException expected) { }
+    } catch (JsonParseException expected) { }
   }
 
   public void testBagOfPrimitives() {
@@ -98,7 +98,7 @@ public class JsonDeserializerTest extends TestCase {
         assertEquals(bag.getExpectedJson(), bag1.getExpectedJson());
       }
       fail("Raw collection of objects should not work");
-    } catch (ParseException expected) {      
+    } catch (JsonParseException expected) {      
     }
   }
   
@@ -314,7 +314,7 @@ public class JsonDeserializerTest extends TestCase {
     try {
       gson.fromJson(Object.class, "");
       fail("Null strings should not be allowed");
-    } catch (ParseException expected) {
+    } catch (JsonParseException expected) {
     }
   }
 
@@ -354,7 +354,7 @@ public class JsonDeserializerTest extends TestCase {
   public void testNestedCustomTypeConverters() {
     gson.registerDeserializer(BagOfPrimitives.class, new JsonDeserializer<BagOfPrimitives>() {
       public BagOfPrimitives fromJson(Type typeOfT, JsonElement json, 
-          JsonDeserializer.Context context) throws ParseException {
+          JsonDeserializer.Context context) throws JsonParseException {
         int value = json.getAsInt();
         return new BagOfPrimitives(value, value, false, "");
       }
@@ -380,7 +380,7 @@ public class JsonDeserializerTest extends TestCase {
       implements JsonDeserializer<MyParameterizedType<T>> {
     @SuppressWarnings("unchecked")
     public MyParameterizedType<T> fromJson(Type typeOfT, JsonElement json, 
-        JsonDeserializer.Context context) throws ParseException {
+        JsonDeserializer.Context context) throws JsonParseException {
       Type genericClass = new TypeInfo<Object>(typeOfT).getGenericClass();
       String className = new TypeInfo<Object>(genericClass).getTopLevelClass().getSimpleName();
       T value = (T) json.getAsJsonObject().get(className).getAsObject();
