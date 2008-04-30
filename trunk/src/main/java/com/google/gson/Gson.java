@@ -16,7 +16,6 @@
 
 package com.google.gson;
 
-import com.google.common.collect.Lists;
 import com.google.gson.parser.JsonParser;
 import com.google.gson.parser.TokenMgrError;
 import com.google.gson.version.VersionConstants;
@@ -26,6 +25,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -116,9 +116,9 @@ public final class Gson {
   }
 
   private static ExclusionStrategy createExclusionStrategy(double version) {
-    List<ExclusionStrategy> strategies = Lists.newArrayList(
-        new InnerClassExclusionStrategy(),
-        DEFAULT_MODIFIER_BASED_EXCLUSION_STRATEGY);
+    List<ExclusionStrategy> strategies = new LinkedList<ExclusionStrategy>();
+    strategies.add(new InnerClassExclusionStrategy());
+    strategies.add(DEFAULT_MODIFIER_BASED_EXCLUSION_STRATEGY);
     if (version != VersionConstants.IGNORE_VERSIONS) {
       strategies.add(new VersionExclusionStrategy(version));
     }

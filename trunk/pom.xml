@@ -9,22 +9,7 @@
   <name>gson</name>
   <url>http://google-gson.code.google.com/</url>
   
-  <repositories>
-    <repository>
-      <id>objectweb-snapshot</id>
-      <name>ObjectWeb Maven Repository</name>
-      <url>http://maven.objectweb.org/maven2-snapshot</url>
-    </repository>
-  </repositories>
-  
-  <dependencies>
-    <dependency>
-      <groupId>com.google.common</groupId>
-      <artifactId>google-collect</artifactId>
-      <version>0.5-SNAPSHOT</version>
-      <scope>compile</scope>
-    </dependency>
-    
+  <dependencies>    
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

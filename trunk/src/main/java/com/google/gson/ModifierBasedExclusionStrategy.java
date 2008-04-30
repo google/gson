@@ -16,12 +16,9 @@
 
 package com.google.gson;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
-
 import java.lang.reflect.Field;
 import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * Exclude fields based on particular field modifiers.  For a list of possible
@@ -36,14 +33,11 @@ final class ModifierBasedExclusionStrategy implements ExclusionStrategy {
 
   public ModifierBasedExclusionStrategy(boolean skipSyntheticFields, int... modifiers) {
     this.skipSyntheticField = skipSyntheticFields;
-    if (modifiers == null) {
-      this.modifiers = ImmutableList.of();
-    } else {
-      Collection<Integer> tempCollection = Sets.newHashSet();
+    this.modifiers = new HashSet<Integer>();
+    if (modifiers != null) {
       for (int modifier : modifiers) {
-        tempCollection.add(modifier);
+        this.modifiers.add(modifier);
       }
-      this.modifiers = ImmutableSet.copyOf(tempCollection);
     }
   }
 

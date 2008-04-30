@@ -16,11 +16,9 @@
 
 package com.google.gson;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-
 import java.lang.reflect.Field;
 import java.util.Collection;
+import java.util.LinkedList;
 
 /**
  * A wrapper class used to collect numerous {@link ExclusionStrategy} objects
@@ -35,14 +33,18 @@ final class DisjunctionExclusionStrategy implements ExclusionStrategy {
     Preconditions.checkNotNull(strategies);
     Preconditions.checkArgument(strategies.length > 0);
 
-    this.strategies = ImmutableList.of(strategies);
+    this.strategies = new LinkedList<ExclusionStrategy>();
+    for (ExclusionStrategy strategy : strategies) {
+      this.strategies.add(strategy);
+    }
   }
 
   public DisjunctionExclusionStrategy(Collection<ExclusionStrategy> strategies) {
     Preconditions.checkNotNull(strategies);
     Preconditions.checkArgument(!strategies.isEmpty());
 
-    this.strategies = ImmutableList.copyOf(strategies);
+    this.strategies = new LinkedList<ExclusionStrategy>();
+    this.strategies.addAll(strategies);
   }
 
   public boolean shouldSkipField(Field f) {

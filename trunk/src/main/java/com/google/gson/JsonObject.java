@@ -16,8 +16,7 @@
 
 package com.google.gson;
 
-import com.google.common.collect.Maps;
-
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
@@ -34,7 +33,7 @@ public final class JsonObject extends JsonElement {
   // the order in which elements are inserted. This is needed to ensure
   // that the fields of an object are inserted in the order they were 
   // defined in the class. 
-  private Map<String, JsonElement> members = Maps.newLinkedHashMap();
+  private Map<String, JsonElement> members = new LinkedHashMap<String, JsonElement>();
 
   public void add(String property, JsonElement value) {
     members.put(property, value);

@@ -16,10 +16,9 @@
 
 package com.google.gson;
 
-import com.google.common.collect.Maps;
-
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -32,7 +31,7 @@ import java.util.Map;
  */
 final class ParameterizedTypeHandlerMap<T> {
 
-  private final Map<Type, T> map = Maps.newHashMap();
+  private final Map<Type, T> map = new HashMap<Type, T>();
 
   public void register(Type type, T value) {
     map.put(type, value);

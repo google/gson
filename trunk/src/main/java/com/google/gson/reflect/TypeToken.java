@@ -16,8 +16,6 @@
 
 package com.google.gson.reflect;
 
-import com.google.common.base.Objects;
-
 import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
@@ -67,10 +65,17 @@ public abstract class TypeToken<T> {
    */
   @SuppressWarnings({"unchecked"})
   private TypeToken(Type type) {
-    this.rawType = (Class<? super T>) getRawType(Objects.nonNull(type, "type"));
+    this.rawType = (Class<? super T>) getRawType(nonNull(type, "type"));
     this.type = type;
   }
 
+  private static <T> T nonNull(T o, String message) {
+    if (o == null) {
+      throw new NullPointerException(message);
+    }
+    return o;
+  }
+  
   /**
    * Gets type from super class's type parameter.
    */

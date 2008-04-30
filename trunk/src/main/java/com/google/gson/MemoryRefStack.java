@@ -16,8 +16,6 @@
 
 package com.google.gson;
 
-import com.google.common.base.Preconditions;
-
 import java.util.Stack;
 
 /**
