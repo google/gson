@@ -26,26 +26,24 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
+import com.google.gson.TestTypes.ArrayOfArrays;
+import com.google.gson.TestTypes.ArrayOfObjects;
+import com.google.gson.TestTypes.BagOfPrimitiveWrappers;
+import com.google.gson.TestTypes.BagOfPrimitives;
+import com.google.gson.TestTypes.ClassWithCustomTypeConverter;
+import com.google.gson.TestTypes.ClassWithEnumFields;
+import com.google.gson.TestTypes.ClassWithNoFields;
+import com.google.gson.TestTypes.ClassWithPrivateNoArgsConstructor;
+import com.google.gson.TestTypes.ClassWithSubInterfacesOfCollection;
+import com.google.gson.TestTypes.ClassWithTransientFields;
+import com.google.gson.TestTypes.ContainsReferenceToSelfType;
+import com.google.gson.TestTypes.MyEnum;
+import com.google.gson.TestTypes.MyEnumCreator;
+import com.google.gson.TestTypes.MyParameterizedType;
+import com.google.gson.TestTypes.Nested;
+import com.google.gson.TestTypes.PrimitiveArray;
+import com.google.gson.TestTypes.SubTypeOfNested;
 import com.google.gson.common.MoreAsserts;
-import com.google.gson.common.TestTypes.ArrayOfArrays;
-import com.google.gson.common.TestTypes.ArrayOfObjects;
-import com.google.gson.common.TestTypes.BagOfPrimitiveWrappers;
-import com.google.gson.common.TestTypes.BagOfPrimitives;
-import com.google.gson.common.TestTypes.ClassWithCustomTypeConverter;
-import com.google.gson.common.TestTypes.ClassWithEnumFields;
-import com.google.gson.common.TestTypes.ClassWithNoFields;
-import com.google.gson.common.TestTypes.ClassWithPrivateNoArgsConstructor;
-import com.google.gson.common.TestTypes.ClassWithSubInterfacesOfCollection;
-import com.google.gson.common.TestTypes.ClassWithTransientFields;
-import com.google.gson.common.TestTypes.ContainsReferenceToSelfType;
-import com.google.gson.common.TestTypes.MyEnum;
-import com.google.gson.common.TestTypes.MyEnumCreator;
-import com.google.gson.common.TestTypes.MyParameterizedType;
-import com.google.gson.common.TestTypes.Nested;
-import com.google.gson.common.TestTypes.PrimitiveArray;
-import com.google.gson.common.TestTypes.SubTypeOfNested;
 import com.google.gson.reflect.TypeToken;
 
 /**
@@ -218,22 +216,24 @@ public class JsonDeserializerTest extends TestCase {
   public void testRawCollectionOfInteger() {
     String json = "[0,1,2,3,4,5,6,7,8,9]";
 	Collection<Integer> target = gson.fromJson(Collection.class, json);
-	Collection<Integer> expected = ImmutableList.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-	MoreAsserts.assertEquals(toIntArray(expected), toIntArray(target));
+	int[] expected = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+	MoreAsserts.assertEquals(expected, toIntArray(target));
   }
 
   public void testListOfIntegerCollections() throws Exception {
     String json = "[[1,2,3],[4,5,6],[7,8,9]]";
     Type collectionType = new TypeToken<Collection<Collection<Integer>>>() {}.getType();
     List<Collection<Integer>> target = gson.fromJson(collectionType, json);
-    List<Collection<Integer>> expected = Lists.newArrayList();
-    for (int i = 0; i < 3; i++) {
-      int start = (3 * i) + 1;
-      expected.add(ImmutableList.of(start, start + 1, start + 2));
+    int[][] expected = new int[3][3];
+    for (int i = 0; i < 3; ++i) {
+      int start = (3 * i) + 1;      
+      for (int j = 0; j < 3; ++j) {
+        expected[i][j] = start + j;
+      }
     }
 
     for (int i = 0; i < 3; i++) {
-      MoreAsserts.assertEquals(toIntArray(expected.get(i)), toIntArray(target.get(i)));
+      MoreAsserts.assertEquals(expected[i], toIntArray(target.get(i)));
     }
   }
   

@@ -18,10 +18,10 @@ package com.google.gson;
 
 import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.collect.Lists;
 import com.google.gson.version.VersionConstants;
 
 /**
@@ -203,9 +203,9 @@ public final class GsonBuilder {
    *         in this builder
    */
   public Gson create() {
-    List<ExclusionStrategy> strategies = Lists.newArrayList(
-        innerClassExclusionStrategy,
-        modifierBasedExclusionStrategy);
+    List<ExclusionStrategy> strategies = new LinkedList<ExclusionStrategy>();
+    strategies.add(innerClassExclusionStrategy);
+    strategies.add(modifierBasedExclusionStrategy);
     if (ignoreVersionsAfter != VersionConstants.IGNORE_VERSIONS) {
       strategies.add(new VersionExclusionStrategy(ignoreVersionsAfter));
     }

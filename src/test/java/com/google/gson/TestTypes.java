@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package com.google.gson.common;
+package com.google.gson;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.SortedSet;
 
-import com.google.common.collect.Lists;
 import com.google.gson.InstanceCreator;
 import com.google.gson.Primitives;
 
@@ -342,7 +342,8 @@ public class TestTypes {
   }
 
   public static class ContainsReferenceToSelfType {
-    public Collection<ContainsReferenceToSelfType> children = Lists.newArrayList();
+    public Collection<ContainsReferenceToSelfType> children = 
+        new ArrayList<ContainsReferenceToSelfType>();
   }
 
   public static class SubTypeOfNested extends Nested {

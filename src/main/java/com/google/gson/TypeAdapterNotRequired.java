@@ -16,8 +16,6 @@
 
 package com.google.gson;
 
-import com.google.common.base.Preconditions;
-
 /**
  * This class implements the {@link TypeAdapter} interface; however, if the
  * from instance type is the same as the to type then this object will

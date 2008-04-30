@@ -16,8 +16,6 @@
 
 package com.google.gson;
 
-import com.google.common.base.Preconditions;
-
 /**
  * A class representing a Json primitive value. A primitive value 
  * is either a String, a Java primitive, or a Java primitive 

@@ -16,8 +16,6 @@
 
 package com.google.gson;
 
-import com.google.common.collect.Maps;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -47,7 +45,7 @@ import java.util.TreeSet;
 final class DefaultInstanceCreators {
 
   static Map<Type, InstanceCreator<?>> getDefaultInstanceCreators() {
-    Map<Type, InstanceCreator<?>> map = Maps.newHashMap();
+    Map<Type, InstanceCreator<?>> map = new LinkedHashMap<Type, InstanceCreator<?>>();
 
     // Add primitive instance creators
     map.put(Boolean.class, new BooleanCreator());

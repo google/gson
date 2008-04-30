@@ -24,8 +24,6 @@ import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.google.common.collect.Maps;
-
 /**
  * Default JSON deserializers for common Java types
  *
@@ -36,7 +34,7 @@ final class DefaultJsonDeserializers {
 
   @SuppressWarnings("unchecked")
   static Map<Type, JsonDeserializer<?>> getDefaultDeserializers() {
-    Map<Type, JsonDeserializer<?>> map = Maps.newHashMap();
+    Map<Type, JsonDeserializer<?>> map = new LinkedHashMap<Type, JsonDeserializer<?>>();
     map.put(Enum.class, new EnumDeserializer());
     map.put(Map.class, new MapDeserializer());
     map.put(URL.class, new UrlDeserializer());

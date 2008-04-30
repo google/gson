@@ -22,33 +22,33 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 import junit.framework.TestCase;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.google.gson.common.TestTypes.ArrayOfArrays;
-import com.google.gson.common.TestTypes.ArrayOfObjects;
-import com.google.gson.common.TestTypes.BagOfPrimitiveWrappers;
-import com.google.gson.common.TestTypes.BagOfPrimitives;
-import com.google.gson.common.TestTypes.ClassOverridingEquals;
-import com.google.gson.common.TestTypes.ClassWithCustomTypeConverter;
-import com.google.gson.common.TestTypes.ClassWithEnumFields;
-import com.google.gson.common.TestTypes.ClassWithNoFields;
-import com.google.gson.common.TestTypes.ClassWithSubInterfacesOfCollection;
-import com.google.gson.common.TestTypes.ClassWithTransientFields;
-import com.google.gson.common.TestTypes.ContainsReferenceToSelfType;
-import com.google.gson.common.TestTypes.MyEnum;
-import com.google.gson.common.TestTypes.MyParameterizedType;
-import com.google.gson.common.TestTypes.Nested;
-import com.google.gson.common.TestTypes.PrimitiveArray;
-import com.google.gson.common.TestTypes.SubTypeOfNested;
+import com.google.gson.TestTypes.ArrayOfArrays;
+import com.google.gson.TestTypes.ArrayOfObjects;
+import com.google.gson.TestTypes.BagOfPrimitiveWrappers;
+import com.google.gson.TestTypes.BagOfPrimitives;
+import com.google.gson.TestTypes.ClassOverridingEquals;
+import com.google.gson.TestTypes.ClassWithCustomTypeConverter;
+import com.google.gson.TestTypes.ClassWithEnumFields;
+import com.google.gson.TestTypes.ClassWithNoFields;
+import com.google.gson.TestTypes.ClassWithSubInterfacesOfCollection;
+import com.google.gson.TestTypes.ClassWithTransientFields;
+import com.google.gson.TestTypes.ContainsReferenceToSelfType;
+import com.google.gson.TestTypes.MyEnum;
+import com.google.gson.TestTypes.MyParameterizedType;
+import com.google.gson.TestTypes.Nested;
+import com.google.gson.TestTypes.PrimitiveArray;
+import com.google.gson.TestTypes.SubTypeOfNested;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.version.Since;
 
@@ -205,10 +205,26 @@ public class JsonSerializerTest extends TestCase {
   }
 
   public void testSubInterfacesOfCollection() {
-    List<Integer> list = Lists.newLinkedList(0, 1, 2, 3);
-    Queue<Long> queue = Lists.newLinkedList(0L, 1L, 2L, 3L);
-    Set<Float> set = Sets.newTreeSet(0.1F, 0.2F, 0.3F, 0.4F);
-    SortedSet<Character> sortedSet = Sets.newTreeSet('a', 'b', 'c', 'd');
+    List<Integer> list = new LinkedList<Integer>();
+    list.add(0); 
+    list.add(1);
+    list.add(2);
+    list.add(3);
+    Queue<Long> queue = new LinkedList<Long>();
+    queue.add(0L); 
+    queue.add(1L);
+    queue.add(2L);
+    queue.add(3L);
+    Set<Float> set = new TreeSet<Float>();
+    set.add(0.1F);
+    set.add(0.2F);
+    set.add(0.3F);
+    set.add(0.4F);
+    SortedSet<Character> sortedSet = new TreeSet<Character>();
+    sortedSet.add('a');
+    sortedSet.add('b');
+    sortedSet.add('c');
+    sortedSet.add('d');
 //    NavigableSet<String> navigableSet = Sets.newTreeSet("abc", "def", "ghi", "jkl");
     ClassWithSubInterfacesOfCollection target =
         new ClassWithSubInterfacesOfCollection(list, queue, set, sortedSet/*, navigableSet */);
@@ -334,7 +350,9 @@ public class JsonSerializerTest extends TestCase {
   }
 
   public void testMap() throws Exception {
-    Map<String, Integer> map = Maps.immutableMap("a", 1, "b", 2);
+    Map<String, Integer> map = new LinkedHashMap<String, Integer>();
+    map.put("a", 1);
+    map.put("b", 2);
     Type typeOfMap = new TypeToken<Map<String, Integer>>() {}.getType();
     String json = gson.toJson(map, typeOfMap);
     assertTrue(json.contains("\"a\":1"));

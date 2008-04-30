@@ -16,13 +16,13 @@
 
 package com.google.gson;
 
-import com.google.common.collect.ImmutableList;
 import com.google.gson.DisjunctionExclusionStrategy;
 import com.google.gson.ExclusionStrategy;
 
 import junit.framework.TestCase;
 
 import java.lang.reflect.Field;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -45,7 +45,7 @@ public class DisjunctionExclusionStrategyTest extends TestCase {
     try {
       ExclusionStrategy[] constructorParam = null;
       new DisjunctionExclusionStrategy(constructorParam);
-    } catch (NullPointerException expected) { }
+    } catch (IllegalArgumentException expected) { }
 
     try {
       ExclusionStrategy[] constructorParam = new ExclusionStrategy[0];
@@ -55,10 +55,10 @@ public class DisjunctionExclusionStrategyTest extends TestCase {
     try {
       List<ExclusionStrategy> constructorParam = null;
       new DisjunctionExclusionStrategy(constructorParam);
-    } catch (NullPointerException expected) { }
+    } catch (IllegalArgumentException expected) { }
 
     try {
-      List<ExclusionStrategy> constructorParam = ImmutableList.of();
+      List<ExclusionStrategy> constructorParam = new LinkedList<ExclusionStrategy>();
       new DisjunctionExclusionStrategy(constructorParam);
     } catch (IllegalArgumentException expected) { }
   }

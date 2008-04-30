@@ -16,12 +16,11 @@
 
 package com.google.gson;
 
-import com.google.common.collect.Maps;
-
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URL;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -34,7 +33,7 @@ final class DefaultJsonSerializers {
   
   @SuppressWarnings("unchecked")
   static Map<Type, JsonSerializer<?>> getDefaultSerializers() {
-    Map<Type, JsonSerializer<?>> map = Maps.newHashMap();
+    Map<Type, JsonSerializer<?>> map = new LinkedHashMap<Type, JsonSerializer<?>>();
     map.put(Enum.class, new EnumSerializer());
     map.put(Map.class, new MapSerializer());
     map.put(URL.class, new UrlSerializer());

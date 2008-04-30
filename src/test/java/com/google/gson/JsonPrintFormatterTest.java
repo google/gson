@@ -1,13 +1,13 @@
 package com.google.gson;
 
-import com.google.common.collect.ImmutableList;
-import com.google.gson.common.TestTypes.ArrayOfObjects;
-import com.google.gson.common.TestTypes.BagOfPrimitives;
+import com.google.gson.TestTypes.ArrayOfObjects;
+import com.google.gson.TestTypes.BagOfPrimitives;
 import com.google.gson.reflect.TypeToken;
 
 import junit.framework.TestCase;
 
 import java.lang.reflect.Type;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -33,7 +33,10 @@ public class JsonPrintFormatterTest extends TestCase {
 
   public void testList() {
     BagOfPrimitives b = new BagOfPrimitives();
-    List<BagOfPrimitives> listOfB = ImmutableList.of(b, b, b, b, b, b, b, b, b, b, b, b, b, b);
+    List<BagOfPrimitives> listOfB = new LinkedList<BagOfPrimitives>();
+    for (int i = 0; i < 15; ++i) {
+      listOfB.add(b);
+    }
     Type typeOfSrc = new TypeToken<List<BagOfPrimitives>>() {}.getType();
     String json = gson.toJson(listOfB, typeOfSrc);
     print(json);

@@ -16,8 +16,6 @@
 
 package com.google.gson;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +27,7 @@ import java.util.Set;
  *
  * @author Kevin Bourrillion
  */
-public final class Primitives {
+final class Primitives {
   private Primitives() {}
 
   /** A map from primitive types to their corresponding wrapper types. */
@@ -80,6 +78,13 @@ public final class Primitives {
    */
   public static boolean isWrapperType(Class<?> type) {
     return WRAPPER_TO_PRIMITIVE_TYPE.containsKey(checkNotNull(type));
+  }
+
+  private static Class<?> checkNotNull(Class<?> type) {
+    if (type == null) {
+      throw new IllegalArgumentException();
+    }
+    return type;
   }
 
   /**
