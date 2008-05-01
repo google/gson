@@ -33,13 +33,13 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   private final ObjectNavigatorFactory factory;
   private final ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers;
   
-  private final JsonSerializer.Context context; 
+  private final JsonSerializationContext context; 
   
   private JsonElement root;
   
   JsonSerializationVisitor(ObjectNavigatorFactory factory, 
       ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers, 
-      JsonSerializer.Context context) {
+      JsonSerializationContext context) {
     this.factory = factory;
     this.serializers = serializers;
     this.context = context;

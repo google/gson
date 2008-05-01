@@ -8,14 +8,14 @@ import java.lang.reflect.Type;
  * 
  * @author Inderjeet Singh
  */
-final class JsonDeserializationContext implements JsonDeserializer.Context {
+final class JsonDeserializationContextDefault implements JsonDeserializationContext {
   
   private final ObjectNavigatorFactory navigatorFactory;
   private final ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers;
   private final MappedObjectConstructor objectConstructor;
   private final TypeAdapter typeAdapter;
 
-  JsonDeserializationContext(ObjectNavigatorFactory navigatorFactory, 
+  JsonDeserializationContextDefault(ObjectNavigatorFactory navigatorFactory, 
       ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers, 
       MappedObjectConstructor objectConstructor, TypeAdapter typeAdapter) {
     this.navigatorFactory = navigatorFactory;
@@ -39,7 +39,7 @@ final class JsonDeserializationContext implements JsonDeserializer.Context {
   
   @SuppressWarnings("unchecked")
   private <T> T fromJsonArray(Type arrayType, JsonArray jsonArray, 
-      JsonDeserializer.Context context) throws JsonParseException {
+      JsonDeserializationContext context) throws JsonParseException {
     JsonArrayDeserializationVisitor<T> visitor = new JsonArrayDeserializationVisitor<T>(
         jsonArray, arrayType, navigatorFactory, objectConstructor, typeAdapter, deserializers, 
         context);
@@ -51,7 +51,7 @@ final class JsonDeserializationContext implements JsonDeserializer.Context {
 
   @SuppressWarnings("unchecked")
   private <T> T fromJsonObject(Type typeOfT, JsonObject jsonObject, 
-      JsonDeserializer.Context context) throws JsonParseException {
+      JsonDeserializationContext context) throws JsonParseException {
     JsonObjectDeserializationVisitor<T> visitor = new JsonObjectDeserializationVisitor<T>(
         jsonObject, typeOfT, navigatorFactory, objectConstructor, typeAdapter, deserializers, 
         context);
@@ -63,7 +63,7 @@ final class JsonDeserializationContext implements JsonDeserializer.Context {
   
   @SuppressWarnings("unchecked")
   private <T> T fromJsonPrimitive(Type typeOfT, JsonPrimitive json, 
-      JsonDeserializer.Context context) throws JsonParseException {
+      JsonDeserializationContext context) throws JsonParseException {
     JsonPrimitiveDeserializationVisitor<T> visitor = new JsonPrimitiveDeserializationVisitor<T>(
         json, typeOfT, navigatorFactory, objectConstructor, typeAdapter, deserializers, context);
     Object target = visitor.getTarget();

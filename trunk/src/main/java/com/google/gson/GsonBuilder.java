@@ -199,8 +199,10 @@ public final class GsonBuilder {
   }
   
   /**
+   * Creates a Gson instance based on current configuration
+   * 
    * @return an instance of Gson configured with the parameters set 
-   *         in this builder
+   * in this builder
    */
   public Gson create() {
     List<ExclusionStrategy> strategies = new LinkedList<ExclusionStrategy>();
