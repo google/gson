@@ -157,9 +157,8 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
     if (serializer != null) {
       assignToRoot(serializer.toJson(obj, objType, context));
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   private void assignToRoot(JsonElement newRoot) {

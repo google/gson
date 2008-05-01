@@ -108,9 +108,8 @@ public abstract class TypeToken<T> {
       Type rawType = parameterizedType.getRawType();
       if (rawType instanceof Class<?>) {
         return (Class<?>) rawType;
-      } else {
-        throw buildUnexpectedTypeError(rawType, Class.class);
       }
+      throw buildUnexpectedTypeError(rawType, Class.class);
     } else if (type instanceof GenericArrayType) {
       GenericArrayType genericArrayType = (GenericArrayType) type;
 
@@ -199,11 +198,10 @@ public abstract class TypeToken<T> {
       }
       return isAssignableFrom(t, (ParameterizedType) toGenericComponentType,
           new HashMap<String, Type>());
-    } else {
-      // No generic defined on "to"; therefore, return true and let other
-      // checks determine assignability
-      return true;
     }
+    // No generic defined on "to"; therefore, return true and let other
+    // checks determine assignability
+    return true;
   }
 
   /**

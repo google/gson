@@ -47,8 +47,7 @@ final class TypeAdapterNotRequired implements TypeAdapter {
   public <T> T adaptType(Object from, Class<T> to) {
     if (to.isAssignableFrom(from.getClass())) {
       return (T) from;
-    } else {
-      return delegate.adaptType(from, to);
     }
+    return delegate.adaptType(from, to);
   }
 }
