@@ -30,7 +30,22 @@ import java.lang.reflect.Type;
  */
 public interface JsonDeserializer<T> {
   
+  /**
+   * Context for deserialization that is passed to a custom deserializer
+   * during invocation of its 
+   * {@link JsonDeserializer#fromJson(Type, JsonElement, JsonDeserializer.Context)}
+   * method
+   */
   public interface Context {
+    
+    /**
+     * Invokes default deserialization on the specified object.
+     * @param <T> The type of the deserialized object
+     * @param typeOfT type of the expected return value
+     * @param json the parse tree
+     * @return An object of type typeOfT
+     * @throws JsonParseException if the parse tree does not contain expected data
+     */
     public <T> T deserialize(Type typeOfT, JsonElement json) throws JsonParseException;
   }
 

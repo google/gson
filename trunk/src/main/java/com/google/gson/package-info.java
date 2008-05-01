@@ -1,6 +1,6 @@
 /**
  * This package provides a Java library for converting JSON to Java objects and
- * vice-versa.  
+ * vice-versa
  * <p>
  * The primary class to use is {@link Gson} which can be constructed with 
  * {@code new Gson()} (using default settings) or by using {@link GsonBuilder} 

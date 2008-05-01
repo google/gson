@@ -32,7 +32,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * This is the main class that a user of Gson will use. Gson is typically 
+ * This is the main class for using Gson. Gson is typically 
  * used by first constructing a {@link #Gson()} object and then invoking 
  * {@link #toJson(Object)} or {@link #fromJson(Class, String)} methods on it.
  * You can also use {@link GsonBuilder} to build a Gson instance with options 
@@ -234,6 +234,15 @@ public final class Gson {
   }
 
   /**
+   * This method creates JSON representation of the specified object. It 
+   * uses the {@link Class#getClass()} method to get the type information 
+   * for the specified object. However, {@link Class#getClass()} loses the 
+   * generic type information because of the Type Erasure feature of Java. 
+   * Therefore, this method should not be used if the specified object is 
+   * a generic type. Note that this method works fine if the any of the fields
+   * of the specified object are generics, just the object itself should not
+   * be a generic type. For the cases when the object is of generic type, invoke
+   * {@link #toJson(Object, Type) instead.
    * @param src the object for which JSON representation is to be created
    *        setting for Gson
    * @return JSON representation of src
@@ -246,15 +255,14 @@ public final class Gson {
   }
 
   /**
-   * This method is useful if you want custom handling of src
-   * based on its generic type and also want to override versioning
-   * information. Typically, this is done when you have registered a
-   * custom serializer for src, or if src is a Collection of a specific
-   * generic type. For most purposes, you should use
-   * {@link #toJson(Object)} instead
-   *
+   * This method is useful if the specified object is a generic type. 
+   * For non-generic objects, use {@link #toJson(Object)} instead. 
+   * 
    * @param src the object for which JSON representation is to be created
-   * @param typeOfSrc The specific genericized type of src
+   * @param typeOfSrc The specific genericized type of src. You can obtain 
+   * this type by using the {@link TypeToken} class. For example, 
+   * to get the type for <code>Collection&lt;Foo&gt;</code>, you should use<br>
+   * <code>Type typeOfSrc = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType()</code>
    * @return JSON representation of src
    */
   public String toJson(Object src, Type typeOfSrc) {
@@ -269,6 +277,16 @@ public final class Gson {
   }
 
   /**
+   * This method deserializes the specified JSON into an object of the 
+   * specified class. It is not suitable to use if the specified class is
+   * a generic type since it will not have the 
+   * generic type information because of the Type Erasure feature of Java. 
+   * Therefore, this method should not be used if the desired type is 
+   * a generic type. Note that this method works fine if the any of the fields
+   * of the specified object are generics, just the object itself should not
+   * be a generic type. For the cases when the object is of generic type, invoke
+   * {@link #fromJson(Type, String)}. 
+   * 
    * @param <T> the type of the desired object
    * @param classOfT the class of T
    * @param json the string from which the object is to be deserialized
@@ -282,12 +300,14 @@ public final class Gson {
   }
 
   /**
-   * This method is useful if you want custom deserialization
-   * corresponding to the specific generic type. For most other cases,
-   * use {@link #fromJson(Class, String)} instead
-   *
+   * This method is useful if the specified object is a generic type. 
+   * For non-generic objects, use {@link #fromJson(Class, String)} instead. 
+   * 
    * @param <T> the type of the desired object
-   * @param typeOfT the specific generic type of T
+   * @param typeOfT The specific genericized type of src. You can obtain 
+   * this type by using the {@link TypeToken} class. For example, 
+   * to get the type for <code>Collection&lt;Foo&gt;</code>, you should use<br>
+   * <code>Type typeOfT = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType()</code>
    * @param json the string from which the object is to be deserialized
    * @return an object of type T from the string
    * @throws JsonParseException if json is not a valid representation for an object
