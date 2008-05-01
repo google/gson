@@ -22,6 +22,7 @@ import java.lang.reflect.Type;
  * Interface representing a custom serializer for Json.   
  * 
  * @author Inderjeet Singh
+ * @author Joel Leitch
  *
  * @param <T> type for which the serializer is being registered. It is possible
  * that a serializer may be asked to serialize a specific generic type of the
@@ -30,35 +31,10 @@ import java.lang.reflect.Type;
 public interface JsonSerializer<T> {
   
   /**
-   * Context for serialization that is passed to a custom 
-   * serializer during invocation of its 
-   * {@link JsonSerializer#toJson(Object, Type, JsonSerializer.Context)} method
-   */
-  public interface Context {
-    
-    /**
-     * Invokes default serialization on the specified object. 
-     * @param src the object that needs to be serialized
-     * @return a tree of {@link JsonElement}s corresponding to the serialized form of {@code src}
-     */
-    public JsonElement serialize(Object src);
-    
-    /**
-     * Invokes default serialization on the specified object passing the 
-     * specific type information. This method should be used if src is 
-     * of a generic type
-     * @param src the object that needs to be serialized
-     * @param typeOfSrc the actual genericized type of src object
-     * @return a tree of {@link JsonElement}s corresponding to the serialized form of {@code src}
-     */
-    public JsonElement serialize(Object src, Type typeOfSrc);
-  }
-  
-  /**
    * @param src the object that needs to be converted to Json
    * @param typeOfSrc the actual type (fully genericized version) of 
    *        the source object
    * @return a JsonElement corresponding to the specified object 
    */
-  public JsonElement toJson(T src, Type typeOfSrc, Context context);
+  public JsonElement toJson(T src, Type typeOfSrc, JsonSerializationContext context);
 }

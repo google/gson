@@ -44,21 +44,21 @@ final class DefaultJsonSerializers {
   @SuppressWarnings("unchecked")
   private static class EnumSerializer<T extends Enum> implements JsonSerializer<T> {
 
-    public JsonElement toJson(T src, Type typeOfSrc, JsonSerializer.Context context) {
+    public JsonElement toJson(T src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src.name());
     }
   }
   
   private static class UrlSerializer implements JsonSerializer<URL> {
 	  
-    public JsonElement toJson(URL src, Type typeOfSrc, JsonSerializer.Context context) {
+    public JsonElement toJson(URL src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src.toExternalForm());
     }    
   }
   
   private static class UriSerializer implements JsonSerializer<URI> {
 
-    public JsonElement toJson(URI src, Type typeOfSrc, JsonSerializer.Context context) {
+    public JsonElement toJson(URI src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src.toASCIIString());
     }    
   }
@@ -67,7 +67,7 @@ final class DefaultJsonSerializers {
   private static class MapSerializer implements JsonSerializer<Map> {
 
     @SuppressWarnings("unchecked")
-    public JsonElement toJson(Map src, Type typeOfSrc, JsonSerializer.Context context) {
+    public JsonElement toJson(Map src, Type typeOfSrc, JsonSerializationContext context) {
       JsonObject map = new JsonObject();
       Type childType = new MapTypeInfo(typeOfSrc).getValueType();     
       for (Iterator iterator = src.entrySet().iterator(); iterator.hasNext(); ) {

@@ -2,18 +2,17 @@ package com.google.gson;
 
 import java.lang.reflect.Type;
 
-
 /**
  * An implementation of serialization context for Gson
  * 
  * @author Inderjeet Singh
  */
-final class JsonSerializationContext implements JsonSerializer.Context {
+final class JsonSerializationContextDefault implements JsonSerializationContext {
   
   private final ObjectNavigatorFactory factory;
   private final ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers;
 
-  JsonSerializationContext(ObjectNavigatorFactory factory, 
+  JsonSerializationContextDefault(ObjectNavigatorFactory factory, 
       ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers) {
     this.factory = factory;
     this.serializers = serializers;

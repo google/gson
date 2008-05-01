@@ -32,7 +32,7 @@ final class JsonPrimitiveDeserializationVisitor<T> extends JsonDeserializationVi
   JsonPrimitiveDeserializationVisitor(JsonPrimitive json, Type type,
       ObjectNavigatorFactory factory, ObjectConstructor objectConstructor,
       TypeAdapter typeAdapter, ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers, 
-      JsonDeserializer.Context context) {
+      JsonDeserializationContext context) {
     super(json, factory, objectConstructor, typeAdapter, deserializers, context);
     this.target = (T) objectConstructor.construct(type);
   }

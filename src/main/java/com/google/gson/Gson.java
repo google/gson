@@ -16,8 +16,6 @@
 
 package com.google.gson;
 
-import com.google.gson.JsonParser;
-import com.google.gson.TokenMgrError;
 import com.google.gson.version.VersionConstants;
 
 import java.io.PrintWriter;
@@ -139,7 +137,7 @@ public final class Gson {
    * @param classOfT The class definition for the type T
    * @param instanceCreator the instance creator for T
    */
-  public <T> void registerInstanceCreator(Class<T> classOfT,
+  <T> void registerInstanceCreator(Class<T> classOfT,
       InstanceCreator<? extends T> instanceCreator) {
     registerInstanceCreator((Type) classOfT, instanceCreator);
   }
@@ -158,7 +156,7 @@ public final class Gson {
    * @param typeOfT The Type definition for T
    * @param instanceCreator the instance creator for T
    */
-  public <T> void registerInstanceCreator(Type typeOfT,
+  <T> void registerInstanceCreator(Type typeOfT,
       InstanceCreator<? extends T> instanceCreator) {
     objectConstructor.register(typeOfT, instanceCreator);
   }
@@ -175,7 +173,7 @@ public final class Gson {
    * @param classOfT The class definition for the type T
    * @param serializer the custom serializer
    */
-  public <T> void registerSerializer(Class<T> classOfT, JsonSerializer<T> serializer) {
+  <T> void registerSerializer(Class<T> classOfT, JsonSerializer<T> serializer) {
     registerSerializer((Type) classOfT, serializer);
   }
 
@@ -191,7 +189,7 @@ public final class Gson {
    * @param typeOfT The type definition for T
    * @param serializer the custom serializer
    */
-  public <T> void registerSerializer(Type typeOfT, final JsonSerializer<T> serializer) {
+  <T> void registerSerializer(Type typeOfT, final JsonSerializer<T> serializer) {
     if (serializers.hasSpecificHandlerFor(typeOfT)) {
       logger.log(Level.WARNING, "Overriding the existing Serializer for " + typeOfT);
     }
@@ -210,7 +208,7 @@ public final class Gson {
    * @param classOfT The class definition for the type T
    * @param deserializer the custom deserializer
    */
-  public <T> void registerDeserializer(Class<T> classOfT, JsonDeserializer<T> deserializer) {
+  <T> void registerDeserializer(Class<T> classOfT, JsonDeserializer<T> deserializer) {
     registerDeserializer((Type) classOfT, deserializer);
   }
 
@@ -226,7 +224,7 @@ public final class Gson {
    * @param typeOfT The type definition for T
    * @param deserializer the custom deserializer
    */
-  public <T> void registerDeserializer(Type typeOfT, final JsonDeserializer<T> deserializer) {
+  <T> void registerDeserializer(Type typeOfT, final JsonDeserializer<T> deserializer) {
     if (deserializers.hasSpecificHandlerFor(typeOfT)) {
       logger.log(Level.WARNING, "Overriding the existing Deserializer for " + typeOfT);
     }
@@ -269,7 +267,8 @@ public final class Gson {
     if (src == null) {
       return "";
     }
-    JsonSerializer.Context context = new JsonSerializationContext(navigatorFactory, serializers);
+    JsonSerializationContext context = 
+      new JsonSerializationContextDefault(navigatorFactory, serializers);
     JsonElement jsonElement = context.serialize(src, typeOfSrc);
     StringWriter writer = new StringWriter();
     formatter.format(jsonElement, new PrintWriter(writer));
@@ -319,7 +318,7 @@ public final class Gson {
       StringReader reader = new StringReader(json);
       JsonParser parser = new JsonParser(reader);
       JsonElement root = parser.parse();
-      JsonDeserializer.Context context = new JsonDeserializationContext(navigatorFactory, 
+      JsonDeserializationContext context = new JsonDeserializationContextDefault(navigatorFactory, 
           deserializers, objectConstructor, typeAdapter);
       return (T) context.deserialize(typeOfT, root);
     } catch (TokenMgrError e) {

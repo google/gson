@@ -36,7 +36,7 @@ final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisito
   JsonArrayDeserializationVisitor(JsonArray jsonArray, Type arrayType,
       ObjectNavigatorFactory factory, ObjectConstructor objectConstructor,
       TypeAdapter typeAdapter, ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers, 
-      JsonDeserializer.Context context) {
+      JsonDeserializationContext context) {
     super(jsonArray, factory, objectConstructor, typeAdapter, deserializers, context);
 
     TypeInfo<T> arrayTypeInfo = new TypeInfo<T>(arrayType);
