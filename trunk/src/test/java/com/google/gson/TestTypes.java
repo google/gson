@@ -568,9 +568,8 @@ public class TestTypes {
     public String toJson() {
       if (ref == null) {
         return "{}";
-      } else {
-        return "{\"ref\":" + ref.toJson() + "}";
       }
+      return "{\"ref\":" + ref.toJson() + "}";
     }
     @Override
     public boolean equals(Object obj) {

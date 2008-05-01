@@ -242,9 +242,9 @@ public final class Gson {
    * a generic type. Note that this method works fine if the any of the fields
    * of the specified object are generics, just the object itself should not
    * be a generic type. For the cases when the object is of generic type, invoke
-   * {@link #toJson(Object, Type) instead.
+   * {@link #toJson(Object, Type)} instead.
    * @param src the object for which JSON representation is to be created
-   *        setting for Gson
+   * setting for Gson
    * @return JSON representation of src
    */
   public String toJson(Object src) {
@@ -260,7 +260,7 @@ public final class Gson {
    * 
    * @param src the object for which JSON representation is to be created
    * @param typeOfSrc The specific genericized type of src. You can obtain 
-   * this type by using the {@link TypeToken} class. For example, 
+   * this type by using the {@link com.google.gson.reflect.TypeToken} class. For example, 
    * to get the type for <code>Collection&lt;Foo&gt;</code>, you should use<br>
    * <code>Type typeOfSrc = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType()</code>
    * @return JSON representation of src
@@ -305,7 +305,7 @@ public final class Gson {
    * 
    * @param <T> the type of the desired object
    * @param typeOfT The specific genericized type of src. You can obtain 
-   * this type by using the {@link TypeToken} class. For example, 
+   * this type by using the {@link com.google.gson.reflect.TypeToken} class. For example, 
    * to get the type for <code>Collection&lt;Foo&gt;</code>, you should use<br>
    * <code>Type typeOfT = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType()</code>
    * @param json the string from which the object is to be deserialized

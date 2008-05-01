@@ -44,15 +44,14 @@ final class ModifierBasedExclusionStrategy implements ExclusionStrategy {
   public boolean shouldSkipField(Field f) {
     if (skipSyntheticField && f.isSynthetic()) {
       return true;
-    } else {
-      int objectModifiers = f.getModifiers();
-      for (int modifier : modifiers) {
-        if ((objectModifiers & modifier) != 0) {
-          return true;
-        }
-      }
-      return false;
     }
+    int objectModifiers = f.getModifiers();
+    for (int modifier : modifiers) {
+      if ((objectModifiers & modifier) != 0) {
+        return true;
+      }
+    }
+    return false;
   }
 
   public boolean shouldSkipClass(Class<?> clazz) {

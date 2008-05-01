@@ -46,16 +46,14 @@ final class MappedObjectConstructor implements ObjectConstructor {
     if (instanceCreatorMap.hasAnyHandlerFor(typeOfT)) {
       InstanceCreator<T> creator = (InstanceCreator<T>) instanceCreatorMap.getHandlerFor(typeOfT);
       return creator.createInstance(typeOfT);
-    } else {
-      TypeInfo<T> typeInfo = new TypeInfo<T>(typeOfT);
-      if (typeInfo.isEnum()) {
-        InstanceCreator<T> creator =
-            (InstanceCreator<T>) instanceCreatorMap.getHandlerFor(Enum.class);
-        return creator.createInstance(typeOfT);
-      } else {
-        return (T) constructWithNoArgConstructor(typeOfT);
-      }
     }
+    TypeInfo<T> typeInfo = new TypeInfo<T>(typeOfT);
+    if (typeInfo.isEnum()) {
+      InstanceCreator<T> creator =
+        (InstanceCreator<T>) instanceCreatorMap.getHandlerFor(Enum.class);
+      return creator.createInstance(typeOfT);
+    }
+    return (T) constructWithNoArgConstructor(typeOfT);
   }
 
   public Object constructArray(Type type, int length) {

@@ -75,9 +75,8 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
     if (deserializer != null) {
       target = deserializer.fromJson(objType, json, context);
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   @SuppressWarnings("unchecked")

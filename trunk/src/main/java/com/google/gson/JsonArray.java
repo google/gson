@@ -57,81 +57,72 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   public Number getAsNumber() {
     if (elements.size() == 1) {
       return elements.get(0).getAsNumber();
-    } else {
-      throw new IllegalStateException();
-    }
+    } 
+    throw new IllegalStateException();
   }
   
   @Override 
   public String getAsString() {
     if (elements.size() == 1) {
       return elements.get(0).getAsString();
-    } else {
-      throw new IllegalStateException();
     }
+    throw new IllegalStateException();
   }
   
   @Override 
   public double getAsDouble() {
     if (elements.size() == 1) {
       return elements.get(0).getAsDouble();
-    } else {
-      throw new IllegalStateException();
     }
+    throw new IllegalStateException();
   }
   
   @Override 
   public float getAsFloat() {
     if (elements.size() == 1) {
       return elements.get(0).getAsFloat();
-    } else {
-      throw new IllegalStateException();
     }
+    throw new IllegalStateException();
   }
   
   @Override 
   public long getAsLong() {
     if (elements.size() == 1) {
       return elements.get(0).getAsLong();
-    } else {
-      throw new IllegalStateException();
     }
+    throw new IllegalStateException();
   }
   
   @Override 
   public int getAsInt() {
     if (elements.size() == 1) {
       return elements.get(0).getAsInt();
-    } else {
-      throw new IllegalStateException();
     }
+    throw new IllegalStateException();
   }
   
   @Override 
   public short getAsShort() {
     if (elements.size() == 1) {
       return elements.get(0).getAsShort();
-    } else {
-      throw new IllegalStateException();
     }
+    throw new IllegalStateException();
   }
   
   @Override 
   public boolean getAsBoolean() {
     if (elements.size() == 1) {
       return elements.get(0).getAsBoolean();
-    } else {
-      throw new IllegalStateException();
     }
+    throw new IllegalStateException();
   }
   
   @Override 
   public Object getAsObject() {
     if (elements.size() == 1) {
       return elements.get(0).getAsObject();
-    } else {
-      throw new IllegalStateException();
     }
+    throw new IllegalStateException();
   }
 
   @Override

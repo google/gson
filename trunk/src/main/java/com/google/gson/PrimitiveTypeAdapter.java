@@ -35,19 +35,18 @@ final class PrimitiveTypeAdapter implements TypeAdapter {
     if (Primitives.isWrapperType(aClass)) {
       if (aClass == Character.class) {
         return (T) (Character) from.toString().charAt(0);
-      } else {
-        try {
-          Constructor<?> constructor = aClass.getConstructor(String.class);
-          return (T) constructor.newInstance(from.toString());
-        } catch (NoSuchMethodException e) {
-          throw new JsonParseException(e);
-        } catch (IllegalAccessException e) {
-          throw new JsonParseException(e);
-        } catch (InvocationTargetException e) {
-          throw new JsonParseException(e);
-        } catch (InstantiationException e) {
-          throw new JsonParseException(e);
-        }
+      }
+      try {
+        Constructor<?> constructor = aClass.getConstructor(String.class);
+        return (T) constructor.newInstance(from.toString());
+      } catch (NoSuchMethodException e) {
+        throw new JsonParseException(e);
+      } catch (IllegalAccessException e) {
+        throw new JsonParseException(e);
+      } catch (InvocationTargetException e) {
+        throw new JsonParseException(e);
+      } catch (InstantiationException e) {
+        throw new JsonParseException(e);
       }
     } else if (Enum.class.isAssignableFrom(to)) {
       // Case where the type being adapted to is an Enum
