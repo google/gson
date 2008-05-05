@@ -94,7 +94,7 @@ public class JsonSerializerTest extends TestCase {
     ClassOverridingEquals objB = new ClassOverridingEquals();
     objB.ref = objA;
 
-    assertEquals(objB.toJson(), gson.toJson(objB));
+    assertEquals(objB.getExpectedJson(), gson.toJson(objB));
   }
 
   public void testDirectedAcyclicGraph() {

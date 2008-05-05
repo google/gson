@@ -67,16 +67,6 @@ public class TestTypes {
       sb.append("}");
       return sb.toString();
     }
-    public String getExpectedString() {
-      StringBuilder sb = new StringBuilder();
-      sb.append("{");
-      sb.append("longValue:").append(longValue).append(",");
-      sb.append("intValue:").append(intValue).append(",");
-      sb.append("booleanValue:").append(booleanValue).append(",");
-      sb.append("stringValue:").append(stringValue);
-      sb.append("}");
-      return sb.toString();
-    }
   }
 
   public static class BagOfPrimitiveWrappers {
@@ -103,16 +93,6 @@ public class TestTypes {
       sb.append("}");
       return sb.toString();
     }
-
-    public String getExpectedString() {
-      StringBuilder sb = new StringBuilder();
-      sb.append("{");
-      sb.append("longValue:").append(longValue).append(",");
-      sb.append("intValue:").append(intValue).append(",");
-      sb.append("booleanValue:").append(booleanValue);
-      sb.append("}");
-      return sb.toString();
-    }
   }
 
   public static class PrimitiveArray {
@@ -129,24 +109,6 @@ public class TestTypes {
     public String getExpectedJson() {
       StringBuilder sb = new StringBuilder();
       sb.append("{\"longArray\":[");
-
-      boolean first = true;
-      for (long l : longArray) {
-        if (!first) {
-          sb.append(",");
-        } else {
-          first = false;
-        }
-        sb.append(l);
-      }
-
-      sb.append("]}");
-      return sb.toString();
-    }
-
-    public String getExpectedString() {
-      StringBuilder sb = new StringBuilder();
-      sb.append("{longArray:[");
 
       boolean first = true;
       for (long l : longArray) {
@@ -184,14 +146,6 @@ public class TestTypes {
       return sb.toString();
     }
 
-    public String getExpectedString() {
-      StringBuilder sb = new StringBuilder();
-      sb.append("{");
-      appendFieldsAsStrings(sb);
-      sb.append("}");
-      return sb.toString();
-    }
-
     public void appendFields(StringBuilder sb) {
       if (primitive1 != null) {
         sb.append("\"primitive1\":").append(primitive1.getExpectedJson());
@@ -201,18 +155,6 @@ public class TestTypes {
       }
       if (primitive2 != null) {
         sb.append("\"primitive2\":").append(primitive2.getExpectedJson());
-      }
-    }
-
-    public void appendFieldsAsStrings(StringBuilder sb) {
-      if (primitive1 != null) {
-        sb.append("primitive1:").append(primitive1.getExpectedString());
-      }
-      if (primitive1 != null && primitive2 != null) {
-        sb.append(",");
-      }
-      if (primitive2 != null) {
-        sb.append("primitive2:").append(primitive2.getExpectedString());
       }
     }
   }
@@ -234,14 +176,6 @@ public class TestTypes {
       StringBuilder sb = new StringBuilder();
       sb.append("{");
       sb.append("\"longValue\":[").append(longValue[0]).append("]");
-      sb.append("}");
-      return sb.toString();
-    }
-
-    public String getExpectedString() {
-      StringBuilder sb = new StringBuilder();
-      sb.append("{");
-      sb.append("longValue:[").append(longValue[0]).append("]");
       sb.append("}");
       return sb.toString();
     }
@@ -287,23 +221,6 @@ public class TestTypes {
       sb.append("}");
       return sb.toString();
     }
-    public String getExpectedString() {
-      StringBuilder sb = new StringBuilder();
-      sb.append("{");
-      sb.append("list:");
-      appendForString(sb, list).append(",");
-      sb.append("queue:");
-      appendForString(sb, queue).append(",");
-      sb.append("set:");
-      appendForString(sb, set).append(",");
-      sb.append("sortedSet:");
-      appendForString(sb, sortedSet);
-/*      sb.append(",");
-      sb.append("navigableSet:");
-      appendForString(sb, navigableSet); */
-      sb.append("}");
-      return sb.toString();
-    }
 
     private StringBuilder append(StringBuilder sb, Collection<?> c) {
       sb.append("[");
@@ -321,20 +238,6 @@ public class TestTypes {
         if (o instanceof String || o instanceof Character) {
           sb.append('\"');
         }
-      }
-      sb.append("]");
-      return sb;
-    }
-    private StringBuilder appendForString(StringBuilder sb, Collection<?> c) {
-      sb.append("[");
-      boolean first = true;
-      for (Object o : c) {
-        if (!first) {
-          sb.append(",");
-        } else {
-          first = false;
-        }
-        sb.append(o.toString());
       }
       sb.append("]");
       return sb;
@@ -362,11 +265,6 @@ public class TestTypes {
       sb.append("\"value\":").append(value).append(",");
       super.appendFields(sb);
     }
-    @Override
-    public void appendFieldsAsStrings(StringBuilder sb) {
-      sb.append("value:").append(value).append(",");
-      super.appendFieldsAsStrings(sb);
-    }
   }
 
   public static class ClassWithCustomTypeConverter {
@@ -393,9 +291,6 @@ public class TestTypes {
     public String getExpectedJson() {
       return "{\"url\":\"" + bag.getExpectedJson() + "\",\"value\":" + value + "}";
     }
-    public String getExpectedString() {
-      return "{url:" + bag.getExpectedJson() + ",value:" + value + "}";
-    }
     public int getValue() {
       return value;
     }
@@ -419,20 +314,6 @@ public class TestTypes {
           sb.append(",");
         }
         sb.append(element.getExpectedJson());
-      }
-      sb.append("]}");
-      return sb.toString();
-    }
-    public String getExpectedString() {
-      StringBuilder sb = new StringBuilder("{elements:[");
-      boolean first = true;
-      for (BagOfPrimitives element : elements) {
-        if (first) {
-          first = false;
-        } else {
-          sb.append(",");
-        }
-        sb.append(element.getExpectedString());
       }
       sb.append("]}");
       return sb.toString();
@@ -474,30 +355,6 @@ public class TestTypes {
       sb.append("]}");
       return sb.toString();
     }
-    public String getExpectedString() {
-      StringBuilder sb = new StringBuilder("{elements:[");
-      boolean first = true;
-      for (BagOfPrimitives[] row : elements) {
-        if (first) {
-          first = false;
-        } else {
-          sb.append(",");
-        }
-        boolean firstOfRow = true;
-        sb.append("[");
-        for (BagOfPrimitives element : row) {
-          if (firstOfRow) {
-            firstOfRow = false;
-          } else {
-            sb.append(",");
-          }
-          sb.append(element.getExpectedString());
-        }
-        sb.append("]");
-      }
-      sb.append("]}");
-      return sb.toString();
-    }
   }
 
   public static class MyParameterizedType<T> {
@@ -533,9 +390,6 @@ public class TestTypes {
     public String getExpectedJson() {
       return "\"" + toString() + "\"";
     }
-    public String getExpectedString() {
-      return "[" + toString() + "]";
-    }
   }
 
   public static class ClassWithEnumFields {
@@ -543,9 +397,6 @@ public class TestTypes {
     private final MyEnum value2 = MyEnum.VALUE2;
     public String getExpectedJson() {
       return "{\"value1\":\"" + value1 + "\",\"value2\":\"" + value2 + "\"}";
-    }
-    public String getExpectedString() {
-      return "{value1:" + value1 + ",value2:" + value2 + "}";
     }
   }
 
@@ -565,11 +416,11 @@ public class TestTypes {
   public static class ClassOverridingEquals {
     public ClassOverridingEquals ref;
 
-    public String toJson() {
+    public String getExpectedJson() {
       if (ref == null) {
         return "{}";
       }
-      return "{\"ref\":" + ref.toJson() + "}";
+      return "{\"ref\":" + ref.getExpectedJson() + "}";
     }
     @Override
     public boolean equals(Object obj) {
