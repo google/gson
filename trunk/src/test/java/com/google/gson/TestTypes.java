@@ -581,4 +581,17 @@ public class TestTypes {
       return 1;
     }
   }
+  
+  public static class ClassWithExposedFields {
+    @Expose int a = 1;
+    int b = 2;
+    
+    public String getExpectedJson() {
+      return '{' + "\"a\":" + a + '}';
+    }
+    
+    public String getExpectedJsonWithoutAnnotations() {
+      return '{' + "\"a\":" + a + ",\"b\":" + b + '}';
+    }
+  }
 }

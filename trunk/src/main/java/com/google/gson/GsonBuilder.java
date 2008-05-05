@@ -35,6 +35,7 @@ public final class GsonBuilder {
   private double ignoreVersionsAfter;
   private ModifierBasedExclusionStrategy modifierBasedExclusionStrategy;
   private InnerClassExclusionStrategy innerClassExclusionStrategy;
+  private boolean excludeFieldsWithoutExposeAnnotation;
   private TypeAdapter typeAdapter;
   private JsonFormatter formatter;
   private final Map<Type, InstanceCreator<?>> instanceCreators;
@@ -46,6 +47,7 @@ public final class GsonBuilder {
     ignoreVersionsAfter = VersionConstants.IGNORE_VERSIONS;    
     innerClassExclusionStrategy = new InnerClassExclusionStrategy();    
     modifierBasedExclusionStrategy = Gson.DEFAULT_MODIFIER_BASED_EXCLUSION_STRATEGY;    
+    excludeFieldsWithoutExposeAnnotation = false;
     typeAdapter = Gson.DEFAULT_TYPE_ADAPTER;
     formatter = Gson.DEFAULT_JSON_FORMATTER;
     instanceCreators = new LinkedHashMap<Type, InstanceCreator<?>>();
@@ -78,6 +80,11 @@ public final class GsonBuilder {
     boolean skipSynthetics = true;
     modifierBasedExclusionStrategy = new ModifierBasedExclusionStrategy(skipSynthetics, modifiers);
     return this;    
+  }
+
+  public GsonBuilder excludeFieldsWithoutExposeAnnotation() {
+    excludeFieldsWithoutExposeAnnotation = true;
+    return this;
   }
   
   /**
@@ -210,6 +217,9 @@ public final class GsonBuilder {
     strategies.add(modifierBasedExclusionStrategy);
     if (ignoreVersionsAfter != VersionConstants.IGNORE_VERSIONS) {
       strategies.add(new VersionExclusionStrategy(ignoreVersionsAfter));
+    }
+    if (excludeFieldsWithoutExposeAnnotation) {
+      strategies.add(new ExposeAnnotationBasedExclusionStrategy());
     }
     ExclusionStrategy exclusionStrategy = new DisjunctionExclusionStrategy(strategies);
     ObjectNavigatorFactory objectNavigatorFactory = new ObjectNavigatorFactory(exclusionStrategy);

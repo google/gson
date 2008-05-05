@@ -40,6 +40,7 @@ import com.google.gson.TestTypes.BagOfPrimitives;
 import com.google.gson.TestTypes.ClassOverridingEquals;
 import com.google.gson.TestTypes.ClassWithCustomTypeConverter;
 import com.google.gson.TestTypes.ClassWithEnumFields;
+import com.google.gson.TestTypes.ClassWithExposedFields;
 import com.google.gson.TestTypes.ClassWithNoFields;
 import com.google.gson.TestTypes.ClassWithSubInterfacesOfCollection;
 import com.google.gson.TestTypes.ClassWithTransientFields;
@@ -357,5 +358,14 @@ public class JsonSerializerTest extends TestCase {
     String json = gson.toJson(map, typeOfMap);
     assertTrue(json.contains("\"a\":1"));
     assertTrue(json.contains("\"b\":2"));
+  }
+  
+  public void testExposeAnnotation() {
+    // First test that Gson works without the expose annotation as well
+    ClassWithExposedFields target = new ClassWithExposedFields();
+    assertEquals(target.getExpectedJsonWithoutAnnotations(), gson.toJson(target));
+    // Now recreate gson with the proper setting
+    gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+    assertEquals(target.getExpectedJson(), gson.toJson(target));    
   }
 }
