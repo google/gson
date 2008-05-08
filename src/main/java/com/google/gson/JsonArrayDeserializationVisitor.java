@@ -84,8 +84,9 @@ final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisito
     Type childType = childTypeInfo.getGenericClass();
     for (JsonElement jsonChild : json.getAsJsonArray()) {
       Object child = visitChild(childType, jsonChild);
-      if (childType == Object.class && !ObjectNavigator.isPrimitive(child)) {
-        throw new JsonParseException(collection + " must not be a raw collection. Try making it genericized instead.");
+      if (childType == Object.class && !ObjectNavigator.isPrimitiveOrString(child)) {
+        throw new JsonParseException(collection + 
+            " must not be a raw collection. Try making it genericized instead.");
       }
       collection.add(child);
     }

@@ -19,6 +19,7 @@ package com.google.gson;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -198,14 +199,29 @@ public class JsonDeserializerTest extends TestCase {
     assertEquals(json, target.getExpectedJson());
   }
 
-  public void testPrimitiveArray() {
+  public void testArrayOfPrimitives() {
     String json = "[0,1,2,3,4,5,6,7,8,9]";
     int[] target = gson.fromJson(int[].class, json);
     int[] expected = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
     MoreAsserts.assertEquals(expected, target);
   }
+  
+  public void testArrayOfStrings() {
+    String json = "[\"Hello\",\"World\"]";    
+    String[] target = gson.fromJson(String[].class, json);
+    assertEquals("Hello", target[0]);
+    assertEquals("World", target[1]);
+  }
 
-  public void testCollectionOfInteger() {
+  @SuppressWarnings("unchecked")
+  public void testCollectionOfStrings() {
+    String json = "[\"Hello\",\"World\"]";    
+    Collection<String> target = gson.fromJson(Collection.class, json);
+    assertTrue(target.contains("Hello"));    
+    assertTrue(target.contains("World"));    
+  }
+
+  public void testCollectionOfIntegers() {
     String json = "[0,1,2,3,4,5,6,7,8,9]";
     Type collectionType = new TypeToken<Collection<Integer>>() { }.getType();
     Collection<Integer> target = gson.fromJson(collectionType, json);
@@ -214,7 +230,7 @@ public class JsonDeserializerTest extends TestCase {
   }
 
   @SuppressWarnings("unchecked")
-  public void testRawCollectionOfInteger() {
+  public void testRawCollectionOfIntegers() {
     String json = "[0,1,2,3,4,5,6,7,8,9]";
 	Collection<Integer> target = gson.fromJson(Collection.class, json);
 	int[] expected = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};

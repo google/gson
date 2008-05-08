@@ -20,6 +20,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -177,9 +178,31 @@ public class JsonSerializerTest extends TestCase {
     assertEquals("{\"children\":[]}", gson.toJson(target));
   }
 
-  public void testArray() {
+  public void testArrayOfInts() {
     int[] target = {1, 2, 3, 4, 5, 6, 7, 8, 9};
     assertEquals("[1,2,3,4,5,6,7,8,9]", gson.toJson(target));
+  }
+  
+  public void testArrayOfObjects() {
+    ArrayOfObjects target = new ArrayOfObjects();
+    assertEquals(target.getExpectedJson(), gson.toJson(target));
+  }
+
+  public void testArrayOfStrings() {
+    String[] target = {"Hello", "World"};
+    assertEquals("[\"Hello\",\"World\"]", gson.toJson(target));
+  }
+
+  public void testArrayOfArrays() {
+    ArrayOfArrays target = new ArrayOfArrays();
+    assertEquals(target.getExpectedJson(), gson.toJson(target));
+  }
+  
+  public void testCollectionOfStrings() {
+    List<String> target = new ArrayList<String>();
+    target.add("Hello");
+    target.add("World");
+    assertEquals("[\"Hello\",\"World\"]", gson.toJson(target));
   }
 
   public void testNested() {
@@ -256,16 +279,6 @@ public class JsonSerializerTest extends TestCase {
     });
     ClassWithCustomTypeConverter target = new ClassWithCustomTypeConverter();
     assertEquals("{\"bag\":6,\"value\":10}", gson.toJson(target));
-  }
-
-  public void testArrayOfObjects() {
-    ArrayOfObjects target = new ArrayOfObjects();
-    assertEquals(target.getExpectedJson(), gson.toJson(target));
-  }
-
-  public void testArrayOfArrays() {
-    ArrayOfArrays target = new ArrayOfArrays();
-    assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 
   public void testStaticFieldsAreNotSerialized() {
