@@ -286,7 +286,7 @@ private final int jjMoveNfa_0(int startState, int curPos)
 {
    int[] nextStates;
    int startsAt = 0;
-   jjnewStateCnt = 6;
+   jjnewStateCnt = 4;
    int i = 1;
    jjstateSet[0] = startState;
    int j, kind = 0x7fffffff;
@@ -306,17 +306,12 @@ private final int jjMoveNfa_0(int startState, int curPos)
                   {
                      if (kind > 3)
                         kind = 3;
+                     jjCheckNAdd(3);
                   }
                   else if ((0x100002600L & l) != 0L)
                   {
                      if (kind > 1)
                         kind = 1;
-                  }
-                  if ((0x3fe000000000000L & l) != 0L)
-                  {
-                     if (kind > 3)
-                        kind = 3;
-                     jjCheckNAdd(5);
                   }
                   break;
                case 2:
@@ -324,22 +319,10 @@ private final int jjMoveNfa_0(int startState, int curPos)
                      kind = 2;
                   break;
                case 3:
-                  if ((0x3ff000000000000L & l) != 0L && kind > 3)
-                     kind = 3;
-                  break;
-               case 4:
-                  if ((0x3fe000000000000L & l) == 0L)
-                     break;
-                  if (kind > 3)
-                     kind = 3;
-                  jjCheckNAdd(5);
-                  break;
-               case 5:
                   if ((0x3ff000000000000L & l) == 0L)
                      break;
-                  if (kind > 3)
-                     kind = 3;
-                  jjCheckNAdd(5);
+                  kind = 3;
+                  jjCheckNAdd(3);
                   break;
                default : break;
             }
@@ -381,7 +364,7 @@ private final int jjMoveNfa_0(int startState, int curPos)
          kind = 0x7fffffff;
       }
       ++curPos;
-      if ((i = jjnewStateCnt) == (startsAt = 6 - (jjnewStateCnt = startsAt)))
+      if ((i = jjnewStateCnt) == (startsAt = 4 - (jjnewStateCnt = startsAt)))
          return curPos;
       try { curChar = input_stream.readChar(); }
       catch(java.io.IOException e) { return curPos; }
@@ -625,8 +608,8 @@ static final long[] jjtoMore = {
    0x220L, 
 };
 protected SimpleCharStream input_stream;
-private final int[] jjrounds = new int[6];
-private final int[] jjstateSet = new int[12];
+private final int[] jjrounds = new int[4];
+private final int[] jjstateSet = new int[8];
 protected char curChar;
 public JsonParserTokenManager(SimpleCharStream stream){
    if (SimpleCharStream.staticFlag)
@@ -648,7 +631,7 @@ private final void ReInitRounds()
 {
    int i;
    jjround = 0x80000001;
-   for (i = 6; i-- > 0;)
+   for (i = 4; i-- > 0;)
       jjrounds[i] = 0x80000000;
 }
 public void ReInit(SimpleCharStream stream, int lexState)

@@ -171,6 +171,23 @@ public class JsonDeserializerTest extends TestCase {
     value = gson.fromJson(boolean.class, "[true]");
     assertEquals(true, value);
   }
+  
+  public void testPrimitiveDoubleAutoboxed() {
+    double actual = gson.fromJson(double.class, "-122.08858585");
+    assertEquals(-122.08858585, actual);
+
+    actual = gson.fromJson(Double.class, "122.023900008000");
+    assertEquals(122.023900008, actual);
+  }
+
+  public void testPrimitiveDoubleAutoboxedInASingleElementArray() {
+    double expected = -122.08;
+    double actual = gson.fromJson(double.class, "[-122.08]");
+    assertEquals(expected, actual);
+
+    actual = gson.fromJson(Double.class, "[-122.08]");
+    assertEquals(expected, actual);
+  }  
 
   public void testBagOfPrimitiveWrappers() {
     BagOfPrimitiveWrappers target = new BagOfPrimitiveWrappers(10L, 20, false);

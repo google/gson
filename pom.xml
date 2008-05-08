@@ -33,6 +33,7 @@
         <configuration>
           <downloadSources>true</downloadSources>
           <downloadJavadocs>true</downloadJavadocs>
+          
           <workspaceCodeStylesURL>file:///${basedir}/lib/gson-formatting-styles.xml</workspaceCodeStylesURL>
         </configuration>
       </plugin>
