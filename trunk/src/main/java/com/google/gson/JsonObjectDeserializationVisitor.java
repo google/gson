@@ -92,8 +92,9 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
         JsonArray jsonArray = jsonObject.get(fName).getAsJsonArray();
         for (JsonElement jsonChild : jsonArray) {          
           Object child = visitChild(childType, jsonChild);
-          if (childType == Object.class && !ObjectNavigator.isPrimitive(child)) {
-            throw new JsonParseException(fName + " can not be a raw collection. Try making it a genericized collection instead");
+          if (childType == Object.class && !ObjectNavigator.isPrimitiveOrString(child)) {
+            throw new JsonParseException(fName + 
+                " can not be a raw collection. Try making it a genericized collection instead");
           }
           collection.add(child);
         }

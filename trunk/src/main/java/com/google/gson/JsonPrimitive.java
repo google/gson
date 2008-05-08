@@ -54,8 +54,8 @@ public final class JsonPrimitive extends JsonElement {
       char c = ((Character)primitive).charValue();
       this.value = String.valueOf(c);
     } else {
-      Preconditions.checkArgument(primitive instanceof Number || primitive instanceof String ||
-          ObjectNavigator.isPrimitive(primitive));
+      Preconditions.checkArgument(primitive instanceof Number 
+          || ObjectNavigator.isPrimitiveOrString(primitive));
       this.value = primitive;
     }
   }

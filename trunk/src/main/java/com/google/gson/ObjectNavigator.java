@@ -141,7 +141,7 @@ final class ObjectNavigator {
         visitor.visitEnum(obj, objType);
       } else if (objTypeInfo.isPrimitiveOrStringAndNotAnArray()) {
         visitor.visitPrimitiveValue(obj);
-      } else if (objType == Object.class && isPrimitive(obj)) {
+      } else if (objType == Object.class && isPrimitiveOrString(obj)) {
         // If we do NOT have any type information for the object, try
         // treating it as a primitive
         visitor.visitPrimitiveValue(obj);
@@ -195,9 +195,11 @@ final class ObjectNavigator {
     Double.class, Byte.class, Boolean.class}; 
 
   @SuppressWarnings("unchecked")
-  public static boolean isPrimitive(Object primitive) {
-    Class<?> classOfPrimitive = primitive.getClass();
-    
+  public static boolean isPrimitiveOrString(Object target) {
+    if (target instanceof String) {
+      return true;
+    }
+    Class<?> classOfPrimitive = target.getClass();
     for (Class standardPrimitive : PRIMITIVE_TYPES) {
       if (standardPrimitive.isAssignableFrom(classOfPrimitive)) {
         return true;
