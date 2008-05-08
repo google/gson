@@ -30,9 +30,13 @@ final class JsonParser {
 PARSER_END(JsonParser)
 
 SKIP : { <[" ","\t","\n","\r"]> }
+/*
+ * Technicallly Json does not allow leading zeros in numbers, but we
+ * will allow that.
+ */
 TOKEN : { 
   <E : ["e","E"](["+","-"])?>
-| <DIGITS : ["0"-"9"] | ["1"-"9"](["0"-"9"])*>
+| <DIGITS : (["0"-"9"])+>
 | <QUOTE : "\""> : STRING_STATE
 }
 <STRING_STATE> MORE  : { "\\" : ESC_STATE }
