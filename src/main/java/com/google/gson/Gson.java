@@ -268,7 +268,7 @@ public final class Gson {
       return "";
     }
     JsonSerializationContext context = 
-      new JsonSerializationContextDefault(navigatorFactory, serializers);
+        new JsonSerializationContextDefault(navigatorFactory, serializers);
     JsonElement jsonElement = context.serialize(src, typeOfSrc);
     StringWriter writer = new StringWriter();
     formatter.format(jsonElement, new PrintWriter(writer));
