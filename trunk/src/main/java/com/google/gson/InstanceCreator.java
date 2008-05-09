@@ -21,7 +21,7 @@ import java.lang.reflect.Type;
 /**
  * Defines an interface which the sole purpose is for object creation for
  * a particular type <T>.  Implementations of this interface should be
- * registered with a {@link MappedObjectConstructor} instance.
+ * registered with a {@link com.google.gson.MappedObjectConstructor} instance.
  *
  * This interface is exposed to allow applications to plug in its own
  * {@link InstanceCreator} implementations to be used by this general JSON
@@ -29,7 +29,7 @@ import java.lang.reflect.Type;
  *
  * @param <T> the type of object that will be created by this implementation.
  *
- * @see MappedObjectConstructor
+ * @see com.google.gson.MappedObjectConstructor
  *
  * @author Joel Leitch
  */
