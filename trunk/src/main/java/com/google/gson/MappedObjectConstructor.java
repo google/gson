@@ -16,7 +16,6 @@
 
 package com.google.gson;
 
-
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
