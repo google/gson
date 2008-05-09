@@ -16,17 +16,6 @@
 
 package com.google.gson;
 
-import java.lang.reflect.Type;
-import java.net.URI;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import junit.framework.TestCase;
-
 import com.google.gson.TestTypes.ArrayOfArrays;
 import com.google.gson.TestTypes.ArrayOfObjects;
 import com.google.gson.TestTypes.BagOfPrimitiveWrappers;
@@ -47,6 +36,16 @@ import com.google.gson.TestTypes.PrimitiveArray;
 import com.google.gson.TestTypes.SubTypeOfNested;
 import com.google.gson.common.MoreAsserts;
 import com.google.gson.reflect.TypeToken;
+
+import junit.framework.TestCase;
+
+import java.lang.reflect.Type;
+import java.net.URI;
+import java.net.URL;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Small test for Json Deserialization

@@ -34,5 +34,5 @@ public @interface Since {
    * the value indicating a version number since this member
    * or type has been present. 
    */
-  double value() default VersionConstants.IGNORE_VERSIONS;
+  double value();
 }

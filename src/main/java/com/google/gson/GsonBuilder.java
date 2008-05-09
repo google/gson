@@ -22,7 +22,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import com.google.gson.version.VersionConstants;
 
 /**
  * Use this builder to construct a Gson instance in situations where

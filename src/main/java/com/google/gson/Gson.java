@@ -16,7 +16,6 @@
 
 package com.google.gson;
 
-import com.google.gson.version.VersionConstants;
 
 import java.io.PrintWriter;
 import java.io.StringReader;

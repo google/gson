@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package com.google.gson.version;
+package com.google.gson;
 
 /**
  * Class contain all constants for versioning support.
  *
  * @author Joel Leitch
  */
-public final class VersionConstants {
+final class VersionConstants {
   // Prevent instantiation
   private VersionConstants() { }
 
-  public static final double IGNORE_VERSIONS = -1D;
+  static final double IGNORE_VERSIONS = -1D;
 }
