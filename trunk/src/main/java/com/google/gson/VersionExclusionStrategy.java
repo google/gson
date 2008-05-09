@@ -16,7 +16,7 @@
 
 package com.google.gson;
 
-import com.google.gson.version.Since;
+import com.google.gson.annotations.Since;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;

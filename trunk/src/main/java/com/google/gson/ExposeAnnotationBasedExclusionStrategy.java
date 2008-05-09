@@ -1,5 +1,7 @@
 package com.google.gson;
 
+import com.google.gson.annotations.Expose;
+
 import java.lang.reflect.Field;
 
 /**
