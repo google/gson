@@ -51,8 +51,8 @@ import com.google.gson.TestTypes.MyParameterizedType;
 import com.google.gson.TestTypes.Nested;
 import com.google.gson.TestTypes.PrimitiveArray;
 import com.google.gson.TestTypes.SubTypeOfNested;
+import com.google.gson.annotations.Since;
 import com.google.gson.reflect.TypeToken;
-import com.google.gson.version.Since;
 
 /**
  * Small test for Json Serialization
