@@ -16,6 +16,19 @@
 
 package com.google.gson;
 
+/**
+ * A simple utility class use to check method Preconditions.
+ * 
+ * <pre>
+ * public long divideBy(long value) {
+ *   Preconditions.checkArgument(value != 0);
+ *   return this.value / value;
+ * }
+ * </pre>
+ * 
+ * @author Inderjeet Singh
+ * @author Joel Leitch
+ */
 final class Preconditions {
   public static void checkNotNull(Object obj) {
     checkArgument(obj != null);

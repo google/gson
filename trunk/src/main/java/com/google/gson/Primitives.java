@@ -81,9 +81,7 @@ final class Primitives {
   }
 
   private static Class<?> checkNotNull(Class<?> type) {
-    if (type == null) {
-      throw new IllegalArgumentException();
-    }
+    Preconditions.checkNotNull(type);
     return type;
   }
 
