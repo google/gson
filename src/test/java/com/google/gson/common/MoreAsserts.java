@@ -16,7 +16,7 @@
 
 package com.google.gson.common;
 
-import junit.framework.TestCase;
+import junit.framework.Assert;
 
 import java.util.Collection;
 
@@ -30,11 +30,11 @@ public class MoreAsserts {
   
   public static void assertEquals(int[] expected, int[] target) {
     if (expected == null) {
-      TestCase.assertNull(target);
+      Assert.assertNull(target);
     }
-    TestCase.assertEquals(expected.length, target.length);
+    Assert.assertEquals(expected.length, target.length);
     for (int i = 0; i < expected.length; ++i) {
-      TestCase.assertEquals(expected[i], target[i]);      
+      Assert.assertEquals(expected[i], target[i]);      
     }
   }
 
@@ -49,6 +49,6 @@ public class MoreAsserts {
         return;
       }
     }
-    TestCase.fail(value + " not present in " + collection);
+    Assert.fail(value + " not present in " + collection);
   }
 }
