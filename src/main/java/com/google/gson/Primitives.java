@@ -19,7 +19,6 @@ package com.google.gson;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Contains static utility methods pertaining to primitive types and their
@@ -61,14 +60,6 @@ final class Primitives {
     forward.put(key, value);
     backward.put(value, key);
   }
-
-  /** All nine primitive types (including void). */
-  public static final Set<Class<?>> PRIMITIVE_TYPES
-      = PRIMITIVE_TO_WRAPPER_TYPE.keySet();
-
-  /** All nine wrapper types (including Void). */
-  public static final Set<Class<?>> WRAPPER_TYPES
-      = WRAPPER_TO_PRIMITIVE_TYPE.keySet();
 
   /**
    * Returns {@code true} if {@code type} is one of the nine
