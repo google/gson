@@ -22,7 +22,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-
 /**
  * Use this builder to construct a Gson instance in situations where
  * you need to set a number of parameters. 
@@ -55,7 +54,8 @@ public final class GsonBuilder {
   }
   
   /**
-   * Use this setter to enable versioning support. 
+   * Use this setter to enable versioning support.
+   *
    * @param ignoreVersionsAfter any field or type marked with a
    *        version higher than this value are ignored during serialization
    *        or deserialization.
@@ -69,9 +69,9 @@ public final class GsonBuilder {
    * Setup Gson such that it excludes all class fields that have
    * the specified modifiers. By default, Gson will exclude all fields
    * marked transient or static. This method will override that behavior. 
-   *  
+   *
    * @param modifiers the field modifiers. You must use the modifiers
-   *        specified in the {@link java.lang.reflect.Modifier} class. For example, 
+   *        specified in the {@link java.lang.reflect.Modifier} class. For example,
    *        {@link java.lang.reflect.Modifier#TRANSIENT}, 
    *        {@link java.lang.reflect.Modifier#STATIC}
    */
@@ -87,7 +87,7 @@ public final class GsonBuilder {
   }
   
   /**
-   * Setup Gson with a new formatting strategy other than the default strategu 
+   * Setup Gson with a new formatting strategy other than the default strategy
    * which is to provide a compact representation that eliminates all unneeded 
    * white-space.
    *  
