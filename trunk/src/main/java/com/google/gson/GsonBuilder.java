@@ -100,6 +100,35 @@ public final class GsonBuilder {
   }
   
   /**
+   * A convenience method that combines the registration of an {@link InstanceCreator}, 
+   * {@link JsonSerializer}, and a {@link JsonDeserializer}. It is best used when a single 
+   * object typeAdapter implements all the required interfaces for custom serialization with Gson. 
+   * If an instance creator, serializer or deserializer was previously registered for the specified
+   * class, it is overwritten. This method is functionally equivalent to calling 
+   * {@link #registerInstanceCreator(Class, InstanceCreator)}, 
+   * {@link #registerDeserializer(Class, JsonDeserializer)} and
+   * {@link #registerSerializer(Class, JsonSerializer)} in sequence.  
+   *
+   * @param typeOfT The class definition for the type T
+   * @param typeAdapter This object must implement at least one of the {@link InstanceCreator}, 
+   * {@link JsonSerializer}, and a {@link JsonDeserializer} interfaces.  
+   */  
+  public GsonBuilder registerTypeAdapter(Type typeOfT, Object typeAdapter) {
+    Preconditions.checkArgument(typeAdapter instanceof JsonSerializer
+        || typeAdapter instanceof JsonDeserializer || typeAdapter instanceof InstanceCreator);
+    if (typeAdapter instanceof InstanceCreator) {
+      registerInstanceCreator(typeOfT, (InstanceCreator<?>) typeAdapter);
+    }
+    if (typeAdapter instanceof JsonSerializer) {
+      registerSerializer(typeOfT, (JsonSerializer<?>) typeAdapter);
+    }
+    if (typeAdapter instanceof JsonDeserializer) {
+      registerDeserializer(typeOfT, (JsonDeserializer<?>) typeAdapter);
+    }
+    return this;
+  }
+
+  /**
    * Registers an instance creator for the specified class. If an
    * instance creator was previously registered for the specified
    * class, it is overwritten. You should use this method if you

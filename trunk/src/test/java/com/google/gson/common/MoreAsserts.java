@@ -21,7 +21,7 @@ import junit.framework.Assert;
 import java.util.Collection;
 
 /**
- * Handy asserts that we wish were present in {@link TestCase}
+ * Handy asserts that we wish were present in {@link Assert}
  * so that we didn't have to write them.
  * 
  * @author Inderjeet Singh
