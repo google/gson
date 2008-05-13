@@ -3,6 +3,8 @@ package com.google.gson;
 
 import java.io.PrintWriter;
 
+import com.google.gson.format.JsonFormatter;
+
 /**
  * Formats Json in a nicely indented way with a specified print margin. 
  * This printer tries to keep elements on the same line as much as possible 

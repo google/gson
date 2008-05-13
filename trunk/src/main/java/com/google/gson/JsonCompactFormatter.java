@@ -18,6 +18,8 @@ package com.google.gson;
 
 import java.io.PrintWriter;
 
+import com.google.gson.format.JsonFormatter;
+
 /**
  * Formats Json in a compact way eliminating all unnecessary whitespace.
  * 
