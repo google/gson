@@ -25,12 +25,16 @@ import java.util.Map;
 
 
 /**
- * Use this builder to construct a Gson instance in situations where you need to set a number of 
- * parameters. If you need to use Gson with default configuration, you can invoke 
- * {@link Gson#Gson()} instead. {@code GsonBuilder} is best used by creating it, and then invoking 
- * its various configuration methods, and finally calling create. Here is an example:<br>  
+ * Use this builder to construct a Gson instance when you need to set configuration options other 
+ * than the default. For Gson with default configuration, using <code>new Gson()</code> is simpler 
+ * to use. {@code GsonBuilder} is best used by creating it, and then invoking its various 
+ * configuration methods, and finally calling create. Here is an example:<br>  
  * <code>
- * Gson gson = new GsonBuilder().setVersion(1.0).registerTypeAdapter(new IdTypeAdapter()).create();
+ * Gson gson = new GsonBuilder() <br>
+ * &nbsp; &nbsp; .setVersion(1.0)<br>
+ * &nbsp; &nbsp; .setPrettyPrinting()<br>
+ * &nbsp; &nbsp; .registerTypeAdapter(new IdTypeAdapter())<br>
+ * &nbsp; &nbsp; .create();<br>
  * </code>   
  * 
  * @author Inderjeet Singh
@@ -48,6 +52,19 @@ public final class GsonBuilder {
   private final Map<Type, JsonSerializer<?>> serializers;
   private final Map<Type, JsonDeserializer<?>> deserializers;
   
+  /**
+   * Creates a GsonBuilder instance that can be used in a builder pattern. This instance is 
+   * typically used by first invoking various configuration methods to set desired options, and
+   * finally calling {@link #create()}. Here is an example: <br>
+   * <code>
+   * Gson gson = new GsonBuilder() <br>
+   * &nbsp; &nbsp; .setVersion(1.0)<br>
+   * &nbsp; &nbsp; .setPrettyPrinting()<br>
+   * &nbsp; &nbsp; .registerTypeAdapter(new IdTypeAdapter())<br>
+   * &nbsp; &nbsp; .create();<br>
+   * </code>   
+   * The order of invocation of configuration methods does not matter. 
+   */
   public GsonBuilder() {
     // setup default values    
     ignoreVersionsAfter = VersionConstants.IGNORE_VERSIONS;    
