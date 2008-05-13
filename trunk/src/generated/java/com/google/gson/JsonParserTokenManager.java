@@ -9,7 +9,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 @SuppressWarnings("all")
-class JsonParserTokenManager implements JsonParserConstants
+final class JsonParserTokenManager implements JsonParserConstants
 {
   public  java.io.PrintStream debugStream = System.out;
   public  void setDebugStream(java.io.PrintStream ds) { debugStream = ds; }
