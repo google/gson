@@ -29,11 +29,12 @@ import java.util.logging.Logger;
 
 /**
  * This is the main class for using Gson. Gson is typically used by first constructing a
- * Gson object and then invoking {@link #toJson(Object)} or {@link #fromJson(Class, String)}
+ * Gson instance and then invoking {@link #toJson(Object)} or {@link #fromJson(Class, String)}
  * methods on it.
- * <p>You can also use {@link GsonBuilder} to build a Gson instance with various configuration
- * options such as versioning support, custom {@link JsonSerializer}s, {@link JsonDeserializer}s,
- * and {@link InstanceCreator}.</p>
+ * <p>You can create a Gson instance by invoking <code>new Gson()</code> if the default 
+ * configuration is all you need. You can also use {@link GsonBuilder} to build a Gson instance with various configuration
+ * options such as versioning support, pretty printing, custom {@link JsonSerializer}s, 
+ * {@link JsonDeserializer}s, and {@link InstanceCreator}.</p>
  * Here is an example of how Gson is used:<br>
  * <pre>
  * Gson gson = new Gson(); // Or use new GsonBuilder().create(); <br>
