@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package com.google.gson.format;
+package com.google.gson;
 
 import java.io.PrintWriter;
-
-import com.google.gson.JsonElement;
 
 /**
  * Common interface for a formatter for Json. 
  * 
  * @author Inderjeet Singh
  */
-public interface JsonFormatter {
+interface JsonFormatter {
 
   /**
    * Writes a formatted version of the Json corresponding to 

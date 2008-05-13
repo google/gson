@@ -16,13 +16,13 @@
 
 package com.google.gson;
 
+
 import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import com.google.gson.format.JsonFormatter;
 
 /**
  * Use this builder to construct a Gson instance in situations where you need to set a number of 
