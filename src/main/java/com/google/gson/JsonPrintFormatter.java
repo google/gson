@@ -2,7 +2,6 @@ package com.google.gson;
 
 
 import java.io.PrintWriter;
-import java.util.Map;
 
 /**
  * Formats Json in a nicely indented way with a specified print margin. 
@@ -113,45 +112,72 @@ public class JsonPrintFormatter implements JsonFormatter {
     }
   }
   
-  private class PrintFormattingVisitor implements JsonElement.Visitor {
+  private class PrintFormattingVisitor implements JsonElementVisitor {
     private final JsonWriter writer;
+    private boolean first;
     
     PrintFormattingVisitor(JsonWriter writer) {
       this.writer = writer;
     }
     
-    public void visit(JsonObject object) {
-      writer.beginObject();
-      boolean first = true;
-      for (Map.Entry<String, JsonElement> entry : object.getEntries()) {
-        if (first) {
-          first = false;
-        } else {
-          writer.elementSeparator();
-        }
-        writer.key(entry.getKey());
-        writer.fieldSeparator();
-        entry.getValue().accept(this);
+    private void addCommaCheckingFirst() {
+      if (first) {
+        first = false;
+      } else {
+        writer.elementSeparator();
       }
+    }
+    
+    public void startArray(JsonArray array) {
+      writer.beginArray();
+    }
+
+    public void visitArrayMember(JsonArray parent, JsonPrimitive member, boolean isFirst) {
+      addCommaCheckingFirst();
+      writer.value(member.toString());
+    }
+
+    public void visitArrayMember(JsonArray parent, JsonArray member, boolean first) {
+      addCommaCheckingFirst();
+    }
+
+    public void visitArrayMember(JsonArray parent, JsonObject member, boolean first) {
+      addCommaCheckingFirst();
+    }
+
+    public void endArray(JsonArray array) {
+      writer.endArray();
+    }
+
+    public void startObject(JsonObject object) {
+      writer.beginObject();
+    }
+
+    public void visitObjectMember(JsonObject parent, String memberName, JsonPrimitive member, boolean isFirst) {
+      addCommaCheckingFirst();
+      writer.key(memberName);
+      writer.fieldSeparator();
+      writer.value(member.toString());
+    }
+
+    public void visitObjectMember(JsonObject parent, String memberName, JsonArray member, boolean isFirst) {
+      addCommaCheckingFirst();
+      writer.key(memberName);
+      writer.fieldSeparator();
+    }
+
+    public void visitObjectMember(JsonObject parent, String memberName, JsonObject member, boolean isFirst) {
+      addCommaCheckingFirst();
+      writer.key(memberName);
+      writer.fieldSeparator();
+    }
+
+    public void endObject(JsonObject object) {
       writer.endObject();
     }
 
-    public void visit(JsonPrimitive primitive) {
+    public void visitPrimitive(JsonPrimitive primitive) {
       writer.value(primitive.toString());
-    }
-    
-    public void visit(JsonArray array) {
-      writer.beginArray();
-      boolean first = true;
-      for (JsonElement element : array) {
-        if (first) {
-          first = false;
-        } else {
-          writer.elementSeparator();
-        }
-        element.accept(this);
-      }
-      writer.endArray();
     }
   }
   

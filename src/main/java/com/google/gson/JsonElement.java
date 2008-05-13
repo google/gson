@@ -101,19 +101,8 @@ public abstract class JsonElement {
   
   protected abstract void toString(StringBuilder sb);
   
-  interface Visitor {
-    void visit(JsonPrimitive primitive);
-    void visit(JsonObject object);
-    void visit(JsonArray array);
+  void accept(JsonElementVisitor visitor) {
+    JsonTreeNavigator navigator = new JsonTreeNavigator(visitor);
+    navigator.navigate(this);
   }
-  
-  void accept(Visitor visitor) {
-    if (isArray()) {
-      visitor.visit(getAsJsonArray());
-    } else if (isPrimitive()) {
-      visitor.visit(getAsJsonPrimitive());
-    } else { // JsonObject
-      visitor.visit(getAsJsonObject());
-    }
-  }  
 }
