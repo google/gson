@@ -16,24 +16,6 @@
 
 package com.google.gson;
 
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
-import java.net.URI;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
-import junit.framework.TestCase;
-
 import com.google.gson.TestTypes.ArrayOfArrays;
 import com.google.gson.TestTypes.ArrayOfObjects;
 import com.google.gson.TestTypes.BagOfPrimitiveWrappers;
@@ -53,6 +35,24 @@ import com.google.gson.TestTypes.PrimitiveArray;
 import com.google.gson.TestTypes.SubTypeOfNested;
 import com.google.gson.annotations.Since;
 import com.google.gson.reflect.TypeToken;
+
+import junit.framework.TestCase;
+
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
+import java.net.URI;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * Small test for Json Serialization
@@ -187,7 +187,7 @@ public class JsonSerializerTest extends TestCase {
     int[] target = {1, 2, 3, 4, 5, 6, 7, 8, 9};
     assertEquals("[1,2,3,4,5,6,7,8,9]", gson.toJson(target));
   }
-  
+
   public void testArrayOfObjects() {
     ArrayOfObjects target = new ArrayOfObjects();
     assertEquals(target.getExpectedJson(), gson.toJson(target));
@@ -202,7 +202,7 @@ public class JsonSerializerTest extends TestCase {
     ArrayOfArrays target = new ArrayOfArrays();
     assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
-  
+
   public void testCollectionOfStrings() {
     List<String> target = new ArrayList<String>();
     target.add("Hello");
@@ -210,17 +210,30 @@ public class JsonSerializerTest extends TestCase {
     assertEquals("[\"Hello\",\"World\"]", gson.toJson(target));
   }
 
+  public void testCollectionOfObjects() {
+    List<BagOfPrimitives> target = new ArrayList<BagOfPrimitives>();
+    BagOfPrimitives objA = new BagOfPrimitives(3L, 1, true, "blah");
+    BagOfPrimitives objB = new BagOfPrimitives(2L, 6, false, "blahB");
+    target.add(objA);
+    target.add(objB);
+
+    String result = gson.toJson(target);
+    assertTrue(result.startsWith("["));
+    assertTrue(result.endsWith("]"));
+    for (BagOfPrimitives obj : target) {
+      assertTrue(result.contains(obj.getExpectedJson()));
+    }
+  }
+
   public void testNested() {
-    Nested target =
-      new Nested(new BagOfPrimitives(10, 20, false, "stringValue"),
-          new BagOfPrimitives(30, 40, true, "stringValue"));
+    Nested target = new Nested(new BagOfPrimitives(10, 20, false, "stringValue"),
+       new BagOfPrimitives(30, 40, true, "stringValue"));
     assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 
   public void testInheritence() {
-    SubTypeOfNested target =
-        new SubTypeOfNested(new BagOfPrimitives(10, 20, false, "stringValue"),
-            new BagOfPrimitives(30, 40, true, "stringValue"));
+    SubTypeOfNested target = new SubTypeOfNested(new BagOfPrimitives(10, 20, false, "stringValue"),
+        new BagOfPrimitives(30, 40, true, "stringValue"));
     assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 
@@ -235,12 +248,12 @@ public class JsonSerializerTest extends TestCase {
 
   public void testSubInterfacesOfCollection() {
     List<Integer> list = new LinkedList<Integer>();
-    list.add(0); 
+    list.add(0);
     list.add(1);
     list.add(2);
     list.add(3);
     Queue<Long> queue = new LinkedList<Long>();
-    queue.add(0L); 
+    queue.add(0L);
     queue.add(1L);
     queue.add(2L);
     queue.add(3L);
@@ -263,7 +276,7 @@ public class JsonSerializerTest extends TestCase {
   public void testCustomSerializers() {
     gson.registerSerializer(ClassWithCustomTypeConverter.class,
         new JsonSerializer<ClassWithCustomTypeConverter>() {
-      public JsonElement toJson(ClassWithCustomTypeConverter src, Type typeOfSrc, 
+      public JsonElement toJson(ClassWithCustomTypeConverter src, Type typeOfSrc,
           JsonSerializationContext context) {
         JsonObject json = new JsonObject();
         json.addProperty("bag", 5);
@@ -277,7 +290,7 @@ public class JsonSerializerTest extends TestCase {
 
   public void testNestedCustomSerializers() {
     gson.registerSerializer(BagOfPrimitives.class, new JsonSerializer<BagOfPrimitives>() {
-      public JsonElement toJson(BagOfPrimitives src, Type typeOfSrc, 
+      public JsonElement toJson(BagOfPrimitives src, Type typeOfSrc,
           JsonSerializationContext context) {
         return new JsonPrimitive(6);
       }
@@ -293,7 +306,7 @@ public class JsonSerializerTest extends TestCase {
 
   private static class MyParameterizedSerializer<T>
       implements JsonSerializer<MyParameterizedType<T>> {
-    public JsonElement toJson(MyParameterizedType<T> src, Type classOfSrc, 
+    public JsonElement toJson(MyParameterizedType<T> src, Type classOfSrc,
         JsonSerializationContext context) {
       JsonObject json = new JsonObject();
       T value = src.getValue();
@@ -349,23 +362,23 @@ public class JsonSerializerTest extends TestCase {
     Gson gson = new GsonBuilder().setVersion(1.0).create();
     assertEquals("", gson.toJson(new Version1_2()));
   }
-  
+
   public void testVersionedGsonWithUnversionedClasses() {
     Gson gson = new GsonBuilder().setVersion(1.0).create();
     BagOfPrimitives target = new BagOfPrimitives(10, 20, false, "stringValue");
-    assertEquals(target.getExpectedJson(), gson.toJson(target));    
+    assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
-  
+
   public void testDefaultSupportForUrl() throws Exception {
     String urlValue = "http://google.com/";
     URL url = new URL(urlValue);
-    assertEquals('"' + urlValue + '"', gson.toJson(url));    
+    assertEquals('"' + urlValue + '"', gson.toJson(url));
   }
-  
+
   public void testDefaultSupportForUri() throws Exception {
     String uriValue = "http://google.com/";
     URI uri = new URI(uriValue);
-    assertEquals('"' + uriValue + '"', gson.toJson(uri));    
+    assertEquals('"' + uriValue + '"', gson.toJson(uri));
   }
 
   public void testMap() throws Exception {
@@ -377,13 +390,14 @@ public class JsonSerializerTest extends TestCase {
     assertTrue(json.contains("\"a\":1"));
     assertTrue(json.contains("\"b\":2"));
   }
-  
+
   public void testExposeAnnotation() {
     // First test that Gson works without the expose annotation as well
     ClassWithExposedFields target = new ClassWithExposedFields();
     assertEquals(target.getExpectedJsonWithoutAnnotations(), gson.toJson(target));
+
     // Now recreate gson with the proper setting
     gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-    assertEquals(target.getExpectedJson(), gson.toJson(target));    
+    assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 }

@@ -99,10 +99,10 @@ public class JsonDeserializerTest extends TestCase {
         assertEquals(bag.getExpectedJson(), bag1.getExpectedJson());
       }
       fail("Raw collection of objects should not work");
-    } catch (JsonParseException expected) {      
+    } catch (JsonParseException expected) {
     }
   }
-  
+
   public void testReallyLongValues() {
     String json = "333961828784581";
     long value = gson.fromJson(Long.class, json);
@@ -170,7 +170,7 @@ public class JsonDeserializerTest extends TestCase {
     value = gson.fromJson(boolean.class, "[true]");
     assertEquals(true, value);
   }
-  
+
   public void testPrimitiveDoubleAutoboxed() {
     double actual = gson.fromJson(double.class, "-122.08858585");
     assertEquals(-122.08858585, actual);
@@ -186,7 +186,7 @@ public class JsonDeserializerTest extends TestCase {
 
     actual = gson.fromJson(Double.class, "[-122.08]");
     assertEquals(expected, actual);
-  }  
+  }
 
   public void testBagOfPrimitiveWrappers() {
     BagOfPrimitiveWrappers target = new BagOfPrimitiveWrappers(10L, 20, false);
@@ -221,9 +221,9 @@ public class JsonDeserializerTest extends TestCase {
     int[] expected = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
     MoreAsserts.assertEquals(expected, target);
   }
-  
+
   public void testArrayOfStrings() {
-    String json = "[\"Hello\",\"World\"]";    
+    String json = "[\"Hello\",\"World\"]";
     String[] target = gson.fromJson(String[].class, json);
     assertEquals("Hello", target[0]);
     assertEquals("World", target[1]);
@@ -231,10 +231,12 @@ public class JsonDeserializerTest extends TestCase {
 
   @SuppressWarnings("unchecked")
   public void testCollectionOfStrings() {
-    String json = "[\"Hello\",\"World\"]";    
-    Collection<String> target = gson.fromJson(Collection.class, json);
-    assertTrue(target.contains("Hello"));    
-    assertTrue(target.contains("World"));    
+    String json = "[\"Hello\",\"World\"]";
+    Type collectionType = new TypeToken<Collection<String>>() { }.getType();
+    Collection<String> target = gson.fromJson(collectionType, json);
+
+    assertTrue(target.contains("Hello"));
+    assertTrue(target.contains("World"));
   }
 
   public void testCollectionOfIntegers() {
@@ -246,11 +248,18 @@ public class JsonDeserializerTest extends TestCase {
   }
 
   @SuppressWarnings("unchecked")
-  public void testRawCollectionOfIntegers() {
+  public void testRawCollectionNotAllowed() {
     String json = "[0,1,2,3,4,5,6,7,8,9]";
-	Collection<Integer> target = gson.fromJson(Collection.class, json);
-	int[] expected = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-	MoreAsserts.assertEquals(expected, toIntArray(target));
+    try {
+	    gson.fromJson(Collection.class, json);
+	    fail("Can not deserialize a non-genericized collection.");
+    } catch (JsonParseException expected) { }
+
+    json = "[\"Hello\", \"World\"]";
+    try {
+      gson.fromJson(Collection.class, json);
+      fail("Can not deserialize a non-genericized collection.");
+    } catch (JsonParseException expected) { }
   }
 
   public void testListOfIntegerCollections() throws Exception {
@@ -259,7 +268,7 @@ public class JsonDeserializerTest extends TestCase {
     List<Collection<Integer>> target = gson.fromJson(collectionType, json);
     int[][] expected = new int[3][3];
     for (int i = 0; i < 3; ++i) {
-      int start = (3 * i) + 1;      
+      int start = (3 * i) + 1;
       for (int j = 0; j < 3; ++j) {
         expected[i][j] = start + j;
       }
@@ -269,7 +278,7 @@ public class JsonDeserializerTest extends TestCase {
       MoreAsserts.assertEquals(expected[i], toIntArray(target.get(i)));
     }
   }
-  
+
   @SuppressWarnings("unchecked")
   private static int[] toIntArray(Collection collection) {
     int[] ints = new int[collection.size()];
@@ -371,11 +380,11 @@ public class JsonDeserializerTest extends TestCase {
   public void testCustomDeserializer() {
     gson.registerDeserializer(ClassWithCustomTypeConverter.class,
         new JsonDeserializer<ClassWithCustomTypeConverter>() {
-      public ClassWithCustomTypeConverter fromJson(Type typeOfT, JsonElement json, 
+      public ClassWithCustomTypeConverter fromJson(Type typeOfT, JsonElement json,
           JsonDeserializationContext context) {
         JsonObject jsonObject = json.getAsJsonObject();
         int value = jsonObject.get("bag").getAsInt();
-        return new ClassWithCustomTypeConverter(new BagOfPrimitives(value, 
+        return new ClassWithCustomTypeConverter(new BagOfPrimitives(value,
             value, false, ""), value);
       }
     });
@@ -386,7 +395,7 @@ public class JsonDeserializerTest extends TestCase {
 
   public void testNestedCustomTypeConverters() {
     gson.registerDeserializer(BagOfPrimitives.class, new JsonDeserializer<BagOfPrimitives>() {
-      public BagOfPrimitives fromJson(Type typeOfT, JsonElement json, 
+      public BagOfPrimitives fromJson(Type typeOfT, JsonElement json,
           JsonDeserializationContext context) throws JsonParseException {
         int value = json.getAsInt();
         return new BagOfPrimitives(value, value, false, "");
@@ -412,7 +421,7 @@ public class JsonDeserializerTest extends TestCase {
   private static class MyParameterizedDeserializer<T>
       implements JsonDeserializer<MyParameterizedType<T>> {
     @SuppressWarnings("unchecked")
-    public MyParameterizedType<T> fromJson(Type typeOfT, JsonElement json, 
+    public MyParameterizedType<T> fromJson(Type typeOfT, JsonElement json,
         JsonDeserializationContext context) throws JsonParseException {
       Type genericClass = new TypeInfo<Object>(typeOfT).getGenericClass();
       String className = new TypeInfo<Object>(genericClass).getTopLevelClass().getSimpleName();
@@ -488,21 +497,21 @@ public class JsonDeserializerTest extends TestCase {
       gson.fromJson(ClassWithPrivateNoArgsConstructor.class, "{\"a\":20}");
     assertEquals(20, target.a);
   }
-  
+
   public void testDefaultSupportForUrl() throws Exception {
     String urlValue = "http://google.com/";
     String json = '"' + urlValue + '"';
     URL target = gson.fromJson(URL.class, json);
     assertEquals(urlValue, target.toExternalForm());
   }
-  
+
   public void testDefaultSupportForUri() throws Exception {
     String uriValue = "http://google.com/";
     String json = '"' + uriValue + '"';
     URI target = gson.fromJson(URI.class, json);
     assertEquals(uriValue, target.toASCIIString());
   }
-  
+
   public void testMap() throws Exception {
     String json = "{\"a\":1,\"b\":2}";
     Type typeOfMap = new TypeToken<Map<String,Integer>>(){}.getType();
@@ -510,14 +519,14 @@ public class JsonDeserializerTest extends TestCase {
     assertEquals(1, target.get("a").intValue());
     assertEquals(2, target.get("b").intValue());
   }
-  
+
   public void testExposeAnnotation() {
     String json = '{' + "\"a\":" + 3 + ",\"b\":" + 4 + '}';
     // First test that Gson works without the expose annotation as well
     ClassWithExposedFields target = gson.fromJson(ClassWithExposedFields.class, json);
     assertEquals(3, target.a);
     assertEquals(4, target.b);
-    
+
     // Now recreate gson with the proper setting
     gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
     target = gson.fromJson(ClassWithExposedFields.class, json);

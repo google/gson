@@ -32,7 +32,7 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
   @SuppressWarnings("unchecked")
   JsonObjectDeserializationVisitor(JsonElement json, Type type,
       ObjectNavigatorFactory factory, ObjectConstructor objectConstructor,
-      TypeAdapter typeAdapter, ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers, 
+      TypeAdapter typeAdapter, ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers,
       JsonDeserializationContext context) {
     super(json, factory, objectConstructor, typeAdapter, deserializers, context);
     this.target = (T) objectConstructor.construct(type);
@@ -89,10 +89,10 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
         f.set(obj, collection);
         Type childType = new TypeInfo(f.getGenericType()).getGenericClass();
         JsonArray jsonArray = jsonObject.get(fName).getAsJsonArray();
-        for (JsonElement jsonChild : jsonArray) {          
+        for (JsonElement jsonChild : jsonArray) {
           Object child = visitChild(childType, jsonChild);
-          if (childType == Object.class && !ObjectNavigator.isPrimitiveOrString(child)) {
-            throw new JsonParseException(fName + 
+          if (childType == Object.class) {
+            throw new JsonParseException(fName +
                 " can not be a raw collection. Try making it a genericized collection instead");
           }
           collection.add(child);

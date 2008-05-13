@@ -16,8 +16,6 @@
 
 package com.google.gson;
 
-
-
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -29,21 +27,20 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 /**
- * This is the main class for using Gson. Gson is typically used by first constructing a 
- * Gson object and then invoking {@link #toJson(Object)} or {@link #fromJson(Class, String)} 
+ * This is the main class for using Gson. Gson is typically used by first constructing a
+ * Gson object and then invoking {@link #toJson(Object)} or {@link #fromJson(Class, String)}
  * methods on it.
- * <p>You can also use {@link GsonBuilder} to build a Gson instance with various configuration 
- * options such as versioning support, custom {@link JsonSerializer}s, {@link JsonDeserializer}s, 
- * and {@link InstanceCreator}.</p> 
- * Here is an example of how Gson is used:<br> 
- * <code>
+ * <p>You can also use {@link GsonBuilder} to build a Gson instance with various configuration
+ * options such as versioning support, custom {@link JsonSerializer}s, {@link JsonDeserializer}s,
+ * and {@link InstanceCreator}.</p>
+ * Here is an example of how Gson is used:<br>
+ * <pre>
  * Gson gson = new Gson(); // Or use new GsonBuilder().create(); <br>
  * MyType target = new MyType();<br>
  * String json = gson.toJson(target); // serializes target to Json<br>
  * MyType target2 = gson.fromJson(MyType.class, json); // deserializes json into target2<br>
- * </code>
+ * </pre>
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
@@ -65,14 +62,14 @@ public final class Gson {
 
   private final JsonFormatter formatter;
 
-  static final TypeAdapter DEFAULT_TYPE_ADAPTER = 
+  static final TypeAdapter DEFAULT_TYPE_ADAPTER =
       new TypeAdapterNotRequired(new PrimitiveTypeAdapter());
-  
+
   static final ModifierBasedExclusionStrategy DEFAULT_MODIFIER_BASED_EXCLUSION_STRATEGY =
       new ModifierBasedExclusionStrategy(true, new int[] { Modifier.TRANSIENT, Modifier.STATIC });
 
   static final JsonFormatter DEFAULT_JSON_FORMATTER = new JsonCompactFormatter();
-  
+
   /**
    * Constructs a Gson object that skips inner class references and ignores
    * all object versioning information
@@ -81,12 +78,12 @@ public final class Gson {
     this(new ObjectNavigatorFactory(createExclusionStrategy(VersionConstants.IGNORE_VERSIONS)),
         new MappedObjectConstructor(), DEFAULT_TYPE_ADAPTER, DEFAULT_JSON_FORMATTER);
   }
-  
+
   /**
-   * Constructs a Gson object with the specified version and the mode of operation while 
+   * Constructs a Gson object with the specified version and the mode of operation while
    * encountering inner class references.
    *
-   * @param factory the object navigator factory to use when creating a new {@link ObjectNavigator} 
+   * @param factory the object navigator factory to use when creating a new {@link ObjectNavigator}
    * instance.
    */
   Gson(ObjectNavigatorFactory factory) {
@@ -130,10 +127,10 @@ public final class Gson {
   }
 
   /**
-   * Configures Gson to use a custom {@link InstanceCreator} for the specified class. If an 
-   * instance creator was previously registered for the specified class, it is overwritten. You 
-   * should use this method if you want to register a single instance creator for all generic types 
-   * mapping to a single raw type. If you want different handling for different generic types of a 
+   * Configures Gson to use a custom {@link InstanceCreator} for the specified class. If an
+   * instance creator was previously registered for the specified class, it is overwritten. You
+   * should use this method if you want to register a single instance creator for all generic types
+   * mapping to a single raw type. If you want different handling for different generic types of a
    * single raw type, use {@link #registerInstanceCreator(Type, InstanceCreator)} instead.
    *
    * @param <T> the type for which instance creator is being registered
@@ -146,11 +143,11 @@ public final class Gson {
   }
 
   /**
-   * Configures Gson to use a custom {@link InstanceCreator} for the specified type. If an instance 
-   * creator was previously registered for the specified class, it is overwritten. Since this method 
-   * takes a type instead of a Class object, it can be used to register a specific handler for a 
-   * generic type corresponding to a raw type. If you want to have common handling for all generic 
-   * types corresponding to a raw type, use {@link #registerInstanceCreator(Class, InstanceCreator)} 
+   * Configures Gson to use a custom {@link InstanceCreator} for the specified type. If an instance
+   * creator was previously registered for the specified class, it is overwritten. Since this method
+   * takes a type instead of a Class object, it can be used to register a specific handler for a
+   * generic type corresponding to a raw type. If you want to have common handling for all generic
+   * types corresponding to a raw type, use {@link #registerInstanceCreator(Class, InstanceCreator)}
    * instead.
    *
    * @param <T> the type for which instance creator is being registered
@@ -163,9 +160,9 @@ public final class Gson {
   }
 
   /**
-   * Configures Gson to use a custom JSON serializer for the specified class. You should use this 
-   * method if you want to register a common serializer for all generic types corresponding to a 
-   * raw type. If you want different handling for different generic types corresponding to a raw 
+   * Configures Gson to use a custom JSON serializer for the specified class. You should use this
+   * method if you want to register a common serializer for all generic types corresponding to a
+   * raw type. If you want different handling for different generic types corresponding to a raw
    * type, use {@link #registerSerializer(Type, JsonSerializer)} instead.
    *
    * @param <T> the type for which the serializer is being registered
@@ -177,9 +174,9 @@ public final class Gson {
   }
 
   /**
-   * Configures Gson to use a custom JSON serializer for the specified type. You should use this 
-   * method if you want to register different serializers for different generic types corresponding 
-   * to a raw type. If you want common handling for all generic types corresponding to a raw type, 
+   * Configures Gson to use a custom JSON serializer for the specified type. You should use this
+   * method if you want to register different serializers for different generic types corresponding
+   * to a raw type. If you want common handling for all generic types corresponding to a raw type,
    * use {@link #registerSerializer(Class, JsonSerializer)} instead.
    *
    * @param <T> the type for which the serializer is being registered
@@ -194,9 +191,9 @@ public final class Gson {
   }
 
   /**
-   * Configures Gson to use a custom JSON deserializer for the specified class. You should use this 
-   * method if you want to register a common deserializer for all generic types corresponding to a 
-   * raw type. If you want different handling for different generic types corresponding to a raw 
+   * Configures Gson to use a custom JSON deserializer for the specified class. You should use this
+   * method if you want to register a common deserializer for all generic types corresponding to a
+   * raw type. If you want different handling for different generic types corresponding to a raw
    * type, use {@link #registerDeserializer(Type, JsonDeserializer)} instead.
    *
    * @param <T> the type for which the deserializer is being registered
@@ -208,9 +205,9 @@ public final class Gson {
   }
 
   /**
-   * Configures Gson to use a custom JSON deserializer for the specified type. You should use this 
-   * method if you want to register different deserializers for different generic types 
-   * corresponding to a raw type. If you want common handling for all generic types corresponding to 
+   * Configures Gson to use a custom JSON deserializer for the specified type. You should use this
+   * method if you want to register different deserializers for different generic types
+   * corresponding to a raw type. If you want common handling for all generic types corresponding to
    * a raw type, use {@link #registerDeserializer(Class, JsonDeserializer)} instead.
    *
    * @param <T> the type for which the deserializer is being registered
@@ -226,14 +223,14 @@ public final class Gson {
   }
 
   /**
-   * This method creates JSON representation of the specified object. It  uses the 
-   * {@link Class#getClass()} method to get the type information for the specified object. 
-   * However, {@link Class#getClass()} loses the generic type information because of the Type 
-   * Erasure feature of Java. Therefore, this method should not be used if the specified object is 
-   * a generic type. Note that this method works fine if the any of the fields of the specified 
-   * object are generics, just the object itself should not be a generic type. For the cases when 
+   * This method creates JSON representation of the specified object. It  uses the
+   * {@link Class#getClass()} method to get the type information for the specified object.
+   * However, {@link Class#getClass()} loses the generic type information because of the Type
+   * Erasure feature of Java. Therefore, this method should not be used if the specified object is
+   * a generic type. Note that this method works fine if the any of the fields of the specified
+   * object are generics, just the object itself should not be a generic type. For the cases when
    * the object is of generic type, invoke {@link #toJson(Object, Type)} instead.
-   * 
+   *
    * @param src the object for which JSON representation is to be created setting for Gson
    * @return JSON representation of src
    */
@@ -245,12 +242,12 @@ public final class Gson {
   }
 
   /**
-   * This method is useful if the specified object is a generic type. For non-generic objects, 
-   * use {@link #toJson(Object)} instead. 
-   * 
+   * This method is useful if the specified object is a generic type. For non-generic objects,
+   * use {@link #toJson(Object)} instead.
+   *
    * @param src the object for which JSON representation is to be created
-   * @param typeOfSrc The specific genericized type of src. You can obtain 
-   * this type by using the {@link com.google.gson.reflect.TypeToken} class. For example, 
+   * @param typeOfSrc The specific genericized type of src. You can obtain
+   * this type by using the {@link com.google.gson.reflect.TypeToken} class. For example,
    * to get the type for <code>Collection&lt;Foo&gt;</code>, you should use<br>
    * <code>Type typeOfSrc = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType()</code>
    * @return JSON representation of src
@@ -259,7 +256,7 @@ public final class Gson {
     if (src == null) {
       return "";
     }
-    JsonSerializationContext context = 
+    JsonSerializationContext context =
         new JsonSerializationContextDefault(navigatorFactory, serializers);
     JsonElement jsonElement = context.serialize(src, typeOfSrc);
     StringWriter writer = new StringWriter();
@@ -268,19 +265,19 @@ public final class Gson {
   }
 
   /**
-   * This method deserializes the specified JSON into an object of the specified class. It is not 
-   * suitable to use if the specified class is a generic type since it will not have the generic 
-   * type information because of the Type Erasure feature of Java. Therefore, this method should not 
-   * be used if the desired type is a generic type. Note that this method works fine if the any of 
-   * the fields of the specified object are generics, just the object itself should not be a 
+   * This method deserializes the specified JSON into an object of the specified class. It is not
+   * suitable to use if the specified class is a generic type since it will not have the generic
+   * type information because of the Type Erasure feature of Java. Therefore, this method should not
+   * be used if the desired type is a generic type. Note that this method works fine if the any of
+   * the fields of the specified object are generics, just the object itself should not be a
    * generic type. For the cases when the object is of generic type, invoke
-   * {@link #fromJson(Type, String)}. 
-   * 
+   * {@link #fromJson(Type, String)}.
+   *
    * @param <T> the type of the desired object
    * @param classOfT the class of T
    * @param json the string from which the object is to be deserialized
    * @return an object of type T from the string
-   * @throws JsonParseException if json is not a valid representation for an object of type 
+   * @throws JsonParseException if json is not a valid representation for an object of type
    * classOfT.
    */
   @SuppressWarnings("unchecked")
@@ -289,12 +286,12 @@ public final class Gson {
   }
 
   /**
-   * This method is useful if the specified object is a generic type. For non-generic objects, 
-   * use {@link #fromJson(Class, String)} instead. 
-   * 
+   * This method is useful if the specified object is a generic type. For non-generic objects,
+   * use {@link #fromJson(Class, String)} instead.
+   *
    * @param <T> the type of the desired object
-   * @param typeOfT The specific genericized type of src. You can obtain 
-   * this type by using the {@link com.google.gson.reflect.TypeToken} class. For example, 
+   * @param typeOfT The specific genericized type of src. You can obtain
+   * this type by using the {@link com.google.gson.reflect.TypeToken} class. For example,
    * to get the type for <code>Collection&lt;Foo&gt;</code>, you should use<br>
    * <code>Type typeOfT = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType()</code>
    * @param json the string from which the object is to be deserialized
@@ -307,7 +304,7 @@ public final class Gson {
       StringReader reader = new StringReader(json);
       JsonParser parser = new JsonParser(reader);
       JsonElement root = parser.parse();
-      JsonDeserializationContext context = new JsonDeserializationContextDefault(navigatorFactory, 
+      JsonDeserializationContext context = new JsonDeserializationContextDefault(navigatorFactory,
           deserializers, objectConstructor, typeAdapter);
       return (T) context.deserialize(typeOfT, root);
     } catch (TokenMgrError e) {
