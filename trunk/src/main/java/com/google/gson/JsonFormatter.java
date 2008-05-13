@@ -30,6 +30,7 @@ public interface JsonFormatter {
    * the specified Json.  
    * 
    * @param root the root of the Json tree. 
+   * @param writer the writer to output the formatter JSON to.
    */
   public void format(JsonElement root, PrintWriter writer);
 }
