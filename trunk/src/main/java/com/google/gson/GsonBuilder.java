@@ -91,7 +91,7 @@ public final class GsonBuilder {
 
   /**
    * Configures Gson to exclude all fields from consideration for serialization or deserialization 
-   * that do not have {@link com.google.gson.annotations.Expose} annotation. 
+   * that do not have the {@link com.google.gson.annotations.Expose} annotation. 
    * 
    * @return GsonBuilder to apply the Builder pattern
    */
@@ -101,6 +101,16 @@ public final class GsonBuilder {
   }
   
   /**
+   * Configures Gson to output Json that fits in a page for pretty printing. This option only
+   * affects Json serialization.
+   *  
+   * @return GsonBuilder to apply the Builder pattern
+   */
+  public GsonBuilder setPrettyPrinting() {
+    setFormatter(new JsonPrintFormatter());
+    return this;
+  }
+  /**
    * Configures Gson with a new formatting strategy other than the default strategy. The default
    * strategy is to provide a compact representation that eliminates all unneeded white-space.
    *  
@@ -108,7 +118,7 @@ public final class GsonBuilder {
    * @see JsonPrintFormatter
    * @return GsonBuilder to apply the Builder pattern
    */
-  public GsonBuilder setFormatter(JsonFormatter formatter) {
+  GsonBuilder setFormatter(JsonFormatter formatter) {
     this.formatter = formatter;
     return this;
   }
