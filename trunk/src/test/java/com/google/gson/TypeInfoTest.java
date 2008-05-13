@@ -16,7 +16,6 @@
 
 package com.google.gson;
 
-import com.google.gson.TypeInfo;
 import com.google.gson.reflect.TypeToken;
 
 import junit.framework.TestCase;
@@ -124,6 +123,20 @@ public class TypeInfoTest extends TestCase {
     TypeInfo typeInfo = new TypeInfo(type);
     assertTrue(typeInfo.isArray());
     assertEquals(List.class, typeInfo.getSecondLevelClass());
+    assertEquals(String.class, typeInfo.getGenericClass());
+  }
+
+  @SuppressWarnings("unchecked")
+  public void testGenericizedGenericType() throws Exception {
+    Type type = new TypeToken<List<List<String>>>() {}.getType();
+    Type genericType = new TypeToken<List<String>>() {}.getType();
+
+    TypeInfo typeInfo = new TypeInfo(type);
+    assertFalse(typeInfo.isArray());
+    assertEquals(List.class, typeInfo.getSecondLevelClass());
+    assertEquals(genericType, typeInfo.getGenericClass());
+
+    typeInfo = new TypeInfo(genericType);
     assertEquals(String.class, typeInfo.getGenericClass());
   }
 

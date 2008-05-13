@@ -29,16 +29,16 @@ import java.util.Map;
  * @author Joel Leitch
  */
 final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
-  
+
   private final ObjectNavigatorFactory factory;
   private final ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers;
-  
-  private final JsonSerializationContext context; 
-  
+
+  private final JsonSerializationContext context;
+
   private JsonElement root;
-  
-  JsonSerializationVisitor(ObjectNavigatorFactory factory, 
-      ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers, 
+
+  JsonSerializationVisitor(ObjectNavigatorFactory factory,
+      ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers,
       JsonSerializationContext context) {
     this.factory = factory;
     this.serializers = serializers;
@@ -67,10 +67,8 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   @SuppressWarnings("unchecked")
   public void visitCollection(Collection collection, Type collectionType) {
     assignToRoot(new JsonArray());
-    Type childType = new TypeInfo<Object>(collectionType).getGenericClass();
-    
     for (Object child : collection) {
-      addAsArrayElement(childType, child);
+      addAsArrayElement(child.getClass(), child);
     }
   }
 
@@ -101,7 +99,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
     if (serializer == null) {
       throw new RuntimeException("Register a JsonSerializer for Enum or "
           + obj.getClass().getName());
-    }    
+    }
     assignToRoot(serializer.toJson(obj, objType, context));
   }
 
@@ -125,7 +123,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
 
   private JsonElement getJsonElementForChild(Type fieldType, Object fieldValue) {
     ObjectNavigator on = factory.create(fieldValue, fieldType);
-    JsonSerializationVisitor childVisitor = 
+    JsonSerializationVisitor childVisitor =
         new JsonSerializationVisitor(factory, serializers, context);
     on.accept(childVisitor);
     return childVisitor.getJsonElement();
@@ -153,7 +151,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
     JsonSerializer serializer = serializers.getHandlerFor(objType);
     if (serializer == null && obj instanceof Map) {
       serializer = serializers.getHandlerFor(Map.class);
-    }    
+    }
     if (serializer != null) {
       assignToRoot(serializer.toJson(obj, objType, context));
       return true;
@@ -165,7 +163,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
     Preconditions.checkArgument(root == null);
     root = newRoot;
   }
-  
+
   private boolean isFieldNull(Field f, Object obj) {
     return getFieldValue(f, obj) == null;
   }

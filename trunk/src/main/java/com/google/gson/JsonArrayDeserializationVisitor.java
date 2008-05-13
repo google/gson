@@ -34,7 +34,7 @@ final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisito
   @SuppressWarnings("unchecked")
   JsonArrayDeserializationVisitor(JsonArray jsonArray, Type arrayType,
       ObjectNavigatorFactory factory, ObjectConstructor objectConstructor,
-      TypeAdapter typeAdapter, ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers, 
+      TypeAdapter typeAdapter, ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers,
       JsonDeserializationContext context) {
     super(jsonArray, factory, objectConstructor, typeAdapter, deserializers, context);
 
@@ -60,14 +60,14 @@ final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisito
     TypeInfo<?> arrayTypeInfo = new TypeInfo<Object>(arrayType);
     for (int i = 0; i < jsonArray.size(); i++) {
       JsonElement jsonChild = jsonArray.get(i);
-      Object child; 
-      
+      Object child;
+
       if (jsonChild instanceof JsonObject) {
         child = visitChildAsObject(arrayTypeInfo.getComponentType(), jsonChild);
       } else if (jsonChild instanceof JsonArray) {
         child = visitChildAsArray(arrayTypeInfo.getSecondLevelClass(), jsonChild.getAsJsonArray());
       } else if (jsonChild instanceof JsonPrimitive) {
-        child = visitChildAsPrimitive(arrayTypeInfo.getComponentType(), 
+        child = visitChildAsPrimitive(arrayTypeInfo.getComponentType(),
             jsonChild.getAsJsonPrimitive());
       } else {
         throw new IllegalStateException();
@@ -82,11 +82,11 @@ final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisito
     TypeInfo<Object> childTypeInfo = new TypeInfo<Object>(collectionType);
     Type childType = childTypeInfo.getGenericClass();
     for (JsonElement jsonChild : json.getAsJsonArray()) {
-      Object child = visitChild(childType, jsonChild);
-      if (childType == Object.class && !ObjectNavigator.isPrimitiveOrString(child)) {
-        throw new JsonParseException(collection + 
+      if (childType == Object.class) {
+        throw new JsonParseException(collection +
             " must not be a raw collection. Try making it genericized instead.");
       }
+      Object child = visitChild(childType, jsonChild);
       collection.add(child);
     }
   }
