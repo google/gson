@@ -17,6 +17,7 @@
 package com.google.gson;
 
 
+
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -28,7 +29,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.google.gson.format.JsonFormatter;
 
 /**
  * This is the main class for using Gson. Gson is typically used by first constructing a 

@@ -16,16 +16,16 @@
 
 package com.google.gson;
 
+
 import java.io.PrintWriter;
 
-import com.google.gson.format.JsonFormatter;
 
 /**
  * Formats Json in a compact way eliminating all unnecessary whitespace.
  * 
  * @author Inderjeet Singh
  */
-class JsonCompactFormatter implements JsonFormatter {
+final class JsonCompactFormatter implements JsonFormatter {
 
   private static class FormattingVisitor implements JsonElementVisitor {
     private final PrintWriter writer;
