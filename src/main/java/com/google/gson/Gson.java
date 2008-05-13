@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.google.gson.format.JsonFormatter;
+
 /**
  * This is the main class for using Gson. Gson is typically used by first constructing a 
  * Gson object and then invoking {@link #toJson(Object)} or {@link #fromJson(Class, String)} 

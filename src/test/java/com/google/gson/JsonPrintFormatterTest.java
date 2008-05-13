@@ -18,6 +18,7 @@ package com.google.gson;
 
 import com.google.gson.TestTypes.ArrayOfObjects;
 import com.google.gson.TestTypes.BagOfPrimitives;
+import com.google.gson.format.JsonFormatter;
 import com.google.gson.reflect.TypeToken;
 
 import junit.framework.TestCase;

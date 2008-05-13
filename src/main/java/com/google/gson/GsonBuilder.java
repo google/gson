@@ -22,6 +22,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gson.format.JsonFormatter;
+
 /**
  * Use this builder to construct a Gson instance in situations where you need to set a number of 
  * parameters. If you need to use Gson with default configuration, you can invoke 
