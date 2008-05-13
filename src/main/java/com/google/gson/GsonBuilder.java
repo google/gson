@@ -28,12 +28,13 @@ import com.google.gson.format.JsonFormatter;
  * Use this builder to construct a Gson instance in situations where you need to set a number of 
  * parameters. If you need to use Gson with default configuration, you can invoke 
  * {@link Gson#Gson()} instead. {@code GsonBuilder} is best used by creating it, and then invoking 
- * its various configuration methods, and finally calling create. Here is an example:  
+ * its various configuration methods, and finally calling create. Here is an example:<br>  
  * <code>
  * Gson gson = new GsonBuilder().setVersion(1.0).registerTypeAdapter(new IdTypeAdapter()).create();
  * </code>   
  * 
  * @author Inderjeet Singh
+ * @author Joel Leitch
  */
 public final class GsonBuilder {
   
@@ -117,11 +118,8 @@ public final class GsonBuilder {
    * registration of an {@link InstanceCreator}, {@link JsonSerializer}, and a 
    * {@link JsonDeserializer}. It is best used when a single object typeAdapter implements all the 
    * required interfaces for custom serialization with Gson. If an instance creator, serializer or 
-   * deserializer was previously registered for the specified class, it is overwritten. This method 
-   * is functionally equivalent to calling {@link #registerInstanceCreator(Class, InstanceCreator)}, 
-   * {@link #registerDeserializer(Class, JsonDeserializer)} and
-   * {@link #registerSerializer(Class, JsonSerializer)} in sequence.  
-   *
+   * deserializer was previously registered for the specified class, it is overwritten. 
+   * 
    * @param typeOfT The class definition for the type T
    * @param typeAdapter This object must implement at least one of the {@link InstanceCreator}, 
    * {@link JsonSerializer}, and a {@link JsonDeserializer} interfaces.  
@@ -154,7 +152,7 @@ public final class GsonBuilder {
    * @param instanceCreator the instance creator for T
    * @return GsonBuilder to apply the Builder pattern
    */
-  public <T> GsonBuilder registerInstanceCreator(Class<T> classOfT,
+  <T> GsonBuilder registerInstanceCreator(Class<T> classOfT,
       InstanceCreator<? extends T> instanceCreator) {
     return registerInstanceCreator((Type) classOfT, instanceCreator);
   }
@@ -172,7 +170,7 @@ public final class GsonBuilder {
    * @param instanceCreator the instance creator for T
    * @return GsonBuilder to apply the Builder pattern
    */
-  public <T> GsonBuilder registerInstanceCreator(Type typeOfT,
+  <T> GsonBuilder registerInstanceCreator(Type typeOfT,
       InstanceCreator<? extends T> instanceCreator) {
     instanceCreators.put(typeOfT, instanceCreator);
     return this;
@@ -189,7 +187,7 @@ public final class GsonBuilder {
    * @param serializer the custom serializer
    * @return GsonBuilder to apply the Builder pattern
    */
-  public <T> GsonBuilder registerSerializer(Class<T> classOfT, JsonSerializer<T> serializer) {
+  <T> GsonBuilder registerSerializer(Class<T> classOfT, JsonSerializer<T> serializer) {
     return registerSerializer((Type) classOfT, serializer);
   }
 
@@ -204,7 +202,7 @@ public final class GsonBuilder {
    * @param serializer the custom serializer
    * @return GsonBuilder to apply the Builder pattern
    */
-  public <T> GsonBuilder registerSerializer(Type typeOfT, final JsonSerializer<T> serializer) {
+  <T> GsonBuilder registerSerializer(Type typeOfT, final JsonSerializer<T> serializer) {
     serializers.put(typeOfT, serializer);
     return this;
   }
@@ -220,7 +218,7 @@ public final class GsonBuilder {
    * @param deserializer the custom deserializer
    * @return GsonBuilder to apply the Builder pattern
    */
-  public <T> GsonBuilder registerDeserializer(Class<T> classOfT, JsonDeserializer<T> deserializer) {
+  <T> GsonBuilder registerDeserializer(Class<T> classOfT, JsonDeserializer<T> deserializer) {
     return registerDeserializer((Type) classOfT, deserializer);
   }
   
@@ -235,7 +233,7 @@ public final class GsonBuilder {
    * @param deserializer the custom deserializer
    * @return GsonBuilder to apply the Builder pattern
    */
-  public <T> GsonBuilder registerDeserializer(Type typeOfT, final JsonDeserializer<T> deserializer) {
+  <T> GsonBuilder registerDeserializer(Type typeOfT, final JsonDeserializer<T> deserializer) {
     deserializers.put(typeOfT, deserializer);
     return this;
   }
