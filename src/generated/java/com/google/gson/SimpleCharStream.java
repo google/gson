@@ -7,7 +7,7 @@ package com.google.gson;
  */
 
 @SuppressWarnings("all")
-class SimpleCharStream
+final class SimpleCharStream
 {
   public static final boolean staticFlag = false;
   int bufsize;

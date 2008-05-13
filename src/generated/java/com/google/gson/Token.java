@@ -6,7 +6,7 @@ package com.google.gson;
  */
 
 @SuppressWarnings("all")
-class Token {
+final class Token {
 
   /**
    * An integer that describes the kind of this token.  This numbering

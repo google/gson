@@ -214,7 +214,6 @@ public final class Gson {
    * @param <T> the type for which the deserializer is being registered
    * @param typeOfT The type definition for T
    * @param deserializer the custom deserializer
-   * @return GsonBuilder to apply the Builder pattern
    */
   <T> void registerDeserializer(Type typeOfT, final JsonDeserializer<T> deserializer) {
     if (deserializers.hasSpecificHandlerFor(typeOfT)) {

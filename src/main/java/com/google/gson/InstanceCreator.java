@@ -19,17 +19,16 @@ package com.google.gson;
 import java.lang.reflect.Type;
 
 /**
- * Defines an interface which the sole purpose is for object creation for
- * a particular type <T>.  Implementations of this interface should be
- * registered with a {@link com.google.gson.MappedObjectConstructor} instance.
+ * Defines an interface which the sole purpose is for object creation for a particular type <T>.
+ * Implementations of this interface should be registered with 
+ * {@link GsonBuilder#registerTypeAdapter(Type, Object)} or 
+ * {@link GsonBuilder#registerInstanceCreator(Class, InstanceCreator)} or 
+ * {@link GsonBuilder#registerInstanceCreator(Type, InstanceCreator)} methods. 
  *
- * This interface is exposed to allow applications to plug in its own
- * {@link InstanceCreator} implementations to be used by this general JSON
- * converter framework.
+ * This interface is exposed to allow applications to plug in its own {@link InstanceCreator} 
+ * implementations to be used by Gson.
  *
  * @param <T> the type of object that will be created by this implementation.
- *
- * @see com.google.gson.MappedObjectConstructor
  *
  * @author Joel Leitch
  */

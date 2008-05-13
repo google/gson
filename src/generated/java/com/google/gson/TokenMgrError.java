@@ -2,7 +2,7 @@
 package com.google.gson;
 
 @SuppressWarnings("all")
-class TokenMgrError extends Error
+final class TokenMgrError extends Error
 {
    /*
     * Ordinals for various reasons why an Error of this type can be thrown.

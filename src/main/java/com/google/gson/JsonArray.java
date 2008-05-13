@@ -22,8 +22,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * A class representing an array type in Json. An array is a list 
- * of {@link JsonElement}s each of which can be of a different type. 
+ * A class representing an array type in Json. An array is a list of {@link JsonElement}s each of 
+ * which can be of a different type. 
  *  
  * @author Inderjeet Singh
  */

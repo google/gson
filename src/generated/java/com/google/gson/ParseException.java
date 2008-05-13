@@ -11,7 +11,7 @@ package com.google.gson;
  * mechanisms so long as you retain the public fields.
  */
 @SuppressWarnings("all")
-class ParseException extends Exception {
+final class ParseException extends Exception {
 
   /**
    * This constructor is used by the method "generateParseException"
