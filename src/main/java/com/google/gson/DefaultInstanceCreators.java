@@ -106,49 +106,49 @@ final class DefaultInstanceCreators {
 
   private static class LongCreator implements InstanceCreator<Long> {
     public Long createInstance(Type type) {
-      return 0L;
+      return new Long(0L);
     }
   }
 
   private static class IntegerCreator implements InstanceCreator<Integer> {
     public Integer createInstance(Type type) {
-      return 0;
+      return new Integer(0);
     }
   }
 
   private static class ShortCreator implements InstanceCreator<Short> {
     public Short createInstance(Type type) {
-      return 0;
+      return new Short((short) 0);
     }
   }
 
   private static class ByteCreator implements InstanceCreator<Byte> {
     public Byte createInstance(Type type) {
-      return 0;
+      return new Byte((byte) 0);
     }
   }
 
   private static class FloatCreator implements InstanceCreator<Float> {
     public Float createInstance(Type type) {
-      return 0F;
+      return new Float(0F);
     }
   }
 
   private static class DoubleCreator implements InstanceCreator<Double> {
     public Double createInstance(Type type) {
-      return 0D;
+      return new Double(0D);
     }
   }
 
   private static class CharacterCreator implements InstanceCreator<Character> {
     public Character createInstance(Type type) {
-      return 0;
+      return new Character((char) 0);
     }
   }
 
   private static class BooleanCreator implements InstanceCreator<Boolean> {
     public Boolean createInstance(Type type) {
-      return true;
+      return new Boolean(false);
     }
   }
 
