@@ -21,6 +21,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -38,6 +39,7 @@ final class DefaultJsonSerializers {
     map.put(Map.class, new MapSerializer());
     map.put(URL.class, new UrlSerializer());
     map.put(URI.class, new UriSerializer());
+    map.put(Locale.class, new LocaleSerializer());
     return map;
   }
 
@@ -60,6 +62,22 @@ final class DefaultJsonSerializers {
 
     public JsonElement toJson(URI src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src.toASCIIString());
+    }    
+  }
+  
+  private static class LocaleSerializer implements JsonSerializer<Locale> {
+
+    public JsonElement toJson(Locale src, Type typeOfSrc, JsonSerializationContext context) {
+      JsonObject json = new JsonObject();
+      addIfNotEmpty("language", src.getLanguage(), json);
+      addIfNotEmpty("country", src.getCountry(), json);
+      addIfNotEmpty("variant", src.getVariant(), json);
+      return json;
+    }
+    private void addIfNotEmpty(String propertyName, String propertyValue, JsonObject json) {
+      if (propertyValue != null && !propertyValue.trim().equals("")) {
+        json.add(propertyName, new JsonPrimitive(propertyValue));
+      }
     }    
   }
   
