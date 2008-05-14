@@ -134,10 +134,10 @@ public final class JsonPrimitive extends JsonElement {
   }
   
   /**
-   * convenience method to get this element as a boolean value.  
+   * convenience method to get this element as a Number.  
    *  
-   * @return get this element as a primitive boolean value. 
-   * @throws ClassCastException if the value contained is not a valid boolean value.  
+   * @return get this element as a Number. 
+   * @throws ClassCastException if the value contained is not a valid Number.  
    */
   @Override
   public Number getAsNumber() {
@@ -153,38 +153,79 @@ public final class JsonPrimitive extends JsonElement {
     return value instanceof String;
   }
   
+  /**
+   * convenience method to get this element as a String.  
+   *  
+   * @return get this element as a String. 
+   * @throws ClassCastException if the value contained is not a valid String.  
+   */
   @Override
   public String getAsString() {
     return (String) value;
   }
 
+  /**
+   * convenience method to get this element as a primitive double.  
+   *  
+   * @return get this element as a primitive double. 
+   * @throws ClassCastException if the value contained is not a valid double.  
+   */
   @Override
   public double getAsDouble() {
     return ((Number) value).doubleValue();
   }
   
+  /**
+   * convenience method to get this element as a float.  
+   *  
+   * @return get this element as a float. 
+   * @throws ClassCastException if the value contained is not a valid float.  
+   */
   @Override
   public float getAsFloat() {
     return ((Number) value).floatValue();
   }
   
+  /**
+   * convenience method to get this element as a primitive long.  
+   *  
+   * @return get this element as a primitive long. 
+   * @throws ClassCastException if the value contained is not a valid long.  
+   */
   @Override
   public long getAsLong() {
     return ((Number) value).longValue();
   }
   
-  @Override
+  /**
+   * convenience method to get this element as a primitive short.  
+   *  
+   * @return get this element as a primitive short. 
+   * @throws ClassCastException if the value contained is not a valid short value.  
+   */
+ @Override
   public short getAsShort() {
     return ((Number) value).shortValue();
   }
   
+ /**
+  * convenience method to get this element as a primitive integer.  
+  *  
+  * @return get this element as a primitive integer. 
+  * @throws ClassCastException if the value contained is not a valid integer.  
+  */
   @Override
   public int getAsInt() {
     return ((Number) value).intValue();
   }
   
+  /**
+   * convenience method to get this element as an Object.  
+   *  
+   * @return get this element as an Object that can be converted to a suitable value. 
+   */
   @Override
-  public Object getAsObject() {
+  Object getAsObject() {
     return value;
   }
   

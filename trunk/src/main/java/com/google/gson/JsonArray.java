@@ -224,7 +224,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * @throws IllegalStateException if the array has more than one element. 
    */
   @Override 
-  public Object getAsObject() {
+  Object getAsObject() {
     if (elements.size() == 1) {
       return elements.get(0).getAsObject();
     }
