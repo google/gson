@@ -120,7 +120,7 @@ public abstract class JsonElement {
    * @throws IllegalStateException if the element is of the type {@link JsonArray} but contains 
    * more than a single element. 
    */
-  public Boolean getAsBooleanWrapper() {
+  Boolean getAsBooleanWrapper() {
     throw new UnsupportedOperationException();
   }
   

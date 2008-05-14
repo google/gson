@@ -109,7 +109,7 @@ public final class JsonPrimitive extends JsonElement {
    * @throws ClassCastException if the value contained is not a valid boolean value.  
    */
   @Override
-  public Boolean getAsBooleanWrapper() {
+  Boolean getAsBooleanWrapper() {
     return (Boolean) value;
   }
   
