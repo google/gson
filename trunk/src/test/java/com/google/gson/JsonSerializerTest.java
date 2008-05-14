@@ -48,6 +48,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -381,6 +382,22 @@ public class JsonSerializerTest extends TestCase {
     assertEquals('"' + uriValue + '"', gson.toJson(uri));
   }
 
+  public void testDefaultSupportForLocaleWithLanguage() throws Exception {
+    Locale target = new Locale("en");
+    assertEquals("{\"language\":\"en\"}", gson.toJson(target));
+  }
+
+  public void testDefaultSupportForLocaleWithLanguageCountry() throws Exception {
+    Locale target = Locale.CANADA_FRENCH;
+    assertEquals("{\"language\":\"fr\",\"country\":\"CA\"}", gson.toJson(target));
+  }
+
+  public void testDefaultSupportForLocaleWithLanguageCountryVariant() throws Exception {
+    Locale target = new Locale("de", "DE", "EURO");
+    String json = gson.toJson(target);
+    assertEquals("{\"language\":\"de\",\"country\":\"DE\",\"variant\":\"EURO\"}", json);
+  }
+
   public void testMap() throws Exception {
     Map<String, Integer> map = new LinkedHashMap<String, Integer>();
     map.put("a", 1);
@@ -390,7 +407,7 @@ public class JsonSerializerTest extends TestCase {
     assertTrue(json.contains("\"a\":1"));
     assertTrue(json.contains("\"b\":2"));
   }
-
+  
   public void testExposeAnnotation() {
     // First test that Gson works without the expose annotation as well
     ClassWithExposedFields target = new ClassWithExposedFields();

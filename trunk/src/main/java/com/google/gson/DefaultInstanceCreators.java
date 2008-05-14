@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -81,7 +82,8 @@ final class DefaultInstanceCreators {
     // Add instance creators for other common objects
     map.put(Enum.class, new EnumCreator());
     map.put(Map.class, new MapCreator());
-    map.put(URL.class, new UrlCreator());    
+    map.put(URL.class, new UrlCreator());
+    map.put(Locale.class, new LocaleCreator());
 
     return map;
   }
@@ -172,6 +174,12 @@ final class DefaultInstanceCreators {
         throw new RuntimeException(e);
       }
     }
+  }
+  
+  private static class LocaleCreator implements InstanceCreator<Locale> {
+    public Locale createInstance(Type type) {
+      return new Locale("en_US");
+    }    
   }
   
   @SuppressWarnings("unchecked")

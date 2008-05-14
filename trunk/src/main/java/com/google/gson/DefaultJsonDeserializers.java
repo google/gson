@@ -22,6 +22,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -39,6 +40,7 @@ final class DefaultJsonDeserializers {
     map.put(Map.class, new MapDeserializer());
     map.put(URL.class, new UrlDeserializer());
     map.put(URI.class, new UriDeserializer());
+    map.put(Locale.class, new LocaleDeserializer());
     return map;
   }
 
@@ -70,6 +72,27 @@ final class DefaultJsonDeserializers {
       } catch (URISyntaxException e) {
 	    throw new JsonParseException(e);
       }
+    }
+  }
+  
+  private static class LocaleDeserializer implements JsonDeserializer<Locale> {
+    public Locale fromJson(JsonElement json, Type typeOfT, JsonDeserializationContext context) 
+        throws JsonParseException {
+      JsonObject jsonObject = json.getAsJsonObject();
+      String country = getChildIfExists("country", jsonObject);
+      String language = getChildIfExists("language", jsonObject);
+      String variant = getChildIfExists("variant", jsonObject);
+      if (country == null && variant == null) {
+        return new Locale(language);
+      } else if (variant == null) {
+        return new Locale(language, country);
+      } else {
+        return new Locale(language, country, variant);
+      }
+    }
+    private String getChildIfExists(String propertyName, JsonObject parent) {
+      JsonElement child = parent.get(propertyName);
+      return child == null ? null : child.getAsString();
     }
   }
   

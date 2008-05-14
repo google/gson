@@ -45,6 +45,7 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -512,6 +513,26 @@ public class JsonDeserializerTest extends TestCase {
     assertEquals(uriValue, target.toASCIIString());
   }
 
+  public void testDefaultSupportForLocaleWithLanguage() throws Exception {
+    String json = "{\"language\":\"en\"}";
+    Locale locale = gson.fromJson(json, Locale.class);
+    assertEquals("en", locale.getLanguage());    
+  }
+
+  public void testDefaultSupportForLocaleWithLanguageCountry() throws Exception {
+    String json = "{\"language\":\"fr\",\"country\":\"CA\"}";
+    Locale locale = gson.fromJson(json, Locale.class);
+    assertEquals(Locale.CANADA_FRENCH, locale);    
+  }
+
+  public void testDefaultSupportForLocaleWithLanguageCountryVariant() throws Exception {
+    String json = "{\"language\":\"de\",\"country\":\"DE\",\"variant\":\"EURO\"}";
+    Locale locale = gson.fromJson(json, Locale.class);
+    assertEquals("de", locale.getLanguage());    
+    assertEquals("DE", locale.getCountry());    
+    assertEquals("EURO", locale.getVariant());    
+  }
+
   public void testMap() throws Exception {
     String json = "{\"a\":1,\"b\":2}";
     Type typeOfMap = new TypeToken<Map<String,Integer>>(){}.getType();
@@ -519,7 +540,7 @@ public class JsonDeserializerTest extends TestCase {
     assertEquals(1, target.get("a").intValue());
     assertEquals(2, target.get("b").intValue());
   }
-
+  
   public void testExposeAnnotation() {
     String json = '{' + "\"a\":" + 3 + ",\"b\":" + 4 + '}';
     // First test that Gson works without the expose annotation as well
