@@ -19,17 +19,20 @@ package com.google.gson;
 import java.lang.reflect.Type;
 
 /**
- * Context for deserialization that is passed to a custom deserializer
- * during invocation of its 
- * {@link JsonDeserializer#fromJson(Type, JsonElement, JsonDeserializationContext)}
- * method
+ * Context for deserialization that is passed to a custom deserializer during invocation of its 
+ * {@link JsonDeserializer#fromJson(JsonElement, Type, JsonDeserializationContext)}
+ * method. 
  * 
  * @author Inderjeet Singh
  */
 public interface JsonDeserializationContext {
   
   /**
-   * Invokes default deserialization on the specified object.
+   * Invokes default deserialization on the specified object. It should never be invoked on 
+   * the element received as a parameter of the 
+   * {@link JsonDeserializer#fromJson(JsonElement, Type, JsonDeserializationContext)} method. Doing
+   * so will result in an infinite loop since Gson will in-turn call the custom deserializer again. 
+   * 
    * @param <T> The type of the deserialized object
    * @param typeOfT type of the expected return value
    * @param json the parse tree

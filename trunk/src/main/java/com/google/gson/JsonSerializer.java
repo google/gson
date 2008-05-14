@@ -31,6 +31,9 @@ import java.lang.reflect.Type;
 public interface JsonSerializer<T> {
   
   /**
+   * Gson invokes this call-back method during serialization when it encounters a field of the 
+   * specified type.
+   * 
    * @param src the object that needs to be converted to Json
    * @param typeOfSrc the actual type (fully genericized version) of 
    *        the source object

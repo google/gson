@@ -45,14 +45,14 @@ final class DefaultJsonDeserializers {
   @SuppressWarnings("unchecked")
   private static class EnumDeserializer<T extends Enum> implements JsonDeserializer<T> {
     @SuppressWarnings("cast")
-    public T fromJson(Type classOfT, JsonElement json, JsonDeserializationContext context) 
+    public T fromJson(JsonElement json, Type classOfT, JsonDeserializationContext context) 
         throws JsonParseException {
       return (T) Enum.valueOf((Class<T>)classOfT, json.getAsString());
     }
   }
   
   private static class UrlDeserializer implements JsonDeserializer<URL> {
-    public URL fromJson(Type typeOfT, JsonElement json, JsonDeserializationContext context) 
+    public URL fromJson(JsonElement json, Type typeOfT, JsonDeserializationContext context) 
         throws JsonParseException {
       try {
         return new URL(json.getAsString());
@@ -63,7 +63,7 @@ final class DefaultJsonDeserializers {
   }
   
   private static class UriDeserializer implements JsonDeserializer<URI> {
-    public URI fromJson(Type typeOfT, JsonElement json, JsonDeserializationContext context) 
+    public URI fromJson(JsonElement json, Type typeOfT, JsonDeserializationContext context) 
         throws JsonParseException {
       try {
 	  	return new URI(json.getAsString());
@@ -77,7 +77,7 @@ final class DefaultJsonDeserializers {
   private static class MapDeserializer implements JsonDeserializer<Map> {
 
     @SuppressWarnings("unchecked")
-    public Map fromJson(Type typeOfT, JsonElement json, JsonDeserializationContext context) 
+    public Map fromJson(JsonElement json, Type typeOfT, JsonDeserializationContext context) 
         throws JsonParseException {
       // Using linked hash map to preserve order in which elements are entered
       Map<String, Object> map = new LinkedHashMap<String, Object>();
