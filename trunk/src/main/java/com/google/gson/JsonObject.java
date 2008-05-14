@@ -22,9 +22,9 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 /**
- * A class representing an object type in Json. An object consists of 
- * name-value pairs where names are strings, and values are any other 
- * type of {@link JsonElement} 
+ * A class representing an object type in Json. An object consists of name-value pairs where names 
+ * are strings, and values are any other type of {@link JsonElement}. This allows for a creating a 
+ * tree of JsonElements. The member elements of this object are maintained in order they were added. 
  * 
  * @author Inderjeet Singh
  */
@@ -33,37 +33,97 @@ public final class JsonObject extends JsonElement {
   // the order in which elements are inserted. This is needed to ensure
   // that the fields of an object are inserted in the order they were 
   // defined in the class. 
-  private Map<String, JsonElement> members = new LinkedHashMap<String, JsonElement>();
+  private final Map<String, JsonElement> members;
 
+  /**
+   * Creates an empty JsonObject.
+   */
+  public JsonObject() {
+    members = new LinkedHashMap<String, JsonElement>();
+  }
+  
+  /**
+   * Adds a member, which is a name-value pair, to self. The name must be a String, but the value
+   * can be an arbitrary JsonElement, thereby allowing you to build a full tree of JsonElements
+   * rooted at this node. 
+   *   
+   * @param property name of the member 
+   * @param value the member object
+   */
   public void add(String property, JsonElement value) {
     members.put(property, value);
   }
   
+  /**
+   * Convenience method to add a primitive member. The specified value is converted to a 
+   * JsonPrimitive of String. 
+   *  
+   * @param property name of the member
+   * @param value the string value associated with the member
+   */
   public void addProperty(String property, String value) {
     members.put(property, new JsonPrimitive(value));
   }
   
+  /**
+   * Convenience method to add a primitive member. The specified value is converted to a 
+   * JsonPrimitive of Number. 
+   *  
+   * @param property name of the member
+   * @param value the number value associated with the member
+   */
   public void addProperty(String property, Number value) {
     members.put(property, new JsonPrimitive(value));
   }
 
+  /**
+   * Returns a set of members of this object. The set is ordered, and the order is in which the 
+   * elements were added. 
+   *  
+   * @return a set of members of this object. 
+   */
   public Set<Entry<String, JsonElement>> getEntries() {
     return members.entrySet();
   }
-  public boolean has(String property) {
-    return members.containsKey(property);
+  
+  /**
+   * Convenience method to check if a member with the specified name is present in this object. 
+   * 
+   * @param memberName name of the member that is being checked for presence.
+   * @return true if there is a member with the specified name, false otherwise. 
+   */
+  public boolean has(String memberName) {
+    return members.containsKey(memberName);
   }
   
-  public JsonElement get(String property) {
-    return members.get(property);
+  /**
+   * Returns the member with the specified name. 
+   * 
+   * @param memberName name of the member that is being requested.
+   * @return the member matching the name. Null if no such member exists. 
+   */
+  public JsonElement get(String memberName) {
+    return members.get(memberName);
   }
   
-  public JsonPrimitive getAsPrimitive(String property) {
-    return (JsonPrimitive) members.get(property);
+  /**
+   * Convenience method to get the specified member as a JsonPrimitive element. 
+   * 
+   * @param memberName name of the member being requested. 
+   * @return the primitive element corresponding to the specified member. 
+   */
+  public JsonPrimitive getAsPrimitive(String memberName) {
+    return (JsonPrimitive) members.get(memberName);
   }
   
-  public JsonArray getAsArray(String property) {
-    return (JsonArray) members.get(property);
+  /**
+   * Convenience method to get the specified member as a JsonArray.
+   * 
+   * @param memberName name of the member being requested. 
+   * @return the array element corresponding to the specified member.
+   */
+  public JsonArray getAsArray(String memberName) {
+    return (JsonArray) members.get(memberName);
   }
 
   @Override
