@@ -27,6 +27,12 @@ import java.util.Map;
 /**
  * Represents a generic type {@code T}.
  *
+ * You can use this class to get the generic type for a class. For example,
+ * to get the generic type for <code>Collection&lt;Foo&gt;</code>, you can use:
+ * <p>
+ * <code>Type typeOfCollectionOfFoo = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType()
+ * </code>
+ * 
  * <p>Assumes {@code Type} implements {@code equals()} and {@code hashCode()}
  * as a value (as opposed to identity) comparison.
  *

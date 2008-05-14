@@ -31,13 +31,14 @@ import java.lang.reflect.Type;
 public interface JsonDeserializer<T> {
   
   /**
-   * @param typeOfT The type of the Object to deserialize to
+   * Gson invokes this call-back method during deserialization when it encounters a field of the 
+   * specified type. 
+   * 
    * @param json The Json data being deserialized
-   * @return a deserialized object of the specified type typeOfT
-   *         which is a subclass for {@code T}
-   * @throws JsonParseException if json is not in the expected format of
-   *         {@code typeofT}
+   * @param typeOfT The type of the Object to deserialize to
+   * @return a deserialized object of the specified type typeOfT which is a subclass of {@code T}
+   * @throws JsonParseException if json is not in the expected format of {@code typeofT}
    */
-  public T fromJson(Type typeOfT, JsonElement json, JsonDeserializationContext context) 
+  public T fromJson(JsonElement json, Type typeOfT, JsonDeserializationContext context) 
       throws JsonParseException;
 }

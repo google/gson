@@ -175,7 +175,7 @@ public final class Gson {
   }
 
   /**
-   * Configures Gson to use a custom JSON serializer for the specified type. You should use this
+   * Configures Gson to use a custom Json serializer for the specified type. You should use this
    * method if you want to register different serializers for different generic types corresponding
    * to a raw type. If you want common handling for all generic types corresponding to a raw type,
    * use {@link #registerSerializer(Class, JsonSerializer)} instead.
@@ -206,7 +206,7 @@ public final class Gson {
   }
 
   /**
-   * Configures Gson to use a custom JSON deserializer for the specified type. You should use this
+   * Configures Gson to use a custom Json deserializer for the specified type. You should use this
    * method if you want to register different deserializers for different generic types
    * corresponding to a raw type. If you want common handling for all generic types corresponding to
    * a raw type, use {@link #registerDeserializer(Class, JsonDeserializer)} instead.
@@ -223,8 +223,7 @@ public final class Gson {
   }
 
   /**
-   * This method creates JSON representation of the specified object. It  uses the
-   * {@link Class#getClass()} method to get the type information for the specified object.
+   * This method creates Json type information for the specified object.
    * However, {@link Class#getClass()} loses the generic type information because of the Type
    * Erasure feature of Java. Therefore, this method should not be used if the specified object is
    * a generic type. Note that this method works fine if the any of the fields of the specified
@@ -232,7 +231,7 @@ public final class Gson {
    * the object is of generic type, invoke {@link #toJson(Object, Type)} instead.
    *
    * @param src the object for which JSON representation is to be created setting for Gson
-   * @return JSON representation of src
+   * @return Json representation of src
    */
   public String toJson(Object src) {
     if (src == null) {
@@ -250,7 +249,7 @@ public final class Gson {
    * this type by using the {@link com.google.gson.reflect.TypeToken} class. For example,
    * to get the type for <code>Collection&lt;Foo&gt;</code>, you should use<br>
    * <code>Type typeOfSrc = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType()</code>
-   * @return JSON representation of src
+   * @return Json representation of src
    */
   public String toJson(Object src, Type typeOfSrc) {
     if (src == null) {
@@ -265,7 +264,7 @@ public final class Gson {
   }
 
   /**
-   * This method deserializes the specified JSON into an object of the specified class. It is not
+   * This method deserializes the specified Json into an object of the specified class. It is not
    * suitable to use if the specified class is a generic type since it will not have the generic
    * type information because of the Type Erasure feature of Java. Therefore, this method should not
    * be used if the desired type is a generic type. Note that this method works fine if the any of
