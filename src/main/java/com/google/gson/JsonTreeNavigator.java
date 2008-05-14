@@ -31,7 +31,7 @@ final class JsonTreeNavigator {
   }
   
   public void navigate(JsonElement element) {
-    if (element.isArray()) {
+    if (element.isJsonArray()) {
       JsonArray array = element.getAsJsonArray();
       visitor.startArray(array);
       boolean isFirst = true;
@@ -42,7 +42,7 @@ final class JsonTreeNavigator {
         }
       }
       visitor.endArray(array);
-    } else if (element.isObject()){
+    } else if (element.isJsonObject()){
       JsonObject object = element.getAsJsonObject();
       visitor.startObject(object);
       boolean isFirst = true;
@@ -59,11 +59,11 @@ final class JsonTreeNavigator {
   }
 
   private void visitChild(JsonObject parent, String childName, JsonElement child, boolean isFirst) {
-    if (child.isArray()) {
+    if (child.isJsonArray()) {
       JsonArray childAsArray = child.getAsJsonArray();
       visitor.visitObjectMember(parent, childName, childAsArray, isFirst);
       navigate(childAsArray);
-    } else if (child.isObject()) {
+    } else if (child.isJsonObject()) {
       JsonObject childAsObject = child.getAsJsonObject();
       visitor.visitObjectMember(parent, childName, childAsObject, isFirst);
       navigate(childAsObject);
@@ -73,11 +73,11 @@ final class JsonTreeNavigator {
   }  
   
   private void visitChild(JsonArray parent, JsonElement child, boolean isFirst) {
-    if (child.isArray()) {
+    if (child.isJsonArray()) {
       JsonArray childAsArray = child.getAsJsonArray();
       visitor.visitArrayMember(parent, childAsArray, isFirst);
       navigate(childAsArray);
-    } else if (child.isObject()) {
+    } else if (child.isJsonObject()) {
       JsonObject childAsObject = child.getAsJsonObject();
       visitor.visitArrayMember(parent, childAsObject, isFirst);
       navigate(childAsObject);
