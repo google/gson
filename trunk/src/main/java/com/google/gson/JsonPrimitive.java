@@ -26,27 +26,60 @@ package com.google.gson;
 public final class JsonPrimitive extends JsonElement {
   
   private Object value;
-  
+
+  /**
+   * Create a primitive containing a boolean value.
+   * 
+   * @param bool the value to create the primitive with.
+   */
   public JsonPrimitive(Boolean bool) {
     this.value = bool;
   }
   
+  /**
+   * Create a primitive containing a {@link Number}.
+   * 
+   * @param number the value to create the primitive with.
+   */
   public JsonPrimitive(Number number) {
     this.value = number;
   }
   
+  /**
+   * Create a primitive containing a String value.
+   * 
+   * @param string the value to create the primitive with.
+   */
   public JsonPrimitive(String string) {
     this.value = string;
   }
   
+  /**
+   * Create a primitive containing a character. The character is turned into a one character String
+   * since Json only supports String. 
+   * 
+   * @param c the value to create the primitive with.
+   */
   public JsonPrimitive(Character c) {
     this.value = String.valueOf(c);
   }
   
+  /**
+   * Create a primitive containing a character. The character is turned into a one character String
+   * since Json only supports String. 
+   * 
+   * @param c the value to create the primitive with.
+   */
   public JsonPrimitive(char c) {
     this.value = String.valueOf(c);
   }
   
+  /**
+   * Create a primitive using the specified Object. It must be an instance of {@link Number}, a
+   * Java primitive type, or a String.  
+   * 
+   * @param primitive the value to create the primitive with.
+   */
   public JsonPrimitive(Object primitive) {
     if (primitive instanceof Character) {
       // convert characters to strings since in JSON, characters are represented as a single 
@@ -60,29 +93,62 @@ public final class JsonPrimitive extends JsonElement {
     }
   }
   
+  /**
+   * Check whether this primitive contains a boolean value. 
+   * 
+   * @return true if this primitive contains a boolean value, false otherwise. 
+   */
   public boolean isBoolean() {
     return value instanceof Boolean;
   }
   
+  /**
+   * convenience method to get this element as a {@link Boolean}.  
+   *  
+   * @return get this element as a {@link Boolean}. 
+   * @throws ClassCastException if the value contained is not a valid boolean value.  
+   */
   @Override
   public Boolean getAsBooleanWrapper() {
     return (Boolean) value;
   }
   
+  /**
+   * convenience method to get this element as a boolean value.  
+   *  
+   * @return get this element as a primitive boolean value. 
+   * @throws ClassCastException if the value contained is not a valid boolean value.  
+   */
   @Override
   public boolean getAsBoolean() {
     return ((Boolean) value).booleanValue();
   }
   
+  /**
+   * Check whether this primitive contains a Number. 
+   * 
+   * @return true if this primitive contains a Number, false otherwise. 
+   */
   public boolean isNumber() {
     return value instanceof Number;
   }
   
+  /**
+   * convenience method to get this element as a boolean value.  
+   *  
+   * @return get this element as a primitive boolean value. 
+   * @throws ClassCastException if the value contained is not a valid boolean value.  
+   */
   @Override
   public Number getAsNumber() {
     return (Number) value;
   }
   
+  /**
+   * Check whether this primitive contains a String value. 
+   * 
+   * @return true if this primitive contains a String value, false otherwise. 
+   */
   public boolean isString() {
     return value instanceof String;
   }
