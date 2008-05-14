@@ -29,7 +29,14 @@ import java.util.List;
  * @author Inderjeet Singh
  */
 public final class JsonArray extends JsonElement implements Iterable<JsonElement> {
-  private final List<JsonElement> elements = new LinkedList<JsonElement>();
+  private final List<JsonElement> elements;
+  
+  /**
+   * Creates an empty JsonArray. 
+   */
+  public JsonArray() {
+    elements  = new LinkedList<JsonElement>();
+  }
   
   /**
    * Adds the specified element to self.

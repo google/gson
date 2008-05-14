@@ -228,6 +228,11 @@ public abstract class JsonElement {
     throw new UnsupportedOperationException();    
   }
   
+  /**
+   * Returns a String representation of this element.
+   *  
+   * @return String the string representation of this element. The output is valid Json.
+   */
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();

@@ -301,10 +301,19 @@ public abstract class TypeToken<T> {
     return false;
   }
 
+  /**
+   * Hashcode for this object.
+   * @return hashcode for this object.
+   */
   @Override public int hashCode() {
     return type.hashCode();
   }
 
+  /**
+   * Method to test equality. 
+   * 
+   * @return true if this object is logically equal to the specified object, false otherwise.
+   */
   @Override public boolean equals(Object o) {
     if (o == this) {
       return true;
@@ -316,6 +325,10 @@ public abstract class TypeToken<T> {
     return type.equals(t.type);
   }
 
+  /**
+   * Returns a string representation of this object.
+   * @return a string representation of this object.
+   */
   @Override public String toString() {
     return type instanceof Class<?>
         ? ((Class<?>) type).getName()
