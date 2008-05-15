@@ -106,7 +106,7 @@ final class DefaultJsonDeserializers {
       Map<String, Object> map = new LinkedHashMap<String, Object>();
       Type childType = new MapTypeInfo(typeOfT).getValueType();     
       for (Map.Entry<String, JsonElement> entry : json.getAsJsonObject().getEntries()) {
-        Object value = context.deserialize(childType, entry.getValue());
+        Object value = context.deserialize(entry.getValue(), childType);
         map.put(entry.getKey(), value);
       }
       return map;

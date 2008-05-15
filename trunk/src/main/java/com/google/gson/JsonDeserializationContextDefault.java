@@ -40,7 +40,7 @@ final class JsonDeserializationContextDefault implements JsonDeserializationCont
   }
 
   @SuppressWarnings("unchecked")
-  public <T> T deserialize(Type typeOfT, JsonElement json) throws JsonParseException {
+  public <T> T deserialize(JsonElement json, Type typeOfT) throws JsonParseException {
     if (json.isJsonArray()) {
       return (T) fromJsonArray(typeOfT, json.getAsJsonArray(), this);
     } else if (json.isJsonObject()) {

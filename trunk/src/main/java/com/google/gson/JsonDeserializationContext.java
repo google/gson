@@ -32,12 +32,12 @@ public interface JsonDeserializationContext {
    * the element received as a parameter of the 
    * {@link JsonDeserializer#fromJson(JsonElement, Type, JsonDeserializationContext)} method. Doing
    * so will result in an infinite loop since Gson will in-turn call the custom deserializer again. 
+   * @param json the parse tree
+   * @param typeOfT type of the expected return value
    * 
    * @param <T> The type of the deserialized object
-   * @param typeOfT type of the expected return value
-   * @param json the parse tree
    * @return An object of type typeOfT
    * @throws JsonParseException if the parse tree does not contain expected data
    */
-  public <T> T deserialize(Type typeOfT, JsonElement json) throws JsonParseException;
+  public <T> T deserialize(JsonElement json, Type typeOfT) throws JsonParseException;
 }

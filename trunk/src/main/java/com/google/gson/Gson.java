@@ -305,7 +305,7 @@ public final class Gson {
       JsonElement root = parser.parse();
       JsonDeserializationContext context = new JsonDeserializationContextDefault(navigatorFactory,
           deserializers, objectConstructor, typeAdapter);
-      return (T) context.deserialize(typeOfT, root);
+      return (T) context.deserialize(root, typeOfT);
     } catch (TokenMgrError e) {
       throw new JsonParseException("Failed parsing JSON source: " + json + " to Json", e);
     } catch (ParseException e) {
