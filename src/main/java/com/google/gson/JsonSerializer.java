@@ -17,16 +17,50 @@
 package com.google.gson;
 
 import java.lang.reflect.Type;
+import java.util.Locale;
 
 /**
- * Interface representing a custom serializer for Json.   
+ * Interface representing a custom serializer for Json. You should write a custom serializer, if 
+ * you are not happy with the default serialization done by Gson. You will also need to register
+ * this serializer through {@link GsonBuilder#registerTypeAdapter(Type, Object)}. 
+ * 
+ * <p>Let us look at example where defining a serializer will be useful. The <code>Id</code> class 
+ * defined below has two fields: <code>clazz</code> and <code>value</code>. 
+ * 
+ * <p><code>
+ * public class Id&lt;T&gt; {<br>
+ *  &nbsp; private final Class&lt;T&gt; clazz;<br>
+ *  &nbsp; private final long value;<br>
+ *  &nbsp; public Id(Class&lt;T&gt; clazz, long value) {<br>
+ *  &nbsp; &nbsp; this.clazz = clazz;<br>
+ *  &nbsp; &nbsp; this.value = value;<br>
+ *  &nbsp; }<br>
+ *  &nbsp; public long getValue() {<br>
+ *  &nbsp; &nbsp; return value;<br>
+ *  &nbsp; }<br>
+ * }
+ * </code></p>
+ * 
+ * <p>The default serialization of <code>Id(com.foo.MyObject.class, 20L)</code> will be 
+ * <code>{"clazz":com.foo.MyObject,"value":20}</code>. Suppose, you just want the output to be the 
+ * value instead, which is 20 in this case. You can achieve that by writing a custom serializer:</p>
+ * 
+ * <p><code>
+ * class IdSerializer implements JsonSerializer&lt;Id&gt;() {<br>
+ *  &nbsp;  public JsonElement toJson(Id id, Type typeOfId, JsonSerializationContext context) {<br>
+ *  &nbsp; &nbsp; return new JsonPrimitive(id.getValue());<br>
+ *  }
+ * </code></p>   
+ * You will also need to register <code>IdSerializer</code> with Gson as follows: 
+ * <p><code>
+ * Gson gson = new GsonBuilder().registerTypeAdapter(new IdSerializer()).create();<br>
+ * </code></p>
  * 
  * @author Inderjeet Singh
  * @author Joel Leitch
  *
- * @param <T> type for which the serializer is being registered. It is possible
- * that a serializer may be asked to serialize a specific generic type of the
- * T. 
+ * @param <T> type for which the serializer is being registered. It is possible that a serializer 
+ * may be asked to serialize a specific generic type of the T. 
  */
 public interface JsonSerializer<T> {
   

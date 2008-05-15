@@ -29,10 +29,10 @@ import java.lang.reflect.Type;
  * <p>Let us look at an example where defining an InstanceCreator might be useful. The 
  * <code>Id</code> class defined below does not have a default no-args constructor.   
  * <p><code>
- * public class Id<T> {<br>
- *  &nbsp; private final Class<T> clazz;<br>
+ * public class Id&lt;T&gt; {<br>
+ *  &nbsp; private final Class&lt;T&gt; clazz;<br>
  *  &nbsp; private final long value;<br>
- *  &nbsp; public Id(Class<T> clazz, long value) {<br>
+ *  &nbsp; public Id(Class&lt;T&gt; clazz, long value) {<br>
  *  &nbsp; &nbsp; this.clazz = clazz;<br>
  *  &nbsp; &nbsp; this.value = value;<br>
  *  &nbsp; }<br>
