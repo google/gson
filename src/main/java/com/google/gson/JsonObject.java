@@ -82,7 +82,7 @@ public final class JsonObject extends JsonElement {
    *  
    * @return a set of members of this object. 
    */
-  public Set<Entry<String, JsonElement>> getEntries() {
+  public Set<Entry<String, JsonElement>> getMembers() {
     return members.entrySet();
   }
   
