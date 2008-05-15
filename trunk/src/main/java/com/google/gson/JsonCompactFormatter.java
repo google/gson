@@ -105,13 +105,6 @@ final class JsonCompactFormatter implements JsonFormatter {
     }
   }
   
-  public void oldFormat(JsonElement root, PrintWriter writer) {
-    if (root == null) {
-      return;
-    }
-    root.accept(new FormattingVisitor(writer));
-  }  
-  
   public void format(JsonElement root, PrintWriter writer) {
     if (root == null) {
       return;

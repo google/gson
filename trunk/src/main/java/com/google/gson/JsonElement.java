@@ -241,9 +241,4 @@ public abstract class JsonElement {
   }
   
   protected abstract void toString(StringBuilder sb);
-  
-  void accept(JsonElementVisitor visitor) {
-    JsonTreeNavigator navigator = new JsonTreeNavigator(visitor);
-    navigator.navigate(this);
-  }
 }

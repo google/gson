@@ -201,8 +201,9 @@ final class JsonPrintFormatter implements JsonFormatter {
       return;
     }
     JsonWriter jsonWriter = new JsonWriter(writer);
-    PrintFormattingVisitor formattingVisitor = new PrintFormattingVisitor(jsonWriter);
-    root.accept(formattingVisitor);
+    PrintFormattingVisitor visitor = new PrintFormattingVisitor(jsonWriter);
+    JsonTreeNavigator navigator = new JsonTreeNavigator(visitor);
+    navigator.navigate(root);
     jsonWriter.finishLine();
   }  
 }
