@@ -384,18 +384,18 @@ public class JsonSerializerTest extends TestCase {
 
   public void testDefaultSupportForLocaleWithLanguage() throws Exception {
     Locale target = new Locale("en");
-    assertEquals("{\"language\":\"en\"}", gson.toJson(target));
+    assertEquals("\"en\"", gson.toJson(target));
   }
 
   public void testDefaultSupportForLocaleWithLanguageCountry() throws Exception {
     Locale target = Locale.CANADA_FRENCH;
-    assertEquals("{\"language\":\"fr\",\"country\":\"CA\"}", gson.toJson(target));
+    assertEquals("\"fr_CA\"", gson.toJson(target));
   }
 
   public void testDefaultSupportForLocaleWithLanguageCountryVariant() throws Exception {
     Locale target = new Locale("de", "DE", "EURO");
     String json = gson.toJson(target);
-    assertEquals("{\"language\":\"de\",\"country\":\"DE\",\"variant\":\"EURO\"}", json);
+    assertEquals("\"de_DE_EURO\"", json);
   }
 
   public void testMap() throws Exception {

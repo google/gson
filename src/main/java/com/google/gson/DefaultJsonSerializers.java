@@ -66,19 +66,9 @@ final class DefaultJsonSerializers {
   }
   
   private static class LocaleSerializer implements JsonSerializer<Locale> {
-
     public JsonElement toJson(Locale src, Type typeOfSrc, JsonSerializationContext context) {
-      JsonObject json = new JsonObject();
-      addIfNotEmpty("language", src.getLanguage(), json);
-      addIfNotEmpty("country", src.getCountry(), json);
-      addIfNotEmpty("variant", src.getVariant(), json);
-      return json;
+      return new JsonPrimitive(src.toString());
     }
-    private void addIfNotEmpty(String propertyName, String propertyValue, JsonObject json) {
-      if (propertyValue != null && !propertyValue.trim().equals("")) {
-        json.add(propertyName, new JsonPrimitive(propertyValue));
-      }
-    }    
   }
   
   @SuppressWarnings("unchecked")

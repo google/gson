@@ -514,19 +514,19 @@ public class JsonDeserializerTest extends TestCase {
   }
 
   public void testDefaultSupportForLocaleWithLanguage() throws Exception {
-    String json = "{\"language\":\"en\"}";
+    String json = "\"en\"";
     Locale locale = gson.fromJson(json, Locale.class);
     assertEquals("en", locale.getLanguage());    
   }
 
   public void testDefaultSupportForLocaleWithLanguageCountry() throws Exception {
-    String json = "{\"language\":\"fr\",\"country\":\"CA\"}";
+    String json = "\"fr_CA\"";
     Locale locale = gson.fromJson(json, Locale.class);
     assertEquals(Locale.CANADA_FRENCH, locale);    
   }
 
   public void testDefaultSupportForLocaleWithLanguageCountryVariant() throws Exception {
-    String json = "{\"language\":\"de\",\"country\":\"DE\",\"variant\":\"EURO\"}";
+    String json = "\"de_DE_EURO\"";
     Locale locale = gson.fromJson(json, Locale.class);
     assertEquals("de", locale.getLanguage());    
     assertEquals("DE", locale.getCountry());    
