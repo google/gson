@@ -24,6 +24,7 @@ import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 /**
  * Default JSON deserializers for common Java types
@@ -78,10 +79,20 @@ final class DefaultJsonDeserializers {
   private static class LocaleDeserializer implements JsonDeserializer<Locale> {
     public Locale fromJson(JsonElement json, Type typeOfT, JsonDeserializationContext context) 
         throws JsonParseException {
-      JsonObject jsonObject = json.getAsJsonObject();
-      String country = getChildIfExists("country", jsonObject);
-      String language = getChildIfExists("language", jsonObject);
-      String variant = getChildIfExists("variant", jsonObject);
+      String locale = json.getAsString();
+      StringTokenizer tokenizer = new StringTokenizer(locale, "_");
+      String language = null;
+      String country = null;
+      String variant = null;
+      if (tokenizer.hasMoreElements()) {
+        language = tokenizer.nextToken();
+      }
+      if (tokenizer.hasMoreElements()) {
+        country = tokenizer.nextToken();
+      }
+      if (tokenizer.hasMoreElements()) {
+        variant = tokenizer.nextToken();
+      }
       if (country == null && variant == null) {
         return new Locale(language);
       } else if (variant == null) {
@@ -89,10 +100,6 @@ final class DefaultJsonDeserializers {
       } else {
         return new Locale(language, country, variant);
       }
-    }
-    private String getChildIfExists(String propertyName, JsonObject parent) {
-      JsonElement child = parent.get(propertyName);
-      return child == null ? null : child.getAsString();
     }
   }
   
