@@ -72,8 +72,7 @@ public final class Gson {
   static final JsonFormatter DEFAULT_JSON_FORMATTER = new JsonCompactFormatter();
 
   /**
-   * Constructs a Gson object that skips inner class references and ignores
-   * all object versioning information
+   * Constructs a Gson object with default configuration. 
    */
   public Gson() {
     this(new ObjectNavigatorFactory(createExclusionStrategy(VersionConstants.IGNORE_VERSIONS)),
