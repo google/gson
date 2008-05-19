@@ -20,7 +20,7 @@ import java.lang.reflect.Type;
 
 /**
  * Context for serialization that is passed to a custom serializer during invocation of its 
- * {@link JsonSerializer#toJson(Object, Type, JsonSerializationContext)} method
+ * {@link JsonSerializer#serialize(Object, Type, JsonSerializationContext)} method
  * 
  * @author Inderjeet Singh
  */
@@ -37,7 +37,7 @@ public interface JsonSerializationContext {
   /**
    * Invokes default serialization on the specified object passing the specific type information. 
    * It should never be invoked on the element received as a parameter of the 
-   * {@link JsonSerializer#toJson(Object, Type, JsonSerializationContext)} method. Doing
+   * {@link JsonSerializer#serialize(Object, Type, JsonSerializationContext)} method. Doing
    * so will result in an infinite loop since Gson will in-turn call the custom serializer again.
    * 
    * @param src the object that needs to be serialized.
