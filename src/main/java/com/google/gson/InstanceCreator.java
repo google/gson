@@ -81,8 +81,8 @@ public interface InstanceCreator<T> {
    * return an instance that is useful elsewhere. In particular, do not return a common instance, 
    * always use <code>new</code> to create a new instance.   
    * 
-   * @param type the parameterized T represented as a {@link Type}
-   * @return a default object instance of type T
+   * @param type the parameterized T represented as a {@link Type}.
+   * @return a default object instance of type T.
    */
   public T createInstance(Type type);
 }

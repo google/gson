@@ -72,10 +72,9 @@ public interface JsonSerializer<T> {
    * <code>src</code> object itself since that will cause an infinite loop (Gson will call your 
    * call-back method again). 
    *
-   * @param src the object that needs to be converted to Json
-   * @param typeOfSrc the actual type (fully genericized version) of
-   *        the source object
-   * @return a JsonElement corresponding to the specified object
+   * @param src the object that needs to be converted to Json.
+   * @param typeOfSrc the actual type (fully genericized version) of the source object.
+   * @return a JsonElement corresponding to the specified object.
    */
   public JsonElement toJson(T src, Type typeOfSrc, JsonSerializationContext context);
 }

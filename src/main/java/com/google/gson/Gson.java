@@ -32,9 +32,9 @@ import java.util.logging.Logger;
  * Gson instance and then invoking {@link #toJson(Object)} or {@link #fromJson(String, Class)}
  * methods on it.
  * <p>You can create a Gson instance by invoking <code>new Gson()</code> if the default 
- * configuration is all you need. You can also use {@link GsonBuilder} to build a Gson instance with various configuration
- * options such as versioning support, pretty printing, custom {@link JsonSerializer}s, 
- * {@link JsonDeserializer}s, and {@link InstanceCreator}.</p>
+ * configuration is all you need. You can also use {@link GsonBuilder} to build a Gson instance with 
+ * various configuration options such as versioning support, pretty printing, custom 
+ * {@link JsonSerializer}s, {@link JsonDeserializer}s, and {@link InstanceCreator}.</p>
  * Here is an example of how Gson is used:<br>
  * <pre>
  * Gson gson = new Gson(); // Or use new GsonBuilder().create(); <br>
@@ -133,9 +133,9 @@ public final class Gson {
    * mapping to a single raw type. If you want different handling for different generic types of a
    * single raw type, use {@link #registerInstanceCreator(Type, InstanceCreator)} instead.
    *
-   * @param <T> the type for which instance creator is being registered
-   * @param classOfT The class definition for the type T
-   * @param instanceCreator the instance creator for T
+   * @param <T> the type for which instance creator is being registered.
+   * @param classOfT The class definition for the type T.
+   * @param instanceCreator the instance creator for T.
    */
   <T> void registerInstanceCreator(Class<T> classOfT,
       InstanceCreator<? extends T> instanceCreator) {
@@ -150,9 +150,9 @@ public final class Gson {
    * types corresponding to a raw type, use {@link #registerInstanceCreator(Class, InstanceCreator)}
    * instead.
    *
-   * @param <T> the type for which instance creator is being registered
-   * @param typeOfT The Type definition for T
-   * @param instanceCreator the instance creator for T
+   * @param <T> the type for which instance creator is being registered.
+   * @param typeOfT The Type definition for T.
+   * @param instanceCreator the instance creator for T.
    */
   <T> void registerInstanceCreator(Type typeOfT,
       InstanceCreator<? extends T> instanceCreator) {
@@ -165,9 +165,9 @@ public final class Gson {
    * raw type. If you want different handling for different generic types corresponding to a raw
    * type, use {@link #registerSerializer(Type, JsonSerializer)} instead.
    *
-   * @param <T> the type for which the serializer is being registered
-   * @param classOfT The class definition for the type T
-   * @param serializer the custom serializer
+   * @param <T> the type for which the serializer is being registered.
+   * @param classOfT The class definition for the type T.
+   * @param serializer the custom serializer.
    */
   <T> void registerSerializer(Class<T> classOfT, JsonSerializer<T> serializer) {
     registerSerializer((Type) classOfT, serializer);
@@ -179,9 +179,9 @@ public final class Gson {
    * to a raw type. If you want common handling for all generic types corresponding to a raw type,
    * use {@link #registerSerializer(Class, JsonSerializer)} instead.
    *
-   * @param <T> the type for which the serializer is being registered
-   * @param typeOfT The type definition for T
-   * @param serializer the custom serializer
+   * @param <T> the type for which the serializer is being registered.
+   * @param typeOfT The type definition for T.
+   * @param serializer the custom serializer.
    */
   <T> void registerSerializer(Type typeOfT, final JsonSerializer<T> serializer) {
     if (serializers.hasSpecificHandlerFor(typeOfT)) {
@@ -196,9 +196,9 @@ public final class Gson {
    * raw type. If you want different handling for different generic types corresponding to a raw
    * type, use {@link #registerDeserializer(Type, JsonDeserializer)} instead.
    *
-   * @param <T> the type for which the deserializer is being registered
-   * @param classOfT The class definition for the type T
-   * @param deserializer the custom deserializer
+   * @param <T> the type for which the deserializer is being registered.
+   * @param classOfT The class definition for the type T.
+   * @param deserializer the custom deserializer.
    */
   <T> void registerDeserializer(Class<T> classOfT, JsonDeserializer<T> deserializer) {
     registerDeserializer((Type) classOfT, deserializer);
@@ -210,9 +210,9 @@ public final class Gson {
    * corresponding to a raw type. If you want common handling for all generic types corresponding to
    * a raw type, use {@link #registerDeserializer(Class, JsonDeserializer)} instead.
    *
-   * @param <T> the type for which the deserializer is being registered
-   * @param typeOfT The type definition for T
-   * @param deserializer the custom deserializer
+   * @param <T> the type for which the deserializer is being registered.
+   * @param typeOfT The type definition for T.
+   * @param deserializer the custom deserializer.
    */
   <T> void registerDeserializer(Type typeOfT, final JsonDeserializer<T> deserializer) {
     if (deserializers.hasSpecificHandlerFor(typeOfT)) {
@@ -229,8 +229,8 @@ public final class Gson {
    * object are generics, just the object itself should not be a generic type. For the cases when
    * the object is of generic type, invoke {@link #toJson(Object, Type)} instead.
    *
-   * @param src the object for which JSON representation is to be created setting for Gson
-   * @return Json representation of src
+   * @param src the object for which JSON representation is to be created setting for Gson.
+   * @return Json representation of src.
    */
   public String toJson(Object src) {
     if (src == null) {
@@ -243,12 +243,12 @@ public final class Gson {
    * This method is useful if the specified object is a generic type. For non-generic objects,
    * use {@link #toJson(Object)} instead.
    *
-   * @param src the object for which JSON representation is to be created
+   * @param src the object for which JSON representation is to be created.
    * @param typeOfSrc The specific genericized type of src. You can obtain
    * this type by using the {@link com.google.gson.reflect.TypeToken} class. For example,
    * to get the type for <code>Collection&lt;Foo&gt;</code>, you should use<br>
    * <code>Type typeOfSrc = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType()</code>
-   * @return Json representation of src
+   * @return Json representation of src.
    */
   public String toJson(Object src, Type typeOfSrc) {
     if (src == null) {
@@ -270,11 +270,11 @@ public final class Gson {
    * the fields of the specified object are generics, just the object itself should not be a
    * generic type. For the cases when the object is of generic type, invoke
    * {@link #fromJson(String, Type)}.
-   * @param json the string from which the object is to be deserialized
-   * @param classOfT the class of T
-   *
-   * @param <T> the type of the desired object
-   * @return an object of type T from the string
+   * 
+   * @param json the string from which the object is to be deserialized.
+   * @param classOfT the class of T.
+   * @param <T> the type of the desired object.
+   * @return an object of type T from the string.
    * @throws JsonParseException if json is not a valid representation for an object of type
    * classOfT.
    */
@@ -292,8 +292,8 @@ public final class Gson {
    * to get the type for <code>Collection&lt;Foo&gt;</code>, you should use<br>
    * <code>Type typeOfT = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType()</code>
    *
-   * @param <T> the type of the desired object
-   * @return an object of type T from the string
+   * @param <T> the type of the desired object.
+   * @return an object of type T from the string.
    * @throws JsonParseException if json is not a valid representation for an object of type typeOfT.
    */
   @SuppressWarnings("unchecked")
