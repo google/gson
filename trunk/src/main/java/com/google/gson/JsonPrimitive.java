@@ -80,7 +80,7 @@ public final class JsonPrimitive extends JsonElement {
    * 
    * @param primitive the value to create the primitive with.
    */
-  public JsonPrimitive(Object primitive) {
+  JsonPrimitive(Object primitive) {
     if (primitive instanceof Character) {
       // convert characters to strings since in JSON, characters are represented as a single 
       // character string 
