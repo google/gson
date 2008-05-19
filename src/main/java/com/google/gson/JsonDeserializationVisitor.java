@@ -66,14 +66,14 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
       throw new RuntimeException("Register a JsonDeserializer for Enum or "
           + obj.getClass().getName());
     }
-    target = deserializer.fromJson(json, objType, context);
+    target = deserializer.deserialize(json, objType, context);
   }
 
   @SuppressWarnings("unchecked")
   public final boolean visitUsingCustomHandler(Object obj, Type objType) {
     JsonDeserializer<T> deserializer = (JsonDeserializer<T>) deserializers.getHandlerFor(objType);
     if (deserializer != null) {
-      target = deserializer.fromJson(json, objType, context);
+      target = deserializer.deserialize(json, objType, context);
       return true;
     }
     return false;

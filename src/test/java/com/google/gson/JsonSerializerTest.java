@@ -277,7 +277,7 @@ public class JsonSerializerTest extends TestCase {
   public void testCustomSerializers() {
     gson.registerSerializer(ClassWithCustomTypeConverter.class,
         new JsonSerializer<ClassWithCustomTypeConverter>() {
-      public JsonElement toJson(ClassWithCustomTypeConverter src, Type typeOfSrc,
+      public JsonElement serialize(ClassWithCustomTypeConverter src, Type typeOfSrc,
           JsonSerializationContext context) {
         JsonObject json = new JsonObject();
         json.addProperty("bag", 5);
@@ -291,7 +291,7 @@ public class JsonSerializerTest extends TestCase {
 
   public void testNestedCustomSerializers() {
     gson.registerSerializer(BagOfPrimitives.class, new JsonSerializer<BagOfPrimitives>() {
-      public JsonElement toJson(BagOfPrimitives src, Type typeOfSrc,
+      public JsonElement serialize(BagOfPrimitives src, Type typeOfSrc,
           JsonSerializationContext context) {
         return new JsonPrimitive(6);
       }
@@ -307,7 +307,7 @@ public class JsonSerializerTest extends TestCase {
 
   private static class MyParameterizedSerializer<T>
       implements JsonSerializer<MyParameterizedType<T>> {
-    public JsonElement toJson(MyParameterizedType<T> src, Type classOfSrc,
+    public JsonElement serialize(MyParameterizedType<T> src, Type classOfSrc,
         JsonSerializationContext context) {
       JsonObject json = new JsonObject();
       T value = src.getValue();

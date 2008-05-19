@@ -381,7 +381,7 @@ public class JsonDeserializerTest extends TestCase {
   public void testCustomDeserializer() {
     gson.registerDeserializer(ClassWithCustomTypeConverter.class,
         new JsonDeserializer<ClassWithCustomTypeConverter>() {
-      public ClassWithCustomTypeConverter fromJson(JsonElement json, Type typeOfT,
+      public ClassWithCustomTypeConverter deserialize(JsonElement json, Type typeOfT,
           JsonDeserializationContext context) {
         JsonObject jsonObject = json.getAsJsonObject();
         int value = jsonObject.get("bag").getAsInt();
@@ -396,7 +396,7 @@ public class JsonDeserializerTest extends TestCase {
 
   public void testNestedCustomTypeConverters() {
     gson.registerDeserializer(BagOfPrimitives.class, new JsonDeserializer<BagOfPrimitives>() {
-      public BagOfPrimitives fromJson(JsonElement json, Type typeOfT,
+      public BagOfPrimitives deserialize(JsonElement json, Type typeOfT,
           JsonDeserializationContext context) throws JsonParseException {
         int value = json.getAsInt();
         return new BagOfPrimitives(value, value, false, "");
@@ -422,7 +422,7 @@ public class JsonDeserializerTest extends TestCase {
   private static class MyParameterizedDeserializer<T>
       implements JsonDeserializer<MyParameterizedType<T>> {
     @SuppressWarnings("unchecked")
-    public MyParameterizedType<T> fromJson(JsonElement json, Type typeOfT,
+    public MyParameterizedType<T> deserialize(JsonElement json, Type typeOfT,
         JsonDeserializationContext context) throws JsonParseException {
       Type genericClass = new TypeInfo<Object>(typeOfT).getGenericClass();
       String className = new TypeInfo<Object>(genericClass).getTopLevelClass().getSimpleName();
