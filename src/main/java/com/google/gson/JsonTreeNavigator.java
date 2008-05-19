@@ -46,7 +46,7 @@ final class JsonTreeNavigator {
       JsonObject object = element.getAsJsonObject();
       visitor.startObject(object);
       boolean isFirst = true;
-      for (Map.Entry<String, JsonElement> member : object.getMembers()) {
+      for (Map.Entry<String, JsonElement> member : object.entrySet()) {
         visitChild(object, member.getKey(), member.getValue(), isFirst);
         if (isFirst) {
           isFirst = false;

@@ -82,7 +82,7 @@ public final class JsonObject extends JsonElement {
    *  
    * @return a set of members of this object. 
    */
-  public Set<Entry<String, JsonElement>> getMembers() {
+  public Set<Entry<String, JsonElement>> entrySet() {
     return members.entrySet();
   }
   
@@ -110,9 +110,9 @@ public final class JsonObject extends JsonElement {
    * Convenience method to get the specified member as a JsonPrimitive element. 
    * 
    * @param memberName name of the member being requested. 
-   * @return the primitive element corresponding to the specified member. 
+   * @return the JsonPrimitive corresponding to the specified member. 
    */
-  public JsonPrimitive getAsPrimitive(String memberName) {
+  public JsonPrimitive getAsJsonPrimitive(String memberName) {
     return (JsonPrimitive) members.get(memberName);
   }
   
@@ -120,10 +120,20 @@ public final class JsonObject extends JsonElement {
    * Convenience method to get the specified member as a JsonArray.
    * 
    * @param memberName name of the member being requested. 
-   * @return the array element corresponding to the specified member.
+   * @return the JsonArray corresponding to the specified member.
    */
-  public JsonArray getAsArray(String memberName) {
+  public JsonArray getAsJsonArray(String memberName) {
     return (JsonArray) members.get(memberName);
+  }
+
+  /**
+   * Convenience method to get the specified member as a JsonObject.
+   * 
+   * @param memberName name of the member being requested. 
+   * @return the JsonObject corresponding to the specified member.
+   */
+  public JsonObject getAsJsonObject(String memberName) {
+    return (JsonObject) members.get(memberName);
   }
 
   @Override
