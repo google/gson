@@ -16,7 +16,6 @@
 
 package com.google.gson;
 
-
 import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -83,7 +82,7 @@ public final class GsonBuilder {
    *
    * @param ignoreVersionsAfter any field or type marked with a version higher than this value 
    * are ignored during serialization or deserialization.
-   * @return GsonBuilder to apply the Builder pattern
+   * @return GsonBuilder to apply the Builder pattern.
    */
   public GsonBuilder setVersion(double ignoreVersionsAfter) {
     this.ignoreVersionsAfter = ignoreVersionsAfter;
@@ -97,8 +96,8 @@ public final class GsonBuilder {
    *
    * @param modifiers the field modifiers. You must use the modifiers specified in the 
    * {@link java.lang.reflect.Modifier} class. For example, 
-   * {@link java.lang.reflect.Modifier#TRANSIENT}, {@link java.lang.reflect.Modifier#STATIC}
-   * @return GsonBuilder to apply the Builder pattern
+   * {@link java.lang.reflect.Modifier#TRANSIENT}, {@link java.lang.reflect.Modifier#STATIC}.
+   * @return GsonBuilder to apply the Builder pattern.
    */
   public GsonBuilder excludeFieldsWithModifiers(int... modifiers) {
     boolean skipSynthetics = true;
@@ -110,7 +109,7 @@ public final class GsonBuilder {
    * Configures Gson to exclude all fields from consideration for serialization or deserialization 
    * that do not have the {@link com.google.gson.annotations.Expose} annotation. 
    * 
-   * @return GsonBuilder to apply the Builder pattern
+   * @return GsonBuilder to apply the Builder pattern.
    */
   public GsonBuilder excludeFieldsWithoutExposeAnnotation() {
     excludeFieldsWithoutExposeAnnotation = true;
@@ -121,7 +120,7 @@ public final class GsonBuilder {
    * Configures Gson to output Json that fits in a page for pretty printing. This option only
    * affects Json serialization.
    *  
-   * @return GsonBuilder to apply the Builder pattern
+   * @return GsonBuilder to apply the Builder pattern.
    */
   public GsonBuilder setPrettyPrinting() {
     setFormatter(new JsonPrintFormatter());
@@ -131,9 +130,9 @@ public final class GsonBuilder {
    * Configures Gson with a new formatting strategy other than the default strategy. The default
    * strategy is to provide a compact representation that eliminates all unneeded white-space.
    *  
-   * @param formatter the new formatter to use
+   * @param formatter the new formatter to use.
    * @see JsonPrintFormatter
-   * @return GsonBuilder to apply the Builder pattern
+   * @return GsonBuilder to apply the Builder pattern.
    */
   GsonBuilder setFormatter(JsonFormatter formatter) {
     this.formatter = formatter;
@@ -147,10 +146,10 @@ public final class GsonBuilder {
    * required interfaces for custom serialization with Gson. If an instance creator, serializer or 
    * deserializer was previously registered for the specified class, it is overwritten. 
    * 
-   * @param typeOfT The class definition for the type T
+   * @param typeOfT The class definition for the type T.
    * @param typeAdapter This object must implement at least one of the {@link InstanceCreator}, 
    * {@link JsonSerializer}, and a {@link JsonDeserializer} interfaces.  
-   * @return GsonBuilder to apply the Builder pattern
+   * @return GsonBuilder to apply the Builder pattern.
    */  
   public GsonBuilder registerTypeAdapter(Type typeOfT, Object typeAdapter) {
     Preconditions.checkArgument(typeAdapter instanceof JsonSerializer
@@ -174,10 +173,10 @@ public final class GsonBuilder {
    * mapping to a single raw type. If you want different handling for different generic types of a 
    * single raw type, use {@link #registerInstanceCreator(Type, InstanceCreator)} instead.
    *
-   * @param <T> the type for which instance creator is being registered
-   * @param classOfT The class definition for the type T
-   * @param instanceCreator the instance creator for T
-   * @return GsonBuilder to apply the Builder pattern
+   * @param <T> the type for which instance creator is being registered.
+   * @param classOfT The class definition for the type T.
+   * @param instanceCreator the instance creator for T.
+   * @return GsonBuilder to apply the Builder pattern.
    */
   <T> GsonBuilder registerInstanceCreator(Class<T> classOfT,
       InstanceCreator<? extends T> instanceCreator) {
@@ -192,10 +191,10 @@ public final class GsonBuilder {
    * types corresponding to a raw type, use {@link #registerInstanceCreator(Class, InstanceCreator)} 
    * instead.
    *
-   * @param <T> the type for which instance creator is being registered
-   * @param typeOfT The Type definition for T
-   * @param instanceCreator the instance creator for T
-   * @return GsonBuilder to apply the Builder pattern
+   * @param <T> the type for which instance creator is being registered.
+   * @param typeOfT The Type definition for T.
+   * @param instanceCreator the instance creator for T.
+   * @return GsonBuilder to apply the Builder pattern.
    */
   <T> GsonBuilder registerInstanceCreator(Type typeOfT,
       InstanceCreator<? extends T> instanceCreator) {
@@ -209,10 +208,10 @@ public final class GsonBuilder {
    * raw type. If you want different handling for different generic types corresponding to a raw 
    * type, use {@link #registerSerializer(Type, JsonSerializer)} instead.
    *
-   * @param <T> the type for which the serializer is being registered
-   * @param classOfT The class definition for the type T
-   * @param serializer the custom serializer
-   * @return GsonBuilder to apply the Builder pattern
+   * @param <T> the type for which the serializer is being registered.
+   * @param classOfT The class definition for the type T.
+   * @param serializer the custom serializer.
+   * @return GsonBuilder to apply the Builder pattern.
    */
   <T> GsonBuilder registerSerializer(Class<T> classOfT, JsonSerializer<T> serializer) {
     return registerSerializer((Type) classOfT, serializer);
@@ -224,10 +223,10 @@ public final class GsonBuilder {
    * to a raw type. If you want common handling for all generic types corresponding to a raw type, 
    * use {@link #registerSerializer(Class, JsonSerializer)} instead.
    *
-   * @param <T> the type for which the serializer is being registered
-   * @param typeOfT The type definition for T
-   * @param serializer the custom serializer
-   * @return GsonBuilder to apply the Builder pattern
+   * @param <T> the type for which the serializer is being registered.
+   * @param typeOfT The type definition for T.
+   * @param serializer the custom serializer.
+   * @return GsonBuilder to apply the Builder pattern.
    */
   <T> GsonBuilder registerSerializer(Type typeOfT, final JsonSerializer<T> serializer) {
     serializers.put(typeOfT, serializer);
@@ -240,10 +239,10 @@ public final class GsonBuilder {
    * raw type. If you want different handling for different generic types corresponding to a raw 
    * type, use {@link #registerDeserializer(Type, JsonDeserializer)} instead.
    *
-   * @param <T> the type for which the deserializer is being registered
-   * @param classOfT The class definition for the type T
-   * @param deserializer the custom deserializer
-   * @return GsonBuilder to apply the Builder pattern
+   * @param <T> the type for which the deserializer is being registered.
+   * @param classOfT The class definition for the type T.
+   * @param deserializer the custom deserializer.
+   * @return GsonBuilder to apply the Builder pattern.
    */
   <T> GsonBuilder registerDeserializer(Class<T> classOfT, JsonDeserializer<T> deserializer) {
     return registerDeserializer((Type) classOfT, deserializer);
@@ -255,10 +254,10 @@ public final class GsonBuilder {
    * corresponding to a raw type. If you want common handling for all generic types corresponding to 
    * a raw type, use {@link #registerDeserializer(Class, JsonDeserializer)} instead.
    *
-   * @param <T> the type for which the deserializer is being registered
-   * @param typeOfT The type definition for T
-   * @param deserializer the custom deserializer
-   * @return GsonBuilder to apply the Builder pattern
+   * @param <T> the type for which the deserializer is being registered.
+   * @param typeOfT The type definition for T.
+   * @param deserializer the custom deserializer.
+   * @return GsonBuilder to apply the Builder pattern.
    */
   <T> GsonBuilder registerDeserializer(Type typeOfT, final JsonDeserializer<T> deserializer) {
     deserializers.put(typeOfT, deserializer);
@@ -266,9 +265,9 @@ public final class GsonBuilder {
   }
   
   /**
-   * Creates a Gson instance based on current configuration
+   * Creates a Gson instance based on current configuration.
    * 
-   * @return an instance of Gson configured with the options set in this builder
+   * @return an instance of Gson configured with the options set in this builder.
    */
   public Gson create() {
     List<ExclusionStrategy> strategies = new LinkedList<ExclusionStrategy>();

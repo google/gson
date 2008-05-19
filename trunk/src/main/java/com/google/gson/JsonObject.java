@@ -47,8 +47,8 @@ public final class JsonObject extends JsonElement {
    * can be an arbitrary JsonElement, thereby allowing you to build a full tree of JsonElements
    * rooted at this node. 
    *   
-   * @param property name of the member 
-   * @param value the member object
+   * @param property name of the member.
+   * @param value the member object.
    */
   public void add(String property, JsonElement value) {
     members.put(property, value);
@@ -58,8 +58,8 @@ public final class JsonObject extends JsonElement {
    * Convenience method to add a primitive member. The specified value is converted to a 
    * JsonPrimitive of String. 
    *  
-   * @param property name of the member
-   * @param value the string value associated with the member
+   * @param property name of the member.
+   * @param value the string value associated with the member.
    */
   public void addProperty(String property, String value) {
     members.put(property, new JsonPrimitive(value));
@@ -69,8 +69,8 @@ public final class JsonObject extends JsonElement {
    * Convenience method to add a primitive member. The specified value is converted to a 
    * JsonPrimitive of Number. 
    *  
-   * @param property name of the member
-   * @param value the number value associated with the member
+   * @param property name of the member.
+   * @param value the number value associated with the member.
    */
   public void addProperty(String property, Number value) {
     members.put(property, new JsonPrimitive(value));
