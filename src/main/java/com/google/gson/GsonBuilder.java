@@ -25,9 +25,9 @@ import java.util.Map;
 
 /**
  * Use this builder to construct a Gson instance when you need to set configuration options other 
- * than the default. For Gson with default configuration, using <code>new Gson()</code> is simpler 
- * to use. {@code GsonBuilder} is best used by creating it, and then invoking its various 
- * configuration methods, and finally calling create. Here is an example:<br>  
+ * than the default. For Gson with default configuration, it is simpler to use 
+ * <code>new Gson()</code>. {@code GsonBuilder} is best used by creating it, and then invoking its 
+ * various configuration methods, and finally calling create. Here is an example:<br>  
  * <code>
  * Gson gson = new GsonBuilder() <br>
  * &nbsp; &nbsp; .setVersion(1.0)<br>
@@ -52,9 +52,10 @@ public final class GsonBuilder {
   private final Map<Type, JsonDeserializer<?>> deserializers;
   
   /**
-   * Creates a GsonBuilder instance that can be used in a builder pattern. This instance is 
-   * typically used by first invoking various configuration methods to set desired options, and
-   * finally calling {@link #create()}. Here is an example: <br>
+   * Creates a GsonBuilder instance that can be used to build Gson with various configuration 
+   * settings. GsonBuilder follows the builder pattern, and it is typically used by first 
+   * invoking various configuration methods to set desired options, and finally calling 
+   * {@link #create()}. Here is an example: <br>
    * <code>
    * Gson gson = new GsonBuilder() <br>
    * &nbsp; &nbsp; .setVersion(1.0)<br>
@@ -265,9 +266,9 @@ public final class GsonBuilder {
   }
   
   /**
-   * Creates a Gson instance based on current configuration.
+   * Creates a Gson instance based on the current configuration.
    * 
-   * @return an instance of Gson configured with the options set in this builder.
+   * @return an instance of Gson configured with the options currently set in this builder.
    */
   public Gson create() {
     List<ExclusionStrategy> strategies = new LinkedList<ExclusionStrategy>();
