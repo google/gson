@@ -112,7 +112,7 @@ final class DefaultJsonDeserializers {
       // Using linked hash map to preserve order in which elements are entered
       Map<String, Object> map = new LinkedHashMap<String, Object>();
       Type childType = new MapTypeInfo(typeOfT).getValueType();     
-      for (Map.Entry<String, JsonElement> entry : json.getAsJsonObject().getMembers()) {
+      for (Map.Entry<String, JsonElement> entry : json.getAsJsonObject().entrySet()) {
         Object value = context.deserialize(entry.getValue(), childType);
         map.put(entry.getKey(), value);
       }
