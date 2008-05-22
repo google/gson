@@ -36,6 +36,13 @@
         <configuration>
           <source>1.5</source>
           <target>1.5</target>
+          <includes>
+            <include implementation="java.lang.String">src/main/java/**/*.java</include>
+            <include implementation="java.lang.String">src/generated/java/**/*.java</include>
+          </includes>
+          <testIncludes>
+            <testInclude implementation="java.lang.String">src/test/java/**/*.java</testInclude>
+          </testIncludes>
         </configuration>
       </plugin>
       <plugin>
