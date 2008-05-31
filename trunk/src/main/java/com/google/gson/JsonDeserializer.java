@@ -19,67 +19,70 @@ package com.google.gson;
 import java.lang.reflect.Type;
 
 /**
- * Interface representing a custom deserializer for Json. You should write a custom deserializer, if 
- * you are not happy with the default deserialization done by Gson. You will also need to register
- * this deserializer through {@link GsonBuilder#registerTypeAdapter(Type, Object)}. 
- * 
- * <p>Let us look at example where defining a deserializer will be useful. The <code>Id</code> class 
- * defined below has two fields: <code>clazz</code> and <code>value</code>. 
- * 
- * <p><code>
- * public class Id&lt;T&gt; {<br>
- *  &nbsp; private final Class&lt;T&gt; clazz;<br>
- *  &nbsp; private final long value;<br>
- *  &nbsp; public Id(Class&lt;T&gt; clazz, long value) {<br>
- *  &nbsp; &nbsp; this.clazz = clazz;<br>
- *  &nbsp; &nbsp; this.value = value;<br>
- *  &nbsp; }<br>
- *  &nbsp; public long getValue() {<br>
- *  &nbsp; &nbsp; return value;<br>
- *  &nbsp; }<br>
+ * <p>Interface representing a custom deserializer for Json. You should write a custom
+ * deserializer, if you are not happy with the default deserialization done by Gson. You will
+ * also need to register this deserializer through
+ * {@link GsonBuilder#registerTypeAdapter(Type, Object)}.</p>
+ *
+ * <p>Let us look at example where defining a deserializer will be useful. The {@code Id} class
+ * defined below has two fields: {@code clazz} and {@code value}.</p>
+ *
+ * <pre>
+ * public class Id&lt;T&gt; {
+ *   private final Class&lt;T&gt; clazz;
+ *   private final long value;
+ *   public Id(Class&lt;T&gt; clazz, long value) {
+ *     this.clazz = clazz;
+ *     this.value = value;
+ *   }
+ *   public long getValue() {
+ *     return value;
+ *   }
  * }
- * </code></p>
- * 
- * <p>The default deserialization of <code>Id(com.foo.MyObject.class, 20L)</code> will require the 
- * Json string to be <code>{"clazz":com.foo.MyObject,"value":20}</code>. Suppose, you already know
- * the type of the field that the <code>Id</code> will be deserialized into, and hence just want to 
- * deserialize it from a Json string <code>20</code>. You can achieve that by writing a custom 
+ * </pre>
+ *
+ * <p>The default deserialization of {@code Id(com.foo.MyObject.class, 20L)} will require the
+ * Json string to be {@code {"clazz":com.foo.MyObject,"value":20}}. Suppose, you already know
+ * the type of the field that the {@code Id} will be deserialized into, and hence just want to
+ * deserialize it from a Json string {@code 20}. You can achieve that by writing a custom
  * deserializer:</p>
- * 
- * <p><code>
- * class IdDeserializer implements JsonDeserializer&lt;Id&gt;() {<br>
- *  &nbsp; public Id fromJson(JsonElement json, Type typeOfT, JsonDeserializationContext context) 
- *  throws JsonParseException {<br>
- *  &nbsp; &nbsp; return (Id) new Id((Class)typeOfT, id.getValue());<br>
- *  }
- * </code></p>   
- * You will also need to register <code>IdDeserializer</code> with Gson as follows: 
- * <p><code>
- * Gson gson = new GsonBuilder().registerTypeAdapter(new IdDeserializer()).create();<br>
- * </code></p>
+ *
+ * <pre>
+ * class IdDeserializer implements JsonDeserializer&lt;Id&gt;() {
+ *   public Id fromJson(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+ *       throws JsonParseException {
+ *     return (Id) new Id((Class)typeOfT, id.getValue());
+ *   }
+ * </pre>
+ *
+ * <p>You will also need to register {@code IdDeserializer} with Gson as follows:</p>
+ *
+ * <pre>
+ * Gson gson = new GsonBuilder().registerTypeAdapter(new IdDeserializer()).create();
+ * </pre>
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
  *
- * @param <T> type for which the deserializer is being registered. It is possible that a 
+ * @param <T> type for which the deserializer is being registered. It is possible that a
  * deserializer may be asked to deserialize a specific generic type of the T.
  */
 public interface JsonDeserializer<T> {
-  
+
   /**
-   * Gson invokes this call-back method during deserialization when it encounters a field of the 
-   * specified type.    
-   * <p>In the implementation of this call-back method, you should consider invoking 
+   * Gson invokes this call-back method during deserialization when it encounters a field of the
+   * specified type.
+   * <p>In the implementation of this call-back method, you should consider invoking
    * {@link JsonDeserializationContext#deserialize(JsonElement, Type)} method to create objects
-   * for any non-trivial field of the returned object. However, you should never invoke it on the 
-   * the same type passing <code>json</code> since that will cause an infinite loop (Gson will call 
-   * your call-back method again). 
-   * 
+   * for any non-trivial field of the returned object. However, you should never invoke it on the
+   * the same type passing {@code json} since that will cause an infinite loop (Gson will call your
+   * call-back method again).
+   *
    * @param json The Json data being deserialized
    * @param typeOfT The type of the Object to deserialize to
    * @return a deserialized object of the specified type typeOfT which is a subclass of {@code T}
    * @throws JsonParseException if json is not in the expected format of {@code typeofT}
    */
-  public T deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) 
+  public T deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
       throws JsonParseException;
 }

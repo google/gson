@@ -31,17 +31,20 @@ import java.util.logging.Logger;
  * This is the main class for using Gson. Gson is typically used by first constructing a
  * Gson instance and then invoking {@link #toJson(Object)} or {@link #fromJson(String, Class)}
  * methods on it.
- * <p>You can create a Gson instance by invoking <code>new Gson()</code> if the default 
- * configuration is all you need. You can also use {@link GsonBuilder} to build a Gson instance with 
- * various configuration options such as versioning support, pretty printing, custom 
+ *
+ * <p>You can create a Gson instance by invoking {@code new Gson()} if the default configuration
+ * is all you need. You can also use {@link GsonBuilder} to build a Gson instance with various
+ * configuration options such as versioning support, pretty printing, custom
  * {@link JsonSerializer}s, {@link JsonDeserializer}s, and {@link InstanceCreator}.</p>
- * Here is an example of how Gson is used:<br>
+ *
+ * <p>Here is an example of how Gson is used:
+ *
  * <pre>
- * Gson gson = new Gson(); // Or use new GsonBuilder().create(); <br>
- * MyType target = new MyType();<br>
- * String json = gson.toJson(target); // serializes target to Json<br>
- * MyType target2 = gson.fromJson(MyType.class, json); // deserializes json into target2<br>
- * </pre>
+ * Gson gson = new Gson(); // Or use new GsonBuilder().create();
+ * MyType target = new MyType();
+ * String json = gson.toJson(target); // serializes target to Json
+ * MyType target2 = gson.fromJson(MyType.class, json); // deserializes json into target2
+ * </pre></p>
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
@@ -72,7 +75,7 @@ public final class Gson {
   static final JsonFormatter DEFAULT_JSON_FORMATTER = new JsonCompactFormatter();
 
   /**
-   * Constructs a Gson object with default configuration. 
+   * Constructs a Gson object with default configuration.
    */
   public Gson() {
     this(new ObjectNavigatorFactory(createExclusionStrategy(VersionConstants.IGNORE_VERSIONS)),
@@ -222,12 +225,12 @@ public final class Gson {
   }
 
   /**
-   * This method serializes the specified object into its equivalent Json representation. 
+   * This method serializes the specified object into its equivalent Json representation.
    * This method should be used when the specified object is not a generic type. This method uses
-   * {@link Class#getClass()} to get the type for the specified object, but the 
-   * <code>getClass()</code> loses the generic type information because of the Type Erasure feature 
-   * of Java. Note that this method works fine if the any of the object fields are of generic type, 
-   * just the object itself should not be of a generic type. If the object is of generic type, use 
+   * {@link Class#getClass()} to get the type for the specified object, but the
+   * {@code getClass()} loses the generic type information because of the Type Erasure feature
+   * of Java. Note that this method works fine if the any of the object fields are of generic type,
+   * just the object itself should not be of a generic type. If the object is of generic type, use
    * {@link #toJson(Object, Type)} instead.
    *
    * @param src the object for which Json representation is to be created setting for Gson.
@@ -241,15 +244,17 @@ public final class Gson {
   }
 
   /**
-   * This method serializes the specified object, including those of generic types, into its 
-   * equivalent Json representation. This method must be used if the specified object is a generic 
+   * This method serializes the specified object, including those of generic types, into its
+   * equivalent Json representation. This method must be used if the specified object is a generic
    * type. For non-generic objects, use {@link #toJson(Object)} instead.
    *
    * @param src the object for which JSON representation is to be created.
    * @param typeOfSrc The specific genericized type of src. You can obtain
    * this type by using the {@link com.google.gson.reflect.TypeToken} class. For example,
-   * to get the type for <code>Collection&lt;Foo&gt;</code>, you should use<br>
-   * <code>Type typeOfSrc = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType()</code>
+   * to get the type for {@code Collection<Foo>}, you should use:
+   * <pre>
+   * Type typeOfSrc = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType();
+   * </pre>
    * @return Json representation of src.
    */
   public String toJson(Object src, Type typeOfSrc) {
@@ -272,7 +277,7 @@ public final class Gson {
    * the fields of the specified object are generics, just the object itself should not be a
    * generic type. For the cases when the object is of generic type, invoke
    * {@link #fromJson(String, Type)}.
-   * 
+   *
    * @param json the string from which the object is to be deserialized.
    * @param classOfT the class of T.
    * @param <T> the type of the desired object.
@@ -286,15 +291,17 @@ public final class Gson {
   }
 
   /**
-   * This method deserializes the specified Json into an object of the specified type. This method 
-   * is useful if the specified object is a generic type. For non-generic objects, use 
+   * This method deserializes the specified Json into an object of the specified type. This method
+   * is useful if the specified object is a generic type. For non-generic objects, use
    * {@link #fromJson(String, Class)} instead.
-   * 
+   *
    * @param json the string from which the object is to be deserialized.
-   * @param typeOfT The specific genericized type of src. You can obtain this type by using the 
-   * {@link com.google.gson.reflect.TypeToken} class. For example, to get the type for 
-   * <code>Collection&lt;Foo&gt;</code>, you should use: <br>
-   * <code>Type typeOfT = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType()</code>
+   * @param typeOfT The specific genericized type of src. You can obtain this type by using the
+   * {@link com.google.gson.reflect.TypeToken} class. For example, to get the type for
+   * {@code Collection<Foo>}, you should use:
+   * <pre>
+   * Type typeOfT = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType();
+   * </pre>
    * @param <T> the type of the desired object.
    * @return an object of type T from the string.
    * @throws JsonParseException if json is not a valid representation for an object of type typeOfT.
