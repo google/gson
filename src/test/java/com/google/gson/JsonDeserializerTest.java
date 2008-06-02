@@ -20,10 +20,12 @@ import com.google.gson.TestTypes.ArrayOfArrays;
 import com.google.gson.TestTypes.ArrayOfObjects;
 import com.google.gson.TestTypes.BagOfPrimitiveWrappers;
 import com.google.gson.TestTypes.BagOfPrimitives;
+import com.google.gson.TestTypes.ClassWithArray;
 import com.google.gson.TestTypes.ClassWithCustomTypeConverter;
 import com.google.gson.TestTypes.ClassWithEnumFields;
 import com.google.gson.TestTypes.ClassWithExposedFields;
 import com.google.gson.TestTypes.ClassWithNoFields;
+import com.google.gson.TestTypes.ClassWithObjects;
 import com.google.gson.TestTypes.ClassWithPrivateNoArgsConstructor;
 import com.google.gson.TestTypes.ClassWithSubInterfacesOfCollection;
 import com.google.gson.TestTypes.ClassWithTransientFields;
@@ -553,5 +555,35 @@ public class JsonDeserializerTest extends TestCase {
     target = gson.fromJson(json, ClassWithExposedFields.class);
     assertEquals(3, target.a);
     assertEquals(2, target.b);
+  }
+  
+  /**
+   * Created in response to Issue 14: http://code.google.com/p/google-gson/issues/detail?id=14
+   */
+  public void testNullArrays() {
+    String json = "{\"array\": null}";
+    ClassWithArray target = gson.fromJson(json, ClassWithArray.class);
+    assertNull(target.array);
+  }
+  
+  /**
+   * Created in response to Issue 14: http://code.google.com/p/google-gson/issues/detail?id=14
+   */
+  public void testNullObjectFields() {
+    String json = "{\"bag\": null}";
+    ClassWithObjects target = gson.fromJson(json, ClassWithObjects.class);
+    assertNull(target.bag);
+  }
+  
+  /**
+   * Created in response to Issue 14: http://code.google.com/p/google-gson/issues/detail?id=14
+   */
+  public void testNullPrimitiveFields() {
+    try {
+      String json = "{\"longValue\":null}";
+      gson.fromJson(json, BagOfPrimitives.class);
+      fail("Should not allow primitive fields to be set to null");
+    } catch (JsonParseException expected) {      
+    }
   }
 }
