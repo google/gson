@@ -127,6 +127,9 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
       String fName = f.getName();
       if (jsonObject.has(fName)) {
         JsonPrimitive value = jsonObject.getAsJsonPrimitive(fName);
+        if (value == null) {
+          throw new JsonParseException("Primitive field " + fName + " must not be set to null");
+        }
         f.set(obj, typeAdapter.adaptType(value.getAsObject(), f.getType()));
       } else {
         // For Strings, we need to set the field to null

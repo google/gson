@@ -38,10 +38,10 @@ public class TestTypes {
 
   public static class BagOfPrimitives {
     private static final long DEFAULT_VALUE = 0;
-    private final long longValue;
-    private final int intValue;
-    private final boolean booleanValue;
-    private final String stringValue;
+    public final long longValue;
+    public final int intValue;
+    public final boolean booleanValue;
+    public final String stringValue;
 
     public BagOfPrimitives() {
       this(DEFAULT_VALUE, 0, false, "");
@@ -444,6 +444,27 @@ public class TestTypes {
     
     public String getExpectedJsonWithoutAnnotations() {
       return '{' + "\"a\":" + a + ",\"b\":" + b + '}';
+    }
+  }
+  
+  public static class ClassWithArray {
+    public final Object[] array;
+    public ClassWithArray() {
+      array = null;
+    }
+    
+    public ClassWithArray(Object[] array) {
+      this.array = array;
+    }
+  }
+  
+  public static class ClassWithObjects {
+    public final BagOfPrimitives bag;
+    public ClassWithObjects() {
+      this(new BagOfPrimitives());
+    }
+    public ClassWithObjects(BagOfPrimitives bag) {
+      this.bag = bag;
     }
   }
 }

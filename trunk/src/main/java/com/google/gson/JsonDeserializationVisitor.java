@@ -81,6 +81,9 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
 
   @SuppressWarnings("unchecked")
   final Object visitChildAsObject(Type childType, JsonElement jsonChild) {
+    if (jsonChild == null) {
+      return null;
+    }
     JsonDeserializationVisitor<?> childVisitor = 
       new JsonObjectDeserializationVisitor<Object>(jsonChild, childType, 
           factory, objectConstructor, typeAdapter, deserializers, context);
@@ -89,6 +92,9 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
 
   @SuppressWarnings("unchecked")
   final Object visitChildAsArray(Type childType, JsonArray jsonChild) {
+    if (jsonChild == null) {
+      return null;
+    }
     JsonDeserializationVisitor<?> childVisitor = 
       new JsonArrayDeserializationVisitor<Object>(jsonChild.getAsJsonArray(), childType, 
           factory, objectConstructor, typeAdapter, deserializers, context);
@@ -97,6 +103,7 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
 
   @SuppressWarnings("unchecked")
   final Object visitChildAsPrimitive(Type childType, JsonPrimitive jsonChild) {
+    Preconditions.checkNotNull(jsonChild);
     Class<?> childClass;
     if (childType instanceof Class) {
       childClass = (Class) childType;
@@ -110,6 +117,9 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
 
   @SuppressWarnings("unchecked")
   final Object visitChild(Type childType, JsonElement jsonChild) {
+    if (jsonChild == null) {
+      return null;
+    }
     if (jsonChild instanceof JsonArray) {
       return visitChildAsArray(childType, jsonChild.getAsJsonArray());
     } else if (jsonChild instanceof JsonObject) {
