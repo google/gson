@@ -579,11 +579,8 @@ public class JsonDeserializerTest extends TestCase {
    * Created in response to Issue 14: http://code.google.com/p/google-gson/issues/detail?id=14
    */
   public void testNullPrimitiveFields() {
-    try {
-      String json = "{\"longValue\":null}";
-      gson.fromJson(json, BagOfPrimitives.class);
-      fail("Should not allow primitive fields to be set to null");
-    } catch (JsonParseException expected) {      
-    }
+    String json = "{\"longValue\":null}";
+    BagOfPrimitives target = gson.fromJson(json, BagOfPrimitives.class);
+    assertEquals(BagOfPrimitives.DEFAULT_VALUE, target.longValue);
   }
 }

@@ -37,7 +37,7 @@ import com.google.gson.annotations.Expose;
 public class TestTypes {
 
   public static class BagOfPrimitives {
-    private static final long DEFAULT_VALUE = 0;
+    public static final long DEFAULT_VALUE = 0;
     public final long longValue;
     public final int intValue;
     public final boolean booleanValue;

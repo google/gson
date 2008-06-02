@@ -66,8 +66,8 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
     try {
       JsonObject jsonObject = json.getAsJsonObject();
       String fName = f.getName();
-      if (jsonObject.has(fName)) {
-        JsonElement jsonChild = jsonObject.get(fName);
+      JsonElement jsonChild = jsonObject.get(fName);
+      if (jsonChild != null) {
         Type fieldType = f.getGenericType();
         Object child = visitChildAsObject(fieldType, jsonChild);
         f.set(obj, child);
@@ -84,11 +84,11 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
     try {
       JsonObject jsonObject = json.getAsJsonObject();
       String fName = f.getName();
-      if (jsonObject.has(fName)) {
+      JsonArray jsonArray = (JsonArray) jsonObject.get(fName);
+      if (jsonArray != null) {
         Collection collection = (Collection) objectConstructor.construct(f.getType());
         f.set(obj, collection);
         Type childType = new TypeInfo(f.getGenericType()).getGenericClass();
-        JsonArray jsonArray = jsonObject.get(fName).getAsJsonArray();
         for (JsonElement jsonChild : jsonArray) {
           Object child = visitChild(childType, jsonChild);
           if (childType == Object.class) {
@@ -109,8 +109,8 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
     try {
       JsonObject jsonObject = json.getAsJsonObject();
       String fName = f.getName();
-      if (jsonObject.has(fName)) {
-        JsonArray jsonChild = (JsonArray) jsonObject.get(fName);
+      JsonArray jsonChild = (JsonArray) jsonObject.get(fName);
+      if (jsonChild != null) {
         Object array = visitChildAsArray(f.getType(), jsonChild);
         f.set(obj, array);
       } else {
@@ -125,11 +125,8 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
     try {
       JsonObject jsonObject = json.getAsJsonObject();
       String fName = f.getName();
-      if (jsonObject.has(fName)) {
-        JsonPrimitive value = jsonObject.getAsJsonPrimitive(fName);
-        if (value == null) {
-          throw new JsonParseException("Primitive field " + fName + " must not be set to null");
-        }
+      JsonPrimitive value = jsonObject.getAsJsonPrimitive(fName);
+      if (value != null) {
         f.set(obj, typeAdapter.adaptType(value.getAsObject(), f.getType()));
       } else {
         // For Strings, we need to set the field to null
