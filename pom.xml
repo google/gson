@@ -4,11 +4,11 @@
   <groupId>com.google.code.gson</groupId>
   <artifactId>gson</artifactId>
   <packaging>jar</packaging>
-  <version>1.0</version>
+  <version>1.0.1</version>
   <inceptionYear>2008</inceptionYear>
   <name>gson</name>
   <url>http://code.google.com/p/google-gson/</url>
-  <description>Google Gson library project description</description>
+  <description>Google Gson library</description>
   <licenses>
     <license>
       <name>The Apache Software License, Version 2.0</name>
@@ -17,9 +17,14 @@
     </license>
   </licenses>
   <scm>
+    <connection>scm:svn:http://google-gson.googlecode.com/svn/trunk</connection>
+    <developerConnection>scm:svn:https://google-gson.googlecode.com/svn/trunk</developerConnection>
     <url>http://google-gson.codegoogle.com/svn/trunk/</url>
   </scm>
-
+  <issueManagement>
+    <system>Google Code Issue Tracking</system>
+    <url>http://code.google.com/p/google-gson/issues/list</url>
+  </issueManagement>
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
@@ -29,6 +34,7 @@
     </dependency>
   </dependencies>
   <build>
+    <defaultGoal>package</defaultGoal>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -36,48 +42,68 @@
         <configuration>
           <source>1.5</source>
           <target>1.5</target>
-          <includes>
-            <include implementation="java.lang.String">src/main/java/**/*.java</include>
-            <include implementation="java.lang.String">src/generated/java/**/*.java</include>
-          </includes>
-          <testIncludes>
-            <testInclude implementation="java.lang.String">src/test/java/**/*.java</testInclude>
-          </testIncludes>
         </configuration>
       </plugin>
-      <plugin>
+       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-eclipse-plugin</artifactId>
-        <configuration>
-          <downloadSources>true</downloadSources>
-          <downloadJavadocs>true</downloadJavadocs>
-          <workspaceCodeStylesURL>file:///${basedir}/lib/gson-formatting-styles.xml</workspaceCodeStylesURL>
-        </configuration>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
-      <!-- plugin>
+       <plugin>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-source-plugin</artifactId>
+         <executions>
+           <execution>
+             <id>attach-sources</id>
+             <phase>verify</phase>
+             <goals>
+               <goal>jar</goal>
+             </goals>
+           </execution>
+         </executions>
+       </plugin>
+       <plugin>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-eclipse-plugin</artifactId>
+         <configuration>
+           <downloadSources>true</downloadSources>
+           <downloadJavadocs>true</downloadJavadocs>
+           <workspaceCodeStylesURL>
+             file:///${basedir}/lib/gson-formatting-styles.xml
+           </workspaceCodeStylesURL>
+         </configuration>
+       </plugin>
+       <!-- plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>javacc-maven-plugin</artifactId>
         <executions>
-          <execution>
-            <id>javacc</id>
-            <goals>
-              <goal>javacc</goal>
-            </goals>
-            <configuration>
-              <sourceDirectory>src/main/javacc</sourceDirectory>
-              <outputDirectory>src/generated/java</outputDirectory>
-              <timestampDirectory>target/generated-src/javacc-timestamp</timestampDirectory>
-            </configuration>
-          </execution>
+        <execution>
+        <id>javacc</id>
+        <goals>
+        <goal>javacc</goal>
+        </goals>
+        <configuration>
+        <sourceDirectory>src/main/javacc</sourceDirectory>
+        <outputDirectory>src/main/java</outputDirectory>
+        <timestampDirectory>target/generated-src/javacc-timestamp</timestampDirectory>
+        </configuration>
+        </execution>
         </executions>
         <dependencies>
-          <dependency>
-            <groupId>net.java.dev.javacc</groupId>
-            <artifactId>javacc</artifactId>
-            <version>4.0</version>
-          </dependency>
+        <dependency>
+        <groupId>net.java.dev.javacc</groupId>
+        <artifactId>javacc</artifactId>
+        <version>4.0</version>
+        </dependency>
         </dependencies>
-      </plugin -->
+        </plugin -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jxr-plugin</artifactId>
@@ -141,6 +167,16 @@
         <artifactId>maven-release-plugin</artifactId>
         <configuration>
           <arguments>-DenableCiProfile=true</arguments>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.0-beta-2</version>
+        <configuration>
+          <descriptor>src/main/resources/assembly-descriptor.xml</descriptor>
+          <finalName>google-gson-${version}</finalName>
+          <outputDirectory>target/dist</outputDirectory>
+          <workDirectory>target/assembly/work</workDirectory>
         </configuration>
       </plugin>
     </plugins>
