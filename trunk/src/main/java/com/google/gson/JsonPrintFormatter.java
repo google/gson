@@ -19,10 +19,10 @@ package com.google.gson;
 import java.io.PrintWriter;
 
 /**
- * Formats Json in a nicely indented way with a specified print margin. 
- * This printer tries to keep elements on the same line as much as possible 
- * while respecting right margin. 
- * 
+ * Formats Json in a nicely indented way with a specified print margin.
+ * This printer tries to keep elements on the same line as much as possible
+ * while respecting right margin.
+ *
  * @author Inderjeet Singh
  */
 final class JsonPrintFormatter implements JsonFormatter {
@@ -30,7 +30,7 @@ final class JsonPrintFormatter implements JsonFormatter {
   private final int printMargin;
   private final int indentationSize;
   private final int rightMargin;
-  
+
   public static final int DEFAULT_PRINT_MARGIN = 80;
   public static final int DEFAULT_INDENTATION_SIZE = 2;
   public static final int DEFAULT_RIGHT_MARGIN = 4;
@@ -38,7 +38,7 @@ final class JsonPrintFormatter implements JsonFormatter {
   public JsonPrintFormatter() {
     this(DEFAULT_PRINT_MARGIN, DEFAULT_INDENTATION_SIZE, DEFAULT_RIGHT_MARGIN);
   }
-  
+
   public JsonPrintFormatter(int printMargin, int indentationSize, int rightMargin) {
     this.printMargin = printMargin;
     this.indentationSize = indentationSize;
@@ -54,55 +54,55 @@ final class JsonPrintFormatter implements JsonFormatter {
       level = 0;
       line = new StringBuilder();
     }
-    
+
     void key(String key) {
       getLine().append('"');
       getLine().append(key);
       getLine().append('"');
     }
-    
+
     void value(String value) {
       getLine().append(value);
     }
-    
+
     void fieldSeparator() {
       getLine().append(':');
       breakLineIfNeeded();
     }
-    
+
     void elementSeparator() {
       getLine().append(',');
       breakLineIfNeeded();
     }
-    
+
     void beginObject() {
       ++level;
       breakLineIfNeeded();
-      getLine().append('{');      
+      getLine().append('{');
     }
-    
+
     void endObject() {
       getLine().append('}');
       --level;
     }
-    
+
     void beginArray() {
       ++level;
       breakLineIfNeeded();
       getLine().append('[');
     }
-    
+
     void endArray() {
       getLine().append(']');
       --level;
     }
-    
+
     private void breakLineIfNeeded() {
       if (getLine().length() > printMargin - rightMargin) {
         finishLine();
       }
     }
-    
+
     void finishLine() {
       if (line != null) {
         writer.append(line).append("\n");
@@ -116,7 +116,7 @@ final class JsonPrintFormatter implements JsonFormatter {
       }
       return line;
     }
-    
+
     private void createNewLine() {
       line = new StringBuilder();
       for (int i = 0; i < level; ++i) {
@@ -126,15 +126,15 @@ final class JsonPrintFormatter implements JsonFormatter {
       }
     }
   }
-  
+
   private class PrintFormattingVisitor implements JsonElementVisitor {
     private final JsonWriter writer;
     private boolean first;
-    
+
     PrintFormattingVisitor(JsonWriter writer) {
       this.writer = writer;
     }
-    
+
     private void addCommaCheckingFirst() {
       if (first) {
         first = false;
@@ -142,7 +142,7 @@ final class JsonPrintFormatter implements JsonFormatter {
         writer.elementSeparator();
       }
     }
-    
+
     public void startArray(JsonArray array) {
       writer.beginArray();
     }
@@ -195,15 +195,15 @@ final class JsonPrintFormatter implements JsonFormatter {
       writer.value(primitive.toString());
     }
   }
-  
+
   public void format(JsonElement root, PrintWriter writer) {
     if (root == null) {
       return;
     }
     JsonWriter jsonWriter = new JsonWriter(writer);
-    PrintFormattingVisitor visitor = new PrintFormattingVisitor(jsonWriter);
+    JsonElementVisitor visitor = new JsonEscapingVisitor(new PrintFormattingVisitor(jsonWriter));
     JsonTreeNavigator navigator = new JsonTreeNavigator(visitor);
     navigator.navigate(root);
     jsonWriter.finishLine();
-  }  
+  }
 }

@@ -264,6 +264,8 @@ public final class Gson {
     JsonSerializationContext context =
         new JsonSerializationContextDefault(navigatorFactory, serializers);
     JsonElement jsonElement = context.serialize(src, typeOfSrc);
+
+    //TODO(Joel): instead of navigating the "JsonElement" inside the formatter, do it here.
     StringWriter writer = new StringWriter();
     formatter.format(jsonElement, new PrintWriter(writer));
     return jsonElement == null ? "" : writer.toString();
