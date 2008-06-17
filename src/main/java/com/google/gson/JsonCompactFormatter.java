@@ -16,101 +16,99 @@
 
 package com.google.gson;
 
-
 import java.io.PrintWriter;
-
 
 /**
  * Formats Json in a compact way eliminating all unnecessary whitespace.
- * 
+ *
  * @author Inderjeet Singh
  */
 final class JsonCompactFormatter implements JsonFormatter {
 
   private static class FormattingVisitor implements JsonElementVisitor {
     private final PrintWriter writer;
-    
+
     FormattingVisitor(PrintWriter writer) {
       this.writer = writer;
     }
-    
+
     public void visitPrimitive(JsonPrimitive primitive) {
       writer.append(primitive.toString());
     }
-    
-    public void startArray(JsonArray array) {      
+
+    public void startArray(JsonArray array) {
       writer.append('[');
     }
 
     public void visitArrayMember(JsonArray parent, JsonPrimitive member, boolean isFirst) {
       if (!isFirst) {
         writer.append(',');
-      }      
+      }
       writer.append(member.toString());
     }
-    
+
     public void visitArrayMember(JsonArray parent, JsonArray member, boolean isFirst) {
       if (!isFirst) {
         writer.append(',');
-      }      
+      }
     }
-    
+
     public void visitArrayMember(JsonArray parent, JsonObject member, boolean isFirst) {
       if (!isFirst) {
         writer.append(',');
-      }      
+      }
     }
-    
+
     public void endArray(JsonArray array) {
       writer.append(']');
     }
-    
+
     public void startObject(JsonObject object) {
       writer.append('{');
     }
-    
-    public void visitObjectMember(JsonObject parent, String memberName, JsonPrimitive member, 
+
+    public void visitObjectMember(JsonObject parent, String memberName, JsonPrimitive member,
         boolean isFirst) {
       if (!isFirst) {
         writer.append(',');
-      }      
+      }
       writer.append('"');
       writer.append(memberName);
       writer.append("\":");
       writer.append(member.toString());
     }
-    
-    public void visitObjectMember(JsonObject parent, String memberName, JsonArray member, 
+
+    public void visitObjectMember(JsonObject parent, String memberName, JsonArray member,
         boolean isFirst) {
       if (!isFirst) {
         writer.append(',');
-      }      
+      }
       writer.append('"');
       writer.append(memberName);
       writer.append("\":");
     }
 
-    public void visitObjectMember(JsonObject parent, String memberName, JsonObject member, 
+    public void visitObjectMember(JsonObject parent, String memberName, JsonObject member,
         boolean isFirst) {
       if (!isFirst) {
         writer.append(',');
-      }      
+      }
       writer.append('"');
       writer.append(memberName);
-      writer.append("\":");      
+      writer.append("\":");
     }
-    
+
     public void endObject(JsonObject object) {
       writer.append('}');
     }
   }
-  
+
   public void format(JsonElement root, PrintWriter writer) {
     if (root == null) {
       return;
     }
-    FormattingVisitor visitor = new FormattingVisitor(writer);
+    JsonElementVisitor visitor = new JsonEscapingVisitor(new FormattingVisitor(writer));
     JsonTreeNavigator navigator = new JsonTreeNavigator(visitor);
     navigator.navigate(root);
-  }  
+  }
 }

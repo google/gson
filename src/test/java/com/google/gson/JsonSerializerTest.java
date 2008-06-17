@@ -407,8 +407,8 @@ public class JsonSerializerTest extends TestCase {
     assertTrue(json.contains("\"a\":1"));
     assertTrue(json.contains("\"b\":2"));
   }
-  
-  public void testExposeAnnotation() {
+
+  public void testExposeAnnotation() throws Exception {
     // First test that Gson works without the expose annotation as well
     ClassWithExposedFields target = new ClassWithExposedFields();
     assertEquals(target.getExpectedJsonWithoutAnnotations(), gson.toJson(target));
@@ -416,5 +416,26 @@ public class JsonSerializerTest extends TestCase {
     // Now recreate gson with the proper setting
     gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
     assertEquals(target.getExpectedJson(), gson.toJson(target));
+  }
+
+  public void testSingleQuoteInStrings() throws Exception {
+    String valueWithQuotes = "beforeQuote'afterQuote";
+    String jsonRepresentation = gson.toJson(valueWithQuotes);
+    assertEquals(valueWithQuotes, gson.fromJson(jsonRepresentation, String.class));
+  }
+
+  public void testEscapingQuotesInStrings() throws Exception {
+    String valueWithQuotes = "beforeQuote\"afterQuote";
+    String jsonRepresentation = gson.toJson(valueWithQuotes);
+    String target = gson.fromJson(jsonRepresentation, String.class);
+    assertEquals(valueWithQuotes, target);
+  }
+
+  public void testEscapingQuotesInStringArray() throws Exception {
+    String[] valueWithQuotes = { "beforeQuote\"afterQuote" };
+    String jsonRepresentation = gson.toJson(valueWithQuotes);
+    String[] target = gson.fromJson(jsonRepresentation, String[].class);
+    assertEquals(1, target.length);
+    assertEquals(valueWithQuotes[0], target[0]);
   }
 }
