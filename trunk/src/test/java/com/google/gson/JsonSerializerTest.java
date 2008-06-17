@@ -438,4 +438,15 @@ public class JsonSerializerTest extends TestCase {
     assertEquals(1, target.length);
     assertEquals(valueWithQuotes[0], target[0]);
   }
+
+  public void testEscapingObjectFields() throws Exception {
+    BagOfPrimitives objWithPrimitives = new BagOfPrimitives(1L, 1, true, "test with\" <script>");
+    String jsonRepresentation = gson.toJson(objWithPrimitives);
+    assertFalse(jsonRepresentation.contains("<"));
+    assertFalse(jsonRepresentation.contains(">"));
+    assertTrue(jsonRepresentation.contains("\\\""));
+
+    BagOfPrimitives expectedObject = gson.fromJson(jsonRepresentation, BagOfPrimitives.class);
+    assertEquals(objWithPrimitives.getExpectedJson(), expectedObject.getExpectedJson());
+  }
 }
