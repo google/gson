@@ -268,9 +268,8 @@ public class JsonSerializerTest extends TestCase {
     sortedSet.add('b');
     sortedSet.add('c');
     sortedSet.add('d');
-//    NavigableSet<String> navigableSet = Sets.newTreeSet("abc", "def", "ghi", "jkl");
     ClassWithSubInterfacesOfCollection target =
-        new ClassWithSubInterfacesOfCollection(list, queue, set, sortedSet/*, navigableSet */);
+        new ClassWithSubInterfacesOfCollection(list, queue, set, sortedSet);
     assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 

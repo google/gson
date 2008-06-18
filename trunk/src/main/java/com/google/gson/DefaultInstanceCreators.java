@@ -71,13 +71,11 @@ final class DefaultInstanceCreators {
     map.put(Collection.class, linkedListCreator);
     map.put(List.class, linkedListCreator);
     map.put(Queue.class, linkedListCreator);
-// Supported for JDK 1.6 only    map.put(Deque.class, linkedListCreator);
 
     // Add Set instance creators
     InstanceCreator<TreeSet<?>> treeSetCreator = new TreeSetCreator();
     map.put(Set.class, treeSetCreator);
     map.put(SortedSet.class, treeSetCreator);
-// Supported for JDK 1.6 only    map.put(NavigableSet.class, treeSetCreator);
 
     // Add instance creators for other common objects
     map.put(Enum.class, new EnumCreator());
@@ -165,7 +163,7 @@ final class DefaultInstanceCreators {
       return new TreeSet<Object>();
     }
   }
-  
+
   private static class UrlCreator implements InstanceCreator<URL> {
     public URL createInstance(Type type) {
       try {
@@ -175,19 +173,19 @@ final class DefaultInstanceCreators {
       }
     }
   }
-  
+
   private static class LocaleCreator implements InstanceCreator<Locale> {
     public Locale createInstance(Type type) {
       return new Locale("en_US");
-    }    
+    }
   }
-  
+
   @SuppressWarnings("unchecked")
   private static class MapCreator implements InstanceCreator<Map> {
 
     @SuppressWarnings("unchecked")
     public Map createInstance(Type type) {
       return new LinkedHashMap();
-    }    
+    }
   }
 }
