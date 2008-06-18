@@ -16,6 +16,8 @@
 
 package com.google.gson;
 
+import com.google.gson.annotations.Expose;
+
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,10 +25,6 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.SortedSet;
-
-import com.google.gson.InstanceCreator;
-import com.google.gson.Primitives;
-import com.google.gson.annotations.Expose;
 
 /**
  * Types used for testing JSON serialization and deserialization
@@ -57,7 +55,7 @@ public class TestTypes {
     public int getIntValue() {
       return intValue;
     }
-    
+
     public String getExpectedJson() {
       StringBuilder sb = new StringBuilder();
       sb.append("{");
@@ -191,18 +189,16 @@ public class TestTypes {
     private Queue<Long> queue;
     private Set<Float> set;
     private SortedSet<Character> sortedSet;
-//    private NavigableSet<String> navigableSet;
 
     ClassWithSubInterfacesOfCollection() {
     }
 
     public ClassWithSubInterfacesOfCollection(List<Integer> list, Queue<Long> queue, Set<Float> set,
-        SortedSet<Character> sortedSet /* NavigableSet<String> navigableSet*/) {
+        SortedSet<Character> sortedSet) {
       this.list = list;
       this.queue = queue;
       this.set = set;
       this.sortedSet = sortedSet;
-//      this.navigableSet = navigableSet;
     }
 
     public String getExpectedJson() {
@@ -216,9 +212,6 @@ public class TestTypes {
       append(sb, set).append(",");
       sb.append("\"sortedSet\":");
       append(sb, sortedSet);
-/*      sb.append(",");
-      sb.append("\"navigableSet\":");
-      append(sb, navigableSet); */
       sb.append("}");
       return sb.toString();
     }
@@ -246,12 +239,12 @@ public class TestTypes {
   }
 
   public static class ContainsReferenceToSelfType {
-    public Collection<ContainsReferenceToSelfType> children = 
+    public Collection<ContainsReferenceToSelfType> children =
         new ArrayList<ContainsReferenceToSelfType>();
   }
 
   public static class SubTypeOfNested extends Nested {
-    private long value = 5;
+    private final long value = 5;
 
     public SubTypeOfNested() {
       this(null, null);
@@ -279,7 +272,7 @@ public class TestTypes {
     public ClassWithCustomTypeConverter(int value) {
       this(new BagOfPrimitives(value, value, false, ""), value);
     }
-    
+
     public ClassWithCustomTypeConverter(BagOfPrimitives bag, int value) {
       this.bag = bag;
       this.value = value;
@@ -288,7 +281,7 @@ public class TestTypes {
     public BagOfPrimitives getBag() {
       return bag;
     }
-    
+
     public String getExpectedJson() {
       return "{\"url\":\"" + bag.getExpectedJson() + "\",\"value\":" + value + "}";
     }
@@ -359,7 +352,7 @@ public class TestTypes {
   }
 
   public static class MyParameterizedType<T> {
-    private T value;
+    private final T value;
     public MyParameterizedType(T value) {
       this.value = value;
     }
@@ -433,31 +426,31 @@ public class TestTypes {
       return 1;
     }
   }
-  
+
   public static class ClassWithExposedFields {
     @Expose int a = 1;
     int b = 2;
-    
+
     public String getExpectedJson() {
       return '{' + "\"a\":" + a + '}';
     }
-    
+
     public String getExpectedJsonWithoutAnnotations() {
       return '{' + "\"a\":" + a + ",\"b\":" + b + '}';
     }
   }
-  
+
   public static class ClassWithArray {
     public final Object[] array;
     public ClassWithArray() {
       array = null;
     }
-    
+
     public ClassWithArray(Object[] array) {
       this.array = array;
     }
   }
-  
+
   public static class ClassWithObjects {
     public final BagOfPrimitives bag;
     public ClassWithObjects() {
