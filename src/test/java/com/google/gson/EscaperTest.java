@@ -81,6 +81,11 @@ public class EscaperTest extends TestCase {
 
     String escapedString = Escaper.escapeJsonString(containsAmp);
     assertEquals("123" + ampAsUnicode + "456", escapedString);
+
+    char ampCharAsUnicode = '\u0026';
+    String containsAmpUnicode = "123" + ampCharAsUnicode + "456";
+    escapedString = Escaper.escapeJsonString(containsAmpUnicode);
+    assertEquals("123" + ampAsUnicode + "456", escapedString);
   }
 
   public void testSlashEscaping() throws Exception {
@@ -93,6 +98,22 @@ public class EscaperTest extends TestCase {
     String containsSingleQuote = "123'456";
     String escapedString = Escaper.escapeJsonString(containsSingleQuote);
     assertEquals(containsSingleQuote, escapedString);
+  }
+
+  public void testRequiredEscapingUnicodeCharacter() throws Exception {
+    char unicodeChar = '\u2028';
+    String unicodeString = "Testing" + unicodeChar;
+
+    String escapedString = Escaper.escapeJsonString(unicodeString);
+    assertFalse(unicodeString.equals(escapedString));
+    assertEquals("Testing\\u2028", escapedString);
+  }
+
+  public void testUnicodeCharacterStringNoEscaping() throws Exception {
+    String unicodeString = "\u0065\u0066";
+
+    String escapedString = Escaper.escapeJsonString(unicodeString);
+    assertEquals(unicodeString, escapedString);
   }
 
   private String convertToUnicodeString(int codepoint) {
