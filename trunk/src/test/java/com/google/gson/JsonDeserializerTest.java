@@ -44,6 +44,7 @@ import junit.framework.TestCase;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -574,7 +575,29 @@ public class JsonDeserializerTest extends TestCase {
     ClassWithObjects target = gson.fromJson(json, ClassWithObjects.class);
     assertNull(target.bag);
   }
-  
+
+  public void testArrayWithNulls() {
+    String json = "[\"foo\",null,\"bar\"]";
+    String[] expected = {"foo", null, "bar"};
+    String[] target = gson.fromJson(json, expected.getClass());
+    for (int i = 0; i < expected.length; ++i) {
+      assertEquals(expected[i], target[i]);      
+    }
+  }
+
+  public void testListsWithNulls() {
+    List<String> expected = new ArrayList<String>();
+    expected.add("foo");
+    expected.add(null);
+    expected.add("bar");
+    String json = "[\"foo\",null,\"bar\"]";
+    Type expectedType = new TypeToken<List<String>>() {}.getType();
+    List<String> target = gson.fromJson(json, expectedType);
+    for (int i = 0; i < expected.size(); ++i) {
+      assertEquals(expected.get(i), target.get(i));      
+    }
+  }
+
   /**
    * Created in response to Issue 14: http://code.google.com/p/google-gson/issues/detail?id=14
    */

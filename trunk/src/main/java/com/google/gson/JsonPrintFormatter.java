@@ -160,6 +160,10 @@ final class JsonPrintFormatter implements JsonFormatter {
       addCommaCheckingFirst();
     }
 
+    public void visitNullArrayMember(JsonArray parent, boolean isFirst) {
+      addCommaCheckingFirst();
+    }
+
     public void endArray(JsonArray array) {
       writer.endArray();
     }
@@ -186,13 +190,17 @@ final class JsonPrintFormatter implements JsonFormatter {
       writer.key(memberName);
       writer.fieldSeparator();
     }
-
+    
     public void endObject(JsonObject object) {
       writer.endObject();
     }
 
     public void visitPrimitive(JsonPrimitive primitive) {
       writer.value(primitive.toString());
+    }
+
+    public void visitNull() {
+      writer.value("null");
     }
   }
 

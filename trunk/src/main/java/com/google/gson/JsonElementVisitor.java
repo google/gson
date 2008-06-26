@@ -23,11 +23,13 @@ package com.google.gson;
  */
 interface JsonElementVisitor {
   void visitPrimitive(JsonPrimitive primitive);
-  
+  void visitNull();
+
   void startArray(JsonArray array);
   void visitArrayMember(JsonArray parent, JsonPrimitive member, boolean isFirst);
   void visitArrayMember(JsonArray parent, JsonArray member, boolean isFirst);
   void visitArrayMember(JsonArray parent, JsonObject member, boolean isFirst);
+  void visitNullArrayMember(JsonArray parent, boolean isFirst);
   void endArray(JsonArray array);
   
   void startObject(JsonObject object);

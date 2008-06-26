@@ -96,4 +96,13 @@ class DelegatingJsonElementVisitor implements JsonElementVisitor {
   public void visitPrimitive(JsonPrimitive primitive) {
     delegate.visitPrimitive(primitive);
   }
+
+
+  public void visitNull() {
+    delegate.visitNull();
+  }
+  
+  public void visitNullArrayMember(JsonArray parent, boolean isFirst) {
+    delegate.visitNullArrayMember(parent, isFirst);
+  }
 }

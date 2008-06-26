@@ -36,6 +36,10 @@ final class JsonCompactFormatter implements JsonFormatter {
       writer.append(primitive.toString());
     }
 
+    public void visitNull() {
+      writer.append("null");
+    }
+    
     public void startArray(JsonArray array) {
       writer.append('[');
     }
@@ -54,6 +58,12 @@ final class JsonCompactFormatter implements JsonFormatter {
     }
 
     public void visitArrayMember(JsonArray parent, JsonObject member, boolean isFirst) {
+      if (!isFirst) {
+        writer.append(',');
+      }
+    }
+
+    public void visitNullArrayMember(JsonArray parent, boolean isFirst) {
       if (!isFirst) {
         writer.append(',');
       }
