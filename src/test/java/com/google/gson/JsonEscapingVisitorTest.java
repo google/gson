@@ -164,5 +164,13 @@ public class JsonEscapingVisitorTest extends TestCase {
     public void visitPrimitive(JsonPrimitive primitive) {
       primitiveReceived = primitive;
     }
+
+    public void visitNullArrayMember(JsonArray parent, boolean isFirst) {
+      // Do nothing
+    }
+
+    public void visitNull() {
+      // Do nothing      
+    }
   }
 }

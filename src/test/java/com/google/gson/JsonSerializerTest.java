@@ -171,6 +171,13 @@ public class JsonSerializerTest extends TestCase {
 
   public void testCollection() {
     Collection<Integer> target = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    Type targetType = new TypeToken<Collection<Integer>>() {}.getType();
+    String json = gson.toJson(target, targetType);
+    assertEquals("[1,2,3,4,5,6,7,8,9]", json);
+  }
+
+  public void testCollectionWithoutSpecifyingType() {
+    Collection<Integer> target = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9);
     assertEquals("[1,2,3,4,5,6,7,8,9]", gson.toJson(target));
   }
 
@@ -245,6 +252,24 @@ public class JsonSerializerTest extends TestCase {
   public void testNullFields() {
     Nested target = new Nested(new BagOfPrimitives(10, 20, false, "stringValue"), null);
     assertEquals(target.getExpectedJson(), gson.toJson(target));
+  }
+  
+  public void testArrayWithNulls() {
+    String[] array = {"foo", null, "bar"};
+	String expected = "[\"foo\",null,\"bar\"]";
+	String json = gson.toJson(array);
+	assertEquals(expected, json);
+  }
+
+  public void testListsWithNulls() {
+    List<String> list = new ArrayList<String>();
+    list.add("foo");
+    list.add(null);
+    list.add("bar");
+    String expected = "[\"foo\",null,\"bar\"]";
+    Type typeOfList = new TypeToken<List<String>>() {}.getType();
+    String json = gson.toJson(list, typeOfList);
+    assertEquals(expected, json);
   }
 
   public void testSubInterfacesOfCollection() {

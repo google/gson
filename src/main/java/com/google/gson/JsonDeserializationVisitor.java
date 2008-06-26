@@ -111,7 +111,9 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
 
   @SuppressWarnings("unchecked")
   final Object visitChild(Type childType, JsonElement jsonChild) {
-    if (jsonChild instanceof JsonArray) {
+    if (jsonChild == null) {
+      return null;
+    } else if (jsonChild instanceof JsonArray) {
       return visitChildAsArray(childType, jsonChild.getAsJsonArray());
     } else if (jsonChild instanceof JsonObject) {
       return visitChildAsObject(childType, jsonChild);

@@ -31,7 +31,9 @@ final class JsonTreeNavigator {
   }
   
   public void navigate(JsonElement element) {
-    if (element.isJsonArray()) {
+    if (element == null) {
+      visitor.visitNull();
+    } else if (element.isJsonArray()) {
       JsonArray array = element.getAsJsonArray();
       visitor.startArray(array);
       boolean isFirst = true;
@@ -59,21 +61,28 @@ final class JsonTreeNavigator {
   }
 
   private void visitChild(JsonObject parent, String childName, JsonElement child, boolean isFirst) {
-    if (child.isJsonArray()) {
-      JsonArray childAsArray = child.getAsJsonArray();
-      visitor.visitObjectMember(parent, childName, childAsArray, isFirst);
-      navigate(childAsArray);
-    } else if (child.isJsonObject()) {
-      JsonObject childAsObject = child.getAsJsonObject();
-      visitor.visitObjectMember(parent, childName, childAsObject, isFirst);
-      navigate(childAsObject);
-    } else { // is a JsonPrimitive
-      visitor.visitObjectMember(parent, childName, child.getAsJsonPrimitive(), isFirst);          
+    // We can just ignore null object fields since we do not write null values out
+    // and the order in which the fields are written out does not matter (unlike Arrays).
+    if (child != null) {
+      if (child.isJsonArray()) {
+        JsonArray childAsArray = child.getAsJsonArray();
+        visitor.visitObjectMember(parent, childName, childAsArray, isFirst);
+        navigate(childAsArray);
+      } else if (child.isJsonObject()) {
+        JsonObject childAsObject = child.getAsJsonObject();
+        visitor.visitObjectMember(parent, childName, childAsObject, isFirst);
+        navigate(childAsObject);
+      } else { // is a JsonPrimitive
+        visitor.visitObjectMember(parent, childName, child.getAsJsonPrimitive(), isFirst);          
+      }
     }
-  }  
-  
+  }
+
   private void visitChild(JsonArray parent, JsonElement child, boolean isFirst) {
-    if (child.isJsonArray()) {
+    if (child == null) {
+      visitor.visitNullArrayMember(parent, isFirst);
+      navigate(null);
+	} else if (child.isJsonArray()) {
       JsonArray childAsArray = child.getAsJsonArray();
       visitor.visitArrayMember(parent, childAsArray, isFirst);
       navigate(childAsArray);
@@ -84,5 +93,5 @@ final class JsonTreeNavigator {
     } else { // is a JsonPrimitive
       visitor.visitArrayMember(parent, child.getAsJsonPrimitive(), isFirst);          
     }
-  }  
+  }
 }

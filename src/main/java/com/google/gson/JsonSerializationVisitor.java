@@ -68,7 +68,13 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   public void visitCollection(Collection collection, Type collectionType) {
     assignToRoot(new JsonArray());
     for (Object child : collection) {
-      addAsArrayElement(child.getClass(), child);
+      TypeInfo<?> collectionTypeInfo = new TypeInfo<Object>(collectionType);
+      Type childType = collectionTypeInfo.getGenericClass();
+      if (childType == Object.class && child != null) {
+        // Try our luck some other way
+        childType = child.getClass();
+      }
+      addAsArrayElement(childType, child);
     }
   }
 
@@ -117,8 +123,16 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   }
 
   private void addAsArrayElement(Type elementType, Object elementValue) {
-    JsonElement childElement = getJsonElementForChild(elementType, elementValue);
-    root.getAsJsonArray().add(childElement);
+    if (elementValue == null) {
+      addNullAsArrayElement();
+    } else {
+      JsonElement childElement = getJsonElementForChild(elementType, elementValue);
+      root.getAsJsonArray().add(childElement);
+    }
+  }
+  
+  private void addNullAsArrayElement() {
+    root.getAsJsonArray().add(null);
   }
 
   private JsonElement getJsonElementForChild(Type fieldType, Object fieldValue) {
