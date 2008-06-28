@@ -34,6 +34,18 @@ import java.util.SortedSet;
  */
 public class TestTypes {
 
+  public static class StringWrapper {
+    public final String someConstantStringInstanceField;
+
+    StringWrapper() {
+      this("Blah");
+    }
+
+    public StringWrapper(String value) {
+      someConstantStringInstanceField = value;
+    }
+  }
+
   public static class BagOfPrimitives {
     public static final long DEFAULT_VALUE = 0;
     public final long longValue;

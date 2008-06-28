@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -65,7 +66,7 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
   public void visitObjectField(Field f, Object obj) {
     try {
       JsonObject jsonObject = json.getAsJsonObject();
-      String fName = f.getName();
+      String fName = getFieldName(f);
       JsonElement jsonChild = jsonObject.get(fName);
       if (jsonChild != null) {
         Type fieldType = f.getGenericType();
@@ -83,7 +84,7 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
   public void visitCollectionField(Field f, Object obj) {
     try {
       JsonObject jsonObject = json.getAsJsonObject();
-      String fName = f.getName();
+      String fName = getFieldName(f);
       JsonArray jsonArray = (JsonArray) jsonObject.get(fName);
       if (jsonArray != null) {
         Collection collection = (Collection) objectConstructor.construct(f.getType());
@@ -108,7 +109,7 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
   public void visitArrayField(Field f, Object obj) {
     try {
       JsonObject jsonObject = json.getAsJsonObject();
-      String fName = f.getName();
+      String fName = getFieldName(f);
       JsonArray jsonChild = (JsonArray) jsonObject.get(fName);
       if (jsonChild != null) {
         Object array = visitChildAsArray(f.getType(), jsonChild);
@@ -124,7 +125,7 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
   public void visitPrimitiveField(Field f, Object obj) {
     try {
       JsonObject jsonObject = json.getAsJsonObject();
-      String fName = f.getName();
+      String fName = getFieldName(f);
       JsonPrimitive value = jsonObject.getAsJsonPrimitive(fName);
       if (value != null) {
         f.set(obj, typeAdapter.adaptType(value.getAsObject(), f.getType()));
@@ -138,5 +139,10 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
     } catch (IllegalAccessException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  private String getFieldName(Field f) {
+    FieldNamingStrategy namingPolicy = factory.getFieldNamingPolicy();
+    return namingPolicy.translateName(f);
   }
 }

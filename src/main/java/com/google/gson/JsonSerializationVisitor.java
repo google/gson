@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
@@ -119,7 +120,8 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
 
   private void addAsChildOfObject(Field f, Type fieldType, Object fieldValue) {
     JsonElement childElement = getJsonElementForChild(fieldType, fieldValue);
-    root.getAsJsonObject().add(f.getName(), childElement);
+    FieldNamingStrategy namingPolicy = factory.getFieldNamingPolicy();
+    root.getAsJsonObject().add(namingPolicy.translateName(f), childElement);
   }
 
   private void addAsArrayElement(Type elementType, Object elementValue) {

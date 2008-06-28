@@ -103,7 +103,7 @@ final class JsonPrintFormatter implements JsonFormatter {
       }
     }
 
-    void finishLine() {
+    private void finishLine() {
       if (line != null) {
         writer.append(line).append("\n");
       }

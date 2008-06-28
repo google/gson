@@ -32,6 +32,7 @@ import com.google.gson.TestTypes.MyEnum;
 import com.google.gson.TestTypes.MyParameterizedType;
 import com.google.gson.TestTypes.Nested;
 import com.google.gson.TestTypes.PrimitiveArray;
+import com.google.gson.TestTypes.StringWrapper;
 import com.google.gson.TestTypes.SubTypeOfNested;
 import com.google.gson.annotations.Since;
 import com.google.gson.reflect.TypeToken;
@@ -124,7 +125,7 @@ public class JsonSerializerTest extends TestCase {
     }));
 
     gson = new Gson(new ObjectNavigatorFactory(new ModifierBasedExclusionStrategy(
-        true, Modifier.TRANSIENT, Modifier.STATIC)));
+        true, Modifier.TRANSIENT, Modifier.STATIC), Gson.DEFAULT_NAMING_POLICY));
     assertEquals("{}", gson.toJson(new ClassWithNoFields() {
       // empty anonymous class
     }));
@@ -472,5 +473,13 @@ public class JsonSerializerTest extends TestCase {
 
     BagOfPrimitives expectedObject = gson.fromJson(jsonRepresentation, BagOfPrimitives.class);
     assertEquals(objWithPrimitives.getExpectedJson(), expectedObject.getExpectedJson());
+  }
+
+  public void testGsonWithNonDefaultFieldNamingPolicy() {
+    Gson gson = new GsonBuilder().setFieldNamingPolicy(
+        FieldNamingPolicy.UPPER_CAMEL_CASE).create();
+    StringWrapper target = new StringWrapper("blah");
+    assertEquals("{\"SomeConstantStringInstanceField\":\""
+        + target.someConstantStringInstanceField + "\"}", gson.toJson(target));
   }
 }

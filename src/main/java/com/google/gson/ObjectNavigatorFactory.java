@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+
 import java.lang.reflect.Type;
 
 /**
@@ -27,6 +28,7 @@ import java.lang.reflect.Type;
  */
 final class ObjectNavigatorFactory {
   private final ExclusionStrategy strategy;
+  private final FieldNamingStrategy fieldNamingPolicy;
   private final MemoryRefStack<Object> stack;
 
   /**
@@ -35,9 +37,13 @@ final class ObjectNavigatorFactory {
    *
    * @param strategy the exclusion strategy to use with every instance that
    *        is created by this factory instance.
+   * @param fieldNamingPolicy the naming policy that should be applied to field
+   *        names
    */
-  public ObjectNavigatorFactory(ExclusionStrategy strategy) {
+  public ObjectNavigatorFactory(ExclusionStrategy strategy, FieldNamingStrategy fieldNamingPolicy) {
+    Preconditions.checkNotNull(fieldNamingPolicy);
     this.strategy = (strategy == null ? new NullExclusionStrategy() : strategy);
+    this.fieldNamingPolicy = fieldNamingPolicy;
     this.stack = new MemoryRefStack<Object>();
   }
 
@@ -66,5 +72,9 @@ final class ObjectNavigatorFactory {
    */
   public ObjectNavigator create(Object srcObject, Type type) {
     return new ObjectNavigator(srcObject, type, strategy, stack);
+  }
+
+  FieldNamingStrategy getFieldNamingPolicy() {
+    return fieldNamingPolicy;
   }
 }
