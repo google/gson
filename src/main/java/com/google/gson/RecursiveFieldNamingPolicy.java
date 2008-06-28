@@ -30,6 +30,7 @@ import java.lang.reflect.Type;
 abstract class RecursiveFieldNamingPolicy implements FieldNamingStrategy {
 
   public final String translateName(Field f) {
+    Preconditions.checkNotNull(f);
     return translateName(f.getName(), f.getGenericType(), f.getAnnotations());
   }
 

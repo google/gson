@@ -16,7 +16,8 @@
 
 package com.google.gson;
 
-import java.lang.reflect.Field;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
 
 /**
  * A simple implementation of the {@link FieldNamingStrategy} interface such that it does not
@@ -40,9 +41,10 @@ import java.lang.reflect.Field;
  *
  * @author Joel Leitch
  */
-class JavaFieldNamingPolicy implements FieldNamingStrategy {
+class JavaFieldNamingPolicy extends RecursiveFieldNamingPolicy {
 
-  public String translateName(Field f) {
-    return f.getName();
+  @Override
+  protected String translateName(String target, Type fieldType, Annotation[] annotations) {
+    return target;
   }
 }
