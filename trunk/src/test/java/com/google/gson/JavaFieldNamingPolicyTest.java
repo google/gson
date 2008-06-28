@@ -44,6 +44,6 @@ public class JavaFieldNamingPolicyTest extends TestCase {
     try {
       namingPolicy.translateName((Field) null);
       fail("Should have thrown an exception");
-    } catch (NullPointerException expected) { }
+    } catch (IllegalArgumentException expected) { }
   }
 }

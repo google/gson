@@ -50,10 +50,8 @@ final class CamelCaseSeparatorNamingPolicy extends RecursiveFieldNamingPolicy {
    *         is null or purely whitespace.
    */
   public CamelCaseSeparatorNamingPolicy(String separatorString) {
-    if (separatorString == null || "".equals(separatorString.trim())) {
-      throw new IllegalArgumentException(
-          "The separator string must not be an pure whitespace string");
-    }
+    Preconditions.checkNotNull(separatorString);
+    Preconditions.checkArgument(!"".equals(separatorString.trim()));
     this.separatorString = separatorString;
   }
 

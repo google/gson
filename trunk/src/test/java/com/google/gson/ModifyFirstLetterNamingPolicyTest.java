@@ -25,6 +25,13 @@ import junit.framework.TestCase;
  */
 public class ModifyFirstLetterNamingPolicyTest extends TestCase {
 
+  public void testInvalidConstruction() throws Exception {
+    try {
+      new ModifyFirstLetterNamingPolicy(null);
+      fail("Null values are not allowed as a constructor parameters");
+    } catch (IllegalArgumentException expected) { }
+  }
+
   public void testLowerCaseFirstLetter() throws Exception {
     ModifyFirstLetterNamingPolicy policy =
         new ModifyFirstLetterNamingPolicy(ModifyFirstLetterNamingPolicy.LetterModifier.LOWER);

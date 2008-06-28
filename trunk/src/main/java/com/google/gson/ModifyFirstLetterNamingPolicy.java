@@ -27,6 +27,7 @@ import java.lang.reflect.Type;
  * <pre>
  * class StringWrapper {
  *   public String stringField = "abcd";
+ *   public String _stringField = "efg";
  * }
  *
  * ModifyFirstLetterNamingPolicy policy =
@@ -35,6 +36,11 @@ import java.lang.reflect.Type;
  *     policy.translateName(StringWrapper.class.getField("stringField"));
  *
  * assert("StringField".equals(translatedFieldName));
+ *
+ * String translatedFieldName =
+ *     policy.translateName(StringWrapper.class.getField("_stringField"));
+ *
+ * assert("_StringField".equals(translatedFieldName));
  * </pre>
  *
  * @author Joel Leitch
@@ -48,7 +54,15 @@ class ModifyFirstLetterNamingPolicy extends RecursiveFieldNamingPolicy {
 
   private final LetterModifier letterModifier;
 
+  /**
+   * Creates a new ModifyFirstLetterNamingPolicy that will either modify the first letter of the
+   * target name to either UPPER case or LOWER case depending on the {@code modifier} parameter.
+   *
+   * @param modifier the type of modification that should be performed
+   * @throws IllegalArgumentException if {@code modifier} is null
+   */
   public ModifyFirstLetterNamingPolicy(LetterModifier modifier) {
+    Preconditions.checkNotNull(modifier);
     this.letterModifier = modifier;
   }
 
@@ -73,10 +87,10 @@ class ModifyFirstLetterNamingPolicy extends RecursiveFieldNamingPolicy {
 
     boolean capitalizeFirstLetter = (letterModifier == LetterModifier.UPPER);
     if (capitalizeFirstLetter && !Character.isUpperCase(firstCharacter)) {
-      String modifiedTarget = modifyString(Character.toUpperCase(firstCharacter), target, index);
+      String modifiedTarget = modifyString(Character.toUpperCase(firstCharacter), target, ++index);
       return fieldNameBuilder.append(modifiedTarget).toString();
     } else if (!capitalizeFirstLetter && Character.isUpperCase(firstCharacter)) {
-      String modifiedTarget = modifyString(Character.toLowerCase(firstCharacter), target, index);
+      String modifiedTarget = modifyString(Character.toLowerCase(firstCharacter), target, ++index);
       return fieldNameBuilder.append(modifiedTarget).toString();
     } else {
       return target;
@@ -84,8 +98,8 @@ class ModifyFirstLetterNamingPolicy extends RecursiveFieldNamingPolicy {
   }
 
   private String modifyString(char firstCharacter, String srcString, int indexOfSubstring) {
-    if (indexOfSubstring < srcString.length() - 1) {
-      return firstCharacter + srcString.substring(indexOfSubstring + 1);
+    if (indexOfSubstring < srcString.length()) {
+      return firstCharacter + srcString.substring(indexOfSubstring);
     } else {
       return String.valueOf(firstCharacter);
     }
