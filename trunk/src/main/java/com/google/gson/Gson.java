@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -50,6 +51,15 @@ import java.util.logging.Logger;
  * @author Joel Leitch
  */
 public final class Gson {
+
+  // Default instances of plug-ins
+  static final TypeAdapter DEFAULT_TYPE_ADAPTER =
+      new TypeAdapterNotRequired(new PrimitiveTypeAdapter());
+  static final ModifierBasedExclusionStrategy DEFAULT_MODIFIER_BASED_EXCLUSION_STRATEGY =
+      new ModifierBasedExclusionStrategy(true, new int[] { Modifier.TRANSIENT, Modifier.STATIC });
+  static final JsonFormatter DEFAULT_JSON_FORMATTER = new JsonCompactFormatter();
+  static final FieldNamingStrategy DEFAULT_NAMING_POLICY = new JavaFieldNamingPolicy();
+
   private static Logger logger = Logger.getLogger(Gson.class.getName());
 
   private final ObjectNavigatorFactory navigatorFactory;
@@ -66,20 +76,11 @@ public final class Gson {
 
   private final JsonFormatter formatter;
 
-  static final TypeAdapter DEFAULT_TYPE_ADAPTER =
-      new TypeAdapterNotRequired(new PrimitiveTypeAdapter());
-
-  static final ModifierBasedExclusionStrategy DEFAULT_MODIFIER_BASED_EXCLUSION_STRATEGY =
-      new ModifierBasedExclusionStrategy(true, new int[] { Modifier.TRANSIENT, Modifier.STATIC });
-
-  static final JsonFormatter DEFAULT_JSON_FORMATTER = new JsonCompactFormatter();
-
   /**
    * Constructs a Gson object with default configuration.
    */
   public Gson() {
-    this(new ObjectNavigatorFactory(createExclusionStrategy(VersionConstants.IGNORE_VERSIONS)),
-        new MappedObjectConstructor(), DEFAULT_TYPE_ADAPTER, DEFAULT_JSON_FORMATTER);
+    this(createDefaultObjectNavigatorFactory());
   }
 
   /**
@@ -117,6 +118,11 @@ public final class Gson {
     for (Map.Entry<Type, InstanceCreator<?>> entry : defaultInstanceCreators.entrySet()) {
       objectConstructor.register(entry.getKey(), entry.getValue());
     }
+  }
+
+  private static ObjectNavigatorFactory createDefaultObjectNavigatorFactory() {
+    return new ObjectNavigatorFactory(
+        createExclusionStrategy(VersionConstants.IGNORE_VERSIONS), DEFAULT_NAMING_POLICY);
   }
 
   private static ExclusionStrategy createExclusionStrategy(double version) {

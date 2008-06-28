@@ -31,6 +31,7 @@ import java.util.Map;
  * Gson gson = new GsonBuilder();
  *     .setVersion(1.0)
  *     .setPrettyPrinting()
+ *     .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
  *     .registerTypeAdapter(new IdTypeAdapter())
  *     .create();
  * </pre>
@@ -46,6 +47,7 @@ public final class GsonBuilder {
   private boolean excludeFieldsWithoutExposeAnnotation;
   private final TypeAdapter typeAdapter;
   private JsonFormatter formatter;
+  private FieldNamingStrategy fieldNamingPolicy;
   private final Map<Type, InstanceCreator<?>> instanceCreators;
   private final Map<Type, JsonSerializer<?>> serializers;
   private final Map<Type, JsonDeserializer<?>> deserializers;
@@ -72,6 +74,7 @@ public final class GsonBuilder {
     excludeFieldsWithoutExposeAnnotation = false;
     typeAdapter = Gson.DEFAULT_TYPE_ADAPTER;
     formatter = Gson.DEFAULT_JSON_FORMATTER;
+    fieldNamingPolicy = Gson.DEFAULT_NAMING_POLICY;
     instanceCreators = new LinkedHashMap<Type, InstanceCreator<?>>();
     serializers = new LinkedHashMap<Type, JsonSerializer<?>>();
     deserializers = new LinkedHashMap<Type, JsonDeserializer<?>>();
@@ -117,6 +120,30 @@ public final class GsonBuilder {
   }
 
   /**
+   * Configures Gson to apply a specific naming policy to an object's field during serialization
+   * and deserialization.
+   *
+   * @param namingConvention the JSON field naming convention to use for
+   *        serialization/deserializaiton
+   * @return GsonBuilder to apply the Builder pattern.
+   */
+  public GsonBuilder setFieldNamingPolicy(FieldNamingPolicy namingConvention) {
+    return setFieldNamingStrategy(namingConvention.getFieldNamingPolicy());
+  }
+
+  /**
+   * Configures Gson to apply a specific naming policy strategy to an object's field during
+   * serialization and deserialization.
+   *
+   * @param fieldNamingPolicy the actual naming strategy to apply to the fields
+   * @return GsonBuiler to apply the Builder pattern.
+   */
+  private GsonBuilder setFieldNamingStrategy(FieldNamingStrategy fieldNamingPolicy) {
+    this.fieldNamingPolicy = fieldNamingPolicy;
+    return this;
+  }
+
+  /**
    * Configures Gson to output Json that fits in a page for pretty printing. This option only
    * affects Json serialization.
    *
@@ -126,6 +153,7 @@ public final class GsonBuilder {
     setFormatter(new JsonPrintFormatter());
     return this;
   }
+
   /**
    * Configures Gson with a new formatting strategy other than the default strategy. The default
    * strategy is to provide a compact representation that eliminates all unneeded white-space.
@@ -280,9 +308,11 @@ public final class GsonBuilder {
       strategies.add(new ExposeAnnotationBasedExclusionStrategy());
     }
     ExclusionStrategy exclusionStrategy = new DisjunctionExclusionStrategy(strategies);
-    ObjectNavigatorFactory objectNavigatorFactory = new ObjectNavigatorFactory(exclusionStrategy);
+    ObjectNavigatorFactory objectNavigatorFactory =
+        new ObjectNavigatorFactory(exclusionStrategy, fieldNamingPolicy);
     MappedObjectConstructor objectConstructor = new MappedObjectConstructor();
-    Gson gson = new Gson(objectNavigatorFactory, objectConstructor, typeAdapter, formatter);
+    Gson gson = new Gson(
+        objectNavigatorFactory, objectConstructor, typeAdapter, formatter);
 
     for (Map.Entry<Type, JsonSerializer<?>> entry : serializers.entrySet()) {
       gson.registerSerializer(entry.getKey(), entry.getValue());
