@@ -32,7 +32,7 @@ import java.util.Map;
  *     .setVersion(1.0)
  *     .setPrettyPrinting()
  *     .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
- *     .registerTypeAdapter(new IdTypeAdapter())
+ *     .registerTypeAdapter(Id.class, new IdTypeAdapter())
  *     .create();
  * </pre>
  *
@@ -61,7 +61,7 @@ public final class GsonBuilder {
    * Gson gson = new GsonBuilder()
    *     .setVersion(1.0)
    *     .setPrettyPrinting()
-   *     .registerTypeAdapter(new IdTypeAdapter())
+   *     .registerTypeAdapter(Id.class, new IdTypeAdapter())
    *     .create();
    * </pre>
    * The order of invocation of configuration methods does not matter.
@@ -98,8 +98,9 @@ public final class GsonBuilder {
    * behavior.
    *
    * @param modifiers the field modifiers. You must use the modifiers specified in the
-   * {@link java.lang.reflect.Modifier} class. For example,
-   * {@link java.lang.reflect.Modifier#TRANSIENT}, {@link java.lang.reflect.Modifier#STATIC}.
+   *        {@link java.lang.reflect.Modifier} class. For example,
+   *        {@link java.lang.reflect.Modifier#TRANSIENT},
+   *        {@link java.lang.reflect.Modifier#STATIC}.
    * @return GsonBuilder to apply the Builder pattern.
    */
   public GsonBuilder excludeFieldsWithModifiers(int... modifiers) {
@@ -176,7 +177,7 @@ public final class GsonBuilder {
    *
    * @param typeOfT The class definition for the type T.
    * @param typeAdapter This object must implement at least one of the {@link InstanceCreator},
-   * {@link JsonSerializer}, and a {@link JsonDeserializer} interfaces.
+   *        {@link JsonSerializer}, and a {@link JsonDeserializer} interfaces.
    * @return GsonBuilder to apply the Builder pattern.
    */
   public GsonBuilder registerTypeAdapter(Type typeOfT, Object typeAdapter) {

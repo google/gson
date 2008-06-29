@@ -58,7 +58,7 @@ import java.lang.reflect.Type;
  * <p>You will also need to register {@code IdDeserializer} with Gson as follows:</p>
  *
  * <pre>
- * Gson gson = new GsonBuilder().registerTypeAdapter(new IdDeserializer()).create();
+ * Gson gson = new GsonBuilder().registerTypeAdapter(Id.class, new IdDeserializer()).create();
  * </pre>
  *
  * @author Inderjeet Singh
