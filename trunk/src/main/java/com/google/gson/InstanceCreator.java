@@ -68,7 +68,7 @@ import java.lang.reflect.Type;
  * The developer will need to register {@code IdInstanceCreator} with Gson as follows:</p>
  *
  * <pre>
- * Gson gson = new GsonBuilder().registerTypeAdapter(new IdInstanceCreator()).create();
+ * Gson gson = new GsonBuilder().registerTypeAdapter(Id.class, new IdInstanceCreator()).create();
  * </pre>
  *
  * @param <T> the type of object that will be created by this implementation.
