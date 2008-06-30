@@ -17,6 +17,7 @@
 package com.google.gson;
 
 import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializeAs;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -470,6 +471,21 @@ public class TestTypes {
     }
     public ClassWithObjects(BagOfPrimitives bag) {
       this.bag = bag;
+    }
+  }
+
+  public static class ClassWithSerializeAsFields {
+    @SerializeAs("fooBar") public final int f;
+
+    public ClassWithSerializeAsFields() {
+      this(1);
+    }
+    public ClassWithSerializeAsFields(int f) {
+      this.f = f;
+    }
+
+    public String getExpectedJson() {
+      return '{' + "\"fooBar\":" + f + '}';
     }
   }
 }

@@ -47,7 +47,7 @@ import java.lang.annotation.Target;
  * {@code password} field. This is because the {@code password} field is not marked with the
  * {@code @Expose} annotation.
  *
- * <p>Note that another way to acheive the same effect would have been to just mark the
+ * <p>Note that another way to achieve the same effect would have been to just mark the
  * {@code password} field as {@code transient}, and Gson would have excluded it even with default
  * settings. The {@code @Expose} annotation is useful in a style of programming where you want to
  * explicitly specify all fields that should get considered for serialization or deserialization.

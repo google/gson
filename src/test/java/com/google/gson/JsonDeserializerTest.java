@@ -27,6 +27,7 @@ import com.google.gson.TestTypes.ClassWithExposedFields;
 import com.google.gson.TestTypes.ClassWithNoFields;
 import com.google.gson.TestTypes.ClassWithObjects;
 import com.google.gson.TestTypes.ClassWithPrivateNoArgsConstructor;
+import com.google.gson.TestTypes.ClassWithSerializeAsFields;
 import com.google.gson.TestTypes.ClassWithSubInterfacesOfCollection;
 import com.google.gson.TestTypes.ClassWithTransientFields;
 import com.google.gson.TestTypes.ContainsReferenceToSelfType;
@@ -615,5 +616,12 @@ public class JsonDeserializerTest extends TestCase {
     String jsonRepresentation = gson.toJson(target);
     StringWrapper deserializedObject = gson.fromJson(jsonRepresentation, StringWrapper.class);
     assertEquals(target.someConstantStringInstanceField, deserializedObject.someConstantStringInstanceField);
+  }
+
+  public void testGsonWithSerializeAsFieldNamingPolicy() {
+    ClassWithSerializeAsFields expected = new ClassWithSerializeAsFields(5);
+    ClassWithSerializeAsFields actual =
+        gson.fromJson(expected.getExpectedJson(), ClassWithSerializeAsFields.class);
+    assertEquals(expected.f, actual.f);
   }
 }
