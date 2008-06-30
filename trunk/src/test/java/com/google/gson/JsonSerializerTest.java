@@ -25,6 +25,7 @@ import com.google.gson.TestTypes.ClassWithCustomTypeConverter;
 import com.google.gson.TestTypes.ClassWithEnumFields;
 import com.google.gson.TestTypes.ClassWithExposedFields;
 import com.google.gson.TestTypes.ClassWithNoFields;
+import com.google.gson.TestTypes.ClassWithSerializeAsFields;
 import com.google.gson.TestTypes.ClassWithSubInterfacesOfCollection;
 import com.google.gson.TestTypes.ClassWithTransientFields;
 import com.google.gson.TestTypes.ContainsReferenceToSelfType;
@@ -254,7 +255,7 @@ public class JsonSerializerTest extends TestCase {
     Nested target = new Nested(new BagOfPrimitives(10, 20, false, "stringValue"), null);
     assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
-  
+
   public void testArrayWithNulls() {
     String[] array = {"foo", null, "bar"};
 	String expected = "[\"foo\",null,\"bar\"]";
@@ -481,5 +482,11 @@ public class JsonSerializerTest extends TestCase {
     StringWrapper target = new StringWrapper("blah");
     assertEquals("{\"SomeConstantStringInstanceField\":\""
         + target.someConstantStringInstanceField + "\"}", gson.toJson(target));
+  }
+
+  public void testGsonWithSerializeAsFieldNamingPolicy() {
+    ClassWithSerializeAsFields expected = new ClassWithSerializeAsFields(5);
+    String actual = gson.toJson(expected);
+    assertEquals(expected.getExpectedJson(), actual);
   }
 }
