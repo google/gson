@@ -4,11 +4,24 @@
   <groupId>com.google.code.gson</groupId>
   <artifactId>gson</artifactId>
   <packaging>jar</packaging>
-  <version>1.0.1</version>
+  <version>1.1</version>
   <inceptionYear>2008</inceptionYear>
   <name>gson</name>
   <url>http://code.google.com/p/google-gson/</url>
   <description>Google Gson library</description>
+  <distributionManagement>
+    <repository>
+      <id>local.repo</id>
+      <name>file repository to svn</name>
+      <url>file://${basedir}/../mavenrepo</url>
+    </repository>
+  </distributionManagement>
+  <repositories>
+    <repository>
+      <id>gson</id>
+      <url> http://google-gson.googlecode.com/svn/mavenrepo/ </url>
+    </repository>
+  </repositories>
   <licenses>
     <license>
       <name>The Apache Software License, Version 2.0</name>
@@ -181,4 +194,14 @@
       </plugin>
     </plugins>
   </build>
+  <developers>
+    <developer>
+      <name>Inderjeet Singh</name>
+      <organization>Google Inc.</organization>
+    </developer>
+    <developer>
+      <name>Joel Leitch</name>
+      <organization>Google Inc.</organization>
+    </developer>
+  </developers>			
 </project>
