@@ -16,26 +16,26 @@
 
 package com.google.gson;
 
-import com.google.gson.annotations.SerializeAs;
+import com.google.gson.annotations.SerializedName;
 
 import junit.framework.TestCase;
 
 import java.lang.reflect.Field;
 
 /**
- * Unit tests for the {@link SerializeAsAnnotationInterceptingNamingPolicy} class.
+ * Unit tests for the {@link SerializedNameAnnotationInterceptingNamingPolicy} class.
  *
  * @author Joel Leitch
  */
-public class SerializeAsAnnotationInterceptingNamingPolicyTest extends TestCase {
+public class SerializedNameAnnotationInterceptingNamingPolicyTest extends TestCase {
   private static final String ANNOTATED_FIELD_NAME = "annotatedFieldName";
 
-  private SerializeAsAnnotationInterceptingNamingPolicy policy;
+  private SerializedNameAnnotationInterceptingNamingPolicy policy;
 
   @Override
   protected void setUp() throws Exception {
     super.setUp();
-    policy = new SerializeAsAnnotationInterceptingNamingPolicy(new JavaFieldNamingPolicy());
+    policy = new SerializedNameAnnotationInterceptingNamingPolicy(new JavaFieldNamingPolicy());
   }
 
   public void testFieldWithAnnotation() throws Exception {
@@ -54,7 +54,7 @@ public class SerializeAsAnnotationInterceptingNamingPolicyTest extends TestCase 
   }
 
   private static class SomeObject {
-    @SerializeAs(ANNOTATED_FIELD_NAME) public final int fieldWithAnnotation = 1;
+    @SerializedName(ANNOTATED_FIELD_NAME) public final int fieldWithAnnotation = 1;
     public final int fieldWithoutAnnotation = 1;
   }
 }

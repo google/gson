@@ -59,7 +59,7 @@ public final class Gson {
       new ModifierBasedExclusionStrategy(true, new int[] { Modifier.TRANSIENT, Modifier.STATIC });
   static final JsonFormatter DEFAULT_JSON_FORMATTER = new JsonCompactFormatter();
   static final FieldNamingStrategy DEFAULT_NAMING_POLICY =
-    new SerializeAsAnnotationInterceptingNamingPolicy(new JavaFieldNamingPolicy());
+    new SerializedNameAnnotationInterceptingNamingPolicy(new JavaFieldNamingPolicy());
 
   private static Logger logger = Logger.getLogger(Gson.class.getName());
 

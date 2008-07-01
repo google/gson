@@ -83,7 +83,7 @@ public class JsonFieldNameValidatorTest extends TestCase {
 
   public void testKeywordAsFieldName() throws Exception {
     try {
-      validator.validate("string");
+      validator.validate("break");
       fail("Json field name can not start with a number");
     } catch (IllegalArgumentException expected) { }
   }
