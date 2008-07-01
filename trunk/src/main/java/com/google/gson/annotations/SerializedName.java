@@ -34,7 +34,7 @@ import java.lang.annotation.Target;
  * <p>Here is an example of how this annotation is meant to be used:</p>
  * <pre>
  * public class SomeClassWithFields {
- *   &#64SerializeAs("name") private final String someField;
+ *   &#64SerializedName("name") private final String someField;
  *   private final String someOtherField;
  *
  *   public SomeClassWithFields(String a, String b) {
@@ -50,8 +50,10 @@ import java.lang.annotation.Target;
  * SomeClassWithFields objectToSerialize = new SomeClassWithFields("a", "b");
  * Gson gson = new Gson();
  * String jsonRepresentation = gson.toJson(objectToSerialize);
+ * System.out.println(jsonRepresentation);
  *
- * assert("{\"name\":\"a\",\"someOtherField\":\"b\"}".equals(jsonRepresentation));
+ * ===== OUTPUT =====
+ * {"name":"a","someOtherField":"b"}
  * </pre>
  *
  * <p>NOTE: The value you specify in this annotation must be a valid JSON field name.</p>
@@ -62,7 +64,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface SerializeAs {
+public @interface SerializedName {
 
   /**
    * @return the desired name of the field when it is serialized

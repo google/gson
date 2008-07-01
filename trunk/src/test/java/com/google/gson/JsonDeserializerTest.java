@@ -27,7 +27,7 @@ import com.google.gson.TestTypes.ClassWithExposedFields;
 import com.google.gson.TestTypes.ClassWithNoFields;
 import com.google.gson.TestTypes.ClassWithObjects;
 import com.google.gson.TestTypes.ClassWithPrivateNoArgsConstructor;
-import com.google.gson.TestTypes.ClassWithSerializeAsFields;
+import com.google.gson.TestTypes.ClassWithSerializedNameFields;
 import com.google.gson.TestTypes.ClassWithSubInterfacesOfCollection;
 import com.google.gson.TestTypes.ClassWithTransientFields;
 import com.google.gson.TestTypes.ContainsReferenceToSelfType;
@@ -618,10 +618,10 @@ public class JsonDeserializerTest extends TestCase {
     assertEquals(target.someConstantStringInstanceField, deserializedObject.someConstantStringInstanceField);
   }
 
-  public void testGsonWithSerializeAsFieldNamingPolicy() {
-    ClassWithSerializeAsFields expected = new ClassWithSerializeAsFields(5);
-    ClassWithSerializeAsFields actual =
-        gson.fromJson(expected.getExpectedJson(), ClassWithSerializeAsFields.class);
+  public void testGsonWithSerializedNameFieldNamingPolicy() {
+    ClassWithSerializedNameFields expected = new ClassWithSerializedNameFields(5);
+    ClassWithSerializedNameFields actual =
+        gson.fromJson(expected.getExpectedJson(), ClassWithSerializedNameFields.class);
     assertEquals(expected.f, actual.f);
   }
 }

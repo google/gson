@@ -140,7 +140,7 @@ public final class GsonBuilder {
    * @return GsonBuiler to apply the Builder pattern.
    */
   private GsonBuilder setFieldNamingStrategy(FieldNamingStrategy fieldNamingPolicy) {
-    this.fieldNamingPolicy = new SerializeAsAnnotationInterceptingNamingPolicy(fieldNamingPolicy);
+    this.fieldNamingPolicy = new SerializedNameAnnotationInterceptingNamingPolicy(fieldNamingPolicy);
     return this;
   }
 

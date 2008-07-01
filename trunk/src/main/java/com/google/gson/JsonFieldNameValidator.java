@@ -27,14 +27,18 @@ import java.util.regex.Pattern;
  * This class can be used to check the validity of a JSON field name.
  *
  * <p>The primary use of this object is to ensure that any Java fields that use the
- * {@link com.google.gson.annotations.SerializeAs} annotation is providing valid JSON
+ * {@link com.google.gson.annotations.SerializedName} annotation is providing valid JSON
  * field names.  This will make the code fail-fast rather than letting the invalid
  * field name propagate to the client and it fails to parse.</p>
  *
  * @author Joel Leitch
  */
 class JsonFieldNameValidator {
-  private static final String[] JS_KEYWORDS = { "string", "bool", "int", "window", "open", "if" };
+  private static final String[] JS_KEYWORDS = {
+    "break", "case", "catch", "class", "comment", "const", "continue", "debugger", "default", "delete", "do",
+    "else", "enum", "export", "extends", "finally", "for", "function", "if", "import", "in", "label", "new",
+    "return", "super", "switch", "this", "throw", "try", "typeof", "var", "void", "while", "with"
+  };
 
   private static final Pattern JSON_FIELD_NAME_PATTERN =
       Pattern.compile("(^[a-zA-Z][a-zA-Z0-9\\$_]*$)|(^[\\$_][a-zA-Z][a-zA-Z0-9\\$_]*$)");

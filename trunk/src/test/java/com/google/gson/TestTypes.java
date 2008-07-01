@@ -17,7 +17,7 @@
 package com.google.gson;
 
 import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializeAs;
+import com.google.gson.annotations.SerializedName;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -474,13 +474,13 @@ public class TestTypes {
     }
   }
 
-  public static class ClassWithSerializeAsFields {
-    @SerializeAs("fooBar") public final int f;
+  public static class ClassWithSerializedNameFields {
+    @SerializedName("fooBar") public final int f;
 
-    public ClassWithSerializeAsFields() {
+    public ClassWithSerializedNameFields() {
       this(1);
     }
-    public ClassWithSerializeAsFields(int f) {
+    public ClassWithSerializedNameFields(int f) {
       this.f = f;
     }
 
