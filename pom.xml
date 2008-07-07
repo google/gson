@@ -88,6 +88,9 @@
          <configuration>
            <downloadSources>true</downloadSources>
            <downloadJavadocs>true</downloadJavadocs>
+           <workspace>
+             ../eclipse-ws/
+           </workspace>
            <workspaceCodeStylesURL>
              file:///${basedir}/lib/gson-formatting-styles.xml
            </workspaceCodeStylesURL>
