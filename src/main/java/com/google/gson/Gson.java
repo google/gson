@@ -328,6 +328,10 @@ public final class Gson {
       throw new JsonParseException("Failed parsing JSON source: " + json + " to Json", e);
     } catch (ParseException e) {
       throw new JsonParseException("Failed parsing JSON source: " + json + " to Json", e);
+    } catch (StackOverflowError e) {
+      throw new JsonParseException("Failed parsing JSON source: " + json + " to Json", e);
+    } catch (OutOfMemoryError e) {
+      throw new JsonParseException("Failed parsing JSON source: " + json + " to Json", e);
     }
   }
 }
