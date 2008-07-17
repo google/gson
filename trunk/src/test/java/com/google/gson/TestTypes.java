@@ -488,4 +488,16 @@ public class TestTypes {
       return '{' + "\"fooBar\":" + f + '}';
     }
   }
+
+  public static class ExceptionHolder {
+    public final String message;
+    public final String stackTrace;
+    public ExceptionHolder() {
+      this("", "");
+    }
+    public ExceptionHolder(String message, String stackTrace) {
+      this.message = message;
+      this.stackTrace = stackTrace;
+    }
+  }
 }
