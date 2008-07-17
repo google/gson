@@ -709,7 +709,6 @@ public class JsonDeserializerTest extends TestCase {
     sb.append(":65)\n\tat com.codegoogle.HttpConnection.run(HttpConnection.java:275)\n\tat com");
     sb.append(".codegoogle.parser.DispatchQueue$WorkerThread.run(DispatchQueue.java:3139)\n");
 
-    String initialStackTrace = sb.toString();
     String stackTrace = sb.toString();
     while (true) {
       try {
