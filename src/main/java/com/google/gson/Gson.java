@@ -16,7 +16,6 @@
 
 package com.google.gson;
 
-
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -59,7 +58,7 @@ public final class Gson {
       new ModifierBasedExclusionStrategy(true, new int[] { Modifier.TRANSIENT, Modifier.STATIC });
   static final JsonFormatter DEFAULT_JSON_FORMATTER = new JsonCompactFormatter();
   static final FieldNamingStrategy DEFAULT_NAMING_POLICY =
-    new SerializedNameAnnotationInterceptingNamingPolicy(new JavaFieldNamingPolicy());
+      new SerializedNameAnnotationInterceptingNamingPolicy(new JavaFieldNamingPolicy());
 
   private static Logger logger = Logger.getLogger(Gson.class.getName());
 
@@ -103,7 +102,7 @@ public final class Gson {
     this.formatter = formatter;
 
     Map<Type, JsonSerializer<?>> defaultSerializers =
-      DefaultJsonSerializers.getDefaultSerializers();
+        DefaultJsonSerializers.getDefaultSerializers();
     for (Map.Entry<Type, JsonSerializer<?>> entry : defaultSerializers.entrySet()) {
       registerSerializer(entry.getKey(), entry.getValue());
     }
