@@ -17,6 +17,8 @@
 package com.google.gson;
 
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Formats Json in a nicely indented way with a specified print margin.
@@ -128,22 +130,25 @@ final class JsonPrintFormatter implements JsonFormatter {
   }
 
   private class PrintFormattingVisitor implements JsonElementVisitor {
+    private final Map<Integer, Boolean> first;
     private final JsonWriter writer;
-    private boolean first;
+    private int level = 0;
 
     PrintFormattingVisitor(JsonWriter writer) {
       this.writer = writer;
+      this.first = new HashMap<Integer, Boolean>();
     }
 
     private void addCommaCheckingFirst() {
-      if (first) {
-        first = false;
+      if (first.get(level) != Boolean.FALSE) {
+        first.put(level, false);
       } else {
         writer.elementSeparator();
       }
     }
 
     public void startArray(JsonArray array) {
+      first.put(++level, true);
       writer.beginArray();
     }
 
@@ -165,6 +170,7 @@ final class JsonPrintFormatter implements JsonFormatter {
     }
 
     public void endArray(JsonArray array) {
+      level--;
       writer.endArray();
     }
 
@@ -190,7 +196,7 @@ final class JsonPrintFormatter implements JsonFormatter {
       writer.key(memberName);
       writer.fieldSeparator();
     }
-    
+
     public void endObject(JsonObject object) {
       writer.endObject();
     }
