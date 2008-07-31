@@ -97,11 +97,10 @@ class DelegatingJsonElementVisitor implements JsonElementVisitor {
     delegate.visitPrimitive(primitive);
   }
 
-
   public void visitNull() {
     delegate.visitNull();
   }
-  
+
   public void visitNullArrayMember(JsonArray parent, boolean isFirst) {
     delegate.visitNullArrayMember(parent, isFirst);
   }

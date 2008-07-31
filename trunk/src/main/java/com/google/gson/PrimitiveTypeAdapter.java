@@ -33,8 +33,14 @@ final class PrimitiveTypeAdapter implements TypeAdapter {
     Class<?> aClass = Primitives.wrap(to);
     if (Primitives.isWrapperType(aClass)) {
       if (aClass == Character.class) {
-        return (T) (Character) from.toString().charAt(0);
+        String value = from.toString();
+        if (value.length() == 1) {
+          return (T) (Character) from.toString().charAt(0);
+        } else {
+          throw new JsonParseException("The value: " + value + " contains more than a character.");
+        }
       }
+
       try {
         Constructor<?> constructor = aClass.getConstructor(String.class);
         return (T) constructor.newInstance(from.toString());
@@ -61,7 +67,7 @@ final class PrimitiveTypeAdapter implements TypeAdapter {
         throw new RuntimeException(e);
       }
     } else {
-      throw new IllegalArgumentException(
+      throw new JsonParseException(
           "Can not adapt type " + from.getClass() + " to " + to);
     }
   }
