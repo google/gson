@@ -18,20 +18,33 @@ package com.google.gson;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Map;
 
+/**
+ * A convenience object for retrieving the map type information.
+ *
+ * @author Inderjeet Singh
+ * @author Joel Leitch
+ */
 final class MapTypeInfo {
-  
   private final ParameterizedType mapType;
 
   public MapTypeInfo(Type mapType) {
+    if (!(mapType instanceof ParameterizedType)) {
+      throw new IllegalArgumentException(
+          "Map objects need to be parameterized unless you use a custom serializer. "
+              + "Use the com.google.gson.reflect.TypeToken to extract the ParameterizedType.");
+    }
+    TypeInfo<Object> rawType = new TypeInfo<Object>(mapType);
+    Preconditions.checkArgument(Map.class.isAssignableFrom(rawType.getTopLevelClass()));
     this.mapType = (ParameterizedType) mapType;
   }
-  
-  public Type getKeyType() {    
+
+  public Type getKeyType() {
     return mapType.getActualTypeArguments()[0];
   }
-  
-  public Type getValueType() {    
+
+  public Type getValueType() {
     return mapType.getActualTypeArguments()[1];
   }
 }
