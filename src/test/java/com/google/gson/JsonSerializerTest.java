@@ -434,6 +434,13 @@ public class JsonSerializerTest extends TestCase {
     assertTrue(json.contains("\"b\":2"));
   }
 
+  public void testEmptyMap() throws Exception {
+    Map<String, Integer> map = new LinkedHashMap<String, Integer>();
+    Type typeOfMap = new TypeToken<Map<String, Integer>>() {}.getType();
+    String json = gson.toJson(map, typeOfMap);
+    assertEquals("{}", json);
+  }
+
   public void testExposeAnnotation() throws Exception {
     // First test that Gson works without the expose annotation as well
     ClassWithExposedFields target = new ClassWithExposedFields();
