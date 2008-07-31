@@ -51,6 +51,7 @@ public final class GsonBuilder {
   private final Map<Type, InstanceCreator<?>> instanceCreators;
   private final Map<Type, JsonSerializer<?>> serializers;
   private final Map<Type, JsonDeserializer<?>> deserializers;
+  private boolean serializeNulls;
 
   /**
    * Creates a GsonBuilder instance that can be used to build Gson with various configuration
@@ -78,6 +79,7 @@ public final class GsonBuilder {
     instanceCreators = new LinkedHashMap<Type, InstanceCreator<?>>();
     serializers = new LinkedHashMap<Type, JsonSerializer<?>>();
     deserializers = new LinkedHashMap<Type, JsonDeserializer<?>>();
+    serializeNulls = false;
   }
 
   /**
@@ -120,6 +122,15 @@ public final class GsonBuilder {
     return this;
   }
 
+  /**
+   * Configure Gson to serialize null fields. By default, Gson omits all fields as null. 
+   * 
+   * @return GsonBuilder to apply the Builder pattern.
+   */
+  public GsonBuilder serializeNulls() {
+    this.serializeNulls = true;
+    return this;
+  }
   /**
    * Configures Gson to apply a specific naming policy to an object's field during serialization
    * and deserialization.
@@ -312,8 +323,8 @@ public final class GsonBuilder {
     ObjectNavigatorFactory objectNavigatorFactory =
         new ObjectNavigatorFactory(exclusionStrategy, fieldNamingPolicy);
     MappedObjectConstructor objectConstructor = new MappedObjectConstructor();
-    Gson gson = new Gson(
-        objectNavigatorFactory, objectConstructor, typeAdapter, formatter);
+    Gson gson = new Gson(objectNavigatorFactory, objectConstructor, typeAdapter, formatter, 
+        serializeNulls);
 
     for (Map.Entry<Type, JsonSerializer<?>> entry : serializers.entrySet()) {
       gson.registerSerializer(entry.getKey(), entry.getValue());

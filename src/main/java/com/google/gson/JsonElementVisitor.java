@@ -37,5 +37,6 @@ interface JsonElementVisitor {
       boolean isFirst);
   void visitObjectMember(JsonObject parent, String memberName, JsonArray member, boolean isFirst);
   void visitObjectMember(JsonObject parent, String memberName, JsonObject member, boolean isFirst);
+  void visitNullObjectMember(JsonObject parent, String memberName, boolean isFirst);
   void endObject(JsonObject object);
 }

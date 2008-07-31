@@ -27,9 +27,11 @@ final class JsonCompactFormatter implements JsonFormatter {
 
   private static class FormattingVisitor implements JsonElementVisitor {
     private final PrintWriter writer;
+    private final boolean serializeNulls;
 
-    FormattingVisitor(PrintWriter writer) {
+    FormattingVisitor(PrintWriter writer, boolean serializeNulls) {
       this.writer = writer;
+      this.serializeNulls = serializeNulls;
     }
 
     public void visitPrimitive(JsonPrimitive primitive) {
@@ -108,17 +110,24 @@ final class JsonCompactFormatter implements JsonFormatter {
       writer.append("\":");
     }
 
+    public void visitNullObjectMember(JsonObject parent, String memberName, boolean isFirst) {
+      if (serializeNulls) {
+        visitObjectMember(parent, memberName, (JsonObject) null, isFirst);
+      }      
+    }
+    
     public void endObject(JsonObject object) {
       writer.append('}');
     }
   }
 
-  public void format(JsonElement root, PrintWriter writer) {
+  public void format(JsonElement root, PrintWriter writer, boolean serializeNulls) {
     if (root == null) {
       return;
     }
-    JsonElementVisitor visitor = new JsonEscapingVisitor(new FormattingVisitor(writer));
-    JsonTreeNavigator navigator = new JsonTreeNavigator(visitor);
+    JsonElementVisitor visitor = 
+      new JsonEscapingVisitor(new FormattingVisitor(writer, serializeNulls));
+    JsonTreeNavigator navigator = new JsonTreeNavigator(visitor, serializeNulls);
     navigator.navigate(root);
   }
 }
