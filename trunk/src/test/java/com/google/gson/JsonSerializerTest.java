@@ -16,6 +16,25 @@
 
 package com.google.gson;
 
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
+import java.net.URI;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+import junit.framework.TestCase;
+
 import com.google.gson.TestTypes.ArrayOfArrays;
 import com.google.gson.TestTypes.ArrayOfObjects;
 import com.google.gson.TestTypes.BagOfPrimitiveWrappers;
@@ -37,25 +56,6 @@ import com.google.gson.TestTypes.StringWrapper;
 import com.google.gson.TestTypes.SubTypeOfNested;
 import com.google.gson.annotations.Since;
 import com.google.gson.reflect.TypeToken;
-
-import junit.framework.TestCase;
-
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
-import java.net.URI;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 /**
  * Small test for Json Serialization

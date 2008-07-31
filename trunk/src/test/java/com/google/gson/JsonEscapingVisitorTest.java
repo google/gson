@@ -172,5 +172,9 @@ public class JsonEscapingVisitorTest extends TestCase {
     public void visitNull() {
       // Do nothing      
     }
+
+    public void visitNullObjectMember(JsonObject parent, String memberName, boolean isFirst) {
+      // Do nothing      
+    }
   }
 }

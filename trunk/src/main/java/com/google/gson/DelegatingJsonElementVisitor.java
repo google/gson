@@ -93,6 +93,10 @@ class DelegatingJsonElementVisitor implements JsonElementVisitor {
     delegate.visitObjectMember(parent, memberName, member, isFirst);
   }
 
+  public void visitNullObjectMember(JsonObject parent, String memberName, boolean isFirst) {
+    delegate.visitNullObjectMember(parent, memberName, isFirst);
+  }
+
   public void visitPrimitive(JsonPrimitive primitive) {
     delegate.visitPrimitive(primitive);
   }

@@ -60,6 +60,15 @@ public abstract class JsonElement {
   }
   
   /**
+   * provides check for verifying if this element represents a null value or not.
+   * 
+   * @return true if this element is of type {@link JsonNull}, false otherwise.
+   */
+  public boolean isJsonNull() {
+    return this instanceof JsonNull;
+  }
+  
+  /**
    * convenience method to get this element as a {@link JsonObject}. If the element is of some 
    * other type, a {@link ClassCastException} will result. Hence it is best to use this method
    * after ensuring that this element is of the desired type by calling {@link #isJsonObject()} 
@@ -96,6 +105,19 @@ public abstract class JsonElement {
    */
   public JsonPrimitive getAsJsonPrimitive() {
     return (JsonPrimitive) this;
+  }
+
+  /**
+   * convenience method to get this element as a {@link JsonNull}. If the element is of some 
+   * other type, a {@link ClassCastException} will result. Hence it is best to use this method
+   * after ensuring that this element is of the desired type by calling {@link #isJsonNull()} 
+   * first.
+   * 
+   * @return get this element as a {@link JsonNull}. 
+   * @throws ClassCastException if the element is of another type.   
+   */
+  public JsonNull getAsJsonNull() {
+    return (JsonNull) this;
   }
 
   /**

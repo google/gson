@@ -31,6 +31,7 @@ interface JsonFormatter {
    * 
    * @param root the root of the Json tree. 
    * @param writer the writer to output the formatter JSON to.
+   * @param serializeNulls serialize null values in the output.
    */
-  public void format(JsonElement root, PrintWriter writer);
+  public void format(JsonElement root, PrintWriter writer, boolean serializeNulls);
 }

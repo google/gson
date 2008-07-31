@@ -25,13 +25,15 @@ import java.util.Map;
  */
 final class JsonTreeNavigator {
   private final JsonElementVisitor visitor;
+  private final boolean visitNulls;
 
-  JsonTreeNavigator(JsonElementVisitor visitor) {
+  JsonTreeNavigator(JsonElementVisitor visitor, boolean visitNulls) {
     this.visitor = visitor;
+    this.visitNulls = visitNulls;
   }
   
   public void navigate(JsonElement element) {
-    if (element == null) {
+    if (element == null || element.isJsonNull()) {
       visitor.visitNull();
     } else if (element.isJsonArray()) {
       JsonArray array = element.getAsJsonArray();
@@ -61,10 +63,13 @@ final class JsonTreeNavigator {
   }
 
   private void visitChild(JsonObject parent, String childName, JsonElement child, boolean isFirst) {
-    // We can just ignore null object fields since we do not write null values out
-    // and the order in which the fields are written out does not matter (unlike Arrays).
-    if (child != null) {
-      if (child.isJsonArray()) {
+    if (child != null) { 
+      if (child.isJsonNull()) {
+        if (visitNulls) {
+          visitor.visitNullObjectMember(parent, childName, isFirst);
+          navigate(child.getAsJsonNull());
+        }
+      } else if (child.isJsonArray()) {
         JsonArray childAsArray = child.getAsJsonArray();
         visitor.visitObjectMember(parent, childName, childAsArray, isFirst);
         navigate(childAsArray);
@@ -79,7 +84,7 @@ final class JsonTreeNavigator {
   }
 
   private void visitChild(JsonArray parent, JsonElement child, boolean isFirst) {
-    if (child == null) {
+    if (child == null || child.isJsonNull()) {
       visitor.visitNullArrayMember(parent, isFirst);
       navigate(null);
 	} else if (child.isJsonArray()) {

@@ -33,15 +33,17 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
 
   private final ObjectNavigatorFactory factory;
   private final ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers;
+  private final boolean serializeNulls;
 
   private final JsonSerializationContext context;
 
   private JsonElement root;
 
-  JsonSerializationVisitor(ObjectNavigatorFactory factory,
+  JsonSerializationVisitor(ObjectNavigatorFactory factory, boolean serializeNulls,
       ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers,
       JsonSerializationContext context) {
     this.factory = factory;
+    this.serializeNulls = serializeNulls;
     this.serializers = serializers;
     this.context = context;
   }
@@ -111,7 +113,11 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   }
 
   public void visitObjectField(Field f, Object obj) {
-    if (!isFieldNull(f, obj)) {
+    if (isFieldNull(f, obj)) {
+      if (serializeNulls) {
+        addChildAsElement(f, new JsonNull());
+      }
+    } else {
       Type fieldType = f.getGenericType();
       Object fieldValue = getFieldValue(f, obj);
       addAsChildOfObject(f, fieldType, fieldValue);
@@ -120,6 +126,10 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
 
   private void addAsChildOfObject(Field f, Type fieldType, Object fieldValue) {
     JsonElement childElement = getJsonElementForChild(fieldType, fieldValue);
+    addChildAsElement(f, childElement);
+  }
+
+  private void addChildAsElement(Field f, JsonElement childElement) {
     FieldNamingStrategy namingPolicy = factory.getFieldNamingPolicy();
     root.getAsJsonObject().add(namingPolicy.translateName(f), childElement);
   }
@@ -140,7 +150,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   private JsonElement getJsonElementForChild(Type fieldType, Object fieldValue) {
     ObjectNavigator on = factory.create(fieldValue, fieldType);
     JsonSerializationVisitor childVisitor =
-        new JsonSerializationVisitor(factory, serializers, context);
+        new JsonSerializationVisitor(factory, serializeNulls, serializers, context);
     on.accept(childVisitor);
     return childVisitor.getJsonElement();
   }

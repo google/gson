@@ -75,6 +75,7 @@ public final class Gson {
       new ParameterizedTypeHandlerMap<JsonDeserializer<?>>();
 
   private final JsonFormatter formatter;
+  private final boolean serializeNulls;
 
   /**
    * Constructs a Gson object with default configuration.
@@ -91,15 +92,17 @@ public final class Gson {
    * instance.
    */
   Gson(ObjectNavigatorFactory factory) {
-    this(factory, new MappedObjectConstructor(), DEFAULT_TYPE_ADAPTER, DEFAULT_JSON_FORMATTER);
+    this(factory, new MappedObjectConstructor(), DEFAULT_TYPE_ADAPTER, DEFAULT_JSON_FORMATTER, 
+        false);
   }
 
   Gson(ObjectNavigatorFactory factory, MappedObjectConstructor objectConstructor,
-      TypeAdapter typeAdapter, JsonFormatter formatter) {
+      TypeAdapter typeAdapter, JsonFormatter formatter, boolean serializeNulls) {
     this.navigatorFactory = factory;
     this.objectConstructor = objectConstructor;
     this.typeAdapter = typeAdapter;
     this.formatter = formatter;
+    this.serializeNulls = serializeNulls;
 
     Map<Type, JsonSerializer<?>> defaultSerializers =
         DefaultJsonSerializers.getDefaultSerializers();
@@ -268,12 +271,12 @@ public final class Gson {
       return "";
     }
     JsonSerializationContext context =
-        new JsonSerializationContextDefault(navigatorFactory, serializers);
+        new JsonSerializationContextDefault(navigatorFactory, serializeNulls, serializers);
     JsonElement jsonElement = context.serialize(src, typeOfSrc);
 
     //TODO(Joel): instead of navigating the "JsonElement" inside the formatter, do it here.
     StringWriter writer = new StringWriter();
-    formatter.format(jsonElement, new PrintWriter(writer));
+    formatter.format(jsonElement, new PrintWriter(writer), serializeNulls);
     return jsonElement == null ? "" : writer.toString();
   }
 
