@@ -74,7 +74,6 @@ final class JsonPrimitiveDeserializationVisitor<T> extends JsonDeserializationVi
     throw new IllegalStateException();
   }
 
-  @SuppressWarnings("unchecked")
   public void visitCollectionField(Field f, Object obj) {
     // should not be called since this case should invoke JsonArrayDeserializationVisitor
     throw new IllegalStateException();

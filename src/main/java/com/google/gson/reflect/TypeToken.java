@@ -100,7 +100,6 @@ public abstract class TypeToken<T> {
     return new SimpleTypeToken<Object>(subclass);
   }
 
-  @SuppressWarnings("unchecked")
   private static Class<?> getRawType(Type type) {
     if (type instanceof Class<?>) {
       // type is a normal class.

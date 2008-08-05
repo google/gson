@@ -236,7 +236,6 @@ public class JsonDeserializerTest extends TestCase {
     assertEquals("World", target[1]);
   }
 
-  @SuppressWarnings("unchecked")
   public void testCollectionOfStrings() {
     String json = "[\"Hello\",\"World\"]";
     Type collectionType = new TypeToken<Collection<String>>() { }.getType();
@@ -254,7 +253,6 @@ public class JsonDeserializerTest extends TestCase {
     MoreAsserts.assertEquals(expected, toIntArray(target));
   }
 
-  @SuppressWarnings("unchecked")
   public void testRawCollectionNotAllowed() {
     String json = "[0,1,2,3,4,5,6,7,8,9]";
     try {

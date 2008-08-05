@@ -52,7 +52,6 @@ final class JsonDeserializationContextDefault implements JsonDeserializationCont
     }
   }  
   
-  @SuppressWarnings("unchecked")
   private <T> T fromJsonArray(Type arrayType, JsonArray jsonArray, 
       JsonDeserializationContext context) throws JsonParseException {
     JsonArrayDeserializationVisitor<T> visitor = new JsonArrayDeserializationVisitor<T>(
@@ -64,7 +63,6 @@ final class JsonDeserializationContextDefault implements JsonDeserializationCont
     return visitor.getTarget();
   }
 
-  @SuppressWarnings("unchecked")
   private <T> T fromJsonObject(Type typeOfT, JsonObject jsonObject, 
       JsonDeserializationContext context) throws JsonParseException {
     JsonObjectDeserializationVisitor<T> visitor = new JsonObjectDeserializationVisitor<T>(
