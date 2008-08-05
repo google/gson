@@ -79,8 +79,7 @@ final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisito
   }
 
   @SuppressWarnings("unchecked")
-  public void visitCollection(@SuppressWarnings("unchecked") Collection collection,
-      Type collectionType) {
+  public void visitCollection(Collection collection, Type collectionType) {
     TypeInfo<Object> childTypeInfo = new TypeInfo<Object>(collectionType);
     Type childType = childTypeInfo.getGenericClass();
     for (JsonElement jsonChild : json.getAsJsonArray()) {

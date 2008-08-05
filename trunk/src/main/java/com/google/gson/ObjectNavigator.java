@@ -115,7 +115,6 @@ final class ObjectNavigator {
    * Navigate all the fields of the specified object.
    * If a field is null, it does not get visited.
    */
-  @SuppressWarnings("unchecked")
   public void accept(Visitor visitor) {
     if (obj == null) {
       return;

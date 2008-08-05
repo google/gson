@@ -183,7 +183,6 @@ final class DefaultInstanceCreators {
   @SuppressWarnings("unchecked")
   private static class MapCreator implements InstanceCreator<Map> {
 
-    @SuppressWarnings("unchecked")
     public Map createInstance(Type type) {
       return new LinkedHashMap();
     }

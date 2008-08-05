@@ -106,7 +106,6 @@ final class DefaultJsonDeserializers {
   @SuppressWarnings("unchecked")
   private static class MapDeserializer implements JsonDeserializer<Map> {
 
-    @SuppressWarnings("unchecked")
     public Map deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) 
         throws JsonParseException {
       // Using linked hash map to preserve order in which elements are entered
