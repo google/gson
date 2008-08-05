@@ -16,7 +16,11 @@
 
 package com.google.gson;
 
+import com.google.gson.typeadapters.DateTypeAdapter;
+
 import java.lang.reflect.Type;
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -123,8 +127,8 @@ public final class GsonBuilder {
   }
 
   /**
-   * Configure Gson to serialize null fields. By default, Gson omits all fields as null. 
-   * 
+   * Configure Gson to serialize null fields. By default, Gson omits all fields as null.
+   *
    * @return GsonBuilder to apply the Builder pattern.
    */
   public GsonBuilder serializeNulls() {
@@ -323,8 +327,13 @@ public final class GsonBuilder {
     ObjectNavigatorFactory objectNavigatorFactory =
         new ObjectNavigatorFactory(exclusionStrategy, fieldNamingPolicy);
     MappedObjectConstructor objectConstructor = new MappedObjectConstructor();
-    Gson gson = new Gson(objectNavigatorFactory, objectConstructor, typeAdapter, formatter, 
+    Gson gson = new Gson(objectNavigatorFactory, objectConstructor, typeAdapter, formatter,
         serializeNulls);
+
+    // TODO(Joel): Make this configurable with some kind of method
+    DateTypeAdapter dateTypeAdapter = new DateTypeAdapter(DateFormat.DEFAULT);
+    gson.registerSerializer(Date.class, dateTypeAdapter);
+    gson.registerDeserializer(Date.class, dateTypeAdapter);
 
     for (Map.Entry<Type, JsonSerializer<?>> entry : serializers.entrySet()) {
       gson.registerSerializer(entry.getKey(), entry.getValue());
