@@ -17,7 +17,8 @@
 package com.google.gson;
 
 /**
- * Performs JSON escaping and passes on the new escaped value to the delegate {@link JsonVisitor}.
+ * Performs JSON escaping and passes on the new escaped value to the delegate
+ * {@link JsonElementVisitor}.
  *
  * @author Joel Leitch
  */
