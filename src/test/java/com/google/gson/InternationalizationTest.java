@@ -20,7 +20,7 @@ import junit.framework.TestCase;
 
 /**
  * Tests for internationalized strings.
- * 
+ *
  * @author Inderjeet Singh
  */
 public class InternationalizationTest extends TestCase {
@@ -31,32 +31,39 @@ public class InternationalizationTest extends TestCase {
     super.setUp();
     gson = new Gson();
   }
-  
+
   public void testSerializingStringsWithRawChineseCharacters() {
     String target = "好好好";
     String json = gson.toJson(target);
-    String expected = "\"" + target + "\"";
+    String expected = "\"" + Escaper.escapeJsonString(target) + "\"";
     assertEquals(expected, json);
   }
-  
+
   public void testDeserializingStringsWithRawChineseCharacters() {
     String expected = "好好好";
     String json = "\"" + expected + "\"";
     String actual = gson.fromJson(json, String.class);
     assertEquals(expected, actual);
   }
-  
+
+  public void testDeserializingStringsWithRawChineseCharactersInEscapedForm() {
+    String expected = "\u597d\u597d\u597d";
+    String json = "\"" + expected + "\"";
+    String actual = gson.fromJson(json, String.class);
+    assertEquals(expected, actual);
+  }
+
   public void testSerializingStringsWithEscapedUnicodeChineseCharacters() {
-    String target = "\\u597d\\u597d\\u597d";
+    String target = "\u597d\u597d\u597d";
     String json = gson.toJson(target);
-    String expected = "\"" + target + "\"";
+    String expected = "\"" + Escaper.escapeJsonString(target) + "\"";
     assertEquals(expected, json);
   }
-  
+
   public void testDeserializingStringsWithEscapedUnicodeChineseCharacters() {
     String expected = "\\u597d\\u597d\\u597d";
     String json = "\"" + expected + "\"";
     String actual = gson.fromJson(json, String.class);
-    assertEquals(expected, actual);
+    assertEquals(expected, Escaper.escapeJsonString(actual));
   }
 }
