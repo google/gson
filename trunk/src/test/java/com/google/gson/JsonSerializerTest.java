@@ -16,6 +16,29 @@
 
 package com.google.gson;
 
+import com.google.gson.TestTypes.ArrayOfArrays;
+import com.google.gson.TestTypes.ArrayOfObjects;
+import com.google.gson.TestTypes.BagOfPrimitiveWrappers;
+import com.google.gson.TestTypes.BagOfPrimitives;
+import com.google.gson.TestTypes.ClassOverridingEquals;
+import com.google.gson.TestTypes.ClassWithCustomTypeConverter;
+import com.google.gson.TestTypes.ClassWithEnumFields;
+import com.google.gson.TestTypes.ClassWithNoFields;
+import com.google.gson.TestTypes.ClassWithSerializedNameFields;
+import com.google.gson.TestTypes.ClassWithSubInterfacesOfCollection;
+import com.google.gson.TestTypes.ClassWithTransientFields;
+import com.google.gson.TestTypes.ContainsReferenceToSelfType;
+import com.google.gson.TestTypes.MyEnum;
+import com.google.gson.TestTypes.MyParameterizedType;
+import com.google.gson.TestTypes.Nested;
+import com.google.gson.TestTypes.PrimitiveArray;
+import com.google.gson.TestTypes.StringWrapper;
+import com.google.gson.TestTypes.SubTypeOfNested;
+import com.google.gson.annotations.Since;
+import com.google.gson.reflect.TypeToken;
+
+import junit.framework.TestCase;
+
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.net.URI;
@@ -32,30 +55,6 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-
-import junit.framework.TestCase;
-
-import com.google.gson.TestTypes.ArrayOfArrays;
-import com.google.gson.TestTypes.ArrayOfObjects;
-import com.google.gson.TestTypes.BagOfPrimitiveWrappers;
-import com.google.gson.TestTypes.BagOfPrimitives;
-import com.google.gson.TestTypes.ClassOverridingEquals;
-import com.google.gson.TestTypes.ClassWithCustomTypeConverter;
-import com.google.gson.TestTypes.ClassWithEnumFields;
-import com.google.gson.TestTypes.ClassWithExposedFields;
-import com.google.gson.TestTypes.ClassWithNoFields;
-import com.google.gson.TestTypes.ClassWithSerializedNameFields;
-import com.google.gson.TestTypes.ClassWithSubInterfacesOfCollection;
-import com.google.gson.TestTypes.ClassWithTransientFields;
-import com.google.gson.TestTypes.ContainsReferenceToSelfType;
-import com.google.gson.TestTypes.MyEnum;
-import com.google.gson.TestTypes.MyParameterizedType;
-import com.google.gson.TestTypes.Nested;
-import com.google.gson.TestTypes.PrimitiveArray;
-import com.google.gson.TestTypes.StringWrapper;
-import com.google.gson.TestTypes.SubTypeOfNested;
-import com.google.gson.annotations.Since;
-import com.google.gson.reflect.TypeToken;
 
 /**
  * Small test for Json Serialization
@@ -439,16 +438,6 @@ public class JsonSerializerTest extends TestCase {
     Type typeOfMap = new TypeToken<Map<String, Integer>>() {}.getType();
     String json = gson.toJson(map, typeOfMap);
     assertEquals("{}", json);
-  }
-
-  public void testExposeAnnotation() throws Exception {
-    // First test that Gson works without the expose annotation as well
-    ClassWithExposedFields target = new ClassWithExposedFields();
-    assertEquals(target.getExpectedJsonWithoutAnnotations(), gson.toJson(target));
-
-    // Now recreate gson with the proper setting
-    gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-    assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 
   public void testSingleQuoteInStrings() throws Exception {

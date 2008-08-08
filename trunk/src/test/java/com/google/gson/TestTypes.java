@@ -16,7 +16,6 @@
 
 package com.google.gson;
 
-import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.lang.reflect.Type;
@@ -437,19 +436,6 @@ public class TestTypes {
     @Override
     public int hashCode() {
       return 1;
-    }
-  }
-
-  public static class ClassWithExposedFields {
-    @Expose int a = 1;
-    int b = 2;
-
-    public String getExpectedJson() {
-      return '{' + "\"a\":" + a + '}';
-    }
-
-    public String getExpectedJsonWithoutAnnotations() {
-      return '{' + "\"a\":" + a + ",\"b\":" + b + '}';
     }
   }
 

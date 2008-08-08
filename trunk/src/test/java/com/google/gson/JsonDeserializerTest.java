@@ -23,7 +23,6 @@ import com.google.gson.TestTypes.BagOfPrimitives;
 import com.google.gson.TestTypes.ClassWithArray;
 import com.google.gson.TestTypes.ClassWithCustomTypeConverter;
 import com.google.gson.TestTypes.ClassWithEnumFields;
-import com.google.gson.TestTypes.ClassWithExposedFields;
 import com.google.gson.TestTypes.ClassWithNoFields;
 import com.google.gson.TestTypes.ClassWithObjects;
 import com.google.gson.TestTypes.ClassWithPrivateNoArgsConstructor;
@@ -543,20 +542,6 @@ public class JsonDeserializerTest extends TestCase {
     Map<String, Integer> target = gson.fromJson(json, typeOfMap);
     assertEquals(1, target.get("a").intValue());
     assertEquals(2, target.get("b").intValue());
-  }
-
-  public void testExposeAnnotation() {
-    String json = '{' + "\"a\":" + 3 + ",\"b\":" + 4 + '}';
-    // First test that Gson works without the expose annotation as well
-    ClassWithExposedFields target = gson.fromJson(json, ClassWithExposedFields.class);
-    assertEquals(3, target.a);
-    assertEquals(4, target.b);
-
-    // Now recreate gson with the proper setting
-    gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-    target = gson.fromJson(json, ClassWithExposedFields.class);
-    assertEquals(3, target.a);
-    assertEquals(2, target.b);
   }
 
   /**
