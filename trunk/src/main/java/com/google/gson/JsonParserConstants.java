@@ -5,14 +5,14 @@ package com.google.gson;
 interface JsonParserConstants {
 
   int EOF = 0;
-  int E = 2;
-  int DIGITS = 3;
-  int QUOTE = 4;
-  int ENDQUOTE = 6;
-  int CHAR = 7;
-  int CNTRL_ESC = 8;
-  int HEX = 10;
-  int HEX_ESC = 11;
+  int E = 5;
+  int DIGITS = 6;
+  int QUOTE = 7;
+  int ENDQUOTE = 9;
+  int CHAR = 10;
+  int CNTRL_ESC = 11;
+  int HEX = 13;
+  int HEX_ESC = 14;
 
   int DEFAULT = 0;
   int STRING_STATE = 1;
@@ -21,7 +21,10 @@ interface JsonParserConstants {
 
   String[] tokenImage = {
     "<EOF>",
-    "<token of kind 1>",
+    "\" \"",
+    "\"\\t\"",
+    "\"\\n\"",
+    "\"\\r\"",
     "<E>",
     "<DIGITS>",
     "\"\\\"\"",
