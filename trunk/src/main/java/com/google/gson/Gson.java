@@ -92,7 +92,7 @@ public final class Gson {
    * instance.
    */
   Gson(ObjectNavigatorFactory factory) {
-    this(factory, new MappedObjectConstructor(), DEFAULT_TYPE_ADAPTER, DEFAULT_JSON_FORMATTER, 
+    this(factory, new MappedObjectConstructor(), DEFAULT_TYPE_ADAPTER, DEFAULT_JSON_FORMATTER,
         false);
   }
 
@@ -298,7 +298,7 @@ public final class Gson {
    */
   @SuppressWarnings("unchecked")
   public <T> T fromJson(String json, Class<T> classOfT) throws JsonParseException {
-	// Can not use classOfT.cast() here instead of (T) because Class.cast does not 
+	// Can not use classOfT.cast() here instead of (T) because Class.cast does not
 	// handle auto-boxed primitives properly.
     return (T) fromJson(json, (Type) classOfT);
   }
@@ -319,6 +319,7 @@ public final class Gson {
    * @return an object of type T from the string.
    * @throws JsonParseException if json is not a valid representation for an object of type typeOfT.
    */
+  @SuppressWarnings("unchecked")
   public <T> T fromJson(String json, Type typeOfT) throws JsonParseException {
     try {
       StringReader reader = new StringReader(json);
@@ -326,7 +327,7 @@ public final class Gson {
       JsonElement root = parser.parse();
       JsonDeserializationContext context = new JsonDeserializationContextDefault(navigatorFactory,
           deserializers, objectConstructor, typeAdapter);
-      return context.deserialize(root, typeOfT);
+      return (T) context.deserialize(root, typeOfT);
     } catch (TokenMgrError e) {
       throw new JsonParseException("Failed parsing JSON source: " + json + " to Json", e);
     } catch (ParseException e) {
