@@ -4,7 +4,7 @@
   <groupId>com.google.code.google-gson</groupId>
   <artifactId>gson</artifactId>
   <packaging>jar</packaging>
-  <version>1.1.1</version>
+  <version>1.2</version>
   <inceptionYear>2008</inceptionYear>
   <name>gson</name>
   <url>http://code.google.com/p/google-gson/</url>
