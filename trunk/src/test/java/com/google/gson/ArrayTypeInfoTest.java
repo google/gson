@@ -15,11 +15,6 @@ import java.util.List;
  */
 public class ArrayTypeInfoTest extends TestCase {
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
-  }
-
   public void testArray() {
     String[] a = {"a", "b", "c"};
     ArrayTypeInfo typeInfo = new ArrayTypeInfo(a.getClass());

@@ -71,7 +71,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   public void visitCollection(Collection collection, Type collectionType) {
     assignToRoot(new JsonArray());
     for (Object child : collection) {
-      TypeInfo<?> collectionTypeInfo = new TypeInfo<Object>(collectionType);
+      TypeInfo collectionTypeInfo = new TypeInfo(collectionType);
       Type childType = collectionTypeInfo.getGenericClass();
       if (childType == Object.class && child != null) {
         // Try our luck some other way
@@ -157,7 +157,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
 
   public void visitPrimitiveField(Field f, Object obj) {
     if (!isFieldNull(f, obj)) {
-      TypeInfo<?> type = new TypeInfo<Object>(f.getType());
+      TypeInfo type = new TypeInfo(f.getType());
       Type fieldType = f.getGenericType();
       if (type.isPrimitiveOrStringAndNotAnArray()) {
         Object fieldValue = getFieldValue(f, obj);

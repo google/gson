@@ -41,7 +41,7 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
 
   public JsonDeserializationVisitor(JsonElement json, ObjectNavigatorFactory factory,
       ObjectConstructor objectConstructor, TypeAdapter typeAdapter,
-      ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers, 
+      ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers,
       JsonDeserializationContext context) {
     Preconditions.checkNotNull(json);
     this.factory = factory;
@@ -55,7 +55,7 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
   T getTarget() {
     return target;
   }
-  
+
   @SuppressWarnings("unchecked")
   public final void visitEnum(Object obj, Type objType) {
     JsonDeserializer<T> deserializer = (JsonDeserializer<T>) deserializers.getHandlerFor(objType);
@@ -80,17 +80,17 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
   }
 
   final Object visitChildAsObject(Type childType, JsonElement jsonChild) {
-    JsonDeserializationVisitor<?> childVisitor = 
-      new JsonObjectDeserializationVisitor<Object>(jsonChild, childType, 
+    JsonDeserializationVisitor<?> childVisitor =
+      new JsonObjectDeserializationVisitor<Object>(jsonChild, childType,
           factory, objectConstructor, typeAdapter, deserializers, context);
-    return visitChild(childType, childVisitor);      
+    return visitChild(childType, childVisitor);
   }
 
   final Object visitChildAsArray(Type childType, JsonArray jsonChild) {
-    JsonDeserializationVisitor<?> childVisitor = 
-      new JsonArrayDeserializationVisitor<Object>(jsonChild.getAsJsonArray(), childType, 
+    JsonDeserializationVisitor<?> childVisitor =
+      new JsonArrayDeserializationVisitor<Object>(jsonChild.getAsJsonArray(), childType,
           factory, objectConstructor, typeAdapter, deserializers, context);
-    return visitChild(childType, childVisitor);      
+    return visitChild(childType, childVisitor);
   }
 
   final Object visitChildAsPrimitive(Type childType, JsonPrimitive jsonChild) {
@@ -99,9 +99,9 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
     if (childType instanceof Class) {
       childClass = (Class<?>) childType;
     } else {
-      TypeInfo<?> childTypeInfo = new TypeInfo<Object>(childType);
+      TypeInfo childTypeInfo = new TypeInfo(childType);
       Type genericClass = childTypeInfo.getGenericClass();
-      childClass = new TypeInfo<Object>(genericClass).getTopLevelClass();
+      childClass = new TypeInfo(genericClass).getTopLevelClass();
     }
     return typeAdapter.adaptType(jsonChild.getAsObject(), childClass);
   }
