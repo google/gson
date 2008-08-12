@@ -70,7 +70,6 @@ final class DefaultJsonSerializers {
 
   @SuppressWarnings("unchecked")
   private static class MapSerializer implements JsonSerializer<Map> {
-
     public JsonElement serialize(Map src, Type typeOfSrc, JsonSerializationContext context) {
       JsonObject map = new JsonObject();
       Type childType = new MapTypeInfo(typeOfSrc).getValueType();
