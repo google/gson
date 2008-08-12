@@ -33,7 +33,6 @@ import com.google.gson.TestTypes.ContainsReferenceToSelfType;
 import com.google.gson.TestTypes.ExceptionHolder;
 import com.google.gson.TestTypes.MyEnum;
 import com.google.gson.TestTypes.MyEnumCreator;
-import com.google.gson.TestTypes.MyParameterizedType;
 import com.google.gson.TestTypes.Nested;
 import com.google.gson.TestTypes.PrimitiveArray;
 import com.google.gson.TestTypes.StringWrapper;
@@ -43,6 +42,8 @@ import com.google.gson.reflect.TypeToken;
 
 import junit.framework.TestCase;
 
+import java.io.Reader;
+import java.io.StringReader;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URL;
@@ -54,7 +55,7 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * Small test for Json Deserialization
+ * Small test for Json Deserialization.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
@@ -86,6 +87,13 @@ public class JsonDeserializerTest extends TestCase {
     String json = src.getExpectedJson();
     BagOfPrimitives target = gson.fromJson(json, BagOfPrimitives.class);
     assertEquals(json, target.getExpectedJson());
+  }
+
+  public void testReader() throws Exception {
+    BagOfPrimitives expected = new BagOfPrimitives();
+    Reader json = new StringReader(expected.getExpectedJson());
+    BagOfPrimitives actual = gson.fromJson(json, BagOfPrimitives.class);
+    assertEquals(expected, actual);
   }
 
   public void testStringValue() throws Exception {
@@ -420,49 +428,6 @@ public class JsonDeserializerTest extends TestCase {
     String json = new ArrayOfArrays().getExpectedJson();
     ArrayOfArrays target = gson.fromJson(json, ArrayOfArrays.class);
     assertEquals(json, target.getExpectedJson());
-  }
-
-  private static class MyParameterizedDeserializer<T>
-      implements JsonDeserializer<MyParameterizedType<T>> {
-    @SuppressWarnings("unchecked")
-    public MyParameterizedType<T> deserialize(JsonElement json, Type typeOfT,
-        JsonDeserializationContext context) throws JsonParseException {
-      Type genericClass = new TypeInfo<Object>(typeOfT).getGenericClass();
-      String className = new TypeInfo<Object>(genericClass).getTopLevelClass().getSimpleName();
-      T value = (T) json.getAsJsonObject().get(className).getAsObject();
-      return new MyParameterizedType<T>(value);
-    }
-  }
-
-  private static class MyParameterizedTypeInstanceCreator<T>
-      implements InstanceCreator<MyParameterizedType<T>> {
-    private final T defaultValue;
-    MyParameterizedTypeInstanceCreator(T defaultValue) {
-      this.defaultValue = defaultValue;
-    }
-
-    public MyParameterizedType<T> createInstance(Type type) {
-      return new MyParameterizedType<T>(defaultValue);
-    }
-  }
-
-  public void testParameterizedTypesWithCustomDeserializer() {
-    Type ptIntegerType = new TypeToken<MyParameterizedType<Long>>() {}.getType();
-    Type ptStringType = new TypeToken<MyParameterizedType<String>>() {}.getType();
-    gson.registerDeserializer(ptIntegerType, new MyParameterizedDeserializer<Long>());
-    gson.registerDeserializer(ptStringType, new MyParameterizedDeserializer<String>());
-    gson.registerInstanceCreator(ptIntegerType,
-        new MyParameterizedTypeInstanceCreator<Long>(new Long(0)));
-    gson.registerInstanceCreator(ptStringType,
-        new MyParameterizedTypeInstanceCreator<String>(""));
-
-    String json = new MyParameterizedType<Long>(new Long(10)).getExpectedJson();
-    MyParameterizedType<Long> intTarget = gson.fromJson(json, ptIntegerType);
-    assertEquals(json, intTarget.getExpectedJson());
-
-    json = new MyParameterizedType<String>("abc").getExpectedJson();
-    MyParameterizedType<String> stringTarget = gson.fromJson(json, ptStringType);
-    assertEquals(json, stringTarget.getExpectedJson());
   }
 
   public void testTopLevelEnum() {

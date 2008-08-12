@@ -29,7 +29,6 @@ import com.google.gson.TestTypes.ClassWithSubInterfacesOfCollection;
 import com.google.gson.TestTypes.ClassWithTransientFields;
 import com.google.gson.TestTypes.ContainsReferenceToSelfType;
 import com.google.gson.TestTypes.MyEnum;
-import com.google.gson.TestTypes.MyParameterizedType;
 import com.google.gson.TestTypes.Nested;
 import com.google.gson.TestTypes.PrimitiveArray;
 import com.google.gson.TestTypes.StringWrapper;
@@ -39,6 +38,8 @@ import com.google.gson.reflect.TypeToken;
 
 import junit.framework.TestCase;
 
+import java.io.StringWriter;
+import java.io.Writer;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.net.URI;
@@ -158,6 +159,13 @@ public class JsonSerializerTest extends TestCase {
   public void testBagOfPrimitives() {
     BagOfPrimitives target = new BagOfPrimitives(10, 20, false, "stringValue");
     assertEquals(target.getExpectedJson(), gson.toJson(target));
+  }
+
+  public void testWriter() throws Exception {
+    Writer writer = new StringWriter();
+    BagOfPrimitives src = new BagOfPrimitives();
+    gson.toJson(src, writer);
+    assertEquals(src.getExpectedJson(), writer.toString());
   }
 
   public void testBagOfPrimitiveWrappers() {
@@ -328,29 +336,6 @@ public class JsonSerializerTest extends TestCase {
   public void testStaticFieldsAreNotSerialized() {
     BagOfPrimitives target = new BagOfPrimitives();
     assertFalse(gson.toJson(target).contains("DEFAULT_VALUE"));
-  }
-
-  private static class MyParameterizedSerializer<T>
-      implements JsonSerializer<MyParameterizedType<T>> {
-    public JsonElement serialize(MyParameterizedType<T> src, Type classOfSrc,
-        JsonSerializationContext context) {
-      JsonObject json = new JsonObject();
-      T value = src.getValue();
-      json.add(value.getClass().getSimpleName(), context.serialize(value));
-      return json;
-    }
-  }
-
-  public void testParameterizedTypeWithCustomSerializer() {
-    Type ptIntegerType = new TypeToken<MyParameterizedType<Integer>>() {}.getType();
-    Type ptStringType = new TypeToken<MyParameterizedType<String>>() {}.getType();
-    gson.registerSerializer(ptIntegerType, new MyParameterizedSerializer<Integer>());
-    gson.registerSerializer(ptStringType, new MyParameterizedSerializer<String>());
-    MyParameterizedType<Integer> intTarget = new MyParameterizedType<Integer>(10);
-    assertEquals(intTarget.getExpectedJson(), gson.toJson(intTarget, ptIntegerType));
-
-    MyParameterizedType<String> stringTarget = new MyParameterizedType<String>("abc");
-    assertEquals(stringTarget.getExpectedJson(), gson.toJson(stringTarget, ptStringType));
   }
 
   public void testTopLevelEnum() {

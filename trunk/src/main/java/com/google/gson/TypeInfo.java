@@ -27,7 +27,16 @@ import java.lang.reflect.Type;
  *
  * @author Joel Leitch
  */
-class TypeInfo<T> {
+final class TypeInfo<T> {
+  /* Foo<Bar<Red>> object = ...;
+   * Type type = new TypeToken<Foo<Bar<Red>>>() {}.getType();
+   * if this instance was invoked as new TypeInfo(type);
+   * isArray will be false
+   * topLevel will be Foo.class
+   * componentType will be Foo.class
+   * secondLevel (no idea) but meaningful in case type had an array
+   * genericOfTopLevel will be ParameterizedType of Bar<Red>
+   */
   private final boolean isArray;
   private final Class<T> topLevel;
   private final Class<?> componentType;
