@@ -119,7 +119,7 @@ final class ObjectNavigator {
     if (obj == null) {
       return;
     }
-    TypeInfo<?> objTypeInfo = new TypeInfo<Object>(objType);
+    TypeInfo objTypeInfo = new TypeInfo(objType);
     if (exclusionStrategy.shouldSkipClass(objTypeInfo.getTopLevelClass())) {
       return;
     }
@@ -163,7 +163,7 @@ final class ObjectNavigator {
     Field[] fields = clazz.getDeclaredFields();
     AccessibleObject.setAccessible(fields, true);
     for (Field f : fields) {
-      TypeInfo<?> fieldTypeInfo = new TypeInfo<Object>(f.getType());
+      TypeInfo fieldTypeInfo = new TypeInfo(f.getType());
       if (exclusionStrategy.shouldSkipField(f)) {
         continue; // skip
       } else if (isCollectionOrArray(fieldTypeInfo)) {
@@ -180,7 +180,7 @@ final class ObjectNavigator {
     }
   }
 
-  private static boolean isCollectionOrArray(TypeInfo<?> typeInfo) {
+  private static boolean isCollectionOrArray(TypeInfo typeInfo) {
     return Collection.class.isAssignableFrom(typeInfo.getTopLevelClass()) || typeInfo.isArray();
   }
 

@@ -35,7 +35,7 @@ final class MapTypeInfo {
           "Map objects need to be parameterized unless you use a custom serializer. "
               + "Use the com.google.gson.reflect.TypeToken to extract the ParameterizedType.");
     }
-    TypeInfo<Object> rawType = new TypeInfo<Object>(mapType);
+    TypeInfo rawType = new TypeInfo(mapType);
     Preconditions.checkArgument(Map.class.isAssignableFrom(rawType.getTopLevelClass()));
     this.mapType = (ParameterizedType) mapType;
   }

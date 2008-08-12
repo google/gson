@@ -27,7 +27,7 @@ import java.lang.reflect.Type;
  *
  * @author Joel Leitch
  */
-final class TypeInfo<T> {
+final class TypeInfo {
   /* Foo<Bar<Red>> object = ...;
    * Type type = new TypeToken<Foo<Bar<Red>>>() {}.getType();
    * if this instance was invoked as new TypeInfo(type);
@@ -38,12 +38,12 @@ final class TypeInfo<T> {
    * genericOfTopLevel will be ParameterizedType of Bar<Red>
    */
   private final boolean isArray;
-  private final Class<T> topLevel;
+  private final Class<?> topLevel;
   private final Class<?> componentType;
   private final Class<?> secondLevel;
   private final Type genericOfTopLevel;
 
-  private TypeInfo(Class<T> topLevel, boolean isArray, Type genericClass) {
+  private TypeInfo(Class<?> topLevel, boolean isArray, Type genericClass) {
     this.isArray = isArray;
     this.topLevel = topLevel;
     Class<?> rootComponentType = topLevel;
@@ -55,9 +55,8 @@ final class TypeInfo<T> {
     this.genericOfTopLevel = genericClass;
   }
 
-  @SuppressWarnings("unchecked")
   public TypeInfo(Type type) {
-    this((Class<T>) toClass(type), isArray(type), toGenericClass(type));
+    this(toClass(type), isArray(type), toGenericClass(type));
   }
 
   public Class<?> getWrappedClazz() {

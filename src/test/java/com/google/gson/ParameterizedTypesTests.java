@@ -81,8 +81,8 @@ public class ParameterizedTypesTests  extends TestCase {
     @SuppressWarnings("unchecked")
     public MyParameterizedType<T> deserialize(JsonElement json, Type typeOfT,
             JsonDeserializationContext context) throws JsonParseException {
-      Type genericClass = new TypeInfo<Object>(typeOfT).getGenericClass();
-      String className = new TypeInfo<Object>(genericClass).getTopLevelClass().getSimpleName();
+      Type genericClass = new TypeInfo(typeOfT).getGenericClass();
+      String className = new TypeInfo(genericClass).getTopLevelClass().getSimpleName();
       T value = (T) json.getAsJsonObject().get(className).getAsObject();
       return new MyParameterizedType<T>(value);
     }
