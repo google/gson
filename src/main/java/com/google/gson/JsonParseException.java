@@ -24,8 +24,7 @@ package com.google.gson;
  * <p>This exception is a {@link RuntimeException} because it is exposed to the client.  Using a
  * {@link RuntimeException} avoids bad coding practices on the client side where they catch the
  * exception and do nothing.  It is often the case that you want to blow up if there is a parsing
- * error (i.e. most likely client code will never know how to recover from a
- * {@link JsonParseException}.</p>
+ * error (i.e. often client do not know how to recover from a {@link JsonParseException}.</p>
  *
  * @author Joel Leitch
  */

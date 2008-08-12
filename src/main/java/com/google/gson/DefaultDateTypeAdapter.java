@@ -14,15 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson.typeadapters;
-
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
+package com.google.gson;
 
 import java.lang.reflect.Type;
 import java.text.DateFormat;
@@ -35,15 +27,15 @@ import java.util.Date;
  *
  * @author Joel Leitch
  */
-public class DateTypeAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
+class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
 
   private final DateFormat format;
 
-  public DateTypeAdapter(String datePattern) {
+  public DefaultDateTypeAdapter(String datePattern) {
     this.format = new SimpleDateFormat(datePattern);
   }
 
-  public DateTypeAdapter(int style) {
+  public DefaultDateTypeAdapter(int style) {
     this.format = DateFormat.getDateInstance(style);
   }
 

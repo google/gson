@@ -16,7 +16,6 @@
 
 package com.google.gson;
 
-import com.google.gson.typeadapters.DateTypeAdapter;
 
 import java.lang.reflect.Type;
 import java.text.DateFormat;
@@ -56,6 +55,8 @@ public final class GsonBuilder {
   private final Map<Type, JsonSerializer<?>> serializers;
   private final Map<Type, JsonDeserializer<?>> deserializers;
   private boolean serializeNulls;
+  private String datePattern;
+  private int dateStyle;
 
   /**
    * Creates a GsonBuilder instance that can be used to build Gson with various configuration
@@ -84,6 +85,7 @@ public final class GsonBuilder {
     serializers = new LinkedHashMap<Type, JsonSerializer<?>>();
     deserializers = new LinkedHashMap<Type, JsonDeserializer<?>>();
     serializeNulls = false;
+    dateStyle = DateFormat.DEFAULT;
   }
 
   /**
@@ -180,6 +182,16 @@ public final class GsonBuilder {
    */
   GsonBuilder setFormatter(JsonFormatter formatter) {
     this.formatter = formatter;
+    return this;
+  }
+
+  public GsonBuilder setDateFormat(String pattern) {
+    this.datePattern = pattern;
+    return this;
+  }
+
+  public GsonBuilder setDateFormat(int style) {
+    this.dateStyle = style;
     return this;
   }
 
@@ -330,10 +342,7 @@ public final class GsonBuilder {
     Gson gson = new Gson(objectNavigatorFactory, objectConstructor, typeAdapter, formatter,
         serializeNulls);
 
-    // TODO(Joel): Make this configurable with some kind of method
-    DateTypeAdapter dateTypeAdapter = new DateTypeAdapter(DateFormat.DEFAULT);
-    gson.registerSerializer(Date.class, dateTypeAdapter);
-    gson.registerDeserializer(Date.class, dateTypeAdapter);
+    registerDefaultDateTypeAdapter(gson);
 
     for (Map.Entry<Type, JsonSerializer<?>> entry : serializers.entrySet()) {
       gson.registerSerializer(entry.getKey(), entry.getValue());
@@ -347,5 +356,16 @@ public final class GsonBuilder {
       gson.registerInstanceCreator(entry.getKey(), entry.getValue());
     }
     return gson;
+  }
+
+  private void registerDefaultDateTypeAdapter(Gson gson) {
+    DefaultDateTypeAdapter dateTypeAdapter;
+    if (datePattern == null || "".equals(datePattern.trim())) {
+      dateTypeAdapter = new DefaultDateTypeAdapter(dateStyle);
+    } else {
+      dateTypeAdapter = new DefaultDateTypeAdapter(datePattern);
+    }
+    gson.registerSerializer(Date.class, dateTypeAdapter);
+    gson.registerDeserializer(Date.class, dateTypeAdapter);
   }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson.typeadapters;
+package com.google.gson;
 
 import junit.framework.TestCase;
 
@@ -23,15 +23,15 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * A simple unit test for the {@link DateTypeAdapter} class.
+ * A simple unit test for the {@link DefaultDateTypeAdapter} class.
  *
  * @author Joel Leitch
  */
-public class DateTypeAdapterTest extends TestCase {
+public class DefaultDateTypeAdapterTest extends TestCase {
 
   public void testDateSerialization() throws Exception {
     int dateStyle = DateFormat.LONG;
-    DateTypeAdapter dateTypeAdapter = new DateTypeAdapter(dateStyle);
+    DefaultDateTypeAdapter dateTypeAdapter = new DefaultDateTypeAdapter(dateStyle);
     DateFormat formatter = DateFormat.getDateInstance(dateStyle);
     Date currentDate = new Date();
 
@@ -41,7 +41,7 @@ public class DateTypeAdapterTest extends TestCase {
 
   public void testDatePattern() throws Exception {
     String pattern = "yyyy-MM-dd";
-    DateTypeAdapter dateTypeAdapter = new DateTypeAdapter(pattern);
+    DefaultDateTypeAdapter dateTypeAdapter = new DefaultDateTypeAdapter(pattern);
     DateFormat formatter = new SimpleDateFormat(pattern);
     Date currentDate = new Date();
 
@@ -51,7 +51,7 @@ public class DateTypeAdapterTest extends TestCase {
 
   public void testInvalidDatePattern() throws Exception {
     try {
-      new DateTypeAdapter("I am a bad Date pattern....");
+      new DefaultDateTypeAdapter("I am a bad Date pattern....");
       fail("Invalid date pattern should fail.");
     } catch (IllegalArgumentException expected) { }
   }
