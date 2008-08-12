@@ -38,26 +38,27 @@ final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisito
       JsonDeserializationContext context) {
     super(jsonArray, factory, objectConstructor, typeAdapter, deserializers, context);
 
-    TypeInfo<T> arrayTypeInfo = new TypeInfo<T>(arrayType);
-    this.componentType = arrayTypeInfo.getSecondLevelClass();
+    TypeInfo<T> typeInfo = new TypeInfo<T>(arrayType);
+    this.componentType = typeInfo.getSecondLevelClass();
 
-    if (arrayTypeInfo.isPrimitiveOrStringAndNotAnArray()) {
+    if (typeInfo.isPrimitiveOrStringAndNotAnArray()) {
       if (jsonArray.size() != 1) {
         throw new IllegalArgumentException(
             "Primitives should be an array of length 1, but was: " + jsonArray);
       }
-      target = (T) objectConstructor.construct(arrayTypeInfo.getWrappedClazz());
-    } else if (arrayTypeInfo.isArray()) {
+      target = (T) objectConstructor.construct(typeInfo.getWrappedClazz());
+    } else if (typeInfo.isArray()) {
+      ArrayTypeInfo arrayTypeInfo = new ArrayTypeInfo(arrayType);
       target = (T) objectConstructor.constructArray(arrayTypeInfo.getSecondLevelClass(),
           jsonArray.size());
     } else { // is a collection
-      target = (T) objectConstructor.construct(arrayTypeInfo.getSecondLevelClass());
+      target = (T) objectConstructor.construct(typeInfo.getSecondLevelClass());
     }
   }
 
   public void visitArray(Object array, Type arrayType) {
     JsonArray jsonArray = json.getAsJsonArray();
-    TypeInfo<?> arrayTypeInfo = new TypeInfo<Object>(arrayType);
+    ArrayTypeInfo arrayTypeInfo = new ArrayTypeInfo(arrayType);
     for (int i = 0; i < jsonArray.size(); i++) {
       JsonElement jsonChild = jsonArray.get(i);
       Object child;
@@ -65,11 +66,11 @@ final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisito
       if (jsonChild == null) {
         child = null;
       } else if (jsonChild instanceof JsonObject) {
-        child = visitChildAsObject(arrayTypeInfo.getComponentType(), jsonChild);
+        child = visitChildAsObject(arrayTypeInfo.getComponentRawType(), jsonChild);
       } else if (jsonChild instanceof JsonArray) {
         child = visitChildAsArray(arrayTypeInfo.getSecondLevelClass(), jsonChild.getAsJsonArray());
       } else if (jsonChild instanceof JsonPrimitive) {
-        child = visitChildAsPrimitive(arrayTypeInfo.getComponentType(),
+        child = visitChildAsPrimitive(arrayTypeInfo.getComponentRawType(),
             jsonChild.getAsJsonPrimitive());
       } else {
         throw new IllegalStateException();

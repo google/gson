@@ -78,6 +78,46 @@ public class TestTypes {
       sb.append("}");
       return sb.toString();
     }
+
+    @Override
+    public int hashCode() {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + (booleanValue ? 1231 : 1237);
+      result = prime * result + intValue;
+      result = prime * result + (int) (longValue ^ (longValue >>> 32));
+      result = prime * result + ((stringValue == null) ? 0 : stringValue.hashCode());
+      return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj)
+        return true;
+      if (obj == null)
+        return false;
+      if (getClass() != obj.getClass())
+        return false;
+      BagOfPrimitives other = (BagOfPrimitives) obj;
+      if (booleanValue != other.booleanValue)
+        return false;
+      if (intValue != other.intValue)
+        return false;
+      if (longValue != other.longValue)
+        return false;
+      if (stringValue == null) {
+        if (other.stringValue != null)
+          return false;
+      } else if (!stringValue.equals(other.stringValue))
+        return false;
+      return true;
+    }
+
+    @Override
+    public String toString() {
+      return String.format("(longValue=%d,intValue=%d,booleanValue=%b,stringValue=%s)",
+          longValue, intValue, booleanValue, stringValue);
+    }
   }
 
   public static class BagOfPrimitiveWrappers {
@@ -359,33 +399,6 @@ public class TestTypes {
         sb.append("]");
       }
       sb.append("]}");
-      return sb.toString();
-    }
-  }
-
-  public static class MyParameterizedType<T> {
-    private final T value;
-    public MyParameterizedType(T value) {
-      this.value = value;
-    }
-    public T getValue() {
-      return value;
-    }
-
-    @SuppressWarnings("unchecked")
-    public String getExpectedJson() {
-      Class<T> clazz = (Class<T>) value.getClass();
-      boolean addQuotes = !clazz.isArray() && !Primitives.unwrap(clazz).isPrimitive();
-      StringBuilder sb = new StringBuilder("{\"");
-      sb.append(value.getClass().getSimpleName()).append("\":");
-      if (addQuotes) {
-        sb.append("\"");
-      }
-      sb.append(value.toString());
-      if (addQuotes) {
-        sb.append("\"");
-      }
-      sb.append("}");
       return sb.toString();
     }
   }
