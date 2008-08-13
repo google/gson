@@ -28,6 +28,8 @@ import java.util.Date;
  * @author Joel Leitch
  */
 class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
+  static final DefaultDateTypeAdapter DEFAULT_TYPE_ADAPTER =
+      new DefaultDateTypeAdapter(DateFormat.DEFAULT);
 
   private final DateFormat format;
 

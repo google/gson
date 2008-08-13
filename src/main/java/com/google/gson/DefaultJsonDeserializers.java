@@ -21,6 +21,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -42,31 +43,32 @@ final class DefaultJsonDeserializers {
     map.put(URL.class, new UrlDeserializer());
     map.put(URI.class, new UriDeserializer());
     map.put(Locale.class, new LocaleDeserializer());
+    map.put(Date.class, DefaultDateTypeAdapter.DEFAULT_TYPE_ADAPTER);
     return map;
   }
 
   @SuppressWarnings("unchecked")
   private static class EnumDeserializer<T extends Enum> implements JsonDeserializer<T> {
     @SuppressWarnings("cast")
-    public T deserialize(JsonElement json, Type classOfT, JsonDeserializationContext context) 
+    public T deserialize(JsonElement json, Type classOfT, JsonDeserializationContext context)
         throws JsonParseException {
       return (T) Enum.valueOf((Class<T>)classOfT, json.getAsString());
     }
   }
-  
+
   private static class UrlDeserializer implements JsonDeserializer<URL> {
-    public URL deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) 
+    public URL deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
       try {
         return new URL(json.getAsString());
       } catch (MalformedURLException e) {
         throw new JsonParseException(e);
       }
-    }    
+    }
   }
-  
+
   private static class UriDeserializer implements JsonDeserializer<URI> {
-    public URI deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) 
+    public URI deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
       try {
 	  	return new URI(json.getAsString());
@@ -75,9 +77,9 @@ final class DefaultJsonDeserializers {
       }
     }
   }
-  
+
   private static class LocaleDeserializer implements JsonDeserializer<Locale> {
-    public Locale deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) 
+    public Locale deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
       String locale = json.getAsString();
       StringTokenizer tokenizer = new StringTokenizer(locale, "_");
@@ -102,15 +104,15 @@ final class DefaultJsonDeserializers {
       }
     }
   }
-  
+
   @SuppressWarnings("unchecked")
   private static class MapDeserializer implements JsonDeserializer<Map> {
 
-    public Map deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) 
+    public Map deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
       // Using linked hash map to preserve order in which elements are entered
       Map<String, Object> map = new LinkedHashMap<String, Object>();
-      Type childType = new MapTypeInfo(typeOfT).getValueType();     
+      Type childType = new MapTypeInfo(typeOfT).getValueType();
       for (Map.Entry<String, JsonElement> entry : json.getAsJsonObject().entrySet()) {
         Object value = context.deserialize(entry.getValue(), childType);
         map.put(entry.getKey(), value);

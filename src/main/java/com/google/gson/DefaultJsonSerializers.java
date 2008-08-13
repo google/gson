@@ -19,6 +19,7 @@ package com.google.gson;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URL;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Locale;
@@ -40,6 +41,7 @@ final class DefaultJsonSerializers {
     map.put(URL.class, new UrlSerializer());
     map.put(URI.class, new UriSerializer());
     map.put(Locale.class, new LocaleSerializer());
+    map.put(Date.class, DefaultDateTypeAdapter.DEFAULT_TYPE_ADAPTER);
     return map;
   }
 
