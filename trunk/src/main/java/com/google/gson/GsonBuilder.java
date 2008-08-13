@@ -16,7 +16,6 @@
 
 package com.google.gson;
 
-
 import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.util.Date;
@@ -359,12 +358,21 @@ public final class GsonBuilder {
   }
 
   private void registerDefaultDateTypeAdapter(Gson gson) {
-    DefaultDateTypeAdapter dateTypeAdapter;
-    if (datePattern == null || "".equals(datePattern.trim())) {
-      dateTypeAdapter = new DefaultDateTypeAdapter(dateStyle);
-    } else {
-      dateTypeAdapter = new DefaultDateTypeAdapter(datePattern);
+        // NOTE: if a date pattern exists, then that style takes priority
+    if (datePattern != null && !"".equals(datePattern.trim())) {
+      registerDefaultTypeAdapter(gson, new DefaultDateTypeAdapter(datePattern));
+    } else if (dateStyle != DateFormat.DEFAULT) {
+      registerDefaultTypeAdapter(gson, new DefaultDateTypeAdapter(dateStyle));
     }
+  }
+
+  /**
+   * Registers this {@code dateTypeAdapter} with the {@code gson} instance.
+   *
+   * @param gson the gson instance request the date type adapter registration
+   * @param dateTypeAdapter the date type adapter to register
+   */
+  private void registerDefaultTypeAdapter(Gson gson, DefaultDateTypeAdapter dateTypeAdapter) {
     gson.registerSerializer(Date.class, dateTypeAdapter);
     gson.registerDeserializer(Date.class, dateTypeAdapter);
   }
