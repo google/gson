@@ -60,22 +60,22 @@ final class ObjectNavigator {
     /**
      * This is called to visit an object field of the current object
      */
-    void visitObjectField(Field f, Object obj);
+    void visitObjectField(Field f, Type typeOfF, Object obj);
 
     /**
      * This is called to visit a field of type Collection of the current object
      */
-    void visitCollectionField(Field f, Object obj);
+    void visitCollectionField(Field f, Type typeOfF, Object obj);
 
     /**
      * This is called to visit an array field of the current object
      */
-    void visitArrayField(Field f, Object obj);
+    void visitArrayField(Field f, Type typeOfF, Object obj);
 
     /**
      * This is called to visit a primitive field of the current object
      */
-    void visitPrimitiveField(Field f, Object obj);
+    void visitPrimitiveField(Field f, Type typeOfF, Object obj);
 
     /**
      * This is called to visit an enum object
@@ -130,7 +130,7 @@ final class ObjectNavigator {
     ancestors.push(obj);
 
     try {
-      if (isCollectionOrArray(objTypeInfo)) {
+      if (TypeUtils.isCollectionOrArray(objTypeInfo)) {
         if (objTypeInfo.isArray()) {
           visitor.visitArray(obj, objType);
         } else { // must be a collection
@@ -163,25 +163,22 @@ final class ObjectNavigator {
     Field[] fields = clazz.getDeclaredFields();
     AccessibleObject.setAccessible(fields, true);
     for (Field f : fields) {
-      TypeInfo fieldTypeInfo = new TypeInfo(f.getType());
+      Type actualTypeOfField = TypeUtils.getActualTypeOfField(f, clazz, objType);
+      TypeInfo fieldTypeInfo = new TypeInfo(actualTypeOfField);
       if (exclusionStrategy.shouldSkipField(f)) {
         continue; // skip
-      } else if (isCollectionOrArray(fieldTypeInfo)) {
+      } else if (TypeUtils.isCollectionOrArray(fieldTypeInfo)) {
         if (fieldTypeInfo.isArray()) {
-          visitor.visitArrayField(f, obj);
+          visitor.visitArrayField(f, actualTypeOfField, obj);
         } else { // must be Collection
-          visitor.visitCollectionField(f, obj);
+          visitor.visitCollectionField(f, actualTypeOfField, obj);
         }
       } else if (fieldTypeInfo.isPrimitiveOrStringAndNotAnArray()) {
-        visitor.visitPrimitiveField(f, obj);
+        visitor.visitPrimitiveField(f, actualTypeOfField, obj);
       } else {
-        visitor.visitObjectField(f, obj);
+        visitor.visitObjectField(f, actualTypeOfField, obj);
       }
     }
-  }
-
-  private static boolean isCollectionOrArray(TypeInfo typeInfo) {
-    return Collection.class.isAssignableFrom(typeInfo.getTopLevelClass()) || typeInfo.isArray();
   }
 
   @SuppressWarnings("unchecked")

@@ -30,7 +30,7 @@ final class JsonPrimitiveDeserializationVisitor<T> extends JsonDeserializationVi
   @SuppressWarnings("unchecked")
   JsonPrimitiveDeserializationVisitor(JsonPrimitive json, Type type,
       ObjectNavigatorFactory factory, ObjectConstructor objectConstructor,
-      TypeAdapter typeAdapter, ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers, 
+      TypeAdapter typeAdapter, ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers,
       JsonDeserializationContext context) {
     super(json, factory, objectConstructor, typeAdapter, deserializers, context);
     this.target = (T) objectConstructor.construct(type);
@@ -55,7 +55,7 @@ final class JsonPrimitiveDeserializationVisitor<T> extends JsonDeserializationVi
     throw new IllegalStateException();
   }
 
-  @SuppressWarnings("unchecked")  
+  @SuppressWarnings("unchecked")
   public void visitPrimitiveValue(Object obj) {
     JsonPrimitive jsonPrimitive = json.getAsJsonPrimitive();
     if (jsonPrimitive.isBoolean()) {
@@ -69,22 +69,22 @@ final class JsonPrimitiveDeserializationVisitor<T> extends JsonDeserializationVi
     }
   }
 
-  public void visitObjectField(Field f, Object obj) {
+  public void visitObjectField(Field f, Type typeOfF, Object obj) {
     // should not be called since this case should invoke JsonArrayDeserializationVisitor
     throw new IllegalStateException();
   }
 
-  public void visitCollectionField(Field f, Object obj) {
+  public void visitCollectionField(Field f, Type typeOfF, Object obj) {
     // should not be called since this case should invoke JsonArrayDeserializationVisitor
     throw new IllegalStateException();
   }
 
-  public void visitArrayField(Field f, Object obj) {
+  public void visitArrayField(Field f, Type typeOfF, Object obj) {
     // should not be called since this case should invoke JsonArrayDeserializationVisitor
     throw new IllegalStateException();
   }
 
-  public void visitPrimitiveField(Field f, Object obj) {
+  public void visitPrimitiveField(Field f, Type fType, Object obj) {
     // should not be called since this case should invoke JsonArrayDeserializationVisitor
     throw new IllegalStateException();
   }

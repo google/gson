@@ -9,6 +9,8 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
 /**
@@ -22,7 +24,7 @@ public class ParameterizedTypesTests  extends TestCase {
   private Gson gson;
 
   private static class MyParameterizedType<T> {
-    private final T value;
+    final T value;
     public MyParameterizedType(T value) {
       this.value = value;
     }
@@ -30,22 +32,37 @@ public class ParameterizedTypesTests  extends TestCase {
       return value;
     }
 
-    @SuppressWarnings("unchecked")
-    public String getExpectedJson() {
-      Class<T> clazz = (Class<T>) value.getClass();
-      boolean addQuotes = !clazz.isArray() && !Primitives.unwrap(clazz).isPrimitive();
-      StringBuilder sb = new StringBuilder("{\"");
-      sb.append(value.getClass().getSimpleName()).append("\":");
-      if (addQuotes) {
-        sb.append("\"");
-      }
-      sb.append(value.toString());
-      if (addQuotes) {
-        sb.append("\"");
-      }
-      sb.append("}");
-      return sb.toString();
+    String getExpectedJson() {
+      String valueAsJson = getExpectedJson(value);
+      return String.format("{\"value\":%s}", valueAsJson);
     }
+
+    private String getExpectedJson(Object obj) {
+      Class<?> clazz = obj.getClass();
+      if (Primitives.isWrapperType(Primitives.wrap(clazz))) {
+        return obj.toString();
+      } else if (obj.getClass().equals(String.class)) {
+        return "\"" + obj.toString() + "\"";
+      } else {
+        // Try invoking a getExpectedJson() method if it exists
+        try {
+          Method method = clazz.getMethod("getExpectedJson");
+          Object results = method.invoke(obj);
+          return (String) results;
+        } catch (SecurityException e) {
+          throw new RuntimeException(e);
+        } catch (NoSuchMethodException e) {
+          throw new RuntimeException(e);
+        } catch (IllegalArgumentException e) {
+          throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+          throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+          throw new RuntimeException(e);
+        }
+      }
+    }
+
     @Override
     public int hashCode() {
       return value == null ? 0 : value.hashCode();
@@ -71,6 +88,22 @@ public class ParameterizedTypesTests  extends TestCase {
 
   private static class MyParameterizedTypeAdapter<T>
       implements JsonSerializer<MyParameterizedType<T>>, JsonDeserializer<MyParameterizedType<T>> {
+    @SuppressWarnings("unchecked")
+    public static<T> String getExpectedJson(MyParameterizedType<T> obj) {
+      Class<T> clazz = (Class<T>) obj.value.getClass();
+      boolean addQuotes = !clazz.isArray() && !Primitives.unwrap(clazz).isPrimitive();
+      StringBuilder sb = new StringBuilder("{\"");
+      sb.append(obj.value.getClass().getSimpleName()).append("\":");
+      if (addQuotes) {
+        sb.append("\"");
+      }
+      sb.append(obj.value.toString());
+      if (addQuotes) {
+        sb.append("\"");
+      }
+      sb.append("}");
+      return sb.toString();
+    }
     public JsonElement serialize(MyParameterizedType<T> src, Type classOfSrc,
             JsonSerializationContext context) {
       JsonObject json = new JsonObject();
@@ -82,8 +115,13 @@ public class ParameterizedTypesTests  extends TestCase {
     public MyParameterizedType<T> deserialize(JsonElement json, Type typeOfT,
             JsonDeserializationContext context) throws JsonParseException {
       Type genericClass = new TypeInfo(typeOfT).getGenericClass();
-      String className = new TypeInfo(genericClass).getTopLevelClass().getSimpleName();
+      TypeInfo typeInfo = new TypeInfo(genericClass);
+      String className = typeInfo.getTopLevelClass().getSimpleName();
       T value = (T) json.getAsJsonObject().get(className).getAsObject();
+      if (typeInfo.isPrimitive()) {
+        PrimitiveTypeAdapter typeAdapter = new PrimitiveTypeAdapter();
+        value = (T) typeAdapter.adaptType(value, typeInfo.getTopLevelClass());
+      }
       return new MyParameterizedType<T>(value);
     }
   }
@@ -139,29 +177,34 @@ public class ParameterizedTypesTests  extends TestCase {
     gson.registerSerializer(ptIntegerType, new MyParameterizedTypeAdapter<Integer>());
     gson.registerSerializer(ptStringType, new MyParameterizedTypeAdapter<String>());
     MyParameterizedType<Integer> intTarget = new MyParameterizedType<Integer>(10);
-    assertEquals(intTarget.getExpectedJson(), gson.toJson(intTarget, ptIntegerType));
+    String json = gson.toJson(intTarget, ptIntegerType);
+    assertEquals(MyParameterizedTypeAdapter.<Integer>getExpectedJson(intTarget), json);
 
     MyParameterizedType<String> stringTarget = new MyParameterizedType<String>("abc");
-    assertEquals(stringTarget.getExpectedJson(), gson.toJson(stringTarget, ptStringType));
+    json = gson.toJson(stringTarget, ptStringType);
+    assertEquals(MyParameterizedTypeAdapter.<String>getExpectedJson(stringTarget), json);
   }
 
   public void testDeserializeParameterizedTypesWithCustomDeserializer() {
-    Type ptIntegerType = new TypeToken<MyParameterizedType<Long>>() {}.getType();
+    Type ptIntegerType = new TypeToken<MyParameterizedType<Integer>>() {}.getType();
     Type ptStringType = new TypeToken<MyParameterizedType<String>>() {}.getType();
-    gson.registerDeserializer(ptIntegerType, new MyParameterizedTypeAdapter<Long>());
-    gson.registerDeserializer(ptStringType, new MyParameterizedTypeAdapter<String>());
+    gson.registerDeserializer(ptIntegerType, new MyParameterizedTypeAdapter<Integer>());
     gson.registerInstanceCreator(ptIntegerType,
-            new MyParameterizedTypeInstanceCreator<Long>(new Long(0)));
+        new MyParameterizedTypeInstanceCreator<Integer>(new Integer(0)));
+
+    MyParameterizedType<Integer> src = new MyParameterizedType<Integer>(10);
+    String json = MyParameterizedTypeAdapter.<Integer>getExpectedJson(src);
+    MyParameterizedType<Integer> intTarget = gson.fromJson(json, ptIntegerType);
+    assertEquals(10, (int) intTarget.value);
+
+    gson.registerDeserializer(ptStringType, new MyParameterizedTypeAdapter<String>());
     gson.registerInstanceCreator(ptStringType,
             new MyParameterizedTypeInstanceCreator<String>(""));
 
-    String json = new MyParameterizedType<Long>(new Long(10)).getExpectedJson();
-    MyParameterizedType<Long> intTarget = gson.fromJson(json, ptIntegerType);
-    assertEquals(json, intTarget.getExpectedJson());
-
-    json = new MyParameterizedType<String>("abc").getExpectedJson();
+    MyParameterizedType<String> srcStr = new MyParameterizedType<String>("abc");
+    json = MyParameterizedTypeAdapter.<String>getExpectedJson(srcStr);
     MyParameterizedType<String> stringTarget = gson.fromJson(json, ptStringType);
-    assertEquals(json, stringTarget.getExpectedJson());
+    assertEquals("abc", stringTarget.value);
   }
 
   public void testDeserializeParameterizedTypeWithReader() throws Exception {

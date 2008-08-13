@@ -50,7 +50,7 @@ final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisito
     } else if (typeInfo.isArray()) {
       ArrayTypeInfo arrayTypeInfo = new ArrayTypeInfo(arrayType);
       // We know that we are getting back an array of the required type, so
-      // this typecasting is safe. 
+      // this typecasting is safe.
       target = (T) objectConstructor.constructArray(arrayTypeInfo.getSecondLevelClass(),
           jsonArray.size());
     } else { // is a collection
@@ -112,19 +112,19 @@ final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisito
     throw new UnsupportedOperationException();
   }
 
-  public void visitArrayField(Field f, Object obj) {
+  public void visitArrayField(Field f, Type typeOfF, Object obj) {
     throw new UnsupportedOperationException();
   }
 
-  public void visitCollectionField(Field f, Object obj) {
+  public void visitCollectionField(Field f, Type typeOfF, Object obj) {
     throw new UnsupportedOperationException();
   }
 
-  public void visitObjectField(Field f, Object obj) {
+  public void visitObjectField(Field f, Type typeOfF, Object obj) {
     throw new UnsupportedOperationException();
   }
 
-  public void visitPrimitiveField(Field f, Object obj) {
+  public void visitPrimitiveField(Field f, Type typeOfF, Object obj) {
     throw new UnsupportedOperationException();
   }
 }

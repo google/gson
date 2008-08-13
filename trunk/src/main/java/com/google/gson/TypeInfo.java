@@ -19,6 +19,7 @@ package com.google.gson;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 
 /**
  * Class that represents a constructor or method parameter.  The class in which
@@ -101,6 +102,9 @@ final class TypeInfo {
       return toClass(((ParameterizedType)type).getRawType());
     } else if (type instanceof GenericArrayType) {
       return toClass(((GenericArrayType)type).getGenericComponentType());
+    } else if (type instanceof TypeVariable) {
+      TypeVariable<?> actualType = (TypeVariable<?>) type;
+      return toClass(actualType.getBounds()[0]);
     } else {
       throw new IllegalArgumentException("Type \'" + type + "\' is not a Class, "
           + "ParameterizedType, or GenericArrayType. Can't extract class.");
@@ -124,6 +128,8 @@ final class TypeInfo {
     if (type instanceof Class) {
       return ((Class<?>)type).isArray();
     } else if (type instanceof ParameterizedType) {
+      return false;
+    } else if (type instanceof TypeVariable) {
       return false;
     } else if (type instanceof GenericArrayType) {
       return true;
