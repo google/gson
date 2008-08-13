@@ -5,54 +5,21 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
-import java.util.Collection;
 
-/**
- * Class to extract information about type for a field.
- *
- * @author Inderjeet Singh
- */
-final class FieldTypeInfo {
+final class TypeInfoFactory {
 
-  private final Field f;
-  private final Class<?> classOfF;
-  private final Type genericizedTypeOfClassOfF;
-  private final Type actualTypeOfF;
-  private final Class<?> actualClassOfF;
-
-  FieldTypeInfo(Field f, Class<?> classOfF, Type genericizedTypeOfClassOfF) {
-    this.f = f;
-    this.classOfF = classOfF;
-    this.genericizedTypeOfClassOfF = genericizedTypeOfClassOfF;
-    this.actualTypeOfF = getActualTypeOfField();
-    this.actualClassOfF = TypeUtils.toRawClass(actualTypeOfF);
+  public static TypeInfoArray getTypeInfoForArray(Type type) {
+    Preconditions.checkArgument(TypeUtils.isArray(type));
+    return new TypeInfoArray(type);
   }
 
-  public Type getActualType() {
-    return actualTypeOfF;
+  public static TypeInfo getTypeInfoForField(Field f, Type typeDefiningF) {
+    Type actualType = getActualTypeOfField(f, typeDefiningF);
+    return new TypeInfo(actualType);
   }
 
-  public boolean isCollectionOrArray() {
-    return Collection.class.isAssignableFrom(actualClassOfF) || isArray();
-  }
-
-  public boolean isArray() {
-    return TypeUtils.isArray(actualClassOfF);
-  }
-
-  public boolean isPrimitive() {
-    return Primitives.isWrapperType(Primitives.wrap(actualClassOfF));
-  }
-
-  public boolean isString() {
-    return actualClassOfF == String.class;
-  }
-
-  public boolean isPrimitiveOrStringAndNotAnArray() {
-    return (isPrimitive() || isString()) && !isArray();
-  }
-
-  private Type getActualTypeOfField() {
+  private static Type getActualTypeOfField(Field f, Type typeDefiningF) {
+    Class<?> classDefiningF = TypeUtils.toRawClass(typeDefiningF);
     Type type = f.getGenericType();
     if (type instanceof Class || type instanceof ParameterizedType
         || type instanceof GenericArrayType) {
@@ -65,8 +32,8 @@ final class FieldTypeInfo {
       // So, to find the type of the field a, we will have to look at the class'
       // actual type arguments.
       TypeVariable<?> fieldTypeVariable = (TypeVariable<?>) type;
-      TypeVariable<?>[] classTypeVariables = classOfF.getTypeParameters();
-      ParameterizedType objParameterizedType = (ParameterizedType) genericizedTypeOfClassOfF;
+      TypeVariable<?>[] classTypeVariables = classDefiningF.getTypeParameters();
+      ParameterizedType objParameterizedType = (ParameterizedType) typeDefiningF;
       int indexOfActualTypeArgument = getIndex(classTypeVariables, fieldTypeVariable);
       Type[] actualTypeArguments = objParameterizedType.getActualTypeArguments();
       return actualTypeArguments[indexOfActualTypeArgument];
@@ -83,5 +50,9 @@ final class FieldTypeInfo {
       }
     }
     throw new IllegalStateException("How can the type variable not be present in the class declaration!");
+  }
+
+  private TypeInfoFactory() {
+    // Not instantiable since it provides factory methods only.
   }
 }

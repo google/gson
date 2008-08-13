@@ -104,6 +104,7 @@ public class ParameterizedTypesTests  extends TestCase {
       sb.append("}");
       return sb.toString();
     }
+
     public JsonElement serialize(MyParameterizedType<T> src, Type classOfSrc,
             JsonSerializationContext context) {
       JsonObject json = new JsonObject();
@@ -111,16 +112,17 @@ public class ParameterizedTypesTests  extends TestCase {
       json.add(value.getClass().getSimpleName(), context.serialize(value));
       return json;
     }
+
     @SuppressWarnings("unchecked")
     public MyParameterizedType<T> deserialize(JsonElement json, Type typeOfT,
             JsonDeserializationContext context) throws JsonParseException {
-      Type genericClass = new TypeInfo(typeOfT).getGenericClass();
+      Type genericClass = TypeUtils.getActualTypeForFirstTypeVariable(typeOfT);
       TypeInfo typeInfo = new TypeInfo(genericClass);
-      String className = typeInfo.getTopLevelClass().getSimpleName();
+      String className = typeInfo.getRawClass().getSimpleName();
       T value = (T) json.getAsJsonObject().get(className).getAsObject();
       if (typeInfo.isPrimitive()) {
         PrimitiveTypeAdapter typeAdapter = new PrimitiveTypeAdapter();
-        value = (T) typeAdapter.adaptType(value, typeInfo.getTopLevelClass());
+        value = (T) typeAdapter.adaptType(value, typeInfo.getRawClass());
       }
       return new MyParameterizedType<T>(value);
     }
@@ -144,14 +146,14 @@ public class ParameterizedTypesTests  extends TestCase {
       return new MyParameterizedType<T>(instanceOfT);
     }
   }
-  
+
   private static class MultiParameters<A, B, C, D, E> {
     A a;
     B b;
     C c;
     D d;
     E e;
-    MultiParameters() {      
+    MultiParameters() {
     }
     MultiParameters(A a, B b, C c, D d, E e) {
       super();
@@ -208,7 +210,7 @@ public class ParameterizedTypesTests  extends TestCase {
       } else if (!e.equals(other.e))
         return false;
       return true;
-    }    
+    }
   }
 
   @Override
@@ -236,28 +238,28 @@ public class ParameterizedTypesTests  extends TestCase {
     String json = gson.toJson(src, typeOfSrc);
     assertEquals(src.getExpectedJson(), json);
   }
-  
+
   public void testSerializeTypesWithMultipleParameters() throws Exception {
-    MultiParameters<Integer, Float, Double, String, BagOfPrimitives> src = 
-      new MultiParameters<Integer, Float, Double, String, BagOfPrimitives>(10, 1.0F, 2.1D, 
+    MultiParameters<Integer, Float, Double, String, BagOfPrimitives> src =
+      new MultiParameters<Integer, Float, Double, String, BagOfPrimitives>(10, 1.0F, 2.1D,
           "abc", new BagOfPrimitives());
-    Type typeOfSrc = new TypeToken<MultiParameters<Integer, Float, Double, String, 
+    Type typeOfSrc = new TypeToken<MultiParameters<Integer, Float, Double, String,
         BagOfPrimitives>>() {}.getType();
     String json = gson.toJson(src, typeOfSrc);
-    String expected = "{\"a\":10,\"b\":1.0,\"c\":2.1,\"d\":\"abc\"," 
+    String expected = "{\"a\":10,\"b\":1.0,\"c\":2.1,\"d\":\"abc\","
       + "\"e\":{\"longValue\":0,\"intValue\":0,\"booleanValue\":false,\"stringValue\":\"\"}}";
     assertEquals(expected, json);
   }
 
   public void testDeserializeTypesWithMultipleParameters() throws Exception {
-    Type typeOfTarget = new TypeToken<MultiParameters<Integer, Float, Double, String, 
+    Type typeOfTarget = new TypeToken<MultiParameters<Integer, Float, Double, String,
         BagOfPrimitives>>() {}.getType();
-    String json = "{\"a\":10,\"b\":1.0,\"c\":2.1,\"d\":\"abc\"," 
-      + "\"e\":{\"longValue\":0,\"intValue\":0,\"booleanValue\":false,\"stringValue\":\"\"}}";    
-    MultiParameters<Integer, Float, Double, String, BagOfPrimitives> target = 
+    String json = "{\"a\":10,\"b\":1.0,\"c\":2.1,\"d\":\"abc\","
+      + "\"e\":{\"longValue\":0,\"intValue\":0,\"booleanValue\":false,\"stringValue\":\"\"}}";
+    MultiParameters<Integer, Float, Double, String, BagOfPrimitives> target =
       gson.fromJson(json, typeOfTarget);
-    MultiParameters<Integer, Float, Double, String, BagOfPrimitives> expected = 
-    new MultiParameters<Integer, Float, Double, String, BagOfPrimitives>(10, 1.0F, 2.1D, 
+    MultiParameters<Integer, Float, Double, String, BagOfPrimitives> expected =
+    new MultiParameters<Integer, Float, Double, String, BagOfPrimitives>(10, 1.0F, 2.1D,
             "abc", new BagOfPrimitives());
     assertEquals(expected, target);
   }
@@ -317,5 +319,5 @@ public class ParameterizedTypesTests  extends TestCase {
     Type typeOfSrc = new TypeToken<MyParameterizedType<Integer>>() {}.getType();
     gson.toJson(src, typeOfSrc, writer);
     assertEquals(src.getExpectedJson(), writer.toString());
-  }  
+  }
 }

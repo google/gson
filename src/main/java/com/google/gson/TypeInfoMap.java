@@ -26,17 +26,17 @@ import java.util.Map;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-final class MapTypeInfo {
+final class TypeInfoMap {
   private final ParameterizedType mapType;
 
-  public MapTypeInfo(Type mapType) {
+  public TypeInfoMap(Type mapType) {
     if (!(mapType instanceof ParameterizedType)) {
       throw new IllegalArgumentException(
           "Map objects need to be parameterized unless you use a custom serializer. "
               + "Use the com.google.gson.reflect.TypeToken to extract the ParameterizedType.");
     }
     TypeInfo rawType = new TypeInfo(mapType);
-    Preconditions.checkArgument(Map.class.isAssignableFrom(rawType.getTopLevelClass()));
+    Preconditions.checkArgument(Map.class.isAssignableFrom(rawType.getRawClass()));
     this.mapType = (ParameterizedType) mapType;
   }
 

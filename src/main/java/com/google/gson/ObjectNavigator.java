@@ -120,7 +120,7 @@ final class ObjectNavigator {
       return;
     }
     TypeInfo objTypeInfo = new TypeInfo(objType);
-    if (exclusionStrategy.shouldSkipClass(objTypeInfo.getTopLevelClass())) {
+    if (exclusionStrategy.shouldSkipClass(objTypeInfo.getRawClass())) {
       return;
     }
 
@@ -130,13 +130,13 @@ final class ObjectNavigator {
     ancestors.push(obj);
 
     try {
-      if (TypeUtils.isCollectionOrArray(objTypeInfo)) {
+      if (objTypeInfo.isCollectionOrArray()) {
         if (objTypeInfo.isArray()) {
           visitor.visitArray(obj, objType);
         } else { // must be a collection
           visitor.visitCollection((Collection<?>)obj, objType);
         }
-      } else if (objTypeInfo.getTopLevelClass().isEnum()) {
+      } else if (objTypeInfo.getRawClass().isEnum()) {
         visitor.visitEnum(obj, objType);
       } else if (objTypeInfo.isPrimitiveOrStringAndNotAnArray()) {
         visitor.visitPrimitiveValue(obj);
@@ -145,7 +145,7 @@ final class ObjectNavigator {
           visitor.startVisitingObject(obj);
           // For all classes in the inheritance hierarchy (including the current class),
           // visit all fields
-          for (Class<?> curr = objTypeInfo.getTopLevelClass();
+          for (Class<?> curr = objTypeInfo.getRawClass();
               curr != null && !curr.equals(Object.class); curr = curr.getSuperclass()) {
             if (!curr.isSynthetic()) {
               navigateClassFields(obj, curr, visitor);
@@ -163,7 +163,7 @@ final class ObjectNavigator {
     Field[] fields = clazz.getDeclaredFields();
     AccessibleObject.setAccessible(fields, true);
     for (Field f : fields) {
-      FieldTypeInfo fieldTypeInfo = new FieldTypeInfo(f, clazz, objType);
+      TypeInfo fieldTypeInfo = TypeInfoFactory.getTypeInfoForField(f, objType);
       Type actualTypeOfField = fieldTypeInfo.getActualType();
       if (exclusionStrategy.shouldSkipField(f)) {
         continue; // skip

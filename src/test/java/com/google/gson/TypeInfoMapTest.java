@@ -31,11 +31,11 @@ import java.util.Map;
  *
  * @author Joel Leitch
  */
-public class MapTypeInfoTest extends TestCase {
+public class TypeInfoMapTest extends TestCase {
 
   public void testInvalidConstruction() throws Exception {
     try {
-      new MapTypeInfo(String.class);
+      new TypeInfoMap(String.class);
       fail("Must be a ParameterizedType");
     } catch (IllegalArgumentException expected) { }
   }
@@ -43,14 +43,14 @@ public class MapTypeInfoTest extends TestCase {
   public void testNonMapConstruction() throws Exception {
     try {
       Type parameterizedMapType = new TypeToken<List<String>>() {}.getType();
-      new MapTypeInfo(parameterizedMapType);
+      new TypeInfoMap(parameterizedMapType);
       fail("The raw type must be a Map");
     } catch (IllegalArgumentException expected) { }
   }
 
   public void testBasicGetters() throws Exception {
     Type parameterizedMapType = new TypeToken<Map<String, Integer>>() {}.getType();
-    MapTypeInfo mapTypeInfo = new MapTypeInfo(parameterizedMapType);
+    TypeInfoMap mapTypeInfo = new TypeInfoMap(parameterizedMapType);
 
     assertEquals(String.class, mapTypeInfo.getKeyType());
     assertEquals(Integer.class, mapTypeInfo.getValueType());
@@ -58,7 +58,7 @@ public class MapTypeInfoTest extends TestCase {
 
   public void testMapImplementations() throws Exception {
     Type parameterizedMapType = new TypeToken<HashMap<String, Integer>>() {}.getType();
-    MapTypeInfo mapTypeInfo = new MapTypeInfo(parameterizedMapType);
+    TypeInfoMap mapTypeInfo = new TypeInfoMap(parameterizedMapType);
 
     assertEquals(String.class, mapTypeInfo.getKeyType());
     assertEquals(Integer.class, mapTypeInfo.getValueType());

@@ -99,9 +99,7 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
     if (childType instanceof Class) {
       childClass = (Class<?>) childType;
     } else {
-      TypeInfo childTypeInfo = new TypeInfo(childType);
-      Type genericClass = childTypeInfo.getGenericClass();
-      childClass = new TypeInfo(genericClass).getTopLevelClass();
+      childClass = TypeUtils.toRawClass(childType);
     }
     return typeAdapter.adaptType(jsonChild.getAsObject(), childClass);
   }

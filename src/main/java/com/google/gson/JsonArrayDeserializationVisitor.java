@@ -39,28 +39,28 @@ final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisito
     super(jsonArray, factory, objectConstructor, typeAdapter, deserializers, context);
 
     TypeInfo typeInfo = new TypeInfo(arrayType);
-    this.componentType = typeInfo.getSecondLevelClass();
+    this.componentType = typeInfo.getRawClass();
 
     if (typeInfo.isPrimitiveOrStringAndNotAnArray()) {
       if (jsonArray.size() != 1) {
         throw new IllegalArgumentException(
             "Primitives should be an array of length 1, but was: " + jsonArray);
       }
-      target = objectConstructor.construct(typeInfo.getWrappedClazz());
+      target = objectConstructor.construct(typeInfo.getWrappedClass());
     } else if (typeInfo.isArray()) {
-      ArrayTypeInfo arrayTypeInfo = new ArrayTypeInfo(arrayType);
+      TypeInfoArray arrayTypeInfo = new TypeInfoArray(arrayType);
       // We know that we are getting back an array of the required type, so
       // this typecasting is safe.
       target = (T) objectConstructor.constructArray(arrayTypeInfo.getSecondLevelClass(),
           jsonArray.size());
     } else { // is a collection
-      target = objectConstructor.construct(typeInfo.getSecondLevelClass());
+      target = objectConstructor.construct(typeInfo.getRawClass());
     }
   }
 
   public void visitArray(Object array, Type arrayType) {
     JsonArray jsonArray = json.getAsJsonArray();
-    ArrayTypeInfo arrayTypeInfo = new ArrayTypeInfo(arrayType);
+    TypeInfoArray arrayTypeInfo = new TypeInfoArray(arrayType);
     for (int i = 0; i < jsonArray.size(); i++) {
       JsonElement jsonChild = jsonArray.get(i);
       Object child;
@@ -83,8 +83,7 @@ final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisito
 
   @SuppressWarnings("unchecked")
   public void visitCollection(Collection collection, Type collectionType) {
-    TypeInfo childTypeInfo = new TypeInfo(collectionType);
-    Type childType = childTypeInfo.getGenericClass();
+    Type childType = TypeUtils.getActualTypeForFirstTypeVariable(collectionType);
     for (JsonElement jsonChild : json.getAsJsonArray()) {
       if (childType == Object.class) {
         throw new JsonParseException(collection +
