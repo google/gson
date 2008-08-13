@@ -56,7 +56,7 @@ final class MappedObjectConstructor implements ObjectConstructor {
   }
 
   public Object constructArray(Type type, int length) {
-    return Array.newInstance(TypeInfo.toClass(type), length);
+    return Array.newInstance(TypeUtils.toRawClass(type), length);
   }
 
   private <T> T constructWithNoArgConstructor(Type typeOfT) {
