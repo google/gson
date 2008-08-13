@@ -81,21 +81,20 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
     }
   }
 
-  public void visitArrayField(Field f, Object obj) {
+  public void visitArrayField(Field f, Type typeOfF, Object obj) {
     if (!isFieldNull(f, obj)) {
       Object array = getFieldValue(f, obj);
-      addAsChildOfObject(f, f.getGenericType(), array);
+      addAsChildOfObject(f, typeOfF, array);
     }
   }
 
-  public void visitCollectionField(Field f, Object obj) {
+  public void visitCollectionField(Field f, Type typeOfF, Object obj) {
     if (!isFieldNull(f, obj)) {
-      Type genericTypeOfCollection = f.getGenericType();
-      if (genericTypeOfCollection == null) {
+      if (typeOfF == null) {
         throw new RuntimeException("Can not handle non-generic collections");
       }
       Object collection = getFieldValue(f, obj);
-      addAsChildOfObject(f, genericTypeOfCollection, collection);
+      addAsChildOfObject(f, typeOfF, collection);
     }
   }
 
@@ -112,15 +111,14 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
     assignToRoot(serializer.serialize(obj, objType, context));
   }
 
-  public void visitObjectField(Field f, Object obj) {
+  public void visitObjectField(Field f, Type typeOfF, Object obj) {
     if (isFieldNull(f, obj)) {
       if (serializeNulls) {
         addChildAsElement(f, new JsonNull());
       }
     } else {
-      Type fieldType = f.getGenericType();
       Object fieldValue = getFieldValue(f, obj);
-      addAsChildOfObject(f, fieldType, fieldValue);
+      addAsChildOfObject(f, typeOfF, fieldValue);
     }
   }
 
@@ -155,13 +153,13 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
     return childVisitor.getJsonElement();
   }
 
-  public void visitPrimitiveField(Field f, Object obj) {
+  public void visitPrimitiveField(Field f, Type typeOfF, Object obj) {
     if (!isFieldNull(f, obj)) {
-      TypeInfo type = new TypeInfo(f.getType());
-      Type fieldType = f.getGenericType();
-      if (type.isPrimitiveOrStringAndNotAnArray()) {
+      // TODO(inder): replace the use of typeInfo here with a static method in TypeUtils
+      TypeInfo typeInfo = new TypeInfo(typeOfF);
+      if (typeInfo.isPrimitiveOrStringAndNotAnArray()) {
         Object fieldValue = getFieldValue(f, obj);
-        addAsChildOfObject(f, fieldType, fieldValue);
+        addAsChildOfObject(f, typeOfF, fieldValue);
       } else {
         throw new IllegalArgumentException("Not a primitive type");
       }

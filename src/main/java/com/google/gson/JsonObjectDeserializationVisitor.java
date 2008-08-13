@@ -63,14 +63,13 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
     throw new IllegalStateException();
   }
 
-  public void visitObjectField(Field f, Object obj) {
+  public void visitObjectField(Field f, Type typeOfF, Object obj) {
     try {
       JsonObject jsonObject = json.getAsJsonObject();
       String fName = getFieldName(f);
       JsonElement jsonChild = jsonObject.get(fName);
       if (jsonChild != null) {
-        Type fieldType = f.getGenericType();
-        Object child = visitChildAsObject(fieldType, jsonChild);
+        Object child = visitChildAsObject(typeOfF, jsonChild);
         f.set(obj, child);
       } else {
         f.set(obj, null);
@@ -81,13 +80,13 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
   }
 
   @SuppressWarnings("unchecked")
-  public void visitCollectionField(Field f, Object obj) {
+  public void visitCollectionField(Field f, Type typeOfF, Object obj) {
     try {
       JsonObject jsonObject = json.getAsJsonObject();
       String fName = getFieldName(f);
       JsonArray jsonArray = (JsonArray) jsonObject.get(fName);
       if (jsonArray != null) {
-        Collection collection = (Collection) objectConstructor.construct(f.getType());
+        Collection collection = (Collection) objectConstructor.construct(typeOfF);
         f.set(obj, collection);
         Type childType = new TypeInfo(f.getGenericType()).getGenericClass();
         for (JsonElement jsonChild : jsonArray) {
@@ -106,13 +105,13 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
     }
   }
 
-  public void visitArrayField(Field f, Object obj) {
+  public void visitArrayField(Field f, Type typeOfF, Object obj) {
     try {
       JsonObject jsonObject = json.getAsJsonObject();
       String fName = getFieldName(f);
       JsonArray jsonChild = (JsonArray) jsonObject.get(fName);
       if (jsonChild != null) {
-        Object array = visitChildAsArray(f.getType(), jsonChild);
+        Object array = visitChildAsArray(typeOfF, jsonChild);
         f.set(obj, array);
       } else {
         f.set(obj, null);
@@ -122,13 +121,15 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
     }
   }
 
-  public void visitPrimitiveField(Field f, Object obj) {
+  public void visitPrimitiveField(Field f, Type typeOfF, Object obj) {
     try {
       JsonObject jsonObject = json.getAsJsonObject();
       String fName = getFieldName(f);
       JsonPrimitive value = jsonObject.getAsJsonPrimitive(fName);
       if (value != null) {
-        f.set(obj, typeAdapter.adaptType(value.getAsObject(), f.getType()));
+        // TODO(inder): replace the use of TypeInfo with a static method in TypUtils.
+        TypeInfo typeInfo = new TypeInfo(typeOfF);
+        f.set(obj, typeAdapter.adaptType(value.getAsObject(), typeInfo.getTopLevelClass()));
       } else {
         // For Strings, we need to set the field to null
         // For other primitive types, any value created during default construction is fine
