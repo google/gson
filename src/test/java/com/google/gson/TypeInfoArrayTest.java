@@ -56,7 +56,15 @@ public class TypeInfoArrayTest extends TestCase {
     assertEquals(List.class, typeInfo.getSecondLevelClass());
   }
 
-  public void testObjectArray() throws Exception {
+  public void testPrimitiveArray() throws Exception {
+    TypeInfoArray arrayTypeInfo = new TypeInfoArray(int[].class);
+
+    assertTrue(arrayTypeInfo.isArray());
+    assertEquals(int.class, arrayTypeInfo.getSecondLevelClass());
+    assertFalse(arrayTypeInfo.isPrimitiveOrStringAndNotAnArray());
+  }
+
+  public void testStringArray() throws Exception {
     TypeInfoArray arrayTypeInfo = new TypeInfoArray(String[].class);
 
     assertTrue(arrayTypeInfo.isArray());

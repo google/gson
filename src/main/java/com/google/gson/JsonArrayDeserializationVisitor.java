@@ -48,7 +48,7 @@ final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisito
       }
       target = objectConstructor.construct(typeInfo.getWrappedClass());
     } else if (typeInfo.isArray()) {
-      TypeInfoArray arrayTypeInfo = new TypeInfoArray(arrayType);
+      TypeInfoArray arrayTypeInfo = TypeInfoFactory.getTypeInfoForArray(arrayType);
       // We know that we are getting back an array of the required type, so
       // this typecasting is safe.
       target = (T) objectConstructor.constructArray(arrayTypeInfo.getSecondLevelClass(),
@@ -60,7 +60,7 @@ final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisito
 
   public void visitArray(Object array, Type arrayType) {
     JsonArray jsonArray = json.getAsJsonArray();
-    TypeInfoArray arrayTypeInfo = new TypeInfoArray(arrayType);
+    TypeInfoArray arrayTypeInfo = TypeInfoFactory.getTypeInfoForArray(arrayType);
     for (int i = 0; i < jsonArray.size(); i++) {
       JsonElement jsonChild = jsonArray.get(i);
       Object child;
