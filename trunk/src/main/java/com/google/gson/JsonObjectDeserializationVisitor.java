@@ -88,7 +88,7 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
       if (jsonArray != null) {
         Collection collection = (Collection) objectConstructor.construct(typeOfF);
         f.set(obj, collection);
-        Type childType = new TypeInfo(f.getGenericType()).getGenericClass();
+        Type childType = TypeUtils.getActualTypeForFirstTypeVariable(typeOfF);
         for (JsonElement jsonChild : jsonArray) {
           Object child = visitChild(childType, jsonChild);
           if (childType == Object.class) {
@@ -127,9 +127,7 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
       String fName = getFieldName(f);
       JsonPrimitive value = jsonObject.getAsJsonPrimitive(fName);
       if (value != null) {
-        // TODO(inder): replace the use of TypeInfo with a static method in TypUtils.
-        TypeInfo typeInfo = new TypeInfo(typeOfF);
-        f.set(obj, typeAdapter.adaptType(value.getAsObject(), typeInfo.getTopLevelClass()));
+        f.set(obj, typeAdapter.adaptType(value.getAsObject(), TypeUtils.toRawClass(typeOfF)));
       } else {
         // For Strings, we need to set the field to null
         // For other primitive types, any value created during default construction is fine

@@ -23,27 +23,23 @@ import java.lang.reflect.Type;
  *
  * @author Joel Leitch
  */
-final class ArrayTypeInfo {
-  private final Class<?> rawTypeOfArray;
+final class TypeInfoArray extends TypeInfo {
   private final Class<?> componentRawType;
   private final Class<?> secondLevel;
 
-  public ArrayTypeInfo(Type type) {
-    Preconditions.checkArgument(TypeUtils.isArray(type));
-    this.rawTypeOfArray = TypeUtils.toRawClass(type);
-    Class<?> rootComponentType = rawTypeOfArray;
+  TypeInfoArray(Type type) {
+    super(type);
+    Class<?> rootComponentType = rawClass;
     while (rootComponentType.isArray()) {
       rootComponentType = rootComponentType.getComponentType();
     }
-    componentRawType = rootComponentType;
-    this.secondLevel = rawTypeOfArray.getComponentType();
+    this.componentRawType = rootComponentType;
+    this.secondLevel = rawClass.getComponentType();
   }
 
-  /**
-   * @return the raw type associated with this array
-   */
-  public Class<?> getRawType() {
-    return rawTypeOfArray;
+  @Override
+  public Class<?> getWrappedClass() {
+    return Primitives.wrap(secondLevel);
   }
 
   /**

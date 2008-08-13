@@ -337,6 +337,7 @@ public class TestTypes {
     public String getExpectedJson() {
       return "{\"url\":\"" + bag.getExpectedJson() + "\",\"value\":" + value + "}";
     }
+
     public int getValue() {
       return value;
     }

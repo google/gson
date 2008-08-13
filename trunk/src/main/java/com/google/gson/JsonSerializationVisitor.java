@@ -59,7 +59,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   public void visitArray(Object array, Type arrayType) {
     assignToRoot(new JsonArray());
     int length = Array.getLength(array);
-    ArrayTypeInfo fieldTypeInfo = new ArrayTypeInfo(arrayType);
+    TypeInfoArray fieldTypeInfo = new TypeInfoArray(arrayType);
     Type componentType = fieldTypeInfo.getSecondLevelClass();
     for (int i = 0; i < length; ++i) {
       Object child = Array.get(array, i);
@@ -71,8 +71,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   public void visitCollection(Collection collection, Type collectionType) {
     assignToRoot(new JsonArray());
     for (Object child : collection) {
-      TypeInfo collectionTypeInfo = new TypeInfo(collectionType);
-      Type childType = collectionTypeInfo.getGenericClass();
+      Type childType = TypeUtils.getActualTypeForFirstTypeVariable(collectionType);
       if (childType == Object.class && child != null) {
         // Try our luck some other way
         childType = child.getClass();
@@ -155,7 +154,6 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
 
   public void visitPrimitiveField(Field f, Type typeOfF, Object obj) {
     if (!isFieldNull(f, obj)) {
-      // TODO(inder): replace the use of typeInfo here with a static method in TypeUtils
       TypeInfo typeInfo = new TypeInfo(typeOfF);
       if (typeInfo.isPrimitiveOrStringAndNotAnArray()) {
         Object fieldValue = getFieldValue(f, obj);

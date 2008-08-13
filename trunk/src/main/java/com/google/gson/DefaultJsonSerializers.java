@@ -74,7 +74,7 @@ final class DefaultJsonSerializers {
   private static class MapSerializer implements JsonSerializer<Map> {
     public JsonElement serialize(Map src, Type typeOfSrc, JsonSerializationContext context) {
       JsonObject map = new JsonObject();
-      Type childType = new MapTypeInfo(typeOfSrc).getValueType();
+      Type childType = new TypeInfoMap(typeOfSrc).getValueType();
       for (Iterator iterator = src.entrySet().iterator(); iterator.hasNext(); ) {
         Map.Entry entry = (Map.Entry) iterator.next();
         JsonElement valueElement = context.serialize(entry.getValue(), childType);
