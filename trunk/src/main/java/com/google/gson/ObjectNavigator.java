@@ -163,11 +163,11 @@ final class ObjectNavigator {
     Field[] fields = clazz.getDeclaredFields();
     AccessibleObject.setAccessible(fields, true);
     for (Field f : fields) {
-      Type actualTypeOfField = TypeUtils.getActualTypeOfField(f, clazz, objType);
-      TypeInfo fieldTypeInfo = new TypeInfo(actualTypeOfField);
+      FieldTypeInfo fieldTypeInfo = new FieldTypeInfo(f, clazz, objType);
+      Type actualTypeOfField = fieldTypeInfo.getActualType();
       if (exclusionStrategy.shouldSkipField(f)) {
         continue; // skip
-      } else if (TypeUtils.isCollectionOrArray(fieldTypeInfo)) {
+      } else if (fieldTypeInfo.isCollectionOrArray()) {
         if (fieldTypeInfo.isArray()) {
           visitor.visitArrayField(f, actualTypeOfField, obj);
         } else { // must be Collection

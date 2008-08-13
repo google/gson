@@ -16,10 +16,7 @@
 
 package com.google.gson;
 
-import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
 
 /**
  * Class that represents a constructor or method parameter.  The class in which
@@ -57,7 +54,7 @@ final class TypeInfo {
   }
 
   public TypeInfo(Type type) {
-    this(toClass(type), isArray(type), toGenericClass(type));
+    this(TypeUtils.toRawClass(type), TypeUtils.isArray(type), TypeUtils.toGenericClass(type));
   }
 
   public Class<?> getWrappedClazz() {
@@ -93,50 +90,6 @@ final class TypeInfo {
 
   public Type getGenericClass() {
     return genericOfTopLevel;
-  }
-
-  public static Class<?> toClass(Type type) {
-    if (type instanceof Class) {
-      return (Class<?>) type;
-    } else if (type instanceof ParameterizedType) {
-      return toClass(((ParameterizedType)type).getRawType());
-    } else if (type instanceof GenericArrayType) {
-      return toClass(((GenericArrayType)type).getGenericComponentType());
-    } else if (type instanceof TypeVariable) {
-      TypeVariable<?> actualType = (TypeVariable<?>) type;
-      return toClass(actualType.getBounds()[0]);
-    } else {
-      throw new IllegalArgumentException("Type \'" + type + "\' is not a Class, "
-          + "ParameterizedType, or GenericArrayType. Can't extract class.");
-    }
-  }
-
-  private static Type toGenericClass(Type type) {
-    if (type instanceof Class) {
-      return Object.class;
-    } else if (type instanceof ParameterizedType) {
-      return ((ParameterizedType)type).getActualTypeArguments()[0];
-    } else if (type instanceof GenericArrayType) {
-      return toGenericClass(((GenericArrayType)type).getGenericComponentType());
-    } else {
-      throw new IllegalArgumentException("Type \'" + type + "\' is not a Class, "
-          + "ParameterizedType, or GenericArrayType. Can't extract class.");
-    }
-  }
-
-  private static boolean isArray(Type type) {
-    if (type instanceof Class) {
-      return ((Class<?>)type).isArray();
-    } else if (type instanceof ParameterizedType) {
-      return false;
-    } else if (type instanceof TypeVariable) {
-      return false;
-    } else if (type instanceof GenericArrayType) {
-      return true;
-    } else {
-      throw new IllegalArgumentException("Type \'" + type + "\' is not a Class, "
-          + "ParameterizedType, or GenericArrayType. Can't extract array info.");
-    }
   }
 
   /**
