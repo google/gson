@@ -144,6 +144,72 @@ public class ParameterizedTypesTests  extends TestCase {
       return new MyParameterizedType<T>(instanceOfT);
     }
   }
+  
+  private static class MultiParameters<A, B, C, D, E> {
+    A a;
+    B b;
+    C c;
+    D d;
+    E e;
+    MultiParameters() {      
+    }
+    MultiParameters(A a, B b, C c, D d, E e) {
+      super();
+      this.a = a;
+      this.b = b;
+      this.c = c;
+      this.d = d;
+      this.e = e;
+    }
+    @Override
+    public int hashCode() {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + ((a == null) ? 0 : a.hashCode());
+      result = prime * result + ((b == null) ? 0 : b.hashCode());
+      result = prime * result + ((c == null) ? 0 : c.hashCode());
+      result = prime * result + ((d == null) ? 0 : d.hashCode());
+      result = prime * result + ((e == null) ? 0 : e.hashCode());
+      return result;
+    }
+    @Override
+    @SuppressWarnings("unchecked")
+    public boolean equals(Object obj) {
+      if (this == obj)
+        return true;
+      if (obj == null)
+        return false;
+      if (getClass() != obj.getClass())
+        return false;
+      MultiParameters<A, B, C, D, E> other = (MultiParameters<A, B, C, D, E>) obj;
+      if (a == null) {
+        if (other.a != null)
+          return false;
+      } else if (!a.equals(other.a))
+        return false;
+      if (b == null) {
+        if (other.b != null)
+          return false;
+      } else if (!b.equals(other.b))
+        return false;
+      if (c == null) {
+        if (other.c != null)
+          return false;
+      } else if (!c.equals(other.c))
+        return false;
+      if (d == null) {
+        if (other.d != null)
+          return false;
+      } else if (!d.equals(other.d))
+        return false;
+      if (e == null) {
+        if (other.e != null)
+          return false;
+      } else if (!e.equals(other.e))
+        return false;
+      return true;
+    }    
+  }
 
   @Override
   protected void setUp() throws Exception {
@@ -169,6 +235,31 @@ public class ParameterizedTypesTests  extends TestCase {
     Type typeOfSrc = new TypeToken<MyParameterizedType<Integer>>() {}.getType();
     String json = gson.toJson(src, typeOfSrc);
     assertEquals(src.getExpectedJson(), json);
+  }
+  
+  public void testSerializeTypesWithMultipleParameters() throws Exception {
+    MultiParameters<Integer, Float, Double, String, BagOfPrimitives> src = 
+      new MultiParameters<Integer, Float, Double, String, BagOfPrimitives>(10, 1.0F, 2.1D, 
+          "abc", new BagOfPrimitives());
+    Type typeOfSrc = new TypeToken<MultiParameters<Integer, Float, Double, String, 
+        BagOfPrimitives>>() {}.getType();
+    String json = gson.toJson(src, typeOfSrc);
+    String expected = "{\"a\":10,\"b\":1.0,\"c\":2.1,\"d\":\"abc\"," 
+      + "\"e\":{\"longValue\":0,\"intValue\":0,\"booleanValue\":false,\"stringValue\":\"\"}}";
+    assertEquals(expected, json);
+  }
+
+  public void testDeserializeTypesWithMultipleParameters() throws Exception {
+    Type typeOfTarget = new TypeToken<MultiParameters<Integer, Float, Double, String, 
+        BagOfPrimitives>>() {}.getType();
+    String json = "{\"a\":10,\"b\":1.0,\"c\":2.1,\"d\":\"abc\"," 
+      + "\"e\":{\"longValue\":0,\"intValue\":0,\"booleanValue\":false,\"stringValue\":\"\"}}";    
+    MultiParameters<Integer, Float, Double, String, BagOfPrimitives> target = 
+      gson.fromJson(json, typeOfTarget);
+    MultiParameters<Integer, Float, Double, String, BagOfPrimitives> expected = 
+    new MultiParameters<Integer, Float, Double, String, BagOfPrimitives>(10, 1.0F, 2.1D, 
+            "abc", new BagOfPrimitives());
+    assertEquals(expected, target);
   }
 
   public void testSerializeParameterizedTypeWithCustomSerializer() {
@@ -226,5 +317,5 @@ public class ParameterizedTypesTests  extends TestCase {
     Type typeOfSrc = new TypeToken<MyParameterizedType<Integer>>() {}.getType();
     gson.toJson(src, typeOfSrc, writer);
     assertEquals(src.getExpectedJson(), writer.toString());
-  }
+  }  
 }
