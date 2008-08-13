@@ -31,14 +31,6 @@ import java.util.List;
  */
 public class TypeInfoTest extends TestCase {
 
-  public void testPrimitiveArray() throws Exception {
-    TypeInfoArray arrayTypeInfo = new TypeInfoArray(int[].class);
-
-    assertTrue(arrayTypeInfo.isArray());
-    assertEquals(int.class, arrayTypeInfo.getSecondLevelClass());
-    assertFalse(arrayTypeInfo.isPrimitiveOrStringAndNotAnArray());
-  }
-
   public void testPrimitive() throws Exception {
     TypeInfo typeInfo = new TypeInfo(boolean.class);
 
