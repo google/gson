@@ -338,42 +338,57 @@ public final class GsonBuilder {
     ObjectNavigatorFactory objectNavigatorFactory =
         new ObjectNavigatorFactory(exclusionStrategy, fieldNamingPolicy);
     MappedObjectConstructor objectConstructor = new MappedObjectConstructor();
+    populateDefaultTypeAdapters();
     Gson gson = new Gson(objectNavigatorFactory, objectConstructor, typeAdapter, formatter,
-        serializeNulls);
-
-    registerDefaultDateTypeAdapter(gson);
-
-    for (Map.Entry<Type, JsonSerializer<?>> entry : serializers.entrySet()) {
-      gson.registerSerializer(entry.getKey(), entry.getValue());
-    }
-
-    for (Map.Entry<Type, JsonDeserializer<?>> entry : deserializers.entrySet()) {
-      gson.registerDeserializer(entry.getKey(), entry.getValue());
-    }
-
-    for (Map.Entry<Type, InstanceCreator<?>> entry : instanceCreators.entrySet()) {
-      gson.registerInstanceCreator(entry.getKey(), entry.getValue());
-    }
+        serializeNulls, serializers, deserializers, instanceCreators);
     return gson;
   }
 
-  private void registerDefaultDateTypeAdapter(Gson gson) {
+  /**
+   * Populate the {@link #serializers}, {@link #deserializers}, {@link #instanceCreators} with
+   * the default settings for supported types if the user has not specified otherwise.
+   */
+  private void populateDefaultTypeAdapters() {
+    registerDefaultDateTypeAdapter();
+    Map<Type, JsonSerializer<?>> defaultSerializers =
+      DefaultJsonSerializers.getDefaultSerializers();
+    for (Map.Entry<Type, JsonSerializer<?>> entry : defaultSerializers.entrySet()) {
+      if (!serializers.containsKey(entry.getKey())) {
+        registerSerializer(entry.getKey(), entry.getValue());
+      }
+    }
+    Map<Type, JsonDeserializer<?>> defaultDeserializers =
+      DefaultJsonDeserializers.getDefaultDeserializers();
+    for (Map.Entry<Type, JsonDeserializer<?>> entry : defaultDeserializers.entrySet()) {
+      if (!deserializers.containsKey(entry.getKey())) {
+        registerDeserializer(entry.getKey(), entry.getValue());
+      }
+    }
+    Map<Type, InstanceCreator<?>> defaultInstanceCreators =
+      DefaultInstanceCreators.getDefaultInstanceCreators();
+    for (Map.Entry<Type, InstanceCreator<?>> entry : defaultInstanceCreators.entrySet()) {
+      if (!instanceCreators.containsKey(entry.getKey())) {
+        registerInstanceCreator(entry.getKey(), entry.getValue());
+      }
+    }
+  }
+
+  private void registerDefaultDateTypeAdapter() {
         // NOTE: if a date pattern exists, then that style takes priority
     if (datePattern != null && !"".equals(datePattern.trim())) {
-      registerDefaultTypeAdapter(gson, new DefaultDateTypeAdapter(datePattern));
+      registerDefaultTypeAdapter(new DefaultDateTypeAdapter(datePattern));
     } else if (dateStyle != DateFormat.DEFAULT) {
-      registerDefaultTypeAdapter(gson, new DefaultDateTypeAdapter(dateStyle));
+      registerDefaultTypeAdapter(new DefaultDateTypeAdapter(dateStyle));
     }
   }
 
   /**
    * Registers this {@code dateTypeAdapter} with the {@code gson} instance.
    *
-   * @param gson the gson instance request the date type adapter registration
    * @param dateTypeAdapter the date type adapter to register
    */
-  private void registerDefaultTypeAdapter(Gson gson, DefaultDateTypeAdapter dateTypeAdapter) {
-    gson.registerSerializer(Date.class, dateTypeAdapter);
-    gson.registerDeserializer(Date.class, dateTypeAdapter);
+  private void registerDefaultTypeAdapter(DefaultDateTypeAdapter dateTypeAdapter) {
+    registerSerializer(Date.class, dateTypeAdapter);
+    registerDeserializer(Date.class, dateTypeAdapter);
   }
 }
