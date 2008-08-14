@@ -37,11 +37,6 @@ final class TypeInfoArray extends TypeInfo {
     this.secondLevel = rawClass.getComponentType();
   }
 
-  @Override
-  public Class<?> getWrappedClass() {
-    return Primitives.wrap(secondLevel);
-  }
-
   /**
    * @return the raw type unwrapped of the second level of array.
    * If the object is (single-dimensional or multi-dimensional) array, it is the class of the

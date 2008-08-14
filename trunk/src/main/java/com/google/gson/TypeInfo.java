@@ -23,20 +23,6 @@ class TypeInfo {
   }
 
   /**
-   * Returns the actual type matching up with the first type variable.
-   * So, for
-   * <pre>
-   *   class Foo<A, B> {
-   *   }
-   * new Foo<Integer, String>{}
-   * </pre>, it will return Integer.class.
-   */
-  public final Type getActualTypeForFirstTypeVariable() {
-    Type genericClass = TypeUtils.getActualTypeForFirstTypeVariable(actualType);
-    return genericClass;
-  }
-
-  /**
    * Returns the corresponding wrapper type of {@code type} if it is a primitive
    * type; otherwise returns {@code type} itself. Idempotent.
    * <pre>
@@ -45,7 +31,7 @@ class TypeInfo {
    *     wrap(String.class) == String.class
    * </pre>
    */
-  public Class<?> getWrappedClass() {
+  public final Class<?> getWrappedClass() {
     return Primitives.wrap(rawClass);
   }
 
