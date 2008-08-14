@@ -56,6 +56,7 @@ public final class GsonBuilder {
   private boolean serializeNulls;
   private String datePattern;
   private int dateStyle;
+  private boolean constructed = false;
 
   /**
    * Creates a GsonBuilder instance that can be used to build Gson with various configuration
@@ -325,6 +326,11 @@ public final class GsonBuilder {
    * @return an instance of Gson configured with the options currently set in this builder.
    */
   public Gson create() {
+    if (constructed) {
+      throw new IllegalStateException("GsonBuilder.create() can be called only once." 
+          + " Use a new GsonBuilder to construct Gson.");
+    }
+    constructed = true;
     List<ExclusionStrategy> strategies = new LinkedList<ExclusionStrategy>();
     strategies.add(innerClassExclusionStrategy);
     strategies.add(modifierBasedExclusionStrategy);
