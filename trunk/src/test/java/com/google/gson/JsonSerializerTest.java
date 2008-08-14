@@ -308,8 +308,8 @@ public class JsonSerializerTest extends TestCase {
   }
 
   public void testCustomSerializers() {
-    gson.registerSerializer(ClassWithCustomTypeConverter.class,
-        new JsonSerializer<ClassWithCustomTypeConverter>() {
+    Gson gson = new GsonBuilder().registerSerializer(
+        ClassWithCustomTypeConverter.class, new JsonSerializer<ClassWithCustomTypeConverter>() {
       public JsonElement serialize(ClassWithCustomTypeConverter src, Type typeOfSrc,
           JsonSerializationContext context) {
         JsonObject json = new JsonObject();
@@ -317,18 +317,19 @@ public class JsonSerializerTest extends TestCase {
         json.addProperty("value", 25);
         return json;
       }
-    });
+    }).create();
     ClassWithCustomTypeConverter target = new ClassWithCustomTypeConverter();
     assertEquals("{\"bag\":5,\"value\":25}", gson.toJson(target));
   }
 
   public void testNestedCustomSerializers() {
-    gson.registerSerializer(BagOfPrimitives.class, new JsonSerializer<BagOfPrimitives>() {
+    Gson gson = new GsonBuilder().registerSerializer(
+        BagOfPrimitives.class, new JsonSerializer<BagOfPrimitives>() {
       public JsonElement serialize(BagOfPrimitives src, Type typeOfSrc,
           JsonSerializationContext context) {
         return new JsonPrimitive(6);
       }
-    });
+    }).create();
     ClassWithCustomTypeConverter target = new ClassWithCustomTypeConverter();
     assertEquals("{\"bag\":6,\"value\":10}", gson.toJson(target));
   }

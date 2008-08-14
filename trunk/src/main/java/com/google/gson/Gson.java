@@ -98,32 +98,39 @@ public final class Gson {
    */
   Gson(ObjectNavigatorFactory factory) {
     this(factory, new MappedObjectConstructor(), DEFAULT_TYPE_ADAPTER, DEFAULT_JSON_FORMATTER,
-        false);
+        false,
+        DefaultJsonSerializers.getDefaultSerializers(),
+        DefaultJsonDeserializers.getDefaultDeserializers(),
+        DefaultInstanceCreators.getDefaultInstanceCreators());
   }
 
   Gson(ObjectNavigatorFactory factory, MappedObjectConstructor objectConstructor,
-      TypeAdapter typeAdapter, JsonFormatter formatter, boolean serializeNulls) {
+      TypeAdapter typeAdapter, JsonFormatter formatter, boolean serializeNulls,
+      Map<Type, JsonSerializer<?>> serializerMap, Map<Type, JsonDeserializer<?>> deserializerMap,
+      Map<Type, InstanceCreator<?>> instanceCreatorMap) {
     this.navigatorFactory = factory;
     this.objectConstructor = objectConstructor;
     this.typeAdapter = typeAdapter;
     this.formatter = formatter;
     this.serializeNulls = serializeNulls;
 
-    Map<Type, JsonSerializer<?>> defaultSerializers =
-        DefaultJsonSerializers.getDefaultSerializers();
-    for (Map.Entry<Type, JsonSerializer<?>> entry : defaultSerializers.entrySet()) {
-      registerSerializer(entry.getKey(), entry.getValue());
+    for (Map.Entry<Type, JsonSerializer<?>> entry : serializerMap.entrySet()) {
+      Type typeOfT = entry.getKey();
+      if (serializers.hasSpecificHandlerFor(typeOfT)) {
+        logger.log(Level.WARNING, "Overriding the existing Serializer for " + typeOfT);
+      }
+      serializers.register(typeOfT, entry.getValue());
     }
 
-    Map<Type, JsonDeserializer<?>> defaultDeserializers =
-        DefaultJsonDeserializers.getDefaultDeserializers();
-    for (Map.Entry<Type, JsonDeserializer<?>> entry : defaultDeserializers.entrySet()) {
-      registerDeserializer(entry.getKey(), entry.getValue());
+    for (Map.Entry<Type, JsonDeserializer<?>> entry : deserializerMap.entrySet()) {
+      Type typeOfT = entry.getKey();
+      if (deserializers.hasSpecificHandlerFor(typeOfT)) {
+        logger.log(Level.WARNING, "Overriding the existing Deserializer for " + typeOfT);
+      }
+      deserializers.register(typeOfT, entry.getValue());
     }
 
-    Map<Type, InstanceCreator<?>> defaultInstanceCreators =
-        DefaultInstanceCreators.getDefaultInstanceCreators();
-    for (Map.Entry<Type, InstanceCreator<?>> entry : defaultInstanceCreators.entrySet()) {
+    for (Map.Entry<Type, InstanceCreator<?>> entry : instanceCreatorMap.entrySet()) {
       objectConstructor.register(entry.getKey(), entry.getValue());
     }
   }
@@ -141,100 +148,6 @@ public final class Gson {
       strategies.add(new VersionExclusionStrategy(version));
     }
     return new DisjunctionExclusionStrategy(strategies);
-  }
-
-  /**
-   * Configures Gson to use a custom {@link InstanceCreator} for the specified class. If an
-   * instance creator was previously registered for the specified class, it is overwritten. You
-   * should use this method if you want to register a single instance creator for all generic types
-   * mapping to a single raw type. If you want different handling for different generic types of a
-   * single raw type, use {@link #registerInstanceCreator(Type, InstanceCreator)} instead.
-   *
-   * @param <T> the type for which instance creator is being registered.
-   * @param classOfT The class definition for the type T.
-   * @param instanceCreator the instance creator for T.
-   */
-  <T> void registerInstanceCreator(Class<T> classOfT,
-      InstanceCreator<? extends T> instanceCreator) {
-    registerInstanceCreator((Type) classOfT, instanceCreator);
-  }
-
-  /**
-   * Configures Gson to use a custom {@link InstanceCreator} for the specified type. If an instance
-   * creator was previously registered for the specified class, it is overwritten. Since this method
-   * takes a type instead of a Class object, it can be used to register a specific handler for a
-   * generic type corresponding to a raw type. If you want to have common handling for all generic
-   * types corresponding to a raw type, use {@link #registerInstanceCreator(Class, InstanceCreator)}
-   * instead.
-   *
-   * @param <T> the type for which instance creator is being registered.
-   * @param typeOfT The Type definition for T.
-   * @param instanceCreator the instance creator for T.
-   */
-  <T> void registerInstanceCreator(Type typeOfT, InstanceCreator<? extends T> instanceCreator) {
-    objectConstructor.register(typeOfT, instanceCreator);
-  }
-
-  /**
-   * Configures Gson to use a custom JSON serializer for the specified class. You should use this
-   * method if you want to register a common serializer for all generic types corresponding to a
-   * raw type. If you want different handling for different generic types corresponding to a raw
-   * type, use {@link #registerSerializer(Type, JsonSerializer)} instead.
-   *
-   * @param <T> the type for which the serializer is being registered.
-   * @param classOfT The class definition for the type T.
-   * @param serializer the custom serializer.
-   */
-  <T> void registerSerializer(Class<T> classOfT, JsonSerializer<T> serializer) {
-    registerSerializer((Type) classOfT, serializer);
-  }
-
-  /**
-   * Configures Gson to use a custom Json serializer for the specified type. You should use this
-   * method if you want to register different serializers for different generic types corresponding
-   * to a raw type. If you want common handling for all generic types corresponding to a raw type,
-   * use {@link #registerSerializer(Class, JsonSerializer)} instead.
-   *
-   * @param <T> the type for which the serializer is being registered.
-   * @param typeOfT The type definition for T.
-   * @param serializer the custom serializer.
-   */
-  <T> void registerSerializer(Type typeOfT, final JsonSerializer<T> serializer) {
-    if (serializers.hasSpecificHandlerFor(typeOfT)) {
-      logger.log(Level.WARNING, "Overriding the existing Serializer for " + typeOfT);
-    }
-    serializers.register(typeOfT, serializer);
-  }
-
-  /**
-   * Configures Gson to use a custom JSON deserializer for the specified class. You should use this
-   * method if you want to register a common deserializer for all generic types corresponding to a
-   * raw type. If you want different handling for different generic types corresponding to a raw
-   * type, use {@link #registerDeserializer(Type, JsonDeserializer)} instead.
-   *
-   * @param <T> the type for which the deserializer is being registered.
-   * @param classOfT The class definition for the type T.
-   * @param deserializer the custom deserializer.
-   */
-  <T> void registerDeserializer(Class<T> classOfT, JsonDeserializer<T> deserializer) {
-    registerDeserializer((Type) classOfT, deserializer);
-  }
-
-  /**
-   * Configures Gson to use a custom Json deserializer for the specified type. You should use this
-   * method if you want to register different deserializers for different generic types
-   * corresponding to a raw type. If you want common handling for all generic types corresponding to
-   * a raw type, use {@link #registerDeserializer(Class, JsonDeserializer)} instead.
-   *
-   * @param <T> the type for which the deserializer is being registered.
-   * @param typeOfT The type definition for T.
-   * @param deserializer the custom deserializer.
-   */
-  <T> void registerDeserializer(Type typeOfT, final JsonDeserializer<T> deserializer) {
-    if (deserializers.hasSpecificHandlerFor(typeOfT)) {
-      logger.log(Level.WARNING, "Overriding the existing Deserializer for " + typeOfT);
-    }
-    deserializers.register(typeOfT, deserializer);
   }
 
   /**

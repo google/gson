@@ -390,8 +390,8 @@ public class JsonDeserializerTest extends TestCase {
   }
 
   public void testCustomDeserializer() {
-    gson.registerDeserializer(ClassWithCustomTypeConverter.class,
-        new JsonDeserializer<ClassWithCustomTypeConverter>() {
+    Gson gson = new GsonBuilder().registerDeserializer(
+        ClassWithCustomTypeConverter.class, new JsonDeserializer<ClassWithCustomTypeConverter>() {
       public ClassWithCustomTypeConverter deserialize(JsonElement json, Type typeOfT,
           JsonDeserializationContext context) {
         JsonObject jsonObject = json.getAsJsonObject();
@@ -399,20 +399,21 @@ public class JsonDeserializerTest extends TestCase {
         return new ClassWithCustomTypeConverter(new BagOfPrimitives(value,
             value, false, ""), value);
       }
-    });
+    }).create();
     String json = "{\"bag\":5,\"value\":25}";
     ClassWithCustomTypeConverter target = gson.fromJson(json, ClassWithCustomTypeConverter.class);
     assertEquals(5, target.getBag().getIntValue());
   }
 
   public void testNestedCustomTypeConverters() {
-    gson.registerDeserializer(BagOfPrimitives.class, new JsonDeserializer<BagOfPrimitives>() {
+    Gson gson = new GsonBuilder().registerDeserializer(
+        BagOfPrimitives.class, new JsonDeserializer<BagOfPrimitives>() {
       public BagOfPrimitives deserialize(JsonElement json, Type typeOfT,
           JsonDeserializationContext context) throws JsonParseException {
         int value = json.getAsInt();
         return new BagOfPrimitives(value, value, false, "");
       }
-    });
+    }).create();
     String json = "{\"bag\":7,\"value\":25}";
     ClassWithCustomTypeConverter target = gson.fromJson(json, ClassWithCustomTypeConverter.class);
     assertEquals(7, target.getBag().getIntValue());
@@ -431,28 +432,36 @@ public class JsonDeserializerTest extends TestCase {
   }
 
   public void testTopLevelEnum() {
-    gson.registerInstanceCreator(MyEnum.class, new MyEnumCreator());
+    Gson gson = new GsonBuilder()
+        .registerInstanceCreator(MyEnum.class, new MyEnumCreator())
+        .create();
     String json = MyEnum.VALUE1.getExpectedJson();
     MyEnum target = gson.fromJson(json, MyEnum.class);
     assertEquals(json, target.getExpectedJson());
   }
 
   public void testTopLevelEnumInASingleElementArray() {
-    gson.registerInstanceCreator(MyEnum.class, new MyEnumCreator());
+    Gson gson = new GsonBuilder()
+        .registerInstanceCreator(MyEnum.class, new MyEnumCreator())
+        .create();
     String json = "[" + MyEnum.VALUE1.getExpectedJson() + "]";
     MyEnum target = gson.fromJson(json, MyEnum.class);
     assertEquals(json, "[" + target.getExpectedJson() + "]");
   }
 
   public void testClassWithEnumField() {
-    gson.registerInstanceCreator(MyEnum.class, new MyEnumCreator());
+    Gson gson = new GsonBuilder()
+        .registerInstanceCreator(MyEnum.class, new MyEnumCreator())
+        .create();
     String json = new ClassWithEnumFields().getExpectedJson();
     ClassWithEnumFields target = gson.fromJson(json, ClassWithEnumFields.class);
     assertEquals(json, target.getExpectedJson());
   }
 
   public void testCollectionOfEnums() {
-    gson.registerInstanceCreator(MyEnum.class, new MyEnumCreator());
+    Gson gson = new GsonBuilder()
+        .registerInstanceCreator(MyEnum.class, new MyEnumCreator())
+        .create();
     Type type = new TypeToken<Collection<MyEnum>>() {
     }.getType();
     String json = "[\"VALUE1\",\"VALUE2\"]";

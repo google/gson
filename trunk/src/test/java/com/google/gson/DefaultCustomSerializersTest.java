@@ -50,7 +50,7 @@ public class DefaultCustomSerializersTest extends TestCase {
   }
 
   public void testDefaultDateSerializationUsingBuilder() throws Exception {
-    Gson gson = new GsonBuilder().create();
+    Gson gson = new Gson();
     Date now = new Date();
     String json = gson.toJson(now);
     assertEquals("\"" + DateFormat.getDateInstance().format(now) + "\"", json);

@@ -70,18 +70,23 @@ public class ParameterizedTypesTests  extends TestCase {
     @SuppressWarnings("unchecked")
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
         return true;
-      if (obj == null)
+      }
+      if (obj == null) {
         return false;
-      if (getClass() != obj.getClass())
+      }
+      if (getClass() != obj.getClass()) {
         return false;
+      }
       MyParameterizedType other = (MyParameterizedType) obj;
       if (value == null) {
-        if (other.value != null)
+        if (other.value != null) {
           return false;
-      } else if (!value.equals(other.value))
+        }
+      } else if (!value.equals(other.value)) {
         return false;
+      }
       return true;
     }
   }
@@ -177,38 +182,51 @@ public class ParameterizedTypesTests  extends TestCase {
     @Override
     @SuppressWarnings("unchecked")
     public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
         return true;
-      if (obj == null)
+      }
+      if (obj == null) {
         return false;
-      if (getClass() != obj.getClass())
+      }
+      if (getClass() != obj.getClass()) {
         return false;
+      }
       MultiParameters<A, B, C, D, E> other = (MultiParameters<A, B, C, D, E>) obj;
       if (a == null) {
-        if (other.a != null)
+        if (other.a != null) {
           return false;
-      } else if (!a.equals(other.a))
+        }
+      } else if (!a.equals(other.a)) {
         return false;
+      }
       if (b == null) {
-        if (other.b != null)
+        if (other.b != null) {
           return false;
-      } else if (!b.equals(other.b))
+        }
+      } else if (!b.equals(other.b)) {
         return false;
+      }
       if (c == null) {
-        if (other.c != null)
+        if (other.c != null) {
           return false;
-      } else if (!c.equals(other.c))
+        }
+      } else if (!c.equals(other.c)) {
         return false;
+      }
       if (d == null) {
-        if (other.d != null)
+        if (other.d != null) {
           return false;
-      } else if (!d.equals(other.d))
+        }
+      } else if (!d.equals(other.d)) {
         return false;
+      }
       if (e == null) {
-        if (other.e != null)
+        if (other.e != null) {
           return false;
-      } else if (!e.equals(other.e))
+        }
+      } else if (!e.equals(other.e)) {
         return false;
+      }
       return true;
     }
   }
@@ -224,8 +242,9 @@ public class ParameterizedTypesTests  extends TestCase {
     MyParameterizedType<BagOfPrimitives> expected = new MyParameterizedType<BagOfPrimitives>(bag);
     Type expectedType = new TypeToken<MyParameterizedType<BagOfPrimitives>>() {}.getType();
     BagOfPrimitives bagDefaultInstance = new BagOfPrimitives();
-    gson.registerInstanceCreator(expectedType,
-        new MyParameterizedTypeInstanceCreator<BagOfPrimitives>(bagDefaultInstance));
+    Gson gson = new GsonBuilder().registerInstanceCreator(
+        expectedType, new MyParameterizedTypeInstanceCreator<BagOfPrimitives>(bagDefaultInstance))
+        .create();
 
     String json = expected.getExpectedJson();
     MyParameterizedType<Integer> actual = gson.fromJson(json, expectedType);
@@ -267,8 +286,10 @@ public class ParameterizedTypesTests  extends TestCase {
   public void testSerializeParameterizedTypeWithCustomSerializer() {
     Type ptIntegerType = new TypeToken<MyParameterizedType<Integer>>() {}.getType();
     Type ptStringType = new TypeToken<MyParameterizedType<String>>() {}.getType();
-    gson.registerSerializer(ptIntegerType, new MyParameterizedTypeAdapter<Integer>());
-    gson.registerSerializer(ptStringType, new MyParameterizedTypeAdapter<String>());
+    Gson gson = new GsonBuilder()
+        .registerSerializer(ptIntegerType, new MyParameterizedTypeAdapter<Integer>())
+        .registerSerializer(ptStringType, new MyParameterizedTypeAdapter<String>())
+        .create();
     MyParameterizedType<Integer> intTarget = new MyParameterizedType<Integer>(10);
     String json = gson.toJson(intTarget, ptIntegerType);
     assertEquals(MyParameterizedTypeAdapter.<Integer>getExpectedJson(intTarget), json);
@@ -281,18 +302,18 @@ public class ParameterizedTypesTests  extends TestCase {
   public void testDeserializeParameterizedTypesWithCustomDeserializer() {
     Type ptIntegerType = new TypeToken<MyParameterizedType<Integer>>() {}.getType();
     Type ptStringType = new TypeToken<MyParameterizedType<String>>() {}.getType();
-    gson.registerDeserializer(ptIntegerType, new MyParameterizedTypeAdapter<Integer>());
-    gson.registerInstanceCreator(ptIntegerType,
-        new MyParameterizedTypeInstanceCreator<Integer>(new Integer(0)));
+    Gson gson = new GsonBuilder().registerDeserializer(
+        ptIntegerType, new MyParameterizedTypeAdapter<Integer>())
+        .registerDeserializer(ptStringType, new MyParameterizedTypeAdapter<String>())
+        .registerInstanceCreator(ptStringType, new MyParameterizedTypeInstanceCreator<String>(""))
+        .registerInstanceCreator(ptIntegerType,
+            new MyParameterizedTypeInstanceCreator<Integer>(new Integer(0)))
+        .create();
 
     MyParameterizedType<Integer> src = new MyParameterizedType<Integer>(10);
     String json = MyParameterizedTypeAdapter.<Integer>getExpectedJson(src);
     MyParameterizedType<Integer> intTarget = gson.fromJson(json, ptIntegerType);
     assertEquals(10, (int) intTarget.value);
-
-    gson.registerDeserializer(ptStringType, new MyParameterizedTypeAdapter<String>());
-    gson.registerInstanceCreator(ptStringType,
-            new MyParameterizedTypeInstanceCreator<String>(""));
 
     MyParameterizedType<String> srcStr = new MyParameterizedType<String>("abc");
     json = MyParameterizedTypeAdapter.<String>getExpectedJson(srcStr);
@@ -305,8 +326,9 @@ public class ParameterizedTypesTests  extends TestCase {
     MyParameterizedType<BagOfPrimitives> expected = new MyParameterizedType<BagOfPrimitives>(bag);
     Type expectedType = new TypeToken<MyParameterizedType<BagOfPrimitives>>() {}.getType();
     BagOfPrimitives bagDefaultInstance = new BagOfPrimitives();
-    gson.registerInstanceCreator(expectedType,
-        new MyParameterizedTypeInstanceCreator<BagOfPrimitives>(bagDefaultInstance));
+    Gson gson = new GsonBuilder().registerInstanceCreator(
+        expectedType, new MyParameterizedTypeInstanceCreator<BagOfPrimitives>(bagDefaultInstance))
+        .create();
 
     Reader json = new StringReader(expected.getExpectedJson());
     MyParameterizedType<Integer> actual = gson.fromJson(json, expectedType);

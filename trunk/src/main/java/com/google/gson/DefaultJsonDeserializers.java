@@ -35,6 +35,9 @@ import java.util.StringTokenizer;
  */
 final class DefaultJsonDeserializers {
 
+  //TODO(inder): merge DefaultJsonDeserializers and DefaultJsonSerializer classes and use the
+  // type adapter interface.
+
   @SuppressWarnings("unchecked")
   static Map<Type, JsonDeserializer<?>> getDefaultDeserializers() {
     Map<Type, JsonDeserializer<?>> map = new LinkedHashMap<Type, JsonDeserializer<?>>();
