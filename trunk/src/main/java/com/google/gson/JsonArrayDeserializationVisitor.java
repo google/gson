@@ -46,7 +46,7 @@ final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisito
         throw new IllegalArgumentException(
             "Primitives should be an array of length 1, but was: " + jsonArray);
       }
-      target = objectConstructor.construct(typeInfo.getWrappedClass());
+      target = (T) objectConstructor.construct(typeInfo.getWrappedClass());
     } else if (typeInfo.isArray()) {
       TypeInfoArray arrayTypeInfo = TypeInfoFactory.getTypeInfoForArray(arrayType);
       // We know that we are getting back an array of the required type, so
@@ -54,7 +54,7 @@ final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisito
       target = (T) objectConstructor.constructArray(arrayTypeInfo.getSecondLevelClass(),
           jsonArray.size());
     } else { // is a collection
-      target = objectConstructor.construct(typeInfo.getRawClass());
+      target = (T) objectConstructor.construct(typeInfo.getRawClass());
     }
   }
 

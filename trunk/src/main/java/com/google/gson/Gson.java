@@ -282,8 +282,9 @@ public final class Gson {
    * @throws JsonParseException if json is not a valid representation for an object of type
    * classOfT.
    */
+  @SuppressWarnings("unchecked")
   public <T> T fromJson(String json, Class<T> classOfT) throws JsonParseException {
-    T target = fromJson(json, (Type) classOfT);
+    T target = (T) fromJson(json, (Type) classOfT);
     return target;
   }
 
@@ -304,9 +305,10 @@ public final class Gson {
    * @return an object of type T from the string.
    * @throws JsonParseException if json is not a valid representation for an object of type typeOfT.
    */
+  @SuppressWarnings("unchecked")
   public <T> T fromJson(String json, Type typeOfT) throws JsonParseException {
     StringReader reader = new StringReader(json);
-    T target = fromJson(reader, typeOfT);
+    T target = (T) fromJson(reader, typeOfT);
     return target;
   }
 
@@ -328,7 +330,7 @@ public final class Gson {
    * classOfT.
    */
   public <T> T fromJson(Reader json, Class<T> classOfT) throws JsonParseException {
-    T target = fromJson(json, (Type) classOfT);
+    T target = classOfT.cast(fromJson(json, (Type) classOfT));
     return target;
   }
 
@@ -349,13 +351,14 @@ public final class Gson {
    * @return an object of type T from the json.
    * @throws JsonParseException if json is not a valid representation for an object of type typeOfT.
    */
+  @SuppressWarnings("unchecked")
   public <T> T fromJson(Reader json, Type typeOfT) throws JsonParseException {
     try {
       JsonParser parser = new JsonParser(json);
       JsonElement root = parser.parse();
       JsonDeserializationContext context = new JsonDeserializationContextDefault(navigatorFactory,
           deserializers, objectConstructor, typeAdapter);
-      T target = context.deserialize(root, typeOfT);
+      T target = (T) context.deserialize(root, typeOfT);
       return target;
     } catch (TokenMgrError e) {
       throw new JsonParseException("Failed parsing JSON source: " + json + " to Json", e);
