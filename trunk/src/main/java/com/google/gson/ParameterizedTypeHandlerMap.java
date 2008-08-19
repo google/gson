@@ -20,6 +20,8 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
 
 /**
  * A map that provides ability to associate handlers for a specific type or all of its sub-types
@@ -33,8 +35,11 @@ final class ParameterizedTypeHandlerMap<T> {
 
   private final Map<Type, T> map = new HashMap<Type, T>();
 
-  public void register(Type type, T value) {
-    map.put(type, value);
+  public void register(Type typeOfT, T value) {
+    if (hasSpecificHandlerFor(typeOfT)) {
+      Gson.logger.log(Level.WARNING, "Overriding the existing type handler for " + typeOfT);
+    }
+    map.put(typeOfT, value);
   }
 
   public T getHandlerFor(Type type) {
@@ -53,5 +58,25 @@ final class ParameterizedTypeHandlerMap<T> {
 
   public boolean hasSpecificHandlerFor(Type type) {
     return map.containsKey(type);
+  }
+
+  public ParameterizedTypeHandlerMap<T> copyOf() {
+    ParameterizedTypeHandlerMap<T> copy = new ParameterizedTypeHandlerMap<T>();
+    for (Map.Entry<Type, T> entry : map.entrySet()) {
+      copy.register(entry.getKey(), entry.getValue());
+    }
+    return copy;
+  }
+
+  public Set<Map.Entry<Type, T>> entrySet() {
+    return map.entrySet();
+  }
+
+  public void addIfAbsent(ParameterizedTypeHandlerMap<T> other) {
+    for (Map.Entry<Type, T> entry : other.entrySet()) {
+      if (!map.containsKey(entry.getKey())) {
+        register(entry.getKey(), entry.getValue());
+      }
+    }
   }
 }
