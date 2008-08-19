@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 /**
- * Default JSON deserializers for common Java types
+ * Default JSON deserializers for common Java types.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
@@ -38,15 +38,23 @@ final class DefaultJsonDeserializers {
   //TODO(inder): merge DefaultJsonDeserializers and DefaultJsonSerializer classes and use the
   // type adapter interface.
 
+  /**
+   * @param registerOverridable if true then registers type adapters that are overridable through
+   * {@link GsonBuilder}.
+   */
   @SuppressWarnings("unchecked")
-  static Map<Type, JsonDeserializer<?>> getDefaultDeserializers() {
-    Map<Type, JsonDeserializer<?>> map = new LinkedHashMap<Type, JsonDeserializer<?>>();
-    map.put(Enum.class, new EnumDeserializer());
-    map.put(Map.class, new MapDeserializer());
-    map.put(URL.class, new UrlDeserializer());
-    map.put(URI.class, new UriDeserializer());
-    map.put(Locale.class, new LocaleDeserializer());
-    map.put(Date.class, DefaultDateTypeAdapter.DEFAULT_TYPE_ADAPTER);
+  static ParameterizedTypeHandlerMap<JsonDeserializer<?>> getDefaultDeserializers(
+      boolean registerOverridable) {
+    ParameterizedTypeHandlerMap<JsonDeserializer<?>> map =
+      new ParameterizedTypeHandlerMap<JsonDeserializer<?>>();
+    map.register(Enum.class, new EnumDeserializer());
+    map.register(Map.class, new MapDeserializer());
+    map.register(URL.class, new UrlDeserializer());
+    map.register(URI.class, new UriDeserializer());
+    map.register(Locale.class, new LocaleDeserializer());
+    if (registerOverridable) {
+      map.register(Date.class, DefaultDateTypeAdapter.DEFAULT_TYPE_ADAPTER);
+    }
     return map;
   }
 

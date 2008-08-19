@@ -45,43 +45,44 @@ import java.util.TreeSet;
  */
 final class DefaultInstanceCreators {
 
-  static Map<Type, InstanceCreator<?>> getDefaultInstanceCreators() {
-    Map<Type, InstanceCreator<?>> map = new LinkedHashMap<Type, InstanceCreator<?>>();
+  static ParameterizedTypeHandlerMap<InstanceCreator<?>> getDefaultInstanceCreators() {
+    ParameterizedTypeHandlerMap<InstanceCreator<?>> map =
+      new ParameterizedTypeHandlerMap<InstanceCreator<?>>();
 
     // Add primitive instance creators
-    map.put(Boolean.class, new BooleanCreator());
-    map.put(boolean.class, new BooleanCreator());
-    map.put(Byte.class, new ByteCreator());
-    map.put(byte.class, new ByteCreator());
-    map.put(Character.class, new CharacterCreator());
-    map.put(char.class, new CharacterCreator());
-    map.put(Double.class, new DoubleCreator());
-    map.put(double.class, new DoubleCreator());
-    map.put(Float.class, new FloatCreator());
-    map.put(float.class, new FloatCreator());
-    map.put(Integer.class, new IntegerCreator());
-    map.put(int.class, new IntegerCreator());
-    map.put(Long.class, new LongCreator());
-    map.put(long.class, new LongCreator());
-    map.put(Short.class, new ShortCreator());
-    map.put(short.class, new ShortCreator());
+    map.register(Boolean.class, new BooleanCreator());
+    map.register(boolean.class, new BooleanCreator());
+    map.register(Byte.class, new ByteCreator());
+    map.register(byte.class, new ByteCreator());
+    map.register(Character.class, new CharacterCreator());
+    map.register(char.class, new CharacterCreator());
+    map.register(Double.class, new DoubleCreator());
+    map.register(double.class, new DoubleCreator());
+    map.register(Float.class, new FloatCreator());
+    map.register(float.class, new FloatCreator());
+    map.register(Integer.class, new IntegerCreator());
+    map.register(int.class, new IntegerCreator());
+    map.register(Long.class, new LongCreator());
+    map.register(long.class, new LongCreator());
+    map.register(Short.class, new ShortCreator());
+    map.register(short.class, new ShortCreator());
 
     // Add Collection instance creators
     InstanceCreator<LinkedList<?>> linkedListCreator = new LinkedListCreator();
-    map.put(Collection.class, linkedListCreator);
-    map.put(List.class, linkedListCreator);
-    map.put(Queue.class, linkedListCreator);
+    map.register(Collection.class, linkedListCreator);
+    map.register(List.class, linkedListCreator);
+    map.register(Queue.class, linkedListCreator);
 
     // Add Set instance creators
     InstanceCreator<TreeSet<?>> treeSetCreator = new TreeSetCreator();
-    map.put(Set.class, treeSetCreator);
-    map.put(SortedSet.class, treeSetCreator);
+    map.register(Set.class, treeSetCreator);
+    map.register(SortedSet.class, treeSetCreator);
 
     // Add instance creators for other common objects
-    map.put(Enum.class, new EnumCreator());
-    map.put(Map.class, new MapCreator());
-    map.put(URL.class, new UrlCreator());
-    map.put(Locale.class, new LocaleCreator());
+    map.register(Enum.class, new EnumCreator());
+    map.register(Map.class, new MapCreator());
+    map.register(URL.class, new UrlCreator());
+    map.register(Locale.class, new LocaleCreator());
 
     return map;
   }

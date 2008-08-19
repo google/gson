@@ -21,27 +21,34 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
 /**
- * Default JSON serializers for common Java types
+ * Default JSON serializers for common Java types.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
 final class DefaultJsonSerializers {
 
+  /**
+   * @param registerOverridable if true then registers type adapters that are overridable through
+   * {@link GsonBuilder}.
+   */
   @SuppressWarnings("unchecked")
-  static Map<Type, JsonSerializer<?>> getDefaultSerializers() {
-    Map<Type, JsonSerializer<?>> map = new LinkedHashMap<Type, JsonSerializer<?>>();
-    map.put(Enum.class, new EnumSerializer());
-    map.put(Map.class, new MapSerializer());
-    map.put(URL.class, new UrlSerializer());
-    map.put(URI.class, new UriSerializer());
-    map.put(Locale.class, new LocaleSerializer());
-    map.put(Date.class, DefaultDateTypeAdapter.DEFAULT_TYPE_ADAPTER);
+  static ParameterizedTypeHandlerMap<JsonSerializer<?>> getDefaultSerializers(
+      boolean registerOverridable) {
+    ParameterizedTypeHandlerMap<JsonSerializer<?>> map =
+      new ParameterizedTypeHandlerMap<JsonSerializer<?>>();
+    map.register(Enum.class, new EnumSerializer());
+    map.register(Map.class, new MapSerializer());
+    map.register(URL.class, new UrlSerializer());
+    map.register(URI.class, new UriSerializer());
+    map.register(Locale.class, new LocaleSerializer());
+    if (registerOverridable) {
+      map.register(Date.class, DefaultDateTypeAdapter.DEFAULT_TYPE_ADAPTER);
+    }
     return map;
   }
 
