@@ -39,7 +39,7 @@ public class DefaultMapJsonSerializerTest extends TestCase {
   protected void setUp() throws Exception {
     super.setUp();
     ParameterizedTypeHandlerMap<JsonSerializer<?>> defaultSerializers =
-      DefaultJsonSerializers.getDefaultSerializers(true);
+      DefaultJsonSerializers.getDefaultSerializers();
     mapSerializer = (JsonSerializer<Map<?, ?>>) defaultSerializers.getHandlerFor(Map.class);
   }
 

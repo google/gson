@@ -39,22 +39,17 @@ final class DefaultJsonDeserializers {
   // type adapter interface.
 
   /**
-   * @param registerOverridable if true then registers type adapters that are overridable through
-   * {@link GsonBuilder}.
    */
   @SuppressWarnings("unchecked")
-  static ParameterizedTypeHandlerMap<JsonDeserializer<?>> getDefaultDeserializers(
-      boolean registerOverridable) {
+  static ParameterizedTypeHandlerMap<JsonDeserializer<?>> getDefaultDeserializers() {
     ParameterizedTypeHandlerMap<JsonDeserializer<?>> map =
-      new ParameterizedTypeHandlerMap<JsonDeserializer<?>>();
+        new ParameterizedTypeHandlerMap<JsonDeserializer<?>>();
     map.register(Enum.class, new EnumDeserializer());
     map.register(Map.class, new MapDeserializer());
     map.register(URL.class, new UrlDeserializer());
     map.register(URI.class, new UriDeserializer());
     map.register(Locale.class, new LocaleDeserializer());
-    if (registerOverridable) {
-      map.register(Date.class, DefaultDateTypeAdapter.DEFAULT_TYPE_ADAPTER);
-    }
+    map.register(Date.class, DefaultDateTypeAdapter.DEFAULT_TYPE_ADAPTER);
     return map;
   }
 

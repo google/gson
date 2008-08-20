@@ -341,8 +341,8 @@ public final class GsonBuilder {
     ParameterizedTypeHandlerMap<JsonDeserializer<?>> customDeserializers = deserializers.copyOf();
 
     addTypeAdaptersForDate(datePattern, dateStyle, customSerializers, customDeserializers);
-    customSerializers.addIfAbsent(DefaultJsonSerializers.getDefaultSerializers(true));
-    customDeserializers.addIfAbsent(DefaultJsonDeserializers.getDefaultDeserializers(true));
+    customSerializers.addIfAbsent(DefaultJsonSerializers.getDefaultSerializers());
+    customDeserializers.addIfAbsent(DefaultJsonDeserializers.getDefaultDeserializers());
 
     ParameterizedTypeHandlerMap<InstanceCreator<?>> customInstanceCreators =
       instanceCreators.copyOf();
