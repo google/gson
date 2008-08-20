@@ -63,35 +63,35 @@ public class JsonFieldNameValidatorTest extends TestCase {
   public void testInvalidFieldStartingTwoDollarSigns() throws Exception {
     try {
       validator.validate("$$abc");
-      fail("Json field name can not start with a number");
+      fail("Json field name can not start with a double dollar sign");
     } catch (IllegalArgumentException expected) { }
   }
 
   public void testInvalidFieldStartingTwoUnderscores() throws Exception {
     try {
       validator.validate("__abc");
-      fail("Json field name can not start with a number");
+      fail("Json field name can not start with a double underscore");
     } catch (IllegalArgumentException expected) { }
   }
 
   public void testInvalidFieldStartingDollarUnderscore() throws Exception {
     try {
       validator.validate("$_abc");
-      fail("Json field name can not start with a number");
+      fail("Json field name can not start with two non-alphabet characters");
     } catch (IllegalArgumentException expected) { }
   }
 
   public void testKeywordAsFieldName() throws Exception {
     try {
       validator.validate("break");
-      fail("Json field name can not start with a number");
+      fail("Json field name can not be a reserved word");
     } catch (IllegalArgumentException expected) { }
   }
 
   public void testInvalidCharacters() throws Exception {
     try {
       validator.validate("abc.123");
-      fail("Json field name can not start with a number");
+      fail("Json field name can not contain a period character");
     } catch (IllegalArgumentException expected) { }
   }
 }
