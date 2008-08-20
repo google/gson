@@ -103,9 +103,9 @@ public final class GsonBuilder {
    * behavior.
    *
    * @param modifiers the field modifiers. You must use the modifiers specified in the
-   *        {@link java.lang.reflect.Modifier} class. For example,
-   *        {@link java.lang.reflect.Modifier#TRANSIENT},
-   *        {@link java.lang.reflect.Modifier#STATIC}.
+   * {@link java.lang.reflect.Modifier} class. For example,
+   * {@link java.lang.reflect.Modifier#TRANSIENT},
+   * {@link java.lang.reflect.Modifier#STATIC}.
    * @return GsonBuilder to apply the Builder pattern.
    */
   public GsonBuilder excludeFieldsWithModifiers(int... modifiers) {
@@ -139,7 +139,7 @@ public final class GsonBuilder {
    * and deserialization.
    *
    * @param namingConvention the JSON field naming convention to use for
-   *        serialization/deserializaiton
+   * serialization/deserializaiton
    * @return GsonBuilder to apply the Builder pattern.
    */
   public GsonBuilder setFieldNamingPolicy(FieldNamingPolicy namingConvention) {
@@ -201,7 +201,7 @@ public final class GsonBuilder {
    *
    * @param typeOfT The class definition for the type T.
    * @param typeAdapter This object must implement at least one of the {@link InstanceCreator},
-   *        {@link JsonSerializer}, and a {@link JsonDeserializer} interfaces.
+   * {@link JsonSerializer}, and a {@link JsonDeserializer} interfaces.
    * @return GsonBuilder to apply the Builder pattern.
    */
   public GsonBuilder registerTypeAdapter(Type typeOfT, Object typeAdapter) {
