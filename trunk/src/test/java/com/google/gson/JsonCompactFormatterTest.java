@@ -16,7 +16,6 @@
 
 package com.google.gson;
 
-
 import com.google.gson.TestTypes.BagOfPrimitives;
 import com.google.gson.TestTypes.ClassWithTransientFields;
 import com.google.gson.TestTypes.Nested;
