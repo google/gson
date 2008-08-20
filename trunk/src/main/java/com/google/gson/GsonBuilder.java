@@ -139,7 +139,7 @@ public final class GsonBuilder {
    * and deserialization.
    *
    * @param namingConvention the JSON field naming convention to use for
-   * serialization/deserializaiton
+   * serialization and deserialization.
    * @return GsonBuilder to apply the Builder pattern.
    */
   public GsonBuilder setFieldNamingPolicy(FieldNamingPolicy namingConvention) {
