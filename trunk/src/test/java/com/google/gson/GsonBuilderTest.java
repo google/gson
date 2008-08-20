@@ -18,6 +18,9 @@ package com.google.gson;
 
 import junit.framework.TestCase;
 
+import java.text.DateFormat;
+import java.util.Date;
+
 /**
  * Unit tests for {@link GsonBuilder}.
  *
@@ -29,5 +32,12 @@ public class GsonBuilderTest extends TestCase {
     GsonBuilder builder = new GsonBuilder();
     builder.create();
     builder.create();
+  }
+
+  public void testDefaultDateSerializerExistsWithSimpleCreate() throws Exception {
+    Gson gson = new GsonBuilder().create();
+    Date now = new Date();
+    String json = gson.toJson(now);
+    assertEquals("\"" + DateFormat.getDateInstance().format(now) + "\"", json);
   }
 }
