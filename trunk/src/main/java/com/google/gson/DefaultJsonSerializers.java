@@ -33,22 +33,17 @@ import java.util.Map;
 final class DefaultJsonSerializers {
 
   /**
-   * @param registerOverridable if true then registers type adapters that are overridable through
-   * {@link GsonBuilder}.
    */
   @SuppressWarnings("unchecked")
-  static ParameterizedTypeHandlerMap<JsonSerializer<?>> getDefaultSerializers(
-      boolean registerOverridable) {
+  static ParameterizedTypeHandlerMap<JsonSerializer<?>> getDefaultSerializers() {
     ParameterizedTypeHandlerMap<JsonSerializer<?>> map =
-      new ParameterizedTypeHandlerMap<JsonSerializer<?>>();
+        new ParameterizedTypeHandlerMap<JsonSerializer<?>>();
     map.register(Enum.class, new EnumSerializer());
     map.register(Map.class, new MapSerializer());
     map.register(URL.class, new UrlSerializer());
     map.register(URI.class, new UriSerializer());
     map.register(Locale.class, new LocaleSerializer());
-    if (registerOverridable) {
-      map.register(Date.class, DefaultDateTypeAdapter.DEFAULT_TYPE_ADAPTER);
-    }
+    map.register(Date.class, DefaultDateTypeAdapter.DEFAULT_TYPE_ADAPTER);
     return map;
   }
 
