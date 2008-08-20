@@ -18,9 +18,10 @@ package com.google.gson;
 
 /**
  * A class representing an element of Json. It could either be a {@link JsonObject}, a
- * {@link JsonArray} or a {@link JsonPrimitive}.
+ * {@link JsonArray}, a {@link JsonPrimitive} or a {@link JsonNull}.
  *
  * @author Inderjeet Singh
+ * @author Joel Leitch
  */
 public abstract class JsonElement {
 
