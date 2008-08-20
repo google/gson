@@ -338,10 +338,11 @@ public final class GsonBuilder {
         new ObjectNavigatorFactory(exclusionStrategy, fieldNamingPolicy);
 
     ParameterizedTypeHandlerMap<JsonSerializer<?>> customSerializers = serializers.copyOf();
-    customSerializers.addIfAbsent(DefaultJsonSerializers.getDefaultSerializers(false));
     ParameterizedTypeHandlerMap<JsonDeserializer<?>> customDeserializers = deserializers.copyOf();
-    customDeserializers.addIfAbsent(DefaultJsonDeserializers.getDefaultDeserializers(false));
+
     addTypeAdaptersForDate(datePattern, dateStyle, customSerializers, customDeserializers);
+    customSerializers.addIfAbsent(DefaultJsonSerializers.getDefaultSerializers(true));
+    customDeserializers.addIfAbsent(DefaultJsonDeserializers.getDefaultDeserializers(true));
 
     ParameterizedTypeHandlerMap<InstanceCreator<?>> customInstanceCreators =
       instanceCreators.copyOf();
@@ -363,7 +364,9 @@ public final class GsonBuilder {
     } else if (dateStyle != DateFormat.DEFAULT) {
       dateTypeAdapter = new DefaultDateTypeAdapter(dateStyle);
     }
-    if (dateTypeAdapter != null) {
+    if (dateTypeAdapter != null
+        && !serializers.hasAnyHandlerFor(Date.class)
+        && !deserializers.hasAnyHandlerFor(Date.class)) {
       serializers.register(Date.class, dateTypeAdapter);
       deserializers.register(Date.class, dateTypeAdapter);
     }
