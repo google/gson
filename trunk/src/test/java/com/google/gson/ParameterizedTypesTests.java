@@ -294,8 +294,8 @@ public class ParameterizedTypesTests  extends TestCase {
     MultiParameters<Integer, Float, Double, String, BagOfPrimitives> target =
       gson.fromJson(json, typeOfTarget);
     MultiParameters<Integer, Float, Double, String, BagOfPrimitives> expected =
-    new MultiParameters<Integer, Float, Double, String, BagOfPrimitives>(10, 1.0F, 2.1D,
-            "abc", new BagOfPrimitives());
+      new MultiParameters<Integer, Float, Double, String, BagOfPrimitives>(10, 1.0F, 2.1D,
+          "abc", new BagOfPrimitives());
     assertEquals(expected, target);
   }
 
