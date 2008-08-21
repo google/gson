@@ -83,4 +83,8 @@ final class TypeUtils {
   private static Class<?> wrapWithArray(Class<?> rawClass) {
     return Array.newInstance(rawClass, 0).getClass();
   }
+
+  private TypeUtils() {
+    // Class with just some static utility methods, should not be instantiated
+  }
 }
