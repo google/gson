@@ -31,12 +31,13 @@ final class TypeUtils {
 
   /**
    * Returns the actual type matching up with the first type variable.
-   * So, for
+   * So, for a {@code typeInfo} instance defined as:
    * <pre>
    *   class Foo<A, B> {
    *   }
-   * new Foo<Integer, String>{}
-   * </pre>, it will return Integer.class.
+   *   Type fooType = new TypeToken<Foo<Integer, String>>() {}.getType();
+   * </pre>
+   * <code>TypeUtils.getActualTypeForFirstTypeVariable(fooType)</code> will return Integer.class.
    */
   static Type getActualTypeForFirstTypeVariable(Type type) {
     if (type instanceof Class) {
