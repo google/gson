@@ -21,6 +21,7 @@ import java.lang.reflect.Type;
 /**
  * Class to extract information about types used to define a generic array.
  *
+ * @author Inderjeet Singh
  * @author Joel Leitch
  */
 final class TypeInfoArray extends TypeInfo {

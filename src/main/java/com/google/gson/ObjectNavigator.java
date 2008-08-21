@@ -136,7 +136,7 @@ final class ObjectNavigator {
         } else { // must be a collection
           visitor.visitCollection((Collection<?>)obj, objType);
         }
-      } else if (objTypeInfo.getRawClass().isEnum()) {
+      } else if (objTypeInfo.isEnum()) {
         visitor.visitEnum(obj, objType);
       } else if (objTypeInfo.isPrimitiveOrStringAndNotAnArray()) {
         visitor.visitPrimitiveValue(obj);
