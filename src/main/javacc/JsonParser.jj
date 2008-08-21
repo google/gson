@@ -14,6 +14,7 @@ PARSER_BEGIN(JsonParser)
 package com.google.gson;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -150,7 +151,15 @@ private JsonPrimitive JsonNumber() :
     } else if (fracpart != null) {
       n = new Double(intpart + fracpart);
     } else {
-      n = new Long(intpart);
+      // See if the number fits in an integer, or long
+      // Use BigInteger only if it is big enough.
+      if (intpart.length() < 10) {
+        n = new Integer(intpart);
+      } else if (intpart.length() < 19) {
+        n = new Long(intpart);
+      } else {
+        n = new BigInteger(intpart);
+      }
     }
     return new JsonPrimitive(n);
   }

@@ -125,10 +125,10 @@ public final class Gson {
    */
   Gson(ObjectNavigatorFactory factory) {
     this(factory,
-        createObjectConstructor(DefaultInstanceCreators.getDefaultInstanceCreators()),
+        createObjectConstructor(DefaultTypeAdapters.getDefaultInstanceCreators()),
         DEFAULT_TYPE_ADAPTER, DEFAULT_JSON_FORMATTER, false,
-        DefaultJsonSerializers.getDefaultSerializers(),
-        DefaultJsonDeserializers.getDefaultDeserializers());
+        DefaultTypeAdapters.getDefaultSerializers(),
+        DefaultTypeAdapters.getDefaultDeserializers());
   }
 
   Gson(ObjectNavigatorFactory factory, MappedObjectConstructor objectConstructor,

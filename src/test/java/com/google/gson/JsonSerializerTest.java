@@ -132,30 +132,6 @@ public class JsonSerializerTest extends TestCase {
     }));
   }
 
-  public void testStringValue() throws Exception {
-    String value = "someRandomStringValue";
-    assertEquals('"' + value + '"', gson.toJson(value));
-  }
-
-  public void testPrimitiveIntegerAutoboxed() {
-    assertEquals("1", gson.toJson(1));
-  }
-
-  public void testPrimitiveBooleanAutoboxed() {
-    assertEquals("true", gson.toJson(true));
-    assertEquals("false", gson.toJson(false));
-  }
-
-  public void testPrimitiveDoubleAutoboxed() {
-    assertEquals("-122.08234335", gson.toJson(-122.08234335));
-    assertEquals("122.08112002", gson.toJson(new Double(122.08112002)));
-  }
-
-  public void testArrayOfOneValue() {
-    int target[] = {1};
-    assertEquals("[1]", gson.toJson(target));
-  }
-
   public void testBagOfPrimitives() {
     BagOfPrimitives target = new BagOfPrimitives(10, 20, false, "stringValue");
     assertEquals(target.getExpectedJson(), gson.toJson(target));

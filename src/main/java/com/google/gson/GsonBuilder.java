@@ -304,8 +304,8 @@ public final class GsonBuilder {
   /**
    * Configures Gson to use a custom JSON deserializer for the specified type. You should use this
    * method if you want to register different deserializers for different generic types
-   * corresponding to a raw type. If you want common handling for all generic types corresponding to
-   * a raw type, use {@link #registerDeserializer(Class, JsonDeserializer)} instead.
+   * corresponding to a raw type. If you want common handling for all generic types corresponding
+   * to a raw type, use {@link #registerDeserializer(Class, JsonDeserializer)} instead.
    *
    * @param <T> the type for which the deserializer is being registered.
    * @param typeOfT The type definition for T.
@@ -341,12 +341,12 @@ public final class GsonBuilder {
     ParameterizedTypeHandlerMap<JsonDeserializer<?>> customDeserializers = deserializers.copyOf();
 
     addTypeAdaptersForDate(datePattern, dateStyle, customSerializers, customDeserializers);
-    customSerializers.addIfAbsent(DefaultJsonSerializers.getDefaultSerializers());
-    customDeserializers.addIfAbsent(DefaultJsonDeserializers.getDefaultDeserializers());
+    customSerializers.addIfAbsent(DefaultTypeAdapters.getDefaultSerializers());
+    customDeserializers.addIfAbsent(DefaultTypeAdapters.getDefaultDeserializers());
 
     ParameterizedTypeHandlerMap<InstanceCreator<?>> customInstanceCreators =
       instanceCreators.copyOf();
-    customInstanceCreators.addIfAbsent(DefaultInstanceCreators.getDefaultInstanceCreators());
+    customInstanceCreators.addIfAbsent(DefaultTypeAdapters.getDefaultInstanceCreators());
     MappedObjectConstructor objConstructor = Gson.createObjectConstructor(customInstanceCreators);
 
     Gson gson = new Gson(objectNavigatorFactory, objConstructor, typeAdapter, formatter,

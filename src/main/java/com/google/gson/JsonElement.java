@@ -16,6 +16,9 @@
 
 package com.google.gson;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 /**
  * A class representing an element of Json. It could either be a {@link JsonObject}, a
  * {@link JsonArray}, a {@link JsonPrimitive} or a {@link JsonNull}.
@@ -214,6 +217,32 @@ public abstract class JsonElement {
    * more than a single element.
    */
   public int getAsInt() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * convenience method to get this element as a {@link BigDecimal}.
+   *
+   * @return get this element as a {@link BigDecimal}.
+   * @throws ClassCastException if the element is of not a {@link JsonPrimitive} and is not a valid
+   * {@link BigDecimal}.
+   * @throws IllegalStateException if the element is of the type {@link JsonArray} but contains
+   * more than a single element.
+   */
+  public BigDecimal getAsBigDecimal() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * convenience method to get this element as a {@link BigInteger}.
+   *
+   * @return get this element as a {@link BigInteger}.
+   * @throws ClassCastException if the element is of not a {@link JsonPrimitive} and is not a valid
+   * {@link BigInteger}.
+   * @throws IllegalStateException if the element is of the type {@link JsonArray} but contains
+   * more than a single element.
+   */
+  public BigInteger getAsBigInteger() {
     throw new UnsupportedOperationException();
   }
 

@@ -96,12 +96,6 @@ public class JsonDeserializerTest extends TestCase {
     assertEquals(expected, actual);
   }
 
-  public void testStringValue() throws Exception {
-    String value = "someRandomStringValue";
-    String actual = gson.fromJson("\"" + value + "\"", String.class);
-    assertEquals(value, actual);
-  }
-
   @SuppressWarnings("unchecked")
   public void testRawCollectionOfBagOfPrimitives() {
     try {
@@ -115,91 +109,6 @@ public class JsonDeserializerTest extends TestCase {
       fail("Raw collection of objects should not work");
     } catch (JsonParseException expected) {
     }
-  }
-
-  public void testReallyLongValues() {
-    String json = "333961828784581";
-    long value = gson.fromJson(json, Long.class);
-    assertEquals(333961828784581L, value);
-  }
-
-  public void testStringValueAsSingleElementArray() throws Exception {
-    String value = "someRandomStringValue";
-    String actual = gson.fromJson("[\"" + value + "\"]", String.class);
-    assertEquals(value, actual);
-  }
-
-  public void testPrimitiveLongAutoboxed() {
-    long expected = 1L;
-    long actual = gson.fromJson("1", long.class);
-    assertEquals(expected, actual);
-
-    actual = gson.fromJson("1", Long.class);
-    assertEquals(expected, actual);
-  }
-
-  public void testPrimitiveLongAutoboxedInASingleElementArray() {
-    long expected = 1L;
-    long actual = gson.fromJson("[1]", long.class);
-    assertEquals(expected, actual);
-
-    actual = gson.fromJson("[1]", Long.class);
-    assertEquals(expected, actual);
-  }
-
-  public void testPrimitiveIntegerAutoboxed() {
-    int expected = 1;
-    int actual = gson.fromJson("1", int.class);
-    assertEquals(expected, actual);
-
-    actual = gson.fromJson("1", Integer.class);
-    assertEquals(expected, actual);
-  }
-
-  public void testPrimitiveIntegerAutoboxedInASingleElementArray() {
-    int expected = 1;
-    int actual = gson.fromJson("[1]", int.class);
-    assertEquals(expected, actual);
-
-    actual = gson.fromJson("[1]", Integer.class);
-    assertEquals(expected, actual);
-  }
-
-  public void testPrimitiveBooleanAutoboxed() {
-    assertEquals(Boolean.FALSE, gson.fromJson("[false]", Boolean.class));
-    assertEquals(Boolean.TRUE, gson.fromJson("[true]", Boolean.class));
-
-    boolean value = gson.fromJson("false", boolean.class);
-    assertEquals(false, value);
-    value = gson.fromJson("true", boolean.class);
-    assertEquals(true, value);
-  }
-
-  public void testPrimitiveBooleanAutoboxedInASingleElementArray() {
-    assertEquals(Boolean.FALSE, gson.fromJson("[false]", Boolean.class));
-    assertEquals(Boolean.TRUE, gson.fromJson("[true]", Boolean.class));
-
-    boolean value = gson.fromJson("[false]", boolean.class);
-    assertEquals(false, value);
-    value = gson.fromJson("[true]", boolean.class);
-    assertEquals(true, value);
-  }
-
-  public void testPrimitiveDoubleAutoboxed() {
-    double actual = gson.fromJson("-122.08858585", double.class);
-    assertEquals(-122.08858585, actual);
-
-    actual = gson.fromJson("122.023900008000", Double.class);
-    assertEquals(122.023900008, actual);
-  }
-
-  public void testPrimitiveDoubleAutoboxedInASingleElementArray() {
-    double expected = -122.08;
-    double actual = gson.fromJson("[-122.08]", double.class);
-    assertEquals(expected, actual);
-
-    actual = gson.fromJson("[-122.08]", Double.class);
-    assertEquals(expected, actual);
   }
 
   public void testBagOfPrimitiveWrappers() {
