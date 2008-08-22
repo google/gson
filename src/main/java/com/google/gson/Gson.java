@@ -36,16 +36,34 @@ import java.util.logging.Logger;
  * <p>You can create a Gson instance by invoking {@code new Gson()} if the default configuration
  * is all you need. You can also use {@link GsonBuilder} to build a Gson instance with various
  * configuration options such as versioning support, pretty printing, custom
- * {@link JsonSerializer}s, {@link JsonDeserializer}s, and {@link InstanceCreator}.</p>
+ * {@link JsonSerializer}s, {@link JsonDeserializer}s, and {@link InstanceCreator}s.</p>
  *
- * <p>Here is an example of how Gson is used:
+ * <p>Here is an example of how Gson is used for a simple Class:
  *
  * <pre>
  * Gson gson = new Gson(); // Or use new GsonBuilder().create();
  * MyType target = new MyType();
  * String json = gson.toJson(target); // serializes target to Json
- * MyType target2 = gson.fromJson(MyType.class, json); // deserializes json into target2
+ * MyType target2 = gson.fromJson(json, MyType.class); // deserializes json into target2
  * </pre></p>
+ *
+ * <p>If the object that your are serializing/deserializing is a {@code ParameterizedType}
+ * (i.e. contains at least one type parameter and may be an array) then you must use the
+ * {@link #toJson(Object, Type)} or {@link #fromJson(String, Type)} method.  Here is an
+ * example for serializing and deserialing a {@code ParameterizedType}:
+ *
+ * <pre>
+ * Type listType = new TypeToken<List<String>>() {}.getType();
+ * List<String> target = new LinkedList<String>();
+ * target.add("blah");
+ *
+ * Gson gson = new Gson();
+ * String json = gson.toJson(target, listType);
+ * List<String> target2 = gson.fromJson(json, listType);
+ * </pre></p>
+ *
+ * <p>See the <a href="https://sites.google.com/site/gson/gson-user-guide">Gson User Guide</a>
+ * for a more complete set of examples.</p>
  *
  * @author Inderjeet Singh
  * @author Joel Leitch

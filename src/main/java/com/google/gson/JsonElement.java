@@ -224,8 +224,8 @@ public abstract class JsonElement {
    * convenience method to get this element as a {@link BigDecimal}.
    *
    * @return get this element as a {@link BigDecimal}.
-   * @throws ClassCastException if the element is of not a {@link JsonPrimitive} and is not a valid
-   * {@link BigDecimal}.
+   * @throws ClassCastException if the element is of not a {@link JsonPrimitive}.
+   * * @throws NumberFormatException if the element is not a valid {@link BigDecimal}.
    * @throws IllegalStateException if the element is of the type {@link JsonArray} but contains
    * more than a single element.
    */
@@ -237,8 +237,8 @@ public abstract class JsonElement {
    * convenience method to get this element as a {@link BigInteger}.
    *
    * @return get this element as a {@link BigInteger}.
-   * @throws ClassCastException if the element is of not a {@link JsonPrimitive} and is not a valid
-   * {@link BigInteger}.
+   * @throws ClassCastException if the element is of not a {@link JsonPrimitive}.
+   * @throws NumberFormatException if the element is not a valid {@link BigInteger}.
    * @throws IllegalStateException if the element is of the type {@link JsonArray} but contains
    * more than a single element.
    */
