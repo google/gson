@@ -202,31 +202,6 @@ public class PrimitiveTest extends TestCase {
     assertEquals(target, gson.fromJson(json, BigDecimal.class));
   }
 
-  private static class ClassWithBigDecimal {
-    BigDecimal value;
-    ClassWithBigDecimal() { }
-    ClassWithBigDecimal(String value) {
-      this.value = new BigDecimal(value);
-    }
-    String getExpectedJson() {
-      return "{\"value\":" + value.toEngineeringString() + "}";
-    }
-  }
-
-  public void testBigDecimalFieldSerialization() {
-    ClassWithBigDecimal target = new ClassWithBigDecimal("-122.01e-21");
-    String json = gson.toJson(target);
-    String actual = json.substring(json.indexOf(':') + 1, json.indexOf('}'));
-    assertEquals(target.value, new BigDecimal(actual));
-  }
-
-  public void testBigDecimalFieldDeserialization() {
-    ClassWithBigDecimal expected = new ClassWithBigDecimal("-122.01e-21");
-    String json = expected.getExpectedJson();
-    ClassWithBigDecimal actual = gson.fromJson(json, ClassWithBigDecimal.class);
-    assertEquals(expected.value, actual.value);
-  }
-
   public void testBigDecimalInASingleElementArraySerialization() {
     BigDecimal[] target = {new BigDecimal("-122.08e-21")};
     String json = gson.toJson(target);
@@ -256,13 +231,6 @@ public class PrimitiveTest extends TestCase {
     assertEquals(expected, actual);
   }
 
-  public void testBadValueForBigDecimalDeserialization() {
-    try {
-      gson.fromJson("{\"value\"=1.5e-1.0031}", ClassWithBigDecimal.class);
-      fail("Exponent of a BigDecimal must be an integer value.");
-    } catch (JsonParseException expected) { }
-  }
-
   public void testBigIntegerSerialization() {
     BigInteger target = new BigInteger("12121211243123245845384534687435634558945453489543985435");
     assertEquals(target.toString(), gson.toJson(target));
@@ -272,30 +240,6 @@ public class PrimitiveTest extends TestCase {
     String json = "12121211243123245845384534687435634558945453489543985435";
     BigInteger target = new BigInteger(json);
     assertEquals(target, gson.fromJson(json, BigInteger.class));
-  }
-
-  private static class ClassWithBigInteger {
-    BigInteger value;
-    ClassWithBigInteger() { }
-    ClassWithBigInteger(String value) {
-      this.value = new BigInteger(value);
-    }
-    String getExpectedJson() {
-      return "{\"value\":" + value + "}";
-    }
-  }
-
-  public void testBigIntegerFieldSerialization() {
-    ClassWithBigInteger target = new ClassWithBigInteger("23232323215323234234324324324324324324");
-    String json = gson.toJson(target);
-    assertEquals(target.getExpectedJson(), json);
-  }
-
-  public void testBigIntegerFieldDeserialization() {
-    ClassWithBigInteger expected = new ClassWithBigInteger("879697697697697697697697697697697697");
-    String json = expected.getExpectedJson();
-    ClassWithBigInteger actual = gson.fromJson(json, ClassWithBigInteger.class);
-    assertEquals(expected.value, actual.value);
   }
 
   public void testBigIntegerInASingleElementArraySerialization() {
