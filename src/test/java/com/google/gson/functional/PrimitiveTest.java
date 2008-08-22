@@ -25,7 +25,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
- * Unit tests for Json primitive values: String, integers, and floating point numbers.
+ * Functional tests for Json primitive values: String, integers, and floating point numbers.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch

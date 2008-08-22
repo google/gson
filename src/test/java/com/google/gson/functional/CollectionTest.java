@@ -33,7 +33,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Unit tests for Json serialization and deserialization of collections.
+ * Functional tests for Json serialization and deserialization of collections.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch

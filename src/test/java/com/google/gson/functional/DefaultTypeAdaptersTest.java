@@ -37,7 +37,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Unit test for Json serialization and deserialization for common classes for which default
+ * Functional test for Json serialization and deserialization for common classes for which default
  * support is provided in Gson.
  *
  * @author Inderjeet Singh

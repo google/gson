@@ -41,7 +41,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 /**
- * Unit tests for Json serialization and deserialization of regular classes.
+ * Functional tests for Json serialization and deserialization of regular classes.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
