@@ -190,7 +190,7 @@ public final class JsonPrimitive extends JsonElement {
    */
   @Override
   public BigDecimal getAsBigDecimal() {
-    return (BigDecimal)value;
+    return (BigDecimal) value;
   }
 
   /**
@@ -201,7 +201,7 @@ public final class JsonPrimitive extends JsonElement {
    */
   @Override
   public BigInteger getAsBigInteger() {
-    return (BigInteger)value;
+    return (BigInteger) value;
   }
 
   /**
