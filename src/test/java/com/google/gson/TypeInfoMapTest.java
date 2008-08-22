@@ -27,7 +27,7 @@ import java.util.Map;
 
 /**
  * Unit test for the default JSON map serialization object located in the
- * {@link DefaultJsonSerializers} class.
+ * {@link DefaultTypeAdapters} class.
  *
  * @author Joel Leitch
  */
