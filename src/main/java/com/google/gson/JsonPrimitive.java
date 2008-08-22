@@ -186,22 +186,30 @@ public final class JsonPrimitive extends JsonElement {
    * convenience method to get this element as a {@link BigDecimal}.
    *
    * @return get this element as a {@link BigDecimal}.
-   * @throws ClassCastException if the value contained is not a valid {@link BigDecimal}.
+   * @throws NumberFormatException if the value contained is not a valid {@link BigDecimal}.
    */
   @Override
   public BigDecimal getAsBigDecimal() {
-    return (BigDecimal) value;
+    if (value instanceof BigDecimal) {
+      return (BigDecimal) value;
+    } else {
+      return new BigDecimal(value.toString());
+    }
   }
 
   /**
    * convenience method to get this element as a {@link BigInteger}.
    *
    * @return get this element as a {@link BigInteger}.
-   * @throws ClassCastException if the value contained is not a valid {@link BigInteger}.
+   * @throws NumberFormatException if the value contained is not a valid {@link BigInteger}.
    */
   @Override
   public BigInteger getAsBigInteger() {
-    return (BigInteger) value;
+    if (value instanceof BigInteger) {
+      return (BigInteger) value;
+    } else {
+      return new BigInteger(value.toString());
+    }
   }
 
   /**

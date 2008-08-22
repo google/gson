@@ -271,6 +271,13 @@ public class PrimitiveTests extends TestCase {
     assertEquals(target.toString(), actual);
   }
 
+  public void testBadValueForBigIntegerDeserialization() {
+    try {
+      gson.fromJson("15.099", BigInteger.class);
+      fail("BigInteger can not be decimal values.");
+    } catch (JsonParseException expected) { }
+  }
+
   private String extractElementFromArray(String json) {
     return json.substring(json.indexOf('[') + 1, json.indexOf(']'));
   }
