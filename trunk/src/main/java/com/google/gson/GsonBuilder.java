@@ -199,12 +199,12 @@ public final class GsonBuilder {
 
   /**
    * Configures Gson to use a different date type adapter to serialize {@code Date} objects
-   * according to the style valud provided.  Note that this style value should be one of the
-   * pre-defined constants in the {@code DateFormat} class.
+   * according to the style value provided.  Note that this style value should be one of the
+   * predefined constants in the {@code DateFormat} class.
    *
    * <p>See the JDK documentation for more information on the valid style constants.</p>
    *
-   * @param style the pre-defined date style that date objects will be serialized/deserialized
+   * @param style the predefined date style that date objects will be serialized/deserialized
    * to/from
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
@@ -303,7 +303,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
   <T> GsonBuilder registerSerializer(Type typeOfT, final JsonSerializer<T> serializer) {
-    serializers.register(typeOfT, serializer);
+    serializers.register(typeOfT, new JsonSerializerExceptionWrapper<T>(serializer));
     return this;
   }
 
@@ -334,7 +334,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
   <T> GsonBuilder registerDeserializer(Type typeOfT, final JsonDeserializer<T> deserializer) {
-    deserializers.register(typeOfT, deserializer);
+    deserializers.register(typeOfT, new JsonDeserializerExceptionWrapper<T>(deserializer));
     return this;
   }
 
