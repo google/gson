@@ -35,7 +35,7 @@ import java.lang.reflect.Type;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class ParameterizedTypesTests  extends TestCase {
+public class ParameterizedTypesTest extends TestCase {
 
   private Gson gson;
 
