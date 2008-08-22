@@ -356,6 +356,8 @@ public final class Gson {
       throw new JsonParseException("Failed parsing JSON source: " + json + " to Json", e);
     } catch (OutOfMemoryError e) {
       throw new JsonParseException("Failed parsing JSON source: " + json + " to Json", e);
+    } catch (NumberFormatException e) {
+      throw new JsonParseException("Failed parsing JSON source: " + json + " to Json", e);
     }
   }
 }
