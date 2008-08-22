@@ -34,12 +34,31 @@ import java.util.logging.Level;
 final class ParameterizedTypeHandlerMap<T> {
 
   private final Map<Type, T> map = new HashMap<Type, T>();
+  private boolean modifiable = true;
 
   public void register(Type typeOfT, T value) {
+    if (!modifiable) {
+      throw new IllegalStateException("Attempted to modify an unmodifiable map.");
+    }
     if (hasSpecificHandlerFor(typeOfT)) {
       Gson.logger.log(Level.WARNING, "Overriding the existing type handler for " + typeOfT);
     }
     map.put(typeOfT, value);
+  }
+
+  public void registerIfAbsent(ParameterizedTypeHandlerMap<T> other) {
+    if (!modifiable) {
+      throw new IllegalStateException("Attempted to modify an unmodifiable map.");
+    }
+    for (Map.Entry<Type, T> entry : other.entrySet()) {
+      if (!map.containsKey(entry.getKey())) {
+        register(entry.getKey(), entry.getValue());
+      }
+    }
+  }
+
+  public void makeUnmodifiable() {
+    modifiable = false;
   }
 
   public T getHandlerFor(Type type) {
@@ -70,13 +89,5 @@ final class ParameterizedTypeHandlerMap<T> {
 
   public Set<Map.Entry<Type, T>> entrySet() {
     return map.entrySet();
-  }
-
-  public void addIfAbsent(ParameterizedTypeHandlerMap<T> other) {
-    for (Map.Entry<Type, T> entry : other.entrySet()) {
-      if (!map.containsKey(entry.getKey())) {
-        register(entry.getKey(), entry.getValue());
-      }
-    }
   }
 }

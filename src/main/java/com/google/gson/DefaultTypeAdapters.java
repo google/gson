@@ -49,74 +49,100 @@ import java.util.TreeSet;
 final class DefaultTypeAdapters {
 
   @SuppressWarnings("unchecked")
-  static ParameterizedTypeHandlerMap<JsonSerializer<?>> getDefaultSerializers() {
+  private static final EnumTypeAdapter ENUM_TYPE_ADAPTER = new EnumTypeAdapter();
+  private static final UrlTypeAdapter URL_TYPE_ADAPTER = new UrlTypeAdapter();
+  private static final UriTypeAdapter URI_TYPE_ADAPTER = new UriTypeAdapter();
+  private static final LocaleTypeAdapter LOCALE_TYPE_ADAPTER = new LocaleTypeAdapter();
+  private static final MapTypeAdapter MAP_TYPE_ADAPTER = new MapTypeAdapter();
+  private static final BigDecimalTypeAdapter BIG_DECIMAL_TYPE_ADAPTER = new BigDecimalTypeAdapter();
+  private static final BigIntegerTypeAdapter BIG_INTEGER_TYPE_ADAPTER = new BigIntegerTypeAdapter();
+
+  private static final BooleanCreator BOOLEAN_CREATOR = new BooleanCreator();
+  private static final ByteCreator BYTE_CREATOR = new ByteCreator();
+  private static final CharacterCreator CHARACTER_CREATOR = new CharacterCreator();
+  private static final DoubleCreator DOUBLE_CREATOR = new DoubleCreator();
+  private static final FloatCreator FLOAT_CREATOR = new FloatCreator();
+  private static final IntegerCreator INTEGER_CREATOR = new IntegerCreator();
+  private static final LongCreator LONG_CREATOR = new LongCreator();
+  private static final ShortCreator SHORT_CREATOR = new ShortCreator();
+  private static final LinkedListCreator LINKED_LIST_CREATOR = new LinkedListCreator();
+  private static final TreeSetCreator TREE_SET_CREATOR = new TreeSetCreator();
+
+  // The constants DEFAULT_SERIALIZERS, DEFAULT_DESERIALIZERS, and DEFAULT_INSTANCE_CREATORS
+  // must be defined after the constants for the type adapters. Otherwise, the type adapter
+  // constants will appear as nulls.
+  static final ParameterizedTypeHandlerMap<JsonSerializer<?>> DEFAULT_SERIALIZERS =
+    getDefaultSerializers();
+  static final ParameterizedTypeHandlerMap<JsonDeserializer<?>> DEFAULT_DESERIALIZERS =
+    getDefaultDeserializers();
+  static final ParameterizedTypeHandlerMap<InstanceCreator<?>> DEFAULT_INSTANCE_CREATORS =
+    getDefaultInstanceCreators();
+
+  private static ParameterizedTypeHandlerMap<JsonSerializer<?>> getDefaultSerializers() {
     ParameterizedTypeHandlerMap<JsonSerializer<?>> map =
       new ParameterizedTypeHandlerMap<JsonSerializer<?>>();
-    map.register(Enum.class, new EnumTypeAdapter());
-    map.register(URL.class, new UrlTypeAdapter());
-    map.register(URI.class, new UriTypeAdapter());
-    map.register(Locale.class, new LocaleTypeAdapter());
-    map.register(Map.class, new MapTypeAdapter());
+    map.register(Enum.class, ENUM_TYPE_ADAPTER);
+    map.register(URL.class, URL_TYPE_ADAPTER);
+    map.register(URI.class, URI_TYPE_ADAPTER);
+    map.register(Locale.class, LOCALE_TYPE_ADAPTER);
+    map.register(Map.class, MAP_TYPE_ADAPTER);
     map.register(Date.class, DefaultDateTypeAdapter.DEFAULT_TYPE_ADAPTER);
-    map.register(BigDecimal.class, new BigDecimalTypeAdapter());
-    map.register(BigInteger.class, new BigIntegerTypeAdapter());
+    map.register(BigDecimal.class, BIG_DECIMAL_TYPE_ADAPTER);
+    map.register(BigInteger.class, BIG_INTEGER_TYPE_ADAPTER);
+    map.makeUnmodifiable();
     return map;
   }
 
-  @SuppressWarnings("unchecked")
-  static ParameterizedTypeHandlerMap<JsonDeserializer<?>> getDefaultDeserializers() {
+  private static ParameterizedTypeHandlerMap<JsonDeserializer<?>> getDefaultDeserializers() {
     ParameterizedTypeHandlerMap<JsonDeserializer<?>> map =
       new ParameterizedTypeHandlerMap<JsonDeserializer<?>>();
-    map.register(Enum.class, new EnumTypeAdapter());
-    map.register(URL.class, new UrlTypeAdapter());
-    map.register(URI.class, new UriTypeAdapter());
-    map.register(Locale.class, new LocaleTypeAdapter());
-    map.register(Map.class, new MapTypeAdapter());
+    map.register(Enum.class, ENUM_TYPE_ADAPTER);
+    map.register(URL.class, URL_TYPE_ADAPTER);
+    map.register(URI.class, URI_TYPE_ADAPTER);
+    map.register(Locale.class, LOCALE_TYPE_ADAPTER);
+    map.register(Map.class, MAP_TYPE_ADAPTER);
     map.register(Date.class, DefaultDateTypeAdapter.DEFAULT_TYPE_ADAPTER);
-    map.register(BigDecimal.class, new BigDecimalTypeAdapter());
-    map.register(BigInteger.class, new BigIntegerTypeAdapter());
+    map.register(BigDecimal.class, BIG_DECIMAL_TYPE_ADAPTER);
+    map.register(BigInteger.class, BIG_INTEGER_TYPE_ADAPTER);
+    map.makeUnmodifiable();
     return map;
   }
 
-  @SuppressWarnings("unchecked")
-  static ParameterizedTypeHandlerMap<InstanceCreator<?>> getDefaultInstanceCreators() {
+  private static ParameterizedTypeHandlerMap<InstanceCreator<?>> getDefaultInstanceCreators() {
     ParameterizedTypeHandlerMap<InstanceCreator<?>> map =
       new ParameterizedTypeHandlerMap<InstanceCreator<?>>();
-    map.register(Enum.class, new EnumTypeAdapter());
-    map.register(URL.class, new UrlTypeAdapter());
-    map.register(Locale.class, new LocaleTypeAdapter());
-    map.register(Map.class, new MapTypeAdapter());
-    map.register(BigDecimal.class, new BigDecimalTypeAdapter());
-    map.register(BigInteger.class, new BigIntegerTypeAdapter());
+    map.register(Enum.class, ENUM_TYPE_ADAPTER);
+    map.register(URL.class, URL_TYPE_ADAPTER);
+    map.register(Locale.class, LOCALE_TYPE_ADAPTER);
+    map.register(Map.class, MAP_TYPE_ADAPTER);
+    map.register(BigDecimal.class, BIG_DECIMAL_TYPE_ADAPTER);
+    map.register(BigInteger.class, BIG_INTEGER_TYPE_ADAPTER);
 
     // Add primitive instance creators
-    map.register(Boolean.class, new BooleanCreator());
-    map.register(boolean.class, new BooleanCreator());
-    map.register(Byte.class, new ByteCreator());
-    map.register(byte.class, new ByteCreator());
-    map.register(Character.class, new CharacterCreator());
-    map.register(char.class, new CharacterCreator());
-    map.register(Double.class, new DoubleCreator());
-    map.register(double.class, new DoubleCreator());
-    map.register(Float.class, new FloatCreator());
-    map.register(float.class, new FloatCreator());
-    map.register(Integer.class, new IntegerCreator());
-    map.register(int.class, new IntegerCreator());
-    map.register(Long.class, new LongCreator());
-    map.register(long.class, new LongCreator());
-    map.register(Short.class, new ShortCreator());
-    map.register(short.class, new ShortCreator());
+    map.register(Boolean.class, BOOLEAN_CREATOR);
+    map.register(boolean.class, BOOLEAN_CREATOR);
+    map.register(Byte.class, BYTE_CREATOR);
+    map.register(byte.class, BYTE_CREATOR);
+    map.register(Character.class, CHARACTER_CREATOR);
+    map.register(char.class, CHARACTER_CREATOR);
+    map.register(Double.class, DOUBLE_CREATOR);
+    map.register(double.class, DOUBLE_CREATOR);
+    map.register(Float.class, FLOAT_CREATOR);
+    map.register(float.class, FLOAT_CREATOR);
+    map.register(Integer.class, INTEGER_CREATOR);
+    map.register(int.class, INTEGER_CREATOR);
+    map.register(Long.class, LONG_CREATOR);
+    map.register(long.class, LONG_CREATOR);
+    map.register(Short.class, SHORT_CREATOR);
+    map.register(short.class, SHORT_CREATOR);
 
-    // Add Collection instance creators
-    InstanceCreator<LinkedList<?>> linkedListCreator = new LinkedListCreator();
-    map.register(Collection.class, linkedListCreator);
-    map.register(List.class, linkedListCreator);
-    map.register(Queue.class, linkedListCreator);
+    map.register(Collection.class, LINKED_LIST_CREATOR);
+    map.register(List.class, LINKED_LIST_CREATOR);
+    map.register(Queue.class, LINKED_LIST_CREATOR);
 
-    // Add Set instance creators
-    InstanceCreator<TreeSet<?>> treeSetCreator = new TreeSetCreator();
-    map.register(Set.class, treeSetCreator);
-    map.register(SortedSet.class, treeSetCreator);
+    map.register(Set.class, TREE_SET_CREATOR);
+    map.register(SortedSet.class, TREE_SET_CREATOR);
+    map.makeUnmodifiable();
     return map;
   }
 

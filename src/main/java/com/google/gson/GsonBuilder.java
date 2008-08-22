@@ -341,12 +341,12 @@ public final class GsonBuilder {
     ParameterizedTypeHandlerMap<JsonDeserializer<?>> customDeserializers = deserializers.copyOf();
 
     addTypeAdaptersForDate(datePattern, dateStyle, customSerializers, customDeserializers);
-    customSerializers.addIfAbsent(DefaultTypeAdapters.getDefaultSerializers());
-    customDeserializers.addIfAbsent(DefaultTypeAdapters.getDefaultDeserializers());
+    customSerializers.registerIfAbsent(DefaultTypeAdapters.DEFAULT_SERIALIZERS);
+    customDeserializers.registerIfAbsent(DefaultTypeAdapters.DEFAULT_DESERIALIZERS);
 
     ParameterizedTypeHandlerMap<InstanceCreator<?>> customInstanceCreators =
       instanceCreators.copyOf();
-    customInstanceCreators.addIfAbsent(DefaultTypeAdapters.getDefaultInstanceCreators());
+    customInstanceCreators.registerIfAbsent(DefaultTypeAdapters.DEFAULT_INSTANCE_CREATORS);
     MappedObjectConstructor objConstructor = Gson.createObjectConstructor(customInstanceCreators);
 
     Gson gson = new Gson(objectNavigatorFactory, objConstructor, typeAdapter, formatter,

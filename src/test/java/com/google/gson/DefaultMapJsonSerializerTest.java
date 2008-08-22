@@ -38,9 +38,8 @@ public class DefaultMapJsonSerializerTest extends TestCase {
   @SuppressWarnings("unchecked")
   protected void setUp() throws Exception {
     super.setUp();
-    ParameterizedTypeHandlerMap<JsonSerializer<?>> defaultSerializers =
-      DefaultTypeAdapters.getDefaultSerializers();
-    mapSerializer = (JsonSerializer<Map<?, ?>>) defaultSerializers.getHandlerFor(Map.class);
+    mapSerializer =
+      (JsonSerializer<Map<?, ?>>) DefaultTypeAdapters.DEFAULT_SERIALIZERS.getHandlerFor(Map.class);
   }
 
   public void testEmptyMapNoTypeSerialization() {
