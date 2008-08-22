@@ -516,6 +516,7 @@ public class JsonDeserializerTest extends TestCase {
       }
     }
   }
+
   private void parseLongJson(String json) throws JsonParseException {
     ExceptionHolder target = gson.fromJson(json, ExceptionHolder.class);
     assertTrue(target.message.contains("Error"));
