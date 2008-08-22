@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package com.google.gson.functional;
 
-import com.google.gson.TestTypes.BagOfPrimitives;
-import com.google.gson.TestTypes.MyEnum;
+import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
 import com.google.gson.common.MoreAsserts;
+import com.google.gson.common.TestTypes.BagOfPrimitives;
+import com.google.gson.common.TestTypes.MyEnum;
 import com.google.gson.reflect.TypeToken;
 
 import junit.framework.TestCase;

@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.gson.functional;
 
-package com.google.gson;
-
-import com.google.gson.TestTypes.MyEnum;
+import com.google.gson.Gson;
 import com.google.gson.common.MoreAsserts;
+import com.google.gson.common.TestTypes.MyEnum;
 
 import junit.framework.TestCase;
 

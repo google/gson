@@ -13,22 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson;
+package com.google.gson.functional;
 
-import com.google.gson.TestTypes.ArrayOfObjects;
-import com.google.gson.TestTypes.BagOfPrimitiveWrappers;
-import com.google.gson.TestTypes.BagOfPrimitives;
-import com.google.gson.TestTypes.ClassOverridingEquals;
-import com.google.gson.TestTypes.ClassWithArray;
-import com.google.gson.TestTypes.ClassWithObjects;
-import com.google.gson.TestTypes.ClassWithTransientFields;
-import com.google.gson.TestTypes.MyEnum;
-import com.google.gson.TestTypes.Nested;
-import com.google.gson.TestTypes.PrimitiveArray;
+import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
+import com.google.gson.common.TestTypes.ArrayOfObjects;
+import com.google.gson.common.TestTypes.BagOfPrimitiveWrappers;
+import com.google.gson.common.TestTypes.BagOfPrimitives;
+import com.google.gson.common.TestTypes.ClassOverridingEquals;
+import com.google.gson.common.TestTypes.ClassWithArray;
+import com.google.gson.common.TestTypes.ClassWithNoFields;
+import com.google.gson.common.TestTypes.ClassWithObjects;
+import com.google.gson.common.TestTypes.ClassWithTransientFields;
+import com.google.gson.common.TestTypes.MyEnum;
+import com.google.gson.common.TestTypes.Nested;
+import com.google.gson.common.TestTypes.PrimitiveArray;
 
 import junit.framework.TestCase;
 
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -362,25 +364,11 @@ public class ObjectTest extends TestCase {
     assertEquals("", gson.toJson(new ClassWithNoFields() {
       // empty anonymous class
     }));
-
-    gson = new Gson(new ObjectNavigatorFactory(new ModifierBasedExclusionStrategy(
-        true, Modifier.TRANSIENT, Modifier.STATIC), Gson.DEFAULT_NAMING_POLICY));
-    assertEquals("{}", gson.toJson(new ClassWithNoFields() {
-      // empty anonymous class
-    }));
   }
 
   public void testPrimitiveArrayFieldSerialization() {
     PrimitiveArray target = new PrimitiveArray(new long[] { 1L, 2L, 3L });
     assertEquals(target.getExpectedJson(), gson.toJson(target));
-  }
-
-  private static class ClassWithNoFields {
-    // Nothing here.. .
-    @Override
-    public boolean equals(Object other) {
-      return other.getClass() == ClassWithNoFields.class;
-    }
   }
 
   public static class ClassWithSubInterfacesOfCollection {

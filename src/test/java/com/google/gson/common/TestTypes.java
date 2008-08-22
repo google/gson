@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package com.google.gson.common;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -165,6 +165,14 @@ public class TestTypes {
 
       sb.append("]}");
       return sb.toString();
+    }
+  }
+
+  public static class ClassWithNoFields {
+    // Nothing here.. .
+    @Override
+    public boolean equals(Object other) {
+      return other.getClass() == ClassWithNoFields.class;
     }
   }
 

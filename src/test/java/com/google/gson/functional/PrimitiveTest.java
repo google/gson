@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package com.google.gson.functional;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
 
 import junit.framework.TestCase;
 
