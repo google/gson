@@ -26,7 +26,7 @@ import java.util.Map;
 
 /**
  * Unit test for the default JSON map serialization object located in the
- * {@link DefaultJsonSerializers} class.
+ * {@link DefaultTypeAdapters} class.
  *
  * @author Joel Leitch
  */
@@ -39,7 +39,7 @@ public class DefaultMapJsonSerializerTest extends TestCase {
   protected void setUp() throws Exception {
     super.setUp();
     ParameterizedTypeHandlerMap<JsonSerializer<?>> defaultSerializers =
-      DefaultJsonSerializers.getDefaultSerializers();
+      DefaultTypeAdapters.getDefaultSerializers();
     mapSerializer = (JsonSerializer<Map<?, ?>>) defaultSerializers.getHandlerFor(Map.class);
   }
 
