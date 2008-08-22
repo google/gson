@@ -37,7 +37,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * Creates an empty JsonArray.
    */
   public JsonArray() {
-    elements  = new LinkedList<JsonElement>();
+    elements = new LinkedList<JsonElement>();
   }
 
   /**
@@ -148,8 +148,8 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * convenience method to get this array as a {@link BigDecimal} if it contains a single element.
    *
    * @return get this element as a {@link BigDecimal} if it is single element array.
-   * @throws ClassCastException if the element in the array is of not a {@link JsonPrimitive} and
-   * is not a valid {@link BigDecimal}.
+   * @throws ClassCastException if the element in the array is of not a {@link JsonPrimitive}.
+   * @throws NumberFormatException if the element at index 0 is not a valid {@link BigDecimal}.
    * @throws IllegalStateException if the array has more than one element.
    */
   @Override
@@ -164,8 +164,8 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * convenience method to get this array as a {@link BigInteger} if it contains a single element.
    *
    * @return get this element as a {@link BigInteger} if it is single element array.
-   * @throws ClassCastException if the element in the array is of not a {@link JsonPrimitive} and
-   * is not a valid {@link BigInteger}.
+   * @throws ClassCastException if the element in the array is of not a {@link JsonPrimitive}.
+   * @throws NumberFormatException if the element at index 0 is not a valid {@link BigInteger}.
    * @throws IllegalStateException if the array has more than one element.
    */
   @Override
