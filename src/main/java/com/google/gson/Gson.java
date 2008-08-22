@@ -65,6 +65,8 @@ import java.util.logging.Logger;
  * <p>See the <a href="https://sites.google.com/site/gson/gson-user-guide">Gson User Guide</a>
  * for a more complete set of examples.</p>
  *
+ * @see com.google.gson.reflect.TypeToken
+ *
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
