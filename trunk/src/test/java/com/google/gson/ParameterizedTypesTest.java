@@ -16,7 +16,21 @@
 
 package com.google.gson;
 
-import com.google.gson.TestTypes.BagOfPrimitives;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.InstanceCreator;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+import com.google.gson.PrimitiveTypeAdapter;
+import com.google.gson.Primitives;
+import com.google.gson.TypeInfo;
+import com.google.gson.TypeUtils;
+import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.reflect.TypeToken;
 
 import junit.framework.TestCase;

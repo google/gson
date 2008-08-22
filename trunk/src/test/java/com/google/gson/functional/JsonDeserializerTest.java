@@ -13,13 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.gson.functional;
 
-package com.google.gson;
-
-import com.google.gson.TestTypes.BagOfPrimitives;
-import com.google.gson.TestTypes.ClassWithCustomTypeConverter;
-import com.google.gson.TestTypes.ClassWithSerializedNameFields;
-import com.google.gson.TestTypes.StringWrapper;
+import com.google.gson.FieldNamingPolicy;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.common.TestTypes.BagOfPrimitives;
+import com.google.gson.common.TestTypes.ClassWithCustomTypeConverter;
+import com.google.gson.common.TestTypes.ClassWithSerializedNameFields;
+import com.google.gson.common.TestTypes.StringWrapper;
 
 import junit.framework.TestCase;
 
@@ -63,7 +70,7 @@ public class JsonDeserializerTest extends TestCase {
   }
 
   public void testCustomDeserializer() {
-    Gson gson = new GsonBuilder().registerDeserializer(
+    Gson gson = new GsonBuilder().registerTypeAdapter(
         ClassWithCustomTypeConverter.class, new JsonDeserializer<ClassWithCustomTypeConverter>() {
       public ClassWithCustomTypeConverter deserialize(JsonElement json, Type typeOfT,
           JsonDeserializationContext context) {
@@ -79,7 +86,7 @@ public class JsonDeserializerTest extends TestCase {
   }
 
   public void testNestedCustomTypeConverters() {
-    Gson gson = new GsonBuilder().registerDeserializer(
+    Gson gson = new GsonBuilder().registerTypeAdapter(
         BagOfPrimitives.class, new JsonDeserializer<BagOfPrimitives>() {
       public BagOfPrimitives deserialize(JsonElement json, Type typeOfT,
           JsonDeserializationContext context) throws JsonParseException {

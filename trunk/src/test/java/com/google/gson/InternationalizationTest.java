@@ -16,6 +16,9 @@
 
 package com.google.gson;
 
+import com.google.gson.Escaper;
+import com.google.gson.Gson;
+
 import junit.framework.TestCase;
 
 /**

@@ -16,10 +16,10 @@
 
 package com.google.gson;
 
-import com.google.gson.TestTypes.BagOfPrimitives;
-import com.google.gson.TestTypes.ClassWithTransientFields;
-import com.google.gson.TestTypes.Nested;
-import com.google.gson.TestTypes.PrimitiveArray;
+import com.google.gson.common.TestTypes.BagOfPrimitives;
+import com.google.gson.common.TestTypes.ClassWithTransientFields;
+import com.google.gson.common.TestTypes.Nested;
+import com.google.gson.common.TestTypes.PrimitiveArray;
 
 import junit.framework.TestCase;
 

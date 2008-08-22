@@ -13,20 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.google.gson;
 
-import com.google.gson.TestTypes.BagOfPrimitives;
-import com.google.gson.TestTypes.ClassOverridingEquals;
-import com.google.gson.TestTypes.ClassWithCustomTypeConverter;
-import com.google.gson.TestTypes.ClassWithSerializedNameFields;
-import com.google.gson.TestTypes.StringWrapper;
 import com.google.gson.annotations.Since;
+import com.google.gson.common.TestTypes.BagOfPrimitives;
+import com.google.gson.common.TestTypes.ClassOverridingEquals;
+import com.google.gson.common.TestTypes.ClassWithCustomTypeConverter;
+import com.google.gson.common.TestTypes.ClassWithNoFields;
+import com.google.gson.common.TestTypes.ClassWithSerializedNameFields;
+import com.google.gson.common.TestTypes.StringWrapper;
 
 import junit.framework.TestCase;
 
 import java.io.StringWriter;
 import java.io.Writer;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 
 /**
@@ -154,5 +155,14 @@ public class JsonSerializerTest extends TestCase {
     ClassWithSerializedNameFields expected = new ClassWithSerializedNameFields(5);
     String actual = gson.toJson(expected);
     assertEquals(expected.getExpectedJson(), actual);
+  }
+
+  public void testAnonymousLocalClassesSerialization() {
+    gson = new Gson(new ObjectNavigatorFactory(new ModifierBasedExclusionStrategy(
+        true, Modifier.TRANSIENT, Modifier.STATIC), Gson.DEFAULT_NAMING_POLICY));
+    assertEquals("{}", gson.toJson(new ClassWithNoFields() {
+      // empty anonymous class
+    }));
+
   }
 }

@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson;
+package com.google.gson.functional;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 
 import junit.framework.TestCase;
@@ -24,9 +27,14 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Unit test for Json serialization and deserialization for common classes for which default
@@ -163,6 +171,39 @@ public class DefaultTypeAdaptersTest extends TestCase {
     String json = expected.getExpectedJson();
     ClassWithBigInteger actual = gson.fromJson(json, ClassWithBigInteger.class);
     assertEquals(expected.value, actual.value);
+  }
+
+  public void testSetSerialization() throws Exception {
+    Gson gson = new Gson();
+    HashSet<String> s = new HashSet<String>();
+    s.add("blah");
+    String json = gson.toJson(s);
+    assertEquals("[\"blah\"]", json);
+
+    json = gson.toJson(s, Set.class);
+    assertEquals("[\"blah\"]", json);
+  }
+
+  public void testDefaultDateSerialization() {
+    Date now = new Date();
+    String json = gson.toJson(now);
+    assertEquals("\"" + DateFormat.getDateInstance().format(now) + "\"", json);
+  }
+
+  public void testDefaultDateSerializationUsingBuilder() throws Exception {
+    Gson gson = new GsonBuilder().create();
+    Date now = new Date();
+    String json = gson.toJson(now);
+    assertEquals("\"" + DateFormat.getDateInstance().format(now) + "\"", json);
+  }
+
+  public void testDateSerializationWithPattern() throws Exception {
+    String pattern = "yyyy-MM-dd";
+    DateFormat formatter = new SimpleDateFormat(pattern);
+    Gson gson = new GsonBuilder().setDateFormat(DateFormat.LONG).setDateFormat(pattern).create();
+    Date now = new Date();
+    String json = gson.toJson(now);
+    assertEquals("\"" + formatter.format(now) + "\"", json);
   }
 
   private static class ClassWithBigDecimal {

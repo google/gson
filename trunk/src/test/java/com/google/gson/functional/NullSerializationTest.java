@@ -14,10 +14,17 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package com.google.gson.functional;
 
-import com.google.gson.TestTypes.BagOfPrimitives;
-import com.google.gson.TestTypes.ClassWithObjects;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+import com.google.gson.common.TestTypes.BagOfPrimitives;
+import com.google.gson.common.TestTypes.ClassWithObjects;
 
 import junit.framework.TestCase;
 
@@ -47,7 +54,7 @@ public class NullSerializationTest extends TestCase {
   }
 
   public void testCustomSerializationOfNulls() {
-    gsonBuilder.registerSerializer(ClassWithObjects.class, new ClassWithObjectsSerializer());
+    gsonBuilder.registerTypeAdapter(ClassWithObjects.class, new ClassWithObjectsSerializer());
     Gson gson = gsonBuilder.create();
     ClassWithObjects target = new ClassWithObjects(new BagOfPrimitives());
     String actual = gson.toJson(target);
