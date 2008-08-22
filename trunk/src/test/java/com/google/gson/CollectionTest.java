@@ -45,25 +45,6 @@ public class CollectionTest extends TestCase {
     gson = new Gson();
   }
 
-  public void testRawCollectionOfIntegersSerialization() {
-    Collection<Integer> target = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9);
-    assertEquals("[1,2,3,4,5,6,7,8,9]", gson.toJson(target));
-  }
-
-  public void testRawCollectionDeserializationNotAlllowed() {
-    String json = "[0,1,2,3,4,5,6,7,8,9]";
-    try {
-        gson.fromJson(json, Collection.class);
-        fail("Can not deserialize a non-genericized collection.");
-    } catch (JsonParseException expected) { }
-
-    json = "[\"Hello\", \"World\"]";
-    try {
-      gson.fromJson(json, Collection.class);
-      fail("Can not deserialize a non-genericized collection.");
-    } catch (JsonParseException expected) { }
-  }
-
   public void testTopLevelCollectionOfIntegersSerialization() {
     Collection<Integer> target = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9);
     Type targetType = new TypeToken<Collection<Integer>>() {}.getType();
@@ -169,6 +150,40 @@ public class CollectionTest extends TestCase {
 
     assertTrue(target.contains("Hello"));
     assertTrue(target.contains("World"));
+  }
+
+  public void testRawCollectionOfIntegersSerialization() {
+    Collection<Integer> target = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    assertEquals("[1,2,3,4,5,6,7,8,9]", gson.toJson(target));
+  }
+
+  public void testRawCollectionDeserializationNotAlllowed() {
+    String json = "[0,1,2,3,4,5,6,7,8,9]";
+    try {
+        gson.fromJson(json, Collection.class);
+        fail("Can not deserialize a non-genericized collection.");
+    } catch (JsonParseException expected) { }
+
+    json = "[\"Hello\", \"World\"]";
+    try {
+      gson.fromJson(json, Collection.class);
+      fail("Can not deserialize a non-genericized collection.");
+    } catch (JsonParseException expected) { }
+  }
+
+  @SuppressWarnings("unchecked")
+  public void testRawCollectionOfBagOfPrimitivesNotAllowed() {
+    try {
+      BagOfPrimitives bag = new BagOfPrimitives(10, 20, false, "stringValue");
+      String json = '[' + bag.getExpectedJson() + ',' + bag.getExpectedJson() + ']';
+      Collection target = gson.fromJson(json, Collection.class);
+      assertEquals(2, target.size());
+      for (BagOfPrimitives bag1 : (Collection<BagOfPrimitives>) target) {
+        assertEquals(bag.getExpectedJson(), bag1.getExpectedJson());
+      }
+      fail("Raw collection of objects should not work");
+    } catch (JsonParseException expected) {
+    }
   }
 
   @SuppressWarnings("unchecked")

@@ -16,41 +16,18 @@
 
 package com.google.gson;
 
-import com.google.gson.TestTypes.ArrayOfArrays;
-import com.google.gson.TestTypes.ArrayOfObjects;
 import com.google.gson.TestTypes.BagOfPrimitives;
 import com.google.gson.TestTypes.ClassOverridingEquals;
 import com.google.gson.TestTypes.ClassWithCustomTypeConverter;
-import com.google.gson.TestTypes.ClassWithEnumFields;
-import com.google.gson.TestTypes.ClassWithNoFields;
 import com.google.gson.TestTypes.ClassWithSerializedNameFields;
-import com.google.gson.TestTypes.ClassWithSubInterfacesOfCollection;
-import com.google.gson.TestTypes.ClassWithTransientFields;
-import com.google.gson.TestTypes.ContainsReferenceToSelfType;
-import com.google.gson.TestTypes.MyEnum;
-import com.google.gson.TestTypes.Nested;
 import com.google.gson.TestTypes.StringWrapper;
-import com.google.gson.TestTypes.SubTypeOfNested;
 import com.google.gson.annotations.Since;
-import com.google.gson.reflect.TypeToken;
 
 import junit.framework.TestCase;
 
 import java.io.StringWriter;
 import java.io.Writer;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
-import java.net.URI;
-import java.net.URL;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 /**
  * Small test for Json Serialization
@@ -67,27 +44,6 @@ public class JsonSerializerTest extends TestCase {
     gson = new Gson();
   }
 
-  public void testCircular() {
-    ContainsReferenceToSelfType a = new ContainsReferenceToSelfType();
-    ContainsReferenceToSelfType b = new ContainsReferenceToSelfType();
-    a.children.add(b);
-    b.children.add(a);
-    try {
-      gson.toJson(a);
-      fail("Circular types should not get printed!");
-    } catch (IllegalStateException expected) { }
-  }
-
-  public void testSelfReference() throws Exception {
-    ClassOverridingEquals objA = new ClassOverridingEquals();
-    objA.ref = objA;
-
-    try {
-      gson.toJson(objA);
-      fail("Circular reference to self can not be serialized!");
-    } catch (IllegalStateException expected) { }
-  }
-
   public void testObjectEqualButNotSame() throws Exception {
     ClassOverridingEquals objA = new ClassOverridingEquals();
     ClassOverridingEquals objB = new ClassOverridingEquals();
@@ -96,94 +52,11 @@ public class JsonSerializerTest extends TestCase {
     assertEquals(objB.getExpectedJson(), gson.toJson(objB));
   }
 
-  public void testClassWithTransientFields() throws Exception {
-    ClassWithTransientFields target = new ClassWithTransientFields(1L);
-    assertEquals(target.getExpectedJson(), gson.toJson(target));
-  }
-
-  public void testClassWithNoFields() {
-    assertEquals("{}", gson.toJson(new ClassWithNoFields()));
-  }
-
-  public void testAnonymousLocalClasses() {
-    assertEquals("", gson.toJson(new ClassWithNoFields() {
-      // empty anonymous class
-    }));
-
-    gson = new Gson(new ObjectNavigatorFactory(new ModifierBasedExclusionStrategy(
-        true, Modifier.TRANSIENT, Modifier.STATIC), Gson.DEFAULT_NAMING_POLICY));
-    assertEquals("{}", gson.toJson(new ClassWithNoFields() {
-      // empty anonymous class
-    }));
-  }
-
   public void testWriter() throws Exception {
     Writer writer = new StringWriter();
     BagOfPrimitives src = new BagOfPrimitives();
     gson.toJson(src, writer);
     assertEquals(src.getExpectedJson(), writer.toString());
-  }
-
-  public void testEmptyCollectionInAnObject() {
-    ContainsReferenceToSelfType target = new ContainsReferenceToSelfType();
-    assertEquals("{\"children\":[]}", gson.toJson(target));
-  }
-
-  public void testArrayOfObjects() {
-    ArrayOfObjects target = new ArrayOfObjects();
-    assertEquals(target.getExpectedJson(), gson.toJson(target));
-  }
-
-  public void testArrayOfArrays() {
-    ArrayOfArrays target = new ArrayOfArrays();
-    assertEquals(target.getExpectedJson(), gson.toJson(target));
-  }
-
-  public void testNested() {
-    Nested target = new Nested(new BagOfPrimitives(10, 20, false, "stringValue"),
-       new BagOfPrimitives(30, 40, true, "stringValue"));
-    assertEquals(target.getExpectedJson(), gson.toJson(target));
-  }
-
-  public void testInheritence() {
-    SubTypeOfNested target = new SubTypeOfNested(new BagOfPrimitives(10, 20, false, "stringValue"),
-        new BagOfPrimitives(30, 40, true, "stringValue"));
-    assertEquals(target.getExpectedJson(), gson.toJson(target));
-  }
-
-  public void testNull() {
-    assertEquals("", gson.toJson(null));
-  }
-
-  public void testNullFields() {
-    Nested target = new Nested(new BagOfPrimitives(10, 20, false, "stringValue"), null);
-    assertEquals(target.getExpectedJson(), gson.toJson(target));
-  }
-
-  public void testSubInterfacesOfCollection() {
-    List<Integer> list = new LinkedList<Integer>();
-    list.add(0);
-    list.add(1);
-    list.add(2);
-    list.add(3);
-    Queue<Long> queue = new LinkedList<Long>();
-    queue.add(0L);
-    queue.add(1L);
-    queue.add(2L);
-    queue.add(3L);
-    Set<Float> set = new TreeSet<Float>();
-    set.add(0.1F);
-    set.add(0.2F);
-    set.add(0.3F);
-    set.add(0.4F);
-    SortedSet<Character> sortedSet = new TreeSet<Character>();
-    sortedSet.add('a');
-    sortedSet.add('b');
-    sortedSet.add('c');
-    sortedSet.add('d');
-    ClassWithSubInterfacesOfCollection target =
-        new ClassWithSubInterfacesOfCollection(list, queue, set, sortedSet);
-    assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 
   public void testCustomSerializers() {
@@ -218,16 +91,6 @@ public class JsonSerializerTest extends TestCase {
     assertFalse(gson.toJson(target).contains("DEFAULT_VALUE"));
   }
 
-  public void testTopLevelEnum() {
-    MyEnum target = MyEnum.VALUE1;
-    assertEquals(target.getExpectedJson(), gson.toJson(target));
-  }
-
-  public void testClassWithEnumField() {
-    ClassWithEnumFields target = new ClassWithEnumFields();
-    assertEquals(target.getExpectedJson(), gson.toJson(target));
-  }
-
   static class Version1 {
     int a = 0;
     @Since(1.0) int b = 1;
@@ -258,64 +121,6 @@ public class JsonSerializerTest extends TestCase {
     Gson gson = new GsonBuilder().setVersion(1.0).create();
     BagOfPrimitives target = new BagOfPrimitives(10, 20, false, "stringValue");
     assertEquals(target.getExpectedJson(), gson.toJson(target));
-  }
-
-  public void testDefaultSupportForUrl() throws Exception {
-    String urlValue = "http://google.com/";
-    URL url = new URL(urlValue);
-    assertEquals('"' + urlValue + '"', gson.toJson(url));
-  }
-
-  public void testDefaultSupportForUri() throws Exception {
-    String uriValue = "http://google.com/";
-    URI uri = new URI(uriValue);
-    assertEquals('"' + uriValue + '"', gson.toJson(uri));
-  }
-
-  public void testDefaultSupportForLocaleWithLanguage() throws Exception {
-    Locale target = new Locale("en");
-    assertEquals("\"en\"", gson.toJson(target));
-  }
-
-  public void testDefaultSupportForLocaleWithLanguageCountry() throws Exception {
-    Locale target = Locale.CANADA_FRENCH;
-    assertEquals("\"fr_CA\"", gson.toJson(target));
-  }
-
-  public void testDefaultSupportForLocaleWithLanguageCountryVariant() throws Exception {
-    Locale target = new Locale("de", "DE", "EURO");
-    String json = gson.toJson(target);
-    assertEquals("\"de_DE_EURO\"", json);
-  }
-
-  public void testMap() throws Exception {
-    Map<String, Integer> map = new LinkedHashMap<String, Integer>();
-    map.put("a", 1);
-    map.put("b", 2);
-    Type typeOfMap = new TypeToken<Map<String, Integer>>() {}.getType();
-    String json = gson.toJson(map, typeOfMap);
-    assertTrue(json.contains("\"a\":1"));
-    assertTrue(json.contains("\"b\":2"));
-  }
-
-  public void testEmptyMap() throws Exception {
-    Map<String, Integer> map = new LinkedHashMap<String, Integer>();
-    Type typeOfMap = new TypeToken<Map<String, Integer>>() {}.getType();
-    String json = gson.toJson(map, typeOfMap);
-    assertEquals("{}", json);
-  }
-
-  public void testSingleQuoteInStrings() throws Exception {
-    String valueWithQuotes = "beforeQuote'afterQuote";
-    String jsonRepresentation = gson.toJson(valueWithQuotes);
-    assertEquals(valueWithQuotes, gson.fromJson(jsonRepresentation, String.class));
-  }
-
-  public void testEscapingQuotesInStrings() throws Exception {
-    String valueWithQuotes = "beforeQuote\"afterQuote";
-    String jsonRepresentation = gson.toJson(valueWithQuotes);
-    String target = gson.fromJson(jsonRepresentation, String.class);
-    assertEquals(valueWithQuotes, target);
   }
 
   public void testEscapingQuotesInStringArray() throws Exception {

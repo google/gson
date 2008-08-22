@@ -16,7 +16,7 @@
 
 package com.google.gson;
 
-import com.google.gson.TestTypes.PrimitiveArray;
+import com.google.gson.TestTypes.MyEnum;
 import com.google.gson.common.MoreAsserts;
 
 import junit.framework.TestCase;
@@ -88,15 +88,16 @@ public class ArrayTest extends TestCase {
     assertEquals("World", target[1]);
   }
 
-  public void testPrimitiveArrayFieldSerialization() throws Exception {
-    PrimitiveArray target = new PrimitiveArray(new long[] { 1L, 2L, 3L });
-    assertEquals(target.getExpectedJson(), gson.toJson(target));
-  }
-
   public void testArrayOfPrimitivesDeserialization() {
     String json = "[0,1,2,3,4,5,6,7,8,9]";
     int[] target = gson.fromJson(json, int[].class);
     int[] expected = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
     MoreAsserts.assertEquals(expected, target);
+  }
+
+  public void testTopLevelEnumInASingleElementArrayDeserialization() {
+    String json = "[" + MyEnum.VALUE1.getExpectedJson() + "]";
+    MyEnum target = gson.fromJson(json, MyEnum.class);
+    assertEquals(json, "[" + target.getExpectedJson() + "]");
   }
 }

@@ -47,6 +47,32 @@ public class PrimitiveTest extends TestCase {
     assertEquals(value, actual);
   }
 
+  public void testSingleQuoteInStringSerialization() throws Exception {
+    String valueWithQuotes = "beforeQuote'afterQuote";
+    String jsonRepresentation = gson.toJson(valueWithQuotes);
+    assertEquals(valueWithQuotes, gson.fromJson(jsonRepresentation, String.class));
+  }
+
+  public void testSingleQuoteInStringDeserialization() throws Exception {
+    String value = "beforeQuote'afterQuote";
+    String actual = gson.fromJson("\"" + value + "\"", String.class);
+    assertEquals(value, actual);
+  }
+
+  public void testEscapingQuotesInStringSerialization() throws Exception {
+    String valueWithQuotes = "beforeQuote\"afterQuote";
+    String jsonRepresentation = gson.toJson(valueWithQuotes);
+    String target = gson.fromJson(jsonRepresentation, String.class);
+    assertEquals(valueWithQuotes, target);
+  }
+
+  public void testEscapingQuotesInStringDeserialization() throws Exception {
+    String value = "beforeQuote\\\"afterQuote";
+    String actual = gson.fromJson("\"" + value + "\"", String.class);
+    String expected = "beforeQuote\"afterQuote";
+    assertEquals(expected, actual);
+  }
+
   public void testStringValueAsSingleElementArraySerialization() throws Exception {
     String[] target = {"abc"};
     assertEquals("[\"abc\"]", gson.toJson(target));

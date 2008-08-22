@@ -18,13 +18,6 @@ package com.google.gson;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Queue;
-import java.util.Set;
-import java.util.SortedSet;
-
 /**
  * Types used for testing JSON serialization and deserialization
  *
@@ -231,87 +224,6 @@ public class TestTypes {
     }
   }
 
-  public static class ClassWithNoFields {
-    // Nothing here.. .
-  }
-
-  public static class ClassWithSubInterfacesOfCollection {
-    private List<Integer> list;
-    private Queue<Long> queue;
-    private Set<Float> set;
-    private SortedSet<Character> sortedSet;
-
-    ClassWithSubInterfacesOfCollection() {
-    }
-
-    public ClassWithSubInterfacesOfCollection(List<Integer> list, Queue<Long> queue, Set<Float> set,
-        SortedSet<Character> sortedSet) {
-      this.list = list;
-      this.queue = queue;
-      this.set = set;
-      this.sortedSet = sortedSet;
-    }
-
-    public String getExpectedJson() {
-      StringBuilder sb = new StringBuilder();
-      sb.append("{");
-      sb.append("\"list\":");
-      append(sb, list).append(",");
-      sb.append("\"queue\":");
-      append(sb, queue).append(",");
-      sb.append("\"set\":");
-      append(sb, set).append(",");
-      sb.append("\"sortedSet\":");
-      append(sb, sortedSet);
-      sb.append("}");
-      return sb.toString();
-    }
-
-    private StringBuilder append(StringBuilder sb, Collection<?> c) {
-      sb.append("[");
-      boolean first = true;
-      for (Object o : c) {
-        if (!first) {
-          sb.append(",");
-        } else {
-          first = false;
-        }
-        if (o instanceof String || o instanceof Character) {
-          sb.append('\"');
-        }
-        sb.append(o.toString());
-        if (o instanceof String || o instanceof Character) {
-          sb.append('\"');
-        }
-      }
-      sb.append("]");
-      return sb;
-    }
-  }
-
-  public static class ContainsReferenceToSelfType {
-    public Collection<ContainsReferenceToSelfType> children =
-        new ArrayList<ContainsReferenceToSelfType>();
-  }
-
-  public static class SubTypeOfNested extends Nested {
-    private final long value = 5;
-
-    public SubTypeOfNested() {
-      this(null, null);
-    }
-
-    public SubTypeOfNested(BagOfPrimitives primitive1, BagOfPrimitives primitive2) {
-      super(primitive1, primitive2);
-    }
-
-    @Override
-    public void appendFields(StringBuilder sb) {
-      sb.append("\"value\":").append(value).append(",");
-      super.appendFields(sb);
-    }
-  }
-
   public static class ClassWithCustomTypeConverter {
     private final BagOfPrimitives bag;
     private final int value;
@@ -366,63 +278,11 @@ public class TestTypes {
     }
   }
 
-  public static class ArrayOfArrays {
-    private final BagOfPrimitives[][] elements;
-    public ArrayOfArrays() {
-      elements = new BagOfPrimitives[3][2];
-      for (int i = 0; i < elements.length; ++i) {
-        BagOfPrimitives[] row = elements[i];
-        for (int j = 0; j < row.length; ++j) {
-          row[j] = new BagOfPrimitives(i+j, i*j, false, i+"_"+j);
-        }
-      }
-    }
-    public String getExpectedJson() {
-      StringBuilder sb = new StringBuilder("{\"elements\":[");
-      boolean first = true;
-      for (BagOfPrimitives[] row : elements) {
-        if (first) {
-          first = false;
-        } else {
-          sb.append(",");
-        }
-        boolean firstOfRow = true;
-        sb.append("[");
-        for (BagOfPrimitives element : row) {
-          if (firstOfRow) {
-            firstOfRow = false;
-          } else {
-            sb.append(",");
-          }
-          sb.append(element.getExpectedJson());
-        }
-        sb.append("]");
-      }
-      sb.append("]}");
-      return sb.toString();
-    }
-  }
-
   public static enum MyEnum {
     VALUE1, VALUE2;
 
     public String getExpectedJson() {
       return "\"" + toString() + "\"";
-    }
-  }
-
-  public static class ClassWithEnumFields {
-    private final MyEnum value1 = MyEnum.VALUE1;
-    private final MyEnum value2 = MyEnum.VALUE2;
-    public String getExpectedJson() {
-      return "{\"value1\":\"" + value1 + "\",\"value2\":\"" + value2 + "\"}";
-    }
-  }
-
-  public static class ClassWithPrivateNoArgsConstructor {
-    public int a;
-    private ClassWithPrivateNoArgsConstructor() {
-      a = 10;
     }
   }
 
@@ -479,18 +339,6 @@ public class TestTypes {
 
     public String getExpectedJson() {
       return '{' + "\"fooBar\":" + f + '}';
-    }
-  }
-
-  public static class ExceptionHolder {
-    public final String message;
-    public final String stackTrace;
-    public ExceptionHolder() {
-      this("", "");
-    }
-    public ExceptionHolder(String message, String stackTrace) {
-      this.message = message;
-      this.stackTrace = stackTrace;
     }
   }
 }
