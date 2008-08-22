@@ -22,7 +22,7 @@ import com.google.gson.common.TestTypes.MyEnum;
 import junit.framework.TestCase;
 
 /**
- * Unit tests for Json serialization and deserialization of arrays.
+ * Functional tests for Json serialization and deserialization of arrays.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch

@@ -31,7 +31,7 @@ import junit.framework.TestCase;
 import java.lang.reflect.Type;
 
 /**
- * Test the different cases for serializing (or ignoring) null fields and object.
+ * Functional tests for the different cases for serializing (or ignoring) null fields and object.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch

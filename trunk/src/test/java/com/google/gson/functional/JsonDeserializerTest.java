@@ -35,7 +35,7 @@ import java.io.StringReader;
 import java.lang.reflect.Type;
 
 /**
- * Small test for Json Deserialization.
+ * Functional tests for Json Deserialization.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
