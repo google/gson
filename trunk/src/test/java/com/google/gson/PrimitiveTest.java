@@ -27,7 +27,7 @@ import java.math.BigInteger;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class PrimitiveTests extends TestCase {
+public class PrimitiveTest extends TestCase {
   private Gson gson;
 
   @Override

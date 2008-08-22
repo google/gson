@@ -29,7 +29,7 @@ import java.lang.reflect.Type;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class NullSerializationTests extends TestCase {
+public class NullSerializationTest extends TestCase {
   private GsonBuilder gsonBuilder;
 
   @Override
