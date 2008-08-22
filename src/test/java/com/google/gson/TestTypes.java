@@ -18,7 +18,6 @@ package com.google.gson;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -417,12 +416,6 @@ public class TestTypes {
     private final MyEnum value2 = MyEnum.VALUE2;
     public String getExpectedJson() {
       return "{\"value1\":\"" + value1 + "\",\"value2\":\"" + value2 + "\"}";
-    }
-  }
-
-  public static class MyEnumCreator implements InstanceCreator<MyEnum> {
-    public MyEnum createInstance(Type type) {
-      return MyEnum.VALUE1;
     }
   }
 
