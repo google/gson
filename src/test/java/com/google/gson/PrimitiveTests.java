@@ -219,6 +219,18 @@ public class PrimitiveTests extends TestCase {
     assertEquals(expected, actual);
   }
 
+  public void testSmallValueForBigDecimalDeserialization() {
+    BigDecimal expected = new BigDecimal("1.55");
+    BigDecimal actual = gson.fromJson("1.55", BigDecimal.class);
+    assertEquals(expected, actual);
+  }
+
+  public void testSmallValueForBigDecimalSerialization() {
+    BigDecimal target = new BigDecimal("1.55");
+    String actual = gson.toJson(target);
+    assertEquals(target.toString(), actual);
+  }
+
   public void testBigIntegerSerialization() {
     BigInteger target = new BigInteger("12121211243123245845384534687435634558945453489543985435");
     assertEquals(target.toString(), gson.toJson(target));
@@ -245,6 +257,18 @@ public class PrimitiveTests extends TestCase {
     BigInteger expected = new BigInteger("34343434343424242423432323243243242");
     BigInteger actual = gson.fromJson("[34343434343424242423432323243243242]", BigInteger.class);
     assertEquals(expected, actual);
+  }
+
+  public void testSmallValueForBigIntegerDeserialization() {
+    BigInteger expected = new BigInteger("15");
+    BigInteger actual = gson.fromJson("15", BigInteger.class);
+    assertEquals(expected, actual);
+  }
+
+  public void testSmallValueForBigIntegerSerialization() {
+    BigInteger target = new BigInteger("15");
+    String actual = gson.toJson(target);
+    assertEquals(target.toString(), actual);
   }
 
   private String extractElementFromArray(String json) {
