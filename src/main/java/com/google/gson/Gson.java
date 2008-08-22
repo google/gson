@@ -111,9 +111,9 @@ public final class Gson {
    *   generated JSON is empty, the field is kept. You can configure Gson to serialize null values
    *   by setting {@link GsonBuilder#serializeNulls()}.</li>
    *   <li>Gson provides default serialization and deserialization for Enums, {@link Map},
-   *   {@link java.net.URL}, {@link java.net.URI}, {@link java.util.Locale}, and
-   *   {@link java.util.Date} classes. If you would prefer to change the default representation,
-   *   you can do so by registering a type adapter through
+   *   {@link java.net.URL}, {@link java.net.URI}, {@link java.util.Locale}, {@link java.util.Date},
+   *   {@link java.math.BigDecimal}, and {@link java.math.BigInteger} classes. If you would prefer
+   *   to change the default representation, you can do so by registering a type adapter through
    *   {@link GsonBuilder#registerTypeAdapter(Type, Object)}.  </li>
    *   <li>The default Date format is same as {@link java.text.DateFormat#DEFAULT}. You can change
    *   this by invoking {@link GsonBuilder#setDateFormat(int)} or
