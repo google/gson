@@ -18,7 +18,6 @@ package com.google.gson;
 
 import com.google.gson.TestTypes.ArrayOfArrays;
 import com.google.gson.TestTypes.ArrayOfObjects;
-import com.google.gson.TestTypes.BagOfPrimitiveWrappers;
 import com.google.gson.TestTypes.BagOfPrimitives;
 import com.google.gson.TestTypes.ClassWithArray;
 import com.google.gson.TestTypes.ClassWithCustomTypeConverter;
@@ -32,12 +31,10 @@ import com.google.gson.TestTypes.ClassWithTransientFields;
 import com.google.gson.TestTypes.ContainsReferenceToSelfType;
 import com.google.gson.TestTypes.ExceptionHolder;
 import com.google.gson.TestTypes.MyEnum;
-import com.google.gson.TestTypes.MyEnumCreator;
 import com.google.gson.TestTypes.Nested;
 import com.google.gson.TestTypes.PrimitiveArray;
 import com.google.gson.TestTypes.StringWrapper;
 import com.google.gson.TestTypes.SubTypeOfNested;
-import com.google.gson.common.MoreAsserts;
 import com.google.gson.reflect.TypeToken;
 
 import junit.framework.TestCase;
@@ -47,10 +44,7 @@ import java.io.StringReader;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -82,13 +76,6 @@ public class JsonDeserializerTest extends TestCase {
     } catch (JsonParseException expected) { }
   }
 
-  public void testBagOfPrimitives() {
-    BagOfPrimitives src = new BagOfPrimitives(10, 20, false, "stringValue");
-    String json = src.getExpectedJson();
-    BagOfPrimitives target = gson.fromJson(json, BagOfPrimitives.class);
-    assertEquals(json, target.getExpectedJson());
-  }
-
   public void testReader() throws Exception {
     BagOfPrimitives expected = new BagOfPrimitives();
     Reader json = new StringReader(expected.getExpectedJson());
@@ -111,20 +98,6 @@ public class JsonDeserializerTest extends TestCase {
     }
   }
 
-  public void testBagOfPrimitiveWrappers() {
-    BagOfPrimitiveWrappers target = new BagOfPrimitiveWrappers(10L, 20, false);
-    String jsonString = target.getExpectedJson();
-    target = gson.fromJson(jsonString, BagOfPrimitiveWrappers.class);
-    assertEquals(jsonString, target.getExpectedJson());
-  }
-
-  public void testDirectedAcyclicGraph() {
-    String json = "{\"children\":[{\"children\":[{\"children\":[]}]},{\"children\":[]}]}";
-    ContainsReferenceToSelfType target = gson.fromJson(json, ContainsReferenceToSelfType.class);
-    assertNotNull(target);
-    assertEquals(2, target.children.size());
-  }
-
   public void testEmptyCollectionInAnObject() {
     String json = "{\"children\":[]}";
     ContainsReferenceToSelfType target = gson.fromJson(json, ContainsReferenceToSelfType.class);
@@ -136,83 +109,6 @@ public class JsonDeserializerTest extends TestCase {
     String json = "{\"longArray\":[0,1,2,3,4,5,6,7,8,9]}";
     PrimitiveArray target = gson.fromJson(json, PrimitiveArray.class);
     assertEquals(json, target.getExpectedJson());
-  }
-
-  public void testArrayOfPrimitives() {
-    String json = "[0,1,2,3,4,5,6,7,8,9]";
-    int[] target = gson.fromJson(json, int[].class);
-    int[] expected = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-    MoreAsserts.assertEquals(expected, target);
-  }
-
-  public void testArrayOfStrings() {
-    String json = "[\"Hello\",\"World\"]";
-    String[] target = gson.fromJson(json, String[].class);
-    assertEquals("Hello", target[0]);
-    assertEquals("World", target[1]);
-  }
-
-  public void testCollectionOfStrings() {
-    String json = "[\"Hello\",\"World\"]";
-    Type collectionType = new TypeToken<Collection<String>>() { }.getType();
-    Collection<String> target = gson.fromJson(json, collectionType);
-
-    assertTrue(target.contains("Hello"));
-    assertTrue(target.contains("World"));
-  }
-
-  public void testCollectionOfIntegers() {
-    String json = "[0,1,2,3,4,5,6,7,8,9]";
-    Type collectionType = new TypeToken<Collection<Integer>>() { }.getType();
-    Collection<Integer> target = gson.fromJson(json, collectionType);
-    int[] expected = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    MoreAsserts.assertEquals(expected, toIntArray(target));
-  }
-
-  public void testRawCollectionNotAllowed() {
-    String json = "[0,1,2,3,4,5,6,7,8,9]";
-    try {
-	    gson.fromJson(json, Collection.class);
-	    fail("Can not deserialize a non-genericized collection.");
-    } catch (JsonParseException expected) { }
-
-    json = "[\"Hello\", \"World\"]";
-    try {
-      gson.fromJson(json, Collection.class);
-      fail("Can not deserialize a non-genericized collection.");
-    } catch (JsonParseException expected) { }
-  }
-
-  public void testListOfIntegerCollections() throws Exception {
-    String json = "[[1,2,3],[4,5,6],[7,8,9]]";
-    Type collectionType = new TypeToken<Collection<Collection<Integer>>>() {}.getType();
-    List<Collection<Integer>> target = gson.fromJson(json, collectionType);
-    int[][] expected = new int[3][3];
-    for (int i = 0; i < 3; ++i) {
-      int start = (3 * i) + 1;
-      for (int j = 0; j < 3; ++j) {
-        expected[i][j] = start + j;
-      }
-    }
-
-    for (int i = 0; i < 3; i++) {
-      MoreAsserts.assertEquals(expected[i], toIntArray(target.get(i)));
-    }
-  }
-
-  @SuppressWarnings("unchecked")
-  private static int[] toIntArray(Collection collection) {
-    int[] ints = new int[collection.size()];
-    int i = 0;
-    for (Iterator iterator = collection.iterator(); iterator.hasNext(); ++i) {
-      Object obj = iterator.next();
-      if (obj instanceof Integer) {
-        ints[i] = ((Integer)obj).intValue();
-      } else if (obj instanceof Long) {
-        ints[i] = ((Long)obj).intValue();
-      }
-    }
-    return ints;
   }
 
   public void testClassWithTransientFields() throws Exception {
@@ -233,27 +129,6 @@ public class JsonDeserializerTest extends TestCase {
     String json = "{}";
     ClassWithNoFields target = gson.fromJson(json, ClassWithNoFields.class);
     assertNotNull(target);
-  }
-
-  public void testTopLevelCollections() {
-    Type type = new TypeToken<Collection<Integer>>() {
-    }.getType();
-    Collection<Integer> collection = gson.fromJson("[1,2,3,4,5,6,7,8,9]", type);
-    assertEquals(9, collection.size());
-  }
-
-  public void testTopLevelArray() {
-    int[] expected = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-    int[] actual = gson.fromJson("[1,2,3,4,5,6,7,8,9]", int[].class);
-    MoreAsserts.assertEquals(expected, actual);
-  }
-
-  public void testEmptyArray() {
-    int[] actualObject = gson.fromJson("[]", int[].class);
-    assertTrue(actualObject.length == 0);
-
-    Integer[] actualObject2 = gson.fromJson("[]", Integer[].class);
-    assertTrue(actualObject2.length == 0);
   }
 
   public void testNested() {
@@ -341,42 +216,21 @@ public class JsonDeserializerTest extends TestCase {
   }
 
   public void testTopLevelEnum() {
-    Gson gson = new GsonBuilder()
-        .registerInstanceCreator(MyEnum.class, new MyEnumCreator())
-        .create();
     String json = MyEnum.VALUE1.getExpectedJson();
     MyEnum target = gson.fromJson(json, MyEnum.class);
     assertEquals(json, target.getExpectedJson());
   }
 
   public void testTopLevelEnumInASingleElementArray() {
-    Gson gson = new GsonBuilder()
-        .registerInstanceCreator(MyEnum.class, new MyEnumCreator())
-        .create();
     String json = "[" + MyEnum.VALUE1.getExpectedJson() + "]";
     MyEnum target = gson.fromJson(json, MyEnum.class);
     assertEquals(json, "[" + target.getExpectedJson() + "]");
   }
 
   public void testClassWithEnumField() {
-    Gson gson = new GsonBuilder()
-        .registerInstanceCreator(MyEnum.class, new MyEnumCreator())
-        .create();
     String json = new ClassWithEnumFields().getExpectedJson();
     ClassWithEnumFields target = gson.fromJson(json, ClassWithEnumFields.class);
     assertEquals(json, target.getExpectedJson());
-  }
-
-  public void testCollectionOfEnums() {
-    Gson gson = new GsonBuilder()
-        .registerInstanceCreator(MyEnum.class, new MyEnumCreator())
-        .create();
-    Type type = new TypeToken<Collection<MyEnum>>() {
-    }.getType();
-    String json = "[\"VALUE1\",\"VALUE2\"]";
-    Collection<MyEnum> target = gson.fromJson(json, type);
-    MoreAsserts.assertContains(target, MyEnum.VALUE1);
-    MoreAsserts.assertContains(target, MyEnum.VALUE2);
   }
 
   public void testPrivateNoArgConstructor() {
@@ -443,28 +297,6 @@ public class JsonDeserializerTest extends TestCase {
     String json = "{\"bag\": null}";
     ClassWithObjects target = gson.fromJson(json, ClassWithObjects.class);
     assertNull(target.bag);
-  }
-
-  public void testArrayWithNulls() {
-    String json = "[\"foo\",null,\"bar\"]";
-    String[] expected = {"foo", null, "bar"};
-    String[] target = gson.fromJson(json, expected.getClass());
-    for (int i = 0; i < expected.length; ++i) {
-      assertEquals(expected[i], target[i]);
-    }
-  }
-
-  public void testListsWithNulls() {
-    List<String> expected = new ArrayList<String>();
-    expected.add("foo");
-    expected.add(null);
-    expected.add("bar");
-    String json = "[\"foo\",null,\"bar\"]";
-    Type expectedType = new TypeToken<List<String>>() {}.getType();
-    List<String> target = gson.fromJson(json, expectedType);
-    for (int i = 0; i < expected.size(); ++i) {
-      assertEquals(expected.get(i), target.get(i));
-    }
   }
 
   /**

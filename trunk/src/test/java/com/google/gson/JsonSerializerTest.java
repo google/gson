@@ -18,7 +18,6 @@ package com.google.gson;
 
 import com.google.gson.TestTypes.ArrayOfArrays;
 import com.google.gson.TestTypes.ArrayOfObjects;
-import com.google.gson.TestTypes.BagOfPrimitiveWrappers;
 import com.google.gson.TestTypes.BagOfPrimitives;
 import com.google.gson.TestTypes.ClassOverridingEquals;
 import com.google.gson.TestTypes.ClassWithCustomTypeConverter;
@@ -30,7 +29,6 @@ import com.google.gson.TestTypes.ClassWithTransientFields;
 import com.google.gson.TestTypes.ContainsReferenceToSelfType;
 import com.google.gson.TestTypes.MyEnum;
 import com.google.gson.TestTypes.Nested;
-import com.google.gson.TestTypes.PrimitiveArray;
 import com.google.gson.TestTypes.StringWrapper;
 import com.google.gson.TestTypes.SubTypeOfNested;
 import com.google.gson.annotations.Since;
@@ -44,9 +42,6 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -101,16 +96,6 @@ public class JsonSerializerTest extends TestCase {
     assertEquals(objB.getExpectedJson(), gson.toJson(objB));
   }
 
-  public void testDirectedAcyclicGraph() {
-    ContainsReferenceToSelfType a = new ContainsReferenceToSelfType();
-    ContainsReferenceToSelfType b = new ContainsReferenceToSelfType();
-    ContainsReferenceToSelfType c = new ContainsReferenceToSelfType();
-    a.children.add(b);
-    a.children.add(c);
-    b.children.add(c);
-    assertNotNull(gson.toJson(a));
-  }
-
   public void testClassWithTransientFields() throws Exception {
     ClassWithTransientFields target = new ClassWithTransientFields(1L);
     assertEquals(target.getExpectedJson(), gson.toJson(target));
@@ -132,11 +117,6 @@ public class JsonSerializerTest extends TestCase {
     }));
   }
 
-  public void testBagOfPrimitives() {
-    BagOfPrimitives target = new BagOfPrimitives(10, 20, false, "stringValue");
-    assertEquals(target.getExpectedJson(), gson.toJson(target));
-  }
-
   public void testWriter() throws Exception {
     Writer writer = new StringWriter();
     BagOfPrimitives src = new BagOfPrimitives();
@@ -144,41 +124,9 @@ public class JsonSerializerTest extends TestCase {
     assertEquals(src.getExpectedJson(), writer.toString());
   }
 
-  public void testBagOfPrimitiveWrappers() {
-    BagOfPrimitiveWrappers target = new BagOfPrimitiveWrappers(10L, 20, false);
-    assertEquals(target.getExpectedJson(), gson.toJson(target));
-  }
-
-  public void testPrimitiveArrayField() throws Exception {
-    PrimitiveArray target = new PrimitiveArray(new long[] { 1L, 2L, 3L });
-    assertEquals(target.getExpectedJson(), gson.toJson(target));
-  }
-
-  public void testCollection() {
-    Collection<Integer> target = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9);
-    Type targetType = new TypeToken<Collection<Integer>>() {}.getType();
-    String json = gson.toJson(target, targetType);
-    assertEquals("[1,2,3,4,5,6,7,8,9]", json);
-  }
-
-  public void testCollectionWithoutSpecifyingType() {
-    Collection<Integer> target = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9);
-    assertEquals("[1,2,3,4,5,6,7,8,9]", gson.toJson(target));
-  }
-
-  public void testEmptyArray() {
-    int[] target = {};
-    assertEquals("[]", gson.toJson(target));
-  }
-
   public void testEmptyCollectionInAnObject() {
     ContainsReferenceToSelfType target = new ContainsReferenceToSelfType();
     assertEquals("{\"children\":[]}", gson.toJson(target));
-  }
-
-  public void testArrayOfInts() {
-    int[] target = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-    assertEquals("[1,2,3,4,5,6,7,8,9]", gson.toJson(target));
   }
 
   public void testArrayOfObjects() {
@@ -186,36 +134,9 @@ public class JsonSerializerTest extends TestCase {
     assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 
-  public void testArrayOfStrings() {
-    String[] target = {"Hello", "World"};
-    assertEquals("[\"Hello\",\"World\"]", gson.toJson(target));
-  }
-
   public void testArrayOfArrays() {
     ArrayOfArrays target = new ArrayOfArrays();
     assertEquals(target.getExpectedJson(), gson.toJson(target));
-  }
-
-  public void testCollectionOfStrings() {
-    List<String> target = new ArrayList<String>();
-    target.add("Hello");
-    target.add("World");
-    assertEquals("[\"Hello\",\"World\"]", gson.toJson(target));
-  }
-
-  public void testCollectionOfObjects() {
-    List<BagOfPrimitives> target = new ArrayList<BagOfPrimitives>();
-    BagOfPrimitives objA = new BagOfPrimitives(3L, 1, true, "blah");
-    BagOfPrimitives objB = new BagOfPrimitives(2L, 6, false, "blahB");
-    target.add(objA);
-    target.add(objB);
-
-    String result = gson.toJson(target);
-    assertTrue(result.startsWith("["));
-    assertTrue(result.endsWith("]"));
-    for (BagOfPrimitives obj : target) {
-      assertTrue(result.contains(obj.getExpectedJson()));
-    }
   }
 
   public void testNested() {
@@ -237,24 +158,6 @@ public class JsonSerializerTest extends TestCase {
   public void testNullFields() {
     Nested target = new Nested(new BagOfPrimitives(10, 20, false, "stringValue"), null);
     assertEquals(target.getExpectedJson(), gson.toJson(target));
-  }
-
-  public void testArrayWithNulls() {
-    String[] array = {"foo", null, "bar"};
-	String expected = "[\"foo\",null,\"bar\"]";
-	String json = gson.toJson(array);
-	assertEquals(expected, json);
-  }
-
-  public void testListsWithNulls() {
-    List<String> list = new ArrayList<String>();
-    list.add("foo");
-    list.add(null);
-    list.add("bar");
-    String expected = "[\"foo\",null,\"bar\"]";
-    Type typeOfList = new TypeToken<List<String>>() {}.getType();
-    String json = gson.toJson(list, typeOfList);
-    assertEquals(expected, json);
   }
 
   public void testSubInterfacesOfCollection() {
