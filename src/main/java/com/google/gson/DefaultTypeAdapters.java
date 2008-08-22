@@ -81,14 +81,15 @@ final class DefaultTypeAdapters {
   private static ParameterizedTypeHandlerMap<JsonSerializer<?>> getDefaultSerializers() {
     ParameterizedTypeHandlerMap<JsonSerializer<?>> map =
       new ParameterizedTypeHandlerMap<JsonSerializer<?>>();
-    map.register(Enum.class, ENUM_TYPE_ADAPTER);
-    map.register(URL.class, URL_TYPE_ADAPTER);
-    map.register(URI.class, URI_TYPE_ADAPTER);
-    map.register(Locale.class, LOCALE_TYPE_ADAPTER);
-    map.register(Map.class, MAP_TYPE_ADAPTER);
-    map.register(Date.class, DefaultDateTypeAdapter.DEFAULT_TYPE_ADAPTER);
-    map.register(BigDecimal.class, BIG_DECIMAL_TYPE_ADAPTER);
-    map.register(BigInteger.class, BIG_INTEGER_TYPE_ADAPTER);
+
+    map.register(Enum.class, wrapSerializer(ENUM_TYPE_ADAPTER));
+    map.register(URL.class, wrapSerializer(URL_TYPE_ADAPTER));
+    map.register(URI.class, wrapSerializer(URI_TYPE_ADAPTER));
+    map.register(Locale.class, wrapSerializer(LOCALE_TYPE_ADAPTER));
+    map.register(Map.class, wrapSerializer(MAP_TYPE_ADAPTER));
+    map.register(Date.class, wrapSerializer(DefaultDateTypeAdapter.DEFAULT_TYPE_ADAPTER));
+    map.register(BigDecimal.class, wrapSerializer(BIG_DECIMAL_TYPE_ADAPTER));
+    map.register(BigInteger.class, wrapSerializer(BIG_INTEGER_TYPE_ADAPTER));
     map.makeUnmodifiable();
     return map;
   }
@@ -96,14 +97,14 @@ final class DefaultTypeAdapters {
   private static ParameterizedTypeHandlerMap<JsonDeserializer<?>> getDefaultDeserializers() {
     ParameterizedTypeHandlerMap<JsonDeserializer<?>> map =
       new ParameterizedTypeHandlerMap<JsonDeserializer<?>>();
-    map.register(Enum.class, ENUM_TYPE_ADAPTER);
-    map.register(URL.class, URL_TYPE_ADAPTER);
-    map.register(URI.class, URI_TYPE_ADAPTER);
-    map.register(Locale.class, LOCALE_TYPE_ADAPTER);
-    map.register(Map.class, MAP_TYPE_ADAPTER);
-    map.register(Date.class, DefaultDateTypeAdapter.DEFAULT_TYPE_ADAPTER);
-    map.register(BigDecimal.class, BIG_DECIMAL_TYPE_ADAPTER);
-    map.register(BigInteger.class, BIG_INTEGER_TYPE_ADAPTER);
+    map.register(Enum.class, wrapDeserializer(ENUM_TYPE_ADAPTER));
+    map.register(URL.class, wrapDeserializer(URL_TYPE_ADAPTER));
+    map.register(URI.class, wrapDeserializer(URI_TYPE_ADAPTER));
+    map.register(Locale.class, wrapDeserializer(LOCALE_TYPE_ADAPTER));
+    map.register(Map.class, wrapDeserializer(MAP_TYPE_ADAPTER));
+    map.register(Date.class, wrapDeserializer(DefaultDateTypeAdapter.DEFAULT_TYPE_ADAPTER));
+    map.register(BigDecimal.class, wrapDeserializer(BIG_DECIMAL_TYPE_ADAPTER));
+    map.register(BigInteger.class, wrapDeserializer(BIG_INTEGER_TYPE_ADAPTER));
     map.makeUnmodifiable();
     return map;
   }
@@ -147,7 +148,17 @@ final class DefaultTypeAdapters {
   }
 
   @SuppressWarnings("unchecked")
-  private static class EnumTypeAdapter<T extends Enum> implements JsonSerializer<T>,
+  private static JsonSerializer<?> wrapSerializer(JsonSerializer<?> serializer) {
+    return new JsonSerializerExceptionWrapper(serializer);
+  }
+
+  @SuppressWarnings("unchecked")
+  private static JsonDeserializer<?> wrapDeserializer(JsonDeserializer<?> deserializer) {
+    return new JsonDeserializerExceptionWrapper(deserializer);
+  }
+
+  @SuppressWarnings("unchecked")
+  private static class EnumTypeAdapter<T extends Enum<T>> implements JsonSerializer<T>,
       JsonDeserializer<T>, InstanceCreator<Enum<?>> {
     public JsonElement serialize(T src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src.name());
@@ -244,7 +255,7 @@ final class DefaultTypeAdapters {
   }
 
   @SuppressWarnings("unchecked")
-  private static class MapTypeAdapter implements JsonSerializer<Map>, JsonDeserializer<Map>,
+  static class MapTypeAdapter implements JsonSerializer<Map>, JsonDeserializer<Map>,
       InstanceCreator<Map> {
     public JsonElement serialize(Map src, Type typeOfSrc, JsonSerializationContext context) {
       JsonObject map = new JsonObject();
