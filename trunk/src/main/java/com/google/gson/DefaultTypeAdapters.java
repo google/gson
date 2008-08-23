@@ -25,6 +25,9 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -48,6 +51,8 @@ import java.util.TreeSet;
  */
 final class DefaultTypeAdapters {
 
+  private static final DefaultDateTypeAdapter DATE_TYPE_ADAPTER =
+    new DefaultDateTypeAdapter(DateFormat.DEFAULT);
   @SuppressWarnings("unchecked")
   private static final EnumTypeAdapter ENUM_TYPE_ADAPTER = new EnumTypeAdapter();
   private static final UrlTypeAdapter URL_TYPE_ADAPTER = new UrlTypeAdapter();
@@ -87,7 +92,7 @@ final class DefaultTypeAdapters {
     map.register(URI.class, wrapSerializer(URI_TYPE_ADAPTER));
     map.register(Locale.class, wrapSerializer(LOCALE_TYPE_ADAPTER));
     map.register(Map.class, wrapSerializer(MAP_TYPE_ADAPTER));
-    map.register(Date.class, wrapSerializer(DefaultDateTypeAdapter.DEFAULT_TYPE_ADAPTER));
+    map.register(Date.class, wrapSerializer(DATE_TYPE_ADAPTER));
     map.register(BigDecimal.class, wrapSerializer(BIG_DECIMAL_TYPE_ADAPTER));
     map.register(BigInteger.class, wrapSerializer(BIG_INTEGER_TYPE_ADAPTER));
     map.makeUnmodifiable();
@@ -102,7 +107,7 @@ final class DefaultTypeAdapters {
     map.register(URI.class, wrapDeserializer(URI_TYPE_ADAPTER));
     map.register(Locale.class, wrapDeserializer(LOCALE_TYPE_ADAPTER));
     map.register(Map.class, wrapDeserializer(MAP_TYPE_ADAPTER));
-    map.register(Date.class, wrapDeserializer(DefaultDateTypeAdapter.DEFAULT_TYPE_ADAPTER));
+    map.register(Date.class, wrapDeserializer(DATE_TYPE_ADAPTER));
     map.register(BigDecimal.class, wrapDeserializer(BIG_DECIMAL_TYPE_ADAPTER));
     map.register(BigInteger.class, wrapDeserializer(BIG_INTEGER_TYPE_ADAPTER));
     map.makeUnmodifiable();
@@ -155,6 +160,37 @@ final class DefaultTypeAdapters {
   @SuppressWarnings("unchecked")
   private static JsonDeserializer<?> wrapDeserializer(JsonDeserializer<?> deserializer) {
     return new JsonDeserializerExceptionWrapper(deserializer);
+  }
+
+  static class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
+
+    private final DateFormat format;
+
+    public DefaultDateTypeAdapter(String datePattern) {
+      this.format = new SimpleDateFormat(datePattern);
+    }
+
+    public DefaultDateTypeAdapter(int style) {
+      this.format = DateFormat.getDateInstance(style);
+    }
+
+    public JsonElement serialize(Date src, Type typeOfSrc, JsonSerializationContext context) {
+      String dateFormatAsString = format.format(src);
+      return new JsonPrimitive(dateFormatAsString);
+    }
+
+    public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+        throws JsonParseException {
+      if (!(json instanceof JsonPrimitive)) {
+        throw new JsonParseException("The date should be a string value");
+      }
+
+      try {
+        return format.parse(json.getAsString());
+      } catch (ParseException e) {
+        throw new JsonParseException(e);
+      }
+    }
   }
 
   @SuppressWarnings("unchecked")

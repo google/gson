@@ -16,6 +16,8 @@
 
 package com.google.gson;
 
+import com.google.gson.DefaultTypeAdapters.DefaultDateTypeAdapter;
+
 import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.util.Date;
