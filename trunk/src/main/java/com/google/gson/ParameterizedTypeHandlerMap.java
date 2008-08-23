@@ -36,7 +36,7 @@ final class ParameterizedTypeHandlerMap<T> {
   private final Map<Type, T> map = new HashMap<Type, T>();
   private boolean modifiable = true;
 
-  public void register(Type typeOfT, T value) {
+  public synchronized void register(Type typeOfT, T value) {
     if (!modifiable) {
       throw new IllegalStateException("Attempted to modify an unmodifiable map.");
     }
@@ -46,7 +46,7 @@ final class ParameterizedTypeHandlerMap<T> {
     map.put(typeOfT, value);
   }
 
-  public void registerIfAbsent(ParameterizedTypeHandlerMap<T> other) {
+  public synchronized void registerIfAbsent(ParameterizedTypeHandlerMap<T> other) {
     if (!modifiable) {
       throw new IllegalStateException("Attempted to modify an unmodifiable map.");
     }
@@ -57,11 +57,11 @@ final class ParameterizedTypeHandlerMap<T> {
     }
   }
 
-  public void makeUnmodifiable() {
+  public synchronized void makeUnmodifiable() {
     modifiable = false;
   }
 
-  public T getHandlerFor(Type type) {
+  public synchronized T getHandlerFor(Type type) {
     T handler = map.get(type);
     if (handler == null && type instanceof ParameterizedType) {
       // a handler for a non-generic version is registered, so use that
@@ -71,15 +71,15 @@ final class ParameterizedTypeHandlerMap<T> {
     return handler;
   }
 
-  public boolean hasAnyHandlerFor(Type type) {
+  public synchronized boolean hasAnyHandlerFor(Type type) {
     return getHandlerFor(type) != null;
   }
 
-  public boolean hasSpecificHandlerFor(Type type) {
+  public synchronized boolean hasSpecificHandlerFor(Type type) {
     return map.containsKey(type);
   }
 
-  public ParameterizedTypeHandlerMap<T> copyOf() {
+  public synchronized ParameterizedTypeHandlerMap<T> copyOf() {
     ParameterizedTypeHandlerMap<T> copy = new ParameterizedTypeHandlerMap<T>();
     for (Map.Entry<Type, T> entry : map.entrySet()) {
       copy.register(entry.getKey(), entry.getValue());
@@ -87,7 +87,7 @@ final class ParameterizedTypeHandlerMap<T> {
     return copy;
   }
 
-  public Set<Map.Entry<Type, T>> entrySet() {
+  public synchronized Set<Map.Entry<Type, T>> entrySet() {
     return map.entrySet();
   }
 }
