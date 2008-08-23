@@ -16,6 +16,8 @@
 
 package com.google.gson;
 
+import com.google.gson.DefaultTypeAdapters.DefaultDateTypeAdapter;
+
 import junit.framework.TestCase;
 
 import java.text.DateFormat;
