@@ -16,7 +16,6 @@
 
 package com.google.gson;
 
-import com.google.gson.ParameterizedTypeHandlerMap;
 import com.google.gson.reflect.TypeToken;
 
 import junit.framework.TestCase;
@@ -66,5 +65,23 @@ public class ParameterizedTypeHandlerMapTest extends TestCase {
     assertTrue(paramMap.hasAnyHandlerFor(specificType));
     assertFalse(paramMap.hasAnyHandlerFor(List.class));
     assertEquals(handler, paramMap.getHandlerFor(specificType));
+  }
+
+  public void testTypeOverridding() throws Exception {
+    String handler1 = "blah1";
+    String handler2 = "blah2";
+    paramMap.register(String.class, handler1);
+    paramMap.register(String.class, handler2);
+
+    assertTrue(paramMap.hasSpecificHandlerFor(String.class));
+    assertEquals(handler2, paramMap.getHandlerFor(String.class));
+  }
+
+  public void testMakeUnmodifiable() throws Exception {
+    paramMap.makeUnmodifiable();
+    try {
+     paramMap.register(String.class, "blah");
+     fail("Can not register handlers when map is unmodifiable");
+    } catch (IllegalStateException expected) { }
   }
 }
