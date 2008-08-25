@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package com.google.gson.functional;
 
+import com.google.gson.Gson;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.common.TestTypes.ClassWithTransientFields;
 import com.google.gson.common.TestTypes.Nested;
@@ -26,19 +27,17 @@ import junit.framework.TestCase;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JsonCompactFormatterTest extends TestCase {
-
-  private Gson gson;
-
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
-    JsonFormatter formatter = new JsonCompactFormatter();
-    gson = new GsonBuilder().setFormatter(formatter).create();
-  }
+/**
+ * Functional tests for print formatting.
+ *
+ * @author Inderjeet Singh
+ * @author Joel Leitch
+ */
+public class PrintFormattingTest extends TestCase {
 
   @SuppressWarnings("unchecked")
-  public void testNoWhiteSpace() {
+  public void testCompactFormattingLeavesNoWhiteSpace() {
+    Gson gson = new Gson();
     List list = new ArrayList();
     list.add(new BagOfPrimitives());
     list.add(new Nested());
@@ -49,7 +48,7 @@ public class JsonCompactFormatterTest extends TestCase {
     assertContainsNoWhiteSpace(json);
   }
 
-  private void assertContainsNoWhiteSpace(String str) {
+  private static void assertContainsNoWhiteSpace(String str) {
     for (char c : str.toCharArray()) {
       assertFalse(Character.isWhitespace(c));
     }
