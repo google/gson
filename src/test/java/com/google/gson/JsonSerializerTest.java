@@ -18,8 +18,6 @@ package com.google.gson;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.common.TestTypes.ClassOverridingEquals;
 import com.google.gson.common.TestTypes.ClassWithNoFields;
-import com.google.gson.common.TestTypes.ClassWithSerializedNameFields;
-import com.google.gson.common.TestTypes.StringWrapper;
 
 import junit.framework.TestCase;
 
@@ -70,20 +68,6 @@ public class JsonSerializerTest extends TestCase {
 
     BagOfPrimitives expectedObject = gson.fromJson(jsonRepresentation, BagOfPrimitives.class);
     assertEquals(objWithPrimitives.getExpectedJson(), expectedObject.getExpectedJson());
-  }
-
-  public void testGsonWithNonDefaultFieldNamingPolicy() {
-    Gson gson = new GsonBuilder().setFieldNamingPolicy(
-        FieldNamingPolicy.UPPER_CAMEL_CASE).create();
-    StringWrapper target = new StringWrapper("blah");
-    assertEquals("{\"SomeConstantStringInstanceField\":\""
-        + target.someConstantStringInstanceField + "\"}", gson.toJson(target));
-  }
-
-  public void testGsonWithSerializedNameFieldNamingPolicy() {
-    ClassWithSerializedNameFields expected = new ClassWithSerializedNameFields(5);
-    String actual = gson.toJson(expected);
-    assertEquals(expected.getExpectedJson(), actual);
   }
 
   public void testAnonymousLocalClassesSerialization() {
