@@ -15,10 +15,8 @@
  */
 package com.google.gson;
 
-import com.google.gson.annotations.Since;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.common.TestTypes.ClassOverridingEquals;
-import com.google.gson.common.TestTypes.ClassWithCustomTypeConverter;
 import com.google.gson.common.TestTypes.ClassWithNoFields;
 import com.google.gson.common.TestTypes.ClassWithSerializedNameFields;
 import com.google.gson.common.TestTypes.StringWrapper;
@@ -28,7 +26,6 @@ import junit.framework.TestCase;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
 
 /**
  * Small test for Json Serialization
@@ -63,38 +60,6 @@ public class JsonSerializerTest extends TestCase {
   public void testStaticFieldsAreNotSerialized() {
     BagOfPrimitives target = new BagOfPrimitives();
     assertFalse(gson.toJson(target).contains("DEFAULT_VALUE"));
-  }
-
-  static class Version1 {
-    int a = 0;
-    @Since(1.0) int b = 1;
-  }
-
-  static class Version1_1 extends Version1 {
-    @Since(1.1) int c = 2;
-  }
-
-  @Since(1.2)
-  static class Version1_2 {
-    int d = 3;
-  }
-
-  public void testVersionedClasses() {
-    Gson gson = new GsonBuilder().setVersion(1.0).create();
-    String json1 = gson.toJson(new Version1());
-    String json2 = gson.toJson(new Version1_1());
-    assertEquals(json1, json2);
-  }
-
-  public void testIgnoreLaterVersionClass() {
-    Gson gson = new GsonBuilder().setVersion(1.0).create();
-    assertEquals("", gson.toJson(new Version1_2()));
-  }
-
-  public void testVersionedGsonWithUnversionedClasses() {
-    Gson gson = new GsonBuilder().setVersion(1.0).create();
-    BagOfPrimitives target = new BagOfPrimitives(10, 20, false, "stringValue");
-    assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 
   public void testEscapingQuotesInStringArray() throws Exception {
