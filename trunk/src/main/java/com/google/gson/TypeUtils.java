@@ -81,7 +81,7 @@ final class TypeUtils {
     }
   }
 
-  private static Class<?> wrapWithArray(Class<?> rawClass) {
+  static Class<?> wrapWithArray(Class<?> rawClass) {
     return Array.newInstance(rawClass, 0).getClass();
   }
 
