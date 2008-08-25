@@ -13,42 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson;
+package com.google.gson.functional;
 
+import com.google.gson.Gson;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
-import com.google.gson.common.TestTypes.ClassOverridingEquals;
-import com.google.gson.common.TestTypes.ClassWithNoFields;
 
 import junit.framework.TestCase;
 
-import java.lang.reflect.Modifier;
-
-/**
- * Small test for Json Serialization
- *
- * @author Inderjeet Singh
- * @author Joel Leitch
- */
-public class JsonSerializerTest extends TestCase {
+public class EscapingTest extends TestCase {
   private Gson gson;
 
   @Override
   protected void setUp() throws Exception {
     super.setUp();
     gson = new Gson();
-  }
-
-  public void testObjectEqualButNotSame() throws Exception {
-    ClassOverridingEquals objA = new ClassOverridingEquals();
-    ClassOverridingEquals objB = new ClassOverridingEquals();
-    objB.ref = objA;
-
-    assertEquals(objB.getExpectedJson(), gson.toJson(objB));
-  }
-
-  public void testStaticFieldsAreNotSerialized() {
-    BagOfPrimitives target = new BagOfPrimitives();
-    assertFalse(gson.toJson(target).contains("DEFAULT_VALUE"));
   }
 
   public void testEscapingQuotesInStringArray() throws Exception {
@@ -68,14 +46,5 @@ public class JsonSerializerTest extends TestCase {
 
     BagOfPrimitives expectedObject = gson.fromJson(jsonRepresentation, BagOfPrimitives.class);
     assertEquals(objWithPrimitives.getExpectedJson(), expectedObject.getExpectedJson());
-  }
-
-  public void testAnonymousLocalClassesSerialization() {
-    gson = new Gson(new ObjectNavigatorFactory(new ModifierBasedExclusionStrategy(
-        true, Modifier.TRANSIENT, Modifier.STATIC), Gson.DEFAULT_NAMING_POLICY));
-    assertEquals("{}", gson.toJson(new ClassWithNoFields() {
-      // empty anonymous class
-    }));
-
   }
 }
