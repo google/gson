@@ -60,33 +60,6 @@ public class JsonSerializerTest extends TestCase {
     assertEquals(src.getExpectedJson(), writer.toString());
   }
 
-  public void testCustomSerializers() {
-    Gson gson = new GsonBuilder().registerSerializer(
-        ClassWithCustomTypeConverter.class, new JsonSerializer<ClassWithCustomTypeConverter>() {
-      public JsonElement serialize(ClassWithCustomTypeConverter src, Type typeOfSrc,
-          JsonSerializationContext context) {
-        JsonObject json = new JsonObject();
-        json.addProperty("bag", 5);
-        json.addProperty("value", 25);
-        return json;
-      }
-    }).create();
-    ClassWithCustomTypeConverter target = new ClassWithCustomTypeConverter();
-    assertEquals("{\"bag\":5,\"value\":25}", gson.toJson(target));
-  }
-
-  public void testNestedCustomSerializers() {
-    Gson gson = new GsonBuilder().registerSerializer(
-        BagOfPrimitives.class, new JsonSerializer<BagOfPrimitives>() {
-      public JsonElement serialize(BagOfPrimitives src, Type typeOfSrc,
-          JsonSerializationContext context) {
-        return new JsonPrimitive(6);
-      }
-    }).create();
-    ClassWithCustomTypeConverter target = new ClassWithCustomTypeConverter();
-    assertEquals("{\"bag\":6,\"value\":10}", gson.toJson(target));
-  }
-
   public void testStaticFieldsAreNotSerialized() {
     BagOfPrimitives target = new BagOfPrimitives();
     assertFalse(gson.toJson(target).contains("DEFAULT_VALUE"));

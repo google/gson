@@ -69,36 +69,6 @@ public class JsonDeserializerTest extends TestCase {
     assertEquals(expected, actual);
   }
 
-  public void testCustomDeserializer() {
-    Gson gson = new GsonBuilder().registerTypeAdapter(
-        ClassWithCustomTypeConverter.class, new JsonDeserializer<ClassWithCustomTypeConverter>() {
-      public ClassWithCustomTypeConverter deserialize(JsonElement json, Type typeOfT,
-          JsonDeserializationContext context) {
-        JsonObject jsonObject = json.getAsJsonObject();
-        int value = jsonObject.get("bag").getAsInt();
-        return new ClassWithCustomTypeConverter(new BagOfPrimitives(value,
-            value, false, ""), value);
-      }
-    }).create();
-    String json = "{\"bag\":5,\"value\":25}";
-    ClassWithCustomTypeConverter target = gson.fromJson(json, ClassWithCustomTypeConverter.class);
-    assertEquals(5, target.getBag().getIntValue());
-  }
-
-  public void testNestedCustomTypeConverters() {
-    Gson gson = new GsonBuilder().registerTypeAdapter(
-        BagOfPrimitives.class, new JsonDeserializer<BagOfPrimitives>() {
-      public BagOfPrimitives deserialize(JsonElement json, Type typeOfT,
-          JsonDeserializationContext context) throws JsonParseException {
-        int value = json.getAsInt();
-        return new BagOfPrimitives(value, value, false, "");
-      }
-    }).create();
-    String json = "{\"bag\":7,\"value\":25}";
-    ClassWithCustomTypeConverter target = gson.fromJson(json, ClassWithCustomTypeConverter.class);
-    assertEquals(7, target.getBag().getIntValue());
-  }
-
   public void testGsonWithNonDefaultFieldNamingPolicy() {
     Gson gson = new GsonBuilder().setFieldNamingPolicy(
         FieldNamingPolicy.UPPER_CAMEL_CASE).create();
