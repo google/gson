@@ -18,16 +18,17 @@ package com.google.gson.functional;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
+import com.google.gson.common.TestTypes.ClassOverridingEquals;
 
 import junit.framework.TestCase;
 
 /**
- * Functional tests for Json Deserialization.
+ * Functional tests that do not fall neatly into any of the existing classification.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class JsonDeserializerTest extends TestCase {
+public class UncategorizedTest extends TestCase {
 
   private Gson gson = null;
 
@@ -37,7 +38,7 @@ public class JsonDeserializerTest extends TestCase {
     gson = new Gson();
   }
 
-  public void testInvalidJson() throws Exception {
+  public void testInvalidJsonDeserializationFails() throws Exception {
     try {
       gson.fromJson("adfasdf1112,,,\":", BagOfPrimitives.class);
       fail("Bad JSON should throw a ParseException");
@@ -48,4 +49,18 @@ public class JsonDeserializerTest extends TestCase {
       fail("Bad JSON should throw a ParseException");
     } catch (JsonParseException expected) { }
   }
+
+  public void testObjectEqualButNotSameSerialization() throws Exception {
+    ClassOverridingEquals objA = new ClassOverridingEquals();
+    ClassOverridingEquals objB = new ClassOverridingEquals();
+    objB.ref = objA;
+    String json = gson.toJson(objB);
+    assertEquals(objB.getExpectedJson(), json);
+  }
+
+  public void testStaticFieldsAreNotSerialized() {
+    BagOfPrimitives target = new BagOfPrimitives();
+    assertFalse(gson.toJson(target).contains("DEFAULT_VALUE"));
+  }
+
 }
