@@ -18,21 +18,12 @@ package com.google.gson.functional;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
-import com.google.gson.common.TestTypes.ClassWithCustomTypeConverter;
 import com.google.gson.common.TestTypes.ClassWithSerializedNameFields;
 import com.google.gson.common.TestTypes.StringWrapper;
 
 import junit.framework.TestCase;
-
-import java.io.Reader;
-import java.io.StringReader;
-import java.lang.reflect.Type;
 
 /**
  * Functional tests for Json Deserialization.
@@ -60,13 +51,6 @@ public class JsonDeserializerTest extends TestCase {
       gson.fromJson("{adfasdf1112,,,\":}", BagOfPrimitives.class);
       fail("Bad JSON should throw a ParseException");
     } catch (JsonParseException expected) { }
-  }
-
-  public void testReader() throws Exception {
-    BagOfPrimitives expected = new BagOfPrimitives();
-    Reader json = new StringReader(expected.getExpectedJson());
-    BagOfPrimitives actual = gson.fromJson(json, BagOfPrimitives.class);
-    assertEquals(expected, actual);
   }
 
   public void testGsonWithNonDefaultFieldNamingPolicy() {

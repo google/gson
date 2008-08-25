@@ -23,8 +23,6 @@ import com.google.gson.common.TestTypes.StringWrapper;
 
 import junit.framework.TestCase;
 
-import java.io.StringWriter;
-import java.io.Writer;
 import java.lang.reflect.Modifier;
 
 /**
@@ -48,13 +46,6 @@ public class JsonSerializerTest extends TestCase {
     objB.ref = objA;
 
     assertEquals(objB.getExpectedJson(), gson.toJson(objB));
-  }
-
-  public void testWriter() throws Exception {
-    Writer writer = new StringWriter();
-    BagOfPrimitives src = new BagOfPrimitives();
-    gson.toJson(src, writer);
-    assertEquals(src.getExpectedJson(), writer.toString());
   }
 
   public void testStaticFieldsAreNotSerialized() {
