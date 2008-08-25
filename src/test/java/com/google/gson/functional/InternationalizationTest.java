@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package com.google.gson.functional;
+
+import com.google.gson.Gson;
 
 import junit.framework.TestCase;
 
 /**
- * Tests for internationalized strings.
+ * Functional tests for internationalized strings.
  *
  * @author Inderjeet Singh
  */
@@ -35,7 +37,7 @@ public class InternationalizationTest extends TestCase {
   public void testSerializingStringsWithRawChineseCharacters() {
     String target = "好好好";
     String json = gson.toJson(target);
-    String expected = "\"" + Escaper.escapeJsonString(target) + "\"";
+    String expected = "\"\\u00e5\\u00a5\\u00bd\\u00e5\\u00a5\\u00bd\\u00e5\\u00a5\\u00bd\"";
     assertEquals(expected, json);
   }
 
@@ -56,14 +58,14 @@ public class InternationalizationTest extends TestCase {
   public void testSerializingStringsWithEscapedUnicodeChineseCharacters() {
     String target = "\u597d\u597d\u597d";
     String json = gson.toJson(target);
-    String expected = "\"" + Escaper.escapeJsonString(target) + "\"";
+    String expected = "\"\\u597d\\u597d\\u597d\"";
     assertEquals(expected, json);
   }
 
   public void testDeserializingStringsWithEscapedUnicodeChineseCharacters() {
-    String expected = "\\u597d\\u597d\\u597d";
-    String json = "\"" + expected + "\"";
+    String json = "\"" + "\\u597d\\u597d\\u597d" + "\"";
     String actual = gson.fromJson(json, String.class);
-    assertEquals(expected, Escaper.escapeJsonString(actual));
+    String expected = "\u597d\u597d\u597d";
+    assertEquals(expected, actual);
   }
 }
