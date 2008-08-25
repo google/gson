@@ -15,13 +15,9 @@
  */
 package com.google.gson.functional;
 
-import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
-import com.google.gson.common.TestTypes.ClassWithSerializedNameFields;
-import com.google.gson.common.TestTypes.StringWrapper;
 
 import junit.framework.TestCase;
 
@@ -51,22 +47,5 @@ public class JsonDeserializerTest extends TestCase {
       gson.fromJson("{adfasdf1112,,,\":}", BagOfPrimitives.class);
       fail("Bad JSON should throw a ParseException");
     } catch (JsonParseException expected) { }
-  }
-
-  public void testGsonWithNonDefaultFieldNamingPolicy() {
-    Gson gson = new GsonBuilder().setFieldNamingPolicy(
-        FieldNamingPolicy.UPPER_CAMEL_CASE).create();
-    StringWrapper target = new StringWrapper("SomeValue");
-    String jsonRepresentation = gson.toJson(target);
-    StringWrapper deserializedObject = gson.fromJson(jsonRepresentation, StringWrapper.class);
-    assertEquals(target.someConstantStringInstanceField,
-        deserializedObject.someConstantStringInstanceField);
-  }
-
-  public void testGsonWithSerializedNameFieldNamingPolicy() {
-    ClassWithSerializedNameFields expected = new ClassWithSerializedNameFields(5);
-    ClassWithSerializedNameFields actual =
-        gson.fromJson(expected.getExpectedJson(), ClassWithSerializedNameFields.class);
-    assertEquals(expected.f, actual.f);
   }
 }
