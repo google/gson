@@ -27,13 +27,17 @@ import java.util.Collection;
  */
 final class JsonPrimitiveDeserializationVisitor<T> extends JsonDeserializationVisitor<T> {
 
-  @SuppressWarnings("unchecked")
   JsonPrimitiveDeserializationVisitor(JsonPrimitive json, Type type,
       ObjectNavigatorFactory factory, ObjectConstructor objectConstructor,
       TypeAdapter typeAdapter, ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers,
       JsonDeserializationContext context) {
-    super(json, factory, objectConstructor, typeAdapter, deserializers, context);
-    this.target = (T) objectConstructor.construct(type);
+    super(json, type, factory, objectConstructor, typeAdapter, deserializers, context);
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  protected T constructTarget() {
+    return (T) objectConstructor.construct(targetType);
   }
 
   public void startVisitingObject(Object node) {

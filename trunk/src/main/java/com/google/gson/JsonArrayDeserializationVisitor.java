@@ -31,30 +31,35 @@ import java.util.Collection;
 final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisitor<T> {
   private final Class<?> componentType;
 
-  @SuppressWarnings("unchecked")
   JsonArrayDeserializationVisitor(JsonArray jsonArray, Type arrayType,
       ObjectNavigatorFactory factory, ObjectConstructor objectConstructor,
       TypeAdapter typeAdapter, ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers,
       JsonDeserializationContext context) {
-    super(jsonArray, factory, objectConstructor, typeAdapter, deserializers, context);
+    super(jsonArray, arrayType, factory, objectConstructor, typeAdapter, deserializers, context);
+    this.componentType = TypeUtils.toRawClass(arrayType);
+  }
 
-    TypeInfo typeInfo = new TypeInfo(arrayType);
-    this.componentType = typeInfo.getRawClass();
+  @Override
+  @SuppressWarnings("unchecked")
+  protected T constructTarget() {
 
+    TypeInfo typeInfo = new TypeInfo(targetType);
+
+    JsonArray jsonArray = json.getAsJsonArray();
     if (typeInfo.isPrimitiveOrStringAndNotAnArray()) {
       if (jsonArray.size() != 1) {
         throw new IllegalArgumentException(
             "Primitives should be an array of length 1, but was: " + jsonArray);
       }
-      target = (T) objectConstructor.construct(typeInfo.getWrappedClass());
+      return (T) objectConstructor.construct(typeInfo.getWrappedClass());
     } else if (typeInfo.isArray()) {
-      TypeInfoArray arrayTypeInfo = TypeInfoFactory.getTypeInfoForArray(arrayType);
+      TypeInfoArray arrayTypeInfo = TypeInfoFactory.getTypeInfoForArray(targetType);
       // We know that we are getting back an array of the required type, so
       // this typecasting is safe.
-      target = (T) objectConstructor.constructArray(arrayTypeInfo.getSecondLevelClass(),
+      return (T) objectConstructor.constructArray(arrayTypeInfo.getSecondLevelClass(),
           jsonArray.size());
     } else { // is a collection
-      target = (T) objectConstructor.construct(typeInfo.getRawClass());
+      return (T) objectConstructor.construct(typeInfo.getRawClass());
     }
   }
 
