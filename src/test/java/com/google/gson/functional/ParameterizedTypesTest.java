@@ -156,19 +156,39 @@ public class ParameterizedTypesTest extends TestCase {
     assertEquals(src.getExpectedJson(), writer.toString());
   }
 
+  @SuppressWarnings("unchecked")
   public void testSerializeVariableTypeFieldsAndGenericArrays() throws Exception {
     Integer obj = 0;
     Integer[] array = { 1, 2, 3 };
     List<Integer> list = new ArrayList<Integer>();
     list.add(4);
     list.add(5);
+    List<Integer>[] arrayOfLists = new List[] { list, list };
 
     Type typeOfSrc = new TypeToken<ObjectWithTypeVariables<Integer>>() {}.getType();
     ObjectWithTypeVariables<Integer> objToSerialize =
-        new ObjectWithTypeVariables<Integer>(obj, array, list);
+        new ObjectWithTypeVariables<Integer>(obj, array, list, arrayOfLists);
     String json = gson.toJson(objToSerialize, typeOfSrc);
 
     assertEquals(objToSerialize.getExpectedJson(), json);
+  }
+
+  @SuppressWarnings("unchecked")
+  public void testDeserializeVariableTypeFieldsAndGenericArrays() throws Exception {
+    Integer obj = 0;
+    Integer[] array = { 1, 2, 3 };
+    List<Integer> list = new ArrayList<Integer>();
+    list.add(4);
+    list.add(5);
+    List<Integer>[] arrayOfLists = new List[] { list, list };
+
+    Type typeOfSrc = new TypeToken<ObjectWithTypeVariables<Integer>>() {}.getType();
+    ObjectWithTypeVariables<Integer> objToSerialize =
+        new ObjectWithTypeVariables<Integer>(obj, array, list, arrayOfLists);
+    String json = gson.toJson(objToSerialize, typeOfSrc);
+    ObjectWithTypeVariables<Integer> objAfterDeserialization = gson.fromJson(json, typeOfSrc);
+
+    assertEquals(objAfterDeserialization.getExpectedJson(), json);
   }
 
   /**
@@ -180,15 +200,17 @@ public class ParameterizedTypesTest extends TestCase {
     private final T typeParameterObj;
     private final T[] typeParameterArray;
     private final List<T> listOfTypeParameters;
+    private final List<T>[] arrayOfListOfTypeParameters;
 
     public ObjectWithTypeVariables() {
-      this(null, null, null);
+      this(null, null, null, null);
     }
 
-    public ObjectWithTypeVariables(T obj, T[] array, List<T> list) {
+    public ObjectWithTypeVariables(T obj, T[] array, List<T> list, List<T>[] arrayOfList) {
       this.typeParameterObj = obj;
       this.typeParameterArray = array;
       this.listOfTypeParameters = list;
+      this.arrayOfListOfTypeParameters = arrayOfList;
     }
 
     public String getExpectedJson() {
@@ -219,6 +241,16 @@ public class ParameterizedTypesTest extends TestCase {
         sb.append(']');
         needsComma = true;
       }
+
+      if (arrayOfListOfTypeParameters != null) {
+        if (needsComma) {
+          sb.append(',');
+        }
+        sb.append("\"arrayOfListOfTypeParameters\":[");
+        appendObjectsToBuilder(sb, arrayOfListOfTypeParameters);
+        sb.append(']');
+        needsComma = true;
+      }
       sb.append('}');
       return sb.toString();
     }
@@ -231,6 +263,23 @@ public class ParameterizedTypesTest extends TestCase {
         }
         isFirst = false;
         sb.append(toString(obj));
+      }
+    }
+
+    private void appendObjectsToBuilder(StringBuilder sb, List<T>[] arrayOfList) {
+      boolean isFirst = true;
+      for (List<T> list : arrayOfList) {
+        if (!isFirst) {
+          sb.append(',');
+        }
+        isFirst = false;
+        if (list != null) {
+          sb.append('[');
+          appendObjectsToBuilder(sb, list);
+          sb.append(']');
+        } else {
+          sb.append("null");
+        }
       }
     }
 
