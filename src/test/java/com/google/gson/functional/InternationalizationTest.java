@@ -34,35 +34,35 @@ public class InternationalizationTest extends TestCase {
     gson = new Gson();
   }
 
-  public void testSerializingStringsWithRawChineseCharacters() {
+  public void testSerializingStringsWithRawChineseCharacters() throws Exception {
     String target = "好好好";
     String json = gson.toJson(target);
-    String expected = "\"\\u00e5\\u00a5\\u00bd\\u00e5\\u00a5\\u00bd\\u00e5\\u00a5\\u00bd\"";
+    String expected = "\"\\u597d\\u597d\\u597d\"";
     assertEquals(expected, json);
   }
 
-  public void testDeserializingStringsWithRawChineseCharacters() {
+  public void testDeserializingStringsWithRawChineseCharacters() throws Exception {
     String expected = "好好好";
     String json = "\"" + expected + "\"";
     String actual = gson.fromJson(json, String.class);
     assertEquals(expected, actual);
   }
 
-  public void testDeserializingStringsWithRawChineseCharactersInEscapedForm() {
+  public void testDeserializingStringsWithRawChineseCharactersInEscapedForm() throws Exception {
     String expected = "\u597d\u597d\u597d";
     String json = "\"" + expected + "\"";
     String actual = gson.fromJson(json, String.class);
     assertEquals(expected, actual);
   }
 
-  public void testSerializingStringsWithEscapedUnicodeChineseCharacters() {
+  public void testSerializingStringsWithEscapedUnicodeChineseCharacters() throws Exception {
     String target = "\u597d\u597d\u597d";
     String json = gson.toJson(target);
     String expected = "\"\\u597d\\u597d\\u597d\"";
     assertEquals(expected, json);
   }
 
-  public void testDeserializingStringsWithEscapedUnicodeChineseCharacters() {
+  public void testDeserializingStringsWithEscapedUnicodeChineseCharacters() throws Exception {
     String json = "\"" + "\\u597d\\u597d\\u597d" + "\"";
     String actual = gson.fromJson(json, String.class);
     String expected = "\u597d\u597d\u597d";

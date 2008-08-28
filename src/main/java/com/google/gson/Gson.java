@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
@@ -75,6 +76,7 @@ public final class Gson {
   //TODO(inder): get rid of all the registerXXX methods and take all such parameters in the
   // constructor instead. At the minimum, mark those methods private.
 
+  private static final String NULL_STRING = "null";
   // Default instances of plug-ins
   static final TypeAdapter DEFAULT_TYPE_ADAPTER =
       new TypeAdapterNotRequired(new PrimitiveTypeAdapter());
@@ -201,7 +203,7 @@ public final class Gson {
    */
   public String toJson(Object src) {
     if (src == null) {
-      return "";
+      return serializeNulls ? NULL_STRING : "";
     }
     return toJson(src, src.getClass());
   }
@@ -242,6 +244,8 @@ public final class Gson {
   public void toJson(Object src, Writer writer) {
     if (src != null) {
       toJson(src, src.getClass(), writer);
+    } else if (serializeNulls) {
+      writeOutNullString(writer);
     }
   }
 
@@ -260,15 +264,18 @@ public final class Gson {
    * @param writer Writer to which the Json representation of src needs to be written.
    */
   public void toJson(Object src, Type typeOfSrc, Writer writer) {
-    if (src == null) {
-      return;
-    }
-    JsonSerializationContext context =
-        new JsonSerializationContextDefault(navigatorFactory, serializeNulls, serializers);
-    JsonElement jsonElement = context.serialize(src, typeOfSrc);
+    if (src != null) {
+      JsonSerializationContext context =
+          new JsonSerializationContextDefault(navigatorFactory, serializeNulls, serializers);
+      JsonElement jsonElement = context.serialize(src, typeOfSrc);
 
-    //TODO(Joel): instead of navigating the "JsonElement" inside the formatter, do it here.
-    formatter.format(jsonElement, new PrintWriter(writer), serializeNulls);
+      //TODO(Joel): instead of navigating the "JsonElement" inside the formatter, do it here.
+      formatter.format(jsonElement, new PrintWriter(writer), serializeNulls);
+    } else {
+      if (serializeNulls) {
+        writeOutNullString(writer);
+      }
+    }
   }
 
   /**
@@ -374,6 +381,15 @@ public final class Gson {
       throw new JsonParseException("Failed parsing JSON source: " + json + " to Json", e);
     } catch (OutOfMemoryError e) {
       throw new JsonParseException("Failed parsing JSON source: " + json + " to Json", e);
+    }
+  }
+
+  private void writeOutNullString(Writer writer) {
+    try {
+      writer.append(NULL_STRING);
+    } catch (IOException e) {
+      // Should this be a different exception???
+      throw new JsonParseException(e);
     }
   }
 }

@@ -48,28 +48,23 @@ final class TypeInfoFactory {
    * @return the type information for the field
    */
   public static TypeInfo getTypeInfoForField(Field f, Type typeDefiningF) {
-    Type actualType = getActualTypeOfField(f, typeDefiningF);
-    return new TypeInfo(actualType);
-  }
-
-  private static Type getActualTypeOfField(Field f, Type typeDefiningF) {
     Class<?> classDefiningF = TypeUtils.toRawClass(typeDefiningF);
     Type type = f.getGenericType();
-    if (type instanceof Class
-        || type instanceof ParameterizedType
-        || type instanceof GenericArrayType
-        || type instanceof TypeVariable) {
-      return getActualType(type, typeDefiningF, classDefiningF);
-    } else {
-      throw new IllegalArgumentException("Type \'" + type + "\' is not a Class, "
-          + "ParameterizedType, GenericArrayType or TypeVariable. Can't extract type.");
-    }
+    Type actualType = getActualType(type, typeDefiningF, classDefiningF);
+    return new TypeInfo(actualType);
   }
 
   private static Type getActualType(
       Type typeToEvaluate, Type parentType, Class<?> rawParentClass) {
     if (typeToEvaluate instanceof Class) {
       return typeToEvaluate;
+    } else if (typeToEvaluate instanceof ParameterizedType) {
+      ParameterizedType castedType = (ParameterizedType) typeToEvaluate;
+      Type owner = castedType.getOwnerType();
+      Type[] actualTypeParameters =
+          extractRealTypes(castedType.getActualTypeArguments(), parentType, rawParentClass);
+      Type rawType = castedType.getRawType();
+      return new ParameterizedTypeImpl(rawType, actualTypeParameters, owner);
     } else if (typeToEvaluate instanceof GenericArrayType) {
       GenericArrayType castedType = (GenericArrayType) typeToEvaluate;
       Type componentType = castedType.getGenericComponentType();
@@ -77,7 +72,11 @@ final class TypeInfoFactory {
       if (componentType.equals(actualType)) {
         return castedType;
       } else {
-        return TypeUtils.wrapWithArray(TypeUtils.toRawClass(actualType));
+        if (actualType instanceof Class) {
+          return TypeUtils.wrapWithArray(TypeUtils.toRawClass(actualType));
+        } else {
+          return new GenericArrayTypeImpl(actualType);
+        }
       }
     } else if (typeToEvaluate instanceof TypeVariable) {
       // The class definition has the actual types used for the type variables.
@@ -92,8 +91,21 @@ final class TypeInfoFactory {
       int indexOfActualTypeArgument = getIndex(classTypeVariables, fieldTypeVariable);
       Type[] actualTypeArguments = objParameterizedType.getActualTypeArguments();
       return actualTypeArguments[indexOfActualTypeArgument];
+    } else {
+      throw new IllegalArgumentException("Type \'" + typeToEvaluate + "\' is not a Class, "
+          + "ParameterizedType, GenericArrayType or TypeVariable. Can't extract type.");
     }
-    return typeToEvaluate;
+  }
+
+  private static Type[] extractRealTypes(
+      Type[] actualTypeArguments, Type parentType, Class<?> rawParentClass) {
+    Preconditions.checkNotNull(actualTypeArguments);
+
+    Type[] retTypes = new Type[actualTypeArguments.length];
+    for (int i = 0; i < actualTypeArguments.length; ++i) {
+      retTypes[i] = getActualType(actualTypeArguments[i], parentType, rawParentClass);
+    }
+    return retTypes;
   }
 
   private static int getIndex(TypeVariable<?>[] types, TypeVariable<?> type) {
@@ -102,6 +114,7 @@ final class TypeInfoFactory {
         return i;
       }
     }
-    throw new IllegalStateException("How can the type variable not be present in the class declaration!");
+    throw new IllegalStateException(
+        "How can the type variable not be present in the class declaration!");
   }
 }
