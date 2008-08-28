@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.google.gson.functional;
 
 import com.google.gson.Gson;
@@ -55,31 +56,31 @@ public class ObjectTest extends TestCase {
     gson = new Gson();
   }
 
-  public void testBagOfPrimitivesSerialization() {
+  public void testBagOfPrimitivesSerialization() throws Exception {
     BagOfPrimitives target = new BagOfPrimitives(10, 20, false, "stringValue");
     assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 
-  public void testBagOfPrimitivesDeserialization() {
+  public void testBagOfPrimitivesDeserialization() throws Exception {
     BagOfPrimitives src = new BagOfPrimitives(10, 20, false, "stringValue");
     String json = src.getExpectedJson();
     BagOfPrimitives target = gson.fromJson(json, BagOfPrimitives.class);
     assertEquals(json, target.getExpectedJson());
   }
 
-  public void testBagOfPrimitiveWrappersSerialization() {
+  public void testBagOfPrimitiveWrappersSerialization() throws Exception {
     BagOfPrimitiveWrappers target = new BagOfPrimitiveWrappers(10L, 20, false);
     assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 
-  public void testBagOfPrimitiveWrappersDeserialization() {
+  public void testBagOfPrimitiveWrappersDeserialization() throws Exception {
     BagOfPrimitiveWrappers target = new BagOfPrimitiveWrappers(10L, 20, false);
     String jsonString = target.getExpectedJson();
     target = gson.fromJson(jsonString, BagOfPrimitiveWrappers.class);
     assertEquals(jsonString, target.getExpectedJson());
   }
 
-  public void testDirectedAcyclicGraphSerialization() {
+  public void testDirectedAcyclicGraphSerialization() throws Exception {
     ContainsReferenceToSelfType a = new ContainsReferenceToSelfType();
     ContainsReferenceToSelfType b = new ContainsReferenceToSelfType();
     ContainsReferenceToSelfType c = new ContainsReferenceToSelfType();
@@ -89,7 +90,7 @@ public class ObjectTest extends TestCase {
     assertNotNull(gson.toJson(a));
   }
 
-  public void testDirectedAcyclicGraphDeserialization() {
+  public void testDirectedAcyclicGraphDeserialization() throws Exception {
     String json = "{\"children\":[{\"children\":[{\"children\":[]}]},{\"children\":[]}]}";
     ContainsReferenceToSelfType target = gson.fromJson(json, ContainsReferenceToSelfType.class);
     assertNotNull(target);
@@ -107,30 +108,31 @@ public class ObjectTest extends TestCase {
     assertEquals(json, target.getExpectedJson());
   }
 
-  public void testClassWithTransientFieldsDeserializationTransientFieldsPassedInJsonAreIgnored() {
+  public void testClassWithTransientFieldsDeserializationTransientFieldsPassedInJsonAreIgnored()
+      throws Exception {
     String json = "{\"transientLongValue\":1,\"longValue\":[1]}";
     ClassWithTransientFields target = gson.fromJson(json, ClassWithTransientFields.class);
     assertFalse(target.transientLongValue != 1);
   }
 
-  public void testClassWithNoFieldsSerialization() {
+  public void testClassWithNoFieldsSerialization() throws Exception {
     assertEquals("{}", gson.toJson(new ClassWithNoFields()));
   }
 
-  public void testClassWithNoFieldsDeserialization() {
+  public void testClassWithNoFieldsDeserialization() throws Exception {
     String json = "{}";
     ClassWithNoFields target = gson.fromJson(json, ClassWithNoFields.class);
     ClassWithNoFields expected = new ClassWithNoFields();
     assertEquals(expected, target);
   }
 
-  public void testNestedSerialization() {
+  public void testNestedSerialization() throws Exception {
     Nested target = new Nested(new BagOfPrimitives(10, 20, false, "stringValue"),
        new BagOfPrimitives(30, 40, true, "stringValue"));
     assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 
-  public void testNestedDeserialization() {
+  public void testNestedDeserialization() throws Exception {
     String json = "{\"primitive1\":{\"longValue\":10,\"intValue\":20,\"booleanValue\":false,"
         + "\"stringValue\":\"stringValue\"},\"primitive2\":{\"longValue\":30,\"intValue\":40,"
         + "\"booleanValue\":true,\"stringValue\":\"stringValue\"}}";
@@ -138,13 +140,13 @@ public class ObjectTest extends TestCase {
     assertEquals(json, target.getExpectedJson());
   }
 
-  public void testInheritenceSerialization() {
+  public void testInheritenceSerialization() throws Exception {
     SubTypeOfNested target = new SubTypeOfNested(new BagOfPrimitives(10, 20, false, "stringValue"),
         new BagOfPrimitives(30, 40, true, "stringValue"));
     assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 
-  public void testInheritenceDeserialization() {
+  public void testInheritenceDeserialization() throws Exception {
     String json = "{\"value\":5,\"primitive1\":{\"longValue\":10,\"intValue\":20,"
         + "\"booleanValue\":false,\"stringValue\":\"stringValue\"},\"primitive2\":"
         + "{\"longValue\":30,\"intValue\":40,\"booleanValue\":true,"
@@ -153,11 +155,11 @@ public class ObjectTest extends TestCase {
     assertEquals(json, target.getExpectedJson());
   }
 
-  public void testNullSerialization() {
+  public void testNullSerialization() throws Exception {
     assertEquals("", gson.toJson(null));
   }
 
-  public void testNullDeserialization() {
+  public void testNullDeserialization() throws Exception {
     try {
       gson.fromJson("", Object.class);
       fail("Null strings should not be allowed");
@@ -165,63 +167,63 @@ public class ObjectTest extends TestCase {
     }
   }
 
-  public void testNullFieldsSerialization() {
+  public void testNullFieldsSerialization() throws Exception {
     Nested target = new Nested(new BagOfPrimitives(10, 20, false, "stringValue"), null);
     assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 
-  public void testNullFieldsDeserialization() {
+  public void testNullFieldsDeserialization() throws Exception {
     String json = "{\"primitive1\":{\"longValue\":10,\"intValue\":20,\"booleanValue\":false"
         + ",\"stringValue\":\"stringValue\"}}";
     Nested target = gson.fromJson(json, Nested.class);
     assertEquals(json, target.getExpectedJson());
   }
 
-  public void testArrayOfObjectsSerialization() {
+  public void testArrayOfObjectsSerialization() throws Exception {
     ArrayOfObjects target = new ArrayOfObjects();
     assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 
-  public void testArrayOfObjectsDeserialization() {
+  public void testArrayOfObjectsDeserialization() throws Exception {
     String json = new ArrayOfObjects().getExpectedJson();
     ArrayOfObjects target = gson.fromJson(json, ArrayOfObjects.class);
     assertEquals(json, target.getExpectedJson());
   }
 
-  public void testArrayOfArraysSerialization() {
+  public void testArrayOfArraysSerialization() throws Exception {
     ArrayOfArrays target = new ArrayOfArrays();
     assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 
-  public void testArrayOfArraysDeserialization() {
+  public void testArrayOfArraysDeserialization() throws Exception {
     String json = new ArrayOfArrays().getExpectedJson();
     ArrayOfArrays target = gson.fromJson(json, ArrayOfArrays.class);
     assertEquals(json, target.getExpectedJson());
   }
 
-  public void testClassWithEnumFieldSerialization() {
+  public void testClassWithEnumFieldSerialization() throws Exception {
     ClassWithEnumFields target = new ClassWithEnumFields();
     assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 
-  public void testClassWithEnumFieldDeserialization() {
+  public void testClassWithEnumFieldDeserialization() throws Exception {
     String json = new ClassWithEnumFields().getExpectedJson();
     ClassWithEnumFields target = gson.fromJson(json, ClassWithEnumFields.class);
     assertEquals(json, target.getExpectedJson());
   }
 
-  public void testTopLevelEnumSerialization() {
+  public void testTopLevelEnumSerialization() throws Exception {
     MyEnum target = MyEnum.VALUE1;
     assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 
-  public void testTopLevelEnumDeserialization() {
+  public void testTopLevelEnumDeserialization() throws Exception {
     String json = MyEnum.VALUE1.getExpectedJson();
     MyEnum target = gson.fromJson(json, MyEnum.class);
     assertEquals(json, target.getExpectedJson());
   }
 
-  public void testSubInterfacesOfCollectionSerialization() {
+  public void testSubInterfacesOfCollectionSerialization() throws Exception {
     List<Integer> list = new LinkedList<Integer>();
     list.add(0);
     list.add(1);
@@ -247,7 +249,7 @@ public class ObjectTest extends TestCase {
     assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 
-  public void testSubInterfacesOfCollectionDeserialization() {
+  public void testSubInterfacesOfCollectionDeserialization() throws Exception {
     String json = "{\"list\":[0,1,2,3],\"queue\":[0,1,2,3],\"set\":[0.1,0.2,0.3,0.4],"
         + "\"sortedSet\":[\"a\",\"b\",\"c\",\"d\"]"
 //        + ",\"navigableSet\":[\"abc\",\"def\",\"ghi\",\"jkl\"]"
@@ -260,7 +262,7 @@ public class ObjectTest extends TestCase {
   /**
    * Created in response to Issue 14: http://code.google.com/p/google-gson/issues/detail?id=14
    */
-  public void testNullArraysDeserialization() {
+  public void testNullArraysDeserialization() throws Exception {
     String json = "{\"array\": null}";
     ClassWithArray target = gson.fromJson(json, ClassWithArray.class);
     assertNull(target.array);
@@ -269,20 +271,20 @@ public class ObjectTest extends TestCase {
   /**
    * Created in response to Issue 14: http://code.google.com/p/google-gson/issues/detail?id=14
    */
-  public void testNullObjectFieldsDeserialization() {
+  public void testNullObjectFieldsDeserialization() throws Exception {
     String json = "{\"bag\": null}";
     ClassWithObjects target = gson.fromJson(json, ClassWithObjects.class);
     assertNull(target.bag);
   }
 
-  public void testEmptyCollectionInAnObjectDeserialization() {
+  public void testEmptyCollectionInAnObjectDeserialization() throws Exception {
     String json = "{\"children\":[]}";
     ContainsReferenceToSelfType target = gson.fromJson(json, ContainsReferenceToSelfType.class);
     assertNotNull(target);
     assertTrue(target.children.isEmpty());
   }
 
-  public void testPrimitiveArrayInAnObjectDeserialization() {
+  public void testPrimitiveArrayInAnObjectDeserialization() throws Exception {
     String json = "{\"longArray\":[0,1,2,3,4,5,6,7,8,9]}";
     PrimitiveArray target = gson.fromJson(json, PrimitiveArray.class);
     assertEquals(json, target.getExpectedJson());
@@ -291,18 +293,19 @@ public class ObjectTest extends TestCase {
   /**
    * Created in response to Issue 14: http://code.google.com/p/google-gson/issues/detail?id=14
    */
-  public void testNullPrimitiveFieldsDeserialization() {
+  public void testNullPrimitiveFieldsDeserialization() throws Exception {
     String json = "{\"longValue\":null}";
     BagOfPrimitives target = gson.fromJson(json, BagOfPrimitives.class);
     assertEquals(BagOfPrimitives.DEFAULT_VALUE, target.longValue);
   }
 
-  public void testReallyLongStringsDeserialization() {
+  public void testReallyLongStringsDeserialization() throws Exception {
     StringBuilder sb = new StringBuilder(8096);
     sb.append("Once upon a time there was a really long string that caused a StackOverFlowError\n");
     sb.append("and now it is fixed and instead throws a JsonParserException.....Yippie!!!\n");
-    sb.append("Wow....that is a really long string that is meant to be an");
-    sb.append("exception, but is not :( \n.");
+    sb.append("Wow....that is a really long string that is meant to be an exception stack trace, ");
+    sb.append("but is not :( \n\n\n\n\n\n.");
+    sb.append("lalalalala \n\n\n.");
     sb.append("C'est la vie!!! \n\n\n\n\n");
 
     for (int i = 0; i < 10; i++) {
@@ -322,7 +325,7 @@ public class ObjectTest extends TestCase {
     }
   }
 
-  public void testEmptyCollectionInAnObjectSerialization() {
+  public void testEmptyCollectionInAnObjectSerialization() throws Exception {
     ContainsReferenceToSelfType target = new ContainsReferenceToSelfType();
     assertEquals("{\"children\":[]}", gson.toJson(target));
   }
@@ -333,7 +336,7 @@ public class ObjectTest extends TestCase {
     assertTrue(target.stackTrace.contains("Yippie"));
   }
 
-  public void testCircularSerialization() {
+  public void testCircularSerialization() throws Exception {
     ContainsReferenceToSelfType a = new ContainsReferenceToSelfType();
     ContainsReferenceToSelfType b = new ContainsReferenceToSelfType();
     a.children.add(b);
@@ -344,7 +347,7 @@ public class ObjectTest extends TestCase {
     } catch (IllegalStateException expected) { }
   }
 
-  public void testSelfReferenceSerialization() {
+  public void testSelfReferenceSerialization() throws Exception {
     ClassOverridingEquals objA = new ClassOverridingEquals();
     objA.ref = objA;
 
@@ -354,13 +357,13 @@ public class ObjectTest extends TestCase {
     } catch (IllegalStateException expected) { }
   }
 
-  public void testPrivateNoArgConstructorDeserialization() {
+  public void testPrivateNoArgConstructorDeserialization() throws Exception {
     ClassWithPrivateNoArgsConstructor target =
       gson.fromJson("{\"a\":20}", ClassWithPrivateNoArgsConstructor.class);
     assertEquals(20, target.a);
   }
 
-  public void testAnonymousLocalClassesSerialization() {
+  public void testAnonymousLocalClassesSerialization() throws Exception {
     assertEquals("", gson.toJson(new ClassWithNoFields() {
       // empty anonymous class
     }));

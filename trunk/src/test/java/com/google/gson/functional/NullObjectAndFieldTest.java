@@ -28,6 +28,7 @@ import com.google.gson.common.TestTypes.ClassWithObjects;
 
 import junit.framework.TestCase;
 
+import java.io.StringWriter;
 import java.lang.reflect.Type;
 
 /**
@@ -36,7 +37,7 @@ import java.lang.reflect.Type;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class NullSerializationTest extends TestCase {
+public class NullObjectAndFieldTest extends TestCase {
   private GsonBuilder gsonBuilder;
 
   @Override
@@ -45,12 +46,40 @@ public class NullSerializationTest extends TestCase {
     gsonBuilder = new GsonBuilder().serializeNulls();
   }
 
+  public void testTopLevelNullObjectSerialization() {
+    Gson gson = gsonBuilder.create();
+    String actual = gson.toJson(null);
+    assertEquals("null", actual);
+
+    actual = gson.toJson(null, String.class);
+    assertEquals("null", actual);
+  }
+
+  public void testTopLevelNullObjectSerializationWithWriter() {
+    Gson gson = gsonBuilder.create();
+    StringWriter writer = new StringWriter();
+    gson.toJson(null, writer);
+    assertEquals("null", writer.toString());
+  }
+
   public void testExplicitSerializationOfNulls() {
     Gson gson = gsonBuilder.create();
     ClassWithObjects target = new ClassWithObjects(null);
     String actual = gson.toJson(target);
     String expected = "{\"bag\":null}";
     assertEquals(expected, actual);
+  }
+
+  public void testTopLevelNullDeserialization() throws Exception {
+    Gson gson = gsonBuilder.create();
+    String actual = gson.fromJson("null", String.class);
+    assertNull(actual);
+  }
+
+  public void testNullObjectFieldDeserialization() throws Exception {
+    Gson gson = gsonBuilder.create();
+    ClassWithObjects target = gson.fromJson("{\"bag\":null}", ClassWithObjects.class);
+    assertNull(target.bag);
   }
 
   public void testCustomSerializationOfNulls() {
