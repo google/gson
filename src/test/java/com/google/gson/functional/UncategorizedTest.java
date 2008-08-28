@@ -87,15 +87,15 @@ public class UncategorizedTest extends TestCase {
     assertEquals(OperationType.OP2, base.opType);
   }
 
-  private enum OperationType { OP1, OP2 };
+  private enum OperationType { OP1, OP2 }
   private static class Base {
     OperationType opType;
   }
   private static class Derived1 extends Base {
-    Derived1() { opType = OperationType.OP1; };
+    Derived1() { opType = OperationType.OP1; }
   }
   private static class Derived2 extends Base {
-    Derived2() { opType = OperationType.OP2; };
+    Derived2() { opType = OperationType.OP2; }
   }
   private static class BaseTypeAdapter implements JsonDeserializer<Base> {
     public Base deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
