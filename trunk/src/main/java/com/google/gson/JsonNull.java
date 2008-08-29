@@ -20,6 +20,8 @@ package com.google.gson;
  * A class representing a Json null value.
  *
  * @author Inderjeet Singh
+ * @author Joel Leitch
+ * @since 1.2
  */
 public final class JsonNull extends JsonElement {
 

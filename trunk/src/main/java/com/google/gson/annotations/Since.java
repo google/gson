@@ -50,7 +50,7 @@ import java.lang.annotation.Target;
  * @author Inderjeet Singh
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.TYPE, ElementType.METHOD})
+@Target({ElementType.FIELD, ElementType.TYPE})
 public @interface Since {
   /**
    * the value indicating a version number since this member
