@@ -16,6 +16,7 @@
 package com.google.gson.functional;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 
 import junit.framework.TestCase;
@@ -52,5 +53,31 @@ public class ReadersWritersTest extends TestCase {
     Reader json = new StringReader(expected.getExpectedJson());
     BagOfPrimitives actual = gson.fromJson(json, BagOfPrimitives.class);
     assertEquals(expected, actual);
+  }
+
+  public void testTopLevelNullObjectSerializationWithWriter() {
+    StringWriter writer = new StringWriter();
+    gson.toJson(null, writer);
+    assertEquals("", writer.toString());
+  }
+
+  public void testTopLevelNullObjectDeserializationWithReader() {
+    StringReader reader = new StringReader("null");
+    Integer nullIntObject = gson.fromJson(reader, Integer.class);
+    assertNull(nullIntObject);
+  }
+
+  public void testTopLevelNullObjectSerializationWithWriterAndSerializeNulls() {
+    Gson gson = new GsonBuilder().serializeNulls().create();
+    StringWriter writer = new StringWriter();
+    gson.toJson(null, writer);
+    assertEquals("null", writer.toString());
+  }
+
+  public void testTopLevelNullObjectDeserializationWithReaderAndSerializeNulls() {
+    Gson gson = new GsonBuilder().serializeNulls().create();
+    StringReader reader = new StringReader("null");
+    Integer nullIntObject = gson.fromJson(reader, Integer.class);
+    assertNull(nullIntObject);
   }
 }

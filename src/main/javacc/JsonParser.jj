@@ -57,12 +57,13 @@ TOKEN : {
 
 public JsonElement parse() :
 {
-  JsonElement json;
+  JsonElement json = null;
 }
 {
   ( json=JsonObject() |
     json=JsonArray() |
-    json=JsonPrimitive())
+    json=JsonPrimitive() |
+    "null")
   { return json; }
 }
 

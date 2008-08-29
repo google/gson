@@ -35,6 +35,7 @@ interface JsonParserConstants {
     "\"u\"",
     "<HEX>",
     "<HEX_ESC>",
+    "\"null\"",
     "\"{\"",
     "\"}\"",
     "\",\"",
@@ -43,7 +44,6 @@ interface JsonParserConstants {
     "\"]\"",
     "\"true\"",
     "\"false\"",
-    "\"null\"",
     "\"-\"",
     "\".\"",
   };

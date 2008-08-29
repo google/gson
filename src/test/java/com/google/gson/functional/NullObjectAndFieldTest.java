@@ -62,20 +62,6 @@ public class NullObjectAndFieldTest extends TestCase {
     assertNull(actual);
   }
 
-  public void testTopLevelNullObjectSerializationWithWriter() {
-    Gson gson = gsonBuilder.create();
-    StringWriter writer = new StringWriter();
-    gson.toJson(null, writer);
-    assertEquals("null", writer.toString());
-  }
-
-  public void testTopLevelNullObjectDeserializationWithReader() {
-    Gson gson = gsonBuilder.create();
-    StringReader reader = new StringReader("null");
-    Integer nullIntObject = gson.fromJson(reader, Integer.class);
-    assertNull(nullIntObject);
-  }
-
   public void testExplicitSerializationOfNulls() {
     Gson gson = gsonBuilder.create();
     ClassWithObjects target = new ClassWithObjects(null);
