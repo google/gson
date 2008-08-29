@@ -48,4 +48,10 @@ public class ParameterizedTypeImplTest extends TestCase {
     assertEquals(parameterizedType, ourType);
     assertEquals(parameterizedType.hashCode(), ourType.hashCode());
   }
+
+  public void testNotEquals() throws Exception {
+    Type differentParameterizedType = new TypeToken<List<Integer>>() {}.getType();
+    assertFalse(differentParameterizedType.equals(ourType));
+    assertFalse(ourType.equals(differentParameterizedType));
+  }
 }

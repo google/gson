@@ -48,4 +48,11 @@ public class GenericArrayTypeImplTest extends TestCase {
     assertEquals(genericArrayType, ourType);
     assertEquals(genericArrayType.hashCode(), ourType.hashCode());
   }
+
+  public void testNotEquals() throws Exception {
+    Type differentGenericArrayType = new TypeToken<List<String>[][]>() {}.getType();
+
+    assertFalse(differentGenericArrayType.equals(ourType));
+    assertFalse(ourType.equals(differentGenericArrayType));
+  }
 }

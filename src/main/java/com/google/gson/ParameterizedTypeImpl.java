@@ -40,7 +40,7 @@ import java.util.Arrays;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-class ParameterizedTypeImpl implements ParameterizedType {
+final class ParameterizedTypeImpl implements ParameterizedType {
 
   private final Type rawType;
   private final Type[] actualTypeArguments;
@@ -89,5 +89,4 @@ class ParameterizedTypeImpl implements ParameterizedType {
         ^ (owner == null ? 0 : owner.hashCode())
         ^ (rawType == null ? 0 : rawType.hashCode());
   }
-
 }

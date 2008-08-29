@@ -40,7 +40,7 @@ import java.lang.reflect.Type;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-class GenericArrayTypeImpl implements GenericArrayType {
+final class GenericArrayTypeImpl implements GenericArrayType {
 
   private final Type genericComponentType;
 
