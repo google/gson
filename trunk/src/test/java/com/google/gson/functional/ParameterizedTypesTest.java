@@ -167,7 +167,7 @@ public class ParameterizedTypesTest extends TestCase {
 
     Type typeOfSrc = new TypeToken<ObjectWithTypeVariables<Integer>>() {}.getType();
     ObjectWithTypeVariables<Integer> objToSerialize =
-        new ObjectWithTypeVariables<Integer>(obj, array, list, arrayOfLists);
+        new ObjectWithTypeVariables<Integer>(obj, array, list, arrayOfLists, list, arrayOfLists);
     String json = gson.toJson(objToSerialize, typeOfSrc);
 
     assertEquals(objToSerialize.getExpectedJson(), json);
@@ -184,7 +184,7 @@ public class ParameterizedTypesTest extends TestCase {
 
     Type typeOfSrc = new TypeToken<ObjectWithTypeVariables<Integer>>() {}.getType();
     ObjectWithTypeVariables<Integer> objToSerialize =
-        new ObjectWithTypeVariables<Integer>(obj, array, list, arrayOfLists);
+        new ObjectWithTypeVariables<Integer>(obj, array, list, arrayOfLists, list, arrayOfLists);
     String json = gson.toJson(objToSerialize, typeOfSrc);
     ObjectWithTypeVariables<Integer> objAfterDeserialization = gson.fromJson(json, typeOfSrc);
 
@@ -194,7 +194,7 @@ public class ParameterizedTypesTest extends TestCase {
   public void testVariableTypeDeserialization() throws Exception {
     Type typeOfSrc = new TypeToken<ObjectWithTypeVariables<Integer>>() {}.getType();
     ObjectWithTypeVariables<Integer> objToSerialize =
-        new ObjectWithTypeVariables<Integer>(0, null, null, null);
+        new ObjectWithTypeVariables<Integer>(0, null, null, null, null, null);
     String json = gson.toJson(objToSerialize, typeOfSrc);
     ObjectWithTypeVariables<Integer> objAfterDeserialization = gson.fromJson(json, typeOfSrc);
 
@@ -206,7 +206,7 @@ public class ParameterizedTypesTest extends TestCase {
 
     Type typeOfSrc = new TypeToken<ObjectWithTypeVariables<Integer>>() {}.getType();
     ObjectWithTypeVariables<Integer> objToSerialize =
-        new ObjectWithTypeVariables<Integer>(null, array, null, null);
+        new ObjectWithTypeVariables<Integer>(null, array, null, null, null, null);
     String json = gson.toJson(objToSerialize, typeOfSrc);
     ObjectWithTypeVariables<Integer> objAfterDeserialization = gson.fromJson(json, typeOfSrc);
 
@@ -220,7 +220,7 @@ public class ParameterizedTypesTest extends TestCase {
 
     Type typeOfSrc = new TypeToken<ObjectWithTypeVariables<Integer>>() {}.getType();
     ObjectWithTypeVariables<Integer> objToSerialize =
-        new ObjectWithTypeVariables<Integer>(null, null, list, null);
+        new ObjectWithTypeVariables<Integer>(null, null, list, null, null, null);
     String json = gson.toJson(objToSerialize, typeOfSrc);
     ObjectWithTypeVariables<Integer> objAfterDeserialization = gson.fromJson(json, typeOfSrc);
 
@@ -236,7 +236,7 @@ public class ParameterizedTypesTest extends TestCase {
 
     Type typeOfSrc = new TypeToken<ObjectWithTypeVariables<Integer>>() {}.getType();
     ObjectWithTypeVariables<Integer> objToSerialize =
-        new ObjectWithTypeVariables<Integer>(null, null, null, arrayOfLists);
+        new ObjectWithTypeVariables<Integer>(null, null, null, arrayOfLists, null, null);
     String json = gson.toJson(objToSerialize, typeOfSrc);
     ObjectWithTypeVariables<Integer> objAfterDeserialization = gson.fromJson(json, typeOfSrc);
 
@@ -253,16 +253,21 @@ public class ParameterizedTypesTest extends TestCase {
     private final T[] typeParameterArray;
     private final List<T> listOfTypeParameters;
     private final List<T>[] arrayOfListOfTypeParameters;
+    private final List<? extends T> listOfWildcardTypeParameters;
+    private final List<? extends T>[] arrayOfListOfWildcardTypeParameters;
 
     public ObjectWithTypeVariables() {
-      this(null, null, null, null);
+      this(null, null, null, null, null, null);
     }
 
-    public ObjectWithTypeVariables(T obj, T[] array, List<T> list, List<T>[] arrayOfList) {
+    public ObjectWithTypeVariables(T obj, T[] array, List<T> list, List<T>[] arrayOfList,
+        List<? extends T> wildcardList, List<? extends T>[] arrayOfWildcardList) {
       this.typeParameterObj = obj;
       this.typeParameterArray = array;
       this.listOfTypeParameters = list;
       this.arrayOfListOfTypeParameters = arrayOfList;
+      this.listOfWildcardTypeParameters = wildcardList;
+      this.arrayOfListOfWildcardTypeParameters = arrayOfWildcardList;
     }
 
     public String getExpectedJson() {
@@ -303,11 +308,31 @@ public class ParameterizedTypesTest extends TestCase {
         sb.append(']');
         needsComma = true;
       }
+
+      if (listOfWildcardTypeParameters != null) {
+        if (needsComma) {
+          sb.append(',');
+        }
+        sb.append("\"listOfWildcardTypeParameters\":[");
+        appendObjectsToBuilder(sb, listOfWildcardTypeParameters);
+        sb.append(']');
+        needsComma = true;
+      }
+
+      if (arrayOfListOfWildcardTypeParameters != null) {
+        if (needsComma) {
+          sb.append(',');
+        }
+        sb.append("\"arrayOfListOfWildcardTypeParameters\":[");
+        appendObjectsToBuilder(sb, arrayOfListOfWildcardTypeParameters);
+        sb.append(']');
+        needsComma = true;
+      }
       sb.append('}');
       return sb.toString();
     }
 
-    private void appendObjectsToBuilder(StringBuilder sb, Iterable<T> iterable) {
+    private void appendObjectsToBuilder(StringBuilder sb, Iterable<? extends T> iterable) {
       boolean isFirst = true;
       for (T obj : iterable) {
         if (!isFirst) {
@@ -318,9 +343,9 @@ public class ParameterizedTypesTest extends TestCase {
       }
     }
 
-    private void appendObjectsToBuilder(StringBuilder sb, List<T>[] arrayOfList) {
+    private void appendObjectsToBuilder(StringBuilder sb, List<? extends T>[] arrayOfList) {
       boolean isFirst = true;
-      for (List<T> list : arrayOfList) {
+      for (List<? extends T> list : arrayOfList) {
         if (!isFirst) {
           sb.append(',');
         }
