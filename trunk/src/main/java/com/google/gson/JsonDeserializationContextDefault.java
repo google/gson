@@ -20,18 +20,18 @@ import java.lang.reflect.Type;
 
 /**
  * implementation of a deserialization context for Gson
- * 
+ *
  * @author Inderjeet Singh
  */
 final class JsonDeserializationContextDefault implements JsonDeserializationContext {
-  
+
   private final ObjectNavigatorFactory navigatorFactory;
   private final ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers;
   private final MappedObjectConstructor objectConstructor;
   private final TypeAdapter typeAdapter;
 
-  JsonDeserializationContextDefault(ObjectNavigatorFactory navigatorFactory, 
-      ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers, 
+  JsonDeserializationContextDefault(ObjectNavigatorFactory navigatorFactory,
+      ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers,
       MappedObjectConstructor objectConstructor, TypeAdapter typeAdapter) {
     this.navigatorFactory = navigatorFactory;
     this.deserializers = deserializers;
@@ -47,15 +47,17 @@ final class JsonDeserializationContextDefault implements JsonDeserializationCont
       return (T) fromJsonObject(typeOfT, json.getAsJsonObject(), this);
     } else if (json.isJsonPrimitive()) {
       return (T) fromJsonPrimitive(typeOfT, json.getAsJsonPrimitive(), this);
+    } else if (json.isJsonNull()) {
+      return null;
     } else {
       throw new JsonParseException("Failed parsing JSON source: " + json + " to Json");
     }
-  }  
-  
-  private <T> T fromJsonArray(Type arrayType, JsonArray jsonArray, 
+  }
+
+  private <T> T fromJsonArray(Type arrayType, JsonArray jsonArray,
       JsonDeserializationContext context) throws JsonParseException {
     JsonArrayDeserializationVisitor<T> visitor = new JsonArrayDeserializationVisitor<T>(
-        jsonArray, arrayType, navigatorFactory, objectConstructor, typeAdapter, deserializers, 
+        jsonArray, arrayType, navigatorFactory, objectConstructor, typeAdapter, deserializers,
         context);
     Object target = visitor.getTarget();
     ObjectNavigator on = navigatorFactory.create(target, arrayType);
@@ -63,19 +65,19 @@ final class JsonDeserializationContextDefault implements JsonDeserializationCont
     return visitor.getTarget();
   }
 
-  private <T> T fromJsonObject(Type typeOfT, JsonObject jsonObject, 
+  private <T> T fromJsonObject(Type typeOfT, JsonObject jsonObject,
       JsonDeserializationContext context) throws JsonParseException {
     JsonObjectDeserializationVisitor<T> visitor = new JsonObjectDeserializationVisitor<T>(
-        jsonObject, typeOfT, navigatorFactory, objectConstructor, typeAdapter, deserializers, 
+        jsonObject, typeOfT, navigatorFactory, objectConstructor, typeAdapter, deserializers,
         context);
     Object target = visitor.getTarget();
     ObjectNavigator on = navigatorFactory.create(target, typeOfT);
     on.accept(visitor);
     return visitor.getTarget();
   }
-  
+
   @SuppressWarnings("unchecked")
-  private <T> T fromJsonPrimitive(Type typeOfT, JsonPrimitive json, 
+  private <T> T fromJsonPrimitive(Type typeOfT, JsonPrimitive json,
       JsonDeserializationContext context) throws JsonParseException {
     JsonPrimitiveDeserializationVisitor<T> visitor = new JsonPrimitiveDeserializationVisitor<T>(
         json, typeOfT, navigatorFactory, objectConstructor, typeAdapter, deserializers, context);
@@ -86,6 +88,6 @@ final class JsonDeserializationContextDefault implements JsonDeserializationCont
     if (typeOfT instanceof Class) {
       target = typeAdapter.adaptType(target, (Class) typeOfT);
     }
-    return (T) target;    
+    return (T) target;
   }
 }

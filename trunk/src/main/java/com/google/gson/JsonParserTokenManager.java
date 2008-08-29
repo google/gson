@@ -189,13 +189,13 @@ private final int jjMoveStringLiteralDfa0_0()
       case 102:
          return jjMoveStringLiteralDfa1_0(0x800000L);
       case 110:
-         return jjMoveStringLiteralDfa1_0(0x8000L);
+         return jjMoveStringLiteralDfa1_0(0x20000L);
       case 116:
          return jjMoveStringLiteralDfa1_0(0x400000L);
       case 123:
-         return jjStopAtPos(0, 16);
+         return jjStopAtPos(0, 15);
       case 125:
-         return jjStopAtPos(0, 17);
+         return jjStopAtPos(0, 16);
       default :
          return jjMoveNfa_0(0, 0);
    }
@@ -214,7 +214,7 @@ private final int jjMoveStringLiteralDfa1_0(long active0)
       case 114:
          return jjMoveStringLiteralDfa2_0(active0, 0x400000L);
       case 117:
-         return jjMoveStringLiteralDfa2_0(active0, 0x8000L);
+         return jjMoveStringLiteralDfa2_0(active0, 0x20000L);
       default :
          break;
    }
@@ -232,7 +232,7 @@ private final int jjMoveStringLiteralDfa2_0(long old0, long active0)
    switch(curChar)
    {
       case 108:
-         return jjMoveStringLiteralDfa3_0(active0, 0x808000L);
+         return jjMoveStringLiteralDfa3_0(active0, 0x820000L);
       case 117:
          return jjMoveStringLiteralDfa3_0(active0, 0x400000L);
       default :
@@ -256,8 +256,8 @@ private final int jjMoveStringLiteralDfa3_0(long old0, long active0)
             return jjStopAtPos(3, 22);
          break;
       case 108:
-         if ((active0 & 0x8000L) != 0L)
-            return jjStopAtPos(3, 15);
+         if ((active0 & 0x20000L) != 0L)
+            return jjStopAtPos(3, 17);
          break;
       case 115:
          return jjMoveStringLiteralDfa4_0(active0, 0x800000L);
@@ -603,7 +603,7 @@ private static final boolean jjCanMove_0(int hiByte, int i1, int i2, long l1, lo
 }
 public static final String[] jjstrLiteralImages = {
 "", null, null, null, null, null, null, "\42", null, null, null, null, null,
-null, null, "\156\165\154\154", "\173", "\175", "\54", "\72", "\133", "\135",
+null, null, "\173", "\175", "\156\165\154\154", "\54", "\72", "\133", "\135",
 "\164\162\165\145", "\146\141\154\163\145", "\55", "\56", };
 public static final String[] lexStateNames = {
    "DEFAULT",
