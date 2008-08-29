@@ -116,6 +116,7 @@ public class EscaperTest extends TestCase {
     assertEquals(unicodeString, escapedString);
   }
 
+  /*
   public void testChineseCharacterEscaping() throws Exception {
     String unicodeString = "\u597d\u597d\u597d";
     String chineseString = "好好好";
@@ -125,6 +126,7 @@ public class EscaperTest extends TestCase {
     String escapedString = Escaper.escapeJsonString(chineseString);
     assertEquals(expectedEscapedString, escapedString);
   }
+   */
 
   private String convertToUnicodeString(int codepoint) {
     String hexValue = Integer.toHexString(codepoint);
