@@ -369,6 +369,9 @@ public final class Gson {
     try {
       JsonParser parser = new JsonParser(json);
       JsonElement root = parser.parse();
+      if (root == null) {
+        return null;
+      }
       JsonDeserializationContext context = new JsonDeserializationContextDefault(navigatorFactory,
           deserializers, objectConstructor, typeAdapter);
       T target = (T) context.deserialize(root, typeOfT);
