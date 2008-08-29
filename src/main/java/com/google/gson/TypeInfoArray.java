@@ -52,7 +52,8 @@ final class TypeInfoArray extends TypeInfo {
    * @return the raw type unwrapped of the second level of array.
    * If the object is (single-dimensional or multi-dimensional) array, it is the class of the
    * elements of the array. For example, this method returns Foo.class for Foo[].
-   * It will return Foo[].class for Foo[][]
+   * It will return Foo[].class for Foo[][].  For Foo<String>[][] types, it will return the type
+   * representing Foo<String>[] (i.e. {@code new TypeToken<Foo<String>[]>() {}.getType()}).
    */
   public Type getSecondLevelType() {
     return secondLevel;
