@@ -56,7 +56,7 @@ final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisito
       TypeInfoArray arrayTypeInfo = TypeInfoFactory.getTypeInfoForArray(targetType);
       // We know that we are getting back an array of the required type, so
       // this typecasting is safe.
-      return (T) objectConstructor.constructArray(arrayTypeInfo.getSecondLevelClass(),
+      return (T) objectConstructor.constructArray(arrayTypeInfo.getSecondLevelType(),
           jsonArray.size());
     } else { // is a collection
       return (T) objectConstructor.construct(typeInfo.getRawClass());
@@ -75,7 +75,7 @@ final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisito
       } else if (jsonChild instanceof JsonObject) {
         child = visitChildAsObject(arrayTypeInfo.getComponentRawType(), jsonChild);
       } else if (jsonChild instanceof JsonArray) {
-        child = visitChildAsArray(arrayTypeInfo.getSecondLevelClass(), jsonChild.getAsJsonArray());
+        child = visitChildAsArray(arrayTypeInfo.getSecondLevelType(), jsonChild.getAsJsonArray());
       } else if (jsonChild instanceof JsonPrimitive) {
         child = visitChildAsPrimitive(arrayTypeInfo.getComponentRawType(),
             jsonChild.getAsJsonPrimitive());

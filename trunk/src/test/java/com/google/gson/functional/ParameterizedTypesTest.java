@@ -191,6 +191,58 @@ public class ParameterizedTypesTest extends TestCase {
     assertEquals(objAfterDeserialization.getExpectedJson(), json);
   }
 
+  public void testDeserializeVariableType() throws Exception {
+    Type typeOfSrc = new TypeToken<ObjectWithTypeVariables<Integer>>() {}.getType();
+    ObjectWithTypeVariables<Integer> objToSerialize =
+        new ObjectWithTypeVariables<Integer>(0, null, null, null);
+    String json = gson.toJson(objToSerialize, typeOfSrc);
+    ObjectWithTypeVariables<Integer> objAfterDeserialization = gson.fromJson(json, typeOfSrc);
+
+    assertEquals(objAfterDeserialization.getExpectedJson(), json);
+  }
+
+  public void testDeserializeVariableTypeArray() throws Exception {
+    Integer[] array = { 1, 2, 3 };
+
+    Type typeOfSrc = new TypeToken<ObjectWithTypeVariables<Integer>>() {}.getType();
+    ObjectWithTypeVariables<Integer> objToSerialize =
+        new ObjectWithTypeVariables<Integer>(null, array, null, null);
+    String json = gson.toJson(objToSerialize, typeOfSrc);
+    ObjectWithTypeVariables<Integer> objAfterDeserialization = gson.fromJson(json, typeOfSrc);
+
+    assertEquals(objAfterDeserialization.getExpectedJson(), json);
+  }
+
+  public void testDeserializeParameterizedTypeWithVariableType() throws Exception {
+    List<Integer> list = new ArrayList<Integer>();
+    list.add(4);
+    list.add(5);
+
+    Type typeOfSrc = new TypeToken<ObjectWithTypeVariables<Integer>>() {}.getType();
+    ObjectWithTypeVariables<Integer> objToSerialize =
+        new ObjectWithTypeVariables<Integer>(null, null, list, null);
+    String json = gson.toJson(objToSerialize, typeOfSrc);
+    ObjectWithTypeVariables<Integer> objAfterDeserialization = gson.fromJson(json, typeOfSrc);
+
+    assertEquals(objAfterDeserialization.getExpectedJson(), json);
+  }
+
+  @SuppressWarnings("unchecked")
+  public void testDeserializeParameterizedTypeGenericArrays() throws Exception {
+    List<Integer> list = new ArrayList<Integer>();
+    list.add(1);
+    list.add(2);
+    List<Integer>[] arrayOfLists = new List[] { list, list };
+
+    Type typeOfSrc = new TypeToken<ObjectWithTypeVariables<Integer>>() {}.getType();
+    ObjectWithTypeVariables<Integer> objToSerialize =
+        new ObjectWithTypeVariables<Integer>(null, null, null, arrayOfLists);
+    String json = gson.toJson(objToSerialize, typeOfSrc);
+    ObjectWithTypeVariables<Integer> objAfterDeserialization = gson.fromJson(json, typeOfSrc);
+
+    assertEquals(objAfterDeserialization.getExpectedJson(), json);
+  }
+
   /**
    * An test object that has fields that are type variables.
    *

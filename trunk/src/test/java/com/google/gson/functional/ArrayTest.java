@@ -18,8 +18,13 @@ package com.google.gson.functional;
 import com.google.gson.Gson;
 import com.google.gson.common.MoreAsserts;
 import com.google.gson.common.TestTypes.MyEnum;
+import com.google.gson.reflect.TypeToken;
 
 import junit.framework.TestCase;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Functional tests for Json serialization and deserialization of arrays.
@@ -88,16 +93,44 @@ public class ArrayTest extends TestCase {
     assertEquals("World", target[1]);
   }
 
-  public void testArrayOfPrimitivesDeserialization() {
-    String json = "[0,1,2,3,4,5,6,7,8,9]";
-    int[] target = gson.fromJson(json, int[].class);
-    int[] expected = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-    MoreAsserts.assertEquals(expected, target);
-  }
-
   public void testTopLevelEnumInASingleElementArrayDeserialization() {
     String json = "[" + MyEnum.VALUE1.getExpectedJson() + "]";
     MyEnum target = gson.fromJson(json, MyEnum.class);
     assertEquals(json, "[" + target.getExpectedJson() + "]");
+  }
+
+  @SuppressWarnings("unchecked")
+  public void testArrayOfCollectionSerialization() throws Exception {
+    StringBuilder sb = new StringBuilder("[");
+    int arraySize = 3;
+
+    Type typeToSerialize = new TypeToken<Collection<Integer>[]>() {}.getType();
+    Collection<Integer>[] arrayOfCollection = new ArrayList[arraySize];
+    for (int i = 0; i < arraySize; ++i) {
+      int startValue = (3 * i) + 1;
+      sb.append('[').append(startValue).append(',').append(startValue + 1).append(']');
+      ArrayList<Integer> tmpList = new ArrayList<Integer>();
+      tmpList.add(startValue);
+      tmpList.add(startValue + 1);
+      arrayOfCollection[i] = tmpList;
+
+      if (i < arraySize - 1) {
+        sb.append(',');
+      }
+    }
+    sb.append(']');
+
+    String json = gson.toJson(arrayOfCollection, typeToSerialize);
+    assertEquals(sb.toString(), json);
+  }
+
+  public void testArrayOfCollectionDeserialization() throws Exception {
+    String json = "[[1,2],[3,4]]";
+    Type type = new TypeToken<Collection<Integer>[]>() {}.getType();
+    Collection<Integer>[] target = gson.fromJson(json, type);
+
+    assertEquals(2, target.length);
+    MoreAsserts.assertEquals(new Integer[] { 1, 2 }, target[0].toArray(new Integer[0]));
+    MoreAsserts.assertEquals(new Integer[] { 3, 4 }, target[1].toArray(new Integer[0]));
   }
 }

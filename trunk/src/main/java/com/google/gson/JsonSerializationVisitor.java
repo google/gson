@@ -59,7 +59,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
     assignToRoot(new JsonArray());
     int length = Array.getLength(array);
     TypeInfoArray fieldTypeInfo = TypeInfoFactory.getTypeInfoForArray(arrayType);
-    Type componentType = fieldTypeInfo.getSecondLevelClass();
+    Type componentType = fieldTypeInfo.getSecondLevelType();
     for (int i = 0; i < length; ++i) {
       Object child = Array.get(array, i);
       addAsArrayElement(componentType, child);
