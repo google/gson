@@ -63,7 +63,7 @@ public JsonElement parse() :
   ( json=JsonObject() |
     json=JsonArray() |
     json=JsonPrimitive() |
-    "null")
+    json=JsonNull())
   { return json; }
 }
 
@@ -74,6 +74,15 @@ private JsonObject JsonObject() :
 {
   "{" [ Members(o) ] "}"
   { return o; }
+}
+
+private JsonNull JsonNull() :
+{
+  JsonNull json = new JsonNull();
+}
+{
+  "null"
+  { return json; }
 }
 
 private void Members(JsonObject o) :
