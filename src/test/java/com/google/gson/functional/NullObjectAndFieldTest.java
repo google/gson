@@ -28,8 +28,6 @@ import com.google.gson.common.TestTypes.ClassWithObjects;
 
 import junit.framework.TestCase;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.lang.reflect.Type;
 
 /**
