@@ -134,7 +134,7 @@ final class ObjectNavigator {
         if (objTypeInfo.isArray()) {
           visitor.visitArray(obj, objType);
         } else { // must be a collection
-          visitor.visitCollection((Collection<?>)obj, objType);
+          visitor.visitCollection((Collection<?>) obj, objType);
         }
       } else if (objTypeInfo.isEnum()) {
         visitor.visitEnum(obj, objType);

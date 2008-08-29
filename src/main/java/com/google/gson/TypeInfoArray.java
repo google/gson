@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Type;
 
 /**
@@ -26,7 +27,7 @@ import java.lang.reflect.Type;
  */
 final class TypeInfoArray extends TypeInfo {
   private final Class<?> componentRawType;
-  private final Class<?> secondLevel;
+  private final Type secondLevel;
 
   TypeInfoArray(Type type) {
     super(type);
@@ -35,7 +36,16 @@ final class TypeInfoArray extends TypeInfo {
       rootComponentType = rootComponentType.getComponentType();
     }
     this.componentRawType = rootComponentType;
-    this.secondLevel = rawClass.getComponentType();
+    this.secondLevel = extractSecondLevelType(actualType, rawClass);
+  }
+
+  private static Type extractSecondLevelType(Type actualType, Class<?> rawClass) {
+    if (actualType instanceof GenericArrayType) {
+      GenericArrayType castedType = (GenericArrayType) actualType;
+      return castedType.getGenericComponentType();
+    } else {
+      return rawClass.getComponentType();
+    }
   }
 
   /**
@@ -44,7 +54,7 @@ final class TypeInfoArray extends TypeInfo {
    * elements of the array. For example, this method returns Foo.class for Foo[].
    * It will return Foo[].class for Foo[][]
    */
-  public Class<?> getSecondLevelClass() {
+  public Type getSecondLevelType() {
     return secondLevel;
   }
 
