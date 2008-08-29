@@ -157,6 +157,72 @@ public class TypeInfoFactoryTest extends TestCase {
     assertEquals(List[].class, typeInfo.getRawClass());
   }
 
+  public void testWildcardField() throws Exception {
+    Type listType = new TypeToken<List<Object>>() {}.getType();
+    Field f = obj.getClass().getField("listWithWildcard");
+    TypeInfo typeInfo = TypeInfoFactory.getTypeInfoForField(f, OBJ_TYPE);
+
+    assertFalse(typeInfo.isArray());
+    assertFalse(typeInfo.isEnum());
+    assertEquals(listType, typeInfo.getActualType());
+    assertEquals(List.class, typeInfo.getRawClass());
+  }
+
+  public void testArrayOfWildcardField() throws Exception {
+    Type listType = new TypeToken<List<Object>[]>() {}.getType();
+    Field f = obj.getClass().getField("arrayOfListWithWildcard");
+    TypeInfo typeInfo = TypeInfoFactory.getTypeInfoForField(f, OBJ_TYPE);
+
+    assertTrue(typeInfo.isArray());
+    assertFalse(typeInfo.isEnum());
+    assertEquals(listType, typeInfo.getActualType());
+    assertEquals(List[].class, typeInfo.getRawClass());
+  }
+
+  public void testListStringWildcardField() throws Exception {
+    Type listType = new TypeToken<List<String>>() {}.getType();
+    Field f = obj.getClass().getField("listWithStringWildcard");
+    TypeInfo typeInfo = TypeInfoFactory.getTypeInfoForField(f, OBJ_TYPE);
+
+    assertFalse(typeInfo.isArray());
+    assertFalse(typeInfo.isEnum());
+    assertEquals(listType, typeInfo.getActualType());
+    assertEquals(List.class, typeInfo.getRawClass());
+  }
+
+  public void testArrayOfListStringWildcardField() throws Exception {
+    Type listType = new TypeToken<List<String>[]>() {}.getType();
+    Field f = obj.getClass().getField("arrayOfListWithStringWildcard");
+    TypeInfo typeInfo = TypeInfoFactory.getTypeInfoForField(f, OBJ_TYPE);
+
+    assertTrue(typeInfo.isArray());
+    assertFalse(typeInfo.isEnum());
+    assertEquals(listType, typeInfo.getActualType());
+    assertEquals(List[].class, typeInfo.getRawClass());
+  }
+
+  public void testListTypeVariableWildcardField() throws Exception {
+    Type listType = new TypeToken<List<Integer>>() {}.getType();
+    Field f = obj.getClass().getField("listWithTypeVariableWildcard");
+    TypeInfo typeInfo = TypeInfoFactory.getTypeInfoForField(f, OBJ_TYPE);
+
+    assertFalse(typeInfo.isArray());
+    assertFalse(typeInfo.isEnum());
+    assertEquals(listType, typeInfo.getActualType());
+    assertEquals(List.class, typeInfo.getRawClass());
+  }
+
+  public void testArrayOfListTypeVariableWildcardField() throws Exception {
+    Type listType = new TypeToken<List<Integer>[]>() {}.getType();
+    Field f = obj.getClass().getField("arrayOfListWithTypeVariableWildcard");
+    TypeInfo typeInfo = TypeInfoFactory.getTypeInfoForField(f, OBJ_TYPE);
+
+    assertTrue(typeInfo.isArray());
+    assertFalse(typeInfo.isEnum());
+    assertEquals(listType, typeInfo.getActualType());
+    assertEquals(List[].class, typeInfo.getRawClass());
+  }
+
   private static class ObjectWithDifferentFields<T> {
     public static enum TestEnum {
       TEST_1, TEST_2;
@@ -174,5 +240,13 @@ public class TypeInfoFactoryTest extends TestCase {
     public List<T> listOfTypeVariables;
     public List<List<T>> listOfListsOfTypeVariables;
     public List<T>[] listOfTypeVariablesArray;
+
+    public List<?> listWithWildcard;
+    public List<?>[] arrayOfListWithWildcard;
+    public List<? extends String> listWithStringWildcard;
+    public List<? extends String>[] arrayOfListWithStringWildcard;
+
+    public List<? extends T> listWithTypeVariableWildcard;
+    public List<? extends T>[] arrayOfListWithTypeVariableWildcard;
   }
 }

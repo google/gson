@@ -21,6 +21,7 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 
 /**
  * A static factory class used to construct the "TypeInfo" objects.
@@ -91,6 +92,9 @@ final class TypeInfoFactory {
       int indexOfActualTypeArgument = getIndex(classTypeVariables, fieldTypeVariable);
       Type[] actualTypeArguments = objParameterizedType.getActualTypeArguments();
       return actualTypeArguments[indexOfActualTypeArgument];
+    } else if (typeToEvaluate instanceof WildcardType) {
+      WildcardType castedType = (WildcardType) typeToEvaluate;
+      return getActualType(castedType.getUpperBounds()[0], parentType, rawParentClass);
     } else {
       throw new IllegalArgumentException("Type \'" + typeToEvaluate + "\' is not a Class, "
           + "ParameterizedType, GenericArrayType or TypeVariable. Can't extract type.");
