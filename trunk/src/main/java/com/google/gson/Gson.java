@@ -116,7 +116,7 @@ public final class Gson {
    *   {@link java.net.URL}, {@link java.net.URI}, {@link java.util.Locale}, {@link java.util.Date},
    *   {@link java.math.BigDecimal}, and {@link java.math.BigInteger} classes. If you would prefer
    *   to change the default representation, you can do so by registering a type adapter through
-   *   {@link GsonBuilder#registerTypeAdapter(Type, Object)}.  </li>
+   *   {@link GsonBuilder#registerTypeAdapter(Type, Object)}. </li>
    *   <li>The default Date format is same as {@link java.text.DateFormat#DEFAULT}. You can change
    *   this by invoking {@link GsonBuilder#setDateFormat(int)} or
    *   {@link GsonBuilder#setDateFormat(String)}. </li>
@@ -143,7 +143,7 @@ public final class Gson {
    * encountering inner class references.
    *
    * @param factory the object navigator factory to use when creating a new {@link ObjectNavigator}
-   * instance.
+   * instance
    */
   Gson(ObjectNavigatorFactory factory) {
     this(factory, createObjectConstructor(DefaultTypeAdapters.DEFAULT_INSTANCE_CREATORS),
@@ -198,8 +198,8 @@ public final class Gson {
    * {@link #toJson(Object, Type)} instead. If you want to write out the object to a
    * {@link Writer}, use {@link #toJson(Object, Writer)} instead.
    *
-   * @param src the object for which Json representation is to be created setting for Gson.
-   * @return Json representation of src.
+   * @param src the object for which Json representation is to be created setting for Gson
+   * @return Json representation of {@code src}.
    */
   public String toJson(Object src) {
     if (src == null) {
@@ -214,14 +214,14 @@ public final class Gson {
    * type. For non-generic objects, use {@link #toJson(Object)} instead. If you want to write out
    * the object to a {@link Writer}, use {@link #toJson(Object, Type, Writer)} instead.
    *
-   * @param src the object for which JSON representation is to be created.
+   * @param src the object for which JSON representation is to be created
    * @param typeOfSrc The specific genericized type of src. You can obtain
    * this type by using the {@link com.google.gson.reflect.TypeToken} class. For example,
    * to get the type for {@code Collection<Foo>}, you should use:
    * <pre>
    * Type typeOfSrc = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType();
    * </pre>
-   * @return Json representation of src.
+   * @return Json representation of {@code src}
    */
   public String toJson(Object src, Type typeOfSrc) {
     StringWriter writer = new StringWriter();
@@ -238,8 +238,9 @@ public final class Gson {
    * just the object itself should not be of a generic type. If the object is of generic type, use
    * {@link #toJson(Object, Type, Writer)} instead.
    *
-   * @param src the object for which Json representation is to be created setting for Gson.
-   * @param writer Writer to which the Json representation needs to be written.
+   * @param src the object for which Json representation is to be created setting for Gson
+   * @param writer Writer to which the Json representation needs to be written
+   * @since 1.2
    */
   public void toJson(Object src, Writer writer) {
     if (src != null) {
@@ -254,7 +255,7 @@ public final class Gson {
    * equivalent Json representation. This method must be used if the specified object is a generic
    * type. For non-generic objects, use {@link #toJson(Object, Writer)} instead.
    *
-   * @param src the object for which JSON representation is to be created.
+   * @param src the object for which JSON representation is to be created
    * @param typeOfSrc The specific genericized type of src. You can obtain
    * this type by using the {@link com.google.gson.reflect.TypeToken} class. For example,
    * to get the type for {@code Collection<Foo>}, you should use:
@@ -262,6 +263,7 @@ public final class Gson {
    * Type typeOfSrc = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType();
    * </pre>
    * @param writer Writer to which the Json representation of src needs to be written.
+   * @since 1.2
    */
   public void toJson(Object src, Type typeOfSrc, Writer writer) {
     if (src != null) {
@@ -288,12 +290,12 @@ public final class Gson {
    * {@link #fromJson(String, Type)}. If you have the Json in a {@link Reader} instead of
    * a String, use {@link #fromJson(Reader, Class)} instead.
    *
-   * @param json the string from which the object is to be deserialized.
-   * @param classOfT the class of T.
-   * @param <T> the type of the desired object.
-   * @return an object of type T from the string.
+   * @param <T> the type of the desired object
+   * @param json the string from which the object is to be deserialized
+   * @param classOfT the class of T
+   * @return an object of type T from the string
    * @throws JsonParseException if json is not a valid representation for an object of type
-   * classOfT.
+   * classOfT
    */
   @SuppressWarnings("unchecked")
   public <T> T fromJson(String json, Class<T> classOfT) throws JsonParseException {
@@ -307,16 +309,16 @@ public final class Gson {
    * {@link #fromJson(String, Class)} instead. If you have the Json in a {@link Reader} instead of
    * a String, use {@link #fromJson(Reader, Type)} instead.
    *
-   * @param json the string from which the object is to be deserialized.
+   * @param <T> the type of the desired object
+   * @param json the string from which the object is to be deserialized
    * @param typeOfT The specific genericized type of src. You can obtain this type by using the
    * {@link com.google.gson.reflect.TypeToken} class. For example, to get the type for
    * {@code Collection<Foo>}, you should use:
    * <pre>
    * Type typeOfT = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType();
    * </pre>
-   * @param <T> the type of the desired object.
-   * @return an object of type T from the string.
-   * @throws JsonParseException if json is not a valid representation for an object of type typeOfT.
+   * @return an object of type T from the string
+   * @throws JsonParseException if json is not a valid representation for an object of type typeOfT
    */
   @SuppressWarnings("unchecked")
   public <T> T fromJson(String json, Type typeOfT) throws JsonParseException {
@@ -335,12 +337,13 @@ public final class Gson {
    * invoke {@link #fromJson(Reader, Type)}. If you have the Json in a String form instead of a
    * {@link Reader}, use {@link #fromJson(String, Class)} instead.
    *
+   * @param <T> the type of the desired object
    * @param json the reader producing the Json from which the object is to be deserialized.
-   * @param classOfT the class of T.
-   * @param <T> the type of the desired object.
-   * @return an object of type T from the string.
+   * @param classOfT the class of T
+   * @return an object of type T from the string
    * @throws JsonParseException if json is not a valid representation for an object of type
-   * classOfT.
+   * classOfT
+   * @since 1.2
    */
   public <T> T fromJson(Reader json, Class<T> classOfT) throws JsonParseException {
     T target = classOfT.cast(fromJson(json, (Type) classOfT));
@@ -353,16 +356,17 @@ public final class Gson {
    * non-generic objects, use {@link #fromJson(Reader, Class)} instead. If you have the Json in a
    * String form instead of a {@link Reader}, use {@link #fromJson(String, Type)} instead.
    *
-   * @param json the reader producing Json from which the object is to be deserialized.
+   * @param <T> the type of the desired object
+   * @param json the reader producing Json from which the object is to be deserialized
    * @param typeOfT The specific genericized type of src. You can obtain this type by using the
    * {@link com.google.gson.reflect.TypeToken} class. For example, to get the type for
    * {@code Collection<Foo>}, you should use:
    * <pre>
    * Type typeOfT = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType();
    * </pre>
-   * @param <T> the type of the desired object.
-   * @return an object of type T from the json.
-   * @throws JsonParseException if json is not a valid representation for an object of type typeOfT.
+   * @return an object of type T from the json
+   * @throws JsonParseException if json is not a valid representation for an object of type typeOfT
+   * @since 1.2
    */
   @SuppressWarnings("unchecked")
   public <T> T fromJson(Reader json, Type typeOfT) throws JsonParseException {
@@ -384,6 +388,11 @@ public final class Gson {
     }
   }
 
+  /**
+   * Appends the {@link #NULL_STRING} to the {@code writer} object.
+   *
+   * @param writer the object to append the null value to
+   */
   private void writeOutNullString(Writer writer) {
     try {
       writer.append(NULL_STRING);
