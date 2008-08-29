@@ -59,6 +59,7 @@ public abstract class JsonElement {
    * provides check for verifying if this element represents a null value or not.
    *
    * @return true if this element is of type {@link JsonNull}, false otherwise.
+   * @since 1.2
    */
   public boolean isJsonNull() {
     return this instanceof JsonNull;
@@ -111,6 +112,7 @@ public abstract class JsonElement {
    *
    * @return get this element as a {@link JsonNull}.
    * @throws ClassCastException if the element is of another type.
+   * @since 1.2
    */
   public JsonNull getAsJsonNull() {
     return (JsonNull) this;
@@ -228,6 +230,7 @@ public abstract class JsonElement {
    * * @throws NumberFormatException if the element is not a valid {@link BigDecimal}.
    * @throws IllegalStateException if the element is of the type {@link JsonArray} but contains
    * more than a single element.
+   * @since 1.2
    */
   public BigDecimal getAsBigDecimal() {
     throw new UnsupportedOperationException();
@@ -241,6 +244,7 @@ public abstract class JsonElement {
    * @throws NumberFormatException if the element is not a valid {@link BigInteger}.
    * @throws IllegalStateException if the element is of the type {@link JsonArray} but contains
    * more than a single element.
+   * @since 1.2
    */
   public BigInteger getAsBigInteger() {
     throw new UnsupportedOperationException();

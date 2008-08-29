@@ -128,9 +128,11 @@ public final class GsonBuilder {
   }
 
   /**
-   * Configure Gson to serialize null fields. By default, Gson omits all fields as null.
+   * Configure Gson to serialize null fields. By default, Gson omits all fields that are null
+   * during serialization.
    *
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @since 1.2
    */
   public GsonBuilder serializeNulls() {
     this.serializeNulls = true;
@@ -176,8 +178,8 @@ public final class GsonBuilder {
    * strategy is to provide a compact representation that eliminates all unneeded white-space.
    *
    * @param formatter the new formatter to use.
-   * @see JsonPrintFormatter
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @see JsonPrintFormatter
    */
   GsonBuilder setFormatter(JsonFormatter formatter) {
     this.formatter = formatter;
@@ -185,15 +187,17 @@ public final class GsonBuilder {
   }
 
   /**
-   * Configures Gson to use a different date type adapter to serialize {@code Date} objects
-   * according to the pattern provided. Providing a string pattern overrides the date style
-   * provided by the {@link #setDateFormat(int)}.
+   * Configures Gson to serialize {@code Date} objects according to the pattern provided. You can
+   * call this method or {@link #setDateFormat(int)} multiple times, but only the last invocation
+   * will be used to decide the serialization format.
    *
    * <p>Note that this pattern must abide by the convention provided by {@code SimpleDateFormat}
-   * class. See the JDK documentation for more information on valid date and time patterns.</p>
+   * class. See the documentation in {@link java.text.SimpleDateFormat} for more information on
+   * valid date and time patterns.</p>
    *
    * @param pattern the pattern that dates will be serialized/deserialized to/from
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @since 1.2
    */
   public GsonBuilder setDateFormat(String pattern) {
     // TODO(Joel): Make this fail fast if it is an invalid date format
@@ -202,19 +206,22 @@ public final class GsonBuilder {
   }
 
   /**
-   * Configures Gson to use a different date type adapter to serialize {@code Date} objects
-   * according to the style value provided.
+   * Configures Gson to to serialize {@code Date} objects according to the style value provided.
+   * You can call this method or {@link #setDateFormat(String)} multiple times, but only the last
+   * invocation will be used to decide the serialization format.
    *
    * <p>Note that this style value should be one of the predefined constants in the
-   * {@code DateFormat} class. See the JDK documentation for more information on the valid
-   * style constants.</p>
+   * {@code DateFormat} class. See the documentation in {@link java.text.DateFormat} for more
+   * information on the valid style constants.</p>
    *
    * @param style the predefined date style that date objects will be serialized/deserialized
    * to/from
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @since 1.2
    */
   public GsonBuilder setDateFormat(int style) {
     this.dateStyle = style;
+    this.datePattern = null;
     return this;
   }
 
@@ -252,12 +259,12 @@ public final class GsonBuilder {
    * takes a type instead of a Class object, it can be used to register a specific handler for a
    * generic type corresponding to a raw type.
    *
-   * @param <T> the type for which instance creator is being registered.
-   * @param typeOfT The Type definition for T.
-   * @param instanceCreator the instance creator for T.
+   * @param <T> the type for which instance creator is being registered
+   * @param typeOfT The Type definition for T
+   * @param instanceCreator the instance creator for T
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
-  <T> GsonBuilder registerInstanceCreator(Type typeOfT,
+  private <T> GsonBuilder registerInstanceCreator(Type typeOfT,
       InstanceCreator<? extends T> instanceCreator) {
     instanceCreators.register(typeOfT, instanceCreator);
     return this;
@@ -268,12 +275,12 @@ public final class GsonBuilder {
    * method if you want to register different serializers for different generic types corresponding
    * to a raw type.
    *
-   * @param <T> the type for which the serializer is being registered.
-   * @param typeOfT The type definition for T.
-   * @param serializer the custom serializer.
+   * @param <T> the type for which the serializer is being registered
+   * @param typeOfT The type definition for T
+   * @param serializer the custom serializer
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
-  <T> GsonBuilder registerSerializer(Type typeOfT, final JsonSerializer<T> serializer) {
+  private <T> GsonBuilder registerSerializer(Type typeOfT, final JsonSerializer<T> serializer) {
     serializers.register(typeOfT, new JsonSerializerExceptionWrapper<T>(serializer));
     return this;
   }
@@ -283,12 +290,12 @@ public final class GsonBuilder {
    * method if you want to register different deserializers for different generic types
    * corresponding to a raw type.
    *
-   * @param <T> the type for which the deserializer is being registered.
-   * @param typeOfT The type definition for T.
-   * @param deserializer the custom deserializer.
+   * @param <T> the type for which the deserializer is being registered
+   * @param typeOfT The type definition for T
+   * @param deserializer the custom deserializer
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
-  <T> GsonBuilder registerDeserializer(Type typeOfT, final JsonDeserializer<T> deserializer) {
+  private <T> GsonBuilder registerDeserializer(Type typeOfT, JsonDeserializer<T> deserializer) {
     deserializers.register(typeOfT, new JsonDeserializerExceptionWrapper<T>(deserializer));
     return this;
   }
