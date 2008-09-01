@@ -13,7 +13,7 @@
     <repository>
       <id>local.repo</id>
       <name>file repository to svn</name>
-      <url>file://${basedir}/../mavenrepo</url>
+      <url>file://${basedir}/../../mavenrepo</url>
     </repository>
   </distributionManagement>
   <repositories>
@@ -30,14 +30,15 @@
     </license>
   </licenses>
   <scm>
-    <connection>scm:svn:http://google-gson.googlecode.com/svn/trunk</connection>
-    <developerConnection>scm:svn:https://google-gson.googlecode.com/svn/trunk</developerConnection>
-    <url>http://google-gson.codegoogle.com/svn/trunk/</url>
+    <connection>scm:svn:http://google-gson.googlecode.com/svn/trunk/gson</connection>
+    <developerConnection>scm:svn:https://google-gson.googlecode.com/svn/trunk/gson</developerConnection>
+    <url>http://google-gson.codegoogle.com/svn/trunk/gson</url>
   </scm>
   <issueManagement>
     <system>Google Code Issue Tracking</system>
     <url>http://code.google.com/p/google-gson/issues/list</url>
   </issueManagement>
+  
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
