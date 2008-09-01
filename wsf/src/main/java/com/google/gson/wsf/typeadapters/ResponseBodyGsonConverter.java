@@ -26,7 +26,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import com.google.gson.wsf.RequestBody;
 import com.google.gson.wsf.ResponseBody;
 import com.google.gson.wsf.ResponseBodySpec;
 
