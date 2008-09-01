@@ -1,0 +1,259 @@
+/**
+ * Adapted from the Json parser grammar from http://code.google.com/p/jsonparser/
+ *
+ * Author: Inderjeet Singh
+ */
+
+options {
+  STATIC = false;
+  UNICODE_INPUT = true;
+}
+
+PARSER_BEGIN(JsonParser)
+
+package com.google.gson;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+
+@SuppressWarnings("all")
+final class JsonParser {
+
+}
+
+PARSER_END(JsonParser)
+
+SKIP : { " " | "\t" | "\n" | "\r" }
+/*
+ * Technically Json does not allow leading zeros in numbers, but we
+ * will allow that.
+ */
+TOKEN : {
+  <E : ["e","E"](["+","-"])?>
+| <DIGITS : (["0"-"9"])+>
+| <QUOTE : "\""> : STRING_STATE
+}
+<STRING_STATE> MORE  : { "\\" : ESC_STATE }
+<STRING_STATE> TOKEN : {
+  <ENDQUOTE : <QUOTE> > : DEFAULT
+| <CHAR : ~["\"","\\"]>
+}
+<ESC_STATE> TOKEN : {
+  <CNTRL_ESC : ["\"","\\","/","b","f","n","r","t"]> : STRING_STATE
+}
+<ESC_STATE> MORE  : { "u" : HEX_STATE }
+<HEX_STATE>  TOKEN : {
+  <#HEX : ["a"-"f","A"-"F","0"-"9"]>
+| <HEX_ESC : <HEX><HEX><HEX><HEX> > : STRING_STATE
+}
+
+public JsonElement parse() :
+{
+  JsonElement json = null;
+}
+{
+  ( json=JsonObject() |
+    json=JsonArray() |
+    json=JsonPrimitive() |
+    json=JsonNull())
+  { return json; }
+}
+
+private JsonObject JsonObject() :
+{
+  JsonObject o = new JsonObject();
+}
+{
+  "{" [ Members(o) ] "}"
+  { return o; }
+}
+
+private JsonNull JsonNull() :
+{
+  JsonNull json = new JsonNull();
+}
+{
+  "null"
+  { return json; }
+}
+
+private void Members(JsonObject o) :
+{ }
+{
+  Pair(o) [ "," Members(o) ]
+}
+
+private void Pair(JsonObject o) :
+{
+  JsonPrimitive property;
+  JsonElement value;
+}
+{
+  property=JsonString() ":" value=JsonValue()
+  {
+    o.add(property.getAsString(), value);
+  }
+}
+
+private JsonArray JsonArray() :
+{ JsonArray array = new JsonArray(); }
+{
+  "[" [ Elements(array) ] "]"
+  {
+    array.reverse();
+    return array;
+  }
+}
+
+private void Elements(JsonArray array) :
+{
+  JsonElement element;
+}
+{
+  element=JsonValue() [ "," Elements(array) ]
+  { array.add(element); }
+}
+
+private JsonElement JsonValue() :
+{ JsonElement o = null; }
+{
+( o=JsonString() |
+  o=JsonNumber() |
+  o=JsonObject() |
+  o=JsonArray() |
+  ( "true" { o = new JsonPrimitive(true); } ) |
+  ( "false" { o = new JsonPrimitive(false); } ) |
+  "null" )
+  { return o; }
+}
+
+private JsonPrimitive JsonPrimitive() :
+{
+  JsonPrimitive value;
+}
+{
+  ( value=JsonString()) { return value; } |
+  ( value=JsonNumber()) { return value; } |
+  ( "true" { return new JsonPrimitive(true); }) |
+  ( "false" { return new JsonPrimitive(false); } )
+}
+
+private JsonPrimitive JsonNumber() :
+{
+  String intpart = null,
+         fracpart = null,
+         exppart = null;
+}
+{
+  intpart=JsonInt() [ fracpart=JsonFrac() ] [ exppart=JsonExp() ]
+  {
+    Number n;
+    if (exppart != null) {
+      n = new BigDecimal(intpart + fracpart + exppart);
+    } else if (fracpart != null) {
+      n = new Double(intpart + fracpart);
+    } else {
+      // See if the number fits in an integer, or long
+      // Use BigInteger only if it is big enough.
+      if (intpart.length() < 10) {
+        n = new Integer(intpart);
+      } else if (intpart.length() < 19) {
+        n = new Long(intpart);
+      } else {
+        n = new BigInteger(intpart);
+      }
+    }
+    return new JsonPrimitive(n);
+  }
+}
+
+private String JsonInt() :
+{
+  String digits;
+  boolean negative = false;
+}
+{
+  ["-" { negative = true; } ] digits=Digits()
+  {
+    if(negative)
+      return "-" + digits;
+    return digits;
+  }
+}
+
+private String JsonFrac() :
+{ String digits; }
+{
+  "." digits=Digits()
+  { return "." + digits; }
+}
+
+private String JsonExp() :
+{
+  Token t;
+  String digits;
+}
+{
+  t=<E> digits=Digits()
+  { return t.image + digits; }
+}
+
+private String Digits() :
+{ Token t; }
+{
+  t=<DIGITS>
+  { return t.image; }
+}
+
+private JsonPrimitive JsonString() :
+{ StringBuffer strbuf = new StringBuffer(); }
+{
+  <QUOTE> [ Chars(strbuf) ] <ENDQUOTE>
+  { return new JsonPrimitive(strbuf.toString()); }
+}
+
+private void Chars(StringBuffer strbuf) :
+{ char c; }
+{
+  c=Char() [ Chars(strbuf) ]
+  { strbuf.insert(0, c); }
+}
+
+private char Char() :
+{ Token t; }
+{
+( t=<CHAR>
+| t=<CNTRL_ESC>
+| t=<HEX_ESC> )
+  {
+    if(t.image.length() < 2) {
+      return t.image.charAt(0);
+    }
+    if(t.image.length() < 6) {
+      char c = t.image.charAt(1);
+      switch(t.image.charAt(1)) {
+        //control characters
+        case 'b'  : return (char) 8; break;
+        case 'f'  : return (char) 12; break;
+        case 'n'  : return (char) 10; break;
+        case 'r'  : return (char) 13; break;
+        case 't'  : return (char) 9; break;
+        default   : return c;   //characters that represent themselves
+      }
+    }
+    else {      //hex escape code
+      //create an integer from our hex values
+      //and then cast into a char
+      int i = Integer.valueOf(t.image.substring(2,6), 16).intValue();
+      return (char) i;
+    }
+  }
+}
