@@ -92,7 +92,7 @@
              ../eclipse-ws/
            </workspace>
            <workspaceCodeStylesURL>
-             file:///${basedir}/lib/gson-formatting-styles.xml
+             file:///${basedir}/../lib/gson-formatting-styles.xml
            </workspaceCodeStylesURL>
          </configuration>
        </plugin>
