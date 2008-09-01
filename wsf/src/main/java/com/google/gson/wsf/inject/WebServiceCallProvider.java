@@ -31,7 +31,7 @@ import com.google.inject.Provider;
  *
  * @author inder
  */
-final class WebServiceCallProvider implements Provider<WebServiceCall> {
+public final class WebServiceCallProvider implements Provider<WebServiceCall> {
   private final Gson gson;
   private final WebServiceCallSpec callSpec;
   private final HttpServletRequest request;
