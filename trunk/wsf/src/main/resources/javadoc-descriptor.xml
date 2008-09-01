@@ -1,0 +1,18 @@
+<archive>
+  <addMavenDescriptor>true</addMavenDescriptor>
+  <compress/>
+  <forced/>
+  <index/>
+  <manifest>
+    <addClasspath/>
+    <addDefaultImplementationEntries/>
+    <addDefaultSpecificationEntries/>
+    <addExtensions/>
+    <classpathMavenRepositoryLayout/>
+    <classpathPrefix/>
+    <mainClass/>
+    <packageName/>
+  </manifest>
+  <manifestFile/>
+  <pomPropertiesFile/>
+</archive>
