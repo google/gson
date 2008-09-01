@@ -26,7 +26,7 @@ import com.google.inject.Provider;
  * 
  * @author inder
  */
-final class CallPathProvider implements Provider<CallPath> {
+public final class CallPathProvider implements Provider<CallPath> {
   private final HttpServletRequest request;
 
   @Inject 

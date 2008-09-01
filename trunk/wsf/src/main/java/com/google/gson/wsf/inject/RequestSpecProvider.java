@@ -25,7 +25,7 @@ import com.google.inject.Provider;
  * 
  * @author inder
  */
-final class RequestSpecProvider implements Provider<RequestSpec> {
+public final class RequestSpecProvider implements Provider<RequestSpec> {
 
   private final WebServiceCallSpec webServiceCallSpec;
 
