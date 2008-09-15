@@ -6,7 +6,7 @@
   <packaging>jar</packaging>
   <version>1.2</version>
   <inceptionYear>2008</inceptionYear>
-  <name>gson</name>
+  <name>Gson</name>
   <url>http://code.google.com/p/google-gson/</url>
   <description>Google Gson library</description>
   <distributionManagement>
@@ -85,6 +85,26 @@
          </executions>
        </plugin>
        <plugin>
+         <!-- TODO(inder): add manifest entry for maven group, artifact, and classifier ids -->
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-javadoc-plugin</artifactId>
+         <executions>
+           <execution>
+             <id>attach-javadocs</id>
+             <goals>
+               <goal>jar</goal>
+             </goals>
+           </execution>
+         </executions>
+         <configuration>
+           <links>
+             <link>http://java.sun.com/j2se/1.5.0/docs/api/</link>
+           </links>
+           <version>true</version>
+           <show>public</show>
+         </configuration>
+       </plugin>
+       <plugin>
          <groupId>org.apache.maven.plugins</groupId>
          <artifactId>maven-eclipse-plugin</artifactId>
          <configuration>
@@ -125,19 +145,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jxr-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <!-- TODO(inder): add manifest entry for maven group, artifact, and classifier ids -->
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <configuration>
-          <links>
-            <link>http://java.sun.com/j2se/1.5.0/docs/api/</link>
-          </links>
-          <doctitle>Gson ${project.version} API</doctitle>
-          <windowtitle>Gson ${project.version} API</windowtitle>
-          <show>public</show>
-        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
