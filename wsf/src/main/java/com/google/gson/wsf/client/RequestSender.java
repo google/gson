@@ -44,12 +44,21 @@ public final class RequestSender {
     try {
       conn.setRequestMethod(request.getHttpMethod().toString());
       conn.setRequestProperty("Content-Type", request.getContentType());
+      
+      // Assume conservatively that the response will need to be read.
+      // This is done here instead of in the response receiver because this property must be set
+      // before sending any data on the connection.
+      conn.setDoInput(true);
+      
       addRequestParams(conn, request.getHeaders());
       RequestBody requestBody = request.getBody();
       if (requestBody.getSpec().size() > 0) {
         conn.setDoOutput(true);    
         addRequestBody(conn, requestBody);
-      }
+      }      
+      
+      // Initiate the sending of the request.
+      conn.connect();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
