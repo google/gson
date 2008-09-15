@@ -61,4 +61,12 @@ public final class WebServiceClient {
       throw new RuntimeException(e);
     }
   }
+  
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("{config:").append(config).append(",callSpec:").append(callSpec);
+    sb.append("gson:").append(gson).append("}");
+    return sb.toString();
+  }
 }

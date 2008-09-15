@@ -30,4 +30,9 @@ public final class WebServiceConfig {
   public String getServiceBaseUrl() {
     return serviceBaseUrl;
   }
+  
+  @Override
+  public String toString() {
+    return serviceBaseUrl;
+  }
 }
