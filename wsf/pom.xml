@@ -91,6 +91,7 @@
   <build>
     <finalName>wsf</finalName>
     <plugins>
+       <!-- TODO(inder): add plugin for source:jar manifest entry for maven group, artifact, and classifier ids -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -140,6 +141,7 @@
         <artifactId>maven-jxr-plugin</artifactId>
       </plugin>
       <plugin>
+        <!-- TODO(inder): add manifest entry for maven group, artifact, and classifier ids -->
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>	
