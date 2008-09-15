@@ -50,9 +50,6 @@ public final class ResponseReceiver {
     try {
       HeaderMapSpec paramSpec = spec.getHeadersSpec();
       ResponseBodySpec bodySpec = spec.getBodySpec();
-      if (bodySpec.size() > 0) {
-        conn.setDoInput(true);
-      }
       // read response
       HeaderMap responseParams = readResponseHeaders(conn, paramSpec);
       ResponseBody responseBody = readResponseBody(conn, bodySpec);
