@@ -77,6 +77,27 @@ public class CustomTypeAdaptersTest extends TestCase {
     ClassWithCustomTypeConverter target = gson.fromJson(json, ClassWithCustomTypeConverter.class);
     assertEquals(5, target.getBag().getIntValue());
   }
+  
+  public void testCustomSerializersOfSelf() {
+    Gson gson = createGsonObjectWithFooTypeAdapter();
+    Gson basicGson = new Gson();
+    Foo newFooObject = new Foo(1, 2L);
+    String jsonFromCustomSerializer = gson.toJson(newFooObject);
+    String jsonFromGson = basicGson.toJson(newFooObject);
+    
+    assertEquals(jsonFromGson, jsonFromCustomSerializer);
+  }
+
+  public void testCustomDeserializersOfSelf() {
+    Gson gson = createGsonObjectWithFooTypeAdapter();
+    Gson basicGson = new Gson();
+    Foo expectedFoo = new Foo(1, 2L);
+    String json = basicGson.toJson(expectedFoo);
+    Foo newFooObject = gson.fromJson(json, Foo.class);
+    
+    assertEquals(expectedFoo.key, newFooObject.key);
+    assertEquals(expectedFoo.value, newFooObject.value);
+  }
 
   public void testCustomNestedSerializers() {
     Gson gson = new GsonBuilder().registerTypeAdapter(
@@ -102,5 +123,34 @@ public class CustomTypeAdaptersTest extends TestCase {
     String json = "{\"bag\":7,\"value\":25}";
     ClassWithCustomTypeConverter target = gson.fromJson(json, ClassWithCustomTypeConverter.class);
     assertEquals(7, target.getBag().getIntValue());
+  }
+  
+  private Gson createGsonObjectWithFooTypeAdapter() {
+    return new GsonBuilder().registerTypeAdapter(Foo.class, new FooTypeAdapter()).create();
+  }
+  
+  public static class Foo {
+    private final int key;
+    private final long value;
+    
+    public Foo() {
+      this(0, 0L);
+    }
+
+    public Foo(int key, long value) {
+      this.key = key;
+      this.value = value;
+    }
+  }
+  
+  public static class FooTypeAdapter implements JsonSerializer<Foo>, JsonDeserializer<Foo> {
+    public Foo deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+        throws JsonParseException {
+      return context.deserialize(json, typeOfT);
+    }
+
+    public JsonElement serialize(Foo src, Type typeOfSrc, JsonSerializationContext context) {
+      return context.serialize(src, typeOfSrc);
+    }
   }
 }
