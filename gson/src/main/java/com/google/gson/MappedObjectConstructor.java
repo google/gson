@@ -21,6 +21,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -105,5 +106,10 @@ final class MappedObjectConstructor implements ObjectConstructor {
       log.log(Level.WARNING, "Overriding the existing InstanceCreator for " + typeOfT);
     }
     instanceCreatorMap.register(typeOfT, creator);
+  }
+  
+  @Override
+  public String toString() {
+    return instanceCreatorMap.toString();
   }
 }

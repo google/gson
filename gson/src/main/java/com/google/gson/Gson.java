@@ -401,4 +401,18 @@ public final class Gson {
       throw new JsonParseException(e);
     }
   }
+  
+  @Override 
+  public String toString() {
+	StringBuilder sb = new StringBuilder("{");
+    sb.append("serializeNulls:").append(serializeNulls);
+	sb.append(",serializers:").append(serializers);
+	sb.append(",deserializers:").append(deserializers);
+	// using the name instanceCreator instead of ObjectConstructor since the users of Gson are 
+	// more familiar with the concept of Instance Creators. Moreover, the objectConstructor is
+	// just a utility class around instance creators, and its toString() only displays them.
+    sb.append(",instanceCreators:").append(objectConstructor);
+	sb.append("}");
+	return sb.toString();
+  }
 }
