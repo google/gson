@@ -90,4 +90,24 @@ final class ParameterizedTypeHandlerMap<T> {
   public synchronized Set<Map.Entry<Type, T>> entrySet() {
     return map.entrySet();
   }
+  
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder("{");
+    boolean first = true;
+    for (Map.Entry<Type, T> entry : map.entrySet()) {
+      if (first) {
+        first = false;
+      } else {
+        sb.append(',');
+      }
+      sb.append(typeToString(entry.getKey())).append(':');
+      sb.append(entry.getValue());
+    }
+    return sb.toString();
+  }
+  
+  private String typeToString(Type type) {
+    return TypeUtils.toRawClass(type).getSimpleName();
+  }
 }

@@ -63,4 +63,9 @@ class JsonDeserializerExceptionWrapper<T> implements JsonDeserializer<T> {
       throw new JsonParseException(errorMsg.toString(), e);
     }
   }
+  
+  @Override
+  public String toString() {
+    return delegate.toString();
+  }
 }
