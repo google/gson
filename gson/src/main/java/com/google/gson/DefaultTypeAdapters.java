@@ -191,6 +191,14 @@ final class DefaultTypeAdapters {
         throw new JsonParseException(e);
       }
     }
+    
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder();
+      sb.append(DefaultDateTypeAdapter.class.getSimpleName());
+      sb.append('(').append(format.getClass().getSimpleName()).append(')');
+      return sb.toString();
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -218,6 +226,10 @@ final class DefaultTypeAdapters {
         throw new RuntimeException(e);
       }
     }
+    @Override
+    public String toString() {
+      return EnumTypeAdapter.class.getSimpleName();
+    }
   }
 
   private static class UrlTypeAdapter implements JsonSerializer<URL>, JsonDeserializer<URL>,
@@ -240,6 +252,10 @@ final class DefaultTypeAdapters {
         throw new RuntimeException(e);
       }
     }
+    @Override
+    public String toString() {
+      return UrlTypeAdapter.class.getSimpleName();
+    }    
   }
 
   private static class UriTypeAdapter implements JsonSerializer<URI>, JsonDeserializer<URI> {
@@ -253,6 +269,10 @@ final class DefaultTypeAdapters {
       } catch (URISyntaxException e) {
         throw new JsonParseException(e);
       }
+    }
+    @Override
+    public String toString() {
+      return UriTypeAdapter.class.getSimpleName();
     }
   }
 
@@ -288,6 +308,10 @@ final class DefaultTypeAdapters {
     public Locale createInstance(Type type) {
       return new Locale("en_US");
     }
+    @Override
+    public String toString() {
+      return LocaleTypeAdapter.class.getSimpleName();
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -317,6 +341,10 @@ final class DefaultTypeAdapters {
     public Map createInstance(Type type) {
       return new LinkedHashMap();
     }
+    @Override
+    public String toString() {
+      return MapTypeAdapter.class.getSimpleName();
+    }
   }
 
   private static class BigDecimalTypeAdapter implements JsonSerializer<BigDecimal>,
@@ -333,6 +361,10 @@ final class DefaultTypeAdapters {
 
     public BigDecimal createInstance(Type type) {
       return new BigDecimal(0);
+    }
+    @Override
+    public String toString() {
+      return BigDecimalTypeAdapter.class.getSimpleName();
     }
   }
 
@@ -351,11 +383,19 @@ final class DefaultTypeAdapters {
     public BigInteger createInstance(Type type) {
       return new BigInteger("0");
     }
+    @Override
+    public String toString() {
+      return BigIntegerTypeAdapter.class.getSimpleName();
+    }
   }
 
   private static class LongCreator implements InstanceCreator<Long> {
     public Long createInstance(Type type) {
       return new Long(0L);
+    }
+    @Override
+    public String toString() {
+      return LongCreator.class.getSimpleName();
     }
   }
 
@@ -363,11 +403,19 @@ final class DefaultTypeAdapters {
     public Integer createInstance(Type type) {
       return new Integer(0);
     }
+    @Override
+    public String toString() {
+      return IntegerCreator.class.getSimpleName();
+    }
   }
 
   private static class ShortCreator implements InstanceCreator<Short> {
     public Short createInstance(Type type) {
       return new Short((short) 0);
+    }
+    @Override
+    public String toString() {
+      return ShortCreator.class.getSimpleName();
     }
   }
 
@@ -375,11 +423,19 @@ final class DefaultTypeAdapters {
     public Byte createInstance(Type type) {
       return new Byte((byte) 0);
     }
+    @Override
+    public String toString() {
+      return ByteCreator.class.getSimpleName();
+    }
   }
 
   private static class FloatCreator implements InstanceCreator<Float> {
     public Float createInstance(Type type) {
       return new Float(0F);
+    }
+    @Override
+    public String toString() {
+      return FloatCreator.class.getSimpleName();
     }
   }
 
@@ -387,11 +443,19 @@ final class DefaultTypeAdapters {
     public Double createInstance(Type type) {
       return new Double(0D);
     }
+    @Override
+    public String toString() {
+      return DoubleCreator.class.getSimpleName();
+    }
   }
 
   private static class CharacterCreator implements InstanceCreator<Character> {
     public Character createInstance(Type type) {
       return new Character((char) 0);
+    }
+    @Override
+    public String toString() {
+      return CharacterCreator.class.getSimpleName();
     }
   }
 
@@ -399,17 +463,29 @@ final class DefaultTypeAdapters {
     public Boolean createInstance(Type type) {
       return new Boolean(false);
     }
+    @Override
+    public String toString() {
+      return BooleanCreator.class.getSimpleName();
+    }
   }
 
   private static class LinkedListCreator implements InstanceCreator<LinkedList<?>> {
     public LinkedList<?> createInstance(Type type) {
       return new LinkedList<Object>();
     }
+    @Override
+    public String toString() {
+      return LinkedListCreator.class.getSimpleName();
+    }
   }
 
   private static class TreeSetCreator implements InstanceCreator<TreeSet<?>> {
     public TreeSet<?> createInstance(Type type) {
       return new TreeSet<Object>();
+    }
+    @Override
+    public String toString() {
+      return TreeSetCreator.class.getSimpleName();
     }
   }
 }
