@@ -15,6 +15,8 @@
  */
 package com.google.gson.wsf;
 
+import java.lang.reflect.Type;
+
 /**
  * The data associated with a Web service response. This includes http response header parameters, 
  * and {@link ResponseBody}. 
@@ -27,10 +29,46 @@ public final class WebServiceResponse {
   private final ResponseBody body;
   private final ResponseSpec spec;
   
-  public WebServiceResponse(ResponseSpec spec) {
+  public static class Builder {
+    private final HeaderMap.Builder headers;
+    private final ResponseBody.Builder body;
+    private final ResponseSpec spec;
+    
+    public Builder(ResponseSpec spec) {
+      this.spec = spec;
+      headers = new HeaderMap.Builder(spec.getHeadersSpec());
+      body = new ResponseBody.Builder(spec.getBodySpec());      
+    }
+    
+    public Builder putHeader(String paramName, Object content) {
+      headers.put(paramName, content);
+      return this;
+    }
+    
+    public Builder putHeader(String paramName, Object content, Type typeOfContent) {
+      headers.put(paramName, content, typeOfContent);
+      return this;
+    }
+    
+    public Builder putBody(String paramName, Object content) {
+      body.put(paramName, content);
+      return this;
+    }
+
+    public Builder put(String paramName, Object content, Type typeOfContent) {
+      body.put(paramName, content, typeOfContent);
+      return this;
+    }
+    
+    public WebServiceResponse create() {
+      return new WebServiceResponse(spec, headers.create(), body.create());
+    }
+  }
+  
+  private WebServiceResponse(ResponseSpec spec, HeaderMap headers, ResponseBody body) {
     this.spec = spec;
-    headers = new HeaderMap(spec.getHeadersSpec());
-    body = new ResponseBody(spec.getBodySpec());
+    this.headers = headers;
+    this.body = body;
   }
   
   public WebServiceResponse(HeaderMap responseHeaders, ResponseBody responseBody) {

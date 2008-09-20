@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson.wsf.inject;
+package com.google.gson.wsf.inject.server;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -23,6 +23,7 @@ import com.google.gson.wsf.WebServiceCallSpec;
 import com.google.gson.wsf.WebServiceRequest;
 import com.google.gson.wsf.WebServiceResponse;
 import com.google.gson.wsf.server.RequestReceiver;
+import com.google.gson.wsf.server.WebServiceCallServerBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
@@ -31,13 +32,13 @@ import com.google.inject.Provider;
  *
  * @author inder
  */
-public final class WebServiceCallProvider implements Provider<WebServiceCall> {
+public final class WebServiceCallServerProvider implements Provider<WebServiceCallServerBuilder> {
   private final Gson gson;
   private final WebServiceCallSpec callSpec;
   private final HttpServletRequest request;
 
   @Inject
-  public WebServiceCallProvider(Gson gson, HttpServletRequest request, 
+  public WebServiceCallServerProvider(Gson gson, HttpServletRequest request, 
       WebServiceCallSpec callSpec) {
     this.callSpec = callSpec;
     this.gson = gson;
@@ -45,13 +46,12 @@ public final class WebServiceCallProvider implements Provider<WebServiceCall> {
   }
 
   @Override
-  public WebServiceCall get() {
+  public WebServiceCallServerBuilder get() {
     RequestReceiver receiver = new RequestReceiver(gson, callSpec.getRequestSpec());
     WebServiceRequest wsRequest = receiver.receive(request);           
     
-    // No need to populate response headers or response body       
-    WebServiceResponse wsResponse = new WebServiceResponse(callSpec.getResponseSpec());
-
-    return new WebServiceCall(callSpec, wsRequest, wsResponse);
+    WebServiceResponse.Builder responseBuilder = 
+      new WebServiceResponse.Builder(callSpec.getResponseSpec());
+    return new WebServiceCallServerBuilder(callSpec, wsRequest, responseBuilder);
   }
 }

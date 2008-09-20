@@ -16,7 +16,6 @@
 package com.google.gson.wsf.typeadapters;
 
 import java.lang.reflect.Type;
-import java.util.HashMap;
 import java.util.Map;
 
 import com.google.gson.InstanceCreator;
@@ -65,13 +64,13 @@ public class RequestBodyGsonConverter implements JsonSerializer<RequestBody>,
       String key = entry.getKey();
       Type entryType = spec.getTypeFor(key);
       Object value = context.deserialize(entry.getValue(), entryType);
-      builder.add(key, value);
+      builder.put(key, value);
     }
     return builder.create();
   }
 
   @Override
   public RequestBody createInstance(Type type) {
-    return new RequestBody(spec, new HashMap<String, Object>());
+    return new RequestBody.Builder(spec).create();
   }
 }

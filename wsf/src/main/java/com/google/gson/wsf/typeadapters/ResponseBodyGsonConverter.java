@@ -59,18 +59,18 @@ public final class ResponseBodyGsonConverter implements JsonSerializer<ResponseB
   @Override
   public ResponseBody deserialize(JsonElement json, Type typeOfT, 
       JsonDeserializationContext context) throws JsonParseException {
-    ResponseBody responseBody = new ResponseBody(spec);
+    ResponseBody.Builder responseBodyBuilder = new ResponseBody.Builder(spec);
     for (Map.Entry<String, JsonElement> entry : json.getAsJsonObject().entrySet()) {
       String key = entry.getKey();
       Type entryType = spec.getTypeFor(key);
       Object value = context.deserialize(entry.getValue(), entryType);
-      responseBody.put(key, value, entryType);
+      responseBodyBuilder.put(key, value, entryType);
     }
-    return responseBody;
+    return responseBodyBuilder.create();
   }
 
   @Override
   public ResponseBody createInstance(Type type) {
-    return new ResponseBody(spec);
+    return new ResponseBody.Builder(spec).create();
   }
 }

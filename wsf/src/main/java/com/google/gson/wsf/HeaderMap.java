@@ -17,10 +17,8 @@ package com.google.gson.wsf;
 
 import java.lang.reflect.Type;
 import java.util.Map;
-import java.util.Set;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
+import com.google.inject.Inject;
 
 /**
  * Map of request or response header objects. There is a {@link HeaderMapSpec} associated with the
@@ -28,54 +26,35 @@ import com.google.common.collect.Maps;
  * 
  * @author inder
  */
-public final class HeaderMap {
+public final class HeaderMap extends ParamMap {
 
-  private final Map<String, Object> contents;
-  private final HeaderMapSpec spec;
+  public static class Builder extends ParamMap.Builder<HeaderMapSpec> {
+    @Inject
+    public Builder(HeaderMapSpec spec) {
+      super(spec);
+    }
+    
+    @Override
+    public Builder put(String paramName, Object content) {
+      return (Builder) super.put(paramName, content);
+    }
+
+    @Override
+    public Builder put(String paramName, Object content, Type typeOfContent) {
+      return (Builder) super.put(paramName, content, typeOfContent);
+    }
+    
+    public HeaderMap create() {
+      return new HeaderMap(spec, contents);
+    }
+  }
   
-  public HeaderMap(HeaderMapSpec spec) {
-    this.spec = spec;
-    contents = Maps.newHashMap();
+  private HeaderMap(HeaderMapSpec spec, Map<String, Object> contents) {
+    super(spec, contents);
   }  
-  
-  /**
-   * If paramValue is a generic type, use {@link #put(String, Object, Type)} instead.
-   * 
-   * @param headerName
-   * @param headerValue
-   */
-  public void put(String headerName, Object headerValue) {
-    Preconditions.checkArgument(spec.isCompatible(headerName, headerValue));
-    contents.put(headerName, headerValue);
-  }
-  
-  public void put(String headerName, Object headerValue, Type typeOfHeaderValue) {
-    Preconditions.checkArgument(spec.isCompatible(headerName, typeOfHeaderValue));
-    contents.put(headerName, headerValue);
-  }
-  
-  public HeaderMapSpec getSpec() {
-    return spec;
-  }
 
-  public Object get(String headerName) {
-    return contents.get(headerName);
-  }
-  
-  public Type getSpec(String headerName) {
-    return spec.getTypeFor(headerName);
-  }
-  
-  public Set<Map.Entry<String, Object>> entrySet() {
-    return contents.entrySet();
-  }
-  
-  public int size() {
-    return contents.size();
-  }
-  
   @Override
-  public String toString() {
-    return Util.toStringMap(contents);
+  public HeaderMapSpec getSpec() {
+    return (HeaderMapSpec) super.getSpec();
   }
 }
