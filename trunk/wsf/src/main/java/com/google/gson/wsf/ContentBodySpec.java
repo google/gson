@@ -40,12 +40,12 @@ class ContentBodySpec implements ParamMapSpec {
     return paramsSpec.get(paramName);
   }
   
-  public boolean isCompatible(String paramName, Type type) {
+  public boolean checkIfCompatible(String paramName, Type type) {
     return type.equals(getTypeFor(paramName));
   }
   
-  public boolean isCompatible(String paramName, Object object) {
-    return isCompatible(paramName, object.getClass());
+  public boolean checkIfCompatible(String paramName, Object object) {
+    return checkIfCompatible(paramName, object.getClass());
   }
   
   public Set<Map.Entry<String, Type>> entrySet() {

@@ -16,8 +16,9 @@
 package com.google.gson.wsf;
 
 import java.lang.reflect.Type;
+import java.util.Map;
 
-import com.google.common.base.Preconditions;
+import com.google.inject.Inject;
 
 /**
  * body of the response. This is written out as JSON to be sent out to the client. 
@@ -26,28 +27,35 @@ import com.google.common.base.Preconditions;
  */
 public final class ResponseBody extends ContentBody {
 
-  public ResponseBody(ResponseBodySpec spec) {
-    super(spec);
+  public static class Builder extends ParamMap.Builder<ResponseBodySpec> {    
+
+    @Inject
+    public Builder(ResponseBodySpec spec) {
+      super(spec);
+    }
+
+    @Override
+    public Builder put(String paramName, Object content) {
+      return (Builder) super.put(paramName, content);
+    }
+
+    @Override
+    public Builder put(String paramName, Object content, Type typeOfContent) {
+      return (Builder) super.put(paramName, content, typeOfContent);
+    }
+    
+    public ResponseBody create() {
+      return new ResponseBody(spec, contents);
+    }    
+  }
+
+
+  private ResponseBody(ResponseBodySpec spec, Map<String, Object> contents) {
+    super(spec, contents);
   }
   
   @Override
   public ResponseBodySpec getSpec() {
     return (ResponseBodySpec) spec;
   }
-  
-  /**
-   * If value is a generic type, use {@link #put(String, Object, Type)} instead.
-   * 
-   * @param key
-   * @param value
-   */
-  public void put(String key, Object value) {
-    put(key, value, value.getClass());
-  }
-    
-  public void put(String key, Object value, Type typeOfValue) {
-    Type expectedType = spec.getTypeFor(key);
-    Preconditions.checkArgument(Util.isAssignableFrom(typeOfValue, expectedType));
-    contents.put(key, value);
-  }  
 }

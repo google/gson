@@ -60,23 +60,23 @@ public final class ResponseReceiver {
   }
 
   private HeaderMap readResponseHeaders(HttpURLConnection conn, HeaderMapSpec paramsSpec) {    
-    HeaderMap params = new HeaderMap(paramsSpec);    
+    HeaderMap.Builder paramsBuilder = new HeaderMap.Builder(paramsSpec);    
     for (Map.Entry<String, Type> entry : paramsSpec.entrySet()) {
       String paramName = entry.getKey();
       String json = conn.getHeaderField(paramName);
       if (json != null) {
         Type typeOfT = paramsSpec.getTypeFor(paramName);
         Object value = gson.fromJson(json, typeOfT);
-        params.put(paramName, value, typeOfT);
+        paramsBuilder.put(paramName, value, typeOfT);
       }
     }
-    return params;
+    return paramsBuilder.create();
   }
 
   private ResponseBody readResponseBody(HttpURLConnection conn, ResponseBodySpec bodySpec) 
       throws IOException {
     if (bodySpec.size() == 0) {
-      return new ResponseBody(bodySpec);
+      return new ResponseBody.Builder(bodySpec).create();
     }
     String connContentType = conn.getContentType();
     Preconditions.checkArgument(connContentType.contains(bodySpec.getContentType()));
