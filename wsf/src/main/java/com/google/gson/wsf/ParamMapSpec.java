@@ -29,9 +29,9 @@ interface ParamMapSpec {
 
   Type getTypeFor(String paramName);
 
-  boolean isCompatible(String paramName, Type type);
+  boolean checkIfCompatible(String paramName, Type type);
 
-  boolean isCompatible(String paramName, Object object);
+  boolean checkIfCompatible(String paramName, Object object);
   
   public Set<Map.Entry<String, Type>> entrySet();
 

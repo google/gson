@@ -18,7 +18,6 @@ package com.google.gson.wsf;
 import java.lang.reflect.Type;
 import java.util.Map;
 
-import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 
 /**
@@ -31,32 +30,29 @@ import com.google.inject.Inject;
  */
 public final class RequestBody extends ContentBody {
 
-  public static class Builder {    
-    private final Map<String, Object> contents = Maps.newLinkedHashMap();
-    private final RequestBodySpec spec;
+  public static class Builder extends ParamMap.Builder<RequestBodySpec> {    
     
     @Inject
     public Builder(RequestBodySpec spec) {
-      this.spec = spec;
+      super(spec);
     }
     
-    public Builder add(String paramName, Object content) {
-      return add(paramName, content, content.getClass());
+    @Override
+    public Builder put(String paramName, Object content) {
+      return (Builder) super.put(paramName, content);
     }
-    
-    public Builder add(String paramName, Object content, Type typeOfContent) {
-      spec.isCompatible(paramName, typeOfContent);
-      contents.put(paramName, content);
-      return this;
+
+    @Override
+    public Builder put(String paramName, Object content, Type typeOfContent) {
+      return (Builder) super.put(paramName, content, typeOfContent);
     }
     
     public RequestBody create() {
-      RequestBody requestBody = new RequestBody(spec, contents);
-      return requestBody;
+      return new RequestBody(spec, contents);
     }    
   }
 
-  public RequestBody(RequestBodySpec spec, Map<String, Object> contents) {
+  private RequestBody(RequestBodySpec spec, Map<String, Object> contents) {
     super(spec, contents);
   }
   

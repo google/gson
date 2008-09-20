@@ -54,7 +54,7 @@ public final class HeaderMapSpec implements ParamMapSpec {
   }
   
   @Override
-  public boolean isCompatible(String headerName, Type targetType) {
+  public boolean checkIfCompatible(String headerName, Type targetType) {
     Type typeOfHeader = getTypeFor(headerName);
     if (typeOfHeader == null) {
       return false;
@@ -64,8 +64,8 @@ public final class HeaderMapSpec implements ParamMapSpec {
     return rawClassOfHeader.isAssignableFrom(rawClassOfTargetType);
   }
 
-  public boolean isCompatible(String headerName, Object headerValue) {
-    return isCompatible(headerName, headerValue.getClass());
+  public boolean checkIfCompatible(String headerName, Object headerValue) {
+    return checkIfCompatible(headerName, headerValue.getClass());
   }
   
   @Override

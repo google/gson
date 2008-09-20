@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.reflect.Type;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -68,7 +67,7 @@ public final class RequestReceiver {
   
   private HeaderMap buildRequestParams(HttpServletRequest request) {
     HeaderMapSpec paramsSpec = this.spec.getHeadersSpec();
-    HeaderMap params = new HeaderMap(paramsSpec);
+    HeaderMap.Builder paramsBuilder = new HeaderMap.Builder(paramsSpec);
     for (Map.Entry<String, Type> param : paramsSpec.entrySet()) {
       String name = param.getKey();
       Type type = param.getValue();
@@ -79,10 +78,10 @@ public final class RequestReceiver {
       }
       if (header != null && !header.equals("")) { 
         Object value = gson.fromJson(header, type);
-        params.put(name, value);
+        paramsBuilder.put(name, value);
       }
     }
-    return params;
+    return paramsBuilder.create();
   }
   
   private RequestBody buildRequestBody(HttpServletRequest request) throws IOException {
@@ -96,6 +95,6 @@ public final class RequestReceiver {
   }
 
   private RequestBody createEmptyRequestBody(RequestBodySpec bodySpec) {
-    return new RequestBody(bodySpec, new HashMap<String, Object>());
+    return new RequestBody.Builder(bodySpec).create();
   }
 }

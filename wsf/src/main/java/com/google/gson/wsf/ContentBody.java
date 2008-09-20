@@ -15,12 +15,7 @@
  */
 package com.google.gson.wsf;
 
-import java.lang.reflect.Type;
 import java.util.Map;
-import java.util.Set;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
 
 /**
  * Body of a request or response. The body contains a map of name-value pairs.
@@ -29,55 +24,21 @@ import com.google.common.collect.Maps;
  * 
  * @author inder
  */
-class ContentBody {
-  
-  protected final ContentBodySpec spec;
-  protected final Map<String, Object> contents;
-  
-  ContentBody(ContentBodySpec spec) {
-    this.spec = spec;
-    this.contents = Maps.newLinkedHashMap();
-  }
+class ContentBody extends ParamMap {
   
   ContentBody(ContentBodySpec spec, Map<String, Object> contents) {
-    this.spec = spec;
-    this.contents = contents;
+    super(spec, contents);
   }
   
   public ContentBodySpec getSpec() {
-    return spec;
+    return (ContentBodySpec) spec;
   }
 
-  @SuppressWarnings("unchecked")
-  public <T> T get(String key, Class<T> classOfValue) {
-    Preconditions.checkArgument(spec.isCompatible(key, classOfValue));
-    return (T) contents.get(key);
-  }
-  
-  @SuppressWarnings("unchecked")
-  public <T> T get(String key, Type typeOfValue) {
-    Preconditions.checkArgument(spec.isCompatible(key, typeOfValue));
-    return (T) contents.get(key);
-  }
-  
-  public Set<Map.Entry<String, Object>> entrySet() {
-    return contents.entrySet();
-  }
-  
-  public int size() {
-    return contents.size();
-  }
-  
   public String getContentType() {
-    return spec.getContentType();
+    return getSpec().getContentType();
   }
   
   public String getCharacterEncoding() {
-    return spec.getCharacterEncoding();
-  }
-  
-  @Override
-  public String toString() {
-    return Util.toStringMap(contents);
+    return getSpec().getCharacterEncoding();
   }
 }
