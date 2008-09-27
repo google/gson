@@ -130,7 +130,8 @@ final class JsonPrintFormatter implements JsonFormatter {
   }
 
   private class PrintFormattingVisitor implements JsonElementVisitor {
-    private final Map<Integer, Boolean> first;
+    private final Map<Integer, Boolean> firstArrayElement;
+    private final Map<Integer, Boolean> firstObjectMember;
     private final JsonWriter writer;
     private final boolean serializeNulls;
     private int level = 0;
@@ -138,10 +139,11 @@ final class JsonPrintFormatter implements JsonFormatter {
     PrintFormattingVisitor(JsonWriter writer, boolean serializeNulls) {
       this.writer = writer;
       this.serializeNulls = serializeNulls;
-      this.first = new HashMap<Integer, Boolean>();
+      this.firstArrayElement = new HashMap<Integer, Boolean>();
+      this.firstObjectMember = new HashMap<Integer, Boolean>();
     }
 
-    private void addCommaCheckingFirst() {
+    private void addCommaCheckingFirst(Map<Integer, Boolean> first) {
       if (first.get(level) != Boolean.FALSE) {
         first.put(level, false);
       } else {
@@ -150,25 +152,25 @@ final class JsonPrintFormatter implements JsonFormatter {
     }
 
     public void startArray(JsonArray array) {
-      first.put(++level, true);
+      firstArrayElement.put(++level, true);
       writer.beginArray();
     }
 
     public void visitArrayMember(JsonArray parent, JsonPrimitive member, boolean isFirst) {
-      addCommaCheckingFirst();
+      addCommaCheckingFirst(firstArrayElement);
       writer.value(member.toString());
     }
 
     public void visitArrayMember(JsonArray parent, JsonArray member, boolean first) {
-      addCommaCheckingFirst();
+      addCommaCheckingFirst(firstArrayElement);
     }
 
     public void visitArrayMember(JsonArray parent, JsonObject member, boolean first) {
-      addCommaCheckingFirst();
+      addCommaCheckingFirst(firstArrayElement);
     }
 
     public void visitNullArrayMember(JsonArray parent, boolean isFirst) {
-      addCommaCheckingFirst();
+      addCommaCheckingFirst(firstArrayElement);
     }
 
     public void endArray(JsonArray array) {
@@ -177,12 +179,13 @@ final class JsonPrintFormatter implements JsonFormatter {
     }
 
     public void startObject(JsonObject object) {
+      firstObjectMember.put(level, true);
       writer.beginObject();
     }
 
     public void visitObjectMember(JsonObject parent, String memberName, JsonPrimitive member, 
         boolean isFirst) {
-      addCommaCheckingFirst();
+      addCommaCheckingFirst(firstObjectMember);
       writer.key(memberName);
       writer.fieldSeparator();
       writer.value(member.toString());
@@ -190,14 +193,14 @@ final class JsonPrintFormatter implements JsonFormatter {
 
     public void visitObjectMember(JsonObject parent, String memberName, JsonArray member, 
         boolean isFirst) {
-      addCommaCheckingFirst();
+      addCommaCheckingFirst(firstObjectMember);
       writer.key(memberName);
       writer.fieldSeparator();
     }
 
     public void visitObjectMember(JsonObject parent, String memberName, JsonObject member, 
         boolean isFirst) {
-      addCommaCheckingFirst();
+      addCommaCheckingFirst(firstObjectMember);
       writer.key(memberName);
       writer.fieldSeparator();
     }
