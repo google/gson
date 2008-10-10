@@ -38,8 +38,10 @@ SKIP : { " " | "\t" | "\n" | "\r" }
  */
 TOKEN : {
   <E : ["e","E"](["+","-"])?>
-| <DIGITS : (["0"-"9"])+>
-| <QUOTE : "\""> : STRING_STATE
+  | <DIGITS : (["0"-"9"])+>
+  | <#ESCAPE_CHAR: "\\" ["n","t","b","r","f","\\","'","\""] >
+  | <SINGLE_QUOTE_LITERAL: "\'" ( (~["\'","\\","\n","\r"]) | <ESCAPE_CHAR>)* "\'" >
+  | <QUOTE : "\""> : STRING_STATE
 }
 <STRING_STATE> MORE  : { "\\" : ESC_STATE }
 <STRING_STATE> TOKEN : {
@@ -214,10 +216,16 @@ private String Digits() :
 }
 
 private JsonPrimitive JsonString() :
-{ StringBuffer strbuf = new StringBuffer(); }
+{ StringBuffer strbuf = new StringBuffer(); Token t; }
 {
-  <QUOTE> [ Chars(strbuf) ] <ENDQUOTE>
-  { return new JsonPrimitive(strbuf.toString()); }
+  t=<SINGLE_QUOTE_LITERAL> { 
+    String value = t.image;
+    String valueWithInQuotes = value.substring(1, value.length()-1);
+    return new JsonPrimitive(valueWithInQuotes); 
+  }
+  | <QUOTE> [ Chars(strbuf) ] <ENDQUOTE> { 
+    return new JsonPrimitive(strbuf.toString()); 
+  }
 }
 
 private void Chars(StringBuffer strbuf) :
