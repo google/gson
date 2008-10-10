@@ -56,10 +56,20 @@ public class ObjectTest extends TestCase {
     gson = new Gson();
   }
 
-  public void testJsonInSingleQuotes() {
-    String json = "{'stringValue':'no message'}";
+  public void testJsonInSingleQuotesDeserialization() {
+    String json = "{'stringValue':'no message','intValue':10,'longValue':20}";
     BagOfPrimitives target = gson.fromJson(json, BagOfPrimitives.class);
     assertEquals("no message", target.stringValue);
+    assertEquals(10, target.intValue);
+    assertEquals(20, target.longValue);
+  }
+  
+  public void testJsonInMixedQuotesDeserialization() {
+    String json = "{\"stringValue\":'no message','intValue':10,'longValue':20}";
+    BagOfPrimitives target = gson.fromJson(json, BagOfPrimitives.class);
+    assertEquals("no message", target.stringValue);
+    assertEquals(10, target.intValue);
+    assertEquals(20, target.longValue);
   }
   
   public void testBagOfPrimitivesSerialization() throws Exception {
