@@ -37,6 +37,41 @@ public class StringTest extends TestCase {
     assertEquals(valueWithQuotes, gson.fromJson(jsonRepresentation, String.class));
   }
 
+  public void testEscapedCtrlNInStringSerialization() throws Exception {
+    String value = "a\nb";
+    String json = gson.toJson(value);
+    assertEquals("\"a\\nb\"", json);
+  }
+
+  public void testEscapedCtrlNInStringDeserialization() throws Exception {
+    String json = "'a\\nb'";
+    String actual = gson.fromJson(json, String.class);
+    assertEquals("a\nb", actual);
+  }
+
+  public void testEscapedCtrlRInStringSerialization() throws Exception {
+    String value = "a\rb";
+    String json = gson.toJson(value);
+    assertEquals("\"a\\rb\"", json);
+  }
+
+  public void testEscapedCtrlRInStringDeserialization() throws Exception {
+    String json = "'a\\rb'";
+    String actual = gson.fromJson(json, String.class);
+    assertEquals("a\rb", actual);
+  }
+
+  public void testEscapedBackslashInStringSerialization() throws Exception {
+    String value = "a\\b";
+    String json = gson.toJson(value);
+    assertEquals("\"a\\\\b\"", json);
+  }
+
+  public void testEscapedBackslashInStringDeserialization() throws Exception {
+    String actual = gson.fromJson("'a\\\\b'", String.class);
+    assertEquals("a\\b", actual);
+  }
+
   public void testSingleQuoteInStringDeserialization() throws Exception {
     String value = "beforeQuote'afterQuote";
     String actual = gson.fromJson("\"" + value + "\"", String.class);

@@ -7,14 +7,17 @@ interface JsonParserConstants {
   int EOF = 0;
   int E = 5;
   int DIGITS = 6;
-  int ESCAPE_CHAR = 7;
-  int SINGLE_QUOTE_LITERAL = 8;
-  int QUOTE = 9;
-  int ENDQUOTE = 11;
-  int CHAR = 12;
-  int CNTRL_ESC = 13;
-  int HEX = 15;
-  int HEX_ESC = 16;
+  int HEX_CHAR = 7;
+  int UNICODE_CHAR = 8;
+  int ESCAPE_CHAR = 9;
+  int SINGLE_QUOTE_LITERAL = 10;
+  int DOUBLE_QUOTE_LITERAL = 11;
+  int QUOTE = 12;
+  int ENDQUOTE = 14;
+  int CHAR = 15;
+  int CNTRL_ESC = 16;
+  int HEX = 18;
+  int HEX_ESC = 19;
 
   int DEFAULT = 0;
   int STRING_STATE = 1;
@@ -29,8 +32,11 @@ interface JsonParserConstants {
     "\"\\r\"",
     "<E>",
     "<DIGITS>",
+    "<HEX_CHAR>",
+    "<UNICODE_CHAR>",
     "<ESCAPE_CHAR>",
     "<SINGLE_QUOTE_LITERAL>",
+    "<DOUBLE_QUOTE_LITERAL>",
     "\"\\\"\"",
     "\"\\\\\"",
     "<ENDQUOTE>",

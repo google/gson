@@ -65,9 +65,7 @@ public class InternationalizationTest extends TestCase {
   }
 
   public void testStringsWithUnicodeChineseCharactersEscapedDeserialization() throws Exception {
-    String json = "\"" + "\\u597d\\u597d\\u597d" + "\"";
-    String actual = gson.fromJson(json, String.class);
-    String expected = "\u597d\u597d\u597d";
-    assertEquals(expected, actual);
+    String actual = gson.fromJson("'\\u597d\\u597d\\u597d'", String.class);
+    assertEquals("\u597d\u597d\u597d", actual);
   }
 }

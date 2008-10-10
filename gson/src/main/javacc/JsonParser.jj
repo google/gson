@@ -39,8 +39,11 @@ SKIP : { " " | "\t" | "\n" | "\r" }
 TOKEN : {
   <E : ["e","E"](["+","-"])?>
   | <DIGITS : (["0"-"9"])+>
+  | <#HEX_CHAR : ["a"-"f","A"-"F","0"-"9"]>
+  | <UNICODE_CHAR : "\\u" <HEX_CHAR><HEX_CHAR><HEX_CHAR><HEX_CHAR> >
   | <#ESCAPE_CHAR: "\\" ["n","t","b","r","f","\\","'","\""] >
-  | <SINGLE_QUOTE_LITERAL: "\'" ( (~["\'","\\","\n","\r"]) | <ESCAPE_CHAR>)* "\'" >
+  | <SINGLE_QUOTE_LITERAL: "\'" ( (~["\'","\\","\n","\r"]) | <ESCAPE_CHAR> | <UNICODE_CHAR>)* "\'" >
+  | <DOUBLE_QUOTE_LITERAL: "\"" ( (~["\"","\\","\n","\r"]) | <ESCAPE_CHAR> | <UNICODE_CHAR>)* "\"" >
   | <QUOTE : "\""> : STRING_STATE
 }
 <STRING_STATE> MORE  : { "\\" : ESC_STATE }
@@ -216,15 +219,11 @@ private String Digits() :
 }
 
 private JsonPrimitive JsonString() :
-{ StringBuffer strbuf = new StringBuffer(); Token t; }
+{ Token t; }
 {
-  t=<SINGLE_QUOTE_LITERAL> { 
-    String value = t.image;
-    String valueWithInQuotes = value.substring(1, value.length()-1);
-    return new JsonPrimitive(valueWithInQuotes); 
-  }
-  | <QUOTE> [ Chars(strbuf) ] <ENDQUOTE> { 
-    return new JsonPrimitive(strbuf.toString()); 
+  (t=<SINGLE_QUOTE_LITERAL> | t=<DOUBLE_QUOTE_LITERAL>) { 
+    String value = StringDemarshaller.unmarshall(t.image);    
+    return new JsonPrimitive(value); 
   }
 }
 
