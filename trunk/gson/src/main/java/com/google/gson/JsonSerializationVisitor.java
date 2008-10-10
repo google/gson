@@ -80,14 +80,22 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   }
 
   public void visitArrayField(Field f, Type typeOfF, Object obj) {
-    if (!isFieldNull(f, obj)) {
+    if (isFieldNull(f, obj)) {
+      if (serializeNulls) {
+        addChildAsElement(f, new JsonNull());
+      }
+    } else {
       Object array = getFieldValue(f, obj);
       addAsChildOfObject(f, typeOfF, array);
     }
   }
 
   public void visitCollectionField(Field f, Type typeOfF, Object obj) {
-    if (!isFieldNull(f, obj)) {
+    if (isFieldNull(f, obj)) {
+      if (serializeNulls) {
+        addChildAsElement(f, new JsonNull());
+      }
+    } else {
       if (typeOfF == null) {
         throw new RuntimeException("Can not handle non-generic collections");
       }
@@ -151,8 +159,12 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
     return childVisitor.getJsonElement();
   }
 
-  public void visitPrimitiveField(Field f, Type typeOfF, Object obj) {
-    if (!isFieldNull(f, obj)) {
+  public void visitPrimitiveField(Field f, Type typeOfF, Object obj) {    
+    if (isFieldNull(f, obj)) {
+      if (serializeNulls) {
+        addChildAsElement(f, new JsonNull());
+      }      
+    } else {
       TypeInfo typeInfo = new TypeInfo(typeOfF);
       if (typeInfo.isPrimitiveOrStringAndNotAnArray()) {
         Object fieldValue = getFieldValue(f, obj);
