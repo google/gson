@@ -25,7 +25,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
- * Functional tests for Json primitive values: String, integers, and floating point numbers.
+ * Functional tests for Json primitive values: integers, and floating point numbers.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
@@ -37,55 +37,6 @@ public class PrimitiveTest extends TestCase {
   protected void setUp() throws Exception {
     super.setUp();
     gson = new Gson();
-  }
-
-  public void testStringValueSerialization() throws Exception {
-    String value = "someRandomStringValue";
-    assertEquals('"' + value + '"', gson.toJson(value));
-  }
-
-  public void testStringValueDeserialization() throws Exception {
-    String value = "someRandomStringValue";
-    String actual = gson.fromJson("\"" + value + "\"", String.class);
-    assertEquals(value, actual);
-  }
-
-  public void testSingleQuoteInStringSerialization() throws Exception {
-    String valueWithQuotes = "beforeQuote'afterQuote";
-    String jsonRepresentation = gson.toJson(valueWithQuotes);
-    assertEquals(valueWithQuotes, gson.fromJson(jsonRepresentation, String.class));
-  }
-
-  public void testSingleQuoteInStringDeserialization() throws Exception {
-    String value = "beforeQuote'afterQuote";
-    String actual = gson.fromJson("\"" + value + "\"", String.class);
-    assertEquals(value, actual);
-  }
-
-  public void testEscapingQuotesInStringSerialization() throws Exception {
-    String valueWithQuotes = "beforeQuote\"afterQuote";
-    String jsonRepresentation = gson.toJson(valueWithQuotes);
-    String target = gson.fromJson(jsonRepresentation, String.class);
-    assertEquals(valueWithQuotes, target);
-  }
-
-  public void testEscapingQuotesInStringDeserialization() throws Exception {
-    String value = "beforeQuote\\\"afterQuote";
-    String actual = gson.fromJson("\"" + value + "\"", String.class);
-    String expected = "beforeQuote\"afterQuote";
-    assertEquals(expected, actual);
-  }
-
-  public void testStringValueAsSingleElementArraySerialization() throws Exception {
-    String[] target = {"abc"};
-    assertEquals("[\"abc\"]", gson.toJson(target));
-    assertEquals("[\"abc\"]", gson.toJson(target, String[].class));
-  }
-
-  public void testStringValueAsSingleElementArrayDeserialization() throws Exception {
-    String value = "someRandomStringValue";
-    String actual = gson.fromJson("[\"" + value + "\"]", String.class);
-    assertEquals(value, actual);
   }
 
   public void testPrimitiveIntegerAutoboxedSerialization() {
