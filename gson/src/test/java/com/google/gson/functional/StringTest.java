@@ -1,7 +1,6 @@
 package com.google.gson.functional;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonParseException;
 
 import junit.framework.TestCase;
 
@@ -102,49 +101,5 @@ public class StringTest extends TestCase {
     String value = "someRandomStringValue";
     String actual = gson.fromJson("[\"" + value + "\"]", String.class);
     assertEquals(value, actual);
-  }
-
-  public void testReallyLongStringsDeserialization() throws Exception {
-    StringBuilder sb = new StringBuilder(8096);
-    sb.append("Once upon a time there was a really long string that caused a StackOverFlowError\n");
-    sb.append("and now it is fixed and instead throws a JsonParserException.....Yippie!!!\n");
-    sb.append("Wow....that is a really long string that is meant to be an exception stack trace, ");
-    sb.append("but is not :( \n\n\n\n\n\n.");
-    sb.append("lalalalala \n\n\n.");
-    sb.append("C'est la vie!!! \n\n\n\n\n");
-
-    for (int i = 0; i < 10; i++) {
-      sb.append(sb.toString());
-    }
-
-    while (true) {
-      try {
-        String stackTrace = sb.toString();
-        sb.append(stackTrace);
-        String json = "{\"message\":\"Error message.\","
-          + "\"stackTrace\":\"" + stackTrace + "\"}";
-        parseLongJson(json);
-      } catch (JsonParseException expected) {
-        break;
-      }
-    }
-  }
-  
-  private void parseLongJson(String json) throws JsonParseException {
-    ExceptionHolder target = gson.fromJson(json, ExceptionHolder.class);
-    assertTrue(target.message.contains("Error"));
-    assertTrue(target.stackTrace.contains("Yippie"));
-  }
-
-  private static class ExceptionHolder {
-    public final String message;
-    public final String stackTrace;
-    public ExceptionHolder() {
-      this("", "");
-    }
-    public ExceptionHolder(String message, String stackTrace) {
-      this.message = message;
-      this.stackTrace = stackTrace;
-    }
   }
 }
