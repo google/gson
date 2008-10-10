@@ -56,6 +56,12 @@ public class ObjectTest extends TestCase {
     gson = new Gson();
   }
 
+  public void testJsonInSingleQuotes() {
+    String json = "{'stringValue':'no message'}";
+    BagOfPrimitives target = gson.fromJson(json, BagOfPrimitives.class);
+    assertEquals("no message", target.stringValue);
+  }
+  
   public void testBagOfPrimitivesSerialization() throws Exception {
     BagOfPrimitives target = new BagOfPrimitives(10, 20, false, "stringValue");
     assertEquals(target.getExpectedJson(), gson.toJson(target));
