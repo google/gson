@@ -29,6 +29,7 @@ import com.google.gson.common.TestTypes.ClassWithObjects;
 import junit.framework.TestCase;
 
 import java.lang.reflect.Type;
+import java.util.Collection;
 
 /**
  * Functional tests for the different cases for serializing (or ignoring) null fields and object.
@@ -73,6 +74,33 @@ public class NullObjectAndFieldTest extends TestCase {
     ClassWithObjects target = gson.fromJson("{\"bag\":null}", ClassWithObjects.class);
     assertNull(target.bag);
   }
+  
+  public void testExplicitSerializationOfNullArrayMembers() {
+    Gson gson = gsonBuilder.create();
+    ClassWithMembers target = new ClassWithMembers();
+    String json = gson.toJson(target);
+    assertTrue(json.contains("\"array\":null"));
+  }
+  
+  public void testExplicitSerializationOfNullCollectionMembers() {
+    Gson gson = gsonBuilder.create();
+    ClassWithMembers target = new ClassWithMembers();
+    String json = gson.toJson(target);
+    assertTrue(json.contains("\"col\":null"));
+  }
+  
+  public void testExplicitSerializationOfNullStringMembers() {
+    Gson gson = gsonBuilder.create();
+    ClassWithMembers target = new ClassWithMembers();
+    String json = gson.toJson(target);
+    assertTrue(json.contains("\"str\":null"));
+  }
+  
+  static class ClassWithMembers {
+    String str;
+    int[] array;
+    Collection<String> col;
+  }
 
   public void testCustomSerializationOfNulls() {
     gsonBuilder.registerTypeAdapter(ClassWithObjects.class, new ClassWithObjectsSerializer());
@@ -91,4 +119,5 @@ public class NullObjectAndFieldTest extends TestCase {
       return obj;
     }
   }
+  
 }
