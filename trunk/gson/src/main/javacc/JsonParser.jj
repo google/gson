@@ -13,17 +13,6 @@ PARSER_BEGIN(JsonParser)
 
 package com.google.gson;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
-
 @SuppressWarnings("all")
 final class JsonParser {
 
@@ -162,7 +151,7 @@ private JsonPrimitive JsonNumber() :
   {
     Number n;
     if (exppart != null) {
-      n = new BigDecimal(intpart + fracpart + exppart);
+      n = new java.math.BigDecimal(intpart + fracpart + exppart);
     } else if (fracpart != null) {
       n = new Double(intpart + fracpart);
     } else {
@@ -173,7 +162,7 @@ private JsonPrimitive JsonNumber() :
       } else if (intpart.length() < 19) {
         n = new Long(intpart);
       } else {
-        n = new BigInteger(intpart);
+        n = new java.math.BigInteger(intpart);
       }
     }
     return new JsonPrimitive(n);
@@ -222,45 +211,7 @@ private JsonPrimitive JsonString() :
 { Token t; }
 {
   (t=<SINGLE_QUOTE_LITERAL> | t=<DOUBLE_QUOTE_LITERAL>) { 
-    String value = StringDemarshaller.unmarshall(t.image);    
+    String value = StringUnmarshaller.unmarshall(t.image);    
     return new JsonPrimitive(value); 
-  }
-}
-
-private void Chars(StringBuffer strbuf) :
-{ char c; }
-{
-  c=Char() [ Chars(strbuf) ]
-  { strbuf.insert(0, c); }
-}
-
-private char Char() :
-{ Token t; }
-{
-( t=<CHAR>
-| t=<CNTRL_ESC>
-| t=<HEX_ESC> )
-  {
-    if(t.image.length() < 2) {
-      return t.image.charAt(0);
-    }
-    if(t.image.length() < 6) {
-      char c = t.image.charAt(1);
-      switch(t.image.charAt(1)) {
-        //control characters
-        case 'b'  : return (char) 8; break;
-        case 'f'  : return (char) 12; break;
-        case 'n'  : return (char) 10; break;
-        case 'r'  : return (char) 13; break;
-        case 't'  : return (char) 9; break;
-        default   : return c;   //characters that represent themselves
-      }
-    }
-    else {      //hex escape code
-      //create an integer from our hex values
-      //and then cast into a char
-      int i = Integer.valueOf(t.image.substring(2,6), 16).intValue();
-      return (char) i;
-    }
   }
 }
