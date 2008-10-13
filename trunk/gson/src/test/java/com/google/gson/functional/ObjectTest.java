@@ -361,6 +361,21 @@ public class ObjectTest extends TestCase {
     assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 
+  /**
+   * Tests that a class field with type Object can be serialized properly. 
+   * See issue 54
+   */
+  public void testClassWithObjectFieldSerialization() {
+    ClassWithObjectField obj = new ClassWithObjectField();
+    obj.member = "abc";
+    String json = gson.toJson(obj);
+    assertTrue(json.contains("abc"));
+  }
+  
+  private static class ClassWithObjectField {
+    Object member;
+  }
+  
   public void testInnerClassSerialization() {    
     Parent p = new Parent();
     Parent.Child c = p.new Child();
@@ -371,7 +386,8 @@ public class ObjectTest extends TestCase {
    
   public void testInnerClassDeserialization() {
     final Parent p = new Parent();
-    Gson gson = new GsonBuilder().registerTypeAdapter(Parent.Child.class, new InstanceCreator<Parent.Child>() {
+    Gson gson = new GsonBuilder().registerTypeAdapter(
+        Parent.Child.class, new InstanceCreator<Parent.Child>() {
       public Parent.Child createInstance(Type type) {
         return p.new Child();
       }      
