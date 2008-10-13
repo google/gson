@@ -117,7 +117,8 @@ public final class Gson {
    *   {@link java.math.BigDecimal}, and {@link java.math.BigInteger} classes. If you would prefer
    *   to change the default representation, you can do so by registering a type adapter through
    *   {@link GsonBuilder#registerTypeAdapter(Type, Object)}. </li>
-   *   <li>The default Date format is same as {@link java.text.DateFormat#DEFAULT}. You can change
+   *   <li>The default Date format is same as {@link java.text.DateFormat#DEFAULT}. This format 
+   *   ignores the millisecond portion of the date during serialization. You can change
    *   this by invoking {@link GsonBuilder#setDateFormat(int)} or
    *   {@link GsonBuilder#setDateFormat(String)}. </li>
    *   <li>By default, Gson ignores the {@link com.google.gson.annotations.Expose} annotation.
