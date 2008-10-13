@@ -187,44 +187,52 @@ public class DefaultTypeAdaptersTest extends TestCase {
   public void testDefaultDateSerialization() {
     Date now = new Date();
     String json = gson.toJson(now);
-    assertEquals("\"" + DateFormat.getDateInstance().format(now) + "\"", json);
+    assertEquals("\"" + DateFormat.getDateTimeInstance().format(now) + "\"", json);
   }
 
   public void testDefaultDateDeserialization() {
     Date date = new Date();
-    assertEquals(date, gson.fromJson(gson.toJson(date), Date.class));    
+    String json = gson.toJson(date);
+    Date extracted = gson.fromJson(json, Date.class);
+    // Using comparison of string forms since the extracted date has lost the millisecond portion.
+    assertEquals(date.toString(), extracted.toString());    
   }
-
+  
   public void testDefaultDateSerializationUsingBuilder() throws Exception {
     Gson gson = new GsonBuilder().create();
     Date now = new Date();
     String json = gson.toJson(now);
-    assertEquals("\"" + DateFormat.getDateInstance().format(now) + "\"", json);
+    assertEquals("\"" + DateFormat.getDateTimeInstance().format(now) + "\"", json);
   }
 
   public void testDefaultDateDeserializationUsingBuilder() throws Exception {
     Gson gson = new GsonBuilder().create();
     Date now = new Date();
     String json = gson.toJson(now);
-    assertEquals(now, gson.fromJson(json, Date.class));    
+    Date extracted = gson.fromJson(json, Date.class);
+    assertEquals(now.toString(), extracted.toString());    
   }
 
   public void testDateSerializationWithPattern() throws Exception {
     String pattern = "yyyy-MM-dd";
     DateFormat formatter = new SimpleDateFormat(pattern);
-    Gson gson = new GsonBuilder().setDateFormat(DateFormat.LONG).setDateFormat(pattern).create();
+    Gson gson = new GsonBuilder().setDateFormat(DateFormat.FULL).setDateFormat(pattern).create();
     Date now = new Date();
     String json = gson.toJson(now);
     assertEquals("\"" + formatter.format(now) + "\"", json);
   }
   
+  @SuppressWarnings("deprecation")
   public void testDateDeserializationWithPattern() throws Exception {
     String pattern = "yyyy-MM-dd";
     DateFormat formatter = new SimpleDateFormat(pattern);
-    Gson gson = new GsonBuilder().setDateFormat(DateFormat.LONG).setDateFormat(pattern).create();
+    Gson gson = new GsonBuilder().setDateFormat(DateFormat.FULL).setDateFormat(pattern).create();
     Date now = new Date();
     String json = gson.toJson(now);
-    assertEquals(now, gson.fromJson(json, Date.class));    
+    Date extracted = gson.fromJson(json, Date.class);
+    assertEquals(now.getYear(), extracted.getYear());    
+    assertEquals(now.getMonth(), extracted.getMonth());    
+    assertEquals(now.getDay(), extracted.getDay());    
   }
   
   private static class ClassWithBigDecimal {

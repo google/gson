@@ -52,7 +52,7 @@ import java.util.TreeSet;
 final class DefaultTypeAdapters {
 
   private static final DefaultDateTypeAdapter DATE_TYPE_ADAPTER =
-    new DefaultDateTypeAdapter(DateFormat.DEFAULT);
+    new DefaultDateTypeAdapter(DateFormat.getDateTimeInstance());
   @SuppressWarnings("unchecked")
   private static final EnumTypeAdapter ENUM_TYPE_ADAPTER = new EnumTypeAdapter();
   private static final UrlTypeAdapter URL_TYPE_ADAPTER = new UrlTypeAdapter();
@@ -169,9 +169,17 @@ final class DefaultTypeAdapters {
     public DefaultDateTypeAdapter(String datePattern) {
       this.format = new SimpleDateFormat(datePattern);
     }
+    
+    DefaultDateTypeAdapter(DateFormat format) {
+      this.format = format;
+    }
 
     public DefaultDateTypeAdapter(int style) {
       this.format = DateFormat.getDateInstance(style);
+    }
+
+    public DefaultDateTypeAdapter(int dateStyle, int timeStyle) {
+      this.format = DateFormat.getDateTimeInstance(dateStyle, timeStyle);
     }
 
     public JsonElement serialize(Date src, Type typeOfSrc, JsonSerializationContext context) {
