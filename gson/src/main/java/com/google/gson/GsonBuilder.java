@@ -64,6 +64,7 @@ public final class GsonBuilder {
   private boolean serializeNulls;
   private String datePattern;
   private int dateStyle;
+  private int timeStyle;
 
   /**
    * Creates a GsonBuilder instance that can be used to build Gson with various configuration
@@ -85,6 +86,7 @@ public final class GsonBuilder {
     deserializers = new ParameterizedTypeHandlerMap<JsonDeserializer<?>>();
     serializeNulls = false;
     dateStyle = DateFormat.DEFAULT;
+    timeStyle = DateFormat.DEFAULT;
   }
 
   /**
@@ -226,6 +228,28 @@ public final class GsonBuilder {
   }
 
   /**
+   * Configures Gson to to serialize {@code Date} objects according to the style value provided.
+   * You can call this method or {@link #setDateFormat(String)} multiple times, but only the last
+   * invocation will be used to decide the serialization format.
+   *
+   * <p>Note that this style value should be one of the predefined constants in the
+   * {@code DateFormat} class. See the documentation in {@link java.text.DateFormat} for more
+   * information on the valid style constants.</p>
+   *
+   * @param dateStyle the predefined date style that date objects will be serialized/deserialized
+   * to/from
+   * @param timeStyle the predefined style for the time portion of the date objects
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @since 1.2
+   */
+  public GsonBuilder setDateFormat(int dateStyle, int timeStyle) {
+    this.dateStyle = dateStyle;
+    this.timeStyle = timeStyle;
+    this.datePattern = null;
+    return this;
+  }
+  
+  /**
    * Configures Gson for custom serialization or deserialization. This method combines the
    * registration of an {@link InstanceCreator}, {@link JsonSerializer}, and a
    * {@link JsonDeserializer}. It is best used when a single object {@code typeAdapter} implements
@@ -323,7 +347,8 @@ public final class GsonBuilder {
     ParameterizedTypeHandlerMap<JsonSerializer<?>> customSerializers = serializers.copyOf();
     ParameterizedTypeHandlerMap<JsonDeserializer<?>> customDeserializers = deserializers.copyOf();
 
-    addTypeAdaptersForDate(datePattern, dateStyle, customSerializers, customDeserializers);
+    addTypeAdaptersForDate(datePattern, dateStyle, timeStyle, customSerializers, 
+        customDeserializers);
     customSerializers.registerIfAbsent(DefaultTypeAdapters.DEFAULT_SERIALIZERS);
     customDeserializers.registerIfAbsent(DefaultTypeAdapters.DEFAULT_DESERIALIZERS);
 
@@ -337,15 +362,15 @@ public final class GsonBuilder {
     return gson;
   }
 
-  private static void addTypeAdaptersForDate(String datePattern, int dateStyle,
+  private static void addTypeAdaptersForDate(String datePattern, int dateStyle, int timeStyle,
       ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers,
       ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers) {
     // NOTE: if a date pattern exists, then that style takes priority
     DefaultDateTypeAdapter dateTypeAdapter = null;
     if (datePattern != null && !"".equals(datePattern.trim())) {
       dateTypeAdapter = new DefaultDateTypeAdapter(datePattern);
-    } else if (dateStyle != DateFormat.DEFAULT) {
-      dateTypeAdapter = new DefaultDateTypeAdapter(dateStyle);
+    } else if (dateStyle != DateFormat.DEFAULT && timeStyle != DateFormat.DEFAULT) {
+      dateTypeAdapter = new DefaultDateTypeAdapter(dateStyle, timeStyle);
     }
     if (dateTypeAdapter != null
         && !serializers.hasAnyHandlerFor(Date.class)
