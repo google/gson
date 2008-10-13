@@ -17,6 +17,8 @@
 package com.google.gson.functional;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.InstanceCreator;
 import com.google.gson.JsonParseException;
 import com.google.gson.common.TestTypes.ArrayOfObjects;
 import com.google.gson.common.TestTypes.BagOfPrimitiveWrappers;
@@ -32,6 +34,7 @@ import com.google.gson.common.TestTypes.PrimitiveArray;
 
 import junit.framework.TestCase;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -358,6 +361,33 @@ public class ObjectTest extends TestCase {
     assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 
+  public void testInnerClassSerialization() {    
+    Parent p = new Parent();
+    Parent.Child c = p.new Child();
+    String json = gson.toJson(c);
+    assertTrue(json.contains("value2"));
+    assertFalse(json.contains("value1"));
+  }
+   
+  public void testInnerClassDeserialization() {
+    final Parent p = new Parent();
+    Gson gson = new GsonBuilder().registerTypeAdapter(Parent.Child.class, new InstanceCreator<Parent.Child>() {
+      public Parent.Child createInstance(Type type) {
+        return p.new Child();
+      }      
+    }).create();
+    String json = "{'value2':3}";
+    Parent.Child c = gson.fromJson(json, Parent.Child.class);
+    assertEquals(3, c.value2);
+  }
+   
+  private static class Parent {
+    int value1 = 1;
+    private class Child {
+      int value2 = 2;
+    }
+  }
+  
   public static class ClassWithSubInterfacesOfCollection {
     private List<Integer> list;
     private Queue<Long> queue;
