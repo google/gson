@@ -159,6 +159,14 @@ public class CollectionTest extends TestCase {
     assertEquals("[1,2,3,4,5,6,7,8,9]", gson.toJson(target));
   }
 
+  @SuppressWarnings("unchecked")
+  public void testRawCollectionSerialization() {
+    BagOfPrimitives bag1 = new BagOfPrimitives();
+    Collection target = Arrays.asList(bag1, bag1);
+    String json = gson.toJson(target);
+    assertTrue(json.contains(bag1.getExpectedJson()));
+  }
+
   public void testRawCollectionDeserializationNotAlllowed() {
     String json = "[0,1,2,3,4,5,6,7,8,9]";
     try {
