@@ -125,7 +125,23 @@ public class CustomTypeAdaptersTest extends TestCase {
     assertEquals(7, target.getBag().getIntValue());
   }
   
-  public void testCustomTypeAdapterAppliesToSubClasses() {
+  public void testCustomTypeAdapterDoesNotAppliesToSubClasses() {
+    Gson gson = new GsonBuilder().registerTypeAdapter(Base.class, new JsonSerializer<Base> () {
+      public JsonElement serialize(Base src, Type typeOfSrc, JsonSerializationContext context) {
+        JsonObject json = new JsonObject();
+        json.addProperty("value", src.baseValue);
+        return json;
+      }          
+    }).create();
+    Base b = new Base();
+    String json = gson.toJson(b);
+    assertTrue(json.contains("value"));    
+    b = new Derived();
+    json = gson.toJson(b);
+    assertTrue(json.contains("derivedValue"));    
+  }
+  
+  public void testCustomTypeAdapterAppliesToSubClassesSerializedAsBaseClass() {
     Gson gson = new GsonBuilder().registerTypeAdapter(Base.class, new JsonSerializer<Base> () {
       public JsonElement serialize(Base src, Type typeOfSrc, JsonSerializationContext context) {
         JsonObject json = new JsonObject();
