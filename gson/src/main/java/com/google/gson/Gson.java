@@ -88,7 +88,8 @@ public final class Gson {
 
   static final Logger logger = Logger.getLogger(Gson.class.getName());
 
-  private final ObjectNavigatorFactory navigatorFactory;
+  private final ExclusionStrategy strategy;
+  private final FieldNamingStrategy fieldNamingPolicy;
   private final MappedObjectConstructor objectConstructor;
   private final TypeAdapter typeAdapter;
 
@@ -136,7 +137,7 @@ public final class Gson {
    * </ul>
    */
   public Gson() {
-    this(createDefaultObjectNavigatorFactory());
+    this(createExclusionStrategy(VersionConstants.IGNORE_VERSIONS), DEFAULT_NAMING_POLICY);
   }
 
   /**
@@ -146,17 +147,19 @@ public final class Gson {
    * @param factory the object navigator factory to use when creating a new {@link ObjectNavigator}
    * instance
    */
-  Gson(ObjectNavigatorFactory factory) {
-    this(factory, createObjectConstructor(DefaultTypeAdapters.DEFAULT_INSTANCE_CREATORS),
+  Gson(ExclusionStrategy strategy, FieldNamingStrategy fieldNamingPolicy) {
+    this(strategy, fieldNamingPolicy, createObjectConstructor(DefaultTypeAdapters.DEFAULT_INSTANCE_CREATORS),
         DEFAULT_TYPE_ADAPTER, DEFAULT_JSON_FORMATTER, false,
         DefaultTypeAdapters.DEFAULT_SERIALIZERS, DefaultTypeAdapters.DEFAULT_DESERIALIZERS);
   }
 
-  Gson(ObjectNavigatorFactory factory, MappedObjectConstructor objectConstructor,
+  Gson(ExclusionStrategy strategy, FieldNamingStrategy fieldNamingPolicy, 
+      MappedObjectConstructor objectConstructor,
       TypeAdapter typeAdapter, JsonFormatter formatter, boolean serializeNulls,
       ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers,
       ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers) {
-    this.navigatorFactory = factory;
+    this.strategy = strategy;
+    this.fieldNamingPolicy = fieldNamingPolicy;
     this.objectConstructor = objectConstructor;
     this.typeAdapter = typeAdapter;
     this.formatter = formatter;
@@ -174,9 +177,8 @@ public final class Gson {
     return objectConstructor;
   }
 
-  private static ObjectNavigatorFactory createDefaultObjectNavigatorFactory() {
-    return new ObjectNavigatorFactory(
-        createExclusionStrategy(VersionConstants.IGNORE_VERSIONS), DEFAULT_NAMING_POLICY);
+  private ObjectNavigatorFactory createDefaultObjectNavigatorFactory() {
+    return new ObjectNavigatorFactory(strategy, fieldNamingPolicy);
   }
 
   private static ExclusionStrategy createExclusionStrategy(double version) {
@@ -268,8 +270,8 @@ public final class Gson {
    */
   public void toJson(Object src, Type typeOfSrc, Writer writer) {
     if (src != null) {
-      JsonSerializationContext context =
-          new JsonSerializationContextDefault(navigatorFactory, serializeNulls, serializers);
+      JsonSerializationContext context = new JsonSerializationContextDefault(
+          createDefaultObjectNavigatorFactory(), serializeNulls, serializers);
       JsonElement jsonElement = context.serialize(src, typeOfSrc);
 
       //TODO(Joel): instead of navigating the "JsonElement" inside the formatter, do it here.
@@ -374,8 +376,8 @@ public final class Gson {
     try {
       JsonParser parser = new JsonParser(json);
       JsonElement root = parser.parse();
-      JsonDeserializationContext context = new JsonDeserializationContextDefault(navigatorFactory,
-          deserializers, objectConstructor, typeAdapter);
+      JsonDeserializationContext context = new JsonDeserializationContextDefault(
+          createDefaultObjectNavigatorFactory(), deserializers, objectConstructor, typeAdapter);
       T target = (T) context.deserialize(root, typeOfT);
       return target;
     } catch (TokenMgrError e) {

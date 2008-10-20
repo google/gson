@@ -341,8 +341,6 @@ public final class GsonBuilder {
       strategies.add(new ExposeAnnotationBasedExclusionStrategy());
     }
     ExclusionStrategy exclusionStrategy = new DisjunctionExclusionStrategy(strategies);
-    ObjectNavigatorFactory objectNavigatorFactory =
-        new ObjectNavigatorFactory(exclusionStrategy, fieldNamingPolicy);
 
     ParameterizedTypeHandlerMap<JsonSerializer<?>> customSerializers = serializers.copyOf();
     ParameterizedTypeHandlerMap<JsonDeserializer<?>> customDeserializers = deserializers.copyOf();
@@ -357,8 +355,8 @@ public final class GsonBuilder {
     customInstanceCreators.registerIfAbsent(DefaultTypeAdapters.DEFAULT_INSTANCE_CREATORS);
     MappedObjectConstructor objConstructor = Gson.createObjectConstructor(customInstanceCreators);
 
-    Gson gson = new Gson(objectNavigatorFactory, objConstructor, typeAdapter, formatter,
-        serializeNulls, customSerializers, customDeserializers);
+    Gson gson = new Gson(exclusionStrategy, fieldNamingPolicy, objConstructor, typeAdapter, 
+        formatter, serializeNulls, customSerializers, customDeserializers);
     return gson;
   }
 
