@@ -52,8 +52,8 @@ public class FunctionalWithInternalDependenciesTest extends TestCase {
   }
 
   public void testAnonymousLocalClassesSerialization() {
-    Gson gson = new Gson(new ObjectNavigatorFactory(new ModifierBasedExclusionStrategy(
-        true, Modifier.TRANSIENT, Modifier.STATIC), Gson.DEFAULT_NAMING_POLICY));
+    Gson gson = new Gson(new ModifierBasedExclusionStrategy(
+        true, Modifier.TRANSIENT, Modifier.STATIC), Gson.DEFAULT_NAMING_POLICY);
     assertEquals("{}", gson.toJson(new ClassWithNoFields() {
       // empty anonymous class
     }));
