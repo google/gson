@@ -225,7 +225,6 @@ public class DefaultTypeAdaptersTest extends TestCase {
   @SuppressWarnings("deprecation")
   public void testDateDeserializationWithPattern() throws Exception {
     String pattern = "yyyy-MM-dd";
-    DateFormat formatter = new SimpleDateFormat(pattern);
     Gson gson = new GsonBuilder().setDateFormat(DateFormat.FULL).setDateFormat(pattern).create();
     Date now = new Date();
     String json = gson.toJson(now);
