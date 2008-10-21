@@ -43,10 +43,10 @@ public class DefaultMapJsonSerializerTest extends TestCase {
 
   public void testEmptyMapNoTypeSerialization() {
     Map<String, String> emptyMap = new HashMap<String, String>();
-    try {
-      mapSerializer.serialize(emptyMap, emptyMap.getClass(), null);
-      fail("Parameterized types need to have a ParameterizedType passed in, not a Class.");
-    } catch (IllegalArgumentException expected) { }
+    JsonElement element = mapSerializer.serialize(emptyMap, emptyMap.getClass(), null);
+    assertTrue(element instanceof JsonObject);
+    JsonObject emptyMapJsonObject = (JsonObject) element;
+    assertTrue(emptyMapJsonObject.entrySet().isEmpty());
   }
 
   public void testEmptyMapSerialization() {

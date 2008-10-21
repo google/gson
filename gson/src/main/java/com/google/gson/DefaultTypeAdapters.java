@@ -18,6 +18,7 @@ package com.google.gson;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -327,10 +328,16 @@ final class DefaultTypeAdapters {
       InstanceCreator<Map> {
     public JsonElement serialize(Map src, Type typeOfSrc, JsonSerializationContext context) {
       JsonObject map = new JsonObject();
-      Type childType = new TypeInfoMap(typeOfSrc).getValueType();
+      Type childGenericType = null;
+      if (typeOfSrc instanceof ParameterizedType) {
+        childGenericType = new TypeInfoMap(typeOfSrc).getValueType();        
+      }
       for (Iterator iterator = src.entrySet().iterator(); iterator.hasNext(); ) {
         Map.Entry entry = (Map.Entry) iterator.next();
-        JsonElement valueElement = context.serialize(entry.getValue(), childType);
+        Object value = entry.getValue();
+        Type childType = (childGenericType == null) ? 
+            childType = value.getClass() : childGenericType;
+        JsonElement valueElement = context.serialize(value, childType);
         map.add(entry.getKey().toString(), valueElement);
       }
       return map;
