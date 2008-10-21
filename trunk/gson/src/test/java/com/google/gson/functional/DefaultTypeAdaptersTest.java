@@ -15,14 +15,6 @@
  */
 package com.google.gson.functional;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonParseException;
-import com.google.gson.reflect.TypeToken;
-
-import junit.framework.TestCase;
-
-import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
@@ -31,14 +23,18 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
+
+import junit.framework.TestCase;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
 
 /**
  * Functional test for Json serialization and deserialization for common classes for which default
- * support is provided in Gson.
+ * support is provided in Gson. The tests for Map types are available in {@link MapTest}.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
@@ -112,31 +108,6 @@ public class DefaultTypeAdaptersTest extends TestCase {
     assertEquals("de", locale.getLanguage());
     assertEquals("DE", locale.getCountry());
     assertEquals("EURO", locale.getVariant());
-  }
-
-  public void testMapSerialization() {
-    Map<String, Integer> map = new LinkedHashMap<String, Integer>();
-    map.put("a", 1);
-    map.put("b", 2);
-    Type typeOfMap = new TypeToken<Map<String, Integer>>() {}.getType();
-    String json = gson.toJson(map, typeOfMap);
-    assertTrue(json.contains("\"a\":1"));
-    assertTrue(json.contains("\"b\":2"));
-  }
-
-  public void testMapDeserialization() {
-    String json = "{\"a\":1,\"b\":2}";
-    Type typeOfMap = new TypeToken<Map<String,Integer>>(){}.getType();
-    Map<String, Integer> target = gson.fromJson(json, typeOfMap);
-    assertEquals(1, target.get("a").intValue());
-    assertEquals(2, target.get("b").intValue());
-  }
-
-  public void testMapSerializationEmpty() {
-    Map<String, Integer> map = new LinkedHashMap<String, Integer>();
-    Type typeOfMap = new TypeToken<Map<String, Integer>>() {}.getType();
-    String json = gson.toJson(map, typeOfMap);
-    assertEquals("{}", json);
   }
 
   public void testBigDecimalFieldSerialization() {
