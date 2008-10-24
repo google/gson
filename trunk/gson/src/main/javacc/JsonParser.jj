@@ -72,7 +72,7 @@ private JsonObject JsonObject() :
 
 private JsonNull JsonNull() :
 {
-  JsonNull json = new JsonNull();
+  JsonNull json = JsonNull.INSTANCE;
 }
 {
   "null"
