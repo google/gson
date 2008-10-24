@@ -25,6 +25,8 @@ package com.google.gson;
  */
 public final class JsonNull extends JsonElement {
 
+  static final JsonNull INSTANCE = new JsonNull();
+  
   @Override
   protected void toString(StringBuilder sb) {
     sb.append("null");

@@ -82,7 +82,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   public void visitArrayField(Field f, Type typeOfF, Object obj) {
     if (isFieldNull(f, obj)) {
       if (serializeNulls) {
-        addChildAsElement(f, new JsonNull());
+        addChildAsElement(f, JsonNull.INSTANCE);
       }
     } else {
       Object array = getFieldValue(f, obj);
@@ -93,7 +93,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   public void visitCollectionField(Field f, Type typeOfF, Object obj) {
     if (isFieldNull(f, obj)) {
       if (serializeNulls) {
-        addChildAsElement(f, new JsonNull());
+        addChildAsElement(f, JsonNull.INSTANCE);
       }
     } else {
       if (typeOfF == null) {
@@ -120,7 +120,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   public void visitObjectField(Field f, Type typeOfF, Object obj) {
     if (isFieldNull(f, obj)) {
       if (serializeNulls) {
-        addChildAsElement(f, new JsonNull());
+        addChildAsElement(f, JsonNull.INSTANCE);
       }
     } else {
       Object fieldValue = getFieldValue(f, obj);
@@ -167,7 +167,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   public void visitPrimitiveField(Field f, Type typeOfF, Object obj) {    
     if (isFieldNull(f, obj)) {
       if (serializeNulls) {
-        addChildAsElement(f, new JsonNull());
+        addChildAsElement(f, JsonNull.INSTANCE);
       }      
     } else {
       TypeInfo typeInfo = new TypeInfo(typeOfF);

@@ -51,7 +51,7 @@ final class JsonParser implements JsonParserConstants {
   }
 
   final private JsonNull JsonNull() throws ParseException {
-  JsonNull json = new JsonNull();
+  JsonNull json = JsonNull.INSTANCE;
     jj_consume_token(22);
     {if (true) return json;}
     throw new Error("Missing return statement in function");
