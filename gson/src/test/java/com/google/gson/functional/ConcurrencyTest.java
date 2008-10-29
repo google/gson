@@ -122,9 +122,9 @@ public class ConcurrencyTest extends TestCase {
   }
   
   private static class MyObject {
-    private String a;
-    private String b;
-    private int i;
+    String a;
+    String b;
+    int i;
 
     MyObject() {
       this("hello", "world", 42);
