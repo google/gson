@@ -102,4 +102,11 @@ public class StringTest extends TestCase {
     String actual = gson.fromJson("[\"" + value + "\"]", String.class);
     assertEquals(value, actual);
   }
+  
+  public void testStringWithEscapedSlashDeserialization() {
+    String value = "/";
+    String json = "'\\/'";
+    String actual = gson.fromJson(json, String.class);
+    assertEquals(value, actual);
+  }
 }
