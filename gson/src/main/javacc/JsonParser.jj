@@ -30,7 +30,7 @@ TOKEN : {
   | <DIGITS : (["0"-"9"])+>
   | <#HEX_CHAR : ["a"-"f","A"-"F","0"-"9"]>
   | <UNICODE_CHAR : "\\u" <HEX_CHAR><HEX_CHAR><HEX_CHAR><HEX_CHAR> >
-  | <#ESCAPE_CHAR: "\\" ["n","t","b","r","f","\\","'","\""] >
+  | <#ESCAPE_CHAR: "\\" ["n","t","b","r","f","\\","'","\"", "/"] >
   | <SINGLE_QUOTE_LITERAL: "\'" ( (~["\'","\\","\n","\r"]) | <ESCAPE_CHAR> | <UNICODE_CHAR>)* "\'" >
   | <DOUBLE_QUOTE_LITERAL: "\"" ( (~["\"","\\","\n","\r"]) | <ESCAPE_CHAR> | <UNICODE_CHAR>)* "\"" >
   | <QUOTE : "\""> : STRING_STATE

@@ -63,6 +63,9 @@ final class StringUnmarshaller {
       case '\\':
         ch = '\\';
         break;
+      case '/':
+        ch = '/';
+        break;
       default:
         throw new IllegalStateException("Unexpected character: " + c + " in " + str);
     }
