@@ -195,4 +195,29 @@ public class CustomTypeAdaptersTest extends TestCase {
       return context.serialize(src, typeOfSrc);
     }
   }
+  
+  public void testCustomDeserializerForLong() {
+    final ClassWithBooleanField customDeserializerInvoked = new ClassWithBooleanField();
+    customDeserializerInvoked.value = false;
+    Gson gson = new GsonBuilder().registerTypeAdapter(Long.class, new JsonDeserializer<Long>() {
+      public Long deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+          throws JsonParseException {
+        customDeserializerInvoked.value = true;
+        String str = json.getAsJsonPrimitive().getAsString();
+        return str.length() == 0 ? null : Long.parseLong(str);
+      }      
+    }).create();
+    String json = "{'value':null}";
+    ClassWithWrapperLongField target = gson.fromJson(json, ClassWithWrapperLongField.class);
+    assertNull(target.value);
+    assertTrue(customDeserializerInvoked.value);
+  }
+  
+  private static class ClassWithWrapperLongField {
+    Long value;
+  }
+  
+  private static class ClassWithBooleanField {
+    Boolean value;
+  }
 }
