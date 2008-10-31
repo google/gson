@@ -131,4 +131,8 @@ final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisito
   public void visitPrimitiveField(Field f, Type typeOfF, Object obj) {
     throw new UnsupportedOperationException();
   }
+
+  public boolean visitFieldUsingCustomHandler(Field f, Type actualTypeOfField, Object parent) {
+    throw new UnsupportedOperationException();
+  }
 }

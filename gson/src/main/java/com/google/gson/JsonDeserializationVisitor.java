@@ -38,7 +38,7 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
   protected T target;
   protected final JsonElement json;
   protected final Type targetType;
-  private final JsonDeserializationContext context;
+  protected final JsonDeserializationContext context;
 
   public JsonDeserializationVisitor(JsonElement json, Type targetType,
       ObjectNavigatorFactory factory, ObjectConstructor objectConstructor, TypeAdapter typeAdapter,

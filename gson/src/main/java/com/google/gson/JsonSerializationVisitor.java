@@ -191,10 +191,34 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
       serializer = serializers.getHandlerFor(Map.class);
     }
     if (serializer != null) {
-      assignToRoot(serializer.serialize(obj, objType, context));
+      if (obj == null) {
+        assignToRoot(JsonNull.INSTANCE);
+      } else {
+        assignToRoot(serializer.serialize(obj, objType, context));
+      }
       return true;
     }
     return false;
+  }
+
+  @SuppressWarnings("unchecked")
+  public boolean visitFieldUsingCustomHandler(Field f, Type actualTypeOfField, Object parent) {
+    try {
+      Preconditions.checkState(root.isJsonObject());
+      Object obj = f.get(parent);
+      JsonSerializer serializer = serializers.getHandlerFor(actualTypeOfField);
+      if (serializer == null && obj instanceof Map) {
+        serializer = serializers.getHandlerFor(Map.class);
+      }
+      if (serializer != null) {
+        JsonElement child = serializer.serialize(obj, actualTypeOfField, context);
+        addChildAsElement(f, child);
+        return true;
+      }
+      return false;
+    } catch (IllegalAccessException e) {
+      throw new RuntimeException();
+    }
   }
 
   private void assignToRoot(JsonElement newRoot) {

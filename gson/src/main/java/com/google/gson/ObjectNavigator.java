@@ -87,6 +87,11 @@ final class ObjectNavigator {
      * @return true if a custom handler exists, false otherwise
      */
     public boolean visitUsingCustomHandler(Object obj, Type objType);
+
+    /**
+     * This is called to visit a field of the current object using a custom handler
+     */
+    public boolean visitFieldUsingCustomHandler(Field f, Type actualTypeOfField, Object parent);
   }
 
   private final ExclusionStrategy exclusionStrategy;
@@ -130,23 +135,24 @@ final class ObjectNavigator {
     ancestors.push(obj);
 
     try {
-      if (objTypeInfo.isCollectionOrArray()) {
-        if (objTypeInfo.isArray()) {
-          visitor.visitArray(obj, objType);
-        } else { // must be a collection
-          visitor.visitCollection((Collection<?>) obj, objType);
-        }
-      } else if (objTypeInfo.isEnum()) {
-        visitor.visitEnum(obj, objType);
-      } else if (objTypeInfo.isPrimitiveOrStringAndNotAnArray()) {
-        visitor.visitPrimitiveValue(obj);
-      } else {
-        if (!visitor.visitUsingCustomHandler(obj, objType)) {
+      boolean visitedWithCustomHandler = visitor.visitUsingCustomHandler(obj, objType);
+      if (!visitedWithCustomHandler) {
+        if (objTypeInfo.isCollectionOrArray()) {
+          if (objTypeInfo.isArray()) {
+            visitor.visitArray(obj, objType);
+          } else { // must be a collection
+            visitor.visitCollection((Collection<?>) obj, objType);
+          }
+        } else if (objTypeInfo.isEnum()) {
+          visitor.visitEnum(obj, objType);
+        } else if (objTypeInfo.isPrimitiveOrStringAndNotAnArray()) {
+          visitor.visitPrimitiveValue(obj);
+        } else {
           visitor.startVisitingObject(obj);
           // For all classes in the inheritance hierarchy (including the current class),
           // visit all fields
           for (Class<?> curr = objTypeInfo.getRawClass();
-              curr != null && !curr.equals(Object.class); curr = curr.getSuperclass()) {
+          curr != null && !curr.equals(Object.class); curr = curr.getSuperclass()) {
             if (!curr.isSynthetic()) {
               navigateClassFields(obj, curr, visitor);
             }
@@ -167,16 +173,22 @@ final class ObjectNavigator {
       Type actualTypeOfField = fieldTypeInfo.getActualType();
       if (exclusionStrategy.shouldSkipField(f)) {
         continue; // skip
-      } else if (fieldTypeInfo.isCollectionOrArray()) {
-        if (fieldTypeInfo.isArray()) {
-          visitor.visitArrayField(f, actualTypeOfField, obj);
-        } else { // must be Collection
-          visitor.visitCollectionField(f, actualTypeOfField, obj);
-        }
-      } else if (fieldTypeInfo.isPrimitiveOrStringAndNotAnArray()) {
-        visitor.visitPrimitiveField(f, actualTypeOfField, obj);
       } else {
-        visitor.visitObjectField(f, actualTypeOfField, obj);
+        boolean visitedWithCustomHandler = 
+          visitor.visitFieldUsingCustomHandler(f, actualTypeOfField, obj);
+        if (!visitedWithCustomHandler) {
+          if (fieldTypeInfo.isCollectionOrArray()) {
+            if (fieldTypeInfo.isArray()) {
+              visitor.visitArrayField(f, actualTypeOfField, obj);
+            } else { // must be Collection
+              visitor.visitCollectionField(f, actualTypeOfField, obj);
+            }
+          } else if (fieldTypeInfo.isPrimitiveOrStringAndNotAnArray()) {
+            visitor.visitPrimitiveField(f, actualTypeOfField, obj);
+          } else {
+            visitor.visitObjectField(f, actualTypeOfField, obj);
+          }
+        }
       }
     }
   }
