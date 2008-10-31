@@ -143,9 +143,6 @@ public final class Gson {
   /**
    * Constructs a Gson object with the specified version and the mode of operation while
    * encountering inner class references.
-   *
-   * @param factory the object navigator factory to use when creating a new {@link ObjectNavigator}
-   * instance
    */
   Gson(ExclusionStrategy strategy, FieldNamingStrategy fieldNamingPolicy) {
     this(strategy, fieldNamingPolicy, createObjectConstructor(DefaultTypeAdapters.DEFAULT_INSTANCE_CREATORS),

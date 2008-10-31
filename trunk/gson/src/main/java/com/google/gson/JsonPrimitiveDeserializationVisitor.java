@@ -92,4 +92,9 @@ final class JsonPrimitiveDeserializationVisitor<T> extends JsonDeserializationVi
     // should not be called since this case should invoke JsonArrayDeserializationVisitor
     throw new IllegalStateException();
   }
+
+  public boolean visitFieldUsingCustomHandler(Field f, Type actualTypeOfField, Object parent) {
+    // should not be called since this case should invoke JsonObjectDeserializationVisitor
+    throw new IllegalStateException();
+  }
 }
