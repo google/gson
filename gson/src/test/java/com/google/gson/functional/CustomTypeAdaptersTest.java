@@ -20,6 +20,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
@@ -196,6 +197,27 @@ public class CustomTypeAdaptersTest extends TestCase {
     }
   }
   
+  public void testCustomSerializerForLong() {
+    final ClassWithBooleanField customSerializerInvoked = new ClassWithBooleanField();
+    customSerializerInvoked.value = false;
+    Gson gson = new GsonBuilder().registerTypeAdapter(Long.class, new JsonSerializer<Long>() {
+      public JsonElement serialize(Long src, Type typeOfSrc, JsonSerializationContext context) {
+        customSerializerInvoked.value = true;
+        return src == null ? new JsonNull() : new JsonPrimitive(src);
+      }      
+    }).serializeNulls().create();
+    ClassWithWrapperLongField src = new ClassWithWrapperLongField();
+    String json = gson.toJson(src);
+    assertTrue(json.contains("\"value\":null"));
+    assertTrue(customSerializerInvoked.value);
+    
+    customSerializerInvoked.value = false;
+    src.value = 10L;
+    json = gson.toJson(src);
+    assertTrue(json.contains("\"value\":10"));
+    assertTrue(customSerializerInvoked.value);
+  }
+  
   public void testCustomDeserializerForLong() {
     final ClassWithBooleanField customDeserializerInvoked = new ClassWithBooleanField();
     customDeserializerInvoked.value = false;
@@ -203,13 +225,23 @@ public class CustomTypeAdaptersTest extends TestCase {
       public Long deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
           throws JsonParseException {
         customDeserializerInvoked.value = true;
-        String str = json.getAsJsonPrimitive().getAsString();
-        return str.length() == 0 ? null : Long.parseLong(str);
+        if (json == null || json.isJsonNull()) {
+          return null;
+        } else {
+          Number number = json.getAsJsonPrimitive().getAsNumber();
+          return number == null ? null : number.longValue();
+        }
       }      
     }).create();
     String json = "{'value':null}";
     ClassWithWrapperLongField target = gson.fromJson(json, ClassWithWrapperLongField.class);
     assertNull(target.value);
+    assertTrue(customDeserializerInvoked.value);
+    
+    customDeserializerInvoked.value = false;
+    json = "{'value':10}";
+    target = gson.fromJson(json, ClassWithWrapperLongField.class);
+    assertEquals(10L, target.value.longValue());
     assertTrue(customDeserializerInvoked.value);
   }
   

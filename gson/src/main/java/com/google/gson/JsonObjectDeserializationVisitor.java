@@ -147,4 +147,24 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
     FieldNamingStrategy namingPolicy = factory.getFieldNamingPolicy();
     return namingPolicy.translateName(f);
   }
+
+  public boolean visitFieldUsingCustomHandler(Field f, Type actualTypeOfField, Object parent) {
+    try {
+      @SuppressWarnings("unchecked")
+      JsonDeserializer deserializer = deserializers.getHandlerFor(actualTypeOfField);
+      if (deserializer != null) {
+        String fName = getFieldName(f);
+        JsonElement child = json.getAsJsonObject().get(fName);
+        if (child == null) {
+          child = JsonNull.INSTANCE;
+        }
+        Object value = deserializer.deserialize(child, actualTypeOfField, context);
+        f.set(parent, value);
+        return true;
+      }
+      return false;
+    } catch (IllegalAccessException e) {
+      throw new RuntimeException();
+    }
+  }
 }
