@@ -22,6 +22,8 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.InstanceCreator;
 import com.google.gson.reflect.TypeToken;
 
 /**
@@ -72,5 +74,28 @@ public class MapTest extends TestCase {
     Type typeOfMap = new TypeToken<Map<String, Integer>>() {}.getType();
     String json = gson.toJson(map, typeOfMap);
     assertEquals("{}", json);
+  }
+  
+  public void testMapSubclassSerialization() {
+    MyMap map = new MyMap();
+    map.put("a", "b");
+    String json = gson.toJson(map);
+    assertTrue(json.contains("\"a\":\"b\""));
+  }
+  
+  public void testMapSubclassDeserialization() {
+    Gson gson = new GsonBuilder().registerTypeAdapter(MyMap.class, new InstanceCreator<MyMap>(){
+      public MyMap createInstance(Type type) {
+        return new MyMap();
+      }      
+    }).create();
+    String json = "{\"a\":1,\"b\":2}";
+    MyMap map = gson.fromJson(json, MyMap.class);
+    assertEquals("1", map.get("a")); 
+    assertEquals("2", map.get("b")); 
+  }
+  
+  private static class MyMap extends LinkedHashMap<String, String> {
+    int foo = 10;
   }
 }
