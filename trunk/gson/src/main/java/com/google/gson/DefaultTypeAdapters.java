@@ -59,6 +59,7 @@ final class DefaultTypeAdapters {
   private static final UrlTypeAdapter URL_TYPE_ADAPTER = new UrlTypeAdapter();
   private static final UriTypeAdapter URI_TYPE_ADAPTER = new UriTypeAdapter();
   private static final LocaleTypeAdapter LOCALE_TYPE_ADAPTER = new LocaleTypeAdapter();
+  private static final CollectionTypeAdapter COLLECTION_TYPE_ADAPTER = new CollectionTypeAdapter();
   private static final MapTypeAdapter MAP_TYPE_ADAPTER = new MapTypeAdapter();
   private static final BigDecimalTypeAdapter BIG_DECIMAL_TYPE_ADAPTER = new BigDecimalTypeAdapter();
   private static final BigIntegerTypeAdapter BIG_INTEGER_TYPE_ADAPTER = new BigIntegerTypeAdapter();
@@ -92,6 +93,7 @@ final class DefaultTypeAdapters {
     map.register(URL.class, wrapSerializer(URL_TYPE_ADAPTER));
     map.register(URI.class, wrapSerializer(URI_TYPE_ADAPTER));
     map.register(Locale.class, wrapSerializer(LOCALE_TYPE_ADAPTER));
+    map.register(Collection.class, COLLECTION_TYPE_ADAPTER);
     map.register(Map.class, wrapSerializer(MAP_TYPE_ADAPTER));
     map.register(Date.class, wrapSerializer(DATE_TYPE_ADAPTER));
     map.register(BigDecimal.class, wrapSerializer(BIG_DECIMAL_TYPE_ADAPTER));
@@ -107,6 +109,7 @@ final class DefaultTypeAdapters {
     map.register(URL.class, wrapDeserializer(URL_TYPE_ADAPTER));
     map.register(URI.class, wrapDeserializer(URI_TYPE_ADAPTER));
     map.register(Locale.class, wrapDeserializer(LOCALE_TYPE_ADAPTER));
+    map.register(Collection.class, wrapDeserializer(COLLECTION_TYPE_ADAPTER));
     map.register(Map.class, wrapDeserializer(MAP_TYPE_ADAPTER));
     map.register(Date.class, wrapDeserializer(DATE_TYPE_ADAPTER));
     map.register(BigDecimal.class, wrapDeserializer(BIG_DECIMAL_TYPE_ADAPTER));
@@ -121,6 +124,7 @@ final class DefaultTypeAdapters {
     map.register(Enum.class, ENUM_TYPE_ADAPTER);
     map.register(URL.class, URL_TYPE_ADAPTER);
     map.register(Locale.class, LOCALE_TYPE_ADAPTER);
+    map.register(Collection.class, COLLECTION_TYPE_ADAPTER);
     map.register(Map.class, MAP_TYPE_ADAPTER);
     map.register(BigDecimal.class, BIG_DECIMAL_TYPE_ADAPTER);
     map.register(BigInteger.class, BIG_INTEGER_TYPE_ADAPTER);
@@ -323,6 +327,47 @@ final class DefaultTypeAdapters {
     }
   }
 
+  @SuppressWarnings({ "unchecked" })
+  private static class CollectionTypeAdapter implements JsonSerializer<Collection>, JsonDeserializer<Collection>, InstanceCreator<Collection> {
+
+    public JsonElement serialize(Collection src, Type typeOfSrc, JsonSerializationContext context) {
+      if (src == null) {
+        return JsonNull.INSTANCE;
+      }
+      JsonArray array = new JsonArray();
+      Type childGenericType = null;
+      if (typeOfSrc instanceof ParameterizedType) {
+        childGenericType = new TypeInfoCollection(typeOfSrc).getElementType();        
+      }
+      for (Object child : src) {
+        Type childType = (childGenericType == null) ? 
+            childType = child.getClass() : childGenericType;
+        JsonElement element = context.serialize(child, childType);
+        array.add(element);
+      }
+      return array;
+    }
+
+    public Collection deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+        throws JsonParseException {
+      if (json.isJsonNull()) {
+        return null;
+      }
+      // Using list to preserve order in which elements are entered
+      List<Object> list = new LinkedList<Object>();
+      Type childType = new TypeInfoCollection(typeOfT).getElementType();
+      for (JsonElement childElement : json.getAsJsonArray()) {
+        Object value = context.deserialize(childElement, childType);
+        list.add(value);
+      }
+      return list;
+    }
+
+    public Collection createInstance(Type type) {
+      return new LinkedList();
+    }    
+  }
+  
   @SuppressWarnings("unchecked")
   static class MapTypeAdapter implements JsonSerializer<Map>, JsonDeserializer<Map>,
       InstanceCreator<Map> {

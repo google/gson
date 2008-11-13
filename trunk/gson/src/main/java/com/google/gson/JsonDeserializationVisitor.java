@@ -17,6 +17,8 @@
 package com.google.gson;
 
 import java.lang.reflect.Type;
+import java.util.Collection;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -78,9 +80,16 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
 
   @SuppressWarnings("unchecked")
   public final boolean visitUsingCustomHandler(Object obj, Type objType) {
-    JsonDeserializer<T> deserializer = (JsonDeserializer<T>) deserializers.getHandlerFor(objType);
+    JsonDeserializer deserializer = (JsonDeserializer) deserializers.getHandlerFor(objType);
+    if (deserializer == null) {
+      if (objType instanceof Map) {
+        deserializer = deserializers.getHandlerFor(Map.class);
+      } else if (objType instanceof Collection) {
+        deserializer = deserializers.getHandlerFor(Collection.class);
+      }
+    }
     if (deserializer != null) {
-      target = deserializer.deserialize(json, objType, context);
+      target = (T) deserializer.deserialize(json, objType, context);
       return true;
     }
     return false;
