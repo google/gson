@@ -187,8 +187,12 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   @SuppressWarnings("unchecked")
   public boolean visitUsingCustomHandler(Object obj, Type objType) {
     JsonSerializer serializer = serializers.getHandlerFor(objType);
-    if (serializer == null && obj instanceof Map) {
-      serializer = serializers.getHandlerFor(Map.class);
+    if (serializer == null) {
+      if (obj instanceof Map) {
+        serializer = serializers.getHandlerFor(Map.class);
+      } else if (obj instanceof Collection) {
+        serializer = serializers.getHandlerFor(Collection.class);
+      }
     }
     if (serializer != null) {
       if (obj == null) {
@@ -209,6 +213,9 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
       JsonSerializer serializer = serializers.getHandlerFor(actualTypeOfField);
       if (serializer == null && obj instanceof Map) {
         serializer = serializers.getHandlerFor(Map.class);
+      }
+      if (serializer == null && obj instanceof Collection) {
+        serializer = serializers.getHandlerFor(Collection.class);
       }
       if (serializer != null) {
         JsonElement child = serializer.serialize(obj, actualTypeOfField, context);
