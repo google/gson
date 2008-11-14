@@ -88,7 +88,10 @@ public class VersioningTest extends TestCase {
     Gson gson = builder.setVersion(1.0).create();
     String json = "{\"longValue\":10,\"intValue\":20,\"booleanValue\":false}";
 
-    BagOfPrimitives expected = new BagOfPrimitives(10, 20, false, null);
+    BagOfPrimitives expected = new BagOfPrimitives();
+    expected.longValue = 10;
+    expected.intValue = 20;
+    expected.booleanValue = false;
     BagOfPrimitives actual = gson.fromJson(json, BagOfPrimitives.class);
     assertEquals(expected, actual);
   }

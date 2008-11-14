@@ -113,14 +113,20 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
 
   public boolean visitFieldUsingCustomHandler(Field f, Type actualTypeOfField, Object parent) {
     try {
+      String fName = getFieldName(f);
+      JsonElement child = json.getAsJsonObject().get(fName);
+      if (child == null) {
+        return true;
+      } else if (JsonNull.INSTANCE.equals(child)) {
+        TypeInfo typeInfo = new TypeInfo(actualTypeOfField);
+        if (!typeInfo.isPrimitive()) {
+          f.set(parent, null);
+        }
+        return true;
+      }
       @SuppressWarnings("unchecked")
       JsonDeserializer deserializer = deserializers.getHandlerFor(actualTypeOfField);
       if (deserializer != null) {
-        String fName = getFieldName(f);
-        JsonElement child = json.getAsJsonObject().get(fName);
-        if (child == null) {
-          child = JsonNull.INSTANCE;
-        }
         Object value = deserializer.deserialize(child, actualTypeOfField, context);
         f.set(parent, value);
         return true;

@@ -61,6 +61,21 @@ public class DefaultTypeAdaptersTest extends TestCase {
     assertEquals(urlValue, target.toExternalForm());
   }
 
+  public void testUrlNullSerialization() throws Exception {
+    ClassWithUrlField target = new ClassWithUrlField();
+    assertEquals("{}", gson.toJson(target));
+  }
+
+  public void testUrlNullDeserialization() {
+    String json = "{}";
+    ClassWithUrlField target = gson.fromJson(json, ClassWithUrlField.class);
+    assertNull(target.url);
+  }
+  
+  private static class ClassWithUrlField {
+    URL url;
+  }
+
   public void testUriSerialization() throws Exception {
     String uriValue = "http://google.com/";
     URI uri = new URI(uriValue);
