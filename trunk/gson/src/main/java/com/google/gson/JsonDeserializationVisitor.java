@@ -80,14 +80,7 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
 
   @SuppressWarnings("unchecked")
   public final boolean visitUsingCustomHandler(Object obj, Type objType) {
-    JsonDeserializer deserializer = (JsonDeserializer) deserializers.getHandlerFor(objType);
-    if (deserializer == null) {
-      if (objType instanceof Map) {
-        deserializer = deserializers.getHandlerFor(Map.class);
-      } else if (objType instanceof Collection) {
-        deserializer = deserializers.getHandlerFor(Collection.class);
-      }
-    }
+    JsonDeserializer deserializer = deserializers.getHandlerFor(objType);
     if (deserializer != null) {
       target = (T) deserializer.deserialize(json, objType, context);
       return true;

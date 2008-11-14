@@ -51,8 +51,8 @@ final class JsonTreeNavigator {
       visitor.startObject(object);
       boolean isFirst = true;
       for (Map.Entry<String, JsonElement> member : object.entrySet()) {
-        visitChild(object, member.getKey(), member.getValue(), isFirst);
-        if (isFirst) {
+        boolean visited = visitChild(object, member.getKey(), member.getValue(), isFirst);
+        if (visited && isFirst) {
           isFirst = false;
         }
       }
@@ -62,12 +62,18 @@ final class JsonTreeNavigator {
     }    
   }
 
-  private void visitChild(JsonObject parent, String childName, JsonElement child, boolean isFirst) {
+  /**
+   * Returns true if the child was visited, false if it was skipped.
+   */
+  private boolean visitChild(JsonObject parent, String childName, JsonElement child, 
+      boolean isFirst) {
     if (child != null) { 
       if (child.isJsonNull()) {
         if (visitNulls) {
           visitor.visitNullObjectMember(parent, childName, isFirst);
           navigate(child.getAsJsonNull());
+        } else { // Null value is being skipped.
+          return false;
         }
       } else if (child.isJsonArray()) {
         JsonArray childAsArray = child.getAsJsonArray();
@@ -81,8 +87,12 @@ final class JsonTreeNavigator {
         visitor.visitObjectMember(parent, childName, child.getAsJsonPrimitive(), isFirst);          
       }
     }
+    return true;
   }
 
+  /**
+   * Returns true if the child was visited, false if it was skipped.
+   */
   private void visitChild(JsonArray parent, JsonElement child, boolean isFirst) {
     if (child == null || child.isJsonNull()) {
       visitor.visitNullArrayMember(parent, isFirst);
