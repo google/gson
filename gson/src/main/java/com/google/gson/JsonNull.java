@@ -31,4 +31,20 @@ public final class JsonNull extends JsonElement {
   protected void toString(StringBuilder sb) {
     sb.append("null");
   }
+  
+  /**
+   * All instances of JsonNull have the same hash code since they are indistinguishable
+   */
+  @Override
+  public int hashCode() {
+    return JsonNull.class.hashCode();
+  }
+  
+  /**
+   * All instances of JsonNull are the same
+   */
+  @Override
+  public boolean equals(Object other) {
+    return other instanceof JsonNull;
+  }  
 }
