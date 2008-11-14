@@ -18,6 +18,7 @@ package com.google.gson;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -62,11 +63,33 @@ final class ParameterizedTypeHandlerMap<T> {
   }
 
   public synchronized T getHandlerFor(Type type) {
-    T handler = map.get(type);
+    T handler = getRawHandlerFor(type);
+    Type rawType = type;
     if (handler == null && type instanceof ParameterizedType) {
-      // a handler for a non-generic version is registered, so use that
-      Type rawType = ((ParameterizedType)type).getRawType();
+      // a handler for a non-generic version may be registered, so use that
+      rawType = ((ParameterizedType)type).getRawType();
       handler = map.get(rawType);
+    }
+    // Check for map or collection 
+    if (handler == null) {
+      if (rawType instanceof Class) {
+        Class<?> rawClass = (Class<?>) rawType;
+        if (Map.class.isAssignableFrom(rawClass)) {
+          handler = map.get(Map.class);
+        } else if (Collection.class.isAssignableFrom(rawClass)) {
+          handler = map.get(Collection.class);
+        }
+      }
+    }
+    return handler;
+  }
+  
+  private synchronized T getRawHandlerFor(Type type) {
+    T handler = map.get(type);
+    if (type instanceof Map) {
+      handler = map.get(Map.class);
+    } else if (type instanceof Collection) {
+      handler = map.get(Collection.class);
     }
     return handler;
   }

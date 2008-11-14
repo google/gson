@@ -39,6 +39,10 @@ final class JsonDeserializationContextDefault implements JsonDeserializationCont
     this.typeAdapter = typeAdapter;
   }
 
+  ObjectConstructor getObjectConstructor() {
+    return objectConstructor;
+  }
+
   @SuppressWarnings("unchecked")
   public <T> T deserialize(JsonElement json, Type typeOfT) throws JsonParseException {
     if (json.isJsonArray()) {
