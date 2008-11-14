@@ -305,7 +305,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
   private <T> GsonBuilder registerSerializer(Type typeOfT, final JsonSerializer<T> serializer) {
-    serializers.register(typeOfT, new JsonSerializerExceptionWrapper<T>(serializer));
+    serializers.register(typeOfT, serializer);
     return this;
   }
 

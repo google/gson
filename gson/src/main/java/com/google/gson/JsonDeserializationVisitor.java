@@ -17,8 +17,6 @@
 package com.google.gson;
 
 import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.Map;
 import java.util.logging.Logger;
 
 /**
