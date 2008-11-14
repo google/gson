@@ -66,19 +66,6 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
     }
   }
 
-  @SuppressWarnings("unchecked")
-  public void visitCollection(Collection collection, Type collectionType) {
-    assignToRoot(new JsonArray());
-    for (Object child : collection) {
-      Type childType = TypeUtils.getActualTypeForFirstTypeVariable(collectionType);
-      if (childType == Object.class && child != null) {
-        // Try our luck some other way
-        childType = child.getClass();
-      }
-      addAsArrayElement(childType, child);
-    }
-  }
-
   public void visitArrayField(Field f, Type typeOfF, Object obj) {
     if (isFieldNull(f, obj)) {
       if (serializeNulls) {
@@ -187,13 +174,6 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   @SuppressWarnings("unchecked")
   public boolean visitUsingCustomHandler(Object obj, Type objType) {
     JsonSerializer serializer = serializers.getHandlerFor(objType);
-//    if (serializer == null) {
-//      if (obj instanceof Map) {
-//        serializer = serializers.getHandlerFor(Map.class);
-//      } else if (obj instanceof Collection) {
-//        serializer = serializers.getHandlerFor(Collection.class);
-//      }
-//    }
     if (serializer != null) {
       if (obj == null) {
         assignToRoot(JsonNull.INSTANCE);
