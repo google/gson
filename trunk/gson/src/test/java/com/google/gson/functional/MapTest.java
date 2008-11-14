@@ -95,8 +95,8 @@ public class MapTest extends TestCase {
     }).create();
     String json = "{\"a\":1,\"b\":2}";
     MyParameterizedMap<String, Integer> map = gson.fromJson(json, type);
-    assertEquals(1, ((Integer) map.get("a")).intValue()); 
-    assertEquals(2, ((Integer) map.get("b")).intValue()); 
+    assertEquals(1, map.get("a").intValue()); 
+    assertEquals(2, map.get("b").intValue()); 
   }
 
   private static class MyParameterizedMap<K, V> extends LinkedHashMap<K, V> {

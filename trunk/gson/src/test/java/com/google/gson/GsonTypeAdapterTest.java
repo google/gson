@@ -52,7 +52,7 @@ public class GsonTypeAdapterTest extends TestCase {
     try {
       gson.toJson(new AtomicLong(0));
       fail("Type Adapter should have thrown an exception");
-    } catch (JsonParseException expected) { }
+    } catch (IllegalStateException expected) { }
 
     try {
       gson.fromJson("123", AtomicLong.class);
