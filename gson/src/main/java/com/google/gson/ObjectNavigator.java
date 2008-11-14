@@ -19,7 +19,6 @@ package com.google.gson;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
-import java.util.Collection;
 
 /**
  * Provides ability to apply a visitor to an object and all of its fields recursively.
@@ -39,13 +38,6 @@ final class ObjectNavigator {
      * This is called after the object navigator finishes visiting the current object
      */
     void endVisitingObject(Object node);
-
-    /**
-     * This is called to visit the current object if it is an iterable
-     *
-     * @param componentType the type of each element of the component
-     */
-    void visitCollection(@SuppressWarnings("unchecked") Collection collection, Type componentType);
 
     /**
      * This is called to visit the current object if it is an array
@@ -137,12 +129,8 @@ final class ObjectNavigator {
     try {
       boolean visitedWithCustomHandler = visitor.visitUsingCustomHandler(obj, objType);
       if (!visitedWithCustomHandler) {
-        if (objTypeInfo.isCollectionOrArray()) {
-          if (objTypeInfo.isArray()) {
-            visitor.visitArray(obj, objType);
-          } else { // must be a collection
-            visitor.visitCollection((Collection<?>) obj, objType);
-          }
+        if (objTypeInfo.isArray()) {
+          visitor.visitArray(obj, objType);
         } else if (objTypeInfo.isEnum()) {
           visitor.visitEnum(obj, objType);
         } else if (objTypeInfo.isPrimitiveOrStringAndNotAnArray()) {

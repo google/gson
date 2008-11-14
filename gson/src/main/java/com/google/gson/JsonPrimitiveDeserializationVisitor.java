@@ -18,7 +18,6 @@ package com.google.gson;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
-import java.util.Collection;
 
 /**
  * A visitor that populates a primitive value from its JSON representation
@@ -46,12 +45,6 @@ final class JsonPrimitiveDeserializationVisitor<T> extends JsonDeserializationVi
 
   public void endVisitingObject(Object node) {
     // do nothing
-  }
-
-  public void visitCollection(@SuppressWarnings("unchecked")Collection collection,
-      Type componentType) {
-    // should not be called since this case should invoke JsonArrayDeserializationVisitor
-    throw new IllegalStateException();
   }
 
   public void visitArray(Object array, Type componentType) {
