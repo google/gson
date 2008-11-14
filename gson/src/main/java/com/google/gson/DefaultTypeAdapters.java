@@ -29,6 +29,7 @@ import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -328,7 +329,8 @@ final class DefaultTypeAdapters {
   }
 
   @SuppressWarnings({ "unchecked" })
-  private static class CollectionTypeAdapter implements JsonSerializer<Collection>, JsonDeserializer<Collection>, InstanceCreator<Collection> {
+  private static class CollectionTypeAdapter implements JsonSerializer<Collection>, 
+  JsonDeserializer<Collection>, InstanceCreator<Collection> {
 
     public JsonElement serialize(Collection src, Type typeOfSrc, JsonSerializationContext context) {
       if (src == null) {
@@ -348,19 +350,31 @@ final class DefaultTypeAdapters {
       return array;
     }
 
-    public Collection deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-        throws JsonParseException {
+    public Collection deserialize(JsonElement json, Type typeOfT, 
+        JsonDeserializationContext context) throws JsonParseException {
       if (json.isJsonNull()) {
         return null;
       }
-      // Using list to preserve order in which elements are entered
-      List<Object> list = new LinkedList<Object>();
+      // Use ObjectConstructor to create instance instead of hard-coding a specific type. 
+      // This handles cases where users are using their own subclass of Collection.
+      Collection collection = constructCollectionType(typeOfT, context);
       Type childType = new TypeInfoCollection(typeOfT).getElementType();
       for (JsonElement childElement : json.getAsJsonArray()) {
-        Object value = context.deserialize(childElement, childType);
-        list.add(value);
+        if (childElement == null || childElement.isJsonNull()) {
+          collection.add(null);
+        } else {
+          Object value = context.deserialize(childElement, childType);
+          collection.add(value);
+        }
       }
-      return list;
+      return collection;
+    }
+
+    private Collection constructCollectionType(Type collectionType, 
+        JsonDeserializationContext context) {      
+      JsonDeserializationContextDefault contextImpl = (JsonDeserializationContextDefault) context;
+      ObjectConstructor objectConstructor = contextImpl.getObjectConstructor();
+      return (Collection) objectConstructor.construct(collectionType);
     }
 
     public Collection createInstance(Type type) {
@@ -371,6 +385,7 @@ final class DefaultTypeAdapters {
   @SuppressWarnings("unchecked")
   static class MapTypeAdapter implements JsonSerializer<Map>, JsonDeserializer<Map>,
       InstanceCreator<Map> {
+    
     public JsonElement serialize(Map src, Type typeOfSrc, JsonSerializationContext context) {
       JsonObject map = new JsonObject();
       Type childGenericType = null;
@@ -387,10 +402,12 @@ final class DefaultTypeAdapters {
       }
       return map;
     }
+
     public Map deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
-      // Using linked hash map to preserve order in which elements are entered
-      Map<String, Object> map = new LinkedHashMap<String, Object>();
+      // Use ObjectConstructor to create instance instead of hard-coding a specific type. 
+      // This handles cases where users are using their own subclass of Map.
+      Map<String, Object> map = constructMapType(typeOfT, context);
       Type childType = new TypeInfoMap(typeOfT).getValueType();
       for (Map.Entry<String, JsonElement> entry : json.getAsJsonObject().entrySet()) {
         Object value = context.deserialize(entry.getValue(), childType);
@@ -398,9 +415,17 @@ final class DefaultTypeAdapters {
       }
       return map;
     }
+
+    private Map constructMapType(Type mapType, JsonDeserializationContext context) {      
+      JsonDeserializationContextDefault contextImpl = (JsonDeserializationContextDefault) context;
+      ObjectConstructor objectConstructor = contextImpl.getObjectConstructor();
+      return (Map) objectConstructor.construct(mapType);
+    }
+    
     public Map createInstance(Type type) {
       return new LinkedHashMap();
     }
+    
     @Override
     public String toString() {
       return MapTypeAdapter.class.getSimpleName();

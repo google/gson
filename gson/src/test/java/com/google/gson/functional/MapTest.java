@@ -75,11 +75,38 @@ public class MapTest extends TestCase {
     String json = gson.toJson(map, typeOfMap);
     assertEquals("{}", json);
   }
+
+  public void testParameterizedMapSubclassSerialization() {
+    MyParameterizedMap<String, String> map = new MyParameterizedMap<String, String>();
+    map.put("a", "b");
+    Type type = new TypeToken<MyParameterizedMap<String, String>>() {}.getType();
+    String json = gson.toJson(map, type);
+    assertTrue(json.contains("\"a\":\"b\""));
+  }
+
+  @SuppressWarnings("unchecked")
+  public void testParameterizedMapSubclassDeserialization() {
+    Type type = new TypeToken<MyParameterizedMap<String, Integer>>() {}.getType();
+    Gson gson = new GsonBuilder().registerTypeAdapter(type, 
+        new InstanceCreator<MyParameterizedMap>() {
+      public MyParameterizedMap createInstance(Type type) {
+        return new MyParameterizedMap();
+      }      
+    }).create();
+    String json = "{\"a\":1,\"b\":2}";
+    MyParameterizedMap<String, Integer> map = gson.fromJson(json, type);
+    assertEquals(1, ((Integer) map.get("a")).intValue()); 
+    assertEquals(2, ((Integer) map.get("b")).intValue()); 
+  }
+
+  private static class MyParameterizedMap<K, V> extends LinkedHashMap<K, V> {
+    int foo = 10;
+  }
   
   public void testMapSubclassSerialization() {
     MyMap map = new MyMap();
     map.put("a", "b");
-    String json = gson.toJson(map);
+    String json = gson.toJson(map, MyMap.class);
     assertTrue(json.contains("\"a\":\"b\""));
   }
   

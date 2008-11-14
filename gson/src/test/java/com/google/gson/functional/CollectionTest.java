@@ -30,7 +30,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 /**
  * Functional tests for Json serialization and deserialization of collections.
@@ -77,6 +79,43 @@ public class CollectionTest extends TestCase {
     for (int i = 0; i < 3; i++) {
       MoreAsserts.assertEquals(expected[i], toIntArray(target.get(i)));
     }
+  }
+  
+  public void testLinkedListSerialization() {
+    List<String> list = new LinkedList<String>();
+    list.add("a1");
+    list.add("a2");
+    Type linkedListType = new TypeToken<LinkedList<String>>() {}.getType();
+    String json = gson.toJson(list, linkedListType);
+    assertTrue(json.contains("a1"));
+    assertTrue(json.contains("a2"));
+  }
+
+  public void testLinkedListDeserialization() {
+    String json = "['a1','a2']";
+    Type linkedListType = new TypeToken<LinkedList<String>>() {}.getType();
+    List<String> list = gson.fromJson(json, linkedListType);
+    assertEquals("a1", list.get(0));
+    assertEquals("a2", list.get(1));
+  }
+
+  public void testQueueSerialization() {
+    Queue<String> queue = new LinkedList<String>();
+    queue.add("a1");
+    queue.add("a2");
+    Type queueType = new TypeToken<Queue<String>>() {}.getType();
+    String json = gson.toJson(queue, queueType);
+    assertTrue(json.contains("a1"));
+    assertTrue(json.contains("a2"));
+  }
+
+  public void testQueueDeserialization() {
+    String json = "['a1','a2']";
+    Type queueType = new TypeToken<Queue<String>>() {}.getType();
+    Queue<String> queue = gson.fromJson(json, queueType);
+    assertEquals("a1", queue.element()); 
+    queue.remove();
+    assertEquals("a2", queue.element());
   }
 
   public void testNullsInListSerialization() {

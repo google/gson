@@ -228,6 +228,20 @@ public class ParameterizedTypesTest extends TestCase {
   }
 
   @SuppressWarnings("unchecked")
+  public void testParameterizedTypeGenericArraysSerialization() throws Exception {
+    List<Integer> list = new ArrayList<Integer>();
+    list.add(1);
+    list.add(2);
+    List<Integer>[] arrayOfLists = new List[] { list, list };
+
+    Type typeOfSrc = new TypeToken<ObjectWithTypeVariables<Integer>>() {}.getType();
+    ObjectWithTypeVariables<Integer> objToSerialize =
+        new ObjectWithTypeVariables<Integer>(null, null, null, arrayOfLists, null, null);
+    String json = gson.toJson(objToSerialize, typeOfSrc);
+    assertEquals("{\"arrayOfListOfTypeParameters\":[[1,2],[1,2]]}", json);
+  }
+
+  @SuppressWarnings("unchecked")
   public void testParameterizedTypeGenericArraysDeserialization() throws Exception {
     List<Integer> list = new ArrayList<Integer>();
     list.add(1);
