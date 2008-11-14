@@ -103,7 +103,12 @@ public final class JsonObject extends JsonElement {
    * @return the member matching the name. Null if no such member exists. 
    */
   public JsonElement get(String memberName) {
-    return members.get(memberName);
+    if (members.containsKey(memberName)) {
+      JsonElement member = members.get(memberName);
+      return member == null ? JsonNull.INSTANCE : member;
+    } else {
+      return null;
+    }
   }
   
   /**

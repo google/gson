@@ -203,13 +203,13 @@ public class CustomTypeAdaptersTest extends TestCase {
     Gson gson = new GsonBuilder().registerTypeAdapter(Long.class, new JsonSerializer<Long>() {
       public JsonElement serialize(Long src, Type typeOfSrc, JsonSerializationContext context) {
         customSerializerInvoked.value = true;
-        return src == null ? new JsonNull() : new JsonPrimitive(src);
+        return new JsonPrimitive(src);
       }      
     }).serializeNulls().create();
     ClassWithWrapperLongField src = new ClassWithWrapperLongField();
     String json = gson.toJson(src);
     assertTrue(json.contains("\"value\":null"));
-    assertTrue(customSerializerInvoked.value);
+    assertFalse(customSerializerInvoked.value);
     
     customSerializerInvoked.value = false;
     src.value = 10L;
@@ -236,7 +236,7 @@ public class CustomTypeAdaptersTest extends TestCase {
     String json = "{'value':null}";
     ClassWithWrapperLongField target = gson.fromJson(json, ClassWithWrapperLongField.class);
     assertNull(target.value);
-    assertTrue(customDeserializerInvoked.value);
+    assertFalse(customDeserializerInvoked.value);
     
     customDeserializerInvoked.value = false;
     json = "{'value':10}";

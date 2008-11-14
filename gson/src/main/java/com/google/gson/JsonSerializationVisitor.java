@@ -157,6 +157,10 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
     try {
       Preconditions.checkState(root.isJsonObject());
       Object obj = f.get(parent);
+      if (obj == null) {
+        addChildAsElement(f, JsonNull.INSTANCE);
+        return true;
+      }
       JsonSerializer serializer = serializers.getHandlerFor(actualTypeOfField);
       if (serializer != null) {
         JsonElement child = serializer.serialize(obj, actualTypeOfField, context);
