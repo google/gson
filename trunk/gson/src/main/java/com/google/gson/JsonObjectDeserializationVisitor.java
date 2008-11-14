@@ -18,7 +18,6 @@ package com.google.gson;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
-import java.util.Collection;
 
 /**
  * A visitor that populates fields of an object with data from its equivalent

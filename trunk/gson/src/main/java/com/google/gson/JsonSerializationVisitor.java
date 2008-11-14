@@ -19,8 +19,6 @@ package com.google.gson;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.Map;
 
 /**
  * A visitor that adds JSON elements corresponding to each field of an object
@@ -160,12 +158,6 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
       Preconditions.checkState(root.isJsonObject());
       Object obj = f.get(parent);
       JsonSerializer serializer = serializers.getHandlerFor(actualTypeOfField);
-      if (serializer == null && obj instanceof Map) {
-        serializer = serializers.getHandlerFor(Map.class);
-      }
-      if (serializer == null && obj instanceof Collection) {
-        serializer = serializers.getHandlerFor(Collection.class);
-      }
       if (serializer != null) {
         JsonElement child = serializer.serialize(obj, actualTypeOfField, context);
         addChildAsElement(f, child);
