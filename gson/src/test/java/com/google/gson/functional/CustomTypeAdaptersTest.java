@@ -258,6 +258,48 @@ public class CustomTypeAdaptersTest extends TestCase {
     Boolean value;
   }
   
+  public void testCustomByteArraySerializer() {
+    Gson gson = new GsonBuilder().registerTypeAdapter(byte[].class, new JsonSerializer<byte[]>() {
+      public JsonElement serialize(byte[] src, Type typeOfSrc, JsonSerializationContext context) {
+        StringBuilder sb = new StringBuilder(src.length);
+        for (byte b : src) {
+          sb.append(b);
+        }
+        return new JsonPrimitive(sb.toString());
+      }      
+    }).create();
+    byte[] data = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    String json = gson.toJson(data);
+    assertEquals("\"0123456789\"", json);
+  }
+  
+  public void testCustomByteArrayDeserializerAndInstanceCreator() {
+    GsonBuilder gsonBuilder = new GsonBuilder().registerTypeAdapter(byte[].class, 
+        new JsonDeserializer<byte[]>() {
+      public byte[] deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+          throws JsonParseException {
+        String str = json.getAsString();
+        byte[] data = new byte[str.length()];
+        for (int i = 0; i < data.length; ++i) {
+          data[i] = Byte.parseByte(""+str.charAt(i));
+        }
+        return data;
+      }      
+    });
+    gsonBuilder.registerTypeAdapter(byte[].class, new InstanceCreator<byte[]>() {
+      public byte[] createInstance(Type type) {
+        return new byte[0];
+      }      
+    });
+    Gson gson = gsonBuilder.create();
+    String json = "'0123456789'";
+    byte[] actual = gson.fromJson(json, byte[].class);
+    byte[] expected = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    for (int i = 0; i < actual.length; ++i) {
+      assertEquals(expected[i], actual[i]);
+    }
+  }
+  
   private static class StringHolder {
     String part1;
     String part2;
