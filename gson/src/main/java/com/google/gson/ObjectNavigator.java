@@ -60,11 +60,6 @@ final class ObjectNavigator {
     void visitPrimitiveField(Field f, Type typeOfF, Object obj);
 
     /**
-     * This is called to visit an enum object
-     */
-    public void visitEnum(Object obj, Type objType);
-
-    /**
      * This is called to visit an object using a custom handler
      * @return true if a custom handler exists, false otherwise
      */
@@ -121,8 +116,6 @@ final class ObjectNavigator {
       if (!visitedWithCustomHandler) {
         if (objTypeInfo.isArray()) {
           visitor.visitArray(obj, objType);
-        } else if (objTypeInfo.isEnum()) {
-          visitor.visitEnum(obj, objType);
         } else if (objTypeInfo.isPrimitiveOrStringAndNotAnArray()) {
           visitor.visitPrimitiveValue(obj);
         } else {
