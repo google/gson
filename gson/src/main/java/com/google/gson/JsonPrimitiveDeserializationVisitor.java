@@ -43,10 +43,6 @@ final class JsonPrimitiveDeserializationVisitor<T> extends JsonDeserializationVi
     // do nothing
   }
 
-  public void endVisitingObject(Object node) {
-    // do nothing
-  }
-
   public void visitArray(Object array, Type componentType) {
     // should not be called since this case should invoke JsonArrayDeserializationVisitor
     throw new IllegalStateException();

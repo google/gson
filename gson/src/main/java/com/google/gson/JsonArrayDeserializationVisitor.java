@@ -94,10 +94,6 @@ final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisito
   // all other methods should be invoked on JsonObjectDeserializationVisitor
   // instead.
 
-  public void endVisitingObject(Object node) {
-    throw new UnsupportedOperationException();
-  }
-
   public void startVisitingObject(Object node) {
     throw new UnsupportedOperationException();
   }

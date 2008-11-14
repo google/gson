@@ -35,11 +35,6 @@ final class ObjectNavigator {
     void startVisitingObject(Object node);
 
     /**
-     * This is called after the object navigator finishes visiting the current object
-     */
-    void endVisitingObject(Object node);
-
-    /**
      * This is called to visit the current object if it is an array
      */
     void visitArray(Object array, Type componentType);
@@ -140,7 +135,6 @@ final class ObjectNavigator {
               navigateClassFields(obj, curr, visitor);
             }
           }
-          visitor.endVisitingObject(obj);
         }
       }
     } finally {
