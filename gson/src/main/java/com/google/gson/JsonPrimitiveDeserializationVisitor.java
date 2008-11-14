@@ -71,11 +71,6 @@ final class JsonPrimitiveDeserializationVisitor<T> extends JsonDeserializationVi
     throw new IllegalStateException();
   }
 
-  public void visitCollectionField(Field f, Type typeOfF, Object obj) {
-    // should not be called since this case should invoke JsonArrayDeserializationVisitor
-    throw new IllegalStateException();
-  }
-
   public void visitArrayField(Field f, Type typeOfF, Object obj) {
     // should not be called since this case should invoke JsonArrayDeserializationVisitor
     throw new IllegalStateException();

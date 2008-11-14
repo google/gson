@@ -77,20 +77,6 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
     }
   }
 
-  public void visitCollectionField(Field f, Type typeOfF, Object obj) {
-    if (isFieldNull(f, obj)) {
-      if (serializeNulls) {
-        addChildAsElement(f, JsonNull.INSTANCE);
-      }
-    } else {
-      if (typeOfF == null) {
-        throw new RuntimeException("Can not handle non-generic collections");
-      }
-      Object collection = getFieldValue(f, obj);
-      addAsChildOfObject(f, typeOfF, collection);
-    }
-  }
-
   @SuppressWarnings("unchecked")
   public void visitEnum(Object obj, Type objType) {
     JsonSerializer serializer = serializers.getHandlerFor(objType);
