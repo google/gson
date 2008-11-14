@@ -17,10 +17,10 @@ package com.google.gson.functional;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.InstanceCreator;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
@@ -28,10 +28,13 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.common.TestTypes.ClassWithCustomTypeConverter;
+import com.google.gson.reflect.TypeToken;
 
 import junit.framework.TestCase;
 
 import java.lang.reflect.Type;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Functional tests for the support of custom serializer and deserializers.
@@ -251,5 +254,66 @@ public class CustomTypeAdaptersTest extends TestCase {
   
   private static class ClassWithBooleanField {
     Boolean value;
+  }
+  
+  private static class StringHolder {
+    String part1;
+    String part2;
+
+    public StringHolder(String string) {
+      String[] parts = string.split(":");
+      part1 = parts[0];
+      part2 = parts[1];
+    }
+    public StringHolder(String part1, String part2) {
+      this.part1 = part1;
+      this.part2 = part2;
+    }
+  }
+  
+  private static class StringHolderTypeAdapter implements JsonSerializer<StringHolder>, 
+      JsonDeserializer<StringHolder>, InstanceCreator<StringHolder> {
+
+    public StringHolder createInstance(Type type) {
+      //Fill up with objects that will be thrown away
+      return new StringHolder("unknown:thing");
+    }
+
+    public StringHolder deserialize(JsonElement src, Type type, 
+        JsonDeserializationContext context) {
+      return new StringHolder(src.getAsString());
+    }
+
+    public JsonElement serialize(StringHolder src, Type typeOfSrc, 
+        JsonSerializationContext context) {
+      String contents = src.part1 + ':' + src.part2;
+      return new JsonPrimitive(contents);
+    }
+  }
+
+  // Test created from Issue 70
+  public void testCustomAdapterInvokedForCollectionElementSerialization() {
+    Gson gson = new GsonBuilder()
+      .registerTypeAdapter(StringHolder.class, new StringHolderTypeAdapter())
+      .create();
+    Type setType = new TypeToken<Set<StringHolder>>() {}.getType();
+    StringHolder holder = new StringHolder("Jacob", "Tomaw");
+    Set<StringHolder> setOfHolders = new HashSet<StringHolder>();
+    setOfHolders.add(holder);
+    String json = gson.toJson(holder);
+    assertTrue(json.contains("Jacob:Tomaw"));
+  }
+
+  // Test created from Issue 70
+  public void testCustomAdapterInvokedForCollectionElementDeserialization() {
+    Gson gson = new GsonBuilder()
+      .registerTypeAdapter(StringHolder.class, new StringHolderTypeAdapter())
+      .create();
+    Type setType = new TypeToken<Set<StringHolder>>() {}.getType();
+    Set<StringHolder> setOfFoo = gson.fromJson("['Jacob:Tomaw']", setType);
+    assertEquals(1, setOfFoo.size());
+    StringHolder foo = setOfFoo.iterator().next();
+    assertEquals("Jacob", foo.part1);
+    assertEquals("Tomaw", foo.part2);
   }
 }
