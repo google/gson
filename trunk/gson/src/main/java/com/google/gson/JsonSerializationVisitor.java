@@ -73,19 +73,6 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
     }
   }
 
-  @SuppressWarnings("unchecked")
-  public void visitEnum(Object obj, Type objType) {
-    JsonSerializer serializer = serializers.getHandlerFor(objType);
-    if (serializer == null) {
-      serializer = serializers.getHandlerFor(Enum.class);
-    }
-    if (serializer == null) {
-      throw new RuntimeException("Register a JsonSerializer for Enum or "
-          + obj.getClass().getName());
-    }
-    assignToRoot(serializer.serialize(obj, objType, context));
-  }
-
   public void visitObjectField(Field f, Type typeOfF, Object obj) {
     if (isFieldNull(f, obj)) {
       if (serializeNulls) {

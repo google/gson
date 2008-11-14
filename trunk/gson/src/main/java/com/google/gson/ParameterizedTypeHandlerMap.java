@@ -78,6 +78,8 @@ final class ParameterizedTypeHandlerMap<T> {
           handler = map.get(Map.class);
         } else if (Collection.class.isAssignableFrom(rawClass)) {
           handler = map.get(Collection.class);
+        } else if (Enum.class.isAssignableFrom(rawClass)) {
+          handler = map.get(Enum.class);
         }
       }
     }

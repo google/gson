@@ -64,19 +64,6 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
   protected abstract T constructTarget();
 
   @SuppressWarnings("unchecked")
-  public final void visitEnum(Object obj, Type objType) {
-    JsonDeserializer<T> deserializer = (JsonDeserializer<T>) deserializers.getHandlerFor(objType);
-    if (deserializer == null) {
-      deserializer =  (JsonDeserializer<T>) deserializers.getHandlerFor(Enum.class);
-    }
-    if (deserializer == null) {
-      throw new RuntimeException("Register a JsonDeserializer for Enum or "
-          + obj.getClass().getName());
-    }
-    target = deserializer.deserialize(json, objType, context);
-  }
-
-  @SuppressWarnings("unchecked")
   public final boolean visitUsingCustomHandler(Object obj, Type objType) {
     JsonDeserializer deserializer = deserializers.getHandlerFor(objType);
     if (deserializer != null) {
