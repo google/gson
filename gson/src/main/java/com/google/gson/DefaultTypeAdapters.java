@@ -29,7 +29,6 @@ import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -90,15 +89,15 @@ final class DefaultTypeAdapters {
     ParameterizedTypeHandlerMap<JsonSerializer<?>> map =
       new ParameterizedTypeHandlerMap<JsonSerializer<?>>();
 
-    map.register(Enum.class, wrapSerializer(ENUM_TYPE_ADAPTER));
-    map.register(URL.class, wrapSerializer(URL_TYPE_ADAPTER));
-    map.register(URI.class, wrapSerializer(URI_TYPE_ADAPTER));
-    map.register(Locale.class, wrapSerializer(LOCALE_TYPE_ADAPTER));
+    map.register(Enum.class, ENUM_TYPE_ADAPTER);
+    map.register(URL.class, URL_TYPE_ADAPTER);
+    map.register(URI.class, URI_TYPE_ADAPTER);
+    map.register(Locale.class, LOCALE_TYPE_ADAPTER);
     map.register(Collection.class, COLLECTION_TYPE_ADAPTER);
-    map.register(Map.class, wrapSerializer(MAP_TYPE_ADAPTER));
-    map.register(Date.class, wrapSerializer(DATE_TYPE_ADAPTER));
-    map.register(BigDecimal.class, wrapSerializer(BIG_DECIMAL_TYPE_ADAPTER));
-    map.register(BigInteger.class, wrapSerializer(BIG_INTEGER_TYPE_ADAPTER));
+    map.register(Map.class, MAP_TYPE_ADAPTER);
+    map.register(Date.class, DATE_TYPE_ADAPTER);
+    map.register(BigDecimal.class, BIG_DECIMAL_TYPE_ADAPTER);
+    map.register(BigInteger.class, BIG_INTEGER_TYPE_ADAPTER);
     map.makeUnmodifiable();
     return map;
   }
@@ -156,11 +155,6 @@ final class DefaultTypeAdapters {
     map.register(SortedSet.class, TREE_SET_CREATOR);
     map.makeUnmodifiable();
     return map;
-  }
-
-  @SuppressWarnings("unchecked")
-  private static JsonSerializer<?> wrapSerializer(JsonSerializer<?> serializer) {
-    return new JsonSerializerExceptionWrapper(serializer);
   }
 
   @SuppressWarnings("unchecked")
