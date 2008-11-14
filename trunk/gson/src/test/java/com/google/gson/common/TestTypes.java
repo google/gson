@@ -40,10 +40,10 @@ public class TestTypes {
 
   public static class BagOfPrimitives {
     public static final long DEFAULT_VALUE = 0;
-    public final long longValue;
-    public final int intValue;
-    public final boolean booleanValue;
-    public final String stringValue;
+    public long longValue;
+    public int intValue;
+    public boolean booleanValue;
+    public String stringValue;
 
     public BagOfPrimitives() {
       this(DEFAULT_VALUE, 0, false, "");
