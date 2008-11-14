@@ -55,11 +55,6 @@ final class ObjectNavigator {
     void visitObjectField(Field f, Type typeOfF, Object obj);
 
     /**
-     * This is called to visit a field of type Collection of the current object
-     */
-    void visitCollectionField(Field f, Type typeOfF, Object obj);
-
-    /**
      * This is called to visit an array field of the current object
      */
     void visitArrayField(Field f, Type typeOfF, Object obj);
@@ -165,12 +160,8 @@ final class ObjectNavigator {
         boolean visitedWithCustomHandler = 
           visitor.visitFieldUsingCustomHandler(f, actualTypeOfField, obj);
         if (!visitedWithCustomHandler) {
-          if (fieldTypeInfo.isCollectionOrArray()) {
-            if (fieldTypeInfo.isArray()) {
-              visitor.visitArrayField(f, actualTypeOfField, obj);
-            } else { // must be Collection
-              visitor.visitCollectionField(f, actualTypeOfField, obj);
-            }
+          if (fieldTypeInfo.isArray()) {
+            visitor.visitArrayField(f, actualTypeOfField, obj);
           } else if (fieldTypeInfo.isPrimitiveOrStringAndNotAnArray()) {
             visitor.visitPrimitiveField(f, actualTypeOfField, obj);
           } else {

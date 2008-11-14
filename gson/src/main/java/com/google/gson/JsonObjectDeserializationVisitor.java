@@ -76,32 +76,6 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
     }
   }
 
-  @SuppressWarnings("unchecked")
-  public void visitCollectionField(Field f, Type typeOfF, Object obj) {
-    try {
-      JsonObject jsonObject = json.getAsJsonObject();
-      String fName = getFieldName(f);
-      JsonArray jsonArray = (JsonArray) jsonObject.get(fName);
-      if (jsonArray != null) {
-        Collection collection = (Collection) objectConstructor.construct(typeOfF);
-        f.set(obj, collection);
-        Type childType = TypeUtils.getActualTypeForFirstTypeVariable(typeOfF);
-        for (JsonElement jsonChild : jsonArray) {
-          Object child = visitChild(childType, jsonChild);
-          if (childType == Object.class) {
-            throw new JsonParseException(fName +
-                " can not be a raw collection. Try making it a genericized collection instead");
-          }
-          collection.add(child);
-        }
-      } else {
-        f.set(obj, null);
-      }
-    } catch (IllegalAccessException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
   public void visitArrayField(Field f, Type typeOfF, Object obj) {
     try {
       JsonObject jsonObject = json.getAsJsonObject();

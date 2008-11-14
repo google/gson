@@ -106,10 +106,6 @@ final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisito
     throw new UnsupportedOperationException();
   }
 
-  public void visitCollectionField(Field f, Type typeOfF, Object obj) {
-    throw new UnsupportedOperationException();
-  }
-
   public void visitObjectField(Field f, Type typeOfF, Object obj) {
     throw new UnsupportedOperationException();
   }
