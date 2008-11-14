@@ -19,7 +19,6 @@ package com.google.gson;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
-import java.util.Collection;
 
 /**
  * A visitor that populates fields of an object with data from its equivalent
@@ -83,19 +82,6 @@ final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisito
         throw new IllegalStateException();
       }
       Array.set(array, i, child);
-    }
-  }
-
-  @SuppressWarnings("unchecked")
-  public void visitCollection(Collection collection, Type collectionType) {
-    Type childType = TypeUtils.getActualTypeForFirstTypeVariable(collectionType);
-    for (JsonElement jsonChild : json.getAsJsonArray()) {
-      if (childType == Object.class) {
-        throw new JsonParseException(collection +
-            " must not be a raw collection. Try making it genericized instead.");
-      }
-      Object child = visitChild(childType, jsonChild);
-      collection.add(child);
     }
   }
 
