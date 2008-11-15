@@ -55,7 +55,6 @@ public final class GsonBuilder {
   private ModifierBasedExclusionStrategy modifierBasedExclusionStrategy;
   private final InnerClassExclusionStrategy innerClassExclusionStrategy;
   private boolean excludeFieldsWithoutExposeAnnotation;
-  private final TypeAdapter typeAdapter;
   private JsonFormatter formatter;
   private FieldNamingStrategy fieldNamingPolicy;
   private final ParameterizedTypeHandlerMap<InstanceCreator<?>> instanceCreators;
@@ -78,7 +77,6 @@ public final class GsonBuilder {
     innerClassExclusionStrategy = new InnerClassExclusionStrategy();
     modifierBasedExclusionStrategy = Gson.DEFAULT_MODIFIER_BASED_EXCLUSION_STRATEGY;
     excludeFieldsWithoutExposeAnnotation = false;
-    typeAdapter = Gson.DEFAULT_TYPE_ADAPTER;
     formatter = Gson.DEFAULT_JSON_FORMATTER;
     fieldNamingPolicy = Gson.DEFAULT_NAMING_POLICY;
     instanceCreators = new ParameterizedTypeHandlerMap<InstanceCreator<?>>();
@@ -355,7 +353,7 @@ public final class GsonBuilder {
     customInstanceCreators.registerIfAbsent(DefaultTypeAdapters.DEFAULT_INSTANCE_CREATORS);
     MappedObjectConstructor objConstructor = Gson.createObjectConstructor(customInstanceCreators);
 
-    Gson gson = new Gson(exclusionStrategy, fieldNamingPolicy, objConstructor, typeAdapter, 
+    Gson gson = new Gson(exclusionStrategy, fieldNamingPolicy, objConstructor, 
         formatter, serializeNulls, customSerializers, customDeserializers);
     return gson;
   }
