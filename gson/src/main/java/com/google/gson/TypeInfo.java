@@ -73,12 +73,4 @@ class TypeInfo {
   public final boolean isPrimitive() {
     return Primitives.isWrapperType(Primitives.wrap(rawClass));
   }
-
-  public final boolean isString() {
-    return rawClass == String.class;
-  }
-
-  public final boolean isPrimitiveOrStringAndNotAnArray() {
-    return (isPrimitive() || isString()) && !isArray();
-  }
 }

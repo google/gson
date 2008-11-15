@@ -221,6 +221,32 @@ public abstract class JsonElement {
   public int getAsInt() {
     throw new UnsupportedOperationException();
   }
+  
+  /**
+   * convenience method to get this element as a primitive byte value.
+   *
+   * @return get this element as a primitive byte value.
+   * @throws ClassCastException if the element is of not a {@link JsonPrimitive} and is not a valid
+   * byte value.
+   * @throws IllegalStateException if the element is of the type {@link JsonArray} but contains
+   * more than a single element.
+   */
+  public byte getAsByte() {
+    throw new UnsupportedOperationException();
+  }
+  
+  /**
+   * convenience method to get this element as a primitive character value.
+   *
+   * @return get this element as a primitive char value.
+   * @throws ClassCastException if the element is of not a {@link JsonPrimitive} and is not a valid
+   * char value.
+   * @throws IllegalStateException if the element is of the type {@link JsonArray} but contains
+   * more than a single element.
+   */
+  public char getAsCharacter() {
+    throw new UnsupportedOperationException();
+  }
 
   /**
    * convenience method to get this element as a {@link BigDecimal}.

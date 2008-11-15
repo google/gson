@@ -334,13 +334,25 @@ public class CustomTypeAdaptersTest extends TestCase {
       return new JsonPrimitive(contents);
     }
   }
+  
+  // Test created from Issue 70
+  public void testCustomAdapterInvokedForCollectionElementSerializationWithType() {
+    Gson gson = new GsonBuilder()
+      .registerTypeAdapter(StringHolder.class, new StringHolderTypeAdapter())
+      .create();
+    Type setType = new TypeToken<Set<StringHolder>>() {}.getType();
+    StringHolder holder = new StringHolder("Jacob", "Tomaw");
+    Set<StringHolder> setOfHolders = new HashSet<StringHolder>();
+    setOfHolders.add(holder);
+    String json = gson.toJson(setOfHolders, setType);
+    assertTrue(json.contains("Jacob:Tomaw"));
+  }
 
   // Test created from Issue 70
   public void testCustomAdapterInvokedForCollectionElementSerialization() {
     Gson gson = new GsonBuilder()
       .registerTypeAdapter(StringHolder.class, new StringHolderTypeAdapter())
       .create();
-    Type setType = new TypeToken<Set<StringHolder>>() {}.getType();
     StringHolder holder = new StringHolder("Jacob", "Tomaw");
     Set<StringHolder> setOfHolders = new HashSet<StringHolder>();
     setOfHolders.add(holder);
@@ -362,11 +374,23 @@ public class CustomTypeAdaptersTest extends TestCase {
   }
   
   // Test created from Issue 70
-  public void testCustomAdapterInvokedForMapElementSerialization() {
+  public void testCustomAdapterInvokedForMapElementSerializationWithType() {
     Gson gson = new GsonBuilder()
       .registerTypeAdapter(StringHolder.class, new StringHolderTypeAdapter())
       .create();
     Type mapType = new TypeToken<Map<String,StringHolder>>() {}.getType();
+    StringHolder holder = new StringHolder("Jacob", "Tomaw");
+    Map<String, StringHolder> mapOfHolders = new HashMap<String, StringHolder>();
+    mapOfHolders.put("foo", holder);
+    String json = gson.toJson(mapOfHolders, mapType);
+    assertTrue(json.contains("\"foo\":\"Jacob:Tomaw\""));
+  }
+  
+  // Test created from Issue 70
+  public void testCustomAdapterInvokedForMapElementSerialization() {
+    Gson gson = new GsonBuilder()
+      .registerTypeAdapter(StringHolder.class, new StringHolderTypeAdapter())
+      .create();
     StringHolder holder = new StringHolder("Jacob", "Tomaw");
     Map<String, StringHolder> mapOfHolders = new HashMap<String, StringHolder>();
     mapOfHolders.put("foo", holder);

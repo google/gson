@@ -16,6 +16,15 @@
 
 package com.google.gson.common;
 
+import java.lang.reflect.Type;
+
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.SerializedName;
 
 /**
@@ -349,4 +358,17 @@ public class TestTypes {
       return '{' + "\"fooBar\":" + f + '}';
     }
   }
+  
+  public static class CrazyLongTypeAdapter
+      implements JsonSerializer<Long>, JsonDeserializer<Long> {
+    public static final long DIFFERENCE = 5L;
+    public JsonElement serialize(Long src, Type typeOfSrc, JsonSerializationContext context) {
+      return new JsonPrimitive(src + DIFFERENCE);
+    }
+    
+    public Long deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+        throws JsonParseException {
+      return json.getAsLong() - DIFFERENCE;
+    }
+}
 }

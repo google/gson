@@ -64,14 +64,16 @@ final class DefaultTypeAdapters {
   private static final BigDecimalTypeAdapter BIG_DECIMAL_TYPE_ADAPTER = new BigDecimalTypeAdapter();
   private static final BigIntegerTypeAdapter BIG_INTEGER_TYPE_ADAPTER = new BigIntegerTypeAdapter();
 
-  private static final BooleanCreator BOOLEAN_CREATOR = new BooleanCreator();
-  private static final ByteCreator BYTE_CREATOR = new ByteCreator();
-  private static final CharacterCreator CHARACTER_CREATOR = new CharacterCreator();
-  private static final DoubleCreator DOUBLE_CREATOR = new DoubleCreator();
-  private static final FloatCreator FLOAT_CREATOR = new FloatCreator();
-  private static final IntegerCreator INTEGER_CREATOR = new IntegerCreator();
-  private static final LongCreator LONG_CREATOR = new LongCreator();
-  private static final ShortCreator SHORT_CREATOR = new ShortCreator();
+  private static final BooleanTypeAdapter BOOLEAN_TYPE_ADAPTER = new BooleanTypeAdapter();
+  private static final ByteTypeAdapter BYTE_TYPE_ADAPTER = new ByteTypeAdapter();
+  private static final CharacterTypeAdapter CHARACTER_TYPE_ADAPTER = new CharacterTypeAdapter();
+  private static final DoubleTypeAdapter DOUBLE_TYPE_ADAPTER = new DoubleTypeAdapter();
+  private static final FloatTypeAdapter FLOAT_TYPE_ADAPTER = new FloatTypeAdapter();
+  private static final IntegerTypeAdapter INTEGER_TYPE_ADAPTER = new IntegerTypeAdapter();
+  private static final LongTypeAdapter LONG_TYPE_ADAPTER = new LongTypeAdapter();
+  private static final ShortTypeAdapter SHORT_TYPE_ADAPTER = new ShortTypeAdapter();
+  private static final StringTypeAdapter STRING_TYPE_ADAPTER = new StringTypeAdapter();
+
   private static final LinkedListCreator LINKED_LIST_CREATOR = new LinkedListCreator();
   private static final TreeSetCreator TREE_SET_CREATOR = new TreeSetCreator();
 
@@ -98,6 +100,26 @@ final class DefaultTypeAdapters {
     map.register(Date.class, DATE_TYPE_ADAPTER);
     map.register(BigDecimal.class, BIG_DECIMAL_TYPE_ADAPTER);
     map.register(BigInteger.class, BIG_INTEGER_TYPE_ADAPTER);
+    
+    // Add primitive serializers
+    map.register(Boolean.class, BOOLEAN_TYPE_ADAPTER);
+    map.register(boolean.class, BOOLEAN_TYPE_ADAPTER);
+    map.register(Byte.class, BYTE_TYPE_ADAPTER);
+    map.register(byte.class, BYTE_TYPE_ADAPTER);
+    map.register(Character.class, CHARACTER_TYPE_ADAPTER);
+    map.register(char.class, CHARACTER_TYPE_ADAPTER);
+    map.register(Double.class, DOUBLE_TYPE_ADAPTER);
+    map.register(double.class, DOUBLE_TYPE_ADAPTER);
+    map.register(Float.class, FLOAT_TYPE_ADAPTER);
+    map.register(float.class, FLOAT_TYPE_ADAPTER);
+    map.register(Integer.class, INTEGER_TYPE_ADAPTER);
+    map.register(int.class, INTEGER_TYPE_ADAPTER);
+    map.register(Long.class, LONG_TYPE_ADAPTER);
+    map.register(long.class, LONG_TYPE_ADAPTER);
+    map.register(Short.class, SHORT_TYPE_ADAPTER);
+    map.register(short.class, SHORT_TYPE_ADAPTER);
+    map.register(String.class, STRING_TYPE_ADAPTER);
+
     map.makeUnmodifiable();
     return map;
   }
@@ -114,6 +136,26 @@ final class DefaultTypeAdapters {
     map.register(Date.class, wrapDeserializer(DATE_TYPE_ADAPTER));
     map.register(BigDecimal.class, wrapDeserializer(BIG_DECIMAL_TYPE_ADAPTER));
     map.register(BigInteger.class, wrapDeserializer(BIG_INTEGER_TYPE_ADAPTER));
+    
+    // Add primitive deserializers
+    map.register(Boolean.class, wrapDeserializer(BOOLEAN_TYPE_ADAPTER));
+    map.register(boolean.class, wrapDeserializer(BOOLEAN_TYPE_ADAPTER));
+    map.register(Byte.class, wrapDeserializer(BYTE_TYPE_ADAPTER));
+    map.register(byte.class, wrapDeserializer(BYTE_TYPE_ADAPTER));
+    map.register(Character.class, wrapDeserializer(CHARACTER_TYPE_ADAPTER));
+    map.register(char.class, wrapDeserializer(CHARACTER_TYPE_ADAPTER));
+    map.register(Double.class, wrapDeserializer(DOUBLE_TYPE_ADAPTER));
+    map.register(double.class, wrapDeserializer(DOUBLE_TYPE_ADAPTER));
+    map.register(Float.class, wrapDeserializer(FLOAT_TYPE_ADAPTER));
+    map.register(float.class, wrapDeserializer(FLOAT_TYPE_ADAPTER));
+    map.register(Integer.class, wrapDeserializer(INTEGER_TYPE_ADAPTER));
+    map.register(int.class, wrapDeserializer(INTEGER_TYPE_ADAPTER));
+    map.register(Long.class, wrapDeserializer(LONG_TYPE_ADAPTER));
+    map.register(long.class, wrapDeserializer(LONG_TYPE_ADAPTER));
+    map.register(Short.class, wrapDeserializer(SHORT_TYPE_ADAPTER));
+    map.register(short.class, wrapDeserializer(SHORT_TYPE_ADAPTER));
+    map.register(String.class, wrapDeserializer(STRING_TYPE_ADAPTER));
+
     map.makeUnmodifiable();
     return map;
   }
@@ -124,30 +166,31 @@ final class DefaultTypeAdapters {
     map.register(Enum.class, ENUM_TYPE_ADAPTER);
     map.register(URL.class, URL_TYPE_ADAPTER);
     map.register(Locale.class, LOCALE_TYPE_ADAPTER);
-    map.register(Collection.class, COLLECTION_TYPE_ADAPTER);
     map.register(Map.class, MAP_TYPE_ADAPTER);
     map.register(BigDecimal.class, BIG_DECIMAL_TYPE_ADAPTER);
     map.register(BigInteger.class, BIG_INTEGER_TYPE_ADAPTER);
 
     // Add primitive instance creators
-    map.register(Boolean.class, BOOLEAN_CREATOR);
-    map.register(boolean.class, BOOLEAN_CREATOR);
-    map.register(Byte.class, BYTE_CREATOR);
-    map.register(byte.class, BYTE_CREATOR);
-    map.register(Character.class, CHARACTER_CREATOR);
-    map.register(char.class, CHARACTER_CREATOR);
-    map.register(Double.class, DOUBLE_CREATOR);
-    map.register(double.class, DOUBLE_CREATOR);
-    map.register(Float.class, FLOAT_CREATOR);
-    map.register(float.class, FLOAT_CREATOR);
-    map.register(Integer.class, INTEGER_CREATOR);
-    map.register(int.class, INTEGER_CREATOR);
-    map.register(Long.class, LONG_CREATOR);
-    map.register(long.class, LONG_CREATOR);
-    map.register(Short.class, SHORT_CREATOR);
-    map.register(short.class, SHORT_CREATOR);
-
-    map.register(Collection.class, LINKED_LIST_CREATOR);
+    map.register(Boolean.class, BOOLEAN_TYPE_ADAPTER);
+    map.register(boolean.class, BOOLEAN_TYPE_ADAPTER);
+    map.register(Byte.class, BYTE_TYPE_ADAPTER);
+    map.register(byte.class, BYTE_TYPE_ADAPTER);
+    map.register(Character.class, CHARACTER_TYPE_ADAPTER);
+    map.register(char.class, CHARACTER_TYPE_ADAPTER);
+    map.register(Double.class, DOUBLE_TYPE_ADAPTER);
+    map.register(double.class, DOUBLE_TYPE_ADAPTER);
+    map.register(Float.class, FLOAT_TYPE_ADAPTER);
+    map.register(float.class, FLOAT_TYPE_ADAPTER);
+    map.register(Integer.class, INTEGER_TYPE_ADAPTER);
+    map.register(int.class, INTEGER_TYPE_ADAPTER);
+    map.register(Long.class, LONG_TYPE_ADAPTER);
+    map.register(long.class, LONG_TYPE_ADAPTER);
+    map.register(Short.class, SHORT_TYPE_ADAPTER);
+    map.register(short.class, SHORT_TYPE_ADAPTER);
+    map.register(String.class, STRING_TYPE_ADAPTER);
+    
+    // Add Collection type instance creators
+    map.register(Collection.class, COLLECTION_TYPE_ADAPTER);
     map.register(List.class, LINKED_LIST_CREATOR);
     map.register(Queue.class, LINKED_LIST_CREATOR);
 
@@ -468,83 +511,192 @@ final class DefaultTypeAdapters {
     }
   }
 
-  private static class LongCreator implements InstanceCreator<Long> {
+  private static class LongTypeAdapter
+      implements InstanceCreator<Long>, JsonSerializer<Long>, JsonDeserializer<Long> {
+    public JsonElement serialize(Long src, Type typeOfSrc, JsonSerializationContext context) {
+      return new JsonPrimitive(src);
+    }
+
+    public Long deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+        throws JsonParseException {
+      return json.getAsLong();
+    }
+    
     public Long createInstance(Type type) {
       return new Long(0L);
     }
+
     @Override
     public String toString() {
-      return LongCreator.class.getSimpleName();
+      return LongTypeAdapter.class.getSimpleName();
     }
   }
 
-  private static class IntegerCreator implements InstanceCreator<Integer> {
+  private static class IntegerTypeAdapter 
+      implements InstanceCreator<Integer>, JsonSerializer<Integer>, JsonDeserializer<Integer> {
+    public JsonElement serialize(Integer src, Type typeOfSrc, JsonSerializationContext context) {
+      return new JsonPrimitive(src);
+    }
+
+    public Integer deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+        throws JsonParseException {
+      return json.getAsInt();
+    }
+    
     public Integer createInstance(Type type) {
       return new Integer(0);
     }
+
     @Override
     public String toString() {
-      return IntegerCreator.class.getSimpleName();
+      return IntegerTypeAdapter.class.getSimpleName();
     }
   }
 
-  private static class ShortCreator implements InstanceCreator<Short> {
+  private static class ShortTypeAdapter
+      implements InstanceCreator<Short>, JsonSerializer<Short>, JsonDeserializer<Short> {
+    public JsonElement serialize(Short src, Type typeOfSrc, JsonSerializationContext context) {
+      return new JsonPrimitive(src);
+    }
+
+    public Short deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+        throws JsonParseException {
+      return json.getAsShort();
+    }
+
     public Short createInstance(Type type) {
       return new Short((short) 0);
     }
+    
     @Override
     public String toString() {
-      return ShortCreator.class.getSimpleName();
+      return ShortTypeAdapter.class.getSimpleName();
     }
   }
 
-  private static class ByteCreator implements InstanceCreator<Byte> {
+  private static class ByteTypeAdapter
+      implements InstanceCreator<Byte>, JsonSerializer<Byte>, JsonDeserializer<Byte> {
+    public JsonElement serialize(Byte src, Type typeOfSrc, JsonSerializationContext context) {
+      return new JsonPrimitive(src);
+    }
+
+    public Byte deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+        throws JsonParseException {
+      return json.getAsByte();
+    }
+    
     public Byte createInstance(Type type) {
       return new Byte((byte) 0);
     }
+
     @Override
     public String toString() {
-      return ByteCreator.class.getSimpleName();
+      return ByteTypeAdapter.class.getSimpleName();
     }
   }
 
-  private static class FloatCreator implements InstanceCreator<Float> {
+  private static class FloatTypeAdapter
+      implements InstanceCreator<Float>, JsonSerializer<Float>, JsonDeserializer<Float> {
+    public JsonElement serialize(Float src, Type typeOfSrc, JsonSerializationContext context) {
+      return new JsonPrimitive(src);
+    }
+
+    public Float deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+        throws JsonParseException {
+      return json.getAsFloat();
+    }
+    
     public Float createInstance(Type type) {
       return new Float(0F);
     }
+
     @Override
     public String toString() {
-      return FloatCreator.class.getSimpleName();
+      return FloatTypeAdapter.class.getSimpleName();
     }
   }
 
-  private static class DoubleCreator implements InstanceCreator<Double> {
+  private static class DoubleTypeAdapter
+      implements InstanceCreator<Double>, JsonSerializer<Double>, JsonDeserializer<Double> {
+    public JsonElement serialize(Double src, Type typeOfSrc, JsonSerializationContext context) {
+      return new JsonPrimitive(src);
+    }
+
+    public Double deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+        throws JsonParseException {
+      return json.getAsDouble();
+    }
+    
     public Double createInstance(Type type) {
       return new Double(0D);
     }
+
     @Override
     public String toString() {
-      return DoubleCreator.class.getSimpleName();
+      return DoubleTypeAdapter.class.getSimpleName();
     }
   }
 
-  private static class CharacterCreator implements InstanceCreator<Character> {
+  private static class CharacterTypeAdapter implements InstanceCreator<Character>,
+      JsonSerializer<Character>, JsonDeserializer<Character> {
+    public JsonElement serialize(Character src, Type typeOfSrc, JsonSerializationContext context) {
+      return new JsonPrimitive(src);
+    }
+
+    public Character deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+        throws JsonParseException {
+      return json.getAsCharacter();
+    }
+    
     public Character createInstance(Type type) {
-      return new Character((char) 0);
+      return new Character('0');
     }
+
     @Override
     public String toString() {
-      return CharacterCreator.class.getSimpleName();
+      return CharacterTypeAdapter.class.getSimpleName();
+    }
+  }
+  
+  private static class StringTypeAdapter 
+      implements InstanceCreator<String>, JsonSerializer<String>, JsonDeserializer<String> {
+    public JsonElement serialize(String src, Type typeOfSrc, JsonSerializationContext context) {
+      return new JsonPrimitive(src);
+    }
+    
+    public String deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+        throws JsonParseException {
+      return json.getAsString();
+    }
+    
+    public String createInstance(Type type) {
+      return "";
+    }
+    
+    @Override
+    public String toString() {
+      return StringTypeAdapter.class.getSimpleName();
     }
   }
 
-  private static class BooleanCreator implements InstanceCreator<Boolean> {
+  private static class BooleanTypeAdapter 
+      implements InstanceCreator<Boolean>, JsonSerializer<Boolean>, JsonDeserializer<Boolean> {
+    public JsonElement serialize(Boolean src, Type typeOfSrc, JsonSerializationContext context) {
+      return new JsonPrimitive(src);
+    }
+
+    public Boolean deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+        throws JsonParseException {
+      return json.getAsBoolean();
+    }
+    
     public Boolean createInstance(Type type) {
       return new Boolean(false);
     }
+
     @Override
     public String toString() {
-      return BooleanCreator.class.getSimpleName();
+      return BooleanTypeAdapter.class.getSimpleName();
     }
   }
 

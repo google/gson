@@ -80,8 +80,8 @@ public class TypeInfoArrayTest extends TestCase {
     TypeInfoArray arrayTypeInfo = new TypeInfoArray(int[].class);
 
     assertTrue(arrayTypeInfo.isArray());
+    assertFalse(arrayTypeInfo.isPrimitive());
     assertEquals(int.class, arrayTypeInfo.getSecondLevelType());
-    assertFalse(arrayTypeInfo.isPrimitiveOrStringAndNotAnArray());
   }
 
   public void testStringArray() throws Exception {

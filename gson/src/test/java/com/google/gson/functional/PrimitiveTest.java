@@ -16,13 +16,15 @@
 
 package com.google.gson.functional;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonParseException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import junit.framework.TestCase;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
+import com.google.gson.common.TestTypes.CrazyLongTypeAdapter;
 
 /**
  * Functional tests for Json primitive values: integers, and floating point numbers.
@@ -256,6 +258,20 @@ public class PrimitiveTest extends TestCase {
       gson.fromJson("15.099", BigInteger.class);
       fail("BigInteger can not be decimal values.");
     } catch (JsonParseException expected) { }
+  }
+  
+  public void testOverridingDefaultPrimitiveSerialization() {
+    CrazyLongTypeAdapter typeAdapter = new CrazyLongTypeAdapter();
+    gson = new GsonBuilder()
+        .registerTypeAdapter(long.class, typeAdapter)
+        .registerTypeAdapter(Long.class, typeAdapter)
+        .create();
+    long value = 1L;
+    String serializedValue = gson.toJson(value);
+    assertEquals(String.valueOf(value + CrazyLongTypeAdapter.DIFFERENCE), serializedValue);
+    
+    long deserializedValue = gson.fromJson(serializedValue, long.class);
+    assertEquals(value, deserializedValue);
   }
 
   private String extractElementFromArray(String json) {
