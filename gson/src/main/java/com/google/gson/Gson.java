@@ -78,8 +78,6 @@ public final class Gson {
 
   private static final String NULL_STRING = "null";
   // Default instances of plug-ins
-  static final TypeAdapter DEFAULT_TYPE_ADAPTER =
-      new TypeAdapterNotRequired(new PrimitiveTypeAdapter());
   static final ModifierBasedExclusionStrategy DEFAULT_MODIFIER_BASED_EXCLUSION_STRATEGY =
       new ModifierBasedExclusionStrategy(true, new int[] { Modifier.TRANSIENT, Modifier.STATIC });
   static final JsonFormatter DEFAULT_JSON_FORMATTER = new JsonCompactFormatter();
@@ -91,7 +89,6 @@ public final class Gson {
   private final ExclusionStrategy strategy;
   private final FieldNamingStrategy fieldNamingPolicy;
   private final MappedObjectConstructor objectConstructor;
-  private final TypeAdapter typeAdapter;
 
   /** Map containing Type or Class objects as keys */
   private final ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers;
@@ -146,19 +143,17 @@ public final class Gson {
    */
   Gson(ExclusionStrategy strategy, FieldNamingStrategy fieldNamingPolicy) {
     this(strategy, fieldNamingPolicy, createObjectConstructor(DefaultTypeAdapters.DEFAULT_INSTANCE_CREATORS),
-        DEFAULT_TYPE_ADAPTER, DEFAULT_JSON_FORMATTER, false,
+        DEFAULT_JSON_FORMATTER, false,
         DefaultTypeAdapters.DEFAULT_SERIALIZERS, DefaultTypeAdapters.DEFAULT_DESERIALIZERS);
   }
 
   Gson(ExclusionStrategy strategy, FieldNamingStrategy fieldNamingPolicy, 
-      MappedObjectConstructor objectConstructor,
-      TypeAdapter typeAdapter, JsonFormatter formatter, boolean serializeNulls,
+      MappedObjectConstructor objectConstructor, JsonFormatter formatter, boolean serializeNulls,
       ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers,
       ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers) {
     this.strategy = strategy;
     this.fieldNamingPolicy = fieldNamingPolicy;
     this.objectConstructor = objectConstructor;
-    this.typeAdapter = typeAdapter;
     this.formatter = formatter;
     this.serializeNulls = serializeNulls;
     this.serializers = serializers;
@@ -374,7 +369,7 @@ public final class Gson {
       JsonParser parser = new JsonParser(json);
       JsonElement root = parser.parse();
       JsonDeserializationContext context = new JsonDeserializationContextDefault(
-          createDefaultObjectNavigatorFactory(), deserializers, objectConstructor, typeAdapter);
+          createDefaultObjectNavigatorFactory(), deserializers, objectConstructor);
       T target = (T) context.deserialize(root, typeOfT);
       return target;
     } catch (TokenMgrError e) {
