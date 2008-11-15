@@ -100,6 +100,8 @@ public class MapTest extends TestCase {
   }
 
   private static class MyParameterizedMap<K, V> extends LinkedHashMap<K, V> {
+    private static final long serialVersionUID = 1L;
+
     int foo = 10;
   }
   
@@ -123,6 +125,8 @@ public class MapTest extends TestCase {
   }
   
   private static class MyMap extends LinkedHashMap<String, String> {
+    private static final long serialVersionUID = 1L;
+
     int foo = 10;
   }
 }
