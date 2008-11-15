@@ -31,7 +31,7 @@ import com.google.gson.Primitives;
  */
 final class PrimitiveTypeAdapter {
 
-  @SuppressWarnings( { "unchecked" })
+  @SuppressWarnings("unchecked")
   public <T> T adaptType(Object from, Class<T> to) {
     Class<?> aClass = Primitives.wrap(to);
     if (Primitives.isWrapperType(aClass)) {
