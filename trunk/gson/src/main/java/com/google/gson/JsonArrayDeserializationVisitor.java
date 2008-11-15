@@ -31,9 +31,9 @@ final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisito
 
   JsonArrayDeserializationVisitor(JsonArray jsonArray, Type arrayType,
       ObjectNavigatorFactory factory, ObjectConstructor objectConstructor,
-      TypeAdapter typeAdapter, ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers,
+      ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers,
       JsonDeserializationContext context) {
-    super(jsonArray, arrayType, factory, objectConstructor, typeAdapter, deserializers, context);
+    super(jsonArray, arrayType, factory, objectConstructor, deserializers, context);
   }
 
   @Override

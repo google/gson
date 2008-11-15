@@ -20,15 +20,18 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import com.google.gson.JsonParseException;
+import com.google.gson.Primitives;
+
 /**
  * Handles type conversion from some object to some primitive (or primitive
  * wrapper instance).
- *
+ * 
  * @author Joel Leitch
  */
-final class PrimitiveTypeAdapter implements TypeAdapter {
+final class PrimitiveTypeAdapter {
 
-  @SuppressWarnings({"unchecked"})
+  @SuppressWarnings( { "unchecked" })
   public <T> T adaptType(Object from, Class<T> to) {
     Class<?> aClass = Primitives.wrap(to);
     if (Primitives.isWrapperType(aClass)) {
@@ -67,8 +70,7 @@ final class PrimitiveTypeAdapter implements TypeAdapter {
         throw new RuntimeException(e);
       }
     } else {
-      throw new JsonParseException(
-          "Can not adapt type " + from.getClass() + " to " + to);
+      throw new JsonParseException("Can not adapt type " + from.getClass() + " to " + to);
     }
   }
 }

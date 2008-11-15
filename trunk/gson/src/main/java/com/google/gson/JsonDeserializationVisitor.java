@@ -33,7 +33,6 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
 
   protected final ObjectNavigatorFactory factory;
   protected final ObjectConstructor objectConstructor;
-  protected final TypeAdapter typeAdapter;
   protected final ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers;
   protected T target;
   protected final JsonElement json;
@@ -41,14 +40,13 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
   protected final JsonDeserializationContext context;
 
   public JsonDeserializationVisitor(JsonElement json, Type targetType,
-      ObjectNavigatorFactory factory, ObjectConstructor objectConstructor, TypeAdapter typeAdapter,
+      ObjectNavigatorFactory factory, ObjectConstructor objectConstructor,
       ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers,
       JsonDeserializationContext context) {
     Preconditions.checkNotNull(json);
     this.targetType = targetType;
     this.factory = factory;
     this.objectConstructor = objectConstructor;
-    this.typeAdapter = typeAdapter;
     this.deserializers = deserializers;
     this.json = json;
     this.context = context;
@@ -76,14 +74,14 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
   final Object visitChildAsObject(Type childType, JsonElement jsonChild) {
     JsonDeserializationVisitor<?> childVisitor =
       new JsonObjectDeserializationVisitor<Object>(jsonChild, childType,
-          factory, objectConstructor, typeAdapter, deserializers, context);
+          factory, objectConstructor, deserializers, context);
     return visitChild(childType, childVisitor);
   }
 
   final Object visitChildAsArray(Type childType, JsonArray jsonChild) {
     JsonDeserializationVisitor<?> childVisitor =
       new JsonArrayDeserializationVisitor<Object>(jsonChild.getAsJsonArray(), childType,
-          factory, objectConstructor, typeAdapter, deserializers, context);
+          factory, objectConstructor, deserializers, context);
     return visitChild(childType, childVisitor);
   }
 

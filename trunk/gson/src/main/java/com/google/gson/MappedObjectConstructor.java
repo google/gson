@@ -49,7 +49,7 @@ final class MappedObjectConstructor implements ObjectConstructor {
     TypeInfo typeInfo = new TypeInfo(typeOfT);
     if (typeInfo.isEnum()) {
       InstanceCreator<T> creator =
-        (InstanceCreator<T>) instanceCreatorMap.getHandlerFor(Enum.class);
+          (InstanceCreator<T>) instanceCreatorMap.getHandlerFor(Enum.class);
       return creator.createInstance(typeOfT);
     }
     return (T) constructWithNoArgConstructor(typeOfT);

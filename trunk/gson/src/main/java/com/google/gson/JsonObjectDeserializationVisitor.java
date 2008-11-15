@@ -30,9 +30,9 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
 
   JsonObjectDeserializationVisitor(JsonElement json, Type type,
       ObjectNavigatorFactory factory, ObjectConstructor objectConstructor,
-      TypeAdapter typeAdapter, ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers,
+      ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers,
       JsonDeserializationContext context) {
-    super(json, type, factory, objectConstructor, typeAdapter, deserializers, context);
+    super(json, type, factory, objectConstructor, deserializers, context);
   }
 
   @Override
