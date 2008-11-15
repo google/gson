@@ -225,6 +225,22 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
     }
     throw new IllegalStateException();
   }
+  
+  @Override
+  public byte getAsByte() {
+    if (elements.size() == 1) {
+      return elements.get(0).getAsByte();
+    }
+    throw new IllegalStateException();
+  }
+  
+  @Override
+  public char getAsCharacter() {
+    if (elements.size() == 1) {
+      return elements.get(0).getAsCharacter();
+    }
+    throw new IllegalStateException();
+  }
 
   /**
    * convenience method to get this array as a primitive short if it contains a single element.

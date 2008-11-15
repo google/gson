@@ -50,11 +50,6 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
     throw new IllegalStateException();
   }
 
-  public void visitPrimitiveValue(Object obj) {
-    // should not be called since this case should invoke JsonPrimitiveDeserializationVisitor
-    throw new IllegalStateException();
-  }
-
   public void visitObjectField(Field f, Type typeOfF, Object obj) {
     try {
       JsonObject jsonObject = json.getAsJsonObject();
@@ -81,25 +76,6 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
         f.set(obj, array);
       } else {
         f.set(obj, null);
-      }
-    } catch (IllegalAccessException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  public void visitPrimitiveField(Field f, Type typeOfF, Object obj) {
-    try {
-      JsonObject jsonObject = json.getAsJsonObject();
-      String fName = getFieldName(f);
-      JsonPrimitive value = jsonObject.getAsJsonPrimitive(fName);
-      if (value != null) {
-        f.set(obj, typeAdapter.adaptType(value.getAsObject(), TypeUtils.toRawClass(typeOfF)));
-      } else {
-        // For Strings, we need to set the field to null
-        // For other primitive types, any value created during default construction is fine
-        if (f.getType() == String.class) {
-          f.set(obj, null);
-        }
       }
     } catch (IllegalAccessException e) {
       throw new RuntimeException(e);

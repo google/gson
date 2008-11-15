@@ -83,12 +83,11 @@ final class JsonDeserializationContextDefault implements JsonDeserializationCont
   @SuppressWarnings("unchecked")
   private <T> T fromJsonPrimitive(Type typeOfT, JsonPrimitive json,
       JsonDeserializationContext context) throws JsonParseException {
-    JsonPrimitiveDeserializationVisitor<T> visitor = new JsonPrimitiveDeserializationVisitor<T>(
+    JsonObjectDeserializationVisitor<T> visitor = new JsonObjectDeserializationVisitor<T>(
         json, typeOfT, navigatorFactory, objectConstructor, typeAdapter, deserializers, context);
-    Object target = visitor.getTarget();
-    ObjectNavigator on = navigatorFactory.create(target, typeOfT);
+    ObjectNavigator on = navigatorFactory.create(json.getAsObject(), typeOfT);
     on.accept(visitor);
-    target = visitor.getTarget();
+    Object target = visitor.getTarget();
     if (typeOfT instanceof Class) {
       target = typeAdapter.adaptType(target, (Class) typeOfT);
     }

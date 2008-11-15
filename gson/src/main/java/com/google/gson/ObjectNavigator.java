@@ -40,11 +40,6 @@ final class ObjectNavigator {
     void visitArray(Object array, Type componentType);
 
     /**
-     * This is called to visit the current object if it is a primitive
-     */
-    void visitPrimitiveValue(Object obj);
-
-    /**
      * This is called to visit an object field of the current object
      */
     void visitObjectField(Field f, Type typeOfF, Object obj);
@@ -53,11 +48,6 @@ final class ObjectNavigator {
      * This is called to visit an array field of the current object
      */
     void visitArrayField(Field f, Type typeOfF, Object obj);
-
-    /**
-     * This is called to visit a primitive field of the current object
-     */
-    void visitPrimitiveField(Field f, Type typeOfF, Object obj);
 
     /**
      * This is called to visit an object using a custom handler
@@ -116,8 +106,6 @@ final class ObjectNavigator {
       if (!visitedWithCustomHandler) {
         if (objTypeInfo.isArray()) {
           visitor.visitArray(obj, objType);
-        } else if (objTypeInfo.isPrimitiveOrStringAndNotAnArray()) {
-          visitor.visitPrimitiveValue(obj);
         } else {
           visitor.startVisitingObject(obj);
           // For all classes in the inheritance hierarchy (including the current class),
@@ -149,8 +137,6 @@ final class ObjectNavigator {
         if (!visitedWithCustomHandler) {
           if (fieldTypeInfo.isArray()) {
             visitor.visitArrayField(f, actualTypeOfField, obj);
-          } else if (fieldTypeInfo.isPrimitiveOrStringAndNotAnArray()) {
-            visitor.visitPrimitiveField(f, actualTypeOfField, obj);
           } else {
             visitor.visitObjectField(f, actualTypeOfField, obj);
           }
