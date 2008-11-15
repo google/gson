@@ -118,26 +118,6 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
     return childVisitor.getJsonElement();
   }
 
-  public void visitPrimitiveField(Field f, Type typeOfF, Object obj) {    
-    if (isFieldNull(f, obj)) {
-      if (serializeNulls) {
-        addChildAsElement(f, JsonNull.INSTANCE);
-      }      
-    } else {
-      TypeInfo typeInfo = new TypeInfo(typeOfF);
-      if (typeInfo.isPrimitiveOrStringAndNotAnArray()) {
-        Object fieldValue = getFieldValue(f, obj);
-        addAsChildOfObject(f, typeOfF, fieldValue);
-      } else {
-        throw new IllegalArgumentException("Not a primitive type");
-      }
-    }
-  }
-
-  public void visitPrimitiveValue(Object obj) {
-    assignToRoot(new JsonPrimitive(obj));
-  }
-
   @SuppressWarnings("unchecked")
   public boolean visitUsingCustomHandler(Object obj, Type objType) {
     JsonSerializer serializer = serializers.getHandlerFor(objType);

@@ -16,7 +16,9 @@
 package com.google.gson.functional;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.common.MoreAsserts;
+import com.google.gson.common.TestTypes.CrazyLongTypeAdapter;
 import com.google.gson.common.TestTypes.MyEnum;
 import com.google.gson.reflect.TypeToken;
 
@@ -132,5 +134,21 @@ public class ArrayTest extends TestCase {
     assertEquals(2, target.length);
     MoreAsserts.assertEquals(new Integer[] { 1, 2 }, target[0].toArray(new Integer[0]));
     MoreAsserts.assertEquals(new Integer[] { 3, 4 }, target[1].toArray(new Integer[0]));
+  }
+  
+  public void testArrayOfPrimitivesWithCustomTypeAdapter() throws Exception {
+    CrazyLongTypeAdapter typeAdapter = new CrazyLongTypeAdapter();
+    gson = new GsonBuilder()
+        .registerTypeAdapter(long.class, typeAdapter)
+        .registerTypeAdapter(Long.class, typeAdapter)
+        .create();
+    long[] value = { 1L };
+    String serializedValue = gson.toJson(value);
+    String expected = "[" + String.valueOf(value[0] + CrazyLongTypeAdapter.DIFFERENCE) + "]";
+    assertEquals(expected, serializedValue);
+    
+    long[] deserializedValue = gson.fromJson(serializedValue, long[].class);
+    assertEquals(1, deserializedValue.length);
+    assertEquals(value[0], deserializedValue[0]);
   }
 }

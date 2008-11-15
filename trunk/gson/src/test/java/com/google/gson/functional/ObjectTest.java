@@ -271,7 +271,6 @@ public class ObjectTest extends TestCase {
   public void testSubInterfacesOfCollectionDeserialization() throws Exception {
     String json = "{\"list\":[0,1,2,3],\"queue\":[0,1,2,3],\"set\":[0.1,0.2,0.3,0.4],"
         + "\"sortedSet\":[\"a\",\"b\",\"c\",\"d\"]"
-//        + ",\"navigableSet\":[\"abc\",\"def\",\"ghi\",\"jkl\"]"
         + "}";
     ClassWithSubInterfacesOfCollection target = gson.fromJson(
         json, ClassWithSubInterfacesOfCollection.class);

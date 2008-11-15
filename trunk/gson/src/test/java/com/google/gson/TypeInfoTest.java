@@ -35,7 +35,6 @@ public class TypeInfoTest extends TestCase {
     TypeInfo typeInfo = new TypeInfo(boolean.class);
 
     assertFalse(typeInfo.isArray());
-    assertFalse(typeInfo.isString());
     assertTrue(typeInfo.isPrimitive());
     assertEquals(boolean.class, typeInfo.getRawClass());
     assertEquals(Boolean.class, typeInfo.getWrappedClass());
@@ -46,7 +45,7 @@ public class TypeInfoTest extends TestCase {
 
     assertEquals(Integer.class, typeInfo.getRawClass());
     assertTrue(typeInfo.isPrimitive());
-    assertTrue(typeInfo.isPrimitiveOrStringAndNotAnArray());
+    assertFalse(typeInfo.isArray());
   }
 
   public void testString() throws Exception {
@@ -55,7 +54,6 @@ public class TypeInfoTest extends TestCase {
     assertFalse(typeInfo.isArray());
     assertFalse(typeInfo.isPrimitive());
     assertEquals(String.class, typeInfo.getRawClass());
-    assertTrue(typeInfo.isPrimitiveOrStringAndNotAnArray());
   }
 
   public void testObject() throws Exception {
@@ -64,7 +62,6 @@ public class TypeInfoTest extends TestCase {
     assertFalse(typeInfo.isArray());
     assertFalse(typeInfo.isPrimitive());
     assertEquals(Object.class, typeInfo.getRawClass());
-    assertFalse(typeInfo.isPrimitiveOrStringAndNotAnArray());
   }
 
   public void testPrimitiveType() throws Exception {
@@ -76,7 +73,7 @@ public class TypeInfoTest extends TestCase {
   public void testObjectType() throws Exception {
     TypeInfo typeInfo = new TypeInfo(String.class);
     assertFalse(typeInfo.isArray());
-    assertTrue(typeInfo.isString());
+    assertFalse(typeInfo.isPrimitive());
     assertEquals(String.class, typeInfo.getRawClass());
   }
 

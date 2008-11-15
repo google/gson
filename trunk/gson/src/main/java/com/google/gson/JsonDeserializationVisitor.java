@@ -87,31 +87,6 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
     return visitChild(childType, childVisitor);
   }
 
-  final Object visitChildAsPrimitive(Type childType, JsonPrimitive jsonChild) {
-    Preconditions.checkNotNull(jsonChild);
-    Class<?> childClass;
-    if (childType instanceof Class) {
-      childClass = (Class<?>) childType;
-    } else {
-      childClass = TypeUtils.toRawClass(childType);
-    }
-    return typeAdapter.adaptType(jsonChild.getAsObject(), childClass);
-  }
-
-  final Object visitChild(Type childType, JsonElement jsonChild) {
-    if (jsonChild == null) {
-      return null;
-    } else if (jsonChild instanceof JsonArray) {
-      return visitChildAsArray(childType, jsonChild.getAsJsonArray());
-    } else if (jsonChild instanceof JsonObject) {
-      return visitChildAsObject(childType, jsonChild);
-    } else if (jsonChild instanceof JsonPrimitive) {
-      return visitChildAsPrimitive(childType, jsonChild.getAsJsonPrimitive());
-    } else {
-      throw new IllegalStateException();
-    }
-  }
-
   private Object visitChild(Type type, JsonDeserializationVisitor<?> childVisitor) {
     Object child = childVisitor.getTarget();
     ObjectNavigator on = factory.create(child, type);

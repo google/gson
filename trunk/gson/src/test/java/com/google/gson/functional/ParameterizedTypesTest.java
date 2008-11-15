@@ -67,7 +67,7 @@ public class ParameterizedTypesTest extends TestCase {
         .create();
 
     String json = expected.getExpectedJson();
-    MyParameterizedType<Integer> actual = gson.fromJson(json, expectedType);
+    MyParameterizedType<BagOfPrimitives> actual = gson.fromJson(json, expectedType);
     assertEquals(expected, actual);
   }
 

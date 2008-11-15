@@ -255,6 +255,16 @@ public final class JsonPrimitive extends JsonElement {
   public int getAsInt() {
     return ((Number) value).intValue();
   }
+  
+  @Override
+  public byte getAsByte() {
+    return ((Number) value).byteValue();
+  }
+  
+  @Override
+  public char getAsCharacter() {
+    return getAsString().charAt(0);
+  }
 
   /**
    * convenience method to get this element as an Object.
