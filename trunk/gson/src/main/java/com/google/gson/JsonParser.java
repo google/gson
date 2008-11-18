@@ -207,21 +207,12 @@ final class JsonParser implements JsonParserConstants {
       ;
     }
     Number n;
-    if (exppart != null) {
+    if (exppart != null || fracpart != null) {
       fracpart = (fracpart == null) ? "" : fracpart;
+      exppart = (exppart == null) ? "" : exppart;
       n = new java.math.BigDecimal(intpart + fracpart + exppart);
-    } else if (fracpart != null) {
-      n = new Double(intpart + fracpart);
     } else {
-      // See if the number fits in an integer, or long
-      // Use BigInteger only if it is big enough.
-      if (intpart.length() < 10) {
-        n = new Integer(intpart);
-      } else if (intpart.length() < 19) {
-        n = new Long(intpart);
-      } else {
-        n = new java.math.BigInteger(intpart);
-      }
+      n = new java.math.BigInteger(intpart);
     }
     {if (true) return new JsonPrimitive(n);}
     throw new Error("Missing return statement in function");
