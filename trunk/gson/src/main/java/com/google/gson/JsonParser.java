@@ -208,6 +208,7 @@ final class JsonParser implements JsonParserConstants {
     }
     Number n;
     if (exppart != null) {
+      fracpart = (fracpart == null) ? "" : fracpart;
       n = new java.math.BigDecimal(intpart + fracpart + exppart);
     } else if (fracpart != null) {
       n = new Double(intpart + fracpart);

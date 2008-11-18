@@ -162,6 +162,26 @@ public class PrimitiveTest extends TestCase {
     assertEquals("[-122.08]", gson.toJson(target, double[].class));
     assertEquals("[-122.08]", gson.toJson(target, Double[].class));
   }
+  
+  public void testDoubleAsStringRepresentationDeserialization() {
+    String doubleValue = "1.0043E+5";
+    Double expected = Double.valueOf(doubleValue);
+    Double actual = gson.fromJson(doubleValue, Double.class);
+    assertEquals(expected, actual);
+
+    double actual1 = gson.fromJson(doubleValue, double.class);
+    assertEquals(expected.doubleValue(), actual1);
+  }
+  
+  public void testDoubleNoFractAsStringRepresentationDeserialization() {
+    String doubleValue = "1E+5";
+    Double expected = Double.valueOf(doubleValue);
+    Double actual = gson.fromJson(doubleValue, Double.class);
+    assertEquals(expected, actual);
+
+    double actual1 = gson.fromJson(doubleValue, double.class);
+    assertEquals(expected.doubleValue(), actual1);
+  }
 
   public void testPrimitiveDoubleAutoboxedInASingleElementArrayDeserialization() {
     double expected = -122.08;
@@ -210,6 +230,20 @@ public class PrimitiveTest extends TestCase {
   public void testSmallValueForBigDecimalDeserialization() {
     BigDecimal expected = new BigDecimal("1.55");
     BigDecimal actual = gson.fromJson("1.55", BigDecimal.class);
+    assertEquals(expected, actual);
+  }
+
+  public void testBigDecimalAsStringRepresentationDeserialization() {
+    String doubleValue = "0.05E+5";
+    BigDecimal expected = new BigDecimal(doubleValue);
+    BigDecimal actual = gson.fromJson(doubleValue, BigDecimal.class);
+    assertEquals(expected, actual);
+  }
+  
+  public void testBigDecimalNoFractAsStringRepresentationDeserialization() {
+    String doubleValue = "5E+5";
+    BigDecimal expected = new BigDecimal(doubleValue);
+    BigDecimal actual = gson.fromJson(doubleValue, BigDecimal.class);
     assertEquals(expected, actual);
   }
 
