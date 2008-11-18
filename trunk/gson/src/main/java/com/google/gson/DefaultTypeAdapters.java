@@ -71,6 +71,7 @@ final class DefaultTypeAdapters {
   private static final FloatTypeAdapter FLOAT_TYPE_ADAPTER = new FloatTypeAdapter();
   private static final IntegerTypeAdapter INTEGER_TYPE_ADAPTER = new IntegerTypeAdapter();
   private static final LongTypeAdapter LONG_TYPE_ADAPTER = new LongTypeAdapter();
+  private static final NumberTypeAdapter NUMBER_TYPE_ADAPTER = new NumberTypeAdapter();
   private static final ShortTypeAdapter SHORT_TYPE_ADAPTER = new ShortTypeAdapter();
   private static final StringTypeAdapter STRING_TYPE_ADAPTER = new StringTypeAdapter();
 
@@ -116,6 +117,7 @@ final class DefaultTypeAdapters {
     map.register(int.class, INTEGER_TYPE_ADAPTER);
     map.register(Long.class, LONG_TYPE_ADAPTER);
     map.register(long.class, LONG_TYPE_ADAPTER);
+    map.register(Number.class, NUMBER_TYPE_ADAPTER);
     map.register(Short.class, SHORT_TYPE_ADAPTER);
     map.register(short.class, SHORT_TYPE_ADAPTER);
     map.register(String.class, STRING_TYPE_ADAPTER);
@@ -152,6 +154,7 @@ final class DefaultTypeAdapters {
     map.register(int.class, wrapDeserializer(INTEGER_TYPE_ADAPTER));
     map.register(Long.class, wrapDeserializer(LONG_TYPE_ADAPTER));
     map.register(long.class, wrapDeserializer(LONG_TYPE_ADAPTER));
+    map.register(Number.class, wrapDeserializer(NUMBER_TYPE_ADAPTER));
     map.register(Short.class, wrapDeserializer(SHORT_TYPE_ADAPTER));
     map.register(short.class, wrapDeserializer(SHORT_TYPE_ADAPTER));
     map.register(String.class, wrapDeserializer(STRING_TYPE_ADAPTER));
@@ -508,6 +511,23 @@ final class DefaultTypeAdapters {
     @Override
     public String toString() {
       return BigIntegerTypeAdapter.class.getSimpleName();
+    }
+  }
+  
+  private static class NumberTypeAdapter
+      implements JsonSerializer<Number>, JsonDeserializer<Number> {
+    public JsonElement serialize(Number src, Type typeOfSrc, JsonSerializationContext context) {
+      return new JsonPrimitive(src);
+    }
+    
+    public Number deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+        throws JsonParseException {
+      return json.getAsNumber();
+    }
+    
+    @Override
+    public String toString() {
+      return LongTypeAdapter.class.getSimpleName();
     }
   }
 
