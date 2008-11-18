@@ -253,6 +253,22 @@ public class PrimitiveTest extends TestCase {
     BigDecimal actual = gson.fromJson("1.55", BigDecimal.class);
     assertEquals(expected, actual);
   }
+  
+  public void testBigDecimalPreservePrecisionSerialization() {
+    String expectedValue = "1.000";
+    BigDecimal obj = new BigDecimal(expectedValue);
+    String actualValue = gson.toJson(obj);
+    
+    assertEquals(expectedValue, actualValue);
+  }
+  
+  public void testBigDecimalPreservePrecisionDeserialization() {
+    String json = "1.000";
+    BigDecimal expected = new BigDecimal(json);
+    BigDecimal actual = gson.fromJson(json, BigDecimal.class);
+    
+    assertEquals(expected, actual);
+  }
 
   public void testBigDecimalAsStringRepresentationDeserialization() {
     String doubleValue = "0.05E+5";
