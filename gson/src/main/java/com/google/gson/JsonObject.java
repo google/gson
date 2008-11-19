@@ -55,6 +55,16 @@ public final class JsonObject extends JsonElement {
   }
   
   /**
+   * Removes the {@code property} from this {@link JsonObject}.
+   *   
+   * @param property name of the member that should be removed.
+   * return the {@link JsonElement} object that is being removed.
+   */
+  public JsonElement remove(String property) {
+    return members.remove(property);
+  }
+  
+  /**
    * Convenience method to add a primitive member. The specified value is converted to a 
    * JsonPrimitive of String. 
    *  
