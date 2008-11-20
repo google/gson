@@ -128,7 +128,11 @@ public final class JsonPrimitive extends JsonElement {
    */
   @Override
   public boolean getAsBoolean() {
-    return ((Boolean) value).booleanValue();
+    if (isBoolean()) {
+      return getAsBooleanWrapper().booleanValue();
+    } else {
+      return Boolean.parseBoolean(getAsString());
+    }
   }
 
   /**
@@ -179,7 +183,11 @@ public final class JsonPrimitive extends JsonElement {
    */
   @Override
   public double getAsDouble() {
-    return ((Number) value).doubleValue();
+    if (isNumber()) {
+      return getAsNumber().doubleValue();
+    } else {
+      return Double.parseDouble(getAsString());
+    }
   }
 
   /**
@@ -220,7 +228,11 @@ public final class JsonPrimitive extends JsonElement {
    */
   @Override
   public float getAsFloat() {
-    return ((Number) value).floatValue();
+    if (isNumber()) {
+      return getAsNumber().floatValue();
+    } else {
+      return Float.parseFloat(getAsString());
+    }
   }
 
   /**
@@ -231,7 +243,11 @@ public final class JsonPrimitive extends JsonElement {
    */
   @Override
   public long getAsLong() {
-    return ((Number) value).longValue();
+    if (isNumber()) {
+      return getAsNumber().longValue();
+    } else {
+      return Long.parseLong(getAsString());
+    }
   }
 
   /**
@@ -240,9 +256,13 @@ public final class JsonPrimitive extends JsonElement {
    * @return get this element as a primitive short.
    * @throws ClassCastException if the value contained is not a valid short value.
    */
- @Override
+  @Override
   public short getAsShort() {
-    return ((Number) value).shortValue();
+    if (isNumber()) {
+      return getAsNumber().shortValue();
+    } else {
+      return Short.parseShort(getAsString());
+    }
   }
 
  /**
@@ -253,12 +273,20 @@ public final class JsonPrimitive extends JsonElement {
   */
   @Override
   public int getAsInt() {
-    return ((Number) value).intValue();
+    if (isNumber()) {
+      return getAsNumber().intValue();
+    } else {
+      return Integer.parseInt(getAsString());
+    }
   }
   
   @Override
   public byte getAsByte() {
-    return ((Number) value).byteValue();
+    if (isNumber()) {
+      return getAsNumber().byteValue();
+    } else {
+      return Byte.parseByte(getAsString());
+    }
   }
   
   @Override
