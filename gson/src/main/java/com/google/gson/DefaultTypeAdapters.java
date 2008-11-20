@@ -382,8 +382,8 @@ final class DefaultTypeAdapters {
         childGenericType = new TypeInfoCollection(typeOfSrc).getElementType();        
       }
       for (Object child : src) {
-        Type childType = (childGenericType == null) ? 
-            childType = child.getClass() : childGenericType;
+        Type childType = (childGenericType == null || childGenericType == Object.class)
+            ? child.getClass() : childGenericType;
         JsonElement element = context.serialize(child, childType);
         array.add(element);
       }
