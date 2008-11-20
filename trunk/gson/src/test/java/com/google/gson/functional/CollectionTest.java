@@ -142,6 +142,16 @@ public class CollectionTest extends TestCase {
     }
   }
 
+  public void testCollectionOfObjectSerialization() {
+    List<Object> target = new ArrayList<Object>();
+    target.add("Hello");
+    target.add("World");
+    assertEquals("[\"Hello\",\"World\"]", gson.toJson(target));
+    
+    Type type = new TypeToken<List<Object>>() {}.getType();
+    assertEquals("[\"Hello\",\"World\"]", gson.toJson(target, type));
+  }
+
   public void testCollectionOfStringsSerialization() {
     List<String> target = new ArrayList<String>();
     target.add("Hello");

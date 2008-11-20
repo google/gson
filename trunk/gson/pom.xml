@@ -111,7 +111,7 @@
            <downloadSources>true</downloadSources>
            <downloadJavadocs>true</downloadJavadocs>
            <workspace>
-             ../eclipse-ws/
+             /Users/jleitch/eclipse/workspace/
            </workspace>
            <workspaceCodeStylesURL>
              file:///${basedir}/../lib/gson-formatting-styles.xml
