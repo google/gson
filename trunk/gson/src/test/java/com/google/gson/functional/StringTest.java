@@ -109,4 +109,26 @@ public class StringTest extends TestCase {
     String actual = gson.fromJson(json, String.class);
     assertEquals(value, actual);
   }
+  
+  /**
+   * Created in response to http://groups.google.com/group/google-gson/browse_thread/thread/2431d4a3d0d6cb23
+   */
+  public void testAssignmentCharSerialization() {
+    String value = "abc=";
+    String json = gson.toJson(value);
+    assertEquals("\"abc\\u003d\"", json);
+  }
+  
+  /**
+   * Created in response to http://groups.google.com/group/google-gson/browse_thread/thread/2431d4a3d0d6cb23
+   */
+  public void testAssignmentCharDeserialization() {
+    String json = "\"abc=\"";
+    String value = gson.fromJson(json, String.class);
+    assertEquals("abc=", value);
+
+    json = "'abc\u003d'";
+    value = gson.fromJson(json, String.class);
+    assertEquals("abc=", value);
+  }
 }
