@@ -52,7 +52,7 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
     this.context = context;
   }
 
-  T getTarget() {
+  public T getTarget() {
     if (target == null) {
       target = constructTarget();
     }
