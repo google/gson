@@ -44,6 +44,10 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
     this.serializers = serializers;
     this.context = context;
   }
+  
+  public Object getTarget() {
+    return null;
+  }
 
   public void startVisitingObject(Object node) {
     assignToRoot(new JsonObject());
