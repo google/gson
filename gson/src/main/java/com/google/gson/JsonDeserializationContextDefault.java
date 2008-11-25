@@ -70,8 +70,7 @@ final class JsonDeserializationContextDefault implements JsonDeserializationCont
       JsonDeserializationContext context) throws JsonParseException {
     JsonObjectDeserializationVisitor<T> visitor = new JsonObjectDeserializationVisitor<T>(
         jsonObject, typeOfT, navigatorFactory, objectConstructor, deserializers, context);
-    Object target = visitor.getTarget();
-    ObjectNavigator on = navigatorFactory.create(target, typeOfT);
+    ObjectNavigator on = navigatorFactory.create(null, typeOfT);
     on.accept(visitor);
     return visitor.getTarget();
   }

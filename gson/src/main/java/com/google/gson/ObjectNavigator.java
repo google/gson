@@ -59,6 +59,11 @@ final class ObjectNavigator {
      * This is called to visit a field of the current object using a custom handler
      */
     public boolean visitFieldUsingCustomHandler(Field f, Type actualTypeOfField, Object parent);
+    
+    /**
+     * Retrieve the current target
+     */
+    Object getTarget();
   }
 
   private final ExclusionStrategy exclusionStrategy;
@@ -88,38 +93,39 @@ final class ObjectNavigator {
    * If a field is null, it does not get visited.
    */
   public void accept(Visitor visitor) {
-    if (obj == null) {
-      return;
-    }
-    TypeInfo objTypeInfo = new TypeInfo(objType);
-    if (exclusionStrategy.shouldSkipClass(objTypeInfo.getRawClass())) {
-      return;
-    }
-
-    if (ancestors.contains(obj)) {
-      throw new IllegalStateException("Circular reference found: " + obj);
-    }
-    ancestors.push(obj);
-
-    try {
-      boolean visitedWithCustomHandler = visitor.visitUsingCustomHandler(obj, objType);
-      if (!visitedWithCustomHandler) {
+    boolean visitedWithCustomHandler = visitor.visitUsingCustomHandler(obj, objType);
+    if (!visitedWithCustomHandler) {
+      Object objectToVisit = (obj == null) ? visitor.getTarget() : obj;
+      if (objectToVisit == null) {
+        return;
+      }
+      TypeInfo objTypeInfo = new TypeInfo(objType);
+      if (exclusionStrategy.shouldSkipClass(objTypeInfo.getRawClass())) {
+        return;
+      }
+  
+      if (ancestors.contains(objectToVisit)) {
+        throw new IllegalStateException("Circular reference found: " + objectToVisit);
+      }
+      ancestors.push(objectToVisit);
+  
+      try {
         if (objTypeInfo.isArray()) {
-          visitor.visitArray(obj, objType);
+          visitor.visitArray(objectToVisit, objType);
         } else {
-          visitor.startVisitingObject(obj);
+          visitor.startVisitingObject(objectToVisit);
           // For all classes in the inheritance hierarchy (including the current class),
           // visit all fields
           for (Class<?> curr = objTypeInfo.getRawClass();
           curr != null && !curr.equals(Object.class); curr = curr.getSuperclass()) {
             if (!curr.isSynthetic()) {
-              navigateClassFields(obj, curr, visitor);
+              navigateClassFields(objectToVisit, curr, visitor);
             }
           }
         }
+      } finally {
+        ancestors.pop();
       }
-    } finally {
-      ancestors.pop();
     }
   }
 
