@@ -16,8 +16,11 @@
 
 package com.google.gson.functional;
 
+import java.lang.reflect.Type;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.InstanceCreator;
 import com.google.gson.annotations.Expose;
 
 import junit.framework.TestCase;
@@ -34,7 +37,10 @@ public class ExposeFieldsTest extends TestCase {
   @Override
   protected void setUp() throws Exception {
     super.setUp();
-    gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+    gson = new GsonBuilder()
+        .excludeFieldsWithoutExposeAnnotation()
+        .registerTypeAdapter(SomeInterface.class, new SomeInterfaceInstanceCreator())
+        .create();
   }
 
   public void testNullExposeFieldSerialization() throws Exception {
@@ -87,6 +93,21 @@ public class ExposeFieldsTest extends TestCase {
     assertEquals(0, obj.a);
     assertEquals(1, obj.b);
   }
+  
+  public void testExposedInterfaceFieldSerialization() throws Exception {
+    String expected = "{\"interfaceField\":{}}";
+    ClassWithInterfaceField target = new ClassWithInterfaceField(new SomeObject());
+    String actual = gson.toJson(target);
+    
+    assertEquals(expected, actual);
+  }
+  
+  public void testExposedInterfaceFieldDeserialization() throws Exception {
+    String json = "{\"interfaceField\":{}}";
+    ClassWithInterfaceField obj = gson.fromJson(json, ClassWithInterfaceField.class);
+
+    assertNotNull(obj.interfaceField);
+  }
 
   private static class ClassWithExposedFields {
     @Expose private final Integer a;
@@ -127,8 +148,35 @@ public class ExposeFieldsTest extends TestCase {
     }
   }
 
-  private static class  ClassWithNoExposedFields {
+  private static class ClassWithNoExposedFields {
     private final int a = 0;
     private final int b = 1;
+  }
+  
+  private static interface SomeInterface {
+    // Empty interface
+  }
+  
+  private static class SomeObject implements SomeInterface {
+    // Do nothing
+  }
+  
+  private static class SomeInterfaceInstanceCreator implements InstanceCreator<SomeInterface> {
+    public SomeInterface createInstance(Type type) {
+      return new SomeObject();
+    }
+  }
+  
+  private static class ClassWithInterfaceField {
+    @Expose
+    private final SomeInterface interfaceField;
+    
+    public ClassWithInterfaceField() {
+      this(null);
+    }
+
+    public ClassWithInterfaceField(SomeInterface interfaceField) {
+      this.interfaceField = interfaceField;
+    }
   }
 }
