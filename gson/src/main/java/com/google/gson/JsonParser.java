@@ -7,21 +7,20 @@ final class JsonParser implements JsonParserConstants {
   final public JsonElement parse() throws ParseException {
   JsonElement json = null;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 20:
+    case 23:
       json = JsonObject();
       break;
-    case 25:
+    case 27:
       json = JsonArray();
       break;
     case DIGITS:
+    case BOOLEAN:
     case SINGLE_QUOTE_LITERAL:
     case DOUBLE_QUOTE_LITERAL:
-    case 27:
-    case 28:
     case 29:
       json = JsonPrimitive();
       break;
-    case 22:
+    case NULL:
       json = JsonNull();
       break;
     default:
@@ -35,8 +34,9 @@ final class JsonParser implements JsonParserConstants {
 
   final private JsonObject JsonObject() throws ParseException {
   JsonObject o = new JsonObject();
-    jj_consume_token(20);
+    jj_consume_token(23);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case IDENTIFIER:
     case SINGLE_QUOTE_LITERAL:
     case DOUBLE_QUOTE_LITERAL:
       Members(o);
@@ -45,23 +45,23 @@ final class JsonParser implements JsonParserConstants {
       jj_la1[1] = jj_gen;
       ;
     }
-    jj_consume_token(21);
+    jj_consume_token(24);
     {if (true) return o;}
     throw new Error("Missing return statement in function");
   }
 
   final private JsonNull JsonNull() throws ParseException {
-  JsonNull json = JsonNull.INSTANCE;
-    jj_consume_token(22);
-    {if (true) return json;}
+  Token t;
+    t = jj_consume_token(NULL);
+               {if (true) return JsonNull.INSTANCE;}
     throw new Error("Missing return statement in function");
   }
 
   final private void Members(JsonObject o) throws ParseException {
     Pair(o);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 23:
-      jj_consume_token(23);
+    case 25:
+      jj_consume_token(25);
       Members(o);
       break;
     default:
@@ -73,32 +73,51 @@ final class JsonParser implements JsonParserConstants {
   final private void Pair(JsonObject o) throws ParseException {
   JsonPrimitive property;
   JsonElement value;
-    property = JsonString();
-    jj_consume_token(24);
+    property = JsonMemberName();
+    jj_consume_token(26);
     value = JsonValue();
     o.add(property.getAsString(), value);
   }
 
-  final private JsonArray JsonArray() throws ParseException {
-  JsonArray array = new JsonArray();
-    jj_consume_token(25);
+  final private JsonPrimitive JsonMemberName() throws ParseException {
+  Token t; JsonPrimitive value;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case DIGITS:
+    case IDENTIFIER:
+      t = jj_consume_token(IDENTIFIER);
+                   {if (true) return new JsonPrimitive(t.image);}
+      break;
     case SINGLE_QUOTE_LITERAL:
     case DOUBLE_QUOTE_LITERAL:
-    case 20:
-    case 22:
-    case 25:
+      value = JsonString();
+                       {if (true) return value;}
+      break;
+    default:
+      jj_la1[3] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+    throw new Error("Missing return statement in function");
+  }
+
+  final private JsonArray JsonArray() throws ParseException {
+  JsonArray array = new JsonArray();
+    jj_consume_token(27);
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case DIGITS:
+    case NULL:
+    case BOOLEAN:
+    case SINGLE_QUOTE_LITERAL:
+    case DOUBLE_QUOTE_LITERAL:
+    case 23:
     case 27:
-    case 28:
     case 29:
       Elements(array);
       break;
     default:
-      jj_la1[3] = jj_gen;
+      jj_la1[4] = jj_gen;
       ;
     }
-    jj_consume_token(26);
+    jj_consume_token(28);
     array.reverse();
     {if (true) return array;}
     throw new Error("Missing return statement in function");
@@ -108,12 +127,12 @@ final class JsonParser implements JsonParserConstants {
   JsonElement element;
     element = JsonValue();
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 23:
-      jj_consume_token(23);
+    case 25:
+      jj_consume_token(25);
       Elements(array);
       break;
     default:
-      jj_la1[4] = jj_gen;
+      jj_la1[5] = jj_gen;
       ;
     }
     array.add(element);
@@ -130,29 +149,32 @@ final class JsonParser implements JsonParserConstants {
     case 29:
       o = JsonNumber();
       break;
-    case 20:
+    case 23:
       o = JsonObject();
       break;
-    case 25:
+    case 27:
       o = JsonArray();
       break;
-    case 27:
-      jj_consume_token(27);
-             o = new JsonPrimitive(true);
+    case BOOLEAN:
+      o = JsonBoolean();
       break;
-    case 28:
-      jj_consume_token(28);
-              o = new JsonPrimitive(false);
-      break;
-    case 22:
-      jj_consume_token(22);
+    case NULL:
+      jj_consume_token(NULL);
       break;
     default:
-      jj_la1[5] = jj_gen;
+      jj_la1[6] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
     {if (true) return o;}
+    throw new Error("Missing return statement in function");
+  }
+
+  final private JsonPrimitive JsonBoolean() throws ParseException {
+  Token t;
+    t = jj_consume_token(BOOLEAN);
+    boolean value = Boolean.valueOf(t.image);
+    {if (true) return new JsonPrimitive(value);}
     throw new Error("Missing return statement in function");
   }
 
@@ -169,16 +191,12 @@ final class JsonParser implements JsonParserConstants {
       value = JsonNumber();
                           {if (true) return value;}
       break;
-    case 27:
-      jj_consume_token(27);
-             {if (true) return new JsonPrimitive(true);}
-      break;
-    case 28:
-      jj_consume_token(28);
-              {if (true) return new JsonPrimitive(false);}
+    case BOOLEAN:
+      value = JsonBoolean();
+                           {if (true) return value;}
       break;
     default:
-      jj_la1[6] = jj_gen;
+      jj_la1[7] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -195,7 +213,7 @@ final class JsonParser implements JsonParserConstants {
       fracpart = JsonFrac();
       break;
     default:
-      jj_la1[7] = jj_gen;
+      jj_la1[8] = jj_gen;
       ;
     }
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -203,7 +221,7 @@ final class JsonParser implements JsonParserConstants {
       exppart = JsonExp();
       break;
     default:
-      jj_la1[8] = jj_gen;
+      jj_la1[9] = jj_gen;
       ;
     }
     Number n;
@@ -227,7 +245,7 @@ final class JsonParser implements JsonParserConstants {
          negative = true;
       break;
     default:
-      jj_la1[9] = jj_gen;
+      jj_la1[10] = jj_gen;
       ;
     }
     digits = Digits();
@@ -271,7 +289,7 @@ final class JsonParser implements JsonParserConstants {
       t = jj_consume_token(DOUBLE_QUOTE_LITERAL);
       break;
     default:
-      jj_la1[10] = jj_gen;
+      jj_la1[11] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -285,13 +303,13 @@ final class JsonParser implements JsonParserConstants {
   public Token token, jj_nt;
   private int jj_ntk;
   private int jj_gen;
-  final private int[] jj_la1 = new int[11];
+  final private int[] jj_la1 = new int[12];
   static private int[] jj_la1_0;
   static {
       jj_la1_0();
    }
    private static void jj_la1_0() {
-      jj_la1_0 = new int[] {0x3a500c40,0xc00,0x800000,0x3a500c40,0x800000,0x3a500c40,0x38000c40,0x40000000,0x20,0x20000000,0xc00,};
+      jj_la1_0 = new int[] {0x288061c0,0x6200,0x2000000,0x6200,0x288061c0,0x2000000,0x288061c0,0x20006140,0x40000000,0x20,0x20000000,0x6000,};
    }
 
   public JsonParser(java.io.InputStream stream) {
@@ -303,7 +321,7 @@ final class JsonParser implements JsonParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 11; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 12; i++) jj_la1[i] = -1;
   }
 
   public void ReInit(java.io.InputStream stream) {
@@ -315,7 +333,7 @@ final class JsonParser implements JsonParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 11; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 12; i++) jj_la1[i] = -1;
   }
 
   public JsonParser(java.io.Reader stream) {
@@ -324,7 +342,7 @@ final class JsonParser implements JsonParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 11; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 12; i++) jj_la1[i] = -1;
   }
 
   public void ReInit(java.io.Reader stream) {
@@ -333,7 +351,7 @@ final class JsonParser implements JsonParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 11; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 12; i++) jj_la1[i] = -1;
   }
 
   public JsonParser(JsonParserTokenManager tm) {
@@ -341,7 +359,7 @@ final class JsonParser implements JsonParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 11; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 12; i++) jj_la1[i] = -1;
   }
 
   public void ReInit(JsonParserTokenManager tm) {
@@ -349,7 +367,7 @@ final class JsonParser implements JsonParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 11; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 12; i++) jj_la1[i] = -1;
   }
 
   final private Token jj_consume_token(int kind) throws ParseException {
@@ -404,7 +422,7 @@ final class JsonParser implements JsonParserConstants {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 11; i++) {
+    for (int i = 0; i < 12; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {

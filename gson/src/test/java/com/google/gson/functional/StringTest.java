@@ -131,4 +131,16 @@ public class StringTest extends TestCase {
     value = gson.fromJson(json, String.class);
     assertEquals("abc=", value);
   }
+  
+  public void testJavascriptKeywordsInStringSerialization() {
+    String value = "null true false function";
+    String json = gson.toJson(value);
+    assertEquals("\"" + value + "\"", json);
+  }
+  
+  public void testJavascriptKeywordsInStringDeserialization() {
+    String json = "'null true false function'";
+    String value = gson.fromJson(json, String.class);
+    assertEquals(json.substring(1, json.length() - 1), value);
+  }
 }
