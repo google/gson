@@ -16,7 +16,7 @@
 
 package com.google.gson;
 
-import java.io.PrintWriter;
+import java.io.IOException;
 
 /**
  * Formats Json in a compact way eliminating all unnecessary whitespace.
@@ -26,61 +26,64 @@ import java.io.PrintWriter;
 final class JsonCompactFormatter implements JsonFormatter {
 
   private static class FormattingVisitor implements JsonElementVisitor {
-    private final PrintWriter writer;
+    private final Appendable writer;
     private final boolean serializeNulls;
 
-    FormattingVisitor(PrintWriter writer, boolean serializeNulls) {
+    FormattingVisitor(Appendable writer, boolean serializeNulls) {
       this.writer = writer;
       this.serializeNulls = serializeNulls;
     }
 
-    public void visitPrimitive(JsonPrimitive primitive) {
+    public void visitPrimitive(JsonPrimitive primitive) throws IOException {
       writer.append(primitive.toString());
     }
 
-    public void visitNull() {
+    public void visitNull() throws IOException {
       writer.append("null");
     }
     
-    public void startArray(JsonArray array) {
+    public void startArray(JsonArray array) throws IOException {
       writer.append('[');
     }
 
-    public void visitArrayMember(JsonArray parent, JsonPrimitive member, boolean isFirst) {
+    public void visitArrayMember(JsonArray parent, JsonPrimitive member, 
+        boolean isFirst) throws IOException {
       if (!isFirst) {
         writer.append(',');
       }
       writer.append(member.toString());
     }
 
-    public void visitArrayMember(JsonArray parent, JsonArray member, boolean isFirst) {
+    public void visitArrayMember(JsonArray parent, JsonArray member, 
+        boolean isFirst) throws IOException {
       if (!isFirst) {
         writer.append(',');
       }
     }
 
-    public void visitArrayMember(JsonArray parent, JsonObject member, boolean isFirst) {
+    public void visitArrayMember(JsonArray parent, JsonObject member, 
+        boolean isFirst) throws IOException {
       if (!isFirst) {
         writer.append(',');
       }
     }
 
-    public void visitNullArrayMember(JsonArray parent, boolean isFirst) {
+    public void visitNullArrayMember(JsonArray parent, boolean isFirst) throws IOException {
       if (!isFirst) {
         writer.append(',');
       }
     }
 
-    public void endArray(JsonArray array) {
+    public void endArray(JsonArray array) throws IOException {
       writer.append(']');
     }
 
-    public void startObject(JsonObject object) {
+    public void startObject(JsonObject object) throws IOException {
       writer.append('{');
     }
 
     public void visitObjectMember(JsonObject parent, String memberName, JsonPrimitive member,
-        boolean isFirst) {
+        boolean isFirst) throws IOException {
       if (!isFirst) {
         writer.append(',');
       }
@@ -91,7 +94,7 @@ final class JsonCompactFormatter implements JsonFormatter {
     }
 
     public void visitObjectMember(JsonObject parent, String memberName, JsonArray member,
-        boolean isFirst) {
+        boolean isFirst) throws IOException {
       if (!isFirst) {
         writer.append(',');
       }
@@ -101,7 +104,7 @@ final class JsonCompactFormatter implements JsonFormatter {
     }
 
     public void visitObjectMember(JsonObject parent, String memberName, JsonObject member,
-        boolean isFirst) {
+        boolean isFirst) throws IOException {
       if (!isFirst) {
         writer.append(',');
       }
@@ -110,18 +113,20 @@ final class JsonCompactFormatter implements JsonFormatter {
       writer.append("\":");
     }
 
-    public void visitNullObjectMember(JsonObject parent, String memberName, boolean isFirst) {
+    public void visitNullObjectMember(JsonObject parent, String memberName, 
+        boolean isFirst) throws IOException {
       if (serializeNulls) {
         visitObjectMember(parent, memberName, (JsonObject) null, isFirst);
       }      
     }
     
-    public void endObject(JsonObject object) {
+    public void endObject(JsonObject object) throws IOException {
       writer.append('}');
     }
   }
 
-  public void format(JsonElement root, PrintWriter writer, boolean serializeNulls) {
+  public void format(JsonElement root, Appendable writer, 
+      boolean serializeNulls) throws IOException {
     if (root == null) {
       return;
     }

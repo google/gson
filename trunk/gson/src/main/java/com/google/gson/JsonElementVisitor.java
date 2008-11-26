@@ -16,27 +16,32 @@
 
 package com.google.gson;
 
+import java.io.IOException;
+
 /**
  * Definition of a visitor for a JsonElement tree.
  * 
  * @author Inderjeet Singh
  */
 interface JsonElementVisitor {
-  void visitPrimitive(JsonPrimitive primitive);
-  void visitNull();
+  void visitPrimitive(JsonPrimitive primitive) throws IOException;
+  void visitNull() throws IOException;
 
-  void startArray(JsonArray array);
-  void visitArrayMember(JsonArray parent, JsonPrimitive member, boolean isFirst);
-  void visitArrayMember(JsonArray parent, JsonArray member, boolean isFirst);
-  void visitArrayMember(JsonArray parent, JsonObject member, boolean isFirst);
-  void visitNullArrayMember(JsonArray parent, boolean isFirst);
-  void endArray(JsonArray array);
+  void startArray(JsonArray array) throws IOException;
+  void visitArrayMember(JsonArray parent, JsonPrimitive member, boolean isFirst) throws IOException;
+  void visitArrayMember(JsonArray parent, JsonArray member, boolean isFirst) throws IOException;
+  void visitArrayMember(JsonArray parent, JsonObject member, boolean isFirst) throws IOException;
+  void visitNullArrayMember(JsonArray parent, boolean isFirst) throws IOException;
+  void endArray(JsonArray array) throws IOException;
   
-  void startObject(JsonObject object);
+  void startObject(JsonObject object) throws IOException;
   void visitObjectMember(JsonObject parent, String memberName, JsonPrimitive member, 
-      boolean isFirst);
-  void visitObjectMember(JsonObject parent, String memberName, JsonArray member, boolean isFirst);
-  void visitObjectMember(JsonObject parent, String memberName, JsonObject member, boolean isFirst);
-  void visitNullObjectMember(JsonObject parent, String memberName, boolean isFirst);
-  void endObject(JsonObject object);
+      boolean isFirst) throws IOException;
+  void visitObjectMember(JsonObject parent, String memberName, JsonArray member, 
+      boolean isFirst) throws IOException;
+  void visitObjectMember(JsonObject parent, String memberName, JsonObject member, 
+      boolean isFirst) throws IOException;
+  void visitNullObjectMember(JsonObject parent, String memberName, 
+      boolean isFirst) throws IOException;
+  void endObject(JsonObject object) throws IOException;
 }
