@@ -16,7 +16,7 @@
 
 package com.google.gson;
 
-import java.io.PrintWriter;
+import java.io.IOException;
 
 /**
  * Common interface for a formatter for Json. 
@@ -33,5 +33,6 @@ interface JsonFormatter {
    * @param writer the writer to output the formatter JSON to.
    * @param serializeNulls serialize null values in the output.
    */
-  public void format(JsonElement root, PrintWriter writer, boolean serializeNulls);
+  public void format(JsonElement root, Appendable writer, 
+      boolean serializeNulls) throws IOException;
 }
