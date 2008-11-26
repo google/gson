@@ -531,4 +531,15 @@ public class ObjectTest extends TestCase {
       a = 10;
     }
   }
+  
+  /**
+   * In response to Issue 41 http://code.google.com/p/google-gson/issues/detail?id=41
+   */
+  public void testObjectFieldNamesWithoutQuotesDeserialization() {
+    String json = "{longValue:1,'booleanValue':true,\"stringValue\":'bar'}";
+    BagOfPrimitives bag = gson.fromJson(json, BagOfPrimitives.class);
+    assertEquals(1, bag.longValue);
+    assertTrue(bag.booleanValue);
+    assertEquals("bar", bag.stringValue);
+  }
 }
