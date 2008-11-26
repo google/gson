@@ -28,6 +28,9 @@ SKIP : { " " | "\t" | "\n" | "\r" }
 TOKEN : {
   <E : ["e","E"](["+","-"])?>
   | <DIGITS : (["0"-"9"])+>
+  | <NULL : "null">  
+  | <BOOLEAN : ("true" | "false")>
+  | <IDENTIFIER : ["a"-"z","A"-"Z", "_"] (["a"-"z","A"-"Z","0"-"9","_"])* >
   | <#HEX_CHAR : ["a"-"f","A"-"F","0"-"9"]>
   | <UNICODE_CHAR : "\\u" <HEX_CHAR><HEX_CHAR><HEX_CHAR><HEX_CHAR> >
   | <#ESCAPE_CHAR: "\\" ["n","t","b","r","f","\\","'","\"", "/"] >
@@ -72,11 +75,10 @@ private JsonObject JsonObject() :
 
 private JsonNull JsonNull() :
 {
-  JsonNull json = JsonNull.INSTANCE;
+  Token t;
 }
 {
-  "null"
-  { return json; }
+  t = <NULL> { return JsonNull.INSTANCE; }
 }
 
 private void Members(JsonObject o) :
@@ -91,10 +93,17 @@ private void Pair(JsonObject o) :
   JsonElement value;
 }
 {
-  property=JsonString() ":" value=JsonValue()
+  property=JsonMemberName() ":" value=JsonValue()
   {
     o.add(property.getAsString(), value);
   }
+}
+
+private JsonPrimitive JsonMemberName() : 
+{ Token t; JsonPrimitive value; }
+{
+  t=<IDENTIFIER> { return new JsonPrimitive(t.image); } |
+  value=JsonString() { return value; }
 }
 
 private JsonArray JsonArray() :
@@ -123,10 +132,18 @@ private JsonElement JsonValue() :
   o=JsonNumber() |
   o=JsonObject() |
   o=JsonArray() |
-  ( "true" { o = new JsonPrimitive(true); } ) |
-  ( "false" { o = new JsonPrimitive(false); } ) |
+  o=JsonBoolean() |
   "null" )
   { return o; }
+}
+
+private JsonPrimitive JsonBoolean() :
+{ Token t; }
+{
+  t=<BOOLEAN> {
+    boolean value = Boolean.valueOf(t.image);
+    return new JsonPrimitive(value);
+  }
 }
 
 private JsonPrimitive JsonPrimitive() :
@@ -136,8 +153,7 @@ private JsonPrimitive JsonPrimitive() :
 {
   ( value=JsonString()) { return value; } |
   ( value=JsonNumber()) { return value; } |
-  ( "true" { return new JsonPrimitive(true); }) |
-  ( "false" { return new JsonPrimitive(false); } )
+  ( value=JsonBoolean()) { return value; } 
 }
 
 private JsonPrimitive JsonNumber() :
