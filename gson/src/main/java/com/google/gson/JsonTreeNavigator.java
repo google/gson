@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -32,7 +33,7 @@ final class JsonTreeNavigator {
     this.visitNulls = visitNulls;
   }
   
-  public void navigate(JsonElement element) {
+  public void navigate(JsonElement element) throws IOException {
     if (element == null || element.isJsonNull()) {
       visitor.visitNull();
     } else if (element.isJsonArray()) {
@@ -66,7 +67,7 @@ final class JsonTreeNavigator {
    * Returns true if the child was visited, false if it was skipped.
    */
   private boolean visitChild(JsonObject parent, String childName, JsonElement child, 
-      boolean isFirst) {
+      boolean isFirst) throws IOException {
     if (child != null) { 
       if (child.isJsonNull()) {
         if (visitNulls) {
@@ -93,7 +94,7 @@ final class JsonTreeNavigator {
   /**
    * Returns true if the child was visited, false if it was skipped.
    */
-  private void visitChild(JsonArray parent, JsonElement child, boolean isFirst) {
+  private void visitChild(JsonArray parent, JsonElement child, boolean isFirst) throws IOException {
     if (child == null || child.isJsonNull()) {
       visitor.visitNullArrayMember(parent, isFirst);
       navigate(null);

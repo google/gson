@@ -16,6 +16,8 @@
 
 package com.google.gson;
 
+import java.io.IOException;
+
 /**
  * Performs JSON escaping and passes on the new escaped value to the delegate
  * {@link JsonElementVisitor}.
@@ -34,18 +36,19 @@ class JsonEscapingVisitor extends DelegatingJsonElementVisitor {
   }
 
   @Override
-  public void visitArrayMember(JsonArray parent, JsonPrimitive member, boolean isFirst) {
+  public void visitArrayMember(JsonArray parent, JsonPrimitive member, 
+      boolean isFirst) throws IOException {
     super.visitArrayMember(parent, escapeJsonPrimitive(member), isFirst);
   }
 
   @Override
-  public void visitObjectMember(
-      JsonObject parent, String memberName, JsonPrimitive member, boolean isFirst) {
+  public void visitObjectMember(JsonObject parent, String memberName, JsonPrimitive member, 
+      boolean isFirst) throws IOException {
     super.visitObjectMember(parent, memberName, escapeJsonPrimitive(member), isFirst);
   }
 
   @Override
-  public void visitPrimitive(JsonPrimitive primitive) {
+  public void visitPrimitive(JsonPrimitive primitive) throws IOException {
     super.visitPrimitive(escapeJsonPrimitive(primitive));
   }
 

@@ -17,7 +17,6 @@
 package com.google.gson;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -191,7 +190,7 @@ public final class Gson {
    * of Java. Note that this method works fine if the any of the object fields are of generic type,
    * just the object itself should not be of a generic type. If the object is of generic type, use
    * {@link #toJson(Object, Type)} instead. If you want to write out the object to a
-   * {@link Writer}, use {@link #toJson(Object, Writer)} instead.
+   * {@link Writer}, use {@link #toJson(Object, Appendable)} instead.
    *
    * @param src the object for which Json representation is to be created setting for Gson
    * @return Json representation of {@code src}.
@@ -207,7 +206,7 @@ public final class Gson {
    * This method serializes the specified object, including those of generic types, into its
    * equivalent Json representation. This method must be used if the specified object is a generic
    * type. For non-generic objects, use {@link #toJson(Object)} instead. If you want to write out
-   * the object to a {@link Writer}, use {@link #toJson(Object, Type, Writer)} instead.
+   * the object to a {@link Appendable}, use {@link #toJson(Object, Type, Appendable)} instead.
    *
    * @param src the object for which JSON representation is to be created
    * @param typeOfSrc The specific genericized type of src. You can obtain
@@ -231,24 +230,28 @@ public final class Gson {
    * {@code getClass()} loses the generic type information because of the Type Erasure feature
    * of Java. Note that this method works fine if the any of the object fields are of generic type,
    * just the object itself should not be of a generic type. If the object is of generic type, use
-   * {@link #toJson(Object, Type, Writer)} instead.
+   * {@link #toJson(Object, Type, Appendable)} instead.
    *
    * @param src the object for which Json representation is to be created setting for Gson
    * @param writer Writer to which the Json representation needs to be written
    * @since 1.2
    */
-  public void toJson(Object src, Writer writer) {
-    if (src != null) {
-      toJson(src, src.getClass(), writer);
-    } else if (serializeNulls) {
-      writeOutNullString(writer);
+  public void toJson(Object src, Appendable writer) {
+    try {
+      if (src != null) {
+        toJson(src, src.getClass(), writer);
+      } else if (serializeNulls) {
+        writeOutNullString(writer);
+      }
+    } catch (IOException ioe) {
+      throw new RuntimeException(ioe);
     }
   }
 
   /**
    * This method serializes the specified object, including those of generic types, into its
    * equivalent Json representation. This method must be used if the specified object is a generic
-   * type. For non-generic objects, use {@link #toJson(Object, Writer)} instead.
+   * type. For non-generic objects, use {@link #toJson(Object, Appendable)} instead.
    *
    * @param src the object for which JSON representation is to be created
    * @param typeOfSrc The specific genericized type of src. You can obtain
@@ -260,18 +263,22 @@ public final class Gson {
    * @param writer Writer to which the Json representation of src needs to be written.
    * @since 1.2
    */
-  public void toJson(Object src, Type typeOfSrc, Writer writer) {
-    if (src != null) {
-      JsonSerializationContext context = new JsonSerializationContextDefault(
-          createDefaultObjectNavigatorFactory(), serializeNulls, serializers);
-      JsonElement jsonElement = context.serialize(src, typeOfSrc);
+  public void toJson(Object src, Type typeOfSrc, Appendable writer) {
+    try {
+      if (src != null) {
+        JsonSerializationContext context = new JsonSerializationContextDefault(
+            createDefaultObjectNavigatorFactory(), serializeNulls, serializers);
+        JsonElement jsonElement = context.serialize(src, typeOfSrc);
 
-      //TODO(Joel): instead of navigating the "JsonElement" inside the formatter, do it here.
-      formatter.format(jsonElement, new PrintWriter(writer), serializeNulls);
-    } else {
-      if (serializeNulls) {
-        writeOutNullString(writer);
+        //TODO(Joel): instead of navigating the "JsonElement" inside the formatter, do it here.
+        formatter.format(jsonElement, writer, serializeNulls);
+      } else {
+        if (serializeNulls) {
+          writeOutNullString(writer);
+        }
       }
+    } catch (IOException ioe) {
+      throw new RuntimeException(ioe);
     }
   }
 
@@ -388,13 +395,8 @@ public final class Gson {
    *
    * @param writer the object to append the null value to
    */
-  private void writeOutNullString(Writer writer) {
-    try {
-      writer.append(NULL_STRING);
-    } catch (IOException e) {
-      // Should this be a different exception???
-      throw new JsonParseException(e);
-    }
+  private void writeOutNullString(Appendable writer) throws IOException {
+    writer.append(NULL_STRING);
   }
   
   @Override 
