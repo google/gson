@@ -28,6 +28,10 @@ import java.math.BigInteger;
  */
 public final class JsonPrimitive extends JsonElement {
 
+  private static final Class<?>[] PRIMITIVE_TYPES = { int.class, long.class, short.class,
+      float.class, double.class, byte.class, boolean.class, char.class, Integer.class, Long.class,
+      Short.class, Float.class, Double.class, Byte.class, Boolean.class, Character.class };
+
   private Object value;
 
   /**
@@ -95,7 +99,7 @@ public final class JsonPrimitive extends JsonElement {
       this.value = String.valueOf(c);
     } else {
       Preconditions.checkArgument(primitive instanceof Number
-          || ObjectNavigator.isPrimitiveOrString(primitive));
+          || isPrimitiveOrString(primitive));
       this.value = primitive;
     }
   }
@@ -316,5 +320,19 @@ public final class JsonPrimitive extends JsonElement {
         sb.append(value);
       }
     }
+  }
+  
+  private static boolean isPrimitiveOrString(Object target) {
+    if (target instanceof String) {
+      return true;
+    }
+
+    Class<?> classOfPrimitive = target.getClass();
+    for (Class<?> standardPrimitive : PRIMITIVE_TYPES) {
+      if (standardPrimitive.isAssignableFrom(classOfPrimitive)) {
+        return true;
+      }
+    }
+    return false;
   }
 }
