@@ -72,16 +72,6 @@ public final class JsonPrimitive extends JsonElement {
   }
 
   /**
-   * Create a primitive containing a character. The character is turned into a one character String
-   * since Json only supports String.
-   *
-   * @param c the value to create the primitive with.
-   */
-  public JsonPrimitive(char c) {
-    this.value = String.valueOf(c);
-  }
-
-  /**
    * Create a primitive using the specified Object. It must be an instance of {@link Number}, a
    * Java primitive type, or a String.
    *
@@ -95,7 +85,7 @@ public final class JsonPrimitive extends JsonElement {
     if (primitive instanceof Character) {
       // convert characters to strings since in JSON, characters are represented as a single
       // character string
-      char c = ((Character)primitive).charValue();
+      char c = ((Character) primitive).charValue();
       this.value = String.valueOf(c);
     } else {
       Preconditions.checkArgument(primitive instanceof Number

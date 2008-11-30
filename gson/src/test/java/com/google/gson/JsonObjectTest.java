@@ -51,4 +51,45 @@ public class JsonObjectTest extends TestCase {
     assertNotNull(jsonElement);
     assertTrue(jsonElement.isJsonNull());
   }
+  
+  public void testAddingBooleanProperties() throws Exception {
+    String propertyName = "property";
+    JsonObject jsonObj = new JsonObject();
+    jsonObj.addProperty(propertyName, true);
+    
+    assertTrue(jsonObj.has(propertyName));
+    
+    JsonElement jsonElement = jsonObj.get(propertyName);
+    assertNotNull(jsonElement);
+    assertTrue(jsonElement.getAsBoolean());
+  }
+  
+  public void testAddingStringProperties() throws Exception {
+    String propertyName = "property";
+    String value = "blah";
+
+    JsonObject jsonObj = new JsonObject();
+    jsonObj.addProperty(propertyName, value);
+    
+    assertTrue(jsonObj.has(propertyName));
+    
+    JsonElement jsonElement = jsonObj.get(propertyName);
+    assertNotNull(jsonElement);
+    assertEquals(value, jsonElement.getAsString());
+  }
+  
+  public void testAddingCharacterProperties() throws Exception {
+    String propertyName = "property";
+    char value = 'a';
+
+    JsonObject jsonObj = new JsonObject();
+    jsonObj.addProperty(propertyName, value);
+    
+    assertTrue(jsonObj.has(propertyName));
+    
+    JsonElement jsonElement = jsonObj.get(propertyName);
+    assertNotNull(jsonElement);
+    assertEquals(String.valueOf(value), jsonElement.getAsString());
+    assertEquals(value, jsonElement.getAsCharacter());
+  }
 }
