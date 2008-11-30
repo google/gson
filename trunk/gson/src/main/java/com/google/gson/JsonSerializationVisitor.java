@@ -67,7 +67,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   public void visitArrayField(Field f, Type typeOfF, Object obj) {
     if (isFieldNull(f, obj)) {
       if (serializeNulls) {
-        addChildAsElement(f, JsonNull.INSTANCE);
+        addChildAsElement(f, JsonNull.createJsonNull());
       }
     } else {
       Object array = getFieldValue(f, obj);
@@ -78,7 +78,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   public void visitObjectField(Field f, Type typeOfF, Object obj) {
     if (isFieldNull(f, obj)) {
       if (serializeNulls) {
-        addChildAsElement(f, JsonNull.INSTANCE);
+        addChildAsElement(f, JsonNull.createJsonNull());
       }
     } else {
       Object fieldValue = getFieldValue(f, obj);
@@ -127,7 +127,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
     JsonSerializer serializer = serializers.getHandlerFor(objType);
     if (serializer != null) {
       if (obj == null) {
-        assignToRoot(JsonNull.INSTANCE);
+        assignToRoot(JsonNull.createJsonNull());
       } else {
         assignToRoot(serializer.serialize(obj, objType, context));
       }
@@ -143,7 +143,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
       Object obj = f.get(parent);
       if (obj == null) {
         if (serializeNulls) {
-          addChildAsElement(f, JsonNull.INSTANCE);
+          addChildAsElement(f, JsonNull.createJsonNull());
         }
         return true;
       }

@@ -47,7 +47,7 @@ final class JsonTreeNavigator {
         }
       }
       visitor.endArray(array);
-    } else if (element.isJsonObject()){
+    } else if (element.isJsonObject()) {
       JsonObject object = element.getAsJsonObject();
       visitor.startObject(object);
       boolean isFirst = true;

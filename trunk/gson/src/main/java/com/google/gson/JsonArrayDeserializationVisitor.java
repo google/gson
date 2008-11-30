@@ -61,7 +61,7 @@ final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisito
       JsonElement jsonChild = jsonArray.get(i);
       Object child;
 
-      if (jsonChild == null) {
+      if (jsonChild == null || jsonChild.isJsonNull()) {
         child = null;
       } else if (jsonChild instanceof JsonObject) {
         child = visitChildAsObject(arrayTypeInfo.getComponentRawType(), jsonChild);
