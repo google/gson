@@ -72,7 +72,7 @@ public final class JsonObject extends JsonElement {
    * @param value the string value associated with the member.
    */
   public void addProperty(String property, String value) {
-    members.put(property, new JsonPrimitive(value));
+    add(property, createJsonElement(value));
   }
   
   /**
@@ -83,7 +83,43 @@ public final class JsonObject extends JsonElement {
    * @param value the number value associated with the member.
    */
   public void addProperty(String property, Number value) {
-    members.put(property, new JsonPrimitive(value));
+    add(property, createJsonElement(value));
+  }
+  
+  /**
+   * Convenience method to add a boolean member. The specified value is converted to a 
+   * JsonPrimitive of Boolean. 
+   *  
+   * @param property name of the member.
+   * @param value the number value associated with the member.
+   */
+  public void addProperty(String property, Boolean value) {
+    add(property, createJsonElement(value));
+  }
+  
+  /**
+   * Convenience method to add a char member. The specified value is converted to a 
+   * JsonPrimitive of Character. 
+   *  
+   * @param property name of the member.
+   * @param value the number value associated with the member.
+   */
+  public void addProperty(String property, Character value) {
+    add(property, createJsonElement(value));
+  }
+
+  /**
+   * Creates the proper {@link JsonElement} object from the given {@code value} object.
+   *
+   * @param value the object to generate the {@link JsonElement} for
+   * @return a {@link JsonPrimitive} if the {@code value} is not null, otherwise a {@link JsonNull}
+   */
+  private JsonElement createJsonElement(Object value) {
+    if (value == null) {
+      return JsonNull.createJsonNull();
+    } else {
+      return new JsonPrimitive(value);
+    }
   }
 
   /**
