@@ -17,7 +17,7 @@
 package com.google.gson;
 
 /**
- * A class representing a Json null value.
+ * A class representing a Json {@code null} value.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
@@ -25,7 +25,19 @@ package com.google.gson;
  */
 public final class JsonNull extends JsonElement {
 
-  static final JsonNull INSTANCE = new JsonNull();
+  private static final JsonNull INSTANCE = new JsonNull(true);
+  
+  /**
+   * @deprecated use the creation method, {@link #createJsonNull()}, instead.
+   */
+  @Deprecated
+  public JsonNull() {
+    // Do nothing
+  }
+  
+  private JsonNull(boolean placeholder) {
+    // Prevent instantiation
+  }
   
   @Override
   protected void toString(StringBuilder sb) {
@@ -46,5 +58,9 @@ public final class JsonNull extends JsonElement {
   @Override
   public boolean equals(Object other) {
     return other instanceof JsonNull;
-  }  
+  }
+  
+  public static JsonNull createJsonNull() {
+    return INSTANCE;
+  }
 }

@@ -115,7 +115,7 @@ public final class JsonObject extends JsonElement {
   public JsonElement get(String memberName) {
     if (members.containsKey(memberName)) {
       JsonElement member = members.get(memberName);
-      return member == null ? JsonNull.INSTANCE : member;
+      return member == null ? JsonNull.createJsonNull() : member;
     } else {
       return null;
     }
