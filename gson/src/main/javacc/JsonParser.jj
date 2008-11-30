@@ -78,7 +78,7 @@ private JsonNull JsonNull() :
   Token t;
 }
 {
-  t = <NULL> { return JsonNull.INSTANCE; }
+  t = <NULL> { return JsonNull.createJsonNull(); }
 }
 
 private void Members(JsonObject o) :
@@ -133,7 +133,7 @@ private JsonElement JsonValue() :
   o=JsonObject() |
   o=JsonArray() |
   o=JsonBoolean() |
-  "null" )
+  o=JsonNull() )
   { return o; }
 }
 

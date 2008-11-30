@@ -75,6 +75,55 @@ public class MapTest extends TestCase {
     String json = gson.toJson(map, typeOfMap);
     assertEquals("{}", json);
   }
+  
+  public void testMapDeserializationEmpty() {
+    Type typeOfMap = new TypeToken<Map<String, Integer>>() {}.getType();
+    Map<String, Integer> map = gson.fromJson("{}", typeOfMap);
+    assertTrue(map.isEmpty());
+  }
+  
+  public void testMapSerializationWithNullValue() {
+    Map<String, Integer> map = new LinkedHashMap<String, Integer>();
+    map.put("abc", null);
+    Type typeOfMap = new TypeToken<Map<String, Integer>>() {}.getType();
+    String json = gson.toJson(map, typeOfMap);
+    
+    // Maps are represented as JSON objects, so ignoring null field
+    assertEquals("{}", json);
+  }
+  
+  public void testMapDeserializationWithNullValue() {
+    Type typeOfMap = new TypeToken<Map<String, Integer>>() {}.getType();
+    Map<String, Integer> map = gson.fromJson("{\"abc\":null}", typeOfMap);
+    assertEquals(1, map.size());
+    assertNull(map.get("abc"));
+  }
+  
+  public void testMapSerializationWithNullValueButSerializeNulls() {
+    gson = new GsonBuilder().serializeNulls().create();
+    Map<String, Integer> map = new LinkedHashMap<String, Integer>();
+    map.put("abc", null);
+    Type typeOfMap = new TypeToken<Map<String, Integer>>() {}.getType();
+    String json = gson.toJson(map, typeOfMap);
+
+    assertEquals("{\"abc\":null}", json);
+  }
+  
+  public void testMapSerializationWithNullKey() {
+    Map<String, Integer> map = new LinkedHashMap<String, Integer>();
+    map.put(null, 123);
+    Type typeOfMap = new TypeToken<Map<String, Integer>>() {}.getType();
+    String json = gson.toJson(map, typeOfMap);
+
+    assertEquals("{\"null\":123}", json);
+  }
+  
+  public void testMapDeserializationWithNullKey() {
+    Type typeOfMap = new TypeToken<Map<String, Integer>>() {}.getType();
+    Map<String, Integer> map = gson.fromJson("{\"null\":123}", typeOfMap);
+    assertEquals(1, map.size());
+    assertNull(map.get(null));
+  }
 
   public void testParameterizedMapSubclassSerialization() {
     MyParameterizedMap<String, String> map = new MyParameterizedMap<String, String>();

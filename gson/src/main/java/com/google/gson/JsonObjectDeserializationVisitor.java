@@ -93,7 +93,7 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
       JsonElement child = json.getAsJsonObject().get(fName);
       if (child == null) {
         return true;
-      } else if (JsonNull.INSTANCE.equals(child)) {
+      } else if (child.isJsonNull()) {
         TypeInfo typeInfo = new TypeInfo(actualTypeOfField);
         if (!typeInfo.isPrimitive()) {
           f.set(parent, null);

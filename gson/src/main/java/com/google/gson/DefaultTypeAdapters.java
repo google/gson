@@ -31,7 +31,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -374,7 +373,7 @@ final class DefaultTypeAdapters {
 
     public JsonElement serialize(Collection src, Type typeOfSrc, JsonSerializationContext context) {
       if (src == null) {
-        return JsonNull.INSTANCE;
+        return JsonNull.createJsonNull();
       }
       JsonArray array = new JsonArray();
       Type childGenericType = null;
@@ -432,13 +431,19 @@ final class DefaultTypeAdapters {
       if (typeOfSrc instanceof ParameterizedType) {
         childGenericType = new TypeInfoMap(typeOfSrc).getValueType();        
       }
-      for (Iterator iterator = src.entrySet().iterator(); iterator.hasNext(); ) {
-        Map.Entry entry = (Map.Entry) iterator.next();
+
+      for (Map.Entry entry : (Set<Map.Entry>) src.entrySet()) {
         Object value = entry.getValue();
-        Type childType = (childGenericType == null) ? 
-            childType = value.getClass() : childGenericType;
-        JsonElement valueElement = context.serialize(value, childType);
-        map.add(entry.getKey().toString(), valueElement);
+
+        JsonElement valueElement;
+        if (value == null) {
+          valueElement = JsonNull.createJsonNull();
+        } else {
+          Type childType = (childGenericType == null) ? 
+              childType = value.getClass() : childGenericType;
+          valueElement = context.serialize(value, childType);
+        }
+        map.add(String.valueOf(entry.getKey()), valueElement);
       }
       return map;
     }
