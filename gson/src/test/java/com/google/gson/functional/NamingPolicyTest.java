@@ -73,19 +73,30 @@ public class NamingPolicyTest extends TestCase {
   
   public void testGsonDuplicateNameUsingSerializedNameFieldNamingPolicySerialization() {
     Gson gson = builder.create();
-    ClassWithDuplicateFields target = new ClassWithDuplicateFields();
-    target.a = 10;
+    ClassWithDuplicateFields target = new ClassWithDuplicateFields(10);
     String actual = gson.toJson(target);
     assertEquals("{\"a\":10}", actual);
     
-    target.a = null;
-    target.b = 3.0D;
+    target = new ClassWithDuplicateFields(3.0D);
     actual = gson.toJson(target);
     assertEquals("{\"a\":3.0}", actual);
   }
   
   private static class ClassWithDuplicateFields {
-    private Integer a;
-    @SerializedName("a") private Double b;
+    public Integer a;
+    @SerializedName("a") public Double b;
+    
+    public ClassWithDuplicateFields(Integer a) {
+      this(a, null);
+    }
+    
+    public ClassWithDuplicateFields(Double b) {
+      this(null, b);
+    }
+    
+    public ClassWithDuplicateFields(Integer a, Double b) {
+      this.a = a;
+      this.b = b;
+    }
   }
 }
