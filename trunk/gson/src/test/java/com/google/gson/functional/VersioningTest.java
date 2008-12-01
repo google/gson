@@ -18,6 +18,7 @@ package com.google.gson.functional;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Since;
+import com.google.gson.annotations.Until;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 
 import junit.framework.TestCase;
@@ -40,6 +41,17 @@ public class VersioningTest extends TestCase {
   protected void setUp() throws Exception {
     super.setUp();
     builder = new GsonBuilder();
+  }
+
+  public void testVersionedUntilSerialization() {
+    Version1 target = new Version1();
+    Gson gson = builder.setVersion(1.29).create();
+    String json = gson.toJson(target);
+    assertTrue(json.contains("\"a\":" + A));
+    
+    gson = builder.setVersion(1.3).create();
+    json = gson.toJson(target);
+    assertFalse(json.contains("\"a\":" + A));
   }
 
   public void testVersionedClassesSerialization() {
@@ -97,7 +109,7 @@ public class VersioningTest extends TestCase {
   }
 
   private static class Version1 {
-    int a = A;
+    @Until(1.3) int a = A;
     @Since(1.0) int b = B;
   }
 
