@@ -17,6 +17,7 @@
 package com.google.gson;
 
 import com.google.gson.annotations.Since;
+import com.google.gson.annotations.Until;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -45,11 +46,28 @@ final class VersionExclusionStrategy implements ExclusionStrategy {
 
   private boolean isValidVersion(Annotation[] annotations) {
     for (Annotation annotation : annotations) {
-      if (annotation instanceof Since) {
-        double annotationVersion = ((Since) annotation).value();
-        if (annotationVersion > version) {
-          return false;
-        }
+      if (!isValidSince(annotation) || !isValidUntil(annotation)) {
+        return false;
+      }
+    }
+    return true;
+  }
+  
+  private boolean isValidSince(Annotation annotation) {
+    if (annotation instanceof Since) {
+      double annotationVersion = ((Since) annotation).value();
+      if (annotationVersion > version) {
+        return false;
+      }
+    }
+    return true;
+  }
+  
+  private boolean isValidUntil(Annotation annotation) {
+    if (annotation instanceof Until) {
+      double annotationVersion = ((Until) annotation).value();
+      if (annotationVersion <= version) {
+        return false;
       }
     }
     return true;
