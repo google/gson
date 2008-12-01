@@ -28,7 +28,7 @@ public final class JsonNull extends JsonElement {
   private static final JsonNull INSTANCE = new JsonNull(true);
   
   /**
-   * @deprecated use the creation method, {@link #createJsonNull()}, instead.
+   * @deprecated Instead, use the creation method, {@link #createJsonNull()}.
    */
   @Deprecated
   public JsonNull() {
@@ -59,7 +59,14 @@ public final class JsonNull extends JsonElement {
   public boolean equals(Object other) {
     return other instanceof JsonNull;
   }
-  
+
+  /**
+   * Creation method used to return an instance of a {@link JsonNull}.  To reduce the memory
+   * footprint, a single object has been created for this class; therefore the same instance is
+   * being returned for each invocation of this method.
+   *
+   * @return a instance of a {@link JsonNull}
+   */
   public static JsonNull createJsonNull() {
     return INSTANCE;
   }
