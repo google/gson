@@ -53,6 +53,13 @@ public class VersioningTest extends TestCase {
     json = gson.toJson(target);
     assertFalse(json.contains("\"a\":" + A));
   }
+  
+  public void testVersionedUntilDeserialization() {
+    Gson gson = builder.setVersion(1.3).create();
+    String json = "{\"a\":3,\"b\":4,\"c\":5}";
+    Version1 version1 = gson.fromJson(json, Version1.class);
+    assertEquals(A, version1.a);
+  }
 
   public void testVersionedClassesSerialization() {
     Gson gson = builder.setVersion(1.0).create();
@@ -108,6 +115,39 @@ public class VersioningTest extends TestCase {
     assertEquals(expected, actual);
   }
 
+  public void testVersionedGsonMixingSinceAndUntilSerialization() {
+    Gson gson = builder.setVersion(1.0).create();
+    SinceUntilMixing target = new SinceUntilMixing();
+    String json = gson.toJson(target);
+    assertFalse(json.contains("\"b\":" + B));
+    
+    gson = builder.setVersion(1.2).create();
+    json = gson.toJson(target);
+    assertTrue(json.contains("\"b\":" + B));
+    
+    gson = builder.setVersion(1.3).create();
+    json = gson.toJson(target);
+    assertFalse(json.contains("\"b\":" + B));
+  }
+
+  public void testVersionedGsonMixingSinceAndUntilDeserialization() {
+    String json = "{\"a\":5,\"b\":6}";
+    Gson gson = builder.setVersion(1.0).create();
+    SinceUntilMixing result = gson.fromJson(json, SinceUntilMixing.class);
+    assertEquals(5, result.a);
+    assertEquals(B, result.b);
+    
+    gson = builder.setVersion(1.2).create();
+    result = gson.fromJson(json, SinceUntilMixing.class);
+    assertEquals(5, result.a);
+    assertEquals(6, result.b);
+    
+    gson = builder.setVersion(1.3).create();
+    result = gson.fromJson(json, SinceUntilMixing.class);
+    assertEquals(5, result.a);
+    assertEquals(B, result.b);
+  }
+
   private static class Version1 {
     @Until(1.3) int a = A;
     @Since(1.0) int b = B;
@@ -120,5 +160,13 @@ public class VersioningTest extends TestCase {
   @Since(1.2)
   private static class Version1_2 extends Version1_1 {
     int d = D;
+  }
+  
+  private static class SinceUntilMixing {
+    int a = A;
+    
+    @Since(1.1)
+    @Until(1.3)
+    int b = B;
   }
 }
