@@ -78,7 +78,7 @@ private JsonNull JsonNull() :
   Token t;
 }
 {
-  t = <NULL> { return JsonNull.createJsonNull(); }
+  t = <NULL> { return new JsonNull(); }
 }
 
 private void Members(JsonObject o) :
