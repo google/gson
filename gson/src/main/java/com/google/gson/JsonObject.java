@@ -116,7 +116,7 @@ public final class JsonObject extends JsonElement {
    */
   private JsonElement createJsonElement(Object value) {
     if (value == null) {
-      return JsonNull.createJsonNull();
+      return new JsonNull();
     } else {
       return new JsonPrimitive(value);
     }
@@ -151,7 +151,7 @@ public final class JsonObject extends JsonElement {
   public JsonElement get(String memberName) {
     if (members.containsKey(memberName)) {
       JsonElement member = members.get(memberName);
-      return member == null ? JsonNull.createJsonNull() : member;
+      return member == null ? new JsonNull() : member;
     } else {
       return null;
     }
