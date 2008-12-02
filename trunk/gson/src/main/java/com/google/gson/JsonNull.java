@@ -25,18 +25,11 @@ package com.google.gson;
  */
 public final class JsonNull extends JsonElement {
 
-  private static final JsonNull INSTANCE = new JsonNull(true);
-  
   /**
-   * @deprecated Instead, use the creation method, {@link #createJsonNull()}.
+   * Creates a new JsonNull object.
    */
-  @Deprecated
   public JsonNull() {
     // Do nothing
-  }
-  
-  private JsonNull(boolean placeholder) {
-    // Prevent instantiation
   }
   
   @Override
@@ -58,16 +51,5 @@ public final class JsonNull extends JsonElement {
   @Override
   public boolean equals(Object other) {
     return other instanceof JsonNull;
-  }
-
-  /**
-   * Creation method used to return an instance of a {@link JsonNull}.  To reduce the memory
-   * footprint, a single object has been created for this class; therefore the same instance is
-   * being returned for each invocation of this method.
-   *
-   * @return a instance of a {@link JsonNull}
-   */
-  public static JsonNull createJsonNull() {
-    return INSTANCE;
   }
 }

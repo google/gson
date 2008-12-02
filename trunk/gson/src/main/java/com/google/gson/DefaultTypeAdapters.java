@@ -373,7 +373,7 @@ final class DefaultTypeAdapters {
 
     public JsonElement serialize(Collection src, Type typeOfSrc, JsonSerializationContext context) {
       if (src == null) {
-        return JsonNull.createJsonNull();
+        return new JsonNull();
       }
       JsonArray array = new JsonArray();
       Type childGenericType = null;
@@ -437,7 +437,7 @@ final class DefaultTypeAdapters {
 
         JsonElement valueElement;
         if (value == null) {
-          valueElement = JsonNull.createJsonNull();
+          valueElement = new JsonNull();
         } else {
           Type childType = (childGenericType == null) ? 
               childType = value.getClass() : childGenericType;

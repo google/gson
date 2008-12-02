@@ -139,7 +139,7 @@ public class NullObjectAndFieldTest extends TestCase {
     public JsonElement serialize(ClassWithObjects src, Type typeOfSrc,
         JsonSerializationContext context) {
       JsonObject obj = new JsonObject();
-      obj.add("bag", JsonNull.createJsonNull());
+      obj.add("bag", new JsonNull());
       return obj;
     }
   }
