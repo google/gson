@@ -41,6 +41,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
+import java.util.UUID;
 
 /**
  * List of all the default type adapters ({@link JsonSerializer}s, {@link JsonDeserializer}s,
@@ -57,6 +58,7 @@ final class DefaultTypeAdapters {
   private static final EnumTypeAdapter ENUM_TYPE_ADAPTER = new EnumTypeAdapter();
   private static final UrlTypeAdapter URL_TYPE_ADAPTER = new UrlTypeAdapter();
   private static final UriTypeAdapter URI_TYPE_ADAPTER = new UriTypeAdapter();
+  private static final UuidTypeAdapter UUUID_TYPE_ADAPTER = new UuidTypeAdapter();
   private static final LocaleTypeAdapter LOCALE_TYPE_ADAPTER = new LocaleTypeAdapter();
   private static final CollectionTypeAdapter COLLECTION_TYPE_ADAPTER = new CollectionTypeAdapter();
   private static final MapTypeAdapter MAP_TYPE_ADAPTER = new MapTypeAdapter();
@@ -94,6 +96,7 @@ final class DefaultTypeAdapters {
     map.register(Enum.class, ENUM_TYPE_ADAPTER);
     map.register(URL.class, URL_TYPE_ADAPTER);
     map.register(URI.class, URI_TYPE_ADAPTER);
+    map.register(UUID.class, UUUID_TYPE_ADAPTER);
     map.register(Locale.class, LOCALE_TYPE_ADAPTER);
     map.register(Collection.class, COLLECTION_TYPE_ADAPTER);
     map.register(Map.class, MAP_TYPE_ADAPTER);
@@ -131,6 +134,7 @@ final class DefaultTypeAdapters {
     map.register(Enum.class, wrapDeserializer(ENUM_TYPE_ADAPTER));
     map.register(URL.class, wrapDeserializer(URL_TYPE_ADAPTER));
     map.register(URI.class, wrapDeserializer(URI_TYPE_ADAPTER));
+    map.register(UUID.class, UUUID_TYPE_ADAPTER);
     map.register(Locale.class, wrapDeserializer(LOCALE_TYPE_ADAPTER));
     map.register(Collection.class, wrapDeserializer(COLLECTION_TYPE_ADAPTER));
     map.register(Map.class, wrapDeserializer(MAP_TYPE_ADAPTER));
@@ -326,6 +330,22 @@ final class DefaultTypeAdapters {
     @Override
     public String toString() {
       return UriTypeAdapter.class.getSimpleName();
+    }
+  }
+  
+  private static class UuidTypeAdapter implements JsonSerializer<UUID>, JsonDeserializer<UUID> {
+    public JsonElement serialize(UUID src, Type typeOfSrc, JsonSerializationContext context) {
+      return new JsonPrimitive(src.toString());
+    }
+
+    public UUID deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) 
+        throws JsonParseException {     
+      return UUID.fromString(json.getAsString());
+    }
+
+    @Override
+    public String toString() {
+        return UuidTypeAdapter.class.getSimpleName();
     }
   }
 

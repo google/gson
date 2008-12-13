@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
+import java.util.UUID;
 
 import junit.framework.TestCase;
 
@@ -87,6 +88,19 @@ public class DefaultTypeAdaptersTest extends TestCase {
     String json = '"' + uriValue + '"';
     URI target = gson.fromJson(json, URI.class);
     assertEquals(uriValue, target.toASCIIString());
+  }
+  
+  public void testUuidSerialization() throws Exception {
+    String uuidValue = "c237bec1-19ef-4858-a98e-521cf0aad4c0";
+    UUID uuid = UUID.fromString(uuidValue);
+    assertEquals('"' + uuidValue + '"', gson.toJson(uuid));
+  }
+
+  public void testUuidDeserialization() {
+    String uuidValue = "c237bec1-19ef-4858-a98e-521cf0aad4c0";
+    String json = '"' + uuidValue + '"';
+    UUID target = gson.fromJson(json, UUID.class);
+    assertEquals(uuidValue, target.toString());
   }
 
   public void testLocaleSerializationWithLanguage() {
