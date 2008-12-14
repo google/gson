@@ -70,6 +70,7 @@ final class ParameterizedTypeHandlerMap<T> {
       rawType = ((ParameterizedType)type).getRawType();
       handler = map.get(rawType);
     }
+
     // Check for map or collection 
     if (handler == null) {
       if (rawType instanceof Class) {
@@ -87,13 +88,20 @@ final class ParameterizedTypeHandlerMap<T> {
   }
   
   private synchronized T getRawHandlerFor(Type type) {
-    T handler = map.get(type);
     if (type instanceof Map) {
-      handler = map.get(Map.class);
+      return map.get(Map.class);
     } else if (type instanceof Collection) {
-      handler = map.get(Collection.class);
+      return map.get(Collection.class);
+    } else {
+      T handler = map.get(type);
+      if (handler == null) {
+        Class<?> rawClass = TypeUtils.toRawClass(type);
+        if (rawClass != type) {
+          handler = getHandlerFor(rawClass);
+        }
+      }
+      return handler;
     }
-    return handler;
   }
 
   public synchronized boolean hasAnyHandlerFor(Type type) {

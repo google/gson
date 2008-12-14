@@ -29,6 +29,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -244,6 +245,44 @@ public class CollectionTest extends TestCase {
     } catch (JsonParseException expected) {
     }
   }
+  
+  public void testWildcardPrimitiveCollectionSerilaization() throws Exception {
+    Collection<? extends Integer> target = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    Type collectionType = new TypeToken<Collection<? extends Integer>>() { }.getType();
+    String json = gson.toJson(target, collectionType);
+    assertEquals("[1,2,3,4,5,6,7,8,9]", json);
+    
+    json = gson.toJson(target);
+    assertEquals("[1,2,3,4,5,6,7,8,9]", json);
+  }
+  
+  public void testWildcardPrimitiveCollectionDeserilaization() throws Exception {
+    String json = "[1,2,3,4,5,6,7,8,9]";
+    Type collectionType = new TypeToken<Collection<? extends Integer>>() { }.getType();
+    Collection<? extends Integer> target = gson.fromJson(json, collectionType);
+    assertEquals(9, target.size());
+    assertTrue(target.contains(1));
+    assertTrue(target.contains(9));
+  }
+  
+  public void testWildcardCollectionField() throws Exception {
+    Collection<BagOfPrimitives> collection = new ArrayList<BagOfPrimitives>();
+    BagOfPrimitives objA = new BagOfPrimitives(3L, 1, true, "blah");
+    BagOfPrimitives objB = new BagOfPrimitives(2L, 6, false, "blahB");
+    collection.add(objA);
+    collection.add(objB);
+    
+    ObjectWithWildcardCollection target = new ObjectWithWildcardCollection(collection);
+    String json = gson.toJson(target);
+    assertTrue(json.contains(objA.getExpectedJson()));
+    assertTrue(json.contains(objB.getExpectedJson()));
+    
+    target = gson.fromJson(json, ObjectWithWildcardCollection.class);
+    Collection<? extends BagOfPrimitives> deserializedCollection = target.getCollection();
+    assertEquals(2, deserializedCollection.size());
+    assertTrue(deserializedCollection.contains(objA));
+    assertTrue(deserializedCollection.contains(objB));
+  }
 
   @SuppressWarnings("unchecked")
   private static int[] toIntArray(Collection collection) {
@@ -258,5 +297,22 @@ public class CollectionTest extends TestCase {
       }
     }
     return ints;
+  }
+
+  private static class ObjectWithWildcardCollection {
+    private final Collection<? extends BagOfPrimitives> collection;
+
+    @SuppressWarnings("unchecked")
+    public ObjectWithWildcardCollection() {
+      this(Collections.EMPTY_LIST);
+    }
+    
+    public ObjectWithWildcardCollection(Collection<? extends BagOfPrimitives> collection) {
+      this.collection = collection;
+    }
+    
+    public Collection<? extends BagOfPrimitives> getCollection() {
+      return collection;
+    }
   }
 }
