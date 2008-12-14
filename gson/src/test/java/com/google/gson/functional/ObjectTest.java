@@ -548,6 +548,10 @@ public class ObjectTest extends TestCase {
     BagOfPrimitives bag = gson.fromJson(json, BagOfPrimitives.class);
     assertEquals("1", bag.stringValue);
     
+    json = "{\"stringValue\":1.5E+6}";
+    bag = gson.fromJson(json, BagOfPrimitives.class);
+    assertEquals("1.5E+6", bag.stringValue);
+    
     json = "{\"stringValue\":true}";
     bag = gson.fromJson(json, BagOfPrimitives.class);
     assertEquals("true", bag.stringValue);
