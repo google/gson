@@ -20,6 +20,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.WildcardType;
 
 /**
  * Utility class containing some methods for obtaining information on types.
@@ -75,6 +76,9 @@ final class TypeUtils {
       GenericArrayType actualType = (GenericArrayType) type;
       Class<?> rawClass = toRawClass(actualType.getGenericComponentType());
       return wrapWithArray(rawClass);
+    } else if (type instanceof WildcardType) {
+      WildcardType castedType = (WildcardType) type;
+      return toRawClass(castedType.getUpperBounds()[0]);
     } else {
       throw new IllegalArgumentException("Type \'" + type + "\' is not a Class, "
           + "ParameterizedType, or GenericArrayType. Can't extract class.");

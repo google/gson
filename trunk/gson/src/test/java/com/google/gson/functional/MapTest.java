@@ -16,6 +16,7 @@
 package com.google.gson.functional;
 
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -162,7 +163,7 @@ public class MapTest extends TestCase {
   }
   
   public void disable_testMapSubclassDeserialization() {
-    Gson gson = new GsonBuilder().registerTypeAdapter(MyMap.class, new InstanceCreator<MyMap>(){
+    Gson gson = new GsonBuilder().registerTypeAdapter(MyMap.class, new InstanceCreator<MyMap>() {
       public MyMap createInstance(Type type) {
         return new MyMap();
       }      
@@ -172,6 +173,25 @@ public class MapTest extends TestCase {
     assertEquals("1", map.get("a")); 
     assertEquals("2", map.get("b")); 
   }
+  
+  public void testMapSerializationWithWildcardValues() {
+    Map<String, ? extends Collection<? extends Integer>> map =
+        new LinkedHashMap<String, Collection<Integer>>();
+    map.put("test", null);
+    Type typeOfMap = 
+        new TypeToken<Map<String, ? extends Collection<? extends Integer>>>() {}.getType();
+    String json = gson.toJson(map, typeOfMap);
+
+    assertEquals("{}", json);
+  }
+  
+  public void testMapDeserializationWithWildcardValues() {
+    Type typeOfMap = new TypeToken<Map<String, ? extends Long>>() {}.getType();
+    Map<String, ? extends Long> map = gson.fromJson("{\"test\":123}", typeOfMap);
+    assertEquals(1, map.size());
+    assertEquals(new Long(123L), map.get("test"));
+  }
+
   
   private static class MyMap extends LinkedHashMap<String, String> {
     private static final long serialVersionUID = 1L;
