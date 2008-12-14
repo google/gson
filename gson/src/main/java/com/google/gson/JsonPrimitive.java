@@ -166,7 +166,13 @@ public final class JsonPrimitive extends JsonElement {
    */
   @Override
   public String getAsString() {
-    return (String) value;
+    if (isNumber()) {
+      return getAsNumber().toString();
+    } else if (isBoolean()) {
+      return getAsBooleanWrapper().toString();
+    } else {
+      return (String) value;
+    }
   }
 
   /**

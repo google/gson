@@ -542,4 +542,14 @@ public class ObjectTest extends TestCase {
     assertTrue(bag.booleanValue);
     assertEquals("bar", bag.stringValue);
   }
+  
+  public void testStringFieldWithNumberValueDeserialization() {
+    String json = "{\"stringValue\":1}";
+    BagOfPrimitives bag = gson.fromJson(json, BagOfPrimitives.class);
+    assertEquals("1", bag.stringValue);
+    
+    json = "{\"stringValue\":true}";
+    bag = gson.fromJson(json, BagOfPrimitives.class);
+    assertEquals("true", bag.stringValue);
+  }
 }
