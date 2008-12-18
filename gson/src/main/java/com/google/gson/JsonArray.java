@@ -225,7 +225,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
     }
     throw new IllegalStateException();
   }
-  
+
   @Override
   public byte getAsByte() {
     if (elements.size() == 1) {

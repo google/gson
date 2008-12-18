@@ -230,6 +230,7 @@ public abstract class JsonElement {
    * byte value.
    * @throws IllegalStateException if the element is of the type {@link JsonArray} but contains
    * more than a single element.
+   * @since 1.3
    */
   public byte getAsByte() {
     throw new UnsupportedOperationException();
@@ -243,6 +244,7 @@ public abstract class JsonElement {
    * char value.
    * @throws IllegalStateException if the element is of the type {@link JsonArray} but contains
    * more than a single element.
+   * @since 1.3
    */
   public char getAsCharacter() {
     throw new UnsupportedOperationException();
