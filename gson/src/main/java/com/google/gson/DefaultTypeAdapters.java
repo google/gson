@@ -664,6 +664,9 @@ final class DefaultTypeAdapters {
   private static class DoubleTypeAdapter
       implements InstanceCreator<Double>, JsonSerializer<Double>, JsonDeserializer<Double> {
     public JsonElement serialize(Double src, Type typeOfSrc, JsonSerializationContext context) {
+      if (Double.isNaN(src) || Double.isInfinite(src)) {
+        throw new IllegalArgumentException(src + " is not a valid double value as per JavaScript specification.");
+      }
       return new JsonPrimitive(src);
     }
 
