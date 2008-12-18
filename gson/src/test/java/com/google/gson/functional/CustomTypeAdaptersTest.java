@@ -286,11 +286,6 @@ public class CustomTypeAdaptersTest extends TestCase {
         return data;
       }      
     });
-    gsonBuilder.registerTypeAdapter(byte[].class, new InstanceCreator<byte[]>() {
-      public byte[] createInstance(Type type) {
-        return new byte[0];
-      }      
-    });
     Gson gson = gsonBuilder.create();
     String json = "'0123456789'";
     byte[] actual = gson.fromJson(json, byte[].class);
