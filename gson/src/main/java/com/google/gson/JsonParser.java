@@ -54,7 +54,7 @@ final class JsonParser implements JsonParserConstants {
   Token t;
     t = jj_consume_token(NULL);
                {if (true)
-                return new JsonNull();}
+                return JsonNull.createJsonNull();}
     throw new Error("Missing return statement in function");
   }
 
