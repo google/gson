@@ -58,7 +58,8 @@ public final class JsonObject extends JsonElement {
    * Removes the {@code property} from this {@link JsonObject}.
    *   
    * @param property name of the member that should be removed.
-   * return the {@link JsonElement} object that is being removed.
+   * @return the {@link JsonElement} object that is being removed.
+   * @since 1.3
    */
   public JsonElement remove(String property) {
     return members.remove(property);
