@@ -348,4 +348,55 @@ public class PrimitiveTest extends TestCase {
   private String extractElementFromArray(String json) {
     return json.substring(json.indexOf('[') + 1, json.indexOf(']'));
   }
+  
+  public void testNaNSerializationNotSupported() {
+    try {
+      double d = Double.NaN;
+      gson.toJson(d);
+      fail("Gson should not accept NaN for serialization");
+    } catch (IllegalArgumentException expected) {      
+    }
+  }
+  
+  public void testNaNDeserializationNotSupported() {
+    try {
+      String json = "NaN";
+      assertEquals(Double.NaN, gson.fromJson(json, Double.class));
+    } catch (JsonParseException expected) {      
+    }
+   }
+
+  public void testInfinitySerializationNotSupported() {
+    try {
+      double d = Double.POSITIVE_INFINITY;
+      gson.toJson(d);
+      fail("Gson should not accept positive infinity for serialization");
+    } catch (IllegalArgumentException expected) {      
+    }
+  }
+  
+  public void testInfinityDeserializationNotSupported() {
+    try {
+      String json = "Infinity";
+      assertEquals(Double.POSITIVE_INFINITY, gson.fromJson(json, Double.class));
+    } catch (JsonParseException expected) {      
+    }
+ }
+  
+  public void testNegativeInfinitySerializationNotSupported() {
+    try {
+      double d = Double.NEGATIVE_INFINITY;
+      gson.toJson(d);
+      fail("Gson should not accept positive infinity for serialization");
+    } catch (IllegalArgumentException expected) {      
+    }
+  }
+  
+  public void testNegativeInfinityDeserializationNotSupported() {
+    try {
+      String json = "-Infinity";
+      assertEquals(Double.NEGATIVE_INFINITY, gson.fromJson(json, Double.class));
+    } catch (JsonParseException expected) {      
+    }
+  }
 }
