@@ -643,6 +643,9 @@ final class DefaultTypeAdapters {
   private static class FloatTypeAdapter
       implements InstanceCreator<Float>, JsonSerializer<Float>, JsonDeserializer<Float> {
     public JsonElement serialize(Float src, Type typeOfSrc, JsonSerializationContext context) {
+      if (Float.isNaN(src) || Float.isInfinite(src)) {
+        throw new IllegalArgumentException(src + " is not a valid double value as per JavaScript specification.");
+      }
       return new JsonPrimitive(src);
     }
 
