@@ -349,44 +349,96 @@ public class PrimitiveTest extends TestCase {
     return json.substring(json.indexOf('[') + 1, json.indexOf(']'));
   }
   
-  public void testNaNSerializationNotSupported() {
+  public void testDoubleNaNSerializationNotSupported() {
     try {
       double d = Double.NaN;
       gson.toJson(d);
+      Double dw = Double.NaN;
+      gson.toJson(dw);
       fail("Gson should not accept NaN for serialization");
     } catch (IllegalArgumentException expected) {      
     }
   }
   
-  public void testNaNDeserializationNotSupported() {
+  public void testDoubleNaNDeserializationNotSupported() {
     try {
       String json = "NaN";
       assertEquals(Double.NaN, gson.fromJson(json, Double.class));
+      assertEquals(Double.NaN, gson.fromJson(json, double.class));
+      fail("Gson should not accept NaN for deserialization");
     } catch (JsonParseException expected) {      
     }
-   }
+  }
 
-  public void testInfinitySerializationNotSupported() {
+  public void testFloatNaNSerializationNotSupported() {
+    try {
+      float f = Float.NaN;
+      gson.toJson(f);
+      Float fw = Float.NaN;
+      gson.toJson(fw);
+      fail("Gson should not accept NaN for serialization");
+    } catch (IllegalArgumentException expected) {      
+    }
+  }
+  
+  public void testFloatNaNDeserializationNotSupported() {
+    try {
+      String json = "NaN";
+      assertEquals(Float.NaN, gson.fromJson(json, Float.class));
+      assertEquals(Float.NaN, gson.fromJson(json, float.class));
+      fail("Gson should not accept NaN for deserialization");
+    } catch (JsonParseException expected) {      
+    }
+  }
+
+  public void testDoubleInfinitySerializationNotSupported() {
     try {
       double d = Double.POSITIVE_INFINITY;
       gson.toJson(d);
+      Double dw = Double.POSITIVE_INFINITY;
+      gson.toJson(dw);
       fail("Gson should not accept positive infinity for serialization");
     } catch (IllegalArgumentException expected) {      
     }
   }
   
-  public void testInfinityDeserializationNotSupported() {
+  public void testDoubleInfinityDeserializationNotSupported() {
     try {
       String json = "Infinity";
       assertEquals(Double.POSITIVE_INFINITY, gson.fromJson(json, Double.class));
+      assertEquals(Double.POSITIVE_INFINITY, gson.fromJson(json, double.class));
+      fail("Gson should not accept positive infinity for deserialization");
     } catch (JsonParseException expected) {      
     }
- }
+  }
+  
+  public void testFloatInfinitySerializationNotSupported() {
+    try {
+      float f = Float.POSITIVE_INFINITY;
+      gson.toJson(f);
+      Float fw = Float.POSITIVE_INFINITY;
+      gson.toJson(fw);
+      fail("Gson should not accept positive infinity for serialization");
+    } catch (IllegalArgumentException expected) {      
+    }
+  }
+  
+  public void testFloatInfinityDeserializationNotSupported() {
+    try {
+      String json = "Infinity";
+      assertEquals(Float.POSITIVE_INFINITY, gson.fromJson(json, Float.class));
+      assertEquals(Float.POSITIVE_INFINITY, gson.fromJson(json, float.class));
+      fail("Gson should not accept positive infinity for deserialization");
+    } catch (JsonParseException expected) {      
+    }
+  }
   
   public void testNegativeInfinitySerializationNotSupported() {
     try {
       double d = Double.NEGATIVE_INFINITY;
       gson.toJson(d);
+      Double dw = Double.NEGATIVE_INFINITY;
+      gson.toJson(dw);
       fail("Gson should not accept positive infinity for serialization");
     } catch (IllegalArgumentException expected) {      
     }
@@ -395,7 +447,30 @@ public class PrimitiveTest extends TestCase {
   public void testNegativeInfinityDeserializationNotSupported() {
     try {
       String json = "-Infinity";
+      assertEquals(Double.NEGATIVE_INFINITY, gson.fromJson(json, double.class));
       assertEquals(Double.NEGATIVE_INFINITY, gson.fromJson(json, Double.class));
+      fail("Gson should not accept positive infinity for serialization");
+    } catch (JsonParseException expected) {      
+    }
+  }
+  
+  public void testNegativeInfinityFloatSerializationNotSupported() {
+    try {
+      float f = Float.NEGATIVE_INFINITY;
+      gson.toJson(f);
+      Float fw = Float.NEGATIVE_INFINITY;
+      gson.toJson(fw);
+      fail("Gson should not accept positive infinity for serialization");
+    } catch (IllegalArgumentException expected) {      
+    }
+  }
+  
+  public void testNegativeInfinityFloatDeserializationNotSupported() {
+    try {
+      String json = "-Infinity";
+      assertEquals(Float.NEGATIVE_INFINITY, gson.fromJson(json, float.class));
+      assertEquals(Float.NEGATIVE_INFINITY, gson.fromJson(json, Float.class));
+      fail("Gson should not accept positive infinity for serialization");
     } catch (JsonParseException expected) {      
     }
   }
