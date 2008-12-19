@@ -350,8 +350,9 @@ public class PrimitiveTest extends TestCase {
   }
   
   public void testDoubleNaNSerializationNotSupported() {
+    double nan = (double) Double.NaN;
     try {
-      gson.toJson((double)Double.NaN);
+      gson.toJson(nan);
       gson.toJson(Double.NaN);
       fail("Gson should not accept NaN for serialization");
     } catch (IllegalArgumentException expected) {      
@@ -367,8 +368,9 @@ public class PrimitiveTest extends TestCase {
     }
   }
   public void testFloatNaNSerializationNotSupported() {
+    float nan = (float) Float.NaN;
     try {
-      gson.toJson((float)Float.NaN);
+      gson.toJson(nan);
       gson.toJson(Float.NaN);
       fail("Gson should not accept NaN for serialization");
     } catch (IllegalArgumentException expected) {      
@@ -384,15 +386,6 @@ public class PrimitiveTest extends TestCase {
     }
   }
 
-
-  public void testBigDecimalNaNSerializationNotSupported() {
-    try {
-      gson.toJson(new BigDecimal(Double.NaN));
-      fail("Gson should not accept NaN for serialization");
-    } catch (IllegalArgumentException expected) {      
-    }
-  }
-  
   public void testBigDecimalNaNDeserializationNotSupported() {
     try {
       gson.fromJson("NaN", BigDecimal.class);
@@ -402,8 +395,9 @@ public class PrimitiveTest extends TestCase {
   }
 
   public void testDoubleInfinitySerializationNotSupported() {
+    double infinity = (double)Double.POSITIVE_INFINITY;
     try {
-      gson.toJson((double)Double.POSITIVE_INFINITY);
+      gson.toJson(infinity);
       gson.toJson(Double.POSITIVE_INFINITY);
       fail("Gson should not accept positive infinity for serialization");
     } catch (IllegalArgumentException expected) {      
@@ -420,8 +414,9 @@ public class PrimitiveTest extends TestCase {
   }
   
   public void testFloatInfinitySerializationNotSupported() {
+    float infinity = (float) Float.POSITIVE_INFINITY;
     try {
-      gson.toJson((float)Float.POSITIVE_INFINITY);
+      gson.toJson(infinity);
       gson.toJson(Float.POSITIVE_INFINITY);
       fail("Gson should not accept positive infinity for serialization");
     } catch (IllegalArgumentException expected) {      
@@ -437,14 +432,6 @@ public class PrimitiveTest extends TestCase {
     }
   }
   
-  public void testBigDecimalInfinitySerializationNotSupported() {
-    try {
-      gson.toJson(new BigDecimal(Double.POSITIVE_INFINITY));
-      fail("Gson should not accept positive infinity for serialization");
-    } catch (IllegalArgumentException expected) {      
-    }
-  }
-  
   public void testBigDecimalInfinityDeserializationNotSupported() {
     try {
       gson.fromJson("Infinity", BigDecimal.class);
@@ -454,8 +441,9 @@ public class PrimitiveTest extends TestCase {
   }
   
   public void testNegativeInfinitySerializationNotSupported() {
+    double negativeInfinity = (double)Double.NEGATIVE_INFINITY;
     try {
-      gson.toJson((double)Double.NEGATIVE_INFINITY);
+      gson.toJson(negativeInfinity);
       gson.toJson(Double.NEGATIVE_INFINITY);
       fail("Gson should not accept positive infinity for serialization");
     } catch (IllegalArgumentException expected) {      
@@ -472,8 +460,9 @@ public class PrimitiveTest extends TestCase {
   }
   
   public void testNegativeInfinityFloatSerializationNotSupported() {
+    float negativeInfinity = (float) Float.NEGATIVE_INFINITY;
     try {
-      gson.toJson((float)Float.NEGATIVE_INFINITY);
+      gson.toJson(negativeInfinity);
       gson.toJson(Float.NEGATIVE_INFINITY);
       fail("Gson should not accept positive infinity for serialization");
     } catch (IllegalArgumentException expected) {      
@@ -486,14 +475,6 @@ public class PrimitiveTest extends TestCase {
       gson.fromJson("-Infinity", Float.class);
       fail("Gson should not accept positive infinity for deserialization");
     } catch (JsonParseException expected) {      
-    }
-  }
-  
-  public void testNegativeInfinityBigDecimalSerializationNotSupported() {
-    try {
-      gson.toJson(new BigDecimal(Double.NEGATIVE_INFINITY));
-      fail("Gson should not accept positive infinity for serialization");
-    } catch (IllegalArgumentException expected) {      
     }
   }
   
