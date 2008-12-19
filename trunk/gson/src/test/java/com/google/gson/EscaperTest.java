@@ -55,6 +55,26 @@ public class EscaperTest extends TestCase {
     assertEquals("123\\\"456", escapedString);
   }
 
+  public void testLineSeparatorEscaping() throws Exception {
+    String src = "123\u2028 456";
+    String escapedString = Escaper.escapeJsonString(src);
+    assertEquals("123\\u2028 456", escapedString);
+  }
+
+  public void testParagraphSeparatorEscaping() throws Exception {
+    String src = "123\u2029 456";
+    String escapedString = Escaper.escapeJsonString(src);
+    assertEquals("123\\u2029 456", escapedString);
+  }
+
+  public void testControlCharBlockEscaping() throws Exception {
+    for (char c = '\u007f'; c <= '\u009f'; ++c) {
+      String src = "123 " + c + " 456";
+      String escapedString = Escaper.escapeJsonString(src);
+      assertFalse(src.equals(escapedString));
+    }
+  }
+
   public void testEqualsEscaping() throws Exception {
     String containsEquals = "123=456";
     int index = containsEquals.indexOf('=');
