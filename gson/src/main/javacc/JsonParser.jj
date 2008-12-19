@@ -29,6 +29,8 @@ TOKEN : {
   <E : ["e","E"](["+","-"])?>
   | <DIGITS : (["0"-"9"])+>
   | <NULL : "null">  
+  | <NAN : "NaN">
+  | <INFINITY : "Infinity">
   | <BOOLEAN : ("true" | "false")>
   | <IDENTIFIER : ["a"-"z","A"-"Z", "_"] (["a"-"z","A"-"Z","0"-"9","_"])* >
   | <#HEX_CHAR : ["a"-"f","A"-"F","0"-"9"]>
@@ -161,9 +163,12 @@ private JsonPrimitive JsonNumber() :
   String intpart = null,
          fracpart = null,
          exppart = null;
+  JsonPrimitive value;
 }
 {
-  intpart=JsonInt() [ fracpart=JsonFrac() ] [ exppart=JsonExp() ]
+  LOOKAHEAD(2)
+  (value=JsonSpecialNumbers()) {return value; } |		 
+  (intpart=JsonInt() [ fracpart=JsonFrac() ] [ exppart=JsonExp() ])
   {
     Number n;
     if (exppart != null || fracpart != null) {
@@ -175,6 +180,15 @@ private JsonPrimitive JsonNumber() :
     }
     return new JsonPrimitive(n);
   }
+}
+
+private JsonPrimitive JsonSpecialNumbers() : 
+{
+  boolean negative = false;		 
+}		 
+{		 
+  (<NAN>) {return new JsonPrimitive(Double.NaN); } |
+  (["-" {negative = true;}]<INFINITY>) {return new JsonPrimitive(negative ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY); }
 }
 
 private String JsonInt() :

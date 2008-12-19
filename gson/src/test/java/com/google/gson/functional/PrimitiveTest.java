@@ -360,12 +360,8 @@ public class PrimitiveTest extends TestCase {
   }
   
   public void testDoubleNaNDeserializationNotSupported() {
-    try {
-      gson.fromJson("NaN", Double.class);
-      gson.fromJson("NaN", double.class);
-      fail("Gson should not accept NaN for deserialization");
-    } catch (JsonParseException expected) {      
-    }
+    assertTrue(Double.isNaN(gson.fromJson("NaN", Double.class)));
+    assertTrue(Double.isNaN(gson.fromJson("NaN", double.class)));
   }
   public void testFloatNaNSerializationNotSupported() {
     float nan = (float) Float.NaN;
@@ -378,12 +374,8 @@ public class PrimitiveTest extends TestCase {
   }
   
   public void testFloatNaNDeserializationNotSupported() {
-    try {
-      gson.fromJson("NaN", Float.class);
-      gson.fromJson("NaN", float.class);
-      fail("Gson should not accept NaN for deserialization");
-    } catch (JsonParseException expected) {      
-    }
+    assertTrue(Float.isNaN(gson.fromJson("NaN", Float.class)));
+    assertTrue(Float.isNaN(gson.fromJson("NaN", float.class)));
   }
 
   public void testBigDecimalNaNDeserializationNotSupported() {
@@ -405,12 +397,8 @@ public class PrimitiveTest extends TestCase {
   }
   
   public void testDoubleInfinityDeserializationNotSupported() {
-    try {
-      gson.fromJson("Infinity", Double.class);
-      gson.fromJson("Infinity", double.class);
-      fail("Gson should not accept positive infinity for deserialization");
-    } catch (JsonParseException expected) {      
-    }
+    assertTrue(Double.isInfinite(gson.fromJson("Infinity", Double.class)));
+    assertTrue(Double.isInfinite(gson.fromJson("Infinity", double.class)));
   }
   
   public void testFloatInfinitySerializationNotSupported() {
@@ -424,12 +412,8 @@ public class PrimitiveTest extends TestCase {
   }
   
   public void testFloatInfinityDeserializationNotSupported() {
-    try {
-      gson.fromJson("Infinity", Float.class);
-      gson.fromJson("Infinity", float.class);
-      fail("Gson should not accept positive infinity for deserialization");
-    } catch (JsonParseException expected) {      
-    }
+    assertTrue(Float.isInfinite(gson.fromJson("Infinity", Float.class)));
+    assertTrue(Float.isInfinite(gson.fromJson("Infinity", float.class)));
   }
   
   public void testBigDecimalInfinityDeserializationNotSupported() {
@@ -451,12 +435,8 @@ public class PrimitiveTest extends TestCase {
   }
   
   public void testNegativeInfinityDeserializationNotSupported() {
-    try {
-      gson.fromJson("-Infinity", double.class);
-      gson.fromJson("-Infinity", Double.class);
-      fail("Gson should not accept positive infinity for deserialization");
-    } catch (JsonParseException expected) {      
-    }
+    assertTrue(Double.isInfinite(gson.fromJson("-Infinity", double.class)));
+    assertTrue(Double.isInfinite(gson.fromJson("-Infinity", Double.class)));
   }
   
   public void testNegativeInfinityFloatSerializationNotSupported() {
@@ -470,12 +450,8 @@ public class PrimitiveTest extends TestCase {
   }
   
   public void testNegativeInfinityFloatDeserializationNotSupported() {
-    try {
-      gson.fromJson("-Infinity", float.class);
-      gson.fromJson("-Infinity", Float.class);
-      fail("Gson should not accept positive infinity for deserialization");
-    } catch (JsonParseException expected) {      
-    }
+    assertTrue(Float.isInfinite(gson.fromJson("-Infinity", float.class)));
+    assertTrue(Float.isInfinite(gson.fromJson("-Infinity", Float.class)));
   }
   
   public void testNegativeInfinityBigDecimalDeserializationNotSupported() {
