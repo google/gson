@@ -77,7 +77,7 @@ class Escaper {
        int codePoint = Character.codePointAt(plainText, i);
        charCount = Character.charCount(codePoint);
 
-         if (!((codePoint < 0x20 || codePoint >= 0x7f)
+         if (!(isControlCharacter(codePoint)
                || mustEscapeCharInJsString(codePoint))) {
             continue;
          }
@@ -103,6 +103,9 @@ class Escaper {
            case '\\':
              out.append("\\\\");
              break;
+           case '/':
+             out.append("\\/");
+             break;
            case '"':
              out.append('\\').append((char) codePoint);
              break;
@@ -115,6 +118,12 @@ class Escaper {
          }
      }
      out.append(plainText, pos, len);
+  }
+
+  private static boolean isControlCharacter(int codePoint) {
+    return codePoint < 0x20 
+        || codePoint == 0x7f 
+        || (codePoint >= 0x80 && codePoint <= 0x9f);
   }
 
   private static void appendHexJavaScriptRepresentation(int codePoint, Appendable out)
