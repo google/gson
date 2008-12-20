@@ -64,6 +64,7 @@ public final class GsonBuilder {
   private String datePattern;
   private int dateStyle;
   private int timeStyle;
+  private boolean serializeSpecialFloatingPointValues;
 
   /**
    * Creates a GsonBuilder instance that can be used to build Gson with various configuration
@@ -85,6 +86,7 @@ public final class GsonBuilder {
     serializeNulls = false;
     dateStyle = DateFormat.DEFAULT;
     timeStyle = DateFormat.DEFAULT;
+    serializeSpecialFloatingPointValues = false;
   }
 
   /**
@@ -323,6 +325,31 @@ public final class GsonBuilder {
   }
 
   /**
+   * Section 2.4 of <a href="http://www.ietf.org/rfc/rfc4627.txt">JSON specification</a> disallows
+   * special double values (NaN, Infinity, -Infinity). However, 
+   * <a href="http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-262.pdf">Javascript 
+   * specification</a> (see section 4.3.20, 4.3.22, 4.3.23) allows these values as valid Javascript
+   * values. Moreover, most JavaScript engines will accept these special values in JSON without 
+   * problem. So, at a practical level, it makes sense to accept these values as valid JSON even
+   * though JSON specification disallows them. 
+   * 
+   * <p>Gson always accepts these special values during deserialization. However, it outputs 
+   * strictly compliant JSON. Hence, if it encounters a float value {@link Float.NaN}, 
+   * {@link Float.POSITIVE_INFINITY}, {@link Float.NEGATIVE_INFINITY}, or a double value 
+   * {@link Double.NaN}, {@link Double.POSITIVE_INFINITY}, {@link Double.NEGATIVE_INFINITY}, it 
+   * will throw an {@link IllegalArgumentException}. This method provides a way to override the
+   * default behavior when you know that the JSON receiver will be able to handle these special
+   * values.   
+   * 
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @Since 1.3
+   */
+  public GsonBuilder serializeSpecialFloatingPointValues() {
+    this.serializeSpecialFloatingPointValues = true;
+    return this;
+  }
+
+  /**
    * Creates a {@link Gson} instance based on the current configuration. This method is free of
    * side-effects to this {@code GsonBuilder} instance and hence can be called multiple times.
    *
@@ -346,8 +373,10 @@ public final class GsonBuilder {
     addTypeAdaptersForDate(datePattern, dateStyle, timeStyle, customSerializers, 
         customDeserializers);
     customSerializers.registerIfAbsent(DefaultTypeAdapters.DEFAULT_SERIALIZERS);
+    DefaultTypeAdapters.registerSerializersForFloatingPoints(serializeSpecialFloatingPointValues,
+       customSerializers);
     customDeserializers.registerIfAbsent(DefaultTypeAdapters.DEFAULT_DESERIALIZERS);
-
+    
     ParameterizedTypeHandlerMap<InstanceCreator<?>> customInstanceCreators =
       instanceCreators.copyOf();
     customInstanceCreators.registerIfAbsent(DefaultTypeAdapters.DEFAULT_INSTANCE_CREATORS);
@@ -357,7 +386,7 @@ public final class GsonBuilder {
         formatter, serializeNulls, customSerializers, customDeserializers);
     return gson;
   }
-
+  
   private static void addTypeAdaptersForDate(String datePattern, int dateStyle, int timeStyle,
       ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers,
       ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers) {

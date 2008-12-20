@@ -58,6 +58,15 @@ final class ParameterizedTypeHandlerMap<T> {
     }
   }
 
+  public synchronized void registerIfAbsent(Type typeOfT, T value) {
+    if (!modifiable) {
+      throw new IllegalStateException("Attempted to modify an unmodifiable map.");
+    }
+    if (!map.containsKey(typeOfT)) {
+      register(typeOfT, value);
+    }
+  }
+
   public synchronized void makeUnmodifiable() {
     modifiable = false;
   }

@@ -141,9 +141,10 @@ public final class Gson {
    * encountering inner class references.
    */
   Gson(ExclusionStrategy strategy, FieldNamingStrategy fieldNamingPolicy) {
-    this(strategy, fieldNamingPolicy, createObjectConstructor(DefaultTypeAdapters.DEFAULT_INSTANCE_CREATORS),
+    this(strategy, fieldNamingPolicy, 
+        createObjectConstructor(DefaultTypeAdapters.DEFAULT_INSTANCE_CREATORS),
         DEFAULT_JSON_FORMATTER, false,
-        DefaultTypeAdapters.DEFAULT_SERIALIZERS, DefaultTypeAdapters.DEFAULT_DESERIALIZERS);
+        getDefaultSerializers(), DefaultTypeAdapters.DEFAULT_DESERIALIZERS);
   }
 
   Gson(ExclusionStrategy strategy, FieldNamingStrategy fieldNamingPolicy, 
@@ -159,6 +160,13 @@ public final class Gson {
     this.deserializers = deserializers;
   }
 
+  private static ParameterizedTypeHandlerMap<JsonSerializer<?>> getDefaultSerializers() {
+    ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers = 
+      DefaultTypeAdapters.DEFAULT_SERIALIZERS.copyOf();
+    DefaultTypeAdapters.registerSerializersForFloatingPoints(false, serializers);    
+    return serializers;
+  }
+  
   static MappedObjectConstructor createObjectConstructor(
       ParameterizedTypeHandlerMap<InstanceCreator<?>> instanceCreators) {
     MappedObjectConstructor objectConstructor = new MappedObjectConstructor();
