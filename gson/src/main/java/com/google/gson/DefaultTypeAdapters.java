@@ -111,10 +111,6 @@ final class DefaultTypeAdapters {
     map.register(byte.class, BYTE_TYPE_ADAPTER);
     map.register(Character.class, CHARACTER_TYPE_ADAPTER);
     map.register(char.class, CHARACTER_TYPE_ADAPTER);
-    map.register(Double.class, DOUBLE_TYPE_ADAPTER);
-    map.register(double.class, DOUBLE_TYPE_ADAPTER);
-    map.register(Float.class, FLOAT_TYPE_ADAPTER);
-    map.register(float.class, FLOAT_TYPE_ADAPTER);
     map.register(Integer.class, INTEGER_TYPE_ADAPTER);
     map.register(int.class, INTEGER_TYPE_ADAPTER);
     map.register(Long.class, LONG_TYPE_ADAPTER);
@@ -209,6 +205,18 @@ final class DefaultTypeAdapters {
   @SuppressWarnings("unchecked")
   private static JsonDeserializer<?> wrapDeserializer(JsonDeserializer<?> deserializer) {
     return new JsonDeserializerExceptionWrapper(deserializer);
+  }
+
+  static void registerSerializersForFloatingPoints(boolean serializeSpecialFloatingPointValues,
+      ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers) {
+    DefaultTypeAdapters.DoubleSerializer doubleSerializer = 
+      new DefaultTypeAdapters.DoubleSerializer(serializeSpecialFloatingPointValues);
+    DefaultTypeAdapters.FloatSerializer floatSerializer = 
+      new DefaultTypeAdapters.FloatSerializer(serializeSpecialFloatingPointValues);
+    serializers.registerIfAbsent(Double.class, doubleSerializer);
+    serializers.registerIfAbsent(double.class, doubleSerializer);
+    serializers.registerIfAbsent(Float.class, floatSerializer);
+    serializers.registerIfAbsent(float.class, floatSerializer);
   }
 
   static class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
@@ -640,14 +648,26 @@ final class DefaultTypeAdapters {
     }
   }
 
-  private static class FloatTypeAdapter
-      implements InstanceCreator<Float>, JsonSerializer<Float>, JsonDeserializer<Float> {
+  static class FloatSerializer implements JsonSerializer<Float> {
+    private final boolean serializeSpecialFloatingPointValues;
+
+    FloatSerializer(boolean serializeSpecialDoubleValues) {
+      this.serializeSpecialFloatingPointValues = serializeSpecialDoubleValues;
+    }
+
     public JsonElement serialize(Float src, Type typeOfSrc, JsonSerializationContext context) {
-      if (Float.isNaN(src) || Float.isInfinite(src)) {
-        throw new IllegalArgumentException(src + " is not a valid double value as per JavaScript specification.");
+      if (!serializeSpecialFloatingPointValues) {
+        if (Float.isNaN(src) || Float.isInfinite(src)) {
+          throw new IllegalArgumentException(src 
+              + " is not a valid float value as per JSON specification. To override this"
+              + " behavior, use GsonBuilder.serializeSpecialFloatingPointValues() method.");
+        }
       }
       return new JsonPrimitive(src);
     }
+  }
+  
+  private static class FloatTypeAdapter implements InstanceCreator<Float>, JsonDeserializer<Float> {
 
     public Float deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
@@ -664,15 +684,27 @@ final class DefaultTypeAdapters {
     }
   }
 
-  private static class DoubleTypeAdapter
-      implements InstanceCreator<Double>, JsonSerializer<Double>, JsonDeserializer<Double> {
+  static class DoubleSerializer implements JsonSerializer<Double> {
+    private final boolean serializeSpecialFloatingPointValues;
+
+    DoubleSerializer(boolean serializeSpecialDoubleValues) {
+      this.serializeSpecialFloatingPointValues = serializeSpecialDoubleValues;
+    }
     public JsonElement serialize(Double src, Type typeOfSrc, JsonSerializationContext context) {
-      if (Double.isNaN(src) || Double.isInfinite(src)) {
-        throw new IllegalArgumentException(src + " is not a valid double value as per JavaScript specification.");
+      if (!serializeSpecialFloatingPointValues) {
+        if (Double.isNaN(src) || Double.isInfinite(src)) {
+          throw new IllegalArgumentException(src 
+              + " is not a valid double value as per JSON specification. To override this"
+              + " behavior, use GsonBuilder.serializeSpecialDoubleValues() method.");
+        }
       }
       return new JsonPrimitive(src);
     }
+  }
 
+  private static class DoubleTypeAdapter implements InstanceCreator<Double>, 
+      JsonDeserializer<Double> {
+    
     public Double deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
       return json.getAsDouble();
