@@ -52,12 +52,12 @@ public class DefaultTypeAdaptersTest extends TestCase {
   public void testUrlSerialization() throws Exception {
     String urlValue = "http://google.com/";
     URL url = new URL(urlValue);
-    assertEquals('"' + urlValue + '"', gson.toJson(url));
+    assertEquals("\"http:\\/\\/google.com\\/\"", gson.toJson(url));
   }
 
   public void testUrlDeserialization() {
     String urlValue = "http://google.com/";
-    String json = '"' + urlValue + '"';
+    String json = "'http:\\/\\/google.com\\/'";
     URL target = gson.fromJson(json, URL.class);
     assertEquals(urlValue, target.toExternalForm());
   }
@@ -80,7 +80,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
   public void testUriSerialization() throws Exception {
     String uriValue = "http://google.com/";
     URI uri = new URI(uriValue);
-    assertEquals('"' + uriValue + '"', gson.toJson(uri));
+    assertEquals("\"http:\\/\\/google.com\\/\"", gson.toJson(uri));
   }
 
   public void testUriDeserialization() {

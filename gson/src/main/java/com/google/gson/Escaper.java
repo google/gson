@@ -56,6 +56,7 @@ class Escaper {
     tmpSet.add('>');
     tmpSet.add('&');
     tmpSet.add('=');
+    tmpSet.add('/');
     tmpSet.add('\\');
     JS_ESCAPE_CHARS = Collections.unmodifiableSet(tmpSet);
   }
@@ -77,8 +78,7 @@ class Escaper {
        int codePoint = Character.codePointAt(plainText, i);
        charCount = Character.charCount(codePoint);
 
-         if (!(isControlCharacter(codePoint)
-               || mustEscapeCharInJsString(codePoint))) {
+         if (!isControlCharacter(codePoint) && !mustEscapeCharInJsString(codePoint)) {
             continue;
          }
 
