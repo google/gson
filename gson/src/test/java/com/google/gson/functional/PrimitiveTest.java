@@ -350,9 +350,13 @@ public class PrimitiveTest extends TestCase {
   }
   
   public void testDoubleNaNSerializationNotSupportedByDefault() {
-    double nan = Double.NaN;
     try {
+      double nan = Double.NaN;
       gson.toJson(nan);
+      fail("Gson should not accept NaN for serialization");
+    } catch (IllegalArgumentException expected) {      
+    }
+    try {
       gson.toJson(Double.NaN);
       fail("Gson should not accept NaN for serialization");
     } catch (IllegalArgumentException expected) {      
@@ -372,9 +376,13 @@ public class PrimitiveTest extends TestCase {
   }
   
   public void testFloatNaNSerializationNotSupportedByDefault() {
-    float nan = Float.NaN;
     try {
+      float nan = Float.NaN;
       gson.toJson(nan);
+      fail("Gson should not accept NaN for serialization");
+    } catch (IllegalArgumentException expected) {      
+    }
+    try {
       gson.toJson(Float.NaN);
       fail("Gson should not accept NaN for serialization");
     } catch (IllegalArgumentException expected) {      
@@ -402,9 +410,13 @@ public class PrimitiveTest extends TestCase {
   }
 
   public void testDoubleInfinitySerializationNotSupportedByDefault() {
-    double infinity = Double.POSITIVE_INFINITY;
     try {
+      double infinity = Double.POSITIVE_INFINITY;
       gson.toJson(infinity);
+      fail("Gson should not accept positive infinity for serialization by default.");
+    } catch (IllegalArgumentException expected) {      
+    }
+    try {
       gson.toJson(Double.POSITIVE_INFINITY);
       fail("Gson should not accept positive infinity for serialization by default.");
     } catch (IllegalArgumentException expected) {      
@@ -424,9 +436,13 @@ public class PrimitiveTest extends TestCase {
   }
   
   public void testFloatInfinitySerializationNotSupportedByDefault() {
-    float infinity = Float.POSITIVE_INFINITY;
     try {
+      float infinity = Float.POSITIVE_INFINITY;
       gson.toJson(infinity);
+      fail("Gson should not accept positive infinity for serialization by default");
+    } catch (IllegalArgumentException expected) {      
+    }
+    try {
       gson.toJson(Float.POSITIVE_INFINITY);
       fail("Gson should not accept positive infinity for serialization by default");
     } catch (IllegalArgumentException expected) {      
@@ -454,9 +470,13 @@ public class PrimitiveTest extends TestCase {
   }
   
   public void testNegativeInfinitySerializationNotSupportedByDefault() {
-    double negativeInfinity = Double.NEGATIVE_INFINITY;
     try {
+      double negativeInfinity = Double.NEGATIVE_INFINITY;
       gson.toJson(negativeInfinity);
+      fail("Gson should not accept negative infinity for serialization by default");
+    } catch (IllegalArgumentException expected) {      
+    }
+    try {
       gson.toJson(Double.NEGATIVE_INFINITY);
       fail("Gson should not accept negative infinity for serialization by default");
     } catch (IllegalArgumentException expected) {      
@@ -476,9 +496,13 @@ public class PrimitiveTest extends TestCase {
   }
   
   public void testNegativeInfinityFloatSerializationNotSupportedByDefault() {
-    float negativeInfinity = Float.NEGATIVE_INFINITY;
     try {
+      float negativeInfinity = Float.NEGATIVE_INFINITY;
       gson.toJson(negativeInfinity);
+      fail("Gson should not accept negative infinity for serialization by default");
+    } catch (IllegalArgumentException expected) {      
+    }
+    try {
       gson.toJson(Float.NEGATIVE_INFINITY);
       fail("Gson should not accept negative infinity for serialization by default");
     } catch (IllegalArgumentException expected) {      
