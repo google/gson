@@ -73,21 +73,20 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
 
   final Object visitChildAsObject(Type childType, JsonElement jsonChild) {
     JsonDeserializationVisitor<?> childVisitor =
-      new JsonObjectDeserializationVisitor<Object>(jsonChild, childType,
-          factory, objectConstructor, deserializers, context);
+        new JsonObjectDeserializationVisitor<Object>(jsonChild, childType,
+            factory, objectConstructor, deserializers, context);
     return visitChild(childType, childVisitor);
   }
 
   final Object visitChildAsArray(Type childType, JsonArray jsonChild) {
     JsonDeserializationVisitor<?> childVisitor =
-      new JsonArrayDeserializationVisitor<Object>(jsonChild.getAsJsonArray(), childType,
-          factory, objectConstructor, deserializers, context);
+        new JsonArrayDeserializationVisitor<Object>(jsonChild.getAsJsonArray(), childType,
+            factory, objectConstructor, deserializers, context);
     return visitChild(childType, childVisitor);
   }
 
   private Object visitChild(Type type, JsonDeserializationVisitor<?> childVisitor) {
-    Object child = childVisitor.getTarget();
-    ObjectNavigator on = factory.create(child, type);
+    ObjectNavigator on = factory.create(null, type);
     on.accept(childVisitor);
     // the underlying object may have changed during the construction phase
     // This happens primarily because of custom deserializers
