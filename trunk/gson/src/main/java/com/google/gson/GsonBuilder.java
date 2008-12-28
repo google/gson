@@ -148,10 +148,7 @@ public final class GsonBuilder {
   /**
    * Configures Gson to include or exclude inner classes
    *
-   * @param modifiers the field modifiers. You must use the modifiers specified in the
-   * {@link java.lang.reflect.Modifier} class. For example,
-   * {@link java.lang.reflect.Modifier#TRANSIENT},
-   * {@link java.lang.reflect.Modifier#STATIC}.
+   * @param value the boolean value on whether or not {@code Gson} should serialize inner classes
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
   public GsonBuilder serializeInnerClasses(boolean value) {
