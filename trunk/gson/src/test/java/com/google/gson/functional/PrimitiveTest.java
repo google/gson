@@ -528,4 +528,23 @@ public class PrimitiveTest extends TestCase {
     } catch (JsonParseException expected) {      
     }
   }  
+  
+  public void testLongAsStringSerialization() throws Exception {
+    gson = new GsonBuilder().serializeLongFieldsAsString(true).create();
+    String result = gson.toJson(15L);
+    assertEquals("\"15\"", result);
+    
+    // Test with an integer and ensure its still a number
+    result = gson.toJson(2);
+    assertEquals("2", result);
+  }
+  
+  public void testLongAsStringDeserialization() throws Exception {
+    long value = gson.fromJson("\"15\"", long.class);
+    assertEquals(15, value);
+
+    gson = new GsonBuilder().serializeLongFieldsAsString(true).create();
+    value = gson.fromJson("\"25\"", long.class);
+    assertEquals(25, value);
+  }
 }

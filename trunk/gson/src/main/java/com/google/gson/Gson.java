@@ -142,9 +142,9 @@ public final class Gson {
    */
   Gson(ExclusionStrategy strategy, FieldNamingStrategy fieldNamingPolicy) {
     this(strategy, fieldNamingPolicy, 
-        createObjectConstructor(DefaultTypeAdapters.DEFAULT_INSTANCE_CREATORS),
-        DEFAULT_JSON_FORMATTER, false,
-        getDefaultSerializers(), DefaultTypeAdapters.DEFAULT_DESERIALIZERS);
+        createObjectConstructor(DefaultTypeAdapters.getDefaultInstanceCreators()),
+        DEFAULT_JSON_FORMATTER, false, DefaultTypeAdapters.getDefaultSerializers(),
+        DefaultTypeAdapters.getDefaultDeserializers());
   }
 
   Gson(ExclusionStrategy strategy, FieldNamingStrategy fieldNamingPolicy, 
@@ -158,13 +158,6 @@ public final class Gson {
     this.serializeNulls = serializeNulls;
     this.serializers = serializers;
     this.deserializers = deserializers;
-  }
-
-  private static ParameterizedTypeHandlerMap<JsonSerializer<?>> getDefaultSerializers() {
-    ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers = 
-      DefaultTypeAdapters.DEFAULT_SERIALIZERS.copyOf();
-    DefaultTypeAdapters.registerSerializersForFloatingPoints(false, serializers);    
-    return serializers;
   }
   
   static MappedObjectConstructor createObjectConstructor(

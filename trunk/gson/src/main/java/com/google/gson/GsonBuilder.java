@@ -52,6 +52,7 @@ import java.util.List;
 public final class GsonBuilder {
 
   private double ignoreVersionsAfter;
+  private boolean serializeLongAsString;
   private ModifierBasedExclusionStrategy modifierBasedExclusionStrategy;
   private boolean serializeInnerClasses;
   private final AnonymousAndLocalClassExclusionStrategy anonAndLocalClassExclusionStrategy;
@@ -77,6 +78,7 @@ public final class GsonBuilder {
   public GsonBuilder() {
     // setup default values
     ignoreVersionsAfter = VersionConstants.IGNORE_VERSIONS;
+    serializeLongAsString = false;
     serializeInnerClasses = true;
     anonAndLocalClassExclusionStrategy = new AnonymousAndLocalClassExclusionStrategy();
     innerClassExclusionStrategy = new InnerClassExclusionStrategy();
@@ -146,7 +148,19 @@ public final class GsonBuilder {
   }
   
   /**
-   * Configures Gson to include or exclude inner classes
+   * Configures Gson to output fields of type {@code long} as {@code String}s instead of a number.
+   *
+   * @param value the boolean value on whether or not {@code Gson} should serialize a {@code long}
+   * field as a {@code String}
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   */
+  public GsonBuilder serializeLongFieldsAsString(boolean value) {
+    serializeLongAsString = value;
+    return this;
+  }
+
+  /**
+   * Configures Gson to include or exclude inner classes.
    *
    * @param value the boolean value on whether or not {@code Gson} should serialize inner classes
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
@@ -389,24 +403,24 @@ public final class GsonBuilder {
 
     ParameterizedTypeHandlerMap<JsonSerializer<?>> customSerializers = serializers.copyOf();
     ParameterizedTypeHandlerMap<JsonDeserializer<?>> customDeserializers = deserializers.copyOf();
-
-    addTypeAdaptersForDate(datePattern, dateStyle, timeStyle, customSerializers, 
+    addTypeAdaptersForDate(datePattern, dateStyle, timeStyle, customSerializers,
         customDeserializers);
-    customSerializers.registerIfAbsent(DefaultTypeAdapters.DEFAULT_SERIALIZERS);
-    DefaultTypeAdapters.registerSerializersForFloatingPoints(serializeSpecialFloatingPointValues,
-       customSerializers);
-    customDeserializers.registerIfAbsent(DefaultTypeAdapters.DEFAULT_DESERIALIZERS);
+
+    customSerializers.registerIfAbsent(DefaultTypeAdapters.getDefaultSerializers(
+        serializeSpecialFloatingPointValues, serializeLongAsString));
+    
+    customDeserializers.registerIfAbsent(DefaultTypeAdapters.getDefaultDeserializers());
     
     ParameterizedTypeHandlerMap<InstanceCreator<?>> customInstanceCreators =
       instanceCreators.copyOf();
-    customInstanceCreators.registerIfAbsent(DefaultTypeAdapters.DEFAULT_INSTANCE_CREATORS);
+    customInstanceCreators.registerIfAbsent(DefaultTypeAdapters.getDefaultInstanceCreators());
     MappedObjectConstructor objConstructor = Gson.createObjectConstructor(customInstanceCreators);
 
     Gson gson = new Gson(exclusionStrategy, fieldNamingPolicy, objConstructor, 
         formatter, serializeNulls, customSerializers, customDeserializers);
     return gson;
   }
-  
+
   private static void addTypeAdaptersForDate(String datePattern, int dateStyle, int timeStyle,
       ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers,
       ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers) {
