@@ -24,7 +24,7 @@ import java.lang.reflect.Modifier;
  *
  * @author Joel Leitch
  */
-public class InnerClassExclusionStrategy implements ExclusionStrategy {
+class InnerClassExclusionStrategy implements ExclusionStrategy {
 
   public boolean shouldSkipField(Field f) {
     return isInnerClass(f.getType());
