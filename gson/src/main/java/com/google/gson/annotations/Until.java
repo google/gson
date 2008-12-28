@@ -44,10 +44,11 @@ import java.lang.annotation.Target;
  *
  * <p>If you created Gson with {@code new Gson()}, the {@code toJson()} and {@code fromJson()}
  * methods will use all the fields for serialization and deserialization. However, if you created
- * Gson with {@code Gson gson = new GsonBuilder().setVersion(1.2).create()} the the
+ * Gson with {@code Gson gson = new GsonBuilder().setVersion(1.2).create()} then the
  * {@code toJson()} and {@code fromJson()} methods of Gson will exclude the {@code emailAddress}
- * and {@code password} fields because the version number passed to the GsonBuilder, {@code 1.2},
- * exceeds the version number set on the {@code Until} annotation for those fields.
+ * and {@code password} fields from the example above, because the version number passed to the 
+ * GsonBuilder, {@code 1.2}, exceeds the version number set on the {@code Until} annotation,
+ * {@code 1.1}, for those fields.
  *
  * @author Joel Leitch
  */
