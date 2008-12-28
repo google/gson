@@ -32,19 +32,26 @@ final class JsonPrintFormatter implements JsonFormatter {
   private final int printMargin;
   private final int indentationSize;
   private final int rightMargin;
+  private final boolean escapeHtmlChars;
 
   public static final int DEFAULT_PRINT_MARGIN = 80;
   public static final int DEFAULT_INDENTATION_SIZE = 2;
   public static final int DEFAULT_RIGHT_MARGIN = 4;
 
-  public JsonPrintFormatter() {
-    this(DEFAULT_PRINT_MARGIN, DEFAULT_INDENTATION_SIZE, DEFAULT_RIGHT_MARGIN);
+  JsonPrintFormatter() {
+    this(true);
+  }
+  
+  JsonPrintFormatter(boolean escapeHtmlChars) {
+    this(DEFAULT_PRINT_MARGIN, DEFAULT_INDENTATION_SIZE, DEFAULT_RIGHT_MARGIN, escapeHtmlChars);
   }
 
-  public JsonPrintFormatter(int printMargin, int indentationSize, int rightMargin) {
+  JsonPrintFormatter(int printMargin, int indentationSize, int rightMargin,
+      boolean escapeHtmlChars) {
     this.printMargin = printMargin;
     this.indentationSize = indentationSize;
     this.rightMargin = rightMargin;
+    this.escapeHtmlChars = escapeHtmlChars;
   }
 
   private class JsonWriter {
@@ -234,8 +241,8 @@ final class JsonPrintFormatter implements JsonFormatter {
       return;
     }
     JsonWriter jsonWriter = new JsonWriter(writer);
-    JsonElementVisitor visitor = 
-      new JsonEscapingVisitor(new PrintFormattingVisitor(jsonWriter, serializeNulls));    
+    JsonElementVisitor visitor = new JsonEscapingVisitor(
+        new PrintFormattingVisitor(jsonWriter, serializeNulls), escapeHtmlChars);    
     JsonTreeNavigator navigator = new JsonTreeNavigator(visitor, serializeNulls);
     navigator.navigate(root);
     jsonWriter.finishLine();

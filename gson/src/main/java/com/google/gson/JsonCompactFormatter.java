@@ -124,14 +124,24 @@ final class JsonCompactFormatter implements JsonFormatter {
       writer.append('}');
     }
   }
+  
+  private final boolean escapeHtmlChars;
+
+  JsonCompactFormatter() {
+    this(true);
+  }
+  
+  JsonCompactFormatter(boolean escapeHtmlChars) {
+    this.escapeHtmlChars = escapeHtmlChars;
+  }
 
   public void format(JsonElement root, Appendable writer, 
       boolean serializeNulls) throws IOException {
     if (root == null) {
       return;
     }
-    JsonElementVisitor visitor = 
-      new JsonEscapingVisitor(new FormattingVisitor(writer, serializeNulls));
+    JsonElementVisitor visitor = new JsonEscapingVisitor(
+        new FormattingVisitor(writer, serializeNulls), escapeHtmlChars);
     JsonTreeNavigator navigator = new JsonTreeNavigator(visitor, serializeNulls);
     navigator.navigate(root);
   }

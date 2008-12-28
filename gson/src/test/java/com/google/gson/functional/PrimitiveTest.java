@@ -547,4 +547,14 @@ public class PrimitiveTest extends TestCase {
     value = gson.fromJson("\"25\"", long.class);
     assertEquals(25, value);
   }
+  
+  public void testHtmlCharacterSerialization() throws Exception {
+    String target = "<script>var a = 12;</script>";
+    String result = gson.toJson(target);
+    assertFalse(result.equals('"' + target + '"'));
+    
+    gson = new GsonBuilder().setCompactPrinting(false).create();
+    result = gson.toJson(target);
+    assertTrue(result.equals('"' + target + '"'));
+  }
 }

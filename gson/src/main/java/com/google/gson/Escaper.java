@@ -36,32 +36,35 @@ import java.util.Set;
  */
 class Escaper {
 
-  static final char[] HEX_CHARS = {
+  private static final char[] HEX_CHARS = {
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
   };
 
   private static final Set<Character> JS_ESCAPE_CHARS;
+  private static final Set<Character> HTML_ESCAPE_CHARS;
 
   static {
-    Set<Character> tmpSet = new HashSet<Character>();
-    tmpSet.add('\u0000');
-    tmpSet.add('\r');
-    tmpSet.add('\n');
-    tmpSet.add('\u2028');
-    tmpSet.add('\u2029');
-    tmpSet.add('\u0085');
-    tmpSet.add('\'');
-    tmpSet.add('"');
-    tmpSet.add('<');
-    tmpSet.add('>');
-    tmpSet.add('&');
-    tmpSet.add('=');
-    tmpSet.add('/');
-    tmpSet.add('\\');
-    JS_ESCAPE_CHARS = Collections.unmodifiableSet(tmpSet);
+    Set<Character> mandatoryEscapeSet = new HashSet<Character>();
+    mandatoryEscapeSet.add('"');
+    mandatoryEscapeSet.add('\\');
+    JS_ESCAPE_CHARS = Collections.unmodifiableSet(mandatoryEscapeSet);
+
+    Set<Character> htmlEscapeSet = new HashSet<Character>();
+    htmlEscapeSet.add('<');
+    htmlEscapeSet.add('>');
+    htmlEscapeSet.add('&');
+    htmlEscapeSet.add('=');
+ //   htmlEscapeSet.add('/');  -- Removing slash for now since it causes some incompatibilities
+    HTML_ESCAPE_CHARS = Collections.unmodifiableSet(htmlEscapeSet);
   }
 
-  public static String escapeJsonString(CharSequence plainText) {
+  private final boolean escapeHtmlCharacters;
+  
+  Escaper(boolean escapeHtmlCharacters) {
+    this.escapeHtmlCharacters = escapeHtmlCharacters;
+  }
+  
+  public String escapeJsonString(CharSequence plainText) {
     StringBuffer escapedString = new StringBuffer(plainText.length() + 20);
     try {
       escapeJsonString(plainText, escapedString);
@@ -71,53 +74,61 @@ class Escaper {
     return escapedString.toString();
   }
 
-  private static void escapeJsonString(CharSequence plainText, StringBuffer out) throws IOException {
+  private void escapeJsonString(CharSequence plainText, StringBuffer out) throws IOException {
     int pos = 0;  // Index just past the last char in plainText written to out.
     int len = plainText.length();
-     for (int charCount, i = 0; i < len; i += charCount) {
-       int codePoint = Character.codePointAt(plainText, i);
-       charCount = Character.charCount(codePoint);
+    
+    for (int charCount, i = 0; i < len; i += charCount) {
+      int codePoint = Character.codePointAt(plainText, i);
+      charCount = Character.charCount(codePoint);
+      
+       if (!isControlCharacter(codePoint) && !mustEscapeCharInJsString(codePoint)) {
+          continue;
+       }
 
-         if (!isControlCharacter(codePoint) && !mustEscapeCharInJsString(codePoint)) {
-            continue;
-         }
-
-         out.append(plainText, pos, i);
-         pos = i + charCount;
-         switch (codePoint) {
-           case '\b':
-             out.append("\\b");
-             break;
-           case '\t':
-             out.append("\\t");
-             break;
-           case '\n':
-             out.append("\\n");
-             break;
-           case '\f':
-             out.append("\\f");
-             break;
-           case '\r':
-             out.append("\\r");
-             break;
-           case '\\':
-             out.append("\\\\");
-             break;
-           case '/':
-             out.append("\\/");
-             break;
-           case '"':
-             out.append('\\').append((char) codePoint);
-             break;
-           case '\'':
-             out.append((char) codePoint);
-             break;
-           default:
-             appendHexJavaScriptRepresentation(codePoint, out);
-             break;
-         }
+       out.append(plainText, pos, i);
+       pos = i + charCount;
+       switch (codePoint) {
+         case '\b':
+           out.append("\\b");
+           break;
+         case '\t':
+           out.append("\\t");
+           break;
+         case '\n':
+           out.append("\\n");
+           break;
+         case '\f':
+           out.append("\\f");
+           break;
+         case '\r':
+           out.append("\\r");
+           break;
+         case '\\':
+           out.append("\\\\");
+           break;
+         case '/':
+           out.append("\\/");
+           break;
+         case '"':
+           out.append('\\').append((char) codePoint);
+           break;
+         default:
+           appendHexJavaScriptRepresentation(codePoint, out);
+           break;
+       }
      }
      out.append(plainText, pos, len);
+  }
+  
+  private boolean mustEscapeCharInJsString(int codepoint) {
+    if (!Character.isSupplementaryCodePoint(codepoint)) {
+      char c = (char) codepoint;
+      return JS_ESCAPE_CHARS.contains(c)
+          || (escapeHtmlCharacters && HTML_ESCAPE_CHARS.contains(c));
+    } else {
+      return false;
+    }
   }
 
   private static boolean isControlCharacter(int codePoint) {
@@ -145,13 +156,5 @@ class Escaper {
         .append(HEX_CHARS[(codePoint >>> 8) & 0xf])
         .append(HEX_CHARS[(codePoint >>> 4) & 0xf])
         .append(HEX_CHARS[codePoint & 0xf]);
-  }
-
-  private static boolean mustEscapeCharInJsString(int codepoint) {
-    if (!Character.isSupplementaryCodePoint(codepoint)) {
-      return JS_ESCAPE_CHARS.contains((char)codepoint);
-    } else {
-      return false;
-    }
   }
 }
