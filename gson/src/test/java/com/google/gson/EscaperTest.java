@@ -25,52 +25,62 @@ import junit.framework.TestCase;
  */
 public class EscaperTest extends TestCase {
 
+  private Escaper escapeHtmlChar;
+  private Escaper noEscapeHtmlChar;
+  
+  @Override
+  protected void setUp() throws Exception {
+    super.setUp();
+    escapeHtmlChar = new Escaper(true);
+    noEscapeHtmlChar = new Escaper(false);
+  }
+
   public void testNoSpecialCharacters() {
     String value = "Testing123";
-    String escapedString = Escaper.escapeJsonString(value);
+    String escapedString = escapeHtmlChar.escapeJsonString(value);
     assertEquals(value, escapedString);
   }
 
   public void testNewlineEscaping() throws Exception {
     String containsNewline = "123\n456";
-    String escapedString = Escaper.escapeJsonString(containsNewline);
+    String escapedString = escapeHtmlChar.escapeJsonString(containsNewline);
     assertEquals("123\\n456", escapedString);
   }
 
   public void testCarrageReturnEscaping() throws Exception {
     String containsCarrageReturn = "123\r456";
-    String escapedString = Escaper.escapeJsonString(containsCarrageReturn);
+    String escapedString = escapeHtmlChar.escapeJsonString(containsCarrageReturn);
     assertEquals("123\\r456", escapedString);
   }
 
   public void testTabEscaping() throws Exception {
     String containsTab = "123\t456";
-    String escapedString = Escaper.escapeJsonString(containsTab);
+    String escapedString = escapeHtmlChar.escapeJsonString(containsTab);
     assertEquals("123\\t456", escapedString);
   }
 
   public void testQuoteEscaping() throws Exception {
     String containsQuote = "123\"456";
-    String escapedString = Escaper.escapeJsonString(containsQuote);
+    String escapedString = escapeHtmlChar.escapeJsonString(containsQuote);
     assertEquals("123\\\"456", escapedString);
   }
 
   public void testLineSeparatorEscaping() throws Exception {
     String src = "123\u2028 456";
-    String escapedString = Escaper.escapeJsonString(src);
+    String escapedString = escapeHtmlChar.escapeJsonString(src);
     assertEquals("123\\u2028 456", escapedString);
   }
 
   public void testParagraphSeparatorEscaping() throws Exception {
     String src = "123\u2029 456";
-    String escapedString = Escaper.escapeJsonString(src);
+    String escapedString = escapeHtmlChar.escapeJsonString(src);
     assertEquals("123\\u2029 456", escapedString);
   }
 
   public void testControlCharBlockEscaping() throws Exception {
     for (char c = '\u007f'; c <= '\u009f'; ++c) {
       String src = "123 " + c + " 456";
-      String escapedString = Escaper.escapeJsonString(src);
+      String escapedString = escapeHtmlChar.escapeJsonString(src);
       assertFalse(src.equals(escapedString));
     }
   }
@@ -79,8 +89,11 @@ public class EscaperTest extends TestCase {
     String containsEquals = "123=456";
     int index = containsEquals.indexOf('=');
     String unicodeValue = convertToUnicodeString(Character.codePointAt(containsEquals, index));
-    String escapedString = Escaper.escapeJsonString(containsEquals);
+    String escapedString = escapeHtmlChar.escapeJsonString(containsEquals);
     assertEquals("123" + unicodeValue + "456", escapedString);
+    
+    escapedString = noEscapeHtmlChar.escapeJsonString(containsEquals);
+    assertEquals(containsEquals, escapedString);
   }
 
   public void testGreaterThanAndLessThanEscaping() throws Exception {
@@ -90,8 +103,11 @@ public class EscaperTest extends TestCase {
     String gtAsUnicode = convertToUnicodeString(Character.codePointAt(containsLtGt, gtIndex));
     String ltAsUnicode = convertToUnicodeString(Character.codePointAt(containsLtGt, ltIndex));
 
-    String escapedString = Escaper.escapeJsonString(containsLtGt);
+    String escapedString = escapeHtmlChar.escapeJsonString(containsLtGt);
     assertEquals("123" + gtAsUnicode + "456" + ltAsUnicode, escapedString);
+    
+    escapedString = noEscapeHtmlChar.escapeJsonString(containsLtGt);
+    assertEquals(containsLtGt, escapedString);
   }
 
   public void testAmpersandEscaping() throws Exception {
@@ -99,24 +115,30 @@ public class EscaperTest extends TestCase {
     int ampIndex = containsAmp.indexOf('&');
     String ampAsUnicode = convertToUnicodeString(Character.codePointAt(containsAmp, ampIndex));
 
-    String escapedString = Escaper.escapeJsonString(containsAmp);
+    String escapedString = escapeHtmlChar.escapeJsonString(containsAmp);
     assertEquals("123" + ampAsUnicode + "456", escapedString);
+    
+    escapedString = noEscapeHtmlChar.escapeJsonString(containsAmp);
+    assertEquals(containsAmp, escapedString);
 
     char ampCharAsUnicode = '\u0026';
     String containsAmpUnicode = "123" + ampCharAsUnicode + "456";
-    escapedString = Escaper.escapeJsonString(containsAmpUnicode);
+    escapedString = escapeHtmlChar.escapeJsonString(containsAmpUnicode);
     assertEquals("123" + ampAsUnicode + "456", escapedString);
+
+    escapedString = noEscapeHtmlChar.escapeJsonString(containsAmpUnicode);
+    assertEquals(containsAmp, escapedString);
   }
 
   public void testSlashEscaping() throws Exception {
     String containsSlash = "123\\456";
-    String escapedString = Escaper.escapeJsonString(containsSlash);
+    String escapedString = escapeHtmlChar.escapeJsonString(containsSlash);
     assertEquals("123\\\\456", escapedString);
   }
 
   public void testSingleQuoteNotEscaped() throws Exception {
     String containsSingleQuote = "123'456";
-    String escapedString = Escaper.escapeJsonString(containsSingleQuote);
+    String escapedString = escapeHtmlChar.escapeJsonString(containsSingleQuote);
     assertEquals(containsSingleQuote, escapedString);
   }
 
@@ -124,7 +146,7 @@ public class EscaperTest extends TestCase {
     char unicodeChar = '\u2028';
     String unicodeString = "Testing" + unicodeChar;
 
-    String escapedString = Escaper.escapeJsonString(unicodeString);
+    String escapedString = escapeHtmlChar.escapeJsonString(unicodeString);
     assertFalse(unicodeString.equals(escapedString));
     assertEquals("Testing\\u2028", escapedString);
   }
@@ -132,7 +154,7 @@ public class EscaperTest extends TestCase {
   public void testUnicodeCharacterStringNoEscaping() throws Exception {
     String unicodeString = "\u0065\u0066";
 
-    String escapedString = Escaper.escapeJsonString(unicodeString);
+    String escapedString = escapeHtmlChar.escapeJsonString(unicodeString);
     assertEquals(unicodeString, escapedString);
   }
 

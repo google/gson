@@ -60,7 +60,8 @@ public class FunctionalWithInternalDependenciesTest extends TestCase {
   }
 
   public void testPrettyPrintList() {
-    JsonFormatter formatter = new JsonPrintFormatter(PRINT_MARGIN, INDENTATION_SIZE, RIGHT_MARGIN);
+    JsonFormatter formatter = new JsonPrintFormatter(
+        PRINT_MARGIN, INDENTATION_SIZE, RIGHT_MARGIN, true);
     Gson gson = builder.setFormatter(formatter).create();
     BagOfPrimitives b = new BagOfPrimitives();
     List<BagOfPrimitives> listOfB = new LinkedList<BagOfPrimitives>();
@@ -74,7 +75,8 @@ public class FunctionalWithInternalDependenciesTest extends TestCase {
   }
 
   public void testPrettyPrintArrayOfObjects() {
-    JsonFormatter formatter = new JsonPrintFormatter(PRINT_MARGIN, INDENTATION_SIZE, RIGHT_MARGIN);
+    JsonFormatter formatter = new JsonPrintFormatter(
+        PRINT_MARGIN, INDENTATION_SIZE, RIGHT_MARGIN, true);
     Gson gson = builder.setFormatter(formatter).create();
     ArrayOfObjects target = new ArrayOfObjects();
     String json = gson.toJson(target);
@@ -83,7 +85,8 @@ public class FunctionalWithInternalDependenciesTest extends TestCase {
   }
 
   public void testPrettyPrintArrayOfPrimitives() {
-    JsonFormatter formatter = new JsonPrintFormatter(PRINT_MARGIN, INDENTATION_SIZE, RIGHT_MARGIN);
+    JsonFormatter formatter = new JsonPrintFormatter(
+        PRINT_MARGIN, INDENTATION_SIZE, RIGHT_MARGIN, true);
     Gson gson = builder.setFormatter(formatter).create();
     int[] ints = new int[] { 1, 2, 3, 4, 5 };
     String json = gson.toJson(ints);
@@ -91,7 +94,8 @@ public class FunctionalWithInternalDependenciesTest extends TestCase {
   }
 
   public void testPrettyPrintArrayOfPrimitiveArrays() {
-    JsonFormatter formatter = new JsonPrintFormatter(PRINT_MARGIN, INDENTATION_SIZE, RIGHT_MARGIN);
+    JsonFormatter formatter = new JsonPrintFormatter(
+        PRINT_MARGIN, INDENTATION_SIZE, RIGHT_MARGIN, true);
     Gson gson = builder.setFormatter(formatter).create();
     int[][] ints = new int[][] { { 1, 2 }, { 3, 4 }, { 5, 6 }, { 7, 8 }, { 9, 0 }, { 10 } };
     String json = gson.toJson(ints);
@@ -99,7 +103,8 @@ public class FunctionalWithInternalDependenciesTest extends TestCase {
   }
 
   public void testPrettyPrintListOfPrimitiveArrays() {
-    JsonFormatter formatter = new JsonPrintFormatter(PRINT_MARGIN, INDENTATION_SIZE, RIGHT_MARGIN);
+    JsonFormatter formatter = new JsonPrintFormatter(
+        PRINT_MARGIN, INDENTATION_SIZE, RIGHT_MARGIN, true);
     Gson gson = builder.setFormatter(formatter).create();
     List<Integer[]> list = Arrays.asList(new Integer[][] { { 1, 2 }, { 3, 4 }, { 5, 6 }, { 7, 8 },
         { 9, 0 }, { 10 } });
@@ -108,7 +113,8 @@ public class FunctionalWithInternalDependenciesTest extends TestCase {
   }
 
   public void testMultipleArrays() {
-    JsonFormatter formatter = new JsonPrintFormatter(PRINT_MARGIN, INDENTATION_SIZE, RIGHT_MARGIN);
+    JsonFormatter formatter = new JsonPrintFormatter(
+        PRINT_MARGIN, INDENTATION_SIZE, RIGHT_MARGIN, true);
     Gson gson = builder.setFormatter(formatter).create();
     int[][][] ints = new int[][][] { {  { 1 }, { 2 } } };
     String json = gson.toJson(ints);

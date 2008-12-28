@@ -206,6 +206,31 @@ public final class GsonBuilder {
     setFormatter(new JsonPrintFormatter());
     return this;
   }
+  
+  /**
+   * Configures Gson to output Json that fits in a page for pretty printing. This option only
+   * affects Json serialization.
+   *
+   * @param escapeHtmlChars true if specific HTML characters should be escaped
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @since 1.3
+   */
+  public GsonBuilder setPrettyPrinting(boolean escapeHtmlChars) {
+    setFormatter(new JsonPrintFormatter(escapeHtmlChars));
+    return this;
+  }
+  
+  /**
+   * Configures Gson to output Json in a compact format.
+   *
+   * @param escapeHtmlChars true if specific HTML characters should be escaped
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @since 1.3
+   */
+  public GsonBuilder setCompactPrinting(boolean escapeHtmlChars) {
+    setFormatter(new JsonCompactFormatter(escapeHtmlChars));
+    return this;
+  }
 
   /**
    * Configures Gson with a new formatting strategy other than the default strategy. The default
