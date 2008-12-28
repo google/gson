@@ -129,7 +129,7 @@ final class DefaultTypeAdapters {
     map.register(Enum.class, wrapDeserializer(ENUM_TYPE_ADAPTER));
     map.register(URL.class, wrapDeserializer(URL_TYPE_ADAPTER));
     map.register(URI.class, wrapDeserializer(URI_TYPE_ADAPTER));
-    map.register(UUID.class, UUUID_TYPE_ADAPTER);
+    map.register(UUID.class, wrapDeserializer(UUUID_TYPE_ADAPTER));
     map.register(Locale.class, wrapDeserializer(LOCALE_TYPE_ADAPTER));
     map.register(Collection.class, wrapDeserializer(COLLECTION_TYPE_ADAPTER));
     map.register(Map.class, wrapDeserializer(MAP_TYPE_ADAPTER));
