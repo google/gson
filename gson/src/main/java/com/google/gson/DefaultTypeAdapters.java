@@ -53,7 +53,8 @@ import java.util.UUID;
 final class DefaultTypeAdapters {
 
   private static final DefaultDateTypeAdapter DATE_TYPE_ADAPTER =
-    new DefaultDateTypeAdapter(DateFormat.getDateTimeInstance());
+      new DefaultDateTypeAdapter(DateFormat.getDateTimeInstance());
+
   @SuppressWarnings("unchecked")
   private static final EnumTypeAdapter ENUM_TYPE_ADAPTER = new EnumTypeAdapter();
   private static final UrlTypeAdapter URL_TYPE_ADAPTER = new UrlTypeAdapter();
@@ -68,10 +69,10 @@ final class DefaultTypeAdapters {
   private static final BooleanTypeAdapter BOOLEAN_TYPE_ADAPTER = new BooleanTypeAdapter();
   private static final ByteTypeAdapter BYTE_TYPE_ADAPTER = new ByteTypeAdapter();
   private static final CharacterTypeAdapter CHARACTER_TYPE_ADAPTER = new CharacterTypeAdapter();
-  private static final DoubleTypeAdapter DOUBLE_TYPE_ADAPTER = new DoubleTypeAdapter();
+  private static final DoubleDeserializer DOUBLE_TYPE_ADAPTER = new DoubleDeserializer();
   private static final FloatDeserializer FLOAT_TYPE_ADAPTER = new FloatDeserializer();
   private static final IntegerTypeAdapter INTEGER_TYPE_ADAPTER = new IntegerTypeAdapter();
-  private static final LongTypeAdapter LONG_TYPE_ADAPTER = new LongTypeAdapter();
+  private static final LongDeserializer LONG_DESERIALIZER = new LongDeserializer();
   private static final NumberTypeAdapter NUMBER_TYPE_ADAPTER = new NumberTypeAdapter();
   private static final ShortTypeAdapter SHORT_TYPE_ADAPTER = new ShortTypeAdapter();
   private static final StringTypeAdapter STRING_TYPE_ADAPTER = new StringTypeAdapter();
@@ -81,16 +82,16 @@ final class DefaultTypeAdapters {
   // The constants DEFAULT_SERIALIZERS, DEFAULT_DESERIALIZERS, and DEFAULT_INSTANCE_CREATORS
   // must be defined after the constants for the type adapters. Otherwise, the type adapter
   // constants will appear as nulls.
-  static final ParameterizedTypeHandlerMap<JsonSerializer<?>> DEFAULT_SERIALIZERS =
-    getDefaultSerializers();
-  static final ParameterizedTypeHandlerMap<JsonDeserializer<?>> DEFAULT_DESERIALIZERS =
-    getDefaultDeserializers();
-  static final ParameterizedTypeHandlerMap<InstanceCreator<?>> DEFAULT_INSTANCE_CREATORS =
-    getDefaultInstanceCreators();
+  private static final ParameterizedTypeHandlerMap<JsonSerializer<?>> DEFAULT_SERIALIZERS =
+      createDefaultSerializers();
+  private static final ParameterizedTypeHandlerMap<JsonDeserializer<?>> DEFAULT_DESERIALIZERS =
+      createDefaultDeserializers();
+  private static final ParameterizedTypeHandlerMap<InstanceCreator<?>> DEFAULT_INSTANCE_CREATORS =
+      createDefaultInstanceCreators();
 
-  private static ParameterizedTypeHandlerMap<JsonSerializer<?>> getDefaultSerializers() {
+  private static ParameterizedTypeHandlerMap<JsonSerializer<?>> createDefaultSerializers() {
     ParameterizedTypeHandlerMap<JsonSerializer<?>> map =
-      new ParameterizedTypeHandlerMap<JsonSerializer<?>>();
+        new ParameterizedTypeHandlerMap<JsonSerializer<?>>();
 
     map.register(Enum.class, ENUM_TYPE_ADAPTER);
     map.register(URL.class, URL_TYPE_ADAPTER);
@@ -112,8 +113,6 @@ final class DefaultTypeAdapters {
     map.register(char.class, CHARACTER_TYPE_ADAPTER);
     map.register(Integer.class, INTEGER_TYPE_ADAPTER);
     map.register(int.class, INTEGER_TYPE_ADAPTER);
-    map.register(Long.class, LONG_TYPE_ADAPTER);
-    map.register(long.class, LONG_TYPE_ADAPTER);
     map.register(Number.class, NUMBER_TYPE_ADAPTER);
     map.register(Short.class, SHORT_TYPE_ADAPTER);
     map.register(short.class, SHORT_TYPE_ADAPTER);
@@ -123,9 +122,9 @@ final class DefaultTypeAdapters {
     return map;
   }
 
-  private static ParameterizedTypeHandlerMap<JsonDeserializer<?>> getDefaultDeserializers() {
+  private static ParameterizedTypeHandlerMap<JsonDeserializer<?>> createDefaultDeserializers() {
     ParameterizedTypeHandlerMap<JsonDeserializer<?>> map =
-      new ParameterizedTypeHandlerMap<JsonDeserializer<?>>();
+        new ParameterizedTypeHandlerMap<JsonDeserializer<?>>();
     map.register(Enum.class, wrapDeserializer(ENUM_TYPE_ADAPTER));
     map.register(URL.class, wrapDeserializer(URL_TYPE_ADAPTER));
     map.register(URI.class, wrapDeserializer(URI_TYPE_ADAPTER));
@@ -150,8 +149,8 @@ final class DefaultTypeAdapters {
     map.register(float.class, wrapDeserializer(FLOAT_TYPE_ADAPTER));
     map.register(Integer.class, wrapDeserializer(INTEGER_TYPE_ADAPTER));
     map.register(int.class, wrapDeserializer(INTEGER_TYPE_ADAPTER));
-    map.register(Long.class, wrapDeserializer(LONG_TYPE_ADAPTER));
-    map.register(long.class, wrapDeserializer(LONG_TYPE_ADAPTER));
+    map.register(Long.class, wrapDeserializer(LONG_DESERIALIZER));
+    map.register(long.class, wrapDeserializer(LONG_DESERIALIZER));
     map.register(Number.class, wrapDeserializer(NUMBER_TYPE_ADAPTER));
     map.register(Short.class, wrapDeserializer(SHORT_TYPE_ADAPTER));
     map.register(short.class, wrapDeserializer(SHORT_TYPE_ADAPTER));
@@ -161,7 +160,7 @@ final class DefaultTypeAdapters {
     return map;
   }
 
-  private static ParameterizedTypeHandlerMap<InstanceCreator<?>> getDefaultInstanceCreators() {
+  private static ParameterizedTypeHandlerMap<InstanceCreator<?>> createDefaultInstanceCreators() {
     ParameterizedTypeHandlerMap<InstanceCreator<?>> map =
         new ParameterizedTypeHandlerMap<InstanceCreator<?>>();
     map.register(Enum.class, ENUM_TYPE_ADAPTER);
@@ -183,16 +182,43 @@ final class DefaultTypeAdapters {
     return new JsonDeserializerExceptionWrapper(deserializer);
   }
 
-  static void registerSerializersForFloatingPoints(boolean serializeSpecialFloatingPointValues,
-      ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers) {
+  static ParameterizedTypeHandlerMap<JsonSerializer<?>> getDefaultSerializers() {
+    return getDefaultSerializers(false, false);
+  }
+      
+  static ParameterizedTypeHandlerMap<JsonSerializer<?>> getDefaultSerializers(
+      boolean serializeSpecialFloatingPointValues, boolean serializeLongsAsString) {
+    ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers =
+        new ParameterizedTypeHandlerMap<JsonSerializer<?>>();
+    
+    // Double primitive
     DefaultTypeAdapters.DoubleSerializer doubleSerializer = 
         new DefaultTypeAdapters.DoubleSerializer(serializeSpecialFloatingPointValues);
-    DefaultTypeAdapters.FloatSerializer floatSerializer = 
-        new DefaultTypeAdapters.FloatSerializer(serializeSpecialFloatingPointValues);
     serializers.registerIfAbsent(Double.class, doubleSerializer);
     serializers.registerIfAbsent(double.class, doubleSerializer);
+
+    // Float primitive
+    DefaultTypeAdapters.FloatSerializer floatSerializer = 
+        new DefaultTypeAdapters.FloatSerializer(serializeSpecialFloatingPointValues);
     serializers.registerIfAbsent(Float.class, floatSerializer);
     serializers.registerIfAbsent(float.class, floatSerializer);
+
+    // Long primitive
+    DefaultTypeAdapters.LongSerializer longSerializer = 
+        new DefaultTypeAdapters.LongSerializer(serializeLongsAsString);
+    serializers.registerIfAbsent(Long.class, longSerializer);
+    serializers.registerIfAbsent(long.class, longSerializer);
+
+    serializers.registerIfAbsent(DEFAULT_SERIALIZERS);
+    return serializers;
+  }
+  
+  static ParameterizedTypeHandlerMap<JsonDeserializer<?>> getDefaultDeserializers() {
+    return DEFAULT_DESERIALIZERS;
+  }
+  
+  static ParameterizedTypeHandlerMap<InstanceCreator<?>> getDefaultInstanceCreators() {
+    return DEFAULT_INSTANCE_CREATORS;
   }
 
   static class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
@@ -523,15 +549,34 @@ final class DefaultTypeAdapters {
     
     @Override
     public String toString() {
-      return LongTypeAdapter.class.getSimpleName();
+      return NumberTypeAdapter.class.getSimpleName();
+    }
+  }
+  
+  private static class LongSerializer implements JsonSerializer<Long> {
+    private final boolean serializeAsString;
+    
+    private LongSerializer(boolean serializeAsString) {
+      this.serializeAsString = serializeAsString;
+    }
+
+    public JsonElement serialize(Long src, Type typeOfSrc, JsonSerializationContext context) {
+      if (src == null) {
+        return JsonNull.createJsonNull();
+      } else if (serializeAsString) {
+        return new JsonPrimitive(String.valueOf(src));
+      } else {
+        return new JsonPrimitive(src);
+      }
+    }
+
+    @Override
+    public String toString() {
+      return LongSerializer.class.getSimpleName();
     }
   }
 
-  private static class LongTypeAdapter implements JsonSerializer<Long>, JsonDeserializer<Long> {
-    public JsonElement serialize(Long src, Type typeOfSrc, JsonSerializationContext context) {
-      return new JsonPrimitive(src);
-    }
-
+  private static class LongDeserializer implements JsonDeserializer<Long> {
     public Long deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
       return json.getAsLong();
@@ -539,7 +584,7 @@ final class DefaultTypeAdapters {
 
     @Override
     public String toString() {
-      return LongTypeAdapter.class.getSimpleName();
+      return LongDeserializer.class.getSimpleName();
     }
   }
 
@@ -643,7 +688,7 @@ final class DefaultTypeAdapters {
     }
   }
 
-  private static class DoubleTypeAdapter implements JsonDeserializer<Double> {
+  private static class DoubleDeserializer implements JsonDeserializer<Double> {
     public Double deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
       return json.getAsDouble();
@@ -651,7 +696,7 @@ final class DefaultTypeAdapters {
 
     @Override
     public String toString() {
-      return DoubleTypeAdapter.class.getSimpleName();
+      return DoubleDeserializer.class.getSimpleName();
     }
   }
 
