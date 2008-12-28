@@ -182,7 +182,7 @@ public final class Gson {
 
   private static ExclusionStrategy createExclusionStrategy(double version) {
     List<ExclusionStrategy> strategies = new LinkedList<ExclusionStrategy>();
-    strategies.add(new InnerClassExclusionStrategy());
+    strategies.add(new AnonymousAndLocalClassExclusionStrategy());
     strategies.add(DEFAULT_MODIFIER_BASED_EXCLUSION_STRATEGY);
     if (version != VersionConstants.IGNORE_VERSIONS) {
       strategies.add(new VersionExclusionStrategy(version));

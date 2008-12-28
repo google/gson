@@ -53,6 +53,8 @@ public final class GsonBuilder {
 
   private double ignoreVersionsAfter;
   private ModifierBasedExclusionStrategy modifierBasedExclusionStrategy;
+  private boolean serializeInnerClasses;
+  private final AnonymousAndLocalClassExclusionStrategy anonAndLocalClassExclusionStrategy;
   private final InnerClassExclusionStrategy innerClassExclusionStrategy;
   private boolean excludeFieldsWithoutExposeAnnotation;
   private JsonFormatter formatter;
@@ -75,6 +77,8 @@ public final class GsonBuilder {
   public GsonBuilder() {
     // setup default values
     ignoreVersionsAfter = VersionConstants.IGNORE_VERSIONS;
+    serializeInnerClasses = true;
+    anonAndLocalClassExclusionStrategy = new AnonymousAndLocalClassExclusionStrategy();
     innerClassExclusionStrategy = new InnerClassExclusionStrategy();
     modifierBasedExclusionStrategy = Gson.DEFAULT_MODIFIER_BASED_EXCLUSION_STRATEGY;
     excludeFieldsWithoutExposeAnnotation = false;
@@ -140,6 +144,21 @@ public final class GsonBuilder {
     this.serializeNulls = true;
     return this;
   }
+  
+  /**
+   * Configures Gson to include or exclude inner classes
+   *
+   * @param modifiers the field modifiers. You must use the modifiers specified in the
+   * {@link java.lang.reflect.Modifier} class. For example,
+   * {@link java.lang.reflect.Modifier#TRANSIENT},
+   * {@link java.lang.reflect.Modifier#STATIC}.
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   */
+  public GsonBuilder serializeInnerClasses(boolean value) {
+    serializeInnerClasses = value;
+    return this;
+  }
+  
   /**
    * Configures Gson to apply a specific naming policy to an object's field during serialization
    * and deserialization.
@@ -357,8 +376,12 @@ public final class GsonBuilder {
    */
   public Gson create() {
     List<ExclusionStrategy> strategies = new LinkedList<ExclusionStrategy>();
-    strategies.add(innerClassExclusionStrategy);
     strategies.add(modifierBasedExclusionStrategy);
+    strategies.add(anonAndLocalClassExclusionStrategy);
+
+    if (!serializeInnerClasses) {
+      strategies.add(innerClassExclusionStrategy);
+    }
     if (ignoreVersionsAfter != VersionConstants.IGNORE_VERSIONS) {
       strategies.add(new VersionExclusionStrategy(ignoreVersionsAfter));
     }
