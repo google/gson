@@ -366,9 +366,9 @@ public final class GsonBuilder {
    * though JSON specification disallows them. 
    * 
    * <p>Gson always accepts these special values during deserialization. However, it outputs 
-   * strictly compliant JSON. Hence, if it encounters a float value {@link Float.NaN}, 
-   * {@link Float.POSITIVE_INFINITY}, {@link Float.NEGATIVE_INFINITY}, or a double value 
-   * {@link Double.NaN}, {@link Double.POSITIVE_INFINITY}, {@link Double.NEGATIVE_INFINITY}, it 
+   * strictly compliant JSON. Hence, if it encounters a float value {@link Float#NaN}, 
+   * {@link Float#POSITIVE_INFINITY}, {@link Float#NEGATIVE_INFINITY}, or a double value 
+   * {@link Double#NaN}, {@link Double#POSITIVE_INFINITY}, {@link Double#NEGATIVE_INFINITY}, it 
    * will throw an {@link IllegalArgumentException}. This method provides a way to override the
    * default behavior when you know that the JSON receiver will be able to handle these special
    * values.   
