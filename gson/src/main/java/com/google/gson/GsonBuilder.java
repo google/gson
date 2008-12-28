@@ -153,6 +153,7 @@ public final class GsonBuilder {
    * @param value the boolean value on whether or not {@code Gson} should serialize a {@code long}
    * field as a {@code String}
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @since 1.3
    */
   public GsonBuilder serializeLongFieldsAsString(boolean value) {
     serializeLongAsString = value;
@@ -164,6 +165,7 @@ public final class GsonBuilder {
    *
    * @param value the boolean value on whether or not {@code Gson} should serialize inner classes
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @since 1.3
    */
   public GsonBuilder serializeInnerClasses(boolean value) {
     serializeInnerClasses = value;
@@ -372,7 +374,7 @@ public final class GsonBuilder {
    * values.   
    * 
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
-   * @Since 1.3
+   * @since 1.3
    */
   public GsonBuilder serializeSpecialFloatingPointValues() {
     this.serializeSpecialFloatingPointValues = true;
