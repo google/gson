@@ -26,12 +26,14 @@ import junit.framework.TestCase;
 public class JsonEscapingVisitorTest extends TestCase {
   private StubbedJsonElementVisitor stubVisitor;
   private JsonEscapingVisitor escapingVisitor;
+  private Escaper escaper;
 
   @Override
   protected void setUp() throws Exception {
     super.setUp();
     stubVisitor = new StubbedJsonElementVisitor();
-    escapingVisitor = new JsonEscapingVisitor(stubVisitor);
+    escaper = new Escaper(true);
+    escapingVisitor = new JsonEscapingVisitor(stubVisitor, escaper);
   }
 
   public void testNonStringPrimitiveVisitation() throws Exception {
@@ -52,7 +54,7 @@ public class JsonEscapingVisitorTest extends TestCase {
     String value = "Testing\"123";
     JsonPrimitive primitive = new JsonPrimitive(value);
     escapingVisitor.visitPrimitive(primitive);
-    assertEquals(Escaper.escapeJsonString(value), stubVisitor.primitiveReceived.getAsString());
+    assertEquals(escaper.escapeJsonString(value), stubVisitor.primitiveReceived.getAsString());
   }
 
   public void testNonStringArrayVisitation() throws Exception {
@@ -79,7 +81,7 @@ public class JsonEscapingVisitorTest extends TestCase {
     JsonArray array = new JsonArray();
     array.add(primitive);
     escapingVisitor.visitArrayMember(array, primitive, true);
-    assertEquals(Escaper.escapeJsonString(value), stubVisitor.primitiveReceived.getAsString());
+    assertEquals(escaper.escapeJsonString(value), stubVisitor.primitiveReceived.getAsString());
   }
 
   public void testNonStringFieldVisitation() throws Exception {
@@ -112,7 +114,7 @@ public class JsonEscapingVisitorTest extends TestCase {
     object.addProperty(fieldName, value);
 
     escapingVisitor.visitObjectMember(object, fieldName, primitive, true);
-    assertEquals(Escaper.escapeJsonString(value), stubVisitor.primitiveReceived.getAsString());
+    assertEquals(escaper.escapeJsonString(value), stubVisitor.primitiveReceived.getAsString());
   }
 
   private static class StubbedJsonElementVisitor implements JsonElementVisitor {

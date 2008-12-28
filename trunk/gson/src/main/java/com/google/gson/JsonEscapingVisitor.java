@@ -25,14 +25,20 @@ import java.io.IOException;
  * @author Joel Leitch
  */
 class JsonEscapingVisitor extends DelegatingJsonElementVisitor {
+  private final Escaper escaper;
 
   /**
    * Constructs a Visitor that will properly escape any JSON primitive values.
    *
    * @param delegate the JsonElementVisitor that this instance will use for delegation
    */
-  protected JsonEscapingVisitor(JsonElementVisitor delegate) {
+  protected JsonEscapingVisitor(JsonElementVisitor delegate, boolean escapeHtmlChars) {
+    this(delegate, new Escaper(escapeHtmlChars));
+  }
+  
+  protected JsonEscapingVisitor(JsonElementVisitor delegate, Escaper escaper) {
     super(delegate);
+    this.escaper = escaper;
   }
 
   @Override
@@ -55,7 +61,7 @@ class JsonEscapingVisitor extends DelegatingJsonElementVisitor {
   private JsonPrimitive escapeJsonPrimitive(JsonPrimitive member) {
     if (member.isString()) {
       String memberValue = member.getAsString();
-      String escapedValue = Escaper.escapeJsonString(memberValue);
+      String escapedValue = escaper.escapeJsonString(memberValue);
       if (!escapedValue.equals(memberValue)) {
         member.setValue(escapedValue);
       }
