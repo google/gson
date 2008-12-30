@@ -68,6 +68,7 @@ public final class GsonBuilder {
   private int dateStyle;
   private int timeStyle;
   private boolean serializeSpecialFloatingPointValues;
+  private boolean escapeHtmlChars;
 
   /**
    * Creates a GsonBuilder instance that can be used to build Gson with various configuration
@@ -80,6 +81,7 @@ public final class GsonBuilder {
     ignoreVersionsAfter = VersionConstants.IGNORE_VERSIONS;
     serializeLongAsString = false;
     serializeInnerClasses = true;
+    escapeHtmlChars = true;
     anonAndLocalClassExclusionStrategy = new AnonymousAndLocalClassExclusionStrategy();
     innerClassExclusionStrategy = new InnerClassExclusionStrategy();
     modifierBasedExclusionStrategy = Gson.DEFAULT_MODIFIER_BASED_EXCLUSION_STRATEGY;
@@ -202,32 +204,19 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
   public GsonBuilder setPrettyPrinting() {
-    setFormatter(new JsonPrintFormatter());
-    return this;
-  }
-  
-  /**
-   * Configures Gson to output Json that fits in a page for pretty printing. This option only
-   * affects Json serialization.
-   *
-   * @param escapeHtmlChars true if specific HTML characters should be escaped
-   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
-   * @since 1.3
-   */
-  public GsonBuilder setPrettyPrinting(boolean escapeHtmlChars) {
     setFormatter(new JsonPrintFormatter(escapeHtmlChars));
     return this;
   }
   
   /**
-   * Configures Gson to output Json in a compact format.
-   *
-   * @param escapeHtmlChars true if specific HTML characters should be escaped
+   * By default, Gson escapes HTML characters such as &lt; &gt; etc. Use this option to configure
+   * Gson to pass-through HTML characters as is.
+   * 
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.3
    */
-  public GsonBuilder setCompactPrinting(boolean escapeHtmlChars) {
-    setFormatter(new JsonCompactFormatter(escapeHtmlChars));
+  public GsonBuilder disableHtmlEscaping() {
+    this.escapeHtmlChars = false;
     return this;
   }
 
