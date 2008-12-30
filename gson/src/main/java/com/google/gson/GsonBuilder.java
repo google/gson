@@ -58,7 +58,6 @@ public final class GsonBuilder {
   private final AnonymousAndLocalClassExclusionStrategy anonAndLocalClassExclusionStrategy;
   private final InnerClassExclusionStrategy innerClassExclusionStrategy;
   private boolean excludeFieldsWithoutExposeAnnotation;
-  private JsonFormatter formatter;
   private FieldNamingStrategy fieldNamingPolicy;
   private final ParameterizedTypeHandlerMap<InstanceCreator<?>> instanceCreators;
   private final ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers;
@@ -69,6 +68,7 @@ public final class GsonBuilder {
   private int timeStyle;
   private boolean serializeSpecialFloatingPointValues;
   private boolean escapeHtmlChars;
+  private boolean prettyPrinting;
 
   /**
    * Creates a GsonBuilder instance that can be used to build Gson with various configuration
@@ -81,12 +81,12 @@ public final class GsonBuilder {
     ignoreVersionsAfter = VersionConstants.IGNORE_VERSIONS;
     serializeLongAsString = false;
     serializeInnerClasses = true;
+    prettyPrinting = false;
     escapeHtmlChars = true;
     anonAndLocalClassExclusionStrategy = new AnonymousAndLocalClassExclusionStrategy();
     innerClassExclusionStrategy = new InnerClassExclusionStrategy();
     modifierBasedExclusionStrategy = Gson.DEFAULT_MODIFIER_BASED_EXCLUSION_STRATEGY;
     excludeFieldsWithoutExposeAnnotation = false;
-    formatter = Gson.DEFAULT_JSON_FORMATTER;
     fieldNamingPolicy = Gson.DEFAULT_NAMING_POLICY;
     instanceCreators = new ParameterizedTypeHandlerMap<InstanceCreator<?>>();
     serializers = new ParameterizedTypeHandlerMap<JsonSerializer<?>>();
@@ -204,7 +204,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
   public GsonBuilder setPrettyPrinting() {
-    setFormatter(new JsonPrintFormatter(escapeHtmlChars));
+    prettyPrinting = true;
     return this;
   }
   
@@ -217,19 +217,6 @@ public final class GsonBuilder {
    */
   public GsonBuilder disableHtmlEscaping() {
     this.escapeHtmlChars = false;
-    return this;
-  }
-
-  /**
-   * Configures Gson with a new formatting strategy other than the default strategy. The default
-   * strategy is to provide a compact representation that eliminates all unneeded white-space.
-   *
-   * @param formatter the new formatter to use.
-   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
-   * @see JsonPrintFormatter
-   */
-  GsonBuilder setFormatter(JsonFormatter formatter) {
-    this.formatter = formatter;
     return this;
   }
 
@@ -431,6 +418,8 @@ public final class GsonBuilder {
     customInstanceCreators.registerIfAbsent(DefaultTypeAdapters.getDefaultInstanceCreators());
     MappedObjectConstructor objConstructor = Gson.createObjectConstructor(customInstanceCreators);
 
+    JsonFormatter formatter =  prettyPrinting ? 
+        new JsonPrintFormatter(escapeHtmlChars) : new JsonCompactFormatter(escapeHtmlChars); 
     Gson gson = new Gson(exclusionStrategy, fieldNamingPolicy, objConstructor, 
         formatter, serializeNulls, customSerializers, customDeserializers);
     return gson;
