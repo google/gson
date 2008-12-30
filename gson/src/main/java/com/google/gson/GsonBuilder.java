@@ -161,14 +161,13 @@ public final class GsonBuilder {
   }
 
   /**
-   * Configures Gson to include or exclude inner classes.
-   *
-   * @param value the boolean value on whether or not {@code Gson} should serialize inner classes
+   * Configures Gson to exclude inner classes during serialization.
+   * 
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.3
    */
-  public GsonBuilder serializeInnerClasses(boolean value) {
-    serializeInnerClasses = value;
+  public GsonBuilder disableInnerClassSerialization() {
+    serializeInnerClasses = false;
     return this;
   }
   
