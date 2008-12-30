@@ -553,7 +553,7 @@ public class PrimitiveTest extends TestCase {
     String result = gson.toJson(target);
     assertFalse(result.equals('"' + target + '"'));
     
-    gson = new GsonBuilder().setCompactPrinting(false).create();
+    gson = new GsonBuilder().disableHtmlEscaping().create();
     result = gson.toJson(target);
     assertTrue(result.equals('"' + target + '"'));
   }
