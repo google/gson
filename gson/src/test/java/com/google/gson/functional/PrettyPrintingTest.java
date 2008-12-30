@@ -13,56 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson;
+package com.google.gson.functional;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.common.TestTypes.ArrayOfObjects;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
-import com.google.gson.common.TestTypes.ClassWithNoFields;
 import com.google.gson.reflect.TypeToken;
 
 import junit.framework.TestCase;
 
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Functional tests for Gson that depend on some internal package-protected elements of
- * com.google.gson package and hence must be placed in the same package. We should make every
- * attempt to migrate tests out of this class.
+ * Functional tests for pretty printing option.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class FunctionalWithInternalDependenciesTest extends TestCase {
-  private static int INDENTATION_SIZE = 2;
+public class PrettyPrintingTest extends TestCase {
   private static int PRINT_MARGIN = 100;
-  private static int RIGHT_MARGIN = 8;
+  private static int RIGHT_MARGIN = 4;
 
   private static boolean DEBUG = false;
 
-  private GsonBuilder builder;
+  private Gson gson;
 
   @Override
   protected void setUp() throws Exception {
     super.setUp();
-    builder = new GsonBuilder();
-  }
-
-  public void testAnonymousLocalClassesSerialization() {
-    Gson gson = new Gson(new ModifierBasedExclusionStrategy(
-        true, Modifier.TRANSIENT, Modifier.STATIC), Gson.DEFAULT_NAMING_POLICY);
-    assertEquals("{}", gson.toJson(new ClassWithNoFields() {
-      // empty anonymous class
-    }));
+    gson = new GsonBuilder().setPrettyPrinting().create();
   }
 
   public void testPrettyPrintList() {
-    JsonFormatter formatter = new JsonPrintFormatter(
-        PRINT_MARGIN, INDENTATION_SIZE, RIGHT_MARGIN, true);
-    Gson gson = builder.setFormatter(formatter).create();
     BagOfPrimitives b = new BagOfPrimitives();
     List<BagOfPrimitives> listOfB = new LinkedList<BagOfPrimitives>();
     for (int i = 0; i < 15; ++i) {
@@ -75,9 +61,6 @@ public class FunctionalWithInternalDependenciesTest extends TestCase {
   }
 
   public void testPrettyPrintArrayOfObjects() {
-    JsonFormatter formatter = new JsonPrintFormatter(
-        PRINT_MARGIN, INDENTATION_SIZE, RIGHT_MARGIN, true);
-    Gson gson = builder.setFormatter(formatter).create();
     ArrayOfObjects target = new ArrayOfObjects();
     String json = gson.toJson(target);
     print(json);
@@ -85,27 +68,18 @@ public class FunctionalWithInternalDependenciesTest extends TestCase {
   }
 
   public void testPrettyPrintArrayOfPrimitives() {
-    JsonFormatter formatter = new JsonPrintFormatter(
-        PRINT_MARGIN, INDENTATION_SIZE, RIGHT_MARGIN, true);
-    Gson gson = builder.setFormatter(formatter).create();
     int[] ints = new int[] { 1, 2, 3, 4, 5 };
     String json = gson.toJson(ints);
     assertEquals("[1,2,3,4,5]\n", json);
   }
 
   public void testPrettyPrintArrayOfPrimitiveArrays() {
-    JsonFormatter formatter = new JsonPrintFormatter(
-        PRINT_MARGIN, INDENTATION_SIZE, RIGHT_MARGIN, true);
-    Gson gson = builder.setFormatter(formatter).create();
     int[][] ints = new int[][] { { 1, 2 }, { 3, 4 }, { 5, 6 }, { 7, 8 }, { 9, 0 }, { 10 } };
     String json = gson.toJson(ints);
     assertEquals("[[1,2],[3,4],[5,6],[7,8],[9,0],[10]]\n", json);
   }
 
   public void testPrettyPrintListOfPrimitiveArrays() {
-    JsonFormatter formatter = new JsonPrintFormatter(
-        PRINT_MARGIN, INDENTATION_SIZE, RIGHT_MARGIN, true);
-    Gson gson = builder.setFormatter(formatter).create();
     List<Integer[]> list = Arrays.asList(new Integer[][] { { 1, 2 }, { 3, 4 }, { 5, 6 }, { 7, 8 },
         { 9, 0 }, { 10 } });
     String json = gson.toJson(list);
@@ -113,9 +87,6 @@ public class FunctionalWithInternalDependenciesTest extends TestCase {
   }
 
   public void testMultipleArrays() {
-    JsonFormatter formatter = new JsonPrintFormatter(
-        PRINT_MARGIN, INDENTATION_SIZE, RIGHT_MARGIN, true);
-    Gson gson = builder.setFormatter(formatter).create();
     int[][][] ints = new int[][][] { {  { 1 }, { 2 } } };
     String json = gson.toJson(ints);
     assertEquals("[[[1],[2]]]\n", json);
