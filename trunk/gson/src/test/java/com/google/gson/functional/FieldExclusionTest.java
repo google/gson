@@ -30,47 +30,58 @@ import junit.framework.TestCase;
  */
 public class FieldExclusionTest extends TestCase {
   private static final String VALUE = "blah_1234";
+
+  private Outer outer;
+  
+  @Override
+  protected void setUp() throws Exception {
+    super.setUp();
+    outer = new Outer();
+  }
   
   public void testDefaultInnerClassExclusion() throws Exception {
     Gson gson = new Gson();
-    TestInnerClass target = new TestInnerClass(VALUE);
+    Outer.Inner target = outer.new Inner(VALUE);
     String result = gson.toJson(target);
     assertEquals(target.toJson(), result);
     
     gson = new GsonBuilder().create();
-    target = new TestInnerClass(VALUE);
+    target = outer.new Inner(VALUE);
     result = gson.toJson(target);
     assertEquals(target.toJson(), result);
   }
   
   public void testInnerClassExclusion() throws Exception {
-    Gson gson = new GsonBuilder().serializeInnerClasses(false).create();
-    TestInnerClass target = new TestInnerClass(VALUE);
+    Gson gson = new GsonBuilder().disableInnerClassSerialization().create();
+    Outer.Inner target = outer.new Inner(VALUE);
     String result = gson.toJson(target);
     assertEquals("", result);
   }
   
   public void testDefaultNestedStaticClassIncluded() throws Exception {
     Gson gson = new Gson();
-    TestInnerClass target = new TestInnerClass(VALUE);
+    Outer.Inner target = outer.new Inner(VALUE);
     String result = gson.toJson(target);
     assertEquals(target.toJson(), result);
     
     gson = new GsonBuilder().create();
-    target = new TestInnerClass(VALUE);
+    target = outer.new Inner(VALUE);
     result = gson.toJson(target);
     assertEquals(target.toJson(), result);
   }
   
-  private class TestInnerClass extends TestStaticNestedClass {
-    public TestInnerClass(String value) {
-      super(value);
+  private static class Outer {
+    private class Inner extends NestedClass {
+      public Inner(String value) {
+        super(value);
+      }
     }
+        
   }
   
-  private static class TestStaticNestedClass {
+  private static class NestedClass {
     private final String value;
-    public TestStaticNestedClass(String value) {
+    public NestedClass(String value) {
       this.value = value;
     }
     
