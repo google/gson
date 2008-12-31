@@ -264,7 +264,8 @@ public class DefaultTypeAdaptersTest extends TestCase {
     Properties props = new Properties();
     props.setProperty("foo", "bar");
     String json = gson.toJson(props);
-    System.out.println(json);
+    String expected = "{\"foo\":\"bar\"}";
+    assertEquals(expected, json);
   }
   
   public void testPropertiesDeserialization() {
