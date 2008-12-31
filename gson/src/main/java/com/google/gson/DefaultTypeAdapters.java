@@ -36,6 +36,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Queue;
 import java.util.Set;
 import java.util.SortedSet;
@@ -77,6 +78,7 @@ final class DefaultTypeAdapters {
   private static final ShortTypeAdapter SHORT_TYPE_ADAPTER = new ShortTypeAdapter();
   private static final StringTypeAdapter STRING_TYPE_ADAPTER = new StringTypeAdapter();
 
+  private static final PropertiesCreator PROPERTIES_CREATOR = new PropertiesCreator();
   private static final TreeSetCreator TREE_SET_CREATOR = new TreeSetCreator();
 
   // The constants DEFAULT_SERIALIZERS, DEFAULT_DESERIALIZERS, and DEFAULT_INSTANCE_CREATORS
@@ -173,6 +175,7 @@ final class DefaultTypeAdapters {
 
     map.register(Set.class, TREE_SET_CREATOR);
     map.register(SortedSet.class, TREE_SET_CREATOR);
+    map.register(Properties.class, PROPERTIES_CREATOR);
     map.makeUnmodifiable();
     return map;
   }
@@ -442,6 +445,12 @@ final class DefaultTypeAdapters {
 
     public Collection createInstance(Type type) {
       return new LinkedList();
+    }    
+  }
+  
+  static class PropertiesCreator implements InstanceCreator<Properties> {
+    public Properties createInstance(Type type) {
+      return new Properties();
     }    
   }
   
