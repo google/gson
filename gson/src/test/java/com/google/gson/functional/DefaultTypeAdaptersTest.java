@@ -24,6 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 
@@ -257,5 +258,18 @@ public class DefaultTypeAdaptersTest extends TestCase {
     String getExpectedJson() {
       return "{\"value\":" + value + "}";
     }
+  }
+  
+  public void testPropertiesSerialization() {
+    Properties props = new Properties();
+    props.put("foo", "bar");
+    String json = gson.toJson(props);
+    System.out.println(json);
+  }
+  
+  public void testPropertiesDeserialization() {
+    String json = "{foo:'bar'}";
+    Properties props = gson.fromJson(json, Properties.class);
+    assertEquals("bar", props.get("foo"));
   }
 }
