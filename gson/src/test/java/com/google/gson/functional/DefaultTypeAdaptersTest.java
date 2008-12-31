@@ -262,7 +262,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
   
   public void testPropertiesSerialization() {
     Properties props = new Properties();
-    props.put("foo", "bar");
+    props.setProperty("foo", "bar");
     String json = gson.toJson(props);
     System.out.println(json);
   }
@@ -270,6 +270,6 @@ public class DefaultTypeAdaptersTest extends TestCase {
   public void testPropertiesDeserialization() {
     String json = "{foo:'bar'}";
     Properties props = gson.fromJson(json, Properties.class);
-    assertEquals("bar", props.get("foo"));
+    assertEquals("bar", props.getProperty("foo"));
   }
 }
