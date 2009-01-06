@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.google.gson.functional;
 
 import java.lang.reflect.Type;
@@ -124,6 +125,23 @@ public class MapTest extends TestCase {
     Map<String, Integer> map = gson.fromJson("{\"null\":123}", typeOfMap);
     assertEquals(1, map.size());
     assertNull(map.get(null));
+  }
+  
+  public void testMapSerializationWithIntegerKeys() {
+    Map<Integer, String> map = new LinkedHashMap<Integer, String>();
+    map.put(123, "456");
+    Type typeOfMap = new TypeToken<Map<Integer, String>>() {}.getType();
+    String json = gson.toJson(map, typeOfMap);
+
+    assertEquals("{\"123\":\"456\"}", json);
+  }
+  
+  public void testMapDeserializationWithIntegerKeys() {
+    Type typeOfMap = new TypeToken<Map<Integer, String>>() {}.getType();
+    Map<Integer, String> map = gson.fromJson("{\"123\":\"456\"}", typeOfMap);
+    assertEquals(1, map.size());
+    assertTrue(map.containsKey(123));
+    assertEquals("456", map.get(123));
   }
 
   public void testParameterizedMapSubclassSerialization() {
