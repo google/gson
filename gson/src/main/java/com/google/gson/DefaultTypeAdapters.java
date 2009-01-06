@@ -485,11 +485,12 @@ final class DefaultTypeAdapters {
         throws JsonParseException {
       // Use ObjectConstructor to create instance instead of hard-coding a specific type. 
       // This handles cases where users are using their own subclass of Map.
-      Map<String, Object> map = constructMapType(typeOfT, context);
-      Type childType = new TypeInfoMap(typeOfT).getValueType();
+      Map<Object, Object> map = constructMapType(typeOfT, context);
+      TypeInfoMap mapTypeInfo = new TypeInfoMap(typeOfT);
       for (Map.Entry<String, JsonElement> entry : json.getAsJsonObject().entrySet()) {
-        Object value = context.deserialize(entry.getValue(), childType);
-        map.put(entry.getKey(), value);
+        Object key = context.deserialize(new JsonPrimitive(entry.getKey()), mapTypeInfo.getKeyType());
+        Object value = context.deserialize(entry.getValue(), mapTypeInfo.getValueType());
+        map.put(key, value);
       }
       return map;
     }
