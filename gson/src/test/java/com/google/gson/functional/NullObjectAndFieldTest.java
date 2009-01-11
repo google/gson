@@ -102,10 +102,6 @@ public class NullObjectAndFieldTest extends TestCase {
     assertNull(target.value);
   }
   
-  private static class ClassWithNullWrappedPrimitive {
-    private Long value;
-  }
-  
   public void testExplicitSerializationOfNullCollectionMembers() {
     Gson gson = gsonBuilder.create();
     ClassWithMembers target = new ClassWithMembers();
@@ -119,12 +115,6 @@ public class NullObjectAndFieldTest extends TestCase {
     String json = gson.toJson(target);
     assertTrue(json.contains("\"str\":null"));
   }
-  
-  static class ClassWithMembers {
-    String str;
-    int[] array;
-    Collection<String> col;
-  }
 
   public void testCustomSerializationOfNulls() {
     gsonBuilder.registerTypeAdapter(ClassWithObjects.class, new ClassWithObjectsSerializer());
@@ -134,7 +124,39 @@ public class NullObjectAndFieldTest extends TestCase {
     String expected = "{\"bag\":null}";
     assertEquals(expected, actual);
   }
+  
+  public void testPrintPrintingObjectWithNulls() throws Exception {
+    gsonBuilder = new GsonBuilder();
+    Gson gson = gsonBuilder.setPrettyPrinting().create();
+    String result = gson.toJson(new ClassWithMembers());
+    assertEquals("{}\n", result);
 
+    gson = gsonBuilder.serializeNulls().create();
+    result = gson.toJson(new ClassWithMembers());
+    assertTrue(result.contains("\"str\":null"));
+  }
+  
+  public void testPrintPrintingArraysWithNulls() throws Exception {
+    gsonBuilder = new GsonBuilder();
+    Gson gson = gsonBuilder.setPrettyPrinting().create();
+    String result = gson.toJson(new String[] { "1", null, "3" });
+    assertEquals("[\"1\",null,\"3\"]\n", result);
+
+    gson = gsonBuilder.serializeNulls().create();
+    result = gson.toJson(new String[] { "1", null, "3" });
+    assertEquals("[\"1\",null,\"3\"]\n", result);
+  }
+
+  private static class ClassWithNullWrappedPrimitive {
+    private Long value;
+  }
+
+  private static class ClassWithMembers {
+    String str;
+    int[] array;
+    Collection<String> col;
+  }
+  
   private static class ClassWithObjectsSerializer implements JsonSerializer<ClassWithObjects> {
     public JsonElement serialize(ClassWithObjects src, Type typeOfSrc,
         JsonSerializationContext context) {
