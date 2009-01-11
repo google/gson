@@ -16,13 +16,13 @@
 
 package com.google.gson;
 
-import com.google.gson.DefaultTypeAdapters.DefaultDateTypeAdapter;
-
 import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+
+import com.google.gson.DefaultTypeAdapters.DefaultDateTypeAdapter;
 
 /**
  * <p>Use this builder to construct a {@link Gson} instance when you need to set configuration
@@ -52,12 +52,12 @@ import java.util.List;
 public final class GsonBuilder {
 
   private double ignoreVersionsAfter;
-  private boolean serializeLongAsString;
   private ModifierBasedExclusionStrategy modifierBasedExclusionStrategy;
   private boolean serializeInnerClasses;
   private final AnonymousAndLocalClassExclusionStrategy anonAndLocalClassExclusionStrategy;
   private final InnerClassExclusionStrategy innerClassExclusionStrategy;
   private boolean excludeFieldsWithoutExposeAnnotation;
+  private LongSerializationPolicy longSerializationPolicy;
   private FieldNamingStrategy fieldNamingPolicy;
   private final ParameterizedTypeHandlerMap<InstanceCreator<?>> instanceCreators;
   private final ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers;
@@ -79,7 +79,6 @@ public final class GsonBuilder {
   public GsonBuilder() {
     // setup default values
     ignoreVersionsAfter = VersionConstants.IGNORE_VERSIONS;
-    serializeLongAsString = false;
     serializeInnerClasses = true;
     prettyPrinting = false;
     escapeHtmlChars = true;
@@ -87,6 +86,7 @@ public final class GsonBuilder {
     innerClassExclusionStrategy = new InnerClassExclusionStrategy();
     modifierBasedExclusionStrategy = Gson.DEFAULT_MODIFIER_BASED_EXCLUSION_STRATEGY;
     excludeFieldsWithoutExposeAnnotation = false;
+    longSerializationPolicy = LongSerializationPolicy.DEFAULT;
     fieldNamingPolicy = Gson.DEFAULT_NAMING_POLICY;
     instanceCreators = new ParameterizedTypeHandlerMap<InstanceCreator<?>>();
     serializers = new ParameterizedTypeHandlerMap<JsonSerializer<?>>();
@@ -148,23 +148,10 @@ public final class GsonBuilder {
     this.serializeNulls = true;
     return this;
   }
-  
-  /**
-   * Configures Gson to output fields of type {@code long} as {@code String}s instead of a number.
-   *
-   * @param value the boolean value on whether or not {@code Gson} should serialize a {@code long}
-   * field as a {@code String}
-   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
-   * @since 1.3
-   */
-  public GsonBuilder serializeLongFieldsAsString(boolean value) {
-    serializeLongAsString = value;
-    return this;
-  }
 
   /**
    * Configures Gson to exclude inner classes during serialization.
-   * 
+   *
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.3
    */
@@ -172,7 +159,20 @@ public final class GsonBuilder {
     serializeInnerClasses = false;
     return this;
   }
-  
+
+  /**
+   * Configures Gson to apply a specific serialization policy for {@code Long} and {@code long}
+   * objects.
+   *
+   * @param serializationPolicy the particular policy to use for serializing longs.
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @since 1.3
+   */
+  public GsonBuilder setLongSerializationPolicy(LongSerializationPolicy serializationPolicy) {
+    this.longSerializationPolicy = serializationPolicy;
+    return this;
+  }
+
   /**
    * Configures Gson to apply a specific naming policy to an object's field during serialization
    * and deserialization.
@@ -207,11 +207,11 @@ public final class GsonBuilder {
     prettyPrinting = true;
     return this;
   }
-  
+
   /**
    * By default, Gson escapes HTML characters such as &lt; &gt; etc. Use this option to configure
    * Gson to pass-through HTML characters as is.
-   * 
+   *
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.3
    */
@@ -280,7 +280,7 @@ public final class GsonBuilder {
     this.datePattern = null;
     return this;
   }
-  
+
   /**
    * Configures Gson for custom serialization or deserialization. This method combines the
    * registration of an {@link InstanceCreator}, {@link JsonSerializer}, and a
@@ -358,21 +358,21 @@ public final class GsonBuilder {
 
   /**
    * Section 2.4 of <a href="http://www.ietf.org/rfc/rfc4627.txt">JSON specification</a> disallows
-   * special double values (NaN, Infinity, -Infinity). However, 
-   * <a href="http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-262.pdf">Javascript 
+   * special double values (NaN, Infinity, -Infinity). However,
+   * <a href="http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-262.pdf">Javascript
    * specification</a> (see section 4.3.20, 4.3.22, 4.3.23) allows these values as valid Javascript
-   * values. Moreover, most JavaScript engines will accept these special values in JSON without 
+   * values. Moreover, most JavaScript engines will accept these special values in JSON without
    * problem. So, at a practical level, it makes sense to accept these values as valid JSON even
-   * though JSON specification disallows them. 
-   * 
-   * <p>Gson always accepts these special values during deserialization. However, it outputs 
-   * strictly compliant JSON. Hence, if it encounters a float value {@link Float#NaN}, 
-   * {@link Float#POSITIVE_INFINITY}, {@link Float#NEGATIVE_INFINITY}, or a double value 
-   * {@link Double#NaN}, {@link Double#POSITIVE_INFINITY}, {@link Double#NEGATIVE_INFINITY}, it 
+   * though JSON specification disallows them.
+   *
+   * <p>Gson always accepts these special values during deserialization. However, it outputs
+   * strictly compliant JSON. Hence, if it encounters a float value {@link Float#NaN},
+   * {@link Float#POSITIVE_INFINITY}, {@link Float#NEGATIVE_INFINITY}, or a double value
+   * {@link Double#NaN}, {@link Double#POSITIVE_INFINITY}, {@link Double#NEGATIVE_INFINITY}, it
    * will throw an {@link IllegalArgumentException}. This method provides a way to override the
    * default behavior when you know that the JSON receiver will be able to handle these special
-   * values.   
-   * 
+   * values.
+   *
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.3
    */
@@ -409,18 +409,18 @@ public final class GsonBuilder {
         customDeserializers);
 
     customSerializers.registerIfAbsent(DefaultTypeAdapters.getDefaultSerializers(
-        serializeSpecialFloatingPointValues, serializeLongAsString));
-    
+        serializeSpecialFloatingPointValues, longSerializationPolicy));
+
     customDeserializers.registerIfAbsent(DefaultTypeAdapters.getDefaultDeserializers());
-    
+
     ParameterizedTypeHandlerMap<InstanceCreator<?>> customInstanceCreators =
       instanceCreators.copyOf();
     customInstanceCreators.registerIfAbsent(DefaultTypeAdapters.getDefaultInstanceCreators());
     MappedObjectConstructor objConstructor = Gson.createObjectConstructor(customInstanceCreators);
 
-    JsonFormatter formatter =  prettyPrinting ? 
-        new JsonPrintFormatter(escapeHtmlChars) : new JsonCompactFormatter(escapeHtmlChars); 
-    Gson gson = new Gson(exclusionStrategy, fieldNamingPolicy, objConstructor, 
+    JsonFormatter formatter =  prettyPrinting ?
+        new JsonPrintFormatter(escapeHtmlChars) : new JsonCompactFormatter(escapeHtmlChars);
+    Gson gson = new Gson(exclusionStrategy, fieldNamingPolicy, objConstructor,
         formatter, serializeNulls, customSerializers, customDeserializers);
     return gson;
   }

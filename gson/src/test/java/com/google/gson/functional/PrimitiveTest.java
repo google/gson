@@ -24,6 +24,7 @@ import junit.framework.TestCase;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
+import com.google.gson.LongSerializationPolicy;
 import com.google.gson.common.TestTypes.CrazyLongTypeAdapter;
 
 /**
@@ -530,7 +531,7 @@ public class PrimitiveTest extends TestCase {
   }  
   
   public void testLongAsStringSerialization() throws Exception {
-    gson = new GsonBuilder().serializeLongFieldsAsString(true).create();
+    gson = new GsonBuilder().setLongSerializationPolicy(LongSerializationPolicy.STRING).create();
     String result = gson.toJson(15L);
     assertEquals("\"15\"", result);
     
@@ -543,7 +544,7 @@ public class PrimitiveTest extends TestCase {
     long value = gson.fromJson("\"15\"", long.class);
     assertEquals(15, value);
 
-    gson = new GsonBuilder().serializeLongFieldsAsString(true).create();
+    gson = new GsonBuilder().setLongSerializationPolicy(LongSerializationPolicy.STRING).create();
     value = gson.fromJson("\"25\"", long.class);
     assertEquals(25, value);
   }

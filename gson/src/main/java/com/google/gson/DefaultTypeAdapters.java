@@ -186,11 +186,11 @@ final class DefaultTypeAdapters {
   }
 
   static ParameterizedTypeHandlerMap<JsonSerializer<?>> getDefaultSerializers() {
-    return getDefaultSerializers(false, false);
+    return getDefaultSerializers(false, LongSerializationPolicy.DEFAULT);
   }
       
   static ParameterizedTypeHandlerMap<JsonSerializer<?>> getDefaultSerializers(
-      boolean serializeSpecialFloatingPointValues, boolean serializeLongsAsString) {
+      boolean serializeSpecialFloatingPointValues, LongSerializationPolicy longSerializationPolicy) {
     ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers =
         new ParameterizedTypeHandlerMap<JsonSerializer<?>>();
     
@@ -208,7 +208,7 @@ final class DefaultTypeAdapters {
 
     // Long primitive
     DefaultTypeAdapters.LongSerializer longSerializer = 
-        new DefaultTypeAdapters.LongSerializer(serializeLongsAsString);
+        new DefaultTypeAdapters.LongSerializer(longSerializationPolicy);
     serializers.registerIfAbsent(Long.class, longSerializer);
     serializers.registerIfAbsent(long.class, longSerializer);
 
@@ -564,20 +564,14 @@ final class DefaultTypeAdapters {
   }
   
   private static class LongSerializer implements JsonSerializer<Long> {
-    private final boolean serializeAsString;
+    private final LongSerializationPolicy longSerializationPolicy;
     
-    private LongSerializer(boolean serializeAsString) {
-      this.serializeAsString = serializeAsString;
+    private LongSerializer(LongSerializationPolicy longSerializationPolicy) {
+      this.longSerializationPolicy = longSerializationPolicy;
     }
 
     public JsonElement serialize(Long src, Type typeOfSrc, JsonSerializationContext context) {
-      if (src == null) {
-        return JsonNull.createJsonNull();
-      } else if (serializeAsString) {
-        return new JsonPrimitive(String.valueOf(src));
-      } else {
-        return new JsonPrimitive(src);
-      }
+      return longSerializationPolicy.serialize(src);
     }
 
     @Override
