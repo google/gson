@@ -35,7 +35,7 @@ import java.util.List;
  * @author Joel Leitch
  */
 public class PrettyPrintingTest extends TestCase {
-  private static int PRINT_MARGIN = 100;
+  private static int PRINT_MARGIN = 80;
   private static int RIGHT_MARGIN = 4;
 
   private static boolean DEBUG = false;
@@ -74,20 +74,21 @@ public class PrettyPrintingTest extends TestCase {
   }
 
   public void testPrettyPrintArrayOfPrimitiveArrays() {
-    int[][] ints = new int[][] { { 1, 2 }, { 3, 4 }, { 5, 6 }, { 7, 8 }, { 9, 0 }, { 10 } };
+    int[][] ints = new int[][] { { 1, 2 }, { 3, 4 }, { 5, 6 }, { 7, 8 },
+        { 9, 0 }, { 10 } };
     String json = gson.toJson(ints);
     assertEquals("[[1,2],[3,4],[5,6],[7,8],[9,0],[10]]\n", json);
   }
 
   public void testPrettyPrintListOfPrimitiveArrays() {
-    List<Integer[]> list = Arrays.asList(new Integer[][] { { 1, 2 }, { 3, 4 }, { 5, 6 }, { 7, 8 },
-        { 9, 0 }, { 10 } });
+    List<Integer[]> list = Arrays.asList(new Integer[][] { { 1, 2 }, { 3, 4 },
+        { 5, 6 }, { 7, 8 }, { 9, 0 }, { 10 } });
     String json = gson.toJson(list);
     assertEquals("[[1,2],[3,4],[5,6],[7,8],[9,0],[10]]\n", json);
   }
 
   public void testMultipleArrays() {
-    int[][][] ints = new int[][][] { {  { 1 }, { 2 } } };
+    int[][][] ints = new int[][][] { { { 1 }, { 2 } } };
     String json = gson.toJson(ints);
     assertEquals("[[[1],[2]]]\n", json);
   }
@@ -106,7 +107,7 @@ public class PrettyPrintingTest extends TestCase {
       if (c == '\n') {
         position = 0;
       }
-      assertTrue(position < PRINT_MARGIN + RIGHT_MARGIN);
+      assertTrue(position <= PRINT_MARGIN - RIGHT_MARGIN + 1);
     }
   }
 }

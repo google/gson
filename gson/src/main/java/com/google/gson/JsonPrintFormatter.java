@@ -64,14 +64,16 @@ final class JsonPrintFormatter implements JsonFormatter {
       line = new StringBuilder();
     }
 
-    void key(String key) {
+    void key(String key) throws IOException {
+      breakLineIfThisToNextExceedsLimit(key.length() + 2);
       getLine().append('"');
       getLine().append(key);
       getLine().append('"');
     }
 
-    void value(String value) {
-      getLine().append(value);
+    void value(String value) throws IOException {
+    	breakLineIfThisToNextExceedsLimit(value.length() + 2);
+        getLine().append(value);
     }
 
     void fieldSeparator() throws IOException {
@@ -85,9 +87,9 @@ final class JsonPrintFormatter implements JsonFormatter {
     }
 
     void beginObject() throws IOException {
-      ++level;
       breakLineIfNeeded();
       getLine().append('{');
+      ++level;
     }
 
     void endObject() {
@@ -96,9 +98,9 @@ final class JsonPrintFormatter implements JsonFormatter {
     }
 
     void beginArray() throws IOException {
-      ++level;
       breakLineIfNeeded();
       getLine().append('[');
+      ++level;
     }
 
     void endArray() {
@@ -107,10 +109,14 @@ final class JsonPrintFormatter implements JsonFormatter {
     }
 
     private void breakLineIfNeeded() throws IOException {
-      if (getLine().length() > printMargin - rightMargin) {
-        finishLine();
-      }
+      breakLineIfThisToNextExceedsLimit(0);
     }
+    
+    private void breakLineIfThisToNextExceedsLimit(int nextLength) throws IOException {
+        if (getLine().length() + nextLength > printMargin - rightMargin) {
+          finishLine();
+        }
+      }
 
     private void finishLine() throws IOException {
       if (line != null) {
@@ -222,15 +228,15 @@ final class JsonPrintFormatter implements JsonFormatter {
       }
     }
     
-    public void endObject(JsonObject object) {
+    public void endObject(JsonObject object) throws IOException {
       writer.endObject();
     }
 
-    public void visitPrimitive(JsonPrimitive primitive) {
+    public void visitPrimitive(JsonPrimitive primitive) throws IOException {
       writer.value(primitive.toString());
     }
 
-    public void visitNull() {
+    public void visitNull() throws IOException {
       writer.value("null");
     }
   }
