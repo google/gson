@@ -448,7 +448,7 @@ final class DefaultTypeAdapters {
     }    
   }
   
-  static class PropertiesCreator implements InstanceCreator<Properties> {
+  private static class PropertiesCreator implements InstanceCreator<Properties> {
     public Properties createInstance(Type type) {
       return new Properties();
     }    
