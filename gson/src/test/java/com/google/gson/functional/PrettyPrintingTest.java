@@ -40,7 +40,7 @@ public class PrettyPrintingTest extends TestCase {
   private static int PRINT_MARGIN = 80;
   private static int RIGHT_MARGIN = 4;
 
-  private static boolean DEBUG = true;
+  private static boolean DEBUG = false;
 
   private Gson gson;
 
