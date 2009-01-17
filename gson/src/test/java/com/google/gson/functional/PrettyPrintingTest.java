@@ -15,18 +15,20 @@
  */
 package com.google.gson.functional;
 
+import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import junit.framework.TestCase;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.common.TestTypes.ArrayOfObjects;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.reflect.TypeToken;
-
-import junit.framework.TestCase;
-
-import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Functional tests for pretty printing option.
@@ -38,7 +40,7 @@ public class PrettyPrintingTest extends TestCase {
   private static int PRINT_MARGIN = 80;
   private static int RIGHT_MARGIN = 4;
 
-  private static boolean DEBUG = false;
+  private static boolean DEBUG = true;
 
   private Gson gson;
 
@@ -85,6 +87,14 @@ public class PrettyPrintingTest extends TestCase {
         { 5, 6 }, { 7, 8 }, { 9, 0 }, { 10 } });
     String json = gson.toJson(list);
     assertEquals("[[1,2],[3,4],[5,6],[7,8],[9,0],[10]]\n", json);
+  }
+  
+  public void testMap() {
+    Map<String, Integer> map = new LinkedHashMap<String, Integer>();
+    map.put("abc", 1);
+    map.put("def", 5);
+    String json = gson.toJson(map);
+    assertEquals("{\"abc\":1,\"def\":5}\n", json);
   }
 
   public void testMultipleArrays() {
