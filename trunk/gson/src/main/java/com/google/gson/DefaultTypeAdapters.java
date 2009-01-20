@@ -429,7 +429,7 @@ final class DefaultTypeAdapters {
       return new LinkedList();
     }    
   }
-  
+
   private static class PropertiesCreator implements InstanceCreator<Properties> {
     public Properties createInstance(Type type) {
       return new Properties();

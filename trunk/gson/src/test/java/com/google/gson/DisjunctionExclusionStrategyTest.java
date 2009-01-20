@@ -39,40 +39,25 @@ public class DisjunctionExclusionStrategyTest extends TestCase {
 
   public void testBadInstantiation() throws Exception {
     try {
-      new DisjunctionExclusionStrategy();
-    } catch (IllegalArgumentException expected) { }
-
-    try {
-      ExclusionStrategy[] constructorParam = null;
-      new DisjunctionExclusionStrategy(constructorParam);
-    } catch (IllegalArgumentException expected) { }
-
-    try {
-      ExclusionStrategy[] constructorParam = new ExclusionStrategy[0];
-      new DisjunctionExclusionStrategy(constructorParam);
-    } catch (IllegalArgumentException expected) { }
-
-    try {
       List<ExclusionStrategy> constructorParam = null;
-      new DisjunctionExclusionStrategy(constructorParam);
-    } catch (IllegalArgumentException expected) { }
-
-    try {
-      List<ExclusionStrategy> constructorParam = new LinkedList<ExclusionStrategy>();
       new DisjunctionExclusionStrategy(constructorParam);
     } catch (IllegalArgumentException expected) { }
   }
 
   public void testSkipFieldsWithMixedTrueAndFalse() throws Exception {
-    DisjunctionExclusionStrategy strategy =
-        new DisjunctionExclusionStrategy(FALSE_STRATEGY, TRUE_STRATEGY);
+    List<ExclusionStrategy> strategies = new LinkedList<ExclusionStrategy>();
+    strategies.add(FALSE_STRATEGY);
+    strategies.add(TRUE_STRATEGY);
+    DisjunctionExclusionStrategy strategy = new DisjunctionExclusionStrategy(strategies);
 
     assertTrue(strategy.shouldSkipClass(CLAZZ));
     assertTrue(strategy.shouldSkipField(FIELD));
   }
 
   public void testSkipFieldsWithFalseOnly() throws Exception {
-    DisjunctionExclusionStrategy strategy =  new DisjunctionExclusionStrategy(FALSE_STRATEGY);
+    List<ExclusionStrategy> strategies = new LinkedList<ExclusionStrategy>();
+    strategies.add(FALSE_STRATEGY);
+    DisjunctionExclusionStrategy strategy =  new DisjunctionExclusionStrategy(strategies);
 
     assertFalse(strategy.shouldSkipClass(CLAZZ));
     assertFalse(strategy.shouldSkipField(FIELD));
