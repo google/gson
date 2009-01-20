@@ -16,8 +16,6 @@
 
 package com.google.gson;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
@@ -165,7 +163,6 @@ final class DefaultTypeAdapters {
   private static ParameterizedTypeHandlerMap<InstanceCreator<?>> createDefaultInstanceCreators() {
     ParameterizedTypeHandlerMap<InstanceCreator<?>> map =
         new ParameterizedTypeHandlerMap<InstanceCreator<?>>();
-    map.register(Enum.class, ENUM_TYPE_ADAPTER);
     map.register(Map.class, MAP_TYPE_ADAPTER);
 
     // Add Collection type instance creators
@@ -271,8 +268,8 @@ final class DefaultTypeAdapters {
   }
 
   @SuppressWarnings("unchecked")
-  private static class EnumTypeAdapter<T extends Enum<T>> implements JsonSerializer<T>,
-      JsonDeserializer<T>, InstanceCreator<Enum<?>> {
+  private static class EnumTypeAdapter<T extends Enum<T>>
+      implements JsonSerializer<T>, JsonDeserializer<T> {
     public JsonElement serialize(T src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src.name());
     }
@@ -281,21 +278,6 @@ final class DefaultTypeAdapters {
     public T deserialize(JsonElement json, Type classOfT, JsonDeserializationContext context)
         throws JsonParseException {
       return (T) Enum.valueOf((Class<T>) classOfT, json.getAsString());
-    }
-
-    public Enum<?> createInstance(Type type) {
-      Class<Enum<?>> enumClass = (Class<Enum<?>>) type;
-      try {
-        Method valuesMethod = enumClass.getMethod("values");
-        Enum<?>[] enums = (Enum<?>[]) valuesMethod.invoke(null);
-        return enums[0];
-      } catch (NoSuchMethodException e) {
-        throw new RuntimeException(e);
-      } catch (IllegalAccessException e) {
-        throw new RuntimeException(e);
-      } catch (InvocationTargetException e) {
-        throw new RuntimeException(e);
-      }
     }
 
     @Override
