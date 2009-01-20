@@ -35,15 +35,15 @@ import java.util.logging.Logger;
  * @author Joel Leitch
  */
 final class MappedObjectConstructor implements ObjectConstructor {
-  private final Logger log = Logger.getLogger(getClass().getName());
+  private static final Logger log = Logger.getLogger(MappedObjectConstructor.class.getName());
 
   private final ParameterizedTypeHandlerMap<InstanceCreator<?>> instanceCreatorMap =
-    new ParameterizedTypeHandlerMap<InstanceCreator<?>>();
+      new ParameterizedTypeHandlerMap<InstanceCreator<?>>();
 
   @SuppressWarnings("unchecked")
   public <T> T construct(Type typeOfT) {
-    if (instanceCreatorMap.hasAnyHandlerFor(typeOfT)) {
-      InstanceCreator<T> creator = (InstanceCreator<T>) instanceCreatorMap.getHandlerFor(typeOfT);
+    InstanceCreator<T> creator = (InstanceCreator<T>) instanceCreatorMap.getHandlerFor(typeOfT);
+    if (creator != null) {
       return creator.createInstance(typeOfT);
     }
     return (T) constructWithNoArgConstructor(typeOfT);

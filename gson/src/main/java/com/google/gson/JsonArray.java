@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collections;
@@ -291,7 +292,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   }
 
   @Override
-  protected void toString(StringBuilder sb) {
+  protected void toString(Appendable sb) throws IOException {
     sb.append('[');
     boolean first = true;
     for (JsonElement element : elements) {

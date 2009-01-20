@@ -454,8 +454,8 @@ final class DefaultTypeAdapters {
         if (value == null) {
           valueElement = JsonNull.createJsonNull();
         } else {
-          Type childType = (childGenericType == null) ? 
-              childType = value.getClass() : childGenericType;
+          Type childType = (childGenericType == null)
+              ? value.getClass() : childGenericType;
           valueElement = context.serialize(value, childType);
         }
         map.add(String.valueOf(entry.getKey()), valueElement);

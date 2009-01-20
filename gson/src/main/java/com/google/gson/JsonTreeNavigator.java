@@ -34,7 +34,7 @@ final class JsonTreeNavigator {
   }
   
   public void navigate(JsonElement element) throws IOException {
-    if (element == null || element.isJsonNull()) {
+    if (element.isJsonNull()) {
       visitor.visitNull();
     } else if (element.isJsonArray()) {
       JsonArray array = element.getAsJsonArray();
@@ -68,25 +68,23 @@ final class JsonTreeNavigator {
    */
   private boolean visitChild(JsonObject parent, String childName, JsonElement child, 
       boolean isFirst) throws IOException {
-    if (child != null) { 
-      if (child.isJsonNull()) {
-        if (visitNulls) {
-          visitor.visitNullObjectMember(parent, childName, isFirst);
-          navigate(child.getAsJsonNull());
-        } else { // Null value is being skipped.
-          return false;
-        }
-      } else if (child.isJsonArray()) {
-        JsonArray childAsArray = child.getAsJsonArray();
-        visitor.visitObjectMember(parent, childName, childAsArray, isFirst);
-        navigate(childAsArray);
-      } else if (child.isJsonObject()) {
-        JsonObject childAsObject = child.getAsJsonObject();
-        visitor.visitObjectMember(parent, childName, childAsObject, isFirst);
-        navigate(childAsObject);
-      } else { // is a JsonPrimitive
-        visitor.visitObjectMember(parent, childName, child.getAsJsonPrimitive(), isFirst);          
+    if (child.isJsonNull()) {
+      if (visitNulls) {
+        visitor.visitNullObjectMember(parent, childName, isFirst);
+        navigate(child.getAsJsonNull());
+      } else { // Null value is being skipped.
+        return false;
       }
+    } else if (child.isJsonArray()) {
+      JsonArray childAsArray = child.getAsJsonArray();
+      visitor.visitObjectMember(parent, childName, childAsArray, isFirst);
+      navigate(childAsArray);
+    } else if (child.isJsonObject()) {
+      JsonObject childAsObject = child.getAsJsonObject();
+      visitor.visitObjectMember(parent, childName, childAsObject, isFirst);
+      navigate(childAsObject);
+    } else { // is a JsonPrimitive
+      visitor.visitObjectMember(parent, childName, child.getAsJsonPrimitive(), isFirst);          
     }
     return true;
   }
@@ -95,9 +93,9 @@ final class JsonTreeNavigator {
    * Returns true if the child was visited, false if it was skipped.
    */
   private void visitChild(JsonArray parent, JsonElement child, boolean isFirst) throws IOException {
-    if (child == null || child.isJsonNull()) {
+    if (child.isJsonNull()) {
       visitor.visitNullArrayMember(parent, isFirst);
-      navigate(null);
+      navigate(child);
 	} else if (child.isJsonArray()) {
       JsonArray childAsArray = child.getAsJsonArray();
       visitor.visitArrayMember(parent, childAsArray, isFirst);

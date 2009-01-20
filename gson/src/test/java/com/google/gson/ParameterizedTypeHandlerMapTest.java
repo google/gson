@@ -39,7 +39,7 @@ public class ParameterizedTypeHandlerMapTest extends TestCase {
 
   public void testNullMap() throws Exception {
     assertFalse(paramMap.hasSpecificHandlerFor(String.class));
-    assertFalse(paramMap.hasAnyHandlerFor(String.class));
+    assertNull(paramMap.getHandlerFor(String.class));
     assertNull(paramMap.getHandlerFor(String.class));
   }
 
@@ -50,8 +50,8 @@ public class ParameterizedTypeHandlerMapTest extends TestCase {
 
     assertFalse(paramMap.hasSpecificHandlerFor(specificType));
     assertTrue(paramMap.hasSpecificHandlerFor(List.class));
-    assertTrue(paramMap.hasAnyHandlerFor(specificType));
-    assertTrue(paramMap.hasAnyHandlerFor(List.class));
+    assertNotNull(paramMap.getHandlerFor(specificType));
+    assertNotNull(paramMap.getHandlerFor(List.class));
     assertEquals(handler, paramMap.getHandlerFor(specificType));
   }
 
@@ -62,8 +62,8 @@ public class ParameterizedTypeHandlerMapTest extends TestCase {
 
     assertTrue(paramMap.hasSpecificHandlerFor(specificType));
     assertFalse(paramMap.hasSpecificHandlerFor(List.class));
-    assertTrue(paramMap.hasAnyHandlerFor(specificType));
-    assertFalse(paramMap.hasAnyHandlerFor(List.class));
+    assertNotNull(paramMap.getHandlerFor(specificType));
+    assertNull(paramMap.getHandlerFor(List.class));
     assertEquals(handler, paramMap.getHandlerFor(specificType));
   }
 

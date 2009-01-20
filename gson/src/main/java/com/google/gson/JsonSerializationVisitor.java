@@ -103,15 +103,11 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
 
   private void addAsArrayElement(Type elementType, Object elementValue) {
     if (elementValue == null) {
-      addNullAsArrayElement();
+      root.getAsJsonArray().add(JsonNull.createJsonNull());
     } else {
       JsonElement childElement = getJsonElementForChild(elementType, elementValue);
       root.getAsJsonArray().add(childElement);
     }
-  }
-
-  private void addNullAsArrayElement() {
-    root.getAsJsonArray().add(null);
   }
 
   private JsonElement getJsonElementForChild(Type fieldType, Object fieldValue) {
@@ -160,7 +156,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   }
 
   private void assignToRoot(JsonElement newRoot) {
-    Preconditions.checkArgument(root == null);
+    Preconditions.checkNotNull(newRoot);
     root = newRoot;
   }
 
