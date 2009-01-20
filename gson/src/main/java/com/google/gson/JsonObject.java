@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -189,7 +190,7 @@ public final class JsonObject extends JsonElement {
   }
 
   @Override
-  protected void toString(StringBuilder sb) {
+  protected void toString(Appendable sb) throws IOException {
     sb.append('{');
     boolean first = true;
     for (Map.Entry<String, JsonElement> entry : members.entrySet()) {

@@ -17,7 +17,6 @@
 package com.google.gson;
 
 import java.lang.reflect.Type;
-import java.util.logging.Logger;
 
 /**
  * Abstract data value container for the {@link ObjectNavigator.Visitor}
@@ -28,8 +27,6 @@ import java.util.logging.Logger;
  * @author Joel Leitch
  */
 abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor {
-
-  protected static Logger logger = Logger.getLogger(JsonDeserializationVisitor.class.getName());
 
   protected final ObjectNavigatorFactory factory;
   protected final ObjectConstructor objectConstructor;

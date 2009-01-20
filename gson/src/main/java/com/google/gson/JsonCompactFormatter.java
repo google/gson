@@ -35,7 +35,7 @@ final class JsonCompactFormatter implements JsonFormatter {
     }
 
     public void visitPrimitive(JsonPrimitive primitive) throws IOException {
-      writer.append(primitive.toString());
+      primitive.toString(writer);
     }
 
     public void visitNull() throws IOException {
@@ -51,7 +51,7 @@ final class JsonCompactFormatter implements JsonFormatter {
       if (!isFirst) {
         writer.append(',');
       }
-      writer.append(member.toString());
+      member.toString(writer);
     }
 
     public void visitArrayMember(JsonArray parent, JsonArray member, 
@@ -90,7 +90,7 @@ final class JsonCompactFormatter implements JsonFormatter {
       writer.append('"');
       writer.append(memberName);
       writer.append("\":");
-      writer.append(member.toString());
+      member.toString(writer);
     }
 
     public void visitObjectMember(JsonObject parent, String memberName, JsonArray member,

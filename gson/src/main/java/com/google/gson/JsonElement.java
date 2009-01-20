@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -311,10 +312,14 @@ public abstract class JsonElement {
    */
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    toString(sb);
-    return sb.toString();
+    try {
+      StringBuilder sb = new StringBuilder();
+      toString(sb);
+      return sb.toString();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
-  protected abstract void toString(StringBuilder sb);
+  protected abstract void toString(Appendable sb) throws IOException;
 }

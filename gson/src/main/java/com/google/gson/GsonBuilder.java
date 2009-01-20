@@ -436,8 +436,8 @@ public final class GsonBuilder {
       dateTypeAdapter = new DefaultDateTypeAdapter(dateStyle, timeStyle);
     }
     if (dateTypeAdapter != null
-        && !serializers.hasAnyHandlerFor(Date.class)
-        && !deserializers.hasAnyHandlerFor(Date.class)) {
+        && !serializers.hasSpecificHandlerFor(Date.class)
+        && !deserializers.hasSpecificHandlerFor(Date.class)) {
       serializers.register(Date.class, dateTypeAdapter);
       deserializers.register(Date.class, dateTypeAdapter);
     }

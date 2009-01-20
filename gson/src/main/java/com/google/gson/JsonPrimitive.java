@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -305,16 +306,13 @@ public final class JsonPrimitive extends JsonElement {
   }
 
   @Override
-  protected void toString(StringBuilder sb) {
-    if (value != null) {
-      if (value instanceof String) {
-        sb.append('"');
-        sb.append(value);
-        sb.append('"');
-
-      } else {
-        sb.append(value);
-      }
+  protected void toString(Appendable sb) throws IOException {
+    if (value instanceof String) {
+      sb.append('"');
+      sb.append((String) value);
+      sb.append('"');
+    } else {
+      sb.append(value.toString());
     }
   }
   
