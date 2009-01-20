@@ -37,8 +37,12 @@ import java.util.logging.Logger;
 final class MappedObjectConstructor implements ObjectConstructor {
   private static final Logger log = Logger.getLogger(MappedObjectConstructor.class.getName());
 
-  private final ParameterizedTypeHandlerMap<InstanceCreator<?>> instanceCreatorMap =
-      new ParameterizedTypeHandlerMap<InstanceCreator<?>>();
+  private final ParameterizedTypeHandlerMap<InstanceCreator<?>> instanceCreatorMap;
+  
+  public MappedObjectConstructor(
+      ParameterizedTypeHandlerMap<InstanceCreator<?>> instanceCreators) {
+    instanceCreatorMap = instanceCreators;
+  }
 
   @SuppressWarnings("unchecked")
   public <T> T construct(Type typeOfT) {

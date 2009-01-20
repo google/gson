@@ -50,12 +50,16 @@ import com.google.gson.DefaultTypeAdapters.DefaultDateTypeAdapter;
  * @author Joel Leitch
  */
 public final class GsonBuilder {
-
+  private static final AnonymousAndLocalClassExclusionStrategy anonAndLocalClassExclusionStrategy =
+      new AnonymousAndLocalClassExclusionStrategy();
+  private static final InnerClassExclusionStrategy innerClassExclusionStrategy =
+      new InnerClassExclusionStrategy();
+  private static final ExposeAnnotationBasedExclusionStrategy exposeAnnotationExclusionStrategy =
+      new ExposeAnnotationBasedExclusionStrategy();
+  
   private double ignoreVersionsAfter;
   private ModifierBasedExclusionStrategy modifierBasedExclusionStrategy;
   private boolean serializeInnerClasses;
-  private final AnonymousAndLocalClassExclusionStrategy anonAndLocalClassExclusionStrategy;
-  private final InnerClassExclusionStrategy innerClassExclusionStrategy;
   private boolean excludeFieldsWithoutExposeAnnotation;
   private LongSerializationPolicy longSerializationPolicy;
   private FieldNamingStrategy fieldNamingPolicy;
@@ -82,8 +86,6 @@ public final class GsonBuilder {
     serializeInnerClasses = true;
     prettyPrinting = false;
     escapeHtmlChars = true;
-    anonAndLocalClassExclusionStrategy = new AnonymousAndLocalClassExclusionStrategy();
-    innerClassExclusionStrategy = new InnerClassExclusionStrategy();
     modifierBasedExclusionStrategy = Gson.DEFAULT_MODIFIER_BASED_EXCLUSION_STRATEGY;
     excludeFieldsWithoutExposeAnnotation = false;
     longSerializationPolicy = LongSerializationPolicy.DEFAULT;
@@ -399,7 +401,7 @@ public final class GsonBuilder {
       strategies.add(new VersionExclusionStrategy(ignoreVersionsAfter));
     }
     if (excludeFieldsWithoutExposeAnnotation) {
-      strategies.add(new ExposeAnnotationBasedExclusionStrategy());
+      strategies.add(exposeAnnotationExclusionStrategy);
     }
     ExclusionStrategy exclusionStrategy = new DisjunctionExclusionStrategy(strategies);
 
@@ -414,9 +416,14 @@ public final class GsonBuilder {
     customDeserializers.registerIfAbsent(DefaultTypeAdapters.getDefaultDeserializers());
 
     ParameterizedTypeHandlerMap<InstanceCreator<?>> customInstanceCreators =
-      instanceCreators.copyOf();
+        instanceCreators.copyOf();
     customInstanceCreators.registerIfAbsent(DefaultTypeAdapters.getDefaultInstanceCreators());
-    MappedObjectConstructor objConstructor = Gson.createObjectConstructor(customInstanceCreators);
+    
+    customSerializers.makeUnmodifiable();
+    customDeserializers.makeUnmodifiable();
+    instanceCreators.makeUnmodifiable();
+    
+    MappedObjectConstructor objConstructor = new MappedObjectConstructor(customInstanceCreators);
 
     JsonFormatter formatter =  prettyPrinting ?
         new JsonPrintFormatter(escapeHtmlChars) : new JsonCompactFormatter(escapeHtmlChars);
@@ -428,18 +435,20 @@ public final class GsonBuilder {
   private static void addTypeAdaptersForDate(String datePattern, int dateStyle, int timeStyle,
       ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers,
       ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers) {
-    // NOTE: if a date pattern exists, then that style takes priority
-    DefaultDateTypeAdapter dateTypeAdapter = null;
-    if (datePattern != null && !"".equals(datePattern.trim())) {
-      dateTypeAdapter = new DefaultDateTypeAdapter(datePattern);
-    } else if (dateStyle != DateFormat.DEFAULT && timeStyle != DateFormat.DEFAULT) {
-      dateTypeAdapter = new DefaultDateTypeAdapter(dateStyle, timeStyle);
-    }
-    if (dateTypeAdapter != null
-        && !serializers.hasSpecificHandlerFor(Date.class)
+    if (!serializers.hasSpecificHandlerFor(Date.class)
         && !deserializers.hasSpecificHandlerFor(Date.class)) {
-      serializers.register(Date.class, dateTypeAdapter);
-      deserializers.register(Date.class, dateTypeAdapter);
+      // NOTE: if a date pattern exists, then that style takes priority
+      DefaultDateTypeAdapter dateTypeAdapter = null;
+      if (datePattern != null && !"".equals(datePattern.trim())) {
+        dateTypeAdapter = new DefaultDateTypeAdapter(datePattern);
+      } else if (dateStyle != DateFormat.DEFAULT && timeStyle != DateFormat.DEFAULT) {
+        dateTypeAdapter = new DefaultDateTypeAdapter(dateStyle, timeStyle);
+      }
+      
+      if (dateTypeAdapter != null) {
+        serializers.register(Date.class, dateTypeAdapter);
+        deserializers.register(Date.class, dateTypeAdapter);
+      }
     }
   }
 }

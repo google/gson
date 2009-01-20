@@ -96,7 +96,7 @@ final class JsonTreeNavigator {
     if (child.isJsonNull()) {
       visitor.visitNullArrayMember(parent, isFirst);
       navigate(child);
-	} else if (child.isJsonArray()) {
+	  } else if (child.isJsonArray()) {
       JsonArray childAsArray = child.getAsJsonArray();
       visitor.visitArrayMember(parent, childAsArray, isFirst);
       navigate(childAsArray);
