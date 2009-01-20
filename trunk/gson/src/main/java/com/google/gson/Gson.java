@@ -26,7 +26,6 @@ import java.lang.reflect.Type;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 /**
  * This is the main class for using Gson. Gson is typically used by first constructing a
@@ -76,14 +75,13 @@ public final class Gson {
   // constructor instead. At the minimum, mark those methods private.
 
   private static final String NULL_STRING = "null";
+
   // Default instances of plug-ins
   static final ModifierBasedExclusionStrategy DEFAULT_MODIFIER_BASED_EXCLUSION_STRATEGY =
       new ModifierBasedExclusionStrategy(true, new int[] { Modifier.TRANSIENT, Modifier.STATIC });
   static final JsonFormatter DEFAULT_JSON_FORMATTER = new JsonCompactFormatter();
   static final FieldNamingStrategy DEFAULT_NAMING_POLICY =
       new SerializedNameAnnotationInterceptingNamingPolicy(new JavaFieldNamingPolicy());
-
-  static final Logger logger = Logger.getLogger(Gson.class.getName());
 
   private final ExclusionStrategy strategy;
   private final FieldNamingStrategy fieldNamingPolicy;
@@ -402,15 +400,16 @@ public final class Gson {
   
   @Override 
   public String toString() {
-	StringBuilder sb = new StringBuilder("{");
-    sb.append("serializeNulls:").append(serializeNulls);
-	sb.append(",serializers:").append(serializers);
-	sb.append(",deserializers:").append(deserializers);
-	// using the name instanceCreator instead of ObjectConstructor since the users of Gson are 
-	// more familiar with the concept of Instance Creators. Moreover, the objectConstructor is
-	// just a utility class around instance creators, and its toString() only displays them.
-    sb.append(",instanceCreators:").append(objectConstructor);
-	sb.append("}");
-	return sb.toString();
+  	StringBuilder sb = new StringBuilder("{")
+  	    .append("serializeNulls:").append(serializeNulls)
+  	    .append(",serializers:").append(serializers)
+  	    .append(",deserializers:").append(deserializers)
+  	
+      	// using the name instanceCreator instead of ObjectConstructor since the users of Gson are 
+      	// more familiar with the concept of Instance Creators. Moreover, the objectConstructor is
+      	// just a utility class around instance creators, and its toString() only displays them.
+        .append(",instanceCreators:").append(objectConstructor)
+        .append("}");
+  	return sb.toString();
   }
 }

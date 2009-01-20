@@ -16,40 +16,46 @@
 
 package com.google.gson;
 
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * A map that provides ability to associate handlers for a specific type or all of its sub-types
- *
+ * A map that provides ability to associate handlers for a specific type or all
+ * of its sub-types
+ * 
  * @author Inderjeet Singh
  * @author Joel Leitch
- *
- * @param <T> The handler that will be looked up by type
+ * 
+ * @param <T>
+ *          The handler that will be looked up by type
  */
 final class ParameterizedTypeHandlerMap<T> {
-
+  private static final Logger logger =
+      Logger.getLogger(ParameterizedTypeHandlerMap.class.getName());
   private final Map<Type, T> map = new HashMap<Type, T>();
   private boolean modifiable = true;
 
   public synchronized void register(Type typeOfT, T value) {
     if (!modifiable) {
-      throw new IllegalStateException("Attempted to modify an unmodifiable map.");
+      throw new IllegalStateException(
+          "Attempted to modify an unmodifiable map.");
     }
     if (hasSpecificHandlerFor(typeOfT)) {
-      Gson.logger.log(Level.WARNING, "Overriding the existing type handler for " + typeOfT);
+      logger.log(Level.WARNING,
+          "Overriding the existing type handler for " + typeOfT);
     }
     map.put(typeOfT, value);
   }
 
   public synchronized void registerIfAbsent(ParameterizedTypeHandlerMap<T> other) {
     if (!modifiable) {
-      throw new IllegalStateException("Attempted to modify an unmodifiable map.");
+      throw new IllegalStateException(
+          "Attempted to modify an unmodifiable map.");
     }
     for (Map.Entry<Type, T> entry : other.entrySet()) {
       if (!map.containsKey(entry.getKey())) {
@@ -60,7 +66,8 @@ final class ParameterizedTypeHandlerMap<T> {
 
   public synchronized void registerIfAbsent(Type typeOfT, T value) {
     if (!modifiable) {
-      throw new IllegalStateException("Attempted to modify an unmodifiable map.");
+      throw new IllegalStateException(
+          "Attempted to modify an unmodifiable map.");
     }
     if (!map.containsKey(typeOfT)) {
       register(typeOfT, value);
@@ -72,18 +79,15 @@ final class ParameterizedTypeHandlerMap<T> {
   }
 
   public synchronized T getHandlerFor(Type type) {
-    T handler = getRawHandlerFor(type);
-    Type rawType = type;
-    if (handler == null && type instanceof ParameterizedType) {
-      // a handler for a non-generic version may be registered, so use that
-      rawType = ((ParameterizedType)type).getRawType();
-      handler = map.get(rawType);
-    }
-
-    // Check for map or collection 
+    T handler = map.get(type);
     if (handler == null) {
-      if (rawType instanceof Class) {
-        Class<?> rawClass = (Class<?>) rawType;
+      Class<?> rawClass = TypeUtils.toRawClass(type);
+      if (rawClass != type) {
+        handler = getHandlerFor(rawClass);
+      }
+
+      // Check for map or collection
+      if (handler == null) {
         if (Map.class.isAssignableFrom(rawClass)) {
           handler = map.get(Map.class);
         } else if (Collection.class.isAssignableFrom(rawClass)) {
@@ -94,27 +98,6 @@ final class ParameterizedTypeHandlerMap<T> {
       }
     }
     return handler;
-  }
-  
-  private synchronized T getRawHandlerFor(Type type) {
-    if (type instanceof Map) {
-      return map.get(Map.class);
-    } else if (type instanceof Collection) {
-      return map.get(Collection.class);
-    } else {
-      T handler = map.get(type);
-      if (handler == null) {
-        Class<?> rawClass = TypeUtils.toRawClass(type);
-        if (rawClass != type) {
-          handler = getHandlerFor(rawClass);
-        }
-      }
-      return handler;
-    }
-  }
-
-  public synchronized boolean hasAnyHandlerFor(Type type) {
-    return getHandlerFor(type) != null;
   }
 
   public synchronized boolean hasSpecificHandlerFor(Type type) {
@@ -132,7 +115,7 @@ final class ParameterizedTypeHandlerMap<T> {
   public synchronized Set<Map.Entry<Type, T>> entrySet() {
     return map.entrySet();
   }
-  
+
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder("{");
@@ -148,7 +131,7 @@ final class ParameterizedTypeHandlerMap<T> {
     }
     return sb.toString();
   }
-  
+
   private String typeToString(Type type) {
     return TypeUtils.toRawClass(type).getSimpleName();
   }

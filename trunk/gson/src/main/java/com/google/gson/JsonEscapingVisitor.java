@@ -61,10 +61,7 @@ class JsonEscapingVisitor extends DelegatingJsonElementVisitor {
   private JsonPrimitive escapeJsonPrimitive(JsonPrimitive member) {
     if (member.isString()) {
       String memberValue = member.getAsString();
-      String escapedValue = escaper.escapeJsonString(memberValue);
-      if (!escapedValue.equals(memberValue)) {
-        member.setValue(escapedValue);
-      }
+      member.setValue(escaper.escapeJsonString(memberValue));
     }
     return member;
   }

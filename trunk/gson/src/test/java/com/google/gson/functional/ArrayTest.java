@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.google.gson.functional;
 
 import com.google.gson.Gson;
@@ -81,6 +82,14 @@ public class ArrayTest extends TestCase {
     for (int i = 0; i < expected.length; ++i) {
       assertEquals(expected[i], target[i]);
     }
+  }
+  
+  public void testNullsInArrayWithSerializeNullPropertySetSerialization() {
+    gson = new GsonBuilder().serializeNulls().create();
+    String[] array = {"foo", null, "bar"};
+    String expected = "[\"foo\",null,\"bar\"]";
+    String json = gson.toJson(array);
+    assertEquals(expected, json);
   }
 
   public void testArrayOfStringsSerialization() {
