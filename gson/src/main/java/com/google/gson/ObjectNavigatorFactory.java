@@ -47,18 +47,6 @@ final class ObjectNavigatorFactory {
   }
 
   /**
-   * Creates a new {@link ObjectNavigator} for this {@code srcObject}.
-   *
-   * @see #create(Object, Type)
-   * @param srcObject object to navigate
-   * @return a new instance of a {@link ObjectNavigator} ready to navigate the
-   *         {@code srcObject}.
-   */
-  public ObjectNavigator create(Object srcObject) {
-    return create(srcObject, srcObject.getClass());
-  }
-
-  /**
    * Creates a new {@link ObjectNavigator} for this {@code srcObject},
    * {@code type} pair.
    *
