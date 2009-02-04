@@ -363,16 +363,65 @@ public final class Gson {
   @SuppressWarnings("unchecked")
   public <T> T fromJson(Reader json, Type typeOfT) throws JsonParseException {
     try {
-      JsonParser parser = new JsonParser(json);
-      JsonElement root = parser.parse();
+      JsonElement root = JsonParser.parse(json);
       JsonDeserializationContext context = new JsonDeserializationContextDefault(
           createDefaultObjectNavigatorFactory(), deserializers, objectConstructor);
       T target = (T) context.deserialize(root, typeOfT);
       return target;
-    } catch (TokenMgrError e) {
+    } catch (StackOverflowError e) {
       throw new JsonParseException("Failed parsing JSON source: " + json + " to Json", e);
-    } catch (ParseException e) {
+    } catch (OutOfMemoryError e) {
       throw new JsonParseException("Failed parsing JSON source: " + json + " to Json", e);
+    }
+  }
+
+  /**
+   * This method deserializes the Json read from the specified parse tree into an object of the
+   * specified type. It is not suitable to use if the specified class is a generic type since it
+   * will not have the generic type information because of the Type Erasure feature of Java.
+   * Therefore, this method should not be used if the desired type is a generic type. Note that
+   * this method works fine if the any of the fields of the specified object are generics, just the
+   * object itself should not be a generic type. For the cases when the object is of generic type,
+   * invoke {@link #fromJson(JsonElement, Type)}. 
+   * @param <T> the type of the desired object
+   * @param json the root of the parse tree of {@link JsonElement}s from which the object is to 
+   * be deserialized
+   * @param classOfT The class of T
+   * @return an object of type T from the json
+   * @throws JsonParseException if json is not a valid representation for an object of type typeOfT
+   * @since 1.3
+   */
+  @SuppressWarnings("unchecked")
+  public <T> T fromJson(JsonElement json, Class<T> classOfT) throws JsonParseException {
+    T target = classOfT.cast(fromJson(json, (Type) classOfT));
+    return target;
+  }
+
+  /**
+   * This method deserializes the Json read from the specified parse tree into an object of the
+   * specified type. This method is useful if the specified object is a generic type. For
+   * non-generic objects, use {@link #fromJson(JsonElement, Class)} instead. 
+   *
+   * @param <T> the type of the desired object
+   * @param json the root of the parse tree of {@link JsonElement}s from which the object is to 
+   * be deserialized
+   * @param typeOfT The specific genericized type of src. You can obtain this type by using the
+   * {@link com.google.gson.reflect.TypeToken} class. For example, to get the type for
+   * {@code Collection<Foo>}, you should use:
+   * <pre>
+   * Type typeOfT = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType();
+   * </pre>
+   * @return an object of type T from the json
+   * @throws JsonParseException if json is not a valid representation for an object of type typeOfT
+   * @since 1.3
+   */
+  @SuppressWarnings("unchecked")
+  public <T> T fromJson(JsonElement json, Type typeOfT) throws JsonParseException {
+    try {
+      JsonDeserializationContext context = new JsonDeserializationContextDefault(
+          createDefaultObjectNavigatorFactory(), deserializers, objectConstructor);
+      T target = (T) context.deserialize(json, typeOfT);
+      return target;
     } catch (StackOverflowError e) {
       throw new JsonParseException("Failed parsing JSON source: " + json + " to Json", e);
     } catch (OutOfMemoryError e) {
