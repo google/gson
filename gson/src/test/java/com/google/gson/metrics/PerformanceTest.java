@@ -98,7 +98,7 @@ public class PerformanceTest extends TestCase {
   /**
    * Created in response to http://code.google.com/p/google-gson/issues/detail?id=96
    */
-  public void disable_testLargeCollectionSerialization() {
+  public void disabled_testLargeCollectionSerialization() {
     int count = 1400000;
     List<CollectionEntry> list = new ArrayList<CollectionEntry>(count);
     for (int i = 0; i < count; ++i) {
@@ -110,7 +110,7 @@ public class PerformanceTest extends TestCase {
   /**
    * Created in response to http://code.google.com/p/google-gson/issues/detail?id=96
    */
-  public void disable_testLargeCollectionDeserialization() {
+  public void disabled_testLargeCollectionDeserialization() {
     StringBuilder sb = new StringBuilder();
     int count = 87000;
     boolean first = true;
