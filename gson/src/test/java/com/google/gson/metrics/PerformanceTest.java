@@ -18,8 +18,13 @@ package com.google.gson.metrics;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
+import com.google.gson.reflect.TypeToken;
 
 import junit.framework.TestCase;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Tests to measure performance for Gson. All tests in this file will be disabled in code. To run
@@ -74,5 +79,54 @@ public class PerformanceTest extends TestCase {
       this.message = message;
       this.stackTrace = stackTrace;
     }
+  }
+
+  private static class CollectionEntry {
+    final String name;
+    final String value;
+    
+    CollectionEntry() {
+      this(null, null);
+    }
+    
+    CollectionEntry(String name, String value) {
+      this.name = name;
+      this.value = value;
+    }
+  }
+  
+  /**
+   * Created in response to http://code.google.com/p/google-gson/issues/detail?id=96
+   */
+  public void disable_testLargeCollectionSerialization() {
+    int count = 1400000;
+    List<CollectionEntry> list = new ArrayList<CollectionEntry>(count);
+    for (int i = 0; i < count; ++i) {
+      list.add(new CollectionEntry("name"+i,"value"+i));
+    }    
+    gson.toJson(list);
+  }
+  
+  /**
+   * Created in response to http://code.google.com/p/google-gson/issues/detail?id=96
+   */
+  public void disable_testLargeCollectionDeserialization() {
+    StringBuilder sb = new StringBuilder();
+    int count = 87000;
+    boolean first = true;
+    sb.append('[');
+    for (int i = 0; i < count; ++i) {
+      if (first) {
+        first = false;
+      } else {
+        sb.append(',');
+      }
+      sb.append("{name:'name").append(i).append("',value:'value").append(i).append("'}");
+    }    
+    sb.append(']');
+    String json = sb.toString();
+    Type collectionType = new TypeToken<ArrayList<CollectionEntry>>(){}.getType();    
+    List<CollectionEntry> list = gson.fromJson(json, collectionType);       
+    assertEquals(count, list.size());
   }
 }
