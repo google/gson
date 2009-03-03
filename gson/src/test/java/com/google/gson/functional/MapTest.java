@@ -16,17 +16,18 @@
 
 package com.google.gson.functional;
 
-import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import junit.framework.TestCase;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 import com.google.gson.reflect.TypeToken;
+
+import junit.framework.TestCase;
+
+import java.lang.reflect.Type;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Functional test for Json serialization and deserialization for Maps
@@ -190,6 +191,38 @@ public class MapTest extends TestCase {
     MyMap map = gson.fromJson(json, MyMap.class);
     assertEquals("1", map.get("a")); 
     assertEquals("2", map.get("b")); 
+  }
+  
+  /**
+   * Created in response to http://code.google.com/p/google-gson/issues/detail?id=99
+   */
+  private static class ClassWithAMap {
+    Map<String, String> map = new TreeMap<String, String>();
+  }
+  
+  /**
+   * Created in response to http://code.google.com/p/google-gson/issues/detail?id=99
+   */
+  public void testMapSerializationWithNullValues() {
+    ClassWithAMap target = new ClassWithAMap();
+    target.map.put("name1", null);
+    target.map.put("name2", "value2");
+    String json = gson.toJson(target);
+    assertFalse(json.contains("name1"));
+    assertTrue(json.contains("name2"));
+  }
+  
+  /**
+   * Created in response to http://code.google.com/p/google-gson/issues/detail?id=99
+   */
+  public void testMapSerializationWithNullValuesSerialized() {
+    Gson gson = new GsonBuilder().serializeNulls().create();
+    ClassWithAMap target = new ClassWithAMap();
+    target.map.put("name1", null);
+    target.map.put("name2", "value2");
+    String json = gson.toJson(target);
+    assertTrue(json.contains("name1"));
+    assertTrue(json.contains("name2"));
   }
   
   public void testMapSerializationWithWildcardValues() {
