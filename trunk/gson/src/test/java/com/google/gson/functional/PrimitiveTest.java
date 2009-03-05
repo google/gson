@@ -205,6 +205,16 @@ public class PrimitiveTest extends TestCase {
     assertEquals(expected.doubleValue(), actual1);
   }
 
+  public void testLargeDoubleDeserialization() {
+    String doubleValue = "1.234567899E8";
+    Double expected = Double.valueOf(doubleValue);
+    Double actual = gson.fromJson(doubleValue, Double.class);
+    assertEquals(expected, actual);
+
+    double actual1 = gson.fromJson(doubleValue, double.class);
+    assertEquals(expected.doubleValue(), actual1);
+  }
+
   public void testPrimitiveDoubleAutoboxedInASingleElementArrayDeserialization() {
     double expected = -122.08;
     double actual = gson.fromJson("[-122.08]", double.class);
