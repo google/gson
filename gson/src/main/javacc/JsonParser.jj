@@ -26,13 +26,14 @@ SKIP : { " " | "\t" | "\n" | "\r" }
  * will allow that.
  */
 TOKEN : {
-  <E : ["e","E"](["+","-"])?>
+  <EXPONENT : ("e"|"E")["+","-","0"-"9"](["0"-"9"])*>
   | <DIGITS : (["0"-"9"])+>
   | <NULL : "null">  
   | <NAN : "NaN">
   | <INFINITY : "Infinity">
   | <BOOLEAN : ("true" | "false")>
-  | <IDENTIFIER : ["a"-"z","A"-"Z", "_"] (["a"-"z","A"-"Z","0"-"9","_"])* >
+  | <IDENTIFIER_SANS_EXPONENT : ["a"-"d","f"-"z","A"-"D","F"-"Z", "_"] (["a"-"z","A"-"Z","0"-"9","_"])* >
+  | <IDENTIFIER_STARTS_WITH_EXPONENT : ["e","E"] (["a"-"z","A"-"Z","0"-"9","_"])* >
   | <#HEX_CHAR : ["a"-"f","A"-"F","0"-"9"]>
   | <UNICODE_CHAR : "\\u" <HEX_CHAR><HEX_CHAR><HEX_CHAR><HEX_CHAR> >
   | <#ESCAPE_CHAR: "\\" ["n","t","b","r","f","\\","'","\"", "/"] >
@@ -104,7 +105,7 @@ private void Pair(JsonObject o) :
 private JsonPrimitive JsonMemberName() : 
 { Token t; JsonPrimitive value; }
 {
-  t=<IDENTIFIER> { return new JsonPrimitive(t.image); } |
+  t= Identifier() { return new JsonPrimitive(t.image); } |
   value=JsonString() { return value; }
 }
 
@@ -213,14 +214,16 @@ private String JsonFrac() :
 }
 
 private String JsonExp() :
+{ Token t; }
 {
-  Token t;
-  String digits;
-}
+  t = <EXPONENT> {return t.image;} 
+} 
+
+private Token Identifier() :
+{ Token t; }
 {
-  t=<E> digits=Digits()
-  { return t.image + digits; }
-}
+  (t = <IDENTIFIER_STARTS_WITH_EXPONENT> | t = <IDENTIFIER_SANS_EXPONENT>) {return t;} 
+} 
 
 private String Digits() :
 { Token t; }
