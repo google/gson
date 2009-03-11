@@ -191,11 +191,13 @@ public final class GsonBuilder {
    * Configures Gson to apply a specific naming policy strategy to an object's field during
    * serialization and deserialization.
    *
-   * @param fieldNamingPolicy the actual naming strategy to apply to the fields
+   * @param fieldNamingStrategy the actual naming strategy to apply to the fields
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @since 1.3
    */
-  private GsonBuilder setFieldNamingStrategy(FieldNamingStrategy fieldNamingPolicy) {
-    this.fieldNamingPolicy = new SerializedNameAnnotationInterceptingNamingPolicy(fieldNamingPolicy);
+  public GsonBuilder setFieldNamingStrategy(FieldNamingStrategy fieldNamingStrategy) {
+    this.fieldNamingPolicy = 
+      new SerializedNameAnnotationInterceptingNamingPolicy(fieldNamingStrategy);
     return this;
   }
 
