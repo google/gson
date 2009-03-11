@@ -27,8 +27,10 @@ import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -78,6 +80,8 @@ final class DefaultTypeAdapters {
 
   private static final PropertiesCreator PROPERTIES_CREATOR = new PropertiesCreator();
   private static final TreeSetCreator TREE_SET_CREATOR = new TreeSetCreator();
+  private static final GregorianCalendarTypeAdapter GREGORIAN_CALENDAR_TYPE_ADAPTER = 
+    new GregorianCalendarTypeAdapter();
 
   // The constants DEFAULT_SERIALIZERS, DEFAULT_DESERIALIZERS, and DEFAULT_INSTANCE_CREATORS
   // must be defined after the constants for the type adapters. Otherwise, the type adapter
@@ -101,6 +105,8 @@ final class DefaultTypeAdapters {
     map.register(Collection.class, COLLECTION_TYPE_ADAPTER);
     map.register(Map.class, MAP_TYPE_ADAPTER);
     map.register(Date.class, DATE_TYPE_ADAPTER);
+    map.register(Calendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER);
+    map.register(GregorianCalendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER);
     map.register(BigDecimal.class, BIG_DECIMAL_TYPE_ADAPTER);
     map.register(BigInteger.class, BIG_INTEGER_TYPE_ADAPTER);
     
@@ -133,6 +139,8 @@ final class DefaultTypeAdapters {
     map.register(Collection.class, wrapDeserializer(COLLECTION_TYPE_ADAPTER));
     map.register(Map.class, wrapDeserializer(MAP_TYPE_ADAPTER));
     map.register(Date.class, wrapDeserializer(DATE_TYPE_ADAPTER));
+    map.register(Calendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER);
+    map.register(GregorianCalendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER);
     map.register(BigDecimal.class, wrapDeserializer(BIG_DECIMAL_TYPE_ADAPTER));
     map.register(BigInteger.class, wrapDeserializer(BIG_INTEGER_TYPE_ADAPTER));
     
@@ -267,6 +275,40 @@ final class DefaultTypeAdapters {
     }
   }
 
+  private static class GregorianCalendarTypeAdapter implements JsonSerializer<GregorianCalendar>, 
+      JsonDeserializer<GregorianCalendar> {
+
+    private static final String YEAR = "year";
+    private static final String MONTH = "month";
+    private static final String DAY_OF_MONTH = "dayOfMonth";
+    private static final String HOUR_OF_DAY = "hourOfDay";
+    private static final String MINUTE = "minute";
+    private static final String SECOND = "second";
+    public JsonElement serialize(GregorianCalendar src, Type typeOfSrc,
+        JsonSerializationContext context) {
+      JsonObject obj = new JsonObject();
+      obj.addProperty(YEAR, src.get(Calendar.YEAR));
+      obj.addProperty(MONTH, src.get(Calendar.MONTH));
+      obj.addProperty(DAY_OF_MONTH, src.get(Calendar.DAY_OF_MONTH));
+      obj.addProperty(HOUR_OF_DAY, src.get(Calendar.HOUR_OF_DAY));
+      obj.addProperty(MINUTE, src.get(Calendar.MINUTE));      
+      obj.addProperty(SECOND, src.get(Calendar.SECOND));      
+      return obj;
+    }
+    
+    public GregorianCalendar deserialize(JsonElement json, Type typeOfT,
+        JsonDeserializationContext context) throws JsonParseException {
+      JsonObject obj = json.getAsJsonObject();
+      int year = obj.get(YEAR).getAsInt();
+      int month = obj.get(MONTH).getAsInt();
+      int dayOfMonth = obj.get(DAY_OF_MONTH).getAsInt();
+      int hourOfDay = obj.get(HOUR_OF_DAY).getAsInt();
+      int minute = obj.get(MINUTE).getAsInt();      
+      int second = obj.get(SECOND).getAsInt();      
+      return new GregorianCalendar(year, month, dayOfMonth, hourOfDay, minute, second);
+    }    
+  }
+  
   @SuppressWarnings("unchecked")
   private static class EnumTypeAdapter<T extends Enum<T>>
       implements JsonSerializer<T>, JsonDeserializer<T> {

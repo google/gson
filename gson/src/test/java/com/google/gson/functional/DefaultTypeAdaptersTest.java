@@ -21,7 +21,9 @@ import java.net.URI;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Properties;
@@ -217,6 +219,53 @@ public class DefaultTypeAdaptersTest extends TestCase {
     assertEquals(now.toString(), extracted.toString());    
   }
 
+  public void testDefaultCalendarSerialization() throws Exception {
+    Gson gson = new GsonBuilder().create();
+    String json = gson.toJson(Calendar.getInstance());
+    assertTrue(json.contains("year"));
+    assertTrue(json.contains("month"));
+    assertTrue(json.contains("dayOfMonth"));
+    assertTrue(json.contains("hourOfDay"));
+    assertTrue(json.contains("minute"));
+    assertTrue(json.contains("second"));
+  }
+  
+  public void testDefaultCalendarDeserialization() throws Exception {
+    Gson gson = new GsonBuilder().create();
+    String json = "{year:2009,month:2,dayOfMonth:11,hourOfDay:14,minute:29,second:23}";
+    Calendar cal = gson.fromJson(json, Calendar.class);
+    assertEquals(2009, cal.get(Calendar.YEAR));
+    assertEquals(2, cal.get(Calendar.MONTH));
+    assertEquals(11, cal.get(Calendar.DAY_OF_MONTH));
+    assertEquals(14, cal.get(Calendar.HOUR_OF_DAY));
+    assertEquals(29, cal.get(Calendar.MINUTE));
+    assertEquals(23, cal.get(Calendar.SECOND));
+  }
+
+  public void testDefaultGregorianCalendarSerialization() throws Exception {
+    Gson gson = new GsonBuilder().create();
+    GregorianCalendar cal = new GregorianCalendar();
+    String json = gson.toJson(cal);
+    assertTrue(json.contains("year"));
+    assertTrue(json.contains("month"));
+    assertTrue(json.contains("dayOfMonth"));
+    assertTrue(json.contains("hourOfDay"));
+    assertTrue(json.contains("minute"));
+    assertTrue(json.contains("second"));
+  }
+  
+  public void testDefaultGregorianCalendarDeserialization() throws Exception {
+    Gson gson = new GsonBuilder().create();
+    String json = "{year:2009,month:2,dayOfMonth:11,hourOfDay:14,minute:29,second:23}";
+    GregorianCalendar cal = gson.fromJson(json, GregorianCalendar.class);
+    assertEquals(2009, cal.get(Calendar.YEAR));
+    assertEquals(2, cal.get(Calendar.MONTH));
+    assertEquals(11, cal.get(Calendar.DAY_OF_MONTH));
+    assertEquals(14, cal.get(Calendar.HOUR_OF_DAY));
+    assertEquals(29, cal.get(Calendar.MINUTE));
+    assertEquals(23, cal.get(Calendar.SECOND));
+  }
+  
   public void testDateSerializationWithPattern() throws Exception {
     String pattern = "yyyy-MM-dd";
     DateFormat formatter = new SimpleDateFormat(pattern);
