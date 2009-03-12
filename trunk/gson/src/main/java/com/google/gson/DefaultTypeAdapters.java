@@ -80,6 +80,7 @@ final class DefaultTypeAdapters {
   private static final StringTypeAdapter STRING_TYPE_ADAPTER = new StringTypeAdapter();
 
   private static final PropertiesCreator PROPERTIES_CREATOR = new PropertiesCreator();
+  private static final TreeSetCreator TREE_SET_CREATOR = new TreeSetCreator();
   private static final HashSetCreator HASH_SET_CREATOR = new HashSetCreator();
   private static final GregorianCalendarTypeAdapter GREGORIAN_CALENDAR_TYPE_ADAPTER = 
     new GregorianCalendarTypeAdapter();
@@ -180,7 +181,7 @@ final class DefaultTypeAdapters {
     map.register(Queue.class, COLLECTION_TYPE_ADAPTER);
 
     map.register(Set.class, HASH_SET_CREATOR);
-    map.register(SortedSet.class, HASH_SET_CREATOR);
+    map.register(SortedSet.class, TREE_SET_CREATOR);
     map.register(Properties.class, PROPERTIES_CREATOR);
     map.makeUnmodifiable();
     return map;
@@ -777,6 +778,16 @@ final class DefaultTypeAdapters {
     @Override
     public String toString() {
       return BooleanTypeAdapter.class.getSimpleName();
+    }
+  }
+
+  private static class TreeSetCreator implements InstanceCreator<TreeSet<?>> {
+    public TreeSet<?> createInstance(Type type) {
+      return new TreeSet<Object>();
+    }
+    @Override
+    public String toString() {
+      return TreeSetCreator.class.getSimpleName();
     }
   }
 
