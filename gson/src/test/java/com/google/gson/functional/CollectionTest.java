@@ -30,10 +30,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 
 /**
  * Functional tests for Json serialization and deserialization of collections.
@@ -313,6 +315,33 @@ public class CollectionTest extends TestCase {
     
     public Collection<? extends BagOfPrimitives> getCollection() {
       return collection;
+    }
+  }
+  
+  private static class Entry {
+    int value;
+    Entry() {
+      this(10);
+    }
+    Entry(int value) {
+      this.value = value;
+    }
+  }
+  public void testSetSerialization() {
+    Set<Entry> set = new HashSet<Entry>(); 
+    set.add(new Entry(1));
+    set.add(new Entry(2));    
+    String json = gson.toJson(set);
+    assertTrue(json.contains("1"));
+    assertTrue(json.contains("2"));
+  }
+  public void testSetDeserialization() {
+    String json = "[{value:1},{value:2}]";
+    Type type = new TypeToken<Set<Entry>>() {}.getType();        
+    Set<Entry> set = gson.fromJson(json, type);
+    assertEquals(2, set.size());
+    for (Entry entry : set) {
+      assertTrue(entry.value == 1 || entry.value == 2);
     }
   }
 }
