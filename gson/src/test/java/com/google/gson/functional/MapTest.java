@@ -25,6 +25,7 @@ import junit.framework.TestCase;
 
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -248,5 +249,32 @@ public class MapTest extends TestCase {
     private static final long serialVersionUID = 1L;
 
     int foo = 10;
+  }
+  
+  /**
+   * From bug report http://code.google.com/p/google-gson/issues/detail?id=95
+   */
+  public void testMapOfMapSerialization() {
+    Map<String, Map<String, String>> map = new HashMap<String, Map<String, String>>();
+    Map<String, String> nestedMap = new HashMap<String, String>();
+    nestedMap.put("1", "1");
+    nestedMap.put("2", "2");
+    map.put("nestedMap", nestedMap);
+    String json = gson.toJson(map);
+    assertTrue(json.contains("nestedMap"));
+    assertTrue(json.contains("\"1\":\"1\""));
+    assertTrue(json.contains("\"2\":\"2\""));
+  }
+  
+  /**
+   * From bug report http://code.google.com/p/google-gson/issues/detail?id=95
+   */
+  public void testMapOfMapDeserialization() {
+    String json = "{nestedMap:{'2':'2','1':'1'}}";
+    Type type = new TypeToken<Map<String, Map<String, String>>>(){}.getType();
+    Map<String, Map<String, String>> map = gson.fromJson(json, type);
+    Map<String, String> nested = map.get("nestedMap");
+    assertEquals("1", nested.get("1"));
+    assertEquals("2", nested.get("2"));
   }
 }
