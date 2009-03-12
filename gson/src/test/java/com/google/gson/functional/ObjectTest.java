@@ -272,9 +272,12 @@ public class ObjectTest extends TestCase {
     String json = "{\"list\":[0,1,2,3],\"queue\":[0,1,2,3],\"set\":[0.1,0.2,0.3,0.4],"
         + "\"sortedSet\":[\"a\",\"b\",\"c\",\"d\"]"
         + "}";
-    ClassWithSubInterfacesOfCollection target = gson.fromJson(
-        json, ClassWithSubInterfacesOfCollection.class);
-    assertEquals(json, target.getExpectedJson());
+    ClassWithSubInterfacesOfCollection target = 
+      gson.fromJson(json, ClassWithSubInterfacesOfCollection.class);
+    assertTrue(target.listContains(0, 1, 2, 3));
+    assertTrue(target.queueContains(0, 1, 2, 3));
+    assertTrue(target.setContains(0.1F, 0.2F, 0.3F, 0.4F));
+    assertTrue(target.sortedSetContains('a', 'b', 'c', 'd'));
   }
 
   /**
@@ -403,7 +406,7 @@ public class ObjectTest extends TestCase {
     }
   }
   
-  public static class ClassWithSubInterfacesOfCollection {
+  private static class ClassWithSubInterfacesOfCollection {
     private List<Integer> list;
     private Queue<Long> queue;
     private Set<Float> set;
@@ -420,6 +423,42 @@ public class ObjectTest extends TestCase {
       this.sortedSet = sortedSet;
     }
 
+    boolean listContains(int... values) {
+      for (int value : values) {
+        if (!list.contains(value)) {
+          return false;
+        }
+      }
+      return true;
+    }
+    
+    boolean queueContains(long... values) {
+      for (long value : values) {
+        if (!queue.contains(value)) {
+          return false;
+        }
+      }
+      return true;      
+    }
+    
+    boolean setContains(float... values) {
+      for (float value : values) {
+        if (!set.contains(value)) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    boolean sortedSetContains(char... values) {
+      for (char value : values) {
+        if (!sortedSet.contains(value)) {
+          return false;
+        }
+      }
+      return true;      
+    }
+    
     public String getExpectedJson() {
       StringBuilder sb = new StringBuilder();
       sb.append("{");
