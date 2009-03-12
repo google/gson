@@ -27,6 +27,7 @@ import com.google.gson.reflect.TypeToken;
 import junit.framework.TestCase;
 
 import java.io.Reader;
+import java.io.Serializable;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -457,4 +458,38 @@ public class ParameterizedTypesTest extends TestCase {
       return true;
     }
   }
+  
+  // Begin: tests to reproduce issue 103
+  private static class Quantity {
+    int q = 10;
+  }
+  private static class MyQuantity extends Quantity {
+    int q2 = 20;
+  }
+  private interface Measurable<T> {    
+  }
+  private interface Field<T> {    
+  }
+  private interface Immutable {    
+  }
+  
+  public static final class Amount<Q extends Quantity> implements
+      Measurable<Q>, Field<Amount<?>>, Serializable, Immutable {
+    int value = 30;
+  }
+  
+  public void testDeepParameterizedTypeSerialization() {
+    Amount<MyQuantity> amount = new Amount<MyQuantity>();
+    String json = gson.toJson(amount);
+    assertTrue(json.contains("value"));
+    assertTrue(json.contains("30"));    
+  }
+  
+  public void testDeepParameterizedTypeDeserialization() {
+    String json = "{value:30}";
+    Type type = new TypeToken<Amount<MyQuantity>>() {}.getType();    
+    Amount<MyQuantity> amount = gson.fromJson(json, type);
+    assertEquals(30, amount.value);
+  }
+  // End: tests to reproduce issue 103
 }
