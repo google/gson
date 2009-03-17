@@ -73,6 +73,7 @@ public final class GsonBuilder {
   private boolean serializeSpecialFloatingPointValues;
   private boolean escapeHtmlChars;
   private boolean prettyPrinting;
+  private boolean generateNonExecutableJson;
 
   /**
    * Creates a GsonBuilder instance that can be used to build Gson with various configuration
@@ -97,6 +98,7 @@ public final class GsonBuilder {
     dateStyle = DateFormat.DEFAULT;
     timeStyle = DateFormat.DEFAULT;
     serializeSpecialFloatingPointValues = false;
+    generateNonExecutableJson = false;
   }
 
   /**
@@ -128,6 +130,20 @@ public final class GsonBuilder {
     return this;
   }
 
+  /**
+   * Makes the output JSON non-executable in Javascript by prefixing the generated JSON with some
+   * special text. This prevents attacks from third-party sites through script sourcing. See 
+   * <a href="http://code.google.com/p/google-gson/issues/detail?id=42">Gson Issue 42</a> 
+   * for details. 
+   * 
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @since 1.3
+   */
+  public GsonBuilder generateNonExecutableJson() {
+    this.generateNonExecutableJson = true;
+    return this;
+  }
+  
   /**
    * Configures Gson to exclude all fields from consideration for serialization or deserialization
    * that do not have the {@link com.google.gson.annotations.Expose} annotation.
@@ -430,7 +446,7 @@ public final class GsonBuilder {
     JsonFormatter formatter =  prettyPrinting ?
         new JsonPrintFormatter(escapeHtmlChars) : new JsonCompactFormatter(escapeHtmlChars);
     Gson gson = new Gson(exclusionStrategy, fieldNamingPolicy, objConstructor,
-        formatter, serializeNulls, customSerializers, customDeserializers);
+        formatter, serializeNulls, customSerializers, customDeserializers, generateNonExecutableJson);
     return gson;
   }
 
