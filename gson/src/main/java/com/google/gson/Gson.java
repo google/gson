@@ -76,12 +76,16 @@ public final class Gson {
 
   private static final String NULL_STRING = "null";
 
+  static final boolean DEFAULT_JSON_NON_EXECUTABLE = false;
+  
   // Default instances of plug-ins
   static final ModifierBasedExclusionStrategy DEFAULT_MODIFIER_BASED_EXCLUSION_STRATEGY =
       new ModifierBasedExclusionStrategy(true, new int[] { Modifier.TRANSIENT, Modifier.STATIC });
   static final JsonFormatter DEFAULT_JSON_FORMATTER = new JsonCompactFormatter();
   static final FieldNamingStrategy DEFAULT_NAMING_POLICY =
       new SerializedNameAnnotationInterceptingNamingPolicy(new JavaFieldNamingPolicy());
+
+  private static final String JSON_NON_EXECUTABLE_PREFIX = ")]}'\n<data>";
 
   private final ExclusionStrategy strategy;
   private final FieldNamingStrategy fieldNamingPolicy;
@@ -95,6 +99,8 @@ public final class Gson {
 
   private final JsonFormatter formatter;
   private final boolean serializeNulls;
+
+  private final boolean generateNonExecutableJson;
 
   /**
    * Constructs a Gson object with default configuration. The default configuration has the
@@ -142,13 +148,14 @@ public final class Gson {
     this(strategy, fieldNamingPolicy, 
         new MappedObjectConstructor(DefaultTypeAdapters.getDefaultInstanceCreators()),
         DEFAULT_JSON_FORMATTER, false, DefaultTypeAdapters.getDefaultSerializers(),
-        DefaultTypeAdapters.getDefaultDeserializers());
+        DefaultTypeAdapters.getDefaultDeserializers(), DEFAULT_JSON_NON_EXECUTABLE);
   }
 
   Gson(ExclusionStrategy strategy, FieldNamingStrategy fieldNamingPolicy, 
       MappedObjectConstructor objectConstructor, JsonFormatter formatter, boolean serializeNulls,
       ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers,
-      ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers) {
+      ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers, 
+      boolean generateNonExecutableGson) {
     this.strategy = strategy;
     this.fieldNamingPolicy = fieldNamingPolicy;
     this.objectConstructor = objectConstructor;
@@ -156,6 +163,7 @@ public final class Gson {
     this.serializeNulls = serializeNulls;
     this.serializers = serializers;
     this.deserializers = deserializers;
+    this.generateNonExecutableJson = generateNonExecutableGson;
   }
   
   private ObjectNavigatorFactory createDefaultObjectNavigatorFactory() {
@@ -260,6 +268,9 @@ public final class Gson {
             createDefaultObjectNavigatorFactory(), serializeNulls, serializers);
         JsonElement jsonElement = context.serialize(src, typeOfSrc);
 
+        if (generateNonExecutableJson) {
+          writer.append(JSON_NON_EXECUTABLE_PREFIX);
+        }
         //TODO(Joel): instead of navigating the "JsonElement" inside the formatter, do it here.
         formatter.format(jsonElement, writer, serializeNulls);
       } else {
