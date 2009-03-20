@@ -60,7 +60,7 @@ public JsonElement parse() :
   JsonElement json = null;
 }
 {
-  [")]}'\n<data>"]( json=JsonObject() |
+  [")]}'\n"]( json=JsonObject() |
     json=JsonArray() |
     json=JsonPrimitive() |
     json=JsonNull())
