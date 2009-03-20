@@ -85,7 +85,7 @@ public final class Gson {
   static final FieldNamingStrategy DEFAULT_NAMING_POLICY =
       new SerializedNameAnnotationInterceptingNamingPolicy(new JavaFieldNamingPolicy());
 
-  private static final String JSON_NON_EXECUTABLE_PREFIX = ")]}'\n<data>";
+  private static final String JSON_NON_EXECUTABLE_PREFIX = ")]}'\n";
 
   private final ExclusionStrategy strategy;
   private final FieldNamingStrategy fieldNamingPolicy;

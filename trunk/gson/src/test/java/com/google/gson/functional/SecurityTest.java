@@ -31,7 +31,7 @@ public class SecurityTest extends TestCase {
   /**
    * Keep this in sync with Gson.JSON_NON_EXECUTABLE_PREFIX
    */
-  private static final String JSON_NON_EXECUTABLE_PREFIX = ")]}'\n<data>";
+  private static final String JSON_NON_EXECUTABLE_PREFIX = ")]}'\n";
 
   private GsonBuilder gsonBuilder;
 
@@ -57,7 +57,7 @@ public class SecurityTest extends TestCase {
   public void testJsonWithNonExectuableTokenSerialization() {
     Gson gson = gsonBuilder.generateNonExecutableJson().create();
     String json = gson.toJson(JSON_NON_EXECUTABLE_PREFIX);
-    assertTrue(json.contains(")]}'\n\u003cdata\u003e"));
+    assertTrue(json.contains(")]}'\n"));
   }
   
   /**
@@ -66,9 +66,9 @@ public class SecurityTest extends TestCase {
    */
   public void testJsonWithNonExectuableTokenWithRegularGsonDeserialization() {
     Gson gson = gsonBuilder.create();
-    String json = JSON_NON_EXECUTABLE_PREFIX + "{stringValue:')]}\\u0027\\n<data>'}";
+    String json = JSON_NON_EXECUTABLE_PREFIX + "{stringValue:')]}\\u0027\\n'}";
     BagOfPrimitives target = gson.fromJson(json, BagOfPrimitives.class);
-    assertEquals(")]}'\n<data>", target.stringValue);
+    assertEquals(")]}'\n", target.stringValue);
   }  
   
   /**
@@ -78,9 +78,9 @@ public class SecurityTest extends TestCase {
   public void testJsonWithNonExectuableTokenWithConfiguredGsonDeserialization() {
     // Gson should be able to deserialize a stream with non-exectuable token even if it is created 
     Gson gson = gsonBuilder.generateNonExecutableJson().create();
-    String json = JSON_NON_EXECUTABLE_PREFIX + "{intValue:2,stringValue:')]}\\u0027\\n<data>'}";
+    String json = JSON_NON_EXECUTABLE_PREFIX + "{intValue:2,stringValue:')]}\\u0027\\n'}";
     BagOfPrimitives target = gson.fromJson(json, BagOfPrimitives.class);
-    assertEquals(")]}'\n<data>", target.stringValue);
+    assertEquals(")]}'\n", target.stringValue);
     assertEquals(2, target.intValue);
   }  
 }
