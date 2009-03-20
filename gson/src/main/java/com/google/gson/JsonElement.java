@@ -308,7 +308,7 @@ public abstract class JsonElement {
   /**
    * Returns a String representation of this element.
    *
-   * @return String the string representation of this element. The output is valid Json.
+   * @return String the string representation of this element.
    */
   @Override
   public String toString() {
