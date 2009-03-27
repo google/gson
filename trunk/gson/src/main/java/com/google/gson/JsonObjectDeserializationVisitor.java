@@ -47,11 +47,14 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
 
   public void visitArray(Object array, Type componentType) {
     // should not be called since this case should invoke JsonArrayDeserializationVisitor
-    throw new IllegalStateException();
+    throw new JsonParseException("Expecting object but found array: " + array);
   }
 
   public void visitObjectField(Field f, Type typeOfF, Object obj) {
     try {
+      if (!json.isJsonObject()) {
+        throw new JsonParseException("Expecting object found: " + json); 
+      }
       JsonObject jsonObject = json.getAsJsonObject();
       String fName = getFieldName(f);
       JsonElement jsonChild = jsonObject.get(fName);
@@ -68,6 +71,9 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
 
   public void visitArrayField(Field f, Type typeOfF, Object obj) {
     try {
+      if (!json.isJsonObject()) {
+        throw new JsonParseException("Expecting object found: " + json); 
+      }
       JsonObject jsonObject = json.getAsJsonObject();
       String fName = getFieldName(f);
       JsonArray jsonChild = (JsonArray) jsonObject.get(fName);
@@ -90,6 +96,9 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
   public boolean visitFieldUsingCustomHandler(Field f, Type actualTypeOfField, Object parent) {
     try {
       String fName = getFieldName(f);
+      if (!json.isJsonObject()) {
+        throw new JsonParseException("Expecting object found: " + json); 
+      }
       JsonElement child = json.getAsJsonObject().get(fName);
       if (child == null) {
         return true;
