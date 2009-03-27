@@ -73,10 +73,14 @@ public abstract class JsonElement {
    * first.
    *
    * @return get this element as a {@link JsonObject}.
-   * @throws ClassCastException if the element is of another type.
+   * @throws IllegalStateException if the element is of another type.
    */
   public JsonObject getAsJsonObject() {
-    return (JsonObject) this;
+    if (isJsonObject()) {
+      return (JsonObject) this;
+    } else {
+      throw new IllegalStateException("This is not a JSON Object.");
+    }
   }
 
   /**
@@ -86,10 +90,14 @@ public abstract class JsonElement {
    * first.
    *
    * @return get this element as a {@link JsonArray}.
-   * @throws ClassCastException if the element is of another type.
+   * @throws IllegalStateException if the element is of another type.
    */
   public JsonArray getAsJsonArray() {
-    return (JsonArray) this;
+    if (isJsonArray()) {
+      return (JsonArray) this;
+    } else {
+      throw new IllegalStateException("This is not a JSON Array.");
+    }
   }
 
   /**
@@ -99,10 +107,14 @@ public abstract class JsonElement {
    * first.
    *
    * @return get this element as a {@link JsonPrimitive}.
-   * @throws ClassCastException if the element is of another type.
+   * @throws IllegalStateException if the element is of another type.
    */
   public JsonPrimitive getAsJsonPrimitive() {
-    return (JsonPrimitive) this;
+    if (isJsonPrimitive()) {
+      return (JsonPrimitive) this;
+    } else {
+      throw new IllegalStateException("This is not a JSON Primitive.");
+    }
   }
 
   /**
@@ -112,11 +124,15 @@ public abstract class JsonElement {
    * first.
    *
    * @return get this element as a {@link JsonNull}.
-   * @throws ClassCastException if the element is of another type.
+   * @throws IllegalStateException if the element is of another type.
    * @since 1.2
    */
   public JsonNull getAsJsonNull() {
-    return (JsonNull) this;
+    if (isJsonNull()) {
+      return (JsonNull) this;
+    } else {
+      throw new IllegalStateException("This is not a JSON Null.");
+    }
   }
 
   /**

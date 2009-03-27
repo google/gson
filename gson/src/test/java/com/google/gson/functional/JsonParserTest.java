@@ -16,14 +16,18 @@
 
 package com.google.gson.functional;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.common.TestTypes.BagOfPrimitives;
+import java.io.StringReader;
 
 import junit.framework.TestCase;
 
-import java.io.StringReader;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.common.TestTypes.BagOfPrimitives;
+import com.google.gson.common.TestTypes.Nested;
 
 /**
  * Functional tests for that use JsonParser and related Gson methods
@@ -47,6 +51,49 @@ public class JsonParserTest extends TestCase {
     BagOfPrimitives target = gson.fromJson(obj, BagOfPrimitives.class);
     assertEquals(11, target.intValue);
     assertEquals("foo", target.stringValue);
+  }
+  
+  public void testBadTypeForDeserializingCustomTree() {
+    JsonObject obj = new JsonObject();
+    obj.addProperty("stringValue", "foo");
+    obj.addProperty("intValue", 11);
+    JsonArray array = new JsonArray();
+    array.add(obj);
+    try {
+      gson.fromJson(array, BagOfPrimitives.class);
+      fail("BagOfPrimitives is not an array");
+    } catch (UnsupportedOperationException expected) { }
+  }
+  
+  public void testBadFieldTypeForCustomDeserializerCustomTree() {
+    JsonArray array = new JsonArray();
+    array.add(new JsonPrimitive("blah"));
+    JsonObject obj = new JsonObject();
+    obj.addProperty("stringValue", "foo");
+    obj.addProperty("intValue", 11);
+    obj.add("longValue", array);
+
+    try {
+      gson.fromJson(obj, BagOfPrimitives.class);
+      fail("BagOfPrimitives is not an array");
+    } catch (JsonParseException expected) { }
+  }
+
+  public void testBadFieldTypeForDeserializingCustomTree() {
+    JsonArray array = new JsonArray();
+    array.add(new JsonPrimitive("blah"));
+    JsonObject primitive1 = new JsonObject();
+    primitive1.addProperty("string", "foo");
+    primitive1.addProperty("intValue", 11);
+
+    JsonObject obj = new JsonObject();
+    obj.add("primitive1", primitive1);
+    obj.add("primitive2", array);
+    
+    try {
+      gson.fromJson(obj, Nested.class);
+      fail("Nested has field BagOfPrimitives which is not an array");
+    } catch (IllegalStateException expected) { }
   }
 
   public void testChangingCustomTreeAndDeserializing() {
