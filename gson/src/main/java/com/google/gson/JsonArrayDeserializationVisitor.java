@@ -42,6 +42,9 @@ final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisito
 
     TypeInfo typeInfo = new TypeInfo(targetType);
 
+    if (!json.isJsonArray()) {
+      throw new JsonParseException("Expecting array found: " + json); 
+    }
     JsonArray jsonArray = json.getAsJsonArray();
     if (typeInfo.isArray()) {
       TypeInfoArray arrayTypeInfo = TypeInfoFactory.getTypeInfoForArray(targetType);
@@ -55,6 +58,9 @@ final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisito
   }
 
   public void visitArray(Object array, Type arrayType) {
+    if (!json.isJsonArray()) {
+      throw new JsonParseException("Expecting array found: " + json); 
+    }
     JsonArray jsonArray = json.getAsJsonArray();
     TypeInfoArray arrayTypeInfo = TypeInfoFactory.getTypeInfoForArray(arrayType);
     for (int i = 0; i < jsonArray.size(); i++) {
@@ -82,18 +88,21 @@ final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisito
   // instead.
 
   public void startVisitingObject(Object node) {
-    throw new UnsupportedOperationException();
+    throw new JsonParseException("Expecting array but found object: " + node);
   }
 
   public void visitArrayField(Field f, Type typeOfF, Object obj) {
-    throw new UnsupportedOperationException();
+    throw new JsonParseException("Expecting array but found array field " + f.getName() + ": "
+        + obj);
   }
 
   public void visitObjectField(Field f, Type typeOfF, Object obj) {
-    throw new UnsupportedOperationException();
+    throw new JsonParseException("Expecting array but found object field " + f.getName() + ": " 
+        + obj);
   }
 
   public boolean visitFieldUsingCustomHandler(Field f, Type actualTypeOfField, Object parent) {
-    throw new UnsupportedOperationException();
+    throw new JsonParseException("Expecting array but found field " + f.getName() + ": " 
+        + parent);
   }
 }

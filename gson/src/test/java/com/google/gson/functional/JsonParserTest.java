@@ -62,7 +62,7 @@ public class JsonParserTest extends TestCase {
     try {
       gson.fromJson(array, BagOfPrimitives.class);
       fail("BagOfPrimitives is not an array");
-    } catch (UnsupportedOperationException expected) { }
+    } catch (JsonParseException expected) { }
   }
   
   public void testBadFieldTypeForCustomDeserializerCustomTree() {
@@ -93,7 +93,7 @@ public class JsonParserTest extends TestCase {
     try {
       gson.fromJson(obj, Nested.class);
       fail("Nested has field BagOfPrimitives which is not an array");
-    } catch (IllegalStateException expected) { }
+    } catch (JsonParseException expected) { }
   }
 
   public void testChangingCustomTreeAndDeserializing() {
