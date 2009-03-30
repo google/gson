@@ -28,7 +28,6 @@ import com.google.gson.common.TestTypes.ClassWithArray;
 import com.google.gson.common.TestTypes.ClassWithNoFields;
 import com.google.gson.common.TestTypes.ClassWithObjects;
 import com.google.gson.common.TestTypes.ClassWithTransientFields;
-import com.google.gson.common.TestTypes.MyEnum;
 import com.google.gson.common.TestTypes.Nested;
 import com.google.gson.common.TestTypes.PrimitiveArray;
 
@@ -217,28 +216,6 @@ public class ObjectTest extends TestCase {
   public void testArrayOfArraysDeserialization() throws Exception {
     String json = new ArrayOfArrays().getExpectedJson();
     ArrayOfArrays target = gson.fromJson(json, ArrayOfArrays.class);
-    assertEquals(json, target.getExpectedJson());
-  }
-
-  public void testClassWithEnumFieldSerialization() throws Exception {
-    ClassWithEnumFields target = new ClassWithEnumFields();
-    assertEquals(target.getExpectedJson(), gson.toJson(target));
-  }
-
-  public void testClassWithEnumFieldDeserialization() throws Exception {
-    String json = new ClassWithEnumFields().getExpectedJson();
-    ClassWithEnumFields target = gson.fromJson(json, ClassWithEnumFields.class);
-    assertEquals(json, target.getExpectedJson());
-  }
-
-  public void testTopLevelEnumSerialization() throws Exception {
-    MyEnum target = MyEnum.VALUE1;
-    assertEquals(target.getExpectedJson(), gson.toJson(target));
-  }
-
-  public void testTopLevelEnumDeserialization() throws Exception {
-    String json = MyEnum.VALUE1.getExpectedJson();
-    MyEnum target = gson.fromJson(json, MyEnum.class);
     assertEquals(json, target.getExpectedJson());
   }
 
@@ -553,14 +530,6 @@ public class ObjectTest extends TestCase {
       }
       sb.append("]}");
       return sb.toString();
-    }
-  }
-
-  private static class ClassWithEnumFields {
-    private final MyEnum value1 = MyEnum.VALUE1;
-    private final MyEnum value2 = MyEnum.VALUE2;
-    public String getExpectedJson() {
-      return "{\"value1\":\"" + value1 + "\",\"value2\":\"" + value2 + "\"}";
     }
   }
 

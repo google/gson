@@ -17,8 +17,14 @@
 package com.google.gson.functional;
 
 import com.google.gson.Gson;
+import com.google.gson.common.MoreAsserts;
+import com.google.gson.reflect.TypeToken;
 
 import junit.framework.TestCase;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Functional tests for Java 5.0 enums.
@@ -36,40 +42,67 @@ public class EnumTest extends TestCase {
     gson = new Gson();
   }
   
-  public void testEnumSerialization() throws Exception {
-    String result = gson.toJson(TestEnum.TEST_1);
-    assertEquals('"' + TestEnum.TEST_1.toString() + '"', result);
+  public void testTopLevelEnumSerialization() throws Exception {
+    String result = gson.toJson(MyEnum.VALUE1);
+    assertEquals('"' + MyEnum.VALUE1.toString() + '"', result);
   }
   
-  public void testEnumDeserialization() throws Exception {
-    TestEnum result = gson.fromJson('"' + TestEnum.TEST_1.toString() + '"', TestEnum.class);
-    assertEquals(TestEnum.TEST_1, result);
+  public void testTopLevelEnumDeserialization() throws Exception {
+    MyEnum result = gson.fromJson('"' + MyEnum.VALUE1.toString() + '"', MyEnum.class);
+    assertEquals(MyEnum.VALUE1, result);
   }
   
-  public void testEnumFieldSerialization() throws Exception {
-    String result = gson.toJson(TestEnum.TEST_1);
-    assertEquals('"' + TestEnum.TEST_1.toString() + '"', result);
-  }
-  
-  public void testEnumFieldDeserialization() throws Exception {
-    Foo result = gson.fromJson("{\"f\":\"TEST_1\"}", Foo.class);
-    assertEquals(TestEnum.TEST_1, result.f);
+  public void testTopLevelEnumInASingleElementArrayDeserialization() {
+    String json = "[" + MyEnum.VALUE1.getExpectedJson() + "]";
+    MyEnum target = gson.fromJson(json, MyEnum.class);
+    assertEquals(json, "[" + target.getExpectedJson() + "]");
   }
 
-  private static enum TestEnum {
-    TEST_1,
-    TEST_2;
+  public void testCollectionOfEnumsSerialization() {
+    Type type = new TypeToken<Collection<MyEnum>>() {}.getType();
+    Collection<MyEnum> target = new ArrayList<MyEnum>();
+    target.add(MyEnum.VALUE1);
+    target.add(MyEnum.VALUE2);
+    String expectedJson = "[\"VALUE1\",\"VALUE2\"]";
+    String actualJson = gson.toJson(target);
+    assertEquals(expectedJson, actualJson);
+    actualJson = gson.toJson(target, type);
+    assertEquals(expectedJson, actualJson);
+  }
+
+  public void testCollectionOfEnumsDeserialization() {
+    Type type = new TypeToken<Collection<MyEnum>>() {}.getType();
+    String json = "[\"VALUE1\",\"VALUE2\"]";
+    Collection<MyEnum> target = gson.fromJson(json, type);
+    MoreAsserts.assertContains(target, MyEnum.VALUE1);
+    MoreAsserts.assertContains(target, MyEnum.VALUE2);
+  }
+
+  public void testClassWithEnumFieldSerialization() throws Exception {
+    ClassWithEnumFields target = new ClassWithEnumFields();
+    assertEquals(target.getExpectedJson(), gson.toJson(target));
+  }
+
+  public void testClassWithEnumFieldDeserialization() throws Exception {
+    String json = "{value1:'VALUE1',value2:'VALUE2'}";
+    ClassWithEnumFields target = gson.fromJson(json, ClassWithEnumFields.class);
+    assertEquals(MyEnum.VALUE1,target.value1);
+    assertEquals(MyEnum.VALUE2,target.value2);
   }
   
-  private static class Foo {
-    private TestEnum f;
-    
-    public Foo() {
-      this(TestEnum.TEST_1);
+  private static enum MyEnum {
+    VALUE1, VALUE2;
+
+    public String getExpectedJson() {
+      return "\"" + toString() + "\"";
     }
-    
-    public Foo(TestEnum f) {
-      this.f = f;
+  }
+
+  private static class ClassWithEnumFields {
+    private final MyEnum value1 = MyEnum.VALUE1;
+    private final MyEnum value2 = MyEnum.VALUE2;
+    public String getExpectedJson() {
+      return "{\"value1\":\"" + value1 + "\",\"value2\":\"" + value2 + "\"}";
     }
   }
 }

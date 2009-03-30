@@ -20,7 +20,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.google.gson.common.MoreAsserts;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
-import com.google.gson.common.TestTypes.MyEnum;
 import com.google.gson.reflect.TypeToken;
 
 import junit.framework.TestCase;
@@ -175,26 +174,6 @@ public class CollectionTest extends TestCase {
     for (BagOfPrimitives obj : target) {
       assertTrue(result.contains(obj.getExpectedJson()));
     }
-  }
-
-  public void testCollectionOfEnumsSerialization() {
-    Type type = new TypeToken<Collection<MyEnum>>() {}.getType();
-    Collection<MyEnum> target = new ArrayList<MyEnum>();
-    target.add(MyEnum.VALUE1);
-    target.add(MyEnum.VALUE2);
-    String expectedJson = "[\"VALUE1\",\"VALUE2\"]";
-    String actualJson = gson.toJson(target);
-    assertEquals(expectedJson, actualJson);
-    actualJson = gson.toJson(target, type);
-    assertEquals(expectedJson, actualJson);
-  }
-
-  public void testCollectionOfEnumsDeserialization() {
-    Type type = new TypeToken<Collection<MyEnum>>() {}.getType();
-    String json = "[\"VALUE1\",\"VALUE2\"]";
-    Collection<MyEnum> target = gson.fromJson(json, type);
-    MoreAsserts.assertContains(target, MyEnum.VALUE1);
-    MoreAsserts.assertContains(target, MyEnum.VALUE2);
   }
 
   public void testCollectionOfStringsDeserialization() {

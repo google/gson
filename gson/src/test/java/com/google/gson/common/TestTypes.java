@@ -295,14 +295,6 @@ public class TestTypes {
     }
   }
 
-  public static enum MyEnum {
-    VALUE1, VALUE2;
-
-    public String getExpectedJson() {
-      return "\"" + toString() + "\"";
-    }
-  }
-
   public static class ClassOverridingEquals {
     public ClassOverridingEquals ref;
 

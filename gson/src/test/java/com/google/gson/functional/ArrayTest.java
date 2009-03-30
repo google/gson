@@ -20,7 +20,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.common.MoreAsserts;
 import com.google.gson.common.TestTypes.CrazyLongTypeAdapter;
-import com.google.gson.common.TestTypes.MyEnum;
 import com.google.gson.reflect.TypeToken;
 
 import junit.framework.TestCase;
@@ -102,12 +101,6 @@ public class ArrayTest extends TestCase {
     String[] target = gson.fromJson(json, String[].class);
     assertEquals("Hello", target[0]);
     assertEquals("World", target[1]);
-  }
-
-  public void testTopLevelEnumInASingleElementArrayDeserialization() {
-    String json = "[" + MyEnum.VALUE1.getExpectedJson() + "]";
-    MyEnum target = gson.fromJson(json, MyEnum.class);
-    assertEquals(json, "[" + target.getExpectedJson() + "]");
   }
 
   @SuppressWarnings("unchecked")
