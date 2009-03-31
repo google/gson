@@ -9,16 +9,16 @@ options {
   UNICODE_INPUT = true;
 }
 
-PARSER_BEGIN(JsonParserImpl)
+PARSER_BEGIN(JsonParserJavacc)
 
 package com.google.gson;
 
 @SuppressWarnings("all")
-final class JsonParserImpl {
+final class JsonParserJavacc {
 
 }
 
-PARSER_END(JsonParserImpl)
+PARSER_END(JsonParserJavacc)
 
 SKIP : { " " | "\t" | "\n" | "\r" }
 /*

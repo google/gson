@@ -49,7 +49,7 @@ public final class JsonParser {
    */
   public JsonElement parse(Reader json) throws JsonParseException {
     try {
-      JsonParserImpl parser = new JsonParserImpl(json);
+      JsonParserJavacc parser = new JsonParserJavacc(json);
       return parser.parse();
     } catch (TokenMgrError e) {
       throw new JsonParseException("Failed parsing JSON source: " + json + " to Json", e);
