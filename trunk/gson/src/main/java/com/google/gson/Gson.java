@@ -374,7 +374,7 @@ public final class Gson {
   @SuppressWarnings("unchecked")
   public <T> T fromJson(Reader json, Type typeOfT) throws JsonParseException {
     try {
-      JsonElement root = JsonParser.parse(json);
+      JsonElement root = new JsonParser().parse(json);
       JsonDeserializationContext context = new JsonDeserializationContextDefault(
           createDefaultObjectNavigatorFactory(), deserializers, objectConstructor);
       T target = (T) context.deserialize(root, typeOfT);

@@ -35,7 +35,7 @@ public final class JsonParser {
    * @throws JsonParseException if the specified text is not valid JSON
    * @since 1.3
    */
-  public static JsonElement parse(String json) throws JsonParseException {
+  public JsonElement parse(String json) throws JsonParseException {
     return parse(new StringReader(json));
   }
   
@@ -47,7 +47,7 @@ public final class JsonParser {
    * @throws JsonParseException if the specified text is not valid JSON
    * @since 1.3
    */
-  public static JsonElement parse(Reader json) throws JsonParseException {
+  public JsonElement parse(Reader json) throws JsonParseException {
     try {
       JsonParserImpl parser = new JsonParserImpl(json);
       return parser.parse();
