@@ -228,7 +228,7 @@ final class JsonPrintFormatter implements JsonFormatter {
       }
     }
     
-    public void endObject(JsonObject object) throws IOException {
+    public void endObject(JsonObject object) {
       writer.endObject();
     }
 

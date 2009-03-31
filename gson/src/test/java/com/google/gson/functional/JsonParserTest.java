@@ -99,7 +99,7 @@ public class JsonParserTest extends TestCase {
   public void testChangingCustomTreeAndDeserializing() {
     StringReader json = 
       new StringReader("{'stringValue':'no message','intValue':10,'longValue':20}");
-    JsonObject obj = (JsonObject) JsonParser.parse(json);
+    JsonObject obj = (JsonObject) new JsonParser().parse(json);
     obj.remove("stringValue");
     obj.addProperty("stringValue", "fooBar");
     BagOfPrimitives target = gson.fromJson(obj, BagOfPrimitives.class);
