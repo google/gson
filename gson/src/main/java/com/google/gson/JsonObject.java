@@ -28,6 +28,7 @@ import java.util.Map.Entry;
  * tree of JsonElements. The member elements of this object are maintained in order they were added. 
  * 
  * @author Inderjeet Singh
+ * @author Joel Leitch
  */
 public final class JsonObject extends JsonElement {
   // We are using a linked hash map because it is important to preserve

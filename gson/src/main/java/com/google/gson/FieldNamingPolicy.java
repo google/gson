@@ -22,6 +22,7 @@ package com.google.gson;
  * to configure a {@link com.google.gson.Gson} instance to properly translate Java field
  * names into the desired JSON field names.
  *
+ * @author Inderjeet Singh
  * @author Joel Leitch
  */
 public enum FieldNamingPolicy {

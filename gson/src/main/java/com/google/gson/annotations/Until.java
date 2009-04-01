@@ -50,7 +50,9 @@ import java.lang.annotation.Target;
  * GsonBuilder, {@code 1.2}, exceeds the version number set on the {@code Until} annotation,
  * {@code 1.1}, for those fields.
  *
+ * @author Inderjeet Singh
  * @author Joel Leitch
+ * @since 1.3
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.TYPE})
