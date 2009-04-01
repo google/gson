@@ -80,18 +80,24 @@ final class TypeInfoFactory {
         }
       }
     } else if (typeToEvaluate instanceof TypeVariable) {
-      // The class definition has the actual types used for the type variables.
-      // Find the matching actual type for the Type Variable used for the field.
-      // For example, class Foo<A> { A a; }
-      // new Foo<Integer>(); defines the actual type of A to be Integer.
-      // So, to find the type of the field a, we will have to look at the class'
-      // actual type arguments.
-      TypeVariable<?> fieldTypeVariable = (TypeVariable<?>) typeToEvaluate;
-      TypeVariable<?>[] classTypeVariables = rawParentClass.getTypeParameters();
-      ParameterizedType objParameterizedType = (ParameterizedType) parentType;
-      int indexOfActualTypeArgument = getIndex(classTypeVariables, fieldTypeVariable);
-      Type[] actualTypeArguments = objParameterizedType.getActualTypeArguments();
-      return actualTypeArguments[indexOfActualTypeArgument];
+      if (parentType instanceof ParameterizedType) {
+        // The class definition has the actual types used for the type variables.
+        // Find the matching actual type for the Type Variable used for the field.
+        // For example, class Foo<A> { A a; }
+        // new Foo<Integer>(); defines the actual type of A to be Integer.
+        // So, to find the type of the field a, we will have to look at the class'
+        // actual type arguments.
+        TypeVariable<?> fieldTypeVariable = (TypeVariable<?>) typeToEvaluate;
+        TypeVariable<?>[] classTypeVariables = rawParentClass.getTypeParameters();
+        ParameterizedType objParameterizedType = (ParameterizedType) parentType;
+        int indexOfActualTypeArgument = getIndex(classTypeVariables, fieldTypeVariable);
+        Type[] actualTypeArguments = objParameterizedType.getActualTypeArguments();
+        return actualTypeArguments[indexOfActualTypeArgument];
+      } else {
+        throw new UnsupportedOperationException("Expecting parameterized type, got " + parentType
+            + ".\n Are you missing the use of TypeToken idiom?\n See " 
+            + "http://sites.google.com/site/gson/gson-user-guide#TOC-Serializing-and-Deserializing-Gener");
+      }
     } else if (typeToEvaluate instanceof WildcardType) {
       WildcardType castedType = (WildcardType) typeToEvaluate;
       return getActualType(castedType.getUpperBounds()[0], parentType, rawParentClass);
