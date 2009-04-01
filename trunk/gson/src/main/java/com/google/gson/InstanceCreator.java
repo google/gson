@@ -73,6 +73,7 @@ import java.lang.reflect.Type;
  *
  * @param <T> the type of object that will be created by this implementation.
  *
+ * @author Inderjeet Singh
  * @author Joel Leitch
  */
 public interface InstanceCreator<T> {

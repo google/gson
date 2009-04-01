@@ -48,6 +48,7 @@ import java.lang.annotation.Target;
  * since it's version number is set to {@code 1.1}.</p>
  *
  * @author Inderjeet Singh
+ * @author Joel Leitch
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.TYPE})

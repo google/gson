@@ -53,6 +53,7 @@ import java.lang.annotation.Target;
  * explicitly specify all fields that should get considered for serialization or deserialization.
  *
  * @author Inderjeet Singh
+ * @author Joel Leitch
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)

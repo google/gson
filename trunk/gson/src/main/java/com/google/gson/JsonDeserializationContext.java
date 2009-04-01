@@ -24,6 +24,7 @@ import java.lang.reflect.Type;
  * method. 
  * 
  * @author Inderjeet Singh
+ * @author Joel Leitch
  */
 public interface JsonDeserializationContext {
   

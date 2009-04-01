@@ -30,6 +30,7 @@ import java.util.List;
  * elements are added is preserved.
  *
  * @author Inderjeet Singh
+ * @author Joel Leitch
  */
 public final class JsonArray extends JsonElement implements Iterable<JsonElement> {
   private final List<JsonElement> elements;

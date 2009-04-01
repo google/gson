@@ -23,6 +23,7 @@ import java.lang.reflect.Type;
  * {@link JsonSerializer#serialize(Object, Type, JsonSerializationContext)} method.
  *
  * @author Inderjeet Singh
+ * @author Joel Leitch
  */
 public interface JsonSerializationContext {
 

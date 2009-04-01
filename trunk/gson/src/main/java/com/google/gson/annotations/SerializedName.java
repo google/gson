@@ -60,6 +60,7 @@ import java.lang.annotation.Target;
  *
  * @see com.google.gson.FieldNamingPolicy
  *
+ * @author Inderjeet Singh
  * @author Joel Leitch
  */
 @Retention(RetentionPolicy.RUNTIME)
