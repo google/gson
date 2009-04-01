@@ -277,8 +277,8 @@ final class DefaultTypeAdapters {
     }
   }
 
-  private static class GregorianCalendarTypeAdapter implements JsonSerializer<GregorianCalendar>, 
-      JsonDeserializer<GregorianCalendar> {
+  private static class GregorianCalendarTypeAdapter 
+      implements JsonSerializer<GregorianCalendar>, JsonDeserializer<GregorianCalendar> {
 
     private static final String YEAR = "year";
     private static final String MONTH = "month";
@@ -286,6 +286,7 @@ final class DefaultTypeAdapters {
     private static final String HOUR_OF_DAY = "hourOfDay";
     private static final String MINUTE = "minute";
     private static final String SECOND = "second";
+
     public JsonElement serialize(GregorianCalendar src, Type typeOfSrc,
         JsonSerializationContext context) {
       JsonObject obj = new JsonObject();
@@ -308,7 +309,12 @@ final class DefaultTypeAdapters {
       int minute = obj.get(MINUTE).getAsInt();      
       int second = obj.get(SECOND).getAsInt();      
       return new GregorianCalendar(year, month, dayOfMonth, hourOfDay, minute, second);
-    }    
+    }
+    
+    @Override
+    public String toString() {
+      return GregorianCalendarTypeAdapter.class.getSimpleName();
+    }
   }
   
   @SuppressWarnings("unchecked")
