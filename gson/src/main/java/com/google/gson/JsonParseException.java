@@ -26,6 +26,7 @@ package com.google.gson;
  * exception and do nothing.  It is often the case that you want to blow up if there is a parsing
  * error (i.e. often clients do not know how to recover from a {@link JsonParseException}.</p>
  *
+ * @author Inderjeet Singh
  * @author Joel Leitch
  */
 public final class JsonParseException extends RuntimeException {

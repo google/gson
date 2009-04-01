@@ -26,6 +26,7 @@ import java.math.BigInteger;
  * wrapper type.
  *
  * @author Inderjeet Singh
+ * @author Joel Leitch
  */
 public final class JsonPrimitive extends JsonElement {
 
