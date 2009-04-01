@@ -427,16 +427,10 @@ public final class Gson {
    */
   @SuppressWarnings("unchecked")
   public <T> T fromJson(JsonElement json, Type typeOfT) throws JsonParseException {
-    try {
-      JsonDeserializationContext context = new JsonDeserializationContextDefault(
-          createDefaultObjectNavigatorFactory(), deserializers, objectConstructor);
-      T target = (T) context.deserialize(json, typeOfT);
-      return target;
-    } catch (StackOverflowError e) {
-      throw new JsonParseException("Failed parsing JSON source: " + json + " to Json", e);
-    } catch (OutOfMemoryError e) {
-      throw new JsonParseException("Failed parsing JSON source: " + json + " to Json", e);
-    }
+    JsonDeserializationContext context = new JsonDeserializationContextDefault(
+        createDefaultObjectNavigatorFactory(), deserializers, objectConstructor);
+    T target = (T) context.deserialize(json, typeOfT);
+    return target;
   }
 
   /**
