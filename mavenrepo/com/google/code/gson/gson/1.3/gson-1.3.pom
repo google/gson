@@ -38,7 +38,7 @@
     <system>Google Code Issue Tracking</system>
     <url>http://code.google.com/p/google-gson/issues/list</url>
   </issueManagement>
-  
+
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
@@ -138,10 +138,10 @@
         <dependency>
         <groupId>net.java.dev.javacc</groupId>
         <artifactId>javacc</artifactId>
-        <version>4.0</version>
+        <version>4.2</version>
         </dependency>
         </dependencies>
-        </plugin -->
+      </plugin-->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jxr-plugin</artifactId>
