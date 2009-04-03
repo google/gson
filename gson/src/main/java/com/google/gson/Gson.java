@@ -181,6 +181,53 @@ public final class Gson {
   }
 
   /**
+   * This method serializes the specified object into its equivalent representation as a tree of 
+   * {JsonElement}s. This method should be used when the specified object is not a generic type. 
+   * This method uses {@link Class#getClass()} to get the type for the specified object, but the
+   * {@code getClass()} loses the generic type information because of the Type Erasure feature
+   * of Java. Note that this method works fine if the any of the object fields are of generic type,
+   * just the object itself should not be of a generic type. If the object is of generic type, use
+   * {@link #toJson(Object, Type)} instead. If you want to write out the object to a
+   * {@link Writer}, use {@link #toJson(Object, Appendable)} instead.
+   *
+   * @param src the object for which Json representation is to be created setting for Gson
+   * @return Json representation of {@code src}.
+   * @since 1.4
+   */
+  public JsonElement toJsonTree(Object src) {
+    if (src == null) {
+      return JsonNull.createJsonNull();
+    }
+    return toJsonTree(src, src.getClass());
+  }
+
+  /**
+   * This method serializes the specified object, including those of generic types, into its
+   * equivalent representation as a tree of {@link JsonElement}s. This method must be used if the 
+   * specified object is a generic type. For non-generic objects, use {@link #toJson(Object)} 
+   * instead. If you want to write out the object to a {@link Appendable}, 
+   * use {@link #toJson(Object, Type, Appendable)} instead.
+   *
+   * @param src the object for which JSON representation is to be created
+   * @param typeOfSrc The specific genericized type of src. You can obtain
+   * this type by using the {@link com.google.gson.reflect.TypeToken} class. For example,
+   * to get the type for {@code Collection<Foo>}, you should use:
+   * <pre>
+   * Type typeOfSrc = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType();
+   * </pre>
+   * @return Json representation of {@code src}
+   * @since 1.4
+   */
+  public JsonElement toJsonTree(Object src, Type typeOfSrc) {
+    if (src == null) {
+      return JsonNull.createJsonNull();
+    }
+    JsonSerializationContext context = new JsonSerializationContextDefault(
+        createDefaultObjectNavigatorFactory(), serializeNulls, serializers);
+    return context.serialize(src, typeOfSrc);
+  }
+
+  /**
    * This method serializes the specified object into its equivalent Json representation.
    * This method should be used when the specified object is not a generic type. This method uses
    * {@link Class#getClass()} to get the type for the specified object, but the
@@ -220,7 +267,7 @@ public final class Gson {
     toJson(src, typeOfSrc, writer);
     return writer.toString();
   }
-
+  
   /**
    * This method serializes the specified object into its equivalent Json representation.
    * This method should be used when the specified object is not a generic type. This method uses
@@ -263,21 +310,11 @@ public final class Gson {
    */
   public void toJson(Object src, Type typeOfSrc, Appendable writer) {
     try {
-      if (src != null) {
-        JsonSerializationContext context = new JsonSerializationContextDefault(
-            createDefaultObjectNavigatorFactory(), serializeNulls, serializers);
-        JsonElement jsonElement = context.serialize(src, typeOfSrc);
-
-        if (generateNonExecutableJson) {
-          writer.append(JSON_NON_EXECUTABLE_PREFIX);
-        }
-        //TODO(Joel): instead of navigating the "JsonElement" inside the formatter, do it here.
-        formatter.format(jsonElement, writer, serializeNulls);
-      } else {
-        if (serializeNulls) {
-          writeOutNullString(writer);
-        }
+      if (generateNonExecutableJson) {
+        writer.append(JSON_NON_EXECUTABLE_PREFIX);
       }
+      JsonElement jsonElement = toJsonTree(src, typeOfSrc);
+      formatter.format(jsonElement, writer, serializeNulls);
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);
     }
