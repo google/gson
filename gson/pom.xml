@@ -73,15 +73,15 @@
           <archive>
             <manifestEntries>
               <Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
-              <Export-Package><![CDATA[com.google.json;version=1.3.0, com.google.gson.annotations;version=1.3.0, com.google.gson.reflect;version=1.3.0]]></Export-Package>
-              <Bundle-Version>1.3.0</Bundle-Version>
+              <Export-Package><![CDATA[com.google.gson;version=1.4.0, com.google.gson.annotations;version=1.4.0, com.google.gson.reflect;version=1.4.0]]></Export-Package>
+              <Bundle-Version>1.4.0</Bundle-Version>
               <Bundle-ContactAddress>http://code.google.com/p/google-gson/</Bundle-ContactAddress>
               <Bundle-Vendor>Google Gson Project</Bundle-Vendor>
               <Bundle-Name>${project.name}</Bundle-Name>
               <Bundle-Description>${project.description}</Bundle-Description>
               <Bundle-ClassPath>.</Bundle-ClassPath>
               <Bundle-ManifestVersion>2</Bundle-ManifestVersion>
-              <Bundle-SymbolicName>com.google.gson</Bundle-SymbolicName> 
+              <Bundle-SymbolicName>com.google.gson</Bundle-SymbolicName>
             </manifestEntries>
           </archive>
         </configuration>
