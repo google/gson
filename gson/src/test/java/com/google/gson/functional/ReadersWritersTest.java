@@ -17,10 +17,16 @@ package com.google.gson.functional;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonParser.AsyncReader;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 
 import junit.framework.TestCase;
 
+import java.io.CharArrayReader;
+import java.io.CharArrayWriter;
+import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -79,5 +85,35 @@ public class ReadersWritersTest extends TestCase {
     StringReader reader = new StringReader("null");
     Integer nullIntObject = gson.fromJson(reader, Integer.class);
     assertNull(nullIntObject);
+  }
+  
+  public void testReadWriteTwoStrings() throws IOException {
+    Gson gson= new Gson();
+    CharArrayWriter writer= new CharArrayWriter();
+    writer.write(gson.toJson("one").toCharArray());
+    writer.write(gson.toJson("two").toCharArray());
+    CharArrayReader reader = new CharArrayReader(writer.toCharArray());
+    JsonParser parser = new JsonParser();
+    AsyncReader asyncReader = parser.parseAsync(reader);
+    String actualOne = gson.fromJson(asyncReader.readElement(), String.class);
+    assertEquals("one", actualOne);
+    String actualTwo = gson.fromJson(asyncReader.readElement(), String.class);
+    assertEquals("two", actualTwo);
+  }
+  
+  public void testReadWriteTwoObjects() throws IOException {
+    Gson gson= new Gson();
+    CharArrayWriter writer= new CharArrayWriter();
+    BagOfPrimitives expectedOne = new BagOfPrimitives(1, 1, true, "one");
+    writer.write(gson.toJson(expectedOne).toCharArray());
+    BagOfPrimitives expectedTwo = new BagOfPrimitives(2, 2, false, "two");
+    writer.write(gson.toJson(expectedTwo).toCharArray());
+    CharArrayReader reader = new CharArrayReader(writer.toCharArray());
+    JsonParser parser = new JsonParser();
+    AsyncReader asyncReader = parser.parseAsync(reader);
+    BagOfPrimitives actualOne = gson.fromJson(asyncReader.readElement(), BagOfPrimitives.class);
+    assertEquals("one", actualOne.stringValue);
+    BagOfPrimitives actualTwo = gson.fromJson(asyncReader.readElement(), BagOfPrimitives.class);
+    assertEquals("two", actualTwo.stringValue);
   }
 }

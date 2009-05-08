@@ -26,6 +26,21 @@ import java.io.StringReader;
  * @since 1.3
  */
 public final class JsonParser {
+  
+  /**
+   * Interface to provide ability to read multiple {@link JsonElement}s from a stream 
+   * asynchronously.
+   * 
+   * @since 1.4
+   */
+  public interface AsyncReader {
+
+    /**
+     * Parse and return one {@link JsonElement} 
+     * @since 1.4
+     */
+    public JsonElement readElement();
+  }
 
   /**
    * Parses the specified JSON string into a parse tree
@@ -50,7 +65,8 @@ public final class JsonParser {
   public JsonElement parse(Reader json) throws JsonParseException {
     try {
       JsonParserJavacc parser = new JsonParserJavacc(json);
-      return parser.parse();
+      JsonElement element = parser.parse();
+      return element;
     } catch (TokenMgrError e) {
       throw new JsonParseException("Failed parsing JSON source: " + json + " to Json", e);
     } catch (ParseException e) {
@@ -60,5 +76,40 @@ public final class JsonParser {
     } catch (OutOfMemoryError e) {
       throw new JsonParseException("Failed parsing JSON source: " + json + " to Json", e);
     }
+  }
+  
+  /**
+   * Returns {@link AsyncReader} to allow reading of multiple {@link JsonElement}s from the 
+   * specified reader asynchronously.
+   * 
+   * @param json The data stream containing JSON elements concatenated to each other.
+   * @return {@link AsyncReader} for reading {@link JsonElement}s asynchronously.
+   * @throws JsonParseException if the incoming stream is malformed JSON.
+   * @since 1.4
+   */
+  public AsyncReader parseAsync(Reader json) throws JsonParseException {
+    return new AsyncReaderJavacc(json);
+  }
+  
+  private static class AsyncReaderJavacc implements AsyncReader {    
+    private final JsonParserJavacc parser;
+    private AsyncReaderJavacc(Reader json) {
+      parser = new JsonParserJavacc(json);      
+    }
+    
+    public JsonElement readElement() {
+      try {
+        JsonElement element = parser.parse();
+        return element;
+      } catch (TokenMgrError e) {
+        throw new JsonParseException("Failed parsing JSON source to Json", e);
+      } catch (ParseException e) {
+        throw new JsonParseException("Failed parsing JSON source to Json", e);
+      } catch (StackOverflowError e) {
+        throw new JsonParseException("Failed parsing JSON source to Json", e);
+      } catch (OutOfMemoryError e) {
+        throw new JsonParseException("Failed parsing JSON source to Json", e);
+      }
+    }    
   }
 }
