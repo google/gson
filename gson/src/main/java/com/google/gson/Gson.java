@@ -411,10 +411,7 @@ public final class Gson {
   @SuppressWarnings("unchecked")
   public <T> T fromJson(Reader json, Type typeOfT) throws JsonParseException {
     JsonElement root = new JsonParser().parse(json);
-    JsonDeserializationContext context = new JsonDeserializationContextDefault(
-        createDefaultObjectNavigatorFactory(), deserializers, objectConstructor);
-    T target = (T) context.deserialize(root, typeOfT);
-    return target;
+    return fromJson(root, typeOfT);
   }
 
   /**
@@ -458,6 +455,9 @@ public final class Gson {
    */
   @SuppressWarnings("unchecked")
   public <T> T fromJson(JsonElement json, Type typeOfT) throws JsonParseException {
+    if (json == null) {
+      return null;
+    }
     JsonDeserializationContext context = new JsonDeserializationContextDefault(
         createDefaultObjectNavigatorFactory(), deserializers, objectConstructor);
     T target = (T) context.deserialize(json, typeOfT);

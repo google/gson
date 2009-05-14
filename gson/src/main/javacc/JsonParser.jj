@@ -12,6 +12,7 @@ options {
 PARSER_BEGIN(JsonParserJavacc)
 
 package com.google.gson;
+import java.io.EOFException;
 
 @SuppressWarnings("all")
 final class JsonParserJavacc {
@@ -60,6 +61,9 @@ public JsonElement parse() :
   JsonElement json = null;
 }
 {
+  (<EOF>){
+    throw new JsonParseException(new EOFException());
+  } |
   [")]}'\n"]( json=JsonObject() |
     json=JsonArray() |
     json=JsonPrimitive() |
