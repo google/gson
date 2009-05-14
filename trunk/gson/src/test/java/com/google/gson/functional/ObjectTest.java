@@ -178,11 +178,8 @@ public class ObjectTest extends TestCase {
   }
 
   public void testNullDeserialization() throws Exception {
-    try {
-      gson.fromJson("", Object.class);
-      fail("Null strings should not be allowed");
-    } catch (JsonParseException expected) {
-    }
+    Object object = gson.fromJson("", Object.class);
+    assertNull(object);
   }
 
   public void testNullFieldsSerialization() throws Exception {

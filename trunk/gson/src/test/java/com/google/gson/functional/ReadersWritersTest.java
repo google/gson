@@ -17,9 +17,8 @@ package com.google.gson.functional;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonParser.AsyncReader;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParserAsync;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 
 import junit.framework.TestCase;
@@ -93,11 +92,10 @@ public class ReadersWritersTest extends TestCase {
     writer.write(gson.toJson("one").toCharArray());
     writer.write(gson.toJson("two").toCharArray());
     CharArrayReader reader = new CharArrayReader(writer.toCharArray());
-    JsonParser parser = new JsonParser();
-    AsyncReader asyncReader = parser.parseAsync(reader);
-    String actualOne = gson.fromJson(asyncReader.readElement(), String.class);
+    JsonParserAsync parser = new JsonParserAsync(reader);
+    String actualOne = gson.fromJson(parser.nextElement(), String.class);
     assertEquals("one", actualOne);
-    String actualTwo = gson.fromJson(asyncReader.readElement(), String.class);
+    String actualTwo = gson.fromJson(parser.nextElement(), String.class);
     assertEquals("two", actualTwo);
   }
   
@@ -109,11 +107,11 @@ public class ReadersWritersTest extends TestCase {
     BagOfPrimitives expectedTwo = new BagOfPrimitives(2, 2, false, "two");
     writer.write(gson.toJson(expectedTwo).toCharArray());
     CharArrayReader reader = new CharArrayReader(writer.toCharArray());
-    JsonParser parser = new JsonParser();
-    AsyncReader asyncReader = parser.parseAsync(reader);
-    BagOfPrimitives actualOne = gson.fromJson(asyncReader.readElement(), BagOfPrimitives.class);
+    JsonParserAsync parser = new JsonParserAsync(reader);
+    BagOfPrimitives actualOne = gson.fromJson(parser.nextElement(), BagOfPrimitives.class);
     assertEquals("one", actualOne.stringValue);
-    BagOfPrimitives actualTwo = gson.fromJson(asyncReader.readElement(), BagOfPrimitives.class);
+    BagOfPrimitives actualTwo = gson.fromJson(parser.nextElement(), BagOfPrimitives.class);
     assertEquals("two", actualTwo.stringValue);
+    JsonElement jsonElement = parser.nextElement();
   }
 }
