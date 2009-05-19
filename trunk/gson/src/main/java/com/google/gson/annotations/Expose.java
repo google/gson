@@ -34,8 +34,8 @@ import java.lang.annotation.Target;
  * <p><pre>
  * public class User {
  *   &#64Expose private String firstName;
- *   &#64Expose private String lastName;
- *   &#64Expose private String emailAddress;
+ *   &#64Expose(serialize = false) private String lastName;
+ *   &#64Expose (serialize = false, deserialize = false) private String emailAddress;
  *   private String password;
  * }
  * </pre></p>
@@ -45,7 +45,9 @@ import java.lang.annotation.Target;
  * with {@code Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create()}
  * then the {@code toJson()} and {@code fromJson()} methods of Gson will exclude the
  * {@code password} field. This is because the {@code password} field is not marked with the
- * {@code @Expose} annotation.
+ * {@code @Expose} annotation. Gson will also exclude {@code lastName} and {@code emailAddress}
+ * from serialization since {@code serialize} is set to {@code false}. Similarly, Gson will
+ * exclude {@code emailAddress} from deserialization since {@code deserialize} is set to false.
  *
  * <p>Note that another way to achieve the same effect would have been to just mark the
  * {@code password} field as {@code transient}, and Gson would have excluded it even with default
@@ -58,5 +60,20 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface Expose {
-  // This is a marker annotation with no additional properties
+  
+  /**
+   * If true, the field marked with this annotation is written out in the JSON while serializing.
+   * If false, the field marked with this annotation is skipped from the serialized output. 
+   * Defaults to true.
+   * @since 1.4
+   */
+  public boolean serialize() default true;
+
+  /**
+   * If true, the field marked with this annotation is deserialized from the JSON.
+   * If false, the field marked with this annotation is skipped during deserialization. 
+   * Defaults to true.
+   * @since 1.4
+   */
+  public boolean deserialize() default true;
 }

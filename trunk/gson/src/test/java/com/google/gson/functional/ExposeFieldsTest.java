@@ -72,11 +72,12 @@ public class ExposeFieldsTest extends TestCase {
   }
 
   public void testExposeAnnotationDeserialization() throws Exception {
-    String json = '{' + "\"a\":" + 3 + ",\"b\":" + 4 + '}';
+    String json = "{a:3,b:4,d:20.0}";
     ClassWithExposedFields target = gson.fromJson(json, ClassWithExposedFields.class);
 
     assertEquals(3, (int) target.a);
     assertNull(target.b);
+    assertFalse(target.d == 20);
   }
 
   public void testNoExposedFieldSerialization() throws Exception {
@@ -87,7 +88,7 @@ public class ExposeFieldsTest extends TestCase {
   }
 
   public void testNoExposedFieldDeserialization() throws Exception {
-    String json = '{' + "\"a\":" + 4 + ",\"b\":" + 5 + '}';
+    String json = "{a:4,b:5}";
     ClassWithNoExposedFields obj = gson.fromJson(json, ClassWithNoExposedFields.class);
 
     assertEquals(0, obj.a);
@@ -112,39 +113,37 @@ public class ExposeFieldsTest extends TestCase {
   private static class ClassWithExposedFields {
     @Expose private final Integer a;
     private final Integer b;
+    @Expose(serialize = false) final long c;
+    @Expose(deserialize = false) final double d;
+    @Expose(serialize = false, deserialize = false) final char e;
 
     ClassWithExposedFields() {
       this(null, null);
     }
 
     public ClassWithExposedFields(Integer a, Integer b) {
+      this(a, b, 1L, 2.0, 'a');
+    }
+    public ClassWithExposedFields(Integer a, Integer b, long c, double d, char e) {
       this.a = a;
       this.b = b;
+      this.c = c;
+      this.d = d;
+      this.e = e;
     }
 
     public String getExpectedJson() {
-      if (a == null) {
-        return "{}";
+      StringBuilder sb = new StringBuilder("{");
+      if (a != null) {
+        sb.append("\"a\":").append(a).append(",");
       }
-      return '{' + "\"a\":" + a + '}';
+      sb.append("\"d\":").append(d);
+      sb.append("}");
+      return sb.toString();
     }
 
     public String getExpectedJsonWithoutAnnotations() {
-      StringBuilder stringBuilder = new StringBuilder();
-      boolean requiresComma = false;
-      stringBuilder.append('{');
-      if (a != null) {
-        stringBuilder.append("\"a\":").append(a);
-        requiresComma = true;
-      }
-      if (b != null) {
-        if (requiresComma) {
-          stringBuilder.append(',');
-        }
-        stringBuilder.append("\"b\":").append(b);
-      }
-      stringBuilder.append('}');
-      return stringBuilder.toString();
+      return String.format("{\"a\":%d,\"b\":%d,\"c\":%d,\"d\":%f,\"e\":\"%c\"}", a, b, c, d, e);
     }
   }
 
@@ -178,5 +177,5 @@ public class ExposeFieldsTest extends TestCase {
     public ClassWithInterfaceField(SomeInterface interfaceField) {
       this.interfaceField = interfaceField;
     }
-  }
+  }  
 }

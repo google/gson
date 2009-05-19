@@ -87,7 +87,11 @@ public final class Gson {
 
   private static final String JSON_NON_EXECUTABLE_PREFIX = ")]}'\n";
 
-  private final ExclusionStrategy strategy;
+
+  private final ExclusionStrategy serializationStrategy;
+
+  private final ExclusionStrategy deserializationStrategy;
+  
   private final FieldNamingStrategy fieldNamingPolicy;
   private final MappedObjectConstructor objectConstructor;
 
@@ -145,18 +149,20 @@ public final class Gson {
    * encountering inner class references.
    */
   Gson(ExclusionStrategy strategy, FieldNamingStrategy fieldNamingPolicy) {
-    this(strategy, fieldNamingPolicy, 
+    this(strategy, strategy, fieldNamingPolicy, 
         new MappedObjectConstructor(DefaultTypeAdapters.getDefaultInstanceCreators()),
         DEFAULT_JSON_FORMATTER, false, DefaultTypeAdapters.getDefaultSerializers(),
         DefaultTypeAdapters.getDefaultDeserializers(), DEFAULT_JSON_NON_EXECUTABLE);
   }
 
-  Gson(ExclusionStrategy strategy, FieldNamingStrategy fieldNamingPolicy, 
-      MappedObjectConstructor objectConstructor, JsonFormatter formatter, boolean serializeNulls,
+  Gson(ExclusionStrategy serializationStrategy, ExclusionStrategy deserializationStrategy, 
+      FieldNamingStrategy fieldNamingPolicy, MappedObjectConstructor objectConstructor, 
+      JsonFormatter formatter, boolean serializeNulls, 
       ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers,
       ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers, 
       boolean generateNonExecutableGson) {
-    this.strategy = strategy;
+    this.serializationStrategy = serializationStrategy;
+    this.deserializationStrategy = deserializationStrategy;
     this.fieldNamingPolicy = fieldNamingPolicy;
     this.objectConstructor = objectConstructor;
     this.formatter = formatter;
@@ -166,7 +172,7 @@ public final class Gson {
     this.generateNonExecutableJson = generateNonExecutableGson;
   }
   
-  private ObjectNavigatorFactory createDefaultObjectNavigatorFactory() {
+  private ObjectNavigatorFactory createDefaultObjectNavigatorFactory(ExclusionStrategy strategy) {
     return new ObjectNavigatorFactory(strategy, fieldNamingPolicy);
   }
 
@@ -223,7 +229,7 @@ public final class Gson {
       return JsonNull.createJsonNull();
     }
     JsonSerializationContext context = new JsonSerializationContextDefault(
-        createDefaultObjectNavigatorFactory(), serializeNulls, serializers);
+        createDefaultObjectNavigatorFactory(serializationStrategy), serializeNulls, serializers);
     return context.serialize(src, typeOfSrc);
   }
 
@@ -459,7 +465,8 @@ public final class Gson {
       return null;
     }
     JsonDeserializationContext context = new JsonDeserializationContextDefault(
-        createDefaultObjectNavigatorFactory(), deserializers, objectConstructor);
+        createDefaultObjectNavigatorFactory(deserializationStrategy), deserializers, 
+        objectConstructor);
     T target = (T) context.deserialize(json, typeOfT);
     return target;
   }
