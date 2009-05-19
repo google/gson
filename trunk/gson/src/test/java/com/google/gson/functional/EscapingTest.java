@@ -13,13 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.google.gson.functional;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 
 import junit.framework.TestCase;
 
+/**
+ * Performs some functional test involving JSON output escaping.
+ *
+ * @author Inderjeet Singh
+ * @author Joel Leitch
+ */
 public class EscapingTest extends TestCase {
   private Gson gson;
 
@@ -46,5 +54,18 @@ public class EscapingTest extends TestCase {
 
     BagOfPrimitives expectedObject = gson.fromJson(jsonRepresentation, BagOfPrimitives.class);
     assertEquals(objWithPrimitives.getExpectedJson(), expectedObject.getExpectedJson());
+  }
+  
+  public void testGsonAcceptsEscapedAndNonEscapedJsonDeserialization() throws Exception {
+    Gson escapeHtmlGson = new GsonBuilder().create();
+    Gson noEscapeHtmlGson = new GsonBuilder().disableHtmlEscaping().create();
+    
+    BagOfPrimitives target = new BagOfPrimitives(1L, 1, true, "test' / w'ith\" / \\ <script>");
+    String escapedJsonForm = escapeHtmlGson.toJson(target);
+    String nonEscapedJsonForm = noEscapeHtmlGson.toJson(target);
+    assertFalse(escapedJsonForm.equals(nonEscapedJsonForm));
+    
+    assertEquals(target, noEscapeHtmlGson.fromJson(escapedJsonForm, BagOfPrimitives.class));
+    assertEquals(target, escapeHtmlGson.fromJson(nonEscapedJsonForm, BagOfPrimitives.class));
   }
 }
