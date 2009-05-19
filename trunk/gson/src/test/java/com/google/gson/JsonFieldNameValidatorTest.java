@@ -81,11 +81,9 @@ public class JsonFieldNameValidatorTest extends TestCase {
     } catch (IllegalArgumentException expected) { }
   }
 
-  public void testKeywordAsFieldName() throws Exception {
-    try {
-      validator.validate("break");
-      fail("Json field name can not be a reserved word");
-    } catch (IllegalArgumentException expected) { }
+  public void testJavaAndJsKeywordAsFieldName() throws Exception {
+    String fieldName = "break";
+    assertEquals(fieldName, validator.validate(fieldName));
   }
 
   public void testInvalidCharacters() throws Exception {

@@ -16,10 +16,6 @@
 
 package com.google.gson;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,18 +30,10 @@ import java.util.regex.Pattern;
  * @author Joel Leitch
  */
 class JsonFieldNameValidator {
-  private static final String[] JS_KEYWORDS = {
-    "break", "case", "catch", "class", "comment", "const", "continue", "debugger", "default", "delete", "do",
-    "else", "enum", "export", "extends", "finally", "for", "function", "if", "import", "in", "label", "new",
-    "return", "super", "switch", "this", "throw", "try", "typeof", "var", "void", "while", "with"
-  };
-
   private static final Pattern JSON_FIELD_NAME_PATTERN =
       Pattern.compile("(^[a-zA-Z][a-zA-Z0-9\\$_]*$)|(^[\\$_][a-zA-Z][a-zA-Z0-9\\$_]*$)");
 
-  private static final Set<String> KEYWORDS = Collections.unmodifiableSet(
-      new HashSet<String>(Arrays.asList(JS_KEYWORDS)));
-
+  
   /**
    * Performs validation on the JSON field name to ensure it is a valid field name.
    *
@@ -56,7 +44,6 @@ class JsonFieldNameValidator {
   public String validate(String fieldName) {
     Preconditions.checkNotNull(fieldName);
     Preconditions.checkArgument(!"".equals(fieldName.trim()));
-    Preconditions.checkArgument(!KEYWORDS.contains(fieldName));
 
     Matcher matcher = JSON_FIELD_NAME_PATTERN.matcher(fieldName);
     if (!matcher.matches()) {
