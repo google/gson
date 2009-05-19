@@ -59,10 +59,16 @@ public class EscaperTest extends TestCase {
     assertEquals("123\\t456", escapedString);
   }
 
-  public void testQuoteEscaping() throws Exception {
+  public void testDoubleQuoteEscaping() throws Exception {
     String containsQuote = "123\"456";
     String escapedString = escapeHtmlChar.escapeJsonString(containsQuote);
     assertEquals("123\\\"456", escapedString);
+  }
+  
+  public void testSingleQuoteEscaping() throws Exception {
+    String containsQuote = "123'456";
+    String escapedString = escapeHtmlChar.escapeJsonString(containsQuote);
+    assertEquals("123\\'456", escapedString);
   }
 
   public void testLineSeparatorEscaping() throws Exception {
@@ -138,7 +144,7 @@ public class EscaperTest extends TestCase {
 
   public void testSingleQuoteNotEscaped() throws Exception {
     String containsSingleQuote = "123'456";
-    String escapedString = escapeHtmlChar.escapeJsonString(containsSingleQuote);
+    String escapedString = noEscapeHtmlChar.escapeJsonString(containsSingleQuote);
     assertEquals(containsSingleQuote, escapedString);
   }
 
