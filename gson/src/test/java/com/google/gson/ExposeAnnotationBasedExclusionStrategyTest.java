@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import com.google.gson.ExposeAnnotationBasedExclusionStrategy.Phase;
 import com.google.gson.annotations.Expose;
 
 import junit.framework.TestCase;
@@ -33,7 +34,7 @@ public class ExposeAnnotationBasedExclusionStrategyTest extends TestCase {
   @Override
   protected void setUp() throws Exception {
     super.setUp();
-    strategy = new ExposeAnnotationBasedExclusionStrategy();
+    strategy = new ExposeAnnotationBasedExclusionStrategy(Phase.SERIALIZATION);
   }
 
   public void testNeverSkipClasses() throws Exception {
