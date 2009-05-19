@@ -27,11 +27,32 @@ import java.lang.reflect.Field;
  */
 class ExposeAnnotationBasedExclusionStrategy implements ExclusionStrategy {
 
+  enum Phase {
+    SERIALIZATION, DESERIALIZATION
+  }
+
+  private final Phase phase;
+  
+  public ExposeAnnotationBasedExclusionStrategy(Phase phase) {
+    this.phase = phase;
+  }
+
   public boolean shouldSkipClass(Class<?> clazz) {
     return false;
   }
 
   public boolean shouldSkipField(Field f) {
-    return f.getAnnotation(Expose.class) == null;
+    Expose annotation = f.getAnnotation(Expose.class);
+    if (annotation == null) {
+      return true;
+    }
+    switch (phase) {
+    case SERIALIZATION:
+      return !annotation.serialize();
+    case DESERIALIZATION:
+      return !annotation.deserialize();
+    default:
+      throw new IllegalStateException();
+    }
   }
 }
