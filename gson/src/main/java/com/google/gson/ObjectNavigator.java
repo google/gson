@@ -133,11 +133,11 @@ final class ObjectNavigator {
     Field[] fields = clazz.getDeclaredFields();
     AccessibleObject.setAccessible(fields, true);
     for (Field f : fields) {
-      TypeInfo fieldTypeInfo = TypeInfoFactory.getTypeInfoForField(f, objType);
-      Type actualTypeOfField = fieldTypeInfo.getActualType();
       if (exclusionStrategy.shouldSkipField(f)) {
         continue; // skip
       } else {
+        TypeInfo fieldTypeInfo = TypeInfoFactory.getTypeInfoForField(f, objType);
+        Type actualTypeOfField = fieldTypeInfo.getActualType();
         boolean visitedWithCustomHandler = 
           visitor.visitFieldUsingCustomHandler(f, actualTypeOfField, obj);
         if (!visitedWithCustomHandler) {
