@@ -219,7 +219,8 @@ public class TestTypes {
     }
   }
 
-  public static class ClassWithTransientFields {
+  public static class ClassWithTransientFields<T> {
+    public transient T transientT; 
     public final transient long transientLongValue;
     private final long[] longValue;
 
