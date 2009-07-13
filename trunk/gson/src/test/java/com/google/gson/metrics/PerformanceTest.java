@@ -46,6 +46,44 @@ public class PerformanceTest extends TestCase {
     // This is here to prevent Junit for complaining when we disable all tests.
   }
 
+  // Last I tested, Gson was able to serialize upto 8MB byte array
+  public void disable_testByteArraySerialization() {
+    int size = 8096;
+    while (true) {
+      byte[] ba = new byte[size];
+      for (int i = 0; i < size; ++i) {
+        ba[i] = 0x32;
+      }
+      String json = gson.toJson(ba);
+      System.out.printf("Gson could serialize a byte array of size: %d\n", size);
+      size <<= 2;
+    }
+  }
+  
+  // Last I tested, Gson was able to deserialize a byte array of 32KB
+  public void disable_testByteArrayDeserialization() {
+    int numElements = 8096;
+    while (true) {
+      StringBuilder sb = new StringBuilder(numElements*2);
+      sb.append("[");
+      boolean first = true;
+      for (int i = 0; i < numElements; ++i) {
+        if (first) {
+          first = false;
+        } else {
+          sb.append(",");
+        }
+        sb.append("5");
+      }
+      sb.append("]");
+      String json = sb.toString();
+      byte[] ba = gson.fromJson(json, byte[].class);
+      System.out.printf("Gson could handle a byte array of size: %d\n", ba.length);
+      numElements <<= 2;
+    }
+  }
+  
+
   public void disabled_testStringDeserializationPerformance() {    
     StringBuilder sb = new StringBuilder(8096);
     sb.append("Error Yippie");
