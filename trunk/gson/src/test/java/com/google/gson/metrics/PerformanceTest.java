@@ -44,47 +44,9 @@ public class PerformanceTest extends TestCase {
   
   public void testDummy() {    
     // This is here to prevent Junit for complaining when we disable all tests.
-  }
+  }  
 
-  // Last I tested, Gson was able to serialize upto 8MB byte array
-  public void disable_testByteArraySerialization() {
-    int size = 8096;
-    while (true) {
-      byte[] ba = new byte[size];
-      for (int i = 0; i < size; ++i) {
-        ba[i] = 0x32;
-      }
-      String json = gson.toJson(ba);
-      System.out.printf("Gson could serialize a byte array of size: %d\n", size);
-      size <<= 2;
-    }
-  }
-  
-  // Last I tested, Gson was able to deserialize a byte array of 32KB
-  public void disable_testByteArrayDeserialization() {
-    int numElements = 8096;
-    while (true) {
-      StringBuilder sb = new StringBuilder(numElements*2);
-      sb.append("[");
-      boolean first = true;
-      for (int i = 0; i < numElements; ++i) {
-        if (first) {
-          first = false;
-        } else {
-          sb.append(",");
-        }
-        sb.append("5");
-      }
-      sb.append("]");
-      String json = sb.toString();
-      byte[] ba = gson.fromJson(json, byte[].class);
-      System.out.printf("Gson could handle a byte array of size: %d\n", ba.length);
-      numElements <<= 2;
-    }
-  }
-  
-
-  public void disabled_testStringDeserializationPerformance() {    
+  public void disabled_testStringDeserialization() {    
     StringBuilder sb = new StringBuilder(8096);
     sb.append("Error Yippie");
 
@@ -166,5 +128,44 @@ public class PerformanceTest extends TestCase {
     Type collectionType = new TypeToken<ArrayList<CollectionEntry>>(){}.getType();    
     List<CollectionEntry> list = gson.fromJson(json, collectionType);       
     assertEquals(count, list.size());
+  }
+
+  /**
+   * Created in response to http://code.google.com/p/google-gson/issues/detail?id=96
+   */
+  // Last I tested, Gson was able to serialize upto 14MB byte array
+  public void disable_testByteArraySerialization() {
+    for (int size = 4145152; true; size += 1036288) {
+      byte[] ba = new byte[size];
+      for (int i = 0; i < size; ++i) {
+        ba[i] = 0x05;
+      }
+      String json = gson.toJson(ba);
+      System.out.printf("Gson could serialize a byte array of size: %d\n", size);
+    }
+  }
+  
+  /**
+   * Created in response to http://code.google.com/p/google-gson/issues/detail?id=96
+   */
+  // Last I tested, Gson was able to deserialize a byte array of 80KB
+  public void disable_testByteArrayDeserialization() {
+    for (int numElements = 32768; true; numElements += 4096) {
+      StringBuilder sb = new StringBuilder(numElements*2);
+      sb.append("[");
+      boolean first = true;
+      for (int i = 0; i < numElements; ++i) {
+        if (first) {
+          first = false;
+        } else {
+          sb.append(",");
+        }
+        sb.append("5");
+      }
+      sb.append("]");
+      String json = sb.toString();
+      byte[] ba = gson.fromJson(json, byte[].class);
+      System.out.printf("Gson could deserialize a byte array of size: %d\n", ba.length);
+    }
   }
 }
