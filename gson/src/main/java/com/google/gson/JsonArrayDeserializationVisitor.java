@@ -105,4 +105,9 @@ final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisito
     throw new JsonParseException("Expecting array but found field " + f.getName() + ": " 
         + parent);
   }
+
+  public void visitPrimitive(Object primitive) {
+    throw new JsonParseException(
+        "Type information is unavailable, and the target is not a primitive: " + json);
+  }
 }
