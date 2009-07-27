@@ -121,4 +121,14 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
       throw new RuntimeException();
     }
   }
+
+  @SuppressWarnings("unchecked")
+  public void visitPrimitive(Object primitive) {
+    if (!json.isJsonPrimitive()) {
+      throw new JsonParseException(
+          "Type information is unavailable, and the target object is not a primitive: " + json);
+    }
+    JsonPrimitive prim = json.getAsJsonPrimitive();
+    target = (T) prim.getAsObject();
+  }
 }
