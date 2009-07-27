@@ -64,6 +64,8 @@ final class ObjectNavigator {
      * Retrieve the current target
      */
     Object getTarget();
+
+    void visitPrimitive(Object primitive);
   }
 
   private final ExclusionStrategy exclusionStrategy;
@@ -112,6 +114,9 @@ final class ObjectNavigator {
       try {
         if (objTypeInfo.isArray()) {
           visitor.visitArray(objectToVisit, objType);
+        } else if (objTypeInfo.getActualType() == Object.class) {
+          visitor.visitPrimitive(objectToVisit);
+          objectToVisit = visitor.getTarget();
         } else {
           visitor.startVisitingObject(objectToVisit);
           // For all classes in the inheritance hierarchy (including the current class),
