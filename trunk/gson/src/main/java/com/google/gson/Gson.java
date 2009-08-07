@@ -273,7 +273,7 @@ public final class Gson {
     toJson(src, typeOfSrc, writer);
     return writer.toString();
   }
-  
+
   /**
    * This method serializes the specified object into its equivalent Json representation.
    * This method should be used when the specified object is not a generic type. This method uses
@@ -315,15 +315,42 @@ public final class Gson {
    * @since 1.2
    */
   public void toJson(Object src, Type typeOfSrc, Appendable writer) {
+    JsonElement jsonElement = toJsonTree(src, typeOfSrc);
+    toJson(jsonElement, writer);
+  }
+
+  /**
+   * Converts a tree of {@link JsonElement}s into its equivalent JSON representation.
+   * 
+   * @param jsonElement root of the tree of {@link JsonElement}s
+   * @return JSON String representation of the tree
+   * @since 1.4
+   */
+  public String toJson(JsonElement jsonElement) {
+    StringWriter writer = new StringWriter();
+    toJson(jsonElement, writer);
+    return writer.toString();
+  }
+  
+  /**
+   * Writes out the equivalent JSON for the tree of {@link JsonElement}s.
+   * 
+   * @param jsonElement root of the tree of {@link JsonElement}s
+   * @param writer Writer to which the Json representation needs to be written
+   * @since 1.4
+   */
+  public void toJson(JsonElement jsonElement, Appendable writer) {
     try {
       if (generateNonExecutableJson) {
         writer.append(JSON_NON_EXECUTABLE_PREFIX);
       }
-      JsonElement jsonElement = toJsonTree(src, typeOfSrc);
+      if (jsonElement == null && serializeNulls) {
+        writeOutNullString(writer);
+      }
       formatter.format(jsonElement, writer, serializeNulls);
-    } catch (IOException ioe) {
-      throw new RuntimeException(ioe);
-    }
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }    
   }
 
   /**
