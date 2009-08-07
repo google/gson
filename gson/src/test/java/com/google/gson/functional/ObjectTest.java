@@ -595,4 +595,33 @@ public class ObjectTest extends TestCase {
     } catch (JsonParseException expected) {
     }
   }
+
+  /**
+   * Created to reproduce issue 140
+   */
+  public void testStringFieldWithEmptyValueSerialization() {
+    ClassWithEmptyStringFields target = new ClassWithEmptyStringFields();
+    target.a = "5794749";
+    String json = gson.toJson(target);
+    assertTrue(json.contains("\"a\":\"5794749\""));
+    assertTrue(json.contains("\"b\":\"\""));
+    assertTrue(json.contains("\"c\":\"\""));
+  }
+
+  /**
+   * Created to reproduce issue 140
+   */
+  public void testStringFieldWithEmptyValueDeserialization() {
+    String json = "{a:\"5794749\",b:\"\",c:\"\"}";
+    ClassWithEmptyStringFields target = gson.fromJson(json, ClassWithEmptyStringFields.class);
+    assertEquals("5794749", target.a);
+    assertEquals("", target.b);
+    assertEquals("", target.c);
+  }
+
+  private static class ClassWithEmptyStringFields {
+    String a = "";
+    String b = "";
+    String c = "";
+  }
 }
