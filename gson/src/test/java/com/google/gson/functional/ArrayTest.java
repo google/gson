@@ -19,6 +19,7 @@ package com.google.gson.functional;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.common.MoreAsserts;
+import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.common.TestTypes.CrazyLongTypeAdapter;
 import com.google.gson.reflect.TypeToken;
 
@@ -81,6 +82,18 @@ public class ArrayTest extends TestCase {
     for (int i = 0; i < expected.length; ++i) {
       assertEquals(expected[i], target[i]);
     }
+  }
+  
+  public void testSingleNullInArraySerialization() {    
+    BagOfPrimitives[] array = new BagOfPrimitives[1];
+    array[0] = null;
+    String json = gson.toJson(array);
+    assertEquals("[null]", json);
+  }
+  
+  public void testSingleNullInArrayDeserialization() {
+    BagOfPrimitives[] array = gson.fromJson("[null]", BagOfPrimitives[].class);
+    assertNull(array[0]);
   }
   
   public void testNullsInArrayWithSerializeNullPropertySetSerialization() {
