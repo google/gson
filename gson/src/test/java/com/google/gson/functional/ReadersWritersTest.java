@@ -93,9 +93,9 @@ public class ReadersWritersTest extends TestCase {
     writer.write(gson.toJson("two").toCharArray());
     CharArrayReader reader = new CharArrayReader(writer.toCharArray());
     JsonParserAsync parser = new JsonParserAsync(reader);
-    String actualOne = gson.fromJson(parser.nextElement(), String.class);
+    String actualOne = gson.fromJson(parser.next(), String.class);
     assertEquals("one", actualOne);
-    String actualTwo = gson.fromJson(parser.nextElement(), String.class);
+    String actualTwo = gson.fromJson(parser.next(), String.class);
     assertEquals("two", actualTwo);
   }
   
@@ -108,10 +108,11 @@ public class ReadersWritersTest extends TestCase {
     writer.write(gson.toJson(expectedTwo).toCharArray());
     CharArrayReader reader = new CharArrayReader(writer.toCharArray());
     JsonParserAsync parser = new JsonParserAsync(reader);
-    BagOfPrimitives actualOne = gson.fromJson(parser.nextElement(), BagOfPrimitives.class);
+    BagOfPrimitives actualOne = gson.fromJson(parser.next(), BagOfPrimitives.class);
     assertEquals("one", actualOne.stringValue);
-    BagOfPrimitives actualTwo = gson.fromJson(parser.nextElement(), BagOfPrimitives.class);
+    BagOfPrimitives actualTwo = gson.fromJson(parser.next(), BagOfPrimitives.class);
     assertEquals("two", actualTwo.stringValue);
-    JsonElement jsonElement = parser.nextElement();
+    JsonElement jsonElement = parser.next();
+    assertNull(jsonElement);
   }
 }

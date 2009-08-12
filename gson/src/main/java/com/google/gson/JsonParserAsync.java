@@ -18,18 +18,21 @@ package com.google.gson;
 import java.io.EOFException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Iterator;
 
 /**
  * A parser that allows reading of multiple {@link JsonElement}s from the specified reader
- * asynchronously.
+ * asynchronously. This class is not thread-safe.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
  * @since 1.4
  */
-public final class JsonParserAsync {
+public final class JsonParserAsync implements Iterator<JsonElement> {
 
   private final JsonParserJavacc parser;
+  private boolean eof;
+  private JsonElement nextElement;
 
   /**
    * @param json The string containing JSON elements concatenated to each other.
@@ -45,6 +48,8 @@ public final class JsonParserAsync {
    */
   public JsonParserAsync(Reader reader) {
     parser = new JsonParserJavacc(reader);      
+    eof = false;
+    nextElement = null;
   }
   
   /**
@@ -54,7 +59,15 @@ public final class JsonParserAsync {
    * @throws JsonParseException if the incoming stream is malformed JSON.
    * @since 1.4
    */
-  public JsonElement nextElement() throws JsonParseException {
+  public JsonElement next() throws JsonParseException {
+    if (eof) {
+      return null;
+    }
+    if (nextElement != null) {
+      JsonElement returnValue = nextElement;
+      nextElement = null;
+      return returnValue;
+    }
     try {
       JsonElement element = parser.parse();
       return element;
@@ -68,10 +81,20 @@ public final class JsonParserAsync {
       throw new JsonParseException("Failed parsing JSON source to Json", e);
     } catch (JsonParseException e) {
       if (e.getCause() instanceof EOFException) {
+        eof = true;
         return null;
       } else {
         throw e;
       }
     }
-  }    
+  }
+
+  public boolean hasNext() {
+    nextElement = next();
+    return nextElement != null;
+  }
+
+  public void remove() {
+    throw new UnsupportedOperationException();
+  }
 }
