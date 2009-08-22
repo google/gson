@@ -148,9 +148,9 @@ public class PerformanceTest extends TestCase {
   /**
    * Created in response to http://code.google.com/p/google-gson/issues/detail?id=96
    */
-  // Last I tested, Gson was able to deserialize a byte array of 80KB
+  // Last I tested, Gson was able to deserialize a byte array of 11MB
   public void disable_testByteArrayDeserialization() {
-    for (int numElements = 32768; true; numElements += 4096) {
+    for (int numElements = 10639296; true; numElements += 16384) {
       StringBuilder sb = new StringBuilder(numElements*2);
       sb.append("[");
       boolean first = true;

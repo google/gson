@@ -116,20 +116,29 @@ private JsonPrimitive JsonMemberName() :
 private JsonArray JsonArray() :
 { JsonArray array = new JsonArray(); }
 {
-  "[" [ Elements(array) ] "]"
-  {
-    array.reverse();
-    return array;
-  }
+  "[" (
+  array=JsonArrayEmpty(array) {return array;} | 
+  JsonArrayElement(array) (JsonArrayNextElement(array))* "]" {return array; } )  
 }
 
-private void Elements(JsonArray array) :
+private JsonArray JsonArrayEmpty(JsonArray array) :
+{ }
 {
-  JsonElement element;
+  "]" { return array; }  
 }
+
+private JsonArray JsonArrayElement(JsonArray array) :
+{ JsonElement element = null; }
 {
-  element=JsonValue() [ "," Elements(array) ]
-  { array.add(element); }
+  element=JsonValue() {array.add(element);} 
+  { return array; }
+}
+
+private JsonArray JsonArrayNextElement(JsonArray array) :
+{ JsonElement element = null; }
+{
+  "," element=JsonValue() {array.add(element);} 
+  { return array; }
 }
 
 private JsonElement JsonValue() :
