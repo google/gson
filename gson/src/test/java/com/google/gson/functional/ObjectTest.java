@@ -117,16 +117,18 @@ public class ObjectTest extends TestCase {
   }
 
   public void testClassWithTransientFieldsSerialization() throws Exception {
-    ClassWithTransientFields target = new ClassWithTransientFields(1L);
+    ClassWithTransientFields<Long> target = new ClassWithTransientFields<Long>(1L);
     assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 
+  @SuppressWarnings("unchecked")
   public void testClassWithTransientFieldsDeserialization() throws Exception {
     String json = "{\"longValue\":[1]}";
     ClassWithTransientFields target = gson.fromJson(json, ClassWithTransientFields.class);
     assertEquals(json, target.getExpectedJson());
   }
 
+  @SuppressWarnings("unchecked")
   public void testClassWithTransientFieldsDeserializationTransientFieldsPassedInJsonAreIgnored()
       throws Exception {
     String json = "{\"transientLongValue\":1,\"longValue\":[1]}";
