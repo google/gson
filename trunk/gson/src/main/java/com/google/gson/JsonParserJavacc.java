@@ -138,6 +138,10 @@ final class JsonParserJavacc implements JsonParserJavaccConstants {
   JsonArray array = new JsonArray();
     jj_consume_token(31);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case 32:
+      array = JsonArrayEmpty(array);
+                               {if (true) return array;}
+      break;
     case DIGITS:
     case NULL:
     case NAN:
@@ -148,31 +152,51 @@ final class JsonParserJavacc implements JsonParserJavaccConstants {
     case 27:
     case 31:
     case 33:
-      Elements(array);
+      JsonArrayElement(array);
+      label_1:
+      while (true) {
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case 29:
+          ;
+          break;
+        default:
+          jj_la1[6] = jj_gen;
+          break label_1;
+        }
+        JsonArrayNextElement(array);
+      }
+      jj_consume_token(32);
+                                                              {if (true) return array;}
       break;
     default:
-      jj_la1[6] = jj_gen;
-      ;
+      jj_la1[7] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
     }
+    throw new Error("Missing return statement in function");
+  }
+
+  final private JsonArray JsonArrayEmpty(JsonArray array) throws ParseException {
     jj_consume_token(32);
-    array.reverse();
+        {if (true) return array;}
+    throw new Error("Missing return statement in function");
+  }
+
+  final private JsonArray JsonArrayElement(JsonArray array) throws ParseException {
+  JsonElement element = null;
+    element = JsonValue();
+                       array.add(element);
     {if (true) return array;}
     throw new Error("Missing return statement in function");
   }
 
-  final private void Elements(JsonArray array) throws ParseException {
-  JsonElement element;
+  final private JsonArray JsonArrayNextElement(JsonArray array) throws ParseException {
+  JsonElement element = null;
+    jj_consume_token(29);
     element = JsonValue();
-    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 29:
-      jj_consume_token(29);
-      Elements(array);
-      break;
-    default:
-      jj_la1[7] = jj_gen;
-      ;
-    }
-    array.add(element);
+                           array.add(element);
+    {if (true) return array;}
+    throw new Error("Missing return statement in function");
   }
 
   final private JsonElement JsonValue() throws ParseException {
@@ -406,36 +430,36 @@ final class JsonParserJavacc implements JsonParserJavaccConstants {
     finally { jj_save(0, xla); }
   }
 
-  private boolean jj_3R_4() {
+  private boolean jj_3R_3() {
+    if (jj_scan_token(NAN)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_2() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_3()) {
+    jj_scanpos = xsp;
+    if (jj_3R_4()) return true;
+    }
+    return false;
+  }
+
+  private boolean jj_3R_5() {
     if (jj_scan_token(33)) return true;
     return false;
   }
 
-  private boolean jj_3R_3() {
+  private boolean jj_3R_4() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_4()) jj_scanpos = xsp;
+    if (jj_3R_5()) jj_scanpos = xsp;
     if (jj_scan_token(INFINITY)) return true;
     return false;
   }
 
   private boolean jj_3_1() {
-    if (jj_3R_1()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_2() {
-    if (jj_scan_token(NAN)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_1() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_2()) {
-    jj_scanpos = xsp;
-    if (jj_3R_3()) return true;
-    }
+    if (jj_3R_2()) return true;
     return false;
   }
 
@@ -458,10 +482,10 @@ final class JsonParserJavacc implements JsonParserJavaccConstants {
       jj_la1_init_1();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x4000000,0x880307c0,0x8c0307c1,0x31800,0x20000000,0x31800,0x880307c0,0x20000000,0x880307c0,0x30740,0x0,0x20,0x40,0x0,0x300,0x0,0x1800,0x30000,};
+      jj_la1_0 = new int[] {0x4000000,0x880307c0,0x8c0307c1,0x31800,0x20000000,0x31800,0x20000000,0x880307c0,0x880307c0,0x30740,0x0,0x20,0x40,0x0,0x300,0x0,0x1800,0x30000,};
    }
    private static void jj_la1_init_1() {
-      jj_la1_1 = new int[] {0x0,0x2,0x2,0x0,0x0,0x0,0x2,0x0,0x2,0x2,0x4,0x0,0x2,0x2,0x2,0x2,0x0,0x0,};
+      jj_la1_1 = new int[] {0x0,0x2,0x2,0x0,0x0,0x0,0x0,0x3,0x2,0x2,0x4,0x0,0x2,0x2,0x2,0x2,0x0,0x0,};
    }
   final private JJCalls[] jj_2_rtns = new JJCalls[1];
   private boolean jj_rescan = false;

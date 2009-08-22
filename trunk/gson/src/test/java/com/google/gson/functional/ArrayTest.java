@@ -18,6 +18,7 @@ package com.google.gson.functional;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
 import com.google.gson.common.MoreAsserts;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.common.TestTypes.CrazyLongTypeAdapter;
@@ -55,6 +56,15 @@ public class ArrayTest extends TestCase {
     MoreAsserts.assertEquals(expected, actual);
   }
 
+  public void testInvalidArrayDeserialization() {
+    String json = "[1, 2 3, 4, 5]";
+    try {
+      gson.fromJson(json, int[].class);
+      fail("Gson should not deserialize array elements with missing ,");
+    } catch (JsonParseException expected) {      
+    }
+  }
+
   public void testEmptyArraySerialization() {
     int[] target = {};
     assertEquals("[]", gson.toJson(target));
@@ -66,7 +76,10 @@ public class ArrayTest extends TestCase {
 
     Integer[] actualObject2 = gson.fromJson("[]", Integer[].class);
     assertTrue(actualObject2.length == 0);
-  }
+
+    actualObject = gson.fromJson("[ ]", int[].class);
+    assertTrue(actualObject.length == 0);
+}
 
   public void testNullsInArraySerialization() {
     String[] array = {"foo", null, "bar"};

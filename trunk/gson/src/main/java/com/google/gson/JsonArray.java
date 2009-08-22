@@ -19,9 +19,9 @@ package com.google.gson;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -39,7 +39,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * Creates an empty JsonArray.
    */
   public JsonArray() {
-    elements = new LinkedList<JsonElement>();
+    elements = new ArrayList<JsonElement>();
   }
 
   /**
