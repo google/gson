@@ -73,8 +73,8 @@
           <archive>
             <manifestEntries>
               <Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
-              <Export-Package><![CDATA[com.google.gson;version=1.4.0, com.google.gson.annotations;version=1.4.0, com.google.gson.reflect;version=1.4.0]]></Export-Package>
-              <Bundle-Version>1.4.0</Bundle-Version>
+              <Export-Package><![CDATA[com.google.gson;version=1.4, com.google.gson.annotations;version=1.4, com.google.gson.reflect;version=1.4]]></Export-Package>
+              <Bundle-Version>1.4</Bundle-Version>
               <Bundle-ContactAddress>http://code.google.com/p/google-gson/</Bundle-ContactAddress>
               <Bundle-Vendor>Google Gson Project</Bundle-Vendor>
               <Bundle-Name>${project.name}</Bundle-Name>
