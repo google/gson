@@ -72,6 +72,7 @@ public class PerformanceTest extends TestCase {
   private static class ExceptionHolder {
     public final String message;
     public final String stackTrace;
+    @SuppressWarnings("unused")
     public ExceptionHolder() {
       this("", "");
     }
@@ -81,6 +82,7 @@ public class PerformanceTest extends TestCase {
     }
   }
 
+  @SuppressWarnings("unused")
   private static class CollectionEntry {
     final String name;
     final String value;
@@ -140,7 +142,7 @@ public class PerformanceTest extends TestCase {
       for (int i = 0; i < size; ++i) {
         ba[i] = 0x05;
       }
-      String json = gson.toJson(ba);
+      gson.toJson(ba);
       System.out.printf("Gson could serialize a byte array of size: %d\n", size);
     }
   }

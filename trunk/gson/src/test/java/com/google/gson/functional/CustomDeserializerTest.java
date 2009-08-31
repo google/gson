@@ -65,6 +65,7 @@ public class CustomDeserializerTest extends TestCase {
   private static class DataHolder {
     private final String data;
 
+    @SuppressWarnings("unused")
     public DataHolder() {
       throw new IllegalStateException();
     }
@@ -81,6 +82,7 @@ public class CustomDeserializerTest extends TestCase {
   private static class DataHolderWrapper {
     private final DataHolder wrappedData;
     
+    @SuppressWarnings("unused")
     public DataHolderWrapper() {
       this(new DataHolder(DEFAULT_VALUE));
     }
