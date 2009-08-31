@@ -223,6 +223,7 @@ public class TypeInfoFactoryTest extends TestCase {
     assertEquals(List[].class, typeInfo.getRawClass());
   }
 
+  @SuppressWarnings("unused")
   private static class ObjectWithDifferentFields<T> {
     public static enum TestEnum {
       TEST_1, TEST_2;

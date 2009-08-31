@@ -351,6 +351,7 @@ public class ObjectTest extends TestCase {
     assertTrue(json.contains("abc"));
   }
   
+  @SuppressWarnings("unused")
   private static class ClassWithObjectField {
     Object member;
   }
@@ -377,6 +378,7 @@ public class ObjectTest extends TestCase {
   }
    
   private static class Parent {
+    @SuppressWarnings("unused")
     int value1 = 1;
     private class Child {
       int value2 = 2;
@@ -389,6 +391,8 @@ public class ObjectTest extends TestCase {
     private Set<Float> set;
     private SortedSet<Character> sortedSet;
 
+    // For use by Gson
+    @SuppressWarnings("unused")
     ClassWithSubInterfacesOfCollection() {
     }
 
@@ -481,6 +485,7 @@ public class ObjectTest extends TestCase {
   private static class SubTypeOfNested extends Nested {
     private final long value = 5;
 
+    @SuppressWarnings("unused")
     public SubTypeOfNested() {
       this(null, null);
     }
@@ -585,7 +590,7 @@ public class ObjectTest extends TestCase {
   public void testArrayOfObjectsWithoutTypeInfoDeserialization() {
     String json = "[1,'abc',{a:1},5]";
     try {
-      Object[] objs = gson.fromJson(json, Object[].class);
+      gson.fromJson(json, Object[].class);
     } catch (JsonParseException expected) {
     }
   }
@@ -593,7 +598,7 @@ public class ObjectTest extends TestCase {
   public void testArrayWithoutTypeInfoDeserialization() {
     String json = "[1,'abc',[1,2],5]";
     try {
-      Object[] objs = gson.fromJson(json, Object[].class);
+      gson.fromJson(json, Object[].class);
     } catch (JsonParseException expected) {
     }
   }

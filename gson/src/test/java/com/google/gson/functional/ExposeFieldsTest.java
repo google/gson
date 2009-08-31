@@ -117,6 +117,7 @@ public class ExposeFieldsTest extends TestCase {
     @Expose(deserialize = false) final double d;
     @Expose(serialize = false, deserialize = false) final char e;
 
+    @SuppressWarnings("unused")
     ClassWithExposedFields() {
       this(null, null);
     }
@@ -140,10 +141,6 @@ public class ExposeFieldsTest extends TestCase {
       sb.append("\"d\":").append(d);
       sb.append("}");
       return sb.toString();
-    }
-
-    public String getExpectedJsonWithoutAnnotations() {
-      return String.format("{\"a\":%d,\"b\":%d,\"c\":%d,\"d\":%f,\"e\":\"%c\"}", a, b, c, d, e);
     }
   }
 
@@ -170,6 +167,7 @@ public class ExposeFieldsTest extends TestCase {
     @Expose
     private final SomeInterface interfaceField;
     
+    @SuppressWarnings("unused")
     public ClassWithInterfaceField() {
       this(null);
     }

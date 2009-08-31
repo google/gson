@@ -283,7 +283,7 @@ public class CollectionTest extends TestCase {
   private static class ObjectWithWildcardCollection {
     private final Collection<? extends BagOfPrimitives> collection;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "unused" })
     public ObjectWithWildcardCollection() {
       this(Collections.EMPTY_LIST);
     }
@@ -299,6 +299,8 @@ public class CollectionTest extends TestCase {
   
   private static class Entry {
     int value;
+    // For use by Gson
+    @SuppressWarnings("unused")
     Entry() {
       this(10);
     }

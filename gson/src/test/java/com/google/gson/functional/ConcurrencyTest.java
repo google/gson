@@ -121,6 +121,7 @@ public class ConcurrencyTest extends TestCase {
     assertFalse(failed.get());
   }
   
+  @SuppressWarnings("unused")
   private static class MyObject {
     String a;
     String b;

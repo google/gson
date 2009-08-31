@@ -40,6 +40,7 @@ final class TypeUtils {
    * </pre>
    * <code>TypeUtils.getActualTypeForFirstTypeVariable(fooType)</code> will return Integer.class.
    */
+  @SuppressWarnings("unchecked")
   static Type getActualTypeForFirstTypeVariable(Type type) {
     if (type instanceof Class) {
       return Object.class;
@@ -53,6 +54,7 @@ final class TypeUtils {
     }
   }
 
+  @SuppressWarnings("unchecked")
   static boolean isArray(Type type) {
     if (type instanceof Class) {
       return ((Class<?>)type).isArray();
@@ -66,6 +68,7 @@ final class TypeUtils {
   /**
    * This method returns the actual raw class associated with the specified type.
    */
+  @SuppressWarnings("unchecked")
   static Class<?> toRawClass(Type type) {
     if (type instanceof Class) {
       return (Class<?>) type;
