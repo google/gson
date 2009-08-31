@@ -50,6 +50,10 @@ final class MemoryRefStack<T> {
     return stack.pop();
   }
 
+  public boolean isEmpty() {
+    return stack.isEmpty();
+  }
+
   /**
    * Retrieves the item from the top of the stack, but does not remove it.
    *

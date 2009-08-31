@@ -28,7 +28,6 @@ import java.lang.reflect.Type;
 final class ObjectNavigatorFactory {
   private final ExclusionStrategy strategy;
   private final FieldNamingStrategy fieldNamingPolicy;
-  private final MemoryRefStack<Object> stack;
 
   /**
    * Creates a factory object that will be able to create new
@@ -43,7 +42,6 @@ final class ObjectNavigatorFactory {
     Preconditions.checkNotNull(fieldNamingPolicy);
     this.strategy = (strategy == null ? new NullExclusionStrategy() : strategy);
     this.fieldNamingPolicy = fieldNamingPolicy;
-    this.stack = new MemoryRefStack<Object>();
   }
 
   /**
@@ -58,7 +56,7 @@ final class ObjectNavigatorFactory {
    *         {@code type}.
    */
   public ObjectNavigator create(Object srcObject, Type type) {
-    return new ObjectNavigator(srcObject, type, strategy, stack);
+    return new ObjectNavigator(srcObject, type, strategy);
   }
 
   FieldNamingStrategy getFieldNamingPolicy() {

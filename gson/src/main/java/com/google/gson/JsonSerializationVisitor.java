@@ -31,22 +31,38 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   private final ObjectNavigatorFactory factory;
   private final ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers;
   private final boolean serializeNulls;
-
   private final JsonSerializationContext context;
-
+  private final MemoryRefStack<Object> ancestors;
   private JsonElement root;
 
   JsonSerializationVisitor(ObjectNavigatorFactory factory, boolean serializeNulls,
       ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers,
-      JsonSerializationContext context) {
+      JsonSerializationContext context, MemoryRefStack<Object> ancestors) {
     this.factory = factory;
     this.serializeNulls = serializeNulls;
     this.serializers = serializers;
     this.context = context;
+    this.ancestors = ancestors;
   }
   
   public Object getTarget() {
     return null;
+  }
+
+  public void start(Object node) {
+    if (node == null) {
+      return;
+    }
+    if (ancestors.contains(node)) {
+      throw new IllegalStateException("Circular reference found: " + node);
+    }
+    ancestors.push(node);
+  }
+
+  public void end(Object node) {
+    if (node != null) {
+      ancestors.pop();
+    }
   }
 
   public void startVisitingObject(Object node) {
@@ -120,7 +136,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   private JsonElement getJsonElementForChild(Type fieldType, Object fieldValue) {
     ObjectNavigator on = factory.create(fieldValue, fieldType);
     JsonSerializationVisitor childVisitor =
-        new JsonSerializationVisitor(factory, serializeNulls, serializers, context);
+        new JsonSerializationVisitor(factory, serializeNulls, serializers, context, ancestors);
     on.accept(childVisitor);
     return childVisitor.getJsonElement();
   }
