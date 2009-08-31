@@ -31,6 +31,7 @@ final class TypeInfoMap {
   private final Type keyType;
   private final Type valueType;
   
+  @SuppressWarnings("unchecked")
   public TypeInfoMap(Type mapType) {
     if (mapType instanceof Class && Properties.class.isAssignableFrom((Class<?>) mapType)) {
       keyType = String.class;

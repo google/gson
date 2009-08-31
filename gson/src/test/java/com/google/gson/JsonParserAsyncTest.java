@@ -1,6 +1,5 @@
 package com.google.gson;
 
-import java.util.Enumeration;
 import java.util.Iterator;
 
 import junit.framework.TestCase;
