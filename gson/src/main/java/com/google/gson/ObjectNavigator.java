@@ -29,6 +29,9 @@ import java.lang.reflect.Type;
 final class ObjectNavigator {
 
   public interface Visitor {
+    public void start(Object node);
+    public void end(Object node);
+
     /**
      * This is called before the object navigator starts visiting the current object
      */
@@ -69,7 +72,6 @@ final class ObjectNavigator {
   }
 
   private final ExclusionStrategy exclusionStrategy;
-  private final MemoryRefStack<Object> ancestors;
   private final Object obj;
   private final Type objType;
 
@@ -79,15 +81,12 @@ final class ObjectNavigator {
    * @param exclusionStrategy the concrete strategy object to be used to
    *        filter out fields of an object.
    */
-  ObjectNavigator(Object obj, Type objType, ExclusionStrategy exclusionStrategy,
-      MemoryRefStack<Object> ancestors) {
+  ObjectNavigator(Object obj, Type objType, ExclusionStrategy exclusionStrategy) {
     Preconditions.checkNotNull(exclusionStrategy);
-    Preconditions.checkNotNull(ancestors);
 
     this.obj = obj;
     this.objType = objType;
     this.exclusionStrategy = exclusionStrategy;
-    this.ancestors = ancestors;
   }
 
   /**
@@ -105,12 +104,7 @@ final class ObjectNavigator {
       if (exclusionStrategy.shouldSkipClass(objTypeInfo.getRawClass())) {
         return;
       }
-  
-      if (ancestors.contains(objectToVisit)) {
-        throw new IllegalStateException("Circular reference found: " + objectToVisit);
-      }
-      ancestors.push(objectToVisit);
-  
+      visitor.start(obj);  
       try {
         if (objTypeInfo.isArray()) {
           visitor.visitArray(objectToVisit, objType);
@@ -129,7 +123,7 @@ final class ObjectNavigator {
           }
         }
       } finally {
-        ancestors.pop();
+        visitor.end(obj);
       }
     }
   }

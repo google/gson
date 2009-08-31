@@ -28,12 +28,14 @@ final class JsonSerializationContextDefault implements JsonSerializationContext 
   private final ObjectNavigatorFactory factory;
   private final ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers;
   private final boolean serializeNulls;
+  private final MemoryRefStack<Object> ancestors;
 
   JsonSerializationContextDefault(ObjectNavigatorFactory factory, boolean serializeNulls,
       ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers) {
     this.factory = factory;
     this.serializeNulls = serializeNulls;
     this.serializers = serializers;
+    this.ancestors = new MemoryRefStack<Object>();
   }
 
   public JsonElement serialize(Object src) {
@@ -43,7 +45,7 @@ final class JsonSerializationContextDefault implements JsonSerializationContext 
   public JsonElement serialize(Object src, Type typeOfSrc) {
     ObjectNavigator on = factory.create(src, typeOfSrc);
     JsonSerializationVisitor visitor =
-        new JsonSerializationVisitor(factory, serializeNulls, serializers, this);
+        new JsonSerializationVisitor(factory, serializeNulls, serializers, this, ancestors);
     on.accept(visitor);
     return visitor.getJsonElement();
   }

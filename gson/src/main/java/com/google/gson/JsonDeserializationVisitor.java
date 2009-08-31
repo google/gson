@@ -58,6 +58,12 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
 
   protected abstract T constructTarget();
 
+  public void start(Object node) {
+  }
+
+  public void end(Object node) {
+  }
+
   @SuppressWarnings("unchecked")
   public final boolean visitUsingCustomHandler(Object obj, Type objType) {
     JsonDeserializer deserializer = deserializers.getHandlerFor(objType);
