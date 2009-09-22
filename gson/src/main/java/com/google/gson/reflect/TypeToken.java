@@ -85,7 +85,6 @@ public abstract class TypeToken<T> {
   /**
    * Gets type from super class's type parameter.
    */
-  @SuppressWarnings("unchecked")
   static Type getSuperclassTypeParameter(Class<?> subclass) {
     Type superclass = subclass.getGenericSuperclass();
     if (superclass instanceof Class) {
@@ -155,7 +154,6 @@ public abstract class TypeToken<T> {
   /**
    * Check if this type is assignable from the given Type.
    */
-  @SuppressWarnings("unchecked")
   public boolean isAssignableFrom(Type from) {
     if (from == null) {
       return false;
@@ -190,7 +188,6 @@ public abstract class TypeToken<T> {
    * Private helper function that performs some assignability checks for
    * the provided GenericArrayType.
    */
-  @SuppressWarnings("unchecked")
   private static boolean isAssignableFrom(Type from, GenericArrayType to) {
     Type toGenericComponentType = to.getGenericComponentType();
     if (toGenericComponentType instanceof ParameterizedType) {
@@ -216,7 +213,6 @@ public abstract class TypeToken<T> {
    * Private recursive helper function to actually do the type-safe checking
    * of assignability.
    */
-  @SuppressWarnings("unchecked")
   private static boolean isAssignableFrom(Type from, ParameterizedType to,
       Map<String, Type> typeVarMap) {
 
@@ -293,7 +289,6 @@ public abstract class TypeToken<T> {
    * Checks if two types are the same or are equivalent under a variable mapping
    * given in the type map that was provided.
    */
-  @SuppressWarnings("unchecked")
   private static boolean matches(Type from, Type to,
       Map<String, Type> typeMap) {
     if (to.equals(from)) return true;

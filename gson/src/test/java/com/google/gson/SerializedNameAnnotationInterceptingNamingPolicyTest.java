@@ -53,7 +53,6 @@ public class SerializedNameAnnotationInterceptingNamingPolicyTest extends TestCa
     assertEquals(fieldName, policy.translateName(f));
   }
 
-  @SuppressWarnings("unused")
   private static class SomeObject {
     @SerializedName(ANNOTATED_FIELD_NAME) public final int fieldWithAnnotation = 1;
     public final int fieldWithoutAnnotation = 1;

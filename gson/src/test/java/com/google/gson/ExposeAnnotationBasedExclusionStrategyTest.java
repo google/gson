@@ -51,7 +51,6 @@ public class ExposeAnnotationBasedExclusionStrategyTest extends TestCase {
     assertFalse(strategy.shouldSkipField(f));
   }
 
-  @SuppressWarnings("unused")
   private static class MockObject {
     @Expose
     public final int exposedField = 0;

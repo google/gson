@@ -144,6 +144,10 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   @SuppressWarnings("unchecked")
   public boolean visitUsingCustomHandler(Object obj, Type objType) {
     JsonSerializer serializer = serializers.getHandlerFor(objType);
+    if (serializer == null && obj != null) {
+      serializer = serializers.getHandlerFor(obj.getClass());
+    }
+
     if (serializer != null) {
       if (obj == null) {
         assignToRoot(JsonNull.createJsonNull());

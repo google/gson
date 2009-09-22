@@ -319,7 +319,6 @@ public final class GsonBuilder {
    * {@link JsonSerializer}, and a {@link JsonDeserializer} interfaces.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
-  @SuppressWarnings("unchecked")
   public GsonBuilder registerTypeAdapter(Type type, Object typeAdapter) {
     Preconditions.checkArgument(typeAdapter instanceof JsonSerializer
         || typeAdapter instanceof JsonDeserializer || typeAdapter instanceof InstanceCreator);
