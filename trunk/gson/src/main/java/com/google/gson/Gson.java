@@ -52,13 +52,13 @@ import java.util.Map;
  * example for serializing and deserialing a {@code ParameterizedType}:
  *
  * <pre>
- * Type listType = new TypeToken<List<String>>() {}.getType();
- * List<String> target = new LinkedList<String>();
+ * Type listType = new TypeToken&lt;List&lt;String&gt;&gt;() {}.getType();
+ * List&lt;String&gt; target = new LinkedList&lt;String&gt;();
  * target.add("blah");
  *
  * Gson gson = new Gson();
  * String json = gson.toJson(target, listType);
- * List<String> target2 = gson.fromJson(json, listType);
+ * List&lt;String&gt; target2 = gson.fromJson(json, listType);
  * </pre></p>
  *
  * <p>See the <a href="https://sites.google.com/site/gson/gson-user-guide">Gson User Guide</a>
