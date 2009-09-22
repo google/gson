@@ -72,7 +72,6 @@ public class PerformanceTest extends TestCase {
   private static class ExceptionHolder {
     public final String message;
     public final String stackTrace;
-    @SuppressWarnings("unused")
     public ExceptionHolder() {
       this("", "");
     }
@@ -82,15 +81,14 @@ public class PerformanceTest extends TestCase {
     }
   }
 
-  @SuppressWarnings("unused")
   private static class CollectionEntry {
     final String name;
     final String value;
-    
+
     CollectionEntry() {
       this(null, null);
     }
-    
+
     CollectionEntry(String name, String value) {
       this.name = name;
       this.value = value;

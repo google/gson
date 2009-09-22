@@ -117,7 +117,6 @@ public class ExposeFieldsTest extends TestCase {
     @Expose(deserialize = false) final double d;
     @Expose(serialize = false, deserialize = false) final char e;
 
-    @SuppressWarnings("unused")
     ClassWithExposedFields() {
       this(null, null);
     }
@@ -166,8 +165,7 @@ public class ExposeFieldsTest extends TestCase {
   private static class ClassWithInterfaceField {
     @Expose
     private final SomeInterface interfaceField;
-    
-    @SuppressWarnings("unused")
+
     public ClassWithInterfaceField() {
       this(null);
     }

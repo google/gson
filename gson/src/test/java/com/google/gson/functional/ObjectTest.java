@@ -16,10 +16,21 @@
 
 package com.google.gson.functional;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+import junit.framework.TestCase;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
-import com.google.gson.JsonParseException;
 import com.google.gson.common.TestTypes.ArrayOfObjects;
 import com.google.gson.common.TestTypes.BagOfPrimitiveWrappers;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
@@ -30,19 +41,6 @@ import com.google.gson.common.TestTypes.ClassWithObjects;
 import com.google.gson.common.TestTypes.ClassWithTransientFields;
 import com.google.gson.common.TestTypes.Nested;
 import com.google.gson.common.TestTypes.PrimitiveArray;
-
-import junit.framework.TestCase;
-
-import java.lang.reflect.Type;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 /**
  * Functional tests for Json serialization and deserialization of regular classes.
@@ -257,6 +255,22 @@ public class ObjectTest extends TestCase {
     assertTrue(target.sortedSetContains('a', 'b', 'c', 'd'));
   }
 
+  public void testArrayOfObjectsAsFields() throws Exception {
+    ClassWithObjects classWithObjects = new ClassWithObjects();
+    BagOfPrimitives bagOfPrimitives = new BagOfPrimitives();
+    String stringValue = "someStringValueInArray";
+    String classWithObjectsJson = gson.toJson(classWithObjects);
+    String bagOfPrimitivesJson = gson.toJson(bagOfPrimitives);
+    
+    ClassWithArray classWithArray = new ClassWithArray(
+        new Object[] { stringValue, classWithObjects, bagOfPrimitives });
+    String json = gson.toJson(classWithArray);
+
+    assertTrue(json.contains(classWithObjectsJson));
+    assertTrue(json.contains(bagOfPrimitivesJson));
+    assertTrue(json.contains("\"" + stringValue + "\""));
+  }
+
   /**
    * Created in response to Issue 14: http://code.google.com/p/google-gson/issues/detail?id=14
    */
@@ -350,8 +364,7 @@ public class ObjectTest extends TestCase {
     String json = gson.toJson(obj);
     assertTrue(json.contains("abc"));
   }
-  
-  @SuppressWarnings("unused")
+
   private static class ClassWithObjectField {
     Object member;
   }
@@ -378,7 +391,6 @@ public class ObjectTest extends TestCase {
   }
    
   private static class Parent {
-    @SuppressWarnings("unused")
     int value1 = 1;
     private class Child {
       int value2 = 2;
@@ -392,7 +404,6 @@ public class ObjectTest extends TestCase {
     private SortedSet<Character> sortedSet;
 
     // For use by Gson
-    @SuppressWarnings("unused")
     ClassWithSubInterfacesOfCollection() {
     }
 
@@ -485,7 +496,6 @@ public class ObjectTest extends TestCase {
   private static class SubTypeOfNested extends Nested {
     private final long value = 5;
 
-    @SuppressWarnings("unused")
     public SubTypeOfNested() {
       this(null, null);
     }
@@ -568,39 +578,6 @@ public class ObjectTest extends TestCase {
     json = "{\"stringValue\":true}";
     bag = gson.fromJson(json, BagOfPrimitives.class);
     assertEquals("true", bag.stringValue);
-  }
-  
-  public void testArrayOfPrimitivesAsObjectsSerialization() {
-    Object[] objs = new Object[]{1, "abc", 0.3f, 5L};
-    String json = gson.toJson(objs);
-    assertTrue(json.contains("abc"));
-    assertTrue(json.contains("0.3"));
-    assertTrue(json.contains("5"));
-  }
-
-  public void testArrayOfPrimitivesAsObjectsDeserialization() {
-    String json = "[1,'abc',0.3,5]";
-    Object[] objs = gson.fromJson(json, Object[].class);
-    assertEquals(1, objs[0]);
-    assertEquals("abc", objs[1]);
-    assertEquals(new BigDecimal("0.3"), objs[2]);
-    assertEquals(5, objs[3]);
-  }
-
-  public void testArrayOfObjectsWithoutTypeInfoDeserialization() {
-    String json = "[1,'abc',{a:1},5]";
-    try {
-      gson.fromJson(json, Object[].class);
-    } catch (JsonParseException expected) {
-    }
-  }
-  
-  public void testArrayWithoutTypeInfoDeserialization() {
-    String json = "[1,'abc',[1,2],5]";
-    try {
-      gson.fromJson(json, Object[].class);
-    } catch (JsonParseException expected) {
-    }
   }
 
   /**
