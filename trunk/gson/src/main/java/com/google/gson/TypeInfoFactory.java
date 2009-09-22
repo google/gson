@@ -55,7 +55,6 @@ final class TypeInfoFactory {
     return new TypeInfo(actualType);
   }
 
-  @SuppressWarnings("unchecked")
   private static Type getActualType(
       Type typeToEvaluate, Type parentType, Class<?> rawParentClass) {
     if (typeToEvaluate instanceof Class) {

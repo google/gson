@@ -289,7 +289,6 @@ public class DefaultTypeAdaptersTest extends TestCase {
   
   private static class ClassWithBigDecimal {
     BigDecimal value;
-    @SuppressWarnings("unused")
     ClassWithBigDecimal() { }
     ClassWithBigDecimal(String value) {
       this.value = new BigDecimal(value);
@@ -301,7 +300,6 @@ public class DefaultTypeAdaptersTest extends TestCase {
 
   private static class ClassWithBigInteger {
     BigInteger value;
-    @SuppressWarnings("unused")
     ClassWithBigInteger() { }
     ClassWithBigInteger(String value) {
       this.value = new BigInteger(value);

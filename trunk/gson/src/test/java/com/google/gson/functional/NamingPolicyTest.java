@@ -81,8 +81,7 @@ public class NamingPolicyTest extends TestCase {
     actual = gson.toJson(target);
     assertEquals("{\"a\":3.0}", actual);
   }
-  
-  @SuppressWarnings("unused")
+
   private static class ClassWithDuplicateFields {
     public Integer a;
     @SerializedName("a") public Double b;

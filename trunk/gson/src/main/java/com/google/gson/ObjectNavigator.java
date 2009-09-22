@@ -108,15 +108,20 @@ final class ObjectNavigator {
       try {
         if (objTypeInfo.isArray()) {
           visitor.visitArray(objectToVisit, objType);
-        } else if (objTypeInfo.getActualType() == Object.class) {
+        } else if (objTypeInfo.getActualType() == Object.class
+            && isPrimitiveOrString(objectToVisit)) {
+          // TODO(Joel): this is only used for deserialization of "primitves"
+          //             we should rethink this!!!
           visitor.visitPrimitive(objectToVisit);
           objectToVisit = visitor.getTarget();
         } else {
           visitor.startVisitingObject(objectToVisit);
           // For all classes in the inheritance hierarchy (including the current class),
           // visit all fields
-          for (Class<?> curr = objTypeInfo.getRawClass();
-          curr != null && !curr.equals(Object.class); curr = curr.getSuperclass()) {
+          Class<?> topLevelClass = (objTypeInfo.getRawClass() == Object.class)
+              ? objectToVisit.getClass() : objTypeInfo.getRawClass();
+          for (Class<?> curr = topLevelClass; curr != null && !curr.equals(Object.class);
+              curr = curr.getSuperclass()) {
             if (!curr.isSynthetic()) {
               navigateClassFields(objectToVisit, curr, visitor);
             }
@@ -126,6 +131,12 @@ final class ObjectNavigator {
         visitor.end(obj);
       }
     }
+  }
+
+  private boolean isPrimitiveOrString(Object objectToVisit) {
+    Class<?> realClazz = objectToVisit.getClass();
+    return realClazz == Object.class || realClazz == String.class
+        || Primitives.unwrap(realClazz).isPrimitive();
   }
 
   private void navigateClassFields(Object obj, Class<?> clazz, Visitor visitor) {
@@ -138,7 +149,7 @@ final class ObjectNavigator {
         TypeInfo fieldTypeInfo = TypeInfoFactory.getTypeInfoForField(f, objType);
         Type actualTypeOfField = fieldTypeInfo.getActualType();
         boolean visitedWithCustomHandler = 
-          visitor.visitFieldUsingCustomHandler(f, actualTypeOfField, obj);
+            visitor.visitFieldUsingCustomHandler(f, actualTypeOfField, obj);
         if (!visitedWithCustomHandler) {
           if (fieldTypeInfo.isArray()) {
             visitor.visitArrayField(f, actualTypeOfField, obj);

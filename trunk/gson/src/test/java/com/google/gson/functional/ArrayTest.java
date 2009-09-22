@@ -21,12 +21,14 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.google.gson.common.MoreAsserts;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
+import com.google.gson.common.TestTypes.ClassWithObjects;
 import com.google.gson.common.TestTypes.CrazyLongTypeAdapter;
 import com.google.gson.reflect.TypeToken;
 
 import junit.framework.TestCase;
 
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -178,5 +180,51 @@ public class ArrayTest extends TestCase {
     long[] deserializedValue = gson.fromJson(serializedValue, long[].class);
     assertEquals(1, deserializedValue.length);
     assertEquals(value[0], deserializedValue[0]);
+  }
+  
+  public void testArrayOfPrimitivesAsObjectsSerialization() throws Exception {
+    Object[] objs = new Object[]{1, "abc", 0.3f, 5L};
+    String json = gson.toJson(objs);
+    assertTrue(json.contains("abc"));
+    assertTrue(json.contains("0.3"));
+    assertTrue(json.contains("5"));
+  }
+
+  public void testArrayOfPrimitivesAsObjectsDeserialization() throws Exception {
+    String json = "[1,'abc',0.3,5]";
+    Object[] objs = gson.fromJson(json, Object[].class);
+    assertEquals(1, objs[0]);
+    assertEquals("abc", objs[1]);
+    assertEquals(new BigDecimal("0.3"), objs[2]);
+    assertEquals(5, objs[3]);
+  }
+
+  public void testArrayOfObjectsWithoutTypeInfoDeserialization() throws Exception {
+    String json = "[1,'abc',{a:1},5]";
+    try {
+      gson.fromJson(json, Object[].class);
+    } catch (JsonParseException expected) {
+    }
+  }
+  
+  public void testArrayWithoutTypeInfoDeserialization() throws Exception {
+    String json = "[1,'abc',[1,2],5]";
+    try {
+      gson.fromJson(json, Object[].class);
+    } catch (JsonParseException expected) {
+    }
+  }
+  
+  public void testObjectArrayWithNonPrimitivesSerializaiton() throws Exception {
+    ClassWithObjects classWithObjects = new ClassWithObjects();
+    BagOfPrimitives bagOfPrimitives = new BagOfPrimitives();
+    String classWithObjectsJson = gson.toJson(classWithObjects);
+    String bagOfPrimitivesJson = gson.toJson(bagOfPrimitives);
+
+    Object[] objects = new Object[] { classWithObjects, bagOfPrimitives };
+    String json = gson.toJson(objects);
+    
+    assertTrue(json.contains(classWithObjectsJson));
+    assertTrue(json.contains(bagOfPrimitivesJson));
   }
 }
