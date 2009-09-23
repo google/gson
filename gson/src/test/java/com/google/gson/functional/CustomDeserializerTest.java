@@ -65,7 +65,9 @@ public class CustomDeserializerTest extends TestCase {
   private static class DataHolder {
     private final String data;
 
-    public DataHolder() {
+    // For use by Gson
+    @SuppressWarnings("unused")
+    private DataHolder() {
       throw new IllegalStateException();
     }
     
@@ -81,7 +83,9 @@ public class CustomDeserializerTest extends TestCase {
   private static class DataHolderWrapper {
     private final DataHolder wrappedData;
     
-    public DataHolderWrapper() {
+    // For use by Gson
+    @SuppressWarnings("unused")
+    private DataHolderWrapper() {
       this(new DataHolder(DEFAULT_VALUE));
     }
     

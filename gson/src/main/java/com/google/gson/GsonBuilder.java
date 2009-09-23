@@ -320,15 +320,15 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
   public GsonBuilder registerTypeAdapter(Type type, Object typeAdapter) {
-    Preconditions.checkArgument(typeAdapter instanceof JsonSerializer
-        || typeAdapter instanceof JsonDeserializer || typeAdapter instanceof InstanceCreator);
-    if (typeAdapter instanceof InstanceCreator) {
+    Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
+        || typeAdapter instanceof JsonDeserializer<?> || typeAdapter instanceof InstanceCreator<?>);
+    if (typeAdapter instanceof InstanceCreator<?>) {
       registerInstanceCreator(type, (InstanceCreator<?>) typeAdapter);
     }
-    if (typeAdapter instanceof JsonSerializer) {
+    if (typeAdapter instanceof JsonSerializer<?>) {
       registerSerializer(type, (JsonSerializer<?>) typeAdapter);
     }
-    if (typeAdapter instanceof JsonDeserializer) {
+    if (typeAdapter instanceof JsonDeserializer<?>) {
       registerDeserializer(type, (JsonDeserializer<?>) typeAdapter);
     }
     return this;

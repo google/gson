@@ -32,7 +32,7 @@ final class TypeInfoMap {
   private final Type valueType;
   
   public TypeInfoMap(Type mapType) {
-    if (mapType instanceof Class && Properties.class.isAssignableFrom((Class<?>) mapType)) {
+    if (mapType instanceof Class<?> && Properties.class.isAssignableFrom((Class<?>) mapType)) {
       keyType = String.class;
       valueType = String.class;
     } else if (mapType instanceof ParameterizedType) {
