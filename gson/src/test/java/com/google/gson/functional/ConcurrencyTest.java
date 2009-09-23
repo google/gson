@@ -123,9 +123,9 @@ public class ConcurrencyTest extends TestCase {
   
   @SuppressWarnings("unused")
   private static class MyObject {
-    String a;
-    String b;
-    int i;
+    private String a;
+    private String b;
+    private int i;
 
     MyObject() {
       this("hello", "world", 42);
