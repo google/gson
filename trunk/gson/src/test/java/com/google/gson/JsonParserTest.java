@@ -57,6 +57,17 @@ public class JsonParserTest extends TestCase {
     JsonElement e = parser.parse("     ");
     assertTrue(e.isJsonNull());
   }
+  
+  public void testParseMixedArray() {
+    String json = "[{},13,\"stringValue\"]";
+    JsonElement e = parser.parse(json);
+    assertTrue(e.isJsonArray());
+    
+    JsonArray  array = e.getAsJsonArray();
+    assertEquals("{}", array.get(0).toString());
+    assertEquals(13, array.get(1).getAsInt());
+    assertEquals("stringValue", array.get(2).getAsString());
+  }
 
   public void testParseReader() {
     StringReader reader = new StringReader("{a:10,b:'c'}");
