@@ -344,7 +344,19 @@ public final class JsonPrimitive extends JsonElement {
 
   @Override
   public int hashCode() {
-    return (value == null) ? 31 : value.hashCode();
+    if (value == null) {
+      return 31;
+    }
+    // Using recommended hashing algorithm from Effective Java for longs and doubles
+    if (isIntegral(this)) {
+      long value = getAsNumber().longValue();
+      return (int) (value ^ (value >>> 32));
+    }
+    if (isFloatingPoint(this)) {
+      long value = Double.doubleToLongBits(getAsNumber().doubleValue());
+      return (int) (value ^ (value >>> 32));
+    }
+    return value.hashCode();
   }
 
   @Override
@@ -359,6 +371,36 @@ public final class JsonPrimitive extends JsonElement {
     if (value == null) {
       return other.value == null;
     }
+    if (isIntegral(this) && isIntegral(other)) {
+      return getAsNumber().longValue() == other.getAsNumber().longValue();
+    }
+    if (isFloatingPoint(this) && isFloatingPoint(other)) {
+      return getAsNumber().doubleValue() == other.getAsNumber().doubleValue();
+    }
     return value.equals(other.value);
   }  
+  
+  /**
+   * Returns true if the specified number is an integral type 
+   * (Long, Integer, Short, Byte, BigInteger) 
+   */
+  private static boolean isIntegral(JsonPrimitive primitive) {
+    if (primitive.value instanceof Number) {
+      Number number = (Number) primitive.value;
+      return number instanceof BigInteger || number instanceof Long || number instanceof Integer 
+      || number instanceof Short || number instanceof Byte;
+    }
+    return false;
+  }
+
+  /**
+   * Returns true if the specified number is a floating point type (BigDecimal, double, float) 
+   */
+  private static boolean isFloatingPoint(JsonPrimitive primitive) {
+    if (primitive.value instanceof Number) {
+      Number number = (Number) primitive.value;
+      return number instanceof BigDecimal || number instanceof Double || number instanceof Float;
+    }
+    return false;
+  }
 }
