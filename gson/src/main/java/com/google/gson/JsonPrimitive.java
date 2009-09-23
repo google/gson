@@ -29,13 +29,11 @@ import java.math.BigInteger;
  * @author Joel Leitch
  */
 public final class JsonPrimitive extends JsonElement {
-
   private static final Class<?>[] PRIMITIVE_TYPES = { int.class, long.class, short.class,
       float.class, double.class, byte.class, boolean.class, char.class, Integer.class, Long.class,
       Short.class, Float.class, Double.class, Byte.class, Boolean.class, Character.class };
 
   private static final BigInteger INTEGER_MAX = BigInteger.valueOf(Integer.MAX_VALUE);
-
   private static final BigInteger LONG_MAX = BigInteger.valueOf(Long.MAX_VALUE);
 
   private Object value;
@@ -320,10 +318,10 @@ public final class JsonPrimitive extends JsonElement {
   }
 
   @Override
-  protected void toString(Appendable sb) throws IOException {
-    if (value instanceof String) {
+  protected void toString(Appendable sb, Escaper escaper) throws IOException {
+    if (isString()) {
       sb.append('"');
-      sb.append((String) value);
+      sb.append(escaper.escapeJsonString(value.toString()));
       sb.append('"');
     } else {
       sb.append(value.toString());

@@ -80,4 +80,12 @@ public class JsonPrimitiveTest extends TestCase {
       fail("Integers can not handle exponents like this.");
     } catch (NumberFormatException expected) { }
   }
+  
+  public void testValidJsonOnToString() throws Exception {
+    JsonPrimitive json = new JsonPrimitive("Some\nEscaped\nValue");
+    assertEquals("\"Some\\nEscaped\\nValue\"", json.toString());
+    
+    json = new JsonPrimitive(new BigDecimal("1.333"));
+    assertEquals("1.333", json.toString());
+  }
 }
