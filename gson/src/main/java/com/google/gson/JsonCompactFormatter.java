@@ -27,15 +27,17 @@ final class JsonCompactFormatter implements JsonFormatter {
 
   private static class FormattingVisitor implements JsonElementVisitor {
     private final Appendable writer;
+    private final Escaper escaper;
     private final boolean serializeNulls;
 
-    FormattingVisitor(Appendable writer, boolean serializeNulls) {
+    FormattingVisitor(Appendable writer, Escaper escaper, boolean serializeNulls) {
       this.writer = writer;
+      this.escaper = escaper;
       this.serializeNulls = serializeNulls;
     }
 
     public void visitPrimitive(JsonPrimitive primitive) throws IOException {
-      primitive.toString(writer);
+      primitive.toString(writer, escaper);
     }
 
     public void visitNull() throws IOException {
@@ -51,7 +53,7 @@ final class JsonCompactFormatter implements JsonFormatter {
       if (!isFirst) {
         writer.append(',');
       }
-      member.toString(writer);
+      member.toString(writer, escaper);
     }
 
     public void visitArrayMember(JsonArray parent, JsonArray member, 
@@ -90,7 +92,7 @@ final class JsonCompactFormatter implements JsonFormatter {
       writer.append('"');
       writer.append(memberName);
       writer.append("\":");
-      member.toString(writer);
+      member.toString(writer, escaper);
     }
 
     public void visitObjectMember(JsonObject parent, String memberName, JsonArray member,
@@ -140,8 +142,8 @@ final class JsonCompactFormatter implements JsonFormatter {
     if (root == null) {
       return;
     }
-    JsonElementVisitor visitor = new JsonEscapingVisitor(
-        new FormattingVisitor(writer, serializeNulls), escapeHtmlChars);
+    JsonElementVisitor visitor = new FormattingVisitor(
+        writer, new Escaper(escapeHtmlChars), serializeNulls);
     JsonTreeNavigator navigator = new JsonTreeNavigator(visitor, serializeNulls);
     navigator.navigate(root);
   }

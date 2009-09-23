@@ -28,6 +28,7 @@ import java.math.BigInteger;
  * @author Joel Leitch
  */
 public abstract class JsonElement {
+  private static final Escaper BASIC_ESCAPER = new Escaper(false);
 
   /**
    * provides check for verifying if this element is an array or not.
@@ -330,12 +331,12 @@ public abstract class JsonElement {
   public String toString() {
     try {
       StringBuilder sb = new StringBuilder();
-      toString(sb);
+      toString(sb, BASIC_ESCAPER);
       return sb.toString();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
 
-  protected abstract void toString(Appendable sb) throws IOException;
+  protected abstract void toString(Appendable sb, Escaper escaper) throws IOException;
 }

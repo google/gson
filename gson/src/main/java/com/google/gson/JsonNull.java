@@ -36,7 +36,7 @@ public final class JsonNull extends JsonElement {
   }
   
   @Override
-  protected void toString(Appendable sb) throws IOException {
+  protected void toString(Appendable sb, Escaper escaper) throws IOException {
     sb.append("null");
   }
   

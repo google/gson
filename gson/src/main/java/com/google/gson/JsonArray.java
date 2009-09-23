@@ -293,7 +293,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   }
 
   @Override
-  protected void toString(Appendable sb) throws IOException {
+  protected void toString(Appendable sb, Escaper escaper) throws IOException {
     sb.append('[');
     boolean first = true;
     for (JsonElement element : elements) {
@@ -302,7 +302,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
       } else {
         sb.append(',');
       }
-      element.toString(sb);
+      element.toString(sb, escaper);
     }
     sb.append(']');
   }
