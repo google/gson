@@ -87,7 +87,6 @@ public final class Gson {
 
   private static final String JSON_NON_EXECUTABLE_PREFIX = ")]}'\n";
 
-
   private final ExclusionStrategy serializationStrategy;
 
   private final ExclusionStrategy deserializationStrategy;

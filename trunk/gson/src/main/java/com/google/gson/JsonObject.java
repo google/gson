@@ -191,7 +191,7 @@ public final class JsonObject extends JsonElement {
   }
 
   @Override
-  protected void toString(Appendable sb) throws IOException {
+  protected void toString(Appendable sb, Escaper escaper) throws IOException {
     sb.append('{');
     boolean first = true;
     for (Map.Entry<String, JsonElement> entry : members.entrySet()) {
@@ -203,7 +203,7 @@ public final class JsonObject extends JsonElement {
       sb.append('\"');
       sb.append(entry.getKey());
       sb.append("\":");
-      entry.getValue().toString(sb);
+      entry.getValue().toString(sb, escaper);
     }
     sb.append('}');
   }
