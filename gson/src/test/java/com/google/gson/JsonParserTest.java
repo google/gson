@@ -46,6 +46,17 @@ public class JsonParserTest extends TestCase {
     assertEquals(10, e.getAsJsonObject().get("a").getAsInt());
     assertEquals("c", e.getAsJsonObject().get("b").getAsString());
   }
+  
+  public void testParseEmptyString() {
+    JsonElement e = parser.parse("\"   \"");
+    assertTrue(e.isJsonPrimitive());
+    assertEquals("   ", e.getAsString());
+  }
+
+  public void testParseEmptyWhitespaceInput() {
+    JsonElement e = parser.parse("     ");
+    assertTrue(e.isJsonNull());
+  }
 
   public void testParseReader() {
     StringReader reader = new StringReader("{a:10,b:'c'}");
