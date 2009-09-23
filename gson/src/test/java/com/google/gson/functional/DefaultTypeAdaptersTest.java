@@ -289,7 +289,9 @@ public class DefaultTypeAdaptersTest extends TestCase {
   
   private static class ClassWithBigDecimal {
     BigDecimal value;
-    ClassWithBigDecimal() { }
+    // For use by Gson
+    @SuppressWarnings("unused")
+    private ClassWithBigDecimal() { }
     ClassWithBigDecimal(String value) {
       this.value = new BigDecimal(value);
     }
@@ -300,7 +302,9 @@ public class DefaultTypeAdaptersTest extends TestCase {
 
   private static class ClassWithBigInteger {
     BigInteger value;
-    ClassWithBigInteger() { }
+    // For use by Gson
+    @SuppressWarnings("unused")
+    private ClassWithBigInteger() { }
     ClassWithBigInteger(String value) {
       this.value = new BigInteger(value);
     }

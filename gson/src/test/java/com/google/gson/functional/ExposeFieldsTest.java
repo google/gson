@@ -110,6 +110,7 @@ public class ExposeFieldsTest extends TestCase {
     assertNotNull(obj.interfaceField);
   }
 
+  @SuppressWarnings("unused")
   private static class ClassWithExposedFields {
     @Expose private final Integer a;
     private final Integer b;
@@ -117,7 +118,8 @@ public class ExposeFieldsTest extends TestCase {
     @Expose(deserialize = false) final double d;
     @Expose(serialize = false, deserialize = false) final char e;
 
-    ClassWithExposedFields() {
+    // For use by Gson
+    private ClassWithExposedFields() {
       this(null, null);
     }
 
@@ -166,7 +168,9 @@ public class ExposeFieldsTest extends TestCase {
     @Expose
     private final SomeInterface interfaceField;
 
-    public ClassWithInterfaceField() {
+    // For use by Gson
+    @SuppressWarnings("unused")
+    private ClassWithInterfaceField() {
       this(null);
     }
 

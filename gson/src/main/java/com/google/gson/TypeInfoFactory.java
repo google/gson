@@ -57,7 +57,7 @@ final class TypeInfoFactory {
 
   private static Type getActualType(
       Type typeToEvaluate, Type parentType, Class<?> rawParentClass) {
-    if (typeToEvaluate instanceof Class) {
+    if (typeToEvaluate instanceof Class<?>) {
       return typeToEvaluate;
     } else if (typeToEvaluate instanceof ParameterizedType) {
       ParameterizedType castedType = (ParameterizedType) typeToEvaluate;
@@ -73,13 +73,13 @@ final class TypeInfoFactory {
       if (componentType.equals(actualType)) {
         return castedType;
       } else {
-        if (actualType instanceof Class) {
+        if (actualType instanceof Class<?>) {
           return TypeUtils.wrapWithArray(TypeUtils.toRawClass(actualType));
         } else {
           return new GenericArrayTypeImpl(actualType);
         }
       }
-    } else if (typeToEvaluate instanceof TypeVariable) {
+    } else if (typeToEvaluate instanceof TypeVariable<?>) {
       if (parentType instanceof ParameterizedType) {
         // The class definition has the actual types used for the type variables.
         // Find the matching actual type for the Type Variable used for the field.

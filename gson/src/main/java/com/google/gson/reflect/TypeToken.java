@@ -87,7 +87,7 @@ public abstract class TypeToken<T> {
    */
   static Type getSuperclassTypeParameter(Class<?> subclass) {
     Type superclass = subclass.getGenericSuperclass();
-    if (superclass instanceof Class) {
+    if (superclass instanceof Class<?>) {
       throw new RuntimeException("Missing type parameter.");
     }
     return ((ParameterizedType) superclass).getActualTypeArguments()[0];
@@ -163,7 +163,7 @@ public abstract class TypeToken<T> {
       return true;
     }
 
-    if (type instanceof Class) {
+    if (type instanceof Class<?>) {
       return rawType.isAssignableFrom(getRawType(from));
     } else if (type instanceof ParameterizedType) {
       return isAssignableFrom(from, (ParameterizedType) type,
@@ -194,7 +194,7 @@ public abstract class TypeToken<T> {
       Type t = from;
       if (from instanceof GenericArrayType) {
         t = ((GenericArrayType) from).getGenericComponentType();
-      } else if (from instanceof Class) {
+      } else if (from instanceof Class<?>) {
         Class<?> classType = (Class<?>) from;
         while (classType.isArray()) {
           classType = classType.getComponentType();
@@ -238,7 +238,7 @@ public abstract class TypeToken<T> {
       for (int i = 0; i < tArgs.length; i++) {
         Type arg = tArgs[i];
         TypeVariable<?> var = tParams[i];
-        while (arg instanceof TypeVariable) {
+        while (arg instanceof TypeVariable<?>) {
           TypeVariable<?> v = (TypeVariable<?>) arg;
           arg = typeVarMap.get(v.getName());
         }
@@ -293,7 +293,7 @@ public abstract class TypeToken<T> {
       Map<String, Type> typeMap) {
     if (to.equals(from)) return true;
 
-    if (from instanceof TypeVariable) {
+    if (from instanceof TypeVariable<?>) {
       return to.equals(typeMap.get(((TypeVariable<?>)from).getName()));
     }
 

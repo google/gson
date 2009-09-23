@@ -271,7 +271,9 @@ public class ParameterizedTypesTest extends TestCase {
     private final List<? extends T> listOfWildcardTypeParameters;
     private final List<? extends T>[] arrayOfListOfWildcardTypeParameters;
 
-    public ObjectWithTypeVariables() {
+    // For use by Gson
+    @SuppressWarnings("unused")
+    private ObjectWithTypeVariables() {
       this(null, null, null, null, null, null);
     }
 
@@ -386,7 +388,9 @@ public class ParameterizedTypesTest extends TestCase {
     C c;
     D d;
     E e;
-    MultiParameters() {
+    // For use by Gson
+    @SuppressWarnings("unused")
+    private MultiParameters() {
     }
     MultiParameters(A a, B b, C c, D d, E e) {
       super();
@@ -461,9 +465,11 @@ public class ParameterizedTypesTest extends TestCase {
   
   // Begin: tests to reproduce issue 103
   private static class Quantity {
+    @SuppressWarnings("unused")
     int q = 10;
   }
   private static class MyQuantity extends Quantity {
+    @SuppressWarnings("unused")
     int q2 = 20;
   }
   private interface Measurable<T> {    
