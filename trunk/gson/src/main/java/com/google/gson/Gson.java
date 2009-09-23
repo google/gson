@@ -441,9 +441,10 @@ public final class Gson {
    * @throws JsonParseException if json is not a valid representation for an object of type typeOfT
    * @since 1.2
    */
+  @SuppressWarnings("unchecked")
   public <T> T fromJson(Reader json, Type typeOfT) throws JsonParseException {
     JsonElement root = new JsonParser().parse(json);
-    T target = fromJson(root, typeOfT);
+    T target = (T) fromJson(root, typeOfT);
     return target;
   }
 
