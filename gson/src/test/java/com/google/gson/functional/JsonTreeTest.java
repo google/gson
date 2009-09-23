@@ -76,7 +76,7 @@ public class JsonTreeTest extends TestCase {
   
   private static class SubTypeOfBagOfPrimitives extends BagOfPrimitives {
     @SuppressWarnings("unused")
-    private float f = 1.2F;
+    float f = 1.2F;
     public SubTypeOfBagOfPrimitives(long l, int i, boolean b, String string, float f) {
       super(l, i, b, string);
       this.f = f;

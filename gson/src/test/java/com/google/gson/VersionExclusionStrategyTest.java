@@ -69,6 +69,6 @@ public class VersionExclusionStrategyTest extends TestCase {
 
     @SuppressWarnings("unused")
     @Since(VERSION)
-    private final int someField = 0;
+    public final int someField = 0;
   }
 }

@@ -173,7 +173,7 @@ public class MapTest extends TestCase {
     private static final long serialVersionUID = 1L;
 
     @SuppressWarnings("unused")
-    private int foo = 10;
+    int foo = 10;
   }
   
   public void testMapSubclassSerialization() {
@@ -250,7 +250,7 @@ public class MapTest extends TestCase {
     private static final long serialVersionUID = 1L;
 
     @SuppressWarnings("unused")
-    private int foo = 10;
+    int foo = 10;
   }
   
   /**

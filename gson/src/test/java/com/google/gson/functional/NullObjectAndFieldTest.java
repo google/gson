@@ -153,9 +153,9 @@ public class NullObjectAndFieldTest extends TestCase {
 
   @SuppressWarnings("unused")
   private static class ClassWithMembers {
-    private String str;
-    private int[] array;
-    private Collection<String> col;
+    String str;
+    int[] array;
+    Collection<String> col;
   }
   
   private static class ClassWithObjectsSerializer implements JsonSerializer<ClassWithObjects> {

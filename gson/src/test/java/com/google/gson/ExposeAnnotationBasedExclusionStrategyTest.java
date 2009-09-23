@@ -54,7 +54,7 @@ public class ExposeAnnotationBasedExclusionStrategyTest extends TestCase {
   @SuppressWarnings("unused")
   private static class MockObject {
     @Expose
-    private final int exposedField = 0;
-    private final int hiddenField = 0;
+    public final int exposedField = 0;
+    public final int hiddenField = 0;
   }
 }
