@@ -285,7 +285,7 @@ public class CollectionTest extends TestCase {
 
     // For use by Gson
     @SuppressWarnings({ "unchecked", "unused" })
-    private ObjectWithWildcardCollection() {
+    public ObjectWithWildcardCollection() {
       this(Collections.EMPTY_LIST);
     }
     

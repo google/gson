@@ -170,7 +170,7 @@ public class CustomTypeAdaptersTest extends TestCase {
   
   private static class Derived extends Base {
     @SuppressWarnings("unused")
-    private int derivedValue = 3;
+    int derivedValue = 3;
   }
   
   

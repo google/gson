@@ -84,8 +84,8 @@ public class NamingPolicyTest extends TestCase {
 
   @SuppressWarnings("unused")
   private static class ClassWithDuplicateFields {
-    private Integer a;
-    @SerializedName("a") private Double b;
+    public Integer a;
+    @SerializedName("a") public Double b;
     
     public ClassWithDuplicateFields(Integer a) {
       this(a, null);
