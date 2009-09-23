@@ -366,6 +366,7 @@ public class ObjectTest extends TestCase {
   }
 
   private static class ClassWithObjectField {
+    @SuppressWarnings("unused")
     Object member;
   }
   
@@ -391,6 +392,7 @@ public class ObjectTest extends TestCase {
   }
    
   private static class Parent {
+    @SuppressWarnings("unused")
     int value1 = 1;
     private class Child {
       int value2 = 2;
@@ -404,7 +406,8 @@ public class ObjectTest extends TestCase {
     private SortedSet<Character> sortedSet;
 
     // For use by Gson
-    ClassWithSubInterfacesOfCollection() {
+    @SuppressWarnings("unused")
+    private ClassWithSubInterfacesOfCollection() {
     }
 
     public ClassWithSubInterfacesOfCollection(List<Integer> list, Queue<Long> queue, Set<Float> set,
@@ -496,7 +499,9 @@ public class ObjectTest extends TestCase {
   private static class SubTypeOfNested extends Nested {
     private final long value = 5;
 
-    public SubTypeOfNested() {
+    // Used by Gson
+    @SuppressWarnings("unused")
+    private SubTypeOfNested() {
       this(null, null);
     }
 

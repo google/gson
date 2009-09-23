@@ -41,7 +41,7 @@ final class TypeUtils {
    * <code>TypeUtils.getActualTypeForFirstTypeVariable(fooType)</code> will return Integer.class.
    */
   static Type getActualTypeForFirstTypeVariable(Type type) {
-    if (type instanceof Class) {
+    if (type instanceof Class<?>) {
       return Object.class;
     } else if (type instanceof ParameterizedType) {
       return ((ParameterizedType)type).getActualTypeArguments()[0];
@@ -54,7 +54,7 @@ final class TypeUtils {
   }
 
   static boolean isArray(Type type) {
-    if (type instanceof Class) {
+    if (type instanceof Class<?>) {
       return ((Class<?>)type).isArray();
     } else if (type instanceof GenericArrayType) {
       return true;
@@ -67,7 +67,7 @@ final class TypeUtils {
    * This method returns the actual raw class associated with the specified type.
    */
   static Class<?> toRawClass(Type type) {
-    if (type instanceof Class) {
+    if (type instanceof Class<?>) {
       return (Class<?>) type;
     } else if (type instanceof ParameterizedType) {
       ParameterizedType actualType = (ParameterizedType)type;

@@ -72,7 +72,10 @@ public class PerformanceTest extends TestCase {
   private static class ExceptionHolder {
     public final String message;
     public final String stackTrace;
-    public ExceptionHolder() {
+    
+    // For use by Gson
+    @SuppressWarnings("unused")
+    private ExceptionHolder() {
       this("", "");
     }
     public ExceptionHolder(String message, String stackTrace) {
@@ -81,11 +84,13 @@ public class PerformanceTest extends TestCase {
     }
   }
 
+  @SuppressWarnings("unused")
   private static class CollectionEntry {
     final String name;
     final String value;
 
-    CollectionEntry() {
+    // For use by Gson
+    private CollectionEntry() {
       this(null, null);
     }
 
