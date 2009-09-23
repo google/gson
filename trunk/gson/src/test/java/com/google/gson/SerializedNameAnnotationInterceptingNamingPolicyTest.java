@@ -56,6 +56,6 @@ public class SerializedNameAnnotationInterceptingNamingPolicyTest extends TestCa
   @SuppressWarnings("unused")
   private static class SomeObject {
     @SerializedName(ANNOTATED_FIELD_NAME) public final int fieldWithAnnotation = 1;
-    public final int fieldWithoutAnnotation = 1;
+    private final int fieldWithoutAnnotation = 1;
   }
 }

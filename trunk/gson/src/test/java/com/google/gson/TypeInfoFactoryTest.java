@@ -229,25 +229,25 @@ public class TypeInfoFactoryTest extends TestCase {
       TEST_1, TEST_2;
     }
 
-    public String simpleField;
-    public TestEnum enumField;
-    public List<String> simpleParameterizedType;
-    public List<List<String>> simpleNestedParameterizedType;
-    public List<String>[] simpleGenericArray;
+    private String simpleField;
+    private TestEnum enumField;
+    private List<String> simpleParameterizedType;
+    private List<List<String>> simpleNestedParameterizedType;
+    private List<String>[] simpleGenericArray;
 
-    public T typeVariableObj;
-    public T[] typeVariableArray;
-    public T[][][] mutliDimensionalTypeVariableArray;
-    public List<T> listOfTypeVariables;
-    public List<List<T>> listOfListsOfTypeVariables;
-    public List<T>[] listOfTypeVariablesArray;
+    private T typeVariableObj;
+    private T[] typeVariableArray;
+    private T[][][] mutliDimensionalTypeVariableArray;
+    private List<T> listOfTypeVariables;
+    private List<List<T>> listOfListsOfTypeVariables;
+    private List<T>[] listOfTypeVariablesArray;
 
-    public List<?> listWithWildcard;
-    public List<?>[] arrayOfListWithWildcard;
-    public List<? extends String> listWithStringWildcard;
-    public List<? extends String>[] arrayOfListWithStringWildcard;
+    private List<?> listWithWildcard;
+    private List<?>[] arrayOfListWithWildcard;
+    private List<? extends String> listWithStringWildcard;
+    private List<? extends String>[] arrayOfListWithStringWildcard;
 
-    public List<? extends T> listWithTypeVariableWildcard;
-    public List<? extends T>[] arrayOfListWithTypeVariableWildcard;
+    private List<? extends T> listWithTypeVariableWildcard;
+    private List<? extends T>[] arrayOfListWithTypeVariableWildcard;
   }
 }

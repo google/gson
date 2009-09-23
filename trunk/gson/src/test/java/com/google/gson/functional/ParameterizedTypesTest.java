@@ -466,11 +466,11 @@ public class ParameterizedTypesTest extends TestCase {
   // Begin: tests to reproduce issue 103
   private static class Quantity {
     @SuppressWarnings("unused")
-    int q = 10;
+    private int q = 10;
   }
   private static class MyQuantity extends Quantity {
     @SuppressWarnings("unused")
-    int q2 = 20;
+    private int q2 = 20;
   }
   private interface Measurable<T> {    
   }

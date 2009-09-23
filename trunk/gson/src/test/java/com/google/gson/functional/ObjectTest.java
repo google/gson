@@ -367,7 +367,7 @@ public class ObjectTest extends TestCase {
 
   private static class ClassWithObjectField {
     @SuppressWarnings("unused")
-    Object member;
+    private Object member;
   }
   
   public void testInnerClassSerialization() {    
@@ -393,7 +393,7 @@ public class ObjectTest extends TestCase {
    
   private static class Parent {
     @SuppressWarnings("unused")
-    int value1 = 1;
+    private int value1 = 1;
     private class Child {
       int value2 = 2;
     }
