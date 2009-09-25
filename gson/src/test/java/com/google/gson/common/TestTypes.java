@@ -35,6 +35,33 @@ import com.google.gson.annotations.SerializedName;
  */
 public class TestTypes {
 
+  public static class BaseClass {
+    final String baseField;
+    public BaseClass() {
+      this("baseFieldValue");
+    }
+    public BaseClass(String value) {
+      this.baseField = value;
+    }
+    public String getExpectedJson() {
+      return String.format("{\"baseField\":\"%s\"}", baseField);
+    }
+  }
+
+  public static class SubClass extends BaseClass {
+    final String subField;
+    public SubClass() {
+      this("subFieldValue");
+    }
+    public SubClass(String subFieldValue) {
+      this.subField = subFieldValue;
+    }
+    @Override
+    public String getExpectedJson() {
+      return String.format("{\"subField\":\"%s\",\"baseField\":\"%s\"}", subField, baseField);
+    }
+  }
+
   public static class StringWrapper {
     public final String someConstantStringInstanceField;
 
