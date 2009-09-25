@@ -76,7 +76,11 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
     Type componentType = fieldTypeInfo.getSecondLevelType();
     for (int i = 0; i < length; ++i) {
       Object child = Array.get(array, i);
-      addAsArrayElement(componentType, child);
+      Type childType = componentType;
+      if (child != null) {
+        childType = getActualTypeIfMoreSpecific(childType, child.getClass());
+      }
+      addAsArrayElement(childType, child);
     }
   }
 
@@ -98,13 +102,26 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
       }
     } else {
       Object fieldValue = getFieldValue(f, obj);
-      // This takes care of situations where the field was declared as an Object, but the
-      // actual value contains something more specific. See Issue 54.
-      if (fieldValue != null && typeOfF == Object.class) {
-        typeOfF = fieldValue.getClass();
+      if (fieldValue != null) {
+        typeOfF = getActualTypeIfMoreSpecific(typeOfF, fieldValue.getClass());
       }
       addAsChildOfObject(f, typeOfF, fieldValue);
     }
+  }
+
+  // This takes care of situations where the field was declared as an Object, but the
+  // actual value contains something more specific. See Issue 54.      
+  private Type getActualTypeIfMoreSpecific(Type type, Class<?> actualClass) {
+    if (type instanceof Class<?>) {
+      Class<?> typeAsClass = (Class<?>) type;
+      if (typeAsClass.isAssignableFrom(actualClass)) {
+        type = actualClass;
+      }
+      if (type == Object.class) {
+        type = actualClass;
+      } 
+    }
+    return type;
   }
 
   public void visitPrimitive(Object obj) {
