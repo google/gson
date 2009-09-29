@@ -131,6 +131,22 @@ public class ArrayTest extends TestCase {
     assertEquals("World", target[1]);
   }
 
+  public void testSingleStringArraySerialization() throws Exception {
+    String[] s = { "hello" };
+    String output = gson.toJson(s);
+    assertEquals("[\"hello\"]", output);
+  }
+  
+  public void testSingleStringArrayDeserialization() throws Exception {
+    String json = "[\"hello\"]";
+    String[] arrayType = gson.fromJson(json, String[].class);
+    assertEquals(1, arrayType.length);
+    assertEquals("hello", arrayType[0]);
+    
+    String type = gson.fromJson(json, String.class);
+    assertEquals("hello", type);
+  }
+
   @SuppressWarnings("unchecked")
   public void testArrayOfCollectionSerialization() throws Exception {
     StringBuilder sb = new StringBuilder("[");
@@ -215,7 +231,7 @@ public class ArrayTest extends TestCase {
     }
   }
   
-  public void testObjectArrayWithNonPrimitivesSerializaiton() throws Exception {
+  public void testObjectArrayWithNonPrimitivesSerialization() throws Exception {
     ClassWithObjects classWithObjects = new ClassWithObjects();
     BagOfPrimitives bagOfPrimitives = new BagOfPrimitives();
     String classWithObjectsJson = gson.toJson(classWithObjects);
