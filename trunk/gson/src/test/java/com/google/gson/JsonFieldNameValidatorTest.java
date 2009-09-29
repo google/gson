@@ -92,4 +92,9 @@ public class JsonFieldNameValidatorTest extends TestCase {
       fail("Json field name can not contain a period character");
     } catch (IllegalArgumentException expected) { }
   }
+  
+  public void testDashesInFieldName() throws Exception {
+    String fieldName = "test-field-name";
+    assertEquals(fieldName, validator.validate(fieldName));
+  }
 }
