@@ -64,6 +64,8 @@ public enum FieldNamingPolicy {
    *   <li>aStringField ---> a-string-field</li>
    *   <li>aURL ---> a-u-r-l</li>
    * </ul>
+   * 
+   * @since 1.4
    */
   LOWER_CASE_WITH_DASHES(new LowerCamelCaseSeparatorNamingPolicy("-"));
 
