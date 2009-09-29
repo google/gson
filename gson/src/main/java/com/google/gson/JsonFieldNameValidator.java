@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
  */
 class JsonFieldNameValidator {
   private static final Pattern JSON_FIELD_NAME_PATTERN =
-      Pattern.compile("(^[a-zA-Z][a-zA-Z0-9\\$_]*$)|(^[\\$_][a-zA-Z][a-zA-Z0-9\\$_]*$)");
+      Pattern.compile("(^[a-zA-Z][a-zA-Z0-9\\$_\\-]*$)|(^[\\$_][a-zA-Z][a-zA-Z0-9\\$_\\-]*$)");
 
   
   /**
