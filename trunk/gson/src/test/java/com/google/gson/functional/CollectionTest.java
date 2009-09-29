@@ -153,6 +153,17 @@ public class CollectionTest extends TestCase {
     Type type = new TypeToken<List<Object>>() {}.getType();
     assertEquals("[\"Hello\",\"World\"]", gson.toJson(target, type));
   }
+  
+  public void testCollectionOfObjectWithNullSerialization() {
+    List<Object> target = new ArrayList<Object>();
+    target.add("Hello");
+    target.add(null);
+    target.add("World");
+    assertEquals("[\"Hello\",null,\"World\"]", gson.toJson(target));
+    
+    Type type = new TypeToken<List<Object>>() {}.getType();
+    assertEquals("[\"Hello\",null,\"World\"]", gson.toJson(target, type));
+  }
 
   public void testCollectionOfStringsSerialization() {
     List<String> target = new ArrayList<String>();
