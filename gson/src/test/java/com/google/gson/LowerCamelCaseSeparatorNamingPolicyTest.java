@@ -50,4 +50,10 @@ public class LowerCamelCaseSeparatorNamingPolicyTest extends TestCase {
     String translatedName = namingPolicy.translateName("aURL", CLASS, null);
     assertEquals("a_u_r_l", translatedName);
   }
+  
+  public void testUsingDashesInstead() throws Exception {
+    namingPolicy = new LowerCamelCaseSeparatorNamingPolicy("-");
+    String translatedName = namingPolicy.translateName("testUsingDashesInstead", CLASS, null);
+    assertEquals("test-using-dashes-instead", translatedName);
+  }
 }
