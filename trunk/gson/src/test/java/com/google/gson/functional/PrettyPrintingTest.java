@@ -97,6 +97,20 @@ public class PrettyPrintingTest extends TestCase {
     assertEquals("{\"abc\":1,\"def\":5}\n", json);
   }
 
+  // In response to bug 153
+  public void testEmptyMapField() {
+    ClassWithMap obj = new ClassWithMap();
+    obj.map = new LinkedHashMap<String, Integer>();
+    String json = gson.toJson(obj);
+    assertTrue(json.contains("{\"map\":{},\"value\":2}"));
+  }
+
+  @SuppressWarnings("unused")
+  private static class ClassWithMap {
+    Map<String, Integer> map;
+    int value = 2;
+  }
+
   public void testMultipleArrays() {
     int[][][] ints = new int[][][] { { { 1 }, { 2 } } };
     String json = gson.toJson(ints);

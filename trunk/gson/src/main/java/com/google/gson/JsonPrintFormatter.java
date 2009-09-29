@@ -19,6 +19,7 @@ package com.google.gson;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Stack;
 
 /**
  * Formats Json in a nicely indented way with a specified print margin.
@@ -143,67 +144,66 @@ final class JsonPrintFormatter implements JsonFormatter {
   }
 
   private class PrintFormattingVisitor implements JsonElementVisitor {
-    private final Map<Integer, Boolean> firstArrayElement;
-    private final Map<Integer, Boolean> firstObjectMember;
+    private final Stack<Boolean> firstElementInLevel;
     private final JsonWriter writer;
     private final Escaper escaper;
     private final boolean serializeNulls;
-    private int level = 0;
 
     PrintFormattingVisitor(JsonWriter writer, Escaper escaper, boolean serializeNulls) {
       this.writer = writer;
       this.escaper = escaper;
       this.serializeNulls = serializeNulls;
-      this.firstArrayElement = new HashMap<Integer, Boolean>();
-      this.firstObjectMember = new HashMap<Integer, Boolean>();
+      this.firstElementInLevel = new Stack<Boolean>();
     }
 
-    private void addCommaCheckingFirst(Map<Integer, Boolean> first) throws IOException {
-      if (first.get(level) != Boolean.FALSE) {
-        first.put(level, false);
+    private void addCommaCheckingFirst() throws IOException {
+      if (firstElementInLevel.peek()) {
+        // No longer first
+        firstElementInLevel.pop();
+        firstElementInLevel.push(false);
       } else {
         writer.elementSeparator();
       }
     }
 
     public void startArray(JsonArray array) throws IOException {
-      firstArrayElement.put(++level, true);
+      firstElementInLevel.push(true);
       writer.beginArray();
     }
 
     public void visitArrayMember(JsonArray parent, JsonPrimitive member, 
         boolean isFirst) throws IOException {
-      addCommaCheckingFirst(firstArrayElement);
+      addCommaCheckingFirst();
       writer.value(escapeJsonPrimitive(member));
     }
 
     public void visitArrayMember(JsonArray parent, JsonArray member, 
         boolean first) throws IOException {
-      addCommaCheckingFirst(firstArrayElement);
+      addCommaCheckingFirst();
     }
 
     public void visitArrayMember(JsonArray parent, JsonObject member, 
         boolean first) throws IOException {
-      addCommaCheckingFirst(firstArrayElement);
+      addCommaCheckingFirst();
     }
 
     public void visitNullArrayMember(JsonArray parent, boolean isFirst) throws IOException {
-      addCommaCheckingFirst(firstArrayElement);
+      addCommaCheckingFirst();
     }
 
     public void endArray(JsonArray array) {
-      level--;
       writer.endArray();
+      firstElementInLevel.pop();
     }
 
     public void startObject(JsonObject object) throws IOException {
-      firstObjectMember.put(level, true);
+      firstElementInLevel.push(true);
       writer.beginObject();
     }
 
     public void visitObjectMember(JsonObject parent, String memberName, JsonPrimitive member, 
         boolean isFirst) throws IOException {
-      addCommaCheckingFirst(firstObjectMember);
+      addCommaCheckingFirst();
       writer.key(memberName);
       writer.fieldSeparator();
       writer.value(escapeJsonPrimitive(member));
@@ -211,14 +211,14 @@ final class JsonPrintFormatter implements JsonFormatter {
 
     public void visitObjectMember(JsonObject parent, String memberName, JsonArray member, 
         boolean isFirst) throws IOException {
-      addCommaCheckingFirst(firstObjectMember);
+      addCommaCheckingFirst();
       writer.key(memberName);
       writer.fieldSeparator();
     }
 
     public void visitObjectMember(JsonObject parent, String memberName, JsonObject member, 
         boolean isFirst) throws IOException {
-      addCommaCheckingFirst(firstObjectMember);
+      addCommaCheckingFirst();
       writer.key(memberName);
       writer.fieldSeparator();
     }
@@ -232,6 +232,7 @@ final class JsonPrintFormatter implements JsonFormatter {
     
     public void endObject(JsonObject object) {
       writer.endObject();
+      firstElementInLevel.pop();
     }
 
     public void visitPrimitive(JsonPrimitive primitive) throws IOException {
