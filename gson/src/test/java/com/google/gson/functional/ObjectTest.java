@@ -28,7 +28,6 @@ import com.google.gson.InstanceCreator;
 import com.google.gson.common.TestTypes.ArrayOfObjects;
 import com.google.gson.common.TestTypes.BagOfPrimitiveWrappers;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
-import com.google.gson.common.TestTypes.ClassOverridingEquals;
 import com.google.gson.common.TestTypes.ClassWithArray;
 import com.google.gson.common.TestTypes.ClassWithNoFields;
 import com.google.gson.common.TestTypes.ClassWithObjects;
@@ -89,23 +88,6 @@ public class ObjectTest extends TestCase {
     String jsonString = target.getExpectedJson();
     target = gson.fromJson(jsonString, BagOfPrimitiveWrappers.class);
     assertEquals(jsonString, target.getExpectedJson());
-  }
-
-  public void testDirectedAcyclicGraphSerialization() throws Exception {
-    ContainsReferenceToSelfType a = new ContainsReferenceToSelfType();
-    ContainsReferenceToSelfType b = new ContainsReferenceToSelfType();
-    ContainsReferenceToSelfType c = new ContainsReferenceToSelfType();
-    a.children.add(b);
-    a.children.add(c);
-    b.children.add(c);
-    assertNotNull(gson.toJson(a));
-  }
-
-  public void testDirectedAcyclicGraphDeserialization() throws Exception {
-    String json = "{\"children\":[{\"children\":[{\"children\":[]}]},{\"children\":[]}]}";
-    ContainsReferenceToSelfType target = gson.fromJson(json, ContainsReferenceToSelfType.class);
-    assertNotNull(target);
-    assertEquals(2, target.children.size());
   }
 
   public void testClassWithTransientFieldsSerialization() throws Exception {
@@ -231,9 +213,13 @@ public class ObjectTest extends TestCase {
 
   public void testEmptyCollectionInAnObjectDeserialization() throws Exception {
     String json = "{\"children\":[]}";
-    ContainsReferenceToSelfType target = gson.fromJson(json, ContainsReferenceToSelfType.class);
+    ClassWithCollectionField target = gson.fromJson(json, ClassWithCollectionField.class);
     assertNotNull(target);
     assertTrue(target.children.isEmpty());
+  }
+
+  private static class ClassWithCollectionField {
+    Collection<String> children = new ArrayList<String>();
   }
 
   public void testPrimitiveArrayInAnObjectDeserialization() throws Exception {
@@ -252,29 +238,8 @@ public class ObjectTest extends TestCase {
   }
 
   public void testEmptyCollectionInAnObjectSerialization() throws Exception {
-    ContainsReferenceToSelfType target = new ContainsReferenceToSelfType();
+    ClassWithCollectionField target = new ClassWithCollectionField();
     assertEquals("{\"children\":[]}", gson.toJson(target));
-  }
-
-  public void testCircularSerialization() throws Exception {
-    ContainsReferenceToSelfType a = new ContainsReferenceToSelfType();
-    ContainsReferenceToSelfType b = new ContainsReferenceToSelfType();
-    a.children.add(b);
-    b.children.add(a);
-    try {
-      gson.toJson(a);
-      fail("Circular types should not get printed!");
-    } catch (IllegalStateException expected) { }
-  }
-
-  public void testSelfReferenceSerialization() throws Exception {
-    ClassOverridingEquals objA = new ClassOverridingEquals();
-    objA.ref = objA;
-
-    try {
-      gson.toJson(objA);
-      fail("Circular reference to self can not be serialized!");
-    } catch (IllegalStateException expected) { }
   }
 
   public void testPrivateNoArgConstructorDeserialization() throws Exception {
@@ -337,11 +302,6 @@ public class ObjectTest extends TestCase {
     private class Child {
       int value2 = 2;
     }
-  }
-
-  private static class ContainsReferenceToSelfType {
-    public Collection<ContainsReferenceToSelfType> children =
-        new ArrayList<ContainsReferenceToSelfType>();
   }
 
   private static class ArrayOfArrays {
