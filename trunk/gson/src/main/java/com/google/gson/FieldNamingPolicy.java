@@ -51,7 +51,21 @@ public enum FieldNamingPolicy {
    *   <li>aURL ---> a_u_r_l</li>
    * </ul>
    */
-  LOWER_CASE_WITH_UNDERSCORES(new LowerCamelCaseSeparatorNamingPolicy("_"));
+  LOWER_CASE_WITH_UNDERSCORES(new LowerCamelCaseSeparatorNamingPolicy("_")),
+  
+  /**
+   * Using this naming policy with Gson will modify the Java Field name from its camel cased
+   * form to a lower case field name where each word is separated by a dash (-).
+   *
+   * <p>Here's a few examples of the form "Java Field Name" ---> "JSON Field Name":</p>
+   * <ul>
+   *   <li>someFieldName ---> some-field-name</li>
+   *   <li>_someFieldName ---> _some-field-name</li>
+   *   <li>aStringField ---> a-string-field</li>
+   *   <li>aURL ---> a-u-r-l</li>
+   * </ul>
+   */
+  LOWER_CASE_WITH_DASHES(new LowerCamelCaseSeparatorNamingPolicy("-"));
 
   private final FieldNamingStrategy namingPolicy;
 
