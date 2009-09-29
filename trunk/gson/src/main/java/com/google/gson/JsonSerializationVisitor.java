@@ -54,7 +54,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
       return;
     }
     if (ancestors.contains(node)) {
-      throw new IllegalStateException("Circular reference found: " + node);
+      throw new CircularReferenceException(node);
     }
     ancestors.push(node);
   }
@@ -85,27 +85,35 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   }
 
   public void visitArrayField(Field f, Type typeOfF, Object obj) {
-    if (isFieldNull(f, obj)) {
-      if (serializeNulls) {
-        addChildAsElement(f, JsonNull.createJsonNull());
+    try {
+      if (isFieldNull(f, obj)) {
+        if (serializeNulls) {
+          addChildAsElement(f, JsonNull.createJsonNull());
+        }
+      } else {
+        Object array = getFieldValue(f, obj);
+        addAsChildOfObject(f, typeOfF, array);
       }
-    } else {
-      Object array = getFieldValue(f, obj);
-      addAsChildOfObject(f, typeOfF, array);
+    } catch (CircularReferenceException e) {
+      throw e.createDetailedException(f);
     }
   }
 
   public void visitObjectField(Field f, Type typeOfF, Object obj) {
-    if (isFieldNull(f, obj)) {
-      if (serializeNulls) {
-        addChildAsElement(f, JsonNull.createJsonNull());
+    try {
+      if (isFieldNull(f, obj)) {
+        if (serializeNulls) {
+          addChildAsElement(f, JsonNull.createJsonNull());
+        }
+      } else {
+        Object fieldValue = getFieldValue(f, obj);
+        if (fieldValue != null) {
+          typeOfF = getActualTypeIfMoreSpecific(typeOfF, fieldValue.getClass());
+        }
+        addAsChildOfObject(f, typeOfF, fieldValue);
       }
-    } else {
-      Object fieldValue = getFieldValue(f, obj);
-      if (fieldValue != null) {
-        typeOfF = getActualTypeIfMoreSpecific(typeOfF, fieldValue.getClass());
-      }
-      addAsChildOfObject(f, typeOfF, fieldValue);
+    } catch (CircularReferenceException e) {
+      throw e.createDetailedException(f);
     }
   }
 
@@ -160,20 +168,34 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
 
   @SuppressWarnings("unchecked")
   public boolean visitUsingCustomHandler(Object obj, Type objType) {
-    JsonSerializer serializer = serializers.getHandlerFor(objType);
-    if (serializer == null && obj != null) {
-      serializer = serializers.getHandlerFor(obj.getClass());
-    }
-
-    if (serializer != null) {
-      if (obj == null) {
-        assignToRoot(JsonNull.createJsonNull());
-      } else {
-        assignToRoot(serializer.serialize(obj, objType, context));
+    try {
+      JsonSerializer serializer = serializers.getHandlerFor(objType);
+      if (serializer == null && obj != null) {
+        serializer = serializers.getHandlerFor(obj.getClass());
       }
-      return true;
+
+      if (serializer != null) {
+        if (obj == null) {
+          assignToRoot(JsonNull.createJsonNull());
+        } else {
+          assignToRoot(invokeCustomHandler(obj, objType, serializer));
+        }
+        return true;
+      }
+      return false;
+    } catch (CircularReferenceException e) {
+      throw e.createDetailedException(null);
     }
-    return false;
+  }
+
+  @SuppressWarnings("unchecked")
+  private JsonElement invokeCustomHandler(Object obj, Type objType, JsonSerializer serializer) {
+    start(obj);
+    try {
+      return serializer.serialize(obj, objType, context);
+    } finally {
+      end(obj);
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -189,13 +211,15 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
       }
       JsonSerializer serializer = serializers.getHandlerFor(actualTypeOfField);
       if (serializer != null) {
-        JsonElement child = serializer.serialize(obj, actualTypeOfField, context);
+        JsonElement child = invokeCustomHandler(obj, actualTypeOfField, serializer);
         addChildAsElement(f, child);
         return true;
       }
       return false;
     } catch (IllegalAccessException e) {
       throw new RuntimeException();
+    } catch (CircularReferenceException e) {
+      throw e.createDetailedException(f);
     }
   }
 
