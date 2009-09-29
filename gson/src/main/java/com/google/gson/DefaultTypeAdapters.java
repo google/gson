@@ -443,10 +443,14 @@ final class DefaultTypeAdapters {
         childGenericType = new TypeInfoCollection(typeOfSrc).getElementType();        
       }
       for (Object child : src) {
-        Type childType = (childGenericType == null || childGenericType == Object.class)
-            ? child.getClass() : childGenericType;
-        JsonElement element = context.serialize(child, childType);
-        array.add(element);
+        if (child == null) {
+          array.add(JsonNull.createJsonNull());
+        } else {
+          Type childType = (childGenericType == null || childGenericType == Object.class)
+              ? child.getClass() : childGenericType;
+          JsonElement element = context.serialize(child, childType);
+          array.add(element);
+        }
       }
       return array;
     }
