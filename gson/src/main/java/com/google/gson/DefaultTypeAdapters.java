@@ -251,21 +251,22 @@ final class DefaultTypeAdapters {
 
     // These methods need to be synchronized since JDK DateFormat classes are not thread-safe
     // See issue 162
-    public synchronized JsonElement serialize(
-        Date src, Type typeOfSrc, JsonSerializationContext context) {
-      String dateFormatAsString = format.format(src);
-      return new JsonPrimitive(dateFormatAsString);
+    public JsonElement serialize(Date src, Type typeOfSrc, JsonSerializationContext context) {
+      synchronized (format) {
+        String dateFormatAsString = format.format(src);
+        return new JsonPrimitive(dateFormatAsString);
+      }
     }
 
-    public synchronized Date deserialize(
-        JsonElement json, Type typeOfT, JsonDeserializationContext context)
+    public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
       if (!(json instanceof JsonPrimitive)) {
         throw new JsonParseException("The date should be a string value");
       }
-
       try {
-        return format.parse(json.getAsString());
+        synchronized (format) {
+          return format.parse(json.getAsString());
+        }
       } catch (ParseException e) {
         throw new JsonParseException(e);
       }
