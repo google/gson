@@ -142,7 +142,6 @@ final class JsonPrintFormatter implements JsonFormatter {
   }
 
   private class PrintFormattingVisitor implements JsonElementVisitor {
-    private final Stack<Boolean> firstElementInLevel;
     private final JsonWriter writer;
     private final Escaper escaper;
     private final boolean serializeNulls;
@@ -151,57 +150,49 @@ final class JsonPrintFormatter implements JsonFormatter {
       this.writer = writer;
       this.escaper = escaper;
       this.serializeNulls = serializeNulls;
-      this.firstElementInLevel = new Stack<Boolean>();
     }
 
-    private void addCommaCheckingFirst() throws IOException {
-      if (firstElementInLevel.peek()) {
-        // No longer first
-        firstElementInLevel.pop();
-        firstElementInLevel.push(false);
-      } else {
+    private void addCommaCheckingFirst(boolean first) throws IOException {
+      if (!first) {
         writer.elementSeparator();
       }
     }
 
     public void startArray(JsonArray array) throws IOException {
-      firstElementInLevel.push(true);
       writer.beginArray();
     }
 
     public void visitArrayMember(JsonArray parent, JsonPrimitive member, 
         boolean isFirst) throws IOException {
-      addCommaCheckingFirst();
+      addCommaCheckingFirst(isFirst);
       writer.value(escapeJsonPrimitive(member));
     }
 
     public void visitArrayMember(JsonArray parent, JsonArray member, 
         boolean first) throws IOException {
-      addCommaCheckingFirst();
+      addCommaCheckingFirst(first);
     }
 
     public void visitArrayMember(JsonArray parent, JsonObject member, 
         boolean first) throws IOException {
-      addCommaCheckingFirst();
+      addCommaCheckingFirst(first);
     }
 
     public void visitNullArrayMember(JsonArray parent, boolean isFirst) throws IOException {
-      addCommaCheckingFirst();
+      addCommaCheckingFirst(isFirst);
     }
 
     public void endArray(JsonArray array) {
       writer.endArray();
-      firstElementInLevel.pop();
     }
 
     public void startObject(JsonObject object) throws IOException {
-      firstElementInLevel.push(true);
       writer.beginObject();
     }
 
     public void visitObjectMember(JsonObject parent, String memberName, JsonPrimitive member, 
         boolean isFirst) throws IOException {
-      addCommaCheckingFirst();
+      addCommaCheckingFirst(isFirst);
       writer.key(memberName);
       writer.fieldSeparator();
       writer.value(escapeJsonPrimitive(member));
@@ -209,14 +200,14 @@ final class JsonPrintFormatter implements JsonFormatter {
 
     public void visitObjectMember(JsonObject parent, String memberName, JsonArray member, 
         boolean isFirst) throws IOException {
-      addCommaCheckingFirst();
+      addCommaCheckingFirst(isFirst);
       writer.key(memberName);
       writer.fieldSeparator();
     }
 
     public void visitObjectMember(JsonObject parent, String memberName, JsonObject member, 
         boolean isFirst) throws IOException {
-      addCommaCheckingFirst();
+      addCommaCheckingFirst(isFirst);
       writer.key(memberName);
       writer.fieldSeparator();
     }
@@ -230,7 +221,6 @@ final class JsonPrintFormatter implements JsonFormatter {
     
     public void endObject(JsonObject object) {
       writer.endObject();
-      firstElementInLevel.pop();
     }
 
     public void visitPrimitive(JsonPrimitive primitive) throws IOException {
