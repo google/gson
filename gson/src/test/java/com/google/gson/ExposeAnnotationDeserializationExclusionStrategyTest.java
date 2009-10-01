@@ -16,25 +16,24 @@
 
 package com.google.gson;
 
-import com.google.gson.ExposeAnnotationBasedExclusionStrategy.Phase;
-import com.google.gson.annotations.Expose;
+import java.lang.reflect.Field;
 
 import junit.framework.TestCase;
 
-import java.lang.reflect.Field;
+import com.google.gson.annotations.Expose;
 
 /**
- * Unit tests for the {@link ExposeAnnotationBasedExclusionStrategy} class.
+ * Unit tests for the {@link ExposeAnnotationDeserializationExclusionStrategy} class.
  *
  * @author Joel Leitch
  */
-public class ExposeAnnotationBasedExclusionStrategyTest extends TestCase {
-  private ExposeAnnotationBasedExclusionStrategy strategy;
+public class ExposeAnnotationDeserializationExclusionStrategyTest extends TestCase {
+  private ExposeAnnotationDeserializationExclusionStrategy strategy;
 
   @Override
   protected void setUp() throws Exception {
     super.setUp();
-    strategy = new ExposeAnnotationBasedExclusionStrategy(Phase.SERIALIZATION);
+    strategy = new ExposeAnnotationDeserializationExclusionStrategy();
   }
 
   public void testNeverSkipClasses() throws Exception {
@@ -46,8 +45,18 @@ public class ExposeAnnotationBasedExclusionStrategyTest extends TestCase {
     assertTrue(strategy.shouldSkipField(f));
   }
   
+  public void testSkipExplicitlySkippedFields() throws Exception {
+    Field f = MockObject.class.getField("explicitlyHiddenField");
+    assertTrue(strategy.shouldSkipField(f));
+  }
+  
   public void testNeverSkipExposedAnnotatedFields() throws Exception {
     Field f = MockObject.class.getField("exposedField");
+    assertFalse(strategy.shouldSkipField(f));
+  }
+
+  public void testNeverSkipExplicitlyExposedAnnotatedFields() throws Exception {
+    Field f = MockObject.class.getField("explicitlyExposedField");
     assertFalse(strategy.shouldSkipField(f));
   }
 
@@ -55,6 +64,13 @@ public class ExposeAnnotationBasedExclusionStrategyTest extends TestCase {
   private static class MockObject {
     @Expose
     public final int exposedField = 0;
+
+    @Expose(deserialize=true)
+    public final int explicitlyExposedField = 0;
+    
+    @Expose(deserialize=false)
+    public final int explicitlyHiddenField = 0;
+
     public final int hiddenField = 0;
   }
 }

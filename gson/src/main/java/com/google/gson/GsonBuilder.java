@@ -23,7 +23,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.google.gson.DefaultTypeAdapters.DefaultDateTypeAdapter;
-import com.google.gson.ExposeAnnotationBasedExclusionStrategy.Phase;
 
 /**
  * <p>Use this builder to construct a {@link Gson} instance when you need to set configuration
@@ -55,12 +54,12 @@ public final class GsonBuilder {
       new AnonymousAndLocalClassExclusionStrategy();
   private static final InnerClassExclusionStrategy innerClassExclusionStrategy =
       new InnerClassExclusionStrategy();
-  private static final ExposeAnnotationBasedExclusionStrategy 
+  private static final ExposeAnnotationSerializationExclusionStrategy 
     exposeAnnotationSerializationExclusionStrategy =
-      new ExposeAnnotationBasedExclusionStrategy(Phase.SERIALIZATION);
-  private static final ExposeAnnotationBasedExclusionStrategy 
+      new ExposeAnnotationSerializationExclusionStrategy();
+  private static final ExposeAnnotationDeserializationExclusionStrategy 
     exposeAnnotationDeserializationExclusionStrategy =
-      new ExposeAnnotationBasedExclusionStrategy(Phase.DESERIALIZATION);
+      new ExposeAnnotationDeserializationExclusionStrategy();
   
   private double ignoreVersionsAfter;
   private ModifierBasedExclusionStrategy modifierBasedExclusionStrategy;
