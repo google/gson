@@ -118,7 +118,9 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   }
 
   // This takes care of situations where the field was declared as an Object, but the
-  // actual value contains something more specific. See Issue 54.      
+  // actual value contains something more specific. See Issue 54.
+  // TODO (inder): This solution will not work if the field is of a generic type, but 
+  // the actual object is of a raw type (which is a sub-class of the generic type).
   private Type getActualTypeIfMoreSpecific(Type type, Class<?> actualClass) {
     if (type instanceof Class<?>) {
       Class<?> typeAsClass = (Class<?>) type;

@@ -21,14 +21,14 @@ import java.io.StringReader;
 import java.util.Iterator;
 
 /**
- * A parser that allows reading of multiple {@link JsonElement}s from the specified reader
+ * A streaming parser that allows reading of multiple {@link JsonElement}s from the specified reader
  * asynchronously. This class is not thread-safe.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
  * @since 1.4
  */
-public final class JsonParserAsync implements Iterator<JsonElement> {
+public final class JsonStreamParser implements Iterator<JsonElement> {
 
   private final JsonParserJavacc parser;
   private boolean eof;
@@ -38,7 +38,7 @@ public final class JsonParserAsync implements Iterator<JsonElement> {
    * @param json The string containing JSON elements concatenated to each other.
    * @since 1.4
    */
-  public JsonParserAsync(String json) {
+  public JsonStreamParser(String json) {
     this(new StringReader(json));      
   }
   
@@ -46,7 +46,7 @@ public final class JsonParserAsync implements Iterator<JsonElement> {
    * @param reader The data stream containing JSON elements concatenated to each other.
    * @since 1.4
    */
-  public JsonParserAsync(Reader reader) {
+  public JsonStreamParser(Reader reader) {
     parser = new JsonParserJavacc(reader);      
     eof = false;
     nextElement = null;
