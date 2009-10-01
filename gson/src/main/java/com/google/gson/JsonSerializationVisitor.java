@@ -135,10 +135,8 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   }
 
   public void visitPrimitive(Object obj) {
-    if (obj != null) {
-      JsonElement json = new JsonPrimitive(obj);
-      assignToRoot(json);
-    }
+    JsonElement json = obj == null ? JsonNull.createJsonNull() : new JsonPrimitive(obj);
+    assignToRoot(json);
   }
 
   private void addAsChildOfObject(Field f, Type fieldType, Object fieldValue) {
