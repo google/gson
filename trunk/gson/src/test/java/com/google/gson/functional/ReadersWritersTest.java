@@ -18,7 +18,7 @@ package com.google.gson.functional;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonParserAsync;
+import com.google.gson.JsonStreamParser;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 
 import junit.framework.TestCase;
@@ -92,7 +92,7 @@ public class ReadersWritersTest extends TestCase {
     writer.write(gson.toJson("one").toCharArray());
     writer.write(gson.toJson("two").toCharArray());
     CharArrayReader reader = new CharArrayReader(writer.toCharArray());
-    JsonParserAsync parser = new JsonParserAsync(reader);
+    JsonStreamParser parser = new JsonStreamParser(reader);
     String actualOne = gson.fromJson(parser.next(), String.class);
     assertEquals("one", actualOne);
     String actualTwo = gson.fromJson(parser.next(), String.class);
@@ -107,7 +107,7 @@ public class ReadersWritersTest extends TestCase {
     BagOfPrimitives expectedTwo = new BagOfPrimitives(2, 2, false, "two");
     writer.write(gson.toJson(expectedTwo).toCharArray());
     CharArrayReader reader = new CharArrayReader(writer.toCharArray());
-    JsonParserAsync parser = new JsonParserAsync(reader);
+    JsonStreamParser parser = new JsonStreamParser(reader);
     BagOfPrimitives actualOne = gson.fromJson(parser.next(), BagOfPrimitives.class);
     assertEquals("one", actualOne.stringValue);
     BagOfPrimitives actualTwo = gson.fromJson(parser.next(), BagOfPrimitives.class);
