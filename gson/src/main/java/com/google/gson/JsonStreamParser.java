@@ -19,6 +19,7 @@ import java.io.EOFException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * A streaming parser that allows reading of multiple {@link JsonElement}s from the specified reader
@@ -31,7 +32,6 @@ import java.util.Iterator;
 public final class JsonStreamParser implements Iterator<JsonElement> {
 
   private final JsonParserJavacc parser;
-  private boolean eof;
   private JsonElement nextElement;
 
   /**
@@ -48,7 +48,6 @@ public final class JsonStreamParser implements Iterator<JsonElement> {
    */
   public JsonStreamParser(Reader reader) {
     parser = new JsonParserJavacc(reader);      
-    eof = false;
     nextElement = null;
   }
   
@@ -60,17 +59,13 @@ public final class JsonStreamParser implements Iterator<JsonElement> {
    * @since 1.4
    */
   public JsonElement next() throws JsonParseException {
-    if (eof) {
-      return null;
-    }
     if (nextElement != null) {
       JsonElement returnValue = nextElement;
       nextElement = null;
       return returnValue;
     }
     try {
-      JsonElement element = parser.parse();
-      return element;
+      return parser.parse();
     } catch (TokenMgrError e) {
       throw new JsonParseException("Failed parsing JSON source to Json", e);
     } catch (ParseException e) {
@@ -81,8 +76,7 @@ public final class JsonStreamParser implements Iterator<JsonElement> {
       throw new JsonParseException("Failed parsing JSON source to Json", e);
     } catch (JsonParseException e) {
       if (e.getCause() instanceof EOFException) {
-        eof = true;
-        return null;
+        throw new NoSuchElementException();
       } else {
         throw e;
       }
@@ -90,8 +84,13 @@ public final class JsonStreamParser implements Iterator<JsonElement> {
   }
 
   public boolean hasNext() {
-    nextElement = next();
-    return nextElement != null;
+    try {
+      nextElement = next();
+      return true;
+    } catch (NoSuchElementException e) {
+      nextElement = null;
+      return false;
+    }
   }
 
   public void remove() {

@@ -1,8 +1,9 @@
 package com.google.gson;
 
-import java.util.Iterator;
-
 import junit.framework.TestCase;
+
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * Unit tests for {@link JsonStreamParser}
@@ -26,5 +27,16 @@ public class JsonStreamParserTest extends TestCase {
     assertTrue(parser.hasNext());
     assertEquals("two", parser.next().getAsString());
     assertFalse(parser.hasNext());
+  }
+  
+  public void testCallingNextBeyondAvailableInput() {
+    Iterator<JsonElement> parser = new JsonStreamParser("'one' 'two'");
+    parser.next();
+    parser.next();
+    try {
+      parser.next();
+      fail("Parser should not go beyond available input");
+    } catch (NoSuchElementException expected) {
+    }
   }
 }

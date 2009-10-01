@@ -17,7 +17,6 @@ package com.google.gson.functional;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonStreamParser;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 
@@ -112,7 +111,6 @@ public class ReadersWritersTest extends TestCase {
     assertEquals("one", actualOne.stringValue);
     BagOfPrimitives actualTwo = gson.fromJson(parser.next(), BagOfPrimitives.class);
     assertEquals("two", actualTwo.stringValue);
-    JsonElement jsonElement = parser.next();
-    assertNull(jsonElement);
+    assertFalse(parser.hasNext());
   }
 }
