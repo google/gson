@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Google Inc.
+ * Copyright (C) 2009 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,29 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.google.gson;
 
-import com.google.gson.annotations.Expose;
-
 import java.lang.reflect.Field;
+
+import com.google.gson.annotations.Expose;
 
 /**
  * Excludes fields that do not have the {@link Expose} annotation
  * 
  * @author Inderjeet Singh
+ * @author Joel Leitch
  */
-class ExposeAnnotationBasedExclusionStrategy implements ExclusionStrategy {
-
-  enum Phase {
-    SERIALIZATION, DESERIALIZATION
-  }
-
-  private final Phase phase;
-  
-  public ExposeAnnotationBasedExclusionStrategy(Phase phase) {
-    this.phase = phase;
-  }
+final class ExposeAnnotationDeserializationExclusionStrategy implements ExclusionStrategy {
 
   public boolean shouldSkipClass(Class<?> clazz) {
     return false;
@@ -46,13 +36,6 @@ class ExposeAnnotationBasedExclusionStrategy implements ExclusionStrategy {
     if (annotation == null) {
       return true;
     }
-    switch (phase) {
-    case SERIALIZATION:
-      return !annotation.serialize();
-    case DESERIALIZATION:
-      return !annotation.deserialize();
-    default:
-      throw new IllegalStateException();
-    }
+    return !annotation.deserialize();
   }
 }
