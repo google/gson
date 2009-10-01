@@ -5,14 +5,14 @@ import java.util.Iterator;
 import junit.framework.TestCase;
 
 /**
- * Unit tests for {@link JsonParserAsync}
+ * Unit tests for {@link JsonStreamParser}
  *
  * @author Inderjeet Singh
  */
-public class JsonParserAsyncTest extends TestCase {
+public class JsonStreamParserTest extends TestCase {
   
   public void testParseTwoStrings() {
-    JsonParserAsync parser = new JsonParserAsync("'one' 'two'");
+    JsonStreamParser parser = new JsonStreamParser("'one' 'two'");
     String actualOne = parser.next().getAsString();
     assertEquals("one", actualOne);
     String actualTwo = parser.next().getAsString();
@@ -20,7 +20,7 @@ public class JsonParserAsyncTest extends TestCase {
   }
   
   public void testIterator() {
-    Iterator<JsonElement> parser = new JsonParserAsync("'one' 'two'");
+    Iterator<JsonElement> parser = new JsonStreamParser("'one' 'two'");
     assertTrue(parser.hasNext());
     assertEquals("one", parser.next().getAsString());
     assertTrue(parser.hasNext());
