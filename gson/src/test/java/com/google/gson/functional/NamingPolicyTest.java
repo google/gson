@@ -49,11 +49,9 @@ public class NamingPolicyTest extends TestCase {
 
   public void testGsonWithNonDefaultFieldNamingPolicyDeserialiation() {
     Gson gson = builder.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
-    StringWrapper target = new StringWrapper("SomeValue");
-    String jsonRepresentation = gson.toJson(target);
-    StringWrapper deserializedObject = gson.fromJson(jsonRepresentation, StringWrapper.class);
-    assertEquals(target.someConstantStringInstanceField,
-        deserializedObject.someConstantStringInstanceField);
+    String target = "{\"SomeConstantStringInstanceField\":\"someValue\"}";
+    StringWrapper deserializedObject = gson.fromJson(target, StringWrapper.class);
+    assertEquals("someValue", deserializedObject.someConstantStringInstanceField);
   }
   
   public void testGsonWithLowerCaseDashPolicySerialization() {
@@ -65,11 +63,9 @@ public class NamingPolicyTest extends TestCase {
 
   public void testGsonWithLowerCaseDashPolicyDeserialiation() {
     Gson gson = builder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_DASHES).create();
-    StringWrapper target = new StringWrapper("SomeValue");
-    String jsonRepresentation = gson.toJson(target);
-    StringWrapper deserializedObject = gson.fromJson(jsonRepresentation, StringWrapper.class);
-    assertEquals(target.someConstantStringInstanceField,
-        deserializedObject.someConstantStringInstanceField);
+    String target = "{\"some-constant-string-instance-field\":\"someValue\"}";
+    StringWrapper deserializedObject = gson.fromJson(target, StringWrapper.class);
+    assertEquals("someValue", deserializedObject.someConstantStringInstanceField);
   }
   
   public void testGsonWithLowerCaseUnderscorePolicySerialization() {
@@ -83,11 +79,9 @@ public class NamingPolicyTest extends TestCase {
   public void testGsonWithLowerCaseUnderscorePolicyDeserialiation() {
     Gson gson = builder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
         .create();
-    StringWrapper target = new StringWrapper("SomeValue");
-    String jsonRepresentation = gson.toJson(target);
-    StringWrapper deserializedObject = gson.fromJson(jsonRepresentation, StringWrapper.class);
-    assertEquals(target.someConstantStringInstanceField,
-        deserializedObject.someConstantStringInstanceField);
+    String target = "{\"some_constant_string_instance_field\":\"someValue\"}";
+    StringWrapper deserializedObject = gson.fromJson(target, StringWrapper.class);
+    assertEquals("someValue", deserializedObject.someConstantStringInstanceField);
   }
 
   public void testGsonWithSerializedNameFieldNamingPolicySerialization() {
