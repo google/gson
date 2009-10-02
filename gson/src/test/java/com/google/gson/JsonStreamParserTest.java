@@ -17,7 +17,6 @@ package com.google.gson;
 
 import junit.framework.TestCase;
 
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
