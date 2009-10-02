@@ -55,6 +55,40 @@ public class NamingPolicyTest extends TestCase {
     assertEquals(target.someConstantStringInstanceField,
         deserializedObject.someConstantStringInstanceField);
   }
+  
+  public void testGsonWithLowerCaseDashPolicySerialization() {
+    Gson gson = builder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_DASHES).create();
+    StringWrapper target = new StringWrapper("blah");
+    assertEquals("{\"some-constant-string-instance-field\":\""
+        + target.someConstantStringInstanceField + "\"}", gson.toJson(target));
+  }
+
+  public void testGsonWithLowerCaseDashPolicyDeserialiation() {
+    Gson gson = builder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_DASHES).create();
+    StringWrapper target = new StringWrapper("SomeValue");
+    String jsonRepresentation = gson.toJson(target);
+    StringWrapper deserializedObject = gson.fromJson(jsonRepresentation, StringWrapper.class);
+    assertEquals(target.someConstantStringInstanceField,
+        deserializedObject.someConstantStringInstanceField);
+  }
+  
+  public void testGsonWithLowerCaseUnderscorePolicySerialization() {
+    Gson gson = builder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+        .create();
+    StringWrapper target = new StringWrapper("blah");
+    assertEquals("{\"some_constant_string_instance_field\":\""
+        + target.someConstantStringInstanceField + "\"}", gson.toJson(target));
+  }
+
+  public void testGsonWithLowerCaseUnderscorePolicyDeserialiation() {
+    Gson gson = builder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+        .create();
+    StringWrapper target = new StringWrapper("SomeValue");
+    String jsonRepresentation = gson.toJson(target);
+    StringWrapper deserializedObject = gson.fromJson(jsonRepresentation, StringWrapper.class);
+    assertEquals(target.someConstantStringInstanceField,
+        deserializedObject.someConstantStringInstanceField);
+  }
 
   public void testGsonWithSerializedNameFieldNamingPolicySerialization() {
     Gson gson = builder.create();
