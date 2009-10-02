@@ -23,7 +23,23 @@ import java.util.NoSuchElementException;
 
 /**
  * A streaming parser that allows reading of multiple {@link JsonElement}s from the specified reader
- * asynchronously. This class is not thread-safe.
+ * asynchronously.
+ * 
+ * <p>This class is thread-compatible. For some more literature on these definitions, refer to
+ * Effective Java.
+ *
+ * <p>To properly use this class across multiple thread, you will need to add some external
+ * synchronization to your classes/thread to get this to work properly.  For example:
+ * 
+ * <pre>
+ * JsonStreamParser parser = new JsonStreamParser("blah blah blah");
+ * JsonElement element;
+ * synchronized (someCommonObject) {
+ *   if (parser.hasNext()) {
+ *     element = parser.next();
+ *   }
+ * }
+ * </pre>
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
@@ -32,6 +48,7 @@ import java.util.NoSuchElementException;
 public final class JsonStreamParser implements Iterator<JsonElement> {
 
   private final JsonParserJavacc parser;
+  private final Object lock;
   private JsonElement nextElement;
 
   /**
@@ -47,7 +64,8 @@ public final class JsonStreamParser implements Iterator<JsonElement> {
    * @since 1.4
    */
   public JsonStreamParser(Reader reader) {
-    parser = new JsonParserJavacc(reader);      
+    parser = new JsonParserJavacc(reader);
+    lock = new Object();
     nextElement = null;
   }
   
@@ -59,11 +77,14 @@ public final class JsonStreamParser implements Iterator<JsonElement> {
    * @since 1.4
    */
   public JsonElement next() throws JsonParseException {
-    if (nextElement != null) {
-      JsonElement returnValue = nextElement;
-      nextElement = null;
-      return returnValue;
+    synchronized (lock) {
+      if (nextElement != null) {
+        JsonElement returnValue = nextElement;
+        nextElement = null;
+        return returnValue;
+      }
     }
+
     try {
       return parser.parse();
     } catch (TokenMgrError e) {
@@ -84,12 +105,14 @@ public final class JsonStreamParser implements Iterator<JsonElement> {
   }
 
   public boolean hasNext() {
-    try {
-      nextElement = next();
-      return true;
-    } catch (NoSuchElementException e) {
-      nextElement = null;
-      return false;
+    synchronized (lock) {
+      try {
+        nextElement = next();
+        return true;
+      } catch (NoSuchElementException e) {
+        nextElement = null;
+        return false;
+      }
     }
   }
 
