@@ -25,8 +25,8 @@ import java.util.Stack;
  *
  * @author Joel Leitch
  */
-final class MemoryRefStack<T> {
-  private final Stack<T> stack = new Stack<T>();
+final class MemoryRefStack {
+  private final Stack<ObjectTypePair> stack = new Stack<ObjectTypePair>();
 
   /**
    * Adds a new element to the top of the stack.
@@ -34,7 +34,7 @@ final class MemoryRefStack<T> {
    * @param obj the object to add to the stack
    * @return the object that was added
    */
-  public T push(T obj) {
+  public ObjectTypePair push(ObjectTypePair obj) {
     Preconditions.checkNotNull(obj);
 
     return stack.push(obj);
@@ -46,7 +46,7 @@ final class MemoryRefStack<T> {
    * @return the element being removed from the stack
    * @throws java.util.EmptyStackException thrown if the stack is empty
    */
-  public T pop() {
+  public ObjectTypePair pop() {
     return stack.pop();
   }
 
@@ -60,7 +60,7 @@ final class MemoryRefStack<T> {
    * @return the item from the top of the stack
    * @throws java.util.EmptyStackException thrown if the stack is empty
    */
-  public T peek() {
+  public ObjectTypePair peek() {
     return stack.peek();
   }
 
@@ -71,13 +71,13 @@ final class MemoryRefStack<T> {
    * @param obj the object to search for in the stack
    * @return true if this object is already in the stack otherwise false
    */
-  public boolean contains(T obj) {
+  public boolean contains(ObjectTypePair obj) {
     if (obj == null) {
       return false;
     }
 
-    for (T stackObject : stack) {
-      if (obj == stackObject) {
+    for (ObjectTypePair stackObject : stack) {
+      if (stackObject.getObj() == obj.getObj() && stackObject.getType().equals(obj.getType()) ) {
         return true;
       }
     }

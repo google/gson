@@ -58,14 +58,15 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
 
   protected abstract T constructTarget();
 
-  public void start(Object node) {
+  public void start(ObjectTypePair node) {
   }
 
-  public void end(Object node) {
+  public void end(ObjectTypePair node) {
   }
 
   @SuppressWarnings("unchecked")
-  public final boolean visitUsingCustomHandler(Object obj, Type objType) {
+  public final boolean visitUsingCustomHandler(ObjectTypePair objTypePair) {
+    Type objType = objTypePair.getType();
     JsonDeserializer deserializer = deserializers.getHandlerFor(objType);
     if (deserializer != null) {
       target = (T) deserializer.deserialize(json, objType, context);
@@ -89,7 +90,7 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
   }
 
   private Object visitChild(Type type, JsonDeserializationVisitor<?> childVisitor) {
-    ObjectNavigator on = factory.create(null, type);
+    ObjectNavigator on = factory.create(new ObjectTypePair(null, type));
     on.accept(childVisitor);
     // the underlying object may have changed during the construction phase
     // This happens primarily because of custom deserializers
