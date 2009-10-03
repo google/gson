@@ -28,12 +28,12 @@ import java.util.EmptyStackException;
  * @author Joel Leitch
  */
 public class MemoryRefStackTest extends TestCase {
-  private MemoryRefStack<MockObject> stack;
+  private MemoryRefStack stack;
 
   @Override
   protected void setUp() throws Exception {
     super.setUp();
-    stack = new MemoryRefStack<MockObject>();
+    stack = new MemoryRefStack();
   }
 
   public void testPeekEmptyStack() throws Exception {
@@ -43,7 +43,7 @@ public class MemoryRefStackTest extends TestCase {
   }
 
   public void testPushPeekAndPop() throws Exception {
-    MockObject obj = new MockObject();
+    ObjectTypePair obj = new ObjectTypePair(this, getClass());
 
     assertEquals(obj, stack.push(obj));
     assertEquals(obj, stack.peek());
@@ -51,7 +51,7 @@ public class MemoryRefStackTest extends TestCase {
   }
 
   public void testPopTooMany() throws Exception {
-    MockObject obj = new MockObject();
+    ObjectTypePair obj = new ObjectTypePair(this, getClass());
     stack.push(obj);
     assertEquals(obj, stack.pop());
 
@@ -61,8 +61,8 @@ public class MemoryRefStackTest extends TestCase {
   }
 
   public void testContains() throws Exception {
-    MockObject objA = new MockObject();
-    MockObject objB = new MockObject();
+    ObjectTypePair objA = new ObjectTypePair(new MockObject(), MockObject.class);
+    ObjectTypePair objB = new ObjectTypePair(new MockObject(), MockObject.class);
     assertEquals(objA, objB);
 
     stack.push(objA);

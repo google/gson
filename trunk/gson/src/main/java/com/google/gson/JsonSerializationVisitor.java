@@ -32,12 +32,12 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   private final ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers;
   private final boolean serializeNulls;
   private final JsonSerializationContext context;
-  private final MemoryRefStack<Object> ancestors;
+  private final MemoryRefStack ancestors;
   private JsonElement root;
 
   JsonSerializationVisitor(ObjectNavigatorFactory factory, boolean serializeNulls,
       ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers,
-      JsonSerializationContext context, MemoryRefStack<Object> ancestors) {
+      JsonSerializationContext context, MemoryRefStack ancestors) {
     this.factory = factory;
     this.serializeNulls = serializeNulls;
     this.serializers = serializers;
@@ -49,7 +49,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
     return null;
   }
 
-  public void start(Object node) {
+  public void start(ObjectTypePair node) {
     if (node == null) {
       return;
     }
@@ -59,7 +59,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
     ancestors.push(node);
   }
 
-  public void end(Object node) {
+  public void end(ObjectTypePair node) {
     if (node != null) {
       ancestors.pop();
     }
@@ -80,7 +80,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
       if (child != null) {
         childType = getActualTypeIfMoreSpecific(childType, child.getClass());
       }
-      addAsArrayElement(childType, child);
+      addAsArrayElement(new ObjectTypePair(child, childType));
     }
   }
 
@@ -92,7 +92,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
         }
       } else {
         Object array = getFieldValue(f, obj);
-        addAsChildOfObject(f, typeOfF, array);
+        addAsChildOfObject(f, new ObjectTypePair(array, typeOfF));
       }
     } catch (CircularReferenceException e) {
       throw e.createDetailedException(f);
@@ -110,7 +110,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
         if (fieldValue != null) {
           typeOfF = getActualTypeIfMoreSpecific(typeOfF, fieldValue.getClass());
         }
-        addAsChildOfObject(f, typeOfF, fieldValue);
+        addAsChildOfObject(f, new ObjectTypePair(fieldValue, typeOfF));
       }
     } catch (CircularReferenceException e) {
       throw e.createDetailedException(f);
@@ -139,8 +139,8 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
     assignToRoot(json);
   }
 
-  private void addAsChildOfObject(Field f, Type fieldType, Object fieldValue) {
-    JsonElement childElement = getJsonElementForChild(fieldType, fieldValue);
+  private void addAsChildOfObject(Field f, ObjectTypePair fieldValuePair) {
+    JsonElement childElement = getJsonElementForChild(fieldValuePair);
     addChildAsElement(f, childElement);
   }
 
@@ -149,17 +149,17 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
     root.getAsJsonObject().add(namingPolicy.translateName(f), childElement);
   }
 
-  private void addAsArrayElement(Type elementType, Object elementValue) {
-    if (elementValue == null) {
+  private void addAsArrayElement(ObjectTypePair elementTypePair) {
+    if (elementTypePair.getObj() == null) {
       root.getAsJsonArray().add(JsonNull.createJsonNull());
     } else {
-      JsonElement childElement = getJsonElementForChild(elementType, elementValue);
+      JsonElement childElement = getJsonElementForChild(elementTypePair);
       root.getAsJsonArray().add(childElement);
     }
   }
 
-  private JsonElement getJsonElementForChild(Type fieldType, Object fieldValue) {
-    ObjectNavigator on = factory.create(fieldValue, fieldType);
+  private JsonElement getJsonElementForChild(ObjectTypePair fieldValueTypePair) {
+    ObjectNavigator on = factory.create(fieldValueTypePair);
     JsonSerializationVisitor childVisitor =
         new JsonSerializationVisitor(factory, serializeNulls, serializers, context, ancestors);
     on.accept(childVisitor);
@@ -167,8 +167,10 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   }
 
   @SuppressWarnings("unchecked")
-  public boolean visitUsingCustomHandler(Object obj, Type objType) {
+  public boolean visitUsingCustomHandler(ObjectTypePair objTypePair) {
     try {
+      Object obj = objTypePair.getObj();
+      Type objType = objTypePair.getType();
       JsonSerializer serializer = serializers.getHandlerFor(objType);
       if (serializer == null && obj != null) {
         serializer = serializers.getHandlerFor(obj.getClass());
@@ -178,7 +180,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
         if (obj == null) {
           assignToRoot(JsonNull.createJsonNull());
         } else {
-          assignToRoot(invokeCustomHandler(obj, objType, serializer));
+          assignToRoot(invokeCustomHandler(objTypePair, serializer));
         }
         return true;
       }
@@ -189,12 +191,12 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   }
 
   @SuppressWarnings("unchecked")
-  private JsonElement invokeCustomHandler(Object obj, Type objType, JsonSerializer serializer) {
-    start(obj);
+  private JsonElement invokeCustomHandler(ObjectTypePair objTypePair, JsonSerializer serializer) {
+    start(objTypePair);
     try {
-      return serializer.serialize(obj, objType, context);
+      return serializer.serialize(objTypePair.getObj(), objTypePair.getType(), context);
     } finally {
-      end(obj);
+      end(objTypePair);
     }
   }
 
@@ -211,7 +213,8 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
       }
       JsonSerializer serializer = serializers.getHandlerFor(actualTypeOfField);
       if (serializer != null) {
-        JsonElement child = invokeCustomHandler(obj, actualTypeOfField, serializer);
+        ObjectTypePair objTypePair = new ObjectTypePair(obj, actualTypeOfField);
+        JsonElement child = invokeCustomHandler(objTypePair, serializer);
         addChildAsElement(f, child);
         return true;
       }
