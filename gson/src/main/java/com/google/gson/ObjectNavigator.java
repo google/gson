@@ -29,8 +29,8 @@ import java.lang.reflect.Type;
 final class ObjectNavigator {
 
   public interface Visitor {
-    public void start(Object node);
-    public void end(Object node);
+    public void start(ObjectTypePair node);
+    public void end(ObjectTypePair node);
 
     /**
      * This is called before the object navigator starts visiting the current object
@@ -56,7 +56,7 @@ final class ObjectNavigator {
      * This is called to visit an object using a custom handler
      * @return true if a custom handler exists, false otherwise
      */
-    public boolean visitUsingCustomHandler(Object obj, Type objType);
+    public boolean visitUsingCustomHandler(ObjectTypePair objTypePair);
 
     /**
      * This is called to visit a field of the current object using a custom handler
@@ -72,20 +72,17 @@ final class ObjectNavigator {
   }
 
   private final ExclusionStrategy exclusionStrategy;
-  private final Object obj;
-  private final Type objType;
+  private final ObjectTypePair objTypePair;
 
   /**
-   * @param obj The object being navigated
-   * @param objType The (fully genericized) type of the object being navigated
+   * @param objTypePair The object,type (fully genericized) being navigated
    * @param exclusionStrategy the concrete strategy object to be used to
    *        filter out fields of an object.
    */
-  ObjectNavigator(Object obj, Type objType, ExclusionStrategy exclusionStrategy) {
+  ObjectNavigator(ObjectTypePair objTypePair, ExclusionStrategy exclusionStrategy) {
     Preconditions.checkNotNull(exclusionStrategy);
 
-    this.obj = obj;
-    this.objType = objType;
+    this.objTypePair = objTypePair;
     this.exclusionStrategy = exclusionStrategy;
   }
 
@@ -94,20 +91,21 @@ final class ObjectNavigator {
    * If a field is null, it does not get visited.
    */
   public void accept(Visitor visitor) {
-    boolean visitedWithCustomHandler = visitor.visitUsingCustomHandler(obj, objType);
+    boolean visitedWithCustomHandler = visitor.visitUsingCustomHandler(objTypePair);
     if (!visitedWithCustomHandler) {
+      Object obj = objTypePair.getObj();
       Object objectToVisit = (obj == null) ? visitor.getTarget() : obj;
       if (objectToVisit == null) {
         return;
       }
-      TypeInfo objTypeInfo = new TypeInfo(objType);
+      TypeInfo objTypeInfo = new TypeInfo(objTypePair.getType());
       if (exclusionStrategy.shouldSkipClass(objTypeInfo.getRawClass())) {
         return;
       }
-      visitor.start(obj);  
+      visitor.start(objTypePair);  
       try {
         if (objTypeInfo.isArray()) {
-          visitor.visitArray(objectToVisit, objType);
+          visitor.visitArray(objectToVisit, objTypePair.getType());
         } else if (objTypeInfo.getActualType() == Object.class
             && isPrimitiveOrString(objectToVisit)) {
           // TODO(Joel): this is only used for deserialization of "primitves"
@@ -128,7 +126,7 @@ final class ObjectNavigator {
           }
         }
       } finally {
-        visitor.end(obj);
+        visitor.end(objTypePair);
       }
     }
   }
@@ -146,7 +144,7 @@ final class ObjectNavigator {
       if (exclusionStrategy.shouldSkipField(f)) {
         continue; // skip
       } else {
-        TypeInfo fieldTypeInfo = TypeInfoFactory.getTypeInfoForField(f, objType);
+        TypeInfo fieldTypeInfo = TypeInfoFactory.getTypeInfoForField(f, objTypePair.getType());
         Type actualTypeOfField = fieldTypeInfo.getActualType();
         boolean visitedWithCustomHandler = 
             visitor.visitFieldUsingCustomHandler(f, actualTypeOfField, obj);

@@ -32,6 +32,7 @@ public class InterfaceTest extends TestCase {
   private Gson gson;
   private TestObject obj;
 
+  @Override
   protected void setUp() throws Exception {
     super.setUp();
     gson = new Gson();
