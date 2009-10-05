@@ -25,14 +25,12 @@ import java.util.NoSuchElementException;
  * A streaming parser that allows reading of multiple {@link JsonElement}s from the specified reader
  * asynchronously.
  * 
- * <p>This class is thread-compatible. For some more literature on these definitions, refer to
- * Effective Java.
- *
- * <p>To properly use this class across multiple thread, you will need to add some external
- * synchronization to your classes/thread to get this to work properly.  For example:
+ * <p>This class is conditionally thread-safe (see Item 70, Effective Java second edition). To
+ * properly use this class across multiple threads, you will need to add some external
+ * synchronization.  For example:
  * 
  * <pre>
- * JsonStreamParser parser = new JsonStreamParser("blah blah blah");
+ * JsonStreamParser parser = new JsonStreamParser("['first'] {'second':10} 'third'");
  * JsonElement element;
  * synchronized (someCommonObject) {
  *   if (parser.hasNext()) {
@@ -104,6 +102,11 @@ public final class JsonStreamParser implements Iterator<JsonElement> {
     }
   }
 
+  /**
+   * Returns true if a {@link JsonElement} is available on the input for consumption
+   * @return true if a {@link JsonElement} is available on the input, false otherwise
+   * @since 1.4
+   */
   public boolean hasNext() {
     synchronized (lock) {
       try {
@@ -116,6 +119,11 @@ public final class JsonStreamParser implements Iterator<JsonElement> {
     }
   }
 
+  /**
+   * This optional {@link Iterator} method is not relevant for stream parsing and hence is not
+   * implemented.
+   * @since 1.4
+   */
   public void remove() {
     throw new UnsupportedOperationException();
   }

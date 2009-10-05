@@ -187,13 +187,12 @@ public final class Gson {
 
   /**
    * This method serializes the specified object into its equivalent representation as a tree of 
-   * {JsonElement}s. This method should be used when the specified object is not a generic type. 
-   * This method uses {@link Class#getClass()} to get the type for the specified object, but the
-   * {@code getClass()} loses the generic type information because of the Type Erasure feature
+   * {@link JsonElement}s. This method should be used when the specified object is not a generic
+   * type. This method uses {@link Class#getClass()} to get the type for the specified object, but
+   * the {@code getClass()} loses the generic type information because of the Type Erasure feature
    * of Java. Note that this method works fine if the any of the object fields are of generic type,
    * just the object itself should not be of a generic type. If the object is of generic type, use
-   * {@link #toJson(Object, Type)} instead. If you want to write out the object to a
-   * {@link Writer}, use {@link #toJson(Object, Appendable)} instead.
+   * {@link #toJsonTree(Object, Type)} instead.
    *
    * @param src the object for which Json representation is to be created setting for Gson
    * @return Json representation of {@code src}.
@@ -209,9 +208,8 @@ public final class Gson {
   /**
    * This method serializes the specified object, including those of generic types, into its
    * equivalent representation as a tree of {@link JsonElement}s. This method must be used if the 
-   * specified object is a generic type. For non-generic objects, use {@link #toJson(Object)} 
-   * instead. If you want to write out the object to a {@link Appendable}, 
-   * use {@link #toJson(Object, Type, Appendable)} instead.
+   * specified object is a generic type. For non-generic objects, use {@link #toJsonTree(Object)} 
+   * instead. 
    *
    * @param src the object for which JSON representation is to be created
    * @param typeOfSrc The specific genericized type of src. You can obtain
@@ -321,7 +319,7 @@ public final class Gson {
   /**
    * Converts a tree of {@link JsonElement}s into its equivalent JSON representation.
    * 
-   * @param jsonElement root of the tree of {@link JsonElement}s
+   * @param jsonElement root of a tree of {@link JsonElement}s
    * @return JSON String representation of the tree
    * @since 1.4
    */
@@ -332,9 +330,9 @@ public final class Gson {
   }
   
   /**
-   * Writes out the equivalent JSON for the tree of {@link JsonElement}s.
+   * Writes out the equivalent JSON for a tree of {@link JsonElement}s.
    * 
-   * @param jsonElement root of the tree of {@link JsonElement}s
+   * @param jsonElement root of a tree of {@link JsonElement}s
    * @param writer Writer to which the Json representation needs to be written
    * @since 1.4
    */
