@@ -64,7 +64,10 @@ public enum FieldNamingPolicy {
    *   <li>aStringField ---> a-string-field</li>
    *   <li>aURL ---> a-u-r-l</li>
    * </ul>
-   * 
+   * Using dashes in JavaScript is not recommended since dash is also used for a minus sign in
+   * expressions. This requires that a field named with dashes is always accessed as a quoted
+   * property like {@code myobject['my-field']}. Accessing it as an object field
+   * {@code myobject.my-field} will result in an unintended javascript expression.
    * @since 1.4
    */
   LOWER_CASE_WITH_DASHES(new LowerCamelCaseSeparatorNamingPolicy("-"));

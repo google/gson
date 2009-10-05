@@ -150,7 +150,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   }
 
   private void addAsArrayElement(ObjectTypePair elementTypePair) {
-    if (elementTypePair.getObj() == null) {
+    if (elementTypePair.getObject() == null) {
       root.getAsJsonArray().add(JsonNull.createJsonNull());
     } else {
       JsonElement childElement = getJsonElementForChild(elementTypePair);
@@ -169,7 +169,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   @SuppressWarnings("unchecked")
   public boolean visitUsingCustomHandler(ObjectTypePair objTypePair) {
     try {
-      Object obj = objTypePair.getObj();
+      Object obj = objTypePair.getObject();
       Type objType = objTypePair.getType();
       JsonSerializer serializer = serializers.getHandlerFor(objType);
       if (serializer == null && obj != null) {
@@ -194,7 +194,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   private JsonElement invokeCustomHandler(ObjectTypePair objTypePair, JsonSerializer serializer) {
     start(objTypePair);
     try {
-      return serializer.serialize(objTypePair.getObj(), objTypePair.getType(), context);
+      return serializer.serialize(objTypePair.getObject(), objTypePair.getType(), context);
     } finally {
       end(objTypePair);
     }

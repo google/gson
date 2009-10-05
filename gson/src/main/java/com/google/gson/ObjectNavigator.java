@@ -93,7 +93,7 @@ final class ObjectNavigator {
   public void accept(Visitor visitor) {
     boolean visitedWithCustomHandler = visitor.visitUsingCustomHandler(objTypePair);
     if (!visitedWithCustomHandler) {
-      Object obj = objTypePair.getObj();
+      Object obj = objTypePair.getObject();
       Object objectToVisit = (obj == null) ? visitor.getTarget() : obj;
       if (objectToVisit == null) {
         return;

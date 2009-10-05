@@ -61,13 +61,12 @@ public class MemoryRefStackTest extends TestCase {
   }
 
   public void testContains() throws Exception {
-    ObjectTypePair objA = new ObjectTypePair(new MockObject(), MockObject.class);
-    ObjectTypePair objB = new ObjectTypePair(new MockObject(), MockObject.class);
+    MockObject objA = new MockObject();
+    MockObject objB = new MockObject();
     assertEquals(objA, objB);
-
-    stack.push(objA);
-    assertFalse(stack.contains(objB));
-    assertTrue(stack.contains(objA));
+    stack.push(new ObjectTypePair(objA, MockObject.class));
+    assertTrue(stack.contains(new ObjectTypePair(objA, MockObject.class)));
+    assertFalse(stack.contains(new ObjectTypePair(objB, MockObject.class)));
   }
 
   private static class MockObject {
