@@ -17,6 +17,8 @@
 package com.google.gson.functional;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.common.TestTypes.ClassWithTransientFields;
 import com.google.gson.common.TestTypes.Nested;
@@ -35,9 +37,16 @@ import java.util.List;
  */
 public class PrintFormattingTest extends TestCase {
 
+  private Gson gson;
+
+  @Override
+  protected void setUp() throws Exception {
+    super.setUp();
+    gson = new Gson();
+  }
+
   @SuppressWarnings("unchecked")
   public void testCompactFormattingLeavesNoWhiteSpace() {
-    Gson gson = new Gson();
     List list = new ArrayList();
     list.add(new BagOfPrimitives());
     list.add(new Nested());
@@ -46,6 +55,25 @@ public class PrintFormattingTest extends TestCase {
 
     String json = gson.toJson(list);
     assertContainsNoWhiteSpace(json);
+  }
+
+  public void testJsonObjectWithNullValues() {
+    JsonObject obj = new JsonObject();
+    obj.addProperty("field1", "value1");
+    obj.addProperty("field2", (String) null);
+    String json = gson.toJson(obj);
+    assertTrue(json.contains("field1"));
+    assertFalse(json.contains("field2"));
+  }
+
+  public void testJsonObjectWithNullValuesSerialized() {
+    gson = new GsonBuilder().serializeNulls().create();
+    JsonObject obj = new JsonObject();
+    obj.addProperty("field1", "value1");
+    obj.addProperty("field2", (String) null);
+    String json = gson.toJson(obj);
+    assertTrue(json.contains("field1"));
+    assertTrue(json.contains("field2"));
   }
 
   private static void assertContainsNoWhiteSpace(String str) {
