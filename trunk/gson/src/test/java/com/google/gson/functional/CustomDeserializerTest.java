@@ -16,8 +16,6 @@
 
 package com.google.gson.functional;
 
-import java.lang.reflect.Type;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -27,6 +25,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 
 import junit.framework.TestCase;
+
+import java.lang.reflect.Type;
 
 /**
  * Functional Test exercising custom deserialization only.  When test applies to both 
@@ -105,5 +105,39 @@ public class CustomDeserializerTest extends TestCase {
       String dataString = jsonObj.get("data").getAsString();
       return new DataHolder(dataString + SUFFIX);
     }
+  }
+  
+  public void testJsonTypeFieldBasedDeserialization() {
+    String json = "{field1:'abc',field2:'def',__type__:'SUB_TYPE1'}";
+    Gson gson = new GsonBuilder().registerTypeAdapter(MyBase.class, new JsonDeserializer<MyBase>() {
+      public MyBase deserialize(JsonElement json, Type pojoType,
+          JsonDeserializationContext context) throws JsonParseException {
+        String type = json.getAsJsonObject().get(MyBase.TYPE_ACCESS).getAsString();
+        return context.deserialize(json, SubTypes.valueOf(type).getSubclass());
+      }
+    }).create();    
+    SubType1 target = (SubType1) gson.fromJson(json, MyBase.class);
+    assertEquals("abc", target.field1);    
+  }
+  private static class MyBase {
+    static final String TYPE_ACCESS = "__type__";
+  }
+  private enum SubTypes { 
+    SUB_TYPE1(SubType1.class),
+    SUB_TYPE2(SubType2.class);
+    private final Type subClass;
+    private SubTypes(Type subClass) {
+      this.subClass = subClass;
+    }
+    public Type getSubclass() {
+      return subClass;
+    }
+  }
+  private static class SubType1 extends MyBase {
+    String field1;    
+  }
+  private static class SubType2 extends MyBase {
+    @SuppressWarnings("unused")
+    String field2;    
   }
 }
