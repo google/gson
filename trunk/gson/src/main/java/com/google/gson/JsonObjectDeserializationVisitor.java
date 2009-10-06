@@ -112,8 +112,10 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
       @SuppressWarnings("unchecked")
       JsonDeserializer deserializer = deserializers.getHandlerFor(actualTypeOfField);
       if (deserializer != null) {
-        Object value = deserializer.deserialize(child, actualTypeOfField, context);
-        f.set(parent, value);
+        if (child != null && !child.isJsonNull()) {
+          Object value = deserializer.deserialize(child, actualTypeOfField, context);
+          f.set(parent, value);
+        }
         return true;
       }
       return false;
