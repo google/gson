@@ -21,6 +21,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
@@ -173,7 +175,34 @@ public class NullObjectAndFieldTest extends TestCase {
     ObjectWithField obj = gson.fromJson(json, ObjectWithField.class);
     assertNull(obj.value);    
   }
-  
+
+  public void testCustomTypeAdapterPassesNullSerialization() {
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapter(ObjectWithField.class, new JsonSerializer<ObjectWithField>() {
+          public JsonElement serialize(ObjectWithField src, Type typeOfSrc,
+              JsonSerializationContext context) {
+            return context.serialize(null);
+          }
+        }).create();
+    ObjectWithField target = new ObjectWithField();
+    target.value = "value1";
+    String json = gson.toJson(target);
+    assertFalse(json.contains("value1"));
+  }
+
+  public void testCustomTypeAdapterPassesNullDesrialization() {
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapter(ObjectWithField.class, new JsonDeserializer<ObjectWithField>() {
+          public ObjectWithField deserialize(JsonElement json, Type type,
+              JsonDeserializationContext context) {
+            return context.deserialize(null, type);
+          }
+        }).create();
+    String json = "{value:'value1'}";
+    ObjectWithField target = gson.fromJson(json, ObjectWithField.class);
+    assertFalse("value1".equals(target.value));
+  }
+
   private static class ObjectWithField {
     String value = "";
   }

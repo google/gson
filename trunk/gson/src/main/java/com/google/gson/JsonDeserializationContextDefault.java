@@ -43,14 +43,14 @@ final class JsonDeserializationContextDefault implements JsonDeserializationCont
 
   @SuppressWarnings("unchecked")
   public <T> T deserialize(JsonElement json, Type typeOfT) throws JsonParseException {
-    if (json.isJsonArray()) {
+    if (json == null || json.isJsonNull()) {
+      return null;
+    } else if (json.isJsonArray()) {
       return (T) fromJsonArray(typeOfT, json.getAsJsonArray(), this);
     } else if (json.isJsonObject()) {
       return (T) fromJsonObject(typeOfT, json.getAsJsonObject(), this);
     } else if (json.isJsonPrimitive()) {
       return (T) fromJsonPrimitive(typeOfT, json.getAsJsonPrimitive(), this);
-    } else if (json.isJsonNull()) {
-      return null;
     } else {
       throw new JsonParseException("Failed parsing JSON source: " + json + " to Json");
     }
