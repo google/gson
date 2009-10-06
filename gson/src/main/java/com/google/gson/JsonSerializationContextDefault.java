@@ -39,6 +39,9 @@ final class JsonSerializationContextDefault implements JsonSerializationContext 
   }
 
   public JsonElement serialize(Object src) {
+    if (src == null) {
+      return JsonNull.createJsonNull();
+    }
     return serialize(src, src.getClass());
   }
 
