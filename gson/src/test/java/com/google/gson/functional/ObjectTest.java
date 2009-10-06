@@ -16,15 +16,10 @@
 
 package com.google.gson.functional;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collection;
-
-import junit.framework.TestCase;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
+import com.google.gson.JsonObject;
 import com.google.gson.common.TestTypes.ArrayOfObjects;
 import com.google.gson.common.TestTypes.BagOfPrimitiveWrappers;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
@@ -34,6 +29,12 @@ import com.google.gson.common.TestTypes.ClassWithObjects;
 import com.google.gson.common.TestTypes.ClassWithTransientFields;
 import com.google.gson.common.TestTypes.Nested;
 import com.google.gson.common.TestTypes.PrimitiveArray;
+
+import junit.framework.TestCase;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Functional tests for Json serialization and deserialization of regular classes.
@@ -400,5 +401,12 @@ public class ObjectTest extends TestCase {
     String a = "";
     String b = "";
     String c = "";
+  }
+  
+  public void testJsonObjectSerialization() {
+    Gson gson = new GsonBuilder().serializeNulls().create();
+    JsonObject obj = new JsonObject();
+    String json = gson.toJson(obj);
+    assertEquals("{}", json);
   }
 }

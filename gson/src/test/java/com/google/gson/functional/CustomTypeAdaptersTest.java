@@ -406,4 +406,72 @@ public class CustomTypeAdaptersTest extends TestCase {
     assertEquals("Jacob", foo.part1);
     assertEquals("Tomaw", foo.part2);
   }
+
+  public void testEnsureCustomSerializerNotInvokedForNullValues() {
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapter(DataHolder.class, new DataHolderSerializer())
+        .create();
+    DataHolderWrapper target = new DataHolderWrapper(new DataHolder("abc"));
+    String json = gson.toJson(target);
+    assertEquals("{\"wrappedData\":{\"myData\":\"abc\"}}", json);
+  }
+
+  public void testEnsureCustomDeserializerNotInvokedForNullValues() {
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapter(DataHolder.class, new DataHolderDeserializer())
+        .create();
+    String json = "{wrappedData:null}";
+    DataHolderWrapper actual = gson.fromJson(json, DataHolderWrapper.class);
+    assertNull(actual.wrappedData);
+  }
+
+  private static class DataHolder {
+    @SuppressWarnings("unused")
+    final String data;
+
+    // For use by Gson
+    @SuppressWarnings("unused")
+    private DataHolder() {
+      this("");
+    }
+    
+    public DataHolder(String data) {
+      this.data = data;
+    }
+  }
+  
+  private static class DataHolderWrapper {
+    final DataHolder wrappedData;
+    
+    // For use by Gson
+    @SuppressWarnings("unused")
+    private DataHolderWrapper() {
+      this(null);
+    }
+    
+    public DataHolderWrapper(DataHolder data) {
+      this.wrappedData = data;
+    }
+  }
+  
+  private static class DataHolderSerializer implements JsonSerializer<DataHolder> {
+    public JsonElement serialize(DataHolder src, Type typeOfSrc, JsonSerializationContext context) {
+      JsonObject obj = new JsonObject();
+      obj.addProperty("myData", src.data);
+      return obj;
+    }
+  }
+
+  private static class DataHolderDeserializer implements JsonDeserializer<DataHolder> {
+    public DataHolder deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+        throws JsonParseException {
+      JsonObject jsonObj = json.getAsJsonObject();
+      JsonElement jsonElement = jsonObj.get("data");
+      if (jsonElement == null || jsonElement.isJsonNull()) {
+        return new DataHolder(null);
+      }
+      return new DataHolder(jsonElement.getAsString());
+    }
+  }
+
 }
