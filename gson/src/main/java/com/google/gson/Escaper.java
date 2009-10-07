@@ -54,9 +54,7 @@ class Escaper {
     htmlEscapeSet.add('>');
     htmlEscapeSet.add('&');
     htmlEscapeSet.add('=');
-    // Removing ' for now since it is a valid character in JSON, but not javascript
-    // When enabling this, remember to enable the test EscaperTest.disable_testSingleQuoteEscaping
-//    htmlEscapeSet.add('\''); 
+    htmlEscapeSet.add('\''); 
 //    htmlEscapeSet.add('/');  -- Removing slash for now since it causes some incompatibilities
     HTML_ESCAPE_CHARS = Collections.unmodifiableSet(htmlEscapeSet);
   }
@@ -114,10 +112,7 @@ class Escaper {
            out.append("\\/");
            break;
          case '"':
-           out.append('\\').append((char) codePoint);
-           break;
-         case '\'':
-           out.append('\\').append((char) codePoint);
+           out.append("\\\"");
            break;
          default:
            appendHexJavaScriptRepresentation(codePoint, out);
