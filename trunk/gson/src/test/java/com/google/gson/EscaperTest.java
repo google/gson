@@ -65,10 +65,10 @@ public class EscaperTest extends TestCase {
     assertEquals("123\\\"456", escapedString);
   }
   
-  public void disable_testSingleQuoteEscaping() throws Exception {
+  public void testSingleQuoteEscaping() throws Exception {
     String containsQuote = "123'456";
     String escapedString = escapeHtmlChar.escapeJsonString(containsQuote);
-    assertEquals("123\\'456", escapedString);
+    assertEquals("123\\u0027456", escapedString);
   }
 
   public void testLineSeparatorEscaping() throws Exception {
