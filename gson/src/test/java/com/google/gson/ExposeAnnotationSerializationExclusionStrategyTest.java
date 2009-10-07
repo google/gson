@@ -39,25 +39,25 @@ public class ExposeAnnotationSerializationExclusionStrategyTest extends TestCase
   public void testNeverSkipClasses() throws Exception {
     assertFalse(strategy.shouldSkipClass(MockObject.class));
   }
-  
+
   public void testSkipNonAnnotatedFields() throws Exception {
     Field f = MockObject.class.getField("hiddenField");
-    assertTrue(strategy.shouldSkipField(f));
+    assertTrue(strategy.shouldSkipField(new FieldAttributes(f)));
   }
-  
+
   public void testSkipExplicitlySkippedFields() throws Exception {
     Field f = MockObject.class.getField("explicitlyHiddenField");
-    assertTrue(strategy.shouldSkipField(f));
+    assertTrue(strategy.shouldSkipField(new FieldAttributes(f)));
   }
-  
+
   public void testNeverSkipExposedAnnotatedFields() throws Exception {
     Field f = MockObject.class.getField("exposedField");
-    assertFalse(strategy.shouldSkipField(f));
+    assertFalse(strategy.shouldSkipField(new FieldAttributes(f)));
   }
 
   public void testNeverSkipExplicitlyExposedAnnotatedFields() throws Exception {
     Field f = MockObject.class.getField("explicitlyExposedField");
-    assertFalse(strategy.shouldSkipField(f));
+    assertFalse(strategy.shouldSkipField(new FieldAttributes(f)));
   }
 
   @SuppressWarnings("unused")
@@ -67,7 +67,7 @@ public class ExposeAnnotationSerializationExclusionStrategyTest extends TestCase
 
     @Expose(serialize=true)
     public final int explicitlyExposedField = 0;
-    
+
     @Expose(serialize=false)
     public final int explicitlyHiddenField = 0;
 

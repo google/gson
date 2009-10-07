@@ -16,7 +16,6 @@
 
 package com.google.gson;
 
-import java.lang.reflect.Field;
 
 /**
  * This acts as a "Null Object" pattern for the {@link ExclusionStrategy}.
@@ -28,7 +27,7 @@ import java.lang.reflect.Field;
  */
 final class NullExclusionStrategy implements ExclusionStrategy {
 
-  public boolean shouldSkipField(Field f) {
+  public boolean shouldSkipField(FieldAttributes f) {
     return false;
   }
 

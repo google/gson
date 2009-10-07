@@ -16,7 +16,6 @@
 
 package com.google.gson;
 
-import java.lang.reflect.Field;
 import java.util.Collection;
 
 /**
@@ -33,7 +32,7 @@ final class DisjunctionExclusionStrategy implements ExclusionStrategy {
     this.strategies = strategies;
   }
 
-  public boolean shouldSkipField(Field f) {
+  public boolean shouldSkipField(FieldAttributes f) {
     for (ExclusionStrategy strategy : strategies) {
       if (strategy.shouldSkipField(f)) {
         return true;

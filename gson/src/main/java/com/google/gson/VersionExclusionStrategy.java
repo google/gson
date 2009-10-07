@@ -19,9 +19,6 @@ package com.google.gson;
 import com.google.gson.annotations.Since;
 import com.google.gson.annotations.Until;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-
 /**
  * This strategy will exclude any files and/or class that are passed the
  * {@link #version} value.
@@ -36,36 +33,31 @@ final class VersionExclusionStrategy implements ExclusionStrategy {
     this.version = version;
   }
 
-  public boolean shouldSkipField(Field f) {
-    return !isValidVersion(f.getAnnotations());
+  public boolean shouldSkipField(FieldAttributes f) {
+    return !isValidVersion(f.getAnnotation(Since.class), f.getAnnotation(Until.class));
   }
 
   public boolean shouldSkipClass(Class<?> clazz) {
-    return !isValidVersion(clazz.getAnnotations());
+    return !isValidVersion(clazz.getAnnotation(Since.class), clazz.getAnnotation(Until.class));
   }
 
-  private boolean isValidVersion(Annotation[] annotations) {
-    for (Annotation annotation : annotations) {
-      if (!isValidSince(annotation) || !isValidUntil(annotation)) {
-        return false;
-      }
-    }
-    return true;
+  private boolean isValidVersion(Since since, Until until) {
+    return (isValidSince(since) && isValidUntil(until));
   }
-  
-  private boolean isValidSince(Annotation annotation) {
-    if (annotation instanceof Since) {
-      double annotationVersion = ((Since) annotation).value();
+
+  private boolean isValidSince(Since annotation) {
+    if (annotation != null) {
+      double annotationVersion = annotation.value();
       if (annotationVersion > version) {
         return false;
       }
     }
     return true;
   }
-  
-  private boolean isValidUntil(Annotation annotation) {
-    if (annotation instanceof Until) {
-      double annotationVersion = ((Until) annotation).value();
+
+  private boolean isValidUntil(Until annotation) {
+    if (annotation != null) {
+      double annotationVersion = annotation.value();
       if (annotationVersion <= version) {
         return false;
       }
