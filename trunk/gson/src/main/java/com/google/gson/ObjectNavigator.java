@@ -62,7 +62,7 @@ final class ObjectNavigator {
      * This is called to visit a field of the current object using a custom handler
      */
     public boolean visitFieldUsingCustomHandler(Field f, Type actualTypeOfField, Object parent);
-    
+
     /**
      * Retrieve the current target
      */
@@ -102,7 +102,7 @@ final class ObjectNavigator {
       if (exclusionStrategy.shouldSkipClass(objTypeInfo.getRawClass())) {
         return;
       }
-      visitor.start(objTypePair);  
+      visitor.start(objTypePair);
       try {
         if (objTypeInfo.isArray()) {
           visitor.visitArray(objectToVisit, objTypePair.getType());
@@ -141,12 +141,12 @@ final class ObjectNavigator {
     Field[] fields = clazz.getDeclaredFields();
     AccessibleObject.setAccessible(fields, true);
     for (Field f : fields) {
-      if (exclusionStrategy.shouldSkipField(f)) {
+      if (exclusionStrategy.shouldSkipField(new FieldAttributes(f))) {
         continue; // skip
       } else {
         TypeInfo fieldTypeInfo = TypeInfoFactory.getTypeInfoForField(f, objTypePair.getType());
         Type actualTypeOfField = fieldTypeInfo.getActualType();
-        boolean visitedWithCustomHandler = 
+        boolean visitedWithCustomHandler =
             visitor.visitFieldUsingCustomHandler(f, actualTypeOfField, obj);
         if (!visitedWithCustomHandler) {
           if (fieldTypeInfo.isArray()) {

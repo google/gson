@@ -16,7 +16,6 @@
 
 package com.google.gson;
 
-import java.lang.reflect.Field;
 
 /**
  * Strategy for excluding anonymous and local classes.
@@ -25,8 +24,8 @@ import java.lang.reflect.Field;
  */
 final class AnonymousAndLocalClassExclusionStrategy implements ExclusionStrategy {
 
-  public boolean shouldSkipField(Field f) {
-    return isAnonymousOrLocal(f.getType());
+  public boolean shouldSkipField(FieldAttributes f) {
+    return isAnonymousOrLocal(f.getDeclaredClass());
   }
 
   public boolean shouldSkipClass(Class<?> clazz) {

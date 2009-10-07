@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Google Inc.
+ * Copyright (C) 2009 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,27 +16,29 @@
 
 package com.google.gson;
 
-
 /**
- * This is a configurable {@link ExclusionStrategy} that can be used for
- * unit testing.
+ * A data object that stores attributes of a field.
  *
+ * <p>This class is immutable; therefore, it can be safely shared across threads.
+ *
+ * @author Inderjeet Singh
  * @author Joel Leitch
+ *
+ * @since 1.4
  */
-public class MockExclusionStrategy implements ExclusionStrategy {
-  private final boolean skipClass;
-  private final boolean skipField;
+class SyntheticFieldExclusionStrategy implements ExclusionStrategy {
+  private final boolean skipSyntheticFields;
 
-  public MockExclusionStrategy(boolean skipClass, boolean skipField) {
-    this.skipClass = skipClass;
-    this.skipField = skipField;
-  }
-
-  public boolean shouldSkipField(FieldAttributes f) {
-    return skipField;
+  SyntheticFieldExclusionStrategy(boolean skipSyntheticFields) {
+    this.skipSyntheticFields = skipSyntheticFields;
   }
 
   public boolean shouldSkipClass(Class<?> clazz) {
-    return skipClass;
+    return false;
   }
+
+  public boolean shouldSkipField(FieldAttributes f) {
+    return skipSyntheticFields && f.isSynthetic();
+  }
+
 }

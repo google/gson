@@ -15,13 +15,11 @@
  */
 package com.google.gson;
 
-import java.lang.reflect.Field;
-
 import com.google.gson.annotations.Expose;
 
 /**
  * Excludes fields that do not have the {@link Expose} annotation
- * 
+ *
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
@@ -31,7 +29,7 @@ final class ExposeAnnotationDeserializationExclusionStrategy implements Exclusio
     return false;
   }
 
-  public boolean shouldSkipField(Field f) {
+  public boolean shouldSkipField(FieldAttributes f) {
     Expose annotation = f.getAnnotation(Expose.class);
     if (annotation == null) {
       return true;

@@ -77,20 +77,27 @@ public final class Gson {
   private static final String NULL_STRING = "null";
 
   static final boolean DEFAULT_JSON_NON_EXECUTABLE = false;
-  
+
   // Default instances of plug-ins
+  static final AnonymousAndLocalClassExclusionStrategy DEFAULT_ANON_LOCAL_CLASS_EXCLUSION_STRATEGY =
+      new AnonymousAndLocalClassExclusionStrategy();
+  static final SyntheticFieldExclusionStrategy DEFAULT_SYNTHETIC_FIELD_EXCLUSION_STRATEGY =
+      new SyntheticFieldExclusionStrategy(true);
   static final ModifierBasedExclusionStrategy DEFAULT_MODIFIER_BASED_EXCLUSION_STRATEGY =
-      new ModifierBasedExclusionStrategy(true, new int[] { Modifier.TRANSIENT, Modifier.STATIC });
+      new ModifierBasedExclusionStrategy(new int[] { Modifier.TRANSIENT, Modifier.STATIC });
   static final JsonFormatter DEFAULT_JSON_FORMATTER = new JsonCompactFormatter();
   static final FieldNamingStrategy DEFAULT_NAMING_POLICY =
       new SerializedNameAnnotationInterceptingNamingPolicy(new JavaFieldNamingPolicy());
+
+  private static final ExclusionStrategy DEFAULT_EXCLUSION_STRATEGY =
+      createExclusionStrategy(VersionConstants.IGNORE_VERSIONS);
 
   private static final String JSON_NON_EXECUTABLE_PREFIX = ")]}'\n";
 
   private final ExclusionStrategy serializationStrategy;
 
   private final ExclusionStrategy deserializationStrategy;
-  
+
   private final FieldNamingStrategy fieldNamingPolicy;
   private final MappedObjectConstructor objectConstructor;
 
@@ -121,7 +128,7 @@ public final class Gson {
    *   {@link java.math.BigDecimal}, and {@link java.math.BigInteger} classes. If you would prefer
    *   to change the default representation, you can do so by registering a type adapter through
    *   {@link GsonBuilder#registerTypeAdapter(Type, Object)}. </li>
-   *   <li>The default Date format is same as {@link java.text.DateFormat#DEFAULT}. This format 
+   *   <li>The default Date format is same as {@link java.text.DateFormat#DEFAULT}. This format
    *   ignores the millisecond portion of the date during serialization. You can change
    *   this by invoking {@link GsonBuilder#setDateFormat(int)} or
    *   {@link GsonBuilder#setDateFormat(String)}. </li>
@@ -140,25 +147,17 @@ public final class Gson {
    * </ul>
    */
   public Gson() {
-    this(createExclusionStrategy(VersionConstants.IGNORE_VERSIONS), DEFAULT_NAMING_POLICY);
+    this(DEFAULT_EXCLUSION_STRATEGY, DEFAULT_EXCLUSION_STRATEGY, DEFAULT_NAMING_POLICY,
+    new MappedObjectConstructor(DefaultTypeAdapters.getDefaultInstanceCreators()),
+    DEFAULT_JSON_FORMATTER, false, DefaultTypeAdapters.getDefaultSerializers(),
+    DefaultTypeAdapters.getDefaultDeserializers(), DEFAULT_JSON_NON_EXECUTABLE);
   }
 
-  /**
-   * Constructs a Gson object with the specified version and the mode of operation while
-   * encountering inner class references.
-   */
-  Gson(ExclusionStrategy strategy, FieldNamingStrategy fieldNamingPolicy) {
-    this(strategy, strategy, fieldNamingPolicy, 
-        new MappedObjectConstructor(DefaultTypeAdapters.getDefaultInstanceCreators()),
-        DEFAULT_JSON_FORMATTER, false, DefaultTypeAdapters.getDefaultSerializers(),
-        DefaultTypeAdapters.getDefaultDeserializers(), DEFAULT_JSON_NON_EXECUTABLE);
-  }
-
-  Gson(ExclusionStrategy serializationStrategy, ExclusionStrategy deserializationStrategy, 
-      FieldNamingStrategy fieldNamingPolicy, MappedObjectConstructor objectConstructor, 
-      JsonFormatter formatter, boolean serializeNulls, 
+  Gson(ExclusionStrategy serializationStrategy, ExclusionStrategy deserializationStrategy,
+      FieldNamingStrategy fieldNamingPolicy, MappedObjectConstructor objectConstructor,
+      JsonFormatter formatter, boolean serializeNulls,
       ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers,
-      ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers, 
+      ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers,
       boolean generateNonExecutableGson) {
     this.serializationStrategy = serializationStrategy;
     this.deserializationStrategy = deserializationStrategy;
@@ -170,14 +169,15 @@ public final class Gson {
     this.deserializers = deserializers;
     this.generateNonExecutableJson = generateNonExecutableGson;
   }
-  
+
   private ObjectNavigatorFactory createDefaultObjectNavigatorFactory(ExclusionStrategy strategy) {
     return new ObjectNavigatorFactory(strategy, fieldNamingPolicy);
   }
 
   private static ExclusionStrategy createExclusionStrategy(double version) {
     List<ExclusionStrategy> strategies = new LinkedList<ExclusionStrategy>();
-    strategies.add(new AnonymousAndLocalClassExclusionStrategy());
+    strategies.add(DEFAULT_ANON_LOCAL_CLASS_EXCLUSION_STRATEGY);
+    strategies.add(DEFAULT_SYNTHETIC_FIELD_EXCLUSION_STRATEGY);
     strategies.add(DEFAULT_MODIFIER_BASED_EXCLUSION_STRATEGY);
     if (version != VersionConstants.IGNORE_VERSIONS) {
       strategies.add(new VersionExclusionStrategy(version));
@@ -186,7 +186,7 @@ public final class Gson {
   }
 
   /**
-   * This method serializes the specified object into its equivalent representation as a tree of 
+   * This method serializes the specified object into its equivalent representation as a tree of
    * {@link JsonElement}s. This method should be used when the specified object is not a generic
    * type. This method uses {@link Class#getClass()} to get the type for the specified object, but
    * the {@code getClass()} loses the generic type information because of the Type Erasure feature
@@ -207,9 +207,9 @@ public final class Gson {
 
   /**
    * This method serializes the specified object, including those of generic types, into its
-   * equivalent representation as a tree of {@link JsonElement}s. This method must be used if the 
-   * specified object is a generic type. For non-generic objects, use {@link #toJsonTree(Object)} 
-   * instead. 
+   * equivalent representation as a tree of {@link JsonElement}s. This method must be used if the
+   * specified object is a generic type. For non-generic objects, use {@link #toJsonTree(Object)}
+   * instead.
    *
    * @param src the object for which JSON representation is to be created
    * @param typeOfSrc The specific genericized type of src. You can obtain
@@ -318,7 +318,7 @@ public final class Gson {
 
   /**
    * Converts a tree of {@link JsonElement}s into its equivalent JSON representation.
-   * 
+   *
    * @param jsonElement root of a tree of {@link JsonElement}s
    * @return JSON String representation of the tree
    * @since 1.4
@@ -328,10 +328,10 @@ public final class Gson {
     toJson(jsonElement, writer);
     return writer.toString();
   }
-  
+
   /**
    * Writes out the equivalent JSON for a tree of {@link JsonElement}s.
-   * 
+   *
    * @param jsonElement root of a tree of {@link JsonElement}s
    * @param writer Writer to which the Json representation needs to be written
    * @since 1.4
@@ -347,7 +347,7 @@ public final class Gson {
       formatter.format(jsonElement, writer, serializeNulls);
     } catch (IOException e) {
       throw new RuntimeException(e);
-    }    
+    }
   }
 
   /**
@@ -452,9 +452,9 @@ public final class Gson {
    * Therefore, this method should not be used if the desired type is a generic type. Note that
    * this method works fine if the any of the fields of the specified object are generics, just the
    * object itself should not be a generic type. For the cases when the object is of generic type,
-   * invoke {@link #fromJson(JsonElement, Type)}. 
+   * invoke {@link #fromJson(JsonElement, Type)}.
    * @param <T> the type of the desired object
-   * @param json the root of the parse tree of {@link JsonElement}s from which the object is to 
+   * @param json the root of the parse tree of {@link JsonElement}s from which the object is to
    * be deserialized
    * @param classOfT The class of T
    * @return an object of type T from the json
@@ -469,10 +469,10 @@ public final class Gson {
   /**
    * This method deserializes the Json read from the specified parse tree into an object of the
    * specified type. This method is useful if the specified object is a generic type. For
-   * non-generic objects, use {@link #fromJson(JsonElement, Class)} instead. 
+   * non-generic objects, use {@link #fromJson(JsonElement, Class)} instead.
    *
    * @param <T> the type of the desired object
-   * @param json the root of the parse tree of {@link JsonElement}s from which the object is to 
+   * @param json the root of the parse tree of {@link JsonElement}s from which the object is to
    * be deserialized
    * @param typeOfT The specific genericized type of src. You can obtain this type by using the
    * {@link com.google.gson.reflect.TypeToken} class. For example, to get the type for
@@ -490,7 +490,7 @@ public final class Gson {
       return null;
     }
     JsonDeserializationContext context = new JsonDeserializationContextDefault(
-        createDefaultObjectNavigatorFactory(deserializationStrategy), deserializers, 
+        createDefaultObjectNavigatorFactory(deserializationStrategy), deserializers,
         objectConstructor);
     T target = (T) context.deserialize(json, typeOfT);
     return target;
@@ -504,15 +504,15 @@ public final class Gson {
   private void writeOutNullString(Appendable writer) throws IOException {
     writer.append(NULL_STRING);
   }
-  
-  @Override 
+
+  @Override
   public String toString() {
   	StringBuilder sb = new StringBuilder("{")
   	    .append("serializeNulls:").append(serializeNulls)
   	    .append(",serializers:").append(serializers)
   	    .append(",deserializers:").append(deserializers)
-  	
-      	// using the name instanceCreator instead of ObjectConstructor since the users of Gson are 
+
+      	// using the name instanceCreator instead of ObjectConstructor since the users of Gson are
       	// more familiar with the concept of Instance Creators. Moreover, the objectConstructor is
       	// just a utility class around instance creators, and its toString() only displays them.
         .append(",instanceCreators:").append(objectConstructor)

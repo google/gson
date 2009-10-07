@@ -16,8 +16,6 @@
 
 package com.google.gson;
 
-import com.google.gson.NullExclusionStrategy;
-
 import junit.framework.TestCase;
 
 /**
@@ -39,6 +37,7 @@ public class NullExclusionStrategyTest extends TestCase {
   }
 
   public void testNeverSkipsField() throws Exception {
-    assertFalse(strategy.shouldSkipField("".getClass().getFields()[0]));
+    assertFalse(strategy.shouldSkipField(
+        new FieldAttributes("".getClass().getFields()[0])));
   }
 }

@@ -16,14 +16,10 @@
 
 package com.google.gson;
 
-import com.google.gson.DisjunctionExclusionStrategy;
-import com.google.gson.ExclusionStrategy;
-
-import junit.framework.TestCase;
-
-import java.lang.reflect.Field;
 import java.util.LinkedList;
 import java.util.List;
+
+import junit.framework.TestCase;
 
 /**
  * Unit tests for the {@link DisjunctionExclusionStrategy} class.
@@ -35,12 +31,13 @@ public class DisjunctionExclusionStrategyTest extends TestCase {
   private static final ExclusionStrategy FALSE_STRATEGY = new MockExclusionStrategy(false, false);
   private static final ExclusionStrategy TRUE_STRATEGY = new MockExclusionStrategy(true, true);
   private static final Class<?> CLAZZ = String.class;
-  private static final Field FIELD = CLAZZ.getFields()[0];
+  private static final FieldAttributes FIELD = new FieldAttributes(CLAZZ.getFields()[0]);
 
   public void testBadInstantiation() throws Exception {
     try {
       List<ExclusionStrategy> constructorParam = null;
       new DisjunctionExclusionStrategy(constructorParam);
+      fail("Should throw an exception");
     } catch (IllegalArgumentException expected) { }
   }
 

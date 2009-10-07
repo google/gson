@@ -16,31 +16,55 @@
 
 package com.google.gson;
 
-import java.lang.reflect.Field;
-
 /**
- * A strategy definition that is used by the {@link ObjectNavigator} to
- * determine whether or not the field of the object should be ignored during
- * navigation.
+ * A strategy pattern (see "Design Patterns" written by GoF for some literature on this pattern)
+ * definition that is used to decide whether or not a field or top-level class should be serialized
+ * (or deserialized) as part of the JSON output/input.
  *
- * As well, for now this class is also responsible for excluding entire
- * classes.  This is somewhat a mixing of concerns for this object, but
- * it will suffice for now.  We can always break it down into two
- * different strategies later.
+ * <p>The following example show an implementation of an {@code ExclusionStrategy} where a specific
+ * type will be excluded from the output.
  *
+ * <p><pre class="code">
+ * private static class UserDefinedExclusionStrategy implements ExclusionStrategy {
+ *   private final Class&lt;?&gt; excludedThisClass;
+ *
+ *   UserDefinedExclusionStrategy(Class&lt;?&gt; excludedThisClass) {
+ *     this.excludedThisClass = excludedThisClass;
+ *   }
+ *
+ *   public boolean shouldSkipClass(Class&lt;?&gt; clazz) {
+ *     return excludedThisClass.equals(clazz);
+ *   }
+ *
+ *   public boolean shouldSkipField(FieldAttributes f) {
+ *     return excludedThisClass.equals(f.getDeclaredClass());
+ *   }
+ * }
+ *
+ * ExclusionStrategy excludeStrings = new UserDefinedExclusionStrategy(String.class);
+ * Gson gson = new GsonBuilder()
+ *     .setExclusionStrategies(excludeStrings)
+ *     .create();
+ * </pre>
+ *
+ * @author Inderjeet Singh
  * @author Joel Leitch
+ *
+ * @see GsonBuilder#setExclusionStrategies(ExclusionStrategy...)
+ *
+ * @since 1.4
  */
 interface ExclusionStrategy {
 
   /**
    * @param f the field object that is under test
-   * @return true if the field should be ignored otherwise false
+   * @return true if the field should be ignored; otherwise false
    */
-  public boolean shouldSkipField(Field f);
+  public boolean shouldSkipField(FieldAttributes f);
 
   /**
    * @param clazz the class object that is under test
-   * @return true if the class should be ignored otherwise false
+   * @return true if the class should be ignored; otherwise false
    */
   public boolean shouldSkipClass(Class<?> clazz);
 }
