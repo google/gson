@@ -16,7 +16,6 @@
 
 package com.google.gson;
 
-import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -28,11 +27,9 @@ import java.util.HashSet;
  * @author Joel Leitch
  */
 final class ModifierBasedExclusionStrategy implements ExclusionStrategy {
-  private final boolean skipSyntheticField;
   private final Collection<Integer> modifiers;
 
-  public ModifierBasedExclusionStrategy(boolean skipSyntheticFields, int... modifiers) {
-    this.skipSyntheticField = skipSyntheticFields;
+  public ModifierBasedExclusionStrategy(int... modifiers) {
     this.modifiers = new HashSet<Integer>();
     if (modifiers != null) {
       for (int modifier : modifiers) {
@@ -41,13 +38,9 @@ final class ModifierBasedExclusionStrategy implements ExclusionStrategy {
     }
   }
 
-  public boolean shouldSkipField(Field f) {
-    if (skipSyntheticField && f.isSynthetic()) {
-      return true;
-    }
-    int objectModifiers = f.getModifiers();
+  public boolean shouldSkipField(FieldAttributes f) {
     for (int modifier : modifiers) {
-      if ((objectModifiers & modifier) != 0) {
+      if (f.hasModifier(modifier)) {
         return true;
       }
     }

@@ -16,11 +16,13 @@
 
 package com.google.gson;
 
-import com.google.gson.common.TestTypes.ClassWithNoFields;
+import java.lang.reflect.Modifier;
+import java.util.LinkedList;
 
 import junit.framework.TestCase;
 
-import java.lang.reflect.Modifier;
+import com.google.gson.common.TestTypes;
+import com.google.gson.common.TestTypes.ClassWithNoFields;
 
 /**
  * Functional tests for Gson that depend on some internal package-protected elements of
@@ -32,11 +34,45 @@ import java.lang.reflect.Modifier;
  */
 public class FunctionWithInternalDependenciesTest extends TestCase {
 
-  public void testAnonymousLocalClassesSerialization() {
-    Gson gson = new Gson(new ModifierBasedExclusionStrategy(
-        true, Modifier.TRANSIENT, Modifier.STATIC), Gson.DEFAULT_NAMING_POLICY);
+  public void testAnonymousLocalClassesSerialization() throws Exception {
+    LinkedList<ExclusionStrategy> strategies = new LinkedList<ExclusionStrategy>();
+    strategies.add(new SyntheticFieldExclusionStrategy(true));
+    strategies.add(new ModifierBasedExclusionStrategy(Modifier.TRANSIENT, Modifier.STATIC));
+    ExclusionStrategy exclusionStrategy = new DisjunctionExclusionStrategy(strategies);
+    Gson gson = new Gson(exclusionStrategy, exclusionStrategy, Gson.DEFAULT_NAMING_POLICY,
+        new MappedObjectConstructor(DefaultTypeAdapters.getDefaultInstanceCreators()),
+        Gson.DEFAULT_JSON_FORMATTER, false, DefaultTypeAdapters.getDefaultSerializers(),
+        DefaultTypeAdapters.getDefaultDeserializers(), Gson.DEFAULT_JSON_NON_EXECUTABLE);
     assertEquals("{}", gson.toJson(new ClassWithNoFields() {
       // empty anonymous class
     }));
+  }
+
+  // TODO(Joel): Move this to some other functional test once exclusion policies are
+  // available to the public
+  public void testUserDefinedExclusionPolicies() throws Exception {
+    Gson gson = new GsonBuilder()
+        .setExclusionStrategies(new UserDefinedExclusionStrategy(String.class))
+        .create();
+
+    String json = gson.toJson(new TestTypes.StringWrapper("someValue"));
+    assertEquals("{}", json);
+  }
+
+  private static class UserDefinedExclusionStrategy implements ExclusionStrategy {
+    private final Class<?> excludedThisClass;
+
+    UserDefinedExclusionStrategy(Class<?> excludedThisClass) {
+      this.excludedThisClass = excludedThisClass;
+    }
+
+    public boolean shouldSkipClass(Class<?> clazz) {
+      return excludedThisClass.equals(clazz);
+    }
+
+    public boolean shouldSkipField(FieldAttributes f) {
+      return excludedThisClass.equals(f.getDeclaredClass());
+    }
+
   }
 }

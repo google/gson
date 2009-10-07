@@ -30,7 +30,7 @@ public class InnerClassExclusionStrategyTest extends TestCase {
   public StaticNestedClass staticNestedClass;
 
   private InnerClassExclusionStrategy strategy;
-  
+
   @Override
   protected void setUp() throws Exception {
     super.setUp();
@@ -43,25 +43,25 @@ public class InnerClassExclusionStrategyTest extends TestCase {
     Class<?> clazz = innerClass.getClass();
     assertTrue(strategy.shouldSkipClass(clazz));
   }
-  
+
   public void testExcludeInnerClassField() throws Exception {
     Field f = getClass().getField("innerClass");
-    assertTrue(strategy.shouldSkipField(f));
+    assertTrue(strategy.shouldSkipField(new FieldAttributes(f)));
   }
-  
+
   public void testIncludeStaticNestedClassObject() throws Exception {
     Class<?> clazz = staticNestedClass.getClass();
     assertFalse(strategy.shouldSkipClass(clazz));
   }
-  
+
   public void testIncludeStaticNestedClassField() throws Exception {
     Field f = getClass().getField("staticNestedClass");
-    assertFalse(strategy.shouldSkipField(f));
+    assertFalse(strategy.shouldSkipField(new FieldAttributes(f)));
   }
-  
+
   class InnerClass {
   }
-  
+
   static class StaticNestedClass {
   }
 }

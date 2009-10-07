@@ -16,11 +16,11 @@
 
 package com.google.gson;
 
-import com.google.gson.annotations.Since;
+import java.lang.reflect.Field;
 
 import junit.framework.TestCase;
 
-import java.lang.reflect.Field;
+import com.google.gson.annotations.Since;
 
 /**
  * Unit tests for the {@link VersionExclusionStrategy} class.
@@ -41,27 +41,27 @@ public class VersionExclusionStrategyTest extends TestCase {
     Class<MockObject> clazz = MockObject.class;
     Field f = clazz.getField("someField");
     VersionExclusionStrategy strategy = new VersionExclusionStrategy(VERSION);
-    
+
     assertFalse(strategy.shouldSkipClass(clazz));
-    assertFalse(strategy.shouldSkipField(f));
+    assertFalse(strategy.shouldSkipField(new FieldAttributes(f)));
   }
 
   public void testClassAndFieldAreBehindInVersion() throws Exception {
     Class<MockObject> clazz = MockObject.class;
     Field f = clazz.getField("someField");
     VersionExclusionStrategy strategy = new VersionExclusionStrategy(VERSION + 1);
-    
+
     assertFalse(strategy.shouldSkipClass(clazz));
-    assertFalse(strategy.shouldSkipField(f));
+    assertFalse(strategy.shouldSkipField(new FieldAttributes(f)));
   }
 
   public void testClassAndFieldAreAheadInVersion() throws Exception {
     Class<MockObject> clazz = MockObject.class;
     Field f = clazz.getField("someField");
     VersionExclusionStrategy strategy = new VersionExclusionStrategy(VERSION - 1);
-    
+
     assertTrue(strategy.shouldSkipClass(clazz));
-    assertTrue(strategy.shouldSkipField(f));
+    assertTrue(strategy.shouldSkipField(new FieldAttributes(f)));
   }
 
   @Since(VERSION)
