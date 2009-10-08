@@ -16,16 +16,17 @@
 
 package com.google.gson.common;
 
-import java.lang.reflect.Type;
-
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.SerializedName;
+
+import java.lang.reflect.Type;
 
 /**
  * Types used for testing JSON serialization and deserialization
@@ -34,32 +35,60 @@ import com.google.gson.annotations.SerializedName;
  * @author Joel Leitch
  */
 public class TestTypes {
+  
+  public static class Base {
+    public static final String BASE_NAME = Base.class.getSimpleName();
+    public static final String BASE_FIELD_KEY = "baseName";
+    public static final String SERIALIZER_KEY = "serializerName";
+    public String baseName = BASE_NAME;
+    public String serializerName;
+  }
 
-  public static class BaseClass {
-    final String baseField;
-    public BaseClass() {
-      this("baseFieldValue");
+  public static class Sub extends Base {
+    public static final String SUB_NAME = Sub.class.getSimpleName();
+    public static final String SUB_FIELD_KEY = "subName";
+    public final String subName = SUB_NAME;
+  }
+
+  public static class ClassWithBaseField {
+    public static final String FIELD_KEY = "base";
+    public final Base base;
+    @SuppressWarnings("unused")
+    private ClassWithBaseField() {
+      this(null);
     }
-    public BaseClass(String value) {
-      this.baseField = value;
-    }
-    public String getExpectedJson() {
-      return String.format("{\"baseField\":\"%s\"}", baseField);
+    public ClassWithBaseField(Base base) {
+      this.base = base;
     }
   }
 
-  public static class SubClass extends BaseClass {
-    final String subField;
-    public SubClass() {
-      this("subFieldValue");
+  public static class ClassWithBaseArrayField {
+    public static final String FIELD_KEY = "base";
+    public final Base[] base;
+    @SuppressWarnings("unused")
+    private ClassWithBaseArrayField() {
+      this(null);
     }
-    public SubClass(String subFieldValue) {
-      this.subField = subFieldValue;
+    public ClassWithBaseArrayField(Base[] base) {
+      this.base = base;
     }
-    @Override
-    public String getExpectedJson() {
-      return String.format("{\"subField\":\"%s\",\"baseField\":\"%s\"}", subField, baseField);
-    }
+  }
+
+  public static class BaseSerializer implements JsonSerializer<Base> {
+    public static final String NAME = BaseSerializer.class.getSimpleName(); 
+    public JsonElement serialize(Base src, Type typeOfSrc, JsonSerializationContext context) {
+      JsonObject obj = new JsonObject();
+      obj.addProperty(Base.SERIALIZER_KEY, NAME);
+      return obj;
+    }    
+  }
+  public static class SubSerializer implements JsonSerializer<Sub> {
+    public static final String NAME = SubSerializer.class.getSimpleName(); 
+    public JsonElement serialize(Sub src, Type typeOfSrc, JsonSerializationContext context) {
+      JsonObject obj = new JsonObject();
+      obj.addProperty(Base.SERIALIZER_KEY, NAME);
+      return obj;
+    }    
   }
 
   public static class StringWrapper {

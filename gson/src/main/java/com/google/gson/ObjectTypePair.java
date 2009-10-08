@@ -27,17 +27,67 @@ final class ObjectTypePair {
 
   private final Object obj;
   private final Type type;
+  private final boolean preserveType;
 
-  public ObjectTypePair(Object obj, Type type) {
+  ObjectTypePair(Object obj, Type type, boolean preserveType) {
     this.obj = obj;
     this.type = type;
+    this.preserveType = preserveType;
   }
 
-  public Object getObject() {
+  Object getObject() {
     return obj;
   }
 
-  public Type getType() {
+  Type getType() {
+    return type;
+  }
+  
+  @SuppressWarnings("unchecked")
+  Pair<JsonSerializer, ObjectTypePair> getMatchingSerializer(
+      ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers) {
+    if (obj == null) {
+      return null;
+    }
+    JsonSerializer serializer = null;
+    if (!preserveType) {
+      // First try looking up the serializer for the actual type
+      ObjectTypePair moreSpecificType = toMoreSpecificType();    
+      serializer = serializers.getHandlerFor(moreSpecificType.type);
+      if (serializer != null) {
+        return new Pair<JsonSerializer, ObjectTypePair>(serializer, moreSpecificType);
+      }
+    }
+    // Try the specified type
+    serializer = serializers.getHandlerFor(type);
+    return serializer == null ? null : new Pair<JsonSerializer, ObjectTypePair>(serializer, this);
+  }
+
+  ObjectTypePair toMoreSpecificType() {    
+    if (preserveType || obj == null) {
+      return this;
+    }
+    Type actualType = getActualTypeIfMoreSpecific(type, obj.getClass());
+    if (actualType == type) {
+      return this;
+    }
+    return new ObjectTypePair(obj, actualType, preserveType);
+  }
+
+  // This takes care of situations where the field was declared as an Object, but the
+  // actual value contains something more specific. See Issue 54.
+  // TODO (inder): This solution will not work if the field is of a generic type, but 
+  // the actual object is of a raw type (which is a sub-class of the generic type).
+  static Type getActualTypeIfMoreSpecific(Type type, Class<?> actualClass) {
+    if (type instanceof Class<?>) {
+      Class<?> typeAsClass = (Class<?>) type;
+      if (typeAsClass.isAssignableFrom(actualClass)) {
+        type = actualClass;
+      }
+      if (type == Object.class) {
+        type = actualClass;
+      } 
+    }
     return type;
   }
 
@@ -74,6 +124,6 @@ final class ObjectTypePair {
     } else if (!type.equals(other.type)) {
       return false;
     }
-    return true;
+    return preserveType == other.preserveType;
   }
 }
