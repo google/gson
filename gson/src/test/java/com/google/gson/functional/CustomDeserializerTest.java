@@ -119,9 +119,11 @@ public class CustomDeserializerTest extends TestCase {
     SubType1 target = (SubType1) gson.fromJson(json, MyBase.class);
     assertEquals("abc", target.field1);    
   }
+
   private static class MyBase {
     static final String TYPE_ACCESS = "__type__";
   }
+
   private enum SubTypes { 
     SUB_TYPE1(SubType1.class),
     SUB_TYPE2(SubType2.class);
@@ -133,9 +135,11 @@ public class CustomDeserializerTest extends TestCase {
       return subClass;
     }
   }
+
   private static class SubType1 extends MyBase {
     String field1;    
   }
+
   private static class SubType2 extends MyBase {
     @SuppressWarnings("unused")
     String field2;    

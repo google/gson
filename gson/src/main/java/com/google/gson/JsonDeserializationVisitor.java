@@ -69,7 +69,7 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
     Type objType = objTypePair.getType();
     JsonDeserializer deserializer = deserializers.getHandlerFor(objType);
     if (deserializer != null) {
-      if (json != null && !json.isJsonNull()) {
+      if (!json.isJsonNull()) {
         target = (T) deserializer.deserialize(json, objType, context);
       }
       return true;
