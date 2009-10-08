@@ -48,6 +48,9 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * @param element the element that needs to be added to the array.
    */
   public void add(JsonElement element) {
+    if (element == null) {
+      element = JsonNull.createJsonNull();
+    }
     elements.add(element);
   }
 
@@ -235,7 +238,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
     }
     throw new IllegalStateException();
   }
-  
+
   @Override
   public char getAsCharacter() {
     if (elements.size() == 1) {
