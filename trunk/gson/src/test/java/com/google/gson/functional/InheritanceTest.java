@@ -90,6 +90,12 @@ public class InheritanceTest extends TestCase {
     assertEquals(Sub.SUB_NAME, json.get(Sub.SUB_FIELD_KEY).getAsString());
   }
 
+  public void testBaseSerializedAsSubForToJsonMethod() {
+    Base base = new Sub();
+    String json = gson.toJson(base);
+    assertTrue(json.contains(Sub.SUB_NAME));
+  }
+
   public void testBaseSerializedAsBaseWhenSpecifiedWithExplicitType() {
     Base base = new Sub();
     JsonObject json = gson.toJsonTree(base, Base.class).getAsJsonObject();
@@ -97,10 +103,23 @@ public class InheritanceTest extends TestCase {
     assertNull(json.get(Sub.SUB_FIELD_KEY));
   }
 
+  public void testBaseSerializedAsBaseWhenSpecifiedWithExplicitTypeForToJsonMethod() {
+    Base base = new Sub();
+    String json = gson.toJson(base, Base.class);
+    assertTrue(json.contains(Base.BASE_NAME));
+    assertFalse(json.contains(Sub.SUB_FIELD_KEY));
+  }
+
   public void testBaseSerializedAsSubWhenSpecifiedWithExplicitType() {
     Base base = new Sub();
     JsonObject json = gson.toJsonTree(base, Sub.class).getAsJsonObject();
     assertEquals(Sub.SUB_NAME, json.get(Sub.SUB_FIELD_KEY).getAsString());
+  }
+
+  public void testBaseSerializedAsSubWhenSpecifiedWithExplicitTypeForToJsonMethod() {
+    Base base = new Sub();
+    String json = gson.toJson(base, Sub.class);
+    assertTrue(json.contains(Sub.SUB_NAME));
   }
 
   private static class SubTypeOfNested extends Nested {
