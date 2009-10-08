@@ -44,7 +44,7 @@ public final class JsonPrimitive extends JsonElement {
    * @param bool the value to create the primitive with.
    */
   public JsonPrimitive(Boolean bool) {
-    this.value = bool;
+    setValue(bool);
   }
 
   /**
@@ -53,7 +53,7 @@ public final class JsonPrimitive extends JsonElement {
    * @param number the value to create the primitive with.
    */
   public JsonPrimitive(Number number) {
-    this.value = number;
+    setValue(number);
   }
 
   /**
@@ -62,7 +62,7 @@ public final class JsonPrimitive extends JsonElement {
    * @param string the value to create the primitive with.
    */
   public JsonPrimitive(String string) {
-    this.value = string;
+    setValue(string);
   }
 
   /**
@@ -72,7 +72,7 @@ public final class JsonPrimitive extends JsonElement {
    * @param c the value to create the primitive with.
    */
   public JsonPrimitive(Character c) {
-    this.value = String.valueOf(c);
+    setValue(c);
   }
 
   /**
@@ -283,7 +283,7 @@ public final class JsonPrimitive extends JsonElement {
       return Integer.parseInt(getAsString());
     }
   }
-  
+
   @Override
   public byte getAsByte() {
     if (isNumber()) {
@@ -292,7 +292,7 @@ public final class JsonPrimitive extends JsonElement {
       return Byte.parseByte(getAsString());
     }
   }
-  
+
   @Override
   public char getAsCharacter() {
     return getAsString().charAt(0);
@@ -327,7 +327,7 @@ public final class JsonPrimitive extends JsonElement {
       sb.append(value.toString());
     }
   }
-  
+
   private static boolean isPrimitiveOrString(Object target) {
     if (target instanceof String) {
       return true;
@@ -364,7 +364,7 @@ public final class JsonPrimitive extends JsonElement {
     if (this == obj) {
       return true;
     }
-    if (obj == null || getClass() != obj.getClass()) { 
+    if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
     JsonPrimitive other = (JsonPrimitive)obj;
@@ -378,23 +378,23 @@ public final class JsonPrimitive extends JsonElement {
       return getAsNumber().doubleValue() == other.getAsNumber().doubleValue();
     }
     return value.equals(other.value);
-  }  
-  
+  }
+
   /**
-   * Returns true if the specified number is an integral type 
-   * (Long, Integer, Short, Byte, BigInteger) 
+   * Returns true if the specified number is an integral type
+   * (Long, Integer, Short, Byte, BigInteger)
    */
   private static boolean isIntegral(JsonPrimitive primitive) {
     if (primitive.value instanceof Number) {
       Number number = (Number) primitive.value;
-      return number instanceof BigInteger || number instanceof Long || number instanceof Integer 
+      return number instanceof BigInteger || number instanceof Long || number instanceof Integer
       || number instanceof Short || number instanceof Byte;
     }
     return false;
   }
 
   /**
-   * Returns true if the specified number is a floating point type (BigDecimal, double, float) 
+   * Returns true if the specified number is a floating point type (BigDecimal, double, float)
    */
   private static boolean isFloatingPoint(JsonPrimitive primitive) {
     if (primitive.value instanceof Number) {
