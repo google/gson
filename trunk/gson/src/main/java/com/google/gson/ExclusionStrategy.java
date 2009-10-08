@@ -78,7 +78,7 @@ package com.google.gson;
  *
  * @since 1.4
  */
-interface ExclusionStrategy {
+public interface ExclusionStrategy {
 
   /**
    * @param f the field object that is under test
