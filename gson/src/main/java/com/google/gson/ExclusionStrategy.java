@@ -17,18 +17,20 @@
 package com.google.gson;
 
 /**
- * A strategy pattern (see "Design Patterns" written by GoF for some literature on this pattern)
- * definition that is used to decide whether or not a field or top-level class should be serialized
- * (or deserialized) as part of the JSON output/input.
+ * A strategy (or policy) definition that is used to decide whether or not a field or top-level
+ * class should be serialized or deserialized as part of the JSON output/input. For serialization,
+ * if the {@link this#shouldSkipClass(Class)} method returns false then that class or field type
+ * will not be part of the JSON output.  For deserialization, if {@link this#shouldSkipClass(Class)}
+ * returns false, then it will not be set as part of the Java object structure.
  *
- * <p>The following example show an implementation of an {@code ExclusionStrategy} where a specific
- * type will be excluded from the output.
+ * <p>The following are a few examples that shows how you can use this exclusion mechanism.
  *
- * <p><pre class="code">
- * private static class UserDefinedExclusionStrategy implements ExclusionStrategy {
+ * <p><strong>Exclude fields and objects based on a particular class type:<strong>
+ * <pre class="code">
+ * private static class SpecificClassExclusionStrategy implements ExclusionStrategy {
  *   private final Class&lt;?&gt; excludedThisClass;
  *
- *   UserDefinedExclusionStrategy(Class&lt;?&gt; excludedThisClass) {
+ *   public pecificClassExclusionStrategy(Class&lt;?&gt; excludedThisClass) {
  *     this.excludedThisClass = excludedThisClass;
  *   }
  *
@@ -40,7 +42,29 @@ package com.google.gson;
  *     return excludedThisClass.equals(f.getDeclaredClass());
  *   }
  * }
+ * </pre>
  *
+ * <p><strong>Excludes fields and objects based on a particular annotation:</strong>
+ * <pre class="code">
+ * public &#64interface FooAnnotation {
+ *   // some implementation here
+ * }
+ *
+ * // Excludes any field (or class) that is tagged with an "&#64FooAnnotation"
+ * private static class FooAnnotationExclusionStrategy implements ExclusionStrategy {
+ *   public boolean shouldSkipClass(Class&lt;?&gt; clazz) {
+ *     return clazz.getAnnotation(FooAnnotation.class) != null;
+ *   }
+ *
+ *   public boolean shouldSkipField(FieldAttributes f) {
+ *     return f.getAnnotation(FooAnnotation.class) != null;
+ *   }
+ * }
+ * </pre>
+ *
+ * <p>Now if you want to configure {@code Gson} to use a user defined exclusion strategy, then
+ * the {@code GsonBuilder} is required. The following is an example of how you can use the
+ * {@code GsonBuilder} to configure Gson to use one of the above sample
  * ExclusionStrategy excludeStrings = new UserDefinedExclusionStrategy(String.class);
  * Gson gson = new GsonBuilder()
  *     .setExclusionStrategies(excludeStrings)

@@ -93,6 +93,10 @@ final class ObjectNavigator {
    * If a field is null, it does not get visited.
    */
   public void accept(Visitor visitor) {
+    TypeInfo objTypeInfo = new TypeInfo(objTypePair.getType());
+    if (exclusionStrategy.shouldSkipClass(objTypeInfo.getRawClass())) {
+      return;
+    }
     boolean visitedWithCustomHandler = visitor.visitUsingCustomHandler(objTypePair);
     if (!visitedWithCustomHandler) {
       Object obj = objTypePair.getObject();
@@ -100,10 +104,7 @@ final class ObjectNavigator {
       if (objectToVisit == null) {
         return;
       }
-      TypeInfo objTypeInfo = new TypeInfo(objTypePair.getType());
-      if (exclusionStrategy.shouldSkipClass(objTypeInfo.getRawClass())) {
-        return;
-      }
+
       visitor.start(objTypePair);
       try {
         if (objTypeInfo.isArray()) {
@@ -141,7 +142,9 @@ final class ObjectNavigator {
     Field[] fields = clazz.getDeclaredFields();
     AccessibleObject.setAccessible(fields, true);
     for (Field f : fields) {
-      if (exclusionStrategy.shouldSkipField(new FieldAttributes(f))) {
+      FieldAttributes fieldAttributes = new FieldAttributes(f);
+      if (exclusionStrategy.shouldSkipField(fieldAttributes)
+          || exclusionStrategy.shouldSkipClass(fieldAttributes.getDeclaredClass())) {
         continue; // skip
       } else {
         TypeInfo fieldTypeInfo = TypeInfoFactory.getTypeInfoForField(f, objTypePair.getType());
