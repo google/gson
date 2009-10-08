@@ -15,6 +15,19 @@
  */
 package com.google.gson.functional;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.common.TestTypes.BagOfPrimitives;
+import com.google.gson.common.TestTypes.Base;
+import com.google.gson.common.TestTypes.ClassWithBaseArrayField;
+import com.google.gson.common.TestTypes.ClassWithBaseField;
+import com.google.gson.common.TestTypes.Nested;
+import com.google.gson.common.TestTypes.Sub;
+
+import junit.framework.TestCase;
+
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,14 +35,6 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-
-import junit.framework.TestCase;
-
-import com.google.gson.Gson;
-import com.google.gson.common.TestTypes.BagOfPrimitives;
-import com.google.gson.common.TestTypes.BaseClass;
-import com.google.gson.common.TestTypes.Nested;
-import com.google.gson.common.TestTypes.SubClass;
 
 /**
  * Functional tests for Json serialization and deserialization of classes with 
@@ -62,26 +67,40 @@ public class InheritanceTest extends TestCase {
     assertEquals(json, target.getExpectedJson());
   }
 
-  public void testClassWithBaseFieldSerialization() throws Exception {
-    ClassWithBaseFields sub = new ClassWithBaseFields();
-    sub.field = new SubClass();
-    String json = gson.toJson(sub);
-    String expectedJson = sub.field.getExpectedJson();
-    assertTrue(json.contains(expectedJson));
+  public void testClassWithBaseFieldSerialization() {
+    ClassWithBaseField sub = new ClassWithBaseField(new Sub());
+    JsonObject json = (JsonObject) gson.toJsonTree(sub);
+    JsonElement base = json.getAsJsonObject().get(ClassWithBaseField.FIELD_KEY);
+    assertEquals(Sub.SUB_NAME, base.getAsJsonObject().get(Sub.SUB_FIELD_KEY).getAsString());
   }
 
-  public void testClassWithBaseArrayFieldSerialization() throws Exception {
-    ClassWithBaseFields sub = new ClassWithBaseFields();
-    sub.array = new BaseClass[]{ new SubClass("sub1"), new SubClass("sub2")};
-    String json = gson.toJson(sub);
-    assertTrue(json.contains("sub1"));
-    assertTrue(json.contains("sub2"));
+  public void testClassWithBaseArrayFieldSerialization() {
+    Base[] baseClasses = new Base[]{ new Sub(), new Sub()};
+    ClassWithBaseArrayField sub = new ClassWithBaseArrayField(baseClasses);
+    JsonObject json = gson.toJsonTree(sub).getAsJsonObject();
+    JsonArray bases = json.get(ClassWithBaseArrayField.FIELD_KEY).getAsJsonArray();
+    for (JsonElement element : bases) { 
+      assertEquals(Sub.SUB_NAME, element.getAsJsonObject().get(Sub.SUB_FIELD_KEY).getAsString());
+    }
   }
 
-  private static class ClassWithBaseFields {
-    BaseClass field;
-    @SuppressWarnings("unused")
-    BaseClass[] array;
+  public void testBaseSerializedAsSub() {
+    Base base = new Sub();
+    JsonObject json = gson.toJsonTree(base).getAsJsonObject();
+    assertEquals(Sub.SUB_NAME, json.get(Sub.SUB_FIELD_KEY).getAsString());
+  }
+
+  public void testBaseSerializedAsBaseWhenSpecifiedWithExplicitType() {
+    Base base = new Sub();
+    JsonObject json = gson.toJsonTree(base, Base.class).getAsJsonObject();
+    assertEquals(Base.BASE_NAME, json.get(Base.BASE_FIELD_KEY).getAsString());
+    assertNull(json.get(Sub.SUB_FIELD_KEY));
+  }
+
+  public void testBaseSerializedAsSubWhenSpecifiedWithExplicitType() {
+    Base base = new Sub();
+    JsonObject json = gson.toJsonTree(base, Sub.class).getAsJsonObject();
+    assertEquals(Sub.SUB_NAME, json.get(Sub.SUB_FIELD_KEY).getAsString());
   }
 
   private static class SubTypeOfNested extends Nested {
