@@ -237,7 +237,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.4
    */
-  GsonBuilder setExclusionStrategies(ExclusionStrategy... strategies) {
+  public GsonBuilder setExclusionStrategies(ExclusionStrategy... strategies) {
     for (ExclusionStrategy strategy : strategies) {
       exclusionStrategies.add(strategy);
     }
