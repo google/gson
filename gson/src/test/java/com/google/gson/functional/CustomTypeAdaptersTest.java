@@ -473,5 +473,4 @@ public class CustomTypeAdaptersTest extends TestCase {
       return new DataHolder(jsonElement.getAsString());
     }
   }
-
 }

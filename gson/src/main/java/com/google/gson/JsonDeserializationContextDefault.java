@@ -60,7 +60,7 @@ final class JsonDeserializationContextDefault implements JsonDeserializationCont
       JsonDeserializationContext context) throws JsonParseException {
     JsonArrayDeserializationVisitor<T> visitor = new JsonArrayDeserializationVisitor<T>(
         jsonArray, arrayType, navigatorFactory, objectConstructor, deserializers, context);
-    ObjectNavigator on = navigatorFactory.create(new ObjectTypePair(null, arrayType));
+    ObjectNavigator on = navigatorFactory.create(new ObjectTypePair(null, arrayType, true));
     on.accept(visitor);
     return visitor.getTarget();
   }
@@ -69,7 +69,7 @@ final class JsonDeserializationContextDefault implements JsonDeserializationCont
       JsonDeserializationContext context) throws JsonParseException {
     JsonObjectDeserializationVisitor<T> visitor = new JsonObjectDeserializationVisitor<T>(
         jsonObject, typeOfT, navigatorFactory, objectConstructor, deserializers, context);
-    ObjectNavigator on = navigatorFactory.create(new ObjectTypePair(null, typeOfT));
+    ObjectNavigator on = navigatorFactory.create(new ObjectTypePair(null, typeOfT, true));
     on.accept(visitor);
     return visitor.getTarget();
   }
@@ -79,7 +79,7 @@ final class JsonDeserializationContextDefault implements JsonDeserializationCont
       JsonDeserializationContext context) throws JsonParseException {
     JsonObjectDeserializationVisitor<T> visitor = new JsonObjectDeserializationVisitor<T>(
         json, typeOfT, navigatorFactory, objectConstructor, deserializers, context);
-    ObjectNavigator on = navigatorFactory.create(new ObjectTypePair(json.getAsObject(), typeOfT));
+    ObjectNavigator on = navigatorFactory.create(new ObjectTypePair(json.getAsObject(), typeOfT, true));
     on.accept(visitor);
     Object target = visitor.getTarget();
     return (T) target;
