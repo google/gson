@@ -34,7 +34,7 @@ final class JsonTreeNavigator {
   }
   
   public void navigate(JsonElement element) throws IOException {
-    if (element == null || element.isJsonNull()) {
+    if (element.isJsonNull()) {
       visitor.visitNull();
     } else if (element.isJsonArray()) {
       JsonArray array = element.getAsJsonArray();
@@ -68,7 +68,7 @@ final class JsonTreeNavigator {
    */
   private boolean visitChild(JsonObject parent, String childName, JsonElement child, 
       boolean isFirst) throws IOException {
-    if (child == null || child.isJsonNull()) {
+    if (child.isJsonNull()) {
       if (visitNulls) {
         visitor.visitNullObjectMember(parent, childName, isFirst);
         navigate(child.getAsJsonNull());
@@ -93,7 +93,7 @@ final class JsonTreeNavigator {
    * Returns true if the child was visited, false if it was skipped.
    */
   private void visitChild(JsonArray parent, JsonElement child, boolean isFirst) throws IOException {
-    if (child == null || child.isJsonNull()) {
+    if (child.isJsonNull()) {
       visitor.visitNullArrayMember(parent, isFirst);
       navigate(child);
 	  } else if (child.isJsonArray()) {

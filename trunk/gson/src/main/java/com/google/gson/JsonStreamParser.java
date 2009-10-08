@@ -32,7 +32,7 @@ import java.util.NoSuchElementException;
  * <pre>
  * JsonStreamParser parser = new JsonStreamParser("['first'] {'second':10} 'third'");
  * JsonElement element;
- * synchronized (someCommonObject) {
+ * synchronized (parser) {  // synchronize on an object shared by threads
  *   if (parser.hasNext()) {
  *     element = parser.next();
  *   }
