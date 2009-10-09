@@ -93,32 +93,32 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
     return namingPolicy.translateName(f);
   }
 
-  public boolean visitFieldUsingCustomHandler(Field f, Type actualTypeOfField, Object parent) {
+  public boolean visitFieldUsingCustomHandler(Field f, Type declaredTypeOfField, Object parent) {
     try {
       String fName = getFieldName(f);
       if (!json.isJsonObject()) {
         throw new JsonParseException("Expecting object found: " + json); 
       }
       JsonElement child = json.getAsJsonObject().get(fName);
-      if (child == null) {
+      TypeInfo typeInfo = new TypeInfo(declaredTypeOfField);
+      if (child == null) { // Child will be null if the field wasn't present in Json
         return true;
       } else if (child.isJsonNull()) {
-        TypeInfo typeInfo = new TypeInfo(actualTypeOfField);
         if (!typeInfo.isPrimitive()) {
           f.set(parent, null);
         }
         return true;
       }
-      @SuppressWarnings("unchecked")
-      JsonDeserializer deserializer = deserializers.getHandlerFor(actualTypeOfField);
-      if (deserializer != null) {
-        if (!child.isJsonNull()) {
-          Object value = deserializer.deserialize(child, actualTypeOfField, context);
-          f.set(parent, value);
-        }
-        return true;
+      ObjectTypePair objTypePair = new ObjectTypePair(null, declaredTypeOfField, false);
+      Pair<JsonDeserializer<?>, ObjectTypePair> pair = objTypePair.getMatchingHandler(deserializers);
+      if (pair == null) {
+        return false;
+      }      
+      Object value = invokeCustomDeserializer(child, pair);
+      if (value != null || !typeInfo.isPrimitive()) {
+        f.set(parent, value);
       }
-      return false;
+      return true;
     } catch (IllegalAccessException e) {
       throw new RuntimeException();
     }
