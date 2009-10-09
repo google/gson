@@ -90,7 +90,7 @@ final class FieldAttributes {
   }
 
   /**
-   * Return the T annotation object from this field if it exist; otherwise returns
+   * Return the {@code T} annotation object from this field if it exist; otherwise returns
    * {@code null}.
    *
    * @param annotation the class of the annotation that will be retrieved
