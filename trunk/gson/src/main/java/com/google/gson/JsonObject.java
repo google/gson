@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
 
 /**
  * A class representing an object type in Json. An object consists of name-value pairs where names
@@ -136,7 +135,7 @@ public final class JsonObject extends JsonElement {
    *
    * @return a set of members of this object.
    */
-  public Set<Entry<String, JsonElement>> entrySet() {
+  public Set<Map.Entry<String, JsonElement>> entrySet() {
     return members.entrySet();
   }
 
