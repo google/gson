@@ -184,7 +184,9 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
     objTypePair = pair.getSecond();
     start(objTypePair);
     try {
-      return serializer.serialize(objTypePair.getObject(), objTypePair.getType(), context);
+      JsonElement element = 
+        serializer.serialize(objTypePair.getObject(), objTypePair.getType(), context);
+      return element == null ? JsonNull.createJsonNull() : element;
     } finally {
       end(objTypePair);
     }

@@ -16,19 +16,23 @@
 
 package com.google.gson.functional;
 
+import java.lang.reflect.Type;
+
+import junit.framework.TestCase;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 import com.google.gson.common.TestTypes.Base;
 import com.google.gson.common.TestTypes.BaseSerializer;
 import com.google.gson.common.TestTypes.ClassWithBaseArrayField;
 import com.google.gson.common.TestTypes.ClassWithBaseField;
 import com.google.gson.common.TestTypes.Sub;
 import com.google.gson.common.TestTypes.SubSerializer;
-
-import junit.framework.TestCase;
 
 /**
  * Functional Test exercising custom serialization only.  When test applies to both 
@@ -82,5 +86,18 @@ public class CustomSerializerTest extends TestCase {
      JsonObject json = (JsonObject) gson.toJsonTree(target);
      JsonObject base = json.get("base").getAsJsonObject();
      assertEquals(BaseSerializer.NAME, base.get(Base.SERIALIZER_KEY).getAsString());
+   }
+   
+   public void testSerializerReturnsNull() {
+     Gson gson = new GsonBuilder()
+       .registerTypeAdapter(Base.class, new JsonSerializer<Base>() {
+         public JsonElement serialize(Base src, Type typeOfSrc, JsonSerializationContext context) {
+           return null;
+         }         
+       })
+       .create();
+       JsonElement json = gson.toJsonTree(new Base());       
+       System.out.println(json);
+       assertTrue(json.isJsonNull());
    }
 }
