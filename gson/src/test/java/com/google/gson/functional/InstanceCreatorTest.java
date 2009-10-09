@@ -16,10 +16,6 @@
 
 package com.google.gson.functional;
 
-import java.lang.reflect.Type;
-
-import junit.framework.TestCase;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
@@ -27,14 +23,18 @@ import com.google.gson.common.TestTypes.Base;
 import com.google.gson.common.TestTypes.ClassWithBaseField;
 import com.google.gson.common.TestTypes.Sub;
 
+import junit.framework.TestCase;
+
+import java.lang.reflect.Type;
+
 /**
- * Functional Test exercising custom serialization only.  When test applies to both 
+ * Functional Test exercising custom serialization only.  When test applies to both
  * serialization and deserialization then add it to CustomTypeAdapterTest.
  *
  * @author Inderjeet Singh
  */
 public class InstanceCreatorTest extends TestCase {
-  
+
   public void testInstanceCreatorReturnsBaseType() {
     Gson gson = new GsonBuilder()
       .registerTypeAdapter(Base.class, new InstanceCreator<Base>() {
@@ -47,7 +47,7 @@ public class InstanceCreatorTest extends TestCase {
     Base base = gson.fromJson(json, Base.class);
     assertEquals("BaseRevised", base.baseName);
   }
-  
+
   public void testInstanceCreatorReturnsSubTypeForTopLevelObject() {
     Gson gson = new GsonBuilder()
     .registerTypeAdapter(Base.class, new InstanceCreator<Base>() {
@@ -56,11 +56,16 @@ public class InstanceCreatorTest extends TestCase {
       }
     })
     .create();
+
     String json = "{baseName:'Base',subName:'SubRevised'}";
     Base base = gson.fromJson(json, Base.class);
-    assertFalse("SubRevised".equals(((Sub)base).subName));
+    assertTrue(base instanceof Sub);
+
+    Sub sub = (Sub) base;
+    assertFalse("SubRevised".equals(sub.subName));
+    assertEquals(Sub.SUB_NAME, sub.subName);
   }
-  
+
   public void testInstanceCreatorReturnsSubTypeForField() {
     Gson gson = new GsonBuilder()
     .registerTypeAdapter(Base.class, new InstanceCreator<Base>() {
