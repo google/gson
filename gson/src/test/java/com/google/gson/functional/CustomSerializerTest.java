@@ -16,10 +16,6 @@
 
 package com.google.gson.functional;
 
-import java.lang.reflect.Type;
-
-import junit.framework.TestCase;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -34,19 +30,23 @@ import com.google.gson.common.TestTypes.ClassWithBaseField;
 import com.google.gson.common.TestTypes.Sub;
 import com.google.gson.common.TestTypes.SubSerializer;
 
+import junit.framework.TestCase;
+
+import java.lang.reflect.Type;
+
 /**
- * Functional Test exercising custom serialization only.  When test applies to both 
+ * Functional Test exercising custom serialization only.  When test applies to both
  * serialization and deserialization then add it to CustomTypeAdapterTest.
  *
  * @author Inderjeet Singh
  */
 public class CustomSerializerTest extends TestCase {
-  
+
    public void testBaseClassSerializerInvokedForBaseClassFields() {
      Gson gson = new GsonBuilder()
-       .registerTypeAdapter(Base.class, new BaseSerializer())
-       .registerTypeAdapter(Sub.class, new SubSerializer())
-       .create();
+         .registerTypeAdapter(Base.class, new BaseSerializer())
+         .registerTypeAdapter(Sub.class, new SubSerializer())
+         .create();
      ClassWithBaseField target = new ClassWithBaseField(new Base());
      JsonObject json = (JsonObject) gson.toJsonTree(target);
      JsonObject base = json.get("base").getAsJsonObject();
@@ -55,9 +55,9 @@ public class CustomSerializerTest extends TestCase {
 
    public void testSubClassSerializerInvokedForBaseClassFieldsHoldingSubClassInstances() {
      Gson gson = new GsonBuilder()
-       .registerTypeAdapter(Base.class, new BaseSerializer())
-       .registerTypeAdapter(Sub.class, new SubSerializer())
-       .create();
+         .registerTypeAdapter(Base.class, new BaseSerializer())
+         .registerTypeAdapter(Sub.class, new SubSerializer())
+         .create();
      ClassWithBaseField target = new ClassWithBaseField(new Sub());
      JsonObject json = (JsonObject) gson.toJsonTree(target);
      JsonObject base = json.get("base").getAsJsonObject();
@@ -66,9 +66,9 @@ public class CustomSerializerTest extends TestCase {
 
    public void testSubClassSerializerInvokedForBaseClassFieldsHoldingArrayOfSubClassInstances() {
      Gson gson = new GsonBuilder()
-       .registerTypeAdapter(Base.class, new BaseSerializer())
-       .registerTypeAdapter(Sub.class, new SubSerializer())
-       .create();
+         .registerTypeAdapter(Base.class, new BaseSerializer())
+         .registerTypeAdapter(Sub.class, new SubSerializer())
+         .create();
      ClassWithBaseArrayField target = new ClassWithBaseArrayField(new Base[] {new Sub(), new Sub()});
      JsonObject json = (JsonObject) gson.toJsonTree(target);
      JsonArray array = json.get("base").getAsJsonArray();
@@ -77,27 +77,26 @@ public class CustomSerializerTest extends TestCase {
       assertEquals(SubSerializer.NAME, serializerKey.getAsString());
      }
    }
-    
+
    public void testBaseClassSerializerInvokedForBaseClassFieldsHoldingSubClassInstances() {
      Gson gson = new GsonBuilder()
-       .registerTypeAdapter(Base.class, new BaseSerializer())
-       .create();
+         .registerTypeAdapter(Base.class, new BaseSerializer())
+         .create();
      ClassWithBaseField target = new ClassWithBaseField(new Sub());
      JsonObject json = (JsonObject) gson.toJsonTree(target);
      JsonObject base = json.get("base").getAsJsonObject();
      assertEquals(BaseSerializer.NAME, base.get(Base.SERIALIZER_KEY).getAsString());
    }
-   
+
    public void testSerializerReturnsNull() {
      Gson gson = new GsonBuilder()
        .registerTypeAdapter(Base.class, new JsonSerializer<Base>() {
          public JsonElement serialize(Base src, Type typeOfSrc, JsonSerializationContext context) {
            return null;
-         }         
+         }
        })
        .create();
-       JsonElement json = gson.toJsonTree(new Base());       
-       System.out.println(json);
+       JsonElement json = gson.toJsonTree(new Base());
        assertTrue(json.isJsonNull());
    }
 }

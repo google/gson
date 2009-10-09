@@ -22,7 +22,7 @@ import java.lang.reflect.Type;
 
 /**
  * A visitor that adds JSON elements corresponding to each field of an object
- * 
+ *
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
@@ -184,8 +184,8 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
     objTypePair = pair.getSecond();
     start(objTypePair);
     try {
-      JsonElement element = 
-        serializer.serialize(objTypePair.getObject(), objTypePair.getType(), context);
+      JsonElement element =
+          serializer.serialize(objTypePair.getObject(), objTypePair.getType(), context);
       return element == null ? JsonNull.createJsonNull() : element;
     } finally {
       end(objTypePair);
