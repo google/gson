@@ -23,8 +23,6 @@ import java.lang.reflect.Type;
  * @author Inderjeet Singh
  */
 final class ObjectTypePair {
-  private static final int PRIME = 31;
-
   private final Object obj;
   private final Type type;
   private final boolean preserveType;
@@ -46,9 +44,7 @@ final class ObjectTypePair {
   @SuppressWarnings("unchecked")
   Pair<JsonSerializer, ObjectTypePair> getMatchingSerializer(
       ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers) {
-    if (obj == null) {
-      return null;
-    }
+    Preconditions.checkNotNull(obj);
     JsonSerializer serializer = null;
     if (!preserveType) {
       // First try looking up the serializer for the actual type
@@ -95,7 +91,7 @@ final class ObjectTypePair {
   public int hashCode() {
     // Not using type.hashCode() since I am not sure if the subclasses of type reimplement
     // hashCode() to be equal for equal types
-    return ((obj == null) ? PRIME : obj.hashCode());
+    return ((obj == null) ? 31 : obj.hashCode());
   }
 
   @Override

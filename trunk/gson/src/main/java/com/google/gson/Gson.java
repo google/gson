@@ -202,7 +202,7 @@ public final class Gson {
     if (src == null) {
       return JsonNull.createJsonNull();
     }
-    return toJsonTree(src, src.getClass(), false);
+    return toJsonTree(src, src.getClass());
   }
 
   /**
@@ -222,16 +222,12 @@ public final class Gson {
    * @since 1.4
    */
   public JsonElement toJsonTree(Object src, Type typeOfSrc) {
-    return toJsonTree(src, typeOfSrc, true);
-  }
-
-  private JsonElement toJsonTree(Object src, Type typeOfSrc, boolean preserveType) {
     if (src == null) {
       return JsonNull.createJsonNull();
     }
     JsonSerializationContextDefault context = new JsonSerializationContextDefault(
         createDefaultObjectNavigatorFactory(serializationStrategy), serializeNulls, serializers);
-    return context.serialize(src, typeOfSrc, preserveType);
+    return context.serialize(src, typeOfSrc, true);
   }
 
   /**
@@ -251,7 +247,7 @@ public final class Gson {
     if (src == null) {
       return serializeNulls ? NULL_STRING : "";
     }
-    return toJson(src, src.getClass(), false);
+    return toJson(src, src.getClass());
   }
 
   /**
@@ -270,12 +266,8 @@ public final class Gson {
    * @return Json representation of {@code src}
    */
   public String toJson(Object src, Type typeOfSrc) {
-    return toJson(src, typeOfSrc, true);
-  }
-
-  private String toJson(Object src, Type typeOfSrc, boolean preserveType) {
     StringWriter writer = new StringWriter();
-    toJson(src, typeOfSrc, writer, preserveType);
+    toJson(src, typeOfSrc, writer);
     return writer.toString();
   }
 
@@ -295,7 +287,7 @@ public final class Gson {
   public void toJson(Object src, Appendable writer) {
     try {
       if (src != null) {
-        toJson(src, src.getClass(), writer, false);
+        toJson(src, src.getClass(), writer);
       } else if (serializeNulls) {
         writeOutNullString(writer);
       }
@@ -320,11 +312,7 @@ public final class Gson {
    * @since 1.2
    */
   public void toJson(Object src, Type typeOfSrc, Appendable writer) {
-    toJson(src, typeOfSrc, writer, true);
-  }
-
-  private void toJson(Object src, Type typeOfSrc, Appendable writer, boolean preserveType) {
-    JsonElement jsonElement = toJsonTree(src, typeOfSrc, preserveType);
+    JsonElement jsonElement = toJsonTree(src, typeOfSrc);
     toJson(jsonElement, writer);
   }
 

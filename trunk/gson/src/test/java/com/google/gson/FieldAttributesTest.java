@@ -72,6 +72,7 @@ public class FieldAttributesTest extends TestCase {
   }
 
   private static class Foo {
+    @SuppressWarnings("unused")
     public transient List<String> bar;
   }
 }
