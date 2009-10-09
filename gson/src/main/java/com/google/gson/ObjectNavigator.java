@@ -102,14 +102,14 @@ final class ObjectNavigator {
       if (objectToVisit == null) {
         return;
       }
-
+      objTypePair.setObject(objectToVisit);
       visitor.start(objTypePair);
       try {
         if (objTypeInfo.isArray()) {
           visitor.visitArray(objectToVisit, objTypePair.getType());
         } else if (objTypeInfo.getActualType() == Object.class
             && isPrimitiveOrString(objectToVisit)) {
-          // TODO(Joel): this is only used for deserialization of "primitves"
+          // TODO(Joel): this is only used for deserialization of "primitives"
           //             we should rethink this!!!
           visitor.visitPrimitive(objectToVisit);
           objectToVisit = visitor.getTarget();
