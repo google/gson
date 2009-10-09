@@ -229,7 +229,7 @@ public final class GsonBuilder {
 
   /**
    * Configures Gson to apply a set of exclusion strategies during both serialization and
-   * deserialization. Each of the {@code strategies} will be applied as a disjunctive rule.
+   * deserialization. Each of the {@code strategies} will be applied as a disjunction rule.
    * This means that if one of the {@code strategies} suggests that a field (or class) should be
    * skipped then that field (or object) is skipped during serializaiton/deserialization.
    *
