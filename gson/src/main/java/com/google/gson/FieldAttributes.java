@@ -30,12 +30,13 @@ import java.lang.reflect.Type;
  *
  * @since 1.4
  */
-final class FieldAttributes {
+public final class FieldAttributes {
   private final Field field;
 
   /**
-   * Constructs a Field Attributes object
-   * @param f
+   * Constructs a Field Attributes object from the {@code f}.
+   *
+   * @param f the field to pull attributes from
    */
   FieldAttributes(Field f) {
     Preconditions.checkNotNull(f);
