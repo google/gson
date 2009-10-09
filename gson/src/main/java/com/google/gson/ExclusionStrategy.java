@@ -19,8 +19,8 @@ package com.google.gson;
 /**
  * A strategy (or policy) definition that is used to decide whether or not a field or top-level
  * class should be serialized or deserialized as part of the JSON output/input. For serialization,
- * if the {@link this#shouldSkipClass(Class)} method returns false then that class or field type
- * will not be part of the JSON output.  For deserialization, if {@link this#shouldSkipClass(Class)}
+ * if the {@link #shouldSkipClass(Class)} method returns false then that class or field type
+ * will not be part of the JSON output.  For deserialization, if {@link #shouldSkipClass(Class)}
  * returns false, then it will not be set as part of the Java object structure.
  *
  * <p>The following are a few examples that shows how you can use this exclusion mechanism.

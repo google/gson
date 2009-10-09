@@ -236,8 +236,4 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   public JsonElement getJsonElement() {
     return root;
   }
-
-  public ObjectTypePair getActualTypeIfMoreSpecific(ObjectTypePair objTypePair) {
-    return objTypePair.toMoreSpecificType();
-  }
 }
