@@ -66,15 +66,16 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
 
   @SuppressWarnings("unchecked")
   public final boolean visitUsingCustomHandler(ObjectTypePair objTypePair) {
-    Type objType = objTypePair.getType();
-    JsonDeserializer deserializer = deserializers.getHandlerFor(objType);
-    if (deserializer != null) {
-      if (!json.isJsonNull()) {
-        target = (T) deserializer.deserialize(json, objType, context);
-      }
-      return true;
+    Pair<JsonDeserializer<?>, ObjectTypePair> pair = objTypePair.getMatchingHandler(deserializers);
+    if (pair == null) {
+      return false;
+    }    
+    if (!json.isJsonNull()) {
+      JsonDeserializer deserializer = pair.getFirst();
+      Type objType = pair.getSecond().getType();
+      target = (T) deserializer.deserialize(json, objType, context);
     }
-    return false;
+    return true;
   }
 
   final Object visitChildAsObject(Type childType, JsonElement jsonChild) {
@@ -92,7 +93,7 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
   }
 
   private Object visitChild(Type type, JsonDeserializationVisitor<?> childVisitor) {
-    ObjectNavigator on = factory.create(new ObjectTypePair(null, type, true));
+    ObjectNavigator on = factory.create(new ObjectTypePair(null, type, false));
     on.accept(childVisitor);
     // the underlying object may have changed during the construction phase
     // This happens primarily because of custom deserializers
