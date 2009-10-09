@@ -54,7 +54,6 @@ public final class JsonObject extends JsonElement {
    */
   public void add(String property, JsonElement value) {
     Preconditions.checkArgument(property != null && !"".equals(property.trim()));
-    Preconditions.checkNotNull(property);
 
     if (value == null) {
       value = JsonNull.createJsonNull();
