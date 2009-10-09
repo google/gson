@@ -98,8 +98,4 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
     // This happens primarily because of custom deserializers
     return childVisitor.getTarget();
   }
-
-  public ObjectTypePair getActualTypeIfMoreSpecific(ObjectTypePair objTypePair) {
-    return objTypePair;
-  }
 }

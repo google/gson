@@ -63,8 +63,6 @@ final class ObjectNavigator {
      */
     public boolean visitFieldUsingCustomHandler(Field f, Type actualTypeOfField, Object parent);
 
-    public ObjectTypePair getActualTypeIfMoreSpecific(ObjectTypePair objTypePair);
-
     /**
      * Retrieve the current target
      */
@@ -117,7 +115,7 @@ final class ObjectNavigator {
           objectToVisit = visitor.getTarget();
         } else {
           visitor.startVisitingObject(objectToVisit);
-          ObjectTypePair currObjTypePair = visitor.getActualTypeIfMoreSpecific(objTypePair);
+          ObjectTypePair currObjTypePair = objTypePair.toMoreSpecificType();
           Class<?> topLevelClass = new TypeInfo(currObjTypePair.getType()).getRawClass();
           for (Class<?> curr = topLevelClass; curr != null && !curr.equals(Object.class);
               curr = curr.getSuperclass()) {
