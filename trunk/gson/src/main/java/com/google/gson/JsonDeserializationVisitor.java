@@ -35,6 +35,7 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
   protected final JsonElement json;
   protected final Type targetType;
   protected final JsonDeserializationContext context;
+  protected boolean constructed;
 
   public JsonDeserializationVisitor(JsonElement json, Type targetType,
       ObjectNavigatorFactory factory, ObjectConstructor objectConstructor,
@@ -47,11 +48,13 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
     this.deserializers = deserializers;
     this.json = json;
     this.context = context;
+    this.constructed = false;
   }
 
   public T getTarget() {
-    if (target == null) {
+    if (!constructed) {
       target = constructTarget();
+      constructed = true;
     }
     return target;
   }
@@ -70,12 +73,19 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
     if (pair == null) {
       return false;
     }    
-    if (!json.isJsonNull()) {
-      JsonDeserializer deserializer = pair.getFirst();
-      Type objType = pair.getSecond().getType();
-      target = (T) deserializer.deserialize(json, objType, context);
-    }
+    Object value = invokeCustomDeserializer(json, pair);
+    target = (T) value;
+    constructed = true;
     return true;
+  }
+
+  protected Object invokeCustomDeserializer(JsonElement element, 
+      Pair<JsonDeserializer<?>, ObjectTypePair> pair) {
+    if (element == null || element.isJsonNull()) {
+      return null;
+    }
+    Type objType = pair.getSecond().getType();
+    return (pair.getFirst()).deserialize(element, objType, context);
   }
 
   final Object visitChildAsObject(Type childType, JsonElement jsonChild) {
