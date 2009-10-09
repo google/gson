@@ -23,7 +23,7 @@ import java.lang.reflect.Type;
  * @author Inderjeet Singh
  */
 final class ObjectTypePair {
-  private final Object obj;
+  private Object obj;
   private final Type type;
   private final boolean preserveType;
 
@@ -37,26 +37,28 @@ final class ObjectTypePair {
     return obj;
   }
 
+  void setObject(Object obj) {
+    this.obj = obj;
+  }
+
   Type getType() {
     return type;
   }
   
-  @SuppressWarnings("unchecked")
-  Pair<JsonSerializer, ObjectTypePair> getMatchingSerializer(
-      ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers) {
-    Preconditions.checkNotNull(obj);
-    JsonSerializer serializer = null;
-    if (!preserveType) {
-      // First try looking up the serializer for the actual type
+  <HANDLER> Pair<HANDLER, ObjectTypePair> getMatchingHandler(
+      ParameterizedTypeHandlerMap<HANDLER> handlers) {
+    HANDLER handler = null;
+    if (!preserveType && obj != null) {
+      // First try looking up the handler for the actual type
       ObjectTypePair moreSpecificType = toMoreSpecificType();    
-      serializer = serializers.getHandlerFor(moreSpecificType.type);
-      if (serializer != null) {
-        return new Pair<JsonSerializer, ObjectTypePair>(serializer, moreSpecificType);
+      handler = handlers.getHandlerFor(moreSpecificType.type);
+      if (handler != null) {
+        return new Pair<HANDLER, ObjectTypePair>(handler, moreSpecificType);
       }
     }
     // Try the specified type
-    serializer = serializers.getHandlerFor(type);
-    return serializer == null ? null : new Pair<JsonSerializer, ObjectTypePair>(serializer, this);
+    handler = handlers.getHandlerFor(type);
+    return handler == null ? null : new Pair<HANDLER, ObjectTypePair>(handler, this);
   }
 
   ObjectTypePair toMoreSpecificType() {    
@@ -121,5 +123,9 @@ final class ObjectTypePair {
       return false;
     }
     return preserveType == other.preserveType;
+  }
+
+  public boolean isPreserveType() {
+    return preserveType;
   }
 }

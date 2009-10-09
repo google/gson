@@ -149,7 +149,6 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
     return childVisitor.getJsonElement();
   }
 
-  @SuppressWarnings("unchecked")
   public boolean visitUsingCustomHandler(ObjectTypePair objTypePair) {
     try {
       Object obj = objTypePair.getObject();
@@ -176,7 +175,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
    */
   @SuppressWarnings("unchecked")
   private JsonElement findAndInvokeCustomSerializer(ObjectTypePair objTypePair) {
-    Pair<JsonSerializer, ObjectTypePair> pair = objTypePair.getMatchingSerializer(serializers);
+    Pair<JsonSerializer<?>,ObjectTypePair> pair = objTypePair.getMatchingHandler(serializers);
     if (pair == null) {
       return null;
     }
@@ -192,7 +191,6 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
     }
   }
 
-  @SuppressWarnings("unchecked")
   public boolean visitFieldUsingCustomHandler(Field f, Type declaredTypeOfField, Object parent) {
     try {
       Preconditions.checkState(root.isJsonObject());
