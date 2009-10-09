@@ -30,63 +30,81 @@ public class JsonObjectTest extends TestCase {
     String propertyName = "property";
     assertFalse(jsonObj.has(propertyName));
     assertNull(jsonObj.get(propertyName));
-    
+
     JsonPrimitive value = new JsonPrimitive("blah");
     jsonObj.add(propertyName, value);
     assertEquals(value, jsonObj.get(propertyName));
-    
+
     JsonElement removedElement = jsonObj.remove(propertyName);
     assertEquals(value, removedElement);
     assertFalse(jsonObj.has(propertyName));
   }
-  
-  public void testAddingNullProperties() throws Exception {
+
+  public void testAddingNullPropertyValue() throws Exception {
     String propertyName = "property";
     JsonObject jsonObj = new JsonObject();
     jsonObj.add(propertyName, null);
-    
+
     assertTrue(jsonObj.has(propertyName));
-    
+
     JsonElement jsonElement = jsonObj.get(propertyName);
     assertNotNull(jsonElement);
     assertTrue(jsonElement.isJsonNull());
   }
-  
+
+  public void testAddingNullOrEmptyPropertyName() throws Exception {
+    JsonObject jsonObj = new JsonObject();
+    try {
+      jsonObj.add(null, JsonNull.createJsonNull());
+      fail("Should not allow null property names.");
+    } catch (IllegalArgumentException expected) { }
+
+    try {
+      jsonObj.add("", JsonNull.createJsonNull());
+      fail("Should not allow empty property names.");
+    } catch (IllegalArgumentException expected) { }
+
+    try {
+      jsonObj.add("   \t", JsonNull.createJsonNull());
+      fail("Should not allow whitespace only property names.");
+    } catch (IllegalArgumentException expected) { }
+  }
+
   public void testAddingBooleanProperties() throws Exception {
     String propertyName = "property";
     JsonObject jsonObj = new JsonObject();
     jsonObj.addProperty(propertyName, true);
-    
+
     assertTrue(jsonObj.has(propertyName));
-    
+
     JsonElement jsonElement = jsonObj.get(propertyName);
     assertNotNull(jsonElement);
     assertTrue(jsonElement.getAsBoolean());
   }
-  
+
   public void testAddingStringProperties() throws Exception {
     String propertyName = "property";
     String value = "blah";
 
     JsonObject jsonObj = new JsonObject();
     jsonObj.addProperty(propertyName, value);
-    
+
     assertTrue(jsonObj.has(propertyName));
-    
+
     JsonElement jsonElement = jsonObj.get(propertyName);
     assertNotNull(jsonElement);
     assertEquals(value, jsonElement.getAsString());
   }
-  
+
   public void testAddingCharacterProperties() throws Exception {
     String propertyName = "property";
     char value = 'a';
 
     JsonObject jsonObj = new JsonObject();
     jsonObj.addProperty(propertyName, value);
-    
+
     assertTrue(jsonObj.has(propertyName));
-    
+
     JsonElement jsonElement = jsonObj.get(propertyName);
     assertNotNull(jsonElement);
     assertEquals(String.valueOf(value), jsonElement.getAsString());
