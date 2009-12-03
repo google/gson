@@ -33,6 +33,13 @@ import java.lang.reflect.Type;
 public final class FieldAttributes {
   private final Field field;
 
+  // Fields used for lazy initialization
+  private String name;
+  private Type genericType;
+  private Class<?> declaredType;
+  private Integer modifiers;
+  private Boolean isSynthetic;
+
   /**
    * Constructs a Field Attributes object from the {@code f}.
    *
@@ -47,7 +54,10 @@ public final class FieldAttributes {
    * @return the name of the field
    */
   public String getName() {
-    return field.getName();
+    if (name == null) {
+      name = field.getName();
+    }
+    return name;
   }
 
   /**
@@ -67,7 +77,10 @@ public final class FieldAttributes {
    * @return the specific type declared for this field
    */
   public Type getDeclaredType() {
-    return field.getGenericType();
+    if (genericType == null) {
+      genericType = field.getGenericType();
+    }
+    return genericType;
   }
 
   /**
@@ -87,7 +100,10 @@ public final class FieldAttributes {
    * @return the specific class object that was declared for the field
    */
   public Class<?> getDeclaredClass() {
-    return field.getType();
+    if (declaredType == null) {
+      declaredType = field.getType();
+    }
+    return declaredType;
   }
 
   /**
@@ -112,7 +128,10 @@ public final class FieldAttributes {
    * @see java.lang.reflect.Modifier
    */
   public boolean hasModifier(int modifier) {
-    return (field.getModifiers() & modifier) != 0;
+    if (modifiers == null) {
+      modifiers = field.getModifiers();
+    }
+    return (modifiers & modifier) != 0;
   }
 
   /**
@@ -121,6 +140,9 @@ public final class FieldAttributes {
    * @return true if the field is synthetic; otherwise false
    */
   boolean isSynthetic() {
-    return field.isSynthetic();
+    if (isSynthetic == null) {
+      isSynthetic = field.isSynthetic();
+    }
+    return isSynthetic;
   }
 }
