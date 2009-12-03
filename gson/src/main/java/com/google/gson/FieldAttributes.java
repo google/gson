@@ -39,6 +39,7 @@ public final class FieldAttributes {
   private Class<?> declaredType;
   private Integer modifiers;
   private Boolean isSynthetic;
+  private Annotation[] annotations;
 
   /**
    * Constructs a Field Attributes object from the {@code f}.
@@ -114,7 +115,10 @@ public final class FieldAttributes {
    * @return the annotation instance if it is bound to the field; otherwise {@code null}
    */
   public <T extends Annotation> T getAnnotation(Class<T> annotation) {
-    return field.getAnnotation(annotation);
+    if (annotations == null) {
+      annotations = field.getAnnotations();
+    }
+    return getAnnotationFromArray(annotations, annotation);
   }
 
   /**
@@ -144,5 +148,16 @@ public final class FieldAttributes {
       isSynthetic = field.isSynthetic();
     }
     return isSynthetic;
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <T extends Annotation> T getAnnotationFromArray(
+      Annotation[] annotations, Class<T> annotation) {
+    for (Annotation a : annotations) {
+      if (a.annotationType() == annotation) {
+        return (T) a;
+      }
+    }
+    return null;
   }
 }
