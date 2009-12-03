@@ -91,7 +91,7 @@ final class ObjectNavigator {
    * If a field is null, it does not get visited.
    */
   public void accept(Visitor visitor) {
-    TypeInfo objTypeInfo = new TypeInfo(objTypePair.getType());
+    TypeInfo objTypeInfo = new TypeInfo(objTypePair.type);
     if (exclusionStrategy.shouldSkipClass(objTypeInfo.getRawClass())) {
       return;
     }
@@ -106,7 +106,7 @@ final class ObjectNavigator {
       visitor.start(objTypePair);
       try {
         if (objTypeInfo.isArray()) {
-          visitor.visitArray(objectToVisit, objTypePair.getType());
+          visitor.visitArray(objectToVisit, objTypePair.type);
         } else if (objTypeInfo.getActualType() == Object.class
             && isPrimitiveOrString(objectToVisit)) {
           // TODO(Joel): this is only used for deserialization of "primitives"
@@ -116,7 +116,7 @@ final class ObjectNavigator {
         } else {
           visitor.startVisitingObject(objectToVisit);
           ObjectTypePair currObjTypePair = objTypePair.toMoreSpecificType();
-          Class<?> topLevelClass = new TypeInfo(currObjTypePair.getType()).getRawClass();
+          Class<?> topLevelClass = new TypeInfo(currObjTypePair.type).getRawClass();
           for (Class<?> curr = topLevelClass; curr != null && !curr.equals(Object.class);
               curr = curr.getSuperclass()) {
             if (!curr.isSynthetic()) {
@@ -145,7 +145,7 @@ final class ObjectNavigator {
           || exclusionStrategy.shouldSkipClass(fieldAttributes.getDeclaredClass())) {
         continue; // skip
       } else {
-        TypeInfo fieldTypeInfo = TypeInfoFactory.getTypeInfoForField(f, objTypePair.getType());
+        TypeInfo fieldTypeInfo = TypeInfoFactory.getTypeInfoForField(f, objTypePair.type);
         Type declaredTypeOfField = fieldTypeInfo.getActualType();
         boolean visitedWithCustomHandler =
             visitor.visitFieldUsingCustomHandler(f, declaredTypeOfField, obj);

@@ -33,7 +33,7 @@ import java.lang.reflect.Field;
  *
  * @author Joel Leitch
  */
-class SerializedNameAnnotationInterceptingNamingPolicy implements FieldNamingStrategy {
+final class SerializedNameAnnotationInterceptingNamingPolicy implements FieldNamingStrategy {
   private static final JsonFieldNameValidator fieldNameValidator = new JsonFieldNameValidator();
   private final FieldNamingStrategy delegate;
 
