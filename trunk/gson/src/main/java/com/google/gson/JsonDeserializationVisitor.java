@@ -84,8 +84,8 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
     if (element == null || element.isJsonNull()) {
       return null;
     }
-    Type objType = pair.getSecond().getType();
-    return (pair.getFirst()).deserialize(element, objType, context);
+    Type objType = pair.second.type;
+    return (pair.first).deserialize(element, objType, context);
   }
 
   final Object visitChildAsObject(Type childType, JsonElement jsonChild) {
