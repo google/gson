@@ -32,13 +32,13 @@ import java.lang.reflect.Type;
  */
 public final class FieldAttributes {
   private final Field field;
+  private final Class<?> declaredType;
+  private final boolean isSynthetic;
+  private final int modifiers;
 
   // Fields used for lazy initialization
   private String name;
   private Type genericType;
-  private Class<?> declaredType;
-  private Integer modifiers;
-  private Boolean isSynthetic;
   private Annotation[] annotations;
 
   /**
@@ -46,9 +46,12 @@ public final class FieldAttributes {
    *
    * @param f the field to pull attributes from
    */
-  FieldAttributes(Field f) {
+  FieldAttributes(final Field f) {
     Preconditions.checkNotNull(f);
     field = f;
+    declaredType = f.getType();
+    isSynthetic = f.isSynthetic();
+    modifiers = field.getModifiers();
   }
 
   /**
@@ -101,9 +104,6 @@ public final class FieldAttributes {
    * @return the specific class object that was declared for the field
    */
   public Class<?> getDeclaredClass() {
-    if (declaredType == null) {
-      declaredType = field.getType();
-    }
     return declaredType;
   }
 
@@ -132,9 +132,6 @@ public final class FieldAttributes {
    * @see java.lang.reflect.Modifier
    */
   public boolean hasModifier(int modifier) {
-    if (modifiers == null) {
-      modifiers = field.getModifiers();
-    }
     return (modifiers & modifier) != 0;
   }
 
@@ -144,9 +141,6 @@ public final class FieldAttributes {
    * @return true if the field is synthetic; otherwise false
    */
   boolean isSynthetic() {
-    if (isSynthetic == null) {
-      isSynthetic = field.isSynthetic();
-    }
     return isSynthetic;
   }
 
