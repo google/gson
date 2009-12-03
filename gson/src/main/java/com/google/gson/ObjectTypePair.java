@@ -24,7 +24,7 @@ import java.lang.reflect.Type;
  */
 final class ObjectTypePair {
   private Object obj;
-  private final Type type;
+  final Type type;
   private final boolean preserveType;
 
   ObjectTypePair(Object obj, Type type, boolean preserveType) {

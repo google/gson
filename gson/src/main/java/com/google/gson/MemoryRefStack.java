@@ -78,7 +78,7 @@ final class MemoryRefStack {
 
     for (ObjectTypePair stackObject : stack) {
       if (stackObject.getObject() == obj.getObject()
-          && stackObject.getType().equals(obj.getType()) ) {
+          && stackObject.type.equals(obj.type) ) {
         return true;
       }
     }

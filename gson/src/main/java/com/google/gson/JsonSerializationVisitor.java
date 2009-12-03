@@ -179,8 +179,8 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
     if (pair == null) {
       return null;
     }
-    JsonSerializer serializer = pair.getFirst();
-    objTypePair = pair.getSecond();
+    JsonSerializer serializer = pair.first;
+    objTypePair = pair.second;
     start(objTypePair);
     try {
       JsonElement element =
