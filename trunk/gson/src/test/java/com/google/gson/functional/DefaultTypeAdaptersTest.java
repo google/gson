@@ -25,6 +25,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URL;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -200,50 +201,61 @@ public class DefaultTypeAdaptersTest extends TestCase {
   public void testDefaultDateDeserialization() {
     String json = "'Dec 13, 2009 07:18:02 AM'";
     Date extracted = gson.fromJson(json, Date.class);
-    assertEquals(extracted, 2009, 11, 13, 7, 18, 02);
+    assertEqualsDate(extracted, 2009, 11, 13);
+    assertEqualsTime(extracted, 7, 18, 02);
   }
 
   // Date can not directly be compared with another instance since the deserialization loses the
   // millisecond portion.
   @SuppressWarnings("deprecation")
-  private void assertEquals(Date date, int year, int month, int day, int hours, int minutes,
-      int seconds) {
-    assertEquals(year-1900, date.getYear());    
-    assertEquals(month, date.getMonth());    
-    assertEquals(day, date.getDate());
-    if (!(date instanceof java.sql.Date)) { 
-      assertEquals(hours, date.getHours());    
-      assertEquals(minutes, date.getMinutes());        
-      assertEquals(seconds, date.getSeconds());
-    }
+  private void assertEqualsDate(Date date, int year, int month, int day) {
+      assertEquals(year-1900, date.getYear());    
+      assertEquals(month, date.getMonth());    
+      assertEquals(day, date.getDate());
+  }
+
+  @SuppressWarnings("deprecation")
+  private void assertEqualsTime(Date date, int hours, int minutes, int seconds) {
+    assertEquals(hours, date.getHours());    
+    assertEquals(minutes, date.getMinutes());        
+    assertEquals(seconds, date.getSeconds());
   }
 
   public void testDefaultJavaSqlDateSerialization() {
-    long currentTimeMillis = System.currentTimeMillis();
-    java.sql.Date now = new java.sql.Date(currentTimeMillis);
-    String json = gson.toJson(now);
-    assertEquals("\"" + DateFormat.getDateTimeInstance().format(now) + "\"", json);
+    java.sql.Date instant = new java.sql.Date(1259875082000L);
+    String json = gson.toJson(instant);
+    assertEquals("\"Dec 3, 2009\"", json);
   }
 
-  @SuppressWarnings("deprecation")
   public void testDefaultJavaSqlDateDeserialization() {
-    String json = "'Dec 3, 2009 1:18:02 PM'";
+    String json = "'Dec 3, 2009'";
     java.sql.Date extracted = gson.fromJson(json, java.sql.Date.class);
-    assertEquals(extracted, 2009, 11, 3, 13, 18, 02);
+    assertEqualsDate(extracted, 2009, 11, 3);
   }
   
   public void testDefaultJavaSqlTimestampSerialization() {
-    long currentTimeMillis = System.currentTimeMillis();
-    Timestamp now = new java.sql.Timestamp(currentTimeMillis);
+    Timestamp now = new java.sql.Timestamp(1259875082000L);
     String json = gson.toJson(now);
-    assertEquals("\"" + DateFormat.getDateTimeInstance().format(now) + "\"", json);
+    assertEquals("\"Dec 3, 2009 1:18:02 PM\"", json);
   }
 
-  @SuppressWarnings("deprecation")
   public void testDefaultJavaSqlTimestampDeserialization() {
     String json = "'Dec 3, 2009 1:18:02 PM'";
     Timestamp extracted = gson.fromJson(json, Timestamp.class);
-    assertEquals(extracted, 2009, 11, 3, 13, 18, 02);
+    assertEqualsDate(extracted, 2009, 11, 3);
+    assertEqualsTime(extracted, 13, 18, 02);
+  }
+  
+  public void testDefaultJavaSqlTimeSerialization() {
+    Time now = new Time(1259875082000L);
+    String json = gson.toJson(now);
+    assertEquals("\"01:18:02 PM\"", json);
+  }
+
+  public void testDefaultJavaSqlTimeDeserialization() {
+    String json = "'1:18:02 PM'";
+    Time extracted = gson.fromJson(json, Time.class);
+    assertEqualsTime(extracted, 13, 18, 02);
   }
   
   public void testDefaultDateSerializationUsingBuilder() throws Exception {
