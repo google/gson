@@ -24,6 +24,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -55,6 +56,10 @@ import java.util.UUID;
 final class DefaultTypeAdapters {
 
   private static final DefaultDateTypeAdapter DATE_TYPE_ADAPTER = new DefaultDateTypeAdapter();
+  private static final DefaultJavaSqlDateDeserializer JAVA_SQL_DATE_DESERIALIZER =
+    new DefaultJavaSqlDateDeserializer();
+  private static final DefaultTimestampDeserializer TIMESTAMP_DESERIALIZER =
+    new DefaultTimestampDeserializer();
 
   @SuppressWarnings("unchecked")
   private static final EnumTypeAdapter ENUM_TYPE_ADAPTER = new EnumTypeAdapter();
@@ -106,6 +111,8 @@ final class DefaultTypeAdapters {
     map.register(Collection.class, COLLECTION_TYPE_ADAPTER);
     map.register(Map.class, MAP_TYPE_ADAPTER);
     map.register(Date.class, DATE_TYPE_ADAPTER);
+    map.register(Timestamp.class, DATE_TYPE_ADAPTER);
+    map.register(java.sql.Date.class, DATE_TYPE_ADAPTER);
     map.register(Calendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER);
     map.register(GregorianCalendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER);
     map.register(BigDecimal.class, BIG_DECIMAL_TYPE_ADAPTER);
@@ -140,6 +147,8 @@ final class DefaultTypeAdapters {
     map.register(Collection.class, wrapDeserializer(COLLECTION_TYPE_ADAPTER));
     map.register(Map.class, wrapDeserializer(MAP_TYPE_ADAPTER));
     map.register(Date.class, wrapDeserializer(DATE_TYPE_ADAPTER));
+    map.register(java.sql.Date.class, wrapDeserializer(JAVA_SQL_DATE_DESERIALIZER));
+    map.register(Timestamp.class, wrapDeserializer(TIMESTAMP_DESERIALIZER));
     map.register(Calendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER);
     map.register(GregorianCalendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER);
     map.register(BigDecimal.class, wrapDeserializer(BIG_DECIMAL_TYPE_ADAPTER));
@@ -279,6 +288,22 @@ final class DefaultTypeAdapters {
       sb.append('(').append(format.getClass().getSimpleName()).append(')');
       return sb.toString();
     }
+  }
+
+  static class DefaultJavaSqlDateDeserializer implements JsonDeserializer<java.sql.Date> {
+    public java.sql.Date deserialize(JsonElement json, Type typeOfT,
+        JsonDeserializationContext context) throws JsonParseException {
+      Date date = context.deserialize(json, Date.class);
+      return new java.sql.Date(date.getTime());
+    }    
+  }
+
+  static class DefaultTimestampDeserializer implements JsonDeserializer<Timestamp> {
+    public Timestamp deserialize(JsonElement json, Type typeOfT,
+        JsonDeserializationContext context) throws JsonParseException {
+      Date date = context.deserialize(json, Date.class);
+      return new Timestamp(date.getTime());
+    }    
   }
 
   private static class GregorianCalendarTypeAdapter 
