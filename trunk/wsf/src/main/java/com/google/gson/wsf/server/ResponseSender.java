@@ -23,10 +23,10 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
-import com.google.gson.wsf.HeaderMap;
-import com.google.gson.wsf.HeaderMapSpec;
-import com.google.gson.wsf.ResponseBody;
-import com.google.gson.wsf.WebServiceResponse;
+import com.google.gson.webservice.definition.HeaderMap;
+import com.google.gson.webservice.definition.HeaderMapSpec;
+import com.google.gson.webservice.definition.ResponseBody;
+import com.google.gson.webservice.definition.WebServiceResponse;
 
 /**
  * Sends a JSON web service response on {@link HttpServletResponse}.

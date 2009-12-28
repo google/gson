@@ -18,10 +18,10 @@ package com.google.gson.wsf.inject.server;
 import javax.servlet.http.HttpServletRequest;
 
 import com.google.gson.Gson;
-import com.google.gson.wsf.WebServiceCall;
-import com.google.gson.wsf.WebServiceCallSpec;
-import com.google.gson.wsf.WebServiceRequest;
-import com.google.gson.wsf.WebServiceResponse;
+import com.google.gson.webservice.definition.WebServiceCall;
+import com.google.gson.webservice.definition.WebServiceCallSpec;
+import com.google.gson.webservice.definition.WebServiceRequest;
+import com.google.gson.webservice.definition.WebServiceResponse;
 import com.google.gson.wsf.server.RequestReceiver;
 import com.google.gson.wsf.server.WebServiceCallServerBuilder;
 import com.google.inject.Inject;

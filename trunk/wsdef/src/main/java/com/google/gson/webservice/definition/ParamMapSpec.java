@@ -13,29 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson.wsf.inject;
+package com.google.gson.webservice.definition;
 
-import com.google.gson.webservice.definition.RequestBodySpec;
-import com.google.gson.webservice.definition.RequestSpec;
-import com.google.inject.Inject;
-import com.google.inject.Provider;
+import java.lang.reflect.Type;
+import java.util.Map;
+import java.util.Set;
 
 /**
- * Guice provider for the {@link RequestBodySpec} to map to the incoming requests.
+ * Specification of a parameter map. Both {@link ContentBody} and {@link HeaderMap} are 
+ * parameter maps.
  * 
  * @author inder
  */
-public final class RequestBodySpecProvider implements Provider<RequestBodySpec> {
+interface ParamMapSpec {
 
-  private final RequestSpec requestSpec;
+  Type getTypeFor(String paramName);
 
-  @Inject
-  public RequestBodySpecProvider(RequestSpec requestSpec) {
-    this.requestSpec = requestSpec;
-  }
+  boolean checkIfCompatible(String paramName, Type type);
+
+  boolean checkIfCompatible(String paramName, Object object);
   
-  @Override
-  public RequestBodySpec get() {
-    return requestSpec.getBodySpec();
-  }
+  public Set<Map.Entry<String, Type>> entrySet();
+
+  public int size();
+
 }
