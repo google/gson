@@ -5,11 +5,11 @@
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.code.gson</groupId>
-  <artifactId>wsf</artifactId>
+  <artifactId>wsclient</artifactId>
   <packaging>jar</packaging>
   <version>0.1</version>
-  <name>Gson Web Service Framework</name>
-  <description>A Framework for JSON based Web-services</description>
+  <name>Gson Web Service Client Framework</name>
+  <description>A Framework for Writing Clients for JSON based Web-services</description>
   <distributionManagement>
     <repository>
       <id>local.repo</id>
@@ -69,12 +69,6 @@
       <version>0.1</version>
       <scope>compile</scope>
     </dependency>
-    <dependency>
-      <groupId>com.google.code.gson</groupId>
-      <artifactId>wsclient</artifactId>
-      <version>0.1</version>
-      <scope>compile</scope>
-    </dependency>
 
     <!-- Guice: Dependency injection -->
     <dependency>
@@ -82,14 +76,6 @@
       <artifactId>guice</artifactId>
       <version>2.0</version>
       <scope>compile</scope>
-    </dependency>
-
-    <!-- Servlet & Jsp -->
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>2.4</version>
-      <scope>provided</scope>
     </dependency>
 
     <dependency>
@@ -101,7 +87,7 @@
   </dependencies>
 
   <build>
-    <finalName>wsf</finalName>
+    <finalName>wsclient</finalName>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -246,10 +232,6 @@
   <developers>
     <developer>
       <name>Inderjeet Singh</name>
-      <organization>Google Inc.</organization>
-    </developer>
-    <developer>
-      <name>Joel Leitch</name>
       <organization>Google Inc.</organization>
     </developer>
   </developers>

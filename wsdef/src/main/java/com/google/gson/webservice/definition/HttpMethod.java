@@ -13,29 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson.wsf.inject;
-
-import com.google.gson.webservice.definition.RequestBodySpec;
-import com.google.gson.webservice.definition.RequestSpec;
-import com.google.inject.Inject;
-import com.google.inject.Provider;
+package com.google.gson.webservice.definition;
 
 /**
- * Guice provider for the {@link RequestBodySpec} to map to the incoming requests.
+ * An enum of Http methods to provide strongly-typed versions instead of strings. 
  * 
  * @author inder
  */
-public final class RequestBodySpecProvider implements Provider<RequestBodySpec> {
-
-  private final RequestSpec requestSpec;
-
-  @Inject
-  public RequestBodySpecProvider(RequestSpec requestSpec) {
-    this.requestSpec = requestSpec;
-  }
+public enum HttpMethod { 
+  GET, 
+  POST, 
+  PUT, 
+  DELETE;
   
-  @Override
-  public RequestBodySpec get() {
-    return requestSpec.getBodySpec();
+  public static HttpMethod getMethod(String method) {
+    return valueOf(method.trim().toUpperCase());
   }
 }

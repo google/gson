@@ -13,29 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson.wsf.inject;
-
-import com.google.gson.webservice.definition.RequestSpec;
-import com.google.gson.webservice.definition.WebServiceCallSpec;
-import com.google.inject.Inject;
-import com.google.inject.Provider;
+package com.google.gson.webservice.client;
 
 /**
- * Guice provider for the {@link RequestSpec} to map to the incoming requests.
+ * Configuration needed to access a Gson web service.
  * 
  * @author inder
  */
-public final class RequestSpecProvider implements Provider<RequestSpec> {
+public final class WebServiceConfig {
+  private final String serviceBaseUrl;
 
-  private final WebServiceCallSpec webServiceCallSpec;
+  public WebServiceConfig(String serviceBaseUrl) {
+    this.serviceBaseUrl = serviceBaseUrl;
+  }
 
-  @Inject
-  public RequestSpecProvider(WebServiceCallSpec webServiceCallSpec) {
-    this.webServiceCallSpec = webServiceCallSpec;
+  public String getServiceBaseUrl() {
+    return serviceBaseUrl;
   }
   
   @Override
-  public RequestSpec get() {
-    return webServiceCallSpec.getRequestSpec();
+  public String toString() {
+    return serviceBaseUrl;
   }
 }

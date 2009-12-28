@@ -26,14 +26,14 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
-import com.google.gson.wsf.HeaderMap;
-import com.google.gson.wsf.HeaderMapSpec;
-import com.google.gson.wsf.HttpMethod;
-import com.google.gson.wsf.RequestBody;
-import com.google.gson.wsf.RequestBodySpec;
-import com.google.gson.wsf.RequestSpec;
-import com.google.gson.wsf.WebServiceRequest;
-import com.google.gson.wsf.WebServiceSystemException;
+import com.google.gson.webservice.definition.HeaderMap;
+import com.google.gson.webservice.definition.HeaderMapSpec;
+import com.google.gson.webservice.definition.HttpMethod;
+import com.google.gson.webservice.definition.RequestBody;
+import com.google.gson.webservice.definition.RequestBodySpec;
+import com.google.gson.webservice.definition.RequestSpec;
+import com.google.gson.webservice.definition.WebServiceRequest;
+import com.google.gson.webservice.definition.WebServiceSystemException;
 
 /**
  * Receives and parses a request at the server side on a {@link HttpServletRequest}.  
