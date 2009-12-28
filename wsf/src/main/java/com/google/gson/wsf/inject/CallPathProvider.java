@@ -17,7 +17,7 @@ package com.google.gson.wsf.inject;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.google.gson.wsf.CallPath;
+import com.google.gson.webservice.definition.CallPath;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 

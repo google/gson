@@ -15,9 +15,9 @@
  */
 package com.google.gson.wsf.inject;
 
-import com.google.gson.wsf.CallPath;
-import com.google.gson.wsf.WebServiceCallSpec;
-import com.google.gson.wsf.WebServiceSpec;
+import com.google.gson.webservice.definition.CallPath;
+import com.google.gson.webservice.definition.WebServiceCallSpec;
+import com.google.gson.webservice.definition.WebServiceSpec;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
