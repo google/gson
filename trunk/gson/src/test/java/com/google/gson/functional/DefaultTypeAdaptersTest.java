@@ -36,6 +36,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.UUID;
 
 /**
@@ -47,11 +48,20 @@ import java.util.UUID;
  */
 public class DefaultTypeAdaptersTest extends TestCase {
   private Gson gson;
+  private TimeZone oldTimeZone;
 
   @Override
   protected void setUp() throws Exception {
     super.setUp();
+    this.oldTimeZone = TimeZone.getDefault();
+    TimeZone.setDefault(TimeZone.getTimeZone("PST"));
     gson = new Gson();
+  }
+
+  @Override
+  protected void tearDown() throws Exception {
+    TimeZone.setDefault(oldTimeZone);
+    super.tearDown();
   }
 
   public void testUrlSerialization() throws Exception {
