@@ -18,9 +18,11 @@ package com.google.gson.functional;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
+import com.google.gson.reflect.TypeToken;
 
 import junit.framework.TestCase;
 
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
@@ -37,6 +39,7 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.TreeSet;
 import java.util.UUID;
 
 /**
@@ -389,5 +392,19 @@ public class DefaultTypeAdaptersTest extends TestCase {
     String json = "{foo:'bar'}";
     Properties props = gson.fromJson(json, Properties.class);
     assertEquals("bar", props.getProperty("foo"));
+  }
+
+  public void testTreeSetSerialization() {
+    TreeSet<String> treeSet = new TreeSet<String>();
+    treeSet.add("Value1");
+    String json = gson.toJson(treeSet);
+    assertEquals("[\"Value1\"]", json);
+  }
+
+  public void testTreeSetDeserialization() {
+    String json = "['Value1']";
+    Type type = new TypeToken<TreeSet<String>>() {}.getType();
+    TreeSet<String> treeSet = gson.fromJson(json, type);
+    assertTrue(treeSet.contains("Value1"));
   }
 }

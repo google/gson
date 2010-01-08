@@ -195,6 +195,7 @@ final class DefaultTypeAdapters {
 
     map.register(Set.class, HASH_SET_CREATOR);
     map.register(SortedSet.class, TREE_SET_CREATOR);
+    map.register(TreeSet.class, TREE_SET_CREATOR);
     map.register(Properties.class, PROPERTIES_CREATOR);
     map.makeUnmodifiable();
     return map;
