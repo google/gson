@@ -21,7 +21,7 @@ import java.lang.reflect.Type;
 import java.util.Collection;
 
 /**
- * A simple implementation of the {@link FieldNamingStrategy} interface such that it does not
+ * A simple implementation of the {@link FieldNamingStrategy2} interface such that it does not
  * perform any string translation of the incoming field name.
  *
  * <p>The following is an example:</p>
@@ -38,7 +38,7 @@ import java.util.Collection;
  * assert("integerField".equals(translatedFieldName));
  * </pre>
  *
- * <p>This is the default {@link FieldNamingStrategy} used by Gson.</p>
+ * <p>This is the default {@link FieldNamingStrategy2} used by Gson.</p>
  *
  * @author Joel Leitch
  */

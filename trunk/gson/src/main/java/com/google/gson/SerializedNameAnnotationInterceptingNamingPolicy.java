@@ -19,10 +19,10 @@ package com.google.gson;
 import com.google.gson.annotations.SerializedName;
 
 /**
- * A {@link FieldNamingStrategy} that acts as a chain of responsibility.  If the
+ * A {@link FieldNamingStrategy2} that acts as a chain of responsibility.  If the
  * {@link com.google.gson.annotations.SerializedName} annotation is applied to a field then this
  * strategy will translate the name to the {@code serializedName.value()}; otherwise it delegates
- * to the wrapped {@link FieldNamingStrategy}.
+ * to the wrapped {@link FieldNamingStrategy2}.
  *
  * <p>NOTE: this class performs JSON field name validation for any of the fields marked with
  * an {@code @SerializedName} annotation.</p>
