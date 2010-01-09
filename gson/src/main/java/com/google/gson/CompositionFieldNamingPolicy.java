@@ -18,6 +18,7 @@ package com.google.gson;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.Collection;
 
 /**
  * Performs numerous field naming translations wrapped up as one object.
@@ -36,7 +37,7 @@ abstract class CompositionFieldNamingPolicy extends RecursiveFieldNamingPolicy {
   }
 
   @Override
-  protected String translateName(String target, Type fieldType, Annotation[] annotations) {
+  protected String translateName(String target, Type fieldType, Collection<Annotation> annotations) {
     for (RecursiveFieldNamingPolicy policy : fieldPolicies) {
       target = policy.translateName(target, fieldType, annotations);
     }

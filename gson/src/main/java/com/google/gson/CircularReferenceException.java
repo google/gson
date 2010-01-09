@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson;
 
-import java.lang.reflect.Field;
+package com.google.gson;
 
 /**
  * Exception class to indicate a circular reference error.
@@ -33,7 +32,7 @@ final class CircularReferenceException extends RuntimeException {
     this.offendingNode = offendingNode;
   }
   
-  public IllegalStateException createDetailedException(Field offendingField) {
+  public IllegalStateException createDetailedException(FieldAttributes offendingField) {
     StringBuilder msg = new StringBuilder(getMessage());
     if (offendingField != null) {
       msg.append("\n  ").append("Offending field: ").append(offendingField.getName() + "\n");

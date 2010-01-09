@@ -13,8 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.google.gson;
 
+/**
+ * A simple object that holds onto a pair of object references, first and second.
+ *
+ * @author Inderjeet Singh
+ * @author Joel Leitch
+ *
+ * @param <FIRST>
+ * @param <SECOND>
+ */
 final class Pair<FIRST, SECOND> {
 
   final FIRST first;
@@ -23,5 +33,25 @@ final class Pair<FIRST, SECOND> {
   Pair(FIRST first, SECOND second) {
     this.first = first;
     this.second = second;
+  }
+
+  @Override
+  public int hashCode() {
+    return 17 * ((first != null) ? first.hashCode() : 0)
+        + 17 * ((second != null) ? second.hashCode() : 0);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (!(o instanceof Pair<?, ?>)) {
+      return false;
+    }
+
+    Pair<?, ?> that = (Pair<?, ?>) o;
+    return equal(this.first, that.first) && equal(this.second, that.second);
+  }
+
+  private static boolean equal(Object a, Object b) {
+    return a == b || (a != null && a.equals(b));
   }
 }

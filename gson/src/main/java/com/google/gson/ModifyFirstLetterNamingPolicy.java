@@ -18,6 +18,7 @@ package com.google.gson;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.Collection;
 
 /**
  * A {@link FieldNamingStrategy} that ensures the JSON field names begins with
@@ -67,7 +68,8 @@ class ModifyFirstLetterNamingPolicy extends RecursiveFieldNamingPolicy {
   }
 
   @Override
-  protected String translateName(String target, Type fieldType, Annotation[] annotations) {
+  protected String translateName(String target, Type fieldType,
+      Collection<Annotation> annotations) {
     StringBuilder fieldNameBuilder = new StringBuilder();
     int index = 0;
     char firstCharacter = target.charAt(index);

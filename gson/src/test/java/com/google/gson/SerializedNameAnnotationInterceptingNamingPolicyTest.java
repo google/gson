@@ -16,11 +16,9 @@
 
 package com.google.gson;
 
-import com.google.gson.annotations.SerializedName;
-
 import junit.framework.TestCase;
 
-import java.lang.reflect.Field;
+import com.google.gson.annotations.SerializedName;
 
 /**
  * Unit tests for the {@link SerializedNameAnnotationInterceptingNamingPolicy} class.
@@ -40,7 +38,7 @@ public class SerializedNameAnnotationInterceptingNamingPolicyTest extends TestCa
 
   public void testFieldWithAnnotation() throws Exception {
     String fieldName = "fieldWithAnnotation";
-    Field f = SomeObject.class.getField(fieldName);
+    FieldAttributes f = new FieldAttributes(SomeObject.class.getField(fieldName));
 
     assertFalse(ANNOTATED_FIELD_NAME.equals(fieldName));
     assertEquals(ANNOTATED_FIELD_NAME, policy.translateName(f));
@@ -48,7 +46,7 @@ public class SerializedNameAnnotationInterceptingNamingPolicyTest extends TestCa
 
   public void testFieldWithoutAnnotation() throws Exception {
     String fieldName = "fieldWithoutAnnotation";
-    Field f = SomeObject.class.getField(fieldName);
+    FieldAttributes f = new FieldAttributes(SomeObject.class.getField(fieldName));
 
     assertEquals(fieldName, policy.translateName(f));
   }

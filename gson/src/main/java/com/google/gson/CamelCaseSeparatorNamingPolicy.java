@@ -18,6 +18,7 @@ package com.google.gson;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.Collection;
 
 /**
  * Converts the field name that uses camel-case define word separation into separate words that
@@ -56,7 +57,8 @@ final class CamelCaseSeparatorNamingPolicy extends RecursiveFieldNamingPolicy {
   }
 
   @Override
-  protected String translateName(String target, Type fieldType, Annotation[] annnotations) {
+  protected String translateName(String target, Type fieldType,
+      Collection<Annotation> annnotations) {
     StringBuilder translation = new StringBuilder();
     for (int i = 0; i < target.length(); i++) {
       char character = target.charAt(i);

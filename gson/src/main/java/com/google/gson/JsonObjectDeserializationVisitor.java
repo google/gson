@@ -16,7 +16,6 @@
 
 package com.google.gson;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 
 /**
@@ -50,7 +49,7 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
     throw new JsonParseException("Expecting object but found array: " + array);
   }
 
-  public void visitObjectField(Field f, Type typeOfF, Object obj) {
+  public void visitObjectField(FieldAttributes f, Type typeOfF, Object obj) {
     try {
       if (!json.isJsonObject()) {
         throw new JsonParseException("Expecting object found: " + json); 
@@ -69,7 +68,7 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
     }
   }
 
-  public void visitArrayField(Field f, Type typeOfF, Object obj) {
+  public void visitArrayField(FieldAttributes f, Type typeOfF, Object obj) {
     try {
       if (!json.isJsonObject()) {
         throw new JsonParseException("Expecting object found: " + json); 
@@ -88,12 +87,12 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
     }
   }
 
-  private String getFieldName(Field f) {
-    FieldNamingStrategy namingPolicy = factory.getFieldNamingPolicy();
+  private String getFieldName(FieldAttributes f) {
+    FieldNamingStrategy2 namingPolicy = factory.getFieldNamingPolicy();
     return namingPolicy.translateName(f);
   }
 
-  public boolean visitFieldUsingCustomHandler(Field f, Type declaredTypeOfField, Object parent) {
+  public boolean visitFieldUsingCustomHandler(FieldAttributes f, Type declaredTypeOfField, Object parent) {
     try {
       String fName = getFieldName(f);
       if (!json.isJsonObject()) {
