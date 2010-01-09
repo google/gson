@@ -21,8 +21,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 
 /**
- * Provides ability to apply a visitor to an object and all of its fields recursively.
- *
+ * Provides ability to apply a visitor to an object and all of its fields
+ * recursively.
+ * 
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
@@ -30,10 +31,12 @@ final class ObjectNavigator {
 
   public interface Visitor {
     public void start(ObjectTypePair node);
+
     public void end(ObjectTypePair node);
 
     /**
-     * This is called before the object navigator starts visiting the current object
+     * This is called before the object navigator starts visiting the current
+     * object
      */
     void startVisitingObject(Object node);
 
@@ -45,23 +48,26 @@ final class ObjectNavigator {
     /**
      * This is called to visit an object field of the current object
      */
-    void visitObjectField(Field f, Type typeOfF, Object obj);
+    void visitObjectField(FieldAttributes f, Type typeOfF, Object obj);
 
     /**
      * This is called to visit an array field of the current object
      */
-    void visitArrayField(Field f, Type typeOfF, Object obj);
+    void visitArrayField(FieldAttributes f, Type typeOfF, Object obj);
 
     /**
      * This is called to visit an object using a custom handler
+     * 
      * @return true if a custom handler exists, false otherwise
      */
     public boolean visitUsingCustomHandler(ObjectTypePair objTypePair);
 
     /**
-     * This is called to visit a field of the current object using a custom handler
+     * This is called to visit a field of the current object using a custom
+     * handler
      */
-    public boolean visitFieldUsingCustomHandler(Field f, Type actualTypeOfField, Object parent);
+    public boolean visitFieldUsingCustomHandler(FieldAttributes f, Type actualTypeOfField,
+        Object parent);
 
     /**
      * Retrieve the current target
@@ -75,9 +81,11 @@ final class ObjectNavigator {
   private final ObjectTypePair objTypePair;
 
   /**
-   * @param objTypePair The object,type (fully genericized) being navigated
-   * @param exclusionStrategy the concrete strategy object to be used to
-   *        filter out fields of an object.
+   * @param objTypePair
+   *          The object,type (fully genericized) being navigated
+   * @param exclusionStrategy
+   *          the concrete strategy object to be used to filter out fields of an
+   *          object.
    */
   ObjectNavigator(ObjectTypePair objTypePair, ExclusionStrategy exclusionStrategy) {
     Preconditions.checkNotNull(exclusionStrategy);
@@ -87,8 +95,8 @@ final class ObjectNavigator {
   }
 
   /**
-   * Navigate all the fields of the specified object.
-   * If a field is null, it does not get visited.
+   * Navigate all the fields of the specified object. If a field is null, it
+   * does not get visited.
    */
   public void accept(Visitor visitor) {
     TypeInfo objTypeInfo = new TypeInfo(objTypePair.type);
@@ -110,15 +118,15 @@ final class ObjectNavigator {
         } else if (objTypeInfo.getActualType() == Object.class
             && isPrimitiveOrString(objectToVisit)) {
           // TODO(Joel): this is only used for deserialization of "primitives"
-          //             we should rethink this!!!
+          // we should rethink this!!!
           visitor.visitPrimitive(objectToVisit);
           objectToVisit = visitor.getTarget();
         } else {
           visitor.startVisitingObject(objectToVisit);
           ObjectTypePair currObjTypePair = objTypePair.toMoreSpecificType();
           Class<?> topLevelClass = new TypeInfo(currObjTypePair.type).getRawClass();
-          for (Class<?> curr = topLevelClass; curr != null && !curr.equals(Object.class);
-              curr = curr.getSuperclass()) {
+          for (Class<?> curr = topLevelClass; curr != null && !curr.equals(Object.class); curr =
+              curr.getSuperclass()) {
             if (!curr.isSynthetic()) {
               navigateClassFields(objectToVisit, curr, visitor);
             }
@@ -148,12 +156,12 @@ final class ObjectNavigator {
         TypeInfo fieldTypeInfo = TypeInfoFactory.getTypeInfoForField(f, objTypePair.type);
         Type declaredTypeOfField = fieldTypeInfo.getActualType();
         boolean visitedWithCustomHandler =
-            visitor.visitFieldUsingCustomHandler(f, declaredTypeOfField, obj);
+            visitor.visitFieldUsingCustomHandler(fieldAttributes, declaredTypeOfField, obj);
         if (!visitedWithCustomHandler) {
           if (fieldTypeInfo.isArray()) {
-            visitor.visitArrayField(f, declaredTypeOfField, obj);
+            visitor.visitArrayField(fieldAttributes, declaredTypeOfField, obj);
           } else {
-            visitor.visitObjectField(f, declaredTypeOfField, obj);
+            visitor.visitObjectField(fieldAttributes, declaredTypeOfField, obj);
           }
         }
       }

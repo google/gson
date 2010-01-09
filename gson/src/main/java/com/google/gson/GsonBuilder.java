@@ -69,7 +69,7 @@ public final class GsonBuilder {
   private boolean serializeInnerClasses;
   private boolean excludeFieldsWithoutExposeAnnotation;
   private LongSerializationPolicy longSerializationPolicy;
-  private FieldNamingStrategy fieldNamingPolicy;
+  private FieldNamingStrategy2 fieldNamingPolicy;
   private final ParameterizedTypeHandlerMap<InstanceCreator<?>> instanceCreators;
   private final ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers;
   private final ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers;
@@ -220,8 +220,22 @@ public final class GsonBuilder {
    * @param fieldNamingStrategy the actual naming strategy to apply to the fields
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.3
+   * @deprecated use {@link #setFieldNamingStrategy(FieldNamingStrategy2)} instead.
    */
+  @Deprecated
   public GsonBuilder setFieldNamingStrategy(FieldNamingStrategy fieldNamingStrategy) {
+    return setFieldNamingStrategy(new FieldNamingStrategy2Adapter(fieldNamingStrategy));
+  }
+  
+  /**
+   * Configures Gson to apply a specific naming policy strategy to an object's field during
+   * serialization and deserialization.
+   *
+   * @param fieldNamingStrategy the actual naming strategy to apply to the fields
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @since 1.4
+   */
+  public GsonBuilder setFieldNamingStrategy(FieldNamingStrategy2 fieldNamingStrategy) {
     this.fieldNamingPolicy =
         new SerializedNameAnnotationInterceptingNamingPolicy(fieldNamingStrategy);
     return this;
