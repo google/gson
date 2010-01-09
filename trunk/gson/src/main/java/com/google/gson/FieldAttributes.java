@@ -19,6 +19,9 @@ package com.google.gson;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * A data object that stores attributes of a field.
@@ -35,11 +38,11 @@ public final class FieldAttributes {
   private final Class<?> declaredType;
   private final boolean isSynthetic;
   private final int modifiers;
+  private final String name;
 
   // Fields used for lazy initialization
-  private String name;
   private Type genericType;
-  private Annotation[] annotations;
+  private Collection<Annotation> annotations;
 
   /**
    * Constructs a Field Attributes object from the {@code f}.
@@ -49,6 +52,7 @@ public final class FieldAttributes {
   FieldAttributes(final Field f) {
     Preconditions.checkNotNull(f);
     field = f;
+    name = field.getName();
     declaredType = f.getType();
     isSynthetic = f.isSynthetic();
     modifiers = field.getModifiers();
@@ -58,9 +62,6 @@ public final class FieldAttributes {
    * @return the name of the field
    */
   public String getName() {
-    if (name == null) {
-      name = field.getName();
-    }
     return name;
   }
 
@@ -115,10 +116,21 @@ public final class FieldAttributes {
    * @return the annotation instance if it is bound to the field; otherwise {@code null}
    */
   public <T extends Annotation> T getAnnotation(Class<T> annotation) {
+    return getAnnotationFromArray(getAnnotations(), annotation);
+  }
+
+  /**
+   * Return the annotations that are present on this field.
+   *
+   * @return an array of all the annotations set on the field
+   * @since 1.4 
+   */
+  public Collection<Annotation> getAnnotations() {
     if (annotations == null) {
-      annotations = field.getAnnotations();
+      annotations = Collections.unmodifiableCollection(
+          Arrays.asList(field.getAnnotations()));
     }
-    return getAnnotationFromArray(annotations, annotation);
+    return annotations;
   }
 
   /**
@@ -139,14 +151,44 @@ public final class FieldAttributes {
    * This is exposed internally only for the removing synthetic fields from the JSON output.
    *
    * @return true if the field is synthetic; otherwise false
+   * @throws IllegalAccessException 
+   * @throws IllegalArgumentException 
+   */
+  void set(Object instance, Object value) throws IllegalAccessException {
+    field.set(instance, value);
+  }
+  
+  /**
+   * This is exposed internally only for the removing synthetic fields from the JSON output.
+   *
+   * @return true if the field is synthetic; otherwise false
+   * @throws IllegalAccessException 
+   * @throws IllegalArgumentException 
+   */
+  Object get(Object instance) throws IllegalAccessException {
+    return field.get(instance);
+  }
+  
+  /**
+   * This is exposed internally only for the removing synthetic fields from the JSON output.
+   *
+   * @return true if the field is synthetic; otherwise false
    */
   boolean isSynthetic() {
     return isSynthetic;
   }
+  
+  /**
+   * @deprecated remove this when {@link FieldNamingStrategy} is deleted.
+   */
+  @Deprecated
+  Field getFieldObject() {
+    return field;
+  }
 
   @SuppressWarnings("unchecked")
   private static <T extends Annotation> T getAnnotationFromArray(
-      Annotation[] annotations, Class<T> annotation) {
+      Collection<Annotation> annotations, Class<T> annotation) {
     for (Annotation a : annotations) {
       if (a.annotationType() == annotation) {
         return (T) a;

@@ -86,7 +86,7 @@ public final class Gson {
   static final ModifierBasedExclusionStrategy DEFAULT_MODIFIER_BASED_EXCLUSION_STRATEGY =
       new ModifierBasedExclusionStrategy(new int[] { Modifier.TRANSIENT, Modifier.STATIC });
   static final JsonFormatter DEFAULT_JSON_FORMATTER = new JsonCompactFormatter();
-  static final FieldNamingStrategy DEFAULT_NAMING_POLICY =
+  static final FieldNamingStrategy2 DEFAULT_NAMING_POLICY =
       new SerializedNameAnnotationInterceptingNamingPolicy(new JavaFieldNamingPolicy());
 
   private static final ExclusionStrategy DEFAULT_EXCLUSION_STRATEGY =
@@ -98,7 +98,7 @@ public final class Gson {
 
   private final ExclusionStrategy deserializationStrategy;
 
-  private final FieldNamingStrategy fieldNamingPolicy;
+  private final FieldNamingStrategy2 fieldNamingPolicy;
   private final MappedObjectConstructor objectConstructor;
 
   /** Map containing Type or Class objects as keys */
@@ -154,7 +154,7 @@ public final class Gson {
   }
 
   Gson(ExclusionStrategy serializationStrategy, ExclusionStrategy deserializationStrategy,
-      FieldNamingStrategy fieldNamingPolicy, MappedObjectConstructor objectConstructor,
+      FieldNamingStrategy2 fieldNamingPolicy, MappedObjectConstructor objectConstructor,
       JsonFormatter formatter, boolean serializeNulls,
       ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers,
       ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers,

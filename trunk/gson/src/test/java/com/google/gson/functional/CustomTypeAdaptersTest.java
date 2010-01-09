@@ -426,7 +426,6 @@ public class CustomTypeAdaptersTest extends TestCase {
   }
 
   private static class DataHolder {
-    @SuppressWarnings("unused")
     final String data;
 
     // For use by Gson

@@ -18,8 +18,6 @@ package com.google.gson;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.lang.reflect.Field;
-
 /**
  * A {@link FieldNamingStrategy} that acts as a chain of responsibility.  If the
  * {@link com.google.gson.annotations.SerializedName} annotation is applied to a field then this
@@ -33,15 +31,15 @@ import java.lang.reflect.Field;
  *
  * @author Joel Leitch
  */
-final class SerializedNameAnnotationInterceptingNamingPolicy implements FieldNamingStrategy {
+final class SerializedNameAnnotationInterceptingNamingPolicy implements FieldNamingStrategy2 {
   private static final JsonFieldNameValidator fieldNameValidator = new JsonFieldNameValidator();
-  private final FieldNamingStrategy delegate;
+  private final FieldNamingStrategy2 delegate;
 
-  public SerializedNameAnnotationInterceptingNamingPolicy(FieldNamingStrategy delegate) {
+  public SerializedNameAnnotationInterceptingNamingPolicy(FieldNamingStrategy2 delegate) {
     this.delegate = delegate;
   }
 
-  public String translateName(Field f) {
+  public String translateName(FieldAttributes f) {
     Preconditions.checkNotNull(f);
     SerializedName serializedName = f.getAnnotation(SerializedName.class);
     if (serializedName != null) {

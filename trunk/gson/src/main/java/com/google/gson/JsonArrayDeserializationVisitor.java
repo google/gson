@@ -17,7 +17,6 @@
 package com.google.gson;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 
 /**
@@ -91,17 +90,17 @@ final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisito
     throw new JsonParseException("Expecting array but found object: " + node);
   }
 
-  public void visitArrayField(Field f, Type typeOfF, Object obj) {
+  public void visitArrayField(FieldAttributes f, Type typeOfF, Object obj) {
     throw new JsonParseException("Expecting array but found array field " + f.getName() + ": "
         + obj);
   }
 
-  public void visitObjectField(Field f, Type typeOfF, Object obj) {
+  public void visitObjectField(FieldAttributes f, Type typeOfF, Object obj) {
     throw new JsonParseException("Expecting array but found object field " + f.getName() + ": " 
         + obj);
   }
 
-  public boolean visitFieldUsingCustomHandler(Field f, Type actualTypeOfField, Object parent) {
+  public boolean visitFieldUsingCustomHandler(FieldAttributes f, Type actualTypeOfField, Object parent) {
     throw new JsonParseException("Expecting array but found field " + f.getName() + ": " 
         + parent);
   }

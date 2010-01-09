@@ -17,7 +17,6 @@
 package com.google.gson;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 
 /**
@@ -84,7 +83,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
     }
   }
 
-  public void visitArrayField(Field f, Type typeOfF, Object obj) {
+  public void visitArrayField(FieldAttributes f, Type typeOfF, Object obj) {
     try {
       if (isFieldNull(f, obj)) {
         if (serializeNulls) {
@@ -99,7 +98,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
     }
   }
 
-  public void visitObjectField(Field f, Type typeOfF, Object obj) {
+  public void visitObjectField(FieldAttributes f, Type typeOfF, Object obj) {
     try {
       if (isFieldNull(f, obj)) {
         if (serializeNulls) {
@@ -122,13 +121,13 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
     assignToRoot(json);
   }
 
-  private void addAsChildOfObject(Field f, ObjectTypePair fieldValuePair) {
+  private void addAsChildOfObject(FieldAttributes f, ObjectTypePair fieldValuePair) {
     JsonElement childElement = getJsonElementForChild(fieldValuePair);
     addChildAsElement(f, childElement);
   }
 
-  private void addChildAsElement(Field f, JsonElement childElement) {
-    FieldNamingStrategy namingPolicy = factory.getFieldNamingPolicy();
+  private void addChildAsElement(FieldAttributes f, JsonElement childElement) {
+    FieldNamingStrategy2 namingPolicy = factory.getFieldNamingPolicy();
     root.getAsJsonObject().add(namingPolicy.translateName(f), childElement);
   }
 
@@ -191,7 +190,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
     }
   }
 
-  public boolean visitFieldUsingCustomHandler(Field f, Type declaredTypeOfField, Object parent) {
+  public boolean visitFieldUsingCustomHandler(FieldAttributes f, Type declaredTypeOfField, Object parent) {
     try {
       Preconditions.checkState(root.isJsonObject());
       Object obj = f.get(parent);
@@ -221,11 +220,11 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
     root = newRoot;
   }
 
-  private boolean isFieldNull(Field f, Object obj) {
+  private boolean isFieldNull(FieldAttributes f, Object obj) {
     return getFieldValue(f, obj) == null;
   }
 
-  private Object getFieldValue(Field f, Object obj) {
+  private Object getFieldValue(FieldAttributes f, Object obj) {
     try {
       return f.get(obj);
     } catch (IllegalAccessException e) {

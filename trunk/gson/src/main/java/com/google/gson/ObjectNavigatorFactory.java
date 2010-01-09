@@ -25,7 +25,7 @@ package com.google.gson;
  */
 final class ObjectNavigatorFactory {
   private final ExclusionStrategy strategy;
-  private final FieldNamingStrategy fieldNamingPolicy;
+  private final FieldNamingStrategy2 fieldNamingPolicy;
 
   /**
    * Creates a factory object that will be able to create new
@@ -36,7 +36,7 @@ final class ObjectNavigatorFactory {
    * @param fieldNamingPolicy the naming policy that should be applied to field
    *        names
    */
-  public ObjectNavigatorFactory(ExclusionStrategy strategy, FieldNamingStrategy fieldNamingPolicy) {
+  public ObjectNavigatorFactory(ExclusionStrategy strategy, FieldNamingStrategy2 fieldNamingPolicy) {
     Preconditions.checkNotNull(fieldNamingPolicy);
     this.strategy = (strategy == null ? new NullExclusionStrategy() : strategy);
     this.fieldNamingPolicy = fieldNamingPolicy;
@@ -55,7 +55,7 @@ final class ObjectNavigatorFactory {
     return new ObjectNavigator(objTypePair, strategy);
   }
 
-  FieldNamingStrategy getFieldNamingPolicy() {
+  FieldNamingStrategy2 getFieldNamingPolicy() {
     return fieldNamingPolicy;
   }
 }

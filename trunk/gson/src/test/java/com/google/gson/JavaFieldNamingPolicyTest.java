@@ -18,8 +18,6 @@ package com.google.gson;
 
 import junit.framework.TestCase;
 
-import java.lang.reflect.Field;
-
 /**
  * Tests for the {@link JavaFieldNamingPolicy} class.
  *
@@ -36,13 +34,13 @@ public class JavaFieldNamingPolicyTest extends TestCase {
   }
 
   public void testFieldNamingPolicy() throws Exception {
-    Field f = String.class.getFields()[0];
+    FieldAttributes f = new FieldAttributes(String.class.getFields()[0]);
     assertEquals(f.getName(), namingPolicy.translateName(f));
   }
 
   public void testNullField() throws Exception {
     try {
-      namingPolicy.translateName((Field) null);
+      namingPolicy.translateName((FieldAttributes) null);
       fail("Should have thrown an exception");
     } catch (IllegalArgumentException expected) { }
   }

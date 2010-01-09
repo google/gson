@@ -72,13 +72,13 @@ public enum FieldNamingPolicy {
    */
   LOWER_CASE_WITH_DASHES(new LowerCamelCaseSeparatorNamingPolicy("-"));
 
-  private final FieldNamingStrategy namingPolicy;
+  private final FieldNamingStrategy2 namingPolicy;
 
-  private FieldNamingPolicy(FieldNamingStrategy namingPolicy) {
+  private FieldNamingPolicy(FieldNamingStrategy2 namingPolicy) {
     this.namingPolicy = namingPolicy;
   }
 
-  FieldNamingStrategy getFieldNamingPolicy() {
+  FieldNamingStrategy2 getFieldNamingPolicy() {
     return namingPolicy;
   }
 }
