@@ -21,7 +21,7 @@ import java.lang.reflect.Type;
 import java.util.Collection;
 
 /**
- * A {@link FieldNamingStrategy} that ensures the JSON field names begins with
+ * A {@link FieldNamingStrategy2} that ensures the JSON field names begins with
  * an upper case letter.
  *
  *<p>The following is an example:</p>
