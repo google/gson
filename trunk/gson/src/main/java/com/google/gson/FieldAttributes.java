@@ -34,6 +34,11 @@ import java.util.Collections;
  * @since 1.4
  */
 public final class FieldAttributes {
+  // TODO(Joel): Fix how we configure this cache in a follow-up CL.
+  private static final Cache<Pair<Class<?>, String>, Collection<Annotation>> ANNOTATION_CACHE =
+      new LruCache<Pair<Class<?>,String>, Collection<Annotation>>(1500);
+
+  private final Class<?> parentClazz;
   private final Field field;
   private final Class<?> declaredType;
   private final boolean isSynthetic;
@@ -49,13 +54,14 @@ public final class FieldAttributes {
    *
    * @param f the field to pull attributes from
    */
-  FieldAttributes(final Field f) {
-    Preconditions.checkNotNull(f);
-    field = f;
-    name = field.getName();
+  FieldAttributes(final Class<?> parentClazz, final Field f) {
+    Preconditions.checkNotNull(parentClazz);
+    this.parentClazz = parentClazz;
+    name = f.getName();
     declaredType = f.getType();
     isSynthetic = f.isSynthetic();
-    modifiers = field.getModifiers();
+    modifiers = f.getModifiers();
+    field = f;
   }
 
   /**
@@ -127,8 +133,13 @@ public final class FieldAttributes {
    */
   public Collection<Annotation> getAnnotations() {
     if (annotations == null) {
-      annotations = Collections.unmodifiableCollection(
-          Arrays.asList(field.getAnnotations()));
+      Pair<Class<?>, String> key = new Pair<Class<?>, String>(parentClazz, name);
+      annotations = ANNOTATION_CACHE.getElement(key);
+      if (annotations == null) {
+        annotations = Collections.unmodifiableCollection(
+            Arrays.asList(field.getAnnotations()));
+        ANNOTATION_CACHE.addElement(key, annotations);
+      }
     }
     return annotations;
   }

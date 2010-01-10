@@ -43,7 +43,7 @@ public class VersionExclusionStrategyTest extends TestCase {
     VersionExclusionStrategy strategy = new VersionExclusionStrategy(VERSION);
 
     assertFalse(strategy.shouldSkipClass(clazz));
-    assertFalse(strategy.shouldSkipField(new FieldAttributes(f)));
+    assertFalse(strategy.shouldSkipField(new FieldAttributes(clazz, f)));
   }
 
   public void testClassAndFieldAreBehindInVersion() throws Exception {
@@ -52,7 +52,7 @@ public class VersionExclusionStrategyTest extends TestCase {
     VersionExclusionStrategy strategy = new VersionExclusionStrategy(VERSION + 1);
 
     assertFalse(strategy.shouldSkipClass(clazz));
-    assertFalse(strategy.shouldSkipField(new FieldAttributes(f)));
+    assertFalse(strategy.shouldSkipField(new FieldAttributes(clazz, f)));
   }
 
   public void testClassAndFieldAreAheadInVersion() throws Exception {
@@ -61,7 +61,7 @@ public class VersionExclusionStrategyTest extends TestCase {
     VersionExclusionStrategy strategy = new VersionExclusionStrategy(VERSION - 1);
 
     assertTrue(strategy.shouldSkipClass(clazz));
-    assertTrue(strategy.shouldSkipField(new FieldAttributes(f)));
+    assertTrue(strategy.shouldSkipField(new FieldAttributes(clazz, f)));
   }
 
   @Since(VERSION)

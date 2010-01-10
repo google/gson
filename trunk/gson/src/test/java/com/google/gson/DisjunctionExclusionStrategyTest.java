@@ -31,7 +31,7 @@ public class DisjunctionExclusionStrategyTest extends TestCase {
   private static final ExclusionStrategy FALSE_STRATEGY = new MockExclusionStrategy(false, false);
   private static final ExclusionStrategy TRUE_STRATEGY = new MockExclusionStrategy(true, true);
   private static final Class<?> CLAZZ = String.class;
-  private static final FieldAttributes FIELD = new FieldAttributes(CLAZZ.getFields()[0]);
+  private static final FieldAttributes FIELD = new FieldAttributes(CLAZZ, CLAZZ.getFields()[0]);
 
   public void testBadInstantiation() throws Exception {
     try {

@@ -36,14 +36,14 @@ public class FieldAttributesTest extends TestCase {
   @Override
   protected void setUp() throws Exception {
     super.setUp();
-    fieldAttributes = new FieldAttributes(Foo.class.getField("bar"));
+    fieldAttributes = new FieldAttributes(Foo.class, Foo.class.getField("bar"));
   }
 
   public void testNullField() throws Exception {
     try {
-      new FieldAttributes(null);
+      new FieldAttributes(Foo.class, null);
       fail("Field parameter can not be null");
-    } catch (IllegalArgumentException expected) { }
+    } catch (NullPointerException expected) { }
   }
 
   public void testModifiers() throws Exception {
