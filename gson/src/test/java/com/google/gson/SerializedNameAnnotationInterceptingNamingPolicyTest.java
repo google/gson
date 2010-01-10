@@ -38,7 +38,8 @@ public class SerializedNameAnnotationInterceptingNamingPolicyTest extends TestCa
 
   public void testFieldWithAnnotation() throws Exception {
     String fieldName = "fieldWithAnnotation";
-    FieldAttributes f = new FieldAttributes(SomeObject.class.getField(fieldName));
+    FieldAttributes f = new FieldAttributes(
+        SomeObject.class, SomeObject.class.getField(fieldName));
 
     assertFalse(ANNOTATED_FIELD_NAME.equals(fieldName));
     assertEquals(ANNOTATED_FIELD_NAME, policy.translateName(f));
@@ -46,7 +47,8 @@ public class SerializedNameAnnotationInterceptingNamingPolicyTest extends TestCa
 
   public void testFieldWithoutAnnotation() throws Exception {
     String fieldName = "fieldWithoutAnnotation";
-    FieldAttributes f = new FieldAttributes(SomeObject.class.getField(fieldName));
+    FieldAttributes f = new FieldAttributes(
+        SomeObject.class, SomeObject.class.getField(fieldName));
 
     assertEquals(fieldName, policy.translateName(f));
   }

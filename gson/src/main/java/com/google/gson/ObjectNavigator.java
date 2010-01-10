@@ -148,7 +148,7 @@ final class ObjectNavigator {
     Field[] fields = clazz.getDeclaredFields();
     AccessibleObject.setAccessible(fields, true);
     for (Field f : fields) {
-      FieldAttributes fieldAttributes = new FieldAttributes(f);
+      FieldAttributes fieldAttributes = new FieldAttributes(clazz, f);
       if (exclusionStrategy.shouldSkipField(fieldAttributes)
           || exclusionStrategy.shouldSkipClass(fieldAttributes.getDeclaredClass())) {
         continue; // skip

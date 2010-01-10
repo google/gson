@@ -42,22 +42,22 @@ public class ExposeAnnotationDeserializationExclusionStrategyTest extends TestCa
 
   public void testSkipNonAnnotatedFields() throws Exception {
     Field f = MockObject.class.getField("hiddenField");
-    assertTrue(strategy.shouldSkipField(new FieldAttributes(f)));
+    assertTrue(strategy.shouldSkipField(new FieldAttributes(MockObject.class, f)));
   }
 
   public void testSkipExplicitlySkippedFields() throws Exception {
     Field f = MockObject.class.getField("explicitlyHiddenField");
-    assertTrue(strategy.shouldSkipField(new FieldAttributes(f)));
+    assertTrue(strategy.shouldSkipField(new FieldAttributes(MockObject.class, f)));
   }
 
   public void testNeverSkipExposedAnnotatedFields() throws Exception {
     Field f = MockObject.class.getField("exposedField");
-    assertFalse(strategy.shouldSkipField(new FieldAttributes(f)));
+    assertFalse(strategy.shouldSkipField(new FieldAttributes(MockObject.class, f)));
   }
 
   public void testNeverSkipExplicitlyExposedAnnotatedFields() throws Exception {
     Field f = MockObject.class.getField("explicitlyExposedField");
-    assertFalse(strategy.shouldSkipField(new FieldAttributes(f)));
+    assertFalse(strategy.shouldSkipField(new FieldAttributes(MockObject.class, f)));
   }
 
   @SuppressWarnings("unused")
