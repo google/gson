@@ -17,7 +17,7 @@
 package com.google.gson;
 
 /**
- * A {@link FieldNamingStrategy} that ensures the JSON field names consist of only
+ * A {@link FieldNamingStrategy2} that ensures the JSON field names consist of only
  * lower case letters and are separated by a particular {@code separatorString}.
  *
  *<p>The following is an example:</p>
