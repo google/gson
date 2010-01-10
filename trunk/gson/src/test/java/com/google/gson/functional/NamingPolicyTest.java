@@ -15,7 +15,10 @@
  */
 package com.google.gson.functional;
 
+import java.lang.reflect.Field;
+
 import com.google.gson.FieldNamingPolicy;
+import com.google.gson.FieldNamingStrategy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
@@ -108,6 +111,19 @@ public class NamingPolicyTest extends TestCase {
     target = new ClassWithDuplicateFields(3.0D);
     actual = gson.toJson(target);
     assertEquals("{\"a\":3.0}", actual);
+  }
+  
+  public void testDeprecatedNamingStrategy() throws Exception {
+    Gson gson = builder.setFieldNamingStrategy(new UpperCaseNamingStrategy()).create();
+    ClassWithDuplicateFields target = new ClassWithDuplicateFields(10);
+    String actual = gson.toJson(target);
+    assertEquals("{\"A\":10}", actual);
+  }
+
+  private static class UpperCaseNamingStrategy implements FieldNamingStrategy {
+    public String translateName(Field f) {
+      return f.getName().toUpperCase();
+    }
   }
 
   @SuppressWarnings("unused")
