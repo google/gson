@@ -18,8 +18,6 @@ package com.google.gson.webservice.definition;
 import java.lang.reflect.Type;
 import java.util.Map;
 
-import com.google.inject.Inject;
-
 /**
  * Definition of the request body of a {@link WebServiceCall}. The request body is what is sent out
  * in the output stream of the request (for example, with 
@@ -32,7 +30,6 @@ public final class RequestBody extends ContentBody {
 
   public static class Builder extends ParamMap.Builder<RequestBodySpec> {    
     
-    @Inject
     public Builder(RequestBodySpec spec) {
       super(spec);
     }

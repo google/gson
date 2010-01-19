@@ -16,9 +16,8 @@
 package com.google.gson.webservice.definition;
 
 import java.lang.reflect.Type;
+import java.util.LinkedHashMap;
 import java.util.Map;
-
-import com.google.common.collect.Maps;
 
 /**
  * Specification of a {@link ResponseBody}.
@@ -28,7 +27,7 @@ import com.google.common.collect.Maps;
 public final class ResponseBodySpec extends ContentBodySpec {
   
   public static class Builder {
-    private final Map<String, Type> paramsSpec = Maps.newLinkedHashMap();
+    private final Map<String, Type> paramsSpec = new LinkedHashMap<String, Type>();
     public Builder add(String paramName, Type type) {
       paramsSpec.put(paramName, type);
       return this;
