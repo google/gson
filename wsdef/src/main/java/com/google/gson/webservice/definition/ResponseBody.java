@@ -41,7 +41,7 @@ public final class ResponseBody extends ContentBody {
       return (Builder) super.put(paramName, content, typeOfContent);
     }
     
-    public ResponseBody create() {
+    public ResponseBody build() {
       return new ResponseBody(spec, contents);
     }    
   }

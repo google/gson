@@ -39,7 +39,7 @@ public final class CallPathMap<T> {
       return this;
     }
     
-    public CallPathMap<T> create() {
+    public CallPathMap<T> build() {
       return new CallPathMap<T>(contents, nullValue);
     }
   }

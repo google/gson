@@ -44,7 +44,7 @@ public final class RequestBody extends ContentBody {
       return (Builder) super.put(paramName, content, typeOfContent);
     }
     
-    public RequestBody create() {
+    public RequestBody build() {
       return new RequestBody(spec, contents);
     }    
   }

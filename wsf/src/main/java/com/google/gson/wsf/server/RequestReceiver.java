@@ -81,7 +81,7 @@ public final class RequestReceiver {
         paramsBuilder.put(name, value);
       }
     }
-    return paramsBuilder.create();
+    return paramsBuilder.build();
   }
   
   private RequestBody buildRequestBody(HttpServletRequest request) throws IOException {
@@ -95,6 +95,6 @@ public final class RequestReceiver {
   }
 
   private RequestBody createEmptyRequestBody(RequestBodySpec bodySpec) {
-    return new RequestBody.Builder(bodySpec).create();
+    return new RequestBody.Builder(bodySpec).build();
   }
 }

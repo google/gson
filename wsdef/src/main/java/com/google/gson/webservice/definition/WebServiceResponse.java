@@ -60,8 +60,8 @@ public final class WebServiceResponse {
       return this;
     }
     
-    public WebServiceResponse create() {
-      return new WebServiceResponse(spec, headers.create(), body.create());
+    public WebServiceResponse build() {
+      return new WebServiceResponse(spec, headers.build(), body.build());
     }
   }
   

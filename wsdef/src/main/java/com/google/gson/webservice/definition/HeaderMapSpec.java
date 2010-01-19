@@ -34,7 +34,7 @@ public final class HeaderMapSpec implements ParamMapSpec {
       map.put(headerName, headerType);
     }
     
-    public HeaderMapSpec create() {
+    public HeaderMapSpec build() {
       return new HeaderMapSpec(map);
     }
   }
