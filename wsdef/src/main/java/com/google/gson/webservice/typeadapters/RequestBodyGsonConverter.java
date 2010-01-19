@@ -66,11 +66,11 @@ public class RequestBodyGsonConverter implements JsonSerializer<RequestBody>,
       Object value = context.deserialize(entry.getValue(), entryType);
       builder.put(key, value);
     }
-    return builder.create();
+    return builder.build();
   }
 
   @Override
   public RequestBody createInstance(Type type) {
-    return new RequestBody.Builder(spec).create();
+    return new RequestBody.Builder(spec).build();
   }
 }

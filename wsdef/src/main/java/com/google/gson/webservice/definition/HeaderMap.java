@@ -41,7 +41,7 @@ public final class HeaderMap extends ParamMap {
       return (Builder) super.put(paramName, content, typeOfContent);
     }
     
-    public HeaderMap create() {
+    public HeaderMap build() {
       return new HeaderMap(spec, contents);
     }
   }

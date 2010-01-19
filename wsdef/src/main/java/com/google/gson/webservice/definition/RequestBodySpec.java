@@ -33,7 +33,7 @@ public final class RequestBodySpec extends ContentBodySpec {
       return this;
     }
     
-    public RequestBodySpec create() {
+    public RequestBodySpec build() {
       RequestBodySpec spec = new RequestBodySpec(paramsSpec);
       return spec;
     }    

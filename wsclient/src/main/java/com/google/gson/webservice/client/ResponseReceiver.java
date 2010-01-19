@@ -23,7 +23,6 @@ import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.util.Map;
 
-import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
 import com.google.gson.webservice.definition.HeaderMap;
 import com.google.gson.webservice.definition.HeaderMapSpec;
@@ -70,13 +69,13 @@ public final class ResponseReceiver {
         paramsBuilder.put(paramName, value, typeOfT);
       }
     }
-    return paramsBuilder.create();
+    return paramsBuilder.build();
   }
 
   private ResponseBody readResponseBody(HttpURLConnection conn, ResponseBodySpec bodySpec) 
       throws IOException {
     if (bodySpec.size() == 0) {
-      return new ResponseBody.Builder(bodySpec).create();
+      return new ResponseBody.Builder(bodySpec).build();
     }
     String connContentType = conn.getContentType();
     Preconditions.checkArgument(connContentType.contains(bodySpec.getContentType()));
