@@ -15,9 +15,8 @@
  */
 package com.google.gson.webservice.definition;
 
+import java.util.HashMap;
 import java.util.Map;
-
-import com.google.common.collect.Maps;
 
 /**
  * A generic Map of calls with relative path where the call is available as the key. 
@@ -29,7 +28,7 @@ import com.google.common.collect.Maps;
 public final class CallPathMap<T> {
   
   public static class Builder<T> {
-    private final Map<CallPath, T> contents = Maps.newHashMap();
+    private final Map<CallPath, T> contents = new HashMap<CallPath, T>();
     private final T nullValue;
     
     public Builder(T nullValue) {
