@@ -15,8 +15,6 @@
  */
 package com.google.gson.webservice.definition;
 
-import com.google.common.base.Preconditions;
-
 /**
  * Specification for a {@link WebServiceRequest}.
  * 

@@ -16,10 +16,9 @@
 package com.google.gson.webservice.definition;
 
 import java.lang.reflect.Type;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-
-import com.google.common.collect.Maps;
 
 /**
  * Specification of a header map for {@link HeaderMap}. 
@@ -29,7 +28,7 @@ import com.google.common.collect.Maps;
 public final class HeaderMapSpec implements ParamMapSpec {
   
   public static class Builder {
-    private final Map<String, Type> map = Maps.newLinkedHashMap();
+    private final Map<String, Type> map = new LinkedHashMap<String, Type>();
   
     public void put(String headerName, Type headerType) {
       map.put(headerName, headerType);

@@ -18,8 +18,6 @@ package com.google.gson.webservice.definition;
 import java.lang.reflect.Type;
 import java.util.Map;
 
-import com.google.inject.Inject;
-
 /**
  * body of the response. This is written out as JSON to be sent out to the client. 
  * 
@@ -29,7 +27,6 @@ public final class ResponseBody extends ContentBody {
 
   public static class Builder extends ParamMap.Builder<ResponseBodySpec> {    
 
-    @Inject
     public Builder(ResponseBodySpec spec) {
       super(spec);
     }

@@ -18,8 +18,6 @@ package com.google.gson.webservice.definition;
 import java.lang.reflect.Type;
 import java.util.Map;
 
-import com.google.inject.Inject;
-
 /**
  * Map of request or response header objects. There is a {@link HeaderMapSpec} associated with the
  * map as well and only those headers are allowed that are consistent with the specification.
@@ -29,7 +27,6 @@ import com.google.inject.Inject;
 public final class HeaderMap extends ParamMap {
 
   public static class Builder extends ParamMap.Builder<HeaderMapSpec> {
-    @Inject
     public Builder(HeaderMapSpec spec) {
       super(spec);
     }
