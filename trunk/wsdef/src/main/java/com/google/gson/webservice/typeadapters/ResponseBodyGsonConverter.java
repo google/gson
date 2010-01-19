@@ -66,11 +66,11 @@ public final class ResponseBodyGsonConverter implements JsonSerializer<ResponseB
       Object value = context.deserialize(entry.getValue(), entryType);
       responseBodyBuilder.put(key, value, entryType);
     }
-    return responseBodyBuilder.create();
+    return responseBodyBuilder.build();
   }
 
   @Override
   public ResponseBody createInstance(Type type) {
-    return new ResponseBody.Builder(spec).create();
+    return new ResponseBody.Builder(spec).build();
   }
 }

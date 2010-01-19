@@ -29,7 +29,7 @@ import java.util.Set;
  */
 public final class WebServiceCallSpec {
   
-  public static final WebServiceCallSpec NULL_SPEC = new Builder(new CallPath("")).create();
+  public static final WebServiceCallSpec NULL_SPEC = new Builder(new CallPath("")).build();
   
   public static class Builder {
 	private final CallPath callPath;
@@ -71,14 +71,14 @@ public final class WebServiceCallSpec {
       resBodySpecBuilder.add(paramName, type);
       return this;
     }
-    public WebServiceCallSpec create() {      
+    public WebServiceCallSpec build() {      
       if (supportedHttpMethods.isEmpty()) {
         supportedHttpMethods.addAll(Arrays.asList(HttpMethod.values()));
       }
       RequestSpec requestSpec = 
-        new RequestSpec(reqParamsSpecBuilder.create(), reqBodySpecBuilder.create());
+        new RequestSpec(reqParamsSpecBuilder.build(), reqBodySpecBuilder.build());
       ResponseSpec responseSpec = 
-        new ResponseSpec(resParamsSpecBuilder.create(), resBodySpecBuilder.create());
+        new ResponseSpec(resParamsSpecBuilder.build(), resBodySpecBuilder.build());
       WebServiceCallSpec callSpec = new WebServiceCallSpec(supportedHttpMethods, callPath, 
           requestSpec, responseSpec);
       return callSpec;
