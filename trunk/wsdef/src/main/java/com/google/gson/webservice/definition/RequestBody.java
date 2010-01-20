@@ -23,6 +23,8 @@ import java.util.Map;
  * in the output stream of the request (for example, with 
  * {@link java.net.HttpURLConnection#getOutputStream()}) , and is read by the 
  * {@link javax.servlet.http.HttpServletRequest#getInputStream()}.
+ * This class omits the default constructor for use by Gson. Instead the user must use
+ * {@link com.google.gson.webservice.typeadapters.RequestBodyGsonConverter}
  * 
  * @author inder
  */
