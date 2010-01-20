@@ -20,7 +20,9 @@ import java.util.Map;
 
 /**
  * body of the response. This is written out as JSON to be sent out to the client. 
- * 
+ * This class omits the default constructor for use by Gson. Instead the user must use
+ * {@link com.google.gson.webservice.typeadapters.ResponseBodyGsonConverter}
+ *
  * @author inder
  */
 public final class ResponseBody extends ContentBody {
@@ -45,7 +47,6 @@ public final class ResponseBody extends ContentBody {
       return new ResponseBody(spec, contents);
     }    
   }
-
 
   private ResponseBody(ResponseBodySpec spec, Map<String, Object> contents) {
     super(spec, contents);

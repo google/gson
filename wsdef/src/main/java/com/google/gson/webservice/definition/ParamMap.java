@@ -41,7 +41,7 @@ class ParamMap {
     }
 
     public Builder<T> put(String paramName, Object content, Type typeOfContent) {
-      spec.checkIfCompatible(paramName, typeOfContent);
+      Preconditions.checkArgument(spec.checkIfCompatible(paramName, typeOfContent));
       contents.put(paramName, content);
       return this;
     }
