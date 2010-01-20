@@ -26,6 +26,7 @@ import com.google.gson.Gson;
 import com.google.gson.webservice.definition.HeaderMap;
 import com.google.gson.webservice.definition.HeaderMapSpec;
 import com.google.gson.webservice.definition.ResponseBody;
+import com.google.gson.webservice.definition.ResponseBodySpec;
 import com.google.gson.webservice.definition.WebServiceResponse;
 
 /**
@@ -44,6 +45,7 @@ public final class ResponseSender {
   
   public void send(HttpServletResponse conn, WebServiceResponse response) {
     try {
+      conn.setContentType(ResponseBodySpec.JSON_CONTENT_TYPE);
       sendHeaders(conn, response.getHeaders());
       sendBody(conn, response.getBody());
     } catch (IOException e) {
