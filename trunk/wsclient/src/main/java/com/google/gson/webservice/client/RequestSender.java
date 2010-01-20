@@ -21,12 +21,15 @@ import java.io.Writer;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.google.gson.Gson;
 import com.google.gson.webservice.definition.HeaderMap;
 import com.google.gson.webservice.definition.HeaderMapSpec;
 import com.google.gson.webservice.definition.RequestBody;
 import com.google.gson.webservice.definition.WebServiceRequest;
+import com.google.gson.webservice.definition.WebServiceSystemException;
 
 /**
  * Class to send Web service requests on a {@link HttpURLConnection}.
@@ -35,9 +38,16 @@ import com.google.gson.webservice.definition.WebServiceRequest;
  */
 public final class RequestSender {
   private final Gson gson;
+  private final Logger logger;
+  private final Level logLevel;
 
   public RequestSender(Gson gson) {
+    this(gson, null);
+  }
+    public RequestSender(Gson gson, Level logLevel) {
     this.gson = gson;
+    logger = logLevel == null ? null : Logger.getLogger(RequestSender.class.getName());
+    this.logLevel = logLevel;
   }
   
   public void send(HttpURLConnection conn, WebServiceRequest request) {    
@@ -60,7 +70,7 @@ public final class RequestSender {
       // Initiate the sending of the request.
       conn.connect();
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new WebServiceSystemException(e);
     }
   }
 
@@ -72,6 +82,9 @@ public final class RequestSender {
       Object value = entry.getValue();
       String json = gson.toJson(value, type);
       conn.addRequestProperty(paramName, json);
+      if (logger != null) {
+        logger.log(logLevel, String.format("Request param: %s:%s", paramName, json));
+      }
     }
   }
   
