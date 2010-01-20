@@ -22,6 +22,8 @@ import java.io.Reader;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.google.gson.Gson;
 import com.google.gson.webservice.definition.HeaderMap;
@@ -39,10 +41,17 @@ import com.google.gson.webservice.definition.WebServiceResponse;
 public final class ResponseReceiver {
   private final Gson gson;
   private final ResponseSpec spec;
+  private final Logger logger;
+  private final Level logLevel;
 
   public ResponseReceiver(Gson gson, ResponseSpec spec) {
+    this(gson, spec, null);
+  }
+  public ResponseReceiver(Gson gson, ResponseSpec spec, Level logLevel) {
     this.gson = gson;
     this.spec = spec;
+    this.logger = logLevel == null ? null : Logger.getLogger(ResponseReceiver.class.getName());
+    this.logLevel = logLevel;
   }
   
   public WebServiceResponse receive(HttpURLConnection conn) {
@@ -64,6 +73,9 @@ public final class ResponseReceiver {
       String paramName = entry.getKey();
       String json = conn.getHeaderField(paramName);
       if (json != null) {
+        if (logger != null) {
+          logger.log(logLevel, String.format("Response Header: %s:%s\n", paramName, json));
+        }
         Type typeOfT = paramsSpec.getTypeFor(paramName);
         Object value = gson.fromJson(json, typeOfT);
         paramsBuilder.put(paramName, value, typeOfT);

@@ -19,11 +19,17 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.webservice.definition.ResponseBody;
 import com.google.gson.webservice.definition.WebServiceCallSpec;
 import com.google.gson.webservice.definition.WebServiceRequest;
 import com.google.gson.webservice.definition.WebServiceResponse;
+import com.google.gson.webservice.definition.WebServiceSystemException;
+import com.google.gson.webservice.typeadapters.ResponseBodyGsonConverter;
 
 /**
  * Main class used by clients to access a Gson Web service.
@@ -32,16 +38,20 @@ import com.google.gson.webservice.definition.WebServiceResponse;
  */
 public final class WebServiceClient {
   private final WebServiceConfig config;
-  private final WebServiceCallSpec callSpec;
-  private final Gson gson;
+  private final Logger logger;
+  private final Level logLevel;
 
-  public WebServiceClient(Gson gson, WebServiceConfig serverConfig, WebServiceCallSpec callSpec) {
-    this.gson = gson;
+  public WebServiceClient(WebServiceConfig serverConfig) {
+    this(serverConfig, null);
+  }
+
+  public WebServiceClient(WebServiceConfig serverConfig, Level logLevel) {
     this.config = serverConfig;
-    this.callSpec = callSpec;
+    this.logger = logLevel == null ? null : Logger.getLogger(WebServiceClient.class.getName());
+    this.logLevel = logLevel;
   }
   
-  private URL getWebServiceUrl() {
+  private URL getWebServiceUrl(WebServiceCallSpec callSpec) {
     String url = config.getServiceBaseUrl() + callSpec.getPath().get();
     try {
       return new URL(url);
@@ -50,23 +60,31 @@ public final class WebServiceClient {
     }
   }
   
-  public WebServiceResponse getResponse(WebServiceRequest request) {
+  public WebServiceResponse getResponse(WebServiceCallSpec callSpec, WebServiceRequest request) {
     try {
-      HttpURLConnection conn = (HttpURLConnection) getWebServiceUrl().openConnection();
+      URL webServiceUrl = getWebServiceUrl(callSpec);
+      if (logger != null) {
+        logger.log(logLevel, "Opening connection to " + webServiceUrl);
+      }
+      HttpURLConnection conn = (HttpURLConnection) webServiceUrl.openConnection();
+      Gson gson = new GsonBuilder()
+        .registerTypeAdapter(ResponseBody.class,
+            new ResponseBodyGsonConverter(callSpec.getResponseSpec().getBodySpec()))
+        .create();
       RequestSender requestSender = new RequestSender(gson);
       requestSender.send(conn, request);
-      ResponseReceiver responseReceiver = new ResponseReceiver(gson, callSpec.getResponseSpec());
+      ResponseReceiver responseReceiver =
+        new ResponseReceiver(gson, callSpec.getResponseSpec(), logLevel);
       return responseReceiver.receive(conn);
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new WebServiceSystemException(e);
+    } catch (IllegalArgumentException e) {
+      throw new WebServiceSystemException(e);
     }
   }
   
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("{config:").append(config).append(",callSpec:").append(callSpec);
-    sb.append("gson:").append(gson).append("}");
-    return sb.toString();
+    return String.format("config:%s", config);
   }
 }
