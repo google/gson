@@ -90,7 +90,7 @@ public final class ResponseReceiver {
       return new ResponseBody.Builder(bodySpec).build();
     }
     String connContentType = conn.getContentType();
-    Preconditions.checkArgument(connContentType.contains(bodySpec.getContentType()));
+    Preconditions.checkArgument(connContentType.contains(bodySpec.getContentType()), conn);
     Reader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
     ResponseBody body = gson.fromJson(reader, ResponseBody.class);
     return body;
