@@ -15,6 +15,14 @@
  */
 package com.google.gson.webservice.client;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 final class Preconditions {
 
   public static void checkArgument(boolean condition) {
@@ -23,9 +31,49 @@ final class Preconditions {
     }
   }
 
+  public static void checkArgument(boolean condition, HttpURLConnection conn) {
+    if (!condition) {
+      StringBuilder sb = new StringBuilder();
+      try {
+        sb.append("HttpURLConnection Details\n");
+        sb.append("ResponseCode:" + conn.getResponseCode());
+        sb.append(", ContentType: " + conn.getContentType() + "\n");
+        Map<String, List<String>> headerFields = conn.getHeaderFields();
+        for (Entry<String, List<String>> header : headerFields.entrySet()) {
+          sb.append(header.getKey()).append(":");
+          boolean first = true;
+          for (String value : header.getValue()) {
+            if (first) {
+              first = false;
+            } else {
+              sb.append(","); 
+            }
+            sb.append(value);
+          }
+          sb.append("\n");
+        }
+        byte[] data = readInByteArray(conn.getInputStream());
+        sb.append(new String(data));
+      } catch (IOException e) {
+        // ignore
+      }
+      throw new IllegalArgumentException(sb.toString());
+    }
+  }
+
   public static void checkNotNull(Object obj) {
     if (obj == null) {
       throw new IllegalArgumentException();
     }
+  }
+  
+  private static byte[] readInByteArray(InputStream src) {
+    ByteArrayOutputStream dst = new ByteArrayOutputStream();
+    try {
+      Streams.copy(src, dst);
+    } catch (IOException e) {
+      // ignore
+    }
+    return dst.toByteArray();
   }
 }
