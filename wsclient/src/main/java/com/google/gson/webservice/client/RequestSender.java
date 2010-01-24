@@ -16,8 +16,6 @@
 package com.google.gson.webservice.client;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Writer;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.util.Map;
@@ -53,7 +51,7 @@ public final class RequestSender {
   public void send(HttpURLConnection conn, WebServiceRequest request) {    
     try {
       conn.setRequestMethod(request.getHttpMethod().toString());
-      conn.setRequestProperty("Content-Type", request.getContentType());
+      setHeader(conn, "Content-Type", request.getContentType(), true);
       
       // Assume conservatively that the response will need to be read.
       // This is done here instead of in the response receiver because this property must be set
@@ -62,10 +60,17 @@ public final class RequestSender {
       
       addRequestParams(conn, request.getHeaders());
       RequestBody requestBody = request.getBody();
+      String contentLength = "0";
+      String requestBodyContents = null;
       if (requestBody.getSpec().size() > 0) {
         conn.setDoOutput(true);    
-        addRequestBody(conn, requestBody);
-      }      
+        requestBodyContents = gson.toJson(requestBody);
+        contentLength = String.valueOf(requestBodyContents.length());
+      }
+      setHeader(conn, "Content-Length", contentLength, true);
+      if (requestBody.getSpec().size() > 0) {
+        Streams.copy(requestBodyContents, conn.getOutputStream());
+      }
       
       // Initiate the sending of the request.
       conn.connect();
@@ -81,16 +86,18 @@ public final class RequestSender {
       Type type = spec.getTypeFor(paramName);
       Object value = entry.getValue();
       String json = gson.toJson(value, type);
-      conn.addRequestProperty(paramName, json);
-      if (logger != null) {
-        logger.log(logLevel, String.format("Request param: %s:%s", paramName, json));
-      }
+      setHeader(conn, paramName, json, false);
     }
   }
-  
-  private void addRequestBody(HttpURLConnection conn, RequestBody body) throws IOException {
-    Writer writer = new PrintWriter(conn.getOutputStream());
-    gson.toJson(body, writer);
-    writer.close();
-  }
+
+  private void setHeader(HttpURLConnection conn, String name, String value, boolean overwrite) {
+    if (logger != null) {
+      logger.log(logLevel, String.format("Request param: %s:%s", name, value));
+    }
+    if (overwrite) {
+      conn.setRequestProperty(name, value);
+    } else {
+      conn.addRequestProperty(name, value);
+    }
+  }  
 }

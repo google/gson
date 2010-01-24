@@ -120,7 +120,7 @@ public final class WebServiceCallSpec {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder("{path:");
-    sb.append(path).append(",supportedHttpMethods:");
+    sb.append(path).append(",supportedHttpMethods:[");
     boolean first = true;
     for (HttpMethod method : supportedHttpMethods) {
       if (first) {
@@ -130,9 +130,8 @@ public final class WebServiceCallSpec {
       }
       sb.append(method);
     }
-    sb.append(path).append(",requestSpec:");
-    sb.append(requestSpec).append(",responseSpec:");
-    sb.append(responseSpec).append("}");
+    sb.append("],requestSpec:").append(requestSpec);
+    sb.append(",responseSpec:").append(responseSpec).append("}");
     return sb.toString();
   }
 }
