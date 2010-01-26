@@ -70,7 +70,7 @@ final class Preconditions {
   private static byte[] readInByteArray(InputStream src) {
     ByteArrayOutputStream dst = new ByteArrayOutputStream();
     try {
-      Streams.copy(src, dst);
+      Streams.copy(src, dst, true, true);
     } catch (IOException e) {
       // ignore
     }

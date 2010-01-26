@@ -42,7 +42,8 @@ public final class RequestSender {
   public RequestSender(Gson gson) {
     this(gson, null);
   }
-    public RequestSender(Gson gson, Level logLevel) {
+
+  public RequestSender(Gson gson, Level logLevel) {
     this.gson = gson;
     logger = logLevel == null ? null : Logger.getLogger(RequestSender.class.getName());
     this.logLevel = logLevel;
@@ -58,18 +59,18 @@ public final class RequestSender {
       // before sending any data on the connection.
       conn.setDoInput(true);
       
-      addRequestParams(conn, request.getHeaders());
       RequestBody requestBody = request.getBody();
-      String contentLength = "0";
-      String requestBodyContents = null;
+      String requestBodyContents = "";
+      // Android Java VM ignore Content-Length if setDoOutput is not set
+      conn.setDoOutput(true);    
       if (requestBody.getSpec().size() > 0) {
-        conn.setDoOutput(true);    
         requestBodyContents = gson.toJson(requestBody);
-        contentLength = String.valueOf(requestBodyContents.length());
       }
+      String contentLength = String.valueOf(requestBodyContents.length());
       setHeader(conn, "Content-Length", contentLength, true);
-      if (requestBody.getSpec().size() > 0) {
-        Streams.copy(requestBodyContents, conn.getOutputStream());
+      addRequestParams(conn, request.getHeaders());
+      if (requestBodyContents != null) {
+        Streams.copy(requestBodyContents, conn.getOutputStream(), false);
       }
       
       // Initiate the sending of the request.

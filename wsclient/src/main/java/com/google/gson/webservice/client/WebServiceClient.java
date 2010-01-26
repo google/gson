@@ -71,7 +71,7 @@ public final class WebServiceClient {
         .registerTypeAdapter(ResponseBody.class,
             new ResponseBodyGsonConverter(callSpec.getResponseSpec().getBodySpec()))
         .create();
-      RequestSender requestSender = new RequestSender(gson);
+      RequestSender requestSender = new RequestSender(gson, logLevel);
       requestSender.send(conn, request);
       ResponseReceiver responseReceiver =
         new ResponseReceiver(gson, callSpec.getResponseSpec(), logLevel);
