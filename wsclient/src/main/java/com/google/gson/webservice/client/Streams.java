@@ -22,14 +22,14 @@ import java.io.OutputStream;
 
 final class Streams {
 
-  static void copy(String str, OutputStream dst) throws IOException {
+  static void copy(String str, OutputStream dst, boolean closeOutput) throws IOException {
     byte[] bytes = str.getBytes("UTF-8");
-    copy(new ByteArrayInputStream(bytes), dst);    
+    copy(new ByteArrayInputStream(bytes), dst, true, closeOutput);    
   }
   /**
    * Copy contents of src to dst. Exhausts src completely, and closes both streams.
    */
-  static void copy(InputStream src, OutputStream dst) throws IOException {
+  static void copy(InputStream src, OutputStream dst, boolean closeInput, boolean closeOutput) throws IOException {
     try {
       final byte[] buf = new byte[2048];
       int count;
