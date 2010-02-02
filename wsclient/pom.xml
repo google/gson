@@ -48,14 +48,6 @@
   
   <dependencies>
    
-    <!-- Google collections -->
-    <dependency>
-      <groupId>com.google.collections</groupId>
-      <artifactId>google-collections</artifactId>
-      <version>1.0-rc5</version>
-      <scope>compile</scope>
-    </dependency>
-
     <!--  Gson: Java to Json conversion -->
     <dependency>
       <groupId>com.google.code.gson</groupId>
@@ -67,14 +59,6 @@
       <groupId>com.google.code.gson</groupId>
       <artifactId>wsdef</artifactId>
       <version>0.1</version>
-      <scope>compile</scope>
-    </dependency>
-
-    <!-- Guice: Dependency injection -->
-    <dependency>
-      <groupId>com.google.inject</groupId>
-      <artifactId>guice</artifactId>
-      <version>2.0</version>
       <scope>compile</scope>
     </dependency>
 
