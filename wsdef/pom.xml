@@ -48,14 +48,6 @@
   
   <dependencies>
    
-    <!-- Google collections -->
-    <dependency>
-      <groupId>com.google.collections</groupId>
-      <artifactId>google-collections</artifactId>
-      <version>1.0-rc5</version>
-      <scope>compile</scope>
-    </dependency>
-
     <!--  Gson: Java to Json conversion -->
     <dependency>
       <groupId>com.google.code.gson</groupId>
