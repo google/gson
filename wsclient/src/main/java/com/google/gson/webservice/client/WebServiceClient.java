@@ -61,16 +61,20 @@ public final class WebServiceClient {
   }
   
   public WebServiceResponse getResponse(WebServiceCallSpec callSpec, WebServiceRequest request) {
+    Gson gson = new GsonBuilder().registerTypeAdapter(ResponseBody.class,
+        new ResponseBodyGsonConverter(callSpec.getResponseSpec().getBodySpec()))
+        .create();
+    return getResponse(callSpec, request, gson);
+  }
+
+  public WebServiceResponse getResponse(
+      WebServiceCallSpec callSpec, WebServiceRequest request, Gson gson) {
     try {
       URL webServiceUrl = getWebServiceUrl(callSpec);
       if (logger != null) {
         logger.log(logLevel, "Opening connection to " + webServiceUrl);
       }
       HttpURLConnection conn = (HttpURLConnection) webServiceUrl.openConnection();
-      Gson gson = new GsonBuilder()
-        .registerTypeAdapter(ResponseBody.class,
-            new ResponseBodyGsonConverter(callSpec.getResponseSpec().getBodySpec()))
-        .create();
       RequestSender requestSender = new RequestSender(gson, logLevel);
       requestSender.send(conn, request);
       ResponseReceiver responseReceiver =
