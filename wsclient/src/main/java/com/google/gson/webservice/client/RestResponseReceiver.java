@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Google Inc.
+ * Copyright (C) 2010 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,43 +26,42 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.gson.Gson;
+import com.google.gson.webservice.definition.ContentBodySpec;
 import com.google.gson.webservice.definition.HeaderMap;
 import com.google.gson.webservice.definition.HeaderMapSpec;
-import com.google.gson.webservice.definition.ResponseBody;
-import com.google.gson.webservice.definition.ResponseBodySpec;
-import com.google.gson.webservice.definition.ResponseSpec;
-import com.google.gson.webservice.definition.WebServiceResponse;
 import com.google.gson.webservice.definition.WebServiceSystemException;
+import com.google.gson.webservice.definition.rest.RestResponse;
+import com.google.gson.webservice.definition.rest.RestResponseSpec;
 
 /**
  * Receives a response coming on an {@link HttpURLConnection}.
  * 
  * @author inder
  */
-public final class ResponseReceiver {
+public final class RestResponseReceiver<R> {
   private final Gson gson;
-  private final ResponseSpec spec;
+  private final RestResponseSpec<R> spec;
   private final Logger logger;
   private final Level logLevel;
 
-  public ResponseReceiver(Gson gson, ResponseSpec spec) {
+  public RestResponseReceiver(Gson gson, RestResponseSpec<R> spec) {
     this(gson, spec, null);
   }
-  public ResponseReceiver(Gson gson, ResponseSpec spec, Level logLevel) {
+  public RestResponseReceiver(Gson gson, RestResponseSpec<R> spec, Level logLevel) {
     this.gson = gson;
     this.spec = spec;
-    this.logger = logLevel == null ? null : Logger.getLogger(ResponseReceiver.class.getName());
+    this.logger = logLevel == null ? null : Logger.getLogger(RestResponseReceiver.class.getName());
     this.logLevel = logLevel;
   }
   
-  public WebServiceResponse receive(HttpURLConnection conn) {
+  public RestResponse<R> receive(HttpURLConnection conn) {
     try {
       HeaderMapSpec paramSpec = spec.getHeadersSpec();
-      ResponseBodySpec bodySpec = spec.getBodySpec();
+      Class<R> bodySpec = spec.getResourceClass();
       // read response
       HeaderMap responseParams = readResponseHeaders(conn, paramSpec);
-      ResponseBody responseBody = readResponseBody(conn, bodySpec);
-      return new WebServiceResponse(responseParams, responseBody);
+      R responseBody = readResponseBody(conn, bodySpec);
+      return new RestResponse<R>(responseParams, responseBody);
     } catch (IOException e) {
       throw new WebServiceSystemException(e);
     }
@@ -85,15 +84,11 @@ public final class ResponseReceiver {
     return paramsBuilder.build();
   }
 
-  private ResponseBody readResponseBody(HttpURLConnection conn, ResponseBodySpec bodySpec) 
-      throws IOException {
-    if (bodySpec.size() == 0) {
-      return new ResponseBody.Builder(bodySpec).build();
-    }
+  private R readResponseBody(HttpURLConnection conn, Class<R> resourceClass) throws IOException {
     String connContentType = conn.getContentType();
-    Preconditions.checkArgument(connContentType.contains(bodySpec.getContentType()), conn);
+    Preconditions.checkArgument(connContentType.contains(ContentBodySpec.JSON_CONTENT_TYPE), conn);
     Reader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-    ResponseBody body = gson.fromJson(reader, ResponseBody.class);
+    R body = gson.fromJson(reader, resourceClass);
     return body;
   }
 }
