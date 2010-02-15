@@ -55,18 +55,37 @@ public final class WebServiceCallSpec {
       return this;
     }
     
+    public <T> Builder addRequestParam(TypedKey<T> paramKey, Class<T> typeOfParam) {
+      return addRequestParam(paramKey.getName(), typeOfParam);
+    }
+
     public Builder addRequestParam(String paramName, Type type) {
       reqParamsSpecBuilder.put(paramName, type);
       return this;
     }
+
+    public <T> Builder addRequestBodyParam(TypedKey<T> paramKey, Class<T> typeOfParam) {
+      return addRequestBodyParam(paramKey.getName(), typeOfParam);
+    }
+
     public Builder addRequestBodyParam(String paramName, Type type) {
       reqBodySpecBuilder.add(paramName, type);
       return this;
     }
+
+    public <T> Builder addResponseParam(TypedKey<T> paramKey, Class<T> typeOfParam) {
+      return addResponseParam(paramKey.getName(), typeOfParam);
+    }
+
     public Builder addResponseParam(String paramName, Type type) {
       resParamsSpecBuilder.put(paramName, type);
       return this;
     }
+
+    public <T> Builder addResponseBodyParam(TypedKey<T> paramKey, Class<T> typeOfParam) {
+      return addResponseBodyParam(paramKey.getName(), typeOfParam);
+    }
+
     public Builder addResponseBodyParam(String paramName, Type type) {
       resBodySpecBuilder.add(paramName, type);
       return this;

@@ -63,6 +63,10 @@ class ParamMap {
     return contents.get(paramName);
   }
 
+  public <T> T get(TypedKey<T> key) {
+    return get(key.getName(), key.getClassOfT());
+  }
+
   @SuppressWarnings("unchecked")
   public <T> T get(String key, Type typeOfValue) {
     Preconditions.checkArgument(spec.checkIfCompatible(key, typeOfValue));
