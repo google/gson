@@ -50,6 +50,10 @@ public final class WebServiceResponse {
       return this;
     }
     
+    public <T> Builder putBody(TypedKey<T> paramName, T content) {
+      return putBody(paramName.getName(), content);
+    }
+
     public Builder putBody(String paramName, Object content) {
       body.put(paramName, content);
       return this;

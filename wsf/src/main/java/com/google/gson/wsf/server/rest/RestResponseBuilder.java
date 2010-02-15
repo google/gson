@@ -13,29 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson.webservice.definition;
+package com.google.gson.wsf.server.rest;
 
-/**
- * A typed key for use in a {@link ParamMap} or a {@link ParamMapSpec}.
- *
- * @author inder
- *
- * @param <T> Intended type of the content for the key
- */
-public class TypedKey<T> {
-  private final String name;
-  private final Class<T> classOfT;
+import com.google.gson.webservice.definition.rest.RestRequest;
+import com.google.gson.webservice.definition.rest.RestResponse;
+import com.google.gson.webservice.definition.rest.RestCallSpec;
 
-  public TypedKey(String name, Class<T> classOfT) {
-    this.name = name;
-    this.classOfT = classOfT;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public Class<T> getClassOfT() {
-    return classOfT;
-  }
+public interface RestResponseBuilder<R> {
+  public void buildResponse(RestCallSpec<R> callSpec, RestRequest<R> request,
+      RestResponse.Builder<R> responseBuilder); 
 }

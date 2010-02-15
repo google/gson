@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson.wsf.server;
+package com.google.gson.wsf.server.rest;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -23,26 +23,26 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
+import com.google.gson.webservice.definition.ContentBodySpec;
 import com.google.gson.webservice.definition.HeaderMap;
 import com.google.gson.webservice.definition.HeaderMapSpec;
-import com.google.gson.webservice.definition.ResponseBody;
-import com.google.gson.webservice.definition.WebServiceResponse;
+import com.google.gson.webservice.definition.rest.RestResponse;
 
 /**
  * Sends a JSON web service response on {@link HttpServletResponse}.
  * 
  * @author inder
  */
-public final class ResponseSender {
-  private static final Logger logger = Logger.getLogger(ResponseSender.class.getCanonicalName());
+public final class RestResponseSender<R> {
+  private static final Logger logger = Logger.getLogger(RestResponseSender.class.getCanonicalName());
 
   private Gson gson;
 
-  public ResponseSender(Gson gson) {
+  public RestResponseSender(Gson gson) {
     this.gson = gson;
   }
   
-  public void send(HttpServletResponse conn, WebServiceResponse response) {
+  public void send(HttpServletResponse conn, RestResponse<R> response) {
     try {
       sendHeaders(conn, response.getHeaders());
       sendBody(conn, response.getBody());
@@ -63,9 +63,9 @@ public final class ResponseSender {
     }
   }
 
-  private void sendBody(HttpServletResponse conn, ResponseBody responseBody) throws IOException {
-    conn.setContentType(responseBody.getContentType());
-    conn.setCharacterEncoding(responseBody.getCharacterEncoding());
+  private void sendBody(HttpServletResponse conn, R responseBody) throws IOException {
+    conn.setContentType(ContentBodySpec.JSON_CONTENT_TYPE);
+    conn.setCharacterEncoding(ContentBodySpec.JSON_CHARACTER_ENCODING);
     String json = gson.toJson(responseBody);
     logger.fine("RESPONSE BODY:" + json);
     conn.getWriter().append(json);

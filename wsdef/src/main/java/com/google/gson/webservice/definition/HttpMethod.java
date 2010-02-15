@@ -15,6 +15,10 @@
  */
 package com.google.gson.webservice.definition;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * An enum of Http methods to provide strongly-typed versions instead of strings. 
  * 
@@ -29,4 +33,7 @@ public enum HttpMethod {
   public static HttpMethod getMethod(String method) {
     return valueOf(method.trim().toUpperCase());
   }
+  
+  public static final List<HttpMethod> ALL_METHODS =
+    Collections.unmodifiableList(Arrays.asList(values()));
 }

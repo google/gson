@@ -25,10 +25,10 @@ import java.util.Set;
  * 
  * @author inder
  */
-class ContentBodySpec implements ParamMapSpec {
+public class ContentBodySpec implements ParamMapSpec {
 
   public static final String JSON_CONTENT_TYPE = "application/json";
-  private static final String JSON_CHARACTER_ENCODING = "utf-8";
+  public static final String JSON_CHARACTER_ENCODING = "utf-8";
   
   private final Map<String, Type> paramsSpec;
 
