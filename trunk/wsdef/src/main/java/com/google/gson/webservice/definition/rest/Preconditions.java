@@ -13,29 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson.webservice.definition;
+package com.google.gson.webservice.definition.rest;
 
-/**
- * A typed key for use in a {@link ParamMap} or a {@link ParamMapSpec}.
- *
- * @author inder
- *
- * @param <T> Intended type of the content for the key
- */
-public class TypedKey<T> {
-  private final String name;
-  private final Class<T> classOfT;
+final class Preconditions {
 
-  public TypedKey(String name, Class<T> classOfT) {
-    this.name = name;
-    this.classOfT = classOfT;
+  public static void checkArgument(boolean condition) {
+    if (!condition) {
+      throw new IllegalArgumentException();
+    }
   }
 
-  public String getName() {
-    return name;
-  }
-
-  public Class<T> getClassOfT() {
-    return classOfT;
+  public static void checkNotNull(Object obj) {
+    if (obj == null) {
+      throw new IllegalArgumentException();
+    }
   }
 }
