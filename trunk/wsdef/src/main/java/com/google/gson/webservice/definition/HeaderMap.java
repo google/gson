@@ -30,6 +30,10 @@ public final class HeaderMap extends ParamMap {
     public Builder(HeaderMapSpec spec) {
       super(spec);
     }
+
+    public <T> Builder put(TypedKey<T> paramKey, T content) {
+      return put(paramKey.getName(), content);
+    }
     
     @Override
     public Builder put(String paramName, Object content) {
