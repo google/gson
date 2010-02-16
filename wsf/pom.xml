@@ -52,7 +52,7 @@
     <dependency>
       <groupId>com.google.collections</groupId>
       <artifactId>google-collections</artifactId>
-      <version>1.0-rc5</version>
+      <version>1.0</version>
       <scope>compile</scope>
     </dependency>
 
