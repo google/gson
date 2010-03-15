@@ -19,6 +19,7 @@ import com.google.gson.webservice.definition.ContentBodySpec;
 import com.google.gson.webservice.definition.HeaderMap;
 import com.google.gson.webservice.definition.HttpMethod;
 import com.google.gson.webservice.definition.RequestBody;
+import com.google.gson.webservice.definition.TypedKey;
 
 /**
  * The data associated with a Web service request. This includes HTTP request header parameters 
@@ -63,7 +64,11 @@ public final class RestRequest<R> {
   public String getContentType() {
     return ContentBodySpec.JSON_CONTENT_TYPE;
   }
-  
+
+  public <T> T getHeader(TypedKey<T> key) {
+    return headers.get(key);
+  }
+
   @SuppressWarnings("unchecked")
   public <T> T getHeader(String headerName) {
     return (T) headers.get(headerName);
