@@ -63,8 +63,9 @@ class ParamMap {
     return contents.get(paramName);
   }
 
+  @SuppressWarnings("unchecked")
   public <T> T get(TypedKey<T> key) {
-    return get(key.getName(), key.getClassOfT());
+    return (T) get(key.getName(), key.getClassOfT());
   }
 
   @SuppressWarnings("unchecked")
