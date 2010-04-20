@@ -48,13 +48,13 @@ public final class RestCallSpec<R> {
       return this;
     }
     
-    public <T> Builder<R> addRequestParam(TypedKey<T> paramKey, Class<T> typeOfParam) {
-      reqParamsSpecBuilder.put(paramKey.getName(), typeOfParam);
+    public <T> Builder<R> addRequestParam(TypedKey<T> param) {
+      reqParamsSpecBuilder.put(param.getName(), param.getClassOfT());
       return this;
     }
 
-    public <T> Builder<R> addResponseParam(TypedKey<T> paramKey, Class<T> typeOfParam) {
-      resParamsSpecBuilder.put(paramKey.getName(), typeOfParam);
+    public <T> Builder<R> addResponseParam(TypedKey<T> param) {
+      resParamsSpecBuilder.put(param.getName(), param.getClassOfT());
       return this;
     }
 

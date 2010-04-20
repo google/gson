@@ -55,8 +55,8 @@ public final class WebServiceCallSpec {
       return this;
     }
     
-    public <T> Builder addRequestParam(TypedKey<T> paramKey, Class<T> typeOfParam) {
-      return addRequestParam(paramKey.getName(), typeOfParam);
+    public <T> Builder addRequestParam(TypedKey<T> param) {
+      return addRequestParam(param.getName(), param.getClassOfT());
     }
 
     public Builder addRequestParam(String paramName, Type type) {
@@ -64,8 +64,8 @@ public final class WebServiceCallSpec {
       return this;
     }
 
-    public <T> Builder addRequestBodyParam(TypedKey<T> paramKey, Class<T> typeOfParam) {
-      return addRequestBodyParam(paramKey.getName(), typeOfParam);
+    public <T> Builder addRequestBodyParam(TypedKey<T> param) {
+      return addRequestBodyParam(param.getName(), param.getClassOfT());
     }
 
     public Builder addRequestBodyParam(String paramName, Type type) {
@@ -73,8 +73,8 @@ public final class WebServiceCallSpec {
       return this;
     }
 
-    public <T> Builder addResponseParam(TypedKey<T> paramKey, Class<T> typeOfParam) {
-      return addResponseParam(paramKey.getName(), typeOfParam);
+    public <T> Builder addResponseParam(TypedKey<T> param) {
+      return addResponseParam(param.getName(), param.getClassOfT());
     }
 
     public Builder addResponseParam(String paramName, Type type) {
@@ -82,8 +82,8 @@ public final class WebServiceCallSpec {
       return this;
     }
 
-    public <T> Builder addResponseBodyParam(TypedKey<T> paramKey, Class<T> typeOfParam) {
-      return addResponseBodyParam(paramKey.getName(), typeOfParam);
+    public <T> Builder addResponseBodyParam(TypedKey<T> param) {
+      return addResponseBodyParam(param.getName(), param.getClassOfT());
     }
 
     public Builder addResponseBodyParam(String paramName, Type type) {
