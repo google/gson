@@ -30,6 +30,7 @@ class ContentBody extends ParamMap {
     super(spec, contents);
   }
   
+  @Override
   public ContentBodySpec getSpec() {
     return (ContentBodySpec) spec;
   }
