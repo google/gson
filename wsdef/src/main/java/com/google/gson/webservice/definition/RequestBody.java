@@ -22,7 +22,7 @@ import java.util.Map;
  * Definition of the request body of a {@link WebServiceCall}. The request body is what is sent out
  * in the output stream of the request (for example, with 
  * {@link java.net.HttpURLConnection#getOutputStream()}) , and is read by the 
- * {@link javax.servlet.http.HttpServletRequest#getInputStream()}.
+ * javax.servlet.http.HttpServletRequest#getInputStream().
  * This class omits the default constructor for use by Gson. Instead the user must use
  * {@link com.google.gson.webservice.typeadapters.RequestBodyGsonConverter}
  * 
@@ -45,7 +45,12 @@ public final class RequestBody extends ContentBody {
     public Builder put(String paramName, Object content, Type typeOfContent) {
       return (Builder) super.put(paramName, content, typeOfContent);
     }
-    
+
+    @Override
+    public <T> Builder put(TypedKey<T> paramKey, T param) {
+      return (Builder) super.put(paramKey, param);
+    }
+
     public RequestBody build() {
       return new RequestBody(spec, contents);
     }    
