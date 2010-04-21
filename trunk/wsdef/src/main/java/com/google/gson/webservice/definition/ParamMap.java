@@ -32,9 +32,6 @@ class ParamMap {
 
     /**
      * If value is a generic type, use {@link #put(String, Object, Type)} instead.
-     * 
-     * @param key
-     * @param value
      */
     public Builder<T> put(String paramName, Object content) {
       return put(paramName, content, content.getClass());
@@ -43,6 +40,11 @@ class ParamMap {
     public Builder<T> put(String paramName, Object content, Type typeOfContent) {
       Preconditions.checkArgument(spec.checkIfCompatible(paramName, typeOfContent));
       contents.put(paramName, content);
+      return this;
+    }
+
+    public <K> Builder<T> put(TypedKey<K> paramKey, K param) {
+      contents.put(paramKey.getName(), param);
       return this;
     }
   }
