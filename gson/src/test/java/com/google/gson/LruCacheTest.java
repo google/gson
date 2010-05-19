@@ -53,21 +53,30 @@ public class LruCacheTest extends TestCase {
   }
   
   public void testCacheEviction() throws Exception {
-    Cache<String, Integer> cache = new LruCache<String, Integer>(3);
+    Cache<String, Integer> cache = new LruCache<String, Integer>(5);
 
     cache.addElement("key1", 1);
     cache.addElement("key2", 2);
     cache.addElement("key3", 3);
+    cache.addElement("key4", 4);
+    cache.addElement("key5", 5);
     assertEquals(1, cache.getElement("key1").intValue());
     assertEquals(2, cache.getElement("key2").intValue());
     assertEquals(3, cache.getElement("key3").intValue());
+    assertEquals(4, cache.getElement("key4").intValue());
+    assertEquals(5, cache.getElement("key5").intValue());
 
     // Access key1 to show key2 will be evicted (shows not a FIFO cache)
     cache.getElement("key1");
-    cache.addElement("key4", 4);
+    cache.getElement("key3");
+    cache.addElement("key6", 6);
+    cache.addElement("key7", 7);
     assertEquals(1, cache.getElement("key1").intValue());
     assertNull(cache.getElement("key2"));
     assertEquals(3, cache.getElement("key3").intValue());
-    assertEquals(4, cache.getElement("key4").intValue());
+    assertNull(cache.getElement("key4"));
+    assertEquals(5, cache.getElement("key5").intValue());
+    assertEquals(6, cache.getElement("key6").intValue());
+    assertEquals(7, cache.getElement("key7").intValue());
   }
 }

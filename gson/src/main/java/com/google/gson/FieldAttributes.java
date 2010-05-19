@@ -34,9 +34,11 @@ import java.util.Collections;
  * @since 1.4
  */
 public final class FieldAttributes {
-  // TODO(Joel): Fix how we configure this cache in a follow-up CL.
+  private static final String MAX_CACHE_PROPERTY_NAME =
+      "com.google.gson.annotation_cache_size_hint";
+  
   private static final Cache<Pair<Class<?>, String>, Collection<Annotation>> ANNOTATION_CACHE =
-      new LruCache<Pair<Class<?>,String>, Collection<Annotation>>(1500);
+      new LruCache<Pair<Class<?>,String>, Collection<Annotation>>(getMaxCacheSize());
 
   private final Class<?> parentClazz;
   private final Field field;
@@ -62,6 +64,17 @@ public final class FieldAttributes {
     isSynthetic = f.isSynthetic();
     modifiers = f.getModifiers();
     field = f;
+  }
+
+  private static int getMaxCacheSize() {
+    final int defaultMaxCacheSize = 2000;
+    try {
+      String propertyValue = System.getProperty(
+          MAX_CACHE_PROPERTY_NAME, String.valueOf(defaultMaxCacheSize));
+      return Integer.parseInt(propertyValue);
+    } catch (NumberFormatException e) {
+      return defaultMaxCacheSize;
+    }
   }
 
   /**
