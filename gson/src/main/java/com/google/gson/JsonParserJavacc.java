@@ -73,13 +73,26 @@ final class JsonParserJavacc implements JsonParserJavaccConstants {
     case IDENTIFIER_STARTS_WITH_EXPONENT:
     case SINGLE_QUOTE_LITERAL:
     case DOUBLE_QUOTE_LITERAL:
-      Members(o);
+      Pair(o);
+      label_1:
+      while (true) {
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case 28:
+          ;
+          break;
+        default:
+          jj_la1[3] = jj_gen;
+          break label_1;
+        }
+        jj_consume_token(28);
+        Pair(o);
+      }
       break;
     default:
-      jj_la1[3] = jj_gen;
+      jj_la1[4] = jj_gen;
       ;
     }
-    jj_consume_token(28);
+    jj_consume_token(29);
     {if (true) return o;}
     throw new Error("Missing return statement in function");
   }
@@ -89,19 +102,6 @@ final class JsonParserJavacc implements JsonParserJavaccConstants {
     t = jj_consume_token(NULL);
                {if (true) return JsonNull.createJsonNull();}
     throw new Error("Missing return statement in function");
-  }
-
-  final private void Members(JsonObject o) throws ParseException {
-    Pair(o);
-    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 29:
-      jj_consume_token(29);
-      Members(o);
-      break;
-    default:
-      jj_la1[4] = jj_gen;
-      ;
-    }
   }
 
   final private void Pair(JsonObject o) throws ParseException {
@@ -153,15 +153,15 @@ final class JsonParserJavacc implements JsonParserJavaccConstants {
     case 31:
     case 33:
       JsonArrayElement(array);
-      label_1:
+      label_2:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case 29:
+        case 28:
           ;
           break;
         default:
           jj_la1[6] = jj_gen;
-          break label_1;
+          break label_2;
         }
         JsonArrayNextElement(array);
       }
@@ -192,7 +192,7 @@ final class JsonParserJavacc implements JsonParserJavaccConstants {
 
   final private JsonArray JsonArrayNextElement(JsonArray array) throws ParseException {
   JsonElement element = null;
-    jj_consume_token(29);
+    jj_consume_token(28);
     element = JsonValue();
                            array.add(element);
     {if (true) return array;}
@@ -430,36 +430,36 @@ final class JsonParserJavacc implements JsonParserJavaccConstants {
     finally { jj_save(0, xla); }
   }
 
-  private boolean jj_3R_3() {
-    if (jj_scan_token(NAN)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_2() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_3()) {
-    jj_scanpos = xsp;
-    if (jj_3R_4()) return true;
-    }
-    return false;
-  }
-
-  private boolean jj_3R_5() {
+  private boolean jj_3R_6() {
     if (jj_scan_token(33)) return true;
     return false;
   }
 
-  private boolean jj_3R_4() {
+  private boolean jj_3R_5() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_5()) jj_scanpos = xsp;
+    if (jj_3R_6()) jj_scanpos = xsp;
     if (jj_scan_token(INFINITY)) return true;
     return false;
   }
 
   private boolean jj_3_1() {
-    if (jj_3R_2()) return true;
+    if (jj_3R_3()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_4() {
+    if (jj_scan_token(NAN)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_3() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_4()) {
+    jj_scanpos = xsp;
+    if (jj_3R_5()) return true;
+    }
     return false;
   }
 
@@ -482,7 +482,7 @@ final class JsonParserJavacc implements JsonParserJavaccConstants {
       jj_la1_init_1();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x4000000,0x880307c0,0x8c0307c1,0x31800,0x20000000,0x31800,0x20000000,0x880307c0,0x880307c0,0x30740,0x0,0x20,0x40,0x0,0x300,0x0,0x1800,0x30000,};
+      jj_la1_0 = new int[] {0x4000000,0x880307c0,0x8c0307c1,0x10000000,0x31800,0x31800,0x10000000,0x880307c0,0x880307c0,0x30740,0x0,0x20,0x40,0x0,0x300,0x0,0x1800,0x30000,};
    }
    private static void jj_la1_init_1() {
       jj_la1_1 = new int[] {0x0,0x2,0x2,0x0,0x0,0x0,0x0,0x3,0x2,0x2,0x4,0x0,0x2,0x2,0x2,0x2,0x0,0x0,};
