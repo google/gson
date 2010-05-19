@@ -16,17 +16,19 @@
 
 package com.google.gson.metrics;
 
+import java.io.StringWriter;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import junit.framework.TestCase;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.google.gson.annotations.Expose;
 import com.google.gson.reflect.TypeToken;
-
-import junit.framework.TestCase;
-
-import java.io.StringWriter;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Tests to measure performance for Gson. All tests in this file will be disabled in code. To run
@@ -214,6 +216,24 @@ public class PerformanceTest extends TestCase {
     long t2 = System.currentTimeMillis(); 
     long avg = (t2 - t1) / NUM_ITERATIONS;
     System.out.printf("Deserialize classes avg time: %d ms\n", avg);     
+  }
+  
+  public void disable_testLargeObjectSerializationAndDeserialization() {
+    Map<String, Long> largeObject = new HashMap<String, Long>();
+    for (long l = 0; l < 100000; l++) {
+      largeObject.put("field" + l, l);
+    }
+    
+    long t1 = System.currentTimeMillis(); 
+    String json = gson.toJson(largeObject);
+    long t2 = System.currentTimeMillis();
+    System.out.printf("Large object serialized in: %d ms\n", (t2 - t1));
+
+    t1 = System.currentTimeMillis(); 
+    gson.fromJson(json, new TypeToken<Map<String, Long>>() {}.getType());
+    t2 = System.currentTimeMillis();
+    System.out.printf("Large object deserialized in: %d ms\n", (t2 - t1));
+    
   }
 
   public void disable_testSerializeExposedClasses() {
