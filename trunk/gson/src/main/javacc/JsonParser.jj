@@ -76,7 +76,7 @@ private JsonObject JsonObject() :
   JsonObject o = new JsonObject();
 }
 {
-  "{" [ Members(o) ] "}"
+  "{" [ Pair(o) ("," Pair(o))* ] "}"
   { return o; }
 }
 
@@ -86,12 +86,6 @@ private JsonNull JsonNull() :
 }
 {
   t = <NULL> { return JsonNull.createJsonNull(); }
-}
-
-private void Members(JsonObject o) :
-{ }
-{
-  Pair(o) [ "," Members(o) ]
 }
 
 private void Pair(JsonObject o) :
