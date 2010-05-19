@@ -134,7 +134,7 @@
            </workspaceCodeStylesURL>
          </configuration>
        </plugin>
-       <!-- plugin>
+       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>javacc-maven-plugin</artifactId>
         <executions>
@@ -157,7 +157,7 @@
         <version>4.2</version>
         </dependency>
         </dependencies>
-      </plugin-->
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jxr-plugin</artifactId>
