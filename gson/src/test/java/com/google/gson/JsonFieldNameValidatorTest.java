@@ -97,4 +97,16 @@ public class JsonFieldNameValidatorTest extends TestCase {
     String fieldName = "test-field-name";
     assertEquals(fieldName, validator.validate(fieldName));
   }
+  
+  public void testSpacesInFieldName() throws Exception {
+    String fieldName = "test field name";
+    assertEquals(fieldName, validator.validate(fieldName));
+  }
+  
+  public void testSpacesInBeginningOfName() throws Exception {
+    try {
+      validator.validate(" testFieldName");
+      fail("Json field name can not contain a period character");
+    } catch (IllegalArgumentException expected) { }
+  }
 }

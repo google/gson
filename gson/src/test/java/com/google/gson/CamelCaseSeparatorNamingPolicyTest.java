@@ -39,16 +39,6 @@ public class CamelCaseSeparatorNamingPolicyTest extends TestCase {
       new CamelCaseSeparatorNamingPolicy("");
       fail("Empty separator string is not supported");
     } catch (IllegalArgumentException expected) { }
-
-    try {
-      new CamelCaseSeparatorNamingPolicy(" ");
-      fail("space separator string is not supported");
-    } catch (IllegalArgumentException expected) { }
-
-    try {
-      new CamelCaseSeparatorNamingPolicy("\n");
-      fail("new-line separator string is not supported");
-    } catch (IllegalArgumentException expected) { }
   }
 
   public void testUnderscoreSeparator() throws Exception {
