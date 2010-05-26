@@ -40,6 +40,21 @@ public enum FieldNamingPolicy {
       ModifyFirstLetterNamingPolicy.LetterModifier.UPPER)),
 
   /**
+   * Using this naming policy with Gson will ensure that the first "letter" of the Java
+   * field name is capitalized when serialized to its JSON form and the words will be
+   * separated by a space.
+   *
+   * <p>Here's a few examples of the form "Java Field Name" ---> "JSON Field Name":</p>
+   * <ul>
+   *   <li>someFieldName ---> Some Field Name</li>
+   *   <li>_someFieldName ---> _Some Field Name</li>
+   * </ul>
+   * 
+   * @since 1.4
+   */
+  UPPER_CAMEL_CASE_WITH_SPACES(new UpperCamelCaseSeparatorNamingPolicy(" ")),
+          
+  /**
    * Using this naming policy with Gson will modify the Java Field name from its camel cased
    * form to a lower case field name where each word is separated by an underscore (_).
    *
