@@ -113,6 +113,22 @@ public class NamingPolicyTest extends TestCase {
     assertEquals("{\"a\":3.0}", actual);
   }
   
+  public void testGsonWithUpperCamelCaseSpacesPolicySerialiation() {
+    Gson gson = builder.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE_WITH_SPACES)
+        .create();
+    StringWrapper target = new StringWrapper("blah");
+    assertEquals("{\"Some Constant String Instance Field\":\""
+        + target.someConstantStringInstanceField + "\"}", gson.toJson(target));
+  }
+  
+  public void testGsonWithUpperCamelCaseSpacesPolicyDeserialiation() {
+    Gson gson = builder.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE_WITH_SPACES)
+        .create();
+    String target = "{\"Some Constant String Instance Field\":\"someValue\"}";
+    StringWrapper deserializedObject = gson.fromJson(target, StringWrapper.class);
+    assertEquals("someValue", deserializedObject.someConstantStringInstanceField);
+  }
+
   public void testDeprecatedNamingStrategy() throws Exception {
     Gson gson = builder.setFieldNamingStrategy(new UpperCaseNamingStrategy()).create();
     ClassWithDuplicateFields target = new ClassWithDuplicateFields(10);

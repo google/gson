@@ -48,11 +48,11 @@ final class CamelCaseSeparatorNamingPolicy extends RecursiveFieldNamingPolicy {
    *
    * @param separatorString the string value to place between words
    * @throws IllegalArgumentException thrown if the {@code separatorString} parameter
-   *         is null or purely whitespace.
+   *         is null or empty.
    */
   public CamelCaseSeparatorNamingPolicy(String separatorString) {
     Preconditions.checkNotNull(separatorString);
-    Preconditions.checkArgument(!"".equals(separatorString.trim()));
+    Preconditions.checkArgument(!"".equals(separatorString));
     this.separatorString = separatorString;
   }
 

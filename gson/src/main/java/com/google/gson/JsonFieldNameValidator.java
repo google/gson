@@ -30,8 +30,10 @@ import java.util.regex.Pattern;
  * @author Joel Leitch
  */
 class JsonFieldNameValidator {
+  private static final String COMMON_PATTERN = "[a-zA-Z][a-zA-Z0-9\\ \\$_\\-]*$";
+  
   private static final Pattern JSON_FIELD_NAME_PATTERN =
-      Pattern.compile("(^[a-zA-Z][a-zA-Z0-9\\$_\\-]*$)|(^[\\$_][a-zA-Z][a-zA-Z0-9\\$_\\-]*$)");
+      Pattern.compile("(^" + COMMON_PATTERN + ")|(^[\\$_]" + COMMON_PATTERN + ")");
 
   
   /**
