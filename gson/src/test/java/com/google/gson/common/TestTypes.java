@@ -395,16 +395,18 @@ public class TestTypes {
 
   public static class ClassWithSerializedNameFields {
     @SerializedName("fooBar") public final int f;
+    @SerializedName("Another Foo") public final int g;
 
     public ClassWithSerializedNameFields() {
-      this(1);
+      this(1, 4);
     }
-    public ClassWithSerializedNameFields(int f) {
+    public ClassWithSerializedNameFields(int f, int g) {
       this.f = f;
+      this.g = g;
     }
 
     public String getExpectedJson() {
-      return '{' + "\"fooBar\":" + f + '}';
+      return '{' + "\"fooBar\":" + f + ",\"Another Foo\":" + g + '}';
     }
   }
   
