@@ -89,14 +89,14 @@ public class NamingPolicyTest extends TestCase {
 
   public void testGsonWithSerializedNameFieldNamingPolicySerialization() {
     Gson gson = builder.create();
-    ClassWithSerializedNameFields expected = new ClassWithSerializedNameFields(5);
+    ClassWithSerializedNameFields expected = new ClassWithSerializedNameFields(5, 6);
     String actual = gson.toJson(expected);
     assertEquals(expected.getExpectedJson(), actual);
   }
 
   public void testGsonWithSerializedNameFieldNamingPolicyDeserialization() {
     Gson gson = builder.create();
-    ClassWithSerializedNameFields expected = new ClassWithSerializedNameFields(5);
+    ClassWithSerializedNameFields expected = new ClassWithSerializedNameFields(5, 7);
     ClassWithSerializedNameFields actual =
         gson.fromJson(expected.getExpectedJson(), ClassWithSerializedNameFields.class);
     assertEquals(expected.f, actual.f);
