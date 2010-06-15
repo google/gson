@@ -100,7 +100,7 @@ final class MappedObjectConstructor implements ObjectConstructor {
    */
   <T> void register(Type typeOfT, InstanceCreator<? extends T> creator) {
     if (instanceCreatorMap.hasSpecificHandlerFor(typeOfT)) {
-      log.log(Level.WARNING, "Overriding the existing InstanceCreator for " + typeOfT);
+      log.log(Level.WARNING, "Overriding the existing InstanceCreator for {0}", typeOfT);
     }
     instanceCreatorMap.register(typeOfT, creator);
   }
