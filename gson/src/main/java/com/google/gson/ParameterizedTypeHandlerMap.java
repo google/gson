@@ -46,8 +46,7 @@ final class ParameterizedTypeHandlerMap<T> {
           "Attempted to modify an unmodifiable map.");
     }
     if (hasSpecificHandlerFor(typeOfT)) {
-      logger.log(Level.WARNING,
-          "Overriding the existing type handler for " + typeOfT);
+      logger.log(Level.WARNING, "Overriding the existing type handler for {0}", typeOfT);
     }
     map.put(typeOfT, value);
   }
