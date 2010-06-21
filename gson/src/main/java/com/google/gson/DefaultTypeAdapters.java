@@ -36,11 +36,9 @@ import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Queue;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.StringTokenizer;
@@ -106,13 +104,14 @@ final class DefaultTypeAdapters {
     ParameterizedTypeHandlerMap<JsonSerializer<?>> map =
         new ParameterizedTypeHandlerMap<JsonSerializer<?>>();
 
-    map.register(Enum.class, ENUM_TYPE_ADAPTER);
+    map.registerForTypeHierarchy(Enum.class, ENUM_TYPE_ADAPTER);
     map.register(URL.class, URL_TYPE_ADAPTER);
     map.register(URI.class, URI_TYPE_ADAPTER);
     map.register(UUID.class, UUUID_TYPE_ADAPTER);
     map.register(Locale.class, LOCALE_TYPE_ADAPTER);
-    map.register(Collection.class, COLLECTION_TYPE_ADAPTER);
-    map.register(Map.class, MAP_TYPE_ADAPTER);
+    map.registerForTypeHierarchy(Collection.class, COLLECTION_TYPE_ADAPTER);
+    map.registerForTypeHierarchy(Set.class, COLLECTION_TYPE_ADAPTER);
+    map.registerForTypeHierarchy(Map.class, MAP_TYPE_ADAPTER);
     map.register(Date.class, DATE_TYPE_ADAPTER);
     map.register(java.sql.Date.class, JAVA_SQL_DATE_TYPE_ADAPTER);
     map.register(Timestamp.class, DATE_TYPE_ADAPTER);
@@ -143,13 +142,14 @@ final class DefaultTypeAdapters {
   private static ParameterizedTypeHandlerMap<JsonDeserializer<?>> createDefaultDeserializers() {
     ParameterizedTypeHandlerMap<JsonDeserializer<?>> map =
         new ParameterizedTypeHandlerMap<JsonDeserializer<?>>();
-    map.register(Enum.class, wrapDeserializer(ENUM_TYPE_ADAPTER));
+    map.registerForTypeHierarchy(Enum.class, wrapDeserializer(ENUM_TYPE_ADAPTER));
     map.register(URL.class, wrapDeserializer(URL_TYPE_ADAPTER));
     map.register(URI.class, wrapDeserializer(URI_TYPE_ADAPTER));
     map.register(UUID.class, wrapDeserializer(UUUID_TYPE_ADAPTER));
     map.register(Locale.class, wrapDeserializer(LOCALE_TYPE_ADAPTER));
-    map.register(Collection.class, wrapDeserializer(COLLECTION_TYPE_ADAPTER));
-    map.register(Map.class, wrapDeserializer(MAP_TYPE_ADAPTER));
+    map.registerForTypeHierarchy(Collection.class, wrapDeserializer(COLLECTION_TYPE_ADAPTER));
+    map.registerForTypeHierarchy(Set.class, wrapDeserializer(COLLECTION_TYPE_ADAPTER));
+    map.registerForTypeHierarchy(Map.class, wrapDeserializer(MAP_TYPE_ADAPTER));
     map.register(Date.class, wrapDeserializer(DATE_TYPE_ADAPTER));
     map.register(java.sql.Date.class, wrapDeserializer(JAVA_SQL_DATE_TYPE_ADAPTER));
     map.register(Timestamp.class, wrapDeserializer(TIMESTAMP_DESERIALIZER));
@@ -189,9 +189,7 @@ final class DefaultTypeAdapters {
     map.register(Map.class, MAP_TYPE_ADAPTER);
 
     // Add Collection type instance creators
-    map.register(Collection.class, COLLECTION_TYPE_ADAPTER);
-    map.register(List.class, COLLECTION_TYPE_ADAPTER);
-    map.register(Queue.class, COLLECTION_TYPE_ADAPTER);
+    map.registerForTypeHierarchy(Collection.class, COLLECTION_TYPE_ADAPTER);
 
     map.register(Set.class, HASH_SET_CREATOR);
     map.register(SortedSet.class, TREE_SET_CREATOR);

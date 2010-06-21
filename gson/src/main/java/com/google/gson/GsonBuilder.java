@@ -418,6 +418,57 @@ public final class GsonBuilder {
   }
 
   /**
+   * Configures Gson for custom serialization or deserialization for an inheritance type hierarchy.
+   * This method combines the registration of an {@link InstanceCreator}, {@link JsonSerializer},
+   * and a {@link JsonDeserializer}. It is best used when a single object {@code typeAdapter}
+   * implements all the required interfaces for custom serialization with Gson.
+   * If an instance creator, serializer or deserializer was previously registered for the specified
+   * type hierarchy, it is overwritten. If an instance creator, serializer or deserializer is
+   * registered for a specific type in the type hierarchy, it will be invoked instead of the one
+   * registered for the type hierarchy.
+   *
+   * @param baseType the class definition for the type adapter being registered for the base class
+   *        or interface
+   * @param typeAdapter This object must implement at least one of the {@link InstanceCreator},
+   * {@link JsonSerializer}, and a {@link JsonDeserializer} interfaces.
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @since 1.5
+   */
+  public GsonBuilder registerTypeHierarchyAdapter(Class<?> baseType, Object typeAdapter) {
+    Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
+    || typeAdapter instanceof JsonDeserializer<?> || typeAdapter instanceof InstanceCreator<?>);
+    if (typeAdapter instanceof InstanceCreator<?>) {
+      registerInstanceCreatorForTypeHierarchy(baseType, (InstanceCreator<?>) typeAdapter);
+    }
+    if (typeAdapter instanceof JsonSerializer<?>) {
+      registerSerializerForTypeHierarchy(baseType, (JsonSerializer<?>) typeAdapter);
+    }
+    if (typeAdapter instanceof JsonDeserializer<?>) {
+      registerDeserializerForTypeHierarchy(baseType, (JsonDeserializer<?>) typeAdapter);
+    }
+    return this;
+  }
+
+  private <T> GsonBuilder registerInstanceCreatorForTypeHierarchy(Class<?> classOfT,
+      InstanceCreator<? extends T> instanceCreator) {
+    instanceCreators.registerForTypeHierarchy(classOfT, instanceCreator);
+    return this;
+  }
+
+  private <T> GsonBuilder registerSerializerForTypeHierarchy(Class<?> classOfT,
+      final JsonSerializer<T> serializer) {
+    serializers.registerForTypeHierarchy(classOfT, serializer);
+    return this;
+  }
+
+  private <T> GsonBuilder registerDeserializerForTypeHierarchy(Class<?> classOfT,
+      JsonDeserializer<T> deserializer) {
+    deserializers.registerForTypeHierarchy(classOfT,
+        new JsonDeserializerExceptionWrapper<T>(deserializer));
+    return this;
+  }
+
+  /**
    * Section 2.4 of <a href="http://www.ietf.org/rfc/rfc4627.txt">JSON specification</a> disallows
    * special double values (NaN, Infinity, -Infinity). However,
    * <a href="http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-262.pdf">Javascript
