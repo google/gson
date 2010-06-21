@@ -16,6 +16,8 @@
 
 package com.google.gson;
 
+import com.google.gson.common.TestTypes.Base;
+import com.google.gson.common.TestTypes.Sub;
 import com.google.gson.reflect.TypeToken;
 
 import junit.framework.TestCase;
@@ -83,5 +85,30 @@ public class ParameterizedTypeHandlerMapTest extends TestCase {
      paramMap.register(String.class, "blah");
      fail("Can not register handlers when map is unmodifiable");
     } catch (IllegalStateException expected) { }
+  }
+
+  public void testTypeHierarchy() {
+    paramMap.registerForTypeHierarchy(Base.class, "baseHandler");
+    String handler = paramMap.getHandlerFor(Sub.class);
+    assertEquals("baseHandler", handler);
+  }
+
+  public void testTypeHierarchyMultipleHandlers() {
+    paramMap.registerForTypeHierarchy(Base.class, "baseHandler");
+    paramMap.registerForTypeHierarchy(Sub.class, "subHandler");
+    String handler = paramMap.getHandlerFor(SubOfSub.class);
+    assertEquals("subHandler", handler);
+  }
+
+  public void testTypeHierarchyRegisterIfAbsent() {
+    paramMap.registerForTypeHierarchy(Base.class, "baseHandler");
+    ParameterizedTypeHandlerMap<String> otherMap = new ParameterizedTypeHandlerMap<String>();
+    otherMap.registerForTypeHierarchy(Base.class, "baseHandler2");
+    paramMap.registerIfAbsent(otherMap);
+    String handler = paramMap.getHandlerFor(Base.class);
+    assertEquals("baseHandler", handler);
+  }
+
+  private static class SubOfSub extends Sub {
   }
 }

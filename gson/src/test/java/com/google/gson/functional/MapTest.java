@@ -183,6 +183,14 @@ public class MapTest extends TestCase {
     assertTrue(json.contains("\"a\":\"b\""));
   }
   
+  public void testMapStandardSubclassDeserialization() {
+    String json = "{a:'1',b:'2'}";
+    Type type = new TypeToken<LinkedHashMap<String, String>>() {}.getType();
+    LinkedHashMap<String, Integer> map = gson.fromJson(json, type);
+    assertEquals("1", map.get("a")); 
+    assertEquals("2", map.get("b")); 
+  }
+  
   public void disable_testMapSubclassDeserialization() {
     Gson gson = new GsonBuilder().registerTypeAdapter(MyMap.class, new InstanceCreator<MyMap>() {
       public MyMap createInstance(Type type) {
