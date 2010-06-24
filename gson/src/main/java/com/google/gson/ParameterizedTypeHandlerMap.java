@@ -54,9 +54,25 @@ final class ParameterizedTypeHandlerMap<T> {
       logger.log(Level.WARNING, "Overriding the existing type handler for {0}", pair.first);
       typeHierarchyList.remove(index);
     }
+    index = getIndexOfAnOverriddenHandler(pair.first);
+    if (index >= 0) {
+      throw new IllegalArgumentException("The specified type handler for type " + pair.first
+          + " hides the previously registered type hierarchy handler for "
+          + typeHierarchyList.get(index).first + ". Gson does not allow this.");
+    }
     // We want stack behavior for adding to this list. A type adapter added subsequently should
     // override a previously registered one.
     typeHierarchyList.add(0, pair);
+  }
+
+  private int getIndexOfAnOverriddenHandler(Class<?> type) {
+    for (int i = typeHierarchyList.size()-1; i >= 0; --i) {
+      Pair<Class<?>, T> entry = typeHierarchyList.get(i);
+      if (type.isAssignableFrom(entry.first)) {
+        return i;
+      }
+    }
+    return -1;
   }
 
   public synchronized void register(Type typeOfT, T value) {
@@ -78,7 +94,10 @@ final class ParameterizedTypeHandlerMap<T> {
         register(entry.getKey(), entry.getValue());
       }
     }
-    for (Pair<Class<?>, T> entry : other.typeHierarchyList) {
+    // Quite important to traverse the typeHierarchyList from stack bottom first since
+    // we want to register the handlers in the same order to preserve priority order
+    for (int i = other.typeHierarchyList.size()-1; i >= 0; --i) {
+      Pair<Class<?>, T> entry = other.typeHierarchyList.get(i);
       int index = getIndexOfSpecificHandlerForTypeHierarchy(entry.first);
       if (index < 0) {
         registerForTypeHierarchy(entry);
