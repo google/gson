@@ -110,7 +110,6 @@ final class DefaultTypeAdapters {
     map.register(UUID.class, UUUID_TYPE_ADAPTER);
     map.register(Locale.class, LOCALE_TYPE_ADAPTER);
     map.registerForTypeHierarchy(Collection.class, COLLECTION_TYPE_ADAPTER);
-    map.registerForTypeHierarchy(Set.class, COLLECTION_TYPE_ADAPTER);
     map.registerForTypeHierarchy(Map.class, MAP_TYPE_ADAPTER);
     map.register(Date.class, DATE_TYPE_ADAPTER);
     map.register(java.sql.Date.class, JAVA_SQL_DATE_TYPE_ADAPTER);
@@ -148,7 +147,6 @@ final class DefaultTypeAdapters {
     map.register(UUID.class, wrapDeserializer(UUUID_TYPE_ADAPTER));
     map.register(Locale.class, wrapDeserializer(LOCALE_TYPE_ADAPTER));
     map.registerForTypeHierarchy(Collection.class, wrapDeserializer(COLLECTION_TYPE_ADAPTER));
-    map.registerForTypeHierarchy(Set.class, wrapDeserializer(COLLECTION_TYPE_ADAPTER));
     map.registerForTypeHierarchy(Map.class, wrapDeserializer(MAP_TYPE_ADAPTER));
     map.register(Date.class, wrapDeserializer(DATE_TYPE_ADAPTER));
     map.register(java.sql.Date.class, wrapDeserializer(JAVA_SQL_DATE_TYPE_ADAPTER));
@@ -186,14 +184,13 @@ final class DefaultTypeAdapters {
   private static ParameterizedTypeHandlerMap<InstanceCreator<?>> createDefaultInstanceCreators() {
     ParameterizedTypeHandlerMap<InstanceCreator<?>> map =
         new ParameterizedTypeHandlerMap<InstanceCreator<?>>();
-    map.register(Map.class, MAP_TYPE_ADAPTER);
+    map.registerForTypeHierarchy(Map.class, MAP_TYPE_ADAPTER);
 
     // Add Collection type instance creators
     map.registerForTypeHierarchy(Collection.class, COLLECTION_TYPE_ADAPTER);
 
-    map.register(Set.class, HASH_SET_CREATOR);
-    map.register(SortedSet.class, TREE_SET_CREATOR);
-    map.register(TreeSet.class, TREE_SET_CREATOR);
+    map.registerForTypeHierarchy(Set.class, HASH_SET_CREATOR);
+    map.registerForTypeHierarchy(SortedSet.class, TREE_SET_CREATOR);
     map.register(Properties.class, PROPERTIES_CREATOR);
     map.makeUnmodifiable();
     return map;
