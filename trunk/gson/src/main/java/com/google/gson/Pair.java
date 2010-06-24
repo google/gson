@@ -54,4 +54,9 @@ final class Pair<FIRST, SECOND> {
   private static boolean equal(Object a, Object b) {
     return a == b || (a != null && a.equals(b));
   }
+
+  @Override
+  public String toString() {
+    return String.format("{%s,%s}", first, second);
+  }
 }

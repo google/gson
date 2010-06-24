@@ -109,6 +109,21 @@ public class ParameterizedTypeHandlerMapTest extends TestCase {
     assertEquals("baseHandler", handler);
   }
 
+  public void testReplaceExistingTypeHierarchyHandler() {
+    paramMap.registerForTypeHierarchy(Base.class, "baseHandler");
+    paramMap.registerForTypeHierarchy(Base.class, "base2Handler");
+    String handler = paramMap.getHandlerFor(Base.class);
+    assertEquals("base2Handler", handler);
+  }
+
+  public void testHidingExistingTypeHierarchyHandlerIsDisallowed() {
+    paramMap.registerForTypeHierarchy(Sub.class, "subHandler");
+    try {
+      paramMap.registerForTypeHierarchy(Base.class, "baseHandler");
+      fail("A handler that hides an existing type hierarchy handler is not allowed");
+    } catch (IllegalArgumentException expected) {
+    }
+  }
   private static class SubOfSub extends Sub {
   }
 }
