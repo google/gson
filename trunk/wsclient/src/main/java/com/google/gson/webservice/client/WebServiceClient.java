@@ -36,7 +36,7 @@ import com.google.gson.webservice.typeadapters.ResponseBodyGsonConverter;
  * 
  * @author inder
  */
-public final class WebServiceClient {
+public class WebServiceClient {
   private final WebServiceConfig config;
   private final Logger logger;
   private final Level logLevel;
