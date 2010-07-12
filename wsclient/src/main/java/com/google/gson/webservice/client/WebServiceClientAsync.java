@@ -30,7 +30,7 @@ import com.google.gson.webservice.definition.WebServiceSystemException;
  *  
  * @author inder
  */
-public final class WebServiceClientAsync {
+public class WebServiceClientAsync {
 
   private final BlockingQueue<QueueEntry> queue;
   private final boolean threadPerTask;
