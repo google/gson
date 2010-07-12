@@ -27,6 +27,9 @@ public class TypedKey<T> {
   private final Class<T> classOfT;
 
   public TypedKey(String name, Class<T> classOfT) {
+    Preconditions.checkNotNull(name);
+    Preconditions.checkNotNull(classOfT);
+
     this.name = name;
     this.classOfT = classOfT;
   }
@@ -37,5 +40,31 @@ public class TypedKey<T> {
 
   public Class<T> getClassOfT() {
     return classOfT;
+  }
+
+  
+  @Override
+  public int hashCode() {
+    return name.hashCode() + classOfT.getCanonicalName().hashCode() >> 1;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    TypedKey<?> other = (TypedKey<?>) obj;
+    return name.equals(other.name) && classOfT.equals(other.classOfT);
+  }
+
+  @Override
+  public String toString() {
+    return String.format("{name:%s, classOfT:%s}", name, classOfT);
   }
 }
