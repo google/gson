@@ -15,7 +15,6 @@
  */
 package com.google.gson.webservice.definition;
 
-import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -56,40 +55,25 @@ public final class WebServiceCallSpec {
     }
     
     public <T> Builder addRequestParam(TypedKey<T> param) {
-      return addRequestParam(param.getName(), param.getClassOfT());
-    }
-
-    public Builder addRequestParam(String paramName, Type type) {
-      reqParamsSpecBuilder.put(paramName, type);
+      reqParamsSpecBuilder.put(param.getName(), param.getClassOfT());
       return this;
     }
 
     public <T> Builder addRequestBodyParam(TypedKey<T> param) {
-      return addRequestBodyParam(param.getName(), param.getClassOfT());
-    }
-
-    public Builder addRequestBodyParam(String paramName, Type type) {
-      reqBodySpecBuilder.add(paramName, type);
+      reqBodySpecBuilder.add(param.getName(), param.getClassOfT());
       return this;
     }
 
     public <T> Builder addResponseParam(TypedKey<T> param) {
-      return addResponseParam(param.getName(), param.getClassOfT());
-    }
-
-    public Builder addResponseParam(String paramName, Type type) {
-      resParamsSpecBuilder.put(paramName, type);
+      resParamsSpecBuilder.put(param.getName(), param.getClassOfT());
       return this;
     }
 
     public <T> Builder addResponseBodyParam(TypedKey<T> param) {
-      return addResponseBodyParam(param.getName(), param.getClassOfT());
-    }
-
-    public Builder addResponseBodyParam(String paramName, Type type) {
-      resBodySpecBuilder.add(paramName, type);
+      resBodySpecBuilder.add(param.getName(), param.getClassOfT());
       return this;
     }
+
     public WebServiceCallSpec build() {      
       if (supportedHttpMethods.isEmpty()) {
         supportedHttpMethods.addAll(Arrays.asList(HttpMethod.values()));
