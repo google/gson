@@ -5,7 +5,7 @@
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.code.gson</groupId>
-  <artifactId>wsexample</artifactId>
+  <artifactId>wsexampledef</artifactId>
   <packaging>jar</packaging>
   <version>0.1</version>
   <name>Gson Web Service Example</name>
@@ -37,9 +37,9 @@
     </license>
   </licenses>
   <scm>
-    <connection>scm:svn:http://google-gson.googlecode.com/svn/trunk/wsexample</connection>
-    <developerConnection>scm:svn:https://google-gson.googlecode.com/svn/trunk/wsexample</developerConnection>
-    <url>http://google-gson.codegoogle.com/svn/trunk/wsexample</url>
+    <connection>scm:svn:http://google-gson.googlecode.com/svn/trunk/wsexample/definition</connection>
+    <developerConnection>scm:svn:https://google-gson.googlecode.com/svn/trunk/wsexample/definition</developerConnection>
+    <url>http://google-gson.codegoogle.com/svn/trunk/wsexample/definition</url>
   </scm>
   <issueManagement>
     <system>Google Code Issue Tracking</system>
@@ -71,7 +71,7 @@
   </dependencies>
 
   <build>
-    <finalName>wsexample</finalName>
+    <finalName>wsexampledef</finalName>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -90,7 +90,7 @@
           <downloadSources>true</downloadSources>
           <downloadJavadocs>true</downloadJavadocs>
           <workspace>../../eclipse-ws</workspace>
-          <workspaceCodeStylesURL>file:///${basedir}/../lib/gson-formatting-styles.xml</workspaceCodeStylesURL>
+          <workspaceCodeStylesURL>file:///${basedir}/../../lib/gson-formatting-styles.xml</workspaceCodeStylesURL>
           <wtpversion>1.5</wtpversion>
         </configuration>
       </plugin>
@@ -106,7 +106,7 @@
           <version>${version}</version>
           <packaging>jar</packaging>
           <classifier>sources</classifier>
-          <file>target/wsexample-sources.jar</file>
+          <file>target/wsexampledef-sources.jar</file>
         </configuration -->
       </plugin>
       <plugin>
@@ -206,7 +206,7 @@
         <version>2.2-beta-2</version>
         <configuration>
           <descriptor>src/main/resources/assembly-descriptor.xml</descriptor>
-          <finalName>wsexample-${version}</finalName>
+          <finalName>wsexampledef-${version}</finalName>
           <outputDirectory>target/dist</outputDirectory>
           <workDirectory>target/assembly/work</workDirectory>
         </configuration>
