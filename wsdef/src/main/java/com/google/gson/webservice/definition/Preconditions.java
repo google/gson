@@ -23,9 +23,21 @@ final class Preconditions {
     }
   }
 
+  public static void checkArgument(boolean condition, String msg, Object... msgArgs) {
+    if (!condition) {
+      throw new IllegalArgumentException(String.format(msg, msgArgs));
+    }
+  }
+
   public static void checkNotNull(Object obj) {
     if (obj == null) {
       throw new IllegalArgumentException();
+    }
+  }
+
+  public static void checkNotNull(Object obj, String msg, Object... msgArgs) {
+    if (obj == null) {
+      throw new IllegalArgumentException(String.format(msg, msgArgs));
     }
   }
 }

@@ -72,7 +72,8 @@ class ParamMap {
 
   @SuppressWarnings("unchecked")
   public <T> T get(String key, Type typeOfValue) {
-    Preconditions.checkArgument(spec.checkIfCompatible(key, typeOfValue));
+    Preconditions.checkArgument(spec.checkIfCompatible(key, typeOfValue),
+        "Incompatible key %s for type %s", key, typeOfValue);
     return (T) contents.get(key);
   }
   
