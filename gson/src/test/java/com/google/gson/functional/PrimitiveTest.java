@@ -568,4 +568,14 @@ public class PrimitiveTest extends TestCase {
     result = gson.toJson(target);
     assertTrue(result.equals('"' + target + '"'));
   }
+
+  public void testDeserializePrimitiveWrapperAsObjectField() {
+    String json = "{i:10}";
+    ClassWithIntegerField target = gson.fromJson(json, ClassWithIntegerField.class);
+    assertEquals(10, target.i.intValue());
+  }
+  
+  private static class ClassWithIntegerField {
+    Integer i;
+  }
 }
