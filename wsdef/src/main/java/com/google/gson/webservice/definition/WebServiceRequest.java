@@ -58,9 +58,8 @@ public final class WebServiceRequest {
     return ContentBodySpec.JSON_CONTENT_TYPE;
   }
   
-  @SuppressWarnings("unchecked")
-  public <T> T getHeader(String headerName) {
-    return (T) headers.get(headerName);
+  public <T> T getHeader(TypedKey<T> headerKey) {
+    return headers.get(headerKey);
   }
   
   @Override
