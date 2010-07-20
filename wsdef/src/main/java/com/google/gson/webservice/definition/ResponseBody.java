@@ -42,7 +42,12 @@ public final class ResponseBody extends ContentBody {
     public Builder put(String paramName, Object content, Type typeOfContent) {
       return (Builder) super.put(paramName, content, typeOfContent);
     }
-    
+
+    @Override
+    public <T> Builder put(TypedKey<T> paramKey, T param) {
+      return (Builder) super.put(paramKey, param);
+    }
+
     public ResponseBody build() {
       return new ResponseBody(spec, contents);
     }    
