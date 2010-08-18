@@ -15,13 +15,6 @@
  */
 package com.google.gson.functional;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonParseException;
-import com.google.gson.reflect.TypeToken;
-
-import junit.framework.TestCase;
-
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -41,6 +34,16 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.UUID;
+
+import junit.framework.TestCase;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.reflect.TypeToken;
 
 /**
  * Functional test for Json serialization and deserialization for common classes for which default
@@ -78,7 +81,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
     String json = "'http:\\/\\/google.com\\/'";
     URL target = gson.fromJson(json, URL.class);
     assertEquals(urlValue, target.toExternalForm());
-    
+
     gson.fromJson('"' + urlValue + '"', URL.class);
     assertEquals(urlValue, target.toExternalForm());
   }
@@ -93,7 +96,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
     ClassWithUrlField target = gson.fromJson(json, ClassWithUrlField.class);
     assertNull(target.url);
   }
-  
+
   private static class ClassWithUrlField {
     URL url;
   }
@@ -110,7 +113,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
     URI target = gson.fromJson(json, URI.class);
     assertEquals(uriValue, target.toASCIIString());
   }
-  
+
   public void testUuidSerialization() throws Exception {
     String uuidValue = "c237bec1-19ef-4858-a98e-521cf0aad4c0";
     UUID uuid = UUID.fromString(uuidValue);
@@ -222,15 +225,15 @@ public class DefaultTypeAdaptersTest extends TestCase {
   // millisecond portion.
   @SuppressWarnings("deprecation")
   private void assertEqualsDate(Date date, int year, int month, int day) {
-      assertEquals(year-1900, date.getYear());    
-      assertEquals(month, date.getMonth());    
+      assertEquals(year-1900, date.getYear());
+      assertEquals(month, date.getMonth());
       assertEquals(day, date.getDate());
   }
 
   @SuppressWarnings("deprecation")
   private void assertEqualsTime(Date date, int hours, int minutes, int seconds) {
-    assertEquals(hours, date.getHours());    
-    assertEquals(minutes, date.getMinutes());        
+    assertEquals(hours, date.getHours());
+    assertEquals(minutes, date.getMinutes());
     assertEquals(seconds, date.getSeconds());
   }
 
@@ -245,7 +248,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
     java.sql.Date extracted = gson.fromJson(json, java.sql.Date.class);
     assertEqualsDate(extracted, 2009, 11, 3);
   }
-  
+
   public void testDefaultJavaSqlTimestampSerialization() {
     Timestamp now = new java.sql.Timestamp(1259875082000L);
     String json = gson.toJson(now);
@@ -258,7 +261,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
     assertEqualsDate(extracted, 2009, 11, 3);
     assertEqualsTime(extracted, 13, 18, 02);
   }
-  
+
   public void testDefaultJavaSqlTimeSerialization() {
     Time now = new Time(1259875082000L);
     String json = gson.toJson(now);
@@ -270,7 +273,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
     Time extracted = gson.fromJson(json, Time.class);
     assertEqualsTime(extracted, 13, 18, 02);
   }
-  
+
   public void testDefaultDateSerializationUsingBuilder() throws Exception {
     Gson gson = new GsonBuilder().create();
     Date now = new Date();
@@ -283,7 +286,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
     Date now = new Date();
     String json = gson.toJson(now);
     Date extracted = gson.fromJson(json, Date.class);
-    assertEquals(now.toString(), extracted.toString());    
+    assertEquals(now.toString(), extracted.toString());
   }
 
   public void testDefaultCalendarSerialization() throws Exception {
@@ -296,7 +299,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
     assertTrue(json.contains("minute"));
     assertTrue(json.contains("second"));
   }
-  
+
   public void testDefaultCalendarDeserialization() throws Exception {
     Gson gson = new GsonBuilder().create();
     String json = "{year:2009,month:2,dayOfMonth:11,hourOfDay:14,minute:29,second:23}";
@@ -320,7 +323,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
     assertTrue(json.contains("minute"));
     assertTrue(json.contains("second"));
   }
-  
+
   public void testDefaultGregorianCalendarDeserialization() throws Exception {
     Gson gson = new GsonBuilder().create();
     String json = "{year:2009,month:2,dayOfMonth:11,hourOfDay:14,minute:29,second:23}";
@@ -332,7 +335,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
     assertEquals(29, cal.get(Calendar.MINUTE));
     assertEquals(23, cal.get(Calendar.SECOND));
   }
-  
+
   public void testDateSerializationWithPattern() throws Exception {
     String pattern = "yyyy-MM-dd";
     DateFormat formatter = new SimpleDateFormat(pattern);
@@ -341,7 +344,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
     String json = gson.toJson(now);
     assertEquals("\"" + formatter.format(now) + "\"", json);
   }
-  
+
   @SuppressWarnings("deprecation")
   public void testDateDeserializationWithPattern() throws Exception {
     String pattern = "yyyy-MM-dd";
@@ -349,11 +352,31 @@ public class DefaultTypeAdaptersTest extends TestCase {
     Date now = new Date();
     String json = gson.toJson(now);
     Date extracted = gson.fromJson(json, Date.class);
-    assertEquals(now.getYear(), extracted.getYear());    
-    assertEquals(now.getMonth(), extracted.getMonth());    
-    assertEquals(now.getDay(), extracted.getDay());    
+    assertEquals(now.getYear(), extracted.getYear());
+    assertEquals(now.getMonth(), extracted.getMonth());
+    assertEquals(now.getDay(), extracted.getDay());
   }
-  
+
+  @SuppressWarnings("deprecation")
+  public void testDateSerializationWithPatternNotOverridenByTypeAdapter() throws Exception {
+    String pattern = "yyyy-MM-dd";
+    DateFormat formatter = new SimpleDateFormat(pattern);
+    Gson gson = new GsonBuilder()
+        .setDateFormat(pattern)
+        .registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
+          public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+              throws JsonParseException {
+            return new Date();
+          }
+        })
+        .create();
+
+    Date now = new Date();
+    String expectedDateString = "\"" + formatter.format(now) + "\"";
+    String json = gson.toJson(now);
+    assertEquals(expectedDateString, json);
+  }
+
   private static class ClassWithBigDecimal {
     BigDecimal value;
     // For use by Gson
@@ -379,7 +402,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
       return "{\"value\":" + value + "}";
     }
   }
-  
+
   public void testPropertiesSerialization() {
     Properties props = new Properties();
     props.setProperty("foo", "bar");
@@ -387,7 +410,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
     String expected = "{\"foo\":\"bar\"}";
     assertEquals(expected, json);
   }
-  
+
   public void testPropertiesDeserialization() {
     String json = "{foo:'bar'}";
     Properties props = gson.fromJson(json, Properties.class);
