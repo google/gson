@@ -27,7 +27,7 @@ import java.util.Map;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-class LruCache<K, V> extends LinkedHashMap<K, V> implements Cache<K, V> {
+final class LruCache<K, V> extends LinkedHashMap<K, V> implements Cache<K, V> {
   private static final long serialVersionUID = 1L;
 
   private final int maxCapacity;

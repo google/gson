@@ -23,7 +23,7 @@ package com.google.gson;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-class FieldNamingStrategy2Adapter implements FieldNamingStrategy2 {
+final class FieldNamingStrategy2Adapter implements FieldNamingStrategy2 {
   private final FieldNamingStrategy adaptee;
 
   public FieldNamingStrategy2Adapter(FieldNamingStrategy adaptee) {

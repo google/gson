@@ -39,7 +39,7 @@ import java.util.Collection;
  *
  * @author Joel Leitch
  */
-class UpperCaseNamingPolicy extends RecursiveFieldNamingPolicy {
+final class UpperCaseNamingPolicy extends RecursiveFieldNamingPolicy {
 
   @Override
   protected String translateName(String target, Type fieldType, Collection<Annotation> annotations) {

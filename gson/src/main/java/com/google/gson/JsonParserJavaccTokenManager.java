@@ -2,7 +2,8 @@
 package com.google.gson;
 
 /** Token Manager. */
-class JsonParserJavaccTokenManager implements JsonParserJavaccConstants
+@SuppressWarnings("all")
+final class JsonParserJavaccTokenManager implements JsonParserJavaccConstants
 {
 
   /** Debug output. */
