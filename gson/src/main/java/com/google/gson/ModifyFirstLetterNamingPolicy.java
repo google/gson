@@ -46,7 +46,7 @@ import java.util.Collection;
  *
  * @author Joel Leitch
  */
-class ModifyFirstLetterNamingPolicy extends RecursiveFieldNamingPolicy {
+final class ModifyFirstLetterNamingPolicy extends RecursiveFieldNamingPolicy {
 
   public enum LetterModifier {
     UPPER,

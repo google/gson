@@ -35,7 +35,7 @@ package com.google.gson;
  *
  * @author Joel Leitch
  */
-class LowerCamelCaseSeparatorNamingPolicy extends CompositionFieldNamingPolicy {
+final class LowerCamelCaseSeparatorNamingPolicy extends CompositionFieldNamingPolicy {
 
   public LowerCamelCaseSeparatorNamingPolicy(String separatorString) {
     super(new CamelCaseSeparatorNamingPolicy(separatorString), new LowerCaseNamingPolicy());
