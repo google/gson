@@ -220,9 +220,7 @@ public final class GsonBuilder {
    * @param fieldNamingStrategy the actual naming strategy to apply to the fields
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.3
-   * @deprecated use {@link #setFieldNamingStrategy(FieldNamingStrategy2)} instead.
    */
-  @Deprecated
   public GsonBuilder setFieldNamingStrategy(FieldNamingStrategy fieldNamingStrategy) {
     return setFieldNamingStrategy(new FieldNamingStrategy2Adapter(fieldNamingStrategy));
   }
@@ -233,9 +231,9 @@ public final class GsonBuilder {
    *
    * @param fieldNamingStrategy the actual naming strategy to apply to the fields
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
-   * @since 1.4
+   * @since 1.5
    */
-  public GsonBuilder setFieldNamingStrategy(FieldNamingStrategy2 fieldNamingStrategy) {
+  GsonBuilder setFieldNamingStrategy(FieldNamingStrategy2 fieldNamingStrategy) {
     this.fieldNamingPolicy =
         new SerializedNameAnnotationInterceptingNamingPolicy(fieldNamingStrategy);
     return this;
@@ -434,7 +432,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.5
    */
-  public GsonBuilder registerTypeHierarchyAdapter(Class<?> baseType, Object typeAdapter) {
+  GsonBuilder registerTypeHierarchyAdapter(Class<?> baseType, Object typeAdapter) {
     Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
     || typeAdapter instanceof JsonDeserializer<?> || typeAdapter instanceof InstanceCreator<?>);
     if (typeAdapter instanceof InstanceCreator<?>) {

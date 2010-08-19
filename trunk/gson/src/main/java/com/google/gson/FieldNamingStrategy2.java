@@ -24,9 +24,9 @@ package com.google.gson;
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
- * @since 1.4
+ * @since 1.5
  */
-public interface FieldNamingStrategy2 {
+interface FieldNamingStrategy2 {
 
   /**
    * Translates the field name into its JSON field name representation.

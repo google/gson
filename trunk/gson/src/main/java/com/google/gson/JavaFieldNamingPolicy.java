@@ -42,7 +42,7 @@ import java.util.Collection;
  *
  * @author Joel Leitch
  */
-class JavaFieldNamingPolicy extends RecursiveFieldNamingPolicy {
+final class JavaFieldNamingPolicy extends RecursiveFieldNamingPolicy {
 
   @Override
   protected String translateName(String target, Type fieldType, Collection<Annotation> annotations) {

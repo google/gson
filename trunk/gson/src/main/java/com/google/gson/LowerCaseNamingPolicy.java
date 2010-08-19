@@ -40,7 +40,7 @@ import java.util.Collection;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-class LowerCaseNamingPolicy extends RecursiveFieldNamingPolicy {
+final class LowerCaseNamingPolicy extends RecursiveFieldNamingPolicy {
 
   @Override
   protected String translateName(String target, Type fieldType,
