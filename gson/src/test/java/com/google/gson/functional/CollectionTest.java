@@ -201,7 +201,7 @@ public class CollectionTest extends TestCase {
     assertEquals("[1,2,3,4,5,6,7,8,9]", gson.toJson(target));
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "rawtypes" })
   public void testRawCollectionSerialization() {
     BagOfPrimitives bag1 = new BagOfPrimitives();
     Collection target = Arrays.asList(bag1, bag1);
@@ -223,7 +223,7 @@ public class CollectionTest extends TestCase {
     } catch (JsonParseException expected) { }
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public void testRawCollectionOfBagOfPrimitivesNotAllowed() {
     try {
       BagOfPrimitives bag = new BagOfPrimitives(10, 20, false, "stringValue");
@@ -276,7 +276,7 @@ public class CollectionTest extends TestCase {
     assertTrue(deserializedCollection.contains(objB));
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "rawtypes" })
   private static int[] toIntArray(Collection collection) {
     int[] ints = new int[collection.size()];
     int i = 0;
