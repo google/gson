@@ -18,9 +18,6 @@ package com.google.gson;
 
 import junit.framework.TestCase;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Unit test for the {@link JsonObject} class.
  *
