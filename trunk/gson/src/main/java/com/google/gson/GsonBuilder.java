@@ -231,7 +231,6 @@ public final class GsonBuilder {
    *
    * @param fieldNamingStrategy the actual naming strategy to apply to the fields
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
-   * @since 1.5
    */
   GsonBuilder setFieldNamingStrategy(FieldNamingStrategy2 fieldNamingStrategy) {
     this.fieldNamingPolicy =
