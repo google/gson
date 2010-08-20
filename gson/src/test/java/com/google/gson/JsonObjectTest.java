@@ -18,6 +18,9 @@ package com.google.gson;
 
 import junit.framework.TestCase;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Unit test for the {@link JsonObject} class.
  *
@@ -109,5 +112,15 @@ public class JsonObjectTest extends TestCase {
     assertNotNull(jsonElement);
     assertEquals(String.valueOf(value), jsonElement.getAsString());
     assertEquals(value, jsonElement.getAsCharacter());
+  }
+
+  /**
+   * From bug report http://code.google.com/p/google-gson/issues/detail?id=182
+   */
+  public void testPropertyWithQuotes() {
+    JsonObject jsonObj = new JsonObject();
+    jsonObj.add("a\"b", new JsonPrimitive("c\"d"));
+    String json = new Gson().toJson(jsonObj);
+    assertEquals("{\"a\\\"b\":\"c\\\"d\"}", json);
   }
 }
