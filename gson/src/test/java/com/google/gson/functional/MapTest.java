@@ -287,4 +287,14 @@ public class MapTest extends TestCase {
     assertEquals("1", nested.get("1"));
     assertEquals("2", nested.get("2"));
   }
+
+  /**
+   * From bug report http://code.google.com/p/google-gson/issues/detail?id=178
+   */
+  public void testMapWithQuotes() {
+    Map<String, String> map = new HashMap<String, String>();
+    map.put("a\"b", "c\"d");
+    String json = gson.toJson(map);
+    assertEquals("{\"a\\\"b\":\"c\\\"d\"}", json);
+  }
 }
