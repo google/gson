@@ -45,7 +45,7 @@ public class PrintFormattingTest extends TestCase {
     gson = new Gson();
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public void testCompactFormattingLeavesNoWhiteSpace() {
     List list = new ArrayList();
     list.add(new BagOfPrimitives());
