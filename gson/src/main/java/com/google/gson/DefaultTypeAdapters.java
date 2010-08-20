@@ -196,7 +196,7 @@ final class DefaultTypeAdapters {
     return map;
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   private static JsonDeserializer<?> wrapDeserializer(JsonDeserializer<?> deserializer) {
     return new JsonDeserializerExceptionWrapper(deserializer);
   }
@@ -569,7 +569,7 @@ final class DefaultTypeAdapters {
     }    
   }
   
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   static class MapTypeAdapter implements JsonSerializer<Map>, JsonDeserializer<Map>,
       InstanceCreator<Map> {
     

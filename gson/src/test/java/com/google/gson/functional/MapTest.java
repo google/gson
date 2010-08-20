@@ -63,7 +63,7 @@ public class MapTest extends TestCase {
     assertEquals(2, target.get("b").intValue());
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public void testRawMapSerialization() {
     Map map = new LinkedHashMap();
     map.put("a", 1);
@@ -154,7 +154,7 @@ public class MapTest extends TestCase {
     assertTrue(json.contains("\"a\":\"b\""));
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
   public void testParameterizedMapSubclassDeserialization() {
     Type type = new TypeToken<MyParameterizedMap<String, Integer>>() {}.getType();
     Gson gson = new GsonBuilder().registerTypeAdapter(type, 
