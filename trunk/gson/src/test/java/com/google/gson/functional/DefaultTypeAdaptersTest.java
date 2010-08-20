@@ -357,7 +357,6 @@ public class DefaultTypeAdaptersTest extends TestCase {
     assertEquals(now.getDay(), extracted.getDay());
   }
 
-  @SuppressWarnings("deprecation")
   public void testDateSerializationWithPatternNotOverridenByTypeAdapter() throws Exception {
     String pattern = "yyyy-MM-dd";
     DateFormat formatter = new SimpleDateFormat(pattern);
