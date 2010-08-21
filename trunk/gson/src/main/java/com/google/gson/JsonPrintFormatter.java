@@ -39,7 +39,7 @@ final class JsonPrintFormatter implements JsonFormatter {
   JsonPrintFormatter() {
     this(true);
   }
-  
+
   JsonPrintFormatter(boolean escapeHtmlChars) {
     this(DEFAULT_PRINT_MARGIN, DEFAULT_INDENTATION_SIZE, DEFAULT_RIGHT_MARGIN, escapeHtmlChars);
   }
@@ -109,7 +109,7 @@ final class JsonPrintFormatter implements JsonFormatter {
     private void breakLineIfNeeded() throws IOException {
       breakLineIfThisToNextExceedsLimit(0);
     }
-    
+
     private void breakLineIfThisToNextExceedsLimit(int nextLength) throws IOException {
         if (getLine().length() + nextLength > printMargin - rightMargin) {
           finishLine();
@@ -161,18 +161,18 @@ final class JsonPrintFormatter implements JsonFormatter {
       writer.beginArray();
     }
 
-    public void visitArrayMember(JsonArray parent, JsonPrimitive member, 
+    public void visitArrayMember(JsonArray parent, JsonPrimitive member,
         boolean isFirst) throws IOException {
       addCommaCheckingFirst(isFirst);
       writer.value(escapeJsonPrimitive(member));
     }
 
-    public void visitArrayMember(JsonArray parent, JsonArray member, 
+    public void visitArrayMember(JsonArray parent, JsonArray member,
         boolean first) throws IOException {
       addCommaCheckingFirst(first);
     }
 
-    public void visitArrayMember(JsonArray parent, JsonObject member, 
+    public void visitArrayMember(JsonArray parent, JsonObject member,
         boolean first) throws IOException {
       addCommaCheckingFirst(first);
     }
@@ -189,35 +189,35 @@ final class JsonPrintFormatter implements JsonFormatter {
       writer.beginObject();
     }
 
-    public void visitObjectMember(JsonObject parent, String memberName, JsonPrimitive member, 
+    public void visitObjectMember(JsonObject parent, String memberName, JsonPrimitive member,
         boolean isFirst) throws IOException {
       addCommaCheckingFirst(isFirst);
-      writer.key(memberName);
+      writer.key(escaper.escapeJsonString(memberName));
       writer.fieldSeparator();
       writer.value(escapeJsonPrimitive(member));
     }
 
-    public void visitObjectMember(JsonObject parent, String memberName, JsonArray member, 
+    public void visitObjectMember(JsonObject parent, String memberName, JsonArray member,
         boolean isFirst) throws IOException {
       addCommaCheckingFirst(isFirst);
-      writer.key(memberName);
+      writer.key(escaper.escapeJsonString(memberName));
       writer.fieldSeparator();
     }
 
-    public void visitObjectMember(JsonObject parent, String memberName, JsonObject member, 
+    public void visitObjectMember(JsonObject parent, String memberName, JsonObject member,
         boolean isFirst) throws IOException {
       addCommaCheckingFirst(isFirst);
-      writer.key(memberName);
+      writer.key(escaper.escapeJsonString(memberName));
       writer.fieldSeparator();
     }
 
-    public void visitNullObjectMember(JsonObject parent, String memberName, 
+    public void visitNullObjectMember(JsonObject parent, String memberName,
         boolean isFirst) throws IOException {
       if (serializeNulls) {
         visitObjectMember(parent, memberName, (JsonObject) null, isFirst);
       }
     }
-    
+
     public void endObject(JsonObject object) {
       writer.endObject();
     }
@@ -229,7 +229,7 @@ final class JsonPrintFormatter implements JsonFormatter {
     public void visitNull() throws IOException {
       writer.value("null");
     }
-    
+
     private String escapeJsonPrimitive(JsonPrimitive member) throws IOException {
       StringBuilder builder = new StringBuilder();
       member.toString(builder, escaper);
@@ -237,14 +237,14 @@ final class JsonPrintFormatter implements JsonFormatter {
     }
   }
 
-  public void format(JsonElement root, Appendable writer, 
+  public void format(JsonElement root, Appendable writer,
       boolean serializeNulls) throws IOException {
     if (root == null) {
       return;
     }
     JsonWriter jsonWriter = new JsonWriter(writer);
     JsonElementVisitor visitor = new PrintFormattingVisitor(
-        jsonWriter, new Escaper(escapeHtmlChars), serializeNulls);    
+        jsonWriter, new Escaper(escapeHtmlChars), serializeNulls);
     JsonTreeNavigator navigator = new JsonTreeNavigator(visitor, serializeNulls);
     navigator.navigate(root);
     jsonWriter.finishLine();

@@ -43,12 +43,12 @@ final class JsonCompactFormatter implements JsonFormatter {
     public void visitNull() throws IOException {
       writer.append("null");
     }
-    
+
     public void startArray(JsonArray array) throws IOException {
       writer.append('[');
     }
 
-    public void visitArrayMember(JsonArray parent, JsonPrimitive member, 
+    public void visitArrayMember(JsonArray parent, JsonPrimitive member,
         boolean isFirst) throws IOException {
       if (!isFirst) {
         writer.append(',');
@@ -56,14 +56,14 @@ final class JsonCompactFormatter implements JsonFormatter {
       member.toString(writer, escaper);
     }
 
-    public void visitArrayMember(JsonArray parent, JsonArray member, 
+    public void visitArrayMember(JsonArray parent, JsonArray member,
         boolean isFirst) throws IOException {
       if (!isFirst) {
         writer.append(',');
       }
     }
 
-    public void visitArrayMember(JsonArray parent, JsonObject member, 
+    public void visitArrayMember(JsonArray parent, JsonObject member,
         boolean isFirst) throws IOException {
       if (!isFirst) {
         writer.append(',');
@@ -90,7 +90,7 @@ final class JsonCompactFormatter implements JsonFormatter {
         writer.append(',');
       }
       writer.append('"');
-      writer.append(memberName);
+      writer.append(escaper.escapeJsonString(memberName));
       writer.append("\":");
       member.toString(writer, escaper);
     }
@@ -101,7 +101,7 @@ final class JsonCompactFormatter implements JsonFormatter {
         writer.append(',');
       }
       writer.append('"');
-      writer.append(memberName);
+      writer.append(escaper.escapeJsonString(memberName));
       writer.append("\":");
     }
 
@@ -111,33 +111,33 @@ final class JsonCompactFormatter implements JsonFormatter {
         writer.append(',');
       }
       writer.append('"');
-      writer.append(memberName);
+      writer.append(escaper.escapeJsonString(memberName));
       writer.append("\":");
     }
 
-    public void visitNullObjectMember(JsonObject parent, String memberName, 
+    public void visitNullObjectMember(JsonObject parent, String memberName,
         boolean isFirst) throws IOException {
       if (serializeNulls) {
         visitObjectMember(parent, memberName, (JsonObject) null, isFirst);
-      }      
+      }
     }
-    
+
     public void endObject(JsonObject object) throws IOException {
       writer.append('}');
     }
   }
-  
+
   private final boolean escapeHtmlChars;
 
   JsonCompactFormatter() {
     this(true);
   }
-  
+
   JsonCompactFormatter(boolean escapeHtmlChars) {
     this.escapeHtmlChars = escapeHtmlChars;
   }
 
-  public void format(JsonElement root, Appendable writer, 
+  public void format(JsonElement root, Appendable writer,
       boolean serializeNulls) throws IOException {
     if (root == null) {
       return;
