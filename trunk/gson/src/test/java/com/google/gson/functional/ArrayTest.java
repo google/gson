@@ -31,7 +31,6 @@ import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
-
 /**
  * Functional tests for Json serialization and deserialization of arrays.
  *
@@ -63,7 +62,7 @@ public class ArrayTest extends TestCase {
     try {
       gson.fromJson(json, int[].class);
       fail("Gson should not deserialize array elements with missing ,");
-    } catch (JsonParseException expected) {      
+    } catch (JsonParseException expected) {
     }
   }
 
@@ -81,7 +80,7 @@ public class ArrayTest extends TestCase {
 
     actualObject = gson.fromJson("[ ]", int[].class);
     assertTrue(actualObject.length == 0);
-}
+  }
 
   public void testNullsInArraySerialization() {
     String[] array = {"foo", null, "bar"};
@@ -98,19 +97,19 @@ public class ArrayTest extends TestCase {
       assertEquals(expected[i], target[i]);
     }
   }
-  
-  public void testSingleNullInArraySerialization() {    
+
+  public void testSingleNullInArraySerialization() {
     BagOfPrimitives[] array = new BagOfPrimitives[1];
     array[0] = null;
     String json = gson.toJson(array);
     assertEquals("[null]", json);
   }
-  
+
   public void testSingleNullInArrayDeserialization() {
     BagOfPrimitives[] array = gson.fromJson("[null]", BagOfPrimitives[].class);
     assertNull(array[0]);
   }
-  
+
   public void testNullsInArrayWithSerializeNullPropertySetSerialization() {
     gson = new GsonBuilder().serializeNulls().create();
     String[] array = {"foo", null, "bar"};
@@ -136,13 +135,13 @@ public class ArrayTest extends TestCase {
     String output = gson.toJson(s);
     assertEquals("[\"hello\"]", output);
   }
-  
+
   public void testSingleStringArrayDeserialization() throws Exception {
     String json = "[\"hello\"]";
     String[] arrayType = gson.fromJson(json, String[].class);
     assertEquals(1, arrayType.length);
     assertEquals("hello", arrayType[0]);
-    
+
     String type = gson.fromJson(json, String.class);
     assertEquals("hello", type);
   }
@@ -181,7 +180,7 @@ public class ArrayTest extends TestCase {
     MoreAsserts.assertEquals(new Integer[] { 1, 2 }, target[0].toArray(new Integer[0]));
     MoreAsserts.assertEquals(new Integer[] { 3, 4 }, target[1].toArray(new Integer[0]));
   }
-  
+
   public void testArrayOfPrimitivesWithCustomTypeAdapter() throws Exception {
     CrazyLongTypeAdapter typeAdapter = new CrazyLongTypeAdapter();
     gson = new GsonBuilder()
@@ -192,12 +191,12 @@ public class ArrayTest extends TestCase {
     String serializedValue = gson.toJson(value);
     String expected = "[" + String.valueOf(value[0] + CrazyLongTypeAdapter.DIFFERENCE) + "]";
     assertEquals(expected, serializedValue);
-    
+
     long[] deserializedValue = gson.fromJson(serializedValue, long[].class);
     assertEquals(1, deserializedValue.length);
     assertEquals(value[0], deserializedValue[0]);
   }
-  
+
   public void testArrayOfPrimitivesAsObjectsSerialization() throws Exception {
     Object[] objs = new Object[]{1, "abc", 0.3f, 5L};
     String json = gson.toJson(objs);
@@ -219,18 +218,20 @@ public class ArrayTest extends TestCase {
     String json = "[1,'abc',{a:1},5]";
     try {
       gson.fromJson(json, Object[].class);
+      fail("This is crazy....how did we deserialize it!!!");
     } catch (JsonParseException expected) {
     }
   }
-  
+
   public void testArrayWithoutTypeInfoDeserialization() throws Exception {
     String json = "[1,'abc',[1,2],5]";
     try {
       gson.fromJson(json, Object[].class);
+      fail("This is crazy....how did we deserialize it!!!");
     } catch (JsonParseException expected) {
     }
   }
-  
+
   public void testObjectArrayWithNonPrimitivesSerialization() throws Exception {
     ClassWithObjects classWithObjects = new ClassWithObjects();
     BagOfPrimitives bagOfPrimitives = new BagOfPrimitives();
@@ -239,7 +240,7 @@ public class ArrayTest extends TestCase {
 
     Object[] objects = new Object[] { classWithObjects, bagOfPrimitives };
     String json = gson.toJson(objects);
-    
+
     assertTrue(json.contains(classWithObjectsJson));
     assertTrue(json.contains(bagOfPrimitivesJson));
   }
