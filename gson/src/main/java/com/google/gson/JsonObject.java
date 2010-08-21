@@ -53,7 +53,6 @@ public final class JsonObject extends JsonElement {
    */
   public void add(String property, JsonElement value) {
     Preconditions.checkArgument(property != null && !"".equals(property.trim()));
-
     if (value == null) {
       value = JsonNull.createJsonNull();
     }
@@ -205,7 +204,7 @@ public final class JsonObject extends JsonElement {
         sb.append(',');
       }
       sb.append('\"');
-      sb.append(entry.getKey());
+      sb.append(escaper.escapeJsonString(entry.getKey()));
       sb.append("\":");
       entry.getValue().toString(sb, escaper);
     }
