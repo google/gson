@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import com.google.gson.stream.JsonReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -440,9 +441,10 @@ public final class Gson {
    */
   @SuppressWarnings("unchecked")
   public <T> T fromJson(Reader json, Type typeOfT) throws JsonParseException {
-    JsonElement root = new JsonParser().parse(json);
-    T target = (T) fromJson(root, typeOfT);
-    return target;
+    JsonReader jsonReader = new JsonReader(json);
+    jsonReader.setLenient(true);
+    JsonElement root = GsonReader.parse(jsonReader);
+    return (T) fromJson(root, typeOfT);
   }
 
   /**
