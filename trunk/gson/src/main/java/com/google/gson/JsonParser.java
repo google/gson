@@ -15,6 +15,7 @@
  */
 package com.google.gson;
 
+import com.google.gson.stream.JsonReader;
 import java.io.EOFException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -50,13 +51,9 @@ public final class JsonParser {
    */
   public JsonElement parse(Reader json) throws JsonParseException {
     try {
-      JsonParserJavacc parser = new JsonParserJavacc(json);
-      JsonElement element = parser.parse();
-      return element;
-    } catch (TokenMgrError e) {
-      throw new JsonParseException("Failed parsing JSON source: " + json + " to Json", e);
-    } catch (ParseException e) {
-      throw new JsonParseException("Failed parsing JSON source: " + json + " to Json", e);
+      JsonReader jsonReader = new JsonReader(json);
+      jsonReader.setLenient(true);
+      return GsonReader.parse(jsonReader);
     } catch (StackOverflowError e) {
       throw new JsonParseException("Failed parsing JSON source: " + json + " to Json", e);
     } catch (OutOfMemoryError e) {
