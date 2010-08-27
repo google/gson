@@ -33,6 +33,7 @@ final class AnonymousAndLocalClassExclusionStrategy implements ExclusionStrategy
   }
 
   private boolean isAnonymousOrLocal(Class<?> clazz) {
-    return clazz.isAnonymousClass() || clazz.isLocalClass();
+    return !Enum.class.isAssignableFrom(clazz)
+        && (clazz.isAnonymousClass() || clazz.isLocalClass());
   }
 }
