@@ -20,6 +20,10 @@ import com.google.gson.Gson;
 import com.google.gson.common.MoreAsserts;
 import com.google.gson.reflect.TypeToken;
 
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 import junit.framework.TestCase;
 
 import java.lang.reflect.Type;
@@ -104,5 +108,37 @@ public class EnumTest extends TestCase {
     public String getExpectedJson() {
       return "{\"value1\":\"" + value1 + "\",\"value2\":\"" + value2 + "\"}";
     }
+  }
+
+  /**
+   * Test for issue 226.
+   */
+  public void testEnumSubclass() {
+    assertFalse(Roshambo.class == Roshambo.ROCK.getClass());
+    assertEquals("\"ROCK\"", gson.toJson(Roshambo.ROCK));
+    assertEquals("[\"ROCK\",\"PAPER\",\"SCISSORS\"]", gson.toJson(EnumSet.allOf(Roshambo.class)));
+    assertEquals(Roshambo.ROCK, gson.fromJson("\"ROCK\"", Roshambo.class));
+    assertEquals(EnumSet.allOf(Roshambo.class),
+        gson.fromJson("[\"ROCK\",\"PAPER\",\"SCISSORS\"]", new TypeToken<Set<Roshambo>>() {}.getType()));
+  }
+
+  private enum Roshambo {
+    ROCK {
+      @Override Roshambo defeats() {
+        return SCISSORS;
+      }
+    },
+    PAPER {
+      @Override Roshambo defeats() {
+        return ROCK;
+      }
+    },
+    SCISSORS {
+      @Override Roshambo defeats() {
+        return PAPER;
+      }
+    };
+
+    abstract Roshambo defeats();
   }
 }
