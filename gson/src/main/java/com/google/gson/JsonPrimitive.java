@@ -150,7 +150,25 @@ public final class JsonPrimitive extends JsonElement {
    */
   @Override
   public Number getAsNumber() {
-    return (Number) value;
+    return value instanceof String ? stringToNumber((String) value) : (Number) value;
+  }
+
+  static Number stringToNumber(String value) {
+    try {
+      long longValue = Long.parseLong(value);
+      if (longValue >= Integer.MIN_VALUE && longValue <= Integer.MAX_VALUE) {
+        return (int) longValue;
+      } else {
+        return longValue;
+      }
+    } catch (NumberFormatException ignored) {
+    }
+
+    try {
+      return new BigDecimal(value);
+    } catch (NumberFormatException ignored) {
+      return Double.parseDouble(value); // probably NaN, -Infinity or Infinity
+    }
   }
 
   /**

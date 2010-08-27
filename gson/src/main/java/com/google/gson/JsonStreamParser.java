@@ -15,7 +15,10 @@
  */
 package com.google.gson;
 
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 import java.io.EOFException;
+import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Iterator;
@@ -45,9 +48,8 @@ import java.util.NoSuchElementException;
  */
 public final class JsonStreamParser implements Iterator<JsonElement> {
 
-  private final JsonParserJavacc parser;
+  private final JsonReader parser;
   private final Object lock;
-  private JsonElement nextElement;
 
   /**
    * @param json The string containing JSON elements concatenated to each other.
@@ -62,9 +64,9 @@ public final class JsonStreamParser implements Iterator<JsonElement> {
    * @since 1.4
    */
   public JsonStreamParser(Reader reader) {
-    parser = new JsonParserJavacc(reader);
+    parser = new JsonReader(reader);
+    parser.setLenient(true);
     lock = new Object();
-    nextElement = null;
   }
   
   /**
@@ -75,20 +77,12 @@ public final class JsonStreamParser implements Iterator<JsonElement> {
    * @since 1.4
    */
   public JsonElement next() throws JsonParseException {
-    synchronized (lock) {
-      if (nextElement != null) {
-        JsonElement returnValue = nextElement;
-        nextElement = null;
-        return returnValue;
-      }
+    if (!hasNext()) {
+      throw new NoSuchElementException();
     }
-
+    
     try {
-      return parser.parse();
-    } catch (TokenMgrError e) {
-      throw new JsonParseException("Failed parsing JSON source to Json", e);
-    } catch (ParseException e) {
-      throw new JsonParseException("Failed parsing JSON source to Json", e);
+      return GsonReader.parse(parser);
     } catch (StackOverflowError e) {
       throw new JsonParseException("Failed parsing JSON source to Json", e);
     } catch (OutOfMemoryError e) {
@@ -110,11 +104,9 @@ public final class JsonStreamParser implements Iterator<JsonElement> {
   public boolean hasNext() {
     synchronized (lock) {
       try {
-        nextElement = next();
-        return true;
-      } catch (NoSuchElementException e) {
-        nextElement = null;
-        return false;
+        return parser.peek() != JsonToken.END_DOCUMENT;
+      } catch (IOException e) {
+        throw new JsonParseException(e);
       }
     }
   }
