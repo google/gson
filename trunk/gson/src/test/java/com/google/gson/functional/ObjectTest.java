@@ -30,6 +30,7 @@ import com.google.gson.common.TestTypes.ClassWithTransientFields;
 import com.google.gson.common.TestTypes.Nested;
 import com.google.gson.common.TestTypes.PrimitiveArray;
 
+import java.util.List;
 import junit.framework.TestCase;
 
 import java.lang.reflect.Type;
@@ -409,4 +410,36 @@ public class ObjectTest extends TestCase {
     String json = gson.toJson(obj);
     assertEquals("{}", json);
   }
+
+  /**
+   * Test for issue 215.
+   */
+  public void testSingletonLists() {
+    Gson gson = new Gson();
+    Product product = new Product();
+    assertEquals("{\"attributes\":[],\"departments\":[]}",
+        gson.toJson(product));
+    gson.fromJson(gson.toJson(product), Product.class);
+
+    product.departments.add(new Department());
+    assertEquals("{\"attributes\":[],\"departments\":[{\"name\":\"abc\",\"code\":\"123\"}]}",
+        gson.toJson(product));
+    gson.fromJson(gson.toJson(product), Product.class);
+
+    product.attributes.add("456");
+    assertEquals("{\"attributes\":[\"456\"],\"departments\":[{\"name\":\"abc\",\"code\":\"123\"}]}",
+        gson.toJson(product));
+    gson.fromJson(gson.toJson(product), Product.class);
+  }
+
+  static final class Department {
+    public String name = "abc";
+    public String code = "123";
+  }
+
+  static final class Product {
+    private List<String> attributes = new ArrayList<String>();
+    private List<Department> departments = new ArrayList<Department>();
+  }
+
 }
