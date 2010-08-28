@@ -120,4 +120,20 @@ public class JsonObjectTest extends TestCase {
     String json = new Gson().toJson(jsonObj);
     assertEquals("{\"a\\\"b\":\"c\\\"d\"}", json);
   }
+
+  /**
+   * From issue 227.
+   */
+  public void testWritePropertyWithEmptyStringName() {
+    JsonObject jsonObj = new JsonObject();
+    jsonObj.add("", new JsonPrimitive(true));
+    assertEquals("{\"\":true}", new Gson().toJson(jsonObj));
+
+  }
+
+  public void testReadPropertyWithEmptyStringName() {
+    JsonObject jsonObj = new JsonParser().parse("{\"\":true}").getAsJsonObject();
+    assertEquals(true, jsonObj.get("").getAsBoolean());
+
+  }
 }
