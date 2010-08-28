@@ -297,4 +297,19 @@ public class MapTest extends TestCase {
     String json = gson.toJson(map);
     assertEquals("{\"a\\\"b\":\"c\\\"d\"}", json);
   }
+  
+  /**
+   * From issue 227.
+   */
+  public void testWriteMapsWithEmptyStringKey() {
+    Map<String, Boolean> map = new HashMap<String, Boolean>();
+    map.put("", true);
+    assertEquals("{\"\":true}", gson.toJson(map));
+
+  }
+
+  public void testReadMapsWithEmptyStringKey() {
+    Map<String, Boolean> map = gson.fromJson("{\"\":true}", new TypeToken<Map<String, Boolean>>() {}.getType());
+    assertEquals(Boolean.TRUE, map.get(""));
+  }
 }
