@@ -140,6 +140,8 @@ public final class JsonWriter implements Closeable {
    */
   private String separator = ":";
 
+  private boolean lenient;
+
   /**
    * Creates a new instance that writes a JSON-encoded stream to {@code out}.
    * For best performance, ensure {@link Writer} is buffered; wrapping in
@@ -168,6 +170,22 @@ public final class JsonWriter implements Closeable {
       this.indent = indent;
       this.separator = ": ";
     }
+  }
+
+  /**
+   * Configure this writer to relax its syntax rules. By default, this writer
+   * only emits well-formed JSON as specified by <a
+   * href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>. Setting the writer
+   * to lenient permits the following:
+   * <ul>
+   *   <li>Top-level values of any type. With strict writing, the top-level
+   *       value must be an object or an array.
+   *   <li>Numbers may be {@link Double#isNaN() NaNs} or {@link
+   *       Double#isInfinite() infinities}.
+   * </ul>
+   */
+  public void setLenient(boolean lenient) {
+    this.lenient = lenient;
   }
 
   /**
@@ -344,7 +362,8 @@ public final class JsonWriter implements Closeable {
     }
 
     String string = value.toString();
-    if (string.equals("-Infinity") || string.equals("Infinity") || string.equals("NaN")) {
+    if (!lenient
+        && (string.equals("-Infinity") || string.equals("Infinity") || string.equals("NaN"))) {
       throw new IllegalArgumentException("Numeric values must be finite, but was " + value);
     }
     beforeValue(false);
@@ -384,13 +403,40 @@ public final class JsonWriter implements Closeable {
        * quotation mark, reverse solidus, and the control characters
        * (U+0000 through U+001F)."
        */
-      if (c == '"' || c == '\\') {
+      switch (c) {
+      case '"':
+      case '\\':
         out.write('\\');
         out.write(c);
-      } else if (c <= 0x1F) {
-        out.write(String.format("\\u%04x", (int) c));
-      } else {
-        out.write(c);
+        break;
+
+      case '\t':
+        out.write("\\t");
+        break;
+
+      case '\b':
+        out.write("\\b");
+        break;
+
+      case '\n':
+        out.write("\\n");
+        break;
+
+      case '\r':
+        out.write("\\r");
+        break;
+
+      case '\f':
+        out.write("\\f");
+        break;
+
+      default:
+        if (c <= 0x1F) {
+          out.write(String.format("\\u%04x", (int) c));
+        } else {
+          out.write(c);
+        }
+        break;
       }
     }
     out.write("\"");
@@ -433,7 +479,7 @@ public final class JsonWriter implements Closeable {
   private void beforeValue(boolean root) throws IOException {
     switch (peek()) {
     case EMPTY_DOCUMENT: // first in document
-      if (!root) {
+      if (!lenient && !root) {
         throw new IllegalStateException(
             "JSON must start with an array or an object.");
       }

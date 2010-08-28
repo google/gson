@@ -59,15 +59,8 @@ public class JsonObjectTest extends TestCase {
       fail("Should not allow null property names.");
     } catch (IllegalArgumentException expected) { }
 
-    try {
-      jsonObj.add("", JsonNull.createJsonNull());
-      fail("Should not allow empty property names.");
-    } catch (IllegalArgumentException expected) { }
-
-    try {
-      jsonObj.add("   \t", JsonNull.createJsonNull());
-      fail("Should not allow whitespace only property names.");
-    } catch (IllegalArgumentException expected) { }
+    jsonObj.add("", JsonNull.createJsonNull());
+    jsonObj.add("   \t", JsonNull.createJsonNull());
   }
 
   public void testAddingBooleanProperties() throws Exception {
