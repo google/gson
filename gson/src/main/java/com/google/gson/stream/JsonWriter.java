@@ -384,43 +384,14 @@ public final class JsonWriter implements Closeable {
        * quotation mark, reverse solidus, and the control characters
        * (U+0000 through U+001F)."
        */
-      switch (c) {
-      case '"':
-      case '\\':
-      case '/':
+      if (c == '"' || c == '\\') {
         out.write('\\');
         out.write(c);
-        break;
-
-      case '\t':
-        out.write("\\t");
-        break;
-
-      case '\b':
-        out.write("\\b");
-        break;
-
-      case '\n':
-        out.write("\\n");
-        break;
-
-      case '\r':
-        out.write("\\r");
-        break;
-
-      case '\f':
-        out.write("\\f");
-        break;
-
-      default:
-        if (c <= 0x1F) {
-          out.write(String.format("\\u%04x", (int) c));
-        } else {
-          out.write(c);
-        }
-        break;
+      } else if (c <= 0x1F) {
+        out.write(String.format("\\u%04x", (int) c));
+      } else {
+        out.write(c);
       }
-
     }
     out.write("\"");
   }
