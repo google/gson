@@ -19,7 +19,8 @@ package com.google.gson.functional;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
-
+import java.util.ArrayList;
+import java.util.List;
 import junit.framework.TestCase;
 
 /**
@@ -43,6 +44,18 @@ public class EscapingTest extends TestCase {
     String[] target = gson.fromJson(jsonRepresentation, String[].class);
     assertEquals(1, target.length);
     assertEquals(valueWithQuotes[0], target[0]);
+  }
+
+  public void testEscapeAllHtmlCharacters() {
+    List<String> strings = new ArrayList<String>();
+    strings.add("<");
+    strings.add(">");
+    strings.add("=");
+    strings.add("&");
+    strings.add("'");
+    strings.add("\"");
+    assertEquals("[\"\\u003c\",\"\\u003e\",\"\\u003d\",\"\\u0026\",\"'\",\"\\\"\"]",
+        gson.toJson(strings));
   }
 
   public void testEscapingObjectFields() throws Exception {
