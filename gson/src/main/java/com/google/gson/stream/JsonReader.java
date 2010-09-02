@@ -748,7 +748,7 @@ public final class JsonReader implements Closeable {
       checkLenient();
       pos--;
       name = nextLiteral();
-      if (name.isEmpty()) {
+      if (name.length() == 0) {
         throw syntaxError("Expected name");
       }
     }
@@ -1071,7 +1071,7 @@ public final class JsonReader implements Closeable {
    */
   private JsonToken readLiteral() throws IOException {
     String literal = nextLiteral();
-    if (literal.isEmpty()) {
+    if (literal.length() == 0) {
       throw syntaxError("Expected literal value");
     }
     value = literal;

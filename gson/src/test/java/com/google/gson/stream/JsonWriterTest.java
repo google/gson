@@ -178,7 +178,7 @@ public final class JsonWriterTest extends TestCase {
     jsonWriter.value(Double.MIN_VALUE);
     jsonWriter.value(0.0);
     jsonWriter.value(-0.5);
-    jsonWriter.value(Double.MIN_NORMAL);
+    jsonWriter.value(2.2250738585072014E-308);
     jsonWriter.value(Math.PI);
     jsonWriter.value(Math.E);
     jsonWriter.endArray();
