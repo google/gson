@@ -443,7 +443,7 @@ public final class Gson {
   public <T> T fromJson(Reader json, Type typeOfT) throws JsonParseException {
     JsonReader jsonReader = new JsonReader(json);
     jsonReader.setLenient(true);
-    JsonElement root = GsonReader.parse(jsonReader);
+    JsonElement root = Streams.parse(jsonReader);
     return (T) fromJson(root, typeOfT);
   }
 
