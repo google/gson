@@ -17,13 +17,11 @@
 package com.google.gson;
 
 import com.google.gson.common.TestTypes.BagOfPrimitives;
-
 import com.google.gson.stream.JsonReader;
-import junit.framework.TestCase;
-
 import java.io.CharArrayReader;
 import java.io.CharArrayWriter;
 import java.io.StringReader;
+import junit.framework.TestCase;
 
 /**
  * Unit test for {@link JsonParser}
@@ -89,8 +87,8 @@ public class JsonParserTest extends TestCase {
   
     JsonReader parser = new JsonReader(reader);
     parser.setLenient(true);
-    JsonElement element1 = GsonReader.parse(parser);
-    JsonElement element2 = GsonReader.parse(parser);
+    JsonElement element1 = Streams.parse(parser);
+    JsonElement element2 = Streams.parse(parser);
     BagOfPrimitives actualOne = gson.fromJson(element1, BagOfPrimitives.class);
     assertEquals("one", actualOne.stringValue);
     BagOfPrimitives actualTwo = gson.fromJson(element2, BagOfPrimitives.class);
