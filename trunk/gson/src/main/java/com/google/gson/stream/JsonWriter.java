@@ -142,6 +142,8 @@ public final class JsonWriter implements Closeable {
 
   private boolean lenient;
 
+  private boolean htmlSafe;
+
   /**
    * Creates a new instance that writes a JSON-encoded stream to {@code out}.
    * For best performance, ensure {@link Writer} is buffered; wrapping in
@@ -186,6 +188,32 @@ public final class JsonWriter implements Closeable {
    */
   public void setLenient(boolean lenient) {
     this.lenient = lenient;
+  }
+
+  /**
+   * Returns true if this writer has relaxed syntax rules.
+   */
+  public boolean isLenient() {
+    return lenient;
+  }
+
+  /**
+   * Configure this writer to emit JSON that's safe for direct inclusion in HTML
+   * and XML documents. This escapes the HTML characters {@code <}, {@code >},
+   * {@code &} and {@code =} before writing them to the stream. Without this
+   * setting, your XML/HTML encoder should replace these characters with the
+   * corresponding escape sequences.
+   */
+  public void setHtmlSafe(boolean htmlSafe) {
+    this.htmlSafe = htmlSafe;
+  }
+
+  /**
+   * Returns true if this writer writes JSON that's safe for inclusion in HTML
+   * and XML documents.
+   */
+  public boolean isHtmlSafe() {
+    return htmlSafe;
   }
 
   /**
@@ -428,6 +456,18 @@ public final class JsonWriter implements Closeable {
 
       case '\f':
         out.write("\\f");
+        break;
+
+      case '<':
+      case '>':
+      case '&':
+      case '=':
+      case '\'':
+        if (htmlSafe) {
+          out.write(String.format("\\u%04x", (int) c));
+        } else {
+          out.write(c);
+        }
         break;
 
       default:

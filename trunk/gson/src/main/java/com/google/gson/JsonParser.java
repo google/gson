@@ -50,10 +50,20 @@ public final class JsonParser {
    * @since 1.3
    */
   public JsonElement parse(Reader json) throws JsonParseException {
+    return parse(new JsonReader(json));
+  }
+
+  /**
+   * Returns the next value from the JSON stream as a parse tree.
+   *
+   * @throws JsonParseException if there is an IOException or if the specified
+   *     text is not valid JSON
+   */
+  public JsonElement parse(JsonReader json) throws JsonParseException {
+    boolean lenient = json.isLenient();
+    json.setLenient(true);
     try {
-      JsonReader jsonReader = new JsonReader(json);
-      jsonReader.setLenient(true);
-      return Streams.parse(jsonReader);
+      return Streams.parse(json);
     } catch (StackOverflowError e) {
       throw new JsonParseException("Failed parsing JSON source: " + json + " to Json", e);
     } catch (OutOfMemoryError e) {
@@ -64,6 +74,8 @@ public final class JsonParser {
       } else {
         throw e;
       }
+    } finally {
+      json.setLenient(lenient);
     }
-  }  
+  }
 }
