@@ -53,7 +53,7 @@ public final class JsonParser {
     try {
       JsonReader jsonReader = new JsonReader(json);
       jsonReader.setLenient(true);
-      return GsonReader.parse(jsonReader);
+      return Streams.parse(jsonReader);
     } catch (StackOverflowError e) {
       throw new JsonParseException("Failed parsing JSON source: " + json + " to Json", e);
     } catch (OutOfMemoryError e) {
