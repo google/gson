@@ -54,7 +54,7 @@ public class EscapingTest extends TestCase {
     strings.add("&");
     strings.add("'");
     strings.add("\"");
-    assertEquals("[\"\\u003c\",\"\\u003e\",\"\\u003d\",\"\\u0026\",\"'\",\"\\\"\"]",
+    assertEquals("[\"\\u003c\",\"\\u003e\",\"\\u003d\",\"\\u0026\",\"\\u0027\",\"\\\"\"]",
         gson.toJson(strings));
   }
 

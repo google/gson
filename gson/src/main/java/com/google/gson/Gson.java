@@ -17,6 +17,7 @@
 package com.google.gson;
 
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -110,6 +111,7 @@ public final class Gson {
 
   private final JsonFormatter formatter;
   private final boolean serializeNulls;
+  private final boolean htmlSafe;
 
   private final boolean generateNonExecutableJson;
 
@@ -151,7 +153,7 @@ public final class Gson {
     this(DEFAULT_EXCLUSION_STRATEGY, DEFAULT_EXCLUSION_STRATEGY, DEFAULT_NAMING_POLICY,
     new MappedObjectConstructor(DefaultTypeAdapters.getDefaultInstanceCreators()),
     DEFAULT_JSON_FORMATTER, false, DefaultTypeAdapters.getDefaultSerializers(),
-    DefaultTypeAdapters.getDefaultDeserializers(), DEFAULT_JSON_NON_EXECUTABLE);
+    DefaultTypeAdapters.getDefaultDeserializers(), DEFAULT_JSON_NON_EXECUTABLE, true);
   }
 
   Gson(ExclusionStrategy serializationStrategy, ExclusionStrategy deserializationStrategy,
@@ -159,7 +161,7 @@ public final class Gson {
       JsonFormatter formatter, boolean serializeNulls,
       ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers,
       ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers,
-      boolean generateNonExecutableGson) {
+      boolean generateNonExecutableGson, boolean htmlSafe) {
     this.serializationStrategy = serializationStrategy;
     this.deserializationStrategy = deserializationStrategy;
     this.fieldNamingPolicy = fieldNamingPolicy;
@@ -169,6 +171,7 @@ public final class Gson {
     this.serializers = serializers;
     this.deserializers = deserializers;
     this.generateNonExecutableJson = generateNonExecutableGson;
+    this.htmlSafe = htmlSafe;
   }
 
   private ObjectNavigatorFactory createDefaultObjectNavigatorFactory(ExclusionStrategy strategy) {
@@ -268,7 +271,7 @@ public final class Gson {
    */
   public String toJson(Object src, Type typeOfSrc) {
     StringWriter writer = new StringWriter();
-    toJson(src, typeOfSrc, writer);
+    toJson(toJsonTree(src, typeOfSrc), writer);
     return writer.toString();
   }
 
@@ -318,6 +321,14 @@ public final class Gson {
   }
 
   /**
+   * Writes the JSON representation of {@code src} of type {@code typeOfSrc} to
+   * {@code writer}.
+   */
+  public void toJson(Object src, Type typeOfSrc, JsonWriter writer) {
+    toJson(toJsonTree(src, typeOfSrc), writer);
+  }
+
+  /**
    * Converts a tree of {@link JsonElement}s into its equivalent JSON representation.
    *
    * @param jsonElement root of a tree of {@link JsonElement}s
@@ -342,12 +353,27 @@ public final class Gson {
       if (generateNonExecutableJson) {
         writer.append(JSON_NON_EXECUTABLE_PREFIX);
       }
-      if (jsonElement == null && serializeNulls) {
-        writeOutNullString(writer);
-      }
-      formatter.format(jsonElement, writer, serializeNulls);
+      toJson(jsonElement, new JsonWriter(Streams.writerForAppendable(writer)));
     } catch (IOException e) {
       throw new RuntimeException(e);
+    }
+  }
+
+  /**
+   * Writes the JSON for {@code jsonElement} to {@code writer}.
+   */
+  public void toJson(JsonElement jsonElement, JsonWriter writer) {
+    boolean oldLenient = writer.isLenient();
+    writer.setLenient(true);
+    boolean oldHtmlSafe = writer.isHtmlSafe();
+    writer.setHtmlSafe(htmlSafe);
+    try {
+      Streams.write(jsonElement, serializeNulls, writer);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    } finally {
+      writer.setLenient(oldLenient);
+      writer.setHtmlSafe(oldHtmlSafe);
     }
   }
 
@@ -417,7 +443,7 @@ public final class Gson {
    * @since 1.2
    */
   public <T> T fromJson(Reader json, Class<T> classOfT) throws JsonParseException {
-    T target = classOfT.cast(fromJson(json, (Type) classOfT));
+    T target = classOfT.cast(fromJson(new JsonReader(json), classOfT));
     return target;
   }
 
@@ -439,12 +465,24 @@ public final class Gson {
    * @throws JsonParseException if json is not a valid representation for an object of type typeOfT
    * @since 1.2
    */
-  @SuppressWarnings("unchecked")
   public <T> T fromJson(Reader json, Type typeOfT) throws JsonParseException {
-    JsonReader jsonReader = new JsonReader(json);
-    jsonReader.setLenient(true);
-    JsonElement root = Streams.parse(jsonReader);
-    return (T) fromJson(root, typeOfT);
+    return this.<T>fromJson(new JsonReader(json), typeOfT);
+  }
+
+  /**
+   * Reads the next JSON value from {@code reader} and convert it to an object
+   * of type {@code typeOfT}.
+   */
+  @SuppressWarnings("unchecked") // this method is unsafe and should be used very carefully
+  public <T> T fromJson(JsonReader reader, Type typeOfT) throws JsonParseException {
+    boolean oldLenient = reader.isLenient();
+    reader.setLenient(true);
+    try {
+      JsonElement root = Streams.parse(reader);
+      return (T) fromJson(root, typeOfT);
+    } finally {
+      reader.setLenient(oldLenient);
+    }
   }
 
   /**

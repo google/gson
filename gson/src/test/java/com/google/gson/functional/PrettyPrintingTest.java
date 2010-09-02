@@ -59,34 +59,32 @@ public class PrettyPrintingTest extends TestCase {
     Type typeOfSrc = new TypeToken<List<BagOfPrimitives>>() {}.getType();
     String json = gson.toJson(listOfB, typeOfSrc);
     print(json);
-    assertPrintMargin(json);
   }
 
   public void testPrettyPrintArrayOfObjects() {
     ArrayOfObjects target = new ArrayOfObjects();
     String json = gson.toJson(target);
     print(json);
-    assertPrintMargin(json);
   }
 
   public void testPrettyPrintArrayOfPrimitives() {
     int[] ints = new int[] { 1, 2, 3, 4, 5 };
     String json = gson.toJson(ints);
-    assertEquals("[1,2,3,4,5]\n", json);
+    assertEquals("[1,2,3,4,5]", json);
   }
 
   public void testPrettyPrintArrayOfPrimitiveArrays() {
     int[][] ints = new int[][] { { 1, 2 }, { 3, 4 }, { 5, 6 }, { 7, 8 },
         { 9, 0 }, { 10 } };
     String json = gson.toJson(ints);
-    assertEquals("[[1,2],[3,4],[5,6],[7,8],[9,0],[10]]\n", json);
+    assertEquals("[[1,2],[3,4],[5,6],[7,8],[9,0],[10]]", json);
   }
 
   public void testPrettyPrintListOfPrimitiveArrays() {
     List<Integer[]> list = Arrays.asList(new Integer[][] { { 1, 2 }, { 3, 4 },
         { 5, 6 }, { 7, 8 }, { 9, 0 }, { 10 } });
     String json = gson.toJson(list);
-    assertEquals("[[1,2],[3,4],[5,6],[7,8],[9,0],[10]]\n", json);
+    assertEquals("[[1,2],[3,4],[5,6],[7,8],[9,0],[10]]", json);
   }
   
   public void testMap() {
@@ -94,7 +92,7 @@ public class PrettyPrintingTest extends TestCase {
     map.put("abc", 1);
     map.put("def", 5);
     String json = gson.toJson(map);
-    assertEquals("{\"abc\":1,\"def\":5}\n", json);
+    assertEquals("{\"abc\":1,\"def\":5}", json);
   }
 
   // In response to bug 153
@@ -114,24 +112,12 @@ public class PrettyPrintingTest extends TestCase {
   public void testMultipleArrays() {
     int[][][] ints = new int[][][] { { { 1 }, { 2 } } };
     String json = gson.toJson(ints);
-    assertEquals("[[[1],[2]]]\n", json);
+    assertEquals("[[[1],[2]]]", json);
   }
 
   private void print(String msg) {
     if (DEBUG) {
       System.out.println(msg);
-    }
-  }
-
-  private void assertPrintMargin(String str) {
-    int position = 0;
-    char[] chars = str.toCharArray();
-    for (int i = 0; i < chars.length; ++i, ++position) {
-      char c = chars[i];
-      if (c == '\n') {
-        position = 0;
-      }
-      assertTrue(position <= PRINT_MARGIN - RIGHT_MARGIN + 1);
     }
   }
 }
