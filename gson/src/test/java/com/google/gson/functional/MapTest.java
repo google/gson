@@ -312,4 +312,23 @@ public class MapTest extends TestCase {
     Map<String, Boolean> map = gson.fromJson("{\"\":true}", new TypeToken<Map<String, Boolean>>() {}.getType());
     assertEquals(Boolean.TRUE, map.get(""));
   }
+
+  /**
+   * From bug report http://code.google.com/p/google-gson/issues/detail?id=204
+   */
+  public void testSerializeMaps() {
+    Map<String, Object> map = new LinkedHashMap<String, Object>();
+    map.put("a", 12);
+    map.put("b", null);
+    map.put("c", new HashMap<String, Object>());
+
+    assertEquals("{\"a\":12,\"b\":null,\"c\":{}}",
+        new GsonBuilder().serializeNulls().setPrettyPrinting().create().toJson(map));
+    assertEquals("{\"a\":12,\"b\":null,\"c\":{}}",
+        new GsonBuilder().serializeNulls().create().toJson(map));
+    assertEquals("{\"a\":12,\"c\":{}}",
+        new GsonBuilder().setPrettyPrinting().create().toJson(map));
+    assertEquals("{\"a\":12,\"c\":{}}",
+        new GsonBuilder().create().toJson(map));
+  }
 }
