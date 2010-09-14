@@ -5,11 +5,11 @@
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.code.gson</groupId>
-  <artifactId>wsf</artifactId>
+  <artifactId>proto</artifactId>
   <packaging>jar</packaging>
   <version>0.1</version>
-  <name>Gson Web Service Framework</name>
-  <description>A Framework for JSON based Web-services</description>
+  <name>Gson Protobuf Support</name>
+  <description>Gson support for Protobufs</description>
   <distributionManagement>
     <repository>
       <id>local.repo</id>
@@ -37,9 +37,9 @@
     </license>
   </licenses>
   <scm>
-    <connection>scm:svn:http://google-gson.googlecode.com/svn/trunk/wsf</connection>
-    <developerConnection>scm:svn:https://google-gson.googlecode.com/svn/trunk/wsf</developerConnection>
-    <url>http://google-gson.codegoogle.com/svn/trunk/wsf</url>
+    <connection>scm:svn:http://google-gson.googlecode.com/svn/trunk/proto</connection>
+    <developerConnection>scm:svn:https://google-gson.googlecode.com/svn/trunk/proto</developerConnection>
+    <url>http://google-gson.codegoogle.com/svn/trunk/proto</url>
   </scm>
   <issueManagement>
     <system>Google Code Issue Tracking</system>
@@ -48,14 +48,6 @@
 
   <dependencies>
 
-    <!-- Google collections -->
-    <dependency>
-      <groupId>com.google.collections</groupId>
-      <artifactId>google-collections</artifactId>
-      <version>1.0</version>
-      <scope>compile</scope>
-    </dependency>
-
     <!--  Gson: Java to Json conversion -->
     <dependency>
       <groupId>com.google.code.gson</groupId>
@@ -63,33 +55,12 @@
       <version>1.5</version>
       <scope>compile</scope>
     </dependency>
-    <dependency>
-      <groupId>com.google.code.gson</groupId>
-      <artifactId>wsdef</artifactId>
-      <version>0.1</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.google.code.gson</groupId>
-      <artifactId>wsclient</artifactId>
-      <version>0.1</version>
-      <scope>compile</scope>
-    </dependency>
 
-    <!-- Guice: Dependency injection -->
     <dependency>
-      <groupId>com.google.inject</groupId>
-      <artifactId>guice</artifactId>
-      <version>2.0</version>
+      <groupId>com.google.protobuf</groupId>
+      <artifactId>protobuf-java</artifactId>
+      <version>2.3.0</version>
       <scope>compile</scope>
-    </dependency>
-
-    <!-- Servlet & Jsp -->
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>2.4</version>
-      <scope>provided</scope>
     </dependency>
 
     <dependency>
@@ -101,8 +72,36 @@
   </dependencies>
 
   <build>
-    <finalName>wsf</finalName>
+    <finalName>gson-proto</finalName>
     <plugins>
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>compile-protoc</id>
+            <phase>generate-sources</phase>
+            <configuration>
+              <tasks>
+                <mkdir dir="target/generated" />
+                <path id="proto.path">
+                  <fileset dir="src/main/protobuf">
+                    <include name="**/*.proto" />
+                  </fileset>
+                </path>
+                <pathconvert pathsep=" " property="proto.files" refid="proto.path" />
+                <exec executable="protoc" failonerror="true">
+                  <arg value="--java_out=src/main/java" />
+                  <arg value="-I${project.basedir}/src/main/protobuf" />
+                  <arg line="${proto.files}" />
+                </exec>
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -136,7 +135,7 @@
           <version>${version}</version>
           <packaging>jar</packaging>
           <classifier>sources</classifier>
-          <file>target/wsf-sources.jar</file>          
+          <file>target/proto-sources.jar</file>
         </configuration -->
       </plugin>
       <plugin>
@@ -236,7 +235,7 @@
         <version>2.2-beta-2</version>
         <configuration>
           <descriptor>src/main/resources/assembly-descriptor.xml</descriptor>
-          <finalName>wsf-${version}</finalName>
+          <finalName>proto-${version}</finalName>
           <outputDirectory>target/dist</outputDirectory>
           <workDirectory>target/assembly/work</workDirectory>
         </configuration>
@@ -246,10 +245,6 @@
   <developers>
     <developer>
       <name>Inderjeet Singh</name>
-      <organization>Google Inc.</organization>
-    </developer>
-    <developer>
-      <name>Joel Leitch</name>
       <organization>Google Inc.</organization>
     </developer>
   </developers>
