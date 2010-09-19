@@ -34,7 +34,7 @@ import com.google.gson.webservice.definition.rest.RestResponse;
  * 
  * @author inder
  */
-public final class RestClient {
+public class RestClient {
   private final WebServiceConfig config;
   private final Logger logger;
   private final Level logLevel;

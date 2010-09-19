@@ -43,6 +43,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author inder
  */
+@SuppressWarnings("serial")
 public class MainServlet extends HttpServlet {
   @Override
   public void service(HttpServletRequest req, HttpServletResponse res) {
