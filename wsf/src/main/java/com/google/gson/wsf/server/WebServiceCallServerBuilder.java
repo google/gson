@@ -21,7 +21,9 @@ import com.google.gson.webservice.definition.WebServiceResponse.Builder;
 
 public class WebServiceCallServerBuilder {
 
-  public WebServiceCallServerBuilder(WebServiceCallSpec callSpec,
-      WebServiceRequest wsRequest, Builder responseBuilder) {
+  public WebServiceCallServerBuilder(
+      @SuppressWarnings("unused") WebServiceCallSpec callSpec,
+      @SuppressWarnings("unused") WebServiceRequest wsRequest,
+      @SuppressWarnings("unused") Builder responseBuilder) {
   }
 }

@@ -37,8 +37,8 @@ final class Streams {
         dst.write(buf, 0, count);
       }
     } finally {
-      src.close();
-      dst.close();
+      if (closeInput) src.close();
+      if (closeOutput) dst.close();
     }
   }
 }
