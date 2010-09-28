@@ -51,9 +51,9 @@ final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisito
       // this typecasting is safe.
       return (T) objectConstructor.constructArray(arrayTypeInfo.getSecondLevelType(),
           jsonArray.size());
-    } else { // is a collection
-      return (T) objectConstructor.construct(typeInfo.getRawClass());
     }
+    // is a collection
+    return (T) objectConstructor.construct(typeInfo.getRawClass());
   }
 
   public void visitArray(Object array, Type arrayType) {

@@ -152,17 +152,16 @@ final class ObjectNavigator {
       if (exclusionStrategy.shouldSkipField(fieldAttributes)
           || exclusionStrategy.shouldSkipClass(fieldAttributes.getDeclaredClass())) {
         continue; // skip
-      } else {
-        TypeInfo fieldTypeInfo = TypeInfoFactory.getTypeInfoForField(f, objTypePair.type);
-        Type declaredTypeOfField = fieldTypeInfo.getActualType();
-        boolean visitedWithCustomHandler =
-            visitor.visitFieldUsingCustomHandler(fieldAttributes, declaredTypeOfField, obj);
-        if (!visitedWithCustomHandler) {
-          if (fieldTypeInfo.isArray()) {
-            visitor.visitArrayField(fieldAttributes, declaredTypeOfField, obj);
-          } else {
-            visitor.visitObjectField(fieldAttributes, declaredTypeOfField, obj);
-          }
+      }
+      TypeInfo fieldTypeInfo = TypeInfoFactory.getTypeInfoForField(f, objTypePair.type);
+      Type declaredTypeOfField = fieldTypeInfo.getActualType();
+      boolean visitedWithCustomHandler =
+        visitor.visitFieldUsingCustomHandler(fieldAttributes, declaredTypeOfField, obj);
+      if (!visitedWithCustomHandler) {
+        if (fieldTypeInfo.isArray()) {
+          visitor.visitArrayField(fieldAttributes, declaredTypeOfField, obj);
+        } else {
+          visitor.visitObjectField(fieldAttributes, declaredTypeOfField, obj);
         }
       }
     }

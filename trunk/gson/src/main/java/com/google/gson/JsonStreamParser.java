@@ -88,11 +88,7 @@ public final class JsonStreamParser implements Iterator<JsonElement> {
     } catch (OutOfMemoryError e) {
       throw new JsonParseException("Failed parsing JSON source to Json", e);
     } catch (JsonParseException e) {
-      if (e.getCause() instanceof EOFException) {
-        throw new NoSuchElementException();
-      } else {
-        throw e;
-      }
+      throw e.getCause() instanceof EOFException ? new NoSuchElementException() : e;
     }
   }
 

@@ -56,12 +56,11 @@ final class GenericArrayTypeImpl implements GenericArrayType {
   public boolean equals(Object o) {
     if (!(o instanceof  GenericArrayType)) {
       return false;
-    } else {
-      GenericArrayType that = (GenericArrayType) o;
-      Type thatComponentType = that.getGenericComponentType();
-      return genericComponentType == null ?
-          thatComponentType == null : genericComponentType.equals(thatComponentType);
     }
+    GenericArrayType that = (GenericArrayType) o;
+    Type thatComponentType = that.getGenericComponentType();
+    return genericComponentType == null ?
+        thatComponentType == null : genericComponentType.equals(thatComponentType);
   }
 
   @Override

@@ -72,13 +72,10 @@ final class TypeInfoFactory {
       Type actualType = getActualType(componentType, parentType, rawParentClass);
       if (componentType.equals(actualType)) {
         return castedType;
-      } else {
-        if (actualType instanceof Class<?>) {
-          return TypeUtils.wrapWithArray(TypeUtils.toRawClass(actualType));
-        } else {
-          return new GenericArrayTypeImpl(actualType);
-        }
       }
+      return actualType instanceof Class<?> ?
+          TypeUtils.wrapWithArray(TypeUtils.toRawClass(actualType))
+          : new GenericArrayTypeImpl(actualType);
     } else if (typeToEvaluate instanceof TypeVariable<?>) {
       if (parentType instanceof ParameterizedType) {
         // The class definition has the actual types used for the type variables.
@@ -93,11 +90,10 @@ final class TypeInfoFactory {
         int indexOfActualTypeArgument = getIndex(classTypeVariables, fieldTypeVariable);
         Type[] actualTypeArguments = objParameterizedType.getActualTypeArguments();
         return actualTypeArguments[indexOfActualTypeArgument];
-      } else {
-        throw new UnsupportedOperationException("Expecting parameterized type, got " + parentType
-            + ".\n Are you missing the use of TypeToken idiom?\n See " 
-            + "http://sites.google.com/site/gson/gson-user-guide#TOC-Serializing-and-Deserializing-Gener");
       }
+      throw new UnsupportedOperationException("Expecting parameterized type, got " + parentType
+          + ".\n Are you missing the use of TypeToken idiom?\n See " 
+          + "http://sites.google.com/site/gson/gson-user-guide#TOC-Serializing-and-Deserializing-Gener");
     } else if (typeToEvaluate instanceof WildcardType) {
       WildcardType castedType = (WildcardType) typeToEvaluate;
       return getActualType(castedType.getUpperBounds()[0], parentType, rawParentClass);

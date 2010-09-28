@@ -40,12 +40,8 @@ final class TypeInfoArray extends TypeInfo {
   }
 
   private static Type extractSecondLevelType(Type actualType, Class<?> rawClass) {
-    if (actualType instanceof GenericArrayType) {
-      GenericArrayType castedType = (GenericArrayType) actualType;
-      return castedType.getGenericComponentType();
-    } else {
-      return rawClass.getComponentType();
-    }
+    return actualType instanceof GenericArrayType ?
+        ((GenericArrayType) actualType).getGenericComponentType() : rawClass.getComponentType();
   }
 
   /**

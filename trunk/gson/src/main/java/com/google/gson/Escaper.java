@@ -127,9 +127,8 @@ class Escaper {
       char c = (char) codepoint;
       return JS_ESCAPE_CHARS.contains(c)
           || (escapeHtmlCharacters && HTML_ESCAPE_CHARS.contains(c));
-    } else {
-      return false;
     }
+    return false;
   }
 
   private static boolean isControlCharacter(int codePoint) {

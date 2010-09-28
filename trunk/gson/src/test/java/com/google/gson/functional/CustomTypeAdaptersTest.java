@@ -233,10 +233,9 @@ public class CustomTypeAdaptersTest extends TestCase {
         customDeserializerInvoked.value = true;
         if (json == null || json.isJsonNull()) {
           return null;
-        } else {
-          Number number = json.getAsJsonPrimitive().getAsNumber();
-          return number == null ? null : number.longValue();
         }
+        Number number = json.getAsJsonPrimitive().getAsNumber();
+        return number == null ? null : number.longValue();
       }      
     }).create();
     String json = "{'value':null}";
