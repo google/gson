@@ -381,9 +381,8 @@ public final class JsonReader implements Closeable {
         JsonToken token = nextValue();
         if (lenient) {
           return token;
-        } else {
-          throw syntaxError("Expected EOF");
         }
+        throw syntaxError("Expected EOF");
       } catch (EOFException e) {
         hasToken = true; // TODO: avoid throwing here?
         return token = JsonToken.END_DOCUMENT;

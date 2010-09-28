@@ -223,7 +223,7 @@ public final class MixedStreamTest extends TestCase {
       this.color = color;
     }
 
-    @SuppressWarnings("unused") // used by Gson
+    // used by Gson
     Car() {}
 
     @Override public int hashCode() {

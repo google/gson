@@ -39,9 +39,8 @@ final class PrimitiveTypeAdapter {
         String value = from.toString();
         if (value.length() == 1) {
           return (T) (Character) from.toString().charAt(0);
-        } else {
-          throw new JsonParseException("The value: " + value + " contains more than a character.");
         }
+        throw new JsonParseException("The value: " + value + " contains more than a character.");
       }
 
       try {

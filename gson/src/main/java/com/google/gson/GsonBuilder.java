@@ -542,10 +542,8 @@ public final class GsonBuilder {
 
     MappedObjectConstructor objConstructor = new MappedObjectConstructor(customInstanceCreators);
 
-    JsonFormatter formatter =  prettyPrinting ?
-        new JsonPrintFormatter(escapeHtmlChars) : new JsonCompactFormatter(escapeHtmlChars);
     Gson gson = new Gson(serializationExclusionStrategy, deserializationExclusionStrategy,
-        fieldNamingPolicy, objConstructor, formatter, serializeNulls, customSerializers,
+        fieldNamingPolicy, objConstructor, serializeNulls, customSerializers,
         customDeserializers, generateNonExecutableJson, escapeHtmlChars);
     return gson;
   }

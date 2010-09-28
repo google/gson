@@ -121,11 +121,7 @@ public final class JsonObject extends JsonElement {
    * @return a {@link JsonPrimitive} if the {@code value} is not null, otherwise a {@link JsonNull}
    */
   private JsonElement createJsonElement(Object value) {
-    if (value == null) {
-      return JsonNull.createJsonNull();
-    } else {
-      return new JsonPrimitive(value);
-    }
+    return value == null ? JsonNull.createJsonNull() : new JsonPrimitive(value);
   }
 
   /**
@@ -158,9 +154,8 @@ public final class JsonObject extends JsonElement {
     if (members.containsKey(memberName)) {
       JsonElement member = members.get(memberName);
       return member == null ? JsonNull.createJsonNull() : member;
-    } else {
-      return null;
     }
+    return null;
   }
 
   /**

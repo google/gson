@@ -50,8 +50,7 @@ class JsonFieldNameValidator {
     Matcher matcher = JSON_FIELD_NAME_PATTERN.matcher(fieldName);
     if (!matcher.matches()) {
       throw new IllegalArgumentException(fieldName + " is not a valid JSON field name.");
-    } else {
-      return fieldName;
     }
+    return fieldName;
   }
 }

@@ -71,9 +71,8 @@ public final class JsonParser {
     } catch (JsonParseException e) {
       if (e.getCause() instanceof EOFException) {
         return JsonNull.createJsonNull();
-      } else {
-        throw e;
       }
+      throw e;
     } finally {
       json.setLenient(lenient);
     }
