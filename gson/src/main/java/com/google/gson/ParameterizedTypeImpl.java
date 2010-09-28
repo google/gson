@@ -68,19 +68,18 @@ final class ParameterizedTypeImpl implements ParameterizedType {
   public boolean equals(Object o) {
     if (!(o instanceof  ParameterizedType)) {
       return false;
-    } else {
-      // Check that information is equivalent
-      ParameterizedType that = (ParameterizedType) o;
-      if (this  == that)
-      return true;
-
-      Type thatOwner = that.getOwnerType();
-      Type thatRawType = that.getRawType();
-
-      return (owner == null ? thatOwner == null : owner.equals(thatOwner))
-          && (rawType == null ? thatRawType == null : rawType.equals(thatRawType))
-          && Arrays.equals(actualTypeArguments, that.getActualTypeArguments());
     }
+    // Check that information is equivalent
+    ParameterizedType that = (ParameterizedType) o;
+    if (this  == that) {
+      return true;
+    }
+    Type thatOwner = that.getOwnerType();
+    Type thatRawType = that.getRawType();
+
+    return (owner == null ? thatOwner == null : owner.equals(thatOwner))
+      && (rawType == null ? thatRawType == null : rawType.equals(thatRawType))
+      && Arrays.equals(actualTypeArguments, that.getActualTypeArguments());
   }
 
   @Override

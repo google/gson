@@ -126,11 +126,7 @@ public final class JsonPrimitive extends JsonElement {
    */
   @Override
   public boolean getAsBoolean() {
-    if (isBoolean()) {
-      return getAsBooleanWrapper().booleanValue();
-    } else {
-      return Boolean.parseBoolean(getAsString());
-    }
+    return isBoolean() ? getAsBooleanWrapper().booleanValue() : Boolean.parseBoolean(getAsString());
   }
 
   /**
@@ -158,9 +154,8 @@ public final class JsonPrimitive extends JsonElement {
       long longValue = Long.parseLong(value);
       if (longValue >= Integer.MIN_VALUE && longValue <= Integer.MAX_VALUE) {
         return (int) longValue;
-      } else {
-        return longValue;
       }
+      return longValue;
     } catch (NumberFormatException ignored) {
     }
 
@@ -205,11 +200,7 @@ public final class JsonPrimitive extends JsonElement {
    */
   @Override
   public double getAsDouble() {
-    if (isNumber()) {
-      return getAsNumber().doubleValue();
-    } else {
-      return Double.parseDouble(getAsString());
-    }
+    return isNumber() ? getAsNumber().doubleValue() : Double.parseDouble(getAsString());
   }
 
   /**
@@ -220,11 +211,7 @@ public final class JsonPrimitive extends JsonElement {
    */
   @Override
   public BigDecimal getAsBigDecimal() {
-    if (value instanceof BigDecimal) {
-      return (BigDecimal) value;
-    } else {
-      return new BigDecimal(value.toString());
-    }
+    return value instanceof BigDecimal ? (BigDecimal) value : new BigDecimal(value.toString());
   }
 
   /**
@@ -235,11 +222,7 @@ public final class JsonPrimitive extends JsonElement {
    */
   @Override
   public BigInteger getAsBigInteger() {
-    if (value instanceof BigInteger) {
-      return (BigInteger) value;
-    } else {
-      return new BigInteger(value.toString());
-    }
+    return value instanceof BigInteger ? (BigInteger) value : new BigInteger(value.toString());
   }
 
   /**
@@ -250,11 +233,7 @@ public final class JsonPrimitive extends JsonElement {
    */
   @Override
   public float getAsFloat() {
-    if (isNumber()) {
-      return getAsNumber().floatValue();
-    } else {
-      return Float.parseFloat(getAsString());
-    }
+    return isNumber() ? getAsNumber().floatValue() : Float.parseFloat(getAsString());
   }
 
   /**
@@ -265,11 +244,7 @@ public final class JsonPrimitive extends JsonElement {
    */
   @Override
   public long getAsLong() {
-    if (isNumber()) {
-      return getAsNumber().longValue();
-    } else {
-      return Long.parseLong(getAsString());
-    }
+    return isNumber() ? getAsNumber().longValue() : Long.parseLong(getAsString());
   }
 
   /**
@@ -280,11 +255,7 @@ public final class JsonPrimitive extends JsonElement {
    */
   @Override
   public short getAsShort() {
-    if (isNumber()) {
-      return getAsNumber().shortValue();
-    } else {
-      return Short.parseShort(getAsString());
-    }
+    return isNumber() ? getAsNumber().shortValue() : Short.parseShort(getAsString());
   }
 
  /**
@@ -295,20 +266,12 @@ public final class JsonPrimitive extends JsonElement {
   */
   @Override
   public int getAsInt() {
-    if (isNumber()) {
-      return getAsNumber().intValue();
-    } else {
-      return Integer.parseInt(getAsString());
-    }
+    return isNumber() ? getAsNumber().intValue() : Integer.parseInt(getAsString());
   }
 
   @Override
   public byte getAsByte() {
-    if (isNumber()) {
-      return getAsNumber().byteValue();
-    } else {
-      return Byte.parseByte(getAsString());
-    }
+    return isNumber() ? getAsNumber().byteValue() : Byte.parseByte(getAsString());
   }
 
   @Override

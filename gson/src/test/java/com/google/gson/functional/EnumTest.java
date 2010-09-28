@@ -16,19 +16,17 @@
 
 package com.google.gson.functional;
 
-import com.google.gson.Gson;
-import com.google.gson.common.MoreAsserts;
-import com.google.gson.reflect.TypeToken;
-
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
-import junit.framework.TestCase;
-
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
+import java.util.Set;
+
+import junit.framework.TestCase;
+
+import com.google.gson.Gson;
+import com.google.gson.common.MoreAsserts;
+import com.google.gson.reflect.TypeToken;
 
 /**
  * Functional tests for Java 5.0 enums.

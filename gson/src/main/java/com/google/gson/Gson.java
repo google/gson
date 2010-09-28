@@ -87,7 +87,6 @@ public final class Gson {
       new SyntheticFieldExclusionStrategy(true);
   static final ModifierBasedExclusionStrategy DEFAULT_MODIFIER_BASED_EXCLUSION_STRATEGY =
       new ModifierBasedExclusionStrategy(new int[] { Modifier.TRANSIENT, Modifier.STATIC });
-  static final JsonFormatter DEFAULT_JSON_FORMATTER = new JsonCompactFormatter();
   static final FieldNamingStrategy2 DEFAULT_NAMING_POLICY =
       new SerializedNameAnnotationInterceptingNamingPolicy(new JavaFieldNamingPolicy());
 
@@ -109,7 +108,6 @@ public final class Gson {
   /** Map containing Type or Class objects as keys */
   private final ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers;
 
-  private final JsonFormatter formatter;
   private final boolean serializeNulls;
   private final boolean htmlSafe;
 
@@ -152,21 +150,19 @@ public final class Gson {
   public Gson() {
     this(DEFAULT_EXCLUSION_STRATEGY, DEFAULT_EXCLUSION_STRATEGY, DEFAULT_NAMING_POLICY,
     new MappedObjectConstructor(DefaultTypeAdapters.getDefaultInstanceCreators()),
-    DEFAULT_JSON_FORMATTER, false, DefaultTypeAdapters.getDefaultSerializers(),
+    false, DefaultTypeAdapters.getDefaultSerializers(),
     DefaultTypeAdapters.getDefaultDeserializers(), DEFAULT_JSON_NON_EXECUTABLE, true);
   }
 
   Gson(ExclusionStrategy serializationStrategy, ExclusionStrategy deserializationStrategy,
       FieldNamingStrategy2 fieldNamingPolicy, MappedObjectConstructor objectConstructor,
-      JsonFormatter formatter, boolean serializeNulls,
-      ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers,
+      boolean serializeNulls, ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers,
       ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers,
       boolean generateNonExecutableGson, boolean htmlSafe) {
     this.serializationStrategy = serializationStrategy;
     this.deserializationStrategy = deserializationStrategy;
     this.fieldNamingPolicy = fieldNamingPolicy;
     this.objectConstructor = objectConstructor;
-    this.formatter = formatter;
     this.serializeNulls = serializeNulls;
     this.serializers = serializers;
     this.deserializers = deserializers;

@@ -161,9 +161,8 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
       if (element != null) {
         assignToRoot(element);
         return true;
-      } else {
-        return false;
       }
+      return false;
     } catch (CircularReferenceException e) {
       throw e.createDetailedException(null);
     }
@@ -205,9 +204,8 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
       if (child != null) {
         addChildAsElement(f, child);
         return true;
-      } else {
-        return false;
       }
+      return false;
     } catch (IllegalAccessException e) {
       throw new RuntimeException();
     } catch (CircularReferenceException e) {
