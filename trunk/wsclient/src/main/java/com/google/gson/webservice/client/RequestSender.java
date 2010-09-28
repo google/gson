@@ -69,9 +69,7 @@ public final class RequestSender {
       String contentLength = String.valueOf(requestBodyContents.length());
       setHeader(conn, "Content-Length", contentLength, true);
       addRequestParams(conn, request.getHeaders());
-      if (requestBodyContents != null) {
-        Streams.copy(requestBodyContents, conn.getOutputStream(), false);
-      }
+      Streams.copy(requestBodyContents, conn.getOutputStream(), false);
       
       // Initiate the sending of the request.
       conn.connect();

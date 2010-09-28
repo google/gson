@@ -61,17 +61,15 @@ public final class RestRequestSender {
       R requestBody = request.getBody();
       String requestBodyContents = "";
       // Android Java VM ignore Content-Length if setDoOutput is not set
-      conn.setDoOutput(true);    
+      conn.setDoOutput(true);
       if (requestBody != null) {
         requestBodyContents = gson.toJson(requestBody);
       }
       String contentLength = String.valueOf(requestBodyContents.length());
       setHeader(conn, "Content-Length", contentLength, true);
       addRequestParams(conn, request.getHeaders());
-      if (requestBodyContents != null) {
-        Streams.copy(requestBodyContents, conn.getOutputStream(), false);
-      }
-      
+      Streams.copy(requestBodyContents, conn.getOutputStream(), false);
+
       // Initiate the sending of the request.
       conn.connect();
     } catch (IOException e) {
