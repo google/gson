@@ -72,17 +72,32 @@ public class RestClient {
         logger.log(logLevel, "Opening connection to " + webServiceUrl);
       }
       conn = (HttpURLConnection) webServiceUrl.openConnection();
+      return getResponse(callSpec, request, gson, conn);
+    } catch (IOException e) {
+      throw new WebServiceSystemException(e);
+    } finally {
+      closeIgnoringErrors(conn);
+    }
+  }
+
+  /**
+   * Use this method if you want to mange the HTTP Connection yourself. This is useful when you
+   * want to use HTTP pipelining.
+   */
+  public <R> RestResponse<R> getResponse(
+      RestCallSpec<R> callSpec, RestRequest<R> request, Gson gson, HttpURLConnection conn) {
+    try {
+      if (logger != null) {
+        URL webServiceUrl = getWebServiceUrl(callSpec);
+        logger.log(logLevel, "Opening connection to " + webServiceUrl);
+      }
       RestRequestSender requestSender = new RestRequestSender(gson, logLevel);
       requestSender.send(conn, request);
       RestResponseReceiver<R> responseReceiver =
         new RestResponseReceiver<R>(gson, callSpec.getResponseSpec(), logLevel);
       return responseReceiver.receive(conn);
-    } catch (IOException e) {
-      throw new WebServiceSystemException(e);
     } catch (IllegalArgumentException e) {
       throw new WebServiceSystemException(e);
-    } finally {
-      closeIgnoringErrors(conn);
     }
   }
   
