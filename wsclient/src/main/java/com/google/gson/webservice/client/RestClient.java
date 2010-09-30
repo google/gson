@@ -65,12 +65,13 @@ public class RestClient {
 
   public <R> RestResponse<R> getResponse(
       RestCallSpec<R> callSpec, RestRequest<R> request, Gson gson) {
+    HttpURLConnection conn = null;
     try {
       URL webServiceUrl = getWebServiceUrl(callSpec);
       if (logger != null) {
         logger.log(logLevel, "Opening connection to " + webServiceUrl);
       }
-      HttpURLConnection conn = (HttpURLConnection) webServiceUrl.openConnection();
+      conn = (HttpURLConnection) webServiceUrl.openConnection();
       RestRequestSender requestSender = new RestRequestSender(gson, logLevel);
       requestSender.send(conn, request);
       RestResponseReceiver<R> responseReceiver =
@@ -80,9 +81,17 @@ public class RestClient {
       throw new WebServiceSystemException(e);
     } catch (IllegalArgumentException e) {
       throw new WebServiceSystemException(e);
+    } finally {
+      closeIgnoringErrors(conn);
     }
   }
   
+  private static void closeIgnoringErrors(HttpURLConnection conn) {
+    if (conn != null) {
+      conn.disconnect();
+    }
+  }
+
   @Override
   public String toString() {
     return String.format("config:%s", config);
