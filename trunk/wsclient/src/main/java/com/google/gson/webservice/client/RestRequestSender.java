@@ -27,6 +27,7 @@ import com.google.gson.webservice.definition.HeaderMap;
 import com.google.gson.webservice.definition.HeaderMapSpec;
 import com.google.gson.webservice.definition.WebServiceSystemException;
 import com.google.gson.webservice.definition.rest.RestRequest;
+import com.google.gson.webservice.definition.rest.RestResource;
 
 /**
  * Class to send Web service requests on a {@link HttpURLConnection}.
@@ -48,7 +49,7 @@ public final class RestRequestSender {
     this.logLevel = logLevel;
   }
   
-  public <R> void send(HttpURLConnection conn, RestRequest<R> request) {    
+  public <R extends RestResource<R>> void send(HttpURLConnection conn, RestRequest<R> request) {    
     try {
       conn.setRequestMethod(request.getHttpMethod().toString());
       setHeader(conn, "Content-Type", request.getContentType(), true);
@@ -63,7 +64,7 @@ public final class RestRequestSender {
       // Android Java VM ignore Content-Length if setDoOutput is not set
       conn.setDoOutput(true);
       if (requestBody != null) {
-        requestBodyContents = gson.toJson(requestBody);
+        requestBodyContents = gson.toJson(requestBody, request.getSpec().getResourceType());
       }
       String contentLength = String.valueOf(requestBodyContents.length());
       setHeader(conn, "Content-Length", contentLength, true);
