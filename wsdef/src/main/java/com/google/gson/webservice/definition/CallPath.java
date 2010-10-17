@@ -45,16 +45,7 @@ public final class CallPath {
     if (obj == null) {
       return false;
     }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    CallPath other = (CallPath) obj;
-    if (path == null && other.path != null) { 
-      return false;
-    } else if (!path.equals(other.path)) {
-      return false;
-    }
-    return true;
+    return getClass() == obj.getClass() && path == ((CallPath)obj).path;
   }
   
   @Override
