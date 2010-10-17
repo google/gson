@@ -15,6 +15,8 @@
  */
 package com.google.gson.webservice.definition.rest;
 
+import java.lang.reflect.Type;
+
 import com.google.gson.webservice.definition.HeaderMap;
 import com.google.gson.webservice.definition.TypedKey;
 
@@ -24,52 +26,50 @@ import com.google.gson.webservice.definition.TypedKey;
  * 
  * @author inder
  */
-public final class RestResponse<R> {
+public final class RestResponse<R extends RestResource<R>> {
   
   private final HeaderMap headers;
   private final R body;
-  private final RestResponseSpec<R> spec;
+  private final RestResponseSpec spec;
   
-  public static class Builder<R> {
+  public static class Builder<RS extends RestResource<RS>> {
     private final HeaderMap.Builder headers;
-    private R body;
-    private final RestResponseSpec<R> spec;
+    private RS body;
+    private final RestResponseSpec spec;
     
-    public Builder(RestResponseSpec<R> spec) {
+    public Builder(RestResponseSpec spec) {
       this.spec = spec;
       headers = new HeaderMap.Builder(spec.getHeadersSpec());
     }
     
-    public <T> Builder<R> putHeader(TypedKey<T> paramName, T content) {
+    public <T> Builder<RS> putHeader(TypedKey<T> paramName, T content) {
       headers.put(paramName.getName(), content, paramName.getClassOfT());
       return this;
     }
     
-    public Builder<R> setBody(R body) {
+    public Builder<RS> setBody(RS body) {
       this.body = body;
       return this;
     }
 
-    public RestResponse<R> build() {
-      return new RestResponse<R>(spec, headers.build(), body);
+    public RestResponse<RS> build() {
+      return new RestResponse<RS>(spec, headers.build(), body);
     }
   }
   
-  private RestResponse(RestResponseSpec<R> spec, HeaderMap headers, R body) {
+  private RestResponse(RestResponseSpec spec, HeaderMap headers, R body) {
     this.spec = spec;
     this.headers = headers;
     this.body = body;
   }
   
-  @SuppressWarnings("unchecked")
-  public RestResponse(HeaderMap responseHeaders, R responseBody) {
-    this.spec = new RestResponseSpec<R>(responseHeaders.getSpec(),
-        (Class<R>)responseBody.getClass());
+  public RestResponse(HeaderMap responseHeaders, R responseBody, Type responseBodyType) {
+    this.spec = new RestResponseSpec(responseHeaders.getSpec(), responseBodyType);
     this.headers = responseHeaders;
     this.body = responseBody;
   }
 
-  public RestResponseSpec<R> getSpec() {
+  public RestResponseSpec getSpec() {
     return spec;
   }
 

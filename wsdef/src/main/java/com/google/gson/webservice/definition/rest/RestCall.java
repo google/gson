@@ -21,19 +21,19 @@ package com.google.gson.webservice.definition.rest;
  * 
  * @author inder
  */
-public final class RestCall<R> {
+public final class RestCall<R extends RestResource<R>> {
   
-  private final RestCallSpec<R> callSpec;
+  private final RestCallSpec callSpec;
   private final RestRequest<R> request;
   private final RestResponse<R> response;
   
-  public RestCall(RestCallSpec<R> callSpec, RestRequest<R> request, RestResponse<R> response) {
+  public RestCall(RestCallSpec callSpec, RestRequest<R> request, RestResponse<R> response) {
     this.callSpec = callSpec;
     this.request = request;
     this.response = response;
   }
 
-  public RestCallSpec<R> getSpec() {
+  public RestCallSpec getSpec() {
     return callSpec;
   }
   

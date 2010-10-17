@@ -32,18 +32,19 @@ import com.google.gson.webservice.definition.HttpMethod;
 import com.google.gson.webservice.definition.WebServiceSystemException;
 import com.google.gson.webservice.definition.rest.RestRequest;
 import com.google.gson.webservice.definition.rest.RestRequestSpec;
+import com.google.gson.webservice.definition.rest.RestResource;
 
 /**
  * Receives and parses a request at the server side on a {@link HttpServletRequest}.  
  * 
  * @author inder
  */
-public final class RestRequestReceiver<R> {
+public final class RestRequestReceiver<R extends RestResource<R>> {
 
   private final Gson gson;
-  private final RestRequestSpec<R> spec;
+  private final RestRequestSpec spec;
 
-  public RestRequestReceiver(Gson gson, RestRequestSpec<R> spec) {
+  public RestRequestReceiver(Gson gson, RestRequestSpec spec) {
     this.gson = gson;
     this.spec = spec;
   }
@@ -54,7 +55,7 @@ public final class RestRequestReceiver<R> {
       R requestBody = buildRequestBody(request);
       
       HttpMethod method = HttpMethod.getMethod(request.getMethod());
-      return new RestRequest<R>(method, requestParams, requestBody, spec.getResourceClass());
+      return new RestRequest<R>(method, requestParams, requestBody, spec.getResourceType());
     } catch (IOException e) {
       throw new WebServiceSystemException(e);
     } catch (JsonParseException e) {
@@ -83,9 +84,8 @@ public final class RestRequestReceiver<R> {
   }
   
   private R buildRequestBody(HttpServletRequest request) throws IOException {
-    Class<R> resourceClass = spec.getResourceClass();
     Reader reader = new BufferedReader(new InputStreamReader(request.getInputStream()));
-    R requestBody = gson.fromJson(reader, resourceClass);
+    R requestBody = gson.fromJson(reader, spec.getResourceType());
     return requestBody;
   }
 }

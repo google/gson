@@ -28,10 +28,11 @@ import com.google.gson.webservice.definition.CallPath;
 public final class ResourceMap {
 
   public static final class Builder {
-    private final Map<CallPath, RestCallSpec<?>> resources =
-      new HashMap<CallPath, RestCallSpec<?>>();
+    private final Map<CallPath, RestCallSpec> resources =
+      new HashMap<CallPath, RestCallSpec>();
     
-    public <R> Builder set(CallPath callPath, RestCallSpec<R> spec) {
+    public Builder set(CallPath callPath, RestCallSpec spec) {
+      Preconditions.checkArgument(resources.get(callPath) == null);
       resources.put(callPath, spec);
       return this;
     }
@@ -41,15 +42,13 @@ public final class ResourceMap {
     }
   }
 
-  private final Map<CallPath, RestCallSpec<?>> resources;
+  private final Map<CallPath, RestCallSpec> resources;
 
-  public ResourceMap(Map<CallPath, RestCallSpec<?>> resources) {
+  public ResourceMap(Map<CallPath, RestCallSpec> resources) {
     this.resources = resources;
   }
 
-  public <T> RestCallSpec<T> get(CallPath callPath) {
-    @SuppressWarnings("unchecked")
-    RestCallSpec<T> restCallSpec = (RestCallSpec<T>)resources.get(callPath);
-    return restCallSpec;
+  public RestCallSpec get(CallPath callPath) {
+    return (RestCallSpec)resources.get(callPath);
   }
 }
