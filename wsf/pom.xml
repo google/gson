@@ -69,12 +69,6 @@
       <version>0.1</version>
       <scope>compile</scope>
     </dependency>
-    <dependency>
-      <groupId>com.google.code.gson</groupId>
-      <artifactId>wsclient</artifactId>
-      <version>0.1</version>
-      <scope>compile</scope>
-    </dependency>
 
     <!-- Guice: Dependency injection -->
     <dependency>

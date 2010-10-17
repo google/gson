@@ -15,6 +15,7 @@
  */
 package com.google.gson.webservice.definition.rest;
 
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -29,61 +30,64 @@ import com.google.gson.webservice.definition.TypedKey;
  *
  * @author inder
  */
-public final class RestCallSpec<R> {
-  public static class Builder<R> {
+public final class RestCallSpec {
+  public static class Builder {
     private final CallPath callPath;
     private final Set<HttpMethod> supportedHttpMethods = new LinkedHashSet<HttpMethod>();
     private final HeaderMapSpec.Builder reqParamsSpecBuilder = new HeaderMapSpec.Builder();
     private final HeaderMapSpec.Builder resParamsSpecBuilder = new HeaderMapSpec.Builder();
-    private final Class<R> resourceClass;
+    private final Type resourceType;
     
-    public Builder(CallPath callPath, Class<R> resourceClass) {
+    public Builder(CallPath callPath, Type resourceType) {
       this.callPath = callPath;
       supportedHttpMethods.addAll(HttpMethod.ALL_METHODS);
-      this.resourceClass = resourceClass;
+      this.resourceType = resourceType;
     }
 
-    public Builder<R> disableHttpMethod(HttpMethod httpMethod) {
+    public Builder disableHttpMethod(HttpMethod httpMethod) {
       supportedHttpMethods.remove(httpMethod);
       return this;
     }
     
-    public <T> Builder<R> addRequestParam(TypedKey<T> param) {
+    public <T> Builder addRequestParam(TypedKey<T> param) {
       reqParamsSpecBuilder.put(param.getName(), param.getClassOfT());
       return this;
     }
 
-    public <T> Builder<R> addResponseParam(TypedKey<T> param) {
+    public <T> Builder addResponseParam(TypedKey<T> param) {
       resParamsSpecBuilder.put(param.getName(), param.getClassOfT());
       return this;
     }
 
-    public RestCallSpec<R> build() {
+    public RestCallSpec build() {
       if (supportedHttpMethods.isEmpty()) {
         supportedHttpMethods.addAll(Arrays.asList(HttpMethod.values()));
       }
-      RestRequestSpec<R> requestSpec = 
-        new RestRequestSpec<R>(reqParamsSpecBuilder.build(), resourceClass);
-      RestResponseSpec<R> responseSpec =
-        new RestResponseSpec<R>(resParamsSpecBuilder.build(), resourceClass);
-      return new RestCallSpec<R>(supportedHttpMethods, callPath, 
-          requestSpec, responseSpec);
+      RestRequestSpec requestSpec = 
+        new RestRequestSpec(reqParamsSpecBuilder.build(), resourceType);
+      RestResponseSpec responseSpec =
+        new RestResponseSpec(resParamsSpecBuilder.build(), resourceType);
+      return new RestCallSpec(supportedHttpMethods, callPath, 
+          requestSpec, responseSpec, resourceType);
     }
   }
 
   private final Set<HttpMethod> supportedHttpMethods;
   private final CallPath path;
-  private final RestRequestSpec<R> requestSpec;
-  private final RestResponseSpec<R> responseSpec;
+  private final RestRequestSpec requestSpec;
+  private final RestResponseSpec responseSpec;
+  private final Type resourceType;
 
   private RestCallSpec(Set<HttpMethod> supportedHttpMethods, CallPath path,
-      RestRequestSpec<R> requestSpec, RestResponseSpec<R> responseSpec) {
+      RestRequestSpec requestSpec, RestResponseSpec responseSpec,
+      Type resourceType) {
     Preconditions.checkArgument(!supportedHttpMethods.isEmpty());
     Preconditions.checkNotNull(path);
     this.supportedHttpMethods = supportedHttpMethods;
     this.path = path;
     this.requestSpec = requestSpec;
     this.responseSpec = responseSpec;
+    this.resourceType = resourceType;
   }
 
   public CallPath getPath() {
@@ -94,11 +98,15 @@ public final class RestCallSpec<R> {
     return supportedHttpMethods;
   }
 
-  public RestResponseSpec<R> getResponseSpec() {
+  public RestResponseSpec getResponseSpec() {
     return responseSpec;
   }
   
-  public RestRequestSpec<R> getRequestSpec() {
+  public RestRequestSpec getRequestSpec() {
     return requestSpec;
+  }
+
+  public Type getResourceType() {
+    return resourceType;
   }
 }

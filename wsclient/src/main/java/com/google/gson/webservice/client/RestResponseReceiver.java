@@ -30,6 +30,7 @@ import com.google.gson.webservice.definition.ContentBodySpec;
 import com.google.gson.webservice.definition.HeaderMap;
 import com.google.gson.webservice.definition.HeaderMapSpec;
 import com.google.gson.webservice.definition.WebServiceSystemException;
+import com.google.gson.webservice.definition.rest.RestResource;
 import com.google.gson.webservice.definition.rest.RestResponse;
 import com.google.gson.webservice.definition.rest.RestResponseSpec;
 
@@ -38,16 +39,16 @@ import com.google.gson.webservice.definition.rest.RestResponseSpec;
  * 
  * @author inder
  */
-public final class RestResponseReceiver<R> {
+public final class RestResponseReceiver<R extends RestResource<R>> {
   private final Gson gson;
-  private final RestResponseSpec<R> spec;
+  private final RestResponseSpec spec;
   private final Logger logger;
   private final Level logLevel;
 
-  public RestResponseReceiver(Gson gson, RestResponseSpec<R> spec) {
+  public RestResponseReceiver(Gson gson, RestResponseSpec spec) {
     this(gson, spec, null);
   }
-  public RestResponseReceiver(Gson gson, RestResponseSpec<R> spec, Level logLevel) {
+  public RestResponseReceiver(Gson gson, RestResponseSpec spec, Level logLevel) {
     this.gson = gson;
     this.spec = spec;
     this.logger = logLevel == null ? null : Logger.getLogger(RestResponseReceiver.class.getName());
@@ -57,11 +58,11 @@ public final class RestResponseReceiver<R> {
   public RestResponse<R> receive(HttpURLConnection conn) {
     try {
       HeaderMapSpec paramSpec = spec.getHeadersSpec();
-      Class<R> bodySpec = spec.getResourceClass();
+      Type bodyType = spec.getResourceType();
       // read response
       HeaderMap responseParams = readResponseHeaders(conn, paramSpec);
-      R responseBody = readResponseBody(conn, bodySpec);
-      return new RestResponse<R>(responseParams, responseBody);
+      R responseBody = readResponseBody(conn, bodyType);
+      return new RestResponse<R>(responseParams, responseBody, bodyType);
     } catch (IOException e) {
       throw new WebServiceSystemException(e);
     }
@@ -84,11 +85,13 @@ public final class RestResponseReceiver<R> {
     return paramsBuilder.build();
   }
 
-  private R readResponseBody(HttpURLConnection conn, Class<R> resourceClass) throws IOException {
+  @SuppressWarnings("unchecked")
+  private R readResponseBody(
+      HttpURLConnection conn, Type resourceType) throws IOException {
     String connContentType = conn.getContentType();
     Preconditions.checkArgument(connContentType.contains(ContentBodySpec.JSON_CONTENT_TYPE), conn);
     Reader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-    R body = gson.fromJson(reader, resourceClass);
+    R body = (R) gson.fromJson(reader, resourceType);
     return body;
   }
 }

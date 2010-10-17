@@ -27,6 +27,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.webservice.definition.WebServiceSystemException;
 import com.google.gson.webservice.definition.rest.RestCallSpec;
 import com.google.gson.webservice.definition.rest.RestRequest;
+import com.google.gson.webservice.definition.rest.RestResource;
 import com.google.gson.webservice.definition.rest.RestResponse;
 
 /**
@@ -49,7 +50,7 @@ public class RestClient {
     this.logLevel = logLevel;
   }
   
-  private URL getWebServiceUrl(RestCallSpec<?> callSpec) {
+  private URL getWebServiceUrl(RestCallSpec callSpec) {
     String url = config.getServiceBaseUrl() + callSpec.getPath().get();
     try {
       return new URL(url);
@@ -58,13 +59,14 @@ public class RestClient {
     }
   }
   
-  public <R> RestResponse<R> getResponse(RestCallSpec<R> callSpec, RestRequest<R> request) {
+  public <R extends RestResource<R>> RestResponse<R> getResponse(
+      RestCallSpec callSpec, RestRequest<R> request) {
     Gson gson = new GsonBuilder().create();
     return getResponse(callSpec, request, gson);
   }
 
-  public <R> RestResponse<R> getResponse(
-      RestCallSpec<R> callSpec, RestRequest<R> request, Gson gson) {
+  public <R extends RestResource<R>> RestResponse<R> getResponse(
+      RestCallSpec callSpec, RestRequest<R> request, Gson gson) {
     HttpURLConnection conn = null;
     try {
       URL webServiceUrl = getWebServiceUrl(callSpec);
@@ -84,8 +86,8 @@ public class RestClient {
    * Use this method if you want to mange the HTTP Connection yourself. This is useful when you
    * want to use HTTP pipelining.
    */
-  public <R> RestResponse<R> getResponse(
-      RestCallSpec<R> callSpec, RestRequest<R> request, Gson gson, HttpURLConnection conn) {
+  public <R extends RestResource<R>> RestResponse<R> getResponse(
+      RestCallSpec callSpec, RestRequest<R> request, Gson gson, HttpURLConnection conn) {
     try {
       if (logger != null) {
         URL webServiceUrl = getWebServiceUrl(callSpec);

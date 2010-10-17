@@ -26,6 +26,7 @@ import com.google.gson.Gson;
 import com.google.gson.webservice.definition.ContentBodySpec;
 import com.google.gson.webservice.definition.HeaderMap;
 import com.google.gson.webservice.definition.HeaderMapSpec;
+import com.google.gson.webservice.definition.rest.RestResource;
 import com.google.gson.webservice.definition.rest.RestResponse;
 
 /**
@@ -33,7 +34,7 @@ import com.google.gson.webservice.definition.rest.RestResponse;
  * 
  * @author inder
  */
-public final class RestResponseSender<R> {
+public final class RestResponseSender<R extends RestResource<R>> {
   private static final Logger logger = Logger.getLogger(RestResponseSender.class.getCanonicalName());
 
   private Gson gson;

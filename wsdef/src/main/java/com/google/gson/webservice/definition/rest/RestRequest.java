@@ -15,6 +15,8 @@
  */
 package com.google.gson.webservice.definition.rest;
 
+import java.lang.reflect.Type;
+
 import com.google.gson.webservice.definition.ContentBodySpec;
 import com.google.gson.webservice.definition.HeaderMap;
 import com.google.gson.webservice.definition.HttpMethod;
@@ -27,25 +29,29 @@ import com.google.gson.webservice.definition.TypedKey;
  * 
  * @author inder
  */
-public final class RestRequest<R> {
+public final class RestRequest<R extends RestResource<R>> {
   private final HttpMethod method;
   private final HeaderMap headers;
   private final R body;
-  private final RestRequestSpec<R> spec;
+  private final RestRequestSpec spec;
   
   public RestRequest(HttpMethod method, HeaderMap requestHeaders,
-      R requestBody, Class<R> resourceClass) {
+      R requestBody, Type resourceType) {
     this.method = method;
     this.body = requestBody;
     this.headers = requestHeaders;
-    this.spec = new RestRequestSpec<R>(requestHeaders.getSpec(), resourceClass);
+    this.spec = new RestRequestSpec(requestHeaders.getSpec(), resourceType);
+  }
+
+  public Id<R> getId() {
+    return body.getId();
   }
 
   public HttpMethod getMethod() {
     return method;
   }
 
-  public RestRequestSpec<R> getSpec() {
+  public RestRequestSpec getSpec() {
     return spec;
   }
 

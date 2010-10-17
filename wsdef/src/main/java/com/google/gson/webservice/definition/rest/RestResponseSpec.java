@@ -15,6 +15,8 @@
  */
 package com.google.gson.webservice.definition.rest;
 
+import java.lang.reflect.Type;
+
 import com.google.gson.webservice.definition.HeaderMapSpec;
 
 /**
@@ -22,17 +24,17 @@ import com.google.gson.webservice.definition.HeaderMapSpec;
  * 
  * @author inder
  */
-public final class RestResponseSpec<R> {
+public final class RestResponseSpec {
   private final HeaderMapSpec headersSpec;
-  private final Class<R> resourceClass;
+  private final Type resourceType;
 
-  public RestResponseSpec(HeaderMapSpec headersSpec, Class<R> resourceClass) {
+  public RestResponseSpec(HeaderMapSpec headersSpec, Type resourceType) {
     this.headersSpec = headersSpec;
-    this.resourceClass = resourceClass;
+    this.resourceType = resourceType;
   }
 
-  public Class<R> getResourceClass() {
-    return resourceClass;
+  public Type getResourceType() {
+    return resourceType;
   }
 
   public HeaderMapSpec getHeadersSpec() {
@@ -41,6 +43,6 @@ public final class RestResponseSpec<R> {
   
   @Override
   public String toString() {
-    return String.format("{headersSpec:%s,resourceClass:%s}", headersSpec, resourceClass);
+    return String.format("{headersSpec:%s,resourceType:%s}", headersSpec, resourceType);
   }
 }
