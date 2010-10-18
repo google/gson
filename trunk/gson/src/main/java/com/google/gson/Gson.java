@@ -366,7 +366,7 @@ public final class Gson {
     try {
       Streams.write(jsonElement, serializeNulls, writer);
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new JsonIOException(e);
     } finally {
       writer.setLenient(oldLenient);
       writer.setHtmlSafe(oldHtmlSafe);
