@@ -18,6 +18,7 @@ package com.google.gson.wsf.server.rest;
 import java.util.Map;
 
 import com.google.gson.webservice.definition.rest.Id;
+import com.google.gson.webservice.definition.rest.MetaData;
 import com.google.gson.webservice.definition.rest.RestResource;
 import com.google.inject.internal.Maps;
 import com.google.inject.internal.Preconditions;
@@ -30,12 +31,14 @@ import com.google.inject.internal.Preconditions;
  * @param <R> Type variable for the resource
  */
 public class RepositoryInMemory<R extends RestResource<R>> implements Repository<R> {
+  private static final String METADATA_KEY_IS_FRESHLY_ASSIGNED_ID = "isFreshlyAssignedId";
+
   private final IdMap<R> resources;
-  private final Map<Id<R>, MetaData<R>> metaDataMap;
+  private final MetaDataMap<R> metaDataMap;
 
   public RepositoryInMemory(Class<? super R> classOfResource) {
     this.resources = IdMap.create(classOfResource);
-    this.metaDataMap = Maps.newHashMap();
+    this.metaDataMap = new MetaDataMap<R>();
   }
 
   @Override
@@ -48,7 +51,7 @@ public class RepositoryInMemory<R extends RestResource<R>> implements Repository
     if (metaData == null) {
       return false;
     }
-    return metaData.isFreshlyAssignedId();
+    return metaData.getBoolean(METADATA_KEY_IS_FRESHLY_ASSIGNED_ID);
   }
 
   @Override
@@ -64,7 +67,7 @@ public class RepositoryInMemory<R extends RestResource<R>> implements Repository
       }
     }
     resource = resources.put(resource);
-    metaDataMap.remove(resource.getId());
+    metaDataMap.get(resource.getId()).remove(METADATA_KEY_IS_FRESHLY_ASSIGNED_ID);
     return resource;
   }
 
@@ -88,7 +91,7 @@ public class RepositoryInMemory<R extends RestResource<R>> implements Repository
     if (resource.getId() == null) {
       Id<R> id = resources.getNextId();
       resource.setId(id);
-      metaDataMap.put(id, new MetaData<R>(true));
+      metaDataMap.get(id).putBoolean(METADATA_KEY_IS_FRESHLY_ASSIGNED_ID, true);
     }
     return resource.getId();
   }
