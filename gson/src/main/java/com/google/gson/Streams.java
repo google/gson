@@ -18,6 +18,7 @@ package com.google.gson;
 
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.Writer;
@@ -71,7 +72,7 @@ final class Streams {
       if (e instanceof EOFException) {
         return JsonNull.createJsonNull();
       }
-      throw new JsonParseException(e);
+      throw new JsonIOException(e);
     } catch (NumberFormatException e) {
       throw new JsonParseException(e);
     }
