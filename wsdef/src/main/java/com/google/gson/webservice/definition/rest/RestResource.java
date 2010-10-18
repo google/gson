@@ -23,5 +23,4 @@ package com.google.gson.webservice.definition.rest;
  * @param <R> the rest resource type
  */
 public interface RestResource<R> extends HasId<R> {
-
 }
