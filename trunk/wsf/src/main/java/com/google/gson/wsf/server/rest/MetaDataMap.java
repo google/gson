@@ -15,24 +15,33 @@
  */
 package com.google.gson.wsf.server.rest;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import com.google.gson.webservice.definition.rest.Id;
+import com.google.gson.webservice.definition.rest.MetaData;
 import com.google.gson.webservice.definition.rest.RestResource;
 
 /**
- * Metadata associated with a repository for a rest resource
+ * A map of resources to their MetaData
  *
  * @author inder
  *
- * @param <R> The resource
+ * @param <R> the rest resource for whic the metadata is being stored
  */
-public final class MetaData<R extends RestResource<R>> {
+public class MetaDataMap<R extends RestResource<R>> {
+  private final Map<Id<R>, MetaData<R>> map;
 
-  final boolean freshlyAssignedId;
-
-  public MetaData(boolean freshlyAssignedId) {
-    this.freshlyAssignedId = freshlyAssignedId;
+  public MetaDataMap() {
+    this.map = new HashMap<Id<R>, MetaData<R>>();
   }
 
-  public boolean isFreshlyAssignedId() {
-    return freshlyAssignedId;
+  public MetaData<R> get(Id<R> resourceId) {
+    MetaData<R> metaData = map.get(resourceId);
+    if (metaData == null) {
+      metaData = MetaData.create();
+      map.put(resourceId, metaData);
+    }
+    return metaData;
   }
 }
