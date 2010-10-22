@@ -140,8 +140,14 @@ public class ObjectTest extends TestCase {
     assertEquals("", gson.toJson(null));
   }
 
-  public void testNullDeserialization() throws Exception {
+  public void testEmptyStringDeserialization() throws Exception {
     Object object = gson.fromJson("", Object.class);
+    assertNull(object);
+  }
+
+  public void testNullDeserialization() throws Exception {
+    String myNullObject = null;
+    Object object = gson.fromJson(myNullObject, Object.class);
     assertNull(object);
   }
 
