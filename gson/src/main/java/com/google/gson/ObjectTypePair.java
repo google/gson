@@ -44,7 +44,12 @@ final class ObjectTypePair {
   Type getType() {
     return type;
   }
-  
+
+  @Override
+  public String toString() {
+    return String.format("preserveType: %b, type: %s, obj: %s", preserveType, type, obj);
+  }
+
   <HANDLER> Pair<HANDLER, ObjectTypePair> getMatchingHandler(
       ParameterizedTypeHandlerMap<HANDLER> handlers) {
     HANDLER handler = null;

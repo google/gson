@@ -415,6 +415,9 @@ public final class Gson {
    */
   @SuppressWarnings("unchecked")
   public <T> T fromJson(String json, Type typeOfT) throws JsonParseException {
+    if (json == null) {
+      return null;
+    }
     StringReader reader = new StringReader(json);
     T target = (T) fromJson(reader, typeOfT);
     return target;
