@@ -44,4 +44,9 @@ public class MetaDataMap<R extends RestResource<R>> {
     }
     return metaData;
   }
+
+  @Override
+  public String toString() {
+    return String.format("%s", map);
+  }
 }
