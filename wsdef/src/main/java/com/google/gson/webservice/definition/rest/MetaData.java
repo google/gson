@@ -76,6 +76,10 @@ public final class MetaData<R extends RestResource<R>> {
     map.remove(key);
   }
 
+  @Override
+  public String toString() {
+    return String.format("%s", map);
+  }
   /**
    * Gson Type adapter for {@link MetaData}. The serialized representation on wire is just a
    * Map<String, String>

@@ -109,4 +109,10 @@ public final class RestCallSpec {
   public Type getResourceType() {
     return resourceType;
   }
+
+  @Override
+  public String toString() {
+    return String.format("path: %s, resourceType: %s, requestSpec: %s, responseSpec: %s",
+        path, resourceType, requestSpec, responseSpec);
+  }
 }
