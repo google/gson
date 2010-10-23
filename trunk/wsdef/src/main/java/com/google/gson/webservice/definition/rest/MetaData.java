@@ -28,7 +28,11 @@ import com.google.gson.JsonSerializer;
 import com.google.gson.reflect.TypeToken;
 
 /**
- * Metadata associated with a repository for a rest resource
+ * Metadata associated with a repository for a rest resource. Metadata is of two types: persistent
+ * and transient. All metadata is persistent by default, and must be a name-value pair of strings.
+ * Transient metadata can be an arbitrary key-value pair of objects and is available through
+ * {@link #getFromTransient(Object)}, {@link #putInTransient(Object, Object)},
+ * and {@link #removeFromTransient(Object)} methods.
  *
  * @author inder
  *
@@ -37,6 +41,7 @@ import com.google.gson.reflect.TypeToken;
 public final class MetaData<R extends RestResource<R>> {
 
   private final Map<String, String> map;
+  private final transient Map<Object, Object> mapTransient;
 
   public static <RS extends RestResource<RS>> MetaData<RS> create() {
     return new MetaData<RS>();
@@ -53,6 +58,7 @@ public final class MetaData<R extends RestResource<R>> {
 
   private MetaData(Map<String, String> values) {
     this.map = values;
+    this.mapTransient = new HashMap<Object, Object>();
   }
 
   public String getString(String key) {
@@ -76,10 +82,23 @@ public final class MetaData<R extends RestResource<R>> {
     map.remove(key);
   }
 
+  public Object getFromTransient(Object key) {
+    return (String) mapTransient.get(key);
+  }
+
+  public void putInTransient(Object key, Object value) {
+    mapTransient.put(key, value);
+  }
+
+  public void removeFromTransient(Object key) {
+    mapTransient.remove(key);
+  }
+
   @Override
   public String toString() {
-    return String.format("%s", map);
+    return String.format("map:%s, mapTransient:%s", map, mapTransient);
   }
+
   /**
    * Gson Type adapter for {@link MetaData}. The serialized representation on wire is just a
    * Map<String, String>

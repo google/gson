@@ -15,13 +15,10 @@
  */
 package com.google.gson.wsf.server.rest;
 
-import java.util.Map;
-
+import com.google.common.base.Preconditions;
 import com.google.gson.webservice.definition.rest.Id;
 import com.google.gson.webservice.definition.rest.MetaData;
 import com.google.gson.webservice.definition.rest.RestResource;
-import com.google.inject.internal.Maps;
-import com.google.inject.internal.Preconditions;
 
 /**
  * An in-memory map of rest resources
