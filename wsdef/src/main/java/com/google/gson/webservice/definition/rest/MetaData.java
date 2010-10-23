@@ -57,7 +57,7 @@ public final class MetaData<R extends RestResource<R>> {
   }
 
   private MetaData(Map<String, String> values) {
-    this.map = values;
+    this.map = values == null ? new HashMap<String, String>() : values;
     this.mapTransient = new HashMap<Object, Object>();
   }
 
@@ -96,7 +96,7 @@ public final class MetaData<R extends RestResource<R>> {
 
   @Override
   public String toString() {
-    return String.format("map:%s, mapTransient:%s", map, mapTransient);
+    return new StringBuilder().append(map).append(',').append(mapTransient).toString();
   }
 
   /**
