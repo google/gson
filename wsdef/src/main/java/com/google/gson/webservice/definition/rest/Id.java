@@ -15,7 +15,9 @@
  */
 package com.google.gson.webservice.definition.rest;
 
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.WildcardType;
 
 /**
  * An id for a rest resource
@@ -25,10 +27,12 @@ import java.lang.reflect.Type;
  * @param <R> type variable for the rest resource
  */
 public final class Id<R> {
+  private static final long NULL_VALUE = -1;
   private final long value;
   private final Type typeOfId;
 
   private Id(long value, Type typeOfId) {
+    Preconditions.checkArgument(value != NULL_VALUE);
     this.value = value;
     this.typeOfId = typeOfId;
   }
@@ -37,17 +41,16 @@ public final class Id<R> {
     return value;
   }
 
+  public static long getValue(Id<?> id) {
+    return id == null ? NULL_VALUE : id.getValue();
+  }
   public Type getTypeOfId() {
     return typeOfId;
   }
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((typeOfId == null) ? 0 : typeOfId.hashCode());
-    result = prime * result + (int)(value ^ (value >>> 32));
-    return result;
+    return (int) value;
   }
 
   @Override
@@ -59,8 +62,41 @@ public final class Id<R> {
     Id<R> other = (Id<R>)obj;
     if (typeOfId == null) {
       if (other.typeOfId != null) return false;
-    } else if (!typeOfId.equals(other.typeOfId)) return false;
+    } else if (!equivalentTypes(typeOfId, other.typeOfId)) return false;
     if (value != other.value) return false;
+    return true;
+  }
+
+  /**
+   * Returns true for equivalentTypes(Class<?>, Class)
+   * Visible for testing only 
+   */
+  @SuppressWarnings("rawtypes")
+  static boolean equivalentTypes(Type type1, Type type2) {
+    if (type1 instanceof ParameterizedType && type2 instanceof Class) {
+      return areEquivalentTypes((ParameterizedType)type1, (Class)type2);
+    } else if (type2 instanceof ParameterizedType && type1 instanceof Class) {
+      return areEquivalentTypes((ParameterizedType)type2, (Class)type1);
+    }
+    return type1.equals(type2);
+  }
+
+  /**
+   * Visible for testing only
+   */
+  @SuppressWarnings("rawtypes")
+  static boolean areEquivalentTypes(ParameterizedType type, Class clazz) {
+    Class rawClass = (Class) type.getRawType();
+    if (!clazz.equals(rawClass)) {
+      return false;
+    }
+    for (Type typeVariable : type.getActualTypeArguments()) {
+      if (typeVariable instanceof WildcardType) {
+        continue;
+      }
+      // This is a real parameterized type, not just ?
+      return false;
+    }
     return true;
   }
 
@@ -70,6 +106,35 @@ public final class Id<R> {
 
   @Override
   public String toString() {
-    return String.format("{value:%s,type:%s}", value, typeOfId);
+    String typeAsString = getSimpleTypeName(typeOfId);
+    return String.format("{value:%s,type:%s}", value, typeAsString);
+  }
+
+  @SuppressWarnings("rawtypes")
+  private static String getSimpleTypeName(Type type) {
+    if (type == null) {
+      return "null";
+    }
+    if (type instanceof Class) {
+      return ((Class)type).getSimpleName();
+    } else if (type instanceof ParameterizedType) {
+      ParameterizedType pType = (ParameterizedType) type;
+      StringBuilder sb = new StringBuilder(getSimpleTypeName(pType.getRawType()));
+      sb.append('<');
+      boolean first = true;
+      for (Type argumentType : pType.getActualTypeArguments()) {
+        if (first) {
+          first = false;
+        } else {
+          sb.append(',');
+        }
+        sb.append(getSimpleTypeName(argumentType));
+      }
+      sb.append('>');
+      return sb.toString();
+    } else if (type instanceof WildcardType) {
+      return "?";
+    }
+    return type.toString();
   }
 }
