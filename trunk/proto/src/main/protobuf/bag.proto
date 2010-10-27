@@ -21,3 +21,9 @@ message SimpleProto {
   optional string msg = 1;
   optional int32 count = 2;
 }
+
+message ProtoWithRepeatedFields {
+  repeated int64 numbers = 1;
+  repeated SimpleProto simples = 2;
+  optional string name = 3;
+}
