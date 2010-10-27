@@ -13,17 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson.protobuf;
+package com.google.gson.protobuf.functional;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.protobuf.ProtoTypeAdapter;
 import com.google.gson.protobuf.generated.Bag.SimpleProto;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.GeneratedMessage;
 
 import junit.framework.TestCase;
 
-public class FunctionalTest extends TestCase {
+public class ProtosWithPrimitiveTypesTest extends TestCase {
   private Gson gson;
 
   @Override
@@ -48,8 +49,8 @@ public class FunctionalTest extends TestCase {
   public void testSerializeProto() {
     Descriptor descriptor = SimpleProto.getDescriptor();
     SimpleProto proto = SimpleProto.newBuilder()
-      .setField(descriptor.findFieldByName("count"), 3)
-      .setField(descriptor.findFieldByName("msg"), "foo")
+      .setCount(3)
+      .setMsg("foo")
       .build();
     String json = gson.toJson(proto);
     assertTrue(json.contains("\"msg\":\"foo\""));
