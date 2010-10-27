@@ -20,6 +20,7 @@ package com.google.gson.stream;
  * Lexical scoping elements within a JSON reader or writer.
  *
  * @author Jesse Wilson
+ * @since 1.6
  */
 enum JsonScope {
 

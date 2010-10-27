@@ -116,8 +116,9 @@ import java.util.List;
  * <p>Each {@code JsonWriter} may be used to write a single JSON stream.
  * Instances of this class are not thread safe. Calls that would result in a
  * malformed JSON string will fail with an {@link IllegalStateException}.
- * 
+ *
  * @author Jesse Wilson
+ * @since 1.6
  */
 public final class JsonWriter implements Closeable {
 
