@@ -179,8 +179,9 @@ import java.util.List;
  *
  * <p>Each {@code JsonReader} may be used to read a single JSON stream. Instances
  * of this class are not thread safe.
- * 
+ *
  * @author Jesse Wilson
+ * @since 1.6
  */
 public final class JsonReader implements Closeable {
 
