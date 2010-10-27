@@ -19,5 +19,5 @@ option java_package = "com.google.gson.protobuf.generated";
 
 message SimpleProto {
   optional string msg = 1;
-  optional int64 count = 2;
+  optional int32 count = 2;
 }

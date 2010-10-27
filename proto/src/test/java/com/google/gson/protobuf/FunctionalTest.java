@@ -18,8 +18,8 @@ package com.google.gson.protobuf;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.protobuf.generated.Bag.SimpleProto;
-import com.google.protobuf.Message;
 import com.google.protobuf.Descriptors.Descriptor;
+import com.google.protobuf.GeneratedMessage;
 
 import junit.framework.TestCase;
 
@@ -29,9 +29,8 @@ public class FunctionalTest extends TestCase {
   @Override
   protected void setUp() throws Exception {
     super.setUp();
-    gson = new GsonBuilder()
-//      .registerTypeHierarchyAdapter(Message.class, new ProtoTypeAdapter())
-      .create();
+    gson = new GsonBuilder().registerTypeHierarchyAdapter(
+      GeneratedMessage.class, new ProtoTypeAdapter()).create();
   }
 
   public void testSerializeEmptyProto() {
@@ -40,15 +39,26 @@ public class FunctionalTest extends TestCase {
     assertEquals("{}", json);
   }
 
+  public void testDeserializeEmptyProto() {
+    SimpleProto proto = gson.fromJson("{}", SimpleProto.class);
+    assertFalse(proto.hasCount());
+    assertFalse(proto.hasMsg());
+  }
+
   public void testSerializeProto() {
     Descriptor descriptor = SimpleProto.getDescriptor();
     SimpleProto proto = SimpleProto.newBuilder()
-      .setField(descriptor.findFieldByNumber(1), "foo")
-      .setField(descriptor.findFieldByNumber(2), 3)
+      .setField(descriptor.findFieldByName("count"), 3)
+      .setField(descriptor.findFieldByName("msg"), "foo")
       .build();
     String json = gson.toJson(proto);
-    System.out.println(json);
     assertTrue(json.contains("\"msg\":\"foo\""));
     assertTrue(json.contains("\"count\":3"));
+  }
+
+  public void testDeserializeProto() {
+    SimpleProto proto = gson.fromJson("{msg:'foo',count:3}", SimpleProto.class);
+    assertEquals("foo", proto.getMsg());
+    assertEquals(3, proto.getCount());
   }
 }
