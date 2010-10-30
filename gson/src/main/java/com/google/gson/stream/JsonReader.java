@@ -1115,11 +1115,4 @@ public final class JsonReader implements Closeable {
     snippet.append(buffer, pos, afterPos);
     return snippet;
   }
-
-  @SuppressWarnings("serial")
-  private static class JsonSyntaxException extends IOException {
-    private JsonSyntaxException(String s) {
-      super(s);
-    }
-  }
 }
