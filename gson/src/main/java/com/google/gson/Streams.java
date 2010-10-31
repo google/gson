@@ -17,6 +17,7 @@
 package com.google.gson;
 
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonSyntaxException;
 import com.google.gson.stream.JsonWriter;
 
 import java.io.EOFException;
@@ -68,10 +69,11 @@ final class Streams {
       default:
         throw new IllegalArgumentException();
       }
+    } catch (EOFException e) {
+      return JsonNull.createJsonNull();
+    } catch (JsonSyntaxException e) {
+      throw new JsonParseException(e);
     } catch (IOException e) {
-      if (e instanceof EOFException) {
-        return JsonNull.createJsonNull();
-      }
       throw new JsonIOException(e);
     } catch (NumberFormatException e) {
       throw new JsonParseException(e);
