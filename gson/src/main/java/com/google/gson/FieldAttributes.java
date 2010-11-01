@@ -36,11 +36,11 @@ import java.util.Collections;
 public final class FieldAttributes {
   private static final String MAX_CACHE_PROPERTY_NAME =
       "com.google.gson.annotation_cache_size_hint";
-  
+
   private static final Cache<Pair<Class<?>, String>, Collection<Annotation>> ANNOTATION_CACHE =
       new LruCache<Pair<Class<?>,String>, Collection<Annotation>>(getMaxCacheSize());
 
-  private final Class<?> parentClazz;
+  private final Class<?> declaringClazz;
   private final Field field;
   private final Class<?> declaredType;
   private final boolean isSynthetic;
@@ -56,9 +56,9 @@ public final class FieldAttributes {
    *
    * @param f the field to pull attributes from
    */
-  FieldAttributes(final Class<?> parentClazz, final Field f) {
-    Preconditions.checkNotNull(parentClazz);
-    this.parentClazz = parentClazz;
+  FieldAttributes(final Class<?> declaringClazz, final Field f) {
+    Preconditions.checkNotNull(declaringClazz);
+    this.declaringClazz = declaringClazz;
     name = f.getName();
     declaredType = f.getType();
     isSynthetic = f.isSynthetic();
@@ -75,6 +75,13 @@ public final class FieldAttributes {
     } catch (NumberFormatException e) {
       return defaultMaxCacheSize;
     }
+  }
+
+  /**
+   * @return the declaring class that contains this field
+   */
+  public Class<?> getDeclaringClass() {
+    return declaringClazz;
   }
 
   /**
@@ -142,11 +149,11 @@ public final class FieldAttributes {
    * Return the annotations that are present on this field.
    *
    * @return an array of all the annotations set on the field
-   * @since 1.4 
+   * @since 1.4
    */
   public Collection<Annotation> getAnnotations() {
     if (annotations == null) {
-      Pair<Class<?>, String> key = new Pair<Class<?>, String>(parentClazz, name);
+      Pair<Class<?>, String> key = new Pair<Class<?>, String>(declaringClazz, name);
       annotations = ANNOTATION_CACHE.getElement(key);
       if (annotations == null) {
         annotations = Collections.unmodifiableCollection(
@@ -175,24 +182,24 @@ public final class FieldAttributes {
    * This is exposed internally only for the removing synthetic fields from the JSON output.
    *
    * @return true if the field is synthetic; otherwise false
-   * @throws IllegalAccessException 
-   * @throws IllegalArgumentException 
+   * @throws IllegalAccessException
+   * @throws IllegalArgumentException
    */
   void set(Object instance, Object value) throws IllegalAccessException {
     field.set(instance, value);
   }
-  
+
   /**
    * This is exposed internally only for the removing synthetic fields from the JSON output.
    *
    * @return true if the field is synthetic; otherwise false
-   * @throws IllegalAccessException 
-   * @throws IllegalArgumentException 
+   * @throws IllegalAccessException
+   * @throws IllegalArgumentException
    */
   Object get(Object instance) throws IllegalAccessException {
     return field.get(instance);
   }
-  
+
   /**
    * This is exposed internally only for the removing synthetic fields from the JSON output.
    *
@@ -201,7 +208,7 @@ public final class FieldAttributes {
   boolean isSynthetic() {
     return isSynthetic;
   }
-  
+
   /**
    * @deprecated remove this when {@link FieldNamingStrategy} is deleted.
    */
