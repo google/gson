@@ -134,32 +134,6 @@
            </workspaceCodeStylesURL>
          </configuration>
        </plugin>
-<!--
-       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>javacc-maven-plugin</artifactId>
-        <executions>
-        <execution>
-        <id>javacc</id>
-        <goals>
-        <goal>javacc</goal>
-        </goals>
-        <configuration>
-        <sourceDirectory>src/main/javacc</sourceDirectory>
-        <outputDirectory>src/main/java</outputDirectory>
-        <timestampDirectory>target/generated-src/javacc-timestamp</timestampDirectory>
-        </configuration>
-        </execution>
-        </executions>
-        <dependencies>
-        <dependency>
-        <groupId>net.java.dev.javacc</groupId>
-        <artifactId>javacc</artifactId>
-        <version>4.2</version>
-        </dependency>
-        </dependencies>
-      </plugin>
--->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jxr-plugin</artifactId>
