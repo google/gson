@@ -38,6 +38,17 @@ public class IdTest extends TestCase {
     assertTrue(Id.areEquivalentTypes(fooType, Id.class));
   }
 
+  public void testStaticEquals() {
+    Id<Foo> id1 = Id.get(3L, Foo.class);
+    Id<Foo> id2 = Id.get(3L, Foo.class);
+    Id<Foo> id3 = Id.get(4L, Foo.class);
+    assertTrue(Id.equals(id1, id2));
+    assertFalse(Id.equals(null, id2));
+    assertFalse(Id.equals(id1, null));
+    assertTrue(Id.equals(null, null));
+    assertFalse(Id.equals(id1, id3));
+  }
+
   private static class Foo {
   }
 }
