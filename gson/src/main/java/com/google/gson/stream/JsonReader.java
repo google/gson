@@ -1104,7 +1104,7 @@ public final class JsonReader implements Closeable {
    * with this reader's content.
    */
   private IOException syntaxError(String message) throws IOException {
-    throw new JsonSyntaxException(message + " near " + getSnippet());
+    throw new MalformedJsonException(message + " near " + getSnippet());
   }
 
   private CharSequence getSnippet() {

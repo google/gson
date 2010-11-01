@@ -15,14 +15,16 @@
  */
 package com.google.gson;
 
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.MalformedJsonException;
 
 /**
  * A streaming parser that allows reading of multiple {@link JsonElement}s from the specified reader
@@ -101,8 +103,10 @@ public final class JsonStreamParser implements Iterator<JsonElement> {
     synchronized (lock) {
       try {
         return parser.peek() != JsonToken.END_DOCUMENT;
+      } catch (MalformedJsonException e) {
+        throw new JsonSyntaxException(e);
       } catch (IOException e) {
-        throw new JsonParseException(e);
+        throw new JsonIOException(e);
       }
     }
   }
