@@ -392,8 +392,9 @@ public final class Gson {
    */
   @SuppressWarnings("unchecked")
   public <T> T fromJson(String json, Class<T> classOfT) throws JsonParseException {
-    T target = (T) fromJson(json, (Type) classOfT);
-    return target;
+    Class<T> wrapped = Primitives.wrap(classOfT);
+    Object object = fromJson(json, (Type) wrapped);
+    return wrapped.cast(object);
   }
 
   /**
@@ -442,8 +443,9 @@ public final class Gson {
    * @since 1.2
    */
   public <T> T fromJson(Reader json, Class<T> classOfT) throws JsonParseException {
-    T target = classOfT.cast(fromJson(new JsonReader(json), classOfT));
-    return target;
+    Class<T> wrapped = Primitives.wrap(classOfT);
+    Object object = fromJson(new JsonReader(json), wrapped);
+    return wrapped.cast(object);
   }
 
   /**
@@ -501,8 +503,9 @@ public final class Gson {
    * @since 1.3
    */
   public <T> T fromJson(JsonElement json, Class<T> classOfT) throws JsonParseException {
-    T target = classOfT.cast(fromJson(json, (Type) classOfT));
-    return target;
+    Class<T> wrapped = Primitives.wrap(classOfT);
+    Object object = fromJson(json, (Type) wrapped);
+    return wrapped.cast(object);
   }
 
   /**
