@@ -16,15 +16,13 @@
 
 package com.google.gson.functional;
 
+import java.io.StringReader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import com.google.gson.*;
 import junit.framework.TestCase;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonParseException;
-import com.google.gson.LongSerializationPolicy;
 import com.google.gson.common.TestTypes.CrazyLongTypeAdapter;
 
 /**
@@ -577,5 +575,11 @@ public class PrimitiveTest extends TestCase {
   
   private static class ClassWithIntegerField {
     Integer i;
+  }
+  
+  public void testPrimitiveClassLiteral() {
+    assertEquals(1, gson.fromJson("1", int.class).intValue());
+    assertEquals(1, gson.fromJson(new StringReader("1"), int.class).intValue());
+    assertEquals(1, gson.fromJson(new JsonPrimitive(1), int.class).intValue());
   }
 }
