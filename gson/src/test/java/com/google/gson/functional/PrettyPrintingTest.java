@@ -70,21 +70,23 @@ public class PrettyPrintingTest extends TestCase {
   public void testPrettyPrintArrayOfPrimitives() {
     int[] ints = new int[] { 1, 2, 3, 4, 5 };
     String json = gson.toJson(ints);
-    assertEquals("[1,2,3,4,5]", json);
+    assertEquals("[\n  1,\n  2,\n  3,\n  4,\n  5\n]", json);
   }
 
   public void testPrettyPrintArrayOfPrimitiveArrays() {
     int[][] ints = new int[][] { { 1, 2 }, { 3, 4 }, { 5, 6 }, { 7, 8 },
         { 9, 0 }, { 10 } };
     String json = gson.toJson(ints);
-    assertEquals("[[1,2],[3,4],[5,6],[7,8],[9,0],[10]]", json);
+    assertEquals("[\n  [\n    1,\n    2\n  ],\n  [\n    3,\n    4\n  ],\n  [\n    5,\n    6\n  ],"
+        + "\n  [\n    7,\n    8\n  ],\n  [\n    9,\n    0\n  ],\n  [\n    10\n  ]\n]", json);
   }
 
   public void testPrettyPrintListOfPrimitiveArrays() {
     List<Integer[]> list = Arrays.asList(new Integer[][] { { 1, 2 }, { 3, 4 },
         { 5, 6 }, { 7, 8 }, { 9, 0 }, { 10 } });
     String json = gson.toJson(list);
-    assertEquals("[[1,2],[3,4],[5,6],[7,8],[9,0],[10]]", json);
+    assertEquals("[\n  [\n    1,\n    2\n  ],\n  [\n    3,\n    4\n  ],\n  [\n    5,\n    6\n  ],"
+        + "\n  [\n    7,\n    8\n  ],\n  [\n    9,\n    0\n  ],\n  [\n    10\n  ]\n]", json);
   }
   
   public void testMap() {
@@ -92,7 +94,7 @@ public class PrettyPrintingTest extends TestCase {
     map.put("abc", 1);
     map.put("def", 5);
     String json = gson.toJson(map);
-    assertEquals("{\"abc\":1,\"def\":5}", json);
+    assertEquals("{\n  \"abc\": 1,\n  \"def\": 5\n}", json);
   }
 
   // In response to bug 153
@@ -100,7 +102,7 @@ public class PrettyPrintingTest extends TestCase {
     ClassWithMap obj = new ClassWithMap();
     obj.map = new LinkedHashMap<String, Integer>();
     String json = gson.toJson(obj);
-    assertTrue(json.contains("{\"map\":{},\"value\":2}"));
+    assertTrue(json.contains("{\n  \"map\": {},\n  \"value\": 2\n}"));
   }
 
   @SuppressWarnings("unused")
@@ -112,7 +114,7 @@ public class PrettyPrintingTest extends TestCase {
   public void testMultipleArrays() {
     int[][][] ints = new int[][][] { { { 1 }, { 2 } } };
     String json = gson.toJson(ints);
-    assertEquals("[[[1],[2]]]", json);
+    assertEquals("[\n  [\n    [\n      1\n    ],\n    [\n      2\n    ]\n  ]\n]", json);
   }
 
   private void print(String msg) {

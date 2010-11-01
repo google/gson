@@ -110,8 +110,8 @@ public final class Gson {
 
   private final boolean serializeNulls;
   private final boolean htmlSafe;
-
   private final boolean generateNonExecutableJson;
+  private final boolean prettyPrinting;
 
   /**
    * Constructs a Gson object with default configuration. The default configuration has the
@@ -151,14 +151,14 @@ public final class Gson {
     this(DEFAULT_EXCLUSION_STRATEGY, DEFAULT_EXCLUSION_STRATEGY, DEFAULT_NAMING_POLICY,
     new MappedObjectConstructor(DefaultTypeAdapters.getDefaultInstanceCreators()),
     false, DefaultTypeAdapters.getDefaultSerializers(),
-    DefaultTypeAdapters.getDefaultDeserializers(), DEFAULT_JSON_NON_EXECUTABLE, true);
+    DefaultTypeAdapters.getDefaultDeserializers(), DEFAULT_JSON_NON_EXECUTABLE, true, false);
   }
 
   Gson(ExclusionStrategy serializationStrategy, ExclusionStrategy deserializationStrategy,
-      FieldNamingStrategy2 fieldNamingPolicy, MappedObjectConstructor objectConstructor,
-      boolean serializeNulls, ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers,
-      ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers,
-      boolean generateNonExecutableGson, boolean htmlSafe) {
+       FieldNamingStrategy2 fieldNamingPolicy, MappedObjectConstructor objectConstructor,
+       boolean serializeNulls, ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers,
+       ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers,
+       boolean generateNonExecutableGson, boolean htmlSafe, boolean prettyPrinting) {
     this.serializationStrategy = serializationStrategy;
     this.deserializationStrategy = deserializationStrategy;
     this.fieldNamingPolicy = fieldNamingPolicy;
@@ -168,6 +168,7 @@ public final class Gson {
     this.deserializers = deserializers;
     this.generateNonExecutableJson = generateNonExecutableGson;
     this.htmlSafe = htmlSafe;
+    this.prettyPrinting = prettyPrinting;
   }
 
   private ObjectNavigatorFactory createDefaultObjectNavigatorFactory(ExclusionStrategy strategy) {
@@ -349,7 +350,11 @@ public final class Gson {
       if (generateNonExecutableJson) {
         writer.append(JSON_NON_EXECUTABLE_PREFIX);
       }
-      toJson(jsonElement, new JsonWriter(Streams.writerForAppendable(writer)));
+      JsonWriter jsonWriter = new JsonWriter(Streams.writerForAppendable(writer));
+      if (prettyPrinting) {
+        jsonWriter.setIndent("  ");
+      }
+      toJson(jsonElement, jsonWriter);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

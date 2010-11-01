@@ -323,11 +323,11 @@ public class MapTest extends TestCase {
     map.put("c", new HashMap<String, Object>());
 
     assertEquals("{\"a\":12,\"b\":null,\"c\":{}}",
-        new GsonBuilder().serializeNulls().setPrettyPrinting().create().toJson(map));
+        new GsonBuilder().serializeNulls().create().toJson(map));
     assertEquals("{\"a\":12,\"b\":null,\"c\":{}}",
         new GsonBuilder().serializeNulls().create().toJson(map));
     assertEquals("{\"a\":12,\"c\":{}}",
-        new GsonBuilder().setPrettyPrinting().create().toJson(map));
+        new GsonBuilder().create().toJson(map));
     assertEquals("{\"a\":12,\"c\":{}}",
         new GsonBuilder().create().toJson(map));
   }
