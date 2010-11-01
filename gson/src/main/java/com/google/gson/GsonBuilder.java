@@ -544,7 +544,7 @@ public final class GsonBuilder {
 
     Gson gson = new Gson(serializationExclusionStrategy, deserializationExclusionStrategy,
         fieldNamingPolicy, objConstructor, serializeNulls, customSerializers,
-        customDeserializers, generateNonExecutableJson, escapeHtmlChars);
+        customDeserializers, generateNonExecutableJson, escapeHtmlChars, prettyPrinting);
     return gson;
   }
 
