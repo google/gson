@@ -22,8 +22,8 @@ import java.io.IOException;
  * Thrown when a reader encounters malformed JSON. Some syntax errors can be
  * ignored by calling {@link JsonReader#setLenient(boolean)}.
  */
-public final class JsonSyntaxException extends IOException {
-  public JsonSyntaxException(String s) {
+public final class MalformedJsonException extends IOException {
+  public MalformedJsonException(String s) {
     super(s);
   }
 }

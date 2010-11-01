@@ -278,7 +278,7 @@ final class DefaultTypeAdapters {
           return format.parse(json.getAsString());
         }
       } catch (ParseException e) {
-        throw new JsonParseException(e);
+        throw new JsonSyntaxException(e);
       }
     }
     
@@ -316,7 +316,7 @@ final class DefaultTypeAdapters {
           return new java.sql.Date(date.getTime());
         }
       } catch (ParseException e) {
-        throw new JsonParseException(e);
+        throw new JsonSyntaxException(e);
       }
     }
   }
@@ -351,7 +351,7 @@ final class DefaultTypeAdapters {
           return new Time(date.getTime());
         }
       } catch (ParseException e) {
-        throw new JsonParseException(e);
+        throw new JsonSyntaxException(e);
       }
     }
   }
@@ -425,7 +425,7 @@ final class DefaultTypeAdapters {
       try {
         return new URL(json.getAsString());
       } catch (MalformedURLException e) {
-        throw new JsonParseException(e);
+        throw new JsonSyntaxException(e);
       }
     }
 
@@ -444,7 +444,7 @@ final class DefaultTypeAdapters {
       try {
         return new URI(json.getAsString());
       } catch (URISyntaxException e) {
-        throw new JsonParseException(e);
+        throw new JsonSyntaxException(e);
       }
     }
     @Override
