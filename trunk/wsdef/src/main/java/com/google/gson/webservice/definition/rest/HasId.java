@@ -20,7 +20,7 @@ package com.google.gson.webservice.definition.rest;
  *
  * @author inder
  *
- * @param <T> type of object
+ * @param <R> type of object
  */
 public interface HasId<R> {
   public Id<R> getId();
