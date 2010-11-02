@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson.wsf.server;
+package com.google.gson.wsf.server.procedural;
 
 import java.io.IOException;
 import java.lang.reflect.Type;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Google Inc.
+ * Copyright (C) 2009 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson.wsf.server;
+package com.google.gson.wsf.server.procedural;
 
 import com.google.gson.webservice.definition.procedural.WebServiceCallSpec;
 import com.google.gson.webservice.definition.procedural.WebServiceRequest;
-import com.google.gson.webservice.definition.procedural.WebServiceResponse;
+import com.google.gson.webservice.definition.procedural.WebServiceResponse.Builder;
 
-/**
- * An interface describing a class that can build a response
- *
- * @author inder
- */
-public interface ResponseBuilder {
-  public void buildResponse(WebServiceCallSpec callSpec, WebServiceRequest request,
-      WebServiceResponse.Builder responseBuilder); 
+public class WebServiceCallServerBuilder {
+
+  public WebServiceCallServerBuilder(
+      @SuppressWarnings("unused") WebServiceCallSpec callSpec,
+      @SuppressWarnings("unused") WebServiceRequest wsRequest,
+      @SuppressWarnings("unused") Builder responseBuilder) {
+  }
 }
