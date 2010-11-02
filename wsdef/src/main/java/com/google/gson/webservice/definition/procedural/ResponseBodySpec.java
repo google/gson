@@ -13,18 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson.webservice.definition;
+package com.google.gson.webservice.definition.procedural;
+
+import com.google.gson.webservice.definition.ContentBodySpec;
 
 import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Specification of a {@link RequestBody}.
+ * Specification of a {@link ResponseBody}.
  * 
  * @author inder
  */
-public final class RequestBodySpec extends ContentBodySpec {
+public final class ResponseBodySpec extends ContentBodySpec {
   
   public static class Builder {
     private final Map<String, Type> paramsSpec = new LinkedHashMap<String, Type>();
@@ -33,13 +35,13 @@ public final class RequestBodySpec extends ContentBodySpec {
       return this;
     }
     
-    public RequestBodySpec build() {
-      RequestBodySpec spec = new RequestBodySpec(paramsSpec);
+    public ResponseBodySpec build() {
+      ResponseBodySpec spec = new ResponseBodySpec(paramsSpec);
       return spec;
     }    
   }
   
-  public RequestBodySpec(Map<String, Type> paramsSpec) {
+  public ResponseBodySpec(Map<String, Type> paramsSpec) {
     super(paramsSpec);
   }
 }

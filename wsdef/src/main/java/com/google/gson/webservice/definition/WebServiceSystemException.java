@@ -17,9 +17,8 @@ package com.google.gson.webservice.definition;
 
 /**
  * Base class for all exceptions thrown by the Web service to indicate a system error condition. 
- * This should never be thrown to indicate bad user input. For that purpose, use 
- * {@link WebServiceAppException}.
- * 
+ * This should never be thrown to indicate bad user input.
+ *
  * @author inder
  */
 public class WebServiceSystemException extends RuntimeException {

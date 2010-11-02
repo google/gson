@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson.webservice.typeadapters;
+package com.google.gson.webservice.definition.procedural;
 
 import java.lang.reflect.Type;
 import java.util.Map;
@@ -26,25 +26,23 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import com.google.gson.webservice.definition.ResponseBody;
-import com.google.gson.webservice.definition.ResponseBodySpec;
 
 /**
- * Gson type adapter for {@link ResponseBody}. 
+ * Gson type adapter for {@link RequestBody}. 
  * 
  * @author inder
  */
-public final class ResponseBodyGsonConverter implements JsonSerializer<ResponseBody>, 
-  JsonDeserializer<ResponseBody>, InstanceCreator<ResponseBody> {
+public class RequestBodyGsonConverter implements JsonSerializer<RequestBody>, 
+  JsonDeserializer<RequestBody>, InstanceCreator<RequestBody> {
 
-  private final ResponseBodySpec spec;
+  private final RequestBodySpec spec;
 
-  public ResponseBodyGsonConverter(ResponseBodySpec spec) {
+  public RequestBodyGsonConverter(RequestBodySpec spec) {
     this.spec = spec;
   }
   
   @Override
-  public JsonElement serialize(ResponseBody src, Type typeOfSrc, 
+  public JsonElement serialize(RequestBody src, Type typeOfSrc, 
       JsonSerializationContext context) {
     JsonObject root = new JsonObject();
     for(Map.Entry<String, Object> entry : src.entrySet()) {
@@ -57,20 +55,20 @@ public final class ResponseBodyGsonConverter implements JsonSerializer<ResponseB
   }
 
   @Override
-  public ResponseBody deserialize(JsonElement json, Type typeOfT, 
+  public RequestBody deserialize(JsonElement json, Type typeOfT, 
       JsonDeserializationContext context) throws JsonParseException {
-    ResponseBody.Builder responseBodyBuilder = new ResponseBody.Builder(spec);
+    RequestBody.Builder builder = new RequestBody.Builder(spec);
     for (Map.Entry<String, JsonElement> entry : json.getAsJsonObject().entrySet()) {
       String key = entry.getKey();
       Type entryType = spec.getTypeFor(key);
       Object value = context.deserialize(entry.getValue(), entryType);
-      responseBodyBuilder.put(key, value, entryType);
+      builder.put(key, value);
     }
-    return responseBodyBuilder.build();
+    return builder.build();
   }
 
   @Override
-  public ResponseBody createInstance(Type type) {
-    return new ResponseBody.Builder(spec).build();
+  public RequestBody createInstance(Type type) {
+    return new RequestBody.Builder(spec).build();
   }
 }

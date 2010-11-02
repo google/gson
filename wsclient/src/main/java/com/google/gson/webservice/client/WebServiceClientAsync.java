@@ -19,9 +19,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 
-import com.google.gson.webservice.definition.WebServiceCallSpec;
-import com.google.gson.webservice.definition.WebServiceRequest;
 import com.google.gson.webservice.definition.WebServiceSystemException;
+import com.google.gson.webservice.definition.procedural.WebServiceCallSpec;
+import com.google.gson.webservice.definition.procedural.WebServiceRequest;
 
 /**
  * A client for invoking a JSON-based Web-service in an asynchronous manner. The call is queued,

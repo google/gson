@@ -15,6 +15,15 @@
  */
 package com.google.gson.webservice.definition.rest;
 
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+import com.google.gson.webservice.definition.internal.utils.Preconditions;
+
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
@@ -156,5 +165,33 @@ public final class Id<R> {
       return "?";
     }
     return type.toString();
+  }
+
+  /**
+   * Type adapter for converting an Id to its serialized form
+   *
+   * @author inder
+   *
+   */
+  public static final class GsonTypeAdapter implements JsonSerializer<Id<?>>,
+      JsonDeserializer<Id<?>> {
+
+    @Override
+    public JsonElement serialize(Id<?> src, Type typeOfSrc, JsonSerializationContext context) {
+      return new JsonPrimitive(src.getValue());
+    }
+
+    @Override
+    public Id<?> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+        throws JsonParseException {
+      if (!(typeOfT instanceof ParameterizedType)) {
+        throw new JsonParseException("Id of unknown type: " + typeOfT);
+      }
+      ParameterizedType parameterizedType = (ParameterizedType) typeOfT;
+      // Since Id takes only one TypeVariable, the actual type corresponding to the first
+      // TypeVariable is the Type we are looking for
+      Type typeOfId = parameterizedType.getActualTypeArguments()[0];
+      return Id.get(json.getAsLong(), typeOfId);
+    }
   }
 }

@@ -28,11 +28,11 @@ import java.util.logging.Logger;
 import com.google.gson.Gson;
 import com.google.gson.webservice.definition.HeaderMap;
 import com.google.gson.webservice.definition.HeaderMapSpec;
-import com.google.gson.webservice.definition.ResponseBody;
-import com.google.gson.webservice.definition.ResponseBodySpec;
-import com.google.gson.webservice.definition.ResponseSpec;
-import com.google.gson.webservice.definition.WebServiceResponse;
 import com.google.gson.webservice.definition.WebServiceSystemException;
+import com.google.gson.webservice.definition.procedural.ResponseBody;
+import com.google.gson.webservice.definition.procedural.ResponseBodySpec;
+import com.google.gson.webservice.definition.procedural.ResponseSpec;
+import com.google.gson.webservice.definition.procedural.WebServiceResponse;
 
 /**
  * Receives a response coming on an {@link HttpURLConnection}.

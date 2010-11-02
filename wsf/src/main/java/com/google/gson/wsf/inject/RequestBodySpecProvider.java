@@ -15,8 +15,8 @@
  */
 package com.google.gson.wsf.inject;
 
-import com.google.gson.webservice.definition.RequestBodySpec;
-import com.google.gson.webservice.definition.RequestSpec;
+import com.google.gson.webservice.definition.procedural.RequestBodySpec;
+import com.google.gson.webservice.definition.procedural.RequestSpec;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
