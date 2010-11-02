@@ -15,10 +15,10 @@
  */
 package com.google.gson.webservice.client;
 
-import com.google.gson.webservice.definition.WebServiceCall;
-import com.google.gson.webservice.definition.WebServiceCallSpec;
-import com.google.gson.webservice.definition.WebServiceRequest;
 import com.google.gson.webservice.definition.WebServiceSystemException;
+import com.google.gson.webservice.definition.procedural.WebServiceCall;
+import com.google.gson.webservice.definition.procedural.WebServiceCallSpec;
+import com.google.gson.webservice.definition.procedural.WebServiceRequest;
 
 /**
  * A client-supplied callback to be used with {@link WebServiceClientAsync}. When a web-service

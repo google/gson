@@ -15,6 +15,8 @@
  */
 package com.google.gson.webservice.definition;
 
+import com.google.gson.webservice.definition.internal.utils.Preconditions;
+
 /**
  * A typed key for use in a {@link ParamMap} or a {@link ParamMapSpec}.
  *

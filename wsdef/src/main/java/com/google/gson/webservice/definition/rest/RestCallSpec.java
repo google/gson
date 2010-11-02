@@ -15,15 +15,16 @@
  */
 package com.google.gson.webservice.definition.rest;
 
-import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 import com.google.gson.webservice.definition.CallPath;
 import com.google.gson.webservice.definition.HeaderMapSpec;
 import com.google.gson.webservice.definition.HttpMethod;
 import com.google.gson.webservice.definition.TypedKey;
+import com.google.gson.webservice.definition.internal.utils.Preconditions;
+
+import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * Specification for a REST service

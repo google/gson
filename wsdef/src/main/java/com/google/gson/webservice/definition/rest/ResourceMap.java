@@ -15,10 +15,11 @@
  */
 package com.google.gson.webservice.definition.rest;
 
+import com.google.gson.webservice.definition.CallPath;
+import com.google.gson.webservice.definition.internal.utils.Preconditions;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import com.google.gson.webservice.definition.CallPath;
 
 /**
  * A {@link Map} of {@link CallPath} to {@link RestCallSpec}

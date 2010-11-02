@@ -17,9 +17,9 @@ package com.google.gson.webservice.client;
 
 import java.util.concurrent.BlockingQueue;
 
-import com.google.gson.webservice.definition.WebServiceCall;
-import com.google.gson.webservice.definition.WebServiceResponse;
 import com.google.gson.webservice.definition.WebServiceSystemException;
+import com.google.gson.webservice.definition.procedural.WebServiceCall;
+import com.google.gson.webservice.definition.procedural.WebServiceResponse;
 
 /**
  * A consumer that executes in its own thread consuming queue entries and invoking web-service calls

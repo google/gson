@@ -25,9 +25,9 @@ import java.util.logging.Logger;
 import com.google.gson.Gson;
 import com.google.gson.webservice.definition.HeaderMap;
 import com.google.gson.webservice.definition.HeaderMapSpec;
-import com.google.gson.webservice.definition.RequestBody;
-import com.google.gson.webservice.definition.WebServiceRequest;
 import com.google.gson.webservice.definition.WebServiceSystemException;
+import com.google.gson.webservice.definition.procedural.RequestBody;
+import com.google.gson.webservice.definition.procedural.WebServiceRequest;
 
 /**
  * Class to send Web service requests on a {@link HttpURLConnection}.

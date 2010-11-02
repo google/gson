@@ -15,21 +15,21 @@
  */
 package com.google.gson.webservice.definition.rest;
 
-import java.lang.reflect.Type;
-
-import com.google.gson.webservice.definition.ContentBodySpec;
 import com.google.gson.webservice.definition.HeaderMap;
 import com.google.gson.webservice.definition.HttpMethod;
-import com.google.gson.webservice.definition.RequestBody;
 import com.google.gson.webservice.definition.TypedKey;
+
+import java.lang.reflect.Type;
 
 /**
  * The data associated with a Web service request. This includes HTTP request header parameters 
- * (form and URL parameters), and {@link RequestBody}. 
+ * (form and URL parameters), and request body. 
  * 
  * @author inder
  */
 public final class RestRequest<R extends RestResource<R>> {
+  public static final String JSON_CONTENT_TYPE = "application/json";
+
   private final HttpMethod method;
   private final HeaderMap headers;
   private final R body;
@@ -68,7 +68,7 @@ public final class RestRequest<R extends RestResource<R>> {
   }
 
   public String getContentType() {
-    return ContentBodySpec.JSON_CONTENT_TYPE;
+    return JSON_CONTENT_TYPE;
   }
 
   public <T> T getHeader(TypedKey<T> key) {

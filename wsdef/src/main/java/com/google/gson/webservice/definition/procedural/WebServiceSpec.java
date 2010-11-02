@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson.webservice.definition;
+package com.google.gson.webservice.definition.procedural;
+
+import com.google.gson.webservice.definition.CallPathMap;
 
 /**
  * Specification of the Web service. This contains a specification of all the 
