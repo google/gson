@@ -19,7 +19,7 @@ import java.util.concurrent.Executor;
 
 /**
  * An {@link Executor} with an additional method for shutdown. We could have just used
- * {@link java.util.concurent.ExecutorService}, however, that requires too many methods to be
+ * {@link java.util.concurrent.ExecutorService}, however, that requires too many methods to be
  * implemented.
  *  
  * @author inder

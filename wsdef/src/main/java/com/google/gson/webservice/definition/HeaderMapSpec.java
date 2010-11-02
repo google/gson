@@ -44,10 +44,12 @@ public final class HeaderMapSpec implements ParamMapSpec {
     this.map = map;
   }  
   
+  @Override
   public Type getTypeFor(String headerName) {
     return map.get(headerName);
   }
   
+  @Override
   public Set<Map.Entry<String, Type>> entrySet() {
     return map.entrySet();
   }
@@ -63,6 +65,7 @@ public final class HeaderMapSpec implements ParamMapSpec {
     return rawClassOfHeader.isAssignableFrom(rawClassOfTargetType);
   }
 
+  @Override
   public boolean checkIfCompatible(String headerName, Object headerValue) {
     return checkIfCompatible(headerName, headerValue.getClass());
   }

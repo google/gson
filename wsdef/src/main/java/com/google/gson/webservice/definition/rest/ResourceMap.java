@@ -49,6 +49,6 @@ public final class ResourceMap {
   }
 
   public RestCallSpec get(CallPath callPath) {
-    return (RestCallSpec)resources.get(callPath);
+    return resources.get(callPath);
   }
 }

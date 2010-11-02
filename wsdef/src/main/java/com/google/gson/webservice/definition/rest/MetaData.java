@@ -62,7 +62,7 @@ public final class MetaData<R extends RestResource<R>> {
   }
 
   public String getString(String key) {
-    return (String) map.get(key);
+    return map.get(key);
   }
 
   public void putString(String key, String value) {
@@ -83,7 +83,7 @@ public final class MetaData<R extends RestResource<R>> {
   }
 
   public Object getFromTransient(Object key) {
-    return (String) mapTransient.get(key);
+    return mapTransient.get(key);
   }
 
   public void putInTransient(Object key, Object value) {

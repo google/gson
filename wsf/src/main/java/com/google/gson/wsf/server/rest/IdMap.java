@@ -38,7 +38,7 @@ public class IdMap<T extends HasId<T>> {
   private final Type typeOfId;
 
   /**
-   * Use {@link #create(Class)} instead of constructor
+   * Use {@link #create(Type)} instead of constructor
    */
   protected IdMap(Type typeOfId) {
     this.typeOfId = typeOfId;
