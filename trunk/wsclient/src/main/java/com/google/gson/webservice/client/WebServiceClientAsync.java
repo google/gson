@@ -36,10 +36,10 @@ public class WebServiceClientAsync {
   private final boolean threadPerTask;
   private final TaskExecutor executor;
 
-  public WebServiceClientAsync(WebServiceConfig serverConfig) {
+  public WebServiceClientAsync(ServerConfig serverConfig) {
     this(serverConfig, null);
   }
-  public WebServiceClientAsync(WebServiceConfig serverConfig, Level logLevel) {
+  public WebServiceClientAsync(ServerConfig serverConfig, Level logLevel) {
     this(new WebServiceClient(serverConfig, logLevel));
   }
 

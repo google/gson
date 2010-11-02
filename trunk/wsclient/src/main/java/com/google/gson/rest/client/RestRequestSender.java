@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Google Inc.
+ * Copyright (C) 2010 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson.webservice.client;
+package com.google.gson.rest.client;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -23,11 +23,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.gson.Gson;
+import com.google.gson.rest.definition.RestRequest;
+import com.google.gson.rest.definition.RestResource;
 import com.google.gson.webservice.definition.HeaderMap;
 import com.google.gson.webservice.definition.HeaderMapSpec;
 import com.google.gson.webservice.definition.WebServiceSystemException;
-import com.google.gson.webservice.definition.procedural.RequestBody;
-import com.google.gson.webservice.definition.procedural.WebServiceRequest;
 import com.google.gson.wsclient.internal.utils.Streams;
 
 /**
@@ -35,22 +35,22 @@ import com.google.gson.wsclient.internal.utils.Streams;
  * 
  * @author inder
  */
-public final class RequestSender {
+public final class RestRequestSender {
   private final Gson gson;
   private final Logger logger;
   private final Level logLevel;
 
-  public RequestSender(Gson gson) {
+  public RestRequestSender(Gson gson) {
     this(gson, null);
   }
 
-  public RequestSender(Gson gson, Level logLevel) {
+  public RestRequestSender(Gson gson, Level logLevel) {
     this.gson = gson;
-    logger = logLevel == null ? null : Logger.getLogger(RequestSender.class.getName());
+    logger = logLevel == null ? null : Logger.getLogger(RestRequestSender.class.getName());
     this.logLevel = logLevel;
   }
   
-  public void send(HttpURLConnection conn, WebServiceRequest request) {    
+  public <R extends RestResource<R>> void send(HttpURLConnection conn, RestRequest<R> request) {    
     try {
       conn.setRequestMethod(request.getHttpMethod().toString());
       setHeader(conn, "Content-Type", request.getContentType(), true);
@@ -60,18 +60,18 @@ public final class RequestSender {
       // before sending any data on the connection.
       conn.setDoInput(true);
       
-      RequestBody requestBody = request.getBody();
+      R requestBody = request.getBody();
       String requestBodyContents = "";
       // Android Java VM ignore Content-Length if setDoOutput is not set
-      conn.setDoOutput(true);    
-      if (requestBody.getSpec().size() > 0) {
-        requestBodyContents = gson.toJson(requestBody);
+      conn.setDoOutput(true);
+      if (requestBody != null) {
+        requestBodyContents = gson.toJson(requestBody, request.getSpec().getResourceType());
       }
       String contentLength = String.valueOf(requestBodyContents.length());
       setHeader(conn, "Content-Length", contentLength, true);
       addRequestParams(conn, request.getHeaders());
       Streams.copy(requestBodyContents, conn.getOutputStream(), false);
-      
+
       // Initiate the sending of the request.
       conn.connect();
     } catch (IOException e) {

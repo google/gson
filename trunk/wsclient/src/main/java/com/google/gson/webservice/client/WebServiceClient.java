@@ -37,15 +37,15 @@ import com.google.gson.webservice.definition.procedural.WebServiceResponse;
  * @author inder
  */
 public class WebServiceClient {
-  private final WebServiceConfig config;
+  private final ServerConfig config;
   private final Logger logger;
   private final Level logLevel;
 
-  public WebServiceClient(WebServiceConfig serverConfig) {
+  public WebServiceClient(ServerConfig serverConfig) {
     this(serverConfig, null);
   }
 
-  public WebServiceClient(WebServiceConfig serverConfig, Level logLevel) {
+  public WebServiceClient(ServerConfig serverConfig, Level logLevel) {
     this.config = serverConfig;
     this.logger = logLevel == null ? null : Logger.getLogger(WebServiceClient.class.getName());
     this.logLevel = logLevel;
@@ -61,8 +61,9 @@ public class WebServiceClient {
   }
   
   public WebServiceResponse getResponse(WebServiceCallSpec callSpec, WebServiceRequest request) {
-    Gson gson = new GsonBuilder().registerTypeAdapter(ResponseBody.class,
-        new ResponseBodyGsonConverter(callSpec.getResponseSpec().getBodySpec()))
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapter(ResponseBody.class,
+            new ResponseBodyGsonConverter(callSpec.getResponseSpec().getBodySpec()))
         .create();
     return getResponse(callSpec, request, gson);
   }
