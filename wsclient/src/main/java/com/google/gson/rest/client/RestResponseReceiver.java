@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Google Inc.
+ * Copyright (C) 2010 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson.webservice.client;
+package com.google.gson.rest.client;
+
+import com.google.gson.Gson;
+import com.google.gson.rest.definition.RestResource;
+import com.google.gson.rest.definition.RestResponse;
+import com.google.gson.rest.definition.RestResponseSpec;
+import com.google.gson.webservice.definition.ContentBodySpec;
+import com.google.gson.webservice.definition.HeaderMap;
+import com.google.gson.webservice.definition.HeaderMapSpec;
+import com.google.gson.webservice.definition.WebServiceSystemException;
+import com.google.gson.wsclient.internal.utils.ConnectionPreconditions;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -25,45 +35,35 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.google.gson.Gson;
-import com.google.gson.webservice.definition.HeaderMap;
-import com.google.gson.webservice.definition.HeaderMapSpec;
-import com.google.gson.webservice.definition.WebServiceSystemException;
-import com.google.gson.webservice.definition.procedural.ResponseBody;
-import com.google.gson.webservice.definition.procedural.ResponseBodySpec;
-import com.google.gson.webservice.definition.procedural.ResponseSpec;
-import com.google.gson.webservice.definition.procedural.WebServiceResponse;
-import com.google.gson.wsclient.internal.utils.ConnectionPreconditions;
-
 /**
  * Receives a response coming on an {@link HttpURLConnection}.
  * 
  * @author inder
  */
-public final class ResponseReceiver {
+public final class RestResponseReceiver<R extends RestResource<R>> {
   private final Gson gson;
-  private final ResponseSpec spec;
+  private final RestResponseSpec spec;
   private final Logger logger;
   private final Level logLevel;
 
-  public ResponseReceiver(Gson gson, ResponseSpec spec) {
+  public RestResponseReceiver(Gson gson, RestResponseSpec spec) {
     this(gson, spec, null);
   }
-  public ResponseReceiver(Gson gson, ResponseSpec spec, Level logLevel) {
+  public RestResponseReceiver(Gson gson, RestResponseSpec spec, Level logLevel) {
     this.gson = gson;
     this.spec = spec;
-    this.logger = logLevel == null ? null : Logger.getLogger(ResponseReceiver.class.getName());
+    this.logger = logLevel == null ? null : Logger.getLogger(RestResponseReceiver.class.getName());
     this.logLevel = logLevel;
   }
   
-  public WebServiceResponse receive(HttpURLConnection conn) {
+  public RestResponse<R> receive(HttpURLConnection conn) {
     try {
       HeaderMapSpec paramSpec = spec.getHeadersSpec();
-      ResponseBodySpec bodySpec = spec.getBodySpec();
+      Type bodyType = spec.getResourceType();
       // read response
       HeaderMap responseParams = readResponseHeaders(conn, paramSpec);
-      ResponseBody responseBody = readResponseBody(conn, bodySpec);
-      return new WebServiceResponse(responseParams, responseBody);
+      R responseBody = readResponseBody(conn, bodyType);
+      return new RestResponse<R>(responseParams, responseBody, bodyType);
     } catch (IOException e) {
       throw new WebServiceSystemException(e);
     }
@@ -86,15 +86,14 @@ public final class ResponseReceiver {
     return paramsBuilder.build();
   }
 
-  private ResponseBody readResponseBody(HttpURLConnection conn, ResponseBodySpec bodySpec) 
-      throws IOException {
-    if (bodySpec.size() == 0) {
-      return new ResponseBody.Builder(bodySpec).build();
-    }
+  @SuppressWarnings("unchecked")
+  private R readResponseBody(
+      HttpURLConnection conn, Type resourceType) throws IOException {
     String connContentType = conn.getContentType();
-    ConnectionPreconditions.checkArgument(connContentType.contains(bodySpec.getContentType()), conn);
+    ConnectionPreconditions.checkArgument(
+      connContentType.contains(ContentBodySpec.JSON_CONTENT_TYPE), conn);
     Reader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-    ResponseBody body = gson.fromJson(reader, ResponseBody.class);
+    R body = (R) gson.fromJson(reader, resourceType);
     return body;
   }
 }
