@@ -90,9 +90,20 @@ final class TypeInfoFactory {
         int indexOfActualTypeArgument = getIndex(classTypeVariables, fieldTypeVariable);
         Type[] actualTypeArguments = objParameterizedType.getActualTypeArguments();
         return actualTypeArguments[indexOfActualTypeArgument];
+      } else if (typeToEvaluate instanceof TypeVariable<?>) {
+        Type theSearchedType = null;
+
+        do {
+          theSearchedType = extractTypeForHierarchy(parentType, (TypeVariable<?>) typeToEvaluate);
+        } while ((theSearchedType != null) && (theSearchedType instanceof TypeVariable<?>));
+
+        if (theSearchedType != null) {
+          return theSearchedType;
+        }
       }
+
       throw new UnsupportedOperationException("Expecting parameterized type, got " + parentType
-          + ".\n Are you missing the use of TypeToken idiom?\n See " 
+          + ".\n Are you missing the use of TypeToken idiom?\n See "
           + "http://sites.google.com/site/gson/gson-user-guide#TOC-Serializing-and-Deserializing-Gener");
     } else if (typeToEvaluate instanceof WildcardType) {
       WildcardType castedType = (WildcardType) typeToEvaluate;
@@ -101,6 +112,44 @@ final class TypeInfoFactory {
       throw new IllegalArgumentException("Type \'" + typeToEvaluate + "\' is not a Class, "
           + "ParameterizedType, GenericArrayType or TypeVariable. Can't extract type.");
     }
+  }
+
+  private static Type extractTypeForHierarchy(Type parentType, TypeVariable<?> typeToEvaluate) {
+    Class<?> rawParentType = null;
+    if (parentType instanceof Class<?>) {
+      rawParentType = (Class<?>) parentType;
+    } else if (parentType instanceof ParameterizedType) {
+      ParameterizedType parentTypeAsPT = (ParameterizedType) parentType;
+      rawParentType = (Class<?>) parentTypeAsPT.getRawType();
+    } else {
+      return null;
+    }
+
+    Type superClass = rawParentType.getGenericSuperclass();
+    if (superClass instanceof ParameterizedType
+        && ((ParameterizedType) superClass).getRawType() == typeToEvaluate.getGenericDeclaration()) {
+      // Evaluate type on this type
+      TypeVariable<?>[] classTypeVariables =
+          ((Class<?>) ((ParameterizedType) superClass).getRawType()).getTypeParameters();
+      int indexOfActualTypeArgument = getIndex(classTypeVariables, typeToEvaluate);
+
+      Type[] actualTypeArguments = null;
+      if (parentType instanceof Class<?>) {
+        actualTypeArguments = ((ParameterizedType) superClass).getActualTypeArguments();
+      } else if (parentType instanceof ParameterizedType) {
+        actualTypeArguments = ((ParameterizedType) parentType).getActualTypeArguments();
+      } else {
+        return null;
+      }
+
+      return actualTypeArguments[indexOfActualTypeArgument];
+    }
+
+    Type searchedType = null;
+    if (superClass != null) {
+      searchedType = extractTypeForHierarchy(superClass, typeToEvaluate);
+    }
+    return searchedType;
   }
 
   private static Type[] extractRealTypes(
