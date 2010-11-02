@@ -23,7 +23,7 @@ package com.google.gson.webservice.definition;
  */
 public class WebServiceSystemException extends RuntimeException {
 
-  private static final long serialVersionUID = -2511829073381716183L;
+  private static final long serialVersionUID = 1L;
 
   public WebServiceSystemException(Exception cause) {
     super(cause);
