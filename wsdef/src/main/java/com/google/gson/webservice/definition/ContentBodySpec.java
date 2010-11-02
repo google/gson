@@ -36,22 +36,27 @@ public class ContentBodySpec implements ParamMapSpec {
     this.paramsSpec = Collections.unmodifiableMap(paramsSpec);
   }
   
+  @Override
   public Type getTypeFor(String paramName) {
     return paramsSpec.get(paramName);
   }
   
+  @Override
   public boolean checkIfCompatible(String paramName, Type type) {
     return type.equals(getTypeFor(paramName));
   }
   
+  @Override
   public boolean checkIfCompatible(String paramName, Object object) {
     return checkIfCompatible(paramName, object.getClass());
   }
   
+  @Override
   public Set<Map.Entry<String, Type>> entrySet() {
     return paramsSpec.entrySet();
   }
   
+  @Override
   public int size() {
     return paramsSpec.size();
   }
