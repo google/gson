@@ -31,8 +31,8 @@ import com.google.gson.webservice.definition.procedural.ResponseSpec;
 import com.google.gson.webservice.definition.procedural.WebServiceCallSpec;
 import com.google.gson.webservice.definition.procedural.WebServiceRequest;
 import com.google.gson.webservice.definition.procedural.WebServiceResponse;
-import com.google.gson.wsf.server.RequestReceiver;
-import com.google.gson.wsf.server.ResponseSender;
+import com.google.gson.wsf.server.procedural.RequestReceiver;
+import com.google.gson.wsf.server.procedural.ResponseSender;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;

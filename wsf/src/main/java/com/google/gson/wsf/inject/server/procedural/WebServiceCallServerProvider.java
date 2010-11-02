@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson.wsf.inject.server;
+package com.google.gson.wsf.inject.server.procedural;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -22,8 +22,8 @@ import com.google.gson.webservice.definition.procedural.WebServiceCall;
 import com.google.gson.webservice.definition.procedural.WebServiceCallSpec;
 import com.google.gson.webservice.definition.procedural.WebServiceRequest;
 import com.google.gson.webservice.definition.procedural.WebServiceResponse;
-import com.google.gson.wsf.server.RequestReceiver;
-import com.google.gson.wsf.server.WebServiceCallServerBuilder;
+import com.google.gson.wsf.server.procedural.RequestReceiver;
+import com.google.gson.wsf.server.procedural.WebServiceCallServerBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 

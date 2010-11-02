@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson.wsf.inject;
+package com.google.gson.wsf.inject.server.procedural;
 
 import com.google.gson.webservice.definition.CallPath;
 import com.google.gson.webservice.definition.procedural.WebServiceCallSpec;
