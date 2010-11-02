@@ -15,8 +15,8 @@
  */
 package com.google.gson.webservice.client;
 
-import com.google.gson.webservice.definition.WebServiceCallSpec;
-import com.google.gson.webservice.definition.WebServiceRequest;
+import com.google.gson.webservice.definition.procedural.WebServiceCallSpec;
+import com.google.gson.webservice.definition.procedural.WebServiceRequest;
 
 /**
  * A holder class for an entry stored in queue. It contains references to the request, callspec,

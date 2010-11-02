@@ -13,7 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson.webservice.definition;
+package com.google.gson.webservice.definition.procedural;
+
+import com.google.gson.webservice.definition.ContentBodySpec;
+import com.google.gson.webservice.definition.HeaderMap;
+import com.google.gson.webservice.definition.HttpMethod;
+import com.google.gson.webservice.definition.TypedKey;
 
 /**
  * The data associated with a Web service request. This includes HTTP request header parameters 

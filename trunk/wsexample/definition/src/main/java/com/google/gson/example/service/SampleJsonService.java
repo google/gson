@@ -17,7 +17,7 @@ package com.google.gson.example.service;
 import com.google.gson.example.model.TypedKeys;
 import com.google.gson.webservice.definition.CallPath;
 import com.google.gson.webservice.definition.HttpMethod;
-import com.google.gson.webservice.definition.WebServiceCallSpec;
+import com.google.gson.webservice.definition.procedural.WebServiceCallSpec;
 
 /**
  * An example of a web-service definition

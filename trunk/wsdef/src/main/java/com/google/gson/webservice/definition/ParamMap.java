@@ -15,12 +15,14 @@
  */
 package com.google.gson.webservice.definition;
 
+import com.google.gson.webservice.definition.internal.utils.Preconditions;
+
 import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-class ParamMap {
+public class ParamMap {
 
   public static class Builder<T extends ParamMapSpec> {    
     protected final Map<String, Object> contents = new LinkedHashMap<String, Object>();

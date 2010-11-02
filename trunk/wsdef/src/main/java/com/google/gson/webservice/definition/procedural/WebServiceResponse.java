@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson.webservice.definition;
+package com.google.gson.webservice.definition.procedural;
+
+import com.google.gson.webservice.definition.HeaderMap;
+import com.google.gson.webservice.definition.TypedKey;
 
 import java.lang.reflect.Type;
 

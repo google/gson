@@ -15,6 +15,7 @@
  */
 package com.google.gson.webservice.definition;
 
+
 import java.lang.reflect.Type;
 import java.util.Map;
 

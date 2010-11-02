@@ -28,10 +28,10 @@ import com.google.gson.webservice.client.WebServiceClient;
 import com.google.gson.webservice.client.WebServiceConfig;
 import com.google.gson.webservice.definition.HeaderMap;
 import com.google.gson.webservice.definition.HttpMethod;
-import com.google.gson.webservice.definition.RequestBody;
-import com.google.gson.webservice.definition.WebServiceCallSpec;
-import com.google.gson.webservice.definition.WebServiceRequest;
-import com.google.gson.webservice.definition.WebServiceResponse;
+import com.google.gson.webservice.definition.procedural.RequestBody;
+import com.google.gson.webservice.definition.procedural.WebServiceCallSpec;
+import com.google.gson.webservice.definition.procedural.WebServiceRequest;
+import com.google.gson.webservice.definition.procedural.WebServiceResponse;
 
 public class ExampleClient {
 

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson.webservice.typeadapters;
+package com.google.gson.webservice.definition.rest;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -47,7 +47,7 @@ public class IdTypeAdapterTest extends TestCase {
   @Override
   protected void setUp() {
     gson = new GsonBuilder()
-        .registerTypeAdapter(Id.class, new IdTypeAdapter())
+        .registerTypeAdapter(Id.class, new Id.GsonTypeAdapter())
         .create();
     course = new Course<HistoryCourse>(COURSE_ID, 4,
         new Assignment<HistoryCourse>(null, null), createList(STUDENT1, STUDENT2));

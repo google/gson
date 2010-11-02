@@ -13,12 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson.webservice.definition;
+package com.google.gson.webservice.definition.procedural;
+
+import com.google.gson.webservice.definition.CallPath;
+import com.google.gson.webservice.definition.HeaderMapSpec;
+import com.google.gson.webservice.definition.HttpMethod;
+import com.google.gson.webservice.definition.TypedKey;
+import com.google.gson.webservice.definition.internal.utils.Preconditions;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
-
 
 /**
  * Specification for a Json web service call. The call includes the relative path where the call 

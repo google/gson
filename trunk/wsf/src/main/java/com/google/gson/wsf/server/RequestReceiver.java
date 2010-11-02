@@ -29,11 +29,11 @@ import com.google.gson.JsonParseException;
 import com.google.gson.webservice.definition.HeaderMap;
 import com.google.gson.webservice.definition.HeaderMapSpec;
 import com.google.gson.webservice.definition.HttpMethod;
-import com.google.gson.webservice.definition.RequestBody;
-import com.google.gson.webservice.definition.RequestBodySpec;
-import com.google.gson.webservice.definition.RequestSpec;
-import com.google.gson.webservice.definition.WebServiceRequest;
 import com.google.gson.webservice.definition.WebServiceSystemException;
+import com.google.gson.webservice.definition.procedural.RequestBody;
+import com.google.gson.webservice.definition.procedural.RequestBodySpec;
+import com.google.gson.webservice.definition.procedural.RequestSpec;
+import com.google.gson.webservice.definition.procedural.WebServiceRequest;
 
 /**
  * Receives and parses a request at the server side on a {@link HttpServletRequest}.  

@@ -15,6 +15,7 @@
  */
 package com.google.gson.webservice.definition;
 
+
 import java.util.Map;
 
 /**
@@ -24,9 +25,9 @@ import java.util.Map;
  * 
  * @author inder
  */
-class ContentBody extends ParamMap {
+public class ContentBody extends ParamMap {
   
-  ContentBody(ContentBodySpec spec, Map<String, Object> contents) {
+  public ContentBody(ContentBodySpec spec, Map<String, Object> contents) {
     super(spec, contents);
   }
   

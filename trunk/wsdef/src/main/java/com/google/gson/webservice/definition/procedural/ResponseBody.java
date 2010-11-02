@@ -13,7 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson.webservice.definition;
+package com.google.gson.webservice.definition.procedural;
+
+import com.google.gson.webservice.definition.ContentBody;
+import com.google.gson.webservice.definition.ParamMap;
+import com.google.gson.webservice.definition.TypedKey;
 
 import java.lang.reflect.Type;
 import java.util.Map;
@@ -21,7 +25,7 @@ import java.util.Map;
 /**
  * body of the response. This is written out as JSON to be sent out to the client. 
  * This class omits the default constructor for use by Gson. Instead the user must use
- * {@link com.google.gson.webservice.typeadapters.ResponseBodyGsonConverter}
+ * {@link com.google.gson.webservice.definition.procedural.ResponseBodyGsonConverter}
  *
  * @author inder
  */
