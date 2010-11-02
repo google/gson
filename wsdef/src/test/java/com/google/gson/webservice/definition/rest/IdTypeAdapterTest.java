@@ -55,7 +55,6 @@ public class IdTypeAdapterTest extends TestCase {
 
   public void testSerializeId() {
     String json = gson.toJson(course, TYPE_COURSE_HISTORY);
-    System.out.println(json);
     assertTrue(json.contains(String.valueOf(COURSE_ID.getValue())));
     assertTrue(json.contains(String.valueOf(STUDENT1_ID.getValue())));
     assertTrue(json.contains(String.valueOf(STUDENT2_ID.getValue())));
