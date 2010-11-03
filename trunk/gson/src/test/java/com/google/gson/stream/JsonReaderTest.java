@@ -97,7 +97,7 @@ public final class JsonReaderTest extends TestCase {
     }
   }
 
-  public void testEmptyString() throws IOException {
+  public void testEmptyString() {
     try {
       new JsonReader(new StringReader("")).beginArray();
     } catch (IOException expected) {
@@ -108,7 +108,7 @@ public final class JsonReaderTest extends TestCase {
     }
   }
 
-  public void testNoTopLevelObject() throws IOException {
+  public void testNoTopLevelObject() {
     try {
       new JsonReader(new StringReader("true")).nextBoolean();
     } catch (IOException expected) {

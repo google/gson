@@ -36,7 +36,7 @@ public final class JsonSyntaxException extends JsonParseException {
 
   /**
    * Creates exception with the specified cause. Consider using
-   * {@link #JsonIOException(String, Throwable)} instead if you can describe what happened.
+   * {@link #JsonSyntaxException(String, Throwable)} instead if you can describe what happened.
    *
    * @param cause root exception that caused this exception to be thrown.
    */
