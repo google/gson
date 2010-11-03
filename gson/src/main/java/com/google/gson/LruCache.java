@@ -41,6 +41,7 @@ final class LruCache<K, V> extends LinkedHashMap<K, V> implements Cache<K, V> {
     put(key, value);
   }
 
+  @Override
   public void clear() {
     super.clear();
   }
@@ -53,6 +54,7 @@ final class LruCache<K, V> extends LinkedHashMap<K, V> implements Cache<K, V> {
     return remove(key);
   }
 
+  @Override
   public int size() {
     return super.size();
   }

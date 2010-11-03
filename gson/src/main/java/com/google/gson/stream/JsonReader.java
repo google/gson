@@ -564,7 +564,7 @@ public final class JsonReader implements Closeable {
     } catch (NumberFormatException ignored) {
       double asDouble = Double.parseDouble(value); // don't catch this NumberFormatException
       result = (long) asDouble;
-      if ((double) result != asDouble) {
+      if (result != asDouble) {
         throw new NumberFormatException(value);
       }
     }
@@ -599,7 +599,7 @@ public final class JsonReader implements Closeable {
     } catch (NumberFormatException ignored) {
       double asDouble = Double.parseDouble(value); // don't catch this NumberFormatException
       result = (int) asDouble;
-      if ((double) result != asDouble) {
+      if (result != asDouble) {
         throw new NumberFormatException(value);
       }
     }
@@ -665,6 +665,7 @@ public final class JsonReader implements Closeable {
     stack.set(stack.size() - 1, newTop);
   }
 
+  @SuppressWarnings("fallthrough")
   private JsonToken nextInArray(boolean firstElement) throws IOException {
     if (firstElement) {
       replaceTop(JsonScope.NONEMPTY_ARRAY);
@@ -706,6 +707,7 @@ public final class JsonReader implements Closeable {
     }
   }
 
+  @SuppressWarnings("fallthrough")
   private JsonToken nextInObject(boolean firstElement) throws IOException {
     /*
      * Read delimiters. Either a comma/semicolon separating this and the
@@ -780,6 +782,7 @@ public final class JsonReader implements Closeable {
     return nextValue();
   }
 
+  @SuppressWarnings("fallthrough")
   private JsonToken nextValue() throws IOException {
     int c = nextNonWhitespace();
     switch (c) {
@@ -968,6 +971,7 @@ public final class JsonReader implements Closeable {
    * Returns the string up to but not including any delimiter characters. This
    * does not consume the delimiter character.
    */
+  @SuppressWarnings("fallthrough")
   private String nextLiteral() throws IOException {
     StringBuilder builder = null;
     do {

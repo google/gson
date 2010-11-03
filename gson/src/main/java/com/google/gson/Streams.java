@@ -154,8 +154,8 @@ final class Streams {
       appendable.append((char) i);
     }
 
-    @Override public void flush() throws IOException {}
-    @Override public void close() throws IOException {}
+    @Override public void flush() {}
+    @Override public void close() {}
 
     /**
      * A mutable char sequence pointing at a single char[].
