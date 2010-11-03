@@ -39,7 +39,6 @@ public class TypeVariableTest extends TestCase {
     bar1.map.put("key1", arrayList);
     bar1.map.put("key2", new ArrayList<Integer>());
     String json = gson.toJson(bar1);
-    System.out.println(json);
 
     Bar bar2 = gson.fromJson(json, Bar.class);
     assertEquals(bar1, bar2);
