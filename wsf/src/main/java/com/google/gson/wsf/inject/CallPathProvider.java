@@ -35,18 +35,7 @@ public final class CallPathProvider implements Provider<CallPath> {
   }
   
   public CallPathProvider(String pathInfo) {
-    int index1 = pathInfo.indexOf('/');
-    int index2 = pathInfo.substring(index1+1).indexOf('/');
-    String versionStr = pathInfo.substring(index1+1, index2+1);
-    String callPathStr = pathInfo;
-    try {
-      // Skip over the version number from the URL
-      Double.parseDouble(versionStr);
-      callPathStr = pathInfo.substring(index2+1);
-    } catch (NumberFormatException e) {
-      // Assume that version number wasn't specified
-    }
-    this.callPath = new CallPath(callPathStr);
+    this.callPath = new CallPath(pathInfo);
   }
 
   @Override
