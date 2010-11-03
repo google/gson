@@ -23,15 +23,38 @@ package com.google.gson.webservice.definition;
 public final class CallPath {
 
   private final String path;
+  private final double version;
 
   public CallPath(String path) {
-    this.path = path;
+    if (path == null) {
+      this.path = null;
+      version = -1D;
+    } else {
+      int index1 = path.indexOf('/');
+      int index2 = path.substring(index1+1).indexOf('/');
+      String versionStr = path.substring(index1+1, index2+1);
+      String callPathStr = path;
+      double givenVersion = -1D;
+      try {
+        // Skip over the version number from the URL
+        givenVersion = Double.parseDouble(versionStr);
+        callPathStr = path.substring(index2+1);
+      } catch (NumberFormatException e) {
+        // Assume that version number wasn't specified
+      }
+      this.path = callPathStr;
+      this.version = givenVersion;
+    }
   }
 
   public String get() {
     return path;
   }
-  
+
+  public double getVersion() {
+    return version;
+  }
+
   @Override
   public int hashCode() {
     return path.hashCode();
@@ -45,9 +68,13 @@ public final class CallPath {
     if (obj == null) {
       return false;
     }
-    return getClass() == obj.getClass() && path == ((CallPath)obj).path;
+    return getClass() == obj.getClass() && equal(path, ((CallPath)obj).path);
   }
-  
+
+  private static boolean equal(String s1, String s2) {
+    return s1 == s2 || (s1 != null && s2 != null && s1.equals(s2));
+  }
+
   @Override
   public String toString() {
     return path;

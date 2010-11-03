@@ -51,7 +51,9 @@ public class RestClient {
   }
   
   private URL getWebServiceUrl(RestCallSpec callSpec) {
-    String url = config.getServiceBaseUrl() + callSpec.getPath().get();
+    double version = callSpec.getVersion();
+    String versionPath = version == -1 ? "" : "/" + version;
+    String url = config.getServiceBaseUrl() + versionPath + callSpec.getPath().get();
     try {
       return new URL(url);
     } catch (MalformedURLException e) {

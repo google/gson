@@ -13,24 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson.wsf.inject;
+package com.google.gson.webservice.definition;
 
 import junit.framework.TestCase;
 
-/**
- * Unit test for {@link CallPathProvider}
- *
- * @author Inderjeet Singh
- */
-public class CallPathProviderTest extends TestCase {
+public class CallPathTest extends TestCase {
 
   public void testVersionIsSkipped() {
-    CallPathProvider provider = new CallPathProvider("/1.0/rest/service1");
-    assertEquals("/rest/service1", provider.get().get());
+    CallPath path = new CallPath("/1.0/rest/service1");
+    assertEquals("/rest/service1", path.get());
+    assertEquals(1D, path.getVersion());
   }
 
   public void testVersionNotPresent() {
-    CallPathProvider provider = new CallPathProvider("/rest/service1");
-    assertEquals("/rest/service1", provider.get().get());
+    CallPath path = new CallPath("/rest/service1");
+    assertEquals("/rest/service1", path.get());
+    assertEquals(-1D, path.getVersion());
   }
 }
