@@ -395,7 +395,6 @@ public final class Gson {
    * @throws JsonParseException if json is not a valid representation for an object of type
    * classOfT
    */
-  @SuppressWarnings("unchecked")
   public <T> T fromJson(String json, Class<T> classOfT) throws JsonParseException {
     Object object = fromJson(json, (Type) classOfT);
     return Primitives.wrap(classOfT).cast(object);

@@ -23,6 +23,8 @@ import java.io.IOException;
  * ignored by calling {@link JsonReader#setLenient(boolean)}.
  */
 public final class MalformedJsonException extends IOException {
+  private static final long serialVersionUID = 1L;
+
   public MalformedJsonException(String s) {
     super(s);
   }
