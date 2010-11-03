@@ -27,18 +27,30 @@ import com.google.inject.Provider;
  * @author inder
  */
 public final class CallPathProvider implements Provider<CallPath> {
-  private final HttpServletRequest request;
+  private final CallPath callPath;
 
   @Inject 
   public CallPathProvider(HttpServletRequest request) {
-    this.request = request;
+    this(request.getPathInfo());
+  }
+  
+  public CallPathProvider(String pathInfo) {
+    int index1 = pathInfo.indexOf('/');
+    int index2 = pathInfo.substring(index1+1).indexOf('/');
+    String versionStr = pathInfo.substring(index1+1, index2+1);
+    String callPathStr = pathInfo;
+    try {
+      // Skip over the version number from the URL
+      Double.parseDouble(versionStr);
+      callPathStr = pathInfo.substring(index2+1);
+    } catch (NumberFormatException e) {
+      // Assume that version number wasn't specified
+    }
+    this.callPath = new CallPath(callPathStr);
   }
 
   @Override
   public CallPath get() {
-    String pathInfo = request.getPathInfo();
-    System.out.println("Incoming request with pathInfo: " + pathInfo);
-    String callPath = pathInfo;
-    return new CallPath(callPath);
+    return callPath;
   }
 }
