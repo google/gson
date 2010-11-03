@@ -54,16 +54,16 @@ public class TypeVariableTest extends TestCase {
       this.someTField = tValue;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean equals(Object o) {
       if (!(o instanceof Foo)) {
         return false;
-      } else {
-        Foo<S, T> realFoo = (Foo<S, T>) o;
-        return someTField.equals(realFoo.someTField)
-          && someSField.equals(realFoo.someSField)
-          && map.equals(realFoo.map);
       }
+      Foo<S, T> realFoo = (Foo<S, T>) o;
+      return someTField.equals(realFoo.someTField)
+        && someSField.equals(realFoo.someSField)
+        && map.equals(realFoo.map);
     }
   }
 

@@ -37,8 +37,6 @@ import com.google.gson.reflect.TypeToken;
  * @author Joel Leitch
  */
 public class PrettyPrintingTest extends TestCase {
-  private static int PRINT_MARGIN = 80;
-  private static int RIGHT_MARGIN = 4;
 
   private static final boolean DEBUG = false;
 
