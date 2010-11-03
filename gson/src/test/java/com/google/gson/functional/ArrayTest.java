@@ -244,4 +244,15 @@ public class ArrayTest extends TestCase {
     assertTrue(json.contains(classWithObjectsJson));
     assertTrue(json.contains(bagOfPrimitivesJson));
   }
+
+  public void testArrayOfNullSerialization() {
+    Object[] array = new Object[] {null};
+    String json = gson.toJson(array);
+    assertEquals("[null]", json);
+  }
+
+  public void testArrayOfNullDeserialization() {
+    String[] values = gson.fromJson("[null]", String[].class);
+    assertNull(values[0]);
+  }
 }
