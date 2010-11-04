@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Google Inc.
+ * Copyright (C) 2010 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,105 +15,73 @@
  */
 package com.google.gson.rest.client;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.rest.definition.ID;
 import com.google.gson.rest.definition.RestCallSpec;
 import com.google.gson.rest.definition.RestRequest;
 import com.google.gson.rest.definition.RestResource;
 import com.google.gson.rest.definition.RestResponse;
-import com.google.gson.webservice.definition.WebServiceSystemException;
+import com.google.gson.webservice.definition.CallPath;
+import com.google.gson.webservice.definition.HeaderMap;
+import com.google.gson.webservice.definition.HttpMethod;
+
+import java.lang.reflect.Type;
 
 /**
- * Main class used by clients to access a Gson Web service.
- * 
- * @author inder
+ * A client class to access a rest resource
+ *
+ * @author Inderjeet Singh
  */
-public class RestClient {
-  private final RestServerConfig config;
-  private final Logger logger;
-  private final Level logLevel;
+public class RestClient<I extends ID, R extends RestResource<I, R>> {
+  private final RestClientStub stub;
+  private final RestCallSpec callSpec;
+  private final Type resourceType;
 
-  public RestClient(RestServerConfig serverConfig) {
-    this(serverConfig, null);
-  }
-
-  public RestClient(RestServerConfig serverConfig, Level logLevel) {
-    this.config = serverConfig;
-    this.logger = logLevel == null ? null : Logger.getLogger(RestClient.class.getName());
-    this.logLevel = logLevel;
-  }
-  
-  private URL getWebServiceUrl(RestCallSpec callSpec) {
-    double version = callSpec.getVersion();
-    String versionPath = version == -1 ? "" : "/" + version;
-    String url = config.getServiceBaseUrl() + versionPath + callSpec.getPath().get();
-    try {
-      return new URL(url);
-    } catch (MalformedURLException e) {
-      throw new RuntimeException(e);
-    }
-  }
-  
-  public <I extends ID, R extends RestResource<I, R>> RestResponse<I, R> getResponse(
-      RestCallSpec callSpec, RestRequest<I, R> request) {
-    Gson gson = new GsonBuilder().setVersion(callSpec.getVersion()).create();
-    return getResponse(callSpec, request, gson);
+  public RestClient(RestClientStub stub, CallPath callPath, Type resourceType) {
+    this(stub, resourceType, generateRestCallSpec(callPath, resourceType));
   }
 
-  public <I extends ID, R extends RestResource<I, R>> RestResponse<I, R> getResponse(
-      RestCallSpec callSpec, RestRequest<I, R> request, Gson gson) {
-    HttpURLConnection conn = null;
-    try {
-      URL webServiceUrl = getWebServiceUrl(callSpec);
-      if (logger != null) {
-        logger.log(logLevel, "Opening connection to " + webServiceUrl);
-      }
-      conn = (HttpURLConnection) webServiceUrl.openConnection();
-      return getResponse(callSpec, request, gson, conn);
-    } catch (IOException e) {
-      throw new WebServiceSystemException(e);
-    } finally {
-      closeIgnoringErrors(conn);
-    }
+  protected RestClient(RestClientStub stub, Type resourceType, RestCallSpec callSpec) {
+    this.stub = stub;
+    this.callSpec = callSpec;
+    this.resourceType = resourceType;
   }
 
-  /**
-   * Use this method if you want to mange the HTTP Connection yourself. This is useful when you
-   * want to use HTTP pipelining.
-   */
-  public <I extends ID, R extends RestResource<I, R>> RestResponse<I, R> getResponse(
-      RestCallSpec callSpec, RestRequest<I, R> request, Gson gson, HttpURLConnection conn) {
-    try {
-      if (logger != null) {
-        URL webServiceUrl = getWebServiceUrl(callSpec);
-        logger.log(logLevel, "Opening connection to " + webServiceUrl);
-      }
-      RestRequestSender requestSender = new RestRequestSender(gson, logLevel);
-      requestSender.send(conn, request);
-      RestResponseReceiver<I, R> responseReceiver =
-        new RestResponseReceiver<I, R>(gson, callSpec.getResponseSpec(), logLevel);
-      return responseReceiver.receive(conn);
-    } catch (IllegalArgumentException e) {
-      throw new WebServiceSystemException(e);
-    }
-  }
-  
-  private static void closeIgnoringErrors(HttpURLConnection conn) {
-    if (conn != null) {
-      conn.disconnect();
-    }
+  private static <T> RestCallSpec generateRestCallSpec(CallPath callPath, Type resourceType) {
+    return new RestCallSpec.Builder(callPath, resourceType).build();
   }
 
-  @Override
-  public String toString() {
-    return String.format("config:%s", config);
+  public R get(I resourceId) {
+    HeaderMap requestHeaders =
+      new HeaderMap.Builder(callSpec.getRequestSpec().getHeadersSpec()).build();
+    RestRequest<I, R> request =
+      new RestRequest<I, R>(HttpMethod.GET, requestHeaders, null, resourceType);
+    RestResponse<I, R> response = stub.getResponse(callSpec, request);
+    return response.getBody();
+  }
+
+  public R post(R resource) {
+    HeaderMap requestHeaders =
+      new HeaderMap.Builder(callSpec.getRequestSpec().getHeadersSpec()).build();
+    RestRequest<I, R> request =
+      new RestRequest<I, R>(HttpMethod.POST, requestHeaders, resource, resourceType);
+    RestResponse<I, R> response = stub.getResponse(callSpec, request);
+    return response.getBody();
+  }
+
+  public R put(R resource) {
+    HeaderMap requestHeaders =
+      new HeaderMap.Builder(callSpec.getRequestSpec().getHeadersSpec()).build();
+    RestRequest<I, R> request =
+      new RestRequest<I, R>(HttpMethod.PUT, requestHeaders, resource, resourceType);
+    RestResponse<I, R> response = stub.getResponse(callSpec, request);
+    return response.getBody();
+  }
+
+  public void delete(I resourceId) {
+    HeaderMap requestHeaders =
+      new HeaderMap.Builder(callSpec.getRequestSpec().getHeadersSpec()).build();
+    RestRequest<I, R> request =
+      new RestRequest<I, R>(HttpMethod.DELETE, requestHeaders, null, resourceType);
+    stub.getResponse(callSpec, request);
   }
 }
