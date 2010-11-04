@@ -28,7 +28,7 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.rest.definition.Id;
 
 /**
- * Unit tests for {@link IdTypeAdapter}
+ * Unit tests for {@link Id.GsonTypeAdapter}
  *
  * @author inder
  */

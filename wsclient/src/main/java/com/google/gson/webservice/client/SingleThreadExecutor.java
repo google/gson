@@ -25,7 +25,9 @@ import java.util.concurrent.Executors;
  */
 final class SingleThreadExecutor implements TaskExecutor {
   private ExecutorService executor;
-  public void execute(final Runnable r) {
+
+  @Override
+  public void execute(Runnable r) {
     executor = Executors.newSingleThreadExecutor();
     executor.execute(r);
   }
