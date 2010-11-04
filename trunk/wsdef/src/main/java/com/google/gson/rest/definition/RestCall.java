@@ -21,13 +21,13 @@ package com.google.gson.rest.definition;
  * 
  * @author inder
  */
-public final class RestCall<R extends RestResource<R>> {
+public final class RestCall<I extends ID, R extends RestResource<I, R>> {
   
   private final RestCallSpec callSpec;
-  private final RestRequest<R> request;
-  private final RestResponse<R> response;
+  private final RestRequest<I, R> request;
+  private final RestResponse<I, R> response;
   
-  public RestCall(RestCallSpec callSpec, RestRequest<R> request, RestResponse<R> response) {
+  public RestCall(RestCallSpec callSpec, RestRequest<I, R> request, RestResponse<I, R> response) {
     this.callSpec = callSpec;
     this.request = request;
     this.response = response;
@@ -37,11 +37,11 @@ public final class RestCall<R extends RestResource<R>> {
     return callSpec;
   }
   
-  public RestRequest<R> getRequest() {
+  public RestRequest<I, R> getRequest() {
     return request;
   }
 
-  public RestResponse<R> getResponse() {
+  public RestResponse<I, R> getResponse() {
     return response;
   }
 }

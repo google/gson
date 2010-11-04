@@ -24,6 +24,7 @@ import java.util.logging.Logger;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.rest.definition.ID;
 import com.google.gson.rest.definition.RestCallSpec;
 import com.google.gson.rest.definition.RestRequest;
 import com.google.gson.rest.definition.RestResource;
@@ -61,14 +62,14 @@ public class RestClient {
     }
   }
   
-  public <R extends RestResource<R>> RestResponse<R> getResponse(
-      RestCallSpec callSpec, RestRequest<R> request) {
+  public <I extends ID, R extends RestResource<I, R>> RestResponse<I, R> getResponse(
+      RestCallSpec callSpec, RestRequest<I, R> request) {
     Gson gson = new GsonBuilder().setVersion(callSpec.getVersion()).create();
     return getResponse(callSpec, request, gson);
   }
 
-  public <R extends RestResource<R>> RestResponse<R> getResponse(
-      RestCallSpec callSpec, RestRequest<R> request, Gson gson) {
+  public <I extends ID, R extends RestResource<I, R>> RestResponse<I, R> getResponse(
+      RestCallSpec callSpec, RestRequest<I, R> request, Gson gson) {
     HttpURLConnection conn = null;
     try {
       URL webServiceUrl = getWebServiceUrl(callSpec);
@@ -88,8 +89,8 @@ public class RestClient {
    * Use this method if you want to mange the HTTP Connection yourself. This is useful when you
    * want to use HTTP pipelining.
    */
-  public <R extends RestResource<R>> RestResponse<R> getResponse(
-      RestCallSpec callSpec, RestRequest<R> request, Gson gson, HttpURLConnection conn) {
+  public <I extends ID, R extends RestResource<I, R>> RestResponse<I, R> getResponse(
+      RestCallSpec callSpec, RestRequest<I, R> request, Gson gson, HttpURLConnection conn) {
     try {
       if (logger != null) {
         URL webServiceUrl = getWebServiceUrl(callSpec);
@@ -97,8 +98,8 @@ public class RestClient {
       }
       RestRequestSender requestSender = new RestRequestSender(gson, logLevel);
       requestSender.send(conn, request);
-      RestResponseReceiver<R> responseReceiver =
-        new RestResponseReceiver<R>(gson, callSpec.getResponseSpec(), logLevel);
+      RestResponseReceiver<I, R> responseReceiver =
+        new RestResponseReceiver<I, R>(gson, callSpec.getResponseSpec(), logLevel);
       return responseReceiver.receive(conn);
     } catch (IllegalArgumentException e) {
       throw new WebServiceSystemException(e);

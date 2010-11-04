@@ -16,7 +16,7 @@
 package com.google.gson.rest.server;
 
 import com.google.gson.rest.definition.HasId;
-import com.google.gson.rest.definition.Id;
+import com.google.gson.rest.definition.ID;
 
 /**
  * An interface for a repository of rest resources. Meant for abstracting the server-side
@@ -26,8 +26,8 @@ import com.google.gson.rest.definition.Id;
  *
  * @param <R> the type of rest resource
  */
-public interface Repository<R extends HasId<R>> {
-  public R get(Id<R> resourceId);
+public interface Repository<I extends ID, R extends HasId<I>> {
+  public R get(I resourceId);
 
   /**
    * if resource.getId() == null, inserts the resource after assigning it a new id.
@@ -35,14 +35,14 @@ public interface Repository<R extends HasId<R>> {
    */
   public R put(R resource);
 
-  public void delete(Id<R> resourceId);
+  public void delete(I resourceId);
   
-  public boolean exists(Id<R> resourceId);
+  public boolean exists(I resourceId);
 
   /**
    * Ensures that the specified resource has a valid id that will be used when it is saved
    */
-  public Id<R> assignId(R resource);
+  public I assignId(R resource);
 
-  public Id<R> getNextId();
+  public I getNextId();
 }
