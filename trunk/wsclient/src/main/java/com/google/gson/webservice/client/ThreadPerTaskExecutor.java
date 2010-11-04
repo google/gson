@@ -22,7 +22,9 @@ package com.google.gson.webservice.client;
  */
 final class ThreadPerTaskExecutor implements TaskExecutor {
   private Thread thread;
-  public void execute(final Runnable r) {
+
+  @Override
+  public void execute(Runnable r) {
     thread = new Thread(r);
     thread.start();
   }

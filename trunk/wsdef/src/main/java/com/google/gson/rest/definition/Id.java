@@ -54,6 +54,11 @@ public final class Id<R> implements ID {
   public static long getValue(Id<?> id) {
     return id == null ? NULL_VALUE : id.getValue();
   }
+
+  public String getValueAsString() {
+    return String.valueOf(value);
+  }
+
   public Type getTypeOfId() {
     return typeOfId;
   }

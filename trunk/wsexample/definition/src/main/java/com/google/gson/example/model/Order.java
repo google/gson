@@ -15,15 +15,19 @@
  */
 package com.google.gson.example.model;
 
+import com.google.gson.rest.definition.Id;
+import com.google.gson.rest.definition.RestResource;
+
 /**
  * An order
  *
  * @author inder
  */
-public class Order {
+public class Order implements RestResource<Id<Order>, Order> {
   public final Cart postedCart;
   public final String orderNumber;
-
+  private Id<Order> id;
+ 
   public Order(Cart postedCart, String orderNumber) {
     this.postedCart = postedCart;
     this.orderNumber = orderNumber;
@@ -37,4 +41,18 @@ public class Order {
     return orderNumber;
   }
 
+  @Override
+  public Id<Order> getId() {
+    return id;
+  }
+
+  @Override
+  public void setId(Id<Order> id) {
+    this.id = id;
+  }
+
+  @Override
+  public boolean hasId() {
+    return Id.isValid(id);
+  }
 }
