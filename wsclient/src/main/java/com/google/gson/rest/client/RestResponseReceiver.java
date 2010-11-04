@@ -15,16 +15,6 @@
  */
 package com.google.gson.rest.client;
 
-import com.google.gson.Gson;
-import com.google.gson.rest.definition.RestResource;
-import com.google.gson.rest.definition.RestResponse;
-import com.google.gson.rest.definition.RestResponseSpec;
-import com.google.gson.webservice.definition.ContentBodySpec;
-import com.google.gson.webservice.definition.HeaderMap;
-import com.google.gson.webservice.definition.HeaderMapSpec;
-import com.google.gson.webservice.definition.WebServiceSystemException;
-import com.google.gson.wsclient.internal.utils.ConnectionPreconditions;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -35,12 +25,23 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.google.gson.Gson;
+import com.google.gson.rest.definition.ID;
+import com.google.gson.rest.definition.RestResource;
+import com.google.gson.rest.definition.RestResponse;
+import com.google.gson.rest.definition.RestResponseSpec;
+import com.google.gson.webservice.definition.ContentBodySpec;
+import com.google.gson.webservice.definition.HeaderMap;
+import com.google.gson.webservice.definition.HeaderMapSpec;
+import com.google.gson.webservice.definition.WebServiceSystemException;
+import com.google.gson.wsclient.internal.utils.ConnectionPreconditions;
+
 /**
  * Receives a response coming on an {@link HttpURLConnection}.
  * 
  * @author inder
  */
-public final class RestResponseReceiver<R extends RestResource<R>> {
+public final class RestResponseReceiver<I extends ID, R extends RestResource<I, R>> {
   private final Gson gson;
   private final RestResponseSpec spec;
   private final Logger logger;
@@ -56,14 +57,14 @@ public final class RestResponseReceiver<R extends RestResource<R>> {
     this.logLevel = logLevel;
   }
   
-  public RestResponse<R> receive(HttpURLConnection conn) {
+  public RestResponse<I, R> receive(HttpURLConnection conn) {
     try {
       HeaderMapSpec paramSpec = spec.getHeadersSpec();
       Type bodyType = spec.getResourceType();
       // read response
       HeaderMap responseParams = readResponseHeaders(conn, paramSpec);
       R responseBody = readResponseBody(conn, bodyType);
-      return new RestResponse<R>(responseParams, responseBody, bodyType);
+      return new RestResponse<I, R>(responseParams, responseBody, bodyType);
     } catch (IOException e) {
       throw new WebServiceSystemException(e);
     }

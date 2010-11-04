@@ -22,8 +22,8 @@ package com.google.gson.rest.definition;
  *
  * @param <R> type of object
  */
-public interface HasId<R> {
-  public Id<R> getId();
-  public void setId(Id<R> id);
+public interface HasId<I extends ID> {
+  public I getId();
+  public void setId(I id);
   public boolean hasId();
 }

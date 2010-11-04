@@ -15,22 +15,22 @@
  */
 package com.google.gson.rest.server;
 
-import com.google.gson.rest.definition.Id;
+import com.google.gson.rest.definition.ID;
 import com.google.gson.rest.definition.RestCallSpec;
 import com.google.gson.rest.definition.RestRequest;
 import com.google.gson.rest.definition.RestResource;
 import com.google.gson.rest.definition.RestResponse;
 import com.google.gson.webservice.definition.HttpMethod;
 
-public abstract class RestResponseBuilder<R extends RestResource<R>> {
-  protected final Repository<R> resources;
+public abstract class RestResponseBuilder<I extends ID, R extends RestResource<I, R>> {
+  protected final Repository<I, R> resources;
 
-  public RestResponseBuilder(Repository<R> resources) {
+  public RestResponseBuilder(Repository<I, R> resources) {
     this.resources = resources;
   }
 
-  public void buildResponse(RestCallSpec callSpec, RestRequest<R> request,
-      RestResponse.Builder<R> responseBuilder) {
+  public void buildResponse(RestCallSpec callSpec, RestRequest<I, R> request,
+      RestResponse.Builder<I, R> responseBuilder) {
     HttpMethod method = request.getMethod();
     R responseBody = null;
     switch (method) {
@@ -50,7 +50,7 @@ public abstract class RestResponseBuilder<R extends RestResource<R>> {
     responseBuilder.setBody(responseBody);
   }
 
-  public R get(Id<R> resourceId) {
+  public R get(I resourceId) {
     return resources.get(resourceId);
   }
 
@@ -58,7 +58,7 @@ public abstract class RestResponseBuilder<R extends RestResource<R>> {
     return resources.put(resource);
   }
 
-  public void delete(Id<R> resourceId) {
+  public void delete(I resourceId) {
     resources.delete(resourceId);
   }
 

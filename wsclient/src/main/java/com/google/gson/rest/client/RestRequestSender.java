@@ -23,6 +23,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.gson.Gson;
+import com.google.gson.rest.definition.ID;
 import com.google.gson.rest.definition.RestRequest;
 import com.google.gson.rest.definition.RestResource;
 import com.google.gson.webservice.definition.HeaderMap;
@@ -50,7 +51,7 @@ public final class RestRequestSender {
     this.logLevel = logLevel;
   }
   
-  public <R extends RestResource<R>> void send(HttpURLConnection conn, RestRequest<R> request) {    
+  public <I extends ID, R extends RestResource<I, R>> void send(HttpURLConnection conn, RestRequest<I, R> request) {    
     try {
       conn.setRequestMethod(request.getHttpMethod().toString());
       setHeader(conn, "Content-Type", request.getContentType(), true);

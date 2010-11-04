@@ -18,7 +18,7 @@ package com.google.gson.rest.server;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.gson.rest.definition.Id;
+import com.google.gson.rest.definition.ID;
 import com.google.gson.rest.definition.MetaData;
 import com.google.gson.rest.definition.RestResource;
 
@@ -29,15 +29,15 @@ import com.google.gson.rest.definition.RestResource;
  *
  * @param <R> the rest resource for whic the metadata is being stored
  */
-public class MetaDataMap<R extends RestResource<R>> {
-  private final Map<Id<R>, MetaData<R>> map;
+public class MetaDataMap<I extends ID, R extends RestResource<I, R>> {
+  private final Map<I, MetaData<I, R>> map;
 
   public MetaDataMap() {
-    this.map = new HashMap<Id<R>, MetaData<R>>();
+    this.map = new HashMap<I, MetaData<I, R>>();
   }
 
-  public MetaData<R> get(Id<R> resourceId) {
-    MetaData<R> metaData = map.get(resourceId);
+  public MetaData<I, R> get(I resourceId) {
+    MetaData<I, R> metaData = map.get(resourceId);
     if (metaData == null) {
       metaData = MetaData.create();
       map.put(resourceId, metaData);

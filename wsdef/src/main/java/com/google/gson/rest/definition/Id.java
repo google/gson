@@ -35,7 +35,7 @@ import java.lang.reflect.WildcardType;
  *
  * @param <R> type variable for the rest resource
  */
-public final class Id<R> {
+public final class Id<R> implements ID {
   private static final long NULL_VALUE = -1;
   private final long value;
   private final Type typeOfId;
@@ -46,6 +46,7 @@ public final class Id<R> {
     this.typeOfId = typeOfId;
   }
 
+  @Override
   public long getValue() {
     return value;
   }

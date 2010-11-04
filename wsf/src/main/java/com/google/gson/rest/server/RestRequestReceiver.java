@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
+import com.google.gson.rest.definition.ID;
 import com.google.gson.rest.definition.RestRequest;
 import com.google.gson.rest.definition.RestRequestSpec;
 import com.google.gson.rest.definition.RestResource;
@@ -39,7 +40,7 @@ import com.google.gson.webservice.definition.WebServiceSystemException;
  * 
  * @author inder
  */
-public final class RestRequestReceiver<R extends RestResource<R>> {
+public final class RestRequestReceiver<I extends ID, R extends RestResource<I, R>> {
 
   private final Gson gson;
   private final RestRequestSpec spec;
@@ -49,13 +50,13 @@ public final class RestRequestReceiver<R extends RestResource<R>> {
     this.spec = spec;
   }
   
-  public RestRequest<R> receive(HttpServletRequest request) {
+  public RestRequest<I, R> receive(HttpServletRequest request) {
     try {
       HeaderMap requestParams = buildRequestParams(request);
       R requestBody = buildRequestBody(request);
       
       HttpMethod method = HttpMethod.getMethod(request.getMethod());
-      return new RestRequest<R>(method, requestParams, requestBody, spec.getResourceType());
+      return new RestRequest<I, R>(method, requestParams, requestBody, spec.getResourceType());
     } catch (IOException e) {
       throw new WebServiceSystemException(e);
     } catch (JsonParseException e) {
