@@ -16,7 +16,7 @@
 package com.google.gson.rest.server;
 
 import com.google.common.base.Preconditions;
-import com.google.gson.rest.definition.Id;
+import com.google.gson.rest.definition.ID;
 import com.google.gson.rest.definition.MetaData;
 import com.google.gson.rest.definition.RestResource;
 
@@ -27,24 +27,24 @@ import com.google.gson.rest.definition.RestResource;
  *
  * @param <R> Type variable for the resource
  */
-public class RepositoryInMemory<R extends RestResource<R>> implements Repository<R> {
+public class RepositoryInMemory<I extends ID, R extends RestResource<I, R>> implements Repository<I, R> {
   private static final String METADATA_KEY_IS_FRESHLY_ASSIGNED_ID = "isFreshlyAssignedId";
 
-  private final IdMap<R> resources;
-  private final MetaDataMap<R> metaDataMap;
+  private final IdMap<I, R> resources;
+  private final MetaDataMap<I, R> metaDataMap;
 
-  public RepositoryInMemory(Class<? super R> classOfResource) {
-    this.resources = IdMap.create(classOfResource);
-    this.metaDataMap = new MetaDataMap<R>();
+  public RepositoryInMemory(Class<? super I> classOfI, Class<? super R> classOfResource) {
+    this.resources = IdMap.create(classOfI, classOfResource);
+    this.metaDataMap = new MetaDataMap<I, R>();
   }
 
   @Override
-  public R get(Id<R> resourceId) {
+  public R get(I resourceId) {
     return resources.get(resourceId);
   }
 
-  public boolean isFreshlyAssignedId(Id<R> resourceId) {
-    MetaData<R> metaData = metaDataMap.get(resourceId);
+  public boolean isFreshlyAssignedId(I resourceId) {
+    MetaData<I, R> metaData = metaDataMap.get(resourceId);
     if (metaData == null) {
       return false;
     }
@@ -57,7 +57,7 @@ public class RepositoryInMemory<R extends RestResource<R>> implements Repository
       // insert semantics
       assignId(resource);
     } else {
-      Id<R> id = resource.getId();
+      I id = resource.getId();
       if (!isFreshlyAssignedId(id)) {
         // update semantics
         Preconditions.checkState(resources.exists(resource.getId()));
@@ -69,24 +69,24 @@ public class RepositoryInMemory<R extends RestResource<R>> implements Repository
   }
 
   @Override
-  public void delete(Id<R> resourceId) {
+  public void delete(I resourceId) {
     resources.delete(resourceId);
   }
 
   @Override
-  public boolean exists(Id<R> resourceId) {
+  public boolean exists(I resourceId) {
     return resources.exists(resourceId);
   }
 
   @Override
-  public Id<R> getNextId() {
+  public I getNextId() {
     return resources.getNextId();
   }
 
   @Override
-  public Id<R> assignId(R resource) {
+  public I assignId(R resource) {
     if (resource.getId() == null) {
-      Id<R> id = resources.getNextId();
+      I id = resources.getNextId();
       resource.setId(id);
       metaDataMap.get(id).putBoolean(METADATA_KEY_IS_FRESHLY_ASSIGNED_ID, true);
     }

@@ -22,7 +22,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.gson.rest.definition.HasId;
-import com.google.gson.rest.definition.Id;
+import com.google.gson.rest.definition.ID;
+import com.google.gson.rest.definition.IDFactory;
 
 /**
  * This class provides a type-safe map to access values associated with Ids
@@ -31,22 +32,22 @@ import com.google.gson.rest.definition.Id;
  *
  * @param <T> the type of the objects being kept in the map
  */
-public class IdMap<T extends HasId<T>> {
+public class IdMap<I extends ID, T extends HasId<I>> {
   public static final Logger LOG = Logger.getLogger(IdMap.class.getName());
-  protected final Map<Id<T>, T> map;
+  protected final Map<I, T> map;
   private volatile long nextAvailableId;
-  private final Type typeOfId;
+  private final IDFactory<I> idFactory;
 
   /**
    * Use {@link #create(Type)} instead of constructor
    */
-  protected IdMap(Type typeOfId) {
-    this.typeOfId = typeOfId;
-    map = new ConcurrentHashMap<Id<T>, T>();
+  protected IdMap(Class<? super I> classOfI, Type typeOfId) {
+    map = new ConcurrentHashMap<I, T>();
     nextAvailableId = 0;
+    this.idFactory = new IDFactory<I>(classOfI, typeOfId);
   }
 
-  public T get(Id<T> id) {
+  public T get(I id) {
     return map.get(id);
   }
 
@@ -55,23 +56,23 @@ public class IdMap<T extends HasId<T>> {
     return obj;
   }
 
-  public void delete(Id<T> id) {
+  public void delete(I id) {
     T removed = map.remove(id);
     if (removed == null) {
       LOG.log(Level.WARNING, "Attempted to delete non-existent id: {0}", id);
     }
   }
 
-  public boolean exists(Id<T> id) {
+  public boolean exists(I id) {
     return map.containsKey(id);
   }
 
-  public synchronized Id<T> getNextId() {
+  public synchronized I getNextId() {
     long id = nextAvailableId++;
-    return Id.get(id, typeOfId);
+    return idFactory.createId(id);
   }
 
-  public static <S extends HasId<S>> IdMap<S> create(Type typeOfId) {
-    return new IdMap<S>(typeOfId);
+  public static <II extends ID, S extends HasId<II>> IdMap<II, S> create(Class<? super II> classOfII, Type typeOfId) {
+    return new IdMap<II, S>(classOfII, typeOfId);
   }
 }

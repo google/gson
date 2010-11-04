@@ -26,13 +26,13 @@ import com.google.gson.webservice.definition.TypedKey;
  * 
  * @author inder
  */
-public final class RestResponse<R extends RestResource<R>> {
+public final class RestResponse<I extends ID, R extends RestResource<I, R>> {
   
   private final HeaderMap headers;
   private final R body;
   private final RestResponseSpec spec;
   
-  public static class Builder<RS extends RestResource<RS>> {
+  public static class Builder<II extends ID, RS extends RestResource<II, RS>> {
     private final HeaderMap.Builder headers;
     private RS body;
     private final RestResponseSpec spec;
@@ -42,18 +42,18 @@ public final class RestResponse<R extends RestResource<R>> {
       headers = new HeaderMap.Builder(spec.getHeadersSpec());
     }
     
-    public <T> Builder<RS> putHeader(TypedKey<T> paramName, T content) {
+    public <T> Builder<II, RS> putHeader(TypedKey<T> paramName, T content) {
       headers.put(paramName.getName(), content, paramName.getClassOfT());
       return this;
     }
     
-    public Builder<RS> setBody(RS body) {
+    public Builder<II, RS> setBody(RS body) {
       this.body = body;
       return this;
     }
 
-    public RestResponse<RS> build() {
-      return new RestResponse<RS>(spec, headers.build(), body);
+    public RestResponse<II, RS> build() {
+      return new RestResponse<II, RS>(spec, headers.build(), body);
     }
   }
   

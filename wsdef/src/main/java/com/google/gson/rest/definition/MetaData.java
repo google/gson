@@ -38,17 +38,17 @@ import com.google.gson.reflect.TypeToken;
  *
  * @param <R> The resource
  */
-public final class MetaData<R extends RestResource<R>> {
+public final class MetaData<I extends ID, R extends RestResource<I, R>> {
 
   private final Map<String, String> map;
   private final transient Map<Object, Object> mapTransient;
 
-  public static <RS extends RestResource<RS>> MetaData<RS> create() {
-    return new MetaData<RS>();
+  public static <II extends ID, RS extends RestResource<II, RS>> MetaData<II, RS> create() {
+    return new MetaData<II, RS>();
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
-  private static MetaData<?> createTypeUnsafe(Map<String, String> values) {
+  private static MetaData<?, ?> createTypeUnsafe(Map<String, String> values) {
     return new MetaData(values);
   }
 
@@ -103,20 +103,20 @@ public final class MetaData<R extends RestResource<R>> {
    * Gson Type adapter for {@link MetaData}. The serialized representation on wire is just a
    * Map<String, String>
    */
-  public static final class GsonTypeAdapter implements JsonSerializer<MetaData<?>>,
-    JsonDeserializer<MetaData<?>>{
+  public static final class GsonTypeAdapter implements JsonSerializer<MetaData<?, ?>>,
+    JsonDeserializer<MetaData<?, ?>>{
 
     private static final Type MAP_TYPE = new TypeToken<Map<String, String>>(){}.getType();
 
     @Override
-    public MetaData<?> deserialize(JsonElement json, Type typeOfT,
+    public MetaData<?, ?> deserialize(JsonElement json, Type typeOfT,
         JsonDeserializationContext context) throws JsonParseException {
       Map<String, String> map = context.deserialize(json, MAP_TYPE);
       return MetaData.createTypeUnsafe(map);
     }
 
     @Override
-    public JsonElement serialize(MetaData<?> src, Type typeOfSrc,
+    public JsonElement serialize(MetaData<?, ?> src, Type typeOfSrc,
         JsonSerializationContext context) {
       return context.serialize(src.map, MAP_TYPE);
     }

@@ -23,6 +23,7 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
+import com.google.gson.rest.definition.ID;
 import com.google.gson.rest.definition.RestResource;
 import com.google.gson.rest.definition.RestResponse;
 import com.google.gson.webservice.definition.ContentBodySpec;
@@ -34,7 +35,7 @@ import com.google.gson.webservice.definition.HeaderMapSpec;
  * 
  * @author inder
  */
-public final class RestResponseSender<R extends RestResource<R>> {
+public final class RestResponseSender<I extends ID, R extends RestResource<I, R>> {
   private static final Logger logger = Logger.getLogger(RestResponseSender.class.getCanonicalName());
 
   private Gson gson;
@@ -43,7 +44,7 @@ public final class RestResponseSender<R extends RestResource<R>> {
     this.gson = gson;
   }
   
-  public void send(HttpServletResponse conn, RestResponse<R> response) {
+  public void send(HttpServletResponse conn, RestResponse<I, R> response) {
     try {
       sendHeaders(conn, response.getHeaders());
       sendBody(conn, response.getBody());
