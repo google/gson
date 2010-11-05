@@ -171,7 +171,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   /**
    * objTypePair.getObject() must not be null
    */
-  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @SuppressWarnings("unchecked")
   private JsonElement findAndInvokeCustomSerializer(ObjectTypePair objTypePair) {
     Pair<JsonSerializer<?>,ObjectTypePair> pair = objTypePair.getMatchingHandler(serializers);
     if (pair == null) {
