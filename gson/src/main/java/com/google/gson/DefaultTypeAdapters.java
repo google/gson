@@ -62,7 +62,7 @@ final class DefaultTypeAdapters {
   private static final DefaultTimestampDeserializer TIMESTAMP_DESERIALIZER =
     new DefaultTimestampDeserializer();
 
-  @SuppressWarnings({ "rawtypes" })
+  @SuppressWarnings("unchecked")
   private static final EnumTypeAdapter ENUM_TYPE_ADAPTER = new EnumTypeAdapter();
   private static final UrlTypeAdapter URL_TYPE_ADAPTER = new UrlTypeAdapter();
   private static final UriTypeAdapter URI_TYPE_ADAPTER = new UriTypeAdapter();
@@ -87,7 +87,7 @@ final class DefaultTypeAdapters {
   private static final PropertiesCreator PROPERTIES_CREATOR = new PropertiesCreator();
   private static final TreeSetCreator TREE_SET_CREATOR = new TreeSetCreator();
   private static final HashSetCreator HASH_SET_CREATOR = new HashSetCreator();
-  private static final GregorianCalendarTypeAdapter GREGORIAN_CALENDAR_TYPE_ADAPTER = 
+  private static final GregorianCalendarTypeAdapter GREGORIAN_CALENDAR_TYPE_ADAPTER =
     new GregorianCalendarTypeAdapter();
 
   // The constants DEFAULT_SERIALIZERS, DEFAULT_DESERIALIZERS, and DEFAULT_INSTANCE_CREATORS
@@ -119,7 +119,7 @@ final class DefaultTypeAdapters {
     map.register(GregorianCalendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER);
     map.register(BigDecimal.class, BIG_DECIMAL_TYPE_ADAPTER);
     map.register(BigInteger.class, BIG_INTEGER_TYPE_ADAPTER);
-    
+
     // Add primitive serializers
     map.register(Boolean.class, BOOLEAN_TYPE_ADAPTER);
     map.register(boolean.class, BOOLEAN_TYPE_ADAPTER);
@@ -156,7 +156,7 @@ final class DefaultTypeAdapters {
     map.register(GregorianCalendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER);
     map.register(BigDecimal.class, wrapDeserializer(BIG_DECIMAL_TYPE_ADAPTER));
     map.register(BigInteger.class, wrapDeserializer(BIG_INTEGER_TYPE_ADAPTER));
-    
+
     // Add primitive deserializers
     map.register(Boolean.class, wrapDeserializer(BOOLEAN_TYPE_ADAPTER));
     map.register(boolean.class, wrapDeserializer(BOOLEAN_TYPE_ADAPTER));
@@ -196,7 +196,7 @@ final class DefaultTypeAdapters {
     return map;
   }
 
-  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @SuppressWarnings("unchecked")
   private static JsonDeserializer<?> wrapDeserializer(JsonDeserializer<?> deserializer) {
     return new JsonDeserializerExceptionWrapper(deserializer);
   }
@@ -204,26 +204,26 @@ final class DefaultTypeAdapters {
   static ParameterizedTypeHandlerMap<JsonSerializer<?>> getDefaultSerializers() {
     return getDefaultSerializers(false, LongSerializationPolicy.DEFAULT);
   }
-      
+
   static ParameterizedTypeHandlerMap<JsonSerializer<?>> getDefaultSerializers(
       boolean serializeSpecialFloatingPointValues, LongSerializationPolicy longSerializationPolicy) {
     ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers =
         new ParameterizedTypeHandlerMap<JsonSerializer<?>>();
-    
+
     // Double primitive
-    DefaultTypeAdapters.DoubleSerializer doubleSerializer = 
+    DefaultTypeAdapters.DoubleSerializer doubleSerializer =
         new DefaultTypeAdapters.DoubleSerializer(serializeSpecialFloatingPointValues);
     serializers.registerIfAbsent(Double.class, doubleSerializer);
     serializers.registerIfAbsent(double.class, doubleSerializer);
 
     // Float primitive
-    DefaultTypeAdapters.FloatSerializer floatSerializer = 
+    DefaultTypeAdapters.FloatSerializer floatSerializer =
         new DefaultTypeAdapters.FloatSerializer(serializeSpecialFloatingPointValues);
     serializers.registerIfAbsent(Float.class, floatSerializer);
     serializers.registerIfAbsent(float.class, floatSerializer);
 
     // Long primitive
-    DefaultTypeAdapters.LongSerializer longSerializer = 
+    DefaultTypeAdapters.LongSerializer longSerializer =
         new DefaultTypeAdapters.LongSerializer(longSerializationPolicy);
     serializers.registerIfAbsent(Long.class, longSerializer);
     serializers.registerIfAbsent(long.class, longSerializer);
@@ -231,11 +231,11 @@ final class DefaultTypeAdapters {
     serializers.registerIfAbsent(DEFAULT_SERIALIZERS);
     return serializers;
   }
-  
+
   static ParameterizedTypeHandlerMap<JsonDeserializer<?>> getDefaultDeserializers() {
     return DEFAULT_DESERIALIZERS;
   }
-  
+
   static ParameterizedTypeHandlerMap<InstanceCreator<?>> getDefaultInstanceCreators() {
     return DEFAULT_INSTANCE_CREATORS;
   }
@@ -250,7 +250,7 @@ final class DefaultTypeAdapters {
     DefaultDateTypeAdapter(final String datePattern) {
       this.format = new SimpleDateFormat(datePattern);
     }
-    
+
     DefaultDateTypeAdapter(final int style) {
       this.format = DateFormat.getDateInstance(style);
     }
@@ -281,7 +281,7 @@ final class DefaultTypeAdapters {
         throw new JsonSyntaxException(e);
       }
     }
-    
+
     @Override
     public String toString() {
       StringBuilder sb = new StringBuilder();
@@ -304,7 +304,8 @@ final class DefaultTypeAdapters {
         String dateFormatAsString = format.format(src);
         return new JsonPrimitive(dateFormatAsString);
       }
-    }    
+    }
+
     public java.sql.Date deserialize(JsonElement json, Type typeOfT,
         JsonDeserializationContext context) throws JsonParseException {
       if (!(json instanceof JsonPrimitive)) {
@@ -356,7 +357,7 @@ final class DefaultTypeAdapters {
     }
   }
 
-  private static class GregorianCalendarTypeAdapter 
+  private static class GregorianCalendarTypeAdapter
       implements JsonSerializer<GregorianCalendar>, JsonDeserializer<GregorianCalendar> {
 
     private static final String YEAR = "year";
@@ -373,11 +374,11 @@ final class DefaultTypeAdapters {
       obj.addProperty(MONTH, src.get(Calendar.MONTH));
       obj.addProperty(DAY_OF_MONTH, src.get(Calendar.DAY_OF_MONTH));
       obj.addProperty(HOUR_OF_DAY, src.get(Calendar.HOUR_OF_DAY));
-      obj.addProperty(MINUTE, src.get(Calendar.MINUTE));      
-      obj.addProperty(SECOND, src.get(Calendar.SECOND));      
+      obj.addProperty(MINUTE, src.get(Calendar.MINUTE));
+      obj.addProperty(SECOND, src.get(Calendar.SECOND));
       return obj;
     }
-    
+
     public GregorianCalendar deserialize(JsonElement json, Type typeOfT,
         JsonDeserializationContext context) throws JsonParseException {
       JsonObject obj = json.getAsJsonObject();
@@ -385,17 +386,17 @@ final class DefaultTypeAdapters {
       int month = obj.get(MONTH).getAsInt();
       int dayOfMonth = obj.get(DAY_OF_MONTH).getAsInt();
       int hourOfDay = obj.get(HOUR_OF_DAY).getAsInt();
-      int minute = obj.get(MINUTE).getAsInt();      
-      int second = obj.get(SECOND).getAsInt();      
+      int minute = obj.get(MINUTE).getAsInt();
+      int second = obj.get(SECOND).getAsInt();
       return new GregorianCalendar(year, month, dayOfMonth, hourOfDay, minute, second);
     }
-    
+
     @Override
     public String toString() {
       return GregorianCalendarTypeAdapter.class.getSimpleName();
     }
   }
-  
+
   @SuppressWarnings("unchecked")
   private static class EnumTypeAdapter<T extends Enum<T>>
       implements JsonSerializer<T>, JsonDeserializer<T> {
@@ -432,7 +433,7 @@ final class DefaultTypeAdapters {
     @Override
     public String toString() {
       return UrlTypeAdapter.class.getSimpleName();
-    }    
+    }
   }
 
   private static class UriTypeAdapter implements JsonSerializer<URI>, JsonDeserializer<URI> {
@@ -452,14 +453,14 @@ final class DefaultTypeAdapters {
       return UriTypeAdapter.class.getSimpleName();
     }
   }
-  
+
   private static class UuidTypeAdapter implements JsonSerializer<UUID>, JsonDeserializer<UUID> {
     public JsonElement serialize(UUID src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src.toString());
     }
 
-    public UUID deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) 
-        throws JsonParseException {     
+    public UUID deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+        throws JsonParseException {
       return UUID.fromString(json.getAsString());
     }
 
@@ -469,7 +470,7 @@ final class DefaultTypeAdapters {
     }
   }
 
-  private static class LocaleTypeAdapter 
+  private static class LocaleTypeAdapter
       implements JsonSerializer<Locale>, JsonDeserializer<Locale> {
     public JsonElement serialize(Locale src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src.toString());
@@ -506,8 +507,8 @@ final class DefaultTypeAdapters {
     }
   }
 
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  private static class CollectionTypeAdapter implements JsonSerializer<Collection>, 
+  @SuppressWarnings("unchecked")
+  private static class CollectionTypeAdapter implements JsonSerializer<Collection>,
       JsonDeserializer<Collection>, InstanceCreator<Collection> {
     public JsonElement serialize(Collection src, Type typeOfSrc, JsonSerializationContext context) {
       if (src == null) {
@@ -516,7 +517,7 @@ final class DefaultTypeAdapters {
       JsonArray array = new JsonArray();
       Type childGenericType = null;
       if (typeOfSrc instanceof ParameterizedType) {
-        childGenericType = new TypeInfoCollection(typeOfSrc).getElementType();        
+        childGenericType = new TypeInfoCollection(typeOfSrc).getElementType();
       }
       for (Object child : src) {
         if (child == null) {
@@ -531,12 +532,12 @@ final class DefaultTypeAdapters {
       return array;
     }
 
-    public Collection deserialize(JsonElement json, Type typeOfT, 
+    public Collection deserialize(JsonElement json, Type typeOfT,
         JsonDeserializationContext context) throws JsonParseException {
       if (json.isJsonNull()) {
         return null;
       }
-      // Use ObjectConstructor to create instance instead of hard-coding a specific type. 
+      // Use ObjectConstructor to create instance instead of hard-coding a specific type.
       // This handles cases where users are using their own subclass of Collection.
       Collection collection = constructCollectionType(typeOfT, context);
       Type childType = new TypeInfoCollection(typeOfT).getElementType();
@@ -551,8 +552,8 @@ final class DefaultTypeAdapters {
       return collection;
     }
 
-    private Collection constructCollectionType(Type collectionType, 
-        JsonDeserializationContext context) {      
+    private Collection constructCollectionType(Type collectionType,
+        JsonDeserializationContext context) {
       JsonDeserializationContextDefault contextImpl = (JsonDeserializationContextDefault) context;
       ObjectConstructor objectConstructor = contextImpl.getObjectConstructor();
       return (Collection) objectConstructor.construct(collectionType);
@@ -560,24 +561,24 @@ final class DefaultTypeAdapters {
 
     public Collection createInstance(Type type) {
       return new LinkedList();
-    }    
+    }
   }
 
   private static class PropertiesCreator implements InstanceCreator<Properties> {
     public Properties createInstance(Type type) {
       return new Properties();
-    }    
+    }
   }
-  
-  @SuppressWarnings({ "unchecked", "rawtypes" })
+
+  @SuppressWarnings("unchecked")
   static class MapTypeAdapter implements JsonSerializer<Map>, JsonDeserializer<Map>,
       InstanceCreator<Map> {
-    
+
     public JsonElement serialize(Map src, Type typeOfSrc, JsonSerializationContext context) {
       JsonObject map = new JsonObject();
       Type childGenericType = null;
       if (typeOfSrc instanceof ParameterizedType) {
-        childGenericType = new TypeInfoMap(typeOfSrc).getValueType();        
+        childGenericType = new TypeInfoMap(typeOfSrc).getValueType();
       }
 
       for (Map.Entry entry : (Set<Map.Entry>) src.entrySet()) {
@@ -598,7 +599,7 @@ final class DefaultTypeAdapters {
 
     public Map deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
-      // Use ObjectConstructor to create instance instead of hard-coding a specific type. 
+      // Use ObjectConstructor to create instance instead of hard-coding a specific type.
       // This handles cases where users are using their own subclass of Map.
       Map<Object, Object> map = constructMapType(typeOfT, context);
       TypeInfoMap mapTypeInfo = new TypeInfoMap(typeOfT);
@@ -610,16 +611,16 @@ final class DefaultTypeAdapters {
       return map;
     }
 
-    private Map constructMapType(Type mapType, JsonDeserializationContext context) {      
+    private Map constructMapType(Type mapType, JsonDeserializationContext context) {
       JsonDeserializationContextDefault contextImpl = (JsonDeserializationContextDefault) context;
       ObjectConstructor objectConstructor = contextImpl.getObjectConstructor();
       return (Map) objectConstructor.construct(mapType);
     }
-    
+
     public Map createInstance(Type type) {
       return new LinkedHashMap();
     }
-    
+
     @Override
     public String toString() {
       return MapTypeAdapter.class.getSimpleName();
@@ -643,7 +644,7 @@ final class DefaultTypeAdapters {
     }
   }
 
-  private static class BigIntegerTypeAdapter 
+  private static class BigIntegerTypeAdapter
       implements JsonSerializer<BigInteger>, JsonDeserializer<BigInteger> {
 
     public JsonElement serialize(BigInteger src, Type typeOfSrc, JsonSerializationContext context) {
@@ -660,27 +661,27 @@ final class DefaultTypeAdapters {
       return BigIntegerTypeAdapter.class.getSimpleName();
     }
   }
-  
+
   private static class NumberTypeAdapter
       implements JsonSerializer<Number>, JsonDeserializer<Number> {
     public JsonElement serialize(Number src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src);
     }
-    
+
     public Number deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
       return json.getAsNumber();
     }
-    
+
     @Override
     public String toString() {
       return NumberTypeAdapter.class.getSimpleName();
     }
   }
-  
+
   private static class LongSerializer implements JsonSerializer<Long> {
     private final LongSerializationPolicy longSerializationPolicy;
-    
+
     private LongSerializer(LongSerializationPolicy longSerializationPolicy) {
       this.longSerializationPolicy = longSerializationPolicy;
     }
@@ -707,7 +708,7 @@ final class DefaultTypeAdapters {
     }
   }
 
-  private static class IntegerTypeAdapter 
+  private static class IntegerTypeAdapter
       implements JsonSerializer<Integer>, JsonDeserializer<Integer> {
     public JsonElement serialize(Integer src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src);
@@ -734,7 +735,7 @@ final class DefaultTypeAdapters {
         throws JsonParseException {
       return json.getAsShort();
     }
-    
+
     @Override
     public String toString() {
       return ShortTypeAdapter.class.getSimpleName();
@@ -767,7 +768,7 @@ final class DefaultTypeAdapters {
     public JsonElement serialize(Float src, Type typeOfSrc, JsonSerializationContext context) {
       if (!serializeSpecialFloatingPointValues) {
         if (Float.isNaN(src) || Float.isInfinite(src)) {
-          throw new IllegalArgumentException(src 
+          throw new IllegalArgumentException(src
               + " is not a valid float value as per JSON specification. To override this"
               + " behavior, use GsonBuilder.serializeSpecialFloatingPointValues() method.");
         }
@@ -775,7 +776,7 @@ final class DefaultTypeAdapters {
       return new JsonPrimitive(src);
     }
   }
-  
+
   private static class FloatDeserializer implements JsonDeserializer<Float> {
     public Float deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
@@ -798,7 +799,7 @@ final class DefaultTypeAdapters {
     public JsonElement serialize(Double src, Type typeOfSrc, JsonSerializationContext context) {
       if (!serializeSpecialFloatingPointValues) {
         if (Double.isNaN(src) || Double.isInfinite(src)) {
-          throw new IllegalArgumentException(src 
+          throw new IllegalArgumentException(src
               + " is not a valid double value as per JSON specification. To override this"
               + " behavior, use GsonBuilder.serializeSpecialDoubleValues() method.");
         }
@@ -819,7 +820,7 @@ final class DefaultTypeAdapters {
     }
   }
 
-  private static class CharacterTypeAdapter 
+  private static class CharacterTypeAdapter
       implements JsonSerializer<Character>, JsonDeserializer<Character> {
     public JsonElement serialize(Character src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src);
@@ -835,25 +836,25 @@ final class DefaultTypeAdapters {
       return CharacterTypeAdapter.class.getSimpleName();
     }
   }
-  
+
   private static class StringTypeAdapter
       implements JsonSerializer<String>, JsonDeserializer<String> {
     public JsonElement serialize(String src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src);
     }
-    
+
     public String deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
       return json.getAsString();
     }
-    
+
     @Override
     public String toString() {
       return StringTypeAdapter.class.getSimpleName();
     }
   }
 
-  private static class BooleanTypeAdapter 
+  private static class BooleanTypeAdapter
       implements JsonSerializer<Boolean>, JsonDeserializer<Boolean> {
     public JsonElement serialize(Boolean src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src);
