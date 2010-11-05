@@ -35,6 +35,8 @@ public final class MalformedJsonException extends IOException {
   }
 
   public MalformedJsonException(Throwable throwable) {
+    // Using initCause() instead of calling super() because Java 1.5 didn't retrofit IOException
+    // with a constructor with Throwable. This was done in Java 1.6
     initCause(throwable);
   }
 }
