@@ -37,7 +37,7 @@ public final class JsonParser {
    * @throws JsonParseException if the specified text is not valid JSON
    * @since 1.3
    */
-  public JsonElement parse(String json) throws JsonParseException {
+  public JsonElement parse(String json) throws JsonSyntaxException {
     return parse(new StringReader(json));
   }
   
@@ -49,7 +49,7 @@ public final class JsonParser {
    * @throws JsonParseException if the specified text is not valid JSON
    * @since 1.3
    */
-  public JsonElement parse(Reader json) throws JsonParseException {
+  public JsonElement parse(Reader json) throws JsonIOException, JsonSyntaxException {
     return parse(new JsonReader(json));
   }
 
@@ -59,7 +59,7 @@ public final class JsonParser {
    * @throws JsonParseException if there is an IOException or if the specified
    *     text is not valid JSON
    */
-  public JsonElement parse(JsonReader json) throws JsonParseException {
+  public JsonElement parse(JsonReader json) throws JsonIOException, JsonSyntaxException {
     boolean lenient = json.isLenient();
     json.setLenient(true);
     try {
