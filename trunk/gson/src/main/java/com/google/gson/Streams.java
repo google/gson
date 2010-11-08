@@ -17,9 +17,8 @@
 package com.google.gson;
 
 import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.MalformedJsonException;
 import com.google.gson.stream.JsonWriter;
-
+import com.google.gson.stream.MalformedJsonException;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.Writer;
@@ -34,49 +33,64 @@ final class Streams {
    * Takes a reader in any state and returns the next value as a JsonElement.
    */
   static JsonElement parse(JsonReader reader) throws JsonParseException {
+    boolean isEmpty = true;
     try {
-      switch (reader.peek()) {
-      case STRING:
-        return new JsonPrimitive(reader.nextString());
-      case NUMBER:
-        String number = reader.nextString();
-        return new JsonPrimitive(JsonPrimitive.stringToNumber(number));
-      case BOOLEAN:
-        return new JsonPrimitive(reader.nextBoolean());
-      case NULL:
-        reader.nextNull();
-        return JsonNull.createJsonNull();
-      case BEGIN_ARRAY:
-        JsonArray array = new JsonArray();
-        reader.beginArray();
-        while (reader.hasNext()) {
-          array.add(parse(reader));
-        }
-        reader.endArray();
-        return array;
-      case BEGIN_OBJECT:
-        JsonObject object = new JsonObject();
-        reader.beginObject();
-        while (reader.hasNext()) {
-          object.add(reader.nextName(), parse(reader));
-        }
-        reader.endObject();
-        return object;
-      case END_DOCUMENT:
-      case NAME:
-      case END_OBJECT:
-      case END_ARRAY:
-      default:
-        throw new IllegalArgumentException();
-      }
+      reader.peek();
+      isEmpty = false;
+      return parseRecursive(reader);
     } catch (EOFException e) {
-      return JsonNull.createJsonNull();
+      /*
+       * For compatibility with JSON 1.5 and earlier, we return a JsonNull for
+       * empty documents instead of throwing.
+       */
+      if (isEmpty) {
+        return JsonNull.createJsonNull();
+      } else {
+        throw new JsonIOException(e);
+      }
     } catch (MalformedJsonException e) {
       throw new JsonSyntaxException(e);
     } catch (IOException e) {
       throw new JsonIOException(e);
     } catch (NumberFormatException e) {
       throw new JsonSyntaxException(e);
+    }
+  }
+
+  private static JsonElement parseRecursive(JsonReader reader) throws IOException {
+    switch (reader.peek()) {
+    case STRING:
+      return new JsonPrimitive(reader.nextString());
+    case NUMBER:
+      String number = reader.nextString();
+      return new JsonPrimitive(JsonPrimitive.stringToNumber(number));
+    case BOOLEAN:
+      return new JsonPrimitive(reader.nextBoolean());
+    case NULL:
+      reader.nextNull();
+      return JsonNull.createJsonNull();
+    case BEGIN_ARRAY:
+      JsonArray array = new JsonArray();
+      reader.beginArray();
+      while (reader.hasNext()) {
+        array.add(parseRecursive(reader));
+      }
+      reader.endArray();
+      return array;
+    case BEGIN_OBJECT:
+      JsonObject object = new JsonObject();
+      reader.beginObject();
+      while (reader.hasNext()) {
+        object.add(reader.nextName(), parseRecursive(reader));
+      }
+      reader.endObject();
+      return object;
+    case END_DOCUMENT:
+    case NAME:
+    case END_OBJECT:
+    case END_ARRAY:
+    default:
+      throw new IllegalArgumentException();
     }
   }
 

@@ -20,6 +20,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import com.google.gson.common.TestTypes.ArrayOfObjects;
 import com.google.gson.common.TestTypes.BagOfPrimitiveWrappers;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
@@ -30,6 +31,7 @@ import com.google.gson.common.TestTypes.ClassWithTransientFields;
 import com.google.gson.common.TestTypes.Nested;
 import com.google.gson.common.TestTypes.PrimitiveArray;
 
+import com.google.gson.reflect.TypeToken;
 import java.util.List;
 import junit.framework.TestCase;
 
@@ -143,6 +145,14 @@ public class ObjectTest extends TestCase {
   public void testEmptyStringDeserialization() throws Exception {
     Object object = gson.fromJson("", Object.class);
     assertNull(object);
+  }
+
+  public void testTruncatedDeserialization() {
+    try {
+      gson.fromJson("[\"a\", \"b\",", new TypeToken<List<String>>() {}.getType());
+      fail();
+    } catch (JsonParseException expected) {
+    }
   }
 
   public void testNullDeserialization() throws Exception {
