@@ -28,6 +28,7 @@ import com.google.gson.rest.definition.RestRequest;
 import com.google.gson.rest.definition.RestResource;
 import com.google.gson.webservice.definition.HeaderMap;
 import com.google.gson.webservice.definition.HeaderMapSpec;
+import com.google.gson.webservice.definition.HttpMethod;
 import com.google.gson.webservice.definition.WebServiceSystemException;
 import com.google.gson.wsclient.internal.utils.Streams;
 
@@ -37,6 +38,9 @@ import com.google.gson.wsclient.internal.utils.Streams;
  * @author inder
  */
 public final class RestRequestSender {
+  private static final boolean SIMULATE_GET_WITH_POST = true;
+  private static final boolean SIMULATE_PUT_WITH_POST = true;
+
   private final Gson gson;
   private final Logger logger;
   private final Level logLevel;
@@ -51,9 +55,18 @@ public final class RestRequestSender {
     this.logLevel = logLevel;
   }
   
-  public <I extends ID, R extends RestResource<I, R>> void send(HttpURLConnection conn, RestRequest<I, R> request) {    
+  public <I extends ID, R extends RestResource<I, R>> void send(
+      HttpURLConnection conn, RestRequest<I, R> request) {    
     try {
-      conn.setRequestMethod(request.getHttpMethod().toString());
+      HttpMethod method = request.getHttpMethod();
+      if (SIMULATE_PUT_WITH_POST && method == HttpMethod.PUT) {
+        method = HttpMethod.POST;
+        setHeader(conn, HttpMethod.SIMULATED_METHOD_HEADER, HttpMethod.PUT.toString(), true);
+      } else  if (SIMULATE_GET_WITH_POST && method == HttpMethod.GET) {
+        method = HttpMethod.POST;
+        setHeader(conn, HttpMethod.SIMULATED_METHOD_HEADER, HttpMethod.GET.toString(), true);
+      }
+      conn.setRequestMethod(method.toString());
       setHeader(conn, "Content-Type", request.getContentType(), true);
       
       // Assume conservatively that the response will need to be read.
@@ -63,8 +76,10 @@ public final class RestRequestSender {
       
       R requestBody = request.getBody();
       String requestBodyContents = "";
-      // Android Java VM ignore Content-Length if setDoOutput is not set
-      conn.setDoOutput(true);
+      if (method == HttpMethod.POST || method == HttpMethod.PUT) {
+        // Android Java VM ignore Content-Length if setDoOutput is not set
+        conn.setDoOutput(true);
+      }
       if (requestBody != null) {
         requestBodyContents = gson.toJson(requestBody, request.getSpec().getResourceType());
       }

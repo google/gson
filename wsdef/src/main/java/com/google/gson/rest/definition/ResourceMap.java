@@ -32,9 +32,9 @@ public final class ResourceMap {
     private final Map<CallPath, RestCallSpec> resources =
       new HashMap<CallPath, RestCallSpec>();
     
-    public Builder set(CallPath callPath, RestCallSpec spec) {
-      Preconditions.checkArgument(resources.get(callPath) == null);
-      resources.put(callPath, spec);
+    public Builder set(CallPath baseCallPath, RestCallSpec spec) {
+      Preconditions.checkArgument(resources.get(baseCallPath) == null);
+      resources.put(baseCallPath, spec);
       return this;
     }
 

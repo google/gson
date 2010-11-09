@@ -17,17 +17,43 @@ package com.google.gson.webservice.definition;
 
 import junit.framework.TestCase;
 
+/**
+ * Unit test for {@link CallPath}
+ *
+ * @author inder
+ */
 public class CallPathTest extends TestCase {
 
   public void testVersionIsSkipped() {
     CallPath path = new CallPath("/1.0/rest/service1");
     assertEquals("/rest/service1", path.get());
     assertEquals(1D, path.getVersion());
+    assertEquals(-1L, path.getResourceId());
   }
 
   public void testVersionNotPresent() {
     CallPath path = new CallPath("/rest/service1");
     assertEquals("/rest/service1", path.get());
     assertEquals(-1D, path.getVersion());
+    assertEquals(-1L, path.getResourceId());
+  }
+  
+  public void testResourceIdPresent() {
+    CallPath path = new CallPath("/rest/service/3");
+    assertEquals("/rest/service", path.get());
+    assertEquals(3L, path.getResourceId());
+  }
+
+  public void testResourceIdWithEndSlashPresent() {
+    CallPath path = new CallPath("/rest/service/3/");
+    assertEquals("/rest/service", path.get());
+    assertEquals(3L, path.getResourceId());
+  }
+
+  public void testVersionAndResourceIdPresent() {
+    CallPath path = new CallPath("/3.1/rest/service53/323222");
+    assertEquals(3.1D, path.getVersion());
+    assertEquals("/rest/service53", path.get());
+    assertEquals(323222L, path.getResourceId());
   }
 }

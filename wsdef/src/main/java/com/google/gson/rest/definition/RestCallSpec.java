@@ -130,4 +130,9 @@ public final class RestCallSpec {
       "path: %s, version: %.2f, resourceType: %s, requestSpec: %s, responseSpec: %s",
       path, version, resourceType, requestSpec, responseSpec);
   }
+
+  public RestCallSpec createCopy(CallPath callPath) {
+    return new RestCallSpec(supportedHttpMethods, callPath, requestSpec,
+        responseSpec, resourceType, version);
+  }
 }
