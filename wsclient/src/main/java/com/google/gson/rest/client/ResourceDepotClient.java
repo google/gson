@@ -15,7 +15,11 @@
  */
 package com.google.gson.rest.client;
 
+import java.lang.reflect.Type;
+
+import com.google.gson.Gson;
 import com.google.gson.rest.definition.ID;
+import com.google.gson.rest.definition.ResourceDepot;
 import com.google.gson.rest.definition.RestCallSpec;
 import com.google.gson.rest.definition.RestRequest;
 import com.google.gson.rest.definition.RestResource;
@@ -24,26 +28,31 @@ import com.google.gson.webservice.definition.CallPath;
 import com.google.gson.webservice.definition.HeaderMap;
 import com.google.gson.webservice.definition.HttpMethod;
 
-import java.lang.reflect.Type;
-
 /**
  * A client class to access a rest resource
  *
  * @author Inderjeet Singh
  */
-public class RestClient<I extends ID, R extends RestResource<I, R>> {
+public class ResourceDepotClient<I extends ID, R extends RestResource<I, R>> implements ResourceDepot<I, R> {
   private final RestClientStub stub;
   private final RestCallSpec callSpec;
   private final Type resourceType;
+  private final Gson gson;
 
-  public RestClient(RestClientStub stub, CallPath callPath, Type resourceType) {
-    this(stub, resourceType, generateRestCallSpec(callPath, resourceType));
+  /**
+   * @param stub stub containing server info to access the rest client
+   * @param callPath relative path to the resource
+   * @param resourceType Class for the resource. Such as Cart.class
+   */
+  public ResourceDepotClient(RestClientStub stub, CallPath callPath, Type resourceType, Gson gson) {
+    this(stub, resourceType, generateRestCallSpec(callPath, resourceType), gson);
   }
 
-  protected RestClient(RestClientStub stub, Type resourceType, RestCallSpec callSpec) {
+  protected ResourceDepotClient(RestClientStub stub, Type resourceType, RestCallSpec callSpec, Gson gson) {
     this.stub = stub;
     this.callSpec = callSpec;
     this.resourceType = resourceType;
+    this.gson = gson;
   }
 
   private static <T> RestCallSpec generateRestCallSpec(CallPath callPath, Type resourceType) {
@@ -54,8 +63,8 @@ public class RestClient<I extends ID, R extends RestResource<I, R>> {
     HeaderMap requestHeaders =
       new HeaderMap.Builder(callSpec.getRequestSpec().getHeadersSpec()).build();
     RestRequest<I, R> request =
-      new RestRequest<I, R>(HttpMethod.GET, requestHeaders, null, resourceType);
-    RestResponse<I, R> response = stub.getResponse(callSpec, request);
+      new RestRequest<I, R>(HttpMethod.GET, requestHeaders, resourceId, null, resourceType);
+    RestResponse<I, R> response = stub.getResponse(callSpec, request, gson);
     return response.getBody();
   }
 
@@ -63,8 +72,8 @@ public class RestClient<I extends ID, R extends RestResource<I, R>> {
     HeaderMap requestHeaders =
       new HeaderMap.Builder(callSpec.getRequestSpec().getHeadersSpec()).build();
     RestRequest<I, R> request =
-      new RestRequest<I, R>(HttpMethod.POST, requestHeaders, resource, resourceType);
-    RestResponse<I, R> response = stub.getResponse(callSpec, request);
+      new RestRequest<I, R>(HttpMethod.POST, requestHeaders, resource.getId(), resource, resourceType);
+    RestResponse<I, R> response = stub.getResponse(callSpec, request, gson);
     return response.getBody();
   }
 
@@ -72,8 +81,8 @@ public class RestClient<I extends ID, R extends RestResource<I, R>> {
     HeaderMap requestHeaders =
       new HeaderMap.Builder(callSpec.getRequestSpec().getHeadersSpec()).build();
     RestRequest<I, R> request =
-      new RestRequest<I, R>(HttpMethod.PUT, requestHeaders, resource, resourceType);
-    RestResponse<I, R> response = stub.getResponse(callSpec, request);
+      new RestRequest<I, R>(HttpMethod.PUT, requestHeaders, resource.getId(), resource, resourceType);
+    RestResponse<I, R> response = stub.getResponse(callSpec, request, gson);
     return response.getBody();
   }
 
@@ -81,7 +90,7 @@ public class RestClient<I extends ID, R extends RestResource<I, R>> {
     HeaderMap requestHeaders =
       new HeaderMap.Builder(callSpec.getRequestSpec().getHeadersSpec()).build();
     RestRequest<I, R> request =
-      new RestRequest<I, R>(HttpMethod.DELETE, requestHeaders, null, resourceType);
-    stub.getResponse(callSpec, request);
+      new RestRequest<I, R>(HttpMethod.DELETE, requestHeaders, resourceId, null, resourceType);
+    stub.getResponse(callSpec, request, gson);
   }
 }

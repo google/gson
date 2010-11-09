@@ -36,4 +36,10 @@ public enum HttpMethod {
   
   public static final List<HttpMethod> ALL_METHODS =
     Collections.unmodifiableList(Arrays.asList(values()));
+
+  /**
+   * This header is used to indicate the real method that is channeled through the current
+   * request. For example, you can use it to send PUT requests under a POST.
+   */
+  public static final String SIMULATED_METHOD_HEADER = "SimulatedMethod";
 }

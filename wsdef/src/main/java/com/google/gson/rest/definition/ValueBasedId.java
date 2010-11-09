@@ -35,13 +35,11 @@ import java.lang.reflect.WildcardType;
  *
  * @param <R> type variable for the rest resource
  */
-public final class Id<R> implements ID {
-  private static final long NULL_VALUE = -1;
+public final class ValueBasedId<R> implements ID {
   private final long value;
   private final Type typeOfId;
 
-  private Id(long value, Type typeOfId) {
-    Preconditions.checkArgument(value != NULL_VALUE);
+  private ValueBasedId(long value, Type typeOfId) {
     this.value = value;
     this.typeOfId = typeOfId;
   }
@@ -51,8 +49,8 @@ public final class Id<R> implements ID {
     return value;
   }
 
-  public static long getValue(Id<?> id) {
-    return id == null ? NULL_VALUE : id.getValue();
+  public static long getValue(ValueBasedId<?> id) {
+    return id == null ? INVALID_ID : id.getValue();
   }
 
   public String getValueAsString() {
@@ -68,8 +66,8 @@ public final class Id<R> implements ID {
     return (int) value;
   }
 
-  public static boolean isValid(Id<?> id) {
-    return id != null && id.value != NULL_VALUE;
+  public static boolean isValid(ValueBasedId<?> id) {
+    return id != null && id.value != INVALID_ID;
   }
 
   /**
@@ -78,7 +76,8 @@ public final class Id<R> implements ID {
    * only id values, not their types. Note that this shortcut doesn't work if you pass raw ids
    * to this method
    */
-  public static <T> boolean equals(/* @Nullable */ Id<T> id1, /* @Nullable */ Id<T> id2) {
+  public static <T> boolean equals(/* @Nullable */ ValueBasedId<T> id1,
+      /* @Nullable */ ValueBasedId<T> id2) {
     if ((id1 == null && id2 != null) || (id1 != null && id2 == null)) {
       return false;
     }
@@ -94,7 +93,7 @@ public final class Id<R> implements ID {
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
     @SuppressWarnings("unchecked")
-    Id<R> other = (Id<R>)obj;
+    ValueBasedId<R> other = (ValueBasedId<R>)obj;
     if (typeOfId == null) {
       if (other.typeOfId != null) return false;
     } else if (!equivalentTypes(typeOfId, other.typeOfId)) return false;
@@ -135,8 +134,8 @@ public final class Id<R> implements ID {
     return true;
   }
 
-  public static <RS> Id<RS> get(long value, Type typeOfId) {
-    return new Id<RS>(value, typeOfId);
+  public static <RS> ValueBasedId<RS> get(long value, Type typeOfId) {
+    return new ValueBasedId<RS>(value, typeOfId);
   }
 
   @Override
@@ -179,17 +178,18 @@ public final class Id<R> implements ID {
    * @author inder
    *
    */
-  public static final class GsonTypeAdapter implements JsonSerializer<Id<?>>,
-      JsonDeserializer<Id<?>> {
+  public static final class GsonTypeAdapter implements JsonSerializer<ValueBasedId<?>>,
+      JsonDeserializer<ValueBasedId<?>> {
 
     @Override
-    public JsonElement serialize(Id<?> src, Type typeOfSrc, JsonSerializationContext context) {
+    public JsonElement serialize(ValueBasedId<?> src, Type typeOfSrc,
+        JsonSerializationContext context) {
       return new JsonPrimitive(src.getValue());
     }
 
     @Override
-    public Id<?> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-        throws JsonParseException {
+    public ValueBasedId<?> deserialize(JsonElement json, Type typeOfT,
+        JsonDeserializationContext context) throws JsonParseException {
       if (!(typeOfT instanceof ParameterizedType)) {
         throw new JsonParseException("Id of unknown type: " + typeOfT);
       }
@@ -197,7 +197,7 @@ public final class Id<R> implements ID {
       // Since Id takes only one TypeVariable, the actual type corresponding to the first
       // TypeVariable is the Type we are looking for
       Type typeOfId = parameterizedType.getActualTypeArguments()[0];
-      return Id.get(json.getAsLong(), typeOfId);
+      return ValueBasedId.get(json.getAsLong(), typeOfId);
     }
   }
 }

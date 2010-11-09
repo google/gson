@@ -79,10 +79,7 @@ public class RestClientStub {
       RestCallSpec callSpec, RestRequest<I, R> request, Gson gson) {
     HttpURLConnection conn = null;
     try {
-      URL webServiceUrl = getWebServiceUrl(callSpec, getId(request.getBody()));
-      if (logger != null) {
-        logger.log(logLevel, "Opening connection to " + webServiceUrl);
-      }
+      URL webServiceUrl = getWebServiceUrl(callSpec, request.getId());
       conn = (HttpURLConnection) webServiceUrl.openConnection();
       return getResponse(callSpec, request, gson, conn);
     } catch (IOException e) {
@@ -97,10 +94,11 @@ public class RestClientStub {
    * want to use HTTP pipelining.
    */
   public <I extends ID, R extends RestResource<I, R>> RestResponse<I, R> getResponse(
-      RestCallSpec callSpec, RestRequest<I, R> request, Gson gson, HttpURLConnection conn) {
+      RestCallSpec callSpec, RestRequest<I, R> request, Gson gson,
+      HttpURLConnection conn) {
     try {
       if (logger != null) {
-        URL webServiceUrl = getWebServiceUrl(callSpec, getId(request.getBody()));
+        URL webServiceUrl = getWebServiceUrl(callSpec, request.getId());
         logger.log(logLevel, "Opening connection to " + webServiceUrl);
       }
       RestRequestSender requestSender = new RestRequestSender(gson, logLevel);
@@ -117,10 +115,6 @@ public class RestClientStub {
     if (conn != null) {
       conn.disconnect();
     }
-  }
-
-  private static <I extends ID, R extends RestResource<I, R>> I getId(R resource) {
-    return (resource == null || !resource.hasId()) ? null : resource.getId(); 
   }
 
   @Override
