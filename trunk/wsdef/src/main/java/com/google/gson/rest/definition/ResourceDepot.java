@@ -15,29 +15,13 @@
  */
 package com.google.gson.rest.definition;
 
-import java.lang.reflect.Type;
+public interface ResourceDepot<I extends ID, R extends RestResource<I, R>> {
 
-/**
- * A factory to create {@link ValueBasedId)s
- *
- * @author inder
- *
- * @param <I>
- */
-public class IDFactory<I extends ID> {
-  private final Class<? super I> classOfI;
-  private final Type typeOfId;
+  public R get(I resourceId);
 
-  public IDFactory(Class<? super I> classOfI, Type typeOfId) {
-    this.classOfI = classOfI;
-    this.typeOfId = typeOfId;
-  }
+  public R post(R resource);
 
-  @SuppressWarnings("unchecked")
-  public I createId(long value) {
-    if (classOfI.isAssignableFrom(ValueBasedId.class)) {
-      return (I)ValueBasedId.get(value, typeOfId);
-    } 
-    throw new UnsupportedOperationException();
-  }
+  public R put(R resource);
+
+  public void delete(I resourceId);
 }

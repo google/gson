@@ -34,6 +34,7 @@ import com.google.gson.rest.definition.IDFactory;
  */
 public class IdMap<I extends ID, T extends HasId<I>> {
   public static final Logger LOG = Logger.getLogger(IdMap.class.getName());
+  public static final long ID_START_VALUE = 1L;
   protected final Map<I, T> map;
   private volatile long nextAvailableId;
   private final IDFactory<I> idFactory;
@@ -43,7 +44,7 @@ public class IdMap<I extends ID, T extends HasId<I>> {
    */
   protected IdMap(Class<? super I> classOfI, Type typeOfId) {
     map = new ConcurrentHashMap<I, T>();
-    nextAvailableId = 0;
+    nextAvailableId = ID_START_VALUE;
     this.idFactory = new IDFactory<I>(classOfI, typeOfId);
   }
 

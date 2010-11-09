@@ -50,13 +50,17 @@ public final class RestRequestReceiver<I extends ID, R extends RestResource<I, R
     this.spec = spec;
   }
   
-  public RestRequest<I, R> receive(HttpServletRequest request) {
+  public RestRequest<I, R> receive(HttpServletRequest request, I resourceId) {
     try {
       HeaderMap requestParams = buildRequestParams(request);
       R requestBody = buildRequestBody(request);
-      
+
       HttpMethod method = HttpMethod.getMethod(request.getMethod());
-      return new RestRequest<I, R>(method, requestParams, requestBody, spec.getResourceType());
+      String simulatedMethod = request.getHeader(HttpMethod.SIMULATED_METHOD_HEADER);
+      if (simulatedMethod != null && !simulatedMethod.equals("")) {
+        method = HttpMethod.getMethod(simulatedMethod);
+      }
+      return new RestRequest<I, R>(method, requestParams, resourceId, requestBody, spec.getResourceType());
     } catch (IOException e) {
       throw new WebServiceSystemException(e);
     } catch (JsonParseException e) {

@@ -32,19 +32,21 @@ public final class RestRequest<I extends ID, R extends RestResource<I, R>> {
 
   private final HttpMethod method;
   private final HeaderMap headers;
+  private final I id;
   private final R body;
   private final RestRequestSpec spec;
   
   public RestRequest(HttpMethod method, HeaderMap requestHeaders,
-      R requestBody, Type resourceType) {
+      I resourceId, R requestBody, Type resourceType) {
     this.method = method;
+    this.id = resourceId;
     this.body = requestBody;
     this.headers = requestHeaders;
     this.spec = new RestRequestSpec(requestHeaders.getSpec(), resourceType);
   }
 
   public I getId() {
-    return body.getId();
+    return id;
   }
 
   public HttpMethod getMethod() {
