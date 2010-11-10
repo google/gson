@@ -18,26 +18,27 @@ package com.google.gson;
 
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.stream.JsonReader;
+
+import junit.framework.TestCase;
+
 import java.io.CharArrayReader;
 import java.io.CharArrayWriter;
 import java.io.StringReader;
-import junit.framework.TestCase;
 
 /**
  * Unit test for {@link JsonParser}
- * 
+ *
  * @author Inderjeet Singh
  */
 public class JsonParserTest extends TestCase {
-  
   private JsonParser parser;
-  
+
   @Override
   protected void setUp() throws Exception {
     super.setUp();
     parser = new JsonParser();
   }
-  
+
   public void testParseString() {
     String json = "{a:10,b:'c'}";
     JsonElement e = parser.parse(json);
@@ -45,7 +46,7 @@ public class JsonParserTest extends TestCase {
     assertEquals(10, e.getAsJsonObject().get("a").getAsInt());
     assertEquals("c", e.getAsJsonObject().get("b").getAsString());
   }
-  
+
   public void testParseEmptyString() {
     JsonElement e = parser.parse("\"   \"");
     assertTrue(e.isJsonPrimitive());
@@ -56,12 +57,20 @@ public class JsonParserTest extends TestCase {
     JsonElement e = parser.parse("     ");
     assertTrue(e.isJsonNull());
   }
-  
+
+  public void testParseUnquotedStringSentence() {
+    String unquotedSentence = "Test is a test..blah blah";
+    try {
+      parser.parse(unquotedSentence);
+      fail();
+    } catch (JsonSyntaxException expected) { }
+  }
+
   public void testParseMixedArray() {
     String json = "[{},13,\"stringValue\"]";
     JsonElement e = parser.parse(json);
     assertTrue(e.isJsonArray());
-    
+
     JsonArray  array = e.getAsJsonArray();
     assertEquals("{}", array.get(0).toString());
     assertEquals(13, array.get(1).getAsInt());
@@ -75,16 +84,16 @@ public class JsonParserTest extends TestCase {
     assertEquals(10, e.getAsJsonObject().get("a").getAsInt());
     assertEquals("c", e.getAsJsonObject().get("b").getAsString());
   }
-  
+
   public void testReadWriteTwoObjects() throws Exception {
-    Gson gson= new Gson();
+    Gson gson = new Gson();
     CharArrayWriter writer= new CharArrayWriter();
     BagOfPrimitives expectedOne = new BagOfPrimitives(1, 1, true, "one");
     writer.write(gson.toJson(expectedOne).toCharArray());
     BagOfPrimitives expectedTwo = new BagOfPrimitives(2, 2, false, "two");
     writer.write(gson.toJson(expectedTwo).toCharArray());
     CharArrayReader reader = new CharArrayReader(writer.toCharArray());
-  
+
     JsonReader parser = new JsonReader(reader);
     parser.setLenient(true);
     JsonElement element1 = Streams.parse(parser);
