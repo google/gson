@@ -33,7 +33,8 @@ import com.google.gson.webservice.definition.HttpMethod;
  *
  * @author Inderjeet Singh
  */
-public class ResourceDepotClient<I extends ID, R extends RestResource<I, R>> implements ResourceDepot<I, R> {
+public class ResourceDepotClient<I extends ID, R extends RestResource<I, R>>
+    implements ResourceDepot<I, R> {
   private final RestClientStub stub;
   private final RestCallSpec callSpec;
   private final Type resourceType;
