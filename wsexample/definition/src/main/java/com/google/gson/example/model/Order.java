@@ -15,18 +15,18 @@
  */
 package com.google.gson.example.model;
 
-import com.google.gson.rest.definition.Id;
 import com.google.gson.rest.definition.RestResource;
+import com.google.gson.rest.definition.ValueBasedId;
 
 /**
  * An order
  *
  * @author inder
  */
-public class Order implements RestResource<Id<Order>, Order> {
+public class Order implements RestResource<ValueBasedId<Order>, Order> {
   public final Cart postedCart;
   public final String orderNumber;
-  private Id<Order> id;
+  private ValueBasedId<Order> id;
  
   public Order(Cart postedCart, String orderNumber) {
     this.postedCart = postedCart;
@@ -42,17 +42,17 @@ public class Order implements RestResource<Id<Order>, Order> {
   }
 
   @Override
-  public Id<Order> getId() {
+  public ValueBasedId<Order> getId() {
     return id;
   }
 
   @Override
-  public void setId(Id<Order> id) {
+  public void setId(ValueBasedId<Order> id) {
     this.id = id;
   }
 
   @Override
   public boolean hasId() {
-    return Id.isValid(id);
+    return ValueBasedId.isValid(id);
   }
 }

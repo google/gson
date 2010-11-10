@@ -14,13 +14,14 @@
  * limitations under the License.
  */package com.google.gson.example.rest.client;
 
+import com.google.gson.Gson;
 import com.google.gson.example.model.Cart;
 import com.google.gson.example.model.LineItem;
 import com.google.gson.example.model.Order;
-import com.google.gson.rest.client.RestClient;
+import com.google.gson.rest.client.ResourceDepotClient;
 import com.google.gson.rest.client.RestClientStub;
 import com.google.gson.rest.client.RestServerConfig;
-import com.google.gson.rest.definition.Id;
+import com.google.gson.rest.definition.ValueBasedId;
 import com.google.gson.webservice.definition.CallPath;
 
 import java.util.ArrayList;
@@ -34,11 +35,12 @@ import java.util.logging.Level;
  */
 public class OrderClient {
   public static final CallPath CALL_PATH = new CallPath("/rest/order");
-  private final RestClient<Id<Order>, Order> restClient;
+  private final ResourceDepotClient<ValueBasedId<Order>, Order> restClient;
   public OrderClient() {
     RestServerConfig serverConfig = new RestServerConfig("http://localhost");
     RestClientStub stub = new RestClientStub(serverConfig, Level.INFO);
-    restClient = new RestClient<Id<Order>, Order>(stub, CALL_PATH, Order.class);
+    restClient = new ResourceDepotClient<ValueBasedId<Order>, Order>(
+        stub, CALL_PATH, Order.class, new Gson());
   }
 
   public Order placeOrder(Cart cart) {
