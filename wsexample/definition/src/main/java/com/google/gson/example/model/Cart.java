@@ -15,8 +15,8 @@
  */
 package com.google.gson.example.model;
 
-import com.google.gson.rest.definition.Id;
 import com.google.gson.rest.definition.RestResource;
+import com.google.gson.rest.definition.ValueBasedId;
 
 import java.util.List;
 
@@ -25,11 +25,11 @@ import java.util.List;
  * 
  * @author inder
  */
-public class Cart implements RestResource<Id<Cart>, Cart> {
+public class Cart implements RestResource<ValueBasedId<Cart>, Cart> {
   private final List<LineItem> lineItems;
   private final String buyerName;
   private final String creditCard;
-  private Id<Cart> id;
+  private ValueBasedId<Cart> id;
 
   public Cart(List<LineItem> lineItems, String buyerName, String creditCard) {
     this.lineItems = lineItems;
@@ -50,17 +50,17 @@ public class Cart implements RestResource<Id<Cart>, Cart> {
   }
 
   @Override
-  public Id<Cart> getId() {
+  public ValueBasedId<Cart> getId() {
     return id;
   }
 
   @Override
-  public void setId(Id<Cart> id) {
+  public void setId(ValueBasedId<Cart> id) {
     this.id = id;
   }
 
   @Override
   public boolean hasId() {
-    return Id.isValid(id);
+    return ValueBasedId.isValid(id);
   }
 }
