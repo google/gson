@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><metadata>
   <groupId>com.google.code.gson</groupId>
   <artifactId>gson</artifactId>
-  <version>1.0.1</version>
+  <version>1.5</version>
   <versioning>
     <versions>
       <version>1.0.1</version>
