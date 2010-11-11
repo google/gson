@@ -45,9 +45,8 @@ final class Streams {
        */
       if (isEmpty) {
         return JsonNull.createJsonNull();
-      } else {
-        throw new JsonIOException(e);
       }
+      throw new JsonIOException(e);
     } catch (MalformedJsonException e) {
       throw new JsonSyntaxException(e);
     } catch (IOException e) {
