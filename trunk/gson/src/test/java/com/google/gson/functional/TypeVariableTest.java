@@ -70,11 +70,9 @@ public class TypeVariableTest extends TestCase {
     public boolean equals(Object o) {
       if (!(o instanceof Blue)) {
         return false;
-      } else {
-        Blue blue = (Blue) o;
-        return redField.equals(blue.redField);
-
       }
+      Blue blue = (Blue) o;
+      return redField.equals(blue.redField);
     }
   }
 

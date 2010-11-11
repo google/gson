@@ -62,7 +62,7 @@ final class DefaultTypeAdapters {
   private static final DefaultTimestampDeserializer TIMESTAMP_DESERIALIZER =
     new DefaultTimestampDeserializer();
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
   private static final EnumTypeAdapter ENUM_TYPE_ADAPTER = new EnumTypeAdapter();
   private static final UrlTypeAdapter URL_TYPE_ADAPTER = new UrlTypeAdapter();
   private static final UriTypeAdapter URI_TYPE_ADAPTER = new UriTypeAdapter();
@@ -196,7 +196,7 @@ final class DefaultTypeAdapters {
     return map;
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes"})
   private static JsonDeserializer<?> wrapDeserializer(JsonDeserializer<?> deserializer) {
     return new JsonDeserializerExceptionWrapper(deserializer);
   }
@@ -507,7 +507,7 @@ final class DefaultTypeAdapters {
     }
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes"})
   private static class CollectionTypeAdapter implements JsonSerializer<Collection>,
       JsonDeserializer<Collection>, InstanceCreator<Collection> {
     public JsonElement serialize(Collection src, Type typeOfSrc, JsonSerializationContext context) {
@@ -570,7 +570,7 @@ final class DefaultTypeAdapters {
     }
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes"})
   static class MapTypeAdapter implements JsonSerializer<Map>, JsonDeserializer<Map>,
       InstanceCreator<Map> {
 
