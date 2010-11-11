@@ -18,15 +18,17 @@ import com.google.gson.Gson;
 import com.google.gson.example.model.Cart;
 import com.google.gson.example.model.LineItem;
 import com.google.gson.example.model.Order;
+import com.google.gson.example.model.QueryOrdersByItemName;
 import com.google.gson.rest.client.ResourceDepotClient;
 import com.google.gson.rest.client.RestClientStub;
-import com.google.gson.rest.client.RestServerConfig;
 import com.google.gson.rest.definition.ValueBasedId;
+import com.google.gson.rest.query.client.ResourceQueryClient;
+import com.google.gson.webservice.client.ServerConfig;
+import com.google.gson.webservice.client.WebServiceClient;
 import com.google.gson.webservice.definition.CallPath;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 
 /**
  * A sample client for the rest resource for {@link Order}
@@ -36,11 +38,17 @@ import java.util.logging.Level;
 public class OrderClient {
   public static final CallPath CALL_PATH = new CallPath("/rest/order");
   private final ResourceDepotClient<ValueBasedId<Order>, Order> restClient;
+  private final ResourceQueryClient<
+      ValueBasedId<Order>, Order, QueryOrdersByItemName> queryClient;
   public OrderClient() {
-    RestServerConfig serverConfig = new RestServerConfig("http://localhost");
-    RestClientStub stub = new RestClientStub(serverConfig, Level.INFO);
+    ServerConfig serverConfig = new ServerConfig("http://localhost");
+    Gson gson = new Gson();
+
     restClient = new ResourceDepotClient<ValueBasedId<Order>, Order>(
-        stub, CALL_PATH, Order.class, new Gson());
+        new RestClientStub(serverConfig), CALL_PATH, Order.class, new Gson());
+    ServerConfig wsServerConfig = new ServerConfig("http://localhost");
+    queryClient = new ResourceQueryClient<ValueBasedId<Order>, Order, QueryOrdersByItemName>(
+        new WebServiceClient(wsServerConfig), CALL_PATH, gson); 
   }
 
   public Order placeOrder(Cart cart) {
@@ -48,11 +56,19 @@ public class OrderClient {
     return restClient.post(order);
   }
 
+  private List<Order> query(String itemName) {
+    return queryClient.query(new QueryOrdersByItemName(itemName));
+  }
+
   public static void main(String[] args) {
     OrderClient client = new OrderClient();
     List<LineItem> lineItems = new ArrayList<LineItem>();
-    lineItems.add(new LineItem("item1", 2, 1000000L, "USD"));
+    String itemName = "item1";
+    lineItems.add(new LineItem(itemName, 2, 1000000L, "USD"));
     Cart cart = new Cart(lineItems, "first last", "4111-1111-1111-1111");
-    client.placeOrder(cart);
+    Order order = client.placeOrder(cart);
+    System.out.println("Placed order: " + order);
+    List<Order> queriedOrder = client.query(itemName);
+    System.out.println("Queried order by item name ( " + itemName + "): " + order);
   }
 }
