@@ -25,14 +25,15 @@ import com.google.gson.webservice.definition.internal.utils.Pair;
  */
 public final class CallPath {
 
-  private static final double IGNORE_VERSION = -1D;
+  /** Visible for testing only */
+  static final double IGNORE_VERSION = -1D;
   private final String path;
   private final double version;
   private final long resourceId;
 
   public CallPath(String path) {
-    if (path == null) {
-      this.path = null;
+    if (path == null || path.trim().equals("")) {
+      this.path = path;
       version = IGNORE_VERSION;
       resourceId = ID.INVALID_ID;
     } else {

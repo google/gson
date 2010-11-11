@@ -63,7 +63,10 @@ public class ResourceQueryClient<I extends ID, R extends RestResource<I, R>, Q>
   }
 
   private static <T> WebServiceCallSpec generateCallSpec(CallPath callPath) {
-    return new WebServiceCallSpec.Builder(callPath).supportsHttpMethod(HttpMethod.GET).build();
+    return new WebServiceCallSpec.Builder(callPath)
+        .supportsHttpMethod(HttpMethod.GET)
+        .addResponseBodyParam(TypedKeysQuery.RESOURCE_LIST)
+        .build();
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
