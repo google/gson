@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 Google Inc.
+ * Copyright (C) 2010 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,26 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson.rest.client;
+package com.google.gson.example.model;
 
 /**
- * Configuration needed to access a Gson REST service.
- * 
- * @author inder
+ * A query for orders by item name
+ *
+ * @author Inderjeet Singh
  */
-public final class RestServerConfig {
-  private final String serviceBaseUrl;
+public class QueryOrdersByItemName {
+  private final String itemName;
 
-  public RestServerConfig(String serviceBaseUrl) {
-    this.serviceBaseUrl = serviceBaseUrl;
+  public QueryOrdersByItemName() {
+    this(null);
   }
 
-  public String getServiceBaseUrl() {
-    return serviceBaseUrl;
+  public QueryOrdersByItemName(String itemName) {
+    this.itemName = itemName;
   }
   
-  @Override
-  public String toString() {
-    return serviceBaseUrl;
+  public String getItemName() {
+    return itemName;
   }
 }

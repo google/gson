@@ -22,6 +22,7 @@ import com.google.gson.rest.definition.RestCallSpec;
 import com.google.gson.rest.definition.RestRequest;
 import com.google.gson.rest.definition.RestResource;
 import com.google.gson.rest.definition.RestResponse;
+import com.google.gson.webservice.client.ServerConfig;
 import com.google.gson.webservice.definition.WebServiceSystemException;
 
 import java.io.IOException;
@@ -37,15 +38,15 @@ import java.util.logging.Logger;
  * @author inder
  */
 public class RestClientStub {
-  private final RestServerConfig config;
+  private final ServerConfig config;
   private final Logger logger;
   private final Level logLevel;
 
-  public RestClientStub(RestServerConfig serverConfig) {
+  public RestClientStub(ServerConfig serverConfig) {
     this(serverConfig, null);
   }
 
-  public RestClientStub(RestServerConfig serverConfig, Level logLevel) {
+  public RestClientStub(ServerConfig serverConfig, Level logLevel) {
     this.config = serverConfig;
     this.logger = logLevel == null ? null : Logger.getLogger(RestClientStub.class.getName());
     this.logLevel = logLevel;
