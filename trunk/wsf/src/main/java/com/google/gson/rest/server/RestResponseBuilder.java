@@ -22,7 +22,7 @@ import com.google.gson.rest.definition.RestResource;
 import com.google.gson.rest.definition.RestResponse;
 import com.google.gson.webservice.definition.HttpMethod;
 
-public abstract class RestResponseBuilder<I extends ID, R extends RestResource<I, R>> {
+public class RestResponseBuilder<I extends ID, R extends RestResource<I, R>> {
   protected final Repository<I, R> resources;
 
   public RestResponseBuilder(Repository<I, R> resources) {
