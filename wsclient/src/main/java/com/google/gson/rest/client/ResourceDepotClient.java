@@ -60,6 +60,7 @@ public class ResourceDepotClient<I extends ID, R extends RestResource<I, R>>
     return new RestCallSpec.Builder(callPath, resourceType).build();
   }
 
+  @Override
   public R get(I resourceId) {
     HeaderMap requestHeaders =
       new HeaderMap.Builder(callSpec.getRequestSpec().getHeadersSpec()).build();
@@ -69,6 +70,7 @@ public class ResourceDepotClient<I extends ID, R extends RestResource<I, R>>
     return response.getBody();
   }
 
+  @Override
   public R post(R resource) {
     HeaderMap requestHeaders =
       new HeaderMap.Builder(callSpec.getRequestSpec().getHeadersSpec()).build();
@@ -78,6 +80,7 @@ public class ResourceDepotClient<I extends ID, R extends RestResource<I, R>>
     return response.getBody();
   }
 
+  @Override
   public R put(R resource) {
     HeaderMap requestHeaders =
       new HeaderMap.Builder(callSpec.getRequestSpec().getHeadersSpec()).build();
@@ -87,6 +90,7 @@ public class ResourceDepotClient<I extends ID, R extends RestResource<I, R>>
     return response.getBody();
   }
 
+  @Override
   public void delete(I resourceId) {
     HeaderMap requestHeaders =
       new HeaderMap.Builder(callSpec.getRequestSpec().getHeadersSpec()).build();
