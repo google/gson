@@ -88,6 +88,7 @@ public final class RestDispatcher {
     return requestReceiver.receive(request, idFactory.createId(callPath.getResourceId()));
   }
 
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public void service(HttpServletRequest req, HttpServletResponse res, CallPath callPath) {
     RestCallSpec callSpec = resourceMap.get(callPath).createCopy(callPath);
     @SuppressWarnings("rawtypes")

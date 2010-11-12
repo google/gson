@@ -52,6 +52,6 @@ public final class ResponseBuilderMap {
   }
   
   public RestResponseBuilder<?, ?> get(Type resourceType) {
-    return (RestResponseBuilder<?, ?>)map.get(resourceType);
+    return map.get(resourceType);
   }
 }
