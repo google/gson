@@ -15,8 +15,8 @@
  */
 package com.google.gson.example.model;
 
-import com.google.gson.rest.definition.RestResource;
-import com.google.gson.rest.definition.ValueBasedId;
+import com.google.greaze.definition.rest.RestResource;
+import com.google.greaze.definition.rest.ValueBasedId;
 
 /**
  * An order

@@ -21,9 +21,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.google.gson.rest.definition.HasId;
-import com.google.gson.rest.definition.ID;
-import com.google.gson.rest.definition.IDFactory;
+import com.google.greaze.definition.rest.HasId;
+import com.google.greaze.definition.rest.ID;
+import com.google.greaze.definition.rest.IDFactory;
 
 /**
  * This class provides a type-safe map to access values associated with Ids

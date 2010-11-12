@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.gson.webservice.definition.CallPath;
+import com.google.greaze.definition.CallPath;
 
 /**
  * An example servlet that receives JSON web-service requests

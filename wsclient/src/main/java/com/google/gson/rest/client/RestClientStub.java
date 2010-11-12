@@ -15,15 +15,15 @@
  */
 package com.google.gson.rest.client;
 
+import com.google.greaze.definition.WebServiceSystemException;
+import com.google.greaze.definition.rest.ID;
+import com.google.greaze.definition.rest.RestCallSpec;
+import com.google.greaze.definition.rest.RestRequest;
+import com.google.greaze.definition.rest.RestResource;
+import com.google.greaze.definition.rest.RestResponse;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.rest.definition.ID;
-import com.google.gson.rest.definition.RestCallSpec;
-import com.google.gson.rest.definition.RestRequest;
-import com.google.gson.rest.definition.RestResource;
-import com.google.gson.rest.definition.RestResponse;
 import com.google.gson.webservice.client.ServerConfig;
-import com.google.gson.webservice.definition.WebServiceSystemException;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;

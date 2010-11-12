@@ -15,12 +15,12 @@
  */
 package com.google.gson.rest.server;
 
-import com.google.gson.rest.definition.ID;
-import com.google.gson.rest.definition.RestCallSpec;
-import com.google.gson.rest.definition.RestRequest;
-import com.google.gson.rest.definition.RestResource;
-import com.google.gson.rest.definition.RestResponse;
-import com.google.gson.webservice.definition.HttpMethod;
+import com.google.greaze.definition.HttpMethod;
+import com.google.greaze.definition.rest.ID;
+import com.google.greaze.definition.rest.RestCallSpec;
+import com.google.greaze.definition.rest.RestRequest;
+import com.google.greaze.definition.rest.RestResource;
+import com.google.greaze.definition.rest.RestResponse;
 
 public class RestResponseBuilder<I extends ID, R extends RestResource<I, R>> {
   protected final Repository<I, R> resources;

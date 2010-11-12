@@ -56,9 +56,9 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>com.google.code.gson</groupId>
-      <artifactId>wsdef</artifactId>
-      <version>0.1</version>
+      <groupId>com.google.code.greaze</groupId>
+      <artifactId>greaze-definition</artifactId>
+      <version>0.5</version>
       <scope>compile</scope>
     </dependency>
 

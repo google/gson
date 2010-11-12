@@ -25,14 +25,14 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.google.greaze.definition.HeaderMap;
+import com.google.greaze.definition.HeaderMapSpec;
+import com.google.greaze.definition.WebServiceSystemException;
+import com.google.greaze.definition.webservice.ResponseBody;
+import com.google.greaze.definition.webservice.ResponseBodySpec;
+import com.google.greaze.definition.webservice.ResponseSpec;
+import com.google.greaze.definition.webservice.WebServiceResponse;
 import com.google.gson.Gson;
-import com.google.gson.webservice.definition.HeaderMap;
-import com.google.gson.webservice.definition.HeaderMapSpec;
-import com.google.gson.webservice.definition.WebServiceSystemException;
-import com.google.gson.webservice.definition.procedural.ResponseBody;
-import com.google.gson.webservice.definition.procedural.ResponseBodySpec;
-import com.google.gson.webservice.definition.procedural.ResponseSpec;
-import com.google.gson.webservice.definition.procedural.WebServiceResponse;
 import com.google.gson.wsclient.internal.utils.ConnectionPreconditions;
 
 /**

@@ -15,9 +15,9 @@
  */
 package com.google.gson.wsf.server.procedural;
 
-import com.google.gson.webservice.definition.procedural.WebServiceCallSpec;
-import com.google.gson.webservice.definition.procedural.WebServiceRequest;
-import com.google.gson.webservice.definition.procedural.WebServiceResponse;
+import com.google.greaze.definition.webservice.WebServiceCallSpec;
+import com.google.greaze.definition.webservice.WebServiceRequest;
+import com.google.greaze.definition.webservice.WebServiceResponse;
 
 /**
  * An interface describing a class that can build a response

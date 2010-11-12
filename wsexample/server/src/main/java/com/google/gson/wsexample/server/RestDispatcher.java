@@ -18,25 +18,25 @@ package com.google.gson.wsexample.server;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.greaze.definition.CallPath;
+import com.google.greaze.definition.rest.IDFactory;
+import com.google.greaze.definition.rest.MetaData;
+import com.google.greaze.definition.rest.ResourceMap;
+import com.google.greaze.definition.rest.RestCallSpec;
+import com.google.greaze.definition.rest.RestRequest;
+import com.google.greaze.definition.rest.RestResponse;
+import com.google.greaze.definition.rest.ValueBasedId;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.example.model.Cart;
 import com.google.gson.example.model.Order;
 import com.google.gson.example.service.ServicePaths;
-import com.google.gson.rest.definition.IDFactory;
-import com.google.gson.rest.definition.MetaData;
-import com.google.gson.rest.definition.ResourceMap;
-import com.google.gson.rest.definition.RestCallSpec;
-import com.google.gson.rest.definition.RestRequest;
-import com.google.gson.rest.definition.RestResponse;
-import com.google.gson.rest.definition.ValueBasedId;
 import com.google.gson.rest.server.Repository;
 import com.google.gson.rest.server.RepositoryInMemory;
 import com.google.gson.rest.server.ResponseBuilderMap;
 import com.google.gson.rest.server.RestRequestReceiver;
 import com.google.gson.rest.server.RestResponseBuilder;
 import com.google.gson.rest.server.RestResponseSender;
-import com.google.gson.webservice.definition.CallPath;
 
 /**
  * A dispatcher for all the REST requests
