@@ -181,7 +181,6 @@ public final class FieldAttributes {
   /**
    * This is exposed internally only for the removing synthetic fields from the JSON output.
    *
-   * @return true if the field is synthetic; otherwise false
    * @throws IllegalAccessException
    * @throws IllegalArgumentException
    */

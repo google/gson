@@ -40,7 +40,7 @@ public class IdMap<I extends ID, T extends HasId<I>> {
   private final IDFactory<I> idFactory;
 
   /**
-   * Use {@link #create(Type)} instead of constructor
+   * Use create(Type) instead of constructor
    */
   protected IdMap(Class<? super I> classOfI, Type typeOfId) {
     map = new ConcurrentHashMap<I, T>();
