@@ -15,6 +15,12 @@
  */
 package com.google.gson.example.client;
 
+import com.google.greaze.definition.HeaderMap;
+import com.google.greaze.definition.HttpMethod;
+import com.google.greaze.definition.webservice.RequestBody;
+import com.google.greaze.definition.webservice.WebServiceCallSpec;
+import com.google.greaze.definition.webservice.WebServiceRequest;
+import com.google.greaze.definition.webservice.WebServiceResponse;
 import com.google.gson.example.model.Cart;
 import com.google.gson.example.model.LineItem;
 import com.google.gson.example.model.Order;
@@ -22,12 +28,6 @@ import com.google.gson.example.model.TypedKeys;
 import com.google.gson.example.service.SampleJsonService;
 import com.google.gson.webservice.client.ServerConfig;
 import com.google.gson.webservice.client.WebServiceClient;
-import com.google.gson.webservice.definition.HeaderMap;
-import com.google.gson.webservice.definition.HttpMethod;
-import com.google.gson.webservice.definition.procedural.RequestBody;
-import com.google.gson.webservice.definition.procedural.WebServiceCallSpec;
-import com.google.gson.webservice.definition.procedural.WebServiceRequest;
-import com.google.gson.webservice.definition.procedural.WebServiceResponse;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -18,9 +18,9 @@ package com.google.gson.rest.server;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.gson.rest.definition.ID;
-import com.google.gson.rest.definition.MetaData;
-import com.google.gson.rest.definition.RestResource;
+import com.google.greaze.definition.rest.ID;
+import com.google.greaze.definition.rest.MetaData;
+import com.google.greaze.definition.rest.RestResource;
 
 /**
  * A map of resources to their MetaData

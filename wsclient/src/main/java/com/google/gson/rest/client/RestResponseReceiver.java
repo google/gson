@@ -25,15 +25,15 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.google.greaze.definition.ContentBodySpec;
+import com.google.greaze.definition.HeaderMap;
+import com.google.greaze.definition.HeaderMapSpec;
+import com.google.greaze.definition.WebServiceSystemException;
+import com.google.greaze.definition.rest.ID;
+import com.google.greaze.definition.rest.RestResource;
+import com.google.greaze.definition.rest.RestResponse;
+import com.google.greaze.definition.rest.RestResponseSpec;
 import com.google.gson.Gson;
-import com.google.gson.rest.definition.ID;
-import com.google.gson.rest.definition.RestResource;
-import com.google.gson.rest.definition.RestResponse;
-import com.google.gson.rest.definition.RestResponseSpec;
-import com.google.gson.webservice.definition.ContentBodySpec;
-import com.google.gson.webservice.definition.HeaderMap;
-import com.google.gson.webservice.definition.HeaderMapSpec;
-import com.google.gson.webservice.definition.WebServiceSystemException;
 import com.google.gson.wsclient.internal.utils.ConnectionPreconditions;
 
 /**

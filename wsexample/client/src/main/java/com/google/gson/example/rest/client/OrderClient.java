@@ -14,6 +14,8 @@
  * limitations under the License.
  */package com.google.gson.example.rest.client;
 
+import com.google.greaze.definition.CallPath;
+import com.google.greaze.definition.rest.ValueBasedId;
 import com.google.gson.Gson;
 import com.google.gson.example.model.Cart;
 import com.google.gson.example.model.LineItem;
@@ -21,11 +23,9 @@ import com.google.gson.example.model.Order;
 import com.google.gson.example.model.QueryOrdersByItemName;
 import com.google.gson.rest.client.ResourceDepotClient;
 import com.google.gson.rest.client.RestClientStub;
-import com.google.gson.rest.definition.ValueBasedId;
 import com.google.gson.rest.query.client.ResourceQueryClient;
 import com.google.gson.webservice.client.ServerConfig;
 import com.google.gson.webservice.client.WebServiceClient;
-import com.google.gson.webservice.definition.CallPath;
 
 import java.util.ArrayList;
 import java.util.List;

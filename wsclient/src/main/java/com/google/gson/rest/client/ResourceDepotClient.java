@@ -17,16 +17,16 @@ package com.google.gson.rest.client;
 
 import java.lang.reflect.Type;
 
+import com.google.greaze.definition.CallPath;
+import com.google.greaze.definition.HeaderMap;
+import com.google.greaze.definition.HttpMethod;
+import com.google.greaze.definition.rest.ID;
+import com.google.greaze.definition.rest.ResourceDepot;
+import com.google.greaze.definition.rest.RestCallSpec;
+import com.google.greaze.definition.rest.RestRequest;
+import com.google.greaze.definition.rest.RestResource;
+import com.google.greaze.definition.rest.RestResponse;
 import com.google.gson.Gson;
-import com.google.gson.rest.definition.ID;
-import com.google.gson.rest.definition.ResourceDepot;
-import com.google.gson.rest.definition.RestCallSpec;
-import com.google.gson.rest.definition.RestRequest;
-import com.google.gson.rest.definition.RestResource;
-import com.google.gson.rest.definition.RestResponse;
-import com.google.gson.webservice.definition.CallPath;
-import com.google.gson.webservice.definition.HeaderMap;
-import com.google.gson.webservice.definition.HttpMethod;
 
 /**
  * A client class to access a rest resource

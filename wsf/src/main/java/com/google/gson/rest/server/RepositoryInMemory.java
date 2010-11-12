@@ -16,9 +16,9 @@
 package com.google.gson.rest.server;
 
 import com.google.common.base.Preconditions;
-import com.google.gson.rest.definition.ID;
-import com.google.gson.rest.definition.MetaData;
-import com.google.gson.rest.definition.RestResource;
+import com.google.greaze.definition.rest.ID;
+import com.google.greaze.definition.rest.MetaData;
+import com.google.greaze.definition.rest.RestResource;
 
 /**
  * An in-memory map of rest resources

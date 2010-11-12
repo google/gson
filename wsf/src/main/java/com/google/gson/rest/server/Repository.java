@@ -15,8 +15,8 @@
  */
 package com.google.gson.rest.server;
 
-import com.google.gson.rest.definition.HasId;
-import com.google.gson.rest.definition.ID;
+import com.google.greaze.definition.rest.HasId;
+import com.google.greaze.definition.rest.ID;
 
 /**
  * An interface for a repository of rest resources. Meant for abstracting the server-side
