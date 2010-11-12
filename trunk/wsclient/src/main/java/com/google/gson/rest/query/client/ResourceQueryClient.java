@@ -17,20 +17,20 @@ package com.google.gson.rest.query.client;
 
 import java.util.List;
 
+import com.google.greaze.definition.CallPath;
+import com.google.greaze.definition.HeaderMap;
+import com.google.greaze.definition.HttpMethod;
+import com.google.greaze.definition.rest.ID;
+import com.google.greaze.definition.rest.RestResource;
+import com.google.greaze.definition.rest.query.ResourceQuery;
+import com.google.greaze.definition.rest.query.TypedKeysQuery;
+import com.google.greaze.definition.webservice.RequestBody;
+import com.google.greaze.definition.webservice.ResponseBody;
+import com.google.greaze.definition.webservice.WebServiceCallSpec;
+import com.google.greaze.definition.webservice.WebServiceRequest;
+import com.google.greaze.definition.webservice.WebServiceResponse;
 import com.google.gson.Gson;
-import com.google.gson.rest.definition.ID;
-import com.google.gson.rest.definition.RestResource;
-import com.google.gson.rest.query.ResourceQuery;
-import com.google.gson.rest.query.TypedKeysQuery;
 import com.google.gson.webservice.client.WebServiceClient;
-import com.google.gson.webservice.definition.CallPath;
-import com.google.gson.webservice.definition.HeaderMap;
-import com.google.gson.webservice.definition.HttpMethod;
-import com.google.gson.webservice.definition.procedural.RequestBody;
-import com.google.gson.webservice.definition.procedural.ResponseBody;
-import com.google.gson.webservice.definition.procedural.WebServiceCallSpec;
-import com.google.gson.webservice.definition.procedural.WebServiceRequest;
-import com.google.gson.webservice.definition.procedural.WebServiceResponse;
 
 /**
  * A client to invoke {@link ResourceQuery}s associated with a REST resource

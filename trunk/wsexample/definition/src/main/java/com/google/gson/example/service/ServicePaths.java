@@ -15,7 +15,7 @@
  */
 package com.google.gson.example.service;
 
-import com.google.gson.webservice.definition.CallPath;
+import com.google.greaze.definition.CallPath;
 
 /**
  * An enum describing all paths for this service

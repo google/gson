@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 package com.google.gson.example.service;
+import com.google.greaze.definition.CallPath;
+import com.google.greaze.definition.HttpMethod;
+import com.google.greaze.definition.webservice.WebServiceCallSpec;
 import com.google.gson.example.model.TypedKeys;
-import com.google.gson.webservice.definition.CallPath;
-import com.google.gson.webservice.definition.HttpMethod;
-import com.google.gson.webservice.definition.procedural.WebServiceCallSpec;
 
 /**
  * An example of a web-service definition

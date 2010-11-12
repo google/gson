@@ -15,7 +15,7 @@
  */
 package com.google.gson.example.model;
 
-import com.google.gson.webservice.definition.TypedKey;
+import com.google.greaze.definition.TypedKey;
 
 /**
  * Definition of various constants to be used for parameter names of request and response headers,

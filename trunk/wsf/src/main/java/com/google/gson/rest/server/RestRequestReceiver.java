@@ -24,16 +24,16 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.google.greaze.definition.HeaderMap;
+import com.google.greaze.definition.HeaderMapSpec;
+import com.google.greaze.definition.HttpMethod;
+import com.google.greaze.definition.WebServiceSystemException;
+import com.google.greaze.definition.rest.ID;
+import com.google.greaze.definition.rest.RestRequest;
+import com.google.greaze.definition.rest.RestRequestSpec;
+import com.google.greaze.definition.rest.RestResource;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
-import com.google.gson.rest.definition.ID;
-import com.google.gson.rest.definition.RestRequest;
-import com.google.gson.rest.definition.RestRequestSpec;
-import com.google.gson.rest.definition.RestResource;
-import com.google.gson.webservice.definition.HeaderMap;
-import com.google.gson.webservice.definition.HeaderMapSpec;
-import com.google.gson.webservice.definition.HttpMethod;
-import com.google.gson.webservice.definition.WebServiceSystemException;
 
 /**
  * Receives and parses a request at the server side on a {@link HttpServletRequest}.  

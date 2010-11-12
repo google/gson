@@ -22,11 +22,11 @@ import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.greaze.definition.HeaderMap;
+import com.google.greaze.definition.HeaderMapSpec;
+import com.google.greaze.definition.webservice.ResponseBody;
+import com.google.greaze.definition.webservice.WebServiceResponse;
 import com.google.gson.Gson;
-import com.google.gson.webservice.definition.HeaderMap;
-import com.google.gson.webservice.definition.HeaderMapSpec;
-import com.google.gson.webservice.definition.procedural.ResponseBody;
-import com.google.gson.webservice.definition.procedural.WebServiceResponse;
 
 /**
  * Sends a JSON web service response on {@link HttpServletResponse}.

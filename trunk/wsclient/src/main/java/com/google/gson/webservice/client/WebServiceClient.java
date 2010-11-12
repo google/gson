@@ -22,14 +22,14 @@ import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.google.greaze.definition.WebServiceSystemException;
+import com.google.greaze.definition.webservice.ResponseBody;
+import com.google.greaze.definition.webservice.ResponseBodyGsonConverter;
+import com.google.greaze.definition.webservice.WebServiceCallSpec;
+import com.google.greaze.definition.webservice.WebServiceRequest;
+import com.google.greaze.definition.webservice.WebServiceResponse;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.webservice.definition.WebServiceSystemException;
-import com.google.gson.webservice.definition.procedural.ResponseBody;
-import com.google.gson.webservice.definition.procedural.ResponseBodyGsonConverter;
-import com.google.gson.webservice.definition.procedural.WebServiceCallSpec;
-import com.google.gson.webservice.definition.procedural.WebServiceRequest;
-import com.google.gson.webservice.definition.procedural.WebServiceResponse;
 
 /**
  * Main class used by clients to access a Gson Web service.
