@@ -26,17 +26,17 @@ import com.google.greaze.definition.rest.RestCallSpec;
 import com.google.greaze.definition.rest.RestRequest;
 import com.google.greaze.definition.rest.RestResponse;
 import com.google.greaze.definition.rest.ValueBasedId;
+import com.google.greaze.rest.server.Repository;
+import com.google.greaze.rest.server.RepositoryInMemory;
+import com.google.greaze.rest.server.ResponseBuilderMap;
+import com.google.greaze.rest.server.RestRequestReceiver;
+import com.google.greaze.rest.server.RestResponseBuilder;
+import com.google.greaze.rest.server.RestResponseSender;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.example.model.Cart;
 import com.google.gson.example.model.Order;
 import com.google.gson.example.service.ServicePaths;
-import com.google.gson.rest.server.Repository;
-import com.google.gson.rest.server.RepositoryInMemory;
-import com.google.gson.rest.server.ResponseBuilderMap;
-import com.google.gson.rest.server.RestRequestReceiver;
-import com.google.gson.rest.server.RestResponseBuilder;
-import com.google.gson.rest.server.RestResponseSender;
 
 /**
  * A dispatcher for all the REST requests
