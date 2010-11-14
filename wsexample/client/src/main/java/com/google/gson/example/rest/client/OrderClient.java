@@ -16,16 +16,16 @@
 
 import com.google.greaze.definition.CallPath;
 import com.google.greaze.definition.rest.ValueBasedId;
+import com.google.greaze.rest.client.ResourceDepotClient;
+import com.google.greaze.rest.client.RestClientStub;
+import com.google.greaze.rest.query.client.ResourceQueryClient;
+import com.google.greaze.webservice.client.ServerConfig;
+import com.google.greaze.webservice.client.WebServiceClient;
 import com.google.gson.Gson;
 import com.google.gson.example.model.Cart;
 import com.google.gson.example.model.LineItem;
 import com.google.gson.example.model.Order;
 import com.google.gson.example.model.QueryOrdersByItemName;
-import com.google.gson.rest.client.ResourceDepotClient;
-import com.google.gson.rest.client.RestClientStub;
-import com.google.gson.rest.query.client.ResourceQueryClient;
-import com.google.gson.webservice.client.ServerConfig;
-import com.google.gson.webservice.client.WebServiceClient;
 
 import java.util.ArrayList;
 import java.util.List;
