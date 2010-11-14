@@ -28,14 +28,14 @@ import com.google.greaze.definition.webservice.ResponseSpec;
 import com.google.greaze.definition.webservice.WebServiceCallSpec;
 import com.google.greaze.definition.webservice.WebServiceRequest;
 import com.google.greaze.definition.webservice.WebServiceResponse;
+import com.google.greaze.example.definition.model.Cart;
+import com.google.greaze.example.definition.model.Order;
+import com.google.greaze.example.definition.model.TypedKeys;
+import com.google.greaze.example.definition.service.SampleJsonService;
 import com.google.greaze.webservice.server.RequestReceiver;
 import com.google.greaze.webservice.server.ResponseSender;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.example.model.Cart;
-import com.google.gson.example.model.Order;
-import com.google.gson.example.model.TypedKeys;
-import com.google.gson.example.service.SampleJsonService;
 
 /**
  * A dispatcher for all the procedural calls
