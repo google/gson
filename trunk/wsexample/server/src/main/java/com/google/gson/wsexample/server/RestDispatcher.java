@@ -26,6 +26,9 @@ import com.google.greaze.definition.rest.RestCallSpec;
 import com.google.greaze.definition.rest.RestRequest;
 import com.google.greaze.definition.rest.RestResponse;
 import com.google.greaze.definition.rest.ValueBasedId;
+import com.google.greaze.example.definition.model.Cart;
+import com.google.greaze.example.definition.model.Order;
+import com.google.greaze.example.definition.service.ServicePaths;
 import com.google.greaze.rest.server.Repository;
 import com.google.greaze.rest.server.RepositoryInMemory;
 import com.google.greaze.rest.server.ResponseBuilderMap;
@@ -34,9 +37,6 @@ import com.google.greaze.rest.server.RestResponseBuilder;
 import com.google.greaze.rest.server.RestResponseSender;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.example.model.Cart;
-import com.google.gson.example.model.Order;
-import com.google.gson.example.service.ServicePaths;
 
 /**
  * A dispatcher for all the REST requests
