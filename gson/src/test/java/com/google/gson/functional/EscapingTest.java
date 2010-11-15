@@ -81,4 +81,12 @@ public class EscapingTest extends TestCase {
     assertEquals(target, noEscapeHtmlGson.fromJson(escapedJsonForm, BagOfPrimitives.class));
     assertEquals(target, escapeHtmlGson.fromJson(nonEscapedJsonForm, BagOfPrimitives.class));
   }
+
+  public void testGsonDoubleDeserialization() {
+    BagOfPrimitives expected = new BagOfPrimitives(3L, 4, true, "value1");
+    String json = gson.toJson(gson.toJson(expected));
+    String value = gson.fromJson(json, String.class);
+    BagOfPrimitives actual = gson.fromJson(value, BagOfPrimitives.class);
+    assertEquals(expected, actual);
+  }
 }
