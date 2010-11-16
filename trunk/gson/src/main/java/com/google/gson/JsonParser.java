@@ -16,11 +16,8 @@
 package com.google.gson;
 
 import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.MalformedJsonException;
 
 import java.io.EOFException;
-import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 
@@ -54,20 +51,8 @@ public final class JsonParser {
    * @since 1.3
    */
   public JsonElement parse(Reader json) throws JsonIOException, JsonSyntaxException {
-    try {
-      JsonReader jsonReader = new JsonReader(json);
-      JsonElement element = parse(jsonReader);
-      if (!element.isJsonNull() && jsonReader.peek() != JsonToken.END_DOCUMENT) {
-        throw new JsonSyntaxException("Did not consume the entire document.");
-      }
-      return element;
-    } catch (MalformedJsonException e) {
-      throw new JsonSyntaxException(e);
-    } catch (IOException e) {
-      throw new JsonIOException(e);
-    } catch (NumberFormatException e) {
-      throw new JsonSyntaxException(e);
-    }
+    JsonReader jsonReader = new JsonReader(json);
+    return parse(jsonReader);
   }
 
   /**
@@ -75,6 +60,7 @@ public final class JsonParser {
    *
    * @throws JsonParseException if there is an IOException or if the specified
    *     text is not valid JSON
+   * @since 1.6
    */
   public JsonElement parse(JsonReader json) throws JsonIOException, JsonSyntaxException {
     boolean lenient = json.isLenient();

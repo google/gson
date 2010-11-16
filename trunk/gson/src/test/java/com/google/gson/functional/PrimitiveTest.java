@@ -571,7 +571,12 @@ public class PrimitiveTest extends TestCase {
     assertEquals(value, actual);
   }
 
-  public void testUnquotedStringDeserialization() throws Exception {
+  public void testUnquotedStringDeserializationFails() throws Exception {
+    try {
+      gson.fromJson("UnquotedSingleWord", String.class);
+      fail();
+    } catch (JsonSyntaxException expected) { }
+
     String value = "String Blah Blah Blah...1, 2, 3";
     try {
       gson.fromJson(value, String.class);

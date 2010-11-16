@@ -402,17 +402,17 @@ public final class JsonReader implements Closeable {
     // fast forward through the leading whitespace
     nextNonWhitespace();
     pos--;
-    
+
     if (pos + NON_EXECUTE_PREFIX.length > limit && !fillBuffer(NON_EXECUTE_PREFIX.length)) {
       return;
     }
-    
+
     for (int i = 0; i < NON_EXECUTE_PREFIX.length; i++) {
       if (buffer[pos + i] != NON_EXECUTE_PREFIX[i]) {
         return; // not a security token!
       }
     }
-    
+
     // we consumed a security token!
     pos += NON_EXECUTE_PREFIX.length;
   }
@@ -1097,8 +1097,7 @@ public final class JsonReader implements Closeable {
         token = JsonToken.NUMBER;
       } catch (NumberFormatException ignored) {
         // this must be an unquoted string
-        checkLenient();
-        token = JsonToken.STRING;
+        throw syntaxError("invalid number or unquoted string");
       }
     }
   }

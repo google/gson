@@ -17,9 +17,7 @@
 package com.google.gson;
 
 import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import com.google.gson.stream.MalformedJsonException;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -457,7 +455,6 @@ public final class Gson {
   public <T> T fromJson(Reader json, Class<T> classOfT) throws JsonSyntaxException, JsonIOException {
     JsonReader jsonReader = new JsonReader(json);
     Object object = fromJson(jsonReader, classOfT);
-    assertFullConsumption(object, jsonReader);
     return Primitives.wrap(classOfT).cast(object);
   }
 
@@ -482,21 +479,7 @@ public final class Gson {
    */
   public <T> T fromJson(Reader json, Type typeOfT) throws JsonIOException, JsonSyntaxException {
     JsonReader jsonReader = new JsonReader(json);
-    T object = this.<T>fromJson(jsonReader, typeOfT);
-    assertFullConsumption(object, jsonReader);
-    return object;
-  }
-
-  private static void assertFullConsumption(Object obj, JsonReader reader) {
-    try {
-      if (obj != null && reader.peek() != JsonToken.END_DOCUMENT) {
-        throw new JsonIOException("JSON document was not fully consumed.");
-      }
-    } catch (MalformedJsonException e) {
-      throw new JsonSyntaxException(e);
-    } catch (IOException e) {
-      throw new JsonIOException(e);
-    }
+    return this.<T>fromJson(jsonReader, typeOfT);
   }
 
   /**
