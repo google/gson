@@ -39,13 +39,6 @@ public class JsonParserTest extends TestCase {
     parser = new JsonParser();
   }
 
-  public void testParseSingleWordFails() {
-    try {
-      parser.parse("Word");
-      fail();
-    } catch (JsonSyntaxException expected) {}
-  }
-
   public void testParseUnquotedStringArrayFails() {
     try {
       parser.parse("[a,b,c]");
