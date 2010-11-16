@@ -39,6 +39,20 @@ public class JsonParserTest extends TestCase {
     parser = new JsonParser();
   }
 
+  public void testParseSingleWordFails() {
+    try {
+      parser.parse("Word");
+      fail();
+    } catch (JsonSyntaxException expected) {}
+  }
+
+  public void testParseUnquotedStringArrayFails() {
+    try {
+      parser.parse("[a,b,c]");
+      fail();
+    } catch (JsonSyntaxException expected) {}
+  }
+
   public void testParseString() {
     String json = "{a:10,b:'c'}";
     JsonElement e = parser.parse(json);
@@ -58,7 +72,14 @@ public class JsonParserTest extends TestCase {
     assertTrue(e.isJsonNull());
   }
 
-  public void testParseUnquotedStringSentence() {
+  public void testParseUnquotedSingleWordStringFails() {
+    try {
+      parser.parse("Test");
+      fail();
+    } catch (JsonSyntaxException expected) { }
+  }
+
+  public void testParseUnquotedMultiWordStringFails() {
     String unquotedSentence = "Test is a test..blah blah";
     try {
       parser.parse(unquotedSentence);

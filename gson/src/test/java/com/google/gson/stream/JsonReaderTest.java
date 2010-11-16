@@ -557,7 +557,7 @@ public final class JsonReaderTest extends TestCase {
     try {
       reader.nextString();
       fail();
-    } catch (IOException expected) {
+    } catch (MalformedJsonException expected) {
     }
   }
 
@@ -565,7 +565,10 @@ public final class JsonReaderTest extends TestCase {
     JsonReader reader = new JsonReader(new StringReader("[a]"));
     reader.setLenient(true);
     reader.beginArray();
-    assertEquals("a", reader.nextString());
+    try {
+      reader.nextString();
+      fail();
+    } catch (MalformedJsonException expected) { }
   }
 
   public void testStrictSingleQuotedStrings() throws IOException {
@@ -757,9 +760,8 @@ public final class JsonReaderTest extends TestCase {
   public void testLenientPartialNonExecutePrefix() throws IOException {
     JsonReader reader = new JsonReader(new StringReader(")]}' []"));
     reader.setLenient(true);
-    assertEquals(")", reader.nextString()); // lenient is almost too lenient!
     try {
-      reader.peek();
+      reader.beginArray();
       fail();
     } catch (IOException expected) {
     }
