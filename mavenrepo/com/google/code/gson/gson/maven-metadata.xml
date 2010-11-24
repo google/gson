@@ -1,9 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?><metadata>
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
   <groupId>com.google.code.gson</groupId>
   <artifactId>gson</artifactId>
-  <version>1.5</version>
   <versioning>
+    <release>1.6</release>
     <versions>
+      <version>1.6</version>
       <version>1.0.1</version>
       <version>1.1</version>
       <version>1.1.1</version>
@@ -15,6 +17,6 @@
       <version>1.4</version>
       <version>1.5</version>
     </versions>
-    <lastUpdated>20100820012239</lastUpdated>
+    <lastUpdated>20101124235259</lastUpdated>
   </versioning>
 </metadata>
