@@ -125,7 +125,7 @@ public class EnumTest extends TestCase {
 
   public void disabled_testEnumSubclassWithRegisteredTypeAdapter() {
     gson = new GsonBuilder()
-        .registerTypeHierarchyAdapter(Roshambo.class, new MyEnumTypeAdapter())
+//        .registerTypeHierarchyAdapter(Roshambo.class, new MyEnumTypeAdapter())
         .create();
     assertRoshambo();
   }
