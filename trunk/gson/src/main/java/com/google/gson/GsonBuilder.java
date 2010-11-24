@@ -429,9 +429,9 @@ public final class GsonBuilder {
    * @param typeAdapter This object must implement at least one of the {@link InstanceCreator},
    * {@link JsonSerializer}, and a {@link JsonDeserializer} interfaces.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
-   * @since 1.6
+   * @since 1.7
    */
-  public GsonBuilder registerTypeHierarchyAdapter(Class<?> baseType, Object typeAdapter) {
+  GsonBuilder registerTypeHierarchyAdapter(Class<?> baseType, Object typeAdapter) {
     Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
     || typeAdapter instanceof JsonDeserializer<?> || typeAdapter instanceof InstanceCreator<?>);
     if (typeAdapter instanceof InstanceCreator<?>) {
