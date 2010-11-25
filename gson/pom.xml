@@ -212,6 +212,16 @@
           <xmlOutputDirectory>target/site</xmlOutputDirectory>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>taglist-maven-plugin</artifactId>
+        <configuration>
+          <multipleLineComments>true</multipleLineComments>
+          <tags>
+            <tag>TODO</tag>
+          </tags>
+        </configuration>
+      </plugin>
     </plugins>
   </reporting>
   <developers>
