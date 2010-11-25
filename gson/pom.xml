@@ -4,7 +4,7 @@
   <groupId>com.google.code.gson</groupId>
   <artifactId>gson</artifactId>
   <packaging>jar</packaging>
-  <version>1.6</version>
+  <version>1.7</version>
   <inceptionYear>2008</inceptionYear>
   <name>Gson</name>
   <url>http://code.google.com/p/google-gson/</url>
@@ -73,8 +73,8 @@
           <archive>
             <manifestEntries>
               <Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
-              <Export-Package><![CDATA[com.google.gson;version=1.6, com.google.gson.annotations;version=1.6, com.google.gson.reflect;version=1.6]]></Export-Package>
-              <Bundle-Version>1.6</Bundle-Version>
+              <Export-Package><![CDATA[com.google.gson;version=1.7, com.google.gson.annotations;version=1.7, com.google.gson.reflect;version=1.7, com.google.gson.stream;version=1.7]]></Export-Package>
+              <Bundle-Version>1.7</Bundle-Version>
               <Bundle-ContactAddress>http://code.google.com/p/google-gson/</Bundle-ContactAddress>
               <Bundle-Vendor>Google Gson Project</Bundle-Vendor>
               <Bundle-Name>${project.name}</Bundle-Name>
@@ -220,6 +220,17 @@
           <type>range</type>
           <range>3650</range>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-changes-plugin</artifactId>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>changes-report</report>
+            </reports>
+          </reportSet>
+        </reportSets>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
