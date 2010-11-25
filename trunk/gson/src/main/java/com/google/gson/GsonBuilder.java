@@ -431,7 +431,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.7
    */
-  GsonBuilder registerTypeHierarchyAdapter(Class<?> baseType, Object typeAdapter) {
+  public GsonBuilder registerTypeHierarchyAdapter(Class<?> baseType, Object typeAdapter) {
     Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
     || typeAdapter instanceof JsonDeserializer<?> || typeAdapter instanceof InstanceCreator<?>);
     if (typeAdapter instanceof InstanceCreator<?>) {
