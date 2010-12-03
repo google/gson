@@ -16,22 +16,14 @@
 
 package com.google.gson.reflect;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
+import com.google.gson.Types;
 import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
-import java.lang.reflect.WildcardType;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * Represents a generic type {@code T}. Java doesn't yet provide a way to
@@ -111,13 +103,6 @@ public class TypeToken<T> {
   }
 
   /**
-   * Gets type literal from super class's type parameter.
-   */
-  static TypeToken<?> fromSuperclassTypeParameter(Class<?> subclass) {
-    return new TypeToken<Object>(getSuperclassTypeParameter(subclass));
-  }
-
-  /**
    * Returns the raw (non-generic) type for this type.
    */
   public final Class<? super T> getRawType() {
@@ -133,17 +118,24 @@ public class TypeToken<T> {
 
   /**
    * Check if this type is assignable from the given class object.
+   *
+   * @deprecated this implementation may be inconsistent with javac for types
+   *     with wildcards.
    */
+  @Deprecated
+  @SuppressWarnings("deprecation")
   public boolean isAssignableFrom(Class<?> cls) {
     return isAssignableFrom((Type) cls);
   }
 
   /**
    * Check if this type is assignable from the given Type.
+   *
+   * @deprecated this implementation may be inconsistent with javac for types
+   *     with wildcards.
    */
+  @Deprecated
   public boolean isAssignableFrom(Type from) {
-    // TODO: resolve from first, then do something lightweight?
-
     if (from == null) {
       return false;
     }
@@ -168,7 +160,12 @@ public class TypeToken<T> {
 
   /**
    * Check if this type is assignable from the given type token.
+   *
+   * @deprecated this implementation may be inconsistent with javac for types
+   *     with wildcards.
    */
+  @Deprecated
+  @SuppressWarnings("deprecation")
   public boolean isAssignableFrom(TypeToken<?> token) {
     return isAssignableFrom(token.getType());
   }
@@ -248,11 +245,7 @@ public class TypeToken<T> {
 
     // Interfaces didn't work, try the superclass.
     Type sType = clazz.getGenericSuperclass();
-    if (isAssignableFrom(sType, to, new HashMap<String, Type>(typeVarMap))) {
-      return true;
-    }
-
-    return false;
+    return isAssignableFrom(sType, to, new HashMap<String, Type>(typeVarMap));
   }
 
   /**
@@ -293,15 +286,11 @@ public class TypeToken<T> {
    * Checks if two types are the same or are equivalent under a variable mapping
    * given in the type map that was provided.
    */
-  private static boolean matches(Type from, Type to,
-      Map<String, Type> typeMap) {
-    if (to.equals(from)) return true;
+  private static boolean matches(Type from, Type to, Map<String, Type> typeMap) {
+    return to.equals(from)
+        || (from instanceof TypeVariable
+        && to.equals(typeMap.get(((TypeVariable<?>) from).getName())));
 
-    if (from instanceof TypeVariable<?>) {
-      return to.equals(typeMap.get(((TypeVariable<?>)from).getName()));
-    }
-
-    return false;
   }
 
   @Override public final int hashCode() {
@@ -331,171 +320,6 @@ public class TypeToken<T> {
     return new TypeToken<T>(type);
   }
 
-
-  /** Returns an immutable list of the resolved types. */
-  private List<TypeToken<?>> resolveAll(Type[] types) {
-    TypeToken<?>[] result = new TypeToken<?>[types.length];
-    for (int t = 0; t < types.length; t++) {
-      result[t] = resolve(types[t]);
-    }
-    return Arrays.asList(result);
-  }
-
-  /**
-   * Resolves known type parameters in {@code toResolve} and returns the result.
-   */
-  TypeToken<?> resolve(Type toResolve) {
-    return TypeToken.get(resolveType(toResolve));
-  }
-
-  Type resolveType(Type toResolve) {
-    // this implementation is made a little more complicated in an attempt to avoid object-creation
-    while (true) {
-      if (toResolve instanceof TypeVariable) {
-        TypeVariable original = (TypeVariable) toResolve;
-        toResolve = Types.resolveTypeVariable(type, rawType, original);
-        if (toResolve == original) {
-          return toResolve;
-        }
-
-      } else if (toResolve instanceof GenericArrayType) {
-        GenericArrayType original = (GenericArrayType) toResolve;
-        Type componentType = original.getGenericComponentType();
-        Type newComponentType = resolveType(componentType);
-        return componentType == newComponentType
-            ? original
-            : Types.arrayOf(newComponentType);
-
-      } else if (toResolve instanceof ParameterizedType) {
-        ParameterizedType original = (ParameterizedType) toResolve;
-        Type ownerType = original.getOwnerType();
-        Type newOwnerType = resolveType(ownerType);
-        boolean changed = newOwnerType != ownerType;
-
-        Type[] args = original.getActualTypeArguments();
-        for (int t = 0, length = args.length; t < length; t++) {
-          Type resolvedTypeArgument = resolveType(args[t]);
-          if (resolvedTypeArgument != args[t]) {
-            if (!changed) {
-              args = args.clone();
-              changed = true;
-            }
-            args[t] = resolvedTypeArgument;
-          }
-        }
-
-        return changed
-            ? Types.newParameterizedTypeWithOwner(newOwnerType, original.getRawType(), args)
-            : original;
-
-      } else if (toResolve instanceof WildcardType) {
-        WildcardType original = (WildcardType) toResolve;
-        Type[] originalLowerBound = original.getLowerBounds();
-        Type[] originalUpperBound = original.getUpperBounds();
-
-        if (originalLowerBound.length == 1) {
-          Type lowerBound = resolveType(originalLowerBound[0]);
-          if (lowerBound != originalLowerBound[0]) {
-            return Types.supertypeOf(lowerBound);
-          }
-        } else if (originalUpperBound.length == 1) {
-          Type upperBound = resolveType(originalUpperBound[0]);
-          if (upperBound != originalUpperBound[0]) {
-            return Types.subtypeOf(upperBound);
-          }
-        }
-        return original;
-
-      } else {
-        return toResolve;
-      }
-    }
-  }
-
-  /**
-   * Returns the generic form of {@code supertype}. For example, if this is {@code
-   * ArrayList<String>}, this returns {@code Iterable<String>} given the input {@code
-   * Iterable.class}.
-   *
-   * @param supertype a superclass of, or interface implemented by, this.
-   */
-  public TypeToken<?> getSupertype(Class<?> supertype) {
-    checkArgument(supertype.isAssignableFrom(rawType));
-    return resolve(Types.getGenericSupertype(type, rawType, supertype));
-  }
-
-  /**
-   * Returns the resolved generic type of {@code field}.
-   *
-   * @param field a field defined by this or any superclass.
-   */
-  public TypeToken<?> getFieldType(Field field) {
-    if (!field.getDeclaringClass().isAssignableFrom(rawType)) {
-      throw new IllegalArgumentException(rawType.getName() + " does not declare field " + field);
-    }
-    return resolve(field.getGenericType());
-  }
-
-  /**
-   * Returns the resolved generic parameter types of {@code methodOrConstructor}.
-   *
-   * @param methodOrConstructor a method or constructor defined by this or any supertype.
-   */
-  public List<TypeToken<?>> getParameterTypes(Member methodOrConstructor) {
-    Type[] genericParameterTypes;
-
-    if (methodOrConstructor instanceof Method) {
-      Method method = (Method) methodOrConstructor;
-      checkArgument(method.getDeclaringClass().isAssignableFrom(rawType));
-      genericParameterTypes = method.getGenericParameterTypes();
-
-    } else if (methodOrConstructor instanceof Constructor) {
-      Constructor<?> constructor = (Constructor<?>) methodOrConstructor;
-      checkArgument(constructor.getDeclaringClass().isAssignableFrom(rawType));
-      genericParameterTypes = constructor.getGenericParameterTypes();
-
-    } else {
-      throw new IllegalArgumentException("Not a method or a constructor: " + methodOrConstructor);
-    }
-
-    return resolveAll(genericParameterTypes);
-  }
-
-  /**
-   * Returns the resolved generic exception types thrown by {@code constructor}.
-   *
-   * @param methodOrConstructor a method or constructor defined by this or any supertype.
-   */
-  public List<TypeToken<?>> getExceptionTypes(Member methodOrConstructor) {
-    Type[] genericExceptionTypes;
-
-    if (methodOrConstructor instanceof Method) {
-      Method method = (Method) methodOrConstructor;
-      checkArgument(method.getDeclaringClass().isAssignableFrom(rawType));
-      genericExceptionTypes = method.getGenericExceptionTypes();
-
-    } else if (methodOrConstructor instanceof Constructor) {
-      Constructor<?> constructor = (Constructor<?>) methodOrConstructor;
-      checkArgument(constructor.getDeclaringClass().isAssignableFrom(rawType));
-      genericExceptionTypes = constructor.getGenericExceptionTypes();
-
-    } else {
-      throw new IllegalArgumentException("Not a method or a constructor: " + methodOrConstructor);
-    }
-
-    return resolveAll(genericExceptionTypes);
-  }
-
-  /**
-   * Returns the resolved generic return type of {@code method}.
-   *
-   * @param method a method defined by this or any supertype.
-   */
-  public TypeToken<?> getReturnType(Method method) {
-    checkArgument(method.getDeclaringClass().isAssignableFrom(rawType));
-    return resolve(method.getGenericReturnType());
-  }
-
   static void checkNotNull(Object obj) {
     checkArgument(obj != null);
   }
@@ -504,65 +328,5 @@ public class TypeToken<T> {
     if (!condition) {
       throw new IllegalArgumentException("condition failed: " + condition);
     }
-  }
-
-  // TODO: these methods are required by GSON but don't need to be public. Remove?
-
-  /**
-   * Returns true if this type is an array.
-   */
-  public boolean isArray() {
-    return type instanceof GenericArrayType;
-  }
-
-  /**
-   * Returns true if this type is a primitive.
-   */
-  public boolean isPrimitive() {
-    return type == boolean.class
-        || type == byte.class
-        || type == char.class
-        || type == double.class
-        || type == float.class
-        || type == int.class
-        || type == long.class
-        || type == short.class
-        || type == void.class;
-  }
-
-  /**
-   * Returns the component type of this array type.
-   * @throws ClassCastException if this type is not an array.
-   */
-  public Type getArrayComponentType() {
-    return ((GenericArrayType) type).getGenericComponentType();
-  }
-
-  /**
-   * Returns the element type of this collection type.
-   * @throws IllegalArgumentException if this type is not a collection.
-   */
-  public Type getCollectionElementType() {
-    TypeToken<?> collectionType = getSupertype(Collection.class);
-    return ((ParameterizedType) collectionType.getType()).getActualTypeArguments()[0];
-  }
-
-  /**
-   * Returns a two element array containing this map's key and value types in
-   * positions 0 and 1 respectively.
-   */
-  public Type[] getMapKeyAndValueTypes() {
-    /*
-     * Work around a problem with the declaration of java.util.Properties. That
-     * class should extend Hashtable<String, String>, but it's declared to
-     * extend Hashtable<Object, Object>.
-     */
-    if (type == Properties.class) {
-      return new Type[] { String.class, String.class }; // TODO: test subclasses of Properties!
-    }
-
-    TypeToken<?> mapTypeToken = TypeToken.get(type).getSupertype(Map.class);
-    ParameterizedType mapParameterizedType = (ParameterizedType) mapTypeToken.getType();
-    return mapParameterizedType.getActualTypeArguments();
   }
 }

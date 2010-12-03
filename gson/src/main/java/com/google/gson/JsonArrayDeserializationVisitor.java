@@ -16,7 +16,6 @@
 
 package com.google.gson;
 
-import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 
@@ -39,21 +38,18 @@ final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisito
   @Override
   @SuppressWarnings("unchecked")
   protected T constructTarget() {
-
-    TypeToken typeToken = TypeToken.get(targetType);
-
     if (!json.isJsonArray()) {
       throw new JsonParseException("Expecting array found: " + json); 
     }
     JsonArray jsonArray = json.getAsJsonArray();
-    if (typeToken.isArray()) {
+    if (Types.isArray(targetType)) {
       // We know that we are getting back an array of the required type, so
       // this typecasting is safe.
-      return (T) objectConstructor.constructArray(typeToken.getArrayComponentType(),
+      return (T) objectConstructor.constructArray(Types.getArrayComponentType(targetType),
           jsonArray.size());
     }
     // is a collection
-    return (T) objectConstructor.construct(typeToken.getRawType());
+    return (T) objectConstructor.construct(Types.getRawType(targetType));
   }
 
   public void visitArray(Object array, Type arrayType) {
@@ -61,7 +57,6 @@ final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisito
       throw new JsonParseException("Expecting array found: " + json); 
     }
     JsonArray jsonArray = json.getAsJsonArray();
-    TypeToken typeToken = TypeToken.get(arrayType);
     for (int i = 0; i < jsonArray.size(); i++) {
       JsonElement jsonChild = jsonArray.get(i);
       Object child;
@@ -69,11 +64,12 @@ final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisito
       if (jsonChild == null || jsonChild.isJsonNull()) {
         child = null;
       } else if (jsonChild instanceof JsonObject) {
-        child = visitChildAsObject(typeToken.getArrayComponentType(), jsonChild);
+        child = visitChildAsObject(Types.getArrayComponentType(arrayType), jsonChild);
       } else if (jsonChild instanceof JsonArray) {
-        child = visitChildAsArray(typeToken.getArrayComponentType(), jsonChild.getAsJsonArray());
+        child = visitChildAsArray(Types.getArrayComponentType(arrayType),
+            jsonChild.getAsJsonArray());
       } else if (jsonChild instanceof JsonPrimitive) {
-        child = visitChildAsObject(typeToken.getArrayComponentType(),
+        child = visitChildAsObject(Types.getArrayComponentType(arrayType),
             jsonChild.getAsJsonPrimitive());
       } else {
         throw new IllegalStateException();

@@ -55,7 +55,7 @@ final class MappedObjectConstructor implements ObjectConstructor {
   }
 
   public Object constructArray(Type type, int length) {
-    return Array.newInstance(TypeToken.get(type).getRawType(), length);
+    return Array.newInstance(Types.getRawType(type), length);
   }
 
   private <T> T constructWithNoArgConstructor(Type typeOfT) {
@@ -80,7 +80,7 @@ final class MappedObjectConstructor implements ObjectConstructor {
 
   @SuppressWarnings({"unchecked", "cast"})
   private <T> Constructor<T> getNoArgsConstructor(Type typeOfT) {
-    Class<?> clazz = TypeToken.get(typeOfT).getRawType();
+    Class<?> clazz = Types.getRawType(typeOfT);
     Constructor<T>[] declaredConstructors = (Constructor<T>[]) clazz.getDeclaredConstructors();
     AccessibleObject.setAccessible(declaredConstructors, true);
     for (Constructor<T> constructor : declaredConstructors) {

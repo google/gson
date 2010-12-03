@@ -19,7 +19,11 @@ package com.google.gson;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Provides ability to apply a visitor to an object and all of its fields
@@ -100,8 +104,7 @@ final class ObjectNavigator {
    * does not get visited.
    */
   public void accept(Visitor visitor) {
-    TypeToken<?> objTypeInfo = TypeToken.get(objTypePair.type);
-    if (exclusionStrategy.shouldSkipClass(objTypeInfo.getRawType())) {
+    if (exclusionStrategy.shouldSkipClass(Types.getRawType(objTypePair.type))) {
       return;
     }
     boolean visitedWithCustomHandler = visitor.visitUsingCustomHandler(objTypePair);
@@ -114,18 +117,17 @@ final class ObjectNavigator {
       objTypePair.setObject(objectToVisit);
       visitor.start(objTypePair);
       try {
-        if (objTypeInfo.isArray()) {
+        if (Types.isArray(objTypePair.type)) {
           visitor.visitArray(objectToVisit, objTypePair.type);
-        } else if (objTypeInfo.getType() == Object.class
-            && isPrimitiveOrString(objectToVisit)) {
+        } else if (objTypePair.type == Object.class && isPrimitiveOrString(objectToVisit)) {
           // TODO(Joel): this is only used for deserialization of "primitives"
           // we should rethink this!!!
           visitor.visitPrimitive(objectToVisit);
-          objectToVisit = visitor.getTarget();
+          visitor.getTarget();
         } else {
           visitor.startVisitingObject(objectToVisit);
           ObjectTypePair currObjTypePair = objTypePair.toMoreSpecificType();
-          Class<?> topLevelClass = TypeToken.get(currObjTypePair.type).getRawType();
+          Class<?> topLevelClass = Types.getRawType(currObjTypePair.type);
           for (Class<?> curr = topLevelClass; curr != null && !curr.equals(Object.class); curr =
               curr.getSuperclass()) {
             if (!curr.isSynthetic()) {
@@ -154,12 +156,11 @@ final class ObjectNavigator {
           || exclusionStrategy.shouldSkipClass(fieldAttributes.getDeclaredClass())) {
         continue; // skip
       }
-      TypeToken<?> fieldTypeToken = getTypeInfoForField(f, objTypePair.type);
-      Type declaredTypeOfField = fieldTypeToken.getType();
+      Type declaredTypeOfField = getTypeInfoForField(f, objTypePair.type);
       boolean visitedWithCustomHandler =
-        visitor.visitFieldUsingCustomHandler(fieldAttributes, declaredTypeOfField, obj);
+          visitor.visitFieldUsingCustomHandler(fieldAttributes, declaredTypeOfField, obj);
       if (!visitedWithCustomHandler) {
-        if (fieldTypeToken.isArray()) {
+        if (Types.isArray(declaredTypeOfField)) {
           visitor.visitArrayField(fieldAttributes, declaredTypeOfField, obj);
         } else {
           visitor.visitObjectField(fieldAttributes, declaredTypeOfField, obj);
@@ -177,12 +178,12 @@ final class ObjectNavigator {
    * @param typeDefiningF the type that contains the field {@code f}
    * @return the type information for the field
    */
-  public static TypeToken<?> getTypeInfoForField(Field f, Type typeDefiningF) {
-    TypeToken<?> typeToken = TypeToken.get(typeDefiningF);
-    if (!f.getDeclaringClass().isAssignableFrom(typeToken.getRawType())) {
+  public static Type getTypeInfoForField(Field f, Type typeDefiningF) {
+    Class<?> rawType = Types.getRawType(typeDefiningF);
+    if (!f.getDeclaringClass().isAssignableFrom(rawType)) {
       // this field is unrelated to the type; the user probably omitted type information
-      return TypeToken.get(f.getGenericType());
+      return f.getGenericType();
     }
-    return typeToken.getFieldType(f);
+    return Types.resolve(typeDefiningF, rawType, f.getGenericType());
   }
 }
