@@ -122,7 +122,7 @@ final class ParameterizedTypeHandlerMap<T> {
   public synchronized T getHandlerFor(Type type) {
     T handler = map.get(type);
     if (handler == null) {
-      Class<?> rawClass = TypeToken.get(type).getRawType();
+      Class<?> rawClass = Types.getRawType(type);
       if (rawClass != type) {
         handler = getHandlerFor(rawClass);
       }
@@ -196,6 +196,6 @@ final class ParameterizedTypeHandlerMap<T> {
   }
 
   private String typeToString(Type type) {
-    return TypeToken.get(type).getRawType().getSimpleName();
+    return Types.getRawType(type).getSimpleName();
   }
 }
