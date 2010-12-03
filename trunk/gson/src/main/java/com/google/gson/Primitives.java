@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -59,6 +60,13 @@ final class Primitives {
       Map<Class<?>, Class<?>> backward, Class<?> key, Class<?> value) {
     forward.put(key, value);
     backward.put(value, key);
+  }
+
+  /**
+   * Returns true if this type is a primitive.
+   */
+  public static boolean isPrimitive(Type type) {
+    return PRIMITIVE_TO_WRAPPER_TYPE.containsKey(type);
   }
 
   /**
