@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -121,7 +122,7 @@ final class ParameterizedTypeHandlerMap<T> {
   public synchronized T getHandlerFor(Type type) {
     T handler = map.get(type);
     if (handler == null) {
-      Class<?> rawClass = TypeUtils.toRawClass(type);
+      Class<?> rawClass = TypeToken.get(type).getRawType();
       if (rawClass != type) {
         handler = getHandlerFor(rawClass);
       }
@@ -195,6 +196,6 @@ final class ParameterizedTypeHandlerMap<T> {
   }
 
   private String typeToString(Type type) {
-    return TypeUtils.toRawClass(type).getSimpleName();
+    return TypeToken.get(type).getRawType().getSimpleName();
   }
 }
