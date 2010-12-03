@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
@@ -99,8 +100,8 @@ final class ObjectNavigator {
    * does not get visited.
    */
   public void accept(Visitor visitor) {
-    TypeInfo objTypeInfo = new TypeInfo(objTypePair.type);
-    if (exclusionStrategy.shouldSkipClass(objTypeInfo.getRawClass())) {
+    TypeToken<?> objTypeInfo = TypeToken.get(objTypePair.type);
+    if (exclusionStrategy.shouldSkipClass(objTypeInfo.getRawType())) {
       return;
     }
     boolean visitedWithCustomHandler = visitor.visitUsingCustomHandler(objTypePair);
@@ -115,7 +116,7 @@ final class ObjectNavigator {
       try {
         if (objTypeInfo.isArray()) {
           visitor.visitArray(objectToVisit, objTypePair.type);
-        } else if (objTypeInfo.getActualType() == Object.class
+        } else if (objTypeInfo.getType() == Object.class
             && isPrimitiveOrString(objectToVisit)) {
           // TODO(Joel): this is only used for deserialization of "primitives"
           // we should rethink this!!!
@@ -124,7 +125,7 @@ final class ObjectNavigator {
         } else {
           visitor.startVisitingObject(objectToVisit);
           ObjectTypePair currObjTypePair = objTypePair.toMoreSpecificType();
-          Class<?> topLevelClass = new TypeInfo(currObjTypePair.type).getRawClass();
+          Class<?> topLevelClass = TypeToken.get(currObjTypePair.type).getRawType();
           for (Class<?> curr = topLevelClass; curr != null && !curr.equals(Object.class); curr =
               curr.getSuperclass()) {
             if (!curr.isSynthetic()) {
@@ -153,17 +154,35 @@ final class ObjectNavigator {
           || exclusionStrategy.shouldSkipClass(fieldAttributes.getDeclaredClass())) {
         continue; // skip
       }
-      TypeInfo fieldTypeInfo = TypeInfoFactory.getTypeInfoForField(f, objTypePair.type);
-      Type declaredTypeOfField = fieldTypeInfo.getActualType();
+      TypeToken<?> fieldTypeToken = getTypeInfoForField(f, objTypePair.type);
+      Type declaredTypeOfField = fieldTypeToken.getType();
       boolean visitedWithCustomHandler =
         visitor.visitFieldUsingCustomHandler(fieldAttributes, declaredTypeOfField, obj);
       if (!visitedWithCustomHandler) {
-        if (fieldTypeInfo.isArray()) {
+        if (fieldTypeToken.isArray()) {
           visitor.visitArrayField(fieldAttributes, declaredTypeOfField, obj);
         } else {
           visitor.visitObjectField(fieldAttributes, declaredTypeOfField, obj);
         }
       }
     }
+  }
+
+
+  /**
+   * Evaluates the "actual" type for the field.  If the field is a "TypeVariable" or has a
+   * "TypeVariable" in a parameterized type then it evaluates the real type.
+   *
+   * @param f the actual field object to retrieve the type from
+   * @param typeDefiningF the type that contains the field {@code f}
+   * @return the type information for the field
+   */
+  public static TypeToken<?> getTypeInfoForField(Field f, Type typeDefiningF) {
+    TypeToken<?> typeToken = TypeToken.get(typeDefiningF);
+    if (!f.getDeclaringClass().isAssignableFrom(typeToken.getRawType())) {
+      // this field is unrelated to the type; the user probably omitted type information
+      return TypeToken.get(f.getGenericType());
+    }
+    return typeToken.getFieldType(f);
   }
 }

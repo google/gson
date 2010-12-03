@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -54,7 +55,7 @@ final class MappedObjectConstructor implements ObjectConstructor {
   }
 
   public Object constructArray(Type type, int length) {
-    return Array.newInstance(TypeUtils.toRawClass(type), length);
+    return Array.newInstance(TypeToken.get(type).getRawType(), length);
   }
 
   private <T> T constructWithNoArgConstructor(Type typeOfT) {
@@ -79,8 +80,7 @@ final class MappedObjectConstructor implements ObjectConstructor {
 
   @SuppressWarnings({"unchecked", "cast"})
   private <T> Constructor<T> getNoArgsConstructor(Type typeOfT) {
-    TypeInfo typeInfo = new TypeInfo(typeOfT);
-    Class<T> clazz = (Class<T>) typeInfo.getRawClass();
+    Class<?> clazz = TypeToken.get(typeOfT).getRawType();
     Constructor<T>[] declaredConstructors = (Constructor<T>[]) clazz.getDeclaredConstructors();
     AccessibleObject.setAccessible(declaredConstructors, true);
     for (Constructor<T> constructor : declaredConstructors) {
