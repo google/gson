@@ -16,8 +16,10 @@
 
 package com.google.gson;
 
+import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 
@@ -148,13 +150,13 @@ public class ParamterizedTypeFixtures {
     @SuppressWarnings("unchecked")
     public MyParameterizedType<T> deserialize(JsonElement json, Type typeOfT,
         JsonDeserializationContext context) throws JsonParseException {
-      Type genericClass = TypeUtils.getActualTypeForFirstTypeVariable(typeOfT);
-      TypeInfo typeInfo = new TypeInfo(genericClass);
-      String className = typeInfo.getRawClass().getSimpleName();
+      Type genericClass = ((ParameterizedType) typeOfT).getActualTypeArguments()[0];
+      TypeToken<?> typeToken = TypeToken.get(genericClass);
+      String className = typeToken.getRawType().getSimpleName();
       T value = (T) json.getAsJsonObject().get(className).getAsObject();
-      if (typeInfo.isPrimitive()) {
+      if (typeToken.isPrimitive()) {
         PrimitiveTypeAdapter typeAdapter = new PrimitiveTypeAdapter();
-        value = (T) typeAdapter.adaptType(value, typeInfo.getRawClass());
+        value = (T) typeAdapter.adaptType(value, typeToken.getRawType());
       }
       return new MyParameterizedType<T>(value);
     }

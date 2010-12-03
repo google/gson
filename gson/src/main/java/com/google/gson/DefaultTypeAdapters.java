@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
@@ -517,7 +518,7 @@ final class DefaultTypeAdapters {
       JsonArray array = new JsonArray();
       Type childGenericType = null;
       if (typeOfSrc instanceof ParameterizedType) {
-        childGenericType = new TypeInfoCollection(typeOfSrc).getElementType();
+        childGenericType = TypeToken.get(typeOfSrc).getCollectionElementType();
       }
       for (Object child : src) {
         if (child == null) {
@@ -540,7 +541,7 @@ final class DefaultTypeAdapters {
       // Use ObjectConstructor to create instance instead of hard-coding a specific type.
       // This handles cases where users are using their own subclass of Collection.
       Collection collection = constructCollectionType(typeOfT, context);
-      Type childType = new TypeInfoCollection(typeOfT).getElementType();
+      Type childType = TypeToken.get(typeOfT).getCollectionElementType();
       for (JsonElement childElement : json.getAsJsonArray()) {
         if (childElement == null || childElement.isJsonNull()) {
           collection.add(null);
@@ -578,7 +579,7 @@ final class DefaultTypeAdapters {
       JsonObject map = new JsonObject();
       Type childGenericType = null;
       if (typeOfSrc instanceof ParameterizedType) {
-        childGenericType = new TypeInfoMap(typeOfSrc).getValueType();
+        childGenericType = TypeToken.get(typeOfSrc).getMapKeyAndValueTypes()[1];
       }
 
       for (Map.Entry entry : (Set<Map.Entry>) src.entrySet()) {
@@ -602,10 +603,10 @@ final class DefaultTypeAdapters {
       // Use ObjectConstructor to create instance instead of hard-coding a specific type.
       // This handles cases where users are using their own subclass of Map.
       Map<Object, Object> map = constructMapType(typeOfT, context);
-      TypeInfoMap mapTypeInfo = new TypeInfoMap(typeOfT);
+      Type[] keyAndValueTypes = TypeToken.get(typeOfT).getMapKeyAndValueTypes();
       for (Map.Entry<String, JsonElement> entry : json.getAsJsonObject().entrySet()) {
-        Object key = context.deserialize(new JsonPrimitive(entry.getKey()), mapTypeInfo.getKeyType());
-        Object value = context.deserialize(entry.getValue(), mapTypeInfo.getValueType());
+        Object key = context.deserialize(new JsonPrimitive(entry.getKey()), keyAndValueTypes[0]);
+        Object value = context.deserialize(entry.getValue(), keyAndValueTypes[1]);
         map.put(key, value);
       }
       return map;
