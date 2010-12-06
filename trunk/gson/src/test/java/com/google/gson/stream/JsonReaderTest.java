@@ -757,7 +757,7 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
-  public void testLenientPartialNonExecutePrefix() throws IOException {
+  public void testLenientPartialNonExecutePrefix() {
     JsonReader reader = new JsonReader(new StringReader(")]}' []"));
     reader.setLenient(true);
     try {

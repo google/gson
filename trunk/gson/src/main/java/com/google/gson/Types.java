@@ -195,8 +195,8 @@ public final class Types {
       if (!(b instanceof TypeVariable)) {
         return false;
       }
-      TypeVariable<?> va = (TypeVariable) a;
-      TypeVariable<?> vb = (TypeVariable) b;
+      TypeVariable<?> va = (TypeVariable<?>) a;
+      TypeVariable<?> vb = (TypeVariable<?>) b;
       return va.getGenericDeclaration() == vb.getGenericDeclaration()
           && va.getName().equals(vb.getName());
 
@@ -211,7 +211,7 @@ public final class Types {
   }
 
   public static String typeToString(Type type) {
-    return type instanceof Class ? ((Class) type).getName() : type.toString();
+    return type instanceof Class ? ((Class<?>) type).getName() : type.toString();
   }
 
   /**
@@ -226,7 +226,7 @@ public final class Types {
 
     // we skip searching through interfaces if unknown is an interface
     if (toResolve.isInterface()) {
-      Class[] interfaces = rawType.getInterfaces();
+      Class<?>[] interfaces = rawType.getInterfaces();
       for (int i = 0, length = interfaces.length; i < length; i++) {
         if (interfaces[i] == toResolve) {
           return rawType.getGenericInterfaces()[i];
@@ -316,7 +316,7 @@ public final class Types {
     // this implementation is made a little more complicated in an attempt to avoid object-creation
     while (true) {
       if (toResolve instanceof TypeVariable) {
-        TypeVariable typeVariable = (TypeVariable) toResolve;
+        TypeVariable<?> typeVariable = (TypeVariable<?>) toResolve;
         toResolve = resolveTypeVariable(context, contextRawType, typeVariable);
         if (toResolve == typeVariable) {
           return toResolve;
@@ -384,6 +384,7 @@ public final class Types {
     }
   }
 
+  @SuppressWarnings("rawtypes")
   static Type resolveTypeVariable(Type context, Class<?> contextRawType, TypeVariable unknown) {
     Class<?> declaredByRaw = declaringClassOf(unknown);
 
@@ -414,6 +415,7 @@ public final class Types {
    * Returns the declaring class of {@code typeVariable}, or {@code null} if it was not declared by
    * a class.
    */
+  @SuppressWarnings("rawtypes")
   private static Class<?> declaringClassOf(TypeVariable typeVariable) {
     GenericDeclaration genericDeclaration = typeVariable.getGenericDeclaration();
     return genericDeclaration instanceof Class
@@ -422,7 +424,7 @@ public final class Types {
   }
 
   private static void checkNotPrimitive(Type type) {
-    checkArgument(!(type instanceof Class<?>) || !((Class) type).isPrimitive());
+    checkArgument(!(type instanceof Class<?>) || !((Class<?>) type).isPrimitive());
   }
 
   private static class ParameterizedTypeImpl implements ParameterizedType, Serializable {
@@ -430,6 +432,7 @@ public final class Types {
     private final Type rawType;
     private final Type[] typeArguments;
 
+    @SuppressWarnings("rawtypes")
     public ParameterizedTypeImpl(Type ownerType, Type rawType, Type... typeArguments) {
       // require an owner type if the raw type needs it
       if (rawType instanceof Class<?>) {
