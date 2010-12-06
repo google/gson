@@ -299,7 +299,7 @@ public class TypeToken<T> {
 
   @Override public final boolean equals(Object o) {
     return o instanceof TypeToken<?>
-        && Types.equals(type, ((TypeToken) o).type);
+        && Types.equals(type, ((TypeToken<?>) o).type);
   }
 
   @Override public final String toString() {

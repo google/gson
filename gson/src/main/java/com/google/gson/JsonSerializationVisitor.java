@@ -16,7 +16,6 @@
 
 package com.google.gson;
 
-import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 
