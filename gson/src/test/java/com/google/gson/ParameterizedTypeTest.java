@@ -20,39 +20,37 @@ import com.google.gson.reflect.TypeToken;
 
 import junit.framework.TestCase;
 
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
 
 /**
- * Unit tests for the {@link GenericArrayTypeImpl} class.
+ * Unit tests for {@code ParamterizedType}s created by the {@link Types} class.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class GenericArrayTypeImplTest extends TestCase {
-
-  private Type parameterizedType;
-  private Type genericArrayType;
-  private GenericArrayTypeImpl ourType;
+public class ParameterizedTypeTest extends TestCase {
+  private ParameterizedType ourType;
 
   @Override
   protected void setUp() throws Exception {
     super.setUp();
-    parameterizedType = new TypeToken<List<String>>() {}.getType();
-    genericArrayType = new TypeToken<List<String>[]>() {}.getType();
-    ourType = new GenericArrayTypeImpl(parameterizedType);
+    ourType = Types.newParameterizedTypeWithOwner(null, List.class, String.class);
   }
 
   public void testOurTypeFunctionality() throws Exception {
-    assertEquals(parameterizedType, ourType.getGenericComponentType());
-    assertEquals(genericArrayType, ourType);
-    assertEquals(genericArrayType.hashCode(), ourType.hashCode());
+    Type parameterizedType = new TypeToken<List<String>>() {}.getType();
+    assertNull(ourType.getOwnerType());
+    assertEquals(String.class, ourType.getActualTypeArguments()[0]);
+    assertEquals(List.class, ourType.getRawType());
+    assertEquals(parameterizedType, ourType);
+    assertEquals(parameterizedType.hashCode(), ourType.hashCode());
   }
 
   public void testNotEquals() throws Exception {
-    Type differentGenericArrayType = new TypeToken<List<String>[][]>() {}.getType();
-
-    assertFalse(differentGenericArrayType.equals(ourType));
-    assertFalse(ourType.equals(differentGenericArrayType));
+    Type differentParameterizedType = new TypeToken<List<Integer>>() {}.getType();
+    assertFalse(differentParameterizedType.equals(ourType));
+    assertFalse(ourType.equals(differentParameterizedType));
   }
 }
