@@ -4,7 +4,7 @@
   <groupId>com.google.code.gson</groupId>
   <artifactId>gson</artifactId>
   <packaging>jar</packaging>
-  <version>1.7</version>
+  <version>1.7-SNAPSHOT</version>
   <inceptionYear>2008</inceptionYear>
   <name>Gson</name>
   <url>http://code.google.com/p/google-gson/</url>
@@ -38,7 +38,10 @@
     <system>Google Code Issue Tracking</system>
     <url>http://code.google.com/p/google-gson/issues/list</url>
   </issueManagement>
-
+  <organization>
+    <name>Google, Inc.</name>
+    <url>http://www.google.com</url>
+  </organization>
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
@@ -251,6 +254,10 @@
     </developer>
     <developer>
       <name>Joel Leitch</name>
+      <organization>Google Inc.</organization>
+    </developer>
+    <developer>
+      <name>Jesse Wilson</name>
       <organization>Google Inc.</organization>
     </developer>
   </developers>
