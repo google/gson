@@ -48,14 +48,4 @@ interface Cache<K, V> {
    * @return the value for the given {@code key}
    */
   V removeElement(K key);
-
-  /**
-   * Removes everything from this cache.
-   */
-  void clear();
-  
-  /**
-   * @return the number of objects in this cache
-   */
-  int size();
 }
