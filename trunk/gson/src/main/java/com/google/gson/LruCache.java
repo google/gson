@@ -37,28 +37,18 @@ final class LruCache<K, V> extends LinkedHashMap<K, V> implements Cache<K, V> {
     this.maxCapacity = maxCapacity;
   }
 
-  public void addElement(K key, V value) {
+  public synchronized void addElement(K key, V value) {
     put(key, value);
   }
 
-  @Override
-  public void clear() {
-    super.clear();
-  }
-
-  public V getElement(K key) {
+  public synchronized V getElement(K key) {
     return get(key);
   }
 
-  public V removeElement(K key) {
+  public synchronized V removeElement(K key) {
     return remove(key);
   }
 
-  @Override
-  public int size() {
-    return super.size();
-  }
-  
   @Override
   protected boolean removeEldestEntry(Map.Entry<K, V> entry) {
     return size() > maxCapacity;
