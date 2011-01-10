@@ -20,10 +20,12 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -68,6 +70,8 @@ final class DefaultTypeAdapters {
   private static final UriTypeAdapter URI_TYPE_ADAPTER = new UriTypeAdapter();
   private static final UuidTypeAdapter UUUID_TYPE_ADAPTER = new UuidTypeAdapter();
   private static final LocaleTypeAdapter LOCALE_TYPE_ADAPTER = new LocaleTypeAdapter();
+  private static final DefaultInetAddressAdapter INET_ADDRESS_ADAPTER =
+      new DefaultInetAddressAdapter();
   private static final CollectionTypeAdapter COLLECTION_TYPE_ADAPTER = new CollectionTypeAdapter();
   private static final MapTypeAdapter MAP_TYPE_ADAPTER = new MapTypeAdapter();
   private static final BigDecimalTypeAdapter BIG_DECIMAL_TYPE_ADAPTER = new BigDecimalTypeAdapter();
@@ -88,7 +92,7 @@ final class DefaultTypeAdapters {
   private static final TreeSetCreator TREE_SET_CREATOR = new TreeSetCreator();
   private static final HashSetCreator HASH_SET_CREATOR = new HashSetCreator();
   private static final GregorianCalendarTypeAdapter GREGORIAN_CALENDAR_TYPE_ADAPTER =
-    new GregorianCalendarTypeAdapter();
+      new GregorianCalendarTypeAdapter();
 
   // The constants DEFAULT_SERIALIZERS, DEFAULT_DESERIALIZERS, and DEFAULT_INSTANCE_CREATORS
   // must be defined after the constants for the type adapters. Otherwise, the type adapter
@@ -105,6 +109,7 @@ final class DefaultTypeAdapters {
         new ParameterizedTypeHandlerMap<JsonSerializer<?>>();
 
     map.registerForTypeHierarchy(Enum.class, ENUM_TYPE_ADAPTER);
+    map.registerForTypeHierarchy(InetAddress.class, INET_ADDRESS_ADAPTER);
     map.register(URL.class, URL_TYPE_ADAPTER);
     map.register(URI.class, URI_TYPE_ADAPTER);
     map.register(UUID.class, UUUID_TYPE_ADAPTER);
@@ -142,6 +147,7 @@ final class DefaultTypeAdapters {
     ParameterizedTypeHandlerMap<JsonDeserializer<?>> map =
         new ParameterizedTypeHandlerMap<JsonDeserializer<?>>();
     map.registerForTypeHierarchy(Enum.class, wrapDeserializer(ENUM_TYPE_ADAPTER));
+    map.registerForTypeHierarchy(InetAddress.class, wrapDeserializer(INET_ADDRESS_ADAPTER));
     map.register(URL.class, wrapDeserializer(URL_TYPE_ADAPTER));
     map.register(URI.class, wrapDeserializer(URI_TYPE_ADAPTER));
     map.register(UUID.class, wrapDeserializer(UUUID_TYPE_ADAPTER));
@@ -394,6 +400,24 @@ final class DefaultTypeAdapters {
     @Override
     public String toString() {
       return GregorianCalendarTypeAdapter.class.getSimpleName();
+    }
+  }
+
+  static class DefaultInetAddressAdapter
+      implements JsonDeserializer<InetAddress>, JsonSerializer<InetAddress> {
+
+    public InetAddress deserialize(JsonElement json, Type typeOfT,
+        JsonDeserializationContext context) throws JsonParseException {
+      try {
+        return InetAddress.getByName(json.getAsString());
+      } catch (UnknownHostException e) {
+        throw new JsonParseException(e);
+      }
+    }
+    
+    public JsonElement serialize(InetAddress src, Type typeOfSrc,
+        JsonSerializationContext context) {
+      return new JsonPrimitive(src.getHostAddress());
     }
   }
 
