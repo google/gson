@@ -7,9 +7,15 @@
   <version>1.7-SNAPSHOT</version>
   <inceptionYear>2008</inceptionYear>
   <name>Gson</name>
+  <parent>
+    <groupId>org.sonatype.oss</groupId>
+    <artifactId>oss-parent</artifactId>
+    <version>5</version>
+  </parent>
   <url>http://code.google.com/p/google-gson/</url>
   <description>Google Gson library</description>
-  <distributionManagement>
+  <!--  distributionManagement>
+  // Disabled for automatic integration with Sonatype
     <repository>
       <id>local.repo</id>
       <name>file repository to svn</name>
@@ -21,7 +27,7 @@
       <id>gson</id>
       <url> http://google-gson.googlecode.com/svn/mavenrepo/ </url>
     </repository>
-  </repositories>
+  </repositories-->
   <licenses>
     <license>
       <name>The Apache Software License, Version 2.0</name>
