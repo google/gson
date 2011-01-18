@@ -197,6 +197,7 @@
         <artifactId>maven-release-plugin</artifactId>
         <configuration>
           <arguments>-DenableCiProfile=true</arguments>
+          <tagBase>https://google-gson.googlecode.com/svn/tags/</tagBase>
         </configuration>
       </plugin>
       <plugin>
