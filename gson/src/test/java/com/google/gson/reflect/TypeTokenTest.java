@@ -26,7 +26,7 @@ import junit.framework.TestCase;
 /**
  * @author Jesse Wilson
  */
-@SuppressWarnings({"UnusedDeclaration", "deprecation"})
+@SuppressWarnings({"deprecation"})
 public final class TypeTokenTest extends TestCase {
 
   List<Integer> listOfInteger = null;

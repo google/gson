@@ -123,7 +123,6 @@ public class TypeToken<T> {
    *     with wildcards.
    */
   @Deprecated
-  @SuppressWarnings("deprecation")
   public boolean isAssignableFrom(Class<?> cls) {
     return isAssignableFrom((Type) cls);
   }
@@ -165,7 +164,6 @@ public class TypeToken<T> {
    *     with wildcards.
    */
   @Deprecated
-  @SuppressWarnings("deprecation")
   public boolean isAssignableFrom(TypeToken<?> token) {
     return isAssignableFrom(token.getType());
   }
