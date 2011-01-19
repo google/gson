@@ -16,6 +16,14 @@
 
 package com.google.gson.functional;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.Set;
+
+import junit.framework.TestCase;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -27,14 +35,6 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.common.MoreAsserts;
 import com.google.gson.reflect.TypeToken;
-
-import junit.framework.TestCase;
-
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.Set;
 
 /**
  * Functional tests for Java 5.0 enums.
@@ -120,23 +120,24 @@ public class EnumTest extends TestCase {
    * Test for issue 226.
    */
   public void testEnumSubclass() {
-    assertRoshambo();
-  }
-
-  public void disabled_testEnumSubclassWithRegisteredTypeAdapter() {
-    gson = new GsonBuilder()
-//        .registerTypeHierarchyAdapter(Roshambo.class, new MyEnumTypeAdapter())
-        .create();
-    assertRoshambo();
-  }
-
-  private void assertRoshambo() {
     assertFalse(Roshambo.class == Roshambo.ROCK.getClass());
     assertEquals("\"ROCK\"", gson.toJson(Roshambo.ROCK));
     assertEquals("[\"ROCK\",\"PAPER\",\"SCISSORS\"]", gson.toJson(EnumSet.allOf(Roshambo.class)));
     assertEquals(Roshambo.ROCK, gson.fromJson("\"ROCK\"", Roshambo.class));
     assertEquals(EnumSet.allOf(Roshambo.class),
         gson.fromJson("[\"ROCK\",\"PAPER\",\"SCISSORS\"]", new TypeToken<Set<Roshambo>>() {}.getType()));
+  }
+
+  public void testEnumSubclassWithRegisteredTypeAdapter() {
+    gson = new GsonBuilder()
+        .registerTypeHierarchyAdapter(Roshambo.class, new MyEnumTypeAdapter())
+        .create();
+    assertFalse(Roshambo.class == Roshambo.ROCK.getClass());
+    assertEquals("\"123ROCK\"", gson.toJson(Roshambo.ROCK));
+    assertEquals("[\"123ROCK\",\"123PAPER\",\"123SCISSORS\"]", gson.toJson(EnumSet.allOf(Roshambo.class)));
+    assertEquals(Roshambo.ROCK, gson.fromJson("\"123ROCK\"", Roshambo.class));
+    assertEquals(EnumSet.allOf(Roshambo.class),
+        gson.fromJson("[\"123ROCK\",\"123PAPER\",\"123SCISSORS\"]", new TypeToken<Set<Roshambo>>() {}.getType()));
   }
 
   public enum Roshambo {

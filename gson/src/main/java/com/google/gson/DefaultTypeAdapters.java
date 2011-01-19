@@ -99,8 +99,12 @@ final class DefaultTypeAdapters {
   // constants will appear as nulls.
   private static final ParameterizedTypeHandlerMap<JsonSerializer<?>> DEFAULT_SERIALIZERS =
       createDefaultSerializers();
+  static final ParameterizedTypeHandlerMap<JsonSerializer<?>> DEFAULT_HIERARCHY_SERIALIZERS =
+    createDefaultHierarchySerializers();
   private static final ParameterizedTypeHandlerMap<JsonDeserializer<?>> DEFAULT_DESERIALIZERS =
       createDefaultDeserializers();
+  static final ParameterizedTypeHandlerMap<JsonDeserializer<?>> DEFAULT_HIERARCHY_DESERIALIZERS =
+    createDefaultHierarchyDeserializers();
   private static final ParameterizedTypeHandlerMap<InstanceCreator<?>> DEFAULT_INSTANCE_CREATORS =
       createDefaultInstanceCreators();
 
@@ -108,14 +112,10 @@ final class DefaultTypeAdapters {
     ParameterizedTypeHandlerMap<JsonSerializer<?>> map =
         new ParameterizedTypeHandlerMap<JsonSerializer<?>>();
 
-    map.registerForTypeHierarchy(Enum.class, ENUM_TYPE_ADAPTER);
-    map.registerForTypeHierarchy(InetAddress.class, INET_ADDRESS_ADAPTER);
     map.register(URL.class, URL_TYPE_ADAPTER);
     map.register(URI.class, URI_TYPE_ADAPTER);
     map.register(UUID.class, UUUID_TYPE_ADAPTER);
     map.register(Locale.class, LOCALE_TYPE_ADAPTER);
-    map.registerForTypeHierarchy(Collection.class, COLLECTION_TYPE_ADAPTER);
-    map.registerForTypeHierarchy(Map.class, MAP_TYPE_ADAPTER);
     map.register(Date.class, DATE_TYPE_ADAPTER);
     map.register(java.sql.Date.class, JAVA_SQL_DATE_TYPE_ADAPTER);
     map.register(Timestamp.class, DATE_TYPE_ADAPTER);
@@ -143,17 +143,24 @@ final class DefaultTypeAdapters {
     return map;
   }
 
+  private static ParameterizedTypeHandlerMap<JsonSerializer<?>> createDefaultHierarchySerializers() {
+    ParameterizedTypeHandlerMap<JsonSerializer<?>> map =
+        new ParameterizedTypeHandlerMap<JsonSerializer<?>>();
+    map.registerForTypeHierarchy(Enum.class, ENUM_TYPE_ADAPTER);
+    map.registerForTypeHierarchy(InetAddress.class, INET_ADDRESS_ADAPTER);
+    map.registerForTypeHierarchy(Collection.class, COLLECTION_TYPE_ADAPTER);
+    map.registerForTypeHierarchy(Map.class, MAP_TYPE_ADAPTER);
+    map.makeUnmodifiable();
+    return map;
+  }
+
   private static ParameterizedTypeHandlerMap<JsonDeserializer<?>> createDefaultDeserializers() {
     ParameterizedTypeHandlerMap<JsonDeserializer<?>> map =
         new ParameterizedTypeHandlerMap<JsonDeserializer<?>>();
-    map.registerForTypeHierarchy(Enum.class, wrapDeserializer(ENUM_TYPE_ADAPTER));
-    map.registerForTypeHierarchy(InetAddress.class, wrapDeserializer(INET_ADDRESS_ADAPTER));
     map.register(URL.class, wrapDeserializer(URL_TYPE_ADAPTER));
     map.register(URI.class, wrapDeserializer(URI_TYPE_ADAPTER));
     map.register(UUID.class, wrapDeserializer(UUUID_TYPE_ADAPTER));
     map.register(Locale.class, wrapDeserializer(LOCALE_TYPE_ADAPTER));
-    map.registerForTypeHierarchy(Collection.class, wrapDeserializer(COLLECTION_TYPE_ADAPTER));
-    map.registerForTypeHierarchy(Map.class, wrapDeserializer(MAP_TYPE_ADAPTER));
     map.register(Date.class, wrapDeserializer(DATE_TYPE_ADAPTER));
     map.register(java.sql.Date.class, wrapDeserializer(JAVA_SQL_DATE_TYPE_ADAPTER));
     map.register(Timestamp.class, wrapDeserializer(TIMESTAMP_DESERIALIZER));
@@ -187,6 +194,17 @@ final class DefaultTypeAdapters {
     return map;
   }
 
+  private static ParameterizedTypeHandlerMap<JsonDeserializer<?>> createDefaultHierarchyDeserializers() {
+    ParameterizedTypeHandlerMap<JsonDeserializer<?>> map =
+        new ParameterizedTypeHandlerMap<JsonDeserializer<?>>();
+    map.registerForTypeHierarchy(Enum.class, wrapDeserializer(ENUM_TYPE_ADAPTER));
+    map.registerForTypeHierarchy(InetAddress.class, wrapDeserializer(INET_ADDRESS_ADAPTER));
+    map.registerForTypeHierarchy(Collection.class, wrapDeserializer(COLLECTION_TYPE_ADAPTER));
+    map.registerForTypeHierarchy(Map.class, wrapDeserializer(MAP_TYPE_ADAPTER));
+    map.makeUnmodifiable();
+    return map;
+  }
+
   private static ParameterizedTypeHandlerMap<InstanceCreator<?>> createDefaultInstanceCreators() {
     ParameterizedTypeHandlerMap<InstanceCreator<?>> map =
         new ParameterizedTypeHandlerMap<InstanceCreator<?>>();
@@ -209,6 +227,20 @@ final class DefaultTypeAdapters {
 
   static ParameterizedTypeHandlerMap<JsonSerializer<?>> getDefaultSerializers() {
     return getDefaultSerializers(false, LongSerializationPolicy.DEFAULT);
+  }
+
+  static ParameterizedTypeHandlerMap<JsonSerializer<?>> getAllDefaultSerializers() {
+    ParameterizedTypeHandlerMap<JsonSerializer<?>> defaultSerializers =
+      getDefaultSerializers(false, LongSerializationPolicy.DEFAULT);
+    defaultSerializers.register(DEFAULT_HIERARCHY_SERIALIZERS);
+    return defaultSerializers;
+  }
+
+  static ParameterizedTypeHandlerMap<JsonDeserializer<?>> getAllDefaultDeserializers() {
+    ParameterizedTypeHandlerMap<JsonDeserializer<?>> defaultDeserializers =
+      getDefaultDeserializers().copyOf();
+    defaultDeserializers.register(DEFAULT_HIERARCHY_DESERIALIZERS);
+    return defaultDeserializers;
   }
 
   static ParameterizedTypeHandlerMap<JsonSerializer<?>> getDefaultSerializers(
