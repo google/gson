@@ -152,8 +152,8 @@ public final class Gson {
   public Gson() {
     this(DEFAULT_EXCLUSION_STRATEGY, DEFAULT_EXCLUSION_STRATEGY, DEFAULT_NAMING_POLICY,
     new MappedObjectConstructor(DefaultTypeAdapters.getDefaultInstanceCreators()),
-    false, DefaultTypeAdapters.getDefaultSerializers(),
-    DefaultTypeAdapters.getDefaultDeserializers(), DEFAULT_JSON_NON_EXECUTABLE, true, false);
+    false, DefaultTypeAdapters.getAllDefaultSerializers(),
+    DefaultTypeAdapters.getAllDefaultDeserializers(), DEFAULT_JSON_NON_EXECUTABLE, true, false);
   }
 
   Gson(ExclusionStrategy serializationStrategy, ExclusionStrategy deserializationStrategy,

@@ -522,8 +522,12 @@ public final class GsonBuilder {
     ExclusionStrategy deserializationExclusionStrategy =
       new DisjunctionExclusionStrategy(deserializationStrategies);
 
-    ParameterizedTypeHandlerMap<JsonSerializer<?>> customSerializers = serializers.copyOf();
-    ParameterizedTypeHandlerMap<JsonDeserializer<?>> customDeserializers = deserializers.copyOf();
+    ParameterizedTypeHandlerMap<JsonSerializer<?>> customSerializers =
+      DefaultTypeAdapters.DEFAULT_HIERARCHY_SERIALIZERS.copyOf();
+    customSerializers.register(serializers.copyOf());
+    ParameterizedTypeHandlerMap<JsonDeserializer<?>> customDeserializers =
+      DefaultTypeAdapters.DEFAULT_HIERARCHY_DESERIALIZERS.copyOf();
+    customDeserializers.register(deserializers.copyOf());
     addTypeAdaptersForDate(datePattern, dateStyle, timeStyle, customSerializers,
         customDeserializers);
 
