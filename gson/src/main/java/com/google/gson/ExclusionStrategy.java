@@ -78,7 +78,9 @@ package com.google.gson;
  * @see GsonBuilder#setExclusionStrategies(ExclusionStrategy...)
  *
  * @since 1.4
+ * @deprecated use the more powerful {@link ExclusionStrategy2} instead.
  */
+@Deprecated
 public interface ExclusionStrategy {
 
   /**

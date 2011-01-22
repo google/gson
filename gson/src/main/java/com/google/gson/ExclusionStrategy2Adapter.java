@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Google Inc.
+ * Copyright (C) 2011 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,22 +17,23 @@
 package com.google.gson;
 
 /**
- * Strategy for excluding anonymous and local classes.
+ * Adapts the old {@link ExclusionStrategy} into the newer {@link ExclusionStrategy2} type.
  *
  * @author Joel Leitch
  */
-final class AnonymousAndLocalClassExclusionStrategy implements ExclusionStrategy2 {
-
-  public boolean shouldSkipField(FieldAttributes f, Mode mode) {
-    return isAnonymousOrLocal(f.getDeclaredClass());
+class ExclusionStrategy2Adapter implements ExclusionStrategy2 {
+  private final ExclusionStrategy strategy;
+  
+  public ExclusionStrategy2Adapter(ExclusionStrategy strategy) {
+    Preconditions.checkNotNull(strategy);
+    this.strategy = strategy;
   }
 
   public boolean shouldSkipClass(Class<?> clazz, Mode mode) {
-    return isAnonymousOrLocal(clazz);
+    return strategy.shouldSkipClass(clazz);
   }
 
-  private boolean isAnonymousOrLocal(Class<?> clazz) {
-    return !Enum.class.isAssignableFrom(clazz)
-        && (clazz.isAnonymousClass() || clazz.isLocalClass());
+  public boolean shouldSkipField(FieldAttributes f, Mode mode) {
+    return strategy.shouldSkipField(f);
   }
 }

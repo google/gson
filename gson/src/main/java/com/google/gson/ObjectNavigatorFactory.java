@@ -18,13 +18,13 @@ package com.google.gson;
 
 /**
  * A factory class used to simplify {@link ObjectNavigator} creation.
- * This object holds on to a reference of the {@link ExclusionStrategy}
+ * This object holds on to a reference of the {@link ExclusionStrategy2}
  * that you'd like to use with the {@link ObjectNavigator}.
  *
  * @author Joel Leitch
  */
 final class ObjectNavigatorFactory {
-  private final ExclusionStrategy strategy;
+  private final ExclusionStrategy2 strategy;
   private final FieldNamingStrategy2 fieldNamingPolicy;
 
   /**
@@ -36,7 +36,7 @@ final class ObjectNavigatorFactory {
    * @param fieldNamingPolicy the naming policy that should be applied to field
    *        names
    */
-  public ObjectNavigatorFactory(ExclusionStrategy strategy, FieldNamingStrategy2 fieldNamingPolicy) {
+  public ObjectNavigatorFactory(ExclusionStrategy2 strategy, FieldNamingStrategy2 fieldNamingPolicy) {
     Preconditions.checkNotNull(fieldNamingPolicy);
     this.strategy = (strategy == null ? new NullExclusionStrategy() : strategy);
     this.fieldNamingPolicy = fieldNamingPolicy;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Google Inc.
+ * Copyright (C) 2010 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,27 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.google.gson;
 
-import com.google.gson.annotations.Expose;
-
 /**
- * Excludes fields that do not have the {@link Expose} annotation
+ * Defines the current context of Gson so that common code for serializing and deserializing can
+ * distinguish between the two modes.
  *
- * @author Inderjeet Singh
  * @author Joel Leitch
+ * 
+ * @since 1.7
  */
-final class ExposeAnnotationDeserializationExclusionStrategy implements ExclusionStrategy {
-
-  public boolean shouldSkipClass(Class<?> clazz) {
-    return false;
-  }
-
-  public boolean shouldSkipField(FieldAttributes f) {
-    Expose annotation = f.getAnnotation(Expose.class);
-    if (annotation == null) {
-      return true;
-    }
-    return !annotation.deserialize();
-  }
+public enum Mode {
+  SERIALIZE,
+  DESERIALIZE;
 }

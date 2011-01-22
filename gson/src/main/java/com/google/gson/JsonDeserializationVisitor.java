@@ -58,6 +58,10 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
     }
     return target;
   }
+  
+  public Mode getMode() {
+    return Mode.DESERIALIZE;
+  }
 
   protected abstract T constructTarget();
 

@@ -16,7 +16,6 @@
 
 package com.google.gson;
 
-
 /**
  * This is a configurable {@link ExclusionStrategy} that can be used for
  * unit testing.

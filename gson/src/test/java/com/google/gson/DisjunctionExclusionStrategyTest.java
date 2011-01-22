@@ -28,35 +28,38 @@ import junit.framework.TestCase;
  */
 public class DisjunctionExclusionStrategyTest extends TestCase {
 
-  private static final ExclusionStrategy FALSE_STRATEGY = new MockExclusionStrategy(false, false);
-  private static final ExclusionStrategy TRUE_STRATEGY = new MockExclusionStrategy(true, true);
+  private static final ExclusionStrategy2 FALSE_STRATEGY = 
+      new MockExclusionStrategy2(false, false, null);
+  private static final ExclusionStrategy2 TRUE_STRATEGY = 
+      new MockExclusionStrategy2(true, true, null);
+  
   private static final Class<?> CLAZZ = String.class;
   private static final FieldAttributes FIELD = new FieldAttributes(CLAZZ, CLAZZ.getFields()[0]);
 
   public void testBadInstantiation() throws Exception {
     try {
-      List<ExclusionStrategy> constructorParam = null;
+      List<ExclusionStrategy2> constructorParam = null;
       new DisjunctionExclusionStrategy(constructorParam);
       fail("Should throw an exception");
     } catch (IllegalArgumentException expected) { }
   }
 
   public void testSkipFieldsWithMixedTrueAndFalse() throws Exception {
-    List<ExclusionStrategy> strategies = new LinkedList<ExclusionStrategy>();
+    List<ExclusionStrategy2> strategies = new LinkedList<ExclusionStrategy2>();
     strategies.add(FALSE_STRATEGY);
     strategies.add(TRUE_STRATEGY);
     DisjunctionExclusionStrategy strategy = new DisjunctionExclusionStrategy(strategies);
 
-    assertTrue(strategy.shouldSkipClass(CLAZZ));
-    assertTrue(strategy.shouldSkipField(FIELD));
+    assertTrue(strategy.shouldSkipClass(CLAZZ, Mode.SERIALIZE));
+    assertTrue(strategy.shouldSkipField(FIELD, Mode.SERIALIZE));
   }
 
   public void testSkipFieldsWithFalseOnly() throws Exception {
-    List<ExclusionStrategy> strategies = new LinkedList<ExclusionStrategy>();
+    List<ExclusionStrategy2> strategies = new LinkedList<ExclusionStrategy2>();
     strategies.add(FALSE_STRATEGY);
     DisjunctionExclusionStrategy strategy =  new DisjunctionExclusionStrategy(strategies);
 
-    assertFalse(strategy.shouldSkipClass(CLAZZ));
-    assertFalse(strategy.shouldSkipField(FIELD));
+    assertFalse(strategy.shouldSkipClass(CLAZZ, Mode.SERIALIZE));
+    assertFalse(strategy.shouldSkipField(FIELD, Mode.SERIALIZE));
   }
 }

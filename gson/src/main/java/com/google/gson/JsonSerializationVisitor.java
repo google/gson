@@ -47,6 +47,10 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   public Object getTarget() {
     return null;
   }
+  
+  public Mode getMode() {
+    return Mode.SERIALIZE;
+  }
 
   public void start(ObjectTypePair node) {
     if (node == null) {

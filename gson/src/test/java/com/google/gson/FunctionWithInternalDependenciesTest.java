@@ -35,11 +35,11 @@ import com.google.gson.common.TestTypes.ClassWithNoFields;
 public class FunctionWithInternalDependenciesTest extends TestCase {
 
   public void testAnonymousLocalClassesSerialization() throws Exception {
-    LinkedList<ExclusionStrategy> strategies = new LinkedList<ExclusionStrategy>();
+    LinkedList<ExclusionStrategy2> strategies = new LinkedList<ExclusionStrategy2>();
     strategies.add(new SyntheticFieldExclusionStrategy(true));
     strategies.add(new ModifierBasedExclusionStrategy(Modifier.TRANSIENT, Modifier.STATIC));
-    ExclusionStrategy exclusionStrategy = new DisjunctionExclusionStrategy(strategies);
-    Gson gson = new Gson(exclusionStrategy, exclusionStrategy, Gson.DEFAULT_NAMING_POLICY,
+    ExclusionStrategy2 exclusionStrategy = new DisjunctionExclusionStrategy(strategies);
+    Gson gson = new Gson(exclusionStrategy, Gson.DEFAULT_NAMING_POLICY,
         new MappedObjectConstructor(DefaultTypeAdapters.getDefaultInstanceCreators()),
         false, DefaultTypeAdapters.getDefaultSerializers(),
         DefaultTypeAdapters.getDefaultDeserializers(), Gson.DEFAULT_JSON_NON_EXECUTABLE, true,
@@ -60,18 +60,18 @@ public class FunctionWithInternalDependenciesTest extends TestCase {
     assertEquals("{}", json);
   }
 
-  private static class UserDefinedExclusionStrategy implements ExclusionStrategy {
+  private static class UserDefinedExclusionStrategy implements ExclusionStrategy2 {
     private final Class<?> excludedThisClass;
 
     UserDefinedExclusionStrategy(Class<?> excludedThisClass) {
       this.excludedThisClass = excludedThisClass;
     }
 
-    public boolean shouldSkipClass(Class<?> clazz) {
+    public boolean shouldSkipClass(Class<?> clazz, Mode mode) {
       return excludedThisClass.equals(clazz);
     }
 
-    public boolean shouldSkipField(FieldAttributes f) {
+    public boolean shouldSkipField(FieldAttributes f, Mode mode) {
       return excludedThisClass.equals(f.getDeclaredClass());
     }
 

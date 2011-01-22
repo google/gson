@@ -26,18 +26,18 @@ package com.google.gson;
  *
  * @since 1.4
  */
-class SyntheticFieldExclusionStrategy implements ExclusionStrategy {
+class SyntheticFieldExclusionStrategy implements ExclusionStrategy2 {
   private final boolean skipSyntheticFields;
 
   SyntheticFieldExclusionStrategy(boolean skipSyntheticFields) {
     this.skipSyntheticFields = skipSyntheticFields;
   }
 
-  public boolean shouldSkipClass(Class<?> clazz) {
+  public boolean shouldSkipClass(Class<?> clazz, Mode mode) {
     return false;
   }
 
-  public boolean shouldSkipField(FieldAttributes f) {
+  public boolean shouldSkipField(FieldAttributes f, Mode mode) {
     return skipSyntheticFields && f.isSynthetic();
   }
 
