@@ -78,8 +78,6 @@ public final class Gson {
   //TODO(inder): get rid of all the registerXXX methods and take all such parameters in the
   // constructor instead. At the minimum, mark those methods private.
 
-  private static final String NULL_STRING = "null";
-
   static final boolean DEFAULT_JSON_NON_EXECUTABLE = false;
 
   // Default instances of plug-ins
@@ -240,7 +238,7 @@ public final class Gson {
    */
   public String toJson(Object src) {
     if (src == null) {
-      return serializeNulls ? NULL_STRING : "";
+      return toJson(JsonNull.createJsonNull());
     }
     return toJson(src, src.getClass());
   }
@@ -281,14 +279,10 @@ public final class Gson {
    * @since 1.2
    */
   public void toJson(Object src, Appendable writer) throws JsonIOException {
-    try {
-      if (src != null) {
-        toJson(src, src.getClass(), writer);
-      } else if (serializeNulls) {
-        writeOutNullString(writer);
-      }
-    } catch (IOException ioe) {
-      throw new RuntimeException(ioe);
+    if (src != null) {
+      toJson(src, src.getClass(), writer);
+    } else {
+      toJson(JsonNull.createJsonNull(), writer);
     }
   }
 
@@ -559,15 +553,6 @@ public final class Gson {
         objectConstructor);
     T target = (T) context.deserialize(json, typeOfT);
     return target;
-  }
-
-  /**
-   * Appends the {@link #NULL_STRING} to the {@code writer} object.
-   *
-   * @param writer the object to append the null value to
-   */
-  private void writeOutNullString(Appendable writer) throws IOException {
-    writer.append(NULL_STRING);
   }
 
   @Override
