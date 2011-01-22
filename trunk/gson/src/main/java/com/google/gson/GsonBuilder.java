@@ -216,7 +216,11 @@ public final class GsonBuilder {
    * @param fieldNamingStrategy the actual naming strategy to apply to the fields
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.3
+   * @deprecated convert {@code fieldNamingStrategy} to a implement from
+   *    {@link FieldNamingStrategy2} and call {@link #setFieldNamingStrategy(FieldNamingStrategy2)}
+   *    instead.
    */
+  @Deprecated
   public GsonBuilder setFieldNamingStrategy(FieldNamingStrategy fieldNamingStrategy) {
     return setFieldNamingStrategy(new FieldNamingStrategy2Adapter(fieldNamingStrategy));
   }
@@ -227,8 +231,9 @@ public final class GsonBuilder {
    *
    * @param fieldNamingStrategy the actual naming strategy to apply to the fields
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @since 1.7
    */
-  GsonBuilder setFieldNamingStrategy(FieldNamingStrategy2 fieldNamingStrategy) {
+  public GsonBuilder setFieldNamingStrategy(FieldNamingStrategy2 fieldNamingStrategy) {
     this.fieldNamingPolicy =
         new SerializedNameAnnotationInterceptingNamingPolicy(fieldNamingStrategy);
     return this;

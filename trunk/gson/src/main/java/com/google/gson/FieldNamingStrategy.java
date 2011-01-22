@@ -26,7 +26,9 @@ import java.lang.reflect.Field;
  * @author Inderjeet Singh
  * @author Joel Leitch
  * @since 1.3
+ * @deprecated use the {@link FieldNamingStrategy2} instead
  */
+@Deprecated
 public interface FieldNamingStrategy {
 
   /**
