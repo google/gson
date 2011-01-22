@@ -54,15 +54,11 @@ import com.google.gson.DefaultTypeAdapters.DefaultDateTypeAdapter;
 public final class GsonBuilder {
   private static final InnerClassExclusionStrategy innerClassExclusionStrategy =
       new InnerClassExclusionStrategy();
-  private static final ExposeAnnotationSerializationExclusionStrategy
-    exposeAnnotationSerializationExclusionStrategy =
-      new ExposeAnnotationSerializationExclusionStrategy();
-  private static final ExposeAnnotationDeserializationExclusionStrategy
-    exposeAnnotationDeserializationExclusionStrategy =
-      new ExposeAnnotationDeserializationExclusionStrategy();
+  private static final ExposeAnnotationExclusionStrategy exposeAnnotationExclusionStrategy =
+      new ExposeAnnotationExclusionStrategy();
 
-  private final Collection<ExclusionStrategy> exclusionStrategies =
-      new HashSet<ExclusionStrategy>();
+  private final Collection<ExclusionStrategy2> exclusionStrategies =
+      new HashSet<ExclusionStrategy2>();
 
   private double ignoreVersionsAfter;
   private ModifierBasedExclusionStrategy modifierBasedExclusionStrategy;
@@ -247,9 +243,30 @@ public final class GsonBuilder {
    * @param strategies the set of strategy object to apply during object (de)serialization.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.4
+   * @deprecated convert your {@code strategies} to {@link ExclusionStrategy2} and use the
+   *    {@link #setExclusionStrategies(ExclusionStrategy2...) method instead.
    */
+  @Deprecated
   public GsonBuilder setExclusionStrategies(ExclusionStrategy... strategies) {
     for (ExclusionStrategy strategy : strategies) {
+      exclusionStrategies.add(new ExclusionStrategy2Adapter(strategy));
+    }
+    return this;
+  }
+  
+  /**
+   * Configures Gson to apply a set of exclusion strategies during both serialization and
+   * deserialization. Each of the {@code strategies} will be applied as a disjunction rule.
+   * This means that if one of the {@code strategies} suggests that a field (or class) should be
+   * skipped in the current mode then that field (or object) is skipped during the particular Gson
+   * mode.
+   *
+   * @param strategies the set of strategy object to apply during object (de)serialization.
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @since 1.7
+   */
+  public GsonBuilder setExclusionStrategies(ExclusionStrategy2... strategies) {
+    for (ExclusionStrategy2 strategy : strategies) {
       exclusionStrategies.add(strategy);
     }
     return this;
@@ -497,30 +514,20 @@ public final class GsonBuilder {
    * @return an instance of Gson configured with the options currently set in this builder
    */
   public Gson create() {
-    List<ExclusionStrategy> serializationStrategies =
-        new LinkedList<ExclusionStrategy>(exclusionStrategies);
-    List<ExclusionStrategy> deserializationStrategies =
-        new LinkedList<ExclusionStrategy>(exclusionStrategies);
-
-    serializationStrategies.add(modifierBasedExclusionStrategy);
-    deserializationStrategies.add(modifierBasedExclusionStrategy);
+    List<ExclusionStrategy2> strategies =
+        new LinkedList<ExclusionStrategy2>(exclusionStrategies);
+    strategies.add(modifierBasedExclusionStrategy);
 
     if (!serializeInnerClasses) {
-      serializationStrategies.add(innerClassExclusionStrategy);
-      deserializationStrategies.add(innerClassExclusionStrategy);
+      strategies.add(innerClassExclusionStrategy);
     }
     if (ignoreVersionsAfter != VersionConstants.IGNORE_VERSIONS) {
-      serializationStrategies.add(new VersionExclusionStrategy(ignoreVersionsAfter));
-      deserializationStrategies.add(new VersionExclusionStrategy(ignoreVersionsAfter));
+      strategies.add(new VersionExclusionStrategy(ignoreVersionsAfter));
     }
     if (excludeFieldsWithoutExposeAnnotation) {
-      serializationStrategies.add(exposeAnnotationSerializationExclusionStrategy);
-      deserializationStrategies.add(exposeAnnotationDeserializationExclusionStrategy);
+      strategies.add(exposeAnnotationExclusionStrategy);
     }
-    ExclusionStrategy serializationExclusionStrategy =
-      new DisjunctionExclusionStrategy(serializationStrategies);
-    ExclusionStrategy deserializationExclusionStrategy =
-      new DisjunctionExclusionStrategy(deserializationStrategies);
+    ExclusionStrategy2 exclusionStrategy = new DisjunctionExclusionStrategy(strategies);
 
     ParameterizedTypeHandlerMap<JsonSerializer<?>> customSerializers =
       DefaultTypeAdapters.DEFAULT_HIERARCHY_SERIALIZERS.copyOf();
@@ -546,9 +553,9 @@ public final class GsonBuilder {
 
     MappedObjectConstructor objConstructor = new MappedObjectConstructor(customInstanceCreators);
 
-    Gson gson = new Gson(serializationExclusionStrategy, deserializationExclusionStrategy,
-        fieldNamingPolicy, objConstructor, serializeNulls, customSerializers,
-        customDeserializers, generateNonExecutableJson, escapeHtmlChars, prettyPrinting);
+    Gson gson = new Gson(exclusionStrategy, fieldNamingPolicy, objConstructor, serializeNulls,
+        customSerializers, customDeserializers, generateNonExecutableJson, escapeHtmlChars,
+        prettyPrinting);
     return gson;
   }
 

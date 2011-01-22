@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Google Inc.
+ * Copyright (C) 2011 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,20 +21,25 @@ import com.google.gson.annotations.Expose;
 /**
  * Excludes fields that do not have the {@link Expose} annotation
  *
- * @author Inderjeet Singh
  * @author Joel Leitch
  */
-final class ExposeAnnotationSerializationExclusionStrategy implements ExclusionStrategy {
-
-  public boolean shouldSkipClass(Class<?> clazz) {
+public class ExposeAnnotationExclusionStrategy implements ExclusionStrategy2 {
+  public boolean shouldSkipClass(Class<?> clazz, Mode mode) {
     return false;
   }
 
-  public boolean shouldSkipField(FieldAttributes f) {
+  public boolean shouldSkipField(FieldAttributes f, Mode mode) {
     Expose annotation = f.getAnnotation(Expose.class);
     if (annotation == null) {
       return true;
     }
-    return !annotation.serialize();
+    
+    if (mode == Mode.SERIALIZE) {
+      return !annotation.serialize();
+    } else if (mode == Mode.DESERIALIZE) {
+      return !annotation.deserialize();
+    }
+
+    return false;
   }
 }
