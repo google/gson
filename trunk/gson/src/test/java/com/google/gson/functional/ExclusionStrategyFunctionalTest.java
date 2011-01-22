@@ -17,11 +17,15 @@
 package com.google.gson.functional;
 
 import com.google.gson.ExclusionStrategy;
+import com.google.gson.ExclusionStrategy2;
 import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.google.gson.MockExclusionStrategy;
+import com.google.gson.MockExclusionStrategy2;
+import com.google.gson.Mode;
 
 import junit.framework.TestCase;
 
@@ -32,7 +36,7 @@ import java.lang.annotation.Target;
 
 /**
  * Performs some functional tests when Gson is instantiated with some common user defined
- * {@link ExclusionStrategy} objects.
+ * {@link ExclusionStrategy} and {@link ExclusionStrategy2} objects.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
@@ -52,10 +56,25 @@ public class ExclusionStrategyFunctionalTest extends TestCase {
   }
 
   public void testExclusionStrategySerialization() throws Exception {
+    Gson gson = createGson(new MyExclusionStrategy(String.class));
     String json = gson.toJson(src);
     assertFalse(json.contains("\"stringField\""));
     assertFalse(json.contains("\"annotatedField\""));
     assertTrue(json.contains("\"longField\""));
+  }
+  
+  public void testExclusionStrategy2Serialization() throws Exception {
+    Gson gson = createGson(new MockExclusionStrategy2(false, true, Mode.DESERIALIZE));
+    String json = gson.toJson(src);
+    assertTrue(json.contains("\"stringField\""));
+    assertTrue(json.contains("\"annotatedField\""));
+    assertTrue(json.contains("\"longField\""));
+    
+    gson = createGson(new MockExclusionStrategy2(false, true, Mode.SERIALIZE));
+    json = gson.toJson(src);
+    assertFalse(json.contains("\"stringField\""));
+    assertFalse(json.contains("\"annotatedField\""));
+    assertFalse(json.contains("\"longField\""));
   }
 
   public void testExclusionStrategyDeserialization() throws Exception {
@@ -72,6 +91,20 @@ public class ExclusionStrategyFunctionalTest extends TestCase {
     assertEquals(src.stringField, target.stringField);
   }
 
+  private static Gson createGson(ExclusionStrategy exclusionStrategy) {
+    return new GsonBuilder()
+        .setExclusionStrategies(exclusionStrategy)
+        .serializeNulls()
+        .create();
+  }
+  
+  private static Gson createGson(ExclusionStrategy2 exclusionStrategy) {
+    return new GsonBuilder()
+        .setExclusionStrategies(exclusionStrategy)
+        .serializeNulls()
+        .create();
+  }
+  
   @Retention(RetentionPolicy.RUNTIME)
   @Target({ElementType.FIELD})
   private static @interface Foo {

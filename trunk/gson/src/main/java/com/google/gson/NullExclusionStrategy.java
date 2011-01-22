@@ -16,22 +16,21 @@
 
 package com.google.gson;
 
-
 /**
- * This acts as a "Null Object" pattern for the {@link ExclusionStrategy}.
+ * This acts as a "Null Object" pattern for the {@link ExclusionStrategy2}.
  * Passing an instance of this class into the {@link ObjectNavigator} will
  * make the {@link ObjectNavigator} parse/visit every field of the object
  * being navigated.
  *
  * @author Joel Leitch
  */
-final class NullExclusionStrategy implements ExclusionStrategy {
+final class NullExclusionStrategy implements ExclusionStrategy2 {
 
-  public boolean shouldSkipField(FieldAttributes f) {
+  public boolean shouldSkipField(FieldAttributes f, Mode mode) {
     return false;
   }
 
-  public boolean shouldSkipClass(Class<?> clazz) {
+  public boolean shouldSkipClass(Class<?> clazz, Mode mode) {
     return false;
   }
 }

@@ -225,9 +225,9 @@ public class DefaultTypeAdaptersTest extends TestCase {
   // millisecond portion.
   @SuppressWarnings("deprecation")
   private void assertEqualsDate(Date date, int year, int month, int day) {
-      assertEquals(year-1900, date.getYear());
-      assertEquals(month, date.getMonth());
-      assertEquals(day, date.getDate());
+    assertEquals(year-1900, date.getYear());
+    assertEquals(month, date.getMonth());
+    assertEquals(day, date.getDate());
   }
 
   @SuppressWarnings("deprecation")

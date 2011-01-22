@@ -41,22 +41,26 @@ public class InnerClassExclusionStrategyTest extends TestCase {
 
   public void testExcludeInnerClassObject() throws Exception {
     Class<?> clazz = innerClass.getClass();
-    assertTrue(strategy.shouldSkipClass(clazz));
+    assertTrue(strategy.shouldSkipClass(clazz, Mode.SERIALIZE));
+    assertTrue(strategy.shouldSkipClass(clazz, Mode.DESERIALIZE));
   }
 
   public void testExcludeInnerClassField() throws Exception {
     Field f = getClass().getField("innerClass");
-    assertTrue(strategy.shouldSkipField(new FieldAttributes(getClass(), f)));
+    assertTrue(strategy.shouldSkipField(new FieldAttributes(getClass(), f), Mode.SERIALIZE));
+    assertTrue(strategy.shouldSkipField(new FieldAttributes(getClass(), f), Mode.DESERIALIZE));
   }
 
   public void testIncludeStaticNestedClassObject() throws Exception {
     Class<?> clazz = staticNestedClass.getClass();
-    assertFalse(strategy.shouldSkipClass(clazz));
+    assertFalse(strategy.shouldSkipClass(clazz, Mode.SERIALIZE));
+    assertFalse(strategy.shouldSkipClass(clazz, Mode.DESERIALIZE));
   }
 
   public void testIncludeStaticNestedClassField() throws Exception {
     Field f = getClass().getField("staticNestedClass");
-    assertFalse(strategy.shouldSkipField(new FieldAttributes(getClass(), f)));
+    assertFalse(strategy.shouldSkipField(new FieldAttributes(getClass(), f), Mode.SERIALIZE));
+    assertFalse(strategy.shouldSkipField(new FieldAttributes(getClass(), f), Mode.DESERIALIZE));
   }
 
   class InnerClass {

@@ -17,22 +17,33 @@
 package com.google.gson;
 
 /**
- * Strategy for excluding anonymous and local classes.
+ * This is a configurable {@link ExclusionStrategy2} that can be used for
+ * unit testing.
  *
  * @author Joel Leitch
  */
-final class AnonymousAndLocalClassExclusionStrategy implements ExclusionStrategy2 {
+public class MockExclusionStrategy2 implements ExclusionStrategy2 {
+  private final MockExclusionStrategy strategy;
+  private final Mode mode;
 
+  public MockExclusionStrategy2(boolean skipClass, boolean skipField, Mode mode) {
+    this.strategy = new MockExclusionStrategy(skipClass, skipField);
+    this.mode = mode;
+  }
+  
   public boolean shouldSkipField(FieldAttributes f, Mode mode) {
-    return isAnonymousOrLocal(f.getDeclaredClass());
+    if (this.mode == null || this.mode == mode) {
+      return strategy.shouldSkipField(f);
+    } else {
+      return false;
+    }
   }
 
   public boolean shouldSkipClass(Class<?> clazz, Mode mode) {
-    return isAnonymousOrLocal(clazz);
-  }
-
-  private boolean isAnonymousOrLocal(Class<?> clazz) {
-    return !Enum.class.isAssignableFrom(clazz)
-        && (clazz.isAnonymousClass() || clazz.isLocalClass());
+    if (this.mode == null || this.mode == mode) {
+      return strategy.shouldSkipClass(clazz);
+    } else {
+      return false;
+    }
   }
 }
