@@ -255,4 +255,28 @@ public class ArrayTest extends TestCase {
     String[] values = gson.fromJson("[null]", String[].class);
     assertNull(values[0]);
   }
+
+  /**
+   * Regression tests for Issue 272
+   */
+  public void testMultidimenstionalArraysSerialization() {
+    String[][] items = new String[][]{
+        {"3m Co", "71.72", "0.02", "0.03", "4/2 12:00am", "Manufacturing"},
+        {"Alcoa Inc", "29.01", "0.42", "1.47", "4/1 12:00am", "Manufacturing"}
+    };
+    String json = gson.toJson(items);
+    assertTrue(json.contains("[[\"3m Co"));
+    assertTrue(json.contains("Manufacturing\"]]"));
+  }
+
+  /**
+   * Regression tests for Issue 272
+   */
+  public void testMultidimenstionalArraysDeserialization() {
+    String json = "[['3m Co','71.72','0.02','0.03','4/2 12:00am','Manufacturing'],"
+      + "['Alcoa Inc','29.01','0.42','1.47','4/1 12:00am','Manufacturing']]";
+    String[][] items = gson.fromJson(json, String[][].class);
+    assertEquals("3m Co", items[0][0]);
+    assertEquals("Manufacturing", items[1][5]);
+  }
 }
