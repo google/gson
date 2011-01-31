@@ -429,4 +429,26 @@ public class DefaultTypeAdaptersTest extends TestCase {
     TreeSet<String> treeSet = gson.fromJson(json, type);
     assertTrue(treeSet.contains("Value1"));
   }
+
+  public void testStringBuilderSerialization() {
+    StringBuilder sb = new StringBuilder("abc");
+    String json = gson.toJson(sb);
+    assertEquals("\"abc\"", json);
+  }
+
+  public void testStringBuilderDeserialization() {
+    StringBuilder sb = gson.fromJson("'abc'", StringBuilder.class);
+    assertEquals("abc", sb.toString());
+  }
+
+  public void testStringBufferSerialization() {
+    StringBuffer sb = new StringBuffer("abc");
+    String json = gson.toJson(sb);
+    assertEquals("\"abc\"", json);
+  }
+
+  public void testStringBufferDeserialization() {
+    StringBuffer sb = gson.fromJson("'abc'", StringBuffer.class);
+    assertEquals("abc", sb.toString());
+  }
 }

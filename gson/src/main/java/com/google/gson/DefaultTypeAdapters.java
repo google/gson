@@ -87,6 +87,10 @@ final class DefaultTypeAdapters {
   private static final NumberTypeAdapter NUMBER_TYPE_ADAPTER = new NumberTypeAdapter();
   private static final ShortTypeAdapter SHORT_TYPE_ADAPTER = new ShortTypeAdapter();
   private static final StringTypeAdapter STRING_TYPE_ADAPTER = new StringTypeAdapter();
+  private static final StringBuilderTypeAdapter STRING_BUILDER_TYPE_ADAPTER =
+    new StringBuilderTypeAdapter();
+  private static final StringBufferTypeAdapter STRING_BUFFER_TYPE_ADAPTER =
+    new StringBufferTypeAdapter();
 
   private static final PropertiesCreator PROPERTIES_CREATOR = new PropertiesCreator();
   private static final TreeSetCreator TREE_SET_CREATOR = new TreeSetCreator();
@@ -138,6 +142,8 @@ final class DefaultTypeAdapters {
     map.register(Short.class, SHORT_TYPE_ADAPTER);
     map.register(short.class, SHORT_TYPE_ADAPTER);
     map.register(String.class, STRING_TYPE_ADAPTER);
+    map.register(StringBuilder.class, STRING_BUILDER_TYPE_ADAPTER);
+    map.register(StringBuffer.class, STRING_BUFFER_TYPE_ADAPTER);
 
     map.makeUnmodifiable();
     return map;
@@ -189,6 +195,8 @@ final class DefaultTypeAdapters {
     map.register(Short.class, wrapDeserializer(SHORT_TYPE_ADAPTER));
     map.register(short.class, wrapDeserializer(SHORT_TYPE_ADAPTER));
     map.register(String.class, wrapDeserializer(STRING_TYPE_ADAPTER));
+    map.register(StringBuilder.class, wrapDeserializer(STRING_BUILDER_TYPE_ADAPTER));
+    map.register(StringBuffer.class, wrapDeserializer(STRING_BUFFER_TYPE_ADAPTER));
 
     map.makeUnmodifiable();
     return map;
@@ -909,6 +917,40 @@ final class DefaultTypeAdapters {
     @Override
     public String toString() {
       return StringTypeAdapter.class.getSimpleName();
+    }
+  }
+
+  private static class StringBuilderTypeAdapter
+      implements JsonSerializer<StringBuilder>, JsonDeserializer<StringBuilder> {
+    public JsonElement serialize(StringBuilder src, Type typeOfSrc, JsonSerializationContext context) {
+      return new JsonPrimitive(src.toString());
+    }
+
+    public StringBuilder deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+    throws JsonParseException {
+      return new StringBuilder(json.getAsString());
+    }
+
+    @Override
+    public String toString() {
+      return StringBuilderTypeAdapter.class.getSimpleName();
+    }
+  }
+
+  private static class StringBufferTypeAdapter
+      implements JsonSerializer<StringBuffer>, JsonDeserializer<StringBuffer> {
+    public JsonElement serialize(StringBuffer src, Type typeOfSrc, JsonSerializationContext context) {
+      return new JsonPrimitive(src.toString());
+    }
+
+    public StringBuffer deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+    throws JsonParseException {
+      return new StringBuffer(json.getAsString());
+    }
+
+    @Override
+    public String toString() {
+      return StringBufferTypeAdapter.class.getSimpleName();
     }
   }
 
