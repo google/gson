@@ -90,11 +90,12 @@ public final class Gson {
   static final FieldNamingStrategy2 DEFAULT_NAMING_POLICY =
       new SerializedNameAnnotationInterceptingNamingPolicy(new JavaFieldNamingPolicy());
 
-  private static final ExclusionStrategy2 DEFAULT_EXCLUSION_STRATEGY = createExclusionStrategy();
+  private static final ExclusionStrategy DEFAULT_EXCLUSION_STRATEGY = createExclusionStrategy();
 
   private static final String JSON_NON_EXECUTABLE_PREFIX = ")]}'\n";
 
-  private final ExclusionStrategy2 exclusionStrategy;
+  private final ExclusionStrategy deserializationExclusionStrategy;
+  private final ExclusionStrategy serializationExclusionStrategy;
   private final FieldNamingStrategy2 fieldNamingPolicy;
   private final MappedObjectConstructor objectConstructor;
 
@@ -144,18 +145,20 @@ public final class Gson {
    * </ul>
    */
   public Gson() {
-    this(DEFAULT_EXCLUSION_STRATEGY, DEFAULT_NAMING_POLICY,
+    this(DEFAULT_EXCLUSION_STRATEGY, DEFAULT_EXCLUSION_STRATEGY, DEFAULT_NAMING_POLICY,
     new MappedObjectConstructor(DefaultTypeAdapters.getDefaultInstanceCreators()),
     false, DefaultTypeAdapters.getAllDefaultSerializers(),
     DefaultTypeAdapters.getAllDefaultDeserializers(), DEFAULT_JSON_NON_EXECUTABLE, true, false);
   }
 
-  Gson(ExclusionStrategy2 exclusionStrategy, FieldNamingStrategy2 fieldNamingPolicy,
+  Gson(ExclusionStrategy deserializationExclusionStrategy,
+      ExclusionStrategy serializationExclusionStrategy, FieldNamingStrategy2 fieldNamingPolicy,
       MappedObjectConstructor objectConstructor, boolean serializeNulls,
       ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers,
       ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers,
       boolean generateNonExecutableGson, boolean htmlSafe, boolean prettyPrinting) {
-    this.exclusionStrategy = exclusionStrategy;
+    this.deserializationExclusionStrategy = deserializationExclusionStrategy;
+    this.serializationExclusionStrategy = serializationExclusionStrategy;
     this.fieldNamingPolicy = fieldNamingPolicy;
     this.objectConstructor = objectConstructor;
     this.serializeNulls = serializeNulls;
@@ -166,12 +169,12 @@ public final class Gson {
     this.prettyPrinting = prettyPrinting;
   }
 
-  private ObjectNavigatorFactory createDefaultObjectNavigatorFactory(ExclusionStrategy2 strategy) {
+  private ObjectNavigatorFactory createDefaultObjectNavigatorFactory(ExclusionStrategy strategy) {
     return new ObjectNavigatorFactory(strategy, fieldNamingPolicy);
   }
 
-  private static ExclusionStrategy2 createExclusionStrategy() {
-    List<ExclusionStrategy2> strategies = new LinkedList<ExclusionStrategy2>();
+  private static ExclusionStrategy createExclusionStrategy() {
+    List<ExclusionStrategy> strategies = new LinkedList<ExclusionStrategy>();
     strategies.add(DEFAULT_ANON_LOCAL_CLASS_EXCLUSION_STRATEGY);
     strategies.add(DEFAULT_SYNTHETIC_FIELD_EXCLUSION_STRATEGY);
     strategies.add(DEFAULT_MODIFIER_BASED_EXCLUSION_STRATEGY);
@@ -219,7 +222,7 @@ public final class Gson {
       return JsonNull.createJsonNull();
     }
     JsonSerializationContextDefault context = new JsonSerializationContextDefault(
-        createDefaultObjectNavigatorFactory(exclusionStrategy), serializeNulls, serializers);
+        createDefaultObjectNavigatorFactory(serializationExclusionStrategy), serializeNulls, serializers);
     return context.serialize(src, typeOfSrc, true);
   }
 
@@ -549,8 +552,8 @@ public final class Gson {
       return null;
     }
     JsonDeserializationContext context = new JsonDeserializationContextDefault(
-        createDefaultObjectNavigatorFactory(exclusionStrategy), deserializers,
-        objectConstructor);
+        createDefaultObjectNavigatorFactory(deserializationExclusionStrategy), 
+        deserializers, objectConstructor);
     T target = (T) context.deserialize(json, typeOfT);
     return target;
   }

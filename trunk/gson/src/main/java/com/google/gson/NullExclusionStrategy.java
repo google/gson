@@ -24,13 +24,13 @@ package com.google.gson;
  *
  * @author Joel Leitch
  */
-final class NullExclusionStrategy implements ExclusionStrategy2 {
+final class NullExclusionStrategy implements ExclusionStrategy {
 
-  public boolean shouldSkipField(FieldAttributes f, Mode mode) {
+  public boolean shouldSkipField(FieldAttributes f) {
     return false;
   }
 
-  public boolean shouldSkipClass(Class<?> clazz, Mode mode) {
+  public boolean shouldSkipClass(Class<?> clazz) {
     return false;
   }
 }

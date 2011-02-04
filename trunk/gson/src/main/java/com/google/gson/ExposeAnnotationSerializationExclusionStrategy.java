@@ -16,24 +16,23 @@
 
 package com.google.gson;
 
+import com.google.gson.annotations.Expose;
+
 /**
- * Adapts the old {@link ExclusionStrategy} into the newer {@link ExclusionStrategy2} type.
+ * Excludes fields that do not have the {@link Expose} annotation
  *
  * @author Joel Leitch
  */
-class ExclusionStrategy2Adapter implements ExclusionStrategy2 {
-  private final ExclusionStrategy strategy;
-  
-  public ExclusionStrategy2Adapter(ExclusionStrategy strategy) {
-    Preconditions.checkNotNull(strategy);
-    this.strategy = strategy;
+public class ExposeAnnotationSerializationExclusionStrategy implements ExclusionStrategy {
+  public boolean shouldSkipClass(Class<?> clazz) {
+    return false;
   }
 
-  public boolean shouldSkipClass(Class<?> clazz, Mode mode) {
-    return strategy.shouldSkipClass(clazz);
-  }
-
-  public boolean shouldSkipField(FieldAttributes f, Mode mode) {
-    return strategy.shouldSkipField(f);
+  public boolean shouldSkipField(FieldAttributes f) {
+    Expose annotation = f.getAnnotation(Expose.class);
+    if (annotation == null) {
+      return true;
+    }
+    return !annotation.serialize();
   }
 }

@@ -26,7 +26,7 @@ import java.util.HashSet;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-final class ModifierBasedExclusionStrategy implements ExclusionStrategy2 {
+final class ModifierBasedExclusionStrategy implements ExclusionStrategy {
   private final Collection<Integer> modifiers;
 
   public ModifierBasedExclusionStrategy(int... modifiers) {
@@ -38,7 +38,7 @@ final class ModifierBasedExclusionStrategy implements ExclusionStrategy2 {
     }
   }
 
-  public boolean shouldSkipField(FieldAttributes f, Mode mode) {
+  public boolean shouldSkipField(FieldAttributes f) {
     for (int modifier : modifiers) {
       if (f.hasModifier(modifier)) {
         return true;
@@ -47,7 +47,7 @@ final class ModifierBasedExclusionStrategy implements ExclusionStrategy2 {
     return false;
   }
 
-  public boolean shouldSkipClass(Class<?> clazz, Mode mode) {
+  public boolean shouldSkipClass(Class<?> clazz) {
     return false;
   }
 }
