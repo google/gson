@@ -25,7 +25,7 @@ import com.google.gson.annotations.Until;
  *
  * @author Joel Leitch
  */
-final class VersionExclusionStrategy implements ExclusionStrategy2 {
+final class VersionExclusionStrategy implements ExclusionStrategy {
   private final double version;
 
   public VersionExclusionStrategy(double version) {
@@ -33,11 +33,11 @@ final class VersionExclusionStrategy implements ExclusionStrategy2 {
     this.version = version;
   }
 
-  public boolean shouldSkipField(FieldAttributes f, Mode mode) {
+  public boolean shouldSkipField(FieldAttributes f) {
     return !isValidVersion(f.getAnnotation(Since.class), f.getAnnotation(Until.class));
   }
 
-  public boolean shouldSkipClass(Class<?> clazz, Mode mode) {
+  public boolean shouldSkipClass(Class<?> clazz) {
     return !isValidVersion(clazz.getAnnotation(Since.class), clazz.getAnnotation(Until.class));
   }
 

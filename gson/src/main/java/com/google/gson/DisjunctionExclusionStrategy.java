@@ -19,31 +19,31 @@ package com.google.gson;
 import java.util.Collection;
 
 /**
- * A wrapper class used to collect numerous {@link ExclusionStrategy2} objects
+ * A wrapper class used to collect numerous {@link ExclusionStrategy} objects
  * and perform a short-circuited OR operation.
  *
  * @author Joel Leitch
  */
-final class DisjunctionExclusionStrategy implements ExclusionStrategy2 {
-  private final Collection<ExclusionStrategy2> strategies;
+final class DisjunctionExclusionStrategy implements ExclusionStrategy {
+  private final Collection<ExclusionStrategy> strategies;
 
-  public DisjunctionExclusionStrategy(Collection<ExclusionStrategy2> strategies) {
+  public DisjunctionExclusionStrategy(Collection<ExclusionStrategy> strategies) {
     Preconditions.checkNotNull(strategies);
     this.strategies = strategies;
   }
 
-  public boolean shouldSkipField(FieldAttributes f, Mode mode) {
-    for (ExclusionStrategy2 strategy : strategies) {
-      if (strategy.shouldSkipField(f, mode)) {
+  public boolean shouldSkipField(FieldAttributes f) {
+    for (ExclusionStrategy strategy : strategies) {
+      if (strategy.shouldSkipField(f)) {
         return true;
       }
     }
     return false;
   }
 
-  public boolean shouldSkipClass(Class<?> clazz, Mode mode) {
-    for (ExclusionStrategy2 strategy : strategies) {
-      if (strategy.shouldSkipClass(clazz, mode)) {
+  public boolean shouldSkipClass(Class<?> clazz) {
+    for (ExclusionStrategy strategy : strategies) {
+      if (strategy.shouldSkipClass(clazz)) {
         return true;
       }
     }

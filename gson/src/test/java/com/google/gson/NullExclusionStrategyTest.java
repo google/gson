@@ -33,16 +33,11 @@ public class NullExclusionStrategyTest extends TestCase {
   }
 
   public void testNeverSkipsClass() throws Exception {
-    assertFalse(strategy.shouldSkipClass(String.class, Mode.SERIALIZE));
-    assertFalse(strategy.shouldSkipClass(String.class, Mode.DESERIALIZE));
+    assertFalse(strategy.shouldSkipClass(String.class));
   }
 
   public void testNeverSkipsField() throws Exception {
     assertFalse(strategy.shouldSkipField(
-        new FieldAttributes(String.class, String.class.getFields()[0]),
-        Mode.SERIALIZE));
-    assertFalse(strategy.shouldSkipField(
-        new FieldAttributes(String.class, String.class.getFields()[0]),
-        Mode.DESERIALIZE));
+        new FieldAttributes(String.class, String.class.getFields()[0])));
   }
 }

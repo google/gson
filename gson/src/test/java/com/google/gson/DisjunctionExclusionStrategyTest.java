@@ -16,10 +16,10 @@
 
 package com.google.gson;
 
+import junit.framework.TestCase;
+
 import java.util.LinkedList;
 import java.util.List;
-
-import junit.framework.TestCase;
 
 /**
  * Unit tests for the {@link DisjunctionExclusionStrategy} class.
@@ -28,38 +28,38 @@ import junit.framework.TestCase;
  */
 public class DisjunctionExclusionStrategyTest extends TestCase {
 
-  private static final ExclusionStrategy2 FALSE_STRATEGY = 
-      new MockExclusionStrategy2(false, false, null);
-  private static final ExclusionStrategy2 TRUE_STRATEGY = 
-      new MockExclusionStrategy2(true, true, null);
+  private static final ExclusionStrategy FALSE_STRATEGY = 
+      new MockExclusionStrategy(false, false);
+  private static final ExclusionStrategy TRUE_STRATEGY = 
+      new MockExclusionStrategy(true, true);
   
   private static final Class<?> CLAZZ = String.class;
   private static final FieldAttributes FIELD = new FieldAttributes(CLAZZ, CLAZZ.getFields()[0]);
 
   public void testBadInstantiation() throws Exception {
     try {
-      List<ExclusionStrategy2> constructorParam = null;
+      List<ExclusionStrategy> constructorParam = null;
       new DisjunctionExclusionStrategy(constructorParam);
       fail("Should throw an exception");
     } catch (IllegalArgumentException expected) { }
   }
 
   public void testSkipFieldsWithMixedTrueAndFalse() throws Exception {
-    List<ExclusionStrategy2> strategies = new LinkedList<ExclusionStrategy2>();
+    List<ExclusionStrategy> strategies = new LinkedList<ExclusionStrategy>();
     strategies.add(FALSE_STRATEGY);
     strategies.add(TRUE_STRATEGY);
     DisjunctionExclusionStrategy strategy = new DisjunctionExclusionStrategy(strategies);
 
-    assertTrue(strategy.shouldSkipClass(CLAZZ, Mode.SERIALIZE));
-    assertTrue(strategy.shouldSkipField(FIELD, Mode.SERIALIZE));
+    assertTrue(strategy.shouldSkipClass(CLAZZ));
+    assertTrue(strategy.shouldSkipField(FIELD));
   }
 
   public void testSkipFieldsWithFalseOnly() throws Exception {
-    List<ExclusionStrategy2> strategies = new LinkedList<ExclusionStrategy2>();
+    List<ExclusionStrategy> strategies = new LinkedList<ExclusionStrategy>();
     strategies.add(FALSE_STRATEGY);
     DisjunctionExclusionStrategy strategy =  new DisjunctionExclusionStrategy(strategies);
 
-    assertFalse(strategy.shouldSkipClass(CLAZZ, Mode.SERIALIZE));
-    assertFalse(strategy.shouldSkipField(FIELD, Mode.SERIALIZE));
+    assertFalse(strategy.shouldSkipClass(CLAZZ));
+    assertFalse(strategy.shouldSkipField(FIELD));
   }
 }

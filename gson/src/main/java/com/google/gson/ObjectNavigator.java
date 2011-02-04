@@ -75,11 +75,9 @@ final class ObjectNavigator {
      * Retrieve the current target
      */
     Object getTarget();
-    
-    Mode getMode();
   }
 
-  private final ExclusionStrategy2 exclusionStrategy;
+  private final ExclusionStrategy exclusionStrategy;
   private final ObjectTypePair objTypePair;
 
   /**
@@ -89,7 +87,7 @@ final class ObjectNavigator {
    *          the concrete strategy object to be used to filter out fields of an
    *          object.
    */
-  ObjectNavigator(ObjectTypePair objTypePair, ExclusionStrategy2 exclusionStrategy) {
+  ObjectNavigator(ObjectTypePair objTypePair, ExclusionStrategy exclusionStrategy) {
     Preconditions.checkNotNull(exclusionStrategy);
 
     this.objTypePair = objTypePair;
@@ -101,7 +99,7 @@ final class ObjectNavigator {
    * does not get visited.
    */
   public void accept(Visitor visitor) {
-    if (exclusionStrategy.shouldSkipClass(Types.getRawType(objTypePair.type), visitor.getMode())) {
+    if (exclusionStrategy.shouldSkipClass(Types.getRawType(objTypePair.type))) {
       return;
     }
     boolean visitedWithCustomHandler = visitor.visitUsingCustomHandler(objTypePair);
@@ -145,13 +143,12 @@ final class ObjectNavigator {
   }
 
   private void navigateClassFields(Object obj, Class<?> clazz, Visitor visitor) {
-    Mode mode = visitor.getMode();
     Field[] fields = clazz.getDeclaredFields();
     AccessibleObject.setAccessible(fields, true);
     for (Field f : fields) {
       FieldAttributes fieldAttributes = new FieldAttributes(clazz, f);
-      if (exclusionStrategy.shouldSkipField(fieldAttributes, mode)
-          || exclusionStrategy.shouldSkipClass(fieldAttributes.getDeclaredClass(), mode)) {
+      if (exclusionStrategy.shouldSkipField(fieldAttributes)
+          || exclusionStrategy.shouldSkipClass(fieldAttributes.getDeclaredClass())) {
         continue; // skip
       }
       Type declaredTypeOfField = getTypeInfoForField(f, objTypePair.type);

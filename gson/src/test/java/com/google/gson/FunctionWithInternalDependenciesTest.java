@@ -35,11 +35,11 @@ import com.google.gson.common.TestTypes.ClassWithNoFields;
 public class FunctionWithInternalDependenciesTest extends TestCase {
 
   public void testAnonymousLocalClassesSerialization() throws Exception {
-    LinkedList<ExclusionStrategy2> strategies = new LinkedList<ExclusionStrategy2>();
+    LinkedList<ExclusionStrategy> strategies = new LinkedList<ExclusionStrategy>();
     strategies.add(new SyntheticFieldExclusionStrategy(true));
     strategies.add(new ModifierBasedExclusionStrategy(Modifier.TRANSIENT, Modifier.STATIC));
-    ExclusionStrategy2 exclusionStrategy = new DisjunctionExclusionStrategy(strategies);
-    Gson gson = new Gson(exclusionStrategy, Gson.DEFAULT_NAMING_POLICY,
+    ExclusionStrategy exclusionStrategy = new DisjunctionExclusionStrategy(strategies);
+    Gson gson = new Gson(exclusionStrategy, exclusionStrategy, Gson.DEFAULT_NAMING_POLICY,
         new MappedObjectConstructor(DefaultTypeAdapters.getDefaultInstanceCreators()),
         false, DefaultTypeAdapters.getDefaultSerializers(),
         DefaultTypeAdapters.getDefaultDeserializers(), Gson.DEFAULT_JSON_NON_EXECUTABLE, true,
@@ -47,33 +47,5 @@ public class FunctionWithInternalDependenciesTest extends TestCase {
     assertEquals("{}", gson.toJson(new ClassWithNoFields() {
       // empty anonymous class
     }));
-  }
-
-  // TODO(Joel): Move this to some other functional test once exclusion policies are
-  // available to the public
-  public void testUserDefinedExclusionPolicies() throws Exception {
-    Gson gson = new GsonBuilder()
-        .setExclusionStrategies(new UserDefinedExclusionStrategy(String.class))
-        .create();
-
-    String json = gson.toJson(new TestTypes.StringWrapper("someValue"));
-    assertEquals("{}", json);
-  }
-
-  private static class UserDefinedExclusionStrategy implements ExclusionStrategy2 {
-    private final Class<?> excludedThisClass;
-
-    UserDefinedExclusionStrategy(Class<?> excludedThisClass) {
-      this.excludedThisClass = excludedThisClass;
-    }
-
-    public boolean shouldSkipClass(Class<?> clazz, Mode mode) {
-      return excludedThisClass.equals(clazz);
-    }
-
-    public boolean shouldSkipField(FieldAttributes f, Mode mode) {
-      return excludedThisClass.equals(f.getDeclaredClass());
-    }
-
   }
 }

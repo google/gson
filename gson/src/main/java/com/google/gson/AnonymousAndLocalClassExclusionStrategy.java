@@ -21,13 +21,13 @@ package com.google.gson;
  *
  * @author Joel Leitch
  */
-final class AnonymousAndLocalClassExclusionStrategy implements ExclusionStrategy2 {
+final class AnonymousAndLocalClassExclusionStrategy implements ExclusionStrategy {
 
-  public boolean shouldSkipField(FieldAttributes f, Mode mode) {
+  public boolean shouldSkipField(FieldAttributes f) {
     return isAnonymousOrLocal(f.getDeclaredClass());
   }
 
-  public boolean shouldSkipClass(Class<?> clazz, Mode mode) {
+  public boolean shouldSkipClass(Class<?> clazz) {
     return isAnonymousOrLocal(clazz);
   }
 
