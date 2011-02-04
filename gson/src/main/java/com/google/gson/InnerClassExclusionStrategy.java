@@ -23,13 +23,13 @@ import java.lang.reflect.Modifier;
  *
  * @author Joel Leitch
  */
-class InnerClassExclusionStrategy implements ExclusionStrategy2 {
+class InnerClassExclusionStrategy implements ExclusionStrategy {
 
-  public boolean shouldSkipField(FieldAttributes f, Mode mode) {
+  public boolean shouldSkipField(FieldAttributes f) {
     return isInnerClass(f.getDeclaredClass());
   }
 
-  public boolean shouldSkipClass(Class<?> clazz, Mode mode) {
+  public boolean shouldSkipClass(Class<?> clazz) {
     return isInnerClass(clazz);
   }
 

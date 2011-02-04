@@ -41,39 +41,30 @@ public class VersionExclusionStrategyTest extends TestCase {
     Class<MockObject> clazz = MockObject.class;
     Field f = clazz.getField("someField");
     VersionExclusionStrategy strategy = new VersionExclusionStrategy(VERSION);
-
-    assertFalse(strategy.shouldSkipClass(clazz, Mode.DESERIALIZE));
-    assertFalse(strategy.shouldSkipClass(clazz, Mode.SERIALIZE));
+    assertFalse(strategy.shouldSkipClass(clazz));
 
     FieldAttributes fieldAttributes = new FieldAttributes(clazz, f);
-    assertFalse(strategy.shouldSkipField(fieldAttributes, Mode.DESERIALIZE));
-    assertFalse(strategy.shouldSkipField(fieldAttributes, Mode.SERIALIZE));
+    assertFalse(strategy.shouldSkipField(fieldAttributes));
   }
 
   public void testClassAndFieldAreBehindInVersion() throws Exception {
     Class<MockObject> clazz = MockObject.class;
     Field f = clazz.getField("someField");
     VersionExclusionStrategy strategy = new VersionExclusionStrategy(VERSION + 1);
-
-    assertFalse(strategy.shouldSkipClass(clazz, Mode.DESERIALIZE));
-    assertFalse(strategy.shouldSkipClass(clazz, Mode.SERIALIZE));
+    assertFalse(strategy.shouldSkipClass(clazz));
     
     FieldAttributes fieldAttributes = new FieldAttributes(clazz, f);
-    assertFalse(strategy.shouldSkipField(fieldAttributes, Mode.DESERIALIZE));
-    assertFalse(strategy.shouldSkipField(fieldAttributes, Mode.SERIALIZE));
+    assertFalse(strategy.shouldSkipField(fieldAttributes));
   }
 
   public void testClassAndFieldAreAheadInVersion() throws Exception {
     Class<MockObject> clazz = MockObject.class;
     Field f = clazz.getField("someField");
     VersionExclusionStrategy strategy = new VersionExclusionStrategy(VERSION - 1);
-
-    assertTrue(strategy.shouldSkipClass(clazz, Mode.DESERIALIZE));
-    assertTrue(strategy.shouldSkipClass(clazz, Mode.SERIALIZE));
+    assertTrue(strategy.shouldSkipClass(clazz));
     
     FieldAttributes fieldAttributes = new FieldAttributes(clazz, f);
-    assertTrue(strategy.shouldSkipField(fieldAttributes, Mode.DESERIALIZE));
-    assertTrue(strategy.shouldSkipField(fieldAttributes, Mode.SERIALIZE));
+    assertTrue(strategy.shouldSkipField(fieldAttributes));
   }
 
   @Since(VERSION)

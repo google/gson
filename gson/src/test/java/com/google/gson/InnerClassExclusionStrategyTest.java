@@ -16,9 +16,9 @@
 
 package com.google.gson;
 
-import java.lang.reflect.Field;
-
 import junit.framework.TestCase;
+
+import java.lang.reflect.Field;
 
 /**
  * Unit test for the {@link InnerClassExclusionStrategy} class.
@@ -41,26 +41,22 @@ public class InnerClassExclusionStrategyTest extends TestCase {
 
   public void testExcludeInnerClassObject() throws Exception {
     Class<?> clazz = innerClass.getClass();
-    assertTrue(strategy.shouldSkipClass(clazz, Mode.SERIALIZE));
-    assertTrue(strategy.shouldSkipClass(clazz, Mode.DESERIALIZE));
+    assertTrue(strategy.shouldSkipClass(clazz));
   }
 
   public void testExcludeInnerClassField() throws Exception {
     Field f = getClass().getField("innerClass");
-    assertTrue(strategy.shouldSkipField(new FieldAttributes(getClass(), f), Mode.SERIALIZE));
-    assertTrue(strategy.shouldSkipField(new FieldAttributes(getClass(), f), Mode.DESERIALIZE));
+    assertTrue(strategy.shouldSkipField(new FieldAttributes(getClass(), f)));
   }
 
   public void testIncludeStaticNestedClassObject() throws Exception {
     Class<?> clazz = staticNestedClass.getClass();
-    assertFalse(strategy.shouldSkipClass(clazz, Mode.SERIALIZE));
-    assertFalse(strategy.shouldSkipClass(clazz, Mode.DESERIALIZE));
+    assertFalse(strategy.shouldSkipClass(clazz));
   }
 
   public void testIncludeStaticNestedClassField() throws Exception {
     Field f = getClass().getField("staticNestedClass");
-    assertFalse(strategy.shouldSkipField(new FieldAttributes(getClass(), f), Mode.SERIALIZE));
-    assertFalse(strategy.shouldSkipField(new FieldAttributes(getClass(), f), Mode.DESERIALIZE));
+    assertFalse(strategy.shouldSkipField(new FieldAttributes(getClass(), f)));
   }
 
   class InnerClass {

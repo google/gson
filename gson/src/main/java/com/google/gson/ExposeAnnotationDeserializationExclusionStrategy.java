@@ -23,23 +23,16 @@ import com.google.gson.annotations.Expose;
  *
  * @author Joel Leitch
  */
-public class ExposeAnnotationExclusionStrategy implements ExclusionStrategy2 {
-  public boolean shouldSkipClass(Class<?> clazz, Mode mode) {
+public class ExposeAnnotationDeserializationExclusionStrategy implements ExclusionStrategy {
+  public boolean shouldSkipClass(Class<?> clazz) {
     return false;
   }
 
-  public boolean shouldSkipField(FieldAttributes f, Mode mode) {
+  public boolean shouldSkipField(FieldAttributes f) {
     Expose annotation = f.getAnnotation(Expose.class);
     if (annotation == null) {
       return true;
     }
-    
-    if (mode == Mode.SERIALIZE) {
-      return !annotation.serialize();
-    } else if (mode == Mode.DESERIALIZE) {
-      return !annotation.deserialize();
-    }
-
-    return false;
+    return !annotation.deserialize();
   }
 }
