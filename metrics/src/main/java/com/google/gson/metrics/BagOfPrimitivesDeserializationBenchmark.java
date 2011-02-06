@@ -17,12 +17,11 @@ package com.google.gson.metrics;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.lang.reflect.Field;
 
-import com.google.caliper.Param;
 import com.google.caliper.Runner;
 import com.google.caliper.SimpleBenchmark;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 
 /**
@@ -32,38 +31,35 @@ import com.google.gson.stream.JsonReader;
  * @author Jesse Wilson
  * @author Joel Leitch
  */
-public class GsonBenchmark extends SimpleBenchmark {
+public class BagOfPrimitivesDeserializationBenchmark extends SimpleBenchmark {
 
   private Gson gson;
-  private BagOfPrimitives bag;
   private String json;
-  @Param
-  private boolean pretty;
 
   public static void main(String[] args) {
-    Runner.main(GsonBenchmark.class, args);
+    Runner.main(BagOfPrimitivesDeserializationBenchmark.class, args);
   }
   
   @Override
   protected void setUp() throws Exception {
-    this.gson = pretty ? new GsonBuilder().setPrettyPrinting().create() : new Gson();
-    this.bag = new BagOfPrimitives(10L, 1, false, "foo");
+    this.gson = new Gson();
+    BagOfPrimitives bag = new BagOfPrimitives(10L, 1, false, "foo");
     this.json = gson.toJson(bag);
   }
 
-  public void timeObjectSerialization(int reps) {
-    for (int i=0; i<reps; ++i) {
-      gson.toJson(bag);
-    }
-  }
-
-  public void timeObjectDeserialization(int reps) {
+  /** 
+   * Benchmark to measure Gson performance for deserializing an object
+   */
+  public void timeBagOfPrimitivesDefault(int reps) {
     for (int i=0; i<reps; ++i) {
       gson.fromJson(json, BagOfPrimitives.class);
     }
   }
 
-  public void timeStreamingParserDeserialization(int reps) throws IOException {
+  /**
+   * Benchmark to measure deserializing objects by hand
+   */
+  public void timeBagOfPrimitivesStreaming(int reps) throws IOException {
     for (int i=0; i<reps; ++i) {
       StringReader reader = new StringReader(json);
       JsonReader jr = new JsonReader(reader);
@@ -88,6 +84,40 @@ public class GsonBenchmark extends SimpleBenchmark {
       }
       jr.endObject();
       new BagOfPrimitives(longValue, intValue, booleanValue, stringValue);
+    }
+  }
+
+  /**
+   * This benchmark measures the ideal Gson performance: the cost of parsing a JSON stream and
+   * setting object values by reflection. We should strive to reduce the discrepancy between this
+   * and {@link #timeBagOfPrimitivesDefault(int)} .
+   */
+  public void timeBagOfPrimitivesReflectionStreaming(int reps) throws Exception {
+    for (int i=0; i<reps; ++i) {
+      StringReader reader = new StringReader(json);
+      JsonReader jr = new JsonReader(reader);
+      jr.beginObject();
+      BagOfPrimitives bag = new BagOfPrimitives();
+      while(jr.hasNext()) {
+        String name = jr.nextName();
+        for (Field field : BagOfPrimitives.class.getDeclaredFields()) {
+          if (field.getName().equals(name)) {
+            Class<?> fieldType = field.getType();
+            if (fieldType.equals(long.class)) {
+              field.setLong(bag, jr.nextLong());
+            } else if (fieldType.equals(int.class)) {
+              field.setInt(bag, jr.nextInt());
+            } else if (fieldType.equals(boolean.class)) {
+              field.setBoolean(bag, jr.nextBoolean());
+            } else if (fieldType.equals(String.class)) {
+              field.set(bag, jr.nextString());
+            } else {
+              throw new RuntimeException("Unexpected: type: " + fieldType + ", name: " + name);
+            }
+          }
+        }
+      }
+      jr.endObject();
     }
   }
 }
