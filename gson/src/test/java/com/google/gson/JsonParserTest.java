@@ -18,12 +18,10 @@ package com.google.gson;
 
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.stream.JsonReader;
-
-import junit.framework.TestCase;
-
 import java.io.CharArrayReader;
 import java.io.CharArrayWriter;
 import java.io.StringReader;
+import junit.framework.TestCase;
 
 /**
  * Unit test for {@link JsonParser}
@@ -40,10 +38,11 @@ public class JsonParserTest extends TestCase {
   }
 
   public void testParseUnquotedStringArrayFails() {
-    try {
-      parser.parse("[a,b,c]");
-      fail();
-    } catch (JsonSyntaxException expected) {}
+    JsonElement element = parser.parse("[a,b,c]");
+    assertEquals("a", element.getAsJsonArray().get(0).getAsString());
+    assertEquals("b", element.getAsJsonArray().get(1).getAsString());
+    assertEquals("c", element.getAsJsonArray().get(2).getAsString());
+    assertEquals(3, element.getAsJsonArray().size());
   }
 
   public void testParseString() {
@@ -66,10 +65,7 @@ public class JsonParserTest extends TestCase {
   }
 
   public void testParseUnquotedSingleWordStringFails() {
-    try {
-      parser.parse("Test");
-      fail();
-    } catch (JsonSyntaxException expected) { }
+    assertEquals("Test", parser.parse("Test").getAsString());
   }
 
   public void testParseUnquotedMultiWordStringFails() {

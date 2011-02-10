@@ -1097,7 +1097,8 @@ public final class JsonReader implements Closeable {
         token = JsonToken.NUMBER;
       } catch (NumberFormatException ignored) {
         // this must be an unquoted string
-        throw syntaxError("invalid number or unquoted string");
+        checkLenient();
+        token = JsonToken.STRING;
       }
     }
   }
