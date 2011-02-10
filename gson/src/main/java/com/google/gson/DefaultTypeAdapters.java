@@ -44,6 +44,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.StringTokenizer;
+import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.UUID;
 
@@ -287,29 +288,40 @@ final class DefaultTypeAdapters {
   }
 
   static class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
-    private final DateFormat format;
+    private final DateFormat enUsFormat;
+    private final DateFormat localFormat;
+    private final DateFormat iso8601Format;
 
     DefaultDateTypeAdapter() {
-      this.format = DateFormat.getDateTimeInstance();
+      this(DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.US),
+          DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT));
     }
 
-    DefaultDateTypeAdapter(final String datePattern) {
-      this.format = new SimpleDateFormat(datePattern);
+    DefaultDateTypeAdapter(String datePattern) {
+      this(new SimpleDateFormat(datePattern, Locale.US), new SimpleDateFormat(datePattern));
     }
 
-    DefaultDateTypeAdapter(final int style) {
-      this.format = DateFormat.getDateInstance(style);
+    DefaultDateTypeAdapter(int style) {
+      this(DateFormat.getDateInstance(style, Locale.US), DateFormat.getDateInstance(style));
     }
 
-    public DefaultDateTypeAdapter(final int dateStyle, final int timeStyle) {
-      this.format = DateFormat.getDateTimeInstance(dateStyle, timeStyle);
+    public DefaultDateTypeAdapter(int dateStyle, int timeStyle) {
+      this(DateFormat.getDateTimeInstance(dateStyle, timeStyle, Locale.US),
+          DateFormat.getDateTimeInstance(dateStyle, timeStyle));
+    }
+
+    public DefaultDateTypeAdapter(DateFormat enUsFormat, DateFormat localFormat) {
+      this.enUsFormat = enUsFormat;
+      this.localFormat = localFormat;
+      this.iso8601Format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
+      this.iso8601Format.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
     // These methods need to be synchronized since JDK DateFormat classes are not thread-safe
     // See issue 162
     public JsonElement serialize(Date src, Type typeOfSrc, JsonSerializationContext context) {
-      synchronized (format) {
-        String dateFormatAsString = format.format(src);
+      synchronized (localFormat) {
+        String dateFormatAsString = enUsFormat.format(src);
         return new JsonPrimitive(dateFormatAsString);
       }
     }
@@ -319,12 +331,20 @@ final class DefaultTypeAdapters {
       if (!(json instanceof JsonPrimitive)) {
         throw new JsonParseException("The date should be a string value");
       }
-      try {
-        synchronized (format) {
-          return format.parse(json.getAsString());
+      synchronized (localFormat) {
+        try {
+          return localFormat.parse(json.getAsString());
+        } catch (ParseException ignored) {
         }
-      } catch (ParseException e) {
-        throw new JsonSyntaxException(e);
+        try {
+          return enUsFormat.parse(json.getAsString());
+        } catch (ParseException ignored) {
+        }
+        try {
+          return iso8601Format.parse(json.getAsString());
+        } catch (ParseException e) {
+          throw new JsonSyntaxException(json.getAsString(), e);
+        }
       }
     }
 
@@ -332,7 +352,7 @@ final class DefaultTypeAdapters {
     public String toString() {
       StringBuilder sb = new StringBuilder();
       sb.append(DefaultDateTypeAdapter.class.getSimpleName());
-      sb.append('(').append(format.getClass().getSimpleName()).append(')');
+      sb.append('(').append(localFormat.getClass().getSimpleName()).append(')');
       return sb.toString();
     }
   }
@@ -454,7 +474,7 @@ final class DefaultTypeAdapters {
         throw new JsonParseException(e);
       }
     }
-    
+
     public JsonElement serialize(InetAddress src, Type typeOfSrc,
         JsonSerializationContext context) {
       return new JsonPrimitive(src.getHostAddress());
