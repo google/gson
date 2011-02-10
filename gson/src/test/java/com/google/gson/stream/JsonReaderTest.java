@@ -16,10 +16,9 @@
 
 package com.google.gson.stream;
 
-import junit.framework.TestCase;
-
 import java.io.IOException;
 import java.io.StringReader;
+import junit.framework.TestCase;
 
 public final class JsonReaderTest extends TestCase {
 
@@ -565,10 +564,7 @@ public final class JsonReaderTest extends TestCase {
     JsonReader reader = new JsonReader(new StringReader("[a]"));
     reader.setLenient(true);
     reader.beginArray();
-    try {
-      reader.nextString();
-      fail();
-    } catch (MalformedJsonException expected) { }
+    assertEquals("a", reader.nextString());
   }
 
   public void testStrictSingleQuotedStrings() throws IOException {
@@ -761,7 +757,8 @@ public final class JsonReaderTest extends TestCase {
     JsonReader reader = new JsonReader(new StringReader(")]}' []"));
     reader.setLenient(true);
     try {
-      reader.beginArray();
+      assertEquals(")", reader.nextString());
+      reader.nextString();
       fail();
     } catch (IOException expected) {
     }
