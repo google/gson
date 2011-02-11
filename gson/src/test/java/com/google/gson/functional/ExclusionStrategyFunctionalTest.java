@@ -107,7 +107,6 @@ public class ExclusionStrategyFunctionalTest extends TestCase {
     // Field tag only annotation
   }
 
-  @SuppressWarnings("unused")
   private static class SampleObjectForTest {
     @Foo
     private final int annotatedField;
