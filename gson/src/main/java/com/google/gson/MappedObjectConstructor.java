@@ -16,11 +16,15 @@
 
 package com.google.gson;
 
-import java.lang.reflect.AccessibleObject;
+import sun.misc.Unsafe;
+
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -36,6 +40,20 @@ import java.util.logging.Logger;
  */
 final class MappedObjectConstructor implements ObjectConstructor {
   private static final Logger log = Logger.getLogger(MappedObjectConstructor.class.getName());
+  private static final Unsafe THE_UNSAFE =  AccessController.doPrivileged(
+      new PrivilegedAction<Unsafe>() {
+        public Unsafe run() {
+          try {
+            Field f = Unsafe.class.getDeclaredField("theUnsafe");
+            f.setAccessible(true);
+            return (Unsafe) f.get(null);
+          } catch (NoSuchFieldException e) {
+            throw new Error();
+          } catch (IllegalAccessException e) {
+            throw new Error();
+          }
+        }
+      });
 
   private final ParameterizedTypeHandlerMap<InstanceCreator<?>> instanceCreatorMap;
   
@@ -57,12 +75,13 @@ final class MappedObjectConstructor implements ObjectConstructor {
     return Array.newInstance(Types.getRawType(type), length);
   }
 
+  @SuppressWarnings({"unchecked", "cast"})
   private <T> T constructWithNoArgConstructor(Type typeOfT) {
     try {
-      Constructor<T> constructor = getNoArgsConstructor(typeOfT);
+      Class<T> clazz = (Class<T>) Types.getRawType(typeOfT);
+      Constructor<T> constructor = getNoArgsConstructor(clazz);
       if (constructor == null) {
-        throw new RuntimeException(("No-args constructor for " + typeOfT + " does not exist. "
-            + "Register an InstanceCreator with Gson for this type to fix this problem."));
+        return (T) THE_UNSAFE.allocateInstance(clazz);
       }
       return constructor.newInstance();
     } catch (InstantiationException e) {
@@ -77,17 +96,14 @@ final class MappedObjectConstructor implements ObjectConstructor {
     }
   }
 
-  @SuppressWarnings({"unchecked", "cast"})
-  private <T> Constructor<T> getNoArgsConstructor(Type typeOfT) {
-    Class<?> clazz = Types.getRawType(typeOfT);
-    Constructor<T>[] declaredConstructors = (Constructor<T>[]) clazz.getDeclaredConstructors();
-    AccessibleObject.setAccessible(declaredConstructors, true);
-    for (Constructor<T> constructor : declaredConstructors) {
-      if (constructor.getParameterTypes().length == 0) {
-        return constructor;
-      }
+  private <T> Constructor<T> getNoArgsConstructor(Class<T> clazz) {
+    try {
+      Constructor<T> declaredConstructor = clazz.getDeclaredConstructor();
+      declaredConstructor.setAccessible(true);
+      return declaredConstructor;
+    } catch (Exception e) {
+      return null;
     }
-    return null;
   }
 
   /**
