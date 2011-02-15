@@ -189,6 +189,17 @@ public final class JsonObject extends JsonElement {
   }
 
   @Override
+  public boolean equals(Object o) {
+    return o instanceof JsonObject
+        && ((JsonObject) o).members.equals(members);
+  }
+
+  @Override
+  public int hashCode() {
+    return members.hashCode();
+  }
+
+  @Override
   protected void toString(Appendable sb, Escaper escaper) throws IOException {
     sb.append('{');
     boolean first = true;

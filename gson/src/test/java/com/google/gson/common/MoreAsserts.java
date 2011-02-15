@@ -61,4 +61,12 @@ public class MoreAsserts {
     }
     Assert.fail(value + " not present in " + collection);
   }
+
+  public static void assertEqualsAndHashCode(Object a, Object b) {
+    Assert.assertTrue(a.equals(b));
+    Assert.assertTrue(b.equals(a));
+    Assert.assertEquals(a.hashCode(), b.hashCode());
+    Assert.assertFalse(a.equals(null));
+    Assert.assertFalse(a.equals(new Object()));
+  }
 }

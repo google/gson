@@ -16,32 +16,32 @@
 
 package com.google.gson;
 
+import com.google.gson.common.MoreAsserts;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-
 import junit.framework.TestCase;
 
 /**
  * Unit test for the {@link JsonPrimitive} class.
- * 
+ *
  * @author Joel Leitch
  */
 public class JsonPrimitiveTest extends TestCase {
 
   public void testBoolean() throws Exception {
     JsonPrimitive json = new JsonPrimitive(Boolean.TRUE);
-    
+
     assertTrue(json.isBoolean());
     assertTrue(json.getAsBoolean());
   }
-  
+
   public void testParsingStringAsBoolean() throws Exception {
     JsonPrimitive json = new JsonPrimitive("true");
-    
+
     assertFalse(json.isBoolean());
     assertTrue(json.getAsBoolean());
   }
-  
+
   public void testParsingStringAsNumber() throws Exception {
     JsonPrimitive json = new JsonPrimitive("1");
 
@@ -55,32 +55,32 @@ public class JsonPrimitiveTest extends TestCase {
     assertEquals(new BigInteger("1"), json.getAsBigInteger());
     assertEquals(new BigDecimal("1"), json.getAsBigDecimal());
   }
-  
+
   public void testStringsAndChar() throws Exception {
     JsonPrimitive json = new JsonPrimitive("abc");
     assertTrue(json.isString());
     assertEquals('a', json.getAsCharacter());
     assertEquals("abc", json.getAsString());
-    
+
     json = new JsonPrimitive('z');
     assertTrue(json.isString());
     assertEquals('z', json.getAsCharacter());
     assertEquals("z", json.getAsString());
   }
-  
+
   public void testExponential() throws Exception {
     JsonPrimitive json = new JsonPrimitive("1E+7");
 
     assertEquals(new BigDecimal("1E+7"), json.getAsBigDecimal());
     assertEquals(new Double("1E+7"), json.getAsDouble(), 0.00001);
     assertEquals(new Float("1E+7"), json.getAsDouble(), 0.00001);
-    
+
     try {
       json.getAsInt();
       fail("Integers can not handle exponents like this.");
     } catch (NumberFormatException expected) { }
   }
-  
+
   public void testByteEqualsShort() {
     JsonPrimitive p1 = new JsonPrimitive(new Byte((byte)10));
     JsonPrimitive p2 = new JsonPrimitive(new Short((short)10));
@@ -171,12 +171,37 @@ public class JsonPrimitiveTest extends TestCase {
     assertEquals(p1, p2);
     assertEquals(p1.hashCode(), p2.hashCode());
   }
-  
+
   public void testValidJsonOnToString() throws Exception {
     JsonPrimitive json = new JsonPrimitive("Some\nEscaped\nValue");
     assertEquals("\"Some\\nEscaped\\nValue\"", json.toString());
-    
+
     json = new JsonPrimitive(new BigDecimal("1.333"));
     assertEquals("1.333", json.toString());
+  }
+
+  public void testEquals() {
+    MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive("A"), new JsonPrimitive("A"));
+    MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive(true), new JsonPrimitive(true));
+    MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive(5L), new JsonPrimitive(5L));
+    MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive('a'), new JsonPrimitive('a'));
+    MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive(Float.NaN), new JsonPrimitive(Float.NaN));
+    assertFalse(new JsonPrimitive("a").equals(new JsonPrimitive("b")));
+    assertFalse(new JsonPrimitive(true).equals(new JsonPrimitive(false)));
+    assertFalse(new JsonPrimitive(0).equals(new JsonPrimitive(1)));
+  }
+
+  public void testEqualsAcrossTypes() {
+    MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive("a"), new JsonPrimitive('a'));
+    MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive(new BigInteger("0")), new JsonPrimitive(0));
+    MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive(0), new JsonPrimitive(0L));
+    MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive(new BigInteger("0")), new JsonPrimitive(0));
+    MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive(Float.NaN), new JsonPrimitive(Double.NaN));
+  }
+
+  public void testEqualsDoesNotEquateStringAndNonStringTypes() {
+    assertFalse(new JsonPrimitive("true").equals(new JsonPrimitive(true)));
+    assertFalse(new JsonPrimitive("0").equals(new JsonPrimitive(0)));
+    assertFalse(new JsonPrimitive("NaN").equals(new JsonPrimitive(Float.NaN)));
   }
 }

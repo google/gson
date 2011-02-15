@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import com.google.gson.common.MoreAsserts;
 import junit.framework.TestCase;
 
 /**
@@ -127,6 +128,29 @@ public class JsonObjectTest extends TestCase {
   public void testReadPropertyWithEmptyStringName() {
     JsonObject jsonObj = new JsonParser().parse("{\"\":true}").getAsJsonObject();
     assertEquals(true, jsonObj.get("").getAsBoolean());
+  }
 
+  public void testEqualsOnEmptyObject() {
+    MoreAsserts.assertEqualsAndHashCode(new JsonObject(), new JsonObject());
+  }
+
+  public void testEqualsNonEmptyObject() {
+    JsonObject a = new JsonObject();
+    JsonObject b = new JsonObject();
+
+    a.add("foo", new JsonObject());
+    assertFalse(a.equals(b));
+    assertFalse(b.equals(a));
+
+    b.add("foo", new JsonObject());
+    MoreAsserts.assertEqualsAndHashCode(a, b);
+
+    a.add("bar", new JsonObject());
+    assertFalse(a.equals(b));
+    assertFalse(b.equals(a));
+
+    b.add("bar", new JsonNull());
+    assertFalse(a.equals(b));
+    assertFalse(b.equals(a));
   }
 }
