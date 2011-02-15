@@ -296,6 +296,16 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   }
 
   @Override
+  public boolean equals(Object o) {
+    return o instanceof JsonArray && ((JsonArray) o).elements.equals(elements);
+  }
+
+  @Override
+  public int hashCode() {
+    return elements.hashCode();
+  }
+
+  @Override
   protected void toString(Appendable sb, Escaper escaper) throws IOException {
     sb.append('[');
     boolean first = true;

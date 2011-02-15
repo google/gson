@@ -356,7 +356,9 @@ public final class JsonPrimitive extends JsonElement {
       return getAsNumber().longValue() == other.getAsNumber().longValue();
     }
     if (isFloatingPoint(this) && isFloatingPoint(other)) {
-      return getAsNumber().doubleValue() == other.getAsNumber().doubleValue();
+      double a = getAsNumber().doubleValue();
+      double b = other.getAsNumber().doubleValue();
+      return a == b || (Double.isNaN(a) && Double.isNaN(b));
     }
     return value.equals(other.value);
   }
