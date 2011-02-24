@@ -37,6 +37,7 @@ public class FieldNamingStrategy2AdapterTest extends TestCase {
         new FieldAttributes(String.class, field)));
   }
   
+  @SuppressWarnings("deprecation")
   private static class UpperCaseNamingStrategy implements FieldNamingStrategy {
     public String translateName(Field f) {
       return f.getName().toUpperCase();

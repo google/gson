@@ -32,7 +32,7 @@ import java.util.Map;
  */
 public class DefaultMapJsonSerializerTest extends TestCase {
 
-  @SuppressWarnings("rawtypes")
+  @SuppressWarnings("unchecked")
   private JsonSerializer<Map> mapSerializer;
 
   @Override

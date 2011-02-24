@@ -273,7 +273,7 @@ public final class GsonBuilder {
    * depending on the {@code mode} that is passed into this method.
    *
    * @param strategies the set of strategy object to apply during the {@code mode}.
-   * @param the mode of Gson (either serialization or deserialization) as to when the
+   * @param mode the mode of Gson (either serialization or deserialization) as to when the
    *   {@code strategies} should be applied.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.7

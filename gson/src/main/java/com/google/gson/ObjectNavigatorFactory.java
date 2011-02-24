@@ -18,7 +18,7 @@ package com.google.gson;
 
 /**
  * A factory class used to simplify {@link ObjectNavigator} creation.
- * This object holds on to a reference of the {@link ExclusionStrategy2}
+ * This object holds on to a reference of the {@link ExclusionStrategy}
  * that you'd like to use with the {@link ObjectNavigator}.
  *
  * @author Joel Leitch

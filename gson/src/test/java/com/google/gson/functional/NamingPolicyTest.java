@@ -33,6 +33,7 @@ import junit.framework.TestCase;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
+@SuppressWarnings("deprecation")
 public class NamingPolicyTest extends TestCase {
 
   private GsonBuilder builder;
