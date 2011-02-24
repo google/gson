@@ -16,11 +16,9 @@
 
 package com.google.gson;
 
-import com.google.gson.common.TestTypes.CrazyLongTypeAdapter;
+import java.lang.reflect.Type;
 
 import junit.framework.TestCase;
-
-import java.lang.reflect.Type;
 
 /**
  * Unit tests for the {@link MappedObjectConstructor} class.
@@ -82,6 +80,7 @@ public class MappedObjectConstructorTest extends TestCase {
   }
   
   private static class ObjectNoDefaultConstructor extends ObjectWithDefaultConstructor {
+    @SuppressWarnings("unused")
     public ObjectNoDefaultConstructor(String stringValue, int intValue) {
       super(stringValue, intValue);
     }

@@ -21,7 +21,6 @@ import java.util.LinkedList;
 
 import junit.framework.TestCase;
 
-import com.google.gson.common.TestTypes;
 import com.google.gson.common.TestTypes.ClassWithNoFields;
 
 /**
