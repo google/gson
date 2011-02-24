@@ -14,6 +14,9 @@
   </parent>
   <url>http://code.google.com/p/google-gson/</url>
   <description>Performance Metrics for Google Gson library</description>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
   <licenses>
     <license>
       <name>The Apache Software License, Version 2.0</name>
@@ -84,6 +87,39 @@
         <configuration>
           <arguments>-DenableCiProfile=true</arguments>
           <tagBase>https://google-gson.googlecode.com/svn/tags/</tagBase>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>2.1.2</version>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.7</version>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <links>
+            <link>http://download.oracle.com/javase/1.5.0/docs/api/</link>
+          </links>
+          <version>true</version>
+          <show>public</show>
         </configuration>
       </plugin>
     </plugins>
