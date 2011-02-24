@@ -33,7 +33,7 @@ import java.lang.annotation.Target;
 
 /**
  * Performs some functional tests when Gson is instantiated with some common user defined
- * {@link ExclusionStrategy} and {@link ExclusionStrategy2} objects.
+ * {@link ExclusionStrategy} objects.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch

@@ -17,12 +17,13 @@
 package com.google.gson;
 
 /**
- * Adapts the old "deprecated" {@link FieldNamingStrategy} to the new {@link FieldNamingStrategy2}
+ * Adapts the old "deprecated" FieldNamingStrategy to the new {@link FieldNamingStrategy2}
  * type. 
  * 
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
+@SuppressWarnings("deprecation")
 final class FieldNamingStrategy2Adapter implements FieldNamingStrategy2 {
   private final FieldNamingStrategy adaptee;
 
