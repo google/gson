@@ -14,6 +14,9 @@
   </parent>
   <url>http://code.google.com/p/google-gson/</url>
   <description>Google Gson library</description>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
   <!--  distributionManagement>
   // Disabled for automatic integration with Sonatype
     <repository>
