@@ -16,17 +16,15 @@
 
 package com.google.gson;
 
-import sun.misc.Unsafe;
-
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import sun.misc.Unsafe;
 
 /**
  * This class contains a mapping of all the application specific
