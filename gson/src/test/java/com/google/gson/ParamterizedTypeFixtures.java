@@ -76,7 +76,7 @@ public class ParamterizedTypeFixtures {
     public int hashCode() {
       return value == null ? 0 : value.hashCode();
     }
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings("unchecked")
     @Override
     public boolean equals(Object obj) {
       if (this == obj) {

@@ -154,7 +154,7 @@ public class MapTest extends TestCase {
     assertTrue(json.contains("\"a\":\"b\""));
   }
 
-  @SuppressWarnings("rawtypes")
+  @SuppressWarnings("unchecked")
   public void testParameterizedMapSubclassDeserialization() {
     Type type = new TypeToken<MyParameterizedMap<String, Integer>>() {}.getType();
     Gson gson = new GsonBuilder().registerTypeAdapter(type, 
