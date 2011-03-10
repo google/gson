@@ -464,7 +464,7 @@ public final class GsonBuilder {
    */
   public GsonBuilder registerTypeHierarchyAdapter(Class<?> baseType, Object typeAdapter) {
     Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
-    || typeAdapter instanceof JsonDeserializer<?> || typeAdapter instanceof InstanceCreator<?>);
+      || typeAdapter instanceof JsonDeserializer<?> || typeAdapter instanceof InstanceCreator<?>);
     if (typeAdapter instanceof InstanceCreator<?>) {
       registerInstanceCreatorForTypeHierarchy(baseType, (InstanceCreator<?>) typeAdapter);
     }

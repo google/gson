@@ -28,7 +28,7 @@ import com.google.gson.annotations.Until;
 final class VersionExclusionStrategy implements ExclusionStrategy {
   private final double version;
 
-  public VersionExclusionStrategy(double version) {
+  VersionExclusionStrategy(double version) {
     Preconditions.checkArgument(version >= 0.0D);
     this.version = version;
   }
