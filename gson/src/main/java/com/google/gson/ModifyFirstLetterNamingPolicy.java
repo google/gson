@@ -62,7 +62,7 @@ final class ModifyFirstLetterNamingPolicy extends RecursiveFieldNamingPolicy {
    * @param modifier the type of modification that should be performed
    * @throws IllegalArgumentException if {@code modifier} is null
    */
-  public ModifyFirstLetterNamingPolicy(LetterModifier modifier) {
+  ModifyFirstLetterNamingPolicy(LetterModifier modifier) {
     Preconditions.checkNotNull(modifier);
     this.letterModifier = modifier;
   }
