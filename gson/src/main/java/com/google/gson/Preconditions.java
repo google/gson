@@ -36,13 +36,13 @@ final class Preconditions {
 
   public static void checkArgument(boolean condition) {
     if (!condition) {
-      throw new IllegalArgumentException("condition failed: " + condition);
+      throw new IllegalArgumentException();
     }
   }
   
   public static void checkState(boolean condition) {
     if (!condition) {
-      throw new IllegalArgumentException("condition failed: " + condition);
+      throw new IllegalStateException();
     }
   }
 }
