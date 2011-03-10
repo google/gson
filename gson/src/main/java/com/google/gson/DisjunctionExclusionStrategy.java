@@ -27,7 +27,7 @@ import java.util.Collection;
 final class DisjunctionExclusionStrategy implements ExclusionStrategy {
   private final Collection<ExclusionStrategy> strategies;
 
-  public DisjunctionExclusionStrategy(Collection<ExclusionStrategy> strategies) {
+  DisjunctionExclusionStrategy(Collection<ExclusionStrategy> strategies) {
     Preconditions.checkNotNull(strategies);
     this.strategies = strategies;
   }
