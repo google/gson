@@ -111,7 +111,6 @@ public final class JsonPrimitive extends JsonElement {
    * convenience method to get this element as a {@link Boolean}.
    *
    * @return get this element as a {@link Boolean}.
-   * @throws ClassCastException if the value contained is not a valid boolean value.
    */
   @Override
   Boolean getAsBooleanWrapper() {
@@ -122,7 +121,6 @@ public final class JsonPrimitive extends JsonElement {
    * convenience method to get this element as a boolean value.
    *
    * @return get this element as a primitive boolean value.
-   * @throws ClassCastException if the value contained is not a valid boolean value.
    */
   @Override
   public boolean getAsBoolean() {
@@ -142,7 +140,7 @@ public final class JsonPrimitive extends JsonElement {
    * convenience method to get this element as a Number.
    *
    * @return get this element as a Number.
-   * @throws ClassCastException if the value contained is not a valid Number.
+   * @throws NumberFormatException if the value contained is not a valid Number.
    */
   @Override
   public Number getAsNumber() {
@@ -179,7 +177,6 @@ public final class JsonPrimitive extends JsonElement {
    * convenience method to get this element as a String.
    *
    * @return get this element as a String.
-   * @throws ClassCastException if the value contained is not a valid String.
    */
   @Override
   public String getAsString() {
@@ -196,7 +193,7 @@ public final class JsonPrimitive extends JsonElement {
    * convenience method to get this element as a primitive double.
    *
    * @return get this element as a primitive double.
-   * @throws ClassCastException if the value contained is not a valid double.
+   * @throws NumberFormatException if the value contained is not a valid double.
    */
   @Override
   public double getAsDouble() {
@@ -229,7 +226,7 @@ public final class JsonPrimitive extends JsonElement {
    * convenience method to get this element as a float.
    *
    * @return get this element as a float.
-   * @throws ClassCastException if the value contained is not a valid float.
+   * @throws NumberFormatException if the value contained is not a valid float.
    */
   @Override
   public float getAsFloat() {
@@ -240,7 +237,7 @@ public final class JsonPrimitive extends JsonElement {
    * convenience method to get this element as a primitive long.
    *
    * @return get this element as a primitive long.
-   * @throws ClassCastException if the value contained is not a valid long.
+   * @throws NumberFormatException if the value contained is not a valid long.
    */
   @Override
   public long getAsLong() {
@@ -251,7 +248,7 @@ public final class JsonPrimitive extends JsonElement {
    * convenience method to get this element as a primitive short.
    *
    * @return get this element as a primitive short.
-   * @throws ClassCastException if the value contained is not a valid short value.
+   * @throws NumberFormatException if the value contained is not a valid short value.
    */
   @Override
   public short getAsShort() {
@@ -262,7 +259,7 @@ public final class JsonPrimitive extends JsonElement {
   * convenience method to get this element as a primitive integer.
   *
   * @return get this element as a primitive integer.
-  * @throws ClassCastException if the value contained is not a valid integer.
+  * @throws NumberFormatException if the value contained is not a valid integer.
   */
   @Override
   public int getAsInt() {
