@@ -18,13 +18,7 @@ package com.google.gson;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import sun.misc.Unsafe;
 
 /**
  * This class contains a mapping of all the application specific
@@ -37,11 +31,10 @@ import sun.misc.Unsafe;
  * @author Joel Leitch
  */
 final class MappedObjectConstructor implements ObjectConstructor {
-  private static final Logger log = Logger.getLogger(MappedObjectConstructor.class.getName());
-  private static final Unsafe THE_UNSAFE = getUnsafe();
+  private static final UnsafeAllocator unsafeAllocator = UnsafeAllocator.create();
 
   private final ParameterizedTypeHandlerMap<InstanceCreator<?>> instanceCreatorMap;
-  
+
   public MappedObjectConstructor(
       ParameterizedTypeHandlerMap<InstanceCreator<?>> instanceCreators) {
     instanceCreatorMap = instanceCreators;
@@ -55,18 +48,6 @@ final class MappedObjectConstructor implements ObjectConstructor {
     }
     return (T) constructWithNoArgConstructor(typeOfT);
   }
-  
-  private static Unsafe getUnsafe() {
-    try {
-      Field f = Unsafe.class.getDeclaredField("theUnsafe");
-      f.setAccessible(true);
-      return (Unsafe) f.get(null);
-    } catch (NoSuchFieldException e) {
-      throw new Error();
-    } catch (IllegalAccessException e) {
-      throw new Error();
-    }
-  }
 
   public Object constructArray(Type type, int length) {
     return Array.newInstance(Types.getRawType(type), length);
@@ -77,17 +58,10 @@ final class MappedObjectConstructor implements ObjectConstructor {
     try {
       Class<T> clazz = (Class<T>) Types.getRawType(typeOfT);
       Constructor<T> constructor = getNoArgsConstructor(clazz);
-      if (constructor == null) {
-        return (T) THE_UNSAFE.allocateInstance(clazz);
-      }
-      return constructor.newInstance();
-    } catch (InstantiationException e) {
-      throw new RuntimeException(("Unable to invoke no-args constructor for " + typeOfT + ". "
-          + "Register an InstanceCreator with Gson for this type may fix this problem."), e);
-    } catch (IllegalAccessException e) {
-      throw new RuntimeException(("Unable to invoke no-args constructor for " + typeOfT + ". "
-          + "Register an InstanceCreator with Gson for this type may fix this problem."), e);
-    } catch (InvocationTargetException e) {
+      return constructor == null
+          ? unsafeAllocator.newInstance(clazz)
+          : constructor.newInstance();
+    } catch (Exception e) {
       throw new RuntimeException(("Unable to invoke no-args constructor for " + typeOfT + ". "
           + "Register an InstanceCreator with Gson for this type may fix this problem."), e);
     }
@@ -103,20 +77,6 @@ final class MappedObjectConstructor implements ObjectConstructor {
     }
   }
 
-  /**
-   * Use this methods to register an {@link InstanceCreator} for a new type.
-   *
-   * @param <T> the type of class to be mapped with its "creator"
-   * @param typeOfT the instance type that will be created
-   * @param creator the {@link InstanceCreator} instance to register
-   */
-  <T> void register(Type typeOfT, InstanceCreator<? extends T> creator) {
-    if (instanceCreatorMap.hasSpecificHandlerFor(typeOfT)) {
-      log.log(Level.WARNING, "Overriding the existing InstanceCreator for {0}", typeOfT);
-    }
-    instanceCreatorMap.register(typeOfT, creator);
-  }
-  
   @Override
   public String toString() {
     return instanceCreatorMap.toString();
