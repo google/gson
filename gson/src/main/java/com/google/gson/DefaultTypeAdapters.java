@@ -287,7 +287,7 @@ final class DefaultTypeAdapters {
     return DEFAULT_INSTANCE_CREATORS;
   }
 
-  static class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
+  static final class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
     private final DateFormat enUsFormat;
     private final DateFormat localFormat;
     private final DateFormat iso8601Format;
@@ -310,7 +310,7 @@ final class DefaultTypeAdapters {
           DateFormat.getDateTimeInstance(dateStyle, timeStyle));
     }
 
-    public DefaultDateTypeAdapter(DateFormat enUsFormat, DateFormat localFormat) {
+    DefaultDateTypeAdapter(DateFormat enUsFormat, DateFormat localFormat) {
       this.enUsFormat = enUsFormat;
       this.localFormat = localFormat;
       this.iso8601Format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
@@ -357,7 +357,7 @@ final class DefaultTypeAdapters {
     }
   }
 
-  static class DefaultJavaSqlDateTypeAdapter implements JsonSerializer<java.sql.Date>,
+  static final class DefaultJavaSqlDateTypeAdapter implements JsonSerializer<java.sql.Date>,
       JsonDeserializer<java.sql.Date> {
     private final DateFormat format;
     DefaultJavaSqlDateTypeAdapter() {
@@ -388,7 +388,7 @@ final class DefaultTypeAdapters {
     }
   }
 
-  static class DefaultTimestampDeserializer implements JsonDeserializer<Timestamp> {
+  static final class DefaultTimestampDeserializer implements JsonDeserializer<Timestamp> {
     public Timestamp deserialize(JsonElement json, Type typeOfT,
         JsonDeserializationContext context) throws JsonParseException {
       Date date = context.deserialize(json, Date.class);
@@ -396,7 +396,7 @@ final class DefaultTypeAdapters {
     }
   }
 
-  static class DefaultTimeTypeAdapter implements JsonSerializer<Time>, JsonDeserializer<Time> {
+  static final class DefaultTimeTypeAdapter implements JsonSerializer<Time>, JsonDeserializer<Time> {
     private final DateFormat format;
     DefaultTimeTypeAdapter() {
       this.format = new SimpleDateFormat("hh:mm:ss a");
@@ -423,7 +423,7 @@ final class DefaultTypeAdapters {
     }
   }
 
-  private static class GregorianCalendarTypeAdapter
+  private static final class GregorianCalendarTypeAdapter
       implements JsonSerializer<GregorianCalendar>, JsonDeserializer<GregorianCalendar> {
 
     private static final String YEAR = "year";
@@ -463,7 +463,7 @@ final class DefaultTypeAdapters {
     }
   }
 
-  static class DefaultInetAddressAdapter
+  static final class DefaultInetAddressAdapter
       implements JsonDeserializer<InetAddress>, JsonSerializer<InetAddress> {
 
     public InetAddress deserialize(JsonElement json, Type typeOfT,
@@ -482,7 +482,7 @@ final class DefaultTypeAdapters {
   }
 
   @SuppressWarnings("unchecked")
-  private static class EnumTypeAdapter<T extends Enum<T>>
+  private static final class EnumTypeAdapter<T extends Enum<T>>
       implements JsonSerializer<T>, JsonDeserializer<T> {
     public JsonElement serialize(T src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src.name());
@@ -500,7 +500,7 @@ final class DefaultTypeAdapters {
     }
   }
 
-  private static class UrlTypeAdapter implements JsonSerializer<URL>, JsonDeserializer<URL> {
+  private static final class UrlTypeAdapter implements JsonSerializer<URL>, JsonDeserializer<URL> {
     public JsonElement serialize(URL src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src.toExternalForm());
     }
@@ -520,7 +520,7 @@ final class DefaultTypeAdapters {
     }
   }
 
-  private static class UriTypeAdapter implements JsonSerializer<URI>, JsonDeserializer<URI> {
+  private static final class UriTypeAdapter implements JsonSerializer<URI>, JsonDeserializer<URI> {
     public JsonElement serialize(URI src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src.toASCIIString());
     }
@@ -538,7 +538,7 @@ final class DefaultTypeAdapters {
     }
   }
 
-  private static class UuidTypeAdapter implements JsonSerializer<UUID>, JsonDeserializer<UUID> {
+  private static final class UuidTypeAdapter implements JsonSerializer<UUID>, JsonDeserializer<UUID> {
     public JsonElement serialize(UUID src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src.toString());
     }
@@ -554,7 +554,7 @@ final class DefaultTypeAdapters {
     }
   }
 
-  private static class LocaleTypeAdapter
+  private static final class LocaleTypeAdapter
       implements JsonSerializer<Locale>, JsonDeserializer<Locale> {
     public JsonElement serialize(Locale src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src.toString());
@@ -592,7 +592,7 @@ final class DefaultTypeAdapters {
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
-  private static class CollectionTypeAdapter implements JsonSerializer<Collection>,
+  private static final class CollectionTypeAdapter implements JsonSerializer<Collection>,
       JsonDeserializer<Collection>, InstanceCreator<Collection> {
     public JsonElement serialize(Collection src, Type typeOfSrc, JsonSerializationContext context) {
       if (src == null) {
@@ -656,7 +656,7 @@ final class DefaultTypeAdapters {
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
-  static class MapTypeAdapter implements JsonSerializer<Map>, JsonDeserializer<Map>,
+  static final class MapTypeAdapter implements JsonSerializer<Map>, JsonDeserializer<Map>,
       InstanceCreator<Map> {
 
     public JsonElement serialize(Map src, Type typeOfSrc, JsonSerializationContext context) {
@@ -713,7 +713,7 @@ final class DefaultTypeAdapters {
     }
   }
 
-  private static class BigDecimalTypeAdapter
+  private static final class BigDecimalTypeAdapter
       implements JsonSerializer<BigDecimal>, JsonDeserializer<BigDecimal> {
     public JsonElement serialize(BigDecimal src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src);
@@ -738,7 +738,7 @@ final class DefaultTypeAdapters {
     }
   }
 
-  private static class BigIntegerTypeAdapter
+  private static final class BigIntegerTypeAdapter
       implements JsonSerializer<BigInteger>, JsonDeserializer<BigInteger> {
 
     public JsonElement serialize(BigInteger src, Type typeOfSrc, JsonSerializationContext context) {
@@ -764,7 +764,7 @@ final class DefaultTypeAdapters {
     }
   }
 
-  private static class NumberTypeAdapter
+  private static final class NumberTypeAdapter
       implements JsonSerializer<Number>, JsonDeserializer<Number> {
     public JsonElement serialize(Number src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src);
@@ -789,7 +789,7 @@ final class DefaultTypeAdapters {
     }
   }
 
-  private static class LongSerializer implements JsonSerializer<Long> {
+  private static final class LongSerializer implements JsonSerializer<Long> {
     private final LongSerializationPolicy longSerializationPolicy;
 
     private LongSerializer(LongSerializationPolicy longSerializationPolicy) {
@@ -806,7 +806,7 @@ final class DefaultTypeAdapters {
     }
   }
 
-  private static class LongDeserializer implements JsonDeserializer<Long> {
+  private static final class LongDeserializer implements JsonDeserializer<Long> {
     public Long deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
       try {
@@ -826,7 +826,7 @@ final class DefaultTypeAdapters {
     }
   }
 
-  private static class IntegerTypeAdapter
+  private static final class IntegerTypeAdapter
       implements JsonSerializer<Integer>, JsonDeserializer<Integer> {
     public JsonElement serialize(Integer src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src);
@@ -851,7 +851,7 @@ final class DefaultTypeAdapters {
     }
   }
 
-  private static class ShortTypeAdapter
+  private static final class ShortTypeAdapter
       implements JsonSerializer<Short>, JsonDeserializer<Short> {
     public JsonElement serialize(Short src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src);
@@ -876,7 +876,7 @@ final class DefaultTypeAdapters {
     }
   }
 
-  private static class ByteTypeAdapter implements JsonSerializer<Byte>, JsonDeserializer<Byte> {
+  private static final class ByteTypeAdapter implements JsonSerializer<Byte>, JsonDeserializer<Byte> {
     public JsonElement serialize(Byte src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src);
     }
@@ -900,7 +900,7 @@ final class DefaultTypeAdapters {
     }
   }
 
-  static class FloatSerializer implements JsonSerializer<Float> {
+  static final class FloatSerializer implements JsonSerializer<Float> {
     private final boolean serializeSpecialFloatingPointValues;
 
     FloatSerializer(boolean serializeSpecialDoubleValues) {
@@ -919,7 +919,7 @@ final class DefaultTypeAdapters {
     }
   }
 
-  private static class FloatDeserializer implements JsonDeserializer<Float> {
+  private static final class FloatDeserializer implements JsonDeserializer<Float> {
     public Float deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
       try {
@@ -939,7 +939,7 @@ final class DefaultTypeAdapters {
     }
   }
 
-  static class DoubleSerializer implements JsonSerializer<Double> {
+  static final class DoubleSerializer implements JsonSerializer<Double> {
     private final boolean serializeSpecialFloatingPointValues;
 
     DoubleSerializer(boolean serializeSpecialDoubleValues) {
@@ -958,7 +958,7 @@ final class DefaultTypeAdapters {
     }
   }
 
-  private static class DoubleDeserializer implements JsonDeserializer<Double> {
+  private static final class DoubleDeserializer implements JsonDeserializer<Double> {
     public Double deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
       try {
@@ -978,7 +978,7 @@ final class DefaultTypeAdapters {
     }
   }
 
-  private static class CharacterTypeAdapter
+  private static final class CharacterTypeAdapter
       implements JsonSerializer<Character>, JsonDeserializer<Character> {
     public JsonElement serialize(Character src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src);
@@ -995,7 +995,7 @@ final class DefaultTypeAdapters {
     }
   }
 
-  private static class StringTypeAdapter
+  private static final class StringTypeAdapter
       implements JsonSerializer<String>, JsonDeserializer<String> {
     public JsonElement serialize(String src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src);
@@ -1012,7 +1012,7 @@ final class DefaultTypeAdapters {
     }
   }
 
-  private static class StringBuilderTypeAdapter
+  private static final class StringBuilderTypeAdapter
       implements JsonSerializer<StringBuilder>, JsonDeserializer<StringBuilder> {
     public JsonElement serialize(StringBuilder src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src.toString());
@@ -1029,7 +1029,7 @@ final class DefaultTypeAdapters {
     }
   }
 
-  private static class StringBufferTypeAdapter
+  private static final class StringBufferTypeAdapter
       implements JsonSerializer<StringBuffer>, JsonDeserializer<StringBuffer> {
     public JsonElement serialize(StringBuffer src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src.toString());
@@ -1046,7 +1046,7 @@ final class DefaultTypeAdapters {
     }
   }
 
-  private static class BooleanTypeAdapter
+  private static final class BooleanTypeAdapter
       implements JsonSerializer<Boolean>, JsonDeserializer<Boolean> {
     public JsonElement serialize(Boolean src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src);
@@ -1069,7 +1069,7 @@ final class DefaultTypeAdapters {
     }
   }
 
-  private static class TreeSetCreator implements InstanceCreator<TreeSet<?>> {
+  private static final class TreeSetCreator implements InstanceCreator<TreeSet<?>> {
     public TreeSet<?> createInstance(Type type) {
       return new TreeSet<Object>();
     }
@@ -1079,7 +1079,7 @@ final class DefaultTypeAdapters {
     }
   }
 
-  private static class HashSetCreator implements InstanceCreator<HashSet<?>> {
+  private static final class HashSetCreator implements InstanceCreator<HashSet<?>> {
     public HashSet<?> createInstance(Type type) {
       return new HashSet<Object>();
     }
