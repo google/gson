@@ -174,27 +174,27 @@ final class DefaultTypeAdapters {
     map.register(Time.class, wrapDeserializer(TIME_TYPE_ADAPTER));
     map.register(Calendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER);
     map.register(GregorianCalendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER);
-    map.register(BigDecimal.class, wrapDeserializer(BIG_DECIMAL_TYPE_ADAPTER));
-    map.register(BigInteger.class, wrapDeserializer(BIG_INTEGER_TYPE_ADAPTER));
+    map.register(BigDecimal.class, BIG_DECIMAL_TYPE_ADAPTER);
+    map.register(BigInteger.class, BIG_INTEGER_TYPE_ADAPTER);
 
     // Add primitive deserializers
-    map.register(Boolean.class, wrapDeserializer(BOOLEAN_TYPE_ADAPTER));
-    map.register(boolean.class, wrapDeserializer(BOOLEAN_TYPE_ADAPTER));
-    map.register(Byte.class, wrapDeserializer(BYTE_TYPE_ADAPTER));
-    map.register(byte.class, wrapDeserializer(BYTE_TYPE_ADAPTER));
+    map.register(Boolean.class, BOOLEAN_TYPE_ADAPTER);
+    map.register(boolean.class, BOOLEAN_TYPE_ADAPTER);
+    map.register(Byte.class, BYTE_TYPE_ADAPTER);
+    map.register(byte.class, BYTE_TYPE_ADAPTER);
     map.register(Character.class, wrapDeserializer(CHARACTER_TYPE_ADAPTER));
     map.register(char.class, wrapDeserializer(CHARACTER_TYPE_ADAPTER));
-    map.register(Double.class, wrapDeserializer(DOUBLE_TYPE_ADAPTER));
-    map.register(double.class, wrapDeserializer(DOUBLE_TYPE_ADAPTER));
-    map.register(Float.class, wrapDeserializer(FLOAT_TYPE_ADAPTER));
-    map.register(float.class, wrapDeserializer(FLOAT_TYPE_ADAPTER));
-    map.register(Integer.class, wrapDeserializer(INTEGER_TYPE_ADAPTER));
-    map.register(int.class, wrapDeserializer(INTEGER_TYPE_ADAPTER));
-    map.register(Long.class, wrapDeserializer(LONG_DESERIALIZER));
-    map.register(long.class, wrapDeserializer(LONG_DESERIALIZER));
-    map.register(Number.class, wrapDeserializer(NUMBER_TYPE_ADAPTER));
-    map.register(Short.class, wrapDeserializer(SHORT_TYPE_ADAPTER));
-    map.register(short.class, wrapDeserializer(SHORT_TYPE_ADAPTER));
+    map.register(Double.class, DOUBLE_TYPE_ADAPTER);
+    map.register(double.class, DOUBLE_TYPE_ADAPTER);
+    map.register(Float.class, FLOAT_TYPE_ADAPTER);
+    map.register(float.class, FLOAT_TYPE_ADAPTER);
+    map.register(Integer.class, INTEGER_TYPE_ADAPTER);
+    map.register(int.class, INTEGER_TYPE_ADAPTER);
+    map.register(Long.class, LONG_DESERIALIZER);
+    map.register(long.class, LONG_DESERIALIZER);
+    map.register(Number.class, NUMBER_TYPE_ADAPTER);
+    map.register(Short.class, SHORT_TYPE_ADAPTER);
+    map.register(short.class, SHORT_TYPE_ADAPTER);
     map.register(String.class, wrapDeserializer(STRING_TYPE_ADAPTER));
     map.register(StringBuilder.class, wrapDeserializer(STRING_BUILDER_TYPE_ADAPTER));
     map.register(StringBuffer.class, wrapDeserializer(STRING_BUFFER_TYPE_ADAPTER));
@@ -721,7 +721,15 @@ final class DefaultTypeAdapters {
 
     public BigDecimal deserialize(JsonElement json, Type typeOfT,
         JsonDeserializationContext context) throws JsonParseException {
-      return json.getAsBigDecimal();
+      try {
+        return json.getAsBigDecimal();
+      } catch (NumberFormatException e) {
+        throw new JsonSyntaxException(e);
+      } catch (UnsupportedOperationException e) {
+        throw new JsonSyntaxException(e);
+      } catch (IllegalStateException e) {
+        throw new JsonSyntaxException(e);
+      }
     }
 
     @Override
@@ -739,7 +747,15 @@ final class DefaultTypeAdapters {
 
     public BigInteger deserialize(JsonElement json, Type typeOfT,
         JsonDeserializationContext context) throws JsonParseException {
-      return json.getAsBigInteger();
+      try {
+        return json.getAsBigInteger();
+      } catch (NumberFormatException e) {
+        throw new JsonSyntaxException(e);
+      } catch (UnsupportedOperationException e) {
+        throw new JsonSyntaxException(e);
+      } catch (IllegalStateException e) {
+        throw new JsonSyntaxException(e);
+      }
     }
 
     @Override
@@ -756,7 +772,15 @@ final class DefaultTypeAdapters {
 
     public Number deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
-      return json.getAsNumber();
+      try {
+        return json.getAsNumber();
+      } catch (NumberFormatException e) {
+        throw new JsonSyntaxException(e);
+      } catch (UnsupportedOperationException e) {
+        throw new JsonSyntaxException(e);
+      } catch (IllegalStateException e) {
+        throw new JsonSyntaxException(e);
+      }
     }
 
     @Override
@@ -785,7 +809,15 @@ final class DefaultTypeAdapters {
   private static class LongDeserializer implements JsonDeserializer<Long> {
     public Long deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
-      return json.getAsLong();
+      try {
+        return json.getAsLong();
+      } catch (NumberFormatException e) {
+        throw new JsonSyntaxException(e);
+      } catch (UnsupportedOperationException e) {
+        throw new JsonSyntaxException(e);
+      } catch (IllegalStateException e) {
+        throw new JsonSyntaxException(e);
+      }
     }
 
     @Override
@@ -802,7 +834,15 @@ final class DefaultTypeAdapters {
 
     public Integer deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
-      return json.getAsInt();
+      try {
+        return json.getAsInt();
+      } catch (NumberFormatException e) {
+        throw new JsonSyntaxException(e);
+      } catch (UnsupportedOperationException e) {
+        throw new JsonSyntaxException(e);
+      } catch (IllegalStateException e) {
+        throw new JsonSyntaxException(e);
+      }
     }
 
     @Override
@@ -819,7 +859,15 @@ final class DefaultTypeAdapters {
 
     public Short deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
-      return json.getAsShort();
+      try {
+        return json.getAsShort();
+      } catch (NumberFormatException e) {
+        throw new JsonSyntaxException(e);
+      } catch (UnsupportedOperationException e) {
+        throw new JsonSyntaxException(e);
+      } catch (IllegalStateException e) {
+        throw new JsonSyntaxException(e);
+      }
     }
 
     @Override
@@ -835,7 +883,15 @@ final class DefaultTypeAdapters {
 
     public Byte deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
-      return json.getAsByte();
+      try {
+        return json.getAsByte();
+      } catch (NumberFormatException e) {
+        throw new JsonSyntaxException(e);
+      } catch (UnsupportedOperationException e) {
+        throw new JsonSyntaxException(e);
+      } catch (IllegalStateException e) {
+        throw new JsonSyntaxException(e);
+      }
     }
 
     @Override
@@ -866,7 +922,15 @@ final class DefaultTypeAdapters {
   private static class FloatDeserializer implements JsonDeserializer<Float> {
     public Float deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
-      return json.getAsFloat();
+      try {
+        return json.getAsFloat();
+      } catch (NumberFormatException e) {
+        throw new JsonSyntaxException(e);
+      } catch (UnsupportedOperationException e) {
+        throw new JsonSyntaxException(e);
+      } catch (IllegalStateException e) {
+        throw new JsonSyntaxException(e);
+      }
     }
 
     @Override
@@ -897,7 +961,15 @@ final class DefaultTypeAdapters {
   private static class DoubleDeserializer implements JsonDeserializer<Double> {
     public Double deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
-      return json.getAsDouble();
+      try {
+        return json.getAsDouble();
+      } catch (NumberFormatException e) {
+        throw new JsonSyntaxException(e);
+      } catch (UnsupportedOperationException e) {
+        throw new JsonSyntaxException(e);
+      } catch (IllegalStateException e) {
+        throw new JsonSyntaxException(e);
+      }
     }
 
     @Override
@@ -982,7 +1054,13 @@ final class DefaultTypeAdapters {
 
     public Boolean deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
-      return json.getAsBoolean();
+      try {
+        return json.getAsBoolean();
+      } catch (UnsupportedOperationException e) {
+        throw new JsonSyntaxException(e);
+      } catch (IllegalStateException e) {
+        throw new JsonSyntaxException(e);
+      }        
     }
 
     @Override
