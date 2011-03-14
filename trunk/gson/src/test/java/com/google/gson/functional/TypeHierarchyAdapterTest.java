@@ -116,7 +116,7 @@ public final class TypeHierarchyAdapterTest extends TestCase {
         ((Manager) company.ceo.minions[2]).minions[1].userid);
   }
 
-  public void testRegisterSubtypeFirst() {
+  public void testRegisterSuperTypeFirst() {
     Gson gson = new GsonBuilder()
         .registerTypeHierarchyAdapter(Employee.class, new EmployeeAdapter())
         .registerTypeHierarchyAdapter(Manager.class, new ManagerAdapter())
@@ -131,12 +131,12 @@ public final class TypeHierarchyAdapterTest extends TestCase {
     assertEquals(manager.userid, copied.userid);
   }
 
-  public void testRegisterSupertypeFirst() {
-    GsonBuilder builder = new GsonBuilder()
-        .registerTypeHierarchyAdapter(Manager.class, new ManagerAdapter())
-        .registerTypeHierarchyAdapter(Employee.class, new EmployeeAdapter());
+  public void testRegisterSubTypeFirstNotAllowed() {
     try {
-      builder.create();
+      Gson gson = new GsonBuilder()
+        .registerTypeHierarchyAdapter(Manager.class, new ManagerAdapter())
+        .registerTypeHierarchyAdapter(Employee.class, new EmployeeAdapter())
+        .create();
       fail();
     } catch (IllegalArgumentException expected) {
     }
