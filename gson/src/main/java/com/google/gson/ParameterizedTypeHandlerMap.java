@@ -172,12 +172,10 @@ final class ParameterizedTypeHandlerMap<T> {
 
   public synchronized ParameterizedTypeHandlerMap<T> copyOf() {
     ParameterizedTypeHandlerMap<T> copy = new ParameterizedTypeHandlerMap<T>();
-    for (Map.Entry<Type, T> entry : map.entrySet()) {
-      copy.register(entry.getKey(), entry.getValue());
-    }
-    for (Pair<Class<?>, T> entry : typeHierarchyList) {
-      copy.registerForTypeHierarchy(entry);
-    }
+    // Instead of individually registering entries in the map, make an efficient copy
+    // of the list and map
+    copy.map.putAll(map);
+    copy.typeHierarchyList.addAll(typeHierarchyList);
     return copy;
   }
 
