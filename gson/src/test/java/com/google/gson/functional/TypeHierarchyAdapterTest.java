@@ -23,6 +23,7 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import java.lang.reflect.Type;
@@ -113,6 +114,43 @@ public final class TypeHierarchyAdapterTest extends TestCase {
         ((Manager) company.ceo.minions[2]).minions[0].userid);
     assertEquals(((Manager) copied.ceo.minions[2]).minions[1].userid,
         ((Manager) company.ceo.minions[2]).minions[1].userid);
+  }
+
+  public void testRegisterSubtypeFirst() {
+    Gson gson = new GsonBuilder()
+        .registerTypeHierarchyAdapter(Employee.class, new EmployeeAdapter())
+        .registerTypeHierarchyAdapter(Manager.class, new ManagerAdapter())
+        .create();
+
+    Manager manager = new Manager();
+    manager.userid = "inder";
+
+    String json = gson.toJson(manager, Manager.class);
+    assertEquals("\"inder\"", json);
+    Manager copied = gson.fromJson(json, Manager.class);
+    assertEquals(manager.userid, copied.userid);
+  }
+
+  public void testRegisterSupertypeFirst() {
+    GsonBuilder builder = new GsonBuilder()
+        .registerTypeHierarchyAdapter(Manager.class, new ManagerAdapter())
+        .registerTypeHierarchyAdapter(Employee.class, new EmployeeAdapter());
+    try {
+      builder.create();
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
+  }
+
+  static class ManagerAdapter implements JsonSerializer<Manager>, JsonDeserializer<Manager> {
+    public Manager deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
+      Manager result = new Manager();
+      result.userid = json.getAsString();
+      return result;
+    }
+    public JsonElement serialize(Manager src, Type typeOfSrc, JsonSerializationContext context) {
+      return new JsonPrimitive(src.userid);
+    }
   }
 
   static class EmployeeAdapter implements JsonSerializer<Employee>, JsonDeserializer<Employee> {
