@@ -43,16 +43,6 @@ import java.util.Map;
  * Method#getGenericReturnType extracting types from members} or by using the
  * {@link Types} factory class.
  *
- * <p>Along with modeling generic types, this class can resolve type parameters.
- * For example, to figure out what type {@code keySet()} returns on a {@code
- * Map<Integer, String>}, use this code:<pre>   {@code
- *
- *   TypeLiteral<Map<Integer, String>> mapType
- *       = new TypeToken<Map<Integer, String>>() {};
- *   TypeToken<?> keySetType
- *       = mapType.getReturnType(Map.class.getMethod("keySet"));
- *   System.out.println(keySetType); // prints "Set<Integer>"}</pre>
- *
  * @author Bob Lee
  * @author Sven Mawson
  * @author Jesse Wilson
