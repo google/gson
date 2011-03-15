@@ -79,6 +79,21 @@ public class MapAsArrayTypeAdapterTest extends TestCase {
     } catch (JsonSyntaxException expected) {
     }
   }
+  
+  public void testMultipleEnableComplexKeyRegistrationHasNoEffect() throws Exception {
+    Type type = new TypeToken<Map<Point, String>>() {}.getType();
+    Gson gson = new GsonBuilder()
+        .enableComplexMapKeySerialization()
+        .enableComplexMapKeySerialization()
+        .create();
+
+    Map<Point, String> original = new LinkedHashMap<Point, String>();
+    original.put(new Point(6, 5), "abc");
+    original.put(new Point(1, 8), "def");
+    String json = gson.toJson(original, type);
+    assertEquals("[[{\"x\":6,\"y\":5},\"abc\"],[{\"x\":1,\"y\":8},\"def\"]]", json);
+    assertEquals(original, gson.<Map<Point, String>>fromJson(json, type));
+  }
 
   static class Point {
     int x;
