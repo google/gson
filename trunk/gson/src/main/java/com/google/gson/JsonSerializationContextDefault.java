@@ -46,10 +46,13 @@ final class JsonSerializationContextDefault implements JsonSerializationContext 
   }
 
   public JsonElement serialize(Object src, Type typeOfSrc) {
+    if (src == null) {
+      return JsonNull.createJsonNull();
+    }
     return serialize(src, typeOfSrc, true);
   }
 
-  public JsonElement serialize(Object src, Type typeOfSrc, boolean preserveType) {
+  JsonElement serialize(Object src, Type typeOfSrc, boolean preserveType) {
     ObjectNavigator on = factory.create(new ObjectTypePair(src, typeOfSrc, preserveType));
     JsonSerializationVisitor visitor =
         new JsonSerializationVisitor(factory, serializeNulls, serializers, this, ancestors);
