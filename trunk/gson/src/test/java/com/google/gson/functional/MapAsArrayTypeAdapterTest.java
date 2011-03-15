@@ -19,7 +19,6 @@ package com.google.gson.functional;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-import com.google.gson.MapAsArrayTypeAdapter;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
@@ -31,7 +30,7 @@ public class MapAsArrayTypeAdapterTest extends TestCase {
   public void testSerializeComplexMapWithTypeAdapter() {
     Type type = new TypeToken<Map<Point, String>>() {}.getType();
     Gson gson = new GsonBuilder()
-        .registerTypeAdapter(Map.class, new MapAsArrayTypeAdapter())
+        .enableComplexMapKeySerialization()
         .create();
 
     Map<Point, String> original = new LinkedHashMap<Point, String>();
@@ -55,7 +54,7 @@ public class MapAsArrayTypeAdapterTest extends TestCase {
 
   public void testTwoTypesCollapseToOneSerialize() {
     Gson gson = new GsonBuilder()
-        .registerTypeAdapter(Map.class, new MapAsArrayTypeAdapter())
+        .enableComplexMapKeySerialization()
         .create();
 
     Map<Number, String> original = new LinkedHashMap<Number, String>();
@@ -70,7 +69,7 @@ public class MapAsArrayTypeAdapterTest extends TestCase {
 
   public void testTwoTypesCollapseToOneDeserialize() {
     Gson gson = new GsonBuilder()
-        .registerTypeAdapter(Map.class, new MapAsArrayTypeAdapter())
+        .enableComplexMapKeySerialization()
         .create();
 
     String s = "[[\"1.00\",\"a\"],[\"1.0\",\"b\"]]";

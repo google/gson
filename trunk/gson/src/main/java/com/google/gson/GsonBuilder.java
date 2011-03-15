@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.gson.DefaultTypeAdapters.DefaultDateTypeAdapter;
@@ -53,6 +54,8 @@ import com.google.gson.DefaultTypeAdapters.DefaultDateTypeAdapter;
  * @author Joel Leitch
  */
 public final class GsonBuilder {
+  private static final MapAsArrayTypeAdapter COMPLEX_KEY_MAP_TYPE_ADAPTER =
+      new MapAsArrayTypeAdapter();
   private static final InnerClassExclusionStrategy innerClassExclusionStrategy =
       new InnerClassExclusionStrategy();
   private static final ExposeAnnotationDeserializationExclusionStrategy
@@ -179,6 +182,11 @@ public final class GsonBuilder {
    */
   public GsonBuilder serializeNulls() {
     this.serializeNulls = true;
+    return this;
+  }
+  
+  public GsonBuilder enableComplexMapKeySerialization() {
+    registerTypeHierarchyAdapter(Map.class, COMPLEX_KEY_MAP_TYPE_ADAPTER);
     return this;
   }
 
@@ -551,10 +559,10 @@ public final class GsonBuilder {
     }
 
     ParameterizedTypeHandlerMap<JsonSerializer<?>> customSerializers =
-      DefaultTypeAdapters.DEFAULT_HIERARCHY_SERIALIZERS.copyOf();
+        DefaultTypeAdapters.DEFAULT_HIERARCHY_SERIALIZERS.copyOf();
     customSerializers.register(serializers.copyOf());
     ParameterizedTypeHandlerMap<JsonDeserializer<?>> customDeserializers =
-      DefaultTypeAdapters.DEFAULT_HIERARCHY_DESERIALIZERS.copyOf();
+        DefaultTypeAdapters.DEFAULT_HIERARCHY_DESERIALIZERS.copyOf();
     customDeserializers.register(deserializers.copyOf());
     addTypeAdaptersForDate(datePattern, dateStyle, timeStyle, customSerializers,
         customDeserializers);

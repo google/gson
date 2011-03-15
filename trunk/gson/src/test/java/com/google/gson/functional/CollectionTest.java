@@ -223,7 +223,7 @@ public class CollectionTest extends TestCase {
     } catch (JsonParseException expected) { }
   }
 
-  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @SuppressWarnings("unchecked")
   public void testRawCollectionOfBagOfPrimitivesNotAllowed() {
     try {
       BagOfPrimitives bag = new BagOfPrimitives(10, 20, false, "stringValue");

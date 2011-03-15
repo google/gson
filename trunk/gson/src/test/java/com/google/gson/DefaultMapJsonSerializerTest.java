@@ -31,14 +31,12 @@ import java.util.Map;
  * @author Joel Leitch
  */
 public class DefaultMapJsonSerializerTest extends TestCase {
-
-  @SuppressWarnings("unchecked")
-  private JsonSerializer<Map> mapSerializer;
+  private JsonSerializer<Map<?, ?>> mapSerializer;
 
   @Override
   protected void setUp() throws Exception {
     super.setUp();
-    mapSerializer = new DefaultTypeAdapters.MapTypeAdapter();
+    mapSerializer = new MapTypeAdapter();
   }
 
   public void testEmptyMapNoTypeSerialization() {
