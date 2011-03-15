@@ -218,12 +218,9 @@ public final class Gson {
    * @since 1.4
    */
   public JsonElement toJsonTree(Object src, Type typeOfSrc) {
-    if (src == null) {
-      return JsonNull.createJsonNull();
-    }
     JsonSerializationContextDefault context = new JsonSerializationContextDefault(
         createDefaultObjectNavigatorFactory(serializationExclusionStrategy), serializeNulls, serializers);
-    return context.serialize(src, typeOfSrc, true);
+    return context.serialize(src, typeOfSrc);
   }
 
   /**

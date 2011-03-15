@@ -30,8 +30,9 @@ package com.google.gson;
  * @author Joel Leitch
  */
 final class Preconditions {
-  public static void checkNotNull(Object obj) {
+  public static <T> T checkNotNull(T obj) {
     checkArgument(obj != null);
+    return obj;
   }
 
   public static void checkArgument(boolean condition) {

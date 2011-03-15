@@ -31,8 +31,7 @@ final class FieldNamingStrategy2Adapter implements FieldNamingStrategy2 {
     Preconditions.checkNotNull(adaptee);
     this.adaptee = adaptee;
   }
-  
-  @SuppressWarnings("deprecation")
+
   public String translateName(FieldAttributes f) {
     return adaptee.translateName(f.getFieldObject());
   }
