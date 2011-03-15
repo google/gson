@@ -19,7 +19,6 @@ package com.google.gson;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -90,12 +89,12 @@ import java.util.Map;
  * complex. A key is complex if its JSON-serialized form is an array or an
  * object.
  */
-public final class MapAsArrayTypeAdapter
+final class MapAsArrayTypeAdapter
     implements JsonSerializer<Map<?, ?>>, JsonDeserializer<Map<?, ?>> {
 
   public Map<?, ?> deserialize(JsonElement json, Type typeOfT,
       JsonDeserializationContext context) throws JsonParseException {
-    Map<Object, Object> result = new LinkedHashMap<Object, Object>();
+    Map<Object, Object> result = constructMapType(typeOfT, context);
     Type[] keyAndValueType = typeToTypeArguments(typeOfT);
     if (json.isJsonArray()) {
       JsonArray array = json.getAsJsonArray();
@@ -146,6 +145,13 @@ public final class MapAsArrayTypeAdapter
       checkSize(src, src.size(), result, result.entrySet().size());
       return result;
     }
+  }
+  
+  @SuppressWarnings("unchecked")
+  private Map<Object, Object> constructMapType(Type mapType, JsonDeserializationContext context) {
+    JsonDeserializationContextDefault contextImpl = (JsonDeserializationContextDefault) context;
+    ObjectConstructor objectConstructor = contextImpl.getObjectConstructor();
+    return (Map<Object, Object>) objectConstructor.construct(mapType);
   }
 
   private Type[] typeToTypeArguments(Type typeOfT) {

@@ -36,7 +36,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Map;
@@ -65,7 +64,7 @@ final class DefaultTypeAdapters {
   private static final DefaultTimestampDeserializer TIMESTAMP_DESERIALIZER =
     new DefaultTimestampDeserializer();
 
-  @SuppressWarnings({ "rawtypes", "unchecked" })
+  @SuppressWarnings("unchecked")
   private static final EnumTypeAdapter ENUM_TYPE_ADAPTER = new EnumTypeAdapter();
   private static final UrlTypeAdapter URL_TYPE_ADAPTER = new UrlTypeAdapter();
   private static final UriTypeAdapter URI_TYPE_ADAPTER = new UriTypeAdapter();
@@ -105,11 +104,11 @@ final class DefaultTypeAdapters {
   private static final ParameterizedTypeHandlerMap<JsonSerializer<?>> DEFAULT_SERIALIZERS =
       createDefaultSerializers();
   static final ParameterizedTypeHandlerMap<JsonSerializer<?>> DEFAULT_HIERARCHY_SERIALIZERS =
-    createDefaultHierarchySerializers();
+      createDefaultHierarchySerializers();
   private static final ParameterizedTypeHandlerMap<JsonDeserializer<?>> DEFAULT_DESERIALIZERS =
       createDefaultDeserializers();
   static final ParameterizedTypeHandlerMap<JsonDeserializer<?>> DEFAULT_HIERARCHY_DESERIALIZERS =
-    createDefaultHierarchyDeserializers();
+      createDefaultHierarchyDeserializers();
   private static final ParameterizedTypeHandlerMap<InstanceCreator<?>> DEFAULT_INSTANCE_CREATORS =
       createDefaultInstanceCreators();
 
@@ -229,7 +228,7 @@ final class DefaultTypeAdapters {
     return map;
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes"})
+  @SuppressWarnings("unchecked")
   private static JsonDeserializer<?> wrapDeserializer(JsonDeserializer<?> deserializer) {
     return new JsonDeserializerExceptionWrapper(deserializer);
   }
@@ -591,7 +590,7 @@ final class DefaultTypeAdapters {
     }
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes"})
+  @SuppressWarnings("unchecked")
   private static final class CollectionTypeAdapter implements JsonSerializer<Collection>,
       JsonDeserializer<Collection>, InstanceCreator<Collection> {
     public JsonElement serialize(Collection src, Type typeOfSrc, JsonSerializationContext context) {
@@ -652,64 +651,6 @@ final class DefaultTypeAdapters {
   private static class PropertiesCreator implements InstanceCreator<Properties> {
     public Properties createInstance(Type type) {
       return new Properties();
-    }
-  }
-
-  @SuppressWarnings({"unchecked", "rawtypes"})
-  static final class MapTypeAdapter implements JsonSerializer<Map>, JsonDeserializer<Map>,
-      InstanceCreator<Map> {
-
-    public JsonElement serialize(Map src, Type typeOfSrc, JsonSerializationContext context) {
-      JsonObject map = new JsonObject();
-      Type childGenericType = null;
-      if (typeOfSrc instanceof ParameterizedType) {
-        Class<?> rawTypeOfSrc = Types.getRawType(typeOfSrc);
-        childGenericType = Types.getMapKeyAndValueTypes(typeOfSrc, rawTypeOfSrc)[1];
-      }
-
-      for (Map.Entry entry : (Set<Map.Entry>) src.entrySet()) {
-        Object value = entry.getValue();
-
-        JsonElement valueElement;
-        if (value == null) {
-          valueElement = JsonNull.createJsonNull();
-        } else {
-          Type childType = (childGenericType == null)
-              ? value.getClass() : childGenericType;
-          valueElement = context.serialize(value, childType);
-        }
-        map.add(String.valueOf(entry.getKey()), valueElement);
-      }
-      return map;
-    }
-
-    public Map deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-        throws JsonParseException {
-      // Use ObjectConstructor to create instance instead of hard-coding a specific type.
-      // This handles cases where users are using their own subclass of Map.
-      Map<Object, Object> map = constructMapType(typeOfT, context);
-      Type[] keyAndValueTypes = Types.getMapKeyAndValueTypes(typeOfT, Types.getRawType(typeOfT));
-      for (Map.Entry<String, JsonElement> entry : json.getAsJsonObject().entrySet()) {
-        Object key = context.deserialize(new JsonPrimitive(entry.getKey()), keyAndValueTypes[0]);
-        Object value = context.deserialize(entry.getValue(), keyAndValueTypes[1]);
-        map.put(key, value);
-      }
-      return map;
-    }
-
-    private Map constructMapType(Type mapType, JsonDeserializationContext context) {
-      JsonDeserializationContextDefault contextImpl = (JsonDeserializationContextDefault) context;
-      ObjectConstructor objectConstructor = contextImpl.getObjectConstructor();
-      return (Map) objectConstructor.construct(mapType);
-    }
-
-    public Map createInstance(Type type) {
-      return new LinkedHashMap();
-    }
-
-    @Override
-    public String toString() {
-      return MapTypeAdapter.class.getSimpleName();
     }
   }
 
