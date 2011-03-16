@@ -76,12 +76,8 @@ final class Primitives {
    * @see Class#isPrimitive
    */
   public static boolean isWrapperType(Class<?> type) {
-    return WRAPPER_TO_PRIMITIVE_TYPE.containsKey(checkNotNull(type));
-  }
-
-  private static Class<?> checkNotNull(Class<?> type) {
-    Preconditions.checkNotNull(type);
-    return type;
+    return WRAPPER_TO_PRIMITIVE_TYPE.containsKey(
+        Preconditions.checkNotNull(type));
   }
 
   /**
@@ -94,11 +90,10 @@ final class Primitives {
    * </pre>
    */
   public static <T> Class<T> wrap(Class<T> type) {
-    checkNotNull(type);
-
     // cast is safe: long.class and Long.class are both of type Class<Long>
     @SuppressWarnings("unchecked")
-    Class<T> wrapped = (Class<T>) PRIMITIVE_TO_WRAPPER_TYPE.get(type);
+    Class<T> wrapped = (Class<T>) PRIMITIVE_TO_WRAPPER_TYPE.get(
+        Preconditions.checkNotNull(type));
     return (wrapped == null) ? type : wrapped;
   }
 
@@ -112,11 +107,10 @@ final class Primitives {
    * </pre>
    */
   public static <T> Class<T> unwrap(Class<T> type) {
-    checkNotNull(type);
-
     // cast is safe: long.class and Long.class are both of type Class<Long>
     @SuppressWarnings("unchecked")
-    Class<T> unwrapped = (Class<T>) WRAPPER_TO_PRIMITIVE_TYPE.get(type);
+    Class<T> unwrapped = (Class<T>) WRAPPER_TO_PRIMITIVE_TYPE.get(
+        Preconditions.checkNotNull(type));
     return (unwrapped == null) ? type : unwrapped;
   }  
 }

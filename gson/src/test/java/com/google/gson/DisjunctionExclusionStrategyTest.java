@@ -41,7 +41,7 @@ public class DisjunctionExclusionStrategyTest extends TestCase {
       List<ExclusionStrategy> constructorParam = null;
       new DisjunctionExclusionStrategy(constructorParam);
       fail("Should throw an exception");
-    } catch (IllegalArgumentException expected) { }
+    } catch (NullPointerException expected) { }
   }
 
   public void testSkipFieldsWithMixedTrueAndFalse() throws Exception {

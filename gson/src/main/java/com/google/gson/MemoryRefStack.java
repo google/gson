@@ -36,7 +36,6 @@ final class MemoryRefStack {
    */
   public ObjectTypePair push(ObjectTypePair obj) {
     Preconditions.checkNotNull(obj);
-
     return stack.push(obj);
   }
 

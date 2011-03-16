@@ -29,7 +29,7 @@ public class ModifyFirstLetterNamingPolicyTest extends TestCase {
     try {
       new ModifyFirstLetterNamingPolicy(null);
       fail("Null values are not allowed as a constructor parameters");
-    } catch (IllegalArgumentException expected) { }
+    } catch (NullPointerException expected) { }
   }
 
   public void testLowerCaseFirstLetter() throws Exception {
