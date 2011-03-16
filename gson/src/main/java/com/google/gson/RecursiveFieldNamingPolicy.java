@@ -30,7 +30,6 @@ import java.util.Collection;
 abstract class RecursiveFieldNamingPolicy implements FieldNamingStrategy2 {
 
   public final String translateName(FieldAttributes f) {
-    Preconditions.checkNotNull(f);
     return translateName(f.getName(), f.getDeclaredType(), f.getAnnotations());
   }
 

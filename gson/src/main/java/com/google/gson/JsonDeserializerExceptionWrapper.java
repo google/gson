@@ -40,8 +40,7 @@ class JsonDeserializerExceptionWrapper<T> implements JsonDeserializer<T> {
    * @throws IllegalArgumentException if {@code delegate} is {@code null}.
    */
   JsonDeserializerExceptionWrapper(JsonDeserializer<T> delegate) {
-    Preconditions.checkNotNull(delegate);
-    this.delegate = delegate;
+    this.delegate = Preconditions.checkNotNull(delegate);
   }
 
   public T deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)

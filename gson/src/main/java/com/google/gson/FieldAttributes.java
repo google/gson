@@ -57,13 +57,12 @@ public final class FieldAttributes {
    * @param f the field to pull attributes from
    */
   FieldAttributes(final Class<?> declaringClazz, final Field f) {
-    Preconditions.checkNotNull(declaringClazz);
-    this.declaringClazz = declaringClazz;
-    name = f.getName();
-    declaredType = f.getType();
-    isSynthetic = f.isSynthetic();
-    modifiers = f.getModifiers();
-    field = f;
+    this.declaringClazz = Preconditions.checkNotNull(declaringClazz);
+    this.name = f.getName();
+    this.declaredType = f.getType();
+    this.isSynthetic = f.isSynthetic();
+    this.modifiers = f.getModifiers();
+    this.field = f;
   }
 
   private static int getMaxCacheSize() {

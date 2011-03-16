@@ -37,9 +37,8 @@ final class ObjectNavigatorFactory {
    *        names
    */
   public ObjectNavigatorFactory(ExclusionStrategy strategy, FieldNamingStrategy2 fieldNamingPolicy) {
-    Preconditions.checkNotNull(fieldNamingPolicy);
     this.strategy = (strategy == null ? new NullExclusionStrategy() : strategy);
-    this.fieldNamingPolicy = fieldNamingPolicy;
+    this.fieldNamingPolicy = Preconditions.checkNotNull(fieldNamingPolicy);
   }
 
   /**

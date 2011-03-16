@@ -52,11 +52,10 @@ public final class JsonObject extends JsonElement {
    * @param value the member object.
    */
   public void add(String property, JsonElement value) {
-    Preconditions.checkNotNull(property);
     if (value == null) {
       value = JsonNull.createJsonNull();
     }
-    members.put(property, value);
+    members.put(Preconditions.checkNotNull(property), value);
   }
 
   /**

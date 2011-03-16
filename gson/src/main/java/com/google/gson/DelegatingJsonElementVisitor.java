@@ -48,8 +48,7 @@ class DelegatingJsonElementVisitor implements JsonElementVisitor {
   private final JsonElementVisitor delegate;
 
   protected DelegatingJsonElementVisitor(JsonElementVisitor delegate) {
-    Preconditions.checkNotNull(delegate);
-    this.delegate = delegate;
+    this.delegate = Preconditions.checkNotNull(delegate);
   }
 
   public void endArray(JsonArray array) throws IOException {

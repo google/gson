@@ -211,8 +211,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   }
 
   private void assignToRoot(JsonElement newRoot) {
-    Preconditions.checkNotNull(newRoot);
-    root = newRoot;
+    root = Preconditions.checkNotNull(newRoot);
   }
 
   private boolean isFieldNull(FieldAttributes f, Object obj) {

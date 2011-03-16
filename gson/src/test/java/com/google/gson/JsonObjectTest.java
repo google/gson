@@ -58,7 +58,7 @@ public class JsonObjectTest extends TestCase {
     try {
       jsonObj.add(null, JsonNull.createJsonNull());
       fail("Should not allow null property names.");
-    } catch (IllegalArgumentException expected) { }
+    } catch (NullPointerException expected) { }
 
     jsonObj.add("", JsonNull.createJsonNull());
     jsonObj.add("   \t", JsonNull.createJsonNull());

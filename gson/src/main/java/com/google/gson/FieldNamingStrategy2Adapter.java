@@ -28,8 +28,7 @@ final class FieldNamingStrategy2Adapter implements FieldNamingStrategy2 {
   private final FieldNamingStrategy adaptee;
 
   public FieldNamingStrategy2Adapter(FieldNamingStrategy adaptee) {
-    Preconditions.checkNotNull(adaptee);
-    this.adaptee = adaptee;
+    this.adaptee = Preconditions.checkNotNull(adaptee);
   }
 
   public String translateName(FieldAttributes f) {
