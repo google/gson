@@ -31,7 +31,9 @@ package com.google.gson;
  */
 final class Preconditions {
   public static <T> T checkNotNull(T obj) {
-    checkArgument(obj != null);
+    if (obj == null) {
+      throw new NullPointerException();
+    }
     return obj;
   }
 

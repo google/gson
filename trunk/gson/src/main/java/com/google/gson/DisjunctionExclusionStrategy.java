@@ -28,8 +28,7 @@ final class DisjunctionExclusionStrategy implements ExclusionStrategy {
   private final Collection<ExclusionStrategy> strategies;
 
   DisjunctionExclusionStrategy(Collection<ExclusionStrategy> strategies) {
-    Preconditions.checkNotNull(strategies);
-    this.strategies = strategies;
+    this.strategies = Preconditions.checkNotNull(strategies);
   }
 
   public boolean shouldSkipField(FieldAttributes f) {

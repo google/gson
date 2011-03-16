@@ -41,12 +41,11 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
       ObjectNavigatorFactory factory, ObjectConstructor objectConstructor,
       ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers,
       JsonDeserializationContext context) {
-    Preconditions.checkNotNull(json);
     this.targetType = targetType;
     this.factory = factory;
     this.objectConstructor = objectConstructor;
     this.deserializers = deserializers;
-    this.json = json;
+    this.json = Preconditions.checkNotNull(json);
     this.context = context;
     this.constructed = false;
   }

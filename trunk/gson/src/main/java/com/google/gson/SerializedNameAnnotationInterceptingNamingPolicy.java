@@ -40,7 +40,6 @@ final class SerializedNameAnnotationInterceptingNamingPolicy implements FieldNam
   }
 
   public String translateName(FieldAttributes f) {
-    Preconditions.checkNotNull(f);
     SerializedName serializedName = f.getAnnotation(SerializedName.class);
     return serializedName == null ? delegate.translateName(f)
         : fieldNameValidator.validate(serializedName.value());

@@ -33,7 +33,7 @@ public class CamelCaseSeparatorNamingPolicyTest extends TestCase {
     try {
       new CamelCaseSeparatorNamingPolicy(null);
       fail("Null separator string is not supported");
-    } catch (IllegalArgumentException expected) { }
+    } catch (NullPointerException expected) { }
 
     try {
       new CamelCaseSeparatorNamingPolicy("");

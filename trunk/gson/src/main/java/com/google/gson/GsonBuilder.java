@@ -364,8 +364,8 @@ public final class GsonBuilder {
    * @since 1.7
    */
   public GsonBuilder setExclusionStrategies(Mode mode, ExclusionStrategy... strategies) {
-    Preconditions.checkNotNull(mode);
-    Set<ExclusionStrategy> strategySet = (mode == Mode.SERIALIZE) 
+    Set<ExclusionStrategy> strategySet = 
+        (Preconditions.checkNotNull(mode) == Mode.SERIALIZE) 
         ? serializeExclusionStrategies : deserializeExclusionStrategies;
     strategySet.addAll(Arrays.asList(strategies));
     return this;

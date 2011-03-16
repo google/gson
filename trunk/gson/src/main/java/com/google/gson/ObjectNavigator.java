@@ -88,10 +88,8 @@ final class ObjectNavigator {
    *          object.
    */
   ObjectNavigator(ObjectTypePair objTypePair, ExclusionStrategy exclusionStrategy) {
-    Preconditions.checkNotNull(exclusionStrategy);
-
     this.objTypePair = objTypePair;
-    this.exclusionStrategy = exclusionStrategy;
+    this.exclusionStrategy = Preconditions.checkNotNull(exclusionStrategy);
   }
 
   /**
