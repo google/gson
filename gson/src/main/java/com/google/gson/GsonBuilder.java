@@ -40,6 +40,7 @@ import com.google.gson.DefaultTypeAdapters.DefaultDateTypeAdapter;
  * <pre>
  * Gson gson = new GsonBuilder()
  *     .registerTypeAdapter(Id.class, new IdTypeAdapter())
+ *     .enableComplexMapKeySerialization()
  *     .serializeNulls()
  *     .setDateFormat(DateFormat.LONG)
  *     .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
@@ -185,6 +186,82 @@ public final class GsonBuilder {
     return this;
   }
   
+  /**
+   * Enabling this feature will only change the serialized form if the map key is
+   * a complex type (i.e. non-primitive) in its <strong>serialized</strong> JSON
+   * form. The default implementation of map serialization uses {@code toString()}
+   * on the key; however, when this is called then one of the following cases
+   * apply:
+   *
+   * <h3>Maps as JSON objects</h3>
+   * For this case, assume that a type adapter is registered to serialize and
+   * deserialize some {@code Point} class, which contains an x and y coordinate,
+   * to/from the JSON Primitive string value {@code "(x,y)"}. The Java map would 
+   * then be serialized as a {@link JsonObject}.
+   * 
+   * <p>Below is an example:
+   * <pre>  {@code
+   *   Gson gson = new GsonBuilder()
+   *       .register(Point.class, new MyPointTypeAdapter())
+   *       .enableComplexMapKeySerialization()
+   *       .create();
+   *
+   *   Map<Point, String> original = new LinkedHashMap<Point, String>();
+   *   original.put(new Point(5, 6), "a");
+   *   original.put(new Point(8, 8), "b");
+   *   System.out.println(gson.toJson(original, type));
+   * }</pre>
+   * The above code prints this JSON object:<pre>  {@code
+   *   {
+   *     "(5,6)": "a",
+   *     "(8,8)": "b"
+   *   }
+   * }</pre>
+   *
+   * <h3>Maps as JSON arrays</h3>
+   * For this case, assume that a type adapter was NOT registered for some
+   * {@code Point} class, but rather the default Gson serialization is applied.
+   * In this case, some {@code new Point(2,3)} would serialize as {@code
+   * {"x":2,"y":5}}.
+   * 
+   * <p>Given the assumption above, a {@code Map<Point, String>} will be
+   * serialize as an array of arrays (can be viewed as an entry set of pairs).
+   * 
+   * <p>Below is an example of serializing complex types as JSON arrays:
+   * <pre> {@code
+   *   Gson gson = new GsonBuilder()
+   *       .enableComplexMapKeySerialization()
+   *       .create();
+   *
+   *   Map<Point, String> original = new LinkedHashMap<Point, String>();
+   *   original.put(new Point(5, 6), "a");
+   *   original.put(new Point(8, 8), "b");
+   *   System.out.println(gson.toJson(original, type));
+   * }
+   * 
+   * The JSON output would look as follows:
+   * <pre>   {@code
+   *   [
+   *     [
+   *       {
+   *         "x": 5,
+   *         "y": 6
+   *       },
+   *       "a",
+   *     ],
+   *     [
+   *       {
+   *         "x": 8,
+   *         "y": 8
+   *       },
+   *       "b"
+   *     ]
+   *   ]
+   * }</pre>
+   * 
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @since 1.7
+   */
   public GsonBuilder enableComplexMapKeySerialization() {
     registerTypeHierarchyAdapter(Map.class, COMPLEX_KEY_MAP_TYPE_ADAPTER);
     return this;
