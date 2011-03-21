@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package com.google.gson.internal;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
@@ -274,7 +274,7 @@ public final class Types {
    * Returns true if this type is an array.
    */
   @SuppressWarnings("unchecked")
-  static boolean isArray(Type type) {
+  public static boolean isArray(Type type) {
     return type instanceof GenericArrayType
         || (type instanceof Class && ((Class<?>) type).isArray());
   }
@@ -283,7 +283,7 @@ public final class Types {
    * Returns the component type of this array type.
    * @throws ClassCastException if this type is not an array.
    */
-  static Type getArrayComponentType(Type array) {
+  public static Type getArrayComponentType(Type array) {
     return array instanceof GenericArrayType
         ? ((GenericArrayType) array).getGenericComponentType()
         : ((Class<?>) array).getComponentType();
@@ -293,7 +293,7 @@ public final class Types {
    * Returns the element type of this collection type.
    * @throws IllegalArgumentException if this type is not a collection.
    */
-  static Type getCollectionElementType(Type context, Class<?> contextRawType) {
+  public static Type getCollectionElementType(Type context, Class<?> contextRawType) {
     Type collectionType = getSupertype(context, contextRawType, Collection.class);
     return ((ParameterizedType) collectionType).getActualTypeArguments()[0];
   }
@@ -302,7 +302,7 @@ public final class Types {
    * Returns a two element array containing this map's key and value types in
    * positions 0 and 1 respectively.
    */
-  static Type[] getMapKeyAndValueTypes(Type context, Class<?> contextRawType) {
+  public static Type[] getMapKeyAndValueTypes(Type context, Class<?> contextRawType) {
     /*
      * Work around a problem with the declaration of java.util.Properties. That
      * class should extend Hashtable<String, String>, but it's declared to
@@ -318,7 +318,7 @@ public final class Types {
   }
 
   @SuppressWarnings("unchecked")
-  static Type resolve(Type context, Class<?> contextRawType, Type toResolve) {
+  public static Type resolve(Type context, Class<?> contextRawType, Type toResolve) {
     // this implementation is made a little more complicated in an attempt to avoid object-creation
     while (true) {
       if (toResolve instanceof TypeVariable) {
@@ -390,7 +390,7 @@ public final class Types {
     }
   }
 
-  @SuppressWarnings({ "rawtypes", "unchecked" })
+  @SuppressWarnings("unchecked")
   static Type resolveTypeVariable(Type context, Class<?> contextRawType, TypeVariable unknown) {
     Class<?> declaredByRaw = declaringClassOf(unknown);
 

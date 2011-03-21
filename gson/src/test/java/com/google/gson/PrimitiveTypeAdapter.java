@@ -21,7 +21,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import com.google.gson.JsonParseException;
-import com.google.gson.Primitives;
+import com.google.gson.internal.Primitives;
 
 /**
  * Handles type conversion from some object to some primitive (or primitive

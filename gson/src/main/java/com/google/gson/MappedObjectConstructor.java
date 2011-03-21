@@ -16,6 +16,9 @@
 
 package com.google.gson;
 
+import com.google.gson.internal.Types;
+import com.google.gson.internal.UnsafeAllocator;
+
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Type;

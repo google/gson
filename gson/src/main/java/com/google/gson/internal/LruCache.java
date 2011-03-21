@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package com.google.gson.internal;
+
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -27,12 +28,12 @@ import java.util.Map;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-final class LruCache<K, V> extends LinkedHashMap<K, V> implements Cache<K, V> {
+public final class LruCache<K, V> extends LinkedHashMap<K, V> implements Cache<K, V> {
   private static final long serialVersionUID = 1L;
 
   private final int maxCapacity;
 
-  LruCache(int maxCapacity) {
+  public LruCache(int maxCapacity) {
     super(maxCapacity, 0.7F, true);
     this.maxCapacity = maxCapacity;
   }

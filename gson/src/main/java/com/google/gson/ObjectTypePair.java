@@ -15,6 +15,8 @@
  */
 package com.google.gson;
 
+import com.google.gson.internal.Pair;
+
 import java.lang.reflect.Type;
 
 /**

@@ -16,6 +16,8 @@
 
 package com.google.gson;
 
+import com.google.gson.internal.Types;
+
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.LinkedHashMap;

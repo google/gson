@@ -16,6 +16,9 @@
 
 package com.google.gson;
 
+import com.google.gson.internal.Pair;
+import com.google.gson.internal.Types;
+
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
