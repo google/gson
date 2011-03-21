@@ -16,6 +16,9 @@
 
 package com.google.gson;
 
+import com.google.gson.internal.Primitives;
+import com.google.gson.internal.Types;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;

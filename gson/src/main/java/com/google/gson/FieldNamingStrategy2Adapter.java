@@ -16,6 +16,8 @@
 
 package com.google.gson;
 
+import com.google.gson.internal.Preconditions;
+
 /**
  * Adapts the old "deprecated" FieldNamingStrategy to the new {@link FieldNamingStrategy2}
  * type. 

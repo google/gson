@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package com.google.gson.internal;
 
 /**
  * Defines generic cache interface.
@@ -22,7 +22,7 @@ package com.google.gson;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-interface Cache<K, V> {
+public interface Cache<K, V> {
 
   /**
    * Adds the new value object into the cache for the given key.  If the key already

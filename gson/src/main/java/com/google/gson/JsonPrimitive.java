@@ -16,6 +16,8 @@
 
 package com.google.gson;
 
+import com.google.gson.internal.Preconditions;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;

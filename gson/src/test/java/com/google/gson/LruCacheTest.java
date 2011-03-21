@@ -16,6 +16,9 @@
 
 package com.google.gson;
 
+import com.google.gson.internal.Cache;
+import com.google.gson.internal.LruCache;
+
 import junit.framework.TestCase;
 
 /**

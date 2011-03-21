@@ -133,10 +133,10 @@ public final class TypeHierarchyAdapterTest extends TestCase {
 
   public void testRegisterSubTypeFirstNotAllowed() {
     try {
-      Gson gson = new GsonBuilder()
-        .registerTypeHierarchyAdapter(Manager.class, new ManagerAdapter())
-        .registerTypeHierarchyAdapter(Employee.class, new EmployeeAdapter())
-        .create();
+      new GsonBuilder()
+          .registerTypeHierarchyAdapter(Manager.class, new ManagerAdapter())
+          .registerTypeHierarchyAdapter(Employee.class, new EmployeeAdapter())
+          .create();
       fail();
     } catch (IllegalArgumentException expected) {
     }

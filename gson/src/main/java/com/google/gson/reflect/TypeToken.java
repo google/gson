@@ -16,7 +16,8 @@
 
 package com.google.gson.reflect;
 
-import com.google.gson.Types;
+import com.google.gson.internal.Types;
+
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -35,11 +36,11 @@ import java.util.Map;
  * create an empty anonymous inner class:
  *
  * <p>
- * {@code TypeLiteral<List<String>> list = new TypeToken<List<String>>() {};}
+ * {@code TypeToken<List<String>> list = new TypeToken<List<String>>() {};}
  *
  * <p>This syntax cannot be used to create type literals that have wildcard
  * parameters, such as {@code Class<?>} or {@code List<? extends CharSequence>}.
- * Such type literals must be constructed programatically, either by {@link
+ * Such type tokens must be constructed programatically, either by {@link
  * Method#getGenericReturnType extracting types from members} or by using the
  * {@link Types} factory class.
  *

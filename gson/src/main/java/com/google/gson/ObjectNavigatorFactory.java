@@ -16,6 +16,8 @@
 
 package com.google.gson;
 
+import com.google.gson.internal.Preconditions;
+
 /**
  * A factory class used to simplify {@link ObjectNavigator} creation.
  * This object holds on to a reference of the {@link ExclusionStrategy}

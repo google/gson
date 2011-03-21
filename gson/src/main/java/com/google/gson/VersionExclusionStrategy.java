@@ -18,6 +18,7 @@ package com.google.gson;
 
 import com.google.gson.annotations.Since;
 import com.google.gson.annotations.Until;
+import com.google.gson.internal.Preconditions;
 
 /**
  * This strategy will exclude any files and/or class that are passed the
