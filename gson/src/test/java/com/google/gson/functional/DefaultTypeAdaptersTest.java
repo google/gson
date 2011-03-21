@@ -24,10 +24,12 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.Set;
@@ -374,6 +376,23 @@ public class DefaultTypeAdaptersTest extends TestCase {
     String expectedDateString = "\"" + formatter.format(now) + "\"";
     String json = gson.toJson(now);
     assertEquals(expectedDateString, json);
+  }
+
+  // http://code.google.com/p/google-gson/issues/detail?id=230
+  public void testDateSerializationInCollection() throws Exception {
+    TimeZone defaultTimeZone = TimeZone.getDefault();
+    TimeZone.setDefault(TimeZone.getTimeZone("America/Los_Angeles"));
+    Locale defaultLocale = Locale.getDefault();
+    Locale.setDefault(Locale.US);
+    try {
+      Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+      List<Date> dates = Arrays.asList(new Date(0));
+      String json = gson.toJson(dates, new TypeToken<List<Date>>() {}.getType());
+      assertEquals("[\"1969-12-31\"]", json);
+    } finally {
+      TimeZone.setDefault(defaultTimeZone);
+      Locale.setDefault(defaultLocale);
+    }
   }
 
   private static class ClassWithBigDecimal {
