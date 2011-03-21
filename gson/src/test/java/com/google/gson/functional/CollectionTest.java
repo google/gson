@@ -21,9 +21,6 @@ import com.google.gson.JsonParseException;
 import com.google.gson.common.MoreAsserts;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.reflect.TypeToken;
-
-import junit.framework.TestCase;
-
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,6 +32,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
+import junit.framework.TestCase;
 
 /**
  * Functional tests for Json serialization and deserialization of collections.
@@ -82,7 +80,7 @@ public class CollectionTest extends TestCase {
       MoreAsserts.assertEquals(expected[i], toIntArray(target.get(i)));
     }
   }
-  
+
   public void testLinkedListSerialization() {
     List<String> list = new LinkedList<String>();
     list.add("a1");
@@ -115,7 +113,7 @@ public class CollectionTest extends TestCase {
     String json = "['a1','a2']";
     Type queueType = new TypeToken<Queue<String>>() {}.getType();
     Queue<String> queue = gson.fromJson(json, queueType);
-    assertEquals("a1", queue.element()); 
+    assertEquals("a1", queue.element());
     queue.remove();
     assertEquals("a2", queue.element());
   }
@@ -149,18 +147,18 @@ public class CollectionTest extends TestCase {
     target.add("Hello");
     target.add("World");
     assertEquals("[\"Hello\",\"World\"]", gson.toJson(target));
-    
+
     Type type = new TypeToken<List<Object>>() {}.getType();
     assertEquals("[\"Hello\",\"World\"]", gson.toJson(target, type));
   }
-  
+
   public void testCollectionOfObjectWithNullSerialization() {
     List<Object> target = new ArrayList<Object>();
     target.add("Hello");
     target.add(null);
     target.add("World");
     assertEquals("[\"Hello\",null,\"World\"]", gson.toJson(target));
-    
+
     Type type = new TypeToken<List<Object>>() {}.getType();
     assertEquals("[\"Hello\",null,\"World\"]", gson.toJson(target, type));
   }
@@ -237,17 +235,17 @@ public class CollectionTest extends TestCase {
     } catch (JsonParseException expected) {
     }
   }
-  
+
   public void testWildcardPrimitiveCollectionSerilaization() throws Exception {
     Collection<? extends Integer> target = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9);
     Type collectionType = new TypeToken<Collection<? extends Integer>>() { }.getType();
     String json = gson.toJson(target, collectionType);
     assertEquals("[1,2,3,4,5,6,7,8,9]", json);
-    
+
     json = gson.toJson(target);
     assertEquals("[1,2,3,4,5,6,7,8,9]", json);
   }
-  
+
   public void testWildcardPrimitiveCollectionDeserilaization() throws Exception {
     String json = "[1,2,3,4,5,6,7,8,9]";
     Type collectionType = new TypeToken<Collection<? extends Integer>>() { }.getType();
@@ -256,24 +254,38 @@ public class CollectionTest extends TestCase {
     assertTrue(target.contains(1));
     assertTrue(target.contains(9));
   }
-  
+
   public void testWildcardCollectionField() throws Exception {
     Collection<BagOfPrimitives> collection = new ArrayList<BagOfPrimitives>();
     BagOfPrimitives objA = new BagOfPrimitives(3L, 1, true, "blah");
     BagOfPrimitives objB = new BagOfPrimitives(2L, 6, false, "blahB");
     collection.add(objA);
     collection.add(objB);
-    
+
     ObjectWithWildcardCollection target = new ObjectWithWildcardCollection(collection);
     String json = gson.toJson(target);
     assertTrue(json.contains(objA.getExpectedJson()));
     assertTrue(json.contains(objB.getExpectedJson()));
-    
+
     target = gson.fromJson(json, ObjectWithWildcardCollection.class);
     Collection<? extends BagOfPrimitives> deserializedCollection = target.getCollection();
     assertEquals(2, deserializedCollection.size());
     assertTrue(deserializedCollection.contains(objA));
     assertTrue(deserializedCollection.contains(objB));
+  }
+
+  public void testFieldIsArrayList() {
+    HasArrayListField object = new HasArrayListField();
+    object.longs.add(1L);
+    object.longs.add(3L);
+    String json = gson.toJson(object, HasArrayListField.class);
+    assertEquals("{\"longs\":[1,3]}", json);
+    HasArrayListField copy = gson.fromJson("{\"longs\":[1,3]}", HasArrayListField.class);
+    assertEquals(Arrays.asList(1L, 3L), copy.longs);
+  }
+
+  static class HasArrayListField {
+    ArrayList<Long> longs = new ArrayList<Long>();
   }
 
   @SuppressWarnings("unchecked")
@@ -299,16 +311,16 @@ public class CollectionTest extends TestCase {
     public ObjectWithWildcardCollection() {
       this(Collections.EMPTY_LIST);
     }
-    
+
     public ObjectWithWildcardCollection(Collection<? extends BagOfPrimitives> collection) {
       this.collection = collection;
     }
-    
+
     public Collection<? extends BagOfPrimitives> getCollection() {
       return collection;
     }
   }
-  
+
   private static class Entry {
     int value;
     // For use by Gson
@@ -321,16 +333,16 @@ public class CollectionTest extends TestCase {
     }
   }
   public void testSetSerialization() {
-    Set<Entry> set = new HashSet<Entry>(); 
+    Set<Entry> set = new HashSet<Entry>();
     set.add(new Entry(1));
-    set.add(new Entry(2));    
+    set.add(new Entry(2));
     String json = gson.toJson(set);
     assertTrue(json.contains("1"));
     assertTrue(json.contains("2"));
   }
   public void testSetDeserialization() {
     String json = "[{value:1},{value:2}]";
-    Type type = new TypeToken<Set<Entry>>() {}.getType();        
+    Type type = new TypeToken<Set<Entry>>() {}.getType();
     Set<Entry> set = gson.fromJson(json, type);
     assertEquals(2, set.size());
     for (Entry entry : set) {
