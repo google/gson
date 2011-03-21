@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import com.google.gson.internal.Primitives;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;

@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.gson.DefaultTypeAdapters.DefaultDateTypeAdapter;
+import com.google.gson.internal.Preconditions;
 
 /**
  * <p>Use this builder to construct a {@link Gson} instance when you need to set configuration

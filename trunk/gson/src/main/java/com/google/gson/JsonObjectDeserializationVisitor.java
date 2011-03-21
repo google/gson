@@ -16,6 +16,9 @@
 
 package com.google.gson;
 
+import com.google.gson.internal.Pair;
+import com.google.gson.internal.Primitives;
+
 import java.lang.reflect.Type;
 
 /**

@@ -16,6 +16,10 @@
 
 package com.google.gson;
 
+import com.google.gson.internal.Pair;
+import com.google.gson.internal.Preconditions;
+import com.google.gson.internal.Types;
+
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 
@@ -168,7 +172,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   /**
    * objTypePair.getObject() must not be null
    */
-  @SuppressWarnings({"unchecked", "rawtypes"})
+  @SuppressWarnings("unchecked")
   private JsonElement findAndInvokeCustomSerializer(ObjectTypePair objTypePair) {
     Pair<JsonSerializer<?>,ObjectTypePair> pair = objTypePair.getMatchingHandler(serializers);
     if (pair == null) {

@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import com.google.gson.internal.Types;
 import com.google.gson.reflect.TypeToken;
 
 import junit.framework.TestCase;

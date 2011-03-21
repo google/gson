@@ -16,6 +16,8 @@
 
 package com.google.gson;
 
+import com.google.gson.internal.Preconditions;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

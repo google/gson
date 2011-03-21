@@ -16,7 +16,6 @@
 
 package com.google.gson;
 
-import com.google.gson.MemoryRefStack;
 
 import junit.framework.TestCase;
 

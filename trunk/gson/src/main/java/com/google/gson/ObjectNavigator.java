@@ -16,6 +16,10 @@
 
 package com.google.gson;
 
+import com.google.gson.internal.Preconditions;
+import com.google.gson.internal.Primitives;
+import com.google.gson.internal.Types;
+
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;

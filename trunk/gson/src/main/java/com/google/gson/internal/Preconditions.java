@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package com.google.gson.internal;
 
 /**
  * A simple utility class used to check method Preconditions.
@@ -29,7 +29,7 @@ package com.google.gson;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-final class Preconditions {
+public final class Preconditions {
   public static <T> T checkNotNull(T obj) {
     if (obj == null) {
       throw new NullPointerException();
