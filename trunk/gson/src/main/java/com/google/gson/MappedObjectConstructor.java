@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import com.google.gson.internal.LruCache;
 import com.google.gson.internal.Types;
 import com.google.gson.internal.UnsafeAllocator;
 
@@ -36,7 +37,22 @@ import java.lang.reflect.Type;
 final class MappedObjectConstructor implements ObjectConstructor {
   private static final UnsafeAllocator unsafeAllocator = UnsafeAllocator.create();
 
+  private static final LruCache<Class<?>, Constructor<?>> noArgsConstructorsCache =
+      new LruCache<Class<?>, Constructor<?>>(500);
   private final ParameterizedTypeHandlerMap<InstanceCreator<?>> instanceCreatorMap;
+  /**
+   * We need a special null value to indicate that the class does not have a no-args constructor.
+   * This helps avoid using reflection over and over again for such classes. For convenience, we
+   * use the no-args constructor of this class itself since this class would never be
+   * deserialized using Gson.
+   */
+  private static final Constructor<MappedObjectConstructor> NULL_VALUE =
+    getNoArgsConstructorUsingReflection(MappedObjectConstructor.class);
+  
+  @SuppressWarnings("unused")
+  private MappedObjectConstructor() {
+    this(null);
+  }
 
   public MappedObjectConstructor(
       ParameterizedTypeHandlerMap<InstanceCreator<?>> instanceCreators) {
@@ -71,12 +87,26 @@ final class MappedObjectConstructor implements ObjectConstructor {
   }
 
   private <T> Constructor<T> getNoArgsConstructor(Class<T> clazz) {
-    try {
-      Constructor<T> declaredConstructor = clazz.getDeclaredConstructor();
-      declaredConstructor.setAccessible(true);
-      return declaredConstructor;
-    } catch (Exception e) {
+    @SuppressWarnings("unchecked")
+    Constructor<T> constructor = (Constructor<T>)noArgsConstructorsCache.getElement(clazz);
+    if (constructor == NULL_VALUE) {
       return null;
+    }
+    if (constructor == null) {
+      constructor = getNoArgsConstructorUsingReflection(clazz);
+      noArgsConstructorsCache.addElement(clazz, constructor);
+    }
+    return constructor == NULL_VALUE ? null : constructor;
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <T> Constructor<T> getNoArgsConstructorUsingReflection(Class<T> clazz) {
+    try {
+      Constructor<T> constructor = clazz.getDeclaredConstructor();
+      constructor.setAccessible(true);
+      return constructor;
+    } catch (Exception e) {
+      return (Constructor<T>) NULL_VALUE;
     }
   }
 
