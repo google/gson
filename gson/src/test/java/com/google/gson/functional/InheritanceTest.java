@@ -125,12 +125,6 @@ public class InheritanceTest extends TestCase {
   private static class SubTypeOfNested extends Nested {
     private final long value = 5;
 
-    // Used by Gson
-    @SuppressWarnings("unused")
-    private SubTypeOfNested() {
-      this(null, null);
-    }
-
     public SubTypeOfNested(BagOfPrimitives primitive1, BagOfPrimitives primitive2) {
       super(primitive1, primitive2);
     }
@@ -185,11 +179,6 @@ public class InheritanceTest extends TestCase {
     private Queue<Long> queue;
     private Set<Float> set;
     private SortedSet<Character> sortedSet;
-
-    // For use by Gson
-    @SuppressWarnings("unused")
-    private ClassWithSubInterfacesOfCollection() {
-    }
 
     public ClassWithSubInterfacesOfCollection(List<Integer> list, Queue<Long> queue, Set<Float> set,
         SortedSet<Character> sortedSet) {

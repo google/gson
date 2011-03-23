@@ -53,10 +53,6 @@ public class TestTypes {
   public static class ClassWithBaseField {
     public static final String FIELD_KEY = "base";
     public final Base base;
-    @SuppressWarnings("unused")
-    private ClassWithBaseField() {
-      this(null);
-    }
     public ClassWithBaseField(Base base) {
       this.base = base;
     }
@@ -65,10 +61,6 @@ public class TestTypes {
   public static class ClassWithBaseArrayField {
     public static final String FIELD_KEY = "base";
     public final Base[] base;
-    @SuppressWarnings("unused")
-    private ClassWithBaseArrayField() {
-      this(null);
-    }
     public ClassWithBaseArrayField(Base[] base) {
       this.base = base;
     }
@@ -93,10 +85,6 @@ public class TestTypes {
 
   public static class StringWrapper {
     public final String someConstantStringInstanceField;
-
-    StringWrapper() {
-      this("Blah");
-    }
 
     public StringWrapper(String value) {
       someConstantStringInstanceField = value;
@@ -181,10 +169,6 @@ public class TestTypes {
     private final Long longValue;
     private final Integer intValue;
     private final Boolean booleanValue;
-
-    public BagOfPrimitiveWrappers() {
-      this(0L, 0, false);
-    }
 
     public BagOfPrimitiveWrappers(Long longValue, Integer intValue, Boolean booleanValue) {
       this.longValue = longValue;

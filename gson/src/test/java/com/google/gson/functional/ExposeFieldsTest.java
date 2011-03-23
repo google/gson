@@ -118,11 +118,6 @@ public class ExposeFieldsTest extends TestCase {
     @Expose(deserialize = false) final double d;
     @Expose(serialize = false, deserialize = false) final char e;
 
-    // For use by Gson
-    private ClassWithExposedFields() {
-      this(null, null);
-    }
-
     public ClassWithExposedFields(Integer a, Integer b) {
       this(a, b, 1L, 2.0, 'a');
     }
@@ -167,12 +162,6 @@ public class ExposeFieldsTest extends TestCase {
   private static class ClassWithInterfaceField {
     @Expose
     private final SomeInterface interfaceField;
-
-    // For use by Gson
-    @SuppressWarnings("unused")
-    private ClassWithInterfaceField() {
-      this(null);
-    }
 
     public ClassWithInterfaceField(SomeInterface interfaceField) {
       this.interfaceField = interfaceField;

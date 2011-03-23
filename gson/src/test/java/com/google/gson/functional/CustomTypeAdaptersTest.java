@@ -427,12 +427,6 @@ public class CustomTypeAdaptersTest extends TestCase {
   private static class DataHolder {
     final String data;
 
-    // For use by Gson
-    @SuppressWarnings("unused")
-    private DataHolder() {
-      this("");
-    }
-    
     public DataHolder(String data) {
       this.data = data;
     }
@@ -440,12 +434,6 @@ public class CustomTypeAdaptersTest extends TestCase {
   
   private static class DataHolderWrapper {
     final DataHolder wrappedData;
-    
-    // For use by Gson
-    @SuppressWarnings("unused")
-    private DataHolderWrapper() {
-      this(null);
-    }
     
     public DataHolderWrapper(DataHolder data) {
       this.wrappedData = data;
