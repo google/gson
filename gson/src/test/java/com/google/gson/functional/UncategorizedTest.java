@@ -69,6 +69,13 @@ public class UncategorizedTest extends TestCase {
     assertFalse(gson.toJson(target).contains("DEFAULT_VALUE"));
   }
 
+  public void testGsonInstanceReusableForSerializationAndDeserialization() {
+    BagOfPrimitives bag = new BagOfPrimitives();
+    String json = gson.toJson(bag);
+    BagOfPrimitives deserialized = gson.fromJson(json, BagOfPrimitives.class);
+    assertEquals(bag, deserialized);
+  }
+
   /**
    * This test ensures that a custom deserializer is able to return a derived class instance for a
    * base class object. For a motivation for this test, see Issue 37 and
