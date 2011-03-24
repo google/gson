@@ -80,8 +80,7 @@ final class ObjectNavigator {
   }
 
   private final ExclusionStrategy exclusionStrategy;
-  private final ObjectTypePair objTypePair;
-  private ReflectingFieldNavigator reflectingFieldNavigator;
+  private final ReflectingFieldNavigator reflectingFieldNavigator;
 
   /**
    * @param objTypePair
@@ -90,9 +89,8 @@ final class ObjectNavigator {
    *          the concrete strategy object to be used to filter out fields of an
    *          object.
    */
-  ObjectNavigator(ObjectTypePair objTypePair, ExclusionStrategy exclusionStrategy) {
+  ObjectNavigator(ExclusionStrategy exclusionStrategy) {
     reflectingFieldNavigator = new ReflectingFieldNavigator(exclusionStrategy);
-    this.objTypePair = objTypePair;
     this.exclusionStrategy = Preconditions.checkNotNull(exclusionStrategy);
   }
 
@@ -100,7 +98,7 @@ final class ObjectNavigator {
    * Navigate all the fields of the specified object. If a field is null, it
    * does not get visited.
    */
-  public void accept(Visitor visitor) {
+  public void accept(ObjectTypePair objTypePair, Visitor visitor) {
     if (exclusionStrategy.shouldSkipClass(Types.getRawType(objTypePair.type))) {
       return;
     }
