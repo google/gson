@@ -23,6 +23,8 @@ import com.google.gson.internal.Types;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Visits each of the fields of the specified class using reflection
@@ -32,6 +34,8 @@ import java.lang.reflect.Type;
  * @author Jesse Wilson
  */
 final class ReflectingFieldNavigator {
+  private static final LruCache<Type, List<Class<?>>> classCache =
+    new LruCache<Type, List<Class<?>>>(500);
   private static final LruCache<Class<?>, Field[]> fieldsCache =
     new LruCache<Class<?>, Field[]>(500);
 
@@ -52,12 +56,28 @@ final class ReflectingFieldNavigator {
   void visitFieldsReflectively(ObjectTypePair objTypePair, Visitor visitor) {
     ObjectTypePair currObjTypePair = objTypePair.toMoreSpecificType();
     Class<?> topLevelClass = Types.getRawType(currObjTypePair.type);
-    for (Class<?> curr = topLevelClass; curr != null && !curr.equals(Object.class); curr =
-      curr.getSuperclass()) {
-      if (!curr.isSynthetic()) {
-        navigateClassFields(objTypePair.getObject(), objTypePair.type, curr, visitor);
-      }
+    for (Class<?> curr : getInheritanceHierarchy(currObjTypePair.type)) {
+      navigateClassFields(objTypePair.getObject(), objTypePair.type, curr, visitor);
     }
+  }
+
+  /**
+   * Returns a list of classes corresponding to the inheritance of specified type 
+   */
+  private List<Class<?>> getInheritanceHierarchy(Type type) {
+    List<Class<?>> classes = classCache.get(type);
+    if (classes == null) {
+      classes = new ArrayList<Class<?>>();
+      Class<?> topLevelClass = Types.getRawType(type);
+      for (Class<?> curr = topLevelClass; curr != null && !curr.equals(Object.class); curr =
+        curr.getSuperclass()) {
+        if (!curr.isSynthetic()) {
+          classes.add(curr);
+        }
+      }
+      classCache.put(type, classes);
+    }
+    return classes;
   }
 
   private void navigateClassFields(Object obj, Type objType,
