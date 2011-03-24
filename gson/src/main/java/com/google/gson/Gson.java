@@ -170,10 +170,6 @@ public final class Gson {
     this.prettyPrinting = prettyPrinting;
   }
 
-  private ObjectNavigatorFactory createDefaultObjectNavigatorFactory(ExclusionStrategy strategy) {
-    return new ObjectNavigatorFactory(strategy, fieldNamingPolicy);
-  }
-
   private static ExclusionStrategy createExclusionStrategy() {
     List<ExclusionStrategy> strategies = new LinkedList<ExclusionStrategy>();
     strategies.add(DEFAULT_ANON_LOCAL_CLASS_EXCLUSION_STRATEGY);
@@ -220,7 +216,8 @@ public final class Gson {
    */
   public JsonElement toJsonTree(Object src, Type typeOfSrc) {
     JsonSerializationContextDefault context = new JsonSerializationContextDefault(
-        createDefaultObjectNavigatorFactory(serializationExclusionStrategy), serializeNulls, serializers);
+        new ObjectNavigator(serializationExclusionStrategy), fieldNamingPolicy,
+        serializeNulls, serializers);
     return context.serialize(src, typeOfSrc);
   }
 
@@ -550,7 +547,7 @@ public final class Gson {
       return null;
     }
     JsonDeserializationContext context = new JsonDeserializationContextDefault(
-        createDefaultObjectNavigatorFactory(deserializationExclusionStrategy), 
+        new ObjectNavigator(deserializationExclusionStrategy), fieldNamingPolicy, 
         deserializers, objectConstructor);
     T target = (T) context.deserialize(json, typeOfT);
     return target;

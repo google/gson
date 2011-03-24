@@ -31,7 +31,8 @@ import java.lang.reflect.Type;
  */
 abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor {
 
-  protected final ObjectNavigatorFactory factory;
+  protected final ObjectNavigator objectNavigator;
+  protected final FieldNamingStrategy2 fieldNamingPolicy;
   protected final ObjectConstructor objectConstructor;
   protected final ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers;
   protected T target;
@@ -41,11 +42,13 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
   protected boolean constructed;
 
   public JsonDeserializationVisitor(JsonElement json, Type targetType,
-      ObjectNavigatorFactory factory, ObjectConstructor objectConstructor,
+      ObjectNavigator objectNavigator, FieldNamingStrategy2 fieldNamingPolicy,
+      ObjectConstructor objectConstructor,
       ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers,
       JsonDeserializationContext context) {
     this.targetType = targetType;
-    this.factory = factory;
+    this.objectNavigator = objectNavigator;
+    this.fieldNamingPolicy = fieldNamingPolicy;
     this.objectConstructor = objectConstructor;
     this.deserializers = deserializers;
     this.json = Preconditions.checkNotNull(json);
@@ -93,20 +96,19 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
   final Object visitChildAsObject(Type childType, JsonElement jsonChild) {
     JsonDeserializationVisitor<?> childVisitor =
         new JsonObjectDeserializationVisitor<Object>(jsonChild, childType,
-            factory, objectConstructor, deserializers, context);
+            objectNavigator, fieldNamingPolicy, objectConstructor, deserializers, context);
     return visitChild(childType, childVisitor);
   }
 
   final Object visitChildAsArray(Type childType, JsonArray jsonChild) {
     JsonDeserializationVisitor<?> childVisitor =
         new JsonArrayDeserializationVisitor<Object>(jsonChild.getAsJsonArray(), childType,
-            factory, objectConstructor, deserializers, context);
+            objectNavigator, fieldNamingPolicy, objectConstructor, deserializers, context);
     return visitChild(childType, childVisitor);
   }
 
   private Object visitChild(Type type, JsonDeserializationVisitor<?> childVisitor) {
-    ObjectNavigator on = factory.create();
-    on.accept(new ObjectTypePair(null, type, false), childVisitor);
+    objectNavigator.accept(new ObjectTypePair(null, type, false), childVisitor);
     // the underlying object may have changed during the construction phase
     // This happens primarily because of custom deserializers
     return childVisitor.getTarget();
