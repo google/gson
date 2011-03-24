@@ -79,6 +79,13 @@ final class ObjectTypePair {
     return new ObjectTypePair(obj, actualType, preserveType);
   }
 
+  Type getMoreSpecificType() {    
+    if (preserveType || obj == null) {
+      return type;
+    }
+    return getActualTypeIfMoreSpecific(type, obj.getClass());
+  }
+
   // This takes care of situations where the field was declared as an Object, but the
   // actual value contains something more specific. See Issue 54.
   // TODO (inder): This solution will not work if the field is of a generic type, but 
