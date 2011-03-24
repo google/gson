@@ -42,6 +42,7 @@ public abstract class UnsafeAllocator {
       final Object unsafe = f.get(null);
       final Method allocateInstance = unsafeClass.getMethod("allocateInstance", Class.class);
       return new UnsafeAllocator() {
+        @Override
         @SuppressWarnings("unchecked")
         public <T> T newInstance(Class<T> c) throws Exception {
           return (T) allocateInstance.invoke(unsafe, c);
@@ -60,6 +61,7 @@ public abstract class UnsafeAllocator {
           .getDeclaredMethod("newInstance", Class.class, Class.class);
       newInstance.setAccessible(true);
       return new UnsafeAllocator() {
+        @Override
         @SuppressWarnings("unchecked")
         public <T> T newInstance(Class<T> c) throws Exception {
           return (T) newInstance.invoke(null, c, Object.class);
@@ -82,6 +84,7 @@ public abstract class UnsafeAllocator {
           .getDeclaredMethod("newInstance", Class.class, int.class);
       newInstance.setAccessible(true);
       return new UnsafeAllocator() {
+        @Override
         @SuppressWarnings("unchecked")
         public <T> T newInstance(Class<T> c) throws Exception {
           return (T) newInstance.invoke(null, c, constructorId);
@@ -92,7 +95,8 @@ public abstract class UnsafeAllocator {
 
     // give up
     return new UnsafeAllocator() {
-      public <T> T newInstance(Class<T> c) throws InstantiationException {
+      @Override
+      public <T> T newInstance(Class<T> c) {
         throw new UnsupportedOperationException("Cannot allocate " + c);
       }
     };
