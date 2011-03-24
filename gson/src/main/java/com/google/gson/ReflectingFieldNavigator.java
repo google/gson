@@ -63,7 +63,6 @@ final class ReflectingFieldNavigator {
   private void navigateClassFields(Object obj, Type objType,
       Class<?> classInInheritanceHierarchyForObj, Visitor visitor) {
     Field[] fields = getFields(classInInheritanceHierarchyForObj);
-    AccessibleObject.setAccessible(fields, true);
     for (Field f : fields) {
       FieldAttributes fieldAttributes = new FieldAttributes(classInInheritanceHierarchyForObj, f);
       if (exclusionStrategy.shouldSkipField(fieldAttributes)
@@ -87,6 +86,7 @@ final class ReflectingFieldNavigator {
     Field[] fields = fieldsCache.get(clazz);
     if (fields == null) {
       fields = clazz.getDeclaredFields();
+      AccessibleObject.setAccessible(fields, true);
       fieldsCache.put(clazz, fields);
     }
     return fields;
