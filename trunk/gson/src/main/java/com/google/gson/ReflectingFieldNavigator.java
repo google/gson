@@ -16,6 +16,7 @@
 package com.google.gson;
 
 import com.google.gson.ObjectNavigator.Visitor;
+import com.google.gson.internal.LruCache;
 import com.google.gson.internal.Preconditions;
 import com.google.gson.internal.Types;
 
@@ -31,6 +32,8 @@ import java.lang.reflect.Type;
  * @author Jesse Wilson
  */
 final class ReflectingFieldNavigator {
+  private static final LruCache<Class<?>, Field[]> fieldsCache =
+    new LruCache<Class<?>, Field[]>(500);
 
   private final ExclusionStrategy exclusionStrategy;
 
@@ -59,7 +62,7 @@ final class ReflectingFieldNavigator {
 
   private void navigateClassFields(Object obj, Type objType,
       Class<?> classInInheritanceHierarchyForObj, Visitor visitor) {
-    Field[] fields = classInInheritanceHierarchyForObj.getDeclaredFields();
+    Field[] fields = getFields(classInInheritanceHierarchyForObj);
     AccessibleObject.setAccessible(fields, true);
     for (Field f : fields) {
       FieldAttributes fieldAttributes = new FieldAttributes(classInInheritanceHierarchyForObj, f);
@@ -78,6 +81,15 @@ final class ReflectingFieldNavigator {
         }
       }
     }
+  }
+
+  private Field[] getFields(Class<?> clazz) {
+    Field[] fields = fieldsCache.get(clazz);
+    if (fields == null) {
+      fields = clazz.getDeclaredFields();
+      fieldsCache.put(clazz, fields);
+    }
+    return fields;
   }
 
 
