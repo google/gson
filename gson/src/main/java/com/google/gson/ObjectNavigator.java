@@ -16,11 +16,10 @@
 
 package com.google.gson;
 
-import java.lang.reflect.Type;
-
-import com.google.gson.internal.Preconditions;
 import com.google.gson.internal.Primitives;
 import com.google.gson.internal.Types;
+
+import java.lang.reflect.Type;
 
 /**
  * Provides ability to apply a visitor to an object and all of its fields
@@ -83,20 +82,18 @@ final class ObjectNavigator {
   private final ReflectingFieldNavigator reflectingFieldNavigator;
 
   /**
-   * @param objTypePair
-   *          The object,type (fully genericized) being navigated
-   * @param exclusionStrategy
-   *          the concrete strategy object to be used to filter out fields of an
+   * @param strategy the concrete exclusion strategy object to be used to filter out fields of an
    *          object.
    */
-  ObjectNavigator(ExclusionStrategy exclusionStrategy) {
-    reflectingFieldNavigator = new ReflectingFieldNavigator(exclusionStrategy);
-    this.exclusionStrategy = Preconditions.checkNotNull(exclusionStrategy);
+  ObjectNavigator(ExclusionStrategy strategy) {
+    this.exclusionStrategy = strategy == null ? new NullExclusionStrategy() : strategy;
+    this.reflectingFieldNavigator = new ReflectingFieldNavigator(exclusionStrategy);
   }
 
   /**
    * Navigate all the fields of the specified object. If a field is null, it
    * does not get visited.
+   * @param objTypePair The object,type (fully genericized) being navigated
    */
   public void accept(ObjectTypePair objTypePair, Visitor visitor) {
     if (exclusionStrategy.shouldSkipClass(Types.getRawType(objTypePair.type))) {

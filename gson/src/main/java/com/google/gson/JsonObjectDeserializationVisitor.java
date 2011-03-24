@@ -31,10 +31,11 @@ import java.lang.reflect.Type;
 final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisitor<T> {
 
   JsonObjectDeserializationVisitor(JsonElement json, Type type,
-      ObjectNavigatorFactory factory, ObjectConstructor objectConstructor,
+      ObjectNavigator objectNavigator, FieldNamingStrategy2 fieldNamingPolicy,
+      ObjectConstructor objectConstructor,
       ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers,
       JsonDeserializationContext context) {
-    super(json, type, factory, objectConstructor, deserializers, context);
+    super(json, type, objectNavigator, fieldNamingPolicy, objectConstructor, deserializers, context);
   }
 
   @Override
@@ -91,8 +92,7 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
   }
 
   private String getFieldName(FieldAttributes f) {
-    FieldNamingStrategy2 namingPolicy = factory.getFieldNamingPolicy();
-    return namingPolicy.translateName(f);
+    return fieldNamingPolicy.translateName(f);
   }
 
   public boolean visitFieldUsingCustomHandler(FieldAttributes f, Type declaredTypeOfField, Object parent) {

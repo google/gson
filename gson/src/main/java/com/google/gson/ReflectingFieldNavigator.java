@@ -15,14 +15,13 @@
  */
 package com.google.gson;
 
+import com.google.gson.ObjectNavigator.Visitor;
+import com.google.gson.internal.Preconditions;
+import com.google.gson.internal.Types;
+
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
-
-import com.google.gson.ObjectNavigator.Visitor;
-import com.google.gson.internal.Preconditions;
-import com.google.gson.internal.Primitives;
-import com.google.gson.internal.Types;
 
 /**
  * Visits each of the fields of the specified class using reflection
@@ -36,16 +35,17 @@ final class ReflectingFieldNavigator {
   private final ExclusionStrategy exclusionStrategy;
 
   /**
-   * @param objTypePair
-   *          The object,type (fully genericized) being navigated
-   * @param exclusionStrategy
-   *          the concrete strategy object to be used to filter out fields of an
-   *          object.
+   * @param exclusionStrategy the concrete strategy object to be used to filter out fields of an
+   *   object.
    */
   ReflectingFieldNavigator(ExclusionStrategy exclusionStrategy) {
     this.exclusionStrategy = Preconditions.checkNotNull(exclusionStrategy);
   }
 
+  /**
+   * @param objTypePair The object,type (fully genericized) being navigated
+   * @param visitor the visitor to visit each field with
+   */
   void visitFieldsReflectively(ObjectTypePair objTypePair, Visitor visitor) {
     ObjectTypePair currObjTypePair = objTypePair.toMoreSpecificType();
     Class<?> topLevelClass = Types.getRawType(currObjTypePair.type);

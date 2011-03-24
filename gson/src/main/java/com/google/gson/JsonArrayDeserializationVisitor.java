@@ -31,10 +31,11 @@ import java.lang.reflect.Type;
 final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisitor<T> {
 
   JsonArrayDeserializationVisitor(JsonArray jsonArray, Type arrayType,
-      ObjectNavigatorFactory factory, ObjectConstructor objectConstructor,
+      ObjectNavigator objectNavigator, FieldNamingStrategy2 fieldNamingPolicy,
+      ObjectConstructor objectConstructor,
       ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers,
       JsonDeserializationContext context) {
-    super(jsonArray, arrayType, factory, objectConstructor, deserializers, context);
+    super(jsonArray, arrayType, objectNavigator, fieldNamingPolicy, objectConstructor, deserializers, context);
   }
 
   @Override
