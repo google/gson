@@ -26,14 +26,17 @@ import java.lang.reflect.Type;
  */
 final class JsonSerializationContextDefault implements JsonSerializationContext {
 
-  private final ObjectNavigatorFactory factory;
+  private final ObjectNavigator objectNavigator;
+  private final FieldNamingStrategy2 fieldNamingPolicy;
   private final ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers;
   private final boolean serializeNulls;
   private final MemoryRefStack ancestors;
 
-  JsonSerializationContextDefault(ObjectNavigatorFactory factory, boolean serializeNulls,
+  JsonSerializationContextDefault(ObjectNavigator objectNavigator,
+      FieldNamingStrategy2 fieldNamingPolicy, boolean serializeNulls,
       ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers) {
-    this.factory = factory;
+    this.objectNavigator = objectNavigator;
+    this.fieldNamingPolicy = fieldNamingPolicy;
     this.serializeNulls = serializeNulls;
     this.serializers = serializers;
     this.ancestors = new MemoryRefStack();
@@ -54,10 +57,9 @@ final class JsonSerializationContextDefault implements JsonSerializationContext 
   }
 
   JsonElement serialize(Object src, Type typeOfSrc, boolean preserveType) {
-    ObjectNavigator on = factory.create();
-    JsonSerializationVisitor visitor =
-        new JsonSerializationVisitor(factory, serializeNulls, serializers, this, ancestors);
-    on.accept(new ObjectTypePair(src, typeOfSrc, preserveType), visitor);
+    JsonSerializationVisitor visitor = new JsonSerializationVisitor(
+        objectNavigator, fieldNamingPolicy, serializeNulls, serializers, this, ancestors);
+    objectNavigator.accept(new ObjectTypePair(src, typeOfSrc, preserveType), visitor);
     return visitor.getJsonElement();
   }
 }
