@@ -142,10 +142,10 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   }
 
   private JsonElement getJsonElementForChild(ObjectTypePair fieldValueTypePair) {
-    ObjectNavigator on = factory.create(fieldValueTypePair);
+    ObjectNavigator on = factory.create();
     JsonSerializationVisitor childVisitor =
         new JsonSerializationVisitor(factory, serializeNulls, serializers, context, ancestors);
-    on.accept(childVisitor);
+    on.accept(fieldValueTypePair, childVisitor);
     return childVisitor.getJsonElement();
   }
 

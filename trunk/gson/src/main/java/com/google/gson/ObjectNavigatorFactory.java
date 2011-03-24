@@ -26,8 +26,8 @@ import com.google.gson.internal.Preconditions;
  * @author Joel Leitch
  */
 final class ObjectNavigatorFactory {
-  private final ExclusionStrategy strategy;
   private final FieldNamingStrategy2 fieldNamingPolicy;
+  private final ObjectNavigator objectNavigator;
 
   /**
    * Creates a factory object that will be able to create new
@@ -39,8 +39,9 @@ final class ObjectNavigatorFactory {
    *        names
    */
   public ObjectNavigatorFactory(ExclusionStrategy strategy, FieldNamingStrategy2 fieldNamingPolicy) {
-    this.strategy = (strategy == null ? new NullExclusionStrategy() : strategy);
     this.fieldNamingPolicy = Preconditions.checkNotNull(fieldNamingPolicy);
+    this.objectNavigator = new ObjectNavigator(
+        strategy == null ? new NullExclusionStrategy() : strategy);
   }
 
   /**
@@ -52,8 +53,8 @@ final class ObjectNavigatorFactory {
    *         {@code srcObject} while taking into consideration the
    *         {@code type}.
    */
-  public ObjectNavigator create(ObjectTypePair objTypePair) {
-    return new ObjectNavigator(objTypePair, strategy);
+  public ObjectNavigator create() {
+    return objectNavigator;
   }
 
   FieldNamingStrategy2 getFieldNamingPolicy() {
