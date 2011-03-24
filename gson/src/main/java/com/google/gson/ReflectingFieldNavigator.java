@@ -54,9 +54,7 @@ final class ReflectingFieldNavigator {
    * @param visitor the visitor to visit each field with
    */
   void visitFieldsReflectively(ObjectTypePair objTypePair, Visitor visitor) {
-    ObjectTypePair currObjTypePair = objTypePair.toMoreSpecificType();
-    Class<?> topLevelClass = Types.getRawType(currObjTypePair.type);
-    for (Class<?> curr : getInheritanceHierarchy(currObjTypePair.type)) {
+    for (Class<?> curr : getInheritanceHierarchy(objTypePair.getMoreSpecificType())) {
       navigateClassFields(objTypePair.getObject(), objTypePair.type, curr, visitor);
     }
   }
