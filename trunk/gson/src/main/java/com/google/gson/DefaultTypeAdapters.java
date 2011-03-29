@@ -17,7 +17,6 @@
 package com.google.gson;
 
 import com.google.gson.internal.$Types;
-
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
@@ -301,6 +300,10 @@ final class DefaultTypeAdapters {
     return DEFAULT_INSTANCE_CREATORS;
   }
 
+  /**
+   * This type adapter supports three subclasses of date: Date, Timestamp, and
+   * java.sql.Date.
+   */
   static final class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
     private final DateFormat enUsFormat;
     private final DateFormat localFormat;
@@ -345,6 +348,19 @@ final class DefaultTypeAdapters {
       if (!(json instanceof JsonPrimitive)) {
         throw new JsonParseException("The date should be a string value");
       }
+      Date date = deserializeToDate(json);
+      if (typeOfT == Date.class) {
+        return date;
+      } else if (typeOfT == Timestamp.class) {
+        return new Timestamp(date.getTime());
+      } else if (typeOfT == java.sql.Date.class) {
+        return new java.sql.Date(date.getTime());
+      } else {
+        throw new IllegalArgumentException(getClass() + " cannot deserialize to " + typeOfT);
+      }
+    }
+
+    private Date deserializeToDate(JsonElement json) {
       synchronized (localFormat) {
         try {
           return localFormat.parse(json.getAsString());
