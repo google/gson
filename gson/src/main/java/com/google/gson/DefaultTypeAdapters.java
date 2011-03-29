@@ -33,15 +33,18 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Properties;
+import java.util.Queue;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.StringTokenizer;
@@ -74,7 +77,7 @@ final class DefaultTypeAdapters {
   private static final LocaleTypeAdapter LOCALE_TYPE_ADAPTER = new LocaleTypeAdapter();
   private static final DefaultInetAddressAdapter INET_ADDRESS_ADAPTER =
       new DefaultInetAddressAdapter();
-  private static final CollectionTypeAdapter COLLECTION_TYPE_ADAPTER = new CollectionTypeAdapter();
+      private static final CollectionTypeAdapter COLLECTION_TYPE_ADAPTER = new CollectionTypeAdapter();
   private static final MapTypeAdapter MAP_TYPE_ADAPTER = new MapTypeAdapter();
   private static final BigDecimalTypeAdapter BIG_DECIMAL_TYPE_ADAPTER = new BigDecimalTypeAdapter();
   private static final BigIntegerTypeAdapter BIG_INTEGER_TYPE_ADAPTER = new BigIntegerTypeAdapter();
@@ -90,13 +93,10 @@ final class DefaultTypeAdapters {
   private static final ShortTypeAdapter SHORT_TYPE_ADAPTER = new ShortTypeAdapter();
   private static final StringTypeAdapter STRING_TYPE_ADAPTER = new StringTypeAdapter();
   private static final StringBuilderTypeAdapter STRING_BUILDER_TYPE_ADAPTER =
-    new StringBuilderTypeAdapter();
+      new StringBuilderTypeAdapter();
   private static final StringBufferTypeAdapter STRING_BUFFER_TYPE_ADAPTER =
-    new StringBufferTypeAdapter();
+      new StringBufferTypeAdapter();
 
-  private static final PropertiesCreator PROPERTIES_CREATOR = new PropertiesCreator();
-  private static final TreeSetCreator TREE_SET_CREATOR = new TreeSetCreator();
-  private static final HashSetCreator HASH_SET_CREATOR = new HashSetCreator();
   private static final GregorianCalendarTypeAdapter GREGORIAN_CALENDAR_TYPE_ADAPTER =
       new GregorianCalendarTypeAdapter();
 
@@ -215,17 +215,30 @@ final class DefaultTypeAdapters {
     return map;
   }
 
+  @SuppressWarnings("unchecked")
   private static ParameterizedTypeHandlerMap<InstanceCreator<?>> createDefaultInstanceCreators() {
     ParameterizedTypeHandlerMap<InstanceCreator<?>> map =
         new ParameterizedTypeHandlerMap<InstanceCreator<?>>();
-    map.registerForTypeHierarchy(Map.class, MAP_TYPE_ADAPTER);
+    DefaultConstructorAllocator allocator = new DefaultConstructorAllocator(50);
+
+    // Map Instance Creators
+    map.registerForTypeHierarchy(Map.class,
+        new DefaultConstructorCreator<Map>(LinkedHashMap.class, allocator));
 
     // Add Collection type instance creators
-    map.registerForTypeHierarchy(Collection.class, COLLECTION_TYPE_ADAPTER);
+    DefaultConstructorCreator<List> listCreator =
+        new DefaultConstructorCreator<List>(ArrayList.class, allocator);
+    DefaultConstructorCreator<Queue> queueCreator =
+      new DefaultConstructorCreator<Queue>(LinkedList.class, allocator);
+    DefaultConstructorCreator<Set> setCreator =
+        new DefaultConstructorCreator<Set>(HashSet.class, allocator);
+    DefaultConstructorCreator<SortedSet> sortedSetCreator =
+        new DefaultConstructorCreator<SortedSet>(TreeSet.class, allocator);
+    map.registerForTypeHierarchy(Collection.class, listCreator);
+    map.registerForTypeHierarchy(Queue.class, queueCreator);
+    map.registerForTypeHierarchy(Set.class, setCreator);
+    map.registerForTypeHierarchy(SortedSet.class, sortedSetCreator);
 
-    map.registerForTypeHierarchy(Set.class, HASH_SET_CREATOR);
-    map.registerForTypeHierarchy(SortedSet.class, TREE_SET_CREATOR);
-    map.register(Properties.class, PROPERTIES_CREATOR);
     map.makeUnmodifiable();
     return map;
   }
@@ -594,7 +607,7 @@ final class DefaultTypeAdapters {
 
   @SuppressWarnings("unchecked")
   private static final class CollectionTypeAdapter implements JsonSerializer<Collection>,
-      JsonDeserializer<Collection>, InstanceCreator<Collection> {
+      JsonDeserializer<Collection> {
     public JsonElement serialize(Collection src, Type typeOfSrc, JsonSerializationContext context) {
       if (src == null) {
         return JsonNull.createJsonNull();
@@ -643,16 +656,6 @@ final class DefaultTypeAdapters {
       JsonDeserializationContextDefault contextImpl = (JsonDeserializationContextDefault) context;
       ObjectConstructor objectConstructor = contextImpl.getObjectConstructor();
       return (Collection) objectConstructor.construct(collectionType);
-    }
-
-    public Collection createInstance(Type type) {
-      return new LinkedList();
-    }
-  }
-
-  private static class PropertiesCreator implements InstanceCreator<Properties> {
-    public Properties createInstance(Type type) {
-      return new Properties();
     }
   }
 
@@ -1003,7 +1006,7 @@ final class DefaultTypeAdapters {
         throw new JsonSyntaxException(e);
       } catch (IllegalStateException e) {
         throw new JsonSyntaxException(e);
-      }        
+      }
     }
 
     @Override
@@ -1012,23 +1015,32 @@ final class DefaultTypeAdapters {
     }
   }
 
-  private static final class TreeSetCreator implements InstanceCreator<TreeSet<?>> {
-    public TreeSet<?> createInstance(Type type) {
-      return new TreeSet<Object>();
-    }
-    @Override
-    public String toString() {
-      return TreeSetCreator.class.getSimpleName();
-    }
-  }
+  @SuppressWarnings("unchecked")
+  private static final class DefaultConstructorCreator<T> implements InstanceCreator<T> {
+    private final Class<? extends T> defaultInstance;
+    private final DefaultConstructorAllocator allocator;
 
-  private static final class HashSetCreator implements InstanceCreator<HashSet<?>> {
-    public HashSet<?> createInstance(Type type) {
-      return new HashSet<Object>();
+    public DefaultConstructorCreator(Class<? extends T> defaultInstance,
+        DefaultConstructorAllocator allocator) {
+      this.defaultInstance = defaultInstance;
+      this.allocator = allocator;
     }
+
+    public T createInstance(Type type) {
+      Class<?> rawType = Types.getRawType(type);
+      try {
+        T specificInstance = (T) allocator.newInstance(rawType);
+        return (specificInstance == null)
+            ? allocator.newInstance(defaultInstance)
+            : specificInstance;
+      } catch (Exception e) {
+        throw new JsonIOException(e);
+      }
+    }
+
     @Override
     public String toString() {
-      return HashSetCreator.class.getSimpleName();
+      return DefaultConstructorCreator.class.getSimpleName();
     }
   }
 }
