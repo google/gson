@@ -16,6 +16,8 @@
 
 package com.google.gson.internal;
 
+import static com.google.gson.internal.Preconditions.checkArgument;
+import static com.google.gson.internal.Preconditions.checkNotNull;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
@@ -583,15 +585,5 @@ public final class Types {
     }
 
     private static final long serialVersionUID = 0;
-  }
-
-  private static void checkNotNull(Object obj) {
-    checkArgument(obj != null);
-  }
-
-  private static void checkArgument(boolean condition) {
-    if (!condition) {
-      throw new IllegalArgumentException("condition failed: " + condition);
-    }
   }
 }
