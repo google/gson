@@ -24,6 +24,9 @@ import com.google.gson.JsonParseException;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.common.TestTypes.ClassOverridingEquals;
 
+import com.google.gson.reflect.TypeToken;
+import java.util.Arrays;
+import java.util.List;
 import junit.framework.TestCase;
 
 import java.lang.reflect.Type;
@@ -92,6 +95,16 @@ public class UncategorizedTest extends TestCase {
     base = gson.fromJson(json, Base.class);
     assertTrue(base instanceof Derived2);
     assertEquals(OperationType.OP2, base.opType);
+  }
+
+  /**
+   * Test that trailing whitespace is ignored.
+   * http://code.google.com/p/google-gson/issues/detail?id=302
+   */
+  public void testTrailingWhitespace() throws Exception {
+    List<Integer> integers = gson.fromJson("[1,2,3]  \n\n  ",
+        new TypeToken<List<Integer>>() {}.getType());
+    assertEquals(Arrays.asList(1, 2, 3), integers);
   }
 
   private enum OperationType { OP1, OP2 }
