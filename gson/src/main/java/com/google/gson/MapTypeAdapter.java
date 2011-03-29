@@ -20,7 +20,6 @@ import com.google.gson.internal.Types;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,10 +30,9 @@ import java.util.Set;
  *
  * @author Joel Leitch
  */
-@SuppressWarnings("unchecked") 
+@SuppressWarnings("unchecked")
 final class MapTypeAdapter implements JsonSerializer<Map<?, ?>>,
-    JsonDeserializer<Map<?, ?>>, InstanceCreator<Map<?, ?>> {
-
+    JsonDeserializer<Map<?, ?>> {
   public JsonElement serialize(Map src, Type typeOfSrc, JsonSerializationContext context) {
     JsonObject map = new JsonObject();
     Type childGenericType = null;
@@ -77,10 +75,6 @@ final class MapTypeAdapter implements JsonSerializer<Map<?, ?>>,
     JsonDeserializationContextDefault contextImpl = (JsonDeserializationContextDefault) context;
     ObjectConstructor objectConstructor = contextImpl.getObjectConstructor();
     return (Map) objectConstructor.construct(mapType);
-  }
-
-  public Map<Object, Object> createInstance(Type type) {
-    return new LinkedHashMap();
   }
 
   @Override

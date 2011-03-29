@@ -16,12 +16,10 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.LruCache;
 import com.google.gson.internal.Types;
 import com.google.gson.internal.UnsafeAllocator;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Type;
 
 /**
@@ -36,23 +34,10 @@ import java.lang.reflect.Type;
  */
 final class MappedObjectConstructor implements ObjectConstructor {
   private static final UnsafeAllocator unsafeAllocator = UnsafeAllocator.create();
+  private static final DefaultConstructorAllocator defaultConstructorAllocator =
+      new DefaultConstructorAllocator(500);
 
-  private static final LruCache<Class<?>, Constructor<?>> noArgsConstructorsCache =
-      new LruCache<Class<?>, Constructor<?>>(500);
   private final ParameterizedTypeHandlerMap<InstanceCreator<?>> instanceCreatorMap;
-  /**
-   * We need a special null value to indicate that the class does not have a no-args constructor.
-   * This helps avoid using reflection over and over again for such classes. For convenience, we
-   * use the no-args constructor of this class itself since this class would never be
-   * deserialized using Gson.
-   */
-  private static final Constructor<MappedObjectConstructor> NULL_VALUE =
-    getNoArgsConstructorUsingReflection(MappedObjectConstructor.class);
-  
-  @SuppressWarnings("unused")
-  private MappedObjectConstructor() {
-    this(null);
-  }
 
   public MappedObjectConstructor(
       ParameterizedTypeHandlerMap<InstanceCreator<?>> instanceCreators) {
@@ -65,7 +50,7 @@ final class MappedObjectConstructor implements ObjectConstructor {
     if (creator != null) {
       return creator.createInstance(typeOfT);
     }
-    return (T) constructWithNoArgConstructor(typeOfT);
+    return (T) constructWithAllocators(typeOfT);
   }
 
   public Object constructArray(Type type, int length) {
@@ -73,40 +58,16 @@ final class MappedObjectConstructor implements ObjectConstructor {
   }
 
   @SuppressWarnings({"unchecked", "cast"})
-  private <T> T constructWithNoArgConstructor(Type typeOfT) {
+  private <T> T constructWithAllocators(Type typeOfT) {
     try {
       Class<T> clazz = (Class<T>) Types.getRawType(typeOfT);
-      Constructor<T> constructor = getNoArgsConstructor(clazz);
-      return constructor == null
+      T obj = defaultConstructorAllocator.newInstance(clazz);
+      return (obj == null)
           ? unsafeAllocator.newInstance(clazz)
-          : constructor.newInstance();
+          : obj;
     } catch (Exception e) {
       throw new RuntimeException(("Unable to invoke no-args constructor for " + typeOfT + ". "
           + "Register an InstanceCreator with Gson for this type may fix this problem."), e);
-    }
-  }
-
-  private <T> Constructor<T> getNoArgsConstructor(Class<T> clazz) {
-    @SuppressWarnings("unchecked")
-    Constructor<T> constructor = (Constructor<T>)noArgsConstructorsCache.getElement(clazz);
-    if (constructor == NULL_VALUE) {
-      return null;
-    }
-    if (constructor == null) {
-      constructor = getNoArgsConstructorUsingReflection(clazz);
-      noArgsConstructorsCache.addElement(clazz, constructor);
-    }
-    return constructor == NULL_VALUE ? null : constructor;
-  }
-
-  @SuppressWarnings("unchecked")
-  private static <T> Constructor<T> getNoArgsConstructorUsingReflection(Class<T> clazz) {
-    try {
-      Constructor<T> constructor = clazz.getDeclaredConstructor();
-      constructor.setAccessible(true);
-      return constructor;
-    } catch (Exception e) {
-      return (Constructor<T>) NULL_VALUE;
     }
   }
 
