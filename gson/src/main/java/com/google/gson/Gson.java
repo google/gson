@@ -16,7 +16,7 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.Primitives;
+import com.google.gson.internal.$Primitives;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
@@ -388,7 +388,7 @@ public final class Gson {
    */
   public <T> T fromJson(String json, Class<T> classOfT) throws JsonSyntaxException {
     Object object = fromJson(json, (Type) classOfT);
-    return Primitives.wrap(classOfT).cast(object);
+    return $Primitives.wrap(classOfT).cast(object);
   }
 
   /**
@@ -441,7 +441,7 @@ public final class Gson {
     JsonReader jsonReader = new JsonReader(json);
     Object object = fromJson(jsonReader, classOfT);
     assertFullConsumption(object, jsonReader);
-    return Primitives.wrap(classOfT).cast(object);
+    return $Primitives.wrap(classOfT).cast(object);
   }
 
   /**
@@ -520,7 +520,7 @@ public final class Gson {
    */
   public <T> T fromJson(JsonElement json, Class<T> classOfT) throws JsonSyntaxException {
     Object object = fromJson(json, (Type) classOfT);
-    return Primitives.wrap(classOfT).cast(object);
+    return $Primitives.wrap(classOfT).cast(object);
   }
 
   /**
@@ -547,7 +547,7 @@ public final class Gson {
       return null;
     }
     JsonDeserializationContext context = new JsonDeserializationContextDefault(
-        new ObjectNavigator(deserializationExclusionStrategy), fieldNamingPolicy, 
+        new ObjectNavigator(deserializationExclusionStrategy), fieldNamingPolicy,
         deserializers, objectConstructor);
     T target = (T) context.deserialize(json, typeOfT);
     return target;

@@ -16,7 +16,7 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.Preconditions;
+import com.google.gson.internal.$Preconditions;
 
 import java.util.Stack;
 
@@ -37,7 +37,7 @@ final class MemoryRefStack {
    * @return the object that was added
    */
   public ObjectTypePair push(ObjectTypePair obj) {
-    Preconditions.checkNotNull(obj);
+    $Preconditions.checkNotNull(obj);
     return stack.push(obj);
   }
 

@@ -16,8 +16,8 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.Pair;
-import com.google.gson.internal.Preconditions;
+import com.google.gson.internal.$Pair;
+import com.google.gson.internal.$Preconditions;
 
 import java.lang.reflect.Type;
 
@@ -51,7 +51,7 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
     this.fieldNamingPolicy = fieldNamingPolicy;
     this.objectConstructor = objectConstructor;
     this.deserializers = deserializers;
-    this.json = Preconditions.checkNotNull(json);
+    this.json = $Preconditions.checkNotNull(json);
     this.context = context;
     this.constructed = false;
   }
@@ -74,18 +74,18 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
 
   @SuppressWarnings("unchecked")
   public final boolean visitUsingCustomHandler(ObjectTypePair objTypePair) {
-    Pair<JsonDeserializer<?>, ObjectTypePair> pair = objTypePair.getMatchingHandler(deserializers);
+    $Pair<JsonDeserializer<?>, ObjectTypePair> pair = objTypePair.getMatchingHandler(deserializers);
     if (pair == null) {
       return false;
-    }    
+    }
     Object value = invokeCustomDeserializer(json, pair);
     target = (T) value;
     constructed = true;
     return true;
   }
 
-  protected Object invokeCustomDeserializer(JsonElement element, 
-      Pair<JsonDeserializer<?>, ObjectTypePair> pair) {
+  protected Object invokeCustomDeserializer(JsonElement element,
+      $Pair<JsonDeserializer<?>, ObjectTypePair> pair) {
     if (element == null || element.isJsonNull()) {
       return null;
     }

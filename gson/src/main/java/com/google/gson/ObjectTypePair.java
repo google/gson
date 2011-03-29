@@ -15,7 +15,7 @@
  */
 package com.google.gson;
 
-import com.google.gson.internal.Pair;
+import com.google.gson.internal.$Pair;
 
 import java.lang.reflect.Type;
 
@@ -52,23 +52,23 @@ final class ObjectTypePair {
     return String.format("preserveType: %b, type: %s, obj: %s", preserveType, type, obj);
   }
 
-  <HANDLER> Pair<HANDLER, ObjectTypePair> getMatchingHandler(
+  <HANDLER> $Pair<HANDLER, ObjectTypePair> getMatchingHandler(
       ParameterizedTypeHandlerMap<HANDLER> handlers) {
     HANDLER handler = null;
     if (!preserveType && obj != null) {
       // First try looking up the handler for the actual type
-      ObjectTypePair moreSpecificType = toMoreSpecificType();    
+      ObjectTypePair moreSpecificType = toMoreSpecificType();
       handler = handlers.getHandlerFor(moreSpecificType.type);
       if (handler != null) {
-        return new Pair<HANDLER, ObjectTypePair>(handler, moreSpecificType);
+        return new $Pair<HANDLER, ObjectTypePair>(handler, moreSpecificType);
       }
     }
     // Try the specified type
     handler = handlers.getHandlerFor(type);
-    return handler == null ? null : new Pair<HANDLER, ObjectTypePair>(handler, this);
+    return handler == null ? null : new $Pair<HANDLER, ObjectTypePair>(handler, this);
   }
 
-  ObjectTypePair toMoreSpecificType() {    
+  ObjectTypePair toMoreSpecificType() {
     if (preserveType || obj == null) {
       return this;
     }
@@ -79,7 +79,7 @@ final class ObjectTypePair {
     return new ObjectTypePair(obj, actualType, preserveType);
   }
 
-  Type getMoreSpecificType() {    
+  Type getMoreSpecificType() {
     if (preserveType || obj == null) {
       return type;
     }
@@ -88,7 +88,7 @@ final class ObjectTypePair {
 
   // This takes care of situations where the field was declared as an Object, but the
   // actual value contains something more specific. See Issue 54.
-  // TODO (inder): This solution will not work if the field is of a generic type, but 
+  // TODO (inder): This solution will not work if the field is of a generic type, but
   // the actual object is of a raw type (which is a sub-class of the generic type).
   static Type getActualTypeIfMoreSpecific(Type type, Class<?> actualClass) {
     if (type instanceof Class<?>) {
@@ -98,7 +98,7 @@ final class ObjectTypePair {
       }
       if (type == Object.class) {
         type = actualClass;
-      } 
+      }
     }
     return type;
   }

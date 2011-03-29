@@ -16,7 +16,7 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.Types;
+import com.google.gson.internal.$Types;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -37,8 +37,8 @@ final class MapTypeAdapter implements JsonSerializer<Map<?, ?>>,
     JsonObject map = new JsonObject();
     Type childGenericType = null;
     if (typeOfSrc instanceof ParameterizedType) {
-      Class<?> rawTypeOfSrc = Types.getRawType(typeOfSrc);
-      childGenericType = Types.getMapKeyAndValueTypes(typeOfSrc, rawTypeOfSrc)[1];
+      Class<?> rawTypeOfSrc = $Types.getRawType(typeOfSrc);
+      childGenericType = $Types.getMapKeyAndValueTypes(typeOfSrc, rawTypeOfSrc)[1];
     }
 
     for (Map.Entry entry : (Set<Map.Entry>) src.entrySet()) {
@@ -62,7 +62,7 @@ final class MapTypeAdapter implements JsonSerializer<Map<?, ?>>,
     // Use ObjectConstructor to create instance instead of hard-coding a specific type.
     // This handles cases where users are using their own subclass of Map.
     Map<Object, Object> map = constructMapType(typeOfT, context);
-    Type[] keyAndValueTypes = Types.getMapKeyAndValueTypes(typeOfT, Types.getRawType(typeOfT));
+    Type[] keyAndValueTypes = $Types.getMapKeyAndValueTypes(typeOfT, $Types.getRawType(typeOfT));
     for (Map.Entry<String, JsonElement> entry : json.getAsJsonObject().entrySet()) {
       Object key = context.deserialize(new JsonPrimitive(entry.getKey()), keyAndValueTypes[0]);
       Object value = context.deserialize(entry.getValue(), keyAndValueTypes[1]);

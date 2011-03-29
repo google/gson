@@ -28,8 +28,8 @@ import java.util.Map;
  *
  * @author Kevin Bourrillion
  */
-public final class Primitives {
-  private Primitives() {}
+public final class $Primitives {
+  private $Primitives() {}
 
   /** A map from primitive types to their corresponding wrapper types. */
   private static final Map<Class<?>, Class<?>> PRIMITIVE_TO_WRAPPER_TYPE;
@@ -38,7 +38,7 @@ public final class Primitives {
   private static final Map<Class<?>, Class<?>> WRAPPER_TO_PRIMITIVE_TYPE;
 
   // Sad that we can't use a BiMap. :(
-  
+
   static {
     Map<Class<?>, Class<?>> primToWrap = new HashMap<Class<?>, Class<?>>(16);
     Map<Class<?>, Class<?>> wrapToPrim = new HashMap<Class<?>, Class<?>>(16);
@@ -78,7 +78,7 @@ public final class Primitives {
    */
   public static boolean isWrapperType(Class<?> type) {
     return WRAPPER_TO_PRIMITIVE_TYPE.containsKey(
-        Preconditions.checkNotNull(type));
+        $Preconditions.checkNotNull(type));
   }
 
   /**
@@ -94,7 +94,7 @@ public final class Primitives {
     // cast is safe: long.class and Long.class are both of type Class<Long>
     @SuppressWarnings("unchecked")
     Class<T> wrapped = (Class<T>) PRIMITIVE_TO_WRAPPER_TYPE.get(
-        Preconditions.checkNotNull(type));
+        $Preconditions.checkNotNull(type));
     return (wrapped == null) ? type : wrapped;
   }
 
@@ -111,7 +111,7 @@ public final class Primitives {
     // cast is safe: long.class and Long.class are both of type Class<Long>
     @SuppressWarnings("unchecked")
     Class<T> unwrapped = (Class<T>) WRAPPER_TO_PRIMITIVE_TYPE.get(
-        Preconditions.checkNotNull(type));
+        $Preconditions.checkNotNull(type));
     return (unwrapped == null) ? type : unwrapped;
-  }  
+  }
 }
