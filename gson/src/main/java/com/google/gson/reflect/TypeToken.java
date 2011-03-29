@@ -16,6 +16,7 @@
 
 package com.google.gson.reflect;
 
+import com.google.gson.internal.Preconditions;
 import com.google.gson.internal.Types;
 
 import java.lang.reflect.GenericArrayType;
@@ -74,8 +75,7 @@ public class TypeToken<T> {
    */
   @SuppressWarnings("unchecked")
   TypeToken(Type type) {
-    checkNotNull(type);
-    this.type = Types.canonicalize(type);
+    this.type = Types.canonicalize(Preconditions.checkNotNull(type));
     this.rawType = (Class<? super T>) Types.getRawType(this.type);
     this.hashCode = this.type.hashCode();
   }
@@ -309,15 +309,5 @@ public class TypeToken<T> {
    */
   public static <T> TypeToken<T> get(Class<T> type) {
     return new TypeToken<T>(type);
-  }
-
-  static void checkNotNull(Object obj) {
-    checkArgument(obj != null);
-  }
-
-  static void checkArgument(boolean condition) {
-    if (!condition) {
-      throw new IllegalArgumentException("condition failed: " + condition);
-    }
   }
 }
