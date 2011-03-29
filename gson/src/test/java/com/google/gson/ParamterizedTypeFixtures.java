@@ -16,8 +16,8 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.Primitives;
-import com.google.gson.internal.Types;
+import com.google.gson.internal.$Primitives;
+import com.google.gson.internal.$Types;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -51,7 +51,7 @@ public class ParamterizedTypeFixtures {
 
     private String getExpectedJson(Object obj) {
       Class<?> clazz = obj.getClass();
-      if (Primitives.isWrapperType(Primitives.wrap(clazz))) {
+      if ($Primitives.isWrapperType($Primitives.wrap(clazz))) {
         return obj.toString();
       } else if (obj.getClass().equals(String.class)) {
         return "\"" + obj.toString() + "\"";
@@ -127,7 +127,7 @@ public class ParamterizedTypeFixtures {
     @SuppressWarnings("unchecked")
     public static<T> String getExpectedJson(MyParameterizedType<T> obj) {
       Class<T> clazz = (Class<T>) obj.value.getClass();
-      boolean addQuotes = !clazz.isArray() && !Primitives.unwrap(clazz).isPrimitive();
+      boolean addQuotes = !clazz.isArray() && !$Primitives.unwrap(clazz).isPrimitive();
       StringBuilder sb = new StringBuilder("{\"");
       sb.append(obj.value.getClass().getSimpleName()).append("\":");
       if (addQuotes) {
@@ -153,10 +153,10 @@ public class ParamterizedTypeFixtures {
     public MyParameterizedType<T> deserialize(JsonElement json, Type typeOfT,
         JsonDeserializationContext context) throws JsonParseException {
       Type genericClass = ((ParameterizedType) typeOfT).getActualTypeArguments()[0];
-      Class<?> rawType = Types.getRawType(genericClass);
+      Class<?> rawType = $Types.getRawType(genericClass);
       String className = rawType.getSimpleName();
       T value = (T) json.getAsJsonObject().get(className).getAsObject();
-      if (Primitives.isPrimitive(genericClass)) {
+      if ($Primitives.isPrimitive(genericClass)) {
         PrimitiveTypeAdapter typeAdapter = new PrimitiveTypeAdapter();
         value = (T) typeAdapter.adaptType(value, rawType);
       }

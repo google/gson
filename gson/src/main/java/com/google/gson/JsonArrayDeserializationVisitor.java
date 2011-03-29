@@ -16,7 +16,7 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.Types;
+import com.google.gson.internal.$Types;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
@@ -42,22 +42,22 @@ final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisito
   @SuppressWarnings("unchecked")
   protected T constructTarget() {
     if (!json.isJsonArray()) {
-      throw new JsonParseException("Expecting array found: " + json); 
+      throw new JsonParseException("Expecting array found: " + json);
     }
     JsonArray jsonArray = json.getAsJsonArray();
-    if (Types.isArray(targetType)) {
+    if ($Types.isArray(targetType)) {
       // We know that we are getting back an array of the required type, so
       // this typecasting is safe.
-      return (T) objectConstructor.constructArray(Types.getArrayComponentType(targetType),
+      return (T) objectConstructor.constructArray($Types.getArrayComponentType(targetType),
           jsonArray.size());
     }
     // is a collection
-    return (T) objectConstructor.construct(Types.getRawType(targetType));
+    return (T) objectConstructor.construct($Types.getRawType(targetType));
   }
 
   public void visitArray(Object array, Type arrayType) {
     if (!json.isJsonArray()) {
-      throw new JsonParseException("Expecting array found: " + json); 
+      throw new JsonParseException("Expecting array found: " + json);
     }
     JsonArray jsonArray = json.getAsJsonArray();
     for (int i = 0; i < jsonArray.size(); i++) {
@@ -67,12 +67,12 @@ final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisito
       if (jsonChild == null || jsonChild.isJsonNull()) {
         child = null;
       } else if (jsonChild instanceof JsonObject) {
-        child = visitChildAsObject(Types.getArrayComponentType(arrayType), jsonChild);
+        child = visitChildAsObject($Types.getArrayComponentType(arrayType), jsonChild);
       } else if (jsonChild instanceof JsonArray) {
-        child = visitChildAsArray(Types.getArrayComponentType(arrayType),
+        child = visitChildAsArray($Types.getArrayComponentType(arrayType),
             jsonChild.getAsJsonArray());
       } else if (jsonChild instanceof JsonPrimitive) {
-        child = visitChildAsObject(Types.getArrayComponentType(arrayType),
+        child = visitChildAsObject($Types.getArrayComponentType(arrayType),
             jsonChild.getAsJsonPrimitive());
       } else {
         throw new IllegalStateException();
@@ -95,12 +95,12 @@ final class JsonArrayDeserializationVisitor<T> extends JsonDeserializationVisito
   }
 
   public void visitObjectField(FieldAttributes f, Type typeOfF, Object obj) {
-    throw new JsonParseException("Expecting array but found object field " + f.getName() + ": " 
+    throw new JsonParseException("Expecting array but found object field " + f.getName() + ": "
         + obj);
   }
 
   public boolean visitFieldUsingCustomHandler(FieldAttributes f, Type actualTypeOfField, Object parent) {
-    throw new JsonParseException("Expecting array but found field " + f.getName() + ": " 
+    throw new JsonParseException("Expecting array but found field " + f.getName() + ": "
         + parent);
   }
 

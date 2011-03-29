@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import com.google.gson.internal.$Preconditions;
 import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.util.Arrays;
@@ -27,7 +28,6 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.gson.DefaultTypeAdapters.DefaultDateTypeAdapter;
-import com.google.gson.internal.Preconditions;
 
 /**
  * <p>Use this builder to construct a {@link Gson} instance when you need to set configuration
@@ -186,7 +186,7 @@ public final class GsonBuilder {
     this.serializeNulls = true;
     return this;
   }
-  
+
   /**
    * Enabling this feature will only change the serialized form if the map key is
    * a complex type (i.e. non-primitive) in its <strong>serialized</strong> JSON
@@ -197,9 +197,9 @@ public final class GsonBuilder {
    * <h3>Maps as JSON objects</h3>
    * For this case, assume that a type adapter is registered to serialize and
    * deserialize some {@code Point} class, which contains an x and y coordinate,
-   * to/from the JSON Primitive string value {@code "(x,y)"}. The Java map would 
+   * to/from the JSON Primitive string value {@code "(x,y)"}. The Java map would
    * then be serialized as a {@link JsonObject}.
-   * 
+   *
    * <p>Below is an example:
    * <pre>  {@code
    *   Gson gson = new GsonBuilder()
@@ -224,10 +224,10 @@ public final class GsonBuilder {
    * {@code Point} class, but rather the default Gson serialization is applied.
    * In this case, some {@code new Point(2,3)} would serialize as {@code
    * {"x":2,"y":5}}.
-   * 
+   *
    * <p>Given the assumption above, a {@code Map<Point, String>} will be
    * serialize as an array of arrays (can be viewed as an entry set of pairs).
-   * 
+   *
    * <p>Below is an example of serializing complex types as JSON arrays:
    * <pre> {@code
    *   Gson gson = new GsonBuilder()
@@ -239,7 +239,7 @@ public final class GsonBuilder {
    *   original.put(new Point(8, 8), "b");
    *   System.out.println(gson.toJson(original, type));
    * }
-   * 
+   *
    * The JSON output would look as follows:
    * <pre>   {@code
    *   [
@@ -259,7 +259,7 @@ public final class GsonBuilder {
    *     ]
    *   ]
    * }</pre>
-   * 
+   *
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.7
    */
@@ -350,7 +350,7 @@ public final class GsonBuilder {
     deserializeExclusionStrategies.addAll(strategyList);
     return this;
   }
-  
+
   /**
    * Configures Gson to apply a set of exclusion strategies during either serialization or
    * deserialization. Each of the {@code strategies} will be applied as a disjunction rule.
@@ -365,8 +365,8 @@ public final class GsonBuilder {
    * @since 1.7
    */
   public GsonBuilder setExclusionStrategies(Mode mode, ExclusionStrategy... strategies) {
-    Set<ExclusionStrategy> strategySet = 
-        (Preconditions.checkNotNull(mode) == Mode.SERIALIZE) 
+    Set<ExclusionStrategy> strategySet =
+        ($Preconditions.checkNotNull(mode) == Mode.SERIALIZE)
         ? serializeExclusionStrategies : deserializeExclusionStrategies;
     strategySet.addAll(Arrays.asList(strategies));
     return this;
@@ -470,8 +470,8 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
   public GsonBuilder registerTypeAdapter(Type type, Object typeAdapter) {
-    Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
-        || typeAdapter instanceof JsonDeserializer<?> || typeAdapter instanceof InstanceCreator<?>);
+    $Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
+            || typeAdapter instanceof JsonDeserializer<?> || typeAdapter instanceof InstanceCreator<?>);
     if (typeAdapter instanceof InstanceCreator<?>) {
       registerInstanceCreator(type, (InstanceCreator<?>) typeAdapter);
     }
@@ -549,8 +549,8 @@ public final class GsonBuilder {
    * @since 1.7
    */
   public GsonBuilder registerTypeHierarchyAdapter(Class<?> baseType, Object typeAdapter) {
-    Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
-      || typeAdapter instanceof JsonDeserializer<?> || typeAdapter instanceof InstanceCreator<?>);
+    $Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
+            || typeAdapter instanceof JsonDeserializer<?> || typeAdapter instanceof InstanceCreator<?>);
     if (typeAdapter instanceof InstanceCreator<?>) {
       registerInstanceCreatorForTypeHierarchy(baseType, (InstanceCreator<?>) typeAdapter);
     }
@@ -626,7 +626,7 @@ public final class GsonBuilder {
       serializationStrategies.add(innerClassExclusionStrategy);
     }
     if (ignoreVersionsAfter != VersionConstants.IGNORE_VERSIONS) {
-      VersionExclusionStrategy versionExclusionStrategy = 
+      VersionExclusionStrategy versionExclusionStrategy =
           new VersionExclusionStrategy(ignoreVersionsAfter);
       deserializationStrategies.add(versionExclusionStrategy);
       serializationStrategies.add(versionExclusionStrategy);

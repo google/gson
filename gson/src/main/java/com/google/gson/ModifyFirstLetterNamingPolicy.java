@@ -16,7 +16,7 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.Preconditions;
+import com.google.gson.internal.$Preconditions;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
@@ -65,7 +65,7 @@ final class ModifyFirstLetterNamingPolicy extends RecursiveFieldNamingPolicy {
    * @throws IllegalArgumentException if {@code modifier} is null
    */
   ModifyFirstLetterNamingPolicy(LetterModifier modifier) {
-    this.letterModifier = Preconditions.checkNotNull(modifier);
+    this.letterModifier = $Preconditions.checkNotNull(modifier);
   }
 
   @Override

@@ -16,11 +16,9 @@
 
 package com.google.gson.reflect;
 
-import com.google.gson.internal.Preconditions;
-import com.google.gson.internal.Types;
-
+import com.google.gson.internal.$Types;
+import com.google.gson.internal.$Preconditions;
 import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -41,9 +39,6 @@ import java.util.Map;
  *
  * <p>This syntax cannot be used to create type literals that have wildcard
  * parameters, such as {@code Class<?>} or {@code List<? extends CharSequence>}.
- * Such type tokens must be constructed programatically, either by {@link
- * Method#getGenericReturnType extracting types from members} or by using the
- * {@link Types} factory class.
  *
  * @author Bob Lee
  * @author Sven Mawson
@@ -66,7 +61,7 @@ public class TypeToken<T> {
   @SuppressWarnings("unchecked")
   protected TypeToken() {
     this.type = getSuperclassTypeParameter(getClass());
-    this.rawType = (Class<? super T>) Types.getRawType(type);
+    this.rawType = (Class<? super T>) $Types.getRawType(type);
     this.hashCode = type.hashCode();
   }
 
@@ -75,13 +70,13 @@ public class TypeToken<T> {
    */
   @SuppressWarnings("unchecked")
   TypeToken(Type type) {
-    this.type = Types.canonicalize(Preconditions.checkNotNull(type));
-    this.rawType = (Class<? super T>) Types.getRawType(this.type);
+    this.type = $Types.canonicalize($Preconditions.checkNotNull(type));
+    this.rawType = (Class<? super T>) $Types.getRawType(this.type);
     this.hashCode = this.type.hashCode();
   }
 
   /**
-   * Returns the type from super class's type parameter in {@link Types#canonicalize(java.lang.reflect.Type)
+   * Returns the type from super class's type parameter in {@link $Types#canonicalize
    * canonical form}.
    */
   @SuppressWarnings("unchecked")
@@ -91,7 +86,7 @@ public class TypeToken<T> {
       throw new RuntimeException("Missing type parameter.");
     }
     ParameterizedType parameterized = (ParameterizedType) superclass;
-    return Types.canonicalize(parameterized.getActualTypeArguments()[0]);
+    return $Types.canonicalize(parameterized.getActualTypeArguments()[0]);
   }
 
   /**
@@ -136,12 +131,12 @@ public class TypeToken<T> {
     }
 
     if (type instanceof Class<?>) {
-      return rawType.isAssignableFrom(Types.getRawType(from));
+      return rawType.isAssignableFrom($Types.getRawType(from));
     } else if (type instanceof ParameterizedType) {
       return isAssignableFrom(from, (ParameterizedType) type,
           new HashMap<String, Type>());
     } else if (type instanceof GenericArrayType) {
-      return rawType.isAssignableFrom(Types.getRawType(from))
+      return rawType.isAssignableFrom($Types.getRawType(from))
           && isAssignableFrom(from, (GenericArrayType) type);
     } else {
       throw buildUnexpectedTypeError(
@@ -201,7 +196,7 @@ public class TypeToken<T> {
     }
 
     // First figure out the class and any type information.
-    Class<?> clazz = Types.getRawType(from);
+    Class<?> clazz = $Types.getRawType(from);
     ParameterizedType ptype = null;
     if (from instanceof ParameterizedType) {
       ptype = (ParameterizedType) from;
@@ -290,11 +285,11 @@ public class TypeToken<T> {
 
   @Override public final boolean equals(Object o) {
     return o instanceof TypeToken<?>
-        && Types.equals(type, ((TypeToken<?>) o).type);
+        && $Types.equals(type, ((TypeToken<?>) o).type);
   }
 
   @Override public final String toString() {
-    return Types.typeToString(type);
+    return $Types.typeToString(type);
   }
 
   /**

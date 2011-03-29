@@ -18,7 +18,7 @@ package com.google.gson;
 
 import com.google.gson.annotations.Since;
 import com.google.gson.annotations.Until;
-import com.google.gson.internal.Preconditions;
+import com.google.gson.internal.$Preconditions;
 
 /**
  * This strategy will exclude any files and/or class that are passed the
@@ -30,7 +30,7 @@ final class VersionExclusionStrategy implements ExclusionStrategy {
   private final double version;
 
   VersionExclusionStrategy(double version) {
-    Preconditions.checkArgument(version >= 0.0D);
+    $Preconditions.checkArgument(version >= 0.0D);
     this.version = version;
   }
 
