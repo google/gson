@@ -16,7 +16,7 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.Preconditions;
+import com.google.gson.internal.$Preconditions;
 
 import java.io.IOException;
 
@@ -50,7 +50,7 @@ class DelegatingJsonElementVisitor implements JsonElementVisitor {
   private final JsonElementVisitor delegate;
 
   protected DelegatingJsonElementVisitor(JsonElementVisitor delegate) {
-    this.delegate = Preconditions.checkNotNull(delegate);
+    this.delegate = $Preconditions.checkNotNull(delegate);
   }
 
   public void endArray(JsonArray array) throws IOException {
@@ -69,37 +69,37 @@ class DelegatingJsonElementVisitor implements JsonElementVisitor {
     delegate.startObject(object);
   }
 
-  public void visitArrayMember(JsonArray parent, JsonPrimitive member, 
+  public void visitArrayMember(JsonArray parent, JsonPrimitive member,
       boolean isFirst) throws IOException {
     delegate.visitArrayMember(parent, member, isFirst);
   }
 
-  public void visitArrayMember(JsonArray parent, JsonArray member, 
+  public void visitArrayMember(JsonArray parent, JsonArray member,
       boolean isFirst) throws IOException {
     delegate.visitArrayMember(parent, member, isFirst);
   }
 
-  public void visitArrayMember(JsonArray parent, JsonObject member, 
+  public void visitArrayMember(JsonArray parent, JsonObject member,
       boolean isFirst) throws IOException {
     delegate.visitArrayMember(parent, member, isFirst);
   }
 
-  public void visitObjectMember(JsonObject parent, String memberName, JsonPrimitive member, 
+  public void visitObjectMember(JsonObject parent, String memberName, JsonPrimitive member,
       boolean isFirst) throws IOException {
     delegate.visitObjectMember(parent, memberName, member, isFirst);
   }
 
-  public void visitObjectMember(JsonObject parent, String memberName, JsonArray member, 
+  public void visitObjectMember(JsonObject parent, String memberName, JsonArray member,
       boolean isFirst) throws IOException {
     delegate.visitObjectMember(parent, memberName, member, isFirst);
   }
 
-  public void visitObjectMember(JsonObject parent, String memberName, JsonObject member, 
+  public void visitObjectMember(JsonObject parent, String memberName, JsonObject member,
       boolean isFirst) throws IOException {
     delegate.visitObjectMember(parent, memberName, member, isFirst);
   }
 
-  public void visitNullObjectMember(JsonObject parent, String memberName, 
+  public void visitNullObjectMember(JsonObject parent, String memberName,
       boolean isFirst) throws IOException {
     delegate.visitNullObjectMember(parent, memberName, isFirst);
   }

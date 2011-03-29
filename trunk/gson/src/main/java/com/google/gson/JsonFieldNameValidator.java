@@ -16,7 +16,7 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.Preconditions;
+import com.google.gson.internal.$Preconditions;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,11 +33,11 @@ import java.util.regex.Pattern;
  */
 class JsonFieldNameValidator {
   private static final String COMMON_PATTERN = "[a-zA-Z][a-zA-Z0-9\\ \\$_\\-]*$";
-  
+
   private static final Pattern JSON_FIELD_NAME_PATTERN =
       Pattern.compile("(^" + COMMON_PATTERN + ")|(^[\\$_]" + COMMON_PATTERN + ")");
 
-  
+
   /**
    * Performs validation on the JSON field name to ensure it is a valid field name.
    *
@@ -46,8 +46,8 @@ class JsonFieldNameValidator {
    * @throws IllegalArgumentException if the field name is an invalid JSON field name
    */
   public String validate(String fieldName) {
-    Preconditions.checkNotNull(fieldName);
-    Preconditions.checkArgument(!"".equals(fieldName.trim()));
+    $Preconditions.checkNotNull(fieldName);
+    $Preconditions.checkArgument(!"".equals(fieldName.trim()));
 
     Matcher matcher = JSON_FIELD_NAME_PATTERN.matcher(fieldName);
     if (!matcher.matches()) {

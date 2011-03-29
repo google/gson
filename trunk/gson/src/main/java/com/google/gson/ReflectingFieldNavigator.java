@@ -16,9 +16,9 @@
 package com.google.gson;
 
 import com.google.gson.ObjectNavigator.Visitor;
-import com.google.gson.internal.LruCache;
-import com.google.gson.internal.Preconditions;
-import com.google.gson.internal.Types;
+import com.google.gson.internal.$LruCache;
+import com.google.gson.internal.$Types;
+import com.google.gson.internal.$Preconditions;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
@@ -28,16 +28,16 @@ import java.util.List;
 
 /**
  * Visits each of the fields of the specified class using reflection
- * 
+ *
  * @author Inderjeet Singh
  * @author Joel Leitch
  * @author Jesse Wilson
  */
 final class ReflectingFieldNavigator {
-  private static final LruCache<Type, List<Class<?>>> classCache =
-    new LruCache<Type, List<Class<?>>>(500);
-  private static final LruCache<Class<?>, Field[]> fieldsCache =
-    new LruCache<Class<?>, Field[]>(500);
+  private static final $LruCache<Type, List<Class<?>>> classCache =
+    new $LruCache<Type, List<Class<?>>>(500);
+  private static final $LruCache<Class<?>, Field[]> fieldsCache =
+    new $LruCache<Class<?>, Field[]>(500);
 
   private final ExclusionStrategy exclusionStrategy;
 
@@ -46,7 +46,7 @@ final class ReflectingFieldNavigator {
    *   object.
    */
   ReflectingFieldNavigator(ExclusionStrategy exclusionStrategy) {
-    this.exclusionStrategy = Preconditions.checkNotNull(exclusionStrategy);
+    this.exclusionStrategy = $Preconditions.checkNotNull(exclusionStrategy);
   }
 
   /**
@@ -60,13 +60,13 @@ final class ReflectingFieldNavigator {
   }
 
   /**
-   * Returns a list of classes corresponding to the inheritance of specified type 
+   * Returns a list of classes corresponding to the inheritance of specified type
    */
   private List<Class<?>> getInheritanceHierarchy(Type type) {
     List<Class<?>> classes = classCache.get(type);
     if (classes == null) {
       classes = new ArrayList<Class<?>>();
-      Class<?> topLevelClass = Types.getRawType(type);
+      Class<?> topLevelClass = $Types.getRawType(type);
       for (Class<?> curr = topLevelClass; curr != null && !curr.equals(Object.class); curr =
         curr.getSuperclass()) {
         if (!curr.isSynthetic()) {
@@ -91,7 +91,7 @@ final class ReflectingFieldNavigator {
       boolean visitedWithCustomHandler =
           visitor.visitFieldUsingCustomHandler(fieldAttributes, declaredTypeOfField, obj);
       if (!visitedWithCustomHandler) {
-        if (Types.isArray(declaredTypeOfField)) {
+        if ($Types.isArray(declaredTypeOfField)) {
           visitor.visitArrayField(fieldAttributes, declaredTypeOfField, obj);
         } else {
           visitor.visitObjectField(fieldAttributes, declaredTypeOfField, obj);
@@ -120,11 +120,11 @@ final class ReflectingFieldNavigator {
    * @return the type information for the field
    */
   public static Type getTypeInfoForField(Field f, Type typeDefiningF) {
-    Class<?> rawType = Types.getRawType(typeDefiningF);
+    Class<?> rawType = $Types.getRawType(typeDefiningF);
     if (!f.getDeclaringClass().isAssignableFrom(rawType)) {
       // this field is unrelated to the type; the user probably omitted type information
       return f.getGenericType();
     }
-    return Types.resolve(typeDefiningF, rawType, f.getGenericType());
+    return $Types.resolve(typeDefiningF, rawType, f.getGenericType());
   }
 }

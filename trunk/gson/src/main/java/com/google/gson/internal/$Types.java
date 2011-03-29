@@ -16,8 +16,8 @@
 
 package com.google.gson.internal;
 
-import static com.google.gson.internal.Preconditions.checkArgument;
-import static com.google.gson.internal.Preconditions.checkNotNull;
+import static com.google.gson.internal.$Preconditions.checkArgument;
+import static com.google.gson.internal.$Preconditions.checkNotNull;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
@@ -38,10 +38,10 @@ import java.util.Properties;
  * @author Bob Lee
  * @author Jesse Wilson
  */
-public final class Types {
+public final class $Types {
   static final Type[] EMPTY_TYPE_ARRAY = new Type[] {};
 
-  private Types() {}
+  private $Types() {}
 
   /**
    * Returns a new parameterized type, applying {@code typeArguments} to
@@ -269,7 +269,7 @@ public final class Types {
   static Type getSupertype(Type context, Class<?> contextRawType, Class<?> supertype) {
     checkArgument(supertype.isAssignableFrom(contextRawType));
     return resolve(context, contextRawType,
-        Types.getGenericSupertype(context, contextRawType, supertype));
+        $Types.getGenericSupertype(context, contextRawType, supertype));
   }
 
   /**
@@ -473,7 +473,7 @@ public final class Types {
 
     @Override public boolean equals(Object other) {
       return other instanceof ParameterizedType
-          && Types.equals(this, (ParameterizedType) other);
+          && $Types.equals(this, (ParameterizedType) other);
     }
 
     @Override public int hashCode() {
@@ -513,7 +513,7 @@ public final class Types {
 
     @Override public boolean equals(Object o) {
       return o instanceof GenericArrayType
-          && Types.equals(this, (GenericArrayType) o);
+          && $Types.equals(this, (GenericArrayType) o);
     }
 
     @Override public int hashCode() {
@@ -565,7 +565,7 @@ public final class Types {
 
     @Override public boolean equals(Object other) {
       return other instanceof WildcardType
-          && Types.equals(this, (WildcardType) other);
+          && $Types.equals(this, (WildcardType) other);
     }
 
     @Override public int hashCode() {

@@ -18,11 +18,11 @@ package com.google.gson.internal;
 
 /**
  * Defines generic cache interface.
- * 
+ *
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public interface Cache<K, V> {
+public interface $Cache<K, V> {
 
   /**
    * Adds the new value object into the cache for the given key.  If the key already
@@ -40,10 +40,10 @@ public interface Cache<K, V> {
    * @return the cached value for the given {@code key}
    */
   V getElement(K key);
-  
+
   /**
    * Removes the value from the cache for the given key.
-   * 
+   *
    * @param key the key identifying the value to remove
    * @return the value for the given {@code key}
    */

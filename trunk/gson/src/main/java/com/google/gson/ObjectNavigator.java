@@ -16,15 +16,15 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.Primitives;
-import com.google.gson.internal.Types;
+import com.google.gson.internal.$Types;
+import com.google.gson.internal.$Primitives;
 
 import java.lang.reflect.Type;
 
 /**
  * Provides ability to apply a visitor to an object and all of its fields
  * recursively.
- * 
+ *
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
@@ -58,7 +58,7 @@ final class ObjectNavigator {
 
     /**
      * This is called to visit an object using a custom handler
-     * 
+     *
      * @return true if a custom handler exists, false otherwise
      */
     public boolean visitUsingCustomHandler(ObjectTypePair objTypePair);
@@ -71,7 +71,7 @@ final class ObjectNavigator {
         Object parent);
 
     void visitPrimitive(Object primitive);
-    
+
     /**
      * Retrieve the current target
      */
@@ -96,7 +96,7 @@ final class ObjectNavigator {
    * @param objTypePair The object,type (fully genericized) being navigated
    */
   public void accept(ObjectTypePair objTypePair, Visitor visitor) {
-    if (exclusionStrategy.shouldSkipClass(Types.getRawType(objTypePair.type))) {
+    if (exclusionStrategy.shouldSkipClass($Types.getRawType(objTypePair.type))) {
       return;
     }
     boolean visitedWithCustomHandler = visitor.visitUsingCustomHandler(objTypePair);
@@ -109,7 +109,7 @@ final class ObjectNavigator {
       objTypePair.setObject(objectToVisit);
       visitor.start(objTypePair);
       try {
-        if (Types.isArray(objTypePair.type)) {
+        if ($Types.isArray(objTypePair.type)) {
           visitor.visitArray(objectToVisit, objTypePair.type);
         } else if (objTypePair.type == Object.class && isPrimitiveOrString(objectToVisit)) {
           // TODO(Joel): this is only used for deserialization of "primitives"
@@ -129,6 +129,6 @@ final class ObjectNavigator {
   private static boolean isPrimitiveOrString(Object objectToVisit) {
     Class<?> realClazz = objectToVisit.getClass();
     return realClazz == Object.class || realClazz == String.class
-        || Primitives.unwrap(realClazz).isPrimitive();
+        || $Primitives.unwrap(realClazz).isPrimitive();
   }
 }

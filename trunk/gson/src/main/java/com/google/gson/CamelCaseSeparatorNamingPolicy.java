@@ -16,7 +16,7 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.Preconditions;
+import com.google.gson.internal.$Preconditions;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
@@ -53,8 +53,8 @@ final class CamelCaseSeparatorNamingPolicy extends RecursiveFieldNamingPolicy {
    *         is null or empty.
    */
   public CamelCaseSeparatorNamingPolicy(String separatorString) {
-    Preconditions.checkNotNull(separatorString);
-    Preconditions.checkArgument(!"".equals(separatorString));
+    $Preconditions.checkNotNull(separatorString);
+    $Preconditions.checkArgument(!"".equals(separatorString));
     this.separatorString = separatorString;
   }
 

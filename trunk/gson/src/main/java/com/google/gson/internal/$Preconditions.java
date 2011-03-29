@@ -29,7 +29,7 @@ package com.google.gson.internal;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public final class Preconditions {
+public final class $Preconditions {
   public static <T> T checkNotNull(T obj) {
     if (obj == null) {
       throw new NullPointerException();
@@ -42,7 +42,7 @@ public final class Preconditions {
       throw new IllegalArgumentException();
     }
   }
-  
+
   public static void checkState(boolean condition) {
     if (!condition) {
       throw new IllegalStateException();

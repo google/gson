@@ -16,8 +16,8 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.Cache;
-import com.google.gson.internal.LruCache;
+import com.google.gson.internal.$Cache;
+import com.google.gson.internal.$LruCache;
 
 import java.lang.reflect.Constructor;
 
@@ -30,14 +30,14 @@ class DefaultConstructorAllocator {
   private static final Constructor<Null> NULL_CONSTRUCTOR = createNullConstructor();
 
   // Package private for testing purposes.
-  final Cache<Class<?>, Constructor<?>> constructorCache;
+  final $Cache<Class<?>, Constructor<?>> constructorCache;
 
   public DefaultConstructorAllocator() {
     this(200);
   }
 
   public DefaultConstructorAllocator(int cacheSize) {
-    constructorCache = new LruCache<Class<?>, Constructor<?>>(cacheSize);
+    constructorCache = new $LruCache<Class<?>, Constructor<?>>(cacheSize);
   }
 
   private static final Constructor<Null> createNullConstructor() {

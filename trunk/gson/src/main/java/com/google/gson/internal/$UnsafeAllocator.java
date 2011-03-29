@@ -27,10 +27,10 @@ import java.lang.reflect.Method;
  * @author Joel Leitch
  * @author Jesse Wilson
  */
-public abstract class UnsafeAllocator {
+public abstract class $UnsafeAllocator {
   public abstract <T> T newInstance(Class<T> c) throws Exception;
 
-  public static UnsafeAllocator create() {
+  public static $UnsafeAllocator create() {
     // try JVM
     // public class Unsafe {
     //   public Object allocateInstance(Class<?> type);
@@ -41,7 +41,7 @@ public abstract class UnsafeAllocator {
       f.setAccessible(true);
       final Object unsafe = f.get(null);
       final Method allocateInstance = unsafeClass.getMethod("allocateInstance", Class.class);
-      return new UnsafeAllocator() {
+      return new $UnsafeAllocator() {
         @Override
         @SuppressWarnings("unchecked")
         public <T> T newInstance(Class<T> c) throws Exception {
@@ -60,7 +60,7 @@ public abstract class UnsafeAllocator {
       final Method newInstance = ObjectInputStream.class
           .getDeclaredMethod("newInstance", Class.class, Class.class);
       newInstance.setAccessible(true);
-      return new UnsafeAllocator() {
+      return new $UnsafeAllocator() {
         @Override
         @SuppressWarnings("unchecked")
         public <T> T newInstance(Class<T> c) throws Exception {
@@ -83,7 +83,7 @@ public abstract class UnsafeAllocator {
       final Method newInstance = ObjectStreamClass.class
           .getDeclaredMethod("newInstance", Class.class, int.class);
       newInstance.setAccessible(true);
-      return new UnsafeAllocator() {
+      return new $UnsafeAllocator() {
         @Override
         @SuppressWarnings("unchecked")
         public <T> T newInstance(Class<T> c) throws Exception {
@@ -94,7 +94,7 @@ public abstract class UnsafeAllocator {
     }
 
     // give up
-    return new UnsafeAllocator() {
+    return new $UnsafeAllocator() {
       @Override
       public <T> T newInstance(Class<T> c) {
         throw new UnsupportedOperationException("Cannot allocate " + c);
