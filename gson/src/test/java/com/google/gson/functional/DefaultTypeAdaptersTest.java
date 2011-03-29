@@ -15,6 +15,13 @@
  */
 package com.google.gson.functional;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -36,16 +43,7 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.UUID;
-
 import junit.framework.TestCase;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
-import com.google.gson.reflect.TypeToken;
 
 /**
  * Functional test for Json serialization and deserialization for common classes for which default
@@ -380,15 +378,53 @@ public class DefaultTypeAdaptersTest extends TestCase {
 
   // http://code.google.com/p/google-gson/issues/detail?id=230
   public void testDateSerializationInCollection() throws Exception {
+    Type listOfDates = new TypeToken<List<Date>>() {}.getType();
     TimeZone defaultTimeZone = TimeZone.getDefault();
-    TimeZone.setDefault(TimeZone.getTimeZone("America/Los_Angeles"));
+    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     Locale defaultLocale = Locale.getDefault();
     Locale.setDefault(Locale.US);
     try {
       Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
       List<Date> dates = Arrays.asList(new Date(0));
-      String json = gson.toJson(dates, new TypeToken<List<Date>>() {}.getType());
-      assertEquals("[\"1969-12-31\"]", json);
+      String json = gson.toJson(dates, listOfDates);
+      assertEquals("[\"1970-01-01\"]", json);
+      assertEquals(0L, gson.<List<Date>>fromJson("[\"1970-01-01\"]", listOfDates).get(0).getTime());
+    } finally {
+      TimeZone.setDefault(defaultTimeZone);
+      Locale.setDefault(defaultLocale);
+    }
+  }
+
+  // http://code.google.com/p/google-gson/issues/detail?id=230
+  public void testTimestampSerialization() throws Exception {
+    TimeZone defaultTimeZone = TimeZone.getDefault();
+    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+    Locale defaultLocale = Locale.getDefault();
+    Locale.setDefault(Locale.US);
+    try {
+      Timestamp timestamp = new Timestamp(0L);
+      Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+      String json = gson.toJson(timestamp, Timestamp.class);
+      assertEquals("\"1970-01-01\"", json);
+      assertEquals(0, gson.fromJson("\"1970-01-01\"", Timestamp.class).getTime());
+    } finally {
+      TimeZone.setDefault(defaultTimeZone);
+      Locale.setDefault(defaultLocale);
+    }
+  }
+
+  // http://code.google.com/p/google-gson/issues/detail?id=230
+  public void testSqlDateSerialization() throws Exception {
+    TimeZone defaultTimeZone = TimeZone.getDefault();
+    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+    Locale defaultLocale = Locale.getDefault();
+    Locale.setDefault(Locale.US);
+    try {
+      java.sql.Date sqlDate = new java.sql.Date(0L);
+      Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+      String json = gson.toJson(sqlDate, Timestamp.class);
+      assertEquals("\"1970-01-01\"", json);
+      assertEquals(0, gson.fromJson("\"1970-01-01\"", java.sql.Date.class).getTime());
     } finally {
       TimeZone.setDefault(defaultTimeZone);
       Locale.setDefault(defaultLocale);

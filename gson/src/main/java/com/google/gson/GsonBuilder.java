@@ -18,6 +18,7 @@ package com.google.gson;
 
 import com.google.gson.internal.$Preconditions;
 import java.lang.reflect.Type;
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -400,6 +401,9 @@ public final class GsonBuilder {
    * call this method or {@link #setDateFormat(int)} multiple times, but only the last invocation
    * will be used to decide the serialization format.
    *
+   * <p>The date format will be used to serialize and deserialize {@link java.util.Date}, {@link
+   * java.sql.Timestamp} and {@link java.sql.Date}.
+   *
    * <p>Note that this pattern must abide by the convention provided by {@code SimpleDateFormat}
    * class. See the documentation in {@link java.text.SimpleDateFormat} for more information on
    * valid date and time patterns.</p>
@@ -679,12 +683,19 @@ public final class GsonBuilder {
     }
 
     if (dateTypeAdapter != null) {
-      if (!serializers.hasSpecificHandlerFor(Date.class)) {
-        serializers.register(Date.class, dateTypeAdapter);
-      }
-      if (!deserializers.hasSpecificHandlerFor(Date.class)) {
-        deserializers.register(Date.class, dateTypeAdapter);
-      }
+      registerIfAbsent(Date.class, serializers, dateTypeAdapter);
+      registerIfAbsent(Date.class, deserializers, dateTypeAdapter);
+      registerIfAbsent(Timestamp.class, serializers, dateTypeAdapter);
+      registerIfAbsent(Timestamp.class, deserializers, dateTypeAdapter);
+      registerIfAbsent(java.sql.Date.class, serializers, dateTypeAdapter);
+      registerIfAbsent(java.sql.Date.class, deserializers, dateTypeAdapter);
+    }
+  }
+
+  private static <T> void registerIfAbsent(Class<?> type,
+      ParameterizedTypeHandlerMap<T> adapters, T adapter) {
+    if (!adapters.hasSpecificHandlerFor(type)) {
+      adapters.register(type, adapter);
     }
   }
 }
