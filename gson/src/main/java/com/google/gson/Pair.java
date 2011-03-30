@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson.internal;
+package com.google.gson;
 
 /**
  * A simple object that holds onto a pair of object references, first and second.
@@ -25,11 +25,11 @@ package com.google.gson.internal;
  * @param <FIRST>
  * @param <SECOND>
  */
-public final class $Pair<FIRST, SECOND> {
+final class Pair<FIRST, SECOND> {
   public final FIRST first;
   public final SECOND second;
 
-  public $Pair(FIRST first, SECOND second) {
+  public Pair(FIRST first, SECOND second) {
     this.first = first;
     this.second = second;
   }
@@ -42,11 +42,11 @@ public final class $Pair<FIRST, SECOND> {
 
   @Override
   public boolean equals(Object o) {
-    if (!(o instanceof $Pair<?, ?>)) {
+    if (!(o instanceof Pair<?, ?>)) {
       return false;
     }
 
-    $Pair<?, ?> that = ($Pair<?, ?>) o;
+    Pair<?, ?> that = (Pair<?, ?>) o;
     return equal(this.first, that.first) && equal(this.second, that.second);
   }
 

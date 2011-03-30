@@ -14,26 +14,26 @@
  * limitations under the License.
  */
 
-package com.google.gson.internal;
+package com.google.gson;
 
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * An implementation of the {@link $Cache} interface that evict objects from the cache using an
+ * An implementation of the {@link Cache} interface that evict objects from the cache using an
  * LRU (least recently used) algorithm.  Object start getting evicted from the cache once the
  * {@code maxCapacity} is reached.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public final class $LruCache<K, V> extends LinkedHashMap<K, V> implements $Cache<K, V> {
+final class LruCache<K, V> extends LinkedHashMap<K, V> implements Cache<K, V> {
   private static final long serialVersionUID = 1L;
 
   private final int maxCapacity;
 
-  public $LruCache(int maxCapacity) {
+  public LruCache(int maxCapacity) {
     super(maxCapacity, 0.7F, true);
     this.maxCapacity = maxCapacity;
   }

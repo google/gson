@@ -16,13 +16,11 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.$Cache;
-import com.google.gson.internal.$LruCache;
 
 import junit.framework.TestCase;
 
 /**
- * Unit test for the {@link $LruCache} class.
+ * Unit test for the {@link LruCache} class.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
@@ -30,7 +28,7 @@ import junit.framework.TestCase;
 public class LruCacheTest extends TestCase {
 
   public void testCacheHitAndMiss() throws Exception {
-    $Cache<String, Integer> cache = new $LruCache<String, Integer>(3);
+    Cache<String, Integer> cache = new LruCache<String, Integer>(3);
 
     String key = "key1";
     assertNull(cache.getElement(key));
@@ -44,7 +42,7 @@ public class LruCacheTest extends TestCase {
   }
 
   public void testCacheKeyOverwrite() throws Exception {
-    $Cache<String, Integer> cache = new $LruCache<String, Integer>(3);
+    Cache<String, Integer> cache = new LruCache<String, Integer>(3);
 
     String key = "key1";
     assertNull(cache.getElement(key));
@@ -56,7 +54,7 @@ public class LruCacheTest extends TestCase {
   }
 
   public void testCacheEviction() throws Exception {
-    $Cache<String, Integer> cache = new $LruCache<String, Integer>(5);
+    Cache<String, Integer> cache = new LruCache<String, Integer>(5);
 
     cache.addElement("key1", 1);
     cache.addElement("key2", 2);

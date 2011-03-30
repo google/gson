@@ -16,7 +16,6 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.$Pair;
 import com.google.gson.internal.$Types;
 
 import java.lang.reflect.Type;
@@ -40,15 +39,15 @@ final class ParameterizedTypeHandlerMap<T> {
   private static final Logger logger =
       Logger.getLogger(ParameterizedTypeHandlerMap.class.getName());
   private final Map<Type, T> map = new HashMap<Type, T>();
-  private final List<$Pair<Class<?>, T>> typeHierarchyList = new ArrayList<$Pair<Class<?>, T>>();
+  private final List<Pair<Class<?>, T>> typeHierarchyList = new ArrayList<Pair<Class<?>, T>>();
   private boolean modifiable = true;
 
   public synchronized void registerForTypeHierarchy(Class<?> typeOfT, T value) {
-    $Pair<Class<?>, T> pair = new $Pair<Class<?>, T>(typeOfT, value);
+    Pair<Class<?>, T> pair = new Pair<Class<?>, T>(typeOfT, value);
     registerForTypeHierarchy(pair);
   }
 
-  public synchronized void registerForTypeHierarchy($Pair<Class<?>, T> pair) {
+  public synchronized void registerForTypeHierarchy(Pair<Class<?>, T> pair) {
     if (!modifiable) {
       throw new IllegalStateException("Attempted to modify an unmodifiable map.");
     }
@@ -70,7 +69,7 @@ final class ParameterizedTypeHandlerMap<T> {
 
   private int getIndexOfAnOverriddenHandler(Class<?> type) {
     for (int i = typeHierarchyList.size()-1; i >= 0; --i) {
-      $Pair<Class<?>, T> entry = typeHierarchyList.get(i);
+      Pair<Class<?>, T> entry = typeHierarchyList.get(i);
       if (type.isAssignableFrom(entry.first)) {
         return i;
       }
@@ -100,7 +99,7 @@ final class ParameterizedTypeHandlerMap<T> {
     // Quite important to traverse the typeHierarchyList from stack bottom first since
     // we want to register the handlers in the same order to preserve priority order
     for (int i = other.typeHierarchyList.size()-1; i >= 0; --i) {
-      $Pair<Class<?>, T> entry = other.typeHierarchyList.get(i);
+      Pair<Class<?>, T> entry = other.typeHierarchyList.get(i);
       int index = getIndexOfSpecificHandlerForTypeHierarchy(entry.first);
       if (index < 0) {
         registerForTypeHierarchy(entry);
@@ -118,7 +117,7 @@ final class ParameterizedTypeHandlerMap<T> {
     // Quite important to traverse the typeHierarchyList from stack bottom first since
     // we want to register the handlers in the same order to preserve priority order
     for (int i = other.typeHierarchyList.size()-1; i >= 0; --i) {
-      $Pair<Class<?>, T> entry = other.typeHierarchyList.get(i);
+      Pair<Class<?>, T> entry = other.typeHierarchyList.get(i);
       registerForTypeHierarchy(entry);
     }
   }
@@ -152,7 +151,7 @@ final class ParameterizedTypeHandlerMap<T> {
   }
 
   private T getHandlerForTypeHierarchy(Class<?> type) {
-    for ($Pair<Class<?>, T> entry : typeHierarchyList) {
+    for (Pair<Class<?>, T> entry : typeHierarchyList) {
       if (entry.first.isAssignableFrom(type)) {
         return entry.second;
       }
@@ -186,7 +185,7 @@ final class ParameterizedTypeHandlerMap<T> {
   public String toString() {
     StringBuilder sb = new StringBuilder("{mapForTypeHierarchy:{");
     boolean first = true;
-    for ($Pair<Class<?>, T> entry : typeHierarchyList) {
+    for (Pair<Class<?>, T> entry : typeHierarchyList) {
       if (first) {
         first = false;
       } else {

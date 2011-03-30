@@ -16,7 +16,6 @@
 package com.google.gson;
 
 import com.google.gson.ObjectNavigator.Visitor;
-import com.google.gson.internal.$LruCache;
 import com.google.gson.internal.$Types;
 import com.google.gson.internal.$Preconditions;
 
@@ -34,10 +33,10 @@ import java.util.List;
  * @author Jesse Wilson
  */
 final class ReflectingFieldNavigator {
-  private static final $LruCache<Type, List<Class<?>>> classCache =
-    new $LruCache<Type, List<Class<?>>>(500);
-  private static final $LruCache<Class<?>, Field[]> fieldsCache =
-    new $LruCache<Class<?>, Field[]>(500);
+  private static final LruCache<Type, List<Class<?>>> classCache =
+    new LruCache<Type, List<Class<?>>>(500);
+  private static final LruCache<Class<?>, Field[]> fieldsCache =
+    new LruCache<Class<?>, Field[]>(500);
 
   private final ExclusionStrategy exclusionStrategy;
 

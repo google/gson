@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson.internal;
+package com.google.gson;
 
 
 import java.lang.reflect.Type;
@@ -22,14 +22,16 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.gson.internal.$Preconditions;
+
 /**
  * Contains static utility methods pertaining to primitive types and their
  * corresponding wrapper types.
  *
  * @author Kevin Bourrillion
  */
-public final class $Primitives {
-  private $Primitives() {}
+final class Primitives {
+  private Primitives() {}
 
   /** A map from primitive types to their corresponding wrapper types. */
   private static final Map<Class<?>, Class<?>> PRIMITIVE_TO_WRAPPER_TYPE;
