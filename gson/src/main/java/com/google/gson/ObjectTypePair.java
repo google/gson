@@ -15,7 +15,6 @@
  */
 package com.google.gson;
 
-import com.google.gson.internal.$Pair;
 
 import java.lang.reflect.Type;
 
@@ -52,7 +51,7 @@ final class ObjectTypePair {
     return String.format("preserveType: %b, type: %s, obj: %s", preserveType, type, obj);
   }
 
-  <HANDLER> $Pair<HANDLER, ObjectTypePair> getMatchingHandler(
+  <HANDLER> Pair<HANDLER, ObjectTypePair> getMatchingHandler(
       ParameterizedTypeHandlerMap<HANDLER> handlers) {
     HANDLER handler = null;
     if (!preserveType && obj != null) {
@@ -60,12 +59,12 @@ final class ObjectTypePair {
       ObjectTypePair moreSpecificType = toMoreSpecificType();
       handler = handlers.getHandlerFor(moreSpecificType.type);
       if (handler != null) {
-        return new $Pair<HANDLER, ObjectTypePair>(handler, moreSpecificType);
+        return new Pair<HANDLER, ObjectTypePair>(handler, moreSpecificType);
       }
     }
     // Try the specified type
     handler = handlers.getHandlerFor(type);
-    return handler == null ? null : new $Pair<HANDLER, ObjectTypePair>(handler, this);
+    return handler == null ? null : new Pair<HANDLER, ObjectTypePair>(handler, this);
   }
 
   ObjectTypePair toMoreSpecificType() {

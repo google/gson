@@ -16,7 +16,6 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.$Primitives;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -31,8 +30,8 @@ final class PrimitiveTypeAdapter {
 
   @SuppressWarnings("unchecked")
   public <T> T adaptType(Object from, Class<T> to) {
-    Class<?> aClass = $Primitives.wrap(to);
-    if ($Primitives.isWrapperType(aClass)) {
+    Class<?> aClass = Primitives.wrap(to);
+    if (Primitives.isWrapperType(aClass)) {
       if (aClass == Character.class) {
         String value = from.toString();
         if (value.length() == 1) {

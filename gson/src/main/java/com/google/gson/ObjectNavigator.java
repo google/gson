@@ -17,7 +17,6 @@
 package com.google.gson;
 
 import com.google.gson.internal.$Types;
-import com.google.gson.internal.$Primitives;
 
 import java.lang.reflect.Type;
 
@@ -129,6 +128,6 @@ final class ObjectNavigator {
   private static boolean isPrimitiveOrString(Object objectToVisit) {
     Class<?> realClazz = objectToVisit.getClass();
     return realClazz == Object.class || realClazz == String.class
-        || $Primitives.unwrap(realClazz).isPrimitive();
+        || Primitives.unwrap(realClazz).isPrimitive();
   }
 }
