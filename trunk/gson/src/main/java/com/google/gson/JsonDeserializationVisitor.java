@@ -16,7 +16,6 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.$Pair;
 import com.google.gson.internal.$Preconditions;
 
 import java.lang.reflect.Type;
@@ -74,7 +73,7 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
 
   @SuppressWarnings("unchecked")
   public final boolean visitUsingCustomHandler(ObjectTypePair objTypePair) {
-    $Pair<JsonDeserializer<?>, ObjectTypePair> pair = objTypePair.getMatchingHandler(deserializers);
+    Pair<JsonDeserializer<?>, ObjectTypePair> pair = objTypePair.getMatchingHandler(deserializers);
     if (pair == null) {
       return false;
     }
@@ -85,7 +84,7 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
   }
 
   protected Object invokeCustomDeserializer(JsonElement element,
-      $Pair<JsonDeserializer<?>, ObjectTypePair> pair) {
+      Pair<JsonDeserializer<?>, ObjectTypePair> pair) {
     if (element == null || element.isJsonNull()) {
       return null;
     }

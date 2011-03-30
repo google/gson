@@ -16,8 +16,6 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.$Pair;
-import com.google.gson.internal.$Primitives;
 
 import java.lang.reflect.Type;
 
@@ -102,7 +100,7 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
         throw new JsonParseException("Expecting object found: " + json);
       }
       JsonElement child = json.getAsJsonObject().get(fName);
-      boolean isPrimitive = $Primitives.isPrimitive(declaredTypeOfField);
+      boolean isPrimitive = Primitives.isPrimitive(declaredTypeOfField);
       if (child == null) { // Child will be null if the field wasn't present in Json
         return true;
       } else if (child.isJsonNull()) {
@@ -112,7 +110,7 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
         return true;
       }
       ObjectTypePair objTypePair = new ObjectTypePair(null, declaredTypeOfField, false);
-      $Pair<JsonDeserializer<?>, ObjectTypePair> pair = objTypePair.getMatchingHandler(deserializers);
+      Pair<JsonDeserializer<?>, ObjectTypePair> pair = objTypePair.getMatchingHandler(deserializers);
       if (pair == null) {
         return false;
       }

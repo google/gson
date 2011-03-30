@@ -17,7 +17,6 @@
 package com.google.gson;
 
 import com.google.gson.internal.$Types;
-import com.google.gson.internal.$UnsafeAllocator;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
@@ -33,7 +32,7 @@ import java.lang.reflect.Type;
  * @author Joel Leitch
  */
 final class MappedObjectConstructor implements ObjectConstructor {
-  private static final $UnsafeAllocator unsafeAllocator = $UnsafeAllocator.create();
+  private static final UnsafeAllocator unsafeAllocator = UnsafeAllocator.create();
   private static final DefaultConstructorAllocator defaultConstructorAllocator =
       new DefaultConstructorAllocator(500);
 

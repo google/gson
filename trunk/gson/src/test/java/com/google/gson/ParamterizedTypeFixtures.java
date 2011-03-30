@@ -16,7 +16,6 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.$Primitives;
 import com.google.gson.internal.$Types;
 
 import java.lang.reflect.InvocationTargetException;
@@ -51,7 +50,7 @@ public class ParamterizedTypeFixtures {
 
     private String getExpectedJson(Object obj) {
       Class<?> clazz = obj.getClass();
-      if ($Primitives.isWrapperType($Primitives.wrap(clazz))) {
+      if (Primitives.isWrapperType(Primitives.wrap(clazz))) {
         return obj.toString();
       } else if (obj.getClass().equals(String.class)) {
         return "\"" + obj.toString() + "\"";
@@ -127,7 +126,7 @@ public class ParamterizedTypeFixtures {
     @SuppressWarnings("unchecked")
     public static<T> String getExpectedJson(MyParameterizedType<T> obj) {
       Class<T> clazz = (Class<T>) obj.value.getClass();
-      boolean addQuotes = !clazz.isArray() && !$Primitives.unwrap(clazz).isPrimitive();
+      boolean addQuotes = !clazz.isArray() && !Primitives.unwrap(clazz).isPrimitive();
       StringBuilder sb = new StringBuilder("{\"");
       sb.append(obj.value.getClass().getSimpleName()).append("\":");
       if (addQuotes) {
@@ -156,7 +155,7 @@ public class ParamterizedTypeFixtures {
       Class<?> rawType = $Types.getRawType(genericClass);
       String className = rawType.getSimpleName();
       T value = (T) json.getAsJsonObject().get(className).getAsObject();
-      if ($Primitives.isPrimitive(genericClass)) {
+      if (Primitives.isPrimitive(genericClass)) {
         PrimitiveTypeAdapter typeAdapter = new PrimitiveTypeAdapter();
         value = (T) typeAdapter.adaptType(value, rawType);
       }
