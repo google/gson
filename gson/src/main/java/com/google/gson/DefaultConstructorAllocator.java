@@ -24,11 +24,10 @@ import java.lang.reflect.Constructor;
  *
  * @author Joel Leitch
  */
-class DefaultConstructorAllocator {
+final class DefaultConstructorAllocator {
   private static final Constructor<Null> NULL_CONSTRUCTOR = createNullConstructor();
 
-  // Package private for testing purposes.
-  final Cache<Class<?>, Constructor<?>> constructorCache;
+  private final Cache<Class<?>, Constructor<?>> constructorCache;
 
   public DefaultConstructorAllocator() {
     this(200);
@@ -36,6 +35,11 @@ class DefaultConstructorAllocator {
 
   public DefaultConstructorAllocator(int cacheSize) {
     constructorCache = new LruCache<Class<?>, Constructor<?>>(cacheSize);
+  }
+
+  // for testing purpose
+  final Cache<Class<?>, Constructor<?>> getConstructorCache() {
+    return constructorCache;
   }
 
   private static final Constructor<Null> createNullConstructor() {

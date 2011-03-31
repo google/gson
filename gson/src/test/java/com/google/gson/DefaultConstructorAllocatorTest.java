@@ -54,7 +54,7 @@ public class DefaultConstructorAllocatorTest extends TestCase {
   }
 
   private void assertInCache(Class<?> clazz) {
-    assertNotNull(allocator.constructorCache.getElement(clazz));
+    assertNotNull(allocator.getConstructorCache().getElement(clazz));
   }
 
   private static class NoDefaultConstructor {
