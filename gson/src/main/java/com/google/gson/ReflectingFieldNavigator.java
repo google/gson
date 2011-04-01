@@ -33,10 +33,9 @@ import java.util.List;
  * @author Jesse Wilson
  */
 final class ReflectingFieldNavigator {
-  private static final LruCache<Type, List<Class<?>>> classCache =
-    new LruCache<Type, List<Class<?>>>(500);
-  private static final LruCache<Class<?>, Field[]> fieldsCache =
-    new LruCache<Class<?>, Field[]>(500);
+
+  private static final LruCache<Type, List<FieldAttributes>> fieldsCache =
+    new LruCache<Type, List<FieldAttributes>>(500);
 
   private final ExclusionStrategy exclusionStrategy;
 
@@ -53,77 +52,55 @@ final class ReflectingFieldNavigator {
    * @param visitor the visitor to visit each field with
    */
   void visitFieldsReflectively(ObjectTypePair objTypePair, Visitor visitor) {
-    for (Class<?> curr : getInheritanceHierarchy(objTypePair.getMoreSpecificType())) {
-      navigateClassFields(objTypePair.getObject(), objTypePair.type, curr, visitor);
+    Type moreSpecificType = objTypePair.getMoreSpecificType();
+    Object obj = objTypePair.getObject();
+    for (FieldAttributes fieldAttributes : getAllFields(moreSpecificType, objTypePair.getType())) {
+      if (exclusionStrategy.shouldSkipField(fieldAttributes)
+          || exclusionStrategy.shouldSkipClass(fieldAttributes.getDeclaredClass())) {
+        continue; // skip
+      }
+      Type resolvedTypeOfField = fieldAttributes.getResolvedType();
+      boolean visitedWithCustomHandler =
+        visitor.visitFieldUsingCustomHandler(fieldAttributes, resolvedTypeOfField, obj);
+      if (!visitedWithCustomHandler) {
+        if ($Types.isArray(resolvedTypeOfField)) {
+          visitor.visitArrayField(fieldAttributes, resolvedTypeOfField, obj);
+        } else {
+          visitor.visitObjectField(fieldAttributes, resolvedTypeOfField, obj);
+        }
+      }
     }
+  }
+
+  private List<FieldAttributes> getAllFields(Type type, Type declaredType) {
+    List<FieldAttributes> fields = fieldsCache.get(type);
+    if (fields == null) {
+      fields = new ArrayList<FieldAttributes>();
+      for (Class<?> curr : getInheritanceHierarchy(type)) {
+        Field[] fields1 = curr.getDeclaredFields();
+        AccessibleObject.setAccessible(fields1, true);
+        Field[] classFields = fields1;
+        for (Field f : classFields) {
+          fields.add(new FieldAttributes(curr, f, declaredType));
+        }
+      }
+      fieldsCache.addElement(type, fields);
+    }
+    return fields;
   }
 
   /**
    * Returns a list of classes corresponding to the inheritance of specified type
    */
   private List<Class<?>> getInheritanceHierarchy(Type type) {
-    List<Class<?>> classes = classCache.get(type);
-    if (classes == null) {
-      classes = new ArrayList<Class<?>>();
-      Class<?> topLevelClass = $Types.getRawType(type);
-      for (Class<?> curr = topLevelClass; curr != null && !curr.equals(Object.class); curr =
-        curr.getSuperclass()) {
-        if (!curr.isSynthetic()) {
-          classes.add(curr);
-        }
+    List<Class<?>> classes = new ArrayList<Class<?>>();
+    Class<?> topLevelClass = $Types.getRawType(type);
+    for (Class<?> curr = topLevelClass; curr != null && !curr.equals(Object.class); curr =
+      curr.getSuperclass()) {
+      if (!curr.isSynthetic()) {
+        classes.add(curr);
       }
-      classCache.put(type, classes);
     }
     return classes;
-  }
-
-  private void navigateClassFields(Object obj, Type objType,
-      Class<?> classInInheritanceHierarchyForObj, Visitor visitor) {
-    Field[] fields = getFields(classInInheritanceHierarchyForObj);
-    for (Field f : fields) {
-      FieldAttributes fieldAttributes = new FieldAttributes(classInInheritanceHierarchyForObj, f);
-      if (exclusionStrategy.shouldSkipField(fieldAttributes)
-          || exclusionStrategy.shouldSkipClass(fieldAttributes.getDeclaredClass())) {
-        continue; // skip
-      }
-      Type declaredTypeOfField = getTypeInfoForField(f, objType);
-      boolean visitedWithCustomHandler =
-          visitor.visitFieldUsingCustomHandler(fieldAttributes, declaredTypeOfField, obj);
-      if (!visitedWithCustomHandler) {
-        if ($Types.isArray(declaredTypeOfField)) {
-          visitor.visitArrayField(fieldAttributes, declaredTypeOfField, obj);
-        } else {
-          visitor.visitObjectField(fieldAttributes, declaredTypeOfField, obj);
-        }
-      }
-    }
-  }
-
-  private Field[] getFields(Class<?> clazz) {
-    Field[] fields = fieldsCache.get(clazz);
-    if (fields == null) {
-      fields = clazz.getDeclaredFields();
-      AccessibleObject.setAccessible(fields, true);
-      fieldsCache.put(clazz, fields);
-    }
-    return fields;
-  }
-
-
-  /**
-   * Evaluates the "actual" type for the field.  If the field is a "TypeVariable" or has a
-   * "TypeVariable" in a parameterized type then it evaluates the real type.
-   *
-   * @param f the actual field object to retrieve the type from
-   * @param typeDefiningF the type that contains the field {@code f}
-   * @return the type information for the field
-   */
-  public static Type getTypeInfoForField(Field f, Type typeDefiningF) {
-    Class<?> rawType = $Types.getRawType(typeDefiningF);
-    if (!f.getDeclaringClass().isAssignableFrom(rawType)) {
-      // this field is unrelated to the type; the user probably omitted type information
-      return f.getGenericType();
-    }
-    return $Types.resolve(typeDefiningF, rawType, f.getGenericType());
   }
 }

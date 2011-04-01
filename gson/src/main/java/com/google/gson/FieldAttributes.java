@@ -17,6 +17,7 @@
 package com.google.gson;
 
 import com.google.gson.internal.$Preconditions;
+import com.google.gson.internal.$Types;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -48,23 +49,30 @@ public final class FieldAttributes {
   private final boolean isSynthetic;
   private final int modifiers;
   private final String name;
+  private final Type resolvedType;
 
   // Fields used for lazy initialization
   private Type genericType;
   private Collection<Annotation> annotations;
 
+  FieldAttributes(Class<?> declaringClazz, Field f) {
+    this(declaringClazz, f, declaringClazz);
+  }
+
   /**
    * Constructs a Field Attributes object from the {@code f}.
    *
    * @param f the field to pull attributes from
+   * @param declaringType The type in which the field is declared
    */
-  FieldAttributes(final Class<?> declaringClazz, final Field f) {
+  FieldAttributes(Class<?> declaringClazz, Field f, Type declaringType) {
     this.declaringClazz = $Preconditions.checkNotNull(declaringClazz);
     this.name = f.getName();
     this.declaredType = f.getType();
     this.isSynthetic = f.isSynthetic();
     this.modifiers = f.getModifiers();
     this.field = f;
+    this.resolvedType = getTypeInfoForField(f, declaringType);
   }
 
   private static int getMaxCacheSize() {
@@ -217,6 +225,10 @@ public final class FieldAttributes {
     return field;
   }
 
+  Type getResolvedType() {
+    return resolvedType;
+  }
+
   @SuppressWarnings("unchecked")
   private static <T extends Annotation> T getAnnotationFromArray(
       Collection<Annotation> annotations, Class<T> annotation) {
@@ -226,5 +238,22 @@ public final class FieldAttributes {
       }
     }
     return null;
+  }
+
+  /**
+   * Evaluates the "actual" type for the field.  If the field is a "TypeVariable" or has a
+   * "TypeVariable" in a parameterized type then it evaluates the real type.
+   *
+   * @param f the actual field object to retrieve the type from
+   * @param typeDefiningF the type that contains the field {@code f}
+   * @return the type information for the field
+   */
+  public static Type getTypeInfoForField(Field f, Type typeDefiningF) {
+    Class<?> rawType = $Types.getRawType(typeDefiningF);
+    if (!f.getDeclaringClass().isAssignableFrom(rawType)) {
+      // this field is unrelated to the type; the user probably omitted type information
+      return f.getGenericType();
+    }
+    return $Types.resolve(typeDefiningF, rawType, f.getGenericType());
   }
 }
