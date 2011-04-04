@@ -53,7 +53,7 @@ public final class JsonNull extends JsonElement {
    */
   @Override
   public boolean equals(Object other) {
-    return other instanceof JsonNull;
+    return this == other || other instanceof JsonNull;
   }
   
   /**
