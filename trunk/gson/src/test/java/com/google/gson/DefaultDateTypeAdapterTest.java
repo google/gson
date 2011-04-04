@@ -32,14 +32,14 @@ import junit.framework.TestCase;
 public class DefaultDateTypeAdapterTest extends TestCase {
 
   public void testFormattingInEnUs() {
-    testFormattingAlwaysEmitsUsLocale(Locale.US);
+    assertFormattingAlwaysEmitsUsLocale(Locale.US);
   }
 
   public void testFormattingInFr() {
-    testFormattingAlwaysEmitsUsLocale(Locale.FRANCE);
+    assertFormattingAlwaysEmitsUsLocale(Locale.FRANCE);
   }
 
-  private void testFormattingAlwaysEmitsUsLocale(Locale locale) {
+  private void assertFormattingAlwaysEmitsUsLocale(Locale locale) {
     TimeZone defaultTimeZone = TimeZone.getDefault();
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     Locale defaultLocale = Locale.getDefault();
