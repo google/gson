@@ -16,7 +16,9 @@
 
 package com.google.gson;
 
+import com.google.gson.DefaultTypeAdapters.DefaultDateTypeAdapter;
 import com.google.gson.internal.$Preconditions;
+
 import java.lang.reflect.Type;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -27,8 +29,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import com.google.gson.DefaultTypeAdapters.DefaultDateTypeAdapter;
 
 /**
  * <p>Use this builder to construct a {@link Gson} instance when you need to set configuration
@@ -367,7 +367,6 @@ public final class GsonBuilder {
     serializeExclusionStrategies.addAll(Arrays.asList(strategies));
     return this;
   }
-
 
   /**
    * Configures Gson to apply a set of exclusion strategies during deserialization.

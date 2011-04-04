@@ -158,7 +158,6 @@ public class MapTest extends TestCase {
     assertTrue(json.contains("\"a\":\"b\""));
   }
 
-  @SuppressWarnings("unchecked")
   public void testParameterizedMapSubclassDeserialization() {
     Type type = new TypeToken<MyParameterizedMap<String, Integer>>() {}.getType();
     String json = "{\"a\":1,\"b\":2}";
