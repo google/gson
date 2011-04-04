@@ -16,14 +16,6 @@
 
 package com.google.gson.functional;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.Set;
-
-import junit.framework.TestCase;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -35,6 +27,14 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.common.MoreAsserts;
 import com.google.gson.reflect.TypeToken;
+
+import junit.framework.TestCase;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.Set;
 
 /**
  * Functional tests for Java 5.0 enums.
@@ -138,6 +138,20 @@ public class EnumTest extends TestCase {
     assertEquals(Roshambo.ROCK, gson.fromJson("\"123ROCK\"", Roshambo.class));
     assertEquals(EnumSet.allOf(Roshambo.class),
         gson.fromJson("[\"123ROCK\",\"123PAPER\",\"123SCISSORS\"]", new TypeToken<Set<Roshambo>>() {}.getType()));
+  }
+
+  public void testEnumSubclassAsParameterizedType() {
+    Collection<Roshambo> list = new ArrayList<Roshambo>();
+    list.add(Roshambo.ROCK);
+    list.add(Roshambo.PAPER);
+
+    String json = gson.toJson(list);
+    assertEquals("[\"ROCK\",\"PAPER\"]", json);
+
+    Type collectionType = new TypeToken<Collection<Roshambo>>() {}.getType();
+    Collection<Roshambo> actualJsonList = gson.fromJson(json, collectionType);
+    MoreAsserts.assertContains(actualJsonList, Roshambo.ROCK);
+    MoreAsserts.assertContains(actualJsonList, Roshambo.PAPER);
   }
 
   public enum Roshambo {
