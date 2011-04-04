@@ -41,5 +41,4 @@ abstract class BaseMapTypeAdapter
     ObjectConstructor objectConstructor = contextImpl.getObjectConstructor();
     return (Map<Object, Object>) objectConstructor.construct(mapType);
   }
-
 }
