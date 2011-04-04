@@ -26,7 +26,7 @@ package com.google.gson;
  *
  * @since 1.4
  */
-class SyntheticFieldExclusionStrategy implements ExclusionStrategy {
+final class SyntheticFieldExclusionStrategy implements ExclusionStrategy {
   private final boolean skipSyntheticFields;
 
   SyntheticFieldExclusionStrategy(boolean skipSyntheticFields) {
