@@ -191,8 +191,8 @@ public final class JsonObject extends JsonElement {
 
   @Override
   public boolean equals(Object o) {
-    return o instanceof JsonObject
-        && ((JsonObject) o).members.equals(members);
+    return (o == this) || (o instanceof JsonObject
+        && ((JsonObject) o).members.equals(members));
   }
 
   @Override

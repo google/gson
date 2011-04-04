@@ -32,6 +32,8 @@ public final class JsonArrayTest extends TestCase {
     JsonArray a = new JsonArray();
     JsonArray b = new JsonArray();
 
+    assertEquals(a, a);
+
     a.add(new JsonObject());
     assertFalse(a.equals(b));
     assertFalse(b.equals(a));

@@ -138,6 +138,8 @@ public class JsonObjectTest extends TestCase {
     JsonObject a = new JsonObject();
     JsonObject b = new JsonObject();
 
+    assertEquals(a, a);
+
     a.add("foo", new JsonObject());
     assertFalse(a.equals(b));
     assertFalse(b.equals(a));
