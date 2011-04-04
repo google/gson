@@ -186,6 +186,15 @@ public class JsonPrimitiveTest extends TestCase {
     MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive(5L), new JsonPrimitive(5L));
     MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive('a'), new JsonPrimitive('a'));
     MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive(Float.NaN), new JsonPrimitive(Float.NaN));
+    MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive(Float.NEGATIVE_INFINITY),
+        new JsonPrimitive(Float.NEGATIVE_INFINITY));
+    MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive(Float.POSITIVE_INFINITY),
+        new JsonPrimitive(Float.POSITIVE_INFINITY));
+    MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive(Double.NaN), new JsonPrimitive(Double.NaN));
+    MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive(Double.NEGATIVE_INFINITY),
+        new JsonPrimitive(Double.NEGATIVE_INFINITY));
+    MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive(Double.POSITIVE_INFINITY),
+        new JsonPrimitive(Double.POSITIVE_INFINITY));
     assertFalse(new JsonPrimitive("a").equals(new JsonPrimitive("b")));
     assertFalse(new JsonPrimitive(true).equals(new JsonPrimitive(false)));
     assertFalse(new JsonPrimitive(0).equals(new JsonPrimitive(1)));

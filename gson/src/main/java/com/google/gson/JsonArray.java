@@ -297,7 +297,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
 
   @Override
   public boolean equals(Object o) {
-    return o instanceof JsonArray && ((JsonArray) o).elements.equals(elements);
+    return (o == this) || (o instanceof JsonArray && ((JsonArray) o).elements.equals(elements));
   }
 
   @Override

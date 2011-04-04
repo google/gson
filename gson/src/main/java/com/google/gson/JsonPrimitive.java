@@ -356,6 +356,8 @@ public final class JsonPrimitive extends JsonElement {
     }
     if (isFloatingPoint(this) && isFloatingPoint(other)) {
       double a = getAsNumber().doubleValue();
+      // Java standard types other than double return true for two NaN. So, need
+      // special handling for double.
       double b = other.getAsNumber().doubleValue();
       return a == b || (Double.isNaN(a) && Double.isNaN(b));
     }
