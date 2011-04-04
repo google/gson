@@ -22,7 +22,7 @@ package com.google.gson;
  *
  * @author Joel Leitch
  */
-public class MockExclusionStrategy implements ExclusionStrategy {
+final class MockExclusionStrategy implements ExclusionStrategy {
   private final boolean skipClass;
   private final boolean skipField;
 
