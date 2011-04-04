@@ -157,7 +157,6 @@ public class MapTest extends TestCase {
   @SuppressWarnings("unchecked")
   public void testParameterizedMapSubclassDeserialization() {
     Type type = new TypeToken<MyParameterizedMap<String, Integer>>() {}.getType();
-    Gson gson = new Gson();
     String json = "{\"a\":1,\"b\":2}";
     MyParameterizedMap<String, Integer> map = gson.fromJson(json, type);
     assertEquals(1, map.get("a").intValue());
