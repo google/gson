@@ -16,20 +16,19 @@
 
 package com.google.gson.functional;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+import junit.framework.TestCase;
+
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import com.google.gson.Mode;
-
-import junit.framework.TestCase;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 
 /**
  * Performs some functional tests when Gson is instantiated with some common user defined
@@ -48,7 +47,7 @@ public class ExclusionStrategyFunctionalTest extends TestCase {
   }
 
   public void testExclusionStrategySerialization() throws Exception {
-    Gson gson = createGson(new MyExclusionStrategy(String.class), null);
+    Gson gson = createGson(new MyExclusionStrategy(String.class), true);
     String json = gson.toJson(src);
     assertFalse(json.contains("\"stringField\""));
     assertFalse(json.contains("\"annotatedField\""));
@@ -56,7 +55,7 @@ public class ExclusionStrategyFunctionalTest extends TestCase {
   }
   
   public void testExclusionStrategyDeserialization() throws Exception {
-    Gson gson = createGson(new MyExclusionStrategy(String.class), null);
+    Gson gson = createGson(new MyExclusionStrategy(String.class), false);
     JsonObject json = new JsonObject();
     json.add("annotatedField", new JsonPrimitive(src.annotatedField + 5));
     json.add("stringField", new JsonPrimitive(src.stringField + "blah,blah"));
@@ -75,7 +74,7 @@ public class ExclusionStrategyFunctionalTest extends TestCase {
         src.annotatedField + 5, src.stringField + "blah,blah",
         src.longField + 655L);
 
-    Gson gson = createGson(new MyExclusionStrategy(String.class), Mode.DESERIALIZE);    
+    Gson gson = createGson(new MyExclusionStrategy(String.class), false);    
     JsonObject json = gson.toJsonTree(testObj).getAsJsonObject();
     assertEquals(testObj.annotatedField, json.get("annotatedField").getAsInt());
     assertEquals(testObj.stringField, json.get("stringField").getAsString());
@@ -89,12 +88,12 @@ public class ExclusionStrategyFunctionalTest extends TestCase {
     assertEquals(src.stringField, target.stringField);
   }
 
-  private static Gson createGson(ExclusionStrategy exclusionStrategy, Mode mode) {
+  private static Gson createGson(ExclusionStrategy exclusionStrategy, boolean serialization) {
     GsonBuilder gsonBuilder = new GsonBuilder();
-    if (mode == null) {
-      gsonBuilder.setExclusionStrategies(exclusionStrategy);
+    if (serialization) {
+      gsonBuilder.addSerializationExclusionStrategies(exclusionStrategy);
     } else {
-      gsonBuilder.setExclusionStrategies(mode, exclusionStrategy);
+      gsonBuilder.addDeserializationExclusionStrategies(exclusionStrategy);
     }
     return gsonBuilder
         .serializeNulls()
