@@ -353,26 +353,37 @@ public final class GsonBuilder {
   }
 
   /**
-   * Configures Gson to apply a set of exclusion strategies during either serialization or
-   * deserialization. Each of the {@code strategies} will be applied as a disjunction rule.
+   * Configures Gson to apply a set of exclusion strategies during either serialization.
+   * Each of the {@code strategies} will be applied as a disjunction rule.
    * This means that if one of the {@code strategies} suggests that a field (or class) should be
-   * skipped then that field (or object) is skipped during either serialization or deserialization
+   * skipped then that field (or object) is skipped during either serialization
    * depending on the {@code mode} that is passed into this method.
    *
    * @param strategies the set of strategy object to apply during the {@code mode}.
-   * @param mode the mode of Gson (either serialization or deserialization) as to when the
-   *   {@code strategies} should be applied.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.7
    */
-  public GsonBuilder setExclusionStrategies(Mode mode, ExclusionStrategy... strategies) {
-    Set<ExclusionStrategy> strategySet =
-        ($Preconditions.checkNotNull(mode) == Mode.SERIALIZE)
-        ? serializeExclusionStrategies : deserializeExclusionStrategies;
-    strategySet.addAll(Arrays.asList(strategies));
+  public GsonBuilder addSerializationExclusionStrategies(ExclusionStrategy... strategies) {
+    serializeExclusionStrategies.addAll(Arrays.asList(strategies));
     return this;
   }
 
+
+  /**
+   * Configures Gson to apply a set of exclusion strategies during deserialization.
+   * Each of the {@code strategies} will be applied as a disjunction rule.
+   * This means that if one of the {@code strategies} suggests that a field (or class) should be
+   * skipped then that field (or object) is skipped during deserialization
+   * depending on the {@code mode} that is passed into this method.
+   *
+   * @param strategies the set of strategy object to apply during the {@code mode}.
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @since 1.7
+   */
+  public GsonBuilder addDeserializationExclusionStrategies(ExclusionStrategy... strategies) {
+    deserializeExclusionStrategies.addAll(Arrays.asList(strategies));
+    return this;
+  }
   /**
    * Configures Gson to output Json that fits in a page for pretty printing. This option only
    * affects Json serialization.
