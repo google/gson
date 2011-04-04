@@ -70,39 +70,39 @@ public class MapTest extends TestCase {
     map.put("b", "string");
     String json = gson.toJson(map);
     assertTrue(json.contains("\"a\":1"));
-    assertTrue(json.contains("\"b\":\"string\""));    
+    assertTrue(json.contains("\"b\":\"string\""));
   }
-  
+
   public void testMapSerializationEmpty() {
     Map<String, Integer> map = new LinkedHashMap<String, Integer>();
     Type typeOfMap = new TypeToken<Map<String, Integer>>() {}.getType();
     String json = gson.toJson(map, typeOfMap);
     assertEquals("{}", json);
   }
-  
+
   public void testMapDeserializationEmpty() {
     Type typeOfMap = new TypeToken<Map<String, Integer>>() {}.getType();
     Map<String, Integer> map = gson.fromJson("{}", typeOfMap);
     assertTrue(map.isEmpty());
   }
-  
+
   public void testMapSerializationWithNullValue() {
     Map<String, Integer> map = new LinkedHashMap<String, Integer>();
     map.put("abc", null);
     Type typeOfMap = new TypeToken<Map<String, Integer>>() {}.getType();
     String json = gson.toJson(map, typeOfMap);
-    
+
     // Maps are represented as JSON objects, so ignoring null field
     assertEquals("{}", json);
   }
-  
+
   public void testMapDeserializationWithNullValue() {
     Type typeOfMap = new TypeToken<Map<String, Integer>>() {}.getType();
     Map<String, Integer> map = gson.fromJson("{\"abc\":null}", typeOfMap);
     assertEquals(1, map.size());
     assertNull(map.get("abc"));
   }
-  
+
   public void testMapSerializationWithNullValueButSerializeNulls() {
     gson = new GsonBuilder().serializeNulls().create();
     Map<String, Integer> map = new LinkedHashMap<String, Integer>();
@@ -112,7 +112,7 @@ public class MapTest extends TestCase {
 
     assertEquals("{\"abc\":null}", json);
   }
-  
+
   public void testMapSerializationWithNullKey() {
     Map<String, Integer> map = new LinkedHashMap<String, Integer>();
     map.put(null, 123);
@@ -121,14 +121,14 @@ public class MapTest extends TestCase {
 
     assertEquals("{\"null\":123}", json);
   }
-  
+
   public void testMapDeserializationWithNullKey() {
     Type typeOfMap = new TypeToken<Map<String, Integer>>() {}.getType();
     Map<String, Integer> map = gson.fromJson("{\"null\":123}", typeOfMap);
     assertEquals(1, map.size());
     assertNull(map.get(null));
   }
-  
+
   public void testMapSerializationWithIntegerKeys() {
     Map<Integer, String> map = new LinkedHashMap<Integer, String>();
     map.put(123, "456");
@@ -137,7 +137,7 @@ public class MapTest extends TestCase {
 
     assertEquals("{\"123\":\"456\"}", json);
   }
-  
+
   public void testMapDeserializationWithIntegerKeys() {
     Type typeOfMap = new TypeToken<Map<Integer, String>>() {}.getType();
     Map<Integer, String> map = gson.fromJson("{\"123\":\"456\"}", typeOfMap);
@@ -157,16 +157,11 @@ public class MapTest extends TestCase {
   @SuppressWarnings("unchecked")
   public void testParameterizedMapSubclassDeserialization() {
     Type type = new TypeToken<MyParameterizedMap<String, Integer>>() {}.getType();
-    Gson gson = new GsonBuilder().registerTypeAdapter(type, 
-        new InstanceCreator<MyParameterizedMap>() {
-      public MyParameterizedMap createInstance(Type type) {
-        return new MyParameterizedMap();
-      }      
-    }).create();
+    Gson gson = new Gson();
     String json = "{\"a\":1,\"b\":2}";
     MyParameterizedMap<String, Integer> map = gson.fromJson(json, type);
-    assertEquals(1, map.get("a").intValue()); 
-    assertEquals(2, map.get("b").intValue()); 
+    assertEquals(1, map.get("a").intValue());
+    assertEquals(2, map.get("b").intValue());
   }
 
   private static class MyParameterizedMap<K, V> extends LinkedHashMap<K, V> {
@@ -175,41 +170,41 @@ public class MapTest extends TestCase {
     @SuppressWarnings("unused")
     int foo = 10;
   }
-  
+
   public void testMapSubclassSerialization() {
     MyMap map = new MyMap();
     map.put("a", "b");
     String json = gson.toJson(map, MyMap.class);
     assertTrue(json.contains("\"a\":\"b\""));
   }
-  
+
   public void testMapStandardSubclassDeserialization() {
     String json = "{a:'1',b:'2'}";
     Type type = new TypeToken<LinkedHashMap<String, String>>() {}.getType();
     LinkedHashMap<String, Integer> map = gson.fromJson(json, type);
-    assertEquals("1", map.get("a")); 
-    assertEquals("2", map.get("b")); 
+    assertEquals("1", map.get("a"));
+    assertEquals("2", map.get("b"));
   }
-  
-  public void disable_testMapSubclassDeserialization() {
+
+  public void testMapSubclassDeserialization() {
     Gson gson = new GsonBuilder().registerTypeAdapter(MyMap.class, new InstanceCreator<MyMap>() {
       public MyMap createInstance(Type type) {
         return new MyMap();
-      }      
+      }
     }).create();
     String json = "{\"a\":1,\"b\":2}";
     MyMap map = gson.fromJson(json, MyMap.class);
-    assertEquals("1", map.get("a")); 
-    assertEquals("2", map.get("b")); 
+    assertEquals("1", map.get("a"));
+    assertEquals("2", map.get("b"));
   }
-  
+
   /**
    * Created in response to http://code.google.com/p/google-gson/issues/detail?id=99
    */
   private static class ClassWithAMap {
     Map<String, String> map = new TreeMap<String, String>();
   }
-  
+
   /**
    * Created in response to http://code.google.com/p/google-gson/issues/detail?id=99
    */
@@ -221,7 +216,7 @@ public class MapTest extends TestCase {
     assertFalse(json.contains("name1"));
     assertTrue(json.contains("name2"));
   }
-  
+
   /**
    * Created in response to http://code.google.com/p/google-gson/issues/detail?id=99
    */
@@ -234,18 +229,18 @@ public class MapTest extends TestCase {
     assertTrue(json.contains("name1"));
     assertTrue(json.contains("name2"));
   }
-  
+
   public void testMapSerializationWithWildcardValues() {
     Map<String, ? extends Collection<? extends Integer>> map =
         new LinkedHashMap<String, Collection<Integer>>();
     map.put("test", null);
-    Type typeOfMap = 
+    Type typeOfMap =
         new TypeToken<Map<String, ? extends Collection<? extends Integer>>>() {}.getType();
     String json = gson.toJson(map, typeOfMap);
 
     assertEquals("{}", json);
   }
-  
+
   public void testMapDeserializationWithWildcardValues() {
     Type typeOfMap = new TypeToken<Map<String, ? extends Long>>() {}.getType();
     Map<String, ? extends Long> map = gson.fromJson("{\"test\":123}", typeOfMap);
@@ -253,14 +248,14 @@ public class MapTest extends TestCase {
     assertEquals(new Long(123L), map.get("test"));
   }
 
-  
+
   private static class MyMap extends LinkedHashMap<String, String> {
     private static final long serialVersionUID = 1L;
 
     @SuppressWarnings("unused")
     int foo = 10;
   }
-  
+
   /**
    * From bug report http://code.google.com/p/google-gson/issues/detail?id=95
    */
@@ -275,7 +270,7 @@ public class MapTest extends TestCase {
     assertTrue(json.contains("\"1\":\"1\""));
     assertTrue(json.contains("\"2\":\"2\""));
   }
-  
+
   /**
    * From bug report http://code.google.com/p/google-gson/issues/detail?id=95
    */
@@ -297,7 +292,7 @@ public class MapTest extends TestCase {
     String json = gson.toJson(map);
     assertEquals("{\"a\\\"b\":\"c\\\"d\"}", json);
   }
-  
+
   /**
    * From issue 227.
    */
