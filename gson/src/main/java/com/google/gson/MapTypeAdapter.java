@@ -31,8 +31,8 @@ import java.util.Set;
  * @author Joel Leitch
  */
 @SuppressWarnings("unchecked")
-final class MapTypeAdapter implements JsonSerializer<Map<?, ?>>,
-    JsonDeserializer<Map<?, ?>> {
+final class MapTypeAdapter extends BaseMapTypeAdapter {
+
   public JsonElement serialize(Map src, Type typeOfSrc, JsonSerializationContext context) {
     JsonObject map = new JsonObject();
     Type childGenericType = null;
@@ -50,7 +50,7 @@ final class MapTypeAdapter implements JsonSerializer<Map<?, ?>>,
       } else {
         Type childType = (childGenericType == null)
             ? value.getClass() : childGenericType;
-        valueElement = context.serialize(value, childType);
+        valueElement = serialize(context, value, childType);
       }
       map.add(String.valueOf(entry.getKey()), valueElement);
     }
@@ -69,12 +69,6 @@ final class MapTypeAdapter implements JsonSerializer<Map<?, ?>>,
       map.put(key, value);
     }
     return map;
-  }
-
-  private Map constructMapType(Type mapType, JsonDeserializationContext context) {
-    JsonDeserializationContextDefault contextImpl = (JsonDeserializationContextDefault) context;
-    ObjectConstructor objectConstructor = contextImpl.getObjectConstructor();
-    return (Map) objectConstructor.construct(mapType);
   }
 
   @Override

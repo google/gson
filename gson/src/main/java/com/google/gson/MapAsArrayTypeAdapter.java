@@ -90,6 +90,7 @@ import java.util.Map;
  * object.
  */
 final class MapAsArrayTypeAdapter
+    extends BaseMapTypeAdapter
     implements JsonSerializer<Map<?, ?>>, JsonDeserializer<Map<?, ?>> {
 
   public Map<?, ?> deserialize(JsonElement json, Type typeOfT,
@@ -122,10 +123,10 @@ final class MapAsArrayTypeAdapter
     boolean serializeAsArray = false;
     List<JsonElement> keysAndValues = new ArrayList<JsonElement>();
     for (Map.Entry<?, ?> entry : src.entrySet()) {
-      JsonElement key = context.serialize(entry.getKey(), keyAndValueType[0]);
+      JsonElement key = serialize(context, entry.getKey(), keyAndValueType[0]);
       serializeAsArray |= key.isJsonObject() || key.isJsonArray();
       keysAndValues.add(key);
-      keysAndValues.add(context.serialize(entry.getValue(), keyAndValueType[1]));
+      keysAndValues.add(serialize(context, entry.getValue(), keyAndValueType[1]));
     }
 
     if (serializeAsArray) {
@@ -145,13 +146,6 @@ final class MapAsArrayTypeAdapter
       checkSize(src, src.size(), result, result.entrySet().size());
       return result;
     }
-  }
-  
-  @SuppressWarnings("unchecked")
-  private Map<Object, Object> constructMapType(Type mapType, JsonDeserializationContext context) {
-    JsonDeserializationContextDefault contextImpl = (JsonDeserializationContextDefault) context;
-    ObjectConstructor objectConstructor = contextImpl.getObjectConstructor();
-    return (Map<Object, Object>) objectConstructor.construct(mapType);
   }
 
   private Type[] typeToTypeArguments(Type typeOfT) {

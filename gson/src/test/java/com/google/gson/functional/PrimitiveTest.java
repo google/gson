@@ -26,6 +26,7 @@ import com.google.gson.common.TestTypes.CrazyLongTypeAdapter;
 
 import junit.framework.TestCase;
 
+import java.io.Serializable;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -343,6 +344,16 @@ public class PrimitiveTest extends TestCase {
       gson.fromJson("15.099", BigInteger.class);
       fail("BigInteger can not be decimal values.");
     } catch (JsonParseException expected) { }
+  }
+
+  public void testMoreSpecificSerialization() {
+    Gson gson = new Gson();
+    String expected = "This is a string";
+    String expectedJson = gson.toJson(expected);
+
+    Serializable serializableString = expected;
+    String actualJson = gson.toJson(serializableString, Serializable.class);
+    assertFalse(expectedJson.equals(actualJson));
   }
 
   public void testOverridingDefaultPrimitiveSerialization() {
