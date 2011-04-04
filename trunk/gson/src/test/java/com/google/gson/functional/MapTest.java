@@ -19,6 +19,10 @@ package com.google.gson.functional;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+import com.google.gson.common.TestTypes;
 import com.google.gson.reflect.TypeToken;
 
 import junit.framework.TestCase;
@@ -324,5 +328,72 @@ public class MapTest extends TestCase {
         new GsonBuilder().create().toJson(map));
     assertEquals("{\"a\":12,\"c\":{}}",
         new GsonBuilder().create().toJson(map));
+  }
+
+  public final void testInterfaceTypeMap() {
+    MapClass element = new MapClass();
+    TestTypes.Sub subType = new TestTypes.Sub();
+    element.addBase("Test", subType);
+    element.addSub("Test", subType);
+
+    String subTypeJson = new Gson().toJson(subType);
+    String expected = "{\"bases\":{\"Test\":" + subTypeJson + "},"
+      + "\"subs\":{\"Test\":" + subTypeJson + "}}";
+
+    Gson gsonWithComplexKeys = new GsonBuilder()
+        .enableComplexMapKeySerialization()
+        .create();
+    String json = gsonWithComplexKeys.toJson(element);
+    assertEquals(expected, json);
+
+    Gson gson = new Gson();
+    json = gson.toJson(element);
+    assertEquals(expected, json);
+  }
+
+  public final void testInterfaceTypeMapWithSerializer() {
+    MapClass element = new MapClass();
+    TestTypes.Sub subType = new TestTypes.Sub();
+    element.addBase("Test", subType);
+    element.addSub("Test", subType);
+
+    Gson tempGson = new Gson();
+    String subTypeJson = tempGson.toJson(subType);
+    final JsonElement baseTypeJson = tempGson.toJsonTree(subType, TestTypes.Base.class);
+    String expected = "{\"bases\":{\"Test\":" + baseTypeJson.toString() + "},"
+        + "\"subs\":{\"Test\":" + subTypeJson + "}}";
+
+    JsonSerializer<TestTypes.Base> baseTypeAdapter = new JsonSerializer<TestTypes.Base>() {
+      public JsonElement serialize(TestTypes.Base src, Type typeOfSrc,
+          JsonSerializationContext context) {
+        return baseTypeJson;
+      }
+    };
+
+    Gson gson = new GsonBuilder()
+        .enableComplexMapKeySerialization()
+        .registerTypeAdapter(TestTypes.Base.class, baseTypeAdapter)
+        .create();
+    String json = gson.toJson(element);
+    assertEquals(expected, json);
+
+    gson = new GsonBuilder()
+        .registerTypeAdapter(TestTypes.Base.class, baseTypeAdapter)
+        .create();
+    json = gson.toJson(element);
+    assertEquals(expected, json);
+  }
+
+  static final class MapClass {
+    private final Map<String, TestTypes.Base> bases = new HashMap<String, TestTypes.Base>();
+    private final Map<String, TestTypes.Sub> subs = new HashMap<String, TestTypes.Sub>();
+
+    public final void addBase(final String name, final TestTypes.Base value) {
+      bases.put(name, value);
+    }
+
+    public final void addSub(final String name, final TestTypes.Sub value) {
+      subs.put(name, value);
+    }
   }
 }
