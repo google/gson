@@ -23,7 +23,7 @@ import com.google.gson.annotations.Expose;
  *
  * @author Joel Leitch
  */
-public class ExposeAnnotationDeserializationExclusionStrategy implements ExclusionStrategy {
+final class ExposeAnnotationDeserializationExclusionStrategy implements ExclusionStrategy {
   public boolean shouldSkipClass(Class<?> clazz) {
     return false;
   }
