@@ -71,10 +71,18 @@ package com.google.gson;
  *     .setExclusionStrategies(excludeStrings)
  *     .create();
  * </pre>
- * 
+ *
  * <p>For certain model classes, you may only want to serialize a field, but exclude it for
  * deserialization. To do that, you can write an {@code ExclusionStrategy} as per normal;
- * however, you would register it with the 
+ * however, you would register it with the
+ * {@link GsonBuilder#addDeserializationExclusionStrategies(ExclusionStrategy...)} method.
+ * For example:
+ * <pre class="code">
+ * ExclusionStrategy excludeStrings = new UserDefinedExclusionStrategy(String.class);
+ * Gson gson = new GsonBuilder()
+ *     .addDeserializationExclusionStrategies(excludeStrings)
+ *     .create();
+ * </pre>
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
