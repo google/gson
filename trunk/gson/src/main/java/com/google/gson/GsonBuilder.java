@@ -353,13 +353,12 @@ public final class GsonBuilder {
   }
 
   /**
-   * Configures Gson to apply a set of exclusion strategies during either serialization.
+   * Configures Gson to apply a set of exclusion strategies during serialization.
    * Each of the {@code strategies} will be applied as a disjunction rule.
    * This means that if one of the {@code strategies} suggests that a field (or class) should be
-   * skipped then that field (or object) is skipped during either serialization
-   * depending on the {@code mode} that is passed into this method.
+   * skipped then that field (or object) is skipped during serialization.
    *
-   * @param strategies the set of strategy object to apply during the {@code mode}.
+   * @param strategies the set of strategy objects to apply during serialization.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.7
    */
@@ -372,10 +371,9 @@ public final class GsonBuilder {
    * Configures Gson to apply a set of exclusion strategies during deserialization.
    * Each of the {@code strategies} will be applied as a disjunction rule.
    * This means that if one of the {@code strategies} suggests that a field (or class) should be
-   * skipped then that field (or object) is skipped during deserialization
-   * depending on the {@code mode} that is passed into this method.
+   * skipped then that field (or object) is skipped during deserialization.
    *
-   * @param strategies the set of strategy object to apply during the {@code mode}.
+   * @param strategies the set of strategy object to apply during deserialization.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.7
    */
