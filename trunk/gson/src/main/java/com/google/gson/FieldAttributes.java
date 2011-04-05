@@ -56,7 +56,13 @@ public final class FieldAttributes {
   private Collection<Annotation> annotations;
 
   FieldAttributes(Class<?> declaringClazz, Field f) {
-    this(declaringClazz, f, declaringClazz);
+    this.declaringClazz = $Preconditions.checkNotNull(declaringClazz);
+    this.name = f.getName();
+    this.declaredType = f.getType();
+    this.isSynthetic = f.isSynthetic();
+    this.modifiers = f.getModifiers();
+    this.field = f;
+    this.resolvedType = getTypeInfoForField(f, declaringClazz);
   }
 
   /**
