@@ -77,9 +77,9 @@ final class ReflectingFieldNavigator {
     if (fields == null) {
       fields = new ArrayList<FieldAttributes>();
       for (Class<?> curr : getInheritanceHierarchy(type)) {
-        Field[] fields1 = curr.getDeclaredFields();
-        AccessibleObject.setAccessible(fields1, true);
-        Field[] classFields = fields1;
+        Field[] currentClazzFields = curr.getDeclaredFields();
+        AccessibleObject.setAccessible(currentClazzFields, true);
+        Field[] classFields = currentClazzFields;
         for (Field f : classFields) {
           fields.add(new FieldAttributes(curr, f, declaredType));
         }
