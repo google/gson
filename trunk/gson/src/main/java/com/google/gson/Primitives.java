@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.gson.internal.$Preconditions;
+import com.google.gson.internal.$Gson$Preconditions;
 
 /**
  * Contains static utility methods pertaining to primitive types and their
@@ -80,7 +80,7 @@ final class Primitives {
    */
   public static boolean isWrapperType(Class<?> type) {
     return WRAPPER_TO_PRIMITIVE_TYPE.containsKey(
-        $Preconditions.checkNotNull(type));
+        $Gson$Preconditions.checkNotNull(type));
   }
 
   /**
@@ -96,7 +96,7 @@ final class Primitives {
     // cast is safe: long.class and Long.class are both of type Class<Long>
     @SuppressWarnings("unchecked")
     Class<T> wrapped = (Class<T>) PRIMITIVE_TO_WRAPPER_TYPE.get(
-        $Preconditions.checkNotNull(type));
+        $Gson$Preconditions.checkNotNull(type));
     return (wrapped == null) ? type : wrapped;
   }
 
@@ -113,7 +113,7 @@ final class Primitives {
     // cast is safe: long.class and Long.class are both of type Class<Long>
     @SuppressWarnings("unchecked")
     Class<T> unwrapped = (Class<T>) WRAPPER_TO_PRIMITIVE_TYPE.get(
-        $Preconditions.checkNotNull(type));
+        $Gson$Preconditions.checkNotNull(type));
     return (unwrapped == null) ? type : unwrapped;
   }
 }

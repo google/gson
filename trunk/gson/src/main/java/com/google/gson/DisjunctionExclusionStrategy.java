@@ -16,7 +16,7 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.$Preconditions;
+import com.google.gson.internal.$Gson$Preconditions;
 
 import java.util.Collection;
 
@@ -30,7 +30,7 @@ final class DisjunctionExclusionStrategy implements ExclusionStrategy {
   private final Collection<ExclusionStrategy> strategies;
 
   DisjunctionExclusionStrategy(Collection<ExclusionStrategy> strategies) {
-    this.strategies = $Preconditions.checkNotNull(strategies);
+    this.strategies = $Gson$Preconditions.checkNotNull(strategies);
   }
 
   public boolean shouldSkipField(FieldAttributes f) {

@@ -16,8 +16,8 @@
 
 package com.google.gson.internal;
 
-import static com.google.gson.internal.$Preconditions.checkArgument;
-import static com.google.gson.internal.$Preconditions.checkNotNull;
+import static com.google.gson.internal.$Gson$Preconditions.checkArgument;
+import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
@@ -38,10 +38,10 @@ import java.util.Properties;
  * @author Bob Lee
  * @author Jesse Wilson
  */
-public final class $Types {
+public final class $Gson$Types {
   static final Type[] EMPTY_TYPE_ARRAY = new Type[] {};
 
-  private $Types() {}
+  private $Gson$Types() {}
 
   /**
    * Returns a new parameterized type, applying {@code typeArguments} to
@@ -269,7 +269,7 @@ public final class $Types {
   static Type getSupertype(Type context, Class<?> contextRawType, Class<?> supertype) {
     checkArgument(supertype.isAssignableFrom(contextRawType));
     return resolve(context, contextRawType,
-        $Types.getGenericSupertype(context, contextRawType, supertype));
+        $Gson$Types.getGenericSupertype(context, contextRawType, supertype));
   }
 
   /**
@@ -435,7 +435,7 @@ public final class $Types {
     checkArgument(!(type instanceof Class<?>) || !((Class<?>) type).isPrimitive());
   }
 
-  private static class ParameterizedTypeImpl implements ParameterizedType, Serializable {
+  private static final class ParameterizedTypeImpl implements ParameterizedType, Serializable {
     private final Type ownerType;
     private final Type rawType;
     private final Type[] typeArguments;
@@ -473,7 +473,7 @@ public final class $Types {
 
     @Override public boolean equals(Object other) {
       return other instanceof ParameterizedType
-          && $Types.equals(this, (ParameterizedType) other);
+          && $Gson$Types.equals(this, (ParameterizedType) other);
     }
 
     @Override public int hashCode() {
@@ -500,7 +500,7 @@ public final class $Types {
     private static final long serialVersionUID = 0;
   }
 
-  private static class GenericArrayTypeImpl implements GenericArrayType, Serializable {
+  private static final class GenericArrayTypeImpl implements GenericArrayType, Serializable {
     private final Type componentType;
 
     public GenericArrayTypeImpl(Type componentType) {
@@ -513,7 +513,7 @@ public final class $Types {
 
     @Override public boolean equals(Object o) {
       return o instanceof GenericArrayType
-          && $Types.equals(this, (GenericArrayType) o);
+          && $Gson$Types.equals(this, (GenericArrayType) o);
     }
 
     @Override public int hashCode() {
@@ -532,7 +532,7 @@ public final class $Types {
    * lower bounds. We only support what the Java 6 language needs - at most one
    * bound. If a lower bound is set, the upper bound must be Object.class.
    */
-  private static class WildcardTypeImpl implements WildcardType, Serializable {
+  private static final class WildcardTypeImpl implements WildcardType, Serializable {
     private final Type upperBound;
     private final Type lowerBound;
 
@@ -565,7 +565,7 @@ public final class $Types {
 
     @Override public boolean equals(Object other) {
       return other instanceof WildcardType
-          && $Types.equals(this, (WildcardType) other);
+          && $Gson$Types.equals(this, (WildcardType) other);
     }
 
     @Override public int hashCode() {

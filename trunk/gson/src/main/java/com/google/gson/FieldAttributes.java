@@ -16,8 +16,8 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.$Preconditions;
-import com.google.gson.internal.$Types;
+import com.google.gson.internal.$Gson$Preconditions;
+import com.google.gson.internal.$Gson$Types;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -56,7 +56,7 @@ public final class FieldAttributes {
   private Collection<Annotation> annotations;
 
   FieldAttributes(Class<?> declaringClazz, Field f) {
-    this.declaringClazz = $Preconditions.checkNotNull(declaringClazz);
+    this.declaringClazz = $Gson$Preconditions.checkNotNull(declaringClazz);
     this.name = f.getName();
     this.declaredType = f.getType();
     this.isSynthetic = f.isSynthetic();
@@ -72,7 +72,7 @@ public final class FieldAttributes {
    * @param declaringType The type in which the field is declared
    */
   FieldAttributes(Class<?> declaringClazz, Field f, Type declaringType) {
-    this.declaringClazz = $Preconditions.checkNotNull(declaringClazz);
+    this.declaringClazz = $Gson$Preconditions.checkNotNull(declaringClazz);
     this.name = f.getName();
     this.declaredType = f.getType();
     this.isSynthetic = f.isSynthetic();
@@ -255,11 +255,11 @@ public final class FieldAttributes {
    * @return the type information for the field
    */
   static Type getTypeInfoForField(Field f, Type typeDefiningF) {
-    Class<?> rawType = $Types.getRawType(typeDefiningF);
+    Class<?> rawType = $Gson$Types.getRawType(typeDefiningF);
     if (!f.getDeclaringClass().isAssignableFrom(rawType)) {
       // this field is unrelated to the type; the user probably omitted type information
       return f.getGenericType();
     }
-    return $Types.resolve(typeDefiningF, rawType, f.getGenericType());
+    return $Gson$Types.resolve(typeDefiningF, rawType, f.getGenericType());
   }
 }

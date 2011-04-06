@@ -16,7 +16,7 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.$Preconditions;
+import com.google.gson.internal.$Gson$Preconditions;
 
 import java.lang.reflect.Type;
 
@@ -50,7 +50,7 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
     this.fieldNamingPolicy = fieldNamingPolicy;
     this.objectConstructor = objectConstructor;
     this.deserializers = deserializers;
-    this.json = $Preconditions.checkNotNull(json);
+    this.json = $Gson$Preconditions.checkNotNull(json);
     this.context = context;
     this.constructed = false;
   }
