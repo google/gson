@@ -254,7 +254,7 @@ public final class FieldAttributes {
    * @param typeDefiningF the type that contains the field {@code f}
    * @return the type information for the field
    */
-  public static Type getTypeInfoForField(Field f, Type typeDefiningF) {
+  static Type getTypeInfoForField(Field f, Type typeDefiningF) {
     Class<?> rawType = $Types.getRawType(typeDefiningF);
     if (!f.getDeclaringClass().isAssignableFrom(rawType)) {
       // this field is unrelated to the type; the user probably omitted type information
