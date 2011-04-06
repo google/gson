@@ -38,8 +38,8 @@ final class DefaultConstructorAllocator {
   }
 
   // for testing purpose
-  final Cache<Class<?>, Constructor<?>> getConstructorCache() {
-    return constructorCache;
+  final boolean isInCache(Class<?> cacheKey) {
+    return constructorCache.getElement(cacheKey) != null;
   }
 
   private static final Constructor<Null> createNullConstructor() {
