@@ -43,7 +43,7 @@ public class VersionExclusionStrategyTest extends TestCase {
     VersionExclusionStrategy strategy = new VersionExclusionStrategy(VERSION);
     assertFalse(strategy.shouldSkipClass(clazz));
 
-    FieldAttributes fieldAttributes = new FieldAttributes(clazz, f);
+    FieldAttributes fieldAttributes = new FieldAttributes(clazz, f, clazz);
     assertFalse(strategy.shouldSkipField(fieldAttributes));
   }
 
@@ -53,7 +53,7 @@ public class VersionExclusionStrategyTest extends TestCase {
     VersionExclusionStrategy strategy = new VersionExclusionStrategy(VERSION + 1);
     assertFalse(strategy.shouldSkipClass(clazz));
     
-    FieldAttributes fieldAttributes = new FieldAttributes(clazz, f);
+    FieldAttributes fieldAttributes = new FieldAttributes(clazz, f, clazz);
     assertFalse(strategy.shouldSkipField(fieldAttributes));
   }
 
@@ -63,7 +63,7 @@ public class VersionExclusionStrategyTest extends TestCase {
     VersionExclusionStrategy strategy = new VersionExclusionStrategy(VERSION - 1);
     assertTrue(strategy.shouldSkipClass(clazz));
     
-    FieldAttributes fieldAttributes = new FieldAttributes(clazz, f);
+    FieldAttributes fieldAttributes = new FieldAttributes(clazz, f, clazz);
     assertTrue(strategy.shouldSkipField(fieldAttributes));
   }
 
