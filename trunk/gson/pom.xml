@@ -17,20 +17,6 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
-  <!--  distributionManagement>
-  // Disabled for automatic integration with Sonatype
-    <repository>
-      <id>local.repo</id>
-      <name>file repository to svn</name>
-      <url>file://${basedir}/../../mavenrepo</url>
-    </repository>
-  </distributionManagement>
-  <repositories>
-    <repository>
-      <id>gson</id>
-      <url> http://google-gson.googlecode.com/svn/mavenrepo/ </url>
-    </repository>
-  </repositories-->
   <licenses>
     <license>
       <name>The Apache Software License, Version 2.0</name>
