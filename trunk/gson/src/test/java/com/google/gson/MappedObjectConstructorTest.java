@@ -16,9 +16,9 @@
 
 package com.google.gson;
 
-import java.lang.reflect.Type;
-
 import junit.framework.TestCase;
+
+import java.lang.reflect.Type;
 
 /**
  * Unit tests for the {@link MappedObjectConstructor} class.
@@ -28,7 +28,7 @@ import junit.framework.TestCase;
 public class MappedObjectConstructorTest extends TestCase {
   private ParameterizedTypeHandlerMap<InstanceCreator<?>> creatorMap;
   private MappedObjectConstructor constructor;
-  
+
   @Override
   protected void setUp() throws Exception {
     super.setUp();
@@ -38,47 +38,47 @@ public class MappedObjectConstructorTest extends TestCase {
 
   public void testInstanceCreatorTakesTopPrecedence() throws Exception {
     creatorMap.register(ObjectWithDefaultConstructor.class, new MyInstanceCreator());
-    ObjectWithDefaultConstructor obj = 
+    ObjectWithDefaultConstructor obj =
         constructor.construct(ObjectWithDefaultConstructor.class);
     assertEquals("instanceCreator", obj.stringValue);
     assertEquals(10, obj.intValue);
   }
-  
+
   public void testNoInstanceCreatorInvokesDefaultConstructor() throws Exception {
     ObjectWithDefaultConstructor expected = new ObjectWithDefaultConstructor();
-    ObjectWithDefaultConstructor obj = 
+    ObjectWithDefaultConstructor obj =
         constructor.construct(ObjectWithDefaultConstructor.class);
     assertEquals(expected.stringValue, obj.stringValue);
     assertEquals(expected.intValue, obj.intValue);
   }
-  
+
   public void testNoDefaultConstructor() throws Exception {
     ObjectNoDefaultConstructor obj = constructor.construct(ObjectNoDefaultConstructor.class);
     assertNull(obj.stringValue);
     assertEquals(0, obj.intValue);
   }
-  
+
   private static class MyInstanceCreator
       implements InstanceCreator<ObjectWithDefaultConstructor> {
     public ObjectWithDefaultConstructor createInstance(Type type) {
       return new ObjectWithDefaultConstructor("instanceCreator", 10);
     }
   }
-  
+
   private static class ObjectWithDefaultConstructor {
     public final String stringValue;
     public final int intValue;
-    
+
     private ObjectWithDefaultConstructor() {
       this("default", 5);
     }
-    
+
     public ObjectWithDefaultConstructor(String stringValue, int intValue) {
       this.stringValue = stringValue;
       this.intValue = intValue;
     }
   }
-  
+
   private static class ObjectNoDefaultConstructor extends ObjectWithDefaultConstructor {
     @SuppressWarnings("unused")
     public ObjectNoDefaultConstructor(String stringValue, int intValue) {
