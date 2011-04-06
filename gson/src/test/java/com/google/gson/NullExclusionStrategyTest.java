@@ -38,6 +38,6 @@ public class NullExclusionStrategyTest extends TestCase {
 
   public void testNeverSkipsField() throws Exception {
     assertFalse(strategy.shouldSkipField(
-        new FieldAttributes(String.class, String.class.getFields()[0])));
+        new FieldAttributes(String.class, String.class.getFields()[0], String.class)));
   }
 }
