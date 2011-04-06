@@ -55,16 +55,6 @@ public final class FieldAttributes {
   private Type genericType;
   private Collection<Annotation> annotations;
 
-  FieldAttributes(Class<?> declaringClazz, Field f) {
-    this.declaringClazz = $Gson$Preconditions.checkNotNull(declaringClazz);
-    this.name = f.getName();
-    this.declaredType = f.getType();
-    this.isSynthetic = f.isSynthetic();
-    this.modifiers = f.getModifiers();
-    this.field = f;
-    this.resolvedType = getTypeInfoForField(f, declaringClazz);
-  }
-
   /**
    * Constructs a Field Attributes object from the {@code f}.
    *

@@ -75,7 +75,7 @@ public class ExposeAnnotationExclusionStrategyTest extends TestCase {
   
   private static FieldAttributes createFieldAttributes(String fieldName) throws Exception {
     Field f = MockObject.class.getField(fieldName);
-    return new FieldAttributes(MockObject.class, f);
+    return new FieldAttributes(MockObject.class, f, MockObject.class);
   }
   
   @SuppressWarnings("unused")

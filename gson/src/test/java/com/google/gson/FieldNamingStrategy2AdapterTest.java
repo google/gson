@@ -34,7 +34,7 @@ public class FieldNamingStrategy2AdapterTest extends TestCase {
     FieldNamingStrategy2 adapter =
         new FieldNamingStrategy2Adapter(new UpperCaseNamingStrategy());
     assertEquals(expectedFieldName, adapter.translateName(
-        new FieldAttributes(String.class, field)));
+        new FieldAttributes(String.class, field, String.class)));
   }
   
   @SuppressWarnings("deprecation")
