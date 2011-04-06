@@ -16,7 +16,7 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.$Preconditions;
+import com.google.gson.internal.$Gson$Preconditions;
 
 import java.io.IOException;
 
@@ -50,7 +50,7 @@ class DelegatingJsonElementVisitor implements JsonElementVisitor {
   private final JsonElementVisitor delegate;
 
   protected DelegatingJsonElementVisitor(JsonElementVisitor delegate) {
-    this.delegate = $Preconditions.checkNotNull(delegate);
+    this.delegate = $Gson$Preconditions.checkNotNull(delegate);
   }
 
   public void endArray(JsonArray array) throws IOException {

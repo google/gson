@@ -16,7 +16,7 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.$Preconditions;
+import com.google.gson.internal.$Gson$Preconditions;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -94,7 +94,7 @@ public final class JsonPrimitive extends JsonElement {
       char c = ((Character) primitive).charValue();
       this.value = String.valueOf(c);
     } else {
-      $Preconditions.checkArgument(primitive instanceof Number
+      $Gson$Preconditions.checkArgument(primitive instanceof Number
               || isPrimitiveOrString(primitive));
       this.value = primitive;
     }

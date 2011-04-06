@@ -16,8 +16,8 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.$Types;
-import com.google.gson.internal.$Preconditions;
+import com.google.gson.internal.$Gson$Types;
+import com.google.gson.internal.$Gson$Preconditions;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
@@ -76,7 +76,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   public void visitArray(Object array, Type arrayType) {
     assignToRoot(new JsonArray());
     int length = Array.getLength(array);
-    Type componentType = $Types.getArrayComponentType(arrayType);
+    Type componentType = $Gson$Types.getArrayComponentType(arrayType);
     for (int i = 0; i < length; ++i) {
       Object child = Array.get(array, i);
       // we should not get more specific component type yet since it is possible
@@ -192,7 +192,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   public boolean visitFieldUsingCustomHandler(
       FieldAttributes f, Type declaredTypeOfField, Object parent) {
     try {
-      $Preconditions.checkState(root.isJsonObject());
+      $Gson$Preconditions.checkState(root.isJsonObject());
       Object obj = f.get(parent);
       if (obj == null) {
         if (serializeNulls) {
@@ -215,7 +215,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   }
 
   private void assignToRoot(JsonElement newRoot) {
-    root = $Preconditions.checkNotNull(newRoot);
+    root = $Gson$Preconditions.checkNotNull(newRoot);
   }
 
   private boolean isFieldNull(FieldAttributes f, Object obj) {

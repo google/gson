@@ -16,7 +16,7 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.$Types;
+import com.google.gson.internal.$Gson$Types;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
@@ -53,13 +53,13 @@ final class MappedObjectConstructor implements ObjectConstructor {
   }
 
   public Object constructArray(Type type, int length) {
-    return Array.newInstance($Types.getRawType(type), length);
+    return Array.newInstance($Gson$Types.getRawType(type), length);
   }
 
   @SuppressWarnings({"unchecked", "cast"})
   private <T> T constructWithAllocators(Type typeOfT) {
     try {
-      Class<T> clazz = (Class<T>) $Types.getRawType(typeOfT);
+      Class<T> clazz = (Class<T>) $Gson$Types.getRawType(typeOfT);
       T obj = defaultConstructorAllocator.newInstance(clazz);
       return (obj == null)
           ? unsafeAllocator.newInstance(clazz)

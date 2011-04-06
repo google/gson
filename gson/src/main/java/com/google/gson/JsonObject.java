@@ -16,7 +16,7 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.$Preconditions;
+import com.google.gson.internal.$Gson$Preconditions;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -57,7 +57,7 @@ public final class JsonObject extends JsonElement {
     if (value == null) {
       value = JsonNull.createJsonNull();
     }
-    members.put($Preconditions.checkNotNull(property), value);
+    members.put($Gson$Preconditions.checkNotNull(property), value);
   }
 
   /**
