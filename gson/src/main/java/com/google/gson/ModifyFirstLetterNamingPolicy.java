@@ -101,8 +101,8 @@ final class ModifyFirstLetterNamingPolicy extends RecursiveFieldNamingPolicy {
   }
 
   private String modifyString(char firstCharacter, String srcString, int indexOfSubstring) {
-    return indexOfSubstring < srcString.length() ?
-        firstCharacter + srcString.substring(indexOfSubstring)
+    return (indexOfSubstring < srcString.length())
+        ? firstCharacter + srcString.substring(indexOfSubstring)
         : String.valueOf(firstCharacter);
   }
 }
