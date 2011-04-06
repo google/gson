@@ -51,7 +51,14 @@ import java.util.Set;
  *     .create();
  * </pre></p>
  *
- * <p>NOTE: the order of invocation of configuration methods does not matter.</p>
+ * <p>NOTES:
+ * <ul>
+ * <li> the order of invocation of configuration methods does not matter.</li>
+ * <li> The default serialization of {@link Date} and its subclasses in Gson does
+ *  not contain time-zone information. So, if you are using date/time instances,
+ *  use {@code GsonBuilder} and its {@code setDateFormat} methods.</li> 
+ *  </ul> 
+ * </p>
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
