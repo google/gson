@@ -16,8 +16,6 @@
 
 package com.google.gson;
 
-import com.google.gson.DefaultConstructorAllocator;
-
 import junit.framework.TestCase;
 
 import java.util.ArrayList;
@@ -41,20 +39,16 @@ public class DefaultConstructorAllocatorTest extends TestCase {
   public void testObjectConstructor() throws Exception {
     ArrayList<Object> arrayList = allocator.newInstance(ArrayList.class);
     assertTrue(arrayList.isEmpty());
-    assertInCache(ArrayList.class);
+    assertTrue(allocator.isInCache(ArrayList.class));
 
     LinkedList<Object> linkedList = allocator.newInstance(LinkedList.class);
     assertTrue(linkedList.isEmpty());
-    assertInCache(LinkedList.class);
+    assertTrue(allocator.isInCache(LinkedList.class));
   }
 
   public void testMissingDefaultConstructor() throws Exception {
     assertNull(allocator.newInstance(NoDefaultConstructor.class));
-    assertInCache(NoDefaultConstructor.class);
-  }
-
-  private void assertInCache(Class<?> clazz) {
-    assertNotNull(allocator.getConstructorCache().getElement(clazz));
+    assertTrue(allocator.isInCache(NoDefaultConstructor.class));
   }
 
   private static class NoDefaultConstructor {
