@@ -16,7 +16,7 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.$Types;
+import com.google.gson.internal.$Gson$Types;
 
 import java.lang.reflect.Type;
 
@@ -95,7 +95,7 @@ final class ObjectNavigator {
    * @param objTypePair The object,type (fully genericized) being navigated
    */
   public void accept(ObjectTypePair objTypePair, Visitor visitor) {
-    if (exclusionStrategy.shouldSkipClass($Types.getRawType(objTypePair.type))) {
+    if (exclusionStrategy.shouldSkipClass($Gson$Types.getRawType(objTypePair.type))) {
       return;
     }
     boolean visitedWithCustomHandler = visitor.visitUsingCustomHandler(objTypePair);
@@ -108,7 +108,7 @@ final class ObjectNavigator {
       objTypePair.setObject(objectToVisit);
       visitor.start(objTypePair);
       try {
-        if ($Types.isArray(objTypePair.type)) {
+        if ($Gson$Types.isArray(objTypePair.type)) {
           visitor.visitArray(objectToVisit, objTypePair.type);
         } else if (objTypePair.type == Object.class && isPrimitiveOrString(objectToVisit)) {
           // TODO(Joel): this is only used for deserialization of "primitives"

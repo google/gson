@@ -16,7 +16,7 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.$Preconditions;
+import com.google.gson.internal.$Gson$Preconditions;
 
 /**
  * Adapts the old "deprecated" FieldNamingStrategy to the new {@link FieldNamingStrategy2}
@@ -30,7 +30,7 @@ final class FieldNamingStrategy2Adapter implements FieldNamingStrategy2 {
   private final FieldNamingStrategy adaptee;
 
   public FieldNamingStrategy2Adapter(FieldNamingStrategy adaptee) {
-    this.adaptee = $Preconditions.checkNotNull(adaptee);
+    this.adaptee = $Gson$Preconditions.checkNotNull(adaptee);
   }
 
   public String translateName(FieldAttributes f) {

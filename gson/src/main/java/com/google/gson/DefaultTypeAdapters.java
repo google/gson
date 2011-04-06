@@ -16,7 +16,7 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.$Types;
+import com.google.gson.internal.$Gson$Types;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
@@ -631,8 +631,8 @@ final class DefaultTypeAdapters {
       JsonArray array = new JsonArray();
       Type childGenericType = null;
       if (typeOfSrc instanceof ParameterizedType) {
-        Class<?> rawTypeOfSrc = $Types.getRawType(typeOfSrc);
-        childGenericType = $Types.getCollectionElementType(typeOfSrc, rawTypeOfSrc);
+        Class<?> rawTypeOfSrc = $Gson$Types.getRawType(typeOfSrc);
+        childGenericType = $Gson$Types.getCollectionElementType(typeOfSrc, rawTypeOfSrc);
       }
       for (Object child : src) {
         if (child == null) {
@@ -655,7 +655,7 @@ final class DefaultTypeAdapters {
       // Use ObjectConstructor to create instance instead of hard-coding a specific type.
       // This handles cases where users are using their own subclass of Collection.
       Collection collection = constructCollectionType(typeOfT, context);
-      Type childType = $Types.getCollectionElementType(typeOfT, $Types.getRawType(typeOfT));
+      Type childType = $Gson$Types.getCollectionElementType(typeOfT, $Gson$Types.getRawType(typeOfT));
       for (JsonElement childElement : json.getAsJsonArray()) {
         if (childElement == null || childElement.isJsonNull()) {
           collection.add(null);
@@ -1043,7 +1043,7 @@ final class DefaultTypeAdapters {
     }
 
     public T createInstance(Type type) {
-      Class<?> rawType = $Types.getRawType(type);
+      Class<?> rawType = $Gson$Types.getRawType(type);
       try {
         T specificInstance = (T) allocator.newInstance(rawType);
         return (specificInstance == null)

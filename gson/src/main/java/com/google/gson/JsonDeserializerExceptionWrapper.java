@@ -16,7 +16,7 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.$Preconditions;
+import com.google.gson.internal.$Gson$Preconditions;
 
 import java.lang.reflect.Type;
 
@@ -42,7 +42,7 @@ class JsonDeserializerExceptionWrapper<T> implements JsonDeserializer<T> {
    * @throws IllegalArgumentException if {@code delegate} is {@code null}.
    */
   JsonDeserializerExceptionWrapper(JsonDeserializer<T> delegate) {
-    this.delegate = $Preconditions.checkNotNull(delegate);
+    this.delegate = $Gson$Preconditions.checkNotNull(delegate);
   }
 
   public T deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)

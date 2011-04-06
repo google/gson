@@ -17,7 +17,7 @@
 package com.google.gson;
 
 import com.google.gson.DefaultTypeAdapters.DefaultDateTypeAdapter;
-import com.google.gson.internal.$Preconditions;
+import com.google.gson.internal.$Gson$Preconditions;
 
 import java.lang.reflect.Type;
 import java.sql.Timestamp;
@@ -482,7 +482,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
   public GsonBuilder registerTypeAdapter(Type type, Object typeAdapter) {
-    $Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
+    $Gson$Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
             || typeAdapter instanceof JsonDeserializer<?> || typeAdapter instanceof InstanceCreator<?>);
     if (typeAdapter instanceof InstanceCreator<?>) {
       registerInstanceCreator(type, (InstanceCreator<?>) typeAdapter);
@@ -561,7 +561,7 @@ public final class GsonBuilder {
    * @since 1.7
    */
   public GsonBuilder registerTypeHierarchyAdapter(Class<?> baseType, Object typeAdapter) {
-    $Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
+    $Gson$Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
             || typeAdapter instanceof JsonDeserializer<?> || typeAdapter instanceof InstanceCreator<?>);
     if (typeAdapter instanceof InstanceCreator<?>) {
       registerInstanceCreatorForTypeHierarchy(baseType, (InstanceCreator<?>) typeAdapter);

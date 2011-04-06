@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.ObjectNavigator.Visitor;
-import com.google.gson.internal.$Preconditions;
-import com.google.gson.internal.$Types;
+import com.google.gson.internal.$Gson$Preconditions;
+import com.google.gson.internal.$Gson$Types;
 
 /**
  * Visits each of the fields of the specified class using reflection
@@ -44,7 +44,7 @@ final class ReflectingFieldNavigator {
    *   object.
    */
   ReflectingFieldNavigator(ExclusionStrategy exclusionStrategy) {
-    this.exclusionStrategy = $Preconditions.checkNotNull(exclusionStrategy);
+    this.exclusionStrategy = $Gson$Preconditions.checkNotNull(exclusionStrategy);
   }
 
   /**
@@ -63,7 +63,7 @@ final class ReflectingFieldNavigator {
       boolean visitedWithCustomHandler =
         visitor.visitFieldUsingCustomHandler(fieldAttributes, resolvedTypeOfField, obj);
       if (!visitedWithCustomHandler) {
-        if ($Types.isArray(resolvedTypeOfField)) {
+        if ($Gson$Types.isArray(resolvedTypeOfField)) {
           visitor.visitArrayField(fieldAttributes, resolvedTypeOfField, obj);
         } else {
           visitor.visitObjectField(fieldAttributes, resolvedTypeOfField, obj);
@@ -94,7 +94,7 @@ final class ReflectingFieldNavigator {
    */
   private List<Class<?>> getInheritanceHierarchy(Type type) {
     List<Class<?>> classes = new ArrayList<Class<?>>();
-    Class<?> topLevelClass = $Types.getRawType(type);
+    Class<?> topLevelClass = $Gson$Types.getRawType(type);
     for (Class<?> curr = topLevelClass; curr != null && !curr.equals(Object.class); curr =
       curr.getSuperclass()) {
       if (!curr.isSynthetic()) {
