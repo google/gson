@@ -24,8 +24,6 @@ package com.google.gson;
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
- * 
- * @since 1.7
  */
 interface FieldNamingStrategy2 {
 
