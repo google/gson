@@ -40,7 +40,7 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
   protected final JsonDeserializationContext context;
   protected boolean constructed;
 
-  public JsonDeserializationVisitor(JsonElement json, Type targetType,
+  JsonDeserializationVisitor(JsonElement json, Type targetType,
       ObjectNavigator objectNavigator, FieldNamingStrategy2 fieldNamingPolicy,
       ObjectConstructor objectConstructor,
       ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers,

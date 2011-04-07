@@ -214,7 +214,7 @@ public final class FieldAttributes {
   }
 
   /**
-   * @deprecated remove this when {@link FieldNamingStrategy} is deleted.
+   * remove this when {@link FieldNamingStrategy} is deleted.
    */
   @Deprecated
   Field getFieldObject() {

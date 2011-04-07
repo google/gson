@@ -35,7 +35,7 @@ final class SerializedNameAnnotationInterceptingNamingPolicy implements FieldNam
   private static final JsonFieldNameValidator fieldNameValidator = new JsonFieldNameValidator();
   private final FieldNamingStrategy2 delegate;
 
-  public SerializedNameAnnotationInterceptingNamingPolicy(FieldNamingStrategy2 delegate) {
+  SerializedNameAnnotationInterceptingNamingPolicy(FieldNamingStrategy2 delegate) {
     this.delegate = delegate;
   }
 
