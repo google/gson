@@ -19,17 +19,16 @@ package com.google.gson;
 import com.google.gson.internal.$Gson$Preconditions;
 
 /**
- * Adapts the old "deprecated" FieldNamingStrategy to the new {@link FieldNamingStrategy2}
+ * Adapts the old FieldNamingStrategy to the new {@link FieldNamingStrategy2}
  * type.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-@SuppressWarnings("deprecation")
 final class FieldNamingStrategy2Adapter implements FieldNamingStrategy2 {
   private final FieldNamingStrategy adaptee;
 
-  public FieldNamingStrategy2Adapter(FieldNamingStrategy adaptee) {
+  FieldNamingStrategy2Adapter(FieldNamingStrategy adaptee) {
     this.adaptee = $Gson$Preconditions.checkNotNull(adaptee);
   }
 
