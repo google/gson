@@ -56,8 +56,8 @@ import java.util.Set;
  * <li> the order of invocation of configuration methods does not matter.</li>
  * <li> The default serialization of {@link Date} and its subclasses in Gson does
  *  not contain time-zone information. So, if you are using date/time instances,
- *  use {@code GsonBuilder} and its {@code setDateFormat} methods.</li> 
- *  </ul> 
+ *  use {@code GsonBuilder} and its {@code setDateFormat} methods.</li>
+ *  </ul>
  * </p>
  *
  * @author Inderjeet Singh
@@ -360,12 +360,12 @@ public final class GsonBuilder {
    * This means that if one of the {@code strategies} suggests that a field (or class) should be
    * skipped then that field (or object) is skipped during serialization.
    *
-   * @param strategies the set of strategy objects to apply during serialization.
+   * @param strategy an exclusion strategy to apply during serialization.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.7
    */
-  public GsonBuilder addSerializationExclusionStrategies(ExclusionStrategy... strategies) {
-    serializeExclusionStrategies.addAll(Arrays.asList(strategies));
+  public GsonBuilder addSerializationExclusionStrategies(ExclusionStrategy strategy) {
+    serializeExclusionStrategies.add(strategy);
     return this;
   }
 
@@ -375,12 +375,12 @@ public final class GsonBuilder {
    * This means that if one of the {@code strategies} suggests that a field (or class) should be
    * skipped then that field (or object) is skipped during deserialization.
    *
-   * @param strategies the set of strategy object to apply during deserialization.
+   * @param strategy an exclusion strategy to apply during deserialization.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.7
    */
-  public GsonBuilder addDeserializationExclusionStrategies(ExclusionStrategy... strategies) {
-    deserializeExclusionStrategies.addAll(Arrays.asList(strategies));
+  public GsonBuilder addDeserializationExclusionStrategies(ExclusionStrategy strategy) {
+    deserializeExclusionStrategies.add(strategy);
     return this;
   }
   /**
