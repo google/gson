@@ -355,10 +355,12 @@ public final class GsonBuilder {
   }
 
   /**
-   * Configures Gson to apply a set of exclusion strategies during serialization.
-   * Each of the {@code strategies} will be applied as a disjunction rule.
-   * This means that if one of the {@code strategies} suggests that a field (or class) should be
-   * skipped then that field (or object) is skipped during serialization.
+   * Configures Gson to apply the passed exclusion strategies during serialization.
+   * If this method is invoked numerous times with different exclusion strategy objects
+   * then the exclusion strategies that were added will be applied as a disjunction rule.
+   * This means that if one of the added exclusion strategies suggests that a field (or
+   * class) should be skipped then that field (or object) is skipped during its
+   * serialization.
    *
    * @param strategy an exclusion strategy to apply during serialization.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
@@ -370,10 +372,12 @@ public final class GsonBuilder {
   }
 
   /**
-   * Configures Gson to apply a set of exclusion strategies during deserialization.
-   * Each of the {@code strategies} will be applied as a disjunction rule.
-   * This means that if one of the {@code strategies} suggests that a field (or class) should be
-   * skipped then that field (or object) is skipped during deserialization.
+   * Configures Gson to apply the passed exclusion strategies during deserialization.
+   * If this method is invoked numerous times with different exclusion strategy objects
+   * then the exclusion strategies that were added will be applied as a disjunction rule.
+   * This means that if one of the added exclusion strategies suggests that a field (or
+   * class) should be skipped then that field (or object) is skipped during its
+   * deserialization.
    *
    * @param strategy an exclusion strategy to apply during deserialization.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
