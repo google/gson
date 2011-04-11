@@ -355,7 +355,7 @@ public final class GsonBuilder {
   }
 
   /**
-   * Configures Gson to apply the passed exclusion strategies during serialization.
+   * Configures Gson to apply the passed in exclusion strategy during serialization.
    * If this method is invoked numerous times with different exclusion strategy objects
    * then the exclusion strategies that were added will be applied as a disjunction rule.
    * This means that if one of the added exclusion strategies suggests that a field (or
@@ -372,7 +372,7 @@ public final class GsonBuilder {
   }
 
   /**
-   * Configures Gson to apply the passed exclusion strategies during deserialization.
+   * Configures Gson to apply the passed in exclusion strategy during deserialization.
    * If this method is invoked numerous times with different exclusion strategy objects
    * then the exclusion strategies that were added will be applied as a disjunction rule.
    * This means that if one of the added exclusion strategies suggests that a field (or
