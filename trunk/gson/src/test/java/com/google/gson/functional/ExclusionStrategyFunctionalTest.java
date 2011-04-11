@@ -91,9 +91,9 @@ public class ExclusionStrategyFunctionalTest extends TestCase {
   private static Gson createGson(ExclusionStrategy exclusionStrategy, boolean serialization) {
     GsonBuilder gsonBuilder = new GsonBuilder();
     if (serialization) {
-      gsonBuilder.addSerializationExclusionStrategies(exclusionStrategy);
+      gsonBuilder.addSerializationExclusionStrategy(exclusionStrategy);
     } else {
-      gsonBuilder.addDeserializationExclusionStrategies(exclusionStrategy);
+      gsonBuilder.addDeserializationExclusionStrategy(exclusionStrategy);
     }
     return gsonBuilder
         .serializeNulls()

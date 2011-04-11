@@ -364,7 +364,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.7
    */
-  public GsonBuilder addSerializationExclusionStrategies(ExclusionStrategy strategy) {
+  public GsonBuilder addSerializationExclusionStrategy(ExclusionStrategy strategy) {
     serializeExclusionStrategies.add(strategy);
     return this;
   }
@@ -379,7 +379,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.7
    */
-  public GsonBuilder addDeserializationExclusionStrategies(ExclusionStrategy strategy) {
+  public GsonBuilder addDeserializationExclusionStrategy(ExclusionStrategy strategy) {
     deserializeExclusionStrategies.add(strategy);
     return this;
   }
