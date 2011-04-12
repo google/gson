@@ -1,7 +1,0 @@
-Gson is a Java library that can be used to convert a Java object into its 
-JSON representation. It can also be used to convert a JSON string into an 
-equivalent Java object. Gson can work with arbitrary Java objects including 
-pre-existing objects that you do not have source-code of.
-
-Complete Gson documentation is available at its project page 
-http://code.google.com/p/google-gson
