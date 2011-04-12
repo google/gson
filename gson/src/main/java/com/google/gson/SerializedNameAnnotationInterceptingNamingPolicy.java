@@ -19,20 +19,22 @@ package com.google.gson;
 import com.google.gson.annotations.SerializedName;
 
 /**
- * A {@link FieldNamingStrategy2} that acts as a chain of responsibility.  If the
- * {@link com.google.gson.annotations.SerializedName} annotation is applied to a field then this
- * strategy will translate the name to the {@code serializedName.value()}; otherwise it delegates
- * to the wrapped {@link FieldNamingStrategy2}.
+ * A {@link FieldNamingStrategy2} that acts as a chain of responsibility. If the
+ * {@link com.google.gson.annotations.SerializedName} annotation is applied to a
+ * field then this strategy will translate the name to the {@code
+ * serializedName.value()}; otherwise it delegates to the wrapped
+ * {@link FieldNamingStrategy2}.
  *
- * <p>NOTE: this class performs JSON field name validation for any of the fields marked with
- * an {@code @SerializedName} annotation.</p>
+ * <p>
+ * NOTE: this class performs JSON field name validation for any of the fields
+ * marked with an {@code @SerializedName} annotation.
+ * </p>
  *
  * @see SerializedName
  *
  * @author Joel Leitch
  */
 final class SerializedNameAnnotationInterceptingNamingPolicy implements FieldNamingStrategy2 {
-  private static final JsonFieldNameValidator fieldNameValidator = new JsonFieldNameValidator();
   private final FieldNamingStrategy2 delegate;
 
   SerializedNameAnnotationInterceptingNamingPolicy(FieldNamingStrategy2 delegate) {
@@ -41,7 +43,6 @@ final class SerializedNameAnnotationInterceptingNamingPolicy implements FieldNam
 
   public String translateName(FieldAttributes f) {
     SerializedName serializedName = f.getAnnotation(SerializedName.class);
-    return serializedName == null ? delegate.translateName(f)
-        : fieldNameValidator.validate(serializedName.value());
+    return serializedName == null ? delegate.translateName(f) : serializedName.value();
   }
 }

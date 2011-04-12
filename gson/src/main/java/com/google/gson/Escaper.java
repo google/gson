@@ -54,19 +54,19 @@ final class Escaper {
     htmlEscapeSet.add('>');
     htmlEscapeSet.add('&');
     htmlEscapeSet.add('=');
-    htmlEscapeSet.add('\''); 
+    htmlEscapeSet.add('\'');
 //    htmlEscapeSet.add('/');  -- Removing slash for now since it causes some incompatibilities
     HTML_ESCAPE_CHARS = Collections.unmodifiableSet(htmlEscapeSet);
   }
 
   private final boolean escapeHtmlCharacters;
-  
+
   Escaper(boolean escapeHtmlCharacters) {
     this.escapeHtmlCharacters = escapeHtmlCharacters;
   }
-  
+
   public String escapeJsonString(CharSequence plainText) {
-    StringBuffer escapedString = new StringBuffer(plainText.length() + 20);
+    StringBuilder escapedString = new StringBuilder(plainText.length() + 20);
     try {
       escapeJsonString(plainText, escapedString);
     } catch (IOException e) {
@@ -75,14 +75,14 @@ final class Escaper {
     return escapedString.toString();
   }
 
-  private void escapeJsonString(CharSequence plainText, StringBuffer out) throws IOException {
+  private void escapeJsonString(CharSequence plainText, StringBuilder out) throws IOException {
     int pos = 0;  // Index just past the last char in plainText written to out.
     int len = plainText.length();
-    
+
     for (int charCount, i = 0; i < len; i += charCount) {
       int codePoint = Character.codePointAt(plainText, i);
       charCount = Character.charCount(codePoint);
-      
+
        if (!isControlCharacter(codePoint) && !mustEscapeCharInJsString(codePoint)) {
           continue;
        }
@@ -121,7 +121,7 @@ final class Escaper {
      }
      out.append(plainText, pos, len);
   }
-  
+
   private boolean mustEscapeCharInJsString(int codepoint) {
     if (!Character.isSupplementaryCodePoint(codepoint)) {
       char c = (char) codepoint;
