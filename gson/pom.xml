@@ -1,10 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.code.gson</groupId>
   <artifactId>gson</artifactId>
   <packaging>jar</packaging>
-  <version>1.7-SNAPSHOT</version>
+  <version>1.7</version>
   <inceptionYear>2008</inceptionYear>
   <name>Gson</name>
   <parent>
@@ -25,9 +24,9 @@
     </license>
   </licenses>
   <scm>
-    <connection>scm:svn:http://google-gson.googlecode.com/svn/trunk/gson</connection>
-    <developerConnection>scm:svn:https://google-gson.googlecode.com/svn/trunk/gson</developerConnection>
-    <url>http://google-gson.codegoogle.com/svn/trunk/gson</url>
+    <connection>scm:svn:http://google-gson.googlecode.com/svn/tags/gson-1.7</connection>
+    <developerConnection>scm:svn:https://google-gson.googlecode.com/svn/tags/gson-1.7</developerConnection>
+    <url>http://google-gson.codegoogle.com/svn/tags/gson-1.7</url>
   </scm>
   <issueManagement>
     <system>Google Code Issue Tracking</system>
