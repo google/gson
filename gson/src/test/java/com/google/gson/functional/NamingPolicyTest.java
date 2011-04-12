@@ -15,8 +15,6 @@
  */
 package com.google.gson.functional;
 
-import java.lang.reflect.Field;
-
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.FieldNamingStrategy;
 import com.google.gson.Gson;
@@ -27,6 +25,8 @@ import com.google.gson.common.TestTypes.StringWrapper;
 
 import junit.framework.TestCase;
 
+import java.lang.reflect.Field;
+
 /**
  * Functional tests for naming policies.
  *
@@ -34,7 +34,6 @@ import junit.framework.TestCase;
  * @author Joel Leitch
  */
 public class NamingPolicyTest extends TestCase {
-
   private GsonBuilder builder;
 
   @Override
@@ -56,7 +55,7 @@ public class NamingPolicyTest extends TestCase {
     StringWrapper deserializedObject = gson.fromJson(target, StringWrapper.class);
     assertEquals("someValue", deserializedObject.someConstantStringInstanceField);
   }
-  
+
   public void testGsonWithLowerCaseDashPolicySerialization() {
     Gson gson = builder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_DASHES).create();
     StringWrapper target = new StringWrapper("blah");
@@ -70,7 +69,7 @@ public class NamingPolicyTest extends TestCase {
     StringWrapper deserializedObject = gson.fromJson(target, StringWrapper.class);
     assertEquals("someValue", deserializedObject.someConstantStringInstanceField);
   }
-  
+
   public void testGsonWithLowerCaseUnderscorePolicySerialization() {
     Gson gson = builder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
         .create();
@@ -101,18 +100,18 @@ public class NamingPolicyTest extends TestCase {
         gson.fromJson(expected.getExpectedJson(), ClassWithSerializedNameFields.class);
     assertEquals(expected.f, actual.f);
   }
-  
+
   public void testGsonDuplicateNameUsingSerializedNameFieldNamingPolicySerialization() {
     Gson gson = builder.create();
     ClassWithDuplicateFields target = new ClassWithDuplicateFields(10);
     String actual = gson.toJson(target);
     assertEquals("{\"a\":10}", actual);
-    
+
     target = new ClassWithDuplicateFields(3.0D);
     actual = gson.toJson(target);
     assertEquals("{\"a\":3.0}", actual);
   }
-  
+
   public void testGsonWithUpperCamelCaseSpacesPolicySerialiation() {
     Gson gson = builder.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE_WITH_SPACES)
         .create();
@@ -120,7 +119,7 @@ public class NamingPolicyTest extends TestCase {
     assertEquals("{\"Some Constant String Instance Field\":\""
         + target.someConstantStringInstanceField + "\"}", gson.toJson(target));
   }
-  
+
   public void testGsonWithUpperCamelCaseSpacesPolicyDeserialiation() {
     Gson gson = builder.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE_WITH_SPACES)
         .create();
@@ -136,6 +135,16 @@ public class NamingPolicyTest extends TestCase {
     assertEquals("{\"A\":10}", actual);
   }
 
+  public void testComplexFieldNameStrategy() throws Exception {
+    Gson gson = new Gson();
+    String json = gson.toJson(new ClassWithComplexFieldName(10));
+    String escapedFieldName = "@value\\\"_s$\\\\";
+    assertEquals("{\"" + escapedFieldName + "\":10}", json);
+
+    ClassWithComplexFieldName obj = gson.fromJson(json, ClassWithComplexFieldName.class);
+    assertEquals(10, obj.value);
+  }
+
   private static class UpperCaseNamingStrategy implements FieldNamingStrategy {
     public String translateName(Field f) {
       return f.getName().toUpperCase();
@@ -146,18 +155,26 @@ public class NamingPolicyTest extends TestCase {
   private static class ClassWithDuplicateFields {
     public Integer a;
     @SerializedName("a") public Double b;
-    
+
     public ClassWithDuplicateFields(Integer a) {
       this(a, null);
     }
-    
+
     public ClassWithDuplicateFields(Double b) {
       this(null, b);
     }
-    
+
     public ClassWithDuplicateFields(Integer a, Double b) {
       this.a = a;
       this.b = b;
+    }
+  }
+
+  private static class ClassWithComplexFieldName {
+    @SerializedName("@value\"_s$\\") public final long value;
+
+    ClassWithComplexFieldName(long value) {
+      this.value = value;
     }
   }
 }
