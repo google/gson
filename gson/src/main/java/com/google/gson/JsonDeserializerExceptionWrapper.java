@@ -57,7 +57,7 @@ class JsonDeserializerExceptionWrapper<T> implements JsonDeserializer<T> {
       StringBuilder errorMsg = new StringBuilder()
           .append("The JsonDeserializer ")
           .append(delegate)
-          .append(" failed to deserialized json object ")
+          .append(" failed to deserialize json object ")
           .append(json)
           .append(" given the type ")
           .append(typeOfT);
