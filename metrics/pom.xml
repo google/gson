@@ -41,7 +41,7 @@
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
-      <version>1.7-SNAPSHOT</version>
+      <version>1.7.2-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.google.code.caliper</groupId>
