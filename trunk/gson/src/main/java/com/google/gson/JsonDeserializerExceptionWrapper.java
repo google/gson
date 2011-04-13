@@ -30,7 +30,7 @@ import java.lang.reflect.Type;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-class JsonDeserializerExceptionWrapper<T> implements JsonDeserializer<T> {
+final class JsonDeserializerExceptionWrapper<T> implements JsonDeserializer<T> {
 
   private final JsonDeserializer<T> delegate;
 
