@@ -46,7 +46,7 @@ import java.io.IOException;
  *
  * @author Joel Leitch
  */
-class DelegatingJsonElementVisitor implements JsonElementVisitor {
+final class DelegatingJsonElementVisitor implements JsonElementVisitor {
   private final JsonElementVisitor delegate;
 
   protected DelegatingJsonElementVisitor(JsonElementVisitor delegate) {
