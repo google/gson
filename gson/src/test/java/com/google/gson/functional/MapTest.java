@@ -19,10 +19,13 @@ package com.google.gson.functional;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.common.TestTypes;
+import com.google.gson.internal.$Gson$Types;
 import com.google.gson.reflect.TypeToken;
 
 import junit.framework.TestCase;
@@ -198,6 +201,29 @@ public class MapTest extends TestCase {
     MyMap map = gson.fromJson(json, MyMap.class);
     assertEquals("1", map.get("a"));
     assertEquals("2", map.get("b"));
+  }
+
+  public void testCustomSerializerForSpecificMapType() {
+    Type type = $Gson$Types.newParameterizedTypeWithOwner(
+        null, Map.class, String.class, Long.class);
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapter(type, new JsonSerializer<Map<String, Long>>() {
+          public JsonElement serialize(Map<String, Long> src, Type typeOfSrc,
+              JsonSerializationContext context) {
+            JsonArray array = new JsonArray();
+            for (long value : src.values()) {
+              array.add(new JsonPrimitive(value));
+            }
+            return array;
+          }
+        }).create();
+
+    Map<String, Long> src = new LinkedHashMap<String, Long>();
+    src.put("one", 1L);
+    src.put("two", 2L);
+    src.put("three", 3L);
+
+    assertEquals("[1,2,3]", gson.toJson(src, type));
   }
 
   /**
