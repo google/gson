@@ -3,7 +3,7 @@
   <groupId>com.google.code.gson</groupId>
   <artifactId>gson</artifactId>
   <packaging>jar</packaging>
-  <version>1.8-SNAPSHOT</version>
+  <version>1.7.1-SNAPSHOT</version>
   <inceptionYear>2008</inceptionYear>
   <name>Gson</name>
   <parent>
@@ -100,9 +100,10 @@
         </executions>
         <configuration>
           <archive>
+            <addMavenDescriptor>false</addMavenDescriptor>
             <manifestEntries>
               <Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
-              <Export-Package><![CDATA[com.google.gson;version=1.7, com.google.gson.annotations;version=1.7, com.google.gson.reflect;version=1.7, com.google.gson.stream;version=1.7]]></Export-Package>
+              <Export-Package><![CDATA[com.google.gson;version=1.7.1, com.google.gson.annotations;version=1.7.1, com.google.gson.reflect;version=1.7.1, com.google.gson.stream;version=1.7.1, com.google.gson.internal;version=1.7.1]]></Export-Package>
               <Bundle-Version>1.7</Bundle-Version>
               <Bundle-ContactAddress>http://code.google.com/p/google-gson/</Bundle-ContactAddress>
               <Bundle-Vendor>Google Gson Project</Bundle-Vendor>
