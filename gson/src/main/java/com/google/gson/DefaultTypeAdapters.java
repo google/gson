@@ -17,6 +17,7 @@
 package com.google.gson;
 
 import com.google.gson.internal.$Gson$Types;
+
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
@@ -33,6 +34,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -74,6 +76,7 @@ final class DefaultTypeAdapters {
   private static final UriTypeAdapter URI_TYPE_ADAPTER = new UriTypeAdapter();
   private static final UuidTypeAdapter UUUID_TYPE_ADAPTER = new UuidTypeAdapter();
   private static final LocaleTypeAdapter LOCALE_TYPE_ADAPTER = new LocaleTypeAdapter();
+  private static final BitSetTypeAdapter BIT_SET_ADAPTER = new BitSetTypeAdapter();
   private static final DefaultInetAddressAdapter INET_ADDRESS_ADAPTER =
       new DefaultInetAddressAdapter();
       private static final CollectionTypeAdapter COLLECTION_TYPE_ADAPTER = new CollectionTypeAdapter();
@@ -129,6 +132,7 @@ final class DefaultTypeAdapters {
     map.register(GregorianCalendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER);
     map.register(BigDecimal.class, BIG_DECIMAL_TYPE_ADAPTER);
     map.register(BigInteger.class, BIG_INTEGER_TYPE_ADAPTER);
+    map.register(BitSet.class, BIT_SET_ADAPTER);
 
     // Add primitive serializers
     map.register(Boolean.class, BOOLEAN_TYPE_ADAPTER);
@@ -176,6 +180,7 @@ final class DefaultTypeAdapters {
     map.register(GregorianCalendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER);
     map.register(BigDecimal.class, BIG_DECIMAL_TYPE_ADAPTER);
     map.register(BigInteger.class, BIG_INTEGER_TYPE_ADAPTER);
+    map.register(BitSet.class, BIT_SET_ADAPTER);
 
     // Add primitive deserializers
     map.register(Boolean.class, BOOLEAN_TYPE_ADAPTER);
@@ -527,6 +532,38 @@ final class DefaultTypeAdapters {
     @Override
     public String toString() {
       return EnumTypeAdapter.class.getSimpleName();
+    }
+  }
+
+  private static final class BitSetTypeAdapter implements JsonSerializer<BitSet>, JsonDeserializer<BitSet> {
+    public JsonElement serialize(BitSet src, Type typeOfSrc, JsonSerializationContext context) {
+      JsonArray array = new JsonArray();
+      for (int i = 0; i < src.length(); i++) {
+        int value = (src.get(i)) ? 1 : 0;
+        array.add(new JsonPrimitive(value));
+      }
+      return array;
+    }
+
+    public BitSet deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+        throws JsonParseException {
+      if (!json.isJsonArray()) {
+        throw new JsonParseException("Expected an array of bits.");
+      }
+      BitSet result = new BitSet();
+      JsonArray array = json.getAsJsonArray();
+      for (int i = 0; i < array.size(); i++) {
+        JsonElement element = array.get(i);
+        if (element.getAsBoolean()) {
+           result.set(i);
+        }
+      }
+      return result;
+    }
+
+    @Override
+    public String toString() {
+      return BitSetTypeAdapter.class.getSimpleName();
     }
   }
 
