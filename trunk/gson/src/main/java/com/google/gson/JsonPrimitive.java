@@ -129,6 +129,9 @@ public final class JsonPrimitive extends JsonElement {
     if (isBoolean()) {
       return getAsBooleanWrapper().booleanValue();
     } else {
+      // Check to see if the value (as a String) is either "true" (ignore case) or "1".
+      // If so then we will assume that it is true; otherwise, false.
+      // The "1" case is for parsing JSON that assume bits as booleans (i.e. 0 and 1).
       String stringValue = getAsString();
       return Boolean.parseBoolean(stringValue) || "1".equals(stringValue);
     }
