@@ -17,9 +17,11 @@
 package com.google.gson;
 
 import com.google.gson.common.MoreAsserts;
+
+import junit.framework.TestCase;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import junit.framework.TestCase;
 
 /**
  * Unit test for the {@link JsonPrimitive} class.
@@ -33,6 +35,22 @@ public class JsonPrimitiveTest extends TestCase {
 
     assertTrue(json.isBoolean());
     assertTrue(json.getAsBoolean());
+
+    // Extra support for booleans
+    json = new JsonPrimitive(1);
+    assertTrue(json.getAsBoolean());
+
+    json = new JsonPrimitive("1");
+    assertTrue(json.getAsBoolean());
+
+    json = new JsonPrimitive("true");
+    assertTrue(json.getAsBoolean());
+
+    json = new JsonPrimitive("TrUe");
+    assertTrue(json.getAsBoolean());
+
+    json = new JsonPrimitive("1.3");
+    assertFalse(json.getAsBoolean());
   }
 
   public void testParsingStringAsBoolean() throws Exception {

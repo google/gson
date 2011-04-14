@@ -22,6 +22,9 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
+
+import junit.framework.TestCase;
+
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -32,6 +35,7 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -43,7 +47,6 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.UUID;
-import junit.framework.TestCase;
 
 /**
  * Functional test for Json serialization and deserialization for common classes for which default
@@ -206,6 +209,36 @@ public class DefaultTypeAdaptersTest extends TestCase {
 
     json = gson.toJson(s, Set.class);
     assertEquals("[\"blah\"]", json);
+  }
+
+  public void testBitSetSerialization() throws Exception {
+    Gson gson = new Gson();
+    BitSet bits = new BitSet();
+    bits.set(1);
+    bits.set(3, 6);
+    bits.set(9);
+    String json = gson.toJson(bits);
+    assertEquals("[0,1,0,1,1,1,0,0,0,1]", json);
+  }
+
+  public void testBitSetDeserialization() throws Exception {
+    BitSet expected = new BitSet();
+    expected.set(0);
+    expected.set(2, 6);
+    expected.set(8);
+
+    Gson gson = new Gson();
+    String json = gson.toJson(expected);
+    assertEquals(expected, gson.fromJson(json, BitSet.class));
+
+    json = "[1,0,1,1,1,1,0,0,1,0,0,0]";
+    assertEquals(expected, gson.fromJson(json, BitSet.class));
+
+    json = "[\"1\",\"0\",\"1\",\"1\",\"1\",\"1\",\"0\",\"0\",\"1\"]";
+    assertEquals(expected, gson.fromJson(json, BitSet.class));
+
+    json = "[true,false,true,true,true,true,false,false,true,false,false]";
+    assertEquals(expected, gson.fromJson(json, BitSet.class));
   }
 
   public void testDefaultDateSerialization() {
