@@ -126,7 +126,12 @@ public final class JsonPrimitive extends JsonElement {
    */
   @Override
   public boolean getAsBoolean() {
-    return isBoolean() ? getAsBooleanWrapper().booleanValue() : Boolean.parseBoolean(getAsString());
+    if (isBoolean()) {
+      return getAsBooleanWrapper().booleanValue();
+    } else {
+      String stringValue = getAsString();
+      return Boolean.parseBoolean(stringValue) || "1".equals(stringValue);
+    }
   }
 
   /**
@@ -372,7 +377,7 @@ public final class JsonPrimitive extends JsonElement {
     if (primitive.value instanceof Number) {
       Number number = (Number) primitive.value;
       return number instanceof BigInteger || number instanceof Long || number instanceof Integer
-      || number instanceof Short || number instanceof Byte;
+          || number instanceof Short || number instanceof Byte;
     }
     return false;
   }
