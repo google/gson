@@ -198,7 +198,7 @@ public class ArrayTest extends TestCase {
   }
 
   public void testArrayOfPrimitivesAsObjectsSerialization() throws Exception {
-    Object[] objs = new Object[]{1, "abc", 0.3f, 5L};
+    Object[] objs = new Object[] {1, "abc", 0.3f, 5L};
     String json = gson.toJson(objs);
     assertTrue(json.contains("abc"));
     assertTrue(json.contains("0.3"));
@@ -267,6 +267,11 @@ public class ArrayTest extends TestCase {
     String json = gson.toJson(items);
     assertTrue(json.contains("[[\"3m Co"));
     assertTrue(json.contains("Manufacturing\"]]"));
+  }
+
+  public void testMultiDimenstionalObjectArraysSerialization() {
+    Object[][] array = new Object[][] { new Object[] { 1, 2 } };
+    assertEquals("[[1,2]]", gson.toJson(array));
   }
 
   /**
