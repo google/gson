@@ -146,7 +146,7 @@
          </executions>
          <configuration>
            <links>
-             <link>http://java.sun.com/j2se/1.5.0/docs/api/</link>
+             <link>http://download.oracle.com/javase/1.5.0/docs/api/</link>
            </links>
            <version>true</version>
            <show>public</show>
