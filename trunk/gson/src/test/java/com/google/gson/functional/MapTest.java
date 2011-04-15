@@ -341,18 +341,23 @@ public class MapTest extends TestCase {
    */
   public void testSerializeMaps() {
     Map<String, Object> map = new LinkedHashMap<String, Object>();
+    HashMap<String, Object> innerMap = new HashMap<String, Object>();
     map.put("a", 12);
     map.put("b", null);
-    map.put("c", new HashMap<String, Object>());
+    map.put("c", innerMap);
 
     assertEquals("{\"a\":12,\"b\":null,\"c\":{}}",
         new GsonBuilder().serializeNulls().create().toJson(map));
-    assertEquals("{\"a\":12,\"b\":null,\"c\":{}}",
-        new GsonBuilder().serializeNulls().create().toJson(map));
+    assertEquals("{\n  \"a\": 12,\n  \"b\": null,\n  \"c\": {}\n}",
+        new GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(map));
     assertEquals("{\"a\":12,\"c\":{}}",
         new GsonBuilder().create().toJson(map));
-    assertEquals("{\"a\":12,\"c\":{}}",
-        new GsonBuilder().create().toJson(map));
+    assertEquals("{\n  \"a\": 12,\n  \"c\": {}\n}",
+        new GsonBuilder().setPrettyPrinting().create().toJson(map));
+
+    innerMap.put("d", "e");
+    assertEquals("{\"a\":12,\"c\":{\"d\":\"e\"}}",
+        new Gson().toJson(map));
   }
 
   public final void testInterfaceTypeMap() {
