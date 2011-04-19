@@ -341,22 +341,29 @@ public class MapTest extends TestCase {
    */
   public void testSerializeMaps() {
     Map<String, Object> map = new LinkedHashMap<String, Object>();
-    HashMap<String, Object> innerMap = new HashMap<String, Object>();
     map.put("a", 12);
     map.put("b", null);
+
+    LinkedHashMap<String, Object> innerMap = new LinkedHashMap<String, Object>();
+    innerMap.put("test", 1);
+    innerMap.put("TestStringArray", new String[] { "one", "two" });
     map.put("c", innerMap);
 
-    assertEquals("{\"a\":12,\"b\":null,\"c\":{}}",
+    assertEquals("{\"a\":12,\"b\":null,\"c\":{\"test\":1,\"TestStringArray\":[\"one\",\"two\"]}}",
         new GsonBuilder().serializeNulls().create().toJson(map));
-    assertEquals("{\n  \"a\": 12,\n  \"b\": null,\n  \"c\": {}\n}",
+    assertEquals("{\n  \"a\": 12,\n  \"b\": null,\n  \"c\": "
+  		+ "{\n    \"test\": 1,\n    \"TestStringArray\": "
+  		+ "[\n      \"one\",\n      \"two\"\n    ]\n  }\n}",
         new GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(map));
-    assertEquals("{\"a\":12,\"c\":{}}",
+    assertEquals("{\"a\":12,\"c\":{\"test\":1,\"TestStringArray\":[\"one\",\"two\"]}}",
         new GsonBuilder().create().toJson(map));
-    assertEquals("{\n  \"a\": 12,\n  \"c\": {}\n}",
+    assertEquals("{\n  \"a\": 12,\n  \"c\": "
+        + "{\n    \"test\": 1,\n    \"TestStringArray\": "
+        + "[\n      \"one\",\n      \"two\"\n    ]\n  }\n}",
         new GsonBuilder().setPrettyPrinting().create().toJson(map));
 
     innerMap.put("d", "e");
-    assertEquals("{\"a\":12,\"c\":{\"d\":\"e\"}}",
+    assertEquals("{\"a\":12,\"c\":{\"test\":1,\"TestStringArray\":[\"one\",\"two\"],\"d\":\"e\"}}",
         new Gson().toJson(map));
   }
 
