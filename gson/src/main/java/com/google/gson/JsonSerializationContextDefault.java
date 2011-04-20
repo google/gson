@@ -16,7 +16,6 @@
 
 package com.google.gson;
 
-
 import java.lang.reflect.Type;
 
 /**
@@ -59,7 +58,8 @@ final class JsonSerializationContextDefault implements JsonSerializationContext 
     }
     JsonSerializationVisitor visitor = new JsonSerializationVisitor(
         objectNavigator, fieldNamingPolicy, serializeNulls, serializers, this, ancestors);
-    objectNavigator.accept(new ObjectTypePair(src, typeOfSrc, preserveType), visitor);
+    ObjectTypePair objTypePair = new ObjectTypePair(src, typeOfSrc, preserveType);
+    objectNavigator.accept(objTypePair, visitor);
     return visitor.getJsonElement();
   }
 }

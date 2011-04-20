@@ -275,6 +275,14 @@ public class ArrayTest extends TestCase {
   }
 
   /**
+   * Regression test for Issue 205
+   */
+  public void testMixingTypesInObjectArraySerialization() {
+    Object[] array = new Object[] { 1, 2, new Object[] { "one", "two" } };
+    assertEquals("[1,2,[\"one\",\"two\"]]", gson.toJson(array));
+  }
+
+  /**
    * Regression tests for Issue 272
    */
   public void testMultidimenstionalArraysDeserialization() {
