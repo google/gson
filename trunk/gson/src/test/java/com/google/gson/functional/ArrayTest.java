@@ -278,8 +278,8 @@ public class ArrayTest extends TestCase {
    * Regression test for Issue 205
    */
   public void testMixingTypesInObjectArraySerialization() {
-    Object[] array = new Object[] { 1, 2, new Object[] { "one", "two" } };
-    assertEquals("[1,2,[\"one\",\"two\"]]", gson.toJson(array));
+    Object[] array = new Object[] { 1, 2, new Object[] { "one", "two", 3 } };
+    assertEquals("[1,2,[\"one\",\"two\",3]]", gson.toJson(array));
   }
 
   /**
