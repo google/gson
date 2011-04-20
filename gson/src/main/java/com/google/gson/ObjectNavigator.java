@@ -100,6 +100,7 @@ final class ObjectNavigator {
     }
     boolean visitedWithCustomHandler = visitor.visitUsingCustomHandler(objTypePair);
     if (!visitedWithCustomHandler) {
+      objTypePair = objTypePair.toMoreSpecificType();
       Object obj = objTypePair.getObject();
       Object objectToVisit = (obj == null) ? visitor.getTarget() : obj;
       if (objectToVisit == null) {
@@ -108,7 +109,7 @@ final class ObjectNavigator {
       objTypePair.setObject(objectToVisit);
       visitor.start(objTypePair);
       try {
-        if ($Gson$Types.isArray(objTypePair.type)) {
+        if ($Gson$Types.isArray(objTypePair.getMoreSpecificType())) {
           visitor.visitArray(objectToVisit, objTypePair.type);
         } else if (objTypePair.type == Object.class && isPrimitiveOrString(objectToVisit)) {
           // TODO(Joel): this is only used for deserialization of "primitives"

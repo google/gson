@@ -677,7 +677,8 @@ final class DefaultTypeAdapters {
         } else {
           Type childType = (childGenericType == null || childGenericType == Object.class)
               ? child.getClass() : childGenericType;
-          JsonElement element = context.serialize(child, childType);
+          JsonSerializationContextDefault contextImpl = (JsonSerializationContextDefault) context;
+          JsonElement element = contextImpl.serialize(child, childType, false);
           array.add(element);
         }
       }
