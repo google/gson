@@ -48,14 +48,14 @@ public class MoreSpecificTypeSerializationTest extends TestCase {
     assertTrue(json.contains("\"s\":2"));
   }
 
-  public void disabled_testListOfSubclassFields() {
+  public void testListOfSubclassFields() {
     Collection<Base> list = new ArrayList<Base>();
     list.add(new Base(1));
     list.add(new Sub(2, 3));
     ClassWithContainersOfBaseFields target = new ClassWithContainersOfBaseFields(list, null);
     String json = gson.toJson(target);
     assertTrue(json, json.contains("{\"b\":1}"));
-    assertTrue(json, json.contains("{\"b\":2,\"s\":3}"));
+    assertTrue(json, json.contains("{\"s\":3,\"b\":2}"));
   }
 
   public void testMapOfSubclassFields() {

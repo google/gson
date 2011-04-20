@@ -75,7 +75,7 @@ final class ObjectTypePair {
     if (actualType == type) {
       return this;
     }
-    return new ObjectTypePair(obj, actualType, preserveType);
+    return new ObjectTypePair(obj, actualType, true);
   }
 
   Type getMoreSpecificType() {

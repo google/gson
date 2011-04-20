@@ -421,6 +421,22 @@ public class MapTest extends TestCase {
     assertEquals(expected, json);
   }
 
+  public void testGeneralMapField() throws Exception {
+    MapWithGeneralMapParameters map = new MapWithGeneralMapParameters();
+    map.map.put("string", "testString");
+    map.map.put("stringArray", new String[] { "one", "two" });
+    map.map.put("objectArray", new Object[] { 1, 2L, "three" });
+
+    String expected = "{\"map\":{\"string\":\"testString\",\"stringArray\":"
+        + "[\"one\",\"two\"],\"objectArray\":[1,2,\"three\"]}}";
+    assertEquals(expected, gson.toJson(map));
+
+    gson = new GsonBuilder()
+        .enableComplexMapKeySerialization()
+        .create();
+    assertEquals(expected, gson.toJson(map));
+  }
+
   static final class MapClass {
     private final Map<String, TestTypes.Base> bases = new HashMap<String, TestTypes.Base>();
     private final Map<String, TestTypes.Sub> subs = new HashMap<String, TestTypes.Sub>();
@@ -432,5 +448,9 @@ public class MapTest extends TestCase {
     public final void addSub(final String name, final TestTypes.Sub value) {
       subs.put(name, value);
     }
+  }
+
+  static final class MapWithGeneralMapParameters {
+    final Map<String, Object> map = new LinkedHashMap();
   }
 }
