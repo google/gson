@@ -127,7 +127,7 @@ public class ParameterizedTypesTest extends TestCase {
     MyParameterizedType<Integer> src = new MyParameterizedType<Integer>(10);
     String json = MyParameterizedTypeAdapter.<Integer>getExpectedJson(src);
     MyParameterizedType<Integer> intTarget = gson.fromJson(json, ptIntegerType);
-    assertEquals(10, (int) intTarget.value);
+    assertEquals(10, ((Number)intTarget.value).intValue());
 
     MyParameterizedType<String> srcStr = new MyParameterizedType<String>("abc");
     json = MyParameterizedTypeAdapter.<String>getExpectedJson(srcStr);

@@ -31,6 +31,7 @@ import java.math.BigInteger;
  * @author Joel Leitch
  */
 public final class JsonPrimitive extends JsonElement {
+
   private static final Class<?>[] PRIMITIVE_TYPES = { int.class, long.class, short.class,
       float.class, double.class, byte.class, boolean.class, char.class, Integer.class, Long.class,
       Short.class, Float.class, Double.class, Byte.class, Boolean.class, Character.class };
@@ -154,24 +155,7 @@ public final class JsonPrimitive extends JsonElement {
    */
   @Override
   public Number getAsNumber() {
-    return value instanceof String ? stringToNumber((String) value) : (Number) value;
-  }
-
-  static Number stringToNumber(String value) {
-    try {
-      long longValue = Long.parseLong(value);
-      if (longValue >= Integer.MIN_VALUE && longValue <= Integer.MAX_VALUE) {
-        return (int) longValue;
-      }
-      return longValue;
-    } catch (NumberFormatException ignored) {
-    }
-
-    try {
-      return new BigDecimal(value);
-    } catch (NumberFormatException ignored) {
-      return Double.parseDouble(value); // probably NaN, -Infinity or Infinity
-    }
+    return value instanceof String ? new LazilyParsedNumber((String) value) : (Number) value;
   }
 
   /**
