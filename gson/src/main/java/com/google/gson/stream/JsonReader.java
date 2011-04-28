@@ -188,6 +188,8 @@ public final class JsonReader implements Closeable {
   /** The only non-execute prefix this parser permits */
   private static final char[] NON_EXECUTE_PREFIX = ")]}'\n".toCharArray();
 
+  private final StringPool stringPool = new StringPool();
+
   /** The input JSON. */
   private final Reader in;
 
@@ -942,7 +944,7 @@ public final class JsonReader implements Closeable {
           if (skipping) {
             return "skipped!";
           } else if (builder == null) {
-            return new String(buffer, start, pos - start - 1);
+            return stringPool.get(buffer, start, pos - start - 1);
           } else {
             builder.append(buffer, start, pos - start - 1);
             return builder.toString();
@@ -1002,7 +1004,7 @@ public final class JsonReader implements Closeable {
           if (skipping) {
             return "skipped!";
           } else if (builder == null) {
-            return new String(buffer, start, pos - start);
+            return stringPool.get(buffer, start, pos - start);
           } else {
             builder.append(buffer, start, pos - start);
             return builder.toString();
@@ -1043,7 +1045,7 @@ public final class JsonReader implements Closeable {
       if (pos + 4 > limit && !fillBuffer(4)) {
         throw syntaxError("Unterminated escape sequence");
       }
-      String hex = new String(buffer, pos, 4);
+      String hex = stringPool.get(buffer, pos, 4);
       pos += 4;
       return (char) Integer.parseInt(hex, 16);
 
