@@ -62,7 +62,7 @@ final class Streams {
       return new JsonPrimitive(reader.nextString());
     case NUMBER:
       String number = reader.nextString();
-      return new JsonPrimitive(JsonPrimitive.stringToNumber(number));
+      return new JsonPrimitive(new LazilyParsedNumber(number));
     case BOOLEAN:
       return new JsonPrimitive(reader.nextBoolean());
     case NULL:

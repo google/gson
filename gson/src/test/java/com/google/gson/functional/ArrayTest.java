@@ -206,12 +206,13 @@ public class ArrayTest extends TestCase {
   }
 
   public void testArrayOfPrimitivesAsObjectsDeserialization() throws Exception {
-    String json = "[1,'abc',0.3,5]";
+    String json = "[1,'abc',0.3,1.1,5]";
     Object[] objs = gson.fromJson(json, Object[].class);
-    assertEquals(1, objs[0]);
+    assertEquals(1, ((Number)objs[0]).intValue());
     assertEquals("abc", objs[1]);
-    assertEquals(new BigDecimal("0.3"), objs[2]);
-    assertEquals(5, objs[3]);
+    assertEquals(0.3, ((Number)objs[2]).doubleValue());
+    assertEquals(new BigDecimal("1.1"), new BigDecimal(objs[3].toString()));
+    assertEquals(5, ((Number)objs[4]).shortValue());
   }
 
   public void testArrayOfObjectsWithoutTypeInfoDeserialization() throws Exception {
