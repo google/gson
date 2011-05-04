@@ -213,7 +213,8 @@ public final class JsonPrimitive extends JsonElement {
    */
   @Override
   public BigInteger getAsBigInteger() {
-    return value instanceof BigInteger ? (BigInteger) value : new BigInteger(value.toString());
+    return value instanceof BigInteger ?
+        (BigInteger) value : new BigInteger(value.toString());
   }
 
   /**
