@@ -15,6 +15,8 @@
  */
 package com.google.gson;
 
+import java.math.BigInteger;
+
 /**
  * This class holds a number value that is lazily converted to a specific number type
  *
@@ -30,12 +32,24 @@ final class LazilyParsedNumber extends Number {
 
   @Override
   public int intValue() {
-    return Integer.parseInt(value);
+    try {
+      return Integer.parseInt(value);
+    } catch (NumberFormatException e) {
+      try {
+        return (int) Long.parseLong(value);
+      } catch (NumberFormatException nfe) {
+        return new BigInteger(value).intValue(); 
+      }
+    }
   }
 
   @Override
   public long longValue() {
-    return Long.parseLong(value);
+    try {
+      return Long.parseLong(value);
+    } catch (NumberFormatException e) {
+      return new BigInteger(value).longValue(); 
+    }
   }
 
   @Override

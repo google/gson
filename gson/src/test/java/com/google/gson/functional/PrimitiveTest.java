@@ -38,6 +38,9 @@ import java.math.BigInteger;
  * @author Joel Leitch
  */
 public class PrimitiveTest extends TestCase {
+  private static final BigInteger MAX_INT_VALUE = new BigInteger("2147483647");
+  private static final BigInteger MAX_LONG_VALUE = new BigInteger("9223372036854775807");
+
   private Gson gson;
 
   @Override
@@ -756,5 +759,69 @@ public class PrimitiveTest extends TestCase {
       gson.fromJson("{'c':2}", Number.class);
       fail();
     } catch (JsonSyntaxException expected) {}
+  }
+
+  public void testDeserializingDecimalPointValuesAsIntegerFails() {
+    try {
+      gson.fromJson("1.0", Integer.class);
+      fail();
+    } catch (JsonParseException expected) {
+    }
+  }
+
+  public void testDeserializingBigDecimalAsIntegerFails() {
+    try {
+      gson.fromJson("-122.08e-213", Integer.class);
+      fail();
+    } catch (JsonParseException expected) {
+    }
+  }
+
+  public void testDeserializingBigIntegerAsInteger() {
+    String bigIntegerValue = "12121211243123245845384534687435634558945453489543985435";
+    int actual = gson.fromJson(bigIntegerValue, Integer.class);
+    int expected = new BigInteger(bigIntegerValue).and(MAX_INT_VALUE).intValue();
+    assertEquals(expected, actual);
+  }
+
+  public void testDeserializingBigIntegerAsLong() {
+    String bigIntegerValue = "12121211243123245845384534687435634558945453489543985435";
+    long actual = gson.fromJson(bigIntegerValue, long.class);
+    long expected = new BigInteger(bigIntegerValue).and(MAX_LONG_VALUE).longValue();
+    assertEquals(expected, actual);
+  }
+
+  public void testDeserializingBigDecimalAsLongFails() {
+    try {
+      gson.fromJson("-122.08e-2132", long.class);
+      fail();
+    } catch (JsonParseException expected) {
+    }
+  }
+
+  public void testDeserializingBigDecimalAsFloat() {
+    String json = "-122.08e-2132332";
+    float actual = gson.fromJson(json, float.class);
+    assertEquals(-0.0f, actual);
+  }
+
+  public void testDeserializingBigDecimalAsDouble() {
+    String json = "-122.08e-2132332";
+    double actual = gson.fromJson(json, double.class);
+    assertEquals(-0.0d, actual);
+  }
+
+  public void testDeserializingBigDecimalAsBigIntegerFails() {
+    try {
+      gson.fromJson("-122.08e-213", BigInteger.class);
+      fail();
+    } catch (JsonParseException expected) {
+    }
+  }
+
+  public void testDeserializingBigIntegerAsBigDecimal() {
+    BigDecimal actual =
+      gson.fromJson("12121211243123245845384534687435634558945453489543985435", BigDecimal.class);
+    assertEquals("12121211243123245845384534687435634558945453489543985435", actual.toPlainString());
   }
 }
