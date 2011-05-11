@@ -450,6 +450,7 @@ public class MapTest extends TestCase {
     }
   }
 
+  @SuppressWarnings("unchecked")
   static final class MapWithGeneralMapParameters {
     final Map<String, Object> map = new LinkedHashMap();
   }
