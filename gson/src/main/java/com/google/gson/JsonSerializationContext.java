@@ -25,7 +25,23 @@ import java.lang.reflect.Type;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public interface JsonSerializationContext {
+public final class JsonSerializationContext {
+
+  private final ObjectNavigator objectNavigator;
+  private final FieldNamingStrategy2 fieldNamingPolicy;
+  private final ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers;
+  private final boolean serializeNulls;
+  private final MemoryRefStack ancestors;
+
+  JsonSerializationContext(ObjectNavigator objectNavigator,
+      FieldNamingStrategy2 fieldNamingPolicy, boolean serializeNulls,
+      ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers) {
+    this.objectNavigator = objectNavigator;
+    this.fieldNamingPolicy = fieldNamingPolicy;
+    this.serializeNulls = serializeNulls;
+    this.serializers = serializers;
+    this.ancestors = new MemoryRefStack();
+  }
 
   /**
    * Invokes default serialization on the specified object.
@@ -33,7 +49,12 @@ public interface JsonSerializationContext {
    * @param src the object that needs to be serialized.
    * @return a tree of {@link JsonElement}s corresponding to the serialized form of {@code src}.
    */
-  public JsonElement serialize(Object src);
+  public JsonElement serialize(Object src) {
+    if (src == null) {
+      return JsonNull.createJsonNull();
+    }
+    return serialize(src, src.getClass(), false);
+  }
 
   /**
    * Invokes default serialization on the specified object passing the specific type information.
@@ -45,5 +66,18 @@ public interface JsonSerializationContext {
    * @param typeOfSrc the actual genericized type of src object.
    * @return a tree of {@link JsonElement}s corresponding to the serialized form of {@code src}.
    */
-  public JsonElement serialize(Object src, Type typeOfSrc);
+  public JsonElement serialize(Object src, Type typeOfSrc) {
+    return serialize(src, typeOfSrc, true);
+  }
+
+  JsonElement serialize(Object src, Type typeOfSrc, boolean preserveType) {
+    if (src == null) {
+      return JsonNull.createJsonNull();
+    }
+    JsonSerializationVisitor visitor = new JsonSerializationVisitor(
+        objectNavigator, fieldNamingPolicy, serializeNulls, serializers, this, ancestors);
+    ObjectTypePair objTypePair = new ObjectTypePair(src, typeOfSrc, preserveType);
+    objectNavigator.accept(objTypePair, visitor);
+    return visitor.getJsonElement();
+  }
 }
