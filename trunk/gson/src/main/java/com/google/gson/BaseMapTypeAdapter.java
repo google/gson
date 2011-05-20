@@ -30,15 +30,11 @@ abstract class BaseMapTypeAdapter
 
   protected static final JsonElement serialize(JsonSerializationContext context,
       Object src, Type srcType) {
-    JsonSerializationContextDefault contextImpl = (JsonSerializationContextDefault) context;
-    return contextImpl.serialize(src, srcType, false);
+    return context.serialize(src, srcType, false);
   }
 
-  @SuppressWarnings("unchecked")
   protected static final Map<Object, Object> constructMapType(
       Type mapType, JsonDeserializationContext context) {
-    JsonDeserializationContextDefault contextImpl = (JsonDeserializationContextDefault) context;
-    ObjectConstructor objectConstructor = contextImpl.getObjectConstructor();
-    return (Map<Object, Object>) objectConstructor.construct(mapType);
+    return context.construct(mapType);
   }
 }
