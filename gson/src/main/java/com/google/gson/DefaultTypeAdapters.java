@@ -677,8 +677,7 @@ final class DefaultTypeAdapters {
         } else {
           Type childType = (childGenericType == null || childGenericType == Object.class)
               ? child.getClass() : childGenericType;
-          JsonSerializationContextDefault contextImpl = (JsonSerializationContextDefault) context;
-          JsonElement element = contextImpl.serialize(child, childType, false);
+          JsonElement element = context.serialize(child, childType, false);
           array.add(element);
         }
       }
@@ -707,9 +706,7 @@ final class DefaultTypeAdapters {
 
     private Collection constructCollectionType(Type collectionType,
         JsonDeserializationContext context) {
-      JsonDeserializationContextDefault contextImpl = (JsonDeserializationContextDefault) context;
-      ObjectConstructor objectConstructor = contextImpl.getObjectConstructor();
-      return (Collection) objectConstructor.construct(collectionType);
+      return context.construct(collectionType);
     }
   }
 

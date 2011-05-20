@@ -20,6 +20,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.google.gson.stream.MalformedJsonException;
+
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -214,7 +215,7 @@ public final class Gson {
    * @since 1.4
    */
   public JsonElement toJsonTree(Object src, Type typeOfSrc) {
-    JsonSerializationContextDefault context = new JsonSerializationContextDefault(
+    JsonSerializationContext context = new JsonSerializationContext(
         new ObjectNavigator(serializationExclusionStrategy), fieldNamingPolicy,
         serializeNulls, serializers);
     return context.serialize(src, typeOfSrc);
@@ -545,7 +546,7 @@ public final class Gson {
     if (json == null) {
       return null;
     }
-    JsonDeserializationContext context = new JsonDeserializationContextDefault(
+    JsonDeserializationContext context = new JsonDeserializationContext(
         new ObjectNavigator(deserializationExclusionStrategy), fieldNamingPolicy,
         deserializers, objectConstructor);
     T target = (T) context.deserialize(json, typeOfT);
