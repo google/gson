@@ -89,7 +89,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
     try {
       if (isFieldNull(f, obj)) {
         if (serializeNulls) {
-          addChildAsElement(f, JsonNull.createJsonNull());
+          addChildAsElement(f, JsonNull.INSTANCE);
         }
       } else {
         Object array = getFieldValue(f, obj);
@@ -104,7 +104,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
     try {
       if (isFieldNull(f, obj)) {
         if (serializeNulls) {
-          addChildAsElement(f, JsonNull.createJsonNull());
+          addChildAsElement(f, JsonNull.INSTANCE);
         }
       } else {
         Object fieldValue = getFieldValue(f, obj);
@@ -119,7 +119,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   }
 
   public void visitPrimitive(Object obj) {
-    JsonElement json = obj == null ? JsonNull.createJsonNull() : new JsonPrimitive(obj);
+    JsonElement json = obj == null ? JsonNull.INSTANCE : new JsonPrimitive(obj);
     assignToRoot(json);
   }
 
@@ -134,7 +134,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
 
   private void addAsArrayElement(ObjectTypePair elementTypePair) {
     if (elementTypePair.getObject() == null) {
-      root.getAsJsonArray().add(JsonNull.createJsonNull());
+      root.getAsJsonArray().add(JsonNull.INSTANCE);
     } else {
       JsonElement childElement = getJsonElementForChild(elementTypePair);
       root.getAsJsonArray().add(childElement);
@@ -153,7 +153,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
       Object obj = objTypePair.getObject();
       if (obj == null) {
         if (serializeNulls) {
-          assignToRoot(JsonNull.createJsonNull());
+          assignToRoot(JsonNull.INSTANCE);
         }
         return true;
       }
@@ -183,7 +183,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
     try {
       JsonElement element =
           serializer.serialize(objTypePair.getObject(), objTypePair.getType(), context);
-      return element == null ? JsonNull.createJsonNull() : element;
+      return element == null ? JsonNull.INSTANCE : element;
     } finally {
       end(objTypePair);
     }
@@ -196,7 +196,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
       Object obj = f.get(parent);
       if (obj == null) {
         if (serializeNulls) {
-          addChildAsElement(f, JsonNull.createJsonNull());
+          addChildAsElement(f, JsonNull.INSTANCE);
         }
         return true;
       }

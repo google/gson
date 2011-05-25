@@ -44,7 +44,7 @@ final class Streams {
        * empty documents instead of throwing.
        */
       if (isEmpty) {
-        return JsonNull.createJsonNull();
+        return JsonNull.INSTANCE;
       }
       throw new JsonIOException(e);
     } catch (MalformedJsonException e) {
@@ -67,7 +67,7 @@ final class Streams {
       return new JsonPrimitive(reader.nextBoolean());
     case NULL:
       reader.nextNull();
-      return JsonNull.createJsonNull();
+      return JsonNull.INSTANCE;
     case BEGIN_ARRAY:
       JsonArray array = new JsonArray();
       reader.beginArray();
