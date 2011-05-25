@@ -43,8 +43,10 @@ public final class JsonDeserializationContext {
   }
 
 
+  @SuppressWarnings("unchecked")
   public <T> T construct(Type type) {
-    return objectConstructor.construct(type);
+    Object instance = objectConstructor.construct(type);
+    return (T) instance;
   }
 
   public Object constructArray(Type type, int length) {
@@ -92,15 +94,19 @@ public final class JsonDeserializationContext {
    * @return An object of type typeOfT.
    * @throws JsonParseException if the parse tree does not contain expected data.
    */
+  @SuppressWarnings("unchecked")
   public <T> T deserialize(JsonElement json, Type typeOfT) throws JsonParseException {
     if (json == null || json.isJsonNull()) {
       return null;
     } else if (json.isJsonArray()) {
-      return fromJsonArray(typeOfT, json.getAsJsonArray(), this);
+      Object array = fromJsonArray(typeOfT, json.getAsJsonArray(), this);
+      return (T) array;
     } else if (json.isJsonObject()) {
-      return fromJsonObject(typeOfT, json.getAsJsonObject(), this);
+      Object object = fromJsonObject(typeOfT, json.getAsJsonObject(), this);
+      return (T) object;
     } else if (json.isJsonPrimitive()) {
-      return fromJsonPrimitive(typeOfT, json.getAsJsonPrimitive(), this);
+      Object primitive = fromJsonPrimitive(typeOfT, json.getAsJsonPrimitive(), this);
+      return (T) primitive;
     } else {
       throw new JsonParseException("Failed parsing JSON source: " + json + " to Json");
     }
