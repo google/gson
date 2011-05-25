@@ -45,7 +45,7 @@ public final class JsonArrayTest extends TestCase {
     assertFalse(a.equals(b));
     assertFalse(b.equals(a));
 
-    b.add(new JsonNull());
+    b.add(JsonNull.INSTANCE);
     assertFalse(a.equals(b));
     assertFalse(b.equals(a));
   }

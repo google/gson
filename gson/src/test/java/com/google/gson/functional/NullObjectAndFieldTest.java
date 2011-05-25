@@ -164,7 +164,7 @@ public class NullObjectAndFieldTest extends TestCase {
     public JsonElement serialize(ClassWithObjects src, Type typeOfSrc,
         JsonSerializationContext context) {
       JsonObject obj = new JsonObject();
-      obj.add("bag", new JsonNull());
+      obj.add("bag", JsonNull.INSTANCE);
       return obj;
     }
   }
