@@ -26,11 +26,18 @@ import java.io.IOException;
  * @since 1.2
  */
 public final class JsonNull extends JsonElement {
-  private static final JsonNull INSTANCE = new JsonNull();
+  /**
+   * singleton for JsonNull
+   * 
+   * @since 1.8
+   */
+  public static final JsonNull INSTANCE = new JsonNull();
 
   /**
    * Creates a new JsonNull object.
+   * Deprecated. Use {@link #INSTANCE} instead
    */
+  @Deprecated
   public JsonNull() {
     // Do nothing
   }
