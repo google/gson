@@ -55,7 +55,7 @@ public final class JsonObject extends JsonElement {
    */
   public void add(String property, JsonElement value) {
     if (value == null) {
-      value = JsonNull.createJsonNull();
+      value = JsonNull.INSTANCE;
     }
     members.put($Gson$Preconditions.checkNotNull(property), value);
   }
@@ -122,7 +122,7 @@ public final class JsonObject extends JsonElement {
    * @return a {@link JsonPrimitive} if the {@code value} is not null, otherwise a {@link JsonNull}
    */
   private JsonElement createJsonElement(Object value) {
-    return value == null ? JsonNull.createJsonNull() : new JsonPrimitive(value);
+    return value == null ? JsonNull.INSTANCE : new JsonPrimitive(value);
   }
 
   /**
@@ -154,7 +154,7 @@ public final class JsonObject extends JsonElement {
   public JsonElement get(String memberName) {
     if (members.containsKey(memberName)) {
       JsonElement member = members.get(memberName);
-      return member == null ? JsonNull.createJsonNull() : member;
+      return member == null ? JsonNull.INSTANCE : member;
     }
     return null;
   }

@@ -51,7 +51,7 @@ public final class JsonSerializationContext {
    */
   public JsonElement serialize(Object src) {
     if (src == null) {
-      return JsonNull.createJsonNull();
+      return JsonNull.INSTANCE;
     }
     return serialize(src, src.getClass(), false);
   }
@@ -72,7 +72,7 @@ public final class JsonSerializationContext {
 
   JsonElement serialize(Object src, Type typeOfSrc, boolean preserveType) {
     if (src == null) {
-      return JsonNull.createJsonNull();
+      return JsonNull.INSTANCE;
     }
     JsonSerializationVisitor visitor = new JsonSerializationVisitor(
         objectNavigator, fieldNamingPolicy, serializeNulls, serializers, this, ancestors);

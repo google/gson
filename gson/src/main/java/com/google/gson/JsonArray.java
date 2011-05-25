@@ -49,7 +49,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    */
   public void add(JsonElement element) {
     if (element == null) {
-      element = JsonNull.createJsonNull();
+      element = JsonNull.INSTANCE;
     }
     elements.add(element);
   }

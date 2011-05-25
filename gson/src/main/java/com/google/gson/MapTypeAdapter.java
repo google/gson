@@ -46,7 +46,7 @@ final class MapTypeAdapter extends BaseMapTypeAdapter {
 
       JsonElement valueElement;
       if (value == null) {
-        valueElement = JsonNull.createJsonNull();
+        valueElement = JsonNull.INSTANCE;
       } else {
         Type childType = (childGenericType == null)
             ? value.getClass() : childGenericType;
