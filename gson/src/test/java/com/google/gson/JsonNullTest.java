@@ -24,8 +24,10 @@ import junit.framework.TestCase;
  */
 public final class JsonNullTest extends TestCase {
 
+  @SuppressWarnings("deprecation")
   public void testEqualsAndHashcode() {
     MoreAsserts.assertEqualsAndHashCode(new JsonNull(), new JsonNull());
+    MoreAsserts.assertEqualsAndHashCode(new JsonNull(), JsonNull.INSTANCE);
     MoreAsserts.assertEqualsAndHashCode(new JsonNull(), JsonNull.createJsonNull());
     MoreAsserts.assertEqualsAndHashCode(JsonNull.createJsonNull(), JsonNull.createJsonNull());
   }
