@@ -193,7 +193,7 @@ public final class Gson {
    */
   public JsonElement toJsonTree(Object src) {
     if (src == null) {
-      return JsonNull.createJsonNull();
+      return JsonNull.INSTANCE;
     }
     return toJsonTree(src, src.getClass());
   }
@@ -236,7 +236,7 @@ public final class Gson {
    */
   public String toJson(Object src) {
     if (src == null) {
-      return toJson(JsonNull.createJsonNull());
+      return toJson(JsonNull.INSTANCE);
     }
     return toJson(src, src.getClass());
   }
@@ -280,7 +280,7 @@ public final class Gson {
     if (src != null) {
       toJson(src, src.getClass(), writer);
     } else {
-      toJson(JsonNull.createJsonNull(), writer);
+      toJson(JsonNull.INSTANCE, writer);
     }
   }
 

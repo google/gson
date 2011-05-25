@@ -87,7 +87,7 @@ public final class JsonParser {
       throw new JsonParseException("Failed parsing JSON source: " + json + " to Json", e);
     } catch (JsonParseException e) {
       if (e.getCause() instanceof EOFException) {
-        return JsonNull.createJsonNull();
+        return JsonNull.INSTANCE;
       }
       throw e;
     } finally {
