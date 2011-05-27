@@ -49,16 +49,17 @@ public final class RuntimeTypeAdapter<T>
     return new RuntimeTypeAdapter<T>(c, typeFieldName);
   }
 
-  public void registerSubtype(Class<? extends T> type, String label) {
+  public RuntimeTypeAdapter<T> registerSubtype(Class<? extends T> type, String label) {
     if (subtypeToLabel.containsKey(type) || labelToSubtype.containsKey(label)) {
       throw new IllegalArgumentException("types and labels must be unique");
     }
     labelToSubtype.put(label, type);
     subtypeToLabel.put(type, label);
+    return this;
   }
 
-  public void registerSubtype(Class<? extends T> type) {
-    registerSubtype(type, type.getSimpleName());
+  public RuntimeTypeAdapter<T> registerSubtype(Class<? extends T> type) {
+    return registerSubtype(type, type.getSimpleName());
   }
 
   public JsonElement serialize(T src, Type typeOfSrc, JsonSerializationContext context) {
