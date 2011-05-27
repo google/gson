@@ -17,8 +17,6 @@
 package com.google.gson;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 
 /**
  * A class representing a Json {@code null} value.
@@ -42,42 +40,6 @@ public final class JsonNull extends JsonElement {
   @Deprecated
   public JsonNull() {
     // Do nothing
-  }
-
-  /**
-   * Returns null
-   * @since 1.8
-   */
-  @Override
-  public Number getAsNumber() {
-    return null;
-  }
-
-  /**
-   * Returns null
-   * @Since 1.8
-   */
-  @Override
-  public String getAsString() {
-    return null;
-  }
-
-  /**
-   * Returns null
-   * @Since 1.8
-   */
-  @Override
-  public BigDecimal getAsBigDecimal() {
-    return null;
-  }
-
-  /**
-   * Returns null
-   * @Since 1.8
-   */
-  @Override
-  public BigInteger getAsBigInteger() {
-    return null;
   }
 
   @Override
