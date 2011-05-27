@@ -40,8 +40,8 @@
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
-      <version>1.7.2-SNAPSHOT</version>
-      <scope>test</scope>
+      <version>1.8-SNAPSHOT</version>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
