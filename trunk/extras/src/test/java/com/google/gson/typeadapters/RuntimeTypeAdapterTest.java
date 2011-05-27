@@ -23,19 +23,34 @@ import junit.framework.TestCase;
 public final class RuntimeTypeAdapterTest extends TestCase {
 
   public void testRuntimeTypeAdapter() {
-    RuntimeTypeAdapter<BillingInstrument> rta = RuntimeTypeAdapter.create(BillingInstrument.class);
-    rta.registerSubtype(CreditCard.class);
-
-    CreditCard cc = new CreditCard("Jesse", 234);
+    RuntimeTypeAdapter<BillingInstrument> rta = RuntimeTypeAdapter.create(BillingInstrument.class)
+        .registerSubtype(CreditCard.class);
     Gson gson = new GsonBuilder()
         .registerTypeAdapter(BillingInstrument.class, rta)
         .create();
-    String ccJson = gson.toJson(cc, BillingInstrument.class);
-    assertEquals("{\"type\":\"CreditCard\",\"cvv\":234,\"ownerName\":\"Jesse\"}", ccJson);
 
-    BillingInstrument creditCard = gson.fromJson(
+    CreditCard original = new CreditCard("Jesse", 234);
+    assertEquals("{\"type\":\"CreditCard\",\"cvv\":234,\"ownerName\":\"Jesse\"}",
+        gson.toJson(original, BillingInstrument.class));
+    BillingInstrument deserialized = gson.fromJson(
         "{type:'CreditCard',cvv:234,ownerName:'Jesse'}", BillingInstrument.class);
-    assertTrue(creditCard instanceof CreditCard);
+    assertEquals("Jesse", deserialized.ownerName);
+    assertTrue(deserialized instanceof CreditCard);
+  }
+
+  public void testRuntimeTypeIsBaseType() {
+    RuntimeTypeAdapter<BillingInstrument> rta = RuntimeTypeAdapter.create(BillingInstrument.class)
+        .registerSubtype(BillingInstrument.class);
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapter(BillingInstrument.class, rta)
+        .create();
+
+    BillingInstrument original = new BillingInstrument("Jesse");
+    assertEquals("{\"type\":\"BillingInstrument\",\"ownerName\":\"Jesse\"}",
+        gson.toJson(original, BillingInstrument.class));
+    BillingInstrument deserialized = gson.fromJson(
+        "{type:'CreditCard',ownerName:'Jesse'}", BillingInstrument.class);
+    assertEquals("Jesse", deserialized.ownerName);
   }
 
   static class CreditCard extends BillingInstrument {
