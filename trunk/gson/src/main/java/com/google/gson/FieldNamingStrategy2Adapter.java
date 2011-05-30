@@ -32,6 +32,7 @@ final class FieldNamingStrategy2Adapter implements FieldNamingStrategy2 {
     this.adaptee = $Gson$Preconditions.checkNotNull(adaptee);
   }
 
+  @SuppressWarnings("deprecation")
   public String translateName(FieldAttributes f) {
     return adaptee.translateName(f.getFieldObject());
   }
