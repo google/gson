@@ -36,13 +36,12 @@ public final class JsonObject extends JsonElement {
   // the order in which elements are inserted. This is needed to ensure
   // that the fields of an object are inserted in the order they were
   // defined in the class.
-  private final Map<String, JsonElement> members;
+  private final Map<String, JsonElement> members = new LinkedHashMap<String, JsonElement>();
 
   /**
    * Creates an empty JsonObject.
    */
   public JsonObject() {
-    members = new LinkedHashMap<String, JsonElement>();
   }
 
   /**
