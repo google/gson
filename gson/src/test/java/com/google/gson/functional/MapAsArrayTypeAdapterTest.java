@@ -16,14 +16,17 @@
 
 package com.google.gson.functional;
 
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import junit.framework.TestCase;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-import java.lang.reflect.Type;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import junit.framework.TestCase;
 
 public class MapAsArrayTypeAdapterTest extends TestCase {
 
@@ -95,6 +98,26 @@ public class MapAsArrayTypeAdapterTest extends TestCase {
     assertEquals(original, gson.<Map<Point, String>>fromJson(json, type));
   }
 
+  public void testMapWithTypeVariableSerialization() {
+    Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
+    PointWithProperty<Point> map = new PointWithProperty<Point>();
+    map.map.put(new Point(2, 3), new Point(4, 5));
+    Type type = new TypeToken<PointWithProperty<Point>>(){}.getType();
+    String json = gson.toJson(map, type);
+    assertEquals("{\"map\":[[{\"x\":2,\"y\":3},{\"x\":4,\"y\":5}]]}", json);
+  }
+
+  public void testMapWithTypeVariableDeserialization() {
+    Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
+    String json = "{map:[[{x:2,y:3},{x:4,y:5}]]}";
+    Type type = new TypeToken<PointWithProperty<Point>>(){}.getType();
+    PointWithProperty<Point> map = gson.fromJson(json, type);
+    Point key = map.map.keySet().iterator().next();
+    Point value = map.map.values().iterator().next();
+    assertEquals(new Point(2, 3), key);
+    assertEquals(new Point(4, 5), value);
+  }
+
   static class Point {
     int x;
     int y;
@@ -112,5 +135,9 @@ public class MapAsArrayTypeAdapterTest extends TestCase {
     @Override public String toString() {
       return "(" + x + "," + y + ")";
     }
+  }
+
+  static class PointWithProperty<T> {
+    Map<Point, T> map = new HashMap<Point, T>();
   }
 }
