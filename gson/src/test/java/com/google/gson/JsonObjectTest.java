@@ -17,6 +17,7 @@
 package com.google.gson;
 
 import com.google.gson.common.MoreAsserts;
+
 import junit.framework.TestCase;
 
 /**
@@ -56,12 +57,12 @@ public class JsonObjectTest extends TestCase {
   public void testAddingNullOrEmptyPropertyName() throws Exception {
     JsonObject jsonObj = new JsonObject();
     try {
-      jsonObj.add(null, JsonNull.createJsonNull());
+      jsonObj.add(null, JsonNull.INSTANCE);
       fail("Should not allow null property names.");
     } catch (NullPointerException expected) { }
 
-    jsonObj.add("", JsonNull.createJsonNull());
-    jsonObj.add("   \t", JsonNull.createJsonNull());
+    jsonObj.add("", JsonNull.INSTANCE);
+    jsonObj.add("   \t", JsonNull.INSTANCE);
   }
 
   public void testAddingBooleanProperties() throws Exception {
