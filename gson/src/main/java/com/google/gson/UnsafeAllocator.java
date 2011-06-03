@@ -70,7 +70,7 @@ abstract class UnsafeAllocator {
     } catch (Exception ignored) {
     }
 
-    // try dalvivkm, post-gingerbread
+    // try dalvikvm, post-gingerbread
     // public class ObjectStreamClass {
     //   private static native int getConstructorId(Class<?> c);
     //   private static native Object newInstance(Class<?> instantiationClass, int methodId);
