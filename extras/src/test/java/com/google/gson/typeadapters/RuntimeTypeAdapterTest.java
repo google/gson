@@ -18,6 +18,7 @@ package com.google.gson.typeadapters;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
 import junit.framework.TestCase;
 
 public final class RuntimeTypeAdapterTest extends TestCase {
@@ -53,20 +54,132 @@ public final class RuntimeTypeAdapterTest extends TestCase {
     assertEquals("Jesse", deserialized.ownerName);
   }
 
+  public void testNullBaseType() {
+    try {
+      RuntimeTypeAdapter.create(null);
+      fail();
+    } catch (NullPointerException expected) {
+    }
+  }
+
+  public void testNullTypeFieldName() {
+    try {
+      RuntimeTypeAdapter.create(BillingInstrument.class, null);
+      fail();
+    } catch (NullPointerException expected) {
+    }
+  }
+
+  public void testNullSubtype() {
+    RuntimeTypeAdapter<BillingInstrument> rta = RuntimeTypeAdapter.create(BillingInstrument.class);
+    try {
+      rta.registerSubtype(null);
+      fail();
+    } catch (NullPointerException expected) {
+    }
+  }
+
+  public void testNullLabel() {
+    RuntimeTypeAdapter<BillingInstrument> rta = RuntimeTypeAdapter.create(BillingInstrument.class);
+    try {
+      rta.registerSubtype(CreditCard.class, null);
+      fail();
+    } catch (NullPointerException expected) {
+    }
+  }
+
+  public void testDuplicateSubtype() {
+    RuntimeTypeAdapter<BillingInstrument> rta = RuntimeTypeAdapter.create(BillingInstrument.class);
+    rta.registerSubtype(CreditCard.class, "CC");
+    try {
+      rta.registerSubtype(CreditCard.class, "Visa");
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
+  }
+
+  public void testDuplicateLabel() {
+    RuntimeTypeAdapter<BillingInstrument> rta = RuntimeTypeAdapter.create(BillingInstrument.class);
+    rta.registerSubtype(CreditCard.class, "CC");
+    try {
+      rta.registerSubtype(BankTransfer.class, "CC");
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
+  }
+
+  public void testDeserializeMissingTypeField() {
+    Object billingAdapter = RuntimeTypeAdapter.create(BillingInstrument.class)
+        .registerSubtype(CreditCard.class);
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapter(BillingInstrument.class, billingAdapter)
+        .create();
+    try {
+      gson.fromJson("{ownerName:'Jesse'}", BillingInstrument.class);
+      fail();
+    } catch (JsonParseException expected) {
+    }
+  }
+
+  public void testDeserializeMissingSubtype() {
+    Object billingAdapter = RuntimeTypeAdapter.create(BillingInstrument.class)
+        .registerSubtype(BankTransfer.class);
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapter(BillingInstrument.class, billingAdapter)
+        .create();
+    try {
+      gson.fromJson("{type:'CreditCard',ownerName:'Jesse'}", BillingInstrument.class);
+      fail();
+    } catch (JsonParseException expected) {
+    }
+  }
+
+  public void testSerializeMissingSubtype() {
+    Object billingAdapter = RuntimeTypeAdapter.create(BillingInstrument.class)
+        .registerSubtype(BankTransfer.class);
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapter(BillingInstrument.class, billingAdapter)
+        .create();
+    try {
+      gson.toJson(new CreditCard("Jesse", 456), BillingInstrument.class);
+      fail();
+    } catch (JsonParseException expected) {
+    }
+  }
+
+  public void testSerializeCollidingTypeFieldName() {
+    Object billingAdapter = RuntimeTypeAdapter.create(BillingInstrument.class, "cvv")
+        .registerSubtype(CreditCard.class);
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapter(BillingInstrument.class, billingAdapter)
+        .create();
+    try {
+      gson.toJson(new CreditCard("Jesse", 456), BillingInstrument.class);
+      fail();
+    } catch (JsonParseException expected) {
+    }
+  }
+
+  static class BillingInstrument {
+    private final String ownerName;
+    BillingInstrument(String ownerName) {
+      this.ownerName = ownerName;
+    }
+  }
+
   static class CreditCard extends BillingInstrument {
     int cvv;
-
     CreditCard(String ownerName, int cvv) {
       super(ownerName);
       this.cvv = cvv;
     }
   }
 
-  static class BillingInstrument {
-    private final String ownerName;
-
-    BillingInstrument(String ownerName) {
-      this.ownerName = ownerName;
+  static class BankTransfer extends BillingInstrument {
+    int bankAccount;
+    BankTransfer(String ownerName, int bankAccount) {
+      super(ownerName);
+      this.bankAccount = bankAccount;
     }
   }
 }
