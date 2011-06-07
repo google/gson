@@ -159,12 +159,13 @@ public final class FieldAttributes {
   public Collection<Annotation> getAnnotations() {
     if (annotations == null) {
       Pair<Class<?>, String> key = new Pair<Class<?>, String>(declaringClazz, name);
-      annotations = ANNOTATION_CACHE.getElement(key);
-      if (annotations == null) {
-        annotations = Collections.unmodifiableCollection(
+      Collection<Annotation> cachedValue = ANNOTATION_CACHE.getElement(key);
+      if (cachedValue == null) {
+        cachedValue = Collections.unmodifiableCollection(
             Arrays.asList(field.getAnnotations()));
-        ANNOTATION_CACHE.addElement(key, annotations);
+        ANNOTATION_CACHE.addElement(key, cachedValue);
       }
+      annotations = cachedValue;
     }
     return annotations;
   }
