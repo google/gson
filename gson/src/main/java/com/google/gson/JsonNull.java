@@ -42,6 +42,10 @@ public final class JsonNull extends JsonElement {
     // Do nothing
   }
 
+  @Override JsonElement deepCopy() {
+    return this; // immutable!
+  }
+
   @Override
   protected void toString(Appendable sb, Escaper escaper) throws IOException {
     sb.append("null");

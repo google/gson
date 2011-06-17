@@ -125,6 +125,18 @@ public final class JsonObject extends JsonElement {
   }
 
   /**
+   * Returns a deep copy of this object.
+   */
+  @Override public JsonObject deepCopy() {
+    JsonObject result = new JsonObject();
+    result.members.putAll(members);
+    for (Map.Entry<String, JsonElement> entry : result.members.entrySet()) {
+      entry.setValue(entry.getValue().deepCopy());
+    }
+    return result;
+  }
+
+  /**
    * Returns a set of members of this object. The set is ordered, and the order is in which the
    * elements were added.
    *

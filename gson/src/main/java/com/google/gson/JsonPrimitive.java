@@ -101,6 +101,10 @@ public final class JsonPrimitive extends JsonElement {
     }
   }
 
+  @Override JsonElement deepCopy() {
+    return this; // immutable!
+  }
+
   /**
    * Check whether this primitive contains a boolean value.
    *

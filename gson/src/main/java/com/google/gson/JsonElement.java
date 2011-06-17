@@ -235,7 +235,7 @@ public abstract class JsonElement {
   public int getAsInt() {
     throw new UnsupportedOperationException();
   }
-  
+
   /**
    * convenience method to get this element as a primitive byte value.
    *
@@ -249,7 +249,7 @@ public abstract class JsonElement {
   public byte getAsByte() {
     throw new UnsupportedOperationException();
   }
-  
+
   /**
    * convenience method to get this element as a primitive character value.
    *
@@ -317,6 +317,11 @@ public abstract class JsonElement {
   Object getAsObject() {
     throw new UnsupportedOperationException();
   }
+
+  /**
+   * Returns a deep copy of this. Immutable values can return this.
+   */
+  abstract JsonElement deepCopy();
 
   /**
    * Returns a String representation of this element.
