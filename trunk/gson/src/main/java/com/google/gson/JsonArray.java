@@ -64,6 +64,18 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   }
 
   /**
+   * Returns a deep copy of this array.
+   */
+  @Override public JsonArray deepCopy() {
+    JsonArray result = new JsonArray();
+    result.elements.addAll(elements);
+    for (int i = 0; i < result.elements.size(); i++) {
+      result.elements.set(i, result.elements.get(i).deepCopy());
+    }
+    return result;
+  }
+
+  /**
    * Reverses the elements of the array.
    */
   void reverse() {

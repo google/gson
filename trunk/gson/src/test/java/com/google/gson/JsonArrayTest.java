@@ -49,4 +49,37 @@ public final class JsonArrayTest extends TestCase {
     assertFalse(a.equals(b));
     assertFalse(b.equals(a));
   }
+
+  public void testDeepCopy() {
+    JsonObject v1 = new JsonObject();
+    v1.add("k", new JsonPrimitive("v"));
+    JsonNull v2 = JsonNull.INSTANCE;
+    JsonPrimitive v3 = new JsonPrimitive("abc");
+    JsonArray v4 = new JsonArray();
+    v4.add(new JsonPrimitive("def"));
+
+    JsonArray array = new JsonArray();
+    array.add(v1);
+    array.add(v2);
+    array.add(v3);
+    array.add(v4);
+
+    // the deep copy must be equal
+    JsonArray deepCopy = array.deepCopy();
+    assertEquals(array, deepCopy);
+
+    // collections must be copied by value
+    JsonObject d1 = deepCopy.get(0).getAsJsonObject();
+    assertEquals(v1, d1);
+    assertTrue(v1 != d1);
+    JsonArray d4 = deepCopy.get(3).getAsJsonArray();
+    assertEquals(v4, d4);
+    assertTrue(v4 != d4);
+
+    // collections should themselves be deeply immutable
+    v1.add("k2", new JsonPrimitive("v2"));
+    assertEquals(1, d1.entrySet().size());
+    v4.add(new JsonPrimitive("ghi"));
+    assertEquals(1, d4.size());
+  }
 }
