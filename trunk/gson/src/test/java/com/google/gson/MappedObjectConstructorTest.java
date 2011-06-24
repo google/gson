@@ -37,7 +37,7 @@ public class MappedObjectConstructorTest extends TestCase {
   }
 
   public void testInstanceCreatorTakesTopPrecedence() throws Exception {
-    creatorMap.register(ObjectWithDefaultConstructor.class, new MyInstanceCreator());
+    creatorMap.register(ObjectWithDefaultConstructor.class, new MyInstanceCreator(), false);
     ObjectWithDefaultConstructor obj =
         constructor.construct(ObjectWithDefaultConstructor.class);
     assertEquals("instanceCreator", obj.stringValue);

@@ -120,35 +120,35 @@ final class DefaultTypeAdapters {
     ParameterizedTypeHandlerMap<JsonSerializer<?>> map =
         new ParameterizedTypeHandlerMap<JsonSerializer<?>>();
 
-    map.register(URL.class, URL_TYPE_ADAPTER);
-    map.register(URI.class, URI_TYPE_ADAPTER);
-    map.register(UUID.class, UUUID_TYPE_ADAPTER);
-    map.register(Locale.class, LOCALE_TYPE_ADAPTER);
-    map.register(Date.class, DATE_TYPE_ADAPTER);
-    map.register(java.sql.Date.class, JAVA_SQL_DATE_TYPE_ADAPTER);
-    map.register(Timestamp.class, DATE_TYPE_ADAPTER);
-    map.register(Time.class, TIME_TYPE_ADAPTER);
-    map.register(Calendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER);
-    map.register(GregorianCalendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER);
-    map.register(BigDecimal.class, BIG_DECIMAL_TYPE_ADAPTER);
-    map.register(BigInteger.class, BIG_INTEGER_TYPE_ADAPTER);
-    map.register(BitSet.class, BIT_SET_ADAPTER);
+    map.register(URL.class, URL_TYPE_ADAPTER, true);
+    map.register(URI.class, URI_TYPE_ADAPTER, true);
+    map.register(UUID.class, UUUID_TYPE_ADAPTER, true);
+    map.register(Locale.class, LOCALE_TYPE_ADAPTER, true);
+    map.register(Date.class, DATE_TYPE_ADAPTER, true);
+    map.register(java.sql.Date.class, JAVA_SQL_DATE_TYPE_ADAPTER, true);
+    map.register(Timestamp.class, DATE_TYPE_ADAPTER, true);
+    map.register(Time.class, TIME_TYPE_ADAPTER, true);
+    map.register(Calendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER, true);
+    map.register(GregorianCalendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER, true);
+    map.register(BigDecimal.class, BIG_DECIMAL_TYPE_ADAPTER, true);
+    map.register(BigInteger.class, BIG_INTEGER_TYPE_ADAPTER, true);
+    map.register(BitSet.class, BIT_SET_ADAPTER, true);
 
     // Add primitive serializers
-    map.register(Boolean.class, BOOLEAN_TYPE_ADAPTER);
-    map.register(boolean.class, BOOLEAN_TYPE_ADAPTER);
-    map.register(Byte.class, BYTE_TYPE_ADAPTER);
-    map.register(byte.class, BYTE_TYPE_ADAPTER);
-    map.register(Character.class, CHARACTER_TYPE_ADAPTER);
-    map.register(char.class, CHARACTER_TYPE_ADAPTER);
-    map.register(Integer.class, INTEGER_TYPE_ADAPTER);
-    map.register(int.class, INTEGER_TYPE_ADAPTER);
-    map.register(Number.class, NUMBER_TYPE_ADAPTER);
-    map.register(Short.class, SHORT_TYPE_ADAPTER);
-    map.register(short.class, SHORT_TYPE_ADAPTER);
-    map.register(String.class, STRING_TYPE_ADAPTER);
-    map.register(StringBuilder.class, STRING_BUILDER_TYPE_ADAPTER);
-    map.register(StringBuffer.class, STRING_BUFFER_TYPE_ADAPTER);
+    map.register(Boolean.class, BOOLEAN_TYPE_ADAPTER, true);
+    map.register(boolean.class, BOOLEAN_TYPE_ADAPTER, true);
+    map.register(Byte.class, BYTE_TYPE_ADAPTER, true);
+    map.register(byte.class, BYTE_TYPE_ADAPTER, true);
+    map.register(Character.class, CHARACTER_TYPE_ADAPTER, true);
+    map.register(char.class, CHARACTER_TYPE_ADAPTER, true);
+    map.register(Integer.class, INTEGER_TYPE_ADAPTER, true);
+    map.register(int.class, INTEGER_TYPE_ADAPTER, true);
+    map.register(Number.class, NUMBER_TYPE_ADAPTER, true);
+    map.register(Short.class, SHORT_TYPE_ADAPTER, true);
+    map.register(short.class, SHORT_TYPE_ADAPTER, true);
+    map.register(String.class, STRING_TYPE_ADAPTER, true);
+    map.register(StringBuilder.class, STRING_BUILDER_TYPE_ADAPTER, true);
+    map.register(StringBuffer.class, STRING_BUFFER_TYPE_ADAPTER, true);
 
     map.makeUnmodifiable();
     return map;
@@ -157,10 +157,10 @@ final class DefaultTypeAdapters {
   private static ParameterizedTypeHandlerMap<JsonSerializer<?>> createDefaultHierarchySerializers() {
     ParameterizedTypeHandlerMap<JsonSerializer<?>> map =
         new ParameterizedTypeHandlerMap<JsonSerializer<?>>();
-    map.registerForTypeHierarchy(Enum.class, ENUM_TYPE_ADAPTER);
-    map.registerForTypeHierarchy(InetAddress.class, INET_ADDRESS_ADAPTER);
-    map.registerForTypeHierarchy(Collection.class, COLLECTION_TYPE_ADAPTER);
-    map.registerForTypeHierarchy(Map.class, MAP_TYPE_ADAPTER);
+    map.registerForTypeHierarchy(Enum.class, ENUM_TYPE_ADAPTER, true);
+    map.registerForTypeHierarchy(InetAddress.class, INET_ADDRESS_ADAPTER, true);
+    map.registerForTypeHierarchy(Collection.class, COLLECTION_TYPE_ADAPTER, true);
+    map.registerForTypeHierarchy(Map.class, MAP_TYPE_ADAPTER, true);
     map.makeUnmodifiable();
     return map;
   }
@@ -168,41 +168,41 @@ final class DefaultTypeAdapters {
   private static ParameterizedTypeHandlerMap<JsonDeserializer<?>> createDefaultDeserializers() {
     ParameterizedTypeHandlerMap<JsonDeserializer<?>> map =
         new ParameterizedTypeHandlerMap<JsonDeserializer<?>>();
-    map.register(URL.class, wrapDeserializer(URL_TYPE_ADAPTER));
-    map.register(URI.class, wrapDeserializer(URI_TYPE_ADAPTER));
-    map.register(UUID.class, wrapDeserializer(UUUID_TYPE_ADAPTER));
-    map.register(Locale.class, wrapDeserializer(LOCALE_TYPE_ADAPTER));
-    map.register(Date.class, wrapDeserializer(DATE_TYPE_ADAPTER));
-    map.register(java.sql.Date.class, wrapDeserializer(JAVA_SQL_DATE_TYPE_ADAPTER));
-    map.register(Timestamp.class, wrapDeserializer(TIMESTAMP_DESERIALIZER));
-    map.register(Time.class, wrapDeserializer(TIME_TYPE_ADAPTER));
-    map.register(Calendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER);
-    map.register(GregorianCalendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER);
-    map.register(BigDecimal.class, BIG_DECIMAL_TYPE_ADAPTER);
-    map.register(BigInteger.class, BIG_INTEGER_TYPE_ADAPTER);
-    map.register(BitSet.class, BIT_SET_ADAPTER);
+    map.register(URL.class, wrapDeserializer(URL_TYPE_ADAPTER), true);
+    map.register(URI.class, wrapDeserializer(URI_TYPE_ADAPTER), true);
+    map.register(UUID.class, wrapDeserializer(UUUID_TYPE_ADAPTER), true);
+    map.register(Locale.class, wrapDeserializer(LOCALE_TYPE_ADAPTER), true);
+    map.register(Date.class, wrapDeserializer(DATE_TYPE_ADAPTER), true);
+    map.register(java.sql.Date.class, wrapDeserializer(JAVA_SQL_DATE_TYPE_ADAPTER), true);
+    map.register(Timestamp.class, wrapDeserializer(TIMESTAMP_DESERIALIZER), true);
+    map.register(Time.class, wrapDeserializer(TIME_TYPE_ADAPTER), true);
+    map.register(Calendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER, true);
+    map.register(GregorianCalendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER, true);
+    map.register(BigDecimal.class, BIG_DECIMAL_TYPE_ADAPTER, true);
+    map.register(BigInteger.class, BIG_INTEGER_TYPE_ADAPTER, true);
+    map.register(BitSet.class, BIT_SET_ADAPTER, true);
 
     // Add primitive deserializers
-    map.register(Boolean.class, BOOLEAN_TYPE_ADAPTER);
-    map.register(boolean.class, BOOLEAN_TYPE_ADAPTER);
-    map.register(Byte.class, BYTE_TYPE_ADAPTER);
-    map.register(byte.class, BYTE_TYPE_ADAPTER);
-    map.register(Character.class, wrapDeserializer(CHARACTER_TYPE_ADAPTER));
-    map.register(char.class, wrapDeserializer(CHARACTER_TYPE_ADAPTER));
-    map.register(Double.class, DOUBLE_TYPE_ADAPTER);
-    map.register(double.class, DOUBLE_TYPE_ADAPTER);
-    map.register(Float.class, FLOAT_TYPE_ADAPTER);
-    map.register(float.class, FLOAT_TYPE_ADAPTER);
-    map.register(Integer.class, INTEGER_TYPE_ADAPTER);
-    map.register(int.class, INTEGER_TYPE_ADAPTER);
-    map.register(Long.class, LONG_DESERIALIZER);
-    map.register(long.class, LONG_DESERIALIZER);
-    map.register(Number.class, NUMBER_TYPE_ADAPTER);
-    map.register(Short.class, SHORT_TYPE_ADAPTER);
-    map.register(short.class, SHORT_TYPE_ADAPTER);
-    map.register(String.class, wrapDeserializer(STRING_TYPE_ADAPTER));
-    map.register(StringBuilder.class, wrapDeserializer(STRING_BUILDER_TYPE_ADAPTER));
-    map.register(StringBuffer.class, wrapDeserializer(STRING_BUFFER_TYPE_ADAPTER));
+    map.register(Boolean.class, BOOLEAN_TYPE_ADAPTER, true);
+    map.register(boolean.class, BOOLEAN_TYPE_ADAPTER, true);
+    map.register(Byte.class, BYTE_TYPE_ADAPTER, true);
+    map.register(byte.class, BYTE_TYPE_ADAPTER, true);
+    map.register(Character.class, wrapDeserializer(CHARACTER_TYPE_ADAPTER), true);
+    map.register(char.class, wrapDeserializer(CHARACTER_TYPE_ADAPTER), true);
+    map.register(Double.class, DOUBLE_TYPE_ADAPTER, true);
+    map.register(double.class, DOUBLE_TYPE_ADAPTER, true);
+    map.register(Float.class, FLOAT_TYPE_ADAPTER, true);
+    map.register(float.class, FLOAT_TYPE_ADAPTER, true);
+    map.register(Integer.class, INTEGER_TYPE_ADAPTER, true);
+    map.register(int.class, INTEGER_TYPE_ADAPTER, true);
+    map.register(Long.class, LONG_DESERIALIZER, true);
+    map.register(long.class, LONG_DESERIALIZER, true);
+    map.register(Number.class, NUMBER_TYPE_ADAPTER, true);
+    map.register(Short.class, SHORT_TYPE_ADAPTER, true);
+    map.register(short.class, SHORT_TYPE_ADAPTER, true);
+    map.register(String.class, wrapDeserializer(STRING_TYPE_ADAPTER), true);
+    map.register(StringBuilder.class, wrapDeserializer(STRING_BUILDER_TYPE_ADAPTER), true);
+    map.register(StringBuffer.class, wrapDeserializer(STRING_BUFFER_TYPE_ADAPTER), true);
 
     map.makeUnmodifiable();
     return map;
@@ -211,10 +211,10 @@ final class DefaultTypeAdapters {
   private static ParameterizedTypeHandlerMap<JsonDeserializer<?>> createDefaultHierarchyDeserializers() {
     ParameterizedTypeHandlerMap<JsonDeserializer<?>> map =
         new ParameterizedTypeHandlerMap<JsonDeserializer<?>>();
-    map.registerForTypeHierarchy(Enum.class, wrapDeserializer(ENUM_TYPE_ADAPTER));
-    map.registerForTypeHierarchy(InetAddress.class, wrapDeserializer(INET_ADDRESS_ADAPTER));
-    map.registerForTypeHierarchy(Collection.class, wrapDeserializer(COLLECTION_TYPE_ADAPTER));
-    map.registerForTypeHierarchy(Map.class, wrapDeserializer(MAP_TYPE_ADAPTER));
+    map.registerForTypeHierarchy(Enum.class, wrapDeserializer(ENUM_TYPE_ADAPTER), true);
+    map.registerForTypeHierarchy(InetAddress.class, wrapDeserializer(INET_ADDRESS_ADAPTER), true);
+    map.registerForTypeHierarchy(Collection.class, wrapDeserializer(COLLECTION_TYPE_ADAPTER), true);
+    map.registerForTypeHierarchy(Map.class, wrapDeserializer(MAP_TYPE_ADAPTER), true);
     map.makeUnmodifiable();
     return map;
   }
@@ -227,7 +227,7 @@ final class DefaultTypeAdapters {
 
     // Map Instance Creators
     map.registerForTypeHierarchy(Map.class,
-        new DefaultConstructorCreator<Map>(LinkedHashMap.class, allocator));
+        new DefaultConstructorCreator<Map>(LinkedHashMap.class, allocator), true);
 
     // Add Collection type instance creators
     DefaultConstructorCreator<List> listCreator =
@@ -238,10 +238,10 @@ final class DefaultTypeAdapters {
         new DefaultConstructorCreator<Set>(HashSet.class, allocator);
     DefaultConstructorCreator<SortedSet> sortedSetCreator =
         new DefaultConstructorCreator<SortedSet>(TreeSet.class, allocator);
-    map.registerForTypeHierarchy(Collection.class, listCreator);
-    map.registerForTypeHierarchy(Queue.class, queueCreator);
-    map.registerForTypeHierarchy(Set.class, setCreator);
-    map.registerForTypeHierarchy(SortedSet.class, sortedSetCreator);
+    map.registerForTypeHierarchy(Collection.class, listCreator, true);
+    map.registerForTypeHierarchy(Queue.class, queueCreator, true);
+    map.registerForTypeHierarchy(Set.class, setCreator, true);
+    map.registerForTypeHierarchy(SortedSet.class, sortedSetCreator, true);
 
     map.makeUnmodifiable();
     return map;
