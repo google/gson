@@ -48,7 +48,7 @@ public class ParameterizedTypeHandlerMapTest extends TestCase {
   public void testHasGenericButNotSpecific() throws Exception {
     Type specificType = new TypeToken<List<String>>() {}.getType();
     String handler = "blah";
-    paramMap.register(List.class, handler);
+    paramMap.register(List.class, handler, false);
 
     assertFalse(paramMap.hasSpecificHandlerFor(specificType));
     assertTrue(paramMap.hasSpecificHandlerFor(List.class));
@@ -60,7 +60,7 @@ public class ParameterizedTypeHandlerMapTest extends TestCase {
   public void testHasSpecificType() throws Exception {
     Type specificType = new TypeToken<List<String>>() {}.getType();
     String handler = "blah";
-    paramMap.register(specificType, handler);
+    paramMap.register(specificType, handler, false);
 
     assertTrue(paramMap.hasSpecificHandlerFor(specificType));
     assertFalse(paramMap.hasSpecificHandlerFor(List.class));
@@ -72,8 +72,8 @@ public class ParameterizedTypeHandlerMapTest extends TestCase {
   public void testTypeOverridding() throws Exception {
     String handler1 = "blah1";
     String handler2 = "blah2";
-    paramMap.register(String.class, handler1);
-    paramMap.register(String.class, handler2);
+    paramMap.register(String.class, handler1, false);
+    paramMap.register(String.class, handler2, false);
 
     assertTrue(paramMap.hasSpecificHandlerFor(String.class));
     assertEquals(handler2, paramMap.getHandlerFor(String.class));
@@ -82,44 +82,44 @@ public class ParameterizedTypeHandlerMapTest extends TestCase {
   public void testMakeUnmodifiable() throws Exception {
     paramMap.makeUnmodifiable();
     try {
-     paramMap.register(String.class, "blah");
+     paramMap.register(String.class, "blah", false);
      fail("Can not register handlers when map is unmodifiable");
     } catch (IllegalStateException expected) { }
   }
 
   public void testTypeHierarchy() {
-    paramMap.registerForTypeHierarchy(Base.class, "baseHandler");
+    paramMap.registerForTypeHierarchy(Base.class, "baseHandler", false);
     String handler = paramMap.getHandlerFor(Sub.class);
     assertEquals("baseHandler", handler);
   }
 
   public void testTypeHierarchyMultipleHandlers() {
-    paramMap.registerForTypeHierarchy(Base.class, "baseHandler");
-    paramMap.registerForTypeHierarchy(Sub.class, "subHandler");
+    paramMap.registerForTypeHierarchy(Base.class, "baseHandler", false);
+    paramMap.registerForTypeHierarchy(Sub.class, "subHandler", false);
     String handler = paramMap.getHandlerFor(SubOfSub.class);
     assertEquals("subHandler", handler);
   }
 
   public void testTypeHierarchyRegisterIfAbsent() {
-    paramMap.registerForTypeHierarchy(Base.class, "baseHandler");
+    paramMap.registerForTypeHierarchy(Base.class, "baseHandler", false);
     ParameterizedTypeHandlerMap<String> otherMap = new ParameterizedTypeHandlerMap<String>();
-    otherMap.registerForTypeHierarchy(Base.class, "baseHandler2");
+    otherMap.registerForTypeHierarchy(Base.class, "baseHandler2", false);
     paramMap.registerIfAbsent(otherMap);
     String handler = paramMap.getHandlerFor(Base.class);
     assertEquals("baseHandler", handler);
   }
 
   public void testReplaceExistingTypeHierarchyHandler() {
-    paramMap.registerForTypeHierarchy(Base.class, "baseHandler");
-    paramMap.registerForTypeHierarchy(Base.class, "base2Handler");
+    paramMap.registerForTypeHierarchy(Base.class, "baseHandler", false);
+    paramMap.registerForTypeHierarchy(Base.class, "base2Handler", false);
     String handler = paramMap.getHandlerFor(Base.class);
     assertEquals("base2Handler", handler);
   }
 
   public void testHidingExistingTypeHierarchyHandlerIsDisallowed() {
-    paramMap.registerForTypeHierarchy(Sub.class, "subHandler");
+    paramMap.registerForTypeHierarchy(Sub.class, "subHandler", false);
     try {
-      paramMap.registerForTypeHierarchy(Base.class, "baseHandler");
+      paramMap.registerForTypeHierarchy(Base.class, "baseHandler", false);
       fail("A handler that hides an existing type hierarchy handler is not allowed");
     } catch (IllegalArgumentException expected) {
     }
