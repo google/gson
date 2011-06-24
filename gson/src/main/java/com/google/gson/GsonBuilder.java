@@ -387,6 +387,7 @@ public final class GsonBuilder {
     deserializeExclusionStrategies.add(strategy);
     return this;
   }
+
   /**
    * Configures Gson to output Json that fits in a page for pretty printing. This option only
    * affects Json serialization.
@@ -488,16 +489,20 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
   public GsonBuilder registerTypeAdapter(Type type, Object typeAdapter) {
+    return registerTypeAdapter(type, typeAdapter, false);
+  }
+
+  private GsonBuilder registerTypeAdapter(Type type, Object typeAdapter, boolean isSystem) {
     $Gson$Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
-            || typeAdapter instanceof JsonDeserializer<?> || typeAdapter instanceof InstanceCreator<?>);
+        || typeAdapter instanceof JsonDeserializer<?> || typeAdapter instanceof InstanceCreator<?>);
     if (typeAdapter instanceof InstanceCreator<?>) {
-      registerInstanceCreator(type, (InstanceCreator<?>) typeAdapter);
+      registerInstanceCreator(type, (InstanceCreator<?>) typeAdapter, isSystem);
     }
     if (typeAdapter instanceof JsonSerializer<?>) {
-      registerSerializer(type, (JsonSerializer<?>) typeAdapter);
+      registerSerializer(type, (JsonSerializer<?>) typeAdapter, isSystem);
     }
     if (typeAdapter instanceof JsonDeserializer<?>) {
-      registerDeserializer(type, (JsonDeserializer<?>) typeAdapter);
+      registerDeserializer(type, (JsonDeserializer<?>) typeAdapter, isSystem);
     }
     return this;
   }
@@ -514,8 +519,8 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
   private <T> GsonBuilder registerInstanceCreator(Type typeOfT,
-      InstanceCreator<? extends T> instanceCreator) {
-    instanceCreators.register(typeOfT, instanceCreator);
+      InstanceCreator<? extends T> instanceCreator, boolean isSystem) {
+    instanceCreators.register(typeOfT, instanceCreator, isSystem);
     return this;
   }
 
@@ -529,8 +534,9 @@ public final class GsonBuilder {
    * @param serializer the custom serializer
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
-  private <T> GsonBuilder registerSerializer(Type typeOfT, final JsonSerializer<T> serializer) {
-    serializers.register(typeOfT, serializer);
+  private <T> GsonBuilder registerSerializer(Type typeOfT, JsonSerializer<T> serializer,
+      boolean isSystem) {
+    serializers.register(typeOfT, serializer, isSystem);
     return this;
   }
 
@@ -544,8 +550,9 @@ public final class GsonBuilder {
    * @param deserializer the custom deserializer
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
-  private <T> GsonBuilder registerDeserializer(Type typeOfT, JsonDeserializer<T> deserializer) {
-    deserializers.register(typeOfT, new JsonDeserializerExceptionWrapper<T>(deserializer));
+  private <T> GsonBuilder registerDeserializer(Type typeOfT, JsonDeserializer<T> deserializer,
+      boolean isSystem) {
+    deserializers.register(typeOfT, new JsonDeserializerExceptionWrapper<T>(deserializer), isSystem);
     return this;
   }
 
@@ -567,36 +574,41 @@ public final class GsonBuilder {
    * @since 1.7
    */
   public GsonBuilder registerTypeHierarchyAdapter(Class<?> baseType, Object typeAdapter) {
+    return registerTypeHierarchyAdapter(baseType, typeAdapter, false);
+  }
+
+  private GsonBuilder registerTypeHierarchyAdapter(Class<?> baseType, Object typeAdapter,
+      boolean isSystem) {
     $Gson$Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
-            || typeAdapter instanceof JsonDeserializer<?> || typeAdapter instanceof InstanceCreator<?>);
+        || typeAdapter instanceof JsonDeserializer<?> || typeAdapter instanceof InstanceCreator<?>);
     if (typeAdapter instanceof InstanceCreator<?>) {
-      registerInstanceCreatorForTypeHierarchy(baseType, (InstanceCreator<?>) typeAdapter);
+      registerInstanceCreatorForTypeHierarchy(baseType, (InstanceCreator<?>) typeAdapter, isSystem);
     }
     if (typeAdapter instanceof JsonSerializer<?>) {
-      registerSerializerForTypeHierarchy(baseType, (JsonSerializer<?>) typeAdapter);
+      registerSerializerForTypeHierarchy(baseType, (JsonSerializer<?>) typeAdapter, isSystem);
     }
     if (typeAdapter instanceof JsonDeserializer<?>) {
-      registerDeserializerForTypeHierarchy(baseType, (JsonDeserializer<?>) typeAdapter);
+      registerDeserializerForTypeHierarchy(baseType, (JsonDeserializer<?>) typeAdapter, isSystem);
     }
     return this;
   }
 
   private <T> GsonBuilder registerInstanceCreatorForTypeHierarchy(Class<?> classOfT,
-      InstanceCreator<? extends T> instanceCreator) {
-    instanceCreators.registerForTypeHierarchy(classOfT, instanceCreator);
+      InstanceCreator<? extends T> instanceCreator, boolean isSystem) {
+    instanceCreators.registerForTypeHierarchy(classOfT, instanceCreator, isSystem);
     return this;
   }
 
   private <T> GsonBuilder registerSerializerForTypeHierarchy(Class<?> classOfT,
-      final JsonSerializer<T> serializer) {
-    serializers.registerForTypeHierarchy(classOfT, serializer);
+      JsonSerializer<T> serializer, boolean isSystem) {
+    serializers.registerForTypeHierarchy(classOfT, serializer, isSystem);
     return this;
   }
 
   private <T> GsonBuilder registerDeserializerForTypeHierarchy(Class<?> classOfT,
-      JsonDeserializer<T> deserializer) {
+      JsonDeserializer<T> deserializer, boolean isSystem) {
     deserializers.registerForTypeHierarchy(classOfT,
-        new JsonDeserializerExceptionWrapper<T>(deserializer));
+        new JsonDeserializerExceptionWrapper<T>(deserializer), isSystem);
     return this;
   }
 
@@ -709,7 +721,7 @@ public final class GsonBuilder {
   private static <T> void registerIfAbsent(Class<?> type,
       ParameterizedTypeHandlerMap<T> adapters, T adapter) {
     if (!adapters.hasSpecificHandlerFor(type)) {
-      adapters.register(type, adapter);
+      adapters.register(type, adapter, false);
     }
   }
 }
