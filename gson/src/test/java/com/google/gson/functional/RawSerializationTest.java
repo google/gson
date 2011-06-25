@@ -61,6 +61,28 @@ public class RawSerializationTest extends TestCase {
     assertEquals(expectedJson, json);
   }
 
+  public void testTwoLevelParameterizedObject() {
+    Bar<Bar<Foo>> bar = new Bar<Bar<Foo>>(new Bar<Foo>(new Foo(1)));
+    String expectedJson = "{\"t\":{\"t\":{\"b\":1}}}";
+    // Ensure that serialization works without specifying the type explicitly
+    String json = gson.toJson(bar);
+    assertEquals(expectedJson, json);
+    // Ensure that serialization also works when the type is specified explicitly
+    json = gson.toJson(bar, new TypeToken<Bar<Bar<Foo>>>(){}.getType());
+    assertEquals(expectedJson, json);
+  }
+
+  public void testThreeLevelParameterizedObject() {
+    Bar<Bar<Bar<Foo>>> bar = new Bar<Bar<Bar<Foo>>>(new Bar<Bar<Foo>>(new Bar<Foo>(new Foo(1))));
+    String expectedJson = "{\"t\":{\"t\":{\"t\":{\"b\":1}}}}";
+    // Ensure that serialization works without specifying the type explicitly
+    String json = gson.toJson(bar);
+    assertEquals(expectedJson, json);
+    // Ensure that serialization also works when the type is specified explicitly
+    json = gson.toJson(bar, new TypeToken<Bar<Bar<Bar<Foo>>>>(){}.getType());
+    assertEquals(expectedJson, json);
+  }
+
   private static class Foo {
     @SuppressWarnings("unused")
     int b;
