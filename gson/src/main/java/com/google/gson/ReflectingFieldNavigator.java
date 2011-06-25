@@ -18,6 +18,7 @@ package com.google.gson;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,7 +60,7 @@ final class ReflectingFieldNavigator {
           || exclusionStrategy.shouldSkipClass(fieldAttributes.getDeclaredClass())) {
         continue; // skip
       }
-      Type resolvedTypeOfField = fieldAttributes.getResolvedType();
+      Type resolvedTypeOfField = getMoreSpecificType(fieldAttributes.getResolvedType(), obj, fieldAttributes);
       boolean visitedWithCustomHandler =
         visitor.visitFieldUsingCustomHandler(fieldAttributes, resolvedTypeOfField, obj);
       if (!visitedWithCustomHandler) {
@@ -70,6 +71,20 @@ final class ReflectingFieldNavigator {
         }
       }
     }
+  }
+
+  @SuppressWarnings("unchecked")
+  private Type getMoreSpecificType(Type type, Object obj, FieldAttributes fieldAttributes) {
+    try {
+      if (obj != null && (Object.class == type || type instanceof TypeVariable)) {
+        Object fieldValue = fieldAttributes.get(obj);
+        if (fieldValue != null) {
+          type = fieldValue.getClass();
+        }
+      }
+    } catch (IllegalAccessException e) {
+    }
+    return type;
   }
 
   private List<FieldAttributes> getAllFields(Type type, Type declaredType) {
