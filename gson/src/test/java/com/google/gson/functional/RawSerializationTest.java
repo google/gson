@@ -18,7 +18,6 @@ package com.google.gson.functional;
 import java.util.Arrays;
 import java.util.Collection;
 
-import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
 import com.google.gson.Gson;
@@ -54,12 +53,11 @@ public class RawSerializationTest extends TestCase {
   public void testParameterizedObject() {
     Bar<Foo> bar = new Bar<Foo>(new Foo(1));
     String expectedJson = "{\"t\":{\"b\":1}}";
-    try {
-      String json = gson.toJson(bar);
-      assertEquals(expectedJson, json);
-    } catch (AssertionFailedError expected) {
-    }
-    String json = gson.toJson(bar, new TypeToken<Bar<Foo>>(){}.getType());
+    // Ensure that serialization works without specifying the type explicitly
+    String json = gson.toJson(bar);
+    assertEquals(expectedJson, json);
+    // Ensure that serialization also works when the type is specified explicitly
+    json = gson.toJson(bar, new TypeToken<Bar<Foo>>(){}.getType());
     assertEquals(expectedJson, json);
   }
 
