@@ -42,7 +42,7 @@ public class MemoryRefStackTest extends TestCase {
   }
 
   public void testPushPeekAndPop() throws Exception {
-    ObjectTypePair obj = new ObjectTypePair(this, getClass(), true);
+    ObjectTypePair obj = new ObjectTypePair(this, getClass(), true, false);
 
     assertEquals(obj, stack.push(obj));
     assertEquals(obj, stack.peek());
@@ -50,7 +50,7 @@ public class MemoryRefStackTest extends TestCase {
   }
 
   public void testPopTooMany() throws Exception {
-    ObjectTypePair obj = new ObjectTypePair(this, getClass(), true);
+    ObjectTypePair obj = new ObjectTypePair(this, getClass(), true, false);
     stack.push(obj);
     assertEquals(obj, stack.pop());
 
@@ -63,9 +63,9 @@ public class MemoryRefStackTest extends TestCase {
     MockObject objA = new MockObject();
     MockObject objB = new MockObject();
     assertEquals(objA, objB);
-    stack.push(new ObjectTypePair(objA, MockObject.class, true));
-    assertTrue(stack.contains(new ObjectTypePair(objA, MockObject.class, true)));
-    assertFalse(stack.contains(new ObjectTypePair(objB, MockObject.class, true)));
+    stack.push(new ObjectTypePair(objA, MockObject.class, true, false));
+    assertTrue(stack.contains(new ObjectTypePair(objA, MockObject.class, true, false)));
+    assertFalse(stack.contains(new ObjectTypePair(objB, MockObject.class, true, false)));
   }
 
   private static class MockObject {

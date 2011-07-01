@@ -55,29 +55,29 @@ public final class JsonDeserializationContext {
 
 
   private <T> T fromJsonArray(Type arrayType, JsonArray jsonArray,
-      JsonDeserializationContext context) throws JsonParseException {
+      JsonDeserializationContext context, boolean systemOnly) throws JsonParseException {
     JsonArrayDeserializationVisitor<T> visitor = new JsonArrayDeserializationVisitor<T>(
         jsonArray, arrayType, objectNavigator, fieldNamingPolicy,
         objectConstructor, deserializers, context);
-    objectNavigator.accept(new ObjectTypePair(null, arrayType, true), visitor);
+    objectNavigator.accept(new ObjectTypePair(null, arrayType, true, systemOnly), visitor);
     return visitor.getTarget();
   }
 
   private <T> T fromJsonObject(Type typeOfT, JsonObject jsonObject,
-      JsonDeserializationContext context) throws JsonParseException {
+      JsonDeserializationContext context, boolean systemOnly) throws JsonParseException {
     JsonObjectDeserializationVisitor<T> visitor = new JsonObjectDeserializationVisitor<T>(
         jsonObject, typeOfT, objectNavigator, fieldNamingPolicy,
         objectConstructor, deserializers, context);
-    objectNavigator.accept(new ObjectTypePair(null, typeOfT, true), visitor);
+    objectNavigator.accept(new ObjectTypePair(null, typeOfT, true, systemOnly), visitor);
     return visitor.getTarget();
   }
 
   @SuppressWarnings("unchecked")
   private <T> T fromJsonPrimitive(Type typeOfT, JsonPrimitive json,
-      JsonDeserializationContext context) throws JsonParseException {
+      JsonDeserializationContext context, boolean systemOnly) throws JsonParseException {
     JsonObjectDeserializationVisitor<T> visitor = new JsonObjectDeserializationVisitor<T>(
         json, typeOfT, objectNavigator, fieldNamingPolicy, objectConstructor, deserializers, context);
-    objectNavigator.accept(new ObjectTypePair(json.getAsObject(), typeOfT, true), visitor);
+    objectNavigator.accept(new ObjectTypePair(json.getAsObject(), typeOfT, true, systemOnly), visitor);
     Object target = visitor.getTarget();
     return (T) target;
   }
@@ -99,13 +99,31 @@ public final class JsonDeserializationContext {
     if (json == null || json.isJsonNull()) {
       return null;
     } else if (json.isJsonArray()) {
-      Object array = fromJsonArray(typeOfT, json.getAsJsonArray(), this);
+      Object array = fromJsonArray(typeOfT, json.getAsJsonArray(), this, false);
       return (T) array;
     } else if (json.isJsonObject()) {
-      Object object = fromJsonObject(typeOfT, json.getAsJsonObject(), this);
+      Object object = fromJsonObject(typeOfT, json.getAsJsonObject(), this, false);
       return (T) object;
     } else if (json.isJsonPrimitive()) {
-      Object primitive = fromJsonPrimitive(typeOfT, json.getAsJsonPrimitive(), this);
+      Object primitive = fromJsonPrimitive(typeOfT, json.getAsJsonPrimitive(), this, false);
+      return (T) primitive;
+    } else {
+      throw new JsonParseException("Failed parsing JSON source: " + json + " to Json");
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T> T deserializeDefault(JsonElement json, Type typeOfT) throws JsonParseException {
+    if (json == null || json.isJsonNull()) {
+      return null;
+    } else if (json.isJsonArray()) {
+      Object array = fromJsonArray(typeOfT, json.getAsJsonArray(), this, true);
+      return (T) array;
+    } else if (json.isJsonObject()) {
+      Object object = fromJsonObject(typeOfT, json.getAsJsonObject(), this, true);
+      return (T) object;
+    } else if (json.isJsonPrimitive()) {
+      Object primitive = fromJsonPrimitive(typeOfT, json.getAsJsonPrimitive(), this, true);
       return (T) primitive;
     } else {
       throw new JsonParseException("Failed parsing JSON source: " + json + " to Json");

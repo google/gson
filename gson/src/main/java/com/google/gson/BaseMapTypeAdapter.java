@@ -30,7 +30,7 @@ abstract class BaseMapTypeAdapter
 
   protected static final JsonElement serialize(JsonSerializationContext context,
       Object src, Type srcType) {
-    return context.serialize(src, srcType, false);
+    return context.serialize(src, srcType, false, false);
   }
 
   protected static final Map<Object, Object> constructMapType(

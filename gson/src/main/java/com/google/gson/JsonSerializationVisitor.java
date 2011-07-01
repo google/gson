@@ -54,7 +54,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   }
 
   public void start(ObjectTypePair node) {
-    if (node == null) {
+    if (node == null || node.isSystemOnly()) {
       return;
     }
     if (ancestors.contains(node)) {
@@ -64,7 +64,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
   }
 
   public void end(ObjectTypePair node) {
-    if (node != null) {
+    if (node != null && !node.isSystemOnly()) {
       ancestors.pop();
     }
   }
@@ -81,7 +81,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
       Object child = Array.get(array, i);
       // we should not get more specific component type yet since it is possible
       // that a custom serializer is registered for the componentType
-      addAsArrayElement(new ObjectTypePair(child, componentType, false));
+      addAsArrayElement(new ObjectTypePair(child, componentType, false, false));
     }
   }
 
@@ -93,7 +93,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
         }
       } else {
         Object array = getFieldValue(f, obj);
-        addAsChildOfObject(f, new ObjectTypePair(array, typeOfF, false));
+        addAsChildOfObject(f, new ObjectTypePair(array, typeOfF, false, false));
       }
     } catch (CircularReferenceException e) {
       throw e.createDetailedException(f);
@@ -111,7 +111,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
         // we should not get more specific component type yet since it is
         // possible that a custom
         // serializer is registered for the componentType
-        addAsChildOfObject(f, new ObjectTypePair(fieldValue, typeOfF, false));
+        addAsChildOfObject(f, new ObjectTypePair(fieldValue, typeOfF, false, false));
       }
     } catch (CircularReferenceException e) {
       throw e.createDetailedException(f);
@@ -200,7 +200,7 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
         }
         return true;
       }
-      ObjectTypePair objTypePair = new ObjectTypePair(obj, declaredTypeOfField, false);
+      ObjectTypePair objTypePair = new ObjectTypePair(obj, declaredTypeOfField, false, false);
       JsonElement child = findAndInvokeCustomSerializer(objTypePair);
       if (child != null) {
         addChildAsElement(f, child);
