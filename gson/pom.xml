@@ -26,7 +26,7 @@
   <scm>
     <connection>scm:svn:http://google-gson.googlecode.com/svn/trunk/gson</connection>
     <developerConnection>scm:svn:https://google-gson.googlecode.com/svn/trunk/gson</developerConnection>
-    <url>http://google-gson.codegoogle.com/svn/trunk/gson</url>
+    <url>http://google-gson.googlecode.com/svn/trunk/gson</url>
   </scm>
   <issueManagement>
     <system>Google Code Issue Tracking</system>
