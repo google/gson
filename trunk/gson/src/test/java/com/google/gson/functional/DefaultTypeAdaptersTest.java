@@ -63,7 +63,8 @@ public class DefaultTypeAdaptersTest extends TestCase {
   protected void setUp() throws Exception {
     super.setUp();
     this.oldTimeZone = TimeZone.getDefault();
-    TimeZone.setDefault(TimeZone.getTimeZone("PST"));
+    TimeZone.setDefault(TimeZone.getTimeZone("America/Los_Angeles"));
+    Locale.setDefault(Locale.US);
     gson = new Gson();
   }
 
