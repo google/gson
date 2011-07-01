@@ -27,11 +27,13 @@ final class ObjectTypePair {
   private Object obj;
   final Type type;
   private final boolean preserveType;
+  private final boolean systemOnly;
 
-  ObjectTypePair(Object obj, Type type, boolean preserveType) {
+  ObjectTypePair(Object obj, Type type, boolean preserveType, boolean systemOnly) {
     this.obj = obj;
     this.type = type;
     this.preserveType = preserveType;
+    this.systemOnly = systemOnly;
   }
 
   Object getObject() {
@@ -57,13 +59,13 @@ final class ObjectTypePair {
     if (!preserveType && obj != null) {
       // First try looking up the handler for the actual type
       ObjectTypePair moreSpecificType = toMoreSpecificType();
-      handler = handlers.getHandlerFor(moreSpecificType.type);
+      handler = handlers.getHandlerFor(moreSpecificType.type, systemOnly);
       if (handler != null) {
         return new Pair<HANDLER, ObjectTypePair>(handler, moreSpecificType);
       }
     }
     // Try the specified type
-    handler = handlers.getHandlerFor(type);
+    handler = handlers.getHandlerFor(type, systemOnly);
     return handler == null ? null : new Pair<HANDLER, ObjectTypePair>(handler, this);
   }
 
@@ -75,7 +77,7 @@ final class ObjectTypePair {
     if (actualType == type) {
       return this;
     }
-    return new ObjectTypePair(obj, actualType, true);
+    return new ObjectTypePair(obj, actualType, true, systemOnly);
   }
 
   Type getMoreSpecificType() {
@@ -135,10 +137,14 @@ final class ObjectTypePair {
     } else if (!type.equals(other.type)) {
       return false;
     }
-    return preserveType == other.preserveType;
+    return preserveType == other.preserveType && systemOnly == other.systemOnly;
   }
 
   public boolean isPreserveType() {
     return preserveType;
+  }
+
+  public boolean isSystemOnly() {
+    return systemOnly;
   }
 }

@@ -50,7 +50,7 @@ public final class RuntimeTypeAdapterTest extends TestCase {
     assertEquals("{\"type\":\"BillingInstrument\",\"ownerName\":\"Jesse\"}",
         gson.toJson(original, BillingInstrument.class));
     BillingInstrument deserialized = gson.fromJson(
-        "{type:'CreditCard',ownerName:'Jesse'}", BillingInstrument.class);
+        "{type:'BillingInstrument',ownerName:'Jesse'}", BillingInstrument.class);
     assertEquals("Jesse", deserialized.ownerName);
   }
 

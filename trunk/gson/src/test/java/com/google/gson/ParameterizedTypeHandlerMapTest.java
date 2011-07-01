@@ -41,8 +41,8 @@ public class ParameterizedTypeHandlerMapTest extends TestCase {
 
   public void testNullMap() throws Exception {
     assertFalse(paramMap.hasSpecificHandlerFor(String.class));
-    assertNull(paramMap.getHandlerFor(String.class));
-    assertNull(paramMap.getHandlerFor(String.class));
+    assertNull(paramMap.getHandlerFor(String.class, false));
+    assertNull(paramMap.getHandlerFor(String.class, false));
   }
 
   public void testHasGenericButNotSpecific() throws Exception {
@@ -52,9 +52,9 @@ public class ParameterizedTypeHandlerMapTest extends TestCase {
 
     assertFalse(paramMap.hasSpecificHandlerFor(specificType));
     assertTrue(paramMap.hasSpecificHandlerFor(List.class));
-    assertNotNull(paramMap.getHandlerFor(specificType));
-    assertNotNull(paramMap.getHandlerFor(List.class));
-    assertEquals(handler, paramMap.getHandlerFor(specificType));
+    assertNotNull(paramMap.getHandlerFor(specificType, false));
+    assertNotNull(paramMap.getHandlerFor(List.class, false));
+    assertEquals(handler, paramMap.getHandlerFor(specificType, false));
   }
 
   public void testHasSpecificType() throws Exception {
@@ -64,9 +64,9 @@ public class ParameterizedTypeHandlerMapTest extends TestCase {
 
     assertTrue(paramMap.hasSpecificHandlerFor(specificType));
     assertFalse(paramMap.hasSpecificHandlerFor(List.class));
-    assertNotNull(paramMap.getHandlerFor(specificType));
-    assertNull(paramMap.getHandlerFor(List.class));
-    assertEquals(handler, paramMap.getHandlerFor(specificType));
+    assertNotNull(paramMap.getHandlerFor(specificType, false));
+    assertNull(paramMap.getHandlerFor(List.class, false));
+    assertEquals(handler, paramMap.getHandlerFor(specificType, false));
   }
 
   public void testTypeOverridding() throws Exception {
@@ -76,7 +76,7 @@ public class ParameterizedTypeHandlerMapTest extends TestCase {
     paramMap.register(String.class, handler2, false);
 
     assertTrue(paramMap.hasSpecificHandlerFor(String.class));
-    assertEquals(handler2, paramMap.getHandlerFor(String.class));
+    assertEquals(handler2, paramMap.getHandlerFor(String.class, false));
   }
 
   public void testMakeUnmodifiable() throws Exception {
@@ -89,14 +89,14 @@ public class ParameterizedTypeHandlerMapTest extends TestCase {
 
   public void testTypeHierarchy() {
     paramMap.registerForTypeHierarchy(Base.class, "baseHandler", false);
-    String handler = paramMap.getHandlerFor(Sub.class);
+    String handler = paramMap.getHandlerFor(Sub.class, false);
     assertEquals("baseHandler", handler);
   }
 
   public void testTypeHierarchyMultipleHandlers() {
     paramMap.registerForTypeHierarchy(Base.class, "baseHandler", false);
     paramMap.registerForTypeHierarchy(Sub.class, "subHandler", false);
-    String handler = paramMap.getHandlerFor(SubOfSub.class);
+    String handler = paramMap.getHandlerFor(SubOfSub.class, false);
     assertEquals("subHandler", handler);
   }
 
@@ -105,14 +105,14 @@ public class ParameterizedTypeHandlerMapTest extends TestCase {
     ParameterizedTypeHandlerMap<String> otherMap = new ParameterizedTypeHandlerMap<String>();
     otherMap.registerForTypeHierarchy(Base.class, "baseHandler2", false);
     paramMap.registerIfAbsent(otherMap);
-    String handler = paramMap.getHandlerFor(Base.class);
+    String handler = paramMap.getHandlerFor(Base.class, false);
     assertEquals("baseHandler", handler);
   }
 
   public void testReplaceExistingTypeHierarchyHandler() {
     paramMap.registerForTypeHierarchy(Base.class, "baseHandler", false);
     paramMap.registerForTypeHierarchy(Base.class, "base2Handler", false);
-    String handler = paramMap.getHandlerFor(Base.class);
+    String handler = paramMap.getHandlerFor(Base.class, false);
     assertEquals("base2Handler", handler);
   }
 
