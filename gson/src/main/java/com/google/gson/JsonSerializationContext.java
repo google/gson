@@ -53,7 +53,7 @@ public final class JsonSerializationContext {
     if (src == null) {
       return JsonNull.INSTANCE;
     }
-    return serialize(src, src.getClass(), false);
+    return serialize(src, src.getClass(), false, false);
   }
 
   /**
@@ -67,16 +67,20 @@ public final class JsonSerializationContext {
    * @return a tree of {@link JsonElement}s corresponding to the serialized form of {@code src}.
    */
   public JsonElement serialize(Object src, Type typeOfSrc) {
-    return serialize(src, typeOfSrc, true);
+    return serialize(src, typeOfSrc, true, false);
   }
 
-  JsonElement serialize(Object src, Type typeOfSrc, boolean preserveType) {
+  public JsonElement serializeDefault(Object src, Type typeOfSrc) {
+    return serialize(src, typeOfSrc, true, true);
+  }
+
+  JsonElement serialize(Object src, Type typeOfSrc, boolean preserveType, boolean defaultOnly) {
     if (src == null) {
       return JsonNull.INSTANCE;
     }
     JsonSerializationVisitor visitor = new JsonSerializationVisitor(
         objectNavigator, fieldNamingPolicy, serializeNulls, serializers, this, ancestors);
-    ObjectTypePair objTypePair = new ObjectTypePair(src, typeOfSrc, preserveType);
+    ObjectTypePair objTypePair = new ObjectTypePair(src, typeOfSrc, preserveType, defaultOnly);
     objectNavigator.accept(objTypePair, visitor);
     return visitor.getJsonElement();
   }

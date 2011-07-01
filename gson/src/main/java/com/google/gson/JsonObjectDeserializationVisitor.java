@@ -109,7 +109,7 @@ final class JsonObjectDeserializationVisitor<T> extends JsonDeserializationVisit
         }
         return true;
       }
-      ObjectTypePair objTypePair = new ObjectTypePair(null, declaredTypeOfField, false);
+      ObjectTypePair objTypePair = new ObjectTypePair(null, declaredTypeOfField, false, false);
       Pair<JsonDeserializer<?>, ObjectTypePair> pair = objTypePair.getMatchingHandler(deserializers);
       if (pair == null) {
         return false;

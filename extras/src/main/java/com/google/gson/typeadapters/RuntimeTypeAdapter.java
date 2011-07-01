@@ -184,7 +184,7 @@ public final class RuntimeTypeAdapter<T> implements JsonSerializer<T>, JsonDeser
       throw new JsonParseException("cannot serialize " + srcType.getName()
           + "; did you forget to register a subtype?");
     }
-    JsonElement serialized = context.serialize(src, srcType);
+    JsonElement serialized = context.serializeDefault(src, srcType);
     final JsonObject jsonObject = serialized.getAsJsonObject();
     if (jsonObject.has(typeFieldName)) {
       throw new JsonParseException("cannot serialize " + srcType.getName()
@@ -212,7 +212,7 @@ public final class RuntimeTypeAdapter<T> implements JsonSerializer<T>, JsonDeser
           + label + "; did you forget to register a subtype?");
     }
     @SuppressWarnings("unchecked") // registration requires that subtype extends T
-    T result = (T) context.deserialize(json, subtype);
+    T result = (T) context.deserializeDefault(json, subtype);
     return result;
   }
 }

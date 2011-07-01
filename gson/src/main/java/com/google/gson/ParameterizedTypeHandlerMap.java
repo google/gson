@@ -164,10 +164,13 @@ final class ParameterizedTypeHandlerMap<T> {
     modifiable = false;
   }
 
-  public synchronized T getHandlerFor(Type type) {
-    T handler = userMap.get(type);
-    if (handler != null) {
-      return handler;
+  public synchronized T getHandlerFor(Type type, boolean systemOnly) {
+    T handler;
+    if (!systemOnly) {
+      handler = userMap.get(type);
+      if (handler != null) {
+        return handler;
+      }
     }
     handler = systemMap.get(type);
     if (handler != null) {
@@ -175,20 +178,22 @@ final class ParameterizedTypeHandlerMap<T> {
     }
     Class<?> rawClass = $Gson$Types.getRawType(type);
     if (rawClass != type) {
-      handler = getHandlerFor(rawClass);
+      handler = getHandlerFor(rawClass, systemOnly);
       if (handler != null) {
         return handler;
       }
     }
     // check if something registered for type hierarchy
-    handler = getHandlerForTypeHierarchy(rawClass);
+    handler = getHandlerForTypeHierarchy(rawClass, systemOnly);
     return handler;
   }
 
-  private T getHandlerForTypeHierarchy(Class<?> type) {
-    for (Pair<Class<?>, T> entry : userTypeHierarchyList) {
-      if (entry.first.isAssignableFrom(type)) {
-        return entry.second;
+  private T getHandlerForTypeHierarchy(Class<?> type, boolean systemOnly) {
+    if (!systemOnly) {
+      for (Pair<Class<?>, T> entry : userTypeHierarchyList) {
+        if (entry.first.isAssignableFrom(type)) {
+          return entry.second;
+        }
       }
     }
     for (Pair<Class<?>, T> entry : systemTypeHierarchyList) {

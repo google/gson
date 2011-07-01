@@ -107,7 +107,7 @@ abstract class JsonDeserializationVisitor<T> implements ObjectNavigator.Visitor 
   }
 
   private Object visitChild(Type type, JsonDeserializationVisitor<?> childVisitor) {
-    objectNavigator.accept(new ObjectTypePair(null, type, false), childVisitor);
+    objectNavigator.accept(new ObjectTypePair(null, type, false, false), childVisitor);
     // the underlying object may have changed during the construction phase
     // This happens primarily because of custom deserializers
     return childVisitor.getTarget();

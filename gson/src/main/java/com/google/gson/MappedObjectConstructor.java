@@ -45,7 +45,7 @@ final class MappedObjectConstructor implements ObjectConstructor {
 
   @SuppressWarnings("unchecked")
   public <T> T construct(Type typeOfT) {
-    InstanceCreator<T> creator = (InstanceCreator<T>) instanceCreatorMap.getHandlerFor(typeOfT);
+    InstanceCreator<T> creator = (InstanceCreator<T>) instanceCreatorMap.getHandlerFor(typeOfT, false);
     if (creator != null) {
       return creator.createInstance(typeOfT);
     }
