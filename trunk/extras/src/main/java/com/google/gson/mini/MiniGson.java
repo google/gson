@@ -39,6 +39,7 @@ public final class MiniGson {
     factories.add(TypeAdapters.STRING_FACTORY);
     factories.add(ReflectiveTypeAdapter.FACTORY);
     factories.add(CollectionTypeAdapter.FACTORY);
+    factories.add(MapTypeAdapter.FACTORY);
     this.factories = Collections.unmodifiableList(factories);
   }
 
@@ -65,6 +66,7 @@ public final class MiniGson {
    *     deserialize {@code type}.
    */
   public <T> TypeAdapter<T> getAdapter(TypeToken<T> type) {
+    // TODO: create a cache here
     for (TypeAdapter.Factory factory : factories) {
       TypeAdapter<T> candidate = factory.create(this, type);
       if (candidate != null) {
@@ -94,20 +96,24 @@ public final class MiniGson {
   public static final class Builder {
     private final List<TypeAdapter.Factory> factories = new ArrayList<TypeAdapter.Factory>();
 
-    public void factory(TypeAdapter.Factory factory) {
+    public Builder factory(TypeAdapter.Factory factory) {
       factories.add(factory);
+      return this;
     }
 
-    public <T> void typeAdapter(final Class<T> type, final TypeAdapter<T> typeAdapter) {
+    public <T> Builder typeAdapter(final Class<T> type, final TypeAdapter<T> typeAdapter) {
       factories.add(TypeAdapters.newFactory(type, typeAdapter));
+      return this;
     }
 
-    public <T> void typeAdapter(TypeToken<T> type, TypeAdapter<T> typeAdapter) {
+    public <T> Builder typeAdapter(TypeToken<T> type, TypeAdapter<T> typeAdapter) {
       factories.add(TypeAdapters.newFactory(type, typeAdapter));
+      return this;
     }
 
-    public <T> void typeHierarchyAdapter(TypeToken<T> type, TypeAdapter<T> typeAdapter) {
+    public <T> Builder typeHierarchyAdapter(TypeToken<T> type, TypeAdapter<T> typeAdapter) {
       factories.add(TypeAdapters.newTypeHierarchyFactory(type, typeAdapter));
+      return this;
     }
 
     public MiniGson build() {

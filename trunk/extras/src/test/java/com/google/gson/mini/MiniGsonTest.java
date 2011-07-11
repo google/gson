@@ -16,60 +16,130 @@
 
 package com.google.gson.mini;
 
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import junit.framework.TestCase;
 
 public final class MiniGsonTest extends TestCase {
 
+  private MiniGson miniGson = new MiniGson.Builder().build();
+  private TypeAdapter<Truck> truckAdapter = miniGson.getAdapter(Truck.class);
+  private TypeAdapter<Map<String, Double>> mapAdapter
+      = miniGson.getAdapter(new TypeToken<Map<String, Double>>() {});
+
   public void testSerialize() throws IOException {
-    Person jesse = new Person("Jesse", 29);
-    Person jodie = new Person("Jodie", 29);
     Truck truck = new Truck();
-    truck.passengers = Arrays.asList(jesse, jodie);
+    truck.passengers = Arrays.asList(new Person("Jesse", 29), new Person("Jodie", 29));
     truck.horsePower = 300;
 
-    MiniGson miniGson = new MiniGson.Builder().build();
-    TypeAdapter<Truck> truckAdapter = miniGson.getAdapter(Truck.class);
-
-    String json = truckAdapter.toJson(truck);
     assertEquals("{'horsePower':300.0,"
         + "'passengers':[{'age':29,'name':'Jesse'},{'age':29,'name':'Jodie'}]}",
-        json.replace('\"', '\''));
+        truckAdapter.toJson(truck).replace('\"', '\''));
   }
 
   public void testDeserialize() throws IOException {
     String json = "{'horsePower':300.0,"
         + "'passengers':[{'age':29,'name':'Jesse'},{'age':29,'name':'Jodie'}]}";
-
-    MiniGson miniGson = new MiniGson.Builder().build();
-    TypeAdapter<Truck> truckAdapter = miniGson.getAdapter(Truck.class);
     Truck truck = truckAdapter.fromJson(json);
-
     assertEquals(300.0, truck.horsePower);
-    Person jesse = truck.passengers.get(0);
-    assertEquals("Jesse", jesse.name);
-    assertEquals(29, jesse.age);
-    Person jodie = truck.passengers.get(1);
-    assertEquals("Jodie", jodie.name);
-    assertEquals(29, jodie.age);
+    assertEquals(Arrays.asList(new Person("Jesse", 29), new Person("Jodie", 29)), truck.passengers);
+  }
+
+  public void testSerializeNullField() throws IOException {
+    Truck truck = new Truck();
+    truck.passengers = null;
+    assertEquals("{'horsePower':0.0,'passengers':null}",
+        truckAdapter.toJson(truck).replace('\"', '\''));
+  }
+
+  public void testDeserializeNullField() throws IOException {
+    Truck truck = truckAdapter.fromJson("{'horsePower':0.0,'passengers':null}");
+    assertNull(truck.passengers);
+  }
+
+  public void testSerializeNullObject() throws IOException {
+    Truck truck = new Truck();
+    truck.passengers = Arrays.asList((Person) null);
+    assertEquals("{'horsePower':0.0,'passengers':[null]}",
+        truckAdapter.toJson(truck).replace('\"', '\''));
+  }
+
+  public void testDeserializeNullObject() throws IOException {
+    Truck truck = truckAdapter.fromJson("{'horsePower':0.0,'passengers':[null]}");
+    assertEquals(Arrays.asList((Person) null), truck.passengers);
+  }
+
+  public void testSerializeWithCustomTypeAdapter() throws IOException {
+    usePersonNameAdapter();
+    Truck truck = new Truck();
+    truck.passengers = Arrays.asList(new Person("Jesse", 29), new Person("Jodie", 29));
+    assertEquals("{'horsePower':0.0,'passengers':['Jesse','Jodie']}",
+        truckAdapter.toJson(truck).replace('\"', '\''));
+  }
+
+  public void testDeserializeWithCustomTypeAdapter() throws IOException {
+    usePersonNameAdapter();
+    Truck truck = truckAdapter.fromJson("{'horsePower':0.0,'passengers':['Jesse','Jodie']}");
+    assertEquals(Arrays.asList(new Person("Jesse", -1), new Person("Jodie", -1)), truck.passengers);
+  }
+
+  private void usePersonNameAdapter() {
+    TypeAdapter<Person> personNameAdapter = new TypeAdapter<Person>() {
+      @Override public Person read(JsonReader reader) throws IOException {
+        String name = reader.nextString();
+        return new Person(name, -1);
+      }
+      @Override public void write(JsonWriter writer, Person value) throws IOException {
+        writer.value(value.name);
+      }
+    };
+    miniGson = new MiniGson.Builder().typeAdapter(Person.class, personNameAdapter).build();
+    truckAdapter = miniGson.getAdapter(Truck.class);
+  }
+
+  public void testSerializeMap() throws IOException {
+    Map<String, Double> map = new LinkedHashMap<String, Double>();
+    map.put("a", 5.0);
+    map.put("b", 10.0);
+    assertEquals("{'a':5.0,'b':10.0}", mapAdapter.toJson(map).replace('"', '\''));
+  }
+
+  public void testDeserializeMap() throws IOException {
+    Map<String, Double> map = new LinkedHashMap<String, Double>();
+    map.put("a", 5.0);
+    map.put("b", 10.0);
+    assertEquals(map, mapAdapter.fromJson("{'a':5.0,'b':10.0}"));
   }
 
   static class Truck {
     double horsePower;
-    List<Person> passengers;
+    List<Person> passengers = Collections.emptyList();
   }
 
   static class Person {
     int age;
     String name;
-
     Person(String name, int age) {
       this.name = name;
       this.age = age;
     }
 
     public Person() {} // TODO: use Joel's constructor code so we don't need this
+
+    @Override public boolean equals(Object o) {
+      return o instanceof Person
+          && ((Person) o).name.equals(name)
+          && ((Person) o).age == age;
+    }
+    @Override public int hashCode() {
+      return name.hashCode() ^ age;
+    }
   }
 }

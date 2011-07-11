@@ -19,6 +19,7 @@ package com.google.gson.mini;
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -36,14 +37,13 @@ final class ReflectiveTypeAdapter<T> extends TypeAdapter<T>  {
       Class<? super T> raw = type.getRawType();
 
       if (!Object.class.isAssignableFrom(raw)) {
-        // TODO: does this catch primitives?
-        return null;
+        return null; // it's a primitive!
       }
 
       // TODO: use Joel's constructor calling code (with setAccessible)
-      Constructor<T> constructor;
+      Constructor<? super T> constructor;
       try {
-        constructor = (Constructor<T>) raw.getDeclaredConstructor();
+        constructor = raw.getDeclaredConstructor();
       } catch (NoSuchMethodException e) {
         return null;
       }
@@ -67,18 +67,24 @@ final class ReflectiveTypeAdapter<T> extends TypeAdapter<T>  {
     }
   };
 
-  private final Constructor<T> constructor;
+  private final Constructor<? super T> constructor;
   private final Map<String, BoundField<?>> map;
   private final BoundField<?>[] boundFields;
 
-  ReflectiveTypeAdapter(Constructor<T> constructor, Map<String, BoundField<?>> map) {
+  ReflectiveTypeAdapter(Constructor<? super T> constructor, Map<String, BoundField<?>> map) {
     this.constructor = constructor;
     this.map = map;
     this.boundFields = map.values().toArray(new BoundField<?>[map.size()]);
   }
 
   public T read(JsonReader reader) throws IOException {
-    T instance = MiniGson.newInstance(constructor);
+    if (reader.peek() == JsonToken.NULL) {
+      reader.nextNull(); // TODO: does this belong here?
+      return null;
+    }
+
+    @SuppressWarnings("unchecked") // the '? super T' is a raw T (the only kind we can construct)
+    T instance = (T) MiniGson.newInstance(constructor);
 
     // TODO: null out the other fields?
 
@@ -98,6 +104,11 @@ final class ReflectiveTypeAdapter<T> extends TypeAdapter<T>  {
   }
 
   public void write(JsonWriter writer, T value) throws IOException {
+    if (value == null) {
+      writer.nullValue(); // TODO: better policy here?
+      return;
+    }
+
     writer.beginObject();
     for (BoundField<?> boundField : boundFields) {
       writer.name(boundField.name);

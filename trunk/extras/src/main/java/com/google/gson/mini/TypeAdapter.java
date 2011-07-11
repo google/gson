@@ -46,7 +46,7 @@ public abstract class TypeAdapter<T> {
 
   public final T read(Reader in) throws IOException {
     JsonReader reader = new JsonReader(in);
-    reader.setLenient(true); // TODO: why?
+    reader.setLenient(true);
     return read(reader);
   }
 
