@@ -29,9 +29,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Adapt a homogeneous collection of objects.
+ * Adapt a map whose keys are strings.
  */
-final class MapTypeAdapter<V> extends TypeAdapter<Map<String, V>> {
+final class StringToValueMapTypeAdapter<V> extends TypeAdapter<Map<String, V>> {
   public static final Factory FACTORY = new Factory() {
     public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> typeToken) {
       Type type = typeToken.getType();
@@ -46,27 +46,20 @@ final class MapTypeAdapter<V> extends TypeAdapter<Map<String, V>> {
 
       Type[] keyAndValueTypes = $Gson$Types.getMapKeyAndValueTypes(type, rawType);
       if (keyAndValueTypes[0] != String.class) {
-        return null; // TODO: return an array-style map adapter
+        return null;
       }
       TypeAdapter<?> valueAdapter = context.getAdapter(TypeToken.get(keyAndValueTypes[1]));
 
-      Class<?> constructorType;
-
-      if (rawType == Map.class) {
-        constructorType = LinkedHashMap.class;
-      } else {
-        constructorType = rawType;
-      }
-
       Constructor<?> constructor;
       try {
+        Class<?> constructorType = (rawType == Map.class) ? LinkedHashMap.class : rawType;
         constructor = constructorType.getConstructor();
       } catch (NoSuchMethodException e) {
         return null;
       }
 
       @SuppressWarnings("unchecked") // we don't define a type parameter for the key or value types
-      TypeAdapter<T> result = new MapTypeAdapter(valueAdapter, constructor);
+      TypeAdapter<T> result = new StringToValueMapTypeAdapter(valueAdapter, constructor);
       return result;
     }
   };
@@ -74,7 +67,7 @@ final class MapTypeAdapter<V> extends TypeAdapter<Map<String, V>> {
   private final TypeAdapter<V> valueTypeAdapter;
   private final Constructor<? extends Map<String, V>> constructor;
 
-  public MapTypeAdapter(TypeAdapter<V> valueTypeAdapter,
+  public StringToValueMapTypeAdapter(TypeAdapter<V> valueTypeAdapter,
       Constructor<? extends Map<String, V>> constructor) {
     this.valueTypeAdapter = valueTypeAdapter;
     this.constructor = constructor;

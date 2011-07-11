@@ -118,6 +118,30 @@ public final class MiniGsonTest extends TestCase {
     assertEquals(map, mapAdapter.fromJson("{'a':5.0,'b':10.0}"));
   }
 
+  public void testSerialize1dArray() throws IOException {
+    TypeAdapter<double[]> arrayAdapter = miniGson.getAdapter(new TypeToken<double[]>() {});
+    assertEquals("[1.0,2.0,3.0]", arrayAdapter.toJson(new double[]{1.0, 2.0, 3.0}));
+  }
+
+  public void testDeserialize1dArray() throws IOException {
+    TypeAdapter<double[]> arrayAdapter = miniGson.getAdapter(new TypeToken<double[]>() {});
+    double[] array = arrayAdapter.fromJson("[1.0,2.0,3.0]");
+    assertTrue(Arrays.toString(array), Arrays.equals(new double[]{1.0, 2.0, 3.0}, array));
+  }
+
+  public void testSerialize2dArray() throws IOException {
+    TypeAdapter<double[][]> arrayAdapter = miniGson.getAdapter(new TypeToken<double[][]>() {});
+    double[][] array = { {1.0, 2.0 }, { 3.0 } };
+    assertEquals("[[1.0,2.0],[3.0]]", arrayAdapter.toJson(array));
+  }
+
+  public void testDeserialize2dArray() throws IOException {
+    TypeAdapter<double[][]> arrayAdapter = miniGson.getAdapter(new TypeToken<double[][]>() {});
+    double[][] array = arrayAdapter.fromJson("[[1.0,2.0],[3.0]]");
+    double[][] expected = { {1.0, 2.0 }, { 3.0 } };
+    assertTrue(Arrays.toString(array), Arrays.deepEquals(expected, array));
+  }
+
   static class Truck {
     double horsePower;
     List<Person> passengers = Collections.emptyList();

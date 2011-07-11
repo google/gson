@@ -67,7 +67,7 @@ final class CollectionTypeAdapter<E> extends TypeAdapter<Collection<E>> {
         return null;
       }
 
-      @SuppressWarnings("unchecked") // we don't define a type parameter for the element type
+      @SuppressWarnings("unchecked") // create() doesn't define a type parameter
       TypeAdapter<T> result = new CollectionTypeAdapter(elementTypeAdapter, constructor);
       return result;
     }
