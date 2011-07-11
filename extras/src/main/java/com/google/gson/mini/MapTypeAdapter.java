@@ -25,16 +25,13 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Adapt a homogeneous collection of objects.
  */
-final class CollectionTypeAdapter<E> extends TypeAdapter<Collection<E>> {
+final class MapTypeAdapter<V> extends TypeAdapter<Map<String, V>> {
   public static final Factory FACTORY = new Factory() {
     public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> typeToken) {
       Type type = typeToken.getType();
@@ -43,19 +40,20 @@ final class CollectionTypeAdapter<E> extends TypeAdapter<Collection<E>> {
       }
 
       Class<? super T> rawType = typeToken.getRawType();
-      if (!Collection.class.isAssignableFrom(rawType)) {
+      if (!Map.class.isAssignableFrom(rawType)) {
         return null;
       }
 
-      Type elementType = $Gson$Types.getCollectionElementType(type, rawType);
-      TypeAdapter<?> elementTypeAdapter = context.getAdapter(TypeToken.get(elementType));
+      Type[] keyAndValueTypes = $Gson$Types.getMapKeyAndValueTypes(type, rawType);
+      if (keyAndValueTypes[0] != String.class) {
+        return null; // TODO: return an array-style map adapter
+      }
+      TypeAdapter<?> valueAdapter = context.getAdapter(TypeToken.get(keyAndValueTypes[1]));
 
       Class<?> constructorType;
 
-      if (rawType == List.class || rawType == Collection.class) {
-        constructorType = ArrayList.class;
-      } else if (rawType == Set.class) {
-        constructorType = LinkedHashSet.class;
+      if (rawType == Map.class) {
+        constructorType = LinkedHashMap.class;
       } else {
         constructorType = rawType;
       }
@@ -67,47 +65,49 @@ final class CollectionTypeAdapter<E> extends TypeAdapter<Collection<E>> {
         return null;
       }
 
-      @SuppressWarnings("unchecked") // we don't define a type parameter for the element type
-      TypeAdapter<T> result = new CollectionTypeAdapter(elementTypeAdapter, constructor);
+      @SuppressWarnings("unchecked") // we don't define a type parameter for the key or value types
+      TypeAdapter<T> result = new MapTypeAdapter(valueAdapter, constructor);
       return result;
     }
   };
 
-  private final TypeAdapter<E> elementTypeAdapter;
-  private final Constructor<? extends Collection<E>> constructor;
+  private final TypeAdapter<V> valueTypeAdapter;
+  private final Constructor<? extends Map<String, V>> constructor;
 
-  public CollectionTypeAdapter(TypeAdapter<E> elementTypeAdapter,
-      Constructor<? extends Collection<E>> constructor) {
-    this.elementTypeAdapter = elementTypeAdapter;
+  public MapTypeAdapter(TypeAdapter<V> valueTypeAdapter,
+      Constructor<? extends Map<String, V>> constructor) {
+    this.valueTypeAdapter = valueTypeAdapter;
     this.constructor = constructor;
   }
 
-  public Collection<E> read(JsonReader reader) throws IOException {
+  public Map<String, V> read(JsonReader reader) throws IOException {
     if (reader.peek() == JsonToken.NULL) {
       reader.nextNull(); // TODO: does this belong here?
       return null;
     }
 
-    Collection<E> collection = MiniGson.newInstance(constructor);
-    reader.beginArray();
+    Map<String, V> map = MiniGson.newInstance(constructor);
+    reader.beginObject();
     while (reader.hasNext()) {
-      E instance = elementTypeAdapter.read(reader);
-      collection.add(instance);
+      String key = reader.nextName();
+      V value = valueTypeAdapter.read(reader);
+      map.put(key, value);
     }
-    reader.endArray();
-    return collection;
+    reader.endObject();
+    return map;
   }
 
-  public void write(JsonWriter writer, Collection<E> collection) throws IOException {
-    if (collection == null) {
+  public void write(JsonWriter writer, Map<String, V> map) throws IOException {
+    if (map == null) {
       writer.nullValue(); // TODO: better policy here?
       return;
     }
 
-    writer.beginArray();
-    for (E element : collection) {
-      elementTypeAdapter.write(writer, element);
+    writer.beginObject();
+    for (Map.Entry<String, V> entry : map.entrySet()) {
+      writer.name(entry.getKey());
+      valueTypeAdapter.write(writer, entry.getValue());
     }
-    writer.endArray();
+    writer.endObject();
   }
 }
