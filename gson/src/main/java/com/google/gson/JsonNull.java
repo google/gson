@@ -16,8 +16,6 @@
 
 package com.google.gson;
 
-import java.io.IOException;
-
 /**
  * A class representing a Json {@code null} value.
  *
@@ -44,11 +42,6 @@ public final class JsonNull extends JsonElement {
 
   @Override JsonElement deepCopy() {
     return this; // immutable!
-  }
-
-  @Override
-  protected void toString(Appendable sb, Escaper escaper) throws IOException {
-    sb.append("null");
   }
 
   /**

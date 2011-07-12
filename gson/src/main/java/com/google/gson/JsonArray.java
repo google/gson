@@ -16,7 +16,6 @@
 
 package com.google.gson;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -315,20 +314,5 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   @Override
   public int hashCode() {
     return elements.hashCode();
-  }
-
-  @Override
-  protected void toString(Appendable sb, Escaper escaper) throws IOException {
-    sb.append('[');
-    boolean first = true;
-    for (JsonElement element : elements) {
-      if (first) {
-        first = false;
-      } else {
-        sb.append(',');
-      }
-      element.toString(sb, escaper);
-    }
-    sb.append(']');
   }
 }
