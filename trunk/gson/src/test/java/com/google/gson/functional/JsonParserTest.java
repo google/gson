@@ -16,25 +16,24 @@
 
 package com.google.gson.functional;
 
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.reflect.TypeToken;
-import java.io.StringReader;
-
-import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import junit.framework.TestCase;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.common.TestTypes.Nested;
+import com.google.gson.reflect.TypeToken;
+
+import junit.framework.TestCase;
+
+import java.io.StringReader;
+import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Functional tests for that use JsonParser and related Gson methods
