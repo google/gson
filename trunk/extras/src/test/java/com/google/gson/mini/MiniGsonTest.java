@@ -142,6 +142,17 @@ public final class MiniGsonTest extends TestCase {
     assertTrue(Arrays.toString(array), Arrays.deepEquals(expected, array));
   }
 
+  public void testSerializeRecursive() throws IOException {
+    TypeAdapter<Node> nodeAdapter = miniGson.getAdapter(Node.class);
+    Node root = new Node("root");
+    root.left = new Node("left");
+    root.right = new Node("right");
+    assertEquals("{'label':'root',"
+        + "'left':{'label':'left','left':null,'right':null},"
+        + "'right':{'label':'right','left':null,'right':null}}",
+        nodeAdapter.toJson(root).replace('"', '\''));
+  }
+
   static class Truck {
     double horsePower;
     List<Person> passengers = Collections.emptyList();
@@ -165,5 +176,15 @@ public final class MiniGsonTest extends TestCase {
     @Override public int hashCode() {
       return name.hashCode() ^ age;
     }
+  }
+
+  static class Node {
+    String label;
+    Node left;
+    Node right;
+    Node(String label) {
+      this.label = label;
+    }
+    public Node() {} // TODO: use Joel's constructor code so we don't need this
   }
 }
