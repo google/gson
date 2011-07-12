@@ -16,7 +16,9 @@
 
 package com.google.gson;
 
+import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -28,8 +30,6 @@ import java.math.BigInteger;
  * @author Joel Leitch
  */
 public abstract class JsonElement {
-  private static final Escaper BASIC_ESCAPER = new Escaper(false);
-
   /**
    * provides check for verifying if this element is an array or not.
    *
@@ -325,19 +325,17 @@ public abstract class JsonElement {
 
   /**
    * Returns a String representation of this element.
-   *
-   * @return String the string representation of this element.
    */
   @Override
   public String toString() {
     try {
-      StringBuilder sb = new StringBuilder();
-      toString(sb, BASIC_ESCAPER);
-      return sb.toString();
+      StringWriter stringWriter = new StringWriter();
+      JsonWriter jsonWriter = new JsonWriter(stringWriter);
+      jsonWriter.setLenient(true);
+      Streams.write(this, true, jsonWriter);
+      return stringWriter.toString();
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new AssertionError(e);
     }
   }
-
-  protected abstract void toString(Appendable sb, Escaper escaper) throws IOException;
 }
