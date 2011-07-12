@@ -17,8 +17,6 @@
 package com.google.gson;
 
 import com.google.gson.internal.$Gson$Preconditions;
-
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -292,17 +290,6 @@ public final class JsonPrimitive extends JsonElement {
     }
     // No need to convert to float or double since those lose precision
     return value;
-  }
-
-  @Override
-  protected void toString(Appendable sb, Escaper escaper) throws IOException {
-    if (isString()) {
-      sb.append('"');
-      sb.append(escaper.escapeJsonString(value.toString()));
-      sb.append('"');
-    } else {
-      sb.append(value.toString());
-    }
   }
 
   private static boolean isPrimitiveOrString(Object target) {

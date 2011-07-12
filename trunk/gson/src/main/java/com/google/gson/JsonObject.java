@@ -17,8 +17,6 @@
 package com.google.gson;
 
 import com.google.gson.internal.$Gson$Preconditions;
-
-import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -209,23 +207,5 @@ public final class JsonObject extends JsonElement {
   @Override
   public int hashCode() {
     return members.hashCode();
-  }
-
-  @Override
-  protected void toString(Appendable sb, Escaper escaper) throws IOException {
-    sb.append('{');
-    boolean first = true;
-    for (Map.Entry<String, JsonElement> entry : members.entrySet()) {
-      if (first) {
-        first = false;
-      } else {
-        sb.append(',');
-      }
-      sb.append('\"');
-      sb.append(escaper.escapeJsonString(entry.getKey()));
-      sb.append("\":");
-      entry.getValue().toString(sb, escaper);
-    }
-    sb.append('}');
   }
 }
