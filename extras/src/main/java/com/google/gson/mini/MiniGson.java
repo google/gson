@@ -17,16 +17,35 @@
 package com.google.gson.mini;
 
 import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A basic binding between JSON and Java objects.
  */
 public final class MiniGson {
+  /**
+   * This thread local guards against reentrant calls to getAdapter(). In
+   * certain object graphs, creating an adapter for a type may recursively
+   * require an adapter for the same type! Without intervention, the recursive
+   * lookup would stack overflow. We cheat by returning a proxy type adapter.
+   * The proxy is wired up once the initial adapter has been created.
+   */
+  private final ThreadLocal<Map<TypeToken<?>, FutureTypeAdapter<?>>> calls
+      = new ThreadLocal<Map<TypeToken<?>, FutureTypeAdapter<?>>>() {
+    @Override protected Map<TypeToken<?>, FutureTypeAdapter<?>> initialValue() {
+      return new HashMap<TypeToken<?>, FutureTypeAdapter<?>>();
+    }
+  };
+
   private final List<TypeAdapter.Factory> factories;
 
   private MiniGson(Builder builder) {
@@ -67,14 +86,54 @@ public final class MiniGson {
    *     deserialize {@code type}.
    */
   public <T> TypeAdapter<T> getAdapter(TypeToken<T> type) {
-    // TODO: create a cache here
-    for (TypeAdapter.Factory factory : factories) {
-      TypeAdapter<T> candidate = factory.create(this, type);
-      if (candidate != null) {
-        return candidate;
-      }
+    // TODO: create a cache!
+
+    Map<TypeToken<?>, FutureTypeAdapter<?>> threadCalls = calls.get();
+    @SuppressWarnings("unchecked") // the key and value type parameters always agree
+        FutureTypeAdapter<T> ongoingCall = (FutureTypeAdapter<T>) threadCalls.get(type);
+    if (ongoingCall != null) {
+      return ongoingCall;
     }
-    throw new IllegalArgumentException("This MiniGSON cannot serialize " + type);
+
+    FutureTypeAdapter<T> call = new FutureTypeAdapter<T>();
+    threadCalls.put(type, call);
+    try {
+      for (TypeAdapter.Factory factory : factories) {
+        TypeAdapter<T> candidate = factory.create(this, type);
+        if (candidate != null) {
+          call.setDelegate(candidate);
+          return candidate;
+        }
+      }
+      throw new IllegalArgumentException("This MiniGSON cannot serialize " + type);
+    } finally {
+      threadCalls.remove(type);
+    }
+  }
+
+  static class FutureTypeAdapter<T> extends TypeAdapter<T> {
+    private TypeAdapter<T> delegate;
+
+    public void setDelegate(TypeAdapter<T> typeAdapter) {
+      if (delegate != null) {
+        throw new AssertionError();
+      }
+      delegate = typeAdapter;
+    }
+
+    @Override public T read(JsonReader reader) throws IOException {
+      if (delegate == null) {
+        throw new IllegalStateException();
+      }
+      return delegate.read(reader);
+    }
+
+    @Override public void write(JsonWriter writer, T value) throws IOException {
+      if (delegate == null) {
+        throw new IllegalStateException();
+      }
+      delegate.write(writer, value);
+    }
   }
 
   /**
