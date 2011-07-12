@@ -431,6 +431,10 @@ public final class JsonWriter implements Closeable {
        * quotation marks except for the characters that must be escaped:
        * quotation mark, reverse solidus, and the control characters
        * (U+0000 through U+001F)."
+       *
+       * We also escape '\u2028' and '\u2029', which JavaScript interprets as
+       * newline characters. This prevents eval() from failing with a syntax
+       * error. http://code.google.com/p/google-gson/issues/detail?id=341
        */
       switch (c) {
       case '"':
@@ -469,6 +473,11 @@ public final class JsonWriter implements Closeable {
         } else {
           out.write(c);
         }
+        break;
+
+      case '\u2028':
+      case '\u2029':
+        out.write(String.format("\\u%04x", (int) c));
         break;
 
       default:

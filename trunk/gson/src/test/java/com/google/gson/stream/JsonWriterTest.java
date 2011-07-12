@@ -290,6 +290,15 @@ public final class JsonWriterTest extends TestCase {
         + "\"\\u0019\"]", stringWriter.toString());
   }
 
+  public void testUnicodeLineBreaksEscaped() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter jsonWriter = new JsonWriter(stringWriter);
+    jsonWriter.beginArray();
+    jsonWriter.value("\u2028 \u2029");
+    jsonWriter.endArray();
+    assertEquals("[\"\\u2028 \\u2029\"]", stringWriter.toString());
+  }
+
   public void testEmptyArray() throws IOException {
     StringWriter stringWriter = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
