@@ -28,7 +28,6 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 public final class MiniGsonTest extends TestCase {
-
   private MiniGson miniGson = new MiniGson.Builder().build();
   private TypeAdapter<Truck> truckAdapter = miniGson.getAdapter(Truck.class);
   private TypeAdapter<Map<String, Double>> mapAdapter
