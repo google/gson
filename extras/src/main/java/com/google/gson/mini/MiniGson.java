@@ -50,12 +50,12 @@ public final class MiniGson {
 
   private MiniGson(Builder builder) {
     List<TypeAdapter.Factory> factories = new ArrayList<TypeAdapter.Factory>();
-    factories.addAll(builder.factories);
     factories.add(TypeAdapters.BOOLEAN_FACTORY);
     factories.add(TypeAdapters.INTEGER_FACTORY);
     factories.add(TypeAdapters.DOUBLE_FACTORY);
     factories.add(TypeAdapters.LONG_FACTORY);
     factories.add(TypeAdapters.STRING_FACTORY);
+    factories.addAll(builder.factories);
     factories.add(CollectionTypeAdapter.FACTORY);
     factories.add(StringToValueMapTypeAdapter.FACTORY);
     factories.add(ArrayTypeAdapter.FACTORY);
@@ -66,7 +66,8 @@ public final class MiniGson {
   // TODO: this should use Joel's unsafe constructor stuff
   static <T> T newInstance(Constructor<T> constructor) {
     try {
-      return constructor.newInstance();
+      Object[] args = null;
+      return constructor.newInstance(args);
     } catch (InstantiationException e) {
       // TODO: JsonParseException ?
       throw new RuntimeException(e);
@@ -90,7 +91,7 @@ public final class MiniGson {
 
     Map<TypeToken<?>, FutureTypeAdapter<?>> threadCalls = calls.get();
     @SuppressWarnings("unchecked") // the key and value type parameters always agree
-        FutureTypeAdapter<T> ongoingCall = (FutureTypeAdapter<T>) threadCalls.get(type);
+    FutureTypeAdapter<T> ongoingCall = (FutureTypeAdapter<T>) threadCalls.get(type);
     if (ongoingCall != null) {
       return ongoingCall;
     }
