@@ -51,14 +51,14 @@ final class ReflectiveTypeAdapter<T> extends TypeAdapter<T>  {
       return new ReflectiveTypeAdapter<T>(constructor, getBoundFields(context, type, raw));
     }
 
-    private Map<String, BoundField<?>> getBoundFields(
+    private Map<String, BoundField> getBoundFields(
         MiniGson context, TypeToken<?> type, Class<?> raw) {
-      Map<String, BoundField<?>> result = new LinkedHashMap<String, BoundField<?>>();
+      Map<String, BoundField> result = new LinkedHashMap<String, BoundField>();
       while (raw != Object.class) {
         for (Field field : raw.getDeclaredFields()) {
           field.setAccessible(true); // TODO: don't call setAccessible unless necessary
           Type fieldType = $Gson$Types.resolve(type.getType(), raw, field.getGenericType());
-          BoundField<?> boundField = BoundField.create(context, field, TypeToken.get(fieldType));
+          BoundField boundField = createBoundField(context, field, TypeToken.get(fieldType));
           result.put(boundField.name, boundField);
         }
         type = TypeToken.get($Gson$Types.resolve(type.getType(), raw, raw.getGenericSuperclass()));
@@ -69,13 +69,13 @@ final class ReflectiveTypeAdapter<T> extends TypeAdapter<T>  {
   };
 
   private final Constructor<? super T> constructor;
-  private final Map<String, BoundField<?>> map;
-  private final BoundField<?>[] boundFields;
+  private final Map<String, BoundField> map;
+  private final BoundField[] boundFields;
 
-  ReflectiveTypeAdapter(Constructor<? super T> constructor, Map<String, BoundField<?>> map) {
+  ReflectiveTypeAdapter(Constructor<? super T> constructor, Map<String, BoundField> map) {
     this.constructor = constructor;
     this.map = map;
-    this.boundFields = map.values().toArray(new BoundField<?>[map.size()]);
+    this.boundFields = map.values().toArray(new BoundField[map.size()]);
   }
 
   public T read(JsonReader reader) throws IOException {
@@ -90,15 +90,19 @@ final class ReflectiveTypeAdapter<T> extends TypeAdapter<T>  {
     // TODO: null out the other fields?
 
     reader.beginObject();
-    while (reader.hasNext()) {
-      String name = reader.nextName();
-      BoundField<?> field = map.get(name);
-      if (field == null) {
-        // TODO: define a better policy
-        reader.skipValue();
-      } else {
-        field.read(reader, instance);
+    try {
+      while (reader.hasNext()) {
+        String name = reader.nextName();
+        BoundField field = map.get(name);
+        if (field == null) {
+          // TODO: define a better policy
+          reader.skipValue();
+        } else {
+          field.read(reader, instance);
+        }
       }
+    } catch (IllegalAccessException e) {
+      throw new AssertionError();
     }
     reader.endObject();
     return instance;
@@ -111,45 +115,44 @@ final class ReflectiveTypeAdapter<T> extends TypeAdapter<T>  {
     }
 
     writer.beginObject();
-    for (BoundField<?> boundField : boundFields) {
-      writer.name(boundField.name);
-      boundField.write(writer, value);
+    try {
+      for (BoundField boundField : boundFields) {
+        writer.name(boundField.name);
+        boundField.write(writer, value);
+      }
+    } catch (IllegalAccessException e) {
+      throw new AssertionError();
     }
     writer.endObject();
   }
 
-  static class BoundField<T> {
-    final String name;
-    final Field field;
-    final TypeAdapter<T> typeAdapter;
-
-    BoundField(String name, Field field, TypeAdapter<T> typeAdapter) {
-      this.name = name;
-      this.field = field;
-      this.typeAdapter = typeAdapter;
-    }
-
-    static <T> BoundField<T> create(MiniGson context, Field field, TypeToken<T> fieldType) {
-      return new BoundField<T>(field.getName(), field, context.getAdapter(fieldType));
-    }
-
-    void write(JsonWriter writer, Object value) throws IOException {
-      try {
-        @SuppressWarnings("unchecked") // we previously verified that field is of type T
-        T fieldValue = (T) field.get(value);
-        typeAdapter.write(writer, fieldValue);
-      } catch (IllegalAccessException e) {
-        throw new AssertionError();
+  static BoundField createBoundField(
+      final MiniGson context, final Field field, final TypeToken<?> fieldType) {
+    // special casing primitives here saves ~5% on Android...
+    return new BoundField(field.getName()) {
+      final TypeAdapter<?> typeAdapter = context.getAdapter(fieldType);
+      @SuppressWarnings("unchecked") // the type adapter and field type always agree
+      @Override void write(JsonWriter writer, Object value)
+          throws IOException, IllegalAccessException {
+        Object fieldValue = field.get(value);
+        ((TypeAdapter) typeAdapter).write(writer, fieldValue);
       }
-    }
-
-    void read(JsonReader reader, Object value) throws IOException {
-      T fieldValue = typeAdapter.read(reader);
-      try {
+      @Override void read(JsonReader reader, Object value)
+          throws IOException, IllegalAccessException {
+        Object fieldValue = typeAdapter.read(reader);
         field.set(value, fieldValue);
-      } catch (IllegalAccessException e) {
-        throw new AssertionError();
       }
+    };
+  }
+
+  static abstract class BoundField {
+    final String name;
+
+    protected BoundField(String name) {
+      this.name = name;
     }
+
+    abstract void write(JsonWriter writer, Object value) throws IOException, IllegalAccessException;
+    abstract void read(JsonReader reader, Object value) throws IOException, IllegalAccessException;
   }
 }
