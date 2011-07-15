@@ -56,10 +56,10 @@ public final class MiniGson {
     factories.add(TypeAdapters.DOUBLE_FACTORY);
     factories.add(TypeAdapters.LONG_FACTORY);
     factories.add(TypeAdapters.STRING_FACTORY);
-    factories.add(ReflectiveTypeAdapter.FACTORY);
     factories.add(CollectionTypeAdapter.FACTORY);
     factories.add(StringToValueMapTypeAdapter.FACTORY);
     factories.add(ArrayTypeAdapter.FACTORY);
+    factories.add(ReflectiveTypeAdapter.FACTORY);
     this.factories = Collections.unmodifiableList(factories);
   }
 

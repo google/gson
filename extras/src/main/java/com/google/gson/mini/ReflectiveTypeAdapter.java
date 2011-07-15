@@ -56,6 +56,7 @@ final class ReflectiveTypeAdapter<T> extends TypeAdapter<T>  {
       Map<String, BoundField<?>> result = new LinkedHashMap<String, BoundField<?>>();
       while (raw != Object.class) {
         for (Field field : raw.getDeclaredFields()) {
+          field.setAccessible(true); // TODO: don't call setAccessible unless necessary
           Type fieldType = $Gson$Types.resolve(type.getType(), raw, field.getGenericType());
           BoundField<?> boundField = BoundField.create(context, field, TypeToken.get(fieldType));
           result.put(boundField.name, boundField);
