@@ -18,6 +18,7 @@ package com.google.gson.stream;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Arrays;
 import junit.framework.TestCase;
 
 public final class JsonReaderTest extends TestCase {
@@ -762,5 +763,36 @@ public final class JsonReaderTest extends TestCase {
       fail();
     } catch (IOException expected) {
     }
+  }
+
+  public void testFailWithPosition() throws IOException {
+    JsonReader reader = new JsonReader(new StringReader("[\n\n\n\n\n0,}]"));
+    reader.beginArray();
+    reader.nextInt();
+    try {
+      reader.peek();
+      fail();
+    } catch (IOException expected) {
+      assertEquals("Expected literal value @6:3", expected.getMessage());
+    }
+  }
+
+  public void testFailWithPositionGreaterThanBufferSize() throws IOException {
+    String spaces = repeat(' ', 8192);
+    JsonReader reader = new JsonReader(new StringReader("[\n\n" + spaces + "\n\n\n0,}]"));
+    reader.beginArray();
+    reader.nextInt();
+    try {
+      reader.peek();
+      fail();
+    } catch (IOException expected) {
+      assertEquals("Expected literal value @6:3", expected.getMessage());
+    }
+  }
+
+  private String repeat(char c, int count) {
+    char[] array = new char[count];
+    Arrays.fill(array, c);
+    return new String(array);
   }
 }
