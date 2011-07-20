@@ -765,28 +765,47 @@ public final class JsonReaderTest extends TestCase {
     }
   }
 
-  public void testFailWithPosition() throws IOException {
-    JsonReader reader = new JsonReader(new StringReader("[\n\n\n\n\n0,}]"));
+  public void testBomIgnoredAsFirstCharacterOfDocument() throws IOException {
+    JsonReader reader = new JsonReader(new StringReader("\ufeff[]"));
     reader.beginArray();
-    reader.nextInt();
+    reader.endArray();
+  }
+
+  public void testBomForbiddenAsOtherCharacterInDocument() throws IOException {
+    JsonReader reader = new JsonReader(new StringReader("[\ufeff]"));
+    reader.beginArray();
     try {
-      reader.peek();
+      reader.endArray();
       fail();
     } catch (IOException expected) {
-      assertEquals("Expected literal value @6:3", expected.getMessage());
     }
+  }
+
+  public void testFailWithPosition() throws IOException {
+    testFailWithPosition("Expected literal value at line 6 column 3",
+        "[\n\n\n\n\n0,}]");
   }
 
   public void testFailWithPositionGreaterThanBufferSize() throws IOException {
     String spaces = repeat(' ', 8192);
-    JsonReader reader = new JsonReader(new StringReader("[\n\n" + spaces + "\n\n\n0,}]"));
+    testFailWithPosition("Expected literal value at line 6 column 3",
+        "[\n\n" + spaces + "\n\n\n0,}]");
+  }
+
+  public void testFailWithPositionIsOffsetByBom() throws IOException {
+    testFailWithPosition("Expected literal value at line 1 column 4",
+        "\ufeff[0,}]");
+  }
+
+  private void testFailWithPosition(String message, String json) throws IOException {
+    JsonReader reader = new JsonReader(new StringReader(json));
     reader.beginArray();
     reader.nextInt();
     try {
       reader.peek();
       fail();
     } catch (IOException expected) {
-      assertEquals("Expected literal value @6:3", expected.getMessage());
+      assertEquals(message, expected.getMessage());
     }
   }
 

@@ -205,12 +205,10 @@ public final class JsonReader implements Closeable {
   private int limit = 0;
 
   /*
-   * Track the number of newlines and columns preceding the current buffer. To
-   * compute the line and column of a position in the buffer, compute the line
-   * and column in the buffer and add the preceding values.
+   * The offset of the first character in the buffer.
    */
-  private int bufferStartLine;
-  private int bufferStartColumn;
+  private int bufferStartLine = 1;
+  private int bufferStartColumn = 1;
 
   private final List<JsonScope> stack = new ArrayList<JsonScope>();
   {
@@ -829,7 +827,7 @@ public final class JsonReader implements Closeable {
     for (int i = 0; i < pos; i++) {
       if (buffer[i] == '\n') {
         bufferStartLine++;
-        bufferStartColumn = 0;
+        bufferStartColumn = 1;
       } else {
         bufferStartColumn++;
       }
@@ -846,6 +844,13 @@ public final class JsonReader implements Closeable {
     int total;
     while ((total = in.read(buffer, limit, buffer.length - limit)) != -1) {
       limit += total;
+
+      // if this is the first read, consume an optional byte order mark (BOM) if it exists
+      if (bufferStartLine == 1 && bufferStartColumn == 1 && limit > 1 && buffer[0] == '\ufeff') {
+        pos++;
+        bufferStartColumn--;
+      }
+
       if (limit >= minimum) {
         return true;
       }
@@ -860,19 +865,19 @@ public final class JsonReader implements Closeable {
         result++;
       }
     }
-    return result + 1; // the first line is '1'
+    return result;
   }
 
   private int getColumnNumber() {
     int result = bufferStartColumn;
     for (int i = 0; i < pos; i++) {
       if (buffer[i] == '\n') {
-        result = 0;
+        result = 1;
       } else {
         result++;
       }
     }
-    return result + 1; // the first column is '1'
+    return result;
   }
 
   private int nextNonWhitespace() throws IOException {
@@ -1150,7 +1155,8 @@ public final class JsonReader implements Closeable {
    * with this reader's content.
    */
   private IOException syntaxError(String message) throws IOException {
-    throw new MalformedJsonException(message + " @" + getLineNumber() + ":" + getColumnNumber());
+    throw new MalformedJsonException(message
+        + " at line " + getLineNumber() + " column " + getColumnNumber());
   }
 
   private CharSequence getSnippet() {
