@@ -846,7 +846,7 @@ public final class JsonReader implements Closeable {
       limit += total;
 
       // if this is the first read, consume an optional byte order mark (BOM) if it exists
-      if (bufferStartLine == 1 && bufferStartColumn == 1 && limit > 1 && buffer[0] == '\ufeff') {
+      if (bufferStartLine == 1 && bufferStartColumn == 1 && limit > 0 && buffer[0] == '\ufeff') {
         pos++;
         bufferStartColumn--;
       }
@@ -956,7 +956,7 @@ public final class JsonReader implements Closeable {
 
   private boolean skipTo(String toFind) throws IOException {
     outer:
-    for (; pos + toFind.length() < limit || fillBuffer(toFind.length()); pos++) {
+    for (; pos + toFind.length() <= limit || fillBuffer(toFind.length()); pos++) {
       for (int c = 0; c < toFind.length(); c++) {
         if (buffer[pos + c] != toFind.charAt(c)) {
           continue outer;
