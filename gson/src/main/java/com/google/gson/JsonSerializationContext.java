@@ -25,7 +25,7 @@ import java.lang.reflect.Type;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public final class JsonSerializationContext {
+public class JsonSerializationContext {
 
   private final ObjectNavigator objectNavigator;
   private final FieldNamingStrategy2 fieldNamingPolicy;
@@ -41,6 +41,10 @@ public final class JsonSerializationContext {
     this.serializeNulls = serializeNulls;
     this.serializers = serializers;
     this.ancestors = new MemoryRefStack();
+  }
+  
+  JsonSerializationContext() {
+    this(null, null, false, null);
   }
 
   /**

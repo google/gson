@@ -88,7 +88,7 @@ public final class Gson {
   //TODO(inder): get rid of all the registerXXX methods and take all such parameters in the
   // constructor instead. At the minimum, mark those methods private.
 
-  static final boolean DEFAULT_JSON_NON_EXECUTABLE = false;
+   static final boolean DEFAULT_JSON_NON_EXECUTABLE = false;
 
   // Default instances of plug-ins
   static final AnonymousAndLocalClassExclusionStrategy DEFAULT_ANON_LOCAL_CLASS_EXCLUSION_STRATEGY =
@@ -165,9 +165,9 @@ public final class Gson {
 
   Gson(ExclusionStrategy deserializationExclusionStrategy,
       ExclusionStrategy serializationExclusionStrategy, FieldNamingStrategy2 fieldNamingPolicy,
-      MappedObjectConstructor objectConstructor, boolean serializeNulls,
-      ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers,
-      ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers,
+      final MappedObjectConstructor objectConstructor, boolean serializeNulls,
+      final ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers,
+      final ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers,
       boolean generateNonExecutableGson, boolean htmlSafe, boolean prettyPrinting) {
     this.deserializationExclusionStrategy = deserializationExclusionStrategy;
     this.serializationExclusionStrategy = serializationExclusionStrategy;
@@ -200,7 +200,7 @@ public final class Gson {
             new FieldAttributes(declaringClazz, f, declaredType));
       }
     };
-    
+
     this.miniGson = new MiniGson.Builder()
         .withoutDefaultFactories()
         .factory(TypeAdapters.BOOLEAN_FACTORY)
@@ -208,6 +208,7 @@ public final class Gson {
         .factory(TypeAdapters.DOUBLE_FACTORY)
         .factory(TypeAdapters.LONG_FACTORY)
         .factory(TypeAdapters.STRING_FACTORY)
+        .factory(new GsonToMiniGsonTypeAdapter(serializers, deserializers, serializeNulls))
         .factory(CollectionTypeAdapter.FACTORY)
         .factory(StringToValueMapTypeAdapter.FACTORY)
         .factory(ArrayTypeAdapter.FACTORY)
