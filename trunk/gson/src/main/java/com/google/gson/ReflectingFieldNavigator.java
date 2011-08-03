@@ -74,7 +74,7 @@ final class ReflectingFieldNavigator {
   }
 
   @SuppressWarnings("unchecked")
-  private Type getMoreSpecificType(Type type, Object obj, FieldAttributes fieldAttributes) {
+  private static Type getMoreSpecificType(Type type, Object obj, FieldAttributes fieldAttributes) {
     try {
       if (obj != null && (Object.class == type || type instanceof TypeVariable)) {
         Object fieldValue = fieldAttributes.get(obj);
