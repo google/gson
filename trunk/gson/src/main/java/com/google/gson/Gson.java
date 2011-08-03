@@ -16,11 +16,13 @@
 
 package com.google.gson;
 
+import com.google.gson.internal.bind.MiniGson;
+import com.google.gson.internal.bind.TypeAdapter;
+import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.google.gson.stream.MalformedJsonException;
-
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -111,6 +113,8 @@ public final class Gson {
   private final boolean generateNonExecutableJson;
   private final boolean prettyPrinting;
 
+  private final MiniGson miniGson;
+
   /**
    * Constructs a Gson object with default configuration. The default configuration has the
    * following settings:
@@ -168,6 +172,16 @@ public final class Gson {
     this.generateNonExecutableJson = generateNonExecutableGson;
     this.htmlSafe = htmlSafe;
     this.prettyPrinting = prettyPrinting;
+
+    /*
+      TODO: for serialization, honor:
+        serializationExclusionStrategy
+        fieldNamingPolicy
+        serializeNulls
+        serializers
+     */
+    this.miniGson = new MiniGson.Builder()
+        .build();
   }
 
   private static ExclusionStrategy createExclusionStrategy() {
@@ -214,11 +228,17 @@ public final class Gson {
    * @return Json representation of {@code src}
    * @since 1.4
    */
+  @SuppressWarnings("unchecked") // the caller is required to make src and typeOfSrc consistent
   public JsonElement toJsonTree(Object src, Type typeOfSrc) {
-    JsonSerializationContext context = new JsonSerializationContext(
-        new ObjectNavigator(serializationExclusionStrategy), fieldNamingPolicy,
-        serializeNulls, serializers);
-    return context.serialize(src, typeOfSrc);
+    // Serialize 'src' to JSON, then deserialize that to a JSON tree.
+    TypeAdapter adapter = miniGson.getAdapter(TypeToken.get(typeOfSrc));
+    StringWriter writer = new StringWriter();
+    try {
+      adapter.write(writer, src);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    return Streams.parse(new JsonReader(new StringReader(writer.toString())));
   }
 
   /**
