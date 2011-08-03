@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson.mini;
+package com.google.gson.internal.bind;
 
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.reflect.TypeToken;

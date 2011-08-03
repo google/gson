@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package com.google.gson.mini;
+package com.google.gson.internal.bind;
 
+import com.google.gson.internal.bind.MiniGson;
+import com.google.gson.internal.bind.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
