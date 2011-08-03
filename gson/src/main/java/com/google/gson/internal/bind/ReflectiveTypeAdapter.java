@@ -22,6 +22,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
@@ -143,11 +144,12 @@ public final class ReflectiveTypeAdapter<T> extends TypeAdapter<T>  {
       Map<String, BoundField> result = new LinkedHashMap<String, BoundField>();
       Type declaredType = type.getType();
       while (raw != Object.class) {
-        for (Field field : raw.getDeclaredFields()) {
+        Field[] fields = raw.getDeclaredFields();
+        AccessibleObject.setAccessible(fields, true);
+        for (Field field : fields) {
           boolean serialize = serializeField(raw, field, declaredType);
           boolean deserialize = deserializeField(raw, field, declaredType);
           if (serialize || deserialize) {
-            field.setAccessible(true); // TODO: don't call setAccessible unless necessary
             Type fieldType = $Gson$Types.resolve(type.getType(), raw, field.getGenericType());
             BoundField boundField = createBoundField(context, field, TypeToken.get(fieldType), serialize, deserialize);
             result.put(boundField.name, boundField);
