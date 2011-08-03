@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package com.google.gson.internal;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamClass;
@@ -27,7 +27,7 @@ import java.lang.reflect.Method;
  * @author Joel Leitch
  * @author Jesse Wilson
  */
-abstract class UnsafeAllocator {
+public abstract class UnsafeAllocator {
   public abstract <T> T newInstance(Class<T> c) throws Exception;
 
   public static UnsafeAllocator create() {

@@ -17,6 +17,7 @@
 package com.google.gson.internal.bind;
 
 import com.google.gson.internal.$Gson$Types;
+import com.google.gson.internal.UnsafeAllocator;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -35,24 +36,37 @@ import java.util.Map;
 public final class ReflectiveTypeAdapter<T> extends TypeAdapter<T>  {
   public static final Factory FACTORY = new FactoryImpl();
 
+  private static final UnsafeAllocator unsafeAllocator = UnsafeAllocator.create();
+  private final Class<? super T> rawType;
   private final Constructor<? super T> constructor;
   private final Map<String, BoundField> map;
   private final BoundField[] boundFields;
 
-  ReflectiveTypeAdapter(Constructor<? super T> constructor, Map<String, BoundField> map) {
+  ReflectiveTypeAdapter(Class<? super T> rawType, Constructor<? super T> constructor, Map<String, BoundField> map) {
+    this.rawType = rawType;
     this.constructor = constructor;
     this.map = map;
     this.boundFields = map.values().toArray(new BoundField[map.size()]);
   }
 
+  @SuppressWarnings("unchecked") // the '? super T' is a raw T (the only kind we can construct)
   public T read(JsonReader reader) throws IOException {
     if (reader.peek() == JsonToken.NULL) {
       reader.nextNull(); // TODO: does this belong here?
       return null;
     }
 
-    @SuppressWarnings("unchecked") // the '? super T' is a raw T (the only kind we can construct)
-    T instance = (T) MiniGson.newInstance(constructor);
+    T instance;
+    if (constructor != null) {
+      instance = (T) MiniGson.newInstance(constructor);
+    } else {
+      try {
+        instance = (T) unsafeAllocator.newInstance(rawType);
+      } catch (Exception e) {
+        throw new RuntimeException(("Unable to invoke no-args constructor for " + rawType.getName()
+            + ". Register an InstanceCreator with Gson for this type may fix this problem."), e);
+      }
+    }
 
     // TODO: null out the other fields?
 
@@ -128,15 +142,13 @@ public final class ReflectiveTypeAdapter<T> extends TypeAdapter<T>  {
         return null; // it's a primitive!
       }
 
-      // TODO: use Joel's constructor calling code (with setAccessible)
-      Constructor<? super T> constructor;
+      Constructor<? super T> constructor = null;
       try {
         constructor = raw.getDeclaredConstructor();
-      } catch (NoSuchMethodException e) {
-        return null;
+      } catch (NoSuchMethodException ignored) {
       }
 
-      return new ReflectiveTypeAdapter<T>(constructor, getBoundFields(context, type, raw));
+      return new ReflectiveTypeAdapter<T>(raw, constructor, getBoundFields(context, type, raw));
     }
 
     private Map<String, BoundField> getBoundFields(
