@@ -50,7 +50,7 @@ public abstract class TypeAdapter<T> {
     return read(reader);
   }
 
-  interface Factory {
+  public interface Factory {
     <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> type);
   }
 }
