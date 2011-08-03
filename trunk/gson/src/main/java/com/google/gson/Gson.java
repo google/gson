@@ -16,23 +16,26 @@
 
 package com.google.gson;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import com.google.gson.internal.bind.MiniGson;
+import com.google.gson.internal.bind.ReflectiveTypeAdapter;
 import com.google.gson.internal.bind.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.google.gson.stream.MalformedJsonException;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * This is the main class for using Gson. Gson is typically used by first constructing a
@@ -180,7 +183,17 @@ public final class Gson {
         serializeNulls
         serializers
      */
+    TypeAdapter.Factory factory = new ReflectiveTypeAdapter.FactoryImpl() {
+      @Override
+      public boolean skipField(Class<?> declaringClazz, Field f, Type declaredType) {
+        // TODO: support deserialization policy as well
+        return Gson.this.serializationExclusionStrategy.shouldSkipField(
+            new FieldAttributes(declaringClazz, f, declaredType));
+      }
+    };
+    
     this.miniGson = new MiniGson.Builder()
+        .factory(factory)
         .build();
   }
 
