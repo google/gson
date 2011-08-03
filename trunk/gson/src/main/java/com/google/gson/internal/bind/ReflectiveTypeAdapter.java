@@ -16,12 +16,6 @@
 
 package com.google.gson.internal.bind;
 
-import com.google.gson.internal.$Gson$Types;
-import com.google.gson.internal.UnsafeAllocator;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
@@ -29,6 +23,15 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import com.google.gson.FieldAttributes;
+import com.google.gson.FieldAttributesTest;
+import com.google.gson.internal.$Gson$Types;
+import com.google.gson.internal.UnsafeAllocator;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
 
 /**
  * Adapts the fields of an object to the properties of a JSON object.
@@ -110,9 +113,10 @@ public final class ReflectiveTypeAdapter<T> extends TypeAdapter<T>  {
   }
 
   static BoundField createBoundField(
-      final MiniGson context, final Field field, final TypeToken<?> fieldType, boolean serialize, boolean deserialize) {
+      final MiniGson context, final Field field, final String name,
+      final TypeToken<?> fieldType, boolean serialize, boolean deserialize) {
     // special casing primitives here saves ~5% on Android...
-    return new BoundField(field.getName(), serialize, deserialize) {
+    return new BoundField(name, serialize, deserialize) {
       final TypeAdapter<?> typeAdapter = context.getAdapter(fieldType);
       @SuppressWarnings("unchecked") // the type adapter and field type always agree
       @Override void write(JsonWriter writer, Object value)
@@ -129,12 +133,17 @@ public final class ReflectiveTypeAdapter<T> extends TypeAdapter<T>  {
   }
 
   public static class FactoryImpl implements Factory {
-    public boolean serializeField(Class<?> declaringClazz, Field f, Type declaringType) {
+    public boolean serializeField(Class<?> declaringClazz, Field f, Type declaredType) {
       return true;
     }
-    public boolean deserializeField(Class<?> declaringClazz, Field f, Type declaringType) {
+    public boolean deserializeField(Class<?> declaringClazz, Field f, Type declaredType) {
       return true;
     }
+
+    public String getFieldName(Class<?> declaringClazz, Field f, Type declaredType) {
+      return f.getName();
+    }
+
     public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> type) {
       Class<? super T> raw = type.getRawType();
 
@@ -163,7 +172,8 @@ public final class ReflectiveTypeAdapter<T> extends TypeAdapter<T>  {
           boolean deserialize = deserializeField(raw, field, declaredType);
           if (serialize || deserialize) {
             Type fieldType = $Gson$Types.resolve(type.getType(), raw, field.getGenericType());
-            BoundField boundField = createBoundField(context, field, TypeToken.get(fieldType), serialize, deserialize);
+            BoundField boundField = createBoundField(context, field, getFieldName(raw, field, declaredType),
+                TypeToken.get(fieldType), serialize, deserialize);
             result.put(boundField.name, boundField);
           }
         }
