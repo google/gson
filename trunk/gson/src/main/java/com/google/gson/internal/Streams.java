@@ -14,8 +14,16 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package com.google.gson.internal;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.google.gson.stream.MalformedJsonException;
@@ -27,12 +35,12 @@ import java.util.Map;
 /**
  * Reads and writes GSON parse trees over streams.
  */
-final class Streams {
+public final class Streams {
 
   /**
    * Takes a reader in any state and returns the next value as a JsonElement.
    */
-  static JsonElement parse(JsonReader reader) throws JsonParseException {
+  public static JsonElement parse(JsonReader reader) throws JsonParseException {
     boolean isEmpty = true;
     try {
       reader.peek();
@@ -96,7 +104,7 @@ final class Streams {
   /**
    * Writes the JSON element to the writer, recursively.
    */
-  static void write(JsonElement element, boolean serializeNulls, JsonWriter writer)
+  public static void write(JsonElement element, boolean serializeNulls, JsonWriter writer)
       throws IOException {
     if (element == null || element.isJsonNull()) {
       if (serializeNulls) {
@@ -142,7 +150,7 @@ final class Streams {
     }
   }
 
-  static Writer writerForAppendable(Appendable appendable) {
+  public static Writer writerForAppendable(Appendable appendable) {
     return appendable instanceof Writer ? (Writer) appendable : new AppendableWriter(appendable);
   }
 
