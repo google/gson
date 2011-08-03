@@ -26,7 +26,7 @@ import java.lang.reflect.Type;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public final class JsonDeserializationContext {
+public class JsonDeserializationContext {
   private final ObjectNavigator objectNavigator;
   private final FieldNamingStrategy2 fieldNamingPolicy;
   private final ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers;
@@ -42,6 +42,9 @@ public final class JsonDeserializationContext {
     this.objectConstructor = objectConstructor;
   }
 
+  JsonDeserializationContext() {
+    this(null, null, null, null);
+  }
 
   @SuppressWarnings("unchecked")
   public <T> T construct(Type type) {
