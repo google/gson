@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson.mini;
+package com.google.gson.internal.bind;
 
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.reflect.TypeToken;
@@ -25,13 +25,16 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
- * Adapt a map whose keys are strings.
+ * Adapt a homogeneous collection of objects.
  */
-final class StringToValueMapTypeAdapter<V> extends TypeAdapter<Map<String, V>> {
+final class CollectionTypeAdapter<E> extends TypeAdapter<Collection<E>> {
   public static final Factory FACTORY = new Factory() {
     public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> typeToken) {
       Type type = typeToken.getType();
@@ -40,67 +43,71 @@ final class StringToValueMapTypeAdapter<V> extends TypeAdapter<Map<String, V>> {
       }
 
       Class<? super T> rawType = typeToken.getRawType();
-      if (!Map.class.isAssignableFrom(rawType)) {
+      if (!Collection.class.isAssignableFrom(rawType)) {
         return null;
       }
 
-      Type[] keyAndValueTypes = $Gson$Types.getMapKeyAndValueTypes(type, rawType);
-      if (keyAndValueTypes[0] != String.class) {
-        return null;
+      Type elementType = $Gson$Types.getCollectionElementType(type, rawType);
+      TypeAdapter<?> elementTypeAdapter = context.getAdapter(TypeToken.get(elementType));
+
+      Class<?> constructorType;
+
+      if (rawType == List.class || rawType == Collection.class) {
+        constructorType = ArrayList.class;
+      } else if (rawType == Set.class) {
+        constructorType = LinkedHashSet.class;
+      } else {
+        constructorType = rawType;
       }
-      TypeAdapter<?> valueAdapter = context.getAdapter(TypeToken.get(keyAndValueTypes[1]));
 
       Constructor<?> constructor;
       try {
-        Class<?> constructorType = (rawType == Map.class) ? LinkedHashMap.class : rawType;
         constructor = constructorType.getConstructor();
       } catch (NoSuchMethodException e) {
         return null;
       }
 
-      @SuppressWarnings("unchecked") // we don't define a type parameter for the key or value types
-      TypeAdapter<T> result = new StringToValueMapTypeAdapter(valueAdapter, constructor);
+      @SuppressWarnings("unchecked") // create() doesn't define a type parameter
+      TypeAdapter<T> result = new CollectionTypeAdapter(elementTypeAdapter, constructor);
       return result;
     }
   };
 
-  private final TypeAdapter<V> valueTypeAdapter;
-  private final Constructor<? extends Map<String, V>> constructor;
+  private final TypeAdapter<E> elementTypeAdapter;
+  private final Constructor<? extends Collection<E>> constructor;
 
-  public StringToValueMapTypeAdapter(TypeAdapter<V> valueTypeAdapter,
-      Constructor<? extends Map<String, V>> constructor) {
-    this.valueTypeAdapter = valueTypeAdapter;
+  public CollectionTypeAdapter(TypeAdapter<E> elementTypeAdapter,
+      Constructor<? extends Collection<E>> constructor) {
+    this.elementTypeAdapter = elementTypeAdapter;
     this.constructor = constructor;
   }
 
-  public Map<String, V> read(JsonReader reader) throws IOException {
+  public Collection<E> read(JsonReader reader) throws IOException {
     if (reader.peek() == JsonToken.NULL) {
       reader.nextNull(); // TODO: does this belong here?
       return null;
     }
 
-    Map<String, V> map = MiniGson.newInstance(constructor);
-    reader.beginObject();
+    Collection<E> collection = MiniGson.newInstance(constructor);
+    reader.beginArray();
     while (reader.hasNext()) {
-      String key = reader.nextName();
-      V value = valueTypeAdapter.read(reader);
-      map.put(key, value);
+      E instance = elementTypeAdapter.read(reader);
+      collection.add(instance);
     }
-    reader.endObject();
-    return map;
+    reader.endArray();
+    return collection;
   }
 
-  public void write(JsonWriter writer, Map<String, V> map) throws IOException {
-    if (map == null) {
+  public void write(JsonWriter writer, Collection<E> collection) throws IOException {
+    if (collection == null) {
       writer.nullValue(); // TODO: better policy here?
       return;
     }
 
-    writer.beginObject();
-    for (Map.Entry<String, V> entry : map.entrySet()) {
-      writer.name(entry.getKey());
-      valueTypeAdapter.write(writer, entry.getValue());
+    writer.beginArray();
+    for (E element : collection) {
+      elementTypeAdapter.write(writer, element);
     }
-    writer.endObject();
+    writer.endArray();
   }
 }
