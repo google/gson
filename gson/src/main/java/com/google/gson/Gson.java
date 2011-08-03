@@ -28,6 +28,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gson.internal.Streams;
 import com.google.gson.internal.bind.ArrayTypeAdapter;
 import com.google.gson.internal.bind.CollectionTypeAdapter;
 import com.google.gson.internal.bind.MiniGson;
@@ -264,13 +265,7 @@ public final class Gson {
   public JsonElement toJsonTree(Object src, Type typeOfSrc) {
     // Serialize 'src' to JSON, then deserialize that to a JSON tree.
     TypeAdapter adapter = miniGson.getAdapter(TypeToken.get(typeOfSrc));
-    StringWriter writer = new StringWriter();
-    try {
-      adapter.write(writer, src);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-    return Streams.parse(new JsonReader(new StringReader(writer.toString())));
+    return adapter.toJsonElement(src);
   }
 
   /**
