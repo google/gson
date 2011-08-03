@@ -165,7 +165,8 @@ public final class Gson {
   }
 
   Gson(ExclusionStrategy deserializationExclusionStrategy,
-      ExclusionStrategy serializationExclusionStrategy, FieldNamingStrategy2 fieldNamingPolicy,
+      ExclusionStrategy serializationExclusionStrategy,
+      final FieldNamingStrategy2 fieldNamingPolicy,
       final MappedObjectConstructor objectConstructor, boolean serializeNulls,
       final ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers,
       final ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers,
@@ -190,6 +191,10 @@ public final class Gson {
      */
     TypeAdapter.Factory reflectiveTypeAdapterFactory =
       new ReflectiveTypeAdapter.FactoryImpl() {
+      @Override
+      public String getFieldName(Class<?> declaringClazz, Field f, Type declaredType) {
+        return fieldNamingPolicy.translateName(new FieldAttributes(declaringClazz, f, declaredType));
+      }
       @Override
       public boolean serializeField(Class<?> declaringClazz, Field f, Type declaredType) {
         return !Gson.this.serializationExclusionStrategy.shouldSkipField(

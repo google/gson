@@ -15,10 +15,7 @@
  */
 package com.google.gson;
 
-import java.beans.DesignMode;
 import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.lang.reflect.Type;
 
 import com.google.gson.internal.Streams;
