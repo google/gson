@@ -16,11 +16,6 @@
 
 package com.google.gson.internal.bind;
 
-import com.google.gson.internal.$Gson$Types;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
@@ -31,10 +26,16 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.google.gson.internal.$Gson$Types;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
+
 /**
  * Adapt a homogeneous collection of objects.
  */
-final class CollectionTypeAdapter<E> extends TypeAdapter<Collection<E>> {
+public final class CollectionTypeAdapter<E> extends TypeAdapter<Collection<E>> {
   public static final Factory FACTORY = new Factory() {
     public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> typeToken) {
       Type type = typeToken.getType();

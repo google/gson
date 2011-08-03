@@ -50,16 +50,20 @@ public final class MiniGson {
 
   private MiniGson(Builder builder) {
     List<TypeAdapter.Factory> factories = new ArrayList<TypeAdapter.Factory>();
-    factories.add(TypeAdapters.BOOLEAN_FACTORY);
-    factories.add(TypeAdapters.INTEGER_FACTORY);
-    factories.add(TypeAdapters.DOUBLE_FACTORY);
-    factories.add(TypeAdapters.LONG_FACTORY);
-    factories.add(TypeAdapters.STRING_FACTORY);
+    if (builder.addDefaultFactories) {
+      factories.add(TypeAdapters.BOOLEAN_FACTORY);
+      factories.add(TypeAdapters.INTEGER_FACTORY);
+      factories.add(TypeAdapters.DOUBLE_FACTORY);
+      factories.add(TypeAdapters.LONG_FACTORY);
+      factories.add(TypeAdapters.STRING_FACTORY);
+    }
     factories.addAll(builder.factories);
-    factories.add(CollectionTypeAdapter.FACTORY);
-    factories.add(StringToValueMapTypeAdapter.FACTORY);
-    factories.add(ArrayTypeAdapter.FACTORY);
-    factories.add(ReflectiveTypeAdapter.FACTORY);
+    if (builder.addDefaultFactories) {
+      factories.add(CollectionTypeAdapter.FACTORY);
+      factories.add(StringToValueMapTypeAdapter.FACTORY);
+      factories.add(ArrayTypeAdapter.FACTORY);
+      factories.add(ReflectiveTypeAdapter.FACTORY);
+    }
     this.factories = Collections.unmodifiableList(factories);
   }
 
@@ -156,9 +160,15 @@ public final class MiniGson {
 
   public static final class Builder {
     private final List<TypeAdapter.Factory> factories = new ArrayList<TypeAdapter.Factory>();
+    boolean addDefaultFactories = true;
 
     public Builder factory(TypeAdapter.Factory factory) {
       factories.add(factory);
+      return this;
+    }
+
+    public Builder withoutDefaultFactories() {
+      this.addDefaultFactories = false;
       return this;
     }
 

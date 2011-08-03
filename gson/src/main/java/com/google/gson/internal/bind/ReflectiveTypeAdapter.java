@@ -60,7 +60,7 @@ public final class ReflectiveTypeAdapter<T> extends TypeAdapter<T>  {
       while (reader.hasNext()) {
         String name = reader.nextName();
         BoundField field = map.get(name);
-        if (field == null) {
+        if (field == null || !field.deserialized) {
           // TODO: define a better policy
           reader.skipValue();
         } else {
@@ -83,8 +83,10 @@ public final class ReflectiveTypeAdapter<T> extends TypeAdapter<T>  {
     writer.beginObject();
     try {
       for (BoundField boundField : boundFields) {
-        writer.name(boundField.name);
-        boundField.write(writer, value);
+        if (boundField.serialized) {
+          writer.name(boundField.name);
+          boundField.write(writer, value);
+        }
       }
     } catch (IllegalAccessException e) {
       throw new AssertionError();
@@ -93,9 +95,9 @@ public final class ReflectiveTypeAdapter<T> extends TypeAdapter<T>  {
   }
 
   static BoundField createBoundField(
-      final MiniGson context, final Field field, final TypeToken<?> fieldType) {
+      final MiniGson context, final Field field, final TypeToken<?> fieldType, boolean serialize, boolean deserialize) {
     // special casing primitives here saves ~5% on Android...
-    return new BoundField(field.getName()) {
+    return new BoundField(field.getName(), serialize, deserialize) {
       final TypeAdapter<?> typeAdapter = context.getAdapter(fieldType);
       @SuppressWarnings("unchecked") // the type adapter and field type always agree
       @Override void write(JsonWriter writer, Object value)
@@ -112,8 +114,11 @@ public final class ReflectiveTypeAdapter<T> extends TypeAdapter<T>  {
   }
 
   public static class FactoryImpl implements Factory {
-    public boolean skipField(Class<?> declaringClazz, Field f, Type declaringType) {
-      return false;
+    public boolean serializeField(Class<?> declaringClazz, Field f, Type declaringType) {
+      return true;
+    }
+    public boolean deserializeField(Class<?> declaringClazz, Field f, Type declaringType) {
+      return true;
     }
     public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> type) {
       Class<? super T> raw = type.getRawType();
@@ -139,13 +144,14 @@ public final class ReflectiveTypeAdapter<T> extends TypeAdapter<T>  {
       Type declaredType = type.getType();
       while (raw != Object.class) {
         for (Field field : raw.getDeclaredFields()) {
-          if (skipField(raw, field, declaredType)) {
-            continue;
+          boolean serialize = serializeField(raw, field, declaredType);
+          boolean deserialize = deserializeField(raw, field, declaredType);
+          if (serialize || deserialize) {
+            field.setAccessible(true); // TODO: don't call setAccessible unless necessary
+            Type fieldType = $Gson$Types.resolve(type.getType(), raw, field.getGenericType());
+            BoundField boundField = createBoundField(context, field, TypeToken.get(fieldType), serialize, deserialize);
+            result.put(boundField.name, boundField);
           }
-          field.setAccessible(true); // TODO: don't call setAccessible unless necessary
-          Type fieldType = $Gson$Types.resolve(type.getType(), raw, field.getGenericType());
-          BoundField boundField = createBoundField(context, field, TypeToken.get(fieldType));
-          result.put(boundField.name, boundField);
         }
         type = TypeToken.get($Gson$Types.resolve(type.getType(), raw, raw.getGenericSuperclass()));
         raw = type.getRawType();
@@ -156,9 +162,13 @@ public final class ReflectiveTypeAdapter<T> extends TypeAdapter<T>  {
 
   static abstract class BoundField {
     final String name;
+    final boolean serialized;
+    final boolean deserialized;
 
-    protected BoundField(String name) {
+    protected BoundField(String name, boolean serialized, boolean deserialized) {
       this.name = name;
+      this.serialized = serialized;
+      this.deserialized = deserialized;
     }
 
     abstract void write(JsonWriter writer, Object value) throws IOException, IllegalAccessException;
