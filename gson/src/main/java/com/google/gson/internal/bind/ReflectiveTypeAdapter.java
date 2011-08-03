@@ -21,6 +21,7 @@ import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -122,7 +123,11 @@ public final class ReflectiveTypeAdapter<T> extends TypeAdapter<T>  {
       @Override void write(JsonWriter writer, Object value)
           throws IOException, IllegalAccessException {
         Object fieldValue = field.get(value);
-        ((TypeAdapter) typeAdapter).write(writer, fieldValue);
+        Type declaredTypeOfField = fieldType.getType();
+        Type resolvedTypeOfField = getMoreSpecificType(declaredTypeOfField, value, fieldValue);
+        TypeAdapter t = resolvedTypeOfField != declaredTypeOfField ?
+            context.getAdapter(TypeToken.get(resolvedTypeOfField)) : this.typeAdapter;
+        t.write(writer, fieldValue);
       }
       @Override void read(JsonReader reader, Object value)
           throws IOException, IllegalAccessException {
@@ -130,6 +135,15 @@ public final class ReflectiveTypeAdapter<T> extends TypeAdapter<T>  {
         field.set(value, fieldValue);
       }
     };
+  }
+
+  private static Type getMoreSpecificType(Type type, Object obj, Object fieldValue) {
+    if (obj != null && (Object.class == type || type instanceof TypeVariable)) {
+      if (fieldValue != null) {
+        type = fieldValue.getClass();
+      }
+    }
+    return type;
   }
 
   public static class FactoryImpl implements Factory {
