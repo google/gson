@@ -17,6 +17,8 @@
 package com.google.gson;
 
 import com.google.gson.internal.$Gson$Preconditions;
+import com.google.gson.internal.LazilyParsedNumber;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 

@@ -21,6 +21,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.lang.reflect.Type;
 
+import com.google.gson.internal.Streams;
 import com.google.gson.internal.bind.MiniGson;
 import com.google.gson.internal.bind.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
@@ -61,6 +62,10 @@ final class GsonToMiniGsonTypeAdapter implements TypeAdapter.Factory {
           // TODO: handle if serializer is null
           throw new UnsupportedOperationException();
         }
+        if (value == null) {
+          writer.nullValue();
+          return;
+        }
         JsonElement element = serializer.serialize(value, typeOfT, createSerializationContext(miniGson));
         Streams.write(element, serializeNulls, writer);
       }
@@ -71,15 +76,8 @@ final class GsonToMiniGsonTypeAdapter implements TypeAdapter.Factory {
     return new JsonSerializationContext() {
       @Override
       JsonElement serialize(Object src, Type typeOfSrc, boolean preserveType, boolean defaultOnly) {
-        try {
-          TypeToken typeToken = TypeToken.get(typeOfSrc);
-          String json = miniGson.getAdapter(typeToken).toJson(src);
-          JsonReader jsonReader = new JsonReader(new StringReader(json));
-          jsonReader.setLenient(true);
-          return Streams.parse(jsonReader);
-        } catch (IOException e) {
-          throw new RuntimeException(e);
-        }
+        TypeToken typeToken = TypeToken.get(typeOfSrc);
+        return miniGson.getAdapter(typeToken).toJsonElement(src);
       }
     };
   }
@@ -87,17 +85,8 @@ final class GsonToMiniGsonTypeAdapter implements TypeAdapter.Factory {
     return new JsonDeserializationContext() {
       @Override
       public <T> T deserialize(JsonElement json, Type typeOfT) throws JsonParseException {
-        try {
-          TypeToken typeToken = TypeToken.get(typeOfT);
-          StringWriter stringWriter = new StringWriter();
-          JsonWriter jsonWriter = new JsonWriter(stringWriter);
-          jsonWriter.setLenient(true);
-          Streams.write(json, serializeNulls, jsonWriter);
-          Object target = miniGson.getAdapter(typeToken).fromJson(stringWriter.toString());
-          return (T) target;
-        } catch (IOException e) {
-          throw new JsonParseException(e);
-        }
+        TypeToken typeToken = TypeToken.get(typeOfT);
+        return (T) miniGson.getAdapter(typeToken).fromJsonElement(json);
       }
     };
   }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson;
+package com.google.gson.internal;
 
 import java.math.BigInteger;
 
@@ -23,10 +23,10 @@ import java.math.BigInteger;
  * @author Inderjeet Singh
  */
 @SuppressWarnings("serial")
-final class LazilyParsedNumber extends Number {
+public final class LazilyParsedNumber extends Number {
   private final String value;
 
-  LazilyParsedNumber(String value) {
+  public LazilyParsedNumber(String value) {
     this.value = value;
   }
 
