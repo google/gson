@@ -28,9 +28,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gson.internal.bind.ArrayTypeAdapter;
+import com.google.gson.internal.bind.CollectionTypeAdapter;
 import com.google.gson.internal.bind.MiniGson;
 import com.google.gson.internal.bind.ReflectiveTypeAdapter;
+import com.google.gson.internal.bind.StringToValueMapTypeAdapter;
 import com.google.gson.internal.bind.TypeAdapter;
+import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -183,17 +187,31 @@ public final class Gson {
         serializeNulls
         serializers
      */
-    TypeAdapter.Factory factory = new ReflectiveTypeAdapter.FactoryImpl() {
+    TypeAdapter.Factory reflectiveTypeAdapterFactory =
+      new ReflectiveTypeAdapter.FactoryImpl() {
       @Override
-      public boolean skipField(Class<?> declaringClazz, Field f, Type declaredType) {
-        // TODO: support deserialization policy as well
-        return Gson.this.serializationExclusionStrategy.shouldSkipField(
+      public boolean serializeField(Class<?> declaringClazz, Field f, Type declaredType) {
+        return !Gson.this.serializationExclusionStrategy.shouldSkipField(
+            new FieldAttributes(declaringClazz, f, declaredType));
+      }
+      @Override
+      public boolean deserializeField(Class<?> declaringClazz, Field f, Type declaredType) {
+        return !Gson.this.deserializationExclusionStrategy.shouldSkipField(
             new FieldAttributes(declaringClazz, f, declaredType));
       }
     };
     
     this.miniGson = new MiniGson.Builder()
-        .factory(factory)
+        .withoutDefaultFactories()
+        .factory(TypeAdapters.BOOLEAN_FACTORY)
+        .factory(TypeAdapters.INTEGER_FACTORY)
+        .factory(TypeAdapters.DOUBLE_FACTORY)
+        .factory(TypeAdapters.LONG_FACTORY)
+        .factory(TypeAdapters.STRING_FACTORY)
+        .factory(CollectionTypeAdapter.FACTORY)
+        .factory(StringToValueMapTypeAdapter.FACTORY)
+        .factory(ArrayTypeAdapter.FACTORY)
+        .factory(reflectiveTypeAdapterFactory)
         .build();
   }
 
