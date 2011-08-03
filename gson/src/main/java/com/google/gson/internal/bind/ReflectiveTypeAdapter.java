@@ -31,42 +31,8 @@ import java.util.Map;
 /**
  * Adapts the fields of an object to the properties of a JSON object.
  */
-final class ReflectiveTypeAdapter<T> extends TypeAdapter<T>  {
-  public static final Factory FACTORY = new Factory() {
-    public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> type) {
-      Class<? super T> raw = type.getRawType();
-
-      if (!Object.class.isAssignableFrom(raw)) {
-        return null; // it's a primitive!
-      }
-
-      // TODO: use Joel's constructor calling code (with setAccessible)
-      Constructor<? super T> constructor;
-      try {
-        constructor = raw.getDeclaredConstructor();
-      } catch (NoSuchMethodException e) {
-        return null;
-      }
-
-      return new ReflectiveTypeAdapter<T>(constructor, getBoundFields(context, type, raw));
-    }
-
-    private Map<String, BoundField> getBoundFields(
-        MiniGson context, TypeToken<?> type, Class<?> raw) {
-      Map<String, BoundField> result = new LinkedHashMap<String, BoundField>();
-      while (raw != Object.class) {
-        for (Field field : raw.getDeclaredFields()) {
-          field.setAccessible(true); // TODO: don't call setAccessible unless necessary
-          Type fieldType = $Gson$Types.resolve(type.getType(), raw, field.getGenericType());
-          BoundField boundField = createBoundField(context, field, TypeToken.get(fieldType));
-          result.put(boundField.name, boundField);
-        }
-        type = TypeToken.get($Gson$Types.resolve(type.getType(), raw, raw.getGenericSuperclass()));
-        raw = type.getRawType();
-      }
-      return result;
-    }
-  };
+public final class ReflectiveTypeAdapter<T> extends TypeAdapter<T>  {
+  public static final Factory FACTORY = new FactoryImpl();
 
   private final Constructor<? super T> constructor;
   private final Map<String, BoundField> map;
@@ -143,6 +109,49 @@ final class ReflectiveTypeAdapter<T> extends TypeAdapter<T>  {
         field.set(value, fieldValue);
       }
     };
+  }
+
+  public static class FactoryImpl implements Factory {
+    public boolean skipField(Class<?> declaringClazz, Field f, Type declaringType) {
+      return false;
+    }
+    public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> type) {
+      Class<? super T> raw = type.getRawType();
+
+      if (!Object.class.isAssignableFrom(raw)) {
+        return null; // it's a primitive!
+      }
+
+      // TODO: use Joel's constructor calling code (with setAccessible)
+      Constructor<? super T> constructor;
+      try {
+        constructor = raw.getDeclaredConstructor();
+      } catch (NoSuchMethodException e) {
+        return null;
+      }
+
+      return new ReflectiveTypeAdapter<T>(constructor, getBoundFields(context, type, raw));
+    }
+
+    private Map<String, BoundField> getBoundFields(
+        MiniGson context, TypeToken<?> type, Class<?> raw) {
+      Map<String, BoundField> result = new LinkedHashMap<String, BoundField>();
+      Type declaredType = type.getType();
+      while (raw != Object.class) {
+        for (Field field : raw.getDeclaredFields()) {
+          if (skipField(raw, field, declaredType)) {
+            continue;
+          }
+          field.setAccessible(true); // TODO: don't call setAccessible unless necessary
+          Type fieldType = $Gson$Types.resolve(type.getType(), raw, field.getGenericType());
+          BoundField boundField = createBoundField(context, field, TypeToken.get(fieldType));
+          result.put(boundField.name, boundField);
+        }
+        type = TypeToken.get($Gson$Types.resolve(type.getType(), raw, raw.getGenericSuperclass()));
+        raw = type.getRawType();
+      }
+      return result;
+    }
   }
 
   static abstract class BoundField {
