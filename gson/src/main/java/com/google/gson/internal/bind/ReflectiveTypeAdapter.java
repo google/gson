@@ -174,7 +174,11 @@ public final class ReflectiveTypeAdapter<T> extends TypeAdapter<T>  {
             Type fieldType = $Gson$Types.resolve(type.getType(), raw, field.getGenericType());
             BoundField boundField = createBoundField(context, field, getFieldName(raw, field, declaredType),
                 TypeToken.get(fieldType), serialize, deserialize);
-            result.put(boundField.name, boundField);
+            BoundField previous = result.put(boundField.name, boundField);
+            if (previous != null) {
+              throw new IllegalArgumentException(declaredType
+                  + " declares multiple JSON fields named " + previous.name);
+            }
           }
         }
         type = TypeToken.get($Gson$Types.resolve(type.getType(), raw, raw.getGenericSuperclass()));
