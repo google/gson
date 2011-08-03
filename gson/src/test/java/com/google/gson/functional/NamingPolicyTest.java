@@ -103,13 +103,12 @@ public class NamingPolicyTest extends TestCase {
 
   public void testGsonDuplicateNameUsingSerializedNameFieldNamingPolicySerialization() {
     Gson gson = builder.create();
-    ClassWithDuplicateFields target = new ClassWithDuplicateFields(10);
-    String actual = gson.toJson(target);
-    assertEquals("{\"a\":10}", actual);
-
-    target = new ClassWithDuplicateFields(3.0D);
-    actual = gson.toJson(target);
-    assertEquals("{\"a\":3.0}", actual);
+    try {
+      ClassWithDuplicateFields target = new ClassWithDuplicateFields(10);
+      gson.toJson(target);
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
   }
 
   public void testGsonWithUpperCamelCaseSpacesPolicySerialiation() {
