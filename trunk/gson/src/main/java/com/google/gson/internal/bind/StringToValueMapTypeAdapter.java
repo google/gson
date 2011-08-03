@@ -31,7 +31,7 @@ import java.util.Map;
 /**
  * Adapt a map whose keys are strings.
  */
-final class StringToValueMapTypeAdapter<V> extends TypeAdapter<Map<String, V>> {
+public final class StringToValueMapTypeAdapter<V> extends TypeAdapter<Map<String, V>> {
   public static final Factory FACTORY = new Factory() {
     public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> typeToken) {
       Type type = typeToken.getType();

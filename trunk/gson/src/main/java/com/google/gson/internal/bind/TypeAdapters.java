@@ -24,7 +24,7 @@ import java.io.IOException;
 /**
  * Type adapters for basic types.
  */
-final class TypeAdapters {
+public final class TypeAdapters {
   private TypeAdapters() {}
 
   public static final TypeAdapter<Boolean> BOOLEAN = new TypeAdapter<Boolean>() {
