@@ -212,7 +212,10 @@ public final class Gson {
         .withoutDefaultFactories()
         .factory(TypeAdapters.BOOLEAN_FACTORY)
         .factory(TypeAdapters.INTEGER_FACTORY)
-        .factory(TypeAdapters.DOUBLE_FACTORY)
+        .factory(TypeAdapters.newFactory(double.class, Double.class,
+            doubleAdapter(serializeSpecialFloatingPointValues)))
+        .factory(TypeAdapters.newFactory(float.class, Float.class,
+            floatAdapter(serializeSpecialFloatingPointValues)))
         .factory(TypeAdapters.newFactory(long.class, Long.class,
             longAdapter(longSerializationPolicy)))
         .factory(TypeAdapters.STRING_FACTORY)
@@ -223,6 +226,44 @@ public final class Gson {
         .factory(reflectiveTypeAdapterFactory);
 
     this.miniGson = builder.build();
+  }
+
+  private TypeAdapter<Double> doubleAdapter(boolean serializeSpecialFloatingPointValues) {
+    if (serializeSpecialFloatingPointValues) {
+      return TypeAdapters.DOUBLE;
+    }
+    return new TypeAdapter<Double>() {
+      @Override public Double read(JsonReader reader) throws IOException {
+        return reader.nextDouble();
+      }
+      @Override public void write(JsonWriter writer, Double value) throws IOException {
+        checkValidFloatingPoint(value);
+        writer.value(value);
+      }
+    };
+  }
+
+  private TypeAdapter<Float> floatAdapter(boolean serializeSpecialFloatingPointValues) {
+    if (serializeSpecialFloatingPointValues) {
+      return TypeAdapters.FLOAT;
+    }
+    return new TypeAdapter<Float>() {
+      @Override public Float read(JsonReader reader) throws IOException {
+        return (float) reader.nextDouble();
+      }
+      @Override public void write(JsonWriter writer, Float value) throws IOException {
+        checkValidFloatingPoint(value);
+        writer.value(value);
+      }
+    };
+  }
+
+  private void checkValidFloatingPoint(double value) {
+    if (Double.isNaN(value) || Double.isInfinite(value)) {
+      throw new IllegalArgumentException(value
+          + " is not a valid double value as per JSON specification. To override this"
+          + " behavior, use GsonBuilder.serializeSpecialDoubleValues() method.");
+    }
   }
 
   private TypeAdapter<Long> longAdapter(LongSerializationPolicy longSerializationPolicy) {
