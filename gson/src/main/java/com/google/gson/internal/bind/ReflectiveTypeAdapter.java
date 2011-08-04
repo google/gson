@@ -166,6 +166,10 @@ public final class ReflectiveTypeAdapter<T> extends TypeAdapter<T>  {
     private Map<String, BoundField> getBoundFields(
         MiniGson context, TypeToken<?> type, Class<?> raw) {
       Map<String, BoundField> result = new LinkedHashMap<String, BoundField>();
+      if (raw.isInterface()) {
+        return result;
+      }
+
       Type declaredType = type.getType();
       while (raw != Object.class) {
         Field[] fields = raw.getDeclaredFields();
