@@ -16,18 +16,6 @@
 
 package com.google.gson;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
 import com.google.gson.internal.Streams;
 import com.google.gson.internal.bind.ArrayTypeAdapter;
 import com.google.gson.internal.bind.CollectionTypeAdapter;
@@ -41,6 +29,17 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.google.gson.stream.MalformedJsonException;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This is the main class for using Gson. Gson is typically used by first constructing a
@@ -159,9 +158,10 @@ public final class Gson {
    */
   public Gson() {
     this(DEFAULT_EXCLUSION_STRATEGY, DEFAULT_EXCLUSION_STRATEGY, DEFAULT_NAMING_POLICY,
-    new MappedObjectConstructor(DefaultTypeAdapters.getDefaultInstanceCreators()),
-    false, DefaultTypeAdapters.getAllDefaultSerializers(),
-    DefaultTypeAdapters.getAllDefaultDeserializers(), DEFAULT_JSON_NON_EXECUTABLE, true, false);
+        new MappedObjectConstructor(DefaultTypeAdapters.getDefaultInstanceCreators()),
+        false, DefaultTypeAdapters.getAllDefaultSerializers(),
+        DefaultTypeAdapters.getAllDefaultDeserializers(), DEFAULT_JSON_NON_EXECUTABLE, true, false,
+        false, LongSerializationPolicy.DEFAULT);
   }
 
   Gson(ExclusionStrategy deserializationExclusionStrategy,
@@ -170,7 +170,8 @@ public final class Gson {
       final MappedObjectConstructor objectConstructor, boolean serializeNulls,
       final ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers,
       final ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers,
-      boolean generateNonExecutableGson, boolean htmlSafe, boolean prettyPrinting) {
+      boolean generateNonExecutableGson, boolean htmlSafe, boolean prettyPrinting,
+      boolean serializeSpecialFloatingPointValues, LongSerializationPolicy longSerializationPolicy) {
     this.deserializationExclusionStrategy = deserializationExclusionStrategy;
     this.serializationExclusionStrategy = serializationExclusionStrategy;
     this.fieldNamingPolicy = fieldNamingPolicy;
@@ -207,19 +208,35 @@ public final class Gson {
       }
     };
 
-    this.miniGson = new MiniGson.Builder()
+    MiniGson.Builder builder = new MiniGson.Builder()
         .withoutDefaultFactories()
         .factory(TypeAdapters.BOOLEAN_FACTORY)
         .factory(TypeAdapters.INTEGER_FACTORY)
         .factory(TypeAdapters.DOUBLE_FACTORY)
-        .factory(TypeAdapters.LONG_FACTORY)
+        .factory(TypeAdapters.newFactory(long.class, Long.class,
+            longAdapter(longSerializationPolicy)))
         .factory(TypeAdapters.STRING_FACTORY)
         .factory(new GsonToMiniGsonTypeAdapter(serializers, deserializers, serializeNulls))
         .factory(CollectionTypeAdapter.FACTORY)
         .factory(StringToValueMapTypeAdapter.FACTORY)
         .factory(ArrayTypeAdapter.FACTORY)
-        .factory(reflectiveTypeAdapterFactory)
-        .build();
+        .factory(reflectiveTypeAdapterFactory);
+
+    this.miniGson = builder.build();
+  }
+
+  private TypeAdapter<Long> longAdapter(LongSerializationPolicy longSerializationPolicy) {
+    if (longSerializationPolicy == LongSerializationPolicy.DEFAULT) {
+      return TypeAdapters.LONG;
+    }
+    return new TypeAdapter<Long>() {
+      @Override public Long read(JsonReader reader) throws IOException {
+        return reader.nextLong();
+      }
+      @Override public void write(JsonWriter writer, Long value) throws IOException {
+        writer.value(value.toString());
+      }
+    };
   }
 
   private static ExclusionStrategy createExclusionStrategy() {
