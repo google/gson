@@ -25,8 +25,6 @@ import java.lang.reflect.TypeVariable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.google.gson.FieldAttributes;
-import com.google.gson.FieldAttributesTest;
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.internal.UnsafeAllocator;
 import com.google.gson.reflect.TypeToken;
@@ -138,10 +136,11 @@ public final class ReflectiveTypeAdapter<T> extends TypeAdapter<T>  {
   }
 
   private static Type getMoreSpecificType(Type type, Object obj, Object fieldValue) {
-    if (obj != null && (Object.class == type || type instanceof TypeVariable)) {
-      if (fieldValue != null) {
-        type = fieldValue.getClass();
-      }
+    if (obj == null || fieldValue == null) {
+      return type;
+    }
+    if (type == Object.class || type instanceof TypeVariable || type instanceof Class<?>) {
+      type = (Class<?>) fieldValue.getClass();
     }
     return type;
   }
