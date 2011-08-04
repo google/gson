@@ -18,7 +18,6 @@ package com.google.gson.internal.bind;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,9 +38,6 @@ public final class CollectionTypeAdapter<E> extends TypeAdapter<Collection<E>> {
   public static final Factory FACTORY = new Factory() {
     public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> typeToken) {
       Type type = typeToken.getType();
-      if (!(type instanceof ParameterizedType)) {
-        return null;
-      }
 
       Class<? super T> rawType = typeToken.getRawType();
       if (!Collection.class.isAssignableFrom(rawType)) {
@@ -69,16 +65,20 @@ public final class CollectionTypeAdapter<E> extends TypeAdapter<Collection<E>> {
       }
 
       @SuppressWarnings("unchecked") // create() doesn't define a type parameter
-      TypeAdapter<T> result = new CollectionTypeAdapter(elementTypeAdapter, constructor);
+      TypeAdapter<T> result = new CollectionTypeAdapter(context, elementType, elementTypeAdapter, constructor);
       return result;
     }
   };
 
+  private final MiniGson context;
+  private final Type elementType;
   private final TypeAdapter<E> elementTypeAdapter;
   private final Constructor<? extends Collection<E>> constructor;
 
-  public CollectionTypeAdapter(TypeAdapter<E> elementTypeAdapter,
+  public CollectionTypeAdapter(MiniGson context, Type elementType, TypeAdapter<E> elementTypeAdapter,
       Constructor<? extends Collection<E>> constructor) {
+    this.context = context;
+    this.elementType = elementType;
     this.elementTypeAdapter = elementTypeAdapter;
     this.constructor = constructor;
   }
@@ -107,7 +107,10 @@ public final class CollectionTypeAdapter<E> extends TypeAdapter<Collection<E>> {
 
     writer.beginArray();
     for (E element : collection) {
-      elementTypeAdapter.write(writer, element);
+      Type runtimeType = Reflection.getRuntimeTypeIfMoreSpecific(elementType, collection, element);
+      TypeAdapter t = runtimeType != elementType ?
+          context.getAdapter(TypeToken.get(runtimeType)) : elementTypeAdapter;
+      t.write(writer, element);
     }
     writer.endArray();
   }

@@ -15,19 +15,7 @@
  */
 package com.google.gson.functional;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.common.TestTypes.BagOfPrimitives;
-import com.google.gson.common.TestTypes.Base;
-import com.google.gson.common.TestTypes.ClassWithBaseArrayField;
-import com.google.gson.common.TestTypes.ClassWithBaseField;
-import com.google.gson.common.TestTypes.Nested;
-import com.google.gson.common.TestTypes.Sub;
-
-import junit.framework.TestCase;
-
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,6 +23,20 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
+import junit.framework.TestCase;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.common.TestTypes.BagOfPrimitives;
+import com.google.gson.common.TestTypes.Base;
+import com.google.gson.common.TestTypes.ClassWithBaseArrayField;
+import com.google.gson.common.TestTypes.ClassWithBaseCollectionField;
+import com.google.gson.common.TestTypes.ClassWithBaseField;
+import com.google.gson.common.TestTypes.Nested;
+import com.google.gson.common.TestTypes.Sub;
 
 /**
  * Functional tests for Json serialization and deserialization of classes with 
@@ -77,6 +79,18 @@ public class InheritanceTest extends TestCase {
   public void testClassWithBaseArrayFieldSerialization() {
     Base[] baseClasses = new Base[]{ new Sub(), new Sub()};
     ClassWithBaseArrayField sub = new ClassWithBaseArrayField(baseClasses);
+    JsonObject json = gson.toJsonTree(sub).getAsJsonObject();
+    JsonArray bases = json.get(ClassWithBaseArrayField.FIELD_KEY).getAsJsonArray();
+    for (JsonElement element : bases) { 
+      assertEquals(Sub.SUB_NAME, element.getAsJsonObject().get(Sub.SUB_FIELD_KEY).getAsString());
+    }
+  }
+
+  public void testClassWithBaseCollectionFieldSerialization() {
+    Collection<Base> baseClasses = new ArrayList<Base>();
+    baseClasses.add(new Sub());
+    baseClasses.add(new Sub());
+    ClassWithBaseCollectionField sub = new ClassWithBaseCollectionField(baseClasses);
     JsonObject json = gson.toJsonTree(sub).getAsJsonObject();
     JsonArray bases = json.get(ClassWithBaseArrayField.FIELD_KEY).getAsJsonArray();
     for (JsonElement element : bases) { 
