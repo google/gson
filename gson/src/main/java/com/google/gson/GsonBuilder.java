@@ -675,9 +675,6 @@ public final class GsonBuilder {
     addTypeAdaptersForDate(datePattern, dateStyle, timeStyle, customSerializers,
         customDeserializers);
 
-    customSerializers.registerIfAbsent(DefaultTypeAdapters.getDefaultSerializers(
-        serializeSpecialFloatingPointValues, longSerializationPolicy));
-
     customDeserializers.registerIfAbsent(DefaultTypeAdapters.getDefaultDeserializers());
 
     ParameterizedTypeHandlerMap<InstanceCreator<?>> customInstanceCreators =
@@ -690,12 +687,11 @@ public final class GsonBuilder {
 
     MappedObjectConstructor objConstructor = new MappedObjectConstructor(customInstanceCreators);
 
-    Gson gson = new Gson(new DisjunctionExclusionStrategy(deserializationStrategies),
+    return new Gson(new DisjunctionExclusionStrategy(deserializationStrategies),
         new DisjunctionExclusionStrategy(serializationStrategies),
         fieldNamingPolicy, objConstructor, serializeNulls,
         customSerializers, customDeserializers, generateNonExecutableJson, escapeHtmlChars,
-        prettyPrinting);
-    return gson;
+        prettyPrinting, serializeSpecialFloatingPointValues, longSerializationPolicy);
   }
 
   private static void addTypeAdaptersForDate(String datePattern, int dateStyle, int timeStyle,

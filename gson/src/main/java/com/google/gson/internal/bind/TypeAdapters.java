@@ -106,7 +106,7 @@ public final class TypeAdapters {
     };
   }
 
-  private static <T> TypeAdapter.Factory newFactory(
+  public static <T> TypeAdapter.Factory newFactory(
       final Class<T> unboxed, final Class<T> boxed, final TypeAdapter<T> typeAdapter) {
     return new TypeAdapter.Factory() {
       @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
