@@ -79,7 +79,7 @@ public final class StringToValueMapTypeAdapter<V> extends TypeAdapter<Map<String
       return null;
     }
 
-    Map<String, V> map = MiniGson.newInstance(constructor);
+    Map<String, V> map = Reflection.newInstance(constructor);
     reader.beginObject();
     while (reader.hasNext()) {
       String key = reader.nextName();
