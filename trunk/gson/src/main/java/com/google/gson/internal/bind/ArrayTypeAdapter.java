@@ -44,15 +44,17 @@ public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
       TypeAdapter<?> componentTypeAdapter = context.getAdapter(TypeToken.get(componentType));
       @SuppressWarnings("unchecked") // create() doesn't define a type parameter
       TypeAdapter<T> result = new ArrayTypeAdapter(
-          componentTypeAdapter, $Gson$Types.getRawType(componentType));
+          context, componentTypeAdapter, $Gson$Types.getRawType(componentType));
       return result;
     }
   };
 
+  private final MiniGson context;
   private final Class<E> componentType;
   private final TypeAdapter<E> componentTypeAdapter;
 
-  public ArrayTypeAdapter(TypeAdapter<E> componentTypeAdapter, Class<E> componentType) {
+  public ArrayTypeAdapter(MiniGson context, TypeAdapter<E> componentTypeAdapter, Class<E> componentType) {
+    this.context = context;
     this.componentTypeAdapter = componentTypeAdapter;
     this.componentType = componentType;
   }
@@ -86,7 +88,10 @@ public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
     writer.beginArray();
     for (int i = 0, length = Array.getLength(array); i < length; i++) {
       final E value = (E) Array.get(array, i);
-      componentTypeAdapter.write(writer, value);
+      Type runtimeType = Reflection.getRuntimeTypeIfMoreSpecific(componentType, array, value);
+      TypeAdapter t = runtimeType != componentType ?
+          context.getAdapter(TypeToken.get(runtimeType)) : componentTypeAdapter;
+      t.write(writer, value);
     }
     writer.endArray();
   }

@@ -60,7 +60,7 @@ public final class ReflectiveTypeAdapter<T> extends TypeAdapter<T>  {
 
     T instance;
     if (constructor != null) {
-      instance = (T) MiniGson.newInstance(constructor);
+      instance = (T) Reflection.newInstance(constructor);
     } else {
       try {
         instance = (T) unsafeAllocator.newInstance(rawType);
@@ -122,7 +122,7 @@ public final class ReflectiveTypeAdapter<T> extends TypeAdapter<T>  {
           throws IOException, IllegalAccessException {
         Object fieldValue = field.get(value);
         Type declaredTypeOfField = fieldType.getType();
-        Type resolvedTypeOfField = getMoreSpecificType(declaredTypeOfField, value, fieldValue);
+        Type resolvedTypeOfField = Reflection.getRuntimeTypeIfMoreSpecific(declaredTypeOfField, value, fieldValue);
         TypeAdapter t = resolvedTypeOfField != declaredTypeOfField ?
             context.getAdapter(TypeToken.get(resolvedTypeOfField)) : this.typeAdapter;
         t.write(writer, fieldValue);
@@ -133,16 +133,6 @@ public final class ReflectiveTypeAdapter<T> extends TypeAdapter<T>  {
         field.set(value, fieldValue);
       }
     };
-  }
-
-  private static Type getMoreSpecificType(Type type, Object obj, Object fieldValue) {
-    if (obj == null || fieldValue == null) {
-      return type;
-    }
-    if (type == Object.class || type instanceof TypeVariable || type instanceof Class<?>) {
-      type = (Class<?>) fieldValue.getClass();
-    }
-    return type;
   }
 
   public static class FactoryImpl implements Factory {
