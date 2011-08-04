@@ -16,6 +16,9 @@
 
 package com.google.gson.common;
 
+import java.lang.reflect.Type;
+import java.util.Collection;
+
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
@@ -25,8 +28,6 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.SerializedName;
-
-import java.lang.reflect.Type;
 
 /**
  * Types used for testing JSON serialization and deserialization
@@ -62,6 +63,14 @@ public class TestTypes {
     public static final String FIELD_KEY = "base";
     public final Base[] base;
     public ClassWithBaseArrayField(Base[] base) {
+      this.base = base;
+    }
+  }
+
+  public static class ClassWithBaseCollectionField {
+    public static final String FIELD_KEY = "base";
+    public final Collection<Base> base;
+    public ClassWithBaseCollectionField(Collection<Base> base) {
       this.base = base;
     }
   }
