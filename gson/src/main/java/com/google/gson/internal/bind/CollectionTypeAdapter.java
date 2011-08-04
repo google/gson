@@ -89,7 +89,7 @@ public final class CollectionTypeAdapter<E> extends TypeAdapter<Collection<E>> {
       return null;
     }
 
-    Collection<E> collection = MiniGson.newInstance(constructor);
+    Collection<E> collection = Reflection.newInstance(constructor);
     reader.beginArray();
     while (reader.hasNext()) {
       E instance = elementTypeAdapter.read(reader);

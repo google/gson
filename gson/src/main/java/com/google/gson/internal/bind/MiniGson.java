@@ -16,17 +16,16 @@
 
 package com.google.gson.internal.bind;
 
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 
 /**
  * A basic binding between JSON and Java objects.
@@ -65,23 +64,6 @@ public final class MiniGson {
       factories.add(ReflectiveTypeAdapter.FACTORY);
     }
     this.factories = Collections.unmodifiableList(factories);
-  }
-
-  // TODO: this should use Joel's unsafe constructor stuff
-  static <T> T newInstance(Constructor<T> constructor) {
-    try {
-      Object[] args = null;
-      return constructor.newInstance(args);
-    } catch (InstantiationException e) {
-      // TODO: JsonParseException ?
-      throw new RuntimeException(e);
-    } catch (InvocationTargetException e) {
-      // TODO: don't wrap if cause is unchecked!
-      // TODO: JsonParseException ?
-      throw new RuntimeException(e.getTargetException());
-    } catch (IllegalAccessException e) {
-      throw new AssertionError(e);
-    }
   }
 
   /**
