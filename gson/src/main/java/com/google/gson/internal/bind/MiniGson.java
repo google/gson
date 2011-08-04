@@ -53,6 +53,7 @@ public final class MiniGson {
       factories.add(TypeAdapters.BOOLEAN_FACTORY);
       factories.add(TypeAdapters.INTEGER_FACTORY);
       factories.add(TypeAdapters.DOUBLE_FACTORY);
+      factories.add(TypeAdapters.FLOAT_FACTORY);
       factories.add(TypeAdapters.LONG_FACTORY);
       factories.add(TypeAdapters.STRING_FACTORY);
     }

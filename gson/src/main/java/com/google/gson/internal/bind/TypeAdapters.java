@@ -75,6 +75,18 @@ public final class TypeAdapters {
   public static final TypeAdapter.Factory DOUBLE_FACTORY
       = newFactory(double.class, Double.class, DOUBLE);
 
+  public static final TypeAdapter<Float> FLOAT = new TypeAdapter<Float>() {
+    public Float read(JsonReader reader) throws IOException {
+      return (float) reader.nextDouble();
+    }
+    public void write(JsonWriter writer, Float value) throws IOException {
+      writer.value(value);
+    }
+  };
+
+  public static final TypeAdapter.Factory FLOAT_FACTORY
+      = newFactory(float.class, Float.class, FLOAT);
+
   public static final TypeAdapter<String> STRING = new TypeAdapter<String>() {
     public String read(JsonReader reader) throws IOException {
       return reader.nextString();
