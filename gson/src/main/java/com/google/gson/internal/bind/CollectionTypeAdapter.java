@@ -107,7 +107,7 @@ public final class CollectionTypeAdapter<E> extends TypeAdapter<Collection<E>> {
 
     writer.beginArray();
     for (E element : collection) {
-      Type runtimeType = Reflection.getRuntimeTypeIfMoreSpecific(elementType, collection, element);
+      Type runtimeType = Reflection.getRuntimeTypeIfMoreSpecific(elementType, element);
       TypeAdapter t = runtimeType != elementType ?
           context.getAdapter(TypeToken.get(runtimeType)) : elementTypeAdapter;
       t.write(writer, element);

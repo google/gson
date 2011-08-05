@@ -88,7 +88,7 @@ public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
     writer.beginArray();
     for (int i = 0, length = Array.getLength(array); i < length; i++) {
       final E value = (E) Array.get(array, i);
-      Type runtimeType = Reflection.getRuntimeTypeIfMoreSpecific(componentType, array, value);
+      Type runtimeType = Reflection.getRuntimeTypeIfMoreSpecific(componentType, value);
       TypeAdapter t = runtimeType != componentType ?
           context.getAdapter(TypeToken.get(runtimeType)) : componentTypeAdapter;
       t.write(writer, value);
