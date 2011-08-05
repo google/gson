@@ -49,13 +49,12 @@ public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
     }
   };
 
-  private final MiniGson context;
   private final Class<E> componentType;
   private final TypeAdapter<E> componentTypeAdapter;
 
   public ArrayTypeAdapter(MiniGson context, TypeAdapter<E> componentTypeAdapter, Class<E> componentType) {
-    this.context = context;
-    this.componentTypeAdapter = componentTypeAdapter;
+    this.componentTypeAdapter =
+      new TypeAdapterRuntimeTypeWrapper<E>(context, componentTypeAdapter, componentType);
     this.componentType = componentType;
   }
 
@@ -88,10 +87,7 @@ public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
     writer.beginArray();
     for (int i = 0, length = Array.getLength(array); i < length; i++) {
       final E value = (E) Array.get(array, i);
-      Type runtimeType = Reflection.getRuntimeTypeIfMoreSpecific(componentType, value);
-      TypeAdapter t = runtimeType != componentType ?
-          context.getAdapter(TypeToken.get(runtimeType)) : componentTypeAdapter;
-      t.write(writer, value);
+      componentTypeAdapter.write(writer, value);
     }
     writer.endArray();
   }

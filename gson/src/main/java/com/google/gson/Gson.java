@@ -209,7 +209,7 @@ public final class Gson {
     };
 
     TypeAdapter.Factory excludedTypeFactory = new TypeAdapter.Factory() {
-      @Override public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> type) {
+      public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> type) {
         Class<?> rawType = type.getRawType();
         if (serializationExclusionStrategy.shouldSkipClass(rawType)
             || deserializationExclusionStrategy.shouldSkipClass(rawType)) {
