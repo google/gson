@@ -70,16 +70,13 @@ public final class CollectionTypeAdapter<E> extends TypeAdapter<Collection<E>> {
     }
   };
 
-  private final MiniGson context;
-  private final Type elementType;
   private final TypeAdapter<E> elementTypeAdapter;
   private final Constructor<? extends Collection<E>> constructor;
 
   public CollectionTypeAdapter(MiniGson context, Type elementType, TypeAdapter<E> elementTypeAdapter,
       Constructor<? extends Collection<E>> constructor) {
-    this.context = context;
-    this.elementType = elementType;
-    this.elementTypeAdapter = elementTypeAdapter;
+    this.elementTypeAdapter =
+      new TypeAdapterRuntimeTypeWrapper<E>(context, elementTypeAdapter, elementType);
     this.constructor = constructor;
   }
 
@@ -107,10 +104,7 @@ public final class CollectionTypeAdapter<E> extends TypeAdapter<Collection<E>> {
 
     writer.beginArray();
     for (E element : collection) {
-      Type runtimeType = Reflection.getRuntimeTypeIfMoreSpecific(elementType, element);
-      TypeAdapter t = runtimeType != elementType ?
-          context.getAdapter(TypeToken.get(runtimeType)) : elementTypeAdapter;
-      t.write(writer, element);
+      elementTypeAdapter.write(writer, element);
     }
     writer.endArray();
   }
