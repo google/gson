@@ -121,10 +121,8 @@ public final class ReflectiveTypeAdapter<T> extends TypeAdapter<T>  {
       @Override void write(JsonWriter writer, Object value)
           throws IOException, IllegalAccessException {
         Object fieldValue = field.get(value);
-        Type declaredTypeOfField = fieldType.getType();
-        Type resolvedTypeOfField = Reflection.getRuntimeTypeIfMoreSpecific(declaredTypeOfField, fieldValue);
-        TypeAdapter t = resolvedTypeOfField != declaredTypeOfField ?
-            context.getAdapter(TypeToken.get(resolvedTypeOfField)) : this.typeAdapter;
+        TypeAdapter t =
+          new TypeAdapterRuntimeTypeWrapper(context, this.typeAdapter, fieldType.getType());
         t.write(writer, fieldValue);
       }
       @Override void read(JsonReader reader, Object value)
