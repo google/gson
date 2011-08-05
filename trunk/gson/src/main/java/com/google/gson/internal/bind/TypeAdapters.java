@@ -98,6 +98,16 @@ public final class TypeAdapters {
 
   public static final TypeAdapter.Factory STRING_FACTORY = newFactory(String.class, STRING);
 
+  public static final TypeAdapter EXCLUDED_TYPE_ADAPTER = new TypeAdapter<Object>() {
+    @Override public Object read(JsonReader reader) throws IOException {
+      reader.skipValue();
+      return null;
+    }
+    @Override public void write(JsonWriter writer, Object value) throws IOException {
+      writer.nullValue();
+    }
+  };
+
   public static <T> TypeAdapter.Factory newFactory(
       final TypeToken<T> type, final TypeAdapter<T> typeAdapter) {
     return new TypeAdapter.Factory() {

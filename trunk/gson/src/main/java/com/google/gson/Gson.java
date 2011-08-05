@@ -164,8 +164,8 @@ public final class Gson {
         false, LongSerializationPolicy.DEFAULT);
   }
 
-  Gson(ExclusionStrategy deserializationExclusionStrategy,
-      ExclusionStrategy serializationExclusionStrategy,
+  Gson(final ExclusionStrategy deserializationExclusionStrategy,
+      final ExclusionStrategy serializationExclusionStrategy,
       final FieldNamingStrategy2 fieldNamingPolicy,
       final MappedObjectConstructor objectConstructor, boolean serializeNulls,
       final ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers,
@@ -208,6 +208,18 @@ public final class Gson {
       }
     };
 
+    TypeAdapter.Factory excludedTypeFactory = new TypeAdapter.Factory() {
+      @Override public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> type) {
+        Class<?> rawType = type.getRawType();
+        if (serializationExclusionStrategy.shouldSkipClass(rawType)
+            || deserializationExclusionStrategy.shouldSkipClass(rawType)) {
+          return TypeAdapters.EXCLUDED_TYPE_ADAPTER;
+        } else {
+          return null;
+        }
+      }
+    };
+
     MiniGson.Builder builder = new MiniGson.Builder()
         .withoutDefaultFactories()
         .factory(TypeAdapters.BOOLEAN_FACTORY)
@@ -219,6 +231,7 @@ public final class Gson {
         .factory(TypeAdapters.newFactory(long.class, Long.class,
             longAdapter(longSerializationPolicy)))
         .factory(TypeAdapters.STRING_FACTORY)
+        .factory(excludedTypeFactory)
         .factory(new GsonToMiniGsonTypeAdapter(serializers, deserializers, serializeNulls))
         .factory(CollectionTypeAdapter.FACTORY)
         .factory(StringToValueMapTypeAdapter.FACTORY)
