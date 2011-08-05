@@ -23,15 +23,11 @@ import java.lang.reflect.TypeVariable;
 final class Reflection {
   /**
    * Finds a compatible runtime type if it is more specific
-   * In case of a field of an object, parent is the object instance, and child is the field value.
-   * In case of an Array, parent is the array instance, and the child is the array element.
    */
-  public static Type getRuntimeTypeIfMoreSpecific(Type type, Object parent, Object child) {
-    if (parent == null || child == null) {
-      return type;
-    }
-    if (type == Object.class || type instanceof TypeVariable || type instanceof Class<?>) {
-      type = (Class<?>) child.getClass();
+  public static Type getRuntimeTypeIfMoreSpecific(Type type, Object value) {
+    if (value != null
+        && (type == Object.class || type instanceof TypeVariable || type instanceof Class<?>)) {
+      type = (Class<?>) value.getClass();
     }
     return type;
   }
