@@ -42,13 +42,28 @@ final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
   @SuppressWarnings("unchecked")
   @Override
   public void write(JsonWriter writer, T value) throws IOException {
-    TypeAdapter t = delegate;
-    if (delegate instanceof ReflectiveTypeAdapter) {
-      Type runtimeType = Reflection.getRuntimeTypeIfMoreSpecific(type, value);
-      if (runtimeType != type) {
-        t = context.getAdapter(TypeToken.get(runtimeType));
+    // Order of preference for choosing type adapters
+    // First preference: a type adapter registered for the runtime type
+    // Second preference: a type adapter registered for the declared type
+    // Third preference: reflective type adapter for the runtime type (if it is a sub class of the declared type)
+    // Fourth preference: reflective type adapter for the declared type
+
+    TypeAdapter chosen = delegate;
+    Type runtimeType = Reflection.getRuntimeTypeIfMoreSpecific(type, value);
+    if (runtimeType != type) {
+      TypeAdapter runtimeTypeAdapter = context.getAdapter(TypeToken.get(runtimeType));
+      if (!(runtimeTypeAdapter instanceof ReflectiveTypeAdapter)) {
+        // The user registered a type adapter for the runtime type, so we will use that
+        chosen = runtimeTypeAdapter;
+      } else if (!(delegate instanceof ReflectiveTypeAdapter)) {
+        // The user registered a type adapter for Base class, so we prefer it over the
+        // reflective type adapter for the runtime type
+        chosen = delegate;
+      } else {
+        // Use the type adapter for runtime type
+        chosen = runtimeTypeAdapter;
       }
     }
-    t.write(writer, value);
+    chosen.write(writer, value);
   }
 }
