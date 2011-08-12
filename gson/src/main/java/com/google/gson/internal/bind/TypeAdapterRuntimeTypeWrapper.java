@@ -42,9 +42,13 @@ final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
   @SuppressWarnings("unchecked")
   @Override
   public void write(JsonWriter writer, T value) throws IOException {
-    Type runtimeType = Reflection.getRuntimeTypeIfMoreSpecific(type, value);
-    TypeAdapter t = runtimeType != type ?
-        context.getAdapter(TypeToken.get(runtimeType)) : delegate;
+    TypeAdapter t = delegate;
+    if (delegate instanceof ReflectiveTypeAdapter) {
+      Type runtimeType = Reflection.getRuntimeTypeIfMoreSpecific(type, value);
+      if (runtimeType != type) {
+        t = context.getAdapter(TypeToken.get(runtimeType));
+      }
+    }
     t.write(writer, value);
   }
 }
