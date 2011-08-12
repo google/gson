@@ -676,11 +676,7 @@ public final class Gson {
     if (json == null) {
       return null;
     }
-    JsonDeserializationContext context = new JsonDeserializationContext(
-        new ObjectNavigator(deserializationExclusionStrategy), fieldNamingPolicy,
-        deserializers, objectConstructor);
-    T target = (T) context.deserialize(json, typeOfT);
-    return target;
+    return (T) miniGson.getAdapter(TypeToken.get(typeOfT)).fromJsonElement(json);
   }
 
   @Override
