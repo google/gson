@@ -18,6 +18,8 @@ package com.google.gson;
 
 import com.google.gson.internal.Streams;
 import com.google.gson.internal.bind.ArrayTypeAdapter;
+import com.google.gson.internal.bind.BigDecimalTypeAdapter;
+import com.google.gson.internal.bind.BigIntegerTypeAdapter;
 import com.google.gson.internal.bind.CollectionTypeAdapter;
 import com.google.gson.internal.bind.MiniGson;
 import com.google.gson.internal.bind.ReflectiveTypeAdapter;
@@ -29,6 +31,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.google.gson.stream.MalformedJsonException;
+
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -37,6 +40,8 @@ import java.io.Writer;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -231,6 +236,8 @@ public final class Gson {
         .factory(TypeAdapters.newFactory(long.class, Long.class,
             longAdapter(longSerializationPolicy)))
         .factory(TypeAdapters.STRING_FACTORY)
+        .typeAdapter(BigDecimal.class, new BigDecimalTypeAdapter())
+        .typeAdapter(BigInteger.class, new BigIntegerTypeAdapter())
         .factory(excludedTypeFactory)
         .factory(new GsonToMiniGsonTypeAdapter(serializers, deserializers, serializeNulls))
         .factory(CollectionTypeAdapter.FACTORY)
