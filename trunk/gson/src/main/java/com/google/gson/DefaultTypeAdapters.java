@@ -16,12 +16,8 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.$Gson$Types;
-
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -53,6 +49,8 @@ import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.UUID;
 
+import com.google.gson.internal.$Gson$Types;
+
 /**
  * List of all the default type adapters ({@link JsonSerializer}s, {@link JsonDeserializer}s,
  * and {@link InstanceCreator}s.
@@ -81,19 +79,12 @@ final class DefaultTypeAdapters {
       new DefaultInetAddressAdapter();
       private static final CollectionTypeAdapter COLLECTION_TYPE_ADAPTER = new CollectionTypeAdapter();
   private static final MapTypeAdapter MAP_TYPE_ADAPTER = new MapTypeAdapter();
-  private static final BigDecimalTypeAdapter BIG_DECIMAL_TYPE_ADAPTER = new BigDecimalTypeAdapter();
-  private static final BigIntegerTypeAdapter BIG_INTEGER_TYPE_ADAPTER = new BigIntegerTypeAdapter();
 
-  private static final BooleanTypeAdapter BOOLEAN_TYPE_ADAPTER = new BooleanTypeAdapter();
   private static final ByteTypeAdapter BYTE_TYPE_ADAPTER = new ByteTypeAdapter();
   private static final CharacterTypeAdapter CHARACTER_TYPE_ADAPTER = new CharacterTypeAdapter();
-  private static final DoubleDeserializer DOUBLE_TYPE_ADAPTER = new DoubleDeserializer();
-  private static final FloatDeserializer FLOAT_TYPE_ADAPTER = new FloatDeserializer();
-  private static final IntegerTypeAdapter INTEGER_TYPE_ADAPTER = new IntegerTypeAdapter();
   private static final LongDeserializer LONG_DESERIALIZER = new LongDeserializer();
   private static final NumberTypeAdapter NUMBER_TYPE_ADAPTER = new NumberTypeAdapter();
   private static final ShortTypeAdapter SHORT_TYPE_ADAPTER = new ShortTypeAdapter();
-  private static final StringTypeAdapter STRING_TYPE_ADAPTER = new StringTypeAdapter();
   private static final StringBuilderTypeAdapter STRING_BUILDER_TYPE_ADAPTER =
       new StringBuilderTypeAdapter();
   private static final StringBufferTypeAdapter STRING_BUFFER_TYPE_ADAPTER =
@@ -130,23 +121,15 @@ final class DefaultTypeAdapters {
     map.register(Time.class, TIME_TYPE_ADAPTER, true);
     map.register(Calendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER, true);
     map.register(GregorianCalendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER, true);
-    map.register(BigDecimal.class, BIG_DECIMAL_TYPE_ADAPTER, true);
-    map.register(BigInteger.class, BIG_INTEGER_TYPE_ADAPTER, true);
     map.register(BitSet.class, BIT_SET_ADAPTER, true);
 
     // Add primitive serializers
-    map.register(Boolean.class, BOOLEAN_TYPE_ADAPTER, true);
-    map.register(boolean.class, BOOLEAN_TYPE_ADAPTER, true);
     map.register(Byte.class, BYTE_TYPE_ADAPTER, true);
     map.register(byte.class, BYTE_TYPE_ADAPTER, true);
     map.register(Character.class, CHARACTER_TYPE_ADAPTER, true);
-    map.register(char.class, CHARACTER_TYPE_ADAPTER, true);
-    map.register(Integer.class, INTEGER_TYPE_ADAPTER, true);
-    map.register(int.class, INTEGER_TYPE_ADAPTER, true);
     map.register(Number.class, NUMBER_TYPE_ADAPTER, true);
     map.register(Short.class, SHORT_TYPE_ADAPTER, true);
     map.register(short.class, SHORT_TYPE_ADAPTER, true);
-    map.register(String.class, STRING_TYPE_ADAPTER, true);
     map.register(StringBuilder.class, STRING_BUILDER_TYPE_ADAPTER, true);
     map.register(StringBuffer.class, STRING_BUFFER_TYPE_ADAPTER, true);
 
@@ -178,29 +161,17 @@ final class DefaultTypeAdapters {
     map.register(Time.class, wrapDeserializer(TIME_TYPE_ADAPTER), true);
     map.register(Calendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER, true);
     map.register(GregorianCalendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER, true);
-    map.register(BigDecimal.class, BIG_DECIMAL_TYPE_ADAPTER, true);
-    map.register(BigInteger.class, BIG_INTEGER_TYPE_ADAPTER, true);
     map.register(BitSet.class, BIT_SET_ADAPTER, true);
 
     // Add primitive deserializers
-    map.register(Boolean.class, BOOLEAN_TYPE_ADAPTER, true);
-    map.register(boolean.class, BOOLEAN_TYPE_ADAPTER, true);
     map.register(Byte.class, BYTE_TYPE_ADAPTER, true);
     map.register(byte.class, BYTE_TYPE_ADAPTER, true);
     map.register(Character.class, wrapDeserializer(CHARACTER_TYPE_ADAPTER), true);
-    map.register(char.class, wrapDeserializer(CHARACTER_TYPE_ADAPTER), true);
-    map.register(Double.class, DOUBLE_TYPE_ADAPTER, true);
-    map.register(double.class, DOUBLE_TYPE_ADAPTER, true);
-    map.register(Float.class, FLOAT_TYPE_ADAPTER, true);
-    map.register(float.class, FLOAT_TYPE_ADAPTER, true);
-    map.register(Integer.class, INTEGER_TYPE_ADAPTER, true);
-    map.register(int.class, INTEGER_TYPE_ADAPTER, true);
     map.register(Long.class, LONG_DESERIALIZER, true);
     map.register(long.class, LONG_DESERIALIZER, true);
     map.register(Number.class, NUMBER_TYPE_ADAPTER, true);
     map.register(Short.class, SHORT_TYPE_ADAPTER, true);
     map.register(short.class, SHORT_TYPE_ADAPTER, true);
-    map.register(String.class, wrapDeserializer(STRING_TYPE_ADAPTER), true);
     map.register(StringBuilder.class, wrapDeserializer(STRING_BUILDER_TYPE_ADAPTER), true);
     map.register(StringBuffer.class, wrapDeserializer(STRING_BUFFER_TYPE_ADAPTER), true);
 
@@ -710,57 +681,6 @@ final class DefaultTypeAdapters {
     }
   }
 
-  private static final class BigDecimalTypeAdapter
-      implements JsonSerializer<BigDecimal>, JsonDeserializer<BigDecimal> {
-    public JsonElement serialize(BigDecimal src, Type typeOfSrc, JsonSerializationContext context) {
-      return new JsonPrimitive(src);
-    }
-
-    public BigDecimal deserialize(JsonElement json, Type typeOfT,
-        JsonDeserializationContext context) throws JsonParseException {
-      try {
-        return json.getAsBigDecimal();
-      } catch (NumberFormatException e) {
-        throw new JsonSyntaxException(e);
-      } catch (UnsupportedOperationException e) {
-        throw new JsonSyntaxException(e);
-      } catch (IllegalStateException e) {
-        throw new JsonSyntaxException(e);
-      }
-    }
-
-    @Override
-    public String toString() {
-      return BigDecimalTypeAdapter.class.getSimpleName();
-    }
-  }
-
-  private static final class BigIntegerTypeAdapter
-      implements JsonSerializer<BigInteger>, JsonDeserializer<BigInteger> {
-
-    public JsonElement serialize(BigInteger src, Type typeOfSrc, JsonSerializationContext context) {
-      return new JsonPrimitive(src);
-    }
-
-    public BigInteger deserialize(JsonElement json, Type typeOfT,
-        JsonDeserializationContext context) throws JsonParseException {
-      try {
-        return json.getAsBigInteger();
-      } catch (NumberFormatException e) {
-        throw new JsonSyntaxException(e);
-      } catch (UnsupportedOperationException e) {
-        throw new JsonSyntaxException(e);
-      } catch (IllegalStateException e) {
-        throw new JsonSyntaxException(e);
-      }
-    }
-
-    @Override
-    public String toString() {
-      return BigIntegerTypeAdapter.class.getSimpleName();
-    }
-  }
-
   private static final class NumberTypeAdapter
       implements JsonSerializer<Number>, JsonDeserializer<Number> {
     public JsonElement serialize(Number src, Type typeOfSrc, JsonSerializationContext context) {
@@ -820,31 +740,6 @@ final class DefaultTypeAdapters {
     @Override
     public String toString() {
       return LongDeserializer.class.getSimpleName();
-    }
-  }
-
-  private static final class IntegerTypeAdapter
-      implements JsonSerializer<Integer>, JsonDeserializer<Integer> {
-    public JsonElement serialize(Integer src, Type typeOfSrc, JsonSerializationContext context) {
-      return new JsonPrimitive(src);
-    }
-
-    public Integer deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-        throws JsonParseException {
-      try {
-        return json.getAsInt();
-      } catch (NumberFormatException e) {
-        throw new JsonSyntaxException(e);
-      } catch (UnsupportedOperationException e) {
-        throw new JsonSyntaxException(e);
-      } catch (IllegalStateException e) {
-        throw new JsonSyntaxException(e);
-      }
-    }
-
-    @Override
-    public String toString() {
-      return IntegerTypeAdapter.class.getSimpleName();
     }
   }
 
@@ -916,26 +811,6 @@ final class DefaultTypeAdapters {
     }
   }
 
-  private static final class FloatDeserializer implements JsonDeserializer<Float> {
-    public Float deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-        throws JsonParseException {
-      try {
-        return json.getAsFloat();
-      } catch (NumberFormatException e) {
-        throw new JsonSyntaxException(e);
-      } catch (UnsupportedOperationException e) {
-        throw new JsonSyntaxException(e);
-      } catch (IllegalStateException e) {
-        throw new JsonSyntaxException(e);
-      }
-    }
-
-    @Override
-    public String toString() {
-      return FloatDeserializer.class.getSimpleName();
-    }
-  }
-
   static final class DoubleSerializer implements JsonSerializer<Double> {
     private final boolean serializeSpecialFloatingPointValues;
 
@@ -955,26 +830,6 @@ final class DefaultTypeAdapters {
     }
   }
 
-  private static final class DoubleDeserializer implements JsonDeserializer<Double> {
-    public Double deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-        throws JsonParseException {
-      try {
-        return json.getAsDouble();
-      } catch (NumberFormatException e) {
-        throw new JsonSyntaxException(e);
-      } catch (UnsupportedOperationException e) {
-        throw new JsonSyntaxException(e);
-      } catch (IllegalStateException e) {
-        throw new JsonSyntaxException(e);
-      }
-    }
-
-    @Override
-    public String toString() {
-      return DoubleDeserializer.class.getSimpleName();
-    }
-  }
-
   private static final class CharacterTypeAdapter
       implements JsonSerializer<Character>, JsonDeserializer<Character> {
     public JsonElement serialize(Character src, Type typeOfSrc, JsonSerializationContext context) {
@@ -989,23 +844,6 @@ final class DefaultTypeAdapters {
     @Override
     public String toString() {
       return CharacterTypeAdapter.class.getSimpleName();
-    }
-  }
-
-  private static final class StringTypeAdapter
-      implements JsonSerializer<String>, JsonDeserializer<String> {
-    public JsonElement serialize(String src, Type typeOfSrc, JsonSerializationContext context) {
-      return new JsonPrimitive(src);
-    }
-
-    public String deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-        throws JsonParseException {
-      return json.getAsString();
-    }
-
-    @Override
-    public String toString() {
-      return StringTypeAdapter.class.getSimpleName();
     }
   }
 
@@ -1040,29 +878,6 @@ final class DefaultTypeAdapters {
     @Override
     public String toString() {
       return StringBufferTypeAdapter.class.getSimpleName();
-    }
-  }
-
-  private static final class BooleanTypeAdapter
-      implements JsonSerializer<Boolean>, JsonDeserializer<Boolean> {
-    public JsonElement serialize(Boolean src, Type typeOfSrc, JsonSerializationContext context) {
-      return new JsonPrimitive(src);
-    }
-
-    public Boolean deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-        throws JsonParseException {
-      try {
-        return json.getAsBoolean();
-      } catch (UnsupportedOperationException e) {
-        throw new JsonSyntaxException(e);
-      } catch (IllegalStateException e) {
-        throw new JsonSyntaxException(e);
-      }
-    }
-
-    @Override
-    public String toString() {
-      return BooleanTypeAdapter.class.getSimpleName();
     }
   }
 
