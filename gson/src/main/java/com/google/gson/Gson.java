@@ -638,9 +638,6 @@ public final class Gson {
     try {
       TypeAdapter<T> typeAdapter = (TypeAdapter<T>)miniGson.getAdapter(TypeToken.get(typeOfT));
       return typeAdapter.read(reader);
-    } catch (IllegalStateException e) {
-      // TODO(inder): Figure out whether it is indeed right to rethrow this as JsonSyntaxException
-      throw new JsonSyntaxException(e);
     } catch (IOException e) {
       // TODO(inder): Figure out whether it is indeed right to rethrow this as JsonSyntaxException
       throw new JsonSyntaxException(e);
