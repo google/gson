@@ -16,17 +16,18 @@
 
 package com.google.gson.internal.bind;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonIOException;
+import com.google.gson.internal.Streams;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
-
-import com.google.gson.JsonElement;
-import com.google.gson.internal.Streams;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
 
 public abstract class TypeAdapter<T> {
   public abstract T read(JsonReader reader) throws IOException;
@@ -63,7 +64,7 @@ public abstract class TypeAdapter<T> {
       reader.setLenient(true);
       return Streams.parse(reader);
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new JsonIOException(e);
     }
   }
 
@@ -77,7 +78,7 @@ public abstract class TypeAdapter<T> {
       jsonReader.setLenient(true);
       return read(jsonReader);
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new JsonIOException(e);
     }
   }
 
