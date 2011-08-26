@@ -16,10 +16,15 @@
 
 package com.google.gson.internal.bind;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.UUID;
+
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import java.io.IOException;
 
 /**
  * Type adapters for basic types.
@@ -50,6 +55,18 @@ public final class TypeAdapters {
 
   public static final TypeAdapter.Factory INTEGER_FACTORY
       = newFactory(int.class, Integer.class, INTEGER);
+
+  public static final TypeAdapter<Short> SHORT = new TypeAdapter<Short>() {
+    public Short read(JsonReader reader) throws IOException {
+      return (short) reader.nextInt();
+    }
+    public void write(JsonWriter writer, Short value) throws IOException {
+      writer.value(value);
+    }
+  };
+
+  public static final TypeAdapter.Factory SHORT_FACTORY
+      = newFactory(short.class, Short.class, SHORT);
 
   public static final TypeAdapter<Long> LONG = new TypeAdapter<Long>() {
     public Long read(JsonReader reader) throws IOException {
@@ -97,6 +114,69 @@ public final class TypeAdapters {
   };
 
   public static final TypeAdapter.Factory STRING_FACTORY = newFactory(String.class, STRING);
+
+  public static final TypeAdapter<StringBuilder> STRING_BUILDER = new TypeAdapter<StringBuilder>() {
+    public StringBuilder read(JsonReader reader) throws IOException {
+      return new StringBuilder(reader.nextString());
+    }
+    public void write(JsonWriter writer, StringBuilder value) throws IOException {
+      writer.value(value.toString());
+    }
+  };
+
+  public static final TypeAdapter.Factory STRING_BUILDER_FACTORY =
+    newFactory(StringBuilder.class, STRING_BUILDER);
+
+  public static final TypeAdapter<StringBuffer> STRING_BUFFER = new TypeAdapter<StringBuffer>() {
+    public StringBuffer read(JsonReader reader) throws IOException {
+      return new StringBuffer(reader.nextString());
+    }
+    public void write(JsonWriter writer, StringBuffer value) throws IOException {
+      writer.value(value.toString());
+    }
+  };
+
+  public static final TypeAdapter.Factory STRING_BUFFER_FACTORY =
+    newFactory(StringBuffer.class, STRING_BUFFER);
+
+  public static final TypeAdapter<URL> URL = new TypeAdapter<URL>() {
+    public URL read(JsonReader reader) throws IOException {
+      String nextString = reader.nextString();
+      return "null".equals(nextString) ? null : new URL(nextString);
+    }
+    public void write(JsonWriter writer, URL value) throws IOException {
+      writer.value(value == null ? null : value.toExternalForm());
+    }
+  };
+
+  public static final TypeAdapter.Factory URL_FACTORY = newFactory(URL.class, URL);
+
+  public static final TypeAdapter<URI> URI = new TypeAdapter<URI>() {
+    public URI read(JsonReader reader) throws IOException {
+      try {
+        String nextString = reader.nextString();
+        return "null".equals(nextString) ? null : new URI(nextString);
+      } catch (URISyntaxException e) {
+        throw new IOException(e);
+      }
+    }
+    public void write(JsonWriter writer, URI value) throws IOException {
+      writer.value(value == null ? null : value.toASCIIString());
+    }
+  };
+
+  public static final TypeAdapter.Factory URI_FACTORY = newFactory(URI.class, URI);
+
+  public static final TypeAdapter<UUID> UUID = new TypeAdapter<UUID>() {
+    public UUID read(JsonReader reader) throws IOException {
+      return java.util.UUID.fromString(reader.nextString());
+    }
+    public void write(JsonWriter writer, UUID value) throws IOException {
+      writer.value(value.toString());
+    }
+  };
+
+  public static final TypeAdapter.Factory UUID_FACTORY = newFactory(UUID.class, UUID);
 
   public static final TypeAdapter EXCLUDED_TYPE_ADAPTER = new TypeAdapter<Object>() {
     @Override public Object read(JsonReader reader) throws IOException {
