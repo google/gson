@@ -62,6 +62,18 @@ public class PrimitiveTest extends TestCase {
     assertEquals(expected, actual);
   }
 
+  public void testByteSerialization() {
+    assertEquals("1", gson.toJson(1, byte.class));
+    assertEquals("1", gson.toJson(1, Byte.class));
+  }
+
+  public void testByteDeserialization() {
+    Byte target = gson.fromJson("1", Byte.class);
+    assertEquals(1, (byte)target);
+    byte primitive = gson.fromJson("1", byte.class);
+    assertEquals(1, primitive);
+  }
+
   public void testPrimitiveIntegerAutoboxedInASingleElementArraySerialization() {
     int target[] = {-9332};
     assertEquals("[-9332]", gson.toJson(target));
