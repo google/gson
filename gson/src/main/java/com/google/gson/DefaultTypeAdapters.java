@@ -19,10 +19,6 @@ package com.google.gson;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.InetAddress;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.net.UnknownHostException;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -47,7 +43,6 @@ import java.util.SortedSet;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.TreeSet;
-import java.util.UUID;
 
 import com.google.gson.internal.$Gson$Types;
 
@@ -70,9 +65,6 @@ final class DefaultTypeAdapters {
 
   @SuppressWarnings("unchecked")
   private static final EnumTypeAdapter ENUM_TYPE_ADAPTER = new EnumTypeAdapter();
-  private static final UrlTypeAdapter URL_TYPE_ADAPTER = new UrlTypeAdapter();
-  private static final UriTypeAdapter URI_TYPE_ADAPTER = new UriTypeAdapter();
-  private static final UuidTypeAdapter UUUID_TYPE_ADAPTER = new UuidTypeAdapter();
   private static final LocaleTypeAdapter LOCALE_TYPE_ADAPTER = new LocaleTypeAdapter();
   private static final BitSetTypeAdapter BIT_SET_ADAPTER = new BitSetTypeAdapter();
   private static final DefaultInetAddressAdapter INET_ADDRESS_ADAPTER =
@@ -84,11 +76,6 @@ final class DefaultTypeAdapters {
   private static final CharacterTypeAdapter CHARACTER_TYPE_ADAPTER = new CharacterTypeAdapter();
   private static final LongDeserializer LONG_DESERIALIZER = new LongDeserializer();
   private static final NumberTypeAdapter NUMBER_TYPE_ADAPTER = new NumberTypeAdapter();
-  private static final ShortTypeAdapter SHORT_TYPE_ADAPTER = new ShortTypeAdapter();
-  private static final StringBuilderTypeAdapter STRING_BUILDER_TYPE_ADAPTER =
-      new StringBuilderTypeAdapter();
-  private static final StringBufferTypeAdapter STRING_BUFFER_TYPE_ADAPTER =
-      new StringBufferTypeAdapter();
 
   private static final GregorianCalendarTypeAdapter GREGORIAN_CALENDAR_TYPE_ADAPTER =
       new GregorianCalendarTypeAdapter();
@@ -111,9 +98,6 @@ final class DefaultTypeAdapters {
     ParameterizedTypeHandlerMap<JsonSerializer<?>> map =
         new ParameterizedTypeHandlerMap<JsonSerializer<?>>();
 
-    map.register(URL.class, URL_TYPE_ADAPTER, true);
-    map.register(URI.class, URI_TYPE_ADAPTER, true);
-    map.register(UUID.class, UUUID_TYPE_ADAPTER, true);
     map.register(Locale.class, LOCALE_TYPE_ADAPTER, true);
     map.register(Date.class, DATE_TYPE_ADAPTER, true);
     map.register(java.sql.Date.class, JAVA_SQL_DATE_TYPE_ADAPTER, true);
@@ -128,10 +112,6 @@ final class DefaultTypeAdapters {
     map.register(byte.class, BYTE_TYPE_ADAPTER, true);
     map.register(Character.class, CHARACTER_TYPE_ADAPTER, true);
     map.register(Number.class, NUMBER_TYPE_ADAPTER, true);
-    map.register(Short.class, SHORT_TYPE_ADAPTER, true);
-    map.register(short.class, SHORT_TYPE_ADAPTER, true);
-    map.register(StringBuilder.class, STRING_BUILDER_TYPE_ADAPTER, true);
-    map.register(StringBuffer.class, STRING_BUFFER_TYPE_ADAPTER, true);
 
     map.makeUnmodifiable();
     return map;
@@ -151,9 +131,6 @@ final class DefaultTypeAdapters {
   private static ParameterizedTypeHandlerMap<JsonDeserializer<?>> createDefaultDeserializers() {
     ParameterizedTypeHandlerMap<JsonDeserializer<?>> map =
         new ParameterizedTypeHandlerMap<JsonDeserializer<?>>();
-    map.register(URL.class, wrapDeserializer(URL_TYPE_ADAPTER), true);
-    map.register(URI.class, wrapDeserializer(URI_TYPE_ADAPTER), true);
-    map.register(UUID.class, wrapDeserializer(UUUID_TYPE_ADAPTER), true);
     map.register(Locale.class, wrapDeserializer(LOCALE_TYPE_ADAPTER), true);
     map.register(Date.class, wrapDeserializer(DATE_TYPE_ADAPTER), true);
     map.register(java.sql.Date.class, wrapDeserializer(JAVA_SQL_DATE_TYPE_ADAPTER), true);
@@ -170,10 +147,6 @@ final class DefaultTypeAdapters {
     map.register(Long.class, LONG_DESERIALIZER, true);
     map.register(long.class, LONG_DESERIALIZER, true);
     map.register(Number.class, NUMBER_TYPE_ADAPTER, true);
-    map.register(Short.class, SHORT_TYPE_ADAPTER, true);
-    map.register(short.class, SHORT_TYPE_ADAPTER, true);
-    map.register(StringBuilder.class, wrapDeserializer(STRING_BUILDER_TYPE_ADAPTER), true);
-    map.register(StringBuffer.class, wrapDeserializer(STRING_BUFFER_TYPE_ADAPTER), true);
 
     map.makeUnmodifiable();
     return map;
@@ -538,60 +511,6 @@ final class DefaultTypeAdapters {
     }
   }
 
-  private static final class UrlTypeAdapter implements JsonSerializer<URL>, JsonDeserializer<URL> {
-    public JsonElement serialize(URL src, Type typeOfSrc, JsonSerializationContext context) {
-      return new JsonPrimitive(src.toExternalForm());
-    }
-
-    public URL deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-        throws JsonParseException {
-      try {
-        return new URL(json.getAsString());
-      } catch (MalformedURLException e) {
-        throw new JsonSyntaxException(e);
-      }
-    }
-
-    @Override
-    public String toString() {
-      return UrlTypeAdapter.class.getSimpleName();
-    }
-  }
-
-  private static final class UriTypeAdapter implements JsonSerializer<URI>, JsonDeserializer<URI> {
-    public JsonElement serialize(URI src, Type typeOfSrc, JsonSerializationContext context) {
-      return new JsonPrimitive(src.toASCIIString());
-    }
-    public URI deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-    throws JsonParseException {
-      try {
-        return new URI(json.getAsString());
-      } catch (URISyntaxException e) {
-        throw new JsonSyntaxException(e);
-      }
-    }
-    @Override
-    public String toString() {
-      return UriTypeAdapter.class.getSimpleName();
-    }
-  }
-
-  private static final class UuidTypeAdapter implements JsonSerializer<UUID>, JsonDeserializer<UUID> {
-    public JsonElement serialize(UUID src, Type typeOfSrc, JsonSerializationContext context) {
-      return new JsonPrimitive(src.toString());
-    }
-
-    public UUID deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-        throws JsonParseException {
-      return UUID.fromString(json.getAsString());
-    }
-
-    @Override
-    public String toString() {
-        return UuidTypeAdapter.class.getSimpleName();
-    }
-  }
-
   private static final class LocaleTypeAdapter
       implements JsonSerializer<Locale>, JsonDeserializer<Locale> {
     public JsonElement serialize(Locale src, Type typeOfSrc, JsonSerializationContext context) {
@@ -743,31 +662,6 @@ final class DefaultTypeAdapters {
     }
   }
 
-  private static final class ShortTypeAdapter
-      implements JsonSerializer<Short>, JsonDeserializer<Short> {
-    public JsonElement serialize(Short src, Type typeOfSrc, JsonSerializationContext context) {
-      return new JsonPrimitive(src);
-    }
-
-    public Short deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-        throws JsonParseException {
-      try {
-        return json.getAsShort();
-      } catch (NumberFormatException e) {
-        throw new JsonSyntaxException(e);
-      } catch (UnsupportedOperationException e) {
-        throw new JsonSyntaxException(e);
-      } catch (IllegalStateException e) {
-        throw new JsonSyntaxException(e);
-      }
-    }
-
-    @Override
-    public String toString() {
-      return ShortTypeAdapter.class.getSimpleName();
-    }
-  }
-
   private static final class ByteTypeAdapter implements JsonSerializer<Byte>, JsonDeserializer<Byte> {
     public JsonElement serialize(Byte src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src);
@@ -844,40 +738,6 @@ final class DefaultTypeAdapters {
     @Override
     public String toString() {
       return CharacterTypeAdapter.class.getSimpleName();
-    }
-  }
-
-  private static final class StringBuilderTypeAdapter
-      implements JsonSerializer<StringBuilder>, JsonDeserializer<StringBuilder> {
-    public JsonElement serialize(StringBuilder src, Type typeOfSrc, JsonSerializationContext context) {
-      return new JsonPrimitive(src.toString());
-    }
-
-    public StringBuilder deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-    throws JsonParseException {
-      return new StringBuilder(json.getAsString());
-    }
-
-    @Override
-    public String toString() {
-      return StringBuilderTypeAdapter.class.getSimpleName();
-    }
-  }
-
-  private static final class StringBufferTypeAdapter
-      implements JsonSerializer<StringBuffer>, JsonDeserializer<StringBuffer> {
-    public JsonElement serialize(StringBuffer src, Type typeOfSrc, JsonSerializationContext context) {
-      return new JsonPrimitive(src.toString());
-    }
-
-    public StringBuffer deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-    throws JsonParseException {
-      return new StringBuffer(json.getAsString());
-    }
-
-    @Override
-    public String toString() {
-      return StringBufferTypeAdapter.class.getSimpleName();
     }
   }
 
