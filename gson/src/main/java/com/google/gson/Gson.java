@@ -228,6 +228,7 @@ public final class Gson {
     MiniGson.Builder builder = new MiniGson.Builder()
         .withoutDefaultFactories()
         .factory(TypeAdapters.BOOLEAN_FACTORY)
+        .factory(TypeAdapters.SHORT_FACTORY)
         .factory(TypeAdapters.INTEGER_FACTORY)
         .factory(TypeAdapters.newFactory(double.class, Double.class,
             doubleAdapter(serializeSpecialFloatingPointValues)))
@@ -236,6 +237,11 @@ public final class Gson {
         .factory(TypeAdapters.newFactory(long.class, Long.class,
             longAdapter(longSerializationPolicy)))
         .factory(TypeAdapters.STRING_FACTORY)
+        .factory(TypeAdapters.STRING_BUILDER_FACTORY)
+        .factory(TypeAdapters.STRING_BUFFER_FACTORY)
+        .factory(TypeAdapters.URL_FACTORY)
+        .factory(TypeAdapters.URI_FACTORY)
+        .factory(TypeAdapters.UUID_FACTORY)
         .typeAdapter(BigDecimal.class, new BigDecimalTypeAdapter())
         .typeAdapter(BigInteger.class, new BigIntegerTypeAdapter())
         .factory(excludedTypeFactory)
