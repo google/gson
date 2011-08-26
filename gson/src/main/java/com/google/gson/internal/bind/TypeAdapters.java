@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Locale;
+import java.util.StringTokenizer;
 import java.util.UUID;
 
 import com.google.gson.reflect.TypeToken;
@@ -177,6 +179,37 @@ public final class TypeAdapters {
   };
 
   public static final TypeAdapter.Factory UUID_FACTORY = newFactory(UUID.class, UUID);
+
+  public static final TypeAdapter<Locale> LOCALE = new TypeAdapter<Locale>() {
+    public Locale read(JsonReader reader) throws IOException {
+      String locale = reader.nextString();
+      StringTokenizer tokenizer = new StringTokenizer(locale, "_");
+      String language = null;
+      String country = null;
+      String variant = null;
+      if (tokenizer.hasMoreElements()) {
+        language = tokenizer.nextToken();
+      }
+      if (tokenizer.hasMoreElements()) {
+        country = tokenizer.nextToken();
+      }
+      if (tokenizer.hasMoreElements()) {
+        variant = tokenizer.nextToken();
+      }
+      if (country == null && variant == null) {
+        return new Locale(language);
+      } else if (variant == null) {
+        return new Locale(language, country);
+      } else {
+        return new Locale(language, country, variant);
+      }
+    }
+    public void write(JsonWriter writer, Locale value) throws IOException {
+      writer.value(value.toString());
+    }
+  };
+
+  public static final TypeAdapter.Factory LOCALE_FACTORY = newFactory(Locale.class, LOCALE);
 
   public static final TypeAdapter EXCLUDED_TYPE_ADAPTER = new TypeAdapter<Object>() {
     @Override public Object read(JsonReader reader) throws IOException {

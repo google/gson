@@ -40,7 +40,6 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.TreeSet;
 
@@ -65,7 +64,6 @@ final class DefaultTypeAdapters {
 
   @SuppressWarnings("unchecked")
   private static final EnumTypeAdapter ENUM_TYPE_ADAPTER = new EnumTypeAdapter();
-  private static final LocaleTypeAdapter LOCALE_TYPE_ADAPTER = new LocaleTypeAdapter();
   private static final BitSetTypeAdapter BIT_SET_ADAPTER = new BitSetTypeAdapter();
   private static final DefaultInetAddressAdapter INET_ADDRESS_ADAPTER =
       new DefaultInetAddressAdapter();
@@ -98,7 +96,6 @@ final class DefaultTypeAdapters {
     ParameterizedTypeHandlerMap<JsonSerializer<?>> map =
         new ParameterizedTypeHandlerMap<JsonSerializer<?>>();
 
-    map.register(Locale.class, LOCALE_TYPE_ADAPTER, true);
     map.register(Date.class, DATE_TYPE_ADAPTER, true);
     map.register(java.sql.Date.class, JAVA_SQL_DATE_TYPE_ADAPTER, true);
     map.register(Timestamp.class, DATE_TYPE_ADAPTER, true);
@@ -131,7 +128,6 @@ final class DefaultTypeAdapters {
   private static ParameterizedTypeHandlerMap<JsonDeserializer<?>> createDefaultDeserializers() {
     ParameterizedTypeHandlerMap<JsonDeserializer<?>> map =
         new ParameterizedTypeHandlerMap<JsonDeserializer<?>>();
-    map.register(Locale.class, wrapDeserializer(LOCALE_TYPE_ADAPTER), true);
     map.register(Date.class, wrapDeserializer(DATE_TYPE_ADAPTER), true);
     map.register(java.sql.Date.class, wrapDeserializer(JAVA_SQL_DATE_TYPE_ADAPTER), true);
     map.register(Timestamp.class, wrapDeserializer(TIMESTAMP_DESERIALIZER), true);
@@ -508,43 +504,6 @@ final class DefaultTypeAdapters {
     @Override
     public String toString() {
       return BitSetTypeAdapter.class.getSimpleName();
-    }
-  }
-
-  private static final class LocaleTypeAdapter
-      implements JsonSerializer<Locale>, JsonDeserializer<Locale> {
-    public JsonElement serialize(Locale src, Type typeOfSrc, JsonSerializationContext context) {
-      return new JsonPrimitive(src.toString());
-    }
-
-    public Locale deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-        throws JsonParseException {
-      String locale = json.getAsString();
-      StringTokenizer tokenizer = new StringTokenizer(locale, "_");
-      String language = null;
-      String country = null;
-      String variant = null;
-      if (tokenizer.hasMoreElements()) {
-        language = tokenizer.nextToken();
-      }
-      if (tokenizer.hasMoreElements()) {
-        country = tokenizer.nextToken();
-      }
-      if (tokenizer.hasMoreElements()) {
-        variant = tokenizer.nextToken();
-      }
-      if (country == null && variant == null) {
-        return new Locale(language);
-      } else if (variant == null) {
-        return new Locale(language, country);
-      } else {
-        return new Locale(language, country, variant);
-      }
-    }
-
-    @Override
-    public String toString() {
-      return LocaleTypeAdapter.class.getSimpleName();
     }
   }
 
