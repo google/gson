@@ -3,8 +3,21 @@ What's new in GSON 2.0
 GSON 1.x used to automatically unwrap single-element arrays as necessary.
 GSON 2.x doesn't.
 com.google.gson.functional.ArrayTest.testSingleStringArrayDeserialization
+com.google.gson.functional.PrimitiveTest#testPrimitiveIntegerAutoboxedInASingleElementArrayDeserialization
+com.google.gson.functional.PrimitiveTest#testPrimitiveLongAutoboxedInASingleElementArrayDeserialization
+com.google.gson.functional.PrimitiveTest#testPrimitiveBooleanAutoboxedDeserialization
+com.google.gson.functional.PrimitiveTest.testPrimitiveBooleanAutoboxedInASingleElementArrayDeserialization
+com.google.gson.functional.PrimitiveTest.testPrimitiveDoubleAutoboxedInASingleElementArrayDeserialization
+com.google.gson.functional.PrimitiveTest.testBigDecimalInASingleElementArrayDeserialization
+com.google.gson.functional.PrimitiveTest.testBigIntegerInASingleElementArrayDeserialization
 
 
 GSON 1.x permitted primitive types to be overridden
 GSON 2.x doesn't.
 com.google.gson.functional.ArrayTest.testArrayOfPrimitivesWithCustomTypeAdapter
+com.google.gson.functional.PrimitiveTest.testOverridingDefaultPrimitiveSerialization
+
+
+GSON 1.x rejects integers that have any fraction, even if it is ".0"
+GSON 2.x permits integers to have ".0" fractions like "1.0"
+com.google.gson.functional.PrimitiveTest.testDeserializingDecimalPointValuesAsIntegerFails

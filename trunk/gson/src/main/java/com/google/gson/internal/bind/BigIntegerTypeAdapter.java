@@ -16,6 +16,7 @@
 
 package com.google.gson.internal.bind;
 
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
@@ -31,7 +32,11 @@ public class BigIntegerTypeAdapter extends TypeAdapter<BigInteger> {
 
   @Override
   public BigInteger read(JsonReader reader) throws IOException {
-    return new BigInteger(reader.nextString());
+    try {
+      return new BigInteger(reader.nextString());
+    } catch (NumberFormatException e) {
+      throw new JsonSyntaxException(e);
+    }
   }
 
   @Override

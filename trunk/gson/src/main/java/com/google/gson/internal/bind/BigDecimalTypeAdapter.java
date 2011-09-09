@@ -16,6 +16,7 @@
 
 package com.google.gson.internal.bind;
 
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
@@ -31,7 +32,11 @@ public class BigDecimalTypeAdapter extends TypeAdapter<BigDecimal> {
 
   @Override
   public BigDecimal read(JsonReader reader) throws IOException {
-    return new BigDecimal(reader.nextString());
+    try {
+      return new BigDecimal(reader.nextString());
+    } catch (NumberFormatException e) {
+      throw new JsonSyntaxException(e);
+    }
   }
 
   @Override

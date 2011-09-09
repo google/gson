@@ -16,6 +16,7 @@
 
 package com.google.gson.internal.bind;
 
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -49,8 +50,12 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<Number> BYTE = new TypeAdapter<Number>() {
     public Number read(JsonReader reader) throws IOException {
-      int intValue = reader.nextInt();
-      return (byte) intValue;
+      try {
+        int intValue = reader.nextInt();
+        return (byte) intValue;
+      } catch (NumberFormatException e) {
+        throw new JsonSyntaxException(e);
+      }
     }
     public void write(JsonWriter writer, Number value) throws IOException {
       writer.value(value);
@@ -62,7 +67,11 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<Number> SHORT = new TypeAdapter<Number>() {
     public Number read(JsonReader reader) throws IOException {
-      return (short) reader.nextInt();
+      try {
+        return (short) reader.nextInt();
+      } catch (NumberFormatException e) {
+        throw new JsonSyntaxException(e);
+      }
     }
     public void write(JsonWriter writer, Number value) throws IOException {
       writer.value(value);
@@ -74,7 +83,11 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<Number> INTEGER = new TypeAdapter<Number>() {
     public Number read(JsonReader reader) throws IOException {
-      return reader.nextInt();
+      try {
+        return reader.nextInt();
+      } catch (NumberFormatException e) {
+        throw new JsonSyntaxException(e);
+      }
     }
     public void write(JsonWriter writer, Number value) throws IOException {
       writer.value(value);
@@ -86,7 +99,11 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<Number> LONG = new TypeAdapter<Number>() {
     public Number read(JsonReader reader) throws IOException {
-      return reader.nextLong();
+      try {
+        return reader.nextLong();
+      } catch (NumberFormatException e) {
+        throw new JsonSyntaxException(e);
+      }
     }
     public void write(JsonWriter writer, Number value) throws IOException {
       writer.value(value);
