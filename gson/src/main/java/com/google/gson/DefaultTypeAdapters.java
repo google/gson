@@ -16,10 +16,8 @@
 
 package com.google.gson;
 
-import java.lang.reflect.ParameterizedType;
+import com.google.gson.internal.$Gson$Types;
 import java.lang.reflect.Type;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -43,8 +41,6 @@ import java.util.SortedSet;
 import java.util.TimeZone;
 import java.util.TreeSet;
 
-import com.google.gson.internal.$Gson$Types;
-
 /**
  * List of all the default type adapters ({@link JsonSerializer}s, {@link JsonDeserializer}s,
  * and {@link InstanceCreator}s.
@@ -67,7 +63,6 @@ final class DefaultTypeAdapters {
   private static final BitSetTypeAdapter BIT_SET_ADAPTER = new BitSetTypeAdapter();
   private static final MapTypeAdapter MAP_TYPE_ADAPTER = new MapTypeAdapter();
 
-  private static final ByteTypeAdapter BYTE_TYPE_ADAPTER = new ByteTypeAdapter();
   private static final CharacterTypeAdapter CHARACTER_TYPE_ADAPTER = new CharacterTypeAdapter();
   private static final LongDeserializer LONG_DESERIALIZER = new LongDeserializer();
   private static final NumberTypeAdapter NUMBER_TYPE_ADAPTER = new NumberTypeAdapter();
@@ -102,8 +97,6 @@ final class DefaultTypeAdapters {
     map.register(BitSet.class, BIT_SET_ADAPTER, true);
 
     // Add primitive serializers
-    map.register(Byte.class, BYTE_TYPE_ADAPTER, true);
-    map.register(byte.class, BYTE_TYPE_ADAPTER, true);
     map.register(Character.class, CHARACTER_TYPE_ADAPTER, true);
     map.register(Number.class, NUMBER_TYPE_ADAPTER, true);
 
@@ -132,8 +125,6 @@ final class DefaultTypeAdapters {
     map.register(BitSet.class, BIT_SET_ADAPTER, true);
 
     // Add primitive deserializers
-    map.register(Byte.class, BYTE_TYPE_ADAPTER, true);
-    map.register(byte.class, BYTE_TYPE_ADAPTER, true);
     map.register(Character.class, wrapDeserializer(CHARACTER_TYPE_ADAPTER), true);
     map.register(Long.class, LONG_DESERIALIZER, true);
     map.register(long.class, LONG_DESERIALIZER, true);
@@ -541,30 +532,6 @@ final class DefaultTypeAdapters {
     @Override
     public String toString() {
       return LongDeserializer.class.getSimpleName();
-    }
-  }
-
-  private static final class ByteTypeAdapter implements JsonSerializer<Byte>, JsonDeserializer<Byte> {
-    public JsonElement serialize(Byte src, Type typeOfSrc, JsonSerializationContext context) {
-      return new JsonPrimitive(src);
-    }
-
-    public Byte deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-        throws JsonParseException {
-      try {
-        return json.getAsByte();
-      } catch (NumberFormatException e) {
-        throw new JsonSyntaxException(e);
-      } catch (UnsupportedOperationException e) {
-        throw new JsonSyntaxException(e);
-      } catch (IllegalStateException e) {
-        throw new JsonSyntaxException(e);
-      }
-    }
-
-    @Override
-    public String toString() {
-      return ByteTypeAdapter.class.getSimpleName();
     }
   }
 

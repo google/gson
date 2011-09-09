@@ -67,6 +67,11 @@ public class PrimitiveTest extends TestCase {
     assertEquals("1", gson.toJson(1, Byte.class));
   }
 
+  public void testShortSerialization() {
+    assertEquals("1", gson.toJson(1, short.class));
+    assertEquals("1", gson.toJson(1, Short.class));
+  }
+
   public void testByteDeserialization() {
     Byte target = gson.fromJson("1", Byte.class);
     assertEquals(1, (byte)target);

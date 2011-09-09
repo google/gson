@@ -228,14 +228,15 @@ public final class Gson {
     MiniGson.Builder builder = new MiniGson.Builder()
         .withoutDefaultFactories()
         .factory(TypeAdapters.BOOLEAN_FACTORY)
+        .factory(TypeAdapters.BYTE_FACTORY)
         .factory(TypeAdapters.SHORT_FACTORY)
         .factory(TypeAdapters.INTEGER_FACTORY)
+        .factory(TypeAdapters.newFactory(long.class, Long.class,
+            longAdapter(longSerializationPolicy)))
         .factory(TypeAdapters.newFactory(double.class, Double.class,
             doubleAdapter(serializeSpecialFloatingPointValues)))
         .factory(TypeAdapters.newFactory(float.class, Float.class,
             floatAdapter(serializeSpecialFloatingPointValues)))
-        .factory(TypeAdapters.newFactory(long.class, Long.class,
-            longAdapter(longSerializationPolicy)))
         .factory(TypeAdapters.STRING_FACTORY)
         .factory(TypeAdapters.STRING_BUILDER_FACTORY)
         .factory(TypeAdapters.STRING_BUFFER_FACTORY)
@@ -257,31 +258,33 @@ public final class Gson {
     this.miniGson = builder.build();
   }
 
-  private TypeAdapter<Double> doubleAdapter(boolean serializeSpecialFloatingPointValues) {
+  private TypeAdapter<Number> doubleAdapter(boolean serializeSpecialFloatingPointValues) {
     if (serializeSpecialFloatingPointValues) {
       return TypeAdapters.DOUBLE;
     }
-    return new TypeAdapter<Double>() {
+    return new TypeAdapter<Number>() {
       @Override public Double read(JsonReader reader) throws IOException {
         return reader.nextDouble();
       }
-      @Override public void write(JsonWriter writer, Double value) throws IOException {
-        checkValidFloatingPoint(value);
+      @Override public void write(JsonWriter writer, Number value) throws IOException {
+        double doubleValue = value.doubleValue();
+        checkValidFloatingPoint(doubleValue);
         writer.value(value);
       }
     };
   }
 
-  private TypeAdapter<Float> floatAdapter(boolean serializeSpecialFloatingPointValues) {
+  private TypeAdapter<Number> floatAdapter(boolean serializeSpecialFloatingPointValues) {
     if (serializeSpecialFloatingPointValues) {
       return TypeAdapters.FLOAT;
     }
-    return new TypeAdapter<Float>() {
+    return new TypeAdapter<Number>() {
       @Override public Float read(JsonReader reader) throws IOException {
         return (float) reader.nextDouble();
       }
-      @Override public void write(JsonWriter writer, Float value) throws IOException {
-        checkValidFloatingPoint(value);
+      @Override public void write(JsonWriter writer, Number value) throws IOException {
+        float floatValue = value.floatValue();
+        checkValidFloatingPoint(floatValue);
         writer.value(value);
       }
     };
@@ -295,15 +298,15 @@ public final class Gson {
     }
   }
 
-  private TypeAdapter<Long> longAdapter(LongSerializationPolicy longSerializationPolicy) {
+  private TypeAdapter<Number> longAdapter(LongSerializationPolicy longSerializationPolicy) {
     if (longSerializationPolicy == LongSerializationPolicy.DEFAULT) {
       return TypeAdapters.LONG;
     }
-    return new TypeAdapter<Long>() {
-      @Override public Long read(JsonReader reader) throws IOException {
+    return new TypeAdapter<Number>() {
+      @Override public Number read(JsonReader reader) throws IOException {
         return reader.nextLong();
       }
-      @Override public void write(JsonWriter writer, Long value) throws IOException {
+      @Override public void write(JsonWriter writer, Number value) throws IOException {
         writer.value(value.toString());
       }
     };
