@@ -64,7 +64,6 @@ final class DefaultTypeAdapters {
   private static final MapTypeAdapter MAP_TYPE_ADAPTER = new MapTypeAdapter();
 
   private static final CharacterTypeAdapter CHARACTER_TYPE_ADAPTER = new CharacterTypeAdapter();
-  private static final LongDeserializer LONG_DESERIALIZER = new LongDeserializer();
   private static final NumberTypeAdapter NUMBER_TYPE_ADAPTER = new NumberTypeAdapter();
 
   private static final GregorianCalendarTypeAdapter GREGORIAN_CALENDAR_TYPE_ADAPTER =
@@ -126,8 +125,6 @@ final class DefaultTypeAdapters {
 
     // Add primitive deserializers
     map.register(Character.class, wrapDeserializer(CHARACTER_TYPE_ADAPTER), true);
-    map.register(Long.class, LONG_DESERIALIZER, true);
-    map.register(long.class, LONG_DESERIALIZER, true);
     map.register(Number.class, NUMBER_TYPE_ADAPTER, true);
 
     map.makeUnmodifiable();
@@ -512,26 +509,6 @@ final class DefaultTypeAdapters {
     @Override
     public String toString() {
       return LongSerializer.class.getSimpleName();
-    }
-  }
-
-  private static final class LongDeserializer implements JsonDeserializer<Long> {
-    public Long deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-        throws JsonParseException {
-      try {
-        return json.getAsLong();
-      } catch (NumberFormatException e) {
-        throw new JsonSyntaxException(e);
-      } catch (UnsupportedOperationException e) {
-        throw new JsonSyntaxException(e);
-      } catch (IllegalStateException e) {
-        throw new JsonSyntaxException(e);
-      }
-    }
-
-    @Override
-    public String toString() {
-      return LongDeserializer.class.getSimpleName();
     }
   }
 
