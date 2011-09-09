@@ -1,0 +1,10 @@
+What's new in GSON 2.0
+
+GSON 1.x used to automatically unwrap single-element arrays as necessary.
+GSON 2.x doesn't.
+com.google.gson.functional.ArrayTest.testSingleStringArrayDeserialization
+
+
+GSON 1.x permitted primitive types to be overridden
+GSON 2.x doesn't.
+com.google.gson.functional.ArrayTest.testArrayOfPrimitivesWithCustomTypeAdapter

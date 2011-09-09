@@ -141,9 +141,6 @@ public class ArrayTest extends TestCase {
     String[] arrayType = gson.fromJson(json, String[].class);
     assertEquals(1, arrayType.length);
     assertEquals("hello", arrayType[0]);
-
-    String type = gson.fromJson(json, String.class);
-    assertEquals("hello", type);
   }
 
   @SuppressWarnings("unchecked")
@@ -181,22 +178,6 @@ public class ArrayTest extends TestCase {
     MoreAsserts.assertEquals(new Integer[] { 3, 4 }, target[1].toArray(new Integer[0]));
   }
 
-  public void testArrayOfPrimitivesWithCustomTypeAdapter() throws Exception {
-    CrazyLongTypeAdapter typeAdapter = new CrazyLongTypeAdapter();
-    gson = new GsonBuilder()
-        .registerTypeAdapter(long.class, typeAdapter)
-        .registerTypeAdapter(Long.class, typeAdapter)
-        .create();
-    long[] value = { 1L };
-    String serializedValue = gson.toJson(value);
-    String expected = "[" + String.valueOf(value[0] + CrazyLongTypeAdapter.DIFFERENCE) + "]";
-    assertEquals(expected, serializedValue);
-
-    long[] deserializedValue = gson.fromJson(serializedValue, long[].class);
-    assertEquals(1, deserializedValue.length);
-    assertEquals(value[0], deserializedValue[0]);
-  }
-
   public void testArrayOfPrimitivesAsObjectsSerialization() throws Exception {
     Object[] objs = new Object[] {1, "abc", 0.3f, 5L};
     String json = gson.toJson(objs);
@@ -213,24 +194,6 @@ public class ArrayTest extends TestCase {
     assertEquals(0.3, ((Number)objs[2]).doubleValue());
     assertEquals(new BigDecimal("1.1"), new BigDecimal(objs[3].toString()));
     assertEquals(5, ((Number)objs[4]).shortValue());
-  }
-
-  public void testArrayOfObjectsWithoutTypeInfoDeserialization() throws Exception {
-    String json = "[1,'abc',{a:1},5]";
-    try {
-      gson.fromJson(json, Object[].class);
-      fail("This is crazy....how did we deserialize it!!!");
-    } catch (JsonParseException expected) {
-    }
-  }
-
-  public void testArrayWithoutTypeInfoDeserialization() throws Exception {
-    String json = "[1,'abc',[1,2],5]";
-    try {
-      gson.fromJson(json, Object[].class);
-      fail("This is crazy....how did we deserialize it!!!");
-    } catch (JsonParseException expected) {
-    }
   }
 
   public void testObjectArrayWithNonPrimitivesSerialization() throws Exception {
