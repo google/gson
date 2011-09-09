@@ -16,6 +16,7 @@
 
 package com.google.gson.internal.bind;
 
+import com.google.gson.JsonSyntaxException;
 import java.io.IOException;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
@@ -72,8 +73,8 @@ public final class ReflectiveTypeAdapter<T> extends TypeAdapter<T>  {
 
     // TODO: null out the other fields?
 
-    reader.beginObject();
     try {
+      reader.beginObject();
       while (reader.hasNext()) {
         String name = reader.nextName();
         BoundField field = map.get(name);
@@ -84,6 +85,8 @@ public final class ReflectiveTypeAdapter<T> extends TypeAdapter<T>  {
           field.read(reader, instance);
         }
       }
+    } catch (IllegalStateException e) {
+      throw new JsonSyntaxException(e);
     } catch (IllegalAccessException e) {
       throw new AssertionError();
     }
