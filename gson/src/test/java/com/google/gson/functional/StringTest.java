@@ -18,7 +18,7 @@ public class StringTest extends TestCase {
     super.setUp();
     gson = new Gson();
   }
-  
+
   public void testStringValueSerialization() throws Exception {
     String value = "someRandomStringValue";
     assertEquals('"' + value + '"', gson.toJson(value));
@@ -97,19 +97,13 @@ public class StringTest extends TestCase {
     assertEquals("[\"abc\"]", gson.toJson(target, String[].class));
   }
 
-  public void testStringValueAsSingleElementArrayDeserialization() throws Exception {
-    String value = "someRandomStringValue";
-    String actual = gson.fromJson("[\"" + value + "\"]", String.class);
-    assertEquals(value, actual);
-  }
-  
   public void testStringWithEscapedSlashDeserialization() {
     String value = "/";
     String json = "'\\/'";
     String actual = gson.fromJson(json, String.class);
     assertEquals(value, actual);
   }
-  
+
   /**
    * Created in response to http://groups.google.com/group/google-gson/browse_thread/thread/2431d4a3d0d6cb23
    */
@@ -118,7 +112,7 @@ public class StringTest extends TestCase {
     String json = gson.toJson(value);
     assertEquals("\"abc\\u003d\"", json);
   }
-  
+
   /**
    * Created in response to http://groups.google.com/group/google-gson/browse_thread/thread/2431d4a3d0d6cb23
    */
@@ -131,13 +125,13 @@ public class StringTest extends TestCase {
     value = gson.fromJson(json, String.class);
     assertEquals("abc=", value);
   }
-  
+
   public void testJavascriptKeywordsInStringSerialization() {
     String value = "null true false function";
     String json = gson.toJson(value);
     assertEquals("\"" + value + "\"", json);
   }
-  
+
   public void testJavascriptKeywordsInStringDeserialization() {
     String json = "'null true false function'";
     String value = gson.fromJson(json, String.class);
