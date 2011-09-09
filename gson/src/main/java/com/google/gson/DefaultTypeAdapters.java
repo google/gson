@@ -65,7 +65,6 @@ final class DefaultTypeAdapters {
   @SuppressWarnings("unchecked")
   private static final EnumTypeAdapter ENUM_TYPE_ADAPTER = new EnumTypeAdapter();
   private static final BitSetTypeAdapter BIT_SET_ADAPTER = new BitSetTypeAdapter();
-  private static final CollectionTypeAdapter COLLECTION_TYPE_ADAPTER = new CollectionTypeAdapter();
   private static final MapTypeAdapter MAP_TYPE_ADAPTER = new MapTypeAdapter();
 
   private static final ByteTypeAdapter BYTE_TYPE_ADAPTER = new ByteTypeAdapter();
@@ -116,7 +115,6 @@ final class DefaultTypeAdapters {
     ParameterizedTypeHandlerMap<JsonSerializer<?>> map =
         new ParameterizedTypeHandlerMap<JsonSerializer<?>>();
     map.registerForTypeHierarchy(Enum.class, ENUM_TYPE_ADAPTER, true);
-    map.registerForTypeHierarchy(Collection.class, COLLECTION_TYPE_ADAPTER, true);
     map.registerForTypeHierarchy(Map.class, MAP_TYPE_ADAPTER, true);
     map.makeUnmodifiable();
     return map;
@@ -149,7 +147,6 @@ final class DefaultTypeAdapters {
     ParameterizedTypeHandlerMap<JsonDeserializer<?>> map =
         new ParameterizedTypeHandlerMap<JsonDeserializer<?>>();
     map.registerForTypeHierarchy(Enum.class, wrapDeserializer(ENUM_TYPE_ADAPTER), true);
-    map.registerForTypeHierarchy(Collection.class, wrapDeserializer(COLLECTION_TYPE_ADAPTER), true);
     map.registerForTypeHierarchy(Map.class, wrapDeserializer(MAP_TYPE_ADAPTER), true);
     map.makeUnmodifiable();
     return map;
@@ -482,58 +479,6 @@ final class DefaultTypeAdapters {
     @Override
     public String toString() {
       return BitSetTypeAdapter.class.getSimpleName();
-    }
-  }
-
-  @SuppressWarnings("unchecked")
-  private static final class CollectionTypeAdapter implements JsonSerializer<Collection>,
-      JsonDeserializer<Collection> {
-    public JsonElement serialize(Collection src, Type typeOfSrc, JsonSerializationContext context) {
-      if (src == null) {
-        return JsonNull.INSTANCE;
-      }
-      JsonArray array = new JsonArray();
-      Type childGenericType = null;
-      if (typeOfSrc instanceof ParameterizedType) {
-        Class<?> rawTypeOfSrc = $Gson$Types.getRawType(typeOfSrc);
-        childGenericType = $Gson$Types.getCollectionElementType(typeOfSrc, rawTypeOfSrc);
-      }
-      for (Object child : src) {
-        if (child == null) {
-          array.add(JsonNull.INSTANCE);
-        } else {
-          Type childType = (childGenericType == null || childGenericType == Object.class)
-              ? child.getClass() : childGenericType;
-          JsonElement element = context.serialize(child, childType, false, false);
-          array.add(element);
-        }
-      }
-      return array;
-    }
-
-    public Collection deserialize(JsonElement json, Type typeOfT,
-        JsonDeserializationContext context) throws JsonParseException {
-      if (json.isJsonNull()) {
-        return null;
-      }
-      // Use ObjectConstructor to create instance instead of hard-coding a specific type.
-      // This handles cases where users are using their own subclass of Collection.
-      Collection collection = constructCollectionType(typeOfT, context);
-      Type childType = $Gson$Types.getCollectionElementType(typeOfT, $Gson$Types.getRawType(typeOfT));
-      for (JsonElement childElement : json.getAsJsonArray()) {
-        if (childElement == null || childElement.isJsonNull()) {
-          collection.add(null);
-        } else {
-          Object value = context.deserialize(childElement, childType);
-          collection.add(value);
-        }
-      }
-      return collection;
-    }
-
-    private Collection constructCollectionType(Type collectionType,
-        JsonDeserializationContext context) {
-      return context.construct(collectionType);
     }
   }
 
