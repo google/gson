@@ -21,3 +21,8 @@ com.google.gson.functional.PrimitiveTest.testOverridingDefaultPrimitiveSerializa
 GSON 1.x rejects integers that have any fraction, even if it is ".0"
 GSON 2.x permits integers to have ".0" fractions like "1.0"
 com.google.gson.functional.PrimitiveTest.testDeserializingDecimalPointValuesAsIntegerFails
+
+GSON 1.x truncates oversized large integers and longs
+GSON 2.x fails on oversized large integers and longs
+com.google.gson.functional.PrimitiveTest.testDeserializingBigIntegerAsInteger
+com.google.gson.functional.PrimitiveTest.testDeserializingBigIntegerAsLong
