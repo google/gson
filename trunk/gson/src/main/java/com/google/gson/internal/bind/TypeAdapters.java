@@ -16,6 +16,10 @@
 
 package com.google.gson.internal.bind;
 
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -23,10 +27,6 @@ import java.net.URL;
 import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.UUID;
-
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
 
 /**
  * Type adapters for basic types.
@@ -108,6 +108,10 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<String> STRING = new TypeAdapter<String>() {
     public String read(JsonReader reader) throws IOException {
+      if (reader.peek() == JsonToken.NULL) {
+        reader.nextNull(); // TODO: does this belong here?
+        return null;
+      }
       return reader.nextString();
     }
     public void write(JsonWriter writer, String value) throws IOException {
