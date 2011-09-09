@@ -83,14 +83,14 @@ public class CustomTypeAdaptersTest extends TestCase {
     ClassWithCustomTypeConverter target = gson.fromJson(json, ClassWithCustomTypeConverter.class);
     assertEquals(5, target.getBag().getIntValue());
   }
-  
+
   public void disable_testCustomSerializersOfSelf() {
     Gson gson = createGsonObjectWithFooTypeAdapter();
     Gson basicGson = new Gson();
     Foo newFooObject = new Foo(1, 2L);
     String jsonFromCustomSerializer = gson.toJson(newFooObject);
     String jsonFromGson = basicGson.toJson(newFooObject);
-    
+
     assertEquals(jsonFromGson, jsonFromCustomSerializer);
   }
 
@@ -100,7 +100,7 @@ public class CustomTypeAdaptersTest extends TestCase {
     Foo expectedFoo = new Foo(1, 2L);
     String json = basicGson.toJson(expectedFoo);
     Foo newFooObject = gson.fromJson(json, Foo.class);
-    
+
     assertEquals(expectedFoo.key, newFooObject.key);
     assertEquals(expectedFoo.value, newFooObject.value);
   }
@@ -130,58 +130,58 @@ public class CustomTypeAdaptersTest extends TestCase {
     ClassWithCustomTypeConverter target = gson.fromJson(json, ClassWithCustomTypeConverter.class);
     assertEquals(7, target.getBag().getIntValue());
   }
-  
+
   public void testCustomTypeAdapterDoesNotAppliesToSubClasses() {
     Gson gson = new GsonBuilder().registerTypeAdapter(Base.class, new JsonSerializer<Base> () {
       public JsonElement serialize(Base src, Type typeOfSrc, JsonSerializationContext context) {
         JsonObject json = new JsonObject();
         json.addProperty("value", src.baseValue);
         return json;
-      }          
+      }
     }).create();
     Base b = new Base();
     String json = gson.toJson(b);
-    assertTrue(json.contains("value"));    
+    assertTrue(json.contains("value"));
     b = new Derived();
     json = gson.toJson(b);
-    assertTrue(json.contains("derivedValue"));    
+    assertTrue(json.contains("derivedValue"));
   }
-  
+
   public void testCustomTypeAdapterAppliesToSubClassesSerializedAsBaseClass() {
     Gson gson = new GsonBuilder().registerTypeAdapter(Base.class, new JsonSerializer<Base> () {
       public JsonElement serialize(Base src, Type typeOfSrc, JsonSerializationContext context) {
         JsonObject json = new JsonObject();
         json.addProperty("value", src.baseValue);
         return json;
-      }          
+      }
     }).create();
     Base b = new Base();
     String json = gson.toJson(b);
-    assertTrue(json.contains("value"));    
+    assertTrue(json.contains("value"));
     b = new Derived();
     json = gson.toJson(b, Base.class);
-    assertTrue(json.contains("value"));    
+    assertTrue(json.contains("value"));
     assertFalse(json.contains("derivedValue"));
   }
-  
+
   private static class Base {
     int baseValue = 2;
   }
-  
+
   private static class Derived extends Base {
     @SuppressWarnings("unused")
     int derivedValue = 3;
   }
-  
-  
+
+
   private Gson createGsonObjectWithFooTypeAdapter() {
     return new GsonBuilder().registerTypeAdapter(Foo.class, new FooTypeAdapter()).create();
   }
-  
+
   public static class Foo {
     private final int key;
     private final long value;
-    
+
     public Foo() {
       this(0, 0L);
     }
@@ -191,7 +191,7 @@ public class CustomTypeAdaptersTest extends TestCase {
       this.value = value;
     }
   }
-  
+
   public static class FooTypeAdapter implements JsonSerializer<Foo>, JsonDeserializer<Foo> {
     public Foo deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
@@ -202,62 +202,31 @@ public class CustomTypeAdaptersTest extends TestCase {
       return context.serialize(src, typeOfSrc);
     }
   }
-  
-  public void testCustomSerializerForLong() {
-    final ClassWithBooleanField customSerializerInvoked = new ClassWithBooleanField();
-    customSerializerInvoked.value = false;
-    Gson gson = new GsonBuilder().registerTypeAdapter(Long.class, new JsonSerializer<Long>() {
-      public JsonElement serialize(Long src, Type typeOfSrc, JsonSerializationContext context) {
-        customSerializerInvoked.value = true;
-        return new JsonPrimitive(src);
-      }      
-    }).serializeNulls().create();
-    ClassWithWrapperLongField src = new ClassWithWrapperLongField();
-    String json = gson.toJson(src);
-    assertTrue(json.contains("\"value\":null"));
-    assertFalse(customSerializerInvoked.value);
-    
-    customSerializerInvoked.value = false;
-    src.value = 10L;
-    json = gson.toJson(src);
-    assertTrue(json.contains("\"value\":10"));
-    assertTrue(customSerializerInvoked.value);
-  }
-  
-  public void testCustomDeserializerForLong() {
-    final ClassWithBooleanField customDeserializerInvoked = new ClassWithBooleanField();
-    customDeserializerInvoked.value = false;
-    Gson gson = new GsonBuilder().registerTypeAdapter(Long.class, new JsonDeserializer<Long>() {
-      public Long deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-          throws JsonParseException {
-        customDeserializerInvoked.value = true;
-        if (json == null || json.isJsonNull()) {
-          return null;
+
+  public void testCustomSerializerForbiddenForPrimitives() {
+    try {
+      new GsonBuilder().registerTypeAdapter(long.class, new JsonSerializer<Long>() {
+        public JsonElement serialize(Long s, Type t, JsonSerializationContext c) {
+          throw new AssertionError();
         }
-        Number number = json.getAsJsonPrimitive().getAsNumber();
-        return number == null ? null : number.longValue();
-      }      
-    }).create();
-    String json = "{'value':null}";
-    ClassWithWrapperLongField target = gson.fromJson(json, ClassWithWrapperLongField.class);
-    assertNull(target.value);
-    assertFalse(customDeserializerInvoked.value);
-    
-    customDeserializerInvoked.value = false;
-    json = "{'value':10}";
-    target = gson.fromJson(json, ClassWithWrapperLongField.class);
-    assertEquals(10L, target.value.longValue());
-    assertTrue(customDeserializerInvoked.value);
+      });
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
   }
-  
-  private static class ClassWithWrapperLongField {
-    Long value;
+
+  public void testCustomDeserializerForbiddenForPrimitives() {
+    try {
+      new GsonBuilder().registerTypeAdapter(long.class, new JsonDeserializer<Long>() {
+        public Long deserialize(JsonElement json, Type t, JsonDeserializationContext c) {
+          throw new AssertionError();
+        }
+      });
+      fail();
+    } catch (Exception expected) {
+    }
   }
-  
-  private static class ClassWithBooleanField {
-    Boolean value;
-  }
-  
+
   public void testCustomByteArraySerializer() {
     Gson gson = new GsonBuilder().registerTypeAdapter(byte[].class, new JsonSerializer<byte[]>() {
       public JsonElement serialize(byte[] src, Type typeOfSrc, JsonSerializationContext context) {
@@ -266,15 +235,15 @@ public class CustomTypeAdaptersTest extends TestCase {
           sb.append(b);
         }
         return new JsonPrimitive(sb.toString());
-      }      
+      }
     }).create();
     byte[] data = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
     String json = gson.toJson(data);
     assertEquals("\"0123456789\"", json);
   }
-  
+
   public void testCustomByteArrayDeserializerAndInstanceCreator() {
-    GsonBuilder gsonBuilder = new GsonBuilder().registerTypeAdapter(byte[].class, 
+    GsonBuilder gsonBuilder = new GsonBuilder().registerTypeAdapter(byte[].class,
         new JsonDeserializer<byte[]>() {
       public byte[] deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
           throws JsonParseException {
@@ -284,7 +253,7 @@ public class CustomTypeAdaptersTest extends TestCase {
           data[i] = Byte.parseByte(""+str.charAt(i));
         }
         return data;
-      }      
+      }
     });
     Gson gson = gsonBuilder.create();
     String json = "'0123456789'";
@@ -294,7 +263,7 @@ public class CustomTypeAdaptersTest extends TestCase {
       assertEquals(expected[i], actual[i]);
     }
   }
-  
+
   private static class StringHolder {
     String part1;
     String part2;
@@ -309,8 +278,8 @@ public class CustomTypeAdaptersTest extends TestCase {
       this.part2 = part2;
     }
   }
-  
-  private static class StringHolderTypeAdapter implements JsonSerializer<StringHolder>, 
+
+  private static class StringHolderTypeAdapter implements JsonSerializer<StringHolder>,
       JsonDeserializer<StringHolder>, InstanceCreator<StringHolder> {
 
     public StringHolder createInstance(Type type) {
@@ -318,18 +287,18 @@ public class CustomTypeAdaptersTest extends TestCase {
       return new StringHolder("unknown:thing");
     }
 
-    public StringHolder deserialize(JsonElement src, Type type, 
+    public StringHolder deserialize(JsonElement src, Type type,
         JsonDeserializationContext context) {
       return new StringHolder(src.getAsString());
     }
 
-    public JsonElement serialize(StringHolder src, Type typeOfSrc, 
+    public JsonElement serialize(StringHolder src, Type typeOfSrc,
         JsonSerializationContext context) {
       String contents = src.part1 + ':' + src.part2;
       return new JsonPrimitive(contents);
     }
   }
-  
+
   // Test created from Issue 70
   public void testCustomAdapterInvokedForCollectionElementSerializationWithType() {
     Gson gson = new GsonBuilder()
@@ -367,7 +336,7 @@ public class CustomTypeAdaptersTest extends TestCase {
     assertEquals("Jacob", foo.part1);
     assertEquals("Tomaw", foo.part2);
   }
-  
+
   // Test created from Issue 70
   public void testCustomAdapterInvokedForMapElementSerializationWithType() {
     Gson gson = new GsonBuilder()
@@ -380,7 +349,7 @@ public class CustomTypeAdaptersTest extends TestCase {
     String json = gson.toJson(mapOfHolders, mapType);
     assertTrue(json.contains("\"foo\":\"Jacob:Tomaw\""));
   }
-  
+
   // Test created from Issue 70
   public void testCustomAdapterInvokedForMapElementSerialization() {
     Gson gson = new GsonBuilder()
@@ -431,15 +400,15 @@ public class CustomTypeAdaptersTest extends TestCase {
       this.data = data;
     }
   }
-  
+
   private static class DataHolderWrapper {
     final DataHolder wrappedData;
-    
+
     public DataHolderWrapper(DataHolder data) {
       this.wrappedData = data;
     }
   }
-  
+
   private static class DataHolderSerializer implements JsonSerializer<DataHolder> {
     public JsonElement serialize(DataHolder src, Type typeOfSrc, JsonSerializationContext context) {
       JsonObject obj = new JsonObject();
