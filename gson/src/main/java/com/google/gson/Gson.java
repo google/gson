@@ -251,9 +251,9 @@ public final class Gson {
         .factory(excludedTypeFactory)
         .factory(GsonCompatibleMapTypeAdapter.FACTORY)
         .factory(CollectionTypeAdapter.FACTORY)
-        .factory(ArrayTypeAdapter.FACTORY)
         .factory(ObjectTypeAdapter.FACTORY)
         .factory(new GsonToMiniGsonTypeAdapter(serializers, deserializers, serializeNulls))
+        .factory(ArrayTypeAdapter.FACTORY)
         .factory(reflectiveTypeAdapterFactory);
 
     this.miniGson = builder.build();
