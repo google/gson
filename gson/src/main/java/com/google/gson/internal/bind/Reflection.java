@@ -34,6 +34,9 @@ final class Reflection {
 
   // TODO: this should use Joel's unsafe constructor stuff
   public static <T> T newInstance(Constructor<T> constructor) {
+    if (!constructor.isAccessible()) {
+      constructor.setAccessible(true);
+    }
     try {
       Object[] args = null;
       return constructor.newInstance(args);
