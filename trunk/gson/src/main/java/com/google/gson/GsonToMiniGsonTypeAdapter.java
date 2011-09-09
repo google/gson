@@ -51,7 +51,11 @@ final class GsonToMiniGsonTypeAdapter implements TypeAdapter.Factory {
           // TODO: handle if deserializer is null
           throw new UnsupportedOperationException();
         }
-        return deserializer.deserialize(Streams.parse(reader), typeOfT, createDeserializationContext(miniGson));
+        JsonElement value = Streams.parse(reader);
+        if (value.isJsonNull()) {
+          return null;
+        }
+        return deserializer.deserialize(value, typeOfT, createDeserializationContext(miniGson));
       }
       @Override
       public void write(JsonWriter writer, Object value) throws IOException {
