@@ -247,10 +247,10 @@ public final class Gson {
         .typeAdapter(BigInteger.class, new BigIntegerTypeAdapter())
         .factory(excludedTypeFactory)
         .factory(GsonCompatibleMapTypeAdapter.FACTORY)
-        .factory(new GsonToMiniGsonTypeAdapter(serializers, deserializers, serializeNulls))
         .factory(CollectionTypeAdapter.FACTORY)
         .factory(ArrayTypeAdapter.FACTORY)
         .factory(ObjectTypeAdapter.FACTORY)
+        .factory(new GsonToMiniGsonTypeAdapter(serializers, deserializers, serializeNulls))
         .factory(reflectiveTypeAdapterFactory);
 
     this.miniGson = builder.build();
