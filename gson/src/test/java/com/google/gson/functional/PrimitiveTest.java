@@ -18,18 +18,14 @@ package com.google.gson.functional;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.LongSerializationPolicy;
-import com.google.gson.common.TestTypes.CrazyLongTypeAdapter;
-
-import junit.framework.TestCase;
-
 import java.io.Serializable;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import junit.framework.TestCase;
 
 /**
  * Functional tests for Json primitive values: integers, and floating point numbers.
@@ -748,17 +744,19 @@ public class PrimitiveTest extends TestCase {
   }
 
   public void testDeserializingBigIntegerAsInteger() {
-    String bigIntegerValue = "12121211243123245845384534687435634558945453489543985435";
-    int actual = gson.fromJson(bigIntegerValue, Integer.class);
-    int expected = new BigInteger(bigIntegerValue).and(MAX_INT_VALUE).intValue();
-    assertEquals(expected, actual);
+    try {
+      gson.fromJson("12121211243123245845384534687435634558945453489543985435", Integer.class);
+      fail();
+    } catch (JsonSyntaxException expected) {
+    }
   }
 
   public void testDeserializingBigIntegerAsLong() {
-    String bigIntegerValue = "12121211243123245845384534687435634558945453489543985435";
-    long actual = gson.fromJson(bigIntegerValue, long.class);
-    long expected = new BigInteger(bigIntegerValue).and(MAX_LONG_VALUE).longValue();
-    assertEquals(expected, actual);
+    try {
+      gson.fromJson("12121211243123245845384534687435634558945453489543985435", Long.class);
+      fail();
+    } catch (JsonSyntaxException expected) {
+    }
   }
 
   public void testDeserializingBigDecimalAsLongFails() {
