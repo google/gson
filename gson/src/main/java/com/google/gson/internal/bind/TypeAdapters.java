@@ -16,6 +16,10 @@
 
 package com.google.gson.internal.bind;
 
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URI;
@@ -24,11 +28,6 @@ import java.net.URL;
 import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.UUID;
-
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
 
 /**
  * Type adapters for basic types.
@@ -48,23 +47,24 @@ public final class TypeAdapters {
   public static final TypeAdapter.Factory BOOLEAN_FACTORY
       = newFactory(boolean.class, Boolean.class, BOOLEAN);
 
-  public static final TypeAdapter<Integer> INTEGER = new TypeAdapter<Integer>() {
-    public Integer read(JsonReader reader) throws IOException {
-      return reader.nextInt();
+  public static final TypeAdapter<Number> BYTE = new TypeAdapter<Number>() {
+    public Number read(JsonReader reader) throws IOException {
+      int intValue = reader.nextInt();
+      return (byte) intValue;
     }
-    public void write(JsonWriter writer, Integer value) throws IOException {
+    public void write(JsonWriter writer, Number value) throws IOException {
       writer.value(value);
     }
   };
 
-  public static final TypeAdapter.Factory INTEGER_FACTORY
-      = newFactory(int.class, Integer.class, INTEGER);
+  public static final TypeAdapter.Factory BYTE_FACTORY
+      = newFactory(byte.class, Byte.class, BYTE);
 
-  public static final TypeAdapter<Short> SHORT = new TypeAdapter<Short>() {
-    public Short read(JsonReader reader) throws IOException {
+  public static final TypeAdapter<Number> SHORT = new TypeAdapter<Number>() {
+    public Number read(JsonReader reader) throws IOException {
       return (short) reader.nextInt();
     }
-    public void write(JsonWriter writer, Short value) throws IOException {
+    public void write(JsonWriter writer, Number value) throws IOException {
       writer.value(value);
     }
   };
@@ -72,11 +72,23 @@ public final class TypeAdapters {
   public static final TypeAdapter.Factory SHORT_FACTORY
       = newFactory(short.class, Short.class, SHORT);
 
-  public static final TypeAdapter<Long> LONG = new TypeAdapter<Long>() {
-    public Long read(JsonReader reader) throws IOException {
+  public static final TypeAdapter<Number> INTEGER = new TypeAdapter<Number>() {
+    public Number read(JsonReader reader) throws IOException {
+      return reader.nextInt();
+    }
+    public void write(JsonWriter writer, Number value) throws IOException {
+      writer.value(value);
+    }
+  };
+
+  public static final TypeAdapter.Factory INTEGER_FACTORY
+      = newFactory(int.class, Integer.class, INTEGER);
+
+  public static final TypeAdapter<Number> LONG = new TypeAdapter<Number>() {
+    public Number read(JsonReader reader) throws IOException {
       return reader.nextLong();
     }
-    public void write(JsonWriter writer, Long value) throws IOException {
+    public void write(JsonWriter writer, Number value) throws IOException {
       writer.value(value);
     }
   };
@@ -84,29 +96,29 @@ public final class TypeAdapters {
   public static final TypeAdapter.Factory LONG_FACTORY
       = newFactory(long.class, Long.class, LONG);
 
-  public static final TypeAdapter<Double> DOUBLE = new TypeAdapter<Double>() {
-    public Double read(JsonReader reader) throws IOException {
-      return reader.nextDouble();
-    }
-    public void write(JsonWriter writer, Double value) throws IOException {
-      writer.value(value);
-    }
-  };
-
-  public static final TypeAdapter.Factory DOUBLE_FACTORY
-      = newFactory(double.class, Double.class, DOUBLE);
-
-  public static final TypeAdapter<Float> FLOAT = new TypeAdapter<Float>() {
-    public Float read(JsonReader reader) throws IOException {
+  public static final TypeAdapter<Number> FLOAT = new TypeAdapter<Number>() {
+    public Number read(JsonReader reader) throws IOException {
       return (float) reader.nextDouble();
     }
-    public void write(JsonWriter writer, Float value) throws IOException {
+    public void write(JsonWriter writer, Number value) throws IOException {
       writer.value(value);
     }
   };
 
   public static final TypeAdapter.Factory FLOAT_FACTORY
       = newFactory(float.class, Float.class, FLOAT);
+
+  public static final TypeAdapter<Number> DOUBLE = new TypeAdapter<Number>() {
+    public Number read(JsonReader reader) throws IOException {
+      return reader.nextDouble();
+    }
+    public void write(JsonWriter writer, Number value) throws IOException {
+      writer.value(value);
+    }
+  };
+
+  public static final TypeAdapter.Factory DOUBLE_FACTORY
+      = newFactory(double.class, Double.class, DOUBLE);
 
   public static final TypeAdapter<String> STRING = new TypeAdapter<String>() {
     public String read(JsonReader reader) throws IOException {
@@ -260,7 +272,7 @@ public final class TypeAdapters {
   }
 
   public static <T> TypeAdapter.Factory newFactory(
-      final Class<T> unboxed, final Class<T> boxed, final TypeAdapter<T> typeAdapter) {
+      final Class<T> unboxed, final Class<T> boxed, final TypeAdapter<? super T> typeAdapter) {
     return new TypeAdapter.Factory() {
       @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
       public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> typeToken) {
