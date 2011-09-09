@@ -759,12 +759,15 @@ public class PrimitiveTest extends TestCase {
     }
   }
 
-  public void testDeserializingBigDecimalAsLongFails() {
-    try {
-      gson.fromJson("-122.08e-2132", long.class);
-      fail();
-    } catch (JsonSyntaxException expected) {
-    }
+  public void testValueVeryCloseToZeroIsZero() {
+    assertEquals(0, (byte) gson.fromJson("-122.08e-2132", byte.class));
+    assertEquals(0, (short) gson.fromJson("-122.08e-2132", short.class));
+    assertEquals(0, (int) gson.fromJson("-122.08e-2132", int.class));
+    assertEquals(0, (long) gson.fromJson("-122.08e-2132", long.class));
+    assertEquals(-0.0f, gson.fromJson("-122.08e-2132", float.class));
+    assertEquals(-0.0, gson.fromJson("-122.08e-2132", double.class));
+    assertEquals(0.0f, gson.fromJson("122.08e-2132", float.class));
+    assertEquals(0.0, gson.fromJson("122.08e-2132", double.class));
   }
 
   public void testDeserializingBigDecimalAsFloat() {
