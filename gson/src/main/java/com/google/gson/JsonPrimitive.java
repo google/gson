@@ -318,7 +318,7 @@ public final class JsonPrimitive extends JsonElement {
       long value = getAsNumber().longValue();
       return (int) (value ^ (value >>> 32));
     }
-    if (isFloatingPoint(this)) {
+    if (value instanceof Number) {
       long value = Double.doubleToLongBits(getAsNumber().doubleValue());
       return (int) (value ^ (value >>> 32));
     }
@@ -340,7 +340,7 @@ public final class JsonPrimitive extends JsonElement {
     if (isIntegral(this) && isIntegral(other)) {
       return getAsNumber().longValue() == other.getAsNumber().longValue();
     }
-    if (isFloatingPoint(this) && isFloatingPoint(other)) {
+    if (value instanceof Number && other.value instanceof Number) {
       double a = getAsNumber().doubleValue();
       // Java standard types other than double return true for two NaN. So, need
       // special handling for double.
@@ -359,17 +359,6 @@ public final class JsonPrimitive extends JsonElement {
       Number number = (Number) primitive.value;
       return number instanceof BigInteger || number instanceof Long || number instanceof Integer
           || number instanceof Short || number instanceof Byte;
-    }
-    return false;
-  }
-
-  /**
-   * Returns true if the specified number is a floating point type (BigDecimal, double, float)
-   */
-  private static boolean isFloatingPoint(JsonPrimitive primitive) {
-    if (primitive.value instanceof Number) {
-      Number number = (Number) primitive.value;
-      return number instanceof BigDecimal || number instanceof Double || number instanceof Float;
     }
     return false;
   }
