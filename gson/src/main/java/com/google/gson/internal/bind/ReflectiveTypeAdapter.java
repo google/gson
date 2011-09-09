@@ -135,10 +135,10 @@ public final class ReflectiveTypeAdapter<T> extends TypeAdapter<T>  {
 
   public static class FactoryImpl implements Factory {
     public boolean serializeField(Class<?> declaringClazz, Field f, Type declaredType) {
-      return true;
+      return !f.isSynthetic();
     }
     public boolean deserializeField(Class<?> declaringClazz, Field f, Type declaredType) {
-      return true;
+      return !f.isSynthetic();
     }
 
     public String getFieldName(Class<?> declaringClazz, Field f, Type declaredType) {
