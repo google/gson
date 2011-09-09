@@ -31,3 +31,9 @@ com.google.gson.functional.PrimitiveTest.testDeserializingBigIntegerAsLong
 GSON 1.x uses arbitrary precision for primitive type conversion (so -122.08e-2132 != 0)
 GSON 2.x uses double precision (so -122.08e-2132 == 0)
 com.google.gson.functional.PrimitiveTest.testDeserializingBigDecimalAsLongFails
+
+
+GSON 1.x supports type adapters for primitive types
+GSON 2.x doesn't
+com.google.gson.functional.CustomTypeAdaptersTest.testCustomSerializerForLong
+com.google.gson.functional.CustomTypeAdaptersTest.testCustomDeserializerForLong
