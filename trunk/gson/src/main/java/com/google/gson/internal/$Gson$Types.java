@@ -18,6 +18,7 @@ package com.google.gson.internal;
 
 import static com.google.gson.internal.$Gson$Preconditions.checkArgument;
 import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
+
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
@@ -297,7 +298,14 @@ public final class $Gson$Types {
    */
   public static Type getCollectionElementType(Type context, Class<?> contextRawType) {
     Type collectionType = getSupertype(context, contextRawType, Collection.class);
-    return ((ParameterizedType) collectionType).getActualTypeArguments()[0];
+    
+    if (collectionType instanceof WildcardType) {
+      collectionType = ((WildcardType)collectionType).getUpperBounds()[0];
+    }
+    if (collectionType instanceof ParameterizedType) {
+      return ((ParameterizedType) collectionType).getActualTypeArguments()[0];
+    }
+    return Object.class;
   }
 
   /**
