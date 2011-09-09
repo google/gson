@@ -16,17 +16,19 @@
 
 package com.google.gson.internal.bind;
 
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.UUID;
+
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
 
 /**
  * Type adapters for basic types.
@@ -173,6 +175,18 @@ public final class TypeAdapters {
 
   public static final TypeAdapter.Factory URI_FACTORY = newFactory(URI.class, URI);
 
+  public static final TypeAdapter<InetAddress> INET_ADDRESS = new TypeAdapter<InetAddress>() {
+    public InetAddress read(JsonReader reader) throws IOException {
+      return InetAddress.getByName(reader.nextString());
+    }
+    public void write(JsonWriter writer, InetAddress value) throws IOException {
+      writer.value(value.getHostAddress());
+    }
+  };
+
+  public static final TypeAdapter.Factory INET_ADDRESS_FACTORY =
+    newTypeHierarchyFactory(InetAddress.class, INET_ADDRESS);
+
   public static final TypeAdapter<UUID> UUID = new TypeAdapter<UUID>() {
     public UUID read(JsonReader reader) throws IOException {
       return java.util.UUID.fromString(reader.nextString());
@@ -257,11 +271,10 @@ public final class TypeAdapters {
   }
 
   public static <T> TypeAdapter.Factory newTypeHierarchyFactory(
-      TypeToken<T> type, TypeAdapter<T> typeAdapter) {
+      final Class<T> clazz, final TypeAdapter<T> typeAdapter) {
     return new TypeAdapter.Factory() {
       public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> typeToken) {
-        // TODO: use Inder's TypeHierarchyAdapter here
-        throw new UnsupportedOperationException();
+        return clazz.isAssignableFrom(typeToken.getRawType()) ? (TypeAdapter<T>) typeAdapter : null;
       }
     };
   }

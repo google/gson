@@ -65,9 +65,7 @@ final class DefaultTypeAdapters {
   @SuppressWarnings("unchecked")
   private static final EnumTypeAdapter ENUM_TYPE_ADAPTER = new EnumTypeAdapter();
   private static final BitSetTypeAdapter BIT_SET_ADAPTER = new BitSetTypeAdapter();
-  private static final DefaultInetAddressAdapter INET_ADDRESS_ADAPTER =
-      new DefaultInetAddressAdapter();
-      private static final CollectionTypeAdapter COLLECTION_TYPE_ADAPTER = new CollectionTypeAdapter();
+  private static final CollectionTypeAdapter COLLECTION_TYPE_ADAPTER = new CollectionTypeAdapter();
   private static final MapTypeAdapter MAP_TYPE_ADAPTER = new MapTypeAdapter();
 
   private static final ByteTypeAdapter BYTE_TYPE_ADAPTER = new ByteTypeAdapter();
@@ -118,7 +116,6 @@ final class DefaultTypeAdapters {
     ParameterizedTypeHandlerMap<JsonSerializer<?>> map =
         new ParameterizedTypeHandlerMap<JsonSerializer<?>>();
     map.registerForTypeHierarchy(Enum.class, ENUM_TYPE_ADAPTER, true);
-    map.registerForTypeHierarchy(InetAddress.class, INET_ADDRESS_ADAPTER, true);
     map.registerForTypeHierarchy(Collection.class, COLLECTION_TYPE_ADAPTER, true);
     map.registerForTypeHierarchy(Map.class, MAP_TYPE_ADAPTER, true);
     map.makeUnmodifiable();
@@ -152,7 +149,6 @@ final class DefaultTypeAdapters {
     ParameterizedTypeHandlerMap<JsonDeserializer<?>> map =
         new ParameterizedTypeHandlerMap<JsonDeserializer<?>>();
     map.registerForTypeHierarchy(Enum.class, wrapDeserializer(ENUM_TYPE_ADAPTER), true);
-    map.registerForTypeHierarchy(InetAddress.class, wrapDeserializer(INET_ADDRESS_ADAPTER), true);
     map.registerForTypeHierarchy(Collection.class, wrapDeserializer(COLLECTION_TYPE_ADAPTER), true);
     map.registerForTypeHierarchy(Map.class, wrapDeserializer(MAP_TYPE_ADAPTER), true);
     map.makeUnmodifiable();
@@ -435,24 +431,6 @@ final class DefaultTypeAdapters {
     @Override
     public String toString() {
       return GregorianCalendarTypeAdapter.class.getSimpleName();
-    }
-  }
-
-  static final class DefaultInetAddressAdapter
-      implements JsonDeserializer<InetAddress>, JsonSerializer<InetAddress> {
-
-    public InetAddress deserialize(JsonElement json, Type typeOfT,
-        JsonDeserializationContext context) throws JsonParseException {
-      try {
-        return InetAddress.getByName(json.getAsString());
-      } catch (UnknownHostException e) {
-        throw new JsonParseException(e);
-      }
-    }
-
-    public JsonElement serialize(InetAddress src, Type typeOfSrc,
-        JsonSerializationContext context) {
-      return new JsonPrimitive(src.getHostAddress());
     }
   }
 
