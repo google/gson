@@ -35,6 +35,7 @@ import com.google.gson.stream.MalformedJsonException;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.Field;
@@ -557,12 +558,10 @@ public final class Gson {
       return null;
     }
     try {
-      TypeAdapter<T> typeAdapter = (TypeAdapter<T>)miniGson.getAdapter(TypeToken.get(typeOfT));
-      return typeAdapter.fromJson(json);
+      StringReader reader = new StringReader(json);
+      T target = (T) fromJson(reader, typeOfT);
+      return target;
     } catch (IllegalStateException e) {
-      // TODO(inder): Figure out whether it is indeed right to rethrow this as JsonSyntaxException
-      throw new JsonSyntaxException(e);
-    } catch (IOException e) {
       // TODO(inder): Figure out whether it is indeed right to rethrow this as JsonSyntaxException
       throw new JsonSyntaxException(e);
     }
@@ -641,14 +640,10 @@ public final class Gson {
    */
   @SuppressWarnings("unchecked")
   public <T> T fromJson(JsonReader reader, Type typeOfT) throws JsonIOException, JsonSyntaxException {
-    if (reader == null) {
-      // TODO(inder): remove this null check since we didnt have it in a previously released version
-      return null;
-    }
     boolean oldLenient = reader.isLenient();
     reader.setLenient(true);
     try {
-      TypeAdapter<T> typeAdapter = (TypeAdapter<T>)miniGson.getAdapter(TypeToken.get(typeOfT));
+      TypeAdapter<T> typeAdapter = (TypeAdapter<T>) miniGson.getAdapter(TypeToken.get(typeOfT));
       return typeAdapter.read(reader);
     } catch (IOException e) {
       // TODO(inder): Figure out whether it is indeed right to rethrow this as JsonSyntaxException
@@ -702,7 +697,7 @@ public final class Gson {
     if (json == null) {
       return null;
     }
-    return (T) miniGson.getAdapter(TypeToken.get(typeOfT)).fromJsonElement(json);
+    return fromJson(new StringReader(json.toString()), typeOfT);
   }
 
   @Override
