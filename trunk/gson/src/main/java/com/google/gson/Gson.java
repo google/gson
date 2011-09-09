@@ -243,6 +243,7 @@ public final class Gson {
         .factory(TypeAdapters.URI_FACTORY)
         .factory(TypeAdapters.UUID_FACTORY)
         .factory(TypeAdapters.LOCALE_FACTORY)
+        .factory(TypeAdapters.INET_ADDRESS_FACTORY)
         .typeAdapter(BigDecimal.class, new BigDecimalTypeAdapter())
         .typeAdapter(BigInteger.class, new BigIntegerTypeAdapter())
         .factory(excludedTypeFactory)

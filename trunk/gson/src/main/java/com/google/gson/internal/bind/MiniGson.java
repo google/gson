@@ -166,8 +166,8 @@ public final class MiniGson {
       return this;
     }
 
-    public <T> Builder typeHierarchyAdapter(TypeToken<T> type, TypeAdapter<T> typeAdapter) {
-      factories.add(TypeAdapters.newTypeHierarchyFactory(type, typeAdapter));
+    public <T> Builder typeHierarchyAdapter(Class<T> clazz, TypeAdapter<T> typeAdapter) {
+      factories.add(TypeAdapters.newTypeHierarchyFactory(clazz, typeAdapter));
       return this;
     }
 

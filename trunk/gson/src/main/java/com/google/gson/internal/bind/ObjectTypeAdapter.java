@@ -33,7 +33,7 @@ import java.util.Map;
 public final class ObjectTypeAdapter extends TypeAdapter<Object> {
   public static final Factory FACTORY = new Factory() {
     @SuppressWarnings("unchecked")
-    @Override public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> type) {
+    public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> type) {
       if (type.getRawType() == Object.class) {
         return (TypeAdapter<T>) new ObjectTypeAdapter(context);
       }
