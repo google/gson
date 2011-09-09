@@ -22,8 +22,12 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.reflect.TypeToken;
@@ -53,10 +57,13 @@ public final class CollectionTypeAdapter<E> extends TypeAdapter<Collection<E>> {
         constructorType = ArrayList.class;
       } else if (rawType == Set.class) {
         constructorType = LinkedHashSet.class;
+      } else if (rawType == Queue.class) {
+        constructorType = LinkedList.class;
+      } else if (rawType == SortedSet.class) {
+        constructorType = TreeSet.class;
       } else {
         constructorType = rawType;
       }
-      // TODO: Queue=LinkedList, SortedSet=TreeSet
 
       Constructor<?> constructor = null;
       try {
