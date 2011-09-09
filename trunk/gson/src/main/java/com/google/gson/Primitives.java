@@ -17,12 +17,11 @@
 package com.google.gson;
 
 
+import com.google.gson.internal.$Gson$Preconditions;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.google.gson.internal.$Gson$Preconditions;
 
 /**
  * Contains static utility methods pertaining to primitive types and their
@@ -78,7 +77,7 @@ final class Primitives {
    *
    * @see Class#isPrimitive
    */
-  public static boolean isWrapperType(Class<?> type) {
+  public static boolean isWrapperType(Type type) {
     return WRAPPER_TO_PRIMITIVE_TYPE.containsKey(
         $Gson$Preconditions.checkNotNull(type));
   }

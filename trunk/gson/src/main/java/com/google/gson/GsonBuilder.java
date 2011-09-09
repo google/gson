@@ -18,7 +18,6 @@ package com.google.gson;
 
 import com.google.gson.DefaultTypeAdapters.DefaultDateTypeAdapter;
 import com.google.gson.internal.$Gson$Preconditions;
-
 import java.lang.reflect.Type;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -495,6 +494,10 @@ public final class GsonBuilder {
   private GsonBuilder registerTypeAdapter(Type type, Object typeAdapter, boolean isSystem) {
     $Gson$Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
         || typeAdapter instanceof JsonDeserializer<?> || typeAdapter instanceof InstanceCreator<?>);
+    if (Primitives.isPrimitive(type) || Primitives.isWrapperType(type)) {
+      throw new IllegalArgumentException(
+          "Cannot register type adapters for " + type);
+    }
     if (typeAdapter instanceof InstanceCreator<?>) {
       registerInstanceCreator(type, (InstanceCreator<?>) typeAdapter, isSystem);
     }
