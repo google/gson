@@ -96,7 +96,11 @@ public final class GsonCompatibleMapTypeAdapter<V> extends TypeAdapter<Map<Strin
 
     writer.beginObject();
     for (Map.Entry<String, V> entry : map.entrySet()) {
-      writer.name(entry.getKey());
+      String key = entry.getKey();
+      if (key == null) {
+        key = "null";
+      }
+      writer.name(key);
       valueTypeAdapter.write(writer, entry.getValue());
     }
     writer.endObject();
