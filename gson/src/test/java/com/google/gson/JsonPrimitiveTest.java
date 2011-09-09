@@ -226,6 +226,12 @@ public class JsonPrimitiveTest extends TestCase {
     MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive(Float.NaN), new JsonPrimitive(Double.NaN));
   }
 
+  public void testEqualsIntegerAndBigInteger() {
+    JsonPrimitive a = new JsonPrimitive(5L);
+    JsonPrimitive b = new JsonPrimitive(new BigInteger("18446744073709551621")); // 2^64 + 5
+    assertFalse(a + " equals " + b, a.equals(b));
+  }
+
   public void testEqualsDoesNotEquateStringAndNonStringTypes() {
     assertFalse(new JsonPrimitive("true").equals(new JsonPrimitive(true)));
     assertFalse(new JsonPrimitive("0").equals(new JsonPrimitive(0)));
