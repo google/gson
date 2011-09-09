@@ -38,6 +38,10 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<Boolean> BOOLEAN = new TypeAdapter<Boolean>() {
     public Boolean read(JsonReader reader) throws IOException {
+      if (reader.peek() == JsonToken.NULL) {
+        reader.nextNull(); // TODO: does this belong here?
+        return null;
+      }
       return reader.nextBoolean();
     }
     public void write(JsonWriter writer, Boolean value) throws IOException {
@@ -50,6 +54,10 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<Number> BYTE = new TypeAdapter<Number>() {
     public Number read(JsonReader reader) throws IOException {
+      if (reader.peek() == JsonToken.NULL) {
+        reader.nextNull(); // TODO: does this belong here?
+        return null;
+      }
       try {
         int intValue = reader.nextInt();
         return (byte) intValue;
@@ -67,6 +75,10 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<Number> SHORT = new TypeAdapter<Number>() {
     public Number read(JsonReader reader) throws IOException {
+      if (reader.peek() == JsonToken.NULL) {
+        reader.nextNull(); // TODO: does this belong here?
+        return null;
+      }
       try {
         return (short) reader.nextInt();
       } catch (NumberFormatException e) {
@@ -83,6 +95,10 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<Number> INTEGER = new TypeAdapter<Number>() {
     public Number read(JsonReader reader) throws IOException {
+      if (reader.peek() == JsonToken.NULL) {
+        reader.nextNull(); // TODO: does this belong here?
+        return null;
+      }
       try {
         return reader.nextInt();
       } catch (NumberFormatException e) {
@@ -99,6 +115,10 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<Number> LONG = new TypeAdapter<Number>() {
     public Number read(JsonReader reader) throws IOException {
+      if (reader.peek() == JsonToken.NULL) {
+        reader.nextNull(); // TODO: does this belong here?
+        return null;
+      }
       try {
         return reader.nextLong();
       } catch (NumberFormatException e) {
@@ -115,6 +135,10 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<Number> FLOAT = new TypeAdapter<Number>() {
     public Number read(JsonReader reader) throws IOException {
+      if (reader.peek() == JsonToken.NULL) {
+        reader.nextNull(); // TODO: does this belong here?
+        return null;
+      }
       return (float) reader.nextDouble();
     }
     public void write(JsonWriter writer, Number value) throws IOException {
@@ -127,6 +151,10 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<Number> DOUBLE = new TypeAdapter<Number>() {
     public Number read(JsonReader reader) throws IOException {
+      if (reader.peek() == JsonToken.NULL) {
+        reader.nextNull(); // TODO: does this belong here?
+        return null;
+      }
       return reader.nextDouble();
     }
     public void write(JsonWriter writer, Number value) throws IOException {
@@ -154,6 +182,10 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<StringBuilder> STRING_BUILDER = new TypeAdapter<StringBuilder>() {
     public StringBuilder read(JsonReader reader) throws IOException {
+      if (reader.peek() == JsonToken.NULL) {
+        reader.nextNull(); // TODO: does this belong here?
+        return null;
+      }
       return new StringBuilder(reader.nextString());
     }
     public void write(JsonWriter writer, StringBuilder value) throws IOException {
@@ -166,6 +198,10 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<StringBuffer> STRING_BUFFER = new TypeAdapter<StringBuffer>() {
     public StringBuffer read(JsonReader reader) throws IOException {
+      if (reader.peek() == JsonToken.NULL) {
+        reader.nextNull(); // TODO: does this belong here?
+        return null;
+      }
       return new StringBuffer(reader.nextString());
     }
     public void write(JsonWriter writer, StringBuffer value) throws IOException {
@@ -178,6 +214,10 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<URL> URL = new TypeAdapter<URL>() {
     public URL read(JsonReader reader) throws IOException {
+      if (reader.peek() == JsonToken.NULL) {
+        reader.nextNull(); // TODO: does this belong here?
+        return null;
+      }
       String nextString = reader.nextString();
       return "null".equals(nextString) ? null : new URL(nextString);
     }
@@ -190,6 +230,10 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<URI> URI = new TypeAdapter<URI>() {
     public URI read(JsonReader reader) throws IOException {
+      if (reader.peek() == JsonToken.NULL) {
+        reader.nextNull(); // TODO: does this belong here?
+        return null;
+      }
       try {
         String nextString = reader.nextString();
         return "null".equals(nextString) ? null : new URI(nextString);
@@ -206,6 +250,10 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<InetAddress> INET_ADDRESS = new TypeAdapter<InetAddress>() {
     public InetAddress read(JsonReader reader) throws IOException {
+      if (reader.peek() == JsonToken.NULL) {
+        reader.nextNull(); // TODO: does this belong here?
+        return null;
+      }
       return InetAddress.getByName(reader.nextString());
     }
     public void write(JsonWriter writer, InetAddress value) throws IOException {
@@ -218,6 +266,10 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<UUID> UUID = new TypeAdapter<UUID>() {
     public UUID read(JsonReader reader) throws IOException {
+      if (reader.peek() == JsonToken.NULL) {
+        reader.nextNull(); // TODO: does this belong here?
+        return null;
+      }
       return java.util.UUID.fromString(reader.nextString());
     }
     public void write(JsonWriter writer, UUID value) throws IOException {
@@ -229,6 +281,10 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<Locale> LOCALE = new TypeAdapter<Locale>() {
     public Locale read(JsonReader reader) throws IOException {
+      if (reader.peek() == JsonToken.NULL) {
+        reader.nextNull(); // TODO: does this belong here?
+        return null;
+      }
       String locale = reader.nextString();
       StringTokenizer tokenizer = new StringTokenizer(locale, "_");
       String language = null;
