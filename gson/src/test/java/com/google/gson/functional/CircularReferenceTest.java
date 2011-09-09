@@ -52,8 +52,8 @@ public class CircularReferenceTest extends TestCase {
     try {
       gson.toJson(a);
       fail("Circular types should not get printed!");
-    } catch (IllegalStateException expected) { 
-      assertTrue(expected.getMessage().contains("children"));      
+    } catch (IllegalStateException expected) {
+      assertTrue(expected.getMessage().contains("children"));
     }
   }
 
@@ -74,7 +74,7 @@ public class CircularReferenceTest extends TestCase {
     try {
       gson.toJson(objA);
       fail("Circular reference to self can not be serialized!");
-    } catch (IllegalStateException expected) { 
+    } catch (IllegalStateException expected) {
       assertTrue(expected.getMessage().contains("children"));
     }
   }
@@ -89,12 +89,12 @@ public class CircularReferenceTest extends TestCase {
         obj.addProperty("property", "value");
         obj.add("child", context.serialize(src.child));
         return obj;
-      }      
+      }
     }).create();
     try {
       gson.toJson(obj);
       fail("Circular reference to self can not be serialized!");
-    } catch (IllegalStateException expected) { 
+    } catch (IllegalStateException expected) {
       assertTrue(expected.getMessage().contains("Offending"));
     }
   }
@@ -119,7 +119,7 @@ public class CircularReferenceTest extends TestCase {
   private static class ContainsReferenceToSelfType {
     Collection<ContainsReferenceToSelfType> children = new ArrayList<ContainsReferenceToSelfType>();
   }
-  
+
   private static class ClassWithSelfReference {
     ClassWithSelfReference child;
   }
