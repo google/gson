@@ -28,12 +28,12 @@ import java.util.Map;
 abstract class BaseMapTypeAdapter
     implements JsonSerializer<Map<?, ?>>, JsonDeserializer<Map<?, ?>> {
 
-  protected static final JsonElement serialize(JsonSerializationContext context,
+  protected static JsonElement serialize(JsonSerializationContext context,
       Object src, Type srcType) {
     return context.serialize(src, srcType, false, false);
   }
 
-  protected static final Map<Object, Object> constructMapType(
+  protected static Map<Object, Object> constructMapType(
       Type mapType, JsonDeserializationContext context) {
     return context.construct(mapType);
   }

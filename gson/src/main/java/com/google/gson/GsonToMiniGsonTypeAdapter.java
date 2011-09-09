@@ -68,7 +68,7 @@ final class GsonToMiniGsonTypeAdapter implements TypeAdapter.Factory {
       }
     };
   }
-  
+
   public JsonSerializationContext createSerializationContext(final MiniGson miniGson) {
     return new JsonSerializationContext() {
       @Override
@@ -84,6 +84,18 @@ final class GsonToMiniGsonTypeAdapter implements TypeAdapter.Factory {
       public <T> T deserialize(JsonElement json, Type typeOfT) throws JsonParseException {
         TypeToken typeToken = TypeToken.get(typeOfT);
         return (T) miniGson.getAdapter(typeToken).fromJsonElement(json);
+      }
+
+      @Override public <T> T construct(Type type) {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override public Object constructArray(Type type, int length) {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override public <T> T deserializeDefault(JsonElement json, Type typeOfT) throws JsonParseException {
+        throw new UnsupportedOperationException();
       }
     };
   }

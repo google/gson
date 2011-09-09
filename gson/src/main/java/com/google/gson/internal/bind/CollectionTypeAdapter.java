@@ -56,12 +56,12 @@ public final class CollectionTypeAdapter<E> extends TypeAdapter<Collection<E>> {
       } else {
         constructorType = rawType;
       }
+      // TODO: Queue=LinkedList, SortedSet=TreeSet
 
-      Constructor<?> constructor;
+      Constructor<?> constructor = null;
       try {
         constructor = constructorType.getConstructor();
-      } catch (NoSuchMethodException e) {
-        return null;
+      } catch (NoSuchMethodException ignored) {
       }
 
       @SuppressWarnings("unchecked") // create() doesn't define a type parameter
@@ -86,6 +86,9 @@ public final class CollectionTypeAdapter<E> extends TypeAdapter<Collection<E>> {
       return null;
     }
 
+    if (constructor == null) {
+      throw new UnsupportedOperationException("TODO: use unsafeAllocator.newInstance");
+    }
     Collection<E> collection = Reflection.newInstance(constructor);
     reader.beginArray();
     while (reader.hasNext()) {

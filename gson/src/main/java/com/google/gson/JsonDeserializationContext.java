@@ -46,7 +46,10 @@ public class JsonDeserializationContext {
     this(null, null, null, null);
   }
 
-  @SuppressWarnings("unchecked")
+  /**
+   * TODO: remove this from the public API
+   */
+  @SuppressWarnings("unchecked") @Deprecated
   public <T> T construct(Type type) {
     Object instance = objectConstructor.construct(type);
     return (T) instance;

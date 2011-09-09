@@ -21,9 +21,10 @@ import com.google.gson.internal.bind.ArrayTypeAdapter;
 import com.google.gson.internal.bind.BigDecimalTypeAdapter;
 import com.google.gson.internal.bind.BigIntegerTypeAdapter;
 import com.google.gson.internal.bind.CollectionTypeAdapter;
+import com.google.gson.internal.bind.GsonCompatibleMapTypeAdapter;
 import com.google.gson.internal.bind.MiniGson;
+import com.google.gson.internal.bind.ObjectTypeAdapter;
 import com.google.gson.internal.bind.ReflectiveTypeAdapter;
-import com.google.gson.internal.bind.StringToValueMapTypeAdapter;
 import com.google.gson.internal.bind.TypeAdapter;
 import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.reflect.TypeToken;
@@ -34,7 +35,6 @@ import com.google.gson.stream.MalformedJsonException;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.Field;
@@ -246,10 +246,11 @@ public final class Gson {
         .typeAdapter(BigDecimal.class, new BigDecimalTypeAdapter())
         .typeAdapter(BigInteger.class, new BigIntegerTypeAdapter())
         .factory(excludedTypeFactory)
+        .factory(GsonCompatibleMapTypeAdapter.FACTORY)
         .factory(new GsonToMiniGsonTypeAdapter(serializers, deserializers, serializeNulls))
         .factory(CollectionTypeAdapter.FACTORY)
-        .factory(StringToValueMapTypeAdapter.FACTORY)
         .factory(ArrayTypeAdapter.FACTORY)
+        .factory(ObjectTypeAdapter.FACTORY)
         .factory(reflectiveTypeAdapterFactory);
 
     this.miniGson = builder.build();
