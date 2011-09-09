@@ -81,7 +81,7 @@ public abstract class JsonElement {
     if (isJsonObject()) {
       return (JsonObject) this;
     }
-    throw new IllegalStateException("This is not a JSON Object.");
+    throw new IllegalStateException("Not a JSON Object: " + this);
   }
 
   /**
