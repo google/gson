@@ -16,14 +16,6 @@
 
 package com.google.gson.functional;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonParseException;
-import com.google.gson.common.MoreAsserts;
-import com.google.gson.common.TestTypes.BagOfPrimitives;
-import com.google.gson.reflect.TypeToken;
-
-import junit.framework.TestCase;
-
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,8 +24,17 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+
+import junit.framework.TestCase;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
+import com.google.gson.common.MoreAsserts;
+import com.google.gson.common.TestTypes.BagOfPrimitives;
+import com.google.gson.reflect.TypeToken;
 
 /**
  * Functional tests for Json serialization and deserialization of collections.
@@ -210,30 +211,28 @@ public class CollectionTest extends TestCase {
 
   public void testRawCollectionDeserializationNotAlllowed() {
     String json = "[0,1,2,3,4,5,6,7,8,9]";
-    try {
-        gson.fromJson(json, Collection.class);
-        fail("Can not deserialize a non-genericized collection.");
-    } catch (JsonParseException expected) { }
+    Collection integers = gson.fromJson(json, Collection.class);
+    // JsonReader converts numbers to double by default so we need a floating point comparison
+    assertEquals(Arrays.asList(0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0), integers);
 
     json = "[\"Hello\", \"World\"]";
-    try {
-      gson.fromJson(json, Collection.class);
-      fail("Can not deserialize a non-genericized collection.");
-    } catch (JsonParseException expected) { }
+    Collection strings = gson.fromJson(json, Collection.class);
+    assertTrue(strings.contains("Hello"));
+    assertTrue(strings.contains("World"));
   }
 
   @SuppressWarnings("unchecked")
   public void testRawCollectionOfBagOfPrimitivesNotAllowed() {
-    try {
-      BagOfPrimitives bag = new BagOfPrimitives(10, 20, false, "stringValue");
-      String json = '[' + bag.getExpectedJson() + ',' + bag.getExpectedJson() + ']';
-      Collection target = gson.fromJson(json, Collection.class);
-      assertEquals(2, target.size());
-      for (BagOfPrimitives bag1 : (Collection<BagOfPrimitives>) target) {
-        assertEquals(bag.getExpectedJson(), bag1.getExpectedJson());
-      }
-      fail("Raw collection of objects should not work");
-    } catch (JsonParseException expected) {
+    BagOfPrimitives bag = new BagOfPrimitives(10, 20, false, "stringValue");
+    String json = '[' + bag.getExpectedJson() + ',' + bag.getExpectedJson() + ']';
+    Collection target = gson.fromJson(json, Collection.class);
+    assertEquals(2, target.size());
+    for (Object bag1 : target) {
+      // Gson 2.0 converts raw objects into maps
+      Map<String, Object> values = (Map<String, Object>) bag1;
+      assertTrue(values.containsValue(10.0));
+      assertTrue(values.containsValue(20.0));
+      assertTrue(values.containsValue("stringValue"));
     }
   }
 
