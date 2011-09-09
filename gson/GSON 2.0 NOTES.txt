@@ -26,3 +26,8 @@ GSON 1.x truncates oversized large integers and longs
 GSON 2.x fails on oversized large integers and longs
 com.google.gson.functional.PrimitiveTest.testDeserializingBigIntegerAsInteger
 com.google.gson.functional.PrimitiveTest.testDeserializingBigIntegerAsLong
+
+
+GSON 1.x uses arbitrary precision for primitive type conversion (so -122.08e-2132 != 0)
+GSON 2.x uses double precision (so -122.08e-2132 == 0)
+com.google.gson.functional.PrimitiveTest.testDeserializingBigDecimalAsLongFails
