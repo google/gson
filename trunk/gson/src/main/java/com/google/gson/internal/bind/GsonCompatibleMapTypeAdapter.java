@@ -31,7 +31,7 @@ import java.util.Map;
 /**
  * Adapt a map whose keys are any type.
  */
-public final class GsonCompatibleMapTypeAdapter<V> extends TypeAdapter<Map<String, V>> {
+public final class GsonCompatibleMapTypeAdapter<V> extends TypeAdapter<Map<?, V>> {
   public static final Factory FACTORY = new Factory() {
     public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> typeToken) {
       Type type = typeToken.getType();
@@ -71,7 +71,7 @@ public final class GsonCompatibleMapTypeAdapter<V> extends TypeAdapter<Map<Strin
     this.constructor = constructor;
   }
 
-  public Map<String, V> read(JsonReader reader) throws IOException {
+  public Map<?, V> read(JsonReader reader) throws IOException {
     if (reader.peek() == JsonToken.NULL) {
       reader.nextNull(); // TODO: does this belong here?
       return null;
@@ -82,24 +82,21 @@ public final class GsonCompatibleMapTypeAdapter<V> extends TypeAdapter<Map<Strin
     while (reader.hasNext()) {
       String key = reader.nextName();
       V value = valueTypeAdapter.read(reader);
-      map.put(key, value);
+      map.put(key, value); // TODO: convert to the map's key type?
     }
     reader.endObject();
     return map;
   }
 
-  public void write(JsonWriter writer, Map<String, V> map) throws IOException {
+  public void write(JsonWriter writer, Map<?, V> map) throws IOException {
     if (map == null) {
       writer.nullValue(); // TODO: better policy here?
       return;
     }
 
     writer.beginObject();
-    for (Map.Entry<String, V> entry : map.entrySet()) {
-      String key = entry.getKey();
-      if (key == null) {
-        key = "null";
-      }
+    for (Map.Entry<?, V> entry : map.entrySet()) {
+      String key = String.valueOf(entry.getKey());
       writer.name(key);
       valueTypeAdapter.write(writer, entry.getValue());
     }
