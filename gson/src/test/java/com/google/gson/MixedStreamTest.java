@@ -73,7 +73,7 @@ public final class MixedStreamTest extends TestCase {
     assertEquals(RED_MIATA, gson.fromJson(jsonReader, Car.class));
     jsonReader.endArray();
   }
-  
+
   public void testReaderDoesNotMutateState() throws IOException {
     Gson gson = new Gson();
     JsonReader jsonReader = new JsonReader(new StringReader(CARS_JSON));
@@ -114,7 +114,7 @@ public final class MixedStreamTest extends TestCase {
     try {
       gson.fromJson(jsonReader, String.class);
       fail();
-    } catch (IllegalArgumentException expected) {
+    } catch (IllegalStateException expected) {
     }
   }
 
@@ -152,7 +152,7 @@ public final class MixedStreamTest extends TestCase {
     } catch (IllegalStateException expected) {
     }
   }
-  
+
   public void testWriteNulls() {
     Gson gson = new Gson();
     try {
@@ -165,7 +165,7 @@ public final class MixedStreamTest extends TestCase {
     gson.toJson(null, new JsonWriter(stringWriter));
     assertEquals("", stringWriter.toString());
   }
-  
+
   public void testReadNulls() {
     Gson gson = new Gson();
     try {
@@ -176,7 +176,7 @@ public final class MixedStreamTest extends TestCase {
     try {
       gson.fromJson(new JsonReader(new StringReader("true")), null);
       fail();
-    } catch (IllegalArgumentException expected) {
+    } catch (NullPointerException expected) {
     }
   }
 
@@ -195,7 +195,7 @@ public final class MixedStreamTest extends TestCase {
     assertEquals("[\"<\",\">\",\"&\",\"=\",\"'\"]",
         writer.toString());
   }
-  
+
   public void testWriteLenient() {
     List<Double> doubles = Arrays.asList(Double.NaN, Double.NEGATIVE_INFINITY,
         Double.POSITIVE_INFINITY, -0.0d, 0.5d, 0.0d);

@@ -16,30 +16,19 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.$Gson$Types;
+import com.google.gson.internal.ParameterizedTypeHandlerMap;
 import java.lang.reflect.Type;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
-import java.util.SortedSet;
 import java.util.TimeZone;
-import java.util.TreeSet;
 
 /**
  * List of all the default type adapters ({@link JsonSerializer}s, {@link JsonDeserializer}s,
@@ -61,7 +50,6 @@ final class DefaultTypeAdapters {
   @SuppressWarnings("unchecked")
   private static final EnumTypeAdapter ENUM_TYPE_ADAPTER = new EnumTypeAdapter();
   private static final BitSetTypeAdapter BIT_SET_ADAPTER = new BitSetTypeAdapter();
-  private static final MapTypeAdapter MAP_TYPE_ADAPTER = new MapTypeAdapter();
 
   private static final CharacterTypeAdapter CHARACTER_TYPE_ADAPTER = new CharacterTypeAdapter();
   private static final NumberTypeAdapter NUMBER_TYPE_ADAPTER = new NumberTypeAdapter();
@@ -107,7 +95,6 @@ final class DefaultTypeAdapters {
     ParameterizedTypeHandlerMap<JsonSerializer<?>> map =
         new ParameterizedTypeHandlerMap<JsonSerializer<?>>();
     map.registerForTypeHierarchy(Enum.class, ENUM_TYPE_ADAPTER, true);
-    map.registerForTypeHierarchy(Map.class, MAP_TYPE_ADAPTER, true);
     map.makeUnmodifiable();
     return map;
   }
@@ -135,35 +122,14 @@ final class DefaultTypeAdapters {
     ParameterizedTypeHandlerMap<JsonDeserializer<?>> map =
         new ParameterizedTypeHandlerMap<JsonDeserializer<?>>();
     map.registerForTypeHierarchy(Enum.class, wrapDeserializer(ENUM_TYPE_ADAPTER), true);
-    map.registerForTypeHierarchy(Map.class, wrapDeserializer(MAP_TYPE_ADAPTER), true);
     map.makeUnmodifiable();
     return map;
   }
 
   @SuppressWarnings("unchecked")
   private static ParameterizedTypeHandlerMap<InstanceCreator<?>> createDefaultInstanceCreators() {
-    ParameterizedTypeHandlerMap<InstanceCreator<?>> map =
-        new ParameterizedTypeHandlerMap<InstanceCreator<?>>();
-    DefaultConstructorAllocator allocator = new DefaultConstructorAllocator(50);
-
-    // Map Instance Creators
-    map.registerForTypeHierarchy(Map.class,
-        new DefaultConstructorCreator<Map>(LinkedHashMap.class, allocator), true);
-
-    // Add Collection type instance creators
-    DefaultConstructorCreator<List> listCreator =
-        new DefaultConstructorCreator<List>(ArrayList.class, allocator);
-    DefaultConstructorCreator<Queue> queueCreator =
-      new DefaultConstructorCreator<Queue>(LinkedList.class, allocator);
-    DefaultConstructorCreator<Set> setCreator =
-        new DefaultConstructorCreator<Set>(HashSet.class, allocator);
-    DefaultConstructorCreator<SortedSet> sortedSetCreator =
-        new DefaultConstructorCreator<SortedSet>(TreeSet.class, allocator);
-    map.registerForTypeHierarchy(Collection.class, listCreator, true);
-    map.registerForTypeHierarchy(Queue.class, queueCreator, true);
-    map.registerForTypeHierarchy(Set.class, setCreator, true);
-    map.registerForTypeHierarchy(SortedSet.class, sortedSetCreator, true);
-
+    ParameterizedTypeHandlerMap<InstanceCreator<?>> map
+        = new ParameterizedTypeHandlerMap<InstanceCreator<?>>();
     map.makeUnmodifiable();
     return map;
   }
@@ -564,35 +530,6 @@ final class DefaultTypeAdapters {
     @Override
     public String toString() {
       return CharacterTypeAdapter.class.getSimpleName();
-    }
-  }
-
-  @SuppressWarnings("unchecked")
-  private static final class DefaultConstructorCreator<T> implements InstanceCreator<T> {
-    private final Class<? extends T> defaultInstance;
-    private final DefaultConstructorAllocator allocator;
-
-    public DefaultConstructorCreator(Class<? extends T> defaultInstance,
-        DefaultConstructorAllocator allocator) {
-      this.defaultInstance = defaultInstance;
-      this.allocator = allocator;
-    }
-
-    public T createInstance(Type type) {
-      Class<?> rawType = $Gson$Types.getRawType(type);
-      try {
-        T specificInstance = (T) allocator.newInstance(rawType);
-        return (specificInstance == null)
-            ? allocator.newInstance(defaultInstance)
-            : specificInstance;
-      } catch (Exception e) {
-        throw new JsonIOException(e);
-      }
-    }
-
-    @Override
-    public String toString() {
-      return DefaultConstructorCreator.class.getSimpleName();
     }
   }
 }

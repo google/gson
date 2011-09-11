@@ -16,12 +16,10 @@
 
 package com.google.gson;
 
+import com.google.gson.common.TestTypes.ClassWithNoFields;
 import java.lang.reflect.Modifier;
 import java.util.LinkedList;
-
 import junit.framework.TestCase;
-
-import com.google.gson.common.TestTypes.ClassWithNoFields;
 
 /**
  * Functional tests for Gson that depend on some internal package-protected elements of
@@ -39,7 +37,7 @@ public class FunctionWithInternalDependenciesTest extends TestCase {
     strategies.add(new ModifierBasedExclusionStrategy(Modifier.TRANSIENT, Modifier.STATIC));
     ExclusionStrategy exclusionStrategy = new DisjunctionExclusionStrategy(strategies);
     Gson gson = new Gson(exclusionStrategy, exclusionStrategy, Gson.DEFAULT_NAMING_POLICY,
-        new MappedObjectConstructor(DefaultTypeAdapters.getDefaultInstanceCreators()),
+        DefaultTypeAdapters.getDefaultInstanceCreators(),
         false, DefaultTypeAdapters.getDefaultSerializers(),
         DefaultTypeAdapters.getDefaultDeserializers(), Gson.DEFAULT_JSON_NON_EXECUTABLE, true,
         false, false, LongSerializationPolicy.DEFAULT);

@@ -28,7 +28,7 @@ import java.math.BigInteger;
  *
  * @author Joel Leitch
  */
-public class BigIntegerTypeAdapter extends TypeAdapter<BigInteger> {
+public final class BigIntegerTypeAdapter extends TypeAdapter<BigInteger> {
 
   @Override
   public BigInteger read(JsonReader reader) throws IOException {

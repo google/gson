@@ -15,12 +15,11 @@
  */
 package com.google.gson.internal.bind;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
-
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+import java.lang.reflect.Type;
 
 final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
 
@@ -52,10 +51,10 @@ final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
     Type runtimeType = Reflection.getRuntimeTypeIfMoreSpecific(type, value);
     if (runtimeType != type) {
       TypeAdapter runtimeTypeAdapter = context.getAdapter(TypeToken.get(runtimeType));
-      if (!(runtimeTypeAdapter instanceof ReflectiveTypeAdapter)) {
+      if (!(runtimeTypeAdapter instanceof ReflectiveTypeAdapterFactory.Adapter)) {
         // The user registered a type adapter for the runtime type, so we will use that
         chosen = runtimeTypeAdapter;
-      } else if (!(delegate instanceof ReflectiveTypeAdapter)) {
+      } else if (!(delegate instanceof ReflectiveTypeAdapterFactory.Adapter)) {
         // The user registered a type adapter for Base class, so we prefer it over the
         // reflective type adapter for the runtime type
         chosen = delegate;

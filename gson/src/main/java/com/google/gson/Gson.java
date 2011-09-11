@@ -16,15 +16,19 @@
 
 package com.google.gson;
 
+import com.google.gson.internal.ConstructorConstructor;
+import com.google.gson.internal.ParameterizedTypeHandlerMap;
+import com.google.gson.internal.Primitives;
 import com.google.gson.internal.Streams;
 import com.google.gson.internal.bind.ArrayTypeAdapter;
 import com.google.gson.internal.bind.BigDecimalTypeAdapter;
 import com.google.gson.internal.bind.BigIntegerTypeAdapter;
-import com.google.gson.internal.bind.CollectionTypeAdapter;
-import com.google.gson.internal.bind.GsonCompatibleMapTypeAdapter;
+import com.google.gson.internal.bind.CollectionTypeAdapterFactory;
+import com.google.gson.internal.bind.ExcludedTypeAdapterFactory;
+import com.google.gson.internal.bind.MapTypeAdapterFactory;
 import com.google.gson.internal.bind.MiniGson;
 import com.google.gson.internal.bind.ObjectTypeAdapter;
-import com.google.gson.internal.bind.ReflectiveTypeAdapter;
+import com.google.gson.internal.bind.ReflectiveTypeAdapterFactory;
 import com.google.gson.internal.bind.TypeAdapter;
 import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.reflect.TypeToken;
@@ -32,7 +36,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.google.gson.stream.MalformedJsonException;
-
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -113,7 +117,7 @@ public final class Gson {
   private final ExclusionStrategy deserializationExclusionStrategy;
   private final ExclusionStrategy serializationExclusionStrategy;
   private final FieldNamingStrategy2 fieldNamingPolicy;
-  private final MappedObjectConstructor objectConstructor;
+  private final ConstructorConstructor constructorConstructor;
 
   /** Map containing Type or Class objects as keys */
   private final ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers;
@@ -164,7 +168,7 @@ public final class Gson {
    */
   public Gson() {
     this(DEFAULT_EXCLUSION_STRATEGY, DEFAULT_EXCLUSION_STRATEGY, DEFAULT_NAMING_POLICY,
-        new MappedObjectConstructor(DefaultTypeAdapters.getDefaultInstanceCreators()),
+        DefaultTypeAdapters.getDefaultInstanceCreators(),
         false, DefaultTypeAdapters.getAllDefaultSerializers(),
         DefaultTypeAdapters.getAllDefaultDeserializers(), DEFAULT_JSON_NON_EXECUTABLE, true, false,
         false, LongSerializationPolicy.DEFAULT);
@@ -173,7 +177,7 @@ public final class Gson {
   Gson(final ExclusionStrategy deserializationExclusionStrategy,
       final ExclusionStrategy serializationExclusionStrategy,
       final FieldNamingStrategy2 fieldNamingPolicy,
-      final MappedObjectConstructor objectConstructor, boolean serializeNulls,
+      final ParameterizedTypeHandlerMap<InstanceCreator<?>> instanceCreators, boolean serializeNulls,
       final ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers,
       final ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers,
       boolean generateNonExecutableGson, boolean htmlSafe, boolean prettyPrinting,
@@ -181,7 +185,7 @@ public final class Gson {
     this.deserializationExclusionStrategy = deserializationExclusionStrategy;
     this.serializationExclusionStrategy = serializationExclusionStrategy;
     this.fieldNamingPolicy = fieldNamingPolicy;
-    this.objectConstructor = objectConstructor;
+    this.constructorConstructor = new ConstructorConstructor(instanceCreators);
     this.serializeNulls = serializeNulls;
     this.serializers = serializers;
     this.deserializers = deserializers;
@@ -196,33 +200,24 @@ public final class Gson {
         serializeNulls
         serializers
      */
-    TypeAdapter.Factory reflectiveTypeAdapterFactory =
-      new ReflectiveTypeAdapter.FactoryImpl() {
+    TypeAdapter.Factory reflectiveTypeAdapterFactory
+        = new ReflectiveTypeAdapterFactory(constructorConstructor) {
       @Override
       public String getFieldName(Class<?> declaringClazz, Field f, Type declaredType) {
         return fieldNamingPolicy.translateName(new FieldAttributes(declaringClazz, f, declaredType));
       }
       @Override
       public boolean serializeField(Class<?> declaringClazz, Field f, Type declaredType) {
-        return !Gson.this.serializationExclusionStrategy.shouldSkipField(
-            new FieldAttributes(declaringClazz, f, declaredType));
+        ExclusionStrategy strategy = Gson.this.serializationExclusionStrategy;
+        return !strategy.shouldSkipClass(f.getType())
+            && !strategy.shouldSkipField(new FieldAttributes(declaringClazz, f, declaredType));
       }
+
       @Override
       public boolean deserializeField(Class<?> declaringClazz, Field f, Type declaredType) {
-        return !Gson.this.deserializationExclusionStrategy.shouldSkipField(
-            new FieldAttributes(declaringClazz, f, declaredType));
-      }
-    };
-
-    TypeAdapter.Factory excludedTypeFactory = new TypeAdapter.Factory() {
-      public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> type) {
-        Class<?> rawType = type.getRawType();
-        if (serializationExclusionStrategy.shouldSkipClass(rawType)
-            || deserializationExclusionStrategy.shouldSkipClass(rawType)) {
-          return TypeAdapters.EXCLUDED_TYPE_ADAPTER;
-        } else {
-          return null;
-        }
+        ExclusionStrategy strategy = Gson.this.deserializationExclusionStrategy;
+        return !strategy.shouldSkipClass(f.getType())
+            && !strategy.shouldSkipField(new FieldAttributes(declaringClazz, f, declaredType));
       }
     };
 
@@ -238,6 +233,8 @@ public final class Gson {
             doubleAdapter(serializeSpecialFloatingPointValues)))
         .factory(TypeAdapters.newFactory(float.class, Float.class,
             floatAdapter(serializeSpecialFloatingPointValues)))
+        .factory(new ExcludedTypeAdapterFactory(
+            serializationExclusionStrategy, deserializationExclusionStrategy))
         .factory(TypeAdapters.STRING_FACTORY)
         .factory(TypeAdapters.STRING_BUILDER_FACTORY)
         .factory(TypeAdapters.STRING_BUFFER_FACTORY)
@@ -248,11 +245,12 @@ public final class Gson {
         .factory(TypeAdapters.INET_ADDRESS_FACTORY)
         .typeAdapter(BigDecimal.class, new BigDecimalTypeAdapter())
         .typeAdapter(BigInteger.class, new BigIntegerTypeAdapter())
-        .factory(excludedTypeFactory)
-        .factory(GsonCompatibleMapTypeAdapter.FACTORY)
-        .factory(CollectionTypeAdapter.FACTORY)
+        .factory(new MapTypeAdapterFactory(constructorConstructor))
+        .factory(new CollectionTypeAdapterFactory(constructorConstructor))
         .factory(ObjectTypeAdapter.FACTORY)
-        .factory(new GsonToMiniGsonTypeAdapter(serializers, deserializers, serializeNulls))
+        .factory(new GsonToMiniGsonTypeAdapterFactory(serializers, deserializers,
+            new JsonDeserializationContext(this), new JsonSerializationContext(this), serializeNulls
+        ))
         .factory(ArrayTypeAdapter.FACTORY)
         .factory(reflectiveTypeAdapterFactory);
 
@@ -265,9 +263,17 @@ public final class Gson {
     }
     return new TypeAdapter<Number>() {
       @Override public Double read(JsonReader reader) throws IOException {
+        if (reader.peek() == JsonToken.NULL) {
+          reader.nextNull(); // TODO: does this belong here?
+          return null;
+        }
         return reader.nextDouble();
       }
       @Override public void write(JsonWriter writer, Number value) throws IOException {
+        if (value == null) {
+          writer.nullValue(); // TODO: better policy here?
+          return;
+        }
         double doubleValue = value.doubleValue();
         checkValidFloatingPoint(doubleValue);
         writer.value(value);
@@ -281,9 +287,17 @@ public final class Gson {
     }
     return new TypeAdapter<Number>() {
       @Override public Float read(JsonReader reader) throws IOException {
+        if (reader.peek() == JsonToken.NULL) {
+          reader.nextNull(); // TODO: does this belong here?
+          return null;
+        }
         return (float) reader.nextDouble();
       }
       @Override public void write(JsonWriter writer, Number value) throws IOException {
+        if (value == null) {
+          writer.nullValue(); // TODO: better policy here?
+          return;
+        }
         float floatValue = value.floatValue();
         checkValidFloatingPoint(floatValue);
         writer.value(value);
@@ -305,9 +319,17 @@ public final class Gson {
     }
     return new TypeAdapter<Number>() {
       @Override public Number read(JsonReader reader) throws IOException {
+        if (reader.peek() == JsonToken.NULL) {
+          reader.nextNull(); // TODO: does this belong here?
+          return null;
+        }
         return reader.nextLong();
       }
       @Override public void write(JsonWriter writer, Number value) throws IOException {
+        if (value == null) {
+          writer.nullValue(); // TODO: better policy here?
+          return;
+        }
         writer.value(value.toString());
       }
     };
@@ -640,11 +662,23 @@ public final class Gson {
    */
   @SuppressWarnings("unchecked")
   public <T> T fromJson(JsonReader reader, Type typeOfT) throws JsonIOException, JsonSyntaxException {
+    boolean isEmpty = true;
     boolean oldLenient = reader.isLenient();
     reader.setLenient(true);
     try {
+      reader.peek();
+      isEmpty = false;
       TypeAdapter<T> typeAdapter = (TypeAdapter<T>) miniGson.getAdapter(TypeToken.get(typeOfT));
       return typeAdapter.read(reader);
+    } catch (EOFException e) {
+      /*
+       * For compatibility with JSON 1.5 and earlier, we return null for empty
+       * documents instead of throwing.
+       */
+      if (isEmpty) {
+        return null;
+      }
+      throw new JsonSyntaxException(e);
     } catch (IOException e) {
       // TODO(inder): Figure out whether it is indeed right to rethrow this as JsonSyntaxException
       throw new JsonSyntaxException(e);
@@ -710,8 +744,9 @@ public final class Gson {
       	// using the name instanceCreator instead of ObjectConstructor since the users of Gson are
       	// more familiar with the concept of Instance Creators. Moreover, the objectConstructor is
       	// just a utility class around instance creators, and its toString() only displays them.
-        .append(",instanceCreators:").append(objectConstructor)
+        .append(",instanceCreators:").append(constructorConstructor)
         .append("}");
   	return sb.toString();
   }
+
 }

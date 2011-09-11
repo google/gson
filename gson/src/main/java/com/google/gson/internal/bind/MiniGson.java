@@ -16,16 +16,16 @@
 
 package com.google.gson.internal.bind;
 
+import com.google.gson.internal.ConstructorConstructor;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
 
 /**
  * A basic binding between JSON and Java objects.
@@ -48,6 +48,7 @@ public final class MiniGson {
   private final List<TypeAdapter.Factory> factories;
 
   private MiniGson(Builder builder) {
+    ConstructorConstructor constructorConstructor = new ConstructorConstructor();
     List<TypeAdapter.Factory> factories = new ArrayList<TypeAdapter.Factory>();
     if (builder.addDefaultFactories) {
       factories.add(TypeAdapters.BOOLEAN_FACTORY);
@@ -59,11 +60,11 @@ public final class MiniGson {
     }
     factories.addAll(builder.factories);
     if (builder.addDefaultFactories) {
-      factories.add(CollectionTypeAdapter.FACTORY);
-      factories.add(StringToValueMapTypeAdapter.FACTORY);
+      factories.add(new CollectionTypeAdapterFactory(constructorConstructor));
+      factories.add(new StringToValueMapTypeAdapterFactory(constructorConstructor));
       factories.add(ArrayTypeAdapter.FACTORY);
       factories.add(ObjectTypeAdapter.FACTORY);
-      factories.add(ReflectiveTypeAdapter.FACTORY);
+      factories.add(new ReflectiveTypeAdapterFactory(constructorConstructor));
     }
     this.factories = Collections.unmodifiableList(factories);
   }
@@ -98,6 +99,33 @@ public final class MiniGson {
     } finally {
       threadCalls.remove(type);
     }
+  }
+
+  /**
+   * Returns a type adapter for {@code} type that isn't {@code skipPast}. This
+   * can be used for type adapters to compose other, simpler type adapters.
+   *
+   * @throws IllegalArgumentException if this GSON cannot serialize and
+   *     deserialize {@code type}.
+   */
+  public <T> TypeAdapter<T> getNextAdapter(TypeAdapter.Factory skipPast, TypeToken<T> type) {
+    boolean skipPastFound = false;
+
+    for (TypeAdapter.Factory factory : factories) {
+      if (!skipPastFound) {
+        if (factory == skipPast) {
+          skipPastFound = true;
+        }
+        continue;
+      }
+
+      TypeAdapter<T> candidate = factory.create(this, type);
+      if (candidate != null) {
+        return candidate;
+      }
+    }
+
+    throw new IllegalArgumentException("This MiniGSON cannot serialize " + type);
   }
 
   static class FutureTypeAdapter<T> extends TypeAdapter<T> {

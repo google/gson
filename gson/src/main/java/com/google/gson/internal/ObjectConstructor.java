@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson;
-
-import java.lang.reflect.Type;
+package com.google.gson.internal;
 
 /**
  * Defines a generic object construction factory.  The purpose of this class
@@ -26,22 +24,10 @@ import java.lang.reflect.Type;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-interface ObjectConstructor {
+public interface ObjectConstructor<T> {
 
   /**
-   * Creates a new instance of the given type.
-   *
-   * @param typeOfT the class type that should be instantiated
-   * @return a default instance of the provided class.
+   * Returns a new instance.
    */
-  public <T> T construct(Type typeOfT);
-
-  /**
-   * Constructs an array type of the provided length.
-   *
-   * @param typeOfArrayElements type of objects in the array
-   * @param length size of the array
-   * @return new array of size length
-   */
-  public Object constructArray(Type typeOfArrayElements, int length);
+  public T construct();
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package com.google.gson.internal;
 
 /**
  * A simple object that holds onto a pair of object references, first and second.
@@ -25,7 +25,7 @@ package com.google.gson;
  * @param <FIRST>
  * @param <SECOND>
  */
-final class Pair<FIRST, SECOND> {
+public final class Pair<FIRST, SECOND> {
   public final FIRST first;
   public final SECOND second;
 
