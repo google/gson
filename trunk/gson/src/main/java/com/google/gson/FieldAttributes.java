@@ -19,6 +19,7 @@ package com.google.gson;
 import com.google.gson.internal.$Gson$Preconditions;
 import com.google.gson.internal.$Gson$Types;
 
+import com.google.gson.internal.Pair;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;

@@ -143,7 +143,7 @@ public abstract class JsonElement {
    * more than a single element.
    */
   public boolean getAsBoolean() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(getClass().getSimpleName());
   }
 
   /**
@@ -156,7 +156,7 @@ public abstract class JsonElement {
    * more than a single element.
    */
   Boolean getAsBooleanWrapper() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(getClass().getSimpleName());
   }
 
   /**
@@ -169,7 +169,7 @@ public abstract class JsonElement {
    * more than a single element.
    */
   public Number getAsNumber() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(getClass().getSimpleName());
   }
 
   /**
@@ -182,7 +182,7 @@ public abstract class JsonElement {
    * more than a single element.
    */
   public String getAsString() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(getClass().getSimpleName());
   }
 
   /**
@@ -195,7 +195,7 @@ public abstract class JsonElement {
    * more than a single element.
    */
   public double getAsDouble() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(getClass().getSimpleName());
   }
 
   /**
@@ -208,7 +208,7 @@ public abstract class JsonElement {
    * more than a single element.
    */
   public float getAsFloat() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(getClass().getSimpleName());
   }
 
   /**
@@ -221,7 +221,7 @@ public abstract class JsonElement {
    * more than a single element.
    */
   public long getAsLong() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(getClass().getSimpleName());
   }
 
   /**
@@ -234,7 +234,7 @@ public abstract class JsonElement {
    * more than a single element.
    */
   public int getAsInt() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(getClass().getSimpleName());
   }
 
   /**
@@ -248,7 +248,7 @@ public abstract class JsonElement {
    * @since 1.3
    */
   public byte getAsByte() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(getClass().getSimpleName());
   }
 
   /**
@@ -262,7 +262,7 @@ public abstract class JsonElement {
    * @since 1.3
    */
   public char getAsCharacter() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(getClass().getSimpleName());
   }
 
   /**
@@ -276,7 +276,7 @@ public abstract class JsonElement {
    * @since 1.2
    */
   public BigDecimal getAsBigDecimal() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(getClass().getSimpleName());
   }
 
   /**
@@ -290,7 +290,7 @@ public abstract class JsonElement {
    * @since 1.2
    */
   public BigInteger getAsBigInteger() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(getClass().getSimpleName());
   }
 
   /**
@@ -303,7 +303,7 @@ public abstract class JsonElement {
    * more than a single element.
    */
   public short getAsShort() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(getClass().getSimpleName());
   }
 
   /**
@@ -316,7 +316,7 @@ public abstract class JsonElement {
    * more than a single element.
    */
   Object getAsObject() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(getClass().getSimpleName());
   }
 
   /**

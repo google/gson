@@ -28,7 +28,7 @@ import java.math.BigDecimal;
  *
  * @author Joel Leitch
  */
-public class BigDecimalTypeAdapter extends TypeAdapter<BigDecimal> {
+public final class BigDecimalTypeAdapter extends TypeAdapter<BigDecimal> {
 
   @Override
   public BigDecimal read(JsonReader reader) throws IOException {
