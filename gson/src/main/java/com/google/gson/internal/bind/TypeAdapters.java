@@ -167,9 +167,14 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<String> STRING = new TypeAdapter<String>() {
     public String read(JsonReader reader) throws IOException {
-      if (reader.peek() == JsonToken.NULL) {
+      JsonToken peek = reader.peek();
+      if (peek == JsonToken.NULL) {
         reader.nextNull(); // TODO: does this belong here?
         return null;
+      }
+      /* coerce booleans to strings for backwards compatibility */
+      if (peek == JsonToken.BOOLEAN) {
+        return Boolean.toString(reader.nextBoolean());
       }
       return reader.nextString();
     }
@@ -313,16 +318,6 @@ public final class TypeAdapters {
   };
 
   public static final TypeAdapter.Factory LOCALE_FACTORY = newFactory(Locale.class, LOCALE);
-
-  public static final TypeAdapter EXCLUDED_TYPE_ADAPTER = new TypeAdapter<Object>() {
-    @Override public Object read(JsonReader reader) throws IOException {
-      reader.skipValue();
-      return null;
-    }
-    @Override public void write(JsonWriter writer, Object value) throws IOException {
-      writer.nullValue();
-    }
-  };
 
   public static <T> TypeAdapter.Factory newFactory(
       final TypeToken<T> type, final TypeAdapter<T> typeAdapter) {

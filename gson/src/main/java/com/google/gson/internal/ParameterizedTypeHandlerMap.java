@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson;
-
-import com.google.gson.internal.$Gson$Types;
+package com.google.gson.internal;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -35,7 +33,7 @@ import java.util.logging.Logger;
  *
  * @param <T> The handler that will be looked up by type
  */
-final class ParameterizedTypeHandlerMap<T> {
+public final class ParameterizedTypeHandlerMap<T> {
   private static final Logger logger =
       Logger.getLogger(ParameterizedTypeHandlerMap.class.getName());
   /**
@@ -222,7 +220,7 @@ final class ParameterizedTypeHandlerMap<T> {
     ParameterizedTypeHandlerMap<T> copy = new ParameterizedTypeHandlerMap<T>();
     // Instead of individually registering entries in the map, make an efficient copy
     // of the list and map
-    
+
     // TODO (inder): Performance optimization. We can probably just share the
     // systemMap and systemTypeHierarchyList instead of making copies
     copy.systemMap.putAll(systemMap);

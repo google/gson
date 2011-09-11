@@ -18,6 +18,8 @@ package com.google.gson;
 
 import com.google.gson.DefaultTypeAdapters.DefaultDateTypeAdapter;
 import com.google.gson.internal.$Gson$Preconditions;
+import com.google.gson.internal.ParameterizedTypeHandlerMap;
+import com.google.gson.internal.Primitives;
 import java.lang.reflect.Type;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -678,6 +680,7 @@ public final class GsonBuilder {
     addTypeAdaptersForDate(datePattern, dateStyle, timeStyle, customSerializers,
         customDeserializers);
 
+    customSerializers.registerIfAbsent(DefaultTypeAdapters.getDefaultSerializers());
     customDeserializers.registerIfAbsent(DefaultTypeAdapters.getDefaultDeserializers());
 
     ParameterizedTypeHandlerMap<InstanceCreator<?>> customInstanceCreators =
@@ -688,11 +691,9 @@ public final class GsonBuilder {
     customDeserializers.makeUnmodifiable();
     instanceCreators.makeUnmodifiable();
 
-    MappedObjectConstructor objConstructor = new MappedObjectConstructor(customInstanceCreators);
-
     return new Gson(new DisjunctionExclusionStrategy(deserializationStrategies),
         new DisjunctionExclusionStrategy(serializationStrategies),
-        fieldNamingPolicy, objConstructor, serializeNulls,
+        fieldNamingPolicy, instanceCreators, serializeNulls,
         customSerializers, customDeserializers, generateNonExecutableJson, escapeHtmlChars,
         prettyPrinting, serializeSpecialFloatingPointValues, longSerializationPolicy);
   }

@@ -53,7 +53,7 @@ public class ExclusionStrategyFunctionalTest extends TestCase {
     assertFalse(json.contains("\"annotatedField\""));
     assertTrue(json.contains("\"longField\""));
   }
-  
+
   public void testExclusionStrategyDeserialization() throws Exception {
     Gson gson = createGson(new MyExclusionStrategy(String.class), false);
     JsonObject json = new JsonObject();
@@ -68,13 +68,13 @@ public class ExclusionStrategyFunctionalTest extends TestCase {
     assertEquals(src.annotatedField, target.annotatedField);
     assertEquals(src.stringField, target.stringField);
   }
-  
+
   public void testExclusionStrategyWithMode() throws Exception {
     SampleObjectForTest testObj = new SampleObjectForTest(
         src.annotatedField + 5, src.stringField + "blah,blah",
         src.longField + 655L);
 
-    Gson gson = createGson(new MyExclusionStrategy(String.class), false);    
+    Gson gson = createGson(new MyExclusionStrategy(String.class), false);
     JsonObject json = gson.toJsonTree(testObj).getAsJsonObject();
     assertEquals(testObj.annotatedField, json.get("annotatedField").getAsInt());
     assertEquals(testObj.stringField, json.get("stringField").getAsString());
@@ -99,7 +99,7 @@ public class ExclusionStrategyFunctionalTest extends TestCase {
         .serializeNulls()
         .create();
   }
-  
+
   @Retention(RetentionPolicy.RUNTIME)
   @Target({ElementType.FIELD})
   private static @interface Foo {
@@ -115,7 +115,7 @@ public class ExclusionStrategyFunctionalTest extends TestCase {
     public SampleObjectForTest() {
       this(5, "someDefaultValue", 12345L);
     }
-    
+
     public SampleObjectForTest(int annotatedField, String stringField, long longField) {
       this.annotatedField = annotatedField;
       this.stringField = stringField;

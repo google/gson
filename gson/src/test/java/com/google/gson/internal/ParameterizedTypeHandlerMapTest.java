@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package com.google.gson.internal;
 
 import com.google.gson.common.TestTypes.Base;
 import com.google.gson.common.TestTypes.Sub;
+import com.google.gson.internal.ParameterizedTypeHandlerMap;
 import com.google.gson.reflect.TypeToken;
 
 import junit.framework.TestCase;
@@ -26,7 +27,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 /**
- * Unit tests for the {@link ParameterizedTypeHandlerMap} class.
+ * Unit tests for the {@link com.google.gson.internal.ParameterizedTypeHandlerMap} class.
  *
  * @author Joel Leitch
  */

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package com.google.gson.internal;
 
 
 import com.google.gson.internal.$Gson$Preconditions;
@@ -29,7 +29,7 @@ import java.util.Map;
  *
  * @author Kevin Bourrillion
  */
-final class Primitives {
+public final class Primitives {
   private Primitives() {}
 
   /** A map from primitive types to their corresponding wrapper types. */

@@ -16,17 +16,15 @@
 
 package com.google.gson.functional;
 
-import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import junit.framework.TestCase;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import junit.framework.TestCase;
 
 public class MapAsArrayTypeAdapterTest extends TestCase {
 
@@ -82,7 +80,7 @@ public class MapAsArrayTypeAdapterTest extends TestCase {
     } catch (JsonSyntaxException expected) {
     }
   }
-  
+
   public void testMultipleEnableComplexKeyRegistrationHasNoEffect() throws Exception {
     Type type = new TypeToken<Map<Point, String>>() {}.getType();
     Gson gson = new GsonBuilder()
