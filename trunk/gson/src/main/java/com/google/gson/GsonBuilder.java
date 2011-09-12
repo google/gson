@@ -28,7 +28,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -65,8 +64,6 @@ import java.util.Set;
  * @author Joel Leitch
  */
 public final class GsonBuilder {
-  private static final MapAsArrayTypeAdapter COMPLEX_KEY_MAP_TYPE_ADAPTER =
-      new MapAsArrayTypeAdapter();
   private static final InnerClassExclusionStrategy innerClassExclusionStrategy =
       new InnerClassExclusionStrategy();
   private static final ExposeAnnotationDeserializationExclusionStrategy
@@ -94,6 +91,7 @@ public final class GsonBuilder {
   private String datePattern;
   private int dateStyle;
   private int timeStyle;
+  private boolean complexMapKeySerialization = false;
   private boolean serializeSpecialFloatingPointValues;
   private boolean escapeHtmlChars;
   private boolean prettyPrinting;
@@ -273,7 +271,7 @@ public final class GsonBuilder {
    * @since 1.7
    */
   public GsonBuilder enableComplexMapKeySerialization() {
-    registerTypeHierarchyAdapter(Map.class, COMPLEX_KEY_MAP_TYPE_ADAPTER);
+    complexMapKeySerialization = true;
     return this;
   }
 
@@ -694,8 +692,9 @@ public final class GsonBuilder {
     return new Gson(new DisjunctionExclusionStrategy(deserializationStrategies),
         new DisjunctionExclusionStrategy(serializationStrategies),
         fieldNamingPolicy, instanceCreators, serializeNulls,
-        customSerializers, customDeserializers, generateNonExecutableJson, escapeHtmlChars,
-        prettyPrinting, serializeSpecialFloatingPointValues, longSerializationPolicy);
+        customSerializers, customDeserializers, complexMapKeySerialization,
+        generateNonExecutableJson, escapeHtmlChars, prettyPrinting,
+        serializeSpecialFloatingPointValues, longSerializationPolicy);
   }
 
   private static void addTypeAdaptersForDate(String datePattern, int dateStyle, int timeStyle,
