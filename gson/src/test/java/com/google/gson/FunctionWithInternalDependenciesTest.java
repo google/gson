@@ -39,8 +39,8 @@ public class FunctionWithInternalDependenciesTest extends TestCase {
     Gson gson = new Gson(exclusionStrategy, exclusionStrategy, Gson.DEFAULT_NAMING_POLICY,
         DefaultTypeAdapters.getDefaultInstanceCreators(),
         false, DefaultTypeAdapters.getDefaultSerializers(),
-        DefaultTypeAdapters.getDefaultDeserializers(), Gson.DEFAULT_JSON_NON_EXECUTABLE, true,
-        false, false, LongSerializationPolicy.DEFAULT);
+        DefaultTypeAdapters.getDefaultDeserializers(), false, Gson.DEFAULT_JSON_NON_EXECUTABLE,
+        true, false, false, LongSerializationPolicy.DEFAULT);
     assertEquals("{}", gson.toJson(new ClassWithNoFields() {
       // empty anonymous class
     }));
