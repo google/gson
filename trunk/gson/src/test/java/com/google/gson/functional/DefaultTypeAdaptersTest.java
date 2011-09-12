@@ -22,9 +22,6 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
-
-import junit.framework.TestCase;
-
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -33,7 +30,6 @@ import java.net.URL;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Calendar;
@@ -47,6 +43,7 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.UUID;
+import junit.framework.TestCase;
 
 /**
  * Functional test for Json serialization and deserialization for common classes for which default
@@ -243,16 +240,16 @@ public class DefaultTypeAdaptersTest extends TestCase {
   }
 
   public void testDefaultDateSerialization() {
-    Date now = new Date();
+    Date now = new Date(1315806903103L);
     String json = gson.toJson(now);
-    assertEquals("\"" + DateFormat.getDateTimeInstance().format(now) + "\"", json);
+    assertEquals("\"Sep 11, 2011 10:55:03 PM\"", json);
   }
 
   public void testDefaultDateDeserialization() {
     String json = "'Dec 13, 2009 07:18:02 AM'";
     Date extracted = gson.fromJson(json, Date.class);
     assertEqualsDate(extracted, 2009, 11, 13);
-    assertEqualsTime(extracted, 7, 18, 02);
+    assertEqualsTime(extracted, 7, 18, 2);
   }
 
   // Date can not directly be compared with another instance since the deserialization loses the
@@ -293,7 +290,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
     String json = "'Dec 3, 2009 1:18:02 PM'";
     Timestamp extracted = gson.fromJson(json, Timestamp.class);
     assertEqualsDate(extracted, 2009, 11, 3);
-    assertEqualsTime(extracted, 13, 18, 02);
+    assertEqualsTime(extracted, 13, 18, 2);
   }
 
   public void testDefaultJavaSqlTimeSerialization() {
@@ -305,19 +302,19 @@ public class DefaultTypeAdaptersTest extends TestCase {
   public void testDefaultJavaSqlTimeDeserialization() {
     String json = "'1:18:02 PM'";
     Time extracted = gson.fromJson(json, Time.class);
-    assertEqualsTime(extracted, 13, 18, 02);
+    assertEqualsTime(extracted, 13, 18, 2);
   }
 
   public void testDefaultDateSerializationUsingBuilder() throws Exception {
     Gson gson = new GsonBuilder().create();
-    Date now = new Date();
+    Date now = new Date(1315806903103L);
     String json = gson.toJson(now);
-    assertEquals("\"" + DateFormat.getDateTimeInstance().format(now) + "\"", json);
+    assertEquals("\"Sep 11, 2011 10:55:03 PM\"", json);
   }
 
   public void testDefaultDateDeserializationUsingBuilder() throws Exception {
     Gson gson = new GsonBuilder().create();
-    Date now = new Date();
+    Date now = new Date(1315806903103L);
     String json = gson.toJson(now);
     Date extracted = gson.fromJson(json, Date.class);
     assertEquals(now.toString(), extracted.toString());
@@ -372,18 +369,17 @@ public class DefaultTypeAdaptersTest extends TestCase {
 
   public void testDateSerializationWithPattern() throws Exception {
     String pattern = "yyyy-MM-dd";
-    DateFormat formatter = new SimpleDateFormat(pattern);
     Gson gson = new GsonBuilder().setDateFormat(DateFormat.FULL).setDateFormat(pattern).create();
-    Date now = new Date();
+    Date now = new Date(1315806903103L);
     String json = gson.toJson(now);
-    assertEquals("\"" + formatter.format(now) + "\"", json);
+    assertEquals("\"2011-09-11\"", json);
   }
 
   @SuppressWarnings("deprecation")
   public void testDateDeserializationWithPattern() throws Exception {
     String pattern = "yyyy-MM-dd";
     Gson gson = new GsonBuilder().setDateFormat(DateFormat.FULL).setDateFormat(pattern).create();
-    Date now = new Date();
+    Date now = new Date(1315806903103L);
     String json = gson.toJson(now);
     Date extracted = gson.fromJson(json, Date.class);
     assertEquals(now.getYear(), extracted.getYear());
@@ -393,21 +389,19 @@ public class DefaultTypeAdaptersTest extends TestCase {
 
   public void testDateSerializationWithPatternNotOverridenByTypeAdapter() throws Exception {
     String pattern = "yyyy-MM-dd";
-    DateFormat formatter = new SimpleDateFormat(pattern);
     Gson gson = new GsonBuilder()
         .setDateFormat(pattern)
         .registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
           public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
               throws JsonParseException {
-            return new Date();
+            return new Date(1315806903103L);
           }
         })
         .create();
 
-    Date now = new Date();
-    String expectedDateString = "\"" + formatter.format(now) + "\"";
+    Date now = new Date(1315806903103L);
     String json = gson.toJson(now);
-    assertEquals(expectedDateString, json);
+    assertEquals("\"2011-09-11\"", json);
   }
 
   // http://code.google.com/p/google-gson/issues/detail?id=230
