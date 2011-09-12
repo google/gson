@@ -298,7 +298,7 @@ public final class $Gson$Types {
    */
   public static Type getCollectionElementType(Type context, Class<?> contextRawType) {
     Type collectionType = getSupertype(context, contextRawType, Collection.class);
-    
+
     if (collectionType instanceof WildcardType) {
       collectionType = ((WildcardType)collectionType).getUpperBounds()[0];
     }
@@ -323,8 +323,12 @@ public final class $Gson$Types {
     }
 
     Type mapType = getSupertype(context, contextRawType, Map.class);
-    ParameterizedType mapParameterizedType = (ParameterizedType) mapType;
-    return mapParameterizedType.getActualTypeArguments();
+    // TODO: strip wildcards?
+    if (mapType instanceof ParameterizedType) {
+      ParameterizedType mapParameterizedType = (ParameterizedType) mapType;
+      return mapParameterizedType.getActualTypeArguments();
+    }
+    return new Type[] { Object.class, Object.class };
   }
 
   @SuppressWarnings("unchecked")

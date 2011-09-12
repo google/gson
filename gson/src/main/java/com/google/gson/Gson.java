@@ -170,8 +170,8 @@ public final class Gson {
     this(DEFAULT_EXCLUSION_STRATEGY, DEFAULT_EXCLUSION_STRATEGY, DEFAULT_NAMING_POLICY,
         DefaultTypeAdapters.getDefaultInstanceCreators(),
         false, DefaultTypeAdapters.getAllDefaultSerializers(),
-        DefaultTypeAdapters.getAllDefaultDeserializers(), DEFAULT_JSON_NON_EXECUTABLE, true, false,
-        false, LongSerializationPolicy.DEFAULT);
+        DefaultTypeAdapters.getAllDefaultDeserializers(), false, DEFAULT_JSON_NON_EXECUTABLE, true,
+        false, false, LongSerializationPolicy.DEFAULT);
   }
 
   Gson(final ExclusionStrategy deserializationExclusionStrategy,
@@ -180,8 +180,9 @@ public final class Gson {
       final ParameterizedTypeHandlerMap<InstanceCreator<?>> instanceCreators, boolean serializeNulls,
       final ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers,
       final ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers,
-      boolean generateNonExecutableGson, boolean htmlSafe, boolean prettyPrinting,
-      boolean serializeSpecialFloatingPointValues, LongSerializationPolicy longSerializationPolicy) {
+      boolean complexMapKeySerialization, boolean generateNonExecutableGson, boolean htmlSafe,
+      boolean prettyPrinting, boolean serializeSpecialFloatingPointValues,
+      LongSerializationPolicy longSerializationPolicy) {
     this.deserializationExclusionStrategy = deserializationExclusionStrategy;
     this.serializationExclusionStrategy = serializationExclusionStrategy;
     this.fieldNamingPolicy = fieldNamingPolicy;
@@ -245,12 +246,12 @@ public final class Gson {
         .factory(TypeAdapters.INET_ADDRESS_FACTORY)
         .typeAdapter(BigDecimal.class, new BigDecimalTypeAdapter())
         .typeAdapter(BigInteger.class, new BigIntegerTypeAdapter())
-        .factory(new MapTypeAdapterFactory(constructorConstructor))
         .factory(new CollectionTypeAdapterFactory(constructorConstructor))
         .factory(ObjectTypeAdapter.FACTORY)
         .factory(new GsonToMiniGsonTypeAdapterFactory(serializers, deserializers,
             new JsonDeserializationContext(this), new JsonSerializationContext(this), serializeNulls
         ))
+        .factory(new MapTypeAdapterFactory(constructorConstructor, complexMapKeySerialization))
         .factory(ArrayTypeAdapter.FACTORY)
         .factory(reflectiveTypeAdapterFactory);
 
