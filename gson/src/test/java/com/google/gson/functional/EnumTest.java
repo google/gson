@@ -95,11 +95,7 @@ public class EnumTest extends TestCase {
   }
 
   private static enum MyEnum {
-    VALUE1, VALUE2;
-
-    public String getExpectedJson() {
-      return "\"" + toString() + "\"";
-    }
+    VALUE1, VALUE2
   }
 
   private static class ClassWithEnumFields {
