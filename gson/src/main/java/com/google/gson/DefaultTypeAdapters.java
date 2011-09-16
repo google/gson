@@ -140,12 +140,12 @@ final class DefaultTypeAdapters {
   }
 
   static ParameterizedTypeHandlerMap<JsonSerializer<?>> getDefaultSerializers() {
-    return getDefaultSerializers(false, LongSerializationPolicy.DEFAULT);
+    return DEFAULT_SERIALIZERS.copyOf();
   }
 
   static ParameterizedTypeHandlerMap<JsonSerializer<?>> getAllDefaultSerializers() {
     ParameterizedTypeHandlerMap<JsonSerializer<?>> defaultSerializers =
-      getDefaultSerializers(false, LongSerializationPolicy.DEFAULT);
+      DEFAULT_SERIALIZERS.copyOf();
     defaultSerializers.register(DEFAULT_HIERARCHY_SERIALIZERS);
     return defaultSerializers;
   }
@@ -155,33 +155,6 @@ final class DefaultTypeAdapters {
       getDefaultDeserializers().copyOf();
     defaultDeserializers.register(DEFAULT_HIERARCHY_DESERIALIZERS);
     return defaultDeserializers;
-  }
-
-  static ParameterizedTypeHandlerMap<JsonSerializer<?>> getDefaultSerializers(
-      boolean serializeSpecialFloatingPointValues, LongSerializationPolicy longSerializationPolicy) {
-    ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers =
-        new ParameterizedTypeHandlerMap<JsonSerializer<?>>();
-
-    // Double primitive
-    DefaultTypeAdapters.DoubleSerializer doubleSerializer =
-        new DefaultTypeAdapters.DoubleSerializer(serializeSpecialFloatingPointValues);
-    serializers.registerIfAbsent(Double.class, doubleSerializer);
-    serializers.registerIfAbsent(double.class, doubleSerializer);
-
-    // Float primitive
-    DefaultTypeAdapters.FloatSerializer floatSerializer =
-        new DefaultTypeAdapters.FloatSerializer(serializeSpecialFloatingPointValues);
-    serializers.registerIfAbsent(Float.class, floatSerializer);
-    serializers.registerIfAbsent(float.class, floatSerializer);
-
-    // Long primitive
-    DefaultTypeAdapters.LongSerializer longSerializer =
-        new DefaultTypeAdapters.LongSerializer(longSerializationPolicy);
-    serializers.registerIfAbsent(Long.class, longSerializer);
-    serializers.registerIfAbsent(long.class, longSerializer);
-
-    serializers.registerIfAbsent(DEFAULT_SERIALIZERS);
-    return serializers;
   }
 
   static ParameterizedTypeHandlerMap<JsonDeserializer<?>> getDefaultDeserializers() {
@@ -458,61 +431,6 @@ final class DefaultTypeAdapters {
     @Override
     public String toString() {
       return NumberTypeAdapter.class.getSimpleName();
-    }
-  }
-
-  private static final class LongSerializer implements JsonSerializer<Long> {
-    private final LongSerializationPolicy longSerializationPolicy;
-
-    private LongSerializer(LongSerializationPolicy longSerializationPolicy) {
-      this.longSerializationPolicy = longSerializationPolicy;
-    }
-
-    public JsonElement serialize(Long src, Type typeOfSrc, JsonSerializationContext context) {
-      return longSerializationPolicy.serialize(src);
-    }
-
-    @Override
-    public String toString() {
-      return LongSerializer.class.getSimpleName();
-    }
-  }
-
-  static final class FloatSerializer implements JsonSerializer<Float> {
-    private final boolean serializeSpecialFloatingPointValues;
-
-    FloatSerializer(boolean serializeSpecialDoubleValues) {
-      this.serializeSpecialFloatingPointValues = serializeSpecialDoubleValues;
-    }
-
-    public JsonElement serialize(Float src, Type typeOfSrc, JsonSerializationContext context) {
-      if (!serializeSpecialFloatingPointValues) {
-        if (Float.isNaN(src) || Float.isInfinite(src)) {
-          throw new IllegalArgumentException(src
-              + " is not a valid float value as per JSON specification. To override this"
-              + " behavior, use GsonBuilder.serializeSpecialFloatingPointValues() method.");
-        }
-      }
-      return new JsonPrimitive(src);
-    }
-  }
-
-  static final class DoubleSerializer implements JsonSerializer<Double> {
-    private final boolean serializeSpecialFloatingPointValues;
-
-    DoubleSerializer(boolean serializeSpecialDoubleValues) {
-      this.serializeSpecialFloatingPointValues = serializeSpecialDoubleValues;
-    }
-
-    public JsonElement serialize(Double src, Type typeOfSrc, JsonSerializationContext context) {
-      if (!serializeSpecialFloatingPointValues) {
-        if (Double.isNaN(src) || Double.isInfinite(src)) {
-          throw new IllegalArgumentException(src
-              + " is not a valid double value as per JSON specification. To override this"
-              + " behavior, use GsonBuilder.serializeSpecialDoubleValues() method.");
-        }
-      }
-      return new JsonPrimitive(src);
     }
   }
 
