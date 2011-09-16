@@ -16,6 +16,16 @@
 
 package com.google.gson.internal.bind;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.BitSet;
+import java.util.Locale;
+import java.util.StringTokenizer;
+import java.util.UUID;
+
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
@@ -23,20 +33,60 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.Locale;
-import java.util.StringTokenizer;
-import java.util.UUID;
-
 /**
  * Type adapters for basic types.
  */
 public final class TypeAdapters {
   private TypeAdapters() {}
+
+  public static final TypeAdapter<BitSet> BIT_SET = new TypeAdapter<BitSet>() {
+    public BitSet read(JsonReader reader) throws IOException {
+      BitSet bitset = new BitSet();
+      reader.beginArray();
+      int i = 0;
+      JsonToken tokenType = reader.peek();
+      while (tokenType != JsonToken.END_ARRAY) {
+        boolean set = false;
+        switch (tokenType) {
+        case NUMBER:
+          set = reader.nextInt() != 0;
+          break;
+        case BOOLEAN:
+          set = reader.nextBoolean();
+          break;
+        case STRING:
+          String stringValue = reader.nextString();
+          try {
+            set = Integer.parseInt(stringValue) != 0;
+          } catch (NumberFormatException e) {
+            throw new JsonSyntaxException(
+                "Error: Expecting: bitset number value (1, 0), Found: " + stringValue);
+          }
+          break;
+        default:
+          throw new JsonSyntaxException("Invalid bitset value type: " + tokenType);
+        }
+        if (set) {
+          bitset.set(i);
+        }
+        ++i;
+        tokenType = reader.peek();
+      }
+      reader.endArray();
+      return bitset;
+    }
+
+    public void write(JsonWriter writer, BitSet src) throws IOException {
+      writer.beginArray();
+      for (int i = 0; i < src.length(); i++) {
+        int value = (src.get(i)) ? 1 : 0;
+        writer.value(value);
+      }
+      writer.endArray();
+    }
+  };
+
+  public static final TypeAdapter.Factory BIT_SET_FACTORY = newFactory(BitSet.class, BIT_SET);
 
   public static final TypeAdapter<Boolean> BOOLEAN = new TypeAdapter<Boolean>() {
     @Override
