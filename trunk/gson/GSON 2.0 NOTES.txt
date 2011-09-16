@@ -11,6 +11,7 @@ com.google.gson.functional.PrimitiveTest.testPrimitiveDoubleAutoboxedInASingleEl
 com.google.gson.functional.PrimitiveTest.testBigDecimalInASingleElementArrayDeserialization
 com.google.gson.functional.PrimitiveTest.testBigIntegerInASingleElementArrayDeserialization
 com.google.gson.functional.StringTest.testStringValueAsSingleElementArrayDeserialization
+com.google.gson.functional.EnumTest.testTopLevelEnumInASingleElementArrayDeserialization
 
 GSON 1.x permitted primitive types to be overridden
 GSON 2.x doesn't.

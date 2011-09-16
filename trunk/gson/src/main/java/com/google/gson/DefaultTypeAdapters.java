@@ -47,9 +47,6 @@ final class DefaultTypeAdapters {
   private static final DefaultTimestampDeserializer TIMESTAMP_DESERIALIZER =
     new DefaultTimestampDeserializer();
 
-  @SuppressWarnings("unchecked")
-  private static final EnumTypeAdapter ENUM_TYPE_ADAPTER = new EnumTypeAdapter();
-
   private static final CharacterTypeAdapter CHARACTER_TYPE_ADAPTER = new CharacterTypeAdapter();
   private static final NumberTypeAdapter NUMBER_TYPE_ADAPTER = new NumberTypeAdapter();
 
@@ -59,15 +56,11 @@ final class DefaultTypeAdapters {
   // The constants DEFAULT_SERIALIZERS, DEFAULT_DESERIALIZERS, and DEFAULT_INSTANCE_CREATORS
   // must be defined after the constants for the type adapters. Otherwise, the type adapter
   // constants will appear as nulls.
-  private static final ParameterizedTypeHandlerMap<JsonSerializer<?>> DEFAULT_SERIALIZERS =
+  static final ParameterizedTypeHandlerMap<JsonSerializer<?>> DEFAULT_SERIALIZERS =
       createDefaultSerializers();
-  static final ParameterizedTypeHandlerMap<JsonSerializer<?>> DEFAULT_HIERARCHY_SERIALIZERS =
-      createDefaultHierarchySerializers();
-  private static final ParameterizedTypeHandlerMap<JsonDeserializer<?>> DEFAULT_DESERIALIZERS =
+  static final ParameterizedTypeHandlerMap<JsonDeserializer<?>> DEFAULT_DESERIALIZERS =
       createDefaultDeserializers();
-  static final ParameterizedTypeHandlerMap<JsonDeserializer<?>> DEFAULT_HIERARCHY_DESERIALIZERS =
-      createDefaultHierarchyDeserializers();
-  private static final ParameterizedTypeHandlerMap<InstanceCreator<?>> DEFAULT_INSTANCE_CREATORS =
+  static final ParameterizedTypeHandlerMap<InstanceCreator<?>> DEFAULT_INSTANCE_CREATORS =
       createDefaultInstanceCreators();
 
   private static ParameterizedTypeHandlerMap<JsonSerializer<?>> createDefaultSerializers() {
@@ -85,14 +78,6 @@ final class DefaultTypeAdapters {
     map.register(Character.class, CHARACTER_TYPE_ADAPTER, true);
     map.register(Number.class, NUMBER_TYPE_ADAPTER, true);
 
-    map.makeUnmodifiable();
-    return map;
-  }
-
-  private static ParameterizedTypeHandlerMap<JsonSerializer<?>> createDefaultHierarchySerializers() {
-    ParameterizedTypeHandlerMap<JsonSerializer<?>> map =
-        new ParameterizedTypeHandlerMap<JsonSerializer<?>>();
-    map.registerForTypeHierarchy(Enum.class, ENUM_TYPE_ADAPTER, true);
     map.makeUnmodifiable();
     return map;
   }
@@ -115,14 +100,6 @@ final class DefaultTypeAdapters {
     return map;
   }
 
-  private static ParameterizedTypeHandlerMap<JsonDeserializer<?>> createDefaultHierarchyDeserializers() {
-    ParameterizedTypeHandlerMap<JsonDeserializer<?>> map =
-        new ParameterizedTypeHandlerMap<JsonDeserializer<?>>();
-    map.registerForTypeHierarchy(Enum.class, wrapDeserializer(ENUM_TYPE_ADAPTER), true);
-    map.makeUnmodifiable();
-    return map;
-  }
-
   private static ParameterizedTypeHandlerMap<InstanceCreator<?>> createDefaultInstanceCreators() {
     ParameterizedTypeHandlerMap<InstanceCreator<?>> map
         = new ParameterizedTypeHandlerMap<InstanceCreator<?>>();
@@ -133,32 +110,6 @@ final class DefaultTypeAdapters {
   @SuppressWarnings("unchecked")
   private static JsonDeserializer<?> wrapDeserializer(JsonDeserializer<?> deserializer) {
     return new JsonDeserializerExceptionWrapper(deserializer);
-  }
-
-  static ParameterizedTypeHandlerMap<JsonSerializer<?>> getDefaultSerializers() {
-    return DEFAULT_SERIALIZERS.copyOf();
-  }
-
-  static ParameterizedTypeHandlerMap<JsonSerializer<?>> getAllDefaultSerializers() {
-    ParameterizedTypeHandlerMap<JsonSerializer<?>> defaultSerializers =
-      DEFAULT_SERIALIZERS.copyOf();
-    defaultSerializers.register(DEFAULT_HIERARCHY_SERIALIZERS);
-    return defaultSerializers;
-  }
-
-  static ParameterizedTypeHandlerMap<JsonDeserializer<?>> getAllDefaultDeserializers() {
-    ParameterizedTypeHandlerMap<JsonDeserializer<?>> defaultDeserializers =
-      getDefaultDeserializers().copyOf();
-    defaultDeserializers.register(DEFAULT_HIERARCHY_DESERIALIZERS);
-    return defaultDeserializers;
-  }
-
-  static ParameterizedTypeHandlerMap<JsonDeserializer<?>> getDefaultDeserializers() {
-    return DEFAULT_DESERIALIZERS;
-  }
-
-  static ParameterizedTypeHandlerMap<InstanceCreator<?>> getDefaultInstanceCreators() {
-    return DEFAULT_INSTANCE_CREATORS;
   }
 
   /**
@@ -351,25 +302,6 @@ final class DefaultTypeAdapters {
     @Override
     public String toString() {
       return GregorianCalendarTypeAdapter.class.getSimpleName();
-    }
-  }
-
-  @SuppressWarnings("unchecked")
-  private static final class EnumTypeAdapter<T extends Enum<T>>
-      implements JsonSerializer<T>, JsonDeserializer<T> {
-    public JsonElement serialize(T src, Type typeOfSrc, JsonSerializationContext context) {
-      return new JsonPrimitive(src.name());
-    }
-
-    @SuppressWarnings("cast")
-    public T deserialize(JsonElement json, Type classOfT, JsonDeserializationContext context)
-        throws JsonParseException {
-      return (T) Enum.valueOf((Class<T>) classOfT, json.getAsString());
-    }
-
-    @Override
-    public String toString() {
-      return EnumTypeAdapter.class.getSimpleName();
     }
   }
 

@@ -168,9 +168,9 @@ public final class Gson {
    */
   public Gson() {
     this(DEFAULT_EXCLUSION_STRATEGY, DEFAULT_EXCLUSION_STRATEGY, DEFAULT_NAMING_POLICY,
-        DefaultTypeAdapters.getDefaultInstanceCreators(),
-        false, DefaultTypeAdapters.getAllDefaultSerializers(),
-        DefaultTypeAdapters.getAllDefaultDeserializers(), false, DEFAULT_JSON_NON_EXECUTABLE, true,
+        DefaultTypeAdapters.DEFAULT_INSTANCE_CREATORS,
+        false, DefaultTypeAdapters.DEFAULT_SERIALIZERS,
+        DefaultTypeAdapters.DEFAULT_DESERIALIZERS, false, DEFAULT_JSON_NON_EXECUTABLE, true,
         false, false, LongSerializationPolicy.DEFAULT);
   }
 
@@ -254,6 +254,7 @@ public final class Gson {
         ))
         .factory(new MapTypeAdapterFactory(constructorConstructor, complexMapKeySerialization))
         .factory(ArrayTypeAdapter.FACTORY)
+        .factory(TypeAdapters.ENUM_FACTORY)
         .factory(reflectiveTypeAdapterFactory);
 
     this.miniGson = builder.build();
