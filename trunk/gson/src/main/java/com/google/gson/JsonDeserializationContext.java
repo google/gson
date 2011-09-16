@@ -36,7 +36,7 @@ public class JsonDeserializationContext {
   /**
    * TODO: remove this from the public API
    */
-  @SuppressWarnings("unchecked") @Deprecated
+  @Deprecated
   public <T> T construct(Type type) {
     throw new UnsupportedOperationException();
   }
@@ -57,12 +57,10 @@ public class JsonDeserializationContext {
    * @return An object of type typeOfT.
    * @throws JsonParseException if the parse tree does not contain expected data.
    */
-  @SuppressWarnings("unchecked")
   public <T> T deserialize(JsonElement json, Type typeOfT) throws JsonParseException {
     return gson.fromJson(json, typeOfT);
   }
 
-  @SuppressWarnings("unchecked")
   public <T> T deserializeDefault(JsonElement json, Type typeOfT) throws JsonParseException {
     throw new UnsupportedOperationException();
   }

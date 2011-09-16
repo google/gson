@@ -208,6 +208,7 @@ public class CollectionTest extends TestCase {
     assertTrue(json.contains(bag1.getExpectedJson()));
   }
 
+  @SuppressWarnings("unchecked")
   public void testRawCollectionDeserializationNotAlllowed() {
     String json = "[0,1,2,3,4,5,6,7,8,9]";
     Collection integers = gson.fromJson(json, Collection.class);

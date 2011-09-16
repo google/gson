@@ -156,9 +156,11 @@ public final class ConstructorConstructor {
       final Type type, final Class<? super T> rawType) {
     return new ObjectConstructor<T>() {
       private final UnsafeAllocator unsafeAllocator = UnsafeAllocator.create();
+      @SuppressWarnings("unchecked")
       public T construct() {
         try {
-          return (T) unsafeAllocator.newInstance(rawType);
+          Object newInstance = unsafeAllocator.newInstance(rawType);
+          return (T) newInstance;
         } catch (Exception e) {
           throw new RuntimeException(("Unable to invoke no-args constructor for " + type + ". "
               + "Register an InstanceCreator with Gson for this type may fix this problem."), e);
