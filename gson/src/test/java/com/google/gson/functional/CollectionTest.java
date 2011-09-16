@@ -16,6 +16,13 @@
 
 package com.google.gson.functional;
 
+import com.google.gson.Gson;
+import com.google.gson.common.MoreAsserts;
+import com.google.gson.common.TestTypes.BagOfPrimitives;
+import com.google.gson.reflect.TypeToken;
+
+import junit.framework.TestCase;
+
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,14 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
-
-import junit.framework.TestCase;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonParseException;
-import com.google.gson.common.MoreAsserts;
-import com.google.gson.common.TestTypes.BagOfPrimitives;
-import com.google.gson.reflect.TypeToken;
 
 /**
  * Functional tests for Json serialization and deserialization of collections.
