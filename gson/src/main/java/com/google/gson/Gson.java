@@ -244,6 +244,7 @@ public final class Gson {
         .factory(TypeAdapters.UUID_FACTORY)
         .factory(TypeAdapters.LOCALE_FACTORY)
         .factory(TypeAdapters.INET_ADDRESS_FACTORY)
+        .factory(TypeAdapters.BIT_SET_FACTORY)
         .typeAdapter(BigDecimal.class, new BigDecimalTypeAdapter())
         .typeAdapter(BigInteger.class, new BigIntegerTypeAdapter())
         .factory(new CollectionTypeAdapterFactory(constructorConstructor))
