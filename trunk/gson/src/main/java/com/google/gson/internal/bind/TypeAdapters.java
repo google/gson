@@ -16,11 +16,13 @@
 
 package com.google.gson.internal.bind;
 
+import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URI;
@@ -37,6 +39,7 @@ public final class TypeAdapters {
   private TypeAdapters() {}
 
   public static final TypeAdapter<Boolean> BOOLEAN = new TypeAdapter<Boolean>() {
+    @Override
     public Boolean read(JsonReader reader) throws IOException {
       if (reader.peek() == JsonToken.NULL) {
         reader.nextNull(); // TODO: does this belong here?
@@ -44,6 +47,7 @@ public final class TypeAdapters {
       }
       return reader.nextBoolean();
     }
+    @Override
     public void write(JsonWriter writer, Boolean value) throws IOException {
       writer.value(value);
     }
@@ -53,6 +57,7 @@ public final class TypeAdapters {
       = newFactory(boolean.class, Boolean.class, BOOLEAN);
 
   public static final TypeAdapter<Number> BYTE = new TypeAdapter<Number>() {
+    @Override
     public Number read(JsonReader reader) throws IOException {
       if (reader.peek() == JsonToken.NULL) {
         reader.nextNull(); // TODO: does this belong here?
@@ -65,6 +70,7 @@ public final class TypeAdapters {
         throw new JsonSyntaxException(e);
       }
     }
+    @Override
     public void write(JsonWriter writer, Number value) throws IOException {
       writer.value(value);
     }
@@ -74,6 +80,7 @@ public final class TypeAdapters {
       = newFactory(byte.class, Byte.class, BYTE);
 
   public static final TypeAdapter<Number> SHORT = new TypeAdapter<Number>() {
+    @Override
     public Number read(JsonReader reader) throws IOException {
       if (reader.peek() == JsonToken.NULL) {
         reader.nextNull(); // TODO: does this belong here?
@@ -85,6 +92,7 @@ public final class TypeAdapters {
         throw new JsonSyntaxException(e);
       }
     }
+    @Override
     public void write(JsonWriter writer, Number value) throws IOException {
       writer.value(value);
     }
@@ -94,6 +102,7 @@ public final class TypeAdapters {
       = newFactory(short.class, Short.class, SHORT);
 
   public static final TypeAdapter<Number> INTEGER = new TypeAdapter<Number>() {
+    @Override
     public Number read(JsonReader reader) throws IOException {
       if (reader.peek() == JsonToken.NULL) {
         reader.nextNull(); // TODO: does this belong here?
@@ -105,6 +114,7 @@ public final class TypeAdapters {
         throw new JsonSyntaxException(e);
       }
     }
+    @Override
     public void write(JsonWriter writer, Number value) throws IOException {
       writer.value(value);
     }
@@ -114,6 +124,7 @@ public final class TypeAdapters {
       = newFactory(int.class, Integer.class, INTEGER);
 
   public static final TypeAdapter<Number> LONG = new TypeAdapter<Number>() {
+    @Override
     public Number read(JsonReader reader) throws IOException {
       if (reader.peek() == JsonToken.NULL) {
         reader.nextNull(); // TODO: does this belong here?
@@ -125,6 +136,7 @@ public final class TypeAdapters {
         throw new JsonSyntaxException(e);
       }
     }
+    @Override
     public void write(JsonWriter writer, Number value) throws IOException {
       writer.value(value);
     }
@@ -134,6 +146,7 @@ public final class TypeAdapters {
       = newFactory(long.class, Long.class, LONG);
 
   public static final TypeAdapter<Number> FLOAT = new TypeAdapter<Number>() {
+    @Override
     public Number read(JsonReader reader) throws IOException {
       if (reader.peek() == JsonToken.NULL) {
         reader.nextNull(); // TODO: does this belong here?
@@ -141,6 +154,7 @@ public final class TypeAdapters {
       }
       return (float) reader.nextDouble();
     }
+    @Override
     public void write(JsonWriter writer, Number value) throws IOException {
       writer.value(value);
     }
@@ -150,6 +164,7 @@ public final class TypeAdapters {
       = newFactory(float.class, Float.class, FLOAT);
 
   public static final TypeAdapter<Number> DOUBLE = new TypeAdapter<Number>() {
+    @Override
     public Number read(JsonReader reader) throws IOException {
       if (reader.peek() == JsonToken.NULL) {
         reader.nextNull(); // TODO: does this belong here?
@@ -157,6 +172,7 @@ public final class TypeAdapters {
       }
       return reader.nextDouble();
     }
+    @Override
     public void write(JsonWriter writer, Number value) throws IOException {
       writer.value(value);
     }
@@ -166,6 +182,7 @@ public final class TypeAdapters {
       = newFactory(double.class, Double.class, DOUBLE);
 
   public static final TypeAdapter<String> STRING = new TypeAdapter<String>() {
+    @Override
     public String read(JsonReader reader) throws IOException {
       JsonToken peek = reader.peek();
       if (peek == JsonToken.NULL) {
@@ -178,6 +195,7 @@ public final class TypeAdapters {
       }
       return reader.nextString();
     }
+    @Override
     public void write(JsonWriter writer, String value) throws IOException {
       writer.value(value);
     }
@@ -186,6 +204,7 @@ public final class TypeAdapters {
   public static final TypeAdapter.Factory STRING_FACTORY = newFactory(String.class, STRING);
 
   public static final TypeAdapter<StringBuilder> STRING_BUILDER = new TypeAdapter<StringBuilder>() {
+    @Override
     public StringBuilder read(JsonReader reader) throws IOException {
       if (reader.peek() == JsonToken.NULL) {
         reader.nextNull(); // TODO: does this belong here?
@@ -193,6 +212,7 @@ public final class TypeAdapters {
       }
       return new StringBuilder(reader.nextString());
     }
+    @Override
     public void write(JsonWriter writer, StringBuilder value) throws IOException {
       writer.value(value.toString());
     }
@@ -202,6 +222,7 @@ public final class TypeAdapters {
     newFactory(StringBuilder.class, STRING_BUILDER);
 
   public static final TypeAdapter<StringBuffer> STRING_BUFFER = new TypeAdapter<StringBuffer>() {
+    @Override
     public StringBuffer read(JsonReader reader) throws IOException {
       if (reader.peek() == JsonToken.NULL) {
         reader.nextNull(); // TODO: does this belong here?
@@ -209,6 +230,7 @@ public final class TypeAdapters {
       }
       return new StringBuffer(reader.nextString());
     }
+    @Override
     public void write(JsonWriter writer, StringBuffer value) throws IOException {
       writer.value(value.toString());
     }
@@ -218,6 +240,7 @@ public final class TypeAdapters {
     newFactory(StringBuffer.class, STRING_BUFFER);
 
   public static final TypeAdapter<URL> URL = new TypeAdapter<URL>() {
+    @Override
     public URL read(JsonReader reader) throws IOException {
       if (reader.peek() == JsonToken.NULL) {
         reader.nextNull(); // TODO: does this belong here?
@@ -226,6 +249,7 @@ public final class TypeAdapters {
       String nextString = reader.nextString();
       return "null".equals(nextString) ? null : new URL(nextString);
     }
+    @Override
     public void write(JsonWriter writer, URL value) throws IOException {
       writer.value(value == null ? null : value.toExternalForm());
     }
@@ -234,6 +258,7 @@ public final class TypeAdapters {
   public static final TypeAdapter.Factory URL_FACTORY = newFactory(URL.class, URL);
 
   public static final TypeAdapter<URI> URI = new TypeAdapter<URI>() {
+    @Override
     public URI read(JsonReader reader) throws IOException {
       if (reader.peek() == JsonToken.NULL) {
         reader.nextNull(); // TODO: does this belong here?
@@ -243,9 +268,10 @@ public final class TypeAdapters {
         String nextString = reader.nextString();
         return "null".equals(nextString) ? null : new URI(nextString);
       } catch (URISyntaxException e) {
-        throw new IOException(e);
+        throw new JsonIOException(e);
       }
     }
+    @Override
     public void write(JsonWriter writer, URI value) throws IOException {
       writer.value(value == null ? null : value.toASCIIString());
     }
@@ -254,6 +280,7 @@ public final class TypeAdapters {
   public static final TypeAdapter.Factory URI_FACTORY = newFactory(URI.class, URI);
 
   public static final TypeAdapter<InetAddress> INET_ADDRESS = new TypeAdapter<InetAddress>() {
+    @Override
     public InetAddress read(JsonReader reader) throws IOException {
       if (reader.peek() == JsonToken.NULL) {
         reader.nextNull(); // TODO: does this belong here?
@@ -261,6 +288,7 @@ public final class TypeAdapters {
       }
       return InetAddress.getByName(reader.nextString());
     }
+    @Override
     public void write(JsonWriter writer, InetAddress value) throws IOException {
       writer.value(value.getHostAddress());
     }
@@ -270,6 +298,7 @@ public final class TypeAdapters {
     newTypeHierarchyFactory(InetAddress.class, INET_ADDRESS);
 
   public static final TypeAdapter<UUID> UUID = new TypeAdapter<UUID>() {
+    @Override
     public UUID read(JsonReader reader) throws IOException {
       if (reader.peek() == JsonToken.NULL) {
         reader.nextNull(); // TODO: does this belong here?
@@ -277,6 +306,7 @@ public final class TypeAdapters {
       }
       return java.util.UUID.fromString(reader.nextString());
     }
+    @Override
     public void write(JsonWriter writer, UUID value) throws IOException {
       writer.value(value.toString());
     }
@@ -285,6 +315,7 @@ public final class TypeAdapters {
   public static final TypeAdapter.Factory UUID_FACTORY = newFactory(UUID.class, UUID);
 
   public static final TypeAdapter<Locale> LOCALE = new TypeAdapter<Locale>() {
+    @Override
     public Locale read(JsonReader reader) throws IOException {
       if (reader.peek() == JsonToken.NULL) {
         reader.nextNull(); // TODO: does this belong here?
@@ -312,6 +343,7 @@ public final class TypeAdapters {
         return new Locale(language, country, variant);
       }
     }
+    @Override
     public void write(JsonWriter writer, Locale value) throws IOException {
       writer.value(value.toString());
     }

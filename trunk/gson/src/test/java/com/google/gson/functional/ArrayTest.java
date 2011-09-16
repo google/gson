@@ -22,7 +22,6 @@ import com.google.gson.JsonParseException;
 import com.google.gson.common.MoreAsserts;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.common.TestTypes.ClassWithObjects;
-import com.google.gson.common.TestTypes.CrazyLongTypeAdapter;
 import com.google.gson.reflect.TypeToken;
 
 import junit.framework.TestCase;

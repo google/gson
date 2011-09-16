@@ -17,6 +17,7 @@
 package com.google.gson;
 
 import com.google.gson.internal.ParameterizedTypeHandlerMap;
+
 import java.lang.reflect.Type;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -126,7 +127,6 @@ final class DefaultTypeAdapters {
     return map;
   }
 
-  @SuppressWarnings("unchecked")
   private static ParameterizedTypeHandlerMap<InstanceCreator<?>> createDefaultInstanceCreators() {
     ParameterizedTypeHandlerMap<InstanceCreator<?>> map
         = new ParameterizedTypeHandlerMap<InstanceCreator<?>>();

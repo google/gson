@@ -18,13 +18,14 @@ package com.google.gson.internal.bind;
 
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.internal.$Gson$Types;
+import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.ObjectConstructor;
 import com.google.gson.internal.Primitives;
-import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+
 import java.io.IOException;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
@@ -154,7 +155,7 @@ public class ReflectiveTypeAdapterFactory implements TypeAdapter.Factory {
       this.boundFields = boundFields;
     }
 
-    @SuppressWarnings("unchecked") // the '? super T' is a raw T (the only kind we can construct)
+    @Override
     public T read(JsonReader reader) throws IOException {
       if (reader.peek() == JsonToken.NULL) {
         reader.nextNull(); // TODO: does this belong here?
@@ -180,12 +181,13 @@ public class ReflectiveTypeAdapterFactory implements TypeAdapter.Factory {
       } catch (IllegalStateException e) {
         throw new JsonSyntaxException(e);
       } catch (IllegalAccessException e) {
-        throw new AssertionError();
+        throw new AssertionError(e);
       }
       reader.endObject();
       return instance;
     }
 
+    @Override
     public void write(JsonWriter writer, T value) throws IOException {
       if (value == null) {
         writer.nullValue(); // TODO: better policy here?
@@ -193,14 +195,14 @@ public class ReflectiveTypeAdapterFactory implements TypeAdapter.Factory {
       }
 
       // TODO: GSON includes subclass fields during serialization
-      if (false) {
-        Class<?> runtimeType = value.getClass();
-        if (runtimeType != type.getRawType()) {
-          TypeAdapter<?> adapter = context.getAdapter(runtimeType);
-          ((TypeAdapter) adapter).write(writer, value);
-          return;
-        }
-      }
+//      if (false) {
+//        Class<?> runtimeType = value.getClass();
+//        if (runtimeType != type.getRawType()) {
+//          TypeAdapter<?> adapter = context.getAdapter(runtimeType);
+//          ((TypeAdapter) adapter).write(writer, value);
+//          return;
+//        }
+//      }
 
       writer.beginObject();
       try {
