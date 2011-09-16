@@ -401,8 +401,36 @@ public final class TypeAdapters {
 
   public static final TypeAdapter.Factory LOCALE_FACTORY = newFactory(Locale.class, LOCALE);
 
-  public static <T> TypeAdapter.Factory newFactory(
-      final TypeToken<T> type, final TypeAdapter<T> typeAdapter) {
+  private static final class EnumTypeAdapter<T extends Enum<T>> extends TypeAdapter<T> {
+    private final Class<T> classOfT;
+
+    public EnumTypeAdapter(Class<T> classOfT) {
+      this.classOfT = classOfT;
+    }
+    public T read(JsonReader reader) throws IOException {
+      return (T) Enum.valueOf((Class<T>) classOfT, reader.nextString());
+    }
+
+    public void write(JsonWriter writer, T src) throws IOException {
+      writer.value(src.name());
+    }
+  };
+
+  public static final TypeAdapter.Factory ENUM_FACTORY = newEnumTypeHierarchyFactory(Enum.class);
+
+  public static <TT> TypeAdapter.Factory newEnumTypeHierarchyFactory(final Class<TT> clazz) {
+    return new TypeAdapter.Factory() {
+      @SuppressWarnings("unchecked")
+      public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> typeToken) {
+        Class<? super T> rawType = typeToken.getRawType();
+        return clazz.isAssignableFrom(rawType)
+          ? (TypeAdapter<T>) new EnumTypeAdapter(rawType) : null;
+      }
+    };
+  }
+
+  public static <TT> TypeAdapter.Factory newFactory(
+      final TypeToken<TT> type, final TypeAdapter<TT> typeAdapter) {
     return new TypeAdapter.Factory() {
       @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
       public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> typeToken) {
@@ -411,8 +439,8 @@ public final class TypeAdapters {
     };
   }
 
-  public static <T> TypeAdapter.Factory newFactory(
-      final Class<T> type, final TypeAdapter<T> typeAdapter) {
+  public static <TT> TypeAdapter.Factory newFactory(
+      final Class<TT> type, final TypeAdapter<TT> typeAdapter) {
     return new TypeAdapter.Factory() {
       @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
       public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> typeToken) {
@@ -421,8 +449,8 @@ public final class TypeAdapters {
     };
   }
 
-  public static <T> TypeAdapter.Factory newFactory(
-      final Class<T> unboxed, final Class<T> boxed, final TypeAdapter<? super T> typeAdapter) {
+  public static <TT> TypeAdapter.Factory newFactory(
+      final Class<TT> unboxed, final Class<TT> boxed, final TypeAdapter<? super TT> typeAdapter) {
     return new TypeAdapter.Factory() {
       @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
       public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> typeToken) {
@@ -432,9 +460,10 @@ public final class TypeAdapters {
     };
   }
 
-  public static <T> TypeAdapter.Factory newTypeHierarchyFactory(
-      final Class<T> clazz, final TypeAdapter<T> typeAdapter) {
+  public static <TT> TypeAdapter.Factory newTypeHierarchyFactory(
+      final Class<TT> clazz, final TypeAdapter<TT> typeAdapter) {
     return new TypeAdapter.Factory() {
+      @SuppressWarnings("unchecked")
       public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> typeToken) {
         return clazz.isAssignableFrom(typeToken.getRawType()) ? (TypeAdapter<T>) typeAdapter : null;
       }

@@ -62,12 +62,6 @@ public class EnumTest extends TestCase {
     assertEquals(MyEnum.VALUE1, result);
   }
 
-  public void testTopLevelEnumInASingleElementArrayDeserialization() {
-    String json = "[" + MyEnum.VALUE1.getExpectedJson() + "]";
-    MyEnum target = gson.fromJson(json, MyEnum.class);
-    assertEquals(json, "[" + target.getExpectedJson() + "]");
-  }
-
   public void testCollectionOfEnumsSerialization() {
     Type type = new TypeToken<Collection<MyEnum>>() {}.getType();
     Collection<MyEnum> target = new ArrayList<MyEnum>();

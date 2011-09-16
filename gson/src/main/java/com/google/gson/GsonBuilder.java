@@ -669,21 +669,17 @@ public final class GsonBuilder {
       serializationStrategies.add(exposeAnnotationSerializationExclusionStrategy);
     }
 
-    ParameterizedTypeHandlerMap<JsonSerializer<?>> customSerializers =
-        DefaultTypeAdapters.DEFAULT_HIERARCHY_SERIALIZERS.copyOf();
-    customSerializers.register(serializers.copyOf());
-    ParameterizedTypeHandlerMap<JsonDeserializer<?>> customDeserializers =
-        DefaultTypeAdapters.DEFAULT_HIERARCHY_DESERIALIZERS.copyOf();
-    customDeserializers.register(deserializers.copyOf());
+    ParameterizedTypeHandlerMap<JsonSerializer<?>> customSerializers = serializers.copyOf();
+    ParameterizedTypeHandlerMap<JsonDeserializer<?>> customDeserializers = deserializers.copyOf();
     addTypeAdaptersForDate(datePattern, dateStyle, timeStyle, customSerializers,
         customDeserializers);
 
-    customSerializers.registerIfAbsent(DefaultTypeAdapters.getDefaultSerializers());
-    customDeserializers.registerIfAbsent(DefaultTypeAdapters.getDefaultDeserializers());
+    customSerializers.registerIfAbsent(DefaultTypeAdapters.DEFAULT_SERIALIZERS);
+    customDeserializers.registerIfAbsent(DefaultTypeAdapters.DEFAULT_DESERIALIZERS);
 
     ParameterizedTypeHandlerMap<InstanceCreator<?>> customInstanceCreators =
         instanceCreators.copyOf();
-    customInstanceCreators.registerIfAbsent(DefaultTypeAdapters.getDefaultInstanceCreators());
+    customInstanceCreators.registerIfAbsent(DefaultTypeAdapters.DEFAULT_INSTANCE_CREATORS);
 
     customSerializers.makeUnmodifiable();
     customDeserializers.makeUnmodifiable();
