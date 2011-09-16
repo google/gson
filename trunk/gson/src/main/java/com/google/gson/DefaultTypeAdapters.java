@@ -75,6 +75,7 @@ final class DefaultTypeAdapters {
     map.register(GregorianCalendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER, true);
 
     // Add primitive serializers
+    map.register(char.class, CHARACTER_TYPE_ADAPTER, true);
     map.register(Character.class, CHARACTER_TYPE_ADAPTER, true);
     map.register(Number.class, NUMBER_TYPE_ADAPTER, true);
 
@@ -93,6 +94,7 @@ final class DefaultTypeAdapters {
     map.register(GregorianCalendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER, true);
 
     // Add primitive deserializers
+    map.register(char.class, wrapDeserializer(CHARACTER_TYPE_ADAPTER), true);
     map.register(Character.class, wrapDeserializer(CHARACTER_TYPE_ADAPTER), true);
     map.register(Number.class, NUMBER_TYPE_ADAPTER, true);
 
