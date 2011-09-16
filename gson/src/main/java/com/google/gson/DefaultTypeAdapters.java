@@ -16,20 +16,19 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.ParameterizedTypeHandlerMap;
-
 import java.lang.reflect.Type;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.BitSet;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
+
+import com.google.gson.internal.ParameterizedTypeHandlerMap;
 
 /**
  * List of all the default type adapters ({@link JsonSerializer}s, {@link JsonDeserializer}s,
@@ -50,7 +49,6 @@ final class DefaultTypeAdapters {
 
   @SuppressWarnings("unchecked")
   private static final EnumTypeAdapter ENUM_TYPE_ADAPTER = new EnumTypeAdapter();
-  private static final BitSetTypeAdapter BIT_SET_ADAPTER = new BitSetTypeAdapter();
 
   private static final CharacterTypeAdapter CHARACTER_TYPE_ADAPTER = new CharacterTypeAdapter();
   private static final NumberTypeAdapter NUMBER_TYPE_ADAPTER = new NumberTypeAdapter();
@@ -82,7 +80,6 @@ final class DefaultTypeAdapters {
     map.register(Time.class, TIME_TYPE_ADAPTER, true);
     map.register(Calendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER, true);
     map.register(GregorianCalendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER, true);
-    map.register(BitSet.class, BIT_SET_ADAPTER, true);
 
     // Add primitive serializers
     map.register(Character.class, CHARACTER_TYPE_ADAPTER, true);
@@ -109,7 +106,6 @@ final class DefaultTypeAdapters {
     map.register(Time.class, wrapDeserializer(TIME_TYPE_ADAPTER), true);
     map.register(Calendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER, true);
     map.register(GregorianCalendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER, true);
-    map.register(BitSet.class, BIT_SET_ADAPTER, true);
 
     // Add primitive deserializers
     map.register(Character.class, wrapDeserializer(CHARACTER_TYPE_ADAPTER), true);
@@ -374,38 +370,6 @@ final class DefaultTypeAdapters {
     @Override
     public String toString() {
       return EnumTypeAdapter.class.getSimpleName();
-    }
-  }
-
-  private static final class BitSetTypeAdapter implements JsonSerializer<BitSet>, JsonDeserializer<BitSet> {
-    public JsonElement serialize(BitSet src, Type typeOfSrc, JsonSerializationContext context) {
-      JsonArray array = new JsonArray();
-      for (int i = 0; i < src.length(); i++) {
-        int value = (src.get(i)) ? 1 : 0;
-        array.add(new JsonPrimitive(value));
-      }
-      return array;
-    }
-
-    public BitSet deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-        throws JsonParseException {
-      if (!json.isJsonArray()) {
-        throw new JsonParseException("Expected an array of bits.");
-      }
-      BitSet result = new BitSet();
-      JsonArray array = json.getAsJsonArray();
-      for (int i = 0; i < array.size(); i++) {
-        JsonElement element = array.get(i);
-        if (element.getAsBoolean()) {
-           result.set(i);
-        }
-      }
-      return result;
-    }
-
-    @Override
-    public String toString() {
-      return BitSetTypeAdapter.class.getSimpleName();
     }
   }
 
