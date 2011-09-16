@@ -231,6 +231,24 @@ public final class TypeAdapters {
   public static final TypeAdapter.Factory DOUBLE_FACTORY
       = newFactory(double.class, Double.class, DOUBLE);
 
+  public static final TypeAdapter<Character> CHARACTER = new TypeAdapter<Character>() {
+    @Override
+    public Character read(JsonReader reader) throws IOException {
+      if (reader.peek() == JsonToken.NULL) {
+        reader.nextNull(); // TODO: does this belong here?
+        return null;
+      }
+      return reader.nextString().charAt(0);
+    }
+    @Override
+    public void write(JsonWriter writer, Character value) throws IOException {
+      writer.value(String.valueOf(value));
+    }
+  };
+
+  public static final TypeAdapter.Factory CHARACTER_FACTORY
+      = newFactory(char.class, Character.class, CHARACTER);
+
   public static final TypeAdapter<String> STRING = new TypeAdapter<String>() {
     @Override
     public String read(JsonReader reader) throws IOException {

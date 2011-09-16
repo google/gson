@@ -47,7 +47,6 @@ final class DefaultTypeAdapters {
   private static final DefaultTimestampDeserializer TIMESTAMP_DESERIALIZER =
     new DefaultTimestampDeserializer();
 
-  private static final CharacterTypeAdapter CHARACTER_TYPE_ADAPTER = new CharacterTypeAdapter();
   private static final NumberTypeAdapter NUMBER_TYPE_ADAPTER = new NumberTypeAdapter();
 
   private static final GregorianCalendarTypeAdapter GREGORIAN_CALENDAR_TYPE_ADAPTER =
@@ -74,9 +73,6 @@ final class DefaultTypeAdapters {
     map.register(Calendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER, true);
     map.register(GregorianCalendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER, true);
 
-    // Add primitive serializers
-    map.register(char.class, CHARACTER_TYPE_ADAPTER, true);
-    map.register(Character.class, CHARACTER_TYPE_ADAPTER, true);
     map.register(Number.class, NUMBER_TYPE_ADAPTER, true);
 
     map.makeUnmodifiable();
@@ -93,9 +89,6 @@ final class DefaultTypeAdapters {
     map.register(Calendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER, true);
     map.register(GregorianCalendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER, true);
 
-    // Add primitive deserializers
-    map.register(char.class, wrapDeserializer(CHARACTER_TYPE_ADAPTER), true);
-    map.register(Character.class, wrapDeserializer(CHARACTER_TYPE_ADAPTER), true);
     map.register(Number.class, NUMBER_TYPE_ADAPTER, true);
 
     map.makeUnmodifiable();
@@ -329,23 +322,6 @@ final class DefaultTypeAdapters {
     @Override
     public String toString() {
       return NumberTypeAdapter.class.getSimpleName();
-    }
-  }
-
-  private static final class CharacterTypeAdapter
-      implements JsonSerializer<Character>, JsonDeserializer<Character> {
-    public JsonElement serialize(Character src, Type typeOfSrc, JsonSerializationContext context) {
-      return new JsonPrimitive(src);
-    }
-
-    public Character deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-        throws JsonParseException {
-      return json.getAsCharacter();
-    }
-
-    @Override
-    public String toString() {
-      return CharacterTypeAdapter.class.getSimpleName();
     }
   }
 }
