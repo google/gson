@@ -57,7 +57,7 @@ public final class ConstructorConstructor {
         = (InstanceCreator<T>) instanceCreators.getHandlerFor(type, false);
     if (creator != null) {
       return new ObjectConstructor<T>() {
-        @Override public T construct() {
+        public T construct() {
           return creator.createInstance(type);
         }
       };
@@ -85,7 +85,7 @@ public final class ConstructorConstructor {
       }
       return new ObjectConstructor<T>() {
         @SuppressWarnings("unchecked") // T is the same raw type as is requested
-        @Override public T construct() {
+        public T construct() {
           try {
             Object[] args = null;
             return (T) constructor.newInstance(args);
@@ -115,25 +115,25 @@ public final class ConstructorConstructor {
     if (Collection.class.isAssignableFrom(rawType)) {
       if (SortedSet.class.isAssignableFrom(rawType)) {
         return new ObjectConstructor<T>() {
-          @Override public T construct() {
+          public T construct() {
             return (T) new TreeSet<Object>();
           }
         };
       } else if (Set.class.isAssignableFrom(rawType)) {
         return new ObjectConstructor<T>() {
-          @Override public T construct() {
+          public T construct() {
             return (T) new LinkedHashSet<Object>();
           }
         };
       } else if (Queue.class.isAssignableFrom(rawType)) {
         return new ObjectConstructor<T>() {
-          @Override public T construct() {
+          public T construct() {
             return (T) new LinkedList<Object>();
           }
         };
       } else {
         return new ObjectConstructor<T>() {
-          @Override public T construct() {
+          public T construct() {
             return (T) new ArrayList<Object>();
           }
         };
@@ -142,7 +142,7 @@ public final class ConstructorConstructor {
 
     if (Map.class.isAssignableFrom(rawType)) {
       return new ObjectConstructor<T>() {
-        @Override public T construct() {
+        public T construct() {
           return (T) new LinkedHashMap<Object, Object>();
         }
       };
@@ -156,7 +156,7 @@ public final class ConstructorConstructor {
       final Type type, final Class<? super T> rawType) {
     return new ObjectConstructor<T>() {
       private final UnsafeAllocator unsafeAllocator = UnsafeAllocator.create();
-      @Override public T construct() {
+      public T construct() {
         try {
           return (T) unsafeAllocator.newInstance(rawType);
         } catch (Exception e) {
