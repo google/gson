@@ -34,9 +34,6 @@ import junit.framework.TestCase;
  * @author Joel Leitch
  */
 public class PrimitiveTest extends TestCase {
-  private static final BigInteger MAX_INT_VALUE = new BigInteger("2147483647");
-  private static final BigInteger MAX_LONG_VALUE = new BigInteger("9223372036854775807");
-
   private Gson gson;
 
   @Override
