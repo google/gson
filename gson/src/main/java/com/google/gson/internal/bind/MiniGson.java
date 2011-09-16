@@ -95,7 +95,7 @@ public final class MiniGson {
           return candidate;
         }
       }
-      throw new IllegalArgumentException("This MiniGSON cannot serialize " + type);
+      throw new IllegalArgumentException("This MiniGSON cannot handle " + type);
     } finally {
       threadCalls.remove(type);
     }
