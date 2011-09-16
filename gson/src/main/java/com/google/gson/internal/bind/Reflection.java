@@ -22,6 +22,7 @@ final class Reflection {
   /**
    * Finds a compatible runtime type if it is more specific
    */
+  @SuppressWarnings("unchecked")
   public static Type getRuntimeTypeIfMoreSpecific(Type type, Object value) {
     if (value != null
         && (type == Object.class || type instanceof TypeVariable || type instanceof Class<?>)) {

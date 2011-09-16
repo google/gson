@@ -34,6 +34,7 @@ import com.google.gson.stream.JsonWriter;
  */
 public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
   public static final Factory FACTORY = new Factory() {
+    @SuppressWarnings("unchecked")
     public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> typeToken) {
       Type type = typeToken.getType();
       if (!(type instanceof GenericArrayType || type instanceof Class && ((Class<?>) type).isArray())) {
@@ -78,6 +79,7 @@ public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
     return array;
   }
 
+  @SuppressWarnings("unchecked")
   @Override public void write(JsonWriter writer, Object array) throws IOException {
     if (array == null) {
       writer.nullValue(); // TODO: better policy here?
