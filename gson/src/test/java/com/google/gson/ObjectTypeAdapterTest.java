@@ -27,6 +27,7 @@ public final class ObjectTypeAdapterTest extends TestCase {
   private final MiniGson gson = new MiniGson.Builder().build();
   private final TypeAdapter<Object> adapter = gson.getAdapter(Object.class);
 
+  @SuppressWarnings("unchecked")
   public void testDeserialize() throws Exception {
     Map<?, ?> map = (Map) adapter.fromJson("{a: 5, b: [1, 2, null], c: {x: y}}");
     assertEquals(5.0, map.get("a"));
@@ -35,6 +36,7 @@ public final class ObjectTypeAdapterTest extends TestCase {
     assertEquals(3, map.size());
   }
 
+  @SuppressWarnings("unused")
   public void testSerialize() throws Exception {
     Object object = new Object() {
       Object a = 5;
