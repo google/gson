@@ -28,6 +28,7 @@ import java.util.UUID;
 
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.internal.LazilyParsedNumber;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -230,6 +231,28 @@ public final class TypeAdapters {
 
   public static final TypeAdapter.Factory DOUBLE_FACTORY
       = newFactory(double.class, Double.class, DOUBLE);
+
+  public static final TypeAdapter<Number> NUMBER = new TypeAdapter<Number>() {
+    @Override
+    public Number read(JsonReader reader) throws IOException {
+      JsonToken jsonToken = reader.peek();
+      switch (jsonToken) {
+      case NULL:
+        reader.nextNull(); // TODO: does this belong here?
+        return null;
+      case NUMBER:
+        return new LazilyParsedNumber(reader.nextString());
+      default:
+        throw new JsonSyntaxException("Expecting number, got: " + jsonToken);
+      }
+    }
+    @Override
+    public void write(JsonWriter writer, Number value) throws IOException {
+      writer.value(value);
+    }
+  };
+
+  public static final TypeAdapter.Factory NUMBER_FACTORY = newFactory(Number.class, NUMBER);
 
   public static final TypeAdapter<Character> CHARACTER = new TypeAdapter<Character>() {
     @Override
