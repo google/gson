@@ -47,8 +47,6 @@ final class DefaultTypeAdapters {
   private static final DefaultTimestampDeserializer TIMESTAMP_DESERIALIZER =
     new DefaultTimestampDeserializer();
 
-  private static final NumberTypeAdapter NUMBER_TYPE_ADAPTER = new NumberTypeAdapter();
-
   private static final GregorianCalendarTypeAdapter GREGORIAN_CALENDAR_TYPE_ADAPTER =
       new GregorianCalendarTypeAdapter();
 
@@ -73,8 +71,6 @@ final class DefaultTypeAdapters {
     map.register(Calendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER, true);
     map.register(GregorianCalendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER, true);
 
-    map.register(Number.class, NUMBER_TYPE_ADAPTER, true);
-
     map.makeUnmodifiable();
     return map;
   }
@@ -88,8 +84,6 @@ final class DefaultTypeAdapters {
     map.register(Time.class, wrapDeserializer(TIME_TYPE_ADAPTER), true);
     map.register(Calendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER, true);
     map.register(GregorianCalendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER, true);
-
-    map.register(Number.class, NUMBER_TYPE_ADAPTER, true);
 
     map.makeUnmodifiable();
     return map;
@@ -297,31 +291,6 @@ final class DefaultTypeAdapters {
     @Override
     public String toString() {
       return GregorianCalendarTypeAdapter.class.getSimpleName();
-    }
-  }
-
-  private static final class NumberTypeAdapter
-      implements JsonSerializer<Number>, JsonDeserializer<Number> {
-    public JsonElement serialize(Number src, Type typeOfSrc, JsonSerializationContext context) {
-      return new JsonPrimitive(src);
-    }
-
-    public Number deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-        throws JsonParseException {
-      try {
-        return json.getAsNumber();
-      } catch (NumberFormatException e) {
-        throw new JsonSyntaxException(e);
-      } catch (UnsupportedOperationException e) {
-        throw new JsonSyntaxException(e);
-      } catch (IllegalStateException e) {
-        throw new JsonSyntaxException(e);
-      }
-    }
-
-    @Override
-    public String toString() {
-      return NumberTypeAdapter.class.getSimpleName();
     }
   }
 }
