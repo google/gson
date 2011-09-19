@@ -236,6 +236,7 @@ public final class Gson {
             floatAdapter(serializeSpecialFloatingPointValues)))
         .factory(new ExcludedTypeAdapterFactory(
             serializationExclusionStrategy, deserializationExclusionStrategy))
+        .factory(TypeAdapters.NUMBER_FACTORY)
         .factory(TypeAdapters.CHARACTER_FACTORY)
         .factory(TypeAdapters.STRING_FACTORY)
         .factory(TypeAdapters.STRING_BUILDER_FACTORY)
