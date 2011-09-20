@@ -255,6 +255,7 @@ public final class Gson {
         .factory(new GsonToMiniGsonTypeAdapterFactory(serializers, deserializers,
             new JsonDeserializationContext(this), new JsonSerializationContext(this), serializeNulls
         ))
+        .factory(TypeAdapters.SQL_DATE_FACTORY)
         .factory(new MapTypeAdapterFactory(constructorConstructor, complexMapKeySerialization))
         .factory(ArrayTypeAdapter.FACTORY)
         .factory(TypeAdapters.ENUM_FACTORY)
