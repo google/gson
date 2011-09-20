@@ -22,6 +22,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.BitSet;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.UUID;
@@ -405,6 +407,66 @@ public final class TypeAdapters {
 
   public static final TypeAdapter.Factory UUID_FACTORY = newFactory(UUID.class, UUID);
 
+  public static final TypeAdapter<Calendar> CALENDAR = new TypeAdapter<Calendar>() {
+    private static final String YEAR = "year";
+    private static final String MONTH = "month";
+    private static final String DAY_OF_MONTH = "dayOfMonth";
+    private static final String HOUR_OF_DAY = "hourOfDay";
+    private static final String MINUTE = "minute";
+    private static final String SECOND = "second";
+
+    @Override
+    public Calendar read(JsonReader reader) throws IOException {
+      reader.beginObject();
+      int year = 0;
+      int month = 0;
+      int dayOfMonth = 0;
+      int hourOfDay = 0;
+      int minute = 0;
+      int second = 0;
+      while (reader.peek() != JsonToken.END_OBJECT) {
+        String name = reader.nextName();
+        int value = reader.nextInt();
+        if (YEAR.equals(name)) {
+          year = value;
+        } else if (MONTH.equals(name)) {
+          month = value;
+        } else if (DAY_OF_MONTH.equals(name)) {
+          dayOfMonth = value;
+        } else if (HOUR_OF_DAY.equals(name)) {
+          hourOfDay = value;
+        } else if (MINUTE.equals(name)) {
+          minute = value;
+        } else if (SECOND.equals(name)) {
+          second = value;
+        }
+      }
+      reader.endObject();
+      return new GregorianCalendar(year, month, dayOfMonth, hourOfDay, minute, second);
+    }
+
+    @Override
+    public void write(JsonWriter writer, Calendar value) throws IOException {
+      writer.beginObject();
+      writer.name(YEAR);
+      writer.value(value.get(Calendar.YEAR));
+      writer.name(MONTH);
+      writer.value(value.get(Calendar.MONTH));
+      writer.name(DAY_OF_MONTH);
+      writer.value(value.get(Calendar.DAY_OF_MONTH));
+      writer.name(HOUR_OF_DAY);
+      writer.value(value.get(Calendar.HOUR_OF_DAY));
+      writer.name(MINUTE);
+      writer.value(value.get(Calendar.MINUTE));
+      writer.name(SECOND);
+      writer.value(value.get(Calendar.SECOND));
+      writer.endObject();
+    }
+  };
+
+  public static final TypeAdapter.Factory CALENDAR_FACTORY =
+    newFactoryForMultipleTypes(Calendar.class, GregorianCalendar.class, CALENDAR);
+
   public static final TypeAdapter<Locale> LOCALE = new TypeAdapter<Locale>() {
     @Override
     public Locale read(JsonReader reader) throws IOException {
@@ -497,6 +559,17 @@ public final class TypeAdapters {
       public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> typeToken) {
         Class<? super T> rawType = typeToken.getRawType();
         return (rawType == unboxed || rawType == boxed) ? (TypeAdapter<T>) typeAdapter : null;
+      }
+    };
+  }
+
+  public static <TT> TypeAdapter.Factory newFactoryForMultipleTypes(
+      final Class<TT> base, final Class<? extends TT> sub, final TypeAdapter<? super TT> typeAdapter) {
+    return new TypeAdapter.Factory() {
+      @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
+      public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> typeToken) {
+        Class<? super T> rawType = typeToken.getRawType();
+        return (rawType == base || rawType == sub) ? (TypeAdapter<T>) typeAdapter : null;
       }
     };
   }
