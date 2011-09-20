@@ -47,9 +47,6 @@ final class DefaultTypeAdapters {
   private static final DefaultTimestampDeserializer TIMESTAMP_DESERIALIZER =
     new DefaultTimestampDeserializer();
 
-  private static final GregorianCalendarTypeAdapter GREGORIAN_CALENDAR_TYPE_ADAPTER =
-      new GregorianCalendarTypeAdapter();
-
   // The constants DEFAULT_SERIALIZERS, DEFAULT_DESERIALIZERS, and DEFAULT_INSTANCE_CREATORS
   // must be defined after the constants for the type adapters. Otherwise, the type adapter
   // constants will appear as nulls.
@@ -68,8 +65,6 @@ final class DefaultTypeAdapters {
     map.register(java.sql.Date.class, JAVA_SQL_DATE_TYPE_ADAPTER, true);
     map.register(Timestamp.class, DATE_TYPE_ADAPTER, true);
     map.register(Time.class, TIME_TYPE_ADAPTER, true);
-    map.register(Calendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER, true);
-    map.register(GregorianCalendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER, true);
 
     map.makeUnmodifiable();
     return map;
@@ -82,8 +77,6 @@ final class DefaultTypeAdapters {
     map.register(java.sql.Date.class, wrapDeserializer(JAVA_SQL_DATE_TYPE_ADAPTER), true);
     map.register(Timestamp.class, wrapDeserializer(TIMESTAMP_DESERIALIZER), true);
     map.register(Time.class, wrapDeserializer(TIME_TYPE_ADAPTER), true);
-    map.register(Calendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER, true);
-    map.register(GregorianCalendar.class, GREGORIAN_CALENDAR_TYPE_ADAPTER, true);
 
     map.makeUnmodifiable();
     return map;
@@ -251,46 +244,6 @@ final class DefaultTypeAdapters {
       } catch (ParseException e) {
         throw new JsonSyntaxException(e);
       }
-    }
-  }
-
-  private static final class GregorianCalendarTypeAdapter
-      implements JsonSerializer<GregorianCalendar>, JsonDeserializer<GregorianCalendar> {
-
-    private static final String YEAR = "year";
-    private static final String MONTH = "month";
-    private static final String DAY_OF_MONTH = "dayOfMonth";
-    private static final String HOUR_OF_DAY = "hourOfDay";
-    private static final String MINUTE = "minute";
-    private static final String SECOND = "second";
-
-    public JsonElement serialize(GregorianCalendar src, Type typeOfSrc,
-        JsonSerializationContext context) {
-      JsonObject obj = new JsonObject();
-      obj.addProperty(YEAR, src.get(Calendar.YEAR));
-      obj.addProperty(MONTH, src.get(Calendar.MONTH));
-      obj.addProperty(DAY_OF_MONTH, src.get(Calendar.DAY_OF_MONTH));
-      obj.addProperty(HOUR_OF_DAY, src.get(Calendar.HOUR_OF_DAY));
-      obj.addProperty(MINUTE, src.get(Calendar.MINUTE));
-      obj.addProperty(SECOND, src.get(Calendar.SECOND));
-      return obj;
-    }
-
-    public GregorianCalendar deserialize(JsonElement json, Type typeOfT,
-        JsonDeserializationContext context) throws JsonParseException {
-      JsonObject obj = json.getAsJsonObject();
-      int year = obj.get(YEAR).getAsInt();
-      int month = obj.get(MONTH).getAsInt();
-      int dayOfMonth = obj.get(DAY_OF_MONTH).getAsInt();
-      int hourOfDay = obj.get(HOUR_OF_DAY).getAsInt();
-      int minute = obj.get(MINUTE).getAsInt();
-      int second = obj.get(SECOND).getAsInt();
-      return new GregorianCalendar(year, month, dayOfMonth, hourOfDay, minute, second);
-    }
-
-    @Override
-    public String toString() {
-      return GregorianCalendarTypeAdapter.class.getSimpleName();
     }
   }
 }
