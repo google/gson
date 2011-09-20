@@ -21,8 +21,12 @@ import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.BitSet;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.StringTokenizer;
@@ -406,6 +410,27 @@ public final class TypeAdapters {
   };
 
   public static final TypeAdapter.Factory UUID_FACTORY = newFactory(UUID.class, UUID);
+
+  public static final TypeAdapter<java.sql.Date> SQL_DATE = new TypeAdapter<java.sql.Date>() {
+    private final DateFormat format = new SimpleDateFormat("MMM d, yyyy");
+    @Override
+    public java.sql.Date read(JsonReader reader) throws IOException {
+      try {
+        synchronized (format) {
+          Date date = format.parse(reader.nextString());
+          return new java.sql.Date(date.getTime());
+        }
+      } catch (ParseException e) {
+        throw new JsonSyntaxException(e);
+      }
+    }
+    @Override
+    public void write(JsonWriter writer, java.sql.Date value) throws IOException {
+      writer.value(format.format(value));
+    }
+  };
+
+  public static final TypeAdapter.Factory SQL_DATE_FACTORY = newFactory(java.sql.Date.class, SQL_DATE);
 
   public static final TypeAdapter<Calendar> CALENDAR = new TypeAdapter<Calendar>() {
     private static final String YEAR = "year";

@@ -22,9 +22,7 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -40,8 +38,6 @@ import com.google.gson.internal.ParameterizedTypeHandlerMap;
 final class DefaultTypeAdapters {
 
   private static final DefaultDateTypeAdapter DATE_TYPE_ADAPTER = new DefaultDateTypeAdapter();
-  private static final DefaultJavaSqlDateTypeAdapter JAVA_SQL_DATE_TYPE_ADAPTER =
-    new DefaultJavaSqlDateTypeAdapter();
   private static final DefaultTimeTypeAdapter TIME_TYPE_ADAPTER =
     new DefaultTimeTypeAdapter();
   private static final DefaultTimestampDeserializer TIMESTAMP_DESERIALIZER =
@@ -62,7 +58,6 @@ final class DefaultTypeAdapters {
         new ParameterizedTypeHandlerMap<JsonSerializer<?>>();
 
     map.register(Date.class, DATE_TYPE_ADAPTER, true);
-    map.register(java.sql.Date.class, JAVA_SQL_DATE_TYPE_ADAPTER, true);
     map.register(Timestamp.class, DATE_TYPE_ADAPTER, true);
     map.register(Time.class, TIME_TYPE_ADAPTER, true);
 
@@ -74,7 +69,6 @@ final class DefaultTypeAdapters {
     ParameterizedTypeHandlerMap<JsonDeserializer<?>> map =
         new ParameterizedTypeHandlerMap<JsonDeserializer<?>>();
     map.register(Date.class, wrapDeserializer(DATE_TYPE_ADAPTER), true);
-    map.register(java.sql.Date.class, wrapDeserializer(JAVA_SQL_DATE_TYPE_ADAPTER), true);
     map.register(Timestamp.class, wrapDeserializer(TIMESTAMP_DESERIALIZER), true);
     map.register(Time.class, wrapDeserializer(TIME_TYPE_ADAPTER), true);
 
@@ -178,37 +172,6 @@ final class DefaultTypeAdapters {
       sb.append(DefaultDateTypeAdapter.class.getSimpleName());
       sb.append('(').append(localFormat.getClass().getSimpleName()).append(')');
       return sb.toString();
-    }
-  }
-
-  static final class DefaultJavaSqlDateTypeAdapter implements JsonSerializer<java.sql.Date>,
-      JsonDeserializer<java.sql.Date> {
-    private final DateFormat format;
-    DefaultJavaSqlDateTypeAdapter() {
-      this.format = new SimpleDateFormat("MMM d, yyyy");
-    }
-
-    public JsonElement serialize(java.sql.Date src, Type typeOfSrc,
-        JsonSerializationContext context) {
-      synchronized (format) {
-        String dateFormatAsString = format.format(src);
-        return new JsonPrimitive(dateFormatAsString);
-      }
-    }
-
-    public java.sql.Date deserialize(JsonElement json, Type typeOfT,
-        JsonDeserializationContext context) throws JsonParseException {
-      if (!(json instanceof JsonPrimitive)) {
-        throw new JsonParseException("The date should be a string value");
-      }
-      try {
-        synchronized (format) {
-          Date date = format.parse(json.getAsString());
-          return new java.sql.Date(date.getTime());
-        }
-      } catch (ParseException e) {
-        throw new JsonSyntaxException(e);
-      }
     }
   }
 
