@@ -255,6 +255,7 @@ public final class Gson {
         .factory(TypeAdapters.INET_ADDRESS_FACTORY)
         .factory(TypeAdapters.BIT_SET_FACTORY)
         .factory(TypeAdapters.CALENDAR_FACTORY)
+        .factory(TypeAdapters.SQL_TIME_FACTORY)
         .factory(TypeAdapters.SQL_DATE_FACTORY)
         .factory(new MapTypeAdapterFactory(constructorConstructor, complexMapKeySerialization))
         .factory(ArrayTypeAdapter.FACTORY)

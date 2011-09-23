@@ -21,6 +21,7 @@ import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.sql.Time;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -410,6 +411,27 @@ public final class TypeAdapters {
   };
 
   public static final TypeAdapter.Factory UUID_FACTORY = newFactory(UUID.class, UUID);
+
+  public static final TypeAdapter<Time> SQL_TIME = new TypeAdapter<Time>() {
+    private final DateFormat format = new SimpleDateFormat("hh:mm:ss a");
+    @Override
+    public Time read(JsonReader reader) throws IOException {
+      try {
+        synchronized (format) {
+          Date date = format.parse(reader.nextString());
+          return new java.sql.Time(date.getTime());
+        }
+      } catch (ParseException e) {
+        throw new JsonSyntaxException(e);
+      }
+    }
+    @Override
+    public void write(JsonWriter writer, Time value) throws IOException {
+      writer.value(format.format(value));
+    }
+  };
+
+  public static final TypeAdapter.Factory SQL_TIME_FACTORY = newFactory(Time.class, SQL_TIME);
 
   public static final TypeAdapter<java.sql.Date> SQL_DATE = new TypeAdapter<java.sql.Date>() {
     private final DateFormat format = new SimpleDateFormat("MMM d, yyyy");
