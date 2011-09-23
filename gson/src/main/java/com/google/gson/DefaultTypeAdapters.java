@@ -17,7 +17,6 @@
 package com.google.gson;
 
 import java.lang.reflect.Type;
-import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -38,8 +37,6 @@ import com.google.gson.internal.ParameterizedTypeHandlerMap;
 final class DefaultTypeAdapters {
 
   private static final DefaultDateTypeAdapter DATE_TYPE_ADAPTER = new DefaultDateTypeAdapter();
-  private static final DefaultTimeTypeAdapter TIME_TYPE_ADAPTER =
-    new DefaultTimeTypeAdapter();
   private static final DefaultTimestampDeserializer TIMESTAMP_DESERIALIZER =
     new DefaultTimestampDeserializer();
 
@@ -59,7 +56,6 @@ final class DefaultTypeAdapters {
 
     map.register(Date.class, DATE_TYPE_ADAPTER, true);
     map.register(Timestamp.class, DATE_TYPE_ADAPTER, true);
-    map.register(Time.class, TIME_TYPE_ADAPTER, true);
 
     map.makeUnmodifiable();
     return map;
@@ -70,7 +66,6 @@ final class DefaultTypeAdapters {
         new ParameterizedTypeHandlerMap<JsonDeserializer<?>>();
     map.register(Date.class, wrapDeserializer(DATE_TYPE_ADAPTER), true);
     map.register(Timestamp.class, wrapDeserializer(TIMESTAMP_DESERIALIZER), true);
-    map.register(Time.class, wrapDeserializer(TIME_TYPE_ADAPTER), true);
 
     map.makeUnmodifiable();
     return map;
@@ -180,33 +175,6 @@ final class DefaultTypeAdapters {
         JsonDeserializationContext context) throws JsonParseException {
       Date date = context.deserialize(json, Date.class);
       return new Timestamp(date.getTime());
-    }
-  }
-
-  static final class DefaultTimeTypeAdapter implements JsonSerializer<Time>, JsonDeserializer<Time> {
-    private final DateFormat format;
-    DefaultTimeTypeAdapter() {
-      this.format = new SimpleDateFormat("hh:mm:ss a");
-    }
-    public JsonElement serialize(Time src, Type typeOfSrc, JsonSerializationContext context) {
-      synchronized (format) {
-        String dateFormatAsString = format.format(src);
-        return new JsonPrimitive(dateFormatAsString);
-      }
-    }
-    public Time deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-        throws JsonParseException {
-      if (!(json instanceof JsonPrimitive)) {
-        throw new JsonParseException("The date should be a string value");
-      }
-      try {
-        synchronized (format) {
-          Date date = format.parse(json.getAsString());
-          return new Time(date.getTime());
-        }
-      } catch (ParseException e) {
-        throw new JsonSyntaxException(e);
-      }
     }
   }
 }
