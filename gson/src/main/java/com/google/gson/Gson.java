@@ -16,6 +16,21 @@
 
 package com.google.gson;
 
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.ParameterizedTypeHandlerMap;
 import com.google.gson.internal.Primitives;
@@ -36,20 +51,6 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.google.gson.stream.MalformedJsonException;
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * This is the main class for using Gson. Gson is typically used by first constructing a
@@ -254,6 +255,7 @@ public final class Gson {
         .factory(TypeAdapters.LOCALE_FACTORY)
         .factory(TypeAdapters.INET_ADDRESS_FACTORY)
         .factory(TypeAdapters.BIT_SET_FACTORY)
+        .factory(TypeAdapters.DATE_FACTORY)
         .factory(TypeAdapters.CALENDAR_FACTORY)
         .factory(TypeAdapters.SQL_TIME_FACTORY)
         .factory(TypeAdapters.SQL_DATE_FACTORY)
