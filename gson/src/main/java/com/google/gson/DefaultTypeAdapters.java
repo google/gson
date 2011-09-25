@@ -36,8 +36,6 @@ import com.google.gson.internal.ParameterizedTypeHandlerMap;
  */
 final class DefaultTypeAdapters {
 
-  private static final DefaultDateTypeAdapter DATE_TYPE_ADAPTER = new DefaultDateTypeAdapter();
-
   // The constants DEFAULT_SERIALIZERS, DEFAULT_DESERIALIZERS, and DEFAULT_INSTANCE_CREATORS
   // must be defined after the constants for the type adapters. Otherwise, the type adapter
   // constants will appear as nulls.
@@ -51,10 +49,6 @@ final class DefaultTypeAdapters {
   private static ParameterizedTypeHandlerMap<JsonSerializer<?>> createDefaultSerializers() {
     ParameterizedTypeHandlerMap<JsonSerializer<?>> map =
         new ParameterizedTypeHandlerMap<JsonSerializer<?>>();
-
-    map.register(Date.class, DATE_TYPE_ADAPTER, true);
-    map.register(Timestamp.class, DATE_TYPE_ADAPTER, true);
-
     map.makeUnmodifiable();
     return map;
   }
@@ -62,8 +56,6 @@ final class DefaultTypeAdapters {
   private static ParameterizedTypeHandlerMap<JsonDeserializer<?>> createDefaultDeserializers() {
     ParameterizedTypeHandlerMap<JsonDeserializer<?>> map =
         new ParameterizedTypeHandlerMap<JsonDeserializer<?>>();
-    map.register(Date.class, wrapDeserializer(DATE_TYPE_ADAPTER), true);
-
     map.makeUnmodifiable();
     return map;
   }
@@ -73,11 +65,6 @@ final class DefaultTypeAdapters {
         = new ParameterizedTypeHandlerMap<InstanceCreator<?>>();
     map.makeUnmodifiable();
     return map;
-  }
-
-  @SuppressWarnings("unchecked")
-  private static JsonDeserializer<?> wrapDeserializer(JsonDeserializer<?> deserializer) {
-    return new JsonDeserializerExceptionWrapper(deserializer);
   }
 
   /**
