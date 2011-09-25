@@ -37,8 +37,6 @@ import com.google.gson.internal.ParameterizedTypeHandlerMap;
 final class DefaultTypeAdapters {
 
   private static final DefaultDateTypeAdapter DATE_TYPE_ADAPTER = new DefaultDateTypeAdapter();
-  private static final DefaultTimestampDeserializer TIMESTAMP_DESERIALIZER =
-    new DefaultTimestampDeserializer();
 
   // The constants DEFAULT_SERIALIZERS, DEFAULT_DESERIALIZERS, and DEFAULT_INSTANCE_CREATORS
   // must be defined after the constants for the type adapters. Otherwise, the type adapter
@@ -65,7 +63,6 @@ final class DefaultTypeAdapters {
     ParameterizedTypeHandlerMap<JsonDeserializer<?>> map =
         new ParameterizedTypeHandlerMap<JsonDeserializer<?>>();
     map.register(Date.class, wrapDeserializer(DATE_TYPE_ADAPTER), true);
-    map.register(Timestamp.class, wrapDeserializer(TIMESTAMP_DESERIALIZER), true);
 
     map.makeUnmodifiable();
     return map;
@@ -167,14 +164,6 @@ final class DefaultTypeAdapters {
       sb.append(DefaultDateTypeAdapter.class.getSimpleName());
       sb.append('(').append(localFormat.getClass().getSimpleName()).append(')');
       return sb.toString();
-    }
-  }
-
-  static final class DefaultTimestampDeserializer implements JsonDeserializer<Timestamp> {
-    public Timestamp deserialize(JsonElement json, Type typeOfT,
-        JsonDeserializationContext context) throws JsonParseException {
-      Date date = context.deserialize(json, Date.class);
-      return new Timestamp(date.getTime());
     }
   }
 }

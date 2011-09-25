@@ -22,6 +22,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.Time;
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -432,6 +433,31 @@ public final class TypeAdapters {
   };
 
   public static final TypeAdapter.Factory SQL_TIME_FACTORY = newFactory(Time.class, SQL_TIME);
+
+  private static final class TimestampTypeAdapter extends TypeAdapter<Timestamp> {
+    private final DateFormat format = new SimpleDateFormat("hh:mm:ss a");
+    private final MiniGson context;
+    public TimestampTypeAdapter(MiniGson context) {
+      this.context = context;
+    }
+    @Override
+    public Timestamp read(JsonReader reader) throws IOException {
+      TypeAdapter<Date> dateTypeAdapter = context.getAdapter(Date.class);
+      Date date = dateTypeAdapter.read(reader);
+      return new java.sql.Timestamp(date.getTime());
+    }
+    @Override
+    public void write(JsonWriter writer, Timestamp value) throws IOException {
+      writer.value(format.format(value));
+    }
+  };
+  public static final TypeAdapter.Factory SQL_TIMESTAMP_FACTORY = new TypeAdapter.Factory() {
+    @SuppressWarnings("unchecked")
+    public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> typeToken) {
+      return typeToken.getRawType() == Timestamp.class
+          ? (TypeAdapter<T>) new TimestampTypeAdapter(context) : null;
+    }
+  };
 
   public static final TypeAdapter<java.sql.Date> SQL_DATE = new TypeAdapter<java.sql.Date>() {
     private final DateFormat format = new SimpleDateFormat("MMM d, yyyy");
