@@ -16,12 +16,18 @@
 
 package com.google.gson.internal.bind;
 
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.internal.LazilyParsedNumber;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -32,16 +38,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.StringTokenizer;
-import java.util.TimeZone;
 import java.util.UUID;
-
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.internal.LazilyParsedNumber;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
 
 /**
  * Type adapters for basic types.
@@ -412,74 +409,7 @@ public final class TypeAdapters {
     }
   };
 
-  private static DateFormat buildIso8601Format() {
-    DateFormat iso8601Format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
-    iso8601Format.setTimeZone(TimeZone.getTimeZone("UTC"));
-    return iso8601Format;
-  }
-  
-  public static final TypeAdapter<Date> DATE = new TypeAdapter<Date>() {
-    private final DateFormat enUsFormat =
-    DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.US);
-    private final DateFormat localFormat =
-    DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT);
-    private final DateFormat iso8601Format = buildIso8601Format();
-    @Override
-    public Date read(JsonReader reader) throws IOException {
-      return deserializeToDate(reader.nextString());
-    }
-
-    private Date deserializeToDate(String json) {
-      synchronized (localFormat) {
-        try {
-          return localFormat.parse(json);
-        } catch (ParseException ignored) {
-        }
-        try {
-          return enUsFormat.parse(json);
-        } catch (ParseException ignored) {
-        }
-        try {
-          return iso8601Format.parse(json);
-        } catch (ParseException e) {
-          throw new JsonSyntaxException(json, e);
-        }
-      }
-    }
-
-    @Override
-    public void write(JsonWriter writer, Date value) throws IOException {
-      synchronized (localFormat) {
-        String dateFormatAsString = enUsFormat.format(value);
-        writer.value(dateFormatAsString);
-      }
-    }
-  };
-
-  public static final TypeAdapter.Factory DATE_FACTORY = newFactory(Date.class, DATE);
-
   public static final TypeAdapter.Factory UUID_FACTORY = newFactory(UUID.class, UUID);
-
-  public static final TypeAdapter<Time> SQL_TIME = new TypeAdapter<Time>() {
-    private final DateFormat format = new SimpleDateFormat("hh:mm:ss a");
-    @Override
-    public Time read(JsonReader reader) throws IOException {
-      try {
-        synchronized (format) {
-          Date date = format.parse(reader.nextString());
-          return new java.sql.Time(date.getTime());
-        }
-      } catch (ParseException e) {
-        throw new JsonSyntaxException(e);
-      }
-    }
-    @Override
-    public void write(JsonWriter writer, Time value) throws IOException {
-      writer.value(format.format(value));
-    }
-  };
-
-  public static final TypeAdapter.Factory SQL_TIME_FACTORY = newFactory(Time.class, SQL_TIME);
 
   private static final class TimestampTypeAdapter extends TypeAdapter<Timestamp> {
     private final MiniGson context;
