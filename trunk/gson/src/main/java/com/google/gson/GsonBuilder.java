@@ -16,10 +16,6 @@
 
 package com.google.gson;
 
-import com.google.gson.DefaultTypeAdapters.DefaultDateTypeAdapter;
-import com.google.gson.internal.$Gson$Preconditions;
-import com.google.gson.internal.ParameterizedTypeHandlerMap;
-import com.google.gson.internal.Primitives;
 import java.lang.reflect.Type;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -29,6 +25,11 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+
+import com.google.gson.DefaultTypeAdapters.DefaultDateTypeAdapter;
+import com.google.gson.internal.$Gson$Preconditions;
+import com.google.gson.internal.ParameterizedTypeHandlerMap;
+import com.google.gson.internal.Primitives;
 
 /**
  * <p>Use this builder to construct a {@link Gson} instance when you need to set configuration
@@ -674,20 +675,16 @@ public final class GsonBuilder {
     addTypeAdaptersForDate(datePattern, dateStyle, timeStyle, customSerializers,
         customDeserializers);
 
-    customSerializers.registerIfAbsent(DefaultTypeAdapters.DEFAULT_SERIALIZERS);
-    customDeserializers.registerIfAbsent(DefaultTypeAdapters.DEFAULT_DESERIALIZERS);
-
     ParameterizedTypeHandlerMap<InstanceCreator<?>> customInstanceCreators =
         instanceCreators.copyOf();
-    customInstanceCreators.registerIfAbsent(DefaultTypeAdapters.DEFAULT_INSTANCE_CREATORS);
 
     customSerializers.makeUnmodifiable();
     customDeserializers.makeUnmodifiable();
-    instanceCreators.makeUnmodifiable();
+    customInstanceCreators.makeUnmodifiable();
 
     return new Gson(new DisjunctionExclusionStrategy(deserializationStrategies),
         new DisjunctionExclusionStrategy(serializationStrategies),
-        fieldNamingPolicy, instanceCreators, serializeNulls,
+        fieldNamingPolicy, customInstanceCreators, serializeNulls,
         customSerializers, customDeserializers, complexMapKeySerialization,
         generateNonExecutableJson, escapeHtmlChars, prettyPrinting,
         serializeSpecialFloatingPointValues, longSerializationPolicy);
