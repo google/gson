@@ -16,6 +16,28 @@
 
 package com.google.gson;
 
+import com.google.gson.internal.ConstructorConstructor;
+import com.google.gson.internal.ParameterizedTypeHandlerMap;
+import com.google.gson.internal.Primitives;
+import com.google.gson.internal.Streams;
+import com.google.gson.internal.bind.ArrayTypeAdapter;
+import com.google.gson.internal.bind.BigDecimalTypeAdapter;
+import com.google.gson.internal.bind.BigIntegerTypeAdapter;
+import com.google.gson.internal.bind.CollectionTypeAdapterFactory;
+import com.google.gson.internal.bind.DateTypeAdapter;
+import com.google.gson.internal.bind.ExcludedTypeAdapterFactory;
+import com.google.gson.internal.bind.MapTypeAdapterFactory;
+import com.google.gson.internal.bind.MiniGson;
+import com.google.gson.internal.bind.ObjectTypeAdapter;
+import com.google.gson.internal.bind.ReflectiveTypeAdapterFactory;
+import com.google.gson.internal.bind.TimeTypeAdapter;
+import com.google.gson.internal.bind.TypeAdapter;
+import com.google.gson.internal.bind.TypeAdapters;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
+import com.google.gson.stream.MalformedJsonException;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
@@ -30,27 +52,6 @@ import java.math.BigInteger;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import com.google.gson.internal.ConstructorConstructor;
-import com.google.gson.internal.ParameterizedTypeHandlerMap;
-import com.google.gson.internal.Primitives;
-import com.google.gson.internal.Streams;
-import com.google.gson.internal.bind.ArrayTypeAdapter;
-import com.google.gson.internal.bind.BigDecimalTypeAdapter;
-import com.google.gson.internal.bind.BigIntegerTypeAdapter;
-import com.google.gson.internal.bind.CollectionTypeAdapterFactory;
-import com.google.gson.internal.bind.ExcludedTypeAdapterFactory;
-import com.google.gson.internal.bind.MapTypeAdapterFactory;
-import com.google.gson.internal.bind.MiniGson;
-import com.google.gson.internal.bind.ObjectTypeAdapter;
-import com.google.gson.internal.bind.ReflectiveTypeAdapterFactory;
-import com.google.gson.internal.bind.TypeAdapter;
-import com.google.gson.internal.bind.TypeAdapters;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
-import com.google.gson.stream.MalformedJsonException;
 
 /**
  * This is the main class for using Gson. Gson is typically used by first constructing a
@@ -255,9 +256,9 @@ public final class Gson {
         .factory(TypeAdapters.LOCALE_FACTORY)
         .factory(TypeAdapters.INET_ADDRESS_FACTORY)
         .factory(TypeAdapters.BIT_SET_FACTORY)
-        .factory(TypeAdapters.DATE_FACTORY)
+        .factory(DateTypeAdapter.FACTORY)
         .factory(TypeAdapters.CALENDAR_FACTORY)
-        .factory(TypeAdapters.SQL_TIME_FACTORY)
+        .factory(TimeTypeAdapter.FACTORY)
         .factory(TypeAdapters.SQL_DATE_FACTORY)
         .factory(TypeAdapters.SQL_TIMESTAMP_FACTORY)
         .factory(new MapTypeAdapterFactory(constructorConstructor, complexMapKeySerialization))
