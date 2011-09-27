@@ -16,6 +16,12 @@
 
 package com.google.gson.internal.bind;
 
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
@@ -27,11 +33,6 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Adapts maps to either JSON objects or JSON arrays.
@@ -123,7 +124,8 @@ public final class MapTypeAdapterFactory implements TypeAdapter.Factory {
     ObjectConstructor<T> constructor = constructorConstructor.getConstructor(typeToken);
 
     @SuppressWarnings("unchecked") // we don't define a type parameter for the key or value types
-    TypeAdapter<T> result = new Adapter(keyAdapter, valueAdapter, constructor);
+    TypeAdapter<T> result = new Adapter(context, keyAndValueTypes[0], keyAdapter,
+        keyAndValueTypes[1], valueAdapter, constructor);
     return result;
   }
 
@@ -132,10 +134,13 @@ public final class MapTypeAdapterFactory implements TypeAdapter.Factory {
     private final TypeAdapter<V> valueTypeAdapter;
     private final ObjectConstructor<? extends Map<K, V>> constructor;
 
-    public Adapter(TypeAdapter<K> keyTypeAdapter, TypeAdapter<V> valueTypeAdapter,
+    public Adapter(MiniGson context, Type keyType, TypeAdapter<K> keyTypeAdapter, 
+        Type valueType, TypeAdapter<V> valueTypeAdapter,
         ObjectConstructor<? extends Map<K, V>> constructor) {
-      this.keyTypeAdapter = keyTypeAdapter;
-      this.valueTypeAdapter = valueTypeAdapter;
+      this.keyTypeAdapter =
+        new TypeAdapterRuntimeTypeWrapper<K>(context, keyTypeAdapter, keyType);
+      this.valueTypeAdapter =
+        new TypeAdapterRuntimeTypeWrapper<V>(context, valueTypeAdapter, valueType);
       this.constructor = constructor;
     }
 
