@@ -396,14 +396,15 @@ public class MapTest extends TestCase {
 
     Gson tempGson = new Gson();
     String subTypeJson = tempGson.toJson(subType);
-    final JsonElement baseTypeJson = tempGson.toJsonTree(subType, TestTypes.Base.class);
-    String expected = "{\"bases\":{\"Test\":" + baseTypeJson.toString() + "},"
+    final JsonElement baseTypeJsonElement = tempGson.toJsonTree(subType, TestTypes.Base.class);
+    String baseTypeJson = tempGson.toJson(baseTypeJsonElement);
+    String expected = "{\"bases\":{\"Test\":" + baseTypeJson + "},"
         + "\"subs\":{\"Test\":" + subTypeJson + "}}";
 
     JsonSerializer<TestTypes.Base> baseTypeAdapter = new JsonSerializer<TestTypes.Base>() {
       public JsonElement serialize(TestTypes.Base src, Type typeOfSrc,
           JsonSerializationContext context) {
-        return baseTypeJson;
+        return baseTypeJsonElement;
       }
     };
 
@@ -441,11 +442,11 @@ public class MapTest extends TestCase {
     private final Map<String, TestTypes.Base> bases = new HashMap<String, TestTypes.Base>();
     private final Map<String, TestTypes.Sub> subs = new HashMap<String, TestTypes.Sub>();
 
-    public final void addBase(final String name, final TestTypes.Base value) {
+    public final void addBase(String name, TestTypes.Base value) {
       bases.put(name, value);
     }
 
-    public final void addSub(final String name, final TestTypes.Sub value) {
+    public final void addSub(String name, TestTypes.Sub value) {
       subs.put(name, value);
     }
   }
