@@ -38,3 +38,11 @@ GSON 1.x supports type adapters for primitive types
 GSON 2.x doesn't
 com.google.gson.functional.CustomTypeAdaptersTest.testCustomSerializerForLong
 com.google.gson.functional.CustomTypeAdaptersTest.testCustomDeserializerForLong
+
+
+GSON 1.x throws IllegalStateException on circular references
+GSON 2.x lets the runtime throw a StackOverflowError
+com.google.gson.functional.CircularReferenceTest.testCircularSerialization
+com.google.gson.functional.CircularReferenceTest.testSelfReferenceSerialization
+com.google.gson.functional.CircularReferenceTest.testSelfReferenceArrayFieldSerialization
+com.google.gson.functional.CircularReferenceTest.testSelfReferenceCustomHandlerSerialization
