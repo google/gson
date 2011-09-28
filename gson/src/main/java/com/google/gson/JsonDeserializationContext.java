@@ -60,8 +60,4 @@ public class JsonDeserializationContext {
   public <T> T deserialize(JsonElement json, Type typeOfT) throws JsonParseException {
     return gson.fromJson(json, typeOfT);
   }
-
-  public <T> T deserializeDefault(JsonElement json, Type typeOfT) throws JsonParseException {
-    throw new UnsupportedOperationException();
-  }
 }

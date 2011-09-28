@@ -56,8 +56,4 @@ public class JsonSerializationContext {
   public JsonElement serialize(Object src, Type typeOfSrc) {
     return gson.toJsonTree(src, typeOfSrc);
   }
-
-  public JsonElement serializeDefault(Object src, Type typeOfSrc) {
-    throw new UnsupportedOperationException();
-  }
 }
