@@ -30,6 +30,7 @@ import com.google.gson.internal.bind.MapTypeAdapterFactory;
 import com.google.gson.internal.bind.MiniGson;
 import com.google.gson.internal.bind.ObjectTypeAdapter;
 import com.google.gson.internal.bind.ReflectiveTypeAdapterFactory;
+import com.google.gson.internal.bind.SqlDateTypeAdapter;
 import com.google.gson.internal.bind.TimeTypeAdapter;
 import com.google.gson.internal.bind.TypeAdapter;
 import com.google.gson.internal.bind.TypeAdapters;
@@ -259,8 +260,8 @@ public final class Gson {
         .factory(DateTypeAdapter.FACTORY)
         .factory(TypeAdapters.CALENDAR_FACTORY)
         .factory(TimeTypeAdapter.FACTORY)
-        .factory(TypeAdapters.SQL_DATE_FACTORY)
-        .factory(TypeAdapters.SQL_TIMESTAMP_FACTORY)
+        .factory(SqlDateTypeAdapter.FACTORY)
+        .factory(TypeAdapters.TIMESTAMP_FACTORY)
         .factory(new MapTypeAdapterFactory(constructorConstructor, complexMapKeySerialization))
         .factory(ArrayTypeAdapter.FACTORY)
         .factory(TypeAdapters.ENUM_FACTORY)
