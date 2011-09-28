@@ -52,8 +52,7 @@ public class CircularReferenceTest extends TestCase {
     try {
       gson.toJson(a);
       fail("Circular types should not get printed!");
-    } catch (IllegalStateException expected) {
-      assertTrue(expected.getMessage().contains("children"));
+    } catch (StackOverflowError expected) {
     }
   }
 
@@ -64,7 +63,8 @@ public class CircularReferenceTest extends TestCase {
     try {
       gson.toJson(objA);
       fail("Circular reference to self can not be serialized!");
-    } catch (IllegalStateException expected) { }
+    } catch (StackOverflowError expected) {
+    }
   }
 
   public void testSelfReferenceArrayFieldSerialization() throws Exception {
@@ -74,8 +74,7 @@ public class CircularReferenceTest extends TestCase {
     try {
       gson.toJson(objA);
       fail("Circular reference to self can not be serialized!");
-    } catch (IllegalStateException expected) {
-      assertTrue(expected.getMessage().contains("children"));
+    } catch (StackOverflowError expected) {
     }
   }
 
@@ -94,8 +93,7 @@ public class CircularReferenceTest extends TestCase {
     try {
       gson.toJson(obj);
       fail("Circular reference to self can not be serialized!");
-    } catch (IllegalStateException expected) {
-      assertTrue(expected.getMessage().contains("Offending"));
+    } catch (StackOverflowError expected) {
     }
   }
 
