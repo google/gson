@@ -17,7 +17,9 @@
 package com.google.gson;
 
 import com.google.gson.common.TestTypes.ClassWithNoFields;
+import com.google.gson.internal.bind.TypeAdapter;
 import java.lang.reflect.Modifier;
+import java.util.Collections;
 import java.util.LinkedList;
 import junit.framework.TestCase;
 
@@ -40,7 +42,8 @@ public class FunctionWithInternalDependenciesTest extends TestCase {
         DefaultTypeAdapters.DEFAULT_INSTANCE_CREATORS,
         false, DefaultTypeAdapters.DEFAULT_SERIALIZERS,
         DefaultTypeAdapters.DEFAULT_DESERIALIZERS, false, Gson.DEFAULT_JSON_NON_EXECUTABLE,
-        true, false, false, LongSerializationPolicy.DEFAULT);
+        true, false, false, LongSerializationPolicy.DEFAULT,
+        Collections.<TypeAdapter.Factory>emptyList());
     assertEquals("{}", gson.toJson(new ClassWithNoFields() {
       // empty anonymous class
     }));

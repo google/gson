@@ -16,20 +16,21 @@
 
 package com.google.gson;
 
+import com.google.gson.DefaultTypeAdapters.DefaultDateTypeAdapter;
+import com.google.gson.internal.$Gson$Preconditions;
+import com.google.gson.internal.ParameterizedTypeHandlerMap;
+import com.google.gson.internal.Primitives;
+import com.google.gson.internal.bind.TypeAdapter;
 import java.lang.reflect.Type;
 import java.sql.Timestamp;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-
-import com.google.gson.DefaultTypeAdapters.DefaultDateTypeAdapter;
-import com.google.gson.internal.$Gson$Preconditions;
-import com.google.gson.internal.ParameterizedTypeHandlerMap;
-import com.google.gson.internal.Primitives;
 
 /**
  * <p>Use this builder to construct a {@link Gson} instance when you need to set configuration
@@ -88,6 +89,8 @@ public final class GsonBuilder {
   private final ParameterizedTypeHandlerMap<InstanceCreator<?>> instanceCreators;
   private final ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers;
   private final ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers;
+  private final List<TypeAdapter.Factory> typeAdapterFactories
+      = new ArrayList<TypeAdapter.Factory>();
   private boolean serializeNulls;
   private String datePattern;
   private int dateStyle;
@@ -494,7 +497,9 @@ public final class GsonBuilder {
 
   private GsonBuilder registerTypeAdapter(Type type, Object typeAdapter, boolean isSystem) {
     $Gson$Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
-        || typeAdapter instanceof JsonDeserializer<?> || typeAdapter instanceof InstanceCreator<?>);
+        || typeAdapter instanceof JsonDeserializer<?>
+        || typeAdapter instanceof InstanceCreator<?>
+        || typeAdapter instanceof TypeAdapter.Factory);
     if (Primitives.isPrimitive(type) || Primitives.isWrapperType(type)) {
       throw new IllegalArgumentException(
           "Cannot register type adapters for " + type);
@@ -507,6 +512,9 @@ public final class GsonBuilder {
     }
     if (typeAdapter instanceof JsonDeserializer<?>) {
       registerDeserializer(type, (JsonDeserializer<?>) typeAdapter, isSystem);
+    }
+    if (typeAdapter instanceof TypeAdapter.Factory) {
+      typeAdapterFactories.add((TypeAdapter.Factory) typeAdapter);
     }
     return this;
   }
@@ -687,7 +695,7 @@ public final class GsonBuilder {
         fieldNamingPolicy, customInstanceCreators, serializeNulls,
         customSerializers, customDeserializers, complexMapKeySerialization,
         generateNonExecutableJson, escapeHtmlChars, prettyPrinting,
-        serializeSpecialFloatingPointValues, longSerializationPolicy);
+        serializeSpecialFloatingPointValues, longSerializationPolicy, typeAdapterFactories);
   }
 
   private static void addTypeAdaptersForDate(String datePattern, int dateStyle, int timeStyle,
