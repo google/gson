@@ -29,7 +29,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 /**
- * Adapter for Time. Although this class appears stateless, it is not.
+ * Adapter for Date. Although this class appears stateless, it is not.
  * DateFormat captures its time zone and locale when it is created, which gives
  * this class state. DateFormat isn't thread safe either, so this class has
  * to synchronize its read and write methods.
