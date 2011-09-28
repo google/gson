@@ -29,9 +29,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.BitSet;
 import java.util.Calendar;
 import java.util.Date;
@@ -53,7 +50,7 @@ public final class TypeAdapters {
       int i = 0;
       JsonToken tokenType = reader.peek();
       while (tokenType != JsonToken.END_ARRAY) {
-        boolean set = false;
+        boolean set;
         switch (tokenType) {
         case NUMBER:
           set = reader.nextInt() != 0;
@@ -411,51 +408,26 @@ public final class TypeAdapters {
 
   public static final TypeAdapter.Factory UUID_FACTORY = newFactory(UUID.class, UUID);
 
-  private static final class TimestampTypeAdapter extends TypeAdapter<Timestamp> {
-    private final MiniGson context;
-    public TimestampTypeAdapter(MiniGson context) {
-      this.context = context;
-    }
-    @Override
-    public Timestamp read(JsonReader reader) throws IOException {
-      TypeAdapter<Date> dateTypeAdapter = context.getAdapter(Date.class);
-      Date date = dateTypeAdapter.read(reader);
-      return new java.sql.Timestamp(date.getTime());
-    }
-    @Override
-    public void write(JsonWriter writer, Timestamp value) throws IOException {
-      TypeAdapter<Date> dateTypeAdapter = context.getAdapter(Date.class);
-      dateTypeAdapter.write(writer, value);
-    }
-  };
-  public static final TypeAdapter.Factory SQL_TIMESTAMP_FACTORY = new TypeAdapter.Factory() {
-    @SuppressWarnings("unchecked")
+  public static final TypeAdapter.Factory TIMESTAMP_FACTORY = new TypeAdapter.Factory() {
+    @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
     public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> typeToken) {
-      return typeToken.getRawType() == Timestamp.class
-          ? (TypeAdapter<T>) new TimestampTypeAdapter(context) : null;
-    }
-  };
-
-  public static final TypeAdapter<java.sql.Date> SQL_DATE = new TypeAdapter<java.sql.Date>() {
-    private final DateFormat format = new SimpleDateFormat("MMM d, yyyy");
-    @Override
-    public java.sql.Date read(JsonReader reader) throws IOException {
-      try {
-        synchronized (format) {
-          Date date = format.parse(reader.nextString());
-          return new java.sql.Date(date.getTime());
-        }
-      } catch (ParseException e) {
-        throw new JsonSyntaxException(e);
+      if (typeToken.getRawType() != Timestamp.class) {
+        return null;
       }
-    }
-    @Override
-    public void write(JsonWriter writer, java.sql.Date value) throws IOException {
-      writer.value(format.format(value));
+
+      final TypeAdapter<Date> dateTypeAdapter = context.getAdapter(Date.class);
+      return (TypeAdapter<T>) new TypeAdapter<Timestamp>() {
+        @Override public Timestamp read(JsonReader reader) throws IOException {
+          Date date = dateTypeAdapter.read(reader);
+          return new Timestamp(date.getTime());
+        }
+
+        @Override public void write(JsonWriter writer, Timestamp value) throws IOException {
+          dateTypeAdapter.write(writer, value);
+        }
+      };
     }
   };
-
-  public static final TypeAdapter.Factory SQL_DATE_FACTORY = newFactory(java.sql.Date.class, SQL_DATE);
 
   public static final TypeAdapter<Calendar> CALENDAR = new TypeAdapter<Calendar>() {
     private static final String YEAR = "year";
@@ -633,4 +605,5 @@ public final class TypeAdapters {
       }
     };
   }
+
 }
