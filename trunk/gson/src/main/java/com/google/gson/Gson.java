@@ -50,6 +50,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -174,7 +175,8 @@ public final class Gson {
         DefaultTypeAdapters.DEFAULT_INSTANCE_CREATORS,
         false, DefaultTypeAdapters.DEFAULT_SERIALIZERS,
         DefaultTypeAdapters.DEFAULT_DESERIALIZERS, false, DEFAULT_JSON_NON_EXECUTABLE, true,
-        false, false, LongSerializationPolicy.DEFAULT);
+        false, false, LongSerializationPolicy.DEFAULT,
+        Collections.<TypeAdapter.Factory>emptyList());
   }
 
   Gson(final ExclusionStrategy deserializationExclusionStrategy,
@@ -185,7 +187,8 @@ public final class Gson {
       final ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers,
       boolean complexMapKeySerialization, boolean generateNonExecutableGson, boolean htmlSafe,
       boolean prettyPrinting, boolean serializeSpecialFloatingPointValues,
-      LongSerializationPolicy longSerializationPolicy) {
+      LongSerializationPolicy longSerializationPolicy,
+      List<TypeAdapter.Factory> typeAdapterFactories) {
     this.deserializationExclusionStrategy = deserializationExclusionStrategy;
     this.serializationExclusionStrategy = serializationExclusionStrategy;
     this.fieldNamingPolicy = fieldNamingPolicy;
@@ -247,10 +250,14 @@ public final class Gson {
         .typeAdapter(BigDecimal.class, new BigDecimalTypeAdapter())
         .typeAdapter(BigInteger.class, new BigIntegerTypeAdapter())
         .factory(new CollectionTypeAdapterFactory(constructorConstructor))
-        .factory(ObjectTypeAdapter.FACTORY)
-        .factory(new GsonToMiniGsonTypeAdapterFactory(serializers, deserializers,
-            new JsonDeserializationContext(this), new JsonSerializationContext(this), serializeNulls
-        ))
+        .factory(ObjectTypeAdapter.FACTORY);
+
+    for (TypeAdapter.Factory factory : typeAdapterFactories) {
+      builder.factory(factory);
+    }
+
+    builder.factory(new GsonToMiniGsonTypeAdapterFactory(serializers, deserializers,
+        new JsonDeserializationContext(this), new JsonSerializationContext(this), serializeNulls))
         .factory(TypeAdapters.URL_FACTORY)
         .factory(TypeAdapters.URI_FACTORY)
         .factory(TypeAdapters.UUID_FACTORY)

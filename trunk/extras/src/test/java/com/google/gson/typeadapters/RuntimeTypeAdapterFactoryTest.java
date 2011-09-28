@@ -21,10 +21,11 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import junit.framework.TestCase;
 
-public final class RuntimeTypeAdapterTest extends TestCase {
+public final class RuntimeTypeAdapterFactoryTest extends TestCase {
 
   public void testRuntimeTypeAdapter() {
-    RuntimeTypeAdapter<BillingInstrument> rta = RuntimeTypeAdapter.create(BillingInstrument.class)
+    RuntimeTypeAdapterFactory<BillingInstrument> rta = RuntimeTypeAdapterFactory.of(
+        BillingInstrument.class)
         .registerSubtype(CreditCard.class);
     Gson gson = new GsonBuilder()
         .registerTypeAdapter(BillingInstrument.class, rta)
@@ -40,7 +41,8 @@ public final class RuntimeTypeAdapterTest extends TestCase {
   }
 
   public void testRuntimeTypeIsBaseType() {
-    RuntimeTypeAdapter<BillingInstrument> rta = RuntimeTypeAdapter.create(BillingInstrument.class)
+    RuntimeTypeAdapterFactory<BillingInstrument> rta = RuntimeTypeAdapterFactory.of(
+        BillingInstrument.class)
         .registerSubtype(BillingInstrument.class);
     Gson gson = new GsonBuilder()
         .registerTypeAdapter(BillingInstrument.class, rta)
@@ -56,7 +58,7 @@ public final class RuntimeTypeAdapterTest extends TestCase {
 
   public void testNullBaseType() {
     try {
-      RuntimeTypeAdapter.create(null);
+      RuntimeTypeAdapterFactory.of(null);
       fail();
     } catch (NullPointerException expected) {
     }
@@ -64,14 +66,15 @@ public final class RuntimeTypeAdapterTest extends TestCase {
 
   public void testNullTypeFieldName() {
     try {
-      RuntimeTypeAdapter.create(BillingInstrument.class, null);
+      RuntimeTypeAdapterFactory.of(BillingInstrument.class, null);
       fail();
     } catch (NullPointerException expected) {
     }
   }
 
   public void testNullSubtype() {
-    RuntimeTypeAdapter<BillingInstrument> rta = RuntimeTypeAdapter.create(BillingInstrument.class);
+    RuntimeTypeAdapterFactory<BillingInstrument> rta = RuntimeTypeAdapterFactory.of(
+        BillingInstrument.class);
     try {
       rta.registerSubtype(null);
       fail();
@@ -80,7 +83,8 @@ public final class RuntimeTypeAdapterTest extends TestCase {
   }
 
   public void testNullLabel() {
-    RuntimeTypeAdapter<BillingInstrument> rta = RuntimeTypeAdapter.create(BillingInstrument.class);
+    RuntimeTypeAdapterFactory<BillingInstrument> rta = RuntimeTypeAdapterFactory.of(
+        BillingInstrument.class);
     try {
       rta.registerSubtype(CreditCard.class, null);
       fail();
@@ -89,7 +93,8 @@ public final class RuntimeTypeAdapterTest extends TestCase {
   }
 
   public void testDuplicateSubtype() {
-    RuntimeTypeAdapter<BillingInstrument> rta = RuntimeTypeAdapter.create(BillingInstrument.class);
+    RuntimeTypeAdapterFactory<BillingInstrument> rta = RuntimeTypeAdapterFactory.of(
+        BillingInstrument.class);
     rta.registerSubtype(CreditCard.class, "CC");
     try {
       rta.registerSubtype(CreditCard.class, "Visa");
@@ -99,7 +104,8 @@ public final class RuntimeTypeAdapterTest extends TestCase {
   }
 
   public void testDuplicateLabel() {
-    RuntimeTypeAdapter<BillingInstrument> rta = RuntimeTypeAdapter.create(BillingInstrument.class);
+    RuntimeTypeAdapterFactory<BillingInstrument> rta = RuntimeTypeAdapterFactory.of(
+        BillingInstrument.class);
     rta.registerSubtype(CreditCard.class, "CC");
     try {
       rta.registerSubtype(BankTransfer.class, "CC");
@@ -109,7 +115,7 @@ public final class RuntimeTypeAdapterTest extends TestCase {
   }
 
   public void testDeserializeMissingTypeField() {
-    Object billingAdapter = RuntimeTypeAdapter.create(BillingInstrument.class)
+    Object billingAdapter = RuntimeTypeAdapterFactory.of(BillingInstrument.class)
         .registerSubtype(CreditCard.class);
     Gson gson = new GsonBuilder()
         .registerTypeAdapter(BillingInstrument.class, billingAdapter)
@@ -122,7 +128,7 @@ public final class RuntimeTypeAdapterTest extends TestCase {
   }
 
   public void testDeserializeMissingSubtype() {
-    Object billingAdapter = RuntimeTypeAdapter.create(BillingInstrument.class)
+    Object billingAdapter = RuntimeTypeAdapterFactory.of(BillingInstrument.class)
         .registerSubtype(BankTransfer.class);
     Gson gson = new GsonBuilder()
         .registerTypeAdapter(BillingInstrument.class, billingAdapter)
@@ -135,7 +141,7 @@ public final class RuntimeTypeAdapterTest extends TestCase {
   }
 
   public void testSerializeMissingSubtype() {
-    Object billingAdapter = RuntimeTypeAdapter.create(BillingInstrument.class)
+    Object billingAdapter = RuntimeTypeAdapterFactory.of(BillingInstrument.class)
         .registerSubtype(BankTransfer.class);
     Gson gson = new GsonBuilder()
         .registerTypeAdapter(BillingInstrument.class, billingAdapter)
@@ -148,7 +154,7 @@ public final class RuntimeTypeAdapterTest extends TestCase {
   }
 
   public void testSerializeCollidingTypeFieldName() {
-    Object billingAdapter = RuntimeTypeAdapter.create(BillingInstrument.class, "cvv")
+    Object billingAdapter = RuntimeTypeAdapterFactory.of(BillingInstrument.class, "cvv")
         .registerSubtype(CreditCard.class);
     Gson gson = new GsonBuilder()
         .registerTypeAdapter(BillingInstrument.class, billingAdapter)
