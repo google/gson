@@ -46,3 +46,10 @@ com.google.gson.functional.CircularReferenceTest.testCircularSerialization
 com.google.gson.functional.CircularReferenceTest.testSelfReferenceSerialization
 com.google.gson.functional.CircularReferenceTest.testSelfReferenceArrayFieldSerialization
 com.google.gson.functional.CircularReferenceTest.testSelfReferenceCustomHandlerSerialization
+
+
+GSON 1.x sometimes sets subclass fields when an InstanceCreator returns a subclass.
+    This occurs only when the value is a field of another object: not when its
+    the top level object or a collection element.
+GSON 2.x sets fields of the requested type only
+com.google.gson.functional.InstanceCreatorTest.testInstanceCreatorReturnsSubTypeForField
