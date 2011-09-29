@@ -77,6 +77,6 @@ public class InstanceCreatorTest extends TestCase {
     String json = "{base:{baseName:'Base',subName:'SubRevised'}}";
     ClassWithBaseField target = gson.fromJson(json, ClassWithBaseField.class);
     assertTrue(target.base instanceof Sub);
-    assertEquals("SubRevised", ((Sub)target.base).subName);
+    assertEquals(Sub.SUB_NAME, ((Sub)target.base).subName);
   }
 }

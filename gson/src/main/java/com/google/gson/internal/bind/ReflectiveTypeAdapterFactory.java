@@ -25,7 +25,6 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-
 import java.io.IOException;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
@@ -63,9 +62,7 @@ public class ReflectiveTypeAdapterFactory implements TypeAdapter.Factory {
     }
 
     ObjectConstructor<T> constructor = constructorConstructor.getConstructor(type);
-
-    return new Adapter<T>(context, constructor, type,
-        getBoundFields(context, type, raw));
+    return new Adapter<T>(constructor, getBoundFields(context, type, raw));
   }
 
   private ReflectiveTypeAdapterFactory.BoundField createBoundField(
@@ -142,16 +139,11 @@ public class ReflectiveTypeAdapterFactory implements TypeAdapter.Factory {
   }
 
   public final class Adapter<T> extends TypeAdapter<T> {
-    private final MiniGson context;
     private final ObjectConstructor<T> constructor;
-    private final TypeToken<T> type;
     private final Map<String, BoundField> boundFields;
 
-    private Adapter(MiniGson context, ObjectConstructor<T> constructor,
-        TypeToken<T> type, Map<String, BoundField> boundFields) {
-      this.context = context;
+    private Adapter(ObjectConstructor<T> constructor, Map<String, BoundField> boundFields) {
       this.constructor = constructor;
-      this.type = type;
       this.boundFields = boundFields;
     }
 
@@ -193,16 +185,6 @@ public class ReflectiveTypeAdapterFactory implements TypeAdapter.Factory {
         writer.nullValue(); // TODO: better policy here?
         return;
       }
-
-      // TODO: GSON includes subclass fields during serialization
-//      if (false) {
-//        Class<?> runtimeType = value.getClass();
-//        if (runtimeType != type.getRawType()) {
-//          TypeAdapter<?> adapter = context.getAdapter(runtimeType);
-//          ((TypeAdapter) adapter).write(writer, value);
-//          return;
-//        }
-//      }
 
       writer.beginObject();
       try {
