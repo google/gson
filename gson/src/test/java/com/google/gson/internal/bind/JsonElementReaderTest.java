@@ -24,6 +24,61 @@ import junit.framework.TestCase;
 
 public final class JsonElementReaderTest extends TestCase {
 
+  public void testNumbers() throws IOException {
+    JsonElement array = new JsonParser().parse("[1, 2, 3]");
+    JsonElementReader reader = new JsonElementReader(array);
+    reader.beginArray();
+    assertEquals(1, reader.nextInt());
+    assertEquals(2L, reader.nextLong());
+    assertEquals(3.0, reader.nextDouble());
+    reader.endArray();
+  }
+
+  public void testNumbersFromStrings() throws IOException {
+    JsonElement array = new JsonParser().parse("[\"1\", \"2\", \"3\"]");
+    JsonElementReader reader = new JsonElementReader(array);
+    reader.beginArray();
+    assertEquals(1, reader.nextInt());
+    assertEquals(2L, reader.nextLong());
+    assertEquals(3.0, reader.nextDouble());
+    reader.endArray();
+  }
+
+  public void testStringsFromNumbers() throws IOException {
+    JsonElement array = new JsonParser().parse("[1]");
+    JsonElementReader reader = new JsonElementReader(array);
+    reader.beginArray();
+    assertEquals("1", reader.nextString());
+    reader.endArray();
+  }
+
+  public void testBooleans() throws IOException {
+    JsonElement array = new JsonParser().parse("[true, false]");
+    JsonElementReader reader = new JsonElementReader(array);
+    reader.beginArray();
+    assertEquals(true, reader.nextBoolean());
+    assertEquals(false, reader.nextBoolean());
+    reader.endArray();
+  }
+
+  public void testNulls() throws IOException {
+    JsonElement array = new JsonParser().parse("[null,null]");
+    JsonElementReader reader = new JsonElementReader(array);
+    reader.beginArray();
+    reader.nextNull();
+    reader.nextNull();
+    reader.endArray();
+  }
+
+  public void testStrings() throws IOException {
+    JsonElement array = new JsonParser().parse("[\"A\",\"B\"]");
+    JsonElementReader reader = new JsonElementReader(array);
+    reader.beginArray();
+    assertEquals("A", reader.nextString());
+    assertEquals("B", reader.nextString());
+    reader.endArray();
+  }
+
   public void testArray() throws IOException {
     JsonElement array = new JsonParser().parse("[1, 2, 3]");
     JsonElementReader reader = new JsonElementReader(array);
@@ -65,6 +120,35 @@ public final class JsonElementReaderTest extends TestCase {
     reader.endArray();
   }
 
+  public void testNestedArrays() throws IOException {
+    JsonElement array = new JsonParser().parse("[[],[[]]]");
+    JsonElementReader reader = new JsonElementReader(array);
+    reader.beginArray();
+    reader.beginArray();
+    reader.endArray();
+    reader.beginArray();
+    reader.beginArray();
+    reader.endArray();
+    reader.endArray();
+    reader.endArray();
+  }
+
+  public void testNestedObjects() throws IOException {
+    JsonElement array = new JsonParser().parse("{\"A\":{},\"B\":{\"C\":{}}}");
+    JsonElementReader reader = new JsonElementReader(array);
+    reader.beginObject();
+    assertEquals("A", reader.nextName());
+    reader.beginObject();
+    reader.endObject();
+    assertEquals("B", reader.nextName());
+    reader.beginObject();
+    assertEquals("C", reader.nextName());
+    reader.beginObject();
+    reader.endObject();
+    reader.endObject();
+    reader.endObject();
+  }
+
   public void testEmptyObject() throws IOException {
     JsonElement array = new JsonParser().parse("{}");
     JsonElementReader reader = new JsonElementReader(array);
@@ -72,5 +156,107 @@ public final class JsonElementReaderTest extends TestCase {
     reader.endObject();
   }
 
-  // TODO: more test coverage
+  public void testSkipValue() throws IOException {
+    JsonElement array = new JsonParser().parse("[\"A\",{\"B\":[[]]},\"C\",[[]],\"D\",null]");
+    JsonElementReader reader = new JsonElementReader(array);
+    reader.beginArray();
+    assertEquals("A", reader.nextString());
+    reader.skipValue();
+    assertEquals("C", reader.nextString());
+    reader.skipValue();
+    assertEquals("D", reader.nextString());
+    reader.skipValue();
+    reader.endArray();
+  }
+
+  public void testWrongType() throws IOException {
+    JsonElement array = new JsonParser().parse("[[],\"A\"]");
+    JsonElementReader reader = new JsonElementReader(array);
+    reader.beginArray();
+    try {
+      reader.nextBoolean();
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+    try {
+      reader.nextNull();
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+    try {
+      reader.nextString();
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+    try {
+      reader.nextInt();
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+    try {
+      reader.nextLong();
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+    try {
+      reader.nextDouble();
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+    try {
+      reader.nextName();
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+    try {
+      reader.beginObject();
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+    try {
+      reader.endArray();
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+    try {
+      reader.endObject();
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+    reader.beginArray();
+    reader.endArray();
+
+    try {
+      reader.nextBoolean();
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+    try {
+      reader.nextNull();
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+    try {
+      reader.nextInt();
+      fail();
+    } catch (NumberFormatException expected) {
+    }
+    try {
+      reader.nextLong();
+      fail();
+    } catch (NumberFormatException expected) {
+    }
+    try {
+      reader.nextDouble();
+      fail();
+    } catch (NumberFormatException expected) {
+    }
+    try {
+      reader.nextName();
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+    assertEquals("A", reader.nextString());
+    reader.endArray();
+  }
 }
