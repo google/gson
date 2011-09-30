@@ -443,7 +443,7 @@ public final class Gson {
    */
   public String toJson(Object src, Type typeOfSrc) {
     StringWriter writer = new StringWriter();
-    toJson(toJsonTree(src, typeOfSrc), writer);
+    toJson(src, typeOfSrc, writer);
     return writer.toString();
   }
 
@@ -486,8 +486,12 @@ public final class Gson {
    * @since 1.2
    */
   public void toJson(Object src, Type typeOfSrc, Appendable writer) throws JsonIOException {
-    JsonElement jsonElement = toJsonTree(src, typeOfSrc);
-    toJson(jsonElement, writer);
+    try {
+      JsonWriter jsonWriter = newJsonWriter(Streams.writerForAppendable(writer));
+      toJson(src, typeOfSrc, jsonWriter);
+    } catch (IOException e) {
+      throw new JsonIOException(e);
+    }
   }
 
   /**
@@ -496,7 +500,22 @@ public final class Gson {
    * @throws JsonIOException if there was a problem writing to the writer
    */
   public void toJson(Object src, Type typeOfSrc, JsonWriter writer) throws JsonIOException {
-    toJson(toJsonTree(src, typeOfSrc), writer);
+    TypeAdapter<?> adapter = miniGson.getAdapter(TypeToken.get(typeOfSrc));
+    boolean oldLenient = writer.isLenient();
+    writer.setLenient(true);
+    boolean oldHtmlSafe = writer.isHtmlSafe();
+    writer.setHtmlSafe(htmlSafe);
+    boolean oldSerializeNulls = writer.getSerializeNulls();
+    writer.setSerializeNulls(serializeNulls);
+    try {
+      ((TypeAdapter<Object>) adapter).write(writer, src);
+    } catch (IOException e) {
+      throw new JsonIOException(e);
+    } finally {
+      writer.setLenient(oldLenient);
+      writer.setHtmlSafe(oldHtmlSafe);
+      writer.setSerializeNulls(oldSerializeNulls);
+    }
   }
 
   /**
@@ -522,17 +541,27 @@ public final class Gson {
    */
   public void toJson(JsonElement jsonElement, Appendable writer) throws JsonIOException {
     try {
-      if (generateNonExecutableJson) {
-        writer.append(JSON_NON_EXECUTABLE_PREFIX);
-      }
-      JsonWriter jsonWriter = new JsonWriter(Streams.writerForAppendable(writer));
-      if (prettyPrinting) {
-        jsonWriter.setIndent("  ");
-      }
+      JsonWriter jsonWriter = newJsonWriter(Streams.writerForAppendable(writer));
       toJson(jsonElement, jsonWriter);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  /**
+   * Returns a new JSON writer configured for this GSON and with the non-execute
+   * prefix if that is configured.
+   */
+  private JsonWriter newJsonWriter(Writer writer) throws IOException {
+    if (generateNonExecutableJson) {
+      writer.write(JSON_NON_EXECUTABLE_PREFIX);
+    }
+    JsonWriter jsonWriter = new JsonWriter(writer);
+    if (prettyPrinting) {
+      jsonWriter.setIndent("  ");
+    }
+    jsonWriter.setSerializeNulls(serializeNulls);
+    return jsonWriter;
   }
 
   /**
@@ -544,6 +573,8 @@ public final class Gson {
     writer.setLenient(true);
     boolean oldHtmlSafe = writer.isHtmlSafe();
     writer.setHtmlSafe(htmlSafe);
+    boolean oldSerializeNulls = writer.getSerializeNulls();
+    writer.setSerializeNulls(serializeNulls);
     try {
       Streams.write(jsonElement, serializeNulls, writer);
     } catch (IOException e) {
@@ -551,6 +582,7 @@ public final class Gson {
     } finally {
       writer.setLenient(oldLenient);
       writer.setHtmlSafe(oldHtmlSafe);
+      writer.setSerializeNulls(oldSerializeNulls);
     }
   }
 

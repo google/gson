@@ -54,8 +54,16 @@ GSON 1.x sometimes sets subclass fields when an InstanceCreator returns a subcla
 GSON 2.x sets fields of the requested type only
 com.google.gson.functional.InstanceCreatorTest.testInstanceCreatorReturnsSubTypeForField
 
+
 GSON 1.x applies different rules for versioning for classes vs fields. So, if you deserialize a
-   JSON into a field that is supposed to be skipped, the field is set to null (or default value). 
+   JSON into a field that is supposed to be skipped, the field is set to null (or default value).
    However, if you deserialize it to a top-level class, a default instance is returned.
-GSON 2.x returns null for the top-level class. 
+GSON 2.x returns null for the top-level class.
 com.google.gson.functional.VersioningTest.testIgnoreLaterVersionClassDeserialization
+
+
+GSON 1.x creates the empty string "" if the only element is skipped
+GSON 2.x writes "null" if the only element is skipped
+com.google.gson.functional.ObjectTest.testAnonymousLocalClassesSerialization
+com.google.gson.functional.FieldExclusionTest.testInnerClassExclusion
+com.google.gson.functional.VersioningTest.testIgnoreLaterVersionClassSerialization

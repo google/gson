@@ -48,12 +48,12 @@ public class VersioningTest extends TestCase {
     Gson gson = builder.setVersion(1.29).create();
     String json = gson.toJson(target);
     assertTrue(json.contains("\"a\":" + A));
-    
+
     gson = builder.setVersion(1.3).create();
     json = gson.toJson(target);
     assertFalse(json.contains("\"a\":" + A));
   }
-  
+
   public void testVersionedUntilDeserialization() {
     Gson gson = builder.setVersion(1.3).create();
     String json = "{\"a\":3,\"b\":4,\"c\":5}";
@@ -82,7 +82,7 @@ public class VersioningTest extends TestCase {
 
   public void testIgnoreLaterVersionClassSerialization() {
     Gson gson = builder.setVersion(1.0).create();
-    assertEquals("", gson.toJson(new Version1_2()));
+    assertEquals("null", gson.toJson(new Version1_2()));
   }
 
   public void testIgnoreLaterVersionClassDeserialization() {
@@ -117,11 +117,11 @@ public class VersioningTest extends TestCase {
     SinceUntilMixing target = new SinceUntilMixing();
     String json = gson.toJson(target);
     assertFalse(json.contains("\"b\":" + B));
-    
+
     gson = builder.setVersion(1.2).create();
     json = gson.toJson(target);
     assertTrue(json.contains("\"b\":" + B));
-    
+
     gson = builder.setVersion(1.3).create();
     json = gson.toJson(target);
     assertFalse(json.contains("\"b\":" + B));
@@ -133,12 +133,12 @@ public class VersioningTest extends TestCase {
     SinceUntilMixing result = gson.fromJson(json, SinceUntilMixing.class);
     assertEquals(5, result.a);
     assertEquals(B, result.b);
-    
+
     gson = builder.setVersion(1.2).create();
     result = gson.fromJson(json, SinceUntilMixing.class);
     assertEquals(5, result.a);
     assertEquals(6, result.b);
-    
+
     gson = builder.setVersion(1.3).create();
     result = gson.fromJson(json, SinceUntilMixing.class);
     assertEquals(5, result.a);
@@ -158,10 +158,10 @@ public class VersioningTest extends TestCase {
   private static class Version1_2 extends Version1_1 {
     int d = D;
   }
-  
+
   private static class SinceUntilMixing {
     int a = A;
-    
+
     @Since(1.1)
     @Until(1.3)
     int b = B;

@@ -145,6 +145,10 @@ public class JsonWriter implements Closeable {
 
   private boolean htmlSafe;
 
+  private String deferredName;
+
+  private boolean serializeNulls = true;
+
   /**
    * Creates a new instance that writes a JSON-encoded stream to {@code out}.
    * For best performance, ensure {@link Writer} is buffered; wrapping in
@@ -218,12 +222,29 @@ public class JsonWriter implements Closeable {
   }
 
   /**
+   * Sets whether object members are serialized when their value is null.
+   * This has no impact on array elements. The default is true.
+   */
+  public final void setSerializeNulls(boolean serializeNulls) {
+    this.serializeNulls = serializeNulls;
+  }
+
+  /**
+   * Returns true if object members are serialized when their value is null.
+   * This has no impact on array elements. The default is true.
+   */
+  public final boolean getSerializeNulls() {
+    return serializeNulls;
+  }
+
+  /**
    * Begins encoding a new array. Each call to this method must be paired with
    * a call to {@link #endArray}.
    *
    * @return this writer.
    */
   public JsonWriter beginArray() throws IOException {
+    writeDeferredName();
     return open(JsonScope.EMPTY_ARRAY, "[");
   }
 
@@ -243,6 +264,7 @@ public class JsonWriter implements Closeable {
    * @return this writer.
    */
   public JsonWriter beginObject() throws IOException {
+    writeDeferredName();
     return open(JsonScope.EMPTY_OBJECT, "{");
   }
 
@@ -275,6 +297,9 @@ public class JsonWriter implements Closeable {
     JsonScope context = peek();
     if (context != nonempty && context != empty) {
       throw new IllegalStateException("Nesting problem: " + stack);
+    }
+    if (deferredName != null) {
+      throw new IllegalStateException("Dangling name: " + deferredName);
     }
 
     stack.remove(stack.size() - 1);
@@ -309,9 +334,19 @@ public class JsonWriter implements Closeable {
     if (name == null) {
       throw new NullPointerException("name == null");
     }
-    beforeName();
-    string(name);
+    if (deferredName != null) {
+      throw new IllegalStateException();
+    }
+    deferredName = name;
     return this;
+  }
+
+  private void writeDeferredName() throws IOException {
+    if (deferredName != null) {
+      beforeName();
+      string(deferredName);
+      deferredName = null;
+    }
   }
 
   /**
@@ -324,6 +359,7 @@ public class JsonWriter implements Closeable {
     if (value == null) {
       return nullValue();
     }
+    writeDeferredName();
     beforeValue(false);
     string(value);
     return this;
@@ -335,6 +371,14 @@ public class JsonWriter implements Closeable {
    * @return this writer.
    */
   public JsonWriter nullValue() throws IOException {
+    if (deferredName != null) {
+      if (serializeNulls) {
+        writeDeferredName();
+      } else {
+        deferredName = null;
+        return this; // skip the name and the value
+      }
+    }
     beforeValue(false);
     out.write("null");
     return this;
@@ -346,6 +390,7 @@ public class JsonWriter implements Closeable {
    * @return this writer.
    */
   public JsonWriter value(boolean value) throws IOException {
+    writeDeferredName();
     beforeValue(false);
     out.write(value ? "true" : "false");
     return this;
@@ -362,6 +407,7 @@ public class JsonWriter implements Closeable {
     if (Double.isNaN(value) || Double.isInfinite(value)) {
       throw new IllegalArgumentException("Numeric values must be finite, but was " + value);
     }
+    writeDeferredName();
     beforeValue(false);
     out.append(Double.toString(value));
     return this;
@@ -373,6 +419,7 @@ public class JsonWriter implements Closeable {
    * @return this writer.
    */
   public JsonWriter value(long value) throws IOException {
+    writeDeferredName();
     beforeValue(false);
     out.write(Long.toString(value));
     return this;
@@ -390,6 +437,7 @@ public class JsonWriter implements Closeable {
       return nullValue();
     }
 
+    writeDeferredName();
     String string = value.toString();
     if (!lenient
         && (string.equals("-Infinity") || string.equals("Infinity") || string.equals("NaN"))) {
