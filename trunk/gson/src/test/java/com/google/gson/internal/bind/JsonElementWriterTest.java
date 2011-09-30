@@ -24,6 +24,7 @@ public final class JsonElementWriterTest extends TestCase {
   // TODO: more tests
   // TODO: close support
   // TODO: figure out what should be returned by an empty writer
+  // TODO: test when serialize nulls is false
 
   public void testArray() throws IOException {
     JsonElementWriter writer = new JsonElementWriter();
