@@ -183,7 +183,7 @@ import java.util.List;
  * @author Jesse Wilson
  * @since 1.6
  */
-public final class JsonReader implements Closeable {
+public class JsonReader implements Closeable {
 
   /** The only non-execute prefix this parser permits */
   private static final char[] NON_EXECUTE_PREFIX = ")]}'\n".toCharArray();
@@ -279,14 +279,14 @@ public final class JsonReader implements Closeable {
    *   <li>Name/value pairs separated by {@code ;} instead of {@code ,}.
    * </ul>
    */
-  public void setLenient(boolean lenient) {
+  public final void setLenient(boolean lenient) {
     this.lenient = lenient;
   }
 
   /**
    * Returns true if this parser is liberal in what it accepts.
    */
-  public boolean isLenient() {
+  public final boolean isLenient() {
     return lenient;
   }
 
