@@ -43,7 +43,7 @@ public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
 
       Type componentType = $Gson$Types.getArrayComponentType(type);
       TypeAdapter<?> componentTypeAdapter = context.getAdapter(TypeToken.get(componentType));
-      @SuppressWarnings("unchecked") // create() doesn't define a type parameter
+      // create() doesn't define a type parameter
       TypeAdapter<T> result = new ArrayTypeAdapter(
           context, componentTypeAdapter, $Gson$Types.getRawType(componentType));
       return result;

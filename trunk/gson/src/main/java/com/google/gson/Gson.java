@@ -500,6 +500,7 @@ public final class Gson {
    * {@code writer}.
    * @throws JsonIOException if there was a problem writing to the writer
    */
+  @SuppressWarnings("unchecked")
   public void toJson(Object src, Type typeOfSrc, JsonWriter writer) throws JsonIOException {
     TypeAdapter<?> adapter = miniGson.getAdapter(TypeToken.get(typeOfSrc));
     boolean oldLenient = writer.isLenient();
