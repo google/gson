@@ -34,6 +34,7 @@ import java.util.logging.Logger;
  * @param <T> The handler that will be looked up by type
  */
 public final class ParameterizedTypeHandlerMap<T> {
+
   private static final Logger logger =
       Logger.getLogger(ParameterizedTypeHandlerMap.class.getName());
   /**
@@ -158,8 +159,9 @@ public final class ParameterizedTypeHandlerMap<T> {
     }
   }
 
-  public synchronized void makeUnmodifiable() {
+  public synchronized ParameterizedTypeHandlerMap<T> makeUnmodifiable() {
     modifiable = false;
+    return this;
   }
 
   public synchronized T getHandlerFor(Type type, boolean systemOnly) {

@@ -25,8 +25,6 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import com.google.gson.internal.ParameterizedTypeHandlerMap;
-
 /**
  * List of all the default type adapters ({@link JsonSerializer}s, {@link JsonDeserializer}s,
  * and {@link InstanceCreator}s.
@@ -35,38 +33,6 @@ import com.google.gson.internal.ParameterizedTypeHandlerMap;
  * @author Joel Leitch
  */
 final class DefaultTypeAdapters {
-
-  // The constants DEFAULT_SERIALIZERS, DEFAULT_DESERIALIZERS, and DEFAULT_INSTANCE_CREATORS
-  // must be defined after the constants for the type adapters. Otherwise, the type adapter
-  // constants will appear as nulls.
-  static final ParameterizedTypeHandlerMap<JsonSerializer<?>> DEFAULT_SERIALIZERS =
-      createDefaultSerializers();
-  static final ParameterizedTypeHandlerMap<JsonDeserializer<?>> DEFAULT_DESERIALIZERS =
-      createDefaultDeserializers();
-  static final ParameterizedTypeHandlerMap<InstanceCreator<?>> DEFAULT_INSTANCE_CREATORS =
-      createDefaultInstanceCreators();
-
-  private static ParameterizedTypeHandlerMap<JsonSerializer<?>> createDefaultSerializers() {
-    ParameterizedTypeHandlerMap<JsonSerializer<?>> map =
-        new ParameterizedTypeHandlerMap<JsonSerializer<?>>();
-    map.makeUnmodifiable();
-    return map;
-  }
-
-  private static ParameterizedTypeHandlerMap<JsonDeserializer<?>> createDefaultDeserializers() {
-    ParameterizedTypeHandlerMap<JsonDeserializer<?>> map =
-        new ParameterizedTypeHandlerMap<JsonDeserializer<?>>();
-    map.makeUnmodifiable();
-    return map;
-  }
-
-  private static ParameterizedTypeHandlerMap<InstanceCreator<?>> createDefaultInstanceCreators() {
-    ParameterizedTypeHandlerMap<InstanceCreator<?>> map
-        = new ParameterizedTypeHandlerMap<InstanceCreator<?>>();
-    map.makeUnmodifiable();
-    return map;
-  }
-
   /**
    * This type adapter supports three subclasses of date: Date, Timestamp, and
    * java.sql.Date.

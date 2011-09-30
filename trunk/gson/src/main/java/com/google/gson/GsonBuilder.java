@@ -677,24 +677,13 @@ public final class GsonBuilder {
       deserializationStrategies.add(exposeAnnotationDeserializationExclusionStrategy);
       serializationStrategies.add(exposeAnnotationSerializationExclusionStrategy);
     }
-
-    ParameterizedTypeHandlerMap<JsonSerializer<?>> customSerializers = serializers.copyOf();
-    ParameterizedTypeHandlerMap<JsonDeserializer<?>> customDeserializers = deserializers.copyOf();
-    addTypeAdaptersForDate(datePattern, dateStyle, timeStyle, customSerializers,
-        customDeserializers);
-
-    ParameterizedTypeHandlerMap<InstanceCreator<?>> customInstanceCreators =
-        instanceCreators.copyOf();
-
-    customSerializers.makeUnmodifiable();
-    customDeserializers.makeUnmodifiable();
-    customInstanceCreators.makeUnmodifiable();
+    addTypeAdaptersForDate(datePattern, dateStyle, timeStyle, serializers, deserializers);
 
     return new Gson(new DisjunctionExclusionStrategy(deserializationStrategies),
         new DisjunctionExclusionStrategy(serializationStrategies),
-        fieldNamingPolicy, customInstanceCreators, serializeNulls,
-        customSerializers, customDeserializers, complexMapKeySerialization,
-        generateNonExecutableJson, escapeHtmlChars, prettyPrinting,
+        fieldNamingPolicy, instanceCreators.copyOf().makeUnmodifiable(), serializeNulls,
+        serializers.copyOf().makeUnmodifiable(), deserializers.copyOf().makeUnmodifiable(),
+        complexMapKeySerialization, generateNonExecutableJson, escapeHtmlChars, prettyPrinting,
         serializeSpecialFloatingPointValues, longSerializationPolicy, typeAdapterFactories);
   }
 
