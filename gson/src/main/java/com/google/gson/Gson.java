@@ -99,9 +99,9 @@ import java.util.Map;
  * @author Joel Leitch
  */
 public final class Gson {
-
-  //TODO(inder): get rid of all the registerXXX methods and take all such parameters in the
-  // constructor instead. At the minimum, mark those methods private.
+  @SuppressWarnings("unchecked")
+  static final ParameterizedTypeHandlerMap EMPTY_MAP = 
+    new ParameterizedTypeHandlerMap().makeUnmodifiable();
 
    static final boolean DEFAULT_JSON_NON_EXECUTABLE = false;
 
@@ -170,11 +170,10 @@ public final class Gson {
    *   {@link GsonBuilder#excludeFieldsWithModifiers(int...)}.</li>
    * </ul>
    */
+  @SuppressWarnings("unchecked")
   public Gson() {
     this(DEFAULT_EXCLUSION_STRATEGY, DEFAULT_EXCLUSION_STRATEGY, DEFAULT_NAMING_POLICY,
-        DefaultTypeAdapters.DEFAULT_INSTANCE_CREATORS,
-        false, DefaultTypeAdapters.DEFAULT_SERIALIZERS,
-        DefaultTypeAdapters.DEFAULT_DESERIALIZERS, false, DEFAULT_JSON_NON_EXECUTABLE, true,
+        EMPTY_MAP, false, EMPTY_MAP, EMPTY_MAP, false, DEFAULT_JSON_NON_EXECUTABLE, true,
         false, false, LongSerializationPolicy.DEFAULT,
         Collections.<TypeAdapter.Factory>emptyList());
   }

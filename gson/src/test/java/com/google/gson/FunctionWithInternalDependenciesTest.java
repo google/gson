@@ -33,15 +33,15 @@ import junit.framework.TestCase;
  */
 public class FunctionWithInternalDependenciesTest extends TestCase {
 
+  @SuppressWarnings("unchecked")
   public void testAnonymousLocalClassesSerialization() throws Exception {
     LinkedList<ExclusionStrategy> strategies = new LinkedList<ExclusionStrategy>();
     strategies.add(new SyntheticFieldExclusionStrategy(true));
     strategies.add(new ModifierBasedExclusionStrategy(Modifier.TRANSIENT, Modifier.STATIC));
     ExclusionStrategy exclusionStrategy = new DisjunctionExclusionStrategy(strategies);
     Gson gson = new Gson(exclusionStrategy, exclusionStrategy, Gson.DEFAULT_NAMING_POLICY,
-        DefaultTypeAdapters.DEFAULT_INSTANCE_CREATORS,
-        false, DefaultTypeAdapters.DEFAULT_SERIALIZERS,
-        DefaultTypeAdapters.DEFAULT_DESERIALIZERS, false, Gson.DEFAULT_JSON_NON_EXECUTABLE,
+        Gson.EMPTY_MAP, false, Gson.EMPTY_MAP, Gson.EMPTY_MAP, false,
+        Gson.DEFAULT_JSON_NON_EXECUTABLE,
         true, false, false, LongSerializationPolicy.DEFAULT,
         Collections.<TypeAdapter.Factory>emptyList());
     assertEquals("{}", gson.toJson(new ClassWithNoFields() {
