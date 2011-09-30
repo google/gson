@@ -34,6 +34,43 @@ public final class JsonElementReaderTest extends TestCase {
     reader.endArray();
   }
 
+  public void testLenientNansAndInfinities() throws IOException {
+    JsonElement element = new JsonParser().parse("[NaN, -Infinity, Infinity]");
+    JsonElementReader reader = new JsonElementReader(element);
+    reader.setLenient(true);
+    reader.beginArray();
+    assertTrue(Double.isNaN(reader.nextDouble()));
+    assertEquals(Double.NEGATIVE_INFINITY, reader.nextDouble());
+    assertEquals(Double.POSITIVE_INFINITY, reader.nextDouble());
+    reader.endArray();
+  }
+
+  public void testStrictNansAndInfinities() throws IOException {
+    JsonElement element = new JsonParser().parse("[NaN, -Infinity, Infinity]");
+    JsonElementReader reader = new JsonElementReader(element);
+    reader.setLenient(false);
+    reader.beginArray();
+    try {
+      reader.nextDouble();
+      fail();
+    } catch (NumberFormatException e) {
+    }
+    assertEquals("NaN", reader.nextString());
+    try {
+      reader.nextDouble();
+      fail();
+    } catch (NumberFormatException e) {
+    }
+    assertEquals("-Infinity", reader.nextString());
+    try {
+      reader.nextDouble();
+      fail();
+    } catch (NumberFormatException e) {
+    }
+    assertEquals("Infinity", reader.nextString());
+    reader.endArray();
+  }
+
   public void testNumbersFromStrings() throws IOException {
     JsonElement element = new JsonParser().parse("[\"1\", \"2\", \"3\"]");
     JsonElementReader reader = new JsonElementReader(element);
