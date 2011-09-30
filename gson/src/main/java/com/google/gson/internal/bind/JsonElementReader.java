@@ -31,7 +31,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
+ * This reader walks the elements of a JsonElement as if it was coming from a
+ * character stream.
  */
 public final class JsonElementReader extends JsonReader {
   private static final Reader UNREADABLE_READER = new Reader() {
@@ -45,9 +46,6 @@ public final class JsonElementReader extends JsonReader {
 
   private final List<Object> stack = new ArrayList<Object>();
 
-  /**
-   * Creates a new instance that reads a JSON-encoded stream from {@code in}.
-   */
   public JsonElementReader(JsonElement element) {
     super(UNREADABLE_READER);
     stack.add(element);
@@ -146,7 +144,10 @@ public final class JsonElementReader extends JsonReader {
   }
 
   @Override public String nextString() throws IOException {
-    expect(JsonToken.STRING);
+    JsonToken token = peek();
+    if (token != JsonToken.STRING && token != JsonToken.NUMBER) {
+      throw new IllegalStateException("Expected " + JsonToken.STRING + " but was " + token);
+    }
     return ((JsonPrimitive) popStack()).getAsString();
   }
 
@@ -161,18 +162,33 @@ public final class JsonElementReader extends JsonReader {
   }
 
   @Override public double nextDouble() throws IOException {
-    expect(JsonToken.NUMBER);
-    return ((JsonPrimitive) popStack()).getAsDouble();
+    JsonToken token = peek();
+    if (token != JsonToken.NUMBER && token != JsonToken.STRING) {
+      throw new IllegalStateException("Expected " + JsonToken.NUMBER + " but was " + token);
+    }
+    double result = ((JsonPrimitive) peekStack()).getAsDouble();
+    popStack();
+    return result;
   }
 
   @Override public long nextLong() throws IOException {
-    expect(JsonToken.NUMBER);
-    return ((JsonPrimitive) popStack()).getAsLong();
+    JsonToken token = peek();
+    if (token != JsonToken.NUMBER && token != JsonToken.STRING) {
+      throw new IllegalStateException("Expected " + JsonToken.NUMBER + " but was " + token);
+    }
+    long result = ((JsonPrimitive) peekStack()).getAsLong();
+    popStack();
+    return result;
   }
 
   @Override public int nextInt() throws IOException {
-    expect(JsonToken.NUMBER);
-    return ((JsonPrimitive) popStack()).getAsInt();
+    JsonToken token = peek();
+    if (token != JsonToken.NUMBER && token != JsonToken.STRING) {
+      throw new IllegalStateException("Expected " + JsonToken.NUMBER + " but was " + token);
+    }
+    int result = ((JsonPrimitive) peekStack()).getAsInt();
+    popStack();
+    return result;
   }
 
   @Override public void close() throws IOException {
