@@ -26,6 +26,7 @@ import com.google.gson.internal.bind.BigIntegerTypeAdapter;
 import com.google.gson.internal.bind.CollectionTypeAdapterFactory;
 import com.google.gson.internal.bind.DateTypeAdapter;
 import com.google.gson.internal.bind.ExcludedTypeAdapterFactory;
+import com.google.gson.internal.bind.JsonElementReader;
 import com.google.gson.internal.bind.MapTypeAdapterFactory;
 import com.google.gson.internal.bind.MiniGson;
 import com.google.gson.internal.bind.ObjectTypeAdapter;
@@ -782,7 +783,7 @@ public final class Gson {
     if (json == null) {
       return null;
     }
-    return fromJson(new StringReader(json.toString()), typeOfT);
+    return fromJson(new JsonElementReader(json), typeOfT);
   }
 
   @Override
