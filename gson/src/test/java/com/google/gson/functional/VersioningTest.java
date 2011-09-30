@@ -156,6 +156,7 @@ public class VersioningTest extends TestCase {
 
   @Since(1.2)
   private static class Version1_2 extends Version1_1 {
+    @SuppressWarnings("unused")
     int d = D;
   }
 
