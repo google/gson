@@ -25,8 +25,8 @@ import junit.framework.TestCase;
 public final class JsonElementReaderTest extends TestCase {
 
   public void testNumbers() throws IOException {
-    JsonElement array = new JsonParser().parse("[1, 2, 3]");
-    JsonElementReader reader = new JsonElementReader(array);
+    JsonElement element = new JsonParser().parse("[1, 2, 3]");
+    JsonElementReader reader = new JsonElementReader(element);
     reader.beginArray();
     assertEquals(1, reader.nextInt());
     assertEquals(2L, reader.nextLong());
@@ -35,8 +35,8 @@ public final class JsonElementReaderTest extends TestCase {
   }
 
   public void testNumbersFromStrings() throws IOException {
-    JsonElement array = new JsonParser().parse("[\"1\", \"2\", \"3\"]");
-    JsonElementReader reader = new JsonElementReader(array);
+    JsonElement element = new JsonParser().parse("[\"1\", \"2\", \"3\"]");
+    JsonElementReader reader = new JsonElementReader(element);
     reader.beginArray();
     assertEquals(1, reader.nextInt());
     assertEquals(2L, reader.nextLong());
@@ -45,16 +45,16 @@ public final class JsonElementReaderTest extends TestCase {
   }
 
   public void testStringsFromNumbers() throws IOException {
-    JsonElement array = new JsonParser().parse("[1]");
-    JsonElementReader reader = new JsonElementReader(array);
+    JsonElement element = new JsonParser().parse("[1]");
+    JsonElementReader reader = new JsonElementReader(element);
     reader.beginArray();
     assertEquals("1", reader.nextString());
     reader.endArray();
   }
 
   public void testBooleans() throws IOException {
-    JsonElement array = new JsonParser().parse("[true, false]");
-    JsonElementReader reader = new JsonElementReader(array);
+    JsonElement element = new JsonParser().parse("[true, false]");
+    JsonElementReader reader = new JsonElementReader(element);
     reader.beginArray();
     assertEquals(true, reader.nextBoolean());
     assertEquals(false, reader.nextBoolean());
@@ -62,8 +62,8 @@ public final class JsonElementReaderTest extends TestCase {
   }
 
   public void testNulls() throws IOException {
-    JsonElement array = new JsonParser().parse("[null,null]");
-    JsonElementReader reader = new JsonElementReader(array);
+    JsonElement element = new JsonParser().parse("[null,null]");
+    JsonElementReader reader = new JsonElementReader(element);
     reader.beginArray();
     reader.nextNull();
     reader.nextNull();
@@ -71,8 +71,8 @@ public final class JsonElementReaderTest extends TestCase {
   }
 
   public void testStrings() throws IOException {
-    JsonElement array = new JsonParser().parse("[\"A\",\"B\"]");
-    JsonElementReader reader = new JsonElementReader(array);
+    JsonElement element = new JsonParser().parse("[\"A\",\"B\"]");
+    JsonElementReader reader = new JsonElementReader(element);
     reader.beginArray();
     assertEquals("A", reader.nextString());
     assertEquals("B", reader.nextString());
@@ -80,8 +80,8 @@ public final class JsonElementReaderTest extends TestCase {
   }
 
   public void testArray() throws IOException {
-    JsonElement array = new JsonParser().parse("[1, 2, 3]");
-    JsonElementReader reader = new JsonElementReader(array);
+    JsonElement element = new JsonParser().parse("[1, 2, 3]");
+    JsonElementReader reader = new JsonElementReader(element);
     assertEquals(JsonToken.BEGIN_ARRAY, reader.peek());
     reader.beginArray();
     assertEquals(JsonToken.NUMBER, reader.peek());
@@ -96,8 +96,8 @@ public final class JsonElementReaderTest extends TestCase {
   }
 
   public void testObject() throws IOException {
-    JsonElement array = new JsonParser().parse("{\"A\": 1, \"B\": 2}");
-    JsonElementReader reader = new JsonElementReader(array);
+    JsonElement element = new JsonParser().parse("{\"A\": 1, \"B\": 2}");
+    JsonElementReader reader = new JsonElementReader(element);
     assertEquals(JsonToken.BEGIN_OBJECT, reader.peek());
     reader.beginObject();
     assertEquals(JsonToken.NAME, reader.peek());
@@ -114,15 +114,15 @@ public final class JsonElementReaderTest extends TestCase {
   }
 
   public void testEmptyArray() throws IOException {
-    JsonElement array = new JsonParser().parse("[]");
-    JsonElementReader reader = new JsonElementReader(array);
+    JsonElement element = new JsonParser().parse("[]");
+    JsonElementReader reader = new JsonElementReader(element);
     reader.beginArray();
     reader.endArray();
   }
 
   public void testNestedArrays() throws IOException {
-    JsonElement array = new JsonParser().parse("[[],[[]]]");
-    JsonElementReader reader = new JsonElementReader(array);
+    JsonElement element = new JsonParser().parse("[[],[[]]]");
+    JsonElementReader reader = new JsonElementReader(element);
     reader.beginArray();
     reader.beginArray();
     reader.endArray();
@@ -134,8 +134,8 @@ public final class JsonElementReaderTest extends TestCase {
   }
 
   public void testNestedObjects() throws IOException {
-    JsonElement array = new JsonParser().parse("{\"A\":{},\"B\":{\"C\":{}}}");
-    JsonElementReader reader = new JsonElementReader(array);
+    JsonElement element = new JsonParser().parse("{\"A\":{},\"B\":{\"C\":{}}}");
+    JsonElementReader reader = new JsonElementReader(element);
     reader.beginObject();
     assertEquals("A", reader.nextName());
     reader.beginObject();
@@ -150,15 +150,15 @@ public final class JsonElementReaderTest extends TestCase {
   }
 
   public void testEmptyObject() throws IOException {
-    JsonElement array = new JsonParser().parse("{}");
-    JsonElementReader reader = new JsonElementReader(array);
+    JsonElement element = new JsonParser().parse("{}");
+    JsonElementReader reader = new JsonElementReader(element);
     reader.beginObject();
     reader.endObject();
   }
 
   public void testSkipValue() throws IOException {
-    JsonElement array = new JsonParser().parse("[\"A\",{\"B\":[[]]},\"C\",[[]],\"D\",null]");
-    JsonElementReader reader = new JsonElementReader(array);
+    JsonElement element = new JsonParser().parse("[\"A\",{\"B\":[[]]},\"C\",[[]],\"D\",null]");
+    JsonElementReader reader = new JsonElementReader(element);
     reader.beginArray();
     assertEquals("A", reader.nextString());
     reader.skipValue();
@@ -170,8 +170,8 @@ public final class JsonElementReaderTest extends TestCase {
   }
 
   public void testWrongType() throws IOException {
-    JsonElement array = new JsonParser().parse("[[],\"A\"]");
-    JsonElementReader reader = new JsonElementReader(array);
+    JsonElement element = new JsonParser().parse("[[],\"A\"]");
+    JsonElementReader reader = new JsonElementReader(element);
     reader.beginArray();
     try {
       reader.nextBoolean();
@@ -258,5 +258,17 @@ public final class JsonElementReaderTest extends TestCase {
     }
     assertEquals("A", reader.nextString());
     reader.endArray();
+  }
+
+  public void testEarlyClose() throws IOException {
+    JsonElement element = new JsonParser().parse("[1, 2, 3]");
+    JsonElementReader reader = new JsonElementReader(element);
+    reader.beginArray();
+    reader.close();
+    try {
+      reader.peek();
+      fail();
+    } catch (IllegalStateException expected) {
+    }
   }
 }
