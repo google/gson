@@ -120,7 +120,7 @@ import java.util.List;
  * @author Jesse Wilson
  * @since 1.6
  */
-public final class JsonWriter implements Closeable {
+public class JsonWriter implements Closeable {
 
   /** The output data, containing at most one top-level array or object. */
   private final Writer out;
@@ -165,7 +165,7 @@ public final class JsonWriter implements Closeable {
    *
    * @param indent a string containing only whitespace.
    */
-  public void setIndent(String indent) {
+  public final void setIndent(String indent) {
     if (indent.length() == 0) {
       this.indent = null;
       this.separator = ":";
@@ -187,7 +187,7 @@ public final class JsonWriter implements Closeable {
    *       Double#isInfinite() infinities}.
    * </ul>
    */
-  public void setLenient(boolean lenient) {
+  public final void setLenient(boolean lenient) {
     this.lenient = lenient;
   }
 
@@ -205,7 +205,7 @@ public final class JsonWriter implements Closeable {
    * setting, your XML/HTML encoder should replace these characters with the
    * corresponding escape sequences.
    */
-  public void setHtmlSafe(boolean htmlSafe) {
+  public final void setHtmlSafe(boolean htmlSafe) {
     this.htmlSafe = htmlSafe;
   }
 
@@ -213,7 +213,7 @@ public final class JsonWriter implements Closeable {
    * Returns true if this writer writes JSON that's safe for inclusion in HTML
    * and XML documents.
    */
-  public boolean isHtmlSafe() {
+  public final boolean isHtmlSafe() {
     return htmlSafe;
   }
 
