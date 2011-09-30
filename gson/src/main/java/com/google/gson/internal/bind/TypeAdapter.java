@@ -70,7 +70,7 @@ public abstract class TypeAdapter<T> {
 
   public T fromJsonElement(JsonElement json) {
     try {
-      JsonReader jsonReader = new JsonReader(new StringReader(json.toString()));
+      JsonReader jsonReader = new JsonElementReader(json);
       jsonReader.setLenient(true);
       return read(jsonReader);
     } catch (IOException e) {

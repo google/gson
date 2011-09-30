@@ -170,6 +170,9 @@ public final class JsonElementReader extends JsonReader {
       throw new IllegalStateException("Expected " + JsonToken.NUMBER + " but was " + token);
     }
     double result = ((JsonPrimitive) peekStack()).getAsDouble();
+    if (!isLenient() && (Double.isNaN(result) || Double.isInfinite(result))) {
+      throw new NumberFormatException("JSON forbids NaN and infinities: " + result);
+    }
     popStack();
     return result;
   }
