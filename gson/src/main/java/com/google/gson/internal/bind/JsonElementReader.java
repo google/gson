@@ -43,6 +43,7 @@ public final class JsonElementReader extends JsonReader {
       throw new AssertionError();
     }
   };
+  private static final Object SENTINEL_CLOSED = new Object();
 
   private final List<Object> stack = new ArrayList<Object>();
 
@@ -116,6 +117,8 @@ public final class JsonElementReader extends JsonReader {
       }
     } else if (o instanceof JsonNull) {
       return JsonToken.NULL;
+    } else if (o == SENTINEL_CLOSED) {
+      throw new IllegalStateException("JsonReader is closed");
     } else {
       throw new AssertionError();
     }
@@ -192,6 +195,8 @@ public final class JsonElementReader extends JsonReader {
   }
 
   @Override public void close() throws IOException {
+    stack.clear();
+    stack.add(SENTINEL_CLOSED);
   }
 
   @Override public void skipValue() throws IOException {
