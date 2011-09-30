@@ -121,7 +121,6 @@ public final class Gson {
 
   private final ExclusionStrategy deserializationExclusionStrategy;
   private final ExclusionStrategy serializationExclusionStrategy;
-  private final FieldNamingStrategy2 fieldNamingPolicy;
   private final ConstructorConstructor constructorConstructor;
 
   /** Map containing Type or Class objects as keys */
@@ -192,7 +191,6 @@ public final class Gson {
       List<TypeAdapter.Factory> typeAdapterFactories) {
     this.deserializationExclusionStrategy = deserializationExclusionStrategy;
     this.serializationExclusionStrategy = serializationExclusionStrategy;
-    this.fieldNamingPolicy = fieldNamingPolicy;
     this.constructorConstructor = new ConstructorConstructor(instanceCreators);
     this.serializeNulls = serializeNulls;
     this.serializers = serializers;
