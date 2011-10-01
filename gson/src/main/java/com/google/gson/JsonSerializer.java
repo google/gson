@@ -49,7 +49,7 @@ import java.lang.reflect.Type;
  *
  * <p><pre>
  * class IdSerializer implements JsonSerializer&lt;Id&gt;() {
- *   public JsonElement toJson(Id id, Type typeOfId, JsonSerializationContext context) {
+ *   public JsonElement serialize(Id id, Type typeOfId, JsonSerializationContext context) {
  *     return new JsonPrimitive(id.getValue());
  *   }
  * }
