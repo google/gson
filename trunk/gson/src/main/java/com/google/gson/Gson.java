@@ -111,7 +111,7 @@ public final class Gson {
   static final SyntheticFieldExclusionStrategy DEFAULT_SYNTHETIC_FIELD_EXCLUSION_STRATEGY =
       new SyntheticFieldExclusionStrategy(true);
   static final ModifierBasedExclusionStrategy DEFAULT_MODIFIER_BASED_EXCLUSION_STRATEGY =
-      new ModifierBasedExclusionStrategy(new int[] { Modifier.TRANSIENT, Modifier.STATIC });
+      new ModifierBasedExclusionStrategy(Modifier.TRANSIENT, Modifier.STATIC);
   static final FieldNamingStrategy2 DEFAULT_NAMING_POLICY =
       new SerializedNameAnnotationInterceptingNamingPolicy(new JavaFieldNamingPolicy());
 
@@ -209,20 +209,20 @@ public final class Gson {
         = new ReflectiveTypeAdapterFactory(constructorConstructor) {
       @Override
       public String getFieldName(Class<?> declaringClazz, Field f, Type declaredType) {
-        return fieldNamingPolicy.translateName(new FieldAttributes(declaringClazz, f, declaredType));
+        return fieldNamingPolicy.translateName(new FieldAttributes(declaringClazz, f));
       }
       @Override
       public boolean serializeField(Class<?> declaringClazz, Field f, Type declaredType) {
         ExclusionStrategy strategy = Gson.this.serializationExclusionStrategy;
         return !strategy.shouldSkipClass(f.getType())
-            && !strategy.shouldSkipField(new FieldAttributes(declaringClazz, f, declaredType));
+            && !strategy.shouldSkipField(new FieldAttributes(declaringClazz, f));
       }
 
       @Override
       public boolean deserializeField(Class<?> declaringClazz, Field f, Type declaredType) {
         ExclusionStrategy strategy = Gson.this.deserializationExclusionStrategy;
         return !strategy.shouldSkipClass(f.getType())
-            && !strategy.shouldSkipField(new FieldAttributes(declaringClazz, f, declaredType));
+            && !strategy.shouldSkipField(new FieldAttributes(declaringClazz, f));
       }
     };
 
@@ -254,7 +254,7 @@ public final class Gson {
       builder.factory(factory);
     }
 
-    builder.factory(new GsonToMiniGsonTypeAdapterFactory(this, serializers, deserializers, serializeNulls))
+    builder.factory(new GsonToMiniGsonTypeAdapterFactory(this, serializers, deserializers))
         .factory(TypeAdapters.URL_FACTORY)
         .factory(TypeAdapters.URI_FACTORY)
         .factory(TypeAdapters.UUID_FACTORY)
@@ -685,7 +685,7 @@ public final class Gson {
    */
   public <T> T fromJson(Reader json, Type typeOfT) throws JsonIOException, JsonSyntaxException {
     JsonReader jsonReader = new JsonReader(json);
-    T object = this.<T>fromJson(jsonReader, typeOfT);
+    T object = fromJson(jsonReader, typeOfT);
     assertFullConsumption(object, jsonReader);
     return object;
   }

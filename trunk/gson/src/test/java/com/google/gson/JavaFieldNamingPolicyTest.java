@@ -34,7 +34,7 @@ public class JavaFieldNamingPolicyTest extends TestCase {
   }
 
   public void testFieldNamingPolicy() throws Exception {
-    FieldAttributes f = new FieldAttributes(String.class, String.class.getFields()[0], String.class);
+    FieldAttributes f = new FieldAttributes(String.class, String.class.getFields()[0]);
     assertEquals(f.getName(), namingPolicy.translateName(f));
   }
 

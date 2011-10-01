@@ -17,8 +17,6 @@
 package com.google.gson;
 
 import com.google.gson.internal.$Gson$Preconditions;
-import com.google.gson.internal.$Gson$Types;
-
 import com.google.gson.internal.Pair;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -50,7 +48,6 @@ public final class FieldAttributes {
   private final boolean isSynthetic;
   private final int modifiers;
   private final String name;
-  private final Type resolvedType;
 
   // Fields used for lazy initialization
   private Type genericType;
@@ -60,16 +57,14 @@ public final class FieldAttributes {
    * Constructs a Field Attributes object from the {@code f}.
    *
    * @param f the field to pull attributes from
-   * @param declaringType The type in which the field is declared
    */
-  FieldAttributes(Class<?> declaringClazz, Field f, Type declaringType) {
+  FieldAttributes(Class<?> declaringClazz, Field f) {
     this.declaringClazz = $Gson$Preconditions.checkNotNull(declaringClazz);
     this.name = f.getName();
     this.declaredType = f.getType();
     this.isSynthetic = f.isSynthetic();
     this.modifiers = f.getModifiers();
     this.field = f;
-    this.resolvedType = getTypeInfoForField(f, declaringType);
   }
 
   private static int getMaxCacheSize() {
@@ -121,7 +116,7 @@ public final class FieldAttributes {
   }
 
   /**
-   * Returns the {@code Class<?>} object that was declared for this field.
+   * Returns the {@code Class} object that was declared for this field.
    *
    * <p>For example, assume the following class definition:
    * <pre class="code">
@@ -188,16 +183,6 @@ public final class FieldAttributes {
   /**
    * This is exposed internally only for the removing synthetic fields from the JSON output.
    *
-   * @throws IllegalAccessException
-   * @throws IllegalArgumentException
-   */
-  void set(Object instance, Object value) throws IllegalAccessException {
-    field.set(instance, value);
-  }
-
-  /**
-   * This is exposed internally only for the removing synthetic fields from the JSON output.
-   *
    * @return true if the field is synthetic; otherwise false
    * @throws IllegalAccessException
    * @throws IllegalArgumentException
@@ -223,10 +208,6 @@ public final class FieldAttributes {
     return field;
   }
 
-  Type getResolvedType() {
-    return resolvedType;
-  }
-
   @SuppressWarnings("unchecked")
   private static <T extends Annotation> T getAnnotationFromArray(
       Collection<Annotation> annotations, Class<T> annotation) {
@@ -236,22 +217,5 @@ public final class FieldAttributes {
       }
     }
     return null;
-  }
-
-  /**
-   * Evaluates the "actual" type for the field.  If the field is a "TypeVariable" or has a
-   * "TypeVariable" in a parameterized type then it evaluates the real type.
-   *
-   * @param f the actual field object to retrieve the type from
-   * @param typeDefiningF the type that contains the field {@code f}
-   * @return the type information for the field
-   */
-  static Type getTypeInfoForField(Field f, Type typeDefiningF) {
-    Class<?> rawType = $Gson$Types.getRawType(typeDefiningF);
-    if (!f.getDeclaringClass().isAssignableFrom(rawType)) {
-      // this field is unrelated to the type; the user probably omitted type information
-      return f.getGenericType();
-    }
-    return $Gson$Types.resolve(typeDefiningF, rawType, f.getGenericType());
   }
 }

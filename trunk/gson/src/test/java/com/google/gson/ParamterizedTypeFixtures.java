@@ -155,7 +155,17 @@ public class ParamterizedTypeFixtures {
       Type genericClass = ((ParameterizedType) typeOfT).getActualTypeArguments()[0];
       Class<?> rawType = $Gson$Types.getRawType(genericClass);
       String className = rawType.getSimpleName();
-      T value = (T) json.getAsJsonObject().get(className).getAsObject();
+      JsonElement jsonElement = json.getAsJsonObject().get(className);
+
+      T value;
+      if (genericClass == Integer.class) {
+        value = (T) Integer.valueOf(jsonElement.getAsInt());
+      } else if (genericClass == String.class) {
+        value = (T) jsonElement.getAsString();
+      } else {
+        value = (T) jsonElement;
+      }
+
       if (Primitives.isPrimitive(genericClass)) {
         PrimitiveTypeAdapter typeAdapter = new PrimitiveTypeAdapter();
         value = (T) typeAdapter.adaptType(value, rawType);

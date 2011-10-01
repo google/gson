@@ -121,11 +121,6 @@ public final class Streams {
     } else if (element.isJsonArray()) {
       writer.beginArray();
       for (JsonElement e : element.getAsJsonArray()) {
-        /* always print null when its parent element is an array! */
-        if (e.isJsonNull()) {
-          writer.nullValue();
-          continue;
-        }
         write(e, writer);
       }
       writer.endArray();
