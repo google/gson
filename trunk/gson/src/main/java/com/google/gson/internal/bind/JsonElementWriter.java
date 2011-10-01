@@ -71,8 +71,10 @@ public final class JsonElementWriter extends JsonWriter {
 
   private void put(JsonElement value) {
     if (pendingName != null) {
-      JsonObject object = (JsonObject) peek();
-      object.add(pendingName, value);
+      if (!value.isJsonNull() || getSerializeNulls()) {
+        JsonObject object = (JsonObject) peek();
+        object.add(pendingName, value);
+      }
       pendingName = null;
     } else if (stack.isEmpty()) {
       product = value;

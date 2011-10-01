@@ -23,7 +23,6 @@ public final class JsonElementWriterTest extends TestCase {
 
   // TODO: more tests
   // TODO: figure out what should be returned by an empty writer
-  // TODO: test when serialize nulls is false
 
   public void testArray() throws IOException {
     JsonElementWriter writer = new JsonElementWriter();
@@ -96,5 +95,25 @@ public final class JsonElementWriterTest extends TestCase {
       fail();
     } catch (IOException expected) {
     }
+  }
+
+  public void testSerializeNullsFalse() throws IOException {
+    JsonElementWriter writer = new JsonElementWriter();
+    writer.setSerializeNulls(false);
+    writer.beginObject();
+    writer.name("A");
+    writer.nullValue();
+    writer.endObject();
+    assertEquals("{}", writer.get().toString());
+  }
+
+  public void testSerializeNullsTrue() throws IOException {
+    JsonElementWriter writer = new JsonElementWriter();
+    writer.setSerializeNulls(true);
+    writer.beginObject();
+    writer.name("A");
+    writer.nullValue();
+    writer.endObject();
+    assertEquals("{\"A\":null}", writer.get().toString());
   }
 }
