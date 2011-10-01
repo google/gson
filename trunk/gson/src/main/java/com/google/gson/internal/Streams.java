@@ -104,13 +104,10 @@ public final class Streams {
   /**
    * Writes the JSON element to the writer, recursively.
    */
-  public static void write(JsonElement element, boolean serializeNulls, JsonWriter writer)
+  public static void write(JsonElement element, JsonWriter writer)
       throws IOException {
     if (element == null || element.isJsonNull()) {
-      if (serializeNulls) {
-        writer.nullValue();
-      }
-
+      writer.nullValue();
     } else if (element.isJsonPrimitive()) {
       JsonPrimitive primitive = element.getAsJsonPrimitive();
       if (primitive.isNumber()) {
@@ -129,7 +126,7 @@ public final class Streams {
           writer.nullValue();
           continue;
         }
-        write(e, serializeNulls, writer);
+        write(e, writer);
       }
       writer.endArray();
 
@@ -137,11 +134,8 @@ public final class Streams {
       writer.beginObject();
       for (Map.Entry<String, JsonElement> e : element.getAsJsonObject().entrySet()) {
         JsonElement value = e.getValue();
-        if (!serializeNulls && value.isJsonNull()) {
-          continue;
-        }
         writer.name(e.getKey());
-        write(value, serializeNulls, writer);
+        write(value, writer);
       }
       writer.endObject();
 

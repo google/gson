@@ -134,7 +134,7 @@ public final class MapTypeAdapterFactory implements TypeAdapter.Factory {
     private final TypeAdapter<V> valueTypeAdapter;
     private final ObjectConstructor<? extends Map<K, V>> constructor;
 
-    public Adapter(MiniGson context, Type keyType, TypeAdapter<K> keyTypeAdapter, 
+    public Adapter(MiniGson context, Type keyType, TypeAdapter<K> keyTypeAdapter,
         Type valueType, TypeAdapter<V> valueTypeAdapter,
         ObjectConstructor<? extends Map<K, V>> constructor) {
       this.keyTypeAdapter =
@@ -203,7 +203,7 @@ public final class MapTypeAdapterFactory implements TypeAdapter.Factory {
         writer.beginArray();
         for (int i = 0; i < keys.size(); i++) {
           writer.beginArray(); // entry array
-          Streams.write(keys.get(i), true, writer);
+          Streams.write(keys.get(i), writer);
           valueTypeAdapter.write(writer, values.get(i));
           writer.endArray();
         }

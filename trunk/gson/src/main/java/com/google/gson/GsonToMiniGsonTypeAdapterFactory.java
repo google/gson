@@ -98,7 +98,7 @@ final class GsonToMiniGsonTypeAdapterFactory implements TypeAdapter.Factory {
           return;
         }
         JsonElement element = serializer.serialize(value, type, serializationContext);
-        Streams.write(element, serializeNulls, writer);
+        Streams.write(element, writer);
       }
 
       private TypeAdapter<T> delegate() {
