@@ -139,7 +139,7 @@ public class ObjectTest extends TestCase {
     assertEquals(json, target.getExpectedJson());
   }
   public void testNullSerialization() throws Exception {
-    assertEquals("", gson.toJson(null));
+    assertEquals("null", gson.toJson(null));
   }
 
   public void testEmptyStringDeserialization() throws Exception {
