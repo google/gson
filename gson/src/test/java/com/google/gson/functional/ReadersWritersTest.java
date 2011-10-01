@@ -62,7 +62,7 @@ public class ReadersWritersTest extends TestCase {
   public void testTopLevelNullObjectSerializationWithWriter() {
     StringWriter writer = new StringWriter();
     gson.toJson(null, writer);
-    assertEquals("", writer.toString());
+    assertEquals("null", writer.toString());
   }
 
   public void testTopLevelNullObjectDeserializationWithReader() {
@@ -84,7 +84,7 @@ public class ReadersWritersTest extends TestCase {
     Integer nullIntObject = gson.fromJson(reader, Integer.class);
     assertNull(nullIntObject);
   }
-  
+
   public void testReadWriteTwoStrings() throws IOException {
     Gson gson= new Gson();
     CharArrayWriter writer= new CharArrayWriter();
@@ -97,7 +97,7 @@ public class ReadersWritersTest extends TestCase {
     String actualTwo = gson.fromJson(parser.next(), String.class);
     assertEquals("two", actualTwo);
   }
-  
+
   public void testReadWriteTwoObjects() throws IOException {
     Gson gson= new Gson();
     CharArrayWriter writer= new CharArrayWriter();

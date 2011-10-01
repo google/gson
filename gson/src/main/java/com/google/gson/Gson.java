@@ -574,7 +574,7 @@ public final class Gson {
     boolean oldSerializeNulls = writer.getSerializeNulls();
     writer.setSerializeNulls(serializeNulls);
     try {
-      Streams.write(jsonElement, serializeNulls, writer);
+      Streams.write(jsonElement, writer);
     } catch (IOException e) {
       throw new JsonIOException(e);
     } finally {

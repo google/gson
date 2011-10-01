@@ -163,7 +163,7 @@ public final class MixedStreamTest extends TestCase {
 
     StringWriter stringWriter = new StringWriter();
     gson.toJson(null, new JsonWriter(stringWriter));
-    assertEquals("", stringWriter.toString());
+    assertEquals("null", stringWriter.toString());
   }
 
   public void testReadNulls() {
