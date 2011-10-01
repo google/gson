@@ -32,15 +32,28 @@ final class GsonToMiniGsonTypeAdapterFactory implements TypeAdapter.Factory {
   private final JsonSerializationContext serializationContext;
   private final boolean serializeNulls;
 
-  GsonToMiniGsonTypeAdapterFactory(ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers,
+  public GsonToMiniGsonTypeAdapterFactory(final Gson gson,
+      ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers,
       ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers,
-      JsonDeserializationContext deserializationContext,
-      JsonSerializationContext serializationContext, boolean serializeNulls) {
+      boolean serializeNulls) {
     this.serializers = serializers;
     this.deserializers = deserializers;
     this.serializeNulls = serializeNulls;
-    this.deserializationContext = deserializationContext;
-    this.serializationContext = serializationContext;
+
+    this.deserializationContext = new JsonDeserializationContext() {
+      public <T> T deserialize(JsonElement json, Type typeOfT) throws JsonParseException {
+        return gson.fromJson(json, typeOfT);
+      }
+    };
+
+    this.serializationContext = new JsonSerializationContext() {
+      public JsonElement serialize(Object src) {
+        return gson.toJsonTree(src);
+      }
+      public JsonElement serialize(Object src, Type typeOfSrc) {
+        return gson.toJsonTree(src, typeOfSrc);
+      }
+    };
   }
 
   public <T> TypeAdapter<T> create(final MiniGson context, final TypeToken<T> typeToken) {
