@@ -58,6 +58,9 @@ public final class JsonElementWriter extends JsonWriter {
     super(UNWRITABLE_WRITER);
   }
 
+  /**
+   * Returns the top level object produced by this writer.
+   */
   public JsonElement get() {
     if (!stack.isEmpty()) {
       throw new IllegalStateException("Expected one JSON element but was " + stack);
