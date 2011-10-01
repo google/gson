@@ -46,10 +46,6 @@ final class LruCache<K, V> extends LinkedHashMap<K, V> implements Cache<K, V> {
     return get(key);
   }
 
-  public synchronized V removeElement(K key) {
-    return remove(key);
-  }
-
   @Override
   protected boolean removeEldestEntry(Map.Entry<K, V> entry) {
     return size() > maxCapacity;

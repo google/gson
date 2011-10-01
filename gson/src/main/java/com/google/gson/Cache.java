@@ -40,12 +40,4 @@ interface Cache<K, V> {
    * @return the cached value for the given {@code key}
    */
   V getElement(K key);
-
-  /**
-   * Removes the value from the cache for the given key.
-   *
-   * @param key the key identifying the value to remove
-   * @return the value for the given {@code key}
-   */
-  V removeElement(K key);
 }

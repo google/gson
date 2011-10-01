@@ -275,25 +275,6 @@ public final class JsonPrimitive extends JsonElement {
     return getAsString().charAt(0);
   }
 
-  /**
-   * convenience method to get this element as an Object.
-   *
-   * @return get this element as an Object that can be converted to a suitable value.
-   */
-  @Override
-  Object getAsObject() {
-    if (value instanceof BigInteger) {
-      BigInteger big = (BigInteger) value;
-      if (big.compareTo(INTEGER_MAX) < 0) {
-        return big.intValue();
-      } else if (big.compareTo(LONG_MAX) < 0) {
-        return big.longValue();
-      }
-    }
-    // No need to convert to float or double since those lose precision
-    return value;
-  }
-
   private static boolean isPrimitiveOrString(Object target) {
     if (target instanceof String) {
       return true;

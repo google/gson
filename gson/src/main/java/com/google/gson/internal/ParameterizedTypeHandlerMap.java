@@ -128,37 +128,6 @@ public final class ParameterizedTypeHandlerMap<T> {
     }
   }
 
-  public synchronized void register(ParameterizedTypeHandlerMap<T> other) {
-    if (!modifiable) {
-      throw new IllegalStateException("Attempted to modify an unmodifiable map.");
-    }
-    for (Map.Entry<Type, T> entry : other.userMap.entrySet()) {
-      register(entry.getKey(), entry.getValue(), false);
-    }
-    for (Map.Entry<Type, T> entry : other.systemMap.entrySet()) {
-      register(entry.getKey(), entry.getValue(), true);
-    }
-    // Quite important to traverse the typeHierarchyList from stack bottom first since
-    // we want to register the handlers in the same order to preserve priority order
-    for (int i = other.userTypeHierarchyList.size()-1; i >= 0; --i) {
-      Pair<Class<?>, T> entry = other.userTypeHierarchyList.get(i);
-      registerForTypeHierarchy(entry, false);
-    }
-    for (int i = other.systemTypeHierarchyList.size()-1; i >= 0; --i) {
-      Pair<Class<?>, T> entry = other.systemTypeHierarchyList.get(i);
-      registerForTypeHierarchy(entry, true);
-    }
-  }
-
-  public synchronized void registerIfAbsent(Type typeOfT, T value) {
-    if (!modifiable) {
-      throw new IllegalStateException("Attempted to modify an unmodifiable map.");
-    }
-    if (!userMap.containsKey(typeOfT)) {
-      register(typeOfT, value, false);
-    }
-  }
-
   public synchronized ParameterizedTypeHandlerMap<T> makeUnmodifiable() {
     modifiable = false;
     return this;

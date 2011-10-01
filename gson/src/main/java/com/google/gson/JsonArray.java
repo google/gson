@@ -19,7 +19,6 @@ package com.google.gson;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -72,13 +71,6 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
       result.elements.set(i, result.elements.get(i).deepCopy());
     }
     return result;
-  }
-
-  /**
-   * Reverses the elements of the array.
-   */
-  void reverse() {
-    Collections.reverse(elements);
   }
 
   /**
@@ -286,22 +278,6 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   public boolean getAsBoolean() {
     if (elements.size() == 1) {
       return elements.get(0).getAsBoolean();
-    }
-    throw new IllegalStateException();
-  }
-
-  /**
-   * convenience method to get this array as an Object if it contains a single element.
-   *
-   * @return get this element as an Object if it is single element array.
-   * @throws ClassCastException if the element in the array is of not a {@link JsonPrimitive} and
-   * is not a valid Object.
-   * @throws IllegalStateException if the array has more than one element.
-   */
-  @Override
-  Object getAsObject() {
-    if (elements.size() == 1) {
-      return elements.get(0).getAsObject();
     }
     throw new IllegalStateException();
   }
