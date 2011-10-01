@@ -100,7 +100,7 @@ import java.util.Map;
  */
 public final class Gson {
   @SuppressWarnings("unchecked")
-  static final ParameterizedTypeHandlerMap EMPTY_MAP = 
+  static final ParameterizedTypeHandlerMap EMPTY_MAP =
     new ParameterizedTypeHandlerMap().makeUnmodifiable();
 
    static final boolean DEFAULT_JSON_NON_EXECUTABLE = false;
@@ -254,8 +254,7 @@ public final class Gson {
       builder.factory(factory);
     }
 
-    builder.factory(new GsonToMiniGsonTypeAdapterFactory(serializers, deserializers,
-        new JsonDeserializationContext(this), new JsonSerializationContext(this), serializeNulls))
+    builder.factory(new GsonToMiniGsonTypeAdapterFactory(this, serializers, deserializers, serializeNulls))
         .factory(TypeAdapters.URL_FACTORY)
         .factory(TypeAdapters.URI_FACTORY)
         .factory(TypeAdapters.UUID_FACTORY)
