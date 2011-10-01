@@ -25,13 +25,7 @@ import java.lang.reflect.Type;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class JsonSerializationContext {
-
-  private final Gson gson;
-
-  JsonSerializationContext(Gson gson) {
-    this.gson = gson;
-  }
+public interface JsonSerializationContext {
 
   /**
    * Invokes default serialization on the specified object.
@@ -39,9 +33,7 @@ public class JsonSerializationContext {
    * @param src the object that needs to be serialized.
    * @return a tree of {@link JsonElement}s corresponding to the serialized form of {@code src}.
    */
-  public JsonElement serialize(Object src) {
-    return gson.toJsonTree(src);
-  }
+  public JsonElement serialize(Object src);
 
   /**
    * Invokes default serialization on the specified object passing the specific type information.
@@ -53,7 +45,5 @@ public class JsonSerializationContext {
    * @param typeOfSrc the actual genericized type of src object.
    * @return a tree of {@link JsonElement}s corresponding to the serialized form of {@code src}.
    */
-  public JsonElement serialize(Object src, Type typeOfSrc) {
-    return gson.toJsonTree(src, typeOfSrc);
-  }
+  public JsonElement serialize(Object src, Type typeOfSrc);
 }
