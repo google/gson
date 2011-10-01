@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This writer writes a JsonElement.
+ * This writer creates a JsonElement.
  */
 public final class JsonElementWriter extends JsonWriter {
   private static final Writer UNWRITABLE_WRITER = new Writer() {
@@ -42,22 +42,27 @@ public final class JsonElementWriter extends JsonWriter {
       throw new AssertionError();
     }
   };
+  /** Added to the top of the stack when this writer is closed to cause following ops to fail. */
+  private static final JsonPrimitive SENTINEL_CLOSED = new JsonPrimitive("closed");
 
+  /** The JsonElements and JsonArrays under modification, outermost to innermost. */
   private final List<JsonElement> stack = new ArrayList<JsonElement>();
+
+  /** The name for the next JSON object value. If non-null, the top of the stack is a JsonObject. */
   private String pendingName;
+
+  /** the JSON element constructed by this writer. */
+  private JsonElement product = JsonNull.INSTANCE; // TODO: is this really what we want?;
 
   public JsonElementWriter() {
     super(UNWRITABLE_WRITER);
   }
 
   public JsonElement get() {
-    if (stack.isEmpty()) {
-      return JsonNull.INSTANCE; // TODO: is this really what we want?
-    }
-    if (stack.size() != 1) {
+    if (!stack.isEmpty()) {
       throw new IllegalStateException("Expected one JSON element but was " + stack);
     }
-    return stack.get(0);
+    return product;
   }
 
   private JsonElement peek() {
@@ -70,7 +75,7 @@ public final class JsonElementWriter extends JsonWriter {
       object.add(pendingName, value);
       pendingName = null;
     } else if (stack.isEmpty()) {
-      stack.add(value);
+      product = value;
     } else {
       JsonElement element = peek();
       if (element instanceof JsonArray) {
@@ -171,5 +176,9 @@ public final class JsonElementWriter extends JsonWriter {
   }
 
   @Override public void close() throws IOException {
+    if (!stack.isEmpty()) {
+      throw new IOException("Incomplete document");
+    }
+    stack.add(SENTINEL_CLOSED);
   }
 }
