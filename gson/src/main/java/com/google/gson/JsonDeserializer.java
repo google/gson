@@ -49,7 +49,7 @@ import java.lang.reflect.Type;
  *
  * <pre>
  * class IdDeserializer implements JsonDeserializer&lt;Id&gt;() {
- *   public Id fromJson(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+ *   public Id deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
  *       throws JsonParseException {
  *     return (Id) new Id((Class)typeOfT, id.getValue());
  *   }
