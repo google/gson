@@ -21,9 +21,6 @@ import java.io.IOException;
 import junit.framework.TestCase;
 
 public final class JsonElementWriterTest extends TestCase {
-
-  // TODO: figure out what should be returned by an empty writer
-
   public void testArray() throws IOException {
     JsonElementWriter writer = new JsonElementWriter();
     writer.beginArray();
