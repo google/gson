@@ -307,19 +307,6 @@ public abstract class JsonElement {
   }
 
   /**
-   * convenience method to get this element as an {@link Object} value.
-   *
-   * @return get this element as an Object value.
-   * @throws ClassCastException if the element is of not a {@link JsonPrimitive} and is not a valid
-   * Object value.
-   * @throws IllegalStateException if the element is of the type {@link JsonArray} but contains
-   * more than a single element.
-   */
-  Object getAsObject() {
-    throw new UnsupportedOperationException(getClass().getSimpleName());
-  }
-
-  /**
    * Returns a deep copy of this. Immutable values can return this.
    */
   abstract JsonElement deepCopy();
