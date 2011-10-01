@@ -22,7 +22,6 @@ import junit.framework.TestCase;
 public final class JsonElementWriterTest extends TestCase {
 
   // TODO: more tests
-  // TODO: close support
   // TODO: figure out what should be returned by an empty writer
   // TODO: test when serialize nulls is false
 
@@ -72,5 +71,30 @@ public final class JsonElementWriterTest extends TestCase {
     writer.endObject();
     writer.endObject();
     assertEquals("{\"A\":{\"B\":{}},\"C\":{}}", writer.get().toString());
+  }
+
+  public void testWriteAfterClose() throws Exception {
+    JsonElementWriter writer = new JsonElementWriter();
+    writer.setLenient(true);
+    writer.beginArray();
+    writer.value("A");
+    writer.endArray();
+    writer.close();
+    try {
+      writer.beginArray();
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+  }
+
+  public void testPrematureClose() throws Exception {
+    JsonElementWriter writer = new JsonElementWriter();
+    writer.setLenient(true);
+    writer.beginArray();
+    try {
+      writer.close();
+      fail();
+    } catch (IOException expected) {
+    }
   }
 }
