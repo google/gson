@@ -16,12 +16,12 @@
 
 package com.google.gson.internal.bind;
 
+import com.google.gson.JsonNull;
 import java.io.IOException;
 import junit.framework.TestCase;
 
 public final class JsonElementWriterTest extends TestCase {
 
-  // TODO: more tests
   // TODO: figure out what should be returned by an empty writer
 
   public void testArray() throws IOException {
@@ -115,5 +115,63 @@ public final class JsonElementWriterTest extends TestCase {
     writer.nullValue();
     writer.endObject();
     assertEquals("{\"A\":null}", writer.get().toString());
+  }
+
+  public void testEmptyWriter() {
+    JsonElementWriter writer = new JsonElementWriter();
+    assertEquals(JsonNull.INSTANCE, writer.get());
+  }
+
+  public void testLenientNansAndInfinities() throws IOException {
+    JsonElementWriter writer = new JsonElementWriter();
+    writer.setLenient(true);
+    writer.beginArray();
+    writer.value(Double.NaN);
+    writer.value(Double.NEGATIVE_INFINITY);
+    writer.value(Double.POSITIVE_INFINITY);
+    writer.endArray();
+    assertEquals("[NaN,-Infinity,Infinity]", writer.get().toString());
+  }
+
+  public void testStrictNansAndInfinities() throws IOException {
+    JsonElementWriter writer = new JsonElementWriter();
+    writer.setLenient(false);
+    writer.beginArray();
+    try {
+      writer.value(Double.NaN);
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
+    try {
+      writer.value(Double.NEGATIVE_INFINITY);
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
+    try {
+      writer.value(Double.POSITIVE_INFINITY);
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
+  }
+
+  public void testStrictBoxedNansAndInfinities() throws IOException {
+    JsonElementWriter writer = new JsonElementWriter();
+    writer.setLenient(false);
+    writer.beginArray();
+    try {
+      writer.value(new Double(Double.NaN));
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
+    try {
+      writer.value(new Double(Double.NEGATIVE_INFINITY));
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
+    try {
+      writer.value(new Double(Double.POSITIVE_INFINITY));
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
   }
 }

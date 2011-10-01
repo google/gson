@@ -157,6 +157,9 @@ public final class JsonElementWriter extends JsonWriter {
   }
 
   @Override public JsonWriter value(double value) throws IOException {
+    if (!isLenient() && (Double.isNaN(value) || Double.isInfinite(value))) {
+      throw new IllegalArgumentException("JSON forbids NaN and infinities: " + value);
+    }
     put(new JsonPrimitive(value));
     return this;
   }
@@ -170,6 +173,14 @@ public final class JsonElementWriter extends JsonWriter {
     if (value == null) {
       return nullValue();
     }
+
+    if (!isLenient()) {
+      double d = value.doubleValue();
+      if (Double.isNaN(d) || Double.isInfinite(d)) {
+        throw new IllegalArgumentException("JSON forbids NaN and infinities: " + value);
+      }
+    }
+
     put(new JsonPrimitive(value));
     return this;
   }
