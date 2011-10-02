@@ -16,7 +16,12 @@
 
 package com.google.gson.internal.bind;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonIOException;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.internal.LazilyParsedNumber;
 import com.google.gson.reflect.TypeToken;
@@ -34,6 +39,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
+import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.UUID;
 
@@ -525,6 +531,81 @@ public final class TypeAdapters {
   };
 
   public static final TypeAdapter.Factory LOCALE_FACTORY = newFactory(Locale.class, LOCALE);
+
+  public static final TypeAdapter<JsonElement> JSON_ELEMENT = new TypeAdapter<JsonElement>() {
+    @Override public JsonElement read(JsonReader reader) throws IOException {
+      switch (reader.peek()) {
+      case STRING:
+        return new JsonPrimitive(reader.nextString());
+      case NUMBER:
+        String number = reader.nextString();
+        return new JsonPrimitive(new LazilyParsedNumber(number));
+      case BOOLEAN:
+        return new JsonPrimitive(reader.nextBoolean());
+      case NULL:
+        reader.nextNull();
+        return JsonNull.INSTANCE;
+      case BEGIN_ARRAY:
+        JsonArray array = new JsonArray();
+        reader.beginArray();
+        while (reader.hasNext()) {
+          array.add(read(reader));
+        }
+        reader.endArray();
+        return array;
+      case BEGIN_OBJECT:
+        JsonObject object = new JsonObject();
+        reader.beginObject();
+        while (reader.hasNext()) {
+          object.add(reader.nextName(), read(reader));
+        }
+        reader.endObject();
+        return object;
+      case END_DOCUMENT:
+      case NAME:
+      case END_OBJECT:
+      case END_ARRAY:
+      default:
+        throw new IllegalArgumentException();
+      }
+    }
+
+    @Override public void write(JsonWriter writer, JsonElement value) throws IOException {
+      if (value == null || value.isJsonNull()) {
+        writer.nullValue();
+      } else if (value.isJsonPrimitive()) {
+        JsonPrimitive primitive = value.getAsJsonPrimitive();
+        if (primitive.isNumber()) {
+          writer.value(primitive.getAsNumber());
+        } else if (primitive.isBoolean()) {
+          writer.value(primitive.getAsBoolean());
+        } else {
+          writer.value(primitive.getAsString());
+        }
+
+      } else if (value.isJsonArray()) {
+        writer.beginArray();
+        for (JsonElement e : value.getAsJsonArray()) {
+          write(writer, e);
+        }
+        writer.endArray();
+
+      } else if (value.isJsonObject()) {
+        writer.beginObject();
+        for (Map.Entry<String, JsonElement> e : value.getAsJsonObject().entrySet()) {
+          writer.name(e.getKey());
+          write(writer, e.getValue());
+        }
+        writer.endObject();
+
+      } else {
+        throw new IllegalArgumentException("Couldn't write " + value.getClass());
+      }
+    }
+  };
+
+  public static final TypeAdapter.Factory JSON_ELEMENT_FACTORY
+      = newFactory(JsonElement.class, JSON_ELEMENT);
 
   private static final class EnumTypeAdapter<T extends Enum<T>> extends TypeAdapter<T> {
     private final Class<T> classOfT;
