@@ -248,6 +248,7 @@ public final class Gson {
         .typeAdapter(BigDecimal.class, new BigDecimalTypeAdapter())
         .typeAdapter(BigInteger.class, new BigIntegerTypeAdapter())
         .factory(new CollectionTypeAdapterFactory(constructorConstructor))
+        .factory(TypeAdapters.JSON_ELEMENT_FACTORY)
         .factory(ObjectTypeAdapter.FACTORY);
 
     for (TypeAdapter.Factory factory : typeAdapterFactories) {
