@@ -144,6 +144,15 @@ public class NamingPolicyTest extends TestCase {
     assertEquals(10, obj.value);
   }
 
+  /** http://code.google.com/p/google-gson/issues/detail?id=349 */
+  public void testAtSignInSerializedName() {
+    assertEquals("{\"@foo\":\"bar\"}", new Gson().toJson(new AtName()));
+  }
+
+  static class AtName {
+    @SerializedName("@foo") String f = "bar";
+  }
+
   private static class UpperCaseNamingStrategy implements FieldNamingStrategy {
     public String translateName(Field f) {
       return f.getName().toUpperCase();
