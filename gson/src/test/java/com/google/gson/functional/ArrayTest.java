@@ -255,4 +255,14 @@ public class ArrayTest extends TestCase {
     assertEquals("3m Co", items[0][0]);
     assertEquals("Manufacturing", items[1][5]);
   }
+
+  /** http://code.google.com/p/google-gson/issues/detail?id=342 */
+  public void testArrayElementsAreArrays() {
+    Object[] stringArrays = {
+        new String[] {"test1", "test2"},
+        new String[] {"test3", "test4"}
+    };
+    assertEquals("[[\"test1\",\"test2\"],[\"test3\",\"test4\"]]",
+        new Gson().toJson(stringArrays));
+  }
 }
