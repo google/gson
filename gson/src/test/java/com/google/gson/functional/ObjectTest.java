@@ -30,14 +30,17 @@ import com.google.gson.common.TestTypes.ClassWithObjects;
 import com.google.gson.common.TestTypes.ClassWithTransientFields;
 import com.google.gson.common.TestTypes.Nested;
 import com.google.gson.common.TestTypes.PrimitiveArray;
-
 import com.google.gson.reflect.TypeToken;
-import java.util.List;
-import junit.framework.TestCase;
-
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TimeZone;
+import junit.framework.TestCase;
 
 /**
  * Functional tests for Json serialization and deserialization of regular classes.
@@ -47,13 +50,22 @@ import java.util.Collection;
  */
 public class ObjectTest extends TestCase {
   private Gson gson;
+  private TimeZone oldTimeZone = TimeZone.getDefault();
 
   @Override
   protected void setUp() throws Exception {
     super.setUp();
     gson = new Gson();
+
+    TimeZone.setDefault(TimeZone.getTimeZone("America/Los_Angeles"));
+    Locale.setDefault(Locale.US);
   }
 
+  @Override
+  protected void tearDown() throws Exception {
+    TimeZone.setDefault(oldTimeZone);
+    super.tearDown();
+  }
   public void testJsonInSingleQuotesDeserialization() {
     String json = "{'stringValue':'no message','intValue':10,'longValue':20}";
     BagOfPrimitives target = gson.fromJson(json, BagOfPrimitives.class);
@@ -448,6 +460,17 @@ public class ObjectTest extends TestCase {
     gson.fromJson(gson.toJson(product), Product.class);
   }
 
+  // http://code.google.com/p/google-gson/issues/detail?id=270
+  public void testDateAsMapObjectField() {
+    HasObjectMap a = new HasObjectMap();
+    a.map.put("date", new Date(0));
+    assertEquals("{\"map\":{\"date\":\"Dec 31, 1969 4:00:00 PM\"}}", gson.toJson(a));
+  }
+
+  public class HasObjectMap {
+    Map<String, Object> map = new HashMap<String, Object>();
+  }
+
   static final class Department {
     public String name = "abc";
     public String code = "123";
@@ -457,5 +480,4 @@ public class ObjectTest extends TestCase {
     private List<String> attributes = new ArrayList<String>();
     private List<Department> departments = new ArrayList<Department>();
   }
-
 }
