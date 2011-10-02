@@ -36,9 +36,6 @@ public final class JsonPrimitive extends JsonElement {
       float.class, double.class, byte.class, boolean.class, char.class, Integer.class, Long.class,
       Short.class, Float.class, Double.class, Byte.class, Boolean.class, Character.class };
 
-  private static final BigInteger INTEGER_MAX = BigInteger.valueOf(Integer.MAX_VALUE);
-  private static final BigInteger LONG_MAX = BigInteger.valueOf(Long.MAX_VALUE);
-
   private Object value;
 
   /**
