@@ -17,10 +17,14 @@ package com.google.gson.functional;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
@@ -457,6 +461,66 @@ public class DefaultTypeAdaptersTest extends TestCase {
       TimeZone.setDefault(defaultTimeZone);
       Locale.setDefault(defaultLocale);
     }
+  }
+
+  public void testJsonPrimitiveSerialization() {
+    assertEquals("5", gson.toJson(new JsonPrimitive(5), JsonElement.class));
+    assertEquals("true", gson.toJson(new JsonPrimitive(true), JsonElement.class));
+    assertEquals("\"foo\"", gson.toJson(new JsonPrimitive("foo"), JsonElement.class));
+    assertEquals("\"a\"", gson.toJson(new JsonPrimitive('a'), JsonElement.class));
+  }
+
+  public void testJsonPrimitiveDeserialization() {
+    assertEquals(new JsonPrimitive(5), gson.fromJson("5", JsonElement.class));
+    assertEquals(new JsonPrimitive(true), gson.fromJson("true", JsonElement.class));
+    assertEquals(new JsonPrimitive("foo"), gson.fromJson("\"foo\"", JsonElement.class));
+    assertEquals(new JsonPrimitive('a'), gson.fromJson("\"a\"", JsonElement.class));
+  }
+
+  public void testJsonNullSerialization() {
+    assertEquals("null", gson.toJson(JsonNull.INSTANCE, JsonElement.class));
+  }
+
+  public void testNullJsonElementSerialization() {
+    assertEquals("null", gson.toJson(null, JsonElement.class));
+  }
+
+  public void testJsonArraySerialization() {
+    JsonArray array = new JsonArray();
+    array.add(new JsonPrimitive(1));
+    array.add(new JsonPrimitive(2));
+    array.add(new JsonPrimitive(3));
+    assertEquals("[1,2,3]", gson.toJson(array, JsonElement.class));
+  }
+
+  public void testJsonArrayDeerialization() {
+    JsonArray array = new JsonArray();
+    array.add(new JsonPrimitive(1));
+    array.add(new JsonPrimitive(2));
+    array.add(new JsonPrimitive(3));
+    assertEquals(array, gson.fromJson("[1,2,3]", JsonElement.class));
+  }
+
+  public void testJsonObjectSerialization() {
+    JsonObject object = new JsonObject();
+    object.add("foo", new JsonPrimitive(1));
+    object.add("bar", new JsonPrimitive(2));
+    assertEquals("{\"foo\":1,\"bar\":2}", gson.toJson(object, JsonElement.class));
+  }
+
+  public void testJsonObjectDeerialization() {
+    JsonObject object = new JsonObject();
+    object.add("foo", new JsonPrimitive(1));
+    object.add("bar", new JsonPrimitive(2));
+    assertEquals(object, gson.fromJson("{\"foo\":1,\"bar\":2}", JsonElement.class));
+  }
+
+  public void testJsonNullDeerialization() {
+    assertEquals(JsonNull.INSTANCE, gson.fromJson("null", JsonElement.class));
+  }
+
+  public void testNullJsonElementDeserialization() {
+    assertEquals(JsonNull.INSTANCE, gson.fromJson("null", JsonElement.class));
   }
 
   private static class ClassWithBigDecimal {
