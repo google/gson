@@ -74,7 +74,7 @@ public final class StringToValueMapTypeAdapterFactory implements TypeAdapter.Fac
 
     public Map<String, V> read(JsonReader reader) throws IOException {
       if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull(); // TODO: does this belong here?
+        reader.nextNull();
         return null;
       }
 

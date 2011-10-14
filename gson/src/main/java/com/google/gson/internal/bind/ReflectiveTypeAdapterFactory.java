@@ -150,7 +150,7 @@ public class ReflectiveTypeAdapterFactory implements TypeAdapter.Factory {
     @Override
     public T read(JsonReader reader) throws IOException {
       if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull(); // TODO: does this belong here?
+        reader.nextNull();
         return null;
       }
 

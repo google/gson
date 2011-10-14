@@ -112,7 +112,7 @@ public final class TypeAdapters {
     @Override
     public Boolean read(JsonReader reader) throws IOException {
       if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull(); // TODO: does this belong here?
+        reader.nextNull();
         return null;
       }
       return reader.nextBoolean();
@@ -134,7 +134,7 @@ public final class TypeAdapters {
     @Override
     public Number read(JsonReader reader) throws IOException {
       if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull(); // TODO: does this belong here?
+        reader.nextNull();
         return null;
       }
       try {
@@ -157,7 +157,7 @@ public final class TypeAdapters {
     @Override
     public Number read(JsonReader reader) throws IOException {
       if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull(); // TODO: does this belong here?
+        reader.nextNull();
         return null;
       }
       try {
@@ -179,7 +179,7 @@ public final class TypeAdapters {
     @Override
     public Number read(JsonReader reader) throws IOException {
       if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull(); // TODO: does this belong here?
+        reader.nextNull();
         return null;
       }
       try {
@@ -201,7 +201,7 @@ public final class TypeAdapters {
     @Override
     public Number read(JsonReader reader) throws IOException {
       if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull(); // TODO: does this belong here?
+        reader.nextNull();
         return null;
       }
       try {
@@ -223,7 +223,7 @@ public final class TypeAdapters {
     @Override
     public Number read(JsonReader reader) throws IOException {
       if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull(); // TODO: does this belong here?
+        reader.nextNull();
         return null;
       }
       return (float) reader.nextDouble();
@@ -241,7 +241,7 @@ public final class TypeAdapters {
     @Override
     public Number read(JsonReader reader) throws IOException {
       if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull(); // TODO: does this belong here?
+        reader.nextNull();
         return null;
       }
       return reader.nextDouble();
@@ -261,7 +261,7 @@ public final class TypeAdapters {
       JsonToken jsonToken = reader.peek();
       switch (jsonToken) {
       case NULL:
-        reader.nextNull(); // TODO: does this belong here?
+        reader.nextNull();
         return null;
       case NUMBER:
         return new LazilyParsedNumber(reader.nextString());
@@ -281,7 +281,7 @@ public final class TypeAdapters {
     @Override
     public Character read(JsonReader reader) throws IOException {
       if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull(); // TODO: does this belong here?
+        reader.nextNull();
         return null;
       }
       return reader.nextString().charAt(0);
@@ -300,7 +300,7 @@ public final class TypeAdapters {
     public String read(JsonReader reader) throws IOException {
       JsonToken peek = reader.peek();
       if (peek == JsonToken.NULL) {
-        reader.nextNull(); // TODO: does this belong here?
+        reader.nextNull();
         return null;
       }
       /* coerce booleans to strings for backwards compatibility */
@@ -321,7 +321,7 @@ public final class TypeAdapters {
     @Override
     public StringBuilder read(JsonReader reader) throws IOException {
       if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull(); // TODO: does this belong here?
+        reader.nextNull();
         return null;
       }
       return new StringBuilder(reader.nextString());
@@ -339,7 +339,7 @@ public final class TypeAdapters {
     @Override
     public StringBuffer read(JsonReader reader) throws IOException {
       if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull(); // TODO: does this belong here?
+        reader.nextNull();
         return null;
       }
       return new StringBuffer(reader.nextString());
@@ -357,7 +357,7 @@ public final class TypeAdapters {
     @Override
     public URL read(JsonReader reader) throws IOException {
       if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull(); // TODO: does this belong here?
+        reader.nextNull();
         return null;
       }
       String nextString = reader.nextString();
@@ -375,7 +375,7 @@ public final class TypeAdapters {
     @Override
     public URI read(JsonReader reader) throws IOException {
       if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull(); // TODO: does this belong here?
+        reader.nextNull();
         return null;
       }
       try {
@@ -397,7 +397,7 @@ public final class TypeAdapters {
     @Override
     public InetAddress read(JsonReader reader) throws IOException {
       if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull(); // TODO: does this belong here?
+        reader.nextNull();
         return null;
       }
       return InetAddress.getByName(reader.nextString());
@@ -415,7 +415,7 @@ public final class TypeAdapters {
     @Override
     public UUID read(JsonReader reader) throws IOException {
       if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull(); // TODO: does this belong here?
+        reader.nextNull();
         return null;
       }
       return java.util.UUID.fromString(reader.nextString());
@@ -521,7 +521,7 @@ public final class TypeAdapters {
     @Override
     public Locale read(JsonReader reader) throws IOException {
       if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull(); // TODO: does this belong here?
+        reader.nextNull();
         return null;
       }
       String locale = reader.nextString();
