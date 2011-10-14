@@ -19,6 +19,7 @@ package com.google.gson.internal.bind;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -44,6 +45,10 @@ public final class SqlDateTypeAdapter extends TypeAdapter<java.sql.Date> {
 
   @Override
   public synchronized java.sql.Date read(JsonReader reader) throws IOException {
+    if (reader.peek() == JsonToken.NULL) {
+      reader.nextNull();
+      return null;
+    }
     try {
       final long utilDate = format.parse(reader.nextString()).getTime();
       return new java.sql.Date(utilDate);
@@ -54,6 +59,6 @@ public final class SqlDateTypeAdapter extends TypeAdapter<java.sql.Date> {
 
   @Override
   public synchronized void write(JsonWriter writer, java.sql.Date value) throws IOException {
-    writer.value(format.format(value));
+    writer.value(value == null ? null : format.format(value));
   }
 }

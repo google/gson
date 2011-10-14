@@ -29,11 +29,13 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URL;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Calendar;
@@ -117,6 +119,45 @@ public class DefaultTypeAdaptersTest extends TestCase {
     String json = '"' + uriValue + '"';
     URI target = gson.fromJson(json, URI.class);
     assertEquals(uriValue, target.toASCIIString());
+  }
+  
+  public void testNullSerialization() throws Exception {
+    testNullSerializationAndDeserialization(Boolean.class);
+    testNullSerializationAndDeserialization(Byte.class);
+    testNullSerializationAndDeserialization(Short.class);
+    testNullSerializationAndDeserialization(Integer.class);
+    testNullSerializationAndDeserialization(Long.class);
+    testNullSerializationAndDeserialization(Double.class);
+    testNullSerializationAndDeserialization(Float.class);
+    testNullSerializationAndDeserialization(Number.class);
+    testNullSerializationAndDeserialization(Character.class);
+    testNullSerializationAndDeserialization(String.class);
+    testNullSerializationAndDeserialization(StringBuilder.class);
+    testNullSerializationAndDeserialization(StringBuffer.class);
+    testNullSerializationAndDeserialization(BigDecimal.class);
+    testNullSerializationAndDeserialization(BigInteger.class);
+    testNullSerializationAndDeserialization(TreeSet.class);
+    testNullSerializationAndDeserialization(ArrayList.class);
+    testNullSerializationAndDeserialization(HashSet.class);
+    testNullSerializationAndDeserialization(Properties.class);
+    testNullSerializationAndDeserialization(URL.class);
+    testNullSerializationAndDeserialization(URI.class);
+    testNullSerializationAndDeserialization(UUID.class);
+    testNullSerializationAndDeserialization(Locale.class);
+    testNullSerializationAndDeserialization(InetAddress.class);
+    testNullSerializationAndDeserialization(BitSet.class);
+    testNullSerializationAndDeserialization(Date.class);
+    testNullSerializationAndDeserialization(GregorianCalendar.class);
+    testNullSerializationAndDeserialization(Calendar.class);
+    testNullSerializationAndDeserialization(Time.class);
+    testNullSerializationAndDeserialization(Timestamp.class);
+    testNullSerializationAndDeserialization(java.sql.Date.class);
+    testNullSerializationAndDeserialization(Enum.class);
+  }
+
+  private void testNullSerializationAndDeserialization(Class<?> c) {
+    assertEquals("null", gson.toJson(null, c));
+    assertEquals(null, gson.fromJson("null", c));
   }
 
   public void testUuidSerialization() throws Exception {
