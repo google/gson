@@ -61,7 +61,7 @@ public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
 
   public Object read(JsonReader reader) throws IOException {
     if (reader.peek() == JsonToken.NULL) {
-      reader.nextNull(); // TODO: does this belong here?
+      reader.nextNull();
       return null;
     }
 

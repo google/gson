@@ -68,7 +68,7 @@ public final class CollectionTypeAdapterFactory implements TypeAdapter.Factory {
 
     public Collection<E> read(JsonReader reader) throws IOException {
       if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull(); // TODO: does this belong here?
+        reader.nextNull();
         return null;
       }
 

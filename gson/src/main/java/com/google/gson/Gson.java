@@ -282,7 +282,7 @@ public final class Gson {
     return new TypeAdapter<Number>() {
       @Override public Double read(JsonReader reader) throws IOException {
         if (reader.peek() == JsonToken.NULL) {
-          reader.nextNull(); // TODO: does this belong here?
+          reader.nextNull();
           return null;
         }
         return reader.nextDouble();
@@ -306,7 +306,7 @@ public final class Gson {
     return new TypeAdapter<Number>() {
       @Override public Float read(JsonReader reader) throws IOException {
         if (reader.peek() == JsonToken.NULL) {
-          reader.nextNull(); // TODO: does this belong here?
+          reader.nextNull();
           return null;
         }
         return (float) reader.nextDouble();
@@ -338,7 +338,7 @@ public final class Gson {
     return new TypeAdapter<Number>() {
       @Override public Number read(JsonReader reader) throws IOException {
         if (reader.peek() == JsonToken.NULL) {
-          reader.nextNull(); // TODO: does this belong here?
+          reader.nextNull();
           return null;
         }
         return reader.nextLong();
