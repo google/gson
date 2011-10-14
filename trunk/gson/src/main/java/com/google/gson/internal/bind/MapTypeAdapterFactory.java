@@ -147,7 +147,7 @@ public final class MapTypeAdapterFactory implements TypeAdapter.Factory {
     public Map<K, V> read(JsonReader reader) throws IOException {
       JsonToken peek = reader.peek();
       if (peek == JsonToken.NULL) {
-        reader.nextNull(); // TODO: does this belong here?
+        reader.nextNull();
         return null;
       }
 
