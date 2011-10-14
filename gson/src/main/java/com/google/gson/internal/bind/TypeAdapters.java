@@ -51,6 +51,11 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<BitSet> BIT_SET = new TypeAdapter<BitSet>() {
     public BitSet read(JsonReader reader) throws IOException {
+      if (reader.peek() == JsonToken.NULL) {
+        reader.nextNull();
+        return null;
+      }
+
       BitSet bitset = new BitSet();
       reader.beginArray();
       int i = 0;
@@ -87,6 +92,11 @@ public final class TypeAdapters {
     }
 
     public void write(JsonWriter writer, BitSet src) throws IOException {
+      if (src == null) {
+        writer.nullValue();
+        return;
+      }
+
       writer.beginArray();
       for (int i = 0; i < src.length(); i++) {
         int value = (src.get(i)) ? 1 : 0;
@@ -109,6 +119,10 @@ public final class TypeAdapters {
     }
     @Override
     public void write(JsonWriter writer, Boolean value) throws IOException {
+      if (value == null) {
+        writer.nullValue();
+        return;
+      }
       writer.value(value);
     }
   };
@@ -274,7 +288,7 @@ public final class TypeAdapters {
     }
     @Override
     public void write(JsonWriter writer, Character value) throws IOException {
-      writer.value(String.valueOf(value));
+      writer.value(value == null ? null : String.valueOf(value));
     }
   };
 
@@ -314,7 +328,7 @@ public final class TypeAdapters {
     }
     @Override
     public void write(JsonWriter writer, StringBuilder value) throws IOException {
-      writer.value(value.toString());
+      writer.value(value == null ? null : value.toString());
     }
   };
 
@@ -332,7 +346,7 @@ public final class TypeAdapters {
     }
     @Override
     public void write(JsonWriter writer, StringBuffer value) throws IOException {
-      writer.value(value.toString());
+      writer.value(value == null ? null : value.toString());
     }
   };
 
@@ -390,7 +404,7 @@ public final class TypeAdapters {
     }
     @Override
     public void write(JsonWriter writer, InetAddress value) throws IOException {
-      writer.value(value.getHostAddress());
+      writer.value(value == null ? null : value.getHostAddress());
     }
   };
 
@@ -408,7 +422,7 @@ public final class TypeAdapters {
     }
     @Override
     public void write(JsonWriter writer, UUID value) throws IOException {
-      writer.value(value.toString());
+      writer.value(value == null ? null : value.toString());
     }
   };
 
@@ -425,7 +439,7 @@ public final class TypeAdapters {
       return (TypeAdapter<T>) new TypeAdapter<Timestamp>() {
         @Override public Timestamp read(JsonReader reader) throws IOException {
           Date date = dateTypeAdapter.read(reader);
-          return new Timestamp(date.getTime());
+          return date != null ? new Timestamp(date.getTime()) : null;
         }
 
         @Override public void write(JsonWriter writer, Timestamp value) throws IOException {
@@ -445,6 +459,10 @@ public final class TypeAdapters {
 
     @Override
     public Calendar read(JsonReader reader) throws IOException {
+      if (reader.peek() == JsonToken.NULL) {
+        reader.nextNull();
+        return  null;
+      }
       reader.beginObject();
       int year = 0;
       int month = 0;
@@ -475,6 +493,10 @@ public final class TypeAdapters {
 
     @Override
     public void write(JsonWriter writer, Calendar value) throws IOException {
+      if (value == null) {
+        writer.nullValue();
+        return;
+      }
       writer.beginObject();
       writer.name(YEAR);
       writer.value(value.get(Calendar.YEAR));
@@ -526,7 +548,7 @@ public final class TypeAdapters {
     }
     @Override
     public void write(JsonWriter writer, Locale value) throws IOException {
-      writer.value(value.toString());
+      writer.value(value == null ? null : value.toString());
     }
   };
 
@@ -614,11 +636,15 @@ public final class TypeAdapters {
       this.classOfT = classOfT;
     }
     public T read(JsonReader reader) throws IOException {
+      if (reader.peek() == JsonToken.NULL) {
+        reader.nextNull();
+        return null;
+      }
       return (T) Enum.valueOf((Class<T>) classOfT, reader.nextString());
     }
 
-    public void write(JsonWriter writer, T src) throws IOException {
-      writer.value(src.name());
+    public void write(JsonWriter writer, T value) throws IOException {
+      writer.value(value == null ? null : value.name());
     }
   };
 
