@@ -179,7 +179,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapter.Factory {
     return registerSubtype(type, type.getSimpleName());
   }
 
-  @Override public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> type) {
+  public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> type) {
     if (type.getRawType() != baseType) {
       return null;
     }
@@ -231,7 +231,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapter.Factory {
         for (Map.Entry<String, JsonElement> e : jsonObject.entrySet()) {
           clone.add(e.getKey(), e.getValue());
         }
-        Streams.write(clone, true, writer);
+        Streams.write(clone, writer);
       }
     };
   }
