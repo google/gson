@@ -447,7 +447,7 @@ public class MapTest extends TestCase {
   }
 
   public void testComplexKeysDeserialization() {
-    String json = "{\"2,3\":\"a\",\"5,7\":\"b\"}";
+    String json = "{'2,3':'a','5,7':'b'}";
     try {
       gson.fromJson(json, new TypeToken<Map<Point, String>>() {}.getType());
       fail();
@@ -456,7 +456,7 @@ public class MapTest extends TestCase {
   }
 
   public void testStringKeyDeserialization() {
-    String json = "{\"2,3\":\"a\",\"5,7\":\"b\"}";
+    String json = "{'2,3':'a','5,7':'b'}";
     Map<String, String> map = new LinkedHashMap<String, String>();
     map.put("2,3", "a");
     map.put("5,7", "b");
@@ -464,7 +464,7 @@ public class MapTest extends TestCase {
   }
 
   public void testNumberKeyDeserialization() {
-    String json = "{\"2.3\":\"a\",\"5.7\":\"b\"}";
+    String json = "{'2.3':'a','5.7':'b'}";
     Map<Double, String> map = new LinkedHashMap<Double, String>();
     map.put(2.3, "a");
     map.put(5.7, "b");
@@ -472,7 +472,7 @@ public class MapTest extends TestCase {
   }
 
   public void testBooleanKeyDeserialization() {
-    String json = "{\"true\":\"a\",\"false\":\"b\"}";
+    String json = "{'true':'a','false':'b'}";
     Map<Boolean, String> map = new LinkedHashMap<Boolean, String>();
     map.put(true, "a");
     map.put(false, "b");
