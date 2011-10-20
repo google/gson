@@ -16,12 +16,6 @@
 
 package com.google.gson.internal.bind;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
@@ -33,6 +27,11 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Adapts maps to either JSON objects or JSON arrays.
@@ -119,7 +118,7 @@ public final class MapTypeAdapterFactory implements TypeAdapter.Factory {
 
     Class<?> rawTypeOfSrc = $Gson$Types.getRawType(type);
     Type[] keyAndValueTypes = $Gson$Types.getMapKeyAndValueTypes(type, rawTypeOfSrc);
-    TypeAdapter<?> keyAdapter = context.getAdapter(TypeToken.get(keyAndValueTypes[0]));
+    TypeAdapter<?> keyAdapter = getKeyAdapter(context, keyAndValueTypes[0]);
     TypeAdapter<?> valueAdapter = context.getAdapter(TypeToken.get(keyAndValueTypes[1]));
     ObjectConstructor<T> constructor = constructorConstructor.getConstructor(typeToken);
 
@@ -127,6 +126,15 @@ public final class MapTypeAdapterFactory implements TypeAdapter.Factory {
     TypeAdapter<T> result = new Adapter(context, keyAndValueTypes[0], keyAdapter,
         keyAndValueTypes[1], valueAdapter, constructor);
     return result;
+  }
+
+  /**
+   * Returns a type adapter that writes the value as a string.
+   */
+  private TypeAdapter<?> getKeyAdapter(MiniGson context, Type keyType) {
+    return (keyType == boolean.class || keyType == Boolean.class)
+        ? TypeAdapters.BOOLEAN_AS_STRING
+        : context.getAdapter(TypeToken.get(keyType));
   }
 
   private final class Adapter<K, V> extends TypeAdapter<Map<K, V>> {
@@ -188,6 +196,16 @@ public final class MapTypeAdapterFactory implements TypeAdapter.Factory {
         return;
       }
 
+      if (!complexMapKeySerialization) {
+        writer.beginObject();
+        for (Map.Entry<K, V> entry : map.entrySet()) {
+          writer.name(String.valueOf(entry.getKey()));
+          valueTypeAdapter.write(writer, entry.getValue());
+        }
+        writer.endObject();
+        return;
+      }
+
       boolean hasComplexKeys = false;
       List<JsonElement> keys = new ArrayList<JsonElement>(map.size());
 
@@ -199,7 +217,7 @@ public final class MapTypeAdapterFactory implements TypeAdapter.Factory {
         hasComplexKeys |= keyElement.isJsonArray() || keyElement.isJsonObject();
       }
 
-      if (complexMapKeySerialization && hasComplexKeys) {
+      if (hasComplexKeys) {
         writer.beginArray();
         for (int i = 0; i < keys.size(); i++) {
           writer.beginArray(); // entry array
