@@ -127,6 +127,24 @@ public final class TypeAdapters {
     }
   };
 
+  /**
+   * Writes a boolean as a string. Useful for map keys, where booleans aren't
+   * otherwise permitted.
+   */
+  public static final TypeAdapter<Boolean> BOOLEAN_AS_STRING = new TypeAdapter<Boolean>() {
+    @Override public Boolean read(JsonReader reader) throws IOException {
+      if (reader.peek() == JsonToken.NULL) {
+        reader.nextNull();
+        return null;
+      }
+      return Boolean.valueOf(reader.nextString());
+    }
+
+    @Override public void write(JsonWriter writer, Boolean value) throws IOException {
+      writer.value(value == null ? "null" : value.toString());
+    }
+  };
+
   public static final TypeAdapter.Factory BOOLEAN_FACTORY
       = newFactory(boolean.class, Boolean.class, BOOLEAN);
 
