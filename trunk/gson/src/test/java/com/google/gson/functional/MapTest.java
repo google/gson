@@ -21,21 +21,20 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.common.TestTypes;
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.reflect.TypeToken;
-
-import junit.framework.TestCase;
-
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
+import junit.framework.TestCase;
 
 /**
  * Functional test for Json serialization and deserialization for Maps
@@ -436,6 +435,70 @@ public class MapTest extends TestCase {
         .enableComplexMapKeySerialization()
         .create();
     assertEquals(expected, gson.toJson(map));
+  }
+
+  public void testComplexKeysSerialization() {
+    Map<Point, String> map = new LinkedHashMap<Point, String>();
+    map.put(new Point(2, 3), "a");
+    map.put(new Point(5, 7), "b");
+    String json = "{\"2,3\":\"a\",\"5,7\":\"b\"}";
+    assertEquals(json, gson.toJson(map, new TypeToken<Map<Point, String>>() {}.getType()));
+    assertEquals(json, gson.toJson(map, Map.class));
+  }
+
+  public void testComplexKeysDeserialization() {
+    String json = "{\"2,3\":\"a\",\"5,7\":\"b\"}";
+    try {
+      gson.fromJson(json, new TypeToken<Map<Point, String>>() {}.getType());
+      fail();
+    } catch (JsonParseException expected) {
+    }
+  }
+
+  public void testStringKeyDeserialization() {
+    String json = "{\"2,3\":\"a\",\"5,7\":\"b\"}";
+    Map<String, String> map = new LinkedHashMap<String, String>();
+    map.put("2,3", "a");
+    map.put("5,7", "b");
+    assertEquals(map, gson.fromJson(json, new TypeToken<Map<String, String>>() {}.getType()));
+  }
+
+  public void testNumberKeyDeserialization() {
+    String json = "{\"2.3\":\"a\",\"5.7\":\"b\"}";
+    Map<Double, String> map = new LinkedHashMap<Double, String>();
+    map.put(2.3, "a");
+    map.put(5.7, "b");
+    assertEquals(map, gson.fromJson(json, new TypeToken<Map<Double, String>>() {}.getType()));
+  }
+
+  public void testBooleanKeyDeserialization() {
+    String json = "{\"true\":\"a\",\"false\":\"b\"}";
+    Map<Boolean, String> map = new LinkedHashMap<Boolean, String>();
+    map.put(true, "a");
+    map.put(false, "b");
+    assertEquals(map, gson.fromJson(json, new TypeToken<Map<Boolean, String>>() {}.getType()));
+  }
+
+  static class Point {
+    private final int x;
+    private final int y;
+
+    Point(int x, int y) {
+      this.x = x;
+      this.y = y;
+    }
+
+    @Override public boolean equals(Object o) {
+      return o instanceof Point && x == ((Point) o).x && y == ((Point) o).y;
+    }
+
+    @Override public int hashCode() {
+      return x * 37 + y;
+    }
+
+    @Override public String toString() {
+      return x + "," + y;
+    }
   }
 
   static final class MapClass {
