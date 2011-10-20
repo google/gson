@@ -49,7 +49,7 @@ public final class CollectionTypeAdapterFactory implements TypeAdapter.Factory {
     TypeAdapter<?> elementTypeAdapter = context.getAdapter(TypeToken.get(elementType));
     ObjectConstructor<T> constructor = constructorConstructor.getConstructor(typeToken);
 
-    @SuppressWarnings("unchecked") // create() doesn't define a type parameter
+    @SuppressWarnings({"unchecked", "rawtypes"}) // create() doesn't define a type parameter
     TypeAdapter<T> result = new Adapter(context, elementType, elementTypeAdapter, constructor);
     return result;
   }

@@ -670,7 +670,7 @@ public final class TypeAdapters {
 
   public static <TT> TypeAdapter.Factory newEnumTypeHierarchyFactory(final Class<TT> clazz) {
     return new TypeAdapter.Factory() {
-      @SuppressWarnings("unchecked")
+      @SuppressWarnings({"rawtypes", "unchecked"})
       public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> typeToken) {
         Class<? super T> rawType = typeToken.getRawType();
         return clazz.isAssignableFrom(rawType)

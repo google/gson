@@ -57,7 +57,8 @@ public final class StringToValueMapTypeAdapterFactory implements TypeAdapter.Fac
 
     ObjectConstructor<?> constructor = constructorConstructor.getConstructor(typeToken);
 
-    @SuppressWarnings("unchecked") // we don't define a type parameter for the key or value types
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    // we don't define a type parameter for the key or value types
     TypeAdapter<T> result = new Adapter(valueAdapter, constructor);
     return result;
   }

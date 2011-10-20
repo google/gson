@@ -200,7 +200,7 @@ public class CollectionTest extends TestCase {
     assertEquals("[1,2,3,4,5,6,7,8,9]", gson.toJson(target));
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
   public void testRawCollectionSerialization() {
     BagOfPrimitives bag1 = new BagOfPrimitives();
     Collection target = Arrays.asList(bag1, bag1);
@@ -208,7 +208,7 @@ public class CollectionTest extends TestCase {
     assertTrue(json.contains(bag1.getExpectedJson()));
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
   public void testRawCollectionDeserializationNotAlllowed() {
     String json = "[0,1,2,3,4,5,6,7,8,9]";
     Collection integers = gson.fromJson(json, Collection.class);
@@ -221,7 +221,7 @@ public class CollectionTest extends TestCase {
     assertTrue(strings.contains("World"));
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public void testRawCollectionOfBagOfPrimitivesNotAllowed() {
     BagOfPrimitives bag = new BagOfPrimitives(10, 20, false, "stringValue");
     String json = '[' + bag.getExpectedJson() + ',' + bag.getExpectedJson() + ']';
@@ -288,7 +288,7 @@ public class CollectionTest extends TestCase {
     ArrayList<Long> longs = new ArrayList<Long>();
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
   private static int[] toIntArray(Collection collection) {
     int[] ints = new int[collection.size()];
     int i = 0;

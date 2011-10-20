@@ -122,7 +122,8 @@ public final class MapTypeAdapterFactory implements TypeAdapter.Factory {
     TypeAdapter<?> valueAdapter = context.getAdapter(TypeToken.get(keyAndValueTypes[1]));
     ObjectConstructor<T> constructor = constructorConstructor.getConstructor(typeToken);
 
-    @SuppressWarnings("unchecked") // we don't define a type parameter for the key or value types
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    // we don't define a type parameter for the key or value types
     TypeAdapter<T> result = new Adapter(context, keyAndValueTypes[0], keyAdapter,
         keyAndValueTypes[1], valueAdapter, constructor);
     return result;
