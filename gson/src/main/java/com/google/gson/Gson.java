@@ -228,10 +228,11 @@ public final class Gson {
 
     MiniGson.Builder builder = new MiniGson.Builder()
         .withoutDefaultFactories()
+        .factory(TypeAdapters.STRING_FACTORY)
+        .factory(TypeAdapters.INTEGER_FACTORY)
         .factory(TypeAdapters.BOOLEAN_FACTORY)
         .factory(TypeAdapters.BYTE_FACTORY)
         .factory(TypeAdapters.SHORT_FACTORY)
-        .factory(TypeAdapters.INTEGER_FACTORY)
         .factory(TypeAdapters.newFactory(long.class, Long.class,
             longAdapter(longSerializationPolicy)))
         .factory(TypeAdapters.newFactory(double.class, Double.class,
@@ -242,7 +243,6 @@ public final class Gson {
             serializationExclusionStrategy, deserializationExclusionStrategy))
         .factory(TypeAdapters.NUMBER_FACTORY)
         .factory(TypeAdapters.CHARACTER_FACTORY)
-        .factory(TypeAdapters.STRING_FACTORY)
         .factory(TypeAdapters.STRING_BUILDER_FACTORY)
         .factory(TypeAdapters.STRING_BUFFER_FACTORY)
         .typeAdapter(BigDecimal.class, new BigDecimalTypeAdapter())
