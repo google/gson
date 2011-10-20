@@ -79,6 +79,7 @@ public class ParamterizedTypeFixtures {
     public int hashCode() {
       return value == null ? 0 : value.hashCode();
     }
+
     @SuppressWarnings("unchecked")
     @Override
     public boolean equals(Object obj) {
@@ -91,7 +92,7 @@ public class ParamterizedTypeFixtures {
       if (getClass() != obj.getClass()) {
         return false;
       }
-      MyParameterizedType other = (MyParameterizedType) obj;
+      MyParameterizedType<T> other = (MyParameterizedType<T>) obj;
       if (value == null) {
         if (other.value != null) {
           return false;

@@ -79,7 +79,6 @@ public class TypeToken<T> {
    * Returns the type from super class's type parameter in {@link $Gson$Types#canonicalize
    * canonical form}.
    */
-  @SuppressWarnings("unchecked")
   static Type getSuperclassTypeParameter(Class<?> subclass) {
     Type superclass = subclass.getGenericSuperclass();
     if (superclass instanceof Class) {
@@ -271,7 +270,6 @@ public class TypeToken<T> {
    * Checks if two types are the same or are equivalent under a variable mapping
    * given in the type map that was provided.
    */
-  @SuppressWarnings("unchecked")
   private static boolean matches(Type from, Type to, Map<String, Type> typeMap) {
     return to.equals(from)
         || (from instanceof TypeVariable

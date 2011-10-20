@@ -73,7 +73,7 @@ public class ReflectiveTypeAdapterFactory implements TypeAdapter.Factory {
     // special casing primitives here saves ~5% on Android...
     return new ReflectiveTypeAdapterFactory.BoundField(name, serialize, deserialize) {
       final TypeAdapter<?> typeAdapter = context.getAdapter(fieldType);
-      @SuppressWarnings("unchecked") // the type adapter and field type always agree
+      @SuppressWarnings({"unchecked", "rawtypes"}) // the type adapter and field type always agree
       @Override void write(JsonWriter writer, Object value)
           throws IOException, IllegalAccessException {
         Object fieldValue = field.get(value);

@@ -69,7 +69,7 @@ public class MapTest extends TestCase {
     assertEquals(2, target.get("b").intValue());
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes"})
   public void testRawMapSerialization() {
     Map map = new LinkedHashMap();
     map.put("a", 1);
@@ -514,8 +514,8 @@ public class MapTest extends TestCase {
     }
   }
 
-  @SuppressWarnings("unchecked")
   static final class MapWithGeneralMapParameters {
+    @SuppressWarnings({"rawtypes", "unchecked"})
     final Map<String, Object> map = new LinkedHashMap();
   }
 }
