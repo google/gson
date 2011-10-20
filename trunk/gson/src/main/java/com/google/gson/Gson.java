@@ -99,7 +99,7 @@ import java.util.Map;
  * @author Joel Leitch
  */
 public final class Gson {
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
   static final ParameterizedTypeHandlerMap EMPTY_MAP =
     new ParameterizedTypeHandlerMap().makeUnmodifiable();
 
@@ -397,7 +397,7 @@ public final class Gson {
    * @return Json representation of {@code src}
    * @since 1.4
    */
-  @SuppressWarnings("unchecked") // the caller is required to make src and typeOfSrc consistent
+  @SuppressWarnings({"unchecked", "rawtypes"}) // the caller is required to make src and typeOfSrc consistent
   public JsonElement toJsonTree(Object src, Type typeOfSrc) {
     // Serialize 'src' to JSON, then deserialize that to a JSON tree.
     TypeAdapter adapter = miniGson.getAdapter(TypeToken.get(typeOfSrc));

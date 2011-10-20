@@ -81,7 +81,6 @@ public final class JsonElementReader extends JsonReader {
     return token != JsonToken.END_OBJECT && token != JsonToken.END_ARRAY;
   }
 
-  @SuppressWarnings("unchecked")
   @Override public JsonToken peek() throws IOException {
     if (stack.isEmpty()) {
       return JsonToken.END_DOCUMENT;
@@ -139,10 +138,9 @@ public final class JsonElementReader extends JsonReader {
     }
   }
 
-  @SuppressWarnings("unchecked")
   @Override public String nextName() throws IOException {
     expect(JsonToken.NAME);
-    Iterator<?> i = (Iterator) peekStack();
+    Iterator<?> i = (Iterator<?>) peekStack();
     Map.Entry<?, ?> entry = (Map.Entry<?, ?>) i.next();
     stack.add(entry.getValue());
     return (String) entry.getKey();
