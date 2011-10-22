@@ -17,6 +17,11 @@
 package com.google.gson.functional;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 import com.google.gson.common.MoreAsserts;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.reflect.TypeToken;
@@ -282,6 +287,20 @@ public class CollectionTest extends TestCase {
     assertEquals("{\"longs\":[1,3]}", json);
     HasArrayListField copy = gson.fromJson("{\"longs\":[1,3]}", HasArrayListField.class);
     assertEquals(Arrays.asList(1L, 3L), copy.longs);
+  }
+  
+  public void testUserCollectionTypeAdapter() {
+    Type listOfString = new TypeToken<List<String>>() {}.getType();
+    Object stringListSerializer = new JsonSerializer<List<String>>() {
+      public JsonElement serialize(List<String> src, Type typeOfSrc,
+          JsonSerializationContext context) {
+        return new JsonPrimitive(src.get(0) + ";" + src.get(1));
+      }
+    };
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapter(listOfString, stringListSerializer)
+        .create();
+    assertEquals("\"ab;cd\"", gson.toJson(Arrays.asList("ab", "cd"), listOfString));
   }
 
   static class HasArrayListField {
