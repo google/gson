@@ -696,6 +696,9 @@ public final class TypeAdapters {
       public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> typeToken) {
         return typeToken.getRawType() == type ? (TypeAdapter<T>) typeAdapter : null;
       }
+      @Override public String toString() {
+        return "Factory[type=" + type.getName() + ",adapter=" + typeAdapter + "]";
+      }
     };
   }
 
@@ -706,6 +709,10 @@ public final class TypeAdapters {
       public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> typeToken) {
         Class<? super T> rawType = typeToken.getRawType();
         return (rawType == unboxed || rawType == boxed) ? (TypeAdapter<T>) typeAdapter : null;
+      }
+      @Override public String toString() {
+        return "Factory[type=" + boxed.getName()
+            + "+" + unboxed.getName() + ",adapter=" + typeAdapter + "]";
       }
     };
   }
@@ -718,6 +725,10 @@ public final class TypeAdapters {
         Class<? super T> rawType = typeToken.getRawType();
         return (rawType == base || rawType == sub) ? (TypeAdapter<T>) typeAdapter : null;
       }
+      @Override public String toString() {
+        return "Factory[type=" + base.getName()
+            + "+" + sub.getName() + ",adapter=" + typeAdapter + "]";
+      }
     };
   }
 
@@ -727,6 +738,9 @@ public final class TypeAdapters {
       @SuppressWarnings("unchecked")
       public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> typeToken) {
         return clazz.isAssignableFrom(typeToken.getRawType()) ? (TypeAdapter<T>) typeAdapter : null;
+      }
+      @Override public String toString() {
+        return "Factory[typeHierarchy=" + clazz.getName() + ",adapter=" + typeAdapter + "]";
       }
     };
   }
