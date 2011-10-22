@@ -247,7 +247,6 @@ public final class Gson {
         .factory(TypeAdapters.STRING_BUFFER_FACTORY)
         .typeAdapter(BigDecimal.class, new BigDecimalTypeAdapter())
         .typeAdapter(BigInteger.class, new BigIntegerTypeAdapter())
-        .factory(new CollectionTypeAdapterFactory(constructorConstructor))
         .factory(TypeAdapters.JSON_ELEMENT_FACTORY)
         .factory(ObjectTypeAdapter.FACTORY);
 
@@ -255,7 +254,9 @@ public final class Gson {
       builder.factory(factory);
     }
 
-    builder.factory(new GsonToMiniGsonTypeAdapterFactory(this, serializers, deserializers))
+    builder
+        .factory(new GsonToMiniGsonTypeAdapterFactory(this, serializers, deserializers))
+        .factory(new CollectionTypeAdapterFactory(constructorConstructor))
         .factory(TypeAdapters.URL_FACTORY)
         .factory(TypeAdapters.URI_FACTORY)
         .factory(TypeAdapters.UUID_FACTORY)
