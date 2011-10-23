@@ -38,10 +38,10 @@ public class JsonPrimitiveTest extends TestCase {
 
     // Extra support for booleans
     json = new JsonPrimitive(1);
-    assertTrue(json.getAsBoolean());
+    assertFalse(json.getAsBoolean());
 
     json = new JsonPrimitive("1");
-    assertTrue(json.getAsBoolean());
+    assertFalse(json.getAsBoolean());
 
     json = new JsonPrimitive("true");
     assertTrue(json.getAsBoolean());

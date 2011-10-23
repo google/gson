@@ -21,10 +21,13 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.LongSerializationPolicy;
+import com.google.gson.reflect.TypeToken;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.List;
 import junit.framework.TestCase;
 
 /**
@@ -791,5 +794,11 @@ public class PrimitiveTest extends TestCase {
     BigDecimal actual =
       gson.fromJson("12121211243123245845384534687435634558945453489543985435", BigDecimal.class);
     assertEquals("12121211243123245845384534687435634558945453489543985435", actual.toPlainString());
+  }
+
+  public void testStringsAsBooleans() {
+    String json = "['true', 'false', 'TRUE', 'yes', '1']";
+    assertEquals(Arrays.asList(true, false, true, false, false),
+        gson.<List<Boolean>>fromJson(json, new TypeToken<List<Boolean>>() {}.getType()));
   }
 }
