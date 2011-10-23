@@ -27,6 +27,7 @@ import com.google.gson.internal.bind.CollectionTypeAdapterFactory;
 import com.google.gson.internal.bind.DateTypeAdapter;
 import com.google.gson.internal.bind.ExcludedTypeAdapterFactory;
 import com.google.gson.internal.bind.JsonElementReader;
+import com.google.gson.internal.bind.JsonElementWriter;
 import com.google.gson.internal.bind.MapTypeAdapterFactory;
 import com.google.gson.internal.bind.MiniGson;
 import com.google.gson.internal.bind.ObjectTypeAdapter;
@@ -400,9 +401,9 @@ public final class Gson {
    */
   @SuppressWarnings({"unchecked", "rawtypes"}) // the caller is required to make src and typeOfSrc consistent
   public JsonElement toJsonTree(Object src, Type typeOfSrc) {
-    // Serialize 'src' to JSON, then deserialize that to a JSON tree.
-    TypeAdapter adapter = miniGson.getAdapter(TypeToken.get(typeOfSrc));
-    return adapter.toJsonElement(src);
+    JsonElementWriter writer = new JsonElementWriter();
+    toJson(src, typeOfSrc, writer);
+    return writer.get();
   }
 
   /**
