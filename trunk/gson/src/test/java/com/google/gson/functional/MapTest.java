@@ -25,6 +25,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.common.TestTypes;
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.reflect.TypeToken;
@@ -424,8 +425,8 @@ public class MapTest extends TestCase {
   public void testGeneralMapField() throws Exception {
     MapWithGeneralMapParameters map = new MapWithGeneralMapParameters();
     map.map.put("string", "testString");
-    map.map.put("stringArray", new String[] { "one", "two" });
-    map.map.put("objectArray", new Object[] { 1, 2L, "three" });
+    map.map.put("stringArray", new String[]{"one", "two"});
+    map.map.put("objectArray", new Object[]{1, 2L, "three"});
 
     String expected = "{\"map\":{\"string\":\"testString\",\"stringArray\":"
         + "[\"one\",\"two\"],\"objectArray\":[1,2,\"three\"]}}";
@@ -477,6 +478,14 @@ public class MapTest extends TestCase {
     map.put(true, "a");
     map.put(false, "b");
     assertEquals(map, gson.fromJson(json, new TypeToken<Map<Boolean, String>>() {}.getType()));
+  }
+
+  public void testMapDeserializationWithDuplicateKeys() {
+    try {
+      gson.fromJson("{'a':1,'a':2}", new TypeToken<Map<String, Integer>>() {}.getType());
+      fail();
+    } catch (JsonSyntaxException expected) {
+    }
   }
 
   static class Point {
