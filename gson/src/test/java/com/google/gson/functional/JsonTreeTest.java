@@ -1,16 +1,14 @@
 package com.google.gson.functional;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
-
-import junit.framework.TestCase;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import junit.framework.TestCase;
 
 /**
  * Functional tests for {@link Gson#toJsonTree(Object)} and 
@@ -60,6 +58,12 @@ public class JsonTreeTest extends TestCase {
     JsonElement jsonElement = gson.toJsonTree(bag, SubTypeOfBagOfPrimitives.class);
     String json2 = gson.toJson(jsonElement);
     assertEquals(json1, json2);
+  }
+
+  public void testJsonTreeNull() {
+    BagOfPrimitives bag = new BagOfPrimitives(10L, 5, false, null);
+    JsonObject jsonElement = (JsonObject) gson.toJsonTree(bag, BagOfPrimitives.class);
+    assertFalse(jsonElement.has("stringValue"));
   }
 
   private void assertContains(JsonObject json, JsonPrimitive child) {
