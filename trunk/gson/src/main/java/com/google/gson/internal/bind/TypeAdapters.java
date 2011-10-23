@@ -114,6 +114,9 @@ public final class TypeAdapters {
       if (reader.peek() == JsonToken.NULL) {
         reader.nextNull();
         return null;
+      } else if (reader.peek() == JsonToken.STRING) {
+        // support strings for compatibility with GSON 1.7
+        return Boolean.parseBoolean(reader.nextString());
       }
       return reader.nextBoolean();
     }
