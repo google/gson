@@ -67,3 +67,14 @@ GSON 2.x writes "null" if the only element is skipped
 com.google.gson.functional.ObjectTest.testAnonymousLocalClassesSerialization
 com.google.gson.functional.FieldExclusionTest.testInnerClassExclusion
 com.google.gson.functional.VersioningTest.testIgnoreLaterVersionClassSerialization
+
+
+GSON 1.x permits duplicate map keys.
+GSON 2.x rejects duplicate map keys.
+com.google.gson.functional.MapTest.testMapDeserializationWithDuplicateKeys
+
+
+GSON 1.x doesn't serialize subclass fields in collections
+GSON 2.x does serialize subclass fields in collections
+com.google.gson.functional.InheritanceTest.testClassWithBaseCollectionFieldSerialization
+com.google.gson.functional.MoreSpecificTypeSerializationTest.testListOfSubclassFields
