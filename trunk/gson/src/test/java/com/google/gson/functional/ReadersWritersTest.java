@@ -18,8 +18,11 @@ package com.google.gson.functional;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonStreamParser;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 
+import com.google.gson.reflect.TypeToken;
+import java.util.Map;
 import junit.framework.TestCase;
 
 import java.io.CharArrayReader;
@@ -112,5 +115,21 @@ public class ReadersWritersTest extends TestCase {
     BagOfPrimitives actualTwo = gson.fromJson(parser.next(), BagOfPrimitives.class);
     assertEquals("two", actualTwo.stringValue);
     assertFalse(parser.hasNext());
+  }
+
+  public void testTypeMismatchThrowsJsonSyntaxExceptionForStrings() {
+    try {
+      gson.fromJson("true", new TypeToken<Map<String, String>>() {}.getType());
+      fail();
+    } catch (JsonSyntaxException expected) {
+    }
+  }
+
+  public void testTypeMismatchThrowsJsonSyntaxExceptionForReaders() {
+    try {
+      gson.fromJson(new StringReader("true"), new TypeToken<Map<String, String>>() {}.getType());
+      fail();
+    } catch (JsonSyntaxException expected) {
+    }
   }
 }
