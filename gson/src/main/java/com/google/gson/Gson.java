@@ -637,7 +637,6 @@ public final class Gson {
       T target = (T) fromJson(reader, typeOfT);
       return target;
     } catch (IllegalStateException e) {
-      // TODO(inder): Figure out whether it is indeed right to rethrow this as JsonSyntaxException
       throw new JsonSyntaxException(e);
     }
   }
@@ -731,6 +730,8 @@ public final class Gson {
       if (isEmpty) {
         return null;
       }
+      throw new JsonSyntaxException(e);
+    } catch (IllegalStateException e) {
       throw new JsonSyntaxException(e);
     } catch (IOException e) {
       // TODO(inder): Figure out whether it is indeed right to rethrow this as JsonSyntaxException
