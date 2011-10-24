@@ -114,7 +114,7 @@ public final class MixedStreamTest extends TestCase {
     try {
       gson.fromJson(jsonReader, String.class);
       fail();
-    } catch (IllegalStateException expected) {
+    } catch (JsonParseException expected) {
     }
   }
 
@@ -125,7 +125,7 @@ public final class MixedStreamTest extends TestCase {
     try {
       gson.fromJson(jsonReader, new TypeToken<List<Car>>() {}.getType());
       fail();
-    } catch (IllegalStateException expected) {
+    } catch (JsonParseException expected) {
     }
   }
 
