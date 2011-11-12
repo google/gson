@@ -307,11 +307,6 @@ public abstract class JsonElement {
   }
 
   /**
-   * Returns a deep copy of this. Immutable values can return this.
-   */
-  abstract JsonElement deepCopy();
-
-  /**
    * Returns a String representation of this element.
    */
   @Override
