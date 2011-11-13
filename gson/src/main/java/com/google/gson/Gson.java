@@ -632,13 +632,9 @@ public final class Gson {
     if (json == null) {
       return null;
     }
-    try {
-      StringReader reader = new StringReader(json);
-      T target = (T) fromJson(reader, typeOfT);
-      return target;
-    } catch (IllegalStateException e) {
-      throw new JsonSyntaxException(e);
-    }
+    StringReader reader = new StringReader(json);
+    T target = (T) fromJson(reader, typeOfT);
+    return target;
   }
 
   /**
