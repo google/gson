@@ -135,7 +135,7 @@
          <!-- TODO(inder): add manifest entry for maven group, artifact, and classifier ids -->
          <groupId>org.apache.maven.plugins</groupId>
          <artifactId>maven-javadoc-plugin</artifactId>
-         <version>2.7</version>
+         <version>2.8</version>
          <executions>
            <execution>
              <id>attach-javadocs</id>
@@ -145,7 +145,9 @@
            </execution>
          </executions>
          <configuration>
-           <links>
+           <includePackageNames>com.google.gson</includePackageNames>
+           <excludePackageNames>com.google.gson.internal:com.google.gson.internal.bind</excludePackageNames>
+            <links>
              <link>http://download.oracle.com/javase/1.5.0/docs/api/</link>
            </links>
            <version>true</version>
@@ -279,7 +281,6 @@
   <developers>
     <developer>
       <name>Inderjeet Singh</name>
-      <organization>Google Inc.</organization>
     </developer>
     <developer>
       <name>Joel Leitch</name>
