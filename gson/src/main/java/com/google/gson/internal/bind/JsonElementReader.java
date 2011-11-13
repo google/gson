@@ -33,6 +33,8 @@ import java.util.Map;
 /**
  * This reader walks the elements of a JsonElement as if it was coming from a
  * character stream.
+ *
+ * @author Jesse Wilson
  */
 public final class JsonElementReader extends JsonReader {
   private static final Reader UNREADABLE_READER = new Reader() {
