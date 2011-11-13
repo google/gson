@@ -39,7 +39,7 @@ final class GsonToMiniGsonTypeAdapterFactory implements TypeAdapter.Factory {
 
     this.deserializationContext = new JsonDeserializationContext() {
       public <T> T deserialize(JsonElement json, Type typeOfT) throws JsonParseException {
-        return gson.fromJson(json, typeOfT);
+        return (T) gson.fromJson(json, typeOfT);
       }
     };
 
