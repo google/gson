@@ -90,7 +90,7 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
   @SuppressWarnings("unchecked")
   @Override public void write(JsonWriter writer, Object value) throws IOException {
     if (value == null) {
-      writer.nullValue(); // TODO: better policy here?
+      writer.nullValue();
       return;
     }
 

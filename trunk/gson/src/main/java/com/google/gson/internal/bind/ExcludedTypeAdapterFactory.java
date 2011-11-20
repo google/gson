@@ -48,10 +48,7 @@ public final class ExcludedTypeAdapterFactory implements TypeAdapter.Factory {
     }
 
     return new TypeAdapter<T>() {
-      /**
-       * The delegate is lazily created because it may not be needed, and
-       * creating it may fail.
-       */
+      /** The delegate is lazily created because it may not be needed, and creating it may fail. */
       private TypeAdapter<T> delegate;
 
       @Override public T read(JsonReader reader) throws IOException {

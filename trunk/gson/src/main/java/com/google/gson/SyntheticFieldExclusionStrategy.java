@@ -40,5 +40,4 @@ final class SyntheticFieldExclusionStrategy implements ExclusionStrategy {
   public boolean shouldSkipField(FieldAttributes f) {
     return skipSyntheticFields && f.isSynthetic();
   }
-
 }

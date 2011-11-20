@@ -50,7 +50,6 @@ import com.google.gson.stream.MalformedJsonException;
  * @since 1.4
  */
 public final class JsonStreamParser implements Iterator<JsonElement> {
-
   private final JsonReader parser;
   private final Object lock;
 

@@ -270,14 +270,6 @@ public final class $Gson$Types {
   }
 
   /**
-   * Returns true if this type is an array.
-   */
-  public static boolean isArray(Type type) {
-    return type instanceof GenericArrayType
-        || (type instanceof Class && ((Class<?>) type).isArray());
-  }
-
-  /**
    * Returns the component type of this array type.
    * @throws ClassCastException if this type is not an array.
    */
