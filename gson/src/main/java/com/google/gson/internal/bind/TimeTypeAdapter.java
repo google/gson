@@ -16,7 +16,9 @@
 
 package com.google.gson.internal.bind;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -37,7 +39,7 @@ import java.util.Date;
 public final class TimeTypeAdapter extends TypeAdapter<Time> {
   public static final Factory FACTORY = new Factory() {
     @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
-    public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> typeToken) {
+    public <T> TypeAdapter<T> create(Gson context, TypeToken<T> typeToken) {
       return typeToken.getRawType() == Time.class ? (TypeAdapter<T>) new TimeTypeAdapter() : null;
     }
   };

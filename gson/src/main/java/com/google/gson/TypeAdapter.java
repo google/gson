@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.google.gson.internal.bind;
+package com.google.gson;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonIOException;
+import com.google.gson.internal.bind.JsonElementReader;
+import com.google.gson.internal.bind.JsonElementWriter;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
@@ -26,6 +26,8 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+
+// TODO: nice documentation
 
 public abstract class TypeAdapter<T> {
   public abstract T read(JsonReader reader) throws IOException;
@@ -74,6 +76,6 @@ public abstract class TypeAdapter<T> {
   }
 
   public interface Factory {
-    <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> type);
+    <T> TypeAdapter<T> create(Gson context, TypeToken<T> type);
   }
 }

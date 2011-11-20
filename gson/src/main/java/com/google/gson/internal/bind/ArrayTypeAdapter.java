@@ -16,6 +16,8 @@
 
 package com.google.gson.internal.bind;
 
+import com.google.gson.Gson;
+import com.google.gson.TypeAdapter;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
@@ -35,7 +37,7 @@ import com.google.gson.stream.JsonWriter;
 public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
   public static final Factory FACTORY = new Factory() {
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> typeToken) {
+    public <T> TypeAdapter<T> create(Gson context, TypeToken<T> typeToken) {
       Type type = typeToken.getType();
       if (!(type instanceof GenericArrayType || type instanceof Class && ((Class<?>) type).isArray())) {
         return null;
@@ -53,7 +55,7 @@ public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
   private final Class<E> componentType;
   private final TypeAdapter<E> componentTypeAdapter;
 
-  public ArrayTypeAdapter(MiniGson context, TypeAdapter<E> componentTypeAdapter, Class<E> componentType) {
+  public ArrayTypeAdapter(Gson context, TypeAdapter<E> componentTypeAdapter, Class<E> componentType) {
     this.componentTypeAdapter =
       new TypeAdapterRuntimeTypeWrapper<E>(context, componentTypeAdapter, componentType);
     this.componentType = componentType;

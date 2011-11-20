@@ -16,6 +16,7 @@
 
 package com.google.gson.internal.bind;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonIOException;
@@ -23,6 +24,7 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.TypeAdapter;
 import com.google.gson.internal.LazilyParsedNumber;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
@@ -451,7 +453,7 @@ public final class TypeAdapters {
 
   public static final TypeAdapter.Factory TIMESTAMP_FACTORY = new TypeAdapter.Factory() {
     @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
-    public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> typeToken) {
+    public <T> TypeAdapter<T> create(Gson context, TypeToken<T> typeToken) {
       if (typeToken.getRawType() != Timestamp.class) {
         return null;
       }
@@ -674,7 +676,7 @@ public final class TypeAdapters {
   public static <TT> TypeAdapter.Factory newEnumTypeHierarchyFactory(final Class<TT> clazz) {
     return new TypeAdapter.Factory() {
       @SuppressWarnings({"rawtypes", "unchecked"})
-      public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> typeToken) {
+      public <T> TypeAdapter<T> create(Gson context, TypeToken<T> typeToken) {
         Class<? super T> rawType = typeToken.getRawType();
         return clazz.isAssignableFrom(rawType)
           ? (TypeAdapter<T>) new EnumTypeAdapter(rawType) : null;
@@ -686,7 +688,7 @@ public final class TypeAdapters {
       final TypeToken<TT> type, final TypeAdapter<TT> typeAdapter) {
     return new TypeAdapter.Factory() {
       @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
-      public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> typeToken) {
+      public <T> TypeAdapter<T> create(Gson context, TypeToken<T> typeToken) {
         return typeToken.equals(type) ? (TypeAdapter<T>) typeAdapter : null;
       }
     };
@@ -696,7 +698,7 @@ public final class TypeAdapters {
       final Class<TT> type, final TypeAdapter<TT> typeAdapter) {
     return new TypeAdapter.Factory() {
       @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
-      public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> typeToken) {
+      public <T> TypeAdapter<T> create(Gson context, TypeToken<T> typeToken) {
         return typeToken.getRawType() == type ? (TypeAdapter<T>) typeAdapter : null;
       }
       @Override public String toString() {
@@ -709,7 +711,7 @@ public final class TypeAdapters {
       final Class<TT> unboxed, final Class<TT> boxed, final TypeAdapter<? super TT> typeAdapter) {
     return new TypeAdapter.Factory() {
       @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
-      public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> typeToken) {
+      public <T> TypeAdapter<T> create(Gson context, TypeToken<T> typeToken) {
         Class<? super T> rawType = typeToken.getRawType();
         return (rawType == unboxed || rawType == boxed) ? (TypeAdapter<T>) typeAdapter : null;
       }
@@ -724,7 +726,7 @@ public final class TypeAdapters {
       final Class<TT> base, final Class<? extends TT> sub, final TypeAdapter<? super TT> typeAdapter) {
     return new TypeAdapter.Factory() {
       @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
-      public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> typeToken) {
+      public <T> TypeAdapter<T> create(Gson context, TypeToken<T> typeToken) {
         Class<? super T> rawType = typeToken.getRawType();
         return (rawType == base || rawType == sub) ? (TypeAdapter<T>) typeAdapter : null;
       }
@@ -739,7 +741,7 @@ public final class TypeAdapters {
       final Class<TT> clazz, final TypeAdapter<TT> typeAdapter) {
     return new TypeAdapter.Factory() {
       @SuppressWarnings("unchecked")
-      public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> typeToken) {
+      public <T> TypeAdapter<T> create(Gson context, TypeToken<T> typeToken) {
         return clazz.isAssignableFrom(typeToken.getRawType()) ? (TypeAdapter<T>) typeAdapter : null;
       }
       @Override public String toString() {

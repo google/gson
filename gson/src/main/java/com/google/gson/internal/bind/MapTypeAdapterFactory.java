@@ -16,9 +16,11 @@
 
 package com.google.gson.internal.bind;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.TypeAdapter;
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.ObjectConstructor;
@@ -108,7 +110,7 @@ public final class MapTypeAdapterFactory implements TypeAdapter.Factory {
     this.complexMapKeySerialization = complexMapKeySerialization;
   }
 
-  public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> typeToken) {
+  public <T> TypeAdapter<T> create(Gson context, TypeToken<T> typeToken) {
     Type type = typeToken.getType();
 
     Class<? super T> rawType = typeToken.getRawType();
@@ -132,7 +134,7 @@ public final class MapTypeAdapterFactory implements TypeAdapter.Factory {
   /**
    * Returns a type adapter that writes the value as a string.
    */
-  private TypeAdapter<?> getKeyAdapter(MiniGson context, Type keyType) {
+  private TypeAdapter<?> getKeyAdapter(Gson context, Type keyType) {
     return (keyType == boolean.class || keyType == Boolean.class)
         ? TypeAdapters.BOOLEAN_AS_STRING
         : context.getAdapter(TypeToken.get(keyType));
@@ -143,7 +145,7 @@ public final class MapTypeAdapterFactory implements TypeAdapter.Factory {
     private final TypeAdapter<V> valueTypeAdapter;
     private final ObjectConstructor<? extends Map<K, V>> constructor;
 
-    public Adapter(MiniGson context, Type keyType, TypeAdapter<K> keyTypeAdapter,
+    public Adapter(Gson context, Type keyType, TypeAdapter<K> keyTypeAdapter,
         Type valueType, TypeAdapter<V> valueTypeAdapter,
         ObjectConstructor<? extends Map<K, V>> constructor) {
       this.keyTypeAdapter =

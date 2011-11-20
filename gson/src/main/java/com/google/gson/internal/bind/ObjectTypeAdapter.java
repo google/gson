@@ -16,6 +16,8 @@
 
 package com.google.gson.internal.bind;
 
+import com.google.gson.Gson;
+import com.google.gson.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -33,7 +35,7 @@ import java.util.Map;
 public final class ObjectTypeAdapter extends TypeAdapter<Object> {
   public static final Factory FACTORY = new Factory() {
     @SuppressWarnings("unchecked")
-    public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> type) {
+    public <T> TypeAdapter<T> create(Gson context, TypeToken<T> type) {
       if (type.getRawType() == Object.class) {
         return (TypeAdapter<T>) new ObjectTypeAdapter(context);
       }
@@ -41,10 +43,10 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
     }
   };
 
-  private final MiniGson miniGson;
+  private final Gson gson;
 
-  private ObjectTypeAdapter(MiniGson miniGson) {
-    this.miniGson = miniGson;
+  private ObjectTypeAdapter(Gson gson) {
+    this.gson = gson;
   }
 
   @Override public Object read(JsonReader reader) throws IOException {
@@ -92,7 +94,7 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
       return;
     }
 
-    TypeAdapter<Object> typeAdapter = (TypeAdapter<Object>) miniGson.getAdapter(value.getClass());
+    TypeAdapter<Object> typeAdapter = (TypeAdapter<Object>) gson.getAdapter(value.getClass());
     if (typeAdapter instanceof ObjectTypeAdapter) {
       writer.beginObject();
       writer.endObject();
