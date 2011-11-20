@@ -52,7 +52,7 @@ final class ModifyFirstLetterNamingPolicy extends RecursiveFieldNamingPolicy {
 
   public enum LetterModifier {
     UPPER,
-    LOWER;
+    LOWER
   }
 
   private final LetterModifier letterModifier;

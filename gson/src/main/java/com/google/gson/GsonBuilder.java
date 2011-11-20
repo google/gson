@@ -116,7 +116,7 @@ public final class GsonBuilder {
     serializeExclusionStrategies.add(Gson.DEFAULT_SYNTHETIC_FIELD_EXCLUSION_STRATEGY);
 
     // setup default values
-    ignoreVersionsAfter = VersionConstants.IGNORE_VERSIONS;
+    ignoreVersionsAfter = VersionExclusionStrategy.IGNORE_VERSIONS;
     serializeInnerClasses = true;
     prettyPrinting = false;
     escapeHtmlChars = true;
@@ -650,7 +650,7 @@ public final class GsonBuilder {
       deserializationStrategies.add(innerClassExclusionStrategy);
       serializationStrategies.add(innerClassExclusionStrategy);
     }
-    if (ignoreVersionsAfter != VersionConstants.IGNORE_VERSIONS) {
+    if (ignoreVersionsAfter != VersionExclusionStrategy.IGNORE_VERSIONS) {
       VersionExclusionStrategy versionExclusionStrategy =
           new VersionExclusionStrategy(ignoreVersionsAfter);
       deserializationStrategies.add(versionExclusionStrategy);

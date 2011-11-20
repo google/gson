@@ -27,6 +27,7 @@ import com.google.gson.internal.$Gson$Preconditions;
  * @author Joel Leitch
  */
 final class VersionExclusionStrategy implements ExclusionStrategy {
+  static final double IGNORE_VERSIONS = -1D;
   private final double version;
 
   VersionExclusionStrategy(double version) {

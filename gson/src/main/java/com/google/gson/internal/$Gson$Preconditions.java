@@ -42,10 +42,4 @@ public final class $Gson$Preconditions {
       throw new IllegalArgumentException();
     }
   }
-
-  public static void checkState(boolean condition) {
-    if (!condition) {
-      throw new IllegalStateException();
-    }
-  }
 }

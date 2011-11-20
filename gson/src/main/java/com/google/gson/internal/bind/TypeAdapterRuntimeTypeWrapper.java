@@ -22,9 +22,9 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 
 final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
-
   private final Gson context;
   private final TypeAdapter<T> delegate;
   private final Type type;
@@ -50,7 +50,7 @@ final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
     // Fourth preference: reflective type adapter for the declared type
 
     TypeAdapter chosen = delegate;
-    Type runtimeType = Reflection.getRuntimeTypeIfMoreSpecific(type, value);
+    Type runtimeType = getRuntimeTypeIfMoreSpecific(type, value);
     if (runtimeType != type) {
       TypeAdapter runtimeTypeAdapter = context.getAdapter(TypeToken.get(runtimeType));
       if (!(runtimeTypeAdapter instanceof ReflectiveTypeAdapterFactory.Adapter)) {
@@ -66,5 +66,16 @@ final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
       }
     }
     chosen.write(writer, value);
+  }
+
+  /**
+   * Finds a compatible runtime type if it is more specific
+   */
+  private Type getRuntimeTypeIfMoreSpecific(Type type, Object value) {
+    if (value != null
+        && (type == Object.class || type instanceof TypeVariable<?> || type instanceof Class<?>)) {
+      type = value.getClass();
+    }
+    return type;
   }
 }
