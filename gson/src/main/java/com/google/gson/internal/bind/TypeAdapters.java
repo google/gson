@@ -239,9 +239,6 @@ public final class TypeAdapters {
     }
   };
 
-  public static final TypeAdapter.Factory LONG_FACTORY
-      = newFactory(long.class, Long.class, LONG);
-
   public static final TypeAdapter<Number> FLOAT = new TypeAdapter<Number>() {
     @Override
     public Number read(JsonReader reader) throws IOException {
@@ -257,9 +254,6 @@ public final class TypeAdapters {
     }
   };
 
-  public static final TypeAdapter.Factory FLOAT_FACTORY
-      = newFactory(float.class, Float.class, FLOAT);
-
   public static final TypeAdapter<Number> DOUBLE = new TypeAdapter<Number>() {
     @Override
     public Number read(JsonReader reader) throws IOException {
@@ -274,9 +268,6 @@ public final class TypeAdapters {
       writer.value(value);
     }
   };
-
-  public static final TypeAdapter.Factory DOUBLE_FACTORY
-      = newFactory(double.class, Double.class, DOUBLE);
 
   public static final TypeAdapter<Number> NUMBER = new TypeAdapter<Number>() {
     @Override
@@ -663,13 +654,13 @@ public final class TypeAdapters {
         reader.nextNull();
         return null;
       }
-      return (T) Enum.valueOf((Class<T>) classOfT, reader.nextString());
+      return Enum.valueOf(classOfT, reader.nextString());
     }
 
     public void write(JsonWriter writer, T value) throws IOException {
       writer.value(value == null ? null : value.name());
     }
-  };
+  }
 
   public static final TypeAdapter.Factory ENUM_FACTORY = newEnumTypeHierarchyFactory(Enum.class);
 
@@ -749,5 +740,4 @@ public final class TypeAdapters {
       }
     };
   }
-
 }

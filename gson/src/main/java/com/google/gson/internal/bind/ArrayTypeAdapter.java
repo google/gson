@@ -45,10 +45,8 @@ public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
 
       Type componentType = $Gson$Types.getArrayComponentType(type);
       TypeAdapter<?> componentTypeAdapter = context.getAdapter(TypeToken.get(componentType));
-      // create() doesn't define a type parameter
-      TypeAdapter<T> result = new ArrayTypeAdapter(
+      return new ArrayTypeAdapter(
           context, componentTypeAdapter, $Gson$Types.getRawType(componentType));
-      return result;
     }
   };
 
@@ -84,13 +82,13 @@ public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
   @SuppressWarnings("unchecked")
   @Override public void write(JsonWriter writer, Object array) throws IOException {
     if (array == null) {
-      writer.nullValue(); // TODO: better policy here?
+      writer.nullValue();
       return;
     }
 
     writer.beginArray();
     for (int i = 0, length = Array.getLength(array); i < length; i++) {
-      final E value = (E) Array.get(array, i);
+      E value = (E) Array.get(array, i);
       componentTypeAdapter.write(writer, value);
     }
     writer.endArray();

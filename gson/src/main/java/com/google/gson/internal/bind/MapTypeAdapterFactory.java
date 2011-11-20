@@ -195,7 +195,7 @@ public final class MapTypeAdapterFactory implements TypeAdapter.Factory {
 
     public void write(JsonWriter writer, Map<K, V> map) throws IOException {
       if (map == null) {
-        writer.nullValue(); // TODO: better policy here?
+        writer.nullValue();
         return;
       }
 
