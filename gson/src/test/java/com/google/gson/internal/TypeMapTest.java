@@ -24,23 +24,23 @@ import java.util.List;
 import junit.framework.TestCase;
 
 /**
- * Unit tests for the {@link com.google.gson.internal.ParameterizedTypeHandlerMap} class.
+ * Unit tests for the {@link TypeMap} class.
  *
  * @author Joel Leitch
  */
-public class ParameterizedTypeHandlerMapTest extends TestCase {
-  private ParameterizedTypeHandlerMap<String> paramMap;
+public class TypeMapTest extends TestCase {
+  private TypeMap<String> paramMap;
 
   @Override
   protected void setUp() throws Exception {
     super.setUp();
-    paramMap = new ParameterizedTypeHandlerMap<String>();
+    paramMap = new TypeMap<String>();
   }
 
   public void testNullMap() throws Exception {
     assertFalse(paramMap.hasSpecificHandlerFor(String.class));
-    assertNull(paramMap.getHandlerFor(String.class, false));
-    assertNull(paramMap.getHandlerFor(String.class, false));
+    assertNull(paramMap.getHandlerFor(String.class));
+    assertNull(paramMap.getHandlerFor(String.class));
   }
 
   public void testHasGenericButNotSpecific() throws Exception {
@@ -50,9 +50,9 @@ public class ParameterizedTypeHandlerMapTest extends TestCase {
 
     assertFalse(paramMap.hasSpecificHandlerFor(specificType));
     assertTrue(paramMap.hasSpecificHandlerFor(List.class));
-    assertNotNull(paramMap.getHandlerFor(specificType, false));
-    assertNotNull(paramMap.getHandlerFor(List.class, false));
-    assertEquals(handler, paramMap.getHandlerFor(specificType, false));
+    assertNotNull(paramMap.getHandlerFor(specificType));
+    assertNotNull(paramMap.getHandlerFor(List.class));
+    assertEquals(handler, paramMap.getHandlerFor(specificType));
   }
 
   public void testHasSpecificType() throws Exception {
@@ -62,9 +62,9 @@ public class ParameterizedTypeHandlerMapTest extends TestCase {
 
     assertTrue(paramMap.hasSpecificHandlerFor(specificType));
     assertFalse(paramMap.hasSpecificHandlerFor(List.class));
-    assertNotNull(paramMap.getHandlerFor(specificType, false));
-    assertNull(paramMap.getHandlerFor(List.class, false));
-    assertEquals(handler, paramMap.getHandlerFor(specificType, false));
+    assertNotNull(paramMap.getHandlerFor(specificType));
+    assertNull(paramMap.getHandlerFor(List.class));
+    assertEquals(handler, paramMap.getHandlerFor(specificType));
   }
 
   public void testTypeOverridding() throws Exception {
@@ -74,7 +74,7 @@ public class ParameterizedTypeHandlerMapTest extends TestCase {
     paramMap.register(String.class, handler2);
 
     assertTrue(paramMap.hasSpecificHandlerFor(String.class));
-    assertEquals(handler2, paramMap.getHandlerFor(String.class, false));
+    assertEquals(handler2, paramMap.getHandlerFor(String.class));
   }
 
   public void testMakeUnmodifiable() throws Exception {
@@ -87,30 +87,21 @@ public class ParameterizedTypeHandlerMapTest extends TestCase {
 
   public void testTypeHierarchy() {
     paramMap.registerForTypeHierarchy(Base.class, "baseHandler");
-    String handler = paramMap.getHandlerFor(Sub.class, false);
+    String handler = paramMap.getHandlerFor(Sub.class);
     assertEquals("baseHandler", handler);
   }
 
   public void testTypeHierarchyMultipleHandlers() {
     paramMap.registerForTypeHierarchy(Base.class, "baseHandler");
     paramMap.registerForTypeHierarchy(Sub.class, "subHandler");
-    String handler = paramMap.getHandlerFor(SubOfSub.class, false);
+    String handler = paramMap.getHandlerFor(SubOfSub.class);
     assertEquals("subHandler", handler);
-  }
-
-  public void testTypeHierarchyRegisterIfAbsent() {
-    paramMap.registerForTypeHierarchy(Base.class, "baseHandler");
-    ParameterizedTypeHandlerMap<String> otherMap = new ParameterizedTypeHandlerMap<String>();
-    otherMap.registerForTypeHierarchy(Base.class, "baseHandler2");
-    paramMap.registerIfAbsent(otherMap);
-    String handler = paramMap.getHandlerFor(Base.class, false);
-    assertEquals("baseHandler", handler);
   }
 
   public void testReplaceExistingTypeHierarchyHandler() {
     paramMap.registerForTypeHierarchy(Base.class, "baseHandler");
     paramMap.registerForTypeHierarchy(Base.class, "base2Handler");
-    String handler = paramMap.getHandlerFor(Base.class, false);
+    String handler = paramMap.getHandlerFor(Base.class);
     assertEquals("base2Handler", handler);
   }
 

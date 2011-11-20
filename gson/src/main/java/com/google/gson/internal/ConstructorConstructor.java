@@ -36,14 +36,14 @@ import java.util.TreeSet;
  * Returns a function that can construct an instance of a requested type.
  */
 public final class ConstructorConstructor {
-  private final ParameterizedTypeHandlerMap<InstanceCreator<?>> instanceCreators;
+  private final TypeMap<InstanceCreator<?>> instanceCreators;
 
-  public ConstructorConstructor(ParameterizedTypeHandlerMap<InstanceCreator<?>> instanceCreators) {
+  public ConstructorConstructor(TypeMap<InstanceCreator<?>> instanceCreators) {
     this.instanceCreators = instanceCreators;
   }
 
   public ConstructorConstructor() {
-    this(new ParameterizedTypeHandlerMap<InstanceCreator<?>>());
+    this(new TypeMap<InstanceCreator<?>>());
   }
 
   public <T> ObjectConstructor<T> getConstructor(TypeToken<T> typeToken) {
@@ -54,7 +54,7 @@ public final class ConstructorConstructor {
 
     @SuppressWarnings("unchecked") // types must agree
     final InstanceCreator<T> creator
-        = (InstanceCreator<T>) instanceCreators.getHandlerFor(type, false);
+        = (InstanceCreator<T>) instanceCreators.getHandlerFor(type);
     if (creator != null) {
       return new ObjectConstructor<T>() {
         public T construct() {

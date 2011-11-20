@@ -18,8 +18,8 @@ package com.google.gson;
 
 import com.google.gson.DefaultTypeAdapters.DefaultDateTypeAdapter;
 import com.google.gson.internal.$Gson$Preconditions;
-import com.google.gson.internal.ParameterizedTypeHandlerMap;
 import com.google.gson.internal.Primitives;
+import com.google.gson.internal.TypeMap;
 import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
@@ -87,9 +87,9 @@ public final class GsonBuilder {
   private boolean excludeFieldsWithoutExposeAnnotation;
   private LongSerializationPolicy longSerializationPolicy;
   private FieldNamingStrategy2 fieldNamingPolicy;
-  private final ParameterizedTypeHandlerMap<InstanceCreator<?>> instanceCreators;
-  private final ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers;
-  private final ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers;
+  private final TypeMap<InstanceCreator<?>> instanceCreators;
+  private final TypeMap<JsonSerializer<?>> serializers;
+  private final TypeMap<JsonDeserializer<?>> deserializers;
   private final List<TypeAdapter.Factory> typeAdapterFactories
       = new ArrayList<TypeAdapter.Factory>();
   private boolean serializeNulls;
@@ -124,9 +124,9 @@ public final class GsonBuilder {
     excludeFieldsWithoutExposeAnnotation = false;
     longSerializationPolicy = LongSerializationPolicy.DEFAULT;
     fieldNamingPolicy = Gson.DEFAULT_NAMING_POLICY;
-    instanceCreators = new ParameterizedTypeHandlerMap<InstanceCreator<?>>();
-    serializers = new ParameterizedTypeHandlerMap<JsonSerializer<?>>();
-    deserializers = new ParameterizedTypeHandlerMap<JsonDeserializer<?>>();
+    instanceCreators = new TypeMap<InstanceCreator<?>>();
+    serializers = new TypeMap<JsonSerializer<?>>();
+    deserializers = new TypeMap<JsonDeserializer<?>>();
     serializeNulls = false;
     dateStyle = DateFormat.DEFAULT;
     timeStyle = DateFormat.DEFAULT;
@@ -529,11 +529,9 @@ public final class GsonBuilder {
     if (typeAdapter instanceof InstanceCreator<?>) {
       registerInstanceCreator(type, (InstanceCreator<?>) typeAdapter);
     }
-    if (typeAdapter instanceof JsonSerializer<?>) {
-      registerSerializer(type, (JsonSerializer<?>) typeAdapter);
-    }
-    if (typeAdapter instanceof JsonDeserializer<?>) {
-      registerDeserializer(type, (JsonDeserializer<?>) typeAdapter);
+    if (typeAdapter instanceof JsonSerializer<?> || typeAdapter instanceof JsonDeserializer<?>) {
+      TypeToken<?> typeToken = TypeToken.get(type);
+      typeAdapterFactories.add(new TreeTypeAdapter.SingleTypeFactory(typeToken, typeAdapter));
     }
     if (typeAdapter instanceof TypeAdapter.Factory) {
       typeAdapterFactories.add((TypeAdapter.Factory) typeAdapter);
@@ -555,36 +553,6 @@ public final class GsonBuilder {
   private <T> GsonBuilder registerInstanceCreator(Type typeOfT,
       InstanceCreator<? extends T> instanceCreator) {
     instanceCreators.register(typeOfT, instanceCreator);
-    return this;
-  }
-
-  /**
-   * Configures Gson to use a custom JSON serializer for the specified type. You should use this
-   * method if you want to register different serializers for different generic types corresponding
-   * to a raw type.
-   *
-   *
-   * @param typeOfT The type definition for T
-   * @param serializer the custom serializer
-   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
-   */
-  private <T> GsonBuilder registerSerializer(Type typeOfT, JsonSerializer<T> serializer) {
-    serializers.register(typeOfT, serializer);
-    return this;
-  }
-
-  /**
-   * Configures Gson to use a custom JSON deserializer for the specified type. You should use this
-   * method if you want to register different deserializers for different generic types
-   * corresponding to a raw type.
-   *
-   *
-   * @param typeOfT The type definition for T
-   * @param deserializer the custom deserializer
-   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
-   */
-  private <T> GsonBuilder registerDeserializer(Type typeOfT, JsonDeserializer<T> deserializer) {
-    deserializers.register(typeOfT, new JsonDeserializerExceptionWrapper<T>(deserializer));
     return this;
   }
 
@@ -703,8 +671,7 @@ public final class GsonBuilder {
   }
 
   private static void addTypeAdaptersForDate(String datePattern, int dateStyle, int timeStyle,
-      ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers,
-      ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers) {
+      TypeMap<JsonSerializer<?>> serializers, TypeMap<JsonDeserializer<?>> deserializers) {
     DefaultDateTypeAdapter dateTypeAdapter = null;
     if (datePattern != null && !"".equals(datePattern.trim())) {
       dateTypeAdapter = new DefaultDateTypeAdapter(datePattern);
@@ -722,8 +689,7 @@ public final class GsonBuilder {
     }
   }
 
-  private static <T> void registerIfAbsent(Class<?> type,
-      ParameterizedTypeHandlerMap<T> adapters, T adapter) {
+  private static <T> void registerIfAbsent(Class<?> type, TypeMap<T> adapters, T adapter) {
     if (!adapters.hasSpecificHandlerFor(type)) {
       adapters.register(type, adapter);
     }

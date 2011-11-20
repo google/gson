@@ -17,9 +17,9 @@
 package com.google.gson;
 
 import com.google.gson.internal.ConstructorConstructor;
-import com.google.gson.internal.ParameterizedTypeHandlerMap;
 import com.google.gson.internal.Primitives;
 import com.google.gson.internal.Streams;
+import com.google.gson.internal.TypeMap;
 import com.google.gson.internal.bind.ArrayTypeAdapter;
 import com.google.gson.internal.bind.BigDecimalTypeAdapter;
 import com.google.gson.internal.bind.BigIntegerTypeAdapter;
@@ -101,8 +101,7 @@ import java.util.Map;
  */
 public final class Gson {
   @SuppressWarnings("rawtypes")
-  static final ParameterizedTypeHandlerMap EMPTY_MAP =
-    new ParameterizedTypeHandlerMap().makeUnmodifiable();
+  static final TypeMap EMPTY_MAP = new TypeMap().makeUnmodifiable();
 
    static final boolean DEFAULT_JSON_NON_EXECUTABLE = false;
 
@@ -140,15 +139,30 @@ public final class Gson {
   private final ConstructorConstructor constructorConstructor;
 
   /** Map containing Type or Class objects as keys */
-  private final ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers;
+  private final TypeMap<JsonSerializer<?>> serializers;
 
   /** Map containing Type or Class objects as keys */
-  private final ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers;
+  private final TypeMap<JsonDeserializer<?>> deserializers;
 
   private final boolean serializeNulls;
   private final boolean htmlSafe;
   private final boolean generateNonExecutableJson;
   private final boolean prettyPrinting;
+
+  final JsonDeserializationContext deserializationContext = new JsonDeserializationContext() {
+    public <T> T deserialize(JsonElement json, Type typeOfT) throws JsonParseException {
+      return (T) fromJson(json, typeOfT);
+    }
+  };
+
+  final JsonSerializationContext serializationContext = new JsonSerializationContext() {
+    public JsonElement serialize(Object src) {
+      return toJsonTree(src);
+    }
+    public JsonElement serialize(Object src, Type typeOfSrc) {
+      return toJsonTree(src, typeOfSrc);
+    }
+  };
 
   /**
    * Constructs a Gson object with default configuration. The default configuration has the
@@ -195,9 +209,9 @@ public final class Gson {
   Gson(final ExclusionStrategy deserializationExclusionStrategy,
       final ExclusionStrategy serializationExclusionStrategy,
       final FieldNamingStrategy2 fieldNamingPolicy,
-      final ParameterizedTypeHandlerMap<InstanceCreator<?>> instanceCreators, boolean serializeNulls,
-      final ParameterizedTypeHandlerMap<JsonSerializer<?>> serializers,
-      final ParameterizedTypeHandlerMap<JsonDeserializer<?>> deserializers,
+      final TypeMap<InstanceCreator<?>> instanceCreators, boolean serializeNulls,
+      final TypeMap<JsonSerializer<?>> serializers,
+      final TypeMap<JsonDeserializer<?>> deserializers,
       boolean complexMapKeySerialization, boolean generateNonExecutableGson, boolean htmlSafe,
       boolean prettyPrinting, boolean serializeSpecialFloatingPointValues,
       LongSerializationPolicy longSerializationPolicy,
@@ -268,7 +282,7 @@ public final class Gson {
       factories.add(factory);
     }
 
-    factories.add(new GsonToMiniGsonTypeAdapterFactory(this, serializers, deserializers));
+    factories.add(new TreeTypeAdapter.TypeHierarchyFactory(serializers, deserializers));
     factories.add(new CollectionTypeAdapterFactory(constructorConstructor));
     factories.add(TypeAdapters.URL_FACTORY);
     factories.add(TypeAdapters.URI_FACTORY);
