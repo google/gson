@@ -20,7 +20,8 @@ import com.google.gson.DefaultTypeAdapters.DefaultDateTypeAdapter;
 import com.google.gson.internal.$Gson$Preconditions;
 import com.google.gson.internal.ParameterizedTypeHandlerMap;
 import com.google.gson.internal.Primitives;
-import com.google.gson.internal.bind.TypeAdapter;
+import com.google.gson.internal.bind.TypeAdapters;
+import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -131,6 +132,31 @@ public final class GsonBuilder {
     timeStyle = DateFormat.DEFAULT;
     serializeSpecialFloatingPointValues = false;
     generateNonExecutableJson = false;
+  }
+
+  // TODO: nice documentation
+  public GsonBuilder factory(TypeAdapter.Factory factory) {
+    typeAdapterFactories.add(factory);
+    return this;
+  }
+
+  // TODO: nice documentation
+  public <T> GsonBuilder typeAdapter(final Class<T> type, final TypeAdapter<T> typeAdapter) {
+    typeAdapterFactories.add(TypeAdapters.newFactory(type, typeAdapter));
+    return this;
+  }
+
+  // TODO: nice documentation
+  // TODO: accept a Type instead of a TypeToken? It's less typesafe but more Gson-like
+  public <T> GsonBuilder typeAdapter(TypeToken<T> type, TypeAdapter<T> typeAdapter) {
+    typeAdapterFactories.add(TypeAdapters.newFactory(type, typeAdapter));
+    return this;
+  }
+
+  // TODO: nice documentation
+  public <T> GsonBuilder typeHierarchyAdapter(Class<T> type, TypeAdapter<T> typeAdapter) {
+    typeAdapterFactories.add(TypeAdapters.newTypeHierarchyFactory(type, typeAdapter));
+    return this;
   }
 
   /**

@@ -16,6 +16,8 @@
 
 package com.google.gson.internal.bind;
 
+import com.google.gson.Gson;
+import com.google.gson.TypeAdapter;
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.ObjectConstructor;
@@ -38,7 +40,7 @@ public final class StringToValueMapTypeAdapterFactory implements TypeAdapter.Fac
     this.constructorConstructor = constructorConstructor;
   }
 
-  public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> typeToken) {
+  public <T> TypeAdapter<T> create(Gson context, TypeToken<T> typeToken) {
     Type type = typeToken.getType();
     if (!(type instanceof ParameterizedType)) {
       return null;

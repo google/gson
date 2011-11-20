@@ -16,7 +16,9 @@
 
 package com.google.gson.internal.bind;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.TypeAdapter;
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.ObjectConstructor;
@@ -54,7 +56,7 @@ public class ReflectiveTypeAdapterFactory implements TypeAdapter.Factory {
     return f.getName();
   }
 
-  public <T> TypeAdapter<T> create(MiniGson context, final TypeToken<T> type) {
+  public <T> TypeAdapter<T> create(Gson context, final TypeToken<T> type) {
     Class<? super T> raw = type.getRawType();
 
     if (!Object.class.isAssignableFrom(raw)) {
@@ -66,7 +68,7 @@ public class ReflectiveTypeAdapterFactory implements TypeAdapter.Factory {
   }
 
   private ReflectiveTypeAdapterFactory.BoundField createBoundField(
-      final MiniGson context, final Field field, final String name,
+      final Gson context, final Field field, final String name,
       final TypeToken<?> fieldType, boolean serialize, boolean deserialize) {
     final boolean isPrimitive = Primitives.isPrimitive(fieldType.getRawType());
 
@@ -92,7 +94,7 @@ public class ReflectiveTypeAdapterFactory implements TypeAdapter.Factory {
   }
 
   private Map<String, BoundField> getBoundFields(
-      MiniGson context, TypeToken<?> type, Class<?> raw) {
+      Gson context, TypeToken<?> type, Class<?> raw) {
     Map<String, BoundField> result = new LinkedHashMap<String, BoundField>();
     if (raw.isInterface()) {
       return result;

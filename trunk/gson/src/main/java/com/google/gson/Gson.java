@@ -29,12 +29,10 @@ import com.google.gson.internal.bind.ExcludedTypeAdapterFactory;
 import com.google.gson.internal.bind.JsonElementReader;
 import com.google.gson.internal.bind.JsonElementWriter;
 import com.google.gson.internal.bind.MapTypeAdapterFactory;
-import com.google.gson.internal.bind.MiniGson;
 import com.google.gson.internal.bind.ObjectTypeAdapter;
 import com.google.gson.internal.bind.ReflectiveTypeAdapterFactory;
 import com.google.gson.internal.bind.SqlDateTypeAdapter;
 import com.google.gson.internal.bind.TimeTypeAdapter;
-import com.google.gson.internal.bind.TypeAdapter;
 import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
@@ -52,7 +50,9 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -120,6 +120,21 @@ public final class Gson {
 
   private static final String JSON_NON_EXECUTABLE_PREFIX = ")]}'\n";
 
+  /**
+   * This thread local guards against reentrant calls to getAdapter(). In
+   * certain object graphs, creating an adapter for a type may recursively
+   * require an adapter for the same type! Without intervention, the recursive
+   * lookup would stack overflow. We cheat by returning a proxy type adapter.
+   * The proxy is wired up once the initial adapter has been created.
+   */
+  private final ThreadLocal<Map<TypeToken<?>, FutureTypeAdapter<?>>> calls
+      = new ThreadLocal<Map<TypeToken<?>, FutureTypeAdapter<?>>>() {
+    @Override protected Map<TypeToken<?>, FutureTypeAdapter<?>> initialValue() {
+      return new HashMap<TypeToken<?>, FutureTypeAdapter<?>>();
+    }
+  };
+
+  private final List<TypeAdapter.Factory> factories;
   private final ExclusionStrategy deserializationExclusionStrategy;
   private final ExclusionStrategy serializationExclusionStrategy;
   private final ConstructorConstructor constructorConstructor;
@@ -134,8 +149,6 @@ public final class Gson {
   private final boolean htmlSafe;
   private final boolean generateNonExecutableJson;
   private final boolean prettyPrinting;
-
-  private final MiniGson miniGson;
 
   /**
    * Constructs a Gson object with default configuration. The default configuration has the
@@ -227,54 +240,53 @@ public final class Gson {
       }
     };
 
-    MiniGson.Builder builder = new MiniGson.Builder()
-        .withoutDefaultFactories()
-        .factory(TypeAdapters.STRING_FACTORY)
-        .factory(TypeAdapters.INTEGER_FACTORY)
-        .factory(TypeAdapters.BOOLEAN_FACTORY)
-        .factory(TypeAdapters.BYTE_FACTORY)
-        .factory(TypeAdapters.SHORT_FACTORY)
-        .factory(TypeAdapters.newFactory(long.class, Long.class,
-            longAdapter(longSerializationPolicy)))
-        .factory(TypeAdapters.newFactory(double.class, Double.class,
-            doubleAdapter(serializeSpecialFloatingPointValues)))
-        .factory(TypeAdapters.newFactory(float.class, Float.class,
-            floatAdapter(serializeSpecialFloatingPointValues)))
-        .factory(new ExcludedTypeAdapterFactory(
-            serializationExclusionStrategy, deserializationExclusionStrategy))
-        .factory(TypeAdapters.NUMBER_FACTORY)
-        .factory(TypeAdapters.CHARACTER_FACTORY)
-        .factory(TypeAdapters.STRING_BUILDER_FACTORY)
-        .factory(TypeAdapters.STRING_BUFFER_FACTORY)
-        .typeAdapter(BigDecimal.class, new BigDecimalTypeAdapter())
-        .typeAdapter(BigInteger.class, new BigIntegerTypeAdapter())
-        .factory(TypeAdapters.JSON_ELEMENT_FACTORY)
-        .factory(ObjectTypeAdapter.FACTORY);
+    ConstructorConstructor constructorConstructor = new ConstructorConstructor();
+    List<TypeAdapter.Factory> factories = new ArrayList<TypeAdapter.Factory>();
+    factories.add(TypeAdapters.STRING_FACTORY);
+    factories.add(TypeAdapters.INTEGER_FACTORY);
+    factories.add(TypeAdapters.BOOLEAN_FACTORY);
+    factories.add(TypeAdapters.BYTE_FACTORY);
+    factories.add(TypeAdapters.SHORT_FACTORY);
+    factories.add(TypeAdapters.newFactory(long.class, Long.class,
+            longAdapter(longSerializationPolicy)));
+    factories.add(TypeAdapters.newFactory(double.class, Double.class,
+            doubleAdapter(serializeSpecialFloatingPointValues)));
+    factories.add(TypeAdapters.newFactory(float.class, Float.class,
+            floatAdapter(serializeSpecialFloatingPointValues)));
+    factories.add(new ExcludedTypeAdapterFactory(
+            serializationExclusionStrategy, deserializationExclusionStrategy));
+    factories.add(TypeAdapters.NUMBER_FACTORY);
+    factories.add(TypeAdapters.CHARACTER_FACTORY);
+    factories.add(TypeAdapters.STRING_BUILDER_FACTORY);
+    factories.add(TypeAdapters.STRING_BUFFER_FACTORY);
+    factories.add(TypeAdapters.newFactory(BigDecimal.class, new BigDecimalTypeAdapter()));
+    factories.add(TypeAdapters.newFactory(BigInteger.class, new BigIntegerTypeAdapter()));
+    factories.add(TypeAdapters.JSON_ELEMENT_FACTORY);
+    factories.add(ObjectTypeAdapter.FACTORY);
 
     for (TypeAdapter.Factory factory : typeAdapterFactories) {
-      builder.factory(factory);
+      factories.add(factory);
     }
 
-    builder
-        .factory(new GsonToMiniGsonTypeAdapterFactory(this, serializers, deserializers))
-        .factory(new CollectionTypeAdapterFactory(constructorConstructor))
-        .factory(TypeAdapters.URL_FACTORY)
-        .factory(TypeAdapters.URI_FACTORY)
-        .factory(TypeAdapters.UUID_FACTORY)
-        .factory(TypeAdapters.LOCALE_FACTORY)
-        .factory(TypeAdapters.INET_ADDRESS_FACTORY)
-        .factory(TypeAdapters.BIT_SET_FACTORY)
-        .factory(DateTypeAdapter.FACTORY)
-        .factory(TypeAdapters.CALENDAR_FACTORY)
-        .factory(TimeTypeAdapter.FACTORY)
-        .factory(SqlDateTypeAdapter.FACTORY)
-        .factory(TypeAdapters.TIMESTAMP_FACTORY)
-        .factory(new MapTypeAdapterFactory(constructorConstructor, complexMapKeySerialization))
-        .factory(ArrayTypeAdapter.FACTORY)
-        .factory(TypeAdapters.ENUM_FACTORY)
-        .factory(reflectiveTypeAdapterFactory);
+    factories.add(new GsonToMiniGsonTypeAdapterFactory(this, serializers, deserializers));
+    factories.add(new CollectionTypeAdapterFactory(constructorConstructor));
+    factories.add(TypeAdapters.URL_FACTORY);
+    factories.add(TypeAdapters.URI_FACTORY);
+    factories.add(TypeAdapters.UUID_FACTORY);
+    factories.add(TypeAdapters.LOCALE_FACTORY);
+    factories.add(TypeAdapters.INET_ADDRESS_FACTORY);
+    factories.add(TypeAdapters.BIT_SET_FACTORY);
+    factories.add(DateTypeAdapter.FACTORY);
+    factories.add(TypeAdapters.CALENDAR_FACTORY);
+    factories.add(TimeTypeAdapter.FACTORY);
+    factories.add(SqlDateTypeAdapter.FACTORY);
+    factories.add(TypeAdapters.TIMESTAMP_FACTORY);
+    factories.add(new MapTypeAdapterFactory(constructorConstructor, complexMapKeySerialization));
+    factories.add(ArrayTypeAdapter.FACTORY);
+    factories.add(TypeAdapters.ENUM_FACTORY);
+    factories.add(reflectiveTypeAdapterFactory);
 
-    this.miniGson = builder.build();
+    this.factories = Collections.unmodifiableList(factories);
   }
 
   private TypeAdapter<Number> doubleAdapter(boolean serializeSpecialFloatingPointValues) {
@@ -361,6 +373,75 @@ public final class Gson {
     strategies.add(DEFAULT_SYNTHETIC_FIELD_EXCLUSION_STRATEGY);
     strategies.add(DEFAULT_MODIFIER_BASED_EXCLUSION_STRATEGY);
     return new DisjunctionExclusionStrategy(strategies);
+  }
+
+  /**
+   * Returns the type adapter for {@code} type.
+   *
+   * @throws IllegalArgumentException if this GSON cannot serialize and
+   *     deserialize {@code type}.
+   */
+  public <T> TypeAdapter<T> getAdapter(TypeToken<T> type) {
+    // TODO: cache?
+
+    Map<TypeToken<?>, FutureTypeAdapter<?>> threadCalls = calls.get();
+    @SuppressWarnings("unchecked") // the key and value type parameters always agree
+    FutureTypeAdapter<T> ongoingCall = (FutureTypeAdapter<T>) threadCalls.get(type);
+    if (ongoingCall != null) {
+      return ongoingCall;
+    }
+
+    FutureTypeAdapter<T> call = new FutureTypeAdapter<T>();
+    threadCalls.put(type, call);
+    try {
+      for (TypeAdapter.Factory factory : factories) {
+        TypeAdapter<T> candidate = factory.create(this, type);
+        if (candidate != null) {
+          call.setDelegate(candidate);
+          return candidate;
+        }
+      }
+      throw new IllegalArgumentException("GSON cannot handle " + type);
+    } finally {
+      threadCalls.remove(type);
+    }
+  }
+
+  /**
+   * Returns a type adapter for {@code} type that isn't {@code skipPast}. This
+   * can be used for type adapters to compose other, simpler type adapters.
+   *
+   * @throws IllegalArgumentException if this GSON cannot serialize and
+   *     deserialize {@code type}.
+   */
+  public <T> TypeAdapter<T> getNextAdapter(TypeAdapter.Factory skipPast, TypeToken<T> type) {
+    boolean skipPastFound = false;
+
+    for (TypeAdapter.Factory factory : factories) {
+      if (!skipPastFound) {
+        if (factory == skipPast) {
+          skipPastFound = true;
+        }
+        continue;
+      }
+
+      TypeAdapter<T> candidate = factory.create(this, type);
+      if (candidate != null) {
+        return candidate;
+      }
+    }
+
+    throw new IllegalArgumentException("GSON cannot serialize " + type);
+  }
+
+  /**
+   * Returns the type adapter for {@code} type.
+   *
+   * @throws IllegalArgumentException if this GSON cannot serialize and
+   *     deserialize {@code type}.
+   */
+  public <T> TypeAdapter<T> getAdapter(Class<T> type) {
+    return getAdapter(TypeToken.get(type));
   }
 
   /**
@@ -501,7 +582,7 @@ public final class Gson {
    */
   @SuppressWarnings("unchecked")
   public void toJson(Object src, Type typeOfSrc, JsonWriter writer) throws JsonIOException {
-    TypeAdapter<?> adapter = miniGson.getAdapter(TypeToken.get(typeOfSrc));
+    TypeAdapter<?> adapter = getAdapter(TypeToken.get(typeOfSrc));
     boolean oldLenient = writer.isLenient();
     writer.setLenient(true);
     boolean oldHtmlSafe = writer.isHtmlSafe();
@@ -716,7 +797,7 @@ public final class Gson {
     try {
       reader.peek();
       isEmpty = false;
-      TypeAdapter<T> typeAdapter = (TypeAdapter<T>) miniGson.getAdapter(TypeToken.get(typeOfT));
+      TypeAdapter<T> typeAdapter = (TypeAdapter<T>) getAdapter(TypeToken.get(typeOfT));
       return typeAdapter.read(reader);
     } catch (EOFException e) {
       /*
@@ -783,6 +864,31 @@ public final class Gson {
     return (T) fromJson(new JsonElementReader(json), typeOfT);
   }
 
+  static class FutureTypeAdapter<T> extends TypeAdapter<T> {
+    private TypeAdapter<T> delegate;
+
+    public void setDelegate(TypeAdapter<T> typeAdapter) {
+      if (delegate != null) {
+        throw new AssertionError();
+      }
+      delegate = typeAdapter;
+    }
+
+    @Override public T read(JsonReader reader) throws IOException {
+      if (delegate == null) {
+        throw new IllegalStateException();
+      }
+      return delegate.read(reader);
+    }
+
+    @Override public void write(JsonWriter writer, T value) throws IOException {
+      if (delegate == null) {
+        throw new IllegalStateException();
+      }
+      delegate.write(writer, value);
+    }
+  }
+
   @Override
   public String toString() {
   	StringBuilder sb = new StringBuilder("{")
@@ -797,5 +903,4 @@ public final class Gson {
         .append("}");
   	return sb.toString();
   }
-
 }

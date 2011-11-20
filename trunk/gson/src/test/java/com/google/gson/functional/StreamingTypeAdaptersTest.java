@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package com.google.gson.internal.bind;
+package com.google.gson.functional;
 
-import com.google.gson.internal.bind.MiniGson;
-import com.google.gson.internal.bind.TypeAdapter;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
@@ -29,8 +30,8 @@ import java.util.List;
 import java.util.Map;
 import junit.framework.TestCase;
 
-public final class MiniGsonTest extends TestCase {
-  private MiniGson miniGson = new MiniGson.Builder().build();
+public final class StreamingTypeAdaptersTest extends TestCase {
+  private Gson miniGson = new GsonBuilder().create();
   private TypeAdapter<Truck> truckAdapter = miniGson.getAdapter(Truck.class);
   private TypeAdapter<Map<String, Double>> mapAdapter
       = miniGson.getAdapter(new TypeToken<Map<String, Double>>() {});
@@ -101,7 +102,7 @@ public final class MiniGsonTest extends TestCase {
         writer.value(value.name);
       }
     };
-    miniGson = new MiniGson.Builder().typeAdapter(Person.class, personNameAdapter).build();
+    miniGson = new GsonBuilder().typeAdapter(Person.class, personNameAdapter).create();
     truckAdapter = miniGson.getAdapter(Truck.class);
   }
 

@@ -17,7 +17,6 @@
 package com.google.gson;
 
 import com.google.gson.common.TestTypes.ClassWithNoFields;
-import com.google.gson.internal.bind.TypeAdapter;
 import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.LinkedList;
