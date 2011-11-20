@@ -518,10 +518,6 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
   public GsonBuilder registerTypeAdapter(Type type, Object typeAdapter) {
-    return registerTypeAdapter(type, typeAdapter, false);
-  }
-
-  private GsonBuilder registerTypeAdapter(Type type, Object typeAdapter, boolean isSystem) {
     $Gson$Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
         || typeAdapter instanceof JsonDeserializer<?>
         || typeAdapter instanceof InstanceCreator<?>
@@ -531,13 +527,13 @@ public final class GsonBuilder {
           "Cannot register type adapters for " + type);
     }
     if (typeAdapter instanceof InstanceCreator<?>) {
-      registerInstanceCreator(type, (InstanceCreator<?>) typeAdapter, isSystem);
+      registerInstanceCreator(type, (InstanceCreator<?>) typeAdapter);
     }
     if (typeAdapter instanceof JsonSerializer<?>) {
-      registerSerializer(type, (JsonSerializer<?>) typeAdapter, isSystem);
+      registerSerializer(type, (JsonSerializer<?>) typeAdapter);
     }
     if (typeAdapter instanceof JsonDeserializer<?>) {
-      registerDeserializer(type, (JsonDeserializer<?>) typeAdapter, isSystem);
+      registerDeserializer(type, (JsonDeserializer<?>) typeAdapter);
     }
     if (typeAdapter instanceof TypeAdapter.Factory) {
       typeAdapterFactories.add((TypeAdapter.Factory) typeAdapter);
@@ -551,14 +547,14 @@ public final class GsonBuilder {
    * takes a type instead of a Class object, it can be used to register a specific handler for a
    * generic type corresponding to a raw type.
    *
-   * @param <T> the type for which instance creator is being registered
+   *
    * @param typeOfT The Type definition for T
    * @param instanceCreator the instance creator for T
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
   private <T> GsonBuilder registerInstanceCreator(Type typeOfT,
-      InstanceCreator<? extends T> instanceCreator, boolean isSystem) {
-    instanceCreators.register(typeOfT, instanceCreator, isSystem);
+      InstanceCreator<? extends T> instanceCreator) {
+    instanceCreators.register(typeOfT, instanceCreator);
     return this;
   }
 
@@ -567,14 +563,13 @@ public final class GsonBuilder {
    * method if you want to register different serializers for different generic types corresponding
    * to a raw type.
    *
-   * @param <T> the type for which the serializer is being registered
+   *
    * @param typeOfT The type definition for T
    * @param serializer the custom serializer
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
-  private <T> GsonBuilder registerSerializer(Type typeOfT, JsonSerializer<T> serializer,
-      boolean isSystem) {
-    serializers.register(typeOfT, serializer, isSystem);
+  private <T> GsonBuilder registerSerializer(Type typeOfT, JsonSerializer<T> serializer) {
+    serializers.register(typeOfT, serializer);
     return this;
   }
 
@@ -583,14 +578,13 @@ public final class GsonBuilder {
    * method if you want to register different deserializers for different generic types
    * corresponding to a raw type.
    *
-   * @param <T> the type for which the deserializer is being registered
+   *
    * @param typeOfT The type definition for T
    * @param deserializer the custom deserializer
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
-  private <T> GsonBuilder registerDeserializer(Type typeOfT, JsonDeserializer<T> deserializer,
-      boolean isSystem) {
-    deserializers.register(typeOfT, new JsonDeserializerExceptionWrapper<T>(deserializer), isSystem);
+  private <T> GsonBuilder registerDeserializer(Type typeOfT, JsonDeserializer<T> deserializer) {
+    deserializers.register(typeOfT, new JsonDeserializerExceptionWrapper<T>(deserializer));
     return this;
   }
 
@@ -612,41 +606,36 @@ public final class GsonBuilder {
    * @since 1.7
    */
   public GsonBuilder registerTypeHierarchyAdapter(Class<?> baseType, Object typeAdapter) {
-    return registerTypeHierarchyAdapter(baseType, typeAdapter, false);
-  }
-
-  private GsonBuilder registerTypeHierarchyAdapter(Class<?> baseType, Object typeAdapter,
-      boolean isSystem) {
     $Gson$Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
         || typeAdapter instanceof JsonDeserializer<?> || typeAdapter instanceof InstanceCreator<?>);
     if (typeAdapter instanceof InstanceCreator<?>) {
-      registerInstanceCreatorForTypeHierarchy(baseType, (InstanceCreator<?>) typeAdapter, isSystem);
+      registerInstanceCreatorForTypeHierarchy(baseType, (InstanceCreator<?>) typeAdapter);
     }
     if (typeAdapter instanceof JsonSerializer<?>) {
-      registerSerializerForTypeHierarchy(baseType, (JsonSerializer<?>) typeAdapter, isSystem);
+      registerSerializerForTypeHierarchy(baseType, (JsonSerializer<?>) typeAdapter);
     }
     if (typeAdapter instanceof JsonDeserializer<?>) {
-      registerDeserializerForTypeHierarchy(baseType, (JsonDeserializer<?>) typeAdapter, isSystem);
+      registerDeserializerForTypeHierarchy(baseType, (JsonDeserializer<?>) typeAdapter);
     }
     return this;
   }
 
   private <T> GsonBuilder registerInstanceCreatorForTypeHierarchy(Class<?> classOfT,
-      InstanceCreator<? extends T> instanceCreator, boolean isSystem) {
-    instanceCreators.registerForTypeHierarchy(classOfT, instanceCreator, isSystem);
+      InstanceCreator<? extends T> instanceCreator) {
+    instanceCreators.registerForTypeHierarchy(classOfT, instanceCreator);
     return this;
   }
 
   private <T> GsonBuilder registerSerializerForTypeHierarchy(Class<?> classOfT,
-      JsonSerializer<T> serializer, boolean isSystem) {
-    serializers.registerForTypeHierarchy(classOfT, serializer, isSystem);
+      JsonSerializer<T> serializer) {
+    serializers.registerForTypeHierarchy(classOfT, serializer);
     return this;
   }
 
   private <T> GsonBuilder registerDeserializerForTypeHierarchy(Class<?> classOfT,
-      JsonDeserializer<T> deserializer, boolean isSystem) {
+      JsonDeserializer<T> deserializer) {
     deserializers.registerForTypeHierarchy(classOfT,
-        new JsonDeserializerExceptionWrapper<T>(deserializer), isSystem);
+        new JsonDeserializerExceptionWrapper<T>(deserializer));
     return this;
   }
 
@@ -736,7 +725,7 @@ public final class GsonBuilder {
   private static <T> void registerIfAbsent(Class<?> type,
       ParameterizedTypeHandlerMap<T> adapters, T adapter) {
     if (!adapters.hasSpecificHandlerFor(type)) {
-      adapters.register(type, adapter, false);
+      adapters.register(type, adapter);
     }
   }
 }

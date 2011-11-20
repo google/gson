@@ -46,7 +46,7 @@ public class ParameterizedTypeHandlerMapTest extends TestCase {
   public void testHasGenericButNotSpecific() throws Exception {
     Type specificType = new TypeToken<List<String>>() {}.getType();
     String handler = "blah";
-    paramMap.register(List.class, handler, false);
+    paramMap.register(List.class, handler);
 
     assertFalse(paramMap.hasSpecificHandlerFor(specificType));
     assertTrue(paramMap.hasSpecificHandlerFor(List.class));
@@ -58,7 +58,7 @@ public class ParameterizedTypeHandlerMapTest extends TestCase {
   public void testHasSpecificType() throws Exception {
     Type specificType = new TypeToken<List<String>>() {}.getType();
     String handler = "blah";
-    paramMap.register(specificType, handler, false);
+    paramMap.register(specificType, handler);
 
     assertTrue(paramMap.hasSpecificHandlerFor(specificType));
     assertFalse(paramMap.hasSpecificHandlerFor(List.class));
@@ -70,8 +70,8 @@ public class ParameterizedTypeHandlerMapTest extends TestCase {
   public void testTypeOverridding() throws Exception {
     String handler1 = "blah1";
     String handler2 = "blah2";
-    paramMap.register(String.class, handler1, false);
-    paramMap.register(String.class, handler2, false);
+    paramMap.register(String.class, handler1);
+    paramMap.register(String.class, handler2);
 
     assertTrue(paramMap.hasSpecificHandlerFor(String.class));
     assertEquals(handler2, paramMap.getHandlerFor(String.class, false));
@@ -80,44 +80,44 @@ public class ParameterizedTypeHandlerMapTest extends TestCase {
   public void testMakeUnmodifiable() throws Exception {
     paramMap.makeUnmodifiable();
     try {
-     paramMap.register(String.class, "blah", false);
+     paramMap.register(String.class, "blah");
      fail("Can not register handlers when map is unmodifiable");
     } catch (IllegalStateException expected) { }
   }
 
   public void testTypeHierarchy() {
-    paramMap.registerForTypeHierarchy(Base.class, "baseHandler", false);
+    paramMap.registerForTypeHierarchy(Base.class, "baseHandler");
     String handler = paramMap.getHandlerFor(Sub.class, false);
     assertEquals("baseHandler", handler);
   }
 
   public void testTypeHierarchyMultipleHandlers() {
-    paramMap.registerForTypeHierarchy(Base.class, "baseHandler", false);
-    paramMap.registerForTypeHierarchy(Sub.class, "subHandler", false);
+    paramMap.registerForTypeHierarchy(Base.class, "baseHandler");
+    paramMap.registerForTypeHierarchy(Sub.class, "subHandler");
     String handler = paramMap.getHandlerFor(SubOfSub.class, false);
     assertEquals("subHandler", handler);
   }
 
   public void testTypeHierarchyRegisterIfAbsent() {
-    paramMap.registerForTypeHierarchy(Base.class, "baseHandler", false);
+    paramMap.registerForTypeHierarchy(Base.class, "baseHandler");
     ParameterizedTypeHandlerMap<String> otherMap = new ParameterizedTypeHandlerMap<String>();
-    otherMap.registerForTypeHierarchy(Base.class, "baseHandler2", false);
+    otherMap.registerForTypeHierarchy(Base.class, "baseHandler2");
     paramMap.registerIfAbsent(otherMap);
     String handler = paramMap.getHandlerFor(Base.class, false);
     assertEquals("baseHandler", handler);
   }
 
   public void testReplaceExistingTypeHierarchyHandler() {
-    paramMap.registerForTypeHierarchy(Base.class, "baseHandler", false);
-    paramMap.registerForTypeHierarchy(Base.class, "base2Handler", false);
+    paramMap.registerForTypeHierarchy(Base.class, "baseHandler");
+    paramMap.registerForTypeHierarchy(Base.class, "base2Handler");
     String handler = paramMap.getHandlerFor(Base.class, false);
     assertEquals("base2Handler", handler);
   }
 
   public void testHidingExistingTypeHierarchyHandlerIsDisallowed() {
-    paramMap.registerForTypeHierarchy(Sub.class, "subHandler", false);
+    paramMap.registerForTypeHierarchy(Sub.class, "subHandler");
     try {
-      paramMap.registerForTypeHierarchy(Base.class, "baseHandler", false);
+      paramMap.registerForTypeHierarchy(Base.class, "baseHandler");
       fail("A handler that hides an existing type hierarchy handler is not allowed");
     } catch (IllegalArgumentException expected) {
     }
