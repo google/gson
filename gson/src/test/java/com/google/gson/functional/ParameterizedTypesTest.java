@@ -18,9 +18,9 @@ package com.google.gson.functional;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.ParamterizedTypeFixtures.MyParameterizedType;
-import com.google.gson.ParamterizedTypeFixtures.MyParameterizedTypeAdapter;
-import com.google.gson.ParamterizedTypeFixtures.MyParameterizedTypeInstanceCreator;
+import com.google.gson.ParameterizedTypeFixtures.MyParameterizedType;
+import com.google.gson.ParameterizedTypeFixtures.MyParameterizedTypeAdapter;
+import com.google.gson.ParameterizedTypeFixtures.MyParameterizedTypeInstanceCreator;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.reflect.TypeToken;
 
