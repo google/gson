@@ -16,15 +16,13 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.bind.MiniGson;
-import com.google.gson.internal.bind.TypeAdapter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import junit.framework.TestCase;
 
 public final class ObjectTypeAdapterTest extends TestCase {
-  private final MiniGson gson = new MiniGson.Builder().build();
+  private final Gson gson = new GsonBuilder().create();
   private final TypeAdapter<Object> adapter = gson.getAdapter(Object.class);
 
   public void testDeserialize() throws Exception {
@@ -37,14 +35,16 @@ public final class ObjectTypeAdapterTest extends TestCase {
 
   @SuppressWarnings("unused")
   public void testSerialize() throws Exception {
-    Object object = new Object() {
-      Object a = 5;
-      Object b = Arrays.asList(1, 2, null);
-    };
+    Object object = new RuntimeType();
     assertEquals("{'a':5,'b':[1,2,null]}", adapter.toJson(object).replace("\"", "'"));
   }
 
   public void testSerializeObject() throws Exception {
     assertEquals("{}", adapter.toJson(new Object()));
+  }
+
+  private class RuntimeType {
+    Object a = 5;
+    Object b = Arrays.asList(1, 2, null);
   }
 }

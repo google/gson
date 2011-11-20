@@ -15,6 +15,8 @@
  */
 package com.google.gson.internal.bind;
 
+import com.google.gson.Gson;
+import com.google.gson.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
@@ -23,11 +25,11 @@ import java.lang.reflect.Type;
 
 final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
 
-  private final MiniGson context;
+  private final Gson context;
   private final TypeAdapter<T> delegate;
   private final Type type;
 
-  TypeAdapterRuntimeTypeWrapper(MiniGson context, TypeAdapter<T> delegate, Type type) {
+  TypeAdapterRuntimeTypeWrapper(Gson context, TypeAdapter<T> delegate, Type type) {
     this.context = context;
     this.delegate = delegate;
     this.type = type;

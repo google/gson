@@ -17,8 +17,6 @@ package com.google.gson;
 
 import com.google.gson.internal.ParameterizedTypeHandlerMap;
 import com.google.gson.internal.Streams;
-import com.google.gson.internal.bind.MiniGson;
-import com.google.gson.internal.bind.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
@@ -53,7 +51,7 @@ final class GsonToMiniGsonTypeAdapterFactory implements TypeAdapter.Factory {
     };
   }
 
-  public <T> TypeAdapter<T> create(final MiniGson context, final TypeToken<T> typeToken) {
+  public <T> TypeAdapter<T> create(final Gson context, final TypeToken<T> typeToken) {
     final Type type = typeToken.getType();
 
     @SuppressWarnings("unchecked") // guaranteed to match typeOfT

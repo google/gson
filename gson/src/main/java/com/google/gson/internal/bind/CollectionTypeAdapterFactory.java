@@ -16,6 +16,8 @@
 
 package com.google.gson.internal.bind;
 
+import com.google.gson.Gson;
+import com.google.gson.TypeAdapter;
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.ObjectConstructor;
@@ -37,7 +39,7 @@ public final class CollectionTypeAdapterFactory implements TypeAdapter.Factory {
     this.constructorConstructor = constructorConstructor;
   }
 
-  public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> typeToken) {
+  public <T> TypeAdapter<T> create(Gson context, TypeToken<T> typeToken) {
     Type type = typeToken.getType();
 
     Class<? super T> rawType = typeToken.getRawType();
@@ -58,7 +60,7 @@ public final class CollectionTypeAdapterFactory implements TypeAdapter.Factory {
     private final TypeAdapter<E> elementTypeAdapter;
     private final ObjectConstructor<? extends Collection<E>> constructor;
 
-    public Adapter(MiniGson context, Type elementType,
+    public Adapter(Gson context, Type elementType,
         TypeAdapter<E> elementTypeAdapter,
         ObjectConstructor<? extends Collection<E>> constructor) {
       this.elementTypeAdapter =

@@ -17,6 +17,8 @@
 package com.google.gson.internal.bind;
 
 import com.google.gson.ExclusionStrategy;
+import com.google.gson.Gson;
+import com.google.gson.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
@@ -36,7 +38,7 @@ public final class ExcludedTypeAdapterFactory implements TypeAdapter.Factory {
     this.deserializationExclusionStrategy = deserializationExclusionStrategy;
   }
 
-  public <T> TypeAdapter<T> create(final MiniGson context, final TypeToken<T> type) {
+  public <T> TypeAdapter<T> create(final Gson context, final TypeToken<T> type) {
     Class<?> rawType = type.getRawType();
     final boolean skipSerialize = serializationExclusionStrategy.shouldSkipClass(rawType);
     final boolean skipDeserialize = deserializationExclusionStrategy.shouldSkipClass(rawType);
