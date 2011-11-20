@@ -33,7 +33,7 @@ import java.lang.reflect.Type;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class ParamterizedTypeFixtures {
+public class ParameterizedTypeFixtures {
 
   public static class MyParameterizedType<T> {
     public final T value;
