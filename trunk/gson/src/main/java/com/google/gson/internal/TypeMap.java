@@ -33,16 +33,14 @@ import java.util.logging.Logger;
  *
  * @param <T> The handler that will be looked up by type
  */
-public final class ParameterizedTypeHandlerMap<T> {
-
-  private static final Logger logger =
-      Logger.getLogger(ParameterizedTypeHandlerMap.class.getName());
+public final class TypeMap<T> {
+  private static final Logger logger = Logger.getLogger(TypeMap.class.getName());
 
   /** Map that is meant for storing default type adapters */
-  private final Map<Type, T> userMap = new HashMap<Type, T>();
+  private final Map<Type, T> typeMap = new HashMap<Type, T>();
 
   /** List of default type hierarchy adapters */
-  private final List<Pair<Class<?>, T>> userTypeHierarchyList = new ArrayList<Pair<Class<?>, T>>();
+  private final List<Pair<Class<?>, T>> typeHierarchyList = new ArrayList<Pair<Class<?>, T>>();
   private boolean modifiable = true;
 
   public synchronized void registerForTypeHierarchy(Class<?> typeOfT, T value) {
@@ -54,14 +52,13 @@ public final class ParameterizedTypeHandlerMap<T> {
     if (!modifiable) {
       throw new IllegalStateException("Attempted to modify an unmodifiable map.");
     }
-    List<Pair<Class<?>, T>> typeHierarchyList = userTypeHierarchyList;
     int index = getIndexOfSpecificHandlerForTypeHierarchy(pair.first, typeHierarchyList);
-    if (index >= 0) {
+    if (index != -1) {
       logger.log(Level.WARNING, "Overriding the existing type handler for {0}", pair.first);
       typeHierarchyList.remove(index);
     }
     index = getIndexOfAnOverriddenHandler(pair.first, typeHierarchyList);
-    if (index >= 0) {
+    if (index != -1) {
       throw new IllegalArgumentException("The specified type handler for type " + pair.first
           + " hides the previously registered type hierarchy handler for "
           + typeHierarchyList.get(index).first + ". Gson does not allow this.");
@@ -85,71 +82,41 @@ public final class ParameterizedTypeHandlerMap<T> {
     if (!modifiable) {
       throw new IllegalStateException("Attempted to modify an unmodifiable map.");
     }
-    if (hasSpecificHandlerFor(typeOfT)) {
-      logger.log(Level.WARNING, "Overriding the existing type handler for {0}", typeOfT);
-    }
-    Map<Type, T> map = userMap;
-    map.put(typeOfT, value);
+    typeMap.put(typeOfT, value);
   }
 
-  public synchronized void registerIfAbsent(ParameterizedTypeHandlerMap<T> other) {
-    if (!modifiable) {
-      throw new IllegalStateException("Attempted to modify an unmodifiable map.");
-    }
-    for (Map.Entry<Type, T> entry : other.userMap.entrySet()) {
-      if (!userMap.containsKey(entry.getKey())) {
-        register(entry.getKey(), entry.getValue());
-      }
-    }
-    // Quite important to traverse the typeHierarchyList from stack bottom first since
-    // we want to register the handlers in the same order to preserve priority order
-    for (int i = other.userTypeHierarchyList.size()-1; i >= 0; --i) {
-      Pair<Class<?>, T> entry = other.userTypeHierarchyList.get(i);
-      int index = getIndexOfSpecificHandlerForTypeHierarchy(entry.first, userTypeHierarchyList);
-      if (index < 0) {
-        registerForTypeHierarchy(entry);
-      }
-    }
-  }
-
-  public synchronized ParameterizedTypeHandlerMap<T> makeUnmodifiable() {
+  public synchronized TypeMap<T> makeUnmodifiable() {
     modifiable = false;
     return this;
   }
 
-  public synchronized T getHandlerFor(Type type, boolean systemOnly) {
-    T handler;
-    if (!systemOnly) {
-      handler = userMap.get(type);
-      if (handler != null) {
-        return handler;
-      }
+  public synchronized T getHandlerFor(Type type) {
+    T handler = typeMap.get(type);
+    if (handler != null) {
+      return handler;
     }
     Class<?> rawClass = $Gson$Types.getRawType(type);
     if (rawClass != type) {
-      handler = getHandlerFor(rawClass, systemOnly);
+      handler = getHandlerFor(rawClass);
       if (handler != null) {
         return handler;
       }
     }
     // check if something registered for type hierarchy
-    handler = getHandlerForTypeHierarchy(rawClass, systemOnly);
-    return handler;
+    return getHandlerForTypeHierarchy(rawClass);
   }
 
-  private T getHandlerForTypeHierarchy(Class<?> type, boolean systemOnly) {
-    if (!systemOnly) {
-      for (Pair<Class<?>, T> entry : userTypeHierarchyList) {
-        if (entry.first.isAssignableFrom(type)) {
-          return entry.second;
-        }
+  private T getHandlerForTypeHierarchy(Class<?> type) {
+    for (Pair<Class<?>, T> entry : typeHierarchyList) {
+      if (entry.first.isAssignableFrom(type)) {
+        return entry.second;
       }
     }
     return null;
   }
 
   public synchronized boolean hasSpecificHandlerFor(Type type) {
-    return userMap.containsKey(type);
+    return typeMap.containsKey(type);
   }
 
   private static <T> int getIndexOfSpecificHandlerForTypeHierarchy(
@@ -162,24 +129,21 @@ public final class ParameterizedTypeHandlerMap<T> {
     return -1;
   }
 
-  public synchronized ParameterizedTypeHandlerMap<T> copyOf() {
-    ParameterizedTypeHandlerMap<T> copy = new ParameterizedTypeHandlerMap<T>();
+  public synchronized TypeMap<T> copyOf() {
+    TypeMap<T> copy = new TypeMap<T>();
     // Instead of individually registering entries in the map, make an efficient copy
     // of the list and map
-
-    // TODO (inder): Performance optimization. We can probably just share the
-    // systemMap and systemTypeHierarchyList instead of making copies
-    copy.userMap.putAll(userMap);
-    copy.userTypeHierarchyList.addAll(userTypeHierarchyList);
+    copy.typeMap.putAll(typeMap);
+    copy.typeHierarchyList.addAll(typeHierarchyList);
     return copy;
   }
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("{userTypeHierarchyList:{");
-    appendList(sb, userTypeHierarchyList);
-    sb.append("},userMap:{");
-    appendMap(sb, userMap);
+    StringBuilder sb = new StringBuilder("{typeHierarchyList:{");
+    appendList(sb, typeHierarchyList);
+    sb.append("},typeMap:{");
+    appendMap(sb, typeMap);
     sb.append("}");
     return sb.toString();
   }
