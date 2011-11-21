@@ -16,7 +16,6 @@
 
 package com.google.gson;
 
-import com.google.gson.annotations.SerializedName;
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.Primitives;
 import com.google.gson.internal.Streams;
@@ -46,7 +45,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
@@ -104,7 +102,7 @@ public final class Gson {
   @SuppressWarnings("rawtypes")
   static final TypeMap EMPTY_MAP = new TypeMap().makeUnmodifiable();
 
-   static final boolean DEFAULT_JSON_NON_EXECUTABLE = false;
+  static final boolean DEFAULT_JSON_NON_EXECUTABLE = false;
 
   // Default instances of plug-ins
   static final AnonymousAndLocalClassExclusionStrategy DEFAULT_ANON_LOCAL_CLASS_EXCLUSION_STRATEGY =
@@ -133,8 +131,6 @@ public final class Gson {
   };
 
   private final List<TypeAdapter.Factory> factories;
-  private final ExclusionStrategy deserializationExclusionStrategy;
-  private final ExclusionStrategy serializationExclusionStrategy;
   private final ConstructorConstructor constructorConstructor;
 
   /** Map containing Type or Class objects as keys */
@@ -215,8 +211,6 @@ public final class Gson {
       boolean prettyPrinting, boolean serializeSpecialFloatingPointValues,
       LongSerializationPolicy longSerializationPolicy,
       List<TypeAdapter.Factory> typeAdapterFactories) {
-    this.deserializationExclusionStrategy = deserializationExclusionStrategy;
-    this.serializationExclusionStrategy = serializationExclusionStrategy;
     this.constructorConstructor = new ConstructorConstructor(instanceCreators);
     this.serializeNulls = serializeNulls;
     this.serializers = serializers;
@@ -225,27 +219,9 @@ public final class Gson {
     this.htmlSafe = htmlSafe;
     this.prettyPrinting = prettyPrinting;
 
-    TypeAdapter.Factory reflectiveTypeAdapterFactory
-        = new ReflectiveTypeAdapterFactory(constructorConstructor) {
-      @Override
-      public String getFieldName(Class<?> declaringClazz, Field f, Type declaredType) {
-        SerializedName serializedName = f.getAnnotation(SerializedName.class);
-        return serializedName == null ? fieldNamingPolicy.translateName(f) : serializedName.value();
-      }
-      @Override
-      public boolean serializeField(Class<?> declaringClazz, Field f, Type declaredType) {
-        ExclusionStrategy strategy = Gson.this.serializationExclusionStrategy;
-        return !strategy.shouldSkipClass(f.getType())
-            && !strategy.shouldSkipField(new FieldAttributes(declaringClazz, f));
-      }
-
-      @Override
-      public boolean deserializeField(Class<?> declaringClazz, Field f, Type declaredType) {
-        ExclusionStrategy strategy = Gson.this.deserializationExclusionStrategy;
-        return !strategy.shouldSkipClass(f.getType())
-            && !strategy.shouldSkipField(new FieldAttributes(declaringClazz, f));
-      }
-    };
+    TypeAdapter.Factory reflectiveTypeAdapterFactory = new ReflectiveTypeAdapterFactory(
+        constructorConstructor, fieldNamingPolicy, serializationExclusionStrategy,
+        deserializationExclusionStrategy);
 
     ConstructorConstructor constructorConstructor = new ConstructorConstructor();
     List<TypeAdapter.Factory> factories = new ArrayList<TypeAdapter.Factory>();
