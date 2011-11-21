@@ -38,7 +38,7 @@ public class FunctionWithInternalDependenciesTest extends TestCase {
     strategies.add(new SyntheticFieldExclusionStrategy(true));
     strategies.add(new ModifierBasedExclusionStrategy(Modifier.TRANSIENT, Modifier.STATIC));
     ExclusionStrategy exclusionStrategy = new DisjunctionExclusionStrategy(strategies);
-    Gson gson = new Gson(exclusionStrategy, exclusionStrategy, Gson.DEFAULT_NAMING_POLICY,
+    Gson gson = new Gson(exclusionStrategy, exclusionStrategy, FieldNamingPolicy.IDENTITY,
         Gson.EMPTY_MAP, false, Gson.EMPTY_MAP, Gson.EMPTY_MAP, false,
         Gson.DEFAULT_JSON_NON_EXECUTABLE,
         true, false, false, LongSerializationPolicy.DEFAULT,

@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import com.google.gson.annotations.SerializedName;
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.Primitives;
 import com.google.gson.internal.Streams;
@@ -112,8 +113,6 @@ public final class Gson {
       new SyntheticFieldExclusionStrategy(true);
   static final ModifierBasedExclusionStrategy DEFAULT_MODIFIER_BASED_EXCLUSION_STRATEGY =
       new ModifierBasedExclusionStrategy(Modifier.TRANSIENT, Modifier.STATIC);
-  static final FieldNamingStrategy2 DEFAULT_NAMING_POLICY =
-      new SerializedNameAnnotationInterceptingNamingPolicy(new JavaFieldNamingPolicy());
 
   private static final ExclusionStrategy DEFAULT_EXCLUSION_STRATEGY = createExclusionStrategy();
 
@@ -200,7 +199,7 @@ public final class Gson {
    */
   @SuppressWarnings("unchecked")
   public Gson() {
-    this(DEFAULT_EXCLUSION_STRATEGY, DEFAULT_EXCLUSION_STRATEGY, DEFAULT_NAMING_POLICY,
+    this(DEFAULT_EXCLUSION_STRATEGY, DEFAULT_EXCLUSION_STRATEGY, FieldNamingPolicy.IDENTITY,
         EMPTY_MAP, false, EMPTY_MAP, EMPTY_MAP, false, DEFAULT_JSON_NON_EXECUTABLE, true,
         false, false, LongSerializationPolicy.DEFAULT,
         Collections.<TypeAdapter.Factory>emptyList());
@@ -208,7 +207,7 @@ public final class Gson {
 
   Gson(final ExclusionStrategy deserializationExclusionStrategy,
       final ExclusionStrategy serializationExclusionStrategy,
-      final FieldNamingStrategy2 fieldNamingPolicy,
+      final FieldNamingStrategy fieldNamingPolicy,
       final TypeMap<InstanceCreator<?>> instanceCreators, boolean serializeNulls,
       final TypeMap<JsonSerializer<?>> serializers,
       final TypeMap<JsonDeserializer<?>> deserializers,
@@ -226,18 +225,12 @@ public final class Gson {
     this.htmlSafe = htmlSafe;
     this.prettyPrinting = prettyPrinting;
 
-    /*
-      TODO: for serialization, honor:
-        serializationExclusionStrategy
-        fieldNamingPolicy
-        serializeNulls
-        serializers
-     */
     TypeAdapter.Factory reflectiveTypeAdapterFactory
         = new ReflectiveTypeAdapterFactory(constructorConstructor) {
       @Override
       public String getFieldName(Class<?> declaringClazz, Field f, Type declaredType) {
-        return fieldNamingPolicy.translateName(new FieldAttributes(declaringClazz, f));
+        SerializedName serializedName = f.getAnnotation(SerializedName.class);
+        return serializedName == null ? fieldNamingPolicy.translateName(f) : serializedName.value();
       }
       @Override
       public boolean serializeField(Class<?> declaringClazz, Field f, Type declaredType) {
