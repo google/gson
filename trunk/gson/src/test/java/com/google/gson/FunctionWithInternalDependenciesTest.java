@@ -35,7 +35,7 @@ public class FunctionWithInternalDependenciesTest extends TestCase {
   @SuppressWarnings("unchecked")
   public void testAnonymousLocalClassesSerialization() throws Exception {
     LinkedList<ExclusionStrategy> strategies = new LinkedList<ExclusionStrategy>();
-    strategies.add(new SyntheticFieldExclusionStrategy(true));
+    strategies.add(GsonBuilder.EXCLUDE_SYNTHETIC_FIELDS);
     strategies.add(new ModifierBasedExclusionStrategy(Modifier.TRANSIENT, Modifier.STATIC));
     ExclusionStrategy exclusionStrategy = new DisjunctionExclusionStrategy(strategies);
     Gson gson = new Gson(exclusionStrategy, exclusionStrategy, FieldNamingPolicy.IDENTITY,
