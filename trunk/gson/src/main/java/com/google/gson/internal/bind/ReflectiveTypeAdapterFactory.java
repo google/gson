@@ -16,9 +16,13 @@
 
 package com.google.gson.internal.bind;
 
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
+import com.google.gson.FieldNamingStrategy;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
+import com.google.gson.annotations.SerializedName;
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.ObjectConstructor;
@@ -37,23 +41,34 @@ import java.util.Map;
 /**
  * Type adapter that reflects over the fields and methods of a class.
  */
-public class ReflectiveTypeAdapterFactory implements TypeAdapter.Factory {
+public final class ReflectiveTypeAdapterFactory implements TypeAdapter.Factory {
   private final ConstructorConstructor constructorConstructor;
+  private final FieldNamingStrategy fieldNamingPolicy;
+  private final ExclusionStrategy serializationExclusionStrategy;
+  private final ExclusionStrategy deserializationExclusionStrategy;
 
-  public ReflectiveTypeAdapterFactory(ConstructorConstructor constructorConstructor) {
+  public ReflectiveTypeAdapterFactory(ConstructorConstructor constructorConstructor,
+      FieldNamingStrategy fieldNamingPolicy, ExclusionStrategy serializationExclusionStrategy,
+      ExclusionStrategy deserializationExclusionStrategy) {
     this.constructorConstructor = constructorConstructor;
+    this.fieldNamingPolicy = fieldNamingPolicy;
+    this.serializationExclusionStrategy = serializationExclusionStrategy;
+    this.deserializationExclusionStrategy = deserializationExclusionStrategy;
   }
 
-  protected boolean serializeField(Class<?> declaringClazz, Field f, Type declaredType) {
-    return !f.isSynthetic();
+  public boolean serializeField(Field f) {
+    return !serializationExclusionStrategy.shouldSkipClass(f.getType())
+        && !serializationExclusionStrategy.shouldSkipField(new FieldAttributes(f));
   }
 
-  protected boolean deserializeField(Class<?> declaringClazz, Field f, Type declaredType) {
-    return !f.isSynthetic();
+  private boolean deserializeField(Field f) {
+    return !deserializationExclusionStrategy.shouldSkipClass(f.getType())
+        && !deserializationExclusionStrategy.shouldSkipField(new FieldAttributes(f));
   }
 
-  protected String getFieldName(Class<?> declaringClazz, Field f, Type declaredType) {
-    return f.getName();
+  private String getFieldName(Field f) {
+    SerializedName serializedName = f.getAnnotation(SerializedName.class);
+    return serializedName == null ? fieldNamingPolicy.translateName(f) : serializedName.value();
   }
 
   public <T> TypeAdapter<T> create(Gson context, final TypeToken<T> type) {
@@ -93,8 +108,7 @@ public class ReflectiveTypeAdapterFactory implements TypeAdapter.Factory {
     };
   }
 
-  private Map<String, BoundField> getBoundFields(
-      Gson context, TypeToken<?> type, Class<?> raw) {
+  private Map<String, BoundField> getBoundFields(Gson context, TypeToken<?> type, Class<?> raw) {
     Map<String, BoundField> result = new LinkedHashMap<String, BoundField>();
     if (raw.isInterface()) {
       return result;
@@ -105,13 +119,13 @@ public class ReflectiveTypeAdapterFactory implements TypeAdapter.Factory {
       Field[] fields = raw.getDeclaredFields();
       AccessibleObject.setAccessible(fields, true);
       for (Field field : fields) {
-        boolean serialize = serializeField(raw, field, declaredType);
-        boolean deserialize = deserializeField(raw, field, declaredType);
+        boolean serialize = serializeField(field);
+        boolean deserialize = deserializeField(field);
         if (!serialize && !deserialize) {
           continue;
         }
         Type fieldType = $Gson$Types.resolve(type.getType(), raw, field.getGenericType());
-        BoundField boundField = createBoundField(context, field, getFieldName(raw, field, declaredType),
+        BoundField boundField = createBoundField(context, field, getFieldName(field),
             TypeToken.get(fieldType), serialize, deserialize);
         BoundField previous = result.put(boundField.name, boundField);
         if (previous != null) {

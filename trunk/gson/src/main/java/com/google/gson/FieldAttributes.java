@@ -58,8 +58,8 @@ public final class FieldAttributes {
    *
    * @param f the field to pull attributes from
    */
-  FieldAttributes(Class<?> declaringClazz, Field f) {
-    this.declaringClazz = $Gson$Preconditions.checkNotNull(declaringClazz);
+  public FieldAttributes(Field f) {
+    this.declaringClazz = f.getDeclaringClass();
     this.name = f.getName();
     this.declaredType = f.getType();
     this.isSynthetic = f.isSynthetic();
@@ -198,14 +198,6 @@ public final class FieldAttributes {
    */
   boolean isSynthetic() {
     return isSynthetic;
-  }
-
-  /**
-   * @deprecated remove this when {@link FieldNamingStrategy} is deleted.
-   */
-  @Deprecated
-  Field getFieldObject() {
-    return field;
   }
 
   @SuppressWarnings("unchecked")
