@@ -16,7 +16,6 @@
 
 package com.google.gson;
 
-import com.google.gson.DefaultTypeAdapters.DefaultDateTypeAdapter;
 import com.google.gson.annotations.Expose;
 import com.google.gson.internal.$Gson$Preconditions;
 import com.google.gson.internal.Primitives;
