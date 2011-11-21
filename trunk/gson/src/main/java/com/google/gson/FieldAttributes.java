@@ -16,7 +16,6 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.$Gson$Preconditions;
 import com.google.gson.internal.Pair;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -39,8 +38,8 @@ public final class FieldAttributes {
   private static final String MAX_CACHE_PROPERTY_NAME =
       "com.google.gson.annotation_cache_size_hint";
 
-  private static final Cache<Pair<Class<?>, String>, Collection<Annotation>> ANNOTATION_CACHE =
-      new LruCache<Pair<Class<?>,String>, Collection<Annotation>>(getMaxCacheSize());
+  private static final LruCache<Pair<Class<?>, String>, Collection<Annotation>> ANNOTATION_CACHE
+      = new LruCache<Pair<Class<?>,String>, Collection<Annotation>>(getMaxCacheSize());
 
   private final Class<?> declaringClazz;
   private final Field field;
@@ -155,11 +154,11 @@ public final class FieldAttributes {
   public Collection<Annotation> getAnnotations() {
     if (annotations == null) {
       Pair<Class<?>, String> key = new Pair<Class<?>, String>(declaringClazz, name);
-      Collection<Annotation> cachedValue = ANNOTATION_CACHE.getElement(key);
+      Collection<Annotation> cachedValue = ANNOTATION_CACHE.get(key);
       if (cachedValue == null) {
         cachedValue = Collections.unmodifiableCollection(
             Arrays.asList(field.getAnnotations()));
-        ANNOTATION_CACHE.addElement(key, cachedValue);
+        ANNOTATION_CACHE.put(key, cachedValue);
       }
       annotations = cachedValue;
     }

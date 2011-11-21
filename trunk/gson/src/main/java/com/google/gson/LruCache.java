@@ -21,16 +21,14 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * An implementation of the {@link Cache} interface that evict objects from the cache using an
- * LRU (least recently used) algorithm.  Object start getting evicted from the cache once the
- * {@code maxCapacity} is reached.
+ * A cache that evict objects from the cache using an LRU (least recently used)
+ * policy.  Object start getting evicted from the cache once the {@code maxCapacity}
+ * is reached.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-final class LruCache<K, V> extends LinkedHashMap<K, V> implements Cache<K, V> {
-  private static final long serialVersionUID = 1L;
-
+final class LruCache<K, V> extends LinkedHashMap<K, V> {
   private final int maxCapacity;
 
   public LruCache(int maxCapacity) {
@@ -38,16 +36,7 @@ final class LruCache<K, V> extends LinkedHashMap<K, V> implements Cache<K, V> {
     this.maxCapacity = maxCapacity;
   }
 
-  public synchronized void addElement(K key, V value) {
-    put(key, value);
-  }
-
-  public synchronized V getElement(K key) {
-    return get(key);
-  }
-
-  @Override
-  protected boolean removeEldestEntry(Map.Entry<K, V> entry) {
+  @Override protected boolean removeEldestEntry(Map.Entry<K, V> entry) {
     return size() > maxCapacity;
   }
 }
