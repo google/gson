@@ -16,13 +16,13 @@
 
 package com.google.gson.typeadapters;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
+import com.google.gson.TypeAdapter;
 import com.google.gson.internal.Streams;
-import com.google.gson.internal.bind.MiniGson;
-import com.google.gson.internal.bind.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
@@ -179,7 +179,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapter.Factory {
     return registerSubtype(type, type.getSimpleName());
   }
 
-  public <T> TypeAdapter<T> create(MiniGson context, TypeToken<T> type) {
+  public <T> TypeAdapter<T> create(Gson context, TypeToken<T> type) {
     if (type.getRawType() != baseType) {
       return null;
     }
