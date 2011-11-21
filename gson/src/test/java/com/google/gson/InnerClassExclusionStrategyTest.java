@@ -21,7 +21,7 @@ import junit.framework.TestCase;
 import java.lang.reflect.Field;
 
 /**
- * Unit test for the {@link InnerClassExclusionStrategy} class.
+ * Unit test for GsonBuilder.EXCLUDE_INNER_CLASSES.
  *
  * @author Joel Leitch
  */
@@ -29,14 +29,14 @@ public class InnerClassExclusionStrategyTest extends TestCase {
   public InnerClass innerClass;
   public StaticNestedClass staticNestedClass;
 
-  private InnerClassExclusionStrategy strategy;
+  private ExclusionStrategy strategy;
 
   @Override
   protected void setUp() throws Exception {
     super.setUp();
     innerClass = new InnerClass();
     staticNestedClass = new StaticNestedClass();
-    strategy = new InnerClassExclusionStrategy();
+    strategy = GsonBuilder.EXCLUDE_INNER_CLASSES;
   }
 
   public void testExcludeInnerClassObject() throws Exception {

@@ -17,11 +17,13 @@
 package com.google.gson;
 
 import com.google.gson.DefaultTypeAdapters.DefaultDateTypeAdapter;
+import com.google.gson.annotations.Expose;
 import com.google.gson.internal.$Gson$Preconditions;
 import com.google.gson.internal.Primitives;
 import com.google.gson.internal.TypeMap;
 import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -67,14 +69,68 @@ import java.util.Set;
  * @author Joel Leitch
  */
 public final class GsonBuilder {
-  private static final InnerClassExclusionStrategy innerClassExclusionStrategy =
-      new InnerClassExclusionStrategy();
-  private static final ExposeAnnotationDeserializationExclusionStrategy
-  exposeAnnotationDeserializationExclusionStrategy =
-      new ExposeAnnotationDeserializationExclusionStrategy();
-  private static final ExposeAnnotationSerializationExclusionStrategy
-  exposeAnnotationSerializationExclusionStrategy =
-      new ExposeAnnotationSerializationExclusionStrategy();
+  /** Strategy for excluding inner classes. */
+  static final ExclusionStrategy EXCLUDE_INNER_CLASSES = new ExclusionStrategy() {
+    public boolean shouldSkipField(FieldAttributes f) {
+      return isInnerClass(f.getDeclaredClass());
+    }
+    public boolean shouldSkipClass(Class<?> clazz) {
+      return isInnerClass(clazz);
+    }
+    private boolean isInnerClass(Class<?> clazz) {
+      return clazz.isMemberClass() && !isStatic(clazz);
+    }
+    private boolean isStatic(Class<?> clazz) {
+      return (clazz.getModifiers() & Modifier.STATIC) != 0;
+    }
+  };
+
+  /** Excludes fields that do not have the {@link Expose} annotation */
+  static final ExclusionStrategy REQUIRE_EXPOSE_DESERIALIZE = new ExclusionStrategy() {
+    public boolean shouldSkipClass(Class<?> clazz) {
+      return false;
+    }
+    public boolean shouldSkipField(FieldAttributes f) {
+      Expose annotation = f.getAnnotation(Expose.class);
+      return annotation == null || !annotation.deserialize();
+    }
+  };
+
+  /** Excludes fields that do not have the {@link Expose} annotation */
+  static final ExclusionStrategy REQUIRE_EXPOSE_SERIALIZE = new ExclusionStrategy() {
+    public boolean shouldSkipClass(Class<?> clazz) {
+      return false;
+    }
+    public boolean shouldSkipField(FieldAttributes f) {
+      Expose annotation = f.getAnnotation(Expose.class);
+      return annotation == null || !annotation.serialize();
+    }
+  };
+
+  static final ExclusionStrategy EXCLUDE_ANONYMOUS_AND_LOCAL = new ExclusionStrategy() {
+    public boolean shouldSkipField(FieldAttributes f) {
+      return isAnonymousOrLocal(f.getDeclaredClass());
+    }
+    public boolean shouldSkipClass(Class<?> clazz) {
+      return isAnonymousOrLocal(clazz);
+    }
+    private boolean isAnonymousOrLocal(Class<?> clazz) {
+      return !Enum.class.isAssignableFrom(clazz)
+          && (clazz.isAnonymousClass() || clazz.isLocalClass());
+    }
+  };
+
+  static final ExclusionStrategy EXCLUDE_SYNTHETIC_FIELDS = new ExclusionStrategy() {
+    public boolean shouldSkipClass(Class<?> clazz) {
+      return false;
+    }
+    public boolean shouldSkipField(FieldAttributes f) {
+      return f.isSynthetic();
+    }
+  };
+
+  static final ModifierBasedExclusionStrategy EXCLUDE_TRANSIENT_AND_STATIC
+      = new ModifierBasedExclusionStrategy(Modifier.TRANSIENT, Modifier.STATIC);
 
   private final Set<ExclusionStrategy> serializeExclusionStrategies =
       new HashSet<ExclusionStrategy>();
@@ -110,17 +166,17 @@ public final class GsonBuilder {
    */
   public GsonBuilder() {
     // add default exclusion strategies
-    deserializeExclusionStrategies.add(Gson.DEFAULT_ANON_LOCAL_CLASS_EXCLUSION_STRATEGY);
-    deserializeExclusionStrategies.add(Gson.DEFAULT_SYNTHETIC_FIELD_EXCLUSION_STRATEGY);
-    serializeExclusionStrategies.add(Gson.DEFAULT_ANON_LOCAL_CLASS_EXCLUSION_STRATEGY);
-    serializeExclusionStrategies.add(Gson.DEFAULT_SYNTHETIC_FIELD_EXCLUSION_STRATEGY);
+    deserializeExclusionStrategies.add(EXCLUDE_ANONYMOUS_AND_LOCAL);
+    deserializeExclusionStrategies.add(EXCLUDE_SYNTHETIC_FIELDS);
+    serializeExclusionStrategies.add(EXCLUDE_ANONYMOUS_AND_LOCAL);
+    serializeExclusionStrategies.add(EXCLUDE_SYNTHETIC_FIELDS);
 
     // setup default values
     ignoreVersionsAfter = VersionExclusionStrategy.IGNORE_VERSIONS;
     serializeInnerClasses = true;
     prettyPrinting = false;
     escapeHtmlChars = true;
-    modifierBasedExclusionStrategy = Gson.DEFAULT_MODIFIER_BASED_EXCLUSION_STRATEGY;
+    modifierBasedExclusionStrategy = EXCLUDE_TRANSIENT_AND_STATIC;
     excludeFieldsWithoutExposeAnnotation = false;
     longSerializationPolicy = LongSerializationPolicy.DEFAULT;
     fieldNamingPolicy = FieldNamingPolicy.IDENTITY;
@@ -636,8 +692,8 @@ public final class GsonBuilder {
     serializationStrategies.add(modifierBasedExclusionStrategy);
 
     if (!serializeInnerClasses) {
-      deserializationStrategies.add(innerClassExclusionStrategy);
-      serializationStrategies.add(innerClassExclusionStrategy);
+      deserializationStrategies.add(EXCLUDE_INNER_CLASSES);
+      serializationStrategies.add(EXCLUDE_INNER_CLASSES);
     }
     if (ignoreVersionsAfter != VersionExclusionStrategy.IGNORE_VERSIONS) {
       VersionExclusionStrategy versionExclusionStrategy =
@@ -646,8 +702,8 @@ public final class GsonBuilder {
       serializationStrategies.add(versionExclusionStrategy);
     }
     if (excludeFieldsWithoutExposeAnnotation) {
-      deserializationStrategies.add(exposeAnnotationDeserializationExclusionStrategy);
-      serializationStrategies.add(exposeAnnotationSerializationExclusionStrategy);
+      deserializationStrategies.add(REQUIRE_EXPOSE_DESERIALIZE);
+      serializationStrategies.add(REQUIRE_EXPOSE_SERIALIZE);
     }
     addTypeAdaptersForDate(datePattern, dateStyle, timeStyle, serializers, deserializers);
 
