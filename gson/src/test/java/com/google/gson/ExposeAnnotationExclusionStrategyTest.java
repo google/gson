@@ -66,18 +66,18 @@ public class ExposeAnnotationExclusionStrategyTest extends TestCase {
     assertFalse(deserializationStrategy.shouldSkipField(f));
     assertFalse(serializationStrategy.shouldSkipField(f));
   }
-  
+
   public void testDifferentSerializeAndDeserializeField() throws Exception {
     FieldAttributes f = createFieldAttributes("explicitlyDifferentModeField");
     assertTrue(deserializationStrategy.shouldSkipField(f));
     assertFalse(serializationStrategy.shouldSkipField(f));
   }
-  
+
   private static FieldAttributes createFieldAttributes(String fieldName) throws Exception {
     Field f = MockObject.class.getField(fieldName);
-    return new FieldAttributes(MockObject.class, f);
+    return new FieldAttributes(f);
   }
-  
+
   @SuppressWarnings("unused")
   private static class MockObject {
     @Expose
@@ -88,7 +88,7 @@ public class ExposeAnnotationExclusionStrategyTest extends TestCase {
 
     @Expose(serialize=false, deserialize=false)
     public final int explicitlyHiddenField = 0;
-    
+
     @Expose(serialize=true, deserialize=false)
     public final int explicitlyDifferentModeField = 0;
 
