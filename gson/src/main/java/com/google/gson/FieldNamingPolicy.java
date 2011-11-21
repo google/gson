@@ -16,6 +16,8 @@
 
 package com.google.gson;
 
+import java.lang.reflect.Field;
+
 /**
  * An enumeration that defines a few standard naming conventions for JSON field names.
  * This enumeration should be used in conjunction with {@link com.google.gson.GsonBuilder}
@@ -25,7 +27,18 @@ package com.google.gson;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public enum FieldNamingPolicy {
+public enum FieldNamingPolicy implements FieldNamingStrategy {
+
+  /**
+   * Using this naming policy with Gson will ensure that the field name is
+   * unchanged.
+   */
+  IDENTITY() {
+    public String translateName(Field f) {
+      return f.getName();
+    }
+  },
+
   /**
    * Using this naming policy with Gson will ensure that the first "letter" of the Java
    * field name is capitalized when serialized to its JSON form.
@@ -36,8 +49,11 @@ public enum FieldNamingPolicy {
    *   <li>_someFieldName ---> _SomeFieldName</li>
    * </ul>
    */
-  UPPER_CAMEL_CASE(new ModifyFirstLetterNamingPolicy(
-      ModifyFirstLetterNamingPolicy.LetterModifier.UPPER)),
+  UPPER_CAMEL_CASE() {
+    public String translateName(Field f) {
+      return upperCaseFirstLetter(f.getName());
+    }
+  },
 
   /**
    * Using this naming policy with Gson will ensure that the first "letter" of the Java
@@ -49,11 +65,15 @@ public enum FieldNamingPolicy {
    *   <li>someFieldName ---> Some Field Name</li>
    *   <li>_someFieldName ---> _Some Field Name</li>
    * </ul>
-   * 
+   *
    * @since 1.4
    */
-  UPPER_CAMEL_CASE_WITH_SPACES(new UpperCamelCaseSeparatorNamingPolicy(" ")),
-          
+  UPPER_CAMEL_CASE_WITH_SPACES() {
+    public String translateName(Field f) {
+      return upperCaseFirstLetter(separateCamelCase(f.getName(), " "));
+    }
+  },
+
   /**
    * Using this naming policy with Gson will modify the Java Field name from its camel cased
    * form to a lower case field name where each word is separated by an underscore (_).
@@ -66,8 +86,12 @@ public enum FieldNamingPolicy {
    *   <li>aURL ---> a_u_r_l</li>
    * </ul>
    */
-  LOWER_CASE_WITH_UNDERSCORES(new LowerCamelCaseSeparatorNamingPolicy("_")),
-  
+  LOWER_CASE_WITH_UNDERSCORES() {
+    public String translateName(Field f) {
+      return separateCamelCase(f.getName(), "_").toLowerCase();
+    }
+  },
+
   /**
    * Using this naming policy with Gson will modify the Java Field name from its camel cased
    * form to a lower case field name where each word is separated by a dash (-).
@@ -85,15 +109,60 @@ public enum FieldNamingPolicy {
    * {@code myobject.my-field} will result in an unintended javascript expression.
    * @since 1.4
    */
-  LOWER_CASE_WITH_DASHES(new LowerCamelCaseSeparatorNamingPolicy("-"));
+  LOWER_CASE_WITH_DASHES() {
+    public String translateName(Field f) {
+      return separateCamelCase(f.getName(), "-").toLowerCase();
+    }
+  };
 
-  private final FieldNamingStrategy2 namingPolicy;
-
-  private FieldNamingPolicy(FieldNamingStrategy2 namingPolicy) {
-    this.namingPolicy = namingPolicy;
+  /**
+   * Converts the field name that uses camel-case define word separation into
+   * separate words that are separated by the provided {@code separatorString}.
+   */
+  private static String separateCamelCase(String name, String separator) {
+    StringBuilder translation = new StringBuilder();
+    for (int i = 0; i < name.length(); i++) {
+      char character = name.charAt(i);
+      if (Character.isUpperCase(character) && translation.length() != 0) {
+        translation.append(separator);
+      }
+      translation.append(character);
+    }
+    return translation.toString();
   }
 
-  FieldNamingStrategy2 getFieldNamingPolicy() {
-    return namingPolicy;
+  /**
+   * Ensures the JSON field names begins with an upper case letter.
+   */
+  private static String upperCaseFirstLetter(String name) {
+    StringBuilder fieldNameBuilder = new StringBuilder();
+    int index = 0;
+    char firstCharacter = name.charAt(index);
+
+    while (index < name.length() - 1) {
+      if (Character.isLetter(firstCharacter)) {
+        break;
+      }
+
+      fieldNameBuilder.append(firstCharacter);
+      firstCharacter = name.charAt(++index);
+    }
+
+    if (index == name.length()) {
+      return fieldNameBuilder.toString();
+    }
+
+    if (!Character.isUpperCase(firstCharacter)) {
+      String modifiedTarget = modifyString(Character.toUpperCase(firstCharacter), name, ++index);
+      return fieldNameBuilder.append(modifiedTarget).toString();
+    } else {
+      return name;
+    }
+  }
+
+  private static String modifyString(char firstCharacter, String srcString, int indexOfSubstring) {
+    return (indexOfSubstring < srcString.length())
+        ? firstCharacter + srcString.substring(indexOfSubstring)
+        : String.valueOf(firstCharacter);
   }
 }

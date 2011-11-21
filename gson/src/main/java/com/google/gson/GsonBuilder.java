@@ -86,7 +86,7 @@ public final class GsonBuilder {
   private boolean serializeInnerClasses;
   private boolean excludeFieldsWithoutExposeAnnotation;
   private LongSerializationPolicy longSerializationPolicy;
-  private FieldNamingStrategy2 fieldNamingPolicy;
+  private FieldNamingStrategy fieldNamingPolicy;
   private final TypeMap<InstanceCreator<?>> instanceCreators;
   private final TypeMap<JsonSerializer<?>> serializers;
   private final TypeMap<JsonDeserializer<?>> deserializers;
@@ -123,7 +123,7 @@ public final class GsonBuilder {
     modifierBasedExclusionStrategy = Gson.DEFAULT_MODIFIER_BASED_EXCLUSION_STRATEGY;
     excludeFieldsWithoutExposeAnnotation = false;
     longSerializationPolicy = LongSerializationPolicy.DEFAULT;
-    fieldNamingPolicy = Gson.DEFAULT_NAMING_POLICY;
+    fieldNamingPolicy = FieldNamingPolicy.IDENTITY;
     instanceCreators = new TypeMap<InstanceCreator<?>>();
     serializers = new TypeMap<JsonSerializer<?>>();
     deserializers = new TypeMap<JsonDeserializer<?>>();
@@ -338,7 +338,8 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
   public GsonBuilder setFieldNamingPolicy(FieldNamingPolicy namingConvention) {
-    return setFieldNamingStrategy(namingConvention.getFieldNamingPolicy());
+    this.fieldNamingPolicy = namingConvention;
+    return this;
   }
 
   /**
@@ -350,19 +351,7 @@ public final class GsonBuilder {
    * @since 1.3
    */
   public GsonBuilder setFieldNamingStrategy(FieldNamingStrategy fieldNamingStrategy) {
-    return setFieldNamingStrategy(new FieldNamingStrategy2Adapter(fieldNamingStrategy));
-  }
-
-  /**
-   * Configures Gson to apply a specific naming policy strategy to an object's field during
-   * serialization and deserialization.
-   *
-   * @param fieldNamingStrategy the actual naming strategy to apply to the fields
-   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
-   */
-  GsonBuilder setFieldNamingStrategy(FieldNamingStrategy2 fieldNamingStrategy) {
-    this.fieldNamingPolicy =
-        new SerializedNameAnnotationInterceptingNamingPolicy(fieldNamingStrategy);
+    this.fieldNamingPolicy = fieldNamingStrategy;
     return this;
   }
 
