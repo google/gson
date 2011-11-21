@@ -45,7 +45,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -103,14 +102,6 @@ public final class Gson {
   static final TypeMap EMPTY_MAP = new TypeMap().makeUnmodifiable();
 
   static final boolean DEFAULT_JSON_NON_EXECUTABLE = false;
-
-  // Default instances of plug-ins
-  static final AnonymousAndLocalClassExclusionStrategy DEFAULT_ANON_LOCAL_CLASS_EXCLUSION_STRATEGY =
-      new AnonymousAndLocalClassExclusionStrategy();
-  static final SyntheticFieldExclusionStrategy DEFAULT_SYNTHETIC_FIELD_EXCLUSION_STRATEGY =
-      new SyntheticFieldExclusionStrategy(true);
-  static final ModifierBasedExclusionStrategy DEFAULT_MODIFIER_BASED_EXCLUSION_STRATEGY =
-      new ModifierBasedExclusionStrategy(Modifier.TRANSIENT, Modifier.STATIC);
 
   private static final ExclusionStrategy DEFAULT_EXCLUSION_STRATEGY = createExclusionStrategy();
 
@@ -352,9 +343,9 @@ public final class Gson {
 
   private static ExclusionStrategy createExclusionStrategy() {
     List<ExclusionStrategy> strategies = new LinkedList<ExclusionStrategy>();
-    strategies.add(DEFAULT_ANON_LOCAL_CLASS_EXCLUSION_STRATEGY);
-    strategies.add(DEFAULT_SYNTHETIC_FIELD_EXCLUSION_STRATEGY);
-    strategies.add(DEFAULT_MODIFIER_BASED_EXCLUSION_STRATEGY);
+    strategies.add(GsonBuilder.EXCLUDE_ANONYMOUS_AND_LOCAL);
+    strategies.add(GsonBuilder.EXCLUDE_SYNTHETIC_FIELDS);
+    strategies.add(GsonBuilder.EXCLUDE_TRANSIENT_AND_STATIC);
     return new DisjunctionExclusionStrategy(strategies);
   }
 

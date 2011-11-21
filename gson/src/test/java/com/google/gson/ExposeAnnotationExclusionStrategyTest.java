@@ -23,20 +23,13 @@ import junit.framework.TestCase;
 import java.lang.reflect.Field;
 
 /**
- * Unit tests for the {@link ExposeAnnotationSerializationExclusionStrategy} class.
+ * Unit tests for GsonBuilder.REQUIRE_EXPOSE_DESERIALIZE.
  *
  * @author Joel Leitch
  */
 public class ExposeAnnotationExclusionStrategyTest extends TestCase {
-  private ExposeAnnotationDeserializationExclusionStrategy deserializationStrategy;
-  private ExposeAnnotationSerializationExclusionStrategy serializationStrategy;
-
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
-    deserializationStrategy = new ExposeAnnotationDeserializationExclusionStrategy();
-    serializationStrategy = new ExposeAnnotationSerializationExclusionStrategy();
-  }
+  private ExclusionStrategy deserializationStrategy = GsonBuilder.REQUIRE_EXPOSE_DESERIALIZE;
+  private ExclusionStrategy serializationStrategy = GsonBuilder.REQUIRE_EXPOSE_SERIALIZE;
 
   public void testNeverSkipClasses() throws Exception {
     assertFalse(deserializationStrategy.shouldSkipClass(MockObject.class));
