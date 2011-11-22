@@ -17,6 +17,7 @@
 package com.google.gson;
 
 import com.google.gson.internal.ConstructorConstructor;
+import com.google.gson.internal.Excluder;
 import com.google.gson.internal.Primitives;
 import com.google.gson.internal.Streams;
 import com.google.gson.internal.TypeMap;
@@ -25,7 +26,6 @@ import com.google.gson.internal.bind.BigDecimalTypeAdapter;
 import com.google.gson.internal.bind.BigIntegerTypeAdapter;
 import com.google.gson.internal.bind.CollectionTypeAdapterFactory;
 import com.google.gson.internal.bind.DateTypeAdapter;
-import com.google.gson.internal.bind.ExcludedTypeAdapterFactory;
 import com.google.gson.internal.bind.JsonElementReader;
 import com.google.gson.internal.bind.JsonElementWriter;
 import com.google.gson.internal.bind.MapTypeAdapterFactory;
@@ -45,7 +45,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -102,10 +101,6 @@ public final class Gson {
   static final TypeMap EMPTY_MAP = new TypeMap().makeUnmodifiable();
 
   static final boolean DEFAULT_JSON_NON_EXECUTABLE = false;
-
-  private static final ExclusionStrategy DEFAULT_EXCLUSION_STRATEGY = new GsonExclusionStrategy(
-      GsonExclusionStrategy.IGNORE_VERSIONS, Modifier.TRANSIENT | Modifier.STATIC,
-      true, true, true, false, false);
 
   private static final String JSON_NON_EXECUTABLE_PREFIX = ")]}'\n";
 
@@ -188,15 +183,13 @@ public final class Gson {
    */
   @SuppressWarnings("unchecked")
   public Gson() {
-    this(DEFAULT_EXCLUSION_STRATEGY, DEFAULT_EXCLUSION_STRATEGY, FieldNamingPolicy.IDENTITY,
+    this(Excluder.DEFAULT, FieldNamingPolicy.IDENTITY,
         EMPTY_MAP, false, EMPTY_MAP, EMPTY_MAP, false, DEFAULT_JSON_NON_EXECUTABLE, true,
         false, false, LongSerializationPolicy.DEFAULT,
         Collections.<TypeAdapter.Factory>emptyList());
   }
 
-  Gson(final ExclusionStrategy deserializationExclusionStrategy,
-      final ExclusionStrategy serializationExclusionStrategy,
-      final FieldNamingStrategy fieldNamingPolicy,
+  Gson(final Excluder excluder, final FieldNamingStrategy fieldNamingPolicy,
       final TypeMap<InstanceCreator<?>> instanceCreators, boolean serializeNulls,
       final TypeMap<JsonSerializer<?>> serializers,
       final TypeMap<JsonDeserializer<?>> deserializers,
@@ -213,8 +206,7 @@ public final class Gson {
     this.prettyPrinting = prettyPrinting;
 
     TypeAdapter.Factory reflectiveTypeAdapterFactory = new ReflectiveTypeAdapterFactory(
-        constructorConstructor, fieldNamingPolicy, serializationExclusionStrategy,
-        deserializationExclusionStrategy);
+        constructorConstructor, fieldNamingPolicy, excluder);
 
     ConstructorConstructor constructorConstructor = new ConstructorConstructor();
     List<TypeAdapter.Factory> factories = new ArrayList<TypeAdapter.Factory>();
@@ -229,8 +221,7 @@ public final class Gson {
             doubleAdapter(serializeSpecialFloatingPointValues)));
     factories.add(TypeAdapters.newFactory(float.class, Float.class,
             floatAdapter(serializeSpecialFloatingPointValues)));
-    factories.add(new ExcludedTypeAdapterFactory(
-            serializationExclusionStrategy, deserializationExclusionStrategy));
+    factories.add(excluder);
     factories.add(TypeAdapters.NUMBER_FACTORY);
     factories.add(TypeAdapters.CHARACTER_FACTORY);
     factories.add(TypeAdapters.STRING_BUILDER_FACTORY);
