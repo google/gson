@@ -105,27 +105,8 @@ public final class GsonBuilder {
   }
 
   // TODO: nice documentation
-  public GsonBuilder factory(TypeAdapter.Factory factory) {
+  public GsonBuilder registerTypeAdapterFactory(TypeAdapter.Factory factory) {
     typeAdapterFactories.add(factory);
-    return this;
-  }
-
-  // TODO: nice documentation
-  public <T> GsonBuilder typeAdapter(final Class<T> type, final TypeAdapter<T> typeAdapter) {
-    typeAdapterFactories.add(TypeAdapters.newFactory(type, typeAdapter));
-    return this;
-  }
-
-  // TODO: nice documentation
-  // TODO: accept a Type instead of a TypeToken? It's less typesafe but more Gson-like
-  public <T> GsonBuilder typeAdapter(TypeToken<T> type, TypeAdapter<T> typeAdapter) {
-    typeAdapterFactories.add(TypeAdapters.newFactory(type, typeAdapter));
-    return this;
-  }
-
-  // TODO: nice documentation
-  public <T> GsonBuilder typeHierarchyAdapter(Class<T> type, TypeAdapter<T> typeAdapter) {
-    typeAdapterFactories.add(TypeAdapters.newTypeHierarchyFactory(type, typeAdapter));
     return this;
   }
 
@@ -476,11 +457,12 @@ public final class GsonBuilder {
    * {@link JsonSerializer}, and a {@link JsonDeserializer} interfaces.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
+  @SuppressWarnings({"unchecked", "rawtypes"})
   public GsonBuilder registerTypeAdapter(Type type, Object typeAdapter) {
     $Gson$Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
         || typeAdapter instanceof JsonDeserializer<?>
         || typeAdapter instanceof InstanceCreator<?>
-        || typeAdapter instanceof TypeAdapter.Factory);
+        || typeAdapter instanceof TypeAdapter<?>);
     if (Primitives.isPrimitive(type) || Primitives.isWrapperType(type)) {
       throw new IllegalArgumentException(
           "Cannot register type adapters for " + type);
@@ -492,9 +474,15 @@ public final class GsonBuilder {
       TypeToken<?> typeToken = TypeToken.get(type);
       typeAdapterFactories.add(new TreeTypeAdapter.SingleTypeFactory(typeToken, typeAdapter));
     }
-    if (typeAdapter instanceof TypeAdapter.Factory) {
-      typeAdapterFactories.add((TypeAdapter.Factory) typeAdapter);
+    if (typeAdapter instanceof TypeAdapter<?>) {
+      typeAdapter(TypeToken.get(type), (TypeAdapter)typeAdapter);
     }
+    return this;
+  }
+
+  // TODO: inline this method?
+  private <T> GsonBuilder typeAdapter(TypeToken<T> type, TypeAdapter<T> typeAdapter) {
+    typeAdapterFactories.add(TypeAdapters.newFactory(type, typeAdapter));
     return this;
   }
 
@@ -532,9 +520,11 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.7
    */
+  @SuppressWarnings({"unchecked", "rawtypes"})
   public GsonBuilder registerTypeHierarchyAdapter(Class<?> baseType, Object typeAdapter) {
     $Gson$Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
-        || typeAdapter instanceof JsonDeserializer<?> || typeAdapter instanceof InstanceCreator<?>);
+        || typeAdapter instanceof JsonDeserializer<?> || typeAdapter instanceof InstanceCreator<?>
+        || typeAdapter instanceof TypeAdapter<?>);
     if (typeAdapter instanceof InstanceCreator<?>) {
       registerInstanceCreatorForTypeHierarchy(baseType, (InstanceCreator<?>) typeAdapter);
     }
@@ -544,6 +534,15 @@ public final class GsonBuilder {
     if (typeAdapter instanceof JsonDeserializer<?>) {
       registerDeserializerForTypeHierarchy(baseType, (JsonDeserializer<?>) typeAdapter);
     }
+    if (typeAdapter instanceof TypeAdapter<?>) {
+      typeHierarchyAdapter(baseType, (TypeAdapter)typeAdapter);
+    }
+    return this;
+  }
+
+  // TODO: inline this method?
+  private <T> GsonBuilder typeHierarchyAdapter(Class<T> type, TypeAdapter<T> typeAdapter) {
+    typeAdapterFactories.add(TypeAdapters.newTypeHierarchyFactory(type, typeAdapter));
     return this;
   }
 

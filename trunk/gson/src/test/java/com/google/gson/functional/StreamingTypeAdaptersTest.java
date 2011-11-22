@@ -102,7 +102,7 @@ public final class StreamingTypeAdaptersTest extends TestCase {
         writer.value(value.name);
       }
     };
-    miniGson = new GsonBuilder().typeAdapter(Person.class, personNameAdapter).create();
+    miniGson = new GsonBuilder().registerTypeAdapter(Person.class, personNameAdapter).create();
     truckAdapter = miniGson.getAdapter(Truck.class);
   }
 

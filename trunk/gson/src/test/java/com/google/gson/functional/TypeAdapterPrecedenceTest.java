@@ -58,14 +58,14 @@ public final class TypeAdapterPrecedenceTest extends TestCase {
   public void testSerializeNonstreamingTypeAdapterFollowedByStreamingTypeAdapter() {
     Gson gson = new GsonBuilder()
         .registerTypeAdapter(Foo.class, FOO_SERIALIZER)
-        .typeAdapter(Foo.class, FOO_TYPE_ADAPTER)
+        .registerTypeAdapter(Foo.class, FOO_TYPE_ADAPTER)
         .create();
     assertEquals("\"foo (via FOO_SERIALIZER)\"", gson.toJson(new Foo("foo")));
   }
 
   public void testSerializeStreamingTypeAdapterFollowedByNonstreamingTypeAdapter() {
     Gson gson = new GsonBuilder()
-        .typeAdapter(Foo.class, FOO_TYPE_ADAPTER)
+        .registerTypeAdapter(Foo.class, FOO_TYPE_ADAPTER)
         .registerTypeAdapter(Foo.class, FOO_SERIALIZER)
         .create();
     assertEquals("\"foo (via FOO_TYPE_ADAPTER)\"", gson.toJson(new Foo("foo")));
@@ -74,14 +74,14 @@ public final class TypeAdapterPrecedenceTest extends TestCase {
   public void testDeserializeNonstreamingTypeAdapterFollowedByStreamingTypeAdapter() {
     Gson gson = new GsonBuilder()
         .registerTypeAdapter(Foo.class, FOO_DESERIALIZER)
-        .typeAdapter(Foo.class, FOO_TYPE_ADAPTER)
+        .registerTypeAdapter(Foo.class, FOO_TYPE_ADAPTER)
         .create();
     assertEquals("foo (via FOO_DESERIALIZER)", gson.fromJson("foo", Foo.class).name);
   }
 
   public void testDeserializeStreamingTypeAdapterFollowedByNonstreamingTypeAdapter() {
     Gson gson = new GsonBuilder()
-        .typeAdapter(Foo.class, FOO_TYPE_ADAPTER)
+        .registerTypeAdapter(Foo.class, FOO_TYPE_ADAPTER)
         .registerTypeAdapter(Foo.class, FOO_DESERIALIZER)
         .create();
     assertEquals("foo (via FOO_TYPE_ADAPTER)", gson.fromJson("foo", Foo.class).name);
