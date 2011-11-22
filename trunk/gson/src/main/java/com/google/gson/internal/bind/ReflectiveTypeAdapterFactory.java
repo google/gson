@@ -16,8 +16,6 @@
 
 package com.google.gson.internal.bind;
 
-import com.google.gson.ExclusionStrategy;
-import com.google.gson.FieldAttributes;
 import com.google.gson.FieldNamingStrategy;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -25,6 +23,7 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.internal.ConstructorConstructor;
+import com.google.gson.internal.Excluder;
 import com.google.gson.internal.ObjectConstructor;
 import com.google.gson.internal.Primitives;
 import com.google.gson.reflect.TypeToken;
@@ -44,26 +43,17 @@ import java.util.Map;
 public final class ReflectiveTypeAdapterFactory implements TypeAdapter.Factory {
   private final ConstructorConstructor constructorConstructor;
   private final FieldNamingStrategy fieldNamingPolicy;
-  private final ExclusionStrategy serializationExclusionStrategy;
-  private final ExclusionStrategy deserializationExclusionStrategy;
+  private final Excluder excluder;
 
   public ReflectiveTypeAdapterFactory(ConstructorConstructor constructorConstructor,
-      FieldNamingStrategy fieldNamingPolicy, ExclusionStrategy serializationExclusionStrategy,
-      ExclusionStrategy deserializationExclusionStrategy) {
+      FieldNamingStrategy fieldNamingPolicy, Excluder excluder) {
     this.constructorConstructor = constructorConstructor;
     this.fieldNamingPolicy = fieldNamingPolicy;
-    this.serializationExclusionStrategy = serializationExclusionStrategy;
-    this.deserializationExclusionStrategy = deserializationExclusionStrategy;
+    this.excluder = excluder;
   }
 
-  public boolean serializeField(Field f) {
-    return !serializationExclusionStrategy.shouldSkipClass(f.getType())
-        && !serializationExclusionStrategy.shouldSkipField(new FieldAttributes(f));
-  }
-
-  private boolean deserializeField(Field f) {
-    return !deserializationExclusionStrategy.shouldSkipClass(f.getType())
-        && !deserializationExclusionStrategy.shouldSkipField(new FieldAttributes(f));
+  public boolean excludeField(Field f, boolean serialize) {
+    return !excluder.excludeClass(f.getType(), serialize) && !excluder.excludeField(f, serialize);
   }
 
   private String getFieldName(Field f) {
@@ -119,8 +109,8 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapter.Factory {
       Field[] fields = raw.getDeclaredFields();
       AccessibleObject.setAccessible(fields, true);
       for (Field field : fields) {
-        boolean serialize = serializeField(field);
-        boolean deserialize = deserializeField(field);
+        boolean serialize = excludeField(field, true);
+        boolean deserialize = excludeField(field, false);
         if (!serialize && !deserialize) {
           continue;
         }

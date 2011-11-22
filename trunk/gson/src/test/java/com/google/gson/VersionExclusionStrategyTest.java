@@ -17,11 +17,11 @@
 package com.google.gson;
 
 import com.google.gson.annotations.Since;
-import java.lang.reflect.Field;
+import com.google.gson.internal.Excluder;
 import junit.framework.TestCase;
 
 /**
- * Unit tests for the {@link GsonExclusionStrategy} class.
+ * Unit tests for the {@link Excluder} class.
  *
  * @author Joel Leitch
  */
@@ -29,36 +29,21 @@ public class VersionExclusionStrategyTest extends TestCase {
   private static final double VERSION = 5.0D;
 
   public void testClassAndFieldAreAtSameVersion() throws Exception {
-    Class<MockObject> clazz = MockObject.class;
-    Field f = clazz.getField("someField");
-    GsonExclusionStrategy strategy = new GsonExclusionStrategy(VERSION, 0,
-        true, true, true, false, false);
-    assertFalse(strategy.shouldSkipClass(clazz));
-
-    FieldAttributes fieldAttributes = new FieldAttributes(f);
-    assertFalse(strategy.shouldSkipField(fieldAttributes));
+    Excluder excluder = Excluder.DEFAULT.withVersion(VERSION);
+    assertFalse(excluder.excludeClass(MockObject.class, true));
+    assertFalse(excluder.excludeField(MockObject.class.getField("someField"), true));
   }
 
   public void testClassAndFieldAreBehindInVersion() throws Exception {
-    Class<MockObject> clazz = MockObject.class;
-    Field f = clazz.getField("someField");
-    GsonExclusionStrategy strategy = new GsonExclusionStrategy(VERSION + 1, 0,
-        true, true, true, false, false);
-    assertFalse(strategy.shouldSkipClass(clazz));
-
-    FieldAttributes fieldAttributes = new FieldAttributes(f);
-    assertFalse(strategy.shouldSkipField(fieldAttributes));
+    Excluder excluder = Excluder.DEFAULT.withVersion(VERSION + 1);
+    assertFalse(excluder.excludeClass(MockObject.class, true));
+    assertFalse(excluder.excludeField(MockObject.class.getField("someField"), true));
   }
 
   public void testClassAndFieldAreAheadInVersion() throws Exception {
-    Class<MockObject> clazz = MockObject.class;
-    Field f = clazz.getField("someField");
-    GsonExclusionStrategy strategy = new GsonExclusionStrategy(VERSION - 1, 0,
-        true, true, true, false, false);
-    assertTrue(strategy.shouldSkipClass(clazz));
-
-    FieldAttributes fieldAttributes = new FieldAttributes(f);
-    assertTrue(strategy.shouldSkipField(fieldAttributes));
+    Excluder excluder = Excluder.DEFAULT.withVersion(VERSION - 1);
+    assertTrue(excluder.excludeClass(MockObject.class, true));
+    assertTrue(excluder.excludeField(MockObject.class.getField("someField"), true));
   }
 
   @Since(VERSION)
