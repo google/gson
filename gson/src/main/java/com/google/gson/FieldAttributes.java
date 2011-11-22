@@ -16,13 +16,12 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.Pair;
+import com.google.gson.internal.$Gson$Preconditions;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 
 /**
  * A data object that stores attributes of a field.
@@ -35,22 +34,7 @@ import java.util.Collections;
  * @since 1.4
  */
 public final class FieldAttributes {
-  private static final String MAX_CACHE_PROPERTY_NAME =
-      "com.google.gson.annotation_cache_size_hint";
-
-  private static final LruCache<Pair<Class<?>, String>, Collection<Annotation>> ANNOTATION_CACHE
-      = new LruCache<Pair<Class<?>,String>, Collection<Annotation>>(getMaxCacheSize());
-
-  private final Class<?> declaringClazz;
   private final Field field;
-  private final Class<?> declaredType;
-  private final boolean isSynthetic;
-  private final int modifiers;
-  private final String name;
-
-  // Fields used for lazy initialization
-  private Type genericType;
-  private Collection<Annotation> annotations;
 
   /**
    * Constructs a Field Attributes object from the {@code f}.
@@ -58,37 +42,22 @@ public final class FieldAttributes {
    * @param f the field to pull attributes from
    */
   public FieldAttributes(Field f) {
-    this.declaringClazz = f.getDeclaringClass();
-    this.name = f.getName();
-    this.declaredType = f.getType();
-    this.isSynthetic = f.isSynthetic();
-    this.modifiers = f.getModifiers();
+    $Gson$Preconditions.checkNotNull(f);
     this.field = f;
-  }
-
-  private static int getMaxCacheSize() {
-    final int defaultMaxCacheSize = 2000;
-    try {
-      String propertyValue = System.getProperty(
-          MAX_CACHE_PROPERTY_NAME, String.valueOf(defaultMaxCacheSize));
-      return Integer.parseInt(propertyValue);
-    } catch (NumberFormatException e) {
-      return defaultMaxCacheSize;
-    }
   }
 
   /**
    * @return the declaring class that contains this field
    */
   public Class<?> getDeclaringClass() {
-    return declaringClazz;
+    return field.getDeclaringClass();
   }
 
   /**
    * @return the name of the field
    */
   public String getName() {
-    return name;
+    return field.getName();
   }
 
   /**
@@ -108,10 +77,7 @@ public final class FieldAttributes {
    * @return the specific type declared for this field
    */
   public Type getDeclaredType() {
-    if (genericType == null) {
-      genericType = field.getGenericType();
-    }
-    return genericType;
+    return field.getGenericType();
   }
 
   /**
@@ -131,7 +97,7 @@ public final class FieldAttributes {
    * @return the specific class object that was declared for the field
    */
   public Class<?> getDeclaredClass() {
-    return declaredType;
+    return field.getType();
   }
 
   /**
@@ -142,7 +108,7 @@ public final class FieldAttributes {
    * @return the annotation instance if it is bound to the field; otherwise {@code null}
    */
   public <T extends Annotation> T getAnnotation(Class<T> annotation) {
-    return getAnnotationFromArray(getAnnotations(), annotation);
+    return field.getAnnotation(annotation);
   }
 
   /**
@@ -152,17 +118,7 @@ public final class FieldAttributes {
    * @since 1.4
    */
   public Collection<Annotation> getAnnotations() {
-    if (annotations == null) {
-      Pair<Class<?>, String> key = new Pair<Class<?>, String>(declaringClazz, name);
-      Collection<Annotation> cachedValue = ANNOTATION_CACHE.get(key);
-      if (cachedValue == null) {
-        cachedValue = Collections.unmodifiableCollection(
-            Arrays.asList(field.getAnnotations()));
-        ANNOTATION_CACHE.put(key, cachedValue);
-      }
-      annotations = cachedValue;
-    }
-    return annotations;
+    return Arrays.asList(field.getAnnotations());
   }
 
   /**
@@ -176,7 +132,7 @@ public final class FieldAttributes {
    * @see java.lang.reflect.Modifier
    */
   public boolean hasModifier(int modifier) {
-    return (modifiers & modifier) != 0;
+    return (field.getModifiers() & modifier) != 0;
   }
 
   /**
@@ -196,7 +152,7 @@ public final class FieldAttributes {
    * @return true if the field is synthetic; otherwise false
    */
   boolean isSynthetic() {
-    return isSynthetic;
+    return field.isSynthetic();
   }
 
   @SuppressWarnings("unchecked")

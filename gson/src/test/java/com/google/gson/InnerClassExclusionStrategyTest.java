@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import com.google.gson.internal.Excluder;
 import java.lang.reflect.Field;
 import junit.framework.TestCase;
 
@@ -27,27 +28,26 @@ import junit.framework.TestCase;
 public class InnerClassExclusionStrategyTest extends TestCase {
   public InnerClass innerClass = new InnerClass();
   public StaticNestedClass staticNestedClass = new StaticNestedClass();
-  private ExclusionStrategy strategy = new GsonExclusionStrategy(
-      GsonExclusionStrategy.IGNORE_VERSIONS, 0, true, false, false, false, false);
+  private Excluder excluder = Excluder.DEFAULT.disableInnerClassSerialization();
 
   public void testExcludeInnerClassObject() throws Exception {
     Class<?> clazz = innerClass.getClass();
-    assertTrue(strategy.shouldSkipClass(clazz));
+    assertTrue(excluder.excludeClass(clazz, true));
   }
 
   public void testExcludeInnerClassField() throws Exception {
     Field f = getClass().getField("innerClass");
-    assertTrue(strategy.shouldSkipField(new FieldAttributes(f)));
+    assertTrue(excluder.excludeField(f, true));
   }
 
   public void testIncludeStaticNestedClassObject() throws Exception {
     Class<?> clazz = staticNestedClass.getClass();
-    assertFalse(strategy.shouldSkipClass(clazz));
+    assertFalse(excluder.excludeClass(clazz, true));
   }
 
   public void testIncludeStaticNestedClassField() throws Exception {
     Field f = getClass().getField("staticNestedClass");
-    assertFalse(strategy.shouldSkipField(new FieldAttributes(f)));
+    assertFalse(excluder.excludeField(f, true));
   }
 
   class InnerClass {

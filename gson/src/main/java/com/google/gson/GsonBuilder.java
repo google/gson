@@ -17,11 +17,11 @@
 package com.google.gson;
 
 import com.google.gson.internal.$Gson$Preconditions;
+import com.google.gson.internal.Excluder;
 import com.google.gson.internal.Primitives;
 import com.google.gson.internal.TypeMap;
 import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.reflect.TypeToken;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -63,12 +63,7 @@ import java.util.List;
  * @author Joel Leitch
  */
 public final class GsonBuilder {
-  private ExclusionStrategy serializeExclusionStrategy;
-  private ExclusionStrategy deserializeExclusionStrategy;
-  private int modifiers = Modifier.TRANSIENT | Modifier.STATIC;
-  private double ignoreVersionsAfter = GsonExclusionStrategy.IGNORE_VERSIONS;
-  private boolean serializeInnerClasses = true;
-  private boolean excludeFieldsWithoutExposeAnnotation = false;
+  private Excluder excluder = Excluder.DEFAULT;
 
   private LongSerializationPolicy longSerializationPolicy;
   private FieldNamingStrategy fieldNamingPolicy;
@@ -142,7 +137,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
   public GsonBuilder setVersion(double ignoreVersionsAfter) {
-    this.ignoreVersionsAfter = ignoreVersionsAfter;
+    excluder = excluder.withVersion(ignoreVersionsAfter);
     return this;
   }
 
@@ -158,10 +153,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
   public GsonBuilder excludeFieldsWithModifiers(int... modifiers) {
-    this.modifiers = 0;
-    for (int modifier : modifiers) {
-      this.modifiers |= modifier;
-    }
+    excluder = excluder.withModifiers(modifiers);
     return this;
   }
 
@@ -186,7 +178,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
   public GsonBuilder excludeFieldsWithoutExposeAnnotation() {
-    excludeFieldsWithoutExposeAnnotation = true;
+    excluder = excluder.excludeFieldsWithoutExposeAnnotation();
     return this;
   }
 
@@ -290,7 +282,7 @@ public final class GsonBuilder {
    * @since 1.3
    */
   public GsonBuilder disableInnerClassSerialization() {
-    serializeInnerClasses = false;
+    excluder = excluder.disableInnerClassSerialization();
     return this;
   }
 
@@ -345,8 +337,7 @@ public final class GsonBuilder {
    */
   public GsonBuilder setExclusionStrategies(ExclusionStrategy... strategies) {
     for (ExclusionStrategy strategy : strategies) {
-      addSerializationExclusionStrategy(strategy);
-      addDeserializationExclusionStrategy(strategy);
+      excluder = excluder.withExclusionStrategy(strategy, true, true);
     }
     return this;
   }
@@ -364,7 +355,7 @@ public final class GsonBuilder {
    * @since 1.7
    */
   public GsonBuilder addSerializationExclusionStrategy(ExclusionStrategy strategy) {
-    serializeExclusionStrategy = combine(serializeExclusionStrategy, strategy);
+    excluder = excluder.withExclusionStrategy(strategy, true, false);
     return this;
   }
 
@@ -381,7 +372,7 @@ public final class GsonBuilder {
    * @since 1.7
    */
   public GsonBuilder addDeserializationExclusionStrategy(ExclusionStrategy strategy) {
-    deserializeExclusionStrategy = combine(deserializeExclusionStrategy, strategy);
+    excluder = excluder.withExclusionStrategy(strategy, false, true);
     return this;
   }
 
@@ -601,27 +592,6 @@ public final class GsonBuilder {
   }
 
   /**
-   * Unions two exclusion strategies. If the first is null, this returns the
-   * second.
-   */
-  private static ExclusionStrategy combine(final ExclusionStrategy a, final ExclusionStrategy b) {
-    if (b == null) {
-      throw new IllegalArgumentException();
-    }
-    if (a == null) {
-      return b;
-    }
-    return new ExclusionStrategy() {
-      public boolean shouldSkipField(FieldAttributes f) {
-        return a.shouldSkipField(f) || b.shouldSkipField(f);
-      }
-      public boolean shouldSkipClass(Class<?> clazz) {
-        return a.shouldSkipClass(clazz) || b.shouldSkipClass(clazz);
-      }
-    };
-  }
-
-  /**
    * Creates a {@link Gson} instance based on the current configuration. This method is free of
    * side-effects to this {@code GsonBuilder} instance and hence can be called multiple times.
    *
@@ -630,17 +600,10 @@ public final class GsonBuilder {
   public Gson create() {
     addTypeAdaptersForDate(datePattern, dateStyle, timeStyle, serializers, deserializers);
 
-    ExclusionStrategy deserializeExclusionStrategy = combine(this.deserializeExclusionStrategy,
-        new GsonExclusionStrategy(ignoreVersionsAfter, modifiers, true,
-        true, serializeInnerClasses, false, excludeFieldsWithoutExposeAnnotation));
-    ExclusionStrategy serializeExclusionStrategy = combine(this.serializeExclusionStrategy,
-        new GsonExclusionStrategy(ignoreVersionsAfter, modifiers, true, true,
-            serializeInnerClasses, excludeFieldsWithoutExposeAnnotation, false));
-
-    return new Gson(deserializeExclusionStrategy, serializeExclusionStrategy, fieldNamingPolicy,
-        instanceCreators.copyOf().makeUnmodifiable(), serializeNulls,
-        serializers.copyOf().makeUnmodifiable(), deserializers.copyOf().makeUnmodifiable(),
-        complexMapKeySerialization, generateNonExecutableJson, escapeHtmlChars, prettyPrinting,
+    return new Gson(excluder, fieldNamingPolicy, instanceCreators.copyOf().makeUnmodifiable(),
+        serializeNulls, serializers.copyOf().makeUnmodifiable(),
+        deserializers.copyOf().makeUnmodifiable(), complexMapKeySerialization,
+        generateNonExecutableJson, escapeHtmlChars, prettyPrinting,
         serializeSpecialFloatingPointValues, longSerializationPolicy, typeAdapterFactories);
   }
 
