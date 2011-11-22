@@ -28,8 +28,10 @@ import java.lang.reflect.Field;
  * @author Joel Leitch
  */
 public class ExposeAnnotationExclusionStrategyTest extends TestCase {
-  private ExclusionStrategy deserializationStrategy = GsonBuilder.REQUIRE_EXPOSE_DESERIALIZE;
-  private ExclusionStrategy serializationStrategy = GsonBuilder.REQUIRE_EXPOSE_SERIALIZE;
+  private ExclusionStrategy serializationStrategy = new GsonExclusionStrategy(
+      GsonExclusionStrategy.IGNORE_VERSIONS, 0, true, true, true, true, false);
+  private ExclusionStrategy deserializationStrategy = new GsonExclusionStrategy(
+      GsonExclusionStrategy.IGNORE_VERSIONS, 0, true, true, true, false, true);
 
   public void testNeverSkipClasses() throws Exception {
     assertFalse(deserializationStrategy.shouldSkipClass(MockObject.class));
