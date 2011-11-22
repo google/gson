@@ -16,9 +16,8 @@
 
 package com.google.gson;
 
-import junit.framework.TestCase;
-
 import java.lang.reflect.Field;
+import junit.framework.TestCase;
 
 /**
  * Unit test for GsonBuilder.EXCLUDE_INNER_CLASSES.
@@ -26,18 +25,10 @@ import java.lang.reflect.Field;
  * @author Joel Leitch
  */
 public class InnerClassExclusionStrategyTest extends TestCase {
-  public InnerClass innerClass;
-  public StaticNestedClass staticNestedClass;
-
-  private ExclusionStrategy strategy;
-
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
-    innerClass = new InnerClass();
-    staticNestedClass = new StaticNestedClass();
-    strategy = GsonBuilder.EXCLUDE_INNER_CLASSES;
-  }
+  public InnerClass innerClass = new InnerClass();
+  public StaticNestedClass staticNestedClass = new StaticNestedClass();
+  private ExclusionStrategy strategy = new GsonExclusionStrategy(
+      GsonExclusionStrategy.IGNORE_VERSIONS, 0, true, false, false, false, false);
 
   public void testExcludeInnerClassObject() throws Exception {
     Class<?> clazz = innerClass.getClass();

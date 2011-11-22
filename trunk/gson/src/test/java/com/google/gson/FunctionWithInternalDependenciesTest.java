@@ -19,7 +19,6 @@ package com.google.gson;
 import com.google.gson.common.TestTypes.ClassWithNoFields;
 import java.lang.reflect.Modifier;
 import java.util.Collections;
-import java.util.LinkedList;
 import junit.framework.TestCase;
 
 /**
@@ -34,10 +33,9 @@ public class FunctionWithInternalDependenciesTest extends TestCase {
 
   @SuppressWarnings("unchecked")
   public void testAnonymousLocalClassesSerialization() throws Exception {
-    LinkedList<ExclusionStrategy> strategies = new LinkedList<ExclusionStrategy>();
-    strategies.add(GsonBuilder.EXCLUDE_SYNTHETIC_FIELDS);
-    strategies.add(new ModifierBasedExclusionStrategy(Modifier.TRANSIENT, Modifier.STATIC));
-    ExclusionStrategy exclusionStrategy = new DisjunctionExclusionStrategy(strategies);
+    ExclusionStrategy exclusionStrategy = new GsonExclusionStrategy(
+        GsonExclusionStrategy.IGNORE_VERSIONS, Modifier.TRANSIENT | Modifier.STATIC,
+        true, false, true, false, false);
     Gson gson = new Gson(exclusionStrategy, exclusionStrategy, FieldNamingPolicy.IDENTITY,
         Gson.EMPTY_MAP, false, Gson.EMPTY_MAP, Gson.EMPTY_MAP, false,
         Gson.DEFAULT_JSON_NON_EXECUTABLE,
