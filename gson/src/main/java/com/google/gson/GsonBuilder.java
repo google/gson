@@ -19,7 +19,6 @@ package com.google.gson;
 import com.google.gson.internal.$Gson$Preconditions;
 import com.google.gson.internal.Excluder;
 import com.google.gson.internal.Primitives;
-import com.google.gson.internal.TypeMap;
 import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
@@ -27,7 +26,9 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>Use this builder to construct a {@link Gson} instance when you need to set configuration
@@ -64,21 +65,22 @@ import java.util.List;
  */
 public final class GsonBuilder {
   private Excluder excluder = Excluder.DEFAULT;
-
-  private LongSerializationPolicy longSerializationPolicy;
-  private FieldNamingStrategy fieldNamingPolicy;
-  private final TypeMap<InstanceCreator<?>> instanceCreators;
-  private final TypeMap<JsonSerializer<?>> serializers;
-  private final TypeMap<JsonDeserializer<?>> deserializers;
-  private final List<TypeAdapter.Factory> typeAdapterFactories
+  private LongSerializationPolicy longSerializationPolicy = LongSerializationPolicy.DEFAULT;
+  private FieldNamingStrategy fieldNamingPolicy = FieldNamingPolicy.IDENTITY;
+  private final Map<Type, InstanceCreator<?>> instanceCreators
+      = new HashMap<Type, InstanceCreator<?>>();
+  private final List<TypeAdapter.Factory> factories
+      = new ArrayList<TypeAdapter.Factory>();
+  /** tree-style hierarchy factories. These come after factories for backwards compatibility. */
+  private final List<TypeAdapter.Factory> hierarchyFactories
       = new ArrayList<TypeAdapter.Factory>();
   private boolean serializeNulls;
   private String datePattern;
-  private int dateStyle;
-  private int timeStyle;
-  private boolean complexMapKeySerialization = false;
+  private int dateStyle = DateFormat.DEFAULT;
+  private int timeStyle = DateFormat.DEFAULT;
+  private boolean complexMapKeySerialization;
   private boolean serializeSpecialFloatingPointValues;
-  private boolean escapeHtmlChars;
+  private boolean escapeHtmlChars = true;
   private boolean prettyPrinting;
   private boolean generateNonExecutableJson;
 
@@ -89,24 +91,11 @@ public final class GsonBuilder {
    * {@link #create()}.
    */
   public GsonBuilder() {
-    // setup default values
-    prettyPrinting = false;
-    escapeHtmlChars = true;
-    longSerializationPolicy = LongSerializationPolicy.DEFAULT;
-    fieldNamingPolicy = FieldNamingPolicy.IDENTITY;
-    instanceCreators = new TypeMap<InstanceCreator<?>>();
-    serializers = new TypeMap<JsonSerializer<?>>();
-    deserializers = new TypeMap<JsonDeserializer<?>>();
-    serializeNulls = false;
-    dateStyle = DateFormat.DEFAULT;
-    timeStyle = DateFormat.DEFAULT;
-    serializeSpecialFloatingPointValues = false;
-    generateNonExecutableJson = false;
   }
 
   // TODO: nice documentation
   public GsonBuilder registerTypeAdapterFactory(TypeAdapter.Factory factory) {
-    typeAdapterFactories.add(factory);
+    factories.add(factory);
     return this;
   }
 
@@ -472,7 +461,7 @@ public final class GsonBuilder {
     }
     if (typeAdapter instanceof JsonSerializer<?> || typeAdapter instanceof JsonDeserializer<?>) {
       TypeToken<?> typeToken = TypeToken.get(type);
-      typeAdapterFactories.add(new TreeTypeAdapter.SingleTypeFactory(typeToken, typeAdapter));
+      factories.add(TreeTypeAdapter.newFactory(typeToken, typeAdapter));
     }
     if (typeAdapter instanceof TypeAdapter<?>) {
       typeAdapter(TypeToken.get(type), (TypeAdapter)typeAdapter);
@@ -482,7 +471,7 @@ public final class GsonBuilder {
 
   // TODO: inline this method?
   private <T> GsonBuilder typeAdapter(TypeToken<T> type, TypeAdapter<T> typeAdapter) {
-    typeAdapterFactories.add(TypeAdapters.newFactory(type, typeAdapter));
+    factories.add(TypeAdapters.newFactory(type, typeAdapter));
     return this;
   }
 
@@ -499,7 +488,7 @@ public final class GsonBuilder {
    */
   private <T> GsonBuilder registerInstanceCreator(Type typeOfT,
       InstanceCreator<? extends T> instanceCreator) {
-    instanceCreators.register(typeOfT, instanceCreator);
+    instanceCreators.put(typeOfT, instanceCreator);
     return this;
   }
 
@@ -523,16 +512,11 @@ public final class GsonBuilder {
   @SuppressWarnings({"unchecked", "rawtypes"})
   public GsonBuilder registerTypeHierarchyAdapter(Class<?> baseType, Object typeAdapter) {
     $Gson$Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
-        || typeAdapter instanceof JsonDeserializer<?> || typeAdapter instanceof InstanceCreator<?>
+        || typeAdapter instanceof JsonDeserializer<?>
         || typeAdapter instanceof TypeAdapter<?>);
-    if (typeAdapter instanceof InstanceCreator<?>) {
-      registerInstanceCreatorForTypeHierarchy(baseType, (InstanceCreator<?>) typeAdapter);
-    }
-    if (typeAdapter instanceof JsonSerializer<?>) {
-      registerSerializerForTypeHierarchy(baseType, (JsonSerializer<?>) typeAdapter);
-    }
-    if (typeAdapter instanceof JsonDeserializer<?>) {
-      registerDeserializerForTypeHierarchy(baseType, (JsonDeserializer<?>) typeAdapter);
+    if (typeAdapter instanceof JsonDeserializer || typeAdapter instanceof JsonSerializer) {
+      hierarchyFactories.add(0,
+          TreeTypeAdapter.newTypeHierarchyFactory(baseType, typeAdapter));
     }
     if (typeAdapter instanceof TypeAdapter<?>) {
       typeHierarchyAdapter(baseType, (TypeAdapter)typeAdapter);
@@ -542,26 +526,7 @@ public final class GsonBuilder {
 
   // TODO: inline this method?
   private <T> GsonBuilder typeHierarchyAdapter(Class<T> type, TypeAdapter<T> typeAdapter) {
-    typeAdapterFactories.add(TypeAdapters.newTypeHierarchyFactory(type, typeAdapter));
-    return this;
-  }
-
-  private <T> GsonBuilder registerInstanceCreatorForTypeHierarchy(Class<?> classOfT,
-      InstanceCreator<? extends T> instanceCreator) {
-    instanceCreators.registerForTypeHierarchy(classOfT, instanceCreator);
-    return this;
-  }
-
-  private <T> GsonBuilder registerSerializerForTypeHierarchy(Class<?> classOfT,
-      JsonSerializer<T> serializer) {
-    serializers.registerForTypeHierarchy(classOfT, serializer);
-    return this;
-  }
-
-  private <T> GsonBuilder registerDeserializerForTypeHierarchy(Class<?> classOfT,
-      JsonDeserializer<T> deserializer) {
-    deserializers.registerForTypeHierarchy(classOfT,
-        new JsonDeserializerExceptionWrapper<T>(deserializer));
+    factories.add(TypeAdapters.newTypeHierarchyFactory(type, typeAdapter));
     return this;
   }
 
@@ -597,37 +562,30 @@ public final class GsonBuilder {
    * @return an instance of Gson configured with the options currently set in this builder
    */
   public Gson create() {
-    addTypeAdaptersForDate(datePattern, dateStyle, timeStyle, serializers, deserializers);
+    List<TypeAdapter.Factory> factories = new ArrayList<TypeAdapter.Factory>();
+    factories.addAll(this.factories);
+    factories.addAll(this.hierarchyFactories);
+    addTypeAdaptersForDate(datePattern, dateStyle, timeStyle, factories);
 
-    return new Gson(excluder, fieldNamingPolicy, instanceCreators.copyOf().makeUnmodifiable(),
-        serializeNulls, serializers.copyOf().makeUnmodifiable(),
-        deserializers.copyOf().makeUnmodifiable(), complexMapKeySerialization,
+    return new Gson(excluder, fieldNamingPolicy, instanceCreators,
+        serializeNulls, complexMapKeySerialization,
         generateNonExecutableJson, escapeHtmlChars, prettyPrinting,
-        serializeSpecialFloatingPointValues, longSerializationPolicy, typeAdapterFactories);
+        serializeSpecialFloatingPointValues, longSerializationPolicy, factories);
   }
 
-  private static void addTypeAdaptersForDate(String datePattern, int dateStyle, int timeStyle,
-      TypeMap<JsonSerializer<?>> serializers, TypeMap<JsonDeserializer<?>> deserializers) {
-    DefaultDateTypeAdapter dateTypeAdapter = null;
+  private void addTypeAdaptersForDate(String datePattern, int dateStyle, int timeStyle,
+      List<TypeAdapter.Factory> factories) {
+    DefaultDateTypeAdapter dateTypeAdapter;
     if (datePattern != null && !"".equals(datePattern.trim())) {
       dateTypeAdapter = new DefaultDateTypeAdapter(datePattern);
     } else if (dateStyle != DateFormat.DEFAULT && timeStyle != DateFormat.DEFAULT) {
       dateTypeAdapter = new DefaultDateTypeAdapter(dateStyle, timeStyle);
+    } else {
+      return;
     }
 
-    if (dateTypeAdapter != null) {
-      registerIfAbsent(Date.class, serializers, dateTypeAdapter);
-      registerIfAbsent(Date.class, deserializers, dateTypeAdapter);
-      registerIfAbsent(Timestamp.class, serializers, dateTypeAdapter);
-      registerIfAbsent(Timestamp.class, deserializers, dateTypeAdapter);
-      registerIfAbsent(java.sql.Date.class, serializers, dateTypeAdapter);
-      registerIfAbsent(java.sql.Date.class, deserializers, dateTypeAdapter);
-    }
-  }
-
-  private static <T> void registerIfAbsent(Class<?> type, TypeMap<T> adapters, T adapter) {
-    if (!adapters.hasSpecificHandlerFor(type)) {
-      adapters.register(type, adapter);
-    }
+    factories.add(TreeTypeAdapter.newFactory(TypeToken.get(Date.class), dateTypeAdapter));
+    factories.add(TreeTypeAdapter.newFactory(TypeToken.get(Timestamp.class), dateTypeAdapter));
+    factories.add(TreeTypeAdapter.newFactory(TypeToken.get(java.sql.Date.class), dateTypeAdapter));
   }
 }
