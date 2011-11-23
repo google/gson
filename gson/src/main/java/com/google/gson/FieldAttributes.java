@@ -154,15 +154,4 @@ public final class FieldAttributes {
   boolean isSynthetic() {
     return field.isSynthetic();
   }
-
-  @SuppressWarnings("unchecked")
-  private static <T extends Annotation> T getAnnotationFromArray(
-      Collection<Annotation> annotations, Class<T> annotation) {
-    for (Annotation a : annotations) {
-      if (a.annotationType() == annotation) {
-        return (T) a;
-      }
-    }
-    return null;
-  }
 }
