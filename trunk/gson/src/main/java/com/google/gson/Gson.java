@@ -20,7 +20,6 @@ import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.Excluder;
 import com.google.gson.internal.Primitives;
 import com.google.gson.internal.Streams;
-import com.google.gson.internal.TypeMap;
 import com.google.gson.internal.bind.ArrayTypeAdapter;
 import com.google.gson.internal.bind.BigDecimalTypeAdapter;
 import com.google.gson.internal.bind.BigIntegerTypeAdapter;
@@ -97,9 +96,6 @@ import java.util.Map;
  * @author Joel Leitch
  */
 public final class Gson {
-  @SuppressWarnings("rawtypes")
-  static final TypeMap EMPTY_MAP = new TypeMap().makeUnmodifiable();
-
   static final boolean DEFAULT_JSON_NON_EXECUTABLE = false;
 
   private static final String JSON_NON_EXECUTABLE_PREFIX = ")]}'\n";
@@ -120,12 +116,6 @@ public final class Gson {
 
   private final List<TypeAdapter.Factory> factories;
   private final ConstructorConstructor constructorConstructor;
-
-  /** Map containing Type or Class objects as keys */
-  private final TypeMap<JsonSerializer<?>> serializers;
-
-  /** Map containing Type or Class objects as keys */
-  private final TypeMap<JsonDeserializer<?>> deserializers;
 
   private final boolean serializeNulls;
   private final boolean htmlSafe;
@@ -184,23 +174,19 @@ public final class Gson {
   @SuppressWarnings("unchecked")
   public Gson() {
     this(Excluder.DEFAULT, FieldNamingPolicy.IDENTITY,
-        EMPTY_MAP, false, EMPTY_MAP, EMPTY_MAP, false, DEFAULT_JSON_NON_EXECUTABLE, true,
-        false, false, LongSerializationPolicy.DEFAULT,
+        Collections.<Type, InstanceCreator<?>>emptyMap(), false, false, DEFAULT_JSON_NON_EXECUTABLE,
+        true, false, false, LongSerializationPolicy.DEFAULT,
         Collections.<TypeAdapter.Factory>emptyList());
   }
 
   Gson(final Excluder excluder, final FieldNamingStrategy fieldNamingPolicy,
-      final TypeMap<InstanceCreator<?>> instanceCreators, boolean serializeNulls,
-      final TypeMap<JsonSerializer<?>> serializers,
-      final TypeMap<JsonDeserializer<?>> deserializers,
+      final Map<Type, InstanceCreator<?>> instanceCreators, boolean serializeNulls,
       boolean complexMapKeySerialization, boolean generateNonExecutableGson, boolean htmlSafe,
       boolean prettyPrinting, boolean serializeSpecialFloatingPointValues,
       LongSerializationPolicy longSerializationPolicy,
       List<TypeAdapter.Factory> typeAdapterFactories) {
     this.constructorConstructor = new ConstructorConstructor(instanceCreators);
     this.serializeNulls = serializeNulls;
-    this.serializers = serializers;
-    this.deserializers = deserializers;
     this.generateNonExecutableJson = generateNonExecutableGson;
     this.htmlSafe = htmlSafe;
     this.prettyPrinting = prettyPrinting;
@@ -235,7 +221,6 @@ public final class Gson {
       factories.add(factory);
     }
 
-    factories.add(new TreeTypeAdapter.TypeHierarchyFactory(serializers, deserializers));
     factories.add(new CollectionTypeAdapterFactory(constructorConstructor));
     factories.add(TypeAdapters.URL_FACTORY);
     factories.add(TypeAdapters.URI_FACTORY);
@@ -852,9 +837,7 @@ public final class Gson {
   public String toString() {
   	StringBuilder sb = new StringBuilder("{")
   	    .append("serializeNulls:").append(serializeNulls)
-  	    .append(",serializers:").append(serializers)
-  	    .append(",deserializers:").append(deserializers)
-
+  	    .append("factories:").append(factories)
       	// using the name instanceCreator instead of ObjectConstructor since the users of Gson are
       	// more familiar with the concept of Instance Creators. Moreover, the objectConstructor is
       	// just a utility class around instance creators, and its toString() only displays them.
