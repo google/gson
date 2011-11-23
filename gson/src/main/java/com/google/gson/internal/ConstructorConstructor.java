@@ -23,6 +23,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -36,14 +37,14 @@ import java.util.TreeSet;
  * Returns a function that can construct an instance of a requested type.
  */
 public final class ConstructorConstructor {
-  private final TypeMap<InstanceCreator<?>> instanceCreators;
+  private final Map<Type, InstanceCreator<?>> instanceCreators;
 
-  public ConstructorConstructor(TypeMap<InstanceCreator<?>> instanceCreators) {
+  public ConstructorConstructor(Map<Type, InstanceCreator<?>> instanceCreators) {
     this.instanceCreators = instanceCreators;
   }
 
   public ConstructorConstructor() {
-    this(new TypeMap<InstanceCreator<?>>());
+    this(Collections.<Type, InstanceCreator<?>>emptyMap());
   }
 
   public <T> ObjectConstructor<T> getConstructor(TypeToken<T> typeToken) {
@@ -53,8 +54,7 @@ public final class ConstructorConstructor {
     // first try an instance creator
 
     @SuppressWarnings("unchecked") // types must agree
-    final InstanceCreator<T> creator
-        = (InstanceCreator<T>) instanceCreators.getHandlerFor(type);
+    final InstanceCreator<T> creator = (InstanceCreator<T>) instanceCreators.get(type);
     if (creator != null) {
       return new ObjectConstructor<T>() {
         public T construct() {

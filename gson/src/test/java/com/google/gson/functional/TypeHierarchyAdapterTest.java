@@ -131,15 +131,12 @@ public final class TypeHierarchyAdapterTest extends TestCase {
     assertEquals(manager.userid, copied.userid);
   }
 
-  public void testRegisterSubTypeFirstNotAllowed() {
-    try {
-      new GsonBuilder()
-          .registerTypeHierarchyAdapter(Manager.class, new ManagerAdapter())
-          .registerTypeHierarchyAdapter(Employee.class, new EmployeeAdapter())
-          .create();
-      fail();
-    } catch (IllegalArgumentException expected) {
-    }
+  /** This behaviour changed in Gson 2.1; it used to throw. */
+  public void testRegisterSubTypeFirstAllowed() {
+    new GsonBuilder()
+        .registerTypeHierarchyAdapter(Manager.class, new ManagerAdapter())
+        .registerTypeHierarchyAdapter(Employee.class, new EmployeeAdapter())
+        .create();
   }
 
   static class ManagerAdapter implements JsonSerializer<Manager>, JsonDeserializer<Manager> {

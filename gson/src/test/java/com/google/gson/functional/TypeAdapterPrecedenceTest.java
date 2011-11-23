@@ -82,6 +82,17 @@ public final class TypeAdapterPrecedenceTest extends TestCase {
     assertEquals("foo via type adapter", gson.fromJson("foo", Foo.class).name);
   }
 
+  public void testNonstreamingHierarchicalFollowedByNonstreaming() {
+    Gson gson = new GsonBuilder()
+        .registerTypeHierarchyAdapter(Foo.class, newSerializer("hierarchical"))
+        .registerTypeHierarchyAdapter(Foo.class, newDeserializer("hierarchical"))
+        .registerTypeAdapter(Foo.class, newSerializer("non hierarchical"))
+        .registerTypeAdapter(Foo.class, newDeserializer("non hierarchical"))
+        .create();
+    assertEquals("\"foo via non hierarchical\"", gson.toJson(new Foo("foo")));
+    assertEquals("foo via non hierarchical", gson.fromJson("foo", Foo.class).name);
+  }
+
   private static class Foo {
     final String name;
     private Foo(String name) {
