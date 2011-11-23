@@ -196,6 +196,8 @@ public final class Gson {
 
     ConstructorConstructor constructorConstructor = new ConstructorConstructor();
     List<TypeAdapter.Factory> factories = new ArrayList<TypeAdapter.Factory>();
+
+    // built-in type adapters that cannot be overridden
     factories.add(TypeAdapters.STRING_FACTORY);
     factories.add(TypeAdapters.INTEGER_FACTORY);
     factories.add(TypeAdapters.BOOLEAN_FACTORY);
@@ -217,10 +219,10 @@ public final class Gson {
     factories.add(TypeAdapters.JSON_ELEMENT_FACTORY);
     factories.add(ObjectTypeAdapter.FACTORY);
 
-    for (TypeAdapter.Factory factory : typeAdapterFactories) {
-      factories.add(factory);
-    }
+    // user's type adapters
+    factories.addAll(typeAdapterFactories);
 
+    // built-in type adapters that can be overridden
     factories.add(new CollectionTypeAdapterFactory(constructorConstructor));
     factories.add(TypeAdapters.URL_FACTORY);
     factories.add(TypeAdapters.URI_FACTORY);
@@ -255,7 +257,7 @@ public final class Gson {
       }
       @Override public void write(JsonWriter writer, Number value) throws IOException {
         if (value == null) {
-          writer.nullValue(); // TODO: better policy here?
+          writer.nullValue();
           return;
         }
         double doubleValue = value.doubleValue();
@@ -279,7 +281,7 @@ public final class Gson {
       }
       @Override public void write(JsonWriter writer, Number value) throws IOException {
         if (value == null) {
-          writer.nullValue(); // TODO: better policy here?
+          writer.nullValue();
           return;
         }
         float floatValue = value.floatValue();
@@ -311,7 +313,7 @@ public final class Gson {
       }
       @Override public void write(JsonWriter writer, Number value) throws IOException {
         if (value == null) {
-          writer.nullValue(); // TODO: better policy here?
+          writer.nullValue();
           return;
         }
         writer.value(value.toString());
@@ -838,9 +840,6 @@ public final class Gson {
   	StringBuilder sb = new StringBuilder("{")
   	    .append("serializeNulls:").append(serializeNulls)
   	    .append("factories:").append(factories)
-      	// using the name instanceCreator instead of ObjectConstructor since the users of Gson are
-      	// more familiar with the concept of Instance Creators. Moreover, the objectConstructor is
-      	// just a utility class around instance creators, and its toString() only displays them.
         .append(",instanceCreators:").append(constructorConstructor)
         .append("}");
   	return sb.toString();
