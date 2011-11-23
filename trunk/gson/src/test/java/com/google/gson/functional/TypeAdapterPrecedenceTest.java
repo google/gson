@@ -21,7 +21,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
@@ -33,64 +32,87 @@ import java.lang.reflect.Type;
 import junit.framework.TestCase;
 
 public final class TypeAdapterPrecedenceTest extends TestCase {
-  private static final JsonSerializer<Foo> FOO_SERIALIZER = new JsonSerializer<Foo>() {
-    public JsonElement serialize(Foo src, Type typeOfSrc, JsonSerializationContext context) {
-      return new JsonPrimitive(src.name + " (via FOO_SERIALIZER)");
-    }
-  };
-
-  private static final JsonDeserializer<Foo> FOO_DESERIALIZER = new JsonDeserializer<Foo>() {
-    public Foo deserialize(JsonElement json, Type typeOfT,
-        JsonDeserializationContext context) throws JsonParseException {
-      return new Foo(json.getAsString() + " (via FOO_DESERIALIZER)");
-    }
-  };
-
-  private static final TypeAdapter<Foo> FOO_TYPE_ADAPTER = new TypeAdapter<Foo>() {
-    @Override public Foo read(JsonReader reader) throws IOException {
-      return new Foo(reader.nextString() + " (via FOO_TYPE_ADAPTER)");
-    }
-    @Override public void write(JsonWriter writer, Foo value) throws IOException {
-      writer.value(value.name + " (via FOO_TYPE_ADAPTER)");
-    }
-  };
-
   public void testSerializeNonstreamingTypeAdapterFollowedByStreamingTypeAdapter() {
     Gson gson = new GsonBuilder()
-        .registerTypeAdapter(Foo.class, FOO_SERIALIZER)
-        .registerTypeAdapter(Foo.class, FOO_TYPE_ADAPTER)
+        .registerTypeAdapter(Foo.class, newSerializer("serializer"))
+        .registerTypeAdapter(Foo.class, newDeserializer("deserializer"))
+        .registerTypeAdapter(Foo.class, newTypeAdapter("type adapter"))
         .create();
-    assertEquals("\"foo (via FOO_SERIALIZER)\"", gson.toJson(new Foo("foo")));
+    assertEquals("\"foo via serializer\"", gson.toJson(new Foo("foo")));
+    assertEquals("foo via deserializer", gson.fromJson("foo", Foo.class).name);
   }
 
-  public void testSerializeStreamingTypeAdapterFollowedByNonstreamingTypeAdapter() {
+  public void testStreamingFollowedByNonstreaming() {
     Gson gson = new GsonBuilder()
-        .registerTypeAdapter(Foo.class, FOO_TYPE_ADAPTER)
-        .registerTypeAdapter(Foo.class, FOO_SERIALIZER)
+        .registerTypeAdapter(Foo.class, newTypeAdapter("type adapter"))
+        .registerTypeAdapter(Foo.class, newSerializer("serializer"))
+        .registerTypeAdapter(Foo.class, newDeserializer("deserializer"))
         .create();
-    assertEquals("\"foo (via FOO_TYPE_ADAPTER)\"", gson.toJson(new Foo("foo")));
+    assertEquals("\"foo via type adapter\"", gson.toJson(new Foo("foo")));
+    assertEquals("foo via type adapter", gson.fromJson("foo", Foo.class).name);
   }
 
-  public void testDeserializeNonstreamingTypeAdapterFollowedByStreamingTypeAdapter() {
+  public void testStreamingHierarchicalFollowedByNonstreaming() {
     Gson gson = new GsonBuilder()
-        .registerTypeAdapter(Foo.class, FOO_DESERIALIZER)
-        .registerTypeAdapter(Foo.class, FOO_TYPE_ADAPTER)
+        .registerTypeHierarchyAdapter(Foo.class, newTypeAdapter("type adapter"))
+        .registerTypeAdapter(Foo.class, newSerializer("serializer"))
+        .registerTypeAdapter(Foo.class, newDeserializer("deserializer"))
         .create();
-    assertEquals("foo (via FOO_DESERIALIZER)", gson.fromJson("foo", Foo.class).name);
+    assertEquals("\"foo via type adapter\"", gson.toJson(new Foo("foo")));
+    assertEquals("foo via type adapter", gson.fromJson("foo", Foo.class).name);
   }
 
-  public void testDeserializeStreamingTypeAdapterFollowedByNonstreamingTypeAdapter() {
+  public void testStreamingFollowedByNonstreamingHierarchical() {
     Gson gson = new GsonBuilder()
-        .registerTypeAdapter(Foo.class, FOO_TYPE_ADAPTER)
-        .registerTypeAdapter(Foo.class, FOO_DESERIALIZER)
+        .registerTypeAdapter(Foo.class, newTypeAdapter("type adapter"))
+        .registerTypeHierarchyAdapter(Foo.class, newSerializer("serializer"))
+        .registerTypeHierarchyAdapter(Foo.class, newDeserializer("deserializer"))
         .create();
-    assertEquals("foo (via FOO_TYPE_ADAPTER)", gson.fromJson("foo", Foo.class).name);
+    assertEquals("\"foo via type adapter\"", gson.toJson(new Foo("foo")));
+    assertEquals("foo via type adapter", gson.fromJson("foo", Foo.class).name);
+  }
+
+  public void testStreamingHierarchicalFollowedByNonstreamingHierarchical() {
+    Gson gson = new GsonBuilder()
+        .registerTypeHierarchyAdapter(Foo.class, newSerializer("serializer"))
+        .registerTypeHierarchyAdapter(Foo.class, newDeserializer("deserializer"))
+        .registerTypeHierarchyAdapter(Foo.class, newTypeAdapter("type adapter"))
+        .create();
+    assertEquals("\"foo via type adapter\"", gson.toJson(new Foo("foo")));
+    assertEquals("foo via type adapter", gson.fromJson("foo", Foo.class).name);
   }
 
   private static class Foo {
-    private final String name;
+    final String name;
     private Foo(String name) {
       this.name = name;
     }
+  }
+
+  private JsonSerializer<Foo> newSerializer(final String name) {
+    return new JsonSerializer<Foo>() {
+      public JsonElement serialize(Foo src, Type typeOfSrc, JsonSerializationContext context) {
+        return new JsonPrimitive(src.name + " via " + name);
+      }
+    };
+  }
+
+  private JsonDeserializer<Foo> newDeserializer(final String name) {
+    return new JsonDeserializer<Foo>() {
+      public Foo deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
+        return new Foo(json.getAsString() + " via " + name);
+      }
+    };
+  }
+
+  private TypeAdapter<Foo> newTypeAdapter(final String name) {
+    return new TypeAdapter<Foo>() {
+      @Override public Foo read(JsonReader reader) throws IOException {
+        return new Foo(reader.nextString() + " via " + name);
+      }
+      @Override public void write(JsonWriter writer, Foo value) throws IOException {
+        writer.value(value.name + " via " + name);
+      }
+    };
   }
 }
