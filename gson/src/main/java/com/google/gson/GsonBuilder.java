@@ -62,6 +62,7 @@ import java.util.Map;
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
+ * @author Jesse Wilson
  */
 public final class GsonBuilder {
   private Excluder excluder = Excluder.DEFAULT;
@@ -91,12 +92,6 @@ public final class GsonBuilder {
    * {@link #create()}.
    */
   public GsonBuilder() {
-  }
-
-  // TODO: nice documentation
-  public GsonBuilder registerTypeAdapterFactory(TypeAdapter.Factory factory) {
-    factories.add(factory);
-    return this;
   }
 
   /**
@@ -464,14 +459,19 @@ public final class GsonBuilder {
       factories.add(TreeTypeAdapter.newFactory(typeToken, typeAdapter));
     }
     if (typeAdapter instanceof TypeAdapter<?>) {
-      typeAdapter(TypeToken.get(type), (TypeAdapter)typeAdapter);
+      factories.add(TypeAdapters.newFactory(TypeToken.get(type), (TypeAdapter)typeAdapter));
     }
     return this;
   }
 
-  // TODO: inline this method?
-  private <T> GsonBuilder typeAdapter(TypeToken<T> type, TypeAdapter<T> typeAdapter) {
-    factories.add(TypeAdapters.newFactory(type, typeAdapter));
+  /**
+   * Register a factory for type adapters. Registering a factory is useful when the type
+   * adapter needs to be configured based on the type of the field being processed. Gson
+   * is designed to handle a large number of factories, so you should consider registering
+   * them to be at par with registering an individual type adapter.
+   */
+  public GsonBuilder registerTypeAdapterFactory(TypeAdapter.Factory factory) {
+    factories.add(factory);
     return this;
   }
 
@@ -519,14 +519,8 @@ public final class GsonBuilder {
           TreeTypeAdapter.newTypeHierarchyFactory(baseType, typeAdapter));
     }
     if (typeAdapter instanceof TypeAdapter<?>) {
-      typeHierarchyAdapter(baseType, (TypeAdapter)typeAdapter);
+      factories.add(TypeAdapters.newTypeHierarchyFactory(baseType, (TypeAdapter)typeAdapter));
     }
-    return this;
-  }
-
-  // TODO: inline this method?
-  private <T> GsonBuilder typeHierarchyAdapter(Class<T> type, TypeAdapter<T> typeAdapter) {
-    factories.add(TypeAdapters.newTypeHierarchyFactory(type, typeAdapter));
     return this;
   }
 
