@@ -70,11 +70,9 @@ public final class GsonBuilder {
   private FieldNamingStrategy fieldNamingPolicy = FieldNamingPolicy.IDENTITY;
   private final Map<Type, InstanceCreator<?>> instanceCreators
       = new HashMap<Type, InstanceCreator<?>>();
-  private final List<TypeAdapter.Factory> factories
-      = new ArrayList<TypeAdapter.Factory>();
+  private final List<TypeAdapter.Factory> factories = new ArrayList<TypeAdapter.Factory>();
   /** tree-style hierarchy factories. These come after factories for backwards compatibility. */
-  private final List<TypeAdapter.Factory> hierarchyFactories
-      = new ArrayList<TypeAdapter.Factory>();
+  private final List<TypeAdapter.Factory> hierarchyFactories = new ArrayList<TypeAdapter.Factory>();
   private boolean serializeNulls;
   private String datePattern;
   private int dateStyle = DateFormat.DEFAULT;
@@ -452,11 +450,11 @@ public final class GsonBuilder {
           "Cannot register type adapters for " + type);
     }
     if (typeAdapter instanceof InstanceCreator<?>) {
-      registerInstanceCreator(type, (InstanceCreator<?>) typeAdapter);
+      instanceCreators.put(type, (InstanceCreator) typeAdapter);
     }
     if (typeAdapter instanceof JsonSerializer<?> || typeAdapter instanceof JsonDeserializer<?>) {
       TypeToken<?> typeToken = TypeToken.get(type);
-      factories.add(TreeTypeAdapter.newFactory(typeToken, typeAdapter));
+      factories.add(TreeTypeAdapter.newFactoryWithMatchRawType(typeToken, typeAdapter));
     }
     if (typeAdapter instanceof TypeAdapter<?>) {
       factories.add(TypeAdapters.newFactory(TypeToken.get(type), (TypeAdapter)typeAdapter));
@@ -476,36 +474,18 @@ public final class GsonBuilder {
   }
 
   /**
-   * Configures Gson to use a custom {@link InstanceCreator} for the specified type. If an instance
-   * creator was previously registered for the specified class, it is overwritten. Since this method
-   * takes a type instead of a Class object, it can be used to register a specific handler for a
-   * generic type corresponding to a raw type.
-   *
-   *
-   * @param typeOfT The Type definition for T
-   * @param instanceCreator the instance creator for T
-   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
-   */
-  private <T> GsonBuilder registerInstanceCreator(Type typeOfT,
-      InstanceCreator<? extends T> instanceCreator) {
-    instanceCreators.put(typeOfT, instanceCreator);
-    return this;
-  }
-
-  /**
    * Configures Gson for custom serialization or deserialization for an inheritance type hierarchy.
-   * This method combines the registration of an {@link InstanceCreator}, {@link JsonSerializer},
-   * and a {@link JsonDeserializer}. It is best used when a single object {@code typeAdapter}
-   * implements all the required interfaces for custom serialization with Gson.
-   * If an instance creator, serializer or deserializer was previously registered for the specified
-   * type hierarchy, it is overwritten. If an instance creator, serializer or deserializer is
-   * registered for a specific type in the type hierarchy, it will be invoked instead of the one
-   * registered for the type hierarchy.
+   * This method combines the registration of a {@link JsonSerializer} and a {@link
+   * JsonDeserializer}. It is best used when a single object {@code typeAdapter} implements both of
+   * the required interfaces for custom serialization with Gson. If a serializer or deserializer was
+   * previously registered for the specified type hierarchy, it is overwritten. If a serializer or
+   * deserializer is registered for a specific type in the type hierarchy, it will be invoked
+   * instead of the one registered for the type hierarchy.
    *
    * @param baseType the class definition for the type adapter being registered for the base class
    *        or interface
-   * @param typeAdapter This object must implement at least one of the {@link InstanceCreator},
-   * {@link JsonSerializer}, and a {@link JsonDeserializer} interfaces.
+   * @param typeAdapter This object must implement at least one of {@link JsonSerializer} or {@link
+   *        JsonDeserializer} interfaces.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.7
    */

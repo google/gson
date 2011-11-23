@@ -78,21 +78,40 @@ final class TreeTypeAdapter<T> extends TypeAdapter<T> {
         : (delegate = gson.getNextAdapter(skipPast, typeToken));
   }
 
+  /**
+   * Returns a new factory that will match each type against {@code exactType}.
+   */
   public static Factory newFactory(TypeToken<?> exactType, Object typeAdapter) {
-    return new SingleTypeFactory(typeAdapter, exactType, null);
+    return new SingleTypeFactory(typeAdapter, exactType, false, null);
   }
 
+  /**
+   * Returns a new factory that will match each type and its raw type against
+   * {@code exactType}.
+   */
+  public static Factory newFactoryWithMatchRawType(TypeToken<?> exactType, Object typeAdapter) {
+    // only bother matching raw types if exact type is a raw type
+    boolean matchRawType = exactType.getType() == exactType.getRawType();
+    return new SingleTypeFactory(typeAdapter, exactType, matchRawType, null);
+  }
+
+  /**
+   * Returns a new factory that will match each type's raw type for assignability
+   * to {@code hierarchyType}.
+   */
   public static Factory newTypeHierarchyFactory(Class<?> hierarchyType, Object typeAdapter) {
-    return new SingleTypeFactory(typeAdapter, null, hierarchyType);
+    return new SingleTypeFactory(typeAdapter, null, false, hierarchyType);
   }
 
   private static class SingleTypeFactory implements TypeAdapter.Factory {
     private final TypeToken<?> exactType;
+    private final boolean matchRawType;
     private final Class<?> hierarchyType;
     private final JsonSerializer<?> serializer;
     private final JsonDeserializer<?> deserializer;
 
-    private SingleTypeFactory(Object typeAdapter, TypeToken<?> exactType, Class<?> hierarchyType) {
+    private SingleTypeFactory(Object typeAdapter, TypeToken<?> exactType, boolean matchRawType,
+        Class<?> hierarchyType) {
       serializer = typeAdapter instanceof JsonSerializer
           ? (JsonSerializer) typeAdapter
           : null;
@@ -101,13 +120,14 @@ final class TreeTypeAdapter<T> extends TypeAdapter<T> {
           : null;
       $Gson$Preconditions.checkArgument(serializer != null || deserializer != null);
       this.exactType = exactType;
+      this.matchRawType = matchRawType;
       this.hierarchyType = hierarchyType;
     }
 
     @SuppressWarnings("unchecked") // guarded by typeToken.equals() call
     public <T> TypeAdapter<T> create(Gson context, TypeToken<T> type) {
       boolean matches = exactType != null
-          ? exactType.equals(type)
+          ? exactType.equals(type) || matchRawType && exactType.getType() == type.getRawType()
           : hierarchyType.isAssignableFrom(type.getRawType());
       return matches
           ? new TreeTypeAdapter<T>((JsonSerializer<T>) serializer,
