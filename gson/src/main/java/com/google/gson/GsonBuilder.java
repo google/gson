@@ -16,11 +16,6 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.$Gson$Preconditions;
-import com.google.gson.internal.Excluder;
-import com.google.gson.internal.Primitives;
-import com.google.gson.internal.bind.TypeAdapters;
-import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -29,6 +24,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.google.gson.internal.$Gson$Preconditions;
+import com.google.gson.internal.Excluder;
+import com.google.gson.internal.Primitives;
+import com.google.gson.internal.bind.TypeAdapters;
+import com.google.gson.reflect.TypeToken;
 
 /**
  * <p>Use this builder to construct a {@link Gson} instance when you need to set configuration
@@ -90,6 +91,32 @@ public final class GsonBuilder {
    * {@link #create()}.
    */
   public GsonBuilder() {
+  }
+
+  /**
+   * Creates a deep copy of this instance: The collections for factories are deep copied, but the
+   * factories and type adapters themselves are not.
+   *
+   * @since 2.1
+   */
+  public GsonBuilder deepCopy() {
+    GsonBuilder copy = new GsonBuilder();
+    copy.excluder = excluder;
+    copy.longSerializationPolicy = longSerializationPolicy;
+    copy.fieldNamingPolicy = fieldNamingPolicy;
+    copy.instanceCreators.putAll(instanceCreators);
+    copy.factories.addAll(factories);
+    copy.hierarchyFactories.addAll(hierarchyFactories);
+    copy.serializeNulls = serializeNulls;
+    copy.datePattern = datePattern;
+    copy.dateStyle = dateStyle;
+    copy.timeStyle = timeStyle;
+    copy.complexMapKeySerialization = complexMapKeySerialization;
+    copy.serializeSpecialFloatingPointValues = serializeSpecialFloatingPointValues;
+    copy.escapeHtmlChars = escapeHtmlChars;
+    copy.prettyPrinting = prettyPrinting;
+    copy.generateNonExecutableJson = generateNonExecutableJson;
+    return copy;
   }
 
   /**
