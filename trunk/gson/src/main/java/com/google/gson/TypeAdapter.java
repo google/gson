@@ -76,6 +76,6 @@ public abstract class TypeAdapter<T> {
   }
 
   public interface Factory {
-    <T> TypeAdapter<T> create(Gson context, TypeToken<T> type);
+    <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type);
   }
 }
