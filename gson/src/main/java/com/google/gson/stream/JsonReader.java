@@ -16,6 +16,7 @@
 
 package com.google.gson.stream;
 
+import com.google.gson.internal.JsonReaderInternalAccess;
 import java.io.Closeable;
 import java.io.EOFException;
 import java.io.IOException;
@@ -1166,5 +1167,19 @@ public class JsonReader implements Closeable {
     int afterPos = Math.min(limit - pos, 20);
     snippet.append(buffer, pos, afterPos);
     return snippet;
+  }
+
+  static {
+    JsonReaderInternalAccess.INSTANCE = new JsonReaderInternalAccess() {
+      @Override public void promoteNameToValue(JsonReader reader) throws IOException {
+        reader.quickPeek();
+        if (reader.token != JsonToken.NAME) {
+          throw new IllegalStateException("Expected a name but was " + reader.peek());
+        }
+        reader.value = reader.name;
+        reader.name = null;
+        reader.token = JsonToken.STRING;
+      }
+    };
   }
 }
