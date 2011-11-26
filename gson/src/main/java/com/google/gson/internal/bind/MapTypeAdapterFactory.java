@@ -23,6 +23,7 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.internal.ConstructorConstructor;
+import com.google.gson.internal.JsonReaderInternalAccess;
 import com.google.gson.internal.ObjectConstructor;
 import com.google.gson.internal.Streams;
 import com.google.gson.reflect.TypeToken;
@@ -180,8 +181,8 @@ public final class MapTypeAdapterFactory implements TypeAdapter.Factory {
       } else {
         reader.beginObject();
         while (reader.hasNext()) {
-          String keyString = reader.nextName();
-          K key = keyTypeAdapter.fromJsonElement(new JsonPrimitive(keyString));
+          JsonReaderInternalAccess.INSTANCE.promoteNameToValue(reader);
+          K key = keyTypeAdapter.read(reader);
           V value = valueTypeAdapter.read(reader);
           V replaced = map.put(key, value);
           if (replaced != null) {
