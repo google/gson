@@ -114,6 +114,9 @@ public final class Gson {
     }
   };
 
+  private final Map<TypeToken<?>, TypeAdapter<?>> typeTokenCache
+      = Collections.synchronizedMap(new HashMap<TypeToken<?>, TypeAdapter<?>>());
+
   private final List<TypeAdapter.Factory> factories;
   private final ConstructorConstructor constructorConstructor;
 
@@ -328,7 +331,10 @@ public final class Gson {
    *     deserialize {@code type}.
    */
   public <T> TypeAdapter<T> getAdapter(TypeToken<T> type) {
-    // TODO: cache?
+    TypeAdapter<?> cached = typeTokenCache.get(type);
+    if (cached != null) {
+      return (TypeAdapter<T>) cached;
+    }
 
     Map<TypeToken<?>, FutureTypeAdapter<?>> threadCalls = calls.get();
     @SuppressWarnings("unchecked") // the key and value type parameters always agree
@@ -344,6 +350,7 @@ public final class Gson {
         TypeAdapter<T> candidate = factory.create(this, type);
         if (candidate != null) {
           call.setDelegate(candidate);
+          typeTokenCache.put(type, candidate);
           return candidate;
         }
       }
