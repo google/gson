@@ -201,7 +201,7 @@ public final class JsonReaderTest extends TestCase {
     try {
       reader.nextDouble();
       fail();
-    } catch (NumberFormatException expected) {
+    } catch (MalformedJsonException expected) {
     }
   }
 
@@ -266,19 +266,24 @@ public final class JsonReaderTest extends TestCase {
     JsonReader reader = new JsonReader(new StringReader(json));
     reader.beginArray();
     try {
+      reader.peek();
+      fail();
+    } catch (MalformedJsonException expected) {
+    }
+    try {
       reader.nextInt();
       fail();
-    } catch (NumberFormatException expected) {
+    } catch (MalformedJsonException expected) {
     }
     try {
       reader.nextLong();
       fail();
-    } catch (NumberFormatException expected) {
+    } catch (MalformedJsonException expected) {
     }
     try {
       reader.nextDouble();
       fail();
-    } catch (NumberFormatException expected) {
+    } catch (MalformedJsonException expected) {
     }
     assertEquals("01", reader.nextString());
     reader.endArray();
