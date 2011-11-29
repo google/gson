@@ -94,32 +94,6 @@ public final class GsonBuilder {
   }
 
   /**
-   * Creates a deep copy of this instance: The collections for factories are deep copied, but the
-   * factories and type adapters themselves are not.
-   *
-   * @since 2.1
-   */
-  public GsonBuilder deepCopy() {
-    GsonBuilder copy = new GsonBuilder();
-    copy.excluder = excluder;
-    copy.longSerializationPolicy = longSerializationPolicy;
-    copy.fieldNamingPolicy = fieldNamingPolicy;
-    copy.instanceCreators.putAll(instanceCreators);
-    copy.factories.addAll(factories);
-    copy.hierarchyFactories.addAll(hierarchyFactories);
-    copy.serializeNulls = serializeNulls;
-    copy.datePattern = datePattern;
-    copy.dateStyle = dateStyle;
-    copy.timeStyle = timeStyle;
-    copy.complexMapKeySerialization = complexMapKeySerialization;
-    copy.serializeSpecialFloatingPointValues = serializeSpecialFloatingPointValues;
-    copy.escapeHtmlChars = escapeHtmlChars;
-    copy.prettyPrinting = prettyPrinting;
-    copy.generateNonExecutableJson = generateNonExecutableJson;
-    return copy;
-  }
-
-  /**
    * Configures Gson to enable versioning support.
    *
    * @param ignoreVersionsAfter any field or type marked with a version higher than this value
