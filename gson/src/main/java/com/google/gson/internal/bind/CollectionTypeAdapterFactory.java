@@ -39,7 +39,7 @@ public final class CollectionTypeAdapterFactory implements TypeAdapter.Factory {
     this.constructorConstructor = constructorConstructor;
   }
 
-  public <T> TypeAdapter<T> create(Gson context, TypeToken<T> typeToken) {
+  public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
     Type type = typeToken.getType();
 
     Class<? super T> rawType = typeToken.getRawType();
@@ -48,11 +48,11 @@ public final class CollectionTypeAdapterFactory implements TypeAdapter.Factory {
     }
 
     Type elementType = $Gson$Types.getCollectionElementType(type, rawType);
-    TypeAdapter<?> elementTypeAdapter = context.getAdapter(TypeToken.get(elementType));
+    TypeAdapter<?> elementTypeAdapter = gson.getAdapter(TypeToken.get(elementType));
     ObjectConstructor<T> constructor = constructorConstructor.getConstructor(typeToken);
 
     @SuppressWarnings({"unchecked", "rawtypes"}) // create() doesn't define a type parameter
-    TypeAdapter<T> result = new Adapter(context, elementType, elementTypeAdapter, constructor);
+    TypeAdapter<T> result = new Adapter(gson, elementType, elementTypeAdapter, constructor);
     return result;
   }
 

@@ -37,7 +37,7 @@ import java.text.SimpleDateFormat;
 public final class SqlDateTypeAdapter extends TypeAdapter<java.sql.Date> {
   public static final Factory FACTORY = new Factory() {
     @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
-    public <T> TypeAdapter<T> create(Gson context, TypeToken<T> typeToken) {
+    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
       return typeToken.getRawType() == java.sql.Date.class
           ? (TypeAdapter<T>) new SqlDateTypeAdapter() : null;
     }
