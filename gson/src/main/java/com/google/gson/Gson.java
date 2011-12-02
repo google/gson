@@ -366,6 +366,7 @@ public final class Gson {
    *
    * @throws IllegalArgumentException if this GSON cannot serialize and
    *     deserialize {@code type}.
+   * @since 2.1
    */
   public <T> TypeAdapter<T> getNextAdapter(TypeAdapter.Factory skipPast, TypeToken<T> type) {
     boolean skipPastFound = false;

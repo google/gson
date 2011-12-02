@@ -29,6 +29,10 @@ import java.io.Writer;
 
 // TODO: nice documentation
 
+/**
+ *
+ * @since 2.1
+ */
 public abstract class TypeAdapter<T> {
   public abstract T read(JsonReader reader) throws IOException;
   public abstract void write(JsonWriter writer, T value) throws IOException;
@@ -75,6 +79,9 @@ public abstract class TypeAdapter<T> {
     }
   }
 
+  /**
+   * @since 2.1
+   */
   public interface Factory {
     <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type);
   }
