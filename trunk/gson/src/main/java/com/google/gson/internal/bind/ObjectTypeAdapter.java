@@ -35,9 +35,9 @@ import java.util.Map;
 public final class ObjectTypeAdapter extends TypeAdapter<Object> {
   public static final Factory FACTORY = new Factory() {
     @SuppressWarnings("unchecked")
-    public <T> TypeAdapter<T> create(Gson context, TypeToken<T> type) {
+    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
       if (type.getRawType() == Object.class) {
-        return (TypeAdapter<T>) new ObjectTypeAdapter(context);
+        return (TypeAdapter<T>) new ObjectTypeAdapter(gson);
       }
       return null;
     }

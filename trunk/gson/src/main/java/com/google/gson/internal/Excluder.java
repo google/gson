@@ -107,7 +107,7 @@ public final class Excluder implements TypeAdapter.Factory, Cloneable {
     return result;
   }
 
-  public <T> TypeAdapter<T> create(final Gson context, final TypeToken<T> type) {
+  public <T> TypeAdapter<T> create(final Gson gson, final TypeToken<T> type) {
     Class<?> rawType = type.getRawType();
     final boolean skipSerialize = excludeClass(rawType, true);
     final boolean skipDeserialize = excludeClass(rawType, false);
@@ -140,7 +140,7 @@ public final class Excluder implements TypeAdapter.Factory, Cloneable {
         TypeAdapter<T> d = delegate;
         return d != null
             ? d
-            : (delegate = context.getNextAdapter(Excluder.this, type));
+            : (delegate = gson.getNextAdapter(Excluder.this, type));
       }
     };
   }

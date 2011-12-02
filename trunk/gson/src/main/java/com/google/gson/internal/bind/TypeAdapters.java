@@ -444,12 +444,12 @@ public final class TypeAdapters {
 
   public static final TypeAdapter.Factory TIMESTAMP_FACTORY = new TypeAdapter.Factory() {
     @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
-    public <T> TypeAdapter<T> create(Gson context, TypeToken<T> typeToken) {
+    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
       if (typeToken.getRawType() != Timestamp.class) {
         return null;
       }
 
-      final TypeAdapter<Date> dateTypeAdapter = context.getAdapter(Date.class);
+      final TypeAdapter<Date> dateTypeAdapter = gson.getAdapter(Date.class);
       return (TypeAdapter<T>) new TypeAdapter<Timestamp>() {
         @Override public Timestamp read(JsonReader reader) throws IOException {
           Date date = dateTypeAdapter.read(reader);
@@ -667,7 +667,7 @@ public final class TypeAdapters {
   public static <TT> TypeAdapter.Factory newEnumTypeHierarchyFactory(final Class<TT> clazz) {
     return new TypeAdapter.Factory() {
       @SuppressWarnings({"rawtypes", "unchecked"})
-      public <T> TypeAdapter<T> create(Gson context, TypeToken<T> typeToken) {
+      public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
         Class<? super T> rawType = typeToken.getRawType();
         return clazz.isAssignableFrom(rawType)
           ? (TypeAdapter<T>) new EnumTypeAdapter(rawType) : null;
@@ -679,7 +679,7 @@ public final class TypeAdapters {
       final TypeToken<TT> type, final TypeAdapter<TT> typeAdapter) {
     return new TypeAdapter.Factory() {
       @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
-      public <T> TypeAdapter<T> create(Gson context, TypeToken<T> typeToken) {
+      public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
         return typeToken.equals(type) ? (TypeAdapter<T>) typeAdapter : null;
       }
     };
@@ -689,7 +689,7 @@ public final class TypeAdapters {
       final Class<TT> type, final TypeAdapter<TT> typeAdapter) {
     return new TypeAdapter.Factory() {
       @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
-      public <T> TypeAdapter<T> create(Gson context, TypeToken<T> typeToken) {
+      public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
         return typeToken.getRawType() == type ? (TypeAdapter<T>) typeAdapter : null;
       }
       @Override public String toString() {
@@ -702,7 +702,7 @@ public final class TypeAdapters {
       final Class<TT> unboxed, final Class<TT> boxed, final TypeAdapter<? super TT> typeAdapter) {
     return new TypeAdapter.Factory() {
       @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
-      public <T> TypeAdapter<T> create(Gson context, TypeToken<T> typeToken) {
+      public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
         Class<? super T> rawType = typeToken.getRawType();
         return (rawType == unboxed || rawType == boxed) ? (TypeAdapter<T>) typeAdapter : null;
       }
@@ -717,7 +717,7 @@ public final class TypeAdapters {
       final Class<TT> base, final Class<? extends TT> sub, final TypeAdapter<? super TT> typeAdapter) {
     return new TypeAdapter.Factory() {
       @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
-      public <T> TypeAdapter<T> create(Gson context, TypeToken<T> typeToken) {
+      public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
         Class<? super T> rawType = typeToken.getRawType();
         return (rawType == base || rawType == sub) ? (TypeAdapter<T>) typeAdapter : null;
       }
@@ -732,7 +732,7 @@ public final class TypeAdapters {
       final Class<TT> clazz, final TypeAdapter<TT> typeAdapter) {
     return new TypeAdapter.Factory() {
       @SuppressWarnings("unchecked")
-      public <T> TypeAdapter<T> create(Gson context, TypeToken<T> typeToken) {
+      public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
         return clazz.isAssignableFrom(typeToken.getRawType()) ? (TypeAdapter<T>) typeAdapter : null;
       }
       @Override public String toString() {
