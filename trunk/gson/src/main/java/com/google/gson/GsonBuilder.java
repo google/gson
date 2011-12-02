@@ -468,6 +468,8 @@ public final class GsonBuilder {
    * adapter needs to be configured based on the type of the field being processed. Gson
    * is designed to handle a large number of factories, so you should consider registering
    * them to be at par with registering an individual type adapter.
+   *
+   * @since 2.1
    */
   public GsonBuilder registerTypeAdapterFactory(TypeAdapter.Factory factory) {
     factories.add(factory);
