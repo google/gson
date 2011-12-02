@@ -37,16 +37,16 @@ import com.google.gson.stream.JsonWriter;
 public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
   public static final Factory FACTORY = new Factory() {
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public <T> TypeAdapter<T> create(Gson context, TypeToken<T> typeToken) {
+    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
       Type type = typeToken.getType();
       if (!(type instanceof GenericArrayType || type instanceof Class && ((Class<?>) type).isArray())) {
         return null;
       }
 
       Type componentType = $Gson$Types.getArrayComponentType(type);
-      TypeAdapter<?> componentTypeAdapter = context.getAdapter(TypeToken.get(componentType));
+      TypeAdapter<?> componentTypeAdapter = gson.getAdapter(TypeToken.get(componentType));
       return new ArrayTypeAdapter(
-          context, componentTypeAdapter, $Gson$Types.getRawType(componentType));
+              gson, componentTypeAdapter, $Gson$Types.getRawType(componentType));
     }
   };
 

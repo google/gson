@@ -35,26 +35,26 @@ public abstract class TypeAdapter<T> {
 
   public final String toJson(T value) throws IOException {
     StringWriter stringWriter = new StringWriter();
-    write(stringWriter, value);
+    toJson(stringWriter, value);
     return stringWriter.toString();
   }
 
-  public final void write(Writer out, T value) throws IOException {
+  public final void toJson(Writer out, T value) throws IOException {
     JsonWriter writer = new JsonWriter(out);
     write(writer, value);
   }
 
   public final T fromJson(String json) throws IOException {
-    return read(new StringReader(json));
+    return fromJson(new StringReader(json));
   }
 
-  public final T read(Reader in) throws IOException {
+  public final T fromJson(Reader in) throws IOException {
     JsonReader reader = new JsonReader(in);
     reader.setLenient(true);
     return read(reader);
   }
 
-  public JsonElement toJsonElement(T src) {
+  public JsonElement toJsonTree(T src) {
     try {
       JsonElementWriter jsonWriter = new JsonElementWriter();
       jsonWriter.setLenient(true);
@@ -65,7 +65,7 @@ public abstract class TypeAdapter<T> {
     }
   }
 
-  public T fromJsonElement(JsonElement json) {
+  public T fromJsonTree(JsonElement json) {
     try {
       JsonReader jsonReader = new JsonElementReader(json);
       jsonReader.setLenient(true);

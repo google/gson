@@ -179,7 +179,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapter.Factory {
     return registerSubtype(type, type.getSimpleName());
   }
 
-  public <T> TypeAdapter<T> create(Gson context, TypeToken<T> type) {
+  public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
     if (type.getRawType() != baseType) {
       return null;
     }
@@ -189,7 +189,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapter.Factory {
     final Map<Class<?>, TypeAdapter<?>> subtypeToDelegate
         = new LinkedHashMap<Class<?>, TypeAdapter<?>>();
     for (Map.Entry<String, Class<?>> entry : labelToSubtype.entrySet()) {
-      TypeAdapter<?> delegate = context.getNextAdapter(this, TypeToken.get(entry.getValue()));
+      TypeAdapter<?> delegate = gson.getNextAdapter(this, TypeToken.get(entry.getValue()));
       labelToDelegate.put(entry.getKey(), delegate);
       subtypeToDelegate.put(entry.getValue(), delegate);
     }
@@ -209,7 +209,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapter.Factory {
           throw new JsonParseException("cannot deserialize " + baseType + " subtype named "
               + label + "; did you forget to register a subtype?");
         }
-        return delegate.fromJsonElement(jsonElement);
+        return delegate.fromJsonTree(jsonElement);
       }
 
       @Override public void write(JsonWriter writer, T value) throws IOException {
@@ -221,7 +221,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapter.Factory {
           throw new JsonParseException("cannot serialize " + srcType.getName()
               + "; did you forget to register a subtype?");
         }
-        JsonObject jsonObject = delegate.toJsonElement(value).getAsJsonObject();
+        JsonObject jsonObject = delegate.toJsonTree(value).getAsJsonObject();
         if (jsonObject.has(typeFieldName)) {
           throw new JsonParseException("cannot serialize " + srcType.getName()
               + " because it already defines a field named " + typeFieldName);

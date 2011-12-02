@@ -61,7 +61,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapter.Factory {
     return serializedName == null ? fieldNamingPolicy.translateName(f) : serializedName.value();
   }
 
-  public <T> TypeAdapter<T> create(Gson context, final TypeToken<T> type) {
+  public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
     Class<? super T> raw = type.getRawType();
 
     if (!Object.class.isAssignableFrom(raw)) {
@@ -69,7 +69,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapter.Factory {
     }
 
     ObjectConstructor<T> constructor = constructorConstructor.getConstructor(type);
-    return new Adapter<T>(constructor, getBoundFields(context, type, raw));
+    return new Adapter<T>(constructor, getBoundFields(gson, type, raw));
   }
 
   private ReflectiveTypeAdapterFactory.BoundField createBoundField(

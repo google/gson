@@ -39,7 +39,7 @@ import java.util.Date;
 public final class TimeTypeAdapter extends TypeAdapter<Time> {
   public static final Factory FACTORY = new Factory() {
     @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
-    public <T> TypeAdapter<T> create(Gson context, TypeToken<T> typeToken) {
+    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
       return typeToken.getRawType() == Time.class ? (TypeAdapter<T>) new TimeTypeAdapter() : null;
     }
   };

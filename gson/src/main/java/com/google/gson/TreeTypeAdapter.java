@@ -125,13 +125,13 @@ final class TreeTypeAdapter<T> extends TypeAdapter<T> {
     }
 
     @SuppressWarnings("unchecked") // guarded by typeToken.equals() call
-    public <T> TypeAdapter<T> create(Gson context, TypeToken<T> type) {
+    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
       boolean matches = exactType != null
           ? exactType.equals(type) || matchRawType && exactType.getType() == type.getRawType()
           : hierarchyType.isAssignableFrom(type.getRawType());
       return matches
           ? new TreeTypeAdapter<T>((JsonSerializer<T>) serializer,
-              (JsonDeserializer<T>) deserializer, context, type, this)
+              (JsonDeserializer<T>) deserializer, gson, type, this)
           : null;
     }
   }

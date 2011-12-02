@@ -111,7 +111,7 @@ public final class MapTypeAdapterFactory implements TypeAdapter.Factory {
     this.complexMapKeySerialization = complexMapKeySerialization;
   }
 
-  public <T> TypeAdapter<T> create(Gson context, TypeToken<T> typeToken) {
+  public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
     Type type = typeToken.getType();
 
     Class<? super T> rawType = typeToken.getRawType();
@@ -121,13 +121,13 @@ public final class MapTypeAdapterFactory implements TypeAdapter.Factory {
 
     Class<?> rawTypeOfSrc = $Gson$Types.getRawType(type);
     Type[] keyAndValueTypes = $Gson$Types.getMapKeyAndValueTypes(type, rawTypeOfSrc);
-    TypeAdapter<?> keyAdapter = getKeyAdapter(context, keyAndValueTypes[0]);
-    TypeAdapter<?> valueAdapter = context.getAdapter(TypeToken.get(keyAndValueTypes[1]));
+    TypeAdapter<?> keyAdapter = getKeyAdapter(gson, keyAndValueTypes[0]);
+    TypeAdapter<?> valueAdapter = gson.getAdapter(TypeToken.get(keyAndValueTypes[1]));
     ObjectConstructor<T> constructor = constructorConstructor.getConstructor(typeToken);
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     // we don't define a type parameter for the key or value types
-    TypeAdapter<T> result = new Adapter(context, keyAndValueTypes[0], keyAdapter,
+    TypeAdapter<T> result = new Adapter(gson, keyAndValueTypes[0], keyAdapter,
         keyAndValueTypes[1], valueAdapter, constructor);
     return result;
   }
@@ -215,7 +215,7 @@ public final class MapTypeAdapterFactory implements TypeAdapter.Factory {
 
       List<V> values = new ArrayList<V>(map.size());
       for (Map.Entry<K, V> entry : map.entrySet()) {
-        JsonElement keyElement = keyTypeAdapter.toJsonElement(entry.getKey());
+        JsonElement keyElement = keyTypeAdapter.toJsonTree(entry.getKey());
         keys.add(keyElement);
         values.add(entry.getValue());
         hasComplexKeys |= keyElement.isJsonArray() || keyElement.isJsonObject();
