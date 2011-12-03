@@ -16,7 +16,7 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.bind.JsonElementReader;
+import com.google.gson.internal.bind.JsonTreeReader;
 import com.google.gson.internal.bind.JsonElementWriter;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
@@ -71,7 +71,7 @@ public abstract class TypeAdapter<T> {
 
   public T fromJsonTree(JsonElement json) {
     try {
-      JsonReader jsonReader = new JsonElementReader(json);
+      JsonReader jsonReader = new JsonTreeReader(json);
       jsonReader.setLenient(true);
       return read(jsonReader);
     } catch (IOException e) {

@@ -25,7 +25,7 @@ import com.google.gson.internal.bind.BigDecimalTypeAdapter;
 import com.google.gson.internal.bind.BigIntegerTypeAdapter;
 import com.google.gson.internal.bind.CollectionTypeAdapterFactory;
 import com.google.gson.internal.bind.DateTypeAdapter;
-import com.google.gson.internal.bind.JsonElementReader;
+import com.google.gson.internal.bind.JsonTreeReader;
 import com.google.gson.internal.bind.JsonElementWriter;
 import com.google.gson.internal.bind.MapTypeAdapterFactory;
 import com.google.gson.internal.bind.ObjectTypeAdapter;
@@ -815,7 +815,7 @@ public final class Gson {
     if (json == null) {
       return null;
     }
-    return (T) fromJson(new JsonElementReader(json), typeOfT);
+    return (T) fromJson(new JsonTreeReader(json), typeOfT);
   }
 
   static class FutureTypeAdapter<T> extends TypeAdapter<T> {

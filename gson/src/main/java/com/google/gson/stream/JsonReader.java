@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.internal.JsonReaderInternalAccess;
-import com.google.gson.internal.bind.JsonElementReader;
+import com.google.gson.internal.bind.JsonTreeReader;
 
 /**
  * Reads a JSON (<a href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>)
@@ -1242,8 +1242,8 @@ public class JsonReader implements Closeable {
   static {
     JsonReaderInternalAccess.INSTANCE = new JsonReaderInternalAccess() {
       @Override public void promoteNameToValue(JsonReader reader) throws IOException {
-        if (reader instanceof JsonElementReader) {
-          ((JsonElementReader)reader).promoteNameToValue();
+        if (reader instanceof JsonTreeReader) {
+          ((JsonTreeReader)reader).promoteNameToValue();
           return;
         }
         reader.peek();

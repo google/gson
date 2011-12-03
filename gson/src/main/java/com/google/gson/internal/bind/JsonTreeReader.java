@@ -36,7 +36,7 @@ import java.util.Map;
  *
  * @author Jesse Wilson
  */
-public final class JsonElementReader extends JsonReader {
+public final class JsonTreeReader extends JsonReader {
   private static final Reader UNREADABLE_READER = new Reader() {
     @Override public int read(char[] buffer, int offset, int count) throws IOException {
       throw new AssertionError();
@@ -49,7 +49,7 @@ public final class JsonElementReader extends JsonReader {
 
   private final List<Object> stack = new ArrayList<Object>();
 
-  public JsonElementReader(JsonElement element) {
+  public JsonTreeReader(JsonElement element) {
     super(UNREADABLE_READER);
     stack.add(element);
   }
