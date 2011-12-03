@@ -59,19 +59,19 @@ public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
     this.componentType = componentType;
   }
 
-  public Object read(JsonReader reader) throws IOException {
-    if (reader.peek() == JsonToken.NULL) {
-      reader.nextNull();
+  public Object read(JsonReader in) throws IOException {
+    if (in.peek() == JsonToken.NULL) {
+      in.nextNull();
       return null;
     }
 
     List<E> list = new ArrayList<E>();
-    reader.beginArray();
-    while (reader.hasNext()) {
-      E instance = componentTypeAdapter.read(reader);
+    in.beginArray();
+    while (in.hasNext()) {
+      E instance = componentTypeAdapter.read(in);
       list.add(instance);
     }
-    reader.endArray();
+    in.endArray();
     Object array = Array.newInstance(componentType, list.size());
     for (int i = 0; i < list.size(); i++) {
       Array.set(array, i, list.get(i));
@@ -80,17 +80,17 @@ public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
   }
 
   @SuppressWarnings("unchecked")
-  @Override public void write(JsonWriter writer, Object array) throws IOException {
+  @Override public void write(JsonWriter out, Object array) throws IOException {
     if (array == null) {
-      writer.nullValue();
+      out.nullValue();
       return;
     }
 
-    writer.beginArray();
+    out.beginArray();
     for (int i = 0, length = Array.getLength(array); i < length; i++) {
       E value = (E) Array.get(array, i);
-      componentTypeAdapter.write(writer, value);
+      componentTypeAdapter.write(out, value);
     }
-    writer.endArray();
+    out.endArray();
   }
 }

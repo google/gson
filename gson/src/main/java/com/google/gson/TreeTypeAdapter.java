@@ -47,28 +47,28 @@ final class TreeTypeAdapter<T> extends TypeAdapter<T> {
     this.skipPast = skipPast;
   }
 
-  @Override public T read(JsonReader reader) throws IOException {
+  @Override public T read(JsonReader in) throws IOException {
     if (deserializer == null) {
-      return delegate().read(reader);
+      return delegate().read(in);
     }
-    JsonElement value = Streams.parse(reader);
+    JsonElement value = Streams.parse(in);
     if (value.isJsonNull()) {
       return null;
     }
     return deserializer.deserialize(value, typeToken.getType(), gson.deserializationContext);
   }
 
-  @Override public void write(JsonWriter writer, T value) throws IOException {
+  @Override public void write(JsonWriter out, T value) throws IOException {
     if (serializer == null) {
-      delegate().write(writer, value);
+      delegate().write(out, value);
       return;
     }
     if (value == null) {
-      writer.nullValue();
+      out.nullValue();
       return;
     }
     JsonElement tree = serializer.serialize(value, typeToken.getType(), gson.serializationContext);
-    Streams.write(tree,writer);
+    Streams.write(tree, out);
   }
 
   private TypeAdapter<T> delegate() {

@@ -46,13 +46,13 @@ public final class SqlDateTypeAdapter extends TypeAdapter<java.sql.Date> {
   private final DateFormat format = new SimpleDateFormat("MMM d, yyyy");
 
   @Override
-  public synchronized java.sql.Date read(JsonReader reader) throws IOException {
-    if (reader.peek() == JsonToken.NULL) {
-      reader.nextNull();
+  public synchronized java.sql.Date read(JsonReader in) throws IOException {
+    if (in.peek() == JsonToken.NULL) {
+      in.nextNull();
       return null;
     }
     try {
-      final long utilDate = format.parse(reader.nextString()).getTime();
+      final long utilDate = format.parse(in.nextString()).getTime();
       return new java.sql.Date(utilDate);
     } catch (ParseException e) {
       throw new JsonSyntaxException(e);
@@ -60,7 +60,7 @@ public final class SqlDateTypeAdapter extends TypeAdapter<java.sql.Date> {
   }
 
   @Override
-  public synchronized void write(JsonWriter writer, java.sql.Date value) throws IOException {
-    writer.value(value == null ? null : format.format(value));
+  public synchronized void write(JsonWriter out, java.sql.Date value) throws IOException {
+    out.value(value == null ? null : format.format(value));
   }
 }
