@@ -120,20 +120,20 @@ public final class Excluder implements TypeAdapter.Factory, Cloneable {
       /** The delegate is lazily created because it may not be needed, and creating it may fail. */
       private TypeAdapter<T> delegate;
 
-      @Override public T read(JsonReader reader) throws IOException {
+      @Override public T read(JsonReader in) throws IOException {
         if (skipDeserialize) {
-          reader.skipValue();
+          in.skipValue();
           return null;
         }
-        return delegate().read(reader);
+        return delegate().read(in);
       }
 
-      @Override public void write(JsonWriter writer, T value) throws IOException {
+      @Override public void write(JsonWriter out, T value) throws IOException {
         if (skipSerialize) {
-          writer.nullValue();
+          out.nullValue();
           return;
         }
-        delegate().write(writer, value);
+        delegate().write(out, value);
       }
 
       private TypeAdapter<T> delegate() {

@@ -49,38 +49,38 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
     this.gson = gson;
   }
 
-  @Override public Object read(JsonReader reader) throws IOException {
-    JsonToken token = reader.peek();
+  @Override public Object read(JsonReader in) throws IOException {
+    JsonToken token = in.peek();
     switch (token) {
     case BEGIN_ARRAY:
       List<Object> list = new ArrayList<Object>();
-      reader.beginArray();
-      while (reader.hasNext()) {
-        list.add(read(reader));
+      in.beginArray();
+      while (in.hasNext()) {
+        list.add(read(in));
       }
-      reader.endArray();
+      in.endArray();
       return list;
 
     case BEGIN_OBJECT:
       Map<String, Object> map = new LinkedHashMap<String, Object>();
-      reader.beginObject();
-      while (reader.hasNext()) {
-        map.put(reader.nextName(), read(reader));
+      in.beginObject();
+      while (in.hasNext()) {
+        map.put(in.nextName(), read(in));
       }
-      reader.endObject();
+      in.endObject();
       return map;
 
     case STRING:
-      return reader.nextString();
+      return in.nextString();
 
     case NUMBER:
-      return reader.nextDouble();
+      return in.nextDouble();
 
     case BOOLEAN:
-      return reader.nextBoolean();
+      return in.nextBoolean();
 
     case NULL:
-      reader.nextNull();
+      in.nextNull();
       return null;
 
     }
@@ -88,19 +88,19 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
   }
 
   @SuppressWarnings("unchecked")
-  @Override public void write(JsonWriter writer, Object value) throws IOException {
+  @Override public void write(JsonWriter out, Object value) throws IOException {
     if (value == null) {
-      writer.nullValue();
+      out.nullValue();
       return;
     }
 
     TypeAdapter<Object> typeAdapter = (TypeAdapter<Object>) gson.getAdapter(value.getClass());
     if (typeAdapter instanceof ObjectTypeAdapter) {
-      writer.beginObject();
-      writer.endObject();
+      out.beginObject();
+      out.endObject();
       return;
     }
 
-    typeAdapter.write(writer, value);
+    typeAdapter.write(out, value);
   }
 }

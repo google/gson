@@ -195,8 +195,8 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapter.Factory {
     }
 
     return new TypeAdapter<T>() {
-      @Override public T read(JsonReader reader) throws IOException {
-        JsonElement jsonElement = Streams.parse(reader);
+      @Override public T read(JsonReader in) throws IOException {
+        JsonElement jsonElement = Streams.parse(in);
         JsonElement labelJsonElement = jsonElement.getAsJsonObject().remove(typeFieldName);
         if (labelJsonElement == null) {
           throw new JsonParseException("cannot deserialize " + baseType
@@ -212,7 +212,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapter.Factory {
         return delegate.fromJsonTree(jsonElement);
       }
 
-      @Override public void write(JsonWriter writer, T value) throws IOException {
+      @Override public void write(JsonWriter out, T value) throws IOException {
         Class<?> srcType = value.getClass();
         String label = subtypeToLabel.get(srcType);
         @SuppressWarnings("unchecked") // registration requires that subtype extends T
@@ -231,7 +231,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapter.Factory {
         for (Map.Entry<String, JsonElement> e : jsonObject.entrySet()) {
           clone.add(e.getKey(), e.getValue());
         }
-        Streams.write(clone, writer);
+        Streams.write(clone, out);
       }
     };
   }

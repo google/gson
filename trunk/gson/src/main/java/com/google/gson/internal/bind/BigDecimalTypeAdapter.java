@@ -33,20 +33,20 @@ import java.math.BigDecimal;
 public final class BigDecimalTypeAdapter extends TypeAdapter<BigDecimal> {
 
   @Override
-  public BigDecimal read(JsonReader reader) throws IOException {
-    if (reader.peek() == JsonToken.NULL) {
-      reader.nextNull();
+  public BigDecimal read(JsonReader in) throws IOException {
+    if (in.peek() == JsonToken.NULL) {
+      in.nextNull();
       return null;
     }
     try {
-      return new BigDecimal(reader.nextString());
+      return new BigDecimal(in.nextString());
     } catch (NumberFormatException e) {
       throw new JsonSyntaxException(e);
     }
   }
 
   @Override
-  public void write(JsonWriter writer, BigDecimal value) throws IOException {
-    writer.value(value);
+  public void write(JsonWriter out, BigDecimal value) throws IOException {
+    out.value(value);
   }
 }

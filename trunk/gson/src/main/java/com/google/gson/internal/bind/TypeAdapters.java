@@ -52,27 +52,27 @@ public final class TypeAdapters {
   private TypeAdapters() {}
 
   public static final TypeAdapter<BitSet> BIT_SET = new TypeAdapter<BitSet>() {
-    public BitSet read(JsonReader reader) throws IOException {
-      if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull();
+    public BitSet read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
         return null;
       }
 
       BitSet bitset = new BitSet();
-      reader.beginArray();
+      in.beginArray();
       int i = 0;
-      JsonToken tokenType = reader.peek();
+      JsonToken tokenType = in.peek();
       while (tokenType != JsonToken.END_ARRAY) {
         boolean set;
         switch (tokenType) {
         case NUMBER:
-          set = reader.nextInt() != 0;
+          set = in.nextInt() != 0;
           break;
         case BOOLEAN:
-          set = reader.nextBoolean();
+          set = in.nextBoolean();
           break;
         case STRING:
-          String stringValue = reader.nextString();
+          String stringValue = in.nextString();
           try {
             set = Integer.parseInt(stringValue) != 0;
           } catch (NumberFormatException e) {
@@ -87,24 +87,24 @@ public final class TypeAdapters {
           bitset.set(i);
         }
         ++i;
-        tokenType = reader.peek();
+        tokenType = in.peek();
       }
-      reader.endArray();
+      in.endArray();
       return bitset;
     }
 
-    public void write(JsonWriter writer, BitSet src) throws IOException {
+    public void write(JsonWriter out, BitSet src) throws IOException {
       if (src == null) {
-        writer.nullValue();
+        out.nullValue();
         return;
       }
 
-      writer.beginArray();
+      out.beginArray();
       for (int i = 0; i < src.length(); i++) {
         int value = (src.get(i)) ? 1 : 0;
-        writer.value(value);
+        out.value(value);
       }
-      writer.endArray();
+      out.endArray();
     }
   };
 
@@ -112,23 +112,23 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<Boolean> BOOLEAN = new TypeAdapter<Boolean>() {
     @Override
-    public Boolean read(JsonReader reader) throws IOException {
-      if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull();
+    public Boolean read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
         return null;
-      } else if (reader.peek() == JsonToken.STRING) {
+      } else if (in.peek() == JsonToken.STRING) {
         // support strings for compatibility with GSON 1.7
-        return Boolean.parseBoolean(reader.nextString());
+        return Boolean.parseBoolean(in.nextString());
       }
-      return reader.nextBoolean();
+      return in.nextBoolean();
     }
     @Override
-    public void write(JsonWriter writer, Boolean value) throws IOException {
+    public void write(JsonWriter out, Boolean value) throws IOException {
       if (value == null) {
-        writer.nullValue();
+        out.nullValue();
         return;
       }
-      writer.value(value);
+      out.value(value);
     }
   };
 
@@ -137,16 +137,16 @@ public final class TypeAdapters {
    * otherwise permitted.
    */
   public static final TypeAdapter<Boolean> BOOLEAN_AS_STRING = new TypeAdapter<Boolean>() {
-    @Override public Boolean read(JsonReader reader) throws IOException {
-      if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull();
+    @Override public Boolean read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
         return null;
       }
-      return Boolean.valueOf(reader.nextString());
+      return Boolean.valueOf(in.nextString());
     }
 
-    @Override public void write(JsonWriter writer, Boolean value) throws IOException {
-      writer.value(value == null ? "null" : value.toString());
+    @Override public void write(JsonWriter out, Boolean value) throws IOException {
+      out.value(value == null ? "null" : value.toString());
     }
   };
 
@@ -155,21 +155,21 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<Number> BYTE = new TypeAdapter<Number>() {
     @Override
-    public Number read(JsonReader reader) throws IOException {
-      if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull();
+    public Number read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
         return null;
       }
       try {
-        int intValue = reader.nextInt();
+        int intValue = in.nextInt();
         return (byte) intValue;
       } catch (NumberFormatException e) {
         throw new JsonSyntaxException(e);
       }
     }
     @Override
-    public void write(JsonWriter writer, Number value) throws IOException {
-      writer.value(value);
+    public void write(JsonWriter out, Number value) throws IOException {
+      out.value(value);
     }
   };
 
@@ -178,20 +178,20 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<Number> SHORT = new TypeAdapter<Number>() {
     @Override
-    public Number read(JsonReader reader) throws IOException {
-      if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull();
+    public Number read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
         return null;
       }
       try {
-        return (short) reader.nextInt();
+        return (short) in.nextInt();
       } catch (NumberFormatException e) {
         throw new JsonSyntaxException(e);
       }
     }
     @Override
-    public void write(JsonWriter writer, Number value) throws IOException {
-      writer.value(value);
+    public void write(JsonWriter out, Number value) throws IOException {
+      out.value(value);
     }
   };
 
@@ -200,20 +200,20 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<Number> INTEGER = new TypeAdapter<Number>() {
     @Override
-    public Number read(JsonReader reader) throws IOException {
-      if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull();
+    public Number read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
         return null;
       }
       try {
-        return reader.nextInt();
+        return in.nextInt();
       } catch (NumberFormatException e) {
         throw new JsonSyntaxException(e);
       }
     }
     @Override
-    public void write(JsonWriter writer, Number value) throws IOException {
-      writer.value(value);
+    public void write(JsonWriter out, Number value) throws IOException {
+      out.value(value);
     }
   };
 
@@ -222,70 +222,70 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<Number> LONG = new TypeAdapter<Number>() {
     @Override
-    public Number read(JsonReader reader) throws IOException {
-      if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull();
+    public Number read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
         return null;
       }
       try {
-        return reader.nextLong();
+        return in.nextLong();
       } catch (NumberFormatException e) {
         throw new JsonSyntaxException(e);
       }
     }
     @Override
-    public void write(JsonWriter writer, Number value) throws IOException {
-      writer.value(value);
+    public void write(JsonWriter out, Number value) throws IOException {
+      out.value(value);
     }
   };
 
   public static final TypeAdapter<Number> FLOAT = new TypeAdapter<Number>() {
     @Override
-    public Number read(JsonReader reader) throws IOException {
-      if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull();
+    public Number read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
         return null;
       }
-      return (float) reader.nextDouble();
+      return (float) in.nextDouble();
     }
     @Override
-    public void write(JsonWriter writer, Number value) throws IOException {
-      writer.value(value);
+    public void write(JsonWriter out, Number value) throws IOException {
+      out.value(value);
     }
   };
 
   public static final TypeAdapter<Number> DOUBLE = new TypeAdapter<Number>() {
     @Override
-    public Number read(JsonReader reader) throws IOException {
-      if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull();
+    public Number read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
         return null;
       }
-      return reader.nextDouble();
+      return in.nextDouble();
     }
     @Override
-    public void write(JsonWriter writer, Number value) throws IOException {
-      writer.value(value);
+    public void write(JsonWriter out, Number value) throws IOException {
+      out.value(value);
     }
   };
 
   public static final TypeAdapter<Number> NUMBER = new TypeAdapter<Number>() {
     @Override
-    public Number read(JsonReader reader) throws IOException {
-      JsonToken jsonToken = reader.peek();
+    public Number read(JsonReader in) throws IOException {
+      JsonToken jsonToken = in.peek();
       switch (jsonToken) {
       case NULL:
-        reader.nextNull();
+        in.nextNull();
         return null;
       case NUMBER:
-        return new LazilyParsedNumber(reader.nextString());
+        return new LazilyParsedNumber(in.nextString());
       default:
         throw new JsonSyntaxException("Expecting number, got: " + jsonToken);
       }
     }
     @Override
-    public void write(JsonWriter writer, Number value) throws IOException {
-      writer.value(value);
+    public void write(JsonWriter out, Number value) throws IOException {
+      out.value(value);
     }
   };
 
@@ -293,16 +293,16 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<Character> CHARACTER = new TypeAdapter<Character>() {
     @Override
-    public Character read(JsonReader reader) throws IOException {
-      if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull();
+    public Character read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
         return null;
       }
-      return reader.nextString().charAt(0);
+      return in.nextString().charAt(0);
     }
     @Override
-    public void write(JsonWriter writer, Character value) throws IOException {
-      writer.value(value == null ? null : String.valueOf(value));
+    public void write(JsonWriter out, Character value) throws IOException {
+      out.value(value == null ? null : String.valueOf(value));
     }
   };
 
@@ -311,21 +311,21 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<String> STRING = new TypeAdapter<String>() {
     @Override
-    public String read(JsonReader reader) throws IOException {
-      JsonToken peek = reader.peek();
+    public String read(JsonReader in) throws IOException {
+      JsonToken peek = in.peek();
       if (peek == JsonToken.NULL) {
-        reader.nextNull();
+        in.nextNull();
         return null;
       }
       /* coerce booleans to strings for backwards compatibility */
       if (peek == JsonToken.BOOLEAN) {
-        return Boolean.toString(reader.nextBoolean());
+        return Boolean.toString(in.nextBoolean());
       }
-      return reader.nextString();
+      return in.nextString();
     }
     @Override
-    public void write(JsonWriter writer, String value) throws IOException {
-      writer.value(value);
+    public void write(JsonWriter out, String value) throws IOException {
+      out.value(value);
     }
   };
 
@@ -333,16 +333,16 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<StringBuilder> STRING_BUILDER = new TypeAdapter<StringBuilder>() {
     @Override
-    public StringBuilder read(JsonReader reader) throws IOException {
-      if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull();
+    public StringBuilder read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
         return null;
       }
-      return new StringBuilder(reader.nextString());
+      return new StringBuilder(in.nextString());
     }
     @Override
-    public void write(JsonWriter writer, StringBuilder value) throws IOException {
-      writer.value(value == null ? null : value.toString());
+    public void write(JsonWriter out, StringBuilder value) throws IOException {
+      out.value(value == null ? null : value.toString());
     }
   };
 
@@ -351,16 +351,16 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<StringBuffer> STRING_BUFFER = new TypeAdapter<StringBuffer>() {
     @Override
-    public StringBuffer read(JsonReader reader) throws IOException {
-      if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull();
+    public StringBuffer read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
         return null;
       }
-      return new StringBuffer(reader.nextString());
+      return new StringBuffer(in.nextString());
     }
     @Override
-    public void write(JsonWriter writer, StringBuffer value) throws IOException {
-      writer.value(value == null ? null : value.toString());
+    public void write(JsonWriter out, StringBuffer value) throws IOException {
+      out.value(value == null ? null : value.toString());
     }
   };
 
@@ -369,17 +369,17 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<URL> URL = new TypeAdapter<URL>() {
     @Override
-    public URL read(JsonReader reader) throws IOException {
-      if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull();
+    public URL read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
         return null;
       }
-      String nextString = reader.nextString();
+      String nextString = in.nextString();
       return "null".equals(nextString) ? null : new URL(nextString);
     }
     @Override
-    public void write(JsonWriter writer, URL value) throws IOException {
-      writer.value(value == null ? null : value.toExternalForm());
+    public void write(JsonWriter out, URL value) throws IOException {
+      out.value(value == null ? null : value.toExternalForm());
     }
   };
 
@@ -387,21 +387,21 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<URI> URI = new TypeAdapter<URI>() {
     @Override
-    public URI read(JsonReader reader) throws IOException {
-      if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull();
+    public URI read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
         return null;
       }
       try {
-        String nextString = reader.nextString();
+        String nextString = in.nextString();
         return "null".equals(nextString) ? null : new URI(nextString);
       } catch (URISyntaxException e) {
         throw new JsonIOException(e);
       }
     }
     @Override
-    public void write(JsonWriter writer, URI value) throws IOException {
-      writer.value(value == null ? null : value.toASCIIString());
+    public void write(JsonWriter out, URI value) throws IOException {
+      out.value(value == null ? null : value.toASCIIString());
     }
   };
 
@@ -409,16 +409,16 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<InetAddress> INET_ADDRESS = new TypeAdapter<InetAddress>() {
     @Override
-    public InetAddress read(JsonReader reader) throws IOException {
-      if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull();
+    public InetAddress read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
         return null;
       }
-      return InetAddress.getByName(reader.nextString());
+      return InetAddress.getByName(in.nextString());
     }
     @Override
-    public void write(JsonWriter writer, InetAddress value) throws IOException {
-      writer.value(value == null ? null : value.getHostAddress());
+    public void write(JsonWriter out, InetAddress value) throws IOException {
+      out.value(value == null ? null : value.getHostAddress());
     }
   };
 
@@ -427,16 +427,16 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<UUID> UUID = new TypeAdapter<UUID>() {
     @Override
-    public UUID read(JsonReader reader) throws IOException {
-      if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull();
+    public UUID read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
         return null;
       }
-      return java.util.UUID.fromString(reader.nextString());
+      return java.util.UUID.fromString(in.nextString());
     }
     @Override
-    public void write(JsonWriter writer, UUID value) throws IOException {
-      writer.value(value == null ? null : value.toString());
+    public void write(JsonWriter out, UUID value) throws IOException {
+      out.value(value == null ? null : value.toString());
     }
   };
 
@@ -451,13 +451,13 @@ public final class TypeAdapters {
 
       final TypeAdapter<Date> dateTypeAdapter = gson.getAdapter(Date.class);
       return (TypeAdapter<T>) new TypeAdapter<Timestamp>() {
-        @Override public Timestamp read(JsonReader reader) throws IOException {
-          Date date = dateTypeAdapter.read(reader);
+        @Override public Timestamp read(JsonReader in) throws IOException {
+          Date date = dateTypeAdapter.read(in);
           return date != null ? new Timestamp(date.getTime()) : null;
         }
 
-        @Override public void write(JsonWriter writer, Timestamp value) throws IOException {
-          dateTypeAdapter.write(writer, value);
+        @Override public void write(JsonWriter out, Timestamp value) throws IOException {
+          dateTypeAdapter.write(out, value);
         }
       };
     }
@@ -472,21 +472,21 @@ public final class TypeAdapters {
     private static final String SECOND = "second";
 
     @Override
-    public Calendar read(JsonReader reader) throws IOException {
-      if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull();
+    public Calendar read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
         return  null;
       }
-      reader.beginObject();
+      in.beginObject();
       int year = 0;
       int month = 0;
       int dayOfMonth = 0;
       int hourOfDay = 0;
       int minute = 0;
       int second = 0;
-      while (reader.peek() != JsonToken.END_OBJECT) {
-        String name = reader.nextName();
-        int value = reader.nextInt();
+      while (in.peek() != JsonToken.END_OBJECT) {
+        String name = in.nextName();
+        int value = in.nextInt();
         if (YEAR.equals(name)) {
           year = value;
         } else if (MONTH.equals(name)) {
@@ -501,30 +501,30 @@ public final class TypeAdapters {
           second = value;
         }
       }
-      reader.endObject();
+      in.endObject();
       return new GregorianCalendar(year, month, dayOfMonth, hourOfDay, minute, second);
     }
 
     @Override
-    public void write(JsonWriter writer, Calendar value) throws IOException {
+    public void write(JsonWriter out, Calendar value) throws IOException {
       if (value == null) {
-        writer.nullValue();
+        out.nullValue();
         return;
       }
-      writer.beginObject();
-      writer.name(YEAR);
-      writer.value(value.get(Calendar.YEAR));
-      writer.name(MONTH);
-      writer.value(value.get(Calendar.MONTH));
-      writer.name(DAY_OF_MONTH);
-      writer.value(value.get(Calendar.DAY_OF_MONTH));
-      writer.name(HOUR_OF_DAY);
-      writer.value(value.get(Calendar.HOUR_OF_DAY));
-      writer.name(MINUTE);
-      writer.value(value.get(Calendar.MINUTE));
-      writer.name(SECOND);
-      writer.value(value.get(Calendar.SECOND));
-      writer.endObject();
+      out.beginObject();
+      out.name(YEAR);
+      out.value(value.get(Calendar.YEAR));
+      out.name(MONTH);
+      out.value(value.get(Calendar.MONTH));
+      out.name(DAY_OF_MONTH);
+      out.value(value.get(Calendar.DAY_OF_MONTH));
+      out.name(HOUR_OF_DAY);
+      out.value(value.get(Calendar.HOUR_OF_DAY));
+      out.name(MINUTE);
+      out.value(value.get(Calendar.MINUTE));
+      out.name(SECOND);
+      out.value(value.get(Calendar.SECOND));
+      out.endObject();
     }
   };
 
@@ -533,12 +533,12 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<Locale> LOCALE = new TypeAdapter<Locale>() {
     @Override
-    public Locale read(JsonReader reader) throws IOException {
-      if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull();
+    public Locale read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
         return null;
       }
-      String locale = reader.nextString();
+      String locale = in.nextString();
       StringTokenizer tokenizer = new StringTokenizer(locale, "_");
       String language = null;
       String country = null;
@@ -561,41 +561,41 @@ public final class TypeAdapters {
       }
     }
     @Override
-    public void write(JsonWriter writer, Locale value) throws IOException {
-      writer.value(value == null ? null : value.toString());
+    public void write(JsonWriter out, Locale value) throws IOException {
+      out.value(value == null ? null : value.toString());
     }
   };
 
   public static final TypeAdapter.Factory LOCALE_FACTORY = newFactory(Locale.class, LOCALE);
 
   public static final TypeAdapter<JsonElement> JSON_ELEMENT = new TypeAdapter<JsonElement>() {
-    @Override public JsonElement read(JsonReader reader) throws IOException {
-      switch (reader.peek()) {
+    @Override public JsonElement read(JsonReader in) throws IOException {
+      switch (in.peek()) {
       case STRING:
-        return new JsonPrimitive(reader.nextString());
+        return new JsonPrimitive(in.nextString());
       case NUMBER:
-        String number = reader.nextString();
+        String number = in.nextString();
         return new JsonPrimitive(new LazilyParsedNumber(number));
       case BOOLEAN:
-        return new JsonPrimitive(reader.nextBoolean());
+        return new JsonPrimitive(in.nextBoolean());
       case NULL:
-        reader.nextNull();
+        in.nextNull();
         return JsonNull.INSTANCE;
       case BEGIN_ARRAY:
         JsonArray array = new JsonArray();
-        reader.beginArray();
-        while (reader.hasNext()) {
-          array.add(read(reader));
+        in.beginArray();
+        while (in.hasNext()) {
+          array.add(read(in));
         }
-        reader.endArray();
+        in.endArray();
         return array;
       case BEGIN_OBJECT:
         JsonObject object = new JsonObject();
-        reader.beginObject();
-        while (reader.hasNext()) {
-          object.add(reader.nextName(), read(reader));
+        in.beginObject();
+        while (in.hasNext()) {
+          object.add(in.nextName(), read(in));
         }
-        reader.endObject();
+        in.endObject();
         return object;
       case END_DOCUMENT:
       case NAME:
@@ -606,33 +606,33 @@ public final class TypeAdapters {
       }
     }
 
-    @Override public void write(JsonWriter writer, JsonElement value) throws IOException {
+    @Override public void write(JsonWriter out, JsonElement value) throws IOException {
       if (value == null || value.isJsonNull()) {
-        writer.nullValue();
+        out.nullValue();
       } else if (value.isJsonPrimitive()) {
         JsonPrimitive primitive = value.getAsJsonPrimitive();
         if (primitive.isNumber()) {
-          writer.value(primitive.getAsNumber());
+          out.value(primitive.getAsNumber());
         } else if (primitive.isBoolean()) {
-          writer.value(primitive.getAsBoolean());
+          out.value(primitive.getAsBoolean());
         } else {
-          writer.value(primitive.getAsString());
+          out.value(primitive.getAsString());
         }
 
       } else if (value.isJsonArray()) {
-        writer.beginArray();
+        out.beginArray();
         for (JsonElement e : value.getAsJsonArray()) {
-          write(writer, e);
+          write(out, e);
         }
-        writer.endArray();
+        out.endArray();
 
       } else if (value.isJsonObject()) {
-        writer.beginObject();
+        out.beginObject();
         for (Map.Entry<String, JsonElement> e : value.getAsJsonObject().entrySet()) {
-          writer.name(e.getKey());
-          write(writer, e.getValue());
+          out.name(e.getKey());
+          write(out, e.getValue());
         }
-        writer.endObject();
+        out.endObject();
 
       } else {
         throw new IllegalArgumentException("Couldn't write " + value.getClass());
@@ -649,16 +649,16 @@ public final class TypeAdapters {
     public EnumTypeAdapter(Class<T> classOfT) {
       this.classOfT = classOfT;
     }
-    public T read(JsonReader reader) throws IOException {
-      if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull();
+    public T read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
         return null;
       }
-      return Enum.valueOf(classOfT, reader.nextString());
+      return Enum.valueOf(classOfT, in.nextString());
     }
 
-    public void write(JsonWriter writer, T value) throws IOException {
-      writer.value(value == null ? null : value.name());
+    public void write(JsonWriter out, T value) throws IOException {
+      out.value(value == null ? null : value.name());
     }
   }
 

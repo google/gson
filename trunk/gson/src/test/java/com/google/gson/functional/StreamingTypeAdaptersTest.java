@@ -94,12 +94,12 @@ public final class StreamingTypeAdaptersTest extends TestCase {
 
   private void usePersonNameAdapter() {
     TypeAdapter<Person> personNameAdapter = new TypeAdapter<Person>() {
-      @Override public Person read(JsonReader reader) throws IOException {
-        String name = reader.nextString();
+      @Override public Person read(JsonReader in) throws IOException {
+        String name = in.nextString();
         return new Person(name, -1);
       }
-      @Override public void write(JsonWriter writer, Person value) throws IOException {
-        writer.value(value.name);
+      @Override public void write(JsonWriter out, Person value) throws IOException {
+        out.value(value.name);
       }
     };
     miniGson = new GsonBuilder().registerTypeAdapter(Person.class, personNameAdapter).create();

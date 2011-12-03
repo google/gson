@@ -156,57 +156,57 @@ public final class MapTypeAdapterFactory implements TypeAdapter.Factory {
       this.constructor = constructor;
     }
 
-    public Map<K, V> read(JsonReader reader) throws IOException {
-      JsonToken peek = reader.peek();
+    public Map<K, V> read(JsonReader in) throws IOException {
+      JsonToken peek = in.peek();
       if (peek == JsonToken.NULL) {
-        reader.nextNull();
+        in.nextNull();
         return null;
       }
 
       Map<K, V> map = constructor.construct();
 
       if (peek == JsonToken.BEGIN_ARRAY) {
-        reader.beginArray();
-        while (reader.hasNext()) {
-          reader.beginArray(); // entry array
-          K key = keyTypeAdapter.read(reader);
-          V value = valueTypeAdapter.read(reader);
+        in.beginArray();
+        while (in.hasNext()) {
+          in.beginArray(); // entry array
+          K key = keyTypeAdapter.read(in);
+          V value = valueTypeAdapter.read(in);
           V replaced = map.put(key, value);
           if (replaced != null) {
             throw new JsonSyntaxException("duplicate key: " + key);
           }
-          reader.endArray();
+          in.endArray();
         }
-        reader.endArray();
+        in.endArray();
       } else {
-        reader.beginObject();
-        while (reader.hasNext()) {
-          JsonReaderInternalAccess.INSTANCE.promoteNameToValue(reader);
-          K key = keyTypeAdapter.read(reader);
-          V value = valueTypeAdapter.read(reader);
+        in.beginObject();
+        while (in.hasNext()) {
+          JsonReaderInternalAccess.INSTANCE.promoteNameToValue(in);
+          K key = keyTypeAdapter.read(in);
+          V value = valueTypeAdapter.read(in);
           V replaced = map.put(key, value);
           if (replaced != null) {
             throw new JsonSyntaxException("duplicate key: " + key);
           }
         }
-        reader.endObject();
+        in.endObject();
       }
       return map;
     }
 
-    public void write(JsonWriter writer, Map<K, V> map) throws IOException {
+    public void write(JsonWriter out, Map<K, V> map) throws IOException {
       if (map == null) {
-        writer.nullValue();
+        out.nullValue();
         return;
       }
 
       if (!complexMapKeySerialization) {
-        writer.beginObject();
+        out.beginObject();
         for (Map.Entry<K, V> entry : map.entrySet()) {
-          writer.name(String.valueOf(entry.getKey()));
-          valueTypeAdapter.write(writer, entry.getValue());
+          out.name(String.valueOf(entry.getKey()));
+          valueTypeAdapter.write(out, entry.getValue());
         }
-        writer.endObject();
+        out.endObject();
         return;
       }
 
@@ -222,22 +222,22 @@ public final class MapTypeAdapterFactory implements TypeAdapter.Factory {
       }
 
       if (hasComplexKeys) {
-        writer.beginArray();
+        out.beginArray();
         for (int i = 0; i < keys.size(); i++) {
-          writer.beginArray(); // entry array
-          Streams.write(keys.get(i), writer);
-          valueTypeAdapter.write(writer, values.get(i));
-          writer.endArray();
+          out.beginArray(); // entry array
+          Streams.write(keys.get(i), out);
+          valueTypeAdapter.write(out, values.get(i));
+          out.endArray();
         }
-        writer.endArray();
+        out.endArray();
       } else {
-        writer.beginObject();
+        out.beginObject();
         for (int i = 0; i < keys.size(); i++) {
           JsonElement keyElement = keys.get(i);
-          writer.name(keyToString(keyElement));
-          valueTypeAdapter.write(writer, values.get(i));
+          out.name(keyToString(keyElement));
+          valueTypeAdapter.write(out, values.get(i));
         }
-        writer.endObject();
+        out.endObject();
       }
     }
 
