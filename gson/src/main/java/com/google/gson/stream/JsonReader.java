@@ -16,13 +16,15 @@
 
 package com.google.gson.stream;
 
-import com.google.gson.internal.JsonReaderInternalAccess;
 import java.io.Closeable;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.google.gson.internal.JsonReaderInternalAccess;
+import com.google.gson.internal.bind.JsonElementReader;
 
 /**
  * Reads a JSON (<a href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>)
@@ -1240,9 +1242,14 @@ public class JsonReader implements Closeable {
   static {
     JsonReaderInternalAccess.INSTANCE = new JsonReaderInternalAccess() {
       @Override public void promoteNameToValue(JsonReader reader) throws IOException {
+        if (reader instanceof JsonElementReader) {
+          ((JsonElementReader)reader).promoteNameToValue();
+          return;
+        }
         reader.peek();
         if (reader.token != JsonToken.NAME) {
-          throw new IllegalStateException("Expected a name but was " + reader.peek());
+          throw new IllegalStateException("Expected a name but was " + reader.peek() + " "
+              + reader.getSnippet());
         }
         reader.value = reader.name;
         reader.name = null;

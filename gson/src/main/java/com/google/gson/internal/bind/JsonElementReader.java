@@ -215,4 +215,12 @@ public final class JsonElementReader extends JsonReader {
   @Override public String toString() {
     return getClass().getSimpleName();
   }
+
+  public void promoteNameToValue() throws IOException {
+    expect(JsonToken.NAME);
+    Iterator<?> i = (Iterator<?>) peekStack();
+    Map.Entry<?, ?> entry = (Map.Entry<?, ?>) i.next();
+    stack.add(entry.getValue());
+    stack.add(new JsonPrimitive((String)entry.getKey()));
+  }
 }

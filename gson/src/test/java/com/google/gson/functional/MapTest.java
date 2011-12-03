@@ -16,12 +16,22 @@
 
 package com.google.gson.functional;
 
+import java.lang.reflect.Type;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.TreeMap;
+
+import junit.framework.TestCase;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
@@ -29,13 +39,6 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.common.TestTypes;
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.reflect.TypeToken;
-import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.TreeMap;
-import junit.framework.TestCase;
 
 /**
  * Functional test for Json serialization and deserialization for Maps
@@ -486,6 +489,14 @@ public class MapTest extends TestCase {
       fail();
     } catch (JsonSyntaxException expected) {
     }
+  }
+
+  public void testMapNamePromotionWithJsonElementReader() {
+    String json = "{'2.3':'a'}";
+    Map<Double, String> map = new LinkedHashMap<Double, String>();
+    map.put(2.3, "a");
+    JsonElement tree = new JsonParser().parse(json);
+    assertEquals(map, gson.fromJson(tree, new TypeToken<Map<Double, String>>() {}.getType()));
   }
 
   static class Point {
