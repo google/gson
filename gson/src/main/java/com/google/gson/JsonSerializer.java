@@ -60,6 +60,9 @@ import java.lang.reflect.Type;
  * Gson gson = new GsonBuilder().registerTypeAdapter(Id.class, new IdSerializer()).create();
  * </pre>
  *
+ * <p>New applications should prefer {@link TypeAdapter}, whose streaming API
+ * is more efficient than this interface's tree API.
+ *
  * @author Inderjeet Singh
  * @author Joel Leitch
  *

@@ -36,13 +36,13 @@ final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
   }
 
   @Override
-  public T read(JsonReader reader) throws IOException {
-    return delegate.read(reader);
+  public T read(JsonReader in) throws IOException {
+    return delegate.read(in);
   }
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   @Override
-  public void write(JsonWriter writer, T value) throws IOException {
+  public void write(JsonWriter out, T value) throws IOException {
     // Order of preference for choosing type adapters
     // First preference: a type adapter registered for the runtime type
     // Second preference: a type adapter registered for the declared type
@@ -65,7 +65,7 @@ final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
         chosen = runtimeTypeAdapter;
       }
     }
-    chosen.write(writer, value);
+    chosen.write(out, value);
   }
 
   /**

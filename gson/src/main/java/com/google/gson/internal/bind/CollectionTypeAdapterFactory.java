@@ -68,33 +68,33 @@ public final class CollectionTypeAdapterFactory implements TypeAdapter.Factory {
       this.constructor = constructor;
     }
 
-    public Collection<E> read(JsonReader reader) throws IOException {
-      if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull();
+    public Collection<E> read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
         return null;
       }
 
       Collection<E> collection = constructor.construct();
-      reader.beginArray();
-      while (reader.hasNext()) {
-        E instance = elementTypeAdapter.read(reader);
+      in.beginArray();
+      while (in.hasNext()) {
+        E instance = elementTypeAdapter.read(in);
         collection.add(instance);
       }
-      reader.endArray();
+      in.endArray();
       return collection;
     }
 
-    public void write(JsonWriter writer, Collection<E> collection) throws IOException {
+    public void write(JsonWriter out, Collection<E> collection) throws IOException {
       if (collection == null) {
-        writer.nullValue(); // TODO: better policy here?
+        out.nullValue(); // TODO: better policy here?
         return;
       }
 
-      writer.beginArray();
+      out.beginArray();
       for (E element : collection) {
-        elementTypeAdapter.write(writer, element);
+        elementTypeAdapter.write(out, element);
       }
-      writer.endArray();
+      out.endArray();
     }
   }
 }

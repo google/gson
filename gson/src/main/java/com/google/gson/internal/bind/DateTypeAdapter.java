@@ -57,12 +57,12 @@ public final class DateTypeAdapter extends TypeAdapter<Date> {
     return iso8601Format;
   }
 
-  @Override public Date read(JsonReader reader) throws IOException {
-    if (reader.peek() == JsonToken.NULL) {
-      reader.nextNull();
+  @Override public Date read(JsonReader in) throws IOException {
+    if (in.peek() == JsonToken.NULL) {
+      in.nextNull();
       return null;
     }
-    return deserializeToDate(reader.nextString());
+    return deserializeToDate(in.nextString());
   }
 
   private synchronized Date deserializeToDate(String json) {
@@ -81,12 +81,12 @@ public final class DateTypeAdapter extends TypeAdapter<Date> {
     }
   }
 
-  @Override public synchronized void write(JsonWriter writer, Date value) throws IOException {
+  @Override public synchronized void write(JsonWriter out, Date value) throws IOException {
     if (value == null) {
-      writer.nullValue();
+      out.nullValue();
       return;
     }
     String dateFormatAsString = enUsFormat.format(value);
-    writer.value(dateFormatAsString);
+    out.value(dateFormatAsString);
   }
 }

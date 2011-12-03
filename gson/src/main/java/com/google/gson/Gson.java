@@ -251,21 +251,21 @@ public final class Gson {
       return TypeAdapters.DOUBLE;
     }
     return new TypeAdapter<Number>() {
-      @Override public Double read(JsonReader reader) throws IOException {
-        if (reader.peek() == JsonToken.NULL) {
-          reader.nextNull();
+      @Override public Double read(JsonReader in) throws IOException {
+        if (in.peek() == JsonToken.NULL) {
+          in.nextNull();
           return null;
         }
-        return reader.nextDouble();
+        return in.nextDouble();
       }
-      @Override public void write(JsonWriter writer, Number value) throws IOException {
+      @Override public void write(JsonWriter out, Number value) throws IOException {
         if (value == null) {
-          writer.nullValue();
+          out.nullValue();
           return;
         }
         double doubleValue = value.doubleValue();
         checkValidFloatingPoint(doubleValue);
-        writer.value(value);
+        out.value(value);
       }
     };
   }
@@ -275,21 +275,21 @@ public final class Gson {
       return TypeAdapters.FLOAT;
     }
     return new TypeAdapter<Number>() {
-      @Override public Float read(JsonReader reader) throws IOException {
-        if (reader.peek() == JsonToken.NULL) {
-          reader.nextNull();
+      @Override public Float read(JsonReader in) throws IOException {
+        if (in.peek() == JsonToken.NULL) {
+          in.nextNull();
           return null;
         }
-        return (float) reader.nextDouble();
+        return (float) in.nextDouble();
       }
-      @Override public void write(JsonWriter writer, Number value) throws IOException {
+      @Override public void write(JsonWriter out, Number value) throws IOException {
         if (value == null) {
-          writer.nullValue();
+          out.nullValue();
           return;
         }
         float floatValue = value.floatValue();
         checkValidFloatingPoint(floatValue);
-        writer.value(value);
+        out.value(value);
       }
     };
   }
@@ -307,19 +307,19 @@ public final class Gson {
       return TypeAdapters.LONG;
     }
     return new TypeAdapter<Number>() {
-      @Override public Number read(JsonReader reader) throws IOException {
-        if (reader.peek() == JsonToken.NULL) {
-          reader.nextNull();
+      @Override public Number read(JsonReader in) throws IOException {
+        if (in.peek() == JsonToken.NULL) {
+          in.nextNull();
           return null;
         }
-        return reader.nextLong();
+        return in.nextLong();
       }
-      @Override public void write(JsonWriter writer, Number value) throws IOException {
+      @Override public void write(JsonWriter out, Number value) throws IOException {
         if (value == null) {
-          writer.nullValue();
+          out.nullValue();
           return;
         }
-        writer.value(value.toString());
+        out.value(value.toString());
       }
     };
   }
@@ -828,18 +828,18 @@ public final class Gson {
       delegate = typeAdapter;
     }
 
-    @Override public T read(JsonReader reader) throws IOException {
+    @Override public T read(JsonReader in) throws IOException {
       if (delegate == null) {
         throw new IllegalStateException();
       }
-      return delegate.read(reader);
+      return delegate.read(in);
     }
 
-    @Override public void write(JsonWriter writer, T value) throws IOException {
+    @Override public void write(JsonWriter out, T value) throws IOException {
       if (delegate == null) {
         throw new IllegalStateException();
       }
-      delegate.write(writer, value);
+      delegate.write(out, value);
     }
   }
 

@@ -154,9 +154,9 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapter.Factory {
     }
 
     @Override
-    public T read(JsonReader reader) throws IOException {
-      if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull();
+    public T read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
         return null;
       }
 
@@ -165,15 +165,15 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapter.Factory {
       // TODO: null out the other fields?
 
       try {
-        reader.beginObject();
-        while (reader.hasNext()) {
-          String name = reader.nextName();
+        in.beginObject();
+        while (in.hasNext()) {
+          String name = in.nextName();
           BoundField field = boundFields.get(name);
           if (field == null || !field.deserialized) {
             // TODO: define a better policy
-            reader.skipValue();
+            in.skipValue();
           } else {
-            field.read(reader, instance);
+            field.read(in, instance);
           }
         }
       } catch (IllegalStateException e) {
@@ -181,29 +181,29 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapter.Factory {
       } catch (IllegalAccessException e) {
         throw new AssertionError(e);
       }
-      reader.endObject();
+      in.endObject();
       return instance;
     }
 
     @Override
-    public void write(JsonWriter writer, T value) throws IOException {
+    public void write(JsonWriter out, T value) throws IOException {
       if (value == null) {
-        writer.nullValue(); // TODO: better policy here?
+        out.nullValue(); // TODO: better policy here?
         return;
       }
 
-      writer.beginObject();
+      out.beginObject();
       try {
         for (BoundField boundField : boundFields.values()) {
           if (boundField.serialized) {
-            writer.name(boundField.name);
-            boundField.write(writer, value);
+            out.name(boundField.name);
+            boundField.write(out, value);
           }
         }
       } catch (IllegalAccessException e) {
         throw new AssertionError();
       }
-      writer.endObject();
+      out.endObject();
     }
   }
 }
