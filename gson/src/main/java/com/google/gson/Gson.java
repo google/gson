@@ -126,7 +126,8 @@ public final class Gson {
   private final boolean prettyPrinting;
 
   final JsonDeserializationContext deserializationContext = new JsonDeserializationContext() {
-    public <T> T deserialize(JsonElement json, Type typeOfT) throws JsonParseException {
+    @SuppressWarnings("unchecked")
+	public <T> T deserialize(JsonElement json, Type typeOfT) throws JsonParseException {
       return (T) fromJson(json, typeOfT);
     }
   };
@@ -174,7 +175,6 @@ public final class Gson {
    *   {@link GsonBuilder#excludeFieldsWithModifiers(int...)}.</li>
    * </ul>
    */
-  @SuppressWarnings("unchecked")
   public Gson() {
     this(Excluder.DEFAULT, FieldNamingPolicy.IDENTITY,
         Collections.<Type, InstanceCreator<?>>emptyMap(), false, false, DEFAULT_JSON_NON_EXECUTABLE,
@@ -330,6 +330,7 @@ public final class Gson {
    * @throws IllegalArgumentException if this GSON cannot serialize and
    *     deserialize {@code type}.
    */
+  @SuppressWarnings("unchecked")
   public <T> TypeAdapter<T> getAdapter(TypeToken<T> type) {
     TypeAdapter<?> cached = typeTokenCache.get(type);
     if (cached != null) {
@@ -337,7 +338,7 @@ public final class Gson {
     }
 
     Map<TypeToken<?>, FutureTypeAdapter<?>> threadCalls = calls.get();
-    @SuppressWarnings("unchecked") // the key and value type parameters always agree
+    // the key and value type parameters always agree
     FutureTypeAdapter<T> ongoingCall = (FutureTypeAdapter<T>) threadCalls.get(type);
     if (ongoingCall != null) {
       return ongoingCall;
@@ -434,7 +435,6 @@ public final class Gson {
    * @return Json representation of {@code src}
    * @since 1.4
    */
-  @SuppressWarnings({"unchecked", "rawtypes"}) // the caller is required to make src and typeOfSrc consistent
   public JsonElement toJsonTree(Object src, Type typeOfSrc) {
     JsonElementWriter writer = new JsonElementWriter();
     toJson(src, typeOfSrc, writer);
@@ -716,6 +716,7 @@ public final class Gson {
    * @throws JsonSyntaxException if json is not a valid representation for an object of type
    * @since 1.2
    */
+  @SuppressWarnings("unchecked")
   public <T> T fromJson(Reader json, Type typeOfT) throws JsonIOException, JsonSyntaxException {
     JsonReader jsonReader = new JsonReader(json);
     T object = (T) fromJson(jsonReader, typeOfT);
@@ -811,6 +812,7 @@ public final class Gson {
    * @throws JsonSyntaxException if json is not a valid representation for an object of type typeOfT
    * @since 1.3
    */
+  @SuppressWarnings("unchecked")
   public <T> T fromJson(JsonElement json, Type typeOfT) throws JsonSyntaxException {
     if (json == null) {
       return null;
