@@ -33,7 +33,6 @@ public final class ObjectTypeAdapterTest extends TestCase {
     assertEquals(3, map.size());
   }
 
-  @SuppressWarnings("unused")
   public void testSerialize() throws Exception {
     Object object = new RuntimeType();
     assertEquals("{'a':5,'b':[1,2,null]}", adapter.toJson(object).replace("\"", "'"));
@@ -43,6 +42,7 @@ public final class ObjectTypeAdapterTest extends TestCase {
     assertEquals("{}", adapter.toJson(new Object()));
   }
 
+  @SuppressWarnings("unused")
   private class RuntimeType {
     Object a = 5;
     Object b = Arrays.asList(1, 2, null);

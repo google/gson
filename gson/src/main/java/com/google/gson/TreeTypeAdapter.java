@@ -113,10 +113,10 @@ final class TreeTypeAdapter<T> extends TypeAdapter<T> {
     private SingleTypeFactory(Object typeAdapter, TypeToken<?> exactType, boolean matchRawType,
         Class<?> hierarchyType) {
       serializer = typeAdapter instanceof JsonSerializer
-          ? (JsonSerializer) typeAdapter
+          ? (JsonSerializer<?>) typeAdapter
           : null;
       deserializer = typeAdapter instanceof JsonDeserializer
-          ? (JsonDeserializer) typeAdapter
+          ? (JsonDeserializer<?>) typeAdapter
           : null;
       $Gson$Preconditions.checkArgument(serializer != null || deserializer != null);
       this.exactType = exactType;
