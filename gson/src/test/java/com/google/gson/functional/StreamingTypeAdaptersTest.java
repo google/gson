@@ -16,19 +16,23 @@
 
 package com.google.gson.functional;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.TypeAdapter;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
 import junit.framework.TestCase;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.TypeAdapter;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 
 public final class StreamingTypeAdaptersTest extends TestCase {
   private Gson miniGson = new GsonBuilder().create();
@@ -142,6 +146,39 @@ public final class StreamingTypeAdaptersTest extends TestCase {
     double[][] array = arrayAdapter.fromJson("[[1.0,2.0],[3.0]]");
     double[][] expected = { {1.0, 2.0 }, { 3.0 } };
     assertTrue(Arrays.toString(array), Arrays.deepEquals(expected, array));
+  }
+
+  public void testNullSafe() {
+    TypeAdapter<Person> typeAdapter = new TypeAdapter<Person>() {
+      @Override public Person read(JsonReader in) throws IOException {
+        String[] values = in.nextString().split(",");
+        return new Person(values[0], Integer.parseInt(values[1]));
+      }
+      public void write(JsonWriter out, Person person) throws IOException {
+        out.value(person.name + "," + person.age);
+      }
+    };
+    Gson gson = new GsonBuilder().registerTypeAdapter(
+        Person.class, typeAdapter).create();
+    Truck truck = new Truck();
+    truck.horsePower = 1.0D;
+    truck.passengers = new ArrayList<Person>();
+    truck.passengers.add(null);
+    try {
+      gson.toJson(truck, Truck.class);
+      fail();
+    } catch (NullPointerException expected) {}
+    String json = "{horsePower:1.0,passengers:[null,null]}";
+    try {
+      gson.fromJson(json, Truck.class);
+      fail();
+    } catch (JsonSyntaxException expected) {}
+    gson = new GsonBuilder().registerTypeAdapter(
+        Person.class, TypeAdapter.nullSafe(typeAdapter)).create();
+    assertEquals("{\"horsePower\":1.0,\"passengers\":[null]}", gson.toJson(truck, Truck.class));
+    truck = gson.fromJson(json, Truck.class);
+    assertEquals(1.0D, truck.horsePower);
+    assertNull(truck.passengers.get(0));
   }
 
   public void testSerializeRecursive() throws IOException {
