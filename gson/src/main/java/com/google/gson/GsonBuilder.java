@@ -20,6 +20,7 @@ import java.lang.reflect.Type;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -540,8 +541,9 @@ public final class GsonBuilder {
    */
   public Gson create() {
     List<TypeAdapter.Factory> factories = new ArrayList<TypeAdapter.Factory>();
-    factories.addAll(this.factories);
     factories.addAll(this.hierarchyFactories);
+    factories.addAll(this.factories);
+    Collections.reverse(factories);
     addTypeAdaptersForDate(datePattern, dateStyle, timeStyle, factories);
 
     return new Gson(excluder, fieldNamingPolicy, instanceCreators,
