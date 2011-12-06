@@ -164,20 +164,23 @@ public final class StreamingTypeAdaptersTest extends TestCase {
     truck.horsePower = 1.0D;
     truck.passengers = new ArrayList<Person>();
     truck.passengers.add(null);
+    truck.passengers.add(new Person("jesse", 30));
     try {
       gson.toJson(truck, Truck.class);
       fail();
     } catch (NullPointerException expected) {}
-    String json = "{horsePower:1.0,passengers:[null,null]}";
+    String json = "{horsePower:1.0,passengers:[null,'jesse,30']}";
     try {
       gson.fromJson(json, Truck.class);
       fail();
     } catch (JsonSyntaxException expected) {}
     gson = new GsonBuilder().registerTypeAdapter(Person.class, typeAdapter.nullSafe()).create();
-    assertEquals("{\"horsePower\":1.0,\"passengers\":[null]}", gson.toJson(truck, Truck.class));
+    assertEquals("{\"horsePower\":1.0,\"passengers\":[null,\"jesse,30\"]}",
+        gson.toJson(truck, Truck.class));
     truck = gson.fromJson(json, Truck.class);
     assertEquals(1.0D, truck.horsePower);
     assertNull(truck.passengers.get(0));
+    assertEquals("jesse", truck.passengers.get(1).name);
   }
 
   public void testSerializeRecursive() throws IOException {

@@ -179,7 +179,7 @@ public abstract class TypeAdapter<T> {
    *     }
    *   }.nullSafe()).create();
    * }</pre>
-   * Note that we didn't need to check for nulls in our type adapter after we used nullSafe. 
+   * Note that we didn't need to check for nulls in our type adapter after we used nullSafe.
    */
   public TypeAdapter<T> nullSafe() {
     return new TypeAdapter<T>() {
@@ -187,7 +187,7 @@ public abstract class TypeAdapter<T> {
         if (value == null) {
           out.nullValue();
         } else {
-          write(out, value);
+          TypeAdapter.this.write(out, value);
         }
       }
       @Override public T read(JsonReader reader) throws IOException {
@@ -195,7 +195,7 @@ public abstract class TypeAdapter<T> {
           reader.nextNull();
           return null;
         }
-        return read(reader);
+        return TypeAdapter.this.read(reader);
       }
     };
   }
