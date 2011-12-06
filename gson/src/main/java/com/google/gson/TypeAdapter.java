@@ -141,47 +141,49 @@ public abstract class TypeAdapter<T> {
    * This wrapper method is used to make a type adapter null tolerant. In general, a
    * type adapter is required to handle nulls in write and read methods. Here is how this
    * is typically done:<br>
-   * <pre>{@code
-   Gson gson = new GsonBuilder().registerTypeAdapter(Foo.class,
-    new TypeAdapter<Foo>() {
-      public Foo read(JsonReader in) throws IOException {
-        if (in.peek() == JsonToken.NULL) {
-          in.nextNull();
-          return null;
-        }
-        // read a Foo from in and return it
-      }
-      public void write(JsonWriter out, Foo src) throws IOException {
-        if (src == null) {
-          out.nullValue();
-          return;
-        }
-        // write src as JSON to out
-      }
-    ).create();
+   * <pre>   {@code
+   *
+   * Gson gson = new GsonBuilder().registerTypeAdapter(Foo.class,
+   *   new TypeAdapter<Foo>() {
+   *     public Foo read(JsonReader in) throws IOException {
+   *       if (in.peek() == JsonToken.NULL) {
+   *         in.nextNull();
+   *         return null;
+   *       }
+   *       // read a Foo from in and return it
+   *     }
+   *     public void write(JsonWriter out, Foo src) throws IOException {
+   *       if (src == null) {
+   *         out.nullValue();
+   *         return;
+   *       }
+   *       // write src as JSON to out
+   *     }
+   *   }).create();
    * }</pre>
    * You can avoid this boilerplate handling of nulls by wrapping your type adapter with
    * {@link #nullSafe(TypeAdapter)} method. Here is how we will rewrite the above example:
-   * <pre>{@code
-   Gson gson = new GsonBuilder().registerTypeAdapter(Foo.class,
-    TypeAdapter.nullSafe(new TypeAdapter<Foo>() {
-      public Foo read(JsonReader in) throws IOException {
-        // read a Foo from in and return it
-      }
-      public void write(JsonWriter out, Foo src) throws IOException {
-        // write src as JSON to out
-      }
-    )).create();
+   * <pre>   {@code
+   *
+   * Gson gson = new GsonBuilder().registerTypeAdapter(Foo.class,
+   *   new TypeAdapter<Foo>() {
+   *     public Foo read(JsonReader in) throws IOException {
+   *       // read a Foo from in and return it
+   *     }
+   *     public void write(JsonWriter out, Foo src) throws IOException {
+   *       // write src as JSON to out
+   *     }
+   *   }.nullSafe()).create();
    * }</pre>
    * Note that we didn't need to check for nulls in our type adapter after we used nullSafe. 
    */
-  public static <T> TypeAdapter<T> nullSafe(final TypeAdapter<T> typeAdapter) {
+  public TypeAdapter<T> nullSafe() {
     return new TypeAdapter<T>() {
       @Override public void write(JsonWriter out, T value) throws IOException {
         if (value == null) {
           out.nullValue();
         } else {
-          typeAdapter.write(out, value);
+          write(out, value);
         }
       }
       @Override public T read(JsonReader reader) throws IOException {
@@ -189,7 +191,7 @@ public abstract class TypeAdapter<T> {
           reader.nextNull();
           return null;
         }
-        return typeAdapter.read(reader);
+        return read(reader);
       }
     };
   }

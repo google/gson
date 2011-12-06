@@ -173,8 +173,7 @@ public final class StreamingTypeAdaptersTest extends TestCase {
       gson.fromJson(json, Truck.class);
       fail();
     } catch (JsonSyntaxException expected) {}
-    gson = new GsonBuilder().registerTypeAdapter(
-        Person.class, TypeAdapter.nullSafe(typeAdapter)).create();
+    gson = new GsonBuilder().registerTypeAdapter(Person.class, typeAdapter.nullSafe()).create();
     assertEquals("{\"horsePower\":1.0,\"passengers\":[null]}", gson.toJson(truck, Truck.class));
     truck = gson.fromJson(json, Truck.class);
     assertEquals(1.0D, truck.horsePower);
