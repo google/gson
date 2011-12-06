@@ -30,14 +30,13 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
 /**
- * Converts between Java objects and JSON. Applications use type adapters both
- * for customizing types' JSON forms, and for JSON conversions.
+ * Converts Java objects to and from JSON.
  *
  * <h3>Defining a type's JSON form</h3>
  * By default Gson converts application classes to JSON using its built-in type
- * adapters. Change your Java objects' JSON representation by subclassing {@code
- * TypeAdapter} and registering the subclass with a {@code GsonBuilder}. Here's
- * an example of a type adapter for an (X,Y) coordinate point: <pre>   {@code
+ * adapters. If Gson's default JSON conversion isn't appropriate for a type,
+ * extend this class to customize the conversion. Here's an example of a type
+ * adapter for an (X,Y) coordinate point: <pre>   {@code
  *
  *   public class PointAdapter extends TypeAdapter<Point> {
  *     public Point read(JsonReader reader) throws IOException {
@@ -67,13 +66,14 @@ import com.google.gson.stream.JsonWriter;
  * <p>The {@link #read(JsonReader) read()} method must read exactly one value
  * and {@link #write(JsonWriter,Object) write()} must write exactly one value.
  * For primitive types this is means readers should make exactly one call to
- * <code>next<i>Type</i>()</code> and writers should make exactly one call to
- * one of <code>value()</code> or <code>nullValue()</code>. For composite types,
- * type adapters should start with a call to <code>begin<i>Type</i>()</code>,
- * convert the entire contents of the object or array, and finish with a call
- * to <code>end<i>Type</i>()</code>. Failing to convert a value or converting
- * too many values will disrupt the cadence of the caller and may cause the
- * application to crash.
+ * {@code nextBoolean()}, {@code nextDouble()}, {@code nextInt()}, {@code
+ * nextLong()}, {@code nextString()} or {@code nextNull()}. Writers should make
+ * exactly one call to one of <code>value()</code> or <code>nullValue()</code>.
+ * For arrays, type adapters should start with a call to {@code beginArray()},
+ * convert all elements, and finish with a call to {@code endArray}. For
+ * objects, they should start with {@code beginObject()}, convert the object,
+ * and finish with {@code endObject()}. Failing to convert a value or converting
+ * too many values may cause the application to crash.
  *
  * <p>Type adapters should be prepared to read null from the stream and write it
  * to the stream. If your {@code Gson} instance has been configured to {@link
