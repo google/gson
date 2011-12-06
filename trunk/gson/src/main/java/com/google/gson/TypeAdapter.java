@@ -76,24 +76,28 @@ import com.google.gson.stream.JsonWriter;
  * too many values may cause the application to crash.
  *
  * <p>Type adapters should be prepared to read null from the stream and write it
- * to the stream. If your {@code Gson} instance has been configured to {@link
- * GsonBuilder#serializeNulls()}, these will be written to the final document.
- * Otherwise the value (and the corresponding name when writing to a JSON
- * object) will be omitted automatically. In either case your type adapter must
- * handle null.
+ * to the stream. Alternatively, they should use {@link #nullSafe()} method while
+ * registering the type adapter with Gson. If your {@code Gson} instance
+ * has been configured to {@link GsonBuilder#serializeNulls()}, these nulls will be
+ * written to the final document. Otherwise the value (and the corresponding name
+ * when writing to a JSON object) will be omitted automatically. In either case
+ * your type adapter must handle null.
  *
  * <p>To use a custom type adapter with Gson, you must <i>register</i> it with a
  * {@link GsonBuilder}: <pre>   {@code
  *
  *   GsonBuilder builder = new GsonBuilder();
  *   builder.registerTypeAdapter(Point.class, new PointAdapter());
+ *   // if PointAdapter didn't check for nulls in its read/write methods, you should instead use
+ *   // builder.registerTypeAdapter(Point.class, new PointAdapter().nullSafe());
  *   ...
  *   Gson gson = builder.create();
  * }</pre>
  *
  * <h3>JSON Conversion</h3>
- * <p>Retrieve a type adapter from a {@code Gson} instance to deserialize a JSON
- * document into a Java object: <pre>   {@code
+ * <p>A type adapter registered with Gson is automatically invoked while serializing
+ * or deserializing JSON. However, you can also use type adapters directly to serialize
+ * and deserialize JSON. Here is an example for deserialization: <pre>   {@code
  *
  *   String json = "{'origin':'0,0','points':['1,2','3,4']}";
  *   TypeAdapter<Graph> graphAdapter = gson.getAdapter(Graph.class);
