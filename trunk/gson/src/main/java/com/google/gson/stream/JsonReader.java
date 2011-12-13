@@ -16,15 +16,14 @@
 
 package com.google.gson.stream;
 
+import com.google.gson.internal.JsonReaderInternalAccess;
+import com.google.gson.internal.bind.JsonTreeReader;
 import java.io.Closeable;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.google.gson.internal.JsonReaderInternalAccess;
-import com.google.gson.internal.bind.JsonTreeReader;
 
 /**
  * Reads a JSON (<a href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>)
@@ -379,15 +378,15 @@ public class JsonReader implements Closeable {
     case NONEMPTY_OBJECT:
       return nextInObject(false);
     case NONEMPTY_DOCUMENT:
-      try {
-        JsonToken token = nextValue();
-        if (lenient) {
-          return token;
-        }
-        throw syntaxError("Expected EOF");
-      } catch (EOFException e) {
-        return token = JsonToken.END_DOCUMENT; // TODO: avoid throwing here?
+      int c = nextNonWhitespace(false);
+      if (c == -1) {
+        return JsonToken.END_DOCUMENT;
       }
+      pos--;
+      if (!lenient) {
+        throw syntaxError("Expected EOF");
+      }
+      return nextValue();
     case CLOSED:
       throw new IllegalStateException("JsonReader is closed");
     default:
@@ -400,7 +399,7 @@ public class JsonReader implements Closeable {
    */
   private void consumeNonExecutePrefix() throws IOException {
     // fast forward through the leading whitespace
-    nextNonWhitespace();
+    nextNonWhitespace(true);
     pos--;
 
     if (pos + NON_EXECUTE_PREFIX.length > limit && !fillBuffer(NON_EXECUTE_PREFIX.length)) {
@@ -656,7 +655,7 @@ public class JsonReader implements Closeable {
       replaceTop(JsonScope.NONEMPTY_ARRAY);
     } else {
       /* Look for a comma before each element after the first element. */
-      switch (nextNonWhitespace()) {
+      switch (nextNonWhitespace(true)) {
       case ']':
         pop();
         return token = JsonToken.END_ARRAY;
@@ -669,7 +668,7 @@ public class JsonReader implements Closeable {
       }
     }
 
-    switch (nextNonWhitespace()) {
+    switch (nextNonWhitespace(true)) {
     case ']':
       if (firstElement) {
         pop();
@@ -698,7 +697,7 @@ public class JsonReader implements Closeable {
      */
     if (firstElement) {
       /* Peek to see if this is the empty object. */
-      switch (nextNonWhitespace()) {
+      switch (nextNonWhitespace(true)) {
       case '}':
         pop();
         return token = JsonToken.END_OBJECT;
@@ -706,7 +705,7 @@ public class JsonReader implements Closeable {
         pos--;
       }
     } else {
-      switch (nextNonWhitespace()) {
+      switch (nextNonWhitespace(true)) {
       case '}':
         pop();
         return token = JsonToken.END_OBJECT;
@@ -719,7 +718,7 @@ public class JsonReader implements Closeable {
     }
 
     /* Read the name. */
-    int quote = nextNonWhitespace();
+    int quote = nextNonWhitespace(true);
     switch (quote) {
     case '\'':
       checkLenient(); // fall-through
@@ -744,7 +743,7 @@ public class JsonReader implements Closeable {
      * Read the name/value separator. Usually a colon ':'. In lenient mode
      * we also accept an equals sign '=', or an arrow "=>".
      */
-    switch (nextNonWhitespace()) {
+    switch (nextNonWhitespace(true)) {
     case ':':
       break;
     case '=':
@@ -763,7 +762,7 @@ public class JsonReader implements Closeable {
 
   @SuppressWarnings("fallthrough")
   private JsonToken nextValue() throws IOException {
-    int c = nextNonWhitespace();
+    int c = nextNonWhitespace(true);
     switch (c) {
     case '{':
       push(JsonScope.EMPTY_OBJECT);
@@ -848,7 +847,7 @@ public class JsonReader implements Closeable {
     return result;
   }
 
-  private int nextNonWhitespace() throws IOException {
+  private int nextNonWhitespace(boolean throwOnEof) throws IOException {
     while (pos < limit || fillBuffer(1)) {
       int c = buffer[pos++];
       switch (c) {
@@ -899,7 +898,11 @@ public class JsonReader implements Closeable {
         return c;
       }
     }
-    throw new EOFException("End of input");
+    if (throwOnEof) {
+      throw new EOFException("End of input");
+    } else {
+      return -1;
+    }
   }
 
   private void checkLenient() throws IOException {
