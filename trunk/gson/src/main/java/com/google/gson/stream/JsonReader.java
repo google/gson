@@ -22,8 +22,6 @@ import java.io.Closeable;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Reads a JSON (<a href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>)
@@ -221,7 +219,11 @@ public class JsonReader implements Closeable {
   private int bufferStartLine = 1;
   private int bufferStartColumn = 1;
 
-  private final List<JsonScope> stack = new ArrayList<JsonScope>();
+  /*
+   * The nesting stack. Using a manual array rather than an ArrayList saves 20%.
+   */
+  private JsonScope[] stack = new JsonScope[32];
+  private int stackSize = 0;
   {
     push(JsonScope.EMPTY_DOCUMENT);
   }
@@ -355,12 +357,12 @@ public class JsonReader implements Closeable {
       return token;
     }
 
-    switch (peekStack()) {
+    switch (stack[stackSize - 1]) {
     case EMPTY_DOCUMENT:
       if (lenient) {
         consumeNonExecutePrefix();
       }
-      replaceTop(JsonScope.NONEMPTY_DOCUMENT);
+      stack[stackSize - 1] = JsonScope.NONEMPTY_DOCUMENT;
       JsonToken firstToken = nextValue();
       if (!lenient && token != JsonToken.BEGIN_ARRAY && token != JsonToken.BEGIN_OBJECT) {
         throw new IOException(
@@ -603,8 +605,8 @@ public class JsonReader implements Closeable {
   public void close() throws IOException {
     value = null;
     token = null;
-    stack.clear();
-    stack.add(JsonScope.CLOSED);
+    stack[0] = JsonScope.CLOSED;
+    stackSize = 1;
     in.close();
   }
 
@@ -630,34 +632,24 @@ public class JsonReader implements Closeable {
     }
   }
 
-  private JsonScope peekStack() {
-    return stack.get(stack.size() - 1);
-  }
-
-  private JsonScope pop() {
-    return stack.remove(stack.size() - 1);
-  }
-
   private void push(JsonScope newTop) {
-    stack.add(newTop);
-  }
-
-  /**
-   * Replace the value on the top of the stack with the given value.
-   */
-  private void replaceTop(JsonScope newTop) {
-    stack.set(stack.size() - 1, newTop);
+    if (stackSize == stack.length) {
+      JsonScope[] newStack = new JsonScope[stackSize * 2];
+      System.arraycopy(stack, 0, newStack, 0, stackSize);
+      stack = newStack;
+    }
+    stack[stackSize++] = newTop;
   }
 
   @SuppressWarnings("fallthrough")
   private JsonToken nextInArray(boolean firstElement) throws IOException {
     if (firstElement) {
-      replaceTop(JsonScope.NONEMPTY_ARRAY);
+      stack[stackSize - 1] = JsonScope.NONEMPTY_ARRAY;
     } else {
       /* Look for a comma before each element after the first element. */
       switch (nextNonWhitespace(true)) {
       case ']':
-        pop();
+        stackSize--;
         return token = JsonToken.END_ARRAY;
       case ';':
         checkLenient(); // fall-through
@@ -671,7 +663,7 @@ public class JsonReader implements Closeable {
     switch (nextNonWhitespace(true)) {
     case ']':
       if (firstElement) {
-        pop();
+        stackSize--;
         return token = JsonToken.END_ARRAY;
       }
       // fall-through to handle ",]"
@@ -699,7 +691,7 @@ public class JsonReader implements Closeable {
       /* Peek to see if this is the empty object. */
       switch (nextNonWhitespace(true)) {
       case '}':
-        pop();
+        stackSize--;
         return token = JsonToken.END_OBJECT;
       default:
         pos--;
@@ -707,7 +699,7 @@ public class JsonReader implements Closeable {
     } else {
       switch (nextNonWhitespace(true)) {
       case '}':
-        pop();
+        stackSize--;
         return token = JsonToken.END_OBJECT;
       case ';':
       case ',':
@@ -734,7 +726,7 @@ public class JsonReader implements Closeable {
       }
     }
 
-    replaceTop(JsonScope.DANGLING_NAME);
+    stack[stackSize - 1] = JsonScope.DANGLING_NAME;
     return token = JsonToken.NAME;
   }
 
@@ -756,7 +748,7 @@ public class JsonReader implements Closeable {
       throw syntaxError("Expected ':'");
     }
 
-    replaceTop(JsonScope.NONEMPTY_OBJECT);
+    stack[stackSize - 1] = JsonScope.NONEMPTY_OBJECT;
     return nextValue();
   }
 
