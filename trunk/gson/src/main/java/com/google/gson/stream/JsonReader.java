@@ -336,7 +336,8 @@ public class JsonReader implements Closeable {
   private void expect(JsonToken expected) throws IOException {
     peek();
     if (token != expected) {
-      throw new IllegalStateException("Expected " + expected + " but was " + peek());
+      throw new IllegalStateException("Expected " + expected + " but was " + peek()
+          + " at line " + getLineNumber() + " column " + getColumnNumber());
     }
     advance();
   }
@@ -365,8 +366,8 @@ public class JsonReader implements Closeable {
       stack[stackSize - 1] = JsonScope.NONEMPTY_DOCUMENT;
       JsonToken firstToken = nextValue();
       if (!lenient && token != JsonToken.BEGIN_ARRAY && token != JsonToken.BEGIN_OBJECT) {
-        throw new IOException(
-            "Expected JSON document to start with '[' or '{' but was " + token);
+        throw new IOException("Expected JSON document to start with '[' or '{' but was " + token
+            + " at line " + getLineNumber() + " column " + getColumnNumber());
       }
       return firstToken;
     case EMPTY_ARRAY:
@@ -441,7 +442,8 @@ public class JsonReader implements Closeable {
   public String nextName() throws IOException {
     peek();
     if (token != JsonToken.NAME) {
-      throw new IllegalStateException("Expected a name but was " + peek());
+      throw new IllegalStateException("Expected a name but was " + peek()
+          + " at line " + getLineNumber() + " column " + getColumnNumber());
     }
     String result = name;
     advance();
@@ -459,7 +461,8 @@ public class JsonReader implements Closeable {
   public String nextString() throws IOException {
     peek();
     if (token != JsonToken.STRING && token != JsonToken.NUMBER) {
-      throw new IllegalStateException("Expected a string but was " + peek());
+      throw new IllegalStateException("Expected a string but was " + peek()
+          + " at line " + getLineNumber() + " column " + getColumnNumber());
     }
 
     String result = value;
@@ -477,7 +480,8 @@ public class JsonReader implements Closeable {
   public boolean nextBoolean() throws IOException {
     peek();
     if (token != JsonToken.BOOLEAN) {
-        throw new IllegalStateException("Expected a boolean but was " + token);
+        throw new IllegalStateException("Expected a boolean but was " + token
+            + " at line " + getLineNumber() + " column " + getColumnNumber());
     }
 
     boolean result = (value == TRUE);
@@ -495,7 +499,8 @@ public class JsonReader implements Closeable {
   public void nextNull() throws IOException {
     peek();
     if (token != JsonToken.NULL) {
-      throw new IllegalStateException("Expected null but was " + token);
+      throw new IllegalStateException("Expected null but was " + token
+          + " at line " + getLineNumber() + " column " + getColumnNumber());
     }
 
     advance();
@@ -513,16 +518,19 @@ public class JsonReader implements Closeable {
   public double nextDouble() throws IOException {
     peek();
     if (token != JsonToken.STRING && token != JsonToken.NUMBER) {
-      throw new IllegalStateException("Expected a double but was " + token);
+      throw new IllegalStateException("Expected a double but was " + token
+          + " at line " + getLineNumber() + " column " + getColumnNumber());
     }
 
     double result = Double.parseDouble(value);
 
     if ((result >= 1.0d && value.startsWith("0"))) {
-      throw new MalformedJsonException("JSON forbids octal prefixes: " + value);
+      throw new MalformedJsonException("JSON forbids octal prefixes: " + value
+          + " at line " + getLineNumber() + " column " + getColumnNumber());
     }
     if (!lenient && (Double.isNaN(result) || Double.isInfinite(result))) {
-      throw new MalformedJsonException("JSON forbids NaN and infinities: " + value);
+      throw new MalformedJsonException("JSON forbids NaN and infinities: " + value
+          + " at line " + getLineNumber() + " column " + getColumnNumber());
     }
 
     advance();
@@ -542,7 +550,8 @@ public class JsonReader implements Closeable {
   public long nextLong() throws IOException {
     peek();
     if (token != JsonToken.STRING && token != JsonToken.NUMBER) {
-      throw new IllegalStateException("Expected a long but was " + token);
+      throw new IllegalStateException("Expected a long but was " + token
+          + " at line " + getLineNumber() + " column " + getColumnNumber());
     }
 
     long result;
@@ -552,12 +561,14 @@ public class JsonReader implements Closeable {
       double asDouble = Double.parseDouble(value); // don't catch this NumberFormatException
       result = (long) asDouble;
       if (result != asDouble) {
-        throw new NumberFormatException(value);
+        throw new NumberFormatException("Expected a long but was " + value
+            + " at line " + getLineNumber() + " column " + getColumnNumber());
       }
     }
 
     if (result >= 1L && value.startsWith("0")) {
-      throw new MalformedJsonException("JSON forbids octal prefixes: " + value);
+      throw new MalformedJsonException("JSON forbids octal prefixes: " + value
+          + " at line " + getLineNumber() + " column " + getColumnNumber());
     }
 
     advance();
@@ -577,7 +588,8 @@ public class JsonReader implements Closeable {
   public int nextInt() throws IOException {
     peek();
     if (token != JsonToken.STRING && token != JsonToken.NUMBER) {
-      throw new IllegalStateException("Expected an int but was " + token);
+      throw new IllegalStateException("Expected an int but was " + token
+          + " at line " + getLineNumber() + " column " + getColumnNumber());
     }
 
     int result;
@@ -587,12 +599,14 @@ public class JsonReader implements Closeable {
       double asDouble = Double.parseDouble(value); // don't catch this NumberFormatException
       result = (int) asDouble;
       if (result != asDouble) {
-        throw new NumberFormatException(value);
+        throw new NumberFormatException("Expected an int but was " + value
+            + " at line " + getLineNumber() + " column " + getColumnNumber());
       }
     }
 
     if (result >= 1L && value.startsWith("0")) {
-      throw new MalformedJsonException("JSON forbids octal prefixes: " + value);
+      throw new MalformedJsonException("JSON forbids octal prefixes: " + value
+          + " at line " + getLineNumber() + " column " + getColumnNumber());
     }
 
     advance();
@@ -891,7 +905,8 @@ public class JsonReader implements Closeable {
       }
     }
     if (throwOnEof) {
-      throw new EOFException("End of input");
+      throw new EOFException("End of input"
+          + " at line " + getLineNumber() + " column " + getColumnNumber());
     } else {
       return -1;
     }
@@ -1244,7 +1259,7 @@ public class JsonReader implements Closeable {
         reader.peek();
         if (reader.token != JsonToken.NAME) {
           throw new IllegalStateException("Expected a name but was " + reader.peek() + " "
-              + reader.getSnippet());
+              + " at line " + reader.getLineNumber() + " column " + reader.getColumnNumber());
         }
         reader.value = reader.name;
         reader.name = null;
