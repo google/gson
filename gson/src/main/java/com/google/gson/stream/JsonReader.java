@@ -796,15 +796,22 @@ public class JsonReader implements Closeable {
    * false.
    */
   private boolean fillBuffer(int minimum) throws IOException {
+    char[] buffer = this.buffer;
+
     // Before clobbering the old characters, update where buffer starts
-    for (int i = 0; i < pos; i++) {
+    // Using locals here saves ~2%.
+    int line = bufferStartLine;
+    int column = bufferStartColumn;
+    for (int i = 0, p = pos; i < p; i++) {
       if (buffer[i] == '\n') {
-        bufferStartLine++;
-        bufferStartColumn = 1;
+        line++;
+        column = 1;
       } else {
-        bufferStartColumn++;
+        column++;
       }
     }
+    bufferStartLine = line;
+    bufferStartColumn = column;
 
     if (limit != pos) {
       limit -= pos;
