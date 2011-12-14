@@ -991,40 +991,50 @@ public class JsonReader implements Closeable {
    *     malformed.
    */
   private String nextString(char quote) throws IOException {
+    // Like nextNonWhitespace, this uses locals 'p' and 'l' to save inner-loop field access.
+    char[] buffer = this.buffer;
     StringBuilder builder = null;
-    do {
+    while (true) {
+      int p = pos;
+      int l = limit;
       /* the index of the first character not yet appended to the builder. */
-      int start = pos;
-      while (pos < limit) {
-        int c = buffer[pos++];
+      int start = p;
+      while (p < l) {
+        int c = buffer[p++];
 
         if (c == quote) {
+          pos = p;
           if (skipping) {
             return "skipped!";
           } else if (builder == null) {
-            return stringPool.get(buffer, start, pos - start - 1);
+            return stringPool.get(buffer, start, p - start - 1);
           } else {
-            builder.append(buffer, start, pos - start - 1);
+            builder.append(buffer, start, p - start - 1);
             return builder.toString();
           }
 
         } else if (c == '\\') {
+          pos = p;
           if (builder == null) {
             builder = new StringBuilder();
           }
-          builder.append(buffer, start, pos - start - 1);
+          builder.append(buffer, start, p - start - 1);
           builder.append(readEscapeCharacter());
-          start = pos;
+          p = pos;
+          l = limit;
+          start = p;
         }
       }
 
       if (builder == null) {
         builder = new StringBuilder();
       }
-      builder.append(buffer, start, pos - start);
-    } while (fillBuffer(1));
-
-    throw syntaxError("Unterminated string");
+      builder.append(buffer, start, p - start);
+      pos = p;
+      if (!fillBuffer(1)) {
+        throw syntaxError("Unterminated string");
+      }
+    }
   }
 
   /**
