@@ -854,8 +854,28 @@ public class JsonReader implements Closeable {
   }
 
   private int nextNonWhitespace(boolean throwOnEof) throws IOException {
-    while (pos < limit || fillBuffer(1)) {
-      int c = buffer[pos++];
+    /*
+     * This code uses ugly local variables 'p' and 'l' representing the 'pos'
+     * and 'limit' fields respectively. Using locals rather than fields saves
+     * a few field reads for each whitespace character in a pretty-printed
+     * document, resulting in a 5% speedup. We need to flush 'p' to its field
+     * before any (potentially indirect) call to fillBuffer() and reread both
+     * 'p' and 'l' after any (potentially indirect) call to the same method.
+     */
+    char[] buffer = this.buffer;
+    int p = pos;
+    int l = limit;
+    while (true) {
+      if (p == l) {
+        pos = p;
+        if (!fillBuffer(1)) {
+          break;
+        }
+        p = pos;
+        l = limit;
+      }
+
+      int c = buffer[p++];
       switch (c) {
       case '\t':
       case ' ':
@@ -864,7 +884,8 @@ public class JsonReader implements Closeable {
         continue;
 
       case '/':
-        if (pos == limit && !fillBuffer(1)) {
+        pos = p;
+        if (p == l && !fillBuffer(1)) {
           return c;
         }
 
@@ -877,13 +898,16 @@ public class JsonReader implements Closeable {
           if (!skipTo("*/")) {
             throw syntaxError("Unterminated comment");
           }
-          pos += 2;
+          p = pos + 2;
+          l = limit;
           continue;
 
         case '/':
           // skip a // end-of-line comment
           pos++;
           skipToEndOfLine();
+          p = pos;
+          l = limit;
           continue;
 
         default:
@@ -891,6 +915,7 @@ public class JsonReader implements Closeable {
         }
 
       case '#':
+        pos = p;
         /*
          * Skip a # hash end-of-line comment. The JSON RFC doesn't
          * specify this behaviour, but it's required to parse
@@ -898,9 +923,12 @@ public class JsonReader implements Closeable {
          */
         checkLenient();
         skipToEndOfLine();
+        p = pos;
+        l = limit;
         continue;
 
       default:
+        pos = p;
         return c;
       }
     }
