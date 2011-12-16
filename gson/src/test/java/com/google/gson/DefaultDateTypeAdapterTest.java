@@ -127,7 +127,7 @@ public class DefaultDateTypeAdapterTest extends TestCase {
   public void testDateSerialization() throws Exception {
     int dateStyle = DateFormat.LONG;
     DefaultDateTypeAdapter dateTypeAdapter = new DefaultDateTypeAdapter(dateStyle);
-    DateFormat formatter = DateFormat.getDateInstance(dateStyle);
+    DateFormat formatter = DateFormat.getDateInstance(dateStyle, Locale.US);
     Date currentDate = new Date();
 
     String dateString = dateTypeAdapter.serialize(currentDate, Date.class, null).getAsString();
