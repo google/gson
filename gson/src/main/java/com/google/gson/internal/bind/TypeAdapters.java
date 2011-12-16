@@ -416,6 +416,7 @@ public final class TypeAdapters {
         in.nextNull();
         return null;
       }
+      // regrettably, this should have included both the host name and the host address
       return InetAddress.getByName(in.nextString());
     }
     @Override
