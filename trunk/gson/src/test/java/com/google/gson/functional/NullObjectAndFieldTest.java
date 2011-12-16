@@ -149,11 +149,19 @@ public class NullObjectAndFieldTest extends TestCase {
     assertEquals("[\"1\",null,\"3\"]", result);
   }
 
+  // test for issue 389
+  public void testAbsentJsonElementsAreSetToNull() {
+    Gson gson = new Gson();
+    ClassWithMembers target = gson.fromJson("{array:[1,2,3]}", ClassWithMembers.class);
+    assertTrue(target.array.length == 3 && target.array[1] == 2);
+    assertNull(target.str);
+    assertNull(target.col);
+  }
+
   private static class ClassWithNullWrappedPrimitive {
     private Long value;
   }
 
-  @SuppressWarnings("unused")
   private static class ClassWithMembers {
     String str;
     int[] array;
