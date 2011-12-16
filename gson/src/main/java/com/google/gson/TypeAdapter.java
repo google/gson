@@ -103,7 +103,7 @@ import com.google.gson.stream.JsonWriter;
  *   TypeAdapter<Graph> graphAdapter = gson.getAdapter(Graph.class);
  *   Graph graph = graphAdapter.fromJson(json);
  * }</pre>
- * ...or serialize a Java object to a JSON document: <pre>   {@code
+ * And an example for serialization: <pre>   {@code
  *
  *   Graph graph = new Graph(...);
  *   TypeAdapter<Graph> graphAdapter = gson.getAdapter(Graph.class);
