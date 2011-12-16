@@ -25,16 +25,15 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import com.google.gson.annotations.SerializedName;
 import com.google.gson.common.MoreAsserts;
 import com.google.gson.reflect.TypeToken;
-
-import junit.framework.TestCase;
-
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Set;
+import junit.framework.TestCase;
 
 /**
  * Functional tests for Java 5.0 enums.
@@ -144,6 +143,11 @@ public class EnumTest extends TestCase {
     MoreAsserts.assertContains(actualJsonList, Roshambo.PAPER);
   }
 
+  public void testEnumCaseMapping() {
+    assertEquals(Gender.MALE, gson.fromJson("\"boy\"", Gender.class));
+    assertEquals("\"boy\"", gson.toJson(Gender.MALE, Gender.class));
+  }
+
   public enum Roshambo {
     ROCK {
       @Override Roshambo defeats() {
@@ -174,5 +178,13 @@ public class EnumTest extends TestCase {
         throws JsonParseException {
       return Roshambo.valueOf(json.getAsString().substring(3));
     }
+  }
+
+  public enum Gender {
+    @SerializedName("boy")
+    MALE,
+
+    @SerializedName("girl")
+    FEMALE
   }
 }
