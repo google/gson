@@ -23,8 +23,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 
 public class RawCollectionsExample {
-  public static final String json = "['hello',5,{name:'GREETINGS',source:'guest'}]";
-
   static class Event {
     private String name;
     private String source;
@@ -37,7 +35,7 @@ public class RawCollectionsExample {
       return String.format("(name=%s, source=%s)", name, source);
     }
   }
-  
+
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
     Gson gson = new Gson();
@@ -45,8 +43,8 @@ public class RawCollectionsExample {
     collection.add("hello");
     collection.add(5);
     collection.add(new Event("GREETINGS", "guest"));
-    String json2 = gson.toJson(collection);
-    System.out.println("Using Gson.toJson() on a raw collection: " + json2);
+    String json = gson.toJson(collection);
+    System.out.println("Using Gson.toJson() on a raw collection: " + json);
     JsonParser parser = new JsonParser();
     JsonArray array = parser.parse(json).getAsJsonArray();
     String message = gson.fromJson(array.get(0), String.class);
