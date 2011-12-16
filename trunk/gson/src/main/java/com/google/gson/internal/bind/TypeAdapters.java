@@ -300,7 +300,11 @@ public final class TypeAdapters {
         in.nextNull();
         return null;
       }
-      return in.nextString().charAt(0);
+      String str = in.nextString();
+      if (str.length() != 1) {
+        throw new JsonSyntaxException("Expecting character, got: " + str);
+      }
+      return str.charAt(0);
     }
     @Override
     public void write(JsonWriter out, Character value) throws IOException {
