@@ -166,7 +166,7 @@ public abstract class TypeAdapter<T> {
    *   }).create();
    * }</pre>
    * You can avoid this boilerplate handling of nulls by wrapping your type adapter with
-   * {@link #nullSafe(TypeAdapter)} method. Here is how we will rewrite the above example:
+   * this method. Here is how we will rewrite the above example:
    * <pre>   {@code
    *
    * Gson gson = new GsonBuilder().registerTypeAdapter(Foo.class,
