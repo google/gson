@@ -18,6 +18,7 @@ package com.google.gson.internal.bind;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonIOException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
@@ -215,7 +216,7 @@ public final class MapTypeAdapterFactory implements TypeAdapter.Factory {
 
       List<V> values = new ArrayList<V>(map.size());
       for (Map.Entry<K, V> entry : map.entrySet()) {
-        JsonElement keyElement = keyTypeAdapter.toJsonTree(entry.getKey());
+        JsonElement keyElement = toJsonTree(keyTypeAdapter, entry.getKey());
         keys.add(keyElement);
         values.add(entry.getValue());
         hasComplexKeys |= keyElement.isJsonArray() || keyElement.isJsonObject();
@@ -258,6 +259,18 @@ public final class MapTypeAdapterFactory implements TypeAdapter.Factory {
       } else {
         throw new AssertionError();
       }
+    }
+  }
+
+  // TODO: remove this when TypeAdapter.toJsonTree() is public
+  private static <T> JsonElement toJsonTree(TypeAdapter<T> typeAdapter, T value) {
+    try {
+      JsonElementWriter jsonWriter = new JsonElementWriter();
+      jsonWriter.setLenient(true);
+      typeAdapter.write(jsonWriter, value);
+      return jsonWriter.get();
+    } catch (IOException e) {
+      throw new JsonIOException(e);
     }
   }
 }
