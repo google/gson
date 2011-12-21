@@ -216,6 +216,17 @@ public final class JsonReaderTest extends TestCase {
     reader.endArray();
   }
 
+  public void testStrictNonFiniteDoublesWithSkipValue() throws IOException {
+    String json = "[NaN]";
+    JsonReader reader = new JsonReader(new StringReader(json));
+    reader.beginArray();
+    try {
+      reader.skipValue();
+      fail();
+    } catch (MalformedJsonException expected) {
+    }
+  }
+
   public void testLongs() throws IOException {
     String json = "[0,0,0,"
         + "1,1,1,"
@@ -479,6 +490,26 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(true, reader.nextBoolean());
   }
 
+  public void testStrictNameValueSeparatorWithSkipValue() throws IOException {
+    JsonReader reader = new JsonReader(new StringReader("{\"a\"=true}"));
+    reader.beginObject();
+    assertEquals("a", reader.nextName());
+    try {
+      reader.skipValue();
+      fail();
+    } catch (IOException expected) {
+    }
+
+    reader = new JsonReader(new StringReader("{\"a\"=>true}"));
+    reader.beginObject();
+    assertEquals("a", reader.nextName());
+    try {
+      reader.skipValue();
+      fail();
+    } catch (IOException expected) {
+    }
+  }
+
   public void testStrictComments() throws IOException {
     JsonReader reader = new JsonReader(new StringReader("[// comment \n true]"));
     reader.beginArray();
@@ -522,6 +553,32 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(true, reader.nextBoolean());
   }
 
+  public void testStrictCommentsWithSkipValue() throws IOException {
+    JsonReader reader = new JsonReader(new StringReader("[// comment \n true]"));
+    reader.beginArray();
+    try {
+      reader.skipValue();
+      fail();
+    } catch (IOException expected) {
+    }
+
+    reader = new JsonReader(new StringReader("[# comment \n true]"));
+    reader.beginArray();
+    try {
+      reader.skipValue();
+      fail();
+    } catch (IOException expected) {
+    }
+
+    reader = new JsonReader(new StringReader("[/* comment */ true]"));
+    reader.beginArray();
+    try {
+      reader.skipValue();
+      fail();
+    } catch (IOException expected) {
+    }
+  }
+
   public void testStrictUnquotedNames() throws IOException {
     JsonReader reader = new JsonReader(new StringReader("{a:true}"));
     reader.beginObject();
@@ -539,6 +596,16 @@ public final class JsonReaderTest extends TestCase {
     assertEquals("a", reader.nextName());
   }
 
+  public void testStrictUnquotedNamesWithSkipValue() throws IOException {
+    JsonReader reader = new JsonReader(new StringReader("{a:true}"));
+    reader.beginObject();
+    try {
+      reader.skipValue();
+      fail();
+    } catch (IOException expected) {
+    }
+  }
+
   public void testStrictSingleQuotedNames() throws IOException {
     JsonReader reader = new JsonReader(new StringReader("{'a':true}"));
     reader.beginObject();
@@ -554,6 +621,16 @@ public final class JsonReaderTest extends TestCase {
     reader.setLenient(true);
     reader.beginObject();
     assertEquals("a", reader.nextName());
+  }
+
+  public void testStrictSingleQuotedNamesWithSkipValue() throws IOException {
+    JsonReader reader = new JsonReader(new StringReader("{'a':true}"));
+    reader.beginObject();
+    try {
+      reader.skipValue();
+      fail();
+    } catch (IOException expected) {
+    }
   }
 
   public void testStrictUnquotedStrings() throws IOException {
@@ -600,6 +677,16 @@ public final class JsonReaderTest extends TestCase {
     assertEquals("a", reader.nextString());
   }
 
+  public void testStrictSingleQuotedStringsWithSkipValue() throws IOException {
+    JsonReader reader = new JsonReader(new StringReader("['a']"));
+    reader.beginArray();
+    try {
+      reader.skipValue();
+      fail();
+    } catch (IOException expected) {
+    }
+  }
+
   public void testStrictSemicolonDelimitedArray() throws IOException {
     JsonReader reader = new JsonReader(new StringReader("[true;true]"));
     reader.beginArray();
@@ -617,6 +704,17 @@ public final class JsonReaderTest extends TestCase {
     reader.beginArray();
     assertEquals(true, reader.nextBoolean());
     assertEquals(true, reader.nextBoolean());
+  }
+
+  public void testStrictSemicolonDelimitedArrayWithSkipValue() throws IOException {
+    JsonReader reader = new JsonReader(new StringReader("[true;true]"));
+    reader.beginArray();
+    try {
+      reader.skipValue();
+      reader.skipValue();
+      fail();
+    } catch (IOException expected) {
+    }
   }
 
   public void testStrictSemicolonDelimitedNameValuePair() throws IOException {
@@ -638,6 +736,18 @@ public final class JsonReaderTest extends TestCase {
     assertEquals("a", reader.nextName());
     assertEquals(true, reader.nextBoolean());
     assertEquals("b", reader.nextName());
+  }
+
+  public void testStrictSemicolonDelimitedNameValuePairWithSkipValue() throws IOException {
+    JsonReader reader = new JsonReader(new StringReader("{\"a\":true;\"b\":true}"));
+    reader.beginObject();
+    assertEquals("a", reader.nextName());
+    try {
+      reader.skipValue();
+      reader.skipValue();
+      fail();
+    } catch (IOException expected) {
+    }
   }
 
   public void testStrictUnnecessaryArraySeparators() throws IOException {
@@ -707,6 +817,42 @@ public final class JsonReaderTest extends TestCase {
     reader.endArray();
   }
 
+  public void testStrictUnnecessaryArraySeparatorsWithSkipValue() throws IOException {
+    JsonReader reader = new JsonReader(new StringReader("[true,,true]"));
+    reader.beginArray();
+    assertEquals(true, reader.nextBoolean());
+    try {
+      reader.skipValue();
+      fail();
+    } catch (IOException expected) {
+    }
+
+    reader = new JsonReader(new StringReader("[,true]"));
+    reader.beginArray();
+    try {
+      reader.skipValue();
+      fail();
+    } catch (IOException expected) {
+    }
+
+    reader = new JsonReader(new StringReader("[true,]"));
+    reader.beginArray();
+    assertEquals(true, reader.nextBoolean());
+    try {
+      reader.skipValue();
+      fail();
+    } catch (IOException expected) {
+    }
+
+    reader = new JsonReader(new StringReader("[,]"));
+    reader.beginArray();
+    try {
+      reader.skipValue();
+      fail();
+    } catch (IOException expected) {
+    }
+  }
+
   public void testStrictMultipleTopLevelValues() throws IOException {
     JsonReader reader = new JsonReader(new StringReader("[] []"));
     reader.beginArray();
@@ -729,6 +875,17 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
+  public void testStrictMultipleTopLevelValuesWithSkipValue() throws IOException {
+    JsonReader reader = new JsonReader(new StringReader("[] []"));
+    reader.beginArray();
+    reader.endArray();
+    try {
+      reader.skipValue();
+      fail();
+    } catch (IOException expected) {
+    }
+  }
+
   public void testStrictTopLevelValueType() {
     JsonReader reader = new JsonReader(new StringReader("true"));
     try {
@@ -744,10 +901,28 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(true, reader.nextBoolean());
   }
 
+  public void testStrictTopLevelValueTypeWithSkipValue() {
+    JsonReader reader = new JsonReader(new StringReader("true"));
+    try {
+      reader.skipValue();
+      fail();
+    } catch (IOException expected) {
+    }
+  }
+
   public void testStrictNonExecutePrefix() {
     JsonReader reader = new JsonReader(new StringReader(")]}'\n []"));
     try {
       reader.beginArray();
+      fail();
+    } catch (IOException expected) {
+    }
+  }
+
+  public void testStrictNonExecutePrefixWithSkipValue() {
+    JsonReader reader = new JsonReader(new StringReader(")]}'\n []"));
+    try {
+      reader.skipValue();
       fail();
     } catch (IOException expected) {
     }
