@@ -16,18 +16,17 @@
 
 package com.google.gson;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
-
 import com.google.gson.internal.bind.JsonElementWriter;
 import com.google.gson.internal.bind.JsonTreeReader;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 
 /**
  * Converts Java objects to and from JSON.
@@ -94,28 +93,30 @@ import com.google.gson.stream.JsonWriter;
  *   Gson gson = builder.create();
  * }</pre>
  *
- * <h3>JSON Conversion</h3>
- * <p>A type adapter registered with Gson is automatically invoked while serializing
- * or deserializing JSON. However, you can also use type adapters directly to serialize
- * and deserialize JSON. Here is an example for deserialization: <pre>   {@code
- *
- *   String json = "{'origin':'0,0','points':['1,2','3,4']}";
- *   TypeAdapter<Graph> graphAdapter = gson.getAdapter(Graph.class);
- *   Graph graph = graphAdapter.fromJson(json);
- * }</pre>
- * And an example for serialization: <pre>   {@code
- *
- *   Graph graph = new Graph(...);
- *   TypeAdapter<Graph> graphAdapter = gson.getAdapter(Graph.class);
- *   String json = graphAdapter.toJson(graph);
- * }</pre>
- *
- * <p>Type adapters are <strong>type-specific</strong>. For example, a {@code
- * TypeAdapter<Date>} can convert {@code Date} instances to JSON and JSON to
- * instances of {@code Date}, but cannot convert any other types.
- *
  * @since 2.1
  */
+// non-Javadoc:
+//
+// <h3>JSON Conversion</h3>
+// <p>A type adapter registered with Gson is automatically invoked while serializing
+// or deserializing JSON. However, you can also use type adapters directly to serialize
+// and deserialize JSON. Here is an example for deserialization: <pre>   {@code
+//
+//   String json = "{'origin':'0,0','points':['1,2','3,4']}";
+//   TypeAdapter<Graph> graphAdapter = gson.getAdapter(Graph.class);
+//   Graph graph = graphAdapter.fromJson(json);
+// }</pre>
+// And an example for serialization: <pre>   {@code
+//
+//   Graph graph = new Graph(...);
+//   TypeAdapter<Graph> graphAdapter = gson.getAdapter(Graph.class);
+//   String json = graphAdapter.toJson(graph);
+// }</pre>
+//
+// <p>Type adapters are <strong>type-specific</strong>. For example, a {@code
+// TypeAdapter<Date>} can convert {@code Date} instances to JSON and JSON to
+// instances of {@code Date}, but cannot convert any other types.
+//
 public abstract class TypeAdapter<T> {
 
   /**
@@ -136,7 +137,7 @@ public abstract class TypeAdapter<T> {
    *
    * @param value the Java object to convert. May be null.
    */
-  public final void toJson(Writer out, T value) throws IOException {
+  /*public*/ final void toJson(Writer out, T value) throws IOException {
     JsonWriter writer = new JsonWriter(out);
     write(writer, value);
   }
@@ -181,7 +182,7 @@ public abstract class TypeAdapter<T> {
    * }</pre>
    * Note that we didn't need to check for nulls in our type adapter after we used nullSafe.
    */
-  public TypeAdapter<T> nullSafe() {
+  public final TypeAdapter<T> nullSafe() {
     return new TypeAdapter<T>() {
       @Override public void write(JsonWriter out, T value) throws IOException {
         if (value == null) {
@@ -209,7 +210,7 @@ public abstract class TypeAdapter<T> {
    *
    * @param value the Java object to convert. May be null.
    */
-  public final String toJson(T value) throws IOException {
+  /*public*/ final String toJson(T value) throws IOException {
     StringWriter stringWriter = new StringWriter();
     toJson(stringWriter, value);
     return stringWriter.toString();
@@ -221,7 +222,7 @@ public abstract class TypeAdapter<T> {
    * @param value the Java object to convert. May be null.
    * @return the converted JSON tree. May be {@link JsonNull}.
    */
-  public JsonElement toJsonTree(T value) {
+  /*public*/ final JsonElement toJsonTree(T value) {
     try {
       JsonElementWriter jsonWriter = new JsonElementWriter();
       jsonWriter.setLenient(true);
@@ -248,7 +249,7 @@ public abstract class TypeAdapter<T> {
    *
    * @return the converted Java object. May be null.
    */
-  public final T fromJson(Reader in) throws IOException {
+  /*public*/ final T fromJson(Reader in) throws IOException {
     JsonReader reader = new JsonReader(in);
     reader.setLenient(true); // TODO: non-lenient?
     return read(reader);
@@ -262,7 +263,7 @@ public abstract class TypeAdapter<T> {
    *
    * @return the converted Java object. May be null.
    */
-  public final T fromJson(String json) throws IOException {
+  /*public*/ final T fromJson(String json) throws IOException {
     return fromJson(new StringReader(json));
   }
 
@@ -271,7 +272,7 @@ public abstract class TypeAdapter<T> {
    *
    * @param jsonTree the Java object to convert. May be {@link JsonNull}.
    */
-  public T fromJsonTree(JsonElement jsonTree) {
+  /*public*/ final T fromJsonTree(JsonElement jsonTree) {
     try {
       JsonReader jsonReader = new JsonTreeReader(jsonTree);
       jsonReader.setLenient(true);
