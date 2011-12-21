@@ -566,6 +566,16 @@ public final class JsonReaderTest extends TestCase {
     }
   }
 
+  public void testStrictUnquotedStringsWithSkipValue() throws IOException {
+    JsonReader reader = new JsonReader(new StringReader("[a]"));
+    reader.beginArray();
+    try {
+      reader.skipValue();
+      fail();
+    } catch (MalformedJsonException expected) {
+    }
+  }
+
   public void testLenientUnquotedStrings() throws IOException {
     JsonReader reader = new JsonReader(new StringReader("[a]"));
     reader.setLenient(true);
