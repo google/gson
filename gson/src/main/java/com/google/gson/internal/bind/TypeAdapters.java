@@ -53,6 +53,24 @@ import java.util.UUID;
 public final class TypeAdapters {
   private TypeAdapters() {}
 
+  @SuppressWarnings("rawtypes")
+  public static final TypeAdapter<Class> CLASS = new TypeAdapter<Class>() {
+	@Override
+	public void write(JsonWriter out, Class value) throws IOException {
+	  if (value == null) {
+	    return;
+	  }
+	  throw new UnsupportedOperationException("Attempted to serialize java.lang.Class: "
+	      + value.getName() + ". Forgot to register a type adapter?");
+	}
+	@Override
+	public Class read(JsonReader in) throws IOException {
+      throw new UnsupportedOperationException(
+          "Attempted to deserialize a java.lang.Class. Forgot to register a type adapter?");
+	}
+  };
+  public static final TypeAdapter.Factory CLASS_FACTORY = newFactory(Class.class, CLASS);
+
   public static final TypeAdapter<BitSet> BIT_SET = new TypeAdapter<BitSet>() {
     public BitSet read(JsonReader in) throws IOException {
       if (in.peek() == JsonToken.NULL) {
