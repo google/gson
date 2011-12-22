@@ -15,17 +15,7 @@
  */
 package com.google.gson.functional;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.reflect.TypeToken;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -49,7 +39,23 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.UUID;
+
 import junit.framework.TestCase;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.TypeAdapter;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 
 /**
  * Functional test for Json serialization and deserialization for common classes for which default
@@ -75,6 +81,24 @@ public class DefaultTypeAdaptersTest extends TestCase {
   protected void tearDown() throws Exception {
     TimeZone.setDefault(oldTimeZone);
     super.tearDown();
+  }
+
+  public void testClassSerialization() {
+    try {
+      gson.toJson(String.class);  
+    } catch (UnsupportedOperationException expected) {}
+    // Override with a custom type adapter for class.
+    gson = new GsonBuilder().registerTypeAdapter(Class.class, new MyClassTypeAdapter()).create();
+    assertEquals("\"java.lang.String\"", gson.toJson(String.class));  
+  }
+
+  public void testClassDeserialization() {
+    try {
+      gson.fromJson("String.class", String.class.getClass());  
+    } catch (UnsupportedOperationException expected) {}
+    // Override with a custom type adapter for class.
+    gson = new GsonBuilder().registerTypeAdapter(Class.class, new MyClassTypeAdapter()).create();
+    assertEquals(String.class, gson.fromJson("java.lang.String", Class.class));  
   }
 
   public void testUrlSerialization() throws Exception {
@@ -632,5 +656,22 @@ public class DefaultTypeAdaptersTest extends TestCase {
   public void testStringBufferDeserialization() {
     StringBuffer sb = gson.fromJson("'abc'", StringBuffer.class);
     assertEquals("abc", sb.toString());
+  }
+
+  @SuppressWarnings("rawtypes")
+  private static class MyClassTypeAdapter extends TypeAdapter<Class> {
+    @Override
+    public void write(JsonWriter out, Class value) throws IOException {
+      out.value(value.getName());
+    }
+    @Override
+    public Class read(JsonReader in) throws IOException {
+      String className = in.nextString();
+      try {
+        return Class.forName(className);
+      } catch (ClassNotFoundException e) {
+        throw new IOException(e);
+      }
+    }
   }
 }
