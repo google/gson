@@ -18,6 +18,7 @@ package com.google.gson.internal.bind;
 
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
+import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -33,7 +34,7 @@ import java.util.Map;
  * serialization and a primitive/Map/List on deserialization.
  */
 public final class ObjectTypeAdapter extends TypeAdapter<Object> {
-  public static final Factory FACTORY = new Factory() {
+  public static final TypeAdapterFactory FACTORY = new TypeAdapterFactory() {
     @SuppressWarnings("unchecked")
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
       if (type.getRawType() == Object.class) {

@@ -22,6 +22,7 @@ import com.google.gson.JsonIOException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
+import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.JsonReaderInternalAccess;
@@ -102,7 +103,7 @@ import java.util.Map;
  * This format will serialize and deserialize just fine as long as this adapter
  * is registered.
  */
-public final class MapTypeAdapterFactory implements TypeAdapter.Factory {
+public final class MapTypeAdapterFactory implements TypeAdapterFactory {
   private final ConstructorConstructor constructorConstructor;
   private final boolean complexMapKeySerialization;
 

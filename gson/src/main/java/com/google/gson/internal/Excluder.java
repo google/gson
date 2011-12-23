@@ -20,6 +20,7 @@ import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
+import com.google.gson.TypeAdapterFactory;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.Since;
 import com.google.gson.annotations.Until;
@@ -46,7 +47,7 @@ import java.util.List;
  * @author Joel Leitch
  * @author Jesse Wilson
  */
-public final class Excluder implements TypeAdapter.Factory, Cloneable {
+public final class Excluder implements TypeAdapterFactory, Cloneable {
   private static final double IGNORE_VERSIONS = -1.0d;
   public static final Excluder DEFAULT = new Excluder();
 
