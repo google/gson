@@ -16,21 +16,6 @@
 
 package com.google.gson.internal.bind;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonNull;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.TypeAdapter;
-import com.google.gson.annotations.SerializedName;
-import com.google.gson.internal.LazilyParsedNumber;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URI;
@@ -47,6 +32,22 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.UUID;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.TypeAdapter;
+import com.google.gson.annotations.SerializedName;
+import com.google.gson.internal.LazilyParsedNumber;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
+
 /**
  * Type adapters for basic types.
  */
@@ -57,9 +58,6 @@ public final class TypeAdapters {
   public static final TypeAdapter<Class> CLASS = new TypeAdapter<Class>() {
 	@Override
 	public void write(JsonWriter out, Class value) throws IOException {
-	  if (value == null) {
-	    return;
-	  }
 	  throw new UnsupportedOperationException("Attempted to serialize java.lang.Class: "
 	      + value.getName() + ". Forgot to register a type adapter?");
 	}
