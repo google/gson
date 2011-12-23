@@ -152,16 +152,39 @@ public class NullObjectAndFieldTest extends TestCase {
   // test for issue 389
   public void testAbsentJsonElementsAreSetToNull() {
     Gson gson = new Gson();
-    ClassWithMembers target = gson.fromJson("{array:[1,2,3]}", ClassWithMembers.class);
+    ClassWithInitializedMembers target =
+        gson.fromJson("{array:[1,2,3]}", ClassWithInitializedMembers.class);
     assertTrue(target.array.length == 3 && target.array[1] == 2);
-    assertNull(target.str);
-    assertNull(target.col);
+    assertEquals(ClassWithInitializedMembers.MY_STRING_DEFAULT, target.str1);
+    assertNull(target.str2);
+    assertEquals(ClassWithInitializedMembers.MY_INT_DEFAULT, target.int1);
+    assertEquals(0, target.int2); // test the default value of a primitive int field per JVM spec
+    assertEquals(ClassWithInitializedMembers.MY_BOOLEAN_DEFAULT, target.bool1);
+    assertFalse(target.bool2); // test the default value of a primitive boolean field per JVM spec
+  }
+
+  public static class ClassWithInitializedMembers  {
+    // Using a mix of no-args constructor and field initializers
+    // Also, some fields are intialized and some are not (so initialized per JVM spec)
+    public static final String MY_STRING_DEFAULT = "string";
+    private static final int MY_INT_DEFAULT = 2;
+    private static final boolean MY_BOOLEAN_DEFAULT = true;
+    int[] array;
+    String str1, str2;
+    int int1 = MY_INT_DEFAULT;
+    int int2;
+    boolean bool1 = MY_BOOLEAN_DEFAULT;
+    boolean bool2;
+    public ClassWithInitializedMembers() {
+      str1 = MY_STRING_DEFAULT;
+    }
   }
 
   private static class ClassWithNullWrappedPrimitive {
     private Long value;
   }
 
+  @SuppressWarnings("unused")
   private static class ClassWithMembers {
     String str;
     int[] array;
