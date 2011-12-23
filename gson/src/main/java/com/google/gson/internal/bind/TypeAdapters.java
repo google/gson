@@ -16,6 +16,7 @@
 
 package com.google.gson.internal.bind;
 
+import com.google.gson.TypeAdapterFactory;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URI;
@@ -67,7 +68,7 @@ public final class TypeAdapters {
           "Attempted to deserialize a java.lang.Class. Forgot to register a type adapter?");
 	}
   };
-  public static final TypeAdapter.Factory CLASS_FACTORY = newFactory(Class.class, CLASS);
+  public static final TypeAdapterFactory CLASS_FACTORY = newFactory(Class.class, CLASS);
 
   public static final TypeAdapter<BitSet> BIT_SET = new TypeAdapter<BitSet>() {
     public BitSet read(JsonReader in) throws IOException {
@@ -126,7 +127,7 @@ public final class TypeAdapters {
     }
   };
 
-  public static final TypeAdapter.Factory BIT_SET_FACTORY = newFactory(BitSet.class, BIT_SET);
+  public static final TypeAdapterFactory BIT_SET_FACTORY = newFactory(BitSet.class, BIT_SET);
 
   public static final TypeAdapter<Boolean> BOOLEAN = new TypeAdapter<Boolean>() {
     @Override
@@ -168,7 +169,7 @@ public final class TypeAdapters {
     }
   };
 
-  public static final TypeAdapter.Factory BOOLEAN_FACTORY
+  public static final TypeAdapterFactory BOOLEAN_FACTORY
       = newFactory(boolean.class, Boolean.class, BOOLEAN);
 
   public static final TypeAdapter<Number> BYTE = new TypeAdapter<Number>() {
@@ -191,7 +192,7 @@ public final class TypeAdapters {
     }
   };
 
-  public static final TypeAdapter.Factory BYTE_FACTORY
+  public static final TypeAdapterFactory BYTE_FACTORY
       = newFactory(byte.class, Byte.class, BYTE);
 
   public static final TypeAdapter<Number> SHORT = new TypeAdapter<Number>() {
@@ -213,7 +214,7 @@ public final class TypeAdapters {
     }
   };
 
-  public static final TypeAdapter.Factory SHORT_FACTORY
+  public static final TypeAdapterFactory SHORT_FACTORY
       = newFactory(short.class, Short.class, SHORT);
 
   public static final TypeAdapter<Number> INTEGER = new TypeAdapter<Number>() {
@@ -235,7 +236,7 @@ public final class TypeAdapters {
     }
   };
 
-  public static final TypeAdapter.Factory INTEGER_FACTORY
+  public static final TypeAdapterFactory INTEGER_FACTORY
       = newFactory(int.class, Integer.class, INTEGER);
 
   public static final TypeAdapter<Number> LONG = new TypeAdapter<Number>() {
@@ -307,7 +308,7 @@ public final class TypeAdapters {
     }
   };
 
-  public static final TypeAdapter.Factory NUMBER_FACTORY = newFactory(Number.class, NUMBER);
+  public static final TypeAdapterFactory NUMBER_FACTORY = newFactory(Number.class, NUMBER);
 
   public static final TypeAdapter<Character> CHARACTER = new TypeAdapter<Character>() {
     @Override
@@ -328,7 +329,7 @@ public final class TypeAdapters {
     }
   };
 
-  public static final TypeAdapter.Factory CHARACTER_FACTORY
+  public static final TypeAdapterFactory CHARACTER_FACTORY
       = newFactory(char.class, Character.class, CHARACTER);
 
   public static final TypeAdapter<String> STRING = new TypeAdapter<String>() {
@@ -351,7 +352,7 @@ public final class TypeAdapters {
     }
   };
 
-  public static final TypeAdapter.Factory STRING_FACTORY = newFactory(String.class, STRING);
+  public static final TypeAdapterFactory STRING_FACTORY = newFactory(String.class, STRING);
 
   public static final TypeAdapter<StringBuilder> STRING_BUILDER = new TypeAdapter<StringBuilder>() {
     @Override
@@ -368,7 +369,7 @@ public final class TypeAdapters {
     }
   };
 
-  public static final TypeAdapter.Factory STRING_BUILDER_FACTORY =
+  public static final TypeAdapterFactory STRING_BUILDER_FACTORY =
     newFactory(StringBuilder.class, STRING_BUILDER);
 
   public static final TypeAdapter<StringBuffer> STRING_BUFFER = new TypeAdapter<StringBuffer>() {
@@ -386,7 +387,7 @@ public final class TypeAdapters {
     }
   };
 
-  public static final TypeAdapter.Factory STRING_BUFFER_FACTORY =
+  public static final TypeAdapterFactory STRING_BUFFER_FACTORY =
     newFactory(StringBuffer.class, STRING_BUFFER);
 
   public static final TypeAdapter<URL> URL = new TypeAdapter<URL>() {
@@ -405,7 +406,7 @@ public final class TypeAdapters {
     }
   };
 
-  public static final TypeAdapter.Factory URL_FACTORY = newFactory(URL.class, URL);
+  public static final TypeAdapterFactory URL_FACTORY = newFactory(URL.class, URL);
 
   public static final TypeAdapter<URI> URI = new TypeAdapter<URI>() {
     @Override
@@ -427,7 +428,7 @@ public final class TypeAdapters {
     }
   };
 
-  public static final TypeAdapter.Factory URI_FACTORY = newFactory(URI.class, URI);
+  public static final TypeAdapterFactory URI_FACTORY = newFactory(URI.class, URI);
 
   public static final TypeAdapter<InetAddress> INET_ADDRESS = new TypeAdapter<InetAddress>() {
     @Override
@@ -445,7 +446,7 @@ public final class TypeAdapters {
     }
   };
 
-  public static final TypeAdapter.Factory INET_ADDRESS_FACTORY =
+  public static final TypeAdapterFactory INET_ADDRESS_FACTORY =
     newTypeHierarchyFactory(InetAddress.class, INET_ADDRESS);
 
   public static final TypeAdapter<UUID> UUID = new TypeAdapter<UUID>() {
@@ -463,9 +464,9 @@ public final class TypeAdapters {
     }
   };
 
-  public static final TypeAdapter.Factory UUID_FACTORY = newFactory(UUID.class, UUID);
+  public static final TypeAdapterFactory UUID_FACTORY = newFactory(UUID.class, UUID);
 
-  public static final TypeAdapter.Factory TIMESTAMP_FACTORY = new TypeAdapter.Factory() {
+  public static final TypeAdapterFactory TIMESTAMP_FACTORY = new TypeAdapterFactory() {
     @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
       if (typeToken.getRawType() != Timestamp.class) {
@@ -551,7 +552,7 @@ public final class TypeAdapters {
     }
   };
 
-  public static final TypeAdapter.Factory CALENDAR_FACTORY =
+  public static final TypeAdapterFactory CALENDAR_FACTORY =
     newFactoryForMultipleTypes(Calendar.class, GregorianCalendar.class, CALENDAR);
 
   public static final TypeAdapter<Locale> LOCALE = new TypeAdapter<Locale>() {
@@ -589,7 +590,7 @@ public final class TypeAdapters {
     }
   };
 
-  public static final TypeAdapter.Factory LOCALE_FACTORY = newFactory(Locale.class, LOCALE);
+  public static final TypeAdapterFactory LOCALE_FACTORY = newFactory(Locale.class, LOCALE);
 
   public static final TypeAdapter<JsonElement> JSON_ELEMENT = new TypeAdapter<JsonElement>() {
     @Override public JsonElement read(JsonReader in) throws IOException {
@@ -663,7 +664,7 @@ public final class TypeAdapters {
     }
   };
 
-  public static final TypeAdapter.Factory JSON_ELEMENT_FACTORY
+  public static final TypeAdapterFactory JSON_ELEMENT_FACTORY
       = newFactory(JsonElement.class, JSON_ELEMENT);
 
   private static final class EnumTypeAdapter<T extends Enum<T>> extends TypeAdapter<T> {
@@ -698,10 +699,10 @@ public final class TypeAdapters {
     }
   }
 
-  public static final TypeAdapter.Factory ENUM_FACTORY = newEnumTypeHierarchyFactory();
+  public static final TypeAdapterFactory ENUM_FACTORY = newEnumTypeHierarchyFactory();
 
-  public static <TT> TypeAdapter.Factory newEnumTypeHierarchyFactory() {
-    return new TypeAdapter.Factory() {
+  public static <TT> TypeAdapterFactory newEnumTypeHierarchyFactory() {
+    return new TypeAdapterFactory() {
       @SuppressWarnings({"rawtypes", "unchecked"})
       public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
         Class<? super T> rawType = typeToken.getRawType();
@@ -716,9 +717,9 @@ public final class TypeAdapters {
     };
   }
 
-  public static <TT> TypeAdapter.Factory newFactory(
+  public static <TT> TypeAdapterFactory newFactory(
       final TypeToken<TT> type, final TypeAdapter<TT> typeAdapter) {
-    return new TypeAdapter.Factory() {
+    return new TypeAdapterFactory() {
       @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
       public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
         return typeToken.equals(type) ? (TypeAdapter<T>) typeAdapter : null;
@@ -726,9 +727,9 @@ public final class TypeAdapters {
     };
   }
 
-  public static <TT> TypeAdapter.Factory newFactory(
+  public static <TT> TypeAdapterFactory newFactory(
       final Class<TT> type, final TypeAdapter<TT> typeAdapter) {
-    return new TypeAdapter.Factory() {
+    return new TypeAdapterFactory() {
       @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
       public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
         return typeToken.getRawType() == type ? (TypeAdapter<T>) typeAdapter : null;
@@ -739,9 +740,9 @@ public final class TypeAdapters {
     };
   }
 
-  public static <TT> TypeAdapter.Factory newFactory(
+  public static <TT> TypeAdapterFactory newFactory(
       final Class<TT> unboxed, final Class<TT> boxed, final TypeAdapter<? super TT> typeAdapter) {
-    return new TypeAdapter.Factory() {
+    return new TypeAdapterFactory() {
       @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
       public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
         Class<? super T> rawType = typeToken.getRawType();
@@ -754,9 +755,9 @@ public final class TypeAdapters {
     };
   }
 
-  public static <TT> TypeAdapter.Factory newFactoryForMultipleTypes(
-      final Class<TT> base, final Class<? extends TT> sub, final TypeAdapter<? super TT> typeAdapter) {
-    return new TypeAdapter.Factory() {
+  public static <TT> TypeAdapterFactory newFactoryForMultipleTypes(final Class<TT> base,
+      final Class<? extends TT> sub, final TypeAdapter<? super TT> typeAdapter) {
+    return new TypeAdapterFactory() {
       @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
       public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
         Class<? super T> rawType = typeToken.getRawType();
@@ -769,9 +770,9 @@ public final class TypeAdapters {
     };
   }
 
-  public static <TT> TypeAdapter.Factory newTypeHierarchyFactory(
+  public static <TT> TypeAdapterFactory newTypeHierarchyFactory(
       final Class<TT> clazz, final TypeAdapter<TT> typeAdapter) {
-    return new TypeAdapter.Factory() {
+    return new TypeAdapterFactory() {
       @SuppressWarnings("unchecked")
       public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
         return clazz.isAssignableFrom(typeToken.getRawType()) ? (TypeAdapter<T>) typeAdapter : null;

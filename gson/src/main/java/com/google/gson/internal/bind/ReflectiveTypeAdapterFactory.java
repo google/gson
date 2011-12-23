@@ -20,6 +20,7 @@ import com.google.gson.FieldNamingStrategy;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
+import com.google.gson.TypeAdapterFactory;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.internal.ConstructorConstructor;
@@ -40,7 +41,7 @@ import java.util.Map;
 /**
  * Type adapter that reflects over the fields and methods of a class.
  */
-public final class ReflectiveTypeAdapterFactory implements TypeAdapter.Factory {
+public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   private final ConstructorConstructor constructorConstructor;
   private final FieldNamingStrategy fieldNamingPolicy;
   private final Excluder excluder;

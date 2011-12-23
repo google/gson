@@ -18,6 +18,7 @@ package com.google.gson.internal.bind;
 
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
+import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.ObjectConstructor;
@@ -32,7 +33,7 @@ import java.util.Collection;
 /**
  * Adapt a homogeneous collection of objects.
  */
-public final class CollectionTypeAdapterFactory implements TypeAdapter.Factory {
+public final class CollectionTypeAdapterFactory implements TypeAdapterFactory {
   private final ConstructorConstructor constructorConstructor;
 
   public CollectionTypeAdapterFactory(ConstructorConstructor constructorConstructor) {

@@ -117,7 +117,7 @@ public final class Gson {
   private final Map<TypeToken<?>, TypeAdapter<?>> typeTokenCache
       = Collections.synchronizedMap(new HashMap<TypeToken<?>, TypeAdapter<?>>());
 
-  private final List<TypeAdapter.Factory> factories;
+  private final List<TypeAdapterFactory> factories;
   private final ConstructorConstructor constructorConstructor;
 
   private final boolean serializeNulls;
@@ -179,7 +179,7 @@ public final class Gson {
     this(Excluder.DEFAULT, FieldNamingPolicy.IDENTITY,
         Collections.<Type, InstanceCreator<?>>emptyMap(), false, false, DEFAULT_JSON_NON_EXECUTABLE,
         true, false, false, LongSerializationPolicy.DEFAULT,
-        Collections.<TypeAdapter.Factory>emptyList());
+        Collections.<TypeAdapterFactory>emptyList());
   }
 
   Gson(final Excluder excluder, final FieldNamingStrategy fieldNamingPolicy,
@@ -187,18 +187,18 @@ public final class Gson {
       boolean complexMapKeySerialization, boolean generateNonExecutableGson, boolean htmlSafe,
       boolean prettyPrinting, boolean serializeSpecialFloatingPointValues,
       LongSerializationPolicy longSerializationPolicy,
-      List<TypeAdapter.Factory> typeAdapterFactories) {
+      List<TypeAdapterFactory> typeAdapterFactories) {
     this.constructorConstructor = new ConstructorConstructor(instanceCreators);
     this.serializeNulls = serializeNulls;
     this.generateNonExecutableJson = generateNonExecutableGson;
     this.htmlSafe = htmlSafe;
     this.prettyPrinting = prettyPrinting;
 
-    TypeAdapter.Factory reflectiveTypeAdapterFactory = new ReflectiveTypeAdapterFactory(
+    TypeAdapterFactory reflectiveTypeAdapterFactory = new ReflectiveTypeAdapterFactory(
         constructorConstructor, fieldNamingPolicy, excluder);
 
     ConstructorConstructor constructorConstructor = new ConstructorConstructor();
-    List<TypeAdapter.Factory> factories = new ArrayList<TypeAdapter.Factory>();
+    List<TypeAdapterFactory> factories = new ArrayList<TypeAdapterFactory>();
 
     // built-in type adapters that cannot be overridden
     factories.add(TypeAdapters.STRING_FACTORY);
@@ -348,7 +348,7 @@ public final class Gson {
     FutureTypeAdapter<T> call = new FutureTypeAdapter<T>();
     threadCalls.put(type, call);
     try {
-      for (TypeAdapter.Factory factory : factories) {
+      for (TypeAdapterFactory factory : factories) {
         TypeAdapter<T> candidate = factory.create(this, type);
         if (candidate != null) {
           call.setDelegate(candidate);
@@ -370,10 +370,10 @@ public final class Gson {
    *     deserialize {@code type}.
    * @since 2.1
    */
-  public <T> TypeAdapter<T> getNextAdapter(TypeAdapter.Factory skipPast, TypeToken<T> type) {
+  public <T> TypeAdapter<T> getNextAdapter(TypeAdapterFactory skipPast, TypeToken<T> type) {
     boolean skipPastFound = false;
 
-    for (TypeAdapter.Factory factory : factories) {
+    for (TypeAdapterFactory factory : factories) {
       if (!skipPastFound) {
         if (factory == skipPast) {
           skipPastFound = true;
