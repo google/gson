@@ -18,6 +18,7 @@ package com.google.gson.internal.bind;
 
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
+import com.google.gson.TypeAdapterFactory;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
@@ -35,7 +36,7 @@ import com.google.gson.stream.JsonWriter;
  * Adapt an array of objects.
  */
 public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
-  public static final Factory FACTORY = new Factory() {
+  public static final TypeAdapterFactory FACTORY = new TypeAdapterFactory() {
     @SuppressWarnings({"unchecked", "rawtypes"})
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
       Type type = typeToken.getType();

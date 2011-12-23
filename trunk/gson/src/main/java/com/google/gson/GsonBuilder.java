@@ -72,9 +72,9 @@ public final class GsonBuilder {
   private FieldNamingStrategy fieldNamingPolicy = FieldNamingPolicy.IDENTITY;
   private final Map<Type, InstanceCreator<?>> instanceCreators
       = new HashMap<Type, InstanceCreator<?>>();
-  private final List<TypeAdapter.Factory> factories = new ArrayList<TypeAdapter.Factory>();
+  private final List<TypeAdapterFactory> factories = new ArrayList<TypeAdapterFactory>();
   /** tree-style hierarchy factories. These come after factories for backwards compatibility. */
-  private final List<TypeAdapter.Factory> hierarchyFactories = new ArrayList<TypeAdapter.Factory>();
+  private final List<TypeAdapterFactory> hierarchyFactories = new ArrayList<TypeAdapterFactory>();
   private boolean serializeNulls;
   private String datePattern;
   private int dateStyle = DateFormat.DEFAULT;
@@ -472,7 +472,7 @@ public final class GsonBuilder {
    *
    * @since 2.1
    */
-  public GsonBuilder registerTypeAdapterFactory(TypeAdapter.Factory factory) {
+  public GsonBuilder registerTypeAdapterFactory(TypeAdapterFactory factory) {
     factories.add(factory);
     return this;
   }
@@ -540,7 +540,7 @@ public final class GsonBuilder {
    * @return an instance of Gson configured with the options currently set in this builder
    */
   public Gson create() {
-    List<TypeAdapter.Factory> factories = new ArrayList<TypeAdapter.Factory>();
+    List<TypeAdapterFactory> factories = new ArrayList<TypeAdapterFactory>();
     factories.addAll(this.factories);
     Collections.reverse(factories);
     factories.addAll(this.hierarchyFactories);
@@ -553,7 +553,7 @@ public final class GsonBuilder {
   }
 
   private void addTypeAdaptersForDate(String datePattern, int dateStyle, int timeStyle,
-      List<TypeAdapter.Factory> factories) {
+      List<TypeAdapterFactory> factories) {
     DefaultDateTypeAdapter dateTypeAdapter;
     if (datePattern != null && !"".equals(datePattern.trim())) {
       dateTypeAdapter = new DefaultDateTypeAdapter(datePattern);

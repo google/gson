@@ -33,13 +33,13 @@ final class TreeTypeAdapter<T> extends TypeAdapter<T> {
   private final JsonDeserializer<T> deserializer;
   private final Gson gson;
   private final TypeToken<T> typeToken;
-  private final Factory skipPast;
+  private final TypeAdapterFactory skipPast;
 
   /** The delegate is lazily created because it may not be needed, and creating it may fail. */
   private TypeAdapter<T> delegate;
 
   private TreeTypeAdapter(JsonSerializer<T> serializer, JsonDeserializer<T> deserializer,
-      Gson gson, TypeToken<T> typeToken, Factory skipPast) {
+      Gson gson, TypeToken<T> typeToken, TypeAdapterFactory skipPast) {
     this.serializer = serializer;
     this.deserializer = deserializer;
     this.gson = gson;
@@ -81,7 +81,7 @@ final class TreeTypeAdapter<T> extends TypeAdapter<T> {
   /**
    * Returns a new factory that will match each type against {@code exactType}.
    */
-  public static Factory newFactory(TypeToken<?> exactType, Object typeAdapter) {
+  public static TypeAdapterFactory newFactory(TypeToken<?> exactType, Object typeAdapter) {
     return new SingleTypeFactory(typeAdapter, exactType, false, null);
   }
 
@@ -89,7 +89,8 @@ final class TreeTypeAdapter<T> extends TypeAdapter<T> {
    * Returns a new factory that will match each type and its raw type against
    * {@code exactType}.
    */
-  public static Factory newFactoryWithMatchRawType(TypeToken<?> exactType, Object typeAdapter) {
+  public static TypeAdapterFactory newFactoryWithMatchRawType(
+      TypeToken<?> exactType, Object typeAdapter) {
     // only bother matching raw types if exact type is a raw type
     boolean matchRawType = exactType.getType() == exactType.getRawType();
     return new SingleTypeFactory(typeAdapter, exactType, matchRawType, null);
@@ -99,11 +100,12 @@ final class TreeTypeAdapter<T> extends TypeAdapter<T> {
    * Returns a new factory that will match each type's raw type for assignability
    * to {@code hierarchyType}.
    */
-  public static Factory newTypeHierarchyFactory(Class<?> hierarchyType, Object typeAdapter) {
+  public static TypeAdapterFactory newTypeHierarchyFactory(
+      Class<?> hierarchyType, Object typeAdapter) {
     return new SingleTypeFactory(typeAdapter, null, false, hierarchyType);
   }
 
-  private static class SingleTypeFactory implements TypeAdapter.Factory {
+  private static class SingleTypeFactory implements TypeAdapterFactory {
     private final TypeToken<?> exactType;
     private final boolean matchRawType;
     private final Class<?> hierarchyType;

@@ -18,11 +18,15 @@ package com.google.gson.typeadapters;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.TypeAdapter;
+import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.Streams;
+import com.google.gson.internal.bind.JsonElementWriter;
+import com.google.gson.internal.bind.JsonTreeReader;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
@@ -119,7 +123,7 @@ import java.util.Map;
  *       .registerSubtype(Diamond.class);
  * }</pre>
  */
-public final class RuntimeTypeAdapterFactory<T> implements TypeAdapter.Factory {
+public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
   private final Class<?> baseType;
   private final String typeFieldName;
   private final Map<String, Class<?>> labelToSubtype = new LinkedHashMap<String, Class<?>>();
@@ -209,7 +213,18 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapter.Factory {
           throw new JsonParseException("cannot deserialize " + baseType + " subtype named "
               + label + "; did you forget to register a subtype?");
         }
-        return delegate.fromJsonTree(jsonElement);
+        return fromJsonTree(delegate, jsonElement);
+      }
+
+      // TODO: remove this when TypeAdapter.fromJsonTree() is public
+      private T fromJsonTree(TypeAdapter<T> delegate, JsonElement jsonTree) {
+        try {
+          JsonReader jsonReader = new JsonTreeReader(jsonTree);
+          jsonReader.setLenient(true);
+          return delegate.read(jsonReader);
+        } catch (IOException e) {
+          throw new JsonIOException(e);
+        }
       }
 
       @Override public void write(JsonWriter out, T value) throws IOException {
@@ -221,7 +236,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapter.Factory {
           throw new JsonParseException("cannot serialize " + srcType.getName()
               + "; did you forget to register a subtype?");
         }
-        JsonObject jsonObject = delegate.toJsonTree(value).getAsJsonObject();
+        JsonObject jsonObject = toJsonTree(delegate, value).getAsJsonObject();
         if (jsonObject.has(typeFieldName)) {
           throw new JsonParseException("cannot serialize " + srcType.getName()
               + " because it already defines a field named " + typeFieldName);
@@ -232,6 +247,18 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapter.Factory {
           clone.add(e.getKey(), e.getValue());
         }
         Streams.write(clone, out);
+      }
+
+      // TODO: remove this when TypeAdapter.toJsonTree() is public
+      private JsonElement toJsonTree(TypeAdapter<T> delegate, T value) {
+        try {
+          JsonElementWriter jsonWriter = new JsonElementWriter();
+          jsonWriter.setLenient(true);
+          delegate.write(jsonWriter, value);
+          return jsonWriter.get();
+        } catch (IOException e) {
+          throw new JsonIOException(e);
+        }
       }
     };
   }
