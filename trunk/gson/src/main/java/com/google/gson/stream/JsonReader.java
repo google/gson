@@ -1145,9 +1145,23 @@ public class JsonReader implements Closeable {
       if (pos + 4 > limit && !fillBuffer(4)) {
         throw syntaxError("Unterminated escape sequence");
       }
-      String hex = stringPool.get(buffer, pos, 4);
+      // Equivalent to Integer.parseInt(stringPool.get(buffer, pos, 4), 16);
+      char result = 0;
+      for (int i = pos, end = i + 4; i < end; i++) {
+        char c = buffer[i];
+        result <<= 4;
+        if (c >= '0' && c <= '9') {
+          result += (c - '0');
+        } else if (c >= 'a' && c <= 'f') {
+          result += (c - 'a' + 10);
+        } else if (c >= 'A' && c <= 'F') {
+          result += (c - 'A' + 10);
+        } else {
+          throw new NumberFormatException("\\u" + stringPool.get(buffer, pos, 4));
+        }
+      }
       pos += 4;
-      return (char) Integer.parseInt(hex, 16);
+      return result;
 
     case 't':
       return '\t';

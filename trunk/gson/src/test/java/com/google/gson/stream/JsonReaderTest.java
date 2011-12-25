@@ -161,6 +161,28 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
+  public void testUnescapingInvalidCharacters() throws IOException {
+    String json = "[\"\\u000g\"]";
+    JsonReader reader = new JsonReader(new StringReader(json));
+    reader.beginArray();
+    try {
+      reader.nextString();
+      fail();
+    } catch (NumberFormatException expected) {
+    }
+  }
+
+  public void testUnescapingTruncatedCharacters() throws IOException {
+    String json = "[\"\\u000";
+    JsonReader reader = new JsonReader(new StringReader(json));
+    reader.beginArray();
+    try {
+      reader.nextString();
+      fail();
+    } catch (IOException expected) {
+    }
+  }
+
   public void testIntegersWithFractionalPartSpecified() throws IOException {
     JsonReader reader = new JsonReader(new StringReader("[1.0,1.0,1.0]"));
     reader.beginArray();
