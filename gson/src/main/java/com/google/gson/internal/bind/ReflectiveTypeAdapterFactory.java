@@ -108,13 +108,13 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     Type declaredType = type.getType();
     while (raw != Object.class) {
       Field[] fields = raw.getDeclaredFields();
-      AccessibleObject.setAccessible(fields, true);
       for (Field field : fields) {
         boolean serialize = excludeField(field, true);
         boolean deserialize = excludeField(field, false);
         if (!serialize && !deserialize) {
           continue;
         }
+        field.setAccessible(true);
         Type fieldType = $Gson$Types.resolve(type.getType(), raw, field.getGenericType());
         BoundField boundField = createBoundField(context, field, getFieldName(field),
             TypeToken.get(fieldType), serialize, deserialize);
