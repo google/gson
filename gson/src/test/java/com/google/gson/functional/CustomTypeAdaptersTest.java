@@ -30,6 +30,7 @@ import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.common.TestTypes.ClassWithCustomTypeConverter;
 import com.google.gson.reflect.TypeToken;
 
+import java.util.Date;
 import junit.framework.TestCase;
 
 import java.lang.reflect.Type;
@@ -393,6 +394,17 @@ public class CustomTypeAdaptersTest extends TestCase {
     assertNull(actual.wrappedData);
   }
 
+  // Test created from Issue 352
+  public void testRegisterHierarchyAdapterForDate() {
+    Gson gson = new GsonBuilder()
+        .registerTypeHierarchyAdapter(Date.class, new DateTypeAdapter())
+        .create();
+    assertEquals("0", gson.toJson(new Date(0)));
+    assertEquals("0", gson.toJson(new java.sql.Date(0)));
+    assertEquals(new Date(0), gson.fromJson("0", Date.class));
+    assertEquals(new java.sql.Date(0), gson.fromJson("0", java.sql.Date.class));
+  }
+
   private static class DataHolder {
     final String data;
 
@@ -426,6 +438,18 @@ public class CustomTypeAdaptersTest extends TestCase {
         return new DataHolder(null);
       }
       return new DataHolder(jsonElement.getAsString());
+    }
+  }
+
+  private static class DateTypeAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
+    public Date deserialize(JsonElement json, Type typeOfT,
+        JsonDeserializationContext context) throws JsonParseException {
+      return typeOfT == Date.class
+          ? new Date(json.getAsLong())
+          : new java.sql.Date(json.getAsLong());
+    }
+    public JsonElement serialize(Date src, Type typeOfSrc, JsonSerializationContext context) {
+      return new JsonPrimitive(src.getTime());
     }
   }
 }
