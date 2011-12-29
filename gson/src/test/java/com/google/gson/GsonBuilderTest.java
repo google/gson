@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import java.lang.reflect.Modifier;
 import junit.framework.TestCase;
 
 /**
@@ -29,5 +30,30 @@ public class GsonBuilderTest extends TestCase {
     GsonBuilder builder = new GsonBuilder();
     builder.create();
     builder.create();
+  }
+
+  public void testExcludeFieldsWithModifiers() {
+    Gson gson = new GsonBuilder()
+        .excludeFieldsWithModifiers(Modifier.VOLATILE, Modifier.PRIVATE)
+        .create();
+    assertEquals("{\"d\":\"d\"}", gson.toJson(new HasModifiers()));
+  }
+
+  static class HasModifiers {
+    private String a = "a";
+    volatile String b = "b";
+    private volatile String c = "c";
+    String d = "d";
+  }
+
+  public void testTransientFieldExclusion() {
+    Gson gson = new GsonBuilder()
+        .excludeFieldsWithModifiers()
+        .create();
+    assertEquals("{\"a\":\"a\"}", gson.toJson(new HasTransients()));
+  }
+
+  static class HasTransients {
+    transient String a = "a";
   }
 }
