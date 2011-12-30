@@ -21,7 +21,7 @@ import com.google.gson.GsonBuilder;
 import junit.framework.TestCase;
 
 public final class GraphTypeAdapterFactoryTest extends TestCase {
-  public void testBasicCycle() {
+  public void testSerialization() {
     Roshambo rock = new Roshambo("ROCK");
     Roshambo scissors = new Roshambo("SCISSORS");
     Roshambo paper = new Roshambo("PAPER");
@@ -37,6 +37,24 @@ public final class GraphTypeAdapterFactoryTest extends TestCase {
         "'0x2':{'name':'SCISSORS','beats':'0x3'}," +
         "'0x3':{'name':'PAPER','beats':'0x1'}}",
         gson.toJson(rock).replace('\"', '\''));
+  }
+
+  public void testDeserialization() {
+    String json = "{'0x1':{'name':'ROCK','beats':'0x2'}," +
+        "'0x2':{'name':'SCISSORS','beats':'0x3'}," +
+        "'0x3':{'name':'PAPER','beats':'0x1'}}";
+
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapterFactory(GraphTypeAdapterFactory.of(Roshambo.class))
+        .create();
+
+    Roshambo rock = gson.fromJson(json, Roshambo.class);
+    assertEquals("ROCK", rock.name);
+    Roshambo scissors = rock.beats;
+    assertEquals("SCISSORS", scissors.name);
+    Roshambo paper = scissors.beats;
+    assertEquals("PAPER", paper.name);
+    assertSame(rock, paper.beats); // TODO: currently fails
   }
 
   static class Roshambo {
