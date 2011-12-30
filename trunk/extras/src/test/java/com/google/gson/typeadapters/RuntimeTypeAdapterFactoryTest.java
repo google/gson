@@ -19,6 +19,7 @@ package com.google.gson.typeadapters;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
+import com.google.gson.TypeAdapterFactory;
 import junit.framework.TestCase;
 
 public final class RuntimeTypeAdapterFactoryTest extends TestCase {
@@ -28,7 +29,7 @@ public final class RuntimeTypeAdapterFactoryTest extends TestCase {
         BillingInstrument.class)
         .registerSubtype(CreditCard.class);
     Gson gson = new GsonBuilder()
-        .registerTypeAdapter(BillingInstrument.class, rta)
+        .registerTypeAdapterFactory(rta)
         .create();
 
     CreditCard original = new CreditCard("Jesse", 234);
@@ -41,11 +42,11 @@ public final class RuntimeTypeAdapterFactoryTest extends TestCase {
   }
 
   public void testRuntimeTypeIsBaseType() {
-    RuntimeTypeAdapterFactory<BillingInstrument> rta = RuntimeTypeAdapterFactory.of(
+    TypeAdapterFactory rta = RuntimeTypeAdapterFactory.of(
         BillingInstrument.class)
         .registerSubtype(BillingInstrument.class);
     Gson gson = new GsonBuilder()
-        .registerTypeAdapter(BillingInstrument.class, rta)
+        .registerTypeAdapterFactory(rta)
         .create();
 
     BillingInstrument original = new BillingInstrument("Jesse");
@@ -115,10 +116,10 @@ public final class RuntimeTypeAdapterFactoryTest extends TestCase {
   }
 
   public void testDeserializeMissingTypeField() {
-    Object billingAdapter = RuntimeTypeAdapterFactory.of(BillingInstrument.class)
+    TypeAdapterFactory billingAdapter = RuntimeTypeAdapterFactory.of(BillingInstrument.class)
         .registerSubtype(CreditCard.class);
     Gson gson = new GsonBuilder()
-        .registerTypeAdapter(BillingInstrument.class, billingAdapter)
+        .registerTypeAdapterFactory(billingAdapter)
         .create();
     try {
       gson.fromJson("{ownerName:'Jesse'}", BillingInstrument.class);
@@ -128,10 +129,10 @@ public final class RuntimeTypeAdapterFactoryTest extends TestCase {
   }
 
   public void testDeserializeMissingSubtype() {
-    Object billingAdapter = RuntimeTypeAdapterFactory.of(BillingInstrument.class)
+    TypeAdapterFactory billingAdapter = RuntimeTypeAdapterFactory.of(BillingInstrument.class)
         .registerSubtype(BankTransfer.class);
     Gson gson = new GsonBuilder()
-        .registerTypeAdapter(BillingInstrument.class, billingAdapter)
+        .registerTypeAdapterFactory(billingAdapter)
         .create();
     try {
       gson.fromJson("{type:'CreditCard',ownerName:'Jesse'}", BillingInstrument.class);
@@ -141,10 +142,10 @@ public final class RuntimeTypeAdapterFactoryTest extends TestCase {
   }
 
   public void testSerializeMissingSubtype() {
-    Object billingAdapter = RuntimeTypeAdapterFactory.of(BillingInstrument.class)
+    TypeAdapterFactory billingAdapter = RuntimeTypeAdapterFactory.of(BillingInstrument.class)
         .registerSubtype(BankTransfer.class);
     Gson gson = new GsonBuilder()
-        .registerTypeAdapter(BillingInstrument.class, billingAdapter)
+        .registerTypeAdapterFactory(billingAdapter)
         .create();
     try {
       gson.toJson(new CreditCard("Jesse", 456), BillingInstrument.class);
@@ -154,10 +155,10 @@ public final class RuntimeTypeAdapterFactoryTest extends TestCase {
   }
 
   public void testSerializeCollidingTypeFieldName() {
-    Object billingAdapter = RuntimeTypeAdapterFactory.of(BillingInstrument.class, "cvv")
+    TypeAdapterFactory billingAdapter = RuntimeTypeAdapterFactory.of(BillingInstrument.class, "cvv")
         .registerSubtype(CreditCard.class);
     Gson gson = new GsonBuilder()
-        .registerTypeAdapter(BillingInstrument.class, billingAdapter)
+        .registerTypeAdapterFactory(billingAdapter)
         .create();
     try {
       gson.toJson(new CreditCard("Jesse", 456), BillingInstrument.class);
