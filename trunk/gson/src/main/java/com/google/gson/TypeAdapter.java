@@ -16,9 +16,8 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.bind.JsonElementWriter;
+import com.google.gson.internal.bind.JsonTreeWriter;
 import com.google.gson.internal.bind.JsonTreeReader;
-import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
@@ -224,7 +223,7 @@ public abstract class TypeAdapter<T> {
    */
   /*public*/ final JsonElement toJsonTree(T value) {
     try {
-      JsonElementWriter jsonWriter = new JsonElementWriter();
+      JsonTreeWriter jsonWriter = new JsonTreeWriter();
       jsonWriter.setLenient(true);
       write(jsonWriter, value);
       return jsonWriter.get();

@@ -20,9 +20,9 @@ import com.google.gson.JsonNull;
 import java.io.IOException;
 import junit.framework.TestCase;
 
-public final class JsonElementWriterTest extends TestCase {
+public final class JsonTreeWriterTest extends TestCase {
   public void testArray() throws IOException {
-    JsonElementWriter writer = new JsonElementWriter();
+    JsonTreeWriter writer = new JsonTreeWriter();
     writer.beginArray();
     writer.value(1);
     writer.value(2);
@@ -32,7 +32,7 @@ public final class JsonElementWriterTest extends TestCase {
   }
 
   public void testNestedArray() throws IOException {
-    JsonElementWriter writer = new JsonElementWriter();
+    JsonTreeWriter writer = new JsonTreeWriter();
     writer.beginArray();
     writer.beginArray();
     writer.endArray();
@@ -45,7 +45,7 @@ public final class JsonElementWriterTest extends TestCase {
   }
 
   public void testObject() throws IOException {
-    JsonElementWriter writer = new JsonElementWriter();
+    JsonTreeWriter writer = new JsonTreeWriter();
     writer.beginObject();
     writer.name("A").value(1);
     writer.name("B").value(2);
@@ -54,7 +54,7 @@ public final class JsonElementWriterTest extends TestCase {
   }
 
   public void testNestedObject() throws IOException {
-    JsonElementWriter writer = new JsonElementWriter();
+    JsonTreeWriter writer = new JsonTreeWriter();
     writer.beginObject();
     writer.name("A");
     writer.beginObject();
@@ -70,7 +70,7 @@ public final class JsonElementWriterTest extends TestCase {
   }
 
   public void testWriteAfterClose() throws Exception {
-    JsonElementWriter writer = new JsonElementWriter();
+    JsonTreeWriter writer = new JsonTreeWriter();
     writer.setLenient(true);
     writer.beginArray();
     writer.value("A");
@@ -84,7 +84,7 @@ public final class JsonElementWriterTest extends TestCase {
   }
 
   public void testPrematureClose() throws Exception {
-    JsonElementWriter writer = new JsonElementWriter();
+    JsonTreeWriter writer = new JsonTreeWriter();
     writer.setLenient(true);
     writer.beginArray();
     try {
@@ -95,7 +95,7 @@ public final class JsonElementWriterTest extends TestCase {
   }
 
   public void testSerializeNullsFalse() throws IOException {
-    JsonElementWriter writer = new JsonElementWriter();
+    JsonTreeWriter writer = new JsonTreeWriter();
     writer.setSerializeNulls(false);
     writer.beginObject();
     writer.name("A");
@@ -105,7 +105,7 @@ public final class JsonElementWriterTest extends TestCase {
   }
 
   public void testSerializeNullsTrue() throws IOException {
-    JsonElementWriter writer = new JsonElementWriter();
+    JsonTreeWriter writer = new JsonTreeWriter();
     writer.setSerializeNulls(true);
     writer.beginObject();
     writer.name("A");
@@ -115,12 +115,12 @@ public final class JsonElementWriterTest extends TestCase {
   }
 
   public void testEmptyWriter() {
-    JsonElementWriter writer = new JsonElementWriter();
+    JsonTreeWriter writer = new JsonTreeWriter();
     assertEquals(JsonNull.INSTANCE, writer.get());
   }
 
   public void testLenientNansAndInfinities() throws IOException {
-    JsonElementWriter writer = new JsonElementWriter();
+    JsonTreeWriter writer = new JsonTreeWriter();
     writer.setLenient(true);
     writer.beginArray();
     writer.value(Double.NaN);
@@ -131,7 +131,7 @@ public final class JsonElementWriterTest extends TestCase {
   }
 
   public void testStrictNansAndInfinities() throws IOException {
-    JsonElementWriter writer = new JsonElementWriter();
+    JsonTreeWriter writer = new JsonTreeWriter();
     writer.setLenient(false);
     writer.beginArray();
     try {
@@ -152,7 +152,7 @@ public final class JsonElementWriterTest extends TestCase {
   }
 
   public void testStrictBoxedNansAndInfinities() throws IOException {
-    JsonElementWriter writer = new JsonElementWriter();
+    JsonTreeWriter writer = new JsonTreeWriter();
     writer.setLenient(false);
     writer.beginArray();
     try {

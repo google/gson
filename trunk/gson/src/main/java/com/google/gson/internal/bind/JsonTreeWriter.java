@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * This writer creates a JsonElement.
  */
-public final class JsonElementWriter extends JsonWriter {
+public final class JsonTreeWriter extends JsonWriter {
   private static final Writer UNWRITABLE_WRITER = new Writer() {
     @Override public void write(char[] buffer, int offset, int counter) {
       throw new AssertionError();
@@ -54,7 +54,7 @@ public final class JsonElementWriter extends JsonWriter {
   /** the JSON element constructed by this writer. */
   private JsonElement product = JsonNull.INSTANCE; // TODO: is this really what we want?;
 
-  public JsonElementWriter() {
+  public JsonTreeWriter() {
     super(UNWRITABLE_WRITER);
   }
 
