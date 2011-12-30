@@ -266,7 +266,7 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
   // TODO: remove this when TypeAdapter.toJsonTree() is public
   private static <T> JsonElement toJsonTree(TypeAdapter<T> typeAdapter, T value) {
     try {
-      JsonElementWriter jsonWriter = new JsonElementWriter();
+      JsonTreeWriter jsonWriter = new JsonTreeWriter();
       jsonWriter.setLenient(true);
       typeAdapter.write(jsonWriter, value);
       return jsonWriter.get();

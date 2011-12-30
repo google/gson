@@ -25,7 +25,7 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.Streams;
-import com.google.gson.internal.bind.JsonElementWriter;
+import com.google.gson.internal.bind.JsonTreeWriter;
 import com.google.gson.internal.bind.JsonTreeReader;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
@@ -252,7 +252,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
       // TODO: remove this when TypeAdapter.toJsonTree() is public
       private JsonElement toJsonTree(TypeAdapter<T> delegate, T value) {
         try {
-          JsonElementWriter jsonWriter = new JsonElementWriter();
+          JsonTreeWriter jsonWriter = new JsonTreeWriter();
           jsonWriter.setLenient(true);
           delegate.write(jsonWriter, value);
           return jsonWriter.get();

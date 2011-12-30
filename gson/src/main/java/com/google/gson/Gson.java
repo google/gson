@@ -26,7 +26,7 @@ import com.google.gson.internal.bind.BigIntegerTypeAdapter;
 import com.google.gson.internal.bind.CollectionTypeAdapterFactory;
 import com.google.gson.internal.bind.DateTypeAdapter;
 import com.google.gson.internal.bind.JsonTreeReader;
-import com.google.gson.internal.bind.JsonElementWriter;
+import com.google.gson.internal.bind.JsonTreeWriter;
 import com.google.gson.internal.bind.MapTypeAdapterFactory;
 import com.google.gson.internal.bind.ObjectTypeAdapter;
 import com.google.gson.internal.bind.ReflectiveTypeAdapterFactory;
@@ -437,7 +437,7 @@ public final class Gson {
    * @since 1.4
    */
   public JsonElement toJsonTree(Object src, Type typeOfSrc) {
-    JsonElementWriter writer = new JsonElementWriter();
+    JsonTreeWriter writer = new JsonTreeWriter();
     toJson(src, typeOfSrc, writer);
     return writer.get();
   }
