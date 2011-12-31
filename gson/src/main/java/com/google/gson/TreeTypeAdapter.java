@@ -76,7 +76,7 @@ final class TreeTypeAdapter<T> extends TypeAdapter<T> {
     TypeAdapter<T> d = delegate;
     return d != null
         ? d
-        : (delegate = GsonInternalAccess.INSTANCE.getNextAdapter(gson, skipPast, typeToken));
+        : (delegate = gson.getNextAdapter(skipPast, typeToken));
   }
 
   /**
