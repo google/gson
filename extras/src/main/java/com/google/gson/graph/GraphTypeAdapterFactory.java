@@ -20,6 +20,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
+import com.google.gson.internal.GsonInternalAccess;
 import com.google.gson.internal.bind.JsonTreeReader;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
@@ -58,7 +59,7 @@ public final class GraphTypeAdapterFactory implements TypeAdapterFactory {
       return null;
     }
 
-    final TypeAdapter<T> typeAdapter = gson.getNextAdapter(this, type);
+    final TypeAdapter<T> typeAdapter = GsonInternalAccess.INSTANCE.getNextAdapter(gson, this, type);
     final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
     return new TypeAdapter<T>() {
       @Override public void write(JsonWriter out, T value) throws IOException {

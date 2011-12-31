@@ -18,6 +18,7 @@ package com.google.gson;
 
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.Excluder;
+import com.google.gson.internal.GsonInternalAccess;
 import com.google.gson.internal.Primitives;
 import com.google.gson.internal.Streams;
 import com.google.gson.internal.bind.ArrayTypeAdapter;
@@ -362,32 +363,29 @@ public final class Gson {
     }
   }
 
-  /**
-   * Returns a type adapter for {@code} type that isn't {@code skipPast}. This
-   * can be used for type adapters to compose other, simpler type adapters.
-   *
-   * @throws IllegalArgumentException if this GSON cannot serialize and
-   *     deserialize {@code type}.
-   * @since 2.1
-   */
-  public <T> TypeAdapter<T> getNextAdapter(TypeAdapterFactory skipPast, TypeToken<T> type) {
-    boolean skipPastFound = false;
+  static {
+    GsonInternalAccess.INSTANCE = new GsonInternalAccess() {
+      @Override public <T> TypeAdapter<T> getNextAdapter(
+          Gson gson, TypeAdapterFactory skipPast, TypeToken<T> type) {
+        boolean skipPastFound = false;
 
-    for (TypeAdapterFactory factory : factories) {
-      if (!skipPastFound) {
-        if (factory == skipPast) {
-          skipPastFound = true;
+        for (TypeAdapterFactory factory : gson.factories) {
+          if (!skipPastFound) {
+            if (factory == skipPast) {
+              skipPastFound = true;
+            }
+            continue;
+          }
+
+          TypeAdapter<T> candidate = factory.create(gson, type);
+          if (candidate != null) {
+            return candidate;
+          }
         }
-        continue;
-      }
 
-      TypeAdapter<T> candidate = factory.create(this, type);
-      if (candidate != null) {
-        return candidate;
+        throw new IllegalArgumentException("GSON cannot serialize " + type);
       }
-    }
-
-    throw new IllegalArgumentException("GSON cannot serialize " + type);
+    };
   }
 
   /**
