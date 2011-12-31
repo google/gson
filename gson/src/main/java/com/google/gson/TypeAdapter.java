@@ -135,8 +135,9 @@ public abstract class TypeAdapter<T> {
    * writing.
    *
    * @param value the Java object to convert. May be null.
+   * @since 2.2
    */
-  /*public*/ final void toJson(Writer out, T value) throws IOException {
+  public final void toJson(Writer out, T value) throws IOException {
     JsonWriter writer = new JsonWriter(out);
     write(writer, value);
   }
@@ -208,8 +209,9 @@ public abstract class TypeAdapter<T> {
    * writing.
    *
    * @param value the Java object to convert. May be null.
+   * @since 2.2
    */
-  /*public*/ final String toJson(T value) throws IOException {
+  public final String toJson(T value) throws IOException {
     StringWriter stringWriter = new StringWriter();
     toJson(stringWriter, value);
     return stringWriter.toString();
@@ -220,8 +222,9 @@ public abstract class TypeAdapter<T> {
    *
    * @param value the Java object to convert. May be null.
    * @return the converted JSON tree. May be {@link JsonNull}.
+   * @since 2.2
    */
-  /*public*/ final JsonElement toJsonTree(T value) {
+  public final JsonElement toJsonTree(T value) {
     try {
       JsonTreeWriter jsonWriter = new JsonTreeWriter();
       jsonWriter.setLenient(true);
@@ -247,8 +250,9 @@ public abstract class TypeAdapter<T> {
    * {@code JsonReader} and call {@link #read(JsonReader)} for lenient reading.
    *
    * @return the converted Java object. May be null.
+   * @since 2.2
    */
-  /*public*/ final T fromJson(Reader in) throws IOException {
+  public final T fromJson(Reader in) throws IOException {
     JsonReader reader = new JsonReader(in);
     reader.setLenient(true); // TODO: non-lenient?
     return read(reader);
@@ -261,8 +265,9 @@ public abstract class TypeAdapter<T> {
    * JsonReader} and call {@link #read(JsonReader)} for lenient reading.
    *
    * @return the converted Java object. May be null.
+   * @since 2.2
    */
-  /*public*/ final T fromJson(String json) throws IOException {
+  public final T fromJson(String json) throws IOException {
     return fromJson(new StringReader(json));
   }
 
@@ -270,8 +275,9 @@ public abstract class TypeAdapter<T> {
    * Converts {@code jsonTree} to a Java object.
    *
    * @param jsonTree the Java object to convert. May be {@link JsonNull}.
+   * @since 2.2
    */
-  /*public*/ final T fromJsonTree(JsonElement jsonTree) {
+  public final T fromJsonTree(JsonElement jsonTree) {
     try {
       JsonReader jsonReader = new JsonTreeReader(jsonTree);
       jsonReader.setLenient(true);

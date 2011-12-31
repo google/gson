@@ -363,29 +363,27 @@ public final class Gson {
     }
   }
 
-  static {
-    GsonInternalAccess.INSTANCE = new GsonInternalAccess() {
-      @Override public <T> TypeAdapter<T> getNextAdapter(
-          Gson gson, TypeAdapterFactory skipPast, TypeToken<T> type) {
-        boolean skipPastFound = false;
+  /**
+   * TODO: needs documentation
+   * @since 2.2
+   */
+  public <T> TypeAdapter<T> getNextAdapter(TypeAdapterFactory skipPast, TypeToken<T> type) {
+    boolean skipPastFound = false;
 
-        for (TypeAdapterFactory factory : gson.factories) {
-          if (!skipPastFound) {
-            if (factory == skipPast) {
-              skipPastFound = true;
-            }
-            continue;
-          }
-
-          TypeAdapter<T> candidate = factory.create(gson, type);
-          if (candidate != null) {
-            return candidate;
-          }
+    for (TypeAdapterFactory factory : factories) {
+      if (!skipPastFound) {
+        if (factory == skipPast) {
+          skipPastFound = true;
         }
-
-        throw new IllegalArgumentException("GSON cannot serialize " + type);
+        continue;
       }
-    };
+
+      TypeAdapter<T> candidate = factory.create(this, type);
+      if (candidate != null) {
+        return candidate;
+      }
+    }
+    throw new IllegalArgumentException("GSON cannot serialize " + type);
   }
 
   /**
