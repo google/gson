@@ -24,6 +24,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
+import com.google.gson.internal.GsonInternalAccess;
 import com.google.gson.internal.Streams;
 import com.google.gson.internal.bind.JsonTreeWriter;
 import com.google.gson.internal.bind.JsonTreeReader;
@@ -193,7 +194,8 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
     final Map<Class<?>, TypeAdapter<?>> subtypeToDelegate
         = new LinkedHashMap<Class<?>, TypeAdapter<?>>();
     for (Map.Entry<String, Class<?>> entry : labelToSubtype.entrySet()) {
-      TypeAdapter<?> delegate = gson.getNextAdapter(this, TypeToken.get(entry.getValue()));
+      TypeAdapter<?> delegate = GsonInternalAccess.INSTANCE
+          .getNextAdapter(gson, this, TypeToken.get(entry.getValue()));
       labelToDelegate.put(entry.getKey(), delegate);
       subtypeToDelegate.put(entry.getValue(), delegate);
     }
