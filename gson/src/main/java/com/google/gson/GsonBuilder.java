@@ -478,17 +478,15 @@ public final class GsonBuilder {
 
   /**
    * Configures Gson for custom serialization or deserialization for an inheritance type hierarchy.
-   * This method combines the registration of a {@link JsonSerializer} and a {@link
-   * JsonDeserializer}. It is best used when a single object {@code typeAdapter} implements both of
-   * the required interfaces for custom serialization with Gson. If a serializer or deserializer was
-   * previously registered for the specified type hierarchy, it is overwritten. If a serializer or
-   * deserializer is registered for a specific type in the type hierarchy, it will be invoked
-   * instead of the one registered for the type hierarchy.
+   * This method combines the registration of a {@link TypeAdapter}, {@link JsonSerializer} and
+   * a {@link JsonDeserializer}. If a type adapter was previously registered for the specified
+   * type hierarchy, it is overridden. If a type adapter is registered for a specific type in
+   * the type hierarchy, it will be invoked instead of the one registered for the type hierarchy.
    *
    * @param baseType the class definition for the type adapter being registered for the base class
    *        or interface
-   * @param typeAdapter This object must implement at least one of {@link JsonSerializer} or {@link
-   *        JsonDeserializer} interfaces.
+   * @param typeAdapter This object must implement at least one of {@link TypeAdapter}, 
+   *        {@link JsonSerializer} or {@link JsonDeserializer} interfaces.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.7
    */
