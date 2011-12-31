@@ -430,15 +430,14 @@ public final class GsonBuilder {
 
   /**
    * Configures Gson for custom serialization or deserialization. This method combines the
-   * registration of an {@link InstanceCreator}, {@link JsonSerializer}, and a
+   * registration of an {@link TypeAdapter}, {@link InstanceCreator}, {@link JsonSerializer}, and a
    * {@link JsonDeserializer}. It is best used when a single object {@code typeAdapter} implements
-   * all the required interfaces for custom serialization with Gson. If an instance creator,
-   * serializer or deserializer was previously registered for the specified {@code type}, it is
-   * overwritten.
+   * all the required interfaces for custom serialization with Gson. If a type adapter was
+   * previously registered for the specified {@code type}, it is overwritten.
    *
    * @param type the type definition for the type adapter being registered
-   * @param typeAdapter This object must implement at least one of the {@link InstanceCreator},
-   * {@link JsonSerializer}, and a {@link JsonDeserializer} interfaces.
+   * @param typeAdapter This object must implement at least one of the {@link TypeAdapter},
+   * {@link InstanceCreator}, {@link JsonSerializer}, and a {@link JsonDeserializer} interfaces.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
