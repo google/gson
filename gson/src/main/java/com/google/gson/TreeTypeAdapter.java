@@ -17,6 +17,7 @@
 package com.google.gson;
 
 import com.google.gson.internal.$Gson$Preconditions;
+import com.google.gson.internal.GsonInternalAccess;
 import com.google.gson.internal.Streams;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
@@ -75,7 +76,7 @@ final class TreeTypeAdapter<T> extends TypeAdapter<T> {
     TypeAdapter<T> d = delegate;
     return d != null
         ? d
-        : (delegate = gson.getNextAdapter(skipPast, typeToken));
+        : (delegate = GsonInternalAccess.INSTANCE.getNextAdapter(gson, skipPast, typeToken));
   }
 
   /**
