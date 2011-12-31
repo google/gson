@@ -16,9 +16,14 @@
 
 package com.google.gson.internal.bind;
 
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonIOException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
@@ -32,11 +37,6 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Adapts maps to either JSON objects or JSON arrays.
@@ -217,7 +217,7 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
 
       List<V> values = new ArrayList<V>(map.size());
       for (Map.Entry<K, V> entry : map.entrySet()) {
-        JsonElement keyElement = toJsonTree(keyTypeAdapter, entry.getKey());
+        JsonElement keyElement = keyTypeAdapter.toJsonTree(entry.getKey());
         keys.add(keyElement);
         values.add(entry.getValue());
         hasComplexKeys |= keyElement.isJsonArray() || keyElement.isJsonObject();
@@ -260,18 +260,6 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
       } else {
         throw new AssertionError();
       }
-    }
-  }
-
-  // TODO: remove this when TypeAdapter.toJsonTree() is public
-  private static <T> JsonElement toJsonTree(TypeAdapter<T> typeAdapter, T value) {
-    try {
-      JsonTreeWriter jsonWriter = new JsonTreeWriter();
-      jsonWriter.setLenient(true);
-      typeAdapter.write(jsonWriter, value);
-      return jsonWriter.get();
-    } catch (IOException e) {
-      throw new JsonIOException(e);
     }
   }
 }
