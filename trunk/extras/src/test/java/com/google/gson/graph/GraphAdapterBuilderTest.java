@@ -130,10 +130,67 @@ public final class GraphAdapterBuilderTest extends TestCase {
     assertEquals(Collections.emptyList(), listOfLists.get(1));
   }
 
+  public void testSerializationWithMultipleTypes() {
+    Company google = new Company("Google");
+    new Employee("Jesse", google);
+    new Employee("Joel", google);
+
+    GsonBuilder gsonBuilder = new GsonBuilder();
+    new GraphAdapterBuilder()
+        .addType(Company.class)
+        .addType(Employee.class)
+        .registerOn(gsonBuilder);
+    Gson gson = gsonBuilder.create();
+
+    assertEquals("{'0x1':{'name':'Google','employees':['0x2','0x3']},"
+        + "'0x2':{'name':'Jesse','company':'0x1'},"
+        + "'0x3':{'name':'Joel','company':'0x1'}}",
+        gson.toJson(google).replace('"', '\''));
+  }
+
+  public void testDeserializationWithMultipleTypes() {
+    GsonBuilder gsonBuilder = new GsonBuilder();
+    new GraphAdapterBuilder()
+        .addType(Company.class)
+        .addType(Employee.class)
+        .registerOn(gsonBuilder);
+    Gson gson = gsonBuilder.create();
+
+    String json = "{'0x1':{'name':'Google','employees':['0x2','0x3']},"
+        + "'0x2':{'name':'Jesse','company':'0x1'},"
+        + "'0x3':{'name':'Joel','company':'0x1'}}";
+    Company company = gson.fromJson(json, Company.class);
+    assertEquals("Google", company.name);
+    Employee jesse = company.employees.get(0);
+    assertEquals("Jesse", jesse.name);
+    assertEquals(company, jesse.company);
+    Employee joel = company.employees.get(1);
+    assertEquals("Joel", joel.name);
+    assertEquals(company, joel.company);
+  }
+
   static class Roshambo {
     String name;
     Roshambo beats;
     Roshambo(String name) {
+      this.name = name;
+    }
+  }
+
+  static class Employee {
+    final String name;
+    final Company company;
+    Employee(String name, Company company) {
+      this.name = name;
+      this.company = company;
+      this.company.employees.add(this);
+    }
+  }
+
+  static class Company {
+    final String name;
+    final List<Employee> employees = new ArrayList<Employee>();
+    Company(String name) {
       this.name = name;
     }
   }
