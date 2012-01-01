@@ -194,10 +194,6 @@ public final class Gson {
     this.htmlSafe = htmlSafe;
     this.prettyPrinting = prettyPrinting;
 
-    TypeAdapterFactory reflectiveTypeAdapterFactory = new ReflectiveTypeAdapterFactory(
-        constructorConstructor, fieldNamingPolicy, excluder);
-
-    ConstructorConstructor constructorConstructor = new ConstructorConstructor();
     List<TypeAdapterFactory> factories = new ArrayList<TypeAdapterFactory>();
 
     // built-in type adapters that cannot be overridden
@@ -242,7 +238,8 @@ public final class Gson {
     factories.add(ArrayTypeAdapter.FACTORY);
     factories.add(TypeAdapters.ENUM_FACTORY);
     factories.add(TypeAdapters.CLASS_FACTORY);
-    factories.add(reflectiveTypeAdapterFactory);
+    factories.add(new ReflectiveTypeAdapterFactory(
+        constructorConstructor, fieldNamingPolicy, excluder));
 
     this.factories = Collections.unmodifiableList(factories);
   }
