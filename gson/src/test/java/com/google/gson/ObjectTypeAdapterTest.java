@@ -26,7 +26,7 @@ public final class ObjectTypeAdapterTest extends TestCase {
   private final TypeAdapter<Object> adapter = gson.getAdapter(Object.class);
 
   public void testDeserialize() throws Exception {
-    Map<?, ?> map = (Map<?, ?>) adapter.fromJson("{a: 5, b: [1, 2, null], c: {x: y}}");
+    Map<?, ?> map = (Map<?, ?>) adapter.fromJson("{\"a\":5,\"b\":[1,2,null],\"c\":{\"x\":\"y\"}}");
     assertEquals(5.0, map.get("a"));
     assertEquals(Arrays.asList(1.0, 2.0, null), map.get("b"));
     assertEquals(Collections.singletonMap("x", "y"), map.get("c"));
