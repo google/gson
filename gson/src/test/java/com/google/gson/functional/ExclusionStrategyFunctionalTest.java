@@ -16,19 +16,17 @@
 
 package com.google.gson.functional;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import junit.framework.TestCase;
-
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import junit.framework.TestCase;
 
 /**
  * Performs some functional tests when Gson is instantiated with some common user defined
@@ -38,6 +36,15 @@ import com.google.gson.JsonPrimitive;
  * @author Joel Leitch
  */
 public class ExclusionStrategyFunctionalTest extends TestCase {
+  private static final ExclusionStrategy EXCLUDE_SAMPLE_OBJECT_FOR_TEST = new ExclusionStrategy() {
+    public boolean shouldSkipField(FieldAttributes f) {
+      return false;
+    }
+    public boolean shouldSkipClass(Class<?> clazz) {
+      return clazz == SampleObjectForTest.class;
+    }
+  };
+
   private SampleObjectForTest src;
 
   @Override
@@ -54,6 +61,15 @@ public class ExclusionStrategyFunctionalTest extends TestCase {
     assertTrue(json.contains("\"longField\""));
   }
 
+  public void testExclusionStrategySerializationDoesNotImpactDeserialization() {
+    String json = "{\"annotatedField\":1,\"stringField\":\"x\",\"longField\":2}";
+    Gson gson = createGson(new MyExclusionStrategy(String.class), true);
+    SampleObjectForTest value = gson.fromJson(json, SampleObjectForTest.class);
+    assertEquals(1, value.annotatedField);
+    assertEquals("x", value.stringField);
+    assertEquals(2, value.longField);
+  }
+
   public void testExclusionStrategyDeserialization() throws Exception {
     Gson gson = createGson(new MyExclusionStrategy(String.class), false);
     JsonObject json = new JsonObject();
@@ -67,6 +83,14 @@ public class ExclusionStrategyFunctionalTest extends TestCase {
     // assert excluded fields are set to the defaults
     assertEquals(src.annotatedField, target.annotatedField);
     assertEquals(src.stringField, target.stringField);
+  }
+
+  public void testExclusionStrategySerializationDoesNotImpactSerialization() throws Exception {
+    Gson gson = createGson(new MyExclusionStrategy(String.class), false);
+    String json = gson.toJson(src);
+    assertTrue(json.contains("\"stringField\""));
+    assertTrue(json.contains("\"annotatedField\""));
+    assertTrue(json.contains("\"longField\""));
   }
 
   public void testExclusionStrategyWithMode() throws Exception {
@@ -86,6 +110,43 @@ public class ExclusionStrategyFunctionalTest extends TestCase {
     // assert excluded fields are set to the defaults
     assertEquals(src.annotatedField, target.annotatedField);
     assertEquals(src.stringField, target.stringField);
+  }
+
+  public void testExcludeTopLevelClassSerialization() {
+    Gson gson = new GsonBuilder()
+        .addSerializationExclusionStrategy(EXCLUDE_SAMPLE_OBJECT_FOR_TEST)
+        .create();
+    assertEquals("null", gson.toJson(new SampleObjectForTest(), SampleObjectForTest.class));
+  }
+
+  public void testExcludeTopLevelClassSerializationDoesNotImpactDeserialization() {
+    Gson gson = new GsonBuilder()
+        .addSerializationExclusionStrategy(EXCLUDE_SAMPLE_OBJECT_FOR_TEST)
+        .create();
+    String json = "{\"annotatedField\":1,\"stringField\":\"x\",\"longField\":2}";
+    SampleObjectForTest value = gson.fromJson(json, SampleObjectForTest.class);
+    assertEquals(1, value.annotatedField);
+    assertEquals("x", value.stringField);
+    assertEquals(2, value.longField);
+  }
+
+  public void testExcludeTopLevelClassDeserialization() {
+    Gson gson = new GsonBuilder()
+        .addDeserializationExclusionStrategy(EXCLUDE_SAMPLE_OBJECT_FOR_TEST)
+        .create();
+    String json = "{\"annotatedField\":1,\"stringField\":\"x\",\"longField\":2}";
+    SampleObjectForTest value = gson.fromJson(json, SampleObjectForTest.class);
+    assertNull(value);
+  }
+
+  public void testExcludeTopLevelClassDeserializationDoesNotImpactSerialization() {
+    Gson gson = new GsonBuilder()
+        .addDeserializationExclusionStrategy(EXCLUDE_SAMPLE_OBJECT_FOR_TEST)
+        .create();
+    String json = gson.toJson(new SampleObjectForTest(), SampleObjectForTest.class);
+    assertTrue(json.contains("\"stringField\""));
+    assertTrue(json.contains("\"annotatedField\""));
+    assertTrue(json.contains("\"longField\""));
   }
 
   private static Gson createGson(ExclusionStrategy exclusionStrategy, boolean serialization) {
