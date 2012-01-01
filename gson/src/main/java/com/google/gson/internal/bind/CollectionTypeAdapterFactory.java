@@ -50,7 +50,7 @@ public final class CollectionTypeAdapterFactory implements TypeAdapterFactory {
 
     Type elementType = $Gson$Types.getCollectionElementType(type, rawType);
     TypeAdapter<?> elementTypeAdapter = gson.getAdapter(TypeToken.get(elementType));
-    ObjectConstructor<T> constructor = constructorConstructor.getConstructor(typeToken);
+    ObjectConstructor<T> constructor = constructorConstructor.get(typeToken);
 
     @SuppressWarnings({"unchecked", "rawtypes"}) // create() doesn't define a type parameter
     TypeAdapter<T> result = new Adapter(gson, elementType, elementTypeAdapter, constructor);

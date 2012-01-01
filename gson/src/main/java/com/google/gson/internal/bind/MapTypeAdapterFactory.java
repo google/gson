@@ -125,7 +125,7 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
     Type[] keyAndValueTypes = $Gson$Types.getMapKeyAndValueTypes(type, rawTypeOfSrc);
     TypeAdapter<?> keyAdapter = getKeyAdapter(gson, keyAndValueTypes[0]);
     TypeAdapter<?> valueAdapter = gson.getAdapter(TypeToken.get(keyAndValueTypes[1]));
-    ObjectConstructor<T> constructor = constructorConstructor.getConstructor(typeToken);
+    ObjectConstructor<T> constructor = constructorConstructor.get(typeToken);
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     // we don't define a type parameter for the key or value types
