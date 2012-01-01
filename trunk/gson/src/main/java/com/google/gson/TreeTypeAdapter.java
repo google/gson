@@ -17,7 +17,6 @@
 package com.google.gson;
 
 import com.google.gson.internal.$Gson$Preconditions;
-import com.google.gson.internal.GsonInternalAccess;
 import com.google.gson.internal.Streams;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
