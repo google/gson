@@ -20,7 +20,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import junit.framework.TestCase;
 
-public final class GraphTypeAdapterFactoryTest extends TestCase {
+public final class GraphAdapterBuilderTest extends TestCase {
   public void testSerialization() {
     Roshambo rock = new Roshambo("ROCK");
     Roshambo scissors = new Roshambo("SCISSORS");
@@ -29,9 +29,11 @@ public final class GraphTypeAdapterFactoryTest extends TestCase {
     scissors.beats = paper;
     paper.beats = rock;
 
-    Gson gson = new GsonBuilder()
-        .registerTypeAdapterFactory(GraphTypeAdapterFactory.of(Roshambo.class))
-        .create();
+    GsonBuilder gsonBuilder = new GsonBuilder();
+    new GraphAdapterBuilder()
+        .addType(Roshambo.class)
+        .registerOn(gsonBuilder);
+    Gson gson = gsonBuilder.create();
 
     assertEquals("{'0x1':{'name':'ROCK','beats':'0x2'}," +
         "'0x2':{'name':'SCISSORS','beats':'0x3'}," +
@@ -44,9 +46,11 @@ public final class GraphTypeAdapterFactoryTest extends TestCase {
         "'0x2':{'name':'SCISSORS','beats':'0x3'}," +
         "'0x3':{'name':'PAPER','beats':'0x1'}}";
 
-    Gson gson = new GsonBuilder()
-        .registerTypeAdapterFactory(GraphTypeAdapterFactory.of(Roshambo.class))
-        .create();
+    GsonBuilder gsonBuilder = new GsonBuilder();
+    new GraphAdapterBuilder()
+        .addType(Roshambo.class)
+        .registerOn(gsonBuilder);
+    Gson gson = gsonBuilder.create();
 
     Roshambo rock = gson.fromJson(json, Roshambo.class);
     assertEquals("ROCK", rock.name);
@@ -54,7 +58,35 @@ public final class GraphTypeAdapterFactoryTest extends TestCase {
     assertEquals("SCISSORS", scissors.name);
     Roshambo paper = scissors.beats;
     assertEquals("PAPER", paper.name);
-    assertSame(rock, paper.beats); // TODO: currently fails
+    assertSame(rock, paper.beats);
+  }
+
+  public void testSerializationDirectSelfReference() {
+    Roshambo suicide = new Roshambo("SUICIDE");
+    suicide.beats = suicide;
+
+    GsonBuilder gsonBuilder = new GsonBuilder();
+    new GraphAdapterBuilder()
+        .addType(Roshambo.class)
+        .registerOn(gsonBuilder);
+    Gson gson = gsonBuilder.create();
+
+    assertEquals("{'0x1':{'name':'SUICIDE','beats':'0x1'}}",
+        gson.toJson(suicide).replace('\"', '\''));
+  }
+
+  public void testDeserializationDirectSelfReference() {
+    String json = "{'0x1':{'name':'SUICIDE','beats':'0x1'}}";
+
+    GsonBuilder gsonBuilder = new GsonBuilder();
+    new GraphAdapterBuilder()
+        .addType(Roshambo.class)
+        .registerOn(gsonBuilder);
+    Gson gson = gsonBuilder.create();
+
+    Roshambo suicide = gson.fromJson(json, Roshambo.class);
+    assertEquals("SUICIDE", suicide.name);
+    assertSame(suicide, suicide.beats);
   }
 
   static class Roshambo {

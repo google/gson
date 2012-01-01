@@ -68,7 +68,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       return null; // it's a primitive!
     }
 
-    ObjectConstructor<T> constructor = constructorConstructor.getConstructor(type);
+    ObjectConstructor<T> constructor = constructorConstructor.get(type);
     return new Adapter<T>(constructor, getBoundFields(gson, type, raw));
   }
 
