@@ -23,6 +23,9 @@ import com.google.gson.common.TestTypes.Base;
 import com.google.gson.common.TestTypes.ClassWithBaseField;
 import com.google.gson.common.TestTypes.Sub;
 
+import com.google.gson.reflect.TypeToken;
+import java.util.ArrayList;
+import java.util.List;
 import junit.framework.TestCase;
 
 import java.lang.reflect.Type;
@@ -78,5 +81,21 @@ public class InstanceCreatorTest extends TestCase {
     ClassWithBaseField target = gson.fromJson(json, ClassWithBaseField.class);
     assertTrue(target.base instanceof Sub);
     assertEquals(Sub.SUB_NAME, ((Sub)target.base).subName);
+  }
+
+  // This regressed in Gson 2.0 and 2.1
+  public void testInstanceCreatorForCollectionType() {
+    class SubArrayList<T> extends ArrayList<T> {}
+    InstanceCreator<List<String>> listCreator = new InstanceCreator<List<String>>() {
+      public List<String> createInstance(Type type) {
+        return new SubArrayList<java.lang.String>();
+      }
+    };
+    Type listOfStringType = new TypeToken<List<String>>() {}.getType();
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapter(listOfStringType, listCreator)
+        .create();
+    List<String> list = gson.fromJson("[\"a\"]", listOfStringType);
+    assertEquals(SubArrayList.class, list.getClass());
   }
 }
