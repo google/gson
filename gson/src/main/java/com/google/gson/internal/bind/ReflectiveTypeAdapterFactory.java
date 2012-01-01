@@ -153,8 +153,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       this.boundFields = boundFields;
     }
 
-    @Override
-    public T read(JsonReader in) throws IOException {
+    @Override public T read(JsonReader in) throws IOException {
       if (in.peek() == JsonToken.NULL) {
         in.nextNull();
         return null;
@@ -162,15 +161,12 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
 
       T instance = constructor.construct();
 
-      // TODO: null out the other fields?
-
       try {
         in.beginObject();
         while (in.hasNext()) {
           String name = in.nextName();
           BoundField field = boundFields.get(name);
           if (field == null || !field.deserialized) {
-            // TODO: define a better policy
             in.skipValue();
           } else {
             field.read(in, instance);
@@ -185,10 +181,9 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       return instance;
     }
 
-    @Override
-    public void write(JsonWriter out, T value) throws IOException {
+    @Override public void write(JsonWriter out, T value) throws IOException {
       if (value == null) {
-        out.nullValue(); // TODO: better policy here?
+        out.nullValue();
         return;
       }
 
