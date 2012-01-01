@@ -291,7 +291,7 @@ public final class GraphAdapterBuilder {
 
     void read(Graph graph) throws IOException {
       if (graph.nextCreate != null) {
-        throw new IllegalStateException("Unexpected recursive call to read()");
+        throw new IllegalStateException("Unexpected recursive call to read() for " + id);
       }
       graph.nextCreate = this;
       value = typeAdapter.fromJsonTree(element);
