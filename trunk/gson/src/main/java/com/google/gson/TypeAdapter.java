@@ -227,7 +227,6 @@ public abstract class TypeAdapter<T> {
   public final JsonElement toJsonTree(T value) {
     try {
       JsonTreeWriter jsonWriter = new JsonTreeWriter();
-      jsonWriter.setLenient(true);
       write(jsonWriter, value);
       return jsonWriter.get();
     } catch (IOException e) {
@@ -254,7 +253,6 @@ public abstract class TypeAdapter<T> {
    */
   public final T fromJson(Reader in) throws IOException {
     JsonReader reader = new JsonReader(in);
-    reader.setLenient(true); // TODO: non-lenient?
     return read(reader);
   }
 
@@ -280,7 +278,6 @@ public abstract class TypeAdapter<T> {
   public final T fromJsonTree(JsonElement jsonTree) {
     try {
       JsonReader jsonReader = new JsonTreeReader(jsonTree);
-      jsonReader.setLenient(true);
       return read(jsonReader);
     } catch (IOException e) {
       throw new JsonIOException(e);
