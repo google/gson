@@ -141,7 +141,7 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
         TypeAdapter<T> d = delegate;
         return d != null
             ? d
-            : (delegate = GsonInternalAccess.INSTANCE.getNextAdapter(gson, Excluder.this, type));
+            : (delegate = gson.getNextAdapter(Excluder.this, type));
       }
     };
   }
