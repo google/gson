@@ -47,7 +47,7 @@ public final class ConstructorConstructor {
     this(Collections.<Type, InstanceCreator<?>>emptyMap());
   }
 
-  public <T> ObjectConstructor<T> getConstructor(TypeToken<T> typeToken) {
+  public <T> ObjectConstructor<T> get(TypeToken<T> typeToken) {
     final Type type = typeToken.getType();
     final Class<? super T> rawType = typeToken.getRawType();
 
