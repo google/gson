@@ -18,6 +18,11 @@ package com.google.gson.graph;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import junit.framework.TestCase;
 
 public final class GraphAdapterBuilderTest extends TestCase {
@@ -38,7 +43,7 @@ public final class GraphAdapterBuilderTest extends TestCase {
     assertEquals("{'0x1':{'name':'ROCK','beats':'0x2'}," +
         "'0x2':{'name':'SCISSORS','beats':'0x3'}," +
         "'0x3':{'name':'PAPER','beats':'0x1'}}",
-        gson.toJson(rock).replace('\"', '\''));
+        gson.toJson(rock).replace('"', '\''));
   }
 
   public void testDeserialization() {
@@ -72,7 +77,7 @@ public final class GraphAdapterBuilderTest extends TestCase {
     Gson gson = gsonBuilder.create();
 
     assertEquals("{'0x1':{'name':'SUICIDE','beats':'0x1'}}",
-        gson.toJson(suicide).replace('\"', '\''));
+        gson.toJson(suicide).replace('"', '\''));
   }
 
   public void testDeserializationDirectSelfReference() {
@@ -87,6 +92,42 @@ public final class GraphAdapterBuilderTest extends TestCase {
     Roshambo suicide = gson.fromJson(json, Roshambo.class);
     assertEquals("SUICIDE", suicide.name);
     assertSame(suicide, suicide.beats);
+  }
+
+  public void testSerializeListOfLists() {
+    Type listOfListsType = new TypeToken<List<List<?>>>() {}.getType();
+    Type listOfAnyType = new TypeToken<List<?>>() {}.getType();
+
+    List<List<?>> listOfLists = new ArrayList<List<?>>();
+    listOfLists.add(listOfLists);
+    listOfLists.add(new ArrayList<Object>());
+
+    GsonBuilder gsonBuilder = new GsonBuilder();
+    new GraphAdapterBuilder()
+        .addType(listOfListsType)
+        .addType(listOfAnyType)
+        .registerOn(gsonBuilder);
+    Gson gson = gsonBuilder.create();
+
+    String json = gson.toJson(listOfLists, listOfListsType);
+    assertEquals("{'0x1':['0x1','0x2'],'0x2':[]}", json.replace('"', '\''));
+  }
+
+  public void testDeserializeListOfLists() {
+    Type listOfAnyType = new TypeToken<List<?>>() {}.getType();
+    Type listOfListsType = new TypeToken<List<List<?>>>() {}.getType();
+
+    GsonBuilder gsonBuilder = new GsonBuilder();
+    new GraphAdapterBuilder()
+        .addType(listOfListsType)
+        .addType(listOfAnyType)
+        .registerOn(gsonBuilder);
+    Gson gson = gsonBuilder.create();
+
+    List<List<?>> listOfLists = gson.fromJson("{'0x1':['0x1','0x2'],'0x2':[]}", listOfListsType);
+    assertEquals(2, listOfLists.size());
+    assertSame(listOfLists, listOfLists.get(0));
+    assertEquals(Collections.emptyList(), listOfLists.get(1));
   }
 
   static class Roshambo {
