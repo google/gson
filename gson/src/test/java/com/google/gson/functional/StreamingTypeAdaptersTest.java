@@ -18,6 +18,9 @@ package com.google.gson.functional;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
@@ -192,6 +195,21 @@ public final class StreamingTypeAdaptersTest extends TestCase {
         + "'left':{'label':'left','left':null,'right':null},"
         + "'right':{'label':'right','left':null,'right':null}}",
         toJson(nodeAdapter, root).replace('"', '\''));
+  }
+  
+  public void testFromJsonTree() {
+    JsonObject truckObject = new JsonObject();
+    truckObject.add("horsePower", new JsonPrimitive(300));
+    JsonArray passengersArray = new JsonArray();
+    JsonObject jesseObject = new JsonObject();
+    jesseObject.add("age", new JsonPrimitive(30));
+    jesseObject.add("name", new JsonPrimitive("Jesse"));
+    passengersArray.add(jesseObject);
+    truckObject.add("passengers", passengersArray);
+
+    Truck truck = truckAdapter.fromJsonTree(truckObject);
+    assertEquals(300.0, truck.horsePower);
+    assertEquals(Arrays.asList(new Person("Jesse", 30)), truck.passengers);
   }
 
   static class Truck {
