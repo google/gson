@@ -21,8 +21,6 @@ import com.google.gson.internal.Excluder;
 import com.google.gson.internal.Primitives;
 import com.google.gson.internal.Streams;
 import com.google.gson.internal.bind.ArrayTypeAdapter;
-import com.google.gson.internal.bind.BigDecimalTypeAdapter;
-import com.google.gson.internal.bind.BigIntegerTypeAdapter;
 import com.google.gson.internal.bind.CollectionTypeAdapterFactory;
 import com.google.gson.internal.bind.DateTypeAdapter;
 import com.google.gson.internal.bind.JsonTreeReader;
@@ -213,8 +211,8 @@ public final class Gson {
     factories.add(TypeAdapters.CHARACTER_FACTORY);
     factories.add(TypeAdapters.STRING_BUILDER_FACTORY);
     factories.add(TypeAdapters.STRING_BUFFER_FACTORY);
-    factories.add(TypeAdapters.newFactory(BigDecimal.class, new BigDecimalTypeAdapter()));
-    factories.add(TypeAdapters.newFactory(BigInteger.class, new BigIntegerTypeAdapter()));
+    factories.add(TypeAdapters.newFactory(BigDecimal.class, TypeAdapters.BIG_DECIMAL));
+    factories.add(TypeAdapters.newFactory(BigInteger.class, TypeAdapters.BIG_INTEGER));
     factories.add(TypeAdapters.JSON_ELEMENT_FACTORY);
     factories.add(ObjectTypeAdapter.FACTORY);
 

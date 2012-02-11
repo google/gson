@@ -18,6 +18,8 @@ package com.google.gson.internal.bind;
 
 import com.google.gson.TypeAdapterFactory;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -57,16 +59,16 @@ public final class TypeAdapters {
 
   @SuppressWarnings("rawtypes")
   public static final TypeAdapter<Class> CLASS = new TypeAdapter<Class>() {
-	@Override
-	public void write(JsonWriter out, Class value) throws IOException {
-	  throw new UnsupportedOperationException("Attempted to serialize java.lang.Class: "
-	      + value.getName() + ". Forgot to register a type adapter?");
-	}
-	@Override
-	public Class read(JsonReader in) throws IOException {
-      throw new UnsupportedOperationException(
-          "Attempted to deserialize a java.lang.Class. Forgot to register a type adapter?");
-	}
+    @Override
+    public void write(JsonWriter out, Class value) throws IOException {
+      throw new UnsupportedOperationException("Attempted to serialize java.lang.Class: "
+          + value.getName() + ". Forgot to register a type adapter?");
+    }
+    @Override
+    public Class read(JsonReader in) throws IOException {
+        throw new UnsupportedOperationException(
+            "Attempted to deserialize a java.lang.Class. Forgot to register a type adapter?");
+    }
   };
   public static final TypeAdapterFactory CLASS_FACTORY = newFactory(Class.class, CLASS);
 
@@ -348,6 +350,42 @@ public final class TypeAdapters {
     }
     @Override
     public void write(JsonWriter out, String value) throws IOException {
+      out.value(value);
+    }
+  };
+  
+  public static final TypeAdapter<BigDecimal> BIG_DECIMAL = new TypeAdapter<BigDecimal>() {
+    @Override public BigDecimal read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
+        return null;
+      }
+      try {
+        return new BigDecimal(in.nextString());
+      } catch (NumberFormatException e) {
+        throw new JsonSyntaxException(e);
+      }
+    }
+
+    @Override public void write(JsonWriter out, BigDecimal value) throws IOException {
+      out.value(value);
+    }
+  };
+  
+  public static final TypeAdapter<BigInteger> BIG_INTEGER = new TypeAdapter<BigInteger>() {
+    @Override public BigInteger read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
+        return null;
+      }
+      try {
+        return new BigInteger(in.nextString());
+      } catch (NumberFormatException e) {
+        throw new JsonSyntaxException(e);
+      }
+    }
+
+    @Override public void write(JsonWriter out, BigInteger value) throws IOException {
       out.value(value);
     }
   };
@@ -701,7 +739,7 @@ public final class TypeAdapters {
 
   public static final TypeAdapterFactory ENUM_FACTORY = newEnumTypeHierarchyFactory();
 
-  public static <TT> TypeAdapterFactory newEnumTypeHierarchyFactory() {
+  public static TypeAdapterFactory newEnumTypeHierarchyFactory() {
     return new TypeAdapterFactory() {
       @SuppressWarnings({"rawtypes", "unchecked"})
       public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
