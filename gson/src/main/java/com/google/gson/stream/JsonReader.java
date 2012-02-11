@@ -401,6 +401,9 @@ public class JsonReader implements Closeable {
    * Consumes the non-execute prefix if it exists.
    */
   private void consumeNonExecutePrefix() throws IOException {
+    // TODO: there's a bug here. We're going to call nextNonWhitespace and we have a character that
+    //       we can't necessarily push back (because pos could be 0)
+
     // fast forward through the leading whitespace
     nextNonWhitespace(true);
     pos--;
@@ -1122,7 +1125,8 @@ public class JsonReader implements Closeable {
   }
 
   @Override public String toString() {
-    return getClass().getSimpleName() + " near " + getSnippet();
+    return getClass().getSimpleName()
+        + " at line " + getLineNumber() + " column " + getColumnNumber();
   }
 
   /**
@@ -1297,15 +1301,6 @@ public class JsonReader implements Closeable {
   private IOException syntaxError(String message) throws IOException {
     throw new MalformedJsonException(message
         + " at line " + getLineNumber() + " column " + getColumnNumber());
-  }
-
-  private CharSequence getSnippet() {
-    StringBuilder snippet = new StringBuilder();
-    int beforePos = Math.min(pos, 20);
-    snippet.append(buffer, pos - beforePos, beforePos);
-    int afterPos = Math.min(limit - pos, 20);
-    snippet.append(buffer, pos, afterPos);
-    return snippet;
   }
 
   static {
