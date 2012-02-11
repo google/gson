@@ -16,6 +16,7 @@
 
 package com.google.gson.stream;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Arrays;
@@ -183,6 +184,17 @@ public final class JsonReaderTest extends TestCase {
     }
   }
 
+  public void testUnescapingTruncatedSequence() throws IOException {
+    String json = "[\"\\";
+    JsonReader reader = new JsonReader(new StringReader(json));
+    reader.beginArray();
+    try {
+      reader.nextString();
+      fail();
+    } catch (IOException expected) {
+    }
+  }
+
   public void testIntegersWithFractionalPartSpecified() throws IOException {
     JsonReader reader = new JsonReader(new StringReader("[1.0,1.0,1.0]"));
     reader.beginArray();
@@ -227,8 +239,30 @@ public final class JsonReaderTest extends TestCase {
     }
   }
 
+  public void testStrictQuotedNonFiniteDoubles() throws IOException {
+    String json = "[\"NaN\"]";
+    JsonReader reader = new JsonReader(new StringReader(json));
+    reader.beginArray();
+    try {
+      reader.nextDouble();
+      fail();
+    } catch (MalformedJsonException expected) {
+    }
+  }
+
   public void testLenientNonFiniteDoubles() throws IOException {
     String json = "[NaN, -Infinity, Infinity]";
+    JsonReader reader = new JsonReader(new StringReader(json));
+    reader.setLenient(true);
+    reader.beginArray();
+    assertTrue(Double.isNaN(reader.nextDouble()));
+    assertEquals(Double.NEGATIVE_INFINITY, reader.nextDouble());
+    assertEquals(Double.POSITIVE_INFINITY, reader.nextDouble());
+    reader.endArray();
+  }
+
+  public void testLenientQuotedNonFiniteDoubles() throws IOException {
+    String json = "[\"NaN\", \"-Infinity\", \"Infinity\"]";
     JsonReader reader = new JsonReader(new StringReader(json));
     reader.setLenient(true);
     reader.beginArray();
@@ -1008,7 +1042,7 @@ public final class JsonReaderTest extends TestCase {
     testFailWithPosition("Expected literal value at line 1 column 4",
         "\ufeff[0,}]");
   }
-
+  
   private void testFailWithPosition(String message, String json) throws IOException {
     JsonReader reader = new JsonReader(new StringReader(json));
     reader.beginArray();
@@ -1019,6 +1053,141 @@ public final class JsonReaderTest extends TestCase {
     } catch (IOException expected) {
       assertEquals(message, expected.getMessage());
     }
+  }
+  
+  public void testDeeplyNestedArrays() throws IOException {
+    // this is nested 40 levels deep; Gson is tuned for nesting is 30 levels deep or fewer
+    JsonReader reader = new JsonReader(new StringReader(
+        "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]"));
+    for (int i = 0; i < 40; i++) {
+      reader.beginArray();
+    }
+    for (int i = 0; i < 40; i++) {
+      reader.endArray();
+    }
+    assertEquals(JsonToken.END_DOCUMENT, reader.peek());
+  }
+
+  public void testDeeplyNestedObjects() throws IOException {
+    // Build a JSON document structured like {"a":{"a":{"a":{"a":true}}}}, but 40 levels deep
+    String array = "{\"a\":%s}";
+    String json = "true";
+    for (int i = 0; i < 40; i++) {
+      json = String.format(array, json);
+    }
+
+    JsonReader reader = new JsonReader(new StringReader(json));
+    for (int i = 0; i < 40; i++) {
+      reader.beginObject();
+      assertEquals("a", reader.nextName());
+    }
+    assertEquals(true, reader.nextBoolean());
+    for (int i = 0; i < 40; i++) {
+      reader.endObject();
+    }
+    assertEquals(JsonToken.END_DOCUMENT, reader.peek());
+  }
+
+  // http://code.google.com/p/google-gson/issues/detail?id=409
+  public void testStringEndingInSlash() throws IOException {
+    JsonReader reader = new JsonReader(new StringReader("/"));
+    reader.setLenient(true);
+    assertEquals(JsonToken.END_DOCUMENT, reader.peek());
+  }
+
+  public void testStringWithLeadingSlash() throws IOException {
+    JsonReader reader = new JsonReader(new StringReader("/x"));
+    reader.setLenient(true);
+    try {
+      reader.peek();
+      fail();
+    } catch (MalformedJsonException expected) {
+    }
+  }
+
+  public void testUnterminatedObject() throws IOException {
+    JsonReader reader = new JsonReader(new StringReader("{\"a\":\"android\"x"));
+    reader.setLenient(true);
+    reader.beginObject();
+    assertEquals("a", reader.nextName());
+    assertEquals("android", reader.nextString());
+    try {
+      reader.peek();
+      fail();
+    } catch (MalformedJsonException expected) {
+    }
+  }
+  
+  public void testVeryLongQuotedString() throws IOException {
+    char[] stringChars = new char[1024 * 16];
+    Arrays.fill(stringChars, 'x');
+    String string = new String(stringChars);
+    String json = "[\"" + string + "\"]";
+    JsonReader reader = new JsonReader(new StringReader(json));
+    reader.beginArray();
+    assertEquals(string, reader.nextString());
+    reader.endArray();
+  }
+
+  public void testVeryLongUnquotedString() throws IOException {
+    char[] stringChars = new char[1024 * 16];
+    Arrays.fill(stringChars, 'x');
+    String string = new String(stringChars);
+    String json = "[" + string + "]";
+    JsonReader reader = new JsonReader(new StringReader(json));
+    reader.setLenient(true);
+    reader.beginArray();
+    assertEquals(string, reader.nextString());
+    reader.endArray();
+  }
+
+  public void testVeryLongUnterminatedString() throws IOException {
+    char[] stringChars = new char[1024 * 16];
+    Arrays.fill(stringChars, 'x');
+    String string = new String(stringChars);
+    String json = "[" + string;
+    JsonReader reader = new JsonReader(new StringReader(json));
+    reader.setLenient(true);
+    reader.beginArray();
+    assertEquals(string, reader.nextString());
+    try {
+      reader.peek();
+      fail();
+    } catch (EOFException expected) {
+    }
+  }
+
+  public void testSkipVeryLongUnquotedString() throws IOException {
+    char[] stringChars = new char[1024 * 16];
+    Arrays.fill(stringChars, 'x');
+    String string = new String(stringChars);
+    String json = "[" + string + "]";
+    JsonReader reader = new JsonReader(new StringReader(json));
+    reader.setLenient(true);
+    reader.beginArray();
+    reader.skipValue();
+    reader.endArray();
+  }
+
+  public void testStringAsNumberWithTruncatedExponent() throws IOException {
+    JsonReader reader = new JsonReader(new StringReader("[123e]"));
+    reader.setLenient(true);
+    reader.beginArray();
+    assertEquals(JsonToken.STRING, reader.peek());
+  }
+
+  public void testStringAsNumberWithDigitAndNonDigitExponent() throws IOException {
+    JsonReader reader = new JsonReader(new StringReader("[123e4b]"));
+    reader.setLenient(true);
+    reader.beginArray();
+    assertEquals(JsonToken.STRING, reader.peek());
+  }
+
+  public void testStringAsNumberWithNonDigitExponent() throws IOException {
+    JsonReader reader = new JsonReader(new StringReader("[123eb]"));
+    reader.setLenient(true);
+    reader.beginArray();
+    assertEquals(JsonToken.STRING, reader.peek());
   }
 
   private String repeat(char c, int count) {
