@@ -314,7 +314,11 @@ public class JsonWriter implements Closeable {
    * Returns the value on the top of the stack.
    */
   private JsonScope peek() {
-    return stack.get(stack.size() - 1);
+    int size = stack.size();
+    if (size == 0) {
+      throw new IllegalStateException("JsonWriter is closed.");
+    }
+    return stack.get(size - 1);
   }
 
   /**
@@ -336,6 +340,9 @@ public class JsonWriter implements Closeable {
     }
     if (deferredName != null) {
       throw new IllegalStateException();
+    }
+    if (stack.isEmpty()) {
+      throw new IllegalStateException("JsonWriter is closed.");
     }
     deferredName = name;
     return this;
@@ -453,6 +460,9 @@ public class JsonWriter implements Closeable {
    * and flushes that writer.
    */
   public void flush() throws IOException {
+    if (stack.isEmpty()) {
+      throw new IllegalStateException("JsonWriter is closed.");
+    }
     out.flush();
   }
 
@@ -464,9 +474,11 @@ public class JsonWriter implements Closeable {
   public void close() throws IOException {
     out.close();
 
-    if (peek() != JsonScope.NONEMPTY_DOCUMENT) {
+    int size = stack.size();
+    if (size > 1 || size == 1 && stack.get(size - 1) != JsonScope.NONEMPTY_DOCUMENT) {
       throw new IOException("Incomplete document");
     }
+    stack.clear();
   }
 
   private void string(String value) throws IOException {
@@ -574,8 +586,15 @@ public class JsonWriter implements Closeable {
    * @param root true if the value is a new array or object, the two values
    *     permitted as top-level elements.
    */
+  @SuppressWarnings("fallthrough")
   private void beforeValue(boolean root) throws IOException {
     switch (peek()) {
+    case NONEMPTY_DOCUMENT:
+      if (!lenient) {
+        throw new IllegalStateException(
+            "JSON must have only one top-level value.");
+      }
+      // fall-through
     case EMPTY_DOCUMENT: // first in document
       if (!lenient && !root) {
         throw new IllegalStateException(
@@ -598,10 +617,6 @@ public class JsonWriter implements Closeable {
       out.append(separator);
       replaceTop(JsonScope.NONEMPTY_OBJECT);
       break;
-
-    case NONEMPTY_DOCUMENT:
-        throw new IllegalStateException(
-            "JSON must have only one top-level value.");
 
     default:
       throw new IllegalStateException("Nesting problem: " + stack);
