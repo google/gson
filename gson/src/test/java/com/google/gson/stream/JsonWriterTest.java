@@ -16,12 +16,11 @@
 
 package com.google.gson.stream;
 
-import junit.framework.TestCase;
-
 import java.io.IOException;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import junit.framework.TestCase;
 
 public final class JsonWriterTest extends TestCase {
 
@@ -463,5 +462,105 @@ public final class JsonWriterTest extends TestCase {
         + "   ]\n"
         + "]";
     assertEquals(expected, stringWriter.toString());
+  }
+
+  public void testLenientWriterPermitsMultipleTopLevelValues() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter writer = new JsonWriter(stringWriter);
+    writer.setLenient(true);
+    writer.beginArray();
+    writer.endArray();
+    writer.beginArray();
+    writer.endArray();
+    writer.close();
+    assertEquals("[][]", stringWriter.toString());
+  }
+
+  public void testStrictWriterDoesNotPermitMultipleTopLevelValues() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter writer = new JsonWriter(stringWriter);
+    writer.beginArray();
+    writer.endArray();
+    try {
+      writer.beginArray();
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+  }
+
+  public void testClosedWriterThrowsOnStructure() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter writer = new JsonWriter(stringWriter);
+    writer.beginArray();
+    writer.endArray();
+    writer.close();
+    try {
+      writer.beginArray();
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+    try {
+      writer.endArray();
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+    try {
+      writer.beginObject();
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+    try {
+      writer.endObject();
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+  }
+
+  public void testClosedWriterThrowsOnName() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter writer = new JsonWriter(stringWriter);
+    writer.beginArray();
+    writer.endArray();
+    writer.close();
+    try {
+      writer.name("a");
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+  }
+
+  public void testClosedWriterThrowsOnValue() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter writer = new JsonWriter(stringWriter);
+    writer.beginArray();
+    writer.endArray();
+    writer.close();
+    try {
+      writer.value("a");
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+  }
+
+  public void testClosedWriterThrowsOnFlush() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter writer = new JsonWriter(stringWriter);
+    writer.beginArray();
+    writer.endArray();
+    writer.close();
+    try {
+      writer.flush();
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+  }
+
+  public void testWriterCloseIsIdempotent() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter writer = new JsonWriter(stringWriter);
+    writer.beginArray();
+    writer.endArray();
+    writer.close();
+    writer.close();
   }
 }
