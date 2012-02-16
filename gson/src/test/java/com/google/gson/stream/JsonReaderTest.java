@@ -1092,7 +1092,21 @@ public final class JsonReaderTest extends TestCase {
   public void testStringEndingInSlash() throws IOException {
     JsonReader reader = new JsonReader(new StringReader("/"));
     reader.setLenient(true);
-    assertEquals(JsonToken.END_DOCUMENT, reader.peek());
+    try {
+      reader.peek();
+      fail();
+    } catch (MalformedJsonException expected) {
+    }
+  }
+
+  public void testDocumentWithCommentEndingInSlash() throws IOException {
+    JsonReader reader = new JsonReader(new StringReader("/* foo *//"));
+    reader.setLenient(true);
+    try {
+      reader.peek();
+      fail();
+    } catch (MalformedJsonException expected) {
+    }
   }
 
   public void testStringWithLeadingSlash() throws IOException {
