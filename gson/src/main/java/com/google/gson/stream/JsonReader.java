@@ -863,6 +863,12 @@ public class JsonReader implements Closeable {
     return result;
   }
 
+  /**
+   * Returns the next character in the stream that is neither whitespace nor a
+   * part of a comment. When this returns, the returned character is always at
+   * {@code buffer[pos-1]}; this means the caller can always push back the
+   * returned character by decrementing {@code pos}.
+   */
   private int nextNonWhitespace(boolean throwOnEof) throws IOException {
     /*
      * This code uses ugly local variables 'p' and 'l' representing the 'pos'
@@ -895,8 +901,13 @@ public class JsonReader implements Closeable {
 
       case '/':
         pos = p;
-        if (p == l && !fillBuffer(1)) {
-          return c;
+        if (p == l) {
+          pos--; // push back '/' so it's still in the buffer when this method returns
+          boolean charsLoaded = fillBuffer(2);
+          pos++; // consume the '/' again
+          if (!charsLoaded) {
+            return c;
+          }
         }
 
         checkLenient();
