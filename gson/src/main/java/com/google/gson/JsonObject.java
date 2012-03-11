@@ -34,7 +34,7 @@ public final class JsonObject extends JsonElement {
   // the order in which elements are inserted. This is needed to ensure
   // that the fields of an object are inserted in the order they were
   // defined in the class.
-  private final StringMap<String, JsonElement> members = new StringMap<String, JsonElement>();
+  private final StringMap<JsonElement> members = new StringMap<JsonElement>();
 
   /**
    * Creates an empty JsonObject.
