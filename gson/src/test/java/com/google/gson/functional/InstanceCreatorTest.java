@@ -85,6 +85,7 @@ public class InstanceCreatorTest extends TestCase {
 
   // This regressed in Gson 2.0 and 2.1
   public void testInstanceCreatorForCollectionType() {
+    @SuppressWarnings("serial")
     class SubArrayList<T> extends ArrayList<T> {}
     InstanceCreator<List<String>> listCreator = new InstanceCreator<List<String>>() {
       public List<String> createInstance(Type type) {

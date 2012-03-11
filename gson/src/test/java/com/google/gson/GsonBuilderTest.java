@@ -39,6 +39,7 @@ public class GsonBuilderTest extends TestCase {
     assertEquals("{\"d\":\"d\"}", gson.toJson(new HasModifiers()));
   }
 
+  @SuppressWarnings("unused")
   static class HasModifiers {
     private String a = "a";
     volatile String b = "b";
