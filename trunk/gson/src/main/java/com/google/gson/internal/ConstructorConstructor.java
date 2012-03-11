@@ -144,6 +144,7 @@ public final class ConstructorConstructor {
     if (Map.class.isAssignableFrom(rawType)) {
       return new ObjectConstructor<T>() {
         public T construct() {
+          // TODO: if the map's key type is a string, should this be StringMap?
           return (T) new LinkedHashMap<Object, Object>();
         }
       };
