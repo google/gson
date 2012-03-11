@@ -157,7 +157,7 @@ public class MapTest extends TestCase {
   }
 
   public void testParameterizedMapSubclassSerialization() {
-    MyParameterizedMap<String, String> map = new MyParameterizedMap<String, String>();
+    MyParameterizedMap<String, String> map = new MyParameterizedMap<String, String>(10);
     map.put("a", "b");
     Type type = new TypeToken<MyParameterizedMap<String, String>>() {}.getType();
     String json = gson.toJson(map, type);
@@ -172,11 +172,12 @@ public class MapTest extends TestCase {
     assertEquals(2, map.get("b").intValue());
   }
 
+  @SuppressWarnings({ "unused", "serial" })
   private static class MyParameterizedMap<K, V> extends LinkedHashMap<K, V> {
-    private static final long serialVersionUID = 1L;
-
-    @SuppressWarnings("unused")
-    int foo = 10;
+    final int foo;
+    MyParameterizedMap(int foo) {
+      this.foo = foo;
+    }
   }
 
   public void testMapSubclassSerialization() {
