@@ -29,7 +29,8 @@ import java.util.Set;
 
 /**
  * A map of strings to values. Like LinkedHashMap, this map's iteration order is
- * well defined: it is the order that elements were inserted into the map.
+ * well defined: it is the order that elements were inserted into the map. This
+ * map does not support null keys.
  * 
  * <p>This implementation was derived from Android 4.0's LinkedHashMap.
  */
@@ -98,32 +99,33 @@ public final class StringMap<K, V> extends AbstractMap<K, V> {
   }
 
   @Override public boolean containsKey(Object key) {
-    return get(key) != null;
+    return getEntry(key) != null;
   }
 
   @Override public V get(Object key) {
+    LinkedEntry<K, V> entry = getEntry(key);
+    return entry != null ? entry.value : null;
+  }
+
+  private LinkedEntry<K, V> getEntry(Object key) {
     if (key == null) {
       return null;
     }
 
-    // Doug Lea's supplemental secondaryHash function (inlined)
-    int hash = key.hashCode();
-    hash ^= (hash >>> 20) ^ (hash >>> 12);
-    hash ^= (hash >>> 7) ^ (hash >>> 4);
-
+    int hash = secondaryHash(key.hashCode());
     LinkedEntry<K, V>[] tab = table;
     for (LinkedEntry<K, V> e = tab[hash & (tab.length - 1)]; e != null; e = e.next) {
       K eKey = e.key;
       if (eKey == key || (e.hash == hash && key.equals(eKey))) {
-        return e.value;
+        return e;
       }
     }
     return null;
   }
 
   @Override public V put(K key, V value) {
-    if (key == null || value == null) {
-      throw new IllegalArgumentException();
+    if (key == null) {
+      throw new NullPointerException("key == null");
     }
 
     int hash = secondaryHash(key.hashCode());
@@ -311,9 +313,6 @@ public final class StringMap<K, V> extends AbstractMap<K, V> {
     }
 
     public final V setValue(V value) {
-      if (value == null) {
-        throw new IllegalArgumentException();
-      }
       V oldValue = this.value;
       this.value = value;
       return oldValue;
@@ -324,7 +323,9 @@ public final class StringMap<K, V> extends AbstractMap<K, V> {
         return false;
       }
       Entry<?, ?> e = (Entry<?, ?>) o;
-      return key.equals(e.getKey()) && value.equals(e.getValue());
+      Object eValue = e.getValue();
+      return key.equals(e.getKey())
+          && (value == null ? eValue == null : value.equals(eValue));
     }
 
     @Override public final int hashCode() {
@@ -341,7 +342,7 @@ public final class StringMap<K, V> extends AbstractMap<K, V> {
    * exists; otherwise, returns does nothing and returns false.
    */
   private boolean removeMapping(Object key, Object value) {
-    if (key == null || value == null) {
+    if (key == null) {
       return false;
     }
 
@@ -350,7 +351,7 @@ public final class StringMap<K, V> extends AbstractMap<K, V> {
     int index = hash & (tab.length - 1);
     for (LinkedEntry<K, V> e = tab[index], prev = null; e != null; prev = e, e = e.next) {
       if (e.hash == hash && key.equals(e.key)) {
-        if (!value.equals(e.value)) {
+        if (value == null ? e.value != null : !value.equals(e.value)) {
           return false;  // Map has wrong value for key
         }
         if (prev == null) {

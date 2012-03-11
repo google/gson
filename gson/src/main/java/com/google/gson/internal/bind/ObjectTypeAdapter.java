@@ -63,6 +63,7 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
       return list;
 
     case BEGIN_OBJECT:
+      // TODO: string map doesn't support null values
       Map<String, Object> map = new StringMap<String, Object>();
       in.beginObject();
       while (in.hasNext()) {
