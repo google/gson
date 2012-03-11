@@ -59,6 +59,7 @@ public final class StringMap<V> extends AbstractMap<String, V> {
    * is set to half the minimum, so that the first resize will create a
    * minimum-sized table.
    */
+  @SuppressWarnings("rawtypes")
   private static final Entry[] EMPTY_TABLE = new LinkedEntry[MINIMUM_CAPACITY >>> 1];
 
   /**
