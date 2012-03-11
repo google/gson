@@ -34,9 +34,7 @@ import java.util.Set;
  * 
  * <p>This implementation was derived from Android 4.0's LinkedHashMap.
  */
-public final class StringMap<K, V> extends AbstractMap<K, V> {
-  // TODO: defend against predictable hash collisions
-  
+public final class StringMap<V> extends AbstractMap<String, V> {
   /**
    * Min capacity (other than zero) for a HashMap. Must be a power of two
    * greater than 1 (and less than 1 << 30).
@@ -53,7 +51,7 @@ public final class StringMap<K, V> extends AbstractMap<K, V> {
    * The first real entry is header.nxt, and the last is header.prv.
    * If the map is empty, header.nxt == header && header.prv == header.
    */
-  private LinkedEntry<K, V> header;
+  private LinkedEntry<V> header;
 
   /**
    * An empty table shared by all zero-capacity maps (typically from default
@@ -67,7 +65,7 @@ public final class StringMap<K, V> extends AbstractMap<K, V> {
    * The hash table. If this hash map contains a mapping for null, it is
    * not represented this hash table.
    */
-  private LinkedEntry<K, V>[] table;
+  private LinkedEntry<V>[] table;
 
   /**
    * The number of mappings in this hash map.
@@ -83,15 +81,15 @@ public final class StringMap<K, V> extends AbstractMap<K, V> {
   private int threshold;
 
   // Views - lazily initialized
-  private Set<K> keySet;
-  private Set<Entry<K, V>> entrySet;
+  private Set<String> keySet;
+  private Set<Entry<String, V>> entrySet;
   private Collection<V> values;
 
   @SuppressWarnings("unchecked")
   public StringMap() {
-    table = (LinkedEntry<K, V>[]) EMPTY_TABLE;
+    table = (LinkedEntry<V>[]) EMPTY_TABLE;
     threshold = -1; // Forces first put invocation to replace EMPTY_TABLE
-    header = new LinkedEntry<K, V>();
+    header = new LinkedEntry<V>();
   }
 
   @Override public int size() {
@@ -99,23 +97,27 @@ public final class StringMap<K, V> extends AbstractMap<K, V> {
   }
 
   @Override public boolean containsKey(Object key) {
-    return getEntry(key) != null;
+    return key instanceof String && getEntry((String) key) != null;
   }
 
   @Override public V get(Object key) {
-    LinkedEntry<K, V> entry = getEntry(key);
-    return entry != null ? entry.value : null;
+    if (key instanceof String) {
+      LinkedEntry<V> entry = getEntry((String) key);
+      return entry != null ? entry.value : null;
+    } else {
+      return null;
+    }
   }
 
-  private LinkedEntry<K, V> getEntry(Object key) {
+  private LinkedEntry<V> getEntry(String key) {
     if (key == null) {
       return null;
     }
 
-    int hash = secondaryHash(key.hashCode());
-    LinkedEntry<K, V>[] tab = table;
-    for (LinkedEntry<K, V> e = tab[hash & (tab.length - 1)]; e != null; e = e.next) {
-      K eKey = e.key;
+    int hash = hash(key);
+    LinkedEntry<V>[] tab = table;
+    for (LinkedEntry<V> e = tab[hash & (tab.length - 1)]; e != null; e = e.next) {
+      String eKey = e.key;
       if (eKey == key || (e.hash == hash && key.equals(eKey))) {
         return e;
       }
@@ -123,15 +125,15 @@ public final class StringMap<K, V> extends AbstractMap<K, V> {
     return null;
   }
 
-  @Override public V put(K key, V value) {
+  @Override public V put(String key, V value) {
     if (key == null) {
       throw new NullPointerException("key == null");
     }
 
-    int hash = secondaryHash(key.hashCode());
-    LinkedEntry<K, V>[] tab = table;
+    int hash = hash(key);
+    LinkedEntry<V>[] tab = table;
     int index = hash & (tab.length - 1);
-    for (LinkedEntry<K, V> e = tab[index]; e != null; e = e.next) {
+    for (LinkedEntry<V> e = tab[index]; e != null; e = e.next) {
       if (e.hash == hash && key.equals(e.key)) {
         V oldValue = e.value;
         e.value = value;
@@ -148,12 +150,12 @@ public final class StringMap<K, V> extends AbstractMap<K, V> {
     return null;
   }
 
-  private void addNewEntry(K key, V value, int hash, int index) {
-    LinkedEntry<K, V> header = this.header;
+  private void addNewEntry(String key, V value, int hash, int index) {
+    LinkedEntry<V> header = this.header;
 
     // Create new entry, link it on to list, and put it into table
-    LinkedEntry<K, V> oldTail = header.prv;
-    LinkedEntry<K, V> newTail = new LinkedEntry<K, V>(
+    LinkedEntry<V> oldTail = header.prv;
+    LinkedEntry<V> newTail = new LinkedEntry<V>(
         key, value, hash, table[index], header, oldTail);
     table[index] = oldTail.nxt = header.prv = newTail;
   }
@@ -162,9 +164,9 @@ public final class StringMap<K, V> extends AbstractMap<K, V> {
    * Allocate a table of the given capacity and set the threshold accordingly.
    * @param newCapacity must be a power of two
    */
-  private LinkedEntry<K, V>[] makeTable(int newCapacity) {
+  private LinkedEntry<V>[] makeTable(int newCapacity) {
     @SuppressWarnings("unchecked")
-    LinkedEntry<K, V>[] newTable = (LinkedEntry<K, V>[]) new LinkedEntry[newCapacity];
+    LinkedEntry<V>[] newTable = (LinkedEntry<V>[]) new LinkedEntry[newCapacity];
     table = newTable;
     threshold = (newCapacity >> 1) + (newCapacity >> 2); // 3/4 capacity
     return newTable;
@@ -176,14 +178,14 @@ public final class StringMap<K, V> extends AbstractMap<K, V> {
    * MAXIMUM_CAPACITY, this method is a no-op. Returns the table, which
    * will be new unless we were already at MAXIMUM_CAPACITY.
    */
-  private LinkedEntry<K, V>[] doubleCapacity() {
-    LinkedEntry<K, V>[] oldTable = table;
+  private LinkedEntry<V>[] doubleCapacity() {
+    LinkedEntry<V>[] oldTable = table;
     int oldCapacity = oldTable.length;
     if (oldCapacity == MAXIMUM_CAPACITY) {
       return oldTable;
     }
     int newCapacity = oldCapacity * 2;
-    LinkedEntry<K, V>[] newTable = makeTable(newCapacity);
+    LinkedEntry<V>[] newTable = makeTable(newCapacity);
     if (size == 0) {
       return newTable;
     }
@@ -193,14 +195,14 @@ public final class StringMap<K, V> extends AbstractMap<K, V> {
        * Rehash the bucket using the minimum number of field writes.
        * This is the most subtle and delicate code in the class.
        */
-      LinkedEntry<K, V> e = oldTable[j];
+      LinkedEntry<V> e = oldTable[j];
       if (e == null) {
         continue;
       }
       int highBit = e.hash & oldCapacity;
-      LinkedEntry<K, V> broken = null;
+      LinkedEntry<V> broken = null;
       newTable[j | highBit] = e;
-      for (LinkedEntry<K, V> n = e.next; n != null; e = n, n = n.next) {
+      for (LinkedEntry<V> n = e.next; n != null; e = n, n = n.next) {
         int nextHighBit = n.hash & oldCapacity;
         if (nextHighBit != highBit) {
           if (broken == null) {
@@ -220,13 +222,13 @@ public final class StringMap<K, V> extends AbstractMap<K, V> {
   }
 
   @Override public V remove(Object key) {
-    if (key == null) {
+    if (key == null || !(key instanceof String)) {
       return null;
     }
-    int hash = secondaryHash(key.hashCode());
-    LinkedEntry<K, V>[] tab = table;
+    int hash = hash((String) key);
+    LinkedEntry<V>[] tab = table;
     int index = hash & (tab.length - 1);
-    for (LinkedEntry<K, V> e = tab[index], prev = null;
+    for (LinkedEntry<V> e = tab[index], prev = null;
         e != null; prev = e, e = e.next) {
       if (e.hash == hash && key.equals(e.key)) {
         if (prev == null) {
@@ -242,7 +244,7 @@ public final class StringMap<K, V> extends AbstractMap<K, V> {
     return null;
   }
 
-  private void unlink(LinkedEntry<K, V> e) {
+  private void unlink(LinkedEntry<V> e) {
     e.prv.nxt = e.nxt;
     e.nxt.prv = e.prv;
     e.nxt = e.prv = null; // Help the GC (for performance)
@@ -255,9 +257,9 @@ public final class StringMap<K, V> extends AbstractMap<K, V> {
     }
 
     // Clear all links to help GC
-    LinkedEntry<K, V> header = this.header;
-    for (LinkedEntry<K, V> e = header.nxt; e != header; ) {
-      LinkedEntry<K, V> nxt = e.nxt;
+    LinkedEntry<V> header = this.header;
+    for (LinkedEntry<V> e = header.nxt; e != header; ) {
+      LinkedEntry<V> nxt = e.nxt;
       e.nxt = e.prv = null;
       e = nxt;
     }
@@ -265,8 +267,8 @@ public final class StringMap<K, V> extends AbstractMap<K, V> {
     header.nxt = header.prv = header;
   }
 
-  @Override public Set<K> keySet() {
-    Set<K> ks = keySet;
+  @Override public Set<String> keySet() {
+    Set<String> ks = keySet;
     return (ks != null) ? ks : (keySet = new KeySet());
   }
 
@@ -275,18 +277,18 @@ public final class StringMap<K, V> extends AbstractMap<K, V> {
     return (vs != null) ? vs : (values = new Values());
   }
 
-  public Set<Entry<K, V>> entrySet() {
-    Set<Entry<K, V>> es = entrySet;
+  public Set<Entry<String, V>> entrySet() {
+    Set<Entry<String, V>> es = entrySet;
     return (es != null) ? es : (entrySet = new EntrySet());
   }
 
-  static class LinkedEntry<K, V> implements Entry<K, V> {
-    final K key;
+  static class LinkedEntry<V> implements Entry<String, V> {
+    final String key;
     V value;
     final int hash;
-    LinkedEntry<K, V> next;
-    LinkedEntry<K, V> nxt;
-    LinkedEntry<K, V> prv;
+    LinkedEntry<V> next;
+    LinkedEntry<V> nxt;
+    LinkedEntry<V> prv;
 
     /** Create the header entry */
     LinkedEntry() {
@@ -294,8 +296,8 @@ public final class StringMap<K, V> extends AbstractMap<K, V> {
       nxt = prv = this;
     }
 
-    LinkedEntry(K key, V value, int hash, LinkedEntry<K, V> next,
-        LinkedEntry<K, V> nxt, LinkedEntry<K, V> prv) {
+    LinkedEntry(String key, V value, int hash, LinkedEntry<V> next,
+        LinkedEntry<V> nxt, LinkedEntry<V> prv) {
       this.key = key;
       this.value = value;
       this.hash = hash;
@@ -304,7 +306,7 @@ public final class StringMap<K, V> extends AbstractMap<K, V> {
       this.prv = prv;
     }
 
-    public final K getKey() {
+    public final String getKey() {
       return key;
     }
 
@@ -342,14 +344,14 @@ public final class StringMap<K, V> extends AbstractMap<K, V> {
    * exists; otherwise, returns does nothing and returns false.
    */
   private boolean removeMapping(Object key, Object value) {
-    if (key == null) {
+    if (key == null || !(key instanceof String)) {
       return false;
     }
 
-    int hash = secondaryHash(key.hashCode());
-    LinkedEntry<K, V>[] tab = table;
+    int hash = hash((String) key);
+    LinkedEntry<V>[] tab = table;
     int index = hash & (tab.length - 1);
-    for (LinkedEntry<K, V> e = tab[index], prev = null; e != null; prev = e, e = e.next) {
+    for (LinkedEntry<V> e = tab[index], prev = null; e != null; prev = e, e = e.next) {
       if (e.hash == hash && key.equals(e.key)) {
         if (value == null ? e.value != null : !value.equals(e.value)) {
           return false;  // Map has wrong value for key
@@ -368,15 +370,15 @@ public final class StringMap<K, V> extends AbstractMap<K, V> {
   }
 
   private abstract class LinkedHashIterator<T> implements Iterator<T> {
-    LinkedEntry<K, V> next = header.nxt;
-    LinkedEntry<K, V> lastReturned = null;
+    LinkedEntry<V> next = header.nxt;
+    LinkedEntry<V> lastReturned = null;
 
     public final boolean hasNext() {
       return next != header;
     }
 
-    final LinkedEntry<K, V> nextEntry() {
-      LinkedEntry<K, V> e = next;
+    final LinkedEntry<V> nextEntry() {
+      LinkedEntry<V> e = next;
       if (e == header) {
         throw new NoSuchElementException();
       }
@@ -393,10 +395,10 @@ public final class StringMap<K, V> extends AbstractMap<K, V> {
     }
   }
 
-  private final class KeySet extends AbstractSet<K> {
-    public Iterator<K> iterator() {
-      return new LinkedHashIterator<K>() {
-        public final K next() {
+  private final class KeySet extends AbstractSet<String> {
+    public Iterator<String> iterator() {
+      return new LinkedHashIterator<String>() {
+        public final String next() {
           return nextEntry().key;
         }
       };
@@ -443,10 +445,10 @@ public final class StringMap<K, V> extends AbstractMap<K, V> {
     }
   }
 
-  private final class EntrySet extends AbstractSet<Entry<K, V>> {
-    public Iterator<Entry<K, V>> iterator() {
-      return new LinkedHashIterator<Map.Entry<K, V>>() {
-        public final Map.Entry<K, V> next() {
+  private final class EntrySet extends AbstractSet<Entry<String, V>> {
+    public Iterator<Entry<String, V>> iterator() {
+      return new LinkedHashIterator<Map.Entry<String, V>>() {
+        public final Map.Entry<String, V> next() {
           return nextEntry();
         }
       };
@@ -478,14 +480,18 @@ public final class StringMap<K, V> extends AbstractMap<K, V> {
     }
   }
 
-  /**
-   * Applies a supplemental hash function to a given hashCode, which defends
-   * against poor quality hash functions. This is critical because HashMap
-   * uses power-of-two length hash tables, that otherwise encounter collisions
-   * for hashCodes that do not differ in lower or upper bits.
-   */
-  private static int secondaryHash(int h) {
-    // Doug Lea's supplemental hash function
+  private static int hash(String key) {
+    // TODO: use an unpredictable hash function
+
+    int h = 0;
+    for (int i = 0; i < key.length(); i++) {
+      h = 31 * h + key.charAt(i);
+    }
+
+    /*
+     * Apply Doug Lea's supplemental hash function to avoid collisions for
+     * hashes that do not differ in lower or upper bits.
+     */
     h ^= (h >>> 20) ^ (h >>> 12);
     return h ^ (h >>> 7) ^ (h >>> 4);
   }
