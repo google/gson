@@ -19,13 +19,13 @@ package com.google.gson.internal.bind;
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
+import com.google.gson.internal.StringMap;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -63,7 +63,7 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
       return list;
 
     case BEGIN_OBJECT:
-      Map<String, Object> map = new LinkedHashMap<String, Object>();
+      Map<String, Object> map = new StringMap<String, Object>();
       in.beginObject();
       while (in.hasNext()) {
         map.put(in.nextName(), read(in));

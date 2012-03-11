@@ -401,9 +401,6 @@ public class JsonReader implements Closeable {
    * Consumes the non-execute prefix if it exists.
    */
   private void consumeNonExecutePrefix() throws IOException {
-    // TODO: there's a bug here. We're going to call nextNonWhitespace and we have a character that
-    //       we can't necessarily push back (because pos could be 0)
-
     // fast forward through the leading whitespace
     nextNonWhitespace(true);
     pos--;
