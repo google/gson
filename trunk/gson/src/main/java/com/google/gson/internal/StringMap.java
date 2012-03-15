@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Random;
 import java.util.Set;
 
 /**
@@ -481,12 +482,24 @@ public final class StringMap<V> extends AbstractMap<String, V> {
     }
   }
 
+  private static final int seed = new Random().nextInt();
   private static int hash(String key) {
-    // TODO: use an unpredictable hash function
-
-    int h = 0;
-    for (int i = 0; i < key.length(); i++) {
-      h = 31 * h + key.charAt(i);
+    // Ensuring that the hash is unpredictable and well distributed.
+    //
+    // Finding unpredictable hash functions is a bit of a dark art as we need to balance
+    // good unpredictability (to avoid DoS) and good distribution (for performance).
+    //
+    // We achieve this by using the same algorithm as the Perl version, but this implementation
+    // is being written from scratch by inder who has never seen the
+    // Perl version (for license compliance).
+    //
+    // TODO: investigate http://code.google.com/p/cityhash/ and http://code.google.com/p/smhasher/
+    // both of which may have better distribution and/or unpredictability.
+    int h = seed;
+    for (int i = 0; i < key.length(); ++i) {
+      int h2 = h + key.charAt(i);
+      int h3 = h2 + h2 << 10; // h2 * 1024
+      h = h3 ^ (h3 >>> 6); // h3 / 64
     }
 
     /*
