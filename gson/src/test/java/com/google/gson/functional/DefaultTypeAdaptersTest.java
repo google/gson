@@ -16,6 +16,7 @@
 package com.google.gson.functional;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -265,6 +266,22 @@ public class DefaultTypeAdaptersTest extends TestCase {
     String json = expected.getExpectedJson();
     ClassWithBigInteger actual = gson.fromJson(json, ClassWithBigInteger.class);
     assertEquals(expected.value, actual.value);
+  }
+  
+  public void testOverrideBigIntegerTypeAdapter() throws Exception {
+    gson = new GsonBuilder()
+        .registerTypeAdapter(BigInteger.class, new NumberAsStringAdapter(BigInteger.class))
+        .create();
+    assertEquals("\"123\"", gson.toJson(new BigInteger("123"), BigInteger.class));
+    assertEquals(new BigInteger("123"), gson.fromJson("\"123\"", BigInteger.class));
+  }
+
+  public void testOverrideBigDecimalTypeAdapter() throws Exception {
+    gson = new GsonBuilder()
+        .registerTypeAdapter(BigDecimal.class, new NumberAsStringAdapter(BigDecimal.class))
+        .create();
+    assertEquals("\"1.1\"", gson.toJson(new BigDecimal("1.1"), BigDecimal.class));
+    assertEquals(new BigDecimal("1.1"), gson.fromJson("\"1.1\"", BigDecimal.class));
   }
 
   public void testSetSerialization() throws Exception {
@@ -671,6 +688,23 @@ public class DefaultTypeAdaptersTest extends TestCase {
         return Class.forName(className);
       } catch (ClassNotFoundException e) {
         throw new IOException(e);
+      }
+    }
+  }
+
+  static class NumberAsStringAdapter extends TypeAdapter<Number> {
+    private final Constructor<? extends Number> constructor;
+    NumberAsStringAdapter(Class<? extends Number> type) throws Exception {
+      this.constructor = type.getConstructor(String.class);
+    }
+    @Override public void write(JsonWriter out, Number value) throws IOException {
+      out.value(value.toString());
+    }
+    @Override public Number read(JsonReader in) throws IOException {
+      try {
+        return constructor.newInstance(in.nextString());
+      } catch (Exception e) {
+        throw new AssertionError(e);
       }
     }
   }
