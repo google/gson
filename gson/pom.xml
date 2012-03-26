@@ -171,58 +171,6 @@
        </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jxr-plugin</artifactId>
-        <version>2.3</version>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-pmd-plugin</artifactId>
-        <version>2.7.1</version>
-        <configuration>
-          <targetJdk>1.5</targetJdk>
-          <rulesets>
-            <ruleset>/rulesets/basic.xml</ruleset>
-            <ruleset>/rulesets/imports.xml</ruleset>
-            <ruleset>/rulesets/unusedcode.xml</ruleset>
-            <ruleset>/rulesets/finalizers.xml</ruleset>
-          </rulesets>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>2.9.1</version>
-        <configuration>
-          <!-- configLocation>config/sun_checks.xml</configLocation -->
-          <configLocation>config/maven_checks.xml</configLocation>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>taglist-maven-plugin</artifactId>
-        <version>2.4</version>
-        <configuration>
-          <multipleLineComments>true</multipleLineComments>
-          <tags>
-            <tag>TODO</tag>
-          </tags>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>cobertura-maven-plugin</artifactId>
-        <version>2.5.1</version>
-        <executions>
-          <execution>
-            <id>clean</id>
-            <goals>
-              <goal>clean</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-release-plugin</artifactId>
         <!-- version>2.2.2</version -->
         <configuration>
@@ -242,42 +190,6 @@
       </plugin>
     </plugins>
   </build>
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>findbugs-maven-plugin</artifactId>
-        <version>2.4</version>
-        <configuration>
-          <xmlOutput>true</xmlOutput>
-          <!-- Optional derectory to put findbugs xdoc xml report -->
-          <xmlOutputDirectory>target/site</xmlOutputDirectory>
-        </configuration>
-      </plugin>
-      <plugin>
-        <!--  if this fails, it means you have no svn installed -->
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-changelog-plugin</artifactId>
-        <version>2.2</version>
-        <configuration>
-          <type>range</type>
-          <range>3650</range>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-changes-plugin</artifactId>
-        <version>2.6</version>
-        <reportSets>
-          <reportSet>
-            <reports>
-              <report>changes-report</report>
-            </reports>
-          </reportSet>
-        </reportSets>
-      </plugin>
-    </plugins>
-  </reporting>
   <developers>
     <developer>
       <name>Inderjeet Singh</name>
