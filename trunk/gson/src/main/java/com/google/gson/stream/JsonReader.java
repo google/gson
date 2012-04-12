@@ -324,7 +324,7 @@ public class JsonReader implements Closeable {
 
   /**
    * Consumes the next token from the JSON stream and asserts that it is the
-   * end of the current array.
+   * end of the current object.
    */
   public void endObject() throws IOException {
     expect(JsonToken.END_OBJECT);
