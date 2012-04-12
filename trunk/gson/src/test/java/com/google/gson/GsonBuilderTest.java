@@ -16,7 +16,11 @@
 
 package com.google.gson;
 
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import junit.framework.TestCase;
 
 /**
@@ -25,6 +29,14 @@ import junit.framework.TestCase;
  * @author Inderjeet Singh
  */
 public class GsonBuilderTest extends TestCase {
+  private static final TypeAdapter<Object> NULL_TYPE_ADAPTER = new TypeAdapter<Object>() {
+    @Override public void write(JsonWriter out, Object value) {
+      throw new AssertionError();
+    }
+    @Override public Object read(JsonReader in) {
+      throw new AssertionError();
+    }
+  };
 
   public void testCreatingMoreThanOnce() {
     GsonBuilder builder = new GsonBuilder();
@@ -37,6 +49,24 @@ public class GsonBuilderTest extends TestCase {
         .excludeFieldsWithModifiers(Modifier.VOLATILE, Modifier.PRIVATE)
         .create();
     assertEquals("{\"d\":\"d\"}", gson.toJson(new HasModifiers()));
+  }
+
+  public void testRegisterTypeAdapterForUnsupportedType() {
+    Type[] types = {
+        byte.class,
+        int.class,
+        double.class,
+        Short.class,
+        Long.class,
+        String.class,
+    };
+    for (Type type : types) {
+      try {
+        new GsonBuilder().registerTypeAdapter(type, NULL_TYPE_ADAPTER);
+        fail(type.toString());
+      } catch (IllegalArgumentException e) {
+      }
+    }
   }
 
   @SuppressWarnings("unused")
