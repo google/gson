@@ -16,6 +16,21 @@
 
 package com.google.gson;
 
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.Excluder;
 import com.google.gson.internal.Primitives;
@@ -36,20 +51,6 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.google.gson.stream.MalformedJsonException;
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.lang.reflect.Type;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * This is the main class for using Gson. Gson is typically used by first constructing a
@@ -92,6 +93,7 @@ import java.util.Map;
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
+ * @author Jesse Wilson
  */
 public final class Gson {
   static final boolean DEFAULT_JSON_NON_EXECUTABLE = false;
@@ -358,10 +360,52 @@ public final class Gson {
   }
 
   /**
-   * TODO: needs documentation
+   * This method is used to get an alternate type adapter for the specified type. This is used
+   * to access a type adapter that is overridden by a {@link TypeAdapterFactory} that you
+   * may have registered. This features is typically used when you want to register a type
+   * adapter that does a little bit of work but then delegates further processing to the Gson
+   * default type adapter. Here is an example:
+   * <p>Let's say we want to write a type adapter that counts the number of objects being read
+   *  from or written to JSON. We can achieve this by writing a type adapter factory that uses
+   *  the <code>getDelegateAdapter</code> method:
+   *  <pre> {@code
+   *  class StatsTypeAdapterFactory implements TypeAdapterFactory {
+   *    public int numReads = 0;
+   *    public int numWrites = 0;
+   *    public &lt;T&gt; TypeAdapter&lt;T&gt; create(Gson gson, TypeToken&lt;T&gt; type) {
+   *      final TypeAdapter&lt;T&gt; delegate = gson.getDelegateAdapter(this, type);
+   *      return new TypeAdapter&lt;T&gt;() {
+   *        public void write(JsonWriter out, T value) throws IOException {
+   *          ++numWrites;
+   *          delegate.write(out, value);
+   *        }
+   *        public T read(JsonReader in) throws IOException {
+   *          ++numReads;
+   *          return delegate.read(in);
+   *        }
+   *      };
+   *    }
+   *  }
+   *  } </pre>
+   *  This factory can now be used like this:
+   *  <pre> {@code
+   *  StatsTypeAdapterFactory stats = new StatsTypeAdapterFactory();
+   *  Gson gson = new GsonBuilder().registerTypeAdapterFactory(stats).create();
+   *  // Call gson.toJson() and fromJson methods on objects
+   *  System.out.println("Num JSON reads" + stats.numReads);
+   *  System.out.println("Num JSON writes" + stats.numWrites);
+   *  }</pre>
+   *  Note that since you can not override type adapter factories for String and Java primitive
+   *  types, our stats factory will not count the number of String or primitives that will be
+   *  read or written. 
+   * @param skipPast The type adapter factory that needs to be skipped while searching for
+   *   a matching type adapter. In most cases, you should just pass <i>this</i> (the type adapter
+   *   factory from where {@link getDelegateAdapter} method is being invoked).
+   * @param type Type for which the delegate adapter is being searched for.
+   *
    * @since 2.2
    */
-  public <T> TypeAdapter<T> getNextAdapter(TypeAdapterFactory skipPast, TypeToken<T> type) {
+  public <T> TypeAdapter<T> getDelegateAdapter(TypeAdapterFactory skipPast, TypeToken<T> type) {
     boolean skipPastFound = false;
 
     for (TypeAdapterFactory factory : factories) {
