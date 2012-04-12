@@ -73,7 +73,7 @@
         </plugins>
       </build>
     </profile>
-  </profiles>  
+  </profiles>
   <build>
     <defaultGoal>package</defaultGoal>
     <plugins>
@@ -151,7 +151,7 @@
              <link>http://docs.oracle.com/javase/1.5.0/docs/api/</link>
            </links>
            <version>true</version>
-           <show>public</show>
+           <show>protected</show>
          </configuration>
        </plugin>
        <plugin>
