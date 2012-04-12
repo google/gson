@@ -446,7 +446,7 @@ public final class GsonBuilder {
         || typeAdapter instanceof JsonDeserializer<?>
         || typeAdapter instanceof InstanceCreator<?>
         || typeAdapter instanceof TypeAdapter<?>);
-    if (Primitives.isPrimitive(type) || Primitives.isWrapperType(type)) {
+    if (Primitives.isPrimitive(type) || Primitives.isWrapperType(type) || type == String.class) {
       throw new IllegalArgumentException(
           "Cannot register type adapters for " + type);
     }
@@ -485,7 +485,7 @@ public final class GsonBuilder {
    *
    * @param baseType the class definition for the type adapter being registered for the base class
    *        or interface
-   * @param typeAdapter This object must implement at least one of {@link TypeAdapter}, 
+   * @param typeAdapter This object must implement at least one of {@link TypeAdapter},
    *        {@link JsonSerializer} or {@link JsonDeserializer} interfaces.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.7
