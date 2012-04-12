@@ -164,14 +164,6 @@ public class MapTest extends TestCase {
     assertTrue(json.contains("\"a\":\"b\""));
   }
 
-  public void testParameterizedMapSubclassDeserialization() {
-    Type type = new TypeToken<MyParameterizedMap<String, Integer>>() {}.getType();
-    String json = "{\"a\":1,\"b\":2}";
-    MyParameterizedMap<String, Integer> map = gson.fromJson(json, type);
-    assertEquals(1, map.get("a").intValue());
-    assertEquals(2, map.get("b").intValue());
-  }
-
   @SuppressWarnings({ "unused", "serial" })
   private static class MyParameterizedMap<K, V> extends LinkedHashMap<K, V> {
     final int foo;
@@ -491,7 +483,7 @@ public class MapTest extends TestCase {
     } catch (JsonSyntaxException expected) {
     }
   }
-  
+
   public void testSerializeMapOfMaps() {
     Type type = new TypeToken<Map<String, Map<String, String>>>() {}.getType();
     Map<String, Map<String, String>> map = newMap(
@@ -500,7 +492,7 @@ public class MapTest extends TestCase {
     assertEquals("{'a':{'ka1':'va1','ka2':'va2'},'b':{'kb1':'vb1','kb2':'vb2'}}",
         gson.toJson(map, type).replace('"', '\''));
   }
-  
+
   public void testDeerializeMapOfMaps() {
     Type type = new TypeToken<Map<String, Map<String, String>>>() {}.getType();
     Map<String, Map<String, String>> map = newMap(
@@ -509,14 +501,14 @@ public class MapTest extends TestCase {
     String json = "{'a':{'ka1':'va1','ka2':'va2'},'b':{'kb1':'vb1','kb2':'vb2'}}";
     assertEquals(map, gson.fromJson(json, type));
   }
-  
+
   private <K, V> Map<K, V> newMap(K key1, V value1, K key2, V value2) {
     Map<K, V> result = new LinkedHashMap<K, V>();
     result.put(key1, value1);
     result.put(key2, value2);
     return result;
   }
-    
+
   public void testMapNamePromotionWithJsonElementReader() {
     String json = "{'2.3':'a'}";
     Map<Double, String> map = new LinkedHashMap<Double, String>();
