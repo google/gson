@@ -84,7 +84,7 @@ public final class GraphAdapterBuilder {
         return null;
       }
 
-      final TypeAdapter<T> typeAdapter = gson.getNextAdapter(this, type);
+      final TypeAdapter<T> typeAdapter = gson.getDelegateAdapter(this, type);
       final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
       return new TypeAdapter<T>() {
         @Override public void write(JsonWriter out, T value) throws IOException {
