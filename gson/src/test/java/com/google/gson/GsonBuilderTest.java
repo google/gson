@@ -16,12 +16,13 @@
 
 package com.google.gson;
 
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
-import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
+
 import junit.framework.TestCase;
+
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 
 /**
  * Unit tests for {@link GsonBuilder}.
