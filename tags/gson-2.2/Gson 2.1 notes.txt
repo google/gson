@@ -1,0 +1,6 @@
+Dropped support for GsonBuilder.registerTypeHierarchyAdapter+InstanceCreator
+
+Relax registerTypeHierarchyAdapter order
+Gson 2.0 failed if you registered Manager then Employee would fail
+Gson 2.1 it isn't a problem
+com.google.gson.functional.TypeHierarchyAdapterTest#testRegisterSubTypeFirstNotAllowed
