@@ -3,7 +3,7 @@
   <groupId>com.google.code.gson</groupId>
   <artifactId>gson</artifactId>
   <packaging>jar</packaging>
-  <version>2.3-SNAPSHOT</version>
+  <version>2.2.1-SNAPSHOT</version>
   <inceptionYear>2008</inceptionYear>
   <name>Gson</name>
   <parent>
@@ -80,7 +80,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.3.2</version>
+        <version>2.4</version>
         <configuration>
           <source>1.5</source>
           <target>1.5</target>
@@ -103,7 +103,7 @@
             <addMavenDescriptor>false</addMavenDescriptor>
             <manifestEntries>
               <Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
-              <Export-Package><![CDATA[com.google.gson;version=2.2, com.google.gson.annotations;version=2.2, com.google.gson.reflect;version=2.2, com.google.gson.stream;version=2.2, com.google.gson.internal;version=2.2, com.google.gson.internal.bind;version=2.2]]></Export-Package>
+              <Export-Package><![CDATA[com.google.gson;version=2.2.1, com.google.gson.annotations;version=2.2.1, com.google.gson.reflect;version=2.2.1, com.google.gson.stream;version=2.2.1, com.google.gson.internal;version=2.2.1, com.google.gson.internal.bind;version=2.2.1]]></Export-Package>
               <Bundle-Version>${project.version}</Bundle-Version>
               <Bundle-ContactAddress>http://code.google.com/p/google-gson/</Bundle-ContactAddress>
               <Bundle-Vendor>Google Gson Project</Bundle-Vendor>
@@ -205,3 +205,4 @@
     </developer>
   </developers>
 </project>
+
