@@ -50,6 +50,13 @@ public class JsonParserTest extends TestCase {
     gson = new Gson();
   }
 
+  public void testParseInvalidJson() {
+    try {
+      gson.fromJson("[[]", Object[].class);
+      fail();
+    } catch (JsonSyntaxException expected) { }
+  }
+
   public void testDeserializingCustomTree() {
     JsonObject obj = new JsonObject();
     obj.addProperty("stringValue", "foo");
