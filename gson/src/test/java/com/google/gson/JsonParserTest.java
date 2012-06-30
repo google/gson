@@ -38,6 +38,13 @@ public class JsonParserTest extends TestCase {
     parser = new JsonParser();
   }
 
+  public void testParseInvalidJson() {
+    try {
+      parser.parse("[[]");
+      fail();
+    } catch (JsonParseException expected) { }
+  }
+
   public void testParseUnquotedStringArrayFails() {
     JsonElement element = parser.parse("[a,b,c]");
     assertEquals("a", element.getAsJsonArray().get(0).getAsString());
