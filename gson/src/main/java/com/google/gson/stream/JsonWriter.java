@@ -17,6 +17,7 @@
 package com.google.gson.stream;
 
 import java.io.Closeable;
+import java.io.Flushable;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -120,7 +121,7 @@ import java.util.List;
  * @author Jesse Wilson
  * @since 1.6
  */
-public class JsonWriter implements Closeable {
+public class JsonWriter implements Closeable, Flushable {
 
   /*
    * From RFC 4627, "All Unicode characters may be placed within the
