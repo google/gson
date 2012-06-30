@@ -204,28 +204,28 @@ public class CustomTypeAdaptersTest extends TestCase {
     }
   }
 
-  public void testCustomSerializerForbiddenForPrimitives() {
-    try {
-      new GsonBuilder().registerTypeAdapter(long.class, new JsonSerializer<Long>() {
-        public JsonElement serialize(Long s, Type t, JsonSerializationContext c) {
-          throw new AssertionError();
-        }
-      });
-      fail();
-    } catch (IllegalArgumentException expected) {
-    }
+  public void testCustomSerializerInvokedForPrimitives() {
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapter(boolean.class, new JsonSerializer<Boolean>() {
+          public JsonElement serialize(Boolean s, Type t, JsonSerializationContext c) {
+            return new JsonPrimitive(s ? 1 : 0);
+          }
+        })
+        .create();
+    assertEquals("1", gson.toJson(true, boolean.class));
+    assertEquals("true", gson.toJson(true, Boolean.class));
   }
 
-  public void testCustomDeserializerForbiddenForPrimitives() {
-    try {
-      new GsonBuilder().registerTypeAdapter(long.class, new JsonDeserializer<Long>() {
-        public Long deserialize(JsonElement json, Type t, JsonDeserializationContext c) {
-          throw new AssertionError();
-        }
-      });
-      fail();
-    } catch (Exception expected) {
-    }
+  public void testCustomDeserializerInvokedForPrimitives() {
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapter(boolean.class, new JsonDeserializer() {
+          public Object deserialize(JsonElement json, Type t, JsonDeserializationContext context) {
+            return json.getAsInt() != 0;
+          }
+        })
+        .create();
+    assertEquals(Boolean.TRUE, gson.fromJson("1", boolean.class));
+    assertEquals(Boolean.TRUE, gson.fromJson("true", Boolean.class));
   }
 
   public void testCustomByteArraySerializer() {

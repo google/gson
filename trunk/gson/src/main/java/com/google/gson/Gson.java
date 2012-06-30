@@ -124,6 +124,7 @@ public final class Gson {
   private final boolean htmlSafe;
   private final boolean generateNonExecutableJson;
   private final boolean prettyPrinting;
+  private final FieldNamingStrategy fieldNamingPolicy;
 
   final JsonDeserializationContext deserializationContext = new JsonDeserializationContext() {
     @SuppressWarnings("unchecked")
@@ -193,10 +194,18 @@ public final class Gson {
     this.generateNonExecutableJson = generateNonExecutableGson;
     this.htmlSafe = htmlSafe;
     this.prettyPrinting = prettyPrinting;
+    this.fieldNamingPolicy = fieldNamingPolicy;
 
     List<TypeAdapterFactory> factories = new ArrayList<TypeAdapterFactory>();
 
     // built-in type adapters that cannot be overridden
+    factories.add(TypeAdapters.JSON_ELEMENT_FACTORY);
+    factories.add(ObjectTypeAdapter.FACTORY);
+
+    // user's type adapters
+    factories.addAll(typeAdapterFactories);
+
+    // type adapters for basic platform types
     factories.add(TypeAdapters.STRING_FACTORY);
     factories.add(TypeAdapters.INTEGER_FACTORY);
     factories.add(TypeAdapters.BOOLEAN_FACTORY);
@@ -208,21 +217,12 @@ public final class Gson {
             doubleAdapter(serializeSpecialFloatingPointValues)));
     factories.add(TypeAdapters.newFactory(float.class, Float.class,
             floatAdapter(serializeSpecialFloatingPointValues)));
-    factories.add(excluder);
     factories.add(TypeAdapters.NUMBER_FACTORY);
     factories.add(TypeAdapters.CHARACTER_FACTORY);
     factories.add(TypeAdapters.STRING_BUILDER_FACTORY);
     factories.add(TypeAdapters.STRING_BUFFER_FACTORY);
-    factories.add(TypeAdapters.JSON_ELEMENT_FACTORY);
-    factories.add(ObjectTypeAdapter.FACTORY);
-
-    // user's type adapters
-    factories.addAll(typeAdapterFactories);
-
-    // built-in type adapters that can be overridden
     factories.add(TypeAdapters.newFactory(BigDecimal.class, TypeAdapters.BIG_DECIMAL));
     factories.add(TypeAdapters.newFactory(BigInteger.class, TypeAdapters.BIG_INTEGER));
-    factories.add(new CollectionTypeAdapterFactory(constructorConstructor));
     factories.add(TypeAdapters.URL_FACTORY);
     factories.add(TypeAdapters.URI_FACTORY);
     factories.add(TypeAdapters.UUID_FACTORY);
@@ -234,14 +234,28 @@ public final class Gson {
     factories.add(TimeTypeAdapter.FACTORY);
     factories.add(SqlDateTypeAdapter.FACTORY);
     factories.add(TypeAdapters.TIMESTAMP_FACTORY);
-    factories.add(new MapTypeAdapterFactory(constructorConstructor, complexMapKeySerialization));
     factories.add(ArrayTypeAdapter.FACTORY);
     factories.add(TypeAdapters.ENUM_FACTORY);
     factories.add(TypeAdapters.CLASS_FACTORY);
+
+    // the excluder must precede all adapters that handle user-defined types
+    factories.add(excluder);
+
+    // type adapters for composite and user-defined types
+    factories.add(new CollectionTypeAdapterFactory(constructorConstructor));
+    factories.add(new MapTypeAdapterFactory(constructorConstructor, complexMapKeySerialization));
     factories.add(new ReflectiveTypeAdapterFactory(
         constructorConstructor, fieldNamingPolicy, excluder));
 
     this.factories = Collections.unmodifiableList(factories);
+  }
+
+  /**
+   * Returns the field naming policy used to translate Java field names to JSON
+   * property names.
+   */
+  public FieldNamingStrategy getFieldNamingPolicy() {
+    return fieldNamingPolicy;
   }
 
   private TypeAdapter<Number> doubleAdapter(boolean serializeSpecialFloatingPointValues) {

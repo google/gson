@@ -54,19 +54,18 @@ public class DelegateTypeAdapterTest extends TestCase {
     }
     String json = gson.toJson(bags);
     bags = gson.fromJson(json, new TypeToken<List<BagOfPrimitives>>(){}.getType());
-    // 11: 1 list object, and 10 entries. stats not invoked on individual fields of
-    // BagOfPrimitives since those are primitives.
-    assertEquals(11, stats.numReads);
-    assertEquals(11, stats.numWrites);
+    // 11: 1 list object, and 10 entries. stats invoked on all 5 fields
+    assertEquals(51, stats.numReads);
+    assertEquals(51, stats.numWrites);
   }
 
-  public void testDelegateNotInvokedOnStrings() {
+  public void testDelegateInvokedOnStrings() {
     String[] bags = {"1", "2", "3", "4"};
     String json = gson.toJson(bags);
     bags = gson.fromJson(json, String[].class);
-    // Only 1 array object. stats not invoked on individual strings.
-    assertEquals(1, stats.numReads);
-    assertEquals(1, stats.numWrites);
+    // 1 array object with 4 elements.
+    assertEquals(5, stats.numReads);
+    assertEquals(5, stats.numWrites);
   }
 
   private static class StatsTypeAdapterFactory implements TypeAdapterFactory {
