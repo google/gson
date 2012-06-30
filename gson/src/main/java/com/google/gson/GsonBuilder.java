@@ -28,7 +28,6 @@ import java.util.Map;
 
 import com.google.gson.internal.$Gson$Preconditions;
 import com.google.gson.internal.Excluder;
-import com.google.gson.internal.Primitives;
 import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.reflect.TypeToken;
 
@@ -435,6 +434,10 @@ public final class GsonBuilder {
    * all the required interfaces for custom serialization with Gson. If a type adapter was
    * previously registered for the specified {@code type}, it is overwritten.
    *
+   * <p>This registers the type specified and no other types: you must manually register related
+   * types! For example, applications registering {@code boolean.class} should also register {@code
+   * Boolean.class}.
+   *
    * @param type the type definition for the type adapter being registered
    * @param typeAdapter This object must implement at least one of the {@link TypeAdapter},
    * {@link InstanceCreator}, {@link JsonSerializer}, and a {@link JsonDeserializer} interfaces.
@@ -446,10 +449,6 @@ public final class GsonBuilder {
         || typeAdapter instanceof JsonDeserializer<?>
         || typeAdapter instanceof InstanceCreator<?>
         || typeAdapter instanceof TypeAdapter<?>);
-    if (Primitives.isPrimitive(type) || Primitives.isWrapperType(type) || type == String.class) {
-      throw new IllegalArgumentException(
-          "Cannot register type adapters for " + type);
-    }
     if (typeAdapter instanceof InstanceCreator<?>) {
       instanceCreators.put(type, (InstanceCreator) typeAdapter);
     }

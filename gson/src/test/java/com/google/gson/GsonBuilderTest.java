@@ -52,7 +52,7 @@ public class GsonBuilderTest extends TestCase {
     assertEquals("{\"d\":\"d\"}", gson.toJson(new HasModifiers()));
   }
 
-  public void testRegisterTypeAdapterForUnsupportedType() {
+  public void testRegisterTypeAdapterForCoreType() {
     Type[] types = {
         byte.class,
         int.class,
@@ -62,11 +62,7 @@ public class GsonBuilderTest extends TestCase {
         String.class,
     };
     for (Type type : types) {
-      try {
-        new GsonBuilder().registerTypeAdapter(type, NULL_TYPE_ADAPTER);
-        fail(type.toString());
-      } catch (IllegalArgumentException e) {
-      }
+      new GsonBuilder().registerTypeAdapter(type, NULL_TYPE_ADAPTER);
     }
   }
 
