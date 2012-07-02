@@ -250,14 +250,6 @@ public final class Gson {
     this.factories = Collections.unmodifiableList(factories);
   }
 
-  /**
-   * Returns the field naming policy used to translate Java field names to JSON
-   * property names.
-   */
-  public FieldNamingStrategy getFieldNamingPolicy() {
-    return fieldNamingPolicy;
-  }
-
   private TypeAdapter<Number> doubleAdapter(boolean serializeSpecialFloatingPointValues) {
     if (serializeSpecialFloatingPointValues) {
       return TypeAdapters.DOUBLE;
@@ -414,7 +406,7 @@ public final class Gson {
    *  read or written. 
    * @param skipPast The type adapter factory that needs to be skipped while searching for
    *   a matching type adapter. In most cases, you should just pass <i>this</i> (the type adapter
-   *   factory from where {@link getDelegateAdapter} method is being invoked).
+   *   factory from where {@link #getDelegateAdapter} method is being invoked).
    * @param type Type for which the delegate adapter is being searched for.
    *
    * @since 2.2
