@@ -103,7 +103,7 @@
             <addMavenDescriptor>false</addMavenDescriptor>
             <manifestEntries>
               <Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
-              <Export-Package><![CDATA[com.google.gson;version=2.3, com.google.gson.annotations;version=2.3, com.google.gson.reflect;version=2.3, com.google.gson.stream;version=2.3, com.google.gson.internal;version=2.3, com.google.gson.internal.bind;version=2.3]]></Export-Package>
+              <Export-Package><![CDATA[com.google.gson;version=${project.version}, com.google.gson.annotations;version=${project.version}, com.google.gson.reflect;version=${project.version}, com.google.gson.stream;version=${project.version}, com.google.gson.internal;version=${project.version}, com.google.gson.internal.bind;version=${project.version}]]></Export-Package>
               <Bundle-Version>${project.version}</Bundle-Version>
               <Bundle-ContactAddress>http://code.google.com/p/google-gson/</Bundle-ContactAddress>
               <Bundle-Vendor>Google Gson Project</Bundle-Vendor>
