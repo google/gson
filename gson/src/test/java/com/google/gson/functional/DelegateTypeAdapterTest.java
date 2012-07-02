@@ -47,7 +47,7 @@ public class DelegateTypeAdapterTest extends TestCase {
       .create();
   }
 
-  public void testDelegateInvokedOnObjectsButNotOnPrimitives() {
+  public void testDelegateInvoked() {
     List<BagOfPrimitives> bags = new ArrayList<BagOfPrimitives>();
     for (int i = 0; i < 10; ++i) {
       bags.add(new BagOfPrimitives(i, i, i % 2 == 0, String.valueOf(i)));
