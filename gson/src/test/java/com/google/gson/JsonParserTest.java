@@ -16,13 +16,15 @@
 
 package com.google.gson;
 
-import com.google.gson.common.TestTypes.BagOfPrimitives;
-import com.google.gson.internal.Streams;
-import com.google.gson.stream.JsonReader;
 import java.io.CharArrayReader;
 import java.io.CharArrayWriter;
 import java.io.StringReader;
+
 import junit.framework.TestCase;
+
+import com.google.gson.common.TestTypes.BagOfPrimitives;
+import com.google.gson.internal.Streams;
+import com.google.gson.stream.JsonReader;
 
 /**
  * Unit test for {@link JsonParser}
@@ -42,7 +44,7 @@ public class JsonParserTest extends TestCase {
     try {
       parser.parse("[[]");
       fail();
-    } catch (JsonParseException expected) { }
+    } catch (JsonSyntaxException expected) { }
   }
 
   public void testParseUnquotedStringArrayFails() {
