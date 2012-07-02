@@ -50,10 +50,8 @@ public final class Streams {
       if (isEmpty) {
         return JsonNull.INSTANCE;
       }
-      // We could possibly throw JsonSyntaxException since the stream prematurely ended.
-      // However, it seems safe to throw JsonIOException since the source is an IOException.
-      // Another reason is to maintain backward compatibility.
-      throw new JsonIOException(e);
+      // The stream ended prematurely so it is likely a syntax error.
+      throw new JsonSyntaxException(e);
     } catch (MalformedJsonException e) {
       throw new JsonSyntaxException(e);
     } catch (IOException e) {
