@@ -53,6 +53,7 @@ public class OverrideCoreTypeAdaptersTest extends TestCase {
     assertEquals("1", gson.toJson(true, Boolean.class));
     assertEquals(Boolean.TRUE, gson.fromJson("true", boolean.class));
     assertEquals(Boolean.TRUE, gson.fromJson("1", Boolean.class));
+    assertEquals(Boolean.FALSE, gson.fromJson("0", Boolean.class));
   }
 
   public void testOverridePrimitiveBooleanAdapter() {
@@ -63,6 +64,7 @@ public class OverrideCoreTypeAdaptersTest extends TestCase {
     assertEquals("true", gson.toJson(true, Boolean.class));
     assertEquals(Boolean.TRUE, gson.fromJson("1", boolean.class));
     assertEquals(Boolean.TRUE, gson.fromJson("true", Boolean.class));
+    assertEquals("0", gson.toJson(false, boolean.class));
   }
 
   public void testOverrideStringAdapter() {
