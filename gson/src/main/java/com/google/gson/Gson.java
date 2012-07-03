@@ -124,7 +124,6 @@ public final class Gson {
   private final boolean htmlSafe;
   private final boolean generateNonExecutableJson;
   private final boolean prettyPrinting;
-  private final FieldNamingStrategy fieldNamingPolicy;
 
   final JsonDeserializationContext deserializationContext = new JsonDeserializationContext() {
     @SuppressWarnings("unchecked")
@@ -194,7 +193,6 @@ public final class Gson {
     this.generateNonExecutableJson = generateNonExecutableGson;
     this.htmlSafe = htmlSafe;
     this.prettyPrinting = prettyPrinting;
-    this.fieldNamingPolicy = fieldNamingPolicy;
 
     List<TypeAdapterFactory> factories = new ArrayList<TypeAdapterFactory>();
 
