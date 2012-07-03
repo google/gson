@@ -3,7 +3,7 @@
   <groupId>com.google.code.gson</groupId>
   <artifactId>gson</artifactId>
   <packaging>jar</packaging>
-  <version>2.2.2-SNAPSHOT</version>
+  <version>2.2.2</version>
   <inceptionYear>2008</inceptionYear>
   <name>Gson</name>
   <parent>
@@ -24,9 +24,9 @@
     </license>
   </licenses>
   <scm>
-    <connection>scm:svn:http://google-gson.googlecode.com/svn/trunk/gson</connection>
-    <developerConnection>scm:svn:https://google-gson.googlecode.com/svn/trunk/gson</developerConnection>
-    <url>http://google-gson.googlecode.com/svn/trunk/gson</url>
+    <connection>scm:svn:http://google-gson.googlecode.com/svn/tags/gson-2.2.2</connection>
+    <developerConnection>scm:svn:https://google-gson.googlecode.com/svn/tags/gson-2.2.2</developerConnection>
+    <url>http://google-gson.googlecode.com/svn/tags/gson-2.2.2</url>
   </scm>
   <issueManagement>
     <system>Google Code Issue Tracking</system>
