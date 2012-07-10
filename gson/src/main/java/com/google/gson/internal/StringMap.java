@@ -48,6 +48,12 @@ public final class StringMap<V> extends AbstractMap<String, V> {
   private static final int MAXIMUM_CAPACITY = 1 << 30;
 
   /**
+   * Max number of collisions in a single bucket before falling back to
+   * an unpredictable hash code.
+   */
+  private static final int MAX_COLLISIONS = 512;
+
+  /**
    * A dummy entry in the circular linked list of entries in the map.
    * The first real entry is header.nxt, and the last is header.prv.
    * If the map is empty, header.nxt == header && header.prv == header.
@@ -81,6 +87,12 @@ public final class StringMap<V> extends AbstractMap<String, V> {
    * above.
    */
   private int threshold;
+
+  /**
+   * True to use String.hashCode(), which is cached per-string. False to use
+   * less predictable (but uncached) hash algorithm.
+   */
+  private boolean useFastHash = true;
 
   // Views - lazily initialized
   private Set<String> keySet;
@@ -116,7 +128,7 @@ public final class StringMap<V> extends AbstractMap<String, V> {
       return null;
     }
 
-    int hash = hash(key);
+    int hash = useFastHash ? fastHash(key) : unpredictableHash(key);
     LinkedEntry<V>[] tab = table;
     for (LinkedEntry<V> e = tab[hash & (tab.length - 1)]; e != null; e = e.next) {
       String eKey = e.key;
@@ -132,10 +144,12 @@ public final class StringMap<V> extends AbstractMap<String, V> {
       throw new NullPointerException("key == null");
     }
 
-    int hash = hash(key);
+    int collisionCount = 0;
+    int hash = useFastHash ? fastHash(key) : unpredictableHash(key);
     LinkedEntry<V>[] tab = table;
     int index = hash & (tab.length - 1);
     for (LinkedEntry<V> e = tab[index]; e != null; e = e.next) {
+      collisionCount++;
       if (e.hash == hash && key.equals(e.key)) {
         V oldValue = e.value;
         e.value = value;
@@ -149,6 +163,26 @@ public final class StringMap<V> extends AbstractMap<String, V> {
       index = hash & (tab.length - 1);
     }
     addNewEntry(key, value, hash, index);
+
+    /*
+     * If we suffer a very large number of collisions, fall back from the cached
+     * String.hashCode() to an (uncached) hash code that isn't predictable.
+     */
+    if (collisionCount >= MAX_COLLISIONS) {
+      LinkedEntry<V> entry = header.nxt;
+
+      // clear the table
+      Arrays.fill(table, null);
+      size = 0;
+      header.nxt = header.prv = header;
+      useFastHash = false;
+
+      // fill it up in iteration order
+      for (; entry != header; entry = entry.nxt) {
+        put(entry.key, entry.value);
+      }
+    }
+
     return null;
   }
 
@@ -227,7 +261,7 @@ public final class StringMap<V> extends AbstractMap<String, V> {
     if (key == null || !(key instanceof String)) {
       return null;
     }
-    int hash = hash((String) key);
+    int hash = useFastHash ? fastHash(key) : unpredictableHash((String) key);
     LinkedEntry<V>[] tab = table;
     int index = hash & (tab.length - 1);
     for (LinkedEntry<V> e = tab[index], prev = null;
@@ -350,7 +384,7 @@ public final class StringMap<V> extends AbstractMap<String, V> {
       return false;
     }
 
-    int hash = hash((String) key);
+    int hash = useFastHash ? fastHash(key) : unpredictableHash((String) key);
     LinkedEntry<V>[] tab = table;
     int index = hash & (tab.length - 1);
     for (LinkedEntry<V> e = tab[index], prev = null; e != null; prev = e, e = e.next) {
@@ -482,8 +516,16 @@ public final class StringMap<V> extends AbstractMap<String, V> {
     }
   }
 
+  private static int fastHash(Object key) {
+    int h = key.hashCode();
+    // Apply Doug Lea's supplemental hash function to avoid collisions for
+    // hashes that do not differ in lower or upper bits.
+    h ^= (h >>> 20) ^ (h >>> 12);
+    return h ^ (h >>> 7) ^ (h >>> 4);
+  }
+
   private static final int seed = new Random().nextInt();
-  private static int hash(String key) {
+  private static int unpredictableHash(String key) {
     // Ensuring that the hash is unpredictable and well distributed.
     //
     // Finding unpredictable hash functions is a bit of a dark art as we need to balance
@@ -502,10 +544,8 @@ public final class StringMap<V> extends AbstractMap<String, V> {
       h = h3 ^ (h3 >>> 6); // h3 / 64
     }
 
-    /*
-     * Apply Doug Lea's supplemental hash function to avoid collisions for
-     * hashes that do not differ in lower or upper bits.
-     */
+    // Apply Doug Lea's supplemental hash function to avoid collisions for
+    // hashes that do not differ in lower or upper bits.
     h ^= (h >>> 20) ^ (h >>> 12);
     return h ^ (h >>> 7) ^ (h >>> 4);
   }
