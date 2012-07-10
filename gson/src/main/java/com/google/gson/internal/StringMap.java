@@ -168,7 +168,7 @@ public final class StringMap<V> extends AbstractMap<String, V> {
      * If we suffer a very large number of collisions, fall back from the cached
      * String.hashCode() to an (uncached) hash code that isn't predictable.
      */
-    if (collisionCount >= MAX_COLLISIONS) {
+    if (useFastHash && collisionCount >= MAX_COLLISIONS) {
       LinkedEntry<V> entry = header.nxt;
 
       // clear the table
