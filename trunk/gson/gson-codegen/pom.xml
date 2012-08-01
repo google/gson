@@ -38,12 +38,6 @@
   </organization>
   <dependencies>
     <dependency>
-      <groupId>com.google.code.gson</groupId>
-      <artifactId>gson</artifactId>
-      <version>2.2.3-SNAPSHOT</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>3.8.2</version>
@@ -90,6 +84,7 @@
         <configuration>
           <source>1.5</source>
           <target>1.5</target>
+          <compilerArgument>-proc:none</compilerArgument>
         </configuration>
       </plugin>
       <plugin>
