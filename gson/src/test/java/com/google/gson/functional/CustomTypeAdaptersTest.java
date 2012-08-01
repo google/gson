@@ -216,6 +216,7 @@ public class CustomTypeAdaptersTest extends TestCase {
     assertEquals("true", gson.toJson(true, Boolean.class));
   }
 
+  @SuppressWarnings("rawtypes")
   public void testCustomDeserializerInvokedForPrimitives() {
     Gson gson = new GsonBuilder()
         .registerTypeAdapter(boolean.class, new JsonDeserializer() {

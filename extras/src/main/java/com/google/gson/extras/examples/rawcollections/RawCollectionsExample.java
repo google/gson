@@ -36,7 +36,7 @@ public class RawCollectionsExample {
     }
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public static void main(String[] args) {
     Gson gson = new Gson();
     Collection collection = new ArrayList();
