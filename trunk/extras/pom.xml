@@ -9,7 +9,7 @@
   <parent>
     <groupId>org.sonatype.oss</groupId>
     <artifactId>oss-parent</artifactId>
-    <version>5</version>
+    <version>7</version>
   </parent>
   <url>http://code.google.com/p/google-gson/</url>
   <description>Google Gson grab bag of utilities, type adapters, etc.</description>

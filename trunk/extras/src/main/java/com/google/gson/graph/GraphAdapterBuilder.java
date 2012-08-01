@@ -40,6 +40,7 @@ import java.util.Queue;
  * Writes a graph of objects as a list of named nodes.
  */
 // TODO: proper documentation
+@SuppressWarnings("rawtypes")
 public final class GraphAdapterBuilder {
   private final ConstructorConstructor constructorConstructor = new ConstructorConstructor();
   private final Map<Type, InstanceCreator<?>> instanceCreators
@@ -207,6 +208,7 @@ public final class GraphAdapterBuilder {
      * <p>Gson should only ever call this method when we're expecting it to;
      * that is only when we've called back into Gson to deserialize a tree.
      */
+    @SuppressWarnings("unchecked")
     public Object createInstance(Type type) {
       Graph graph = graphThreadLocal.get();
       if (graph == null || graph.nextCreate == null) {
