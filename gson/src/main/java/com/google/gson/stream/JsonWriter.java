@@ -20,8 +20,14 @@ import java.io.Closeable;
 import java.io.Flushable;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
+
+import static com.google.gson.stream.JsonScope.DANGLING_NAME;
+import static com.google.gson.stream.JsonScope.EMPTY_ARRAY;
+import static com.google.gson.stream.JsonScope.EMPTY_DOCUMENT;
+import static com.google.gson.stream.JsonScope.EMPTY_OBJECT;
+import static com.google.gson.stream.JsonScope.NONEMPTY_ARRAY;
+import static com.google.gson.stream.JsonScope.NONEMPTY_DOCUMENT;
+import static com.google.gson.stream.JsonScope.NONEMPTY_OBJECT;
 
 /**
  * Writes a JSON (<a href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>)
@@ -158,9 +164,10 @@ public class JsonWriter implements Closeable, Flushable {
   /** The output data, containing at most one top-level array or object. */
   private final Writer out;
 
-  private final List<JsonScope> stack = new ArrayList<JsonScope>();
+  private int[] stack = new int[32];
+  private int stackSize = 0;
   {
-    stack.add(JsonScope.EMPTY_DOCUMENT);
+    push(EMPTY_DOCUMENT);
   }
 
   /**
@@ -278,7 +285,7 @@ public class JsonWriter implements Closeable, Flushable {
    */
   public JsonWriter beginArray() throws IOException {
     writeDeferredName();
-    return open(JsonScope.EMPTY_ARRAY, "[");
+    return open(EMPTY_ARRAY, "[");
   }
 
   /**
@@ -287,7 +294,7 @@ public class JsonWriter implements Closeable, Flushable {
    * @return this writer.
    */
   public JsonWriter endArray() throws IOException {
-    return close(JsonScope.EMPTY_ARRAY, JsonScope.NONEMPTY_ARRAY, "]");
+    return close(EMPTY_ARRAY, NONEMPTY_ARRAY, "]");
   }
 
   /**
@@ -298,7 +305,7 @@ public class JsonWriter implements Closeable, Flushable {
    */
   public JsonWriter beginObject() throws IOException {
     writeDeferredName();
-    return open(JsonScope.EMPTY_OBJECT, "{");
+    return open(EMPTY_OBJECT, "{");
   }
 
   /**
@@ -307,16 +314,16 @@ public class JsonWriter implements Closeable, Flushable {
    * @return this writer.
    */
   public JsonWriter endObject() throws IOException {
-    return close(JsonScope.EMPTY_OBJECT, JsonScope.NONEMPTY_OBJECT, "}");
+    return close(EMPTY_OBJECT, NONEMPTY_OBJECT, "}");
   }
 
   /**
    * Enters a new scope by appending any necessary whitespace and the given
    * bracket.
    */
-  private JsonWriter open(JsonScope empty, String openBracket) throws IOException {
+  private JsonWriter open(int empty, String openBracket) throws IOException {
     beforeValue(true);
-    stack.add(empty);
+    push(empty);
     out.write(openBracket);
     return this;
   }
@@ -325,17 +332,17 @@ public class JsonWriter implements Closeable, Flushable {
    * Closes the current scope by appending any necessary whitespace and the
    * given bracket.
    */
-  private JsonWriter close(JsonScope empty, JsonScope nonempty, String closeBracket)
+  private JsonWriter close(int empty, int nonempty, String closeBracket)
       throws IOException {
-    JsonScope context = peek();
+    int context = peek();
     if (context != nonempty && context != empty) {
-      throw new IllegalStateException("Nesting problem: " + stack);
+      throw new IllegalStateException("Nesting problem.");
     }
     if (deferredName != null) {
       throw new IllegalStateException("Dangling name: " + deferredName);
     }
 
-    stack.remove(stack.size() - 1);
+    stackSize--;
     if (context == nonempty) {
       newline();
     }
@@ -343,22 +350,30 @@ public class JsonWriter implements Closeable, Flushable {
     return this;
   }
 
+  private void push(int newTop) {
+    if (stackSize == stack.length) {
+      int[] newStack = new int[stackSize * 2];
+      System.arraycopy(stack, 0, newStack, 0, stackSize);
+      stack = newStack;
+    }
+    stack[stackSize++] = newTop;
+  }
+
   /**
    * Returns the value on the top of the stack.
    */
-  private JsonScope peek() {
-    int size = stack.size();
-    if (size == 0) {
+  private int peek() {
+    if (stackSize == 0) {
       throw new IllegalStateException("JsonWriter is closed.");
     }
-    return stack.get(size - 1);
+    return stack[stackSize - 1];
   }
 
   /**
    * Replace the value on the top of the stack with the given value.
    */
-  private void replaceTop(JsonScope topOfStack) {
-    stack.set(stack.size() - 1, topOfStack);
+  private void replaceTop(int topOfStack) {
+    stack[stackSize - 1] = topOfStack;
   }
 
   /**
@@ -374,7 +389,7 @@ public class JsonWriter implements Closeable, Flushable {
     if (deferredName != null) {
       throw new IllegalStateException();
     }
-    if (stack.isEmpty()) {
+    if (stackSize == 0) {
       throw new IllegalStateException("JsonWriter is closed.");
     }
     deferredName = name;
@@ -493,7 +508,7 @@ public class JsonWriter implements Closeable, Flushable {
    * and flushes that writer.
    */
   public void flush() throws IOException {
-    if (stack.isEmpty()) {
+    if (stackSize == 0) {
       throw new IllegalStateException("JsonWriter is closed.");
     }
     out.flush();
@@ -507,11 +522,11 @@ public class JsonWriter implements Closeable, Flushable {
   public void close() throws IOException {
     out.close();
 
-    int size = stack.size();
-    if (size > 1 || size == 1 && stack.get(size - 1) != JsonScope.NONEMPTY_DOCUMENT) {
+    int size = stackSize;
+    if (size > 1 || size == 1 && stack[size - 1] != NONEMPTY_DOCUMENT) {
       throw new IOException("Incomplete document");
     }
-    stack.clear();
+    stackSize = 0;
   }
 
   private void string(String value) throws IOException {
@@ -552,7 +567,7 @@ public class JsonWriter implements Closeable, Flushable {
     }
 
     out.write("\n");
-    for (int i = 1; i < stack.size(); i++) {
+    for (int i = 1, size = stackSize; i < size; i++) {
       out.write(indent);
     }
   }
@@ -562,14 +577,14 @@ public class JsonWriter implements Closeable, Flushable {
    * adjusts the stack to expect the name's value.
    */
   private void beforeName() throws IOException {
-    JsonScope context = peek();
-    if (context == JsonScope.NONEMPTY_OBJECT) { // first in object
+    int context = peek();
+    if (context == NONEMPTY_OBJECT) { // first in object
       out.write(',');
-    } else if (context != JsonScope.EMPTY_OBJECT) { // not in an object!
-      throw new IllegalStateException("Nesting problem: " + stack);
+    } else if (context != EMPTY_OBJECT) { // not in an object!
+      throw new IllegalStateException("Nesting problem.");
     }
     newline();
-    replaceTop(JsonScope.DANGLING_NAME);
+    replaceTop(DANGLING_NAME);
   }
 
   /**
@@ -594,11 +609,11 @@ public class JsonWriter implements Closeable, Flushable {
         throw new IllegalStateException(
             "JSON must start with an array or an object.");
       }
-      replaceTop(JsonScope.NONEMPTY_DOCUMENT);
+      replaceTop(NONEMPTY_DOCUMENT);
       break;
 
     case EMPTY_ARRAY: // first in array
-      replaceTop(JsonScope.NONEMPTY_ARRAY);
+      replaceTop(NONEMPTY_ARRAY);
       newline();
       break;
 
@@ -609,11 +624,11 @@ public class JsonWriter implements Closeable, Flushable {
 
     case DANGLING_NAME: // value for name
       out.append(separator);
-      replaceTop(JsonScope.NONEMPTY_OBJECT);
+      replaceTop(NONEMPTY_OBJECT);
       break;
 
     default:
-      throw new IllegalStateException("Nesting problem: " + stack);
+      throw new IllegalStateException("Nesting problem.");
     }
   }
 }

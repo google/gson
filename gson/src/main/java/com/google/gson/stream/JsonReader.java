@@ -23,6 +23,15 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
 
+import static com.google.gson.stream.JsonScope.CLOSED;
+import static com.google.gson.stream.JsonScope.DANGLING_NAME;
+import static com.google.gson.stream.JsonScope.EMPTY_ARRAY;
+import static com.google.gson.stream.JsonScope.EMPTY_DOCUMENT;
+import static com.google.gson.stream.JsonScope.EMPTY_OBJECT;
+import static com.google.gson.stream.JsonScope.NONEMPTY_ARRAY;
+import static com.google.gson.stream.JsonScope.NONEMPTY_DOCUMENT;
+import static com.google.gson.stream.JsonScope.NONEMPTY_OBJECT;
+
 /**
  * Reads a JSON (<a href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>)
  * encoded value as a stream of tokens. This stream includes both literal
@@ -222,10 +231,10 @@ public class JsonReader implements Closeable {
   /*
    * The nesting stack. Using a manual array rather than an ArrayList saves 20%.
    */
-  private JsonScope[] stack = new JsonScope[32];
+  private int[] stack = new int[32];
   private int stackSize = 0;
   {
-    push(JsonScope.EMPTY_DOCUMENT);
+    push(EMPTY_DOCUMENT);
   }
 
   /**
@@ -363,7 +372,7 @@ public class JsonReader implements Closeable {
       if (lenient) {
         consumeNonExecutePrefix();
       }
-      stack[stackSize - 1] = JsonScope.NONEMPTY_DOCUMENT;
+      stack[stackSize - 1] = NONEMPTY_DOCUMENT;
       JsonToken firstToken = nextValue();
       if (!lenient && token != JsonToken.BEGIN_ARRAY && token != JsonToken.BEGIN_OBJECT) {
         throw new IOException("Expected JSON document to start with '[' or '{' but was " + token
@@ -619,7 +628,7 @@ public class JsonReader implements Closeable {
   public void close() throws IOException {
     value = null;
     token = null;
-    stack[0] = JsonScope.CLOSED;
+    stack[0] = CLOSED;
     stackSize = 1;
     in.close();
   }
@@ -646,9 +655,9 @@ public class JsonReader implements Closeable {
     }
   }
 
-  private void push(JsonScope newTop) {
+  private void push(int newTop) {
     if (stackSize == stack.length) {
-      JsonScope[] newStack = new JsonScope[stackSize * 2];
+      int[] newStack = new int[stackSize * 2];
       System.arraycopy(stack, 0, newStack, 0, stackSize);
       stack = newStack;
     }
@@ -658,7 +667,7 @@ public class JsonReader implements Closeable {
   @SuppressWarnings("fallthrough")
   private JsonToken nextInArray(boolean firstElement) throws IOException {
     if (firstElement) {
-      stack[stackSize - 1] = JsonScope.NONEMPTY_ARRAY;
+      stack[stackSize - 1] = NONEMPTY_ARRAY;
     } else {
       /* Look for a comma before each element after the first element. */
       switch (nextNonWhitespace(true)) {
@@ -740,7 +749,7 @@ public class JsonReader implements Closeable {
       }
     }
 
-    stack[stackSize - 1] = JsonScope.DANGLING_NAME;
+    stack[stackSize - 1] = DANGLING_NAME;
     return token = JsonToken.NAME;
   }
 
@@ -762,7 +771,7 @@ public class JsonReader implements Closeable {
       throw syntaxError("Expected ':'");
     }
 
-    stack[stackSize - 1] = JsonScope.NONEMPTY_OBJECT;
+    stack[stackSize - 1] = NONEMPTY_OBJECT;
     return nextValue();
   }
 
@@ -771,11 +780,11 @@ public class JsonReader implements Closeable {
     int c = nextNonWhitespace(true);
     switch (c) {
     case '{':
-      push(JsonScope.EMPTY_OBJECT);
+      push(EMPTY_OBJECT);
       return token = JsonToken.BEGIN_OBJECT;
 
     case '[':
-      push(JsonScope.EMPTY_ARRAY);
+      push(EMPTY_ARRAY);
       return token = JsonToken.BEGIN_ARRAY;
 
     case '\'':
