@@ -17,12 +17,15 @@
 
 package com.google.gson.internal;
 
+import java.io.ObjectStreamException;
+import java.io.Serializable;
 import java.util.AbstractCollection;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Random;
@@ -35,7 +38,7 @@ import java.util.Set;
  * 
  * <p>This implementation was derived from Android 4.0's LinkedHashMap.
  */
-public final class StringMap<V> extends AbstractMap<String, V> {
+public final class StringMap<V> extends AbstractMap<String, V> implements Serializable {
   /**
    * Min capacity (other than zero) for a HashMap. Must be a power of two
    * greater than 1 (and less than 1 << 30).
@@ -403,6 +406,16 @@ public final class StringMap<V> extends AbstractMap<String, V> {
       }
     }
     return false; // No entry for key
+  }
+
+  /**
+   * If somebody is unlucky enough to have to serialize one of these, serialize
+   * it as a LinkedHashMap so that they won't need Gson on the other side to
+   * deserialize it. Using serialization defeats our DoS defence, so most apps
+   * shouldn't use it.
+   */
+  private Object writeReplace() throws ObjectStreamException {
+    return new LinkedHashMap<String, V>(this);
   }
 
   private abstract class LinkedHashIterator<T> implements Iterator<T> {

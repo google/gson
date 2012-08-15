@@ -20,6 +20,7 @@ import com.google.gson.InstanceCreator;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -68,7 +69,7 @@ public final class ConstructorConstructor {
       return defaultConstructor;
     }
 
-    ObjectConstructor<T> defaultImplementation = newDefaultImplementationConstructor(rawType);
+    ObjectConstructor<T> defaultImplementation = newDefaultImplementationConstructor(type, rawType);
     if (defaultImplementation != null) {
       return defaultImplementation;
     }
@@ -112,7 +113,8 @@ public final class ConstructorConstructor {
    * subytpes.
    */
   @SuppressWarnings("unchecked") // use runtime checks to guarantee that 'T' is what it is
-  private <T> ObjectConstructor<T> newDefaultImplementationConstructor(Class<? super T> rawType) {
+  private <T> ObjectConstructor<T> newDefaultImplementationConstructor(
+      Type type, Class<? super T> rawType) {
     if (Collection.class.isAssignableFrom(rawType)) {
       if (SortedSet.class.isAssignableFrom(rawType)) {
         return new ObjectConstructor<T>() {
@@ -142,12 +144,20 @@ public final class ConstructorConstructor {
     }
 
     if (Map.class.isAssignableFrom(rawType)) {
-      return new ObjectConstructor<T>() {
-        public T construct() {
-          // TODO: if the map's key type is a string, should this be StringMap?
-          return (T) new LinkedHashMap<Object, Object>();
-        }
-      };
+      if (type instanceof ParameterizedType
+          && ((ParameterizedType) type).getActualTypeArguments()[0] == String.class) {
+        return new ObjectConstructor<T>() {
+          public T construct() {
+            return (T) new StringMap<Object>();
+          }
+        };
+      } else {
+        return new ObjectConstructor<T>() {
+          public T construct() {
+            return (T) new LinkedHashMap<Object, Object>();
+          }
+        };
+      }
       // TODO: SortedMap ?
     }
 
