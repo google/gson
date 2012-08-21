@@ -239,4 +239,9 @@ public class JsonPrimitiveTest extends TestCase {
     assertFalse(new JsonPrimitive("0").equals(new JsonPrimitive(0)));
     assertFalse(new JsonPrimitive("NaN").equals(new JsonPrimitive(Float.NaN)));
   }
+
+  public void testDeepCopy() {
+    JsonPrimitive a = new JsonPrimitive("a");
+    assertSame(a, a.deepCopy()); // Primitives are immutable!
+  }
 }

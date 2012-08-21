@@ -85,6 +85,10 @@ public final class JsonPrimitive extends JsonElement {
     setValue(primitive);
   }
 
+  @Override public JsonPrimitive deepCopy() {
+    return this;
+  }
+
   void setValue(Object primitive) {
     if (primitive instanceof Character) {
       // convert characters to strings since in JSON, characters are represented as a single

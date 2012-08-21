@@ -17,7 +17,6 @@
 package com.google.gson;
 
 import com.google.gson.common.MoreAsserts;
-
 import junit.framework.TestCase;
 
 /**
@@ -30,5 +29,10 @@ public final class JsonNullTest extends TestCase {
     MoreAsserts.assertEqualsAndHashCode(new JsonNull(), new JsonNull());
     MoreAsserts.assertEqualsAndHashCode(new JsonNull(), JsonNull.INSTANCE);
     MoreAsserts.assertEqualsAndHashCode(JsonNull.INSTANCE, JsonNull.INSTANCE);
+  }
+
+  public void testDeepCopy() {
+    JsonNull a = new JsonNull();
+    assertSame(JsonNull.INSTANCE, a.deepCopy());
   }
 }
