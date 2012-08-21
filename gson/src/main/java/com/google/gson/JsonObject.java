@@ -42,6 +42,14 @@ public final class JsonObject extends JsonElement {
   public JsonObject() {
   }
 
+  @Override public JsonObject deepCopy() {
+    JsonObject result = new JsonObject();
+    for (Map.Entry<String, JsonElement> entry : members.entrySet()) {
+      result.add(entry.getKey(), entry.getValue().deepCopy());
+    }
+    return result;
+  }
+
   /**
    * Adds a member, which is a name-value pair, to self. The name must be a String, but the value
    * can be an arbitrary JsonElement, thereby allowing you to build a full tree of JsonElements

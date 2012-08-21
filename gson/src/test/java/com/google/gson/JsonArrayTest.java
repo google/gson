@@ -49,4 +49,19 @@ public final class JsonArrayTest extends TestCase {
     assertFalse(a.equals(b));
     assertFalse(b.equals(a));
   }
+
+  public void testDeepCopy() {
+    JsonArray original = new JsonArray();
+    JsonArray firstEntry = new JsonArray();
+    original.add(firstEntry);
+
+    JsonArray copy = original.deepCopy();
+    original.add(new JsonPrimitive("y"));
+
+    assertEquals(1, copy.size());
+    firstEntry.add(new JsonPrimitive("z"));
+
+    assertEquals(1, original.get(0).getAsJsonArray().size());
+    assertEquals(0, copy.get(0).getAsJsonArray().size());
+  }
 }
