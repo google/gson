@@ -73,6 +73,30 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
+  public void testSkipInteger() throws IOException {
+    JsonReader reader = new JsonReader(new StringReader(
+        "{\"a\":123456789,\"b\":-123456789}"));
+    reader.beginObject();
+    assertEquals("a", reader.nextName());
+    reader.skipValue();
+    assertEquals("b", reader.nextName());
+    reader.skipValue();
+    reader.endObject();
+    assertEquals(JsonToken.END_DOCUMENT, reader.peek());
+  }
+
+  public void testSkipDouble() throws IOException {
+    JsonReader reader = new JsonReader(new StringReader(
+        "{\"a\":-123.456e-789,\"b\":123456789.0}"));
+    reader.beginObject();
+    assertEquals("a", reader.nextName());
+    reader.skipValue();
+    assertEquals("b", reader.nextName());
+    reader.skipValue();
+    reader.endObject();
+    assertEquals(JsonToken.END_DOCUMENT, reader.peek());
+  }
+
   public void testHelloWorld() throws IOException {
     String json = "{\n" +
         "   \"hello\": true,\n" +
@@ -364,6 +388,62 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(false, reader.nextBoolean());
     reader.endArray();
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
+  }
+
+  public void testPeekingUnquotedStringsPrefixedWithBooleans() throws IOException {
+    JsonReader reader = new JsonReader(new StringReader("[truey]"));
+    reader.setLenient(true);
+    reader.beginArray();
+    assertEquals(JsonToken.STRING, reader.peek());
+    try {
+      reader.nextBoolean();
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+    assertEquals("truey", reader.nextString());
+    reader.endArray();
+  }
+
+  public void testPeekingUnquotedStringsPrefixedWithIntegers() throws IOException {
+    JsonReader reader = new JsonReader(new StringReader("[12.34e5x]"));
+    reader.setLenient(true);
+    reader.beginArray();
+    assertEquals(JsonToken.STRING, reader.peek());
+    try {
+      reader.nextInt();
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+    assertEquals("12.34e5x", reader.nextString());
+  }
+
+  public void testPeekLongMinValue() throws IOException {
+    JsonReader reader = new JsonReader(new StringReader("[-9223372036854775808]"));
+    reader.setLenient(true);
+    reader.beginArray();
+    assertEquals(JsonToken.NUMBER, reader.peek());
+    assertEquals(-9223372036854775808L, reader.nextLong());
+  }
+
+  public void testPeekLargerThanLongMinValue() throws IOException {
+    JsonReader reader = new JsonReader(new StringReader("[-92233720368547758080]"));
+    reader.setLenient(true);
+    reader.beginArray();
+    assertEquals(JsonToken.NUMBER, reader.peek());
+    try {
+      reader.nextLong();
+      fail();
+    } catch (NumberFormatException expected) {
+    }
+    assertEquals(-92233720368547758080d, reader.nextDouble());
+  }
+
+  public void testQuotedNumberWithEscape() throws IOException {
+    JsonReader reader = new JsonReader(new StringReader("[\"12\u00334\"]"));
+    reader.setLenient(true);
+    reader.beginArray();
+    assertEquals(JsonToken.STRING, reader.peek());
+    assertEquals(1234, reader.nextInt());
   }
 
   public void testMixedCaseLiterals() throws IOException {
