@@ -16,6 +16,8 @@
 
 package com.google.gson.stream;
 
+import com.google.gson.internal.JsonReaderInternalAccess;
+import com.google.gson.internal.bind.JsonTreeReader;
 import java.io.Closeable;
 import java.io.EOFException;
 import java.io.IOException;
@@ -186,6 +188,9 @@ import java.io.Reader;
  * @since 1.6
  */
 public class JsonReader2 implements Closeable {
+  /** The only non-execute prefix this parser permits */
+  private static final char[] NON_EXECUTE_PREFIX = ")]}'\n".toCharArray();
+
   private static final int PEEKED_NONE = 0;
   private static final int PEEKED_BEGIN_OBJECT = 1;
   private static final int PEEKED_END_OBJECT = 2;
@@ -495,6 +500,9 @@ public class JsonReader2 implements Closeable {
         throw syntaxError("Expected ':'");
       }
     } else if (peekStack == JsonScope.EMPTY_DOCUMENT) {
+      if (lenient) {
+        consumeNonExecutePrefix();
+      }
       stack[stackSize - 1] = JsonScope.NONEMPTY_DOCUMENT;
     } else if (peekStack == JsonScope.NONEMPTY_DOCUMENT) {
       int c = nextNonWhitespace(false);
@@ -1410,6 +1418,28 @@ public class JsonReader2 implements Closeable {
   private IOException syntaxError(String message) throws IOException {
     throw new MalformedJsonException(message
         + " at line " + getLineNumber() + " column " + getColumnNumber());
+  }
+
+  /**
+   * Consumes the non-execute prefix if it exists.
+   */
+  private void consumeNonExecutePrefix() throws IOException {
+    // fast forward through the leading whitespace
+    nextNonWhitespace(true);
+    pos--;
+
+    if (pos + NON_EXECUTE_PREFIX.length > limit && !fillBuffer(NON_EXECUTE_PREFIX.length)) {
+      return;
+    }
+
+    for (int i = 0; i < NON_EXECUTE_PREFIX.length; i++) {
+      if (buffer[pos + i] != NON_EXECUTE_PREFIX[i]) {
+        return; // not a security token!
+      }
+    }
+
+    // we consumed a security token!
+    pos += NON_EXECUTE_PREFIX.length;
   }
 
   /*static {
