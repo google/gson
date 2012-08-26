@@ -202,13 +202,14 @@ public class JsonReader implements Closeable {
   private static final int PEEKED_SINGLE_QUOTED = 8;
   private static final int PEEKED_DOUBLE_QUOTED = 9;
   private static final int PEEKED_UNQUOTED = 10;
-  private static final int PEEKED_SINGLE_QUOTED_NAME = 11;
-  private static final int PEEKED_DOUBLE_QUOTED_NAME = 12;
-  private static final int PEEKED_UNQUOTED_NAME = 13;
+  private static final int PEEKED_BUFFERED = 11;
+  private static final int PEEKED_SINGLE_QUOTED_NAME = 12;
+  private static final int PEEKED_DOUBLE_QUOTED_NAME = 13;
+  private static final int PEEKED_UNQUOTED_NAME = 14;
   /** When this is returned, the integer value is stored in peekedInteger. */
-  private static final int PEEKED_INTEGER = 14;
-  private static final int PEEKED_NUMBER = 15;
-  private static final int PEEKED_EOF = 16;
+  private static final int PEEKED_INTEGER = 15;
+  private static final int PEEKED_NUMBER = 16;
+  private static final int PEEKED_EOF = 17;
 
   /** The input JSON. */
   private final Reader in;
@@ -244,6 +245,8 @@ public class JsonReader implements Closeable {
    * The number of characters in the peeked number.
    */
   private int peekedNumberLength;
+
+  private String peekedString;
 
   /*
    * The nesting stack. Using a manual array rather than an ArrayList saves 20%.
@@ -417,6 +420,7 @@ public class JsonReader implements Closeable {
     case PEEKED_SINGLE_QUOTED:
     case PEEKED_DOUBLE_QUOTED:
     case PEEKED_UNQUOTED:
+    case PEEKED_BUFFERED:
       return JsonToken.STRING;
     case PEEKED_INTEGER:
     case PEEKED_NUMBER:
@@ -550,7 +554,7 @@ public class JsonReader implements Closeable {
     }
 
     if (stackSize == 1) {
-      checkLenient();
+      checkLenient(); // Top-level value isn't an array or an object.
     }
 
     int result = peekKeyword();
@@ -765,6 +769,9 @@ public class JsonReader implements Closeable {
       result = nextQuotedValue('\'');
     } else if (p == PEEKED_DOUBLE_QUOTED) {
       result = nextQuotedValue('"');
+    } else if (p == PEEKED_BUFFERED) {
+      result = peekedString;
+      peekedString = null;
     } else if (p == PEEKED_INTEGER) {
       result = Long.toString(peekedInteger);
     } else if (p == PEEKED_NUMBER) {
@@ -841,24 +848,25 @@ public class JsonReader implements Closeable {
       return (double) peekedInteger;
     }
 
-    String asString;
     if (p == PEEKED_NUMBER) {
-      asString = new String(buffer, pos, peekedNumberLength);
+      peekedString = new String(buffer, pos, peekedNumberLength);
       pos += peekedNumberLength;
     } else if (p == PEEKED_SINGLE_QUOTED || p == PEEKED_DOUBLE_QUOTED) {
-      asString = nextQuotedValue(p == PEEKED_SINGLE_QUOTED ? '\'' : '"');
+      peekedString = nextQuotedValue(p == PEEKED_SINGLE_QUOTED ? '\'' : '"');
     } else if (p == PEEKED_UNQUOTED) {
-      asString = nextUnquotedValue();
-    } else {
+      peekedString = nextUnquotedValue();
+    } else if (p != PEEKED_BUFFERED) {
       throw new IllegalStateException("Expected a double but was " + peek()
           + " at line " + getLineNumber() + " column " + getColumnNumber());
     }
 
-    double result = Double.parseDouble(asString); // don't catch this NumberFormatException.
+    peeked = PEEKED_BUFFERED;
+    double result = Double.parseDouble(peekedString); // don't catch this NumberFormatException.
     if (!lenient && (Double.isNaN(result) || Double.isInfinite(result))) {
       throw new MalformedJsonException("JSON forbids NaN and infinities: " + result
           + " at line " + getLineNumber() + " column " + getColumnNumber());
     }
+    peekedString = null;
     peeked = PEEKED_NONE;
     return result;
   }
@@ -884,14 +892,13 @@ public class JsonReader implements Closeable {
       return peekedInteger;
     }
 
-    String asString;
     if (p == PEEKED_NUMBER) {
-      asString = new String(buffer, pos, peekedNumberLength);
+      peekedString = new String(buffer, pos, peekedNumberLength);
       pos += peekedNumberLength;
     } else if (p == PEEKED_SINGLE_QUOTED || p == PEEKED_DOUBLE_QUOTED) {
-      asString = nextQuotedValue(p == PEEKED_SINGLE_QUOTED ? '\'' : '"');
+      peekedString = nextQuotedValue(p == PEEKED_SINGLE_QUOTED ? '\'' : '"');
       try {
-        long result = Long.parseLong(asString);
+        long result = Long.parseLong(peekedString);
         peeked = PEEKED_NONE;
         return result;
       } catch (NumberFormatException ignored) {
@@ -902,12 +909,14 @@ public class JsonReader implements Closeable {
           + " at line " + getLineNumber() + " column " + getColumnNumber());
     }
 
-    double asDouble = Double.parseDouble(asString); // don't catch this NumberFormatException.
+    peeked = PEEKED_BUFFERED;
+    double asDouble = Double.parseDouble(peekedString); // don't catch this NumberFormatException.
     long result = (long) asDouble;
     if (result != asDouble) { // Make sure no precision was lost casting to 'long'.
-      throw new NumberFormatException("Expected a long but was " + asString
+      throw new NumberFormatException("Expected a long but was " + peekedString
           + " at line " + getLineNumber() + " column " + getColumnNumber());
     }
+    peekedString = null;
     peeked = PEEKED_NONE;
     return result;
   }
@@ -1063,14 +1072,13 @@ public class JsonReader implements Closeable {
       return result;
     }
 
-    String asString;
     if (p == PEEKED_NUMBER) {
-      asString = new String(buffer, pos, peekedNumberLength);
+      peekedString = new String(buffer, pos, peekedNumberLength);
       pos += peekedNumberLength;
     } else if (p == PEEKED_SINGLE_QUOTED || p == PEEKED_DOUBLE_QUOTED) {
-      asString = nextQuotedValue(p == PEEKED_SINGLE_QUOTED ? '\'' : '"');
+      peekedString = nextQuotedValue(p == PEEKED_SINGLE_QUOTED ? '\'' : '"');
       try {
-        result = Integer.parseInt(asString);
+        result = Integer.parseInt(peekedString);
         peeked = PEEKED_NONE;
         return result;
       } catch (NumberFormatException ignored) {
@@ -1081,12 +1089,14 @@ public class JsonReader implements Closeable {
           + " at line " + getLineNumber() + " column " + getColumnNumber());
     }
 
-    double asDouble = Double.parseDouble(asString); // don't catch this NumberFormatException.
+    peeked = PEEKED_BUFFERED;
+    double asDouble = Double.parseDouble(peekedString); // don't catch this NumberFormatException.
     result = (int) asDouble;
     if (result != asDouble) { // Make sure no precision was lost casting to 'int'.
-      throw new NumberFormatException("Expected an int but was " + asString
+      throw new NumberFormatException("Expected an int but was " + peekedString
           + " at line " + getLineNumber() + " column " + getColumnNumber());
     }
+    peekedString = null;
     peeked = PEEKED_NONE;
     return result;
   }

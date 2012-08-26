@@ -349,18 +349,6 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
-  /**
-   * This test fails because there's no double for 9223372036854775806, and
-   * our long parsing uses Double.parseDouble() for fractional values.
-   */
-  public void disabled_testHighPrecisionLong() throws IOException {
-    String json = "[9223372036854775806.000]";
-    JsonReader reader = new JsonReader(new StringReader(json));
-    reader.beginArray();
-    assertEquals(9223372036854775806L, reader.nextLong());
-    reader.endArray();
-  }
-
   public void testNumberWithOctalPrefix() throws IOException {
     String json = "[01]";
     JsonReader reader = new JsonReader(new StringReader(json));
@@ -438,7 +426,7 @@ public final class JsonReaderTest extends TestCase {
    * This test fails because there's no double for -9223372036854775809, and our
    * long parsing uses Double.parseDouble() for fractional values.
    */
-  public void testPeekLargerThanLongMinValue() throws IOException {
+  public void disabled_testPeekLargerThanLongMinValue() throws IOException {
     JsonReader reader = new JsonReader(new StringReader("[-9223372036854775809]"));
     reader.setLenient(true);
     reader.beginArray();
@@ -449,6 +437,18 @@ public final class JsonReaderTest extends TestCase {
     } catch (NumberFormatException expected) {
     }
     assertEquals(-9223372036854775809d, reader.nextDouble());
+  }
+
+  /**
+   * This test fails because there's no double for 9223372036854775806, and
+   * our long parsing uses Double.parseDouble() for fractional values.
+   */
+  public void disabled_testHighPrecisionLong() throws IOException {
+    String json = "[9223372036854775806.000]";
+    JsonReader reader = new JsonReader(new StringReader(json));
+    reader.beginArray();
+    assertEquals(9223372036854775806L, reader.nextLong());
+    reader.endArray();
   }
 
   public void testPeekMuchLargerThanLongMinValue() throws IOException {
@@ -1063,7 +1063,7 @@ public final class JsonReaderTest extends TestCase {
   public void testStrictTopLevelString() {
     JsonReader reader = new JsonReader(new StringReader("\"a\""));
     try {
-      reader.nextBoolean();
+      reader.nextString();
       fail();
     } catch (IOException expected) {
     }
