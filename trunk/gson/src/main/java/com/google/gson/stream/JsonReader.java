@@ -187,7 +187,7 @@ import java.io.Reader;
  * @author Jesse Wilson
  * @since 1.6
  */
-public class JsonReader2 implements Closeable {
+public class JsonReader implements Closeable {
   /** The only non-execute prefix this parser permits */
   private static final char[] NON_EXECUTE_PREFIX = ")]}'\n".toCharArray();
 
@@ -257,7 +257,7 @@ public class JsonReader2 implements Closeable {
   /**
    * Creates a new instance that reads a JSON-encoded stream from {@code in}.
    */
-  public JsonReader2(Reader in) {
+  public JsonReader(Reader in) {
     if (in == null) {
       throw new NullPointerException("in == null");
     }
@@ -1442,7 +1442,7 @@ public class JsonReader2 implements Closeable {
     pos += NON_EXECUTE_PREFIX.length;
   }
 
-  /*static {
+  static {
     JsonReaderInternalAccess.INSTANCE = new JsonReaderInternalAccess() {
       @Override public void promoteNameToValue(JsonReader reader) throws IOException {
         if (reader instanceof JsonTreeReader) {
@@ -1465,5 +1465,5 @@ public class JsonReader2 implements Closeable {
         }
       }
     };
-  }*/
+  }
 }
