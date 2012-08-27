@@ -648,7 +648,7 @@ public class JsonReader implements Closeable {
       c = get(++i);
       while (c >= '0' && c <= '9') {
         long newInteger = integer * 10 - (c - '0');
-        fitsInLong = integer > MIN_INCOMPLETE_INTEGER
+        fitsInLong &= integer > MIN_INCOMPLETE_INTEGER
             || (integer == MIN_INCOMPLETE_INTEGER && newInteger < integer);
         integer = newInteger;
         c = get(++i);
