@@ -1312,14 +1312,11 @@ public class JsonReader implements Closeable {
       }
 
       int c = buffer[p++];
-      switch (c) {
-      case '\t':
-      case ' ':
-      case '\n':
-      case '\r':
+      if (c == ' ' || c == '\n' || c == '\r' || c == '\t') {
         continue;
+      }
 
-      case '/':
+      if (c == '/') {
         pos = p;
         if (p == l) {
           pos--; // push back '/' so it's still in the buffer when this method returns
@@ -1354,8 +1351,7 @@ public class JsonReader implements Closeable {
         default:
           return c;
         }
-
-      case '#':
+      } else if (c == '#') {
         pos = p;
         /*
          * Skip a # hash end-of-line comment. The JSON RFC doesn't
@@ -1366,9 +1362,7 @@ public class JsonReader implements Closeable {
         skipToEndOfLine();
         p = pos;
         l = limit;
-        continue;
-
-      default:
+      } else {
         pos = p;
         return c;
       }
