@@ -190,6 +190,7 @@ import java.io.Reader;
 public class JsonReader implements Closeable {
   /** The only non-execute prefix this parser permits */
   private static final char[] NON_EXECUTE_PREFIX = ")]}'\n".toCharArray();
+  private static final long MIN_INCOMPLETE_INTEGER = Long.MIN_VALUE / 10;
 
   private static final int PEEKED_NONE = 0;
   private static final int PEEKED_BEGIN_OBJECT = 1;
@@ -647,7 +648,8 @@ public class JsonReader implements Closeable {
       c = get(++i);
       while (c >= '0' && c <= '9') {
         long newInteger = integer * 10 - (c - '0');
-        fitsInLong &= newInteger < integer;
+        fitsInLong = integer > MIN_INCOMPLETE_INTEGER
+            || (integer == MIN_INCOMPLETE_INTEGER && newInteger < integer);
         integer = newInteger;
         c = get(++i);
       }
