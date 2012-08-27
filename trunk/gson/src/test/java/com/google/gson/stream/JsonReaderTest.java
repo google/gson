@@ -422,11 +422,43 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(-9223372036854775808L, reader.nextLong());
   }
 
+  public void testPeekLongMaxValue() throws IOException {
+    JsonReader reader = new JsonReader(new StringReader("[9223372036854775807]"));
+    reader.setLenient(true);
+    reader.beginArray();
+    assertEquals(NUMBER, reader.peek());
+    assertEquals(9223372036854775807L, reader.nextLong());
+  }
+
+  public void testLongLargerThanMaxLongThatWrapsAround() throws IOException {
+    JsonReader reader = new JsonReader(new StringReader("[22233720368547758070]"));
+    reader.setLenient(true);
+    reader.beginArray();
+    assertEquals(NUMBER, reader.peek());
+    try {
+      reader.nextLong();
+      fail();
+    } catch (NumberFormatException expected) {
+    }
+  }
+
+  public void testLongLargerThanMinLongThatWrapsAround() throws IOException {
+    JsonReader reader = new JsonReader(new StringReader("[-22233720368547758070]"));
+    reader.setLenient(true);
+    reader.beginArray();
+    assertEquals(NUMBER, reader.peek());
+    try {
+      reader.nextLong();
+      fail();
+    } catch (NumberFormatException expected) {
+    }
+  }
+
   /**
    * This test fails because there's no double for -9223372036854775809, and our
    * long parsing uses Double.parseDouble() for fractional values.
    */
-  public void disabled_testPeekLargerThanLongMinValue() throws IOException {
+  public void testPeekLargerThanLongMinValue() throws IOException {
     JsonReader reader = new JsonReader(new StringReader("[-9223372036854775809]"));
     reader.setLenient(true);
     reader.beginArray();
