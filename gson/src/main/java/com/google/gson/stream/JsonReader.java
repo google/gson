@@ -949,28 +949,29 @@ public class JsonReader implements Closeable {
       int l = limit;
       /* the index of the first character not yet appended to the builder. */
       int start = p;
-      while (p < l) {
-        int c = buffer[p++];
+      for (; p < l; p++) {
+        int c = buffer[p];
 
         if (c == quote) {
-          pos = p;
+          pos = p + 1;
           if (builder == null) {
-            return new String(buffer, start, p - start - 1);
+            return new String(buffer, start, p - start);
           } else {
-            builder.append(buffer, start, p - start - 1);
+            builder.append(buffer, start, p - start);
             return builder.toString();
           }
 
         } else if (c == '\\') {
-          pos = p;
+          pos = p + 1;
           if (builder == null) {
             builder = new StringBuilder();
           }
-          builder.append(buffer, start, p - start - 1);
+          builder.append(buffer, start, p - start);
           builder.append(readEscapeCharacter());
           p = pos;
           l = limit;
           start = p;
+          p--; // Prevent double-increment.
         }
       }
 
