@@ -1172,6 +1172,24 @@ public final class JsonReaderTest extends TestCase {
         "[\n\n" + spaces + "\n\n\n0,}]");
   }
 
+  public void disabled_testVeryLongNumber() throws IOException {
+    // TODO: this is a completely broken case that needs to be fixed!
+    JsonReader reader = new JsonReader(new StringReader("[0." + repeat('9', 8192) + "]"));
+    reader.beginArray();
+    assertEquals(1d, reader.nextDouble());
+    reader.endArray();
+    assertEquals(JsonToken.END_DOCUMENT, reader.peek());
+  }
+
+  public void testVeryLongUnquotedLiteral() throws IOException {
+    String literal = "a" + repeat('b', 8192) + "c";
+    JsonReader reader = new JsonReader(new StringReader("[" + literal + "]"));
+    reader.setLenient(true);
+    reader.beginArray();
+    assertEquals(literal, reader.nextString());
+    reader.endArray();
+  }
+
   public void testFailWithPositionIsOffsetByBom() throws IOException {
     testFailWithPosition("Expected value at line 1 column 4",
         "\ufeff[0,}]");
@@ -1306,15 +1324,32 @@ public final class JsonReaderTest extends TestCase {
   }
 
   public void testSkipVeryLongUnquotedString() throws IOException {
-    char[] stringChars = new char[1024 * 16];
-    Arrays.fill(stringChars, 'x');
-    String string = new String(stringChars);
-    String json = "[" + string + "]";
-    JsonReader reader = new JsonReader(new StringReader(json));
+    JsonReader reader = new JsonReader(new StringReader("[" + repeat('x', 8192) + "]"));
     reader.setLenient(true);
     reader.beginArray();
     reader.skipValue();
     reader.endArray();
+  }
+
+  public void testSkipTopLevelUnquotedString() throws IOException {
+    JsonReader reader = new JsonReader(new StringReader(repeat('x', 8192)));
+    reader.setLenient(true);
+    reader.skipValue();
+    assertEquals(JsonToken.END_DOCUMENT, reader.peek());
+  }
+
+  public void testSkipVeryLongQuotedString() throws IOException {
+    JsonReader reader = new JsonReader(new StringReader("[\"" + repeat('x', 8192) + "\"]"));
+    reader.beginArray();
+    reader.skipValue();
+    reader.endArray();
+  }
+
+  public void testSkipTopLevelQuotedString() throws IOException {
+    JsonReader reader = new JsonReader(new StringReader("\"" + repeat('x', 8192) + "\""));
+    reader.setLenient(true);
+    reader.skipValue();
+    assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
   public void testStringAsNumberWithTruncatedExponent() throws IOException {

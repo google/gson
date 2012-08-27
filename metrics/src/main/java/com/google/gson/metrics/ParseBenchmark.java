@@ -81,6 +81,11 @@ public final class ParseBenchmark extends SimpleBenchmark {
         return new GsonStreamParser();
       }
     },
+    GSON_SKIP {
+      @Override Parser newParser() {
+        return new GsonSkipParser();
+      }
+    },
     GSON_DOM {
       @Override Parser newParser() {
         return new GsonDomParser();
@@ -181,6 +186,15 @@ public final class ParseBenchmark extends SimpleBenchmark {
       default:
         throw new IllegalArgumentException("Unexpected token" + reader.peek());
       }
+    }
+  }
+
+  private static class GsonSkipParser implements Parser {
+    public void parse(char[] data, Document document) throws Exception {
+      com.google.gson.stream.JsonReader jsonReader
+          = new com.google.gson.stream.JsonReader(new CharArrayReader(data));
+      jsonReader.skipValue();
+      jsonReader.close();
     }
   }
 
