@@ -146,45 +146,41 @@ public final class ParseBenchmark extends SimpleBenchmark {
       jsonReader.close();
     }
 
-    public void readObject(com.google.gson.stream.JsonReader reader) throws IOException {
-      reader.beginObject();
-      while (reader.hasNext()) {
-        reader.nextName();
-        readToken(reader);
-      }
-      reader.endObject();
-    }
-
-    public void readArray(com.google.gson.stream.JsonReader reader) throws IOException {
-      reader.beginArray();
-      while (reader.hasNext()) {
-        readToken(reader);
-      }
-      reader.endArray();
-    }
-
     private void readToken(com.google.gson.stream.JsonReader reader) throws IOException {
-      switch (reader.peek()) {
-      case BEGIN_ARRAY:
-        readArray(reader);
-        break;
-      case BEGIN_OBJECT:
-        readObject(reader);
-        break;
-      case BOOLEAN:
-        reader.nextBoolean();
-        break;
-      case NULL:
-        reader.nextNull();
-        break;
-      case NUMBER:
-        reader.nextLong();
-        break;
-      case STRING:
-        reader.nextString();
-        break;
-      default:
-        throw new IllegalArgumentException("Unexpected token" + reader.peek());
+      while (true) {
+        switch (reader.peek()) {
+        case BEGIN_ARRAY:
+          reader.beginArray();
+          break;
+        case END_ARRAY:
+          reader.endArray();
+          break;
+        case BEGIN_OBJECT:
+          reader.beginObject();
+          break;
+        case END_OBJECT:
+          reader.endObject();
+          break;
+        case NAME:
+          reader.nextName();
+          break;
+        case BOOLEAN:
+          reader.nextBoolean();
+          break;
+        case NULL:
+          reader.nextNull();
+          break;
+        case NUMBER:
+          reader.nextLong();
+          break;
+        case STRING:
+          reader.nextString();
+          break;
+        case END_DOCUMENT:
+          return;
+        default:
+          throw new IllegalArgumentException("Unexpected token" + reader.peek());
+        }
       }
     }
   }
