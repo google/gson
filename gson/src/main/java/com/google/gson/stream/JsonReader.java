@@ -202,6 +202,7 @@ public class JsonReader implements Closeable {
   private static final int PEEKED_SINGLE_QUOTED = 8;
   private static final int PEEKED_DOUBLE_QUOTED = 9;
   private static final int PEEKED_UNQUOTED = 10;
+  /** When this is returned, the string value is stored in peekedString. */
   private static final int PEEKED_BUFFERED = 11;
   private static final int PEEKED_SINGLE_QUOTED_NAME = 12;
   private static final int PEEKED_DOUBLE_QUOTED_NAME = 13;
@@ -242,10 +243,16 @@ public class JsonReader implements Closeable {
   private long peekedInteger;
 
   /**
-   * The number of characters in the peeked number.
+   * The number of characters in a peeked number literal. Increment 'pos' by
+   * this after reading a number.
    */
   private int peekedNumberLength;
 
+  /**
+   * A peeked string that should be parsed on the next double, long or string.
+   * This is populated before a numeric value is parsed and used if that parsing
+   * fails.
+   */
   private String peekedString;
 
   /*
@@ -945,9 +952,7 @@ public class JsonReader implements Closeable {
 
         if (c == quote) {
           pos = p;
-          if (false /* TODO: fast skipping */) {
-            return "skipped!";
-          } else if (builder == null) {
+          if (builder == null) {
             return new String(buffer, start, p - start - 1);
           } else {
             builder.append(buffer, start, p - start - 1);
@@ -1033,9 +1038,7 @@ public class JsonReader implements Closeable {
     }
 
     String result;
-    if (false /* TODO: fast skipping */) {
-      result = "skipped!";
-    } else if (builder == null) {
+    if (builder == null) {
       result = new String(buffer, pos, i);
     } else {
       builder.append(buffer, pos, i);
@@ -1043,6 +1046,60 @@ public class JsonReader implements Closeable {
     }
     pos += i;
     return result;
+  }
+
+  private void skipQuotedValue(char quote) throws IOException {
+    // Like nextNonWhitespace, this uses locals 'p' and 'l' to save inner-loop field access.
+    char[] buffer = this.buffer;
+    do {
+      int p = pos;
+      int l = limit;
+      /* the index of the first character not yet appended to the builder. */
+      while (p < l) {
+        int c = buffer[p++];
+        if (c == quote) {
+          pos = p;
+          return;
+        } else if (c == '\\') {
+          pos = p;
+          readEscapeCharacter();
+          p = pos;
+          l = limit;
+        }
+      }
+      pos = p;
+    } while (fillBuffer(1));
+    throw syntaxError("Unterminated string");
+  }
+
+  private void skipUnquotedValue() throws IOException {
+    do {
+      int i = 0;
+      for (; pos + i < limit; i++) {
+        switch (buffer[pos + i]) {
+        case '/':
+        case '\\':
+        case ';':
+        case '#':
+        case '=':
+          checkLenient(); // fall-through
+        case '{':
+        case '}':
+        case '[':
+        case ']':
+        case ':':
+        case ',':
+        case ' ':
+        case '\t':
+        case '\f':
+        case '\r':
+        case '\n':
+          pos += i;
+          return;
+        }
+      }
+      pos += i;
+    } while (fillBuffer(1));
   }
 
   /**
@@ -1133,11 +1190,11 @@ public class JsonReader implements Closeable {
         stackSize--;
         count--;
       } else if (p == PEEKED_UNQUOTED_NAME || p == PEEKED_UNQUOTED) {
-        nextUnquotedValue();
+        skipUnquotedValue();
       } else if (p == PEEKED_SINGLE_QUOTED || p == PEEKED_SINGLE_QUOTED_NAME) {
-        nextQuotedValue('\'');
+        skipQuotedValue('\'');
       } else if (p == PEEKED_DOUBLE_QUOTED || p == PEEKED_DOUBLE_QUOTED_NAME) {
-        nextQuotedValue('"');
+        skipQuotedValue('"');
       } else if (p == PEEKED_NUMBER) {
         pos += peekedNumberLength;
       }
