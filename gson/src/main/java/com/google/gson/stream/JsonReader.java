@@ -658,7 +658,7 @@ public class JsonReader implements Closeable {
     }
 
     if (c == -1 || !isLiteral((char) c)) {
-      if (fitsInLong) {
+      if (fitsInLong && (integer != Long.MIN_VALUE || negative)) {
         peekedInteger = negative ? integer : -integer;
         pos += i;
         return peeked = PEEKED_INTEGER;

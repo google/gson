@@ -455,6 +455,22 @@ public final class JsonReaderTest extends TestCase {
   }
 
   /**
+   * This test fails because there's no double for 9223372036854775808, and our
+   * long parsing uses Double.parseDouble() for fractional values.
+   */
+  public void testPeekLargerThanLongMaxValue() throws IOException {
+    JsonReader reader = new JsonReader(new StringReader("[9223372036854775808]"));
+    reader.setLenient(true);
+    reader.beginArray();
+    assertEquals(NUMBER, reader.peek());
+    try {
+      reader.nextLong();
+      fail();
+    } catch (NumberFormatException e) {
+    }
+  }
+
+  /**
    * This test fails because there's no double for -9223372036854775809, and our
    * long parsing uses Double.parseDouble() for fractional values.
    */
