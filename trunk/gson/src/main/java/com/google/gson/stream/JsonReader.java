@@ -1253,6 +1253,7 @@ public class JsonReader implements Closeable {
       if (bufferStartLine == 1 && bufferStartColumn == 1 && limit > 0 && buffer[0] == '\ufeff') {
         pos++;
         bufferStartColumn--;
+        minimum++;
       }
 
       if (limit >= minimum) {
