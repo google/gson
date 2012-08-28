@@ -19,6 +19,7 @@ package com.google.gson.stream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.StringReader;
 import java.util.Arrays;
 import junit.framework.TestCase;
 
@@ -1210,14 +1211,72 @@ public final class JsonReaderTest extends TestCase {
   }
 
   public void testFailWithPosition() throws IOException {
-    testFailWithPosition("Expected value at line 6 column 3",
-        "[\n\n\n\n\n0,}]");
+    testFailWithPosition("Expected value at line 6 column 5",
+        "[\n\n\n\n\n\"a\",}]");
   }
 
   public void testFailWithPositionGreaterThanBufferSize() throws IOException {
     String spaces = repeat(' ', 8192);
-    testFailWithPosition("Expected value at line 6 column 3",
-        "[\n\n" + spaces + "\n\n\n0,}]");
+    testFailWithPosition("Expected value at line 6 column 5",
+        "[\n\n" + spaces + "\n\n\n\"a\",}]");
+  }
+
+  public void testFailWithPositionOverSlashSlashEndOfLineComment() throws IOException {
+    testFailWithPosition("Expected value at line 5 column 6",
+        "\n// foo\n\n//bar\r\n[\"a\",}");
+  }
+
+  public void testFailWithPositionOverHashEndOfLineComment() throws IOException {
+    testFailWithPosition("Expected value at line 5 column 6",
+        "\n# foo\n\n#bar\r\n[\"a\",}");
+  }
+
+  public void testFailWithPositionOverCStyleComment() throws IOException {
+    testFailWithPosition("Expected value at line 6 column 12",
+        "\n\n/* foo\n*\n*\r\nbar */[\"a\",}");
+  }
+
+  public void testFailWithPositionOverQuotedString() throws IOException {
+    testFailWithPosition("Expected value at line 5 column 3", "[\"foo\nbar\r\nbaz\n\",\n  }");
+  }
+
+  public void testFailWithPositionOverUnquotedString() throws IOException {
+    testFailWithPosition("Expected value at line 5 column 2", "[\n\nabcd\n\n,}");
+  }
+
+  public void testFailWithEscapedNewlineCharacter() throws IOException {
+    testFailWithPosition("Expected value at line 5 column 3", "[\n\n\"\\\n\n\",}");
+  }
+
+  public void testFailWithPositionIsOffsetByBom() throws IOException {
+    testFailWithPosition("Expected value at line 1 column 6",
+        "\ufeff[\"a\",}]");
+  }
+
+  private void testFailWithPosition(String message, String json) throws IOException {
+    // Validate that it works reading the string normally.
+    JsonReader reader1 = new JsonReader(reader(json));
+    reader1.setLenient(true);
+    reader1.beginArray();
+    reader1.nextString();
+    try {
+      reader1.peek();
+      fail();
+    } catch (IOException expected) {
+      assertEquals(message, expected.getMessage());
+    }
+
+    // Also validate that it works when skipping.
+    JsonReader reader2 = new JsonReader(reader(json));
+    reader2.setLenient(true);
+    reader2.beginArray();
+    reader2.skipValue();
+    try {
+      reader2.peek();
+      fail();
+    } catch (IOException expected) {
+      assertEquals(message, expected.getMessage());
+    }
   }
 
   public void disabled_testVeryLongNumber() throws IOException {
@@ -1238,23 +1297,6 @@ public final class JsonReaderTest extends TestCase {
     reader.endArray();
   }
 
-  public void testFailWithPositionIsOffsetByBom() throws IOException {
-    testFailWithPosition("Expected value at line 1 column 4",
-        "\ufeff[0,}]");
-  }
-  
-  private void testFailWithPosition(String message, String json) throws IOException {
-    JsonReader reader = new JsonReader(reader(json));
-    reader.beginArray();
-    reader.nextInt();
-    try {
-      reader.peek();
-      fail();
-    } catch (IOException expected) {
-      assertEquals(message, expected.getMessage());
-    }
-  }
-  
   public void testDeeplyNestedArrays() throws IOException {
     // this is nested 40 levels deep; Gson is tuned for nesting is 30 levels deep or fewer
     JsonReader reader = new JsonReader(reader(
@@ -1562,6 +1604,8 @@ public final class JsonReaderTest extends TestCase {
    * Returns a reader that returns one character at a time.
    */
   private Reader reader(final String s) {
+    if (true) return new StringReader(s);
+
     return new Reader() {
       int position = 0;
       @Override public int read(char[] buffer, int offset, int count) throws IOException {

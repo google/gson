@@ -229,11 +229,8 @@ public class JsonReader implements Closeable {
   private int pos = 0;
   private int limit = 0;
 
-  /*
-   * The offset of the first character in the buffer.
-   */
-  private int bufferStartLine = 1;
-  private int bufferStartColumn = 1;
+  private int lineNumber = 0;
+  private int lineStart = 0;
 
   private int peeked = PEEKED_NONE;
 
@@ -949,29 +946,32 @@ public class JsonReader implements Closeable {
       int l = limit;
       /* the index of the first character not yet appended to the builder. */
       int start = p;
-      for (; p < l; p++) {
-        int c = buffer[p];
+      while (p < l) {
+        int c = buffer[p++];
 
         if (c == quote) {
-          pos = p + 1;
+          pos = p;
           if (builder == null) {
-            return new String(buffer, start, p - start);
+            return new String(buffer, start, p - start - 1);
           } else {
-            builder.append(buffer, start, p - start);
+            builder.append(buffer, start, p - start - 1);
             return builder.toString();
           }
 
         } else if (c == '\\') {
-          pos = p + 1;
+          pos = p;
           if (builder == null) {
             builder = new StringBuilder();
           }
-          builder.append(buffer, start, p - start);
+          builder.append(buffer, start, p - start - 1);
           builder.append(readEscapeCharacter());
           p = pos;
           l = limit;
           start = p;
-          p--; // Prevent double-increment.
+
+        } else if (c == '\n') {
+          lineNumber++;
+          lineStart = p;
         }
       }
 
@@ -1068,6 +1068,9 @@ public class JsonReader implements Closeable {
           readEscapeCharacter();
           p = pos;
           l = limit;
+        } else if (c == '\n') {
+          lineNumber++;
+          lineStart = p;
         }
       }
       pos = p;
@@ -1221,22 +1224,7 @@ public class JsonReader implements Closeable {
    */
   private boolean fillBuffer(int minimum) throws IOException {
     char[] buffer = this.buffer;
-
-    // Before clobbering the old characters, update where buffer starts
-    // Using locals here saves ~2%.
-    int line = bufferStartLine;
-    int column = bufferStartColumn;
-    for (int i = 0, p = pos; i < p; i++) {
-      if (buffer[i] == '\n') {
-        line++;
-        column = 1;
-      } else {
-        column++;
-      }
-    }
-    bufferStartLine = line;
-    bufferStartColumn = column;
-
+    lineStart -= pos;
     if (limit != pos) {
       limit -= pos;
       System.arraycopy(buffer, pos, buffer, 0, limit);
@@ -1250,9 +1238,9 @@ public class JsonReader implements Closeable {
       limit += total;
 
       // if this is the first read, consume an optional byte order mark (BOM) if it exists
-      if (bufferStartLine == 1 && bufferStartColumn == 1 && limit > 0 && buffer[0] == '\ufeff') {
+      if (lineNumber == 0 && lineStart == 0 && limit > 0 && buffer[0] == '\ufeff') {
         pos++;
-        bufferStartColumn--;
+        lineStart++;
         minimum++;
       }
 
@@ -1264,25 +1252,11 @@ public class JsonReader implements Closeable {
   }
 
   private int getLineNumber() {
-    int result = bufferStartLine;
-    for (int i = 0; i < pos; i++) {
-      if (buffer[i] == '\n') {
-        result++;
-      }
-    }
-    return result;
+    return lineNumber + 1;
   }
 
   private int getColumnNumber() {
-    int result = bufferStartColumn;
-    for (int i = 0; i < pos; i++) {
-      if (buffer[i] == '\n') {
-        result = 1;
-      } else {
-        result++;
-      }
-    }
-    return result;
+    return pos - lineStart + 1;
   }
 
   /**
@@ -1314,7 +1288,11 @@ public class JsonReader implements Closeable {
       }
 
       int c = buffer[p++];
-      if (c == ' ' || c == '\n' || c == '\r' || c == '\t') {
+      if (c == '\n') {
+        lineNumber++;
+        lineStart = p;
+        continue;
+      } else if (c == ' ' || c == '\r' || c == '\t') {
         continue;
       }
 
@@ -1391,15 +1369,27 @@ public class JsonReader implements Closeable {
   private void skipToEndOfLine() throws IOException {
     while (pos < limit || fillBuffer(1)) {
       char c = buffer[pos++];
-      if (c == '\r' || c == '\n') {
+      if (c == '\n') {
+        lineNumber++;
+        lineStart = pos;
+        break;
+      } else if (c == '\r') {
         break;
       }
     }
   }
 
+  /**
+   * @param toFind a string to search for. Must not contain a newline.
+   */
   private boolean skipTo(String toFind) throws IOException {
     outer:
     for (; pos + toFind.length() <= limit || fillBuffer(toFind.length()); pos++) {
+      if (buffer[pos] == '\n') {
+        lineNumber++;
+        lineStart = pos + 1;
+        continue;
+      }
       for (int c = 0; c < toFind.length(); c++) {
         if (buffer[pos + c] != toFind.charAt(c)) {
           continue outer;
@@ -1467,6 +1457,11 @@ public class JsonReader implements Closeable {
 
     case 'f':
       return '\f';
+
+    case '\n':
+      lineNumber++;
+      lineStart = pos;
+      // fall-through
 
     case '\'':
     case '"':
