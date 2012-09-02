@@ -208,8 +208,8 @@ public class JsonReader implements Closeable {
   private static final int PEEKED_SINGLE_QUOTED_NAME = 12;
   private static final int PEEKED_DOUBLE_QUOTED_NAME = 13;
   private static final int PEEKED_UNQUOTED_NAME = 14;
-  /** When this is returned, the integer value is stored in peekedInteger. */
-  private static final int PEEKED_INTEGER = 15;
+  /** When this is returned, the integer value is stored in peekedLong. */
+  private static final int PEEKED_LONG = 15;
   private static final int PEEKED_NUMBER = 16;
   private static final int PEEKED_EOF = 17;
 
@@ -238,7 +238,7 @@ public class JsonReader implements Closeable {
    * A peeked value that was composed entirely of digits with an optional
    * leading dash. Positive values may not have a leading 0.
    */
-  private long peekedInteger;
+  private long peekedLong;
 
   /**
    * The number of characters in a peeked number literal. Increment 'pos' by
@@ -427,7 +427,7 @@ public class JsonReader implements Closeable {
     case PEEKED_UNQUOTED:
     case PEEKED_BUFFERED:
       return JsonToken.STRING;
-    case PEEKED_INTEGER:
+    case PEEKED_LONG:
     case PEEKED_NUMBER:
       return JsonToken.NUMBER;
     case PEEKED_EOF:
@@ -625,7 +625,7 @@ public class JsonReader implements Closeable {
   }
 
   private int peekNumber() throws IOException {
-    long integer = 0; // Negative to accommodate Long.MIN_VALUE more easily.
+    long value = 0; // Negative to accommodate Long.MIN_VALUE more easily.
     boolean negative = false;
     boolean fitsInLong = true;
     int i = 0;
@@ -641,13 +641,13 @@ public class JsonReader implements Closeable {
     if (c == '0') {
       c = get(++i);
     } else if (c >= '1' && c <= '9') {
-      integer -= (c - '0');
+      value -= (c - '0');
       c = get(++i);
       while (c >= '0' && c <= '9') {
-        long newInteger = integer * 10 - (c - '0');
-        fitsInLong &= integer > MIN_INCOMPLETE_INTEGER
-            || (integer == MIN_INCOMPLETE_INTEGER && newInteger < integer);
-        integer = newInteger;
+        long newValue = value * 10 - (c - '0');
+        fitsInLong &= value > MIN_INCOMPLETE_INTEGER
+            || (value == MIN_INCOMPLETE_INTEGER && newValue < value);
+        value = newValue;
         c = get(++i);
       }
     } else {
@@ -655,10 +655,10 @@ public class JsonReader implements Closeable {
     }
 
     if (c == -1 || !isLiteral((char) c)) {
-      if (fitsInLong && (integer != Long.MIN_VALUE || negative)) {
-        peekedInteger = negative ? integer : -integer;
+      if (fitsInLong && (value != Long.MIN_VALUE || negative)) {
+        peekedLong = negative ? value : -value;
         pos += i;
-        return peeked = PEEKED_INTEGER;
+        return peeked = PEEKED_LONG;
       } else {
         peekedNumberLength = i;
         return peeked = PEEKED_NUMBER;
@@ -778,8 +778,8 @@ public class JsonReader implements Closeable {
     } else if (p == PEEKED_BUFFERED) {
       result = peekedString;
       peekedString = null;
-    } else if (p == PEEKED_INTEGER) {
-      result = Long.toString(peekedInteger);
+    } else if (p == PEEKED_LONG) {
+      result = Long.toString(peekedLong);
     } else if (p == PEEKED_NUMBER) {
       result = new String(buffer, pos, peekedNumberLength);
       pos += peekedNumberLength;
@@ -849,9 +849,9 @@ public class JsonReader implements Closeable {
       p = doPeek();
     }
 
-    if (p == PEEKED_INTEGER) {
+    if (p == PEEKED_LONG) {
       peeked = PEEKED_NONE;
-      return (double) peekedInteger;
+      return (double) peekedLong;
     }
 
     if (p == PEEKED_NUMBER) {
@@ -893,9 +893,9 @@ public class JsonReader implements Closeable {
       p = doPeek();
     }
 
-    if (p == PEEKED_INTEGER) {
+    if (p == PEEKED_LONG) {
       peeked = PEEKED_NONE;
-      return peekedInteger;
+      return peekedLong;
     }
 
     if (p == PEEKED_NUMBER) {
@@ -1125,10 +1125,10 @@ public class JsonReader implements Closeable {
     }
 
     int result;
-    if (p == PEEKED_INTEGER) {
-      result = (int) peekedInteger;
-      if (peekedInteger != result) { // Make sure no precision was lost casting to 'int'.
-        throw new NumberFormatException("Expected an int but was " + peekedInteger
+    if (p == PEEKED_LONG) {
+      result = (int) peekedLong;
+      if (peekedLong != result) { // Make sure no precision was lost casting to 'int'.
+        throw new NumberFormatException("Expected an int but was " + peekedLong
             + " at line " + getLineNumber() + " column " + getColumnNumber());
       }
       peeked = PEEKED_NONE;
