@@ -25,8 +25,8 @@ package com.google.gson.stream;
 public enum JsonToken {
 
   /**
-   * The opening of a JSON array. Written using {@link JsonWriter#beginObject}
-   * and read using {@link JsonReader#beginObject}.
+   * The opening of a JSON array. Written using {@link JsonWriter#beginArray}
+   * and read using {@link JsonReader#beginArray}.
    */
   BEGIN_ARRAY,
 
