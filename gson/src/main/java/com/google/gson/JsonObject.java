@@ -42,7 +42,8 @@ public final class JsonObject extends JsonElement {
   public JsonObject() {
   }
 
-  @Override public JsonObject deepCopy() {
+  @Override
+  protected JsonObject deepCopy() {
     JsonObject result = new JsonObject();
     for (Map.Entry<String, JsonElement> entry : members.entrySet()) {
       result.add(entry.getKey(), entry.getValue().deepCopy());

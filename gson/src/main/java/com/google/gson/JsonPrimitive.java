@@ -16,11 +16,11 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.$Gson$Preconditions;
-import com.google.gson.internal.LazilyParsedNumber;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
+
+import com.google.gson.internal.$Gson$Preconditions;
+import com.google.gson.internal.LazilyParsedNumber;
 
 /**
  * A class representing a Json primitive value. A primitive value
@@ -85,7 +85,8 @@ public final class JsonPrimitive extends JsonElement {
     setValue(primitive);
   }
 
-  @Override public JsonPrimitive deepCopy() {
+  @Override
+  protected JsonPrimitive deepCopy() {
     return this;
   }
 
