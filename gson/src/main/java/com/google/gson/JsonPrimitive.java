@@ -86,7 +86,7 @@ public final class JsonPrimitive extends JsonElement {
   }
 
   @Override
-  protected JsonPrimitive deepCopy() {
+  JsonPrimitive deepCopy() {
     return this;
   }
 
