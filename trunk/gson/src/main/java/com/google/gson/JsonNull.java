@@ -40,7 +40,8 @@ public final class JsonNull extends JsonElement {
     // Do nothing
   }
 
-  @Override public JsonNull deepCopy() {
+  @Override
+  protected JsonNull deepCopy() {
     return INSTANCE;
   }
 
