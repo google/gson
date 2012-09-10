@@ -213,6 +213,16 @@ public class JsonReader implements Closeable {
   private static final int PEEKED_NUMBER = 16;
   private static final int PEEKED_EOF = 17;
 
+  /* State machine when parsing numbers */
+  private static final int NUMBER_CHAR_NONE = 0;
+  private static final int NUMBER_CHAR_SIGN = 1;
+  private static final int NUMBER_CHAR_DIGIT = 2;
+  private static final int NUMBER_CHAR_DECIMAL = 3;
+  private static final int NUMBER_CHAR_FRACTION_DIGIT = 4;
+  private static final int NUMBER_CHAR_EXP_E = 5;
+  private static final int NUMBER_CHAR_EXP_SIGN = 6;
+  private static final int NUMBER_CHAR_EXP_DIGIT = 7;
+
   /** The input JSON. */
   private final Reader in;
 
@@ -252,6 +262,11 @@ public class JsonReader implements Closeable {
    * fails.
    */
   private String peekedString;
+
+  /**
+   * A pool of short strings intended to prevent object allocation.
+   */
+  private static final StringPool stringPool = new StringPool();
 
   /*
    * The nesting stack. Using a manual array rather than an ArrayList saves 20%.
@@ -624,15 +639,6 @@ public class JsonReader implements Closeable {
     return peeked = peeking;
   }
 
-  private static final int NUMBER_CHAR_NONE = 0;
-  private static final int NUMBER_CHAR_SIGN = 1;
-  private static final int NUMBER_CHAR_DIGIT = 2;
-  private static final int NUMBER_CHAR_DECIMAL = 3;
-  private static final int NUMBER_CHAR_FRACTION_DIGIT = 4;
-  private static final int NUMBER_CHAR_EXP_E = 5;
-  private static final int NUMBER_CHAR_EXP_SIGN = 6;
-  private static final int NUMBER_CHAR_EXP_DIGIT = 7;
-
   private int peekNumber() throws IOException {
     // Like nextNonWhitespace, this uses locals 'p' and 'l' to save inner-loop field access.
     char[] buffer = this.buffer;
@@ -974,6 +980,7 @@ public class JsonReader implements Closeable {
     // Like nextNonWhitespace, this uses locals 'p' and 'l' to save inner-loop field access.
     char[] buffer = this.buffer;
     StringBuilder builder = null;
+    int hashCode = 0;
     while (true) {
       int p = pos;
       int l = limit;
@@ -985,7 +992,7 @@ public class JsonReader implements Closeable {
         if (c == quote) {
           pos = p;
           if (builder == null) {
-            return new String(buffer, start, p - start - 1);
+            return stringPool.get(buffer, start, p - start - 1, hashCode);
           } else {
             builder.append(buffer, start, p - start - 1);
             return builder.toString();
@@ -1003,8 +1010,11 @@ public class JsonReader implements Closeable {
           start = p;
 
         } else if (c == '\n') {
+          hashCode = (hashCode * 31) + c;
           lineNumber++;
           lineStart = p;
+        } else {
+          hashCode = (hashCode * 31) + c;
         }
       }
 

@@ -19,20 +19,25 @@ package com.google.gson.stream;
 /**
  * A pool of string instances. Unlike the {@link String#intern() VM's
  * interned strings}, this pool provides no guarantee of reference equality.
- * It is intended only to save allocations. This class is not thread safe.
+ * It is intended only to save allocations.
+ *
+ * <p>This class is safe for concurrent use.
  */
 final class StringPool {
-
-  private final String[] pool = new String[512];
+  /**
+   * The maximum length of strings to add to the pool. Strings longer than this
+   * don't benefit from pooling because we spend more time on pooling than we
+   * save on garbage collection.
+   */
+  private static final int MAX_LENGTH = 20;
+  private final String[] pool = new String[1024];
 
   /**
    * Returns a string equal to {@code new String(array, start, length)}.
    */
-  public String get(char[] array, int start, int length) {
-    // Compute an arbitrary hash of the content
-    int hashCode = 0;
-    for (int i = start; i < start + length; i++) {
-      hashCode = (hashCode * 31) + array[i];
+  public String get(char[] array, int start, int length, int hashCode) {
+    if (length > StringPool.MAX_LENGTH) {
+      return new String(array, start, length);
     }
 
     // Pick a bucket using Doug Lea's supplemental secondaryHash function (from HashMap)
