@@ -45,7 +45,30 @@ public final class LinkedTreeMapTest extends TestCase {
     assertIterationOrder(map.keySet(), "a", "c");
   }
 
-  // TODO: test contains with non-string key
+  public void testPutNullKeyFails() {
+    LinkedTreeMap<String, String> map = new LinkedTreeMap<String, String>();
+    try {
+      map.put(null, "android");
+      fail();
+    } catch (NullPointerException expected) {
+    }
+  }
+
+  public void testContainsNullKeyFails() {
+    LinkedTreeMap<String, String> map = new LinkedTreeMap<String, String>();
+    map.put("a", "android");
+    assertFalse(map.containsKey(null));
+  }
+
+  public void testContainsNonComparableKeyThrows() {
+    LinkedTreeMap<String, String> map = new LinkedTreeMap<String, String>();
+    map.put("a", "android");
+    try {
+      map.containsKey(new Object());
+      fail();
+    } catch (ClassCastException expected) {
+    }
+  }
 
   private <T> void assertIterationOrder(Iterable<T> actual, T... expected) {
     ArrayList<T> actualList = new ArrayList<T>();
