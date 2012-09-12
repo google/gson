@@ -164,7 +164,6 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
     }
   }
 
-  // TODO(jwilson): don't throw ClassCastExceptions on unknown types
   @SuppressWarnings("unchecked") // this method throws ClassCastExceptions!
   Node<K, V> findByObject(Object key) {
     return key != null ? find((K) key, false) : null;
