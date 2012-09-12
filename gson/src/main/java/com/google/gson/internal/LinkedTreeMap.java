@@ -89,7 +89,13 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
   }
 
   @Override public V put(K key, V value) {
-    return putInternal(key, value);
+    if (key == null) {
+      throw new NullPointerException("key == null");
+    }
+    Node<K, V> created = find(key, true);
+    V result = created.value;
+    created.value = value;
+    return result;
   }
 
   @Override public void clear() {
@@ -101,13 +107,6 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
   @Override public V remove(Object key) {
     Node<K, V> node = removeInternalByKey(key);
     return node != null ? node.value : null;
-  }
-
-  V putInternal(K key, V value) {
-    Node<K, V> created = find(key, true);
-    V result = created.value;
-    created.value = value;
-    return result;
   }
 
   /**
@@ -168,7 +167,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
   // TODO(jwilson): don't throw ClassCastExceptions on unknown types
   @SuppressWarnings("unchecked") // this method throws ClassCastExceptions!
   Node<K, V> findByObject(Object key) {
-    return find((K) key, false);
+    return key != null ? find((K) key, false) : null;
   }
 
   /**
@@ -193,12 +192,15 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
   /**
    * Removes {@code node} from this tree, rearranging the tree's structure as
    * necessary.
+   *
+   * @param unlink true to also unlink this node from the iteration linked list.
    */
-  void removeInternal(Node<K, V> node) {
-    // Unlink the node.
-    node.prev.next = node.next;
-    node.next.prev = node.prev;
-    node.next = node.prev = null; // Help the GC (for performance)
+  void removeInternal(Node<K, V> node, boolean unlink) {
+    if (unlink) {
+      node.prev.next = node.next;
+      node.next.prev = node.prev;
+      node.next = node.prev = null; // Help the GC (for performance)
+    }
 
     Node<K, V> left = node.left;
     Node<K, V> right = node.right;
@@ -215,7 +217,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
        */
 
       Node<K, V> adjacent = (left.height > right.height) ? left.last() : right.first();
-      removeInternal(adjacent); // takes care of rebalance and size--
+      removeInternal(adjacent, false); // takes care of rebalance and size--
 
       int leftHeight = 0;
       left = node.left;
@@ -254,7 +256,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
   Node<K, V> removeInternalByKey(Object key) {
     Node<K, V> node = findByObject(key);
     if (node != null) {
-      removeInternal(node);
+      removeInternal(node, true);
     }
     return node;
   }
@@ -525,7 +527,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
       if (lastReturned == null) {
         throw new IllegalStateException();
       }
-      LinkedTreeMap.this.removeInternal(lastReturned);
+      LinkedTreeMap.this.removeInternal(lastReturned, true);
       lastReturned = null;
       expectedModCount = modCount;
     }
@@ -557,7 +559,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
       if (node == null) {
         return false;
       }
-      removeInternal(node);
+      removeInternal(node, true);
       return true;
     }
 
