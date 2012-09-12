@@ -18,6 +18,8 @@ package com.google.gson.internal;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Map;
 import junit.framework.TestCase;
 
 public final class LinkedTreeMapTest extends TestCase {
@@ -28,6 +30,19 @@ public final class LinkedTreeMapTest extends TestCase {
     map.put("b", "bbq");
     assertIterationOrder(map.keySet(), "a", "c", "b");
     assertIterationOrder(map.values(), "android", "cola", "bbq");
+  }
+
+  public void testRemoveRootDoesNotDoubleUnlink() {
+    LinkedTreeMap<String, String> map = new LinkedTreeMap<String, String>();
+    map.put("a", "android");
+    map.put("c", "cola");
+    map.put("b", "bbq");
+    Iterator<Map.Entry<String,String>> it = map.entrySet().iterator();
+    it.next();
+    it.next();
+    it.next();
+    it.remove();
+    assertIterationOrder(map.keySet(), "a", "c");
   }
 
   // TODO: test contains with non-string key
