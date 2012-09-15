@@ -21,6 +21,7 @@ import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
+import java.util.ArrayDeque;
 import java.util.Comparator;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
@@ -424,6 +425,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
     final K key;
     V value;
     int height;
+    int hash;
 
     /** Create the header entry */
     Node() {
@@ -498,6 +500,204 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
         child = node.right;
       }
       return node;
+    }
+  }
+
+  /**
+   * Returns a new array containing the same nodes as {@code oldTable}, but with
+   * twice as many trees, each of (approximately) half the previous size.
+   */
+  static <K, V> Node<K, V>[] doubleCapacity(Node<K, V>[] oldTable) {
+    // TODO: don't do anything if we're already at MAX_CAPACITY
+    int oldCapacity = oldTable.length;
+    @SuppressWarnings("unchecked") // Arrays and generics don't get along.
+    Node<K, V>[] newTable = new Node[oldCapacity * 2];
+    AvlIterator<K, V> iterator = new AvlIterator<K, V>();
+    AvlBuilder<K, V> leftBuilder = new AvlBuilder<K, V>();
+    AvlBuilder<K, V> rightBuilder = new AvlBuilder<K, V>();
+
+    // Split each tree into two trees.
+    for (int i = 0; i < oldCapacity; i++) {
+      Node<K, V> root = oldTable[i];
+      if (root == null) {
+        continue;
+      }
+
+      // Compute the sizes of the left and right trees.
+      iterator.reset(root);
+      int leftSize = 0;
+      int rightSize = 0;
+      while (iterator.hasNext()) {
+        Node<K, V> node = iterator.next();
+        if ((node.hash & oldCapacity) == 0) {
+          leftSize++;
+        } else {
+          rightSize++;
+        }
+      }
+
+      // Split the tree into two.
+      Node<K, V> leftRoot = null;
+      Node<K, V> rightRoot = null;
+      if (leftSize > 0 && rightSize > 0) {
+        leftBuilder.reset(leftSize);
+        rightBuilder.reset(rightSize);
+        iterator.reset(root);
+        while (iterator.hasNext()) {
+          Node<K, V> node = iterator.next();
+          if ((node.hash & oldCapacity) == 0) {
+            leftBuilder.add(node);
+          } else {
+            rightBuilder.add(node);
+          }
+        }
+        leftRoot = leftBuilder.root();
+        rightRoot = rightBuilder.root();
+      } else if (leftSize > 0) {
+        leftRoot = root;
+      } else {
+        rightRoot = root;
+      }
+
+      // Populate the enlarged array with these new roots.
+      newTable[i] = leftRoot;
+      newTable[i + oldCapacity] = rightRoot;
+    }
+    return newTable;
+  }
+
+  /**
+   * Walks an AVL tree in iteration order. Once a node has been returned, its
+   * left, right and parent links are <strong>no longer used</strong>. For this
+   * reason it is safe to transform these links as you walk a tree.
+   */
+  static class AvlIterator<K, V> implements Iterator<Node<K, V>> {
+    private final ArrayDeque<Node<K, V>> stack = new ArrayDeque<Node<K, V>>();
+
+    void reset(Node<K, V> root) {
+      stack.clear();
+      for (Node<K, V> n = root; n != null; n = n.left) {
+        stack.add(n);
+      }
+    }
+
+    public boolean hasNext() {
+      return !stack.isEmpty();
+    }
+
+    public Node<K, V> next() {
+      Node<K, V> node = stack.removeLast();
+      for (Node<K, V> n = node.right; n != null; n = n.left) {
+        stack.add(n);
+      }
+      return node;
+    }
+
+    public void remove() {
+      throw new UnsupportedOperationException();
+    }
+  }
+
+
+  /**
+   * Builds AVL trees of a predetermined size by accepting nodes of increasing
+   * value. To use:
+   * <ol>
+   *   <li>Call {@link #reset} to initialize the target size <i>size</i>.
+   *   <li>Call {@link #add} <i>size</i> times with increasing values.
+   *   <li>Call {@link #root} to get the root of the balanced tree.
+   * </ol>
+   *
+   * <p>The returned tree will satisfy the AVL constraint: for every node
+   * <i>N</i>, the height of <i>N.left</i> and <i>N.right</i> is different by at
+   * most 1. It accomplishes this by omitting deepest-level leaf nodes when
+   * building trees whose size isn't a power of 2 minus 1.
+   *
+   * <p>Unlike rebuilding a tree from scratch, this approach requires no value
+   * comparisons. Using this class to create a tree of size <i>S</i> is
+   * {@code O(S)}.
+   */
+  static class AvlBuilder<K, V> {
+    private final ArrayDeque<Node<K, V>> stack = new ArrayDeque<Node<K, V>>();
+    private int leavesToSkip;
+    private int leavesSkipped;
+    private int size;
+
+    void reset(int targetSize) {
+      // compute the target tree size. This is a power of 2 minus one, like 15 or 31.
+      int treeCapacity = Integer.highestOneBit(targetSize) * 2 - 1;
+      leavesToSkip = treeCapacity - targetSize;
+      size = 0;
+      leavesSkipped = 0;
+      stack.clear();
+    }
+
+    void add(Node<K, V> node) {
+      node.left = node.parent = node.right = null;
+      node.height = 1;
+
+      // Skip a leaf if necessary.
+      if (leavesToSkip > 0 && (size & 1) == 0) {
+        size++;
+        leavesToSkip--;
+        leavesSkipped++;
+      }
+
+      stack.addLast(node);
+      size++;
+
+      // Skip a leaf if necessary.
+      if (leavesToSkip > 0 && (size & 1) == 0) {
+        size++;
+        leavesToSkip--;
+        leavesSkipped++;
+      }
+
+      /*
+       * Combine 3 nodes into subtrees whenever the size is one less than a
+       * multiple of 4. For example we combine the nodes A, B, C into a
+       * 3-element tree with B as the root.
+       *
+       * Combine two subtrees and a spare single value whenever the size is one
+       * less than a multiple of 8. For example at 8 we may combine subtrees
+       * (A B C) and (E F G) with D as the root to form ((A B C) D (E F G)).
+       *
+       * Just as we combine single nodes when size nears a multiple of 4, and
+       * 3-element trees when size nears a multiple of 8, we combine subtrees of
+       * size (N-1) whenever the total size is 2N-1 whenever N is a power of 2.
+       */
+      int centerHeight = 2;
+      for (int scale = 4; (size & scale - 1) == scale - 1; scale *= 2) {
+        if (leavesSkipped == 0) {
+          Node<K, V> right = stack.removeLast();
+          Node<K, V> center = stack.removeLast();
+          Node<K, V> left = stack.removeLast();
+          center.left = left;
+          left.parent = center;
+          center.right = right;
+          right.parent = center;
+          center.height = centerHeight;
+          stack.addLast(center);
+        } else if (leavesSkipped == 1) {
+          Node<K, V> right = stack.removeLast();
+          Node<K, V> center = stack.removeLast();
+          center.right = right;
+          center.height = centerHeight;
+          center.height++;
+          stack.addLast(center);
+          leavesSkipped = 0;
+        } else if (leavesSkipped == 2) {
+          leavesSkipped = 0;
+        }
+        centerHeight++;
+      }
+    }
+
+    Node<K, V> root() {
+      if (stack.size() != 1) {
+        throw new IllegalStateException();
+      }
+      return stack.getLast();
     }
   }
 
