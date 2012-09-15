@@ -16,6 +16,8 @@
 
 package com.google.gson.internal;
 
+import com.google.gson.internal.LinkedTreeMap.AvlBuilder;
+import com.google.gson.internal.LinkedTreeMap.Node;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -67,6 +69,104 @@ public final class LinkedTreeMapTest extends TestCase {
       map.containsKey(new Object());
       fail();
     } catch (ClassCastException expected) {
+    }
+  }
+
+  public void testAvlWalker() {
+    assertAvlWalker(node(node("a"), "b", node("c")),
+        "a", "b", "c");
+    assertAvlWalker(node(node(node("a"), "b", node("c")), "d", node(node("e"), "f", node("g"))),
+        "a", "b", "c", "d", "e", "f", "g");
+    assertAvlWalker(node(node(null, "a", node("b")), "c", node(node("d"), "e", null)),
+        "a", "b", "c", "d", "e");
+    assertAvlWalker(node(null, "a", node(null, "b", node(null, "c", node("d")))),
+        "a", "b", "c", "d");
+    assertAvlWalker(node(node(node(node("a"), "b", null), "c", null), "d", null),
+        "a", "b", "c", "d");
+  }
+
+  private void assertAvlWalker(Node<String, String> root, String... values) {
+    LinkedTreeMap.AvlIterator<String, String> iterator = new LinkedTreeMap.AvlIterator<String, String>();
+    iterator.reset(root);
+    for (String value : values) {
+      assertTrue(iterator.hasNext());
+      assertEquals(value, iterator.next().getKey());
+    }
+    assertFalse(iterator.hasNext());
+  }
+
+  public void testAvlBuilder() {
+    assertAvlBuilder(1, "a");
+    assertAvlBuilder(2, "(. a b)");
+    assertAvlBuilder(3, "(a b c)");
+    assertAvlBuilder(4, "(a b (. c d))");
+    assertAvlBuilder(5, "(a b (c d e))");
+    assertAvlBuilder(6, "((. a b) c (d e f))");
+    assertAvlBuilder(7, "((a b c) d (e f g))");
+    assertAvlBuilder(8, "((a b c) d (e f (. g h)))");
+    assertAvlBuilder(9, "((a b c) d (e f (g h i)))");
+    assertAvlBuilder(10, "((a b c) d ((. e f) g (h i j)))");
+    assertAvlBuilder(11, "((a b c) d ((e f g) h (i j k)))");
+    assertAvlBuilder(12, "((a b (. c d)) e ((f g h) i (j k l)))");
+    assertAvlBuilder(13, "((a b (c d e)) f ((g h i) j (k l m)))");
+    assertAvlBuilder(14, "(((. a b) c (d e f)) g ((h i j) k (l m n)))");
+    assertAvlBuilder(15, "(((a b c) d (e f g)) h ((i j k) l (m n o)))");
+    assertAvlBuilder(16, "(((a b c) d (e f g)) h ((i j k) l (m n (. o p))))");
+    assertAvlBuilder(30, "((((. a b) c (d e f)) g ((h i j) k (l m n))) o "
+        + "(((p q r) s (t u v)) w ((x y z) A (B C D))))");
+    assertAvlBuilder(31, "((((a b c) d (e f g)) h ((i j k) l (m n o))) p "
+        + "(((q r s) t (u v w)) x ((y z A) B (C D E))))");
+  }
+
+  private void assertAvlBuilder(int size, String expected) {
+    char[] values = "abcdefghijklmnopqrstuvwxyzABCDE".toCharArray();
+    AvlBuilder<String, String> avlBuilder = new AvlBuilder<String, String>();
+    avlBuilder.reset(size);
+    for (int i = 0; i < size; i++) {
+      avlBuilder.add(node(Character.toString(values[i])));
+    }
+    assertEquals(expected, toString(avlBuilder.root()));
+  }
+
+  public void testDoubleCapacity() {
+    @SuppressWarnings("unchecked") // Arrays and generics don't get along.
+    Node<String, String>[] oldTable = new Node[1];
+    oldTable[0] = node(node(node("a"), "b", node("c")), "d", node(node("e"), "f", node("g")));
+
+    Node<String, String>[] newTable = LinkedTreeMap.doubleCapacity(oldTable);
+    assertEquals("(b d f)", toString(newTable[0])); // Even hash codes!
+    assertEquals("(a c (. e g))", toString(newTable[1])); // Odd hash codes!
+  }
+
+  private static final Node<String, String> head = new Node<String, String>();
+
+  private Node<String, String> node(String value) {
+    Node<String, String> result = new Node<String, String>(null, value, head, head);
+    result.hash = value.hashCode();
+    return result;
+  }
+
+  private Node<String, String> node(Node<String, String> left, String value,
+      Node<String, String> right) {
+    Node<String, String> result = node(value);
+    if (left != null) {
+      result.left = left;
+      left.parent = result;
+    }
+    if (right != null) {
+      result.right = right;
+      right.parent = result;
+    }
+    return result;
+  }
+
+  private String toString(Node<?, ?> root) {
+    if (root == null) {
+      return ".";
+    } else if (root.left == null && root.right == null) {
+      return String.valueOf(root.key);
+    } else {
+      return String.format("(%s %s %s)", toString(root.left), root.key, toString(root.right));
     }
   }
 
