@@ -17,6 +17,7 @@
 package com.google.gson.internal;
 
 import com.google.gson.internal.LinkedTreeMap.AvlBuilder;
+import com.google.gson.internal.LinkedTreeMap.AvlIterator;
 import com.google.gson.internal.LinkedTreeMap.Node;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,6 +73,16 @@ public final class LinkedTreeMapTest extends TestCase {
     }
   }
 
+  public void testClear() {
+    LinkedTreeMap<String, String> map = new LinkedTreeMap<String, String>();
+    map.put("a", "android");
+    map.put("c", "cola");
+    map.put("b", "bbq");
+    map.clear();
+    assertIterationOrder(map.keySet());
+    assertEquals(0, map.size());
+  }
+
   public void testAvlWalker() {
     assertAvlWalker(node(node("a"), "b", node("c")),
         "a", "b", "c");
@@ -86,7 +97,7 @@ public final class LinkedTreeMapTest extends TestCase {
   }
 
   private void assertAvlWalker(Node<String, String> root, String... values) {
-    LinkedTreeMap.AvlIterator<String, String> iterator = new LinkedTreeMap.AvlIterator<String, String>();
+    AvlIterator<String, String> iterator = new AvlIterator<String, String>();
     iterator.reset(root);
     for (String value : values) {
       assertTrue(iterator.hasNext());
@@ -141,9 +152,7 @@ public final class LinkedTreeMapTest extends TestCase {
   private static final Node<String, String> head = new Node<String, String>();
 
   private Node<String, String> node(String value) {
-    Node<String, String> result = new Node<String, String>(null, value, head, head);
-    result.hash = value.hashCode();
-    return result;
+    return new Node<String, String>(null, value, value.hashCode(), head, head);
   }
 
   private Node<String, String> node(Node<String, String> left, String value,
