@@ -16,18 +16,18 @@
 
 package com.google.gson.internal;
 
-import com.google.gson.internal.LinkedTreeMap.AvlBuilder;
-import com.google.gson.internal.LinkedTreeMap.AvlIterator;
-import com.google.gson.internal.LinkedTreeMap.Node;
+import com.google.gson.internal.LinkedHashTreeMap.AvlBuilder;
+import com.google.gson.internal.LinkedHashTreeMap.AvlIterator;
+import com.google.gson.internal.LinkedHashTreeMap.Node;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import junit.framework.TestCase;
 
-public final class LinkedTreeMapTest extends TestCase {
+public final class LinkedHashTreeMapTest extends TestCase {
   public void testIterationOrder() {
-    LinkedTreeMap<String, String> map = new LinkedTreeMap<String, String>();
+    LinkedHashTreeMap<String, String> map = new LinkedHashTreeMap<String, String>();
     map.put("a", "android");
     map.put("c", "cola");
     map.put("b", "bbq");
@@ -36,7 +36,7 @@ public final class LinkedTreeMapTest extends TestCase {
   }
 
   public void testRemoveRootDoesNotDoubleUnlink() {
-    LinkedTreeMap<String, String> map = new LinkedTreeMap<String, String>();
+    LinkedHashTreeMap<String, String> map = new LinkedHashTreeMap<String, String>();
     map.put("a", "android");
     map.put("c", "cola");
     map.put("b", "bbq");
@@ -49,7 +49,7 @@ public final class LinkedTreeMapTest extends TestCase {
   }
 
   public void testPutNullKeyFails() {
-    LinkedTreeMap<String, String> map = new LinkedTreeMap<String, String>();
+    LinkedHashTreeMap<String, String> map = new LinkedHashTreeMap<String, String>();
     try {
       map.put(null, "android");
       fail();
@@ -58,23 +58,13 @@ public final class LinkedTreeMapTest extends TestCase {
   }
 
   public void testContainsNullKeyFails() {
-    LinkedTreeMap<String, String> map = new LinkedTreeMap<String, String>();
+    LinkedHashTreeMap<String, String> map = new LinkedHashTreeMap<String, String>();
     map.put("a", "android");
     assertFalse(map.containsKey(null));
   }
 
-  public void testContainsNonComparableKeyThrows() {
-    LinkedTreeMap<String, String> map = new LinkedTreeMap<String, String>();
-    map.put("a", "android");
-    try {
-      map.containsKey(new Object());
-      fail();
-    } catch (ClassCastException expected) {
-    }
-  }
-
   public void testClear() {
-    LinkedTreeMap<String, String> map = new LinkedTreeMap<String, String>();
+    LinkedHashTreeMap<String, String> map = new LinkedHashTreeMap<String, String>();
     map.put("a", "android");
     map.put("c", "cola");
     map.put("b", "bbq");
@@ -100,10 +90,9 @@ public final class LinkedTreeMapTest extends TestCase {
     AvlIterator<String, String> iterator = new AvlIterator<String, String>();
     iterator.reset(root);
     for (String value : values) {
-      assertTrue(iterator.hasNext());
       assertEquals(value, iterator.next().getKey());
     }
-    assertFalse(iterator.hasNext());
+    assertNull(iterator.next());
   }
 
   public void testAvlBuilder() {
@@ -136,7 +125,7 @@ public final class LinkedTreeMapTest extends TestCase {
     for (int i = 0; i < size; i++) {
       avlBuilder.add(node(Character.toString(values[i])));
     }
-    assertEquals(expected, toString(avlBuilder.root()));
+    assertTree(expected, avlBuilder.root());
   }
 
   public void testDoubleCapacity() {
@@ -144,9 +133,15 @@ public final class LinkedTreeMapTest extends TestCase {
     Node<String, String>[] oldTable = new Node[1];
     oldTable[0] = node(node(node("a"), "b", node("c")), "d", node(node("e"), "f", node("g")));
 
-    Node<String, String>[] newTable = LinkedTreeMap.doubleCapacity(oldTable);
-    assertEquals("(b d f)", toString(newTable[0])); // Even hash codes!
-    assertEquals("(a c (. e g))", toString(newTable[1])); // Odd hash codes!
+    Node<String, String>[] newTable = LinkedHashTreeMap.doubleCapacity(oldTable);
+    assertTree("(b d f)", newTable[0]); // Even hash codes!
+    assertTree("(a c (. e g))", newTable[1]); // Odd hash codes!
+
+    for (Node<?, ?> node : newTable) {
+      if (node != null) {
+        assertConsistent(node);
+      }
+    }
   }
 
   private static final Node<String, String> head = new Node<String, String>();
@@ -167,6 +162,32 @@ public final class LinkedTreeMapTest extends TestCase {
       right.parent = result;
     }
     return result;
+  }
+
+  private void assertTree(String expected, Node<?, ?> root) {
+    assertEquals(expected, toString(root));
+    assertConsistent(root);
+  }
+
+  private void assertConsistent(Node<?, ?> node) {
+    int leftHeight = 0;
+    if (node.left != null) {
+      assertConsistent(node.left);
+      assertSame(node, node.left.parent);
+      leftHeight = node.left.height;
+    }
+    int rightHeight = 0;
+    if (node.right != null) {
+      assertConsistent(node.right);
+      assertSame(node, node.right.parent);
+      rightHeight = node.right.height;
+    }
+    if (node.parent != null) {
+      assertTrue(node.parent.left == node || node.parent.right == node);
+    }
+    if (Math.max(leftHeight, rightHeight) + 1 != node.height) {
+      fail();
+    }
   }
 
   private String toString(Node<?, ?> root) {

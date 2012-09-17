@@ -21,7 +21,6 @@ import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
-import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.ConcurrentModificationException;
@@ -38,7 +37,7 @@ import java.util.Set;
  * <p>This implementation was derived from Android 4.1's TreeMap and
  * LinkedHashMap classes.
  */
-public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Serializable {
+public final class LinkedHashTreeMap<K, V> extends AbstractMap<K, V> implements Serializable {
   @SuppressWarnings("unchecked") // to avoid Comparable<Comparable<Comparable<...>>>
   private static final Comparator<Comparable> NATURAL_ORDER = new Comparator<Comparable>() {
     public int compare(Comparable a, Comparable b) {
@@ -58,7 +57,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
    * comparable and non-null.
    */
   @SuppressWarnings("unchecked") // unsafe! this assumes K is comparable
-  public LinkedTreeMap() {
+  public LinkedHashTreeMap() {
     this((Comparator<? super K>) NATURAL_ORDER);
   }
 
@@ -70,7 +69,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
    *     use the natural ordering.
    */
   @SuppressWarnings("unchecked") // unsafe! if comparator is null, this assumes K is comparable
-  public LinkedTreeMap(Comparator<? super K> comparator) {
+  public LinkedHashTreeMap(Comparator<? super K> comparator) {
     this.comparator = comparator != null
         ? comparator
         : (Comparator) NATURAL_ORDER;
@@ -84,8 +83,8 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
   }
 
   @Override public V get(Object key) {
-    Entry<K, V> entry = findByObject(key);
-    return entry != null ? entry.getValue() : null;
+    Node<K, V> node = findByObject(key);
+    return node != null ? node.value : null;
   }
 
   @Override public boolean containsKey(Object key) {
@@ -130,62 +129,71 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
    *     mutually comparable.
    */
   Node<K, V> find(K key, boolean create) {
+    Comparator<? super K> comparator = this.comparator;
+    Node<K, V>[] table = this.table;
     int hash = secondaryHash(key.hashCode());
     int index = hash & (table.length - 1);
+    Node<K, V> nearest = table[index];
+    int comparison = 0;
 
-    if (table[index] == null) {
+    if (nearest != null) {
+      // Micro-optimization: avoid polymorphic calls to Comparator.compare().
+      @SuppressWarnings("unchecked") // Throws a ClassCastException below if there's trouble.
+      Comparable<Object> comparableKey = (comparator == NATURAL_ORDER)
+          ? (Comparable<Object>) key
+          : null;
+
+      while (true) {
+        comparison = (comparableKey != null)
+            ? comparableKey.compareTo(nearest.key)
+            : comparator.compare(key, nearest.key);
+
+        // We found the requested key.
+        if (comparison == 0) {
+          return nearest;
+        }
+
+        // If it exists, the key is in a subtree. Go deeper.
+        Node<K, V> child = (comparison < 0) ? nearest.left : nearest.right;
+        if (child == null) {
+          break;
+        }
+
+        nearest = child;
+      }
+    }
+
+    // The key doesn't exist in this tree.
+    if (!create) {
+      return null;
+    }
+
+    // Create the node and add it to the tree or the table.
+    Node<K, V> header = this.header;
+    Node<K, V> created;
+    if (nearest == null) {
+      // Check that the value is comparable if we didn't do any comparisons.
       if (comparator == NATURAL_ORDER && !(key instanceof Comparable)) {
         throw new ClassCastException(key.getClass().getName() + " is not Comparable");
       }
-      if (create) {
-        Node<K, V> created = new Node<K, V>(null, key, hash, header, header.prev);
-        size++;
-        table[index] = created;
-        modCount++;
-        if (size > threshold) {
-          doubleCapacity();
-        }
-        return created;
-      } else {
-        return null;
+      created = new Node<K, V>(nearest, key, hash, header, header.prev);
+      table[index] = created;
+    } else {
+      created = new Node<K, V>(nearest, key, hash, header, header.prev);
+      if (comparison < 0) { // nearest.key is higher
+        nearest.left = created;
+      } else { // comparison > 0, nearest.key is lower
+        nearest.right = created;
       }
+      rebalance(nearest, true);
     }
 
-    Node<K, V> nearest = table[index];
-    while (true) {
-      int comparison = comparator.compare(key, nearest.key);
-
-      // We found the requested key.
-      if (comparison == 0) {
-        return nearest;
-      }
-
-      // If it exists, the key is in a subtree. Go deeper.
-      Node<K, V> child = (comparison < 0) ? nearest.left : nearest.right;
-      if (child != null) {
-        nearest = child;
-        continue;
-      }
-
-      // The key doesn't exist in this tree. Create it here, then rebalance.
-      if (create) {
-        Node<K, V> created = new Node<K, V>(nearest, key, hash, header, header.prev);
-        if (comparison < 0) { // nearest.key is higher
-          nearest.left = created;
-        } else { // comparison > 0, nearest.key is lower
-          nearest.right = created;
-        }
-        size++;
-        modCount++;
-        rebalance(nearest, true);
-        if (size > threshold) {
-          doubleCapacity();
-        }
-        return created;
-      } else {
-        return null;
-      }
+    if (size++ > threshold) {
+      doubleCapacity();
     }
+    modCount++;
+
+    return created;
   }
 
   @SuppressWarnings("unchecked") // this method throws ClassCastExceptions!
@@ -452,7 +460,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
     return result != null ? result : (keySet = new KeySet());
   }
 
-  static class Node<K, V> implements Entry<K, V> {
+  static final class Node<K, V> implements Entry<K, V> {
     Node<K, V> parent;
     Node<K, V> left;
     Node<K, V> right;
@@ -570,8 +578,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
       iterator.reset(root);
       int leftSize = 0;
       int rightSize = 0;
-      while (iterator.hasNext()) {
-        Node<K, V> node = iterator.next();
+      for (Node<K, V> node; (node = iterator.next()) != null; ) {
         if ((node.hash & oldCapacity) == 0) {
           leftSize++;
         } else {
@@ -586,8 +593,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
         leftBuilder.reset(leftSize);
         rightBuilder.reset(rightSize);
         iterator.reset(root);
-        while (iterator.hasNext()) {
-          Node<K, V> node = iterator.next();
+        for (Node<K, V> node; (node = iterator.next()) != null; ) {
           if ((node.hash & oldCapacity) == 0) {
             leftBuilder.add(node);
           } else {
@@ -613,34 +619,40 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
    * Walks an AVL tree in iteration order. Once a node has been returned, its
    * left, right and parent links are <strong>no longer used</strong>. For this
    * reason it is safe to transform these links as you walk a tree.
+   *
+   * <p><strong>Warning:</strong> this iterator is destructive. It clears the
+   * parent node of all nodes in the tree. It is an error to make a partial
+   * iteration of a tree.
    */
-  static class AvlIterator<K, V> implements Iterator<Node<K, V>> {
-    private final ArrayDeque<Node<K, V>> stack = new ArrayDeque<Node<K, V>>();
+  static class AvlIterator<K, V> {
+    /** This stack is a singly linked list, linked by the 'parent' field. */
+    private Node<K, V> stackTop;
 
     void reset(Node<K, V> root) {
-      stack.clear();
+      Node<K, V> stackTop = null;
       for (Node<K, V> n = root; n != null; n = n.left) {
-        stack.add(n);
+        n.parent = stackTop;
+        stackTop = n; // Stack push.
       }
-    }
-
-    public boolean hasNext() {
-      return !stack.isEmpty();
+      this.stackTop = stackTop;
     }
 
     public Node<K, V> next() {
-      Node<K, V> node = stack.removeLast();
-      for (Node<K, V> n = node.right; n != null; n = n.left) {
-        stack.add(n);
+      Node<K, V> stackTop = this.stackTop;
+      if (stackTop == null) {
+        return null;
       }
-      return node;
-    }
-
-    public void remove() {
-      throw new UnsupportedOperationException();
+      Node<K, V> result = stackTop;
+      stackTop = result.parent;
+      result.parent = null;
+      for (Node<K, V> n = result.right; n != null; n = n.left) {
+        n.parent = stackTop;
+        stackTop = n; // Stack push.
+      }
+      this.stackTop = stackTop;
+      return result;
     }
   }
-
 
   /**
    * Builds AVL trees of a predetermined size by accepting nodes of increasing
@@ -661,7 +673,8 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
    * {@code O(S)}.
    */
   static class AvlBuilder<K, V> {
-    private final ArrayDeque<Node<K, V>> stack = new ArrayDeque<Node<K, V>>();
+    /** This stack is a singly linked list, linked by the 'parent' field. */
+    private Node<K, V> stack;
     private int leavesToSkip;
     private int leavesSkipped;
     private int size;
@@ -672,7 +685,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
       leavesToSkip = treeCapacity - targetSize;
       size = 0;
       leavesSkipped = 0;
-      stack.clear();
+      stack = null;
     }
 
     void add(Node<K, V> node) {
@@ -686,7 +699,8 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
         leavesSkipped++;
       }
 
-      stack.addLast(node);
+      node.parent = stack;
+      stack = node; // Stack push.
       size++;
 
       // Skip a leaf if necessary.
@@ -709,38 +723,42 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
        * 3-element trees when size nears a multiple of 8, we combine subtrees of
        * size (N-1) whenever the total size is 2N-1 whenever N is a power of 2.
        */
-      int centerHeight = 2;
       for (int scale = 4; (size & scale - 1) == scale - 1; scale *= 2) {
         if (leavesSkipped == 0) {
-          Node<K, V> right = stack.removeLast();
-          Node<K, V> center = stack.removeLast();
-          Node<K, V> left = stack.removeLast();
+          // Pop right, center and left, then make center the top of the stack.
+          Node<K, V> right = stack;
+          Node<K, V> center = right.parent;
+          Node<K, V> left = center.parent;
+          center.parent = left.parent;
+          stack = center;
+          // Construct a tree.
           center.left = left;
+          center.right = right;
+          center.height = right.height + 1;
           left.parent = center;
-          center.right = right;
           right.parent = center;
-          center.height = centerHeight;
-          stack.addLast(center);
         } else if (leavesSkipped == 1) {
-          Node<K, V> right = stack.removeLast();
-          Node<K, V> center = stack.removeLast();
+          // Pop right and center, then make center the top of the stack.
+          Node<K, V> right = stack;
+          Node<K, V> center = right.parent;
+          stack = center;
+          // Construct a tree with no left child.
           center.right = right;
-          center.height = centerHeight;
-          center.height++;
-          stack.addLast(center);
+          center.height = right.height + 1;
+          right.parent = center;
           leavesSkipped = 0;
         } else if (leavesSkipped == 2) {
           leavesSkipped = 0;
         }
-        centerHeight++;
       }
     }
 
     Node<K, V> root() {
-      if (stack.size() != 1) {
+      Node<K, V> stackTop = this.stack;
+      if (stackTop.parent != null) {
         throw new IllegalStateException();
       }
-      return stack.getLast();
+      return stackTop;
     }
   }
 
@@ -806,7 +824,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
     }
 
     @Override public void clear() {
-      LinkedTreeMap.this.clear();
+      LinkedHashTreeMap.this.clear();
     }
   }
 
@@ -832,7 +850,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
     }
 
     @Override public void clear() {
-      LinkedTreeMap.this.clear();
+      LinkedHashTreeMap.this.clear();
     }
   }
 
