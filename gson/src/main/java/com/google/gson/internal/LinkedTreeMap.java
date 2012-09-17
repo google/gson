@@ -22,11 +22,11 @@ import java.io.Serializable;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -47,10 +47,11 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
   };
 
   Comparator<? super K> comparator;
-  Node<K, V> root;
+  Node<K, V>[] table;
   final Node<K, V> header;
   int size = 0;
   int modCount = 0;
+  int threshold;
 
   /**
    * Create a natural order, empty tree map whose keys must be mutually
@@ -74,6 +75,8 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
         ? comparator
         : (Comparator) NATURAL_ORDER;
     this.header = new Node<K, V>();
+    this.table = new Node[16]; // TODO: sizing/resizing policies
+    this.threshold = (table.length / 2) + (table.length / 4); // 3/4 capacity
   }
 
   @Override public int size() {
@@ -100,9 +103,19 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
   }
 
   @Override public void clear() {
-    root = null;
+    Arrays.fill(table, null);
     size = 0;
     modCount++;
+
+    // Clear all links to help GC
+    Node<K, V> header = this.header;
+    for (Node<K, V> e = header.next; e != header; ) {
+      Node<K, V> next = e.next;
+      e.next = e.prev = null;
+      e = next;
+    }
+
+    header.next = header.prev = header;
   }
 
   @Override public V remove(Object key) {
@@ -117,21 +130,28 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
    *     mutually comparable.
    */
   Node<K, V> find(K key, boolean create) {
-    if (root == null) {
+    int hash = secondaryHash(key.hashCode());
+    int index = hash & (table.length - 1);
+
+    if (table[index] == null) {
       if (comparator == NATURAL_ORDER && !(key instanceof Comparable)) {
         throw new ClassCastException(key.getClass().getName() + " is not Comparable");
       }
       if (create) {
-        root = new Node<K, V>(null, key, header, header);
-        size = 1;
+        Node<K, V> created = new Node<K, V>(null, key, hash, header, header.prev);
+        size++;
+        table[index] = created;
         modCount++;
-        return root;
+        if (size > threshold) {
+          doubleCapacity();
+        }
+        return created;
       } else {
         return null;
       }
     }
 
-    Node<K, V> nearest = root;
+    Node<K, V> nearest = table[index];
     while (true) {
       int comparison = comparator.compare(key, nearest.key);
 
@@ -149,7 +169,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
 
       // The key doesn't exist in this tree. Create it here, then rebalance.
       if (create) {
-        Node<K, V> created = new Node<K, V>(nearest, key, header, header.prev);
+        Node<K, V> created = new Node<K, V>(nearest, key, hash, header, header.prev);
         if (comparison < 0) { // nearest.key is higher
           nearest.left = created;
         } else { // comparison > 0, nearest.key is lower
@@ -158,6 +178,9 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
         size++;
         modCount++;
         rebalance(nearest, true);
+        if (size > threshold) {
+          doubleCapacity();
+        }
         return created;
       } else {
         return null;
@@ -187,6 +210,18 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
 
   private boolean equal(Object a, Object b) {
     return a == b || (a != null && a.equals(b));
+  }
+
+  /**
+   * Applies a supplemental hash function to a given hashCode, which defends
+   * against poor quality hash functions. This is critical because HashMap
+   * uses power-of-two length hash tables, that otherwise encounter collisions
+   * for hashCodes that do not differ in lower or upper bits.
+   */
+  private static int secondaryHash(int h) {
+    // Doug Lea's supplemental hash function
+    h ^= (h >>> 20) ^ (h >>> 12);
+    return h ^ (h >>> 7) ^ (h >>> 4);
   }
 
   /**
@@ -276,7 +311,8 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
         parent.right = replacement;
       }
     } else {
-      root = replacement;
+      int index = node.hash & (table.length - 1);
+      table[index] = replacement;
     }
   }
 
@@ -416,27 +452,29 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
     return result != null ? result : (keySet = new KeySet());
   }
 
-  static class Node<K, V> implements Map.Entry<K, V> {
+  static class Node<K, V> implements Entry<K, V> {
     Node<K, V> parent;
     Node<K, V> left;
     Node<K, V> right;
     Node<K, V> next;
     Node<K, V> prev;
     final K key;
+    final int hash;
     V value;
     int height;
-    int hash;
 
     /** Create the header entry */
     Node() {
       key = null;
+      hash = -1;
       next = prev = this;
     }
 
     /** Create a regular entry */
-    Node(Node<K, V> parent, K key, Node<K, V> next, Node<K, V> prev) {
+    Node(Node<K, V> parent, K key, int hash, Node<K, V> next, Node<K, V> prev) {
       this.parent = parent;
       this.key = key;
+      this.hash = hash;
       this.height = 1;
       this.next = next;
       this.prev = prev;
@@ -459,8 +497,8 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
     }
 
     @Override public boolean equals(Object o) {
-      if (o instanceof Map.Entry) {
-        Map.Entry other = (Map.Entry) o;
+      if (o instanceof Entry) {
+        Entry other = (Entry) o;
         return (key == null ? other.getKey() == null : key.equals(other.getKey()))
             && (value == null ? other.getValue() == null : value.equals(other.getValue()));
       }
@@ -501,6 +539,11 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
       }
       return node;
     }
+  }
+
+  private void doubleCapacity() {
+    table = doubleCapacity(table);
+    threshold = (table.length / 2) + (table.length / 4); // 3/4 capacity
   }
 
   /**
@@ -726,13 +769,13 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
       if (lastReturned == null) {
         throw new IllegalStateException();
       }
-      LinkedTreeMap.this.removeInternal(lastReturned, true);
+      removeInternal(lastReturned, true);
       lastReturned = null;
       expectedModCount = modCount;
     }
   }
 
-  class EntrySet extends AbstractSet<Map.Entry<K, V>> {
+  class EntrySet extends AbstractSet<Entry<K, V>> {
     @Override public int size() {
       return size;
     }
