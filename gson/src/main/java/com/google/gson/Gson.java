@@ -33,8 +33,11 @@ import java.util.Map;
 
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.Excluder;
+import com.google.gson.internal.ObjectConstructor;
 import com.google.gson.internal.Primitives;
 import com.google.gson.internal.Streams;
+import com.google.gson.internal.alpha.Intercept;
+import com.google.gson.internal.alpha.JsonPostDeserializer;
 import com.google.gson.internal.bind.ArrayTypeAdapter;
 import com.google.gson.internal.bind.CollectionTypeAdapterFactory;
 import com.google.gson.internal.bind.DateTypeAdapter;
@@ -791,8 +794,11 @@ public final class Gson {
     try {
       reader.peek();
       isEmpty = false;
-      TypeAdapter<T> typeAdapter = (TypeAdapter<T>) getAdapter(TypeToken.get(typeOfT));
-      return typeAdapter.read(reader);
+      TypeToken<T> typeToken = (TypeToken<T>) TypeToken.get(typeOfT);
+      TypeAdapter<T> typeAdapter = (TypeAdapter<T>) getAdapter(typeToken);
+      T object = typeAdapter.read(reader);
+      invokeInterceptorIfNeeded(object, typeToken);
+      return object;
     } catch (EOFException e) {
       /*
        * For compatibility with JSON 1.5 and earlier, we return null for empty
@@ -882,6 +888,20 @@ public final class Gson {
       }
       delegate.write(out, value);
     }
+  }
+
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  private <T> void invokeInterceptorIfNeeded(T object, TypeToken<T> type) {
+    Class<? super T> clazz = type.getRawType();
+    Intercept interceptor = clazz.getAnnotation(Intercept.class);
+    if (interceptor == null) return;
+    // TODO: We don't need to construct an instance of postDeserializer every time. we can
+    // create it once and cache it.
+    Class<? extends JsonPostDeserializer> postDeserializerClass = interceptor.postDeserialize();
+    ObjectConstructor<? extends JsonPostDeserializer> objectConstructor =
+        constructorConstructor.get(TypeToken.get(postDeserializerClass));
+    JsonPostDeserializer<T> postDeserializer = objectConstructor.construct();
+    postDeserializer.postDeserialize(object);
   }
 
   @Override
