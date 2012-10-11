@@ -15,11 +15,15 @@
  */
 package com.google.gson.functional;
 
+import java.util.List;
+
 import junit.framework.TestCase;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
 import com.google.gson.internal.alpha.Intercept;
 import com.google.gson.internal.alpha.JsonPostDeserializer;
+import com.google.gson.reflect.TypeToken;
 
 /**
  * Unit tests for {@link Intercept} and {@link JsonPostDeserializer}.
@@ -36,29 +40,48 @@ public final class InterceptorTest extends TestCase {
     this.gson = new Gson();
   }
 
-  public void testPostDeserialize() {
-    MyObject target = gson.fromJson("{}", MyObject.class);
-    assertEquals(MyObject.DEFAULT_VALUE, target.value);
-    assertEquals(MyObject.DEFAULT_MESSAGE, target.message);
+  public void testExceptionsPropagated() {
+    try {
+      gson.fromJson("{}", User.class);
+      fail();
+    } catch (JsonParseException expected) {}
   }
 
-  @Intercept(postDeserialize = MyObjectInterceptor.class)
-  private static final class MyObject {
-    static final int DEFAULT_VALUE = 10;
-    static final String DEFAULT_MESSAGE = "hello";
-
-    int value = 0;
-    String message = null;
+  public void testPostDeserializeTopLevelClass() {
+    User user = gson.fromJson("{name:'bob',password:'pwd'}", User.class);
+    assertEquals(User.DEFAULT_EMAIL, user.email);
   }
 
-  private static final class MyObjectInterceptor implements JsonPostDeserializer<MyObject> {
-    public void postDeserialize(MyObject o) {
-      if (o.value == 0) {
-        o.value = MyObject.DEFAULT_VALUE;
+  public void testPostDeserializeList() {
+    List<User> list = gson.fromJson("[{name:'bob',password:'pwd'}]", new TypeToken<List<User>>(){}.getType());
+    User user = list.get(0);
+    assertEquals(User.DEFAULT_EMAIL, user.email);
+  }
+
+  public void testPostDeserializeField() {
+    UserGroup userGroup = gson.fromJson("{user:{name:'bob',password:'pwd'}}", UserGroup.class);
+    assertEquals(User.DEFAULT_EMAIL, userGroup.user.email);
+  }
+
+  private static final class UserGroup {
+    User user;
+    String city;
+  }
+
+  @Intercept(postDeserialize = UserValidator.class)
+  private static final class User {
+    static final String DEFAULT_EMAIL = "invalid@invalid.com";
+    String name;
+    String password;
+    String email;
+  }
+
+  private static final class UserValidator implements JsonPostDeserializer<User> {
+    public void postDeserialize(User user) {
+      if (user.name == null || user.password == null) {
+        throw new JsonParseException("name and password are required fields.");
       }
-      if (o.message == null) {
-        o.message = MyObject.DEFAULT_MESSAGE;
-      }
+      if (user.email == null) user.email = User.DEFAULT_EMAIL;
     }
   }
 }
