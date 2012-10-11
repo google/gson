@@ -107,7 +107,7 @@ public class JsonParserTest extends TestCase {
 
   public void testReadWriteTwoObjects() throws Exception {
     Gson gson = new Gson();
-    CharArrayWriter writer= new CharArrayWriter();
+    CharArrayWriter writer = new CharArrayWriter();
     BagOfPrimitives expectedOne = new BagOfPrimitives(1, 1, true, "one");
     writer.write(gson.toJson(expectedOne).toCharArray());
     BagOfPrimitives expectedTwo = new BagOfPrimitives(2, 2, false, "two");

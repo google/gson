@@ -590,11 +590,13 @@ public class DefaultTypeAdaptersTest extends TestCase {
     assertEquals("{\"foo\":1,\"bar\":2}", gson.toJson(object, JsonElement.class));
   }
 
-  public void testJsonObjectDeerialization() {
+  public void testJsonObjectDeserialization() {
     JsonObject object = new JsonObject();
     object.add("foo", new JsonPrimitive(1));
     object.add("bar", new JsonPrimitive(2));
-    assertEquals(object, gson.fromJson("{\"foo\":1,\"bar\":2}", JsonElement.class));
+
+    JsonElement actual = gson.fromJson("{\"foo\":1,\"bar\":2}", JsonElement.class);
+    assertEquals(object, actual);
   }
 
   public void testJsonNullDeerialization() {
