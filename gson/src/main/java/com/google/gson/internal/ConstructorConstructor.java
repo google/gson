@@ -18,6 +18,7 @@ package com.google.gson.internal;
 
 import com.google.gson.InstanceCreator;
 import com.google.gson.reflect.TypeToken;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
@@ -31,7 +32,9 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 /**
@@ -144,25 +147,31 @@ public final class ConstructorConstructor {
     }
 
     if (Map.class.isAssignableFrom(rawType)) {
-      if (type instanceof ParameterizedType
-          && ((ParameterizedType) type).getActualTypeArguments()[0] == String.class) {
+      if (SortedMap.class.isAssignableFrom(rawType)) {
         return new ObjectConstructor<T>() {
           public T construct() {
-            return (T) new StringMap<Object>();
+            return (T) new TreeMap<Object, Object>();
           }
         };
-      } else {
+      } else if (type instanceof ParameterizedType && !(String.class.isAssignableFrom(
+          TypeToken.get(((ParameterizedType) type).getActualTypeArguments()[0]).getRawType()))) {
         return new ObjectConstructor<T>() {
           public T construct() {
             return (T) new LinkedHashMap<Object, Object>();
           }
         };
+      } else {
+        return new ObjectConstructor<T>() {
+          public T construct() {
+            return (T) new LinkedTreeMap<String, Object>();
+          }
+        };
       }
-      // TODO: SortedMap ?
     }
 
     return null;
   }
+
 
   private <T> ObjectConstructor<T> newUnsafeAllocator(
       final Type type, final Class<? super T> rawType) {

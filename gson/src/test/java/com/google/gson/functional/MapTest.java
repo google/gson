@@ -16,15 +16,6 @@
 
 package com.google.gson.functional;
 
-import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.TreeMap;
-
-import junit.framework.TestCase;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
@@ -39,6 +30,16 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.common.TestTypes;
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.reflect.TypeToken;
+
+import junit.framework.TestCase;
+
+import java.lang.reflect.Type;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * Functional test for Json serialization and deserialization for Maps
@@ -151,6 +152,22 @@ public class MapTest extends TestCase {
   public void testMapDeserializationWithIntegerKeys() {
     Type typeOfMap = new TypeToken<Map<Integer, String>>() {}.getType();
     Map<Integer, String> map = gson.fromJson("{\"123\":\"456\"}", typeOfMap);
+    assertEquals(1, map.size());
+    assertTrue(map.containsKey(123));
+    assertEquals("456", map.get(123));
+  }
+
+  public void testHashMapDeserialization() throws Exception {
+    Type typeOfMap = new TypeToken<HashMap<Integer, String>>() {}.getType();
+    HashMap<Integer, String> map = gson.fromJson("{\"123\":\"456\"}", typeOfMap);
+    assertEquals(1, map.size());
+    assertTrue(map.containsKey(123));
+    assertEquals("456", map.get(123));
+  }
+
+  public void testSortedMap() throws Exception {
+    Type typeOfMap = new TypeToken<SortedMap<Integer, String>>() {}.getType();
+    SortedMap<Integer, String> map = gson.fromJson("{\"123\":\"456\"}", typeOfMap);
     assertEquals(1, map.size());
     assertTrue(map.containsKey(123));
     assertEquals("456", map.get(123));

@@ -40,6 +40,7 @@ public class JsonObjectTest extends TestCase {
     JsonElement removedElement = jsonObj.remove(propertyName);
     assertEquals(value, removedElement);
     assertFalse(jsonObj.has(propertyName));
+    assertNull(jsonObj.get(propertyName));
   }
 
   public void testAddingNullPropertyValue() throws Exception {
