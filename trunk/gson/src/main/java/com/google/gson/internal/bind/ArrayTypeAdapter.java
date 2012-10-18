@@ -16,9 +16,6 @@
 
 package com.google.gson.internal.bind;
 
-import com.google.gson.Gson;
-import com.google.gson.TypeAdapter;
-import com.google.gson.TypeAdapterFactory;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
@@ -26,6 +23,9 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gson.Gson;
+import com.google.gson.TypeAdapter;
+import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
@@ -51,10 +51,12 @@ public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
     }
   };
 
+  private final Gson context;
   private final Class<E> componentType;
   private final TypeAdapter<E> componentTypeAdapter;
 
   public ArrayTypeAdapter(Gson context, TypeAdapter<E> componentTypeAdapter, Class<E> componentType) {
+    this.context = context;
     this.componentTypeAdapter =
       new TypeAdapterRuntimeTypeWrapper<E>(context, componentTypeAdapter, componentType);
     this.componentType = componentType;
@@ -70,6 +72,7 @@ public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
     in.beginArray();
     while (in.hasNext()) {
       E instance = componentTypeAdapter.read(in);
+      Gson.$Internal$Access.invokeInterceptor(context, instance, componentType);
       list.add(instance);
     }
     in.endArray();
