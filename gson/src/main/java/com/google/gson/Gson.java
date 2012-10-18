@@ -797,7 +797,7 @@ public final class Gson {
       TypeToken<T> typeToken = (TypeToken<T>) TypeToken.get(typeOfT);
       TypeAdapter<T> typeAdapter = (TypeAdapter<T>) getAdapter(typeToken);
       T object = typeAdapter.read(reader);
-      invokeInterceptorIfNeeded(object, typeToken);
+      invokeInterceptorIfNeeded(object, typeToken.getRawType());
       return object;
     } catch (EOFException e) {
       /*
@@ -890,9 +890,15 @@ public final class Gson {
     }
   }
 
+  private <T> void invokeInterceptorIfNeeded(T object, Type type) {
+    @SuppressWarnings("unchecked")
+    TypeToken<T> typeToken = (TypeToken<T>) TypeToken.get(type);
+    Class<? super T> clazz = typeToken.getRawType();
+    invokeInterceptorIfNeeded(object, clazz);
+  }
+
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  private <T> void invokeInterceptorIfNeeded(T object, TypeToken<T> type) {
-    Class<? super T> clazz = type.getRawType();
+  private <T> void invokeInterceptorIfNeeded(T object, Class<T> clazz) {
     Intercept interceptor = clazz.getAnnotation(Intercept.class);
     if (interceptor == null) return;
     // TODO: We don't need to construct an instance of postDeserializer every time. we can
@@ -912,5 +918,17 @@ public final class Gson {
         .append(",instanceCreators:").append(constructorConstructor)
         .append("}");
   	return sb.toString();
+  }
+
+  /**
+   * Not part of the Gson API. Do not use.
+   */
+  public static final class $Internal$Access {
+    public static <T> void invokeInterceptor(Gson gson, T instance, Type type) {
+      gson.invokeInterceptorIfNeeded(instance, type);
+    }
+    public static <T> void invokeInterceptor(Gson gson, T instance, Class<T> clazz) {
+      gson.invokeInterceptorIfNeeded(instance, clazz);
+    }
   }
 }

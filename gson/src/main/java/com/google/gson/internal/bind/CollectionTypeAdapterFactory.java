@@ -58,12 +58,16 @@ public final class CollectionTypeAdapterFactory implements TypeAdapterFactory {
   }
 
   private final class Adapter<E> extends TypeAdapter<Collection<E>> {
+    private final Gson context;
+    private final Type elementType;
     private final TypeAdapter<E> elementTypeAdapter;
     private final ObjectConstructor<? extends Collection<E>> constructor;
 
     public Adapter(Gson context, Type elementType,
         TypeAdapter<E> elementTypeAdapter,
         ObjectConstructor<? extends Collection<E>> constructor) {
+      this.context = context;
+      this.elementType = elementType;
       this.elementTypeAdapter =
           new TypeAdapterRuntimeTypeWrapper<E>(context, elementTypeAdapter, elementType);
       this.constructor = constructor;
@@ -79,6 +83,7 @@ public final class CollectionTypeAdapterFactory implements TypeAdapterFactory {
       in.beginArray();
       while (in.hasNext()) {
         E instance = elementTypeAdapter.read(in);
+        Gson.$Internal$Access.invokeInterceptor(context, instance, elementType);
         collection.add(instance);
       }
       in.endArray();
