@@ -111,11 +111,7 @@ public final class Gson {
    * The proxy is wired up once the initial adapter has been created.
    */
   private final ThreadLocal<Map<TypeToken<?>, FutureTypeAdapter<?>>> calls
-      = new ThreadLocal<Map<TypeToken<?>, FutureTypeAdapter<?>>>() {
-    @Override protected Map<TypeToken<?>, FutureTypeAdapter<?>> initialValue() {
-      return new HashMap<TypeToken<?>, FutureTypeAdapter<?>>();
-    }
-  };
+      = new ThreadLocal<Map<TypeToken<?>, FutureTypeAdapter<?>>>();
 
   private final Map<TypeToken<?>, TypeAdapter<?>> typeTokenCache
       = Collections.synchronizedMap(new HashMap<TypeToken<?>, TypeAdapter<?>>());
@@ -343,6 +339,11 @@ public final class Gson {
     }
 
     Map<TypeToken<?>, FutureTypeAdapter<?>> threadCalls = calls.get();
+    if (threadCalls == null) {
+      threadCalls = new HashMap<TypeToken<?>, FutureTypeAdapter<?>>();
+      calls.set(threadCalls);
+    }
+
     // the key and value type parameters always agree
     FutureTypeAdapter<T> ongoingCall = (FutureTypeAdapter<T>) threadCalls.get(type);
     if (ongoingCall != null) {
