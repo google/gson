@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson.internal.alpha;
+package com.google.gson.interceptors;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
