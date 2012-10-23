@@ -795,9 +795,9 @@ public final class Gson {
       reader.peek();
       isEmpty = false;
       TypeToken<T> typeToken = (TypeToken<T>) TypeToken.get(typeOfT);
-      TypeAdapter<T> typeAdapter = (TypeAdapter<T>) getAdapter(typeToken);
+      TypeAdapter<T> typeAdapter = getAdapter(typeToken);
       T object = typeAdapter.read(reader);
-      invokeInterceptorIfNeeded(object, typeToken.getRawType());
+      invokeInterceptorIfNeeded(object, (Class<T>) typeToken.getRawType());
       return object;
     } catch (EOFException e) {
       /*
@@ -890,10 +890,10 @@ public final class Gson {
     }
   }
 
+  @SuppressWarnings("unchecked")
   private <T> void invokeInterceptorIfNeeded(T object, Type type) {
-    @SuppressWarnings("unchecked")
     TypeToken<T> typeToken = (TypeToken<T>) TypeToken.get(type);
-    Class<? super T> clazz = typeToken.getRawType();
+    Class<T> clazz = (Class<T>) typeToken.getRawType();
     invokeInterceptorIfNeeded(object, clazz);
   }
 
