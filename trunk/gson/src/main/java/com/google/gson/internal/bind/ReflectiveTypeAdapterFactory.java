@@ -91,7 +91,6 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       @Override void read(JsonReader reader, Object value)
           throws IOException, IllegalAccessException {
         Object fieldValue = typeAdapter.read(reader);
-        Gson.$Internal$Access.invokeInterceptor(context, fieldValue, fieldType.getRawType());
         if (fieldValue != null || !isPrimitive) {
           field.set(value, fieldValue);
         }

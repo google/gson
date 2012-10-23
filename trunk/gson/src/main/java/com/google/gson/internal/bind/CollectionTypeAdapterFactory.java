@@ -83,7 +83,6 @@ public final class CollectionTypeAdapterFactory implements TypeAdapterFactory {
       in.beginArray();
       while (in.hasNext()) {
         E instance = elementTypeAdapter.read(in);
-        Gson.$Internal$Access.invokeInterceptor(context, instance, elementType);
         collection.add(instance);
       }
       in.endArray();

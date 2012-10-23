@@ -16,12 +16,6 @@
 
 package com.google.gson.internal.bind;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
@@ -37,6 +31,11 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Adapts maps to either JSON objects or JSON arrays.
@@ -178,10 +177,7 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
         while (in.hasNext()) {
           in.beginArray(); // entry array
           K key = keyTypeAdapter.read(in);
-          Gson.$Internal$Access.invokeInterceptor(context, key, keyType);
-
           V value = valueTypeAdapter.read(in);
-          Gson.$Internal$Access.invokeInterceptor(context, value, valueType);
           V replaced = map.put(key, value);
           if (replaced != null) {
             throw new JsonSyntaxException("duplicate key: " + key);
@@ -194,9 +190,7 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
         while (in.hasNext()) {
           JsonReaderInternalAccess.INSTANCE.promoteNameToValue(in);
           K key = keyTypeAdapter.read(in);
-          Gson.$Internal$Access.invokeInterceptor(context, key, keyType);
           V value = valueTypeAdapter.read(in);
-          Gson.$Internal$Access.invokeInterceptor(context, value, valueType);
           V replaced = map.put(key, value);
           if (replaced != null) {
             throw new JsonSyntaxException("duplicate key: " + key);

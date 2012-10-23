@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson.internal.alpha;
+package com.google.gson.interceptors;
 
 import com.google.gson.InstanceCreator;
 
