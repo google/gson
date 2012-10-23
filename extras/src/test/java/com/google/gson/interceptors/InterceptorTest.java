@@ -13,27 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson.functional;
-
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import junit.framework.TestCase;
+package com.google.gson.interceptors;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
-import com.google.gson.internal.alpha.Intercept;
-import com.google.gson.internal.alpha.JsonPostDeserializer;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import junit.framework.TestCase;
 
 /**
  * Unit tests for {@link Intercept} and {@link JsonPostDeserializer}.
@@ -47,7 +43,10 @@ public final class InterceptorTest extends TestCase {
   @Override
   public void setUp() throws Exception {
     super.setUp();
-    this.gson = new GsonBuilder().enableComplexMapKeySerialization().create();
+    this.gson = new GsonBuilder()
+        .registerTypeAdapterFactory(new InterceptorFactory())
+        .enableComplexMapKeySerialization()
+        .create();
   }
 
   public void testExceptionsPropagated() {
@@ -94,20 +93,23 @@ public final class InterceptorTest extends TestCase {
 
   public void testCustomTypeAdapter() {
     Gson gson = new GsonBuilder()
-      .registerTypeAdapter(User.class, new TypeAdapter<User>() {
-        @Override public void write(JsonWriter out, User value) throws IOException {
-          throw new UnsupportedOperationException();
-        }
-        @Override public User read(JsonReader in) throws IOException {
-          in.beginObject();
-          in.nextName();
-          String name = in.nextString();
-          in.nextName();
-          String password = in.nextString();
-          in.endObject();
-          return new User(name, password);
-        }})
-      .create();
+        .registerTypeAdapter(User.class, new TypeAdapter<User>() {
+          @Override public void write(JsonWriter out, User value) throws IOException {
+            throw new UnsupportedOperationException();
+          }
+
+          @Override public User read(JsonReader in) throws IOException {
+            in.beginObject();
+            in.nextName();
+            String name = in.nextString();
+            in.nextName();
+            String password = in.nextString();
+            in.endObject();
+            return new User(name, password);
+          }
+        })
+        .registerTypeAdapterFactory(new InterceptorFactory())
+        .create();
     UserGroup userGroup = gson.fromJson("{user:{name:'bob',password:'pwd'}}", UserGroup.class);
     assertEquals(User.DEFAULT_EMAIL, userGroup.user.email);
   }
@@ -138,7 +140,7 @@ public final class InterceptorTest extends TestCase {
     }
   }
 
-  private static final class UserValidator implements JsonPostDeserializer<User> {
+  public static final class UserValidator implements JsonPostDeserializer<User> {
     public void postDeserialize(User user) {
       if (user.name == null || user.password == null) {
         throw new JsonSyntaxException("name and password are required fields.");
@@ -158,7 +160,7 @@ public final class InterceptorTest extends TestCase {
     String zip;
   }
 
-  private static final class AddressValidator implements JsonPostDeserializer<Address> {
+  public static final class AddressValidator implements JsonPostDeserializer<Address> {
     public void postDeserialize(Address address) {
       if (address.city == null || address.state == null || address.zip == null) {
         throw new JsonSyntaxException("Address city, state and zip are required fields.");

@@ -72,7 +72,6 @@ public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
     in.beginArray();
     while (in.hasNext()) {
       E instance = componentTypeAdapter.read(in);
-      Gson.$Internal$Access.invokeInterceptor(context, instance, componentType);
       list.add(instance);
     }
     in.endArray();

@@ -16,28 +16,10 @@
 
 package com.google.gson;
 
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.lang.reflect.Type;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.Excluder;
-import com.google.gson.internal.ObjectConstructor;
 import com.google.gson.internal.Primitives;
 import com.google.gson.internal.Streams;
-import com.google.gson.internal.alpha.Intercept;
-import com.google.gson.internal.alpha.JsonPostDeserializer;
 import com.google.gson.internal.bind.ArrayTypeAdapter;
 import com.google.gson.internal.bind.CollectionTypeAdapterFactory;
 import com.google.gson.internal.bind.DateTypeAdapter;
@@ -54,6 +36,20 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.google.gson.stream.MalformedJsonException;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This is the main class for using Gson. Gson is typically used by first constructing a
@@ -798,7 +794,6 @@ public final class Gson {
       TypeToken<T> typeToken = (TypeToken<T>) TypeToken.get(typeOfT);
       TypeAdapter<T> typeAdapter = getAdapter(typeToken);
       T object = typeAdapter.read(reader);
-      invokeInterceptorIfNeeded(object, (Class<T>) typeToken.getRawType());
       return object;
     } catch (EOFException e) {
       /*
@@ -891,26 +886,6 @@ public final class Gson {
     }
   }
 
-  @SuppressWarnings("unchecked")
-  private <T> void invokeInterceptorIfNeeded(T object, Type type) {
-    TypeToken<T> typeToken = (TypeToken<T>) TypeToken.get(type);
-    Class<T> clazz = (Class<T>) typeToken.getRawType();
-    invokeInterceptorIfNeeded(object, clazz);
-  }
-
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  private <T> void invokeInterceptorIfNeeded(T object, Class<T> clazz) {
-    Intercept interceptor = clazz.getAnnotation(Intercept.class);
-    if (interceptor == null) return;
-    // TODO: We don't need to construct an instance of postDeserializer every time. we can
-    // create it once and cache it.
-    Class<? extends JsonPostDeserializer> postDeserializerClass = interceptor.postDeserialize();
-    ObjectConstructor<? extends JsonPostDeserializer> objectConstructor =
-        constructorConstructor.get(TypeToken.get(postDeserializerClass));
-    JsonPostDeserializer<T> postDeserializer = objectConstructor.construct();
-    postDeserializer.postDeserialize(object);
-  }
-
   @Override
   public String toString() {
   	StringBuilder sb = new StringBuilder("{")
@@ -919,17 +894,5 @@ public final class Gson {
         .append(",instanceCreators:").append(constructorConstructor)
         .append("}");
   	return sb.toString();
-  }
-
-  /**
-   * Not part of the Gson API. Do not use.
-   */
-  public static final class $Internal$Access {
-    public static <T> void invokeInterceptor(Gson gson, T instance, Type type) {
-      gson.invokeInterceptorIfNeeded(instance, type);
-    }
-    public static <T> void invokeInterceptor(Gson gson, T instance, Class<T> clazz) {
-      gson.invokeInterceptorIfNeeded(instance, clazz);
-    }
   }
 }
