@@ -29,6 +29,8 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import java.lang.reflect.Type;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * Functional Test exercising custom serialization only.  When test applies to both
@@ -89,7 +91,7 @@ public class InstanceCreatorTest extends TestCase {
     class SubArrayList<T> extends ArrayList<T> {}
     InstanceCreator<List<String>> listCreator = new InstanceCreator<List<String>>() {
       public List<String> createInstance(Type type) {
-        return new SubArrayList<java.lang.String>();
+        return new SubArrayList<String>();
       }
     };
     Type listOfStringType = new TypeToken<List<String>>() {}.getType();
@@ -98,5 +100,27 @@ public class InstanceCreatorTest extends TestCase {
         .create();
     List<String> list = gson.fromJson("[\"a\"]", listOfStringType);
     assertEquals(SubArrayList.class, list.getClass());
+  }
+
+  @SuppressWarnings("unchecked")
+  public void testInstanceCreatorForParametrizedType() throws Exception {
+    class SubTreeSet<T> extends TreeSet<T> {}
+    InstanceCreator<SortedSet> sortedSetCreator = new InstanceCreator<SortedSet>() {
+      public SortedSet createInstance(Type type) {
+        return new SubTreeSet();
+      }
+    };
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapter(SortedSet.class, sortedSetCreator)
+        .create();
+
+    Type sortedSetType = new TypeToken<SortedSet<String>>() {}.getType();
+    SortedSet<String> set = gson.fromJson("[\"a\"]", sortedSetType);
+    assertEquals(set.first(), "a");
+    assertEquals(SubTreeSet.class, set.getClass());
+
+    set = gson.fromJson("[\"b\"]", SortedSet.class);
+    assertEquals(set.first(), "b");
+    assertEquals(SubTreeSet.class, set.getClass());
   }
 }

@@ -25,7 +25,6 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -47,10 +46,6 @@ public final class ConstructorConstructor {
     this.instanceCreators = instanceCreators;
   }
 
-  public ConstructorConstructor() {
-    this(Collections.<Type, InstanceCreator<?>>emptyMap());
-  }
-
   public <T> ObjectConstructor<T> get(TypeToken<T> typeToken) {
     final Type type = typeToken.getType();
     final Class<? super T> rawType = typeToken.getRawType();
@@ -58,11 +53,23 @@ public final class ConstructorConstructor {
     // first try an instance creator
 
     @SuppressWarnings("unchecked") // types must agree
-    final InstanceCreator<T> creator = (InstanceCreator<T>) instanceCreators.get(type);
-    if (creator != null) {
+    final InstanceCreator<T> typeCreator = (InstanceCreator<T>) instanceCreators.get(type);
+    if (typeCreator != null) {
       return new ObjectConstructor<T>() {
         public T construct() {
-          return creator.createInstance(type);
+          return typeCreator.createInstance(type);
+        }
+      };
+    }
+
+    // Next try raw type match for instance creators
+    @SuppressWarnings("unchecked") // types must agree
+    final InstanceCreator<T> rawTypeCreator =
+        (InstanceCreator<T>) instanceCreators.get(rawType);
+    if (rawTypeCreator != null) {
+      return new ObjectConstructor<T>() {
+        public T construct() {
+          return rawTypeCreator.createInstance(type);
         }
       };
     }
