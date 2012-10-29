@@ -16,12 +16,11 @@
 
 package com.google.gson;
 
-import junit.framework.TestCase;
-
 import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import junit.framework.TestCase;
 
 /**
  * Contains numerous tests involving registered type converters with a Gson instance.
@@ -104,5 +103,47 @@ public class GsonTypeAdapterTest extends TestCase {
       int intValue = json.getAsInt();
       return new AtomicInteger(--intValue);
     }
+  }
+
+  static abstract class Abstract {
+    String a;
+  }
+
+  static class Concrete extends Abstract {
+    String b;
+  }
+
+  // https://groups.google.com/d/topic/google-gson/EBmOCa8kJPE/discussion
+  public void testDeserializerForAbstractClass() {
+    Concrete instance = new Concrete();
+    instance.a = "android";
+    instance.b = "beep";
+    assertSerialized("{\"a\":\"android\"}", Abstract.class, true, true, instance);
+    assertSerialized("{\"a\":\"android\"}", Abstract.class, true, false, instance);
+    assertSerialized("{\"a\":\"android\"}", Abstract.class, false, true, instance);
+    assertSerialized("{\"a\":\"android\"}", Abstract.class, false, false, instance);
+    assertSerialized("{\"b\":\"beep\",\"a\":\"android\"}", Concrete.class, true, true, instance);
+    assertSerialized("{\"b\":\"beep\",\"a\":\"android\"}", Concrete.class, true, false, instance);
+    assertSerialized("{\"b\":\"beep\",\"a\":\"android\"}", Concrete.class, false, true, instance);
+    assertSerialized("{\"b\":\"beep\",\"a\":\"android\"}", Concrete.class, false, false, instance);
+  }
+
+  private void assertSerialized(String expected, Class<?> instanceType, boolean registerAbstractDeserializer,
+      boolean registerAbstractHierarchyDeserializer, Object instance) {
+    JsonDeserializer<Abstract> deserializer = new JsonDeserializer<Abstract>() {
+      public Abstract deserialize(JsonElement json, Type typeOfT,
+          JsonDeserializationContext context) throws JsonParseException {
+        throw new AssertionError();
+      }
+    };
+    GsonBuilder builder = new GsonBuilder();
+    if (registerAbstractDeserializer) {
+      builder.registerTypeAdapter(Abstract.class, deserializer);
+    }
+    if (registerAbstractHierarchyDeserializer) {
+      builder.registerTypeHierarchyAdapter(Abstract.class, deserializer);
+    }
+    Gson gson = builder.create();
+    assertEquals(expected, gson.toJson(instance, instanceType));
   }
 }
