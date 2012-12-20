@@ -703,7 +703,7 @@ public final class TypeAdapters {
   };
 
   public static final TypeAdapterFactory JSON_ELEMENT_FACTORY
-      = newFactory(JsonElement.class, JSON_ELEMENT);
+      = newTypeHierarchyFactory(JsonElement.class, JSON_ELEMENT);
 
   private static final class EnumTypeAdapter<T extends Enum<T>> extends TypeAdapter<T> {
     private final Map<String, T> nameToConstant = new HashMap<String, T>();
