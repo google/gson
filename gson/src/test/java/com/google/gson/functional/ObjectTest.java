@@ -19,8 +19,12 @@ package com.google.gson.functional;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+import com.google.gson.common.TestTypes;
 import com.google.gson.common.TestTypes.ArrayOfObjects;
 import com.google.gson.common.TestTypes.BagOfPrimitiveWrappers;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
@@ -279,6 +283,21 @@ public class ObjectTest extends TestCase {
   }
 
   public void testAnonymousLocalClassesSerialization() throws Exception {
+    assertEquals("null", gson.toJson(new ClassWithNoFields() {
+      // empty anonymous class
+    }));
+  }
+
+  public void testAnonymousLocalClassesCustomSerialization() throws Exception {
+    gson = new GsonBuilder()
+        .registerTypeHierarchyAdapter(ClassWithNoFields.class,
+            new JsonSerializer<ClassWithNoFields>() {
+              public JsonElement serialize(
+                  ClassWithNoFields src, Type typeOfSrc, JsonSerializationContext context) {
+                return new JsonObject();
+              }
+            }).create();
+
     assertEquals("null", gson.toJson(new ClassWithNoFields() {
       // empty anonymous class
     }));

@@ -195,6 +195,9 @@ public final class Gson {
     factories.add(TypeAdapters.JSON_ELEMENT_FACTORY);
     factories.add(ObjectTypeAdapter.FACTORY);
 
+    // the excluder must precede all adapters that handle user-defined types
+    factories.add(excluder);
+
     // user's type adapters
     factories.addAll(typeAdapterFactories);
 
@@ -230,9 +233,6 @@ public final class Gson {
     factories.add(ArrayTypeAdapter.FACTORY);
     factories.add(TypeAdapters.ENUM_FACTORY);
     factories.add(TypeAdapters.CLASS_FACTORY);
-
-    // the excluder must precede all adapters that handle user-defined types
-    factories.add(excluder);
 
     // type adapters for composite and user-defined types
     factories.add(new CollectionTypeAdapterFactory(constructorConstructor));
@@ -888,11 +888,11 @@ public final class Gson {
 
   @Override
   public String toString() {
-  	StringBuilder sb = new StringBuilder("{")
-  	    .append("serializeNulls:").append(serializeNulls)
+  	return new StringBuilder("{serializeNulls:")
+  	    .append(serializeNulls)
   	    .append("factories:").append(factories)
         .append(",instanceCreators:").append(constructorConstructor)
-        .append("}");
-  	return sb.toString();
+        .append("}")
+        .toString();
   }
 }
