@@ -56,6 +56,24 @@ public class LinkedTreeMapTest extends TestCase {
     assertEquals(map.size(), map.entrySet().size());
   }
 
+  public void testGetAndContainsNullKey() throws Exception {
+    LinkedTreeMap<String, Integer> map = new LinkedTreeMap<String, Integer>();
+    assertFalse(map.containsKey(null));
+    assertNull(map.get(null));
+
+    map.put("A", 1);
+    assertFalse(map.containsKey(null));
+    assertNull(map.get(null));
+  }
+
+  public void testDisallowPutForNullKeys() throws Exception {
+    LinkedTreeMap<String, Integer> map = new LinkedTreeMap<String, Integer>();
+    try {
+      map.put(null, 1);
+      fail();
+    } catch (NullPointerException expected) {}
+  }
+
   public void testSingleElement() throws Exception {
     LinkedTreeMap<String, Integer> map = new LinkedTreeMap<String, Integer>();
     map.put("A", 1);

@@ -387,14 +387,16 @@ public class LinkedTreeMap<K extends Comparable<K>, V>
   }
 
   private TreeNode<K, V> find(K key) {
-    for (TreeNode<K, V> entry = root; entry != null; ) {
-      int compareVal = key.compareTo(entry.key);
-      if (compareVal < 0) {
-        entry = entry.left;
-      } else if (compareVal > 0) {
-        entry = entry.right;
-      } else {
-        return entry;
+    if (key != null) {
+      for (TreeNode<K, V> entry = root; entry != null; ) {
+        int compareVal = key.compareTo(entry.key);
+        if (compareVal < 0) {
+          entry = entry.left;
+        } else if (compareVal > 0) {
+          entry = entry.right;
+        } else {
+          return entry;
+        }
       }
     }
     return null;
