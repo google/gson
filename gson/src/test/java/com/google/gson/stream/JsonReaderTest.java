@@ -71,6 +71,38 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
+  public void testSkipArray() throws IOException {
+    JsonReader reader = new JsonReader(reader(
+        "{\"a\": [\"one\", \"two\", \"three\"], \"b\": 123}"));
+    reader.beginObject();
+    assertEquals("a", reader.nextName());
+    reader.skipValue();
+    assertEquals("b", reader.nextName());
+    assertEquals(123, reader.nextInt());
+    reader.endObject();
+    assertEquals(JsonToken.END_DOCUMENT, reader.peek());
+  }
+
+  public void testSkipArrayAfterPeek() throws Exception {
+    JsonReader reader = new JsonReader(reader(
+        "{\"a\": [\"one\", \"two\", \"three\"], \"b\": 123}"));
+    reader.beginObject();
+    assertEquals("a", reader.nextName());
+    assertEquals(BEGIN_ARRAY, reader.peek());
+    reader.skipValue();
+    assertEquals("b", reader.nextName());
+    assertEquals(123, reader.nextInt());
+    reader.endObject();
+    assertEquals(JsonToken.END_DOCUMENT, reader.peek());
+  }
+
+  public void testSkipTopLevelObject() throws Exception {
+    JsonReader reader = new JsonReader(reader(
+        "{\"a\": [\"one\", \"two\", \"three\"], \"b\": 123}"));
+    reader.skipValue();
+    assertEquals(JsonToken.END_DOCUMENT, reader.peek());
+  }
+
   public void testSkipObject() throws IOException {
     JsonReader reader = new JsonReader(reader(
         "{\"a\": { \"c\": [], \"d\": [true, true, {}] }, \"b\": \"banana\"}"));
@@ -78,6 +110,23 @@ public final class JsonReaderTest extends TestCase {
     assertEquals("a", reader.nextName());
     reader.skipValue();
     assertEquals("b", reader.nextName());
+    reader.skipValue();
+    reader.endObject();
+    assertEquals(JsonToken.END_DOCUMENT, reader.peek());
+  }
+
+  public void testSkipObjectAfterPeek() throws Exception {
+    String json = "{" + "  \"one\": { \"num\": 1 }"
+        + ", \"two\": { \"num\": 2 }" + ", \"three\": { \"num\": 3 }" + "}";
+    JsonReader reader = new JsonReader(reader(json));
+    reader.beginObject();
+    assertEquals("one", reader.nextName());
+    assertEquals(BEGIN_OBJECT, reader.peek());
+    reader.skipValue();
+    assertEquals("two", reader.nextName());
+    assertEquals(BEGIN_OBJECT, reader.peek());
+    reader.skipValue();
+    assertEquals("three", reader.nextName());
     reader.skipValue();
     reader.endObject();
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
