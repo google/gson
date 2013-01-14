@@ -137,6 +137,12 @@ public class MapTest extends TestCase {
     Type typeOfMap = new TypeToken<Map<String, Integer>>() {}.getType();
     Map<String, Integer> map = gson.fromJson("{\"null\":123}", typeOfMap);
     assertEquals(1, map.size());
+    assertEquals(123, map.get("null").intValue());
+    assertNull(map.get(null));
+
+    map = gson.fromJson("{null:123}", typeOfMap);
+    assertEquals(1, map.size());
+    assertEquals(123, map.get("null").intValue());
     assertNull(map.get(null));
   }
 
