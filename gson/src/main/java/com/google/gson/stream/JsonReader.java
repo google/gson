@@ -1225,7 +1225,11 @@ public class JsonReader implements Closeable {
   public void skipValue() throws IOException {
     int count = 0;
     do {
-      int p = doPeek();
+      int p = peeked;
+      if (p == PEEKED_NONE) {
+        p = doPeek();
+      }
+
       if (p == PEEKED_BEGIN_ARRAY) {
         push(JsonScope.EMPTY_ARRAY);
         count++;
