@@ -335,9 +335,11 @@ public final class Gson {
     }
 
     Map<TypeToken<?>, FutureTypeAdapter<?>> threadCalls = calls.get();
+    boolean requiresThreadLocalCleanup = false;
     if (threadCalls == null) {
       threadCalls = new HashMap<TypeToken<?>, FutureTypeAdapter<?>>();
       calls.set(threadCalls);
+      requiresThreadLocalCleanup = true;
     }
 
     // the key and value type parameters always agree
@@ -346,9 +348,10 @@ public final class Gson {
       return ongoingCall;
     }
 
-    FutureTypeAdapter<T> call = new FutureTypeAdapter<T>();
-    threadCalls.put(type, call);
     try {
+      FutureTypeAdapter<T> call = new FutureTypeAdapter<T>();
+      threadCalls.put(type, call);
+
       for (TypeAdapterFactory factory : factories) {
         TypeAdapter<T> candidate = factory.create(this, type);
         if (candidate != null) {
@@ -360,6 +363,10 @@ public final class Gson {
       throw new IllegalArgumentException("GSON cannot handle " + type);
     } finally {
       threadCalls.remove(type);
+
+      if (requiresThreadLocalCleanup) {
+        calls.remove();
+      }
     }
   }
 
