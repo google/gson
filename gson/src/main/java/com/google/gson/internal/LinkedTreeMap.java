@@ -39,13 +39,13 @@ public class LinkedTreeMap<K extends Comparable<K>, V>
   private static final boolean RED = true;
 
   // Size stored as a field for optimization instead of recursing tree.
-  private int size = 0;
+  private transient int size = 0;
 
-  private TreeNode<K, V> root;
+  private transient TreeNode<K, V> root;
 
   // Store the head and tail to preserve the ordering of nodes inserted into tree
-  private TreeNode<K, V> head;
-  private TreeNode<K, V> tail;
+  private transient TreeNode<K, V> head;
+  private transient TreeNode<K, V> tail;
 
   public Set<Map.Entry<K, V>> entrySet() {
     return new EntrySet();
