@@ -61,13 +61,22 @@ public final class TypeAdapters {
   public static final TypeAdapter<Class> CLASS = new TypeAdapter<Class>() {
     @Override
     public void write(JsonWriter out, Class value) throws IOException {
-      throw new UnsupportedOperationException("Attempted to serialize java.lang.Class: "
-          + value.getName() + ". Forgot to register a type adapter?");
+      if (value == null) {
+        out.nullValue();
+      } else {
+        throw new UnsupportedOperationException("Attempted to serialize java.lang.Class: "
+            + value.getName() + ". Forgot to register a type adapter?");
+      }
     }
     @Override
     public Class read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
+        return null;
+      } else {
         throw new UnsupportedOperationException(
             "Attempted to deserialize a java.lang.Class. Forgot to register a type adapter?");
+      }
     }
   };
   public static final TypeAdapterFactory CLASS_FACTORY = newFactory(Class.class, CLASS);
