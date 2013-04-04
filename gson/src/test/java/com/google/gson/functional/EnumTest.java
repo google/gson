@@ -16,6 +16,14 @@
 
 package com.google.gson.functional;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.Set;
+
+import junit.framework.TestCase;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -28,12 +36,6 @@ import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.common.MoreAsserts;
 import com.google.gson.reflect.TypeToken;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.Set;
-import junit.framework.TestCase;
 
 /**
  * Functional tests for Java 5.0 enums.
@@ -146,6 +148,17 @@ public class EnumTest extends TestCase {
   public void testEnumCaseMapping() {
     assertEquals(Gender.MALE, gson.fromJson("\"boy\"", Gender.class));
     assertEquals("\"boy\"", gson.toJson(Gender.MALE, Gender.class));
+  }
+  enum Color { red, blue, green, yellow, thistle }
+
+  public void testEnumSet() {
+    EnumSet<Roshambo> foo = EnumSet.of(Roshambo.ROCK, Roshambo.PAPER);
+    String json = gson.toJson(foo);
+    Type type = new TypeToken<EnumSet<Roshambo>>() {}.getType();
+    EnumSet<Roshambo> bar = gson.fromJson(json, type);
+    assertTrue(bar.contains(Roshambo.ROCK));
+    assertTrue(bar.contains(Roshambo.PAPER));
+    assertFalse(bar.contains(Roshambo.SCISSORS));
   }
 
   public enum Roshambo {

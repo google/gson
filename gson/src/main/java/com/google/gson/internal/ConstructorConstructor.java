@@ -16,15 +16,13 @@
 
 package com.google.gson.internal;
 
-import com.google.gson.InstanceCreator;
-import com.google.gson.reflect.TypeToken;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -35,6 +33,10 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+
+import com.google.gson.InstanceCreator;
+import com.google.gson.JsonIOException;
+import com.google.gson.reflect.TypeToken;
 
 /**
  * Returns a function that can construct an instance of a requested type.
@@ -124,12 +126,28 @@ public final class ConstructorConstructor {
    */
   @SuppressWarnings("unchecked") // use runtime checks to guarantee that 'T' is what it is
   private <T> ObjectConstructor<T> newDefaultImplementationConstructor(
-      Type type, Class<? super T> rawType) {
+      final Type type, Class<? super T> rawType) {
     if (Collection.class.isAssignableFrom(rawType)) {
       if (SortedSet.class.isAssignableFrom(rawType)) {
         return new ObjectConstructor<T>() {
           public T construct() {
             return (T) new TreeSet<Object>();
+          }
+        };
+      } else if (EnumSet.class.isAssignableFrom(rawType)) {
+        return new ObjectConstructor<T>() {
+          @SuppressWarnings("rawtypes")
+          public T construct() {
+            if (type instanceof ParameterizedType) {
+              Type elementType = ((ParameterizedType) type).getActualTypeArguments()[0];
+              if (elementType instanceof Class) {
+                return (T) EnumSet.noneOf((Class)elementType);
+              } else {
+                throw new JsonIOException("Invalid EnumSet type: " + type.toString());
+              }
+            } else {
+              throw new JsonIOException("Invalid EnumSet type: " + type.toString());
+            }
           }
         };
       } else if (Set.class.isAssignableFrom(rawType)) {
