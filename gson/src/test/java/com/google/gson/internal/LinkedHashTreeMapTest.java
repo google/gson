@@ -59,6 +59,20 @@ public final class LinkedHashTreeMapTest extends TestCase {
     }
   }
 
+  public void testPutNonComparableKeyFails() {
+    LinkedHashTreeMap<Object, String> map = new LinkedHashTreeMap<Object, String>();
+    try {
+      map.put(new Object(), "android");
+    } catch (ClassCastException expected) {}
+  }
+
+  @SuppressWarnings("SuspiciousMethodCalls")
+  public void testContainsNonComparableKeyReturnsFalse() {
+    LinkedHashTreeMap<String, String> map = new LinkedHashTreeMap<String, String>();
+    map.put("a", "android");
+    assertFalse(map.containsKey(new Object()));
+  }
+
   public void testContainsNullKeyFails() {
     LinkedHashTreeMap<String, String> map = new LinkedHashTreeMap<String, String>();
     map.put("a", "android");
