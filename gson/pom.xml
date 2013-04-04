@@ -130,6 +130,16 @@
              </goals>
            </execution>
          </executions>
+         <configuration>
+           <archive>
+             <manifestEntries>
+               <Eclipse-SourceBundle>com.google.gson;version="${project.version}"</Eclipse-SourceBundle>
+               <Bundle-SymbolicName>com.google.gson.source</Bundle-SymbolicName>
+               <Bundle-ManifestVersion>2</Bundle-ManifestVersion>
+               <Bundle-Version>${project.version}</Bundle-Version>
+             </manifestEntries>
+           </archive>
+         </configuration>
        </plugin>
        <plugin>
          <!-- TODO(inder): add manifest entry for maven group, artifact, and classifier ids -->
