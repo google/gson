@@ -188,7 +188,7 @@ public final class ConstructorConstructor {
       } else {
         return new ObjectConstructor<T>() {
           public T construct() {
-            return (T) new LinkedTreeMap<String, Object>();
+            return (T) new LinkedHashTreeMap<String, Object>();
           }
         };
       }

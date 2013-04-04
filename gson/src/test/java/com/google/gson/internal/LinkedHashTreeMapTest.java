@@ -16,14 +16,16 @@
 
 package com.google.gson.internal;
 
+import com.google.gson.common.MoreAsserts;
 import com.google.gson.internal.LinkedHashTreeMap.AvlBuilder;
 import com.google.gson.internal.LinkedHashTreeMap.AvlIterator;
 import com.google.gson.internal.LinkedHashTreeMap.Node;
+import junit.framework.TestCase;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
-import junit.framework.TestCase;
 
 public final class LinkedHashTreeMapTest extends TestCase {
   public void testIterationOrder() {
@@ -71,6 +73,22 @@ public final class LinkedHashTreeMapTest extends TestCase {
     map.clear();
     assertIterationOrder(map.keySet());
     assertEquals(0, map.size());
+  }
+
+  public void testEqualsAndHashCode() throws Exception {
+    LinkedHashTreeMap<String, Integer> map1 = new LinkedHashTreeMap<String, Integer>();
+    map1.put("A", 1);
+    map1.put("B", 2);
+    map1.put("C", 3);
+    map1.put("D", 4);
+
+    LinkedHashTreeMap<String, Integer> map2 = new LinkedHashTreeMap<String, Integer>();
+    map2.put("C", 3);
+    map2.put("B", 2);
+    map2.put("D", 4);
+    map2.put("A", 1);
+
+    MoreAsserts.assertEqualsAndHashCode(map1, map2);
   }
 
   public void testAvlWalker() {
