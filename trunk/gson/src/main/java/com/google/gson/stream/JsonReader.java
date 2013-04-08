@@ -263,11 +263,6 @@ public class JsonReader implements Closeable {
    */
   private String peekedString;
 
-  /**
-   * A pool of short strings intended to prevent object allocation.
-   */
-  private static final StringPool stringPool = new StringPool();
-
   /*
    * The nesting stack. Using a manual array rather than an ArrayList saves 20%.
    */
@@ -979,8 +974,7 @@ public class JsonReader implements Closeable {
   private String nextQuotedValue(char quote) throws IOException {
     // Like nextNonWhitespace, this uses locals 'p' and 'l' to save inner-loop field access.
     char[] buffer = this.buffer;
-    StringBuilder builder = null;
-    int hashCode = 0;
+    StringBuilder builder = new StringBuilder();
     while (true) {
       int p = pos;
       int l = limit;
@@ -991,36 +985,21 @@ public class JsonReader implements Closeable {
 
         if (c == quote) {
           pos = p;
-          if (builder == null) {
-            return stringPool.get(buffer, start, p - start - 1, hashCode);
-          } else {
-            builder.append(buffer, start, p - start - 1);
-            return builder.toString();
-          }
-
+          builder.append(buffer, start, p - start - 1);
+          return builder.toString();
         } else if (c == '\\') {
           pos = p;
-          if (builder == null) {
-            builder = new StringBuilder();
-          }
           builder.append(buffer, start, p - start - 1);
           builder.append(readEscapeCharacter());
           p = pos;
           l = limit;
           start = p;
-
         } else if (c == '\n') {
-          hashCode = (hashCode * 31) + c;
           lineNumber++;
           lineStart = p;
-        } else {
-          hashCode = (hashCode * 31) + c;
         }
       }
 
-      if (builder == null) {
-        builder = new StringBuilder();
-      }
       builder.append(buffer, start, p - start);
       pos = p;
       if (!fillBuffer(1)) {
