@@ -196,9 +196,13 @@ public final class LinkedHashTreeMap<K, V> extends AbstractMap<K, V> implements 
     return created;
   }
 
-  @SuppressWarnings("unchecked") // this method throws ClassCastExceptions!
+  @SuppressWarnings("unchecked")
   Node<K, V> findByObject(Object key) {
-    return key != null ? find((K) key, false) : null;
+    try {
+      return key != null ? find((K) key, false) : null;
+    } catch (ClassCastException e) {
+      return null;
+    }
   }
 
   /**
