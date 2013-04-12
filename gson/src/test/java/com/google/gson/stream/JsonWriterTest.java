@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import junit.framework.TestCase;
 
+@SuppressWarnings("resource")
 public final class JsonWriterTest extends TestCase {
 
   public void testWrongTopLevelType() throws IOException {

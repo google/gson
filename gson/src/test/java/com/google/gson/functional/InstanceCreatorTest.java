@@ -102,8 +102,9 @@ public class InstanceCreatorTest extends TestCase {
     assertEquals(SubArrayList.class, list.getClass());
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public void testInstanceCreatorForParametrizedType() throws Exception {
+    @SuppressWarnings("serial")
     class SubTreeSet<T> extends TreeSet<T> {}
     InstanceCreator<SortedSet> sortedSetCreator = new InstanceCreator<SortedSet>() {
       public SortedSet createInstance(Type type) {
