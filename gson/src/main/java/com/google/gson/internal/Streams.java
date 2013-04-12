@@ -76,7 +76,7 @@ public final class Streams {
    * Adapts an {@link Appendable} so it can be passed anywhere a {@link Writer}
    * is used.
    */
-  private static class AppendableWriter extends Writer {
+  private static final class AppendableWriter extends Writer {
     private final Appendable appendable;
     private final CurrentWrite currentWrite = new CurrentWrite();
 
