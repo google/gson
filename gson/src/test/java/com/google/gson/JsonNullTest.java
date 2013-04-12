@@ -32,6 +32,7 @@ public final class JsonNullTest extends TestCase {
   }
 
   public void testDeepCopy() {
+    @SuppressWarnings("deprecation")
     JsonNull a = new JsonNull();
     assertSame(JsonNull.INSTANCE, a.deepCopy());
     assertSame(JsonNull.INSTANCE, JsonNull.INSTANCE.deepCopy());

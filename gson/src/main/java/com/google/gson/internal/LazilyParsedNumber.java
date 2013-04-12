@@ -24,7 +24,6 @@ import java.math.BigInteger;
  *
  * @author Inderjeet Singh
  */
-@SuppressWarnings("serial")
 public final class LazilyParsedNumber extends Number {
   private final String value;
 
