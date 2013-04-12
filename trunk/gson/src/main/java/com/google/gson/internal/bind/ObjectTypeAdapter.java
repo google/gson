@@ -85,8 +85,9 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
       in.nextNull();
       return null;
 
+    default:
+      throw new IllegalStateException();
     }
-    throw new IllegalStateException();
   }
 
   @SuppressWarnings("unchecked")
