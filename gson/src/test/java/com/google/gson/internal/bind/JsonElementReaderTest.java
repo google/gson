@@ -22,6 +22,7 @@ import com.google.gson.stream.JsonToken;
 import java.io.IOException;
 import junit.framework.TestCase;
 
+@SuppressWarnings("resource")
 public final class JsonElementReaderTest extends TestCase {
 
   public void testNumbers() throws IOException {
