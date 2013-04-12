@@ -51,12 +51,10 @@ public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
     }
   };
 
-  private final Gson context;
   private final Class<E> componentType;
   private final TypeAdapter<E> componentTypeAdapter;
 
   public ArrayTypeAdapter(Gson context, TypeAdapter<E> componentTypeAdapter, Class<E> componentType) {
-    this.context = context;
     this.componentTypeAdapter =
       new TypeAdapterRuntimeTypeWrapper<E>(context, componentTypeAdapter, componentType);
     this.componentType = componentType;
