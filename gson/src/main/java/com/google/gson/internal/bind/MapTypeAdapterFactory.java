@@ -143,9 +143,6 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
   }
 
   private final class Adapter<K, V> extends TypeAdapter<Map<K, V>> {
-    private final Gson context;
-    private final Type keyType;
-    private final Type valueType;
     private final TypeAdapter<K> keyTypeAdapter;
     private final TypeAdapter<V> valueTypeAdapter;
     private final ObjectConstructor<? extends Map<K, V>> constructor;
@@ -153,9 +150,6 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
     public Adapter(Gson context, Type keyType, TypeAdapter<K> keyTypeAdapter,
         Type valueType, TypeAdapter<V> valueTypeAdapter,
         ObjectConstructor<? extends Map<K, V>> constructor) {
-      this.context = context;
-      this.keyType = keyType;
-      this.valueType = valueType;
       this.keyTypeAdapter =
         new TypeAdapterRuntimeTypeWrapper<K>(context, keyTypeAdapter, keyType);
       this.valueTypeAdapter =

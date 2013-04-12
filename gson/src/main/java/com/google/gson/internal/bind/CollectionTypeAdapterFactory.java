@@ -57,17 +57,13 @@ public final class CollectionTypeAdapterFactory implements TypeAdapterFactory {
     return result;
   }
 
-  private final class Adapter<E> extends TypeAdapter<Collection<E>> {
-    private final Gson context;
-    private final Type elementType;
+  private static final class Adapter<E> extends TypeAdapter<Collection<E>> {
     private final TypeAdapter<E> elementTypeAdapter;
     private final ObjectConstructor<? extends Collection<E>> constructor;
 
     public Adapter(Gson context, Type elementType,
         TypeAdapter<E> elementTypeAdapter,
         ObjectConstructor<? extends Collection<E>> constructor) {
-      this.context = context;
-      this.elementType = elementType;
       this.elementTypeAdapter =
           new TypeAdapterRuntimeTypeWrapper<E>(context, elementTypeAdapter, elementType);
       this.constructor = constructor;
