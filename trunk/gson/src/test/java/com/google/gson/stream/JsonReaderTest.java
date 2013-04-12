@@ -33,6 +33,7 @@ import static com.google.gson.stream.JsonToken.NULL;
 import static com.google.gson.stream.JsonToken.NUMBER;
 import static com.google.gson.stream.JsonToken.STRING;
 
+@SuppressWarnings("resource")
 public final class JsonReaderTest extends TestCase {
   public void testReadArray() throws IOException {
     JsonReader reader = new JsonReader(reader("[true, true]"));
