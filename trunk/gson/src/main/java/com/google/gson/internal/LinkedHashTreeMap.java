@@ -673,7 +673,7 @@ public final class LinkedHashTreeMap<K, V> extends AbstractMap<K, V> implements 
    * comparisons. Using this class to create a tree of size <i>S</i> is
    * {@code O(S)}.
    */
-  static class AvlBuilder<K, V> {
+  final static class AvlBuilder<K, V> {
     /** This stack is a singly linked list, linked by the 'parent' field. */
     private Node<K, V> stack;
     private int leavesToSkip;

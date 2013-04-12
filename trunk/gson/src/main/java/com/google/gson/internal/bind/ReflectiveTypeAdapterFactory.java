@@ -144,7 +144,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     abstract void read(JsonReader reader, Object value) throws IOException, IllegalAccessException;
   }
 
-  public final class Adapter<T> extends TypeAdapter<T> {
+  public static final class Adapter<T> extends TypeAdapter<T> {
     private final ObjectConstructor<T> constructor;
     private final Map<String, BoundField> boundFields;
 
