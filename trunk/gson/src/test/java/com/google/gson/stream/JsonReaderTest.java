@@ -829,6 +829,25 @@ public final class JsonReaderTest extends TestCase {
     }
   }
 
+  public void testCommentsInStringValue() throws Exception {
+    JsonReader reader = new JsonReader(reader("[\"// comment\"]"));
+    reader.beginArray();
+    assertEquals("// comment", reader.nextString());
+    reader.endArray();
+
+    reader = new JsonReader(reader("{\"a\":\"#someComment\"}"));
+    reader.beginObject();
+    assertEquals("a", reader.nextName());
+    assertEquals("#someComment", reader.nextString());
+    reader.endObject();
+
+    reader = new JsonReader(reader("{\"#//a\":\"#some //Comment\"}"));
+    reader.beginObject();
+    assertEquals("#//a", reader.nextName());
+    assertEquals("#some //Comment", reader.nextString());
+    reader.endObject();
+  }
+
   public void testStrictComments() throws IOException {
     JsonReader reader = new JsonReader(reader("[// comment \n true]"));
     reader.beginArray();
