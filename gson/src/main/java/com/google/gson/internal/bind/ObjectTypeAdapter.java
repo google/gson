@@ -19,7 +19,7 @@ package com.google.gson.internal.bind;
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
-import com.google.gson.internal.LinkedHashTreeMap;
+import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -64,7 +64,7 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
       return list;
 
     case BEGIN_OBJECT:
-      Map<String, Object> map = new LinkedHashTreeMap<String, Object>();
+      Map<String, Object> map = new LinkedTreeMap<String, Object>();
       in.beginObject();
       while (in.hasNext()) {
         map.put(in.nextName(), read(in));

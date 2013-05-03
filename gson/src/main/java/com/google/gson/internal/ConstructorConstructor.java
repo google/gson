@@ -188,7 +188,7 @@ public final class ConstructorConstructor {
       } else {
         return new ObjectConstructor<T>() {
           public T construct() {
-            return (T) new LinkedHashTreeMap<String, Object>();
+            return (T) new LinkedTreeMap<String, Object>();
           }
         };
       }
@@ -196,7 +196,6 @@ public final class ConstructorConstructor {
 
     return null;
   }
-
 
   private <T> ObjectConstructor<T> newUnsafeAllocator(
       final Type type, final Class<? super T> rawType) {
