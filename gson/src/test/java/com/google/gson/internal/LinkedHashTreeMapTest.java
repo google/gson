@@ -65,6 +65,7 @@ public final class LinkedHashTreeMapTest extends TestCase {
     LinkedHashTreeMap<Object, String> map = new LinkedHashTreeMap<Object, String>();
     try {
       map.put(new Object(), "android");
+      fail();
     } catch (ClassCastException expected) {}
   }
 
