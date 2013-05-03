@@ -20,12 +20,14 @@ import com.google.gson.common.MoreAsserts;
 import com.google.gson.internal.LinkedHashTreeMap.AvlBuilder;
 import com.google.gson.internal.LinkedHashTreeMap.AvlIterator;
 import com.google.gson.internal.LinkedHashTreeMap.Node;
+
 import junit.framework.TestCase;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Random;
 
 public final class LinkedHashTreeMapTest extends TestCase {
   public void testIterationOrder() {
@@ -73,10 +75,48 @@ public final class LinkedHashTreeMapTest extends TestCase {
     assertFalse(map.containsKey(new Object()));
   }
 
-  public void testContainsNullKeyFails() {
+  public void testContainsNullKeyIsAlwaysFalse() {
     LinkedHashTreeMap<String, String> map = new LinkedHashTreeMap<String, String>();
     map.put("a", "android");
     assertFalse(map.containsKey(null));
+  }
+
+  public void testPutOverrides() throws Exception {
+    LinkedHashTreeMap<String, String> map = new LinkedHashTreeMap<String, String>();
+    assertNull(map.put("d", "donut"));
+    assertNull(map.put("e", "eclair"));
+    assertNull(map.put("f", "froyo"));
+    assertEquals(3, map.size());
+
+    assertEquals("donut", map.get("d"));
+    assertEquals("donut", map.put("d", "done"));
+    assertEquals(3, map.size());
+  }
+
+  public void testEmptyStringValues() {
+    LinkedHashTreeMap<String, String> map = new LinkedHashTreeMap<String, String>();
+    map.put("a", "");
+    assertTrue(map.containsKey("a"));
+    assertEquals("", map.get("a"));
+  }
+
+  // NOTE that this does not happen every time, but given the below predictable random,
+  // this test will consistently fail (assuming the initial size is 16 and rehashing
+  // size remains at 3/4)
+  public void testForceDoublingAndRehash() throws Exception {
+    Random random = new Random(1367593214724L);
+    LinkedHashTreeMap<String, String> map = new LinkedHashTreeMap<String, String>();
+    String[] keys = new String[1000];
+    for (int i = 0; i < keys.length; i++) {
+      keys[i] = Integer.toString(Math.abs(random.nextInt()), 36) + "-" + i;
+      map.put(keys[i], "" + i);
+    }
+
+    for (int i = 0; i < keys.length; i++) {
+      String key = keys[i];
+      assertTrue(map.containsKey(key));
+      assertEquals("" + i, map.get(key));
+    }
   }
 
   public void testClear() {
