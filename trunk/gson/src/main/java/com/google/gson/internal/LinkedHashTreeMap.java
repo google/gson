@@ -38,6 +38,8 @@ import java.util.Set;
  * LinkedHashMap classes.
  */
 public final class LinkedHashTreeMap<K, V> extends AbstractMap<K, V> implements Serializable {
+  private static final int MAX_CAPACITY = 8192;
+
   @SuppressWarnings({ "unchecked", "rawtypes" }) // to avoid Comparable<Comparable<Comparable<...>>>
   private static final Comparator<Comparable> NATURAL_ORDER = new Comparator<Comparable>() {
     public int compare(Comparable a, Comparable b) {
@@ -564,10 +566,15 @@ public final class LinkedHashTreeMap<K, V> extends AbstractMap<K, V> implements 
    * twice as many trees, each of (approximately) half the previous size.
    */
   static <K, V> Node<K, V>[] doubleCapacity(Node<K, V>[] oldTable) {
-    // TODO: don't do anything if we're already at MAX_CAPACITY
     int oldCapacity = oldTable.length;
+    if (oldCapacity >= MAX_CAPACITY) {
+      return oldTable;
+    }
+
+    int newCapacity = oldCapacity * 2;
+
     @SuppressWarnings("unchecked") // Arrays and generics don't get along.
-    Node<K, V>[] newTable = new Node[oldCapacity * 2];
+    Node<K, V>[] newTable = new Node[newCapacity];
     AvlIterator<K, V> iterator = new AvlIterator<K, V>();
     AvlBuilder<K, V> leftBuilder = new AvlBuilder<K, V>();
     AvlBuilder<K, V> rightBuilder = new AvlBuilder<K, V>();
@@ -584,7 +591,7 @@ public final class LinkedHashTreeMap<K, V> extends AbstractMap<K, V> implements 
       int leftSize = 0;
       int rightSize = 0;
       for (Node<K, V> node; (node = iterator.next()) != null; ) {
-        if ((node.hash & oldCapacity) == 0) {
+        if ((node.hash & (newCapacity - 1)) == i) {
           leftSize++;
         } else {
           rightSize++;
@@ -599,7 +606,7 @@ public final class LinkedHashTreeMap<K, V> extends AbstractMap<K, V> implements 
         rightBuilder.reset(rightSize);
         iterator.reset(root);
         for (Node<K, V> node; (node = iterator.next()) != null; ) {
-          if ((node.hash & oldCapacity) == 0) {
+          if ((node.hash & (newCapacity - 1)) == i) {
             leftBuilder.add(node);
           } else {
             rightBuilder.add(node);
