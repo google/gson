@@ -20,14 +20,12 @@ import com.google.gson.common.MoreAsserts;
 import com.google.gson.internal.LinkedHashTreeMap.AvlBuilder;
 import com.google.gson.internal.LinkedHashTreeMap.AvlIterator;
 import com.google.gson.internal.LinkedHashTreeMap.Node;
-
-import junit.framework.TestCase;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
+import junit.framework.TestCase;
 
 public final class LinkedHashTreeMapTest extends TestCase {
   public void testIterationOrder() {
@@ -104,7 +102,7 @@ public final class LinkedHashTreeMapTest extends TestCase {
   // NOTE that this does not happen every time, but given the below predictable random,
   // this test will consistently fail (assuming the initial size is 16 and rehashing
   // size remains at 3/4)
-  public void disabled_testForceDoublingAndRehash() throws Exception {
+  public void testForceDoublingAndRehash() throws Exception {
     Random random = new Random(1367593214724L);
     LinkedHashTreeMap<String, String> map = new LinkedHashTreeMap<String, String>();
     String[] keys = new String[1000];
@@ -209,6 +207,16 @@ public final class LinkedHashTreeMapTest extends TestCase {
     Node<String, String>[] newTable = LinkedHashTreeMap.doubleCapacity(oldTable);
     assertTree("(b d f)", newTable[0]); // Even hash codes!
     assertTree("(a c (. e g))", newTable[1]); // Odd hash codes!
+  }
+
+  public void testDoubleCapacityAllNodesOnLeft() {
+    @SuppressWarnings("unchecked") // Arrays and generics don't get along.
+    Node<String, String>[] oldTable = new Node[1];
+    oldTable[0] = node(node("b"), "d", node("f"));
+
+    Node<String, String>[] newTable = LinkedHashTreeMap.doubleCapacity(oldTable);
+    assertTree("(b d f)", newTable[0]); // Even hash codes!
+    assertNull(newTable[1]); // Odd hash codes!
 
     for (Node<?, ?> node : newTable) {
       if (node != null) {
