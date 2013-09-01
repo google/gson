@@ -32,6 +32,13 @@
     <system>Google Code Issue Tracking</system>
     <url>http://code.google.com/p/google-gson/issues/list</url>
   </issueManagement>
+  <distributionManagement>
+    <repository>
+      <id>nexus-releases</id>
+      <name>Nexus Release Repository</name>
+      <url>http://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+  </distributionManagement>
   <organization>
     <name>Google, Inc.</name>
     <url>http://www.google.com</url>
