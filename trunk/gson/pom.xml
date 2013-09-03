@@ -33,6 +33,11 @@
     <url>http://code.google.com/p/google-gson/issues/list</url>
   </issueManagement>
   <distributionManagement>
+    <snapshotRepository>
+      <id>sonatype-nexus-snapshots</id>
+      <name>Sonatype Nexus Snapshots</name>
+      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+    </snapshotRepository>
     <repository>
       <id>sonatype-nexus-staging</id>
       <name>Nexus Release Repository</name>
