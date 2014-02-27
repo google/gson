@@ -317,4 +317,12 @@ public class TypeToken<T> {
   public static TypeToken<?> getArray(Type componentType) {
     return new TypeToken<Object>($Gson$Types.arrayOf(componentType));
   }
+
+  /**
+   * Gets type literal for complex generic types.
+   */
+  public static TypeToken<?> getGenToken(final Class<?> raw, final Class<?> gen) throws Exception {
+    ParameterizedType paramTypeImpl = $Gson$Types.newParameterizedTypeWithOwner(null, raw, gen);
+    return TypeToken.get(paramTypeImpl);
+  }
 }
