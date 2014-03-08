@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.GenericDeclaration;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -440,8 +441,10 @@ public final class $Gson$Types {
       // require an owner type if the raw type needs it
       if (rawType instanceof Class<?>) {
         Class<?> rawTypeAsClass = (Class<?>) rawType;
-        checkArgument(ownerType != null || rawTypeAsClass.getEnclosingClass() == null);
-        checkArgument(ownerType == null || rawTypeAsClass.getEnclosingClass() != null);
+        boolean isStaticOrTopLevelClass = Modifier.isStatic(rawTypeAsClass.getModifiers())
+            || rawTypeAsClass.getEnclosingClass() == null;
+        checkArgument(ownerType != null || isStaticOrTopLevelClass);
+        checkArgument(ownerType == null || !isStaticOrTopLevelClass);
       }
 
       this.ownerType = ownerType == null ? null : canonicalize(ownerType);
