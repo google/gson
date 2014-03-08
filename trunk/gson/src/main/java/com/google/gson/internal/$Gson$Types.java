@@ -444,7 +444,6 @@ public final class $Gson$Types {
         boolean isStaticOrTopLevelClass = Modifier.isStatic(rawTypeAsClass.getModifiers())
             || rawTypeAsClass.getEnclosingClass() == null;
         checkArgument(ownerType != null || isStaticOrTopLevelClass);
-        checkArgument(ownerType == null || !isStaticOrTopLevelClass);
       }
 
       this.ownerType = ownerType == null ? null : canonicalize(ownerType);
