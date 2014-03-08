@@ -24,6 +24,7 @@ import com.google.gson.internal.bind.ArrayTypeAdapter;
 import com.google.gson.internal.bind.CollectionTypeAdapterFactory;
 import com.google.gson.internal.bind.DateTypeAdapter;
 import com.google.gson.internal.bind.FieldTypeAdapterFactory;
+import com.google.gson.internal.bind.JsonAdapterAnnotationTypeAdapterFactory;
 import com.google.gson.internal.bind.JsonTreeReader;
 import com.google.gson.internal.bind.JsonTreeWriter;
 import com.google.gson.internal.bind.MapTypeAdapterFactory;
@@ -238,6 +239,7 @@ public final class Gson {
     // type adapters for composite and user-defined types
     factories.add(new CollectionTypeAdapterFactory(constructorConstructor));
     factories.add(new MapTypeAdapterFactory(constructorConstructor, complexMapKeySerialization));
+    factories.add(new JsonAdapterAnnotationTypeAdapterFactory(constructorConstructor));
     factories.add(new FieldTypeAdapterFactory());
     factories.add(new ReflectiveTypeAdapterFactory(
         constructorConstructor, fieldNamingPolicy, excluder));
