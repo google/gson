@@ -36,9 +36,9 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
 /**
- * Functional tests for the {@link com.google.gson.annotations.JsonAdapter} annotation.
+ * Functional tests for the {@link com.google.gson.annotations.JsonAdapter} annotation on classes.
  */
-public final class JsonAdapterAnnotationTest extends TestCase {
+public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
 
   public void testJsonAdapterInvoked() {
     Gson gson = new Gson();
@@ -154,8 +154,8 @@ public final class JsonAdapterAnnotationTest extends TestCase {
   // This class is used in JsonAdapter Javadoc as an example
   @JsonAdapter(UserJsonAdapter.class)
   private static class User {
-    public final String firstName, lastName;
-    private User(String firstName, String lastName) {
+    final String firstName, lastName;
+    User(String firstName, String lastName) {
       this.firstName = firstName;
       this.lastName = lastName;
     }
