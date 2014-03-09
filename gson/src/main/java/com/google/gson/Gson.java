@@ -49,8 +49,10 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * This is the main class for using Gson. Gson is typically used by first constructing a
@@ -897,11 +899,21 @@ public final class Gson {
 
   @Override
   public String toString() {
-  	return new StringBuilder("{serializeNulls:")
-  	    .append(serializeNulls)
-  	    .append("factories:").append(factories)
+    return new StringBuilder("{serializeNulls:")
+        .append(serializeNulls)
+        .append("factories:").append(factories)
         .append(",instanceCreators:").append(constructorConstructor)
         .append("}")
         .toString();
+  }
+
+  private final Set<TypeAdapter<?>> generatedTypeAdapters = new HashSet<TypeAdapter<?>>();
+  public static final class $$Internal {
+    public static void addGeneratedTypeAdapter(Gson gson, TypeAdapter<?> typeAdapter) {
+      gson.generatedTypeAdapters.add(typeAdapter);
+    }
+    public static boolean isGeneratedTypeAdapter(Gson gson, TypeAdapter<?> typeAdapter) {
+      return gson.generatedTypeAdapters.contains(typeAdapter);
+    }
   }
 }

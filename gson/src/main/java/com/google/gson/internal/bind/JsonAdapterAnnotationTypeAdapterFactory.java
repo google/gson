@@ -43,15 +43,17 @@ public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapte
     Class<? super T> clazz = targetType.getRawType();
     JsonAdapter annotation = clazz.getAnnotation(JsonAdapter.class);
     if (annotation == null) return null;
-    TypeAdapter adapter = getAnnotationTypeAdapter(constructorConstructor, annotation);
+    TypeAdapter adapter = getAnnotationTypeAdapter(gson, constructorConstructor, annotation);
     return adapter;
   }
 
-  static TypeAdapter<?> getAnnotationTypeAdapter(
+  static TypeAdapter<?> getAnnotationTypeAdapter(Gson gson,
       ConstructorConstructor constructorConstructor, JsonAdapter annotation) {
     Class<? extends TypeAdapter<?>> adapterClass = annotation.value();
     ObjectConstructor<? extends TypeAdapter<?>> constructor =
         constructorConstructor.get(TypeToken.get(adapterClass));
-    return constructor.construct();
+    TypeAdapter<?> adapter = constructor.construct();
+    Gson.$$Internal.addGeneratedTypeAdapter(gson, adapter);
+    return adapter;
   }
 }
