@@ -110,7 +110,6 @@ public class ExposeFieldsTest extends TestCase {
     assertNotNull(obj.interfaceField);
   }
 
-  @SuppressWarnings("unused")
   private static class ClassWithExposedFields {
     @Expose private final Integer a;
     private final Integer b;

@@ -67,7 +67,6 @@ public final class LinkedHashTreeMapTest extends TestCase {
     } catch (ClassCastException expected) {}
   }
 
-  @SuppressWarnings("SuspiciousMethodCalls")
   public void testContainsNonComparableKeyReturnsFalse() {
     LinkedHashTreeMap<String, String> map = new LinkedHashTreeMap<String, String>();
     map.put("a", "android");
