@@ -23,14 +23,14 @@ import junit.framework.TestCase;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
-import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.annotations.Adapt;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
 /**
- * Functional tests for the {@link com.google.gson.annotations.JsonAdapter} annotation on fields.
+ * Functional tests for the {@link com.google.gson.annotations.Adapt} annotation on fields.
  */
-public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
+public final class AdaptAnnotationOnFieldsTest extends TestCase {
 
   public void testJsonAdapterInvoked() {
     Gson gson = new Gson();
@@ -65,7 +65,7 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
   }
 
   private static final class Gadget {
-    @JsonAdapter(PartJsonAdapter.class)
+    @Adapt(PartJsonAdapter.class)
     final Part part;
     Gadget(Part part) {
       this.part = part;
@@ -96,7 +96,7 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
     }
   }
 
-  @JsonAdapter(UserJsonAdapter.class)
+  @Adapt(UserJsonAdapter.class)
   private static class User {
     public final String name;
     private User(String name) {
@@ -129,7 +129,7 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
 
   private static final class Computer2 {
     // overrides the JsonAdapter annotation of User with this
-    @JsonAdapter(UserJsonAdapter2.class)
+    @Adapt(UserJsonAdapter2.class)
     final User user;
     Computer2(User user) {
       this.user = user;
