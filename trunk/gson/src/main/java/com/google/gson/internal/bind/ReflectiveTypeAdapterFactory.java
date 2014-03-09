@@ -71,7 +71,9 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     }
 
     ObjectConstructor<T> constructor = constructorConstructor.get(type);
-    return new Adapter<T>(constructor, getBoundFields(gson, type, raw));
+    Adapter<T> adapter = new Adapter<T>(constructor, getBoundFields(gson, type, raw));
+    Gson.$$Internal.addGeneratedTypeAdapter(gson, adapter);
+    return adapter;
   }
 
   private ReflectiveTypeAdapterFactory.BoundField createBoundField(
@@ -99,14 +101,13 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     };
   }
 
-  private TypeAdapter<?> getFieldAdapter(Gson context, Field field, TypeToken<?> fieldType) {
-    TypeAdapter<?> adapter = context.getAdapter(fieldType);
-    // check if the registered adapter is a reflective type adapter. If so, JsonAdapter
-    // annotation should take precedence. Somewhat hackish, but works.
-    if (adapter instanceof Adapter && field.isAnnotationPresent(JsonAdapter.class)) {
+  private TypeAdapter<?> getFieldAdapter(Gson gson, Field field, TypeToken<?> fieldType) {
+    TypeAdapter<?> adapter = gson.getAdapter(fieldType);
+    boolean generatedAdapter = Gson.$$Internal.isGeneratedTypeAdapter(gson, adapter);
+    if (generatedAdapter && field.isAnnotationPresent(JsonAdapter.class)) {
       JsonAdapter annotation = field.getAnnotation(JsonAdapter.class);
       return JsonAdapterAnnotationTypeAdapterFactory.getAnnotationTypeAdapter(
-          constructorConstructor, annotation);
+          gson, constructorConstructor, annotation);
     }
     return adapter;
   }
