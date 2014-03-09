@@ -22,6 +22,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import com.google.gson.TypeAdapter;
+import com.google.gson.functional.JsonAdapterAnnotationOnFieldsTest.Part;
+import com.google.gson.functional.JsonAdapterAnnotationOnFieldsTest.PartJsonAdapter;
 
 /**
  * An annotation that indicates the Gson {@link TypeAdapter} to use with a class or a field.
@@ -59,11 +61,24 @@ import com.google.gson.TypeAdapter;
  * </pre>
  *
  * Since User class specified UserJsonAdapter.class in &#64JsonAdapter annotation, it
- * will automatically be invoked to serialize/deserialize User instances.
+ * will automatically be invoked to serialize/deserialize User instances. <br>
  *
  * If the UserJsonAdapter needs a constructor other than a no-args constructor, you must register
  * an {@link com.google.gson.InstanceCreator} for it.
- * 
+ *
+ * <p> Here is an example of how to apply this annotation to a field.
+ * <pre>
+ * private static final class Gadget {
+ *   &#64JsonAdapter(UserJsonAdapter2.class)
+ *   final User user;
+ *   Gadget(User user) {
+ *     this.user = user;
+ *   }
+ * }
+ * </pre>
+ * The above annotation will ensure UserJsonAdapter2 supersedes UserJsonAdapter for the user
+ * field of the Gadget class.
+ *
  * @since 2.3
  *
  * @author Inderjeet Singh

@@ -43,7 +43,7 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
   public void testRegisteredTypeAdapterOverridesFieldAnnotation() {
     Gson gson = new GsonBuilder()
       .registerTypeAdapter(Part.class, new TypeAdapter<Part>() {
-        @Override public void write(JsonWriter out, Part user) throws IOException {
+        @Override public void write(JsonWriter out, Part part) throws IOException {
           out.value("registeredAdapter");
         }
         @Override public Part read(JsonReader in) throws IOException {
@@ -54,6 +54,14 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
     assertEquals("{\"part\":\"registeredAdapter\"}", json);
     Gadget gadget = gson.fromJson("{'part':'registeredAdapterValue'}", Gadget.class);
     assertEquals("registeredAdapterValue", gadget.part.name);
+  }
+
+  public void testFieldAnnotationSupersedesClassAnnotation() {
+    Gson gson = new Gson();
+    String json = gson.toJson(new Computer2(new User("Inderjeet Singh")));
+    assertEquals("{\"user\":\"userJsonAdapter2\"}", json);
+    Computer2 target = gson.fromJson("{'user':'userJsonAdapter2Value'}", Computer2.class);
+    assertEquals("userJsonAdapter2Value", target.user.name);
   }
 
   private static final class Gadget {
@@ -82,7 +90,6 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
   }
 
   private static final class Computer {
-    @JsonAdapter(UserJsonAdapter.class)
     final User user;
     Computer(User user) {
       this.user = user;
@@ -117,6 +124,23 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
       String lastName = in.nextString();
       in.endObject();
       return new User(firstName + " " + lastName);
+    }
+  }
+
+  private static final class Computer2 {
+    // overrides the JsonAdapter annotation of User with this
+    @JsonAdapter(UserJsonAdapter2.class)
+    final User user;
+    Computer2(User user) {
+      this.user = user;
+    }
+  }
+  private static final class UserJsonAdapter2 extends TypeAdapter<User> {
+    @Override public void write(JsonWriter out, User user) throws IOException {
+      out.value("userJsonAdapter2");
+    }
+    @Override public User read(JsonReader in) throws IOException {
+      return new User(in.nextString());
     }
   }
 }
