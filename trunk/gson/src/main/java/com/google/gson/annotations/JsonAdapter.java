@@ -22,8 +22,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import com.google.gson.TypeAdapter;
-import com.google.gson.functional.JsonAdapterAnnotationOnFieldsTest.Part;
-import com.google.gson.functional.JsonAdapterAnnotationOnFieldsTest.PartJsonAdapter;
 
 /**
  * An annotation that indicates the Gson {@link TypeAdapter} to use with a class or a field.
