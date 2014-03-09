@@ -68,6 +68,7 @@ public final class Streams {
     TypeAdapters.JSON_ELEMENT.write(writer, element);
   }
 
+  @SuppressWarnings("resource")
   public static Writer writerForAppendable(Appendable appendable) {
     return appendable instanceof Writer ? (Writer) appendable : new AppendableWriter(appendable);
   }
