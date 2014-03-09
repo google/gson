@@ -49,7 +49,6 @@ public class VersionExclusionStrategyTest extends TestCase {
   @Since(VERSION)
   private static class MockObject {
 
-    @SuppressWarnings("unused")
     @Since(VERSION)
     public final int someField = 0;
   }
