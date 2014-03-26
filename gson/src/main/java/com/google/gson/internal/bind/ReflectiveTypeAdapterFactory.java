@@ -27,7 +27,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
-import com.google.gson.annotations.Adapt;
+import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.internal.ConstructorConstructor;
@@ -104,9 +104,9 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   private TypeAdapter<?> getFieldAdapter(Gson gson, Field field, TypeToken<?> fieldType) {
     TypeAdapter<?> adapter = gson.getAdapter(fieldType);
     boolean generatedAdapter = Gson.$$Internal.isGeneratedTypeAdapter(gson, adapter);
-    if (generatedAdapter && field.isAnnotationPresent(Adapt.class)) {
-      Adapt annotation = field.getAnnotation(Adapt.class);
-      return AdaptAnnotationTypeAdapterFactory.getAnnotationTypeAdapter(
+    if (generatedAdapter && field.isAnnotationPresent(JsonAdapter.class)) {
+      JsonAdapter annotation = field.getAnnotation(JsonAdapter.class);
+      return JsonAdapterAnnotationTypeAdapterFactory.getAnnotationTypeAdapter(
           gson, constructorConstructor, annotation);
     }
     return adapter;

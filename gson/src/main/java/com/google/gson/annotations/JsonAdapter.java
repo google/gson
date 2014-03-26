@@ -86,7 +86,7 @@ import com.google.gson.TypeAdapter;
 // Note that the above example is taken from AdaptAnnotationTest.
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.FIELD})
-public @interface Adapt {
+public @interface JsonAdapter {
 
   Class<? extends TypeAdapter<?>> value();
 
