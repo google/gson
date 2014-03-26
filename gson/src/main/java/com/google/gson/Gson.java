@@ -174,7 +174,7 @@ public final class Gson {
    *   <li>By default, Gson ignores the {@link com.google.gson.annotations.Since} annotation. You
    *   can enable Gson to use this annotation through {@link GsonBuilder#setVersion(double)}.</li>
    *   <li>The default field naming policy for the output Json is same as in Java. So, a Java class
-   *   field <code>versionNumber</code> will be output as <code>&quot;versionNumber@quot;</code> in
+   *   field <code>versionNumber</code> will be output as <code>&quot;versionNumber&quot;</code> in
    *   Json. The same rules are applied for mapping incoming Json to the Java classes. You can
    *   change this policy through {@link GsonBuilder#setFieldNamingPolicy(FieldNamingPolicy)}.</li>
    *   <li>By default, Gson excludes <code>transient</code> or <code>static</code> fields from
