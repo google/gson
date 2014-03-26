@@ -31,14 +31,14 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.TypeAdapter;
-import com.google.gson.annotations.Adapt;
+import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
 /**
- * Functional tests for the {@link com.google.gson.annotations.Adapt} annotation on classes.
+ * Functional tests for the {@link com.google.gson.annotations.JsonAdapter} annotation on classes.
  */
-public final class AdaptAnnotationOnClassesTest extends TestCase {
+public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
 
   public void testJsonAdapterInvoked() {
     Gson gson = new Gson();
@@ -119,7 +119,7 @@ public final class AdaptAnnotationOnClassesTest extends TestCase {
     assertFalse(json.contains("jsonAdapter"));
   }
 
-  @Adapt(A.JsonAdapter.class)
+  @JsonAdapter(A.JsonAdapter.class)
   private static class A {
     final String value;
     A(String value) {
@@ -143,7 +143,7 @@ public final class AdaptAnnotationOnClassesTest extends TestCase {
   }
   // Note that the type is NOT TypeAdapter<ClassWithIncorrectJsonAdapter> so this
   // should cause error
-  @Adapt(A.JsonAdapter.class)
+  @JsonAdapter(A.JsonAdapter.class)
   private static final class ClassWithIncorrectJsonAdapter {
     @SuppressWarnings("unused") final String value;
     ClassWithIncorrectJsonAdapter(String value) {
@@ -152,7 +152,7 @@ public final class AdaptAnnotationOnClassesTest extends TestCase {
   }
 
   // This class is used in JsonAdapter Javadoc as an example
-  @Adapt(UserJsonAdapter.class)
+  @JsonAdapter(UserJsonAdapter.class)
   private static class User {
     final String firstName, lastName;
     User(String firstName, String lastName) {

@@ -19,36 +19,36 @@ package com.google.gson.internal.bind;
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
-import com.google.gson.annotations.Adapt;
+import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.ObjectConstructor;
 import com.google.gson.reflect.TypeToken;
 
 /**
- * Given a type T, looks for the annotation {@link Adapt} and uses an instance of the
+ * Given a type T, looks for the annotation {@link JsonAdapter} and uses an instance of the
  * specified class as the default type adapter.
  *
  * @since 2.3
  */
-public final class AdaptAnnotationTypeAdapterFactory implements TypeAdapterFactory {
+public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapterFactory {
 
   private final ConstructorConstructor constructorConstructor;
 
-  public AdaptAnnotationTypeAdapterFactory(ConstructorConstructor constructorConstructor) {
+  public JsonAdapterAnnotationTypeAdapterFactory(ConstructorConstructor constructorConstructor) {
     this.constructorConstructor = constructorConstructor;
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> targetType) {
     Class<? super T> clazz = targetType.getRawType();
-    Adapt annotation = clazz.getAnnotation(Adapt.class);
+    JsonAdapter annotation = clazz.getAnnotation(JsonAdapter.class);
     if (annotation == null) return null;
     TypeAdapter adapter = getAnnotationTypeAdapter(gson, constructorConstructor, annotation);
     return adapter;
   }
 
   static TypeAdapter<?> getAnnotationTypeAdapter(Gson gson,
-      ConstructorConstructor constructorConstructor, Adapt annotation) {
+      ConstructorConstructor constructorConstructor, JsonAdapter annotation) {
     Class<? extends TypeAdapter<?>> adapterClass = annotation.value();
     ObjectConstructor<? extends TypeAdapter<?>> constructor =
         constructorConstructor.get(TypeToken.get(adapterClass));
