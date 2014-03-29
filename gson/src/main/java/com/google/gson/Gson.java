@@ -696,7 +696,7 @@ public final class Gson {
    * @param <T> the type of the desired object
    * @param json the string from which the object is to be deserialized
    * @param classOfT the class of T
-   * @return an object of type T from the string
+   * @return an object of type T from the string. Returns {@code null} if {@code json} is {@code null}.
    * @throws JsonSyntaxException if json is not a valid representation for an object of type
    * classOfT
    */
@@ -719,7 +719,7 @@ public final class Gson {
    * <pre>
    * Type typeOfT = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType();
    * </pre>
-   * @return an object of type T from the string
+   * @return an object of type T from the string. Returns {@code null} if {@code json} is {@code null}.
    * @throws JsonParseException if json is not a valid representation for an object of type typeOfT
    * @throws JsonSyntaxException if json is not a valid representation for an object of type
    */
@@ -746,7 +746,7 @@ public final class Gson {
    * @param <T> the type of the desired object
    * @param json the reader producing the Json from which the object is to be deserialized.
    * @param classOfT the class of T
-   * @return an object of type T from the string
+   * @return an object of type T from the string. Returns {@code null} if {@code json} is at EOF.
    * @throws JsonIOException if there was a problem reading from the Reader
    * @throws JsonSyntaxException if json is not a valid representation for an object of type
    * @since 1.2
@@ -772,7 +772,7 @@ public final class Gson {
    * <pre>
    * Type typeOfT = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType();
    * </pre>
-   * @return an object of type T from the json
+   * @return an object of type T from the json. Returns {@code null} if {@code json} is at EOF.
    * @throws JsonIOException if there was a problem reading from the Reader
    * @throws JsonSyntaxException if json is not a valid representation for an object of type
    * @since 1.2
@@ -799,7 +799,7 @@ public final class Gson {
 
   /**
    * Reads the next JSON value from {@code reader} and convert it to an object
-   * of type {@code typeOfT}.
+   * of type {@code typeOfT}. Returns {@code null}, if the {@code reader} is at EOF.
    * Since Type is not parameterized by T, this method is type unsafe and should be used carefully
    *
    * @throws JsonIOException if there was a problem writing to the Reader
@@ -848,7 +848,7 @@ public final class Gson {
    * @param json the root of the parse tree of {@link JsonElement}s from which the object is to
    * be deserialized
    * @param classOfT The class of T
-   * @return an object of type T from the json
+   * @return an object of type T from the json. Returns {@code null} if {@code json} is {@code null}.
    * @throws JsonSyntaxException if json is not a valid representation for an object of type typeOfT
    * @since 1.3
    */
@@ -871,7 +871,7 @@ public final class Gson {
    * <pre>
    * Type typeOfT = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType();
    * </pre>
-   * @return an object of type T from the json
+   * @return an object of type T from the json. Returns {@code null} if {@code json} is {@code null}.
    * @throws JsonSyntaxException if json is not a valid representation for an object of type typeOfT
    * @since 1.3
    */
