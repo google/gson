@@ -16,6 +16,7 @@
 
 package com.google.gson.internal;
 
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
 
@@ -26,11 +27,11 @@ public final class GsonTypesTest extends TestCase {
   public void testNewParameterizedTypeWithoutOwner() {
     // List<A>. List is a top-level class
     Type type = $Gson$Types.newParameterizedTypeWithOwner(null, List.class, A.class);
-    assertEquals(A.class, $Gson$Types.getFirstTypeArgument(type));
+    assertEquals(A.class, getFirstTypeArgument(type));
 
     // A<B>. A is a static inner class.
     type = $Gson$Types.newParameterizedTypeWithOwner(null, A.class, B.class);
-    assertEquals(B.class, $Gson$Types.getFirstTypeArgument(type));
+    assertEquals(B.class, getFirstTypeArgument(type));
 
     final class D {
     }
@@ -41,14 +42,14 @@ public final class GsonTypesTest extends TestCase {
 
     // A<D> is allowed.
     type = $Gson$Types.newParameterizedTypeWithOwner(null, A.class, D.class);
-    assertEquals(D.class, $Gson$Types.getFirstTypeArgument(type));
+    assertEquals(D.class, getFirstTypeArgument(type));
   }
 
   public void testGetFirstTypeArgument() {
-    assertNull($Gson$Types.getFirstTypeArgument(A.class));
+    assertNull(getFirstTypeArgument(A.class));
 
     Type type = $Gson$Types.newParameterizedTypeWithOwner(null, A.class, B.class, C.class);
-    assertEquals(B.class, $Gson$Types.getFirstTypeArgument(type));
+    assertEquals(B.class, getFirstTypeArgument(type));
   }
 
   private static final class A {
@@ -57,4 +58,21 @@ public final class GsonTypesTest extends TestCase {
   }
   private static final class C {
   }
+
+  /**
+   * Given a parameterized type A&lt;B,C&gt;, returns B. If the specified type is not
+   * a generic type, returns null.
+   */
+  public static Type getFirstTypeArgument(Type type) {
+    try {
+      if (!(type instanceof ParameterizedType)) return null;
+      ParameterizedType ptype = (ParameterizedType) type;
+      Type[] actualTypeArguments = ptype.getActualTypeArguments();
+      if (actualTypeArguments.length == 0) return null;
+      return $Gson$Types.canonicalize(actualTypeArguments[0]);
+    } catch (Exception e) {
+      return null;
+    }
+  }
+
 }
