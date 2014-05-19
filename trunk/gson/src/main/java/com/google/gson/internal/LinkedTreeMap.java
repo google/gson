@@ -589,7 +589,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
     }
   }
 
-  class KeySet extends AbstractSet<K> {
+  final class KeySet extends AbstractSet<K> {
     @Override public int size() {
       return size;
     }

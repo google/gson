@@ -788,7 +788,7 @@ public final class LinkedHashTreeMap<K, V> extends AbstractMap<K, V> implements 
     }
   }
 
-  class EntrySet extends AbstractSet<Entry<K, V>> {
+  final class EntrySet extends AbstractSet<Entry<K, V>> {
     @Override public int size() {
       return size;
     }
@@ -823,7 +823,7 @@ public final class LinkedHashTreeMap<K, V> extends AbstractMap<K, V> implements 
     }
   }
 
-  class KeySet extends AbstractSet<K> {
+  final class KeySet extends AbstractSet<K> {
     @Override public int size() {
       return size;
     }
