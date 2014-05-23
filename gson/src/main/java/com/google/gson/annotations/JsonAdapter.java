@@ -81,7 +81,7 @@ import com.google.gson.TypeAdapter;
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
- * @author Jesse Leitch
+ * @author Jesse Wilson
  */
 // Note that the above example is taken from AdaptAnnotationTest.
 @Retention(RetentionPolicy.RUNTIME)
