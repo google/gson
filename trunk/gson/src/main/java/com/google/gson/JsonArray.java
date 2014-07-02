@@ -71,6 +71,37 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   }
 
   /**
+   * Removes the first occurrence of the specified element from this array, if it is present.
+   * If the array does not contain the element, it is unchanged.
+   * @param element element to be removed from this array, if present
+   * @return true if this array contained the specified element, false otherwise
+   */
+  public boolean remove(JsonElement element) {
+    return elements.remove(element);
+  }
+
+  /**
+   * Removes the element at the specified position in this array. Shifts any subsequent elements
+   * to the left (subtracts one from their indices). Returns the element that was removed from
+   * the array.
+   * @param index index the index of the element to be removed
+   * @return the element previously at the specified position
+   * @throws IndexOutOfBoundsException if the specified index is outside the array bounds
+   */
+  public JsonElement remove(int index) {
+    return elements.remove(index);
+  }
+
+  /**
+   * Returns true if this array contains the specified element.
+   * @return true if this array contains the specified element.
+   * @param element whose presence in this array is to be tested
+   */
+  public boolean contains(JsonElement element) {
+    return elements.contains(element);
+  }
+
+  /**
    * Returns the number of elements in the array.
    *
    * @return the number of elements in the array.
