@@ -16,8 +16,9 @@
 
 package com.google.gson;
 
-import com.google.gson.common.MoreAsserts;
 import junit.framework.TestCase;
+
+import com.google.gson.common.MoreAsserts;
 
 /**
  * @author Jesse Wilson
@@ -48,6 +49,23 @@ public final class JsonArrayTest extends TestCase {
     b.add(JsonNull.INSTANCE);
     assertFalse(a.equals(b));
     assertFalse(b.equals(a));
+  }
+
+  public void testRemove() {
+    JsonArray array = new JsonArray();
+    try {
+      array.remove(0);
+      fail();
+    } catch (IndexOutOfBoundsException expected) {}
+    JsonPrimitive a = new JsonPrimitive("a");
+    array.add(a);
+    assertTrue(array.remove(a));
+    assertFalse(array.contains(a));
+    array.add(a);
+    array.add(new JsonPrimitive("b"));
+    assertEquals("b", array.remove(1).getAsString());
+    assertEquals(1, array.size());
+    assertTrue(array.contains(a));
   }
 
   public void testDeepCopy() {
