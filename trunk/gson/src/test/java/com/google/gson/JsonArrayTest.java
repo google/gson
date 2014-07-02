@@ -68,6 +68,23 @@ public final class JsonArrayTest extends TestCase {
     assertTrue(array.contains(a));
   }
 
+  public void testSet() {
+    JsonArray array = new JsonArray();
+    try {
+      array.set(0, new JsonPrimitive(1));
+      fail();
+    } catch (IndexOutOfBoundsException expected) {}
+    JsonPrimitive a = new JsonPrimitive("a");
+    array.add(a);
+    array.set(0, new JsonPrimitive("b"));
+    assertEquals("b", array.get(0).getAsString());
+    array.set(0, null);
+    assertNull(array.get(0));
+    array.set(0, new JsonPrimitive("c"));
+    assertEquals("c", array.get(0).getAsString());
+    assertEquals(1, array.size());
+  }
+
   public void testDeepCopy() {
     JsonArray original = new JsonArray();
     JsonArray firstEntry = new JsonArray();
