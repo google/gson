@@ -71,6 +71,18 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   }
 
   /**
+   * Replaces the element at the specified position in this array with the specified element.
+   *   Element can be null.
+   * @param index index of the element to replace
+   * @param element element to be stored at the specified position
+   * @return the element previously at the specified position
+   * @throws IndexOutOfBoundsException if the specified index is outside the array bounds
+   */
+  public void set(int index, JsonElement element) {
+    elements.set(index, element);
+  }
+
+  /**
    * Removes the first occurrence of the specified element from this array, if it is present.
    * If the array does not contain the element, it is unchanged.
    * @param element element to be removed from this array, if present
