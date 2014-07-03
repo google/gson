@@ -60,12 +60,12 @@ public final class JsonArrayTest extends TestCase {
     JsonPrimitive a = new JsonPrimitive("a");
     array.add(a);
     assertTrue(array.remove(a));
-    assertFalse(array.contains(a));
+    assertFalse(array.has(a));
     array.add(a);
     array.add(new JsonPrimitive("b"));
     assertEquals("b", array.remove(1).getAsString());
     assertEquals(1, array.size());
-    assertTrue(array.contains(a));
+    assertTrue(array.has(a));
   }
 
   public void testSet() {

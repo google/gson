@@ -87,6 +87,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * If the array does not contain the element, it is unchanged.
    * @param element element to be removed from this array, if present
    * @return true if this array contained the specified element, false otherwise
+   * @since 2.3
    */
   public boolean remove(JsonElement element) {
     return elements.remove(element);
@@ -99,6 +100,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * @param index index the index of the element to be removed
    * @return the element previously at the specified position
    * @throws IndexOutOfBoundsException if the specified index is outside the array bounds
+   * @since 2.3
    */
   public JsonElement remove(int index) {
     return elements.remove(index);
@@ -108,8 +110,9 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * Returns true if this array contains the specified element.
    * @return true if this array contains the specified element.
    * @param element whose presence in this array is to be tested
+   * @since 2.3
    */
-  public boolean contains(JsonElement element) {
+  public boolean has(JsonElement element) {
     return elements.contains(element);
   }
 
