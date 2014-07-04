@@ -75,11 +75,12 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    *   Element can be null.
    * @param index index of the element to replace
    * @param element element to be stored at the specified position
+   * @return 
    * @return the element previously at the specified position
    * @throws IndexOutOfBoundsException if the specified index is outside the array bounds
    */
-  public void set(int index, JsonElement element) {
-    elements.set(index, element);
+  public JsonElement set(int index, JsonElement element) {
+    return elements.set(index, element);
   }
 
   /**
