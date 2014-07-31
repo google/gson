@@ -1326,45 +1326,46 @@ public final class JsonReaderTest extends TestCase {
   }
 
   public void testFailWithPosition() throws IOException {
-    testFailWithPosition("Expected value at line 6 column 5",
+    testFailWithPosition("Expected value at line 6 column 5 path $[1]",
         "[\n\n\n\n\n\"a\",}]");
   }
 
   public void testFailWithPositionGreaterThanBufferSize() throws IOException {
     String spaces = repeat(' ', 8192);
-    testFailWithPosition("Expected value at line 6 column 5",
+    testFailWithPosition("Expected value at line 6 column 5 path $[1]",
         "[\n\n" + spaces + "\n\n\n\"a\",}]");
   }
 
   public void testFailWithPositionOverSlashSlashEndOfLineComment() throws IOException {
-    testFailWithPosition("Expected value at line 5 column 6",
+    testFailWithPosition("Expected value at line 5 column 6 path $[1]",
         "\n// foo\n\n//bar\r\n[\"a\",}");
   }
 
   public void testFailWithPositionOverHashEndOfLineComment() throws IOException {
-    testFailWithPosition("Expected value at line 5 column 6",
+    testFailWithPosition("Expected value at line 5 column 6 path $[1]",
         "\n# foo\n\n#bar\r\n[\"a\",}");
   }
 
   public void testFailWithPositionOverCStyleComment() throws IOException {
-    testFailWithPosition("Expected value at line 6 column 12",
+    testFailWithPosition("Expected value at line 6 column 12 path $[1]",
         "\n\n/* foo\n*\n*\r\nbar */[\"a\",}");
   }
 
   public void testFailWithPositionOverQuotedString() throws IOException {
-    testFailWithPosition("Expected value at line 5 column 3", "[\"foo\nbar\r\nbaz\n\",\n  }");
+    testFailWithPosition("Expected value at line 5 column 3 path $[1]",
+        "[\"foo\nbar\r\nbaz\n\",\n  }");
   }
 
   public void testFailWithPositionOverUnquotedString() throws IOException {
-    testFailWithPosition("Expected value at line 5 column 2", "[\n\nabcd\n\n,}");
+    testFailWithPosition("Expected value at line 5 column 2 path $[1]", "[\n\nabcd\n\n,}");
   }
 
   public void testFailWithEscapedNewlineCharacter() throws IOException {
-    testFailWithPosition("Expected value at line 5 column 3", "[\n\n\"\\\n\n\",}");
+    testFailWithPosition("Expected value at line 5 column 3 path $[1]", "[\n\n\"\\\n\n\",}");
   }
 
   public void testFailWithPositionIsOffsetByBom() throws IOException {
-    testFailWithPosition("Expected value at line 1 column 6",
+    testFailWithPosition("Expected value at line 1 column 6 path $[1]",
         "\ufeff[\"a\",}]");
   }
 
@@ -1391,6 +1392,23 @@ public final class JsonReaderTest extends TestCase {
       fail();
     } catch (IOException expected) {
       assertEquals(message, expected.getMessage());
+    }
+  }
+
+  public void testFailWithPositionDeepPath() throws IOException {
+    JsonReader reader = new JsonReader(reader("[1,{\"a\":[2,3,}"));
+    reader.beginArray();
+    reader.nextInt();
+    reader.beginObject();
+    reader.nextName();
+    reader.beginArray();
+    reader.nextInt();
+    reader.nextInt();
+    try {
+      reader.peek();
+      fail();
+    } catch (IOException expected) {
+      assertEquals("Expected value at line 1 column 14 path $[1].a[2]", expected.getMessage());
     }
   }
 
@@ -1430,6 +1448,8 @@ public final class JsonReaderTest extends TestCase {
     for (int i = 0; i < 40; i++) {
       reader.beginArray();
     }
+    assertEquals("$[0][0][0][0][0][0][0][0][0][0][0][0][0][0][0][0][0][0][0][0][0][0][0][0][0][0]"
+        + "[0][0][0][0][0][0][0][0][0][0][0][0][0][0]", reader.getPath());
     for (int i = 0; i < 40; i++) {
       reader.endArray();
     }
@@ -1449,6 +1469,8 @@ public final class JsonReaderTest extends TestCase {
       reader.beginObject();
       assertEquals("a", reader.nextName());
     }
+    assertEquals("$.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a"
+        + ".a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a", reader.getPath());
     assertEquals(true, reader.nextBoolean());
     for (int i = 0; i < 40; i++) {
       reader.endObject();
