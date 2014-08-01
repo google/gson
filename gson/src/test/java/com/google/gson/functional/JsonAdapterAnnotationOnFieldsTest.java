@@ -143,4 +143,21 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
       return new User(in.nextString());
     }
   }
+
+  public void testJsonAdapterInvokedOnlyForAnnotatedFields() {
+    Gson gson = new Gson();
+    String json = "{'part1':'name','part2':{'name':'name2'}}";
+    GadgetWithTwoParts gadget = gson.fromJson(json, GadgetWithTwoParts.class);
+    assertEquals("partJsonAdapter", gadget.part1.name);
+    assertEquals("name2", gadget.part2.name);
+  }
+
+  private static final class GadgetWithTwoParts {
+    @JsonAdapter(PartJsonAdapter.class) final Part part1;
+    final Part part2; // Doesn't have the JsonAdapter annotation
+    @SuppressWarnings("unused") GadgetWithTwoParts(Part part1, Part part2) {
+      this.part1 = part1;
+      this.part2 = part2;
+    }
+  }
 }
