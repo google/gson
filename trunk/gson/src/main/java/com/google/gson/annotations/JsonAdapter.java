@@ -74,8 +74,8 @@ import com.google.gson.TypeAdapter;
  *   }
  * }
  * </pre>
- * The above annotation will ensure UserJsonAdapter2 supersedes UserJsonAdapter for the user
- * field of the Gadget class.
+ * The above annotation will ensure UserJsonAdapter2 takes precedence over UserJsonAdapter
+ * for the user field of the Gadget class.
  *
  * @since 2.3
  *
