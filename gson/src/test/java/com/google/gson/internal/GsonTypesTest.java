@@ -24,7 +24,7 @@ import junit.framework.TestCase;
 
 public final class GsonTypesTest extends TestCase {
 
-  public void testNewParameterizedTypeWithoutOwner() {
+  public void testNewParameterizedTypeWithoutOwner() throws Exception {
     // List<A>. List is a top-level class
     Type type = $Gson$Types.newParameterizedTypeWithOwner(null, List.class, A.class);
     assertEquals(A.class, getFirstTypeArgument(type));
@@ -45,7 +45,7 @@ public final class GsonTypesTest extends TestCase {
     assertEquals(D.class, getFirstTypeArgument(type));
   }
 
-  public void testGetFirstTypeArgument() {
+  public void testGetFirstTypeArgument() throws Exception {
     assertNull(getFirstTypeArgument(A.class));
 
     Type type = $Gson$Types.newParameterizedTypeWithOwner(null, A.class, B.class, C.class);
@@ -63,16 +63,11 @@ public final class GsonTypesTest extends TestCase {
    * Given a parameterized type A&lt;B,C&gt;, returns B. If the specified type is not
    * a generic type, returns null.
    */
-  public static Type getFirstTypeArgument(Type type) {
-    try {
-      if (!(type instanceof ParameterizedType)) return null;
-      ParameterizedType ptype = (ParameterizedType) type;
-      Type[] actualTypeArguments = ptype.getActualTypeArguments();
-      if (actualTypeArguments.length == 0) return null;
-      return $Gson$Types.canonicalize(actualTypeArguments[0]);
-    } catch (Exception e) {
-      return null;
-    }
+  public static Type getFirstTypeArgument(Type type) throws Exception {
+    if (!(type instanceof ParameterizedType)) return null;
+    ParameterizedType ptype = (ParameterizedType) type;
+    Type[] actualTypeArguments = ptype.getActualTypeArguments();
+    if (actualTypeArguments.length == 0) return null;
+    return $Gson$Types.canonicalize(actualTypeArguments[0]);
   }
-
 }
