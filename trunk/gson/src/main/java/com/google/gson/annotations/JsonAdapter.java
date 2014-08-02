@@ -24,9 +24,8 @@ import java.lang.annotation.Target;
 import com.google.gson.TypeAdapter;
 
 /**
- * An annotation that indicates the Gson {@link TypeAdapter} to use with a class or a field.
- * Any type adapters registered in {@link com.google.gson.GsonBuilder} supersede the adapter
- * specified in this annotation.
+ * An annotation that indicates the Gson {@link TypeAdapter} to use with a class
+ * or field.
  *
  * <p>Here is an example of how this annotation is used:</p>
  * <pre>
@@ -61,9 +60,6 @@ import com.google.gson.TypeAdapter;
  * Since User class specified UserJsonAdapter.class in &#64JsonAdapter annotation, it
  * will automatically be invoked to serialize/deserialize User instances. <br>
  *
- * If the UserJsonAdapter needs a constructor other than a no-args constructor, you must register
- * an {@link com.google.gson.InstanceCreator} for it.
- *
  * <p> Here is an example of how to apply this annotation to a field.
  * <pre>
  * private static final class Gadget {
@@ -74,8 +70,11 @@ import com.google.gson.TypeAdapter;
  *   }
  * }
  * </pre>
- * The above annotation will ensure UserJsonAdapter2 takes precedence over UserJsonAdapter
- * for the user field of the Gadget class.
+ *
+ * It's possible to specify different type adapters on a field, that
+ * field's type, and in the {@link com.google.gson.GsonBuilder}. Field
+ * annotations take precedence over {@code GsonBuilder}-registered type
+ * adapters, which in turn take precedence over annotated types.
  *
  * @since 2.3
  *

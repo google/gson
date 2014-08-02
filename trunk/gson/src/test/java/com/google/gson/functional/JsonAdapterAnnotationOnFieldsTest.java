@@ -16,56 +16,64 @@
 
 package com.google.gson.functional;
 
-import java.io.IOException;
-
-import junit.framework.TestCase;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+import junit.framework.TestCase;
 
 /**
  * Functional tests for the {@link com.google.gson.annotations.JsonAdapter} annotation on fields.
  */
 public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
-
-  public void testJsonAdapterInvoked() {
+  public void testClassAnnotationAdapterTakesPrecedenceOverDefault() {
     Gson gson = new Gson();
     String json = gson.toJson(new Computer(new User("Inderjeet Singh")));
-    assertEquals("{\"user\":{\"firstName\":\"Inderjeet\",\"lastName\":\"Singh\"}}", json);
-    Computer computer = gson.fromJson("{'user':{'firstName':'Jesse','lastName':'Wilson'}}", Computer.class);
-    assertEquals("Jesse Wilson", computer.user.name);
+    assertEquals("{\"user\":\"UserClassAnnotationAdapter\"}", json);
+    Computer computer = gson.fromJson("{'user':'Inderjeet Singh'}", Computer.class);
+    assertEquals("UserClassAnnotationAdapter", computer.user.name);
   }
 
-  public void testRegisteredTypeAdapterOverridesFieldAnnotation() {
+  public void testRegisteredTypeAdapterTakesPrecedenceOverClassAnnotationAdapter() {
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapter(User.class, new RegisteredUserAdapter())
+        .create();
+    String json = gson.toJson(new Computer(new User("Inderjeet Singh")));
+    assertEquals("{\"user\":\"RegisteredUserAdapter\"}", json);
+    Computer computer = gson.fromJson("{'user':'Inderjeet Singh'}", Computer.class);
+    assertEquals("RegisteredUserAdapter", computer.user.name);
+  }
+
+  public void testFieldAnnotationTakesPrecedenceOverRegisteredTypeAdapter() {
     Gson gson = new GsonBuilder()
       .registerTypeAdapter(Part.class, new TypeAdapter<Part>() {
         @Override public void write(JsonWriter out, Part part) throws IOException {
-          out.value("registeredAdapter");
+          throw new AssertionError();
         }
+
         @Override public Part read(JsonReader in) throws IOException {
-          return new Part(in.nextString());
+          throw new AssertionError();
         }
       }).create();
     String json = gson.toJson(new Gadget(new Part("screen")));
-    assertEquals("{\"part\":\"registeredAdapter\"}", json);
-    Gadget gadget = gson.fromJson("{'part':'registeredAdapterValue'}", Gadget.class);
-    assertEquals("registeredAdapterValue", gadget.part.name);
+    assertEquals("{\"part\":\"PartJsonFieldAnnotationAdapter\"}", json);
+    Gadget gadget = gson.fromJson("{'part':'screen'}", Gadget.class);
+    assertEquals("PartJsonFieldAnnotationAdapter", gadget.part.name);
   }
 
-  public void testFieldAnnotationSupersedesClassAnnotation() {
+  public void testFieldAnnotationTakesPrecedenceOverClassAnnotation() {
     Gson gson = new Gson();
     String json = gson.toJson(new Computer2(new User("Inderjeet Singh")));
-    assertEquals("{\"user\":\"userJsonAdapter2\"}", json);
-    Computer2 target = gson.fromJson("{'user':'userJsonAdapter2Value'}", Computer2.class);
-    assertEquals("userJsonAdapter2Value", target.user.name);
+    assertEquals("{\"user\":\"UserFieldAnnotationAdapter\"}", json);
+    Computer2 target = gson.fromJson("{'user':'Interjeet Singh'}", Computer2.class);
+    assertEquals("UserFieldAnnotationAdapter", target.user.name);
   }
 
   private static final class Gadget {
-    @JsonAdapter(PartJsonAdapter.class)
+    @JsonAdapter(PartJsonFieldAnnotationAdapter.class)
     final Part part;
     Gadget(Part part) {
       this.part = part;
@@ -79,13 +87,13 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
     }
   }
 
-  private static class PartJsonAdapter extends TypeAdapter<Part> {
+  private static class PartJsonFieldAnnotationAdapter extends TypeAdapter<Part> {
     @Override public void write(JsonWriter out, Part part) throws IOException {
-      out.value(part.name);
+      out.value("PartJsonFieldAnnotationAdapter");
     }
     @Override public Part read(JsonReader in) throws IOException {
       in.nextString();
-      return new Part("partJsonAdapter");
+      return new Part("PartJsonFieldAnnotationAdapter");
     }
   }
 
@@ -96,7 +104,7 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
     }
   }
 
-  @JsonAdapter(UserJsonAdapter.class)
+  @JsonAdapter(UserClassAnnotationAdapter.class)
   private static class User {
     public final String name;
     private User(String name) {
@@ -104,43 +112,42 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
     }
   }
 
-  private static class UserJsonAdapter extends TypeAdapter<User> {
+  private static class UserClassAnnotationAdapter extends TypeAdapter<User> {
     @Override public void write(JsonWriter out, User user) throws IOException {
-      // implement write: combine firstName and lastName into name
-      out.beginObject();
-      String[] parts = user.name.split(" ");
-      out.name("firstName");
-      out.value(parts[0]);
-      out.name("lastName");
-      out.value(parts[1]);
-      out.endObject();
+      out.value("UserClassAnnotationAdapter");
     }
     @Override public User read(JsonReader in) throws IOException {
-      // implement read: split name into firstName and lastName
-      in.beginObject();
-      in.nextName();
-      String firstName = in.nextString();
-      in.nextName();
-      String lastName = in.nextString();
-      in.endObject();
-      return new User(firstName + " " + lastName);
+      in.nextString();
+      return new User("UserClassAnnotationAdapter");
     }
   }
 
   private static final class Computer2 {
     // overrides the JsonAdapter annotation of User with this
-    @JsonAdapter(UserJsonAdapter2.class)
+    @JsonAdapter(UserFieldAnnotationAdapter.class)
     final User user;
     Computer2(User user) {
       this.user = user;
     }
   }
-  private static final class UserJsonAdapter2 extends TypeAdapter<User> {
+
+  private static final class UserFieldAnnotationAdapter extends TypeAdapter<User> {
     @Override public void write(JsonWriter out, User user) throws IOException {
-      out.value("userJsonAdapter2");
+      out.value("UserFieldAnnotationAdapter");
     }
     @Override public User read(JsonReader in) throws IOException {
-      return new User(in.nextString());
+      in.nextString();
+      return new User("UserFieldAnnotationAdapter");
+    }
+  }
+
+  private static final class RegisteredUserAdapter extends TypeAdapter<User> {
+    @Override public void write(JsonWriter out, User user) throws IOException {
+      out.value("RegisteredUserAdapter");
+    }
+    @Override public User read(JsonReader in) throws IOException {
+      in.nextString();
+      return new User("RegisteredUserAdapter");
     }
   }
 
@@ -148,12 +155,12 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
     Gson gson = new Gson();
     String json = "{'part1':'name','part2':{'name':'name2'}}";
     GadgetWithTwoParts gadget = gson.fromJson(json, GadgetWithTwoParts.class);
-    assertEquals("partJsonAdapter", gadget.part1.name);
+    assertEquals("PartJsonFieldAnnotationAdapter", gadget.part1.name);
     assertEquals("name2", gadget.part2.name);
   }
 
   private static final class GadgetWithTwoParts {
-    @JsonAdapter(PartJsonAdapter.class) final Part part1;
+    @JsonAdapter(PartJsonFieldAnnotationAdapter.class) final Part part1;
     final Part part2; // Doesn't have the JsonAdapter annotation
     @SuppressWarnings("unused") GadgetWithTwoParts(Part part1, Part part2) {
       this.part1 = part1;

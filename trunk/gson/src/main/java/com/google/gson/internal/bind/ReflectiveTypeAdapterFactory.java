@@ -16,12 +16,6 @@
 
 package com.google.gson.internal.bind;
 
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Type;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import com.google.gson.FieldNamingStrategy;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -38,6 +32,11 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Type;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Type adapter that reflects over the fields and methods of a class.
@@ -71,9 +70,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     }
 
     ObjectConstructor<T> constructor = constructorConstructor.get(type);
-    Adapter<T> adapter = new Adapter<T>(constructor, getBoundFields(gson, type, raw));
-    Gson.$$Internal.addGeneratedTypeAdapter(gson, adapter);
-    return adapter;
+    return new Adapter<T>(constructor, getBoundFields(gson, type, raw));
   }
 
   private ReflectiveTypeAdapterFactory.BoundField createBoundField(
@@ -102,14 +99,10 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   }
 
   private TypeAdapter<?> getFieldAdapter(Gson gson, Field field, TypeToken<?> fieldType) {
-    TypeAdapter<?> adapter = gson.getAdapter(fieldType);
-    boolean generatedAdapter = Gson.$$Internal.isGeneratedTypeAdapter(gson, adapter);
-    if (generatedAdapter && field.isAnnotationPresent(JsonAdapter.class)) {
-      JsonAdapter annotation = field.getAnnotation(JsonAdapter.class);
-      return JsonAdapterAnnotationTypeAdapterFactory.getAnnotationTypeAdapter(
-          gson, constructorConstructor, annotation);
-    }
-    return adapter;
+    JsonAdapter annotation = field.getAnnotation(JsonAdapter.class);
+    return (annotation != null)
+        ? constructorConstructor.get(TypeToken.get(annotation.value())).construct()
+        : gson.getAdapter(fieldType);
   }
 
   private Map<String, BoundField> getBoundFields(Gson context, TypeToken<?> type, Class<?> raw) {
