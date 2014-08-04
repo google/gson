@@ -16,11 +16,6 @@
 
 package com.google.gson.functional;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
-
-import junit.framework.TestCase;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -31,9 +26,14 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.TypeAdapter;
+import com.google.gson.TypeAdapterFactory;
 import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+import java.lang.reflect.Type;
+import junit.framework.TestCase;
 
 /**
  * Functional tests for the {@link com.google.gson.annotations.JsonAdapter} annotation on classes.
@@ -51,6 +51,14 @@ public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
     User user = gson.fromJson("{'name':'Joel Leitch'}", User.class);
     assertEquals("Joel", user.firstName);
     assertEquals("Leitch", user.lastName);
+  }
+
+  public void testJsonAdapterFactoryInvoked() {
+    Gson gson = new Gson();
+    String json = gson.toJson(new C("bar"));
+    assertEquals("\"jsonAdapterFactory\"", json);
+    C c = gson.fromJson("\"bar\"", C.class);
+    assertEquals("jsonAdapterFactory", c.value);
   }
 
   public void testRegisteredAdapterOverridesJsonAdapter() {
@@ -125,13 +133,34 @@ public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
     A(String value) {
       this.value = value;
     }
-    private static final class JsonAdapter extends TypeAdapter<A> { 
+    static final class JsonAdapter extends TypeAdapter<A> {
       @Override public void write(JsonWriter out, A value) throws IOException {
         out.value("jsonAdapter");
       }
       @Override public A read(JsonReader in) throws IOException {
         in.nextString();
         return new A("jsonAdapter");
+      }
+    }
+  }
+
+  @JsonAdapter(C.JsonAdapterFactory.class)
+  private static class C {
+    final String value;
+    C(String value) {
+      this.value = value;
+    }
+    static final class JsonAdapterFactory implements TypeAdapterFactory {
+      public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
+        return new TypeAdapter<T>() {
+          @Override public void write(JsonWriter out, T value) throws IOException {
+            out.value("jsonAdapterFactory");
+          }
+          @Override public T read(JsonReader in) throws IOException {
+            in.nextString();
+            return (T) new C("jsonAdapterFactory");
+          }
+        };
       }
     }
   }
