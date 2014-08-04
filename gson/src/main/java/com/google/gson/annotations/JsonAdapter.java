@@ -16,12 +16,12 @@
 
 package com.google.gson.annotations;
 
+import com.google.gson.TypeAdapter;
+import com.google.gson.TypeAdapterFactory;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import com.google.gson.TypeAdapter;
 
 /**
  * An annotation that indicates the Gson {@link TypeAdapter} to use with a class
@@ -87,6 +87,7 @@ import com.google.gson.TypeAdapter;
 @Target({ElementType.TYPE, ElementType.FIELD})
 public @interface JsonAdapter {
 
-  Class<? extends TypeAdapter<?>> value();
+  /** Either a {@link TypeAdapter} or {@link TypeAdapterFactory}. */
+  Class<?> value();
 
 }

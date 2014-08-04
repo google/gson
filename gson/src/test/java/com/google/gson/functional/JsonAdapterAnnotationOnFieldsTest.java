@@ -19,7 +19,9 @@ package com.google.gson.functional;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
+import com.google.gson.TypeAdapterFactory;
 import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
@@ -35,6 +37,14 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
     assertEquals("{\"user\":\"UserClassAnnotationAdapter\"}", json);
     Computer computer = gson.fromJson("{'user':'Inderjeet Singh'}", Computer.class);
     assertEquals("UserClassAnnotationAdapter", computer.user.name);
+  }
+
+  public void testClassAnnotationAdapterFactoryTakesPrecedenceOverDefault() {
+    Gson gson = new Gson();
+    String json = gson.toJson(new Gizmo(new Part("Part")));
+    assertEquals("{\"part\":\"GizmoPartTypeAdapterFactory\"}", json);
+    Gizmo computer = gson.fromJson("{'part':'Part'}", Gizmo.class);
+    assertEquals("GizmoPartTypeAdapterFactory", computer.part.name);
   }
 
   public void testRegisteredTypeAdapterTakesPrecedenceOverClassAnnotationAdapter() {
@@ -80,9 +90,17 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
     }
   }
 
+  private static final class Gizmo {
+    @JsonAdapter(GizmoPartTypeAdapterFactory.class)
+    final Part part;
+    Gizmo(Part part) {
+      this.part = part;
+    }
+  }
+
   private static final class Part {
     final String name;
-    Part(String name) {
+    public Part(String name) {
       this.name = name;
     }
   }
@@ -94,6 +112,21 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
     @Override public Part read(JsonReader in) throws IOException {
       in.nextString();
       return new Part("PartJsonFieldAnnotationAdapter");
+    }
+  }
+
+  private static class GizmoPartTypeAdapterFactory implements TypeAdapterFactory {
+    public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
+      return new TypeAdapter<T>() {
+        @Override public void write(JsonWriter out, T value) throws IOException {
+          out.value("GizmoPartTypeAdapterFactory");
+        }
+        @SuppressWarnings("unchecked")
+        @Override public T read(JsonReader in) throws IOException {
+          in.nextString();
+          return (T) new Part("GizmoPartTypeAdapterFactory");
+        }
+      };
     }
   }
 
