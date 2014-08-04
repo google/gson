@@ -38,6 +38,8 @@ import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static com.google.gson.internal.bind.JsonAdapterAnnotationTypeAdapterFactory.getTypeAdapter;
+
 /**
  * Type adapter that reflects over the fields and methods of a class.
  */
@@ -100,9 +102,11 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
 
   private TypeAdapter<?> getFieldAdapter(Gson gson, Field field, TypeToken<?> fieldType) {
     JsonAdapter annotation = field.getAnnotation(JsonAdapter.class);
-    return (annotation != null)
-        ? constructorConstructor.get(TypeToken.get(annotation.value())).construct()
-        : gson.getAdapter(fieldType);
+    if (annotation != null) {
+      TypeAdapter<?> adapter = getTypeAdapter(constructorConstructor, gson, fieldType, annotation);
+      if (adapter != null) return adapter;
+    }
+    return gson.getAdapter(fieldType);
   }
 
   private Map<String, BoundField> getBoundFields(Gson context, TypeToken<?> type, Class<?> raw) {
