@@ -76,6 +76,10 @@ import java.lang.annotation.Target;
  * annotations take precedence over {@code GsonBuilder}-registered type
  * adapters, which in turn take precedence over annotated types.
  *
+ * <p>The class referenced by this annotation must be either a {@link
+ * TypeAdapter} or a {@link TypeAdapterFactory}. Using the factory interface
+ * makes it possible to delegate to the enclosing {@code Gson} instance.
+ *
  * @since 2.3
  *
  * @author Inderjeet Singh
