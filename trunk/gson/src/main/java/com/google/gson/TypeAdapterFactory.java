@@ -28,7 +28,7 @@ import com.google.gson.reflect.TypeToken;
  * that they're defined in {@code CONSTANT_CASE} in the corresponding Java
  * model: <pre>   {@code
  *
- *   public class LowercaseEnumTypeAdapterFactory implements TypeAdapter.Factory {
+ *   public class LowercaseEnumTypeAdapterFactory implements TypeAdapterFactory {
  *     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
  *       Class<T> rawType = (Class<T>) type.getRawType();
  *       if (!rawType.isEnum()) {
@@ -102,7 +102,7 @@ import com.google.gson.reflect.TypeToken;
  * multiset's type token. A {@code Gson} is passed in to {@code create} for
  * just this purpose: <pre>   {@code
  *
- *   public class MultisetTypeAdapterFactory implements TypeAdapter.Factory {
+ *   public class MultisetTypeAdapterFactory implements TypeAdapterFactory {
  *     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
  *       Type type = typeToken.getType();
  *       if (typeToken.getRawType() != Multiset.class
