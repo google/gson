@@ -51,25 +51,6 @@ public abstract class UnsafeAllocator {
     } catch (Exception ignored) {
     }
 
-    // try dalvikvm, pre-gingerbread
-    // public class ObjectInputStream {
-    //   private static native Object newInstance(
-    //     Class<?> instantiationClass, Class<?> constructorClass);
-    // }
-    try {
-      final Method newInstance = ObjectInputStream.class
-          .getDeclaredMethod("newInstance", Class.class, Class.class);
-      newInstance.setAccessible(true);
-      return new UnsafeAllocator() {
-        @Override
-        @SuppressWarnings("unchecked")
-        public <T> T newInstance(Class<T> c) throws Exception {
-          return (T) newInstance.invoke(null, c, Object.class);
-        }
-      };
-    } catch (Exception ignored) {
-    }
-
     // try dalvikvm, post-gingerbread
     // public class ObjectStreamClass {
     //   private static native int getConstructorId(Class<?> c);
@@ -88,6 +69,25 @@ public abstract class UnsafeAllocator {
         @SuppressWarnings("unchecked")
         public <T> T newInstance(Class<T> c) throws Exception {
           return (T) newInstance.invoke(null, c, constructorId);
+        }
+      };
+    } catch (Exception ignored) {
+    }
+
+    // try dalvikvm, pre-gingerbread
+    // public class ObjectInputStream {
+    //   private static native Object newInstance(
+    //     Class<?> instantiationClass, Class<?> constructorClass);
+    // }
+    try {
+      final Method newInstance = ObjectInputStream.class
+          .getDeclaredMethod("newInstance", Class.class, Class.class);
+      newInstance.setAccessible(true);
+      return new UnsafeAllocator() {
+        @Override
+        @SuppressWarnings("unchecked")
+        public <T> T newInstance(Class<T> c) throws Exception {
+          return (T) newInstance.invoke(null, c, Object.class);
         }
       };
     } catch (Exception ignored) {
