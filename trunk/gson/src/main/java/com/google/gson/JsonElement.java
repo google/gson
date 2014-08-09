@@ -76,7 +76,7 @@ public abstract class JsonElement {
 
   /**
    * convenience method to get this element as a {@link JsonObject}. If the element is of some
-   * other type, a {@link ClassCastException} will result. Hence it is best to use this method
+   * other type, a {@link IllegalStateException} will result. Hence it is best to use this method
    * after ensuring that this element is of the desired type by calling {@link #isJsonObject()}
    * first.
    *
@@ -92,7 +92,7 @@ public abstract class JsonElement {
 
   /**
    * convenience method to get this element as a {@link JsonArray}. If the element is of some
-   * other type, a {@link ClassCastException} will result. Hence it is best to use this method
+   * other type, a {@link IllegalStateException} will result. Hence it is best to use this method
    * after ensuring that this element is of the desired type by calling {@link #isJsonArray()}
    * first.
    *
@@ -108,7 +108,7 @@ public abstract class JsonElement {
 
   /**
    * convenience method to get this element as a {@link JsonPrimitive}. If the element is of some
-   * other type, a {@link ClassCastException} will result. Hence it is best to use this method
+   * other type, a {@link IllegalStateException} will result. Hence it is best to use this method
    * after ensuring that this element is of the desired type by calling {@link #isJsonPrimitive()}
    * first.
    *
@@ -124,7 +124,7 @@ public abstract class JsonElement {
 
   /**
    * convenience method to get this element as a {@link JsonNull}. If the element is of some
-   * other type, a {@link ClassCastException} will result. Hence it is best to use this method
+   * other type, a {@link IllegalStateException} will result. Hence it is best to use this method
    * after ensuring that this element is of the desired type by calling {@link #isJsonNull()}
    * first.
    *
