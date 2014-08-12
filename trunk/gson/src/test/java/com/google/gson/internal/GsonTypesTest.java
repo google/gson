@@ -38,6 +38,7 @@ public final class GsonTypesTest extends TestCase {
     try {
       // D<A> is not allowed since D is not a static inner class
       $Gson$Types.newParameterizedTypeWithOwner(null, D.class, A.class);
+      fail();
     } catch (IllegalArgumentException expected) {}
 
     // A<D> is allowed.
