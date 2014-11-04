@@ -33,6 +33,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.Locale;
 import junit.framework.TestCase;
 
 /**
@@ -51,6 +52,11 @@ public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
     User user = gson.fromJson("{'name':'Joel Leitch'}", User.class);
     assertEquals("Joel", user.firstName);
     assertEquals("Leitch", user.lastName);
+
+    json = gson.toJson(Foo.BAR);
+    assertEquals("\"bar\"", json);
+    Foo baz = gson.fromJson("\"baz\"", Foo.class);
+    assertEquals(Foo.BAZ, baz);
   }
 
   public void testJsonAdapterFactoryInvoked() {
@@ -208,4 +214,15 @@ public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
     }
   }
 
+  @JsonAdapter(FooJsonAdapter.class)
+  private static enum Foo { BAR, BAZ }
+  private static class FooJsonAdapter extends TypeAdapter<Foo> {
+    @Override public void write(JsonWriter out, Foo value) throws IOException {
+      out.value(value.name().toLowerCase(Locale.US));
+    }
+
+    @Override public Foo read(JsonReader in) throws IOException {
+      return Foo.valueOf(in.nextString().toUpperCase(Locale.US));
+    }
+  }
 }
