@@ -420,6 +420,10 @@ public final class Gson {
    */
   public <T> TypeAdapter<T> getDelegateAdapter(TypeAdapterFactory skipPast, TypeToken<T> type) {
     boolean skipPastFound = false;
+    // Skip past if and only if the specified factory is present in the factories.
+    // This is useful because the factories created through JsonAdapter annotations are not
+    // registered in this list.
+    if (!factories.contains(skipPast)) skipPastFound = true;
 
     for (TypeAdapterFactory factory : factories) {
       if (!skipPastFound) {
