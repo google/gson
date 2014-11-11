@@ -158,6 +158,11 @@ public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
     }
     static final class JsonAdapterFactory implements TypeAdapterFactory {
       public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
+
+        // Ensure that gson.getDelegateAdapter continues to work for type adapter factories
+        // registered through JsonAdapter annotation. Query for a random type adapter.
+        gson.getDelegateAdapter(this, TypeToken.get(JsonAdapterAnnotationOnFieldsTest.class));
+
         return new TypeAdapter<T>() {
           @Override public void write(JsonWriter out, T value) throws IOException {
             out.value("jsonAdapterFactory");
