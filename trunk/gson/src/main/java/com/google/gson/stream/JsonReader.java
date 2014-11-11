@@ -363,6 +363,7 @@ public class JsonReader implements Closeable {
     }
     if (p == PEEKED_END_ARRAY) {
       stackSize--;
+      pathIndices[stackSize - 1]++;
       peeked = PEEKED_NONE;
     } else {
       throw new IllegalStateException("Expected END_ARRAY but was " + peek()
@@ -400,6 +401,7 @@ public class JsonReader implements Closeable {
     if (p == PEEKED_END_OBJECT) {
       stackSize--;
       pathNames[stackSize] = null; // Free the last path name so that it can be garbage collected!
+      pathIndices[stackSize - 1]++;
       peeked = PEEKED_NONE;
     } else {
       throw new IllegalStateException("Expected END_OBJECT but was " + peek()
