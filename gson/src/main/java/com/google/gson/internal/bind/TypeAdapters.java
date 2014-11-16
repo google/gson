@@ -16,7 +16,6 @@
 
 package com.google.gson.internal.bind;
 
-import com.google.gson.TypeAdapterFactory;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -44,6 +43,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
+import com.google.gson.TypeAdapterFactory;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.internal.LazilyParsedNumber;
 import com.google.gson.reflect.TypeToken;
@@ -746,23 +746,19 @@ public final class TypeAdapters {
     }
   }
 
-  public static final TypeAdapterFactory ENUM_FACTORY = newEnumTypeHierarchyFactory();
-
-  public static TypeAdapterFactory newEnumTypeHierarchyFactory() {
-    return new TypeAdapterFactory() {
-      @SuppressWarnings({"rawtypes", "unchecked"})
-      public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
-        Class<? super T> rawType = typeToken.getRawType();
-        if (!Enum.class.isAssignableFrom(rawType) || rawType == Enum.class) {
-          return null;
-        }
-        if (!rawType.isEnum()) {
-          rawType = rawType.getSuperclass(); // handle anonymous subclasses
-        }
-        return (TypeAdapter<T>) new EnumTypeAdapter(rawType);
+  public static final TypeAdapterFactory ENUM_FACTORY = new TypeAdapterFactory() {
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
+      Class<? super T> rawType = typeToken.getRawType();
+      if (!Enum.class.isAssignableFrom(rawType) || rawType == Enum.class) {
+        return null;
       }
-    };
-  }
+      if (!rawType.isEnum()) {
+        rawType = rawType.getSuperclass(); // handle anonymous subclasses
+      }
+      return (TypeAdapter<T>) new EnumTypeAdapter(rawType);
+    }
+  };
 
   public static <TT> TypeAdapterFactory newFactory(
       final TypeToken<TT> type, final TypeAdapter<TT> typeAdapter) {
