@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import junit.framework.TestCase;
 
+@SuppressWarnings("resource")
 public class JsonReaderPathTest extends TestCase {
   public void testPath() throws IOException {
     JsonReader reader = new JsonReader(

@@ -109,7 +109,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.1</version>
+        <version>3.2</version>
         <configuration>
           <source>1.5</source>
           <target>1.5</target>
@@ -118,7 +118,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>2.4</version>
+        <version>2.5</version>
         <executions>
           <execution>
             <phase>package</phase>
@@ -149,7 +149,7 @@
        <!-- TODO(inder): add manifest entry for maven group, artifact, and classifier ids -->
          <groupId>org.apache.maven.plugins</groupId>
          <artifactId>maven-source-plugin</artifactId>
-         <version>2.3</version>
+         <version>2.4</version>
          <executions>
            <execution>
              <id>attach-sources</id>
@@ -174,7 +174,7 @@
          <!-- TODO(inder): add manifest entry for maven group, artifact, and classifier ids -->
          <groupId>org.apache.maven.plugins</groupId>
          <artifactId>maven-javadoc-plugin</artifactId>
-         <version>2.9.1</version>
+         <version>2.10.1</version>
          <executions>
            <execution>
              <id>attach-javadocs</id>
@@ -219,7 +219,7 @@
       </plugin>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.4.1</version>
+        <version>2.5.1</version>
         <configuration>
           <descriptor>assembly-descriptor.xml</descriptor>
           <finalName>google-gson-${project.version}</finalName>
