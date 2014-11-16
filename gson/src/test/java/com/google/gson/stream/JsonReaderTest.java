@@ -1755,9 +1755,8 @@ public final class JsonReaderTest extends TestCase {
    * Returns a reader that returns one character at a time.
    */
   private Reader reader(final String s) {
-    if (true) return new StringReader(s);
-
-    return new Reader() {
+    /* if (true) */ return new StringReader(s);
+    /* return new Reader() {
       int position = 0;
       @Override public int read(char[] buffer, int offset, int count) throws IOException {
         if (position == s.length()) {
@@ -1771,6 +1770,6 @@ public final class JsonReaderTest extends TestCase {
       }
       @Override public void close() throws IOException {
       }
-    };
+    }; */
   }
 }

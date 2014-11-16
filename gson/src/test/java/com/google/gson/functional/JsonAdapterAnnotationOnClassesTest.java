@@ -162,6 +162,7 @@ public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
           @Override public void write(JsonWriter out, T value) throws IOException {
             out.value("jsonAdapterFactory");
           }
+          @SuppressWarnings("unchecked")
           @Override public T read(JsonReader in) throws IOException {
             in.nextString();
             return (T) new C("jsonAdapterFactory");
