@@ -56,10 +56,18 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   }
 
   public boolean excludeField(Field f, boolean serialize) {
+    return excludeField(f, serialize, excluder);
+  }
+
+  static boolean excludeField(Field f, boolean serialize, Excluder excluder) {
     return !excluder.excludeClass(f.getType(), serialize) && !excluder.excludeField(f, serialize);
   }
 
   private String getFieldName(Field f) {
+    return getFieldName(fieldNamingPolicy, f);
+  }
+
+  static String getFieldName(FieldNamingStrategy fieldNamingPolicy, Field f) {
     SerializedName serializedName = f.getAnnotation(SerializedName.class);
     return serializedName == null ? fieldNamingPolicy.translateName(f) : serializedName.value();
   }
