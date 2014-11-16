@@ -23,6 +23,7 @@ import com.google.gson.internal.Streams;
 import com.google.gson.internal.bind.ArrayTypeAdapter;
 import com.google.gson.internal.bind.CollectionTypeAdapterFactory;
 import com.google.gson.internal.bind.DateTypeAdapter;
+import com.google.gson.internal.bind.ThrowableTypeAdapterFactory;
 import com.google.gson.internal.bind.JsonAdapterAnnotationTypeAdapterFactory;
 import com.google.gson.internal.bind.JsonTreeReader;
 import com.google.gson.internal.bind.JsonTreeWriter;
@@ -239,6 +240,7 @@ public final class Gson {
     factories.add(new MapTypeAdapterFactory(constructorConstructor, complexMapKeySerialization));
     factories.add(new JsonAdapterAnnotationTypeAdapterFactory(constructorConstructor));
     factories.add(TypeAdapters.ENUM_FACTORY);
+    factories.add(new ThrowableTypeAdapterFactory(fieldNamingPolicy, excluder));
     factories.add(new ReflectiveTypeAdapterFactory(
         constructorConstructor, fieldNamingPolicy, excluder));
 
