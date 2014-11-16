@@ -56,15 +56,12 @@ public class CircularReferenceTest extends TestCase {
     }
   }
 
-  public void testSelfReferenceSerialization() throws Exception {
+  public void testSelfReferenceIgnoredInSerialization() throws Exception {
     ClassOverridingEquals objA = new ClassOverridingEquals();
     objA.ref = objA;
 
-    try {
-      gson.toJson(objA);
-      fail("Circular reference to self can not be serialized!");
-    } catch (StackOverflowError expected) {
-    }
+    String json = gson.toJson(objA);
+    assertFalse(json.contains("ref")); // self-reference is ignored
   }
 
   public void testSelfReferenceArrayFieldSerialization() throws Exception {

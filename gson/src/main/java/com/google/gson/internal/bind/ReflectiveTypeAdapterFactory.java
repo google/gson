@@ -105,6 +105,11 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           field.set(value, fieldValue);
         }
       }
+      public boolean writeField(Object value) throws IOException, IllegalAccessException {
+        if (!serialized) return false;
+        Object fieldValue = field.get(value);
+        return fieldValue != value; // avoid recursion for example for Throwable.cause
+      }
     };
   }
 
@@ -158,7 +163,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       this.serialized = serialized;
       this.deserialized = deserialized;
     }
-
+    abstract boolean writeField(Object value) throws IOException, IllegalAccessException;
     abstract void write(JsonWriter writer, Object value) throws IOException, IllegalAccessException;
     abstract void read(JsonReader reader, Object value) throws IOException, IllegalAccessException;
   }
@@ -209,7 +214,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       out.beginObject();
       try {
         for (BoundField boundField : boundFields.values()) {
-          if (boundField.serialized) {
+          if (boundField.writeField(value)) {
             out.name(boundField.name);
             boundField.write(out, value);
           }
