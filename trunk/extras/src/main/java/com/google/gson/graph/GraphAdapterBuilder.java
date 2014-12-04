@@ -42,10 +42,13 @@ import java.util.Queue;
 // TODO: proper documentation
 @SuppressWarnings("rawtypes")
 public final class GraphAdapterBuilder {
-  private final ConstructorConstructor constructorConstructor = new ConstructorConstructor();
-  private final Map<Type, InstanceCreator<?>> instanceCreators
-      = new HashMap<Type, InstanceCreator<?>>();
+  private final Map<Type, InstanceCreator<?>> instanceCreators;
+  private final ConstructorConstructor constructorConstructor;
 
+  public GraphAdapterBuilder() {
+      this.instanceCreators = new HashMap<Type, InstanceCreator<?>>();
+      this.constructorConstructor = new ConstructorConstructor(instanceCreators);
+  }
   public GraphAdapterBuilder addType(Type type) {
     final ObjectConstructor<?> objectConstructor = constructorConstructor.get(TypeToken.get(type));
     InstanceCreator<Object> instanceCreator = new InstanceCreator<Object>() {
