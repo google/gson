@@ -37,9 +37,10 @@ public final class UtcDateTypeAdapter extends TypeAdapter<Date> {
   public void write(JsonWriter out, Date date) throws IOException {
     if (date == null) {
       out.nullValue();
+    } else {
+      String value = format(date, true, UTC_TIME_ZONE);
+      out.value(value);
     }
-    String value = format(date, true, UTC_TIME_ZONE);
-    out.value(value);
   }
 
   @Override
