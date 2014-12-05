@@ -47,4 +47,15 @@ public final class UtcDateTypeAdapterTest extends TestCase {
       assertEquals(expected.getTime(), actual.getTime());
     }
   }
+
+  /**
+   * JDK 1.7 introduced support for XXX format to indicate UTC date. But Android is older JDK.
+   * We want to make sure that this date is parseable in Android.
+   */
+  public void testUtcDatesOnJdkBefore1_7() {
+    Gson gson = new GsonBuilder()
+      .registerTypeAdapter(Date.class, new UtcDateTypeAdapter(true))
+      .create();
+    gson.fromJson("'2014-12-05T04:00:00.000Z'", Date.class);
+  }
 }
