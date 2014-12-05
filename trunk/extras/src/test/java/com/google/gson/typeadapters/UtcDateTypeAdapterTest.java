@@ -16,8 +16,10 @@
 
 package com.google.gson.typeadapters;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import junit.framework.TestCase;
@@ -54,8 +56,19 @@ public final class UtcDateTypeAdapterTest extends TestCase {
    */
   public void testUtcDatesOnJdkBefore1_7() {
     Gson gson = new GsonBuilder()
-      .registerTypeAdapter(Date.class, new UtcDateTypeAdapter(true))
+      .registerTypeAdapter(Date.class, new UtcDateTypeAdapter())
       .create();
     gson.fromJson("'2014-12-05T04:00:00.000Z'", Date.class);
+  }
+
+  public void testUtcWithJdk7Default() {
+    Date expected = new Date();
+    SimpleDateFormat iso8601Format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.US);
+    iso8601Format.setTimeZone(TimeZone.getTimeZone("UTC"));
+    String expectedJson = "\"" + iso8601Format.format(expected) + "\"";
+    String actualJson = gson.toJson(expected);
+    assertEquals(expectedJson, actualJson);
+    Date actual = gson.fromJson(expectedJson, Date.class);
+    assertEquals(expected.getTime(), actual.getTime());
   }
 }
