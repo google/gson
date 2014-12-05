@@ -17,10 +17,8 @@
 package com.google.gson.typeadapters;
 
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.ParsePosition;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -33,42 +31,14 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
 public final class UtcDateTypeAdapter extends TypeAdapter<Date> {
-  private final DateFormat iso8601Format;
   private final TimeZone UTC_TIME_ZONE = TimeZone.getTimeZone("UTC");
-
-  public UtcDateTypeAdapter() {
-    this(false);
-  }
-
-  public UtcDateTypeAdapter(boolean jdk6Compatible) {
-    if (jdk6Compatible) {
-      this.iso8601Format = null;
-    } else {
-      // XXX is only supported by JDK 1.7+
-      this.iso8601Format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.US);
-      this.iso8601Format.setTimeZone(UTC_TIME_ZONE);
-    }
-  }
 
   @Override
   public void write(JsonWriter out, Date date) throws IOException {
     if (date == null) {
       out.nullValue();
     }
-    String value = null;
-    if (iso8601Format != null) {
-      synchronized (iso8601Format) {
-        // Need synchronization since JDK DateFormat classes are not thread-safe
-        try {
-          value = iso8601Format.format(date);
-        } catch (Exception e) {
-          value = null;
-        }
-      }
-    }
-    if (value == null) { // Try other formatter
-      value = format(date, true, UTC_TIME_ZONE);
-    }
+    String value = format(date, true, UTC_TIME_ZONE);
     out.value(value);
   }
 
@@ -81,16 +51,6 @@ public final class UtcDateTypeAdapter extends TypeAdapter<Date> {
         return null;
       default:
         String date = in.nextString();
-        if (iso8601Format != null) {
-          synchronized (iso8601Format) {
-            // Need synchronization since JDK DateFormat classes are not thread-safe
-            try {
-              return iso8601Format.parse(date);
-            } catch (Exception e) {
-              // Ignore and try the other parser
-            }
-          }
-        }
         // Instead of using iso8601Format.parse(value), we use Jackson's date parsing
         // This is because Android doesn't support XXX because it is JDK 1.6
         return parse(date, new ParsePosition(0));
