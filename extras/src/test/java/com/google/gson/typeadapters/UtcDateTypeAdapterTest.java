@@ -29,8 +29,8 @@ import com.google.gson.GsonBuilder;
 
 public final class UtcDateTypeAdapterTest extends TestCase {
   private final Gson gson = new GsonBuilder()
-  .registerTypeAdapter(Date.class, new UtcDateTypeAdapter())
-  .create();
+    .registerTypeAdapter(Date.class, new UtcDateTypeAdapter())
+    .create();
 
   public void testLocalTimeZone() {
     Date expected = new Date();
@@ -70,5 +70,10 @@ public final class UtcDateTypeAdapterTest extends TestCase {
     assertEquals(expectedJson, actualJson);
     Date actual = gson.fromJson(expectedJson, Date.class);
     assertEquals(expected.getTime(), actual.getTime());
+  }
+
+  public void testNullDateSerialization() {
+    String json = gson.toJson(null, Date.class);
+    assertEquals("null", json);
   }
 }
