@@ -55,6 +55,7 @@ public final class RuntimeTypeAdapterFactoryFunctionalTest extends TestCase {
     json = gson.toJson(shape);
     shape = gson.fromJson(json, Shape.class);
     assertEquals(15, ((Square)shape).side);
+    assertEquals(ShapeType.SQUARE, shape.type);
   }
 
   @JsonAdapter(Shape.JsonAdapterFactory.class)
@@ -163,7 +164,7 @@ public final class RuntimeTypeAdapterFactoryFunctionalTest extends TestCase {
       return new TypeAdapter<R>() {
         @Override public R read(JsonReader in) throws IOException {
           JsonElement jsonElement = Streams.parse(in);
-          JsonElement labelJsonElement = jsonElement.getAsJsonObject().remove(typeFieldName);
+          JsonElement labelJsonElement = jsonElement.getAsJsonObject().get(typeFieldName);
           if (labelJsonElement == null) {
             throw new JsonParseException("cannot deserialize " + baseType
                 + " because it does not define a field named " + typeFieldName);
