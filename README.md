@@ -20,7 +20,7 @@ There are a few open-source projects that can convert Java objects to JSON. Howe
   * Gson [Roadmap](https://sites.google.com/site/gson/gson-roadmap): Details on upcoming releases 
   * Gson [design document](https://sites.google.com/site/gson/gson-design-document design document): This document discusses issues we faced while designing Gson. It also include a comparison of Gson with other Java libraries that can be used for Json conversion
 
-Please use the [http://groups.google.com/group/google-gson google-gson Google Group] to discuss Gson, or to post questions. 
+Please use the [google-gson Google group](http://groups.google.com/group/google-gson) to discuss Gson, or to post questions. 
 
 *Gson-related Content Created by Third Parties*
   * [Gson Tutorial](http://www.studytrails.com/java/json/java-google-json-introduction.jsp) by `StudyTrails`
