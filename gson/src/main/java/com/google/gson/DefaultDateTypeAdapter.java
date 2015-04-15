@@ -39,6 +39,7 @@ final class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserial
   private final DateFormat enUsFormat;
   private final DateFormat localFormat;
   private final DateFormat iso8601Format;
+  private final DateFormat iso8601FormatMilli;
 
   DefaultDateTypeAdapter() {
     this(DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.US),
@@ -63,6 +64,8 @@ final class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserial
     this.localFormat = localFormat;
     this.iso8601Format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
     this.iso8601Format.setTimeZone(TimeZone.getTimeZone("UTC"));
+    this.iso8601FormatMilli = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
+    this.iso8601FormatMilli.setTimeZone(TimeZone.getTimeZone("UTC"));
   }
 
   // These methods need to be synchronized since JDK DateFormat classes are not thread-safe
@@ -99,6 +102,10 @@ final class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserial
       }
       try {
         return enUsFormat.parse(json.getAsString());
+      } catch (ParseException ignored) {
+      }
+      try {
+        return iso8601FormatMilli.parse(json.getAsString());
       } catch (ParseException ignored) {
       }
       try {
