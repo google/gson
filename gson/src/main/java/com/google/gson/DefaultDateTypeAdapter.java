@@ -101,11 +101,15 @@ final class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserial
         return enUsFormat.parse(json.getAsString());
       } catch (ParseException ignored) {
       }
-      try {
-        return iso8601Format.parse(json.getAsString());
-      } catch (ParseException e) {
-        throw new JsonSyntaxException(json.getAsString(), e);
-      }
+	    try {
+		    return iso8601Format.parse(json.getAsString());
+	    } catch (ParseException ignored) {
+	    }
+	    try {
+		    return iso8601Format.parse(json.getAsString().replaceFirst("\\.\\d\\d\\d", ""));
+	    } catch (ParseException e) {
+		    throw new JsonSyntaxException(json.getAsString(), e);
+	    }
     }
   }
 

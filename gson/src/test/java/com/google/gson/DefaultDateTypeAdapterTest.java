@@ -16,12 +16,13 @@
 
 package com.google.gson;
 
+import junit.framework.TestCase;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
-import junit.framework.TestCase;
 
 /**
  * A simple unit test for the {@link DefaultDateTypeAdapter} class.
@@ -159,5 +160,7 @@ public class DefaultDateTypeAdapterTest extends TestCase {
     assertEquals(date, new Date(0), adapter.deserialize(new JsonPrimitive(date), Date.class, null));
     assertEquals("ISO 8601", new Date(0), adapter.deserialize(
         new JsonPrimitive("1970-01-01T00:00:00Z"), Date.class, null));
+    assertEquals("ISO 8601", new Date(0), adapter.deserialize(
+        new JsonPrimitive("1970-01-01T00:00:00.000Z"), Date.class, null));
   }
 }
