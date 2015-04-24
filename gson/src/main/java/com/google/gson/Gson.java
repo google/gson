@@ -173,13 +173,13 @@ public final class Gson {
    * </ul>
    */
   public Gson() {
-    this(Excluder.DEFAULT, FieldNamingPolicy.IDENTITY,
+    this(Excluder.DEFAULT, MethodAndFieldNamingPolicy.DEFAULT,
         Collections.<Type, InstanceCreator<?>>emptyMap(), false, false, DEFAULT_JSON_NON_EXECUTABLE,
         true, false, false, LongSerializationPolicy.DEFAULT,
         Collections.<TypeAdapterFactory>emptyList());
   }
-
-  Gson(final Excluder excluder, final FieldNamingStrategy fieldNamingPolicy,
+  
+  Gson(final Excluder excluder, final FieldNamingStrategy namingPolicy,
       final Map<Type, InstanceCreator<?>> instanceCreators, boolean serializeNulls,
       boolean complexMapKeySerialization, boolean generateNonExecutableGson, boolean htmlSafe,
       boolean prettyPrinting, boolean serializeSpecialFloatingPointValues,
@@ -241,7 +241,7 @@ public final class Gson {
     factories.add(new JsonAdapterAnnotationTypeAdapterFactory(constructorConstructor));
     factories.add(TypeAdapters.ENUM_FACTORY);
     factories.add(new ReflectiveTypeAdapterFactory(
-        constructorConstructor, fieldNamingPolicy, excluder));
+        constructorConstructor, namingPolicy, excluder));
 
     this.factories = Collections.unmodifiableList(factories);
   }

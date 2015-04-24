@@ -68,7 +68,7 @@ import com.google.gson.reflect.TypeToken;
 public final class GsonBuilder {
   private Excluder excluder = Excluder.DEFAULT;
   private LongSerializationPolicy longSerializationPolicy = LongSerializationPolicy.DEFAULT;
-  private FieldNamingStrategy fieldNamingPolicy = FieldNamingPolicy.IDENTITY;
+  private FieldNamingStrategy fieldNamingPolicy = MethodAndFieldNamingPolicy.DEFAULT;
   private final Map<Type, InstanceCreator<?>> instanceCreators
       = new HashMap<Type, InstanceCreator<?>>();
   private final List<TypeAdapterFactory> factories = new ArrayList<TypeAdapterFactory>();
