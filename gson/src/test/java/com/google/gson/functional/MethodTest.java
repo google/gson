@@ -187,6 +187,25 @@ public class MethodTest extends TestCase {
     assertEquals(OBJ_EMPTY_JSON, result);
   }
   
+  public void testStaticGetter() {
+  	try {
+  		gson.fromJson(OBJ_JSON, StaticGetter.class);
+  	} catch (IllegalArgumentException e) {
+  		return;
+  	}
+  	fail();
+  }
+  
+  public void testStaticSetter() {
+  	try {
+  		gson.fromJson(OBJ_JSON, StaticSetter.class);
+  	} catch (IllegalArgumentException e) {
+  		return;
+  	}
+  	fail();
+
+  }
+  
   static class Simple {
     private String foo;
     
@@ -336,5 +355,23 @@ public class MethodTest extends TestCase {
   	public void setFoo(String value) {
   		throw new RuntimeException("bar");
   	}
+
   }
+  
+  static class StaticGetter {
+
+  	@GsonGetter
+  	public static String getFoo() {
+  		return "bar";
+  	}
+
+  }
+  
+  static class StaticSetter {
+  	
+  	@GsonSetter
+  	public static void setFoo() { }
+  	
+  }
+
 }

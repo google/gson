@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -70,7 +71,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   public boolean excludeField(Field f, boolean serialize) {
     return excludeField(f, serialize, excluder);
   }
-
+  
   static boolean excludeField(Field f, boolean serialize, Excluder excluder) {
     return !excluder.excludeClass(f.getType(), serialize) && !excluder.excludeField(f, serialize);
   }
@@ -100,7 +101,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   }
 
   static IllegalArgumentException throwParsingMethodException(Method m, String message) {
-  	String fullMessage = "Error parsing " + m.getName() + " on class " + m.getDeclaringClass() + ". " + message;
+  	String fullMessage = "Error parsing " + m.getName() + " on " + m.getDeclaringClass() + ". " + message;
   	throw new IllegalArgumentException(fullMessage);
   }
   
@@ -152,9 +153,9 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   
   private ReflectiveTypeAdapterFactory.BoundMethod createBoundMethod(
 	   final Gson context, final Method method, final String name,
-	   final TypeToken<?> propertyType, boolean serialize, boolean deserialize) {
+	   final TypeToken<?> propertyType, boolean serialize) {
 	   // special casing primitives here saves ~5% on Android...
-	   return new ReflectiveTypeAdapterFactory.BoundMethod(name, serialize, deserialize) {
+	   return new ReflectiveTypeAdapterFactory.BoundMethod(name, serialize) {
 	     final TypeAdapter<?> typeAdapter = getMethodAdapter(context, method, propertyType);
 	     
 	     @SuppressWarnings({"unchecked", "rawtypes"}) // the type adapter and field type always agree
@@ -252,63 +253,85 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     if (raw.isInterface()) {
       return new BoundMethods(getters, setters);
     }
-
     Type declaredType = type.getType();
     while (raw != Object.class) {
-      Method[] methods = raw.getDeclaredMethods();
-      for (Method method : methods) {
-    	boolean serialize = false;
-    	boolean deserialize = false;
-    	GsonGetter getterAnnotation = method.getAnnotation(GsonGetter.class);
-    	GsonSetter setterAnnotation = method.getAnnotation(GsonSetter.class);
-    	if (getterAnnotation != null && setterAnnotation != null) {
-    		throwParsingMethodException(
+    	Method[] methods = raw.getDeclaredMethods();
+    	for (Method method : methods) {
+    		Boolean serialize = determineSerializationForMethod(method);
+    		if (serialize == null) {
+    			continue;
+    		}
+    		assertGetterSetterHasValidModifiers(method, serialize);
+    		method.setAccessible(true);
+    		Type[] parameterTypes = method.getGenericParameterTypes();
+    		if (serialize) {
+    			if (parameterTypes.length != 0) {
+    				throwParsingMethodException(method, "GsonGetters must have zero parameters.");
+    			}
+    			Type propertyType = $Gson$Types.resolve(type.getType(), raw, method.getGenericReturnType());
+    			if (propertyType.equals(Void.TYPE)) {
+    				throwParsingMethodException(method, "GsonGetters must not return void.");
+    			}
+    			BoundMethod boundMethod = createBoundMethod(
+    				context,
     				method,
-    				"Methods cannot be both a GsonGetter and a GsonSetter.");
-    	} else if (getterAnnotation != null && getterAnnotation.exposed()) {
-    		serialize = true;
-    	} else if (setterAnnotation != null && setterAnnotation.exposed()) {
-    		deserialize = true;
+    				getMethodName(method),
+    				TypeToken.get(propertyType),
+    				serialize);
+    			BoundMethod previous = getters.put(boundMethod.name, boundMethod);
+    			if (previous != null) {
+    				throw new IllegalArgumentException(
+    				  declaredType + " declares multiple gson getters named " + previous.name);
+    			}
+    		} else {
+    			if (parameterTypes.length != 1) {
+    				throwParsingMethodException(method, "GsonSetters must have exactly one parameter.");
+    			}
+    			Type propertyType = $Gson$Types.resolve(type.getType(), raw, parameterTypes[0]);
+    			BoundMethod boundMethod = createBoundMethod(
+    				context,
+    				method,
+    				getMethodName(method),
+    				TypeToken.get(propertyType),
+    				serialize);
+    			BoundMethod previous = setters.put(boundMethod.name, boundMethod);
+    			if (previous != null) {
+    				throw new IllegalArgumentException(
+    					declaredType + " declares multiple gson setters named " + previous.name);
+    			}
+    		}
     	}
-        if (!serialize && !deserialize) {
-          continue;
-        }
-        method.setAccessible(true);
-        Type[] parameterTypes = method.getGenericParameterTypes();
-
-		if (serialize) {
-        	if (parameterTypes.length != 0) {
-        		throwParsingMethodException(method, "GsonGetters must have zero parameters.");
-        	}
-        	Type propertyType = $Gson$Types.resolve(type.getType(), raw, method.getGenericReturnType());
-        	if (propertyType.equals(Void.TYPE)) {
-        		throwParsingMethodException(method, "GsonGetters must not return void.");
-        	}
-        	BoundMethod boundMethod = createBoundMethod(context, method, getMethodName(method),
-        		TypeToken.get(propertyType), serialize, deserialize);
-        	BoundMethod previous = getters.put(boundMethod.name, boundMethod);
-        	if (previous != null) {
-        		throw new IllegalArgumentException(declaredType
-        			+ " declares multiple gson getters named " + previous.name);
-        	}        
-        } else {
-        	if (parameterTypes.length != 1) {
-        		throwParsingMethodException(method, "GsonSetters must have exactly one parameter.");
-        	}
-        	Type propertyType = $Gson$Types.resolve(type.getType(), raw, parameterTypes[0]);
-        	BoundMethod boundMethod = createBoundMethod(context, method, getMethodName(method),
-        		TypeToken.get(propertyType), serialize, deserialize);
-        	BoundMethod previous = setters.put(boundMethod.name, boundMethod);
-        	if (previous != null) {
-        		throw new IllegalArgumentException(declaredType
-        			+ " declares multiple gson setters named " + previous.name);
-        	}
-        }
-      }
-      type = TypeToken.get($Gson$Types.resolve(type.getType(), raw, raw.getGenericSuperclass()));
-      raw = type.getRawType();
+    	type = TypeToken.get($Gson$Types.resolve(type.getType(), raw, raw.getGenericSuperclass()));
+    	raw = type.getRawType();
     }
     return new BoundMethods(getters, setters);
+  }
+  
+  private static void assertGetterSetterHasValidModifiers(Method getterSetter, boolean serialize) {
+  	if ((getterSetter.getModifiers() & Modifier.STATIC) != 0) {
+			if (serialize) {
+				throwParsingMethodException(getterSetter, "GsonGetters cannot be static.");
+			}
+			if (!serialize) {
+				throwParsingMethodException(getterSetter, "GsonSetters cannot be static.");
+			}
+		}
+  }
+  
+  private static Boolean determineSerializationForMethod(Method method) {
+		Boolean retVal = null;
+		GsonGetter getterAnnotation = method.getAnnotation(GsonGetter.class);
+		GsonSetter setterAnnotation = method.getAnnotation(GsonSetter.class);
+		if (getterAnnotation != null && setterAnnotation != null) {
+			throwParsingMethodException(
+				method,
+				"Methods cannot be both a GsonGetter and a GsonSetter.");
+		} else if (getterAnnotation != null && getterAnnotation.exposed()) {
+			retVal = true;
+		} else if (setterAnnotation != null && setterAnnotation.exposed()) {
+			retVal = false;
+		}
+		return retVal;
   }
 
   static abstract class BoundField {
@@ -331,10 +354,10 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     final boolean serialized;
     final boolean deserialized;
 
-    protected BoundMethod(String name, boolean serialized, boolean deserialized) {
+    protected BoundMethod(String name, boolean serialized) {
       this.name = name;
       this.serialized = serialized;
-      this.deserialized = deserialized;
+      this.deserialized = !serialized;
     }
     abstract void write(JsonWriter writer, Object value) throws IOException, IllegalAccessException;
     abstract void read(JsonReader reader, Object value) throws IOException, IllegalAccessException;
