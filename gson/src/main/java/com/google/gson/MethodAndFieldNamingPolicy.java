@@ -172,11 +172,18 @@ public enum MethodAndFieldNamingPolicy implements MethodAndFieldNamingStrategy {
 	 String methodPrefix = methodName.substring(0, 3);
 	 String methodWithoutPrefix = method.getName().substring(3);
 	 if (g != null && !methodPrefix.equals("get")) {
+		 throwParsingMethodException(method, 
+			 "Gson could not translate your GsonGetter because it did not start with \"get\"." +
+			 " Either begin your getter with \"get\" or use a custom MethodAndFieldNamingPolicy.");
 		 throw new RuntimeException("Gson did not know how to translate your getter");
 	 } else if (s != null && !methodPrefix.equals("set")) {
-		 throw new RuntimeException("Gson did not know how to translate your setter");
+		 throwParsingMethodException(method, 
+			 "Gson could not translate your GsonSetter because it did not start with \"set\"." +
+			 " Either begin your setter with \"set\" or use a custom MethodAndFieldNamingPolicy.");
 	 } else if (methodWithoutPrefix.length() == 0) {
-		 throw new RuntimeException("Gson did not know how to translate your getter/setter");
+		 throwParsingMethodException(method,
+			 "Gson did not know how to translate your GsonGetter/GsonSetter. Getters and setters must" +
+			 "be longer than just \"get\" and \"set\"");
 	 } else if (g == null && s == null){
 		 throw new RuntimeException("Should never get here");
 	 }
@@ -184,6 +191,10 @@ public enum MethodAndFieldNamingPolicy implements MethodAndFieldNamingStrategy {
 		 return lowerCaseFirstLetter(methodWithoutPrefix);
 	 }
 	 return methodWithoutPrefix;
-	 
-  }
+  }	 
+
+	private static IllegalArgumentException throwParsingMethodException(Method m, String message) {
+	  	String fullMessage = "Error parsing " + m.getName() + " on class " + m.getClass() + ": " + message;
+	  	throw new IllegalArgumentException(fullMessage);
+	}
 }

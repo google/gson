@@ -24,4 +24,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface GsonGetter {
+  public boolean exposed() default true;
 }

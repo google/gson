@@ -339,6 +339,11 @@ public final class GsonBuilder {
     excluder = excluder.withExclusionStrategy(strategy, false, true);
     return this;
   }
+  
+  public GsonBuilder allowGetterAndSetterMethods() {
+  	excluder = excluder.allowGettersAndSetterMethods();
+  	return this;
+  }
 
   /**
    * Configures Gson to output Json that fits in a page for pretty printing. This option only

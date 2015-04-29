@@ -55,6 +55,7 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
   private int modifiers = Modifier.TRANSIENT | Modifier.STATIC;
   private boolean serializeInnerClasses = true;
   private boolean requireExpose;
+  private boolean allowGettersAndSetterMethods;
   private List<ExclusionStrategy> serializationStrategies = Collections.emptyList();
   private List<ExclusionStrategy> deserializationStrategies = Collections.emptyList();
 
@@ -106,6 +107,12 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
       result.deserializationStrategies.add(exclusionStrategy);
     }
     return result;
+  }
+  
+  public Excluder allowGettersAndSetterMethods() {
+	  Excluder result = clone();
+	  result.allowGettersAndSetterMethods = true;
+	  return result;
   }
 
   public <T> TypeAdapter<T> create(final Gson gson, final TypeToken<T> type) {
@@ -212,6 +219,10 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
     return false;
   }
 
+  public boolean doesAllowGettersAndSetters() {
+  	return this.allowGettersAndSetterMethods;
+  }
+  
   private boolean isAnonymousOrLocal(Class<?> clazz) {
     return !Enum.class.isAssignableFrom(clazz)
         && (clazz.isAnonymousClass() || clazz.isLocalClass());
