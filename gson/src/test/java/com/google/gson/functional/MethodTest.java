@@ -26,6 +26,7 @@ import junit.framework.TestCase;
 public class MethodTest extends TestCase {
   private static final String OBJ_JSON = "{\"foo\":\"bar\"}";
   private static final String OBJ_FOO_NOT_SERIALIZED_JSON = "{\"mFoo\":\"bar\"}";
+  private static final String OBJ_EMPTY_JSON = "{}";
 
   private Gson gson;
 
@@ -160,6 +161,32 @@ public class MethodTest extends TestCase {
   	fail();	
   }
   
+  public void testInheritedMethodsDeserialization() throws Exception {
+  	InheritedMethods obj = gson.fromJson(OBJ_JSON, InheritedMethods.class);
+  	assertEquals(obj.getFoo(), "bar");
+  }
+  
+  
+  public void testInheritedMethodsSerialization() throws Exception {
+  	InheritedMethods obj = new InheritedMethods("bar");
+  	String result = gson.toJson(obj);
+    assertEquals(OBJ_JSON, result);
+  }
+  
+  public void testSkipMethodsDeserialization() {
+    Gson gsonNoMethods = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+  	Simple obj = gsonNoMethods.fromJson(OBJ_JSON, Simple.class);
+  	assertNull(obj.getFoo());
+  }
+  
+  
+  public void testSkipMethodsSerialization() {
+    Gson gsonNoMethods = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+  	Simple obj = new Simple("bar");
+  	String result = gsonNoMethods.toJson(obj);
+    assertEquals(OBJ_EMPTY_JSON, result);
+  }
+  
   static class Simple {
     private String foo;
     
@@ -235,6 +262,14 @@ public class MethodTest extends TestCase {
     public void setFoo(String value) {
     	this.mFoo = value;
     }
+  }
+  
+  static class InheritedMethods extends Simple {
+
+  	private InheritedMethods(String value) {
+  		super(value);
+  	}
+
   }
   
   static class PoorlyNamedGetter {
