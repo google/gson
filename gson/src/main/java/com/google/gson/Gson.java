@@ -123,8 +123,8 @@ public final class Gson {
   private final boolean prettyPrinting;
 
   final JsonDeserializationContext deserializationContext = new JsonDeserializationContext() {
-    @SuppressWarnings("unchecked")
-	public <T> T deserialize(JsonElement json, Type typeOfT) throws JsonParseException {
+  @SuppressWarnings("unchecked")
+  public <T> T deserialize(JsonElement json, Type typeOfT) throws JsonParseException {
       return (T) fromJson(json, typeOfT);
     }
   };

@@ -24,18 +24,18 @@ import com.google.gson.annotations.GsonSetter;
 
 public enum MethodAndFieldNamingPolicy implements MethodAndFieldNamingStrategy {
 
-	
-	DEFAULT() {
+  
+  DEFAULT() {
     public String translateName(Field f) {
       return f.getName();
     }
 
     @Override
     public String translateName(Method m) {
-    	return cleanMethodName(m, /*lowerCaseFirstLetter*/true);
+      return cleanMethodName(m, /*lowerCaseFirstLetter*/true);
     }
   },
-	
+  
   IDENTITY() {
     public String translateName(Field f) {
       return f.getName();
@@ -43,7 +43,7 @@ public enum MethodAndFieldNamingPolicy implements MethodAndFieldNamingStrategy {
 
     @Override
     public String translateName(Method m) {
-    	return cleanMethodName(m, /*lowerCaseFirstLetter*/false);
+      return cleanMethodName(m, /*lowerCaseFirstLetter*/false);
     }
   },
 
@@ -54,8 +54,8 @@ public enum MethodAndFieldNamingPolicy implements MethodAndFieldNamingStrategy {
 
     @Override
     public String translateName(Method m) {
-    	String cleanedMethodName = cleanMethodName(m, /*lowerCaseFirstLetter*/false);
-    	return upperCaseFirstLetter(cleanedMethodName);
+      String cleanedMethodName = cleanMethodName(m, /*lowerCaseFirstLetter*/false);
+      return upperCaseFirstLetter(cleanedMethodName);
     }
   },
 
@@ -66,8 +66,8 @@ public enum MethodAndFieldNamingPolicy implements MethodAndFieldNamingStrategy {
 
     @Override
     public String translateName(Method m) {
-    	String cleanedMethodName = cleanMethodName(m, /*lowerCaseFirstLetter*/false);
-    	return upperCaseFirstLetter(separateCamelCase(cleanedMethodName, " "));
+      String cleanedMethodName = cleanMethodName(m, /*lowerCaseFirstLetter*/false);
+      return upperCaseFirstLetter(separateCamelCase(cleanedMethodName, " "));
     }
   },
 
@@ -77,10 +77,10 @@ public enum MethodAndFieldNamingPolicy implements MethodAndFieldNamingStrategy {
     }
 
     @Override
-		public String translateName(Method m) {
-			String cleanedMethodName = cleanMethodName(m, /*lowerCaseFirstLetter*/true);
+    public String translateName(Method m) {
+      String cleanedMethodName = cleanMethodName(m, /*lowerCaseFirstLetter*/true);
       return separateCamelCase(cleanedMethodName, "_").toLowerCase();
-		}
+    }
   },
 
   LOWER_CASE_WITH_DASHES() {
@@ -90,7 +90,7 @@ public enum MethodAndFieldNamingPolicy implements MethodAndFieldNamingStrategy {
 
     @Override
     public String translateName(Method m) {
-    	String cleanedMethodName = cleanMethodName(m, /*lowerCaseFirstLetter*/true);
+      String cleanedMethodName = cleanMethodName(m, /*lowerCaseFirstLetter*/true);
       return separateCamelCase(cleanedMethodName, "-").toLowerCase();
     }
   };
@@ -166,42 +166,42 @@ public enum MethodAndFieldNamingPolicy implements MethodAndFieldNamingStrategy {
   }
   
   private static String cleanMethodName(Method method, boolean lowercaseFirstLetter) {
-	 GsonGetter g = method.getAnnotation(GsonGetter.class); 
-	 GsonSetter s = method.getAnnotation(GsonSetter.class);
-	 String methodName = method.getName();
-	 String methodPrefix = methodName.substring(0, 3);
-	 String methodWithoutPrefix = method.getName().substring(3);
-	 if (g != null && !methodPrefix.equals("get")) {
-		 throwTranslatingMethodException(method, /*isGetter*/true); 
-	 } else if (s != null && !methodPrefix.equals("set")) {
-		 throwTranslatingMethodException(method, /*isGetter*/false); 
-	 } else if (methodWithoutPrefix.length() == 0) {
-		 throwTranslatingMethodException(method, g != null);
-	 } else if (g == null && s == null){
-		 throw new RuntimeException("Should never get here");
-	 }
-	 if (lowercaseFirstLetter) {
-		 return lowerCaseFirstLetter(methodWithoutPrefix);
-	 }
-	 return methodWithoutPrefix;
+   GsonGetter g = method.getAnnotation(GsonGetter.class); 
+   GsonSetter s = method.getAnnotation(GsonSetter.class);
+   String methodName = method.getName();
+   String methodPrefix = methodName.substring(0, 3);
+   String methodWithoutPrefix = method.getName().substring(3);
+   if (g != null && !methodPrefix.equals("get")) {
+     throwTranslatingMethodException(method, /*isGetter*/true); 
+   } else if (s != null && !methodPrefix.equals("set")) {
+     throwTranslatingMethodException(method, /*isGetter*/false); 
+   } else if (methodWithoutPrefix.length() == 0) {
+     throwTranslatingMethodException(method, g != null);
+   } else if (g == null && s == null){
+     throw new RuntimeException("Should never get here");
+   }
+   if (lowercaseFirstLetter) {
+     return lowerCaseFirstLetter(methodWithoutPrefix);
+   }
+   return methodWithoutPrefix;
   }
  
-	private static IllegalArgumentException throwTranslatingMethodException(Method m, boolean isGetter) {
-		 //TODO: getFoo/setFoo and getfoo/setfoo are too specific.  This error should point users to 
-		 //documentation about valid naming for GsonGetters and GsonSetters.
-		String message = isGetter 
-			? "Gson failed to translate your GsonGetter method name to a JSON property name. " +
-				"The MethodAndFieldNamingStrategy you're using assumes your GsonGetters are of the form " +
-				"getFoo() or getfoo() where Foo/foo is the name of your property.  Please rename " +
-				"your getter method, use a different MethodAndFieldNamingStrategy, " +
-				"or specify this GsonGetter's JSON property explicitly with @SerializedName."
-				
-		  : "Gson failed to translate your GsonSetter method name to a JSON property name. " +
-				"The MethodAndFieldNamingStrategy you're using assumes your GsonSetters are of the form " +
-				"setFoo() or setfoo() where Foo/foo is the name of your property.  Please rename " +
-				"your setter method, use a different MethodAndFieldNamingStrategy, " +
-				"or specify this GsonSetter's JSON property explicitly with @SerializedName.";
-	  String fullMessage = "Error parsing " + m.getName() + " on " + m.getDeclaringClass() + ": " + message;
-	  throw new IllegalArgumentException(fullMessage);
-	}
+  private static IllegalArgumentException throwTranslatingMethodException(Method m, boolean isGetter) {
+     //TODO: getFoo/setFoo and getfoo/setfoo are too specific.  This error should point users to 
+     //documentation about valid naming for GsonGetters and GsonSetters.
+    String message = isGetter 
+      ? "Gson failed to translate your GsonGetter method name to a JSON property name. " +
+        "The MethodAndFieldNamingStrategy you're using assumes your GsonGetters are of the form " +
+        "getFoo() or getfoo() where Foo/foo is the name of your property.  Please rename " +
+        "your getter method, use a different MethodAndFieldNamingStrategy, " +
+        "or specify this GsonGetter's JSON property explicitly with @SerializedName."
+        
+      : "Gson failed to translate your GsonSetter method name to a JSON property name. " +
+        "The MethodAndFieldNamingStrategy you're using assumes your GsonSetters are of the form " +
+        "setFoo() or setfoo() where Foo/foo is the name of your property.  Please rename " +
+        "your setter method, use a different MethodAndFieldNamingStrategy, " +
+        "or specify this GsonSetter's JSON property explicitly with @SerializedName.";
+    String fullMessage = "Error parsing " + m.getName() + " on " + m.getDeclaringClass() + ": " + message;
+    throw new IllegalArgumentException(fullMessage);
+  }
 }

@@ -37,172 +37,172 @@ public class MethodTest extends TestCase {
   }
 
   public void testSimpleDeserialization() throws Exception {
-  	Simple obj = gson.fromJson(OBJ_JSON, Simple.class);
-  	assertEquals(obj.getFoo(), "bar");
+    Simple obj = gson.fromJson(OBJ_JSON, Simple.class);
+    assertEquals(obj.getFoo(), "bar");
   }
   
   
   public void testSimpleSerialization() throws Exception {
-  	Simple obj = new Simple("bar");
-  	String result = gson.toJson(obj);
+    Simple obj = new Simple("bar");
+    String result = gson.toJson(obj);
     assertEquals(OBJ_JSON, result);
   }
   
   public void testImplDeserialization() {
-  	Impl obj = gson.fromJson(OBJ_JSON, Impl.class);
-  	assertEquals(obj.getFoo(), "bar");
+    Impl obj = gson.fromJson(OBJ_JSON, Impl.class);
+    assertEquals(obj.getFoo(), "bar");
   }
   
   public void testImplSerialization() {
-  	Impl obj = new Impl("bar");
-  	String result = gson.toJson(obj);
+    Impl obj = new Impl("bar");
+    String result = gson.toJson(obj);
     assertEquals(OBJ_JSON, result);
   }
   
   public void testImplWithExposedOverridesDeserialization() {
-  	ImplWithExposedOverrides obj = gson.fromJson(OBJ_JSON, ImplWithExposedOverrides.class);
-  	assertEquals(obj.getFoo(), "bar");
+    ImplWithExposedOverrides obj = gson.fromJson(OBJ_JSON, ImplWithExposedOverrides.class);
+    assertEquals(obj.getFoo(), "bar");
   }
   
   public void testImplWithExposedOverridesSerialization() {
-  	ImplWithExposedOverrides obj = new ImplWithExposedOverrides("bar");
-  	String result = gson.toJson(obj);
+    ImplWithExposedOverrides obj = new ImplWithExposedOverrides("bar");
+    String result = gson.toJson(obj);
     assertEquals(OBJ_JSON, result);
   }
 
   public void testImplWithUnExposedOverridesDeserialization() {
-  	ImplWithUnExposedOverrides obj = gson.fromJson(OBJ_JSON, ImplWithUnExposedOverrides.class);
-  	assertNull(obj.getFoo());
+    ImplWithUnExposedOverrides obj = gson.fromJson(OBJ_JSON, ImplWithUnExposedOverrides.class);
+    assertNull(obj.getFoo());
   }
   
   public void testImplWithUnExposedOverridesSerialization() {
-  	ImplWithUnExposedOverrides obj = new ImplWithUnExposedOverrides("bar");
-  	String result = gson.toJson(obj);
+    ImplWithUnExposedOverrides obj = new ImplWithUnExposedOverrides("bar");
+    String result = gson.toJson(obj);
     assertEquals(OBJ_FOO_NOT_SERIALIZED_JSON, result);
   }
  
   public void testPoorlyNamedGetter() {
-  	PoorlyNamedGetter obj = new PoorlyNamedGetter();
-  	try {
-  		gson.toJson(obj);
-  	} catch (IllegalArgumentException e) {
-  		return;
-  	}
-  	fail();
+    PoorlyNamedGetter obj = new PoorlyNamedGetter();
+    try {
+      gson.toJson(obj);
+    } catch (IllegalArgumentException e) {
+      return;
+    }
+    fail();
   }
   
   public void testPoorlyNamedSetter() {
-  	PoorlyNamedSetter obj = new PoorlyNamedSetter();
-  	try {
-  		gson.toJson(obj);
-  	} catch (IllegalArgumentException e) {
-  		return;
-  	}
-  	fail();
+    PoorlyNamedSetter obj = new PoorlyNamedSetter();
+    try {
+      gson.toJson(obj);
+    } catch (IllegalArgumentException e) {
+      return;
+    }
+    fail();
   }
   
   public void testGetterThatReturnsVoid() {
-  	GetterThatReturnsVoid obj = new GetterThatReturnsVoid();
-  	try {
-  		gson.toJson(obj);
-  	} catch (IllegalArgumentException e) {
-  		return;
-  	}
-  	fail();
+    GetterThatReturnsVoid obj = new GetterThatReturnsVoid();
+    try {
+      gson.toJson(obj);
+    } catch (IllegalArgumentException e) {
+      return;
+    }
+    fail();
   }
   
   public void testGetterWithParameters() {
-  	GetterWithParameters obj = new GetterWithParameters();
-  	try {
-  		gson.toJson(obj);
-  	} catch (IllegalArgumentException e) {
-  		return;
-  	}
-  	fail();
+    GetterWithParameters obj = new GetterWithParameters();
+    try {
+      gson.toJson(obj);
+    } catch (IllegalArgumentException e) {
+      return;
+    }
+    fail();
   }
   
   public void testSetterWithNotExactlyOneParameter() {
-  	SetterWithNotExactlyOneParameter obj = new SetterWithNotExactlyOneParameter();
-  	try {
-  		gson.toJson(obj);
-  	} catch (IllegalArgumentException e) {
-  		return;
-  	}
-  	fail();
+    SetterWithNotExactlyOneParameter obj = new SetterWithNotExactlyOneParameter();
+    try {
+      gson.toJson(obj);
+    } catch (IllegalArgumentException e) {
+      return;
+    }
+    fail();
   }
   
   public void testMethodWithGsonGetterAndGsonSetter() {
-  	MethodWithGsonGetterAndGsonSetter obj = new MethodWithGsonGetterAndGsonSetter();
-  	try {
-  		gson.toJson(obj);
-  	} catch (IllegalArgumentException e) {
-  		return;
-  	}
-  	fail();
+    MethodWithGsonGetterAndGsonSetter obj = new MethodWithGsonGetterAndGsonSetter();
+    try {
+      gson.toJson(obj);
+    } catch (IllegalArgumentException e) {
+      return;
+    }
+    fail();
 
   }
   
   public void testGetterThatThrowsAnException() {
-  	GetterThatThrowsException	obj = new GetterThatThrowsException();
-  	try {
-  		gson.toJson(obj);
-  	} catch (RuntimeException e) {
-  		return;
-  	}
-  	fail();
+    GetterThatThrowsException  obj = new GetterThatThrowsException();
+    try {
+      gson.toJson(obj);
+    } catch (RuntimeException e) {
+      return;
+    }
+    fail();
   }
   
   public void testSetterThatThrowsAnException() {
-  	try {
-  		gson.fromJson(OBJ_JSON, SetterThatThrowsException.class);
-  	} catch (RuntimeException e) {
-  		return;
-  	}
-  	fail();	
+    try {
+      gson.fromJson(OBJ_JSON, SetterThatThrowsException.class);
+    } catch (RuntimeException e) {
+      return;
+    }
+    fail();  
   }
   
   public void testInheritedMethodsDeserialization() throws Exception {
-  	InheritedMethods obj = gson.fromJson(OBJ_JSON, InheritedMethods.class);
-  	assertEquals(obj.getFoo(), "bar");
+    InheritedMethods obj = gson.fromJson(OBJ_JSON, InheritedMethods.class);
+    assertEquals(obj.getFoo(), "bar");
   }
   
   
   public void testInheritedMethodsSerialization() throws Exception {
-  	InheritedMethods obj = new InheritedMethods("bar");
-  	String result = gson.toJson(obj);
+    InheritedMethods obj = new InheritedMethods("bar");
+    String result = gson.toJson(obj);
     assertEquals(OBJ_JSON, result);
   }
   
   public void testSkipMethodsDeserialization() {
     Gson gsonNoMethods = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-  	Simple obj = gsonNoMethods.fromJson(OBJ_JSON, Simple.class);
-  	assertNull(obj.getFoo());
+    Simple obj = gsonNoMethods.fromJson(OBJ_JSON, Simple.class);
+    assertNull(obj.getFoo());
   }
   
   
   public void testSkipMethodsSerialization() {
     Gson gsonNoMethods = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-  	Simple obj = new Simple("bar");
-  	String result = gsonNoMethods.toJson(obj);
+    Simple obj = new Simple("bar");
+    String result = gsonNoMethods.toJson(obj);
     assertEquals(OBJ_EMPTY_JSON, result);
   }
   
   public void testStaticGetter() {
-  	try {
-  		gson.fromJson(OBJ_JSON, StaticGetter.class);
-  	} catch (IllegalArgumentException e) {
-  		return;
-  	}
-  	fail();
+    try {
+      gson.fromJson(OBJ_JSON, StaticGetter.class);
+    } catch (IllegalArgumentException e) {
+      return;
+    }
+    fail();
   }
   
   public void testStaticSetter() {
-  	try {
-  		gson.fromJson(OBJ_JSON, StaticSetter.class);
-  	} catch (IllegalArgumentException e) {
-  		return;
-  	}
-  	fail();
+    try {
+      gson.fromJson(OBJ_JSON, StaticSetter.class);
+    } catch (IllegalArgumentException e) {
+      return;
+    }
+    fail();
 
   }
   
@@ -215,20 +215,20 @@ public class MethodTest extends TestCase {
     
     @GsonGetter
     public String getFoo() {
-    	return this.foo;
+      return this.foo;
     }
     
     @GsonSetter 
     public void setFoo(String value) {
-    	this.foo = value;
+      this.foo = value;
     }
   }
   
   public static interface IGetterSetter {
-  	@GsonSetter
-  	void setFoo(String value);
-  	@GsonGetter
-  	String getFoo();
+    @GsonSetter
+    void setFoo(String value);
+    @GsonGetter
+    String getFoo();
   }
   
   static class Impl implements IGetterSetter {
@@ -239,11 +239,11 @@ public class MethodTest extends TestCase {
     }
     
     public String getFoo() {
-    	return this.foo;
+      return this.foo;
     }
     
     public void setFoo(String value) {
-    	this.foo = value;
+      this.foo = value;
     }
   }
   
@@ -256,12 +256,12 @@ public class MethodTest extends TestCase {
     
     @GsonGetter
     public String getFoo() {
-    	return this.foo;
+      return this.foo;
     }
     
     @GsonSetter
     public void setFoo(String value) {
-    	this.foo = value;
+      this.foo = value;
     }
   }
   
@@ -274,104 +274,104 @@ public class MethodTest extends TestCase {
     
     @GsonGetter(exposed=false)
     public String getFoo() {
-    	return this.mFoo;
+      return this.mFoo;
     }
     
     @GsonSetter(exposed=false)
     public void setFoo(String value) {
-    	this.mFoo = value;
+      this.mFoo = value;
     }
   }
   
   static class InheritedMethods extends Simple {
 
-  	private InheritedMethods(String value) {
-  		super(value);
-  	}
+    private InheritedMethods(String value) {
+      super(value);
+    }
 
   }
   
   static class PoorlyNamedGetter {
 
-  	@GsonGetter
-  	public String gestFoo() {
-  		return "bar";
-  	}
+    @GsonGetter
+    public String gestFoo() {
+      return "bar";
+    }
 
   }
   
   static class PoorlyNamedSetter {
-  	
-  	@GsonSetter
-  	public void sestFoo(String value) { }
+    
+    @GsonSetter
+    public void sestFoo(String value) { }
 
   }
   
   static class GetterThatReturnsVoid {
-  	
-  	@GsonGetter
-  	public void getFoo() { }
-  	
+    
+    @GsonGetter
+    public void getFoo() { }
+    
   }
   
   static class SetterWithNotExactlyOneParameter {
-  	
-  	@GsonSetter
-  	public void setFoo(Object bar, Object baz) { }
-  	
+    
+    @GsonSetter
+    public void setFoo(Object bar, Object baz) { }
+    
   }
   
   static class GetterWithParameters {
-  	
-  	@GsonGetter
-  	public String getFoo(Object bar) {
-  		return "bar";
-  	}
-  	
+    
+    @GsonGetter
+    public String getFoo(Object bar) {
+      return "bar";
+    }
+    
   }
   
   static class MethodWithGsonGetterAndGsonSetter {
   
-  	@GsonGetter
-  	@GsonSetter
-  	public String getFoo() { 
-  		return "bar";
-  	}
-  	
+    @GsonGetter
+    @GsonSetter
+    public String getFoo() { 
+      return "bar";
+    }
+    
   }
   
   static class GetterThatThrowsException {
 
-  	@GsonGetter
-  	public String getFoo() {
-  		throw new RuntimeException("bar");
-  	}
+    @GsonGetter
+    public String getFoo() {
+      throw new RuntimeException("bar");
+    }
 
   }
  
   static class SetterThatThrowsException {
-  	
-  	@GsonSetter
-  	public void setFoo(String value) {
-  		throw new RuntimeException("bar");
-  	}
+    
+    @GsonSetter
+    public void setFoo(String value) {
+      throw new RuntimeException("bar");
+    }
 
   }
   
   static class StaticGetter {
 
-  	@GsonGetter
-  	public static String getFoo() {
-  		return "bar";
-  	}
+    @GsonGetter
+    public static String getFoo() {
+      return "bar";
+    }
 
   }
   
   static class StaticSetter {
-  	
-  	@GsonSetter
-  	public static void setFoo() { }
-  	
+    
+    @GsonSetter
+    public static void setFoo() { }
+    
   }
 
 }

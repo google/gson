@@ -62,8 +62,8 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       FieldNamingStrategy namingPolicy, Excluder excluder) {
     this.constructorConstructor = constructorConstructor;
     this.methodAndFieldNamingPolicy = namingPolicy instanceof MethodAndFieldNamingPolicy
-    		? (MethodAndFieldNamingPolicy)namingPolicy
-    		: null;
+        ? (MethodAndFieldNamingPolicy)namingPolicy
+        : null;
     this.fieldNamingPolicy = namingPolicy;
     this.excluder = excluder;
   }
@@ -81,13 +81,13 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   }
   
   private String getMethodName(Method m) {
-	  if (methodAndFieldNamingPolicy == null) {
-	  	throwParsingMethodException(m, 
-	  		"You are trying to translate a method (e.g. GsonGetter/GsonSetter) " +
-	  		"to a json property name with a FieldNamingStrategy.  To use " +
-	  		"GsonGetter/GsonSetter you must use a MethodAndFieldNamingStrategy.");
-	  }
-	  return getMethodName(methodAndFieldNamingPolicy, m);
+    if (methodAndFieldNamingPolicy == null) {
+      throwParsingMethodException(m, 
+        "You are trying to translate a method (e.g. GsonGetter/GsonSetter) " +
+        "to a json property name with a FieldNamingStrategy.  To use " +
+        "GsonGetter/GsonSetter you must use a MethodAndFieldNamingStrategy.");
+    }
+    return getMethodName(methodAndFieldNamingPolicy, m);
   }
 
   static String getFieldName(FieldNamingStrategy fieldNamingPolicy, Field f) {
@@ -101,8 +101,8 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   }
 
   static IllegalArgumentException throwParsingMethodException(Method m, String message) {
-  	String fullMessage = "Error parsing " + m.getName() + " on " + m.getDeclaringClass() + ". " + message;
-  	throw new IllegalArgumentException(fullMessage);
+    String fullMessage = "Error parsing " + m.getName() + " on " + m.getDeclaringClass() + ". " + message;
+    throw new IllegalArgumentException(fullMessage);
   }
   
   public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
@@ -115,7 +115,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     ObjectConstructor<T> constructor = constructorConstructor.get(type);
     Map<String, BoundField> boundFields = getBoundFields(gson, type, raw);
     BoundMethods boundMethods = excluder.doesAllowGettersAndSetters() 
-    	? getBoundMethods(gson, type, raw)
+      ? getBoundMethods(gson, type, raw)
       : BoundMethods.EMPTY;
     BoundProperties boundProperties = new BoundProperties(boundFields, boundMethods);
     return new Adapter<T>(constructor, boundProperties);
@@ -152,50 +152,50 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   }
   
   private ReflectiveTypeAdapterFactory.BoundMethod createBoundMethod(
-	   final Gson context, final Method method, final String name,
-	   final TypeToken<?> propertyType, boolean serialize) {
-	   // special casing primitives here saves ~5% on Android...
-	   return new ReflectiveTypeAdapterFactory.BoundMethod(name, serialize) {
-	     final TypeAdapter<?> typeAdapter = getMethodAdapter(context, method, propertyType);
-	     
-	     @SuppressWarnings({"unchecked", "rawtypes"}) // the type adapter and field type always agree
-	     @Override 
-	     void write(JsonWriter writer, Object value) throws IOException, IllegalAccessException {
-	    	 Object returnValue = this.invokeGetter(value, method);
-	       TypeAdapter t =
-	         new TypeAdapterRuntimeTypeWrapper(context, this.typeAdapter, propertyType.getType());
-	       t.write(writer, returnValue);
-	     }
-	     
-	     @Override 
-	     void read(JsonReader reader, Object value) throws IOException, IllegalAccessException {
-	    	 Object inputValue = typeAdapter.read(reader);
-	       this.invokeSetter(value, method, inputValue);
-	     }
-	      
-	    private Object invokeGetter(Object self, Method method) {
-	    	Object returnValue;
-				try {
-					returnValue = method.invoke(self);
-				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-					throw new RuntimeException(
-						"Error deserializing GsonGetter " + method.getName() + " on " + method.getDeclaringClass(), 
-						e);
-				}
+     final Gson context, final Method method, final String name,
+     final TypeToken<?> propertyType, boolean serialize) {
+     // special casing primitives here saves ~5% on Android...
+     return new ReflectiveTypeAdapterFactory.BoundMethod(name, serialize) {
+       final TypeAdapter<?> typeAdapter = getMethodAdapter(context, method, propertyType);
+       
+       @SuppressWarnings({"unchecked", "rawtypes"}) // the type adapter and field type always agree
+       @Override 
+       void write(JsonWriter writer, Object value) throws IOException, IllegalAccessException {
+         Object returnValue = this.invokeGetter(value, method);
+         TypeAdapter t =
+           new TypeAdapterRuntimeTypeWrapper(context, this.typeAdapter, propertyType.getType());
+         t.write(writer, returnValue);
+       }
+       
+       @Override 
+       void read(JsonReader reader, Object value) throws IOException, IllegalAccessException {
+         Object inputValue = typeAdapter.read(reader);
+         this.invokeSetter(value, method, inputValue);
+       }
+        
+      private Object invokeGetter(Object self, Method method) {
+        Object returnValue;
+        try {
+          returnValue = method.invoke(self);
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+          throw new RuntimeException(
+            "Error deserializing GsonGetter " + method.getName() + " on " + method.getDeclaringClass(), 
+            e);
+        }
         return returnValue;
-	    }
-	      
-	    private void invokeSetter(Object self, Method method, Object value) {
-	    	try {
-	    		method.invoke(self, value);
-	    	} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-	    		throw new RuntimeException(
-	    			"Error invoking GsonSetter " + method.getName() + " with value " + value + 
-	    			" on " + method.getDeclaringClass(), 
-	    			e);
-	    	}
-	    }
-	  };
+      }
+        
+      private void invokeSetter(Object self, Method method, Object value) {
+        try {
+          method.invoke(self, value);
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+          throw new RuntimeException(
+            "Error invoking GsonSetter " + method.getName() + " with value " + value + 
+            " on " + method.getDeclaringClass(), 
+            e);
+        }
+      }
+    };
   }
 
   private TypeAdapter<?> getFieldAdapter(Gson gson, Field field, TypeToken<?> fieldType) {
@@ -255,83 +255,83 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     }
     Type declaredType = type.getType();
     while (raw != Object.class) {
-    	Method[] methods = raw.getDeclaredMethods();
-    	for (Method method : methods) {
-    		Boolean serialize = determineSerializationForMethod(method);
-    		if (serialize == null) {
-    			continue;
-    		}
-    		assertGetterSetterHasValidModifiers(method, serialize);
-    		method.setAccessible(true);
-    		Type[] parameterTypes = method.getGenericParameterTypes();
-    		if (serialize) {
-    			if (parameterTypes.length != 0) {
-    				throwParsingMethodException(method, "GsonGetters must have zero parameters.");
-    			}
-    			Type propertyType = $Gson$Types.resolve(type.getType(), raw, method.getGenericReturnType());
-    			if (propertyType.equals(Void.TYPE)) {
-    				throwParsingMethodException(method, "GsonGetters must not return void.");
-    			}
-    			BoundMethod boundMethod = createBoundMethod(
-    				context,
-    				method,
-    				getMethodName(method),
-    				TypeToken.get(propertyType),
-    				serialize);
-    			BoundMethod previous = getters.put(boundMethod.name, boundMethod);
-    			if (previous != null) {
-    				throw new IllegalArgumentException(
-    				  declaredType + " declares multiple gson getters named " + previous.name);
-    			}
-    		} else {
-    			if (parameterTypes.length != 1) {
-    				throwParsingMethodException(method, "GsonSetters must have exactly one parameter.");
-    			}
-    			Type propertyType = $Gson$Types.resolve(type.getType(), raw, parameterTypes[0]);
-    			BoundMethod boundMethod = createBoundMethod(
-    				context,
-    				method,
-    				getMethodName(method),
-    				TypeToken.get(propertyType),
-    				serialize);
-    			BoundMethod previous = setters.put(boundMethod.name, boundMethod);
-    			if (previous != null) {
-    				throw new IllegalArgumentException(
-    					declaredType + " declares multiple gson setters named " + previous.name);
-    			}
-    		}
-    	}
-    	type = TypeToken.get($Gson$Types.resolve(type.getType(), raw, raw.getGenericSuperclass()));
-    	raw = type.getRawType();
+      Method[] methods = raw.getDeclaredMethods();
+      for (Method method : methods) {
+        Boolean serialize = determineSerializationForMethod(method);
+        if (serialize == null) {
+          continue;
+        }
+        assertGetterSetterHasValidModifiers(method, serialize);
+        method.setAccessible(true);
+        Type[] parameterTypes = method.getGenericParameterTypes();
+        if (serialize) {
+          if (parameterTypes.length != 0) {
+            throwParsingMethodException(method, "GsonGetters must have zero parameters.");
+          }
+          Type propertyType = $Gson$Types.resolve(type.getType(), raw, method.getGenericReturnType());
+          if (propertyType.equals(Void.TYPE)) {
+            throwParsingMethodException(method, "GsonGetters must not return void.");
+          }
+          BoundMethod boundMethod = createBoundMethod(
+            context,
+            method,
+            getMethodName(method),
+            TypeToken.get(propertyType),
+            serialize);
+          BoundMethod previous = getters.put(boundMethod.name, boundMethod);
+          if (previous != null) {
+            throw new IllegalArgumentException(
+              declaredType + " declares multiple gson getters named " + previous.name);
+          }
+        } else {
+          if (parameterTypes.length != 1) {
+            throwParsingMethodException(method, "GsonSetters must have exactly one parameter.");
+          }
+          Type propertyType = $Gson$Types.resolve(type.getType(), raw, parameterTypes[0]);
+          BoundMethod boundMethod = createBoundMethod(
+            context,
+            method,
+            getMethodName(method),
+            TypeToken.get(propertyType),
+            serialize);
+          BoundMethod previous = setters.put(boundMethod.name, boundMethod);
+          if (previous != null) {
+            throw new IllegalArgumentException(
+              declaredType + " declares multiple gson setters named " + previous.name);
+          }
+        }
+      }
+      type = TypeToken.get($Gson$Types.resolve(type.getType(), raw, raw.getGenericSuperclass()));
+      raw = type.getRawType();
     }
     return new BoundMethods(getters, setters);
   }
   
   private static void assertGetterSetterHasValidModifiers(Method getterSetter, boolean serialize) {
-  	if ((getterSetter.getModifiers() & Modifier.STATIC) != 0) {
-			if (serialize) {
-				throwParsingMethodException(getterSetter, "GsonGetters cannot be static.");
-			}
-			if (!serialize) {
-				throwParsingMethodException(getterSetter, "GsonSetters cannot be static.");
-			}
-		}
+    if ((getterSetter.getModifiers() & Modifier.STATIC) != 0) {
+      if (serialize) {
+        throwParsingMethodException(getterSetter, "GsonGetters cannot be static.");
+      }
+      if (!serialize) {
+        throwParsingMethodException(getterSetter, "GsonSetters cannot be static.");
+      }
+    }
   }
   
   private static Boolean determineSerializationForMethod(Method method) {
-		Boolean retVal = null;
-		GsonGetter getterAnnotation = method.getAnnotation(GsonGetter.class);
-		GsonSetter setterAnnotation = method.getAnnotation(GsonSetter.class);
-		if (getterAnnotation != null && setterAnnotation != null) {
-			throwParsingMethodException(
-				method,
-				"Methods cannot be both a GsonGetter and a GsonSetter.");
-		} else if (getterAnnotation != null && getterAnnotation.exposed()) {
-			retVal = true;
-		} else if (setterAnnotation != null && setterAnnotation.exposed()) {
-			retVal = false;
-		}
-		return retVal;
+    Boolean retVal = null;
+    GsonGetter getterAnnotation = method.getAnnotation(GsonGetter.class);
+    GsonSetter setterAnnotation = method.getAnnotation(GsonSetter.class);
+    if (getterAnnotation != null && setterAnnotation != null) {
+      throwParsingMethodException(
+        method,
+        "Methods cannot be both a GsonGetter and a GsonSetter.");
+    } else if (getterAnnotation != null && getterAnnotation.exposed()) {
+      retVal = true;
+    } else if (setterAnnotation != null && setterAnnotation.exposed()) {
+      retVal = false;
+    }
+    return retVal;
   }
 
   static abstract class BoundField {
@@ -364,52 +364,52 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   }
   
   private static class BoundMethods {
-	  private final Map<String, BoundMethod> getters;
-	  private final Map<String, BoundMethod> setters;
-	  
-	  private BoundMethods(Map<String, BoundMethod> getters, Map<String, BoundMethod> setters) {
-		  this.getters = getters;
-		  this.setters = setters;
-	  }
-	  
-	  private Collection<BoundMethod> getGetters() {
-		  return this.getters.values();
-	  }
-	  
-	  private BoundMethod getSetter(String name) {
-		  return this.setters.get(name);
-	  }
-	  
-	  private static final BoundMethods EMPTY = new BoundMethods(new LinkedHashMap<String, BoundMethod>(), new LinkedHashMap<String, BoundMethod>());
+    private final Map<String, BoundMethod> getters;
+    private final Map<String, BoundMethod> setters;
+    
+    private BoundMethods(Map<String, BoundMethod> getters, Map<String, BoundMethod> setters) {
+      this.getters = getters;
+      this.setters = setters;
+    }
+    
+    private Collection<BoundMethod> getGetters() {
+      return this.getters.values();
+    }
+    
+    private BoundMethod getSetter(String name) {
+      return this.setters.get(name);
+    }
+    
+    private static final BoundMethods EMPTY = new BoundMethods(new LinkedHashMap<String, BoundMethod>(), new LinkedHashMap<String, BoundMethod>());
   }
   
   private static class BoundProperties {
-	  private final BoundMethods boundMethods;
-	  private final Map<String, BoundField> boundFields;
-	  
-	  private BoundProperties(Map<String, BoundField> boundFields, BoundMethods boundMethods) {
-		  this.boundFields = boundFields;
-		  this.boundMethods = boundMethods;
-		  for (String getter : this.boundMethods.getters.keySet()) {
-			  this.boundFields.remove(getter);
-		  }
-	  }
-	  
-	  private BoundField getField(String name) {
-		  return this.boundFields.get(name);
-	  }
-	  
-	  private BoundMethod getSetter(String name) {
-		  return this.boundMethods.getSetter(name);
-	  }
-	  
-	  private Collection<BoundMethod> getGetters() {
-		  return this.boundMethods.getGetters();
-	  }
-	  
-	  private Collection<BoundField> getFields() {
-		  return this.boundFields.values();
-	  }
+    private final BoundMethods boundMethods;
+    private final Map<String, BoundField> boundFields;
+    
+    private BoundProperties(Map<String, BoundField> boundFields, BoundMethods boundMethods) {
+      this.boundFields = boundFields;
+      this.boundMethods = boundMethods;
+      for (String getter : this.boundMethods.getters.keySet()) {
+        this.boundFields.remove(getter);
+      }
+    }
+    
+    private BoundField getField(String name) {
+      return this.boundFields.get(name);
+    }
+    
+    private BoundMethod getSetter(String name) {
+      return this.boundMethods.getSetter(name);
+    }
+    
+    private Collection<BoundMethod> getGetters() {
+      return this.boundMethods.getGetters();
+    }
+    
+    private Collection<BoundField> getFields() {
+      return this.boundFields.values();
+    }
   }
 
   public static final class Adapter<T> extends TypeAdapter<T> {
@@ -436,9 +436,9 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           BoundField field = boundProperties.getField(name);
           BoundMethod method = boundProperties.getSetter(name);
           if (field != null && field.deserialized) {
-        	  field.read(in,  instance);
+            field.read(in,  instance);
           } else if (method != null && method.deserialized) {
-        	  method.read(in, instance);
+            method.read(in, instance);
           } else {
             in.skipValue();
           }

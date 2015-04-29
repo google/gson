@@ -341,8 +341,8 @@ public final class GsonBuilder {
   }
   
   public GsonBuilder allowGetterAndSetterMethods() {
-  	excluder = excluder.allowGettersAndSetterMethods();
-  	return this;
+    excluder = excluder.allowGettersAndSetterMethods();
+    return this;
   }
 
   /**
