@@ -100,7 +100,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   }
 
   static IllegalArgumentException throwParsingMethodException(Method m, String message) {
-  	String fullMessage = "Error parsing " + m.getName() + " on class " + m.getClass() + ": " + message;
+  	String fullMessage = "Error parsing " + m.getName() + " on class " + m.getDeclaringClass() + ". " + message;
   	throw new IllegalArgumentException(fullMessage);
   }
   
@@ -178,7 +178,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
 					returnValue = method.invoke(self);
 				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 					throw new RuntimeException(
-						"Error deserializing GsonGetter " + method.getName() + " on class " + method.getClass(), 
+						"Error deserializing GsonGetter " + method.getName() + " on " + method.getDeclaringClass(), 
 						e);
 				}
         return returnValue;
@@ -190,7 +190,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
 	    	} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 	    		throw new RuntimeException(
 	    			"Error invoking GsonSetter " + method.getName() + " with value " + value + 
-	    			" on class " + method.getClass(), 
+	    			" on " + method.getDeclaringClass(), 
 	    			e);
 	    	}
 	    }
@@ -264,7 +264,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     	if (getterAnnotation != null && setterAnnotation != null) {
     		throwParsingMethodException(
     				method,
-    				"You cannot make a method both a GsonGetter and GsonSetter");
+    				"Methods cannot be both a GsonGetter and a GsonSetter.");
     	} else if (getterAnnotation != null && getterAnnotation.exposed()) {
     		serialize = true;
     	} else if (setterAnnotation != null && setterAnnotation.exposed()) {
@@ -278,11 +278,11 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
 
 		if (serialize) {
         	if (parameterTypes.length != 0) {
-        		throwParsingMethodException(method, "GsonSetters must have zero parameters");
+        		throwParsingMethodException(method, "GsonGetters must have zero parameters.");
         	}
         	Type propertyType = $Gson$Types.resolve(type.getType(), raw, method.getGenericReturnType());
         	if (propertyType.equals(Void.TYPE)) {
-        		throwParsingMethodException(method, "GsonGetters must not return void");
+        		throwParsingMethodException(method, "GsonGetters must not return void.");
         	}
         	BoundMethod boundMethod = createBoundMethod(context, method, getMethodName(method),
         		TypeToken.get(propertyType), serialize, deserialize);
@@ -293,7 +293,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         	}        
         } else {
         	if (parameterTypes.length != 1) {
-        		throwParsingMethodException(method, "GsonSetters must have exactly one parameter");
+        		throwParsingMethodException(method, "GsonSetters must have exactly one parameter.");
         	}
         	Type propertyType = $Gson$Types.resolve(type.getType(), raw, parameterTypes[0]);
         	BoundMethod boundMethod = createBoundMethod(context, method, getMethodName(method),

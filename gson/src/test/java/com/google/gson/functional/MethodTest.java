@@ -18,13 +18,12 @@ package com.google.gson.functional;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.GsonGetter;
 import com.google.gson.annotations.GsonSetter;
 
 import junit.framework.TestCase;
 
-public class MethodsTest extends TestCase {
+public class MethodTest extends TestCase {
   private static final String OBJ_JSON = "{\"foo\":\"bar\"}";
   private static final String OBJ_FOO_NOT_SERIALIZED_JSON = "{\"mFoo\":\"bar\"}";
 
@@ -80,8 +79,88 @@ public class MethodsTest extends TestCase {
   	String result = gson.toJson(obj);
     assertEquals(OBJ_FOO_NOT_SERIALIZED_JSON, result);
   }
+ 
+  public void testPoorlyNamedGetter() {
+  	PoorlyNamedGetter obj = new PoorlyNamedGetter();
+  	try {
+  		gson.toJson(obj);
+  	} catch (IllegalArgumentException e) {
+  		return;
+  	}
+  	fail();
+  }
   
-  public static class Simple {
+  public void testPoorlyNamedSetter() {
+  	PoorlyNamedSetter obj = new PoorlyNamedSetter();
+  	try {
+  		gson.toJson(obj);
+  	} catch (IllegalArgumentException e) {
+  		return;
+  	}
+  	fail();
+  }
+  
+  public void testGetterThatReturnsVoid() {
+  	GetterThatReturnsVoid obj = new GetterThatReturnsVoid();
+  	try {
+  		gson.toJson(obj);
+  	} catch (IllegalArgumentException e) {
+  		return;
+  	}
+  	fail();
+  }
+  
+  public void testGetterWithParameters() {
+  	GetterWithParameters obj = new GetterWithParameters();
+  	try {
+  		gson.toJson(obj);
+  	} catch (IllegalArgumentException e) {
+  		return;
+  	}
+  	fail();
+  }
+  
+  public void testSetterWithNotExactlyOneParameter() {
+  	SetterWithNotExactlyOneParameter obj = new SetterWithNotExactlyOneParameter();
+  	try {
+  		gson.toJson(obj);
+  	} catch (IllegalArgumentException e) {
+  		return;
+  	}
+  	fail();
+  }
+  
+  public void testMethodWithGsonGetterAndGsonSetter() {
+  	MethodWithGsonGetterAndGsonSetter obj = new MethodWithGsonGetterAndGsonSetter();
+  	try {
+  		gson.toJson(obj);
+  	} catch (IllegalArgumentException e) {
+  		return;
+  	}
+  	fail();
+
+  }
+  
+  public void testGetterThatThrowsAnException() {
+  	GetterThatThrowsException	obj = new GetterThatThrowsException();
+  	try {
+  		gson.toJson(obj);
+  	} catch (RuntimeException e) {
+  		return;
+  	}
+  	fail();
+  }
+  
+  public void testSetterThatThrowsAnException() {
+  	try {
+  		gson.fromJson(OBJ_JSON, SetterThatThrowsException.class);
+  	} catch (RuntimeException e) {
+  		return;
+  	}
+  	fail();	
+  }
+  
+  static class Simple {
     private String foo;
     
     private Simple(String value) {
@@ -106,7 +185,7 @@ public class MethodsTest extends TestCase {
   	String getFoo();
   }
   
-  public static class Impl implements IGetterSetter {
+  static class Impl implements IGetterSetter {
     private String foo;
     
     private Impl(String value) {
@@ -122,7 +201,7 @@ public class MethodsTest extends TestCase {
     }
   }
   
-  public static class ImplWithExposedOverrides implements IGetterSetter {
+  static class ImplWithExposedOverrides implements IGetterSetter {
     private String foo;
     
     private ImplWithExposedOverrides(String value) {
@@ -140,8 +219,7 @@ public class MethodsTest extends TestCase {
     }
   }
   
-  public static class ImplWithUnExposedOverrides implements IGetterSetter {
-  	@Expose(serialize=false, deserialize=false)
+  static class ImplWithUnExposedOverrides implements IGetterSetter {
     private String mFoo;
     
     private ImplWithUnExposedOverrides(String value) {
@@ -159,4 +237,69 @@ public class MethodsTest extends TestCase {
     }
   }
   
+  static class PoorlyNamedGetter {
+
+  	@GsonGetter
+  	public String gestFoo() {
+  		return "bar";
+  	}
+
+  }
+  
+  static class PoorlyNamedSetter {
+  	
+  	@GsonSetter
+  	public void sestFoo(String value) { }
+
+  }
+  
+  static class GetterThatReturnsVoid {
+  	
+  	@GsonGetter
+  	public void getFoo() { }
+  	
+  }
+  
+  static class SetterWithNotExactlyOneParameter {
+  	
+  	@GsonSetter
+  	public void setFoo(Object bar, Object baz) { }
+  	
+  }
+  
+  static class GetterWithParameters {
+  	
+  	@GsonGetter
+  	public String getFoo(Object bar) {
+  		return "bar";
+  	}
+  	
+  }
+  
+  static class MethodWithGsonGetterAndGsonSetter {
+  
+  	@GsonGetter
+  	@GsonSetter
+  	public String getFoo() { 
+  		return "bar";
+  	}
+  	
+  }
+  
+  static class GetterThatThrowsException {
+
+  	@GsonGetter
+  	public String getFoo() {
+  		throw new RuntimeException("bar");
+  	}
+
+  }
+ 
+  static class SetterThatThrowsException {
+  	
+  	@GsonSetter
+  	public void setFoo(String value) {
+  		throw new RuntimeException("bar");
+  	}
+  }
 }
