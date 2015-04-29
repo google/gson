@@ -68,7 +68,7 @@ import com.google.gson.reflect.TypeToken;
 public final class GsonBuilder {
   private Excluder excluder = Excluder.DEFAULT;
   private LongSerializationPolicy longSerializationPolicy = LongSerializationPolicy.DEFAULT;
-  private FieldNamingStrategy fieldNamingPolicy = FieldNamingPolicy.IDENTITY;
+  private FieldNamingStrategy fieldNamingPolicy = MethodAndFieldNamingPolicy.DEFAULT;
   private final Map<Type, InstanceCreator<?>> instanceCreators
       = new HashMap<Type, InstanceCreator<?>>();
   private final List<TypeAdapterFactory> factories = new ArrayList<TypeAdapterFactory>();
@@ -337,6 +337,11 @@ public final class GsonBuilder {
    */
   public GsonBuilder addDeserializationExclusionStrategy(ExclusionStrategy strategy) {
     excluder = excluder.withExclusionStrategy(strategy, false, true);
+    return this;
+  }
+  
+  public GsonBuilder allowGetterAndSetterMethods() {
+    excluder = excluder.allowGettersAndSetterMethods();
     return this;
   }
 
