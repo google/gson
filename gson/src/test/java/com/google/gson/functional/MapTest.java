@@ -500,11 +500,8 @@ public class MapTest extends TestCase {
   }
 
   public void testMapDeserializationWithDuplicateKeys() {
-    try {
-      gson.fromJson("{'a':1,'a':2}", new TypeToken<Map<String, Integer>>() {}.getType());
-      fail();
-    } catch (JsonSyntaxException expected) {
-    }
+      Map<String, Integer> map = gson.fromJson("{'a':1,'a':2}", new TypeToken<Map<String, Integer>>() {}.getType());
+      assertEquals(2, map.get("a").intValue());
   }
 
   public void testSerializeMapOfMaps() {
