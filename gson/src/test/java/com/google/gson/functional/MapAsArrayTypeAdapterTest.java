@@ -74,11 +74,8 @@ public class MapAsArrayTypeAdapterTest extends TestCase {
         .create();
 
     String s = "[[\"1.00\",\"a\"],[\"1.0\",\"b\"]]";
-    try {
-      gson.fromJson(s, new TypeToken<Map<Double, String>>() {}.getType());
-      fail();
-    } catch (JsonSyntaxException expected) {
-    }
+    Map<Double, String> map = gson.fromJson(s, new TypeToken<Map<Double, String>>() {}.getType());
+    assertEquals("b", map.get(1.0));
   }
 
   public void testMultipleEnableComplexKeyRegistrationHasNoEffect() throws Exception {
