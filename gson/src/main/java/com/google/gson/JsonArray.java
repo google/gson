@@ -325,6 +325,22 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
     throw new IllegalStateException();
   }
 
+  /**
+   * convenience method to get this array as a {@link Boolean} if it contains a single element.
+   *
+   * @return get this element as a {@link Boolean} if it is single element array.
+   * @throws ClassCastException if the element in the array is of not a {@link JsonPrimitive} and
+   * is not a valid {@link Boolean}.
+   * @throws IllegalStateException if the array has more than one element.
+   */
+  @Override
+  public Boolean getAsBooleanWrapper() {
+    if (elements.size() == 1) {
+      return elements.get(0).getAsBooleanWrapper();
+    }
+    throw new IllegalStateException();
+  }
+
   @Override
   public boolean equals(Object o) {
     return (o == this) || (o instanceof JsonArray && ((JsonArray) o).elements.equals(elements));
