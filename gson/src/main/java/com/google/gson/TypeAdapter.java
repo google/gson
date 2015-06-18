@@ -211,9 +211,13 @@ public abstract class TypeAdapter<T> {
    * @param value the Java object to convert. May be null.
    * @since 2.2
    */
-  public final String toJson(T value) throws IOException {
+  public final String toJson(T value) {
     StringWriter stringWriter = new StringWriter();
-    toJson(stringWriter, value);
+    try {
+      toJson(stringWriter, value);
+    } catch (IOException e) {
+      throw new AssertionError(e); // No I/O writing to a StringWriter.
+    }
     return stringWriter.toString();
   }
 
