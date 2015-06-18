@@ -1,0 +1,16 @@
+.classpath
+.project
+.settings
+eclipsebin
+
+target
+pom.xml.*
+release.properties
+
+.idea
+*.iml
+*.ipr
+*.iws
+classes
+
+.DS_Store
