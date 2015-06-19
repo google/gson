@@ -21,18 +21,18 @@ import java.io.IOException;
 import com.google.gson.stream.JsonReader;
 
 /**
- * An enumeration that defines a few standard naming conventions for JSON field names.
+ * An enumeration that defines a few standard handling strategies for fields
+ * present in the incoming Json but not in the Java classes.
  * This enumeration should be used in conjunction with {@link com.google.gson.GsonBuilder}
- * to configure a {@link com.google.gson.Gson} instance to properly translate Java field
- * names into the desired JSON field names.
+ * to configure a {@link com.google.gson.Gson} instance
  *
  * @author Matteo Cerina
+ * @since 2.3.2
  */
 public enum UnknownFieldHandlingPolicy implements UnknownFieldHandlingStrategy {
 
   /**
-   * Using this naming policy with Gson will ensure that the field name is
-   * unchanged.
+   * Using this handling policy with Gson will silently ignore an unknown field.
    */
   IGNORE() {
     public void handleUnknownField(JsonReader in, Object instance, String name) throws IOException {
@@ -41,14 +41,8 @@ public enum UnknownFieldHandlingPolicy implements UnknownFieldHandlingStrategy {
   },
 
   /**
-   * Using this naming policy with Gson will ensure that the first "letter" of the Java
-   * field name is capitalized when serialized to its JSON form.
-   *
-   * <p>Here's a few examples of the form "Java Field Name" ---> "JSON Field Name":</p>
-   * <ul>
-   *   <li>someFieldName ---> SomeFieldName</li>
-   *   <li>_someFieldName ---> _SomeFieldName</li>
-   * </ul>
+   * Using this handling policy with Gson will throw an exception when an unknown field
+   * is present.
    */
   THROW_EXCEPTION() {
     public void handleUnknownField(JsonReader in, Object instance, String name) throws IOException {
