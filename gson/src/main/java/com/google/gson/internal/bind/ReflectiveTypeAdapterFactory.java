@@ -21,6 +21,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
+import com.google.gson.UnknownFieldHandlingStrategy;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.internal.$Gson$Types;
@@ -32,6 +33,7 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
@@ -46,12 +48,15 @@ import static com.google.gson.internal.bind.JsonAdapterAnnotationTypeAdapterFact
 public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   private final ConstructorConstructor constructorConstructor;
   private final FieldNamingStrategy fieldNamingPolicy;
+  private final UnknownFieldHandlingStrategy unknownFieldHandlingPolicy;
   private final Excluder excluder;
 
   public ReflectiveTypeAdapterFactory(ConstructorConstructor constructorConstructor,
-      FieldNamingStrategy fieldNamingPolicy, Excluder excluder) {
+      FieldNamingStrategy fieldNamingPolicy, UnknownFieldHandlingStrategy unknownFieldHandlingPolicy,
+      Excluder excluder) {
     this.constructorConstructor = constructorConstructor;
     this.fieldNamingPolicy = fieldNamingPolicy;
+    this.unknownFieldHandlingPolicy = unknownFieldHandlingPolicy;
     this.excluder = excluder;
   }
 
@@ -80,7 +85,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     }
 
     ObjectConstructor<T> constructor = constructorConstructor.get(type);
-    return new Adapter<T>(constructor, getBoundFields(gson, type, raw));
+    return new Adapter<T>(constructor, getBoundFields(gson, type, raw), unknownFieldHandlingPolicy);
   }
 
   private ReflectiveTypeAdapterFactory.BoundField createBoundField(
@@ -171,10 +176,13 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   public static final class Adapter<T> extends TypeAdapter<T> {
     private final ObjectConstructor<T> constructor;
     private final Map<String, BoundField> boundFields;
+    private final UnknownFieldHandlingStrategy unknownFieldHandlingPolicy;
 
-    private Adapter(ObjectConstructor<T> constructor, Map<String, BoundField> boundFields) {
+    private Adapter(ObjectConstructor<T> constructor, Map<String, BoundField> boundFields,
+      UnknownFieldHandlingStrategy unknownFieldHandlingPolicy) {
       this.constructor = constructor;
       this.boundFields = boundFields;
+      this.unknownFieldHandlingPolicy = unknownFieldHandlingPolicy;
     }
 
     @Override public T read(JsonReader in) throws IOException {
@@ -190,7 +198,9 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         while (in.hasNext()) {
           String name = in.nextName();
           BoundField field = boundFields.get(name);
-          if (field == null || !field.deserialized) {
+          if (field == null) {
+            unknownFieldHandlingPolicy.handleUnknownField(in, instance, name);
+          } else if (!field.deserialized) {
             in.skipValue();
           } else {
             field.read(in, instance);

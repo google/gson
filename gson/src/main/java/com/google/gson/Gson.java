@@ -170,16 +170,21 @@ public final class Gson {
    *   <li>By default, Gson excludes <code>transient</code> or <code>static</code> fields from
    *   consideration for serialization and deserialization. You can change this behavior through
    *   {@link GsonBuilder#excludeFieldsWithModifiers(int...)}.</li>
+   *   <li>By default, during deserialization Gson silently ignores fields that are present in the
+   *   incoming Json but not in the Java classes. You can change this policy through
+   *   {@link GsonBuilder#setUnknownFieldHandlingStrategy(UnknownFieldHandlingStrategy)}.</li>
    * </ul>
    */
   public Gson() {
     this(Excluder.DEFAULT, FieldNamingPolicy.IDENTITY,
+        UnknownFieldHandlingPolicy.IGNORE,
         Collections.<Type, InstanceCreator<?>>emptyMap(), false, false, DEFAULT_JSON_NON_EXECUTABLE,
         true, false, false, LongSerializationPolicy.DEFAULT,
         Collections.<TypeAdapterFactory>emptyList());
   }
 
   Gson(final Excluder excluder, final FieldNamingStrategy fieldNamingPolicy,
+      UnknownFieldHandlingStrategy unknownFieldHandlingPolicy,
       final Map<Type, InstanceCreator<?>> instanceCreators, boolean serializeNulls,
       boolean complexMapKeySerialization, boolean generateNonExecutableGson, boolean htmlSafe,
       boolean prettyPrinting, boolean serializeSpecialFloatingPointValues,
@@ -241,7 +246,7 @@ public final class Gson {
     factories.add(new JsonAdapterAnnotationTypeAdapterFactory(constructorConstructor));
     factories.add(TypeAdapters.ENUM_FACTORY);
     factories.add(new ReflectiveTypeAdapterFactory(
-        constructorConstructor, fieldNamingPolicy, excluder));
+        constructorConstructor, fieldNamingPolicy, unknownFieldHandlingPolicy, excluder));
 
     this.factories = Collections.unmodifiableList(factories);
   }

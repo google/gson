@@ -47,6 +47,7 @@ import com.google.gson.reflect.TypeToken;
  *     .serializeNulls()
  *     .setDateFormat(DateFormat.LONG)
  *     .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
+ *     .setUnknownFieldHandlingStrategy(UnknownFieldHandlingPolicy.THROW_EXCEPTION)
  *     .setPrettyPrinting()
  *     .setVersion(1.0)
  *     .create();
@@ -69,6 +70,7 @@ public final class GsonBuilder {
   private Excluder excluder = Excluder.DEFAULT;
   private LongSerializationPolicy longSerializationPolicy = LongSerializationPolicy.DEFAULT;
   private FieldNamingStrategy fieldNamingPolicy = FieldNamingPolicy.IDENTITY;
+  private UnknownFieldHandlingStrategy unknownFieldHandlingPolicy = UnknownFieldHandlingPolicy.IGNORE;
   private final Map<Type, InstanceCreator<?>> instanceCreators
       = new HashMap<Type, InstanceCreator<?>>();
   private final List<TypeAdapterFactory> factories = new ArrayList<TypeAdapterFactory>();
@@ -286,6 +288,18 @@ public final class GsonBuilder {
    */
   public GsonBuilder setFieldNamingStrategy(FieldNamingStrategy fieldNamingStrategy) {
     this.fieldNamingPolicy = fieldNamingStrategy;
+    return this;
+  }
+
+  /**
+   * Configures Gson to apply a specific unknown field strategy during deserialization.
+   *
+   * @param unknownFieldHandlingStrategy the actual naming strategy to apply to the fields
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @since 2.3.2
+   */
+  public GsonBuilder setUnknownFieldHandlingStrategy(UnknownFieldHandlingStrategy unknownFieldHandlingStrategy) {
+    this.unknownFieldHandlingPolicy = unknownFieldHandlingStrategy;
     return this;
   }
 
@@ -542,8 +556,8 @@ public final class GsonBuilder {
     factories.addAll(this.hierarchyFactories);
     addTypeAdaptersForDate(datePattern, dateStyle, timeStyle, factories);
 
-    return new Gson(excluder, fieldNamingPolicy, instanceCreators,
-        serializeNulls, complexMapKeySerialization,
+    return new Gson(excluder, fieldNamingPolicy, unknownFieldHandlingPolicy,
+        instanceCreators, serializeNulls, complexMapKeySerialization,
         generateNonExecutableJson, escapeHtmlChars, prettyPrinting,
         serializeSpecialFloatingPointValues, longSerializationPolicy, factories);
   }
