@@ -566,7 +566,7 @@ public class JsonWriter implements Closeable, Flushable {
       return;
     }
 
-    out.write("\n");
+    out.write(System.lineSeparator());
     for (int i = 1, size = stackSize; i < size; i++) {
       out.write(indent);
     }
