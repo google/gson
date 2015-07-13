@@ -31,6 +31,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.Excluder;
 import com.google.gson.internal.Primitives;
@@ -96,6 +98,7 @@ import com.google.gson.stream.MalformedJsonException;
  * @author Joel Leitch
  * @author Jesse Wilson
  */
+@ThreadSafe
 public final class Gson {
   static final boolean DEFAULT_JSON_NON_EXECUTABLE = false;
 
