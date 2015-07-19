@@ -126,6 +126,18 @@ public final class JsonWriterTest extends TestCase {
     assertEquals("{\"a\":null}", stringWriter.toString());
   }
 
+  public void testJsonValue() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter jsonWriter = new JsonWriter(stringWriter);
+    jsonWriter.beginObject();
+    jsonWriter.name("a");
+    jsonWriter.jsonValue("{\"b\":true}");
+    jsonWriter.name("c");
+    jsonWriter.value(1);
+    jsonWriter.endObject();
+    assertEquals("{\"a\":{\"b\":true},\"c\":1}", stringWriter.toString());
+  }
+
   public void testNonFiniteDoubles() throws IOException {
     StringWriter stringWriter = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
