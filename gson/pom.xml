@@ -11,7 +11,7 @@
     <artifactId>oss-parent</artifactId>
     <version>9</version>
   </parent>
-  <url>http://code.google.com/p/google-gson/</url>
+  <url>https://github.com/google/gson</url>
   <description>Google Gson library</description>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -24,13 +24,14 @@
     </license>
   </licenses>
   <scm>
-    <connection>scm:svn:http://google-gson.googlecode.com/svn/trunk/gson</connection>
-    <developerConnection>scm:svn:https://google-gson.googlecode.com/svn/trunk/gson</developerConnection>
-    <url>http://google-gson.googlecode.com/svn/trunk/gson</url>
+    <connection>scm:git:https://github.com/google/gson.git</connection>
+    <developerConnection>scm:git:https://github.com/google/gson.git</developerConnection>
+    <url>https://github.com/google/gson</url>
+    <tag>gson-${project.version}</tag>
   </scm>
   <issueManagement>
-    <system>Google Code Issue Tracking</system>
-    <url>http://code.google.com/p/google-gson/issues/list</url>
+    <system>Github Issue Tracking</system>
+    <url>https://github.com/google/gson/issues</url>
   </issueManagement>
   <distributionManagement>
     <snapshotRepository>
@@ -140,7 +141,7 @@
               <Bundle-RequiredExecutionEnvironment>J2SE-1.5, JavaSE-1.6, JavaSE-1.7, JavaSE-1.8</Bundle-RequiredExecutionEnvironment>
               <Export-Package><![CDATA[com.google.gson;version=${project.version}, com.google.gson.annotations;version=${project.version}, com.google.gson.reflect;version=${project.version}, com.google.gson.stream;version=${project.version}, com.google.gson.internal;version=${project.version}, com.google.gson.internal.bind;version=${project.version}]]></Export-Package>
               <Bundle-Version>${project.version}</Bundle-Version>
-              <Bundle-ContactAddress>http://code.google.com/p/google-gson/</Bundle-ContactAddress>
+              <Bundle-ContactAddress>https://github.com/google/gson</Bundle-ContactAddress>
               <Bundle-Vendor>Google Gson Project</Bundle-Vendor>
               <Bundle-Name>${project.name}</Bundle-Name>
               <Bundle-Description>${project.description}</Bundle-Description>
@@ -220,7 +221,6 @@
         <!-- version>2.5</version -->
         <configuration>
           <arguments>-DenableCiProfile=true</arguments>
-          <tagBase>https://google-gson.googlecode.com/svn/tags</tagBase>
         </configuration>
       </plugin>
       <plugin>
@@ -249,4 +249,3 @@
     </developer>
   </developers>
 </project>
-
