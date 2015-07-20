@@ -421,6 +421,23 @@ public class JsonWriter implements Closeable, Flushable {
   }
 
   /**
+   * Writes {@code value} directly to the writer without quoting or
+   * escaping.
+   *
+   * @param value the literal string value, or null to encode a null literal.
+   * @return this writer.
+   */
+  public JsonWriter jsonValue(String value) throws IOException {
+    if (value == null) {
+      return nullValue();
+    }
+    writeDeferredName();
+    beforeValue(false);
+    out.append(value);
+    return this;
+  }
+
+  /**
    * Encodes {@code null}.
    *
    * @return this writer.
