@@ -19,6 +19,8 @@ package com.google.gson.functional;
 import com.google.gson.JsonArray;
 import junit.framework.TestCase;
 
+import java.math.BigInteger;
+
 /**
  * Functional tests for adding primitives to a JsonArray.
  *
@@ -108,6 +110,21 @@ public class JsonArrayTest extends TestCase {
     jsonArray.add("and sometimes Y");
 
     assertEquals("[\"a\",\"e\",\"i\",\"o\",null,\"u\",\"and sometimes Y\"]", jsonArray.toString());
+  }
+
+  public void testMixedPrimitiveAddition() {
+    JsonArray jsonArray = new JsonArray();
+
+    jsonArray.add('a');
+    jsonArray.add("apple");
+    jsonArray.add(12121);
+    jsonArray.add((char) 111);
+    jsonArray.add((Boolean) null);
+    jsonArray.add((Character) null);
+    jsonArray.add(12.232);
+    jsonArray.add(BigInteger.valueOf(2323));
+
+    assertEquals("[\"a\",\"apple\",12121,\"o\",null,null,12.232,2323]", jsonArray.toString());
   }
 
   public void testSameAddition() {
