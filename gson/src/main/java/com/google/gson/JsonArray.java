@@ -55,10 +55,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * @param bool the boolean that needs to be added to the array.
    */
   public void add(Boolean bool) {
-    if (bool == null) {
-      elements.add(JsonNull.INSTANCE);
-    }
-    elements.add(new JsonPrimitive(bool));
+    elements.add(bool == null ? JsonNull.INSTANCE : new JsonPrimitive(bool));
   }
 
   /**
@@ -67,10 +64,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * @param character the character that needs to be added to the array.
    */
   public void add(Character character) {
-    if (character == null) {
-      elements.add(JsonNull.INSTANCE);
-    }
-    elements.add(new JsonPrimitive(character));
+    elements.add(character == null ? JsonNull.INSTANCE : new JsonPrimitive(character));
   }
 
   /**
@@ -79,10 +73,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * @param number the number that needs to be added to the array.
    */
   public void add(Number number) {
-    if (number == null) {
-      elements.add(JsonNull.INSTANCE);
-    }
-    elements.add(new JsonPrimitive(number));
+    elements.add(number == null ? JsonNull.INSTANCE : new JsonPrimitive(number));
   }
 
   /**
@@ -91,10 +82,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * @param string the string that needs to be added to the array.
    */
   public void add(String string) {
-    if (string == null) {
-      elements.add(JsonNull.INSTANCE);
-    }
-    elements.add(new JsonPrimitive(string));
+    elements.add(string == null ? JsonNull.INSTANCE : new JsonPrimitive(string));
   }
 
   /**
