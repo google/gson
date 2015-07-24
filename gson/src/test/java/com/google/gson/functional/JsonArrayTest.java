@@ -127,6 +127,22 @@ public class JsonArrayTest extends TestCase {
     assertEquals("[\"a\",\"apple\",12121,\"o\",null,null,12.232,2323]", jsonArray.toString());
   }
 
+  public void testNullPrimitiveAddition() {
+    JsonArray jsonArray = new JsonArray();
+
+    jsonArray.add((Character) null);
+    jsonArray.add((Boolean) null);
+    jsonArray.add((Integer) null);
+    jsonArray.add((Double) null);
+    jsonArray.add((Float) null);
+    jsonArray.add((BigInteger) null);
+    jsonArray.add((String) null);
+    jsonArray.add((Boolean) null);
+    jsonArray.add((Number) null);
+
+    assertEquals("[null,null,null,null,null,null,null,null,null]", jsonArray.toString());
+  }
+
   public void testSameAddition() {
     JsonArray jsonArray = new JsonArray();
 
