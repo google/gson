@@ -50,6 +50,42 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   }
 
   /**
+   * Adds the specified boolean to self.
+   *
+   * @param bool the boolean that needs to be added to the array.
+   */
+  public void add(Boolean bool) {
+    elements.add(bool == null ? JsonNull.INSTANCE : new JsonPrimitive(bool));
+  }
+
+  /**
+   * Adds the specified character to self.
+   *
+   * @param character the character that needs to be added to the array.
+   */
+  public void add(Character character) {
+    elements.add(character == null ? JsonNull.INSTANCE : new JsonPrimitive(character));
+  }
+
+  /**
+   * Adds the specified number to self.
+   *
+   * @param number the number that needs to be added to the array.
+   */
+  public void add(Number number) {
+    elements.add(number == null ? JsonNull.INSTANCE : new JsonPrimitive(number));
+  }
+
+  /**
+   * Adds the specified string to self.
+   *
+   * @param string the string that needs to be added to the array.
+   */
+  public void add(String string) {
+    elements.add(string == null ? JsonNull.INSTANCE : new JsonPrimitive(string));
+  }
+
+  /**
    * Adds the specified element to self.
    *
    * @param element the element that needs to be added to the array.
