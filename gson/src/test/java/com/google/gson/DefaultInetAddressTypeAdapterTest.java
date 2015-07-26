@@ -35,11 +35,11 @@ public class DefaultInetAddressTypeAdapterTest extends TestCase {
   }
   
   public void testInetAddressSerializationAndDeserialization() throws Exception {
-    InetAddress address = InetAddress.getByName("8.8.8.8");
-    String jsonAddress = gson.toJson(address);
-    assertEquals("\"8.8.8.8\"", jsonAddress);
+    InetAddress localhost = InetAddress.getLocalHost();
+    String localInetAddress = gson.toJson(localhost);
+    assertEquals("\"" + localhost.getHostAddress() + "\"", localInetAddress);
     
-    InetAddress value = gson.fromJson(jsonAddress, InetAddress.class);
-    assertEquals(value, address);
+    InetAddress value = gson.fromJson(localInetAddress, InetAddress.class);
+    assertEquals(localhost, value);
   } 
 }
