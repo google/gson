@@ -167,6 +167,25 @@ public final class RuntimeTypeAdapterFactoryTest extends TestCase {
     }
   }
 
+  public void testSerializeWrappedNullValue() {
+    TypeAdapterFactory billingAdapter = RuntimeTypeAdapterFactory.of(BillingInstrument.class)
+        .registerSubtype(CreditCard.class)
+        .registerSubtype(BankTransfer.class);    
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapterFactory(billingAdapter)
+        .create();    
+    String serialized = gson.toJson(new BillingInstrumentWrapper(null), BillingInstrumentWrapper.class);
+    BillingInstrumentWrapper deserialized = gson.fromJson(serialized, BillingInstrumentWrapper.class);
+    assertNull(deserialized.instrument);
+  }
+
+  static class BillingInstrumentWrapper {
+    BillingInstrument instrument;
+    BillingInstrumentWrapper(BillingInstrument instrument) {
+      this.instrument = instrument;
+    }
+  }
+
   static class BillingInstrument {
     private final String ownerName;
     BillingInstrument(String ownerName) {
