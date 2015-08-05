@@ -16,10 +16,19 @@
 
 package com.google.gson.typeadapters;
 
+import java.io.IOException;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
+import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
+
 import junit.framework.TestCase;
 
 public final class RuntimeTypeAdapterFactoryTest extends TestCase {
@@ -189,4 +198,91 @@ public final class RuntimeTypeAdapterFactoryTest extends TestCase {
       this.bankAccount = bankAccount;
     }
   }
+  
+  static abstract class Outer {
+    Inner wrapped;
+    Outer(Inner wrapped) {
+      this.wrapped = wrapped;
+    }
+  }
+  
+  static class OuterA extends Outer {
+    OuterA(Inner wrapped) {
+      super(wrapped);
+    }
+  }
+  
+  static class OuterB extends Outer {
+    String other;
+    OuterB(Inner wrapped, String other) {
+      super(wrapped);
+    }
+  }
+  
+  static class Inner {
+    String prop;
+    Inner(String prop) {
+      this.prop = prop;
+    }
+  }
+  
+  static class TypeAdapterForInner extends TypeAdapter<Inner> {
+
+    @Override
+    public void write(JsonWriter out, Inner value) throws IOException {
+      boolean oldSerializeNulls = out.getSerializeNulls();
+      try {
+        out.setSerializeNulls(true);
+        out.beginObject().name("prop").value(value.prop).endObject();
+      } finally {
+        out.setSerializeNulls(oldSerializeNulls);
+      }
+    }
+
+    @Override
+    public Inner read(JsonReader in) throws IOException {
+      in.beginObject();
+      in.nextName();
+      String value = null;
+      if (in.peek() == JsonToken.STRING) {
+        value = in.nextString();
+      } else {
+        in.nextNull();
+      }
+      in.endObject();
+      return new Inner(value);
+    }
+    
+  }
+
+  public void testSerializingToPreserveNullsInEmbeddedObjects() {
+    TypeAdapterFactory metaWrapperAdapter = RuntimeTypeAdapterFactory.of(Outer.class, "type")
+        .registerSubtype(OuterA.class, "a")
+        .registerSubtype(OuterB.class, "b");
+
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapterFactory(metaWrapperAdapter)
+        .registerTypeAdapter(Inner.class, new TypeAdapterForInner().nullSafe())
+        .create();
+
+    // verify, null serialization works for unwrapped, inner value
+    Inner inner = new Inner(null);    
+    assertJsonEquivalent(
+        "{ prop: null }",
+        gson.toJson(inner));
+
+    // verify, null serialization works when wrapped in runtime-type-driven wrapper
+    // note: setting "other" to null, to ensure default non-null-serializing behavior is preserved
+    OuterB outer = new OuterB(inner, null); 
+    assertJsonEquivalent(
+        "{ type: 'b', wrapped: { prop: null } }",
+        gson.toJson(outer, Outer.class));
+  }
+  
+  private static void assertJsonEquivalent(String expected, String actual) {
+    JsonElement expectedElem = new JsonParser().parse(expected);
+    JsonElement actualElem = new JsonParser().parse(actual);
+    assertEquals(expectedElem, actualElem);
+  }
+  
 }
