@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gson.annotations.JsonAdapter;
 import junit.framework.TestCase;
 
 import com.google.gson.Gson;
@@ -68,6 +69,10 @@ public class DelegateTypeAdapterTest extends TestCase {
     assertEquals(5, stats.numWrites);
   }
 
+  public void testDelegateFromAnnotation() {
+      assertNotNull(new Gson().fromJson("{}", A.class));
+  }
+
   private static class StatsTypeAdapterFactory implements TypeAdapterFactory {
     public int numReads = 0;
     public int numWrites = 0;
@@ -89,4 +94,8 @@ public class DelegateTypeAdapterTest extends TestCase {
       };
     }
   }
+
+
+    @JsonAdapter(StatsTypeAdapterFactory.class)
+    private static class A {}
 }

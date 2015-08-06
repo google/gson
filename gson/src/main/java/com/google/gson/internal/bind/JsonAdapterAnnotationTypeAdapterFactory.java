@@ -23,6 +23,9 @@ import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.reflect.TypeToken;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Given a type T, looks for the annotation {@link JsonAdapter} and uses an instance of the
  * specified class as the default type adapter.
@@ -32,6 +35,7 @@ import com.google.gson.reflect.TypeToken;
 public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapterFactory {
 
   private final ConstructorConstructor constructorConstructor;
+    private static final List<TypeAdapterFactory> createdFactories = new ArrayList<TypeAdapterFactory>();
 
   public JsonAdapterAnnotationTypeAdapterFactory(ConstructorConstructor constructorConstructor) {
     this.constructorConstructor = constructorConstructor;
@@ -56,12 +60,24 @@ public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapte
     }
     if (TypeAdapterFactory.class.isAssignableFrom(value)) {
           Class<TypeAdapterFactory> typeAdapterFactory = (Class<TypeAdapterFactory>) value;
-      return constructorConstructor.get(TypeToken.get(typeAdapterFactory))
-          .construct()
-          .create(gson, fieldType);
+      TypeAdapterFactory factory = constructorConstructor.get(TypeToken.get(typeAdapterFactory))
+          .construct();
+        synchronized (createdFactories) {
+            createdFactories.add(factory);
+        }
+        return factory.create(gson, fieldType);
     }
 
     throw new IllegalArgumentException(
         "@JsonAdapter value must be TypeAdapter or TypeAdapterFactory reference.");
   }
+
+    @Override
+    public boolean equals(Object obj) {
+        synchronized (createdFactories) {
+            if (createdFactories.contains(obj))
+                return true;
+        }
+        return super.equals(obj);
+    }
 }
