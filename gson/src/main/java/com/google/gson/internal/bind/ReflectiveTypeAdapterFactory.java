@@ -16,22 +16,16 @@
 
 package com.google.gson.internal.bind;
 
-import com.google.gson.FieldNamingStrategy;
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.TypeAdapter;
-import com.google.gson.TypeAdapterFactory;
+import com.google.gson.*;
 import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.annotations.Required;
 import com.google.gson.annotations.SerializedName;
-import com.google.gson.internal.$Gson$Types;
-import com.google.gson.internal.ConstructorConstructor;
-import com.google.gson.internal.Excluder;
-import com.google.gson.internal.ObjectConstructor;
-import com.google.gson.internal.Primitives;
+import com.google.gson.internal.*;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
@@ -85,10 +79,10 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
 
   private ReflectiveTypeAdapterFactory.BoundField createBoundField(
       final Gson context, final Field field, final String name,
-      final TypeToken<?> fieldType, boolean serialize, boolean deserialize) {
+      final TypeToken<?> fieldType, boolean serialize, boolean deserialize, boolean required) {
     final boolean isPrimitive = Primitives.isPrimitive(fieldType.getRawType());
     // special casing primitives here saves ~5% on Android...
-    return new ReflectiveTypeAdapterFactory.BoundField(name, serialize, deserialize) {
+    return new ReflectiveTypeAdapterFactory.BoundField(name, serialize, deserialize, required) {
       final TypeAdapter<?> typeAdapter = getFieldAdapter(context, field, fieldType);
       @SuppressWarnings({"unchecked", "rawtypes"}) // the type adapter and field type always agree
       @Override void write(JsonWriter writer, Object value)
@@ -102,6 +96,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           throws IOException, IllegalAccessException {
         Object fieldValue = typeAdapter.read(reader);
         if (fieldValue != null || !isPrimitive) {
+          haveValue = true;
           field.set(value, fieldValue);
         }
       }
@@ -134,13 +129,14 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       for (Field field : fields) {
         boolean serialize = excludeField(field, true);
         boolean deserialize = excludeField(field, false);
+        boolean required = field.getAnnotation(Required.class) != null;
         if (!serialize && !deserialize) {
           continue;
         }
         field.setAccessible(true);
         Type fieldType = $Gson$Types.resolve(type.getType(), raw, field.getGenericType());
         BoundField boundField = createBoundField(context, field, getFieldName(field),
-            TypeToken.get(fieldType), serialize, deserialize);
+            TypeToken.get(fieldType), serialize, deserialize, required);
         BoundField previous = result.put(boundField.name, boundField);
         if (previous != null) {
           throw new IllegalArgumentException(declaredType
@@ -157,11 +153,14 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     final String name;
     final boolean serialized;
     final boolean deserialized;
+    final boolean required;
+    boolean haveValue = false;
 
-    protected BoundField(String name, boolean serialized, boolean deserialized) {
+    protected BoundField(String name, boolean serialized, boolean deserialized, boolean required) {
       this.name = name;
       this.serialized = serialized;
       this.deserialized = deserialized;
+      this.required = required;
     }
     abstract boolean writeField(Object value) throws IOException, IllegalAccessException;
     abstract void write(JsonWriter writer, Object value) throws IOException, IllegalAccessException;
@@ -195,6 +194,10 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           } else {
             field.read(in, instance);
           }
+        }
+        for (BoundField field : boundFields.values()) {
+            if (!field.haveValue && field.required)
+                throw new JsonParseException("Missing field in JSON: " + field.name);
         }
       } catch (IllegalStateException e) {
         throw new JsonSyntaxException(e);
