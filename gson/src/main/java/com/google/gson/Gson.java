@@ -56,7 +56,8 @@ import com.google.gson.stream.MalformedJsonException;
 /**
  * This is the main class for using Gson. Gson is typically used by first constructing a
  * Gson instance and then invoking {@link #toJson(Object)} or {@link #fromJson(String, Class)}
- * methods on it.
+ * methods on it. Gson instances are Thread-safe so you can reuse them freely across multiple
+ * threads.
  *
  * <p>You can create a Gson instance by invoking {@code new Gson()} if the default configuration
  * is all you need. You can also use {@link GsonBuilder} to build a Gson instance with various
