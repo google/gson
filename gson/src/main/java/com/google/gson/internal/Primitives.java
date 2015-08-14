@@ -29,7 +29,9 @@ import java.util.Map;
  * @author Kevin Bourrillion
  */
 public final class Primitives {
-  private Primitives() {}
+  private Primitives() {
+    throw new UnsupportedOperationException();
+  }
 
   /** A map from primitive types to their corresponding wrapper types. */
   private static final Map<Class<?>, Class<?>> PRIMITIVE_TO_WRAPPER_TYPE;

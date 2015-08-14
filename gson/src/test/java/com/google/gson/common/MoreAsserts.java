@@ -69,4 +69,5 @@ public class MoreAsserts {
     Assert.assertFalse(a.equals(null));
     Assert.assertFalse(a.equals(new Object()));
   }
+
 }

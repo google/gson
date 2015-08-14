@@ -43,7 +43,9 @@ import java.util.Properties;
 public final class $Gson$Types {
   static final Type[] EMPTY_TYPE_ARRAY = new Type[] {};
 
-  private $Gson$Types() {}
+  private $Gson$Types() {
+    throw new UnsupportedOperationException();
+  }
 
   /**
    * Returns a new parameterized type, applying {@code typeArguments} to

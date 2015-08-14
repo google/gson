@@ -55,7 +55,9 @@ import com.google.gson.stream.JsonWriter;
  * Type adapters for basic types.
  */
 public final class TypeAdapters {
-  private TypeAdapters() {}
+  private TypeAdapters() {
+    throw new UnsupportedOperationException();
+  }
 
   @SuppressWarnings("rawtypes")
   public static final TypeAdapter<Class> CLASS = new TypeAdapter<Class>() {
