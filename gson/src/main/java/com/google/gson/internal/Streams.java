@@ -33,6 +33,10 @@ import java.io.Writer;
  * Reads and writes GSON parse trees over streams.
  */
 public final class Streams {
+  private Streams() {
+    throw new UnsupportedOperationException();
+  }
+
   /**
    * Takes a reader in any state and returns the next value as a JsonElement.
    */
