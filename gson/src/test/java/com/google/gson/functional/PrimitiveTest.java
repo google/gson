@@ -198,6 +198,19 @@ public class PrimitiveTest extends TestCase {
     assertEquals(expected.doubleValue(), actual1);
   }
 
+  public void testDoubleArrayDeserialization() {
+      String json = "[0.0, 0.004761904761904762, 3.4013606962703525E-4, 7.936508173034305E-4,"
+              + "0.0011904761904761906, 0.0]";
+      double[] values = gson.fromJson(json, double[].class);
+      assertEquals(6, values.length);
+      assertEquals(0.0, values[0]);
+      assertEquals(0.004761904761904762, values[1]);
+      assertEquals(3.4013606962703525E-4, values[2]);
+      assertEquals(7.936508173034305E-4, values[3]);
+      assertEquals(0.0011904761904761906, values[4]);
+      assertEquals(0.0, values[5]);
+  }
+
   public void testLargeDoubleDeserialization() {
     String doubleValue = "1.234567899E8";
     Double expected = Double.valueOf(doubleValue);
