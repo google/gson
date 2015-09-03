@@ -410,6 +410,10 @@ public final class Gson {
    *  System.out.println("Num JSON reads" + stats.numReads);
    *  System.out.println("Num JSON writes" + stats.numWrites);
    *  }</pre>
+   *  Note that this call will skip all factories registered before {@code skipPast}. In case of
+   *  multiple TypeAdapterFactories registered it is up to the caller of this function to insure
+   *  that the order of registration does not prevent this method from reaching a factory they 
+   *  would expect to reply from this call.
    *  Note that since you can not override type adapter factories for String and Java primitive
    *  types, our stats factory will not count the number of String or primitives that will be
    *  read or written.
