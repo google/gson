@@ -16,15 +16,16 @@
 
 package com.google.gson;
 
+import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import junit.framework.TestCase;
 
 /**
- * Unit test for the default JSON map serialization object located in the
- * {@link DefaultTypeAdapters} class.
+ * Unit test for the default JSON map serialization logic.
  *
  * @author Joel Leitch
  */
@@ -60,5 +61,25 @@ public class DefaultMapJsonSerializerTest extends TestCase {
     assertTrue(element.isJsonObject());
     JsonObject mapJsonObject = element.getAsJsonObject();
     assertTrue(mapJsonObject.has(key));
+  }
+
+  public enum Bool {
+    @SerializedName("true")
+    TRUE, FALSE
+  }
+
+  public void testEnumMapSerialization() {
+    Type mapType = new TypeToken<Map<Bool, String>>() { }.getType();
+    Map<Bool, Integer> enumMap = new EnumMap<Bool, Integer>(Bool.class);
+    enumMap.put(Bool.TRUE, 0);
+    enumMap.put(Bool.FALSE, 1);
+
+    Gson gson = new Gson();
+    JsonElement element = gson.toJsonTree(enumMap, mapType);
+
+    assertTrue(element.isJsonObject());
+    JsonObject mapJsonObject = element.getAsJsonObject();
+    assertTrue(mapJsonObject.has("true"));
+    assertTrue(mapJsonObject.has("FALSE"));
   }
 }
