@@ -247,6 +247,11 @@ public final class Gson {
     this.factories = Collections.unmodifiableList(factories);
   }
 
+  /** Returns true if this Gson instance writes fields with null values. */
+  public boolean serializeNulls() {
+    return serializeNulls;
+  }
+
   private TypeAdapter<Number> doubleAdapter(boolean serializeSpecialFloatingPointValues) {
     if (serializeSpecialFloatingPointValues) {
       return TypeAdapters.DOUBLE;
