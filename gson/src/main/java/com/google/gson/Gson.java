@@ -247,11 +247,6 @@ public final class Gson {
     this.factories = Collections.unmodifiableList(factories);
   }
 
-  /** Returns true if this Gson instance writes fields with null values. */
-  public boolean serializeNulls() {
-    return serializeNulls;
-  }
-
   private TypeAdapter<Number> doubleAdapter(boolean serializeSpecialFloatingPointValues) {
     if (serializeSpecialFloatingPointValues) {
       return TypeAdapters.DOUBLE;
@@ -648,10 +643,9 @@ public final class Gson {
   }
 
   /**
-   * Returns a new JSON writer configured for this GSON and with the non-execute
-   * prefix if that is configured.
+   * Returns a new JSON writer configured for the settings on this Gson instance.
    */
-  private JsonWriter newJsonWriter(Writer writer) throws IOException {
+  public JsonWriter newJsonWriter(Writer writer) throws IOException {
     if (generateNonExecutableJson) {
       writer.write(JSON_NON_EXECUTABLE_PREFIX);
     }
