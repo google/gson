@@ -75,4 +75,26 @@ public final class LazilyParsedNumber extends Number {
   private Object writeReplace() throws ObjectStreamException {
     return new BigDecimal(value);
   }
+
+  @Override
+  public int hashCode() {
+    return value == null ? 0 : value.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || !(obj instanceof LazilyParsedNumber)) {
+      return false;
+    }
+    LazilyParsedNumber other = (LazilyParsedNumber) obj;
+    return equals(value, other.value);
+  }
+
+  private static boolean equals(Object obj1, Object obj2) {
+    if (obj1 == null) return obj2 == null;
+    return obj1 == obj2 || obj1.equals(obj2);
+  }
 }
