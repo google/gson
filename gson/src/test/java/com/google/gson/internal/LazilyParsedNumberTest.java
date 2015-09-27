@@ -18,13 +18,13 @@ package com.google.gson.internal;
 import junit.framework.TestCase;
 
 public class LazilyParsedNumberTest extends TestCase {
-  public void testHashCode(){
+  public void testHashCode() {
     LazilyParsedNumber n1 = new LazilyParsedNumber("1");
     LazilyParsedNumber n1Another = new LazilyParsedNumber("1");
     assertEquals(n1.hashCode(), n1Another.hashCode());
   }
 
-  public void testEquals(){
+  public void testEquals() {
     LazilyParsedNumber n1 = new LazilyParsedNumber("1");
     LazilyParsedNumber n1Another = new LazilyParsedNumber("1");
     assertTrue(n1.equals(n1Another));
