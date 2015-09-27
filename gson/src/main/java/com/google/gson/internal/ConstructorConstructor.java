@@ -122,7 +122,7 @@ public final class ConstructorConstructor {
 
   /**
    * Constructors for common interface types like Map and List and their
-   * subytpes.
+   * subtypes.
    */
   @SuppressWarnings("unchecked") // use runtime checks to guarantee that 'T' is what it is
   private <T> ObjectConstructor<T> newDefaultImplementationConstructor(
