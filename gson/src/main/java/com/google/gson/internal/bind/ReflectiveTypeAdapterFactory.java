@@ -16,6 +16,16 @@
 
 package com.google.gson.internal.bind;
 
+import static com.google.gson.internal.bind.JsonAdapterAnnotationTypeAdapterFactory.getTypeAdapter;
+
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Type;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import com.google.gson.FieldNamingStrategy;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -32,13 +42,6 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Type;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import static com.google.gson.internal.bind.JsonAdapterAnnotationTypeAdapterFactory.getTypeAdapter;
 
 /**
  * Type adapter that reflects over the fields and methods of a class.
@@ -63,13 +66,24 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     return !excluder.excludeClass(f.getType(), serialize) && !excluder.excludeField(f, serialize);
   }
 
-  private String getFieldName(Field f) {
+  /** first element holds the default name */
+  private List<String> getFieldNames(Field f) {
     return getFieldName(fieldNamingPolicy, f);
   }
 
-  static String getFieldName(FieldNamingStrategy fieldNamingPolicy, Field f) {
+  /** first element holds the default name */
+  static List<String> getFieldName(FieldNamingStrategy fieldNamingPolicy, Field f) {
     SerializedName serializedName = f.getAnnotation(SerializedName.class);
-    return serializedName == null ? fieldNamingPolicy.translateName(f) : serializedName.value();
+    List<String> fieldNames = new LinkedList<String>();
+    if (serializedName == null) {
+      fieldNames.add(fieldNamingPolicy.translateName(f));
+    } else {
+      fieldNames.add(serializedName.value());
+      for (String alternate : serializedName.alternate()) {
+        fieldNames.add(alternate);
+      }
+    }
+    return fieldNames;
   }
 
   public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
@@ -139,9 +153,16 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         }
         field.setAccessible(true);
         Type fieldType = $Gson$Types.resolve(type.getType(), raw, field.getGenericType());
-        BoundField boundField = createBoundField(context, field, getFieldName(field),
-            TypeToken.get(fieldType), serialize, deserialize);
-        BoundField previous = result.put(boundField.name, boundField);
+        List<String> fieldNames = getFieldNames(field);
+        BoundField previous = null;
+        for (int i = 0; i < fieldNames.size(); ++i) {
+          String name = fieldNames.get(i);
+          if (i != 0) serialize = false; // only serialize the default name
+          BoundField boundField = createBoundField(context, field, name,
+              TypeToken.get(fieldType), serialize, deserialize);
+          BoundField replaced = result.put(name, boundField);
+          if (previous == null) previous = replaced;
+        }
         if (previous != null) {
           throw new IllegalArgumentException(declaredType
               + " declares multiple JSON fields named " + previous.name);

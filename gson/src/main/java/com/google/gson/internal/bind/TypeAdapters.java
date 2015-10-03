@@ -727,6 +727,9 @@ public final class TypeAdapters {
           SerializedName annotation = classOfT.getField(name).getAnnotation(SerializedName.class);
           if (annotation != null) {
             name = annotation.value();
+            for (String alternate : annotation.alternate()) {
+              nameToConstant.put(alternate, constant);
+            }
           }
           nameToConstant.put(name, constant);
           constantToName.put(constant, name);
