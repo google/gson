@@ -33,13 +33,15 @@ import java.lang.annotation.Target;
  *
  * <p>Here is an example of how this annotation is meant to be used:</p>
  * <pre>
- * public class SomeClassWithFields {
- *   &#64SerializedName("name") private final String someField;
- *   private final String someOtherField;
+ * public class MyClass {
+ *   &#64SerializedName("name") String a;
+ *   &#64SerializedName(value="name1", alternate={"name2", "name3"}) String b;
+ *   String c;
  *
- *   public SomeClassWithFields(String a, String b) {
- *     this.someField = a;
- *     this.someOtherField = b;
+ *   public MyClass(String a, String b, String c) {
+ *     this.a = a;
+ *     this.b = b;
+ *     this.c = c;
  *   }
  * }
  * </pre>
@@ -47,16 +49,27 @@ import java.lang.annotation.Target;
  * <p>The following shows the output that is generated when serializing an instance of the
  * above example class:</p>
  * <pre>
- * SomeClassWithFields objectToSerialize = new SomeClassWithFields("a", "b");
+ * MyClass target = new MyClass("v1", "v2", "v3");
  * Gson gson = new Gson();
- * String jsonRepresentation = gson.toJson(objectToSerialize);
- * System.out.println(jsonRepresentation);
+ * String json = gson.toJson(target);
+ * System.out.println(json);
  *
  * ===== OUTPUT =====
- * {"name":"a","someOtherField":"b"}
+ * {"name":"v1","name1":"v2","c":"v3"}
  * </pre>
  *
  * <p>NOTE: The value you specify in this annotation must be a valid JSON field name.</p>
+ * While deserializing, all values specified in the annotation will be deserialized into the field.
+ * For example:
+ * <pre>
+ *   MyClass target = gson.fromJson("{'name1':'v1'}", MyClass.class);
+ *   assertEquals("v1", target.b);
+ *   target = gson.fromJson("{'name2':'v2'}", MyClass.class);
+ *   assertEquals("v2", target.b);
+ *   target = gson.fromJson("{'name3':'v3'}", MyClass.class);
+ *   assertEquals("v3", target.b);
+ * </pre>
+ * Note that MyClass.b is now deserialized from either name1, name2 or name3.
  *
  * @see com.google.gson.FieldNamingPolicy
  *
@@ -68,7 +81,9 @@ import java.lang.annotation.Target;
 public @interface SerializedName {
 
   /**
-   * @return the desired name of the field when it is serialized
+   * @return the desired names of the field when it is deserialized or serialized. All of the specified names will be deserialized from.
+   *   The specified first name is what is used for serialization.
    */
   String value();
+  String[] alternate() default {};
 }
