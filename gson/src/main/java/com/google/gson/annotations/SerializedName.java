@@ -81,9 +81,11 @@ import java.lang.annotation.Target;
 public @interface SerializedName {
 
   /**
-   * @return the desired names of the field when it is deserialized or serialized. All of the specified names will be deserialized from.
-   *   The specified first name is what is used for serialization.
+   * @return the desired name of the field when it is serialized or deserialized
    */
   String value();
+  /**
+   * @return the alternative names of the field when it is deserialized
+   */
   String[] alternate() default {};
 }
