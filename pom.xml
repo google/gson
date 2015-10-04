@@ -10,6 +10,7 @@
     <groupId>org.sonatype.oss</groupId>
     <artifactId>oss-parent</artifactId>
     <version>9</version>
+    <relativePath></relativePath>
   </parent>
   <url>https://github.com/google/gson</url>
   <description>Google Gson library</description>
