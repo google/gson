@@ -13,7 +13,7 @@ _2015-10-04_
  * New: `@SerializedName` permits alternate names when deserializing.
  * New: `JsonWriter#jsonValue` writes raw JSON values.
  * New: APIs to add primitives directly to `JsonArray` instances.
- * New: ISO 8601 type adapter. Find this in _extras_.
+ * New: ISO 8601 date type adapter. Find this in _extras_.
  * Fix: `FieldNamingPolicy` now works properly when running on a device with a Turkish locale.
 
   [autovalue]: https://github.com/google/auto/tree/master/value
