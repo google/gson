@@ -5,7 +5,7 @@
   <packaging>pom</packaging>
   <version>2.4-SNAPSHOT</version>
   <inceptionYear>2008</inceptionYear>
-  <name>Gson</name>
+  <name>Gson Parent</name>
   <parent>
     <groupId>org.sonatype.oss</groupId>
     <artifactId>oss-parent</artifactId>
@@ -59,7 +59,7 @@
   </dependencies>
   <modules>
     <module>gson</module>
-  </module>
+  </modules>
   <profiles>
     <!-- Activate PGP signing only when performing a release -->
     <profile>
