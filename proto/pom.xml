@@ -7,7 +7,7 @@
   <groupId>com.google.code.gson</groupId>
   <artifactId>proto</artifactId>
   <packaging>jar</packaging>
-  <version>0.5</version>
+  <version>0.6-SNAPSHOT</version>
   <name>Gson Protobuf Support</name>
   <description>Gson support for Protobufs</description>
   <properties>
