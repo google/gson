@@ -95,17 +95,6 @@
         <artifactId>maven-antrun-plugin</artifactId>
         <version>1.8</version>
         <executions>
-        <execution>
-            <phase>blah</phase>
-            <goals>
-                <goal>run</goal>
-            </goals>
-            <configuration>
-                <target>
-                    <echoproperties />
-                </target>
-            </configuration>
-        </execution>
           <execution>
             <id>compile-protoc</id>
             <phase>generate-sources</phase>
