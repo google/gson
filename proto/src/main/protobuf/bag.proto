@@ -14,8 +14,10 @@
 // limitations under the License.
 //
 
-package com.google.gson.protobuf.generated;
+package google.gson.protobuf.generated;
 option java_package = "com.google.gson.protobuf.generated";
+
+import "annotations.proto";
 
 message SimpleProto {
   optional string msg = 1;
@@ -26,4 +28,38 @@ message ProtoWithRepeatedFields {
   repeated int64 numbers = 1;
   repeated SimpleProto simples = 2;
   optional string name = 3;
+}
+
+// -- A more complex message with annotations and nested protos
+
+message OuterMessage {
+  optional int32 month = 1;
+  optional int32 year = 2;
+  optional int64 long_timestamp = 3 [(serialized_name) = "timeStamp"];
+  optional string country_code_5f55 = 4;
+}
+
+message ProtoWithAnnotations {
+  optional string id = 1;
+  optional OuterMessage outer_message = 2 [(serialized_name) = "expiration_date"];
+
+  message InnerMessage {
+    optional int32 n__id_ct = 1;
+
+    enum Type {
+      UNKNOWN = 0;
+      TEXT = 1 [(serialized_value) = "text/plain"];
+      IMAGE = 2 [(serialized_value) = "image/png"];
+    }
+    optional Type content = 2;
+
+    message Data {
+      optional string data = 1;
+      optional int32 width = 2;
+      optional int32 height = 3;
+    }
+    repeated Data data = 3 [(serialized_name) = "$binary_data$"];
+  }
+  optional InnerMessage inner_message_1 = 3;
+  optional InnerMessage inner_message_2 = 4;
 }
