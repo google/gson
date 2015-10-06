@@ -56,7 +56,8 @@ import java.util.Set;
  * You can specify which case representation is used for the proto fields when writing/reading the
  * JSON payload by calling {@link Builder#setFieldNameSerializationFormat(CaseFormat, CaseFormat)}.
  * <p>
- * An example of default serialization/deserialization using custom proto field names is show below:
+ * An example of default serialization/deserialization using custom proto field names is shown
+ * below:
  *
  * <pre>
  * message MyMessage {
@@ -130,16 +131,15 @@ public class ProtoTypeAdapter
 
     /**
      * Adds a field proto annotation that, when set, overrides the default field name
-     * serialization/deserialization. For example, if you add the ' {@code serialized_name}'
+     * serialization/deserialization. For example, if you add the '{@code serialized_name}'
      * annotation and you define a field in your proto like the one below:
      *
      * <pre>
-     * string client_app_id = 1[(serialized_name) = "appId"];
+     * string client_app_id = 1 [(serialized_name) = "appId"];
      * </pre>
      *
      * ...the adapter will serialize the field using '{@code appId}' instead of the default '
-     * {@code clientAppId}'. This lets you customize the name serialization of any field of your
-     * proto.
+     * {@code clientAppId}'. This lets you customize the name serialization of any proto field.
      */
     public Builder addSerializedNameExtension(
         Extension<FieldOptions, String> serializedNameExtension) {
@@ -148,8 +148,8 @@ public class ProtoTypeAdapter
     }
 
     /**
-     * Adds an enum proto annotation that, when set, overrides the default <b>enum</b> value
-     * serialization/deerialization of this adapter. For example, if you add the '
+     * Adds an enum value proto annotation that, when set, overrides the default <b>enum</b> value
+     * serialization/deserialization of this adapter. For example, if you add the '
      * {@code serialized_value}' annotation and you define an enum in your proto like the one below:
      *
      * <pre>
@@ -297,7 +297,7 @@ public class ProtoTypeAdapter
         return (GeneratedMessage) protoBuilder.build();
       } catch (SecurityException e) {
         throw new JsonParseException(e);
-      } catch (NoSuchMethodException  e) {
+      } catch (NoSuchMethodException e) {
         throw new JsonParseException(e);
       } catch (IllegalArgumentException e) {
         throw new JsonParseException(e);
