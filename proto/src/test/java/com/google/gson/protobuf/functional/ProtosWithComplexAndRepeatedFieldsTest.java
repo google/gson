@@ -18,6 +18,7 @@ package com.google.gson.protobuf.functional;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.protobuf.ProtoTypeAdapter;
+import com.google.gson.protobuf.ProtoTypeAdapter.EnumSerialization;
 import com.google.gson.protobuf.generated.Bag.ProtoWithRepeatedFields;
 import com.google.gson.protobuf.generated.Bag.SimpleProto;
 import com.google.protobuf.GeneratedMessage;
@@ -35,8 +36,13 @@ public class ProtosWithComplexAndRepeatedFieldsTest extends TestCase {
   @Override
   protected void setUp() throws Exception {
     super.setUp();
-    gson = new GsonBuilder().registerTypeHierarchyAdapter(
-      GeneratedMessage.class, new ProtoTypeAdapter()).create();
+    gson =
+        new GsonBuilder()
+            .registerTypeHierarchyAdapter(GeneratedMessage.class,
+                ProtoTypeAdapter.newBuilder()
+                    .setEnumSerialization(EnumSerialization.NUMBER)
+                    .build())
+            .create();
   }
 
   public void testSerializeRepeatedFields() {
