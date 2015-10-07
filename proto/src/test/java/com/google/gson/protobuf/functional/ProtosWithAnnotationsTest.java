@@ -169,12 +169,16 @@ public class ProtosWithAnnotationsTest extends TestCase {
         + "}");
     InnerMessage proto = gsonWithEnumNumbers.fromJson(json, InnerMessage.class);
     assertThat(proto.getContent()).isEqualTo(Type.UNKNOWN);
+    String rebuilt = gsonWithEnumNumbers.toJson(proto);
+    assertThat(rebuilt).isEqualTo("{\"content\":0}");
 
     json = String.format("{  %n"
         + "   \"content\":\"2\"%n"
         + "}");
     proto = gsonWithEnumNumbers.fromJson(json, InnerMessage.class);
     assertThat(proto.getContent()).isEqualTo(Type.IMAGE);
+    rebuilt = gsonWithEnumNumbers.toJson(proto);
+    assertThat(rebuilt).isEqualTo("{\"content\":2}");
   }
 
   public void testProtoWithAnnotations_serialize() {
