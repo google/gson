@@ -70,6 +70,31 @@ public class FieldExclusionTest extends TestCase {
     assertEquals(target.toJson(), result);
   }
 
+  public void testDefaultAnonymousClassExclusion() throws Exception {
+    Gson gson = new Gson();
+    String result = gson.toJson(new Object(){ String value = VALUE; });
+    assertEquals("null", result);
+
+    result = gson.toJson(new ClassWithAnonymousField());
+    assertEquals("{}", result);
+
+    gson = new GsonBuilder().create();
+    result = gson.toJson(new Object(){ String value = VALUE; });
+    assertEquals("null", result);
+
+    result = gson.toJson(new ClassWithAnonymousField());
+    assertEquals("{}", result);
+  }
+
+  public void testAnonymousClassInclusion() throws Exception {
+    Gson gson = new GsonBuilder().enableAnonymousClassSerialization().create();
+    String result = gson.toJson(new Object(){ String value = VALUE; });
+    assertEquals("{\"value\":\"" + VALUE + "\"}", result);
+
+    result = gson.toJson(new ClassWithAnonymousField());
+    assertEquals("{\"anon\":{\"value\":\"" + VALUE + "\"}}", result);
+  }
+
   private static class Outer {
     private class Inner extends NestedClass {
       public Inner(String value) {
@@ -88,5 +113,11 @@ public class FieldExclusionTest extends TestCase {
     public String toJson() {
       return "{\"value\":\"" + value + "\"}";
     }
+  }
+
+  private static class ClassWithAnonymousField {
+    public Object anon = new Object() {
+      private final String value = VALUE;
+    };
   }
 }
