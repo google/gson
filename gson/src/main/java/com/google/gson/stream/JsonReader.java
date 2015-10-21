@@ -21,7 +21,9 @@ import com.google.gson.internal.bind.JsonTreeReader;
 import java.io.Closeable;
 import java.io.EOFException;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Reads a JSON (<a href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>)
@@ -803,6 +805,63 @@ public class JsonReader implements Closeable {
     peeked = PEEKED_NONE;
     pathNames[stackSize - 1] = result;
     return result;
+  }
+
+  /**
+   * Reads the {@link com.google.gson.stream.JsonToken#STRING string} value of the next token
+   * into the OutputStream, consuming it.
+   *
+   * @throws IllegalStateException if the next token is not a string or if this reader is closed.
+   */
+  public void nextStream(OutputStream out) throws IOException {
+    int pk = peeked;
+    if (pk == PEEKED_NONE) {
+      pk = doPeek();
+    }
+
+    // Like nextNonWhitespace, this uses locals 'p' and 'l' to save inner-loop field access.
+    char[] buffer = this.buffer;
+    char quote = '"';
+
+    while (true) {
+      int p = pos;
+      int l = limit;
+      /* the index of the first character not yet appended to the builder. */
+      int start = p;
+      while (p < l) {
+        int c = buffer[p++];
+
+        if (c == quote) {
+          pos = p;
+
+          out.write(new String(buffer).getBytes(StandardCharsets.UTF_8), start, p - start - 1);
+
+          peeked = PEEKED_NONE;
+          pathIndices[stackSize - 1]++;
+
+          return;
+        } else if (c == '\\') {
+          pos = p;
+
+          out.write(new String(buffer).getBytes(StandardCharsets.UTF_8), start, p - start - 1);
+          out.write(readEscapeCharacter());
+
+          p = pos;
+          l = limit;
+          start = p;
+        } else if (c == '\n') {
+          lineNumber++;
+          lineStart = p;
+        }
+      }
+
+      out.write(new String(buffer).getBytes(StandardCharsets.UTF_8), start, p - start);
+
+      pos = p;
+      if (!fillBuffer(1)) {
+        throw syntaxError("Unterminated string");
+      }
+    }
   }
 
   /**
