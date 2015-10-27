@@ -22,12 +22,14 @@ import "annotations.proto";
 message SimpleProto {
   optional string msg = 1;
   optional int32 count = 2;
+  optional bytes payload = 3;
 }
 
 message ProtoWithRepeatedFields {
   repeated int64 numbers = 1;
   repeated SimpleProto simples = 2;
   optional string name = 3;
+  repeated bytes payloads = 4;
 }
 
 // -- A more complex message with annotations and nested protos

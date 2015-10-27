@@ -15,17 +15,22 @@
  */
 package com.google.gson.protobuf.functional;
 
+import com.google.common.base.Charsets;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.protobuf.ProtoTypeAdapter;
 import com.google.gson.protobuf.ProtoTypeAdapter.EnumSerialization;
 import com.google.gson.protobuf.generated.Bag.SimpleProto;
+import com.google.protobuf.ByteString;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.GeneratedMessage;
 
 import junit.framework.TestCase;
 
 public class ProtosWithPrimitiveTypesTest extends TestCase {
+  public static final ByteString PAYLOAD_DATA =
+      ByteString.copyFrom("Fun with base64", Charsets.UTF_8);
+
   private Gson gson;
 
   @Override
@@ -55,15 +60,18 @@ public class ProtosWithPrimitiveTypesTest extends TestCase {
     SimpleProto proto = SimpleProto.newBuilder()
       .setCount(3)
       .setMsg("foo")
+      .setPayload(PAYLOAD_DATA)
       .build();
     String json = gson.toJson(proto);
     assertTrue(json.contains("\"msg\":\"foo\""));
     assertTrue(json.contains("\"count\":3"));
+    assertTrue(json.contains("\"payload\":\"RnVuIHdpdGggYmFzZTY0\""));
   }
 
   public void testDeserializeProto() {
-    SimpleProto proto = gson.fromJson("{msg:'foo',count:3}", SimpleProto.class);
+    SimpleProto proto = gson.fromJson("{msg:'foo',count:3, payload:'RnVuIHdpdGggYmFzZTY0'}", SimpleProto.class);
     assertEquals("foo", proto.getMsg());
     assertEquals(3, proto.getCount());
+    assertEquals(PAYLOAD_DATA, proto.getPayload());
   }
 }

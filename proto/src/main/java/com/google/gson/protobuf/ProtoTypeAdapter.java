@@ -29,12 +29,14 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import com.google.protobuf.ByteString;
 import com.google.protobuf.DescriptorProtos.EnumValueOptions;
 import com.google.protobuf.DescriptorProtos.FieldOptions;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Descriptors.EnumDescriptor;
 import com.google.protobuf.Descriptors.EnumValueDescriptor;
 import com.google.protobuf.Descriptors.FieldDescriptor;
+import com.google.protobuf.Descriptors.FieldDescriptor.JavaType;
 import com.google.protobuf.Extension;
 import com.google.protobuf.GeneratedMessage;
 import com.google.protobuf.Message;
@@ -188,8 +190,8 @@ public class ProtoTypeAdapter
     return new Builder(EnumSerialization.NAME, CaseFormat.LOWER_UNDERSCORE, CaseFormat.LOWER_CAMEL);
   }
 
-  private static final com.google.protobuf.Descriptors.FieldDescriptor.Type ENUM_TYPE =
-      com.google.protobuf.Descriptors.FieldDescriptor.Type.ENUM;
+  private static final FieldDescriptor.Type ENUM_TYPE =
+      FieldDescriptor.Type.ENUM;
 
   private static final ConcurrentMap<String, Map<Class<?>, Method>> mapOfMapOfMethods =
       new MapMaker().makeMap();
@@ -234,6 +236,18 @@ public class ProtoTypeAdapter
         } else {
           EnumValueDescriptor enumDesc = ((EnumValueDescriptor) fieldPair.getValue());
           ret.add(name, context.serialize(getEnumValue(enumDesc)));
+        }
+      } else if (desc.getJavaType().equals(FieldDescriptor.JavaType.BYTE_STRING)) {
+        if (fieldPair.getValue() instanceof  Collection) {
+          JsonArray array = new JsonArray();
+          Collection<ByteString> descs = (Collection<ByteString>) fieldPair.getValue();
+          for (ByteString byteString : descs) {
+            array.add(serializeBytesBase64(byteString));
+          }
+          ret.add(name, array);
+      } else {
+          ByteString value = (ByteString) fieldPair.getValue();
+          ret.add(desc.getName(), context.serialize(serializeBytesBase64(value)));
         }
       } else {
         ret.add(name, context.serialize(fieldPair.getValue()));
@@ -288,12 +302,26 @@ public class ProtoTypeAdapter
                   fieldNameSerializationFormat.convert(fieldDescriptor.getName()) + "_";
               Field protoArrayField = protoClass.getDeclaredField(protoArrayFieldName);
               Type protoArrayFieldType = protoArrayField.getGenericType();
+              if (fieldDescriptor.getJavaType() == JavaType.BYTE_STRING) {
+                // Handle an array of bytestrings
+                Collection<ByteString> byteStrings = new ArrayList<ByteString>();
+                for (JsonElement element : jsonElement.getAsJsonArray()) {
+                  byteStrings.add(deserializeBytesBase64(element.getAsString()));
+                }
+                fieldValue = byteStrings;
+              } else {
+                // For other repeated types use normal deserialization.
               fieldValue = context.deserialize(jsonElement, protoArrayFieldType);
+              }
               protoBuilder.setField(fieldDescriptor, fieldValue);
             } else {
               Message prototype = protoBuilder.build();
               Object field = prototype.getField(fieldDescriptor);
+              if (fieldDescriptor.getJavaType() == JavaType.BYTE_STRING) {
+                fieldValue = deserializeBytesBase64(jsonElement.getAsString());
+              } else {
               fieldValue = context.deserialize(jsonElement, field.getClass());
+              }
               protoBuilder.setField(fieldDescriptor, fieldValue);
             }
           }
@@ -403,4 +431,16 @@ public class ProtoTypeAdapter
     return method;
   }
 
+  /** Serializess bytes in base64. */
+  private static String serializeBytesBase64(ByteString input) {
+    return String.valueOf(LenientBase64Coder.encode(input.toByteArray()));
+  }
+
+  /** Deserializes bytes from base64 */
+  private static ByteString deserializeBytesBase64(String input) {
+    return ByteString.copyFrom(LenientBase64Coder.decode(input));
+  }
+
+  private static Map<String, Map<Class<?>, Method>> mapOfMapOfMethods =
+      new HashMap<String, Map<Class<?>, Method>>();
 }
