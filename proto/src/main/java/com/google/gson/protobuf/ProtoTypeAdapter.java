@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Converter;
+import com.google.common.collect.MapMaker;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -44,10 +45,10 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * GSON type adapter for protocol buffers that knows how to serialize enums either by using their
@@ -189,6 +190,9 @@ public class ProtoTypeAdapter
 
   private static final com.google.protobuf.Descriptors.FieldDescriptor.Type ENUM_TYPE =
       com.google.protobuf.Descriptors.FieldDescriptor.Type.ENUM;
+
+  private static final ConcurrentMap<String, Map<Class<?>, Method>> mapOfMapOfMethods =
+      new MapMaker().makeMap();
 
   private final EnumSerialization enumSerialization;
   private final Converter<String, String> fieldNameSerializationFormat;
@@ -380,18 +384,23 @@ public class ProtoTypeAdapter
     }
   }
 
-  private static Method getCachedMethod(Class<?> clazz, String methodName)
-      throws NoSuchMethodException {
-    if (!mapOfMapOfMethods.containsKey(methodName)) {
-      mapOfMapOfMethods.put(methodName, new HashMap<Class<?>, Method>());
-    }
+  private static Method getCachedMethod(Class<?> clazz, String methodName,
+      Class<?>... methodParamTypes) throws NoSuchMethodException {
     Map<Class<?>, Method> mapOfMethods = mapOfMapOfMethods.get(methodName);
-    if (!mapOfMethods.containsKey(clazz)) {
-      mapOfMethods.put(clazz, clazz.getMethod(methodName));
+    if (mapOfMethods == null) {
+      mapOfMethods = new MapMaker().makeMap();
+      Map<Class<?>, Method> previous =
+          mapOfMapOfMethods.putIfAbsent(methodName, mapOfMethods);
+      mapOfMethods = previous == null ? mapOfMethods : previous;
     }
-    return mapOfMethods.get(clazz);
+
+    Method method = mapOfMethods.get(clazz);
+    if (method == null) {
+      method = clazz.getMethod(methodName, methodParamTypes);
+      mapOfMethods.putIfAbsent(clazz, method);
+      // NB: it doesn't matter which method we return in the event of a race.
+    }
+    return method;
   }
 
-  private static Map<String, Map<Class<?>, Method>> mapOfMapOfMethods =
-      new HashMap<String, Map<Class<?>, Method>>();
 }
