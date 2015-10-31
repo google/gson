@@ -17,6 +17,7 @@
 package com.google.gson;
 
 import java.lang.reflect.Field;
+import java.util.Locale;
 
 /**
  * An enumeration that defines a few standard naming conventions for JSON field names.
@@ -88,7 +89,7 @@ public enum FieldNamingPolicy implements FieldNamingStrategy {
    */
   LOWER_CASE_WITH_UNDERSCORES() {
     public String translateName(Field f) {
-      return separateCamelCase(f.getName(), "_").toLowerCase();
+      return separateCamelCase(f.getName(), "_").toLowerCase(Locale.ENGLISH);
     }
   },
 
@@ -111,7 +112,7 @@ public enum FieldNamingPolicy implements FieldNamingStrategy {
    */
   LOWER_CASE_WITH_DASHES() {
     public String translateName(Field f) {
-      return separateCamelCase(f.getName(), "-").toLowerCase();
+      return separateCamelCase(f.getName(), "-").toLowerCase(Locale.ENGLISH);
     }
   };
 

@@ -235,6 +235,6 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
         }
         Streams.write(clone, out);
       }
-    };
+    }.nullSafe();
   }
 }
