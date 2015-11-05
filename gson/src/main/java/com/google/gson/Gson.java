@@ -311,7 +311,7 @@ public final class Gson {
     }
   }
 
-  private TypeAdapter<Number> longAdapter(LongSerializationPolicy longSerializationPolicy) {
+  private static TypeAdapter<Number> longAdapter(LongSerializationPolicy longSerializationPolicy) {
     if (longSerializationPolicy == LongSerializationPolicy.DEFAULT) {
       return TypeAdapters.LONG;
     }
@@ -333,7 +333,7 @@ public final class Gson {
     };
   }
 
-  private TypeAdapter<AtomicLong> atomicLongAdapter(final TypeAdapter<Number> longAdapter) {
+  private static TypeAdapter<AtomicLong> atomicLongAdapter(final TypeAdapter<Number> longAdapter) {
     return new TypeAdapter<AtomicLong>() {
       @Override public void write(JsonWriter out, AtomicLong value) throws IOException {
         longAdapter.write(out, value.get());
