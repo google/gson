@@ -38,6 +38,7 @@ public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapte
   }
 
   @SuppressWarnings("unchecked")
+  @Override
   public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> targetType) {
     JsonAdapter annotation = targetType.getRawType().getAnnotation(JsonAdapter.class);
     if (annotation == null) {

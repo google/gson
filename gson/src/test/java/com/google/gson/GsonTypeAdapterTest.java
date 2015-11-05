@@ -80,12 +80,11 @@ public class GsonTypeAdapterTest extends TestCase {
 
   private static class ExceptionTypeAdapter
       implements JsonSerializer<AtomicLong>, JsonDeserializer<AtomicLong> {
-    public JsonElement serialize(
+    @Override public JsonElement serialize(
         AtomicLong src, Type typeOfSrc, JsonSerializationContext context) {
       throw new IllegalStateException();
     }
-
-    public AtomicLong deserialize(
+    @Override public AtomicLong deserialize(
         JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
       throw new IllegalStateException();
@@ -94,11 +93,11 @@ public class GsonTypeAdapterTest extends TestCase {
 
   private static class AtomicIntegerTypeAdapter
       implements JsonSerializer<AtomicInteger>, JsonDeserializer<AtomicInteger> {
-    public JsonElement serialize(AtomicInteger src, Type typeOfSrc, JsonSerializationContext context) {
+    @Override public JsonElement serialize(AtomicInteger src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src.incrementAndGet());
     }
 
-    public AtomicInteger deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+    @Override public AtomicInteger deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
       int intValue = json.getAsInt();
       return new AtomicInteger(--intValue);

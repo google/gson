@@ -116,7 +116,7 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
   }
 
   private static class GizmoPartTypeAdapterFactory implements TypeAdapterFactory {
-    public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
+    @Override public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
       return new TypeAdapter<T>() {
         @Override public void write(JsonWriter out, T value) throws IOException {
           out.value("GizmoPartTypeAdapterFactory");

@@ -118,12 +118,12 @@ public class ParameterizedTypeFixtures {
     public MyParameterizedTypeInstanceCreator(T instanceOfT) {
       this.instanceOfT = instanceOfT;
     }
-    public MyParameterizedType<T> createInstance(Type type) {
+    @Override public MyParameterizedType<T> createInstance(Type type) {
       return new MyParameterizedType<T>(instanceOfT);
     }
   }
 
-  public static class MyParameterizedTypeAdapter<T>
+  public static final class MyParameterizedTypeAdapter<T>
   implements JsonSerializer<MyParameterizedType<T>>, JsonDeserializer<MyParameterizedType<T>> {
     @SuppressWarnings("unchecked")
     public static<T> String getExpectedJson(MyParameterizedType<T> obj) {
@@ -142,7 +142,7 @@ public class ParameterizedTypeFixtures {
       return sb.toString();
     }
 
-    public JsonElement serialize(MyParameterizedType<T> src, Type classOfSrc,
+    @Override public JsonElement serialize(MyParameterizedType<T> src, Type classOfSrc,
         JsonSerializationContext context) {
       JsonObject json = new JsonObject();
       T value = src.getValue();
@@ -151,7 +151,7 @@ public class ParameterizedTypeFixtures {
     }
 
     @SuppressWarnings("unchecked")
-    public MyParameterizedType<T> deserialize(JsonElement json, Type typeOfT,
+    @Override public MyParameterizedType<T> deserialize(JsonElement json, Type typeOfT,
         JsonDeserializationContext context) throws JsonParseException {
       Type genericClass = ((ParameterizedType) typeOfT).getActualTypeArguments()[0];
       Class<?> rawType = $Gson$Types.getRawType(genericClass);

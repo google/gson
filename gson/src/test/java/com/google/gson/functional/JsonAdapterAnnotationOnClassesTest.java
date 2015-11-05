@@ -157,7 +157,7 @@ public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
       this.value = value;
     }
     static final class JsonAdapterFactory implements TypeAdapterFactory {
-      public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
+      @Override public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
         return new TypeAdapter<T>() {
           @Override public void write(JsonWriter out, T value) throws IOException {
             out.value("jsonAdapterFactory");

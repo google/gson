@@ -192,7 +192,7 @@ public class NullObjectAndFieldTest extends TestCase {
   }
   
   private static class ClassWithObjectsSerializer implements JsonSerializer<ClassWithObjects> {
-    public JsonElement serialize(ClassWithObjects src, Type typeOfSrc,
+    @Override public JsonElement serialize(ClassWithObjects src, Type typeOfSrc,
         JsonSerializationContext context) {
       JsonObject obj = new JsonObject();
       obj.add("bag", JsonNull.INSTANCE);
@@ -210,7 +210,7 @@ public class NullObjectAndFieldTest extends TestCase {
   public void testCustomTypeAdapterPassesNullSerialization() {
     Gson gson = new GsonBuilder()
         .registerTypeAdapter(ObjectWithField.class, new JsonSerializer<ObjectWithField>() {
-          public JsonElement serialize(ObjectWithField src, Type typeOfSrc,
+          @Override public JsonElement serialize(ObjectWithField src, Type typeOfSrc,
               JsonSerializationContext context) {
             return context.serialize(null);
           }
@@ -224,7 +224,7 @@ public class NullObjectAndFieldTest extends TestCase {
   public void testCustomTypeAdapterPassesNullDesrialization() {
     Gson gson = new GsonBuilder()
         .registerTypeAdapter(ObjectWithField.class, new JsonDeserializer<ObjectWithField>() {
-          public ObjectWithField deserialize(JsonElement json, Type type,
+          @Override public ObjectWithField deserialize(JsonElement json, Type type,
               JsonDeserializationContext context) {
             return context.deserialize(null, type);
           }

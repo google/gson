@@ -86,7 +86,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     return fieldNames;
   }
 
-  public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
+  @Override public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
     Class<? super T> raw = type.getRawType();
 
     if (!Object.class.isAssignableFrom(raw)) {
@@ -119,7 +119,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           field.set(value, fieldValue);
         }
       }
-      public boolean writeField(Object value) throws IOException, IllegalAccessException {
+      @Override public boolean writeField(Object value) throws IOException, IllegalAccessException {
         if (!serialized) return false;
         Object fieldValue = field.get(value);
         return fieldValue != value; // avoid recursion for example for Throwable.cause
