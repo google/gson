@@ -268,6 +268,8 @@ public final class TypeAdapters {
       out.value(value.get());
     }
   }.nullSafe();
+  public static final TypeAdapterFactory ATOMIC_INTEGER_FACTORY =
+      newFactory(AtomicInteger.class, TypeAdapters.ATOMIC_INTEGER);
 
   public static final TypeAdapter<AtomicBoolean> ATOMIC_BOOLEAN = new TypeAdapter<AtomicBoolean>() {
     @Override public AtomicBoolean read(JsonReader in) throws IOException {
@@ -277,6 +279,8 @@ public final class TypeAdapters {
       out.value(value.get());
     }
   }.nullSafe();
+  public static final TypeAdapterFactory ATOMIC_BOOLEAN_FACTORY =
+      newFactory(AtomicBoolean.class, TypeAdapters.ATOMIC_BOOLEAN);
 
   public static final TypeAdapter<AtomicIntegerArray> ATOMIC_INTEGER_ARRAY = new TypeAdapter<AtomicIntegerArray>() {
     @Override public AtomicIntegerArray read(JsonReader in) throws IOException {
@@ -306,6 +310,8 @@ public final class TypeAdapters {
       out.endArray();
     }
   }.nullSafe();
+  public static final TypeAdapterFactory ATOMIC_INTEGER_ARRAY_FACTORY =
+      newFactory(AtomicIntegerArray.class, TypeAdapters.ATOMIC_INTEGER_ARRAY);
 
   public static final TypeAdapter<Number> LONG = new TypeAdapter<Number>() {
     @Override

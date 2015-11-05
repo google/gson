@@ -221,10 +221,10 @@ public final class Gson {
     factories.add(TypeAdapters.newFactory(float.class, Float.class,
             floatAdapter(serializeSpecialFloatingPointValues)));
     factories.add(TypeAdapters.NUMBER_FACTORY);
-    factories.add(TypeAdapters.newFactory(AtomicInteger.class, TypeAdapters.ATOMIC_INTEGER));
-    factories.add(TypeAdapters.newFactory(AtomicBoolean.class, TypeAdapters.ATOMIC_BOOLEAN));
+    factories.add(TypeAdapters.ATOMIC_INTEGER_FACTORY);
+    factories.add(TypeAdapters.ATOMIC_BOOLEAN_FACTORY);
     factories.add(TypeAdapters.newFactory(AtomicLong.class, atomicLongAdapter(longAdapter)));
-    factories.add(TypeAdapters.newFactory(AtomicIntegerArray.class, TypeAdapters.ATOMIC_INTEGER_ARRAY));
+    factories.add(TypeAdapters.ATOMIC_INTEGER_ARRAY_FACTORY);
     factories.add(TypeAdapters.CHARACTER_FACTORY);
     factories.add(TypeAdapters.STRING_BUILDER_FACTORY);
     factories.add(TypeAdapters.STRING_BUFFER_FACTORY);
