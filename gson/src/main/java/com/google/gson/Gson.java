@@ -30,10 +30,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicIntegerArray;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicLongArray;
 
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.Excluder;
@@ -224,6 +222,7 @@ public final class Gson {
     factories.add(TypeAdapters.ATOMIC_INTEGER_FACTORY);
     factories.add(TypeAdapters.ATOMIC_BOOLEAN_FACTORY);
     factories.add(TypeAdapters.newFactory(AtomicLong.class, atomicLongAdapter(longAdapter)));
+    factories.add(TypeAdapters.newFactory(AtomicLongArray.class, atomicLongArrayAdapter(longAdapter)));
     factories.add(TypeAdapters.ATOMIC_INTEGER_ARRAY_FACTORY);
     factories.add(TypeAdapters.CHARACTER_FACTORY);
     factories.add(TypeAdapters.STRING_BUILDER_FACTORY);
@@ -344,6 +343,34 @@ public final class Gson {
       }
     }.nullSafe();
   }
+
+  private static TypeAdapter<AtomicLongArray> atomicLongArrayAdapter(final TypeAdapter<Number> longAdapter) {
+    return new TypeAdapter<AtomicLongArray>() {
+      @Override public void write(JsonWriter out, AtomicLongArray value) throws IOException {
+        out.beginArray();
+        for (int i = 0, length = value.length(); i < length; i++) {
+          longAdapter.write(out, value.get(i));
+        }
+        out.endArray();
+      }
+      @Override public AtomicLongArray read(JsonReader in) throws IOException {
+        List<Long> list = new ArrayList<Long>();
+        in.beginArray();
+        while (in.hasNext()) {
+            long value = longAdapter.read(in).longValue();
+            list.add(value);
+        }
+        in.endArray();
+        int length = list.size();
+        AtomicLongArray array = new AtomicLongArray(length);
+        for (int i = 0; i < length; ++i) {
+          array.set(i, list.get(i));
+        }
+        return array;
+      }
+    }.nullSafe();
+  }
+
   /**
    * Returns the type adapter for {@code} type.
    *
