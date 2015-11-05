@@ -140,18 +140,18 @@ public final class TypeHierarchyAdapterTest extends TestCase {
   }
 
   static class ManagerAdapter implements JsonSerializer<Manager>, JsonDeserializer<Manager> {
-    public Manager deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
+    @Override public Manager deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
       Manager result = new Manager();
       result.userid = json.getAsString();
       return result;
     }
-    public JsonElement serialize(Manager src, Type typeOfSrc, JsonSerializationContext context) {
+    @Override public JsonElement serialize(Manager src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src.userid);
     }
   }
 
   static class EmployeeAdapter implements JsonSerializer<Employee>, JsonDeserializer<Employee> {
-    public JsonElement serialize(Employee employee, Type typeOfSrc,
+    @Override public JsonElement serialize(Employee employee, Type typeOfSrc,
         JsonSerializationContext context) {
       JsonObject result = new JsonObject();
       result.add("userid", context.serialize(employee.userid, String.class));
@@ -165,7 +165,7 @@ public final class TypeHierarchyAdapterTest extends TestCase {
       return result;
     }
 
-    public Employee deserialize(JsonElement json, Type typeOfT,
+    @Override public Employee deserialize(JsonElement json, Type typeOfT,
         JsonDeserializationContext context) throws JsonParseException {
       JsonObject object = json.getAsJsonObject();
       Employee result = null;

@@ -149,11 +149,12 @@ public class NamingPolicyTest extends TestCase {
     assertEquals("{\"@foo\":\"bar\"}", new Gson().toJson(new AtName()));
   }
 
-  static class AtName {
+  static final class AtName {
     @SerializedName("@foo") String f = "bar";
   }
 
-  private static class UpperCaseNamingStrategy implements FieldNamingStrategy {
+  private static final class UpperCaseNamingStrategy implements FieldNamingStrategy {
+    @Override
     public String translateName(Field f) {
       return f.getName().toUpperCase();
     }

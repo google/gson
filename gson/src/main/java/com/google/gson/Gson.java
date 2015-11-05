@@ -125,16 +125,16 @@ public final class Gson {
 
   final JsonDeserializationContext deserializationContext = new JsonDeserializationContext() {
     @SuppressWarnings("unchecked")
-	public <T> T deserialize(JsonElement json, Type typeOfT) throws JsonParseException {
+    @Override public <T> T deserialize(JsonElement json, Type typeOfT) throws JsonParseException {
       return (T) fromJson(json, typeOfT);
     }
   };
 
   final JsonSerializationContext serializationContext = new JsonSerializationContext() {
-    public JsonElement serialize(Object src) {
+    @Override public JsonElement serialize(Object src) {
       return toJsonTree(src);
     }
-    public JsonElement serialize(Object src, Type typeOfSrc) {
+    @Override public JsonElement serialize(Object src, Type typeOfSrc) {
       return toJsonTree(src, typeOfSrc);
     }
   };

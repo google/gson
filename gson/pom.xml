@@ -113,8 +113,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.3</version>
         <configuration>
-          <source>1.5</source>
-          <target>1.5</target>
+          <source>1.6</source>
+          <target>1.6</target>
         </configuration>
       </plugin>
       <plugin>
@@ -189,7 +189,7 @@
            <includePackageNames>com.google.gson</includePackageNames>
            <excludePackageNames>com.google.gson.internal:com.google.gson.internal.bind</excludePackageNames>
             <links>
-             <link>http://docs.oracle.com/javase/1.5.0/docs/api/</link>
+             <link>http://docs.oracle.com/javase/6/docs/api/</link>
            </links>
            <version>true</version>
            <show>protected</show>

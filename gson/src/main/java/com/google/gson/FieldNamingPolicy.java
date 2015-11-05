@@ -35,7 +35,7 @@ public enum FieldNamingPolicy implements FieldNamingStrategy {
    * unchanged.
    */
   IDENTITY() {
-    public String translateName(Field f) {
+    @Override public String translateName(Field f) {
       return f.getName();
     }
   },
@@ -51,7 +51,7 @@ public enum FieldNamingPolicy implements FieldNamingStrategy {
    * </ul>
    */
   UPPER_CAMEL_CASE() {
-    public String translateName(Field f) {
+    @Override public String translateName(Field f) {
       return upperCaseFirstLetter(f.getName());
     }
   },
@@ -70,7 +70,7 @@ public enum FieldNamingPolicy implements FieldNamingStrategy {
    * @since 1.4
    */
   UPPER_CAMEL_CASE_WITH_SPACES() {
-    public String translateName(Field f) {
+    @Override public String translateName(Field f) {
       return upperCaseFirstLetter(separateCamelCase(f.getName(), " "));
     }
   },
@@ -88,7 +88,7 @@ public enum FieldNamingPolicy implements FieldNamingStrategy {
    * </ul>
    */
   LOWER_CASE_WITH_UNDERSCORES() {
-    public String translateName(Field f) {
+    @Override public String translateName(Field f) {
       return separateCamelCase(f.getName(), "_").toLowerCase(Locale.ENGLISH);
     }
   },
@@ -111,7 +111,7 @@ public enum FieldNamingPolicy implements FieldNamingStrategy {
    * @since 1.4
    */
   LOWER_CASE_WITH_DASHES() {
-    public String translateName(Field f) {
+    @Override public String translateName(Field f) {
       return separateCamelCase(f.getName(), "-").toLowerCase(Locale.ENGLISH);
     }
   };

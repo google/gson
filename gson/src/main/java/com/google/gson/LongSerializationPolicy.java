@@ -32,7 +32,7 @@ public enum LongSerializationPolicy {
    * {@code {"f":123}}.
    */
   DEFAULT() {
-    public JsonElement serialize(Long value) {
+    @Override public JsonElement serialize(Long value) {
       return new JsonPrimitive(value);
     }
   },
@@ -43,7 +43,7 @@ public enum LongSerializationPolicy {
    * {@code {"f":"123"}}.
    */
   STRING() {
-    public JsonElement serialize(Long value) {
+    @Override public JsonElement serialize(Long value) {
       return new JsonPrimitive(String.valueOf(value));
     }
   };

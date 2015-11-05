@@ -153,7 +153,7 @@ public class ExposeFieldsTest extends TestCase {
   }
   
   private static class SomeInterfaceInstanceCreator implements InstanceCreator<SomeInterface> {
-    public SomeInterface createInstance(Type type) {
+    @Override public SomeInterface createInstance(Type type) {
       return new SomeObject();
     }
   }

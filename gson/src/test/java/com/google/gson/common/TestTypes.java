@@ -77,14 +77,16 @@ public class TestTypes {
 
   public static class BaseSerializer implements JsonSerializer<Base> {
     public static final String NAME = BaseSerializer.class.getSimpleName(); 
+    @Override
     public JsonElement serialize(Base src, Type typeOfSrc, JsonSerializationContext context) {
       JsonObject obj = new JsonObject();
       obj.addProperty(Base.SERIALIZER_KEY, NAME);
       return obj;
-    }    
+    }
   }
   public static class SubSerializer implements JsonSerializer<Sub> {
     public static final String NAME = SubSerializer.class.getSimpleName(); 
+    @Override
     public JsonElement serialize(Sub src, Type typeOfSrc, JsonSerializationContext context) {
       JsonObject obj = new JsonObject();
       obj.addProperty(Base.SERIALIZER_KEY, NAME);
@@ -227,7 +229,7 @@ public class TestTypes {
   }
 
   public static class ClassWithNoFields {
-    // Nothing here.. .
+    // Nothing here..
     @Override
     public boolean equals(Object other) {
       return other.getClass() == ClassWithNoFields.class;
@@ -402,17 +404,18 @@ public class TestTypes {
       return '{' + "\"fooBar\":" + f + ",\"Another Foo\":" + g + '}';
     }
   }
-  
+
   public static class CrazyLongTypeAdapter
       implements JsonSerializer<Long>, JsonDeserializer<Long> {
     public static final long DIFFERENCE = 5L;
+    @Override
     public JsonElement serialize(Long src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src + DIFFERENCE);
     }
-    
+    @Override
     public Long deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
       return json.getAsLong() - DIFFERENCE;
     }
-}
+  }
 }

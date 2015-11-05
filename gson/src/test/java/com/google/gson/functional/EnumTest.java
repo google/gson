@@ -182,11 +182,11 @@ public class EnumTest extends TestCase {
 
   private static class MyEnumTypeAdapter
       implements JsonSerializer<Roshambo>, JsonDeserializer<Roshambo> {
-    public JsonElement serialize(Roshambo src, Type typeOfSrc, JsonSerializationContext context) {
+    @Override public JsonElement serialize(Roshambo src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive("123" + src.name());
     }
 
-    public Roshambo deserialize(JsonElement json, Type classOfT, JsonDeserializationContext context)
+    @Override public Roshambo deserialize(JsonElement json, Type classOfT, JsonDeserializationContext context)
         throws JsonParseException {
       return Roshambo.valueOf(json.getAsString().substring(3));
     }
