@@ -16,6 +16,18 @@
 
 package com.google.gson.functional;
 
+import java.lang.reflect.Type;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentNavigableMap;
+import java.util.concurrent.ConcurrentSkipListMap;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
@@ -32,14 +44,6 @@ import com.google.gson.internal.$Gson$Types;
 import com.google.gson.reflect.TypeToken;
 
 import junit.framework.TestCase;
-
-import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 /**
  * Functional test for Json serialization and deserialization for Maps
@@ -177,6 +181,46 @@ public class MapTest extends TestCase {
     assertEquals(1, map.size());
     assertTrue(map.containsKey(123));
     assertEquals("456", map.get(123));
+  }
+
+  public void testConcurrentMap() throws Exception {
+    Type typeOfMap = new TypeToken<ConcurrentMap<Integer, String>>() {}.getType();
+    ConcurrentMap<Integer, String> map = gson.fromJson("{\"123\":\"456\"}", typeOfMap);
+    assertEquals(1, map.size());
+    assertTrue(map.containsKey(123));
+    assertEquals("456", map.get(123));
+    String json = gson.toJson(map);
+    assertEquals("{\"123\":\"456\"}", json);
+  }
+
+  public void testConcurrentHashMap() throws Exception {
+    Type typeOfMap = new TypeToken<ConcurrentHashMap<Integer, String>>() {}.getType();
+    ConcurrentHashMap<Integer, String> map = gson.fromJson("{\"123\":\"456\"}", typeOfMap);
+    assertEquals(1, map.size());
+    assertTrue(map.containsKey(123));
+    assertEquals("456", map.get(123));
+    String json = gson.toJson(map);
+    assertEquals("{\"123\":\"456\"}", json);
+  }
+
+  public void testConcurrentNavigableMap() throws Exception {
+    Type typeOfMap = new TypeToken<ConcurrentNavigableMap<Integer, String>>() {}.getType();
+    ConcurrentNavigableMap<Integer, String> map = gson.fromJson("{\"123\":\"456\"}", typeOfMap);
+    assertEquals(1, map.size());
+    assertTrue(map.containsKey(123));
+    assertEquals("456", map.get(123));
+    String json = gson.toJson(map);
+    assertEquals("{\"123\":\"456\"}", json);
+  }
+
+  public void testConcurrentSkipListMap() throws Exception {
+    Type typeOfMap = new TypeToken<ConcurrentSkipListMap<Integer, String>>() {}.getType();
+    ConcurrentSkipListMap<Integer, String> map = gson.fromJson("{\"123\":\"456\"}", typeOfMap);
+    assertEquals(1, map.size());
+    assertTrue(map.containsKey(123));
+    assertEquals("456", map.get(123));
+    String json = gson.toJson(map);
+    assertEquals("{\"123\":\"456\"}", json);
   }
 
   public void testParameterizedMapSubclassSerialization() {
