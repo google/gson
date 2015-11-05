@@ -30,6 +30,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicIntegerArray;
+import java.util.concurrent.atomic.AtomicLong;
 
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.Excluder;
@@ -210,13 +214,17 @@ public final class Gson {
     factories.add(TypeAdapters.BOOLEAN_FACTORY);
     factories.add(TypeAdapters.BYTE_FACTORY);
     factories.add(TypeAdapters.SHORT_FACTORY);
-    factories.add(TypeAdapters.newFactory(long.class, Long.class,
-            longAdapter(longSerializationPolicy)));
+    TypeAdapter<Number> longAdapter = longAdapter(longSerializationPolicy);
+    factories.add(TypeAdapters.newFactory(long.class, Long.class, longAdapter));
     factories.add(TypeAdapters.newFactory(double.class, Double.class,
             doubleAdapter(serializeSpecialFloatingPointValues)));
     factories.add(TypeAdapters.newFactory(float.class, Float.class,
             floatAdapter(serializeSpecialFloatingPointValues)));
     factories.add(TypeAdapters.NUMBER_FACTORY);
+    factories.add(TypeAdapters.newFactory(AtomicInteger.class, TypeAdapters.ATOMIC_INTEGER));
+    factories.add(TypeAdapters.newFactory(AtomicBoolean.class, TypeAdapters.ATOMIC_BOOLEAN));
+    factories.add(TypeAdapters.newFactory(AtomicLong.class, atomicLongAdapter(longAdapter)));
+    factories.add(TypeAdapters.newFactory(AtomicIntegerArray.class, TypeAdapters.ATOMIC_INTEGER_ARRAY));
     factories.add(TypeAdapters.CHARACTER_FACTORY);
     factories.add(TypeAdapters.STRING_BUILDER_FACTORY);
     factories.add(TypeAdapters.STRING_BUFFER_FACTORY);
@@ -325,6 +333,17 @@ public final class Gson {
     };
   }
 
+  private TypeAdapter<AtomicLong> atomicLongAdapter(final TypeAdapter<Number> longAdapter) {
+    return new TypeAdapter<AtomicLong>() {
+      @Override public void write(JsonWriter out, AtomicLong value) throws IOException {
+        longAdapter.write(out, value.get());
+      }
+      @Override public AtomicLong read(JsonReader in) throws IOException {
+        Number value = longAdapter.read(in);
+        return new AtomicLong(value.longValue());
+      }
+    }.nullSafe();
+  }
   /**
    * Returns the type adapter for {@code} type.
    *

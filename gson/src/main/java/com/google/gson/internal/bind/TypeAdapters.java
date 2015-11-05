@@ -16,6 +16,29 @@
 
 package com.google.gson.internal.bind;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.net.InetAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicIntegerArray;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -32,23 +55,6 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.net.InetAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.sql.Timestamp;
-import java.util.BitSet;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.UUID;
 
 /**
  * Type adapters for basic types.
@@ -247,9 +253,59 @@ public final class TypeAdapters {
       out.value(value);
     }
   };
-
   public static final TypeAdapterFactory INTEGER_FACTORY
       = newFactory(int.class, Integer.class, INTEGER);
+
+  public static final TypeAdapter<AtomicInteger> ATOMIC_INTEGER = new TypeAdapter<AtomicInteger>() {
+    @Override public AtomicInteger read(JsonReader in) throws IOException {
+      try {
+        return new AtomicInteger(in.nextInt());
+      } catch (NumberFormatException e) {
+        throw new JsonSyntaxException(e);
+      }
+    }
+    @Override public void write(JsonWriter out, AtomicInteger value) throws IOException {
+      out.value(value.get());
+    }
+  }.nullSafe();
+
+  public static final TypeAdapter<AtomicBoolean> ATOMIC_BOOLEAN = new TypeAdapter<AtomicBoolean>() {
+    @Override public AtomicBoolean read(JsonReader in) throws IOException {
+      return new AtomicBoolean(in.nextBoolean());
+    }
+    @Override public void write(JsonWriter out, AtomicBoolean value) throws IOException {
+      out.value(value.get());
+    }
+  }.nullSafe();
+
+  public static final TypeAdapter<AtomicIntegerArray> ATOMIC_INTEGER_ARRAY = new TypeAdapter<AtomicIntegerArray>() {
+    @Override public AtomicIntegerArray read(JsonReader in) throws IOException {
+        List<Integer> list = new ArrayList<Integer>();
+        in.beginArray();
+        while (in.hasNext()) {
+          try {
+            int integer = in.nextInt();
+            list.add(integer);
+          } catch (NumberFormatException e) {
+            throw new JsonSyntaxException(e);
+          }
+        }
+        in.endArray();
+        int length = list.size();
+        AtomicIntegerArray array = new AtomicIntegerArray(length);
+        for (int i = 0; i < length; ++i) {
+          array.set(i, list.get(i));
+        }
+        return array;
+    }
+    @Override public void write(JsonWriter out, AtomicIntegerArray value) throws IOException {
+      out.beginArray();
+      for (int i = 0, length = value.length(); i < length; i++) {
+        out.value(value.get(i));
+      }
+      out.endArray();
+    }
+  }.nullSafe();
 
   public static final TypeAdapter<Number> LONG = new TypeAdapter<Number>() {
     @Override
