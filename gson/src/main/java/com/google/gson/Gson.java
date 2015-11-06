@@ -232,6 +232,7 @@ public final class Gson {
     factories.add(TypeAdapters.URL_FACTORY);
     factories.add(TypeAdapters.URI_FACTORY);
     factories.add(TypeAdapters.UUID_FACTORY);
+    factories.add(TypeAdapters.CURRENCY_FACTORY);
     factories.add(TypeAdapters.LOCALE_FACTORY);
     factories.add(TypeAdapters.INET_ADDRESS_FACTORY);
     factories.add(TypeAdapters.BIT_SET_FACTORY);

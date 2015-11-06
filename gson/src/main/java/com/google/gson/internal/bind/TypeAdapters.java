@@ -27,6 +27,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Calendar;
+import java.util.Currency;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -575,6 +576,18 @@ public final class TypeAdapters {
   };
 
   public static final TypeAdapterFactory UUID_FACTORY = newFactory(UUID.class, UUID);
+
+  public static final TypeAdapter<Currency> CURRENCY = new TypeAdapter<Currency>() {
+    @Override
+    public Currency read(JsonReader in) throws IOException {
+      return Currency.getInstance(in.nextString());
+    }
+    @Override
+    public void write(JsonWriter out, Currency value) throws IOException {
+      out.value(value.getCurrencyCode());
+    }
+  }.nullSafe();
+  public static final TypeAdapterFactory CURRENCY_FACTORY = newFactory(Currency.class, CURRENCY);
 
   public static final TypeAdapterFactory TIMESTAMP_FACTORY = new TypeAdapterFactory() {
     @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
