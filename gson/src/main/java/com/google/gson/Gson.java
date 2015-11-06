@@ -30,6 +30,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicLongArray;
 
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.Excluder;
@@ -210,13 +212,18 @@ public final class Gson {
     factories.add(TypeAdapters.BOOLEAN_FACTORY);
     factories.add(TypeAdapters.BYTE_FACTORY);
     factories.add(TypeAdapters.SHORT_FACTORY);
-    factories.add(TypeAdapters.newFactory(long.class, Long.class,
-            longAdapter(longSerializationPolicy)));
+    TypeAdapter<Number> longAdapter = longAdapter(longSerializationPolicy);
+    factories.add(TypeAdapters.newFactory(long.class, Long.class, longAdapter));
     factories.add(TypeAdapters.newFactory(double.class, Double.class,
             doubleAdapter(serializeSpecialFloatingPointValues)));
     factories.add(TypeAdapters.newFactory(float.class, Float.class,
             floatAdapter(serializeSpecialFloatingPointValues)));
     factories.add(TypeAdapters.NUMBER_FACTORY);
+    factories.add(TypeAdapters.ATOMIC_INTEGER_FACTORY);
+    factories.add(TypeAdapters.ATOMIC_BOOLEAN_FACTORY);
+    factories.add(TypeAdapters.newFactory(AtomicLong.class, atomicLongAdapter(longAdapter)));
+    factories.add(TypeAdapters.newFactory(AtomicLongArray.class, atomicLongArrayAdapter(longAdapter)));
+    factories.add(TypeAdapters.ATOMIC_INTEGER_ARRAY_FACTORY);
     factories.add(TypeAdapters.CHARACTER_FACTORY);
     factories.add(TypeAdapters.STRING_BUILDER_FACTORY);
     factories.add(TypeAdapters.STRING_BUFFER_FACTORY);
@@ -303,7 +310,7 @@ public final class Gson {
     }
   }
 
-  private TypeAdapter<Number> longAdapter(LongSerializationPolicy longSerializationPolicy) {
+  private static TypeAdapter<Number> longAdapter(LongSerializationPolicy longSerializationPolicy) {
     if (longSerializationPolicy == LongSerializationPolicy.DEFAULT) {
       return TypeAdapters.LONG;
     }
@@ -323,6 +330,45 @@ public final class Gson {
         out.value(value.toString());
       }
     };
+  }
+
+  private static TypeAdapter<AtomicLong> atomicLongAdapter(final TypeAdapter<Number> longAdapter) {
+    return new TypeAdapter<AtomicLong>() {
+      @Override public void write(JsonWriter out, AtomicLong value) throws IOException {
+        longAdapter.write(out, value.get());
+      }
+      @Override public AtomicLong read(JsonReader in) throws IOException {
+        Number value = longAdapter.read(in);
+        return new AtomicLong(value.longValue());
+      }
+    }.nullSafe();
+  }
+
+  private static TypeAdapter<AtomicLongArray> atomicLongArrayAdapter(final TypeAdapter<Number> longAdapter) {
+    return new TypeAdapter<AtomicLongArray>() {
+      @Override public void write(JsonWriter out, AtomicLongArray value) throws IOException {
+        out.beginArray();
+        for (int i = 0, length = value.length(); i < length; i++) {
+          longAdapter.write(out, value.get(i));
+        }
+        out.endArray();
+      }
+      @Override public AtomicLongArray read(JsonReader in) throws IOException {
+        List<Long> list = new ArrayList<Long>();
+        in.beginArray();
+        while (in.hasNext()) {
+            long value = longAdapter.read(in).longValue();
+            list.add(value);
+        }
+        in.endArray();
+        int length = list.size();
+        AtomicLongArray array = new AtomicLongArray(length);
+        for (int i = 0; i < length; ++i) {
+          array.set(i, list.get(i));
+        }
+        return array;
+      }
+    }.nullSafe();
   }
 
   /**
