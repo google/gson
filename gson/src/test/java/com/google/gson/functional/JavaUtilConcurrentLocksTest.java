@@ -29,7 +29,7 @@ import com.google.gson.LongSerializationPolicy;
 import junit.framework.TestCase;
 
 /**
- * Functional test for Json serialization and deserialization for java.util.concurrent.locks classes
+ * Functional test for Json serialization and deserialization for classes in java.util.concurrent.atomic
  */
 public class JavaUtilConcurrentLocksTest extends TestCase {
   private Gson gson;
