@@ -17,6 +17,7 @@
 package com.google.gson.functional;
 
 import java.util.Currency;
+import java.util.Properties;
 
 import com.google.gson.Gson;
 
@@ -48,5 +49,14 @@ public class JavaUtilTest extends TestCase {
 
   private static class CurrencyHolder {
     Currency value;
+  }
+
+  public void testProperties() {
+    Properties props = gson.fromJson("{'a':'v1','b':'v2'}", Properties.class);
+    assertEquals("v1", props.getProperty("a"));
+    assertEquals("v2", props.getProperty("b"));
+    String json = gson.toJson(props);
+    assertTrue(json.contains("\"a\":\"v1\""));
+    assertTrue(json.contains("\"b\":\"v2\""));
   }
 }
