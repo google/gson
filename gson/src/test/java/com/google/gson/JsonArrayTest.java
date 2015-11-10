@@ -99,4 +99,24 @@ public final class JsonArrayTest extends TestCase {
     assertEquals(1, original.get(0).getAsJsonArray().size());
     assertEquals(0, copy.get(0).getAsJsonArray().size());
   }
+  
+  public void testArrayContains() {
+      
+    JsonArray original = new JsonArray();
+    original.add(new JsonPrimitive("y"));
+    original.add(new JsonPrimitive("z"));
+
+    assertTrue(original.contains("y"));
+    assertFalse(original.contains("a"));
+
+    
+    original = new JsonArray();
+    original.add(new JsonPrimitive("1"));
+    original.add(new JsonPrimitive("2"));
+    
+    assertTrue(original.contains("2"));
+    assertFalse(original.contains("0"));
+
+
+  }
 }

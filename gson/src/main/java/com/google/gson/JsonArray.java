@@ -151,6 +151,28 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   public boolean contains(JsonElement element) {
     return elements.contains(element);
   }
+  
+  /**
+   * Overloaded convenience method which searches a string in JsonArray and returns true if it exists
+   * Assumes that the JsonArray contains string elements
+   * @return true if this array contains the specified element.
+   * @param element whose presence in this array is to be tested
+   */
+  public boolean contains(String element) {
+     if(element==null || elements.size()==0 ) return false;
+     return contains(new JsonPrimitive(element));     
+  }
+  
+  /**
+   * Overloaded convenience method which searches a Integer in JsonArray and returns true if it exists
+   * Assumes that the JsonArray contains integer elements
+   * @return true if this array contains the specified element.
+   * @param element whose presence in this array is to be tested
+   */
+  public boolean contains(Integer element) {
+     if(element==null || elements.size()==0 ) return false;
+     return contains(new JsonPrimitive(element));     
+  }
 
   /**
    * Returns the number of elements in the array.
