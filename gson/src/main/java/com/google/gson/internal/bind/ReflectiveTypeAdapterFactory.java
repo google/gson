@@ -241,7 +241,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           }
         }
       } catch (IllegalAccessException e) {
-        throw new AssertionError();
+        throw new AssertionError(e);
       }
       out.endObject();
     }

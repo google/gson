@@ -796,7 +796,7 @@ public final class TypeAdapters {
           constantToName.put(constant, name);
         }
       } catch (NoSuchFieldException e) {
-        throw new AssertionError();
+        throw new AssertionError("Missing field in " + classOfT.getName(), e);
       }
     }
     @Override public T read(JsonReader in) throws IOException {

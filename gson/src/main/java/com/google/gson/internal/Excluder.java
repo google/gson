@@ -62,7 +62,7 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
     try {
       return (Excluder) super.clone();
     } catch (CloneNotSupportedException e) {
-      throw new AssertionError();
+      throw new AssertionError(e);
     }
   }
 
