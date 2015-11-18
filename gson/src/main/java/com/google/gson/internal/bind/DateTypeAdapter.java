@@ -77,6 +77,10 @@ public final class DateTypeAdapter extends TypeAdapter<Date> {
     }
     try {
       return iso8601Format.parse(json);
+    } catch (ParseException ignored) {
+    }
+    try {
+      return iso8601Format.parse(json.replaceFirst("\\.\\d\\d\\d", ""));
     } catch (ParseException e) {
       throw new JsonSyntaxException(json, e);
     }
