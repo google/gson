@@ -16,6 +16,21 @@
 
 package com.google.gson.functional;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Queue;
+import java.util.Set;
+import java.util.Stack;
+import java.util.Vector;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -27,18 +42,6 @@ import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.reflect.TypeToken;
 
 import junit.framework.TestCase;
-
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
 
 /**
  * Functional tests for Json serialization and deserialization of collections.
@@ -122,6 +125,39 @@ public class CollectionTest extends TestCase {
     assertEquals("a1", queue.element());
     queue.remove();
     assertEquals("a2", queue.element());
+  }
+
+  public void testPriorityQueue() throws Exception {
+    Type type = new TypeToken<PriorityQueue<Integer>>(){}.getType();
+    PriorityQueue<Integer> queue = gson.fromJson("[10, 20, 22]", type);
+    assertEquals(3, queue.size());
+    String json = gson.toJson(queue);
+    assertEquals(10, queue.remove().intValue());
+    assertEquals(20, queue.remove().intValue());
+    assertEquals(22, queue.remove().intValue());
+    assertEquals("[10,20,22]", json);
+  }
+
+  public void testVector() {
+    Type type = new TypeToken<Vector<Integer>>(){}.getType();
+    Vector<Integer> target = gson.fromJson("[10, 20, 31]", type);
+    assertEquals(3, target.size());
+    assertEquals(10, target.get(0).intValue());
+    assertEquals(20, target.get(1).intValue());
+    assertEquals(31, target.get(2).intValue());
+    String json = gson.toJson(target);
+    assertEquals("[10,20,31]", json);
+  }
+
+  public void testStack() {
+    Type type = new TypeToken<Stack<Integer>>(){}.getType();
+    Stack<Integer> target = gson.fromJson("[11, 13, 17]", type);
+    assertEquals(3, target.size());
+    String json = gson.toJson(target);
+    assertEquals(17, target.pop().intValue());
+    assertEquals(13, target.pop().intValue());
+    assertEquals(11, target.pop().intValue());
+    assertEquals("[11,13,17]", json);
   }
 
   public void testNullsInListSerialization() {
