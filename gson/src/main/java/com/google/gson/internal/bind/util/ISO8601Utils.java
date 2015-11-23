@@ -345,42 +345,4 @@ public class ISO8601Utils
         return string.length();
     }
 
-    public static void main(String[] args)
-    {
-        final int REPS = 250000;
-        while (true) {
-            long start = System.currentTimeMillis();
-            int resp = test1(REPS, 3);
-            long msecs = System.currentTimeMillis() - start;
-            System.out.println("Pow ("+resp+") -> "+msecs+" ms");
-
-            start = System.currentTimeMillis();
-            resp = test2(REPS, 3);
-            msecs = System.currentTimeMillis() - start;
-            System.out.println("Iter ("+resp+") -> "+msecs+" ms");
-        }
-    }
-
-    static int test1(int reps, int pow)
-    {
-        int resp = 3;
-        while (--reps >= 0) {
-            resp = (int) Math.pow(10, pow);
-        }
-        return resp;
-    }
-
-    static int test2(int reps, int pow)
-    {
-        int resp = 3;
-        while (--reps >= 0) {
-            resp = 10;
-            int p = pow;
-
-            while (--p > 0) {
-                resp *= 10;
-            }
-        }
-        return resp;
-    }
 }
