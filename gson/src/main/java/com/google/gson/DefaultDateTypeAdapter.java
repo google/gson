@@ -20,10 +20,13 @@ import java.lang.reflect.Type;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
+
+import com.google.gson.internal.bind.util.ISO8601Utils;
 
 /**
  * This type adapter supports three subclasses of date: Date, Timestamp, and
@@ -38,7 +41,6 @@ final class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserial
 
   private final DateFormat enUsFormat;
   private final DateFormat localFormat;
-  private final DateFormat iso8601Format;
 
   DefaultDateTypeAdapter() {
     this(DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.US),
@@ -61,8 +63,6 @@ final class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserial
   DefaultDateTypeAdapter(DateFormat enUsFormat, DateFormat localFormat) {
     this.enUsFormat = enUsFormat;
     this.localFormat = localFormat;
-    this.iso8601Format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
-    this.iso8601Format.setTimeZone(TimeZone.getTimeZone("UTC"));
   }
 
   // These methods need to be synchronized since JDK DateFormat classes are not thread-safe
@@ -96,15 +96,13 @@ final class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserial
   private Date deserializeToDate(JsonElement json) {
     synchronized (localFormat) {
       try {
-        return localFormat.parse(json.getAsString());
-      } catch (ParseException ignored) {
-      }
+      	return localFormat.parse(json.getAsString());
+      } catch (ParseException ignored) {}
       try {
         return enUsFormat.parse(json.getAsString());
-      } catch (ParseException ignored) {
-      }
+      } catch (ParseException ignored) {}
       try {
-        return iso8601Format.parse(json.getAsString());
+        return ISO8601Utils.parse(json.getAsString(), new ParsePosition(0));
       } catch (ParseException e) {
         throw new JsonSyntaxException(json.getAsString(), e);
       }
