@@ -20,9 +20,10 @@ The following is a step-by-step procedure for releasing a new version of Google-
   * `mvn gpg:sign-and-deploy-file -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2/ -DrepositoryId=sonatype-nexus-staging -DpomFile=gson-1.7.2.pom -Dfile=gson-1.7.2.jar`
 11. Close the Gson repository. Download and sanity check all downloads. Do not skip this step! Once you release the staging repository, there is no going back. It will get synced with maven central and you will not be able to update or delete anything. Your only recourse will be to release a new version of Gson and hope that no one uses the old one.
 12. Release the staging repository for Gson. Gson will now get synced to Maven central with-in the next hour. For issues consult [Sonatype Guide](https://docs.sonatype.org/display/Repository/Sonatype+OSS+Maven+Repository+Usage+Guide#SonatypeOSSMavenRepositoryUsageGuide-8.ReleaseIt).
-13. Copy generated JavaDocs from `target/apidocs` to `trunk/gson/docs/javadocs`
-  * `cp -r target/apidocs/* docs/javadocs`
-  * Commit the JavaDoc changes into the repository
+13. Publishing Javadocs
+  * Switch to the branch `gh-pages`
+  * `jar xvf /tmp/2.5/gson-2.5-javadoc.jar`
+  * `git commit -m 'updated javadocs to 2.5'`
 14. Update the version in the [Using Gson with Maven2 page](https://sites.google.com/site/gson/gson-user-guide/using-gson-with-maven2)
 15. Update [Gson Roadmap](https://sites.google.com/site/gson/gson-roadmap) to move the release down under the "Released section". Also, look at all bugs that were fixed and add a few lines describing what changed in the release.
 16. Create a post on the [Gson Discussion Forum](http://groups.google.com/group/google-gson)
