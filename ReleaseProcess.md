@@ -30,11 +30,12 @@ The following is a step-by-step procedure for releasing a new version of Google-
 
 ## Configuring a machine for deployment to Sonatype Repository
 
-(Borrowed heavily from [Doclava release process](http://code.google.com/p/doclava/wiki/ProcessRelease))
-1. Install/Configure GPG following this [guide](http://www.sonatype.com/people/2010/01/how-to-generate-pgp-signatures-with-maven/)
-2. [Create encrypted passwords](http://maven.apache.org/guides/mini/guide-encryption.html)
-3. Create ~/.m2/settings.xml similar to as described in [Doclava release process](https://code.google.com/p/doclava/wiki/ProcessRelease)
-4. Now for deploying a snapshot repository, use mvn deploy
+(Borrowed heavily from [Doclava release process](http://code.google.com/p/doclava/wiki/ProcessRelease)).
+
+1. Install/Configure GPG following this [guide](http://www.sonatype.com/people/2010/01/how-to-generate-pgp-signatures-with-maven/).
+2. [Create encrypted passwords](http://maven.apache.org/guides/mini/guide-encryption.html).
+3. Create `~/.m2/settings.xml` similar to as described in [Doclava release process](https://code.google.com/p/doclava/wiki/ProcessRelease).
+4. Now for deploying a snapshot repository, use `mvn deploy`.
 
 ## Getting Maven Publishing Privileges
 Based on Gson group thread: https://groups.google.com/d/topic/google-gson/DHWJHVFpIBg/discussion
