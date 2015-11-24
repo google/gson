@@ -1,7 +1,14 @@
 Change Log
 ==========
 
-## Version 2.4.0
+## Version 2.5
+_2015-11-24_
+ * Updated minimum JDK version to 1.6
+ * Improved Date Deserialization by accepting many date formats
+ * Added support for `java.util.Currency`, `AtomicLong`, `AtomicLongArray`, `AtomicInteger`, `AtomicIntegerArray`, `AtomicBoolean`
+ * Improved debugging information when some exceptions are thrown
+
+## Version 2.4
 
 _2015-10-04_
 
