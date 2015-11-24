@@ -41,12 +41,8 @@ Based on Gson group thread: https://groups.google.com/d/topic/google-gson/DHWJHV
 
 1. Signup for a Sonatype account following instructions under 2) at https://docs.sonatype.org/display/Repository/Sonatype+OSS+Maven+Repository+Usage+Guide
 2. Ask one of the existing members of the repository to create a JIRA ticket (Step 3 of above document) to add you to the publisher list.
-Diffing Releases with jdiff
 
-## Download jdiff from sourceforge.
-
-## cRunning Benchmarks or Tests on Android
-
+## Running Benchmarks or Tests on Android
 Download vogar
 Put `adb` on your `$PATH` and run:
 `vogar --benchmark --classpath gson.jar path/to/Benchmark.java`
