@@ -5,6 +5,7 @@
 3. [Gson Performance and Scalability](#TOC-Gson-Performance-and-Scalability)
 4. [Gson Users](#TOC-Gson-Users)
 5. [Using Gson](#TOC-Using-Gson)
+  * [Using Gson with Maven](#TOC-Gson-With-Maven)
   * [Primitives Examples](#TOC-Primitives-Examples)
   * [Object Examples](#TOC-Object-Examples)
   * [Finer Points with Objects](#TOC-Finer-Points-with-Objects)
@@ -41,7 +42,7 @@ Gson can work with arbitrary Java objects including pre-existing objects that yo
 
 ## <a name="TOC-Goals-for-Gson"></a>Goals for Gson
 
-*   Provide easy to use mechanisms like <span style="font-family:courier new,monospace">toString()</span> and constructor (factory method) to convert Java to JSON and vice-versa
+*   Provide easy to use mechanisms like `toString()` and constructor (factory method) to convert Java to JSON and vice-versa
 *   Allow pre-existing unmodifiable objects to be converted to and from JSON
 *   Allow custom representations for objects
 *   Support arbitrarily complex object
@@ -72,6 +73,21 @@ Gson was originally created for use inside Google where it is currently used in 
 The primary class to use is [Gson](http://code.google.com/p/google-gson/source/browse/trunk/gson/src/main/java/com/google/gson/Gson.java "Gson") which you can just create by calling new Gson(). There is also a class [GsonBuilder](http://code.google.com/p/google-gson/source/browse/trunk/gson/src/main/java/com/google/gson/GsonBuilder.java "GsonBuilder") available that can be used to create a Gson instance with various settings like version control and so on.
 
 The Gson instance does not maintain any state while invoking Json operations. So, you are free to reuse the same object for multiple Json serialization and deserialization operations.
+
+## <a name="TOC-Gson-With-Maven"></a>Using Gson with Maven
+To use Gson with Maven2/3, you can use the Gson version available in Maven Central by adding the following dependency:
+```
+<dependencies>
+    <!--  Gson: Java to Json conversion -->
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.5</version>
+      <scope>compile</scope>
+    </dependency>
+</dependencies>
+```
+That is it, now your maven project is Gson enabled. 
 
 ### <a name="TOC-Primitives-Examples"></a>Primitives Examples
 ```
