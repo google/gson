@@ -25,7 +25,7 @@ The following is a step-by-step procedure for releasing a new version of Google-
   * `jar xvf /tmp/2.5/gson-2.5-javadoc.jar`
   * `git commit -m 'updated javadocs to 2.5'`
 14. Update the version in the [Using Gson with Maven2 page](https://sites.google.com/site/gson/gson-user-guide/using-gson-with-maven2)
-15. Update [Gson Roadmap](https://sites.google.com/site/gson/gson-roadmap) to move the release down under the "Released section". Also, look at all bugs that were fixed and add a few lines describing what changed in the release.
+15. Update [Gson Changelog](https://github.com/google/gson/blob/master/CHANGELOG.md). Also, look at all bugs that were fixed and add a few lines describing what changed in the release.
 16. Create a post on the [Gson Discussion Forum](http://groups.google.com/group/google-gson)
 17. Update the release version in [Wikipedia](http://en.wikipedia.org/wiki/GSON) and update the current "stable" release.
 
