@@ -5,7 +5,7 @@ Change Log
 _2015-11-24_
  * Updated minimum JDK version to 1.6
  * Improved Date Deserialization by accepting many date formats
- * Added support for `java.util.Currency`, `AtomicLong`, `AtomicLongArray`, `AtomicInteger`, `AtomicIntegerArray`, `AtomicBoolean`
+ * Added support for `java.util.Currency`, `AtomicLong`, `AtomicLongArray`, `AtomicInteger`, `AtomicIntegerArray`, `AtomicBoolean`. This change is backward-incompatible because the earlier version of Gson used the default serialization which wasn't intuitive. We hope that these classes are not used enough to actually cause problems in the field.
  * Improved debugging information when some exceptions are thrown
 
 ## Version 2.4
