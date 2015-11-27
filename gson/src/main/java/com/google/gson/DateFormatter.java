@@ -21,6 +21,17 @@ import java.util.Date;
 
 interface DateFormatter {
 
+	/**
+	 * Formats date during serialization.
+	 * @param date to format.
+	 * @return Formatted date.
+	 */
 	String format(Date date);
+	
+	/**
+	 * Parses date during deserialization.
+	 * @param dateAsString to parse.
+	 * @return Parsed date.
+	 */
 	Date parse(String dateAsString) throws ParseException;
 }
