@@ -23,6 +23,8 @@ import java.text.ParseException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -38,41 +40,65 @@ import com.google.gson.internal.bind.util.ISO8601Utils;
 final class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
 
   // TODO: migrate to streaming adapter
-
+	
+	private final EnumMap<DateFormatType, DateFormatter> dateFormats;
+	private final DateFormatType outputDateFormatType;
+	
   private final DateFormat enUsFormat;
   private final DateFormat localFormat;
 
   DefaultDateTypeAdapter() {
+    this(DateFormatType.EN_US);
+  }
+  
+  DefaultDateTypeAdapter(DateFormatType outputFormat) {
     this(DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.US),
-        DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT));
+        DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT),
+        outputFormat);
   }
 
   DefaultDateTypeAdapter(String datePattern) {
-    this(new SimpleDateFormat(datePattern, Locale.US), new SimpleDateFormat(datePattern));
+    this(new SimpleDateFormat(datePattern, Locale.US),
+    		new SimpleDateFormat(datePattern),
+    		DateFormatType.EN_US);
+  }
+  
+  DefaultDateTypeAdapter(DateFormat dateFormat) {
+  	this(DateFormatType.CUSTOM);
+    dateFormats.put(DateFormatType.CUSTOM, new SimpleDateFormatter(dateFormat));
   }
 
   DefaultDateTypeAdapter(int style) {
-    this(DateFormat.getDateInstance(style, Locale.US), DateFormat.getDateInstance(style));
+    this(DateFormat.getDateInstance(style, Locale.US),
+    		DateFormat.getDateInstance(style),
+    		DateFormatType.EN_US);
   }
 
   public DefaultDateTypeAdapter(int dateStyle, int timeStyle) {
     this(DateFormat.getDateTimeInstance(dateStyle, timeStyle, Locale.US),
-        DateFormat.getDateTimeInstance(dateStyle, timeStyle));
+        DateFormat.getDateTimeInstance(dateStyle, timeStyle),
+        DateFormatType.EN_US);
   }
 
-  DefaultDateTypeAdapter(DateFormat enUsFormat, DateFormat localFormat) {
+  DefaultDateTypeAdapter(DateFormat enUsFormat, DateFormat localFormat, DateFormatType outputFormat) {
+  	dateFormats = new EnumMap<DateFormatType, DateFormatter>(DateFormatType.class);
+  	SimpleDateFormatter usFormatter = new SimpleDateFormatter(enUsFormat);
+  	dateFormats.put(DateFormatType.EN_US, usFormatter);
+  	
+  	// Set Custom to US to prevent null pointer
+  	dateFormats.put(DateFormatType.CUSTOM, usFormatter);
+  	dateFormats.put(DateFormatType.LOCAL, new SimpleDateFormatter(localFormat));
+  	dateFormats.put(DateFormatType.ISO_8601, ISO8601DateFormater.getInstance());
+  	
+  	outputDateFormatType = outputFormat;
     this.enUsFormat = enUsFormat;
     this.localFormat = localFormat;
   }
 
-  // These methods need to be synchronized since JDK DateFormat classes are not thread-safe
-  // See issue 162
   @Override
   public JsonElement serialize(Date src, Type typeOfSrc, JsonSerializationContext context) {
-    synchronized (localFormat) {
-      String dateFormatAsString = enUsFormat.format(src);
-      return new JsonPrimitive(dateFormatAsString);
-    }
+  	String dateFormatAsString = dateFormats.get(outputDateFormatType).format(src);
+  	return new JsonPrimitive(dateFormatAsString);
   }
 
   @Override
@@ -94,19 +120,20 @@ final class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserial
   }
 
   private Date deserializeToDate(JsonElement json) {
-    synchronized (localFormat) {
-      try {
-      	return localFormat.parse(json.getAsString());
-      } catch (ParseException ignored) {}
-      try {
-        return enUsFormat.parse(json.getAsString());
-      } catch (ParseException ignored) {}
-      try {
-        return ISO8601Utils.parse(json.getAsString(), new ParsePosition(0));
-      } catch (ParseException e) {
-        throw new JsonSyntaxException(json.getAsString(), e);
-      }
-    }
+  	String jsonString = json.getAsString();
+  	
+  	ParseException parseExc = null; // Hopefully will not be used
+  	
+  	for(DateFormatter dateFormatter : dateFormats.values() )
+  	{
+  		try{
+  			return dateFormatter.parse(jsonString);
+  		} catch (ParseException e) {
+  			parseExc = e;
+  		}
+  	}
+  	
+  	throw new JsonSyntaxException(jsonString, parseExc);
   }
 
   @Override

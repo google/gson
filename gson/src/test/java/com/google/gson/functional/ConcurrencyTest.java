@@ -15,6 +15,7 @@
  */
 package com.google.gson.functional;
 
+import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -56,7 +57,7 @@ public class ConcurrencyTest extends TestCase {
    */
   public void testSingleThreadDeserialization() { 
     for (int i = 0; i < 10; i++) { 
-      gson.fromJson("{'a':'hello','b':'world','i':1}", MyObject.class); 
+      gson.fromJson(MyObjectAsJson, MyObject.class); 
     } 
   } 
 
@@ -91,11 +92,15 @@ public class ConcurrencyTest extends TestCase {
     assertFalse(failed.get());
   }
 
+  public void testMultiThreadDeserializationMyObject() throws InterruptedException
+  {
+  	testMultiThreadDeserialization(MyObjectAsJson, MyObject.class);
+  }
   /**
    * Source-code based on
    * http://groups.google.com/group/google-gson/browse_thread/thread/563bb51ee2495081
    */
-  public void testMultiThreadDeserialization() throws InterruptedException {
+  private <T> void testMultiThreadDeserialization(final String json, final Class<T> objectClass) throws InterruptedException {
     final CountDownLatch startLatch = new CountDownLatch(1);
     final CountDownLatch finishedLatch = new CountDownLatch(10);
     final AtomicBoolean failed = new AtomicBoolean(false);
@@ -106,7 +111,7 @@ public class ConcurrencyTest extends TestCase {
           try {
             startLatch.await();
             for (int i = 0; i < 10; i++) {
-              gson.fromJson("{'a':'hello','b':'world','i':1}", MyObject.class); 
+              gson.fromJson(json, objectClass); 
             }
           } catch (Throwable t) {
             failed.set(true);
@@ -121,6 +126,8 @@ public class ConcurrencyTest extends TestCase {
     assertFalse(failed.get());
   }
   
+  private static final String MyObjectAsJson = "{'a':'hello','b':'world','i':1}";
+  
   @SuppressWarnings("unused")
   private static class MyObject {
     String a;
@@ -132,6 +139,25 @@ public class ConcurrencyTest extends TestCase {
     }
 
     public MyObject(String a, String b, int i) {
+      this.a = a;
+      this.b = b;
+      this.i = i;
+    }
+  }
+  
+  // ISO and US formats
+  private static final String MyObjectWithDateAsJson = "{'a':'1970-01-01T00:00:00.000Z','b':'Jan 1, 1970 12:00:00 AM','i':'Jan 1, 1970 12:00:00 AM'}";
+  
+  private static class MyObjectWithDate {
+    Date a;
+    Date b;
+    Date i;
+
+    MyObjectWithDate() {
+      this(new Date(0), new Date(0), new Date(0));
+    }
+
+    public MyObjectWithDate(Date a, Date b, Date i) {
       this.a = a;
       this.b = b;
       this.i = i;

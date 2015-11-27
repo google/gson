@@ -9,9 +9,12 @@ final class SimpleDateFormatter implements DateFormatter
 	private final DateFormat dateFormat;
 	
 	SimpleDateFormatter(DateFormat dateFormat) {
-    this.dateFormat = dateFormat;
+		// Clone to prevent object from change
+    this.dateFormat = (DateFormat) dateFormat.clone();
   }
 
+//These methods need to be synchronized since JDK DateFormat classes are not thread-safe
+ // See issue 162
 	@Override
 	public String format(Date date) {
 		synchronized (dateFormat) {

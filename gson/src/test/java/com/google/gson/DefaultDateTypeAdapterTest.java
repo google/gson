@@ -61,6 +61,113 @@ public class DefaultDateTypeAdapterTest extends TestCase {
       Locale.setDefault(defaultLocale);
     }
   }
+  
+  public void testOutputFormattedWithCustomDateFormat()
+  {
+  	TimeZone defaultTimeZone = TimeZone.getDefault();
+    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+    Locale defaultLocale = Locale.getDefault();
+    Locale.setDefault(Locale.US);
+    
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+  	DefaultDateTypeAdapter dateTypeAdapter = new DefaultDateTypeAdapter(dateFormat);
+    try {
+    	assertFormatted("1970-01-01", dateTypeAdapter);
+    } finally {
+      TimeZone.setDefault(defaultTimeZone);
+      Locale.setDefault(defaultLocale);
+    }
+  }
+  
+  public void testOutputFormattedWithCustomDateFormatDifferentTimeZone()
+  {
+  	TimeZone defaultTimeZone = TimeZone.getDefault();
+    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+    Locale defaultLocale = Locale.getDefault();
+    Locale.setDefault(Locale.US);
+    
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
+    dateFormat.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
+  	DefaultDateTypeAdapter dateTypeAdapter = new DefaultDateTypeAdapter(dateFormat);
+    try {
+    	assertFormatted("1969-12-31T16:00:00-08", dateTypeAdapter);
+    } finally {
+      TimeZone.setDefault(defaultTimeZone);
+      Locale.setDefault(defaultLocale);
+    }
+  }
+  
+  public void testOutputFormattedWithIsoFormat()
+  {
+  	TimeZone defaultTimeZone = TimeZone.getDefault();
+    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+    Locale defaultLocale = Locale.getDefault();
+    Locale.setDefault(Locale.US);
+    
+  	DefaultDateTypeAdapter dateTypeAdapter = new DefaultDateTypeAdapter(DateFormatType.ISO_8601);
+    try {
+    	assertFormatted("1970-01-01T00:00:00.000Z", dateTypeAdapter);
+    } finally {
+      TimeZone.setDefault(defaultTimeZone);
+      Locale.setDefault(defaultLocale);
+    }
+  }
+  
+  public void testOutputFormattedWithCustomFranceFormatter()
+  {
+  	TimeZone defaultTimeZone = TimeZone.getDefault();
+    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+    Locale defaultLocale = Locale.getDefault();
+    Locale.setDefault(Locale.US);
+    
+    DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.FRANCE);
+  	DefaultDateTypeAdapter dateTypeAdapter = new DefaultDateTypeAdapter(dateFormat);
+    try {
+    	// Can parse US
+    	assertParsed("Jan 1, 1970 12:00:00 AM", dateTypeAdapter);
+    	// Can parse FR
+    	assertParsed("1 janv. 1970 00:00:00", dateTypeAdapter);
+    	// Formats as FR
+    	assertFormatted("1 janv. 1970 00:00:00", dateTypeAdapter);
+    } finally {
+      TimeZone.setDefault(defaultTimeZone);
+      Locale.setDefault(defaultLocale);
+    }
+  }
+  
+  public void testOutputFormattedUsWithDateTypeFormatCustomAndNoFormatter()
+  {
+  	TimeZone defaultTimeZone = TimeZone.getDefault();
+    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+    Locale defaultLocale = Locale.getDefault();
+    Locale.setDefault(Locale.US);
+    
+  	DefaultDateTypeAdapter dateTypeAdapter = new DefaultDateTypeAdapter(DateFormatType.CUSTOM);
+    try {
+    	assertFormatted("Jan 1, 1970 12:00:00 AM", dateTypeAdapter);
+    } finally {
+      TimeZone.setDefault(defaultTimeZone);
+      Locale.setDefault(defaultLocale);
+    }
+  }
+
+  public void testCanParseUsFormatWithCustomDateFormatter()
+  {
+  	TimeZone defaultTimeZone = TimeZone.getDefault();
+    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+    Locale defaultLocale = Locale.getDefault();
+    Locale.setDefault(Locale.US);
+    
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
+    dateFormat.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
+  	DefaultDateTypeAdapter dateTypeAdapter = new DefaultDateTypeAdapter(dateFormat);
+    try {
+    	assertParsed("Jan 1, 1970 12:00:00 AM", dateTypeAdapter);
+    } finally {
+      TimeZone.setDefault(defaultTimeZone);
+      Locale.setDefault(defaultLocale);
+    }
+  }
 
   public void testParsingDatesFormattedWithSystemLocale() {
     TimeZone defaultTimeZone = TimeZone.getDefault();
