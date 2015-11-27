@@ -5,7 +5,7 @@ Gson can work with arbitrary Java objects including pre-existing objects that yo
 There are a few open-source projects that can convert Java objects to JSON. However, most of them require that you place Java annotations in your classes; something that you can not do if you do not have access to the source-code. Most also do not fully support the use of Java Generics. Gson considers both of these as very important design goals. 
 
 *Gson Goals*
-  * Provide simple toJson() and fromJson() methods to convert Java objects to JSON and vice-versa
+  * Provide simple `toJson()` and `fromJson()` methods to convert Java objects to JSON and vice-versa
   * Allow pre-existing unmodifiable objects to be converted to and from JSON
   * Extensive support of Java Generics
   * Allow custom representations for objects

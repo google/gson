@@ -52,17 +52,17 @@ Gson can work with arbitrary Java objects including pre-existing objects that yo
 
 Here are some metrics that we obtained on a desktop (dual opteron, 8GB RAM, 64-bit Ubuntu) running lots of other things along-with the tests. You can rerun these tests by using the class [PerformanceTest](http://code.google.com/p/google-gson/source/browse/trunk/gson/src/test/java/com/google/gson/metrics/PerformanceTest.java).
 
-*   Strings: Deserialized strings of over 25MB without any problems (see <span style="font-family:courier new,monospace">disabled_testStringDeserializationPerformance</span> method in <span style="font-family:courier new,monospace">PerformanceTest</span>)
+*   Strings: Deserialized strings of over 25MB without any problems (see `disabled_testStringDeserializationPerformance` method in `PerformanceTest`)
 
 *   Large collections:
 
-*   Serialized a collection of 1.4 million objects (see <span style="font-family:courier new,monospace">disabled_testLargeCollectionSerialization</span> method in <span style="font-family:courier new,monospace">PerformanceTest</span>)
+*   Serialized a collection of 1.4 million objects (see `disabled_testLargeCollectionSerialization` method in `PerformanceTest`)
 
-*   Deserialized a collection of 87,000 objects (see <span style="font-family:courier new,monospace">disabled_testLargeCollectionDeserialization</span> in <span style="font-family:courier new,monospace">PerformanceTest</span>)
+*   Deserialized a collection of 87,000 objects (see `disabled_testLargeCollectionDeserialization` in `PerformanceTest`)
 
 *   Gson 1.4 raised the deserialization limit for byte arrays and collection to over 11MB from 80KB.
 
-Note: Delete the <span style="font-family:courier new,monospace">disabled_</span> prefix to run these tests. We use this prefix to prevent running these tests every time we run junit tests.
+Note: Delete the `disabled_` prefix to run these tests. We use this prefix to prevent running these tests every time we run junit tests.
 
 ## <a name="TOC-Gson-Users"></a>Gson Users
 
@@ -211,8 +211,8 @@ Collection<Integer> ints2 = gson.fromJson(json, collectionType);
 ints2 is same as ints
 ```
 
-Fairly hideous: note how we define the type of collection
-Unfortunately, no way to get around this in Java</font></span>
+Fairly hideous: note how we define the type of collection.
+Unfortunately, there is no way to get around this in Java.
 
 #### <a name="TOC-Collections-Limitations"></a>Collections Limitations
 
@@ -220,11 +220,11 @@ Unfortunately, no way to get around this in Java</font></span>
 *   Because there is no way for the user to indicate the type of the resulting object
 *   While deserializing, Collection must be of a specific generic type
 
-All of this makes sense, and is rarely a problem when following good Java coding practices
+All of this makes sense, and is rarely a problem when following good Java coding practices.
 
 ### <a name="TOC-Serializing-and-Deserializing-Generic-Types"></a>Serializing and Deserializing Generic Types
 
-When you call `toJson(obj)`, Gson calls `obj.getClass()` to get information on the fields to serialize. Similarly, you can typically pass <span style="font-family:courier new,monospace">MyClass.class</span> object in the <span style="font-family:courier new,monospace">fromJson(json, MyClass.class)</span> method. This works fine if the object is a non-generic type. However, if the object is of a generic type, then the Generic type information is lost because of Java Type Erasure. Here is an example illustrating the point:
+When you call `toJson(obj)`, Gson calls `obj.getClass()` to get information on the fields to serialize. Similarly, you can typically pass `MyClass.class` object in the `fromJson(json, MyClass.class)` method. This works fine if the object is a non-generic type. However, if the object is of a generic type, then the Generic type information is lost because of Java Type Erasure. Here is an example illustrating the point:
 ```
 class Foo<T> {
   T value;
@@ -236,9 +236,9 @@ gson.toJson(foo); // May not serialize foo.value correctly
 gson.fromJson(json, foo.getClass()); // Fails to deserialize foo.value as Bar
 ```
 
-The above code fails to interpret value as type Bar because Gson invokes `list.getClass()` to get its class information, but this method returns a raw class, <span style="font-family:courier new,monospace">Foo.class</span>. This means that Gson has no way of knowing that this is an object of type Foo<Bar>, and not just plain Foo.
+The above code fails to interpret value as type Bar because Gson invokes `list.getClass()` to get its class information, but this method returns a raw class, `Foo.class`. This means that Gson has no way of knowing that this is an object of type `Foo<Bar>`, and not just plain `Foo`.
 
-You can solve this problem by specifying the correct parameterized type for your generic type. You can do this by using the [TypeToken](http://google.github.io/gson/apidocs/com/google/gson/reflect/TypeToken.html) class.
+You can solve this problem by specifying the correct parameterized type for your generic type. You can do this by using the [`TypeToken`](http://google.github.io/gson/apidocs/com/google/gson/reflect/TypeToken.html) class.
 ```
 Type fooType = new TypeToken<Foo<Bar>>() {}.getType();
 gson.toJson(foo, fooType);
@@ -348,22 +348,21 @@ Often you want to register a single handler for all generic types corresponding 
   *   Essentially write out the id value
 
 *   Deserialization is very similar but not exactly the same
-  *   Need to call <span style="font-family:courier new,monospace">"new Id(Class<T>, String)"</span> which returns an instance of Id<T>
+  *   Need to call `new Id(Class<T>, String)` which returns an instance of `Id<T>`
 
-Gson supports registering a single handler for this. You can also register a specific handler for a specific generic type (say <span style="font-family:courier new,monospace">Id<RequiresSpecialHandling></span> needed special handling).
-The <span style="font-family:courier new,monospace">Type</span> parameter for the <span style="font-family:courier new,monospace">toJson</span> and <span style="font-family:courier new,monospace">fromJson</span> contains the generic type information to help you write a single handler for all generic types corresponding to the same raw type
+Gson supports registering a single handler for this. You can also register a specific handler for a specific generic type (say `Id<RequiresSpecialHandling>` needed special handling).
+The `Type` parameter for the `toJson` and `fromJson` contains the generic type information to help you write a single handler for all generic types corresponding to the same raw type.
 
 ### <a name="TOC-Writing-an-Instance-Creator"></a>Writing an Instance Creator
 
-While deserializing an Object, Gson needs to create a default instance of the class
-Well-behaved classes that are meant for serialization and deserialization should have a no-argument constructor
+While deserializing an Object, Gson needs to create a default instance of the class.
+Well-behaved classes that are meant for serialization and deserialization should have a no-argument constructor.
 
 *   Doesn't matter whether public or private
 
 Typically, Instance Creators are needed when you are dealing with a library class that does NOT define a no-argument constructor
 
-**
-Instance Creator Example**
+**Instance Creator Example**
 
 ```
 private class MoneyInstanceCreator implements InstanceCreator<Money> {
@@ -393,7 +392,7 @@ class MyListInstanceCreator implements InstanceCreator<MyList<?>> {
   }
 }
 ```
-However, sometimes you do need to create instance based on the actual parameterized type. In this case, you can use the type parameter being passed to the <span style="font-family:courier new,monospace">createInstance</span> method. Here is an example:
+However, sometimes you do need to create instance based on the actual parameterized type. In this case, you can use the type parameter being passed to the `createInstance` method. Here is an example:
 ```
 public class Id<T> {
   private final Class<T> classOfId;
@@ -413,15 +412,15 @@ class IdInstanceCreator implements InstanceCreator<Id<?>> {
 }
 ```
 
-In the above example, an instance of the Id class can not be created without actually passing in the actual type for the parameterized type. We solve this problem by using the passed method parameter, <span style="font-family:courier new,monospace">type</span>. The <span style="font-family:courier new,monospace">type</span> object in this case is the Java parameterized type representation of <span style="font-family:courier new,monospace">Id<Foo></span> where the actual instance should be bound to <span style="font-family:courier new,monospace">Id<Foo></span>. Since <span style="font-family:courier new,monospace">Id</span> class has just one parameterized type parameter, <span style="font-family:courier new,monospace">T</span>, we use the zeroth element of the type array returned by <span style="font-family:courier new,monospace">getActualTypeArgument()</span> which will hold <span style="font-family:courier new,monospace">Foo.class</span> in this case.
+In the above example, an instance of the Id class can not be created without actually passing in the actual type for the parameterized type. We solve this problem by using the passed method parameter, `type`. The `type` object in this case is the Java parameterized type representation of `Id<Foo>` where the actual instance should be bound to `Id<Foo>`. Since `Id` class has just one parameterized type parameter, `T`, we use the zeroth element of the type array returned by `getActualTypeArgument()` which will hold `Foo.class` in this case.
 
 ### <a name="TOC-Compact-Vs.-Pretty-Printing-for-JSON-Output-Format"></a>Compact Vs. Pretty Printing for JSON Output Format
 
 The default JSON output that is provide by Gson is a compact JSON format. This means that there will not be any whitespace in the output JSON structure. Therefore, there will be no whitespace between field names and its value, object fields, and objects within arrays in the JSON output. As well, "null" fields will be ignored in the output (NOTE: null values will still be included in collections/arrays of objects). See the [Null Object Support](#TOC-Null-Object-Support) section for information on configure Gson to output all null values.
 
-If you like to use the Pretty Print feature, you must configure your `Gson` instance using the `GsonBuilder`. The `JsonFormatter` is not exposed through our public API, so the client is unable to configure the default print settings/margins for the JSON output. For now, we only provide a default <span style="font-family:courier new,monospace">JsonPrintFormatter</span> that has default line length of 80 character, 2 character indentation, and 4 character right margin.
+If you like to use the Pretty Print feature, you must configure your `Gson` instance using the `GsonBuilder`. The `JsonFormatter` is not exposed through our public API, so the client is unable to configure the default print settings/margins for the JSON output. For now, we only provide a default `JsonPrintFormatter` that has default line length of 80 character, 2 character indentation, and 4 character right margin.
 
-The following is an example shows how to configure a `Gson` instance to use the default `JsonPrintFormatter` instead of the <span style="font-family:courier new,monospace">JsonCompactFormatter</span>:
+The following is an example shows how to configure a `Gson` instance to use the default `JsonPrintFormatter` instead of the `JsonCompactFormatter`:
 ```
 Gson gson = new GsonBuilder().setPrettyPrinting().create();
 String jsonOutput = gson.toJson(someObject);
@@ -465,7 +464,7 @@ null
 ```
 ### <a name="TOC-Versioning-Support"></a>Versioning Support
 
-Multiple versions of the same object can be maintained by using [@Since](http://code.google.com/p/google-gson/source/browse/trunk/gson/src/main/java/com/google/gson/annotations/Since.java "@Since") annotation. This annotation can be used on Classes, Fields and, in a future release, Methods. In order to leverage this feature, you must configure your <span style="font-family:courier new,monospace">Gson</span> instance to ignore any field/object that is greater than some version number. If no version is set on the <span style="font-family:courier new,monospace">Gson</span> instance then it will serialize and deserialize all fields and classes regardless of the version.
+Multiple versions of the same object can be maintained by using [@Since](http://code.google.com/p/google-gson/source/browse/trunk/gson/src/main/java/com/google/gson/annotations/Since.java "@Since") annotation. This annotation can be used on Classes, Fields and, in a future release, Methods. In order to leverage this feature, you must configure your `Gson` instance to ignore any field/object that is greater than some version number. If no version is set on the `Gson` instance then it will serialize and deserialize all fields and classes regardless of the version.
 ```
 public class VersionedClass {
   @Since(1.1) private final String newerField;
@@ -517,11 +516,11 @@ Gson gson = new GsonBuilder()
 
 #### <a name="TOC-Gson-s-Expose"></a>Gson's @Expose
 
-This feature provides a way where you can mark certain fields of your objects to be excluded for consideration for serialization and deserialization to JSON. To use this annotation, you must create Gson by using <span style="font-family:courier new,monospace">new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create()</span>. The Gson instance created will exclude all fields in a class that are not marked with `@Expose` annotation.
+This feature provides a way where you can mark certain fields of your objects to be excluded for consideration for serialization and deserialization to JSON. To use this annotation, you must create Gson by using `new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create()`. The Gson instance created will exclude all fields in a class that are not marked with `@Expose` annotation.
 
 #### <a name="TOC-User-Defined-Exclusion-Strategies"></a>User Defined Exclusion Strategies
 
-If the above mechanisms for excluding fields and class type do not work for you then you can always write your own exclusion strategy and plug it into Gson. See the [<span style="font-family:courier new,monospace">ExclusionStrategy</span>](http://google-gson.googlecode.com/svn/trunk/gson/docs/javadocs/com/google/gson/ExclusionStrategy.html) JavaDoc for more information.
+If the above mechanisms for excluding fields and class type do not work for you then you can always write your own exclusion strategy and plug it into Gson. See the [`ExclusionStrategy`](http://google-gson.googlecode.com/svn/trunk/gson/docs/javadocs/com/google/gson/ExclusionStrategy.html) JavaDoc for more information.
 
 The following example shows how to exclude fields marked with a specific "@Foo" annotation and excludes top-level types (or declared field type) of class String.
 ```
@@ -575,7 +574,7 @@ The following example shows how to exclude fields marked with a specific "@Foo" 
 ```
 ### <a name="TOC-JSON-Field-Naming-Support"></a>JSON Field Naming Support
 
-Gson supports some pre-defined field naming policies to convert the standard Java field names (i.e. camel cased names starting with lower case --- "sampleFieldNameInJava") to a Json field name (i.e. sample_field_name_in_java or SampleFieldNameInJava). See the [FieldNamingPolicy](http://google.github.io/gson/apidocs/com/google/gson/FieldNamingPolicy.html) class for information on the pre-defined naming policies.
+Gson supports some pre-defined field naming policies to convert the standard Java field names (i.e., camel cased names starting with lower case --- `sampleFieldNameInJava`) to a Json field name (i.e., `sample_field_name_in_java` or `SampleFieldNameInJava`). See the [FieldNamingPolicy](http://google.github.io/gson/apidocs/com/google/gson/FieldNamingPolicy.html) class for information on the pre-defined naming policies.
 
 It also has an annotation based strategy to allows clients to define custom names on a per field basis. Note, that the annotation based strategy has field name validation which will raise "Runtime" exceptions if an invalid field name is provided as the annotation value.
 
