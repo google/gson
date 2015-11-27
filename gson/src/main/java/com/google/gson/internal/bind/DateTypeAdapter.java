@@ -16,21 +16,27 @@
 
 package com.google.gson.internal.bind;
 
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.Date;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.Locale;
+
+import com.google.gson.DateFormatType;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
-import com.google.gson.internal.bind.util.ISO8601Utils;
+import com.google.gson.internal.bind.dateformatter.DateFormatter;
+import com.google.gson.internal.bind.dateformatter.ISO8601DateFormatter;
+import com.google.gson.internal.bind.dateformatter.MillisDateFormatter;
+import com.google.gson.internal.bind.dateformatter.SimpleDateFormatter;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import java.io.IOException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.ParsePosition;
-import java.util.Date;
-import java.util.Locale;
 
 /**
  * Adapter for Date. Although this class appears stateless, it is not.
@@ -45,11 +51,28 @@ public final class DateTypeAdapter extends TypeAdapter<Date> {
       return typeToken.getRawType() == Date.class ? (TypeAdapter<T>) new DateTypeAdapter() : null;
     }
   };
+  
+  private final EnumMap<DateFormatType, DateFormatter> dateFormatters;
+	private final EnumSet<DateFormatType> dateParsersToUse;
+  
+	public DateTypeAdapter() {
+		dateFormatters = new EnumMap<DateFormatType, DateFormatter>(DateFormatType.class);
 
-  private final DateFormat enUsFormat
-      = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.US);
-  private final DateFormat localFormat
-      = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT);
+		DateFormat enUsFormat = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.US);
+		SimpleDateFormatter enUsFormatter = new SimpleDateFormatter(enUsFormat);
+		dateFormatters.put(DateFormatType.EN_US, enUsFormatter);
+
+		DateFormat localFormat = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT);
+		dateFormatters.put(DateFormatType.LOCAL, new SimpleDateFormatter(localFormat));
+
+		dateFormatters.put(DateFormatType.ISO_8601, ISO8601DateFormatter.getInstance());
+		dateFormatters.put(DateFormatType.MILLIS, MillisDateFormatter.getInstance());
+
+		// Date type formatters to use. Prevents repeating parsing when Default or
+		// Custom are set to EN-US.
+		dateParsersToUse = EnumSet.of(DateFormatType.EN_US, DateFormatType.LOCAL, DateFormatType.ISO_8601,
+				DateFormatType.MILLIS);
+	}
 
   @Override public Date read(JsonReader in) throws IOException {
     if (in.peek() == JsonToken.NULL) {
@@ -59,28 +82,27 @@ public final class DateTypeAdapter extends TypeAdapter<Date> {
     return deserializeToDate(in.nextString());
   }
 
-  private synchronized Date deserializeToDate(String json) {
-    try {
-      return localFormat.parse(json);
-    } catch (ParseException ignored) {
-    }
-    try {
-      return enUsFormat.parse(json);
-    } catch (ParseException ignored) {
-    }
-    try {
-    	return ISO8601Utils.parse(json, new ParsePosition(0));
-    } catch (ParseException e) {
-      throw new JsonSyntaxException(json, e);
-    }
-  }
+	private synchronized Date deserializeToDate(String json) {
+		ParseException parseExc = null; // Hopefully will not be used
+
+		for (DateFormatType dateFormatType : dateParsersToUse) {
+			DateFormatter dateFormatter = dateFormatters.get(dateFormatType);
+			try {
+				return dateFormatter.parse(json);
+			} catch (ParseException e) {
+				parseExc = e;
+			}
+		}
+
+		throw new JsonSyntaxException(json, parseExc);
+	}
 
   @Override public synchronized void write(JsonWriter out, Date value) throws IOException {
     if (value == null) {
       out.nullValue();
       return;
     }
-    String dateFormatAsString = enUsFormat.format(value);
+    String dateFormatAsString = dateFormatters.get(DateFormatType.EN_US).format(value);
     out.value(dateFormatAsString);
   }
   

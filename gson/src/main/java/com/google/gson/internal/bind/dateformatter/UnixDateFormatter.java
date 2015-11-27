@@ -18,10 +18,10 @@ package com.google.gson.internal.bind.dateformatter;
 
 import java.util.Date;
 
-public final class UnixDateFormatter implements DateFormatter
-{
-private UnixDateFormatter(){};
-	
+public final class UnixDateFormatter implements DateFormatter {
+	private UnixDateFormatter() {
+	};
+
 	private final static UnixDateFormatter INSTANCE = new UnixDateFormatter();
 
 	@Override
@@ -34,10 +34,9 @@ private UnixDateFormatter(){};
 		Long seconds = Long.parseLong(dateAsString);
 		return new Date(seconds * 1000);
 	}
-	
-	public static UnixDateFormatter getInstance()
-	{
+
+	public static UnixDateFormatter getInstance() {
 		return INSTANCE;
 	}
-	
+
 }

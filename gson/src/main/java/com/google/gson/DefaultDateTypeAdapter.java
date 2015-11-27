@@ -170,6 +170,6 @@ final class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserial
     StringBuilder sb = new StringBuilder();
     sb.append(DefaultDateTypeAdapter.class.getSimpleName());
     sb.append('(').append(dateFormatters.get(DateFormatType.LOCAL).toString()).append(')');
-    return sb.toString();
-  }
+		return sb.toString();
+	}
 }

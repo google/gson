@@ -20,22 +20,22 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Date;
 
-public final class SimpleDateFormatter implements DateFormatter
-{
+public final class SimpleDateFormatter implements DateFormatter {
 	private final DateFormat dateFormat;
-	
+
 	public SimpleDateFormatter(DateFormat dateFormat) {
 		// Clone to prevent object from change
-    this.dateFormat = (DateFormat) dateFormat.clone();
-  }
+		this.dateFormat = (DateFormat) dateFormat.clone();
+	}
 
-//These methods need to be synchronized since JDK DateFormat classes are not thread-safe
- // See issue 162
+	// These methods need to be synchronized since JDK DateFormat classes are not
+	// thread-safe
+	// See issue 162
 	@Override
 	public String format(Date date) {
 		synchronized (dateFormat) {
-      return dateFormat.format(date);
-    }
+			return dateFormat.format(date);
+		}
 	}
 
 	@Override
@@ -44,10 +44,9 @@ public final class SimpleDateFormatter implements DateFormatter
 			return dateFormat.parse(dateAsString);
 		}
 	}
-	
+
 	@Override
-	public String toString()
-	{
+	public String toString() {
 		return dateFormat.getClass().getSimpleName();
 	}
 }

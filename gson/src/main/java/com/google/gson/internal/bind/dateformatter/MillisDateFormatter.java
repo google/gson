@@ -18,10 +18,10 @@ package com.google.gson.internal.bind.dateformatter;
 
 import java.util.Date;
 
-public final class MillisDateFormatter implements DateFormatter
-{
-private MillisDateFormatter(){};
-	
+public final class MillisDateFormatter implements DateFormatter {
+	private MillisDateFormatter() {
+	};
+
 	private final static MillisDateFormatter INSTANCE = new MillisDateFormatter();
 
 	@Override
@@ -34,10 +34,9 @@ private MillisDateFormatter(){};
 		Long seconds = Long.parseLong(dateAsString);
 		return new Date(seconds);
 	}
-	
-	public static MillisDateFormatter getInstance()
-	{
+
+	public static MillisDateFormatter getInstance() {
 		return INSTANCE;
 	}
-	
+
 }
