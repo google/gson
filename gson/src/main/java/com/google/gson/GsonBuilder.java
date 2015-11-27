@@ -399,14 +399,18 @@ public final class GsonBuilder {
    * <p>Note that any modification done on the date format object will be applied until {@link #create()} is called.</p>
    *
    * @param dateFormat the date format that will serialize/deserialize dates
+   * @param useAsOutputFormat calls {@link setOutputDateFormatType} with {@code DateFormatType.CUSTOM} if set to true.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 2.6
    */
-  public GsonBuilder setDateFormat(DateFormat dateFormat) {
-    this.customDateFormat = dateFormat;
-    this.datePattern = null;
-    return this;
-  }
+	public GsonBuilder setDateFormat(DateFormat dateFormat, boolean useAsOutputFormat) {
+		this.customDateFormat = dateFormat;
+		if (useAsOutputFormat) {
+			this.outputDateFormatType = DateFormatType.CUSTOM;
+		}
+		this.datePattern = null;
+		return this;
+	}
 
   /**
    * Configures Gson to to serialize {@code Date} objects according to the style value provided.
@@ -439,7 +443,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 2.6
    */
-  public GsonBuilder setDateFormatType(DateFormatType outputDateFormatType) {
+  public GsonBuilder setOutputDateFormatType(DateFormatType outputDateFormatType) {
     this.outputDateFormatType = outputDateFormatType;
     return this;
   }

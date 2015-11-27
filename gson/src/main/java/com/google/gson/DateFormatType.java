@@ -17,5 +17,33 @@
 package com.google.gson;
 
 public enum DateFormatType {
-	CUSTOM, EN_US, LOCAL, ISO_8601, MILLIS, UNIX, DEFAULT;
+	/**
+	 * Use custom {@link java.text.DateFormat} to format Date at serialization.
+	 * Otherwise uses {@code DateFormatType.DEFAULT}
+	 */
+	CUSTOM,
+	/**
+	 * Format dates using EN-US format.
+	 */
+	EN_US,
+	/**
+	 * Format dates with local format.
+	 */
+	LOCAL,
+	/**
+	 * Format dates with ISO8601 format ( yyyy-MM-dd'T'HH:mm:ss.SSS'Z' )
+	 */
+	ISO_8601,
+	/**
+	 * Format dates as milliseconds
+	 */
+	MILLIS,
+	/**
+	 * Format dates as seconds
+	 */
+	UNIX,
+	/**
+	 * Use default: EN-US.
+	 */
+	DEFAULT;
 }
