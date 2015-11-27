@@ -61,11 +61,21 @@ public class ConcurrencyTest extends TestCase {
     } 
   } 
 
+  
+  public void testMultiThreadSerializationMyObject() throws InterruptedException
+  {
+  	testMultiThreadSerialization(new MyObject());
+  }
+  
+  public void testMultiThreadSerializationMyObjectWithDate() throws InterruptedException
+  {
+  	testMultiThreadSerialization(new MyObjectWithDate());
+  }
   /**
    * Source-code based on
    * http://groups.google.com/group/google-gson/browse_thread/thread/563bb51ee2495081
    */
-  public void testMultiThreadSerialization() throws InterruptedException {
+  private void testMultiThreadSerialization(final Object serializeObject) throws InterruptedException {
     final CountDownLatch startLatch = new CountDownLatch(1);
     final CountDownLatch finishedLatch = new CountDownLatch(10);
     final AtomicBoolean failed = new AtomicBoolean(false);
@@ -73,11 +83,10 @@ public class ConcurrencyTest extends TestCase {
     for (int taskCount = 0; taskCount < 10; taskCount++) {
       executor.execute(new Runnable() {
         public void run() {
-          MyObject myObj = new MyObject();
           try {
             startLatch.await();
             for (int i = 0; i < 10; i++) {
-              gson.toJson(myObj);
+              gson.toJson(serializeObject);
             }
           } catch (Throwable t) {
             failed.set(true);
@@ -95,6 +104,11 @@ public class ConcurrencyTest extends TestCase {
   public void testMultiThreadDeserializationMyObject() throws InterruptedException
   {
   	testMultiThreadDeserialization(MyObjectAsJson, MyObject.class);
+  }
+  
+  public void testMultiThreadDeserializationMyObjectWithDate() throws InterruptedException
+  {
+  	testMultiThreadDeserialization(MyObjectWithDateAsJson, MyObjectWithDate.class);
   }
   /**
    * Source-code based on
