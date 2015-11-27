@@ -21,6 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
+
 import junit.framework.TestCase;
 
 /**
@@ -131,7 +132,7 @@ public class DefaultDateTypeAdapterTest extends TestCase {
 		TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
 
 		try {
-			DefaultDateTypeAdapter adapter = new DefaultDateTypeAdapter(DateFormatType.EN_US);
+			DefaultDateTypeAdapter adapter = new DefaultDateTypeAdapter();
 			Long someMillis = 1448603783413L; // Fri Nov 27 2015 05:56:23 in UTC
 			String someSecondsStr = "1448603783413";
 			// assert formatted US
@@ -144,7 +145,7 @@ public class DefaultDateTypeAdapterTest extends TestCase {
 		}
   }
   
-  public void testOutputNotFormattedWithCustomDateFormat()
+  public void testOutputNotFormattedWithCustomDateFormatAndDefaultOutputType()
   {
   	TimeZone defaultTimeZone = TimeZone.getDefault();
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
@@ -216,7 +217,7 @@ public class DefaultDateTypeAdapterTest extends TestCase {
     }
   }
   
-  public void testOutputFormattedUsWithDateTypeFormatCustomAndNoFormatter()
+  public void testOutputFormatWithDateTypeFormatCustomAndNoSpecifiedFormatter()
   {
   	TimeZone defaultTimeZone = TimeZone.getDefault();
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
@@ -225,6 +226,7 @@ public class DefaultDateTypeAdapterTest extends TestCase {
     
   	DefaultDateTypeAdapter dateTypeAdapter = new DefaultDateTypeAdapter(DateFormatType.CUSTOM);
     try {
+    	// EN-US output format
     	assertFormatted("Jan 1, 1970 12:00:00 AM", dateTypeAdapter);
     } finally {
       TimeZone.setDefault(defaultTimeZone);

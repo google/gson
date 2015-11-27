@@ -53,7 +53,7 @@ public final class DateTypeAdapter extends TypeAdapter<Date> {
   };
   
   private final EnumMap<DateFormatType, DateFormatter> dateFormatters;
-	private final EnumSet<DateFormatType> dateParsersToUse;
+	private final EnumSet<DateFormatType> dateFormatTypesToUse;
   
 	public DateTypeAdapter() {
 		dateFormatters = new EnumMap<DateFormatType, DateFormatter>(DateFormatType.class);
@@ -70,7 +70,7 @@ public final class DateTypeAdapter extends TypeAdapter<Date> {
 
 		// Date type formatters to use. Prevents repeating parsing when Default or
 		// Custom are set to EN-US.
-		dateParsersToUse = EnumSet.of(DateFormatType.EN_US, DateFormatType.LOCAL, DateFormatType.ISO_8601,
+		dateFormatTypesToUse = EnumSet.of(DateFormatType.EN_US, DateFormatType.LOCAL, DateFormatType.ISO_8601,
 				DateFormatType.MILLIS);
 	}
 
@@ -85,7 +85,7 @@ public final class DateTypeAdapter extends TypeAdapter<Date> {
 	private Date deserializeToDate(String json) {
 		ParseException parseExc = null; // Hopefully will not be used
 
-		for (DateFormatType dateFormatType : dateParsersToUse) {
+		for (DateFormatType dateFormatType : dateFormatTypesToUse) {
 			DateFormatter dateFormatter = dateFormatters.get(dateFormatType);
 			try {
 				return dateFormatter.parse(json);

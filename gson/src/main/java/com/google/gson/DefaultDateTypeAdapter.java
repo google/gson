@@ -44,7 +44,7 @@ final class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserial
   // TODO: migrate to streaming adapter
 	
 	private final EnumMap<DateFormatType, DateFormatter> dateFormatters;
-	private final EnumSet<DateFormatType> dateParsersToUse;
+	private final EnumSet<DateFormatType> dateFormatTypesToUse;
 	private final DateFormatType outputDateFormatType;
 
   DefaultDateTypeAdapter() {
@@ -71,7 +71,7 @@ final class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserial
   DefaultDateTypeAdapter(DateFormat dateFormat, DateFormatType outputFormatType) {
   	this(outputFormatType);
     dateFormatters.put(DateFormatType.CUSTOM, new SimpleDateFormatter(dateFormat));
-    dateParsersToUse.add(DateFormatType.CUSTOM);
+    dateFormatTypesToUse.add(DateFormatType.CUSTOM);
   }
   
   DefaultDateTypeAdapter(DateFormat dateFormat) {
@@ -113,11 +113,11 @@ final class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserial
   	dateFormatters.put(DateFormatType.MILLIS, MillisDateFormatter.getInstance());
   	
   	// Date type formatters to use. Prevents repeating parsing when Default or Custom are set to EN-US.
-  	dateParsersToUse = EnumSet.of(DateFormatType.EN_US, DateFormatType.LOCAL, DateFormatType.ISO_8601);
+  	dateFormatTypesToUse = EnumSet.of(DateFormatType.EN_US, DateFormatType.LOCAL, DateFormatType.ISO_8601);
   	
   	// Add date formatter for millis or unix. Millis as default.
   	DateFormatType formatForLong = outputDateFormatType == DateFormatType.UNIX ? outputDateFormatType : DateFormatType.MILLIS;
-  	dateParsersToUse.add(formatForLong);
+  	dateFormatTypesToUse.add(formatForLong);
   	
   	// DateFormatter type to use for serialization
   	this.outputDateFormatType = outputDateFormatType;
@@ -152,7 +152,7 @@ final class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserial
   	
   	ParseException parseExc = null; // Hopefully will not be used
   	
-  	for(DateFormatType dateFormatType : dateParsersToUse )
+  	for(DateFormatType dateFormatType : dateFormatTypesToUse )
   	{
   		DateFormatter dateFormatter = dateFormatters.get(dateFormatType);
   		try{
