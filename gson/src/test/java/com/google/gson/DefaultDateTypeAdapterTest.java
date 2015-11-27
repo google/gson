@@ -96,6 +96,54 @@ public class DefaultDateTypeAdapterTest extends TestCase {
     }
   }
   
+  public void testUnixDateFormatParsedAndFormatted()
+  {
+  	DefaultDateTypeAdapter dateTypeAdapter = new DefaultDateTypeAdapter(DateFormatType.UNIX);
+  	assertParsed("0", dateTypeAdapter);
+    assertFormatted("0", dateTypeAdapter);
+  }
+  
+  public void testUnixDateFormatParsedAndFormattedAnotherDate()
+  {
+  	DefaultDateTypeAdapter adapter = new DefaultDateTypeAdapter(DateFormatType.UNIX);
+    Long someMillis = 1448603783413L;
+    String someSecondsStr = "1448603783";
+    assertEquals(someSecondsStr, adapter.serialize(new Date(someMillis), Date.class, null).getAsString());
+    assertEquals(someSecondsStr,
+    		new Date(Long.parseLong(someSecondsStr) * 1000),
+    		adapter.deserialize(new JsonPrimitive(someSecondsStr), Date.class, null));
+  }
+  
+  public void testMillisecondsDateFormatParsedAndFormatted()
+  {
+  	DefaultDateTypeAdapter adapter = new DefaultDateTypeAdapter(DateFormatType.MILLIS);
+    Long someMillis = 1448603783413L;
+    String someSecondsStr = "1448603783413";
+    assertEquals(someSecondsStr, adapter.serialize(new Date(someMillis), Date.class, null).getAsString());
+    assertEquals(someSecondsStr,
+    		new Date(Long.parseLong(someSecondsStr)),
+    		adapter.deserialize(new JsonPrimitive(someSecondsStr), Date.class, null));
+  }
+  
+  public void testMillisecondsDateFormatParsedWithDefaultConfig()
+  {
+		TimeZone defaultTimeZone = TimeZone.getDefault();
+		TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+
+		try {
+			DefaultDateTypeAdapter adapter = new DefaultDateTypeAdapter(DateFormatType.EN_US);
+			Long someMillis = 1448603783413L; // Fri Nov 27 2015 05:56:23 in UTC
+			String someSecondsStr = "1448603783413";
+			// assert formatted US
+			assertEquals("Nov 27, 2015 5:56:23 AM", adapter.serialize(new Date(someMillis), Date.class, null).getAsString());
+			// assert parsed millis
+			assertEquals(someSecondsStr, new Date(Long.parseLong(someSecondsStr)),
+					adapter.deserialize(new JsonPrimitive(someSecondsStr), Date.class, null));
+		} finally {
+			TimeZone.setDefault(defaultTimeZone);
+		}
+  }
+  
   public void testOutputNotFormattedWithCustomDateFormat()
   {
   	TimeZone defaultTimeZone = TimeZone.getDefault();

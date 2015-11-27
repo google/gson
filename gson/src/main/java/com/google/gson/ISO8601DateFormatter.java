@@ -6,11 +6,11 @@ import java.util.Date;
 
 import com.google.gson.internal.bind.util.ISO8601Utils;
 
-final class ISO8601DateFormater implements DateFormatter
+final class ISO8601DateFormatter implements DateFormatter
 {
-	private ISO8601DateFormater(){};
+	private ISO8601DateFormatter(){};
 	
-	private final static ISO8601DateFormater INSTANCE = new ISO8601DateFormater();
+	private final static ISO8601DateFormatter INSTANCE = new ISO8601DateFormatter();
 	
 	@Override
 	public String format(Date date) {
@@ -22,7 +22,7 @@ final class ISO8601DateFormater implements DateFormatter
 		return ISO8601Utils.parse(dateAsString, new ParsePosition(0));
 	}
 	
-	public static ISO8601DateFormater getInstance()
+	public static ISO8601DateFormatter getInstance()
 	{
 		return INSTANCE;
 	}

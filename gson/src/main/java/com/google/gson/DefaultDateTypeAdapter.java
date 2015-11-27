@@ -94,7 +94,7 @@ final class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserial
         DateFormatType.EN_US);
   }
 
-  DefaultDateTypeAdapter(DateFormat enUsFormat, DateFormat localFormat, DateFormatType outputFormat) {
+  DefaultDateTypeAdapter(DateFormat enUsFormat, DateFormat localFormat, DateFormatType outputDateFormatType) {
   	
   	// Make sure every DateFormatType is present in dateFormats
   	dateFormatters = new EnumMap<DateFormatType, DateFormatter>(DateFormatType.class);
@@ -106,12 +106,19 @@ final class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserial
   	dateFormatters.put(DateFormatType.DEFAULT, enUsFormatter);
   	
   	dateFormatters.put(DateFormatType.LOCAL, new SimpleDateFormatter(localFormat));
-  	dateFormatters.put(DateFormatType.ISO_8601, ISO8601DateFormater.getInstance());
+  	dateFormatters.put(DateFormatType.ISO_8601, ISO8601DateFormatter.getInstance());
+  	dateFormatters.put(DateFormatType.UNIX, UnixDateFormatter.getInstance());
+  	dateFormatters.put(DateFormatType.MILLIS, MillisDateFormatter.getInstance());
   	
   	// Date type formatters to use. Prevents repeating parsing when Default or Custom are set to EN-US.
   	dateParsersToUse = EnumSet.of(DateFormatType.EN_US, DateFormatType.LOCAL, DateFormatType.ISO_8601);
   	
-  	outputDateFormatType = outputFormat;
+  	// Add date formatter for millis or unix. Millis as default.
+  	DateFormatType formatForLong = outputDateFormatType == DateFormatType.UNIX ? outputDateFormatType : DateFormatType.MILLIS;
+  	dateParsersToUse.add(formatForLong);
+  	
+  	//
+  	this.outputDateFormatType = outputDateFormatType;
   }
 
   @Override
