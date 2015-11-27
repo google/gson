@@ -82,7 +82,7 @@ public final class DateTypeAdapter extends TypeAdapter<Date> {
     return deserializeToDate(in.nextString());
   }
 
-	private synchronized Date deserializeToDate(String json) {
+	private Date deserializeToDate(String json) {
 		ParseException parseExc = null; // Hopefully will not be used
 
 		for (DateFormatType dateFormatType : dateParsersToUse) {
@@ -97,7 +97,7 @@ public final class DateTypeAdapter extends TypeAdapter<Date> {
 		throw new JsonSyntaxException(json, parseExc);
 	}
 
-  @Override public synchronized void write(JsonWriter out, Date value) throws IOException {
+  @Override public void write(JsonWriter out, Date value) throws IOException {
     if (value == null) {
       out.nullValue();
       return;

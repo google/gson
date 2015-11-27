@@ -32,17 +32,13 @@ public final class SimpleDateFormatter implements DateFormatter {
 	// thread-safe
 	// See issue 162
 	@Override
-	public String format(Date date) {
-		synchronized (dateFormat) {
-			return dateFormat.format(date);
-		}
+	public synchronized String format(Date date) {
+		return dateFormat.format(date);
 	}
 
 	@Override
-	public Date parse(String dateAsString) throws ParseException {
-		synchronized (dateFormat) {
-			return dateFormat.parse(dateAsString);
-		}
+	public synchronized Date parse(String dateAsString) throws ParseException {
+		return dateFormat.parse(dateAsString);
 	}
 
 	@Override
