@@ -62,8 +62,7 @@ public class DefaultDateTypeAdapterTest extends TestCase {
     }
   }
   
-  // TODO with date frmat type output
-  /*public void testOutputFormattedWithCustomDateFormat()
+  public void testOutputFormattedWithCustomDateFormatType()
   {
   	TimeZone defaultTimeZone = TimeZone.getDefault();
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
@@ -71,14 +70,14 @@ public class DefaultDateTypeAdapterTest extends TestCase {
     Locale.setDefault(Locale.US);
     
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-  	DefaultDateTypeAdapter dateTypeAdapter = new DefaultDateTypeAdapter(dateFormat);
+  	DefaultDateTypeAdapter dateTypeAdapter = new DefaultDateTypeAdapter(dateFormat, DateFormatType.CUSTOM);
     try {
     	assertFormatted("1970-01-01", dateTypeAdapter);
     } finally {
       TimeZone.setDefault(defaultTimeZone);
       Locale.setDefault(defaultLocale);
     }
-  }*/
+  }
   
   public void testOutputNotFormattedWithCustomDateFormat()
   {
@@ -114,9 +113,28 @@ public class DefaultDateTypeAdapterTest extends TestCase {
     }
   }
   
-  // TODO date format output tpye to local with french
-  /*
-  public void testOutputFormattedWithCustomFranceFormatter()
+  public void testOutputFormattedWithLocalOutputDateFormatType()
+  {
+  	TimeZone defaultTimeZone = TimeZone.getDefault();
+    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+    Locale defaultLocale = Locale.getDefault();
+    Locale.setDefault(Locale.FRANCE);
+    
+  	DefaultDateTypeAdapter dateTypeAdapter = new DefaultDateTypeAdapter(DateFormatType.LOCAL);
+    try {
+    	// Can parse US
+    	assertParsed("Jan 1, 1970 12:00:00 AM", dateTypeAdapter);
+    	// Can parse FR
+    	assertParsed("1 janv. 1970 00:00:00", dateTypeAdapter);
+    	// Formats as FR
+    	assertFormatted("1 janv. 1970 00:00:00", dateTypeAdapter);
+    } finally {
+      TimeZone.setDefault(defaultTimeZone);
+      Locale.setDefault(defaultLocale);
+    }
+  }
+  
+  public void testOutputFormattedWithISOOutputDateFormatTypeAndCustomDateFormat()
   {
   	TimeZone defaultTimeZone = TimeZone.getDefault();
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
@@ -124,19 +142,14 @@ public class DefaultDateTypeAdapterTest extends TestCase {
     Locale.setDefault(Locale.US);
     
     DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.FRANCE);
-  	DefaultDateTypeAdapter dateTypeAdapter = new DefaultDateTypeAdapter(dateFormat);
+  	DefaultDateTypeAdapter dateTypeAdapter = new DefaultDateTypeAdapter(dateFormat, DateFormatType.ISO_8601);
     try {
-    	// Can parse US
-    	assertParsed("Jan 1, 1970 12:00:00 AM", dateTypeAdapter);
-    	// Can parse FR
-    	assertParsed("1 janv. 1970 00:00:00", dateTypeAdapter);
-    	// Formats as FR
-    	assertFormatted("Jan 1, 1970 12:00:00 AM", dateTypeAdapter);
+    	assertFormatted("1970-01-01T00:00:00.000Z", dateTypeAdapter);
     } finally {
       TimeZone.setDefault(defaultTimeZone);
       Locale.setDefault(defaultLocale);
     }
-  }*/
+  }
   
   public void testOutputFormattedUsWithDateTypeFormatCustomAndNoFormatter()
   {
@@ -145,7 +158,7 @@ public class DefaultDateTypeAdapterTest extends TestCase {
     Locale defaultLocale = Locale.getDefault();
     Locale.setDefault(Locale.US);
     
-  	DefaultDateTypeAdapter dateTypeAdapter = new DefaultDateTypeAdapter(DateFormatType.DEFAULT);
+  	DefaultDateTypeAdapter dateTypeAdapter = new DefaultDateTypeAdapter(DateFormatType.CUSTOM);
     try {
     	assertFormatted("Jan 1, 1970 12:00:00 AM", dateTypeAdapter);
     } finally {

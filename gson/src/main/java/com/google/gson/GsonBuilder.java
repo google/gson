@@ -77,7 +77,7 @@ public final class GsonBuilder {
   private boolean serializeNulls;
   private String datePattern;
   private DateFormat customDateFormat;
-  private DateFormatType outputDateFormat = DateFormatType.DEFAULT;
+  private DateFormatType outputDateFormatType = DateFormatType.EN_US;
   private int dateStyle = DateFormat.DEFAULT;
   private int timeStyle = DateFormat.DEFAULT;
   private boolean complexMapKeySerialization;
@@ -428,6 +428,23 @@ public final class GsonBuilder {
     this.customDateFormat = null;
     return this;
   }
+  
+  // TODO
+  /**
+   * Configures Gson to serialize {@code Date} objects according to the date format type value provided.
+   *
+   * <p>Note that this style value should be one of the predefined constants in the
+   * {@code DateFormatType} class.</p>
+   *
+   * @param outputDateFormatType the predefined date format type that date objects will be serialized
+   * to/from
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @since 1.2
+   */
+  public GsonBuilder setDateFormatType(DateFormatType outputDateFormatType) {
+    this.outputDateFormatType = outputDateFormatType;
+    return this;
+  }
 
   /**
    * Configures Gson to to serialize {@code Date} objects according to the style value provided.
@@ -565,7 +582,7 @@ public final class GsonBuilder {
     factories.addAll(this.factories);
     Collections.reverse(factories);
     factories.addAll(this.hierarchyFactories);
-    addTypeAdaptersForDate(datePattern, dateStyle, timeStyle, customDateFormat, factories);
+    addTypeAdaptersForDate(datePattern, dateStyle, timeStyle, customDateFormat, outputDateFormatType, factories);
 
     return new Gson(excluder, fieldNamingPolicy, instanceCreators,
         serializeNulls, complexMapKeySerialization,
@@ -573,15 +590,15 @@ public final class GsonBuilder {
         serializeSpecialFloatingPointValues, longSerializationPolicy, factories);
   }
 
-  private void addTypeAdaptersForDate(String datePattern, int dateStyle, int timeStyle, DateFormat dateFormat,
+  private void addTypeAdaptersForDate(String datePattern, int dateStyle, int timeStyle, DateFormat dateFormat, DateFormatType outputDateFormatType,
       List<TypeAdapterFactory> factories) {
     DefaultDateTypeAdapter dateTypeAdapter;
     if(dateFormat != null){
-    	dateTypeAdapter = new DefaultDateTypeAdapter(dateFormat);
+    	dateTypeAdapter = new DefaultDateTypeAdapter(dateFormat, outputDateFormatType);
     } else if (datePattern != null && !"".equals(datePattern.trim())) {
-      dateTypeAdapter = new DefaultDateTypeAdapter(datePattern);
+      dateTypeAdapter = new DefaultDateTypeAdapter(datePattern, outputDateFormatType);
     } else if (dateStyle != DateFormat.DEFAULT && timeStyle != DateFormat.DEFAULT) {
-      dateTypeAdapter = new DefaultDateTypeAdapter(dateStyle, timeStyle);
+      dateTypeAdapter = new DefaultDateTypeAdapter(dateStyle, timeStyle, outputDateFormatType);
     } else {
       return;
     }

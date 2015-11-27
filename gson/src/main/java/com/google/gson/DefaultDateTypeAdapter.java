@@ -43,29 +43,35 @@ final class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserial
 	
 	private final EnumMap<DateFormatType, DateFormatter> dateFormats;
 	private final DateFormatType outputDateFormatType;
-	
-  private final DateFormat enUsFormat;
-  private final DateFormat localFormat;
 
   DefaultDateTypeAdapter() {
     this(DateFormatType.EN_US);
   }
   
-  DefaultDateTypeAdapter(DateFormatType outputFormat) {
+  DefaultDateTypeAdapter(DateFormatType outputFormatType) {
     this(DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.US),
         DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT),
-        outputFormat);
+        outputFormatType);
   }
 
   DefaultDateTypeAdapter(String datePattern) {
+    this(datePattern,
+    		DateFormatType.EN_US);
+  }
+  
+  DefaultDateTypeAdapter(String datePattern, DateFormatType outputFormatType) {
     this(new SimpleDateFormat(datePattern, Locale.US),
     		new SimpleDateFormat(datePattern),
     		DateFormatType.EN_US);
   }
   
+  DefaultDateTypeAdapter(DateFormat dateFormat, DateFormatType outputFormatType) {
+  	this(outputFormatType);
+    dateFormats.put(DateFormatType.CUSTOM, new SimpleDateFormatter(dateFormat));
+  }
+  
   DefaultDateTypeAdapter(DateFormat dateFormat) {
-  	this(DateFormatType.EN_US);
-    dateFormats.put(DateFormatType.DEFAULT, new SimpleDateFormatter(dateFormat));
+  	this(dateFormat, DateFormatType.EN_US);
   }
 
   DefaultDateTypeAdapter(int style) {
@@ -87,18 +93,18 @@ final class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserial
   }
 
   DefaultDateTypeAdapter(DateFormat enUsFormat, DateFormat localFormat, DateFormatType outputFormat) {
+  	
+  	// Make sure every DateFormatType is present in dateFormats
   	dateFormats = new EnumMap<DateFormatType, DateFormatter>(DateFormatType.class);
   	SimpleDateFormatter usFormatter = new SimpleDateFormatter(enUsFormat);
   	dateFormats.put(DateFormatType.EN_US, usFormatter);
   	
   	// Set Custom to US to prevent null pointer
-  	dateFormats.put(DateFormatType.DEFAULT, usFormatter);
+  	dateFormats.put(DateFormatType.CUSTOM, usFormatter);
   	dateFormats.put(DateFormatType.LOCAL, new SimpleDateFormatter(localFormat));
   	dateFormats.put(DateFormatType.ISO_8601, ISO8601DateFormater.getInstance());
   	
   	outputDateFormatType = outputFormat;
-    this.enUsFormat = enUsFormat;
-    this.localFormat = localFormat;
   }
 
   @Override
@@ -146,7 +152,7 @@ final class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserial
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append(DefaultDateTypeAdapter.class.getSimpleName());
-    sb.append('(').append(localFormat.getClass().getSimpleName()).append(')');
+    sb.append('(').append(dateFormats.get(DateFormatType.LOCAL).toString()).append(')');
     return sb.toString();
   }
 }

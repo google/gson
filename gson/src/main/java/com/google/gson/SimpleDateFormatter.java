@@ -28,4 +28,10 @@ final class SimpleDateFormatter implements DateFormatter
 			return dateFormat.parse(dateAsString);
 		}
 	}
+	
+	@Override
+	public String toString()
+	{
+		return dateFormat.getClass().getSimpleName();
+	}
 }
