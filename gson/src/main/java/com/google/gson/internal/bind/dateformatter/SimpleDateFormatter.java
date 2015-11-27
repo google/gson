@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package com.google.gson.internal.bind.dateformatter;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Date;
 
-final class SimpleDateFormatter implements DateFormatter
+public final class SimpleDateFormatter implements DateFormatter
 {
 	private final DateFormat dateFormat;
 	
-	SimpleDateFormatter(DateFormat dateFormat) {
+	public SimpleDateFormatter(DateFormat dateFormat) {
 		// Clone to prevent object from change
     this.dateFormat = (DateFormat) dateFormat.clone();
   }

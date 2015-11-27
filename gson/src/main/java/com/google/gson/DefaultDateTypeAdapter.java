@@ -20,15 +20,17 @@ import java.lang.reflect.Type;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Locale;
-import java.util.TimeZone;
 
-import com.google.gson.internal.bind.util.ISO8601Utils;
+import com.google.gson.internal.bind.dateformatter.DateFormatter;
+import com.google.gson.internal.bind.dateformatter.ISO8601DateFormatter;
+import com.google.gson.internal.bind.dateformatter.MillisDateFormatter;
+import com.google.gson.internal.bind.dateformatter.SimpleDateFormatter;
+import com.google.gson.internal.bind.dateformatter.UnixDateFormatter;
 
 /**
  * This type adapter supports three subclasses of date: Date, Timestamp, and
@@ -117,7 +119,7 @@ final class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserial
   	DateFormatType formatForLong = outputDateFormatType == DateFormatType.UNIX ? outputDateFormatType : DateFormatType.MILLIS;
   	dateParsersToUse.add(formatForLong);
   	
-  	//
+  	// DateFormatter type to use for serialization
   	this.outputDateFormatType = outputDateFormatType;
   }
 

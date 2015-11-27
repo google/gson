@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package com.google.gson.internal.bind.dateformatter;
 
 import java.util.Date;
 
-final class UnixDateFormatter implements DateFormatter
+public final class UnixDateFormatter implements DateFormatter
 {
 private UnixDateFormatter(){};
 	

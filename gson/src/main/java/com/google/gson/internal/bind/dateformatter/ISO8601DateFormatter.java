@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package com.google.gson.internal.bind.dateformatter;
 
 import java.text.ParseException;
 import java.text.ParsePosition;
@@ -22,7 +22,7 @@ import java.util.Date;
 
 import com.google.gson.internal.bind.util.ISO8601Utils;
 
-final class ISO8601DateFormatter implements DateFormatter
+public final class ISO8601DateFormatter implements DateFormatter
 {
 	private ISO8601DateFormatter(){};
 	

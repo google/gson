@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package com.google.gson.internal.bind.dateformatter;
 
 import java.text.ParseException;
 import java.util.Date;
 
-interface DateFormatter {
+public interface DateFormatter {
 
 	/**
 	 * Formats date during serialization.
