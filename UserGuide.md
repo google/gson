@@ -38,31 +38,27 @@
 
 Gson is a Java library that can be used to convert Java Objects into their JSON representation. It can also be used to convert a JSON string to an equivalent Java object.
 
-Gson can work with arbitrary Java objects including pre-existing objects that you do not have source-code of.
+Gson can work with arbitrary Java objects including pre-existing objects that you do not have source code of.
 
 ## <a name="TOC-Goals-for-Gson"></a>Goals for Gson
 
-*   Provide easy to use mechanisms like `toString()` and constructor (factory method) to convert Java to JSON and vice-versa
-*   Allow pre-existing unmodifiable objects to be converted to and from JSON
-*   Allow custom representations for objects
-*   Support arbitrarily complex object
-*   Generate compact and readability JSON output
+* Provide easy to use mechanisms like `toString()` and constructor (factory method) to convert Java to JSON and vice-versa
+* Allow pre-existing unmodifiable objects to be converted to and from JSON
+* Allow custom representations for objects
+* Support arbitrarily complex objects
+* Generate compact and readability JSON output
 
 ## <a name="TOC-Gson-Performance-and-Scalability"></a>Gson Performance and Scalability
 
-Here are some metrics that we obtained on a desktop (dual opteron, 8GB RAM, 64-bit Ubuntu) running lots of other things along-with the tests. You can rerun these tests by using the class [PerformanceTest](http://code.google.com/p/google-gson/source/browse/trunk/gson/src/test/java/com/google/gson/metrics/PerformanceTest.java).
+Here are some metrics that we obtained on a desktop (dual opteron, 8GB RAM, 64-bit Ubuntu) running lots of other things along-with the tests. You can rerun these tests by using the class [`PerformanceTest`](gson/src/test/java/com/google/gson/metrics/PerformanceTest.java).
 
-*   Strings: Deserialized strings of over 25MB without any problems (see `disabled_testStringDeserializationPerformance` method in `PerformanceTest`)
+* Strings: Deserialized strings of over 25MB without any problems (see `disabled_testStringDeserializationPerformance` method in `PerformanceTest`)
+* Large collections:
+  * Serialized a collection of 1.4 million objects (see `disabled_testLargeCollectionSerialization` method in `PerformanceTest`)
+  * Deserialized a collection of 87,000 objects (see `disabled_testLargeCollectionDeserialization` in `PerformanceTest`)
+* Gson 1.4 raised the deserialization limit for byte arrays and collection to over 11MB from 80KB.
 
-*   Large collections:
-
-*   Serialized a collection of 1.4 million objects (see `disabled_testLargeCollectionSerialization` method in `PerformanceTest`)
-
-*   Deserialized a collection of 87,000 objects (see `disabled_testLargeCollectionDeserialization` in `PerformanceTest`)
-
-*   Gson 1.4 raised the deserialization limit for byte arrays and collection to over 11MB from 80KB.
-
-Note: Delete the `disabled_` prefix to run these tests. We use this prefix to prevent running these tests every time we run junit tests.
+Note: Delete the `disabled_` prefix to run these tests. We use this prefix to prevent running these tests every time we run JUnit tests.
 
 ## <a name="TOC-Gson-Users"></a>Gson Users
 
@@ -70,7 +66,7 @@ Gson was originally created for use inside Google where it is currently used in 
 
 ## <a name="TOC-Using-Gson"></a>Using Gson
 
-The primary class to use is [Gson](http://code.google.com/p/google-gson/source/browse/trunk/gson/src/main/java/com/google/gson/Gson.java "Gson") which you can just create by calling new Gson(). There is also a class [GsonBuilder](http://code.google.com/p/google-gson/source/browse/trunk/gson/src/main/java/com/google/gson/GsonBuilder.java "GsonBuilder") available that can be used to create a Gson instance with various settings like version control and so on.
+The primary class to use is [`Gson`](gson/src/main/java/com/google/gson/Gson.java) which you can just create by calling `new Gson()`. There is also a class [`GsonBuilder`](gson/src/main/java/com/google/gson/GsonBuilder.java) available that can be used to create a Gson instance with various settings like version control and so on.
 
 The Gson instance does not maintain any state while invoking Json operations. So, you are free to reuse the same object for multiple Json serialization and deserialization operations.
 
@@ -135,14 +131,14 @@ BagOfPrimitives obj2 =gson.fromJson(json, BagOfPrimitives.class);
 
 #### <a name="TOC-Finer-Points-with-Objects"></a>**Finer Points with Objects**
 
-*   It is perfectly fine (and recommended) to use private fields
-*   There is no need to use any annotations to indicate a field is to be included for serialization and deserialization. All fields in the current class (and from all super classes) are included by default.
-*   If a field is marked transient, (by default) it is ignored and not included in the JSON serialization or deserialization.
-*   This implementation handles nulls correctly
-*   While serialization, a null field is skipped from the output
-*   While deserialization, a missing entry in JSON results in setting the corresponding field in the object to null
-*   If a field is _synthetic_, it is ignored and not included in JSON serialization or deserialization
-*   Fields corresponding to the outer classes in inner classes, anonymous classes, and local classes are ignored and not included in serialization or deserialization
+* It is perfectly fine (and recommended) to use private fields
+* There is no need to use any annotations to indicate a field is to be included for serialization and deserialization. All fields in the current class (and from all super classes) are included by default.
+* If a field is marked transient, (by default) it is ignored and not included in the JSON serialization or deserialization.
+* This implementation handles nulls correctly
+* While serialization, a null field is skipped from the output
+* While deserialization, a missing entry in JSON results in setting the corresponding field in the object to null
+* If a field is _synthetic_, it is ignored and not included in JSON serialization or deserialization
+* Fields corresponding to the outer classes in inner classes, anonymous classes, and local classes are ignored and not included in serialization or deserialization
 
 ### <a name="TOC-Nested-Classes-including-Inner-Classes-"></a>Nested Classes (including Inner Classes)
 
@@ -216,9 +212,9 @@ Unfortunately, there is no way to get around this in Java.
 
 #### <a name="TOC-Collections-Limitations"></a>Collections Limitations
 
-*   Can serialize collection of arbitrary objects but can not deserialize from it
-*   Because there is no way for the user to indicate the type of the resulting object
-*   While deserializing, Collection must be of a specific generic type
+* Can serialize collection of arbitrary objects but can not deserialize from it
+* Because there is no way for the user to indicate the type of the resulting object
+* While deserializing, Collection must be of a specific generic type
 
 All of this makes sense, and is rarely a problem when following good Java coding practices.
 
@@ -273,13 +269,13 @@ class Event {
 
 You can serialize the collection with Gson without doing anything specific: `toJson(collection)` would write out the desired output.
 
-However, deserialization with `fromJson(json, Collection.class)` will not work since Gson has no way of knowing how to map the input to the types. Gson requires that you provide a genericised version of collection type in fromJson. So, you have three options:
+However, deserialization with `fromJson(json, Collection.class)` will not work since Gson has no way of knowing how to map the input to the types. Gson requires that you provide a genericised version of collection type in `fromJson()`. So, you have three options:
 
-Option 1: Use Gson's parser API (low-level streaming parser or the DOM parser JsonParser) to parse the array elements and then use Gson.fromJson() on each of the array elements.This is the preferred approach. [Here is an example](http://code.google.com/p/google-gson/source/browse/trunk/extras/src/main/java/com/google/gson/extras/examples/rawcollections/RawCollectionsExample.java) that demonstrates how to do this.
+1. Use Gson's parser API (low-level streaming parser or the DOM parser JsonParser) to parse the array elements and then use `Gson.fromJson()` on each of the array elements.This is the preferred approach. [Here is an example](extras/src/main/java/com/google/gson/extras/examples/rawcollections/RawCollectionsExample.java) that demonstrates how to do this.
 
-Option 2: Register a type adapter for Collection.class that looks at each of the array members and maps them to appropriate objects. The disadvantage of this approach is that it will screw up deserialization of other collection types in Gson.
+2. Register a type adapter for `Collection.class` that looks at each of the array members and maps them to appropriate objects. The disadvantage of this approach is that it will screw up deserialization of other collection types in Gson.
 
-Option 3: Register a type adapter for MyCollectionMemberType and use fromJson with Collection<MyCollectionMemberType>
+3. Register a type adapter for `MyCollectionMemberType` and use `fromJson()` with `Collection<MyCollectionMemberType>`.
 
 This approach is practical only if the array appears as a top-level element or if you can change the field type holding the collection to be of type `Collection<MyCollectionMemberType>`.
 
@@ -288,20 +284,20 @@ This approach is practical only if the array appears as a top-level element or i
 Gson has built-in serializers and deserializers for commonly used classes whose default representation may be inappropriate.
 Here is a list of such classes:
 
-1.  `java.net.URL` to match it with strings like "http://code.google.com/p/google-gson/".
-2.  `java.net.URI` to match it with strings like "/p/google-gson/".
+1. `java.net.URL` to match it with strings like `"https://github.com/google/gson/"`
+2. `java.net.URI` to match it with strings like `"/google/gson/"`
 
-You can also find source-code for some commonly used classes such as JodaTime at [this page](https://sites.google.com/site/gson/gson-type-adapters-for-common-classes-1).
+You can also find source code for some commonly used classes such as JodaTime at [this page](https://sites.google.com/site/gson/gson-type-adapters-for-common-classes-1).
 
 ### <a name="TOC-Custom-Serialization-and-Deserialization"></a>Custom Serialization and Deserialization
 
 Sometimes default representation is not what you want. This is often the case when dealing with library classes (DateTime, etc).
 Gson allows you to register your own custom serializers and deserializers. This is done by defining two parts:
 
-*   Json Serialiers: Need to define custom serialization for an object
-*   Json Deserializers: Needed to define custom deserialization for a type
+* Json Serialiers: Need to define custom serialization for an object
+* Json Deserializers: Needed to define custom deserialization for a type
 
-*   Instance Creators: Not needed if no-args constructor is available or a deserializer is registered
+* Instance Creators: Not needed if no-args constructor is available or a deserializer is registered
 ```
 GsonBuilder gson = new GsonBuilder();
 gson.registerTypeAdapter(MyType2.class, new MyTypeAdapter());
@@ -343,22 +339,21 @@ Gson calls `deserialize` when it needs to deserialize a JSON string fragment int
 
 Often you want to register a single handler for all generic types corresponding to a raw type
 
-*   For example, suppose you have an "Id" class for Id representation/translation (i.e. an internal vs. external representation).
-*   `Id<T>` type that has same serialization for all generic types
-  *   Essentially write out the id value
-
-*   Deserialization is very similar but not exactly the same
-  *   Need to call `new Id(Class<T>, String)` which returns an instance of `Id<T>`
+* For example, suppose you have an `Id` class for id representation/translation (i.e. an internal vs. external representation).
+* `Id<T>` type that has same serialization for all generic types
+  * Essentially write out the id value
+* Deserialization is very similar but not exactly the same
+  * Need to call `new Id(Class<T>, String)` which returns an instance of `Id<T>`
 
 Gson supports registering a single handler for this. You can also register a specific handler for a specific generic type (say `Id<RequiresSpecialHandling>` needed special handling).
-The `Type` parameter for the `toJson` and `fromJson` contains the generic type information to help you write a single handler for all generic types corresponding to the same raw type.
+The `Type` parameter for the `toJson()` and `fromJson()` contains the generic type information to help you write a single handler for all generic types corresponding to the same raw type.
 
 ### <a name="TOC-Writing-an-Instance-Creator"></a>Writing an Instance Creator
 
 While deserializing an Object, Gson needs to create a default instance of the class.
 Well-behaved classes that are meant for serialization and deserialization should have a no-argument constructor.
 
-*   Doesn't matter whether public or private
+* Doesn't matter whether public or private
 
 Typically, Instance Creators are needed when you are dealing with a library class that does NOT define a no-argument constructor
 
@@ -374,8 +369,8 @@ private class MoneyInstanceCreator implements InstanceCreator<Money> {
 
 Type could be of a corresponding generic type
 
-*   Very useful to invoke constructors which need specific generic type information
-*   For example, if the `Id` class stores the class for which the Id is being created
+* Very useful to invoke constructors which need specific generic type information
+* For example, if the `Id` class stores the class for which the Id is being created
 
 #### <a name="TOC-InstanceCreator-for-a-Parameterized-Type"></a>InstanceCreator for a Parameterized Type
 
@@ -464,7 +459,7 @@ null
 ```
 ### <a name="TOC-Versioning-Support"></a>Versioning Support
 
-Multiple versions of the same object can be maintained by using [@Since](http://code.google.com/p/google-gson/source/browse/trunk/gson/src/main/java/com/google/gson/annotations/Since.java "@Since") annotation. This annotation can be used on Classes, Fields and, in a future release, Methods. In order to leverage this feature, you must configure your `Gson` instance to ignore any field/object that is greater than some version number. If no version is set on the `Gson` instance then it will serialize and deserialize all fields and classes regardless of the version.
+Multiple versions of the same object can be maintained by using [@Since](gson/src/main/java/com/google/gson/annotations/Since.java) annotation. This annotation can be used on Classes, Fields and, in a future release, Methods. In order to leverage this feature, you must configure your `Gson` instance to ignore any field/object that is greater than some version number. If no version is set on the `Gson` instance then it will serialize and deserialize all fields and classes regardless of the version.
 ```
 public class VersionedClass {
   @Since(1.1) private final String newerField;
@@ -520,9 +515,9 @@ This feature provides a way where you can mark certain fields of your objects to
 
 #### <a name="TOC-User-Defined-Exclusion-Strategies"></a>User Defined Exclusion Strategies
 
-If the above mechanisms for excluding fields and class type do not work for you then you can always write your own exclusion strategy and plug it into Gson. See the [`ExclusionStrategy`](http://google-gson.googlecode.com/svn/trunk/gson/docs/javadocs/com/google/gson/ExclusionStrategy.html) JavaDoc for more information.
+If the above mechanisms for excluding fields and class type do not work for you then you can always write your own exclusion strategy and plug it into Gson. See the [`ExclusionStrategy`](http://google.github.io/gson/apidocs/com/google/gson/ExclusionStrategy.html) JavaDoc for more information.
 
-The following example shows how to exclude fields marked with a specific "@Foo" annotation and excludes top-level types (or declared field type) of class String.
+The following example shows how to exclude fields marked with a specific `@Foo` annotation and excludes top-level types (or declared field type) of class `String`.
 ```
   @Retention(RetentionPolicy.RUNTIME)
   @Target({ElementType.FIELD})
@@ -605,9 +600,9 @@ If you have a need for custom naming policy ([see this discussion](http://groups
 
 Sometimes you need to share state across custom serializers/deserializers ([see this discussion](http://groups.google.com/group/google-gson/browse_thread/thread/2850010691ea09fb)). You can use the following three strategies to accomplish this:
 
-1.  Store shared state in static fields
-2.  Declare the serializer/deserializer as inner classes of a parent type, and use the instance fields of parent type to store shared state
-3.  Use Java ThreadLocal
+1. Store shared state in static fields
+2. Declare the serializer/deserializer as inner classes of a parent type, and use the instance fields of parent type to store shared state
+3. Use Java `ThreadLocal`
 
 1 and 2 are not thread-safe options, but 3 is.
 
@@ -621,4 +616,4 @@ See the [Gson design document](https://sites.google.com/site/gson/gson-design-do
 
 ## <a name="TOC-Future-Enhancements-to-Gson"></a>Future Enhancements to Gson
 
-For the latest list of proposed enhancements or if you'd like to suggest new ones, see the [Issues section](http://code.google.com/p/google-gson/issues/list "Issues section") under the project website.
+For the latest list of proposed enhancements or if you'd like to suggest new ones, see the [Issues section](https://github.com/google/gson/issues) under the project website.
