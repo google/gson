@@ -77,7 +77,7 @@ public final class GsonBuilder {
   private boolean serializeNulls;
   private String datePattern;
   private DateFormat customDateFormat;
-  private DateFormatType outputDateFormatType = DateFormatType.EN_US;
+  private DateFormatType outputDateFormatType = DateFormatType.DEFAULT;
   private int dateStyle = DateFormat.DEFAULT;
   private int timeStyle = DateFormat.DEFAULT;
   private boolean complexMapKeySerialization;
@@ -429,17 +429,15 @@ public final class GsonBuilder {
     return this;
   }
   
-  // TODO
   /**
    * Configures Gson to serialize {@code Date} objects according to the date format type value provided.
    *
    * <p>Note that this style value should be one of the predefined constants in the
    * {@code DateFormatType} class.</p>
    *
-   * @param outputDateFormatType the predefined date format type that date objects will be serialized
-   * to/from
+   * @param outputDateFormatType the predefined date format type that date objects will be serialized to
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
-   * @since 1.2
+   * @since 2.6
    */
   public GsonBuilder setDateFormatType(DateFormatType outputDateFormatType) {
     this.outputDateFormatType = outputDateFormatType;
@@ -599,6 +597,8 @@ public final class GsonBuilder {
       dateTypeAdapter = new DefaultDateTypeAdapter(datePattern, outputDateFormatType);
     } else if (dateStyle != DateFormat.DEFAULT && timeStyle != DateFormat.DEFAULT) {
       dateTypeAdapter = new DefaultDateTypeAdapter(dateStyle, timeStyle, outputDateFormatType);
+    } else if (outputDateFormatType != DateFormatType.DEFAULT) {
+    	dateTypeAdapter = new DefaultDateTypeAdapter(outputDateFormatType);
     } else {
       return;
     }

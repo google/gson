@@ -79,6 +79,23 @@ public class DefaultDateTypeAdapterTest extends TestCase {
     }
   }
   
+  public void testDefaultOutputFormatterIsEnUs()
+  {
+  	TimeZone defaultTimeZone = TimeZone.getDefault();
+    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+    Locale defaultLocale = Locale.getDefault();
+    Locale.setDefault(Locale.US);
+    
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+  	DefaultDateTypeAdapter dateTypeAdapter = new DefaultDateTypeAdapter(dateFormat, DateFormatType.DEFAULT);
+    try {
+    	assertFormatted("Jan 1, 1970 12:00:00 AM", dateTypeAdapter);
+    } finally {
+      TimeZone.setDefault(defaultTimeZone);
+      Locale.setDefault(defaultLocale);
+    }
+  }
+  
   public void testOutputNotFormattedWithCustomDateFormat()
   {
   	TimeZone defaultTimeZone = TimeZone.getDefault();

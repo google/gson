@@ -41,7 +41,8 @@ final class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserial
 
   // TODO: migrate to streaming adapter
 	
-	private final EnumMap<DateFormatType, DateFormatter> dateFormats;
+	private final EnumMap<DateFormatType, DateFormatter> dateFormatters;
+	private final EnumSet<DateFormatType> dateParsersToUse;
 	private final DateFormatType outputDateFormatType;
 
   DefaultDateTypeAdapter() {
@@ -67,7 +68,8 @@ final class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserial
   
   DefaultDateTypeAdapter(DateFormat dateFormat, DateFormatType outputFormatType) {
   	this(outputFormatType);
-    dateFormats.put(DateFormatType.CUSTOM, new SimpleDateFormatter(dateFormat));
+    dateFormatters.put(DateFormatType.CUSTOM, new SimpleDateFormatter(dateFormat));
+    dateParsersToUse.add(DateFormatType.CUSTOM);
   }
   
   DefaultDateTypeAdapter(DateFormat dateFormat) {
@@ -95,21 +97,26 @@ final class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserial
   DefaultDateTypeAdapter(DateFormat enUsFormat, DateFormat localFormat, DateFormatType outputFormat) {
   	
   	// Make sure every DateFormatType is present in dateFormats
-  	dateFormats = new EnumMap<DateFormatType, DateFormatter>(DateFormatType.class);
-  	SimpleDateFormatter usFormatter = new SimpleDateFormatter(enUsFormat);
-  	dateFormats.put(DateFormatType.EN_US, usFormatter);
+  	dateFormatters = new EnumMap<DateFormatType, DateFormatter>(DateFormatType.class);
+  	SimpleDateFormatter enUsFormatter = new SimpleDateFormatter(enUsFormat);
+  	dateFormatters.put(DateFormatType.EN_US, enUsFormatter);
   	
-  	// Set Custom to US to prevent null pointer
-  	dateFormats.put(DateFormatType.CUSTOM, usFormatter);
-  	dateFormats.put(DateFormatType.LOCAL, new SimpleDateFormatter(localFormat));
-  	dateFormats.put(DateFormatType.ISO_8601, ISO8601DateFormater.getInstance());
+  	// Set Custom and Default to EN-US to prevent null pointer
+  	dateFormatters.put(DateFormatType.CUSTOM, enUsFormatter);
+  	dateFormatters.put(DateFormatType.DEFAULT, enUsFormatter);
+  	
+  	dateFormatters.put(DateFormatType.LOCAL, new SimpleDateFormatter(localFormat));
+  	dateFormatters.put(DateFormatType.ISO_8601, ISO8601DateFormater.getInstance());
+  	
+  	// Date type formatters to use. Prevents repeating parsing when Default or Custom are set to EN-US.
+  	dateParsersToUse = EnumSet.of(DateFormatType.EN_US, DateFormatType.LOCAL, DateFormatType.ISO_8601);
   	
   	outputDateFormatType = outputFormat;
   }
 
   @Override
   public JsonElement serialize(Date src, Type typeOfSrc, JsonSerializationContext context) {
-  	String dateFormatAsString = dateFormats.get(outputDateFormatType).format(src);
+  	String dateFormatAsString = dateFormatters.get(outputDateFormatType).format(src);
   	return new JsonPrimitive(dateFormatAsString);
   }
 
@@ -136,8 +143,9 @@ final class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserial
   	
   	ParseException parseExc = null; // Hopefully will not be used
   	
-  	for(DateFormatter dateFormatter : dateFormats.values() )
+  	for(DateFormatType dateFormatType : dateParsersToUse )
   	{
+  		DateFormatter dateFormatter = dateFormatters.get(dateFormatType);
   		try{
   			return dateFormatter.parse(jsonString);
   		} catch (ParseException e) {
@@ -152,7 +160,7 @@ final class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserial
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append(DefaultDateTypeAdapter.class.getSimpleName());
-    sb.append('(').append(dateFormats.get(DateFormatType.LOCAL).toString()).append(')');
+    sb.append('(').append(dateFormatters.get(DateFormatType.LOCAL).toString()).append(')');
     return sb.toString();
   }
 }
