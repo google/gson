@@ -18,8 +18,8 @@ package com.google.gson;
 
 public enum DateFormatType {
 	/**
-	 * Use custom {@link java.text.DateFormat} to format Date at serialization.
-	 * Otherwise uses {@code DateFormatType.DEFAULT}
+	 * Use custom {@link java.text.DateFormat} to format Date at serialization if
+	 * was set. Otherwise is same as {@code DateFormatType.DEFAULT}
 	 */
 	CUSTOM,
 	/**
