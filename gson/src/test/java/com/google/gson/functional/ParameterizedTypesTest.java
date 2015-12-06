@@ -18,6 +18,8 @@ package com.google.gson.functional;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.ParameterizedTypeFixtures.MyParameterizedType;
 import com.google.gson.ParameterizedTypeFixtures.MyParameterizedTypeAdapter;
 import com.google.gson.ParameterizedTypeFixtures.MyParameterizedTypeInstanceCreator;
@@ -500,4 +502,59 @@ public class ParameterizedTypesTest extends TestCase {
     assertEquals(30, amount.value);
   }
   // End: tests to reproduce issue 103
+
+  // Begin: tests to reproduce issue 722
+
+  // A simplified version of guava's Optional type with only Present instances
+  private static abstract class Optional<T> {
+    static <T> Optional<T> of(T value) {
+      return new Present<T>(value);
+    }
+  }
+
+  private static final class Present<T> extends Optional<T> {
+    final T value;
+
+    Present(T value) {
+      this.value = value;
+    }
+  }
+
+  private static final Optional<String> OPTIONAL = Optional.of("string");
+
+  private static final class ParameterizedTypeInstanceVariable {
+    final Optional<String> optional = OPTIONAL;
+  }
+
+  private static final class RawTypeInstanceVariable {
+    final Optional optional = OPTIONAL;
+  }
+
+  private static JsonObject expectedSerializedOptional() {
+    JsonObject optional = new JsonObject();
+    optional.addProperty("value", "string");
+    return optional;
+  }
+
+  private static JsonObject expectedSerializedObjectWithOptionalInstanceVariable() {
+    JsonObject object = new JsonObject();
+    object.add("optional", expectedSerializedOptional());
+    return object;
+  }
+
+  public void testParameterizedTypeSubclassSerialization() {
+    JsonElement json = gson.toJsonTree(OPTIONAL);
+    assertEquals(expectedSerializedOptional(), json);
+  }
+
+  public void testParameterizedTypeSubclassInstanceVariableSerialization() {
+    JsonElement json = gson.toJsonTree(new ParameterizedTypeInstanceVariable());
+    assertEquals(expectedSerializedObjectWithOptionalInstanceVariable(), json);
+  }
+
+  public void testRawTypeSubclassInstanceVariableSerialization() {
+    JsonElement json = gson.toJsonTree(new RawTypeInstanceVariable());
+    assertEquals(expectedSerializedObjectWithOptionalInstanceVariable(), json);
+  }
+  // End: tests to reproduce issue 722
 }
