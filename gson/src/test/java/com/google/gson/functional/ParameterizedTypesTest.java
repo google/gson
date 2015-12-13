@@ -16,16 +16,6 @@
 
 package com.google.gson.functional;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.ParameterizedTypeFixtures.MyParameterizedType;
-import com.google.gson.ParameterizedTypeFixtures.MyParameterizedTypeAdapter;
-import com.google.gson.ParameterizedTypeFixtures.MyParameterizedTypeInstanceCreator;
-import com.google.gson.common.TestTypes.BagOfPrimitives;
-import com.google.gson.reflect.TypeToken;
-
-import junit.framework.TestCase;
-
 import java.io.Reader;
 import java.io.Serializable;
 import java.io.StringReader;
@@ -35,6 +25,16 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.ParameterizedTypeFixtures.MyParameterizedType;
+import com.google.gson.ParameterizedTypeFixtures.MyParameterizedTypeAdapter;
+import com.google.gson.ParameterizedTypeFixtures.MyParameterizedTypeInstanceCreator;
+import com.google.gson.common.TestTypes.BagOfPrimitives;
+import com.google.gson.reflect.TypeToken;
+
+import junit.framework.TestCase;
 
 /**
  * Functional tests for the serialization and deserialization of parameterized types in Gson.
@@ -500,4 +500,50 @@ public class ParameterizedTypesTest extends TestCase {
     assertEquals(30, amount.value);
   }
   // End: tests to reproduce issue 103
+
+  // Begin: tests to reproduce issue 722
+
+  // A simplified version of guava's Optional type with only Present instances
+  private static abstract class Optional<T> {
+    static <T> Optional<T> of(T value) {
+      return new Present<T>(value);
+    }
+  }
+
+  @SuppressWarnings("unused")
+  private static final class Present<T> extends Optional<T> {
+    final T value;
+
+    Present(T value) {
+      this.value = value;
+    }
+  }
+
+  private static final Optional<String> OPTIONAL = Optional.of("string");
+
+  @SuppressWarnings({ "rawtypes", "unused" })
+  private static final class RawFoo {
+    final Optional optional = OPTIONAL;
+  }
+
+  @SuppressWarnings("unused")
+  private static final class ParameterizedFoo {
+    final Optional<String> optional = OPTIONAL;
+  }
+
+  public void testParameterizedTypeSubclassSerialization() {
+    String json = gson.toJson(OPTIONAL);
+    assertEquals("{\"value\":\"string\"}", json);
+  }
+
+  public void testRawTypeSubclassInstanceVariableSerialization() {
+    String json = gson.toJson(new RawFoo());
+    assertEquals("{\"optional\":{\"value\":\"string\"}}", json);
+  }
+
+  public void testParameterizedTypeSubclassInstanceVariableSerialization() {
+    String json = gson.toJson(new ParameterizedFoo());
+    assertEquals("{\"optional\":{\"value\":\"string\"}}", json);
+  }
+  // End: tests to reproduce issue 722
 }
