@@ -15,14 +15,17 @@
  */
 package com.google.gson.internal.bind;
 
+import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
+import com.google.gson.internal.$Gson$Types;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
 
 final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
   private final Gson context;
@@ -73,9 +76,27 @@ final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
    */
   private Type getRuntimeTypeIfMoreSpecific(Type type, Object value) {
     if (value != null
-        && (type == Object.class || type instanceof TypeVariable<?> || type instanceof Class<?>)) {
+        && (type == Object.class || type instanceof TypeVariable<?> || type instanceof Class<?>
+        // If the parameterized type has no fields, consider using the class object
+        || (type instanceof ParameterizedType && fieldCount((ParameterizedType)type) == 0) )) {
       type = value.getClass();
     }
     return type;
+  }
+
+  private static int fieldCount(ParameterizedType type) {
+    Class<?> raw = $Gson$Types.getRawType(type);
+    return getFieldsCountUpTo(raw, Object.class);
+  }
+
+  /** Based on http://stackoverflow.com/questions/16966629/what-is-the-difference-between-getfields-and-getdeclaredfields-in-java-reflectio */
+  public static int getFieldsCountUpTo(Class<?> clazz, Class<?> exclusiveParent) {
+    int count = clazz.getDeclaredFields().length;
+    Class<?> parentClass = clazz.getSuperclass();
+    if (parentClass != null &&
+           (exclusiveParent == null || !(parentClass.equals(exclusiveParent)))) {
+      count += getFieldsCountUpTo(parentClass, exclusiveParent);
+    }
+    return count;
   }
 }
