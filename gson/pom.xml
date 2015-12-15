@@ -13,7 +13,7 @@
     <relativePath />
   </parent>
   <url>https://github.com/google/gson</url>
-  <description>Google Gson library</description>
+  <description>Google Gson: Java to JSON conversion library</description>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
