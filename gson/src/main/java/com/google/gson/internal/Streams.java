@@ -85,7 +85,7 @@ public final class Streams {
     private final Appendable appendable;
     private final CurrentWrite currentWrite = new CurrentWrite();
 
-    private AppendableWriter(Appendable appendable) {
+    AppendableWriter(Appendable appendable) {
       this.appendable = appendable;
     }
 

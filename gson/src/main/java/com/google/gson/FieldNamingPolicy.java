@@ -120,7 +120,7 @@ public enum FieldNamingPolicy implements FieldNamingStrategy {
    * Converts the field name that uses camel-case define word separation into
    * separate words that are separated by the provided {@code separatorString}.
    */
-  private static String separateCamelCase(String name, String separator) {
+  static String separateCamelCase(String name, String separator) {
     StringBuilder translation = new StringBuilder();
     for (int i = 0; i < name.length(); i++) {
       char character = name.charAt(i);
@@ -135,7 +135,7 @@ public enum FieldNamingPolicy implements FieldNamingStrategy {
   /**
    * Ensures the JSON field names begins with an upper case letter.
    */
-  private static String upperCaseFirstLetter(String name) {
+  static String upperCaseFirstLetter(String name) {
     StringBuilder fieldNameBuilder = new StringBuilder();
     int index = 0;
     char firstCharacter = name.charAt(index);
