@@ -242,7 +242,7 @@ public class JsonReader implements Closeable {
   private int lineNumber = 0;
   private int lineStart = 0;
 
-  private int peeked = PEEKED_NONE;
+  int peeked = PEEKED_NONE;
 
   /**
    * A peeked value that was composed entirely of digits with an optional
@@ -462,7 +462,7 @@ public class JsonReader implements Closeable {
     }
   }
 
-  private int doPeek() throws IOException {
+  int doPeek() throws IOException {
     int peekStack = stack[stackSize - 1];
     if (peekStack == JsonScope.EMPTY_ARRAY) {
       stack[stackSize - 1] = JsonScope.NONEMPTY_ARRAY;
@@ -1314,11 +1314,11 @@ public class JsonReader implements Closeable {
     return false;
   }
 
-  private int getLineNumber() {
+  int getLineNumber() {
     return lineNumber + 1;
   }
 
-  private int getColumnNumber() {
+  int getColumnNumber() {
     return pos - lineStart + 1;
   }
 

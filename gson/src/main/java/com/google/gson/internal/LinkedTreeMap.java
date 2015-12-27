@@ -528,6 +528,9 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
     Node<K, V> lastReturned = null;
     int expectedModCount = modCount;
 
+    LinkedTreeMapIterator() {
+    }
+
     public final boolean hasNext() {
       return next != header;
     }

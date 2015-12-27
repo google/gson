@@ -38,7 +38,7 @@ final class TreeTypeAdapter<T> extends TypeAdapter<T> {
   /** The delegate is lazily created because it may not be needed, and creating it may fail. */
   private TypeAdapter<T> delegate;
 
-  private TreeTypeAdapter(JsonSerializer<T> serializer, JsonDeserializer<T> deserializer,
+  TreeTypeAdapter(JsonSerializer<T> serializer, JsonDeserializer<T> deserializer,
       Gson gson, TypeToken<T> typeToken, TypeAdapterFactory skipPast) {
     this.serializer = serializer;
     this.deserializer = deserializer;
@@ -112,7 +112,7 @@ final class TreeTypeAdapter<T> extends TypeAdapter<T> {
     private final JsonSerializer<?> serializer;
     private final JsonDeserializer<?> deserializer;
 
-    private SingleTypeFactory(Object typeAdapter, TypeToken<?> exactType, boolean matchRawType,
+    SingleTypeFactory(Object typeAdapter, TypeToken<?> exactType, boolean matchRawType,
         Class<?> hierarchyType) {
       serializer = typeAdapter instanceof JsonSerializer
           ? (JsonSerializer<?>) typeAdapter

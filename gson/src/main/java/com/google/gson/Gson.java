@@ -303,7 +303,7 @@ public final class Gson {
     };
   }
 
-  private void checkValidFloatingPoint(double value) {
+  static void checkValidFloatingPoint(double value) {
     if (Double.isNaN(value) || Double.isInfinite(value)) {
       throw new IllegalArgumentException(value
           + " is not a valid double value as per JSON specification. To override this"
@@ -459,7 +459,7 @@ public final class Gson {
    *  }</pre>
    *  Note that this call will skip all factories registered before {@code skipPast}. In case of
    *  multiple TypeAdapterFactories registered it is up to the caller of this function to insure
-   *  that the order of registration does not prevent this method from reaching a factory they 
+   *  that the order of registration does not prevent this method from reaching a factory they
    *  would expect to reply from this call.
    *  Note that since you can not override type adapter factories for String and Java primitive
    *  types, our stats factory will not count the number of String or primitives that will be

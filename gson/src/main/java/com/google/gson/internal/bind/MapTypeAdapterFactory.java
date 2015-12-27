@@ -104,7 +104,7 @@ import java.util.Map;
  */
 public final class MapTypeAdapterFactory implements TypeAdapterFactory {
   private final ConstructorConstructor constructorConstructor;
-  private final boolean complexMapKeySerialization;
+  final boolean complexMapKeySerialization;
 
   public MapTypeAdapterFactory(ConstructorConstructor constructorConstructor,
       boolean complexMapKeySerialization) {
