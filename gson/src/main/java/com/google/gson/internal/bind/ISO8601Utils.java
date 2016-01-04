@@ -1,4 +1,4 @@
-package com.google.gson.internal.bind.util;
+package com.google.gson.internal.bind;
 
 import java.text.ParseException;
 import java.text.ParsePosition;

@@ -24,9 +24,8 @@ import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.TimeZone;
 
-import com.google.gson.internal.bind.util.ISO8601Utils;
+import com.google.gson.internal.bind.ISO8601Utils;
 
 /**
  * This type adapter supports three subclasses of date: Date, Timestamp, and
