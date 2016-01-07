@@ -111,8 +111,8 @@ public final class Gson {
    * lookup would stack overflow. We cheat by returning a proxy type adapter.
    * The proxy is wired up once the initial adapter has been created.
    */
-  private final ThreadLocal<Map<TypeToken<?>, FutureTypeAdapter<?>>> calls
-      = new ThreadLocal<Map<TypeToken<?>, FutureTypeAdapter<?>>>();
+  private final ThreadLocal<Map<TypeToken<?>, TypeAdapter<?>>> calls
+      = new ThreadLocal<Map<TypeToken<?>, TypeAdapter<?>>>();
 
   private final Map<TypeToken<?>, TypeAdapter<?>> typeTokenCache
       = Collections.synchronizedMap(new HashMap<TypeToken<?>, TypeAdapter<?>>());
@@ -385,37 +385,41 @@ public final class Gson {
       return (TypeAdapter<T>) cached;
     }
 
-    Map<TypeToken<?>, FutureTypeAdapter<?>> threadCalls = calls.get();
-    boolean requiresThreadLocalCleanup = false;
+    Map<TypeToken<?>, TypeAdapter<?>> threadCalls = calls.get();
+    boolean firstThreadLocal = false;
     if (threadCalls == null) {
-      threadCalls = new HashMap<TypeToken<?>, FutureTypeAdapter<?>>();
+      threadCalls = new HashMap<TypeToken<?>, TypeAdapter<?>>();
       calls.set(threadCalls);
-      requiresThreadLocalCleanup = true;
+      firstThreadLocal = true;
     }
 
     // the key and value type parameters always agree
-    FutureTypeAdapter<T> ongoingCall = (FutureTypeAdapter<T>) threadCalls.get(type);
+    TypeAdapter<T> ongoingCall = (TypeAdapter<T>) threadCalls.get(type);
     if (ongoingCall != null) {
       return ongoingCall;
     }
 
     try {
-      FutureTypeAdapter<T> call = new FutureTypeAdapter<T>();
-      threadCalls.put(type, call);
+      FutureTypeAdapter<T> futureTypeAdapter = new FutureTypeAdapter<T>();
+      threadCalls.put(type, futureTypeAdapter);
 
       for (TypeAdapterFactory factory : factories) {
         TypeAdapter<T> candidate = factory.create(this, type);
         if (candidate != null) {
-          call.setDelegate(candidate);
-          typeTokenCache.put(type, candidate);
+          // overwrite future type adapter with real type adapter
+          threadCalls.put(type, candidate);
+          // set delegate on future type adapter so that any type adapter that
+          // refers to it will be able to use this candidate through delegation
+          futureTypeAdapter.setDelegate(candidate);
           return candidate;
         }
       }
       throw new IllegalArgumentException("GSON cannot handle " + type);
     } finally {
-      threadCalls.remove(type);
-
-      if (requiresThreadLocalCleanup) {
+      if (firstThreadLocal) {
+        // move thread local type adapters to cache on instance
+        typeTokenCache.putAll(threadCalls);
+        // clear thread local
         calls.remove();
       }
     }
