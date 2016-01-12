@@ -94,12 +94,8 @@ public final class DateTimeTypeAdapters {
     final DateFormat localFormat;
 
     public DateTypeAdapter() {
-      this(Locale.US);
-    }
-
-    public DateTypeAdapter(Locale locale) {
-      this(DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, locale),
-          DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT));
+      this(DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.US),
+      DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT));
     }
 
     public DateTypeAdapter(String datePattern) {
@@ -134,13 +130,17 @@ public final class DateTimeTypeAdapters {
       return (D) date;
     }
 
-    private synchronized Date deserializeToDate(String json) {
+    private Date deserializeToDate(String json) {
       try {
-        return localFormat.parse(json);
+        synchronized(localFormat) {
+          return localFormat.parse(json);
+        }
       } catch (ParseException ignored) {
       }
       try {
-        return enUsFormat.parse(json);
+        synchronized(enUsFormat) {
+          return enUsFormat.parse(json);
+        }
       } catch (ParseException ignored) {
       }
       try {
@@ -150,13 +150,14 @@ public final class DateTimeTypeAdapters {
       }
     }
 
-    @Override public synchronized void write(JsonWriter out, Date value) throws IOException {
+    @Override public void write(JsonWriter out, Date value) throws IOException {
       if (value == null) {
         out.nullValue();
         return;
       }
-      String dateFormatAsString = enUsFormat.format(value);
-      out.value(dateFormatAsString);
+      synchronized (enUsFormat) {
+        out.value(enUsFormat.format(value));
+      }
     }
   }
   public static final TypeAdapter<Date> DATE = new DateTypeAdapter<Date>();
