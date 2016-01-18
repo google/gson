@@ -200,4 +200,24 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
       this.part2 = part2;
     }
   }
+
+  public void testJsonAdapterWrappedInNullSafeAsRequested() {
+    Gson gson = new Gson();
+    String fromJson = "{'part':null}";
+
+    GadgetWithOptionalPart gadget = gson.fromJson(fromJson, GadgetWithOptionalPart.class);
+    assertNull(gadget.part);
+
+    String toJson = gson.toJson(gadget);
+    assertFalse(toJson.contains("PartJsonFieldAnnotationAdapter"));
+  }
+
+  private static final class GadgetWithOptionalPart {
+    @JsonAdapter(value = PartJsonFieldAnnotationAdapter.class)
+    final Part part;
+
+    private GadgetWithOptionalPart(Part part) {
+      this.part = part;
+    }
+  }
 }

@@ -133,6 +133,12 @@ public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
     assertFalse(json.contains("jsonAdapter"));
   }
 
+  public void testNullSafeObjectFromJson() {
+    Gson gson = new Gson();
+    NullableClass fromJson = gson.fromJson("null", NullableClass.class);
+    assertNull(fromJson);
+  }
+
   @JsonAdapter(A.JsonAdapter.class)
   private static class A {
     final String value;
@@ -212,6 +218,23 @@ public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
       String[] nameParts = in.nextString().split(" ");
       in.endObject();
       return new User(nameParts[0], nameParts[1]);
+    }
+  }
+
+  @JsonAdapter(value = NullableClassJsonAdapter.class)
+  private static class NullableClass {
+  }
+
+  private static class NullableClassJsonAdapter extends TypeAdapter<NullableClass> {
+    @Override
+    public void write(JsonWriter out, NullableClass value) throws IOException {
+      out.value("nullable");
+    }
+
+    @Override
+    public NullableClass read(JsonReader in) throws IOException {
+      in.nextString();
+      return new NullableClass();
     }
   }
 
