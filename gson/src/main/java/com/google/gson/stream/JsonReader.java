@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.io.Reader;
 
 /**
- * Reads a JSON (<a href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>)
+ * Reads a JSON (<a href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>)
  * encoded value as a stream of tokens. This stream includes both literal
  * values (strings, numbers, booleans, and nulls) as well as the begin and
  * end delimiters of objects and arrays. The tokens are traversed in
@@ -571,9 +571,6 @@ public class JsonReader implements Closeable {
       checkLenient();
       return peeked = PEEKED_SINGLE_QUOTED;
     case '"':
-      if (stackSize == 1) {
-        checkLenient();
-      }
       return peeked = PEEKED_DOUBLE_QUOTED;
     case '[':
       return peeked = PEEKED_BEGIN_ARRAY;
@@ -581,10 +578,6 @@ public class JsonReader implements Closeable {
       return peeked = PEEKED_BEGIN_OBJECT;
     default:
       pos--; // Don't consume the first character in a literal value.
-    }
-
-    if (stackSize == 1) {
-      checkLenient(); // Top-level value isn't an array or an object.
     }
 
     int result = peekKeyword();
