@@ -294,7 +294,7 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Configure this parser to be  be liberal in what it accepts. By default,
+   * Configure this parser to be liberal in what it accepts. By default,
    * this parser is strict and only accepts JSON as specified by <a
    * href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>. Setting the
    * parser to lenient causes it to ignore the following syntax errors:
