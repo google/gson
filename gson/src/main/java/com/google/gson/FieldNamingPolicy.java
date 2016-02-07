@@ -56,6 +56,7 @@ public enum FieldNamingPolicy implements FieldNamingStrategy {
     }
   },
 
+ 
   /**
    * Using this naming policy with Gson will ensure that the first "letter" of the Java
    * field name is capitalized when serialized to its JSON form and the words will be
@@ -147,10 +148,6 @@ public enum FieldNamingPolicy implements FieldNamingStrategy {
 
       fieldNameBuilder.append(firstCharacter);
       firstCharacter = name.charAt(++index);
-    }
-
-    if (index == name.length()) {
-      return fieldNameBuilder.toString();
     }
 
     if (!Character.isUpperCase(firstCharacter)) {
