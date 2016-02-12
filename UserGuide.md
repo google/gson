@@ -79,7 +79,7 @@ To use Gson with Maven2/3, you can use the Gson version available in Maven Centr
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
-      <version>2.5</version>
+      <version>2.6.1</version>
       <scope>compile</scope>
     </dependency>
 </dependencies>

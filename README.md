@@ -15,7 +15,7 @@ There are a few open-source projects that can convert Java objects to JSON. Howe
   * Support arbitrarily complex objects (with deep inheritance hierarchies and extensive use of generic types)
 
 *Gson Downloads*
-  * [Gson 2.5 Download](http://search.maven.org/#artifactdetails%7Ccom.google.code.gson%7Cgson%7C2.5%7Cjar) downloads at Maven Central
+  * [Gson 2.6.1 Download](http://search.maven.org/#artifactdetails%7Ccom.google.code.gson%7Cgson%7C2.6.1%7Cjar) downloads at Maven Central
 
 *Gson Documentation*
   * Gson [API](http://google.github.io/gson/apidocs/): Javadocs for the current Gson release

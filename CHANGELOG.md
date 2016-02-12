@@ -1,6 +1,14 @@
 Change Log
 ==========
 
+## Version 2.6.1
+
+_2016-02-11_
+
+ * Fix: The 2.6 release targeted Java 1.7, but we intend to target Java 1.6. The
+   2.6.1 release is identical to 2.6, but it targets Java 1.6.
+
+
 ## Version 2.6
 
 _2016-02-11_
