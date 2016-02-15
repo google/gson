@@ -25,7 +25,7 @@ public final class SerializedNameTest extends TestCase {
 
   public void testFirstNameIsChosenForSerialization() {
     MyClass target = new MyClass("v1", "v2");
-    // Ensure name1 occurs exactly once, and name2 and name3 dont appear
+    // Ensure name1 occurs exactly once, and name2 and name3 don't appear
     assertEquals("{\"name\":\"v1\",\"name1\":\"v2\"}", gson.toJson(target));
   }
 

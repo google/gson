@@ -26,7 +26,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 /**
- * Unit tests for {@code ParamterizedType}s created by the {@link $Gson$Types} class.
+ * Unit tests for {@code ParameterizedType}s created by the {@link $Gson$Types} class.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
