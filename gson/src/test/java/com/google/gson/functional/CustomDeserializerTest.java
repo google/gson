@@ -111,7 +111,7 @@ public class CustomDeserializerTest extends TestCase {
   }
 
   public void testJsonTypeFieldBasedDeserialization() {
-    String json = "{field1:'abc',field2:'def',__type__:'SUB_TYPE1'}";
+    String json = "{\"field1\":\"abc\",\"field2\":\"def\",\"__type__\":\"SUB_TYPE1\"}";
     Gson gson = new GsonBuilder().registerTypeAdapter(MyBase.class, new JsonDeserializer<MyBase>() {
       @Override public MyBase deserialize(JsonElement json, Type pojoType,
           JsonDeserializationContext context) throws JsonParseException {
@@ -157,7 +157,7 @@ public class CustomDeserializerTest extends TestCase {
           return null;
         }
       }).create();
-    String json = "{baseName:'Base',subName:'SubRevised'}";
+    String json = "{\"baseName\":\"Base\",\"subName\":\"SubRevised\"}";
     Base target = gson.fromJson(json, Base.class);
     assertNull(target);
   }
@@ -171,7 +171,7 @@ public class CustomDeserializerTest extends TestCase {
           return null;
         }
       }).create();
-    String json = "{base:{baseName:'Base',subName:'SubRevised'}}";
+    String json = "{\"base\":{\"baseName\":\"Base\",\"subName\":\"SubRevised\"}}";
     ClassWithBaseField target = gson.fromJson(json, ClassWithBaseField.class);
     assertNull(target.base);
   }
@@ -185,7 +185,7 @@ public class CustomDeserializerTest extends TestCase {
           return null;
         }
       }).create();
-    String json = "[{baseName:'Base'},{baseName:'Base'}]";
+    String json = "[{\"baseName\":\"Base\"},{\"baseName\":\"Base\"}]";
     Base[] target = gson.fromJson(json, Base[].class);
     assertNull(target[0]);
     assertNull(target[1]);
@@ -200,7 +200,7 @@ public class CustomDeserializerTest extends TestCase {
           return null;
         }
       }).create();
-    String json = "{bases:[{baseName:'Base'},{baseName:'Base'}]}";
+    String json = "{\"bases\":[{\"baseName\":\"Base\"},{\"baseName\":\"Base\"}]}";
     ClassWithBaseArray target = gson.fromJson(json, ClassWithBaseArray.class);
     assertNull(target.bases[0]);
     assertNull(target.bases[1]);

@@ -49,7 +49,7 @@ public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
    // Also invoke the JsonAdapter javadoc sample
     json = gson.toJson(new User("Inderjeet", "Singh"));
     assertEquals("{\"name\":\"Inderjeet Singh\"}", json);
-    User user = gson.fromJson("{'name':'Joel Leitch'}", User.class);
+    User user = gson.fromJson("{\"name\":\"Joel Leitch\"}", User.class);
     assertEquals("Joel", user.firstName);
     assertEquals("Leitch", user.lastName);
 
@@ -95,6 +95,7 @@ public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
     };
     Gson gson = new GsonBuilder()
       .registerTypeAdapter(A.class, serializer)
+      .setLenient()
       .create();
     String json = gson.toJson(new A("abcd"));
     assertEquals("\"registeredSerializer\"", json);
@@ -114,6 +115,7 @@ public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
     };
     Gson gson = new GsonBuilder()
       .registerTypeAdapter(A.class, deserializer)
+      .setLenient()
       .create();
     String json = gson.toJson(new A("abcd"));
     assertEquals("\"jsonAdapter\"", json);

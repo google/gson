@@ -40,7 +40,7 @@ public final class TypeAdapterPrecedenceTest extends TestCase {
         .registerTypeAdapter(Foo.class, newDeserializer("deserializer 2"))
         .create();
     assertEquals("\"foo via serializer 2\"", gson.toJson(new Foo("foo")));
-    assertEquals("foo via deserializer 2", gson.fromJson("foo", Foo.class).name);
+    assertEquals("foo via deserializer 2", gson.fromJson("\"foo\"", Foo.class).name);
   }
 
   public void testStreamingFollowedByStreaming() {
@@ -49,7 +49,7 @@ public final class TypeAdapterPrecedenceTest extends TestCase {
         .registerTypeAdapter(Foo.class, newTypeAdapter("type adapter 2"))
         .create();
     assertEquals("\"foo via type adapter 2\"", gson.toJson(new Foo("foo")));
-    assertEquals("foo via type adapter 2", gson.fromJson("foo", Foo.class).name);
+    assertEquals("foo via type adapter 2", gson.fromJson("\"foo\"", Foo.class).name);
   }
 
   public void testSerializeNonstreamingTypeAdapterFollowedByStreamingTypeAdapter() {
@@ -59,7 +59,7 @@ public final class TypeAdapterPrecedenceTest extends TestCase {
         .registerTypeAdapter(Foo.class, newTypeAdapter("type adapter"))
         .create();
     assertEquals("\"foo via type adapter\"", gson.toJson(new Foo("foo")));
-    assertEquals("foo via type adapter", gson.fromJson("foo", Foo.class).name);
+    assertEquals("foo via type adapter", gson.fromJson("\"foo\"", Foo.class).name);
   }
 
   public void testStreamingFollowedByNonstreaming() {
@@ -69,7 +69,7 @@ public final class TypeAdapterPrecedenceTest extends TestCase {
         .registerTypeAdapter(Foo.class, newDeserializer("deserializer"))
         .create();
     assertEquals("\"foo via serializer\"", gson.toJson(new Foo("foo")));
-    assertEquals("foo via deserializer", gson.fromJson("foo", Foo.class).name);
+    assertEquals("foo via deserializer", gson.fromJson("\"foo\"", Foo.class).name);
   }
 
   public void testStreamingHierarchicalFollowedByNonstreaming() {
@@ -79,7 +79,7 @@ public final class TypeAdapterPrecedenceTest extends TestCase {
         .registerTypeAdapter(Foo.class, newDeserializer("deserializer"))
         .create();
     assertEquals("\"foo via serializer\"", gson.toJson(new Foo("foo")));
-    assertEquals("foo via deserializer", gson.fromJson("foo", Foo.class).name);
+    assertEquals("foo via deserializer", gson.fromJson("\"foo\"", Foo.class).name);
   }
 
   public void testStreamingFollowedByNonstreamingHierarchical() {
@@ -89,7 +89,7 @@ public final class TypeAdapterPrecedenceTest extends TestCase {
         .registerTypeHierarchyAdapter(Foo.class, newDeserializer("deserializer"))
         .create();
     assertEquals("\"foo via type adapter\"", gson.toJson(new Foo("foo")));
-    assertEquals("foo via type adapter", gson.fromJson("foo", Foo.class).name);
+    assertEquals("foo via type adapter", gson.fromJson("\"foo\"", Foo.class).name);
   }
 
   public void testStreamingHierarchicalFollowedByNonstreamingHierarchical() {
@@ -99,7 +99,7 @@ public final class TypeAdapterPrecedenceTest extends TestCase {
         .registerTypeHierarchyAdapter(Foo.class, newTypeAdapter("type adapter"))
         .create();
     assertEquals("\"foo via type adapter\"", gson.toJson(new Foo("foo")));
-    assertEquals("foo via type adapter", gson.fromJson("foo", Foo.class).name);
+    assertEquals("foo via type adapter", gson.fromJson("\"foo\"", Foo.class).name);
   }
 
   public void testNonstreamingHierarchicalFollowedByNonstreaming() {
@@ -110,7 +110,7 @@ public final class TypeAdapterPrecedenceTest extends TestCase {
         .registerTypeAdapter(Foo.class, newDeserializer("non hierarchical"))
         .create();
     assertEquals("\"foo via non hierarchical\"", gson.toJson(new Foo("foo")));
-    assertEquals("foo via non hierarchical", gson.fromJson("foo", Foo.class).name);
+    assertEquals("foo via non hierarchical", gson.fromJson("\"foo\"", Foo.class).name);
   }
 
   private static class Foo {

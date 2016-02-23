@@ -94,11 +94,11 @@ public class DefaultTypeAdaptersTest extends TestCase {
 
   public void testClassDeserialization() {
     try {
-      gson.fromJson("String.class", String.class.getClass());  
+      gson.fromJson("\"String.class\"", String.class.getClass());  
     } catch (UnsupportedOperationException expected) {}
     // Override with a custom type adapter for class.
     gson = new GsonBuilder().registerTypeAdapter(Class.class, new MyClassTypeAdapter()).create();
-    assertEquals(String.class, gson.fromJson("java.lang.String", Class.class));  
+    assertEquals(String.class, gson.fromJson("\"java.lang.String\"", Class.class));  
   }
 
   public void testUrlSerialization() throws Exception {
@@ -109,7 +109,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
 
   public void testUrlDeserialization() {
     String urlValue = "http://google.com/";
-    String json = "'http:\\/\\/google.com\\/'";
+    String json = "\"http:\\/\\/google.com\\/\"";
     URL target = gson.fromJson(json, URL.class);
     assertEquals(urlValue, target.toExternalForm());
 
@@ -332,7 +332,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
   }
 
   public void testDefaultDateDeserialization() {
-    String json = "'Dec 13, 2009 07:18:02 AM'";
+    String json = "\"Dec 13, 2009 07:18:02 AM\"";
     Date extracted = gson.fromJson(json, Date.class);
     assertEqualsDate(extracted, 2009, 11, 13);
     assertEqualsTime(extracted, 7, 18, 2);
@@ -361,7 +361,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
   }
 
   public void testDefaultJavaSqlDateDeserialization() {
-    String json = "'Dec 3, 2009'";
+    String json = "\"Dec 3, 2009\"";
     java.sql.Date extracted = gson.fromJson(json, java.sql.Date.class);
     assertEqualsDate(extracted, 2009, 11, 3);
   }
@@ -373,7 +373,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
   }
 
   public void testDefaultJavaSqlTimestampDeserialization() {
-    String json = "'Dec 3, 2009 1:18:02 PM'";
+    String json = "\"Dec 3, 2009 1:18:02 PM\"";
     Timestamp extracted = gson.fromJson(json, Timestamp.class);
     assertEqualsDate(extracted, 2009, 11, 3);
     assertEqualsTime(extracted, 13, 18, 2);
@@ -386,7 +386,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
   }
 
   public void testDefaultJavaSqlTimeDeserialization() {
-    String json = "'1:18:02 PM'";
+    String json = "\"1:18:02 PM\"";
     Time extracted = gson.fromJson(json, Time.class);
     assertEqualsTime(extracted, 13, 18, 2);
   }
@@ -419,7 +419,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
 
   public void testDefaultCalendarDeserialization() throws Exception {
     Gson gson = new GsonBuilder().create();
-    String json = "{year:2009,month:2,dayOfMonth:11,hourOfDay:14,minute:29,second:23}";
+    String json = "{\"year\":2009,\"month\":2,\"dayOfMonth\":11,\"hourOfDay\":14,\"minute\":29,\"second\":23}";
     Calendar cal = gson.fromJson(json, Calendar.class);
     assertEquals(2009, cal.get(Calendar.YEAR));
     assertEquals(2, cal.get(Calendar.MONTH));
@@ -443,7 +443,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
 
   public void testDefaultGregorianCalendarDeserialization() throws Exception {
     Gson gson = new GsonBuilder().create();
-    String json = "{year:2009,month:2,dayOfMonth:11,hourOfDay:14,minute:29,second:23}";
+    String json = "{\"year\":2009,\"month\":2,\"dayOfMonth\":11,\"hourOfDay\":14,\"minute\":29,\"second\":23}";
     GregorianCalendar cal = gson.fromJson(json, GregorianCalendar.class);
     assertEquals(2009, cal.get(Calendar.YEAR));
     assertEquals(2, cal.get(Calendar.MONTH));
@@ -657,7 +657,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
   }
 
   public void testPropertiesDeserialization() {
-    String json = "{foo:'bar'}";
+    String json = "{\"foo\":\"bar\"}";
     Properties props = gson.fromJson(json, Properties.class);
     assertEquals("bar", props.getProperty("foo"));
   }
@@ -670,7 +670,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
   }
 
   public void testTreeSetDeserialization() {
-    String json = "['Value1']";
+    String json = "[\"Value1\"]";
     Type type = new TypeToken<TreeSet<String>>() {}.getType();
     TreeSet<String> treeSet = gson.fromJson(json, type);
     assertTrue(treeSet.contains("Value1"));
@@ -683,7 +683,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
   }
 
   public void testStringBuilderDeserialization() {
-    StringBuilder sb = gson.fromJson("'abc'", StringBuilder.class);
+    StringBuilder sb = gson.fromJson("\"abc\"", StringBuilder.class);
     assertEquals("abc", sb.toString());
   }
 
@@ -694,7 +694,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
   }
 
   public void testStringBufferDeserialization() {
-    StringBuffer sb = gson.fromJson("'abc'", StringBuffer.class);
+    StringBuffer sb = gson.fromJson("\"abc\"", StringBuffer.class);
     assertEquals("abc", sb.toString());
   }
 

@@ -18,7 +18,10 @@ package com.google.gson.functional;
 
 import junit.framework.TestCase;
 
+import java.io.StringReader;
+
 import com.google.gson.Gson;
+import com.google.gson.stream.JsonReader;
 
 /**
  * Functional tests for Java Character values.
@@ -43,13 +46,15 @@ public class PrimitiveCharacterTest extends TestCase {
 
   public void testPrimitiveCharacterAutoboxedDeserialization() {
     char expected = 'a';
-    char actual = gson.fromJson("a", char.class);
+    JsonReader lenientReader = new JsonReader(new StringReader("a"));
+    lenientReader.setLenient(true);
+    char actual = gson.fromJson(lenientReader, char.class);
     assertEquals(expected, actual);
 
     actual = gson.fromJson("\"a\"", char.class);
     assertEquals(expected, actual);
 
-    actual = gson.fromJson("a", Character.class);
+    actual = gson.fromJson("\"a\"", Character.class);
     assertEquals(expected, actual);
   }
 }

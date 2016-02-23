@@ -34,6 +34,9 @@ import com.google.gson.common.TestTypes.ClassWithTransientFields;
 import com.google.gson.common.TestTypes.Nested;
 import com.google.gson.common.TestTypes.PrimitiveArray;
 import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+
+import java.io.StringReader;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -71,15 +74,19 @@ public class ObjectTest extends TestCase {
   }
   public void testJsonInSingleQuotesDeserialization() {
     String json = "{'stringValue':'no message','intValue':10,'longValue':20}";
-    BagOfPrimitives target = gson.fromJson(json, BagOfPrimitives.class);
+    JsonReader lenientReader = new JsonReader(new StringReader(json));
+    lenientReader.setLenient(true);
+    BagOfPrimitives target = gson.fromJson(lenientReader, BagOfPrimitives.class);
     assertEquals("no message", target.stringValue);
     assertEquals(10, target.intValue);
     assertEquals(20, target.longValue);
   }
 
   public void testJsonInMixedQuotesDeserialization() {
-    String json = "{\"stringValue\":'no message','intValue':10,'longValue':20}";
-    BagOfPrimitives target = gson.fromJson(json, BagOfPrimitives.class);
+	String json = "{\"stringValue\":'no message','intValue':10,'longValue':20}";
+	JsonReader lenientReader = gson.newJsonReader(new StringReader(json));
+	lenientReader.setLenient(true);
+    BagOfPrimitives target = gson.fromJson(lenientReader, BagOfPrimitives.class);
     assertEquals("no message", target.stringValue);
     assertEquals(10, target.intValue);
     assertEquals(20, target.longValue);
@@ -339,7 +346,7 @@ public class ObjectTest extends TestCase {
         return p.new Child();
       }
     }).create();
-    String json = "{'value2':3}";
+    String json = "{\"value2\":3}";
     Parent.Child c = gson.fromJson(json, Parent.Child.class);
     assertEquals(3, c.value2);
   }
@@ -401,7 +408,9 @@ public class ObjectTest extends TestCase {
    */
   public void testObjectFieldNamesWithoutQuotesDeserialization() {
     String json = "{longValue:1,'booleanValue':true,\"stringValue\":'bar'}";
-    BagOfPrimitives bag = gson.fromJson(json, BagOfPrimitives.class);
+    JsonReader lenientReader = gson.newJsonReader(new StringReader(json));
+    lenientReader.setLenient(true);
+    BagOfPrimitives bag = gson.fromJson(lenientReader, BagOfPrimitives.class);
     assertEquals(1, bag.longValue);
     assertTrue(bag.booleanValue);
     assertEquals("bar", bag.stringValue);
@@ -437,7 +446,7 @@ public class ObjectTest extends TestCase {
    * Created to reproduce issue 140
    */
   public void testStringFieldWithEmptyValueDeserialization() {
-    String json = "{a:\"5794749\",b:\"\",c:\"\"}";
+    String json = "{\"a\":\"5794749\",\"b\":\"\",\"c\":\"\"}";
     ClassWithEmptyStringFields target = gson.fromJson(json, ClassWithEmptyStringFields.class);
     assertEquals("5794749", target.a);
     assertEquals("", target.b);

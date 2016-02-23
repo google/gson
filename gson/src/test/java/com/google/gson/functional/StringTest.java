@@ -43,7 +43,7 @@ public class StringTest extends TestCase {
   }
 
   public void testEscapedCtrlNInStringDeserialization() throws Exception {
-    String json = "'a\\nb'";
+    String json = "\"a\\nb\"";
     String actual = gson.fromJson(json, String.class);
     assertEquals("a\nb", actual);
   }
@@ -55,7 +55,7 @@ public class StringTest extends TestCase {
   }
 
   public void testEscapedCtrlRInStringDeserialization() throws Exception {
-    String json = "'a\\rb'";
+    String json = "\"a\\rb\"";
     String actual = gson.fromJson(json, String.class);
     assertEquals("a\rb", actual);
   }
@@ -67,7 +67,7 @@ public class StringTest extends TestCase {
   }
 
   public void testEscapedBackslashInStringDeserialization() throws Exception {
-    String actual = gson.fromJson("'a\\\\b'", String.class);
+    String actual = gson.fromJson("\"a\\\\b\"", String.class);
     assertEquals("a\\b", actual);
   }
 
@@ -99,7 +99,7 @@ public class StringTest extends TestCase {
 
   public void testStringWithEscapedSlashDeserialization() {
     String value = "/";
-    String json = "'\\/'";
+    String json = "\"\\/\"";
     String actual = gson.fromJson(json, String.class);
     assertEquals(value, actual);
   }
@@ -121,7 +121,7 @@ public class StringTest extends TestCase {
     String value = gson.fromJson(json, String.class);
     assertEquals("abc=", value);
 
-    json = "'abc\u003d'";
+    json = "\"abc\u003d\"";
     value = gson.fromJson(json, String.class);
     assertEquals("abc=", value);
   }
@@ -133,7 +133,7 @@ public class StringTest extends TestCase {
   }
 
   public void testJavascriptKeywordsInStringDeserialization() {
-    String json = "'null true false function'";
+    String json = "\"null true false function\"";
     String value = gson.fromJson(json, String.class);
     assertEquals(json.substring(1, json.length() - 1), value);
   }

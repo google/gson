@@ -101,7 +101,7 @@ public class CollectionTest extends TestCase {
   }
 
   public void testLinkedListDeserialization() {
-    String json = "['a1','a2']";
+    String json = "[\"a1\",\"a2\"]";
     Type linkedListType = new TypeToken<LinkedList<String>>() {}.getType();
     List<String> list = gson.fromJson(json, linkedListType);
     assertEquals("a1", list.get(0));
@@ -119,7 +119,7 @@ public class CollectionTest extends TestCase {
   }
 
   public void testQueueDeserialization() {
-    String json = "['a1','a2']";
+    String json = "[\"a1\",\"a2\"]";
     Type queueType = new TypeToken<Queue<String>>() {}.getType();
     Queue<String> queue = gson.fromJson(json, queueType);
     assertEquals("a1", queue.element());
@@ -385,7 +385,7 @@ public class CollectionTest extends TestCase {
     assertTrue(json.contains("2"));
   }
   public void testSetDeserialization() {
-    String json = "[{value:1},{value:2}]";
+    String json = "[{\"value\":1},{\"value\":2}]";
     Type type = new TypeToken<Set<Entry>>() {}.getType();
     Set<Entry> set = gson.fromJson(json, type);
     assertEquals(2, set.size());

@@ -263,7 +263,7 @@ public class CustomTypeAdaptersTest extends TestCase {
         return data;
       }
     });
-    Gson gson = gsonBuilder.create();
+    Gson gson = gsonBuilder.setLenient().create();
     String json = "'0123456789'";
     byte[] actual = gson.fromJson(json, byte[].class);
     byte[] expected = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
@@ -336,6 +336,7 @@ public class CustomTypeAdaptersTest extends TestCase {
   public void testCustomAdapterInvokedForCollectionElementDeserialization() {
     Gson gson = new GsonBuilder()
       .registerTypeAdapter(StringHolder.class, new StringHolderTypeAdapter())
+      .setLenient()
       .create();
     Type setType = new TypeToken<Set<StringHolder>>() {}.getType();
     Set<StringHolder> setOfHolders = gson.fromJson("['Jacob:Tomaw']", setType);
@@ -376,7 +377,7 @@ public class CustomTypeAdaptersTest extends TestCase {
       .registerTypeAdapter(StringHolder.class, new StringHolderTypeAdapter())
       .create();
     Type mapType = new TypeToken<Map<String, StringHolder>>() {}.getType();
-    Map<String, StringHolder> mapOfFoo = gson.fromJson("{'foo':'Jacob:Tomaw'}", mapType);
+    Map<String, StringHolder> mapOfFoo = gson.fromJson("{\"foo\":\"Jacob:Tomaw\"}", mapType);
     assertEquals(1, mapOfFoo.size());
     StringHolder foo = mapOfFoo.get("foo");
     assertEquals("Jacob", foo.part1);
@@ -396,7 +397,7 @@ public class CustomTypeAdaptersTest extends TestCase {
     Gson gson = new GsonBuilder()
         .registerTypeAdapter(DataHolder.class, new DataHolderDeserializer())
         .create();
-    String json = "{wrappedData:null}";
+    String json = "{\"wrappedData\":null}";
     DataHolderWrapper actual = gson.fromJson(json, DataHolderWrapper.class);
     assertNull(actual.wrappedData);
   }

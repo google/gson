@@ -99,7 +99,7 @@ public class NullObjectAndFieldTest extends TestCase {
    */
   public void testNullWrappedPrimitiveMemberDeserialization() {
     Gson gson = gsonBuilder.create();
-    String json = "{'value':null}";
+    String json = "{\"value\":null}";
     ClassWithNullWrappedPrimitive target = gson.fromJson(json, ClassWithNullWrappedPrimitive.class);
     assertNull(target.value);
   }
@@ -153,7 +153,7 @@ public class NullObjectAndFieldTest extends TestCase {
   public void testAbsentJsonElementsAreSetToNull() {
     Gson gson = new Gson();
     ClassWithInitializedMembers target =
-        gson.fromJson("{array:[1,2,3]}", ClassWithInitializedMembers.class);
+        gson.fromJson("{\"array\":[1,2,3]}", ClassWithInitializedMembers.class);
     assertTrue(target.array.length == 3 && target.array[1] == 2);
     assertEquals(ClassWithInitializedMembers.MY_STRING_DEFAULT, target.str1);
     assertNull(target.str2);
@@ -202,7 +202,7 @@ public class NullObjectAndFieldTest extends TestCase {
 
   public void testExplicitNullSetsFieldToNullDuringDeserialization() {
     Gson gson = new Gson();
-    String json = "{value:null}";
+    String json = "{\"value\":null}";
     ObjectWithField obj = gson.fromJson(json, ObjectWithField.class);
     assertNull(obj.value);    
   }
@@ -229,7 +229,7 @@ public class NullObjectAndFieldTest extends TestCase {
             return context.deserialize(null, type);
           }
         }).create();
-    String json = "{value:'value1'}";
+    String json = "{\"value\":\"value1\"}";
     ObjectWithField target = gson.fromJson(json, ObjectWithField.class);
     assertNull(target);
   }

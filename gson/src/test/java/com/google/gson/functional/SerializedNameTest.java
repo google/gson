@@ -30,17 +30,17 @@ public final class SerializedNameTest extends TestCase {
   }
 
   public void testMultipleNamesDeserializedCorrectly() {
-    assertEquals("v1", gson.fromJson("{'name':'v1'}", MyClass.class).a);
+    assertEquals("v1", gson.fromJson("{\"name\":\"v1\"}", MyClass.class).a);
 
     // Both name1 and name2 gets deserialized to b
-    assertEquals("v11", gson.fromJson("{'name1':'v11'}", MyClass.class).b);
-    assertEquals("v2", gson.fromJson("{'name2':'v2'}", MyClass.class).b);
-    assertEquals("v3", gson.fromJson("{'name3':'v3'}", MyClass.class).b);
+    assertEquals("v11", gson.fromJson("{\"name1\":\"v11\"}", MyClass.class).b);
+    assertEquals("v2", gson.fromJson("{\"name2\":\"v2\"}", MyClass.class).b);
+    assertEquals("v3", gson.fromJson("{\"name3\":\"v3\"}", MyClass.class).b);
   }
 
   public void testMultipleNamesInTheSameString() {
     // The last value takes precedence
-    assertEquals("v3", gson.fromJson("{'name1':'v1','name2':'v2','name3':'v3'}", MyClass.class).b);
+    assertEquals("v3", gson.fromJson("{\"name1\":\"v1\",\"name2\":\"v2\",\"name3\":\"v3\"}", MyClass.class).b);
   }
 
   private static final class MyClass {

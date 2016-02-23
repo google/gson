@@ -17,7 +17,7 @@ public final class ThrowableFunctionalTest extends TestCase {
     String json = gson.toJson(e);
     assertTrue(json.contains("hello"));
 
-    e = gson.fromJson("{'detailMessage':'hello'}", RuntimeException.class);
+    e = gson.fromJson("{\"detailMessage\":\"hello\"}", RuntimeException.class);
     assertEquals("hello", e.getMessage());
   }
 
@@ -26,7 +26,7 @@ public final class ThrowableFunctionalTest extends TestCase {
     String json = gson.toJson(e);
     assertTrue(json.contains("{\"detailMessage\":\"top level\",\"cause\":{\"detailMessage\":\"io error\""));
 
-    e = gson.fromJson("{'detailMessage':'top level','cause':{'detailMessage':'io error'}}", Exception.class);
+    e = gson.fromJson("{\"detailMessage\":\"top level\",\"cause\":{\"detailMessage\":\"io error\"}}", Exception.class);
     assertEquals("top level", e.getMessage());
     assertTrue(e.getCause() instanceof Throwable); // cause is not parameterized so type info is lost
     assertEquals("io error", e.getCause().getMessage());
@@ -43,7 +43,7 @@ public final class ThrowableFunctionalTest extends TestCase {
     String json = gson.toJson(e);
     assertTrue(json.contains("hello"));
 
-    e = gson.fromJson("{'detailMessage':'hello'}", OutOfMemoryError.class);
+    e = gson.fromJson("{\"detailMessage\":\"hello\"}", OutOfMemoryError.class);
     assertEquals("hello", e.getMessage());
   }
 
@@ -53,7 +53,7 @@ public final class ThrowableFunctionalTest extends TestCase {
     assertTrue(json.contains("top level"));
     assertTrue(json.contains("io error"));
 
-    e = gson.fromJson("{'detailMessage':'top level','cause':{'detailMessage':'io error'}}", Error.class);
+    e = gson.fromJson("{\"detailMessage\":\"top level\",\"cause\":{\"detailMessage\":\"io error\"}}", Error.class);
     assertEquals("top level", e.getMessage());
     assertTrue(e.getCause() instanceof Throwable); // cause is not parameterized so type info is lost
     assertEquals("io error", e.getCause().getMessage());

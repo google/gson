@@ -363,8 +363,8 @@ public class PrimitiveTest extends TestCase {
   }
 
   public void testDoubleNaNDeserialization() {
-    assertTrue(Double.isNaN(gson.fromJson("NaN", Double.class)));
-    assertTrue(Double.isNaN(gson.fromJson("NaN", double.class)));
+    assertTrue(Double.isNaN(gson.fromJson("\"NaN\"", Double.class)));
+    assertTrue(Double.isNaN(gson.fromJson("\"NaN\"", double.class)));
   }
 
   public void testFloatNaNSerializationNotSupportedByDefault() {
@@ -389,8 +389,8 @@ public class PrimitiveTest extends TestCase {
   }
 
   public void testFloatNaNDeserialization() {
-    assertTrue(Float.isNaN(gson.fromJson("NaN", Float.class)));
-    assertTrue(Float.isNaN(gson.fromJson("NaN", float.class)));
+    assertTrue(Float.isNaN(gson.fromJson("\"NaN\"", Float.class)));
+    assertTrue(Float.isNaN(gson.fromJson("\"NaN\"", float.class)));
   }
 
   public void testBigDecimalNaNDeserializationNotSupported() {
@@ -423,8 +423,8 @@ public class PrimitiveTest extends TestCase {
   }
 
   public void testDoubleInfinityDeserialization() {
-    assertTrue(Double.isInfinite(gson.fromJson("Infinity", Double.class)));
-    assertTrue(Double.isInfinite(gson.fromJson("Infinity", double.class)));
+    assertTrue(Double.isInfinite(gson.fromJson("\"Infinity\"", Double.class)));
+    assertTrue(Double.isInfinite(gson.fromJson("\"Infinity\"", double.class)));
   }
 
   public void testFloatInfinitySerializationNotSupportedByDefault() {
@@ -449,8 +449,8 @@ public class PrimitiveTest extends TestCase {
   }
 
   public void testFloatInfinityDeserialization() {
-    assertTrue(Float.isInfinite(gson.fromJson("Infinity", Float.class)));
-    assertTrue(Float.isInfinite(gson.fromJson("Infinity", float.class)));
+    assertTrue(Float.isInfinite(gson.fromJson("\"Infinity\"", Float.class)));
+    assertTrue(Float.isInfinite(gson.fromJson("\"Infinity\"", float.class)));
   }
 
   public void testBigDecimalInfinityDeserializationNotSupported() {
@@ -483,8 +483,8 @@ public class PrimitiveTest extends TestCase {
   }
 
   public void testNegativeInfinityDeserialization() {
-    assertTrue(Double.isInfinite(gson.fromJson("-Infinity", double.class)));
-    assertTrue(Double.isInfinite(gson.fromJson("-Infinity", Double.class)));
+    assertEquals(Double.NEGATIVE_INFINITY, gson.fromJson("\"-Infinity\"", double.class));
+    assertEquals(Double.NEGATIVE_INFINITY, gson.fromJson("\"-Infinity\"", Double.class));
   }
 
   public void testNegativeInfinityFloatSerializationNotSupportedByDefault() {
@@ -509,8 +509,8 @@ public class PrimitiveTest extends TestCase {
   }
 
   public void testNegativeInfinityFloatDeserialization() {
-    assertTrue(Float.isInfinite(gson.fromJson("-Infinity", float.class)));
-    assertTrue(Float.isInfinite(gson.fromJson("-Infinity", Float.class)));
+    assertTrue(Float.isInfinite(gson.fromJson("\"-Infinity\"", float.class)));
+    assertTrue(Float.isInfinite(gson.fromJson("\"-Infinity\"", Float.class)));
   }
 
   public void testBigDecimalNegativeInfinityDeserializationNotSupported() {
@@ -550,7 +550,10 @@ public class PrimitiveTest extends TestCase {
   }
 
   public void testUnquotedStringDeserializationFails() throws Exception {
-    assertEquals("UnquotedSingleWord", gson.fromJson("UnquotedSingleWord", String.class));
+    try {
+    	gson.fromJson("UnquotedSingleWord", String.class);
+    	fail();
+    } catch (JsonSyntaxException expected) { }
 
     String value = "String Blah Blah Blah...1, 2, 3";
     try {
@@ -570,7 +573,7 @@ public class PrimitiveTest extends TestCase {
   }
 
   public void testDeserializePrimitiveWrapperAsObjectField() {
-    String json = "{i:10}";
+    String json = "{\"i\":10}";
     ClassWithIntegerField target = gson.fromJson(json, ClassWithIntegerField.class);
     assertEquals(10, target.i.intValue());
   }
@@ -814,7 +817,7 @@ public class PrimitiveTest extends TestCase {
   }
 
   public void testStringsAsBooleans() {
-    String json = "['true', 'false', 'TRUE', 'yes', '1']";
+    String json = "[\"true\", \"false\", \"TRUE\", \"yes\", \"1\"]";
     assertEquals(Arrays.asList(true, false, true, false, false),
         gson.<List<Boolean>>fromJson(json, new TypeToken<List<Boolean>>() {}.getType()));
   }

@@ -35,7 +35,7 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
     Gson gson = new Gson();
     String json = gson.toJson(new Computer(new User("Inderjeet Singh")));
     assertEquals("{\"user\":\"UserClassAnnotationAdapter\"}", json);
-    Computer computer = gson.fromJson("{'user':'Inderjeet Singh'}", Computer.class);
+    Computer computer = gson.fromJson("{\"user\":\"Inderjeet Singh\"}", Computer.class);
     assertEquals("UserClassAnnotationAdapter", computer.user.name);
   }
 
@@ -43,7 +43,7 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
     Gson gson = new Gson();
     String json = gson.toJson(new Gizmo(new Part("Part")));
     assertEquals("{\"part\":\"GizmoPartTypeAdapterFactory\"}", json);
-    Gizmo computer = gson.fromJson("{'part':'Part'}", Gizmo.class);
+    Gizmo computer = gson.fromJson("{\"part\":\"Part\"}", Gizmo.class);
     assertEquals("GizmoPartTypeAdapterFactory", computer.part.name);
   }
 
@@ -53,7 +53,7 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
         .create();
     String json = gson.toJson(new Computer(new User("Inderjeet Singh")));
     assertEquals("{\"user\":\"RegisteredUserAdapter\"}", json);
-    Computer computer = gson.fromJson("{'user':'Inderjeet Singh'}", Computer.class);
+    Computer computer = gson.fromJson("{\"user\":\"Inderjeet Singh\"}", Computer.class);
     assertEquals("RegisteredUserAdapter", computer.user.name);
   }
 
@@ -70,7 +70,7 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
       }).create();
     String json = gson.toJson(new Gadget(new Part("screen")));
     assertEquals("{\"part\":\"PartJsonFieldAnnotationAdapter\"}", json);
-    Gadget gadget = gson.fromJson("{'part':'screen'}", Gadget.class);
+    Gadget gadget = gson.fromJson("{\"part\":\"screen\"}", Gadget.class);
     assertEquals("PartJsonFieldAnnotationAdapter", gadget.part.name);
   }
 
@@ -78,7 +78,7 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
     Gson gson = new Gson();
     String json = gson.toJson(new Computer2(new User("Inderjeet Singh")));
     assertEquals("{\"user\":\"UserFieldAnnotationAdapter\"}", json);
-    Computer2 target = gson.fromJson("{'user':'Interjeet Singh'}", Computer2.class);
+    Computer2 target = gson.fromJson("{\"user\":\"Interjeet Singh\"}", Computer2.class);
     assertEquals("UserFieldAnnotationAdapter", target.user.name);
   }
 
@@ -186,7 +186,7 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
 
   public void testJsonAdapterInvokedOnlyForAnnotatedFields() {
     Gson gson = new Gson();
-    String json = "{'part1':'name','part2':{'name':'name2'}}";
+    String json = "{\"part1\":\"name\",\"part2\":{\"name\":\"name2\"}}";
     GadgetWithTwoParts gadget = gson.fromJson(json, GadgetWithTwoParts.class);
     assertEquals("PartJsonFieldAnnotationAdapter", gadget.part1.name);
     assertEquals("name2", gadget.part2.name);
@@ -203,7 +203,7 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
 
   public void testJsonAdapterWrappedInNullSafeAsRequested() {
     Gson gson = new Gson();
-    String fromJson = "{'part':null}";
+    String fromJson = "{\"part\":null}";
 
     GadgetWithOptionalPart gadget = gson.fromJson(fromJson, GadgetWithOptionalPart.class);
     assertNull(gadget.part);

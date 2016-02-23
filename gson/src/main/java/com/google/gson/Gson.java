@@ -869,8 +869,6 @@ public final class Gson {
   @SuppressWarnings("unchecked")
   public <T> T fromJson(JsonReader reader, Type typeOfT) throws JsonIOException, JsonSyntaxException {
     boolean isEmpty = true;
-    boolean oldLenient = reader.isLenient();
-    reader.setLenient(true);
     try {
       reader.peek();
       isEmpty = false;
@@ -892,8 +890,6 @@ public final class Gson {
     } catch (IOException e) {
       // TODO(inder): Figure out whether it is indeed right to rethrow this as JsonSyntaxException
       throw new JsonSyntaxException(e);
-    } finally {
-      reader.setLenient(oldLenient);
     }
   }
 

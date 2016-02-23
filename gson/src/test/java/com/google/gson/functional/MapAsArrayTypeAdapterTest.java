@@ -106,7 +106,7 @@ public class MapAsArrayTypeAdapterTest extends TestCase {
   }
 
   public void testMapWithTypeVariableDeserialization() {
-    Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
+    Gson gson = new GsonBuilder().setLenient().enableComplexMapKeySerialization().create();
     String json = "{map:[[{x:2,y:3},{x:4,y:5}]]}";
     Type type = new TypeToken<PointWithProperty<Point>>(){}.getType();
     PointWithProperty<Point> map = gson.fromJson(json, type);

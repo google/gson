@@ -186,7 +186,7 @@ public class ArrayTest extends TestCase {
   }
 
   public void testArrayOfPrimitivesAsObjectsDeserialization() throws Exception {
-    String json = "[1,'abc',0.3,1.1,5]";
+    String json = "[1,\"abc\",0.3,1.1,5]";
     Object[] objs = gson.fromJson(json, Object[].class);
     assertEquals(1, ((Number)objs[0]).intValue());
     assertEquals("abc", objs[1]);
@@ -249,8 +249,8 @@ public class ArrayTest extends TestCase {
    * Regression tests for Issue 272
    */
   public void testMultidimenstionalArraysDeserialization() {
-    String json = "[['3m Co','71.72','0.02','0.03','4/2 12:00am','Manufacturing'],"
-      + "['Alcoa Inc','29.01','0.42','1.47','4/1 12:00am','Manufacturing']]";
+    String json = "[[\"3m Co\",\"71.72\",\"0.02\",\"0.03\",\"4/2 12:00am\",\"Manufacturing\"],"
+      + "[\"Alcoa Inc\",\"29.01\",\"0.42\",\"1.47\",\"4/1 12:00am\",\"Manufacturing\"]]";
     String[][] items = gson.fromJson(json, String[][].class);
     assertEquals("3m Co", items[0][0]);
     assertEquals("Manufacturing", items[1][5]);

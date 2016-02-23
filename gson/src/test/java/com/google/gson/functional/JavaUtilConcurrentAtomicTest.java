@@ -65,7 +65,7 @@ public class JavaUtilConcurrentAtomicTest extends TestCase {
     Gson gson = new GsonBuilder()
         .setLongSerializationPolicy(LongSerializationPolicy.STRING)
         .create();
-    AtomicLongHolder target = gson.fromJson("{'value':'10'}", AtomicLongHolder.class);
+    AtomicLongHolder target = gson.fromJson("{\"value\":\"10\"}", AtomicLongHolder.class);
     assertEquals(10, target.value.get());
     String json = gson.toJson(target);
     assertEquals("{\"value\":\"10\"}", json);
@@ -95,7 +95,7 @@ public class JavaUtilConcurrentAtomicTest extends TestCase {
     Gson gson = new GsonBuilder()
         .setLongSerializationPolicy(LongSerializationPolicy.STRING)
         .create();
-    AtomicLongArray target = gson.fromJson("['10', '13', '14']", AtomicLongArray.class);
+    AtomicLongArray target = gson.fromJson("[\"10\", \"13\", \"14\"]", AtomicLongArray.class);
     assertEquals(3, target.length());
     assertEquals(10, target.get(0));
     assertEquals(13, target.get(1));

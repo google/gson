@@ -39,7 +39,8 @@ public final class CommentsTest extends TestCase {
         + "  \"c\"\n"
         + "]";
 
-    List<String> abc = new Gson().fromJson(json, new TypeToken<List<String>>() {}.getType());
+    Gson gson = new GsonBuilder().setLenient().create();
+    List<String> abc = gson.fromJson(json, new TypeToken<List<String>>() {}.getType());
     assertEquals(Arrays.asList("a", "b", "c"), abc);
   }
 }

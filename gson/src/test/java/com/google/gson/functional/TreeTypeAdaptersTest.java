@@ -68,8 +68,8 @@ public class TreeTypeAdaptersTest extends TestCase {
   }
 
   public void testDeserializeId() {
-    String json = "{courseId:1,students:[{id:1,name:'first'},{id:6,name:'second'}],"
-      + "numAssignments:4,assignment:{}}";
+    String json = "{\"courseId\":1,\"students\":[{\"id\":1,\"name\":\"first\"},{\"id\":6,\"name\":\"second\"}],"
+      + "\"numAssignments\":4,\"assignment\":{}}";
     Course<HistoryCourse> target = gson.fromJson(json, TYPE_COURSE_HISTORY);
     assertEquals("1", target.getStudents().get(0).id.getValue());
     assertEquals("6", target.getStudents().get(1).id.getValue());

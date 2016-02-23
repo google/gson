@@ -144,7 +144,7 @@ public class MapTest extends TestCase {
     assertEquals(123, map.get("null").intValue());
     assertNull(map.get(null));
 
-    map = gson.fromJson("{null:123}", typeOfMap);
+    map = gson.fromJson("{\"null\":123}", typeOfMap);
     assertEquals(1, map.size());
     assertEquals(123, map.get("null").intValue());
     assertNull(map.get(null));
@@ -247,7 +247,7 @@ public class MapTest extends TestCase {
   }
 
   public void testMapStandardSubclassDeserialization() {
-    String json = "{a:'1',b:'2'}";
+    String json = "{\"a\":\"1\",\"b\":\"2\"}";
     Type type = new TypeToken<LinkedHashMap<String, String>>() {}.getType();
     LinkedHashMap<String, Integer> map = gson.fromJson(json, type);
     assertEquals("1", map.get("a"));
@@ -366,7 +366,7 @@ public class MapTest extends TestCase {
    * From bug report http://code.google.com/p/google-gson/issues/detail?id=95
    */
   public void testMapOfMapDeserialization() {
-    String json = "{nestedMap:{'2':'2','1':'1'}}";
+    String json = "{\"nestedMap\":{\"2\":\"2\",\"1\":\"1\"}}";
     Type type = new TypeToken<Map<String, Map<String, String>>>(){}.getType();
     Map<String, Map<String, String>> map = gson.fromJson(json, type);
     Map<String, String> nested = map.get("nestedMap");
@@ -520,7 +520,7 @@ public class MapTest extends TestCase {
   }
 
   public void testStringKeyDeserialization() {
-    String json = "{'2,3':'a','5,7':'b'}";
+    String json = "{\"2,3\":\"a\",\"5,7\":\"b\"}";
     Map<String, String> map = new LinkedHashMap<String, String>();
     map.put("2,3", "a");
     map.put("5,7", "b");
@@ -528,7 +528,7 @@ public class MapTest extends TestCase {
   }
 
   public void testNumberKeyDeserialization() {
-    String json = "{'2.3':'a','5.7':'b'}";
+    String json = "{\"2.3\":\"a\",\"5.7\":\"b\"}";
     Map<Double, String> map = new LinkedHashMap<Double, String>();
     map.put(2.3, "a");
     map.put(5.7, "b");
@@ -536,7 +536,7 @@ public class MapTest extends TestCase {
   }
 
   public void testBooleanKeyDeserialization() {
-    String json = "{'true':'a','false':'b'}";
+    String json = "{\"true\":\"a\",\"false\":\"b\"}";
     Map<Boolean, String> map = new LinkedHashMap<Boolean, String>();
     map.put(true, "a");
     map.put(false, "b");
@@ -565,7 +565,7 @@ public class MapTest extends TestCase {
     Map<String, Map<String, String>> map = newMap(
         "a", newMap("ka1", "va1", "ka2", "va2"),
         "b", newMap("kb1", "vb1", "kb2", "vb2"));
-    String json = "{'a':{'ka1':'va1','ka2':'va2'},'b':{'kb1':'vb1','kb2':'vb2'}}";
+    String json = "{\"a\":{\"ka1\":\"va1\",\"ka2\":\"va2\"},\"b\":{\"kb1\":\"vb1\",\"kb2\":\"vb2\"}}";
     assertEquals(map, gson.fromJson(json, type));
   }
 
