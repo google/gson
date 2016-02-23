@@ -888,7 +888,7 @@ public class JsonReader implements Closeable {
    *
    * @throws IllegalStateException if the next token is not a literal value.
    * @throws NumberFormatException if the next literal value cannot be parsed
-   *     as a double, or is non-finite.
+   *     as a double
    */
   public double nextDouble() throws IOException {
     int p = peeked;
@@ -916,10 +916,6 @@ public class JsonReader implements Closeable {
 
     peeked = PEEKED_BUFFERED;
     double result = Double.parseDouble(peekedString); // don't catch this NumberFormatException.
-    if (!lenient && (Double.isNaN(result) || Double.isInfinite(result))) {
-      throw new MalformedJsonException("JSON forbids NaN and infinities: " + result
-          + " at line " + getLineNumber() + " column " + getColumnNumber() + " path " + getPath());
-    }
     peekedString = null;
     peeked = PEEKED_NONE;
     pathIndices[stackSize - 1]++;

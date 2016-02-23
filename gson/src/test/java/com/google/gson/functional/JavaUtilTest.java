@@ -36,13 +36,13 @@ public class JavaUtilTest extends TestCase {
   }
 
   public void testCurrency() throws Exception {
-    CurrencyHolder target = gson.fromJson("{'value':'USD'}", CurrencyHolder.class);
+    CurrencyHolder target = gson.fromJson("{\"value\":\"USD\"}", CurrencyHolder.class);
     assertEquals("USD", target.value.getCurrencyCode());
     String json = gson.toJson(target);
     assertEquals("{\"value\":\"USD\"}", json);
 
     // null handling
-    target = gson.fromJson("{'value':null}", CurrencyHolder.class);
+    target = gson.fromJson("{\"value\":null}", CurrencyHolder.class);
     assertNull(target.value);
     assertEquals("{}", gson.toJson(target));
   }
@@ -52,7 +52,7 @@ public class JavaUtilTest extends TestCase {
   }
 
   public void testProperties() {
-    Properties props = gson.fromJson("{'a':'v1','b':'v2'}", Properties.class);
+    Properties props = gson.fromJson("{\"a\":\"v1\",\"b\":\"v2\"}", Properties.class);
     assertEquals("v1", props.getProperty("a"));
     assertEquals("v2", props.getProperty("b"));
     String json = gson.toJson(props);

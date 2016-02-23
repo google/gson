@@ -48,7 +48,7 @@ public class InstanceCreatorTest extends TestCase {
        }
       })
       .create();
-    String json = "{baseName:'BaseRevised',subName:'Sub'}";
+    String json = "{\"baseName\":\"BaseRevised\",\"subName\":\"Sub\"}";
     Base base = gson.fromJson(json, Base.class);
     assertEquals("BaseRevised", base.baseName);
   }
@@ -62,7 +62,7 @@ public class InstanceCreatorTest extends TestCase {
     })
     .create();
 
-    String json = "{baseName:'Base',subName:'SubRevised'}";
+    String json = "{\"baseName\":\"Base\",\"subName\":\"SubRevised\"}";
     Base base = gson.fromJson(json, Base.class);
     assertTrue(base instanceof Sub);
 
@@ -79,7 +79,7 @@ public class InstanceCreatorTest extends TestCase {
       }
     })
     .create();
-    String json = "{base:{baseName:'Base',subName:'SubRevised'}}";
+    String json = "{\"base\":{\"baseName\":\"Base\",\"subName\":\"SubRevised\"}}";
     ClassWithBaseField target = gson.fromJson(json, ClassWithBaseField.class);
     assertTrue(target.base instanceof Sub);
     assertEquals(Sub.SUB_NAME, ((Sub)target.base).subName);

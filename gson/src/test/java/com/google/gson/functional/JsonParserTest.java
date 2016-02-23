@@ -17,6 +17,7 @@
 package com.google.gson.functional;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
@@ -122,6 +123,7 @@ public class JsonParserTest extends TestCase {
   }
 
   public void testExtraCommasInArrays() {
+    Gson gson = new GsonBuilder().setLenient().create();
     Type type = new TypeToken<List<String>>() {}.getType();
     assertEquals(list("a", null, "b", null, null), gson.fromJson("[a,,b,,]", type));
     assertEquals(list(null, null), gson.fromJson("[,]", type));

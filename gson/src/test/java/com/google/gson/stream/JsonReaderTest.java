@@ -21,6 +21,9 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Arrays;
+
+import com.google.gson.GsonBuilder;
+
 import junit.framework.TestCase;
 
 import static com.google.gson.stream.JsonToken.BEGIN_ARRAY;
@@ -318,15 +321,16 @@ public final class JsonReaderTest extends TestCase {
     }
   }
 
+  /**
+   * javadoc for {@link GsonBuilder#serializeSpecialFloatingPointValues()}
+   * specifies "Gson always accepts these special values during deserialization"
+   * @throws IOException
+   */
   public void testStrictQuotedNonFiniteDoubles() throws IOException {
     String json = "[\"NaN\"]";
     JsonReader reader = new JsonReader(reader(json));
     reader.beginArray();
-    try {
-      reader.nextDouble();
-      fail();
-    } catch (MalformedJsonException expected) {
-    }
+    assertEquals(Double.NaN, reader.nextDouble());
   }
 
   public void testLenientNonFiniteDoubles() throws IOException {

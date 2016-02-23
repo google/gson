@@ -56,7 +56,7 @@ public class ConcurrencyTest extends TestCase {
    */
   public void testSingleThreadDeserialization() { 
     for (int i = 0; i < 10; i++) { 
-      gson.fromJson("{'a':'hello','b':'world','i':1}", MyObject.class); 
+      gson.fromJson("{\"a\":\"hello\",\"b\":\"world\",\"i\":1}", MyObject.class); 
     } 
   } 
 
@@ -106,7 +106,7 @@ public class ConcurrencyTest extends TestCase {
           try {
             startLatch.await();
             for (int i = 0; i < 10; i++) {
-              gson.fromJson("{'a':'hello','b':'world','i':1}", MyObject.class); 
+              gson.fromJson("{\"a\":\"hello\",\"b\":\"world\",\"i\":1}", MyObject.class); 
             }
           } catch (Throwable t) {
             failed.set(true);

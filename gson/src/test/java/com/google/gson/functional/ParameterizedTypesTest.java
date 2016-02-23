@@ -494,7 +494,7 @@ public class ParameterizedTypesTest extends TestCase {
   }
   
   public void testDeepParameterizedTypeDeserialization() {
-    String json = "{value:30}";
+    String json = "{\"value\":30}";
     Type type = new TypeToken<Amount<MyQuantity>>() {}.getType();    
     Amount<MyQuantity> amount = gson.fromJson(json, type);
     assertEquals(30, amount.value);

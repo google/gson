@@ -172,7 +172,7 @@ public final class StreamingTypeAdaptersTest extends TestCase {
       gson.toJson(truck, Truck.class);
       fail();
     } catch (NullPointerException expected) {}
-    String json = "{horsePower:1.0,passengers:[null,'jesse,30']}";
+    String json = "{\"horsePower\":1.0,\"passengers\":[null,\"jesse,30\"]}";
     try {
       gson.fromJson(json, Truck.class);
       fail();

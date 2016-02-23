@@ -72,7 +72,7 @@ public class ExposeFieldsTest extends TestCase {
   }
 
   public void testExposeAnnotationDeserialization() throws Exception {
-    String json = "{a:3,b:4,d:20.0}";
+    String json = "{\"a\":3,\"b\":4,\"d\":20.0}";
     ClassWithExposedFields target = gson.fromJson(json, ClassWithExposedFields.class);
 
     assertEquals(3, (int) target.a);
@@ -88,7 +88,7 @@ public class ExposeFieldsTest extends TestCase {
   }
 
   public void testNoExposedFieldDeserialization() throws Exception {
-    String json = "{a:4,b:5}";
+    String json = "{\"a\":4,\"b\":5}";
     ClassWithNoExposedFields obj = gson.fromJson(json, ClassWithNoExposedFields.class);
 
     assertEquals(0, obj.a);

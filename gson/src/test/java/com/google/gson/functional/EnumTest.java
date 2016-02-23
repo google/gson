@@ -89,7 +89,7 @@ public class EnumTest extends TestCase {
   }
 
   public void testClassWithEnumFieldDeserialization() throws Exception {
-    String json = "{value1:'VALUE1',value2:'VALUE2'}";
+    String json = "{\"value1\":\"VALUE1\",\"value2\":\"VALUE2\"}";
     ClassWithEnumFields target = gson.fromJson(json, ClassWithEnumFields.class);
     assertEquals(MyEnum.VALUE1,target.value1);
     assertEquals(MyEnum.VALUE2,target.value2);
