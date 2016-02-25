@@ -51,7 +51,7 @@ public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapte
   static TypeAdapter<?> getTypeAdapter(ConstructorConstructor constructorConstructor, Gson gson,
       TypeToken<?> fieldType, JsonAdapter annotation) {
     Class<?> value = annotation.value();
-    final TypeAdapter<?> typeAdapter;
+    TypeAdapter<?> typeAdapter;
     if (TypeAdapter.class.isAssignableFrom(value)) {
       Class<TypeAdapter<?>> typeAdapterClass = (Class<TypeAdapter<?>>) value;
       typeAdapter = constructorConstructor.get(TypeToken.get(typeAdapterClass)).construct();
@@ -64,7 +64,9 @@ public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapte
       throw new IllegalArgumentException(
           "@JsonAdapter value must be TypeAdapter or TypeAdapterFactory reference.");
     }
-
-    return typeAdapter.nullSafe();
+    if (typeAdapter != null) {
+      typeAdapter = typeAdapter.nullSafe();
+    }
+    return typeAdapter;
   }
 }
