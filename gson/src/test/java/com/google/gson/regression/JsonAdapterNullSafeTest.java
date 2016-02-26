@@ -85,9 +85,6 @@ public class JsonAdapterNullSafeTest extends TestCase {
           }
           private JsonElement parseString(JsonParser parser, String json, String prevJson)
               throws IOException { // called recursively
-            if (json == null || json.trim().isEmpty()) {
-              return null;
-            }
             JsonElement root = parser.parse(json);
             if (root instanceof JsonPrimitive) {
               prevJson = json;
