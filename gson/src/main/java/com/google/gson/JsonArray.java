@@ -162,7 +162,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   }
 
   /**
-   * Returns an iterator to navigate the elemetns of the array. Since the array is an ordered list,
+   * Returns an iterator to navigate the elements of the array. Since the array is an ordered list,
    * the iterator navigates the elements in the order they were inserted.
    *
    * @return an iterator to navigate the elements of the array.

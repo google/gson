@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import com.google.gson.stream.JsonReader;
 import java.lang.reflect.Type;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -33,6 +34,14 @@ import com.google.gson.internal.bind.DateTimeTypeAdapters.SqlDateTypeAdapter;
 import com.google.gson.internal.bind.DateTimeTypeAdapters.TimestampTypeAdapter;
 import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.reflect.TypeToken;
+
+import static com.google.gson.Gson.DEFAULT_COMPLEX_MAP_KEYS;
+import static com.google.gson.Gson.DEFAULT_ESCAPE_HTML;
+import static com.google.gson.Gson.DEFAULT_JSON_NON_EXECUTABLE;
+import static com.google.gson.Gson.DEFAULT_LENIENT;
+import static com.google.gson.Gson.DEFAULT_PRETTY_PRINT;
+import static com.google.gson.Gson.DEFAULT_SERIALIZE_NULLS;
+import static com.google.gson.Gson.DEFAULT_SPECIALIZE_FLOAT_VALUES;
 
 /**
  * <p>Use this builder to construct a {@link Gson} instance when you need to set configuration
@@ -77,15 +86,16 @@ public final class GsonBuilder {
   private final List<TypeAdapterFactory> factories = new ArrayList<TypeAdapterFactory>();
   /** tree-style hierarchy factories. These come after factories for backwards compatibility. */
   private final List<TypeAdapterFactory> hierarchyFactories = new ArrayList<TypeAdapterFactory>();
-  private boolean serializeNulls;
+  private boolean serializeNulls = DEFAULT_SERIALIZE_NULLS;
   private String datePattern;
   private int dateStyle = DateFormat.DEFAULT;
   private int timeStyle = DateFormat.DEFAULT;
-  private boolean complexMapKeySerialization;
-  private boolean serializeSpecialFloatingPointValues;
-  private boolean escapeHtmlChars = true;
-  private boolean prettyPrinting;
-  private boolean generateNonExecutableJson;
+  private boolean complexMapKeySerialization = DEFAULT_COMPLEX_MAP_KEYS;
+  private boolean serializeSpecialFloatingPointValues = DEFAULT_SPECIALIZE_FLOAT_VALUES;
+  private boolean escapeHtmlChars = DEFAULT_ESCAPE_HTML;
+  private boolean prettyPrinting = DEFAULT_PRETTY_PRINT;
+  private boolean generateNonExecutableJson = DEFAULT_JSON_NON_EXECUTABLE;
+  private boolean lenient = DEFAULT_LENIENT;
 
   /**
    * Creates a GsonBuilder instance that can be used to build Gson with various configuration
@@ -296,7 +306,7 @@ public final class GsonBuilder {
    * Configures Gson to apply a set of exclusion strategies during both serialization and
    * deserialization. Each of the {@code strategies} will be applied as a disjunction rule.
    * This means that if one of the {@code strategies} suggests that a field (or class) should be
-   * skipped then that field (or object) is skipped during serializaiton/deserialization.
+   * skipped then that field (or object) is skipped during serialization/deserialization.
    *
    * @param strategies the set of strategy object to apply during object (de)serialization.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
@@ -351,6 +361,19 @@ public final class GsonBuilder {
    */
   public GsonBuilder setPrettyPrinting() {
     prettyPrinting = true;
+    return this;
+  }
+
+  /**
+   * By default, Gson is strict and only accepts JSON as specified by
+   * <a href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>. This option makes the parser
+   * liberal in what it accepts.
+   *
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @see JsonReader#setLenient(boolean)
+   */
+  public GsonBuilder setLenient() {
+    lenient = true;
     return this;
   }
 
@@ -547,7 +570,7 @@ public final class GsonBuilder {
 
     return new Gson(excluder, fieldNamingPolicy, instanceCreators,
         serializeNulls, complexMapKeySerialization,
-        generateNonExecutableJson, escapeHtmlChars, prettyPrinting,
+        generateNonExecutableJson, escapeHtmlChars, prettyPrinting, lenient,
         serializeSpecialFloatingPointValues, longSerializationPolicy, factories);
   }
 

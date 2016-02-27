@@ -79,7 +79,7 @@ To use Gson with Maven2/3, you can use the Gson version available in Maven Centr
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
-      <version>2.5</version>
+      <version>2.6.1</version>
       <scope>compile</scope>
     </dependency>
 </dependencies>
@@ -223,11 +223,8 @@ Unfortunately, there is no way to get around this in Java.
 
 #### <a name="TOC-Collections-Limitations"></a>Collections Limitations
 
-* Can serialize collection of arbitrary objects but can not deserialize from it
-* Because there is no way for the user to indicate the type of the resulting object
-* While deserializing, Collection must be of a specific generic type
-
-All of this makes sense, and is rarely a problem when following good Java coding practices.
+Gson can serialize collection of arbitrary objects but can not deserialize from it, because there is no way for the user to indicate the type of the resulting object. Instead, while deserializing, the Collection must be of a specific, generic type.
+This makes sense, and is rarely a problem when following good Java coding practices.
 
 ### <a name="TOC-Serializing-and-Deserializing-Generic-Types"></a>Serializing and Deserializing Generic Types
 
