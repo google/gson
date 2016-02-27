@@ -63,7 +63,7 @@ The following is a step-by-step procedure for releasing a new version of Google-
   git push
   ```
 
-1. Update the version in the [Using Gson with Maven2 page](https://sites.google.com/site/gson/gson-user-guide/using-gson-with-maven2)
+1. Update the version in the [Using Gson with Maven2 page](https://github.com/google/gson/blob/master/UserGuide.md#TOC-Gson-With-Maven)
 1. Update [Gson Changelog](https://github.com/google/gson/blob/master/CHANGELOG.md). Also, look at all bugs that were fixed and add a few lines describing what changed in the release.
 1. Create a post on the [Gson Discussion Forum](http://groups.google.com/group/google-gson)
 1. Update the release version in [Wikipedia](http://en.wikipedia.org/wiki/GSON) and update the current "stable" release.
