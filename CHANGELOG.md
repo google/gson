@@ -1,6 +1,12 @@
 Change Log
 ==========
 
+## Version 2.6.2
+_2016-02-26_  [GitHub Diff](https://github.com/google/gson/compare/gson-parent-2.6.1...gson-parent-2.6.2)
+ * Fixed an NPE bug with @JsonAdapter annotation
+ * Added back OSGI manifest
+ * Some documentation typo fixes
+
 ## Version 2.6.1
 
 _2016-02-11_
