@@ -9,7 +9,7 @@ _2016-02-26_  [GitHub Diff](https://github.com/google/gson/compare/gson-parent-2
 
 ## Version 2.6.1
 
-_2016-02-11_
+_2016-02-11_ [GitHub Diff](https://github.com/google/gson/compare/gson-parent-2.6...gson-parent-2.6.1)
 
  * Fix: The 2.6 release targeted Java 1.7, but we intend to target Java 1.6. The
    2.6.1 release is identical to 2.6, but it targets Java 1.6.
@@ -17,7 +17,7 @@ _2016-02-11_
 
 ## Version 2.6
 
-_2016-02-11_
+_2016-02-11_ [GitHub Diff](https://github.com/google/gson/compare/gson-parent-2.5...gson-parent-2.6)
 
  * Permit timezones without minutes in the default date adapter.
  * Update reader and writer for RFC 7159. This means that strings, numbers,
@@ -30,7 +30,7 @@ _2016-02-11_
 
 ## Version 2.5
 
-_2015-11-24_
+_2015-11-24_ [GitHub Diff](https://github.com/google/gson/compare/gson-parent-2.4...gson-parent-2.5)
 
  * Updated minimum JDK version to 1.6
  * Improved Date Deserialization by accepting many date formats
