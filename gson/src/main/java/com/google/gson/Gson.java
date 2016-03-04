@@ -390,10 +390,7 @@ public final class Gson {
    */
   @SuppressWarnings("unchecked")
   public <T> TypeAdapter<T> getAdapter(TypeToken<T> type) {
-    if (type == null) {
-      type = (TypeToken<T>) NULL_KEY_SURROGATE;
-    }
-    TypeAdapter<?> cached = typeTokenCache.get(type);
+    TypeAdapter<?> cached = typeTokenCache.get(type == null ? NULL_KEY_SURROGATE : type);
     if (cached != null) {
       return (TypeAdapter<T>) cached;
     }
