@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLongArray;
 
@@ -108,6 +109,7 @@ public final class Gson {
   static final boolean DEFAULT_COMPLEX_MAP_KEYS = false;
   static final boolean DEFAULT_SPECIALIZE_FLOAT_VALUES = false;
 
+  private static final TypeToken<?> NULL_KEY_SURROGATE = new TypeToken<Object>() {};
   private static final String JSON_NON_EXECUTABLE_PREFIX = ")]}'\n";
 
   /**
@@ -120,8 +122,7 @@ public final class Gson {
   private final ThreadLocal<Map<TypeToken<?>, FutureTypeAdapter<?>>> calls
       = new ThreadLocal<Map<TypeToken<?>, FutureTypeAdapter<?>>>();
 
-  private final Map<TypeToken<?>, TypeAdapter<?>> typeTokenCache
-      = Collections.synchronizedMap(new HashMap<TypeToken<?>, TypeAdapter<?>>());
+  private final Map<TypeToken<?>, TypeAdapter<?>> typeTokenCache = new ConcurrentHashMap<TypeToken<?>, TypeAdapter<?>>();
 
   private final List<TypeAdapterFactory> factories;
   private final ConstructorConstructor constructorConstructor;
@@ -389,6 +390,9 @@ public final class Gson {
    */
   @SuppressWarnings("unchecked")
   public <T> TypeAdapter<T> getAdapter(TypeToken<T> type) {
+    if (type == null) {
+      type = (TypeToken<T>) NULL_KEY_SURROGATE;
+    }
     TypeAdapter<?> cached = typeTokenCache.get(type);
     if (cached != null) {
       return (TypeAdapter<T>) cached;
