@@ -167,6 +167,34 @@ public class MapTest extends TestCase {
     assertEquals("456", map.get(123));
   }
 
+  public void testMapDeserializationWithUnquotedIntegerKeys() {
+    Type typeOfMap = new TypeToken<Map<Integer, String>>() {}.getType();
+    Map<Integer, String> map = gson.fromJson("{123:\"456\"}", typeOfMap);
+    assertEquals(1, map.size());
+    assertTrue(map.containsKey(123));
+    assertEquals("456", map.get(123));
+  }
+
+  public void testMapDeserializationWithLongKeys() {
+    long longValue = 9876543210L;
+    String json = String.format("{\"%d\":\"456\"}", longValue);
+    Type typeOfMap = new TypeToken<Map<Long, String>>() {}.getType();
+    Map<Long, String> map = gson.fromJson(json, typeOfMap);
+    assertEquals(1, map.size());
+    assertTrue(map.containsKey(longValue));
+    assertEquals("456", map.get(longValue));
+  }
+
+  public void testMapDeserializationWithUnquotedLongKeys() {
+    long longKey = 9876543210L;
+    String json = String.format("{%d:\"456\"}", longKey);
+    Type typeOfMap = new TypeToken<Map<Long, String>>() {}.getType();
+    Map<Long, String> map = gson.fromJson(json, typeOfMap);
+    assertEquals(1, map.size());
+    assertTrue(map.containsKey(longKey));
+    assertEquals("456", map.get(longKey));
+  }
+
   public void testHashMapDeserialization() throws Exception {
     Type typeOfMap = new TypeToken<HashMap<Integer, String>>() {}.getType();
     HashMap<Integer, String> map = gson.fromJson("{\"123\":\"456\"}", typeOfMap);
