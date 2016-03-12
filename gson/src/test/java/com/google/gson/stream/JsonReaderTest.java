@@ -501,7 +501,7 @@ public final class JsonReaderTest extends TestCase {
     try {
       reader.nextInt();
       fail();
-    } catch (IllegalStateException expected) {
+    } catch (NumberFormatException expected) {
     }
     assertEquals("12.34e5x", reader.nextString());
   }

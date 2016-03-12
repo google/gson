@@ -951,8 +951,12 @@ public class JsonReader implements Closeable {
     if (p == PEEKED_NUMBER) {
       peekedString = new String(buffer, pos, peekedNumberLength);
       pos += peekedNumberLength;
-    } else if (p == PEEKED_SINGLE_QUOTED || p == PEEKED_DOUBLE_QUOTED) {
-      peekedString = nextQuotedValue(p == PEEKED_SINGLE_QUOTED ? '\'' : '"');
+    } else if (p == PEEKED_SINGLE_QUOTED || p == PEEKED_DOUBLE_QUOTED || p == PEEKED_UNQUOTED) {
+      if (p == PEEKED_UNQUOTED) {
+        peekedString = nextUnquotedValue();
+      } else {
+        peekedString = nextQuotedValue(p == PEEKED_SINGLE_QUOTED ? '\'' : '"');
+      }
       try {
         long result = Long.parseLong(peekedString);
         peeked = PEEKED_NONE;
@@ -1179,8 +1183,12 @@ public class JsonReader implements Closeable {
     if (p == PEEKED_NUMBER) {
       peekedString = new String(buffer, pos, peekedNumberLength);
       pos += peekedNumberLength;
-    } else if (p == PEEKED_SINGLE_QUOTED || p == PEEKED_DOUBLE_QUOTED) {
-      peekedString = nextQuotedValue(p == PEEKED_SINGLE_QUOTED ? '\'' : '"');
+    } else if (p == PEEKED_SINGLE_QUOTED || p == PEEKED_DOUBLE_QUOTED || p == PEEKED_UNQUOTED) {
+      if (p == PEEKED_UNQUOTED) {
+        peekedString = nextUnquotedValue();
+      } else {
+        peekedString = nextQuotedValue(p == PEEKED_SINGLE_QUOTED ? '\'' : '"');
+      }
       try {
         result = Integer.parseInt(peekedString);
         peeked = PEEKED_NONE;
