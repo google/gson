@@ -175,10 +175,10 @@ import java.io.Reader;
  * request forgery</a> attacks. In such an attack, a malicious site gains access
  * to a private JSON file by executing it with an HTML {@code <script>} tag.
  *
- * <p>Prefixing JSON files with <code>")]}'\n"</code> makes them non-executable
- * by {@code <script>} tags, disarming the attack. Since the prefix is malformed
- * JSON, strict parsing fails when it is encountered. This class permits the
- * non-execute prefix when {@link #setLenient(boolean) lenient parsing} is
+ * <p>Prefixing JSON files with <code>)]}'</code> on its own line makes them
+ * non-executable by {@code <script>} tags, disarming the attack. Since the prefix
+ * is malformed JSON, strict parsing fails when it is encountered. This class permits
+ * the non-execute prefix when {@link #setLenient(boolean) lenient parsing} is
  * enabled.
  *
  * <p>Each {@code JsonReader} may be used to read a single JSON stream. Instances
@@ -189,7 +189,8 @@ import java.io.Reader;
  */
 public class JsonReader implements Closeable {
   /** The only non-execute prefix this parser permits */
-  private static final char[] NON_EXECUTE_PREFIX = ")]}'\n".toCharArray();
+  public static final char[] NON_EXECUTE_PREFIX = ")]}'".toCharArray();
+
   private static final long MIN_INCOMPLETE_INTEGER = Long.MIN_VALUE / 10;
 
   private static final int PEEKED_NONE = 0;
@@ -301,7 +302,7 @@ public class JsonReader implements Closeable {
    *
    * <ul>
    *   <li>Streams that start with the <a href="#nonexecuteprefix">non-execute
-   *       prefix</a>, <code>")]}'\n"</code>.
+   *       prefix</a>, <code>)]}'</code>, on its own line.
    *   <li>Streams that include multiple top-level values. With strict parsing,
    *       each stream must contain exactly one top-level value.
    *   <li>Top-level values of any type. With strict parsing, the top-level
@@ -1577,22 +1578,32 @@ public class JsonReader implements Closeable {
    * Consumes the non-execute prefix if it exists.
    */
   private void consumeNonExecutePrefix() throws IOException {
-    // fast forward through the leading whitespace
+    // Fast-forward through the leading whitespace.
     nextNonWhitespace(true);
-    pos--;
+    --pos;
 
-    if (pos + NON_EXECUTE_PREFIX.length > limit && !fillBuffer(NON_EXECUTE_PREFIX.length)) {
+    // At least one line ending character needs to follow the prefix.
+    if (pos + NON_EXECUTE_PREFIX.length + 1 > limit && !fillBuffer(NON_EXECUTE_PREFIX.length + 1)) {
       return;
     }
 
-    for (int i = 0; i < NON_EXECUTE_PREFIX.length; i++) {
+    int i = 0;
+    while (i < NON_EXECUTE_PREFIX.length) {
       if (buffer[pos + i] != NON_EXECUTE_PREFIX[i]) {
-        return; // not a security token!
+        return; // Not a security token!
       }
+      ++i;
     }
 
-    // we consumed a security token!
-    pos += NON_EXECUTE_PREFIX.length;
+    // We consumed a security token!
+    if (buffer[pos + i] == '\n') {
+      pos += NON_EXECUTE_PREFIX.length + 1;
+    } else if (buffer[pos + i] == '\r') {
+      pos += NON_EXECUTE_PREFIX.length + 1;
+      if ((pos < limit || fillBuffer(1)) && buffer[pos] == '\n') {
+        ++pos;
+      }
+    }
   }
 
   static {

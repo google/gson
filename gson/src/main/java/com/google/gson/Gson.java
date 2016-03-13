@@ -110,7 +110,7 @@ public final class Gson {
   static final boolean DEFAULT_SPECIALIZE_FLOAT_VALUES = false;
 
   private static final TypeToken<?> NULL_KEY_SURROGATE = TypeToken.get(Object.class);
-  private static final String JSON_NON_EXECUTABLE_PREFIX = ")]}'\n";
+  private static final String JSON_NON_EXECUTE_PREFIX = new String(JsonReader.NON_EXECUTE_PREFIX) + "\n";
 
   /**
    * This thread local guards against reentrant calls to getAdapter(). In
@@ -711,7 +711,7 @@ public final class Gson {
    */
   public JsonWriter newJsonWriter(Writer writer) throws IOException {
     if (generateNonExecutableJson) {
-      writer.write(JSON_NON_EXECUTABLE_PREFIX);
+      writer.write(JSON_NON_EXECUTE_PREFIX);
     }
     JsonWriter jsonWriter = new JsonWriter(writer);
     if (prettyPrinting) {
