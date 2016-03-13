@@ -1305,6 +1305,14 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
+  public void testLenientNonExecutePrefixWithWindowsLineEndings() throws IOException {
+    JsonReader reader = new JsonReader(reader(")]}'\r\n []"));
+    reader.setLenient(true);
+    reader.beginArray();
+    reader.endArray();
+    assertEquals(JsonToken.END_DOCUMENT, reader.peek());
+  }
+
   public void testLenientNonExecutePrefixWithLeadingWhitespace() throws IOException {
     JsonReader reader = new JsonReader(reader("\r\n \t)]}'\n []"));
     reader.setLenient(true);
