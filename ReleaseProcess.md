@@ -47,21 +47,6 @@ The following is a step-by-step procedure for releasing a new version of Google-
 
 1. Close the Gson repository. Download and sanity check all downloads. Do not skip this step! Once you release the staging repository, there is no going back. It will get synced with Maven central and you will not be able to update or delete anything. Your only recourse will be to release a new version of Gson and hope that no one uses the old one.
 1. Release the staging repository for Gson. Gson will now get synced to Maven central with-in the next hour. For issues consult [Sonatype Guide](https://docs.sonatype.org/display/Repository/Sonatype+OSS+Maven+Repository+Usage+Guide#SonatypeOSSMavenRepositoryUsageGuide-8.ReleaseIt).
-1. Publishing Javadocs
-
-  ```bash
-  # Switch to the branch `gh-pages`
-  git checkout gh-pages
-
-  # Unpack the generated Javadoc
-  jar xvf /tmp/2.5/gson-2.5-javadoc.jar
-
-  # Commit the new Javadoc
-  git commit -m 'Updated Javadoc to 2.5'
-
-  # Push changes to GitHub
-  git push
-  ```
 
 1. Update the version in the [Using Gson with Maven2 page](https://github.com/google/gson/blob/master/UserGuide.md#TOC-Gson-With-Maven)
 1. Update [Gson Changelog](https://github.com/google/gson/blob/master/CHANGELOG.md). Also, look at all bugs that were fixed and add a few lines describing what changed in the release.
