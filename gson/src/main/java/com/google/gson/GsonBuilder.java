@@ -29,6 +29,9 @@ import java.util.Map;
 
 import com.google.gson.internal.$Gson$Preconditions;
 import com.google.gson.internal.Excluder;
+import com.google.gson.internal.bind.DateTimeTypeAdapters.DateTypeAdapter;
+import com.google.gson.internal.bind.DateTimeTypeAdapters.SqlDateTypeAdapter;
+import com.google.gson.internal.bind.DateTimeTypeAdapters.TimestampTypeAdapter;
 import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.reflect.TypeToken;
 
@@ -573,17 +576,22 @@ public final class GsonBuilder {
 
   private void addTypeAdaptersForDate(String datePattern, int dateStyle, int timeStyle,
       List<TypeAdapterFactory> factories) {
-    DefaultDateTypeAdapter dateTypeAdapter;
+    TypeAdapter<Date> dateTypeAdapter;
+    TypeAdapter<Timestamp> timestampTypeAdapter;
+    TypeAdapter<java.sql.Date> sqlDateTypeAdapter;
     if (datePattern != null && !"".equals(datePattern.trim())) {
-      dateTypeAdapter = new DefaultDateTypeAdapter(datePattern);
+      dateTypeAdapter = new DateTypeAdapter<Date>(datePattern);
+      timestampTypeAdapter = new TimestampTypeAdapter(datePattern);
+      sqlDateTypeAdapter = new SqlDateTypeAdapter(datePattern);
     } else if (dateStyle != DateFormat.DEFAULT && timeStyle != DateFormat.DEFAULT) {
-      dateTypeAdapter = new DefaultDateTypeAdapter(dateStyle, timeStyle);
+      dateTypeAdapter = new DateTypeAdapter<Date>(dateStyle, timeStyle);
+      timestampTypeAdapter = new TimestampTypeAdapter(dateStyle, timeStyle);
+      sqlDateTypeAdapter = new SqlDateTypeAdapter(dateStyle, timeStyle);
     } else {
       return;
     }
-
-    factories.add(TreeTypeAdapter.newFactory(TypeToken.get(Date.class), dateTypeAdapter));
-    factories.add(TreeTypeAdapter.newFactory(TypeToken.get(Timestamp.class), dateTypeAdapter));
-    factories.add(TreeTypeAdapter.newFactory(TypeToken.get(java.sql.Date.class), dateTypeAdapter));
+    factories.add(TypeAdapters.newFactory(Date.class, dateTypeAdapter));
+    factories.add(TypeAdapters.newFactory(Timestamp.class, timestampTypeAdapter));
+    factories.add(TypeAdapters.newFactory(java.sql.Date.class, sqlDateTypeAdapter));
   }
 }

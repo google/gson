@@ -331,6 +331,16 @@ public class DefaultTypeAdaptersTest extends TestCase {
     assertEquals("\"Sep 11, 2011 10:55:03 PM\"", json);
   }
 
+  public void testDefaultDateSerialization2() {
+    TimeZone defaultTimeZone = TimeZone.getDefault();
+    TimeZone timeZone = TimeZone.getTimeZone("IST");
+    TimeZone.setDefault(timeZone);
+    Date now = new Date(1315806903103L);
+    String json = gson.toJson(now);
+    assertEquals("\"Sep 11, 2011 10:55:03 PM\"", json);
+    TimeZone.setDefault(defaultTimeZone);
+  }
+
   public void testDefaultDateDeserialization() {
     String json = "'Dec 13, 2009 07:18:02 AM'";
     Date extracted = gson.fromJson(json, Date.class);

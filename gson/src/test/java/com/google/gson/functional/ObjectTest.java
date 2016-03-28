@@ -16,6 +16,16 @@
 
 package com.google.gson.functional;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TimeZone;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
@@ -34,15 +44,7 @@ import com.google.gson.common.TestTypes.ClassWithTransientFields;
 import com.google.gson.common.TestTypes.Nested;
 import com.google.gson.common.TestTypes.PrimitiveArray;
 import com.google.gson.reflect.TypeToken;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.TimeZone;
+
 import junit.framework.TestCase;
 
 /**
@@ -483,6 +485,17 @@ public class ObjectTest extends TestCase {
     HasObjectMap a = new HasObjectMap();
     a.map.put("date", new Date(0));
     assertEquals("{\"map\":{\"date\":\"Dec 31, 1969 4:00:00 PM\"}}", gson.toJson(a));
+  }
+
+  // http://code.google.com/p/google-gson/issues/detail?id=270
+  public void testDateAsMapObjectField2() {
+    Date date = new Date(0);
+    TimeZone defaultTimeZone = TimeZone.getDefault();
+    TimeZone.setDefault(TimeZone.getTimeZone("IST"));
+    HasObjectMap a = new HasObjectMap();
+    a.map.put("date", date);
+    assertEquals("{\"map\":{\"date\":\"Dec 31, 1969 4:00:00 PM\"}}", gson.toJson(a));
+    TimeZone.setDefault(defaultTimeZone);
   }
 
   public class HasObjectMap {
