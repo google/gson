@@ -133,22 +133,6 @@ public final class Gson {
   private final boolean prettyPrinting;
   private final boolean lenient;
 
-  final JsonDeserializationContext deserializationContext = new JsonDeserializationContext() {
-    @SuppressWarnings("unchecked")
-    @Override public <T> T deserialize(JsonElement json, Type typeOfT) throws JsonParseException {
-      return (T) fromJson(json, typeOfT);
-    }
-  };
-
-  final JsonSerializationContext serializationContext = new JsonSerializationContext() {
-    @Override public JsonElement serialize(Object src) {
-      return toJsonTree(src);
-    }
-    @Override public JsonElement serialize(Object src, Type typeOfSrc) {
-      return toJsonTree(src, typeOfSrc);
-    }
-  };
-
   /**
    * Constructs a Gson object with default configuration. The default configuration has the
    * following settings:

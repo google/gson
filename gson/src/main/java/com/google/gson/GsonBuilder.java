@@ -29,6 +29,7 @@ import java.util.Map;
 
 import com.google.gson.internal.$Gson$Preconditions;
 import com.google.gson.internal.Excluder;
+import com.google.gson.internal.bind.TreeTypeAdapter;
 import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.reflect.TypeToken;
 
