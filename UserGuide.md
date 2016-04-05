@@ -46,7 +46,7 @@ Gson can work with arbitrary Java objects including pre-existing objects that yo
 * Allow pre-existing unmodifiable objects to be converted to and from JSON
 * Allow custom representations for objects
 * Support arbitrarily complex objects
-* Generate compact and readability JSON output
+* Generate compact and readable JSON output
 
 ## <a name="TOC-Gson-Performance-and-Scalability"></a>Gson Performance and Scalability
 
@@ -141,8 +141,8 @@ BagOfPrimitives obj2 = gson.fromJson(json, BagOfPrimitives.class);
 * There is no need to use any annotations to indicate a field is to be included for serialization and deserialization. All fields in the current class (and from all super classes) are included by default.
 * If a field is marked transient, (by default) it is ignored and not included in the JSON serialization or deserialization.
 * This implementation handles nulls correctly
-* While serialization, a null field is skipped from the output
-* While deserialization, a missing entry in JSON results in setting the corresponding field in the object to null
+* While serializing, a null field is skipped from the output
+* While deserializing, a missing entry in JSON results in setting the corresponding field in the object to null
 * If a field is _synthetic_, it is ignored and not included in JSON serialization or deserialization
 * Fields corresponding to the outer classes in inner classes, anonymous classes, and local classes are ignored and not included in serialization or deserialization
 
@@ -169,7 +169,7 @@ public class A {
 
 **NOTE**: The above class B can not (by default) be serialized with Gson.
 
-Gson can not deserialize `{"b":"abc"}` into an instance of B since the class B is an inner class. if it was defined as static class B then Gson would have been able to deserialize the string. Another solution is to write a custom instance creator for B. 
+Gson can not deserialize `{"b":"abc"}` into an instance of B since the class B is an inner class. If it was defined as static class B then Gson would have been able to deserialize the string. Another solution is to write a custom instance creator for B. 
 
 ```java
 public class InstanceCreatorForB implements InstanceCreator<A.B> {
@@ -390,7 +390,7 @@ Type could be of a corresponding generic type
 
 #### <a name="TOC-InstanceCreator-for-a-Parameterized-Type"></a>InstanceCreator for a Parameterized Type
 
-Sometimes that the type that you are trying to instantiate is a parameterized type. Generally, this is not a problem since the actual instance is of raw type. Here is an example:
+Sometimes the type that you are trying to instantiate is a parameterized type. Generally, this is not a problem since the actual instance is of raw type. Here is an example:
 
 ```java
 class MyList<T> extends ArrayList<T> {
@@ -430,9 +430,9 @@ In the above example, an instance of the Id class can not be created without act
 
 ### <a name="TOC-Compact-Vs.-Pretty-Printing-for-JSON-Output-Format"></a>Compact Vs. Pretty Printing for JSON Output Format
 
-The default JSON output that is provide by Gson is a compact JSON format. This means that there will not be any whitespace in the output JSON structure. Therefore, there will be no whitespace between field names and its value, object fields, and objects within arrays in the JSON output. As well, "null" fields will be ignored in the output (NOTE: null values will still be included in collections/arrays of objects). See the [Null Object Support](#TOC-Null-Object-Support) section for information on configure Gson to output all null values.
+The default JSON output that is provided by Gson is a compact JSON format. This means that there will not be any whitespace in the output JSON structure. Therefore, there will be no whitespace between field names and its value, object fields, and objects within arrays in the JSON output. As well, "null" fields will be ignored in the output (NOTE: null values will still be included in collections/arrays of objects). See the [Null Object Support](#TOC-Null-Object-Support) section for information on configure Gson to output all null values.
 
-If you like to use the Pretty Print feature, you must configure your `Gson` instance using the `GsonBuilder`. The `JsonFormatter` is not exposed through our public API, so the client is unable to configure the default print settings/margins for the JSON output. For now, we only provide a default `JsonPrintFormatter` that has default line length of 80 character, 2 character indentation, and 4 character right margin.
+If you would like to use the Pretty Print feature, you must configure your `Gson` instance using the `GsonBuilder`. The `JsonFormatter` is not exposed through our public API, so the client is unable to configure the default print settings/margins for the JSON output. For now, we only provide a default `JsonPrintFormatter` that has default line length of 80 character, 2 character indentation, and 4 character right margin.
 
 The following is an example shows how to configure a `Gson` instance to use the default `JsonPrintFormatter` instead of the `JsonCompactFormatter`:
 ```
@@ -441,7 +441,7 @@ String jsonOutput = gson.toJson(someObject);
 ```
 ### <a name="TOC-Null-Object-Support"></a>Null Object Support
 
-The default behaviour that is implemented in Gson is that `null` object fields are ignored. This allows for a more compact output format; however, the client must define a default value for these fields as the JSON format is converted back into its Java.
+The default behaviour that is implemented in Gson is that `null` object fields are ignored. This allows for a more compact output format; however, the client must define a default value for these fields as the JSON format is converted back into its Java form.
 
 Here's how you would configure a `Gson` instance to output null:
 
@@ -522,7 +522,7 @@ The output is:
 
 ### <a name="TOC-Excluding-Fields-From-Serialization-and-Deserialization"></a>Excluding Fields From Serialization and Deserialization
 
-Gson supports numerous mechanisms for excluding top-level classes, fields and field types. Below are pluggable mechanism that allow field and class exclusion. If none of the below mechanism satisfy your needs then you can always use [custom serializers and deserializers](#TOC-Custom-Serialization-and-Deserializ).
+Gson supports numerous mechanisms for excluding top-level classes, fields and field types. Below are pluggable mechanisms that allow field and class exclusion. If none of the below mechanisms satisfy your needs then you can always use [custom serializers and deserializers](#TOC-Custom-Serialization-and-Deserialization).
 
 #### <a name="TOC-Java-Modifier-Exclusion"></a>Java Modifier Exclusion
 
@@ -535,7 +535,7 @@ Gson gson = new GsonBuilder()
     .create();
 ```
 
-NOTE: you can use any number of the `Modifier` constants to `excludeFieldsWithModifiers` method. For example:
+NOTE: you can give any number of the `Modifier` constants to the `excludeFieldsWithModifiers` method. For example:
 
 ```java
 Gson gson = new GsonBuilder()
