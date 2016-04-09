@@ -428,9 +428,9 @@ public final class Gson {
    *  class StatsTypeAdapterFactory implements TypeAdapterFactory {
    *    public int numReads = 0;
    *    public int numWrites = 0;
-   *    public &lt;T&gt; TypeAdapter&lt;T&gt; create(Gson gson, TypeToken&lt;T&gt; type) {
-   *      final TypeAdapter&lt;T&gt; delegate = gson.getDelegateAdapter(this, type);
-   *      return new TypeAdapter&lt;T&gt;() {
+   *    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+   *      final TypeAdapter<T> delegate = gson.getDelegateAdapter(this, type);
+   *      return new TypeAdapter<T>() {
    *        public void write(JsonWriter out, T value) throws IOException {
    *          ++numWrites;
    *          delegate.write(out, value);
