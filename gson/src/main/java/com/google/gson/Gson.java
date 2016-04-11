@@ -100,7 +100,7 @@ import com.google.gson.stream.MalformedJsonException;
  * @author Joel Leitch
  * @author Jesse Wilson
  */
-public final class Gson {
+public final class Gson implements GsonInterface {
   static final boolean DEFAULT_JSON_NON_EXECUTABLE = false;
   static final boolean DEFAULT_LENIENT = false;
   static final boolean DEFAULT_PRETTY_PRINT = false;
@@ -372,6 +372,7 @@ public final class Gson {
    * @throws IllegalArgumentException if this GSON cannot serialize and
    *     deserialize {@code type}.
    */
+  @Override
   @SuppressWarnings("unchecked")
   public <T> TypeAdapter<T> getAdapter(TypeToken<T> type) {
     TypeAdapter<?> cached = typeTokenCache.get(type == null ? NULL_KEY_SURROGATE : type);
@@ -465,6 +466,7 @@ public final class Gson {
    *
    * @since 2.2
    */
+  @Override
   public <T> TypeAdapter<T> getDelegateAdapter(TypeAdapterFactory skipPast, TypeToken<T> type) {
     boolean skipPastFound = false;
     // Skip past if and only if the specified factory is present in the factories.
@@ -494,6 +496,7 @@ public final class Gson {
    * @throws IllegalArgumentException if this GSON cannot serialize and
    *     deserialize {@code type}.
    */
+  @Override
   public <T> TypeAdapter<T> getAdapter(Class<T> type) {
     return getAdapter(TypeToken.get(type));
   }
@@ -511,6 +514,7 @@ public final class Gson {
    * @return Json representation of {@code src}.
    * @since 1.4
    */
+  @Override
   public JsonElement toJsonTree(Object src) {
     if (src == null) {
       return JsonNull.INSTANCE;
@@ -534,6 +538,7 @@ public final class Gson {
    * @return Json representation of {@code src}
    * @since 1.4
    */
+  @Override
   public JsonElement toJsonTree(Object src, Type typeOfSrc) {
     JsonTreeWriter writer = new JsonTreeWriter();
     toJson(src, typeOfSrc, writer);
@@ -553,6 +558,7 @@ public final class Gson {
    * @param src the object for which Json representation is to be created setting for Gson
    * @return Json representation of {@code src}.
    */
+  @Override
   public String toJson(Object src) {
     if (src == null) {
       return toJson(JsonNull.INSTANCE);
@@ -575,6 +581,7 @@ public final class Gson {
    * </pre>
    * @return Json representation of {@code src}
    */
+  @Override
   public String toJson(Object src, Type typeOfSrc) {
     StringWriter writer = new StringWriter();
     toJson(src, typeOfSrc, writer);
@@ -595,6 +602,7 @@ public final class Gson {
    * @throws JsonIOException if there was a problem writing to the writer
    * @since 1.2
    */
+  @Override
   public void toJson(Object src, Appendable writer) throws JsonIOException {
     if (src != null) {
       toJson(src, src.getClass(), writer);
@@ -619,6 +627,7 @@ public final class Gson {
    * @throws JsonIOException if there was a problem writing to the writer
    * @since 1.2
    */
+  @Override
   public void toJson(Object src, Type typeOfSrc, Appendable writer) throws JsonIOException {
     try {
       JsonWriter jsonWriter = newJsonWriter(Streams.writerForAppendable(writer));
@@ -633,6 +642,7 @@ public final class Gson {
    * {@code writer}.
    * @throws JsonIOException if there was a problem writing to the writer
    */
+  @Override
   @SuppressWarnings("unchecked")
   public void toJson(Object src, Type typeOfSrc, JsonWriter writer) throws JsonIOException {
     TypeAdapter<?> adapter = getAdapter(TypeToken.get(typeOfSrc));
@@ -660,6 +670,7 @@ public final class Gson {
    * @return JSON String representation of the tree
    * @since 1.4
    */
+  @Override
   public String toJson(JsonElement jsonElement) {
     StringWriter writer = new StringWriter();
     toJson(jsonElement, writer);
@@ -674,6 +685,7 @@ public final class Gson {
    * @throws JsonIOException if there was a problem writing to the writer
    * @since 1.4
    */
+  @Override
   public void toJson(JsonElement jsonElement, Appendable writer) throws JsonIOException {
     try {
       JsonWriter jsonWriter = newJsonWriter(Streams.writerForAppendable(writer));
@@ -686,6 +698,7 @@ public final class Gson {
   /**
    * Returns a new JSON writer configured for the settings on this Gson instance.
    */
+  @Override
   public JsonWriter newJsonWriter(Writer writer) throws IOException {
     if (generateNonExecutableJson) {
       writer.write(JSON_NON_EXECUTABLE_PREFIX);
@@ -701,6 +714,7 @@ public final class Gson {
   /**
    * Returns a new JSON writer configured for the settings on this Gson instance.
    */
+  @Override
   public JsonReader newJsonReader(Reader reader) {
     JsonReader jsonReader = new JsonReader(reader);
     jsonReader.setLenient(lenient);
@@ -711,6 +725,7 @@ public final class Gson {
    * Writes the JSON for {@code jsonElement} to {@code writer}.
    * @throws JsonIOException if there was a problem writing to the writer
    */
+  @Override
   public void toJson(JsonElement jsonElement, JsonWriter writer) throws JsonIOException {
     boolean oldLenient = writer.isLenient();
     writer.setLenient(true);
@@ -746,6 +761,7 @@ public final class Gson {
    * @throws JsonSyntaxException if json is not a valid representation for an object of type
    * classOfT
    */
+  @Override
   public <T> T fromJson(String json, Class<T> classOfT) throws JsonSyntaxException {
     Object object = fromJson(json, (Type) classOfT);
     return Primitives.wrap(classOfT).cast(object);
@@ -769,6 +785,7 @@ public final class Gson {
    * @throws JsonParseException if json is not a valid representation for an object of type typeOfT
    * @throws JsonSyntaxException if json is not a valid representation for an object of type
    */
+  @Override
   @SuppressWarnings("unchecked")
   public <T> T fromJson(String json, Type typeOfT) throws JsonSyntaxException {
     if (json == null) {
@@ -797,6 +814,7 @@ public final class Gson {
    * @throws JsonSyntaxException if json is not a valid representation for an object of type
    * @since 1.2
    */
+  @Override
   public <T> T fromJson(Reader json, Class<T> classOfT) throws JsonSyntaxException, JsonIOException {
     JsonReader jsonReader = newJsonReader(json);
     Object object = fromJson(jsonReader, classOfT);
@@ -823,6 +841,7 @@ public final class Gson {
    * @throws JsonSyntaxException if json is not a valid representation for an object of type
    * @since 1.2
    */
+  @Override
   @SuppressWarnings("unchecked")
   public <T> T fromJson(Reader json, Type typeOfT) throws JsonIOException, JsonSyntaxException {
     JsonReader jsonReader = newJsonReader(json);
@@ -851,6 +870,7 @@ public final class Gson {
    * @throws JsonIOException if there was a problem writing to the Reader
    * @throws JsonSyntaxException if json is not a valid representation for an object of type
    */
+  @Override
   @SuppressWarnings("unchecked")
   public <T> T fromJson(JsonReader reader, Type typeOfT) throws JsonIOException, JsonSyntaxException {
     boolean isEmpty = true;
@@ -898,6 +918,7 @@ public final class Gson {
    * @throws JsonSyntaxException if json is not a valid representation for an object of type typeOfT
    * @since 1.3
    */
+  @Override
   public <T> T fromJson(JsonElement json, Class<T> classOfT) throws JsonSyntaxException {
     Object object = fromJson(json, (Type) classOfT);
     return Primitives.wrap(classOfT).cast(object);
@@ -921,6 +942,7 @@ public final class Gson {
    * @throws JsonSyntaxException if json is not a valid representation for an object of type typeOfT
    * @since 1.3
    */
+  @Override
   @SuppressWarnings("unchecked")
   public <T> T fromJson(JsonElement json, Type typeOfT) throws JsonSyntaxException {
     if (json == null) {
