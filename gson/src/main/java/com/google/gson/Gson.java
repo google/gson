@@ -679,7 +679,7 @@ public final class Gson {
       JsonWriter jsonWriter = newJsonWriter(Streams.writerForAppendable(writer));
       toJson(jsonElement, jsonWriter);
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new JsonIOException(e);
     }
   }
 
