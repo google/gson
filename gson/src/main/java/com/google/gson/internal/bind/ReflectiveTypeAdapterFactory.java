@@ -22,6 +22,8 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.annotations.Serialize;
+import com.google.gson.annotations.Serialize.Inclusion;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.internal.ConstructorConstructor;
@@ -85,6 +87,16 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     return fieldNames;
   }
 
+  private Inclusion getInclusion(final Field f) {
+      final Serialize serialize = f.getAnnotation(Serialize.class);
+      
+      if (serialize == null || serialize.value() == null) {
+          return Inclusion.DEFAULT;
+      }
+      
+      return serialize.value();
+  }
+  
   @Override public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
     Class<? super T> raw = type.getRawType();
 
@@ -97,11 +109,11 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   }
 
   private ReflectiveTypeAdapterFactory.BoundField createBoundField(
-      final Gson context, final Field field, final String name,
+      final Gson context, final Field field, final String name, final Inclusion inclusion,
       final TypeToken<?> fieldType, boolean serialize, boolean deserialize) {
     final boolean isPrimitive = Primitives.isPrimitive(fieldType.getRawType());
     // special casing primitives here saves ~5% on Android...
-    return new ReflectiveTypeAdapterFactory.BoundField(name, serialize, deserialize) {
+    return new ReflectiveTypeAdapterFactory.BoundField(name, inclusion, serialize, deserialize) {
       final TypeAdapter<?> typeAdapter = getFieldAdapter(context, field, fieldType);
       @SuppressWarnings({"unchecked", "rawtypes"}) // the type adapter and field type always agree
       @Override void write(JsonWriter writer, Object value)
@@ -158,7 +170,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           String name = fieldNames.get(i);
           if (i != 0) serialize = false; // only serialize the default name
           BoundField boundField = createBoundField(context, field, name,
-              TypeToken.get(fieldType), serialize, deserialize);
+                  getInclusion(field), TypeToken.get(fieldType), serialize, deserialize);
           BoundField replaced = result.put(name, boundField);
           if (previous == null) previous = replaced;
         }
@@ -175,11 +187,13 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
 
   static abstract class BoundField {
     final String name;
+    final Inclusion inclusion;
     final boolean serialized;
     final boolean deserialized;
 
-    protected BoundField(String name, boolean serialized, boolean deserialized) {
+    protected BoundField(String name, Inclusion inclusion, boolean serialized, boolean deserialized) {
       this.name = name;
+      this.inclusion = inclusion;
       this.serialized = serialized;
       this.deserialized = deserialized;
     }
@@ -236,6 +250,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         for (BoundField boundField : boundFields.values()) {
           if (boundField.writeField(value)) {
             out.name(boundField.name);
+            out.inclusion(boundField.inclusion);
             boundField.write(out, value);
           }
         }
