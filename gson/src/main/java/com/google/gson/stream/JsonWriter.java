@@ -29,6 +29,8 @@ import static com.google.gson.stream.JsonScope.NONEMPTY_ARRAY;
 import static com.google.gson.stream.JsonScope.NONEMPTY_DOCUMENT;
 import static com.google.gson.stream.JsonScope.NONEMPTY_OBJECT;
 
+import com.google.gson.annotations.Serialize.Inclusion;
+
 /**
  * Writes a JSON (<a href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>)
  * encoded value to a stream, one token at a time. The stream includes both
@@ -187,6 +189,8 @@ public class JsonWriter implements Closeable, Flushable {
 
   private String deferredName;
 
+  private Inclusion deferredInclusion;
+  
   private boolean serializeNulls = true;
 
   /**
@@ -325,6 +329,7 @@ public class JsonWriter implements Closeable, Flushable {
     beforeValue();
     push(empty);
     out.write(openBracket);
+    afterValue();
     return this;
   }
 
@@ -395,7 +400,34 @@ public class JsonWriter implements Closeable, Flushable {
     deferredName = name;
     return this;
   }
+  
+  /**
+   * Defines whether to write the forthcoming value if it is {@code null}.
+   * 
+   * @param inclusion the inclusion mode. May not be null.
+   * @return this writer.
+   */
+  public JsonWriter inclusion(final Inclusion inclusion) {
+      if (inclusion == null) {
+          throw new NullPointerException("inclusion == null");
+      }
+      if (deferredInclusion != null) {
+          throw new IllegalStateException();
+      }
+      if (stackSize == 0) {
+          throw new IllegalStateException("JsonWriter is closed.");
+      }
+      this.deferredInclusion = inclusion;
+      return this;
+  }
 
+  private boolean includeNullValue() {
+      if (this.serializeNulls && this.deferredInclusion != Inclusion.NON_NULL) {
+          return true;
+      }
+      return this.deferredInclusion == Inclusion.ALWAYS;
+  }
+  
   private void writeDeferredName() throws IOException {
     if (deferredName != null) {
       beforeName();
@@ -417,6 +449,7 @@ public class JsonWriter implements Closeable, Flushable {
     writeDeferredName();
     beforeValue();
     string(value);
+    afterValue();
     return this;
   }
 
@@ -444,15 +477,17 @@ public class JsonWriter implements Closeable, Flushable {
    */
   public JsonWriter nullValue() throws IOException {
     if (deferredName != null) {
-      if (serializeNulls) {
+      if (includeNullValue()) {
         writeDeferredName();
       } else {
         deferredName = null;
+        deferredInclusion = null;
         return this; // skip the name and the value
       }
     }
     beforeValue();
     out.write("null");
+    afterValue();
     return this;
   }
 
@@ -465,6 +500,7 @@ public class JsonWriter implements Closeable, Flushable {
     writeDeferredName();
     beforeValue();
     out.write(value ? "true" : "false");
+    afterValue();
     return this;
   }
 
@@ -482,6 +518,7 @@ public class JsonWriter implements Closeable, Flushable {
     writeDeferredName();
     beforeValue();
     out.append(Double.toString(value));
+    afterValue();
     return this;
   }
 
@@ -494,6 +531,7 @@ public class JsonWriter implements Closeable, Flushable {
     writeDeferredName();
     beforeValue();
     out.write(Long.toString(value));
+    afterValue();
     return this;
   }
 
@@ -517,6 +555,7 @@ public class JsonWriter implements Closeable, Flushable {
     }
     beforeValue();
     out.append(string);
+    afterValue();
     return this;
   }
 
@@ -640,5 +679,12 @@ public class JsonWriter implements Closeable, Flushable {
     default:
       throw new IllegalStateException("Nesting problem.");
     }
+  }
+  
+  /**
+   * Resets value specific parameters to their default.
+   */
+  private void afterValue() {
+      deferredInclusion = null;
   }
 }
