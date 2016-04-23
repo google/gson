@@ -162,10 +162,6 @@ public final class TypeAdapters {
     }
     @Override
     public void write(JsonWriter out, Boolean value) throws IOException {
-      if (value == null) {
-        out.nullValue();
-        return;
-      }
       out.value(value);
     }
   };

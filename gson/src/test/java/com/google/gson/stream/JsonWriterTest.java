@@ -283,6 +283,17 @@ public final class JsonWriterTest extends TestCase {
     assertEquals("[true,false]", stringWriter.toString());
   }
 
+  public void testBoxedBooleans() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter jsonWriter = new JsonWriter(stringWriter);
+    jsonWriter.beginArray();
+    jsonWriter.value((Boolean) true);
+    jsonWriter.value((Boolean) false);
+    jsonWriter.value((Boolean) null);
+    jsonWriter.endArray();
+    assertEquals("[true,false,null]", stringWriter.toString());
+  }
+
   public void testNulls() throws IOException {
     StringWriter stringWriter = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
