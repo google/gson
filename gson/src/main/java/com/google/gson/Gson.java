@@ -127,6 +127,8 @@ public final class Gson {
   private final List<TypeAdapterFactory> factories;
   private final ConstructorConstructor constructorConstructor;
 
+  private final Excluder excluder;
+  private final FieldNamingStrategy fieldNamingStrategy;
   private final boolean serializeNulls;
   private final boolean htmlSafe;
   private final boolean generateNonExecutableJson;
@@ -175,13 +177,15 @@ public final class Gson {
         LongSerializationPolicy.DEFAULT, Collections.<TypeAdapterFactory>emptyList());
   }
 
-  Gson(final Excluder excluder, final FieldNamingStrategy fieldNamingPolicy,
+  Gson(final Excluder excluder, final FieldNamingStrategy fieldNamingStrategy,
       final Map<Type, InstanceCreator<?>> instanceCreators, boolean serializeNulls,
       boolean complexMapKeySerialization, boolean generateNonExecutableGson, boolean htmlSafe,
       boolean prettyPrinting, boolean lenient, boolean serializeSpecialFloatingPointValues,
       LongSerializationPolicy longSerializationPolicy,
       List<TypeAdapterFactory> typeAdapterFactories) {
     this.constructorConstructor = new ConstructorConstructor(instanceCreators);
+    this.excluder = excluder;
+    this.fieldNamingStrategy = fieldNamingStrategy;
     this.serializeNulls = serializeNulls;
     this.generateNonExecutableJson = generateNonExecutableGson;
     this.htmlSafe = htmlSafe;
@@ -244,9 +248,25 @@ public final class Gson {
     factories.add(new JsonAdapterAnnotationTypeAdapterFactory(constructorConstructor));
     factories.add(TypeAdapters.ENUM_FACTORY);
     factories.add(new ReflectiveTypeAdapterFactory(
-        constructorConstructor, fieldNamingPolicy, excluder));
+        constructorConstructor, fieldNamingStrategy, excluder));
 
     this.factories = Collections.unmodifiableList(factories);
+  }
+
+  public Excluder excluder() {
+    return excluder;
+  }
+
+  public FieldNamingStrategy fieldNamingStrategy() {
+    return fieldNamingStrategy;
+  }
+
+  public boolean serializeNulls() {
+    return serializeNulls;
+  }
+
+  public boolean htmlSafe() {
+    return htmlSafe;
   }
 
   private TypeAdapter<Number> doubleAdapter(boolean serializeSpecialFloatingPointValues) {
