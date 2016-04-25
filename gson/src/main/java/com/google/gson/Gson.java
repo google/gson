@@ -253,11 +253,11 @@ public final class Gson {
     this.factories = Collections.unmodifiableList(factories);
   }
 
-  public Excluder getExcluder() {
+  public Excluder excluder() {
     return excluder;
   }
 
-  public FieldNamingStrategy getFieldNamingStrategy() {
+  public FieldNamingStrategy fieldNamingStrategy() {
     return fieldNamingStrategy;
   }
 
