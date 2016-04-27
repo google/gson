@@ -17,7 +17,6 @@
 package com.google.gson;
 
 import com.google.gson.internal.Excluder;
-import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,20 +33,20 @@ public final class GsonTest extends TestCase {
       .excludeFieldsWithoutExposeAnnotation()
       .disableInnerClassSerialization();
 
-  private static final FieldNamingStrategy CUSTOM_FIELD_NAMING_STRATEGY = new FieldNamingStrategy() {
-    @Override public String translateName(Field f) {
+  private static final NamingStrategy CUSTOM_FIELD_NAMING_STRATEGY = new NamingStrategy() {
+    @Override public String translateName(String name) {
       return "foo";
     }
   };
 
   public void testOverridesDefaultExcluder() {
-    Gson gson = new Gson(CUSTOM_EXCLUDER, CUSTOM_FIELD_NAMING_STRATEGY,
+    Gson gson = new Gson(CUSTOM_EXCLUDER, null, CUSTOM_FIELD_NAMING_STRATEGY,
         new HashMap<Type, InstanceCreator<?>>(), true, false, true, false,
         true, true, false, LongSerializationPolicy.DEFAULT,
         new ArrayList<TypeAdapterFactory>());
 
     assertEquals(CUSTOM_EXCLUDER, gson.excluder());
-    assertEquals(CUSTOM_FIELD_NAMING_STRATEGY, gson.fieldNamingStrategy());
+    assertEquals(CUSTOM_FIELD_NAMING_STRATEGY, gson.namingStrategy());
     assertEquals(true, gson.serializeNulls());
     assertEquals(false, gson.htmlSafe());
   }

@@ -78,7 +78,8 @@ import static com.google.gson.Gson.DEFAULT_SPECIALIZE_FLOAT_VALUES;
 public final class GsonBuilder {
   private Excluder excluder = Excluder.DEFAULT;
   private LongSerializationPolicy longSerializationPolicy = LongSerializationPolicy.DEFAULT;
-  private FieldNamingStrategy fieldNamingPolicy = FieldNamingPolicy.IDENTITY;
+  private FieldNamingStrategy fieldNamingPolicy = null;
+  private NamingStrategy namingStrategy = FieldNamingPolicy.IDENTITY;
   private final Map<Type, InstanceCreator<?>> instanceCreators
       = new HashMap<Type, InstanceCreator<?>>();
   private final List<TypeAdapterFactory> factories = new ArrayList<TypeAdapterFactory>();
@@ -283,7 +284,20 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
   public GsonBuilder setFieldNamingPolicy(FieldNamingPolicy namingConvention) {
-    this.fieldNamingPolicy = namingConvention;
+    this.namingStrategy = namingConvention;
+    return this;
+  }
+
+  /**
+   * Configures Gson to apply a specific naming policy strategy to an object's field during
+   * serialization and deserialization.
+   *
+   * @param namingStrategy the actual naming strategy to apply to the fields
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @since 1.3
+   */
+  public GsonBuilder setNamingStrategy(NamingStrategy namingStrategy) {
+    this.namingStrategy = namingStrategy;
     return this;
   }
 
@@ -566,7 +580,7 @@ public final class GsonBuilder {
     factories.addAll(this.hierarchyFactories);
     addTypeAdaptersForDate(datePattern, dateStyle, timeStyle, factories);
 
-    return new Gson(excluder, fieldNamingPolicy, instanceCreators,
+    return new Gson(excluder, fieldNamingPolicy, namingStrategy, instanceCreators,
         serializeNulls, complexMapKeySerialization,
         generateNonExecutableJson, escapeHtmlChars, prettyPrinting, lenient,
         serializeSpecialFloatingPointValues, longSerializationPolicy, factories);

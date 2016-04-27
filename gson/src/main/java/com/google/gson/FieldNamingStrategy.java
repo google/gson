@@ -27,6 +27,7 @@ import java.lang.reflect.Field;
  * @author Joel Leitch
  * @since 1.3
  */
+@Deprecated
 public interface FieldNamingStrategy {
 
   /**

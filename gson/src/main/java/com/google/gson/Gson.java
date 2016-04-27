@@ -128,7 +128,7 @@ public final class Gson {
   private final ConstructorConstructor constructorConstructor;
 
   private final Excluder excluder;
-  private final FieldNamingStrategy fieldNamingStrategy;
+  private final NamingStrategy namingStrategy;
   private final boolean serializeNulls;
   private final boolean htmlSafe;
   private final boolean generateNonExecutableJson;
@@ -170,22 +170,22 @@ public final class Gson {
    * </ul>
    */
   public Gson() {
-    this(Excluder.DEFAULT, FieldNamingPolicy.IDENTITY,
+    this(Excluder.DEFAULT, null, FieldNamingPolicy.IDENTITY,
         Collections.<Type, InstanceCreator<?>>emptyMap(), DEFAULT_SERIALIZE_NULLS,
         DEFAULT_COMPLEX_MAP_KEYS, DEFAULT_JSON_NON_EXECUTABLE, DEFAULT_ESCAPE_HTML,
         DEFAULT_PRETTY_PRINT, DEFAULT_LENIENT, DEFAULT_SPECIALIZE_FLOAT_VALUES,
         LongSerializationPolicy.DEFAULT, Collections.<TypeAdapterFactory>emptyList());
   }
 
-  Gson(final Excluder excluder, final FieldNamingStrategy fieldNamingStrategy,
-      final Map<Type, InstanceCreator<?>> instanceCreators, boolean serializeNulls,
+  Gson(Excluder excluder, FieldNamingStrategy fieldNamingStrategy, NamingStrategy namingStrategy,
+      Map<Type, InstanceCreator<?>> instanceCreators, boolean serializeNulls,
       boolean complexMapKeySerialization, boolean generateNonExecutableGson, boolean htmlSafe,
       boolean prettyPrinting, boolean lenient, boolean serializeSpecialFloatingPointValues,
       LongSerializationPolicy longSerializationPolicy,
       List<TypeAdapterFactory> typeAdapterFactories) {
     this.constructorConstructor = new ConstructorConstructor(instanceCreators);
     this.excluder = excluder;
-    this.fieldNamingStrategy = fieldNamingStrategy;
+    this.namingStrategy = namingStrategy;
     this.serializeNulls = serializeNulls;
     this.generateNonExecutableJson = generateNonExecutableGson;
     this.htmlSafe = htmlSafe;
@@ -248,7 +248,7 @@ public final class Gson {
     factories.add(new JsonAdapterAnnotationTypeAdapterFactory(constructorConstructor));
     factories.add(TypeAdapters.ENUM_FACTORY);
     factories.add(new ReflectiveTypeAdapterFactory(
-        constructorConstructor, fieldNamingStrategy, excluder));
+        constructorConstructor, fieldNamingStrategy, namingStrategy, excluder));
 
     this.factories = Collections.unmodifiableList(factories);
   }
@@ -257,8 +257,8 @@ public final class Gson {
     return excluder;
   }
 
-  public FieldNamingStrategy fieldNamingStrategy() {
-    return fieldNamingStrategy;
+  public NamingStrategy namingStrategy() {
+    return namingStrategy;
   }
 
   public boolean serializeNulls() {

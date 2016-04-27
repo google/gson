@@ -19,6 +19,7 @@ package com.google.gson.internal.bind;
 import com.google.gson.FieldNamingStrategy;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.NamingStrategy;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.annotations.JsonAdapter;
@@ -47,13 +48,15 @@ import static com.google.gson.internal.bind.JsonAdapterAnnotationTypeAdapterFact
  */
 public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   private final ConstructorConstructor constructorConstructor;
-  private final FieldNamingStrategy fieldNamingPolicy;
+  private final FieldNamingStrategy fieldNamingPolicy; // Legacy, may be null.
+  private final NamingStrategy namingStrategy;
   private final Excluder excluder;
 
   public ReflectiveTypeAdapterFactory(ConstructorConstructor constructorConstructor,
-      FieldNamingStrategy fieldNamingPolicy, Excluder excluder) {
+      FieldNamingStrategy fieldNamingPolicy, NamingStrategy namingStrategy, Excluder excluder) {
     this.constructorConstructor = constructorConstructor;
     this.fieldNamingPolicy = fieldNamingPolicy;
+    this.namingStrategy = namingStrategy;
     this.excluder = excluder;
   }
 
@@ -67,15 +70,18 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
 
   /** first element holds the default name */
   private List<String> getFieldNames(Field f) {
-    return getFieldName(fieldNamingPolicy, f);
+    return getFieldName(namingStrategy, fieldNamingPolicy, f);
   }
 
   /** first element holds the default name */
-  static List<String> getFieldName(FieldNamingStrategy fieldNamingPolicy, Field f) {
+  private static List<String> getFieldName(NamingStrategy namingStrategy,
+      FieldNamingStrategy fieldNamingPolicy, Field f) {
     SerializedName serializedName = f.getAnnotation(SerializedName.class);
     List<String> fieldNames = new LinkedList<String>();
     if (serializedName == null) {
-      fieldNames.add(fieldNamingPolicy.translateName(f));
+      fieldNames.add(fieldNamingPolicy != null
+          ? fieldNamingPolicy.translateName(f)
+          : namingStrategy.translateName(f.getName()));
     } else {
       fieldNames.add(serializedName.value());
       for (String alternate : serializedName.alternate()) {
