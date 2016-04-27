@@ -35,8 +35,9 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -67,20 +68,22 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
 
   /** first element holds the default name */
   private List<String> getFieldNames(Field f) {
-    return getFieldName(fieldNamingPolicy, f);
-  }
+    SerializedName annotation = f.getAnnotation(SerializedName.class);
+    if (annotation == null) {
+      String name = fieldNamingPolicy.translateName(f);
+      return Collections.singletonList(name);
+    }
 
-  /** first element holds the default name */
-  static List<String> getFieldName(FieldNamingStrategy fieldNamingPolicy, Field f) {
-    SerializedName serializedName = f.getAnnotation(SerializedName.class);
-    List<String> fieldNames = new LinkedList<String>();
-    if (serializedName == null) {
-      fieldNames.add(fieldNamingPolicy.translateName(f));
-    } else {
-      fieldNames.add(serializedName.value());
-      for (String alternate : serializedName.alternate()) {
-        fieldNames.add(alternate);
-      }
+    String serializedName = annotation.value();
+    String[] alternates = annotation.alternate();
+    if (alternates.length == 0) {
+      return Collections.singletonList(serializedName);
+    }
+
+    List<String> fieldNames = new ArrayList<String>(alternates.length + 1);
+    fieldNames.add(serializedName);
+    for (String alternate : alternates) {
+      fieldNames.add(alternate);
     }
     return fieldNames;
   }
