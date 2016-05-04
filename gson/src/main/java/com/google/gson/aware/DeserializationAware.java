@@ -17,10 +17,11 @@
 package com.google.gson.aware;
 
 /**
- * This interface can be implemented by Java classes that want to be notified when deserialization
- * is complete. This method is called on the object created as part of deserialization and at the time
- * this method is called, required fields are already set from JSON string, so other dependent fields
- * can be set from the parsed fields.
+ * This interface can be implemented by Java classes that want to be notified
+ * when deserialization is complete. This method is called on the object created
+ * as part of deserialization and at the time this method is called, required
+ * fields are already set from JSON string, so other dependent fields can be set
+ * from the parsed fields.
  *
  * @author Manish Goyal
  */
