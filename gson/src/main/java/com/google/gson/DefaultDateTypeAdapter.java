@@ -24,7 +24,6 @@ import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.TimeZone;
 
 import com.google.gson.internal.bind.util.ISO8601Utils;
 
@@ -35,7 +34,7 @@ import com.google.gson.internal.bind.util.ISO8601Utils;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-final class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
+public final class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
 
   // TODO: migrate to streaming adapter
 
@@ -47,7 +46,7 @@ final class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserial
         DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT));
   }
 
-  DefaultDateTypeAdapter(String datePattern) {
+  public DefaultDateTypeAdapter(String datePattern) {
     this(new SimpleDateFormat(datePattern, Locale.US), new SimpleDateFormat(datePattern));
   }
 
