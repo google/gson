@@ -307,7 +307,7 @@ You can also find source code for some commonly used classes such as JodaTime at
 Sometimes default representation is not what you want. This is often the case when dealing with library classes (DateTime, etc).
 Gson allows you to register your own custom serializers and deserializers. This is done by defining two parts:
 
-* Json Serialiers: Need to define custom serialization for an object
+* Json Serializers: Need to define custom serialization for an object
 * Json Deserializers: Needed to define custom deserialization for a type
 
 * Instance Creators: Not needed if no-args constructor is available or a deserializer is registered
