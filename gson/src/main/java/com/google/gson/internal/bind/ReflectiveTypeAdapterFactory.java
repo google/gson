@@ -16,11 +16,13 @@
 
 package com.google.gson.internal.bind;
 
+import com.google.gson.DefaultDateTypeAdapter;
 import com.google.gson.FieldNamingStrategy;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
+import com.google.gson.annotations.DateFormat;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.internal.$Gson$Types;
@@ -32,16 +34,20 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import static com.google.gson.internal.bind.JsonAdapterAnnotationTypeAdapterFactory.getTypeAdapter;
+import static com.google.gson.internal.bind.TreeTypeAdapter.newFactory;
 
 /**
  * Type adapter that reflects over the fields and methods of a class.
@@ -130,12 +136,30 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   }
 
   TypeAdapter<?> getFieldAdapter(Gson gson, Field field, TypeToken<?> fieldType) {
+    if(isDateFormatPresentOnField(field) && isDateType(fieldType)){
+      return adapterForProvidedDateFormat(gson, field, fieldType);
+    }
     JsonAdapter annotation = field.getAnnotation(JsonAdapter.class);
     if (annotation != null) {
       TypeAdapter<?> adapter = getTypeAdapter(constructorConstructor, gson, fieldType, annotation);
       if (adapter != null) return adapter;
     }
     return gson.getAdapter(fieldType);
+  }
+
+  private TypeAdapter<?> adapterForProvidedDateFormat(Gson gson, Field field, TypeToken<?> fieldType) {
+    DateFormat dateFormatAnnotation = field.getAnnotation(DateFormat.class);
+    String dateFormat = dateFormatAnnotation.value();
+    return newFactory(fieldType, new DefaultDateTypeAdapter(dateFormat)).create(gson, fieldType);
+  }
+
+  private boolean isDateFormatPresentOnField(Field field) {
+    return field.getAnnotation(DateFormat.class) != null;
+  }
+
+  private boolean isDateType(TypeToken<?> fieldType) {
+    Class<?> type = fieldType.getRawType();
+    return Arrays.asList(Date.class, java.sql.Date.class).contains(type);
   }
 
   private Map<String, BoundField> getBoundFields(Gson context, TypeToken<?> type, Class<?> raw) {
