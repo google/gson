@@ -94,4 +94,6 @@ public @interface JsonAdapter {
   /** Either a {@link TypeAdapter} or {@link TypeAdapterFactory}. */
   Class<?> value();
 
+  boolean nullSafe() default true;
+
 }
