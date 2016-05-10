@@ -37,6 +37,7 @@ import static com.google.gson.Gson.DEFAULT_COMPLEX_MAP_KEYS;
 import static com.google.gson.Gson.DEFAULT_ESCAPE_HTML;
 import static com.google.gson.Gson.DEFAULT_JSON_NON_EXECUTABLE;
 import static com.google.gson.Gson.DEFAULT_LENIENT;
+import static com.google.gson.Gson.DEFAULT_LET_NULLS_THROUGH_DESERIALIZERS;
 import static com.google.gson.Gson.DEFAULT_PRETTY_PRINT;
 import static com.google.gson.Gson.DEFAULT_SERIALIZE_NULLS;
 import static com.google.gson.Gson.DEFAULT_SPECIALIZE_FLOAT_VALUES;
@@ -55,6 +56,7 @@ import static com.google.gson.Gson.DEFAULT_SPECIALIZE_FLOAT_VALUES;
  *     .registerTypeAdapter(Id.class, new IdTypeAdapter())
  *     .enableComplexMapKeySerialization()
  *     .serializeNulls()
+ *     .letNullsThroughDeserializers()
  *     .setDateFormat(DateFormat.LONG)
  *     .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
  *     .setPrettyPrinting()
@@ -85,6 +87,7 @@ public final class GsonBuilder {
   /** tree-style hierarchy factories. These come after factories for backwards compatibility. */
   private final List<TypeAdapterFactory> hierarchyFactories = new ArrayList<TypeAdapterFactory>();
   private boolean serializeNulls = DEFAULT_SERIALIZE_NULLS;
+  private boolean letNullsThroughDeserializers = DEFAULT_LET_NULLS_THROUGH_DESERIALIZERS;
   private String datePattern;
   private int dateStyle = DateFormat.DEFAULT;
   private int timeStyle = DateFormat.DEFAULT;
@@ -166,6 +169,17 @@ public final class GsonBuilder {
    */
   public GsonBuilder serializeNulls() {
     this.serializeNulls = true;
+    return this;
+  }
+
+  /**
+   * Configure Gson to let null values go through custom deserializers. By default, Gson
+   * automatically deserialize null values as null without calling the custom deserializer.
+   *
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   */
+  public GsonBuilder letNullsThroughDeserializers() {
+    this.letNullsThroughDeserializers = true;
     return this;
   }
 
@@ -567,7 +581,7 @@ public final class GsonBuilder {
     addTypeAdaptersForDate(datePattern, dateStyle, timeStyle, factories);
 
     return new Gson(excluder, fieldNamingPolicy, instanceCreators,
-        serializeNulls, complexMapKeySerialization,
+        serializeNulls, letNullsThroughDeserializers, complexMapKeySerialization,
         generateNonExecutableJson, escapeHtmlChars, prettyPrinting, lenient,
         serializeSpecialFloatingPointValues, longSerializationPolicy, factories);
   }

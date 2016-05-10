@@ -106,6 +106,7 @@ public final class Gson {
   static final boolean DEFAULT_PRETTY_PRINT = false;
   static final boolean DEFAULT_ESCAPE_HTML = true;
   static final boolean DEFAULT_SERIALIZE_NULLS = false;
+  static final boolean DEFAULT_LET_NULLS_THROUGH_DESERIALIZERS = false;
   static final boolean DEFAULT_COMPLEX_MAP_KEYS = false;
   static final boolean DEFAULT_SPECIALIZE_FLOAT_VALUES = false;
 
@@ -130,6 +131,7 @@ public final class Gson {
   private final Excluder excluder;
   private final FieldNamingStrategy fieldNamingStrategy;
   private final boolean serializeNulls;
+  private final boolean letNullsThroughDeserializers;
   private final boolean htmlSafe;
   private final boolean generateNonExecutableJson;
   private final boolean prettyPrinting;
@@ -146,6 +148,8 @@ public final class Gson {
    *   kept as is since an array is an ordered list. Moreover, if a field is not null, but its
    *   generated JSON is empty, the field is kept. You can configure Gson to serialize null values
    *   by setting {@link GsonBuilder#serializeNulls()}.</li>
+   *   <li>When nulls are serialized, Gson does not let them through custom deserializers by
+   *   default. You can allow that by setting {@link GsonBuilder#letNullsThroughDeserializers()}</li>
    *   <li>Gson provides default serialization and deserialization for Enums, {@link Map},
    *   {@link java.net.URL}, {@link java.net.URI}, {@link java.util.Locale}, {@link java.util.Date},
    *   {@link java.math.BigDecimal}, and {@link java.math.BigInteger} classes. If you would prefer
@@ -172,21 +176,23 @@ public final class Gson {
   public Gson() {
     this(Excluder.DEFAULT, FieldNamingPolicy.IDENTITY,
         Collections.<Type, InstanceCreator<?>>emptyMap(), DEFAULT_SERIALIZE_NULLS,
-        DEFAULT_COMPLEX_MAP_KEYS, DEFAULT_JSON_NON_EXECUTABLE, DEFAULT_ESCAPE_HTML,
-        DEFAULT_PRETTY_PRINT, DEFAULT_LENIENT, DEFAULT_SPECIALIZE_FLOAT_VALUES,
-        LongSerializationPolicy.DEFAULT, Collections.<TypeAdapterFactory>emptyList());
+        DEFAULT_LET_NULLS_THROUGH_DESERIALIZERS, DEFAULT_COMPLEX_MAP_KEYS,
+        DEFAULT_JSON_NON_EXECUTABLE, DEFAULT_ESCAPE_HTML, DEFAULT_PRETTY_PRINT, DEFAULT_LENIENT,
+        DEFAULT_SPECIALIZE_FLOAT_VALUES, LongSerializationPolicy.DEFAULT,
+        Collections.<TypeAdapterFactory>emptyList());
   }
 
   Gson(final Excluder excluder, final FieldNamingStrategy fieldNamingStrategy,
-      final Map<Type, InstanceCreator<?>> instanceCreators, boolean serializeNulls,
-      boolean complexMapKeySerialization, boolean generateNonExecutableGson, boolean htmlSafe,
-      boolean prettyPrinting, boolean lenient, boolean serializeSpecialFloatingPointValues,
-      LongSerializationPolicy longSerializationPolicy,
-      List<TypeAdapterFactory> typeAdapterFactories) {
+       final Map<Type, InstanceCreator<?>> instanceCreators, boolean serializeNulls,
+       boolean letNullsThroughDeserializers, boolean complexMapKeySerialization,
+       boolean generateNonExecutableGson, boolean htmlSafe, boolean prettyPrinting, boolean lenient,
+       boolean serializeSpecialFloatingPointValues, LongSerializationPolicy longSerializationPolicy,
+       List<TypeAdapterFactory> typeAdapterFactories) {
     this.constructorConstructor = new ConstructorConstructor(instanceCreators);
     this.excluder = excluder;
     this.fieldNamingStrategy = fieldNamingStrategy;
     this.serializeNulls = serializeNulls;
+    this.letNullsThroughDeserializers = letNullsThroughDeserializers;
     this.generateNonExecutableJson = generateNonExecutableGson;
     this.htmlSafe = htmlSafe;
     this.prettyPrinting = prettyPrinting;
@@ -263,6 +269,10 @@ public final class Gson {
 
   public boolean serializeNulls() {
     return serializeNulls;
+  }
+
+  public boolean letNullsThroughDeserializers() {
+    return letNullsThroughDeserializers;
   }
 
   public boolean htmlSafe() {

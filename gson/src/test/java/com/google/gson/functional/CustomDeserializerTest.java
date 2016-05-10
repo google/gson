@@ -206,6 +206,35 @@ public class CustomDeserializerTest extends TestCase {
     assertNull(target.bases[1]);
   }
 
+  public void testCustomDeserializerIsPassedNull() {
+    Gson gson = new GsonBuilder()
+            .letNullsThroughDeserializers()
+            .registerTypeAdapter(Base.class, new JsonDeserializer<Base>() {
+              @Override
+              public Base deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+                      throws JsonParseException {
+                return new Base();
+              }
+            }).create();
+    String json = "{base:null}";
+    ClassWithBaseField target = gson.fromJson(json, ClassWithBaseField.class);
+    assertNotNull(target.base);
+  }
+
+  public void testCustomDeserializerIsNotPassedNull() {
+    Gson gson = new GsonBuilder()
+            .registerTypeAdapter(Base.class, new JsonDeserializer<Base>() {
+              @Override
+              public Base deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+                      throws JsonParseException {
+                return new Base();
+              }
+            }).create();
+    String json = "{base:null}";
+    ClassWithBaseField target = gson.fromJson(json, ClassWithBaseField.class);
+    assertNull(target.base);
+  }
+
   private static final class ClassWithBaseArray {
     Base[] bases;
   }
