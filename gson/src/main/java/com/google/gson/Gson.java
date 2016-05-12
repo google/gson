@@ -719,7 +719,7 @@ public final class Gson {
   }
 
   /**
-   * Returns a new JSON writer configured for the settings on this Gson instance.
+   * Returns a new JSON reader configured for the settings on this Gson instance.
    */
   public JsonReader newJsonReader(Reader reader) {
     JsonReader jsonReader = new JsonReader(reader);
