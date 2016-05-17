@@ -63,7 +63,6 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
         @Override public void write(JsonWriter out, Part part) throws IOException {
           throw new AssertionError();
         }
-
         @Override public Part read(JsonReader in) throws IOException {
           throw new AssertionError();
         }
@@ -218,6 +217,55 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
 
     private GadgetWithOptionalPart(Part part) {
       this.part = part;
+    }
+  }
+
+  /** Regression test contributed through https://github.com/google/gson/issues/831 */
+  public void testNonPrimitiveFieldAnnotationTakesPrecedenceOverDefault() {
+    Gson gson = new Gson();
+    String json = gson.toJson(new GadgetWithOptionalPart(new Part("foo")));
+    assertEquals("{\"part\":\"PartJsonFieldAnnotationAdapter\"}", json);
+    GadgetWithOptionalPart gadget = gson.fromJson("{'part':'foo'}", GadgetWithOptionalPart.class);
+    assertEquals("PartJsonFieldAnnotationAdapter", gadget.part.name);
+  }
+
+  /** Regression test contributed through https://github.com/google/gson/issues/831 */
+  public void testPrimitiveFieldAnnotationTakesPrecedenceOverDefault() {
+    Gson gson = new Gson();
+    String json = gson.toJson(new GadgetWithPrimitivePart(42));
+    assertEquals("{\"part\":\"42\"}", json);
+    GadgetWithPrimitivePart gadget = gson.fromJson(json, GadgetWithPrimitivePart.class);
+    assertEquals(42, gadget.part);
+  }
+
+  private static final class GadgetWithPrimitivePart {
+    @JsonAdapter(LongToStringTypeAdapterFactory.class)
+    final long part;
+
+    private GadgetWithPrimitivePart(long part) {
+      this.part = part;
+    }
+  }
+
+  private static final class LongToStringTypeAdapterFactory implements TypeAdapterFactory {
+    static final TypeAdapter<Long> ADAPTER = new TypeAdapter<Long>() {
+      @Override public void write(JsonWriter out, Long value) throws IOException {
+        out.value(value.toString());
+      }
+      @Override public Long read(JsonReader in) throws IOException {
+        return in.nextLong();
+      }
+    };
+    @SuppressWarnings("unchecked")
+    @Override public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
+      Class<?> cls = type.getRawType();
+      if (Long.class.isAssignableFrom(cls)) {
+        return (TypeAdapter<T>) ADAPTER;
+      } else if (long.class.isAssignableFrom(cls)) {
+        return (TypeAdapter<T>) ADAPTER;
+      }
+      throw new IllegalStateException("Non-long field of type " + type
+          + " annotated with @JsonAdapter(LongToStringTypeAdapterFactory.class)");
     }
   }
 }
