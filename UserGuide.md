@@ -564,7 +564,7 @@ public class SampleObjectForTest {
   @Foo private final int annotatedField;
   private final String stringField;
   private final long longField;
-  private final Class<?> clazzField;
+  private Class<?> clazzField;
 
   public SampleObjectForTest() {
     annotatedField = 5;
@@ -603,7 +603,7 @@ public static void main(String[] args) {
 The output is:
 
 ```
-{"longField":1234}
+{"longField":1234,"clazzField":null}
 ```
 
 ### <a name="TOC-JSON-Field-Naming-Support"></a>JSON Field Naming Support
