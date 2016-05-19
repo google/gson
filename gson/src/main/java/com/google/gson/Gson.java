@@ -134,6 +134,7 @@ public final class Gson {
   private final boolean generateNonExecutableJson;
   private final boolean prettyPrinting;
   private final boolean lenient;
+  private JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory;
 
   /**
    * Constructs a Gson object with default configuration. The default configuration has the
@@ -245,10 +246,11 @@ public final class Gson {
     // type adapters for composite and user-defined types
     factories.add(new CollectionTypeAdapterFactory(constructorConstructor));
     factories.add(new MapTypeAdapterFactory(constructorConstructor, complexMapKeySerialization));
-    factories.add(new JsonAdapterAnnotationTypeAdapterFactory(constructorConstructor));
+    this.jsonAdapterFactory = new JsonAdapterAnnotationTypeAdapterFactory(constructorConstructor);
+    factories.add(jsonAdapterFactory);
     factories.add(TypeAdapters.ENUM_FACTORY);
     factories.add(new ReflectiveTypeAdapterFactory(
-        constructorConstructor, fieldNamingStrategy, excluder));
+        constructorConstructor, fieldNamingStrategy, excluder, jsonAdapterFactory));
 
     this.factories = Collections.unmodifiableList(factories);
   }
@@ -486,26 +488,26 @@ public final class Gson {
    * @since 2.2
    */
   public <T> TypeAdapter<T> getDelegateAdapter(TypeAdapterFactory skipPast, TypeToken<T> type) {
-    boolean skipPastFound = false;
-    // Skip past if and only if the specified factory is present in the factories.
-    // This is useful because the factories created through JsonAdapter annotations are not
-    // registered in this list.
-    if (!factories.contains(skipPast)) skipPastFound = true;
+    // If the specified skipPast factory is not registered, ignore it.
+    boolean skipPastFound = skipPast == null
+        || (!factories.contains(skipPast) && jsonAdapterFactory.getDelegateAdapterFactory(type) == null);
 
     for (TypeAdapterFactory factory : factories) {
       if (!skipPastFound) {
-        if (factory == skipPast) {
-          skipPastFound = true;
+        skipPastFound = factory == skipPast;
+        if (!skipPastFound && factory instanceof JsonAdapterAnnotationTypeAdapterFactory) {
+          // Also check if there is a registered JsonAdapter for it
+          factory = ((JsonAdapterAnnotationTypeAdapterFactory)factory).getDelegateAdapterFactory(type);
+          skipPastFound = factory == skipPast;
         }
         continue;
       }
-
       TypeAdapter<T> candidate = factory.create(this, type);
       if (candidate != null) {
         return candidate;
       }
     }
-    throw new IllegalArgumentException("GSON cannot serialize " + type);
+    throw new IllegalArgumentException("GSON cannot serialize or deserialize " + type);
   }
 
   /**

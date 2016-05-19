@@ -16,6 +16,10 @@
 
 package com.google.gson.functional;
 
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
@@ -24,7 +28,7 @@ import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import java.io.IOException;
+
 import junit.framework.TestCase;
 
 /**
@@ -266,6 +270,37 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
       }
       throw new IllegalStateException("Non-long field of type " + type
           + " annotated with @JsonAdapter(LongToStringTypeAdapterFactory.class)");
+    }
+  }
+
+  public void testFieldAnnotationWorksForParameterizedType() {
+      Gson gson = new Gson();
+      String json = gson.toJson(new Gizmo2(Arrays.asList(new Part("Part"))));
+      assertEquals("{\"part\":\"GizmoPartTypeAdapterFactory\"}", json);
+      Gizmo2 computer = gson.fromJson("{'part':'Part'}", Gizmo2.class);
+      assertEquals("GizmoPartTypeAdapterFactory", computer.part.get(0).name);
+    }
+
+  private static final class Gizmo2 {
+      @JsonAdapter(Gizmo2PartTypeAdapterFactory.class)
+      List<Part> part;
+      Gizmo2(List<Part> part) {
+        this.part = part;
+      }
+    }
+
+  private static class Gizmo2PartTypeAdapterFactory implements TypeAdapterFactory {
+    @Override public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
+      return new TypeAdapter<T>() {
+        @Override public void write(JsonWriter out, T value) throws IOException {
+          out.value("GizmoPartTypeAdapterFactory");
+        }
+        @SuppressWarnings("unchecked")
+        @Override public T read(JsonReader in) throws IOException {
+          in.nextString();
+          return (T) Arrays.asList(new Part("GizmoPartTypeAdapterFactory"));
+        }
+      };
     }
   }
 }
