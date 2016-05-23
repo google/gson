@@ -66,4 +66,11 @@ public class ProtosWithPrimitiveTypesTest extends TestCase {
     assertEquals("foo", proto.getMsg());
     assertEquals(3, proto.getCount());
   }
+
+  public void testDeserializeWithExplicitNullValue() {
+    SimpleProto proto = gson.fromJson("{msg:'foo',count:null}", SimpleProto.class);
+    assertEquals("foo", proto.getMsg());
+    assertEquals(0, proto.getCount());
+  }
+
 }
