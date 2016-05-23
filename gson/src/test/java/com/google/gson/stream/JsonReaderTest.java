@@ -173,7 +173,22 @@ public final class JsonReaderTest extends TestCase {
     reader.endObject();
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
+  
+  public void testInvalidJsonInput() throws IOException {
+	  String json = "{\n" +
+		        "   \"h\\ello\": true,\n" +
+		        "   \"foo\": [\"world\"]\n" +
+		        "}";
 
+	  try {
+		  JsonReader reader = new JsonReader(reader(json));
+		  reader.beginObject();
+		  assertEquals("hello", reader.nextName());
+	      fail();
+	    } catch (IOException expected) {
+	    }
+  }
+  
   public void testNulls() {
     try {
       new JsonReader(null);
