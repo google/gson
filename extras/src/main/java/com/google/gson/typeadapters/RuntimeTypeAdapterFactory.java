@@ -111,7 +111,7 @@ import com.google.gson.stream.JsonWriter;
  * Finally, register the type adapter factory in your application's GSON builder:
  * <pre>   {@code
  *   Gson gson = new GsonBuilder()
- *       .registerTypeAdapterFactory(Shape.class, shapeAdapterFactory)
+ *       .registerTypeAdapterFactory(shapeAdapterFactory)
  *       .create();
  * }</pre>
  * Like {@code GsonBuilder}, this API supports chaining: <pre>   {@code
