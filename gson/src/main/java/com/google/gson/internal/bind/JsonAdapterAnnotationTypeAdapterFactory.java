@@ -37,13 +37,6 @@ import com.google.gson.reflect.TypeToken;
 public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapterFactory {
 
   @SuppressWarnings("rawtypes")
-  private final ThreadLocal<Map<Class, TypeAdapter>> activeJsonAdapterClasses = new ThreadLocal<Map<Class, TypeAdapter>>() {
-    @Override protected Map<Class, TypeAdapter> initialValue() {
-      // No need for a thread-safe map since we are using it in a single thread
-      return new HashMap<Class, TypeAdapter>();
-    }
-  };
-  @SuppressWarnings("rawtypes")
   private final ThreadLocal<Map<Class, TypeAdapterFactory>> activeJsonAdapterFactories = new ThreadLocal<Map<Class, TypeAdapterFactory>>() {
     @Override protected Map<Class, TypeAdapterFactory> initialValue() {
       // No need for a thread-safe map since we are using it in a single thread
@@ -93,26 +86,23 @@ public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapte
 
     TypeAdapter<?> typeAdapter;
     if (isTypeAdapter || isJsonSerializer || isJsonDeserializer) {
-      Map<Class, TypeAdapter> adapters = activeJsonAdapterClasses.get();
-      typeAdapter = adapters.get(value);
-      if (typeAdapter == null) {
-        if (isTypeAdapter) {
-          Class<TypeAdapter<?>> typeAdapterClass = (Class<TypeAdapter<?>>) value;
-          typeAdapter = constructorConstructor.get(TypeToken.get(typeAdapterClass)).construct();
-        } else if (isJsonSerializer || isJsonDeserializer) {
-          JsonSerializer serializer = null;
-          if (isJsonSerializer) {
-            Class<JsonSerializer<?>> serializerClass = (Class<JsonSerializer<?>>) value;
-            serializer = constructorConstructor.get(TypeToken.get(serializerClass)).construct();
-          }
-          JsonDeserializer deserializer = null;
-          if (isJsonDeserializer) {
-            Class<JsonDeserializer<?>> deserializerClass = (Class<JsonDeserializer<?>>) value;
-            deserializer = constructorConstructor.get(TypeToken.get(deserializerClass)).construct();
-          }
-          typeAdapter = new TreeTypeAdapter(serializer, deserializer, gson, type, null);
+      if (isTypeAdapter) {
+        Class<TypeAdapter<?>> typeAdapterClass = (Class<TypeAdapter<?>>) value;
+        typeAdapter = constructorConstructor.get(TypeToken.get(typeAdapterClass)).construct();
+      } else if (isJsonSerializer || isJsonDeserializer) {
+        JsonSerializer serializer = null;
+        if (isJsonSerializer) {
+          Class<JsonSerializer<?>> serializerClass = (Class<JsonSerializer<?>>) value;
+          serializer = constructorConstructor.get(TypeToken.get(serializerClass)).construct();
         }
-        adapters.put(value, typeAdapter);
+        JsonDeserializer deserializer = null;
+        if (isJsonDeserializer) {
+          Class<JsonDeserializer<?>> deserializerClass = (Class<JsonDeserializer<?>>) value;
+          deserializer = constructorConstructor.get(TypeToken.get(deserializerClass)).construct();
+        }
+        typeAdapter = new TreeTypeAdapter(serializer, deserializer, gson, type, null);
+      } else {
+        typeAdapter = null;
       }
     } else if (TypeAdapterFactory.class.isAssignableFrom(value)) {
       TypeAdapterFactory factory = getTypeAdapterFactory(annotation, constructorConstructor);
