@@ -175,18 +175,19 @@ public final class JsonReaderTest extends TestCase {
   }
   
   public void testInvalidJsonInput() throws IOException {
-	  String json = "{\n" +
-		        "   \"h\\ello\": true,\n" +
-		        "   \"foo\": [\"world\"]\n" +
-		        "}";
-
-	  try {
-		  JsonReader reader = new JsonReader(reader(json));
-		  reader.beginObject();
-		  assertEquals("hello", reader.nextName());
-	      fail();
-	    } catch (IOException expected) {
-	    }
+	String json = "{\n" +
+	     "   \"h\\ello\": true,\n" +
+		 "   \"foo\": [\"world\"]\n" +
+	     "}";
+	
+	JsonReader reader = new JsonReader(reader(json));
+    reader.beginObject();
+	
+    try {
+	  reader.nextName();
+      fail();
+	} catch (IOException expected) {
+	}
   }
   
   public void testNulls() {
