@@ -32,7 +32,6 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
@@ -110,7 +109,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     TypeAdapter<?> mapped = null;
     if (annotation != null) {
       mapped = jsonAdapterFactory.getTypeAdapter(
-                constructorConstructor, context, fieldType, annotation);
+          constructorConstructor, context, fieldType, annotation);
     }
     final boolean jsonAdapterPresent = mapped != null;
     if (mapped == null) mapped = context.getAdapter(fieldType);

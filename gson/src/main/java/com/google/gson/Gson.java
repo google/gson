@@ -488,26 +488,28 @@ public final class Gson {
    * @since 2.2
    */
   public <T> TypeAdapter<T> getDelegateAdapter(TypeAdapterFactory skipPast, TypeToken<T> type) {
-    // If the specified skipPast factory is not registered, ignore it.
-    boolean skipPastFound = skipPast == null
-        || (!factories.contains(skipPast) && jsonAdapterFactory.getDelegateAdapterFactory(type) == null);
+    boolean skipPastFound = false;
+
+    // Hack. If the skipPast factory isn't registered, assume the factory is being requested via
+    // our @JsonAdapter annotation.
+    if (!factories.contains(skipPast)) {
+      skipPast = jsonAdapterFactory;
+    }
 
     for (TypeAdapterFactory factory : factories) {
       if (!skipPastFound) {
-        skipPastFound = factory == skipPast;
-        if (!skipPastFound && factory instanceof JsonAdapterAnnotationTypeAdapterFactory) {
-          // Also check if there is a registered JsonAdapter for it
-          factory = ((JsonAdapterAnnotationTypeAdapterFactory)factory).getDelegateAdapterFactory(type);
-          skipPastFound = factory == skipPast;
+        if (factory == skipPast) {
+          skipPastFound = true;
         }
         continue;
       }
+
       TypeAdapter<T> candidate = factory.create(this, type);
       if (candidate != null) {
         return candidate;
       }
     }
-    throw new IllegalArgumentException("GSON cannot serialize or deserialize " + type);
+    throw new IllegalArgumentException("GSON cannot serialize " + type);
   }
 
   /**
