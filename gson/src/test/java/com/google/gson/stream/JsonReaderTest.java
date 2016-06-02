@@ -179,13 +179,13 @@ public final class JsonReaderTest extends TestCase {
 	     "   \"h\\ello\": true,\n" +
 		 "   \"foo\": [\"world\"]\n" +
 	     "}";
-	
+
 	JsonReader reader = new JsonReader(reader(json));
-    reader.beginObject();
-	
-    try {
+	reader.beginObject();
+
+	try {
 	  reader.nextName();
-      fail();
+	  fail();
 	} catch (IOException expected) {
 	}
   }
