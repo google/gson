@@ -158,6 +158,20 @@ public class JsonObjectTest extends TestCase {
     assertFalse(b.equals(a));
   }
 
+  public void testSize() {
+    JsonObject o = new JsonObject();
+    assertEquals(0, o.size());
+
+    o.add("Hello", new JsonPrimitive(1));
+    assertEquals(1, o.size());
+
+    o.add("Hi", new JsonPrimitive(1));
+    assertEquals(2, o.size());
+
+    o.remove("Hello");
+    assertEquals(1, o.size());
+  }
+
   public void testDeepCopy() {
     JsonObject original = new JsonObject();
     JsonArray firstEntry = new JsonArray();
