@@ -274,20 +274,20 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
   }
 
   public void testFieldAnnotationWorksForParameterizedType() {
-      Gson gson = new Gson();
-      String json = gson.toJson(new Gizmo2(Arrays.asList(new Part("Part"))));
-      assertEquals("{\"part\":\"GizmoPartTypeAdapterFactory\"}", json);
-      Gizmo2 computer = gson.fromJson("{'part':'Part'}", Gizmo2.class);
-      assertEquals("GizmoPartTypeAdapterFactory", computer.part.get(0).name);
-    }
+    Gson gson = new Gson();
+    String json = gson.toJson(new Gizmo2(Arrays.asList(new Part("Part"))));
+    assertEquals("{\"part\":\"GizmoPartTypeAdapterFactory\"}", json);
+    Gizmo2 computer = gson.fromJson("{'part':'Part'}", Gizmo2.class);
+    assertEquals("GizmoPartTypeAdapterFactory", computer.part.get(0).name);
+  }
 
   private static final class Gizmo2 {
-      @JsonAdapter(Gizmo2PartTypeAdapterFactory.class)
-      List<Part> part;
-      Gizmo2(List<Part> part) {
-        this.part = part;
-      }
+    @JsonAdapter(Gizmo2PartTypeAdapterFactory.class)
+    List<Part> part;
+    Gizmo2(List<Part> part) {
+      this.part = part;
     }
+  }
 
   private static class Gizmo2PartTypeAdapterFactory implements TypeAdapterFactory {
     @Override public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {

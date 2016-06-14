@@ -134,7 +134,7 @@ public final class Gson {
   private final boolean generateNonExecutableJson;
   private final boolean prettyPrinting;
   private final boolean lenient;
-  private JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory;
+  private final JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory;
 
   /**
    * Constructs a Gson object with default configuration. The default configuration has the
@@ -488,14 +488,13 @@ public final class Gson {
    * @since 2.2
    */
   public <T> TypeAdapter<T> getDelegateAdapter(TypeAdapterFactory skipPast, TypeToken<T> type) {
-    boolean skipPastFound = false;
-
     // Hack. If the skipPast factory isn't registered, assume the factory is being requested via
     // our @JsonAdapter annotation.
     if (!factories.contains(skipPast)) {
       skipPast = jsonAdapterFactory;
     }
 
+    boolean skipPastFound = false;
     for (TypeAdapterFactory factory : factories) {
       if (!skipPastFound) {
         if (factory == skipPast) {
