@@ -134,6 +134,7 @@ public final class Gson {
   private final boolean generateNonExecutableJson;
   private final boolean prettyPrinting;
   private final boolean lenient;
+  private final JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory;
 
   /**
    * Constructs a Gson object with default configuration. The default configuration has the
@@ -245,10 +246,11 @@ public final class Gson {
     // type adapters for composite and user-defined types
     factories.add(new CollectionTypeAdapterFactory(constructorConstructor));
     factories.add(new MapTypeAdapterFactory(constructorConstructor, complexMapKeySerialization));
-    factories.add(new JsonAdapterAnnotationTypeAdapterFactory(constructorConstructor));
+    this.jsonAdapterFactory = new JsonAdapterAnnotationTypeAdapterFactory(constructorConstructor);
+    factories.add(jsonAdapterFactory);
     factories.add(TypeAdapters.ENUM_FACTORY);
     factories.add(new ReflectiveTypeAdapterFactory(
-        constructorConstructor, fieldNamingStrategy, excluder));
+        constructorConstructor, fieldNamingStrategy, excluder, jsonAdapterFactory));
 
     this.factories = Collections.unmodifiableList(factories);
   }
@@ -486,12 +488,13 @@ public final class Gson {
    * @since 2.2
    */
   public <T> TypeAdapter<T> getDelegateAdapter(TypeAdapterFactory skipPast, TypeToken<T> type) {
-    boolean skipPastFound = false;
-    // Skip past if and only if the specified factory is present in the factories.
-    // This is useful because the factories created through JsonAdapter annotations are not
-    // registered in this list.
-    if (!factories.contains(skipPast)) skipPastFound = true;
+    // Hack. If the skipPast factory isn't registered, assume the factory is being requested via
+    // our @JsonAdapter annotation.
+    if (!factories.contains(skipPast)) {
+      skipPast = jsonAdapterFactory;
+    }
 
+    boolean skipPastFound = false;
     for (TypeAdapterFactory factory : factories) {
       if (!skipPastFound) {
         if (factory == skipPast) {

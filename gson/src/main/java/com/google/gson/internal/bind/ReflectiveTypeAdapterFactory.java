@@ -32,7 +32,6 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
@@ -42,8 +41,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.google.gson.internal.bind.JsonAdapterAnnotationTypeAdapterFactory.getTypeAdapter;
-
 /**
  * Type adapter that reflects over the fields and methods of a class.
  */
@@ -51,12 +48,15 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   private final ConstructorConstructor constructorConstructor;
   private final FieldNamingStrategy fieldNamingPolicy;
   private final Excluder excluder;
+  private final JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory;
 
   public ReflectiveTypeAdapterFactory(ConstructorConstructor constructorConstructor,
-      FieldNamingStrategy fieldNamingPolicy, Excluder excluder) {
+      FieldNamingStrategy fieldNamingPolicy, Excluder excluder,
+      JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory) {
     this.constructorConstructor = constructorConstructor;
     this.fieldNamingPolicy = fieldNamingPolicy;
     this.excluder = excluder;
+    this.jsonAdapterFactory = jsonAdapterFactory;
   }
 
   public boolean excludeField(Field f, boolean serialize) {
@@ -108,7 +108,8 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     JsonAdapter annotation = field.getAnnotation(JsonAdapter.class);
     TypeAdapter<?> mapped = null;
     if (annotation != null) {
-      mapped = getTypeAdapter(constructorConstructor, context, fieldType, annotation);
+      mapped = jsonAdapterFactory.getTypeAdapter(
+          constructorConstructor, context, fieldType, annotation);
     }
     final boolean jsonAdapterPresent = mapped != null;
     if (mapped == null) mapped = context.getAdapter(fieldType);
