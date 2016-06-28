@@ -94,4 +94,7 @@ public @interface JsonAdapter {
   /** Either a {@link TypeAdapter} or {@link TypeAdapterFactory}. */
   Class<?> value();
 
+  /** false, to be able to handle {@code null} values within the adapter, default value is true. */
+  boolean nullSafe() default true;
+
 }
