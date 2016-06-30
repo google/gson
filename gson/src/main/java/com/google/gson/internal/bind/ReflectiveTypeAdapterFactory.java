@@ -205,7 +205,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       this.constructor = constructor;
       this.boundFields = boundFields;
 
-      this.requiredFields = new HashSet<>();
+      this.requiredFields = new HashSet<BoundField>();
       for (BoundField field: boundFields.values()) {
         if (!field.nullable) {
           this.requiredFields.add(field);
@@ -243,7 +243,12 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           for (BoundField field: missingFields) {
             fieldNames.add(field.name);
           }
-          fieldNames.sort(String::compareTo);
+          fieldNames.sort(new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+              return o1.compareTo(o2);
+            }
+          });
 
           String fieldNamesJoined = "";
           boolean first = true;
