@@ -243,7 +243,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           for (BoundField field: missingFields) {
             fieldNames.add(field.name);
           }
-          fieldNames.sort(new Comparator<String>() {
+          Collections.sort(fieldNames, new Comparator<String>() {
             @Override
             public int compare(String o1, String o2) {
               return o1.compareTo(o2);
