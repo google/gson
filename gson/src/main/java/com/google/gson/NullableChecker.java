@@ -17,6 +17,8 @@ import java.lang.reflect.Field;
  *   }
  * }
  * }</pre>
+ *
+ * @author Juan Luis Boya García
  */
 public interface NullableChecker {
   boolean fieldIsNullable(Field field);

@@ -4,6 +4,8 @@ import java.lang.reflect.Field;
 
 /**
  * Dummy NullableChecker that does not check anything.
+ *
+ * @author Juan Luis Boya García
  */
 class DummyNullableChecker {
   private static NullableChecker nullableChecker = null;
