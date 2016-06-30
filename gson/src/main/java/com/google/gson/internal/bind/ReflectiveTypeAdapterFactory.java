@@ -19,23 +19,16 @@ package com.google.gson.internal.bind;
 import com.google.gson.*;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
-import com.google.gson.internal.$Gson$Types;
-import com.google.gson.internal.ConstructorConstructor;
-import com.google.gson.internal.Excluder;
-import com.google.gson.internal.ObjectConstructor;
-import com.google.gson.internal.Primitives;
+import com.google.gson.internal.*;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Type adapter that reflects over the fields and methods of a class.
@@ -206,10 +199,18 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   public static final class Adapter<T> extends TypeAdapter<T> {
     private final ObjectConstructor<T> constructor;
     private final Map<String, BoundField> boundFields;
+    private final HashSet<BoundField> requiredFields;
 
     Adapter(ObjectConstructor<T> constructor, Map<String, BoundField> boundFields) {
       this.constructor = constructor;
       this.boundFields = boundFields;
+
+      this.requiredFields = new HashSet<>();
+      for (BoundField field: boundFields.values()) {
+        if (!field.nullable) {
+          this.requiredFields.add(field);
+        }
+      }
     }
 
     @Override public T read(JsonReader in) throws IOException {
@@ -219,6 +220,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       }
 
       T instance = constructor.construct();
+      HashSet<BoundField> missingFields = new HashSet<>(requiredFields);
 
       try {
         in.beginObject();
@@ -229,7 +231,31 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
             in.skipValue();
           } else {
             field.read(in, instance);
+            missingFields.remove(field);
           }
+        }
+
+        // At least one required field is missing
+        if (!missingFields.isEmpty()) {
+          // This is the kind of boilerplate that makes me hate Java 6
+
+          ArrayList<String> fieldNames = new ArrayList<>();
+          for (BoundField field: missingFields) {
+            fieldNames.add(field.name);
+          }
+          fieldNames.sort(String::compareTo);
+
+          String fieldNamesJoined = "";
+          boolean first = true;
+          for (String fieldName: fieldNames) {
+            if (!first) {
+              fieldNamesJoined += ", ";
+            }
+            fieldNamesJoined += fieldName;
+            first = false;
+          }
+
+          throw new JsonSyntaxException("Missing required fields: " + fieldNamesJoined);
         }
       } catch (IllegalStateException e) {
         throw new JsonSyntaxException(e);
