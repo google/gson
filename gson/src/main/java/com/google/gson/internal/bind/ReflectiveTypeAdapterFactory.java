@@ -220,7 +220,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       }
 
       T instance = constructor.construct();
-      HashSet<BoundField> missingFields = new HashSet<>(requiredFields);
+      HashSet<BoundField> missingFields = new HashSet<BoundField>(requiredFields);
 
       try {
         in.beginObject();
@@ -239,7 +239,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         if (!missingFields.isEmpty()) {
           // This is the kind of boilerplate that makes me hate Java 6
 
-          ArrayList<String> fieldNames = new ArrayList<>();
+          ArrayList<String> fieldNames = new ArrayList<String>();
           for (BoundField field: missingFields) {
             fieldNames.add(field.name);
           }
