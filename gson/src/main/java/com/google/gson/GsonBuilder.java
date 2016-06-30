@@ -572,7 +572,7 @@ public final class GsonBuilder {
         serializeNulls, complexMapKeySerialization,
         generateNonExecutableJson, escapeHtmlChars, prettyPrinting, lenient,
         serializeSpecialFloatingPointValues, longSerializationPolicy, factories,
-      nullableChecker);
+        nullableChecker);
   }
 
   private void addTypeAdaptersForDate(String datePattern, int dateStyle, int timeStyle,
