@@ -191,7 +191,7 @@ public final class JsonPrimitive extends JsonElement {
    * convenience method to get this element as a Date.
    *
    * @return get this element as a Date.
-   * @throws ClassCastException if the value contained could not be parsed by the given
+   * @throws UnsupportedOperationException if the value contained could not be parsed by the given
    * pattern.
    */
   @Override
