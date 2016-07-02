@@ -318,8 +318,8 @@ public abstract class JsonElement {
   * convenience method to get this element as a date.
   *
   * @return get this element as a date.
-  * @throws ClassCastException if the element is of not a {@link JsonPrimitive} and is not a valid
-  * date value.
+  * @throws UnsupportedOperationException if the element is of not a {@link JsonPrimitive} and is not a valid
+  * string date value.
   * @throws IllegalStateException if the element is of the type {@link JsonArray} but contains
   * more than a single element.
   */

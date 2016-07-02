@@ -82,7 +82,17 @@ public class JsonPrimitiveTest extends TestCase {
       JsonPrimitive primitive = new JsonPrimitive(dateStr);
       primitive.getAsDate(pattern);
       fail();
-    } catch(ClassCastException exception){}
+    } catch(UnsupportedOperationException exception){}
+  }
+
+  public void testGetStringAsDateWithInvalidDate() throws Exception {
+    try{
+      String pattern = "yyyy-MM-dd";
+      String dateStr = "2016-12-32";
+
+      JsonPrimitive primitive = new JsonPrimitive(dateStr);
+      primitive.getAsDate(pattern);
+    } catch (UnsupportedOperationException exception){}
   }
 
   public void testGetAsDateWithBoolean() throws Exception {
@@ -93,7 +103,7 @@ public class JsonPrimitiveTest extends TestCase {
       JsonPrimitive primitive = new JsonPrimitive(booleanStr);
       primitive.getAsDate(pattern);
       fail();
-    } catch(ClassCastException exception){}
+    } catch(UnsupportedOperationException exception){}
   }
 
   public void testParsingStringAsNumber() throws Exception {

@@ -25,6 +25,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.IllegalFormatException;
 
 /**
  * A class representing a Json primitive value. A primitive value
@@ -190,16 +191,18 @@ public final class JsonPrimitive extends JsonElement {
    * convenience method to get this element as a Date.
    *
    * @return get this element as a Date.
+   * @throws ClassCastException if the value contained could not be parsed by the given
+   * pattern.
    */
   @Override
-  public Date getAsDate(String pattern) {
+  public Date getAsDate(String pattern) throws IllegalFormatException {
     DateFormat formatter = new SimpleDateFormat(pattern);
     formatter.setLenient(false);
     try {
       return formatter.parse(value.toString());
     } catch (ParseException e) {
-      throw new ClassCastException(
-          "Unable to parse value" + value + " with pattern " + pattern
+      throw new UnsupportedOperationException(
+          "Unable to parse value " + value + " with pattern " + pattern
       );
     }
   }
