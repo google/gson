@@ -73,7 +73,7 @@ public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapte
               + "JsonSerializer or JsonDeserializer reference.");
     }
 
-    if (typeAdapter != null) {
+    if (typeAdapter != null && annotation.nullSafe()) {
       typeAdapter = typeAdapter.nullSafe();
     }
 
