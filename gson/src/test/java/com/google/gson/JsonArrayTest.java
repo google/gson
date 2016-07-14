@@ -99,4 +99,9 @@ public final class JsonArrayTest extends TestCase {
     assertEquals(1, original.get(0).getAsJsonArray().size());
     assertEquals(0, copy.get(0).getAsJsonArray().size());
   }
+
+  public void testEmptyArray(){
+      JsonArray jsonArray = new JsonArray();
+      assertEquals("", jsonArray.getAsString());
+  }
 }

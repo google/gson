@@ -209,6 +209,9 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    */
   @Override
   public String getAsString() {
+    if (elements.isEmpty()){
+      return "";
+    }
     if (elements.size() == 1) {
       return elements.get(0).getAsString();
     }
