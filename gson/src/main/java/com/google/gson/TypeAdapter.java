@@ -228,7 +228,7 @@ public abstract class TypeAdapter<T> {
    * @return the converted JSON tree. May be {@link JsonNull}.
    * @since 2.2
    */
-  public final JsonElement toJsonTree(T value) {
+  public JsonElement toJsonTree(T value) {
     try {
       JsonTreeWriter jsonWriter = new JsonTreeWriter();
       write(jsonWriter, value);
@@ -279,7 +279,7 @@ public abstract class TypeAdapter<T> {
    * @param jsonTree the Java object to convert. May be {@link JsonNull}.
    * @since 2.2
    */
-  public final T fromJsonTree(JsonElement jsonTree) {
+  public T fromJsonTree(JsonElement jsonTree) {
     try {
       JsonReader jsonReader = new JsonTreeReader(jsonTree);
       return read(jsonReader);

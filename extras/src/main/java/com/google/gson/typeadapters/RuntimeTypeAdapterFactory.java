@@ -198,42 +198,50 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
 
     return new TypeAdapter<R>() {
       @Override public R read(JsonReader in) throws IOException {
-        JsonElement jsonElement = Streams.parse(in);
-        JsonElement labelJsonElement = jsonElement.getAsJsonObject().remove(typeFieldName);
+        return fromJsonTree(Streams.parse(in));
+      }
+
+      @Override public R fromJsonTree(JsonElement jsonTree) {
+        JsonElement labelJsonElement = jsonTree.getAsJsonObject().remove(typeFieldName);
         if (labelJsonElement == null) {
           throw new JsonParseException("cannot deserialize " + baseType
-              + " because it does not define a field named " + typeFieldName);
+                  + " because it does not define a field named " + typeFieldName);
         }
         String label = labelJsonElement.getAsString();
         @SuppressWarnings("unchecked") // registration requires that subtype extends T
         TypeAdapter<R> delegate = (TypeAdapter<R>) labelToDelegate.get(label);
         if (delegate == null) {
           throw new JsonParseException("cannot deserialize " + baseType + " subtype named "
-              + label + "; did you forget to register a subtype?");
+                  + label + "; did you forget to register a subtype?");
         }
-        return delegate.fromJsonTree(jsonElement);
+        return delegate.fromJsonTree(jsonTree);
       }
 
       @Override public void write(JsonWriter out, R value) throws IOException {
+        Streams.write(toJsonTree(value), out);
+      }
+
+      @Override public JsonElement toJsonTree(R value) {
         Class<?> srcType = value.getClass();
         String label = subtypeToLabel.get(srcType);
         @SuppressWarnings("unchecked") // registration requires that subtype extends T
         TypeAdapter<R> delegate = (TypeAdapter<R>) subtypeToDelegate.get(srcType);
         if (delegate == null) {
           throw new JsonParseException("cannot serialize " + srcType.getName()
-              + "; did you forget to register a subtype?");
+                  + "; did you forget to register a subtype?");
         }
         JsonObject jsonObject = delegate.toJsonTree(value).getAsJsonObject();
         if (jsonObject.has(typeFieldName)) {
           throw new JsonParseException("cannot serialize " + srcType.getName()
-              + " because it already defines a field named " + typeFieldName);
+                  + " because it already defines a field named " + typeFieldName);
         }
         JsonObject clone = new JsonObject();
         clone.add(typeFieldName, new JsonPrimitive(label));
         for (Map.Entry<String, JsonElement> e : jsonObject.entrySet()) {
           clone.add(e.getKey(), e.getValue());
         }
-        Streams.write(clone, out);
+
+        return clone;
       }
     }.nullSafe();
   }

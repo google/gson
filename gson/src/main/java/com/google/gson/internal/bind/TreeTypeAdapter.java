@@ -62,11 +62,20 @@ public final class TreeTypeAdapter<T> extends TypeAdapter<T> {
     if (deserializer == null) {
       return delegate().read(in);
     }
-    JsonElement value = Streams.parse(in);
-    if (value.isJsonNull()) {
+
+    return fromJsonTree(Streams.parse(in));
+  }
+
+  @Override public T fromJsonTree(JsonElement jsonTree) {
+    if (jsonTree.isJsonNull()) {
       return null;
     }
-    return deserializer.deserialize(value, typeToken.getType(), context);
+
+    if (deserializer == null) {
+      return delegate().fromJsonTree(jsonTree);
+    }
+
+    return deserializer.deserialize(jsonTree, typeToken.getType(), context);
   }
 
   @Override public void write(JsonWriter out, T value) throws IOException {
@@ -74,12 +83,25 @@ public final class TreeTypeAdapter<T> extends TypeAdapter<T> {
       delegate().write(out, value);
       return;
     }
+
     if (value == null) {
       out.nullValue();
       return;
     }
-    JsonElement tree = serializer.serialize(value, typeToken.getType(), context);
-    Streams.write(tree, out);
+
+    Streams.write(toJsonTree(value), out);
+  }
+
+  @Override public JsonElement toJsonTree(T value) {
+    if (serializer == null) {
+      return delegate().toJsonTree(value);
+    }
+
+    if (value == null) {
+      return null;
+    }
+
+    return serializer.serialize(value, typeToken.getType(), context);
   }
 
   private TypeAdapter<T> delegate() {
