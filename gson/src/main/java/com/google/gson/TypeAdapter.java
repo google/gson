@@ -191,12 +191,29 @@ public abstract class TypeAdapter<T> {
           TypeAdapter.this.write(out, value);
         }
       }
+
+      @Override public JsonElement toJsonTree(T value) {
+        if (value == null) {
+          return JsonNull.INSTANCE;
+        } else {
+          return TypeAdapter.this.toJsonTree(value);
+        }
+      }
+
       @Override public T read(JsonReader reader) throws IOException {
         if (reader.peek() == JsonToken.NULL) {
           reader.nextNull();
           return null;
         }
         return TypeAdapter.this.read(reader);
+      }
+
+      @Override public T fromJsonTree(JsonElement jsonTree) {
+        if (jsonTree.isJsonNull()) {
+          return null;
+        } else {
+          return TypeAdapter.this.fromJsonTree(jsonTree);
+        }
       }
     };
   }

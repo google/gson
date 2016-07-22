@@ -20,6 +20,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
@@ -98,7 +99,7 @@ public final class TreeTypeAdapter<T> extends TypeAdapter<T> {
     }
 
     if (value == null) {
-      return null;
+      return JsonNull.INSTANCE;
     }
 
     return serializer.serialize(value, typeToken.getType(), context);
