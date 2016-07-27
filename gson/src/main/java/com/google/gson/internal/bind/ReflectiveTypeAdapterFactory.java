@@ -16,8 +16,21 @@
 
 package com.google.gson.internal.bind;
 
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.google.gson.FieldNamingStrategy;
 import com.google.gson.Gson;
+import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
@@ -32,14 +45,6 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Type adapter that reflects over the fields and methods of a class.
@@ -48,15 +53,18 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   private final ConstructorConstructor constructorConstructor;
   private final FieldNamingStrategy fieldNamingPolicy;
   private final Excluder excluder;
+  private final Class<? extends Annotation> postDeserializationAnnotationClass;
   private final JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory;
 
   public ReflectiveTypeAdapterFactory(ConstructorConstructor constructorConstructor,
       FieldNamingStrategy fieldNamingPolicy, Excluder excluder,
-      JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory) {
+      JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory,
+      Class<? extends Annotation> postDeserializationAnnotationClass) {
     this.constructorConstructor = constructorConstructor;
     this.fieldNamingPolicy = fieldNamingPolicy;
     this.excluder = excluder;
     this.jsonAdapterFactory = jsonAdapterFactory;
+    this.postDeserializationAnnotationClass = postDeserializationAnnotationClass;
   }
 
   public boolean excludeField(Field f, boolean serialize) {
@@ -97,7 +105,15 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     }
 
     ObjectConstructor<T> constructor = constructorConstructor.get(type);
-    return new Adapter<T>(constructor, getBoundFields(gson, type, raw));
+    Method postDeserializationMethod = null;
+    if (postDeserializationAnnotationClass != null) {
+      for (Method method : raw.getDeclaredMethods()) {
+        if (method.getAnnotation(postDeserializationAnnotationClass) != null) {
+          postDeserializationMethod = method;
+        }
+      }
+    }
+    return new Adapter<T>(constructor, getBoundFields(gson, type, raw), postDeserializationMethod);
   }
 
   private ReflectiveTypeAdapterFactory.BoundField createBoundField(
@@ -195,10 +211,13 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   public static final class Adapter<T> extends TypeAdapter<T> {
     private final ObjectConstructor<T> constructor;
     private final Map<String, BoundField> boundFields;
+    private final Method postDeserializationMethod;
 
-    Adapter(ObjectConstructor<T> constructor, Map<String, BoundField> boundFields) {
+    Adapter(ObjectConstructor<T> constructor, Map<String, BoundField> boundFields,
+        Method postDeserializationMethod) {
       this.constructor = constructor;
       this.boundFields = boundFields;
+      this.postDeserializationMethod = postDeserializationMethod;
     }
 
     @Override public T read(JsonReader in) throws IOException {
@@ -226,6 +245,22 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         throw new AssertionError(e);
       }
       in.endObject();
+      if (postDeserializationMethod != null) {
+        try {
+          postDeserializationMethod.setAccessible(true);
+          postDeserializationMethod.invoke(instance);
+        } catch (IllegalAccessException e) { // Shouldn't happen
+          throw new JsonIOException("Couldn't invoke the method specified in post deserialize annotation", e);
+        } catch (IllegalArgumentException e) {
+          throw new JsonIOException("Couldn't invoke the method specified in post deserialize annotation", e);
+        } catch (InvocationTargetException e) {
+          Throwable cause = e.getCause();
+          if (cause instanceof RuntimeException) {
+            throw (RuntimeException) cause;
+          }
+          throw new JsonIOException("Couldn't invoke the method specified in post deserialize annotation", e);
+        }
+      }
       return instance;
     }
 

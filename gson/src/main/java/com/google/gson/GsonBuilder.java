@@ -16,7 +16,15 @@
 
 package com.google.gson;
 
-import com.google.gson.stream.JsonReader;
+import static com.google.gson.Gson.DEFAULT_COMPLEX_MAP_KEYS;
+import static com.google.gson.Gson.DEFAULT_ESCAPE_HTML;
+import static com.google.gson.Gson.DEFAULT_JSON_NON_EXECUTABLE;
+import static com.google.gson.Gson.DEFAULT_LENIENT;
+import static com.google.gson.Gson.DEFAULT_PRETTY_PRINT;
+import static com.google.gson.Gson.DEFAULT_SERIALIZE_NULLS;
+import static com.google.gson.Gson.DEFAULT_SPECIALIZE_FLOAT_VALUES;
+
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -32,14 +40,7 @@ import com.google.gson.internal.Excluder;
 import com.google.gson.internal.bind.TreeTypeAdapter;
 import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.reflect.TypeToken;
-
-import static com.google.gson.Gson.DEFAULT_COMPLEX_MAP_KEYS;
-import static com.google.gson.Gson.DEFAULT_ESCAPE_HTML;
-import static com.google.gson.Gson.DEFAULT_JSON_NON_EXECUTABLE;
-import static com.google.gson.Gson.DEFAULT_LENIENT;
-import static com.google.gson.Gson.DEFAULT_PRETTY_PRINT;
-import static com.google.gson.Gson.DEFAULT_SERIALIZE_NULLS;
-import static com.google.gson.Gson.DEFAULT_SPECIALIZE_FLOAT_VALUES;
+import com.google.gson.stream.JsonReader;
 
 /**
  * <p>Use this builder to construct a {@link Gson} instance when you need to set configuration
@@ -94,6 +95,7 @@ public final class GsonBuilder {
   private boolean prettyPrinting = DEFAULT_PRETTY_PRINT;
   private boolean generateNonExecutableJson = DEFAULT_JSON_NON_EXECUTABLE;
   private boolean lenient = DEFAULT_LENIENT;
+  private Class<? extends Annotation> postDeserializationAnnotationClass;
 
   /**
    * Creates a GsonBuilder instance that can be used to build Gson with various configuration
@@ -569,7 +571,8 @@ public final class GsonBuilder {
     return new Gson(excluder, fieldNamingPolicy, instanceCreators,
         serializeNulls, complexMapKeySerialization,
         generateNonExecutableJson, escapeHtmlChars, prettyPrinting, lenient,
-        serializeSpecialFloatingPointValues, longSerializationPolicy, factories);
+        serializeSpecialFloatingPointValues, longSerializationPolicy, factories,
+        postDeserializationAnnotationClass);
   }
 
   private void addTypeAdaptersForDate(String datePattern, int dateStyle, int timeStyle,
@@ -586,5 +589,31 @@ public final class GsonBuilder {
     factories.add(TreeTypeAdapter.newFactory(TypeToken.get(Date.class), dateTypeAdapter));
     factories.add(TreeTypeAdapter.newFactory(TypeToken.get(Timestamp.class), dateTypeAdapter));
     factories.add(TreeTypeAdapter.newFactory(TypeToken.get(java.sql.Date.class), dateTypeAdapter));
+  }
+
+  /**
+   * Use this method to register an annotation for post deserialization. Any method annotated
+   * with this annotation will be invoked after an object of that type is deserialized from Json.
+   * <pre>
+   * public class Foo {
+   *   String s;
+   *   &#64;javax.annotation.PostConstruct void validate() {
+   *     if (s == null) throw new JsonSyntaxException("s must not be null");
+   *   }
+   * }
+   * public void testValidate() {
+   *   Gson gson = new GsonBuilder()
+   *     .registerPostDeserializationAnnotation(javax.annotation.PostConstruct.class)
+   *     .create();
+   *   try {
+   *     gson.fromJson("{}", Foo.class);
+   *   } catch (JsonSyntaxException expected) {}
+   * }
+   * </pre>
+   * @since 2.8
+   */
+  public GsonBuilder registerPostDeserializationAnnotation(Class<? extends Annotation> annotationClass) {
+    this.postDeserializationAnnotationClass = annotationClass;
+    return this;
   }
 }
