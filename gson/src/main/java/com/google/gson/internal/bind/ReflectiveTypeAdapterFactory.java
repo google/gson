@@ -22,6 +22,7 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.annotations.OmitDefaultValue;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.internal.ConstructorConstructor;
@@ -34,6 +35,7 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,14 +51,16 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   private final FieldNamingStrategy fieldNamingPolicy;
   private final Excluder excluder;
   private final JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory;
+  private final boolean omitDefaultValues;
 
   public ReflectiveTypeAdapterFactory(ConstructorConstructor constructorConstructor,
       FieldNamingStrategy fieldNamingPolicy, Excluder excluder,
-      JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory) {
+      JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory, boolean omitDefaultValues) {
     this.constructorConstructor = constructorConstructor;
     this.fieldNamingPolicy = fieldNamingPolicy;
     this.excluder = excluder;
     this.jsonAdapterFactory = jsonAdapterFactory;
+    this.omitDefaultValues = omitDefaultValues;
   }
 
   public boolean excludeField(Field f, boolean serialize) {
@@ -97,13 +101,51 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     }
 
     ObjectConstructor<T> constructor = constructorConstructor.get(type);
-    return new Adapter<T>(constructor, getBoundFields(gson, type, raw));
+    if (Modifier.isAbstract(raw.getModifiers()) || Modifier.isPrivate(raw.getModifiers()))
+        return new Adapter<T>(constructor, getBoundFields(gson, type, raw, null));
+
+    final T defaultValuesObject = constructor.construct();
+    return new Adapter<T>(constructor, getBoundFields(gson, type, raw, defaultValuesObject));
+  }
+
+  private Object getOmittedValue(Field field, Object defaultValuesObject) {
+    final Class<?> declaringClass = field.getDeclaringClass();
+    OmitDefaultValue om = field.getAnnotation(OmitDefaultValue.class);
+    if (om==null) om = declaringClass.getAnnotation(OmitDefaultValue.class);
+    boolean omitDefaultValues = (om != null) ? om.value() : this.omitDefaultValues;
+    if (!omitDefaultValues) return null;
+    if (defaultValuesObject == null) return null;
+    try {
+      field.setAccessible(true);
+      return field.get(defaultValuesObject);
+    } catch (IllegalAccessException e) {
+      return null;
+    }
+  }
+
+  private static void handleNull(JsonWriter writer, boolean doWrite) throws IOException {
+    boolean serializeNulls = writer.getSerializeNulls();
+     writer.setSerializeNulls(doWrite);
+     try {
+       writer.nullValue();
+     } finally {
+       writer.setSerializeNulls(serializeNulls);
+     }
+  }
+
+  private static void killDeferedName(JsonWriter writer) throws IOException {
+    handleNull(writer, false);
+  }
+
+  private static void forceWriteNull(JsonWriter writer) throws IOException {
+    handleNull(writer, true);
   }
 
   private ReflectiveTypeAdapterFactory.BoundField createBoundField(
       final Gson context, final Field field, final String name,
-      final TypeToken<?> fieldType, boolean serialize, boolean deserialize) {
+      final TypeToken<?> fieldType, boolean serialize, boolean deserialize, Object defaultValuesObject) {
     final boolean isPrimitive = Primitives.isPrimitive(fieldType.getRawType());
+    final Object omittedValue = getOmittedValue(field, defaultValuesObject);
     // special casing primitives here saves ~5% on Android...
     JsonAdapter annotation = field.getAnnotation(JsonAdapter.class);
     TypeAdapter<?> mapped = null;
@@ -120,6 +162,16 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       @Override void write(JsonWriter writer, Object value)
           throws IOException, IllegalAccessException {
         Object fieldValue = field.get(value);
+        if (omittedValue != null) {
+          if (omittedValue.equals(fieldValue)) {
+            killDeferedName(writer);
+            return;
+          }
+          if (fieldValue == null) {
+            forceWriteNull(writer);
+            return;
+          }
+        }
         TypeAdapter t = jsonAdapterPresent ? typeAdapter
             : new TypeAdapterRuntimeTypeWrapper(context, typeAdapter, fieldType.getType());
         t.write(writer, fieldValue);
@@ -139,7 +191,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     };
   }
 
-  private Map<String, BoundField> getBoundFields(Gson context, TypeToken<?> type, Class<?> raw) {
+  private Map<String, BoundField> getBoundFields(Gson context, TypeToken<?> type, Class<?> raw, Object defaultValuesObject) {
     Map<String, BoundField> result = new LinkedHashMap<String, BoundField>();
     if (raw.isInterface()) {
       return result;
@@ -162,7 +214,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           String name = fieldNames.get(i);
           if (i != 0) serialize = false; // only serialize the default name
           BoundField boundField = createBoundField(context, field, name,
-              TypeToken.get(fieldType), serialize, deserialize);
+              TypeToken.get(fieldType), serialize, deserialize, defaultValuesObject);
           BoundField replaced = result.put(name, boundField);
           if (previous == null) previous = replaced;
         }

@@ -106,6 +106,7 @@ public final class Gson {
   static final boolean DEFAULT_PRETTY_PRINT = false;
   static final boolean DEFAULT_ESCAPE_HTML = true;
   static final boolean DEFAULT_SERIALIZE_NULLS = false;
+  static final boolean DEFAULT_OMIT_DEFAULT_VALUES = false;
   static final boolean DEFAULT_COMPLEX_MAP_KEYS = false;
   static final boolean DEFAULT_SPECIALIZE_FLOAT_VALUES = false;
 
@@ -130,6 +131,7 @@ public final class Gson {
   private final Excluder excluder;
   private final FieldNamingStrategy fieldNamingStrategy;
   private final boolean serializeNulls;
+  private final boolean omitDefaultValues;
   private final boolean htmlSafe;
   private final boolean generateNonExecutableJson;
   private final boolean prettyPrinting;
@@ -172,14 +174,14 @@ public final class Gson {
    */
   public Gson() {
     this(Excluder.DEFAULT, FieldNamingPolicy.IDENTITY,
-        Collections.<Type, InstanceCreator<?>>emptyMap(), DEFAULT_SERIALIZE_NULLS,
+        Collections.<Type, InstanceCreator<?>>emptyMap(), DEFAULT_SERIALIZE_NULLS, DEFAULT_OMIT_DEFAULT_VALUES,
         DEFAULT_COMPLEX_MAP_KEYS, DEFAULT_JSON_NON_EXECUTABLE, DEFAULT_ESCAPE_HTML,
         DEFAULT_PRETTY_PRINT, DEFAULT_LENIENT, DEFAULT_SPECIALIZE_FLOAT_VALUES,
         LongSerializationPolicy.DEFAULT, Collections.<TypeAdapterFactory>emptyList());
   }
 
   Gson(final Excluder excluder, final FieldNamingStrategy fieldNamingStrategy,
-      final Map<Type, InstanceCreator<?>> instanceCreators, boolean serializeNulls,
+      final Map<Type, InstanceCreator<?>> instanceCreators, boolean serializeNulls, boolean omitDefaultValues,
       boolean complexMapKeySerialization, boolean generateNonExecutableGson, boolean htmlSafe,
       boolean prettyPrinting, boolean lenient, boolean serializeSpecialFloatingPointValues,
       LongSerializationPolicy longSerializationPolicy,
@@ -188,6 +190,7 @@ public final class Gson {
     this.excluder = excluder;
     this.fieldNamingStrategy = fieldNamingStrategy;
     this.serializeNulls = serializeNulls;
+    this.omitDefaultValues = omitDefaultValues;
     this.generateNonExecutableJson = generateNonExecutableGson;
     this.htmlSafe = htmlSafe;
     this.prettyPrinting = prettyPrinting;
@@ -250,7 +253,7 @@ public final class Gson {
     factories.add(jsonAdapterFactory);
     factories.add(TypeAdapters.ENUM_FACTORY);
     factories.add(new ReflectiveTypeAdapterFactory(
-        constructorConstructor, fieldNamingStrategy, excluder, jsonAdapterFactory));
+        constructorConstructor, fieldNamingStrategy, excluder, jsonAdapterFactory, omitDefaultValues));
 
     this.factories = Collections.unmodifiableList(factories);
   }
@@ -265,6 +268,10 @@ public final class Gson {
 
   public boolean serializeNulls() {
     return serializeNulls;
+  }
+
+  public boolean omitDefaultValues() {
+    return omitDefaultValues;
   }
 
   public boolean htmlSafe() {

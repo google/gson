@@ -42,13 +42,14 @@ public final class GsonTest extends TestCase {
 
   public void testOverridesDefaultExcluder() {
     Gson gson = new Gson(CUSTOM_EXCLUDER, CUSTOM_FIELD_NAMING_STRATEGY,
-        new HashMap<Type, InstanceCreator<?>>(), true, false, true, false,
+        new HashMap<Type, InstanceCreator<?>>(), true, true, false, true, false,
         true, true, false, LongSerializationPolicy.DEFAULT,
         new ArrayList<TypeAdapterFactory>());
 
     assertEquals(CUSTOM_EXCLUDER, gson.excluder());
     assertEquals(CUSTOM_FIELD_NAMING_STRATEGY, gson.fieldNamingStrategy());
     assertEquals(true, gson.serializeNulls());
+    assertEquals(true, gson.omitDefaultValues());
     assertEquals(false, gson.htmlSafe());
   }
 }

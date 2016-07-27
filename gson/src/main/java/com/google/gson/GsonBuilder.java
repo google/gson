@@ -37,6 +37,7 @@ import static com.google.gson.Gson.DEFAULT_COMPLEX_MAP_KEYS;
 import static com.google.gson.Gson.DEFAULT_ESCAPE_HTML;
 import static com.google.gson.Gson.DEFAULT_JSON_NON_EXECUTABLE;
 import static com.google.gson.Gson.DEFAULT_LENIENT;
+import static com.google.gson.Gson.DEFAULT_OMIT_DEFAULT_VALUES;
 import static com.google.gson.Gson.DEFAULT_PRETTY_PRINT;
 import static com.google.gson.Gson.DEFAULT_SERIALIZE_NULLS;
 import static com.google.gson.Gson.DEFAULT_SPECIALIZE_FLOAT_VALUES;
@@ -85,6 +86,7 @@ public final class GsonBuilder {
   /** tree-style hierarchy factories. These come after factories for backwards compatibility. */
   private final List<TypeAdapterFactory> hierarchyFactories = new ArrayList<TypeAdapterFactory>();
   private boolean serializeNulls = DEFAULT_SERIALIZE_NULLS;
+  private boolean omitDefaultValues = DEFAULT_OMIT_DEFAULT_VALUES;
   private String datePattern;
   private int dateStyle = DateFormat.DEFAULT;
   private int timeStyle = DateFormat.DEFAULT;
@@ -166,6 +168,19 @@ public final class GsonBuilder {
    */
   public GsonBuilder serializeNulls() {
     this.serializeNulls = true;
+    return this;
+  }
+
+  /**
+   * Configure Gson to omit default values, i.e., those present in a field of a newly created object.
+   * This makes {@link serializeNulls} irrelevant, as using this option implies that nulls get serialized,
+   * if the default value is not null. 
+   *
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @since 2.7.1
+   */
+  public GsonBuilder omitDefaultValues() {
+    this.omitDefaultValues = true;
     return this;
   }
 
@@ -567,7 +582,7 @@ public final class GsonBuilder {
     addTypeAdaptersForDate(datePattern, dateStyle, timeStyle, factories);
 
     return new Gson(excluder, fieldNamingPolicy, instanceCreators,
-        serializeNulls, complexMapKeySerialization,
+        serializeNulls, omitDefaultValues, complexMapKeySerialization,
         generateNonExecutableJson, escapeHtmlChars, prettyPrinting, lenient,
         serializeSpecialFloatingPointValues, longSerializationPolicy, factories);
   }
