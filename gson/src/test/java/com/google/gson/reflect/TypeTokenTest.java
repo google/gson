@@ -19,6 +19,7 @@ package com.google.gson.reflect;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.RandomAccess;
 import java.util.Set;
 import junit.framework.TestCase;
@@ -78,5 +79,27 @@ public final class TypeTokenTest extends TestCase {
     assertFalse(TypeToken.get(a).isAssignableFrom(b));
     // listOfSetOfUnknown = listOfSetOfString; // doesn't compile; must be false
     assertFalse(TypeToken.get(b).isAssignableFrom(a));
+  }
+
+  public void testArrayFactory() {
+    TypeToken<?> expectedStringArray = new TypeToken<String[]>() {};
+    assertEquals(expectedStringArray, TypeToken.getArray(String.class));
+
+    TypeToken<?> expectedListOfStringArray = new TypeToken<List<String>[]>() {};
+    Type listOfString = new TypeToken<List<String>>() {}.getType();
+    assertEquals(expectedListOfStringArray, TypeToken.getArray(listOfString));
+  }
+
+  public void testParameterizedFactory() {
+    TypeToken<?> expectedListOfString = new TypeToken<List<String>>() {};
+    assertEquals(expectedListOfString, TypeToken.getParameterized(List.class, String.class));
+
+    TypeToken<?> expectedMapOfStringToString = new TypeToken<Map<String, String>>() {};
+    assertEquals(expectedMapOfStringToString, TypeToken.getParameterized(Map.class, String.class, String.class));
+
+    TypeToken<?> expectedListOfListOfListOfString = new TypeToken<List<List<List<String>>>>() {};
+    Type listOfString = TypeToken.getParameterized(List.class, String.class).getType();
+    Type listOfListOfString = TypeToken.getParameterized(List.class, listOfString).getType();
+    assertEquals(expectedListOfListOfListOfString, TypeToken.getParameterized(List.class, listOfListOfString));
   }
 }
