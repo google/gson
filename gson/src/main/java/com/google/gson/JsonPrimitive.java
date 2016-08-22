@@ -314,7 +314,7 @@ public final class JsonPrimitive extends JsonElement {
       return other.value == null;
     }
     if (isIntegral(this) && isIntegral(other)) {
-      return getAsNumber().longValue() == other.getAsNumber().longValue();
+      return getAsBigInteger().equals(other.getAsBigInteger());
     }
     if (value instanceof Number && other.value instanceof Number) {
       double a = getAsNumber().doubleValue();

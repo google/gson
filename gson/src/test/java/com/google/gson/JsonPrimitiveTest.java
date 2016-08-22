@@ -226,12 +226,21 @@ public class JsonPrimitiveTest extends TestCase {
     MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive(Float.NaN), new JsonPrimitive(Double.NaN));
   }
 
-  public void testEqualsIntegerAndBigInteger() {
-    JsonPrimitive a = new JsonPrimitive(5L);
-    JsonPrimitive b = new JsonPrimitive(new BigInteger("18446744073709551621")); // 2^64 + 5
-    // Ideally, the following assertion should have failed but the price is too much to pay 
-    // assertFalse(a + " equals " + b, a.equals(b));
-    assertTrue(a + " equals " + b, a.equals(b));
+  public void testEqualsForBigIntegers() {
+    BigInteger limit =         // 2^64
+        new BigInteger("18446744073709551616");
+    JsonPrimitive one = new JsonPrimitive(1L);
+    JsonPrimitive lp1 =        // limit + 1
+        new JsonPrimitive(limit.add(new BigInteger("1")));
+    JsonPrimitive lp1c =       // limit + 1, a different object
+        new JsonPrimitive(limit.add(new BigInteger("1")));
+    JsonPrimitive lp2 =        // limit + 2
+        new JsonPrimitive(limit.add(new BigInteger("2")));
+    // compare 1, limit + 1, limit + 2, etc.
+    assertFalse("limit + 1 = 1", lp1.equals(one));
+    assertFalse("1 = limit + 1", one.equals(lp1));
+    assertFalse("limit + 1 = limit + 2", lp1.equals(lp2));
+    assertTrue("limit + 1 = limit + 1", lp1.equals(lp1c));
   }
 
   public void testEqualsDoesNotEquateStringAndNonStringTypes() {
