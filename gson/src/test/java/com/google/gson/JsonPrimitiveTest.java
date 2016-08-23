@@ -179,7 +179,7 @@ public class JsonPrimitiveTest extends TestCase {
     assertTrue("p1 and p2 should have the same hash code", p1.hashCode() == p2.hashCode());
 
     // out of long range
-	BigInteger limitPlus5 =  // 2^64 + 5
+    BigInteger limitPlus5 =  // 2^64 + 5
       new BigInteger("18446744073709551616").add(BigInteger.valueOf(5));
     JsonPrimitive p3 = new JsonPrimitive(limitPlus5);
     JsonPrimitive p4 = new JsonPrimitive(limitPlus5);
