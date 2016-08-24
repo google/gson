@@ -102,7 +102,7 @@ import com.google.gson.stream.MalformedJsonException;
  */
 public final class Gson {
   static final boolean DEFAULT_JSON_NON_EXECUTABLE = false;
-  static final boolean DEFAULT_LENIENT = false;
+  static final boolean DEFAULT_LENIENT = true;
   static final boolean DEFAULT_PRETTY_PRINT = false;
   static final boolean DEFAULT_ESCAPE_HTML = true;
   static final boolean DEFAULT_SERIALIZE_NULLS = false;
@@ -870,15 +870,15 @@ public final class Gson {
    * Reads the next JSON value from {@code reader} and convert it to an object
    * of type {@code typeOfT}. Returns {@code null}, if the {@code reader} is at EOF.
    * Since Type is not parameterized by T, this method is type unsafe and should be used carefully
-   *
+   * <p>
+   * The leniency of the reader passed in is respected. See {@linkplain JsonReader#setLenient(boolean)}
+   * </p>
    * @throws JsonIOException if there was a problem writing to the Reader
    * @throws JsonSyntaxException if json is not a valid representation for an object of type
    */
   @SuppressWarnings("unchecked")
   public <T> T fromJson(JsonReader reader, Type typeOfT) throws JsonIOException, JsonSyntaxException {
     boolean isEmpty = true;
-    boolean oldLenient = reader.isLenient();
-    reader.setLenient(true);
     try {
       reader.peek();
       isEmpty = false;
@@ -900,8 +900,6 @@ public final class Gson {
     } catch (IOException e) {
       // TODO(inder): Figure out whether it is indeed right to rethrow this as JsonSyntaxException
       throw new JsonSyntaxException(e);
-    } finally {
-      reader.setLenient(oldLenient);
     }
   }
 

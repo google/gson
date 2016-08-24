@@ -18,6 +18,7 @@ package com.google.gson.functional;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonIOException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.LongSerializationPolicy;
@@ -556,7 +557,7 @@ public class PrimitiveTest extends TestCase {
     try {
       gson.fromJson(value, String.class);
       fail();
-    } catch (JsonSyntaxException expected) { }
+    } catch (JsonIOException expected) { }
   }
 
   public void testHtmlCharacterSerialization() throws Exception {

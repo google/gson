@@ -363,12 +363,22 @@ public final class GsonBuilder {
   }
 
   /**
-   * By default, Gson is strict and only accepts JSON as specified by
-   * <a href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>. This option makes the parser
-   * liberal in what it accepts.
+   * By default, Gson is liberal in what it accepts. Setting lenient to false causes Gson to
+   * only accept JSON as specified by 
+   * <a href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>.
    *
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @see JsonReader#setLenient(boolean)
+   */
+  public GsonBuilder setLenient(boolean lenient) {
+    this.lenient = lenient;
+    return this;
+  }
+
+  /**
+   * Gson is lenient by default. Use {@link #setLenient(boolean)} if
+   *             you wish to change the leniency
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
   public GsonBuilder setLenient() {
     lenient = true;

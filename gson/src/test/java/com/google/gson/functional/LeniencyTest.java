@@ -17,30 +17,91 @@ package com.google.gson.functional;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+
 import java.util.List;
 import junit.framework.TestCase;
 
 import static java.util.Collections.singletonList;
+
+import java.io.StringReader;
+import java.lang.reflect.Type;
 
 /**
  * Functional tests for leniency option.
  */
 public class LeniencyTest extends TestCase {
 
-  private Gson gson;
+  private Gson lenientGson;
+  private Gson strictGson;
 
   @Override
   protected void setUp() throws Exception {
     super.setUp();
-    gson = new GsonBuilder().setLenient().create();
+    lenientGson = new GsonBuilder().create();
+    strictGson = new GsonBuilder().setLenient(false).create();
   }
 
   public void testLenientFromJson() {
-    List<String> json = gson.fromJson(""
+    final String testString = ""
         + "[ # One!\n"
         + "  'Hi' #Element!\n"
-        + "] # Array!", new TypeToken<List<String>>() {}.getType());
-    assertEquals(singletonList("Hi"), json);
+        + "] # Array!";
+    final String expectedResult = "Hi";
+    Type type = new TypeToken<List<String>>() {}.getType();
+
+    JsonReader reader = new JsonReader(new StringReader(testString));
+    reader.setLenient(true);
+    // fromJson(JsonReader, Type) should respect the leniency of 
+    // the JsonReader
+    List<String> json = strictGson.fromJson(reader, type);
+    assertEquals(singletonList(expectedResult), json);
+
+    // the factory method should set the leniency of the created factory 
+    // to be the same as the leniency of the Gson instance
+    reader = lenientGson.newJsonReader(new StringReader(testString));
+    assertTrue(reader.isLenient());
+    // fromJson(JsonReader, Type) should respect the leniency of 
+    // the JsonReader
+    json = strictGson.fromJson(reader, type);
+    assertEquals(singletonList(expectedResult), json);    
+
+    json = lenientGson.fromJson(testString, type);
+    assertEquals(singletonList(expectedResult), json);
+  }
+
+  public void testStrictFromJson() {
+    final String testString = ""
+        + "[ # One!\n"
+        + "  'Hi' #Element!\n"
+        + "]";
+    Type type = new TypeToken<List<String>>(){}.getType();
+
+    try {
+      // JsonReader is strict by default
+      JsonReader reader = new JsonReader(new StringReader(testString));
+      // fromJson(JsonReader, Type) should respect the leniency of 
+      // the JsonReader
+      lenientGson.fromJson(reader, type);
+      fail();
+    } catch (JsonSyntaxException expected) { }
+
+    try {
+      // the factory method should set the leniency of the created factory 
+      // to be the same as the leniency of the Gson instance
+      JsonReader reader = strictGson.newJsonReader(new StringReader(testString));
+      assertFalse(reader.isLenient());
+      // fromJson(JsonReader, Type) should respect the leniency of 
+      // the JsonReader
+      lenientGson.fromJson(reader, type);
+      fail();
+    } catch(JsonSyntaxException expected) { }
+
+    try {
+      strictGson.fromJson(testString, type);
+      fail();
+    } catch (JsonSyntaxException expected) { }
   }
 }
