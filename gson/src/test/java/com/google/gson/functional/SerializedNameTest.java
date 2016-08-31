@@ -15,6 +15,8 @@
  */
 package com.google.gson.functional;
 
+import java.util.regex.Pattern;
+
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 
@@ -50,5 +52,27 @@ public final class SerializedNameTest extends TestCase {
       this.a = a;
       this.b = b;
     }
+  }
+
+  public void testPatternForEnum() {
+    Gson gson = new Gson();
+    assertTrue(Pattern.compile("\\S*").matcher("REDIRECT").matches()); // verify that the pattern is correct 
+    Response target = gson.fromJson("{'error1':'AUTH_FAILURE','error2':'REDIRECT','error3':'SERVER_ERROR'}", Response.class);
+    assertEquals(ErrorCode.AUTH_FAILURE, target.error1);
+    assertEquals(ErrorCode.UNKNOWN, target.error2);
+    assertEquals(ErrorCode.SERVER_ERROR, target.error3);
+  }
+
+  private enum ErrorCode {
+    AUTH_FAILURE,
+    SERVER_ERROR,
+    /** match all non-whitespace characters. Note that pattern is applied last. */
+    @SerializedName(value="UNKNOWN", pattern="\\S*") UNKNOWN
+  }
+
+  private static final class Response {
+    ErrorCode error1;
+    ErrorCode error2;
+    ErrorCode error3;
   }
 }
