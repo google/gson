@@ -145,7 +145,7 @@ public final class JsonTreeWriter extends JsonWriter {
     if (value == null) {
       return nullValue();
     }
-    put(new JsonPrimitive(value));
+    put(JsonPrimitive.allocate(value));
     return this;
   }
 
@@ -155,7 +155,7 @@ public final class JsonTreeWriter extends JsonWriter {
   }
 
   @Override public JsonWriter value(boolean value) throws IOException {
-    put(new JsonPrimitive(value));
+    put(JsonPrimitive.allocate(value));
     return this;
   }
 
@@ -163,7 +163,7 @@ public final class JsonTreeWriter extends JsonWriter {
     if (value == null) {
       return nullValue();
     }
-    put(new JsonPrimitive(value));
+    put(JsonPrimitive.allocate(value));
     return this;
   }
 
@@ -171,12 +171,12 @@ public final class JsonTreeWriter extends JsonWriter {
     if (!isLenient() && (Double.isNaN(value) || Double.isInfinite(value))) {
       throw new IllegalArgumentException("JSON forbids NaN and infinities: " + value);
     }
-    put(new JsonPrimitive(value));
+    put(JsonPrimitive.allocate(value));
     return this;
   }
 
   @Override public JsonWriter value(long value) throws IOException {
-    put(new JsonPrimitive(value));
+    put(JsonPrimitive.allocate(value));
     return this;
   }
 
@@ -192,7 +192,7 @@ public final class JsonTreeWriter extends JsonWriter {
       }
     }
 
-    put(new JsonPrimitive(value));
+    put(JsonPrimitive.allocate(value));
     return this;
   }
 
