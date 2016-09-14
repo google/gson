@@ -70,7 +70,7 @@ final class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserial
   public JsonElement serialize(Date src, Type typeOfSrc, JsonSerializationContext context) {
     synchronized (localFormat) {
       String dateFormatAsString = enUsFormat.format(src);
-      return new JsonPrimitive(dateFormatAsString);
+      return JsonPrimitive.allocate(dateFormatAsString);
     }
   }
 
