@@ -67,8 +67,8 @@ public final class JsonPrimitive extends JsonElement {
         }
 
         if( enableCache ) {
-            immutableStringCache = new LRUCache<>(stringCacheSize);
-            immutableNumberCache = new LRUCache<>(numberCacheSize);
+            immutableStringCache = new LRUCache<String>(stringCacheSize);
+            immutableNumberCache = new LRUCache<Number>(numberCacheSize);
         }
 
         isCacheEnabled = enableCache;
@@ -209,8 +209,8 @@ public final class JsonPrimitive extends JsonElement {
 	};
 
     public final static int DEFAULT_MAX_CACHED_STRING_SIZE = 512;
-    public final static int DEFAULT_STRING_CACHE_SIZE = 5_000; // Max of a 2.5MB cache by default
-    public final static int DEFAULT_NUMBER_CACHE_SIZE = 5_000;
+    public final static int DEFAULT_STRING_CACHE_SIZE = 5000; // Max of a 2.5MB cache by default
+    public final static int DEFAULT_NUMBER_CACHE_SIZE = 5000;
     private static int maxCachedStringSize = DEFAULT_MAX_CACHED_STRING_SIZE;
     private static int stringCacheSize = DEFAULT_STRING_CACHE_SIZE;
     private static int numberCacheSize = DEFAULT_NUMBER_CACHE_SIZE;
