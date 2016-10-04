@@ -208,8 +208,10 @@ public final class JsonPrimitive extends JsonElement {
 	    }
 	};
 
-    public final static int DEFAULT_STRING_CACHE_SIZE = 7_500;
+    public final static int DEFAULT_MAX_CACHED_STRING_SIZE = 512;
+    public final static int DEFAULT_STRING_CACHE_SIZE = 5_000; // Max of a 2.5MB cache by default
     public final static int DEFAULT_NUMBER_CACHE_SIZE = 5_000;
+    private static int maxCachedStringSize = DEFAULT_MAX_CACHED_STRING_SIZE;
     private static int stringCacheSize = DEFAULT_STRING_CACHE_SIZE;
     private static int numberCacheSize = DEFAULT_NUMBER_CACHE_SIZE;
 
@@ -246,6 +248,26 @@ public final class JsonPrimitive extends JsonElement {
 
 	return cacheStats;
     }
+	
+    /**
+     * All strings greater than this size will not be allowed in the cache.
+     *
+     * Calling this method will flush the existing strings in the cache.
+     * @param maxStringSize max string size allowed in the cache
+     */
+    public static void setMaxStringCacheSize(int maxStringSize) {
+	JsonPrimitive.maxCachedStringSize = maxStringSize;
+	immutableStringCache.clear();
+    }
+
+    /**
+     * If JsonPrimitive caching is enabled.
+     *
+     * @return size of the largest string allowed to be cached
+     */
+    public static int getMaxStringCacheSize() {
+	return maxCachedStringSize;
+    }
 
     /**
      * Create or use existing from cache immutable JsonPrimitive of type string
@@ -257,7 +279,7 @@ public final class JsonPrimitive extends JsonElement {
 	if (string == null) {
             return JsonNull.INSTANCE;
         }
-        if (isCacheEnabled) {
+        if (isCacheEnabled && string.length() <= maxCachedStringSize) {
             return immutableStringCache.allocJsonImmutablePrimitive(string);
         }
         return new JsonPrimitive(string);
