@@ -183,4 +183,19 @@ public class JsonObjectTest extends TestCase {
     assertEquals(1, original.get("key").getAsJsonArray().size());
     assertEquals(0, copy.get("key").getAsJsonArray().size());
   }
+
+  /**
+   * From issue 941
+   */
+  public void testKeySet() {
+    JsonObject a = new JsonObject();
+
+    a.add("foo", new JsonArray());
+    a.add("bar", new JsonObject());
+
+    assertEquals(2, a.size());
+    assertEquals(2, a.keySet().size());
+    assertTrue(a.keySet().contains("foo"));
+    assertTrue(a.keySet().contains("bar"));
+  }
 }
