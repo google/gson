@@ -29,7 +29,7 @@ import junit.framework.TestCase;
  */
 public class SecurityTest extends TestCase {
   /**
-   * Keep this in sync with Gson.JSON_NON_EXECUTABLE_PREFIX
+   * Keep this in sync with Gson.DEFAULT_JSON_NON_EXECUTABLE_PREFIX
    */
   private static final String JSON_NON_EXECUTABLE_PREFIX = ")]}'\n";
 
@@ -50,6 +50,21 @@ public class SecurityTest extends TestCase {
   public void testNonExecutableJsonDeserialization() {
     String json = JSON_NON_EXECUTABLE_PREFIX + "{longValue:1}";
     Gson gson = gsonBuilder.create();
+    BagOfPrimitives target = gson.fromJson(json, BagOfPrimitives.class);
+    assertEquals(1, target.longValue);
+  }
+  
+  public void testNonExecutableJsonSerializationWithCustomPrefix() {
+    String prefix = "while(1);\n";
+    Gson gson = gsonBuilder.generateNonExecutableJson().setJsonNonExecutablePrefix(prefix).create();
+    String json = gson.toJson(new BagOfPrimitives());
+    assertTrue(json.startsWith(prefix));
+  }
+  
+  public void testNonExecutableJsonDeserializationWithCustomPrefix() {
+    String prefix = "while(1);\n";
+    String json = prefix + "{longValue:1}";
+    Gson gson = gsonBuilder.setJsonNonExecutablePrefix(prefix).create();
     BagOfPrimitives target = gson.fromJson(json, BagOfPrimitives.class);
     assertEquals(1, target.longValue);
   }
