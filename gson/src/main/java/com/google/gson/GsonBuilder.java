@@ -36,6 +36,7 @@ import com.google.gson.reflect.TypeToken;
 import static com.google.gson.Gson.DEFAULT_COMPLEX_MAP_KEYS;
 import static com.google.gson.Gson.DEFAULT_ESCAPE_HTML;
 import static com.google.gson.Gson.DEFAULT_JSON_NON_EXECUTABLE;
+import static com.google.gson.Gson.DEFAULT_JSON_NON_EXECUTABLE_PREFIX;
 import static com.google.gson.Gson.DEFAULT_LENIENT;
 import static com.google.gson.Gson.DEFAULT_PRETTY_PRINT;
 import static com.google.gson.Gson.DEFAULT_SERIALIZE_NULLS;
@@ -93,6 +94,7 @@ public final class GsonBuilder {
   private boolean escapeHtmlChars = DEFAULT_ESCAPE_HTML;
   private boolean prettyPrinting = DEFAULT_PRETTY_PRINT;
   private boolean generateNonExecutableJson = DEFAULT_JSON_NON_EXECUTABLE;
+  private String jsonNonExecutablePrefix = DEFAULT_JSON_NON_EXECUTABLE_PREFIX;
   private boolean lenient = DEFAULT_LENIENT;
 
   /**
@@ -143,6 +145,20 @@ public final class GsonBuilder {
    */
   public GsonBuilder generateNonExecutableJson() {
     this.generateNonExecutableJson = true;
+    return this;
+  }
+
+  /**
+   * Sets the non-executable prefix for both generated and parsed JSON. This prevents
+   * attacks from third-party sites through script sourcing. See
+   * <a href="http://code.google.com/p/google-gson/issues/detail?id=42">Gson Issue 42</a>
+   * and <a href="http://code.google.com/p/google-gson/issues/detail?id=551">Gson Issue 551</a>
+   * for details.
+   *
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   */
+  public GsonBuilder setJsonNonExecutablePrefix(String jsonNonExecutablePrefix) {
+    this.jsonNonExecutablePrefix = jsonNonExecutablePrefix;
     return this;
   }
 
@@ -568,8 +584,8 @@ public final class GsonBuilder {
 
     return new Gson(excluder, fieldNamingPolicy, instanceCreators,
         serializeNulls, complexMapKeySerialization,
-        generateNonExecutableJson, escapeHtmlChars, prettyPrinting, lenient,
-        serializeSpecialFloatingPointValues, longSerializationPolicy, factories);
+        generateNonExecutableJson, jsonNonExecutablePrefix, escapeHtmlChars, prettyPrinting,
+        lenient, serializeSpecialFloatingPointValues, longSerializationPolicy, factories);
   }
 
   private void addTypeAdaptersForDate(String datePattern, int dateStyle, int timeStyle,

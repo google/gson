@@ -102,6 +102,7 @@ import com.google.gson.stream.MalformedJsonException;
  */
 public final class Gson {
   static final boolean DEFAULT_JSON_NON_EXECUTABLE = false;
+  static final String DEFAULT_JSON_NON_EXECUTABLE_PREFIX = ")]}'\n";
   static final boolean DEFAULT_LENIENT = false;
   static final boolean DEFAULT_PRETTY_PRINT = false;
   static final boolean DEFAULT_ESCAPE_HTML = true;
@@ -110,7 +111,6 @@ public final class Gson {
   static final boolean DEFAULT_SPECIALIZE_FLOAT_VALUES = false;
 
   private static final TypeToken<?> NULL_KEY_SURROGATE = new TypeToken<Object>() {};
-  private static final String JSON_NON_EXECUTABLE_PREFIX = ")]}'\n";
 
   /**
    * This thread local guards against reentrant calls to getAdapter(). In
@@ -132,6 +132,7 @@ public final class Gson {
   private final boolean serializeNulls;
   private final boolean htmlSafe;
   private final boolean generateNonExecutableJson;
+  private final String jsonNonExecutablePrefix;
   private final boolean prettyPrinting;
   private final boolean lenient;
   private final JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory;
@@ -168,20 +169,23 @@ public final class Gson {
    *   <li>By default, Gson excludes <code>transient</code> or <code>static</code> fields from
    *   consideration for serialization and deserialization. You can change this behavior through
    *   {@link GsonBuilder#excludeFieldsWithModifiers(int...)}.</li>
+   *   <li>By default, Gson uses <code>)]}'\n</code> as a prefix for generating as well as reading
+   *   non-executable json. You can change this behavior through
+   *   {@link GsonBuilder#setJsonNonExecutablePrefix(String)}.</li>
    * </ul>
    */
   public Gson() {
     this(Excluder.DEFAULT, FieldNamingPolicy.IDENTITY,
         Collections.<Type, InstanceCreator<?>>emptyMap(), DEFAULT_SERIALIZE_NULLS,
-        DEFAULT_COMPLEX_MAP_KEYS, DEFAULT_JSON_NON_EXECUTABLE, DEFAULT_ESCAPE_HTML,
-        DEFAULT_PRETTY_PRINT, DEFAULT_LENIENT, DEFAULT_SPECIALIZE_FLOAT_VALUES,
+        DEFAULT_COMPLEX_MAP_KEYS, DEFAULT_JSON_NON_EXECUTABLE, DEFAULT_JSON_NON_EXECUTABLE_PREFIX,
+        DEFAULT_ESCAPE_HTML, DEFAULT_PRETTY_PRINT, DEFAULT_LENIENT, DEFAULT_SPECIALIZE_FLOAT_VALUES,
         LongSerializationPolicy.DEFAULT, Collections.<TypeAdapterFactory>emptyList());
   }
 
   Gson(final Excluder excluder, final FieldNamingStrategy fieldNamingStrategy,
       final Map<Type, InstanceCreator<?>> instanceCreators, boolean serializeNulls,
-      boolean complexMapKeySerialization, boolean generateNonExecutableGson, boolean htmlSafe,
-      boolean prettyPrinting, boolean lenient, boolean serializeSpecialFloatingPointValues,
+      boolean complexMapKeySerialization, boolean generateNonExecutableGson, String jsonNonExecutablePrefix,
+      boolean htmlSafe, boolean prettyPrinting, boolean lenient, boolean serializeSpecialFloatingPointValues,
       LongSerializationPolicy longSerializationPolicy,
       List<TypeAdapterFactory> typeAdapterFactories) {
     this.constructorConstructor = new ConstructorConstructor(instanceCreators);
@@ -189,6 +193,7 @@ public final class Gson {
     this.fieldNamingStrategy = fieldNamingStrategy;
     this.serializeNulls = serializeNulls;
     this.generateNonExecutableJson = generateNonExecutableGson;
+    this.jsonNonExecutablePrefix = jsonNonExecutablePrefix;
     this.htmlSafe = htmlSafe;
     this.prettyPrinting = prettyPrinting;
     this.lenient = lenient;
@@ -711,7 +716,7 @@ public final class Gson {
    */
   public JsonWriter newJsonWriter(Writer writer) throws IOException {
     if (generateNonExecutableJson) {
-      writer.write(JSON_NON_EXECUTABLE_PREFIX);
+      writer.write(jsonNonExecutablePrefix);
     }
     JsonWriter jsonWriter = new JsonWriter(writer);
     if (prettyPrinting) {
@@ -727,6 +732,7 @@ public final class Gson {
   public JsonReader newJsonReader(Reader reader) {
     JsonReader jsonReader = new JsonReader(reader);
     jsonReader.setLenient(lenient);
+    jsonReader.setNonExecutePrefix(jsonNonExecutablePrefix);
     return jsonReader;
   }
 

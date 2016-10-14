@@ -188,8 +188,7 @@ import java.io.Reader;
  * @since 1.6
  */
 public class JsonReader implements Closeable {
-  /** The only non-execute prefix this parser permits */
-  private static final char[] NON_EXECUTE_PREFIX = ")]}'\n".toCharArray();
+
   private static final long MIN_INCOMPLETE_INTEGER = Long.MIN_VALUE / 10;
 
   private static final int PEEKED_NONE = 0;
@@ -228,6 +227,7 @@ public class JsonReader implements Closeable {
 
   /** True to accept non-spec compliant JSON */
   private boolean lenient = false;
+  private char[] nonExecutePrefix = ")]}'\n".toCharArray();
 
   /**
    * Use a manual buffer to easily read and unread upcoming characters, and
@@ -331,6 +331,13 @@ public class JsonReader implements Closeable {
    */
   public final boolean isLenient() {
     return lenient;
+  }
+
+  /**
+   * Configure the non-executable prefix assumed in lenient mode.
+   */
+  public final void setNonExecutePrefix(String nonExecutePrefix) {
+    this.nonExecutePrefix = nonExecutePrefix.toCharArray();
   }
 
   /**
@@ -1567,18 +1574,18 @@ public class JsonReader implements Closeable {
     nextNonWhitespace(true);
     pos--;
 
-    if (pos + NON_EXECUTE_PREFIX.length > limit && !fillBuffer(NON_EXECUTE_PREFIX.length)) {
+    if (pos + nonExecutePrefix.length > limit && !fillBuffer(nonExecutePrefix.length)) {
       return;
     }
 
-    for (int i = 0; i < NON_EXECUTE_PREFIX.length; i++) {
-      if (buffer[pos + i] != NON_EXECUTE_PREFIX[i]) {
+    for (int i = 0; i < nonExecutePrefix.length; i++) {
+      if (buffer[pos + i] != nonExecutePrefix[i]) {
         return; // not a security token!
       }
     }
 
     // we consumed a security token!
-    pos += NON_EXECUTE_PREFIX.length;
+    pos += nonExecutePrefix.length;
   }
 
   static {
