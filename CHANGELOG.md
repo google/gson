@@ -1,6 +1,12 @@
 Change Log
 ==========
 
+## Version 2.8
+_2016-10-26_  [GitHub Diff](https://github.com/google/gson/compare/gson-parent-2.7...gson-parent-2.8)
+ * New: `TypeToken.getParameterized()` and `TypeToken.getArray()` make it easier to
+   register or look up a `TypeAdapter`.
+ * New: `@JsonAdapter(nullSafe=true)` to specify that a custom type adapter handles null.
+
 ## Version 2.7
 _2016-06-14_  [GitHub Diff](https://github.com/google/gson/compare/gson-parent-2.6.2...gson-parent-2.7)
  * Added support for JsonSerializer/JsonDeserializer in @JsonAdapter annotation
