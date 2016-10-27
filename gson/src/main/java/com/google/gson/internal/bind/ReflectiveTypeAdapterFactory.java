@@ -32,8 +32,10 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -167,8 +169,16 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           if (previous == null) previous = replaced;
         }
         if (previous != null) {
-          throw new IllegalArgumentException(declaredType
-              + " declares multiple JSON fields named " + previous.name);
+
+          if (Modifier.isStatic(field.getModifiers())) {
+            // duplicate static fields such as serialVersionUID should not cause this error (see below).
+            // Put back the value from the furthest extending class
+            result.put(previous.name, previous);
+          } else {
+
+            throw new IllegalArgumentException(declaredType
+                    + " declares multiple JSON fields named " + previous.name);
+          }
         }
       }
       type = TypeToken.get($Gson$Types.resolve(type.getType(), raw, raw.getGenericSuperclass()));
