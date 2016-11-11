@@ -20,7 +20,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
@@ -63,20 +62,11 @@ public final class TreeTypeAdapter<T> extends TypeAdapter<T> {
     if (deserializer == null) {
       return delegate().read(in);
     }
-
-    return fromJsonTree(Streams.parse(in));
-  }
-
-  @Override public T fromJsonTree(JsonElement jsonTree) {
-    if (jsonTree.isJsonNull()) {
+    JsonElement value = Streams.parse(in);
+    if (value.isJsonNull()) {
       return null;
     }
-
-    if (deserializer == null) {
-      return delegate().fromJsonTree(jsonTree);
-    }
-
-    return deserializer.deserialize(jsonTree, typeToken.getType(), context);
+    return deserializer.deserialize(value, typeToken.getType(), context);
   }
 
   @Override public void write(JsonWriter out, T value) throws IOException {
@@ -84,25 +74,12 @@ public final class TreeTypeAdapter<T> extends TypeAdapter<T> {
       delegate().write(out, value);
       return;
     }
-
     if (value == null) {
       out.nullValue();
       return;
     }
-
-    Streams.write(toJsonTree(value), out);
-  }
-
-  @Override public JsonElement toJsonTree(T value) {
-    if (serializer == null) {
-      return delegate().toJsonTree(value);
-    }
-
-    if (value == null) {
-      return JsonNull.INSTANCE;
-    }
-
-    return serializer.serialize(value, typeToken.getType(), context);
+    JsonElement tree = serializer.serialize(value, typeToken.getType(), context);
+    Streams.write(tree, out);
   }
 
   private TypeAdapter<T> delegate() {
