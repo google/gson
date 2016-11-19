@@ -500,6 +500,17 @@ public final class GsonBuilder {
   }
 
   /**
+   * Register a collection of factories for type adapters. Registering a factory is useful when
+   * the type adapter needs to be configured based on the type of the field being processed. Gson
+   * is designed to handle a large number of factories, so you should consider registering
+   * them to be at par with registering an individual type adapter.
+   */
+  public GsonBuilder registerTypeAdapterFactories(Collection<TypeAdapterFactory> factories) {
+    this.factories.addAll(factories);
+    return this;
+  }
+
+  /**
    * Configures Gson for custom serialization or deserialization for an inheritance type hierarchy.
    * This method combines the registration of a {@link TypeAdapter}, {@link JsonSerializer} and
    * a {@link JsonDeserializer}. If a type adapter was previously registered for the specified
