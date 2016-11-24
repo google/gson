@@ -368,6 +368,7 @@ public final class TypeAdapters {
         in.nextNull();
         return null;
       case NUMBER:
+      case STRING:
         return new LazilyParsedNumber(in.nextString());
       default:
         throw new JsonSyntaxException("Expecting number, got: " + jsonToken);
