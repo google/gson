@@ -55,15 +55,15 @@ public class InheritanceTest extends TestCase {
   }
 
   public void testSubClassSerialization() throws Exception {
-    SubTypeOfNested target = new SubTypeOfNested(new BagOfPrimitives(10, 20, false, "stringValue"),
-        new BagOfPrimitives(30, 40, true, "stringValue"));
+    SubTypeOfNested target = new SubTypeOfNested(new BagOfPrimitives(10, 20, 30.0, false, "stringValue"),
+        new BagOfPrimitives(40, 50, 60.0, true, "stringValue"));
     assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 
   public void testSubClassDeserialization() throws Exception {
-    String json = "{\"value\":5,\"primitive1\":{\"longValue\":10,\"intValue\":20,"
+    String json = "{\"value\":5,\"primitive1\":{\"longValue\":10,\"intValue\":20,\"doubleValue\":30.0,"
         + "\"booleanValue\":false,\"stringValue\":\"stringValue\"},\"primitive2\":"
-        + "{\"longValue\":30,\"intValue\":40,\"booleanValue\":true,"
+        + "{\"longValue\":40,\"intValue\":50,\"doubleValue\":60.0,\"booleanValue\":true,"
         + "\"stringValue\":\"stringValue\"}}";
     SubTypeOfNested target = gson.fromJson(json, SubTypeOfNested.class);
     assertEquals(json, target.getExpectedJson());

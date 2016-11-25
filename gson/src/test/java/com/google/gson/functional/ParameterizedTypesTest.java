@@ -80,7 +80,7 @@ public class ParameterizedTypesTest extends TestCase {
         BagOfPrimitives>>() {}.getType();
     String json = gson.toJson(src, typeOfSrc);
     String expected = "{\"a\":10,\"b\":1.0,\"c\":2.1,\"d\":\"abc\","
-        + "\"e\":{\"longValue\":0,\"intValue\":0,\"booleanValue\":false,\"stringValue\":\"\"}}";
+        + "\"e\":{\"longValue\":0,\"intValue\":0,\"doubleValue\":0.0,\"booleanValue\":false,\"stringValue\":\"\"}}";
     assertEquals(expected, json);
   }
 

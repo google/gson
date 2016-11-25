@@ -214,8 +214,8 @@ public class CollectionTest extends TestCase {
 
   public void testCollectionOfBagOfPrimitivesSerialization() {
     List<BagOfPrimitives> target = new ArrayList<BagOfPrimitives>();
-    BagOfPrimitives objA = new BagOfPrimitives(3L, 1, true, "blah");
-    BagOfPrimitives objB = new BagOfPrimitives(2L, 6, false, "blahB");
+    BagOfPrimitives objA = new BagOfPrimitives(3L, 1, 1.0, true, "blah");
+    BagOfPrimitives objB = new BagOfPrimitives(2L, 6, 1.0, false, "blahB");
     target.add(objA);
     target.add(objB);
 
@@ -251,7 +251,7 @@ public class CollectionTest extends TestCase {
 
   @SuppressWarnings("rawtypes")
   public void testRawCollectionDeserializationNotAlllowed() {
-    String json = "[0,1,2,3,4,5,6,7,8,9]";
+    String json = "[0.0,1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0]";
     Collection integers = gson.fromJson(json, Collection.class);
     // JsonReader converts numbers to double by default so we need a floating point comparison
     assertEquals(Arrays.asList(0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0), integers);
@@ -264,15 +264,16 @@ public class CollectionTest extends TestCase {
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   public void testRawCollectionOfBagOfPrimitivesNotAllowed() {
-    BagOfPrimitives bag = new BagOfPrimitives(10, 20, false, "stringValue");
+    BagOfPrimitives bag = new BagOfPrimitives(10, 20, 30.0, false, "stringValue");
     String json = '[' + bag.getExpectedJson() + ',' + bag.getExpectedJson() + ']';
     Collection target = gson.fromJson(json, Collection.class);
     assertEquals(2, target.size());
     for (Object bag1 : target) {
       // Gson 2.0 converts raw objects into maps
       Map<String, Object> values = (Map<String, Object>) bag1;
-      assertTrue(values.containsValue(10.0));
-      assertTrue(values.containsValue(20.0));
+      assertTrue(values.containsValue(10));
+      assertTrue(values.containsValue(20));
+      assertTrue(values.containsValue(30.0));
       assertTrue(values.containsValue("stringValue"));
     }
   }
@@ -298,8 +299,8 @@ public class CollectionTest extends TestCase {
 
   public void testWildcardCollectionField() throws Exception {
     Collection<BagOfPrimitives> collection = new ArrayList<BagOfPrimitives>();
-    BagOfPrimitives objA = new BagOfPrimitives(3L, 1, true, "blah");
-    BagOfPrimitives objB = new BagOfPrimitives(2L, 6, false, "blahB");
+    BagOfPrimitives objA = new BagOfPrimitives(3L, 1, 1.0, true, "blah");
+    BagOfPrimitives objB = new BagOfPrimitives(2L, 6, 1.0, false, "blahB");
     collection.add(objA);
     collection.add(objB);
 

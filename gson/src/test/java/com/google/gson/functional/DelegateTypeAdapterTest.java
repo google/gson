@@ -52,13 +52,13 @@ public class DelegateTypeAdapterTest extends TestCase {
   public void testDelegateInvoked() {
     List<BagOfPrimitives> bags = new ArrayList<BagOfPrimitives>();
     for (int i = 0; i < 10; ++i) {
-      bags.add(new BagOfPrimitives(i, i, i % 2 == 0, String.valueOf(i)));
+      bags.add(new BagOfPrimitives(i, i, (double)i, i % 2 == 0, String.valueOf(i)));
     }
     String json = gson.toJson(bags);
     bags = gson.fromJson(json, new TypeToken<List<BagOfPrimitives>>(){}.getType());
-    // 11: 1 list object, and 10 entries. stats invoked on all 5 fields
-    assertEquals(51, stats.numReads);
-    assertEquals(51, stats.numWrites);
+    // 11: 1 list object, and 10 entries. stats invoked on all 6 fields
+    assertEquals(61, stats.numReads);
+    assertEquals(61, stats.numWrites);
   }
 
   public void testDelegateInvokedOnStrings() {

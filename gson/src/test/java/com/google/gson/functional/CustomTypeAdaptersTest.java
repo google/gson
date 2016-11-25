@@ -77,7 +77,7 @@ public class CustomTypeAdaptersTest extends TestCase {
         JsonObject jsonObject = json.getAsJsonObject();
         int value = jsonObject.get("bag").getAsInt();
         return new ClassWithCustomTypeConverter(new BagOfPrimitives(value,
-            value, false, ""), value);
+            value, (double)value, false, ""), value);
       }
     }).create();
     String json = "{\"bag\":5,\"value\":25}";
@@ -124,7 +124,7 @@ public class CustomTypeAdaptersTest extends TestCase {
           @Override public BagOfPrimitives deserialize(JsonElement json, Type typeOfT,
           JsonDeserializationContext context) throws JsonParseException {
         int value = json.getAsInt();
-        return new BagOfPrimitives(value, value, false, "");
+        return new BagOfPrimitives(value, value, value, false, "");
       }
     }).create();
     String json = "{\"bag\":7,\"value\":25}";

@@ -59,7 +59,7 @@ public class EscapingTest extends TestCase {
   }
 
   public void testEscapingObjectFields() throws Exception {
-    BagOfPrimitives objWithPrimitives = new BagOfPrimitives(1L, 1, true, "test with\" <script>");
+    BagOfPrimitives objWithPrimitives = new BagOfPrimitives(1L, 1, 1.0, true, "test with\" <script>");
     String jsonRepresentation = gson.toJson(objWithPrimitives);
     assertFalse(jsonRepresentation.contains("<"));
     assertFalse(jsonRepresentation.contains(">"));
@@ -73,7 +73,7 @@ public class EscapingTest extends TestCase {
     Gson escapeHtmlGson = new GsonBuilder().create();
     Gson noEscapeHtmlGson = new GsonBuilder().disableHtmlEscaping().create();
     
-    BagOfPrimitives target = new BagOfPrimitives(1L, 1, true, "test' / w'ith\" / \\ <script>");
+    BagOfPrimitives target = new BagOfPrimitives(1L, 1, 1.0, true, "test' / w'ith\" / \\ <script>");
     String escapedJsonForm = escapeHtmlGson.toJson(target);
     String nonEscapedJsonForm = noEscapeHtmlGson.toJson(target);
     assertFalse(escapedJsonForm.equals(nonEscapedJsonForm));
@@ -83,7 +83,7 @@ public class EscapingTest extends TestCase {
   }
 
   public void testGsonDoubleDeserialization() {
-    BagOfPrimitives expected = new BagOfPrimitives(3L, 4, true, "value1");
+    BagOfPrimitives expected = new BagOfPrimitives(3L, 4, 5.0, true, "value1");
     String json = gson.toJson(gson.toJson(expected));
     String value = gson.fromJson(json, String.class);
     BagOfPrimitives actual = gson.fromJson(value, BagOfPrimitives.class);

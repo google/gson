@@ -96,7 +96,7 @@ public class VersioningTest extends TestCase {
 
   public void testVersionedGsonWithUnversionedClassesSerialization() {
     Gson gson = builder.setVersion(1.0).create();
-    BagOfPrimitives target = new BagOfPrimitives(10, 20, false, "stringValue");
+    BagOfPrimitives target = new BagOfPrimitives(10, 20, 1.0, false, "stringValue");
     assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 
