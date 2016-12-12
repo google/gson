@@ -16,6 +16,8 @@
 
 package com.google.gson.annotations;
 
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonSerializer;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import java.lang.annotation.ElementType;
@@ -77,8 +79,10 @@ import java.lang.annotation.Target;
  * adapters, which in turn take precedence over annotated types.
  *
  * <p>The class referenced by this annotation must be either a {@link
- * TypeAdapter} or a {@link TypeAdapterFactory}. Using the factory interface
- * makes it possible to delegate to the enclosing {@code Gson} instance.
+ * TypeAdapter} or a {@link TypeAdapterFactory}, or must implement one
+ * or both of {@link JsonDeserializer} or {@link JsonSerializer}. 
+ * Using {@link TypeAdapterFactory} makes it possible to delegate 
+ * to the enclosing {@code Gson} instance.
  *
  * @since 2.3
  *
@@ -91,7 +95,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE, ElementType.FIELD})
 public @interface JsonAdapter {
 
-  /** Either a {@link TypeAdapter} or {@link TypeAdapterFactory}. */
+  /** Either a {@link TypeAdapter} or {@link TypeAdapterFactory}, or one or both of {@link JsonDeserializer} or {@link JsonSerializer}. */
   Class<?> value();
 
   /** false, to be able to handle {@code null} values within the adapter, default value is true. */
