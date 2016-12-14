@@ -133,6 +133,15 @@ public final class JsonObject extends JsonElement {
   }
 
   /**
+   * Returns a set of members key values.
+   *
+   * @return a set of member keys as Strings
+   */
+  public Set<String> keySet() {
+    return members.keySet();
+  }
+
+  /**
    * Returns the number of key/value pairs in the object.
    *
    * @return the number of key/value pairs in the object.
