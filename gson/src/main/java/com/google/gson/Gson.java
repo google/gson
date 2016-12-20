@@ -981,7 +981,7 @@ public final class Gson {
   public String toString() {
     return new StringBuilder("{serializeNulls:")
         .append(serializeNulls)
-        .append("factories:").append(factories)
+        .append(",factories:").append(factories)
         .append(",instanceCreators:").append(constructorConstructor)
         .append("}")
         .toString();
