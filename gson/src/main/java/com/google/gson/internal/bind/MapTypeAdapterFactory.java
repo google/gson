@@ -173,7 +173,7 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
           K key = keyTypeAdapter.read(in);
           V value = valueTypeAdapter.read(in);
           V replaced = map.put(key, value);
-          if (replaced != null) {
+          if (replaced != null && !(map.getClass().getName().contains("MultiValueMap"))) {
             throw new JsonSyntaxException("duplicate key: " + key);
           }
           in.endArray();
@@ -186,7 +186,7 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
           K key = keyTypeAdapter.read(in);
           V value = valueTypeAdapter.read(in);
           V replaced = map.put(key, value);
-          if (replaced != null) {
+          if (replaced != null && !(map.getClass().getName().contains("MultiValueMap"))) {
             throw new JsonSyntaxException("duplicate key: " + key);
           }
         }
