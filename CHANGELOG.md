@@ -73,7 +73,7 @@ _2015-10-04_
 
 ## Version 2.3.1
 
-__2014-11-20_
+_2014-11-20_
 
  * Added support to serialize objects with self-referential fields. The self-referential field is set to null in JSON. Previous version of Gson threw a StackOverflowException on encountering any self-referential fields.
    * The most visible impact of this is that Gson can now serialize Throwable (Exception and Error)
