@@ -16,7 +16,13 @@
 
 package com.google.gson;
 
+import com.google.gson.internal.$Gson$Preconditions;
+import com.google.gson.internal.Excluder;
+import com.google.gson.internal.bind.TreeTypeAdapter;
+import com.google.gson.internal.bind.TypeAdapters;
+import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
+
 import java.lang.reflect.Type;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -26,12 +32,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.google.gson.internal.$Gson$Preconditions;
-import com.google.gson.internal.Excluder;
-import com.google.gson.internal.bind.TreeTypeAdapter;
-import com.google.gson.internal.bind.TypeAdapters;
-import com.google.gson.reflect.TypeToken;
 
 import static com.google.gson.Gson.DEFAULT_COMPLEX_MAP_KEYS;
 import static com.google.gson.Gson.DEFAULT_ESCAPE_HTML;
@@ -94,6 +94,7 @@ public final class GsonBuilder {
   private boolean prettyPrinting = DEFAULT_PRETTY_PRINT;
   private boolean generateNonExecutableJson = DEFAULT_JSON_NON_EXECUTABLE;
   private boolean lenient = DEFAULT_LENIENT;
+  private MissingFieldHandlingStrategy missingFieldHandlingStrategy;
 
   /**
    * Creates a GsonBuilder instance that can be used to build Gson with various configuration
@@ -352,6 +353,14 @@ public final class GsonBuilder {
   }
 
   /**
+   * adding MissingFieldHandlingStrategy
+   */
+  public GsonBuilder addMissingFieldHandlingStrategy(MissingFieldHandlingStrategy strategy) {
+    this.missingFieldHandlingStrategy = strategy;
+    return this;
+  }
+
+  /**
    * Configures Gson to output Json that fits in a page for pretty printing. This option only
    * affects Json serialization.
    *
@@ -569,7 +578,8 @@ public final class GsonBuilder {
     return new Gson(excluder, fieldNamingPolicy, instanceCreators,
         serializeNulls, complexMapKeySerialization,
         generateNonExecutableJson, escapeHtmlChars, prettyPrinting, lenient,
-        serializeSpecialFloatingPointValues, longSerializationPolicy, factories);
+        serializeSpecialFloatingPointValues, longSerializationPolicy, factories,
+            missingFieldHandlingStrategy);
   }
 
   private void addTypeAdaptersForDate(String datePattern, int dateStyle, int timeStyle,
