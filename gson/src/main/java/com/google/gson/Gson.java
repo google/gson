@@ -274,10 +274,6 @@ public final class Gson {
     return htmlSafe;
   }
 
-  public MissingFieldHandlingStrategy missingFieldHandler() {
-    return missingFieldHandlingStrategy;
-  }
-
   private TypeAdapter<Number> doubleAdapter(boolean serializeSpecialFloatingPointValues) {
     if (serializeSpecialFloatingPointValues) {
       return TypeAdapters.DOUBLE;

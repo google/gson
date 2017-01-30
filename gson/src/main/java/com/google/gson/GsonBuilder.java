@@ -353,7 +353,13 @@ public final class GsonBuilder {
   }
 
   /**
-   * adding MissingFieldHandlingStrategy
+   * Configures Gson to apply the passed in {@link MissingFieldHandlingStrategy} during deserialization.
+   *
+   * To maintain the backward compatibility, Gson still sets the missing fields as null if
+   * this strategy is not passed to the {@link GsonBuilder} while creating the {@link Gson} object.
+   *
+   * @param strategy a strategy to determine missing field's default values during deserialization.
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
   public GsonBuilder addMissingFieldHandlingStrategy(MissingFieldHandlingStrategy strategy) {
     this.missingFieldHandlingStrategy = strategy;
