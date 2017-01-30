@@ -25,8 +25,9 @@ import com.google.gson.reflect.TypeToken;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
 
 /**
  * Unit tests for {@link MissingFieldHandlingStrategy}
@@ -36,71 +37,120 @@ import static org.junit.Assert.assertThat;
 public class MissingFieldHandlingStrategyTest {
 
   @Test
-  public void shouldAssignFieldToDefaultValues() throws Exception {
-    MissingFieldHandlingStrategy missingFieldHandlingStrategy = getMissingFieldHandlingStrategy();
-    Gson gson = new GsonBuilder().
-        addMissingFieldHandlingStrategy(missingFieldHandlingStrategy).create();
+  public void shouldAssignFieldToDefaultValuesUsingDefaultStrategy() throws Exception {
+    Gson gson = new GsonBuilder()
+        .registerDefaultValue(Optional.class, Optional.absent())
+        .create();
     JsonObject jsonObject = new JsonObject();
 
-    Protocol protocol = gson.fromJson(jsonObject, Protocol.class);
+    ObjectWithOptionalFields objectWithOptionalFields =
+        gson.fromJson(jsonObject, ObjectWithOptionalFields.class);
 
-    assertThat(protocol.name, is("HTTP"));
-    assertThat(protocol.version, is("1.1"));
+    assertFalse(objectWithOptionalFields.name.isPresent());
+    assertFalse(objectWithOptionalFields.version.isPresent());
   }
 
   @Test
   public void shouldNotTreatNullFieldAsMissingField() throws Exception {
-    MissingFieldHandlingStrategy missingFieldHandlingStrategy = getMissingFieldHandlingStrategy();
-    Gson gson = new GsonBuilder().
-        addMissingFieldHandlingStrategy(missingFieldHandlingStrategy).create();
+    Gson gson = new GsonBuilder()
+        .registerDefaultValue(Optional.class, Optional.absent())
+        .create();
 
     JsonObject jsonObject = new JsonObject();
     jsonObject.add("name", null);
     jsonObject.add("version", null);
 
-    Protocol protocol = gson.fromJson(jsonObject, Protocol.class);
+    ObjectWithOptionalFields objectWithOptionalFields =
+        gson.fromJson(jsonObject, ObjectWithOptionalFields.class);
 
-    assertNull(protocol.name);
-    assertNull(protocol.version);
+    assertNull(objectWithOptionalFields.name);
+    assertNull(objectWithOptionalFields.version);
   }
 
   @Test
-  public void shouldRespectSerializedNameAnnotation() throws Exception {
+  public void shouldUseCustomMissingFieldHandlingStrategy() throws Exception {
     MissingFieldHandlingStrategy strategy = new MissingFieldHandlingStrategy() {
       @Override
-      public Object handle(TypeToken type, String fieldName) {
+      public Object handle(TypeToken typeToken, String fieldName) {
         if ("f1".equals(fieldName))
           return "1.1";
         return "";
       }
     };
     Gson gson = new GsonBuilder().
-        addMissingFieldHandlingStrategy(strategy).create();
+        useMissingFieldHandlingStrategy(strategy).create();
     JsonObject jsonObject = new JsonObject();
 
-    assertThat(gson.fromJson(jsonObject, ObjectWithSerializedAnnotatin.class).v, is("1.1"));
+    assertThat(gson.fromJson(jsonObject, ObjectWithSerializedAnnotation.class).v, is("1.1"));
   }
 
-  private MissingFieldHandlingStrategy getMissingFieldHandlingStrategy() {
-    return new MissingFieldHandlingStrategy() {
-      @Override
-      public Object handle(TypeToken type, String fieldName) {
-        if ("name".equals(fieldName))
-          return "HTTP";
-        if ("version".equals(fieldName))
-          return "1.1";
-        return "";
-      }
-    };
+  @Test
+  public void shouldNotOverrideNoArgsConstructorValuesIfDefaultValueIsNotRegistered() throws Exception {
+    Gson gson = new GsonBuilder().create();
+    JsonObject jsonObject = new JsonObject();
+
+    assertThat(gson.fromJson(jsonObject, OnjectWithNoArgConstructor.class).stringValues, is("DEFAULT"));
   }
 
-  private static class Protocol {
-    private String name;
-    private String version;
+  private static class ObjectWithOptionalFields {
+    private Optional<String> name;
+    private Optional<String> version;
   }
 
-  private static class ObjectWithSerializedAnnotatin {
+  private static class ObjectWithSerializedAnnotation {
     @SerializedName(value = "f1")
     private String v;
+  }
+
+  private static class OnjectWithNoArgConstructor {
+    private String stringValues;
+
+    public OnjectWithNoArgConstructor() {
+      this.stringValues = "DEFAULT";
+    }
+  }
+
+  static abstract class Optional<T> {
+    abstract boolean isPresent();
+
+    abstract T get();
+
+    static Optional absent() {
+      return new Absent();
+    }
+
+    static <T> Optional<T> of(T object) {
+      return new Present(object);
+    }
+  }
+
+  static class Absent<T> extends Optional<T> {
+    @Override
+    boolean isPresent() {
+      return false;
+    }
+
+    @Override
+    T get() {
+      throw new IllegalStateException("Optional.get() cannot be called on an absent value");
+    }
+  }
+
+  static class Present<T> extends Optional<T> {
+    T obj;
+
+    Present(T obj) {
+      this.obj = obj;
+    }
+
+    @Override
+    boolean isPresent() {
+      return true;
+    }
+
+    @Override
+    T get() {
+      return obj;
+    }
   }
 }

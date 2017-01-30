@@ -248,7 +248,9 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       for (BoundField field : uninitializedFields) {
         try {
           Object defaultValue = missingFieldHandlingStrategy.handle(field.typeToken, field.name);
-          field.set(instance, defaultValue);
+          if (defaultValue != null) {
+            field.set(instance, defaultValue);
+          }
         } catch (IllegalAccessException e) {
           throw new AssertionError(e);
         }

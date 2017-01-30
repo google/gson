@@ -21,7 +21,8 @@ import com.google.gson.reflect.TypeToken;
 /**
  * A strategy that is used to determine the value to assign to the field whose node was
  * missing in Json.
- * This strategy is implemented by the user and should be passed to {@link GsonBuilder#addMissingFieldHandlingStrategy(MissingFieldHandlingStrategy)} method
+ * This strategy is implemented by the user and should be passed to
+ * {@link GsonBuilder#useMissingFieldHandlingStrategy(MissingFieldHandlingStrategy)} method
  * so that Gson can use it.
  * The {@link #handle(TypeToken, String)} is used by the Gson to determine the default value
  * for a field based on the {@link TypeToken} and fieldName passed.
@@ -29,5 +30,5 @@ import com.google.gson.reflect.TypeToken;
  * @author Prateek Jain
  */
 public interface MissingFieldHandlingStrategy {
-    Object handle(TypeToken type, String fieldName);
+  Object handle(TypeToken type, String fieldName);
 }
