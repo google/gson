@@ -365,6 +365,9 @@ public final class GsonBuilder {
    * To maintain the backward compatibility, Gson still sets the missing fields as null if
    * this strategy is not passed to the {@link GsonBuilder} while creating the {@link Gson} object.
    *
+   * Note: If the user is providing his/her own custom strategy using this method, all the default values registered
+   * by {@link GsonBuilder#registerDefaultValue(Class, Object)} method will be ignored.
+   *
    * @param strategy a strategy to determine missing field's default values during deserialization.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
