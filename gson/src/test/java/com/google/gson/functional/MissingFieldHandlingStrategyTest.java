@@ -89,7 +89,7 @@ public class MissingFieldHandlingStrategyTest {
     Gson gson = new GsonBuilder().create();
     JsonObject jsonObject = new JsonObject();
 
-    assertThat(gson.fromJson(jsonObject, OnjectWithNoArgConstructor.class).stringValues, is("DEFAULT"));
+    assertThat(gson.fromJson(jsonObject, ObjectWithNoArgConstructor.class).stringValues, is("DEFAULT"));
   }
 
   private static class ObjectWithOptionalFields {
@@ -102,10 +102,10 @@ public class MissingFieldHandlingStrategyTest {
     private String v;
   }
 
-  private static class OnjectWithNoArgConstructor {
+  private static class ObjectWithNoArgConstructor {
     private String stringValues;
 
-    public OnjectWithNoArgConstructor() {
+    public ObjectWithNoArgConstructor() {
       this.stringValues = "DEFAULT";
     }
   }
