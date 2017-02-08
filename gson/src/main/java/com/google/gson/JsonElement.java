@@ -103,7 +103,7 @@ public abstract class JsonElement {
     if (isJsonArray()) {
       return (JsonArray) this;
     }
-    throw new IllegalStateException("This is not a JSON Array.");
+    throw new IllegalStateException("Not a JSON Array: " + this);
   }
 
   /**
@@ -119,7 +119,7 @@ public abstract class JsonElement {
     if (isJsonPrimitive()) {
       return (JsonPrimitive) this;
     }
-    throw new IllegalStateException("This is not a JSON Primitive.");
+    throw new IllegalStateException("Not a JSON Primitive: " + this);
   }
 
   /**
@@ -136,7 +136,7 @@ public abstract class JsonElement {
     if (isJsonNull()) {
       return (JsonNull) this;
     }
-    throw new IllegalStateException("This is not a JSON Null.");
+    throw new IllegalStateException("Not a JSON Null: " + this);
   }
 
   /**
