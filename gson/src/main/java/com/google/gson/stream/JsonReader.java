@@ -1024,7 +1024,6 @@ public class JsonReader implements Closeable {
 
       if(null == builder) {
         int len = (p - start) * 2;
-        initialLength = len;
         builder = new StringBuilder(len < 16 ? 16 : len);
       }
       builder.append(buffer, start, p - start);
