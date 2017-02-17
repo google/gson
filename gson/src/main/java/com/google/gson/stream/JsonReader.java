@@ -1006,13 +1006,12 @@ public class JsonReader implements Closeable {
         } else if (c == '\\') {
           pos = p;
           int len = p - start - 1;
-          char escapeChar = readEscapeCharacter();
           if (builder == null) {
-            int estimatedLength = (len + pos - p) * 2;
+            int estimatedLength = (len + 1) * 2;
             builder = new StringBuilder(Math.max(estimatedLength, 16));
           }
           builder.append(buffer, start, len);
-          builder.append(escapeChar);
+          builder.append(readEscapeCharacter());
           p = pos;
           l = limit;
           start = p;
