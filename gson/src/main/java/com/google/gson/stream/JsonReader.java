@@ -997,7 +997,7 @@ public class JsonReader implements Closeable {
         if (c == quote) {
           pos = p;
           int len = p - start - 1;
-          if(null == builder) {
+          if (builder == null) {
             return new String(buffer, start, len);
           } else {
             builder.append(buffer, start, len);
@@ -1007,9 +1007,9 @@ public class JsonReader implements Closeable {
           pos = p;
           int len = p - start - 1;
           char escapeChar = readEscapeCharacter();
-          if(null == builder) {
+          if (builder == null) {
             int estimatedLength = (len + pos - p) * 2;
-            builder = new StringBuilder(estimatedLength < 16 ? 16 : estimatedLength);
+            builder = new StringBuilder(Math.max(estimatedLength, 16));
           }
           builder.append(buffer, start, len);
           builder.append(escapeChar);
@@ -1022,9 +1022,9 @@ public class JsonReader implements Closeable {
         }
       }
 
-      if(null == builder) {
-        int len = (p - start) * 2;
-        builder = new StringBuilder(len < 16 ? 16 : len);
+      if (builder == null) {
+        int estimatedLength = (p - start) * 2;
+        builder = new StringBuilder(Math.max(estimatedLength, 16));
       }
       builder.append(buffer, start, p - start);
       pos = p;
