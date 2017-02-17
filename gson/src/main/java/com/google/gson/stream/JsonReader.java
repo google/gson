@@ -985,7 +985,7 @@ public class JsonReader implements Closeable {
   private String nextQuotedValue(char quote) throws IOException {
     // Like nextNonWhitespace, this uses locals 'p' and 'l' to save inner-loop field access.
     char[] buffer = this.buffer;
-    StringBuilder builder = new StringBuilder();
+    StringBuilder builder = null;
     while (true) {
       int p = pos;
       int l = limit;
@@ -996,12 +996,23 @@ public class JsonReader implements Closeable {
 
         if (c == quote) {
           pos = p;
-          builder.append(buffer, start, p - start - 1);
-          return builder.toString();
+          int len = p - start - 1;
+          if (builder == null) {
+            return new String(buffer, start, len);
+          } else {
+            builder.append(buffer, start, len);
+            return builder.toString();
+          }
         } else if (c == '\\') {
           pos = p;
-          builder.append(buffer, start, p - start - 1);
-          builder.append(readEscapeCharacter());
+          int len = p - start - 1;
+          char escapeChar = readEscapeCharacter();
+          if (builder == null) {
+            int estimatedLength = (len + pos - p) * 2;
+            builder = new StringBuilder(Math.max(estimatedLength, 16));
+          }
+          builder.append(buffer, start, len);
+          builder.append(escapeChar);
           p = pos;
           l = limit;
           start = p;
@@ -1011,6 +1022,10 @@ public class JsonReader implements Closeable {
         }
       }
 
+      if (builder == null) {
+        int estimatedLength = (p - start) * 2;
+        builder = new StringBuilder(Math.max(estimatedLength, 16));
+      }
       builder.append(buffer, start, p - start);
       pos = p;
       if (!fillBuffer(1)) {
