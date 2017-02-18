@@ -30,7 +30,7 @@ import java.util.Set;
  * @author Joel Leitch
  */
 public final class JsonObject extends JsonElement {
-  private LinkedTreeMap<String, JsonElement> members = new LinkedTreeMap<String, JsonElement>();
+  private final LinkedTreeMap<String, JsonElement> members = new LinkedTreeMap<String, JsonElement>();
 
 
   @Override
