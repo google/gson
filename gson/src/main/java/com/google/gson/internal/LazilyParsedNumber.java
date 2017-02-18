@@ -36,7 +36,11 @@ public final class LazilyParsedNumber extends Number {
     try {
       return Integer.parseInt(value);
     } catch (NumberFormatException e) {
-        return (int) longValue();
+      try {
+        return (int) Long.parseLong(value);
+      } catch (NumberFormatException nfe) {
+        return new BigDecimal(value).intValue();
+      }
     }
   }
 
