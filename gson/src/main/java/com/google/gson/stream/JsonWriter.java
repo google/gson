@@ -568,21 +568,23 @@ public class JsonWriter implements Closeable, Flushable {
     int length = value.length();
     for (int i = 0; i < length; i++) {
       char c = value.charAt(i);
+      String replacement;
       if (c < 128) {
-        if (replacements[c] == null) {
+        replacement = replacements[c];
+        if (replacement == null) {
           continue;
         }
-      } else if (c != '\u2028' || c != '\u2029') {
+      } else if (c == '\u2028') {
+        replacement = "\\u2028";
+      } else if (c == '\u2029') {
+        replacement = "\\u2029";
+      } else {
         continue;
       }
       if (last < i) {
         out.write(value, last, i - last);
       }
-      if (c == '\u2028') {
-        out.write("\\u2028");
-      } else {
-        out.write("\\u2029");
-      }
+      out.write(replacement);
       last = i + 1;
     }
     if (last < length) {
