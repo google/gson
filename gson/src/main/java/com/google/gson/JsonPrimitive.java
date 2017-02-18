@@ -16,11 +16,12 @@
 
 package com.google.gson;
 
+import com.google.gson.internal.$Gson$Preconditions;
+import com.google.gson.internal.LazilyParsedNumber;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import com.google.gson.internal.$Gson$Preconditions;
-import com.google.gson.internal.LazilyParsedNumber;
 
 /**
  * A class representing a Json primitive value. A primitive value
@@ -94,8 +95,7 @@ public final class JsonPrimitive extends JsonElement {
     if (primitive instanceof Character) {
       // convert characters to strings since in JSON, characters are represented as a single
       // character string
-      char c = ((Character) primitive).charValue();
-      this.value = String.valueOf(c);
+      this.value = String.valueOf(((Character) primitive).charValue(););
     } else {
       $Gson$Preconditions.checkArgument(primitive instanceof Number
               || isPrimitiveOrString(primitive));
@@ -174,7 +174,7 @@ public final class JsonPrimitive extends JsonElement {
   @Override
   public String getAsString() {
     if (isNumber()) {
-      return getAsNumber().toString();
+      return value.toString();
     } else if (isBoolean()) {
       return getAsBooleanWrapper().toString();
     } else {
@@ -309,14 +309,14 @@ public final class JsonPrimitive extends JsonElement {
     if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    JsonPrimitive other = (JsonPrimitive)obj;
+    JsonPrimitive other = (JsonPrimitive) obj;
     if (value == null) {
       return other.value == null;
     }
-    if (isIntegral(this) && isIntegral(other)) {
-      return getAsNumber().longValue() == other.getAsNumber().longValue();
-    }
     if (value instanceof Number && other.value instanceof Number) {
+      if (isIntegral(this) && isIntegral(other)) {
+        return getAsNumber().longValue() == other.getAsNumber().longValue();
+      }
       double a = getAsNumber().doubleValue();
       // Java standard types other than double return true for two NaN. So, need
       // special handling for double.

@@ -30,14 +30,15 @@ import java.util.Set;
  * @author Joel Leitch
  */
 public final class JsonObject extends JsonElement {
-  private final LinkedTreeMap<String, JsonElement> members =
-      new LinkedTreeMap<String, JsonElement>();
+  private final LinkedTreeMap<String, JsonElement> members = new LinkedTreeMap<String, JsonElement>();
 
   @Override
   JsonObject deepCopy() {
     JsonObject result = new JsonObject();
-    for (Map.Entry<String, JsonElement> entry : members.entrySet()) {
-      result.add(entry.getKey(), entry.getValue().deepCopy());
+    if (!members.isEmpty()) {
+      for (Map.Entry<String, JsonElement> entry : members.entrySet()) {
+        result.add(entry.getKey(), entry.getValue().deepCopy());
+      }
     }
     return result;
   }
