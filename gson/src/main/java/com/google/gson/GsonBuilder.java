@@ -579,7 +579,7 @@ public final class GsonBuilder {
   private void addTypeAdaptersForDate(String datePattern, int dateStyle, int timeStyle,
       List<TypeAdapterFactory> factories) {
     DefaultDateTypeAdapter dateTypeAdapter;
-    if (datePattern != null && !"".equals(datePattern.trim())) {
+    if (datePattern != null && datePattern.trim().length() != 0) {
       dateTypeAdapter = new DefaultDateTypeAdapter(datePattern);
     } else if (dateStyle != DateFormat.DEFAULT && timeStyle != DateFormat.DEFAULT) {
       dateTypeAdapter = new DefaultDateTypeAdapter(dateStyle, timeStyle);

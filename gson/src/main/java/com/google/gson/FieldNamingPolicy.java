@@ -139,9 +139,9 @@ public enum FieldNamingPolicy implements FieldNamingStrategy {
     StringBuilder fieldNameBuilder = new StringBuilder();
     int index = 0;
     char firstCharacter = name.charAt(index);
-
+    int nameLength = name.length();
     if (!Character.isLetter(firstCharacter)) {
-      while (index < name.length() - 1) {
+      while (index < nameLength - 1) {
         fieldNameBuilder.append(firstCharacter);
         firstCharacter = name.charAt(++index);
         if (Character.isLetter(firstCharacter)) {
@@ -150,7 +150,7 @@ public enum FieldNamingPolicy implements FieldNamingStrategy {
       }
     }
 
-    if (index == name.length()) {
+    if (index == nameLength) {
       return fieldNameBuilder.toString();
     }
 
