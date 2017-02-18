@@ -140,13 +140,14 @@ public enum FieldNamingPolicy implements FieldNamingStrategy {
     int index = 0;
     char firstCharacter = name.charAt(index);
 
-    while (index < name.length() - 1) {
-      if (Character.isLetter(firstCharacter)) {
-        break;
+    if (!Character.isLetter(firstCharacter)) {
+      while (index < name.length() - 1) {
+        fieldNameBuilder.append(firstCharacter);
+        firstCharacter = name.charAt(++index);
+        if (Character.isLetter(firstCharacter)) {
+          break;
+        }
       }
-
-      fieldNameBuilder.append(firstCharacter);
-      firstCharacter = name.charAt(++index);
     }
 
     if (index == name.length()) {

@@ -16,11 +16,11 @@
 
 package com.google.gson;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-
 import com.google.gson.internal.$Gson$Preconditions;
 import com.google.gson.internal.LazilyParsedNumber;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 /**
  * A class representing a Json primitive value. A primitive value
@@ -94,8 +94,7 @@ public final class JsonPrimitive extends JsonElement {
     if (primitive instanceof Character) {
       // convert characters to strings since in JSON, characters are represented as a single
       // character string
-      char c = ((Character) primitive).charValue();
-      this.value = String.valueOf(c);
+      this.value = String.valueOf(((Character) primitive).charValue());
     } else {
       $Gson$Preconditions.checkArgument(primitive instanceof Number
               || isPrimitiveOrString(primitive));
@@ -174,8 +173,21 @@ public final class JsonPrimitive extends JsonElement {
   @Override
   public String getAsString() {
     if (isNumber()) {
-      return getAsNumber().toString();
+      return value.toString();
     } else if (isBoolean()) {
+      return getAsBooleanWrapper().toString();
+    } else {
+      return (String) value;
+    }
+  }
+
+  /**
+   * convenience method to get this element as a String given the case it is not the instanceof number.
+   *
+   * @return get this element as a String.
+   */
+  public String getAsStringForNonNumber() {
+    if (isBoolean()) {
       return getAsBooleanWrapper().toString();
     } else {
       return (String) value;
@@ -190,7 +202,7 @@ public final class JsonPrimitive extends JsonElement {
    */
   @Override
   public double getAsDouble() {
-    return isNumber() ? getAsNumber().doubleValue() : Double.parseDouble(getAsString());
+    return isNumber() ? getAsNumber().doubleValue() : Double.parseDouble(getAsStringForNonNumber());
   }
 
   /**
@@ -224,7 +236,7 @@ public final class JsonPrimitive extends JsonElement {
    */
   @Override
   public float getAsFloat() {
-    return isNumber() ? getAsNumber().floatValue() : Float.parseFloat(getAsString());
+    return isNumber() ? getAsNumber().floatValue() : Float.parseFloat(getAsStringForNonNumber());
   }
 
   /**
@@ -235,7 +247,7 @@ public final class JsonPrimitive extends JsonElement {
    */
   @Override
   public long getAsLong() {
-    return isNumber() ? getAsNumber().longValue() : Long.parseLong(getAsString());
+    return isNumber() ? getAsNumber().longValue() : Long.parseLong(getAsStringForNonNumber());
   }
 
   /**
@@ -246,7 +258,7 @@ public final class JsonPrimitive extends JsonElement {
    */
   @Override
   public short getAsShort() {
-    return isNumber() ? getAsNumber().shortValue() : Short.parseShort(getAsString());
+    return isNumber() ? getAsNumber().shortValue() : Short.parseShort(getAsStringForNonNumber());
   }
 
  /**
@@ -257,12 +269,12 @@ public final class JsonPrimitive extends JsonElement {
   */
   @Override
   public int getAsInt() {
-    return isNumber() ? getAsNumber().intValue() : Integer.parseInt(getAsString());
+    return isNumber() ? getAsNumber().intValue() : Integer.parseInt(getAsStringForNonNumber());
   }
 
   @Override
   public byte getAsByte() {
-    return isNumber() ? getAsNumber().byteValue() : Byte.parseByte(getAsString());
+    return isNumber() ? getAsNumber().byteValue() : Byte.parseByte(getAsStringForNonNumber());
   }
 
   @Override
@@ -313,10 +325,10 @@ public final class JsonPrimitive extends JsonElement {
     if (value == null) {
       return other.value == null;
     }
-    if (isIntegral(this) && isIntegral(other)) {
-      return getAsNumber().longValue() == other.getAsNumber().longValue();
-    }
     if (value instanceof Number && other.value instanceof Number) {
+      if (isIntegral(this) && isIntegral(other)) {
+        return getAsNumber().longValue() == other.getAsNumber().longValue();
+      }
       double a = getAsNumber().doubleValue();
       // Java standard types other than double return true for two NaN. So, need
       // special handling for double.
