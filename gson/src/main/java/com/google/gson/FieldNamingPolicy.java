@@ -139,17 +139,18 @@ public enum FieldNamingPolicy implements FieldNamingStrategy {
     StringBuilder fieldNameBuilder = new StringBuilder();
     int index = 0;
     char firstCharacter = name.charAt(index);
-
-    while (index < name.length() - 1) {
-      if (Character.isLetter(firstCharacter)) {
-        break;
+    int nameLength = name.length();
+    if (!Character.isLetter(firstCharacter)) {
+      while (index < nameLength - 1) {
+        fieldNameBuilder.append(firstCharacter);
+        firstCharacter = name.charAt(++index);
+        if (Character.isLetter(firstCharacter)) {
+          break;
+        }
       }
-
-      fieldNameBuilder.append(firstCharacter);
-      firstCharacter = name.charAt(++index);
     }
 
-    if (index == name.length()) {
+    if (index == nameLength) {
       return fieldNameBuilder.toString();
     }
 
