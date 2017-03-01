@@ -483,7 +483,9 @@ public final class $Gson$Types {
 
     @Override public String toString() {
       int length = typeArguments.length;
-      if length == 0 return typeToString(rawType);
+      if (length == 0) {
+        return typeToString(rawType);
+      }
 
       StringBuilder stringBuilder = new StringBuilder(30 * (length + 1));
       stringBuilder.append(typeToString(rawType)).append("<").append(typeToString(typeArguments[0]));
