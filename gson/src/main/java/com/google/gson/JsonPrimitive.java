@@ -16,11 +16,11 @@
 
 package com.google.gson;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-
 import com.google.gson.internal.$Gson$Preconditions;
 import com.google.gson.internal.LazilyParsedNumber;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 /**
  * A class representing a Json primitive value. A primitive value
@@ -94,8 +94,7 @@ public final class JsonPrimitive extends JsonElement {
     if (primitive instanceof Character) {
       // convert characters to strings since in JSON, characters are represented as a single
       // character string
-      char c = ((Character) primitive).charValue();
-      this.value = String.valueOf(c);
+      this.value = String.valueOf(((Character) primitive).charValue());
     } else {
       $Gson$Preconditions.checkArgument(primitive instanceof Number
               || isPrimitiveOrString(primitive));
