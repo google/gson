@@ -411,7 +411,7 @@ public final class $Gson$Types {
   }
 
   private static int indexOf(Object[] array, Object toFind) {
-    for (int i = 0; i < array.length; i++) {
+    for (int i = 0, length = array.length; i < length; i++) {
       if (toFind.equals(array[i])) {
         return i;
       }
@@ -451,7 +451,7 @@ public final class $Gson$Types {
       this.ownerType = ownerType == null ? null : canonicalize(ownerType);
       this.rawType = canonicalize(rawType);
       this.typeArguments = typeArguments.clone();
-      for (int t = 0; t < this.typeArguments.length; t++) {
+      for (int t = 0, length = this.typeArguments.length; t < length; t++) {
         checkNotNull(this.typeArguments[t]);
         checkNotPrimitive(this.typeArguments[t]);
         this.typeArguments[t] = canonicalize(this.typeArguments[t]);
@@ -482,15 +482,14 @@ public final class $Gson$Types {
     }
 
     @Override public String toString() {
-      StringBuilder stringBuilder = new StringBuilder(30 * (typeArguments.length + 1));
-      stringBuilder.append(typeToString(rawType));
-
-      if (typeArguments.length == 0) {
-        return stringBuilder.toString();
+      int length = typeArguments.length;
+      if (length == 0) {
+        return typeToString(rawType);
       }
 
-      stringBuilder.append("<").append(typeToString(typeArguments[0]));
-      for (int i = 1; i < typeArguments.length; i++) {
+      StringBuilder stringBuilder = new StringBuilder(30 * (length + 1));
+      stringBuilder.append(typeToString(rawType)).append("<").append(typeToString(typeArguments[0]));
+      for (int i = 1; i < length; i++) {
         stringBuilder.append(", ").append(typeToString(typeArguments[i]));
       }
       return stringBuilder.append(">").toString();

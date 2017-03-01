@@ -158,7 +158,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         Type fieldType = $Gson$Types.resolve(type.getType(), raw, field.getGenericType());
         List<String> fieldNames = getFieldNames(field);
         BoundField previous = null;
-        for (int i = 0; i < fieldNames.size(); ++i) {
+        for (int i = 0, size = fieldNames.size(); i < size; ++i) {
           String name = fieldNames.get(i);
           if (i != 0) serialize = false; // only serialize the default name
           BoundField boundField = createBoundField(context, field, name,

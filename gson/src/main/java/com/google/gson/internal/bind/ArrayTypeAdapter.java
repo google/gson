@@ -73,8 +73,10 @@ public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
       list.add(instance);
     }
     in.endArray();
-    Object array = Array.newInstance(componentType, list.size());
-    for (int i = 0; i < list.size(); i++) {
+
+    int size = list.size();
+    Object array = Array.newInstance(componentType, size);
+    for (int i = 0; i < size; i++) {
       Array.set(array, i, list.get(i));
     }
     return array;
