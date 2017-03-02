@@ -22,6 +22,8 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -135,6 +137,7 @@ public final class Gson {
   private final boolean prettyPrinting;
   private final boolean lenient;
   private final JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory;
+  private final Map<Class<? extends Annotation>, FieldAdapterFactory> fieldAdapterFactories;
 
   /**
    * Constructs a Gson object with default configuration. The default configuration has the
@@ -175,15 +178,16 @@ public final class Gson {
         Collections.<Type, InstanceCreator<?>>emptyMap(), DEFAULT_SERIALIZE_NULLS,
         DEFAULT_COMPLEX_MAP_KEYS, DEFAULT_JSON_NON_EXECUTABLE, DEFAULT_ESCAPE_HTML,
         DEFAULT_PRETTY_PRINT, DEFAULT_LENIENT, DEFAULT_SPECIALIZE_FLOAT_VALUES,
-        LongSerializationPolicy.DEFAULT, Collections.<TypeAdapterFactory>emptyList());
+        LongSerializationPolicy.DEFAULT, Collections.<TypeAdapterFactory>emptyList(),
+        Collections.<Class<? extends Annotation>, FieldAdapterFactory>emptyMap());
   }
 
   Gson(final Excluder excluder, final FieldNamingStrategy fieldNamingStrategy,
       final Map<Type, InstanceCreator<?>> instanceCreators, boolean serializeNulls,
       boolean complexMapKeySerialization, boolean generateNonExecutableGson, boolean htmlSafe,
       boolean prettyPrinting, boolean lenient, boolean serializeSpecialFloatingPointValues,
-      LongSerializationPolicy longSerializationPolicy,
-      List<TypeAdapterFactory> typeAdapterFactories) {
+      LongSerializationPolicy longSerializationPolicy, List<TypeAdapterFactory> typeAdapterFactories,
+      Map<Class<? extends Annotation>, FieldAdapterFactory> fieldAdapterFactories) {
     this.constructorConstructor = new ConstructorConstructor(instanceCreators);
     this.excluder = excluder;
     this.fieldNamingStrategy = fieldNamingStrategy;
@@ -253,6 +257,7 @@ public final class Gson {
         constructorConstructor, fieldNamingStrategy, excluder, jsonAdapterFactory));
 
     this.factories = Collections.unmodifiableList(factories);
+    this.fieldAdapterFactories = fieldAdapterFactories;
   }
 
   public Excluder excluder() {
@@ -509,6 +514,28 @@ public final class Gson {
       }
     }
     throw new IllegalArgumentException("GSON cannot serialize " + type);
+  }
+
+  /**
+   * This method is used to get the {@link TypeAdapter} for the specified field. The type
+   * adapter needs to be configured by {@link GsonBuilder#registerFieldAdapterFactory}.
+   *
+   * @param field the field needs to be investigated
+   * @return the {@link TypeAdapter} for the given {@code field}
+   * @since 2.8.1
+   */
+  public <T> TypeAdapter<T> getFieldAdapter(Field field) {
+    if (fieldAdapterFactories.isEmpty()) {
+      return null;
+    }
+    for (Annotation fieldAnnotation : field.getAnnotations()) {
+      Class<? extends Annotation> annotationType = fieldAnnotation.annotationType();
+      if (fieldAdapterFactories.containsKey(annotationType)) {
+        FieldAdapterFactory fieldAdapterFactory = fieldAdapterFactories.get(annotationType);
+        return fieldAdapterFactory.create(fieldAnnotation, field);
+      }
+    }
+    return null;
   }
 
   /**
