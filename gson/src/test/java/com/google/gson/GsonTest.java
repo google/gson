@@ -17,6 +17,7 @@
 package com.google.gson;
 
 import com.google.gson.internal.Excluder;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -44,7 +45,8 @@ public final class GsonTest extends TestCase {
     Gson gson = new Gson(CUSTOM_EXCLUDER, CUSTOM_FIELD_NAMING_STRATEGY,
         new HashMap<Type, InstanceCreator<?>>(), true, false, true, false,
         true, true, false, LongSerializationPolicy.DEFAULT,
-        new ArrayList<TypeAdapterFactory>());
+        new ArrayList<TypeAdapterFactory>(),
+        new HashMap<Class<? extends Annotation>, FieldAdapterFactory>());
 
     assertEquals(CUSTOM_EXCLUDER, gson.excluder());
     assertEquals(CUSTOM_FIELD_NAMING_STRATEGY, gson.fieldNamingStrategy());
