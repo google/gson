@@ -257,7 +257,7 @@ public final class Gson {
         constructorConstructor, fieldNamingStrategy, excluder, jsonAdapterFactory));
 
     this.factories = Collections.unmodifiableList(factories);
-    this.fieldAdapterFactories = fieldAdapterFactories;
+    this.fieldAdapterFactories = Collections.unmodifiableMap(fieldAdapterFactories);
   }
 
   public Excluder excluder() {
