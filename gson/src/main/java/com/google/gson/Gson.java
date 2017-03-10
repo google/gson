@@ -535,6 +535,14 @@ public final class Gson {
         return fieldAdapterFactory.create(fieldAnnotation, field);
       }
     }
+    // If both this field and its declaring class matched, ignore the latter one
+    for (Annotation classAnnotation : field.getDeclaringClass().getAnnotations()) {
+      Class<? extends Annotation> annotationType = classAnnotation.annotationType();
+      if (fieldAdapterFactories.containsKey(annotationType)) {
+        FieldAdapterFactory fieldAdapterFactory = fieldAdapterFactories.get(annotationType);
+        return fieldAdapterFactory.create(classAnnotation, field);
+      }
+    }
     return null;
   }
 
