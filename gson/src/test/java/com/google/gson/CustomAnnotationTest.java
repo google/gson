@@ -38,10 +38,11 @@ public class CustomAnnotationTest extends TestCase {
    * Most modern browsers fail to give right output on this:
    * <pre>var i = 123456789123456789; alert(i);</pre>
    * Attach this to a long/Long field to make it browser-friendly.
+   * Or, to a class so that all long/Long fields get done.
    */
   @Retention(RetentionPolicy.RUNTIME)
-  @Target(ElementType.FIELD)
-  private static @interface BrowserFriendly {}
+  @Target({ElementType.FIELD, ElementType.TYPE})
+  private @interface BrowserFriendly {}
 
   private static class BeingBrowserFriendly implements FieldAdapterFactory {
     @Override
@@ -72,7 +73,7 @@ public class CustomAnnotationTest extends TestCase {
     }
   }
 
-  private static class Person {
+  private static class EntityOne {
     @BrowserFriendly
     long id1;
 
@@ -82,18 +83,37 @@ public class CustomAnnotationTest extends TestCase {
     Long id3;
   }
 
-  public void testBrowserFriendlyInSerialization() {
+  @BrowserFriendly
+  private static class EntityTwo {
+    Long id1, id2;
+  }
+
+  private static final long LARGE_NUM = 123456789123456789L;
+
+  private Gson gson;
+
+  @Override
+  public void setUp() {
     GsonBuilder gb = new GsonBuilder();
     gb.registerFieldAdapterFactory(BrowserFriendly.class, new BeingBrowserFriendly());
-    Gson gson = gb.create();
+    gson = gb.create();
+  }
 
-    Person p = new Person();
-    long largeNumber = 123456789123456789L;
-    p.id1 = p.id2 = p.id3 = largeNumber;
-    String json = gson.toJson(p);
-    assertTrue(json.contains("\"id1\":" + quoted(largeNumber)));
-    assertTrue(json.contains("\"id2\":" + quoted(largeNumber)));
-    assertTrue(json.contains("\"id3\":" + largeNumber));
+  public void testCustomAnnotationOnField() {
+    EntityOne e1 = new EntityOne();
+    e1.id1 = e1.id2 = e1.id3 = LARGE_NUM;
+    String json = gson.toJson(e1);
+    assertTrue(json.contains("\"id1\":" + quoted(LARGE_NUM)));
+    assertTrue(json.contains("\"id2\":" + quoted(LARGE_NUM)));
+    assertTrue(json.contains("\"id3\":" + LARGE_NUM));
+  }
+
+  public void testCustomAnnotationOnClass() {
+    EntityTwo e2 = new EntityTwo();
+    e2.id1 = e2.id2 = LARGE_NUM;
+    String json = gson.toJson(e2);
+    assertTrue(json.contains("\"id1\":" + quoted(LARGE_NUM)));
+    assertTrue(json.contains("\"id2\":" + quoted(LARGE_NUM)));
   }
 
   private String quoted(long number) {
