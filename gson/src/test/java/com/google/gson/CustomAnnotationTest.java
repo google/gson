@@ -49,25 +49,23 @@ public class CustomAnnotationTest extends TestCase {
     public <T> TypeAdapter<T> create(Annotation annotation, Field field) {
       Class<?> fieldType = field.getType();
       if (long.class.equals(fieldType) || Long.class.equals(fieldType)) {
-        if (field.isAnnotationPresent(BrowserFriendly.class)) {
-          @SuppressWarnings("unchecked")
-          TypeAdapter<T> longToString = (TypeAdapter<T>) new TypeAdapter<Long>(){
-            @Override
-            public void write(JsonWriter out, Long value) throws IOException {
-              if (null == value) {
-                out.nullValue();
-              } else {
-                out.value(String.valueOf(value));
-              }
+        @SuppressWarnings("unchecked")
+        TypeAdapter<T> longToString = (TypeAdapter<T>) new TypeAdapter<Long>(){
+          @Override
+          public void write(JsonWriter out, Long value) throws IOException {
+            if (null == value) {
+              out.nullValue();
+            } else {
+              out.value(String.valueOf(value));
             }
+          }
 
-            @Override
-            public Long read(JsonReader in) throws IOException {
-              throw new UnsupportedOperationException();
-            }
-          };
-          return longToString;
-        }
+          @Override
+          public Long read(JsonReader in) throws IOException {
+            throw new UnsupportedOperationException();
+          }
+        };
+        return longToString;
       }
       return null;
     }
