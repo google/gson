@@ -16,7 +16,13 @@
 
 package com.google.gson;
 
+import com.google.gson.internal.$Gson$Preconditions;
+import com.google.gson.internal.Excluder;
+import com.google.gson.internal.bind.TreeTypeAdapter;
+import com.google.gson.internal.bind.TypeAdapters;
+import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
+
 import java.lang.reflect.Type;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -24,14 +30,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.google.gson.internal.$Gson$Preconditions;
-import com.google.gson.internal.Excluder;
-import com.google.gson.internal.bind.TreeTypeAdapter;
-import com.google.gson.internal.bind.TypeAdapters;
-import com.google.gson.reflect.TypeToken;
 
 import static com.google.gson.Gson.DEFAULT_COMPLEX_MAP_KEYS;
 import static com.google.gson.Gson.DEFAULT_ESCAPE_HTML;
@@ -84,6 +85,7 @@ public final class GsonBuilder {
   private final List<TypeAdapterFactory> factories = new ArrayList<TypeAdapterFactory>();
   /** tree-style hierarchy factories. These come after factories for backwards compatibility. */
   private final List<TypeAdapterFactory> hierarchyFactories = new ArrayList<TypeAdapterFactory>();
+  private final LinkedHashMap<Class, Object> defaultValues = new LinkedHashMap<Class, Object>();
   private boolean serializeNulls = DEFAULT_SERIALIZE_NULLS;
   private String datePattern;
   private int dateStyle = DateFormat.DEFAULT;
@@ -94,6 +96,12 @@ public final class GsonBuilder {
   private boolean prettyPrinting = DEFAULT_PRETTY_PRINT;
   private boolean generateNonExecutableJson = DEFAULT_JSON_NON_EXECUTABLE;
   private boolean lenient = DEFAULT_LENIENT;
+  private MissingFieldHandlingStrategy missingFieldHandlingStrategy = new MissingFieldHandlingStrategy() {
+    @Override
+    public Object handle(TypeToken typeToken, String fieldName) {
+      return  defaultValues.get(typeToken.getRawType());
+    }
+  };
 
   /**
    * Creates a GsonBuilder instance that can be used to build Gson with various configuration
@@ -352,6 +360,39 @@ public final class GsonBuilder {
   }
 
   /**
+   * Configures Gson to apply the passed in {@link MissingFieldHandlingStrategy} during deserialization.
+   *
+   * To maintain the backward compatibility, Gson still sets the missing fields as null if
+   * this strategy is not passed to the {@link GsonBuilder} while creating the {@link Gson} object.
+   *
+   * Note: If the user is providing his/her own custom strategy using this method, all the default values registered
+   * by {@link GsonBuilder#registerDefaultValue(Class, Object)} method will be ignored.
+   *
+   * @param strategy a strategy to determine missing field's default values during deserialization.
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   */
+  public GsonBuilder useMissingFieldHandlingStrategy(MissingFieldHandlingStrategy strategy) {
+    this.missingFieldHandlingStrategy = strategy;
+    return this;
+  }
+
+  /**
+   * Configure Gson to register a default value for a type given which will be used when Gson didn't found any field's
+   * value in JSON.
+   *
+   * To maintain the backward compatibility, Gson still sets the missing fields as null if
+   * no default value is registered.
+   *
+   * @param clazz a class type to register a default value.
+   * @param value default value to be used for the type provided.
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   */
+  public GsonBuilder registerDefaultValue(Class clazz, Object value) {
+    defaultValues.put(clazz, value);
+    return this;
+  }
+
+  /**
    * Configures Gson to output Json that fits in a page for pretty printing. This option only
    * affects Json serialization.
    *
@@ -569,7 +610,8 @@ public final class GsonBuilder {
     return new Gson(excluder, fieldNamingPolicy, instanceCreators,
         serializeNulls, complexMapKeySerialization,
         generateNonExecutableJson, escapeHtmlChars, prettyPrinting, lenient,
-        serializeSpecialFloatingPointValues, longSerializationPolicy, factories);
+        serializeSpecialFloatingPointValues, longSerializationPolicy, factories,
+            missingFieldHandlingStrategy);
   }
 
   private void addTypeAdaptersForDate(String datePattern, int dateStyle, int timeStyle,

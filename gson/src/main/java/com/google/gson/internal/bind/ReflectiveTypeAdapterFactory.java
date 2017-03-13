@@ -19,6 +19,7 @@ package com.google.gson.internal.bind;
 import com.google.gson.FieldNamingStrategy;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.MissingFieldHandlingStrategy;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.annotations.JsonAdapter;
@@ -27,11 +28,11 @@ import com.google.gson.internal.$Gson$Types;
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.Excluder;
 import com.google.gson.internal.ObjectConstructor;
-import com.google.gson.internal.Primitives;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
@@ -40,6 +41,9 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import static com.google.gson.internal.Primitives.isPrimitive;
 
 /**
  * Type adapter that reflects over the fields and methods of a class.
@@ -49,14 +53,17 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   private final FieldNamingStrategy fieldNamingPolicy;
   private final Excluder excluder;
   private final JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory;
+  private MissingFieldHandlingStrategy missingFieldHandlingStrategy;
 
   public ReflectiveTypeAdapterFactory(ConstructorConstructor constructorConstructor,
-      FieldNamingStrategy fieldNamingPolicy, Excluder excluder,
-      JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory) {
+                                      FieldNamingStrategy fieldNamingPolicy, Excluder excluder,
+                                      JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory,
+                                      MissingFieldHandlingStrategy missingFieldHandlingStrategy) {
     this.constructorConstructor = constructorConstructor;
     this.fieldNamingPolicy = fieldNamingPolicy;
     this.excluder = excluder;
     this.jsonAdapterFactory = jsonAdapterFactory;
+    this.missingFieldHandlingStrategy = missingFieldHandlingStrategy;
   }
 
   public boolean excludeField(Field f, boolean serialize) {
@@ -97,13 +104,13 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     }
 
     ObjectConstructor<T> constructor = constructorConstructor.get(type);
-    return new Adapter<T>(constructor, getBoundFields(gson, type, raw));
+    return new Adapter<T>(constructor, getBoundFields(gson, type, raw), missingFieldHandlingStrategy);
   }
 
   private ReflectiveTypeAdapterFactory.BoundField createBoundField(
       final Gson context, final Field field, final String name,
       final TypeToken<?> fieldType, boolean serialize, boolean deserialize) {
-    final boolean isPrimitive = Primitives.isPrimitive(fieldType.getRawType());
+    final boolean isPrimitive = isPrimitive(fieldType.getRawType());
     // special casing primitives here saves ~5% on Android...
     JsonAdapter annotation = field.getAnnotation(JsonAdapter.class);
     TypeAdapter<?> mapped = null;
@@ -115,7 +122,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     if (mapped == null) mapped = context.getAdapter(fieldType);
 
     final TypeAdapter<?> typeAdapter = mapped;
-    return new ReflectiveTypeAdapterFactory.BoundField(name, serialize, deserialize) {
+    return new ReflectiveTypeAdapterFactory.BoundField(name, field, fieldType, serialize, deserialize) {
       @SuppressWarnings({"unchecked", "rawtypes"}) // the type adapter and field type always agree
       @Override void write(JsonWriter writer, Object value)
           throws IOException, IllegalAccessException {
@@ -128,7 +135,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           throws IOException, IllegalAccessException {
         Object fieldValue = typeAdapter.read(reader);
         if (fieldValue != null || !isPrimitive) {
-          field.set(value, fieldValue);
+          this.set(value, fieldValue);
         }
       }
       @Override public boolean writeField(Object value) throws IOException, IllegalAccessException {
@@ -178,27 +185,76 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   }
 
   static abstract class BoundField {
+    boolean initialized;
+
     final String name;
+    final Field field;
+    final TypeToken typeToken;
     final boolean serialized;
     final boolean deserialized;
 
-    protected BoundField(String name, boolean serialized, boolean deserialized) {
+    protected BoundField(String name, Field field, TypeToken typeToken, boolean serialized, boolean deserialized) {
       this.name = name;
+      this.field = field;
+      this.typeToken = typeToken;
       this.serialized = serialized;
       this.deserialized = deserialized;
     }
     abstract boolean writeField(Object value) throws IOException, IllegalAccessException;
     abstract void write(JsonWriter writer, Object value) throws IOException, IllegalAccessException;
     abstract void read(JsonReader reader, Object value) throws IOException, IllegalAccessException;
+
+    boolean isInitialized() {
+      return this.initialized;
+    }
+
+    boolean isDeserializable() {
+      return this.deserialized &&
+          !isPrimitive(typeToken.getRawType());
+    }
+
+    void set(Object instance, Object value) throws IllegalAccessException {
+      this.field.setAccessible(true);
+      this.field.set(instance, value);
+      this.initialized = true;
+    }
   }
 
   public static final class Adapter<T> extends TypeAdapter<T> {
     private final ObjectConstructor<T> constructor;
     private final Map<String, BoundField> boundFields;
+    private MissingFieldHandlingStrategy missingFieldHandlingStrategy;
 
-    Adapter(ObjectConstructor<T> constructor, Map<String, BoundField> boundFields) {
+    Adapter(ObjectConstructor<T> constructor, Map<String, BoundField> boundFields, MissingFieldHandlingStrategy missingFieldHandlingStrategy) {
       this.constructor = constructor;
       this.boundFields = boundFields;
+      this.missingFieldHandlingStrategy = missingFieldHandlingStrategy;
+    }
+
+    private ArrayList<BoundField> getUninitializedFields() {
+      ArrayList<BoundField> uninitializedFields = new ArrayList<BoundField>();
+      Set<String> fieldNames = boundFields.keySet();
+      for (String fieldName : fieldNames) {
+        BoundField boundField = boundFields.get(fieldName);
+        if (boundField.isDeserializable() && !boundField.isInitialized()) {
+          uninitializedFields.add(boundField);
+        }
+      }
+      return uninitializedFields;
+    }
+
+    private void initializeMissingFields(T instance) {
+      ArrayList<BoundField> uninitializedFields = getUninitializedFields();
+      for (BoundField field : uninitializedFields) {
+        try {
+          Object defaultValue = missingFieldHandlingStrategy.handle(field.typeToken, field.name);
+          if (defaultValue != null) {
+            field.set(instance, defaultValue);
+          }
+        } catch (IllegalAccessException e) {
+          throw new AssertionError(e);
+        }
+      }
     }
 
     @Override public T read(JsonReader in) throws IOException {
@@ -226,6 +282,9 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         throw new AssertionError(e);
       }
       in.endObject();
+      if (missingFieldHandlingStrategy != null) {
+        initializeMissingFields(instance);
+      }
       return instance;
     }
 
