@@ -16,30 +16,19 @@
 
 package com.google.gson.internal.bind;
 
-import com.google.gson.FieldNamingStrategy;
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.TypeAdapter;
-import com.google.gson.TypeAdapterFactory;
+import com.google.gson.*;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
-import com.google.gson.internal.$Gson$Types;
-import com.google.gson.internal.ConstructorConstructor;
-import com.google.gson.internal.Excluder;
-import com.google.gson.internal.ObjectConstructor;
-import com.google.gson.internal.Primitives;
+import com.google.gson.internal.*;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Type adapter that reflects over the fields and methods of a class.
@@ -49,14 +38,19 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   private final FieldNamingStrategy fieldNamingPolicy;
   private final Excluder excluder;
   private final JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory;
+  private final NullableChecker nullableChecker;
 
-  public ReflectiveTypeAdapterFactory(ConstructorConstructor constructorConstructor,
+  public ReflectiveTypeAdapterFactory(
+      ConstructorConstructor constructorConstructor,
       FieldNamingStrategy fieldNamingPolicy, Excluder excluder,
-      JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory) {
+      JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory,
+      NullableChecker nullableChecker)
+  {
     this.constructorConstructor = constructorConstructor;
     this.fieldNamingPolicy = fieldNamingPolicy;
     this.excluder = excluder;
     this.jsonAdapterFactory = jsonAdapterFactory;
+    this.nullableChecker = nullableChecker;
   }
 
   public boolean excludeField(Field f, boolean serialize) {
@@ -102,7 +96,8 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
 
   private ReflectiveTypeAdapterFactory.BoundField createBoundField(
       final Gson context, final Field field, final String name,
-      final TypeToken<?> fieldType, boolean serialize, boolean deserialize) {
+      final TypeToken<?> fieldType, boolean serialize, boolean deserialize,
+      boolean nullable) {
     final boolean isPrimitive = Primitives.isPrimitive(fieldType.getRawType());
     // special casing primitives here saves ~5% on Android...
     JsonAdapter annotation = field.getAnnotation(JsonAdapter.class);
@@ -115,7 +110,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     if (mapped == null) mapped = context.getAdapter(fieldType);
 
     final TypeAdapter<?> typeAdapter = mapped;
-    return new ReflectiveTypeAdapterFactory.BoundField(name, serialize, deserialize) {
+    return new ReflectiveTypeAdapterFactory.BoundField(name, serialize, deserialize, nullable) {
       @SuppressWarnings({"unchecked", "rawtypes"}) // the type adapter and field type always agree
       @Override void write(JsonWriter writer, Object value)
           throws IOException, IllegalAccessException {
@@ -127,6 +122,9 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       @Override void read(JsonReader reader, Object value)
           throws IOException, IllegalAccessException {
         Object fieldValue = typeAdapter.read(reader);
+        if (fieldValue == null && !nullable) {
+          throw new JsonSyntaxException("Non-nullable field was read as null: " + name);
+        }
         if (fieldValue != null || !isPrimitive) {
           field.set(value, fieldValue);
         }
@@ -134,6 +132,9 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       @Override public boolean writeField(Object value) throws IOException, IllegalAccessException {
         if (!serialized) return false;
         Object fieldValue = field.get(value);
+        if (fieldValue == null && !nullable) {
+          throw new JsonSyntaxException("Non-nullable field was requested to be written as null: " + name);
+        }
         return fieldValue != value; // avoid recursion for example for Throwable.cause
       }
     };
@@ -151,6 +152,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       for (Field field : fields) {
         boolean serialize = excludeField(field, true);
         boolean deserialize = excludeField(field, false);
+        boolean nullable = nullableChecker.fieldIsNullable(field);
         if (!serialize && !deserialize) {
           continue;
         }
@@ -162,7 +164,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           String name = fieldNames.get(i);
           if (i != 0) serialize = false; // only serialize the default name
           BoundField boundField = createBoundField(context, field, name,
-              TypeToken.get(fieldType), serialize, deserialize);
+              TypeToken.get(fieldType), serialize, deserialize, nullable);
           BoundField replaced = result.put(name, boundField);
           if (previous == null) previous = replaced;
         }
@@ -181,11 +183,13 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     final String name;
     final boolean serialized;
     final boolean deserialized;
+    final boolean nullable;
 
-    protected BoundField(String name, boolean serialized, boolean deserialized) {
+    protected BoundField(String name, boolean serialized, boolean deserialized, boolean nullable) {
       this.name = name;
       this.serialized = serialized;
       this.deserialized = deserialized;
+      this.nullable = nullable;
     }
     abstract boolean writeField(Object value) throws IOException, IllegalAccessException;
     abstract void write(JsonWriter writer, Object value) throws IOException, IllegalAccessException;
@@ -195,10 +199,18 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   public static final class Adapter<T> extends TypeAdapter<T> {
     private final ObjectConstructor<T> constructor;
     private final Map<String, BoundField> boundFields;
+    private final HashSet<BoundField> requiredFields;
 
     Adapter(ObjectConstructor<T> constructor, Map<String, BoundField> boundFields) {
       this.constructor = constructor;
       this.boundFields = boundFields;
+
+      this.requiredFields = new HashSet<BoundField>();
+      for (BoundField field: boundFields.values()) {
+        if (!field.nullable) {
+          this.requiredFields.add(field);
+        }
+      }
     }
 
     @Override public T read(JsonReader in) throws IOException {
@@ -208,6 +220,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       }
 
       T instance = constructor.construct();
+      HashSet<BoundField> missingFields = new HashSet<BoundField>(requiredFields);
 
       try {
         in.beginObject();
@@ -218,7 +231,36 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
             in.skipValue();
           } else {
             field.read(in, instance);
+            missingFields.remove(field);
           }
+        }
+
+        // At least one required field is missing
+        if (!missingFields.isEmpty()) {
+          // This is the kind of boilerplate that makes me hate Java 6
+
+          ArrayList<String> fieldNames = new ArrayList<String>();
+          for (BoundField field: missingFields) {
+            fieldNames.add(field.name);
+          }
+          Collections.sort(fieldNames, new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+              return o1.compareTo(o2);
+            }
+          });
+
+          String fieldNamesJoined = "";
+          boolean first = true;
+          for (String fieldName: fieldNames) {
+            if (!first) {
+              fieldNamesJoined += ", ";
+            }
+            fieldNamesJoined += fieldName;
+            first = false;
+          }
+
+          throw new JsonSyntaxException("Missing required fields: " + fieldNamesJoined);
         }
       } catch (IllegalStateException e) {
         throw new JsonSyntaxException(e);

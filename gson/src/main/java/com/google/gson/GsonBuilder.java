@@ -16,30 +16,19 @@
 
 package com.google.gson;
 
-import com.google.gson.stream.JsonReader;
-import java.lang.reflect.Type;
-import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.google.gson.internal.$Gson$Preconditions;
 import com.google.gson.internal.Excluder;
 import com.google.gson.internal.bind.TreeTypeAdapter;
 import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
 
-import static com.google.gson.Gson.DEFAULT_COMPLEX_MAP_KEYS;
-import static com.google.gson.Gson.DEFAULT_ESCAPE_HTML;
-import static com.google.gson.Gson.DEFAULT_JSON_NON_EXECUTABLE;
-import static com.google.gson.Gson.DEFAULT_LENIENT;
-import static com.google.gson.Gson.DEFAULT_PRETTY_PRINT;
-import static com.google.gson.Gson.DEFAULT_SERIALIZE_NULLS;
-import static com.google.gson.Gson.DEFAULT_SPECIALIZE_FLOAT_VALUES;
+import java.lang.reflect.Type;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.util.*;
+
+import static com.google.gson.Gson.*;
 
 /**
  * <p>Use this builder to construct a {@link Gson} instance when you need to set configuration
@@ -94,6 +83,7 @@ public final class GsonBuilder {
   private boolean prettyPrinting = DEFAULT_PRETTY_PRINT;
   private boolean generateNonExecutableJson = DEFAULT_JSON_NON_EXECUTABLE;
   private boolean lenient = DEFAULT_LENIENT;
+  private NullableChecker nullableChecker = DummyNullableChecker.getInstance();
 
   /**
    * Creates a GsonBuilder instance that can be used to build Gson with various configuration
@@ -554,6 +544,18 @@ public final class GsonBuilder {
   }
 
   /**
+   * Enables a custom nullable checker that can use reflection to ensure fields annotated as not
+   * null never receive null values.
+   *
+   * @param nullableChecker A concrete nullableChecker. Gson does not provide any by default.
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   */
+  public GsonBuilder setNullableChecker(NullableChecker nullableChecker) {
+    this.nullableChecker = nullableChecker;
+    return this;
+  }
+
+  /**
    * Creates a {@link Gson} instance based on the current configuration. This method is free of
    * side-effects to this {@code GsonBuilder} instance and hence can be called multiple times.
    *
@@ -569,7 +571,8 @@ public final class GsonBuilder {
     return new Gson(excluder, fieldNamingPolicy, instanceCreators,
         serializeNulls, complexMapKeySerialization,
         generateNonExecutableJson, escapeHtmlChars, prettyPrinting, lenient,
-        serializeSpecialFloatingPointValues, longSerializationPolicy, factories);
+        serializeSpecialFloatingPointValues, longSerializationPolicy, factories,
+        nullableChecker);
   }
 
   private void addTypeAdaptersForDate(String datePattern, int dateStyle, int timeStyle,
