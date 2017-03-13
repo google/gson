@@ -44,6 +44,10 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
     elements = new ArrayList<JsonElement>(capacity);
   }
 
+  public JsonArray(int capacity) {
+    elements = new ArrayList<JsonElement>(capacity);
+  }
+
   @Override
   JsonArray deepCopy() {
     if (!elements.isEmpty()) {
