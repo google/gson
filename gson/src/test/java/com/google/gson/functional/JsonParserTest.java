@@ -17,7 +17,9 @@
 package com.google.gson.functional;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
@@ -26,14 +28,12 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.common.TestTypes.Nested;
 import com.google.gson.reflect.TypeToken;
-
-import junit.framework.TestCase;
-
 import java.io.StringReader;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import junit.framework.TestCase;
 
 /**
  * Functional tests for that use JsonParser and related Gson methods
@@ -132,6 +132,15 @@ public class JsonParserTest extends TestCase {
     Type type = new TypeToken<Map<String, String>>() {}.getType();
     try {
       gson.fromJson("{a:b,}", type);
+      fail();
+    } catch (JsonSyntaxException expected) {
+    }
+  }
+
+  public void testStrictParser() {
+    Gson strictGson = new GsonBuilder().setStrictParsing().create();
+    try {
+      strictGson.fromJson("1.1.1", JsonElement.class);
       fail();
     } catch (JsonSyntaxException expected) {
     }
