@@ -519,8 +519,7 @@ public final class GsonBuilder {
         || typeAdapter instanceof JsonDeserializer<?>
         || typeAdapter instanceof TypeAdapter<?>);
     if (typeAdapter instanceof JsonDeserializer || typeAdapter instanceof JsonSerializer) {
-      hierarchyFactories.add(0,
-          TreeTypeAdapter.newTypeHierarchyFactory(baseType, typeAdapter));
+      hierarchyFactories.add(TreeTypeAdapter.newTypeHierarchyFactory(baseType, typeAdapter));
     }
     if (typeAdapter instanceof TypeAdapter<?>) {
       factories.add(TypeAdapters.newTypeHierarchyFactory(baseType, (TypeAdapter)typeAdapter));
@@ -563,7 +562,12 @@ public final class GsonBuilder {
     List<TypeAdapterFactory> factories = new ArrayList<TypeAdapterFactory>();
     factories.addAll(this.factories);
     Collections.reverse(factories);
-    factories.addAll(this.hierarchyFactories);
+    
+    List<TypeAdapterFactory> hierarchyFactories = new ArrayList<TypeAdapterFactory>(this.hierarchyFactories.size());
+    hierarchyFactories.addAll(this.hierarchyFactories);
+    Collections.reverse(hierarchyFactories);
+    factories.addAll(hierarchyFactories);
+    
     addTypeAdaptersForDate(datePattern, dateStyle, timeStyle, factories);
 
     return new Gson(excluder, fieldNamingPolicy, instanceCreators,
