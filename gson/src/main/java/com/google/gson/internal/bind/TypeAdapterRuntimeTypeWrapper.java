@@ -43,7 +43,20 @@ final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   @Override
+  public String name(T value) throws IOException {
+    TypeAdapter chosen = getChosenAdapter(value);
+    return chosen.name(value);
+  }
+
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  @Override
   public void write(JsonWriter out, T value) throws IOException {
+    TypeAdapter chosen = getChosenAdapter(value);
+    chosen.write(out, value);
+  }
+
+  @SuppressWarnings("rawtypes")
+  private TypeAdapter getChosenAdapter(T value) {
     // Order of preference for choosing type adapters
     // First preference: a type adapter registered for the runtime type
     // Second preference: a type adapter registered for the declared type
@@ -66,7 +79,7 @@ final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
         chosen = runtimeTypeAdapter;
       }
     }
-    chosen.write(out, value);
+    return chosen;
   }
 
   /**

@@ -799,6 +799,10 @@ public final class TypeAdapters {
       return nameToConstant.get(in.nextString());
     }
 
+    @Override public String name(T value) throws IOException {
+      return value == null ? "null" : constantToName.get(value);
+    }
+
     @Override public void write(JsonWriter out, T value) throws IOException {
       out.value(value == null ? null : constantToName.get(value));
     }

@@ -39,7 +39,13 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   public JsonArray() {
     elements = new ArrayList<JsonElement>();
   }
-  
+
+  /**
+   * Initialize the JsonArray expecting to hold the specified number of items
+   *
+   * @param capacity expected capacity of the array
+   * @since 2.9
+   */
   public JsonArray(int capacity) {
     elements = new ArrayList<JsonElement>(capacity);
   }
