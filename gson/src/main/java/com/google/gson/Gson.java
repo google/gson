@@ -257,7 +257,8 @@ public final class Gson {
         constructorConstructor, fieldNamingStrategy, excluder, jsonAdapterFactory));
 
     this.factories = Collections.unmodifiableList(factories);
-    this.fieldAdapterFactories = Collections.unmodifiableMap(fieldAdapterFactories);
+    this.fieldAdapterFactories = fieldAdapterFactories.isEmpty() ?
+        null : Collections.unmodifiableMap(fieldAdapterFactories);
   }
 
   public Excluder excluder() {
@@ -525,7 +526,7 @@ public final class Gson {
    * @since 2.8.1
    */
   public <T> TypeAdapter<T> getFieldAdapter(Field field) {
-    if (fieldAdapterFactories.isEmpty()) {
+    if (fieldAdapterFactories == null || fieldAdapterFactories.isEmpty()) {
       return null;
     }
     for (Annotation fieldAnnotation : field.getAnnotations()) {
