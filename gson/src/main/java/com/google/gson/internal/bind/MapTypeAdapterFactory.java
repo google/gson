@@ -224,7 +224,7 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
 
       if (hasComplexKeys) {
         out.beginArray();
-        for (int i = 0; i < keys.size(); i++) {
+        for (int i = 0, size = keys.size(); i < size; i++) {
           out.beginArray(); // entry array
           Streams.write(keys.get(i), out);
           valueTypeAdapter.write(out, values.get(i));
@@ -233,7 +233,7 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
         out.endArray();
       } else {
         out.beginObject();
-        for (int i = 0; i < keys.size(); i++) {
+        for (int i = 0, size = keys.size(); i < size; i++) {
           JsonElement keyElement = keys.get(i);
           out.name(keyToString(keyElement));
           valueTypeAdapter.write(out, values.get(i));
