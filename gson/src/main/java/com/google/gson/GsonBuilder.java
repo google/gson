@@ -16,7 +16,13 @@
 
 package com.google.gson;
 
+import com.google.gson.internal.$Gson$Preconditions;
+import com.google.gson.internal.Excluder;
+import com.google.gson.internal.bind.TreeTypeAdapter;
+import com.google.gson.internal.bind.TypeAdapters;
+import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
+
 import java.lang.reflect.Type;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -26,12 +32,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.google.gson.internal.$Gson$Preconditions;
-import com.google.gson.internal.Excluder;
-import com.google.gson.internal.bind.TreeTypeAdapter;
-import com.google.gson.internal.bind.TypeAdapters;
-import com.google.gson.reflect.TypeToken;
 
 import static com.google.gson.Gson.DEFAULT_COMPLEX_MAP_KEYS;
 import static com.google.gson.Gson.DEFAULT_ESCAPE_HTML;
@@ -519,8 +519,7 @@ public final class GsonBuilder {
         || typeAdapter instanceof JsonDeserializer<?>
         || typeAdapter instanceof TypeAdapter<?>);
     if (typeAdapter instanceof JsonDeserializer || typeAdapter instanceof JsonSerializer) {
-      hierarchyFactories.add(0,
-          TreeTypeAdapter.newTypeHierarchyFactory(baseType, typeAdapter));
+      hierarchyFactories.add(TreeTypeAdapter.newTypeHierarchyFactory(baseType, typeAdapter));
     }
     if (typeAdapter instanceof TypeAdapter<?>) {
       factories.add(TypeAdapters.newTypeHierarchyFactory(baseType, (TypeAdapter)typeAdapter));
@@ -560,9 +559,10 @@ public final class GsonBuilder {
    * @return an instance of Gson configured with the options currently set in this builder
    */
   public Gson create() {
-    List<TypeAdapterFactory> factories = new ArrayList<TypeAdapterFactory>();
+    List<TypeAdapterFactory> factories = new ArrayList<TypeAdapterFactory>(this.factories.size() + this.hierarchyFactories.size() + 3);
     factories.addAll(this.factories);
     Collections.reverse(factories);
+    Collections.reverse(this.hierarchyFactories);
     factories.addAll(this.hierarchyFactories);
     addTypeAdaptersForDate(datePattern, dateStyle, timeStyle, factories);
 

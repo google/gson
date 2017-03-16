@@ -270,7 +270,7 @@ public class ProtoTypeAdapter
               if (jsonElement.isJsonArray()) {
                 // Handling array
                 Collection<EnumValueDescriptor> enumCollection =
-                    new ArrayList<EnumValueDescriptor>();
+                    new ArrayList<EnumValueDescriptor>(jsonElement.getAsJsonArray().size());
                 for (JsonElement element : jsonElement.getAsJsonArray()) {
                   enumCollection.add(
                       findValueByNameAndExtension(fieldDescriptor.getEnumType(), element));
