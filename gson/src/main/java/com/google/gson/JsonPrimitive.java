@@ -94,7 +94,8 @@ public final class JsonPrimitive extends JsonElement {
     if (primitive instanceof Character) {
       // convert characters to strings since in JSON, characters are represented as a single
       // character string
-      this.value = String.valueOf(((Character) primitive).charValue());
+      char c = ((Character) primitive).charValue();
+      this.value = String.valueOf(c);
     } else {
       $Gson$Preconditions.checkArgument(primitive instanceof Number
               || isPrimitiveOrString(primitive));
