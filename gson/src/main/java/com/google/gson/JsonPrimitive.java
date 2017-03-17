@@ -180,7 +180,6 @@ public final class JsonPrimitive extends JsonElement {
    *
    * @return get this element as a String.
    */
-  @Override
   public String getAsStringForNonNumber() {
     return isBoolean() ? getAsBooleanWrapper().toString() : (String) value;
   }
