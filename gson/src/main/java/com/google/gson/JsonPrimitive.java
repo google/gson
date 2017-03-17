@@ -172,7 +172,7 @@ public final class JsonPrimitive extends JsonElement {
    */
   @Override
   public String getAsString() {
-    return isNumber() ? getAsNumber().toString() : getAsStringForNonNumber();
+    return isNumber() ? ((Number)value).toString() : getAsStringForNonNumber();
   }
   
   /**
@@ -180,7 +180,7 @@ public final class JsonPrimitive extends JsonElement {
    *
    * @return get this element as a String.
    */
-  public String getAsStringForNonNumber() {
+  private String getAsStringForNonNumber() {
     return isBoolean() ? getAsBooleanWrapper().toString() : (String) value;
   }
 
@@ -192,7 +192,7 @@ public final class JsonPrimitive extends JsonElement {
    */
   @Override
   public double getAsDouble() {
-    return isNumber() ? getAsNumber().doubleValue() : Double.parseDouble(getAsStringForNonNumber());
+    return isNumber() ? ((Number)value).doubleValue() : Double.parseDouble(getAsStringForNonNumber());
   }
 
   /**
@@ -226,7 +226,7 @@ public final class JsonPrimitive extends JsonElement {
    */
   @Override
   public float getAsFloat() {
-    return isNumber() ? getAsNumber().floatValue() : Float.parseFloat(getAsStringForNonNumber());
+    return isNumber() ? ((Number)value).floatValue() : Float.parseFloat(getAsStringForNonNumber());
   }
 
   /**
@@ -237,7 +237,7 @@ public final class JsonPrimitive extends JsonElement {
    */
   @Override
   public long getAsLong() {
-    return isNumber() ? getAsNumber().longValue() : Long.parseLong(getAsStringForNonNumber());
+    return isNumber() ? ((Number)value).longValue() : Long.parseLong(getAsStringForNonNumber());
   }
 
   /**
@@ -248,7 +248,7 @@ public final class JsonPrimitive extends JsonElement {
    */
   @Override
   public short getAsShort() {
-    return isNumber() ? getAsNumber().shortValue() : Short.parseShort(getAsStringForNonNumber());
+    return isNumber() ? ((Number)value).shortValue() : Short.parseShort(getAsStringForNonNumber());
   }
 
  /**
@@ -259,12 +259,12 @@ public final class JsonPrimitive extends JsonElement {
   */
   @Override
   public int getAsInt() {
-    return isNumber() ? getAsNumber().intValue() : Integer.parseInt(getAsStringForNonNumber());
+    return isNumber() ? ((Number)value).intValue() : Integer.parseInt(getAsStringForNonNumber());
   }
 
   @Override
   public byte getAsByte() {
-    return isNumber() ? getAsNumber().byteValue() : Byte.parseByte(getAsStringForNonNumber());
+    return isNumber() ? ((Number)value).byteValue() : Byte.parseByte(getAsStringForNonNumber());
   }
 
   @Override
