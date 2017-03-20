@@ -40,7 +40,7 @@ final class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserial
 
   private final DateFormat enUsFormat;
   private final DateFormat localFormat;
-  private final String SIMPLE_NAME = "DefaultDateTypeAdapter";
+  private final static String SIMPLE_NAME = "DefaultDateTypeAdapter";
 
   DefaultDateTypeAdapter() {
     this(DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.US),
