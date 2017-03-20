@@ -37,11 +37,12 @@ import com.google.gson.internal.bind.util.ISO8601Utils;
 final class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
 
   // TODO: migrate to streaming adapter
-
+  
+  private static final String SIMPLE_NAME = "DefaultDateTypeAdapter";
+  
   private final DateFormat enUsFormat;
   private final DateFormat localFormat;
-  private final static String SIMPLE_NAME = "DefaultDateTypeAdapter";
-
+  
   DefaultDateTypeAdapter() {
     this(DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.US),
         DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT));
