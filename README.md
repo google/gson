@@ -9,18 +9,18 @@ Gson can work with arbitrary Java objects including pre-existing objects that yo
 
 There are a few open-source projects that can convert Java objects to JSON. However, most of them require that you place Java annotations in your classes; something that you can not do if you do not have access to the source-code. Most also do not fully support the use of Java Generics. Gson considers both of these as very important design goals. 
 
-###*Gson Goals*
+### Gson Goals
   * Provide simple `toJson()` and `fromJson()` methods to convert Java objects to JSON and vice-versa
   * Allow pre-existing unmodifiable objects to be converted to and from JSON
   * Extensive support of Java Generics
   * Allow custom representations for objects
   * Support arbitrarily complex objects (with deep inheritance hierarchies and extensive use of generic types)
 
-###*Gson Download and Maven*
+### Gson Download and Maven
   * [Gson Download](https://maven-badges.herokuapp.com/maven-central/com.google.code.gson/gson) downloads at Maven Central
   * For Maven check "Dependency Information" tab, on the left side.
 
-###*Gson Documentation*
+### Gson Documentation
   * Gson [API](http://www.javadoc.io/doc/com.google.code.gson/gson): Javadocs for the current Gson release
   * Gson [user guide](https://github.com/google/gson/blob/master/UserGuide.md): This guide contains examples on how to use Gson in your code.
   * Gson [Roadmap](https://github.com/google/gson/blob/master/CHANGELOG.md): Details of changes in the recent versions
@@ -28,11 +28,11 @@ There are a few open-source projects that can convert Java objects to JSON. Howe
 
 Please use the [google-gson Google group](http://groups.google.com/group/google-gson) to discuss Gson, or to post questions. 
 
-###*Gson-related Content Created by Third Parties*
+### Gson-related Content Created by Third Parties
   * [Gson Tutorial](http://www.studytrails.com/java/json/java-google-json-introduction.jsp) by `StudyTrails`
   * [Gson Tutorial Series](https://futurestud.io/tutorials/gson-getting-started-with-java-json-serialization-deserialization) by `Future Studio`
 
-###*License*
+### License
 
 Gson is released under the [Apache 2.0 license](LICENSE).
 
