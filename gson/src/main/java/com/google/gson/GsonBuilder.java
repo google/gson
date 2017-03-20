@@ -511,7 +511,7 @@ public final class GsonBuilder {
    *
    * @param annotationClass with which those fields need to be handled by the adapter
    * @param fieldAdapterFactory the factory to be registered
-   * @since 2.8.1
+   * @since 2.9.0
    */
   public GsonBuilder registerFieldAdapterFactory(Class<? extends Annotation> annotationClass,
       FieldAdapterFactory fieldAdapterFactory) {

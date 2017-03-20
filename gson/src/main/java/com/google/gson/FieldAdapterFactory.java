@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Google Inc.
+ * Copyright (C) 2017 Gson Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import com.google.gson.annotations.JsonAdapter;
  * be ignored.
  *
  * @author Floyd Wan
- * @since 2.8.1
+ * @since 2.9.0
  */
 public interface FieldAdapterFactory {
 

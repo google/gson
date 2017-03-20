@@ -523,25 +523,24 @@ public final class Gson {
    *
    * @param field the field needs to be investigated
    * @return the {@link TypeAdapter} for the given {@code field}
-   * @since 2.8.1
+   * @since 2.9.0
    */
   public <T> TypeAdapter<T> getFieldAdapter(Field field) {
     if (fieldAdapterFactories == null || fieldAdapterFactories.isEmpty()) {
       return null;
     }
-    for (Annotation fieldAnnotation : field.getAnnotations()) {
-      Class<? extends Annotation> annotationType = fieldAnnotation.annotationType();
-      if (fieldAdapterFactories.containsKey(annotationType)) {
-        FieldAdapterFactory fieldAdapterFactory = fieldAdapterFactories.get(annotationType);
-        return fieldAdapterFactory.create(fieldAnnotation, field);
+    Class<?> clazz = field.getDeclaringClass();
+    for (Map.Entry<Class<? extends Annotation>, FieldAdapterFactory> entry : fieldAdapterFactories.entrySet()) {
+      Class<? extends Annotation> annotationType = entry.getKey();
+      // find in field annotations first
+      if (field.isAnnotationPresent(annotationType)) {
+        FieldAdapterFactory fieldAdapterFactory = entry.getValue();
+        return fieldAdapterFactory.create(field.getAnnotation(annotationType), field);
       }
-    }
-    // If both this field and its declaring class matched, ignore the latter one
-    for (Annotation classAnnotation : field.getDeclaringClass().getAnnotations()) {
-      Class<? extends Annotation> annotationType = classAnnotation.annotationType();
-      if (fieldAdapterFactories.containsKey(annotationType)) {
-        FieldAdapterFactory fieldAdapterFactory = fieldAdapterFactories.get(annotationType);
-        return fieldAdapterFactory.create(classAnnotation, field);
+      // then in class annotations
+      if (clazz.isAnnotationPresent(annotationType)) {
+        FieldAdapterFactory fieldAdapterFactory = entry.getValue();
+        return fieldAdapterFactory.create(clazz.getAnnotation(annotationType), field);
       }
     }
     return null;
