@@ -40,6 +40,7 @@ final class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserial
 
   private final DateFormat enUsFormat;
   private final DateFormat localFormat;
+  private final String SIMPLE_NAME = "DefaultDateTypeAdapter";
 
   DefaultDateTypeAdapter() {
     this(DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.US),
@@ -111,7 +112,7 @@ final class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserial
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append(DefaultDateTypeAdapter.class.getSimpleName());
+    sb.append(SIMPLE_NAME);
     sb.append('(').append(localFormat.getClass().getSimpleName()).append(')');
     return sb.toString();
   }
