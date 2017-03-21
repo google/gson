@@ -1,4 +1,4 @@
-#Gson User Guide
+# Gson User Guide
 
 1. [Overview](#TOC-Overview)
 2. [Goals for Gson](#TOC-Goals-for-Gson)
