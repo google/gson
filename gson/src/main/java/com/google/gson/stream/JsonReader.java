@@ -1271,9 +1271,11 @@ public class JsonReader implements Closeable {
       int[] newStack = new int[stackSize * 2];
       int[] newPathIndices = new int[stackSize * 2];
       String[] newPathNames = new String[stackSize * 2];
-      System.arraycopy(stack, 0, newStack, 0, stackSize);
-      System.arraycopy(pathIndices, 0, newPathIndices, 0, stackSize);
-      System.arraycopy(pathNames, 0, newPathNames, 0, stackSize);
+      for (int i = 0 ; i < stackSize; i++) {
+          newStack[i] = stack[i];
+          newPathIndices[i] = pathIndices[i];
+          newPathNames[i] = pathNames[i];
+      }
       stack = newStack;
       pathIndices = newPathIndices;
       pathNames = newPathNames;
