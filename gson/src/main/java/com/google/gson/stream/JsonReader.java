@@ -1077,7 +1077,7 @@ public class JsonReader implements Closeable {
 
       // use a StringBuilder when the value is too long. This is too long to be a number!
       if (builder == null) {
-        builder = new StringBuilder();
+        builder = new StringBuilder(Math.max(i,16));
       }
       builder.append(buffer, pos, i);
       pos += i;
@@ -1086,14 +1086,8 @@ public class JsonReader implements Closeable {
         break;
       }
     }
-
-    String result;
-    if (builder == null) {
-      result = new String(buffer, pos, i);
-    } else {
-      builder.append(buffer, pos, i);
-      result = builder.toString();
-    }
+   
+    String result = (null == builder) ? new String(buffer, pos, i) : builder.append(buffer, pos, i).toString();
     pos += i;
     return result;
   }
@@ -1438,14 +1432,15 @@ public class JsonReader implements Closeable {
    * @param toFind a string to search for. Must not contain a newline.
    */
   private boolean skipTo(String toFind) throws IOException {
+    int length = toFind.length();
     outer:
-    for (; pos + toFind.length() <= limit || fillBuffer(toFind.length()); pos++) {
+    for (; pos + length <= limit || fillBuffer(length); pos++) {
       if (buffer[pos] == '\n') {
         lineNumber++;
         lineStart = pos + 1;
         continue;
       }
-      for (int c = 0; c < toFind.length(); c++) {
+      for (int c = 0; c < length; c++) {
         if (buffer[pos + c] != toFind.charAt(c)) {
           continue outer;
         }
