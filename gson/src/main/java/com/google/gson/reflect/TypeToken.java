@@ -73,6 +73,17 @@ public class TypeToken<T> {
     this.rawType = (Class<? super T>) $Gson$Types.getRawType(this.type);
     this.hashCode = this.type.hashCode();
   }
+  
+  /**
+   * Unsafe. Constructs a type literal manually given type , rawtype and
+   * hashCode as arguments.
+   */
+  @SuppressWarnings("unchecked")
+  TypeToken(Type type, Class<?> rawType, int hashCode) {
+    this.type = type;
+    this.rawType = (Class<? super T>) rawType;
+    this.hashCode = hashCode;
+  }
 
   /**
    * Returns the type from super class's type parameter in {@link $Gson$Types#canonicalize
@@ -289,6 +300,13 @@ public class TypeToken<T> {
     return $Gson$Types.typeToString(type);
   }
 
+  /**
+   * Gets type literal for the given {@code Type,rawType, hashCode} instance.
+   */
+  public static TypeToken<?> get(Type type, Class<?> rawType, int hashCode) {
+    return new TypeToken<Object>(type, rawType, hashCode);
+  }
+  
   /**
    * Gets type literal for the given {@code Type} instance.
    */
