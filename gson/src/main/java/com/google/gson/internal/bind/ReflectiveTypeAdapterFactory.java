@@ -163,7 +163,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           String name = fieldNames.get(i);
           if (i != 0) serialize = false; // only serialize the default name
           BoundField boundField = createBoundField(context, field, name,
-              TypeToken.get(typeToken.getType(),typeToken.getRawType(),typeToken.hashCode()), serialize, deserialize);
+              TypeToken.get(typeToken.getType(), typeToken.getRawType(), typeToken.hashCode()), serialize, deserialize);
           BoundField replaced = result.put(name, boundField);
           if (previous == null) previous = replaced;
         }
