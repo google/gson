@@ -1,4 +1,4 @@
-#Gson Design Document
+# Gson Design Document
 
 This document presents issues that we faced while designing Gson. It is meant for advanced users or developers working on Gson. If you are interested in learning how to use Gson, see its user guide. 
 
