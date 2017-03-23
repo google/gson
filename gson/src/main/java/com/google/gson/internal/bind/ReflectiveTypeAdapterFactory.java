@@ -155,14 +155,14 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           continue;
         }
         field.setAccessible(true);
-        Type fieldType = $Gson$Types.resolve(type.getType(), raw, field.getGenericType());
         List<String> fieldNames = getFieldNames(field);
         BoundField previous = null;
+        TypeToken<?> filedType = TypeToken.get($Gson$Types.resolve(declaredType, raw, field.getGenericType()));
         for (int i = 0, size = fieldNames.size(); i < size; ++i) {
           String name = fieldNames.get(i);
           if (i != 0) serialize = false; // only serialize the default name
           BoundField boundField = createBoundField(context, field, name,
-              TypeToken.get(fieldType), serialize, deserialize);
+              fieldType, serialize, deserialize);
           BoundField replaced = result.put(name, boundField);
           if (previous == null) previous = replaced;
         }
@@ -171,7 +171,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
               + " declares multiple JSON fields named " + previous.name);
         }
       }
-      type = TypeToken.get($Gson$Types.resolve(type.getType(), raw, raw.getGenericSuperclass()));
+      type = TypeToken.get($Gson$Types.resolve(declaredType, raw, raw.getGenericSuperclass()));
       raw = type.getRawType();
     }
     return result;
