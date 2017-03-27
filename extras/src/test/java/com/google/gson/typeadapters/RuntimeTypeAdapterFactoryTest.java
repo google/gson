@@ -76,6 +76,21 @@ public final class RuntimeTypeAdapterFactoryTest extends TestCase {
     assertTrue(deserialized.iterator().next() instanceof CreditCard);
   }
 
+  public void testRuntimeTypeAdapterCollectionDeserializationViaTypeTokenFromCollectionClass() {
+    final RuntimeTypeAdapterFactory<BillingInstrument> rta = RuntimeTypeAdapterFactory.of(
+        BillingInstrument.class)
+        .registerSubtype(CreditCard.class);
+    final Gson gson = new GsonBuilder()
+        .registerTypeAdapterFactory(rta)
+        .create();
+    TypeToken<?> typeToken = TypeToken.get(new ArrayList<BillingInstrument>().getClass());
+    Collection<?> deserialized = gson.fromJson(
+        "[{type:'CreditCard',cvv:234,ownerName:'Jesse'}]", typeToken.getType());
+    assertFalse(deserialized.isEmpty());
+    assertTrue(deserialized instanceof ArrayList);
+    assertTrue(deserialized.iterator().next() instanceof CreditCard);
+  }
+
   public void testRuntimeTypeAdapter() {
     RuntimeTypeAdapterFactory<BillingInstrument> rta = RuntimeTypeAdapterFactory.of(
         BillingInstrument.class)
