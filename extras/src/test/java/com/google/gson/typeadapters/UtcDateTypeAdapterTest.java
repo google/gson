@@ -72,6 +72,27 @@ public final class UtcDateTypeAdapterTest extends TestCase {
     assertEquals(expected.getTime(), actual.getTime());
   }
 
+  public void testMilliseconds() {
+    // Default = use milliseconds
+    Gson gson = new GsonBuilder()
+      .registerTypeAdapter(Date.class, new UtcDateTypeAdapter())
+      .create();
+    Date in = gson.fromJson("'2014-12-05T04:00:00.000Z'", Date.class);
+    assertEquals("Date should include milliseconds", "\"2014-12-05T04:00:00.000Z\"", gson.toJson(in));
+
+    // Explicitly use milliseconds
+    gson = new GsonBuilder()
+      .registerTypeAdapter(Date.class, new UtcDateTypeAdapter(true))
+      .create();
+    assertEquals("Date should include milliseconds", "\"2014-12-05T04:00:00.000Z\"", gson.toJson(in));
+
+    // Explicitly NOT use milliseconds
+    gson = new GsonBuilder()
+      .registerTypeAdapter(Date.class, new UtcDateTypeAdapter(false))
+      .create();
+    assertEquals("Date should NOT include milliseconds", "\"2014-12-05T04:00:00Z\"", gson.toJson(in));
+  }
+
   public void testNullDateSerialization() {
     String json = gson.toJson(null, Date.class);
     assertEquals("null", json);

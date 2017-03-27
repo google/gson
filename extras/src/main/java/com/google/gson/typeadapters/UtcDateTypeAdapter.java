@@ -32,13 +32,22 @@ import com.google.gson.stream.JsonWriter;
 
 public final class UtcDateTypeAdapter extends TypeAdapter<Date> {
   private final TimeZone UTC_TIME_ZONE = TimeZone.getTimeZone("UTC");
+  private final boolean displayMilliseconds;
+
+  public UtcDateTypeAdapter() {
+    this(true);
+  }
+
+  public UtcDateTypeAdapter(boolean displayMilliseconds) {
+    this.displayMilliseconds = displayMilliseconds;
+  }
 
   @Override
   public void write(JsonWriter out, Date date) throws IOException {
     if (date == null) {
       out.nullValue();
     } else {
-      String value = format(date, true, UTC_TIME_ZONE);
+      String value = format(date, displayMilliseconds, UTC_TIME_ZONE);
       out.value(value);
     }
   }
