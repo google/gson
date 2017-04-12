@@ -394,6 +394,7 @@ public final class Gson {
       if(null == sNullKeySurrogate) {
         sNullKeySurrogate = new TypeToken<Object>() {};
       }
+      return sNullKeySurrogate;
     }
   }
 
