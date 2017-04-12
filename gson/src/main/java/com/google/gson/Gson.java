@@ -111,7 +111,6 @@ public final class Gson {
 
   private static final String JSON_NON_EXECUTABLE_PREFIX = ")]}'\n";
 
-  private static TypeToken<Object> sNullKeySurrogate;
   /**
    * This thread local guards against reentrant calls to getAdapter(). In
    * certain object graphs, creating an adapter for a type may recursively
@@ -135,7 +134,6 @@ public final class Gson {
   private final boolean prettyPrinting;
   private final boolean lenient;
   private final JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory;
-
 
   /**
    * Constructs a Gson object with default configuration. The default configuration has the
@@ -389,15 +387,6 @@ public final class Gson {
     }.nullSafe();
   }
 
-  private static TypeToken<Object> getNullKeySurrogate() {
-    synchronized (Gson.class) {
-      if(null == sNullKeySurrogate) {
-        sNullKeySurrogate = new TypeToken<Object>() {};
-      }
-      return sNullKeySurrogate;
-    }
-  }
-
   /**
    * Returns the type adapter for {@code} type.
    *
@@ -406,7 +395,7 @@ public final class Gson {
    */
   @SuppressWarnings("unchecked")
   public <T> TypeAdapter<T> getAdapter(TypeToken<T> type) {
-    TypeAdapter<?> cached = typeTokenCache.get(type == null ? Gson.getNullKeySurrogate() : type);
+    TypeAdapter<?> cached = typeTokenCache.get(type == null ? TypeToken.get(Object.class) : type);
     if (cached != null) {
       return (TypeAdapter<T>) cached;
     }
