@@ -1,6 +1,10 @@
 Change Log
 ==========
 
+## Version 2.8.1
+_2016-10-26_  [GitHub Diff](https://github.com/google/gson/compare/gson-parent-2.8.0...gson-parent-2.8.1)
+ * New: `JsonObject.keySet()`
+
 ## Version 2.8
 _2016-10-26_  [GitHub Diff](https://github.com/google/gson/compare/gson-parent-2.7...gson-parent-2.8.0)
  * New: `TypeToken.getParameterized()` and `TypeToken.getArray()` make it easier to
