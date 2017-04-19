@@ -560,6 +560,18 @@ public final class JsonReaderTest extends TestCase {
     } catch (NumberFormatException expected) {
     }
   }
+  
+  /**
+   * Issue 1053, negative zero.
+   * @throws Exception
+   */
+  public void testNegativeZero() throws Exception {
+	  	JsonReader reader = new JsonReader(reader("[-0]"));
+	    reader.setLenient(false);
+	    reader.beginArray();
+	    assertEquals(NUMBER, reader.peek());
+	    assertEquals("-0", reader.nextString());
+  }
 
   /**
    * This test fails because there's no double for 9223372036854775808, and our
