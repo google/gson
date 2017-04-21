@@ -16,7 +16,7 @@
 
 package com.google.gson;
 
-import java.lang.reflect.Type;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -26,6 +26,9 @@ import java.util.Date;
 import java.util.Locale;
 
 import com.google.gson.internal.bind.util.ISO8601Utils;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
 
 /**
  * This type adapter supports three subclasses of date: Date, Timestamp, and
@@ -34,34 +37,45 @@ import com.google.gson.internal.bind.util.ISO8601Utils;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-final class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
+final class DefaultDateTypeAdapter extends TypeAdapter<Date> {
 
-  // TODO: migrate to streaming adapter
-  
   private static final String SIMPLE_NAME = "DefaultDateTypeAdapter";
-  
+
+  private final Class<? extends Date> dateType;
   private final DateFormat enUsFormat;
   private final DateFormat localFormat;
   
-  DefaultDateTypeAdapter() {
-    this(DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.US),
+  DefaultDateTypeAdapter(Class<? extends Date> dateType) {
+    this(dateType,
+        DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.US),
         DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT));
   }
 
-  DefaultDateTypeAdapter(String datePattern) {
-    this(new SimpleDateFormat(datePattern, Locale.US), new SimpleDateFormat(datePattern));
+  DefaultDateTypeAdapter(Class<? extends Date> dateType, String datePattern) {
+    this(dateType, new SimpleDateFormat(datePattern, Locale.US), new SimpleDateFormat(datePattern));
   }
 
-  DefaultDateTypeAdapter(int style) {
-    this(DateFormat.getDateInstance(style, Locale.US), DateFormat.getDateInstance(style));
+  DefaultDateTypeAdapter(Class<? extends Date> dateType, int style) {
+    this(dateType, DateFormat.getDateInstance(style, Locale.US), DateFormat.getDateInstance(style));
   }
 
   public DefaultDateTypeAdapter(int dateStyle, int timeStyle) {
-    this(DateFormat.getDateTimeInstance(dateStyle, timeStyle, Locale.US),
+    this(Date.class,
+        DateFormat.getDateTimeInstance(dateStyle, timeStyle, Locale.US),
         DateFormat.getDateTimeInstance(dateStyle, timeStyle));
   }
 
-  DefaultDateTypeAdapter(DateFormat enUsFormat, DateFormat localFormat) {
+  public DefaultDateTypeAdapter(Class<? extends Date> dateType, int dateStyle, int timeStyle) {
+    this(dateType,
+        DateFormat.getDateTimeInstance(dateStyle, timeStyle, Locale.US),
+        DateFormat.getDateTimeInstance(dateStyle, timeStyle));
+  }
+
+  DefaultDateTypeAdapter(final Class<? extends Date> dateType, DateFormat enUsFormat, DateFormat localFormat) {
+    if ( dateType != Date.class && dateType != java.sql.Date.class && dateType != Timestamp.class ) {
+      throw new IllegalArgumentException("Date type must be one of " + Date.class + ", " + Timestamp.class + ", or " + java.sql.Date.class + " but was " + dateType);
+    }
+    this.dateType = dateType;
     this.enUsFormat = enUsFormat;
     this.localFormat = localFormat;
   }
@@ -69,43 +83,43 @@ final class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserial
   // These methods need to be synchronized since JDK DateFormat classes are not thread-safe
   // See issue 162
   @Override
-  public JsonElement serialize(Date src, Type typeOfSrc, JsonSerializationContext context) {
+  public void write(JsonWriter out, Date value) throws IOException {
     synchronized (localFormat) {
-      String dateFormatAsString = enUsFormat.format(src);
-      return new JsonPrimitive(dateFormatAsString);
+      String dateFormatAsString = enUsFormat.format(value);
+      out.value(dateFormatAsString);
     }
   }
 
   @Override
-  public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-      throws JsonParseException {
-    if (!(json instanceof JsonPrimitive)) {
+  public Date read(JsonReader in) throws IOException {
+    if (in.peek() != JsonToken.STRING) {
       throw new JsonParseException("The date should be a string value");
     }
-    Date date = deserializeToDate(json);
-    if (typeOfT == Date.class) {
+    Date date = deserializeToDate(in.nextString());
+    if (dateType == Date.class) {
       return date;
-    } else if (typeOfT == Timestamp.class) {
+    } else if (dateType == Timestamp.class) {
       return new Timestamp(date.getTime());
-    } else if (typeOfT == java.sql.Date.class) {
+    } else if (dateType == java.sql.Date.class) {
       return new java.sql.Date(date.getTime());
     } else {
-      throw new IllegalArgumentException(getClass() + " cannot deserialize to " + typeOfT);
+      // This must never happen: dateType is guarded in the primary constructor
+      throw new AssertionError();
     }
   }
 
-  private Date deserializeToDate(JsonElement json) {
+  private Date deserializeToDate(String s) {
     synchronized (localFormat) {
       try {
-      	return localFormat.parse(json.getAsString());
+        return localFormat.parse(s);
       } catch (ParseException ignored) {}
       try {
-        return enUsFormat.parse(json.getAsString());
+        return enUsFormat.parse(s);
       } catch (ParseException ignored) {}
       try {
-        return ISO8601Utils.parse(json.getAsString(), new ParsePosition(0));
+        return ISO8601Utils.parse(s, new ParsePosition(0));
       } catch (ParseException e) {
-        throw new JsonSyntaxException(json.getAsString(), e);
+        throw new JsonSyntaxException(s, e);
       }
     }
   }
