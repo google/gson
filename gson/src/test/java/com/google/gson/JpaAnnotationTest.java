@@ -24,18 +24,18 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
 import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import junit.framework.TestCase;
 
 /**
+ * Demonstrate some meaningful use cases of JPA
  * @author Floyd Wan
  */
 public class JpaAnnotationTest extends TestCase {
 
   private static class Ignored implements FieldAdapterFactory {
     @Override
-    public <T> TypeAdapter<T> create(Annotation annotation, Field field) {
+    public <T> TypeAdapter<T> create(Gson context, Annotation annotation, Field field) {
       return new TypeAdapter<T>() {
         @Override
         public void write(JsonWriter out, T value) throws IOException {
@@ -50,48 +50,28 @@ public class JpaAnnotationTest extends TestCase {
     }
   }
 
-  private static class StringColumnLimited implements FieldAdapterFactory {
+  @SuppressWarnings("unchecked")
+  private static class ColumnSerializedName implements FieldAdapterFactory {
+
     @Override
-    public <T> TypeAdapter<T> create(Annotation annotation, Field field) {
-      if (!String.class.equals(field.getType())) {
-        return null;
-      }
-      Column column = (Column) annotation;
-      final int length = column.length();
-      if (length < 1) {
-        return null;
-      }
-      @SuppressWarnings("unchecked")
-      TypeAdapter<T> adapter = (TypeAdapter<T>) new TypeAdapter<String>() {
+    public <T> TypeAdapter<T> create(Gson context, Annotation annotation, Field field) {
+      final String columnName = ((Column) annotation).name();
+      final TypeAdapter delegate = context.getAdapter(field.getType());
+      return new TypeAdapter<T>() {
         @Override
-        public void write(JsonWriter out, String value) throws IOException {
-          if (value == null) {
-            out.nullValue();
-            return;
-          }
-          if (value.length() > length) {
-            out.value(value.substring(0, length));
-          } else {
-            out.value(value);
+        public void write(JsonWriter out, T value) throws IOException {
+          out.nullValue(); // to prevent IllegalStateException
+          if (value != null) {
+            out.name(columnName);
+            delegate.write(out, value);
           }
         }
 
         @Override
-        public String read(JsonReader in) throws IOException {
-          JsonToken peek = in.peek();
-          if (peek == JsonToken.NULL) {
-            in.nextNull();
-            return null;
-          }
-          String nextString = in.nextString();
-          if (nextString.length() > length) {
-            return nextString.substring(0, length);
-          } else {
-            return nextString;
-          }
+        public T read(JsonReader in) throws IOException {
+          return (T) delegate.read(in);
         }
       };
-      return adapter;
     }
   }
 
@@ -99,7 +79,7 @@ public class JpaAnnotationTest extends TestCase {
   private static class Entity {
     long id;
 
-    @Column(length = 10) String desc;
+    @Column(name = "description") String desc;
 
     @Version int ccVersion;
 
@@ -112,7 +92,7 @@ public class JpaAnnotationTest extends TestCase {
     GsonBuilder gb = new GsonBuilder();
     gb.registerFieldAdapterFactory(Transient.class, new Ignored());
     gb.registerFieldAdapterFactory(Version.class, new Ignored());
-    gb.registerFieldAdapterFactory(Column.class, new StringColumnLimited());
+    gb.registerFieldAdapterFactory(Column.class, new ColumnSerializedName());
     gson = gb.create();
   }
 
@@ -128,16 +108,11 @@ public class JpaAnnotationTest extends TestCase {
     assertFalse(json.contains("ccVersion"));
   }
 
-  public void testColumnLimitedSerialization() {
+  public void testColumnSerializedName() {
     Entity entity = new Entity();
-    entity.desc = "01234567890"; // length of 11
+    entity.desc = "123";
 
     String json = gson.toJson(entity);
-    assertTrue(json.contains("\"desc\":\"0123456789\"")); // cut to length of 10
-  }
-
-  public void testColumnLimitedDeserialization() {
-    Entity entity = gson.fromJson("{\"desc\":\"01234567890\"}", Entity.class); // length of 11
-    assertEquals("0123456789", entity.desc); // cut to length of 10
+    assertTrue(json.contains("\"description\":\"123\""));
   }
 }

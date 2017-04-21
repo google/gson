@@ -46,7 +46,7 @@ public class CustomAnnotationTest extends TestCase {
 
   private static class BeingBrowserFriendly implements FieldAdapterFactory {
     @Override
-    public <T> TypeAdapter<T> create(Annotation annotation, Field field) {
+    public <T> TypeAdapter<T> create(Gson context, Annotation annotation, Field field) {
       Class<?> fieldType = field.getType();
       if (long.class.equals(fieldType) || Long.class.equals(fieldType)) {
         @SuppressWarnings("unchecked")

@@ -535,12 +535,12 @@ public final class Gson {
       // find in field annotations first
       if (field.isAnnotationPresent(annotationType)) {
         FieldAdapterFactory fieldAdapterFactory = entry.getValue();
-        return fieldAdapterFactory.create(field.getAnnotation(annotationType), field);
+        return fieldAdapterFactory.create(this, field.getAnnotation(annotationType), field);
       }
       // then in class annotations
       if (clazz.isAnnotationPresent(annotationType)) {
         FieldAdapterFactory fieldAdapterFactory = entry.getValue();
-        return fieldAdapterFactory.create(clazz.getAnnotation(annotationType), field);
+        return fieldAdapterFactory.create(this, clazz.getAnnotation(annotationType), field);
       }
     }
     return null;

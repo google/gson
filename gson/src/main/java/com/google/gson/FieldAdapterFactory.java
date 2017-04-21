@@ -39,10 +39,11 @@ public interface FieldAdapterFactory {
   /**
    * Create a {@link TypeAdapter} for a field with a special annotation.
    *
+   * @param context the Gson instance as the context
    * @param annotation the annotation instance on the given {@code field}
    * @param field the field needs to be investigated
-   * @param <T> the target type of {@link TypeAdapter}
+   * @param <T> type of this field
    * @return a {@link TypeAdapter} to read / write this very field.
    */
-  <T> TypeAdapter<T> create(Annotation annotation, Field field);
+  <T> TypeAdapter<T> create(Gson context, Annotation annotation, Field field);
 }
