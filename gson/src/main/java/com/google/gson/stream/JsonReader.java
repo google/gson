@@ -1459,7 +1459,7 @@ public class JsonReader implements Closeable {
     return getClass().getSimpleName() + locationString();
   }
 
-  private String locationString() {
+  String locationString() {
     int line = lineNumber + 1;
     int column = pos - lineStart + 1;
     return " at line " + line + " column " + column + " path " + getPath();

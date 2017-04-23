@@ -41,7 +41,7 @@ import java.lang.reflect.Type;
 public final class TreeTypeAdapter<T> extends TypeAdapter<T> {
   private final JsonSerializer<T> serializer;
   private final JsonDeserializer<T> deserializer;
-  private final Gson gson;
+  final Gson gson;
   private final TypeToken<T> typeToken;
   private final TypeAdapterFactory skipPast;
   private final GsonContextImpl context = new GsonContextImpl();
