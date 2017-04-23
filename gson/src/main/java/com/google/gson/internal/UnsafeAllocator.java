@@ -111,7 +111,7 @@ public abstract class UnsafeAllocator {
    * throw an {@link java.lang.UnsupportedOperationException}
    * @param c instance of the class to be checked
    */
-  private static void assertInstantiable(Class<?> c) {
+  static void assertInstantiable(Class<?> c) {
     int modifiers = c.getModifiers();
     if (Modifier.isInterface(modifiers)) {
       throw new UnsupportedOperationException("Interface can't be instantiated! Interface name: " + c.getName());
