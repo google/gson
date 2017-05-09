@@ -19,8 +19,10 @@ package com.google.gson;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 /**
  * A class representing an array type in Json. An array is a list of {@link JsonElement}s each of
@@ -30,7 +32,7 @@ import java.util.List;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public final class JsonArray extends JsonElement implements Iterable<JsonElement> {
+public final class JsonArray extends JsonElement implements List<JsonElement> {
   private final List<JsonElement> elements;
 
   /**
@@ -97,11 +99,11 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    *
    * @param element the element that needs to be added to the array.
    */
-  public void add(JsonElement element) {
+  public boolean add(JsonElement element) {
     if (element == null) {
       element = JsonNull.INSTANCE;
     }
-    elements.add(element);
+    return elements.add(element);
   }
 
   /**
@@ -376,5 +378,73 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   @Override
   public int hashCode() {
     return elements.hashCode();
+  }
+
+  public boolean isEmpty() {
+    return elements.isEmpty();
+  }
+
+  public boolean contains(Object o) {
+    return elements.contains(o);
+  }
+
+  public Object[] toArray() {
+    return elements.toArray();
+  }
+
+  public <T> T[] toArray(T[] a) {
+    return elements.toArray(a);
+  }
+
+  public boolean remove(Object o) {
+    return elements.remove(o);
+  }
+
+  public boolean containsAll(Collection<?> c) {
+    return elements.containsAll(c);
+  }
+
+  public boolean addAll(Collection<? extends JsonElement> c) {
+    return elements.addAll(c);
+  }
+
+  public boolean addAll(int index, Collection<? extends JsonElement> c) {
+    return elements.addAll(index, c);
+  }
+
+  public boolean removeAll(Collection<?> c) {
+    return elements.removeAll(c);
+  }
+
+  public boolean retainAll(Collection<?> c) {
+    return elements.retainAll(c);
+  }
+
+  public void clear() {
+    elements.clear();
+  }
+
+  public void add(int index, JsonElement element) {
+    elements.add(index, element);
+  }
+
+  public int indexOf(Object o) {
+    return elements.indexOf(o);
+  }
+
+  public int lastIndexOf(Object o) {
+    return elements.lastIndexOf(o);
+  }
+
+  public ListIterator<JsonElement> listIterator() {
+    return elements.listIterator();
+  }
+
+  public ListIterator<JsonElement> listIterator(int index) {
+    return elements.listIterator(index);
+  }
+
+  public List<JsonElement> subList(int fromIndex, int toIndex) {
+    return elements.subList(fromIndex, toIndex);
   }
 }
