@@ -167,8 +167,8 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           if (previous == null) previous = replaced;
         }
         if (previous != null) {
-          throw new IllegalArgumentException(declaredType
-              + " declares multiple JSON fields named " + previous.name);
+          //throw new IllegalArgumentException(declaredType + " declares multiple JSON fields named " + previous.name);
+          result.put(boundField.name, previous);
         }
       }
       type = TypeToken.get($Gson$Types.resolve(type.getType(), raw, raw.getGenericSuperclass()));
