@@ -33,7 +33,7 @@ public enum LongSerializationPolicy {
    */
   DEFAULT() {
     @Override public JsonElement serialize(Long value) {
-      return new JsonPrimitive(value);
+      return JsonPrimitive.allocate(value);
     }
   },
   
@@ -44,7 +44,7 @@ public enum LongSerializationPolicy {
    */
   STRING() {
     @Override public JsonElement serialize(Long value) {
-      return new JsonPrimitive(String.valueOf(value));
+      return JsonPrimitive.allocate(String.valueOf(value));
     }
   };
   

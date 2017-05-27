@@ -277,7 +277,7 @@ public final class JsonTreeReader extends JsonReader {
     Iterator<?> i = (Iterator<?>) peekStack();
     Map.Entry<?, ?> entry = (Map.Entry<?, ?>) i.next();
     push(entry.getValue());
-    push(new JsonPrimitive((String) entry.getKey()));
+    push(JsonPrimitive.allocate((String) entry.getKey()));
   }
 
   private void push(Object newTop) {
