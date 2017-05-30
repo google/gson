@@ -1,16 +1,17 @@
 package com.google.gson.internal.bind;
 
 import com.google.gson.Gson;
+import com.google.gson.TypeAdapter;
 import com.google.gson.internal.$Gson$Types;
 import junit.framework.TestCase;
 
 import java.io.PrintStream;
 import java.lang.ref.WeakReference;
-import java.lang.reflect.Type;
 
 /**
- * Test fixes for infinite recursion on {@link $Gson$Types#resolve(Type, Class, Type)}, described at
- * <a href="https://github.com/google/gson/issues/440">Issue #440</a> and similar issues.
+ * Test fixes for infinite recursion on {@link $Gson$Types#resolve(java.lang.reflect.Type, Class,
+ * java.lang.reflect.Type)}, described at <a href="https://github.com/google/gson/issues/440">Issue #440</a>
+ * and similar issues.
  * <p>
  * These tests originally caused {@link StackOverflowError} because of infinite recursion on attempts to
  * resolve generics on types, with an intermediate types like 'Foo2&lt;? extends ? super ? extends ... ? extends A&gt;'
@@ -18,29 +19,32 @@ import java.lang.reflect.Type;
 public class RecursiveTypesResolveTest extends TestCase {
 
   private static class Foo1<A> {
-    Foo2<? extends A> foo2;
+    public Foo2<? extends A> foo2;
   }
 
   private static class Foo2<B> {
-    Foo1<? super B> foo1;
+    public Foo1<? super B> foo1;
   }
 
   /**
    * Test simplest case of recursion.
    */
   public void testRecursiveResolveSimple() {
-    new Gson().getAdapter(Foo1.class);
+    TypeAdapter<Foo1> adapter = new Gson().getAdapter(Foo1.class);
+    assertNotNull(adapter);
   }
 
   //
   // Real-world samples, found in Issues #603 and #440.
   //
-  public void testIssue603_PrintStream() {
-    new Gson().getAdapter(PrintStream.class);
+  public void testIssue603PrintStream() {
+    TypeAdapter<PrintStream> adapter = new Gson().getAdapter(PrintStream.class);
+    assertNotNull(adapter);
   }
 
-  public void testIssue440_WeakReference() throws Exception {
-    new Gson().getAdapter(WeakReference.class);
+  public void testIssue440WeakReference() throws Exception {
+    TypeAdapter<WeakReference> adapter = new Gson().getAdapter(WeakReference.class);
+    assertNotNull(adapter);
   }
 
   //
