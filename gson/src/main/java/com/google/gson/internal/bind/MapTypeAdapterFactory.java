@@ -204,7 +204,7 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
       if (!complexMapKeySerialization) {
         out.beginObject();
         for (Map.Entry<K, V> entry : map.entrySet()) {
-          out.name(String.valueOf(entry.getKey()));
+          out.name(keyTypeAdapter.name(entry.getKey()));
           valueTypeAdapter.write(out, entry.getValue());
         }
         out.endObject();

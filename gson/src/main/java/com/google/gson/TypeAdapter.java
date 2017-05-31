@@ -119,6 +119,16 @@ import java.io.Writer;
 public abstract class TypeAdapter<T> {
 
   /**
+   * Returns the value as JSON name
+   *
+   * @param value the Java object to write. May be null.
+   * @since 2.9
+   */
+  public String name(T value) throws IOException {
+    return String.valueOf(value);
+  }
+
+  /**
    * Writes one JSON value (an array, object, string, number, boolean or null)
    * for {@code value}.
    *
