@@ -11,4 +11,6 @@ Bundle-RequiredExecutionEnvironment: J2SE-1.5, JavaSE-1.6, JavaSE-1.7, JavaSE-1.
     com.google.gson,\
     com.google.gson.annotations,\
     com.google.gson.reflect,\
-    com.google.gson.stream
+    com.google.gson.stream,\
+    com.google.gson.internal,\
+    com.google.gson.internal.bind
