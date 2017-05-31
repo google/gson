@@ -2,8 +2,9 @@ Change Log
 ==========
 
 ## Version 2.8.1
-_2016-10-26_  [GitHub Diff](https://github.com/google/gson/compare/gson-parent-2.8.0...gson-parent-2.8.1)
+_2017-05-30_  [GitHub Diff](https://github.com/google/gson/compare/gson-parent-2.8.0...gson-parent-2.8.1)
  * New: `JsonObject.keySet()`
+ * `@JsonAdapter` annotation can now use `JsonSerializer` and `JsonDeserializer1 as well.
 
 ## Version 2.8
 _2016-10-26_  [GitHub Diff](https://github.com/google/gson/compare/gson-parent-2.7...gson-parent-2.8.0)
