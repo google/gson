@@ -191,12 +191,29 @@ public abstract class TypeAdapter<T> {
           TypeAdapter.this.write(out, value);
         }
       }
+
+      @Override public JsonElement toJsonTree(T value) {
+        if (value == null) {
+          return JsonNull.INSTANCE;
+        } else {
+          return TypeAdapter.this.toJsonTree(value);
+        }
+      }
+
       @Override public T read(JsonReader reader) throws IOException {
         if (reader.peek() == JsonToken.NULL) {
           reader.nextNull();
           return null;
         }
         return TypeAdapter.this.read(reader);
+      }
+
+      @Override public T fromJsonTree(JsonElement jsonTree) {
+        if (jsonTree.isJsonNull()) {
+          return null;
+        } else {
+          return TypeAdapter.this.fromJsonTree(jsonTree);
+        }
       }
     };
   }
@@ -228,7 +245,7 @@ public abstract class TypeAdapter<T> {
    * @return the converted JSON tree. May be {@link JsonNull}.
    * @since 2.2
    */
-  public final JsonElement toJsonTree(T value) {
+  public JsonElement toJsonTree(T value) {
     try {
       JsonTreeWriter jsonWriter = new JsonTreeWriter();
       write(jsonWriter, value);
@@ -279,7 +296,7 @@ public abstract class TypeAdapter<T> {
    * @param jsonTree the Java object to convert. May be {@link JsonNull}.
    * @since 2.2
    */
-  public final T fromJsonTree(JsonElement jsonTree) {
+  public T fromJsonTree(JsonElement jsonTree) {
     try {
       JsonReader jsonReader = new JsonTreeReader(jsonTree);
       return read(jsonReader);
