@@ -203,6 +203,24 @@ public final class JsonTreeReader extends JsonReader {
     }
   }
 
+  @Override public Number nextNumber() throws IOException {
+    JsonToken token = peek();
+    if (token != JsonToken.NUMBER && token != JsonToken.STRING) {
+      throw new IllegalStateException(
+              "Expected " + JsonToken.NUMBER + " but was " + token + locationString());
+    }
+    Number result = ((JsonPrimitive) peekStack()).getAsNumber();
+    if (!isLenient() && result instanceof Double &&
+            (Double.isNaN(result.doubleValue()) || Double.isInfinite(result.doubleValue()))) {
+      throw new NumberFormatException("JSON forbids NaN and infinities: " + result);
+    }
+    popStack();
+    if (stackSize > 0) {
+      pathIndices[stackSize - 1]++;
+    }
+    return result;
+  }
+
   @Override public double nextDouble() throws IOException {
     JsonToken token = peek();
     if (token != JsonToken.NUMBER && token != JsonToken.STRING) {

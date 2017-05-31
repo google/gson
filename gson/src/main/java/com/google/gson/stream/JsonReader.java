@@ -874,6 +874,29 @@ public class JsonReader implements Closeable {
   }
 
   /**
+   * Returns the Number value of the next token, which is either {@link Long} or {@link Double},
+   * depending on whether the next literal is floating-point or integer.
+   *
+   * @throws IllegalStateException if the next token is not a literal value.
+   * @throws NumberFormatException if the next literal value cannot be parsed
+   *     as a double or as a long, or is non-finite.
+   */
+  public Number nextNumber() throws IOException {
+    int p = peeked;
+    if (p == PEEKED_NONE) {
+      p = doPeek();
+    }
+
+    if (p == PEEKED_LONG) {
+      peeked = PEEKED_NONE;
+      pathIndices[stackSize - 1]++;
+      return peekedLong;
+    } else {
+      return nextDouble();
+    }
+  }
+
+  /**
    * Returns the {@link com.google.gson.stream.JsonToken#NUMBER double} value of the next token,
    * consuming it. If the next token is a string, this method will attempt to
    * parse it as a double using {@link Double#parseDouble(String)}.
