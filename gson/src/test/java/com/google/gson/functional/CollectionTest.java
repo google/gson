@@ -17,19 +17,7 @@
 package com.google.gson.functional;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.Queue;
-import java.util.Set;
-import java.util.Stack;
-import java.util.Vector;
+import java.util.*;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -253,8 +241,8 @@ public class CollectionTest extends TestCase {
   public void testRawCollectionDeserializationNotAlllowed() {
     String json = "[0,1,2,3,4,5,6,7,8,9]";
     Collection integers = gson.fromJson(json, Collection.class);
-    // JsonReader converts numbers to double by default so we need a floating point comparison
-    assertEquals(Arrays.asList(0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0), integers);
+    // JsonReader converts non-fp numbers to long by default so we need long comparison
+    assertEquals(Arrays.asList(0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L), integers);
 
     json = "[\"Hello\", \"World\"]";
     Collection strings = gson.fromJson(json, Collection.class);
@@ -271,8 +259,8 @@ public class CollectionTest extends TestCase {
     for (Object bag1 : target) {
       // Gson 2.0 converts raw objects into maps
       Map<String, Object> values = (Map<String, Object>) bag1;
-      assertTrue(values.containsValue(10.0));
-      assertTrue(values.containsValue(20.0));
+      assertTrue(values.containsValue(10L));
+      assertTrue(values.containsValue(20L));
       assertTrue(values.containsValue("stringValue"));
     }
   }
@@ -392,5 +380,13 @@ public class CollectionTest extends TestCase {
     for (Entry entry : set) {
       assertTrue(entry.value == 1 || entry.value == 2);
     }
+  }
+
+  public void testIssue1084() throws Exception {
+    String json = "{\"first\":6906764140092371368}";
+
+    Map map = gson.fromJson(json, Map.class);
+    Number number = (Number) map.get("first");
+    assertEquals(6906764140092371368L, number);
   }
 }

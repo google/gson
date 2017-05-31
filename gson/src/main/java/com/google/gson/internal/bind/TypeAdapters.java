@@ -350,6 +350,7 @@ public final class TypeAdapters {
         in.nextNull();
         return null;
       case NUMBER:
+        return in.nextNumber();
       case STRING:
         return new LazilyParsedNumber(in.nextString());
       default:

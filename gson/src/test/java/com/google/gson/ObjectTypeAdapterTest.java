@@ -16,10 +16,8 @@
 
 package com.google.gson;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
+
 import junit.framework.TestCase;
 
 public final class ObjectTypeAdapterTest extends TestCase {
@@ -28,10 +26,20 @@ public final class ObjectTypeAdapterTest extends TestCase {
 
   public void testDeserialize() throws Exception {
     Map<?, ?> map = (Map<?, ?>) adapter.fromJson("{\"a\":5,\"b\":[1,2,null],\"c\":{\"x\":\"y\"}}");
-    assertEquals(5.0, map.get("a"));
-    assertEquals(Arrays.asList(1.0, 2.0, null), map.get("b"));
+    assertEquals(5L, map.get("a"));
+    assertEquals(Arrays.asList(1L, 2L, null), map.get("b"));
     assertEquals(Collections.singletonMap("x", "y"), map.get("c"));
     assertEquals(3, map.size());
+  }
+
+  public void testDeserializeNumbers() throws Exception {
+    Number longNum = (Number) adapter.fromJson("2");
+    assertTrue(longNum instanceof Long);
+    assertEquals(2L, longNum);
+
+    Number fpNum = (Number) adapter.fromJson("2.0");
+    assertTrue(fpNum instanceof Double);
+    assertEquals(2.0, fpNum);
   }
 
   public void testSerialize() throws Exception {
