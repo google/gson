@@ -34,7 +34,7 @@ public abstract class JsonElement {
   /**
    * Returns a deep copy of this element. Immutable elements like primitives
    * and nulls are not copied.
-   * @since 2.8.1
+   * @since 2.8.2
    */
   public abstract JsonElement deepCopy();
 

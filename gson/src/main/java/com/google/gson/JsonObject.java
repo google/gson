@@ -35,7 +35,7 @@ public final class JsonObject extends JsonElement {
 
   /**
    * Creates a deep copy of this element and all its children
-   * @since 2.8.1
+   * @since 2.8.2
    */
   @Override
   public JsonObject deepCopy() {
