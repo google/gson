@@ -22,6 +22,7 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
+import com.google.gson.annotations.SerializedName;
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.JsonReaderInternalAccess;
@@ -34,6 +35,7 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
@@ -198,6 +200,26 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
     @Override public void write(JsonWriter out, Map<K, V> map) throws IOException {
       if (map == null) {
         out.nullValue();
+        return;
+      }
+
+      if (map instanceof EnumMap) {
+        out.beginObject();
+        for (Map.Entry<K, V> entry : map.entrySet()) {
+          K key = entry.getKey();
+          String name = String.valueOf(key);
+          try {
+            SerializedName annotation = key.getClass().getField(name).getAnnotation(SerializedName.class);
+            if (annotation != null) {
+              name = annotation.value();
+            }
+          } catch (NoSuchFieldException e) {
+            throw new AssertionError();
+          }
+          out.name(name);
+          valueTypeAdapter.write(out, entry.getValue());
+        }
+        out.endObject();
         return;
       }
 
