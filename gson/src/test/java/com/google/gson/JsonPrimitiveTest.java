@@ -17,11 +17,12 @@
 package com.google.gson;
 
 import com.google.gson.common.MoreAsserts;
-
 import junit.framework.TestCase;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Unit test for the {@link JsonPrimitive} class.
@@ -58,6 +59,51 @@ public class JsonPrimitiveTest extends TestCase {
 
     assertFalse(json.isBoolean());
     assertTrue(json.getAsBoolean());
+  }
+
+  public void testGetStringAsDateWithValidPattern() throws Exception {
+    String pattern = "yyyy-MM-dd";
+    String dateStr = "2016-07-02";
+
+    SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+    Date date = sdf.parse(dateStr);
+
+    JsonPrimitive primitive = new JsonPrimitive(dateStr);
+    Date jsonDate = primitive.getAsDate(pattern);
+
+    assertTrue(date.equals(jsonDate));
+  }
+
+  public void testGetStringAsDateWithInvalidPattern() throws Exception {
+    try{
+      String pattern = "";
+      String dateStr = "07/02/2016";
+
+      JsonPrimitive primitive = new JsonPrimitive(dateStr);
+      primitive.getAsDate(pattern);
+      fail();
+    } catch(UnsupportedOperationException exception){}
+  }
+
+  public void testGetStringAsDateWithInvalidDate() throws Exception {
+    try{
+      String pattern = "yyyy-MM-dd";
+      String dateStr = "2016-12-32";
+
+      JsonPrimitive primitive = new JsonPrimitive(dateStr);
+      primitive.getAsDate(pattern);
+    } catch (UnsupportedOperationException exception){}
+  }
+
+  public void testGetAsDateWithBoolean() throws Exception {
+    try{
+      String pattern = "yyyy-MM-dd";
+      String booleanStr = "true";
+
+      JsonPrimitive primitive = new JsonPrimitive(booleanStr);
+      primitive.getAsDate(pattern);
+      fail();
+    } catch(UnsupportedOperationException exception){}
   }
 
   public void testParsingStringAsNumber() throws Exception {

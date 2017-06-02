@@ -16,11 +16,15 @@
 
 package com.google.gson;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-
 import com.google.gson.internal.$Gson$Preconditions;
 import com.google.gson.internal.LazilyParsedNumber;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * A class representing a Json primitive value. A primitive value
@@ -186,6 +190,25 @@ public final class JsonPrimitive extends JsonElement {
     }
   }
 
+  /**
+   * convenience method to get this element as a Date.
+   *
+   * @return get this element as a Date.
+   * @throws UnsupportedOperationException if the value contained could not be parsed by the given
+   * pattern.
+   */
+  @Override
+  public Date getAsDate(String pattern) {
+    DateFormat formatter = new SimpleDateFormat(pattern);
+    formatter.setLenient(false);
+    try {
+      return formatter.parse(value.toString());
+    } catch (ParseException e) {
+      throw new UnsupportedOperationException(
+          "Unable to parse value " + value + " with pattern " + pattern
+      );
+    }
+  }
   /**
    * convenience method to get this element as a primitive double.
    *

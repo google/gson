@@ -19,6 +19,7 @@ package com.google.gson;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -372,7 +373,24 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
     throw new IllegalStateException();
   }
 
+  /**
+   * convenience method to get this array as Date if it contains a single element.
+   *
+   * @return get this element as a Date if it is single element array.
+   * @throws UnsupportedOperationException if the element in the array is of not a {@link JsonPrimitive} and is not a valid
+   * String date value.
+   * @throws IllegalStateException if the array has more than one element.
+   *
+  */
   @Override
+  public Date getAsDate(String pattern) {
+    if (elements.size() == 1) {
+      return elements.get(0).getAsDate(pattern);
+    }
+    throw new IllegalStateException();
+  }
+
+    @Override
   public boolean equals(Object o) {
     return (o == this) || (o instanceof JsonArray && ((JsonArray) o).elements.equals(elements));
   }

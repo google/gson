@@ -18,10 +18,12 @@ package com.google.gson;
 
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonWriter;
+
 import java.io.IOException;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Date;
 
 /**
  * A class representing an element of Json. It could either be a {@link JsonObject}, a
@@ -310,6 +312,19 @@ public abstract class JsonElement {
    * more than a single element.
    */
   public short getAsShort() {
+    throw new UnsupportedOperationException(getClass().getSimpleName());
+  }
+
+  /**
+  * convenience method to get this element as a date.
+  *
+  * @return get this element as a date.
+  * @throws UnsupportedOperationException if the element is of not a {@link JsonPrimitive} and is not a valid
+  * String date value.
+  * @throws IllegalStateException if the element is of the type {@link JsonArray} but contains
+  * more than a single element.
+  */
+  public Date getAsDate(String pattern) {
     throw new UnsupportedOperationException(getClass().getSimpleName());
   }
 
