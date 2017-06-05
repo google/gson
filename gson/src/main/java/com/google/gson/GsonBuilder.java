@@ -75,7 +75,7 @@ import static com.google.gson.Gson.DEFAULT_SPECIALIZE_FLOAT_VALUES;
  * @author Joel Leitch
  * @author Jesse Wilson
  */
-public final class GsonBuilder {
+public class GsonBuilder {
   private Excluder excluder = Excluder.DEFAULT;
   private LongSerializationPolicy longSerializationPolicy = LongSerializationPolicy.DEFAULT;
   private FieldNamingStrategy fieldNamingPolicy = FieldNamingPolicy.IDENTITY;
