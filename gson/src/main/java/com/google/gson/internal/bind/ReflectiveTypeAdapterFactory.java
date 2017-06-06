@@ -23,6 +23,7 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
+import com.google.gson.aware.DeserializationAware;
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.Excluder;
@@ -226,6 +227,10 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         throw new AssertionError(e);
       }
       in.endObject();
+
+      if(instance instanceof DeserializationAware) {
+        ((DeserializationAware)instance).onDeserializationComplete();
+      }
       return instance;
     }
 
