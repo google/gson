@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 import junit.framework.TestCase;
+import org.junit.Ignore;
 
 /**
  * A simple unit test for the {@link DefaultDateTypeAdapter} class.
@@ -61,6 +62,12 @@ public class DefaultDateTypeAdapterTest extends TestCase {
       TimeZone.setDefault(defaultTimeZone);
       Locale.setDefault(defaultLocale);
     }
+  }
+
+  @Ignore public void testNullSafe() throws IOException {
+    TypeAdapter<Date> date =
+        new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss Z").create().getAdapter(Date.class);
+    assertNull(date.fromJson("null"));
   }
 
   public void testParsingDatesFormattedWithSystemLocale() throws Exception {
@@ -133,7 +140,7 @@ public class DefaultDateTypeAdapterTest extends TestCase {
     assertParsed("1970-01-01T01:00:00+01:00", adapter);
     assertParsed("1970-01-01T01:00:00+01", adapter);
   }
-  
+
   public void testDateSerialization() throws Exception {
     int dateStyle = DateFormat.LONG;
     DefaultDateTypeAdapter dateTypeAdapter = new DefaultDateTypeAdapter(Date.class, dateStyle);
