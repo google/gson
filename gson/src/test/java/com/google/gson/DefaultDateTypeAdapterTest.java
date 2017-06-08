@@ -164,6 +164,7 @@ public class DefaultDateTypeAdapterTest extends TestCase {
   public void testNullValue() throws Exception {
     DefaultDateTypeAdapter adapter = new DefaultDateTypeAdapter(Date.class);
     assertNull(adapter.fromJson("null"));
+    assertEquals("null", adapter.toJson(null));
   }
 
   public void testUnexpectedToken() throws Exception {

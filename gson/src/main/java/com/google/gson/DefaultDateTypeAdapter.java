@@ -84,6 +84,10 @@ final class DefaultDateTypeAdapter extends TypeAdapter<Date> {
   // See issue 162
   @Override
   public void write(JsonWriter out, Date value) throws IOException {
+    if (value == null) {
+      out.nullValue();
+      return;
+    }
     synchronized (localFormat) {
       String dateFormatAsString = enUsFormat.format(value);
       out.value(dateFormatAsString);
