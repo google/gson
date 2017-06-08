@@ -161,6 +161,19 @@ public class DefaultDateTypeAdapterTest extends TestCase {
     } catch (IllegalArgumentException expected) { }
   }
 
+  public void testNullValue() throws Exception {
+    DefaultDateTypeAdapter adapter = new DefaultDateTypeAdapter(Date.class);
+    assertNull(adapter.fromJson("null"));
+  }
+
+  public void testUnexpectedToken() throws Exception {
+    try {
+      DefaultDateTypeAdapter adapter = new DefaultDateTypeAdapter(Date.class);
+      adapter.fromJson("{}");
+      fail("Unexpected token should fail.");
+    } catch (IllegalStateException expected) { }
+  }
+
   private void assertFormatted(String formatted, DefaultDateTypeAdapter adapter) {
     assertEquals(toLiteral(formatted), adapter.toJson(new Date(0)));
   }
