@@ -255,6 +255,10 @@ public final class Gson {
     this.factories = Collections.unmodifiableList(factories);
   }
 
+  public ConstructorConstructor constructorConstructor() {
+    return constructorConstructor;
+  }
+
   public Excluder excluder() {
     return excluder;
   }
