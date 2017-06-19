@@ -29,7 +29,9 @@ import java.util.List;
 
 public class PostConstructAdapterFactoryTest extends TestCase {
     public void test() throws Exception {
-        Gson gson = new GsonBuilder().registerTypeAdapterFactory(new PostConstructAdapterFactory()).create();
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapterFactory(new PostConstructAdapterFactory())
+                .create();
         gson.fromJson("{\"bread\": \"white\", \"cheese\": \"cheddar\"}", Sandwich.class);
         try {
             gson.fromJson("{\"bread\": \"cheesey bread\", \"cheese\": \"swiss\"}", Sandwich.class);
@@ -87,7 +89,6 @@ public class PostConstructAdapterFactoryTest extends TestCase {
             return true;
         }
     }
-
 
     static class MultipleSandwiches {
         public List<Sandwich> sandwiches;
