@@ -16,12 +16,12 @@
 
 package com.google.gson.typeadapters;
 
-import javax.annotation.PostConstruct;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
 import junit.framework.TestCase;
+
+import javax.annotation.PostConstruct;
+import java.util.List;
 
 public class PostConstructAdapterFactoryTest extends TestCase {
     public void test() throws Exception {
@@ -37,6 +37,14 @@ public class PostConstructAdapterFactoryTest extends TestCase {
         }
     }
 
+    public void testList() {
+        Gson gson = new GsonBuilder()
+            .registerTypeAdapterFactory(new PostConstructAdapterFactory())
+            .create();
+
+        gson.fromJson("{\"sandwiches\": [{\"bread\": \"white\", \"cheese\": \"cheddar\"},{\"bread\": \"white\", \"cheese\": \"swiss\"}]}", NotableSandwiches.class);
+    }
+
     static class Sandwich {
         String bread;
         String cheese;
@@ -46,5 +54,9 @@ public class PostConstructAdapterFactoryTest extends TestCase {
                 throw new IllegalArgumentException("too cheesey");
             }
         }
+    }
+
+    static class NotableSandwiches {
+        List<Sandwich> sandwiches;
     }
 }
