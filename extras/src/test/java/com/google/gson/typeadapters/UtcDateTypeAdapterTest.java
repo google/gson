@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import com.google.gson.JsonParseException;
 import junit.framework.TestCase;
 
 import com.google.gson.Gson;
@@ -75,5 +76,14 @@ public final class UtcDateTypeAdapterTest extends TestCase {
   public void testNullDateSerialization() {
     String json = gson.toJson(null, Date.class);
     assertEquals("null", json);
+  }
+
+  public void testWellFormedParseException() {
+    try {
+      gson.fromJson("2017-06-20T14:32:30", Date.class);
+      fail("No exception");
+    } catch (JsonParseException exe) {
+      assertEquals(exe.getMessage(), "java.text.ParseException: Failed to parse date ['2017-06-20T14']: 2017-06-20T14");
+    }
   }
 }
