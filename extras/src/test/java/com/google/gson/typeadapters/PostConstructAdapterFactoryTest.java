@@ -22,7 +22,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import junit.framework.TestCase;
-import org.junit.Assert;
 
 import java.util.Arrays;
 import java.util.List;
@@ -50,10 +49,10 @@ public class PostConstructAdapterFactoryTest extends TestCase {
 
         // Throws NullPointerException without the fix in https://github.com/google/gson/pull/1103
         String json = gson.toJson(sandwiches);
-        Assert.assertEquals("{\"sandwiches\":[{\"bread\":\"white\",\"cheese\":\"cheddar\"},{\"bread\":\"whole wheat\",\"cheese\":\"swiss\"}]}", json);
+        assertEquals("{\"sandwiches\":[{\"bread\":\"white\",\"cheese\":\"cheddar\"},{\"bread\":\"whole wheat\",\"cheese\":\"swiss\"}]}", json);
 
         MultipleSandwiches sandwichesFromJson = gson.fromJson(json, MultipleSandwiches.class);
-        Assert.assertEquals(sandwiches, sandwichesFromJson);
+        assertEquals(sandwiches, sandwichesFromJson);
     }
 
     static class Sandwich {
