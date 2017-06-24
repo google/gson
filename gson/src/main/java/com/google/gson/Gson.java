@@ -646,6 +646,7 @@ public final class Gson {
     try {
       JsonWriter jsonWriter = newJsonWriter(Streams.writerForAppendable(writer));
       toJson(src, typeOfSrc, jsonWriter);
+      jsonWriter.flush();
     } catch (IOException e) {
       throw new JsonIOException(e);
     }
