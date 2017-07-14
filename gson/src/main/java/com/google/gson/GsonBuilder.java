@@ -559,9 +559,9 @@ public final class GsonBuilder {
    * @return an instance of Gson configured with the options currently set in this builder
    */
   public Gson create() {
-    List<TypeAdapterFactory> factories = new ArrayList<TypeAdapterFactory>(this.factories.size() + this.hierarchyFactories.size() + 3);
-    factories.addAll(this.factories);
-    Collections.reverse(factories);
+    List<TypeAdapterFactory> factoriesList = new ArrayList<TypeAdapterFactory>(this.factories.size() + this.hierarchyFactories.size() + 3);
+    factoriesList.addAll(this.factories);
+    Collections.reverse(factoriesList);
     Collections.reverse(this.hierarchyFactories);
     factories.addAll(this.hierarchyFactories);
     addTypeAdaptersForDate(datePattern, dateStyle, timeStyle, factories);
