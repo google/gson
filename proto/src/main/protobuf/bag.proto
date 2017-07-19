@@ -24,6 +24,11 @@ message SimpleProto {
   optional int32 count = 2;
 }
 
+message ProtoWithDifferentCaseFormat {
+  repeated string name_that_tests_case_format = 1;
+  optional string another_field = 2;
+}
+
 message ProtoWithRepeatedFields {
   repeated int64 numbers = 1;
   repeated SimpleProto simples = 2;

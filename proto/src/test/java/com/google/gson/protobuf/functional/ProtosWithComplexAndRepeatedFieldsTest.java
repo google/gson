@@ -15,10 +15,13 @@
  */
 package com.google.gson.protobuf.functional;
 
+import com.google.common.base.CaseFormat;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import com.google.gson.protobuf.ProtoTypeAdapter;
 import com.google.gson.protobuf.ProtoTypeAdapter.EnumSerialization;
+import com.google.gson.protobuf.generated.Bag.ProtoWithDifferentCaseFormat;
 import com.google.gson.protobuf.generated.Bag.ProtoWithRepeatedFields;
 import com.google.gson.protobuf.generated.Bag.SimpleProto;
 import com.google.protobuf.GeneratedMessage;
@@ -32,6 +35,7 @@ import junit.framework.TestCase;
  */
 public class ProtosWithComplexAndRepeatedFieldsTest extends TestCase {
   private Gson gson;
+  private Gson upperCamelGson;
 
   @Override
   protected void setUp() throws Exception {
@@ -41,6 +45,14 @@ public class ProtosWithComplexAndRepeatedFieldsTest extends TestCase {
             .registerTypeHierarchyAdapter(GeneratedMessage.class,
                 ProtoTypeAdapter.newBuilder()
                     .setEnumSerialization(EnumSerialization.NUMBER)
+                    .build())
+            .create();
+    upperCamelGson =
+        new GsonBuilder()
+            .registerTypeHierarchyAdapter(
+                GeneratedMessage.class, ProtoTypeAdapter.newBuilder()
+                    .setFieldNameSerializationFormat(
+                        CaseFormat.LOWER_UNDERSCORE, CaseFormat.UPPER_CAMEL)
                     .build())
             .create();
   }
@@ -66,5 +78,24 @@ public class ProtosWithComplexAndRepeatedFieldsTest extends TestCase {
     assertEquals(6, proto.getNumbers(1));
     assertEquals("bar", proto.getSimples(0).getMsg());
     assertEquals(7, proto.getSimples(1).getCount());
+  }
+
+  public void testSerializeDifferentCaseFormat() {
+    final ProtoWithDifferentCaseFormat proto =
+      ProtoWithDifferentCaseFormat.newBuilder()
+        .setAnotherField("foo")
+        .addNameThatTestsCaseFormat("bar")
+        .build();
+    final JsonObject json = upperCamelGson.toJsonTree(proto).getAsJsonObject();
+    assertEquals("foo", json.get("AnotherField").getAsString());
+    assertEquals("bar", json.get("NameThatTestsCaseFormat").getAsJsonArray().get(0).getAsString());
+  }
+
+  public void testDeserializeDifferentCaseFormat() {
+    final String json = "{NameThatTestsCaseFormat:['bar'],AnotherField:'foo'}";
+    ProtoWithDifferentCaseFormat proto =
+      upperCamelGson.fromJson(json, ProtoWithDifferentCaseFormat.class);
+    assertEquals("foo", proto.getAnotherField());
+    assertEquals("bar", proto.getNameThatTestsCaseFormat(0));
   }
 }
