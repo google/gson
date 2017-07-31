@@ -86,4 +86,29 @@ public class RecursiveTypesResolveTest extends TestCase {
     assertEquals($Gson$Types.subtypeOf(Object.class),
             $Gson$Types.subtypeOf($Gson$Types.supertypeOf(Number.class)));
   }
+
+  //
+  // tests for recursion while resolving type variables
+  //
+
+  private static class TestType<X> {
+    TestType<? super X> superType;
+  }
+
+  private static class TestType2<X, Y> {
+    TestType2<? super Y, ? super X> superReversedType;
+  }
+
+  public void testRecursiveTypeVariablesResolve1() throws Exception {
+    TypeAdapter<TestType> adapter = new Gson().getAdapter(TestType.class);
+    assertNotNull(adapter);
+  }
+
+  public void testRecursiveTypeVariablesResolve12() throws Exception {
+    TypeAdapter<TestType2> adapter = new Gson().getAdapter(TestType2.class);
+    assertNotNull(adapter);
+  }
 }
+
+
+
