@@ -85,8 +85,12 @@ public final class JsonPrimitive extends JsonElement {
     setValue(primitive);
   }
 
+  /**
+   * Returns the same value as primitives are immutable.
+   * @since 2.8.2
+   */
   @Override
-  JsonPrimitive deepCopy() {
+  public JsonPrimitive deepCopy() {
     return this;
   }
 

@@ -249,4 +249,15 @@ public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
       return Foo.valueOf(in.nextString().toUpperCase(Locale.US));
     }
   }
+
+  public void testIncorrectJsonAdapterType() {
+    try {
+      new Gson().toJson(new D());
+      fail();
+    } catch (IllegalArgumentException expected) {}
+  }
+  @JsonAdapter(Integer.class)
+  private static final class D {
+    @SuppressWarnings("unused") final String value = "a";
+  }
 }

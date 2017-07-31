@@ -16,11 +16,12 @@
 
 package com.google.gson.stream;
 
+import junit.framework.TestCase;
+
 import java.io.IOException;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import junit.framework.TestCase;
 
 @SuppressWarnings("resource")
 public final class JsonWriterTest extends TestCase {
@@ -211,6 +212,30 @@ public final class JsonWriterTest extends TestCase {
       fail();
     } catch (IllegalArgumentException expected) {
     }
+  }
+
+  public void testNonFiniteDoublesWhenLenient() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter jsonWriter = new JsonWriter(stringWriter);
+    jsonWriter.setLenient(true);
+    jsonWriter.beginArray();
+    jsonWriter.value(Double.NaN);
+    jsonWriter.value(Double.NEGATIVE_INFINITY);
+    jsonWriter.value(Double.POSITIVE_INFINITY);
+    jsonWriter.endArray();
+    assertEquals("[NaN,-Infinity,Infinity]", stringWriter.toString());
+  }
+
+  public void testNonFiniteBoxedDoublesWhenLenient() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter jsonWriter = new JsonWriter(stringWriter);
+    jsonWriter.setLenient(true);
+    jsonWriter.beginArray();
+    jsonWriter.value(Double.valueOf(Double.NaN));
+    jsonWriter.value(Double.valueOf(Double.NEGATIVE_INFINITY));
+    jsonWriter.value(Double.valueOf(Double.POSITIVE_INFINITY));
+    jsonWriter.endArray();
+    assertEquals("[NaN,-Infinity,Infinity]", stringWriter.toString());
   }
 
   public void testDoubles() throws IOException {

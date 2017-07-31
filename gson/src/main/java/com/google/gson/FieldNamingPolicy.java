@@ -150,10 +150,6 @@ public enum FieldNamingPolicy implements FieldNamingStrategy {
       firstCharacter = name.charAt(++index);
     }
 
-    if (index == length) {
-      return fieldNameBuilder.toString();
-    }
-
     if (!Character.isUpperCase(firstCharacter)) {
       String modifiedTarget = modifyString(Character.toUpperCase(firstCharacter), name, ++index);
       return fieldNameBuilder.append(modifiedTarget).toString();

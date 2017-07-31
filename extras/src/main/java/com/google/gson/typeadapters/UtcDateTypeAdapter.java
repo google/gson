@@ -229,7 +229,7 @@ public final class UtcDateTypeAdapter extends TypeAdapter<Date> {
     } catch (IllegalArgumentException e) {
       fail = e;
     }
-    String input = (date == null) ? null : ('"' + date + "'");
+    String input = (date == null) ? null : ("'" + date + "'");
     throw new ParseException("Failed to parse date [" + input + "]: " + fail.getMessage(), pos.getIndex());
   }
 
