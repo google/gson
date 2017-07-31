@@ -25,11 +25,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Properties;
+import java.util.*;
 
 import static com.google.gson.internal.$Gson$Preconditions.checkArgument;
 import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
