@@ -500,30 +500,30 @@ public class ObjectTest extends TestCase {
   }
 
   private static class C1 {
-    String f;
-    C1(String f1) { this.f = f1; }
-    String getC1Field() { return f; }
+    private String f;
+    public C1(String f1) { this.f = f1; }
+    public String getC1Field() { return f; }
   }
 
   private static class C2 extends C1 {
-    C2(String f1) { super(f1); }
+    public C2(String f1) { super(f1); }
   }
 
   private static class C3 extends C2 {
-    String f;
+    private String f;
 
-    C3(String f1, String f3) {
+    public C3(String f1, String f3) {
       super(f1);
       this.f = f3;
     }
 
-    String getC3Field() { return f; }
+    public String getC3Field() { return f; }
   }
 
   private static class C4 extends C3 {
-    String f;
+    private String f;
 
-    C4(String f1, String f3, String f4) {
+    public C4(String f1, String f3, String f4) {
       super(f1, f3);
       this.f = f4;
     }
