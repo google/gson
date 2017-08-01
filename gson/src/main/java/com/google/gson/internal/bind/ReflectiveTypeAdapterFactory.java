@@ -146,6 +146,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     }
 
     Type declaredType = type.getType();
+    int superLevel = 0;
     while (raw != Object.class) {
       Field[] fields = raw.getDeclaredFields();
       for (Field field : fields) {
@@ -161,6 +162,13 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         for (int i = 0, size = fieldNames.size(); i < size; ++i) {
           String name = fieldNames.get(i);
           if (i != 0) serialize = false; // only serialize the default name
+          if(result.containsKey(name)) {
+            name = name + "^" + superLevel;
+            if (superLevel == 0 || result.containsKey(name)) {
+              throw new IllegalArgumentException(declaredType
+                      + " declares multiple JSON fields named " + fieldNames.get(i));
+            }
+          }
           BoundField boundField = createBoundField(context, field, name,
               TypeToken.get(fieldType), serialize, deserialize);
           BoundField replaced = result.put(name, boundField);
@@ -173,6 +181,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       }
       type = TypeToken.get($Gson$Types.resolve(type.getType(), raw, raw.getGenericSuperclass()));
       raw = type.getRawType();
+      superLevel++;
     }
     return result;
   }
