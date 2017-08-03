@@ -224,7 +224,7 @@ public final class ConstructorConstructor {
           return (T) newInstance;
         } catch (Exception e) {
           throw new RuntimeException(("Unable to invoke no-args constructor for " + type + ". "
-              + "Register an InstanceCreator with Gson for this type may fix this problem."), e);
+              + "Registering an InstanceCreator with Gson for this type may fix this problem."), e);
         }
       }
     };
