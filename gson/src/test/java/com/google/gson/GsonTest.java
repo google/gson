@@ -72,18 +72,6 @@ public final class GsonTest extends TestCase {
     assertEquals(original.factories.size() + 1, clone.factories.size());
   }
 
-  public void testClonedTypeAdapterFactoryListsAreSame() {
-    Gson original = new Gson(CUSTOM_EXCLUDER, CUSTOM_FIELD_NAMING_STRATEGY,
-        new HashMap<Type, InstanceCreator<?>>(), true, false, true, false,
-        true, true, false, LongSerializationPolicy.DEFAULT, null, DateFormat.DEFAULT,
-        DateFormat.DEFAULT, new ArrayList<TypeAdapterFactory>(),
-        new ArrayList<TypeAdapterFactory>(), new ArrayList<TypeAdapterFactory>());
-
-    Gson clone = original.newBuilder().create();
-
-    assertEquals(original.factories.size(), clone.factories.size());
-  }
-
   private static final class TestTypeAdapter extends TypeAdapter<Object> {
     @Override public void write(JsonWriter out, Object value) throws IOException { }
     @Override public Object read(JsonReader in) throws IOException { return null; }
