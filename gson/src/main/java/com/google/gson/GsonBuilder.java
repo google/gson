@@ -563,8 +563,7 @@ public final class GsonBuilder {
     factories.addAll(this.factories);
     Collections.reverse(factories);
 
-    List<TypeAdapterFactory> hierarchyFactories = new ArrayList<TypeAdapterFactory>(this.hierarchyFactories.size());
-    hierarchyFactories.addAll(this.hierarchyFactories);
+    List<TypeAdapterFactory> hierarchyFactories = new ArrayList<TypeAdapterFactory>(this.hierarchyFactories);
     Collections.reverse(hierarchyFactories);
     factories.addAll(hierarchyFactories);
 
