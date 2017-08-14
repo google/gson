@@ -17,7 +17,6 @@
 package com.google.gson;
 
 import com.google.gson.internal.Excluder;
-import com.google.gson.internal.bind.ObjectTypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
@@ -73,7 +72,9 @@ public final class GsonTest extends TestCase {
   }
 
   private static final class TestTypeAdapter extends TypeAdapter<Object> {
-    @Override public void write(JsonWriter out, Object value) throws IOException { }
+    @Override public void write(JsonWriter out, Object value) throws IOException {
+      // Test stub.
+    }
     @Override public Object read(JsonReader in) throws IOException { return null; }
   }
 }
