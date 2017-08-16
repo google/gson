@@ -162,7 +162,7 @@ public class EnumTest extends TestCase {
 
   public void testEnumWithAbstractMethods () {
     Gson gson = new GsonBuilder()
-            .registerTypeAdapter(Countries.class , new OnePlusDevicesAdapter())
+            .registerTypeAdapter(Countries.class , new CountriesAdapter())
             .create();
     Countries onePlusDevices = Countries.UNITED_STATES_OF_AMERICA;
     String json = gson.toJson(onePlusDevices);
@@ -251,7 +251,7 @@ public class EnumTest extends TestCase {
     }
   }
 
-  private static class OnePlusDevicesAdapter implements JsonSerializer<Countries> , JsonDeserializer<Countries> {
+  private static class CountriesAdapter implements JsonSerializer<Countries> , JsonDeserializer<Countries> {
 
     @Override
     public JsonElement serialize(Countries src, Type typeOfSrc, JsonSerializationContext context) {
