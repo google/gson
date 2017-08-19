@@ -394,9 +394,9 @@ public class CollectionTest extends TestCase {
     }
   }
 
-  private class BigClass { Map<String, ? extends List<SmallClass>> inBig; }
+  private class BigClass { private Map<String, ? extends List<SmallClass>> inBig; }
 
-  private class SmallClass { String inSmall; }
+  private class SmallClass { private String inSmall; }
 
   public void testIssue1107() {
     String json = "{\n" +
