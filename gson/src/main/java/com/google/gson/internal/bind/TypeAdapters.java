@@ -814,6 +814,10 @@ public final class TypeAdapters {
       if (!rawType.isEnum()) {
         rawType = rawType.getSuperclass(); // handle anonymous subclasses
       }
+      if (rawType.getEnumConstants() == null) {
+        // invalid enum class, probably corrupted by ProGuard (e.g. with missing values() method)
+        return null;
+      }
       return (TypeAdapter<T>) new EnumTypeAdapter(rawType);
     }
   };
