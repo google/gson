@@ -110,7 +110,7 @@ public final class GsonBuilder {
    *
    * @param gson the gson instance whose configuration should by applied to a new GsonBuilder.
    */
-  public GsonBuilder(Gson gson) {
+  GsonBuilder(Gson gson) {
     this.excluder = gson.excluder;
     this.fieldNamingPolicy = gson.fieldNamingStrategy;
     this.instanceCreators.putAll(gson.instanceCreators);
