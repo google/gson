@@ -19,7 +19,6 @@ package com.google.gson.protobuf;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.CaseFormat;
-import com.google.common.base.Converter;
 import com.google.common.collect.MapMaker;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
@@ -94,7 +93,8 @@ public class ProtoTypeAdapter
     private final Set<Extension<FieldOptions, String>> serializedNameExtensions;
     private final Set<Extension<EnumValueOptions, String>> serializedEnumValueExtensions;
     private EnumSerialization enumSerialization;
-    private Converter<String, String> fieldNameSerializationFormat;
+    private CaseFormat protoFormat;
+    private CaseFormat jsonFormat;
 
     private Builder(EnumSerialization enumSerialization, CaseFormat fromFieldNameFormat,
         CaseFormat toFieldNameFormat) {
@@ -126,7 +126,8 @@ public class ProtoTypeAdapter
      */
     public Builder setFieldNameSerializationFormat(CaseFormat fromFieldNameFormat,
         CaseFormat toFieldNameFormat) {
-      fieldNameSerializationFormat = fromFieldNameFormat.converterTo(toFieldNameFormat);
+      this.protoFormat = fromFieldNameFormat;
+      this.jsonFormat = toFieldNameFormat;
       return this;
     }
 
@@ -174,7 +175,7 @@ public class ProtoTypeAdapter
     }
 
     public ProtoTypeAdapter build() {
-      return new ProtoTypeAdapter(enumSerialization, fieldNameSerializationFormat,
+      return new ProtoTypeAdapter(enumSerialization, protoFormat, jsonFormat,
           serializedNameExtensions, serializedEnumValueExtensions);
     }
   }
@@ -195,16 +196,19 @@ public class ProtoTypeAdapter
       new MapMaker().makeMap();
 
   private final EnumSerialization enumSerialization;
-  private final Converter<String, String> fieldNameSerializationFormat;
+  private final CaseFormat protoFormat;
+  private final CaseFormat jsonFormat;
   private final Set<Extension<FieldOptions, String>> serializedNameExtensions;
   private final Set<Extension<EnumValueOptions, String>> serializedEnumValueExtensions;
 
   private ProtoTypeAdapter(EnumSerialization enumSerialization,
-      Converter<String, String> fieldNameSerializationFormat,
+      CaseFormat protoFormat,
+      CaseFormat jsonFormat,
       Set<Extension<FieldOptions, String>> serializedNameExtensions,
       Set<Extension<EnumValueOptions, String>> serializedEnumValueExtensions) {
     this.enumSerialization = enumSerialization;
-    this.fieldNameSerializationFormat = fieldNameSerializationFormat;
+    this.protoFormat = protoFormat;
+    this.jsonFormat = jsonFormat;
     this.serializedNameExtensions = serializedNameExtensions;
     this.serializedEnumValueExtensions = serializedEnumValueExtensions;
   }
@@ -284,8 +288,9 @@ public class ProtoTypeAdapter
               protoBuilder.setField(fieldDescriptor, fieldValue);
             } else if (fieldDescriptor.isRepeated()) {
               // If the type is an array, then we have to grab the type from the class.
+              // protobuf java field names are always lower camel case
               String protoArrayFieldName =
-                  fieldNameSerializationFormat.convert(fieldDescriptor.getName()) + "_";
+                  protoFormat.to(CaseFormat.LOWER_CAMEL, fieldDescriptor.getName()) + "_";
               Field protoArrayField = protoClass.getDeclaredField(protoArrayFieldName);
               Type protoArrayFieldType = protoArrayField.getGenericType();
               fieldValue = context.deserialize(jsonElement, protoArrayFieldType);
@@ -325,7 +330,7 @@ public class ProtoTypeAdapter
         return options.getExtension(extension);
       }
     }
-    return fieldNameSerializationFormat.convert(defaultName);
+    return protoFormat.to(jsonFormat, defaultName);
   }
 
   /**
