@@ -765,7 +765,8 @@ public final class Gson {
    * @param <T> the type of the desired object
    * @param json the string from which the object is to be deserialized
    * @param classOfT the class of T
-   * @return an object of type T from the string. Returns {@code null} if {@code json} is {@code null}.
+   * @return an object of type T from the string. Returns {@code null} if {@code json} is {@code null}
+   * or if {@code json} is empty.
    * @throws JsonSyntaxException if json is not a valid representation for an object of type
    * classOfT
    */
