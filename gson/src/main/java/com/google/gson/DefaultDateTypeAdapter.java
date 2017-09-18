@@ -84,6 +84,10 @@ final class DefaultDateTypeAdapter extends TypeAdapter<Date> {
   // See issue 162
   @Override
   public void write(JsonWriter out, Date value) throws IOException {
+    if (value == null) {
+      out.nullValue();
+      return;
+    }
     synchronized (localFormat) {
       String dateFormatAsString = enUsFormat.format(value);
       out.value(dateFormatAsString);
@@ -92,8 +96,9 @@ final class DefaultDateTypeAdapter extends TypeAdapter<Date> {
 
   @Override
   public Date read(JsonReader in) throws IOException {
-    if (in.peek() != JsonToken.STRING) {
-      throw new JsonParseException("The date should be a string value");
+    if (in.peek() == JsonToken.NULL) {
+      in.nextNull();
+      return null;
     }
     Date date = deserializeToDate(in.nextString());
     if (dateType == Date.class) {
