@@ -34,6 +34,8 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -119,7 +121,42 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       @SuppressWarnings({"unchecked", "rawtypes"}) // the type adapter and field type always agree
       @Override void write(JsonWriter writer, Object value)
           throws IOException, IllegalAccessException {
-        Object fieldValue = field.get(value);
+        Object fieldValue;
+
+        if(context.useGetterSetter()) {
+          String fieldName = field.getName();
+          String getterPrefix = field.getType() == boolean.class || field.getType() == Boolean.class ? "is" : "get";
+          String getterName = getterPrefix + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+
+          try {
+            Method method = value.getClass().getMethod(getterName);
+            fieldValue = method.invoke(value);
+
+          } catch (NoSuchMethodException ignored) {
+              /*
+                Getting field via reflection if no setter method is found in the class for that field
+              */
+            fieldValue = field.get(value);
+
+          } catch (InvocationTargetException ignored) {
+              /*
+                TODO : Needs to be revisited
+                If use of getter is enabled & Gson is unable to call getter, then throw error or just use reflection?
+                Since earlier Gson version worked in all cases, using reflection to get field value for now.
+              */
+            fieldValue = field.get(value);
+          } catch (IllegalAccessException ignored) {
+              /*
+                TODO : Needs to be revisited
+                If use of getter is enabled & Gson is unable to call getter, then throw error or just use reflection?
+                Since earlier Gson version worked in all cases, using reflection to get field value for now.
+              */
+            fieldValue = field.get(value);
+          }
+        } else {
+          fieldValue = field.get(value);
+        }
+
         TypeAdapter t = jsonAdapterPresent ? typeAdapter
             : new TypeAdapterRuntimeTypeWrapper(context, typeAdapter, fieldType.getType());
         t.write(writer, fieldValue);
@@ -128,7 +165,39 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           throws IOException, IllegalAccessException {
         Object fieldValue = typeAdapter.read(reader);
         if (fieldValue != null || !isPrimitive) {
-          field.set(value, fieldValue);
+
+          if (context.useGetterSetter()) {
+            String fieldName = field.getName();
+            String setterName = "set" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+
+            try {
+              Method method = value.getClass().getMethod(setterName, field.getType());
+              method.invoke(value, fieldValue);
+
+            } catch (NoSuchMethodException ignored) {
+              /*
+                Setting field via reflection if no setter method is found in the class for that field
+              */
+              field.set(value, fieldValue);
+
+            } catch (InvocationTargetException ignored) {
+              /*
+                TODO : Needs to be revisited
+                If use of setter is enabled & Gson is unable to call setter, then throw error or just use reflection?
+                Since earlier Gson version worked in all cases, using reflection to set field value for now.
+              */
+              field.set(value, fieldValue);
+            } catch (IllegalAccessException ignored) {
+              /*
+                TODO : Needs to be revisited
+                If use of setter is enabled & Gson is unable to call setter, then throw error or just use reflection?
+                Since earlier Gson version worked in all cases, using reflection to set field value for now.
+              */
+              field.set(value, fieldValue);
+            }
+          } else {
+            field.set(value, fieldValue);
+          }
         }
       }
       @Override public boolean writeField(Object value) throws IOException, IllegalAccessException {
