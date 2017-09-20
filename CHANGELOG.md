@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+## Version 2.8.2
+_2017-09-19_  [GitHub Diff](https://github.com/google/gson/compare/gson-parent-2.8.1...gson-parent-2.8.2)
+ * Introduced a new API, `JsonElement.deepCopy()`
+ * Numerous other bugfixes
+
 ## Version 2.8.1
 _2017-05-30_  [GitHub Diff](https://github.com/google/gson/compare/gson-parent-2.8.0...gson-parent-2.8.1)
  * New: `JsonObject.keySet()`
