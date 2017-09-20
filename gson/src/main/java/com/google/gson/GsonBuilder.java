@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -26,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.internal.$Gson$Preconditions;
 import com.google.gson.internal.Excluder;
 import com.google.gson.internal.bind.TreeTypeAdapter;
@@ -82,6 +84,8 @@ public final class GsonBuilder {
   private final Map<Type, InstanceCreator<?>> instanceCreators
       = new HashMap<Type, InstanceCreator<?>>();
   private final List<TypeAdapterFactory> factories = new ArrayList<TypeAdapterFactory>();
+  private final Map<Class<? extends Annotation>, FieldAdapterFactory> fieldAdapterFactories
+      = new HashMap<Class<? extends Annotation>, FieldAdapterFactory>();
   /** tree-style hierarchy factories. These come after factories for backwards compatibility. */
   private final List<TypeAdapterFactory> hierarchyFactories = new ArrayList<TypeAdapterFactory>();
   private boolean serializeNulls = DEFAULT_SERIALIZE_NULLS;
@@ -500,6 +504,22 @@ public final class GsonBuilder {
   }
 
   /**
+   * Configures Gson for custom serialization or deserialization. This method registers
+   * {@link TypeAdapter}s only for fields which annotated with given {@code annotationClass}.
+   * This is useful when you want to override the way Gson read/write your types with custom
+   * annotations, and/or {@link JsonAdapter} is not preferred to be mixed with them.
+   *
+   * @param annotationClass with which those fields need to be handled by the adapter
+   * @param fieldAdapterFactory the factory to be registered
+   * @since 2.9.0
+   */
+  public GsonBuilder registerFieldAdapterFactory(Class<? extends Annotation> annotationClass,
+      FieldAdapterFactory fieldAdapterFactory) {
+    fieldAdapterFactories.put(annotationClass, fieldAdapterFactory);
+    return this;
+  }
+
+  /**
    * Configures Gson for custom serialization or deserialization for an inheritance type hierarchy.
    * This method combines the registration of a {@link TypeAdapter}, {@link JsonSerializer} and
    * a {@link JsonDeserializer}. If a type adapter was previously registered for the specified
@@ -572,7 +592,8 @@ public final class GsonBuilder {
     return new Gson(excluder, fieldNamingPolicy, instanceCreators,
         serializeNulls, complexMapKeySerialization,
         generateNonExecutableJson, escapeHtmlChars, prettyPrinting, lenient,
-        serializeSpecialFloatingPointValues, longSerializationPolicy, factories);
+        serializeSpecialFloatingPointValues, longSerializationPolicy, factories,
+        fieldAdapterFactories);
   }
 
   @SuppressWarnings("unchecked")
