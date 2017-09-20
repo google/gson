@@ -63,7 +63,7 @@ public final class TreeTypeAdapter<T> extends TypeAdapter<T> {
       return delegate().read(in);
     }
     JsonElement value = Streams.parse(in);
-    if (value.isJsonNull()) {
+    if (value.isJsonNull() && !gson.letNullsThroughDeserializers()) {
       return null;
     }
     return deserializer.deserialize(value, typeToken.getType(), context);
