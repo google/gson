@@ -105,6 +105,31 @@ public final class GsonBuilder {
   }
 
   /**
+   * Constructs a GsonBuilder instance from a Gson instance. The newly constructed GsonBuilder
+   * has the same configuration as the previously built Gson instance.
+   *
+   * @param gson the gson instance whose configuration should by applied to a new GsonBuilder.
+   */
+  GsonBuilder(Gson gson) {
+    this.excluder = gson.excluder;
+    this.fieldNamingPolicy = gson.fieldNamingStrategy;
+    this.instanceCreators.putAll(gson.instanceCreators);
+    this.serializeNulls = gson.serializeNulls;
+    this.complexMapKeySerialization = gson.complexMapKeySerialization;
+    this.generateNonExecutableJson = gson.generateNonExecutableJson;
+    this.escapeHtmlChars = gson.htmlSafe;
+    this.prettyPrinting = gson.prettyPrinting;
+    this.lenient = gson.lenient;
+    this.serializeSpecialFloatingPointValues = gson.serializeSpecialFloatingPointValues;
+    this.longSerializationPolicy = gson.longSerializationPolicy;
+    this.datePattern = gson.datePattern;
+    this.dateStyle = gson.dateStyle;
+    this.timeStyle = gson.timeStyle;
+    this.factories.addAll(gson.builderFactories);
+    this.hierarchyFactories.addAll(gson.builderHierarchyFactories);
+  }
+
+  /**
    * Configures Gson to enable versioning support.
    *
    * @param ignoreVersionsAfter any field or type marked with a version higher than this value
@@ -572,7 +597,9 @@ public final class GsonBuilder {
     return new Gson(excluder, fieldNamingPolicy, instanceCreators,
         serializeNulls, complexMapKeySerialization,
         generateNonExecutableJson, escapeHtmlChars, prettyPrinting, lenient,
-        serializeSpecialFloatingPointValues, longSerializationPolicy, factories);
+        serializeSpecialFloatingPointValues, longSerializationPolicy,
+        datePattern, dateStyle, timeStyle,
+        this.factories, this.hierarchyFactories, factories);
   }
 
   @SuppressWarnings("unchecked")
