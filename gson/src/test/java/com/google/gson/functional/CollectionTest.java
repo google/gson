@@ -393,4 +393,23 @@ public class CollectionTest extends TestCase {
       assertTrue(entry.value == 1 || entry.value == 2);
     }
   }
+
+  private class BigClass { private Map<String, ? extends List<SmallClass>> inBig; }
+
+  private class SmallClass { private String inSmall; }
+
+  public void testIssue1107() {
+    String json = "{\n" +
+            "  \"inBig\": {\n" +
+            "    \"key\": [\n" +
+            "      { \"inSmall\": \"hello\" }\n" +
+            "    ]\n" +
+            "  }\n" +
+            "}";
+    BigClass bigClass = new Gson().fromJson(json, BigClass.class);
+    SmallClass small = bigClass.inBig.get("key").get(0);
+    assertNotNull(small);
+    assertEquals("hello", small.inSmall);
+  }
+
 }
