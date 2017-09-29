@@ -71,7 +71,7 @@ The primary class to use is [`Gson`](gson/src/main/java/com/google/gson/Gson.jav
 
 The Gson instance does not maintain any state while invoking Json operations. So, you are free to reuse the same object for multiple Json serialization and deserialization operations.
 
-## <a name="TOC-Gson-with-Gradle"></a>Using Gson with Gradle/Android
+## <a name="TOC-Gson-With-Gradle"></a>Using Gson with Gradle/Android
 ```
 dependencies {
     compile 'com.google.code.gson:gson:2.8.2'
