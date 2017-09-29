@@ -17,6 +17,13 @@ There are a few open-source projects that can convert Java objects to JSON. Howe
   * Support arbitrarily complex objects (with deep inheritance hierarchies and extensive use of generic types)
 
 ### Gson Download and Maven
+  * To use Gson in Android
+```
+dependencies {
+    compile 'com.google.code.gson:gson:2.8.2'
+}
+```
+
   * [Gson Download](https://maven-badges.herokuapp.com/maven-central/com.google.code.gson/gson) downloads at Maven Central
   * For Maven check "Dependency Information" tab, on the left side.
 
