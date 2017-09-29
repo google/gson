@@ -5,6 +5,7 @@
 3. [Gson Performance and Scalability](#TOC-Gson-Performance-and-Scalability)
 4. [Gson Users](#TOC-Gson-Users)
 5. [Using Gson](#TOC-Using-Gson)
+   * [Using Gson with Gradle/Android](#TOC-Gson-With-Gradle)
    * [Using Gson with Maven](#TOC-Gson-With-Maven)
    * [Primitives Examples](#TOC-Primitives-Examples)
    * [Object Examples](#TOC-Object-Examples)
