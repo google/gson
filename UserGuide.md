@@ -144,14 +144,14 @@ BagOfPrimitives obj2 = gson.fromJson(json, BagOfPrimitives.class);
 
 #### <a name="TOC-Finer-Points-with-Objects"></a>**Finer Points with Objects**
 
-* It is perfectly fine (and recommended) to use private fields
+* It is perfectly fine (and recommended) to use private fields.
 * There is no need to use any annotations to indicate a field is to be included for serialization and deserialization. All fields in the current class (and from all super classes) are included by default.
 * If a field is marked transient, (by default) it is ignored and not included in the JSON serialization or deserialization.
-* This implementation handles nulls correctly
-* While serializing, a null field is skipped from the output
-* While deserializing, a missing entry in JSON results in setting the corresponding field in the object to null
-* If a field is _synthetic_, it is ignored and not included in JSON serialization or deserialization
-* Fields corresponding to the outer classes in inner classes, anonymous classes, and local classes are ignored and not included in serialization or deserialization
+* This implementation handles nulls correctly.
+* While serializing, a null field is omitted from the output.
+* While deserializing, a missing entry in JSON results in setting the corresponding field in the object to its default value: null for object types, zero for numeric types, and false for booleans.
+* If a field is _synthetic_, it is ignored and not included in JSON serialization or deserialization.
+* Fields corresponding to the outer classes in inner classes, anonymous classes, and local classes are ignored and not included in serialization or deserialization.
 
 ### <a name="TOC-Nested-Classes-including-Inner-Classes-"></a>Nested Classes (including Inner Classes)
 
