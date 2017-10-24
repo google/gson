@@ -20,6 +20,8 @@ import com.google.gson.common.MoreAsserts;
 
 import junit.framework.TestCase;
 
+import static com.google.gson.JavaSerializationTest.serializedCopy;
+
 /**
  * Unit test for the {@link JsonObject} class.
  *
@@ -197,5 +199,12 @@ public class JsonObjectTest extends TestCase {
     assertEquals(2, a.keySet().size());
     assertTrue(a.keySet().contains("foo"));
     assertTrue(a.keySet().contains("bar"));
+  }
+
+  public void testSerialization() throws Exception {
+    JsonObject a = new JsonObject();
+    a.add("foo", new JsonArray());
+    a.add("bar", new JsonObject());
+    assertEquals(a, serializedCopy(a));
   }
 }

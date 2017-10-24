@@ -18,6 +18,11 @@ package com.google.gson;
 
 import com.google.gson.internal.LinkedTreeMap;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,7 +35,7 @@ import java.util.Set;
  * @author Joel Leitch
  */
 public final class JsonObject extends JsonElement {
-  private final LinkedTreeMap<String, JsonElement> members =
+  private LinkedTreeMap<String, JsonElement> members =
       new LinkedTreeMap<String, JsonElement>();
 
   /**
@@ -214,5 +219,18 @@ public final class JsonObject extends JsonElement {
   @Override
   public int hashCode() {
     return members.hashCode();
+  }
+
+  @SuppressWarnings("unchecked")
+  private void readObject(ObjectInputStream aInputStream) throws ClassNotFoundException, IOException {
+    // custom deserializer since LinkedTreeMap serializes to LinkedHashMap!
+    members = new LinkedTreeMap<String, JsonElement>();
+    members.putAll(((Map<String, JsonElement>) aInputStream.readObject()));
+  }
+
+  private void writeObject(ObjectOutputStream aOutputStream) throws IOException {
+    // custom deserializer since LinkedTreeMap serializes to LinkedHashMap and thus deserialization would fail with
+    // java.lang.ClassCastException: cannot assign instance of java.util.LinkedHashMap to field com.google.gson.JsonObject.members of type com.google.gson.internal.LinkedTreeMap in instance of com.google.gson.JsonObject
+    aOutputStream.writeObject(members); // this actually writes LinkedHashMap.
   }
 }

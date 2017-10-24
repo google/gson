@@ -63,7 +63,7 @@ public final class JavaSerializationTest extends TestCase {
   }
 
   @SuppressWarnings("unchecked") // Serialization promises to return the same type.
-  private <T> T serializedCopy(T object) throws IOException, ClassNotFoundException {
+  public static <T> T serializedCopy(T object) throws IOException, ClassNotFoundException {
     ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
     ObjectOutputStream out = new ObjectOutputStream(bytesOut);
     out.writeObject(object);
