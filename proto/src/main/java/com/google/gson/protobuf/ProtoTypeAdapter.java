@@ -34,8 +34,8 @@ import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Descriptors.EnumDescriptor;
 import com.google.protobuf.Descriptors.EnumValueDescriptor;
 import com.google.protobuf.Descriptors.FieldDescriptor;
+import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.Extension;
-import com.google.protobuf.GeneratedMessage;
 import com.google.protobuf.Message;
 
 import java.lang.reflect.Field;
@@ -72,7 +72,7 @@ import java.util.concurrent.ConcurrentMap;
  * @author Stanley Wang
  */
 public class ProtoTypeAdapter
-    implements JsonSerializer<GeneratedMessage>, JsonDeserializer<GeneratedMessage> {
+    implements JsonSerializer<Message>, JsonDeserializer<Message> {
   /**
    * Determines how enum <u>values</u> should be serialized.
    */
@@ -214,7 +214,7 @@ public class ProtoTypeAdapter
   }
 
   @Override
-  public JsonElement serialize(GeneratedMessage src, Type typeOfSrc,
+  public JsonElement serialize(Message src, Type typeOfSrc,
       JsonSerializationContext context) {
     JsonObject ret = new JsonObject();
     final Map<FieldDescriptor, Object> fields = src.getAllFields();
@@ -247,17 +247,21 @@ public class ProtoTypeAdapter
   }
 
   @Override
-  public GeneratedMessage deserialize(JsonElement json, Type typeOfT,
+  public Message deserialize(JsonElement json, Type typeOfT,
       JsonDeserializationContext context) throws JsonParseException {
     try {
       JsonObject jsonObject = json.getAsJsonObject();
       @SuppressWarnings("unchecked")
-      Class<? extends GeneratedMessage> protoClass = (Class<? extends GeneratedMessage>) typeOfT;
+      Class<? extends Message> protoClass = (Class<? extends Message>) typeOfT;
+
+      if (DynamicMessage.class.isAssignableFrom(protoClass)) {
+        throw new IllegalStateException("only generated messages are supported");
+      }
 
       try {
         // Invoke the ProtoClass.newBuilder() method
-        GeneratedMessage.Builder<?> protoBuilder =
-            (GeneratedMessage.Builder<?>) getCachedMethod(protoClass, "newBuilder").invoke(null);
+        Message.Builder protoBuilder =
+            (Message.Builder) getCachedMethod(protoClass, "newBuilder").invoke(null);
 
         Descriptor protoDescriptor =
             (Descriptor) getCachedMethod(protoClass, "getDescriptor").invoke(null);
@@ -303,7 +307,7 @@ public class ProtoTypeAdapter
             }
           }
         }
-        return (GeneratedMessage) protoBuilder.build();
+        return (Message) protoBuilder.build();
       } catch (SecurityException e) {
         throw new JsonParseException(e);
       } catch (NoSuchMethodException e) {
