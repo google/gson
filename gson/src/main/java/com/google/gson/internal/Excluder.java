@@ -54,6 +54,7 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
   private double version = IGNORE_VERSIONS;
   private int modifiers = Modifier.TRANSIENT | Modifier.STATIC;
   private boolean serializeInnerClasses = true;
+  private boolean serializeAnonymousAndLocalClasses = false;
   private boolean requireExpose;
   private List<ExclusionStrategy> serializationStrategies = Collections.emptyList();
   private List<ExclusionStrategy> deserializationStrategies = Collections.emptyList();
@@ -87,6 +88,12 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
     return result;
   }
 
+  public com.google.gson.internal.Excluder enableAnonymousAndLocalClassSerialization() {
+    com.google.gson.internal.Excluder result = clone();
+    result.serializeAnonymousAndLocalClasses = true;
+    return result;
+  }
+
   public Excluder excludeFieldsWithoutExposeAnnotation() {
     Excluder result = clone();
     result.requireExpose = true;
@@ -110,8 +117,13 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
 
   public <T> TypeAdapter<T> create(final Gson gson, final TypeToken<T> type) {
     Class<?> rawType = type.getRawType();
-    final boolean skipSerialize = excludeClass(rawType, true);
-    final boolean skipDeserialize = excludeClass(rawType, false);
+    boolean excludeClass = excludeClassChecks(rawType);
+    if (excludeClass) {
+        return null;
+    }
+
+    final boolean skipSerialize = excludeClassInStrategy(rawType, true);
+    final boolean skipDeserialize = excludeClassInStrategy(rawType, false);
 
     if (!skipSerialize && !skipDeserialize) {
       return null;
@@ -188,28 +200,35 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
     return false;
   }
 
-  public boolean excludeClass(Class<?> clazz, boolean serialize) {
-    if (version != Excluder.IGNORE_VERSIONS
-        && !isValidVersion(clazz.getAnnotation(Since.class), clazz.getAnnotation(Until.class))) {
-      return true;
-    }
-
-    if (!serializeInnerClasses && isInnerClass(clazz)) {
-      return true;
-    }
-
-    if (isAnonymousOrLocal(clazz)) {
-      return true;
-    }
-
-    List<ExclusionStrategy> list = serialize ? serializationStrategies : deserializationStrategies;
-    for (ExclusionStrategy exclusionStrategy : list) {
-      if (exclusionStrategy.shouldSkipClass(clazz)) {
-        return true;
+  private boolean excludeClassChecks(Class<?> clazz) {
+      if (version != Excluder.IGNORE_VERSIONS && !isValidVersion(clazz.getAnnotation(Since.class), clazz.getAnnotation(Until.class))) {
+          return true;
       }
-    }
 
-    return false;
+      if (!serializeInnerClasses && isInnerClass(clazz)) {
+          return true;
+      }
+
+      if (serializeAnonymousAndLocalClasses && isAnonymousOrLocal(clazz)) {
+          return true;
+      }
+
+      return false;
+  }
+
+  public boolean excludeClass(Class<?> clazz, boolean serialize) {
+      return excludeClassChecks(clazz) &&
+              excludeClassInStrategy(clazz, serialize);
+  }
+
+  private boolean excludeClassInStrategy(Class<?> clazz, boolean serialize) {
+      List<ExclusionStrategy> list = serialize ? serializationStrategies : deserializationStrategies;
+      for (ExclusionStrategy exclusionStrategy : list) {
+          if (exclusionStrategy.shouldSkipClass(clazz)) {
+              return true;
+          }
+      }
+      return false;
   }
 
   private boolean isAnonymousOrLocal(Class<?> clazz) {
