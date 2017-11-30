@@ -54,7 +54,7 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
   private double version = IGNORE_VERSIONS;
   private int modifiers = Modifier.TRANSIENT | Modifier.STATIC;
   private boolean serializeInnerClasses = true;
-  private boolean serializeAnonymousAndLocalClasses = false;
+  private boolean serializeAnonymousAndLocalClasses = true;
   private boolean requireExpose;
   private List<ExclusionStrategy> serializationStrategies = Collections.emptyList();
   private List<ExclusionStrategy> deserializationStrategies = Collections.emptyList();
@@ -88,9 +88,9 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
     return result;
   }
 
-  public com.google.gson.internal.Excluder enableAnonymousAndLocalClassSerialization() {
+  public com.google.gson.internal.Excluder disableAnonymousAndLocalClassSerialization() {
     com.google.gson.internal.Excluder result = clone();
-    result.serializeAnonymousAndLocalClasses = true;
+    result.serializeAnonymousAndLocalClasses = false;
     return result;
   }
 
@@ -118,12 +118,9 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
   public <T> TypeAdapter<T> create(final Gson gson, final TypeToken<T> type) {
     Class<?> rawType = type.getRawType();
     boolean excludeClass = excludeClassChecks(rawType);
-    if (excludeClass) {
-        return null;
-    }
 
-    final boolean skipSerialize = excludeClassInStrategy(rawType, true);
-    final boolean skipDeserialize = excludeClassInStrategy(rawType, false);
+    final boolean skipSerialize = excludeClass || excludeClassInStrategy(rawType, true);
+    final boolean skipDeserialize = excludeClass ||  excludeClassInStrategy(rawType, false);
 
     if (!skipSerialize && !skipDeserialize) {
       return null;
@@ -183,7 +180,7 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
       return true;
     }
 
-    if (isAnonymousOrLocal(field.getType())) {
+    if (serializeAnonymousAndLocalClasses && isAnonymousOrLocal(field.getType())) {
       return true;
     }
 
@@ -217,7 +214,7 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
   }
 
   public boolean excludeClass(Class<?> clazz, boolean serialize) {
-      return excludeClassChecks(clazz) &&
+      return excludeClassChecks(clazz) ||
               excludeClassInStrategy(clazz, serialize);
   }
 
