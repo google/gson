@@ -90,7 +90,7 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
 
   public com.google.gson.internal.Excluder enableAnonymousAndLocalClassSerialization() {
     com.google.gson.internal.Excluder result = clone();
-    result.serializeAnonymousAndLocalClasses = false;
+    result.serializeAnonymousAndLocalClasses = true;
     return result;
   }
 
