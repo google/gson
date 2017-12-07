@@ -54,7 +54,6 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
   private double version = IGNORE_VERSIONS;
   private int modifiers = Modifier.TRANSIENT | Modifier.STATIC;
   private boolean serializeInnerClasses = true;
-  private boolean serializeAnonymousAndLocalClasses = false;
   private boolean requireExpose;
   private List<ExclusionStrategy> serializationStrategies = Collections.emptyList();
   private List<ExclusionStrategy> deserializationStrategies = Collections.emptyList();
@@ -85,12 +84,6 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
   public Excluder disableInnerClassSerialization() {
     Excluder result = clone();
     result.serializeInnerClasses = false;
-    return result;
-  }
-
-  public com.google.gson.internal.Excluder enableAnonymousAndLocalClassSerialization() {
-    com.google.gson.internal.Excluder result = clone();
-    result.serializeAnonymousAndLocalClasses = true;
     return result;
   }
 
@@ -180,7 +173,7 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
       return true;
     }
 
-    if (!serializeAnonymousAndLocalClasses && isAnonymousOrLocal(field.getType())) {
+    if (isAnonymousOrLocal(field.getType())) {
       return true;
     }
 
@@ -206,7 +199,7 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
           return true;
       }
 
-      if (!serializeAnonymousAndLocalClasses && isAnonymousOrLocal(clazz)) {
+      if (isAnonymousOrLocal(clazz)) {
           return true;
       }
 
