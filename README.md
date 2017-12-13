@@ -25,7 +25,14 @@ dependencies {
 ```
 
   * [Gson Download](https://maven-badges.herokuapp.com/maven-central/com.google.code.gson/gson) downloads at Maven Central
-  * For Maven check "Dependency Information" tab, on the left side.
+  * To use Gson with Maven
+  ```
+<dependency>
+    <groupId>com.google.code.gson</groupId>
+    <artifactId>gson</artifactId>
+    <version>2.8.2</version>
+</dependency>
+```
 
 ### Gson Documentation
   * Gson [API](http://www.javadoc.io/doc/com.google.code.gson/gson): Javadocs for the current Gson release
