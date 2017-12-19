@@ -372,6 +372,15 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
     throw new IllegalStateException();
   }
 
+  /**
+   * Returns this array as List of JsonElement
+   *
+   * @return this array as List of JsonElement
+     */
+  public List<JsonElement> getAsList() {
+    return elements;
+  }
+
   @Override
   public boolean equals(Object o) {
     return (o == this) || (o instanceof JsonArray && ((JsonArray) o).elements.equals(elements));
