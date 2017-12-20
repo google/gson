@@ -56,7 +56,8 @@ public final class DateTypeAdapter extends TypeAdapter<Date> {
    * The first of them (default US format) is used for serialization as well.
    */
   private final List<DateFormat> dateFormats = new ArrayList<DateFormat>();
-  {
+
+  public DateTypeAdapter() {
     dateFormats.add(DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.US));
     if (!Locale.getDefault().equals(Locale.US)) {
       dateFormats.add(DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT));
