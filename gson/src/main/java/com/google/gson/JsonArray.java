@@ -373,11 +373,9 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   }
 
   /**
-   * Returns this array as List of JsonElement
-   *
-   * @return this array as List of JsonElement
-     */
-  public List<JsonElement> getAsList() {
+   * @return this array as {@link List} of {@link JsonElement}
+   */
+  public List<JsonElement> asList() {
     return elements;
   }
 
