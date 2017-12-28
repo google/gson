@@ -263,6 +263,9 @@ public class ProtoTypeAdapter
         Message.Builder protoBuilder =
             (Message.Builder) getCachedMethod(protoClass, "newBuilder").invoke(null);
 
+        Message defaultInstance =
+            (Message) getCachedMethod(protoClass, "getDefaultInstance").invoke(null);
+
         Descriptor protoDescriptor =
             (Descriptor) getCachedMethod(protoClass, "getDescriptor").invoke(null);
         // Call setters on all of the available fields
@@ -300,8 +303,7 @@ public class ProtoTypeAdapter
               fieldValue = context.deserialize(jsonElement, protoArrayFieldType);
               protoBuilder.setField(fieldDescriptor, fieldValue);
             } else {
-              Message prototype = protoBuilder.build();
-              Object field = prototype.getField(fieldDescriptor);
+              Object field = defaultInstance.getField(fieldDescriptor);
               fieldValue = context.deserialize(jsonElement, field.getClass());
               protoBuilder.setField(fieldDescriptor, fieldValue);
             }
