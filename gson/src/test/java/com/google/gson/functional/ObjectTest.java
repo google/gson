@@ -498,4 +498,53 @@ public class ObjectTest extends TestCase {
     private List<String> attributes = new ArrayList<String>();
     private List<Department> departments = new ArrayList<Department>();
   }
+
+  private static class C1 {
+    private String f;
+    public C1(String f1) { this.f = f1; }
+    public String getC1Field() { return f; }
+  }
+
+  private static class C2 extends C1 {
+    public C2(String f1) { super(f1); }
+  }
+
+  private static class C3 extends C2 {
+    private String f;
+
+    public C3(String f1, String f3) {
+      super(f1);
+      this.f = f3;
+    }
+
+    public String getC3Field() { return f; }
+  }
+
+  private static class C4 extends C3 {
+    private String f;
+
+    public C4(String f1, String f3, String f4) {
+      super(f1, f3);
+      this.f = f4;
+    }
+  }
+
+  public void testHiddenFieldSerialization() {
+    C4 obj = new C4("c1Field", "c3Field", "c4Field");
+
+    String json = gson.toJson(obj);
+    assertTrue(json.contains("c1Field"));
+    assertTrue(json.contains("c3Field"));
+    assertTrue(json.contains("c4Field"));
+  }
+
+  public void testHiddenFieldDeserialization() {
+    C4 initial = new C4("c1Field", "c3Field", "c4Field");
+    String json = gson.toJson(initial);
+
+    C4 c4 = gson.fromJson(json, C4.class);
+    assertEquals("c4Field", c4.f);
+    assertEquals("c3Field", c4.getC3Field());
+    assertEquals("c1Field", c4.getC1Field());
+  }
 }
