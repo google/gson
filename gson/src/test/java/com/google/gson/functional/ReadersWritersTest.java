@@ -104,9 +104,9 @@ public class ReadersWritersTest extends TestCase {
   public void testReadWriteTwoObjects() throws IOException {
     Gson gson= new Gson();
     CharArrayWriter writer= new CharArrayWriter();
-    BagOfPrimitives expectedOne = new BagOfPrimitives(1, 1, true, "one");
+    BagOfPrimitives expectedOne = new BagOfPrimitives(1, 1, 1.0, true, "one");
     writer.write(gson.toJson(expectedOne).toCharArray());
-    BagOfPrimitives expectedTwo = new BagOfPrimitives(2, 2, false, "two");
+    BagOfPrimitives expectedTwo = new BagOfPrimitives(2, 2, 2.0, false, "two");
     writer.write(gson.toJson(expectedTwo).toCharArray());
     CharArrayReader reader = new CharArrayReader(writer.toCharArray());
     JsonStreamParser parser = new JsonStreamParser(reader);

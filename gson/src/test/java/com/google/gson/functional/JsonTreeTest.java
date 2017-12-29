@@ -27,14 +27,15 @@ public class JsonTreeTest extends TestCase {
   }
 
   public void testToJsonTree() {
-    BagOfPrimitives bag = new BagOfPrimitives(10L, 5, false, "foo");
+    BagOfPrimitives bag = new BagOfPrimitives(10L, 5, 1.0, false, "foo");
     JsonElement json = gson.toJsonTree(bag);
     assertTrue(json.isJsonObject());
     JsonObject obj = json.getAsJsonObject();
     Set<Entry<String, JsonElement>> children = obj.entrySet();
-    assertEquals(4, children.size());
+    assertEquals(5, children.size());
     assertContains(obj, new JsonPrimitive(10L));
     assertContains(obj, new JsonPrimitive(5));
+    assertContains(obj, new JsonPrimitive(1.0));
     assertContains(obj, new JsonPrimitive(false));
     assertContains(obj, new JsonPrimitive("foo"));
   }
@@ -45,7 +46,7 @@ public class JsonTreeTest extends TestCase {
     assertTrue(json.isJsonObject());
     JsonObject obj = json.getAsJsonObject();
     Set<Entry<String, JsonElement>> children = obj.entrySet();
-    assertEquals(4, children.size());
+    assertEquals(5, children.size());
     assertContains(obj, new JsonPrimitive(10L));
     assertContains(obj, new JsonPrimitive(5));
     assertContains(obj, new JsonPrimitive(false));
@@ -61,7 +62,7 @@ public class JsonTreeTest extends TestCase {
   }
 
   public void testJsonTreeNull() {
-    BagOfPrimitives bag = new BagOfPrimitives(10L, 5, false, null);
+    BagOfPrimitives bag = new BagOfPrimitives(10L, 5, 1.0, false, null);
     JsonObject jsonElement = (JsonObject) gson.toJsonTree(bag, BagOfPrimitives.class);
     assertFalse(jsonElement.has("stringValue"));
   }
@@ -82,7 +83,7 @@ public class JsonTreeTest extends TestCase {
     @SuppressWarnings("unused")
     float f = 1.2F;
     public SubTypeOfBagOfPrimitives(long l, int i, boolean b, String string, float f) {
-      super(l, i, b, string);
+      super(l, i, f, b, string);
       this.f = f;
     }
   }

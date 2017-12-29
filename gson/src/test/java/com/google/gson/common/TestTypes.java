@@ -106,16 +106,18 @@ public class TestTypes {
     public static final long DEFAULT_VALUE = 0;
     public long longValue;
     public int intValue;
+    public double doubleValue;
     public boolean booleanValue;
     public String stringValue;
 
     public BagOfPrimitives() {
-      this(DEFAULT_VALUE, 0, false, "");
+      this(DEFAULT_VALUE, 0, 0.0, false, "");
     }
 
-    public BagOfPrimitives(long longValue, int intValue, boolean booleanValue, String stringValue) {
+    public BagOfPrimitives(long longValue, int intValue, double doubleValue, boolean booleanValue, String stringValue) {
       this.longValue = longValue;
       this.intValue = intValue;
+      this.doubleValue = doubleValue;
       this.booleanValue = booleanValue;
       this.stringValue = stringValue;
     }
@@ -129,6 +131,7 @@ public class TestTypes {
       sb.append("{");
       sb.append("\"longValue\":").append(longValue).append(",");
       sb.append("\"intValue\":").append(intValue).append(",");
+      sb.append("\"doubleValue\":").append(doubleValue).append(",");
       sb.append("\"booleanValue\":").append(booleanValue).append(",");
       sb.append("\"stringValue\":\"").append(stringValue).append("\"");
       sb.append("}");
@@ -142,6 +145,7 @@ public class TestTypes {
       result = prime * result + (booleanValue ? 1231 : 1237);
       result = prime * result + intValue;
       result = prime * result + (int) (longValue ^ (longValue >>> 32));
+      result = prime * result + (int) doubleValue;
       result = prime * result + ((stringValue == null) ? 0 : stringValue.hashCode());
       return result;
     }
@@ -161,6 +165,8 @@ public class TestTypes {
         return false;
       if (longValue != other.longValue)
         return false;
+      if (doubleValue != other.doubleValue)
+        return false;
       if (stringValue == null) {
         if (other.stringValue != null)
           return false;
@@ -171,19 +177,21 @@ public class TestTypes {
 
     @Override
     public String toString() {
-      return String.format("(longValue=%d,intValue=%d,booleanValue=%b,stringValue=%s)",
-          longValue, intValue, booleanValue, stringValue);
+      return String.format("(longValue=%d,intValue=%d,doubleValue=%f,booleanValue=%b,stringValue=%s)",
+          longValue, intValue, doubleValue, booleanValue, stringValue);
     }
   }
 
   public static class BagOfPrimitiveWrappers {
     private final Long longValue;
     private final Integer intValue;
+    private final Double doubleValue;
     private final Boolean booleanValue;
 
-    public BagOfPrimitiveWrappers(Long longValue, Integer intValue, Boolean booleanValue) {
+    public BagOfPrimitiveWrappers(Long longValue, Integer intValue, Double doubleValue, Boolean booleanValue) {
       this.longValue = longValue;
       this.intValue = intValue;
+      this.doubleValue = doubleValue;
       this.booleanValue = booleanValue;
     }
 
@@ -192,6 +200,7 @@ public class TestTypes {
       sb.append("{");
       sb.append("\"longValue\":").append(longValue).append(",");
       sb.append("\"intValue\":").append(intValue).append(",");
+      sb.append("\"doubleValue\":").append(doubleValue).append(",");
       sb.append("\"booleanValue\":").append(booleanValue);
       sb.append("}");
       return sb.toString();
@@ -302,7 +311,7 @@ public class TestTypes {
     }
 
     public ClassWithCustomTypeConverter(int value) {
-      this(new BagOfPrimitives(value, value, false, ""), value);
+      this(new BagOfPrimitives(value, value, (double)value, false, ""), value);
     }
 
     public ClassWithCustomTypeConverter(BagOfPrimitives bag, int value) {
@@ -328,7 +337,7 @@ public class TestTypes {
     public ArrayOfObjects() {
       elements = new BagOfPrimitives[3];
       for (int i = 0; i < elements.length; ++i) {
-        elements[i] = new BagOfPrimitives(i, i+2, false, "i"+i);
+        elements[i] = new BagOfPrimitives(i, i+2, i+0.1, false, "i"+i);
       }
     }
     public String getExpectedJson() {

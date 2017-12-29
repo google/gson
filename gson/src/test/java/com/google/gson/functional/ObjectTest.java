@@ -72,11 +72,12 @@ public class ObjectTest extends TestCase {
     super.tearDown();
   }
   public void testJsonInSingleQuotesDeserialization() {
-    String json = "{'stringValue':'no message','intValue':10,'longValue':20}";
+    String json = "{'stringValue':'no message','intValue':10,'longValue':20,'doubleValue':30.0}";
     BagOfPrimitives target = gson.fromJson(json, BagOfPrimitives.class);
     assertEquals("no message", target.stringValue);
     assertEquals(10, target.intValue);
     assertEquals(20, target.longValue);
+    assertEquals(30.0, target.doubleValue);
   }
 
   public void testJsonInMixedQuotesDeserialization() {
@@ -88,24 +89,24 @@ public class ObjectTest extends TestCase {
   }
 
   public void testBagOfPrimitivesSerialization() throws Exception {
-    BagOfPrimitives target = new BagOfPrimitives(10, 20, false, "stringValue");
+    BagOfPrimitives target = new BagOfPrimitives(10, 20, 30.0, false, "stringValue");
     assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 
   public void testBagOfPrimitivesDeserialization() throws Exception {
-    BagOfPrimitives src = new BagOfPrimitives(10, 20, false, "stringValue");
+    BagOfPrimitives src = new BagOfPrimitives(10, 20, 30.0, false, "stringValue");
     String json = src.getExpectedJson();
     BagOfPrimitives target = gson.fromJson(json, BagOfPrimitives.class);
     assertEquals(json, target.getExpectedJson());
   }
 
   public void testBagOfPrimitiveWrappersSerialization() throws Exception {
-    BagOfPrimitiveWrappers target = new BagOfPrimitiveWrappers(10L, 20, false);
+    BagOfPrimitiveWrappers target = new BagOfPrimitiveWrappers(10L, 20, 1.0, false);
     assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 
   public void testBagOfPrimitiveWrappersDeserialization() throws Exception {
-    BagOfPrimitiveWrappers target = new BagOfPrimitiveWrappers(10L, 20, false);
+    BagOfPrimitiveWrappers target = new BagOfPrimitiveWrappers(10L, 20, 1.0, false);
     String jsonString = target.getExpectedJson();
     target = gson.fromJson(jsonString, BagOfPrimitiveWrappers.class);
     assertEquals(jsonString, target.getExpectedJson());
@@ -143,14 +144,14 @@ public class ObjectTest extends TestCase {
   }
 
   public void testNestedSerialization() throws Exception {
-    Nested target = new Nested(new BagOfPrimitives(10, 20, false, "stringValue"),
-       new BagOfPrimitives(30, 40, true, "stringValue"));
+    Nested target = new Nested(new BagOfPrimitives(10, 20, 30.0, false, "stringValue"),
+       new BagOfPrimitives(40, 50, 60.0, true, "stringValue"));
     assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 
   public void testNestedDeserialization() throws Exception {
-    String json = "{\"primitive1\":{\"longValue\":10,\"intValue\":20,\"booleanValue\":false,"
-        + "\"stringValue\":\"stringValue\"},\"primitive2\":{\"longValue\":30,\"intValue\":40,"
+    String json = "{\"primitive1\":{\"longValue\":10,\"intValue\":20,\"doubleValue\":30.0,\"booleanValue\":false,"
+        + "\"stringValue\":\"stringValue\"},\"primitive2\":{\"longValue\":40,\"intValue\":50,\"doubleValue\":60.0,"
         + "\"booleanValue\":true,\"stringValue\":\"stringValue\"}}";
     Nested target = gson.fromJson(json, Nested.class);
     assertEquals(json, target.getExpectedJson());
@@ -179,12 +180,12 @@ public class ObjectTest extends TestCase {
   }
 
   public void testNullFieldsSerialization() throws Exception {
-    Nested target = new Nested(new BagOfPrimitives(10, 20, false, "stringValue"), null);
+    Nested target = new Nested(new BagOfPrimitives(10, 20, 30.0, false, "stringValue"), null);
     assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 
   public void testNullFieldsDeserialization() throws Exception {
-    String json = "{\"primitive1\":{\"longValue\":10,\"intValue\":20,\"booleanValue\":false"
+    String json = "{\"primitive1\":{\"longValue\":10,\"intValue\":20,\"doubleValue\":30.0,\"booleanValue\":false"
         + ",\"stringValue\":\"stringValue\"}}";
     Nested target = gson.fromJson(json, Nested.class);
     assertEquals(json, target.getExpectedJson());
@@ -361,7 +362,7 @@ public class ObjectTest extends TestCase {
       for (int i = 0; i < elements.length; ++i) {
         BagOfPrimitives[] row = elements[i];
         for (int j = 0; j < row.length; ++j) {
-          row[j] = new BagOfPrimitives(i+j, i*j, false, i+"_"+j);
+          row[j] = new BagOfPrimitives(i+j, i*j, i*j+.1, false, i+"_"+j);
         }
       }
     }
