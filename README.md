@@ -45,6 +45,7 @@ Please use the [google-gson Google group](http://groups.google.com/group/google-
 ### Gson-related Content Created by Third Parties
   * [Gson Tutorial](http://www.studytrails.com/java/json/java-google-json-introduction.jsp) by `StudyTrails`
   * [Gson Tutorial Series](https://futurestud.io/tutorials/gson-getting-started-with-java-json-serialization-deserialization) by `Future Studio`
+  * [Gson API Report](https://abi-laboratory.pro/java/tracker/timeline/gson/)
 
 ### License
 
