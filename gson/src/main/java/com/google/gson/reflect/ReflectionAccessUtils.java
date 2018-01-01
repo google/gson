@@ -47,10 +47,10 @@ public class ReflectionAccessUtils {
 
   // singleton holder
   private static class ReflectionAccessorHolder {
-    static final ReflectionAccessor instance = createReflectionAccessor();
+    private static final ReflectionAccessor instance = createReflectionAccessor();
   }
 
-  static ReflectionAccessor createReflectionAccessor() {
+  private static ReflectionAccessor createReflectionAccessor() {
     if (VersionUtils.getMajorJavaVersion() < 9) {
       return new PreJava9ReflectionAccessor();
     } else {
