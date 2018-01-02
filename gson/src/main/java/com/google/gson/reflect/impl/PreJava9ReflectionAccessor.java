@@ -25,7 +25,7 @@ import java.lang.reflect.AccessibleObject;
  * This implementation just calls {@link AccessibleObject#setAccessible(boolean) setAccessible(true)}, which worked
  * fine before Java 9.
  */
-public class PreJava9ReflectionAccessor implements ReflectionAccessor {
+public final class PreJava9ReflectionAccessor extends ReflectionAccessor {
 
   /**
    * {@inheritDoc}

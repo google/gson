@@ -40,7 +40,6 @@ import java.util.concurrent.ConcurrentSkipListMap;
 
 import com.google.gson.InstanceCreator;
 import com.google.gson.JsonIOException;
-import com.google.gson.reflect.ReflectionAccessUtils;
 import com.google.gson.reflect.ReflectionAccessor;
 import com.google.gson.reflect.TypeToken;
 
@@ -49,7 +48,7 @@ import com.google.gson.reflect.TypeToken;
  */
 public final class ConstructorConstructor {
   private final Map<Type, InstanceCreator<?>> instanceCreators;
-  private final static ReflectionAccessor accessor = ReflectionAccessUtils.getReflectionAccessor();
+  private final ReflectionAccessor accessor = ReflectionAccessor.getInstance();
 
   public ConstructorConstructor(Map<Type, InstanceCreator<?>> instanceCreators) {
     this.instanceCreators = instanceCreators;

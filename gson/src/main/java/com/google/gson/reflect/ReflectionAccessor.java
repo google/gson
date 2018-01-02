@@ -15,18 +15,52 @@
  */
 package com.google.gson.reflect;
 
+import com.google.gson.reflect.impl.PreJava9ReflectionAccessor;
+import com.google.gson.reflect.impl.UnsafeReflectionAccessor;
+import com.google.gson.util.VersionUtils;
+
 import java.lang.reflect.AccessibleObject;
 
 /**
- * Provides a replacement for {@link AccessibleObject#setAccessible(boolean)}, useful when that basic operation is
- * prohibited, e.g. throws {@link java.lang.reflect.InaccessibleObjectException} in Java 9.
+ * Provides a replacement for {@link AccessibleObject#setAccessible(boolean)}, which may be used to
+ * avoid reflective access issues appeared in Java 9, like {@link java.lang.reflect.InaccessibleObjectException}
+ * thrown or warnings like
+ * <pre>
+ *   WARNING: An illegal reflective access operation has occurred
+ *   WARNING: Illegal reflective access by ...
+ * </pre>
+ * <p/>
+ * Works both for Java 9 and earlier Java versions.
  */
-public interface ReflectionAccessor {
+public abstract class ReflectionAccessor {
 
   /**
    * Does the same as {@code ao.setAccessible(true)}, but never throws
    * {@link java.lang.reflect.InaccessibleObjectException}
    */
-  void makeAccessible(AccessibleObject ao);
+  public abstract void makeAccessible(AccessibleObject ao);
 
+  /**
+   * Obtains a {@link ReflectionAccessor} instance suitable for the current Java version.
+   * <p>
+   * You may need one a reflective operation in your code throws {@link java.lang.reflect.InaccessibleObjectException}.
+   * In such a case, use {@link ReflectionAccessor#makeAccessible(AccessibleObject)} on a field, method or constructor
+   * (instead of basic {@link AccessibleObject#setAccessible(boolean)}).
+   */
+  public static ReflectionAccessor getInstance() {
+    return ReflectionAccessorHolder.instance;
+  }
+
+  // singleton holder
+  private static class ReflectionAccessorHolder {
+    private static final ReflectionAccessor instance = createReflectionAccessor();
+  }
+
+  private static ReflectionAccessor createReflectionAccessor() {
+    if (VersionUtils.getMajorJavaVersion() < 9) {
+      return new PreJava9ReflectionAccessor();
+    } else {
+      return new UnsafeReflectionAccessor();
+    }
+  }
 }
