@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson.reflect.impl;
+package com.google.gson.internal.reflect;
 
-import com.google.gson.reflect.ReflectionAccessor;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.AccessibleObject;
@@ -27,7 +26,7 @@ import java.lang.reflect.Field;
  * NOTE: This implementation is designed for Java 9. Although it should work with earlier Java releases, it is better to
  * use {@link PreJava9ReflectionAccessor} for them.
  */
-public final class UnsafeReflectionAccessor extends ReflectionAccessor {
+final class UnsafeReflectionAccessor extends ReflectionAccessor {
 
   private static final Unsafe theUnsafe = getUnsafeInstance();
   private static final Field overrideField = getOverrideField();
@@ -35,6 +34,7 @@ public final class UnsafeReflectionAccessor extends ReflectionAccessor {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void makeAccessible(AccessibleObject ao) {
     if (theUnsafe != null && overrideField != null) {
       long overrideOffset = theUnsafe.objectFieldOffset(overrideField);

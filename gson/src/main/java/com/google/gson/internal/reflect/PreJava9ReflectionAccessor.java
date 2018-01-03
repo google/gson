@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson.reflect.impl;
-
-import com.google.gson.reflect.ReflectionAccessor;
+package com.google.gson.internal.reflect;
 
 import java.lang.reflect.AccessibleObject;
 
@@ -25,11 +23,12 @@ import java.lang.reflect.AccessibleObject;
  * This implementation just calls {@link AccessibleObject#setAccessible(boolean) setAccessible(true)}, which worked
  * fine before Java 9.
  */
-public final class PreJava9ReflectionAccessor extends ReflectionAccessor {
+final class PreJava9ReflectionAccessor extends ReflectionAccessor {
 
   /**
    * {@inheritDoc}
    */
+  @Override
   public void makeAccessible(AccessibleObject ao) {
     ao.setAccessible(true);
   }

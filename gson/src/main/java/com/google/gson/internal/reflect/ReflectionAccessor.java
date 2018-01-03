@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson.reflect;
+package com.google.gson.internal.reflect;
 
-import com.google.gson.reflect.impl.PreJava9ReflectionAccessor;
-import com.google.gson.reflect.impl.UnsafeReflectionAccessor;
 import com.google.gson.util.VersionUtils;
 
 import java.lang.reflect.AccessibleObject;
@@ -48,13 +46,10 @@ public abstract class ReflectionAccessor {
    * (instead of basic {@link AccessibleObject#setAccessible(boolean)}).
    */
   public static ReflectionAccessor getInstance() {
-    return ReflectionAccessorHolder.instance;
+    return instance;
   }
 
-  // singleton holder
-  private static class ReflectionAccessorHolder {
-    private static final ReflectionAccessor instance = createReflectionAccessor();
-  }
+  private static final ReflectionAccessor instance = createReflectionAccessor();
 
   private static ReflectionAccessor createReflectionAccessor() {
     if (VersionUtils.getMajorJavaVersion() < 9) {
