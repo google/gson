@@ -32,6 +32,9 @@ import java.lang.reflect.AccessibleObject;
  */
 public abstract class ReflectionAccessor {
 
+  // the singleton instance, use getInstance() to obtain
+  private static final ReflectionAccessor instance = createReflectionAccessor();
+
   /**
    * Does the same as {@code ao.setAccessible(true)}, but never throws
    * {@link java.lang.reflect.InaccessibleObjectException}
@@ -48,8 +51,6 @@ public abstract class ReflectionAccessor {
   public static ReflectionAccessor getInstance() {
     return instance;
   }
-
-  private static final ReflectionAccessor instance = createReflectionAccessor();
 
   private static ReflectionAccessor createReflectionAccessor() {
     if (VersionUtils.getMajorJavaVersion() < 9) {
