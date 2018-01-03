@@ -54,6 +54,7 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
   private double version = IGNORE_VERSIONS;
   private int modifiers = Modifier.TRANSIENT | Modifier.STATIC;
   private boolean serializeInnerClasses = true;
+  private boolean serializeAnonymousAndLocalClasses = false;
   private boolean requireExpose;
   private List<ExclusionStrategy> serializationStrategies = Collections.emptyList();
   private List<ExclusionStrategy> deserializationStrategies = Collections.emptyList();
@@ -90,6 +91,12 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
   public Excluder excludeFieldsWithoutExposeAnnotation() {
     Excluder result = clone();
     result.requireExpose = true;
+    return result;
+  }
+
+  public Excluder enableAnonymousAndLocalClassSerialization() {
+    Excluder result = clone();
+    result.serializeAnonymousAndLocalClasses = true;
     return result;
   }
 
@@ -173,7 +180,7 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
       return true;
     }
 
-    if (isAnonymousOrLocal(field.getType())) {
+    if (!serializeAnonymousAndLocalClasses && isAnonymousOrLocal(field.getType())) {
       return true;
     }
 
@@ -199,7 +206,7 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
           return true;
       }
 
-      if (isAnonymousOrLocal(clazz)) {
+      if (!serializeAnonymousAndLocalClasses && isAnonymousOrLocal(clazz)) {
           return true;
       }
 
