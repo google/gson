@@ -33,7 +33,7 @@ import java.lang.reflect.AccessibleObject;
 public abstract class ReflectionAccessor {
 
   // the singleton instance, use getInstance() to obtain
-  private static final ReflectionAccessor instance = createReflectionAccessor();
+  private static final ReflectionAccessor instance = VersionUtils.getMajorJavaVersion() < 9 ? new PreJava9ReflectionAccessor() : new UnsafeReflectionAccessor();
 
   /**
    * Does the same as {@code ao.setAccessible(true)}, but never throws
@@ -50,9 +50,5 @@ public abstract class ReflectionAccessor {
    */
   public static ReflectionAccessor getInstance() {
     return instance;
-  }
-
-  private static ReflectionAccessor createReflectionAccessor() {
-    return VersionUtils.getMajorJavaVersion() < 9 ? new PreJava9ReflectionAccessor() : new UnsafeReflectionAccessor();
   }
 }
