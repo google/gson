@@ -28,8 +28,8 @@ import java.lang.reflect.Field;
  */
 final class UnsafeReflectionAccessor extends ReflectionAccessor {
 
-  private static final Unsafe theUnsafe = getUnsafeInstance();
-  private static final Field overrideField = getOverrideField();
+  private final Unsafe theUnsafe = getUnsafeInstance();
+  private final Field overrideField = getOverrideField();
 
   /**
    * {@inheritDoc}

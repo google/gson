@@ -53,10 +53,6 @@ public abstract class ReflectionAccessor {
   }
 
   private static ReflectionAccessor createReflectionAccessor() {
-    if (VersionUtils.getMajorJavaVersion() < 9) {
-      return new PreJava9ReflectionAccessor();
-    } else {
-      return new UnsafeReflectionAccessor();
-    }
+    return VersionUtils.getMajorJavaVersion() < 9 ? new PreJava9ReflectionAccessor() : new UnsafeReflectionAccessor();
   }
 }
