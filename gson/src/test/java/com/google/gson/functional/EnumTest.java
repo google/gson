@@ -160,6 +160,19 @@ public class EnumTest extends TestCase {
     assertFalse(bar.contains(Roshambo.SCISSORS));
   }
 
+  public void testEnumWithAbstractMethods () {
+    Gson gson = new GsonBuilder()
+            .registerTypeAdapter(Countries.class , new CountriesAdapter())
+            .create();
+    Countries onePlusDevices = Countries.UNITED_STATES_OF_AMERICA;
+    String json = gson.toJson(onePlusDevices);
+    assertEquals("\"USD\"" , json);
+
+    String jsonValue = "\"INR\"";
+    Countries parsed = gson.fromJson(jsonValue , Countries.class);
+    assertEquals(Countries.INDIA , parsed);
+  }
+
   public enum Roshambo {
     ROCK {
       @Override Roshambo defeats() {
@@ -198,5 +211,56 @@ public class EnumTest extends TestCase {
 
     @SerializedName("girl")
     FEMALE
+  }
+
+  public enum Countries {
+      AUSTRALIA {
+      @Override
+      String getCurrencyCode() {
+        return "AUD";
+      }
+    },
+      INDIA {
+      @Override
+      String getCurrencyCode() {
+        return "INR";
+      }
+    },
+      UNITED_STATES_OF_AMERICA {
+      @Override
+      String getCurrencyCode() {
+        return "USD";
+      }
+    },
+      GERMANY {
+      @Override
+      String getCurrencyCode() {
+        return "EUR";
+      }
+    };
+
+    abstract String getCurrencyCode();
+
+    public static Countries getDeviceFromDeviceCode (String currencyCode) {
+        for (Countries country : Countries.values()) {
+            if (country.getCurrencyCode().equals(currencyCode)) {
+                return country;
+            }
+        }
+        return null;
+    }
+  }
+
+  private static class CountriesAdapter implements JsonSerializer<Countries> , JsonDeserializer<Countries> {
+
+    @Override
+    public JsonElement serialize(Countries src, Type typeOfSrc, JsonSerializationContext context) {
+      return new JsonPrimitive(src.getCurrencyCode());
+    }
+
+    @Override
+    public Countries deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+      return Countries.getDeviceFromDeviceCode(json.getAsString());
+    }
   }
 }

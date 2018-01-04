@@ -607,12 +607,21 @@ public final class Gson {
    * {@link #toJson(Object, Type)} instead. If you want to write out the object to a
    * {@link Writer}, use {@link #toJson(Object, Appendable)} instead.
    *
+   * For enums having  abstract methods , {@link Class#getClass()} will not return the Class
+   * object corresponding to the enum constant. Instead of it will return a runtime Enum class
+   * of the enum variable. This fails when creating custom {@link TypeAdapter} for that enum.
+   * So the Type of the enum can be obtained by {@link Enum#getDeclaringClass()} call.
+   *
    * @param src the object for which Json representation is to be created setting for Gson
    * @return Json representation of {@code src}.
    */
   public String toJson(Object src) {
     if (src == null) {
       return toJson(JsonNull.INSTANCE);
+    }
+    if (src instanceof Enum) {
+      Enum anEnum = (Enum) src;
+      return toJson(src, anEnum.getDeclaringClass());
     }
     return toJson(src, src.getClass());
   }
