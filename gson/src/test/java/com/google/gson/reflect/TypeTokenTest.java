@@ -101,5 +101,35 @@ public final class TypeTokenTest extends TestCase {
     Type listOfString = TypeToken.getParameterized(List.class, String.class).getType();
     Type listOfListOfString = TypeToken.getParameterized(List.class, listOfString).getType();
     assertEquals(expectedListOfListOfListOfString, TypeToken.getParameterized(List.class, listOfListOfString));
+  }  
+  
+  public <T> void testRejectsTypeVariable() {
+	 try {
+		 new TypeToken<T>() {};
+	 } catch(RuntimeException e) {
+		 return;
+	 }
+	 
+	 throw new AssertionError("Expected exception");
+  }
+  
+  public <T> void testRejectsNestedTypeVariable() {
+	 try {
+		 new TypeToken<List<T>>()  {};
+	 } catch(RuntimeException e) {
+		 return;
+	 }
+	 
+	 throw new AssertionError("Expected exception");
+  }
+  
+  public <T> void testRejectsGenericArrayWithTypeVariable() {
+	 try {
+		 new TypeToken<List<T>[]>() {};
+	 } catch(RuntimeException e) {
+		 return;
+	 }
+	 
+	 throw new AssertionError("Expected exception");
   }
 }

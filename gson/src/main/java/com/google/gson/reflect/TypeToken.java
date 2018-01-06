@@ -16,14 +16,15 @@
 
 package com.google.gson.reflect;
 
-import com.google.gson.internal.$Gson$Types;
-import com.google.gson.internal.$Gson$Preconditions;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.google.gson.internal.$Gson$Preconditions;
+import com.google.gson.internal.$Gson$Types;
 
 /**
  * Represents a generic type {@code T}. Java doesn't yet provide a way to
@@ -60,6 +61,10 @@ public class TypeToken<T> {
   @SuppressWarnings("unchecked")
   protected TypeToken() {
     this.type = getSuperclassTypeParameter(getClass());
+    if(usesTypeVariable(type)) {
+    	throw new RuntimeException("Can not use type variables.");
+    }
+    
     this.rawType = (Class<? super T>) $Gson$Types.getRawType(type);
     this.hashCode = type.hashCode();
   }
@@ -85,6 +90,22 @@ public class TypeToken<T> {
     }
     ParameterizedType parameterized = (ParameterizedType) superclass;
     return $Gson$Types.canonicalize(parameterized.getActualTypeArguments()[0]);
+  } 
+  
+  static boolean usesTypeVariable(Type type) {
+	  if(type instanceof TypeVariable) {
+		  return true;
+	  } else if(type instanceof ParameterizedType) {
+		  for(Type parameterType : ((ParameterizedType) type).getActualTypeArguments()) {
+			  if(usesTypeVariable(parameterType)) {
+				  return true;
+			  }
+		  }
+	  } else if(type instanceof GenericArrayType) {
+		  return usesTypeVariable(((GenericArrayType) type).getGenericComponentType());
+	  }
+	  
+	  return false;
   }
 
   /**
