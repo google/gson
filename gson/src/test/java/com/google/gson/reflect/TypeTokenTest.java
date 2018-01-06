@@ -110,7 +110,7 @@ public final class TypeTokenTest extends TestCase {
 		 return;
 	 }
 	 
-	 throw new AssertionError("Expected exception");
+	 fail("Expected exception");
   }
   
   public <T> void testRejectsNestedTypeVariable() {
@@ -120,7 +120,7 @@ public final class TypeTokenTest extends TestCase {
 		 return;
 	 }
 	 
-	 throw new AssertionError("Expected exception");
+	 fail("Expected exception");
   }
   
   public <T> void testRejectsGenericArrayWithTypeVariable() {
@@ -130,6 +130,6 @@ public final class TypeTokenTest extends TestCase {
 		 return;
 	 }
 	 
-	 throw new AssertionError("Expected exception");
+	 fail("Expected exception");
   }
 }
