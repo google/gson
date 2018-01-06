@@ -62,7 +62,7 @@ public class TypeToken<T> {
   protected TypeToken() {
     this.type = getSuperclassTypeParameter(getClass());
     if(usesTypeVariable(type)) {
-    	throw new RuntimeException("Uses type variable or widlcard type");
+    	throw new RuntimeException("Can not use type variables.");
     }
     
     this.rawType = (Class<? super T>) $Gson$Types.getRawType(type);
