@@ -31,7 +31,7 @@ final class JsonScope {
     static final int EMPTY_ARRAY = 1;
 
     /**
-     * A array with at least one value requires a comma and newline before
+     * An array with at least one value requires a comma and newline before
      * the next element.
      */
     static final int NONEMPTY_ARRAY = 2;
