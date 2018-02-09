@@ -1594,17 +1594,17 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
-  public void test_skipValueInfiniteLoopOnObjectEnd() throws IOException {
+  public void testSkipValueInfiniteLoopOnObjectEnd() throws IOException {
       final String json = "{\"input\":{\"authToken\":\"7f79v2fav7jj48t70vh2jfo84h\",\"packageId\":\"649b1fa1-d323-499a-99b2-fb00da8b1f12\",\"version\":\"1.0.0\"},\"requestId\":\"0a7bd76f-6a3c-417d-b2c8-022e17ea46c0\",\"name\":\"com.seagullsw.appinterface.server.admin.Reconfigure\",\"type\":\"BasicRequest\"}";
       final String search = "AMissingValue";
       final JsonReader jsonReader = new JsonReader(new StringReader(json));
       try {
-          if (jsonReader.peek() == JsonToken.BEGIN_OBJECT) {
+          if (jsonReader.peek() == BEGIN_OBJECT) {
               jsonReader.beginObject();
-              while (jsonReader.peek() == JsonToken.NAME) {
+              while (jsonReader.peek() == NAME) {
                   final String jsonName = jsonReader.nextName();
                   if ("type".equals(jsonName)) {
-                      if (jsonReader.peek() == JsonToken.STRING && search.equals(jsonReader.nextString())) {
+                      if (jsonReader.peek() == STRING && search.equals(jsonReader.nextString())) {
                           Assert.fail();
                       }
                   }
