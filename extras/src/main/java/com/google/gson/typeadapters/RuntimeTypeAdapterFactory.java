@@ -126,6 +126,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
   private final String typeFieldName;
   private final Map<String, Class<?>> labelToSubtype = new LinkedHashMap<String, Class<?>>();
   private final Map<Class<?>, String> subtypeToLabel = new LinkedHashMap<Class<?>, String>();
+  private Class<? extends T> defaultType = null;
 
   private RuntimeTypeAdapterFactory(Class<?> baseType, String typeFieldName) {
     if (typeFieldName == null || baseType == null) {
@@ -171,6 +172,23 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
   }
 
   /**
+   * Registers {@code type} for using when label not found
+   *
+   * @throws IllegalArgumentException if {@code type}
+   *     have already been registered on this type adapter.
+   */
+  public RuntimeTypeAdapterFactory<T> registerDefaultSubtype(Class<? extends T> type) {
+    if (type == null) {
+      throw new NullPointerException();
+    }
+    if (subtypeToLabel.containsKey(type)) {
+      throw new IllegalArgumentException("types must be unique");
+    }
+    defaultType = type;
+    return this;
+  }
+
+  /**
    * Registers {@code type} identified by its {@link Class#getSimpleName simple
    * name}. Labels are case sensitive.
    *
@@ -190,6 +208,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
         = new LinkedHashMap<String, TypeAdapter<?>>();
     final Map<Class<?>, TypeAdapter<?>> subtypeToDelegate
         = new LinkedHashMap<Class<?>, TypeAdapter<?>>();
+    final TypeAdapter<?> defaultDelegate = defaultType == null ? null : gson.getDelegateAdapter(this, TypeToken.get(defaultType));
     for (Map.Entry<String, Class<?>> entry : labelToSubtype.entrySet()) {
       TypeAdapter<?> delegate = gson.getDelegateAdapter(this, TypeToken.get(entry.getValue()));
       labelToDelegate.put(entry.getKey(), delegate);
@@ -208,8 +227,12 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
         @SuppressWarnings("unchecked") // registration requires that subtype extends T
         TypeAdapter<R> delegate = (TypeAdapter<R>) labelToDelegate.get(label);
         if (delegate == null) {
-          throw new JsonParseException("cannot deserialize " + baseType + " subtype named "
-              + label + "; did you forget to register a subtype?");
+          if (defaultDelegate == null) {
+            throw new JsonParseException("cannot deserialize " + baseType + " subtype named "
+                    + label + "; did you forget to register a subtype?");
+          } else {
+            delegate =  (TypeAdapter<R>) defaultDelegate;
+          }
         }
         return delegate.fromJsonTree(jsonElement);
       }
