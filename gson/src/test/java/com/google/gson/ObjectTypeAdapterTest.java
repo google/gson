@@ -16,10 +16,8 @@
 
 package com.google.gson;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.math.BigInteger;
+import java.util.*;
 import junit.framework.TestCase;
 
 public final class ObjectTypeAdapterTest extends TestCase {
@@ -28,8 +26,8 @@ public final class ObjectTypeAdapterTest extends TestCase {
 
   public void testDeserialize() throws Exception {
     Map<?, ?> map = (Map<?, ?>) adapter.fromJson("{\"a\":5,\"b\":[1,2,null],\"c\":{\"x\":\"y\"}}");
-    assertEquals(5.0, map.get("a"));
-    assertEquals(Arrays.asList(1.0, 2.0, null), map.get("b"));
+    assertEquals(5, map.get("a"));
+    assertEquals(Arrays.asList(1, 2, null), map.get("b"));
     assertEquals(Collections.singletonMap("x", "y"), map.get("c"));
     assertEquals(3, map.size());
   }
@@ -53,6 +51,17 @@ public final class ObjectTypeAdapterTest extends TestCase {
 
   public void testSerializeObject() throws Exception {
     assertEquals("{}", adapter.toJson(new Object()));
+  }
+
+  public void testDeserializeNumbers() {
+    String json = "[2147483647,9223372036854775807,9223372036854775808,-9223372036854775809,1E6,1.0]";
+    Object[] numbers = gson.fromJson(json, Object[].class);
+    assertEquals(Integer.MAX_VALUE, numbers[0]);                       //int
+    assertEquals(Long.MAX_VALUE, numbers[1]);                          //long
+    assertEquals(new BigInteger("9223372036854775808"), numbers[2]);  //BigInteger
+    assertEquals(new BigInteger("-9223372036854775809"), numbers[3]); //BigInteger
+    assertEquals(1.0E6, numbers[4]);                                    //double
+    assertEquals(1.0, numbers[5]);                                      //double
   }
 
   @SuppressWarnings("unused")
