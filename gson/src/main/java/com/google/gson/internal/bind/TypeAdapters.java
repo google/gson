@@ -16,6 +16,15 @@
 
 package com.google.gson.internal.bind;
 
+import com.google.gson.*;
+import com.google.gson.annotations.SerializedName;
+import com.google.gson.internal.LazilyParsedNumber;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
+import guru.mmp.common.util.ISO8601;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -24,38 +33,14 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.Calendar;
-import java.util.Currency;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.UUID;
+import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerArray;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonNull;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.TypeAdapter;
-import com.google.gson.TypeAdapterFactory;
-import com.google.gson.annotations.SerializedName;
-import com.google.gson.internal.LazilyParsedNumber;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
 
 /**
  * Type adapters for basic types.
@@ -692,6 +677,104 @@ public final class TypeAdapters {
       out.value(value == null ? null : value.toString());
     }
   };
+
+  public static final TypeAdapter<LocalDateTime> LOCAL_DATE_TIME = new TypeAdapter<LocalDateTime>() {
+
+    @Override
+    public LocalDateTime read(JsonReader reader) throws IOException {
+      if (reader.peek() == JsonToken.NULL) {
+        reader.nextNull();
+        return null;
+      }
+      try {
+        return ISO8601.toLocalDateTime(reader.nextString());
+      } catch (ParseException e) {
+        throw new IOException("Unable to convert value into LocalDateTime.", e);
+      }
+    }
+
+    @Override
+    public void write(JsonWriter writer, LocalDateTime value) throws IOException {
+      if (value == null) {
+        writer.nullValue();
+        return;
+      }
+      writer.value(ISO8601.fromLocalDateTime(value));
+    }
+  };
+
+  public static final TypeAdapterFactory LOCALDATETIME_FACTORY =
+          newFactory(LocalDateTime.class, LOCAL_DATE_TIME);
+
+  public static class LocalDateAdapter extends TypeAdapter<LocalDate> {
+
+    public LocalDate read(JsonReader reader) throws IOException {
+      if (reader.peek() == JsonToken.NULL) {
+        reader.nextNull();
+        return null;
+      }
+      try {
+        return ISO8601.toLocalDate(reader.nextString());
+      } catch (ParseException e) {
+        throw new IOException("Unable to convert value into LocalDate.", e);
+      }
+    }
+
+    public void write(JsonWriter writer, LocalDate value) throws IOException {
+      if (value == null) {
+        writer.nullValue();
+        return;
+      }
+      writer.value(ISO8601.fromLocalDate(value));
+    }
+  }
+
+
+  public static class LocalTimeAdapter extends TypeAdapter<LocalTime> {
+
+    public LocalTime read(JsonReader reader) throws IOException {
+      if (reader.peek() == JsonToken.NULL) {
+        reader.nextNull();
+        return null;
+      }
+      try {
+        return ISO8601.toLocalTime(reader.nextString());
+      } catch (ParseException e) {
+        throw new IOException("Unable to convert value into LocalTime.", e);
+      }
+    }
+
+    public void write(JsonWriter writer, LocalTime value) throws IOException {
+      if (value == null) {
+        writer.nullValue();
+        return;
+      }
+      writer.value(ISO8601.fromLocalTime(value));
+    }
+  }
+
+  public static class LocalDateTimeAdapter extends TypeAdapter<LocalDateTime> {
+
+    public LocalDateTime read(JsonReader reader) throws IOException {
+      if (reader.peek() == JsonToken.NULL) {
+        reader.nextNull();
+        return null;
+      }
+      try {
+        return ISO8601.toLocalDateTime(reader.nextString());
+      } catch (ParseException e) {
+        throw new IOException("Unable to convert value into LocalDateTime.", e);
+      }
+    }
+
+    public void write(JsonWriter writer, LocalDateTime value) throws IOException {
+      if (value == null) {
+        writer.nullValue();
+        return;
+      }
+      writer.value(ISO8601.fromLocalDateTime(value));
+    }
+  }
 
   public static final TypeAdapterFactory LOCALE_FACTORY = newFactory(Locale.class, LOCALE);
 
