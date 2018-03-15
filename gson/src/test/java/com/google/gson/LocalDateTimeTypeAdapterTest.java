@@ -32,7 +32,6 @@ public class LocalDateTimeTypeAdapterTest extends TestCase {
 
 
   public void testDatePattern() throws Exception {
-    String pattern = "yyyy-MM-ddTHH:mm:ss";
     TypeAdapters.LocalDateTimeAdapter adapter = new TypeAdapters.LocalDateTimeAdapter();
     DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
     LocalDateTime currentDate = LocalDateTime.now();
