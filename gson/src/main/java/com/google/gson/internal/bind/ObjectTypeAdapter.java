@@ -75,6 +75,9 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
     case STRING:
       return in.nextString();
 
+    case LONG_NUMBER:
+      return in.nextLong();
+
     case NUMBER:
       return in.nextDouble();
 
