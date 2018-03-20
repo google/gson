@@ -7,7 +7,7 @@ public class AnonymousAndLocalClassInclusionStrategyTest extends TestCase {
     private Anonymous anonymousClass = new Anonymous() {
         @Override
         public void method() {
-
+            //intentionally left blank
         }
     };
 
@@ -54,8 +54,8 @@ public class AnonymousAndLocalClassInclusionStrategyTest extends TestCase {
         Class<?> clazz = localClass.getClass();
 
         /*
-         * Since the serialization of local and anonymous classes is enabled,
-         * this class should not be excluded.
+         * Since the serialization of local and anonymous classes is disabled by default,
+         * this class should be excluded.
          */
         assertTrue(defaultExcluder.excludeClass(clazz, true));
     }
@@ -72,9 +72,9 @@ public class AnonymousAndLocalClassInclusionStrategyTest extends TestCase {
         LocalClass localClass = new LocalClass();
         Class<?> clazz = localClass.getClass();
 
-        /*
-         * Since the serialization of local and anonymous classes is enabled,
-         * this class should not be excluded.
+         /*
+         * Since the serialization of local and anonymous classes is disabled by default,
+         * this class should be excluded.
          */
         assertTrue(defaultExcluder.excludeField(clazz.getField("anotherLocalClass"), true));
     }
@@ -92,9 +92,9 @@ public class AnonymousAndLocalClassInclusionStrategyTest extends TestCase {
     public void testExcludeAnonymousClassObject() throws Exception {
         Class<?> clazz = anonymousClass.getClass();
 
-        /*
-         * Since the serialization of local and anonymous classes is enabled,
-         * this class should not be excluded.
+         /*
+         * Since the serialization of local and anonymous classes is disabled by default,
+         * this class should be excluded.
          */
         assertTrue(defaultExcluder.excludeClass(clazz, true));
     }
