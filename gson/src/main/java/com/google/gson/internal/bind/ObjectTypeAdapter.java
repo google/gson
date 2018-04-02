@@ -26,6 +26,7 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,11 @@ import java.util.Map;
  * serialization and a primitive/Map/List on deserialization.
  */
 public final class ObjectTypeAdapter extends TypeAdapter<Object> {
+  private static final BigInteger MAX_INT = BigInteger.valueOf(Integer.MAX_VALUE);
+  private static final BigInteger MIN_INT = BigInteger.valueOf(Integer.MIN_VALUE);
+  private static final BigInteger MAX_LONG = BigInteger.valueOf(Long.MAX_VALUE);
+  private static final BigInteger MIN_LONG = BigInteger.valueOf(Long.MIN_VALUE);
+
   public static final TypeAdapterFactory FACTORY = new TypeAdapterFactory() {
     @SuppressWarnings("unchecked")
     @Override public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
@@ -76,7 +82,17 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
       return in.nextString();
 
     case NUMBER:
-      return in.nextDouble();
+      String str = in.nextString();
+      if (str.contains(".") || str.contains("E") || str.contains("e")) {
+        return Double.valueOf(str);
+      } else {
+        BigInteger big = new BigInteger(str);
+        if (big.compareTo(MAX_INT) <= 0 && big.compareTo(MIN_INT) >= 0)
+          return big.intValue();
+        if (big.compareTo(MAX_LONG) <= 0 && big.compareTo(MIN_LONG) >= 0)
+          return big.longValue();
+        return big;
+      }
 
     case BOOLEAN:
       return in.nextBoolean();
