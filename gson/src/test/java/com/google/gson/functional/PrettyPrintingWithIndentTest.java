@@ -14,8 +14,7 @@ import java.util.*;
 public class PrettyPrintingWithIndentTest extends TestCase {
 
   private Gson gson;
-  StringBuilder sb = new StringBuilder();
-  
+
   @Override
   protected void setUp() throws Exception {
     super.setUp();
