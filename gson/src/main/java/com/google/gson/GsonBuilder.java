@@ -40,6 +40,8 @@ import static com.google.gson.Gson.DEFAULT_LENIENT;
 import static com.google.gson.Gson.DEFAULT_PRETTY_PRINT;
 import static com.google.gson.Gson.DEFAULT_SERIALIZE_NULLS;
 import static com.google.gson.Gson.DEFAULT_SPECIALIZE_FLOAT_VALUES;
+import static com.google.gson.Gson.DEFAULT_INDENT;
+import static com.google.gson.Gson.DEFAULT_PRETTY_INDENT;
 
 /**
  * <p>Use this builder to construct a {@link Gson} instance when you need to set configuration
@@ -92,6 +94,7 @@ public final class GsonBuilder {
   private boolean serializeSpecialFloatingPointValues = DEFAULT_SPECIALIZE_FLOAT_VALUES;
   private boolean escapeHtmlChars = DEFAULT_ESCAPE_HTML;
   private boolean prettyPrinting = DEFAULT_PRETTY_PRINT;
+  private String indent = DEFAULT_INDENT;
   private boolean generateNonExecutableJson = DEFAULT_JSON_NON_EXECUTABLE;
   private boolean lenient = DEFAULT_LENIENT;
 
@@ -384,6 +387,20 @@ public final class GsonBuilder {
    */
   public GsonBuilder setPrettyPrinting() {
     prettyPrinting = true;
+    this.indent = DEFAULT_PRETTY_INDENT;
+    return this;
+  }
+
+  /**
+   * Configures Gson to output Json that fits in a page for pretty printing. This option only
+   * affects Json serialization.
+   *
+   * @param indent A string containing a full set of spaces for a single level of indentation
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   */
+  public GsonBuilder setPrettyPrinting(String indent) {
+    this.prettyPrinting = true;
+    this.indent = indent;
     return this;
   }
 
@@ -596,7 +613,7 @@ public final class GsonBuilder {
 
     return new Gson(excluder, fieldNamingPolicy, instanceCreators,
         serializeNulls, complexMapKeySerialization,
-        generateNonExecutableJson, escapeHtmlChars, prettyPrinting, lenient,
+        generateNonExecutableJson, escapeHtmlChars, prettyPrinting, indent, lenient,
         serializeSpecialFloatingPointValues, longSerializationPolicy,
         datePattern, dateStyle, timeStyle,
         this.factories, this.hierarchyFactories, factories);

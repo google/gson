@@ -105,6 +105,8 @@ public final class Gson {
   static final boolean DEFAULT_JSON_NON_EXECUTABLE = false;
   static final boolean DEFAULT_LENIENT = false;
   static final boolean DEFAULT_PRETTY_PRINT = false;
+  static final String DEFAULT_INDENT = null;
+  static final String DEFAULT_PRETTY_INDENT = "  ";
   static final boolean DEFAULT_ESCAPE_HTML = true;
   static final boolean DEFAULT_SERIALIZE_NULLS = false;
   static final boolean DEFAULT_COMPLEX_MAP_KEYS = false;
@@ -138,6 +140,7 @@ public final class Gson {
   final boolean generateNonExecutableJson;
   final boolean htmlSafe;
   final boolean prettyPrinting;
+  final String indent;
   final boolean lenient;
   final boolean serializeSpecialFloatingPointValues;
   final String datePattern;
@@ -185,7 +188,7 @@ public final class Gson {
     this(Excluder.DEFAULT, FieldNamingPolicy.IDENTITY,
         Collections.<Type, InstanceCreator<?>>emptyMap(), DEFAULT_SERIALIZE_NULLS,
         DEFAULT_COMPLEX_MAP_KEYS, DEFAULT_JSON_NON_EXECUTABLE, DEFAULT_ESCAPE_HTML,
-        DEFAULT_PRETTY_PRINT, DEFAULT_LENIENT, DEFAULT_SPECIALIZE_FLOAT_VALUES,
+        DEFAULT_PRETTY_PRINT, DEFAULT_INDENT, DEFAULT_LENIENT, DEFAULT_SPECIALIZE_FLOAT_VALUES,
         LongSerializationPolicy.DEFAULT, null, DateFormat.DEFAULT, DateFormat.DEFAULT,
         Collections.<TypeAdapterFactory>emptyList(), Collections.<TypeAdapterFactory>emptyList(),
         Collections.<TypeAdapterFactory>emptyList());
@@ -194,7 +197,7 @@ public final class Gson {
   Gson(final Excluder excluder, final FieldNamingStrategy fieldNamingStrategy,
       final Map<Type, InstanceCreator<?>> instanceCreators, boolean serializeNulls,
       boolean complexMapKeySerialization, boolean generateNonExecutableGson, boolean htmlSafe,
-      boolean prettyPrinting, boolean lenient, boolean serializeSpecialFloatingPointValues,
+      boolean prettyPrinting, String indent, boolean lenient, boolean serializeSpecialFloatingPointValues,
       LongSerializationPolicy longSerializationPolicy, String datePattern, int dateStyle,
       int timeStyle, List<TypeAdapterFactory> builderFactories,
       List<TypeAdapterFactory> builderHierarchyFactories,
@@ -208,6 +211,7 @@ public final class Gson {
     this.generateNonExecutableJson = generateNonExecutableGson;
     this.htmlSafe = htmlSafe;
     this.prettyPrinting = prettyPrinting;
+    this.indent = indent;
     this.lenient = lenient;
     this.serializeSpecialFloatingPointValues = serializeSpecialFloatingPointValues;
     this.longSerializationPolicy = longSerializationPolicy;
@@ -749,7 +753,8 @@ public final class Gson {
     }
     JsonWriter jsonWriter = new JsonWriter(writer);
     if (prettyPrinting) {
-      jsonWriter.setIndent("  ");
+      jsonWriter.setPrettyPrinting();
+      jsonWriter.setIndent(indent);
     }
     jsonWriter.setSerializeNulls(serializeNulls);
     return jsonWriter;
