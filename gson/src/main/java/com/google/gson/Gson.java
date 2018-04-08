@@ -753,7 +753,6 @@ public final class Gson {
     }
     JsonWriter jsonWriter = new JsonWriter(writer);
     if (prettyPrinting) {
-      jsonWriter.setPrettyPrinting();
       jsonWriter.setIndent(indent);
     }
     jsonWriter.setSerializeNulls(serializeNulls);

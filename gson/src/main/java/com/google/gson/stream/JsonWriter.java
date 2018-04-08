@@ -176,7 +176,6 @@ public class JsonWriter implements Closeable, Flushable {
    */
   private String indent;
 
-  private boolean prettyPrinting = false;
   /**
    * The name/value separator; either ":" or ": ".
    */
@@ -211,18 +210,12 @@ public class JsonWriter implements Closeable, Flushable {
    * @param indent a string containing only whitespace.
    */
   public final void setIndent(String indent) {
-    if (indent.length() == 0) {
-      this.indent = null;
+    this.indent = indent;
+    if (indent == null || indent.length() == 0) {
       this.separator = ":";
     } else {
-      this.indent = indent;
       this.separator = ": ";
-      setPrettyPrinting();
     }
-  }
-
-  public void setPrettyPrinting() {
-    this.prettyPrinting = true;
   }
 
   /**
@@ -600,12 +593,12 @@ public class JsonWriter implements Closeable, Flushable {
   }
 
   private void newline() throws IOException {
-    if (!prettyPrinting) {
+    if (indent == null) {
       return;
     }
 
     out.write("\n");
-    if (indent != null) {
+    if (indent.length() != 0) {
       for (int i = 1, size = stackSize; i < size; i++) {
         out.write(indent);
       }

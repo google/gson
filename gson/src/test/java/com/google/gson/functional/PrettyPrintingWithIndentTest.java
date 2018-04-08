@@ -63,4 +63,11 @@ public class PrettyPrintingWithIndentTest extends TestCase {
     String json = gson.toJson(ints);
     assertEquals("[\n\t[\n\t\t1,\n\t\t2\n\t],\n\t[\n\t\t3,\n\t\t4\n\t]\n]", json);
   }
+  
+  public void testEmptyIndent() {
+    Gson gsonEmpty = new GsonBuilder().setPrettyPrinting("").create();
+    int[] ints = new int[]{1, 2, 3, 4, 5};
+    String json = gsonEmpty.toJson(ints);
+    assertEquals("[\n1,\n2,\n3,\n4,\n5\n]", json);
+  }  
 }
