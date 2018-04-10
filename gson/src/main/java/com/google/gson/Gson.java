@@ -106,7 +106,8 @@ public final class Gson {
   static final boolean DEFAULT_LENIENT = false;
   static final boolean DEFAULT_PRETTY_PRINT = false;
   static final String DEFAULT_INDENT = null;
-  static final String DEFAULT_PRETTY_INDENT = "  ";
+  static final char DEFAULT_PRETTY_INDENT_SYMBOL = ' ';
+  static final int DEFAULT_PRETTY_INDENT_COUNT = 2;
   static final boolean DEFAULT_ESCAPE_HTML = true;
   static final boolean DEFAULT_SERIALIZE_NULLS = false;
   static final boolean DEFAULT_COMPLEX_MAP_KEYS = false;

@@ -41,7 +41,8 @@ import static com.google.gson.Gson.DEFAULT_PRETTY_PRINT;
 import static com.google.gson.Gson.DEFAULT_SERIALIZE_NULLS;
 import static com.google.gson.Gson.DEFAULT_SPECIALIZE_FLOAT_VALUES;
 import static com.google.gson.Gson.DEFAULT_INDENT;
-import static com.google.gson.Gson.DEFAULT_PRETTY_INDENT;
+import static com.google.gson.Gson.DEFAULT_PRETTY_INDENT_SYMBOL;
+import static com.google.gson.Gson.DEFAULT_PRETTY_INDENT_COUNT;
 
 /**
  * <p>Use this builder to construct a {@link Gson} instance when you need to set configuration
@@ -386,21 +387,43 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
   public GsonBuilder setPrettyPrinting() {
-    prettyPrinting = true;
-    this.indent = DEFAULT_PRETTY_INDENT;
-    return this;
+    return setPrettyPrinting(DEFAULT_PRETTY_INDENT_SYMBOL, DEFAULT_PRETTY_INDENT_COUNT);
   }
 
   /**
    * Configures Gson to output Json that fits in a page for pretty printing. This option only
    * affects Json serialization.
    *
-   * @param indent A string containing a full set of spaces for a single level of indentation
+   * @param count non-negative count of <b> tabs </b> for single indent
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
-  public GsonBuilder setPrettyPrinting(String indent) {
+  public GsonBuilder setPrettyPrintingByTabs(int count) {
+    return setPrettyPrinting('\t', count);
+  }
+
+  /**
+   * Configures Gson to output Json that fits in a page for pretty printing. This option only
+   * affects Json serialization.
+   *
+   * @param count non-negative count of <b> spaces </b> for single indent
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   */
+  public GsonBuilder setPrettyPrintingBySpaces(int count) {
+    return setPrettyPrinting(' ', count);
+  }
+
+
+  private GsonBuilder setPrettyPrinting(char symbol, int count) {
+    if (count < 0) {
+      throw new IllegalArgumentException("Count should be non negative integer!");
+    }
+
+    StringBuilder stringBuilder = new StringBuilder(count);
+    for (int i = 0; i < count; i++) {
+      stringBuilder.append(symbol);
+    }
     this.prettyPrinting = true;
-    this.indent = indent;
+    this.indent = stringBuilder.toString();
     return this;
   }
 
