@@ -17,6 +17,8 @@
 package com.google.gson.internal.bind;
 
 import com.google.gson.Gson;
+import com.google.gson.ToNumberStrategy;
+import com.google.gson.ToNumberPolicy;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.LinkedTreeMap;
@@ -35,20 +37,30 @@ import java.util.Map;
  * serialization and a primitive/Map/List on deserialization.
  */
 public final class ObjectTypeAdapter extends TypeAdapter<Object> {
-  public static final TypeAdapterFactory FACTORY = new TypeAdapterFactory() {
-    @SuppressWarnings("unchecked")
-    @Override public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-      if (type.getRawType() == Object.class) {
-        return (TypeAdapter<T>) new ObjectTypeAdapter(gson);
-      }
-      return null;
-    }
-  };
+  public static final TypeAdapterFactory FACTORY = newFactory(ToNumberPolicy.DOUBLE);
 
   private final Gson gson;
+  private final ToNumberStrategy toNumberStrategy;
 
   ObjectTypeAdapter(Gson gson) {
+    this(gson, ToNumberPolicy.DOUBLE);
+  }
+
+  ObjectTypeAdapter(Gson gson, ToNumberStrategy toNumberStrategy) {
     this.gson = gson;
+    this.toNumberStrategy = toNumberStrategy;
+  }
+
+  public static TypeAdapterFactory newFactory(final ToNumberStrategy toNumberStrategy) {
+    return new TypeAdapterFactory() {
+      @SuppressWarnings("unchecked")
+      @Override public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+        if (type.getRawType() == Object.class) {
+          return (TypeAdapter<T>) new ObjectTypeAdapter(gson, toNumberStrategy);
+        }
+        return null;
+      }
+    };
   }
 
   @Override public Object read(JsonReader in) throws IOException {
@@ -76,7 +88,7 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
       return in.nextString();
 
     case NUMBER:
-      return in.nextDouble();
+      return toNumberStrategy.readNumber(in);
 
     case BOOLEAN:
       return in.nextBoolean();

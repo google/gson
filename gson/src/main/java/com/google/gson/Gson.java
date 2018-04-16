@@ -146,6 +146,8 @@ public final class Gson {
   final LongSerializationPolicy longSerializationPolicy;
   final List<TypeAdapterFactory> builderFactories;
   final List<TypeAdapterFactory> builderHierarchyFactories;
+  final ToNumberStrategy objectToNumberStrategy;
+  final ToNumberStrategy numberToNumberStrategy;
 
   /**
    * Constructs a Gson object with default configuration. The default configuration has the
@@ -188,7 +190,7 @@ public final class Gson {
         DEFAULT_PRETTY_PRINT, DEFAULT_LENIENT, DEFAULT_SPECIALIZE_FLOAT_VALUES,
         LongSerializationPolicy.DEFAULT, null, DateFormat.DEFAULT, DateFormat.DEFAULT,
         Collections.<TypeAdapterFactory>emptyList(), Collections.<TypeAdapterFactory>emptyList(),
-        Collections.<TypeAdapterFactory>emptyList());
+        Collections.<TypeAdapterFactory>emptyList(), ToNumberPolicy.DOUBLE, ToNumberPolicy.LAZILY_PARSED_NUMBER);
   }
 
   Gson(Excluder excluder, FieldNamingStrategy fieldNamingStrategy,
@@ -198,7 +200,8 @@ public final class Gson {
       LongSerializationPolicy longSerializationPolicy, String datePattern, int dateStyle,
       int timeStyle, List<TypeAdapterFactory> builderFactories,
       List<TypeAdapterFactory> builderHierarchyFactories,
-      List<TypeAdapterFactory> factoriesToBeAdded) {
+      List<TypeAdapterFactory> factoriesToBeAdded,
+          ToNumberStrategy objectToNumberStrategy, ToNumberStrategy numberToNumberStrategy) {
     this.excluder = excluder;
     this.fieldNamingStrategy = fieldNamingStrategy;
     this.instanceCreators = instanceCreators;
@@ -216,12 +219,14 @@ public final class Gson {
     this.timeStyle = timeStyle;
     this.builderFactories = builderFactories;
     this.builderHierarchyFactories = builderHierarchyFactories;
+    this.objectToNumberStrategy = objectToNumberStrategy;
+    this.numberToNumberStrategy = numberToNumberStrategy;
 
     List<TypeAdapterFactory> factories = new ArrayList<TypeAdapterFactory>();
 
     // built-in type adapters that cannot be overridden
     factories.add(TypeAdapters.JSON_ELEMENT_FACTORY);
-    factories.add(ObjectTypeAdapter.FACTORY);
+    factories.add(objectAdapterFactory(objectToNumberStrategy));
 
     // the excluder must precede all adapters that handle user-defined types
     factories.add(excluder);
@@ -241,7 +246,7 @@ public final class Gson {
             doubleAdapter(serializeSpecialFloatingPointValues)));
     factories.add(TypeAdapters.newFactory(float.class, Float.class,
             floatAdapter(serializeSpecialFloatingPointValues)));
-    factories.add(TypeAdapters.NUMBER_FACTORY);
+    factories.add(numberAdapterFactory(numberToNumberStrategy));
     factories.add(TypeAdapters.ATOMIC_INTEGER_FACTORY);
     factories.add(TypeAdapters.ATOMIC_BOOLEAN_FACTORY);
     factories.add(TypeAdapters.newFactory(AtomicLong.class, atomicLongAdapter(longAdapter)));
@@ -363,6 +368,39 @@ public final class Gson {
           + " is not a valid double value as per JSON specification. To override this"
           + " behavior, use GsonBuilder.serializeSpecialFloatingPointValues() method.");
     }
+  }
+
+  private static TypeAdapterFactory objectAdapterFactory(ToNumberStrategy objectToNumberStrategy) {
+    if (objectToNumberStrategy == ToNumberPolicy.DOUBLE) {
+      return ObjectTypeAdapter.FACTORY;
+    }
+    return ObjectTypeAdapter.newFactory(objectToNumberStrategy);
+  }
+
+  private static TypeAdapterFactory numberAdapterFactory(final ToNumberStrategy numberToNumberStrategy) {
+    if (numberToNumberStrategy == ToNumberPolicy.LAZILY_PARSED_NUMBER) {
+      return TypeAdapters.NUMBER_FACTORY;
+    }
+    return TypeAdapters.newFactory(Number.class, new TypeAdapter<Number>() {
+      @Override
+      public Number read(JsonReader in) throws IOException {
+        JsonToken jsonToken = in.peek();
+        switch (jsonToken) {
+        case NULL:
+          in.nextNull();
+          return null;
+        case NUMBER:
+        case STRING:
+          return numberToNumberStrategy.readNumber(in);
+        default:
+          throw new JsonSyntaxException("Expecting number, got: " + jsonToken);
+        }
+      }
+      @Override
+      public void write(JsonWriter out, Number value) throws IOException {
+        out.value(value);
+      }
+    });
   }
 
   private static TypeAdapter<Number> longAdapter(LongSerializationPolicy longSerializationPolicy) {
