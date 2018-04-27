@@ -1,6 +1,12 @@
 Change Log
 ==========
 
+## Version 2.8.3
+_2018-04-27_  [GitHub Diff](https://github.com/google/gson/compare/gson-parent-2.8.2...gson-parent-2.8.3)
+ * Added a new API, `GsonBuilder.newBuilder()` that clones the current builder
+ * Preserving DateFormatter behavior on JDK 9
+ * Numerous other bugfixes
+
 ## Version 2.8.2
 _2017-09-19_  [GitHub Diff](https://github.com/google/gson/compare/gson-parent-2.8.1...gson-parent-2.8.2)
  * Introduced a new API, `JsonElement.deepCopy()`
