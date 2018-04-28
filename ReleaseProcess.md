@@ -1,4 +1,4 @@
-#Gson Release Process
+# Gson Release Process
 
 The following is a step-by-step procedure for releasing a new version of Google-Gson.
 
@@ -10,8 +10,8 @@ The following is a step-by-step procedure for releasing a new version of Google-
 1. Run `mvn release:clean`
 1. Do a dry run: `mvn release:prepare -DdryRun=true`
 1. Start the release: `mvn release:prepare`
-  * Answer questions: usually the defaults are fine.
-  * This will do a full build, change version from `-SNAPSHOT` to the released version, commit and create the tags. It will then change the version to `-SNAPSHOT` for the next release.
+   * Answer questions: usually the defaults are fine.
+   * This will do a full build, change version from `-SNAPSHOT` to the released version, commit and create the tags. It will then change the version to `-SNAPSHOT` for the next release.
 1. Ensure you have defined `sonatype-nexus-staging` in your Maven `settings.xml` and run:
 
    ```bash
@@ -20,30 +20,30 @@ The following is a step-by-step procedure for releasing a new version of Google-
 
 1. [Log in to Nexus repository manager](https://oss.sonatype.org/index.html#welcome) at Sonatype and close the staging repository for Gson. If you run into an error regarding missing signatures, you need to manually upload the artifacts using `mvn gpg:sign-and-deploy-file` for Gson binary, source and Javadoc jars.
 
-  ```bash
-  cp -r ~/.m2/repository/com/google/code/gson/gson/1.7.2 /tmp
-  cd /tmp/1.7.2
+   ```bash
+   cp -r ~/.m2/repository/com/google/code/gson/gson/1.7.2 /tmp
+   cd /tmp/1.7.2
 
-  mvn gpg:sign-and-deploy-file \
+   mvn gpg:sign-and-deploy-file \
       -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2/ \
       -DrepositoryId=sonatype-nexus-staging \
       -DpomFile=gson-1.7.2.pom \
       -Dfile=gson-1.7.2-javadoc.jar \
       -Dclassifier=javadoc
 
-  mvn gpg:sign-and-deploy-file \
+   mvn gpg:sign-and-deploy-file \
       -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2/ \
       -DrepositoryId=sonatype-nexus-staging \
       -DpomFile=gson-1.7.2.pom \
       -Dfile=gson-1.7.2-sources.jar \
       -Dclassifier=sources
 
-  mvn gpg:sign-and-deploy-file \
+   mvn gpg:sign-and-deploy-file \
       -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2/ \
       -DrepositoryId=sonatype-nexus-staging \
       -DpomFile=gson-1.7.2.pom \
       -Dfile=gson-1.7.2.jar
-  ```
+   ```
 
 1. Close the Gson repository. Download and sanity check all downloads. Do not skip this step! Once you release the staging repository, there is no going back. It will get synced with Maven central and you will not be able to update or delete anything. Your only recourse will be to release a new version of Gson and hope that no one uses the old one.
 1. Release the staging repository for Gson. Gson will now get synced to Maven central with-in the next hour. For issues consult [Sonatype Guide](https://docs.sonatype.org/display/Repository/Sonatype+OSS+Maven+Repository+Usage+Guide#SonatypeOSSMavenRepositoryUsageGuide-8.ReleaseIt).
@@ -58,16 +58,16 @@ The following is a step-by-step procedure for releasing a new version of Google-
 This section was borrowed heavily from [Doclava release process](http://code.google.com/p/doclava/wiki/ProcessRelease).
 
 1. Install/Configure GPG following this [guide](http://www.sonatype.com/people/2010/01/how-to-generate-pgp-signatures-with-maven/).
-2. [Create encrypted passwords](http://maven.apache.org/guides/mini/guide-encryption.html).
-3. Create `~/.m2/settings.xml` similar to as described in [Doclava release process](https://code.google.com/p/doclava/wiki/ProcessRelease).
-4. Now for deploying a snapshot repository, use `mvn deploy`.
+1. [Create encrypted passwords](http://maven.apache.org/guides/mini/guide-encryption.html).
+1. Create `~/.m2/settings.xml` similar to as described in [Doclava release process](https://code.google.com/p/doclava/wiki/ProcessRelease).
+1. Now for deploying a snapshot repository, use `mvn deploy`.
 
 ## Getting Maven Publishing Privileges
 
 Based on [Gson group thread](https://groups.google.com/d/topic/google-gson/DHWJHVFpIBg/discussion):
 
 1. [Sign up for a Sonatype account](https://docs.sonatype.org/display/Repository/Sonatype+OSS+Maven+Repository+Usage+Guide) following instructions under (2) on that page
-2. Ask one of the existing members of the repository to create a JIRA ticket (Step 3 of above document) to add you to the publisher list.
+1. Ask one of the existing members of the repository to create a JIRA ticket (Step 3 of above document) to add you to the publisher list.
 
 ## Running Benchmarks or Tests on Android
 
