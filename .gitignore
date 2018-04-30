@@ -13,4 +13,8 @@ release.properties
 *.iws
 classes
 
+.gradle
+local.properties
+build
+
 .DS_Store
