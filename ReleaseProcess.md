@@ -5,47 +5,15 @@ The following is a step-by-step procedure for releasing a new version of Google-
 1. Go through all open bugs and identify which will be fixed in this release. Mark all others with an appropriate release tag. Identify duplicates, and close the bugs that will never be fixed. Fix all bugs for the release, and mark them fixed.
 1. (obsolete step) Edit [`pom.xml`](pom.xml) and update the versions listed for Export-Package to the target version. Also add any new Java packages that have been introduced in Gson.
 1. Ensure all changelists are code-reviewed and have +1
-1. (obsolete step) Ensure that your `~/.m2/settings.xml` is configured properly (see steps below)
 1. `cd gson` to the parent directory; ensure there are no open files and all changes are committed.
 1. Run `mvn release:clean`
 1. Do a dry run: `mvn release:prepare -DdryRun=true`
 1. Start the release: `mvn release:prepare`
    * Answer questions: usually the defaults are fine.
    * This will do a full build, change version from `-SNAPSHOT` to the released version, commit and create the tags. It will then change the version to `-SNAPSHOT` for the next release.
-1. Ensure you have defined `sonatype-nexus-staging` in your Maven `settings.xml` and run:
-
-   ```bash
-   mvn -s /home/<username>/.m2/settings.xml release:perform
-   ```
-
-1. [Log in to Nexus repository manager](https://oss.sonatype.org/index.html#welcome) at Sonatype and close the staging repository for Gson. If you run into an error regarding missing signatures, you need to manually upload the artifacts using `mvn gpg:sign-and-deploy-file` for Gson binary, source and Javadoc jars.
-
-   ```bash
-   cp -r ~/.m2/repository/com/google/code/gson/gson/1.7.2 /tmp
-   cd /tmp/1.7.2
-
-   mvn gpg:sign-and-deploy-file \
-      -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2/ \
-      -DrepositoryId=sonatype-nexus-staging \
-      -DpomFile=gson-1.7.2.pom \
-      -Dfile=gson-1.7.2-javadoc.jar \
-      -Dclassifier=javadoc
-
-   mvn gpg:sign-and-deploy-file \
-      -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2/ \
-      -DrepositoryId=sonatype-nexus-staging \
-      -DpomFile=gson-1.7.2.pom \
-      -Dfile=gson-1.7.2-sources.jar \
-      -Dclassifier=sources
-
-   mvn gpg:sign-and-deploy-file \
-      -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2/ \
-      -DrepositoryId=sonatype-nexus-staging \
-      -DpomFile=gson-1.7.2.pom \
-      -Dfile=gson-1.7.2.jar
-   ```
-
-1. Close the Gson repository. Download and sanity check all downloads. Do not skip this step! Once you release the staging repository, there is no going back. It will get synced with Maven central and you will not be able to update or delete anything. Your only recourse will be to release a new version of Gson and hope that no one uses the old one.
+1. Complete the release: `mvn release:perform`
+1. [Log in to Nexus repository manager](https://oss.sonatype.org/index.html#welcome) at Sonatype and close the staging repository for Gson.
+1. Download and sanity check all downloads. Do not skip this step! Once you release the staging repository, there is no going back. It will get synced with Maven central and you will not be able to update or delete anything. Your only recourse will be to release a new version of Gson and hope that no one uses the old one.
 1. Release the staging repository for Gson. Gson will now get synced to Maven central with-in the next hour. For issues consult [Sonatype Guide](https://docs.sonatype.org/display/Repository/Sonatype+OSS+Maven+Repository+Usage+Guide#SonatypeOSSMavenRepositoryUsageGuide-8.ReleaseIt).
 
 1. Update the version in the [Using Gson with Maven2 page](https://github.com/google/gson/blob/master/UserGuide.md#TOC-Gson-With-Maven)
