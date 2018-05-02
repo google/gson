@@ -152,10 +152,13 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         Type fieldType = $Gson$Types.resolve(type.getType(), raw, field.getGenericType());
         List<String> fieldNames = getFieldNames(field);
         if (fieldNameDerivePolicy != FieldNameDerivePolicy.IDENTITY){
-            Set<String> nameSet = new HashSet<String>();
-            nameSet.addAll(fieldNames);
-            nameSet.addAll(fieldNameDerivePolicy.deriveNames(field,fieldNames));
-            fieldNames = new ArrayList<String>(nameSet);
+          List<String> deriveNames = fieldNameDerivePolicy.deriveNames(field, fieldNames);
+          //keep default name at first
+          for (String dName: deriveNames) {
+            if (!fieldNames.contains(dName)){
+                fieldNames.add(dName);
+            }
+          }
         }
 
         BoundField previous = null;
