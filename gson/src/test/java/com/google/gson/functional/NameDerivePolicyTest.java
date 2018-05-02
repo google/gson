@@ -7,7 +7,7 @@ import com.google.gson.annotations.SerializedName;
 import junit.framework.TestCase;
 
 /**
- * Created by rqg on 28/04/2018.
+ * Created by QingguoRan on 28/04/2018.
  */
 public class NameDerivePolicyTest extends TestCase {
     public static class Data {
