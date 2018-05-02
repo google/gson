@@ -39,6 +39,24 @@ public class NameDerivePolicyTest extends TestCase {
         assertTrue(dataEqual(mdata, data));
     }
 
+    public void testKeepDefaultNameOnSerialization() {
+        Data data = new Data();
+        data.a = 1;
+        data.b = false;
+        data.cA = 14213L;
+        data.whatNameIs = "helloNmae";
+
+        Gson gson = new GsonBuilder()
+                .create();
+
+        Gson ndGson = new GsonBuilder()
+                .setFieldNameDeriveStrategy(FieldNameDerivePolicy.CAMEL_AND_UNDERSCORES)
+                .create();
+
+
+        assertEquals(gson.toJson(data), ndGson.toJson(data));
+    }
+
 
     public static boolean dataEqual(Data a, Data b) {
         return a.a == b.a &&
