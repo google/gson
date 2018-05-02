@@ -175,7 +175,8 @@ public final class Gson {
         Collections.<Type, InstanceCreator<?>>emptyMap(), DEFAULT_SERIALIZE_NULLS,
         DEFAULT_COMPLEX_MAP_KEYS, DEFAULT_JSON_NON_EXECUTABLE, DEFAULT_ESCAPE_HTML,
         DEFAULT_PRETTY_PRINT, DEFAULT_LENIENT, DEFAULT_SPECIALIZE_FLOAT_VALUES,
-        LongSerializationPolicy.DEFAULT, Collections.<TypeAdapterFactory>emptyList());
+        LongSerializationPolicy.DEFAULT, Collections.<TypeAdapterFactory>emptyList(),
+            FieldNameDerivePolicy.IDENTITY);
   }
 
   Gson(final Excluder excluder, final FieldNamingStrategy fieldNamingStrategy,
@@ -183,7 +184,9 @@ public final class Gson {
       boolean complexMapKeySerialization, boolean generateNonExecutableGson, boolean htmlSafe,
       boolean prettyPrinting, boolean lenient, boolean serializeSpecialFloatingPointValues,
       LongSerializationPolicy longSerializationPolicy,
-      List<TypeAdapterFactory> typeAdapterFactories) {
+      List<TypeAdapterFactory> typeAdapterFactories,
+       FieldNameDeriveStrategy fieldNameDeriveStrategy
+       ) {
     this.constructorConstructor = new ConstructorConstructor(instanceCreators);
     this.excluder = excluder;
     this.fieldNamingStrategy = fieldNamingStrategy;
@@ -250,7 +253,7 @@ public final class Gson {
     factories.add(jsonAdapterFactory);
     factories.add(TypeAdapters.ENUM_FACTORY);
     factories.add(new ReflectiveTypeAdapterFactory(
-        constructorConstructor, fieldNamingStrategy, excluder, jsonAdapterFactory));
+        constructorConstructor, fieldNamingStrategy, excluder, jsonAdapterFactory,fieldNameDeriveStrategy));
 
     this.factories = Collections.unmodifiableList(factories);
   }

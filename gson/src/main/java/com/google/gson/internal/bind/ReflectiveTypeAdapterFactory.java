@@ -16,30 +16,19 @@
 
 package com.google.gson.internal.bind;
 
-import com.google.gson.FieldNamingStrategy;
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.TypeAdapter;
-import com.google.gson.TypeAdapterFactory;
+import com.google.gson.*;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
-import com.google.gson.internal.$Gson$Types;
-import com.google.gson.internal.ConstructorConstructor;
-import com.google.gson.internal.Excluder;
-import com.google.gson.internal.ObjectConstructor;
-import com.google.gson.internal.Primitives;
+import com.google.gson.internal.*;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Type adapter that reflects over the fields and methods of a class.
@@ -49,14 +38,16 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   private final FieldNamingStrategy fieldNamingPolicy;
   private final Excluder excluder;
   private final JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory;
+  private final FieldNameDeriveStrategy fieldNameDerivePolicy;
 
   public ReflectiveTypeAdapterFactory(ConstructorConstructor constructorConstructor,
-      FieldNamingStrategy fieldNamingPolicy, Excluder excluder,
-      JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory) {
+                                      FieldNamingStrategy fieldNamingPolicy, Excluder excluder,
+                                      JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory, FieldNameDeriveStrategy fieldNameDerivePolicy) {
     this.constructorConstructor = constructorConstructor;
     this.fieldNamingPolicy = fieldNamingPolicy;
     this.excluder = excluder;
     this.jsonAdapterFactory = jsonAdapterFactory;
+    this.fieldNameDerivePolicy = fieldNameDerivePolicy;
   }
 
   public boolean excludeField(Field f, boolean serialize) {
@@ -139,6 +130,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     };
   }
 
+
   private Map<String, BoundField> getBoundFields(Gson context, TypeToken<?> type, Class<?> raw) {
     Map<String, BoundField> result = new LinkedHashMap<String, BoundField>();
     if (raw.isInterface()) {
@@ -157,6 +149,13 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         field.setAccessible(true);
         Type fieldType = $Gson$Types.resolve(type.getType(), raw, field.getGenericType());
         List<String> fieldNames = getFieldNames(field);
+        if (fieldNameDerivePolicy != FieldNameDerivePolicy.IDENTITY){
+            Set<String> nameSet = new HashSet<String>();
+            nameSet.addAll(fieldNames);
+            nameSet.addAll(fieldNameDerivePolicy.deriveNames(field,fieldNames));
+            fieldNames = new ArrayList<String>(nameSet);
+        }
+
         BoundField previous = null;
         for (int i = 0, size = fieldNames.size(); i < size; ++i) {
           String name = fieldNames.get(i);
