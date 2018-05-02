@@ -11,11 +11,11 @@ import junit.framework.TestCase;
  */
 public class NameDerivePolicyTest extends TestCase {
     public static class Data {
-        int a;
-        boolean b;
-        Long cA;
+        private int a;
+        private boolean b;
+        private Long cA;
         @SerializedName(value = "what_name_is")
-        String whatNameIs;
+        private String whatNameIs;
 
         @Override
         public String toString() {
@@ -32,7 +32,6 @@ public class NameDerivePolicyTest extends TestCase {
         Gson gson = new GsonBuilder()
                 .setFieldNameDeriveStrategy(FieldNameDerivePolicy.CAMEL_AND_UNDERSCORES)
                 .create();
-        String json = gson.toJson(data);
 
         String mjson = "{\"a\":1,\"b\":false,\"c_a\":14213,\"whatNameIs\":\"helloNmae\"}";
         Data mdata = gson.fromJson(mjson, Data.class);
