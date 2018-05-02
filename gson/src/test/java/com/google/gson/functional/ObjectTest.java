@@ -43,6 +43,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
+
+import com.google.gson.util.VersionUtils;
 import junit.framework.TestCase;
 
 /**
@@ -482,7 +484,11 @@ public class ObjectTest extends TestCase {
   public void testDateAsMapObjectField() {
     HasObjectMap a = new HasObjectMap();
     a.map.put("date", new Date(0));
-    assertEquals("{\"map\":{\"date\":\"Dec 31, 1969 4:00:00 PM\"}}", gson.toJson(a));
+    if (VersionUtils.isJava9OrLater()) {
+      assertEquals("{\"map\":{\"date\":\"Dec 31, 1969, 4:00:00 PM\"}}", gson.toJson(a));
+    } else {
+      assertEquals("{\"map\":{\"date\":\"Dec 31, 1969 4:00:00 PM\"}}", gson.toJson(a));
+    }
   }
 
   public class HasObjectMap {

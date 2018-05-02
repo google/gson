@@ -22,13 +22,17 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
+import com.google.gson.internal.PreJava9DateFormatProvider;
 import com.google.gson.internal.bind.util.ISO8601Utils;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import com.google.gson.util.VersionUtils;
 
 /**
  * This type adapter supports three subclasses of date: Date, Timestamp, and
@@ -42,42 +46,63 @@ final class DefaultDateTypeAdapter extends TypeAdapter<Date> {
   private static final String SIMPLE_NAME = "DefaultDateTypeAdapter";
 
   private final Class<? extends Date> dateType;
-  private final DateFormat enUsFormat;
-  private final DateFormat localFormat;
-  
+
+  /**
+   * List of 1 or more different date formats used for de-serialization attempts.
+   * The first of them is used for serialization as well.
+   */
+  private final List<DateFormat> dateFormats = new ArrayList<DateFormat>();
+
   DefaultDateTypeAdapter(Class<? extends Date> dateType) {
-    this(dateType,
-        DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.US),
-        DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT));
+    this.dateType = verifyDateType(dateType);
+    dateFormats.add(DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.US));
+    if (!Locale.getDefault().equals(Locale.US)) {
+      dateFormats.add(DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT));
+    }
+    if (VersionUtils.isJava9OrLater()) {
+      dateFormats.add(PreJava9DateFormatProvider.getUSDateTimeFormat(DateFormat.DEFAULT, DateFormat.DEFAULT));
+    }
   }
 
   DefaultDateTypeAdapter(Class<? extends Date> dateType, String datePattern) {
-    this(dateType, new SimpleDateFormat(datePattern, Locale.US), new SimpleDateFormat(datePattern));
+    this.dateType = verifyDateType(dateType);
+    dateFormats.add(new SimpleDateFormat(datePattern, Locale.US));
+    if (!Locale.getDefault().equals(Locale.US)) {
+      dateFormats.add(new SimpleDateFormat(datePattern));
+    }
   }
 
   DefaultDateTypeAdapter(Class<? extends Date> dateType, int style) {
-    this(dateType, DateFormat.getDateInstance(style, Locale.US), DateFormat.getDateInstance(style));
+    this.dateType = verifyDateType(dateType);
+    dateFormats.add(DateFormat.getDateInstance(style, Locale.US));
+    if (!Locale.getDefault().equals(Locale.US)) {
+      dateFormats.add(DateFormat.getDateInstance(style));
+    }
+    if (VersionUtils.isJava9OrLater()) {
+      dateFormats.add(PreJava9DateFormatProvider.getUSDateFormat(style));
+    }
   }
 
   public DefaultDateTypeAdapter(int dateStyle, int timeStyle) {
-    this(Date.class,
-        DateFormat.getDateTimeInstance(dateStyle, timeStyle, Locale.US),
-        DateFormat.getDateTimeInstance(dateStyle, timeStyle));
+    this(Date.class, dateStyle, timeStyle);
   }
 
   public DefaultDateTypeAdapter(Class<? extends Date> dateType, int dateStyle, int timeStyle) {
-    this(dateType,
-        DateFormat.getDateTimeInstance(dateStyle, timeStyle, Locale.US),
-        DateFormat.getDateTimeInstance(dateStyle, timeStyle));
+    this.dateType = verifyDateType(dateType);
+    dateFormats.add(DateFormat.getDateTimeInstance(dateStyle, timeStyle, Locale.US));
+    if (!Locale.getDefault().equals(Locale.US)) {
+      dateFormats.add(DateFormat.getDateTimeInstance(dateStyle, timeStyle));
+    }
+    if (VersionUtils.isJava9OrLater()) {
+      dateFormats.add(PreJava9DateFormatProvider.getUSDateTimeFormat(dateStyle, timeStyle));
+    }
   }
 
-  DefaultDateTypeAdapter(final Class<? extends Date> dateType, DateFormat enUsFormat, DateFormat localFormat) {
+  private static Class<? extends Date> verifyDateType(Class<? extends Date> dateType) {
     if ( dateType != Date.class && dateType != java.sql.Date.class && dateType != Timestamp.class ) {
       throw new IllegalArgumentException("Date type must be one of " + Date.class + ", " + Timestamp.class + ", or " + java.sql.Date.class + " but was " + dateType);
     }
-    this.dateType = dateType;
-    this.enUsFormat = enUsFormat;
-    this.localFormat = localFormat;
+    return dateType;
   }
 
   // These methods need to be synchronized since JDK DateFormat classes are not thread-safe
@@ -88,8 +113,8 @@ final class DefaultDateTypeAdapter extends TypeAdapter<Date> {
       out.nullValue();
       return;
     }
-    synchronized (localFormat) {
-      String dateFormatAsString = enUsFormat.format(value);
+    synchronized(dateFormats) {
+      String dateFormatAsString = dateFormats.get(0).format(value);
       out.value(dateFormatAsString);
     }
   }
@@ -114,13 +139,12 @@ final class DefaultDateTypeAdapter extends TypeAdapter<Date> {
   }
 
   private Date deserializeToDate(String s) {
-    synchronized (localFormat) {
-      try {
-        return localFormat.parse(s);
-      } catch (ParseException ignored) {}
-      try {
-        return enUsFormat.parse(s);
-      } catch (ParseException ignored) {}
+    synchronized (dateFormats) {
+      for (DateFormat dateFormat : dateFormats) {
+        try {
+          return dateFormat.parse(s);
+        } catch (ParseException ignored) {}
+      }
       try {
         return ISO8601Utils.parse(s, new ParsePosition(0));
       } catch (ParseException e) {
@@ -131,9 +155,11 @@ final class DefaultDateTypeAdapter extends TypeAdapter<Date> {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append(SIMPLE_NAME);
-    sb.append('(').append(localFormat.getClass().getSimpleName()).append(')');
-    return sb.toString();
+    DateFormat defaultFormat = dateFormats.get(0);
+    if (defaultFormat instanceof SimpleDateFormat) {
+      return SIMPLE_NAME + '(' + ((SimpleDateFormat) defaultFormat).toPattern() + ')';
+    } else {
+      return SIMPLE_NAME + '(' + defaultFormat.getClass().getSimpleName() + ')';
+    }
   }
 }
