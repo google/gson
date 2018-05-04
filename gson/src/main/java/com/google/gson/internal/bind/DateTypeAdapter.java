@@ -26,7 +26,7 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import com.google.gson.util.VersionUtils;
+import com.google.gson.util.JavaVersion;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -62,7 +62,7 @@ public final class DateTypeAdapter extends TypeAdapter<Date> {
     if (!Locale.getDefault().equals(Locale.US)) {
       dateFormats.add(DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT));
     }
-    if (VersionUtils.isJava9OrLater()) {
+    if (JavaVersion.isJava9OrLater()) {
       dateFormats.add(PreJava9DateFormatProvider.getUSDateTimeFormat(DateFormat.DEFAULT, DateFormat.DEFAULT));
     }
   }

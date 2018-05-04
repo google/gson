@@ -32,7 +32,7 @@ import com.google.gson.internal.bind.util.ISO8601Utils;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import com.google.gson.util.VersionUtils;
+import com.google.gson.util.JavaVersion;
 
 /**
  * This type adapter supports three subclasses of date: Date, Timestamp, and
@@ -59,7 +59,7 @@ final class DefaultDateTypeAdapter extends TypeAdapter<Date> {
     if (!Locale.getDefault().equals(Locale.US)) {
       dateFormats.add(DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT));
     }
-    if (VersionUtils.isJava9OrLater()) {
+    if (JavaVersion.isJava9OrLater()) {
       dateFormats.add(PreJava9DateFormatProvider.getUSDateTimeFormat(DateFormat.DEFAULT, DateFormat.DEFAULT));
     }
   }
@@ -78,7 +78,7 @@ final class DefaultDateTypeAdapter extends TypeAdapter<Date> {
     if (!Locale.getDefault().equals(Locale.US)) {
       dateFormats.add(DateFormat.getDateInstance(style));
     }
-    if (VersionUtils.isJava9OrLater()) {
+    if (JavaVersion.isJava9OrLater()) {
       dateFormats.add(PreJava9DateFormatProvider.getUSDateFormat(style));
     }
   }
@@ -93,7 +93,7 @@ final class DefaultDateTypeAdapter extends TypeAdapter<Date> {
     if (!Locale.getDefault().equals(Locale.US)) {
       dateFormats.add(DateFormat.getDateTimeInstance(dateStyle, timeStyle));
     }
-    if (VersionUtils.isJava9OrLater()) {
+    if (JavaVersion.isJava9OrLater()) {
       dateFormats.add(PreJava9DateFormatProvider.getUSDateTimeFormat(dateStyle, timeStyle));
     }
   }
