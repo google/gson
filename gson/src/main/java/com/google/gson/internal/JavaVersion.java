@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson.util;
+package com.google.gson.internal;
 
 /**
  * Utility to check the major Java version of the current JVM.

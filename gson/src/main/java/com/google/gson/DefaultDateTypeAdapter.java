@@ -27,12 +27,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import com.google.gson.internal.JavaVersion;
 import com.google.gson.internal.PreJava9DateFormatProvider;
 import com.google.gson.internal.bind.util.ISO8601Utils;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import com.google.gson.util.JavaVersion;
 
 /**
  * This type adapter supports three subclasses of date: Date, Timestamp, and

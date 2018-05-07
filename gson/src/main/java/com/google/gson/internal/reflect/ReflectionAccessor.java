@@ -15,9 +15,9 @@
  */
 package com.google.gson.internal.reflect;
 
-import com.google.gson.util.JavaVersion;
-
 import java.lang.reflect.AccessibleObject;
+
+import com.google.gson.internal.JavaVersion;
 
 /**
  * Provides a replacement for {@link AccessibleObject#setAccessible(boolean)}, which may be used to

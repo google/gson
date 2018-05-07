@@ -23,7 +23,8 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import com.google.gson.util.JavaVersion;
+import com.google.gson.internal.JavaVersion;
+
 import junit.framework.TestCase;
 
 /**

@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson.util;
+package com.google.gson.internal;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+
+import com.google.gson.internal.JavaVersion;
 
 /**
  * Unit and functional tests for {@link JavaVersion}

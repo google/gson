@@ -33,6 +33,7 @@ import com.google.gson.common.TestTypes.ClassWithObjects;
 import com.google.gson.common.TestTypes.ClassWithTransientFields;
 import com.google.gson.common.TestTypes.Nested;
 import com.google.gson.common.TestTypes.PrimitiveArray;
+import com.google.gson.internal.JavaVersion;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -44,7 +45,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
-import com.google.gson.util.JavaVersion;
 import junit.framework.TestCase;
 
 /**

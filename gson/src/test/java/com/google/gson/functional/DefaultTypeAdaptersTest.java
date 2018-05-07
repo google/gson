@@ -27,6 +27,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
+import com.google.gson.internal.JavaVersion;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
@@ -56,7 +57,6 @@ import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.UUID;
 
-import com.google.gson.util.JavaVersion;
 import junit.framework.TestCase;
 
 /**
