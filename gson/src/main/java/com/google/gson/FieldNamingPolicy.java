@@ -114,6 +114,29 @@ public enum FieldNamingPolicy implements FieldNamingStrategy {
     @Override public String translateName(Field f) {
       return separateCamelCase(f.getName(), "-").toLowerCase(Locale.ENGLISH);
     }
+  },
+
+  /**
+   * Using this naming policy with Gson will modify the Java Field name from its camel cased
+   * form to a lower case field name where each word is separated by a dot (.).
+   *
+   * <p>Here's a few examples of the form "Java Field Name" ---> "JSON Field Name":</p>
+   * <ul>
+   *   <li>someFieldName ---> some.field.name</li>
+   *   <li>_someFieldName ---> _some.field.name</li>
+   *   <li>aStringField ---> a.string.field</li>
+   *   <li>aURL ---> a.u.r.l</li>
+   * </ul>
+   * Using dots in JavaScript is not recommended since dot is also used for a member sign in
+   * expressions. This requires that a field named with dots is always accessed as a quoted
+   * property like {@code myobject['my.field']}. Accessing it as an object field
+   * {@code myobject.my.field} will result in an unintended javascript expression.
+   * @since 2.8
+   */
+  LOWER_CASE_WITH_DOTS() {
+    @Override public String translateName(Field f) {
+      return separateCamelCase(f.getName(), ".").toLowerCase(Locale.ENGLISH);
+    }
   };
 
   /**

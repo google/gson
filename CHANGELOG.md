@@ -1,6 +1,17 @@
 Change Log
 ==========
 
+## Version 2.8.4
+_2018-05-01_  [GitHub Diff](https://github.com/google/gson/compare/gson-parent-2.8.3...gson-parent-2.8.4)
+ * Added a new FieldNamingPolicy, `LOWER_CASE_WITH_DOTS` that mapps JSON name `someFieldName` to `some.field.name`
+ * Fixed issue https://github.com/google/gson/issues/1305 by removing compile/runtime dependency on `sun.misc.Unsafe`
+
+## Version 2.8.3
+_2018-04-27_  [GitHub Diff](https://github.com/google/gson/compare/gson-parent-2.8.2...gson-parent-2.8.3)
+ * Added a new API, `GsonBuilder.newBuilder()` that clones the current builder
+ * Preserving DateFormatter behavior on JDK 9
+ * Numerous other bugfixes
+
 ## Version 2.8.2
 _2017-09-19_  [GitHub Diff](https://github.com/google/gson/compare/gson-parent-2.8.1...gson-parent-2.8.2)
  * Introduced a new API, `JsonElement.deepCopy()`
