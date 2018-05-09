@@ -15,9 +15,9 @@
  */
 package com.google.gson.internal.reflect;
 
-import com.google.gson.util.VersionUtils;
-
 import java.lang.reflect.AccessibleObject;
+
+import com.google.gson.internal.JavaVersion;
 
 /**
  * Provides a replacement for {@link AccessibleObject#setAccessible(boolean)}, which may be used to
@@ -33,7 +33,7 @@ import java.lang.reflect.AccessibleObject;
 public abstract class ReflectionAccessor {
 
   // the singleton instance, use getInstance() to obtain
-  private static final ReflectionAccessor instance = VersionUtils.getMajorJavaVersion() < 9 ? new PreJava9ReflectionAccessor() : new UnsafeReflectionAccessor();
+  private static final ReflectionAccessor instance = JavaVersion.getMajorJavaVersion() < 9 ? new PreJava9ReflectionAccessor() : new UnsafeReflectionAccessor();
 
   /**
    * Does the same as {@code ao.setAccessible(true)}, but never throws
