@@ -26,51 +26,15 @@ public final class JavaVersion {
   private static final int majorJavaVersion = determineMajorJavaVersion();
 
   private static int determineMajorJavaVersion() {
-    String javaVersion = System.getProperty("java.version");
-    return getMajorJavaVersion(javaVersion);
-  }
-
-  // Visible for testing only
-  static int getMajorJavaVersion(String javaVersion) {
-    int version = parseDotted(javaVersion);
-    if (version == -1) {
-      version = extractBeginningInt(javaVersion);
-    }
-    if (version == -1) {
-      return 6;  // Choose minimum supported JDK version as default
-    }
-    return version;
-  }
-
-  // Parses both legacy 1.8 style and newer 9.0.4 style 
-  private static int parseDotted(String javaVersion) {
-    try {
-      String[] parts = javaVersion.split("[._]");
-      int firstVer = Integer.parseInt(parts[0]);
-      if (firstVer == 1 && parts.length > 1) {
-        return Integer.parseInt(parts[1]);
-      } else {
-        return firstVer;
-      }
-    } catch (NumberFormatException e) {
-      return -1;
-    }
-  }
-
-  private static int extractBeginningInt(String javaVersion) {
-    try {
-      StringBuilder num = new StringBuilder();
-      for (int i = 0; i < javaVersion.length(); ++i) {
-        char c = javaVersion.charAt(i);
-        if (Character.isDigit(c)) {
-          num.append(c);
-        } else {
-          break;
-        }
-      }
-      return Integer.parseInt(num.toString());
-    } catch (NumberFormatException e) {
-      return -1;
+    int version = (int) Double.parseDouble(System.getProperty("java.class.version"));
+    switch (version) {
+      case 50: return 6;
+      case 51: return 7;
+      case 52: return 8;
+      case 53: return 9;
+      case 54: return 10;
+      case 55: return 11;
+      default: return 6; // <- return minimum supported version
     }
   }
 
