@@ -74,7 +74,7 @@ The Gson instance does not maintain any state while invoking Json operations. So
 ## <a name="TOC-Gson-With-Gradle"></a>Using Gson with Gradle/Android
 ```
 dependencies {
-    compile 'com.google.code.gson:gson:2.8.4'
+    compile 'com.google.code.gson:gson:2.8.5'
 }
 ```
 ## <a name="TOC-Gson-With-Maven"></a>Using Gson with Maven
@@ -86,7 +86,7 @@ To use Gson with Maven2/3, you can use the Gson version available in Maven Centr
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
-      <version>2.8.4</version>
+      <version>2.8.5</version>
       <scope>compile</scope>
     </dependency>
 </dependencies>
