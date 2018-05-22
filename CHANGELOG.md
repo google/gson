@@ -1,6 +1,12 @@
 Change Log
 ==========
 
+## Version 2.8.5
+_2018-05-21_  [GitHub Diff](https://github.com/google/gson/compare/gson-parent-2.8.4...gson-parent-2.8.5)
+ * Print Gson version while throwing AssertionError and IllegalArgumentException
+ * Moved `utils.VersionUtils` class to `internal.JavaVersion`. This is a potential backward incompatible change from 2.8.4
+ * Fixed issue https://github.com/google/gson/issues/1310 by supporting Debian Java 9
+
 ## Version 2.8.4
 _2018-05-01_  [GitHub Diff](https://github.com/google/gson/compare/gson-parent-2.8.3...gson-parent-2.8.4)
  * Added a new FieldNamingPolicy, `LOWER_CASE_WITH_DOTS` that mapps JSON name `someFieldName` to `some.field.name`
