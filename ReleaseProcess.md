@@ -3,7 +3,6 @@
 The following is a step-by-step procedure for releasing a new version of Google-Gson.
 
 1. Go through all open bugs and identify which will be fixed in this release. Mark all others with an appropriate release tag. Identify duplicates, and close the bugs that will never be fixed. Fix all bugs for the release, and mark them fixed.
-1. (obsolete step) Edit [`pom.xml`](pom.xml) and update the versions listed for Export-Package to the target version. Also add any new Java packages that have been introduced in Gson.
 1. Ensure all changelists are code-reviewed and have +1
 1. `cd gson` to the parent directory; ensure there are no open files and all changes are committed.
 1. Run `mvn release:clean`

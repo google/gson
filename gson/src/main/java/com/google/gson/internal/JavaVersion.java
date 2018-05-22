@@ -87,4 +87,6 @@ public final class JavaVersion {
   public static boolean isJava9OrLater() {
     return majorJavaVersion >= 9;
   }
+
+  private JavaVersion() { }
 }

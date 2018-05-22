@@ -27,4 +27,6 @@ public final class GsonBuildConfig {
 
   /** This field is automatically populated by Maven when a build is triggered */
   public static final String VERSION = "${project.version}";
+
+  private GsonBuildConfig() { }
 }
