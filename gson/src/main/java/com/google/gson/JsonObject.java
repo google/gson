@@ -176,6 +176,17 @@ public final class JsonObject extends JsonElement {
   }
 
   /**
+   * Returns the member with the specified name as a String.
+   *
+   * @param memberName name of the member that is being requested.
+   * @return the member matching the name. Null if no such member exists.
+   */
+  public String getAsString(String memberName) {
+    JsonElement element = members.get(memberName);
+    return element != null ? element.getAsString() : null;
+  }
+
+  /**
    * Convenience method to get the specified member as a JsonPrimitive element.
    *
    * @param memberName name of the member being requested.
