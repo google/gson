@@ -20,7 +20,7 @@ There are a few open-source projects that can convert Java objects to JSON. Howe
   * To use Gson in Android
 ```gradle
 dependencies {
-    implementation 'com.google.code.gson:gson:2.8.4'
+    implementation 'com.google.code.gson:gson:2.8.5'
 }
 ```
 
@@ -30,7 +30,7 @@ dependencies {
 <dependency>
     <groupId>com.google.code.gson</groupId>
     <artifactId>gson</artifactId>
-    <version>2.8.4</version>
+    <version>2.8.5</version>
 </dependency>
 ```
 
