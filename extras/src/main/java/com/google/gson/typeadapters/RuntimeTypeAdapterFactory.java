@@ -126,6 +126,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
   private final String typeFieldName;
   private final Map<String, Class<?>> labelToSubtype = new LinkedHashMap<String, Class<?>>();
   private final Map<Class<?>, String> subtypeToLabel = new LinkedHashMap<Class<?>, String>();
+  private String defaultLabel;
 
   private RuntimeTypeAdapterFactory(Class<?> baseType, String typeFieldName) {
     if (typeFieldName == null || baseType == null) {
@@ -149,6 +150,22 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
    */
   public static <T> RuntimeTypeAdapterFactory<T> of(Class<T> baseType) {
     return new RuntimeTypeAdapterFactory<T>(baseType, "type");
+  }
+
+  /***
+   * Registers a default {@code type} identified by {@code label}. If the JSON does not contain a registeredSubtype the default type is used instead of
+   * throwing an exception.
+   *
+   * @param type The class that should be used to parse the JSON.
+   * @param label Unique label. Should not be a valid subtype.
+   *
+   * @throws IllegalArgumentException if either {@code type} or {@code label}
+   *                                  have already been registered on this type adapter.
+   */
+  public RuntimeTypeAdapterFactory<T> registerDefaultType(Class<? extends T> type, String label) {
+      registerSubtype(type, label);
+      defaultLabel = label;
+      return this;
   }
 
   /**
@@ -208,8 +225,11 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
         @SuppressWarnings("unchecked") // registration requires that subtype extends T
         TypeAdapter<R> delegate = (TypeAdapter<R>) labelToDelegate.get(label);
         if (delegate == null) {
-          throw new JsonParseException("cannot deserialize " + baseType + " subtype named "
-              + label + "; did you forget to register a subtype?");
+          delegate = (TypeAdapter<R>) labelToDelegate.get(defaultLabel);
+          if (delegate == null) {
+            throw new JsonParseException("cannot deserialize " + baseType + " subtype named "
+                + label + "; did you forget to register a subtype?");
+          }
         }
         return delegate.fromJsonTree(jsonElement);
       }
