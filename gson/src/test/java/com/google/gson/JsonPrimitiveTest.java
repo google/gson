@@ -84,6 +84,9 @@ public class JsonPrimitiveTest extends TestCase {
     assertTrue(json.isString());
     assertEquals('z', json.getAsCharacter());
     assertEquals("z", json.getAsString());
+    
+    json = new JsonPrimitive(true);
+    assertEquals("true", json.getAsString());
   }
 
   public void testExponential() throws Exception {
@@ -154,6 +157,7 @@ public class JsonPrimitiveTest extends TestCase {
     assertEquals(p1, p2);
     assertEquals(p1.hashCode(), p2.hashCode());
   }
+  
 
   public void testIntegerEqualsBigInteger() {
     JsonPrimitive p1 = new JsonPrimitive(new Integer(10));
@@ -197,7 +201,7 @@ public class JsonPrimitiveTest extends TestCase {
     json = new JsonPrimitive(new BigDecimal("1.333"));
     assertEquals("1.333", json.toString());
   }
-
+  
   public void testEquals() {
     MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive("A"), new JsonPrimitive("A"));
     MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive(true), new JsonPrimitive(true));
