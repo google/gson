@@ -22,12 +22,14 @@ import java.util.Map;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.Streams;
+import com.google.gson.internal.bind.JsonTreeWriter;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
@@ -215,6 +217,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
       }
 
       @Override public void write(JsonWriter out, R value) throws IOException {
+        boolean serializeNulls = out.getSerializeNulls();        
         Class<?> srcType = value.getClass();
         String label = subtypeToLabel.get(srcType);
         @SuppressWarnings("unchecked") // registration requires that subtype extends T
@@ -223,7 +226,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
           throw new JsonParseException("cannot serialize " + srcType.getName()
               + "; did you forget to register a subtype?");
         }
-        JsonObject jsonObject = delegate.toJsonTree(value).getAsJsonObject();
+        JsonObject jsonObject = toJsonObject(delegate, value, serializeNulls);
         if (jsonObject.has(typeFieldName)) {
           throw new JsonParseException("cannot serialize " + srcType.getName()
               + " because it already defines a field named " + typeFieldName);
@@ -233,7 +236,24 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
         for (Map.Entry<String, JsonElement> e : jsonObject.entrySet()) {
           clone.add(e.getKey(), e.getValue());
         }
-        Streams.write(clone, out);
+        // preserve any explicit nulls in the object
+        out.setSerializeNulls(true);
+        try {
+          Streams.write(clone, out);
+        } finally {
+          out.setSerializeNulls(serializeNulls);
+        }
+      }
+      
+      protected JsonObject toJsonObject(TypeAdapter<R> delegate, R value, boolean serializeNulls) {
+        try {
+          JsonTreeWriter jsonWriter = new JsonTreeWriter();
+          jsonWriter.setSerializeNulls(serializeNulls);
+          delegate.write(jsonWriter, value);
+          return jsonWriter.get().getAsJsonObject();
+        } catch (IOException e) {
+          throw new JsonIOException(e);
+        }
       }
     }.nullSafe();
   }
