@@ -36,6 +36,8 @@ import com.google.gson.common.TestTypes.PrimitiveArray;
 import com.google.gson.internal.JavaVersion;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -62,13 +64,23 @@ public class ObjectTest extends TestCase {
     super.setUp();
     gson = new Gson();
 
-    TimeZone.setDefault(TimeZone.getTimeZone("America/Los_Angeles"));
-    Locale.setDefault(Locale.US);
+    AccessController.doPrivileged(new PrivilegedAction<Void>() {
+      public Void run() {
+        TimeZone.setDefault(TimeZone.getTimeZone("America/Los_Angeles"));
+        Locale.setDefault(Locale.US);
+        return null;
+      }
+    });
   }
 
   @Override
   protected void tearDown() throws Exception {
-    TimeZone.setDefault(oldTimeZone);
+    AccessController.doPrivileged(new PrivilegedAction<Void>() {
+      public Void run() {
+        TimeZone.setDefault(oldTimeZone);
+        return null;
+      }
+    });
     super.tearDown();
   }
   public void testJsonInSingleQuotesDeserialization() {

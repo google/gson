@@ -36,6 +36,8 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -149,7 +151,12 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
 
     Type declaredType = type.getType();
     while (raw != Object.class) {
-      Field[] fields = raw.getDeclaredFields();
+      final Class<?> privilegedRaw = raw;
+      Field[] fields = AccessController.doPrivileged(new PrivilegedAction<Field[]>() {
+        public Field[] run() {
+          return privilegedRaw.getDeclaredFields();
+        }
+      });
       for (Field field : fields) {
         boolean serialize = excludeField(field, true);
         boolean deserialize = excludeField(field, false);

@@ -1,0 +1,16 @@
+// Give permission to maven test plugins (surefire, junit, etc..)
+grant codeBase "file:${localrepo}/-" {
+        permission java.security.AllPermission;
+};
+
+// Give permission to gson
+grant codeBase "file:${basedir}/target/classes/-" {
+        permission java.security.AllPermission;
+};
+
+// Give special permissions for some testcases requiring special priviledges
+// Note: Be sure to not give too much permissions as will change test criteria/expected results.
+grant codeBase "file:${basedir}/target/test-classes/-" {
+        permission java.util.PropertyPermission "user.timezone", "read,write";
+        permission java.util.PropertyPermission "user.language", "read,write";
+};
