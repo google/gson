@@ -241,15 +241,19 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
               + "; did you forget to register a subtype?");
         }
         JsonObject jsonObject = delegate.toJsonTree(value).getAsJsonObject();
-        JsonObject clone = new JsonObject();
-        
-        if (!maintainType) {
-            if (jsonObject.has(typeFieldName)) {
-              throw new JsonParseException("cannot serialize " + srcType.getName()
-                  + " because it already defines a field named " + typeFieldName);
-            }
-            clone.add(typeFieldName, new JsonPrimitive(label));
+
+        if (maintainType) {
+          Streams.write(jsonObject, out);
+          return;
         }
+
+        JsonObject clone = new JsonObject();
+
+        if (jsonObject.has(typeFieldName)) {
+          throw new JsonParseException("cannot serialize " + srcType.getName()
+              + " because it already defines a field named " + typeFieldName);
+        }
+        clone.add(typeFieldName, new JsonPrimitive(label));
         
         for (Map.Entry<String, JsonElement> e : jsonObject.entrySet()) {
           clone.add(e.getKey(), e.getValue());
