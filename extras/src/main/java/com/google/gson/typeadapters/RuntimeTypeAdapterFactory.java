@@ -243,7 +243,8 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
         JsonObject jsonObject = delegate.toJsonTree(value).getAsJsonObject();
 
         if (maintainType) {
-          return jsonObject;
+          Streams.write(jsonObject, out);
+          return;
         }
 
         JsonObject clone = new JsonObject();
