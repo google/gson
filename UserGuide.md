@@ -74,7 +74,7 @@ The Gson instance does not maintain any state while invoking Json operations. So
 ## <a name="TOC-Gson-With-Gradle"></a>Using Gson with Gradle/Android
 ```
 dependencies {
-    compile 'com.google.code.gson:gson:2.8.5'
+    implementation 'com.google.code.gson:gson:2.8.5'
 }
 ```
 ## <a name="TOC-Gson-With-Maven"></a>Using Gson with Maven
