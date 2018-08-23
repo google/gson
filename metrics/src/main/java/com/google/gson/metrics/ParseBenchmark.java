@@ -107,13 +107,13 @@ public final class ParseBenchmark extends SimpleBenchmark {
     parser = api.newParser();
   }
 
-  public void timeParse(int reps) throws Exception {
+  public void timeParse(final int reps) throws Exception {
     for (int i = 0; i < reps; i++) {
       parser.parse(text, document);
     }
   }
 
-  private static String resourceToString(String path) throws Exception {
+  private static String resourceToString(final String path) throws Exception {
     InputStream in = ParseBenchmark.class.getResourceAsStream(path);
     if (in == null) {
       throw new IllegalArgumentException("No such file: " + path);
