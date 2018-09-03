@@ -17,6 +17,7 @@
 package com.google.gson.functional;
 
 import static com.google.gson.FieldNamingPolicy.IDENTITY;
+import static com.google.gson.FieldNamingPolicy.LOWER_CASE;
 import static com.google.gson.FieldNamingPolicy.LOWER_CASE_WITH_DASHES;
 import static com.google.gson.FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES;
 import static com.google.gson.FieldNamingPolicy.UPPER_CAMEL_CASE;
@@ -51,6 +52,14 @@ public final class FieldNamingTest extends TestCase {
         "'_ Upper Camel Leading Underscore':4,'Lower_words':5,'U P P E R_ W O R D S':6," +
         "'annotatedName':7,'Lower Id':8}",
         gson.toJson(new TestNames()).replace('\"', '\''));
+  }
+
+  public void testLowerCase() {
+    Gson gson = getGsonWithNamingPolicy(LOWER_CASE);
+    assertEquals("{'lowercamel':1,'uppercamel':2,'_lowercamelleadingunderscore':3," +
+        "'_uppercamelleadingunderscore':4,'lower_words':5,'upper_words':6," +
+        "'annotatedName':7,'lowerid':8}",
+            gson.toJson(new TestNames()).replace('\"', '\''));
   }
 
   public void testLowerCaseWithUnderscores() {
