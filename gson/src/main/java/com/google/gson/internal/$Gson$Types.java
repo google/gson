@@ -295,6 +295,22 @@ public final class $Gson$Types {
   }
 
   /**
+   * Returns the element type of this iterable type.
+   * @throws IllegalArgumentException if this type is not an iterable.
+   */
+  public static Type getIterableElementType(Type context, Class<?> contextRawType) {
+    Type iterableType = getSupertype(context, contextRawType, Iterable.class);
+
+    if (iterableType instanceof WildcardType) {
+      iterableType = ((WildcardType)iterableType).getUpperBounds()[0];
+    }
+    if (iterableType instanceof ParameterizedType) {
+      return ((ParameterizedType) iterableType).getActualTypeArguments()[0];
+    }
+    return Object.class;
+  }
+
+  /**
    * Returns the element type of this collection type.
    * @throws IllegalArgumentException if this type is not a collection.
    */

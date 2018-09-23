@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
@@ -57,6 +58,27 @@ public class CollectionTest extends TestCase {
   protected void setUp() throws Exception {
     super.setUp();
     gson = new Gson();
+  }
+
+  public void testCollectionSubstitutesIterable() {
+    BagOfPrimitives foo = new BagOfPrimitives(1L, 2, true, "foo");
+    BagOfPrimitives bar = new BagOfPrimitives(3L, 4, false, "bar");
+    Iterable<BagOfPrimitives> before = Arrays.asList(foo, bar);
+    Type iterableType = new TypeToken<Iterable<BagOfPrimitives>>() {}.getType();
+    Type collectionType = new TypeToken<Collection<BagOfPrimitives>>() {}.getType();
+    String actualJson = gson.toJson(before, iterableType);
+    String expectedJson = gson.toJson(before, collectionType);
+    assertEquals(expectedJson, actualJson);
+    Iterable<BagOfPrimitives> after = gson.fromJson(actualJson, iterableType);
+    assertTrue(after instanceof Collection);
+    assertEquals(before, after);
+  }
+
+  public void testIterableThatIsNotACollection() {
+    Iterable<Character> charsBefore = new Chars('0', '9');
+    String json = gson.toJson(charsBefore, Chars.class);
+    assertEquals("[\"0\",\"1\",\"2\",\"3\",\"4\",\"5\",\"6\",\"7\",\"8\",\"9\"]", json);
+    Chars charsAfter = gson.fromJson(json, Chars.class);
   }
 
   public void testTopLevelCollectionOfIntegersSerialization() {
@@ -411,6 +433,33 @@ public class CollectionTest extends TestCase {
     SmallClass small = bigClass.inBig.get("key").get(0);
     assertNotNull(small);
     assertEquals("hello", small.inSmall);
+  }
+
+  private static final class Chars implements Iterable<Character> {
+
+    private final char from;
+    private final char to;
+
+    private Chars(char from, char to) {
+      this.from = from;
+      this.to = to;
+    }
+
+    @Override public Iterator<Character> iterator() {
+      return new Iterator<Character>() {
+        private char i = from;
+        @Override public boolean hasNext() {
+          return i <= to;
+        }
+        @Override public Character next() {
+          if ( !hasNext() ) {
+            throw new NoSuchElementException();
+          }
+          return i++;
+        }
+        @Override public void remove() { throw new UnsupportedOperationException(); }
+      };
+    }
   }
 
 }

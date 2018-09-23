@@ -35,9 +35,15 @@ import java.util.Collection;
  */
 public final class CollectionTypeAdapterFactory implements TypeAdapterFactory {
   private final ConstructorConstructor constructorConstructor;
+  private final boolean supportIterable;
 
   public CollectionTypeAdapterFactory(ConstructorConstructor constructorConstructor) {
+    this(constructorConstructor, false);
+  }
+
+  public CollectionTypeAdapterFactory(ConstructorConstructor constructorConstructor, boolean supportIterable) {
     this.constructorConstructor = constructorConstructor;
+    this.supportIterable = supportIterable;
   }
 
   @Override
@@ -45,11 +51,11 @@ public final class CollectionTypeAdapterFactory implements TypeAdapterFactory {
     Type type = typeToken.getType();
 
     Class<? super T> rawType = typeToken.getRawType();
-    if (!Collection.class.isAssignableFrom(rawType)) {
+    if (!isRawTypeSupported(rawType)) {
       return null;
     }
 
-    Type elementType = $Gson$Types.getCollectionElementType(type, rawType);
+    Type elementType = getElementType(type, rawType);
     TypeAdapter<?> elementTypeAdapter = gson.getAdapter(TypeToken.get(elementType));
     ObjectConstructor<T> constructor = constructorConstructor.get(typeToken);
 
@@ -58,7 +64,21 @@ public final class CollectionTypeAdapterFactory implements TypeAdapterFactory {
     return result;
   }
 
-  private static final class Adapter<E> extends TypeAdapter<Collection<E>> {
+  private boolean isRawTypeSupported(Class<?> rawType) {
+    if (supportIterable) {
+      return Iterable.class.isAssignableFrom(rawType);
+    }
+    return Collection.class.isAssignableFrom(rawType);
+  }
+
+  private Type getElementType(Type type, Class<?> rawType) {
+    if (supportIterable) {
+      return $Gson$Types.getIterableElementType(type, rawType);
+    }
+    return $Gson$Types.getCollectionElementType(type, rawType);
+  }
+
+  private static final class Adapter<E> extends TypeAdapter<Iterable<E>> {
     private final TypeAdapter<E> elementTypeAdapter;
     private final ObjectConstructor<? extends Collection<E>> constructor;
 
@@ -86,14 +106,14 @@ public final class CollectionTypeAdapterFactory implements TypeAdapterFactory {
       return collection;
     }
 
-    @Override public void write(JsonWriter out, Collection<E> collection) throws IOException {
-      if (collection == null) {
+    @Override public void write(JsonWriter out, Iterable<E> iterable) throws IOException {
+      if (iterable == null) {
         out.nullValue();
         return;
       }
 
       out.beginArray();
-      for (E element : collection) {
+      for (E element : iterable) {
         elementTypeAdapter.write(out, element);
       }
       out.endArray();
