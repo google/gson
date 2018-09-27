@@ -370,7 +370,7 @@ public final class $Gson$Types {
         Class<?> original = (Class<?>) toResolve;
         Type componentType = original.getComponentType();
         Type newComponentType = resolve(context, contextRawType, componentType, visitedTypeVariables);
-        toResolve = componentType == newComponentType
+        toResolve = equal(componentType, newComponentType)
             ? original
             : arrayOf(newComponentType);
         break;
@@ -379,7 +379,7 @@ public final class $Gson$Types {
         GenericArrayType original = (GenericArrayType) toResolve;
         Type componentType = original.getGenericComponentType();
         Type newComponentType = resolve(context, contextRawType, componentType, visitedTypeVariables);
-        toResolve = componentType == newComponentType
+        toResolve = equal(componentType, newComponentType)
             ? original
             : arrayOf(newComponentType);
         break;
@@ -388,12 +388,12 @@ public final class $Gson$Types {
         ParameterizedType original = (ParameterizedType) toResolve;
         Type ownerType = original.getOwnerType();
         Type newOwnerType = resolve(context, contextRawType, ownerType, visitedTypeVariables);
-        boolean changed = newOwnerType != ownerType;
+        boolean changed = !equal(newOwnerType, ownerType);
 
         Type[] args = original.getActualTypeArguments();
         for (int t = 0, length = args.length; t < length; t++) {
           Type resolvedTypeArgument = resolve(context, contextRawType, args[t], visitedTypeVariables);
-          if (resolvedTypeArgument != args[t]) {
+          if (!equal(resolvedTypeArgument, args[t])) {
             if (!changed) {
               args = args.clone();
               changed = true;
