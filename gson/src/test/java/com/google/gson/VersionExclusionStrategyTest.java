@@ -29,21 +29,15 @@ public class VersionExclusionStrategyTest extends TestCase {
   private static final double VERSION = 5.0D;
 
   public void testClassAndFieldAreAtSameVersion() throws Exception {
-    Excluder excluder = Excluder.DEFAULT.withVersion(VERSION);
-    assertFalse(excluder.excludeClass(MockObject.class, true));
-    assertFalse(excluder.excludeField(MockObject.class.getField("someField"), true));
+    this.testClassAndFieldWithVersionTemplate(new TestClassAndFieldWithVersionAssertFalse(), VERSION);
   }
 
   public void testClassAndFieldAreBehindInVersion() throws Exception {
-    Excluder excluder = Excluder.DEFAULT.withVersion(VERSION + 1);
-    assertFalse(excluder.excludeClass(MockObject.class, true));
-    assertFalse(excluder.excludeField(MockObject.class.getField("someField"), true));
+    this.testClassAndFieldWithVersionTemplate(new TestClassAndFieldWithVersionAssertFalse(), VERSION + 1);
   }
 
   public void testClassAndFieldAreAheadInVersion() throws Exception {
-    Excluder excluder = Excluder.DEFAULT.withVersion(VERSION - 1);
-    assertTrue(excluder.excludeClass(MockObject.class, true));
-    assertTrue(excluder.excludeField(MockObject.class.getField("someField"), true));
+    this.testClassAndFieldWithVersionTemplate(new TestClassAndFieldWithVersionAssertTrue(), VERSION - 1);
   }
 
   @Since(VERSION)
@@ -51,5 +45,28 @@ public class VersionExclusionStrategyTest extends TestCase {
 
     @Since(VERSION)
     public final int someField = 0;
+  }
+
+  private void testClassAndFieldWithVersionTemplate(
+          TestClassAndFieldWithVersionAssertionAdapter adapter, double version) throws Exception {
+    Excluder excluder = Excluder.DEFAULT.withVersion(version);
+    adapter.assertAction(excluder.excludeClass(MockObject.class, true));
+    adapter.assertAction(excluder.excludeField(MockObject.class.getField("someField"), true));
+  }
+
+  interface TestClassAndFieldWithVersionAssertionAdapter {
+    void assertAction(boolean b1);
+  }
+
+  class TestClassAndFieldWithVersionAssertFalse implements TestClassAndFieldWithVersionAssertionAdapter {
+    public void assertAction(boolean b1) {
+      assertFalse(b1);
+    }
+  }
+
+  class TestClassAndFieldWithVersionAssertTrue implements TestClassAndFieldWithVersionAssertionAdapter {
+    public void assertAction(boolean b1) {
+      assertTrue(b1);
+    }
   }
 }
