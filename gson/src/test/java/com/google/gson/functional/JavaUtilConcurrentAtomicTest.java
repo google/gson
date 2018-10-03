@@ -48,17 +48,11 @@ public class JavaUtilConcurrentAtomicTest extends TestCase {
   }
 
   public void testAtomicInteger() throws Exception {
-    AtomicInteger target = gson.fromJson("10", AtomicInteger.class);
-    assertEquals(10, target.get());
-    String json = gson.toJson(target);
-    assertEquals("10", json);
+    this.testAtomicNumberTemplate(new TestAtomicIntegerAdapterImpl(), AtomicInteger.class);
   }
 
   public void testAtomicLong() throws Exception {
-    AtomicLong target = gson.fromJson("10", AtomicLong.class);
-    assertEquals(10, target.get());
-    String json = gson.toJson(target);
-    assertEquals("10", json);
+    this.testAtomicNumberTemplate(new TestAtomicLongAdapterImpl(), AtomicLong.class);
   }
 
   public void testAtomicLongWithStringSerializationPolicy() throws Exception {
@@ -106,5 +100,29 @@ public class JavaUtilConcurrentAtomicTest extends TestCase {
 
   private static class AtomicLongHolder {
     AtomicLong value;
+  }
+
+  private <TAtomic extends Number> void testAtomicNumberTemplate(
+      TestAtomicNumberAdapter<TAtomic> adapter, Class<TAtomic> clazzTAtomic) throws Exception {
+    TAtomic target = gson.fromJson("10", clazzTAtomic);
+    assertEquals(10, adapter.get(target));
+    String json = gson.toJson(target);
+    assertEquals("10", json);
+  }
+
+  interface TestAtomicNumberAdapter<TAtomic> {
+    long get(TAtomic tAtomic1);
+  }
+
+  class TestAtomicIntegerAdapterImpl implements TestAtomicNumberAdapter<AtomicInteger> {
+    public long get(AtomicInteger target) {
+      return target.get();
+    }
+  }
+
+  class TestAtomicLongAdapterImpl implements TestAtomicNumberAdapter<AtomicLong> {
+    public long get(AtomicLong target) {
+      return target.get();
+    }
   }
 }

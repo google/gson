@@ -12,13 +12,8 @@ import com.google.gson.annotations.SerializedName;
 public final class ThrowableFunctionalTest extends TestCase {
   private final Gson gson = new Gson();
 
-  public void testExceptionWithoutCause() {
-    RuntimeException e = new RuntimeException("hello");
-    String json = gson.toJson(e);
-    assertTrue(json.contains("hello"));
-
-    e = gson.fromJson("{'detailMessage':'hello'}", RuntimeException.class);
-    assertEquals("hello", e.getMessage());
+  public void testExceptionWithoutCause() throws Exception {
+    this.testWithoutCauseTemplate(RuntimeException.class);
   }
 
   public void testExceptionWithCause() {
@@ -38,13 +33,8 @@ public final class ThrowableFunctionalTest extends TestCase {
     assertTrue(json.contains("{\"my_custom_name\":\"myCustomMessageValue\""));
   }
 
-  public void testErrorWithoutCause() {
-    OutOfMemoryError e = new OutOfMemoryError("hello");
-    String json = gson.toJson(e);
-    assertTrue(json.contains("hello"));
-
-    e = gson.fromJson("{'detailMessage':'hello'}", OutOfMemoryError.class);
-    assertEquals("hello", e.getMessage());
+  public void testErrorWithoutCause() throws Exception {
+    this.testWithoutCauseTemplate(OutOfMemoryError.class);
   }
 
   public void testErrornWithCause() {
@@ -61,5 +51,15 @@ public final class ThrowableFunctionalTest extends TestCase {
 
   private static final class MyException extends Throwable {
     @SerializedName("my_custom_name") String myCustomMessage = "myCustomMessageValue";
+  }
+
+  public <TThrowable extends Throwable> void testWithoutCauseTemplate(
+      Class<TThrowable> clazzTThrowable) throws Exception {
+    TThrowable e = clazzTThrowable.getDeclaredConstructor(String.class).newInstance("hello");
+    String json = gson.toJson(e);
+    assertTrue(json.contains("hello"));
+
+    e = gson.fromJson("{'detailMessage':'hello'}", clazzTThrowable);
+    assertEquals("hello", e.getMessage());
   }
 }

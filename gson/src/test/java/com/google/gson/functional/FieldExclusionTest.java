@@ -40,15 +40,7 @@ public class FieldExclusionTest extends TestCase {
   }
 
   public void testDefaultInnerClassExclusion() throws Exception {
-    Gson gson = new Gson();
-    Outer.Inner target = outer.new Inner(VALUE);
-    String result = gson.toJson(target);
-    assertEquals(target.toJson(), result);
-
-    gson = new GsonBuilder().create();
-    target = outer.new Inner(VALUE);
-    result = gson.toJson(target);
-    assertEquals(target.toJson(), result);
+    this.testDefaultClassTemplate();
   }
 
   public void testInnerClassExclusion() throws Exception {
@@ -59,15 +51,7 @@ public class FieldExclusionTest extends TestCase {
   }
 
   public void testDefaultNestedStaticClassIncluded() throws Exception {
-    Gson gson = new Gson();
-    Outer.Inner target = outer.new Inner(VALUE);
-    String result = gson.toJson(target);
-    assertEquals(target.toJson(), result);
-
-    gson = new GsonBuilder().create();
-    target = outer.new Inner(VALUE);
-    result = gson.toJson(target);
-    assertEquals(target.toJson(), result);
+    this.testDefaultClassTemplate();
   }
 
   private static class Outer {
@@ -88,5 +72,17 @@ public class FieldExclusionTest extends TestCase {
     public String toJson() {
       return "{\"value\":\"" + value + "\"}";
     }
+  }
+
+  public void testDefaultClassTemplate() throws Exception {
+    Gson gson = new Gson();
+    Outer.Inner target = outer.new Inner(VALUE);
+    String result = gson.toJson(target);
+    assertEquals(target.toJson(), result);
+
+    gson = new GsonBuilder().create();
+    target = outer.new Inner(VALUE);
+    result = gson.toJson(target);
+    assertEquals(target.toJson(), result);
   }
 }
