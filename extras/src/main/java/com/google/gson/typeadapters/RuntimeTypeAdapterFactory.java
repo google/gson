@@ -104,9 +104,9 @@ import com.google.gson.stream.JsonWriter;
  * registered. This protects your application from injection attacks. If you
  * don't supply an explicit type label, the type's simple name will be used.
  * <pre>   {@code
- *   shapeAdapter.registerSubtype(Rectangle.class, "Rectangle");
- *   shapeAdapter.registerSubtype(Circle.class, "Circle");
- *   shapeAdapter.registerSubtype(Diamond.class, "Diamond");
+ *   shapeAdapterFactory.registerSubtype(Rectangle.class, "Rectangle");
+ *   shapeAdapterFactory.registerSubtype(Circle.class, "Circle");
+ *   shapeAdapterFactory.registerSubtype(Diamond.class, "Diamond");
  * }</pre>
  * Finally, register the type adapter factory in your application's GSON builder:
  * <pre>   {@code
