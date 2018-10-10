@@ -34,7 +34,7 @@
       <plugin>
         <groupId>biz.aQute.bnd</groupId>
         <artifactId>bnd-maven-plugin</artifactId>
-        <version>3.1.0</version>
+        <version>4.0.0</version>
         <executions>
           <execution>
             <goals>
