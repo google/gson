@@ -63,13 +63,28 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.7.0</version>
+          <version>3.8.0</version>
+          <executions>
+            <execution>
+              <id>default-compile</id>
+              <configuration>
+                <release>9</release>
+              </configuration>
+            </execution>
+            <execution>
+              <id>base-compile</id>
+              <goals>
+                <goal>compile</goal>
+              </goals>
+              <configuration>
+                <excludes>
+                  <exclude>module-info.java</exclude>
+                </excludes>
+              </configuration>
+            </execution>
+          </executions>
           <configuration>
-            <excludes>
-              <exclude>**/module-info.java</exclude>
-            </excludes>
-            <source>${java.version}</source>
-            <target>${java.version}</target>
+            <release>6</release>
           </configuration>
         </plugin>
         <plugin>
