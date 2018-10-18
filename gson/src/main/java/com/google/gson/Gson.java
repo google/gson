@@ -705,7 +705,9 @@ public final class Gson {
     } catch (IOException e) {
       throw new JsonIOException(e);
     } catch (AssertionError e) {
-      throw new AssertionError("AssertionError (GSON " + GsonBuildConfig.VERSION + "): " + e.getMessage(), e);
+      AssertionError error = new AssertionError("AssertionError (GSON " + GsonBuildConfig.VERSION + "): " + e.getMessage());
+      error.initCause(e);
+      throw error;
     } finally {
       writer.setLenient(oldLenient);
       writer.setHtmlSafe(oldHtmlSafe);
@@ -783,7 +785,9 @@ public final class Gson {
     } catch (IOException e) {
       throw new JsonIOException(e);
     } catch (AssertionError e) {
-      throw new AssertionError("AssertionError (GSON " + GsonBuildConfig.VERSION + "): " + e.getMessage(), e);
+      AssertionError error = new AssertionError("AssertionError (GSON " + GsonBuildConfig.VERSION + "): " + e.getMessage());
+      error.initCause(e);
+      throw error;
     } finally {
       writer.setLenient(oldLenient);
       writer.setHtmlSafe(oldHtmlSafe);
@@ -941,7 +945,9 @@ public final class Gson {
       // TODO(inder): Figure out whether it is indeed right to rethrow this as JsonSyntaxException
       throw new JsonSyntaxException(e);
     } catch (AssertionError e) {
-      throw new AssertionError("AssertionError (GSON " + GsonBuildConfig.VERSION + "): " + e.getMessage(), e);
+      AssertionError error = new AssertionError("AssertionError (GSON " + GsonBuildConfig.VERSION + "): " + e.getMessage());
+      error.initCause(e);
+      throw error;
     } finally {
       reader.setLenient(oldLenient);
     }
