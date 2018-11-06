@@ -259,15 +259,19 @@ public abstract class JsonElement {
   }
 
   /**
-   * convenience method to get this element as a primitive character value.
+   * convenience method to get the first character of this element as a string or the first
+   * character of this array's first element as a string.
    *
-   * @return get this element as a primitive char value.
+   * @return the first character of the string.
    * @throws ClassCastException if the element is of not a {@link JsonPrimitive} and is not a valid
-   * char value.
+   * string value.
    * @throws IllegalStateException if the element is of the type {@link JsonArray} but contains
    * more than a single element.
    * @since 1.3
+   * @deprecated This method is misleading, as it does not get this element as a char but rather as
+   * a string's first character.
    */
+  @Deprecated
   public char getAsCharacter() {
     throw new UnsupportedOperationException(getClass().getSimpleName());
   }

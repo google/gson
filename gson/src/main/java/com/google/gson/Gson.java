@@ -37,6 +37,7 @@ import java.util.concurrent.atomic.AtomicLongArray;
 
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.Excluder;
+import com.google.gson.internal.GsonBuildConfig;
 import com.google.gson.internal.Primitives;
 import com.google.gson.internal.Streams;
 import com.google.gson.internal.bind.ArrayTypeAdapter;
@@ -467,7 +468,7 @@ public final class Gson {
           return candidate;
         }
       }
-      throw new IllegalArgumentException("GSON cannot handle " + type);
+      throw new IllegalArgumentException("GSON (" + GsonBuildConfig.VERSION + ") cannot handle " + type);
     } finally {
       threadCalls.remove(type);
 
@@ -709,6 +710,10 @@ public final class Gson {
       ((TypeAdapter<Object>) adapter).write(writer, src);
     } catch (IOException e) {
       throw new JsonIOException(e);
+    } catch (AssertionError e) {
+      AssertionError error = new AssertionError("AssertionError (GSON " + GsonBuildConfig.VERSION + "): " + e.getMessage());
+      error.initCause(e);
+      throw error;
     } finally {
       writer.setLenient(oldLenient);
       writer.setHtmlSafe(oldHtmlSafe);
@@ -785,6 +790,10 @@ public final class Gson {
       Streams.write(jsonElement, writer);
     } catch (IOException e) {
       throw new JsonIOException(e);
+    } catch (AssertionError e) {
+      AssertionError error = new AssertionError("AssertionError (GSON " + GsonBuildConfig.VERSION + "): " + e.getMessage());
+      error.initCause(e);
+      throw error;
     } finally {
       writer.setLenient(oldLenient);
       writer.setHtmlSafe(oldHtmlSafe);
@@ -941,6 +950,10 @@ public final class Gson {
     } catch (IOException e) {
       // TODO(inder): Figure out whether it is indeed right to rethrow this as JsonSyntaxException
       throw new JsonSyntaxException(e);
+    } catch (AssertionError e) {
+      AssertionError error = new AssertionError("AssertionError (GSON " + GsonBuildConfig.VERSION + "): " + e.getMessage());
+      error.initCause(e);
+      throw error;
     } finally {
       reader.setLenient(oldLenient);
     }

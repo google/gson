@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Gson authors
+ * Copyright (C) 2018 The Gson authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson.internal.reflect;
+package com.google.gson.internal;
 
-import java.lang.reflect.AccessibleObject;
+import static org.junit.Assert.assertFalse;
+
+import org.junit.Test;
 
 /**
- * A basic implementation of {@link ReflectionAccessor} which is suitable for Java 8 and below.
- * <p>
- * This implementation just calls {@link AccessibleObject#setAccessible(boolean) setAccessible(true)}, which worked
- * fine before Java 9.
+ * Unit tests for {@code GsonBuildConfig}
+ *
+ * @author Inderjeet Singh
  */
-final class PreJava9ReflectionAccessor extends ReflectionAccessor {
+public class GsonBuildConfigTest {
 
-  /** {@inheritDoc} */
-  @Override
-  public void makeAccessible(AccessibleObject ao) {
-    ao.setAccessible(true);
+  @Test
+  public void testEnsureGsonBuildConfigGetsUpdatedToMavenVersion() {
+    assertFalse("${project.version}".equals(GsonBuildConfig.VERSION));
   }
 }
