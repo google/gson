@@ -47,5 +47,4 @@ public final class LocalDateTimeTypeAdapter extends TypeAdapter<LocalDateTime> {
     }
     writer.value(ISO8601Util.fromLocalDateTime(value));
   }
-
 }
