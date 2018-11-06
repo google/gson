@@ -16,7 +16,7 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.bind.TypeAdapters;
+import com.google.gson.internal.bind.LocalDateTimeTypeAdapter;
 import junit.framework.TestCase;
 
 import java.time.LocalDateTime;
@@ -24,15 +24,15 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
 /**
- * A basic unit test for the {@link TypeAdapters.LocalDateTimeAdapter} class.
+ * A basic unit test for the {@link com.google.gson.internal.bind.LocalDateTimeTypeAdapter} class.
  *
  * @author Raihaan Cassim
  */
 public class LocalDateTimeTypeAdapterTest extends TestCase {
 
 
-  public void testDatePattern() throws Exception {
-    TypeAdapters.LocalDateTimeAdapter adapter = new TypeAdapters.LocalDateTimeAdapter();
+  public void testDatePattern() {
+    LocalDateTimeTypeAdapter adapter = new LocalDateTimeTypeAdapter();
     DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
     LocalDateTime currentDate = LocalDateTime.now();
 
@@ -41,21 +41,21 @@ public class LocalDateTimeTypeAdapterTest extends TestCase {
   }
 
   public void testNullValue() throws Exception {
-    TypeAdapters.LocalDateTimeAdapter adapter = new TypeAdapters.LocalDateTimeAdapter();
+    LocalDateTimeTypeAdapter adapter = new LocalDateTimeTypeAdapter();
     assertNull(adapter.fromJson("null"));
     assertEquals("null", adapter.toJson(null));
   }
 
   public void testUnexpectedToken() throws Exception {
     try {
-      TypeAdapters.LocalDateTimeAdapter adapter = new TypeAdapters.LocalDateTimeAdapter();
+      LocalDateTimeTypeAdapter adapter = new LocalDateTimeTypeAdapter();
       adapter.fromJson("{}");
       fail("Unexpected token should fail.");
     } catch (IllegalStateException expected) { }
   }
 
   public void testDateDeserializationISO8601() throws Exception {
-    TypeAdapters.LocalDateTimeAdapter adapter = new TypeAdapters.LocalDateTimeAdapter();
+    LocalDateTimeTypeAdapter adapter = new LocalDateTimeTypeAdapter();
     assertEquals("1969-12-31T06:00", LocalDateTime.ofEpochSecond(0,0, ZoneOffset.MIN),
             adapter.fromJson(toLiteral("1969-12-31T06:00:00")));
     assertEquals("1970-01-01T00:00:00", LocalDateTime.ofEpochSecond(0,0, ZoneOffset.UTC),

@@ -1,38 +1,22 @@
-/*
- * Copyright 2017 Marcus Portmann
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-package guru.mmp.common.util;
-
-//~--- JDK imports ------------------------------------------------------------
+package com.google.gson.util;
 
 import java.text.ParseException;
-import java.time.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZonedDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAccessor;
 
 /**
- * The <code>ISO8601</code> class provides a helper class for handling ISO 8601 strings of the
- * following format: "2008-03-01T13:00:00+01:00". It also supports parsing the "Z" timezone.
+ * Utility class to assist with parsing dates using the ISO 8601 standard format.
  *
- * @author Marcus Portmann
  */
-public final class ISO8601
-{
+public class ISO8601Util {
+
     private static final ThreadLocal<DateTimeFormatter> threadLocalDateTimeFormatter =
             new ThreadLocal<DateTimeFormatter>() {
                 @Override public DateTimeFormatter initialValue() {
@@ -103,41 +87,6 @@ public final class ISO8601
     public static String fromZonedDateTime(ZonedDateTime zonedDateTime)
     {
         return zonedDateTime.format(threadLocalDateTimeFormatter.get());
-    }
-
-    /**
-     * Main.
-     *
-     * @param args the command line arguments
-     *
-     * @throws Exception
-     */
-    public static void main(String[] args)
-            throws Exception
-    {
-        System.out.println(fromLocalDateTime(LocalDateTime.now()));
-
-        System.out.println(fromZonedDateTime(ZonedDateTime.now(ZoneId.of("UTC"))));
-
-        System.out.println(fromZonedDateTime(ZonedDateTime.now(ZoneId.systemDefault())));
-
-        System.out.println("Local Date Time 2017-08-14T19:14:53.120Z = " + toLocalDateTime("2017-08-14T19:14:53.120Z"));
-
-        System.out.println("Local Date Time 2017-08-14T22:14:53.120+02:00 = " + toLocalDateTime(
-                "2017-08-14T22:14:53.120+02:00"));
-
-        System.out.println("Local Date Time 2017-08-14T19:14:53.120 = " + toLocalDateTime("2017-08-14T19:14:53.120"));
-
-        System.out.println("Local Date Time 2017-08-14T19:14:53 = " + toLocalDateTime("2017-08-14T19:14:53"));
-
-        System.out.println("Zoned Date Time 2017-08-14T19:14:53.120Z = " + toZonedDateTime("2017-08-14T19:14:53.120Z"));
-
-        System.out.println("Zoned Date Time 2017-08-14T22:14:53.120+02:00 = " + toZonedDateTime(
-                "2017-08-14T22:14:53.120+02:00"));
-
-        System.out.println("Zoned Date Time 2017-08-14T19:14:53.120 = " + toZonedDateTime("2017-08-14T19:14:53.120"));
-
-        System.out.println("Zoned Date Time 2017-08-14T19:14:53 = " + toZonedDateTime("2017-08-14T19:14:53"));
     }
 
     /**

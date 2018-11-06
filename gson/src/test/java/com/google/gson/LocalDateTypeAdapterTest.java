@@ -16,22 +16,22 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.bind.TypeAdapters;
+import com.google.gson.internal.bind.LocalDateTypeAdapter;
 import junit.framework.TestCase;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 /**
- * A basic unit test for the {@link TypeAdapters.LocalDateAdapter} class.
+ * A basic unit test for the {@link com.google.gson.internal.bind.LocalDateTypeAdapter} class.
  *
  * @author Raihaan Cassim
  */
 public class LocalDateTypeAdapterTest extends TestCase {
 
 
-  public void testDatePattern() throws Exception {
-    TypeAdapters.LocalDateAdapter adapter = new TypeAdapters.LocalDateAdapter();
+  public void testDatePattern() {
+    LocalDateTypeAdapter adapter = new LocalDateTypeAdapter();
     DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE;
     LocalDate currentDate = LocalDate.now();
 
@@ -40,21 +40,21 @@ public class LocalDateTypeAdapterTest extends TestCase {
   }
 
   public void testNullValue() throws Exception {
-    TypeAdapters.LocalDateAdapter adapter = new TypeAdapters.LocalDateAdapter();
+    LocalDateTypeAdapter adapter = new LocalDateTypeAdapter();
     assertNull(adapter.fromJson("null"));
     assertEquals("null", adapter.toJson(null));
   }
 
   public void testUnexpectedToken() throws Exception {
     try {
-      TypeAdapters.LocalDateAdapter adapter = new TypeAdapters.LocalDateAdapter();
+      LocalDateTypeAdapter adapter = new LocalDateTypeAdapter();
       adapter.fromJson("{}");
       fail("Unexpected token should fail.");
     } catch (IllegalStateException expected) { }
   }
 
   public void testDateDeserializationISO8601() throws Exception {
-    TypeAdapters.LocalDateAdapter adapter = new TypeAdapters.LocalDateAdapter();
+    LocalDateTypeAdapter adapter = new LocalDateTypeAdapter();
     assertEquals("1970-01-01", LocalDate.ofEpochDay(0), adapter.fromJson(toLiteral("1970-01-01")));
   }
 
