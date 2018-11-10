@@ -31,6 +31,8 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.lang.reflect.Type;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -114,9 +116,10 @@ public final class ParseBenchmark extends SimpleBenchmark {
   }
 
   private static String resourceToString(String path) throws Exception {
-    InputStream in = ParseBenchmark.class.getResourceAsStream(path);
+	Path fpath = Paths.get(path.toString());
+	InputStream in = ParseBenchmark.class.getResourceAsStream(path.toString());
     if (in == null) {
-      throw new IllegalArgumentException("No such file: " + path);
+      throw new IllegalArgumentException("No such file: " + path.toString());
     }
 
     Reader reader = new InputStreamReader(in, "UTF-8");
