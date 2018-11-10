@@ -117,9 +117,9 @@ public final class ParseBenchmark extends SimpleBenchmark {
 
   private static String resourceToString(String path) throws Exception {
 	Path fpath = Paths.get(path.toString());
-	InputStream in = ParseBenchmark.class.getResourceAsStream(path.toString());
+	InputStream in = ParseBenchmark.class.getResourceAsStream(fpath.toString());
     if (in == null) {
-      throw new IllegalArgumentException("No such file: " + path.toString());
+      throw new IllegalArgumentException("No such file: " + fpath.toString());
     }
 
     Reader reader = new InputStreamReader(in, "UTF-8");
