@@ -218,7 +218,7 @@ public final class Gson {
     this.builderFactories = builderFactories;
     this.builderHierarchyFactories = builderHierarchyFactories;
 
-    List<TypeAdapterFactory> factories = new ArrayList<TypeAdapterFactory>();
+    List<TypeAdapterFactory> factories = new ArrayList<>();
 
     // built-in type adapters that cannot be overridden
     factories.add(TypeAdapters.JSON_ELEMENT_FACTORY);
@@ -406,7 +406,7 @@ public final class Gson {
         out.endArray();
       }
       @Override public AtomicLongArray read(JsonReader in) throws IOException {
-        List<Long> list = new ArrayList<Long>();
+        List<Long> list = new ArrayList<>();
         in.beginArray();
         while (in.hasNext()) {
             long value = longAdapter.read(in).longValue();

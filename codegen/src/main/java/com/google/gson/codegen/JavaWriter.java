@@ -38,7 +38,7 @@ public final class JavaWriter {
   private final Map<String, String> importedTypes = new HashMap<String, String>();
 
   private String packagePrefix;
-  private final List<Scope> scopes = new ArrayList<Scope>();
+  private final List<Scope> scopes = new ArrayList<>();
   private final Writer out;
 
   /**

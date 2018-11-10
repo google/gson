@@ -51,7 +51,7 @@ final class DefaultDateTypeAdapter extends TypeAdapter<Date> {
    * List of 1 or more different date formats used for de-serialization attempts.
    * The first of them is used for serialization as well.
    */
-  private final List<DateFormat> dateFormats = new ArrayList<DateFormat>();
+  private final List<DateFormat> dateFormats = new ArrayList<>();
 
   DefaultDateTypeAdapter(Class<? extends Date> dateType) {
     this.dateType = verifyDateType(dateType);

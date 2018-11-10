@@ -98,7 +98,7 @@ public final class GraphAdapterBuilderTest extends TestCase {
     Type listOfListsType = new TypeToken<List<List<?>>>() {}.getType();
     Type listOfAnyType = new TypeToken<List<?>>() {}.getType();
 
-    List<List<?>> listOfLists = new ArrayList<List<?>>();
+    List<List<?>> listOfLists = new ArrayList<>();
     listOfLists.add(listOfLists);
     listOfLists.add(new ArrayList<Object>());
 
@@ -189,7 +189,7 @@ public final class GraphAdapterBuilderTest extends TestCase {
 
   static class Company {
     final String name;
-    final List<Employee> employees = new ArrayList<Employee>();
+    final List<Employee> employees = new ArrayList<>();
     Company(String name) {
       this.name = name;
     }

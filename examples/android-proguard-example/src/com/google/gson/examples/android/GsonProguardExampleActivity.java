@@ -53,7 +53,7 @@ public class GsonProguardExampleActivity extends Activity {
   }
 
   private Cart buildCart() {
-    List<LineItem> lineItems = new ArrayList<LineItem>();
+    List<LineItem> lineItems = new ArrayList<>();
     lineItems.add(new LineItem("hammer", 1, 12000000, "USD"));
     return new Cart(lineItems, "Happy Buyer", "4111-1111-1111-1111");
   }
