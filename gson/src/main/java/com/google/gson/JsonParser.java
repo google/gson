@@ -37,7 +37,6 @@ public final class JsonParser {
 	 * Replacement: new JsonParser().parse("jsonStr") -> JsonParser.parse("jsonStr")
 	 * @deprecated No need to instantiate this constructor, use static access to access the parser methods.
 	 */
-	@Deprecated(forRemoval = true)
 	public JsonParser() {}
 	
   /**
