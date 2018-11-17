@@ -33,6 +33,13 @@ import com.google.gson.stream.MalformedJsonException;
  */
 public final class JsonParser {
 
+	/**
+	 * Replacement: new JsonParser().parse("jsonStr") -> JsonParser.parse("jsonStr")
+	 * @deprecated No need to instantiate this constructor, use static access to access the parser methods.
+	 */
+	@Deprecated(forRemoval = true)
+	public JsonParser() {}
+	
   /**
    * Parses the specified JSON string into a parse tree
    *
@@ -41,7 +48,7 @@ public final class JsonParser {
    * @throws JsonParseException if the specified text is not valid JSON
    * @since 1.3
    */
-  public JsonElement parse(String json) throws JsonSyntaxException {
+  public static JsonElement parse(String json) throws JsonSyntaxException {
     return parse(new StringReader(json));
   }
 
@@ -53,7 +60,7 @@ public final class JsonParser {
    * @throws JsonParseException if the specified text is not valid JSON
    * @since 1.3
    */
-  public JsonElement parse(Reader json) throws JsonIOException, JsonSyntaxException {
+  public static JsonElement parse(Reader json) throws JsonIOException, JsonSyntaxException {
     try {
       JsonReader jsonReader = new JsonReader(json);
       JsonElement element = parse(jsonReader);
@@ -77,7 +84,7 @@ public final class JsonParser {
    *     text is not valid JSON
    * @since 1.6
    */
-  public JsonElement parse(JsonReader json) throws JsonIOException, JsonSyntaxException {
+  public static JsonElement parse(JsonReader json) throws JsonIOException, JsonSyntaxException {
     boolean lenient = json.isLenient();
     json.setLenient(true);
     try {
