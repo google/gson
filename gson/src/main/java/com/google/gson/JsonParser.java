@@ -42,7 +42,7 @@ public final class JsonParser {
    * @since 1.3
    */
   public JsonElement parse(String json) throws JsonSyntaxException {
-    return parse(new StringReader(json));
+    return parseString(json);
   }
 
   /**
@@ -54,9 +54,44 @@ public final class JsonParser {
    * @since 1.3
    */
   public JsonElement parse(Reader json) throws JsonIOException, JsonSyntaxException {
+    return parseReader(json);
+  }
+
+  /**
+   * Returns the next value from the JSON stream as a parse tree.
+   *
+   * @throws JsonParseException if there is an IOException or if the specified
+   *     text is not valid JSON
+   * @since 1.6
+   */
+  public JsonElement parse(JsonReader json) throws JsonIOException, JsonSyntaxException {
+    return parseReader(json);
+  }
+  
+  /**
+   * Parses the specified JSON string into a parse tree
+   *
+   * @param json JSON text
+   * @return a parse tree of {@link JsonElement}s corresponding to the specified JSON
+   * @throws JsonParseException if the specified text is not valid JSON
+   * @since 1.3
+   */
+  public static JsonElement parseString(String json) throws JsonSyntaxException {
+    return parseReader(new StringReader(json));
+  }
+
+  /**
+   * Parses the specified JSON string into a parse tree
+   *
+   * @param json JSON text
+   * @return a parse tree of {@link JsonElement}s corresponding to the specified JSON
+   * @throws JsonParseException if the specified text is not valid JSON
+   * @since 1.3
+   */
+  public static JsonElement parseReader(Reader json) throws JsonIOException, JsonSyntaxException {
     try {
       JsonReader jsonReader = new JsonReader(json);
-      JsonElement element = parse(jsonReader);
+      JsonElement element = parseReader(jsonReader);
       if (!element.isJsonNull() && jsonReader.peek() != JsonToken.END_DOCUMENT) {
         throw new JsonSyntaxException("Did not consume the entire document.");
       }
@@ -77,7 +112,7 @@ public final class JsonParser {
    *     text is not valid JSON
    * @since 1.6
    */
-  public JsonElement parse(JsonReader json) throws JsonIOException, JsonSyntaxException {
+  public static JsonElement parseReader(JsonReader json) throws JsonIOException, JsonSyntaxException {
     boolean lenient = json.isLenient();
     json.setLenient(true);
     try {
