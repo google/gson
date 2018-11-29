@@ -20,9 +20,6 @@ import junit.framework.TestCase;
 
 import com.google.gson.common.MoreAsserts;
 
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
-
 import static com.google.gson.JavaSerializationTest.serializedCopy;
 
 /**
