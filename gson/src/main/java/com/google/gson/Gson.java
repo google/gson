@@ -753,6 +753,7 @@ public final class Gson {
       writer.write(JSON_NON_EXECUTABLE_PREFIX);
     }
     JsonWriter jsonWriter = new JsonWriter(writer);
+    jsonWriter.setHtmlSafe(htmlSafe);
     if (prettyPrinting) {
       jsonWriter.setIndent("  ");
     }
