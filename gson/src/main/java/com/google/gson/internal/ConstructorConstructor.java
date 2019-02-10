@@ -16,6 +16,7 @@
 
 package com.google.gson.internal;
 
+import com.google.gson.stream.JsonReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
@@ -24,6 +25,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -42,6 +44,7 @@ import com.google.gson.InstanceCreator;
 import com.google.gson.JsonIOException;
 import com.google.gson.internal.reflect.ReflectionAccessor;
 import com.google.gson.reflect.TypeToken;
+import java.util.function.Function;
 
 /**
  * Returns a function that can construct an instance of a requested type.
@@ -53,6 +56,25 @@ public final class ConstructorConstructor {
   public ConstructorConstructor(Map<Type, InstanceCreator<?>> instanceCreators) {
     this.instanceCreators = instanceCreators;
   }
+
+  public <T> ConstructorConstructor(TypeToken<T> typeToken, Function<JsonReader, T> objectCreator) {
+    InstanceCreator<?> instanceCreator = new InstanceCreator<T>() {
+      @Override
+      public T createInstance(Type type) {
+        return null;
+      }
+
+      @Override
+      public T createInstance(Type type, JsonReader in) {
+        return objectCreator.apply(in);
+      }
+    };
+    // Using HashMap for a concrete implementation of the Map Abstract class
+    this.instanceCreators = new HashMap<Type, InstanceCreator<?>>() {{
+      put(typeToken.getType(), instanceCreator);
+    }};
+  }
+
 
   public <T> ObjectConstructor<T> get(TypeToken<T> typeToken) {
     final Type type = typeToken.getType();
@@ -67,6 +89,10 @@ public final class ConstructorConstructor {
         @Override public T construct() {
           return typeCreator.createInstance(type);
         }
+
+        @Override public T construct(JsonReader in) {
+          return typeCreator.createInstance(type, in);
+        }
       };
     }
 
@@ -78,6 +104,10 @@ public final class ConstructorConstructor {
       return new ObjectConstructor<T>() {
         @Override public T construct() {
           return rawTypeCreator.createInstance(type);
+        }
+
+        @Override public T construct(JsonReader in) {
+          return rawTypeCreator.createInstance(type, in);
         }
       };
     }

@@ -209,7 +209,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         return null;
       }
 
-      T instance = constructor.construct();
+      T instance = constructor.construct(in);
 
       try {
         in.beginObject();

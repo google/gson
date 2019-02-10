@@ -16,6 +16,10 @@
 
 package com.google.gson;
 
+import com.google.gson.internal.ConstructorConstructor;
+import com.google.gson.internal.bind.ReflectiveTypeAdapterFactory;
+import java.io.IOException;
+import java.io.Reader;
 import java.lang.reflect.Type;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -32,6 +36,7 @@ import com.google.gson.internal.bind.TreeTypeAdapter;
 import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
+import java.util.function.Function;
 
 import static com.google.gson.Gson.DEFAULT_COMPLEX_MAP_KEYS;
 import static com.google.gson.Gson.DEFAULT_ESCAPE_HTML;
@@ -509,6 +514,38 @@ public final class GsonBuilder {
       factories.add(TypeAdapters.newFactory(TypeToken.get(type), (TypeAdapter)typeAdapter));
     }
     return this;
+  }
+
+  /**
+   * TODO: Add a meaningful description
+   */
+  public GsonBuilder registerTypeAdapterWithFillIn(Type type, Object objectAdapter) {
+   $Gson$Preconditions.checkArgument(objectAdapter instanceof TypeAdapter<?>);
+   TypeAdapter<?> typeAdapter = (TypeAdapter<?>) objectAdapter;
+
+   factories.add(new TypeAdapterFactory() {
+     @Override
+     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+       Function<JsonReader, T> function = new Function<JsonReader, T>() {
+         @Override
+         public T apply(JsonReader reader) {
+           try {
+             return (T) typeAdapter.read(reader);
+           } catch (IOException e) {
+             // TODO: wrap this in a reasonable exception
+             return null;
+           }
+         }
+       };
+       ConstructorConstructor constructorConstructor = new ConstructorConstructor(type, function);
+       ReflectiveTypeAdapterFactory reflectiveTypeAdapterFactory =
+           new ReflectiveTypeAdapterFactory(constructorConstructor, gson.fieldNamingStrategy,
+               gson.excluder, gson.jsonAdapterFactory);
+       return reflectiveTypeAdapterFactory.create(gson, type);
+     }
+   });
+
+   return this;
   }
 
   /**

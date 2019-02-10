@@ -16,6 +16,9 @@
 
 package com.google.gson.internal;
 
+import com.google.gson.stream.JsonReader;
+import java.io.Reader;
+
 /**
  * Defines a generic object construction factory.  The purpose of this class
  * is to construct a default instance of a class that can be used for object
@@ -30,4 +33,15 @@ public interface ObjectConstructor<T> {
    * Returns a new instance.
    */
   public T construct();
+
+  /**
+   * If defining an object constructor that returns a new instance, override this method. Otherwise
+   * it will just call the default construct method.
+   * @param in
+   * @return
+   */
+  default T construct(JsonReader in) {
+    construct();
+    return null;
+  }
 }

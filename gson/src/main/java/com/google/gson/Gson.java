@@ -127,7 +127,8 @@ public final class Gson {
   private final Map<TypeToken<?>, TypeAdapter<?>> typeTokenCache = new ConcurrentHashMap<TypeToken<?>, TypeAdapter<?>>();
 
   private final ConstructorConstructor constructorConstructor;
-  private final JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory;
+
+  final JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory;
 
   final List<TypeAdapterFactory> factories;
 
