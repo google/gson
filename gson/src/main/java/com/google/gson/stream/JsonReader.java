@@ -242,6 +242,14 @@ public class JsonReader implements Closeable {
   private int lineNumber = 0;
   private int lineStart = 0;
 
+  private int markPeeked = 0;
+  private int markPos = 0;
+  private int markLineNumber = 0;
+  private int markLineStart = 0;
+
+  private int[] markStack = new int[0];
+  private int markStackSize = 0;
+
   int peeked = PEEKED_NONE;
 
   /**
@@ -1489,6 +1497,37 @@ public class JsonReader implements Closeable {
       }
     }
     return result.toString();
+  }
+
+
+  public void mark() throws IOException {
+    in.mark(Integer.MAX_VALUE);
+
+    markPeeked = peeked;
+
+    markPos = pos;
+    markLineNumber = lineNumber;
+    markLineStart = lineStart;
+
+    markStack = stack;
+    markStackSize = stackSize;
+  }
+
+  public void reset() throws IOException {
+    in.reset();
+
+    peeked = 0;
+
+    pos = 0;
+    lineNumber = 0;
+    lineStart = 0;
+
+    stack = new int[32];
+    stackSize = 1;
+
+    fillBuffer(limit);
+
+    System.out.println(peek());
   }
 
   /**

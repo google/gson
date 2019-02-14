@@ -896,7 +896,7 @@ public final class Gson {
   public <T> T fromJson(Reader json, Type typeOfT) throws JsonIOException, JsonSyntaxException {
     JsonReader jsonReader = newJsonReader(json);
     T object = (T) fromJson(jsonReader, typeOfT);
-    assertFullConsumption(object, jsonReader);
+  //  assertFullConsumption(object, jsonReader);
     return object;
   }
 

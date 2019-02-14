@@ -16,10 +16,23 @@
 
 package com.google.gson;
 
+import static com.google.gson.Gson.DEFAULT_COMPLEX_MAP_KEYS;
+import static com.google.gson.Gson.DEFAULT_ESCAPE_HTML;
+import static com.google.gson.Gson.DEFAULT_JSON_NON_EXECUTABLE;
+import static com.google.gson.Gson.DEFAULT_LENIENT;
+import static com.google.gson.Gson.DEFAULT_PRETTY_PRINT;
+import static com.google.gson.Gson.DEFAULT_SERIALIZE_NULLS;
+import static com.google.gson.Gson.DEFAULT_SPECIALIZE_FLOAT_VALUES;
+
+import com.google.gson.internal.$Gson$Preconditions;
 import com.google.gson.internal.ConstructorConstructor;
+import com.google.gson.internal.Excluder;
 import com.google.gson.internal.bind.ReflectiveTypeAdapterFactory;
+import com.google.gson.internal.bind.TreeTypeAdapter;
+import com.google.gson.internal.bind.TypeAdapters;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
 import java.io.IOException;
-import java.io.Reader;
 import java.lang.reflect.Type;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -29,22 +42,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.google.gson.internal.$Gson$Preconditions;
-import com.google.gson.internal.Excluder;
-import com.google.gson.internal.bind.TreeTypeAdapter;
-import com.google.gson.internal.bind.TypeAdapters;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
 import java.util.function.Function;
-
-import static com.google.gson.Gson.DEFAULT_COMPLEX_MAP_KEYS;
-import static com.google.gson.Gson.DEFAULT_ESCAPE_HTML;
-import static com.google.gson.Gson.DEFAULT_JSON_NON_EXECUTABLE;
-import static com.google.gson.Gson.DEFAULT_LENIENT;
-import static com.google.gson.Gson.DEFAULT_PRETTY_PRINT;
-import static com.google.gson.Gson.DEFAULT_SERIALIZE_NULLS;
-import static com.google.gson.Gson.DEFAULT_SPECIALIZE_FLOAT_VALUES;
 
 /**
  * <p>Use this builder to construct a {@link Gson} instance when you need to set configuration
@@ -519,7 +517,7 @@ public final class GsonBuilder {
   /**
    * TODO: Add a meaningful description
    */
-  public GsonBuilder registerTypeAdapterWithFillIn(Type type, Object objectAdapter) {
+  public GsonBuilder registerTypeAdapterWithFillIn(Type baseType, Object objectAdapter) {
    $Gson$Preconditions.checkArgument(objectAdapter instanceof TypeAdapter<?>);
    TypeAdapter<?> typeAdapter = (TypeAdapter<?>) objectAdapter;
 
@@ -530,9 +528,14 @@ public final class GsonBuilder {
          @Override
          public T apply(JsonReader reader) {
            try {
-             return (T) typeAdapter.read(reader);
+             reader.mark();
+             T returnedObject = (T) typeAdapter.read(reader);
+             reader.reset();
+             return returnedObject;
+             //return null;
            } catch (IOException e) {
              // TODO: wrap this in a reasonable exception
+             // Another cause for exception was that mark was not supported
              return null;
            }
          }
@@ -540,7 +543,9 @@ public final class GsonBuilder {
        ConstructorConstructor constructorConstructor = new ConstructorConstructor(type, function);
        ReflectiveTypeAdapterFactory reflectiveTypeAdapterFactory =
            new ReflectiveTypeAdapterFactory(constructorConstructor, gson.fieldNamingStrategy,
-               gson.excluder, gson.jsonAdapterFactory);
+               gson.excluder, gson.jsonAdapterFactory, new ArrayList<>() {{
+             add(baseType);
+           }});
        return reflectiveTypeAdapterFactory.create(gson, type);
      }
    });
