@@ -41,7 +41,6 @@ public interface ObjectConstructor<T> {
    * @return
    */
   default T construct(JsonReader in) {
-    construct();
-    return null;
+    return construct();
   }
 }

@@ -100,7 +100,6 @@ public interface InstanceCreator<T> {
    * @return
    */
   default T createInstance(Type type, JsonReader in) {
-    createInstance(type);
-    return null;
+    return createInstance(type);
   }
 }
