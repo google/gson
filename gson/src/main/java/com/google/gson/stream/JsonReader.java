@@ -1526,8 +1526,6 @@ public class JsonReader implements Closeable {
     stackSize = 1;
 
     fillBuffer(limit);
-
-    System.out.println(peek());
   }
 
   /**
