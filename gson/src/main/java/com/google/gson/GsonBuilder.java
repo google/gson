@@ -535,7 +535,6 @@ public final class GsonBuilder {
          @Override
          public T apply(JsonReader reader) {
            try {
-             reader.mark();
              T returnedObject = (T) typeAdapter.read(reader);
              reader.reset();
              return returnedObject;

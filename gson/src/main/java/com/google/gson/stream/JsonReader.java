@@ -299,6 +299,11 @@ public class JsonReader implements Closeable {
       throw new NullPointerException("in == null");
     }
     this.in = in;
+    try {
+      in.mark(Integer.MAX_VALUE);
+    } catch (Exception e) {
+      // Do nothing
+    }
   }
 
   /**
@@ -1500,40 +1505,22 @@ public class JsonReader implements Closeable {
   }
 
 
-  /** Marks the {@code JsonReader} and stores all current parameters for reinstatement. This can be used
-   * to read the same {@code JsonReader} twice. Reinstatement can be done with {@link #reset}.
-   *
-   * @throws IOException
-   */
-  public void mark() throws IOException {
-    in.mark(Integer.MAX_VALUE);
-
-    markPeeked = peeked;
-
-    markPos = pos;
-    markLineNumber = lineNumber;
-    markLineStart = lineStart;
-
-    markStack = stack;
-    markStackSize = stackSize;
-  }
-
-  /** Resets the {@code JsonReader} to the previously marked location. To be used to restore the
-   * previous mark set by the {@link #mark} method.
+  /** Resets the {@code JsonReader} to the beginning of the stream. To be used to restore the
+   * previous mark at the beginning of the stream.
    *
    * @throws IOException
    */
   public void reset() throws IOException {
     in.reset();
 
-    peeked = markPeeked;
+    peeked = 0;
 
-    pos = markPos;
-    lineNumber = markLineNumber;
-    lineStart = markLineStart;
+    pos = 0;
+    lineNumber = 0;
+    lineStart = 0;
 
-    stack = markStack;
-    stackSize = markStackSize;
+    stack = new int[32];
+    stackSize = 1;
 
     fillBuffer(limit);
   }

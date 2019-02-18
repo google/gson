@@ -22,6 +22,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.Arrays;
 import junit.framework.TestCase;
+import org.junit.Assert;
 
 import static com.google.gson.stream.JsonToken.BEGIN_ARRAY;
 import static com.google.gson.stream.JsonToken.BEGIN_OBJECT;
@@ -1783,5 +1784,19 @@ public final class JsonReaderTest extends TestCase {
       @Override public void close() throws IOException {
       }
     }; */
+  }
+
+  public void testReset() throws IOException {
+    String input = "{\"field1\": \"sample\", \"field2\": 5}";
+    JsonReader reader = new JsonReader(reader(input));
+
+    reader.beginObject();
+    Assert.assertEquals("field1", reader.nextName());
+    Assert.assertEquals("sample", reader.nextString());
+    reader.reset();
+    Assert.assertEquals(JsonToken.BEGIN_OBJECT, reader.peek());
+    reader.beginObject();
+    Assert.assertEquals("field1", reader.nextName());
+    Assert.assertEquals("sample", reader.nextString());
   }
 }
