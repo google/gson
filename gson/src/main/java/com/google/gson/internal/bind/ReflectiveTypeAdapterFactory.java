@@ -51,6 +51,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   private final Excluder excluder;
   private final JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory;
   private final ReflectionAccessor accessor = ReflectionAccessor.getInstance();
+  // Helps with restricting the Adapter only to certain types for the Fill-In mechanic.
   private final List<Type> typeIncluder;
 
   public ReflectiveTypeAdapterFactory(ConstructorConstructor constructorConstructor,

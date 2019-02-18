@@ -515,7 +515,14 @@ public final class GsonBuilder {
   }
 
   /**
-   * TODO: Add a meaningful description
+   * Configures Gson for custom serialization and deserialization with Fill-in. Takes the type
+   * adapter, and wraps the result from the {@link TypeAdapter} into a {@link ReflectiveTypeAdapterFactory.Adapter}. Like
+   * {@link #registerTypeAdapter(Type, Object)}, it only applies to the type specified by
+   * the {@code type} parameter.
+   *
+   * @param baseType the type definition for the type adapter being registered
+   * @param objectAdapter This object must implement the {@link TypeAdapter} class
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
   public GsonBuilder registerTypeAdapterWithFillIn(Type baseType, Object objectAdapter) {
    $Gson$Preconditions.checkArgument(objectAdapter instanceof TypeAdapter<?>);
@@ -532,11 +539,9 @@ public final class GsonBuilder {
              T returnedObject = (T) typeAdapter.read(reader);
              reader.reset();
              return returnedObject;
-             //return null;
            } catch (IOException e) {
-             // TODO: wrap this in a reasonable exception
+             throw new JsonIOException("Unable to mark stream: your JVM does not support stream marking.");
              // Another cause for exception was that mark was not supported
-             return null;
            }
          }
        };

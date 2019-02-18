@@ -57,6 +57,11 @@ public final class ConstructorConstructor {
     this.instanceCreators = instanceCreators;
   }
 
+  /** Constructor for the Fill-In mechanic implemented with {@link com.google.gson.GsonBuilder#registerTypeAdapterWithFillIn}.
+   * @param typeToken represents the type of the object to be returned.
+   * @param objectCreator function that returns the object that is to be contstructed.
+   * @param <T> returns an instance of T that is returned by the {@code objectCreator}.
+   */
   public <T> ConstructorConstructor(TypeToken<T> typeToken, Function<JsonReader, T> objectCreator) {
     InstanceCreator<?> instanceCreator = new InstanceCreator<T>() {
       @Override
