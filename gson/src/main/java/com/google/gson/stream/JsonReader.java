@@ -242,14 +242,6 @@ public class JsonReader implements Closeable {
   private int lineNumber = 0;
   private int lineStart = 0;
 
-  private int markPeeked = 0;
-  private int markPos = 0;
-  private int markLineNumber = 0;
-  private int markLineStart = 0;
-
-  private int[] markStack = new int[0];
-  private int markStackSize = 0;
-
   int peeked = PEEKED_NONE;
 
   /**
