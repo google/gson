@@ -547,7 +547,7 @@ public final class GsonBuilder {
        ConstructorConstructor constructorConstructor = new ConstructorConstructor(type, function);
        ReflectiveTypeAdapterFactory reflectiveTypeAdapterFactory =
            new ReflectiveTypeAdapterFactory(constructorConstructor, gson.fieldNamingStrategy,
-               gson.excluder, gson.jsonAdapterFactory, new ArrayList<>() {{
+               gson.excluder, gson.jsonAdapterFactory, new ArrayList<Type>() {{
              add(baseType);
            }});
        return reflectiveTypeAdapterFactory.create(gson, type);
