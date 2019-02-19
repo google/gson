@@ -129,9 +129,9 @@ public class LayeredAdapterTest extends TestCase {
 
       while (in.hasNext()) {
         String name = in.nextName();
-        if (name.equals("hello")) {
+        if ("hello".equals(name)) {
           inside.setHello(in.nextString());
-        } else if (name.equals("hello2")) {
+        } else if ("hello2".equals(name)) {
           inside.setHello2(in.nextInt());
         } else {
           in.skipValue();
@@ -165,9 +165,9 @@ public class LayeredAdapterTest extends TestCase {
 
       while (in.hasNext()) {
         String name = in.nextName();
-        if (name.equals("hello")) {
+        if ("hello".equals(name)) {
           inside.setHello(in.nextString());
-        } else if (name.equals("hello2")) {
+        } else if ("hello2".equals(name)) {
           inside.setHello2(in.nextInt());
         } else {
           in.skipValue();
