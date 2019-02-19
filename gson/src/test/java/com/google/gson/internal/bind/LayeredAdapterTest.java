@@ -1,10 +1,12 @@
 package com.google.gson.internal.bind;
 
+import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.common.TestTypes.LayeredConflictOutsideClass;
+import com.google.gson.common.TestTypes.LayeredFieldNamingClass;
 import com.google.gson.common.TestTypes.LayeredInsideClass;
 import com.google.gson.common.TestTypes.LayeredOutsideClass;
 import com.google.gson.common.TestTypes.LayeredTypeConflictOutsideClass;
@@ -87,6 +89,23 @@ public class LayeredAdapterTest extends TestCase {
     Assert.assertEquals(Integer.valueOf(89), outside.getInsideClass().getHello2());
     Assert.assertNull(outside.getHello());
     Assert.assertNull(outside.getHello2());
+  }
+
+  @Test
+  public void testFieldNamingStrategy() {
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapterWithFillIn(LayeredFieldNamingClass.class,
+            new LayeredFieldNamingAdapter())
+        .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+        .create();
+
+    String json =
+        "{\"first_string\": \"sample\", \"second_integer\": 87, \"third_date\": \"2019-02-08T08:07:34Z\","
+            + "\"weirdlyNameDateObjectThing\": \"sample_text\"}";
+
+    LayeredFieldNamingClass fieldNamingClass = gson.fromJson(json, LayeredFieldNamingClass.class);
+    Assert.assertEquals(fieldNamingClass.getFirstString(), "sample");
+    Assert.assertEquals(fieldNamingClass.getWeirdly_named_date(), "sample_text");
   }
 
   public class OutsideAdapter extends TypeAdapter<LayeredOutsideClass> {
@@ -194,6 +213,37 @@ public class LayeredAdapterTest extends TestCase {
 
       outside.setInsideClass(inside);
       return outside;
+    }
+  }
+
+  public class LayeredFieldNamingAdapter extends TypeAdapter<LayeredFieldNamingClass> {
+
+    @Override
+    public void write(JsonWriter out, LayeredFieldNamingClass value) throws IOException {
+      // Don't Care
+    }
+
+    @Override
+    public LayeredFieldNamingClass read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
+        return null;
+      }
+
+      LayeredFieldNamingClass fieldNamingClass = new LayeredFieldNamingClass();
+
+      in.beginObject();
+      String name = "";
+      while (in.hasNext()) {
+        name = in.nextName();
+        if (name.equals("weirdlyNameDateObjectThing")) {
+          fieldNamingClass.setWeirdly_named_date(in.nextString());
+        } else {
+          in.skipValue();
+        }
+      }
+
+      return fieldNamingClass;
     }
   }
 }

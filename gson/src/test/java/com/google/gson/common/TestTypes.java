@@ -575,4 +575,48 @@ public class TestTypes {
       this.hello2 = hello2;
     }
   }
+
+  public static class LayeredFieldNamingClass {
+
+    // corresponds to first_string
+    private String firstString;
+    // corresponds to second_integer
+    private Integer secondInteger;
+    // corresponds to third_date
+    private Date thirdDate;
+    // corresponds to weirdlyNamedDateObjectThing
+    private String weirdly_named_date;
+
+    public String getFirstString() {
+      return firstString;
+    }
+
+    public void setFirstString(String firstString) {
+      this.firstString = firstString;
+    }
+
+    public Integer getSecondInteger() {
+      return secondInteger;
+    }
+
+    public void setSecondInteger(Integer secondInteger) {
+      this.secondInteger = secondInteger;
+    }
+
+    public Date getThirdDate() {
+      return thirdDate;
+    }
+
+    public void setThirdDate(Date thirdDate) {
+      this.thirdDate = thirdDate;
+    }
+
+    public String getWeirdly_named_date() {
+      return weirdly_named_date;
+    }
+
+    public void setWeirdly_named_date(String weirdly_named_date) {
+      this.weirdly_named_date = weirdly_named_date;
+    }
+  }
 }
