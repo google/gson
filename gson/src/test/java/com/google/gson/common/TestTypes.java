@@ -611,11 +611,11 @@ public class TestTypes {
       this.thirdDate = thirdDate;
     }
 
-    public String getWeirdly_named_date() {
+    public String getWeirdlyNamedDate() {
       return weirdly_named_date;
     }
 
-    public void setWeirdly_named_date(String weirdly_named_date) {
+    public void setWeirdlyNamedDate(String weirdly_named_date) {
       this.weirdly_named_date = weirdly_named_date;
     }
   }

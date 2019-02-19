@@ -75,9 +75,9 @@ public final class ConstructorConstructor {
       }
     };
     // Using HashMap for a concrete implementation of the Map Abstract class
-    this.instanceCreators = new HashMap<Type, InstanceCreator<?>>() {{
-      put(typeToken.getType(), instanceCreator);
-    }};
+    Map<Type, InstanceCreator<?>> instanceCreatorMap = new HashMap<Type, InstanceCreator<?>>();
+    instanceCreatorMap.put(typeToken.getType(), instanceCreator);
+    this.instanceCreators = instanceCreatorMap;
   }
 
 

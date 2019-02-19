@@ -65,8 +65,8 @@ public class LayeredAdapterTest extends TestCase {
     String conflictString = "{ \"hello\": \"sample\", \"hello2\": 89}";
 
     try {
-      LayeredTypeConflictOutsideClass outside = gson
-          .fromJson(conflictString, LayeredTypeConflictOutsideClass.class);
+      // Just check that there is an error thrown when this method is called
+      gson.fromJson(conflictString, LayeredTypeConflictOutsideClass.class);
       fail();
     } catch (JsonSyntaxException e) {
       Assert.assertEquals(ParseException.class, e.getCause().getClass());
@@ -105,7 +105,7 @@ public class LayeredAdapterTest extends TestCase {
 
     LayeredFieldNamingClass fieldNamingClass = gson.fromJson(json, LayeredFieldNamingClass.class);
     Assert.assertEquals(fieldNamingClass.getFirstString(), "sample");
-    Assert.assertEquals(fieldNamingClass.getWeirdly_named_date(), "sample_text");
+    Assert.assertEquals(fieldNamingClass.getWeirdlyNamedDate(), "sample_text");
   }
 
   public class OutsideAdapter extends TypeAdapter<LayeredOutsideClass> {
@@ -201,9 +201,9 @@ public class LayeredAdapterTest extends TestCase {
 
       while (in.hasNext()) {
         String name = in.nextName();
-        if (name.equals("hello")) {
+        if ("hello".equals(name)) {
           inside.setHello(in.nextString());
-        } else if (name.equals("hello2")) {
+        } else if ("hello2".equals(name)) {
           inside.setHello2(in.nextInt());
         } else {
           in.skipValue();
@@ -236,8 +236,8 @@ public class LayeredAdapterTest extends TestCase {
       String name = "";
       while (in.hasNext()) {
         name = in.nextName();
-        if (name.equals("weirdlyNameDateObjectThing")) {
-          fieldNamingClass.setWeirdly_named_date(in.nextString());
+        if ("weirdlyNameDateObjectThing".equals(name)) {
+          fieldNamingClass.setWeirdlyNamedDate(in.nextString());
         } else {
           in.skipValue();
         }

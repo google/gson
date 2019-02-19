@@ -33,6 +33,7 @@ import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -545,11 +546,11 @@ public final class GsonBuilder {
          }
        };
        ConstructorConstructor constructorConstructor = new ConstructorConstructor(type, function);
+       List<Type> typeList = new ArrayList<Type>();
+       typeList.add(baseType);
        ReflectiveTypeAdapterFactory reflectiveTypeAdapterFactory =
            new ReflectiveTypeAdapterFactory(constructorConstructor, gson.fieldNamingStrategy,
-               gson.excluder, gson.jsonAdapterFactory, new ArrayList<Type>() {{
-             add(baseType);
-           }});
+               gson.excluder, gson.jsonAdapterFactory, typeList);
        return reflectiveTypeAdapterFactory.create(gson, type);
      }
    });

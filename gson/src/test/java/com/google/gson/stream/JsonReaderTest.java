@@ -1794,7 +1794,7 @@ public final class JsonReaderTest extends TestCase {
     Assert.assertEquals("field1", reader.nextName());
     Assert.assertEquals("sample", reader.nextString());
     reader.reset();
-    Assert.assertEquals(JsonToken.BEGIN_OBJECT, reader.peek());
+    Assert.assertEquals(BEGIN_OBJECT, reader.peek());
     reader.beginObject();
     Assert.assertEquals("field1", reader.nextName());
     Assert.assertEquals("sample", reader.nextString());
