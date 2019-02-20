@@ -16,7 +16,6 @@
 
 package com.google.gson;
 
-import com.google.gson.stream.JsonReader;
 import java.lang.reflect.Type;
 
 /**
@@ -90,13 +89,4 @@ public interface InstanceCreator<T> {
    * @return a default object instance of type T.
    */
   public T createInstance(Type type);
-
-  /**
-   * If not defined, defaults to returning the result of {@link #createInstance}. This method is
-   * designed to help with creating Adapters with Fill-In. See {@link GsonBuilder#registerTypeAdapterFactory}.
-   * @param type the parameterized T represented as a {@link Type}.
-   * @param in the JsonReader from which to create the instance.
-   * @return a default object instance of type T.
-   */
-//  public T createInstance(Type type, JsonReader in);
 }

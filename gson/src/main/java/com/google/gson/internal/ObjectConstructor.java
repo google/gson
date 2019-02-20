@@ -16,9 +16,6 @@
 
 package com.google.gson.internal;
 
-import com.google.gson.GsonBuilder;
-import com.google.gson.stream.JsonReader;
-
 /**
  * Defines a generic object construction factory.  The purpose of this class
  * is to construct a default instance of a class that can be used for object
@@ -33,11 +30,4 @@ public interface ObjectConstructor<T> {
    * Returns a new instance.
    */
   public T construct();
-
-  /** If not defined, returns the result of the {@link #construct} method. This method is designed
-   * to create an object of class T to suport the Fill-In mechanic {@link GsonBuilder#registerTypeAdapterFactory}.
-   * @param in is the JsonReader from which the object should be constructed.
-   * @return returns the object of class T that was constructed based on the {@code in} stream.
-   */
-//  public T construct(JsonReader in);
 }
