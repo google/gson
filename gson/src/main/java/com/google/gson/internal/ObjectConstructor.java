@@ -39,7 +39,5 @@ public interface ObjectConstructor<T> {
    * @param in is the JsonReader from which the object should be constructed.
    * @return returns the object of class T that was constructed based on the {@code in} stream.
    */
-  default T construct(JsonReader in) {
-    return construct();
-  }
+//  public T construct(JsonReader in);
 }

@@ -16,6 +16,7 @@
 
 package com.google.gson.internal;
 
+import com.google.gson.InstanceCreatorWrapper;
 import com.google.gson.stream.JsonReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -62,14 +63,13 @@ public final class ConstructorConstructor {
    * @param objectCreator function that returns the object that is to be contstructed.
    * @param <T> returns an instance of T that is returned by the {@code objectCreator}.
    */
-  public <T> ConstructorConstructor(TypeToken<T> typeToken, Function<JsonReader, T> objectCreator) {
-    InstanceCreator<?> instanceCreator = new InstanceCreator<T>() {
+  public <T> ConstructorConstructor(TypeToken<T> typeToken, final Function<JsonReader, T> objectCreator) {
+    InstanceCreator<?> instanceCreator = new InstanceCreatorWrapper<T>() {
       @Override
       public T createInstance(Type type) {
         return null;
       }
 
-      @Override
       public T createInstance(Type type, JsonReader in) {
         return objectCreator.apply(in);
       }
@@ -81,7 +81,7 @@ public final class ConstructorConstructor {
   }
 
 
-  public <T> ObjectConstructor<T> get(TypeToken<T> typeToken) {
+  public <T> ObjectConstructorWrapper<T> get(TypeToken<T> typeToken) {
     final Type type = typeToken.getType();
     final Class<? super T> rawType = typeToken.getRawType();
 
@@ -90,13 +90,14 @@ public final class ConstructorConstructor {
     @SuppressWarnings("unchecked") // types must agree
     final InstanceCreator<T> typeCreator = (InstanceCreator<T>) instanceCreators.get(type);
     if (typeCreator != null) {
-      return new ObjectConstructor<T>() {
+      return new ObjectConstructorWrapper<T>() {
         @Override public T construct() {
           return typeCreator.createInstance(type);
         }
 
-        @Override public T construct(JsonReader in) {
-          return typeCreator.createInstance(type, in);
+        @Override
+        public T construct(JsonReader in) {
+          return (T) ((InstanceCreatorWrapper) typeCreator).createInstance(type, in);
         }
       };
     }
@@ -106,23 +107,24 @@ public final class ConstructorConstructor {
     final InstanceCreator<T> rawTypeCreator =
         (InstanceCreator<T>) instanceCreators.get(rawType);
     if (rawTypeCreator != null) {
-      return new ObjectConstructor<T>() {
+      return new ObjectConstructorWrapper<T>() {
         @Override public T construct() {
           return rawTypeCreator.createInstance(type);
         }
 
-        @Override public T construct(JsonReader in) {
-          return rawTypeCreator.createInstance(type, in);
+        @Override
+        public T construct(JsonReader in) {
+          return (T) ((InstanceCreatorWrapper) typeCreator).createInstance(type, in);
         }
       };
     }
 
-    ObjectConstructor<T> defaultConstructor = newDefaultConstructor(rawType);
+    ObjectConstructorWrapper<T> defaultConstructor = newDefaultConstructor(rawType);
     if (defaultConstructor != null) {
       return defaultConstructor;
     }
 
-    ObjectConstructor<T> defaultImplementation = newDefaultImplementationConstructor(type, rawType);
+    ObjectConstructorWrapper<T> defaultImplementation = newDefaultImplementationConstructor(type, rawType);
     if (defaultImplementation != null) {
       return defaultImplementation;
     }
@@ -131,13 +133,13 @@ public final class ConstructorConstructor {
     return newUnsafeAllocator(type, rawType);
   }
 
-  private <T> ObjectConstructor<T> newDefaultConstructor(Class<? super T> rawType) {
+  private <T> ObjectConstructorWrapper<T> newDefaultConstructor(Class<? super T> rawType) {
     try {
       final Constructor<? super T> constructor = rawType.getDeclaredConstructor();
       if (!constructor.isAccessible()) {
         accessor.makeAccessible(constructor);
       }
-      return new ObjectConstructor<T>() {
+      return new ObjectConstructorWrapper<T>() {
         @SuppressWarnings("unchecked") // T is the same raw type as is requested
         @Override public T construct() {
           try {
@@ -166,17 +168,17 @@ public final class ConstructorConstructor {
    * subtypes.
    */
   @SuppressWarnings("unchecked") // use runtime checks to guarantee that 'T' is what it is
-  private <T> ObjectConstructor<T> newDefaultImplementationConstructor(
+  private <T> ObjectConstructorWrapper<T> newDefaultImplementationConstructor(
       final Type type, Class<? super T> rawType) {
     if (Collection.class.isAssignableFrom(rawType)) {
       if (SortedSet.class.isAssignableFrom(rawType)) {
-        return new ObjectConstructor<T>() {
+        return new ObjectConstructorWrapper<T>() {
           @Override public T construct() {
             return (T) new TreeSet<Object>();
           }
         };
       } else if (EnumSet.class.isAssignableFrom(rawType)) {
-        return new ObjectConstructor<T>() {
+        return new ObjectConstructorWrapper<T>() {
           @SuppressWarnings("rawtypes")
           @Override public T construct() {
             if (type instanceof ParameterizedType) {
@@ -192,19 +194,19 @@ public final class ConstructorConstructor {
           }
         };
       } else if (Set.class.isAssignableFrom(rawType)) {
-        return new ObjectConstructor<T>() {
+        return new ObjectConstructorWrapper<T>() {
           @Override public T construct() {
             return (T) new LinkedHashSet<Object>();
           }
         };
       } else if (Queue.class.isAssignableFrom(rawType)) {
-        return new ObjectConstructor<T>() {
+        return new ObjectConstructorWrapper<T>() {
           @Override public T construct() {
             return (T) new ArrayDeque<Object>();
           }
         };
       } else {
-        return new ObjectConstructor<T>() {
+        return new ObjectConstructorWrapper<T>() {
           @Override public T construct() {
             return (T) new ArrayList<Object>();
           }
@@ -214,32 +216,32 @@ public final class ConstructorConstructor {
 
     if (Map.class.isAssignableFrom(rawType)) {
       if (ConcurrentNavigableMap.class.isAssignableFrom(rawType)) {
-        return new ObjectConstructor<T>() {
+        return new ObjectConstructorWrapper<T>() {
           @Override public T construct() {
             return (T) new ConcurrentSkipListMap<Object, Object>();
           }
         };
       } else if (ConcurrentMap.class.isAssignableFrom(rawType)) {
-        return new ObjectConstructor<T>() {
+        return new ObjectConstructorWrapper<T>() {
           @Override public T construct() {
             return (T) new ConcurrentHashMap<Object, Object>();
           }
         };
       } else if (SortedMap.class.isAssignableFrom(rawType)) {
-        return new ObjectConstructor<T>() {
+        return new ObjectConstructorWrapper<T>() {
           @Override public T construct() {
             return (T) new TreeMap<Object, Object>();
           }
         };
       } else if (type instanceof ParameterizedType && !(String.class.isAssignableFrom(
           TypeToken.get(((ParameterizedType) type).getActualTypeArguments()[0]).getRawType()))) {
-        return new ObjectConstructor<T>() {
+        return new ObjectConstructorWrapper<T>() {
           @Override public T construct() {
             return (T) new LinkedHashMap<Object, Object>();
           }
         };
       } else {
-        return new ObjectConstructor<T>() {
+        return new ObjectConstructorWrapper<T>() {
           @Override public T construct() {
             return (T) new LinkedTreeMap<String, Object>();
           }
@@ -250,9 +252,9 @@ public final class ConstructorConstructor {
     return null;
   }
 
-  private <T> ObjectConstructor<T> newUnsafeAllocator(
+  private <T> ObjectConstructorWrapper<T> newUnsafeAllocator(
       final Type type, final Class<? super T> rawType) {
-    return new ObjectConstructor<T>() {
+    return new ObjectConstructorWrapper<T>() {
       private final UnsafeAllocator unsafeAllocator = UnsafeAllocator.create();
       @SuppressWarnings("unchecked")
       @Override public T construct() {

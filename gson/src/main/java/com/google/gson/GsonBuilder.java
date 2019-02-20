@@ -524,9 +524,9 @@ public final class GsonBuilder {
    * @param objectAdapter This object must implement the {@link TypeAdapter} class
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
-  public GsonBuilder registerTypeAdapterWithFillIn(Type baseType, Object objectAdapter) {
+  public GsonBuilder registerTypeAdapterWithFillIn(final Type baseType, Object objectAdapter) {
    $Gson$Preconditions.checkArgument(objectAdapter instanceof TypeAdapter<?>);
-   TypeAdapter<?> typeAdapter = (TypeAdapter<?>) objectAdapter;
+   final TypeAdapter<?> typeAdapter = (TypeAdapter<?>) objectAdapter;
 
    factories.add(new TypeAdapterFactory() {
      @Override

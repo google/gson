@@ -27,6 +27,7 @@ import com.google.gson.internal.$Gson$Types;
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.Excluder;
 import com.google.gson.internal.ObjectConstructor;
+import com.google.gson.internal.ObjectConstructorWrapper;
 import com.google.gson.internal.Primitives;
 import com.google.gson.internal.reflect.ReflectionAccessor;
 import com.google.gson.reflect.TypeToken;
@@ -234,7 +235,12 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         return null;
       }
 
-      T instance = constructor.construct(in);
+      T instance = null;
+      try {
+        instance = (T) ((ObjectConstructorWrapper) constructor).construct(in);
+      } catch (ClassCastException e) {
+        instance = constructor.construct();
+      }
 
       try {
         in.beginObject();
