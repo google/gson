@@ -32,7 +32,6 @@ import com.google.gson.internal.bind.TreeTypeAdapter;
 import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -42,7 +41,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 /**
  * <p>Use this builder to construct a {@link Gson} instance when you need to set configuration
@@ -531,20 +529,7 @@ public final class GsonBuilder {
    factories.add(new TypeAdapterFactory() {
      @Override
      public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-       Function<JsonReader, T> function = new Function<JsonReader, T>() {
-         @Override
-         public T apply(JsonReader reader) {
-           try {
-             T returnedObject = (T) typeAdapter.read(reader);
-             reader.reset();
-             return returnedObject;
-           } catch (IOException e) {
-             throw new JsonIOException("Unable to mark stream: your JVM does not support stream marking.");
-             // Another cause for exception was that mark was not supported
-           }
-         }
-       };
-       ConstructorConstructor constructorConstructor = new ConstructorConstructor(type, function);
+       ConstructorConstructor constructorConstructor = new ConstructorConstructor(type, typeAdapter);
        List<Type> typeList = new ArrayList<Type>();
        typeList.add(baseType);
        ReflectiveTypeAdapterFactory reflectiveTypeAdapterFactory =

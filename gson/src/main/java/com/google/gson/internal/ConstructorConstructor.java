@@ -16,8 +16,14 @@
 
 package com.google.gson.internal;
 
+import com.google.gson.InstanceCreator;
 import com.google.gson.InstanceCreatorWrapper;
+import com.google.gson.JsonIOException;
+import com.google.gson.TypeAdapter;
+import com.google.gson.internal.reflect.ReflectionAccessor;
+import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
@@ -41,16 +47,11 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
-import com.google.gson.InstanceCreator;
-import com.google.gson.JsonIOException;
-import com.google.gson.internal.reflect.ReflectionAccessor;
-import com.google.gson.reflect.TypeToken;
-import java.util.function.Function;
-
 /**
  * Returns a function that can construct an instance of a requested type.
  */
 public final class ConstructorConstructor {
+
   private final Map<Type, InstanceCreator<?>> instanceCreators;
   private final ReflectionAccessor accessor = ReflectionAccessor.getInstance();
 
@@ -58,12 +59,15 @@ public final class ConstructorConstructor {
     this.instanceCreators = instanceCreators;
   }
 
-  /** Constructor for the Fill-In mechanic implemented with {@link com.google.gson.GsonBuilder#registerTypeAdapterWithFillIn}.
+  /**
+   * Constructor for the Fill-In mechanic implemented with {@link com.google.gson.GsonBuilder#registerTypeAdapterWithFillIn}.
+   *
    * @param typeToken represents the type of the object to be returned.
    * @param objectCreator function that returns the object that is to be contstructed.
    * @param <T> returns an instance of T that is returned by the {@code objectCreator}.
    */
-  public <T> ConstructorConstructor(TypeToken<T> typeToken, final Function<JsonReader, T> objectCreator) {
+  public <T> ConstructorConstructor(TypeToken<T> typeToken,
+      final TypeAdapter typeAdapter) {
     InstanceCreator<?> instanceCreator = new InstanceCreatorWrapper<T>() {
       @Override
       public T createInstance(Type type) {
@@ -71,7 +75,14 @@ public final class ConstructorConstructor {
       }
 
       public T createInstance(Type type, JsonReader in) {
-        return objectCreator.apply(in);
+        try {
+             T returnedObject = (T) typeAdapter.read(in);
+             in.reset();
+             return returnedObject;
+           } catch (IOException e) {
+             throw new JsonIOException("Unable to mark stream: your JVM does not support stream marking.");
+             // Another cause for exception was that mark was not supported
+           }
       }
     };
     // Using HashMap for a concrete implementation of the Map Abstract class
@@ -91,7 +102,8 @@ public final class ConstructorConstructor {
     final InstanceCreator<T> typeCreator = (InstanceCreator<T>) instanceCreators.get(type);
     if (typeCreator != null) {
       return new ObjectConstructorWrapper<T>() {
-        @Override public T construct() {
+        @Override
+        public T construct() {
           return typeCreator.createInstance(type);
         }
 
@@ -108,7 +120,8 @@ public final class ConstructorConstructor {
         (InstanceCreator<T>) instanceCreators.get(rawType);
     if (rawTypeCreator != null) {
       return new ObjectConstructorWrapper<T>() {
-        @Override public T construct() {
+        @Override
+        public T construct() {
           return rawTypeCreator.createInstance(type);
         }
 
@@ -124,7 +137,8 @@ public final class ConstructorConstructor {
       return defaultConstructor;
     }
 
-    ObjectConstructorWrapper<T> defaultImplementation = newDefaultImplementationConstructor(type, rawType);
+    ObjectConstructorWrapper<T> defaultImplementation = newDefaultImplementationConstructor(type,
+        rawType);
     if (defaultImplementation != null) {
       return defaultImplementation;
     }
@@ -141,7 +155,8 @@ public final class ConstructorConstructor {
       }
       return new ObjectConstructorWrapper<T>() {
         @SuppressWarnings("unchecked") // T is the same raw type as is requested
-        @Override public T construct() {
+        @Override
+        public T construct() {
           try {
             Object[] args = null;
             return (T) constructor.newInstance(args);
@@ -164,8 +179,7 @@ public final class ConstructorConstructor {
   }
 
   /**
-   * Constructors for common interface types like Map and List and their
-   * subtypes.
+   * Constructors for common interface types like Map and List and their subtypes.
    */
   @SuppressWarnings("unchecked") // use runtime checks to guarantee that 'T' is what it is
   private <T> ObjectConstructorWrapper<T> newDefaultImplementationConstructor(
@@ -173,18 +187,20 @@ public final class ConstructorConstructor {
     if (Collection.class.isAssignableFrom(rawType)) {
       if (SortedSet.class.isAssignableFrom(rawType)) {
         return new ObjectConstructorWrapper<T>() {
-          @Override public T construct() {
+          @Override
+          public T construct() {
             return (T) new TreeSet<Object>();
           }
         };
       } else if (EnumSet.class.isAssignableFrom(rawType)) {
         return new ObjectConstructorWrapper<T>() {
           @SuppressWarnings("rawtypes")
-          @Override public T construct() {
+          @Override
+          public T construct() {
             if (type instanceof ParameterizedType) {
               Type elementType = ((ParameterizedType) type).getActualTypeArguments()[0];
               if (elementType instanceof Class) {
-                return (T) EnumSet.noneOf((Class)elementType);
+                return (T) EnumSet.noneOf((Class) elementType);
               } else {
                 throw new JsonIOException("Invalid EnumSet type: " + type.toString());
               }
@@ -195,19 +211,22 @@ public final class ConstructorConstructor {
         };
       } else if (Set.class.isAssignableFrom(rawType)) {
         return new ObjectConstructorWrapper<T>() {
-          @Override public T construct() {
+          @Override
+          public T construct() {
             return (T) new LinkedHashSet<Object>();
           }
         };
       } else if (Queue.class.isAssignableFrom(rawType)) {
         return new ObjectConstructorWrapper<T>() {
-          @Override public T construct() {
+          @Override
+          public T construct() {
             return (T) new ArrayDeque<Object>();
           }
         };
       } else {
         return new ObjectConstructorWrapper<T>() {
-          @Override public T construct() {
+          @Override
+          public T construct() {
             return (T) new ArrayList<Object>();
           }
         };
@@ -217,32 +236,37 @@ public final class ConstructorConstructor {
     if (Map.class.isAssignableFrom(rawType)) {
       if (ConcurrentNavigableMap.class.isAssignableFrom(rawType)) {
         return new ObjectConstructorWrapper<T>() {
-          @Override public T construct() {
+          @Override
+          public T construct() {
             return (T) new ConcurrentSkipListMap<Object, Object>();
           }
         };
       } else if (ConcurrentMap.class.isAssignableFrom(rawType)) {
         return new ObjectConstructorWrapper<T>() {
-          @Override public T construct() {
+          @Override
+          public T construct() {
             return (T) new ConcurrentHashMap<Object, Object>();
           }
         };
       } else if (SortedMap.class.isAssignableFrom(rawType)) {
         return new ObjectConstructorWrapper<T>() {
-          @Override public T construct() {
+          @Override
+          public T construct() {
             return (T) new TreeMap<Object, Object>();
           }
         };
       } else if (type instanceof ParameterizedType && !(String.class.isAssignableFrom(
           TypeToken.get(((ParameterizedType) type).getActualTypeArguments()[0]).getRawType()))) {
         return new ObjectConstructorWrapper<T>() {
-          @Override public T construct() {
+          @Override
+          public T construct() {
             return (T) new LinkedHashMap<Object, Object>();
           }
         };
       } else {
         return new ObjectConstructorWrapper<T>() {
-          @Override public T construct() {
+          @Override
+          public T construct() {
             return (T) new LinkedTreeMap<String, Object>();
           }
         };
@@ -256,8 +280,10 @@ public final class ConstructorConstructor {
       final Type type, final Class<? super T> rawType) {
     return new ObjectConstructorWrapper<T>() {
       private final UnsafeAllocator unsafeAllocator = UnsafeAllocator.create();
+
       @SuppressWarnings("unchecked")
-      @Override public T construct() {
+      @Override
+      public T construct() {
         try {
           Object newInstance = unsafeAllocator.newInstance(rawType);
           return (T) newInstance;
@@ -269,7 +295,8 @@ public final class ConstructorConstructor {
     };
   }
 
-  @Override public String toString() {
+  @Override
+  public String toString() {
     return instanceCreators.toString();
   }
 }

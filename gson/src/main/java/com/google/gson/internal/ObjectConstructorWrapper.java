@@ -1,6 +1,5 @@
 package com.google.gson.internal;
 
-import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 
 /**
