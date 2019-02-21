@@ -33,7 +33,7 @@ public final class UnsafeAllocatorInstantiationTest extends TestCase {
   }
 
   /**
-   * Ensure that the {@link java.lang.UnsupportedOperationException} is thrown when  trying
+   * Ensure that the {@link java.lang.UnsupportedOperationException} is thrown when trying
    * to instantiate an interface
    */
   public void testInterfaceInstantiation() {
@@ -47,7 +47,7 @@ public final class UnsafeAllocatorInstantiationTest extends TestCase {
   }
 
   /**
-   * Ensure that the {@link java.lang.UnsupportedOperationException} is thrown when  trying
+   * Ensure that the {@link java.lang.UnsupportedOperationException} is thrown when trying
    * to instantiate an abstract class
    */
   public void testAbstractClassInstantiation() {

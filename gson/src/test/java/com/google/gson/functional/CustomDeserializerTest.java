@@ -31,7 +31,7 @@ import junit.framework.TestCase;
 import java.lang.reflect.Type;
 
 /**
- * Functional Test exercising custom deserialization only.  When test applies to both
+ * Functional Test exercising custom deserialization only. When test applies to both
  * serialization and deserialization then add it to CustomTypeAdapterTest.
  *
  * @author Joel Leitch
