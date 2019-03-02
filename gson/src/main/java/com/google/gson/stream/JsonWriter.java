@@ -20,6 +20,7 @@ import java.io.Closeable;
 import java.io.Flushable;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Arrays;
 
 import static com.google.gson.stream.JsonScope.DANGLING_NAME;
 import static com.google.gson.stream.JsonScope.EMPTY_ARRAY;
@@ -352,9 +353,7 @@ public class JsonWriter implements Closeable, Flushable {
 
   private void push(int newTop) {
     if (stackSize == stack.length) {
-      int[] newStack = new int[stackSize * 2];
-      System.arraycopy(stack, 0, newStack, 0, stackSize);
-      stack = newStack;
+      stack = Arrays.copyOf(stack, stackSize * 2);
     }
     stack[stackSize++] = newTop;
   }

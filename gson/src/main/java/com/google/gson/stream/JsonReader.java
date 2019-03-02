@@ -22,6 +22,7 @@ import java.io.Closeable;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Arrays;
 
 /**
  * Reads a JSON (<a href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>)
@@ -1262,15 +1263,10 @@ public class JsonReader implements Closeable {
 
   private void push(int newTop) {
     if (stackSize == stack.length) {
-      int[] newStack = new int[stackSize * 2];
-      int[] newPathIndices = new int[stackSize * 2];
-      String[] newPathNames = new String[stackSize * 2];
-      System.arraycopy(stack, 0, newStack, 0, stackSize);
-      System.arraycopy(pathIndices, 0, newPathIndices, 0, stackSize);
-      System.arraycopy(pathNames, 0, newPathNames, 0, stackSize);
-      stack = newStack;
-      pathIndices = newPathIndices;
-      pathNames = newPathNames;
+      int newLength = stackSize * 2;
+      stack = Arrays.copyOf(stack, newLength);
+      pathIndices = Arrays.copyOf(pathIndices, newLength);
+      pathNames = Arrays.copyOf(pathNames, newLength);
     }
     stack[stackSize++] = newTop;
   }
