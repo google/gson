@@ -25,7 +25,9 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.*;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Arrays;
 
 /**
  * This reader walks the elements of a JsonElement as if it was coming from a
