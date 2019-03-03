@@ -33,7 +33,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 /**
- * Functional Test exercising custom serialization only.  When test applies to both
+ * Functional Test exercising custom serialization only. When test applies to both
  * serialization and deserialization then add it to CustomTypeAdapterTest.
  *
  * @author Inderjeet Singh

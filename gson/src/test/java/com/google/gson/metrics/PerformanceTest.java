@@ -50,11 +50,11 @@ public class PerformanceTest extends TestCase {
     gson = new Gson();
   }
   
-  public void testDummy() {    
+  public void testDummy() {
     // This is here to prevent Junit for complaining when we disable all tests.
-  }  
+  }
 
-  public void disabled_testStringDeserialization() {    
+  public void disabled_testStringDeserialization() {
     StringBuilder sb = new StringBuilder(8096);
     sb.append("Error Yippie");
 
@@ -138,8 +138,8 @@ public class PerformanceTest extends TestCase {
     }    
     sb.append(']');
     String json = sb.toString();
-    Type collectionType = new TypeToken<ArrayList<CollectionEntry>>(){}.getType();    
-    List<CollectionEntry> list = gson.fromJson(json, collectionType);       
+    Type collectionType = new TypeToken<ArrayList<CollectionEntry>>(){}.getType();
+    List<CollectionEntry> list = gson.fromJson(json, collectionType);
     assertEquals(count, list.size());
   }
 
@@ -203,7 +203,7 @@ public class PerformanceTest extends TestCase {
     } 
     long t2 = System.currentTimeMillis(); 
     long avg = (t2 - t1) / NUM_ITERATIONS;
-    System.out.printf("Serialize classes avg time: %d ms\n", avg);     
+    System.out.printf("Serialize classes avg time: %d ms\n", avg);
   }
 
   public void disabled_testDeserializeClasses() {
@@ -215,7 +215,7 @@ public class PerformanceTest extends TestCase {
     }
     long t2 = System.currentTimeMillis(); 
     long avg = (t2 - t1) / NUM_ITERATIONS;
-    System.out.printf("Deserialize classes avg time: %d ms\n", avg);     
+    System.out.printf("Deserialize classes avg time: %d ms\n", avg);
   }
   
   public void disable_testLargeObjectSerializationAndDeserialization() {
@@ -249,7 +249,7 @@ public class PerformanceTest extends TestCase {
     } 
     long t2 = System.currentTimeMillis(); 
     long avg = (t2 - t1) / NUM_ITERATIONS;
-    System.out.printf("Serialize exposed classes avg time: %d ms\n", avg);     
+    System.out.printf("Serialize exposed classes avg time: %d ms\n", avg);
   }
 
   public void disabled_testDeserializeExposedClasses() {
@@ -261,7 +261,7 @@ public class PerformanceTest extends TestCase {
     }
     long t2 = System.currentTimeMillis(); 
     long avg = (t2 - t1) / NUM_ITERATIONS;
-    System.out.printf("Deserialize exposed classes avg time: %d ms\n", avg);     
+    System.out.printf("Deserialize exposed classes avg time: %d ms\n", avg);
   }
 
   public void disabled_testLargeGsonMapRoundTrip() throws Exception {

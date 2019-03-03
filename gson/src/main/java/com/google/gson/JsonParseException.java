@@ -18,12 +18,12 @@ package com.google.gson;
 
 /**
  * This exception is raised if there is a serious issue that occurs during parsing of a Json
- * string.  One of the main usages for this class is for the Gson infrastructure.  If the incoming
+ * string. One of the main usages for this class is for the Gson infrastructure. If the incoming
  * Json is bad/malicious, an instance of this exception is raised.
  *
- * <p>This exception is a {@link RuntimeException} because it is exposed to the client.  Using a
+ * <p>This exception is a {@link RuntimeException} because it is exposed to the client. Using a
  * {@link RuntimeException} avoids bad coding practices on the client side where they catch the
- * exception and do nothing.  It is often the case that you want to blow up if there is a parsing
+ * exception and do nothing. It is often the case that you want to blow up if there is a parsing
  * error (i.e. often clients do not know how to recover from a {@link JsonParseException}.</p>
  *
  * @author Inderjeet Singh
