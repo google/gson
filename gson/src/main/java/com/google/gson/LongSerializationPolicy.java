@@ -27,7 +27,7 @@ package com.google.gson;
 public enum LongSerializationPolicy {
   /**
    * This is the "default" serialization policy that will output a {@code long} object as a JSON
-   * number.  For example, assume an object has a long field named "f" then the serialized output
+   * number. For example, assume an object has a long field named "f" then the serialized output
    * would be:
    * {@code {"f":123}}.
    */
@@ -38,7 +38,7 @@ public enum LongSerializationPolicy {
   },
   
   /**
-   * Serializes a long value as a quoted string.  For example, assume an object has a long field 
+   * Serializes a long value as a quoted string. For example, assume an object has a long field 
    * named "f" then the serialized output would be:
    * {@code {"f":"123"}}.
    */

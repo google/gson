@@ -28,7 +28,7 @@ import java.lang.annotation.Target;
  *
  * <p>This annotation will override any {@link com.google.gson.FieldNamingPolicy}, including
  * the default field naming policy, that may have been set on the {@link com.google.gson.Gson}
- * instance.  A different naming policy can set using the {@code GsonBuilder} class.  See
+ * instance. A different naming policy can set using the {@code GsonBuilder} class. See
  * {@link com.google.gson.GsonBuilder#setFieldNamingPolicy(com.google.gson.FieldNamingPolicy)}
  * for more information.</p>
  *

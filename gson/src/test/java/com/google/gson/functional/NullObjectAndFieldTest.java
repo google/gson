@@ -163,7 +163,7 @@ public class NullObjectAndFieldTest extends TestCase {
     assertFalse(target.bool2); // test the default value of a primitive boolean field per JVM spec
   }
 
-  public static class ClassWithInitializedMembers  {
+  public static class ClassWithInitializedMembers {
     // Using a mix of no-args constructor and field initializers
     // Also, some fields are intialized and some are not (so initialized per JVM spec)
     public static final String MY_STRING_DEFAULT = "string";
@@ -204,7 +204,7 @@ public class NullObjectAndFieldTest extends TestCase {
     Gson gson = new Gson();
     String json = "{value:null}";
     ObjectWithField obj = gson.fromJson(json, ObjectWithField.class);
-    assertNull(obj.value);    
+    assertNull(obj.value);
   }
 
   public void testCustomTypeAdapterPassesNullSerialization() {

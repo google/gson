@@ -87,20 +87,20 @@ public class DefaultTypeAdaptersTest extends TestCase {
 
   public void testClassSerialization() {
     try {
-      gson.toJson(String.class);  
+      gson.toJson(String.class);
     } catch (UnsupportedOperationException expected) {}
     // Override with a custom type adapter for class.
     gson = new GsonBuilder().registerTypeAdapter(Class.class, new MyClassTypeAdapter()).create();
-    assertEquals("\"java.lang.String\"", gson.toJson(String.class));  
+    assertEquals("\"java.lang.String\"", gson.toJson(String.class));
   }
 
   public void testClassDeserialization() {
     try {
-      gson.fromJson("String.class", String.class.getClass());  
+      gson.fromJson("String.class", String.class.getClass());
     } catch (UnsupportedOperationException expected) {}
     // Override with a custom type adapter for class.
     gson = new GsonBuilder().registerTypeAdapter(Class.class, new MyClassTypeAdapter()).create();
-    assertEquals(String.class, gson.fromJson("java.lang.String", Class.class));  
+    assertEquals(String.class, gson.fromJson("java.lang.String", Class.class));
   }
 
   public void testUrlSerialization() throws Exception {
