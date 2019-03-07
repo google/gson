@@ -510,12 +510,12 @@ public class VersionedClass {
 
 VersionedClass versionedObject = new VersionedClass();
 Gson gson = new GsonBuilder().setVersion(1.0).create();
-String jsonOutput = gson.toJson(someObject);
+String jsonOutput = gson.toJson(versionedObject);
 System.out.println(jsonOutput);
 System.out.println();
 
 gson = new Gson();
-jsonOutput = gson.toJson(someObject);
+jsonOutput = gson.toJson(versionedObject);
 System.out.println(jsonOutput);
 ```
 
