@@ -73,7 +73,13 @@ final class UnsafeReflectionAccessor extends ReflectionAccessor{
 							.findVirtual(unsafeClass, "objectFieldOffset", MethodType.methodType(long.class, Field.class))
 							.bindTo(theUnsafe)
 							.bindTo(AccessibleObject.class.getDeclaredField("override"));
-	} catch (NoSuchMethodException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
+	} catch (NoSuchMethodException e) {
+		return null;
+	} catch (IllegalAccessException e) {
+		return null;
+	} catch (NoSuchFieldException e) {
+		return null;
+	} catch (SecurityException e) {
 		return null;
 	}
   }
@@ -83,7 +89,9 @@ final class UnsafeReflectionAccessor extends ReflectionAccessor{
 		return MethodHandles.publicLookup()
 							.findVirtual(unsafeClass, "putBoolean", MethodType.methodType(void.class, Object.class, long.class, boolean.class))
 							.bindTo(theUnsafe);
-	} catch (NoSuchMethodException | IllegalAccessException e) {
+	} catch (NoSuchMethodException e) {
+		return null;
+	} catch (IllegalAccessException e) {
 		return null;
 	}
   }
