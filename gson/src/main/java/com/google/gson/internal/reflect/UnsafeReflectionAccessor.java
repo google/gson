@@ -16,8 +16,10 @@
 package com.google.gson.internal.reflect;
 
 import java.lang.reflect.AccessibleObject;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 
 import com.google.gson.JsonIOException;
 
@@ -27,13 +29,15 @@ import com.google.gson.JsonIOException;
  * NOTE: This implementation is designed for Java 9. Although it should work with earlier Java releases, it is better to
  * use {@link PreJava9ReflectionAccessor} for them.
  */
-@SuppressWarnings({"unchecked", "rawtypes"})
-final class UnsafeReflectionAccessor extends ReflectionAccessor {
+@SuppressWarnings("rawtypes")
+final class UnsafeReflectionAccessor extends ReflectionAccessor{
 
   private static Class unsafeClass;
-  private final Object theUnsafe = getUnsafeInstance();
-  private final Field overrideField = getOverrideField();
+  private static final Object theUnsafe = getUnsafeInstance();
 
+  private static final MethodHandle objectFieldOffsetHandle = getObjectFieldOffsetHandle();
+  private static final MethodHandle putBooleanHandle = getPutBooleanHandle();
+  
   /** {@inheritDoc} */
   @Override
   public void makeAccessible(AccessibleObject ao) {
@@ -52,19 +56,38 @@ final class UnsafeReflectionAccessor extends ReflectionAccessor {
 
   // Visible for testing only
   boolean makeAccessibleWithUnsafe(AccessibleObject ao) {
-    if (theUnsafe != null && overrideField != null) {
+    if (theUnsafe != null && objectFieldOffsetHandle != null && putBooleanHandle != null) {
       try {
-        Method method = unsafeClass.getMethod("objectFieldOffset", Field.class);
-        long overrideOffset = (Long) method.invoke(theUnsafe, overrideField);  // long overrideOffset = theUnsafe.objectFieldOffset(overrideField);
-        Method putBooleanMethod = unsafeClass.getMethod("putBoolean",  Object.class, long.class, boolean.class);
-        putBooleanMethod.invoke(theUnsafe, ao, overrideOffset, true); // theUnsafe.putBoolean(ao, overrideOffset, true);
+    	long overrideOffset = (long) objectFieldOffsetHandle.invokeExact(); // long overrideOffset = theUnsafe.objectFieldOffset(overrideField);
+    	putBooleanHandle.invokeExact((Object) ao, overrideOffset, true); // theUnsafe.putBoolean(ao, overrideOffset, true);
         return true;
-      } catch (Exception ignored) { // do nothing
+      } catch (Throwable ignored) { // do nothing
       }
     }
     return false;
   }
 
+  private static MethodHandle getObjectFieldOffsetHandle() {
+	  try {
+		return MethodHandles.publicLookup()
+							.findVirtual(unsafeClass, "objectFieldOffset", MethodType.methodType(long.class, Field.class))
+							.bindTo(theUnsafe)
+							.bindTo(AccessibleObject.class.getDeclaredField("override"));
+	} catch (NoSuchMethodException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
+		return null;
+	}
+  }
+  
+  private static MethodHandle getPutBooleanHandle() {
+	  try {
+		return MethodHandles.publicLookup()
+							.findVirtual(unsafeClass, "putBoolean", MethodType.methodType(void.class, Object.class, long.class, boolean.class))
+							.bindTo(theUnsafe);
+	} catch (NoSuchMethodException | IllegalAccessException e) {
+		return null;
+	}
+  }
+  
   private static Object getUnsafeInstance() {
     try {
       unsafeClass = Class.forName("sun.misc.Unsafe");
@@ -72,14 +95,6 @@ final class UnsafeReflectionAccessor extends ReflectionAccessor {
       unsafeField.setAccessible(true);
       return unsafeField.get(null);
     } catch (Exception e) {
-      return null;
-    }
-  }
-
-  private static Field getOverrideField() {
-    try {
-      return AccessibleObject.class.getDeclaredField("override");
-    } catch (NoSuchFieldException e) {
       return null;
     }
   }
