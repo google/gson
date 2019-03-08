@@ -98,7 +98,7 @@ public final class JsonPrimitive extends JsonElement {
     if (primitive instanceof Character) {
       // convert characters to strings since in JSON, characters are represented as a single
       // character string
-      char c = ((Character) primitive).charValue();
+      char c = (Character) primitive;
       this.value = String.valueOf(c);
     } else {
       $Gson$Preconditions.checkArgument(primitive instanceof Number
@@ -134,7 +134,7 @@ public final class JsonPrimitive extends JsonElement {
   @Override
   public boolean getAsBoolean() {
     if (isBoolean()) {
-      return getAsBooleanWrapper().booleanValue();
+      return getAsBooleanWrapper();
     } else {
       // Check to see if the value as a String is "true" in any case.
       return Boolean.parseBoolean(getAsString());
