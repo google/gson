@@ -16,10 +16,10 @@
 
 package com.google.gson;
 
+import com.google.gson.internal.$Gson$Preconditions;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import com.google.gson.internal.$Gson$Preconditions;
 import com.google.gson.internal.LazilyParsedNumber;
 
 /**
@@ -32,11 +32,7 @@ import com.google.gson.internal.LazilyParsedNumber;
  */
 public final class JsonPrimitive extends JsonElement {
 
-  private static final Class<?>[] PRIMITIVE_TYPES = { int.class, long.class, short.class,
-      float.class, double.class, byte.class, boolean.class, char.class, Integer.class, Long.class,
-      Short.class, Float.class, Double.class, Byte.class, Boolean.class, Character.class };
-
-  private Object value;
+  private final Object value;
 
   /**
    * Create a primitive containing a boolean value.
@@ -44,7 +40,7 @@ public final class JsonPrimitive extends JsonElement {
    * @param bool the value to create the primitive with.
    */
   public JsonPrimitive(Boolean bool) {
-    setValue(bool);
+    value = $Gson$Preconditions.checkNotNull(bool);
   }
 
   /**
@@ -53,7 +49,7 @@ public final class JsonPrimitive extends JsonElement {
    * @param number the value to create the primitive with.
    */
   public JsonPrimitive(Number number) {
-    setValue(number);
+    value = $Gson$Preconditions.checkNotNull(number);
   }
 
   /**
@@ -62,7 +58,7 @@ public final class JsonPrimitive extends JsonElement {
    * @param string the value to create the primitive with.
    */
   public JsonPrimitive(String string) {
-    setValue(string);
+    value = $Gson$Preconditions.checkNotNull(string);
   }
 
   /**
@@ -72,17 +68,9 @@ public final class JsonPrimitive extends JsonElement {
    * @param c the value to create the primitive with.
    */
   public JsonPrimitive(Character c) {
-    setValue(c);
-  }
-
-  /**
-   * Create a primitive using the specified Object. It must be an instance of {@link Number}, a
-   * Java primitive type, or a String.
-   *
-   * @param primitive the value to create the primitive with.
-   */
-  JsonPrimitive(Object primitive) {
-    setValue(primitive);
+    // convert characters to strings since in JSON, characters are represented as a single
+    // character string
+    value = $Gson$Preconditions.checkNotNull(c).toString();
   }
 
   /**
@@ -92,19 +80,6 @@ public final class JsonPrimitive extends JsonElement {
   @Override
   public JsonPrimitive deepCopy() {
     return this;
-  }
-
-  void setValue(Object primitive) {
-    if (primitive instanceof Character) {
-      // convert characters to strings since in JSON, characters are represented as a single
-      // character string
-      char c = ((Character) primitive).charValue();
-      this.value = String.valueOf(c);
-    } else {
-      $Gson$Preconditions.checkArgument(primitive instanceof Number
-              || isPrimitiveOrString(primitive));
-      this.value = primitive;
-    }
   }
 
   /**
@@ -272,20 +247,6 @@ public final class JsonPrimitive extends JsonElement {
   @Override
   public char getAsCharacter() {
     return getAsString().charAt(0);
-  }
-
-  private static boolean isPrimitiveOrString(Object target) {
-    if (target instanceof String) {
-      return true;
-    }
-
-    Class<?> classOfPrimitive = target.getClass();
-    for (Class<?> standardPrimitive : PRIMITIVE_TYPES) {
-      if (standardPrimitive.isAssignableFrom(classOfPrimitive)) {
-        return true;
-      }
-    }
-    return false;
   }
 
   @Override
