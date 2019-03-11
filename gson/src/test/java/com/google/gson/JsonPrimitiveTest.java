@@ -30,6 +30,29 @@ import java.math.BigInteger;
  */
 public class JsonPrimitiveTest extends TestCase {
 
+  public void testNulls() {
+    try {
+      new JsonPrimitive((Boolean) null);
+      fail();
+    } catch (NullPointerException ignored) {
+    }
+    try {
+      new JsonPrimitive((Number) null);
+      fail();
+    } catch (NullPointerException ignored) {
+    }
+    try {
+      new JsonPrimitive((String) null);
+      fail();
+    } catch (NullPointerException ignored) {
+    }
+    try {
+      new JsonPrimitive((Character) null);
+      fail();
+    } catch (NullPointerException ignored) {
+    }
+  }
+
   public void testBoolean() throws Exception {
     JsonPrimitive json = new JsonPrimitive(Boolean.TRUE);
 
