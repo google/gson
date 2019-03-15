@@ -218,7 +218,7 @@ public final class Gson {
     this.builderFactories = builderFactories;
     this.builderHierarchyFactories = builderHierarchyFactories;
 
-    List<TypeAdapterFactory> factories = new ArrayList<TypeAdapterFactory>();
+    List<TypeAdapterFactory> factories = new ArrayList<TypeAdapterFactory>(41 + factoriesToBeAdded.size());
 
     // built-in type adapters that cannot be overridden
     factories.add(TypeAdapters.JSON_ELEMENT_FACTORY);
@@ -290,10 +290,6 @@ public final class Gson {
     return new GsonBuilder(this);
   }
 
-  public Excluder excluder() {
-    return excluder;
-  }
-
   public FieldNamingStrategy fieldNamingStrategy() {
     return fieldNamingStrategy;
   }
@@ -306,7 +302,7 @@ public final class Gson {
     return htmlSafe;
   }
 
-  private TypeAdapter<Number> doubleAdapter(boolean serializeSpecialFloatingPointValues) {
+  private static TypeAdapter<Number> doubleAdapter(boolean serializeSpecialFloatingPointValues) {
     if (serializeSpecialFloatingPointValues) {
       return TypeAdapters.DOUBLE;
     }
@@ -330,7 +326,7 @@ public final class Gson {
     };
   }
 
-  private TypeAdapter<Number> floatAdapter(boolean serializeSpecialFloatingPointValues) {
+  private static TypeAdapter<Number> floatAdapter(boolean serializeSpecialFloatingPointValues) {
     if (serializeSpecialFloatingPointValues) {
       return TypeAdapters.FLOAT;
     }
@@ -1030,11 +1026,8 @@ public final class Gson {
 
   @Override
   public String toString() {
-    return new StringBuilder("{serializeNulls:")
-        .append(serializeNulls)
-        .append(",factories:").append(factories)
-        .append(",instanceCreators:").append(constructorConstructor)
-        .append("}")
-        .toString();
+    return "{serializeNulls:" + serializeNulls +
+           ",factories:" + factories +
+           ",instanceCreators:" + constructorConstructor + '}';
   }
 }

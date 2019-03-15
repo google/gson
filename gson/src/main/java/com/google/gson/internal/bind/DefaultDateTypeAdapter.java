@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package com.google.gson.internal.bind;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
+import com.google.gson.*;
 import com.google.gson.internal.JavaVersion;
 import com.google.gson.internal.PreJava9DateFormatProvider;
 import com.google.gson.internal.bind.util.ISO8601Utils;
@@ -41,7 +41,7 @@ import com.google.gson.stream.JsonWriter;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-final class DefaultDateTypeAdapter extends TypeAdapter<Date> {
+public final class DefaultDateTypeAdapter extends TypeAdapter<Date> {
 
   private static final String SIMPLE_NAME = "DefaultDateTypeAdapter";
 
@@ -53,7 +53,7 @@ final class DefaultDateTypeAdapter extends TypeAdapter<Date> {
    */
   private final List<DateFormat> dateFormats = new ArrayList<DateFormat>();
 
-  DefaultDateTypeAdapter(Class<? extends Date> dateType) {
+  public DefaultDateTypeAdapter(Class<? extends Date> dateType) {
     this.dateType = verifyDateType(dateType);
     dateFormats.add(DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.US));
     if (!Locale.getDefault().equals(Locale.US)) {
@@ -64,7 +64,7 @@ final class DefaultDateTypeAdapter extends TypeAdapter<Date> {
     }
   }
 
-  DefaultDateTypeAdapter(Class<? extends Date> dateType, String datePattern) {
+  public DefaultDateTypeAdapter(Class<? extends Date> dateType, String datePattern) {
     this.dateType = verifyDateType(dateType);
     dateFormats.add(new SimpleDateFormat(datePattern, Locale.US));
     if (!Locale.getDefault().equals(Locale.US)) {
@@ -72,7 +72,7 @@ final class DefaultDateTypeAdapter extends TypeAdapter<Date> {
     }
   }
 
-  DefaultDateTypeAdapter(Class<? extends Date> dateType, int style) {
+  public DefaultDateTypeAdapter(Class<? extends Date> dateType, int style) {
     this.dateType = verifyDateType(dateType);
     dateFormats.add(DateFormat.getDateInstance(style, Locale.US));
     if (!Locale.getDefault().equals(Locale.US)) {

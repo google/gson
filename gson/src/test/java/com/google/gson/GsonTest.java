@@ -51,7 +51,7 @@ public final class GsonTest extends TestCase {
         DateFormat.DEFAULT, new ArrayList<TypeAdapterFactory>(),
         new ArrayList<TypeAdapterFactory>(), new ArrayList<TypeAdapterFactory>());
 
-    assertEquals(CUSTOM_EXCLUDER, gson.excluder());
+    assertEquals(CUSTOM_EXCLUDER, gson.excluder);
     assertEquals(CUSTOM_FIELD_NAMING_STRATEGY, gson.fieldNamingStrategy());
     assertEquals(true, gson.serializeNulls());
     assertEquals(false, gson.htmlSafe());

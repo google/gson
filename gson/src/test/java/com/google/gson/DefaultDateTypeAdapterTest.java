@@ -24,7 +24,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import com.google.gson.internal.JavaVersion;
-
+import com.google.gson.internal.bind.DefaultDateTypeAdapter;
 import junit.framework.TestCase;
 
 /**
