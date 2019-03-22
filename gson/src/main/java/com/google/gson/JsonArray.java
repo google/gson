@@ -472,10 +472,6 @@ public final class JsonArray extends JsonElement implements List<JsonElement> {
     elements.clear();
   }
 
-  public void add(int index, JsonElement element) {
-    elements.add(index, element);
-  }
-
   public int indexOf(Object o) {
     return elements.indexOf(o);
   }
