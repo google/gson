@@ -100,6 +100,61 @@ public final class JsonArray extends JsonElement implements List<JsonElement> {
   }
 
   /**
+   * Inserts the specified boolean at the specified position to self.
+   * Shifts the element currently at that position (if any) and any subsequent elements to the right.
+   *
+   * @param index index at which the specified element is to be inserted
+   * @param bool the boolean that needs to be added to the array.
+   */
+  public void add(int index, Boolean bool) {
+    elements.add(index, bool == null ? JsonNull.INSTANCE : new JsonPrimitive(bool));
+  }
+
+  /**
+   * Inserts the specified character at the specified position to self.
+   * Shifts the element currently at that position (if any) and any subsequent elements to the right.
+   *
+   * @param index index at which the specified element is to be inserted
+   * @param character the character that needs to be added to the array.
+   */
+  public void add(int index, Character character) {
+    elements.add(index, character == null ? JsonNull.INSTANCE : new JsonPrimitive(character));
+  }
+
+  /**
+   * Inserts the specified number at the specified position to self.
+   * Shifts the element currently at that position (if any) and any subsequent elements to the right.
+   *
+   * @param index index at which the specified element is to be inserted
+   * @param number the number that needs to be added to the array.
+   */
+  public void add(int index, Number number) {
+    elements.add(index, number == null ? JsonNull.INSTANCE : new JsonPrimitive(number));
+  }
+
+  /**
+   * Inserts the specified string at the specified position to self.
+   * Shifts the element currently at that position (if any) and any subsequent elements to the right.
+   *
+   * @param index index at which the specified element is to be inserted
+   * @param string the string that needs to be added to the array.
+   */
+  public void add(int index, String string) {
+    elements.add(index, string == null ? JsonNull.INSTANCE : new JsonPrimitive(string));
+  }
+
+  /**
+   * Inserts the specified element at the specified position to self.
+   * Shifts the element currently at that position (if any) and any subsequent elements to the right.
+   *
+   * @param index index at which the specified element is to be inserted
+   * @param element the element that needs to be added to the array.
+   */
+  public void add(int index, JsonElement element) {
+    elements.add(index, element == null ? JsonNull.INSTANCE : element);
+  }
+
+  /**
    * Adds all the elements of the specified array to self.
    *
    * @param array the array whose elements need to be added to the array.
