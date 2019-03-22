@@ -100,6 +100,61 @@ public final class JsonArray extends JsonElement implements List<JsonElement> {
   }
 
   /**
+   * Adds the specified boolean to self in the specified position.
+   * All the element on the array will be moved to the right (increment index by one)
+   *
+   * @param index the index where the specified parameter will be added.
+   * @param bool the boolean that needs to be added to the array.
+   */
+  public void add(int index, Boolean bool)  {
+    elements.add(index, bool == null ? JsonNull.INSTANCE : new JsonPrimitive(bool));
+  }
+
+  /**
+   * Adds the specified character to self in the specified position.
+   * All the element on the array will be moved to the right (increment index by one)
+   *
+   * @param index the index where the specified parameter will be added.
+   * @param character the character that needs to be added to the array.
+   */
+  public void add(int index, Character character)  {
+    elements.add(index, character == null ? JsonNull.INSTANCE : new JsonPrimitive(character));
+  }
+
+  /**
+   * Adds the specified number to self in the specified position.
+   * All the element on the array will be moved to the right (increment index by one)
+   *
+   * @param index the index where the specified parameter will be added.
+   * @param number the number that needs to be added to the array.
+   */
+  public void add(int index, Number number)  {
+    elements.add(index, number == null ? JsonNull.INSTANCE : new JsonPrimitive(number));
+  }
+
+  /**
+   * Adds the specified string to self in the specified position.
+   * All the element on the array will be moved to the right (increment index by one)
+   *
+   * @param index the index where the specified parameter will be added.
+   * @param string the string that needs to be added to the array.
+   */
+  public void add(int index, String string)  {
+    elements.add(index, string == null ? JsonNull.INSTANCE : new JsonPrimitive(string));
+  }
+
+  /**
+   * Adds the specified element to self in the specified position.
+   * All the element on the array will be moved to the right (increment index by one)
+   *
+   * @param index the index where the specified parameter will be added.
+   * @param element the element that needs to be added to the array.
+   */
+  public void add(int index, JsonElement element)  {
+    elements.add(index, element == null ? JsonNull.INSTANCE : element);
+  }
+
+  /**
    * Adds all the elements of the specified array to self.
    *
    * @param array the array whose elements need to be added to the array.
@@ -415,10 +470,6 @@ public final class JsonArray extends JsonElement implements List<JsonElement> {
 
   public void clear() {
     elements.clear();
-  }
-
-  public void add(int index, JsonElement element) {
-    elements.add(index, element);
   }
 
   public int indexOf(Object o) {

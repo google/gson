@@ -17,6 +17,7 @@
 package com.google.gson.functional;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonPrimitive;
 import junit.framework.TestCase;
 
 import java.math.BigInteger;
@@ -159,4 +160,28 @@ public class JsonArrayTest extends TestCase {
 
     assertEquals("[\"a\",\"a\",true,true,1212,1212,34.34,34.34,null,null]", jsonArray.toString());
   }
+
+  public void testSpecifiedIndexAddition() {
+
+    JsonArray jsonArray = new JsonArray();
+
+    jsonArray.add((Character) null);
+    jsonArray.add((Boolean) null);
+    jsonArray.add((Integer) null);
+    jsonArray.add((Double) null);
+    jsonArray.add((Float) null);
+    jsonArray.add((String) null);
+
+    jsonArray.add(1, 'a');
+    jsonArray.add(3, false);
+    jsonArray.add(5, -2.567);
+    jsonArray.add(7, new JsonPrimitive(3));
+    jsonArray.add(9, "test");
+
+    System.out.println(jsonArray);
+
+    assertEquals("[null,\"a\",null,false,null,-2.567,null,3,null,\"test\",null]", jsonArray.toString());
+
+  }
+
 }
