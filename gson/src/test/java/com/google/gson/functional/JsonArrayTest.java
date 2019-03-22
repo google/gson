@@ -40,6 +40,17 @@ public class JsonArrayTest extends TestCase {
     assertEquals("[\"Hello\",\"Goodbye\",\"Thank you\",null,\"Yes\"]", jsonArray.toString());
   }
 
+  public void testStringPrimitiveAdditionInSpecifiedIndex() {
+    JsonArray jsonArray = new JsonArray();
+
+    jsonArray.add("Hello");
+    jsonArray.add("Goodbye");
+    jsonArray.add(1,"Thank you");
+    jsonArray.add("Yes");
+
+    assertEquals("[\"Hello\",\"Thank you\",\"Goodbye\",\"Yes\"]", jsonArray.toString());
+  }
+
   public void testIntegerPrimitiveAddition() {
     JsonArray jsonArray = new JsonArray();
 
@@ -61,6 +72,29 @@ public class JsonArrayTest extends TestCase {
     jsonArray.add(x);
 
     assertEquals("[1,2,-3,null,4,0]", jsonArray.toString());
+  }
+
+  public void testIntegerPrimitiveAdditionInSpecifiedIndex() {
+    JsonArray jsonArray = new JsonArray();
+
+    int x = 1;
+    jsonArray.add(x);
+
+    x = 2;
+    jsonArray.add(x);
+
+    x = -3;
+    jsonArray.add(x);
+
+    jsonArray.add((Integer) null);
+
+    x = 4;
+    jsonArray.add(2, x);
+
+    x = 0;
+    jsonArray.add(x);
+
+    assertEquals("[1,2,4,-3,null,0]", jsonArray.toString());
   }
 
   public void testDoublePrimitiveAddition() {
@@ -85,6 +119,28 @@ public class JsonArrayTest extends TestCase {
     assertEquals("[1.0,2.13232,0.121,null,-0.00234,null]", jsonArray.toString());
   }
 
+  public void testDoublePrimitiveAdditionInSpecifiedIndex() {
+    JsonArray jsonArray = new JsonArray();
+
+    double x = 1.0;
+    jsonArray.add(x);
+
+    x = 2.13232;
+    jsonArray.add(x);
+
+    x = 0.121;
+    jsonArray.add(x);
+
+    jsonArray.add((Double) null);
+
+    x = -0.00234;
+    jsonArray.add(3, x);
+
+    jsonArray.add((Double) null);
+
+    assertEquals("[1.0,2.13232,0.121,-0.00234,null,null]", jsonArray.toString());
+  }
+
   public void testBooleanPrimitiveAddition() {
     JsonArray jsonArray = new JsonArray();
 
@@ -96,6 +152,19 @@ public class JsonArrayTest extends TestCase {
     jsonArray.add(true);
 
     assertEquals("[true,true,false,false,null,true]", jsonArray.toString());
+  }
+
+  public void testBooleanPrimitiveAdditionInSpecifiedIndex() {
+    JsonArray jsonArray = new JsonArray();
+
+    jsonArray.add(true);
+    jsonArray.add(true);
+    jsonArray.add(false);
+    jsonArray.add(false);
+    jsonArray.add(2, (Boolean) null);
+    jsonArray.add(true);
+
+    assertEquals("[true,true,null,false,false,true]", jsonArray.toString());
   }
 
   public void testCharPrimitiveAddition() {
@@ -110,6 +179,21 @@ public class JsonArrayTest extends TestCase {
     jsonArray.add("and sometimes Y");
 
     assertEquals("[\"a\",\"e\",\"i\",\"o\",null,\"u\",\"and sometimes Y\"]", jsonArray.toString());
+  }
+
+  public void testCharPrimitiveAdditionInSpecifiedIndex() {
+    JsonArray jsonArray = new JsonArray();
+
+    jsonArray.add('a');
+    jsonArray.add('e');
+    jsonArray.add('i');
+    jsonArray.add((char) 111);
+    jsonArray.add((Character) null);
+    jsonArray.add('u');
+    jsonArray.add(4, 'd');
+    jsonArray.add("and sometimes Y");
+
+    assertEquals("[\"a\",\"e\",\"i\",\"o\",\"d\",null,\"u\",\"and sometimes Y\"]", jsonArray.toString());
   }
 
   public void testMixedPrimitiveAddition() {
