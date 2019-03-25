@@ -27,32 +27,11 @@ import java.lang.reflect.Type;
 public final class Primitives {
   private Primitives() {}
 
-  private static final Class<?>[] classes = {int.class,     float.class, byte.class, 
-		  									 double.class,  long.class,  char.class, 
-		  									 boolean.class, short.class, void.class,
-		  									 Integer.class, Float.class, Byte.class,
-		  									 Double.class,  Long.class,  Character.class,
-		  									 Boolean.class, Short.class, Void.class};
-
-  //Finds the index of a type, begin is 0 for primitive lookup, 9 for wrapper lookup
-  //Returns -1 if the type is not a wrapper/primitve class
-  private static int indexOf(Type type, int begin) {
-	$Gson$Preconditions.checkNotNull(type);
-	Class<?>[] array = classes;
-	
-	for(int k = begin, end = begin + 9; k < end; ++k) {
-	  if(array[k] == type) {
-		  return k;
-	  }
-	}
-	return -1;
-  }
-  
   /**
    * Returns true if this type is a primitive.
    */
   public static boolean isPrimitive(Type type) {
-    return indexOf(type, 0) != -1;
+	return type instanceof Class<?> && ((Class<?>)type).isPrimitive();
   }
 
   /**
@@ -62,7 +41,9 @@ public final class Primitives {
    * @see Class#isPrimitive
    */
   public static boolean isWrapperType(Type type) {
-	return indexOf(type, 9) != -1;
+	return type == Integer.class || type == Float.class || type == Byte.class || 
+		   type == Double.class  || type == Long.class  || type == Character.class ||
+		   type == Boolean.class || type == Short.class || type == Void.class;
   }
 
   /**
@@ -76,10 +57,35 @@ public final class Primitives {
    */
   @SuppressWarnings("unchecked")
   public static <T> Class<T> wrap(Class<T> type) {
-	int index = indexOf(type, 0);
+	if(type == int.class) {
+		return (Class<T>) Integer.class;
+	}
+	if(type == float.class) {
+		return (Class<T>) Float.class;
+	}
+	if(type == byte.class) {
+		return (Class<T>) Byte.class;
+	}
+	if(type == double.class) {
+		return (Class<T>) Double.class;
+	}
+	if(type == long.class) {
+		return (Class<T>) Long.class;
+	}
+	if(type == char.class) {
+		return (Class<T>) Character.class;
+	}
+	if(type == boolean.class) {
+		return (Class<T>) Boolean.class;
+	}
+	if(type == short.class) {
+		return (Class<T>) Short.class;
+	}
+	if(type == void.class) {
+		return (Class<T>) Void.class;
+	}
 	
-    // cast is safe: long.class and Long.class are both of type Class<Long>
-	return index == -1 ? type : (Class<T>) classes[index + 9];
+	return type;
   }
 
   /**
@@ -93,9 +99,34 @@ public final class Primitives {
    */
   @SuppressWarnings("unchecked")
   public static <T> Class<T> unwrap(Class<T> type) {
-	int index = indexOf(type, 9);
-	
-	// cast is safe: long.class and Long.class are both of type Class<Long>
-	return index == -1 ? type : (Class<T>) classes[index - 9];
+	if(type == Integer.class) {
+		return (Class<T>) int.class;
+	}
+	if(type == Float.class) {
+		return (Class<T>) float.class;
+	}
+	if(type == Byte.class) {
+		return (Class<T>) byte.class;
+	}
+	if(type == Double.class) {
+		return (Class<T>) double.class;
+	}
+	if(type == Long.class) {
+		return (Class<T>) long.class;
+	}
+	if(type == Character.class) {
+		return (Class<T>) char.class;
+	}
+	if(type == Boolean.class) {
+		return (Class<T>) boolean.class;
+	}
+	if(type == Short.class) {
+		return (Class<T>) short.class;
+	}
+	if(type == Void.class) {
+		return (Class<T>) void.class;
+	}
+		
+	return type;
   }
 }
