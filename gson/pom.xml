@@ -16,6 +16,12 @@
       <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.github.wvengen</groupId>
+      <artifactId>proguard-maven-plugin</artifactId>
+      <version>2.0.14</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
  
   <build>
@@ -65,6 +71,87 @@
             <configuration>
               <sourceDirectory>${basedir}/src/main/java-templates</sourceDirectory>
               <outputDirectory>${project.build.directory}/generated-sources/java-templates</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>com.coderplus.maven.plugins</groupId>
+        <artifactId>copy-rename-maven-plugin</artifactId>
+        <version>1.0</version>
+        <executions>
+          <execution>
+            <id>pre-obfuscate-class</id>
+            <phase>process-test-classes</phase>
+            <goals>
+              <goal>rename</goal>
+            </goals>
+            <configuration>
+              <fileSets>
+                <fileSet>
+                  <sourceFile>${project.build.directory}/test-classes/com/google/gson/functional/EnumWithObfuscatedTest.class</sourceFile>
+                  <destinationFile>${project.build.directory}/test-classes-obfuscated-injar/com/google/gson/functional/EnumWithObfuscatedTest.class</destinationFile>
+                </fileSet>
+                <fileSet>
+                  <sourceFile>${project.build.directory}/test-classes/com/google/gson/functional/EnumWithObfuscatedTest$Gender.class</sourceFile>
+                  <destinationFile>${project.build.directory}/test-classes-obfuscated-injar/com/google/gson/functional/EnumWithObfuscatedTest$Gender.class</destinationFile>
+                </fileSet>
+              </fileSets>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>com.github.wvengen</groupId>
+        <artifactId>proguard-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>process-test-classes</phase>
+            <goals><goal>proguard</goal></goals>
+          </execution>
+        </executions>
+        <configuration>
+          <proguardVersion>6.0.2</proguardVersion>
+          <obfuscate>true</obfuscate>
+          <injar>test-classes-obfuscated-injar</injar>
+          <outjar>test-classes-obfuscated-outjar</outjar>
+          <inFilter>**/*.class</inFilter>
+          <proguardInclude>${basedir}/testcases-proguard.conf</proguardInclude>
+          <libs>
+            <lib>${project.build.directory}/classes</lib>
+            <lib>${java.home}/jmods/java.base.jmod</lib>
+          </libs>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>net.sf.proguard</groupId>
+            <artifactId>proguard-base</artifactId>
+            <version>6.0.2</version>
+            <scope>runtime</scope>
+          </dependency>
+        </dependencies>
+      </plugin>
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>2.7</version>
+        <executions>
+          <execution>
+            <id>post-obfuscate-class</id>
+            <phase>process-test-classes</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/test-classes/com/google/gson/functional</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${project.build.directory}/test-classes-obfuscated-outjar/classes/classes/com/google/gson/functional</directory>
+                  <includes>
+                    <include>EnumWithObfuscatedTest.class</include>
+                    <include>EnumWithObfuscatedTest$Gender.class</include>
+                  </includes>
+                </resource>
+              </resources>
             </configuration>
           </execution>
         </executions>
