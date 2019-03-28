@@ -192,8 +192,8 @@ public final class Gson {
         Collections.<TypeAdapterFactory>emptyList());
   }
 
-  Gson(final Excluder excluder, final FieldNamingStrategy fieldNamingStrategy,
-      final Map<Type, InstanceCreator<?>> instanceCreators, boolean serializeNulls,
+  Gson(Excluder excluder, FieldNamingStrategy fieldNamingStrategy,
+      Map<Type, InstanceCreator<?>> instanceCreators, boolean serializeNulls,
       boolean complexMapKeySerialization, boolean generateNonExecutableGson, boolean htmlSafe,
       boolean prettyPrinting, boolean lenient, boolean serializeSpecialFloatingPointValues,
       LongSerializationPolicy longSerializationPolicy, String datePattern, int dateStyle,
