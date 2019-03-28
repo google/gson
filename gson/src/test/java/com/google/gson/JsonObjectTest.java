@@ -43,6 +43,15 @@ public class JsonObjectTest extends TestCase {
     assertNull(jsonObj.get(propertyName));
   }
 
+  public void testGettingAsJasonPrimitive() throws Exception {
+    JsonObject jsonObj = new JsonObject();
+    String propertyName = "property";
+    JsonPrimitive value = new JsonPrimitive("blah");
+    jsonObj.add(propertyName, value);
+
+    assertEquals(JsonPrimitive.class, jsonObj.getAsJsonPrimitive(propertyName).getClass());
+  }
+
   public void testAddingNullPropertyValue() throws Exception {
     String propertyName = "property";
     JsonObject jsonObj = new JsonObject();
@@ -90,6 +99,20 @@ public class JsonObjectTest extends TestCase {
     JsonElement jsonElement = jsonObj.get(propertyName);
     assertNotNull(jsonElement);
     assertEquals(value, jsonElement.getAsString());
+  }
+
+  public void testAddingNumberProperties() throws Exception {
+    String propertyName = "property";
+    int value = 5;
+
+    JsonObject jsonObj = new JsonObject();
+    jsonObj.addProperty(propertyName, value);
+
+    assertTrue(jsonObj.has(propertyName));
+
+    JsonElement jsonElement = jsonObj.get(propertyName);
+    assertNotNull(jsonElement);
+    assertEquals(value, jsonElement.getAsInt());
   }
 
   public void testAddingCharacterProperties() throws Exception {
