@@ -1,7 +1,6 @@
 language: java
 
 jdk:
-  - oraclejdk7
   - oraclejdk8
 
 install: mvn -f gson install -DskipTests=true
