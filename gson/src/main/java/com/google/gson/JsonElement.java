@@ -154,19 +154,6 @@ public abstract class JsonElement {
   }
 
   /**
-   * convenience method to get this element as a {@link Boolean} value.
-   *
-   * @return get this element as a {@link Boolean} value.
-   * @throws ClassCastException if the element is of not a {@link JsonPrimitive} and is not a valid
-   * boolean value.
-   * @throws IllegalStateException if the element is of the type {@link JsonArray} but contains
-   * more than a single element.
-   */
-  Boolean getAsBooleanWrapper() {
-    throw new UnsupportedOperationException(getClass().getSimpleName());
-  }
-
-  /**
    * convenience method to get this element as a {@link Number}.
    *
    * @return get this element as a {@link Number}.
