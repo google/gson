@@ -42,7 +42,7 @@ public class JsonObjectTest extends TestCase {
         assertNull("jsonObj property is not null after remove", jsonObj.get(propertyName));
     }
 
-    public void testGettingAsJasonPrimitive() {
+    public void testGettingAsJsonPrimitive() {
         //setup
         JsonObject jsonObj = new JsonObject();
         String propertyName = "property";
@@ -57,7 +57,7 @@ public class JsonObjectTest extends TestCase {
         assertEquals(expectedClass, targetClass);
     }
 
-    public void testGettingAsJasonArray() {
+    public void testGettingAsJsonArray() {
         //setup
         JsonObject jsonObj = new JsonObject();
         String propertyName = "property";
@@ -72,7 +72,7 @@ public class JsonObjectTest extends TestCase {
         assertEquals(expectedClass, targetClass);
     }
 
-    public void testGettingAsJasonObject() {
+    public void testGettingAsJsonObject() {
         //setup
         JsonObject jsonObj = new JsonObject();
         String propertyName = "property";
