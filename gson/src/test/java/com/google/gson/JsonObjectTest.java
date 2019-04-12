@@ -17,7 +17,6 @@
 package com.google.gson;
 
 import com.google.gson.common.MoreAsserts;
-
 import junit.framework.TestCase;
 
 /**
@@ -30,17 +29,17 @@ public class JsonObjectTest extends TestCase {
     public void testAddingAndRemovingObjectProperties() {
         JsonObject jsonObj = new JsonObject();
         String propertyName = "property";
-        assertFalse(jsonObj.has(propertyName));
-        assertNull(jsonObj.get(propertyName));
+        assertFalse("jsonObj has property", jsonObj.has(propertyName));
+        assertNull("jsonObj property is not null", jsonObj.get(propertyName));
 
         JsonPrimitive value = new JsonPrimitive("blah");
         jsonObj.add(propertyName, value);
-        assertEquals(value, jsonObj.get(propertyName));
+        assertEquals("retrieved jsonObj value is not equals to value", value, jsonObj.get(propertyName));
 
         JsonElement removedElement = jsonObj.remove(propertyName);
-        assertEquals(value, removedElement);
-        assertFalse(jsonObj.has(propertyName));
-        assertNull(jsonObj.get(propertyName));
+        assertEquals("removedElement is not equals to value", value, removedElement);
+        assertFalse("jsonObj has property after remove", jsonObj.has(propertyName));
+        assertNull("jsonObj property is not null after remove", jsonObj.get(propertyName));
     }
 
     public void testGettingAsJasonPrimitive() {
@@ -105,8 +104,8 @@ public class JsonObjectTest extends TestCase {
         jsonObj.addProperty(propertyName, value);
 
         JsonElement jsonElement = jsonObj.get(propertyName);
-        assertNotNull(jsonElement);
-        assertTrue(jsonElement.isJsonNull());
+        assertNotNull("jsonElement is null", jsonElement);
+        assertTrue("jsonElement is not JsonNull", jsonElement.isJsonNull());
     }
 
     public void testAddingNumberNullPropertyValue() {
@@ -116,8 +115,8 @@ public class JsonObjectTest extends TestCase {
         jsonObj.addProperty(propertyName, value);
 
         JsonElement jsonElement = jsonObj.get(propertyName);
-        assertNotNull(jsonElement);
-        assertTrue(jsonElement.isJsonNull());
+        assertNotNull("jsonElement is null", jsonElement);
+        assertTrue("jsonElement is not JsonNull", jsonElement.isJsonNull());
     }
 
     public void testAddingBooleanNullPropertyValue() {
@@ -127,8 +126,8 @@ public class JsonObjectTest extends TestCase {
         jsonObj.addProperty(propertyName, value);
 
         JsonElement jsonElement = jsonObj.get(propertyName);
-        assertNotNull(jsonElement);
-        assertTrue(jsonElement.isJsonNull());
+        assertNotNull("jsonElement is null", jsonElement);
+        assertTrue("jsonElement is not JsonNull", jsonElement.isJsonNull());
     }
 
     public void testAddingCharacterNullPropertyValue() {
@@ -138,8 +137,8 @@ public class JsonObjectTest extends TestCase {
         jsonObj.addProperty(propertyName, value);
 
         JsonElement jsonElement = jsonObj.get(propertyName);
-        assertNotNull(jsonElement);
-        assertTrue(jsonElement.isJsonNull());
+        assertNotNull("jsonElement is null", jsonElement);
+        assertTrue("jsonElement is not JsonNull", jsonElement.isJsonNull());
     }
 
     public void testAddingNullOrEmptyPropertyName() {
@@ -159,11 +158,11 @@ public class JsonObjectTest extends TestCase {
         JsonObject jsonObj = new JsonObject();
         jsonObj.addProperty(propertyName, true);
 
-        assertTrue(jsonObj.has(propertyName));
+        assertTrue("jsonObj does not have property", jsonObj.has(propertyName));
 
         JsonElement jsonElement = jsonObj.get(propertyName);
-        assertNotNull(jsonElement);
-        assertTrue(jsonElement.getAsBoolean());
+        assertNotNull("jsonElement is null", jsonElement);
+        assertTrue("jsonElement is not 'true'", jsonElement.getAsBoolean());
     }
 
     public void testAddingStringProperties() {
@@ -173,11 +172,11 @@ public class JsonObjectTest extends TestCase {
         JsonObject jsonObj = new JsonObject();
         jsonObj.addProperty(propertyName, value);
 
-        assertTrue(jsonObj.has(propertyName));
+        assertTrue("jsonObj does not have property", jsonObj.has(propertyName));
 
         JsonElement jsonElement = jsonObj.get(propertyName);
-        assertNotNull(jsonElement);
-        assertEquals(value, jsonElement.getAsString());
+        assertNotNull("jsonElement is null", jsonElement);
+        assertEquals("jsonElement does not equal value", value, jsonElement.getAsString());
     }
 
     public void testAddingNumberProperties() {
@@ -188,8 +187,8 @@ public class JsonObjectTest extends TestCase {
         jsonObj.addProperty(propertyName, value);
 
         JsonElement jsonElement = jsonObj.get(propertyName);
-        assertNotNull(jsonElement);
-        assertEquals(value, jsonElement.getAsInt());
+        assertNotNull("jsonElement is null", jsonElement);
+        assertEquals("jsonElement does not equal value", value, jsonElement.getAsInt());
     }
 
     public void testAddingCharacterProperties() {
@@ -199,12 +198,12 @@ public class JsonObjectTest extends TestCase {
         JsonObject jsonObj = new JsonObject();
         jsonObj.addProperty(propertyName, value);
 
-        assertTrue(jsonObj.has(propertyName));
+        assertTrue("jsonObj does not have property", jsonObj.has(propertyName));
 
         JsonElement jsonElement = jsonObj.get(propertyName);
-        assertNotNull(jsonElement);
-        assertEquals(String.valueOf(value), jsonElement.getAsString());
-        assertEquals(value, jsonElement.getAsCharacter());
+        assertNotNull("jsonElement is null", jsonElement);
+        assertEquals("jsonElement does not equal String value", String.valueOf(value), jsonElement.getAsString());
+        assertEquals("jsonElement does not equal Character value", value, jsonElement.getAsCharacter());
     }
 
     /**
@@ -240,36 +239,36 @@ public class JsonObjectTest extends TestCase {
         JsonObject a = new JsonObject();
         JsonObject b = new JsonObject();
 
-        assertEquals(a, a);
+        assertEquals("JsonObject a does not equal itself", a, a);
 
         a.add("foo", new JsonObject());
-        assertFalse(a.equals(b));
-        assertFalse(b.equals(a));
+        assertFalse("a.add(foo,new) equals b", a.equals(b));
+        assertFalse("b equals a.add(foo,new)", b.equals(a));
 
         b.add("foo", new JsonObject());
         MoreAsserts.assertEqualsAndHashCode(a, b);
 
         a.add("bar", new JsonObject());
-        assertFalse(a.equals(b));
-        assertFalse(b.equals(a));
+        assertFalse("a.add(bar,new) equals b", a.equals(b));
+        assertFalse("b equals a.add(bar,new)", b.equals(a));
 
         b.add("bar", JsonNull.INSTANCE);
-        assertFalse(a.equals(b));
-        assertFalse(b.equals(a));
+        assertFalse("a equals b.add(bar,JsonNull)", a.equals(b));
+        assertFalse("b.add(bar,JsonNull) equals a", b.equals(a));
     }
 
     public void testSize() {
         JsonObject o = new JsonObject();
-        assertEquals(0, o.size());
+        assertEquals("Size of JsonObject o not 0",0, o.size());
 
         o.add("Hello", new JsonPrimitive(1));
-        assertEquals(1, o.size());
+        assertEquals("Size of JsonObject o not 1",1, o.size());
 
         o.add("Hi", new JsonPrimitive(1));
-        assertEquals(2, o.size());
+        assertEquals("Size of JsonObject o not 2",2, o.size());
 
         o.remove("Hello");
-        assertEquals(1, o.size());
+        assertEquals("Size of JsonObject o not 1 after remove",1, o.size());
     }
 
     public void testDeepCopy() {
@@ -280,8 +279,8 @@ public class JsonObjectTest extends TestCase {
         JsonObject copy = original.deepCopy();
         firstEntry.add(new JsonPrimitive("z"));
 
-        assertEquals(1, original.get("key").getAsJsonArray().size());
-        assertEquals(0, copy.get("key").getAsJsonArray().size());
+        assertEquals("Size of JsonObject original not 1", 1, original.get("key").getAsJsonArray().size());
+        assertEquals("Size of JsonObject copy not 0", 0, copy.get("key").getAsJsonArray().size());
     }
 
     /**
@@ -293,9 +292,9 @@ public class JsonObjectTest extends TestCase {
         a.add("foo", new JsonArray());
         a.add("bar", new JsonObject());
 
-        assertEquals(2, a.size());
-        assertEquals(2, a.keySet().size());
-        assertTrue(a.keySet().contains("foo"));
-        assertTrue(a.keySet().contains("bar"));
+        assertEquals("Size of JsonObject a not 2", 2, a.size());
+        assertEquals("Size of JsonObject a keySet not 2", 2, a.keySet().size());
+        assertTrue("JsonObject a keySet does not contain foo", a.keySet().contains("foo"));
+        assertTrue("JsonObject a keySet does not contain bar", a.keySet().contains("bar"));
     }
 }
