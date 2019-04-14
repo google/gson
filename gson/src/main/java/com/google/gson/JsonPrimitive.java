@@ -92,16 +92,6 @@ public final class JsonPrimitive extends JsonElement {
   }
 
   /**
-   * convenience method to get this element as a {@link Boolean}.
-   *
-   * @return get this element as a {@link Boolean}.
-   */
-  @Override
-  Boolean getAsBooleanWrapper() {
-    return (Boolean) value;
-  }
-
-  /**
    * convenience method to get this element as a boolean value.
    *
    * @return get this element as a primitive boolean value.
@@ -109,11 +99,10 @@ public final class JsonPrimitive extends JsonElement {
   @Override
   public boolean getAsBoolean() {
     if (isBoolean()) {
-      return getAsBooleanWrapper().booleanValue();
-    } else {
-      // Check to see if the value as a String is "true" in any case.
-      return Boolean.parseBoolean(getAsString());
+      return ((Boolean) value).booleanValue();
     }
+	// Check to see if the value as a String is "true" in any case.
+    return Boolean.parseBoolean(getAsString());
   }
 
   /**
@@ -155,7 +144,7 @@ public final class JsonPrimitive extends JsonElement {
     if (isNumber()) {
       return getAsNumber().toString();
     } else if (isBoolean()) {
-      return getAsBooleanWrapper().toString();
+      return ((Boolean) value).toString();
     } else {
       return (String) value;
     }
