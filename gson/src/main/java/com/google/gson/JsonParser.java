@@ -32,7 +32,13 @@ import com.google.gson.stream.MalformedJsonException;
  * @since 1.3
  */
 public final class JsonParser {
-
+	
+  /**
+   * @deprecated No need to instantiate this class, use the static parser methods instead.
+   */
+  @Deprecated
+  public JsonParser() {}
+  
   /**
    * Parses the specified JSON string into a parse tree
    *
@@ -41,10 +47,10 @@ public final class JsonParser {
    * @throws JsonParseException if the specified text is not valid JSON
    * @since 1.3
    */
-  public JsonElement parse(String json) throws JsonSyntaxException {
-    return parse(new StringReader(json));
+  public static JsonElement parseString(String json) throws JsonSyntaxException {
+    return parseReader(new StringReader(json));
   }
-
+  
   /**
    * Parses the specified JSON string into a parse tree
    *
@@ -53,10 +59,10 @@ public final class JsonParser {
    * @throws JsonParseException if the specified text is not valid JSON
    * @since 1.3
    */
-  public JsonElement parse(Reader json) throws JsonIOException, JsonSyntaxException {
+  public static JsonElement parseReader(Reader reader) throws JsonIOException, JsonSyntaxException {
     try {
-      JsonReader jsonReader = new JsonReader(json);
-      JsonElement element = parse(jsonReader);
+      JsonReader jsonReader = new JsonReader(reader);
+      JsonElement element = parseReader(jsonReader);
       if (!element.isJsonNull() && jsonReader.peek() != JsonToken.END_DOCUMENT) {
         throw new JsonSyntaxException("Did not consume the entire document.");
       }
@@ -69,7 +75,7 @@ public final class JsonParser {
       throw new JsonSyntaxException(e);
     }
   }
-
+  
   /**
    * Returns the next value from the JSON stream as a parse tree.
    *
@@ -77,17 +83,38 @@ public final class JsonParser {
    *     text is not valid JSON
    * @since 1.6
    */
+  public static JsonElement parseReader(JsonReader reader) throws JsonIOException, JsonSyntaxException {
+	boolean lenient = reader.isLenient();
+	reader.setLenient(true);
+	try {
+		return Streams.parse(reader);
+	} catch (StackOverflowError e) {
+		throw new JsonParseException("Failed parsing JSON source: " + reader + " to Json", e);
+	} catch (OutOfMemoryError e) {
+		throw new JsonParseException("Failed parsing JSON source: " + reader + " to Json", e);
+	} finally {
+		reader.setLenient(lenient);
+	}  
+  }
+  
+  /**
+   * @see JsonReader.parseString
+   */
+  public JsonElement parse(String json) throws JsonSyntaxException {
+    return parseString(json);
+  }
+
+  /**
+   * @see JsonReader.parseReader
+   */
+  public JsonElement parse(Reader json) throws JsonIOException, JsonSyntaxException {
+    return parseReader(json);
+  }
+
+  /**
+   * @see JsonReader.parseReader
+   */
   public JsonElement parse(JsonReader json) throws JsonIOException, JsonSyntaxException {
-    boolean lenient = json.isLenient();
-    json.setLenient(true);
-    try {
-      return Streams.parse(json);
-    } catch (StackOverflowError e) {
-      throw new JsonParseException("Failed parsing JSON source: " + json + " to Json", e);
-    } catch (OutOfMemoryError e) {
-      throw new JsonParseException("Failed parsing JSON source: " + json + " to Json", e);
-    } finally {
-      json.setLenient(lenient);
-    }
+    return parseReader(json);
   }
 }

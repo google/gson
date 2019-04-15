@@ -32,23 +32,16 @@ import com.google.gson.stream.JsonReader;
  * @author Inderjeet Singh
  */
 public class JsonParserTest extends TestCase {
-  private JsonParser parser;
-
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
-    parser = new JsonParser();
-  }
 
   public void testParseInvalidJson() {
     try {
-      parser.parse("[[]");
+      JsonParser.parseString("[[]");
       fail();
     } catch (JsonSyntaxException expected) { }
   }
 
   public void testParseUnquotedStringArrayFails() {
-    JsonElement element = parser.parse("[a,b,c]");
+    JsonElement element = JsonParser.parseString("[a,b,c]");
     assertEquals("a", element.getAsJsonArray().get(0).getAsString());
     assertEquals("b", element.getAsJsonArray().get(1).getAsString());
     assertEquals("c", element.getAsJsonArray().get(2).getAsString());
@@ -57,38 +50,38 @@ public class JsonParserTest extends TestCase {
 
   public void testParseString() {
     String json = "{a:10,b:'c'}";
-    JsonElement e = parser.parse(json);
+    JsonElement e = JsonParser.parseString(json);
     assertTrue(e.isJsonObject());
     assertEquals(10, e.getAsJsonObject().get("a").getAsInt());
     assertEquals("c", e.getAsJsonObject().get("b").getAsString());
   }
 
   public void testParseEmptyString() {
-    JsonElement e = parser.parse("\"   \"");
+    JsonElement e = JsonParser.parseString("\"   \"");
     assertTrue(e.isJsonPrimitive());
     assertEquals("   ", e.getAsString());
   }
 
   public void testParseEmptyWhitespaceInput() {
-    JsonElement e = parser.parse("     ");
+    JsonElement e = JsonParser.parseString("     ");
     assertTrue(e.isJsonNull());
   }
 
   public void testParseUnquotedSingleWordStringFails() {
-    assertEquals("Test", parser.parse("Test").getAsString());
+    assertEquals("Test", JsonParser.parseString("Test").getAsString());
   }
 
   public void testParseUnquotedMultiWordStringFails() {
     String unquotedSentence = "Test is a test..blah blah";
     try {
-      parser.parse(unquotedSentence);
+      JsonParser.parseString(unquotedSentence);
       fail();
     } catch (JsonSyntaxException expected) { }
   }
 
   public void testParseMixedArray() {
     String json = "[{},13,\"stringValue\"]";
-    JsonElement e = parser.parse(json);
+    JsonElement e = JsonParser.parseString(json);
     assertTrue(e.isJsonArray());
 
     JsonArray  array = e.getAsJsonArray();
@@ -99,7 +92,7 @@ public class JsonParserTest extends TestCase {
 
   public void testParseReader() {
     StringReader reader = new StringReader("{a:10,b:'c'}");
-    JsonElement e = parser.parse(reader);
+    JsonElement e = JsonParser.parseReader(reader);
     assertTrue(e.isJsonObject());
     assertEquals(10, e.getAsJsonObject().get("a").getAsInt());
     assertEquals("c", e.getAsJsonObject().get("b").getAsString());
