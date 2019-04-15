@@ -128,7 +128,7 @@ public class JsonObjectTest extends TestCase {
   }
 
   public void testReadPropertyWithEmptyStringName() {
-    JsonObject jsonObj = new JsonParser().parse("{\"\":true}").getAsJsonObject();
+    JsonObject jsonObj = JsonParser.parseString("{\"\":true}").getAsJsonObject();
     assertEquals(true, jsonObj.get("").getAsBoolean());
   }
 
