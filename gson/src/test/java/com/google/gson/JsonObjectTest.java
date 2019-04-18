@@ -258,17 +258,21 @@ public class JsonObjectTest extends TestCase {
     }
 
     public void testSize() {
+        int emptyObject = 0;
+        int singleElement = 1;
+        int twoElements = 2;
         JsonObject o = new JsonObject();
-        assertEquals("Size of JsonObject o not 0",0, o.size());
+
+        assertEquals("JsonObject is not empty", emptyObject, o.size());
 
         o.add("Hello", new JsonPrimitive(1));
-        assertEquals("Size of JsonObject o not 1",1, o.size());
+        assertEquals("JsonObject does not contain a single element", singleElement, o.size());
 
         o.add("Hi", new JsonPrimitive(1));
-        assertEquals("Size of JsonObject o not 2",2, o.size());
+        assertEquals("JsonObject does not contain two elements", twoElements, o.size());
 
         o.remove("Hello");
-        assertEquals("Size of JsonObject o not 1 after remove",1, o.size());
+        assertEquals("JsonObject does not contain a single element after remove", singleElement, o.size());
     }
 
     public void testDeepCopy() {
