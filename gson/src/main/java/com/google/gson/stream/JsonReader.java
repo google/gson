@@ -1221,44 +1221,108 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Skips the next value recursively. If it is an object or array, all nested
+   * <p>Reads the next value recursively and returns the JSON value as a String.
+   * This method is intended for use when the JSON token stream contains a 
+   * value for which deserialization must be deferred.</p>
+   * 
+   * <p>Prefer {@link #skipValue()} when the value would not be used as it is
+   * faster.</p>
+   * @return The next value in the JSON input. Not {@code null} but possibly
+   * {@code "null"}. Not {@code ""} but possibly {@code "\"\""}. Any escape 
+   * sequences in {@link com.google.gson.stream.JsonToken.STRING String} values
+   * are converted and whitespace is removed.
+   * @see #skipValue()
+   * @since 2.8.6
+   */
+  public String nextValue() throws IOException {
+	  return nextValue(true);
+  }
+  
+  /**
+   * <p>Skips the next value recursively. If it is an object or array, all nested
    * elements are skipped. This method is intended for use when the JSON token
-   * stream contains unrecognized or unhandled values.
+   * stream contains unrecognized or unhandled values.</p>
+   * 
+   * <p>Faster than {@link #nextValue()}.</p>
+   * @see #nextValue()
    */
   public void skipValue() throws IOException {
-    int count = 0;
-    do {
-      int p = peeked;
-      if (p == PEEKED_NONE) {
-        p = doPeek();
-      }
+    nextValue(false);
+  }
+  /**
+   * Recursively consume the next value from the stream.
+   * @param save Whether or not to return the consumed value.
+   * @return null if save is false, the value as JSON otherwise.
+   */
+  private String nextValue(boolean save) throws IOException {
+	  int count = 0;
+	  StringBuilder builder = save ? new StringBuilder() : null;
+	    do {
+	      int p = peeked;
+	      if (p == PEEKED_NONE) {
+	        p = doPeek();
+	      }
 
-      if (p == PEEKED_BEGIN_ARRAY) {
-        push(JsonScope.EMPTY_ARRAY);
-        count++;
-      } else if (p == PEEKED_BEGIN_OBJECT) {
-        push(JsonScope.EMPTY_OBJECT);
-        count++;
-      } else if (p == PEEKED_END_ARRAY) {
-        stackSize--;
-        count--;
-      } else if (p == PEEKED_END_OBJECT) {
-        stackSize--;
-        count--;
-      } else if (p == PEEKED_UNQUOTED_NAME || p == PEEKED_UNQUOTED) {
-        skipUnquotedValue();
-      } else if (p == PEEKED_SINGLE_QUOTED || p == PEEKED_SINGLE_QUOTED_NAME) {
-        skipQuotedValue('\'');
-      } else if (p == PEEKED_DOUBLE_QUOTED || p == PEEKED_DOUBLE_QUOTED_NAME) {
-        skipQuotedValue('"');
-      } else if (p == PEEKED_NUMBER) {
-        pos += peekedNumberLength;
-      }
-      peeked = PEEKED_NONE;
-    } while (count != 0);
+	      if (p == PEEKED_BEGIN_ARRAY) {
+	        push(JsonScope.EMPTY_ARRAY);
+	        count++;
+	        if(save) builder.append('[');
+	      } else if (p == PEEKED_BEGIN_OBJECT) {
+	        push(JsonScope.EMPTY_OBJECT);
+	        count++;
+	        if(save) builder.append('{');
+	      } else if (p == PEEKED_END_ARRAY) {
+	        stackSize--;
+	        count--;
+	        if(save) builder.append(']');
+	      } else if (p == PEEKED_END_OBJECT) {
+	    	stackSize--;
+	        count--;
+	        if(save) builder.append('}');
+	      } else if(p == PEEKED_NULL && save) { //peeking a literal null actually consumes it
+	    	builder.append("null");
+	      } else if (p == PEEKED_UNQUOTED_NAME || p == PEEKED_UNQUOTED) {
+	    	if(save) {
+	    	  builder.append(nextUnquotedValue());
+	    	}
+	    	else {
+	    	  skipUnquotedValue();
+	    	}
+	      } else if (p == PEEKED_SINGLE_QUOTED || p == PEEKED_SINGLE_QUOTED_NAME) {
+	    	if(save) {
+	    	  builder.append('\'').append(nextQuotedValue('\'')).append('\'');
+	    	}
+	    	else {
+	    	  skipQuotedValue('\'');
+	    	}
+	      } else if (p == PEEKED_DOUBLE_QUOTED || p == PEEKED_DOUBLE_QUOTED_NAME) {
+	    	if(save) {
+	    	  builder.append('"').append(nextQuotedValue('"')).append('"');
+	    	}
+	    	else {
+	    	  skipQuotedValue('"');
+	    	}
+	      } else if (p == PEEKED_NUMBER) {
+	    	if(save) {
+	    	  builder.append(new String(buffer, pos, peekedNumberLength));
+	    	}
+	    	pos += peekedNumberLength;
+	      }
+	      peeked = PEEKED_NONE;
+	      
+	      if(save) {
+	    	  if(p == PEEKED_UNQUOTED_NAME || p == PEEKED_SINGLE_QUOTED_NAME || p == PEEKED_DOUBLE_QUOTED_NAME) {
+	    		  builder.append(':');
+	    	  }
+	    	  else if(count > 0 && p != PEEKED_BEGIN_ARRAY && p != PEEKED_BEGIN_OBJECT && hasNext()) {
+	    		  builder.append(',');
+	    	  }
+	      }
+	    } while (count != 0);
 
-    pathIndices[stackSize - 1]++;
-    pathNames[stackSize - 1] = "null";
+	    pathIndices[stackSize - 1]++;
+	    pathNames[stackSize - 1] = "null";
+	    return builder == null ? null : builder.toString();
   }
 
   private void push(int newTop) {
