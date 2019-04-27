@@ -157,17 +157,17 @@ public final class JsonTreeWriterTest extends TestCase {
     writer.setLenient(false);
     writer.beginArray();
     try {
-      writer.value(new Double(Double.NaN));
+      writer.value(Double.valueOf(Double.NaN));
       fail();
     } catch (IllegalArgumentException expected) {
     }
     try {
-      writer.value(new Double(Double.NEGATIVE_INFINITY));
+      writer.value(Double.valueOf(Double.NEGATIVE_INFINITY));
       fail();
     } catch (IllegalArgumentException expected) {
     }
     try {
-      writer.value(new Double(Double.POSITIVE_INFINITY));
+      writer.value(Double.valueOf(Double.POSITIVE_INFINITY));
       fail();
     } catch (IllegalArgumentException expected) {
     }

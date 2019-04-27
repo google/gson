@@ -39,6 +39,7 @@ public class FieldAttributesTest extends TestCase {
     fieldAttributes = new FieldAttributes(Foo.class.getField("bar"));
   }
 
+  @SuppressWarnings("unused")
   public void testNullField() throws Exception {
     try {
       new FieldAttributes(null);

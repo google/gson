@@ -167,6 +167,7 @@ public class DefaultDateTypeAdapterTest extends TestCase {
     assertEquals(toLiteral(formatter.format(currentDate)), dateString);
   }
 
+  @SuppressWarnings("unused")
   public void testInvalidDatePattern() throws Exception {
     try {
       new DefaultDateTypeAdapter(Date.class, "I am a bad Date pattern....");

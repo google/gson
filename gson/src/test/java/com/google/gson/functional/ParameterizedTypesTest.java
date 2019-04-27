@@ -121,7 +121,7 @@ public class ParameterizedTypesTest extends TestCase {
         .registerTypeAdapter(ptStringType, new MyParameterizedTypeAdapter<String>())
         .registerTypeAdapter(ptStringType, new MyParameterizedTypeInstanceCreator<String>(""))
         .registerTypeAdapter(ptIntegerType,
-            new MyParameterizedTypeInstanceCreator<Integer>(new Integer(0)))
+            new MyParameterizedTypeInstanceCreator<Integer>(0))
         .create();
 
     MyParameterizedType<Integer> src = new MyParameterizedType<Integer>(10);
