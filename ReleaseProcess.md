@@ -17,15 +17,15 @@ The following is a step-by-step procedure for releasing a new version of Google-
 
 1. Update the version in the [Using Gson with Maven2 page](https://github.com/google/gson/blob/master/UserGuide.md#TOC-Gson-With-Maven)
 1. Update [Gson Changelog](https://github.com/google/gson/blob/master/CHANGELOG.md). Also, look at all bugs that were fixed and add a few lines describing what changed in the release.
-1. Create a post on the [Gson Discussion Forum](http://groups.google.com/group/google-gson)
-1. Update the release version in [Wikipedia](http://en.wikipedia.org/wiki/GSON) and update the current "stable" release.
+1. Create a post on the [Gson Discussion Forum](https://groups.google.com/group/google-gson)
+1. Update the release version in [Wikipedia](https://en.wikipedia.org/wiki/GSON) and update the current "stable" release.
 
 ## Configuring a machine for deployment to Sonatype Repository
 
-This section was borrowed heavily from [Doclava release process](http://code.google.com/p/doclava/wiki/ProcessRelease).
+This section was borrowed heavily from [Doclava release process](https://code.google.com/archive/p/doclava/wikis/ProcessRelease.wiki).
 
-1. Install/Configure GPG following this [guide](http://www.sonatype.com/people/2010/01/how-to-generate-pgp-signatures-with-maven/).
-1. [Create encrypted passwords](http://maven.apache.org/guides/mini/guide-encryption.html).
+1. Install/Configure GPG following this [guide](https://blog.sonatype.com/2010/01/how-to-generate-pgp-signatures-with-maven/).
+1. [Create encrypted passwords](https://maven.apache.org/guides/mini/guide-encryption.html).
 1. Create `~/.m2/settings.xml` similar to as described in [Doclava release process](https://code.google.com/p/doclava/wiki/ProcessRelease).
 1. Now for deploying a snapshot repository, use `mvn deploy`.
 
