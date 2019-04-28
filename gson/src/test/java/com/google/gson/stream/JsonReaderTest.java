@@ -1678,7 +1678,7 @@ public final class JsonReaderTest extends TestCase {
   
   public void testNextRawValueTopLevelString() throws IOException {
 	JsonReader reader = new JsonReader(reader("\"Some String with\\nescapes.\""));
-	assertEquals("\"Some String with\nescapes.\"", reader.nextRawJSONValue());
+	assertEquals("\"Some String with\\nescapes.\"", reader.nextRawJSONValue());
   }
   
   public void testNextRawValueTopLevelNumber() throws IOException {
