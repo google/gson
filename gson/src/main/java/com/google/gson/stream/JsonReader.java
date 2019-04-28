@@ -1234,7 +1234,7 @@ public class JsonReader implements Closeable {
    * @see #skipValue()
    * @since 2.8.6
    */
-  public String nextValue() throws IOException {
+  public String nextRawJSONValue() throws IOException {
 	  return nextValue(true);
   }
   
