@@ -4,6 +4,7 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.ReflectiveTypeAdapter;
 import com.google.gson.TypeAdapter;
 import com.google.gson.common.TestTypes.LayeredConflictOutsideClass;
 import com.google.gson.common.TestTypes.LayeredFieldNamingClass;
@@ -29,7 +30,7 @@ public class LayeredAdapterTest extends TestCase {
   @Test
   public void testBasicLayering() {
     Gson gson = new GsonBuilder()
-        .registerTypeAdapterWithFillIn(LayeredOutsideClass.class, new OutsideAdapter())
+        .registerTypeAdapter(LayeredOutsideClass.class, new OutsideAdapter())
         .create();
     String basicString = "{ \"field1\": \"sample\", \"field2\": 5, \"hello\": \"hi there\", \"hello2\": 6}";
     LayeredOutsideClass outside = gson.fromJson(basicString, LayeredOutsideClass.class);
@@ -43,7 +44,7 @@ public class LayeredAdapterTest extends TestCase {
   @Test
   public void testConflictingNames() {
     Gson gson = new GsonBuilder()
-        .registerTypeAdapterWithFillIn(LayeredConflictOutsideClass.class,
+        .registerTypeAdapter(LayeredConflictOutsideClass.class,
             new ConflictOutsideAdapter())
         .create();
     String conflictString = "{ \"hello\": \"sample\", \"hello2\": 89}";
@@ -59,7 +60,7 @@ public class LayeredAdapterTest extends TestCase {
   @Test
   public void testConflictingTypes() {
     Gson gson = new GsonBuilder()
-        .registerTypeAdapterWithFillIn(LayeredTypeConflictOutsideClass.class,
+        .registerTypeAdapter(LayeredTypeConflictOutsideClass.class,
             new TypeConflictOutsideAdapter())
         .create();
     String conflictString = "{ \"hello\": \"sample\", \"hello2\": 89}";
@@ -77,7 +78,7 @@ public class LayeredAdapterTest extends TestCase {
   @Test
   public void testConflictingTypesWithExposeAnnotation() {
     Gson gson = new GsonBuilder()
-        .registerTypeAdapterWithFillIn(LayeredTypeConflictOutsideClass.class,
+        .registerTypeAdapter(LayeredTypeConflictOutsideClass.class,
             new TypeConflictOutsideAdapter())
         .excludeFieldsWithoutExposeAnnotation()
         .create();
@@ -94,7 +95,7 @@ public class LayeredAdapterTest extends TestCase {
   @Test
   public void testFieldNamingStrategy() {
     Gson gson = new GsonBuilder()
-        .registerTypeAdapterWithFillIn(LayeredFieldNamingClass.class,
+        .registerTypeAdapter(LayeredFieldNamingClass.class,
             new LayeredFieldNamingAdapter())
         .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
         .create();
@@ -108,7 +109,7 @@ public class LayeredAdapterTest extends TestCase {
     Assert.assertEquals(fieldNamingClass.getWeirdlyNamedDate(), "sample_text");
   }
 
-  public class OutsideAdapter extends TypeAdapter<LayeredOutsideClass> {
+  public class OutsideAdapter extends ReflectiveTypeAdapter<LayeredOutsideClass> {
 
     @Override
     public void write(JsonWriter out, LayeredOutsideClass value) throws IOException {
@@ -144,7 +145,7 @@ public class LayeredAdapterTest extends TestCase {
     }
   }
 
-  public class ConflictOutsideAdapter extends TypeAdapter<LayeredConflictOutsideClass> {
+  public class ConflictOutsideAdapter extends ReflectiveTypeAdapter<LayeredConflictOutsideClass> {
 
     @Override
     public void write(JsonWriter out, LayeredConflictOutsideClass value) throws IOException {
@@ -180,7 +181,7 @@ public class LayeredAdapterTest extends TestCase {
     }
   }
 
-  public class TypeConflictOutsideAdapter extends TypeAdapter<LayeredTypeConflictOutsideClass> {
+  public class TypeConflictOutsideAdapter extends ReflectiveTypeAdapter<LayeredTypeConflictOutsideClass> {
 
     @Override
     public void write(JsonWriter out, LayeredTypeConflictOutsideClass value) throws IOException {
@@ -216,7 +217,7 @@ public class LayeredAdapterTest extends TestCase {
     }
   }
 
-  public class LayeredFieldNamingAdapter extends TypeAdapter<LayeredFieldNamingClass> {
+  public class LayeredFieldNamingAdapter extends ReflectiveTypeAdapter<LayeredFieldNamingClass> {
 
     @Override
     public void write(JsonWriter out, LayeredFieldNamingClass value) throws IOException {

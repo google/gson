@@ -494,7 +494,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public GsonBuilder registerTypeAdapter(Type type, Object typeAdapter) {
+  public GsonBuilder registerTypeAdapter(final Type type, final Object typeAdapter) {
     $Gson$Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
         || typeAdapter instanceof JsonDeserializer<?>
         || typeAdapter instanceof InstanceCreator<?>
@@ -507,39 +507,13 @@ public final class GsonBuilder {
       factories.add(TreeTypeAdapter.newFactoryWithMatchRawType(typeToken, typeAdapter));
     }
     if (typeAdapter instanceof TypeAdapter<?>) {
-      factories.add(TypeAdapters.newFactory(TypeToken.get(type), (TypeAdapter)typeAdapter));
+      if (typeAdapter instanceof ReflectiveTypeAdapter<?>) {
+        factories.add(((ReflectiveTypeAdapter)typeAdapter).getFactory(type));
+      } else {
+        factories.add(TypeAdapters.newFactory(TypeToken.get(type), (TypeAdapter)typeAdapter));
+      }
     }
     return this;
-  }
-
-  /**
-   * Configures Gson for custom serialization and deserialization with Fill-in. Takes the type
-   * adapter, and wraps the result from the {@link TypeAdapter} into a {@link ReflectiveTypeAdapterFactory.Adapter}. Like
-   * {@link #registerTypeAdapter(Type, Object)}, it only applies to the type specified by
-   * the {@code type} parameter.
-   *
-   * @param baseType the type definition for the type adapter being registered
-   * @param objectAdapter This object must implement the {@link TypeAdapter} class
-   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
-   */
-  public GsonBuilder registerTypeAdapterWithFillIn(final Type baseType, Object objectAdapter) {
-   $Gson$Preconditions.checkArgument(objectAdapter instanceof TypeAdapter<?>);
-   final TypeAdapter<?> typeAdapter = (TypeAdapter<?>) objectAdapter;
-
-   factories.add(new TypeAdapterFactory() {
-     @Override
-     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-       ConstructorConstructor constructorConstructor = new ConstructorConstructor(type, typeAdapter);
-       List<Type> typeList = new ArrayList<Type>();
-       typeList.add(baseType);
-       ReflectiveTypeAdapterFactory reflectiveTypeAdapterFactory =
-           new ReflectiveTypeAdapterFactory(constructorConstructor, gson.fieldNamingStrategy,
-               gson.excluder, gson.jsonAdapterFactory, typeList);
-       return reflectiveTypeAdapterFactory.create(gson, type);
-     }
-   });
-
-   return this;
   }
 
   /**
