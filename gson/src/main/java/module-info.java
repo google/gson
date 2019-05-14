@@ -4,5 +4,5 @@ module com.google.gson {
 	exports com.google.gson.reflect;
 	exports com.google.gson.stream;
 
-	requires java.sql;
+	requires transitive java.sql;
 }

@@ -608,7 +608,7 @@ public class MapTest extends TestCase {
     String json = "{'2.3':'a'}";
     Map<Double, String> map = new LinkedHashMap<Double, String>();
     map.put(2.3, "a");
-    JsonElement tree = new JsonParser().parse(json);
+    JsonElement tree = JsonParser.parseString(json);
     assertEquals(map, gson.fromJson(tree, new TypeToken<Map<Double, String>>() {}.getType()));
   }
 

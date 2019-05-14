@@ -35,12 +35,12 @@ Maven:
 [![Build Status](https://travis-ci.org/google/gson.svg?branch=master)](https://travis-ci.org/google/gson)
 
 ### Documentation
-  * [API Javadoc](http://www.javadoc.io/doc/com.google.code.gson/gson): Documentation for the current release
+  * [API Javadoc](https://www.javadoc.io/doc/com.google.code.gson/gson): Documentation for the current release
   * [User guide](https://github.com/google/gson/blob/master/UserGuide.md): This guide contains examples on how to use Gson in your code.
   * [Change log](https://github.com/google/gson/blob/master/CHANGELOG.md): Changes in the recent versions
   * [Design document](https://github.com/google/gson/blob/master/GsonDesignDocument.md): This document discusses issues we faced while designing Gson. It also includes a comparison of Gson with other Java libraries that can be used for Json conversion
 
-Please use the 'gson' tag on StackOverflow or the [google-gson Google group](http://groups.google.com/group/google-gson) to discuss Gson or to post questions.
+Please use the 'gson' tag on StackOverflow or the [google-gson Google group](https://groups.google.com/group/google-gson) to discuss Gson or to post questions.
 
 ### Related Content Created by Third Parties
   * [Gson Tutorial](http://www.studytrails.com/java/json/java-google-json-introduction.jsp) by `StudyTrails`
