@@ -57,36 +57,6 @@ public class JsonObjectTest extends TestCase {
         assertEquals(expectedClass, targetClass);
     }
 
-    public void testGettingAsJsonArray() {
-        //setup
-        JsonObject jsonObj = new JsonObject();
-        String propertyName = "property";
-        JsonPrimitive value = new JsonPrimitive("blah");
-        jsonObj.add(propertyName, value);
-        //test method
-        JsonArray target = jsonObj.getAsJsonArray(propertyName);
-        //compare
-        Class expectedClass = JsonArray.class;
-        Class targetClass = target.getClass();
-
-        assertEquals(expectedClass, targetClass);
-    }
-
-    public void testGettingAsJsonObject() {
-        //setup
-        JsonObject jsonObj = new JsonObject();
-        String propertyName = "property";
-        JsonPrimitive value = new JsonPrimitive("blah");
-        jsonObj.add(propertyName, value);
-        //test method
-        JsonObject target = jsonObj.getAsJsonObject(propertyName);
-        //compare
-        Class expectedClass = JsonObject.class;
-        Class targetClass = target.getClass();
-
-        assertEquals(expectedClass, targetClass);
-    }
-
     public void testAddingJsonNullProperty() {
         JsonObject jsonObj = new JsonObject();
         String propertyName = "property";
