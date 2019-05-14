@@ -209,7 +209,7 @@ public class JsonObjectTest extends TestCase {
         JsonObject a = new JsonObject();
         JsonObject b = new JsonObject();
 
-        assertEquals("JsonObject a does not equal JsonObject b", a, b);
+        assertEquals("Equals method did not return JsonObject a itself", a, a);
 
         a.add("foo", new JsonObject());
         assertFalse("a.add(foo,new) equals b", a.equals(b));
