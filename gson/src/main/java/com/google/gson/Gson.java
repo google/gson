@@ -35,7 +35,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLongArray;
 
-import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.Excluder;
 import com.google.gson.internal.GsonBuildConfig;
 import com.google.gson.internal.Primitives;
@@ -126,7 +125,6 @@ public final class Gson {
 
   private final Map<TypeToken<?>, TypeAdapter<?>> typeTokenCache = new ConcurrentHashMap<TypeToken<?>, TypeAdapter<?>>();
 
-  private final ConstructorConstructor constructorConstructor;
   private final JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory;
 
   final List<TypeAdapterFactory> factories;
@@ -203,7 +201,6 @@ public final class Gson {
     this.excluder = excluder;
     this.fieldNamingStrategy = fieldNamingStrategy;
     this.instanceCreators = instanceCreators;
-    this.constructorConstructor = new ConstructorConstructor(instanceCreators);
     this.serializeNulls = serializeNulls;
     this.complexMapKeySerialization = complexMapKeySerialization;
     this.generateNonExecutableJson = generateNonExecutableGson;
@@ -269,13 +266,13 @@ public final class Gson {
     factories.add(TypeAdapters.CLASS_FACTORY);
 
     // type adapters for composite and user-defined types
-    factories.add(new CollectionTypeAdapterFactory(constructorConstructor));
-    factories.add(new MapTypeAdapterFactory(constructorConstructor, complexMapKeySerialization));
-    this.jsonAdapterFactory = new JsonAdapterAnnotationTypeAdapterFactory(constructorConstructor);
+    factories.add(new CollectionTypeAdapterFactory(instanceCreators));
+    factories.add(new MapTypeAdapterFactory(instanceCreators, complexMapKeySerialization));
+    this.jsonAdapterFactory = new JsonAdapterAnnotationTypeAdapterFactory(instanceCreators);
     factories.add(jsonAdapterFactory);
     factories.add(TypeAdapters.ENUM_FACTORY);
     factories.add(new ReflectiveTypeAdapterFactory(
-        constructorConstructor, fieldNamingStrategy, excluder, jsonAdapterFactory));
+        instanceCreators, fieldNamingStrategy, excluder, jsonAdapterFactory));
 
     this.factories = Collections.unmodifiableList(factories);
   }
@@ -1033,7 +1030,7 @@ public final class Gson {
     return new StringBuilder("{serializeNulls:")
         .append(serializeNulls)
         .append(",factories:").append(factories)
-        .append(",instanceCreators:").append(constructorConstructor)
+        .append(",instanceCreators:").append(instanceCreators)
         .append("}")
         .toString();
   }

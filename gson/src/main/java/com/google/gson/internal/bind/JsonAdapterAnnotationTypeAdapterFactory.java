@@ -17,6 +17,7 @@
 package com.google.gson.internal.bind;
 
 import com.google.gson.Gson;
+import com.google.gson.InstanceCreator;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonSerializer;
 import com.google.gson.TypeAdapter;
@@ -24,6 +25,8 @@ import com.google.gson.TypeAdapterFactory;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
+import java.util.Map;
 
 /**
  * Given a type T, looks for the annotation {@link JsonAdapter} and uses an instance of the
@@ -32,10 +35,10 @@ import com.google.gson.reflect.TypeToken;
  * @since 2.3
  */
 public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapterFactory {
-  private final ConstructorConstructor constructorConstructor;
+  private final Map<Type, InstanceCreator<?>> instanceCreators;
 
-  public JsonAdapterAnnotationTypeAdapterFactory(ConstructorConstructor constructorConstructor) {
-    this.constructorConstructor = constructorConstructor;
+  public JsonAdapterAnnotationTypeAdapterFactory(Map<Type, InstanceCreator<?>> instanceCreators) {
+    this.instanceCreators = instanceCreators;
   }
 
   @SuppressWarnings("unchecked")
@@ -46,13 +49,12 @@ public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapte
     if (annotation == null) {
       return null;
     }
-    return (TypeAdapter<T>) getTypeAdapter(constructorConstructor, gson, targetType, annotation);
+    return (TypeAdapter<T>) getTypeAdapter(gson, targetType, annotation);
   }
 
   @SuppressWarnings({ "unchecked", "rawtypes" }) // Casts guarded by conditionals.
-  TypeAdapter<?> getTypeAdapter(ConstructorConstructor constructorConstructor, Gson gson,
-      TypeToken<?> type, JsonAdapter annotation) {
-    Object instance = constructorConstructor.get(TypeToken.get(annotation.value())).construct();
+  TypeAdapter<?> getTypeAdapter(Gson gson, TypeToken<?> type, JsonAdapter annotation) {
+    Object instance = ConstructorConstructor.get(TypeToken.get(annotation.value()), instanceCreators).construct();
 
     TypeAdapter<?> typeAdapter;
     if (instance instanceof TypeAdapter) {

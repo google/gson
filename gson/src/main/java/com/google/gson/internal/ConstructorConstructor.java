@@ -47,14 +47,8 @@ import com.google.gson.reflect.TypeToken;
  * Returns a function that can construct an instance of a requested type.
  */
 public final class ConstructorConstructor {
-  private final Map<Type, InstanceCreator<?>> instanceCreators;
-  private final ReflectionAccessor accessor = ReflectionAccessor.getInstance();
 
-  public ConstructorConstructor(Map<Type, InstanceCreator<?>> instanceCreators) {
-    this.instanceCreators = instanceCreators;
-  }
-
-  public <T> ObjectConstructor<T> get(TypeToken<T> typeToken) {
+  public static <T> ObjectConstructor<T> get(TypeToken<T> typeToken, Map<Type, InstanceCreator<?>> instanceCreators) {
     final Type type = typeToken.getType();
     final Class<? super T> rawType = typeToken.getRawType();
 
@@ -96,11 +90,11 @@ public final class ConstructorConstructor {
     return newUnsafeAllocator(type, rawType);
   }
 
-  private <T> ObjectConstructor<T> newDefaultConstructor(Class<? super T> rawType) {
+  private static <T> ObjectConstructor<T> newDefaultConstructor(Class<? super T> rawType) {
     try {
       final Constructor<? super T> constructor = rawType.getDeclaredConstructor();
       if (!constructor.isAccessible()) {
-        accessor.makeAccessible(constructor);
+        ReflectionAccessor.getInstance().makeAccessible(constructor);
       }
       return new ObjectConstructor<T>() {
         @SuppressWarnings("unchecked") // T is the same raw type as is requested
@@ -131,7 +125,7 @@ public final class ConstructorConstructor {
    * subtypes.
    */
   @SuppressWarnings("unchecked") // use runtime checks to guarantee that 'T' is what it is
-  private <T> ObjectConstructor<T> newDefaultImplementationConstructor(
+  private static <T> ObjectConstructor<T> newDefaultImplementationConstructor(
       final Type type, Class<? super T> rawType) {
     if (Collection.class.isAssignableFrom(rawType)) {
       if (SortedSet.class.isAssignableFrom(rawType)) {
@@ -215,7 +209,7 @@ public final class ConstructorConstructor {
     return null;
   }
 
-  private <T> ObjectConstructor<T> newUnsafeAllocator(
+  private static <T> ObjectConstructor<T> newUnsafeAllocator(
       final Type type, final Class<? super T> rawType) {
     return new ObjectConstructor<T>() {
       private final UnsafeAllocator unsafeAllocator = UnsafeAllocator.create();
@@ -230,9 +224,5 @@ public final class ConstructorConstructor {
         }
       }
     };
-  }
-
-  @Override public String toString() {
-    return instanceCreators.toString();
   }
 }

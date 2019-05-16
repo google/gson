@@ -17,6 +17,7 @@
 package com.google.gson.internal.bind;
 
 import com.google.gson.Gson;
+import com.google.gson.InstanceCreator;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.$Gson$Types;
@@ -29,15 +30,16 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * Adapt a homogeneous collection of objects.
  */
 public final class CollectionTypeAdapterFactory implements TypeAdapterFactory {
-  private final ConstructorConstructor constructorConstructor;
+  private final Map<Type, InstanceCreator<?>> instanceCreators;
 
-  public CollectionTypeAdapterFactory(ConstructorConstructor constructorConstructor) {
-    this.constructorConstructor = constructorConstructor;
+  public CollectionTypeAdapterFactory(Map<Type, InstanceCreator<?>> instanceCreators) {
+    this.instanceCreators = instanceCreators;
   }
 
   @Override
@@ -51,7 +53,7 @@ public final class CollectionTypeAdapterFactory implements TypeAdapterFactory {
 
     Type elementType = $Gson$Types.getCollectionElementType(type, rawType);
     TypeAdapter<?> elementTypeAdapter = gson.getAdapter(TypeToken.get(elementType));
-    ObjectConstructor<T> constructor = constructorConstructor.get(typeToken);
+    ObjectConstructor<T> constructor = ConstructorConstructor.get(typeToken, instanceCreators);
 
     @SuppressWarnings({"unchecked", "rawtypes"}) // create() doesn't define a type parameter
     TypeAdapter<T> result = new Adapter(gson, elementType, elementTypeAdapter, constructor);

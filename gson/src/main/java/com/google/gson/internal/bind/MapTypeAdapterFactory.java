@@ -17,6 +17,7 @@
 package com.google.gson.internal.bind;
 
 import com.google.gson.Gson;
+import com.google.gson.InstanceCreator;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
@@ -103,12 +104,12 @@ import java.util.Map;
  * is registered.
  */
 public final class MapTypeAdapterFactory implements TypeAdapterFactory {
-  private final ConstructorConstructor constructorConstructor;
+  private final Map<Type, InstanceCreator<?>> instanceCreators;
   final boolean complexMapKeySerialization;
 
-  public MapTypeAdapterFactory(ConstructorConstructor constructorConstructor,
+  public MapTypeAdapterFactory(Map<Type, InstanceCreator<?>> instanceCreators,
       boolean complexMapKeySerialization) {
-    this.constructorConstructor = constructorConstructor;
+    this.instanceCreators = instanceCreators;
     this.complexMapKeySerialization = complexMapKeySerialization;
   }
 
@@ -124,7 +125,7 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
     Type[] keyAndValueTypes = $Gson$Types.getMapKeyAndValueTypes(type, rawTypeOfSrc);
     TypeAdapter<?> keyAdapter = getKeyAdapter(gson, keyAndValueTypes[0]);
     TypeAdapter<?> valueAdapter = gson.getAdapter(TypeToken.get(keyAndValueTypes[1]));
-    ObjectConstructor<T> constructor = constructorConstructor.get(typeToken);
+    ObjectConstructor<T> constructor = ConstructorConstructor.get(typeToken, instanceCreators);
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     // we don't define a type parameter for the key or value types

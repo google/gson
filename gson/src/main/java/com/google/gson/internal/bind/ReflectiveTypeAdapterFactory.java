@@ -18,6 +18,7 @@ package com.google.gson.internal.bind;
 
 import com.google.gson.FieldNamingStrategy;
 import com.google.gson.Gson;
+import com.google.gson.InstanceCreator;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
@@ -46,16 +47,15 @@ import java.util.Map;
  * Type adapter that reflects over the fields and methods of a class.
  */
 public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
-  private final ConstructorConstructor constructorConstructor;
+  private final Map<Type, InstanceCreator<?>> instanceCreators;
   private final FieldNamingStrategy fieldNamingPolicy;
   private final Excluder excluder;
   private final JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory;
-  private final ReflectionAccessor accessor = ReflectionAccessor.getInstance();
 
-  public ReflectiveTypeAdapterFactory(ConstructorConstructor constructorConstructor,
+  public ReflectiveTypeAdapterFactory(Map<Type, InstanceCreator<?>> instanceCreators,
       FieldNamingStrategy fieldNamingPolicy, Excluder excluder,
       JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory) {
-    this.constructorConstructor = constructorConstructor;
+    this.instanceCreators = instanceCreators;
     this.fieldNamingPolicy = fieldNamingPolicy;
     this.excluder = excluder;
     this.jsonAdapterFactory = jsonAdapterFactory;
@@ -98,7 +98,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       return null; // it's a primitive!
     }
 
-    ObjectConstructor<T> constructor = constructorConstructor.get(type);
+    ObjectConstructor<T> constructor = ConstructorConstructor.get(type, instanceCreators);
     return new Adapter<T>(constructor, getBoundFields(gson, type, raw));
   }
 
@@ -110,8 +110,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     JsonAdapter annotation = field.getAnnotation(JsonAdapter.class);
     TypeAdapter<?> mapped = null;
     if (annotation != null) {
-      mapped = jsonAdapterFactory.getTypeAdapter(
-          constructorConstructor, context, fieldType, annotation);
+      mapped = jsonAdapterFactory.getTypeAdapter(context, fieldType, annotation);
     }
     final boolean jsonAdapterPresent = mapped != null;
     if (mapped == null) mapped = context.getAdapter(fieldType);
@@ -148,6 +147,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     }
 
     Type declaredType = type.getType();
+    ReflectionAccessor accessor = ReflectionAccessor.getInstance();
     while (raw != Object.class) {
       Field[] fields = raw.getDeclaredFields();
       for (Field field : fields) {
