@@ -80,11 +80,8 @@ public class BagOfPrimitives {
     if (longValue != other.longValue)
       return false;
     if (stringValue == null) {
-      if (other.stringValue != null)
-        return false;
-    } else if (!stringValue.equals(other.stringValue))
-      return false;
-    return true;
+      return other.stringValue == null;
+    } else return stringValue.equals(other.stringValue);
   }
 
   @Override
