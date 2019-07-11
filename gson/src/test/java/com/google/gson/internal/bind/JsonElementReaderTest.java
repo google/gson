@@ -26,12 +26,13 @@ import junit.framework.TestCase;
 public final class JsonElementReaderTest extends TestCase {
 
   public void testNumbers() throws IOException {
-    JsonElement element = JsonParser.parseString("[1, 2, 3]");
+    JsonElement element = JsonParser.parseString("[1, 2, 3, 4]");
     JsonTreeReader reader = new JsonTreeReader(element);
     reader.beginArray();
     assertEquals(1, reader.nextInt());
     assertEquals(2L, reader.nextLong());
     assertEquals(3.0, reader.nextDouble());
+    assertEquals(4.0f, reader.nextFloat());
     reader.endArray();
   }
 
@@ -43,6 +44,17 @@ public final class JsonElementReaderTest extends TestCase {
     assertTrue(Double.isNaN(reader.nextDouble()));
     assertEquals(Double.NEGATIVE_INFINITY, reader.nextDouble());
     assertEquals(Double.POSITIVE_INFINITY, reader.nextDouble());
+    reader.endArray();
+  }
+  
+  public void testLenientNansAndInfinitiesFloat() throws IOException {
+    JsonElement element = JsonParser.parseString("[NaN, -Infinity, Infinity]");
+    JsonTreeReader reader = new JsonTreeReader(element);
+    reader.setLenient(true);
+    reader.beginArray();
+    assertTrue(Float.isNaN(reader.nextFloat()));
+    assertEquals(Float.NEGATIVE_INFINITY, reader.nextFloat());
+    assertEquals(Float.POSITIVE_INFINITY, reader.nextFloat());
     reader.endArray();
   }
 
@@ -71,14 +83,44 @@ public final class JsonElementReaderTest extends TestCase {
     assertEquals("Infinity", reader.nextString());
     reader.endArray();
   }
+  
+  public void testStrictNansAndInfinitiesFloat() throws IOException {
+      System.out.println("Float.NaN = " + Float.NaN);
+      System.out.println("Float.NEGATIVE_INFINITY = " + Float.NEGATIVE_INFINITY);
+      System.out.println("Float.POSITIVE_INFINITY = " + Float.POSITIVE_INFINITY);
+    JsonElement element = JsonParser.parseString("[NaN, -Infinity, Infinity]");
+    JsonTreeReader reader = new JsonTreeReader(element);
+    reader.setLenient(false);
+    reader.beginArray();
+    try {
+      reader.nextFloat();
+      fail();
+    } catch (NumberFormatException e) {
+    }
+    assertEquals("NaN", reader.nextString());
+    try {
+      reader.nextFloat();
+      fail();
+    } catch (NumberFormatException e) {
+    }
+    assertEquals("-Infinity", reader.nextString());
+    try {
+      reader.nextFloat();
+      fail();
+    } catch (NumberFormatException e) {
+    }
+    assertEquals("Infinity", reader.nextString());
+    reader.endArray();
+  }
 
   public void testNumbersFromStrings() throws IOException {
-    JsonElement element = JsonParser.parseString("[\"1\", \"2\", \"3\"]");
+    JsonElement element = JsonParser.parseString("[\"1\", \"2\", \"3\", \"4\"]");
     JsonTreeReader reader = new JsonTreeReader(element);
     reader.beginArray();
     assertEquals(1, reader.nextInt());
     assertEquals(2L, reader.nextLong());
     assertEquals(3.0, reader.nextDouble());
+    assertEquals(4.0f, reader.nextFloat());
     reader.endArray();
   }
 
@@ -242,6 +284,11 @@ public final class JsonElementReaderTest extends TestCase {
     } catch (IllegalStateException expected) {
     }
     try {
+      reader.nextFloat();
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+    try {
       reader.nextName();
       fail();
     } catch (IllegalStateException expected) {
@@ -286,6 +333,11 @@ public final class JsonElementReaderTest extends TestCase {
     }
     try {
       reader.nextDouble();
+      fail();
+    } catch (NumberFormatException expected) {
+    }
+    try {
+      reader.nextFloat();
       fail();
     } catch (NumberFormatException expected) {
     }
