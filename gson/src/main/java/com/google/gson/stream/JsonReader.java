@@ -925,7 +925,7 @@ public class JsonReader implements Closeable {
    *
    * @throws IllegalStateException if the next token is not a literal value.
    * @throws NumberFormatException if the next literal value cannot be parsed
-   *     as a double, or is non-finite.
+   *     as a float, or is non-finite.
    */
   public float nextFloat() throws IOException {
     int p = peeked;
