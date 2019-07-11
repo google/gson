@@ -85,9 +85,6 @@ public final class JsonElementReaderTest extends TestCase {
   }
   
   public void testStrictNansAndInfinitiesFloat() throws IOException {
-      System.out.println("Float.NaN = " + Float.NaN);
-      System.out.println("Float.NEGATIVE_INFINITY = " + Float.NEGATIVE_INFINITY);
-      System.out.println("Float.POSITIVE_INFINITY = " + Float.POSITIVE_INFINITY);
     JsonElement element = JsonParser.parseString("[NaN, -Infinity, Infinity]");
     JsonTreeReader reader = new JsonTreeReader(element);
     reader.setLenient(false);
