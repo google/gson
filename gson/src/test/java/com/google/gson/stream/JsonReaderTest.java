@@ -290,11 +290,12 @@ public final class JsonReaderTest extends TestCase {
   }
 
   public void testIntegersWithFractionalPartSpecified() throws IOException {
-    JsonReader reader = new JsonReader(reader("[1.0,1.0,1.0]"));
+    JsonReader reader = new JsonReader(reader("[1.0,1.0,1.0,1.0]"));
     reader.beginArray();
     assertEquals(1.0, reader.nextDouble());
     assertEquals(1, reader.nextInt());
     assertEquals(1L, reader.nextLong());
+    assertEquals(1F, reader.nextFloat());
   }
 
   public void testDoubles() throws IOException {
@@ -321,6 +322,30 @@ public final class JsonReaderTest extends TestCase {
     reader.endArray();
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
+  
+  public void testFloats() throws IOException {
+    String json = "[-0.0,"
+        + "1.0,"
+        + "3.4028235E38,"
+        + "1.4E-45,"
+        + "0.0,"
+        + "-0.5,"
+        + "3.141592653589793,"
+        + "2.718281828459045]";
+      System.out.println("json = " + json);
+    JsonReader reader = new JsonReader(reader(json));
+    reader.beginArray();
+    assertEquals(-0.0F, reader.nextFloat());
+    assertEquals(1.0F, reader.nextFloat());
+    assertEquals(3.4028235E38F, reader.nextFloat());
+    assertEquals(1.4E-45F, reader.nextFloat());
+    assertEquals(0.0F, reader.nextFloat());
+    assertEquals(-0.5F, reader.nextFloat());
+    assertEquals(3.141592653589793F, reader.nextFloat());
+    assertEquals(2.718281828459045F, reader.nextFloat());
+    reader.endArray();
+    assertEquals(JsonToken.END_DOCUMENT, reader.peek());
+  }
 
   public void testStrictNonFiniteDoubles() throws IOException {
     String json = "[NaN]";
@@ -328,6 +353,17 @@ public final class JsonReaderTest extends TestCase {
     reader.beginArray();
     try {
       reader.nextDouble();
+      fail();
+    } catch (MalformedJsonException expected) {
+    }
+  }
+  
+  public void testStrictNonFiniteFloats() throws IOException {
+    String json = "[NaN]";
+    JsonReader reader = new JsonReader(reader(json));
+    reader.beginArray();
+    try {
+      reader.nextFloat();
       fail();
     } catch (MalformedJsonException expected) {
     }
@@ -343,6 +379,17 @@ public final class JsonReaderTest extends TestCase {
     } catch (MalformedJsonException expected) {
     }
   }
+  
+  public void testStrictQuotedNonFiniteFloats() throws IOException {
+    String json = "[\"NaN\"]";
+    JsonReader reader = new JsonReader(reader(json));
+    reader.beginArray();
+    try {
+      reader.nextFloat();
+      fail();
+    } catch (MalformedJsonException expected) {
+    }
+  }
 
   public void testLenientNonFiniteDoubles() throws IOException {
     String json = "[NaN, -Infinity, Infinity]";
@@ -354,6 +401,17 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(Double.POSITIVE_INFINITY, reader.nextDouble());
     reader.endArray();
   }
+  
+  public void testLenientNonFiniteFloats() throws IOException {
+    String json = "[NaN, -Infinity, Infinity]";
+    JsonReader reader = new JsonReader(reader(json));
+    reader.setLenient(true);
+    reader.beginArray();
+    assertTrue(Float.isNaN(reader.nextFloat()));
+    assertEquals(Float.NEGATIVE_INFINITY, reader.nextFloat());
+    assertEquals(Float.POSITIVE_INFINITY, reader.nextFloat());
+    reader.endArray();
+  }
 
   public void testLenientQuotedNonFiniteDoubles() throws IOException {
     String json = "[\"NaN\", \"-Infinity\", \"Infinity\"]";
@@ -363,6 +421,17 @@ public final class JsonReaderTest extends TestCase {
     assertTrue(Double.isNaN(reader.nextDouble()));
     assertEquals(Double.NEGATIVE_INFINITY, reader.nextDouble());
     assertEquals(Double.POSITIVE_INFINITY, reader.nextDouble());
+    reader.endArray();
+  }
+  
+  public void testLenientQuotedNonFiniteFloats() throws IOException {
+    String json = "[\"NaN\", \"-Infinity\", \"Infinity\"]";
+    JsonReader reader = new JsonReader(reader(json));
+    reader.setLenient(true);
+    reader.beginArray();
+    assertTrue(Float.isNaN(reader.nextFloat()));
+    assertEquals(Float.NEGATIVE_INFINITY, reader.nextFloat());
+    assertEquals(Float.POSITIVE_INFINITY, reader.nextFloat());
     reader.endArray();
   }
 
