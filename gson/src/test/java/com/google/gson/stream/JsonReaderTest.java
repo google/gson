@@ -332,7 +332,6 @@ public final class JsonReaderTest extends TestCase {
         + "-0.5,"
         + "3.141592653589793,"
         + "2.718281828459045]";
-      System.out.println("json = " + json);
     JsonReader reader = new JsonReader(reader(json));
     reader.beginArray();
     assertEquals(-0.0F, reader.nextFloat());
