@@ -918,6 +918,50 @@ public class JsonReader implements Closeable {
     return result;
   }
 
+    /**
+   * Returns the {@link com.google.gson.stream.JsonToken#NUMBER float} value of the next token,
+   * consuming it. If the next token is a string, this method will attempt to
+   * parse it as a float using {@link Double#parseDouble(String)}.
+   *
+   * @throws IllegalStateException if the next token is not a literal value.
+   * @throws NumberFormatException if the next literal value cannot be parsed
+   *     as a double, or is non-finite.
+   */
+  public float nextFloat() throws IOException {
+    int p = peeked;
+    if (p == PEEKED_NONE) {
+      p = doPeek();
+    }
+
+    if (p == PEEKED_LONG) {
+      peeked = PEEKED_NONE;
+      pathIndices[stackSize - 1]++;
+      return (float) peekedLong;
+    }
+
+    if (p == PEEKED_NUMBER) {
+      peekedString = new String(buffer, pos, peekedNumberLength);
+      pos += peekedNumberLength;
+    } else if (p == PEEKED_SINGLE_QUOTED || p == PEEKED_DOUBLE_QUOTED) {
+      peekedString = nextQuotedValue(p == PEEKED_SINGLE_QUOTED ? '\'' : '"');
+    } else if (p == PEEKED_UNQUOTED) {
+      peekedString = nextUnquotedValue();
+    } else if (p != PEEKED_BUFFERED) {
+      throw new IllegalStateException("Expected a float but was " + peek() + locationString());
+    }
+
+    peeked = PEEKED_BUFFERED;
+    float result = Float.parseFloat(peekedString); // don't catch this NumberFormatException.
+    if (!lenient && (Float.isNaN(result) || Float.isInfinite(result))) {
+      throw new MalformedJsonException(
+          "JSON forbids NaN and infinities: " + result + locationString());
+    }
+    peekedString = null;
+    peeked = PEEKED_NONE;
+    pathIndices[stackSize - 1]++;
+    return result;
+  }
+  
   /**
    * Returns the {@link com.google.gson.stream.JsonToken#NUMBER long} value of the next token,
    * consuming it. If the next token is a string, this method will attempt to
