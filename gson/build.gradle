@@ -6,8 +6,31 @@ version = '2.8.6-SNAPSHOT'
 
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
+project.ext {
+    generatedSourcesDir = "${project.projectDir}/target/generated-sources/java-templates/"
+}
 
-sourceSets.main.java.exclude("**/module-info.java")
+task generateVersion(type: Copy) {
+    from 'src/main/java-templates/'
+    into generatedSourcesDir
+    expand(project: project)
+}
+
+task removeGeneratedCode(type: Delete) {
+    delete generatedSourcesDir
+}
+
+compileJava.dependsOn generateVersion
+clean.dependsOn removeGeneratedCode
+
+sourceSets {
+    main {
+        java {
+            srcDirs += [generatedSourcesDir]
+            exclude "**/module-info.java"
+        }
+    }
+}
 dependencies {
     testCompile "junit:junit:4.12"
 }
