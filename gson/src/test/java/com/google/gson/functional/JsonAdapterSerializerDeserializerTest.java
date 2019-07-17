@@ -161,4 +161,22 @@ public final class JsonAdapterSerializerDeserializerTest extends TestCase {
       return new JsonPrimitive("BaseIntegerAdapter");
     }
   }
+
+  public void testJsonAdapterNullSafe() {
+    Gson gson = new Gson();
+    String json = gson.toJson(new Computer3(null, null));
+    assertEquals("{\"user1\":\"UserSerializerDeserializer\"}", json);
+    Computer3 computer3 = gson.fromJson("{\"user1\":null, \"user2\":null}", Computer3.class);
+    assertEquals("UserSerializerDeserializer", computer3.user1.name);
+    assertNull(computer3.user2);
+  }
+
+  private static final class Computer3 {
+    @JsonAdapter(value = UserSerializerDeserializer.class, nullSafe = false) final User user1;
+    @JsonAdapter(value = UserSerializerDeserializer.class) final User user2;
+    Computer3(User user1, User user2) {
+      this.user1 = user1;
+      this.user2 = user2;
+    }
+  }
 }

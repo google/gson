@@ -45,17 +45,24 @@ public final class TreeTypeAdapter<T> extends TypeAdapter<T> {
   private final TypeToken<T> typeToken;
   private final TypeAdapterFactory skipPast;
   private final GsonContextImpl context = new GsonContextImpl();
+  private final boolean nullSafe;
 
   /** The delegate is lazily created because it may not be needed, and creating it may fail. */
   private TypeAdapter<T> delegate;
 
   public TreeTypeAdapter(JsonSerializer<T> serializer, JsonDeserializer<T> deserializer,
-      Gson gson, TypeToken<T> typeToken, TypeAdapterFactory skipPast) {
+      Gson gson, TypeToken<T> typeToken, TypeAdapterFactory skipPast, boolean nullSafe) {
     this.serializer = serializer;
     this.deserializer = deserializer;
     this.gson = gson;
     this.typeToken = typeToken;
     this.skipPast = skipPast;
+    this.nullSafe = nullSafe;
+  }
+
+  public TreeTypeAdapter(JsonSerializer<T> serializer, JsonDeserializer<T> deserializer,
+                         Gson gson, TypeToken<T> typeToken, TypeAdapterFactory skipPast) {
+    this(serializer, deserializer, gson, typeToken, skipPast, true);
   }
 
   @Override public T read(JsonReader in) throws IOException {
@@ -63,7 +70,7 @@ public final class TreeTypeAdapter<T> extends TypeAdapter<T> {
       return delegate().read(in);
     }
     JsonElement value = Streams.parse(in);
-    if (value.isJsonNull()) {
+    if (nullSafe && value.isJsonNull()) {
       return null;
     }
     return deserializer.deserialize(value, typeToken.getType(), context);
@@ -74,7 +81,7 @@ public final class TreeTypeAdapter<T> extends TypeAdapter<T> {
       delegate().write(out, value);
       return;
     }
-    if (value == null) {
+    if (nullSafe && value == null) {
       out.nullValue();
       return;
     }
