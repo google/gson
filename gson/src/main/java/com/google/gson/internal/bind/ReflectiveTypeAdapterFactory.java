@@ -18,6 +18,7 @@ package com.google.gson.internal.bind;
 
 import com.google.gson.FieldNamingStrategy;
 import com.google.gson.Gson;
+import com.google.gson.JsogPolicy;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
@@ -51,14 +52,17 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   private final Excluder excluder;
   private final JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory;
   private final ReflectionAccessor accessor = ReflectionAccessor.getInstance();
+  private final JsogPolicy jsogPolicy;
 
   public ReflectiveTypeAdapterFactory(ConstructorConstructor constructorConstructor,
       FieldNamingStrategy fieldNamingPolicy, Excluder excluder,
-      JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory) {
+      JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory,
+      JsogPolicy jsogPolicy) {
     this.constructorConstructor = constructorConstructor;
     this.fieldNamingPolicy = fieldNamingPolicy;
     this.excluder = excluder;
     this.jsonAdapterFactory = jsonAdapterFactory;
+    this.jsogPolicy = jsogPolicy;
   }
 
   public boolean excludeField(Field f, boolean serialize) {
@@ -99,7 +103,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     }
 
     ObjectConstructor<T> constructor = constructorConstructor.get(type);
-    return new Adapter<T>(constructor, getBoundFields(gson, type, raw));
+    return new Adapter<T>(constructor, getBoundFields(gson, type, raw), jsogPolicy.isJsogEnabled(type));
   }
 
   private ReflectiveTypeAdapterFactory.BoundField createBoundField(
@@ -197,10 +201,12 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   public static final class Adapter<T> extends TypeAdapter<T> {
     private final ObjectConstructor<T> constructor;
     private final Map<String, BoundField> boundFields;
+    private final boolean useJsog;
 
-    Adapter(ObjectConstructor<T> constructor, Map<String, BoundField> boundFields) {
+    Adapter(ObjectConstructor<T> constructor, Map<String, BoundField> boundFields, boolean useJsog) {
       this.constructor = constructor;
       this.boundFields = boundFields;
+      this.useJsog = useJsog;
     }
 
     @Override public T read(JsonReader in) throws IOException {
@@ -215,11 +221,24 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         in.beginObject();
         while (in.hasNext()) {
           String name = in.nextName();
-          BoundField field = boundFields.get(name);
-          if (field == null || !field.deserialized) {
-            in.skipValue();
+          if (useJsog && JsogRegistry.JSOG_FIELD_ID.equals(name)) {
+            // JsogEnabled Id -- Registers the instance on JsogEnabled
+            String jsogId = in.nextString();
+            JsogRegistry.get().register(jsogId, instance);
+          } else if (useJsog && JsogRegistry.JSOG_FIELD_REF.equals(name)) {
+            // JsogEnabled backreference -- Replaces the instance with the value registered on JsogEnabled
+            String jsogId = in.nextString();
+            instance = (T) JsogRegistry.get().getInstance(jsogId);
+            if (instance == null) {
+              throw new JsonSyntaxException("Unresolved JsogEnabled reference: " + jsogId);
+            }
           } else {
-            field.read(in, instance);
+            BoundField field = boundFields.get(name);
+            if (field == null || !field.deserialized) {
+              in.skipValue();
+            } else {
+              field.read(in, instance);
+            }
           }
         }
       } catch (IllegalStateException e) {
@@ -238,15 +257,32 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       }
 
       out.beginObject();
-      try {
-        for (BoundField boundField : boundFields.values()) {
-          if (boundField.writeField(value)) {
-            out.name(boundField.name);
-            boundField.write(out, value);
-          }
+
+      boolean writeContents = true;
+      if (useJsog) {
+        JsogRegistry jsogContext = JsogRegistry.get();
+        String id = jsogContext.geId(value);
+        if (id != null) { //Object already registered, use @ref
+          out.name(JsogRegistry.JSOG_FIELD_REF);
+          out.value(id);
+          writeContents = false;
+        } else {
+          id = jsogContext.register(value);
+          out.name(JsogRegistry.JSOG_FIELD_ID);
+          out.value(id);
         }
-      } catch (IllegalAccessException e) {
-        throw new AssertionError(e);
+      }
+      if (writeContents) {
+        try {
+          for (BoundField boundField : boundFields.values()) {
+            if (boundField.writeField(value)) {
+              out.name(boundField.name);
+              boundField.write(out, value);
+            }
+          }
+        } catch (IllegalAccessException e) {
+          throw new AssertionError(e);
+        }
       }
       out.endObject();
     }

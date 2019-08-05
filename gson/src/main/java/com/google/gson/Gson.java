@@ -147,6 +147,7 @@ public final class Gson {
   final LongSerializationPolicy longSerializationPolicy;
   final List<TypeAdapterFactory> builderFactories;
   final List<TypeAdapterFactory> builderHierarchyFactories;
+  final JsogPolicy jsogPolicy;
 
   /**
    * Constructs a Gson object with default configuration. The default configuration has the
@@ -189,7 +190,7 @@ public final class Gson {
         DEFAULT_PRETTY_PRINT, DEFAULT_LENIENT, DEFAULT_SPECIALIZE_FLOAT_VALUES,
         LongSerializationPolicy.DEFAULT, null, DateFormat.DEFAULT, DateFormat.DEFAULT,
         Collections.<TypeAdapterFactory>emptyList(), Collections.<TypeAdapterFactory>emptyList(),
-        Collections.<TypeAdapterFactory>emptyList());
+        Collections.<TypeAdapterFactory>emptyList(), JsogPolicy.DEFAULT);
   }
 
   Gson(Excluder excluder, FieldNamingStrategy fieldNamingStrategy,
@@ -199,7 +200,7 @@ public final class Gson {
       LongSerializationPolicy longSerializationPolicy, String datePattern, int dateStyle,
       int timeStyle, List<TypeAdapterFactory> builderFactories,
       List<TypeAdapterFactory> builderHierarchyFactories,
-      List<TypeAdapterFactory> factoriesToBeAdded) {
+      List<TypeAdapterFactory> factoriesToBeAdded, JsogPolicy jsogPolicy) {
     this.excluder = excluder;
     this.fieldNamingStrategy = fieldNamingStrategy;
     this.instanceCreators = instanceCreators;
@@ -217,6 +218,7 @@ public final class Gson {
     this.timeStyle = timeStyle;
     this.builderFactories = builderFactories;
     this.builderHierarchyFactories = builderHierarchyFactories;
+    this.jsogPolicy = jsogPolicy;
 
     List<TypeAdapterFactory> factories = new ArrayList<TypeAdapterFactory>();
 
@@ -275,7 +277,7 @@ public final class Gson {
     factories.add(jsonAdapterFactory);
     factories.add(TypeAdapters.ENUM_FACTORY);
     factories.add(new ReflectiveTypeAdapterFactory(
-        constructorConstructor, fieldNamingStrategy, excluder, jsonAdapterFactory));
+        constructorConstructor, fieldNamingStrategy, excluder, jsonAdapterFactory, jsogPolicy));
 
     this.factories = Collections.unmodifiableList(factories);
   }
@@ -304,6 +306,19 @@ public final class Gson {
 
   public boolean htmlSafe() {
     return htmlSafe;
+  }
+
+  /**
+   * Gets the JSOG policy applied to this instance.
+   *
+   * <p>This is used to decide on which classes JSOG is enabled, and what prefix
+   * (if any) should be assigned for instance IDs during serialization.</p>
+   *
+   * @return The current {@link JsogPolicy}
+   * @see <a href="https://github.com/jsog/jsog">JSOG</a>
+   */
+  public JsogPolicy getJsogPolicy() {
+    return jsogPolicy;
   }
 
   private TypeAdapter<Number> doubleAdapter(boolean serializeSpecialFloatingPointValues) {

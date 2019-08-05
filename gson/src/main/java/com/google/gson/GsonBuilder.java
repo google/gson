@@ -94,7 +94,7 @@ public final class GsonBuilder {
   private boolean prettyPrinting = DEFAULT_PRETTY_PRINT;
   private boolean generateNonExecutableJson = DEFAULT_JSON_NON_EXECUTABLE;
   private boolean lenient = DEFAULT_LENIENT;
-
+  private JsogPolicy jsogPolicy = JsogPolicy.DEFAULT;
   /**
    * Creates a GsonBuilder instance that can be used to build Gson with various configuration
    * settings. GsonBuilder follows the builder pattern, and it is typically used by first
@@ -127,6 +127,7 @@ public final class GsonBuilder {
     this.timeStyle = gson.timeStyle;
     this.factories.addAll(gson.builderFactories);
     this.hierarchyFactories.addAll(gson.builderHierarchyFactories);
+    this.jsogPolicy = gson.jsogPolicy;
   }
 
   /**
@@ -477,6 +478,20 @@ public final class GsonBuilder {
   }
 
   /**
+   * Configures Gson to use the specified JSOG policy.
+   *
+   * <p>This is used to decide on which classes JSOG is enabled, and what prefix
+   * (if any) should be assigned for instance IDs during serialization.</p>
+   *
+   * @param jsogPolicy The {@link JsogPolicy} to use
+   * @see <a href="https://github.com/jsog/jsog">JSOG</a>
+   */
+  public GsonBuilder setJsogPolicy(JsogPolicy jsogPolicy) {
+    this.jsogPolicy = jsogPolicy;
+    return this;
+  }
+
+  /**
    * Configures Gson for custom serialization or deserialization. This method combines the
    * registration of an {@link TypeAdapter}, {@link InstanceCreator}, {@link JsonSerializer}, and a
    * {@link JsonDeserializer}. It is best used when a single object {@code typeAdapter} implements
@@ -599,7 +614,7 @@ public final class GsonBuilder {
         generateNonExecutableJson, escapeHtmlChars, prettyPrinting, lenient,
         serializeSpecialFloatingPointValues, longSerializationPolicy,
         datePattern, dateStyle, timeStyle,
-        this.factories, this.hierarchyFactories, factories);
+        this.factories, this.hierarchyFactories, factories, jsogPolicy);
   }
 
   @SuppressWarnings("unchecked")
