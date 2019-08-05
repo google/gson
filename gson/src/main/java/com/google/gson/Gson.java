@@ -700,6 +700,7 @@ public final class Gson {
     writer.setHtmlSafe(htmlSafe);
     boolean oldSerializeNulls = writer.getSerializeNulls();
     writer.setSerializeNulls(serializeNulls);
+    GsonLocal.Context oldGsonContext = GsonLocal.Context.start(this);
     try {
       ((TypeAdapter<Object>) adapter).write(writer, src);
     } catch (IOException e) {
@@ -709,6 +710,7 @@ public final class Gson {
       error.initCause(e);
       throw error;
     } finally {
+      GsonLocal.Context.set(oldGsonContext);
       writer.setLenient(oldLenient);
       writer.setHtmlSafe(oldHtmlSafe);
       writer.setSerializeNulls(oldSerializeNulls);
@@ -924,6 +926,7 @@ public final class Gson {
     boolean isEmpty = true;
     boolean oldLenient = reader.isLenient();
     reader.setLenient(true);
+    GsonLocal.Context oldGsonContext = GsonLocal.Context.start(this);
     try {
       reader.peek();
       isEmpty = false;
@@ -950,6 +953,7 @@ public final class Gson {
       error.initCause(e);
       throw error;
     } finally {
+      GsonLocal.Context.set(oldGsonContext);
       reader.setLenient(oldLenient);
     }
   }
