@@ -50,11 +50,11 @@ public class JsogRegistry {
         }
     };
 
-    /** JSOG policy associated with the current {@link com.google.gson.Gson instance */
+    /** JSOG policy associated with the current {@link com.google.gson.Gson} instance */
     private JsogPolicy jsogPolicy = GsonLocal.gson().getJsogPolicy();
     /** Maps ids to instances */
     private Map<String, Object> idToInstance = new HashMap<String, Object>();
-    /** Mapps instances to ids */
+    /** Maps instances to ids */
     private Map<Object, String> instanceToId = new IdentityHashMap<Object, String>();
     /** The next JSOG id that should be assigned to each prefix */
     private Map<String, Integer> nextIdByPrefix = new HashMap<String, Integer>();
