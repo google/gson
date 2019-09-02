@@ -144,7 +144,7 @@ public class JsogPolicy {
   }
 
   /**
-   * Creates a new JsogPolicy that enabled GSOG for all data types
+   * Creates a new JsogPolicy that enabled JSOG for all data types
    *
    * <p>Other than that, it behaves exactly like this instace.</p>
    *
