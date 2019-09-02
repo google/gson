@@ -230,7 +230,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
             String jsogId = in.nextString();
             instance = (T) JsogRegistry.get().getInstance(jsogId);
             if (instance == null) {
-              throw new JsonSyntaxException("Unresolved JsogEnabled reference: " + jsogId);
+              throw new JsonSyntaxException("Unresolved JSOG reference: " + jsogId);
             }
           } else {
             BoundField field = boundFields.get(name);
