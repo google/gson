@@ -1,0 +1,50 @@
+load("@rules_java//java:defs.bzl", "java_library", "java_test")
+load("//bazel:template_library.bzl", "template_library")
+
+template_library(
+    name = "build_config",
+    substitutions = {
+        # Keep in sync with `build.gradle` and `pom.xml`.
+        "${project.version}": "2.8.6-SNAPSHOT",
+    },
+    template = "src/main/java-templates/com/google/gson/internal/GsonBuildConfig.java",
+)
+
+java_library(
+    name = "gson",
+    srcs = [
+        ":build_config",
+    ] + glob(["src/main/java/com/google/gson/**/*.java"]),
+    visibility = ["//visibility:public"],
+)
+
+java_library(
+    name = "tests",
+    testonly = True,
+    srcs = glob(["src/test/java/com/google/gson/**/*.java"]),
+    javacopts = [
+        # TODO(yannic): Remove.
+        "-XepAllErrorsAsWarnings",
+    ],
+    deps = [
+        ":gson",
+        "@junit_junit//jar",
+    ],
+)
+
+[
+    java_test(
+        name = src[14:-5].replace("/", "."),
+        test_class = src[14:-5].replace("/", "."),
+        runtime_deps = [
+            ":tests",
+        ],
+    )
+    for src in glob(
+        ["src/test/java/**/*Test.java"],
+        exclude = [
+            # https://github.com/google/gson/issues/1185
+            "src/test/java/com/google/gson/DefaultDateTypeAdapterTest.java",
+        ],
+    )
+]
