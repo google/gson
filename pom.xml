@@ -67,6 +67,9 @@
           <executions>
             <execution>
               <id>default-compile</id>
+              <configuration>
+                <release>9</release>
+              </configuration>
             </execution>
             <execution>
               <id>base-compile</id>
