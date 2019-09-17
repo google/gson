@@ -103,6 +103,8 @@ import com.google.gson.stream.MalformedJsonException;
  * @author Jesse Wilson
  */
 public final class Gson {
+  public static final Gson DEFAULT_GSON = new Gson();
+
   static final boolean DEFAULT_JSON_NON_EXECUTABLE = false;
   static final boolean DEFAULT_LENIENT = false;
   static final boolean DEFAULT_PRETTY_PRINT = false;
@@ -181,6 +183,7 @@ public final class Gson {
    *   consideration for serialization and deserialization. You can change this behavior through
    *   {@link GsonBuilder#excludeFieldsWithModifiers(int...)}.</li>
    * </ul>
+   * @deprecated all Gson instances created via this constructor are equal, use {@link DEFAULT_GSON} instead
    */
   public Gson() {
     this(Excluder.DEFAULT, FieldNamingPolicy.IDENTITY,
