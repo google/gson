@@ -248,7 +248,7 @@ gson.toJson(foo); // May not serialize foo.value correctly
 gson.fromJson(json, foo.getClass()); // Fails to deserialize foo.value as Bar
 ```
 
-The above code fails to interpret value as type Bar because Gson invokes `list.getClass()` to get its class information, but this method returns a raw class, `Foo.class`. This means that Gson has no way of knowing that this is an object of type `Foo<Bar>`, and not just plain `Foo`.
+The above code fails to interpret value as type Bar because Gson invokes `foo.getClass()` to get its class information, but this method returns a raw class, `Foo.class`. This means that Gson has no way of knowing that this is an object of type `Foo<Bar>`, and not just plain `Foo`.
 
 You can solve this problem by specifying the correct parameterized type for your generic type. You can do this by using the [`TypeToken`](https://static.javadoc.io/com.google.code.gson/gson/2.8.5/com/google/gson/reflect/TypeToken.html) class.
 
