@@ -198,17 +198,17 @@ public final class JsonWriterTest extends TestCase {
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
     jsonWriter.beginArray();
     try {
-      jsonWriter.value(new Double(Double.NaN));
+      jsonWriter.value(Double.valueOf(Double.NaN));
       fail();
     } catch (IllegalArgumentException expected) {
     }
     try {
-      jsonWriter.value(new Double(Double.NEGATIVE_INFINITY));
+      jsonWriter.value(Double.valueOf(Double.NEGATIVE_INFINITY));
       fail();
     } catch (IllegalArgumentException expected) {
     }
     try {
-      jsonWriter.value(new Double(Double.POSITIVE_INFINITY));
+      jsonWriter.value(Double.valueOf(Double.POSITIVE_INFINITY));
       fail();
     } catch (IllegalArgumentException expected) {
     }

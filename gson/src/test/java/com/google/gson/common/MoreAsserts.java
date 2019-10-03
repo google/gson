@@ -16,7 +16,7 @@
 
 package com.google.gson.common;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import java.util.Collection;
 
@@ -27,26 +27,6 @@ import java.util.Collection;
  * @author Inderjeet Singh
  */
 public class MoreAsserts {
-
-  public static void assertEquals(int[] expected, int[] target) {
-    if (expected == null) {
-      Assert.assertNull(target);
-    }
-    Assert.assertEquals(expected.length, target.length);
-    for (int i = 0; i < expected.length; ++i) {
-      Assert.assertEquals(expected[i], target[i]);
-    }
-  }
-
-  public static void assertEquals(Integer[] expected, Integer[] target) {
-    if (expected == null) {
-      Assert.assertNull(target);
-    }
-    Assert.assertEquals(expected.length, target.length);
-    for (int i = 0; i < expected.length; ++i) {
-      Assert.assertEquals(expected[i], target[i]);
-    }
-  }
 
   /**
    * Asserts that the specified {@code value} is not present in {@code collection}
@@ -69,5 +49,4 @@ public class MoreAsserts {
     Assert.assertFalse(a.equals(null));
     Assert.assertFalse(a.equals(new Object()));
   }
-
 }

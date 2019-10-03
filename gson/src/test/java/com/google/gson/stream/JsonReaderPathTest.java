@@ -27,9 +27,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeTrue;
 
+@SuppressWarnings("resource")
 @RunWith(Parameterized.class)
 public class JsonReaderPathTest {
   @Parameterized.Parameters(name = "{0}")

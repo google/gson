@@ -59,8 +59,8 @@ public class MapAsArrayTypeAdapterTest extends TestCase {
         .create();
 
     Map<Number, String> original = new LinkedHashMap<Number, String>();
-    original.put(new Double(1.0), "a");
-    original.put(new Float(1.0), "b");
+    original.put(1.0D, "a");
+    original.put(1.0F, "b");
     try {
       gson.toJson(original, new TypeToken<Map<Number, String>>() {}.getType());
       fail(); // we no longer hash keys at serialization time
