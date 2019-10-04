@@ -88,8 +88,9 @@ public class DefaultDateTypeAdapterTest extends TestCase {
           new DefaultDateTypeAdapter(DateFormat.MEDIUM, DateFormat.MEDIUM));
       assertParsed(String.format("1 janvier 1970%s00:00:00 UTC", afterYearSep),
           new DefaultDateTypeAdapter(DateFormat.LONG, DateFormat.LONG));
-      assertParsed(JavaVersion.isJava9OrLater() ?
+      assertParsed(JavaVersion.isJava9OrLater() ? (JavaVersion.getMajorJavaVersion() <11 ?
                       "jeudi 1 janvier 1970 à 00:00:00 Coordinated Universal Time" :
+                      "jeudi 1 janvier 1970 à 00:00:00 Temps universel coordonné") :
                       "jeudi 1 janvier 1970 00 h 00 UTC",
           new DefaultDateTypeAdapter(DateFormat.FULL, DateFormat.FULL));
     } finally {
