@@ -189,8 +189,6 @@ import java.util.Arrays;
  * @since 1.6
  */
 public class JsonReader implements Closeable {
-  /** The only non-execute prefix this parser permits */
-  private static final char[] NON_EXECUTE_PREFIX = ")]}'\n".toCharArray();
   private static final long MIN_INCOMPLETE_INTEGER = Long.MIN_VALUE / 10;
 
   private static final int PEEKED_NONE = 0;
@@ -1572,18 +1570,18 @@ public class JsonReader implements Closeable {
     nextNonWhitespace(true);
     pos--;
 
-    if (pos + NON_EXECUTE_PREFIX.length > limit && !fillBuffer(NON_EXECUTE_PREFIX.length)) {
+    int p = pos;
+    if (p + 5 > limit && !fillBuffer(5)) {
       return;
     }
 
-    for (int i = 0; i < NON_EXECUTE_PREFIX.length; i++) {
-      if (buffer[pos + i] != NON_EXECUTE_PREFIX[i]) {
-        return; // not a security token!
-      }
+    char[] buf = buffer;
+    if(buf[p] != ')' || buf[p + 1] != ']' || buf[p + 2] != '}' || buf[p + 3] != '\'' || buf[p + 4] != '\n') {
+      return; // not a security token!
     }
 
     // we consumed a security token!
-    pos += NON_EXECUTE_PREFIX.length;
+    pos += 5;
   }
 
   static {
