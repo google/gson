@@ -3,7 +3,7 @@ Change Log
 
 ## Version 2.8.6
 _2019-10-04_  [GitHub Diff](https://github.com/google/gson/compare/gson-parent-2.8.5...gson-parent-2.8.6)
- * Added static nethods `JsonParser.parseString` and `JsonParser.parseReader` and deprecated instance method `JsonParser.parse`
+ * Added static methods `JsonParser.parseString` and `JsonParser.parseReader` and deprecated instance method `JsonParser.parse`
  * Java 9 module-info support
 
 ## Version 2.8.5
