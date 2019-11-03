@@ -159,31 +159,20 @@ public enum FieldNamingPolicy implements FieldNamingStrategy {
    * Ensures the JSON field names begins with an upper case letter.
    */
   static String upperCaseFirstLetter(String name) {
-    StringBuilder fieldNameBuilder = new StringBuilder();
-    int index = 0;
-    char firstCharacter = name.charAt(index);
-    int length = name.length();
+    int firstLetterIndex = 0;
+    int limit = name.length() - 1;
+    for(; !Character.isLetter(name.charAt(firstLetterIndex)) && firstLetterIndex < limit; ++firstLetterIndex);
 
-    while (index < length - 1) {
-      if (Character.isLetter(firstCharacter)) {
-        break;
-      }
-
-      fieldNameBuilder.append(firstCharacter);
-      firstCharacter = name.charAt(++index);
-    }
-
-    if (!Character.isUpperCase(firstCharacter)) {
-      String modifiedTarget = modifyString(Character.toUpperCase(firstCharacter), name, ++index);
-      return fieldNameBuilder.append(modifiedTarget).toString();
-    } else {
+    char firstLetter = name.charAt(firstLetterIndex);
+    if(Character.isUpperCase(firstLetter)) { //The letter is already uppercased, return the original
       return name;
     }
-  }
 
-  private static String modifyString(char firstCharacter, String srcString, int indexOfSubstring) {
-    return (indexOfSubstring < srcString.length())
-        ? firstCharacter + srcString.substring(indexOfSubstring)
-        : String.valueOf(firstCharacter);
+    char uppercased = Character.toUpperCase(firstLetter);
+    if(firstLetterIndex == 0) { //First character in the string is the first letter, saves 1 substring
+      return uppercased + name.substring(1);
+    }
+
+    return name.substring(0, firstLetterIndex) + uppercased + name.substring(firstLetterIndex + 1);
   }
 }

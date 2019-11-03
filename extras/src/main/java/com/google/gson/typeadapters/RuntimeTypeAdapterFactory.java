@@ -120,6 +120,18 @@ import com.google.gson.stream.JsonWriter;
  *       .registerSubtype(Circle.class)
  *       .registerSubtype(Diamond.class);
  * }</pre>
+ *
+ * <h3>Serialization and deserialization</h3>
+ * In order to serialize and deserialize a polymorphic object,
+ * you must specify the base type explicitly.
+ * <pre>   {@code
+ *   Diamond diamond = new Diamond();
+ *   String json = gson.toJson(diamond, Shape.class);
+ * }</pre>
+ * And then:
+ * <pre>   {@code
+ *   Shape shape = gson.fromJson(json, Shape.class);
+ * }</pre>
  */
 public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
   private final Class<?> baseType;

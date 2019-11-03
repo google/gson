@@ -19,12 +19,12 @@ package com.google.gson.functional;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
-import com.google.gson.common.MoreAsserts;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.common.TestTypes.ClassWithObjects;
 import com.google.gson.reflect.TypeToken;
 
 import junit.framework.TestCase;
+import static org.junit.Assert.assertArrayEquals;
 
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
@@ -53,7 +53,7 @@ public class ArrayTest extends TestCase {
   public void testTopLevelArrayOfIntsDeserialization() {
     int[] expected = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
     int[] actual = gson.fromJson("[1,2,3,4,5,6,7,8,9]", int[].class);
-    MoreAsserts.assertEquals(expected, actual);
+    assertArrayEquals(expected, actual);
   }
 
   public void testInvalidArrayDeserialization() {
@@ -173,8 +173,8 @@ public class ArrayTest extends TestCase {
     Collection<Integer>[] target = gson.fromJson(json, type);
 
     assertEquals(2, target.length);
-    MoreAsserts.assertEquals(new Integer[] { 1, 2 }, target[0].toArray(new Integer[0]));
-    MoreAsserts.assertEquals(new Integer[] { 3, 4 }, target[1].toArray(new Integer[0]));
+    assertArrayEquals(new Integer[] { 1, 2 }, target[0].toArray(new Integer[0]));
+    assertArrayEquals(new Integer[] { 3, 4 }, target[1].toArray(new Integer[0]));
   }
 
   public void testArrayOfPrimitivesAsObjectsSerialization() throws Exception {

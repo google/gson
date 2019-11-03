@@ -189,6 +189,7 @@ public final class JsonReaderTest extends TestCase {
     }
   }
   
+  @SuppressWarnings("unused")
   public void testNulls() {
     try {
       new JsonReader(null);
