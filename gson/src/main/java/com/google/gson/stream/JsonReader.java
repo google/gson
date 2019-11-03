@@ -1316,8 +1316,9 @@ public class JsonReader implements Closeable {
    * elements are skipped. This method is intended for use when the JSON token
    * stream contains unrecognized or unhandled values.</p>
    * 
-   * <p>Faster than {@link #nextValue()}.</p>
-   * @see #nextValue()
+   * <p>Faster than {@link #nextRawJSONValue()} which returns the skipped portion
+   * of the input.</p>
+   * @see #nextRawJSONValue()
    */
   public void skipValue() throws IOException {
     nextValue(false);
