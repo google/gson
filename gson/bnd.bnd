@@ -3,7 +3,8 @@ Bundle-Name: ${project.name}
 Bundle-Description: ${project.description}
 Bundle-Vendor: Google Gson Project
 Bundle-ContactAddress: ${project.parent.url}
-Bundle-RequiredExecutionEnvironment: J2SE-1.5, JavaSE-1.6, JavaSE-1.7, JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6, JavaSE-1.7, JavaSE-1.8
+Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.6))"
 
 -removeheaders: Private-Package
 
