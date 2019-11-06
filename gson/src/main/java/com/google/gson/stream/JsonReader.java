@@ -25,7 +25,7 @@ import java.io.Reader;
 import java.util.Arrays;
 
 /**
- * Reads a JSON (<a href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>)
+ * Reads a JSON (<a href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>)
  * encoded value as a stream of tokens. This stream includes both literal
  * values (strings, numbers, booleans, and nulls) as well as the begin and
  * end delimiters of objects and arrays. The tokens are traversed in
@@ -182,6 +182,39 @@ import java.util.Arrays;
  * non-execute prefix when {@link #setLenient(boolean) lenient parsing} is
  * enabled.
  *
+ * <h3>Available Parsing Modes</h3>
+ * This parser supports three different parsing modes:
+ * <ul>
+ *   <li>strict mode
+ *   <li>semi-strict mode (the default)
+ *   <li>lenient mode
+ * </ul>
+ *
+ * <p>In strict mode, the parser only accepts a JSON text that exactly conforms
+ * to the grammar, which is specified in
+ * <a href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>. The strict
+ * mode can be enabled by calling {@link #setStrict(boolean) setStrict(true)}.
+ * A leading byte order mark (U+FEFF) at the beginning of a JSON text is
+ * allowed.
+ *
+ * <p>In contrast to the strict mode, the semi-strict mode allows non-lowercase
+ * literals (like TRUE, fAlSe, NUlL etc.) and unescaped control characters in
+ * strings (and names). For the latter, consider the two Java strings
+ * {@code "\"unescaped\nnewline\""} and {@code "\"escaped\\u000anewline\""}.
+ * In semi-strict mode, both strings represent valid JSON texts and the parsed
+ * values are equal. In strict mode, only the latter string is accepted as a
+ * valid JSON text. The semi-strict mode, which is the default mode,
+ * corresponds to {@link #setStrict(boolean) setStrict(false)} and
+ * {@link #setLenient(boolean) setLenient(false)}.
+ *
+ * <p>In the lenient mode, the parser is very liberal in what it accepts.
+ * For the details, see the {@link #setLenient(boolean) setLenient} method.
+ * The lenient mode can be enabled by calling
+ * {@link #setLenient(boolean) setLenient(true)}.
+ *
+ * <p>Note: all three modes are mutually exclusive. Enabling one mode
+ * automatically disables the other two modes.
+ *
  * <p>Each {@code JsonReader} may be used to read a single JSON stream. Instances
  * of this class are not thread safe.
  *
@@ -227,6 +260,12 @@ public class JsonReader implements Closeable {
 
   /** True to accept non-spec compliant JSON */
   private boolean lenient = false;
+
+  /**
+   * True to accept a JSON text that exactly conforms to the
+   * <a href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a> grammar
+   */
+  private boolean strict = false;
 
   /**
    * Use a manual buffer to easily read and unread upcoming characters, and
@@ -294,17 +333,16 @@ public class JsonReader implements Closeable {
 
   /**
    * Configure this parser to be liberal in what it accepts. By default,
-   * this parser is strict and only accepts JSON as specified by <a
-   * href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>. Setting the
-   * parser to lenient causes it to ignore the following syntax errors:
+   * this parser is semi-strict and accepts JSON as specified by <a
+   * href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a> (including some
+   * slight variations). Setting the parser to lenient causes it to ignore
+   * the following syntax errors:
    *
    * <ul>
    *   <li>Streams that start with the <a href="#nonexecuteprefix">non-execute
    *       prefix</a>, <code>")]}'\n"</code>.
-   *   <li>Streams that include multiple top-level values. With strict parsing,
+   *   <li>Streams that include multiple top-level values. With semi-strict parsing,
    *       each stream must contain exactly one top-level value.
-   *   <li>Top-level values of any type. With strict parsing, the top-level
-   *       value must be an object or an array.
    *   <li>Numbers may be {@link Double#isNaN() NaNs} or {@link
    *       Double#isInfinite() infinities}.
    *   <li>End of line comments starting with {@code //} or {@code #} and
@@ -323,6 +361,9 @@ public class JsonReader implements Closeable {
    */
   public final void setLenient(boolean lenient) {
     this.lenient = lenient;
+    if (lenient) {
+      strict = false;
+    }
   }
 
   /**
@@ -330,6 +371,25 @@ public class JsonReader implements Closeable {
    */
   public final boolean isLenient() {
     return lenient;
+  }
+
+  /**
+   * Configure this parser to be very conservative in what it accepts. In
+   * strict mode, it only accepts a JSON text as specified in
+   * <a href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>.
+   */
+  public final void setStrict(boolean strict) {
+    this.strict = strict;
+    if (strict) {
+      lenient = false;
+    }
+  }
+
+  /**
+   * Returns true if this parser is very conservative in what it accepts.
+   */
+  public final boolean isStrict() {
+    return strict;
   }
 
   /**
@@ -624,6 +684,14 @@ public class JsonReader implements Closeable {
       c = buffer[pos + i];
       if (c != keyword.charAt(i) && c != keywordUpper.charAt(i)) {
         return PEEKED_NONE;
+      }
+    }
+    if (strict) {
+      // a keyword/literal must be lowercase in strict mode
+      for (int i = 0; i < length; i++) {
+        if (buffer[pos + i] == keywordUpper.charAt(i)) {
+          syntaxError("Literal must be lowercase (strict mode)");
+        }
       }
     }
 
@@ -985,6 +1053,11 @@ public class JsonReader implements Closeable {
     // Like nextNonWhitespace, this uses locals 'p' and 'l' to save inner-loop field access.
     char[] buffer = this.buffer;
     StringBuilder builder = null;
+    /*
+     * Use a local variable to avoid inner-loop field access (as above).
+     * Note: strict == true implies quote == '"'
+     */
+    final boolean noUnescapedControlCharacter = strict;
     while (true) {
       int p = pos;
       int l = limit;
@@ -1014,6 +1087,8 @@ public class JsonReader implements Closeable {
           p = pos;
           l = limit;
           start = p;
+        } else if (noUnescapedControlCharacter && c <= 0x1F) {
+          syntaxError("Illegal unescaped control character (strict mode)");
         } else if (c == '\n') {
           lineNumber++;
           lineStart = p;
@@ -1094,6 +1169,11 @@ public class JsonReader implements Closeable {
   private void skipQuotedValue(char quote) throws IOException {
     // Like nextNonWhitespace, this uses locals 'p' and 'l' to save inner-loop field access.
     char[] buffer = this.buffer;
+    /*
+     * Use a local variable to avoid inner-loop field access (as above).
+     * Note: strict == true implies quote == '"'
+     */
+    final boolean noUnescapedControlCharacter = strict;
     do {
       int p = pos;
       int l = limit;
@@ -1108,6 +1188,8 @@ public class JsonReader implements Closeable {
           readEscapeCharacter();
           p = pos;
           l = limit;
+        } else if (noUnescapedControlCharacter && c <= 0x1F) {
+          syntaxError("Illegal unescaped control character (strict mode)");
         } else if (c == '\n') {
           lineNumber++;
           lineStart = p;
