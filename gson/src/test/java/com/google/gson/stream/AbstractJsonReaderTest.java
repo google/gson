@@ -1730,6 +1730,26 @@ abstract class AbstractJsonReaderTest extends TestCase {
     }
   }
 
+  public void testControlCharactersInStringsAndNames() throws IOException {
+    JsonReader reader = newJsonReader(reader("["
+      + "\"\u0000\","
+      + "\t"
+      + "\"\nnewline and \t tab\","
+      + "\"\\u001F and \u001F\","
+      + "{\"foo\tbar\": \"\n\"}"
+      + "]"));
+    reader.beginArray();
+    assertEquals("\u0000", reader.nextString());
+    assertEquals("\nnewline and \t tab", reader.nextString());
+    assertEquals("\u001F and \u001F", reader.nextString());
+    reader.beginObject();
+    assertEquals("foo\tbar", reader.nextName());
+    assertEquals("\n", reader.nextString());
+    reader.endObject();
+    reader.endArray();
+    assertEquals(JsonToken.END_DOCUMENT, reader.peek());
+  }
+
   private void assertDocument(String document, Object... expectations) throws IOException {
     JsonReader reader = newJsonReader(reader(document));
     reader.setLenient(true);
