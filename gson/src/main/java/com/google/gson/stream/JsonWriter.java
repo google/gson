@@ -183,17 +183,17 @@ public class JsonWriter implements Closeable, Flushable {
     }
 
     /**
-     * @param len length of the data, e.g. array length
-     * @param off 0-based offset where the section begins
-     * @param sectLen length of the section
-     * @throws IndexOutOfBoundsException if {@code off} or {@code sectLen} is invalid
+     * @param length length of the data, e.g. array length
+     * @param offset 0-based offset where the section begins
+     * @param sectionLength length of the section
+     * @throws IndexOutOfBoundsException if {@code offset} or {@code sectionLength} is invalid
      */
-    private void validateIndices(int len, int off, int sectLen) {
-      if (off < 0) {
+    private void validateIndices(int length, int offset, int sectionLength) {
+      if (offset < 0) {
         throw new IndexOutOfBoundsException("offset < 0");
-      } else if (sectLen < 0) {
+      } else if (sectionLength < 0) {
         throw new IndexOutOfBoundsException("length < 0");
-      } else if (sectLen > len - off) {
+      } else if (sectionLength > length - offset) {
         throw new IndexOutOfBoundsException("length > data.length - offset");
       }
     }
@@ -262,15 +262,15 @@ public class JsonWriter implements Closeable, Flushable {
   }
 
   /**
-   * Interface allowing to use the most efficient {@code Writer} methods for
+   * Abstract class allowing to use the most efficient {@code Writer} methods for
    * certain types.
    */
   private static abstract class WritingCharSequence {
     public abstract int length();
     public abstract char charAt(int index);
-    public abstract void writeTo(Writer out, int off, int len) throws IOException;
+    public abstract void writeTo(Writer out, int offset, int length) throws IOException;
 
-    public static WritingCharSequence of(final char[] chars, final int start, final int len) {
+    public static WritingCharSequence of(final char[] chars, final int start, final int length) {
       return new WritingCharSequence() {
         @Override
         public void writeTo(Writer out, int off, int len) throws IOException {
@@ -279,7 +279,7 @@ public class JsonWriter implements Closeable, Flushable {
 
         @Override
         public int length() {
-          return len;
+          return length;
         }
 
         @Override
@@ -289,40 +289,40 @@ public class JsonWriter implements Closeable, Flushable {
       };
     }
 
-    public static WritingCharSequence of(final CharSequence charSeq) {
+    public static WritingCharSequence of(final CharSequence charSequence) {
       return new WritingCharSequence() {
         @Override
         public void writeTo(Writer out, int off, int len) throws IOException {
-          out.append(charSeq, off, off + len);
+          out.append(charSequence, off, off + len);
         }
 
         @Override
         public int length() {
-          return charSeq.length();
+          return charSequence.length();
         }
 
         @Override
         public char charAt(int index) {
-          return charSeq.charAt(index);
+          return charSequence.charAt(index);
         }
       };
     }
 
-    public static WritingCharSequence of(final String str) {
+    public static WritingCharSequence of(final String string) {
       return new WritingCharSequence() {
         @Override
         public void writeTo(Writer out, int off, int len) throws IOException {
-          out.write(str, off, len);
+          out.write(string, off, len);
         }
 
         @Override
         public int length() {
-          return str.length();
+          return string.length();
         }
 
         @Override
         public char charAt(int index) {
-          return str.charAt(index);
+          return string.charAt(index);
         }
       };
     }
@@ -832,12 +832,12 @@ public class JsonWriter implements Closeable, Flushable {
     out.write('\"');
   }
 
-  private void stringPiece(WritingCharSequence charSeq) throws IOException {
+  private void stringPiece(WritingCharSequence charSequence) throws IOException {
     String[] replacements = htmlSafe ? HTML_SAFE_REPLACEMENT_CHARS : REPLACEMENT_CHARS;
     int last = 0;
-    int length = charSeq.length();
+    int length = charSequence.length();
     for (int i = 0; i < length; i++) {
-      char c = charSeq.charAt(i);
+      char c = charSequence.charAt(i);
       String replacement;
       if (c < 128) {
         replacement = replacements[c];
@@ -852,26 +852,26 @@ public class JsonWriter implements Closeable, Flushable {
         continue;
       }
       if (last < i) {
-        charSeq.writeTo(out, last, i - last);
+        charSequence.writeTo(out, last, i - last);
       }
       out.write(replacement);
       last = i + 1;
     }
     if (last < length) {
-      charSeq.writeTo(out, last, length - last);
+      charSequence.writeTo(out, last, length - last);
     }
   }
 
-  private void stringPiece(char[] chars, int start, int len) throws IOException {
-    stringPiece(WritingCharSequence.of(chars, start, len));
+  private void stringPiece(char[] chars, int start, int length) throws IOException {
+    stringPiece(WritingCharSequence.of(chars, start, length));
   }
 
-  private void stringPiece(CharSequence charSeq) throws IOException {
-    stringPiece(WritingCharSequence.of(charSeq));
+  private void stringPiece(CharSequence charSequence) throws IOException {
+    stringPiece(WritingCharSequence.of(charSequence));
   }
 
-  private void stringPiece(String str) throws IOException {
-    stringPiece(WritingCharSequence.of(str));
+  private void stringPiece(String string) throws IOException {
+    stringPiece(WritingCharSequence.of(string));
   }
 
   private void stringPiece(char c) throws IOException {

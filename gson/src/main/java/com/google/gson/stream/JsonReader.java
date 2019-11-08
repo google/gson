@@ -227,9 +227,9 @@ public class JsonReader implements Closeable {
   private static final int NUMBER_CHAR_EXP_DIGIT = 7;
 
   private static abstract class CharsConsumer {
-    public void accept(char[] arr, int start, int len) {
-      for (int i = 0; i < len; i++) {
-        accept(arr[start + i]);
+    public void accept(char[] chars, int start, int length) {
+      for (int i = 0; i < length; i++) {
+        accept(chars[start + i]);
       }
     }
 
@@ -238,8 +238,8 @@ public class JsonReader implements Closeable {
      * use this hint to process the data more efficiently. It is not
      * required that this method has to be called.
      */
-    public void acceptAndFinish(char[] arr, int start, int len) {
-      accept(arr, start, len);
+    public void acceptAndFinish(char[] chars, int start, int length) {
+      accept(chars, start, length);
     }
 
     public abstract void accept(char c);
@@ -248,75 +248,78 @@ public class JsonReader implements Closeable {
   private static class ArrayCharsConsumer extends CharsConsumer {
     private final char[] array;
     private final int start;
-    private int currIndex;
+    private int currrentIndex;
 
     private ArrayCharsConsumer(char[] array, int start) {
       this.array = array;
       this.start = start;
-      this.currIndex = this.start;
+      this.currrentIndex = this.start;
     }
 
     @Override
-    public void accept(char[] arr, int start, int len) {
-      System.arraycopy(arr, start, array, currIndex, len);
-      currIndex += len;
+    public void accept(char[] chars, int start, int length) {
+      System.arraycopy(chars, start, array, currrentIndex, length);
+      currrentIndex += length;
     }
 
     @Override
     public void accept(char c) {
-      array[currIndex++] = c;
+      array[currrentIndex++] = c;
     }
 
     public int accepted() {
-      return currIndex - start;
+      return currrentIndex - start;
     }
   }
 
   private static class StringBuildingCharsConsumer extends CharsConsumer {
     /** {@code null} if nothing has been consumed yet */
-    private StringBuilder sb;
-    /** non-{@code null} if string has directly been created, {@link #sb} is {@code null} then */
-    private String s;
+    private StringBuilder stringBuilder;
+    /**
+     * non-{@code null} if string has directly been created, {@link #stringBuilder} is 
+     * {@code null} then
+     */
+    private String string;
 
     private StringBuildingCharsConsumer() {
-      sb = null;
+      stringBuilder = null;
     }
 
     @Override
-    public void accept(char[] arr, int start, int len) {
-      if (sb == null) {
-        sb = new StringBuilder(len <= 8 ? 16 : len * 2);
+    public void accept(char[] chars, int start, int length) {
+      if (stringBuilder == null) {
+        stringBuilder = new StringBuilder(length <= 8 ? 16 : length * 2);
       }
 
-      sb.append(arr, start, len);
+      stringBuilder.append(chars, start, length);
     }
 
     @Override
-    public void acceptAndFinish(char[] arr, int start, int len) {
-      if (sb == null) {
-        s = new String(arr, start, len);
+    public void acceptAndFinish(char[] chars, int start, int length) {
+      if (stringBuilder == null) {
+        string = new String(chars, start, length);
       } else {
         // Might unnecessarily increase capacity to oldCap * 2 + 2
         // Cannot solve this without relying on implementation details (e.g. JEP 280),
         // see https://stackoverflow.com/q/58672391
-        sb.append(arr, start, len);
+        stringBuilder.append(chars, start, length);
       }
     }
 
     @Override
     public void accept(char c) {
-      if (sb == null) {
-        sb = new StringBuilder();
+      if (stringBuilder == null) {
+        stringBuilder = new StringBuilder();
       }
 
-      sb.append(c);
+      stringBuilder.append(c);
     }
 
     public String build() {
-      if (s != null) {
-        return s;
+      if (string != null) {
+        return string;
       } else {
-        return sb == null ? "" : sb.toString();
+        return stringBuilder == null ? "" : stringBuilder.toString();
       }
     }
   }
