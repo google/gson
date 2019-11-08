@@ -167,7 +167,7 @@ public class JsonWriter implements Closeable, Flushable {
     HTML_SAFE_REPLACEMENT_CHARS['\''] = "\\u0027";
   }
 
-  private class StringValWriter extends Writer {
+  private class StringValueWriter extends Writer {
     private boolean isClosed;
 
     private void verifyNotClosed() throws IOException {
@@ -183,14 +183,10 @@ public class JsonWriter implements Closeable, Flushable {
     }
 
     /**
-     * @param len
-     *      Length of the data, e.g. array length
-     * @param off
-     *      0-based offset where the section begins
-     * @param sectLen
-     *      Length of the section
-     * @throws IndexOutOfBoundsException
-     *      If {@code off} or {@code sectLen} is invalid
+     * @param len length of the data, e.g. array length
+     * @param off 0-based offset where the section begins
+     * @param sectLen length of the section
+     * @throws IndexOutOfBoundsException if {@code off} or {@code sectLen} is invalid
      */
     private void validateIndices(int len, int off, int sectLen) {
       if (off < 0) {
@@ -472,8 +468,7 @@ public class JsonWriter implements Closeable, Flushable {
   }
 
   /**
-   * @throws IllegalStateException
-   *    If a {@code Writer} is currently writing a name or string
+   * @throws IllegalStateException if a {@code Writer} is currently writing a name or string
    */
   private void verifyNoWriterActive() {
     if (isWriterActive) {
@@ -627,10 +622,8 @@ public class JsonWriter implements Closeable, Flushable {
    * <p>The property will always be written, regardless of whether
    * {@linkplain #getSerializeNulls() null values should be serialized}.
    *
-   * @return
-   *    Writer for writing a property name
-   * @throws IOException
-   *    If creating the writer fails
+   * @return writer for writing a property name
+   * @throws IOException if creating the writer fails
    */
   public Writer nameWriter() throws IOException {
     verifyNoWriterActive();
@@ -638,7 +631,7 @@ public class JsonWriter implements Closeable, Flushable {
     beginString();
     isWriterActive = true;
     expectsPropertyValue = true;
-    return new StringValWriter();
+    return new StringValueWriter();
   }
 
   /**
@@ -667,17 +660,15 @@ public class JsonWriter implements Closeable, Flushable {
    * has to be closed to indicate that writing the value has finished. No other
    * data can be written until the writer is closed.
    *
-   * @return
-   *    Writer for writing a string value
-   * @throws IOException
-   *    If creating the writer fails
+   * @return writer for writing a string value
+   * @throws IOException if creating the writer fails
    */
   public Writer stringValueWriter() throws IOException {
     verifyNoWriterActive();
     beforeValue();
     beginString();
     isWriterActive = true;
-    return new StringValWriter();
+    return new StringValueWriter();
   }
 
   /**

@@ -330,7 +330,7 @@ public class JsonReader implements Closeable {
     }
   }
 
-  private class StringValReader extends Reader {
+  private class StringValueReader extends Reader {
     private static final char NO_QUOTE = '\0';
 
     /** Quote char or {@link #NO_QUOTE} */
@@ -339,14 +339,14 @@ public class JsonReader implements Closeable {
     private SingleCharConsumer singleCharConsumer;
     private boolean hasFinished;
 
-    private StringValReader(char quote) {
+    private StringValueReader(char quote) {
       this.quote = quote;
       this.singleCharConsumer = new SingleCharConsumer();
       this.hasFinished = false;
     }
 
     /** Reads unquoted string */
-    private StringValReader() {
+    private StringValueReader() {
       this(NO_QUOTE);
     }
 
@@ -360,14 +360,11 @@ public class JsonReader implements Closeable {
     }
 
     /**
-     * @param charsConsumer
-     *      Consuming the read chars
-     * @param maxAccept
-     *      Maximum number of chars to pass to charsConsumer; <b>must be &gt;= 1</b>
-     * @return
-     *      Whether the end of the value has been reached
-     * @throws IOException
-     *      If reading fails
+     * @param charsConsumer consuming the read chars
+     * @param maxAccept maximum number of chars to pass to charsConsumer;
+     *     <b>must be &gt;= 1</b>
+     * @return whether the end of the value has been reached
+     * @throws IOException if reading fails
      */
     private boolean read(CharsConsumer charsConsumer, int maxAccept) throws IOException {
       if (hasFinished) {
@@ -376,8 +373,7 @@ public class JsonReader implements Closeable {
 
       if (quote == NO_QUOTE) {
         return nextUnquotedValue(charsConsumer, maxAccept);
-      }
-      else {
+      } else {
         return nextQuotedValue(quote, charsConsumer, maxAccept);
       }
     }
@@ -419,8 +415,7 @@ public class JsonReader implements Closeable {
       } else if (limit - pos > 0) {
         // In case of quoted string `\` starts an escape sequence and reading it might block
         return quote == NO_QUOTE || buffer[pos] != '\\';
-      }
-      else {
+      } else {
         return false;
       }
     }
@@ -438,16 +433,14 @@ public class JsonReader implements Closeable {
       long skipped;
       if (quote == NO_QUOTE) {
         skipped = skipUnquotedValue(n);
-      }
-      else {
+      } else {
         skipped = skipQuotedValue(quote, n);
       }
 
       if (skipped < 0) {
         setHasFinished(true);
         return -(skipped + 1);
-      }
-      else {
+      } else {
         return skipped;
       }
     }
@@ -631,9 +624,8 @@ public class JsonReader implements Closeable {
   /**
    * Returns true if the current array or object has another element.
    *
-   * @throws IllegalStateException
-   *    If a reader created using {@link #nextStringReader()} or {@link #nextNameReader()}
-   *    has not consumed all data yet
+   * @throws IllegalStateException if a reader created using {@link #nextStringReader()}
+   *     or {@link #nextNameReader()} has not consumed all data yet
    */
   public boolean hasNext() throws IOException {
     int p = peekInternal();
@@ -684,9 +676,8 @@ public class JsonReader implements Closeable {
   /**
    * Returns the type of the next token without consuming it.
    *
-   * @throws IllegalStateException
-   *    If a reader created using {@link #nextStringReader()} or {@link #nextNameReader()}
-   *    has not consumed all data yet
+   * @throws IllegalStateException if a reader created using {@link #nextStringReader()}
+   *     or {@link #nextNameReader()} has not consumed all data yet
    */
   public JsonToken peek() throws IOException {
     int p = peekInternal();
@@ -1041,23 +1032,20 @@ public class JsonReader implements Closeable {
    * data of the returned reader has to be consumed before a subsequent token can be processed.
    * Closing the reader has no effect.
    *
-   * @return
-   *    Reader for the next property name token
-   * @throws IllegalStateException
-   *    If the next token is not a property name
-   * @throws IOException
-   *    If creating the reader fails
+   * @return reader for the next property name token
+   * @throws IllegalStateException if the next token is not a property name
+   * @throws IOException if creating the reader fails
    */
   public Reader nextNameReader() throws IOException {
     int p = peekInternal();
     Reader r;
 
     if (p == PEEKED_UNQUOTED_NAME) {
-      r = new StringValReader();
+      r = new StringValueReader();
     } else if (p == PEEKED_SINGLE_QUOTED_NAME) {
-      r = new StringValReader('\'');
+      r = new StringValueReader('\'');
     } else if (p == PEEKED_DOUBLE_QUOTED_NAME) {
-      r = new StringValReader('"');
+      r = new StringValueReader('"');
     } else {
       throw throwUnexpectedTokenError(JsonToken.NAME, p);
     }
@@ -1106,12 +1094,9 @@ public class JsonReader implements Closeable {
    * data of the returned reader has to be consumed before a subsequent token can be processed.
    * Closing the reader has no effect.
    *
-   * @return
-   *    Reader for the next token
-   * @throws IllegalStateException
-   *    If the next token cannot be read as string
-   * @throws IOException
-   *    If creating the reader fails
+   * @return reader for the next token
+   * @throws IllegalStateException if the next token cannot be read as string
+   * @throws IOException if creating the reader fails
    */
   public Reader nextStringReader() throws IOException {
     int p = peekInternal();
@@ -1119,13 +1104,13 @@ public class JsonReader implements Closeable {
     boolean isReading = false;
 
     if (p == PEEKED_UNQUOTED) {
-      r = new StringValReader();
+      r = new StringValueReader();
       isReading = true;
     } else if (p == PEEKED_SINGLE_QUOTED) {
-      r = new StringValReader('\'');
+      r = new StringValueReader('\'');
       isReading = true;
     } else if (p == PEEKED_DOUBLE_QUOTED) {
-      r = new StringValReader('"');
+      r = new StringValueReader('"');
       isReading = true;
     } else if (p == PEEKED_BUFFERED) {
       String str = peekedString;
@@ -1287,13 +1272,10 @@ public class JsonReader implements Closeable {
   /**
    * See {@link #nextQuotedValue(char)}
    *
-   * @param charsConsumer
-   *    consuming the chars of the value
-   * @param maxAccept
-   *    maximum number of chars which should be passed to the charsConsumer;
-   *    <b>must be &gt;= 1</b>
-   * @return
-   *    Whether the end of the value has been reached
+   * @param charsConsumer consuming the chars of the value
+   * @param maxAccept maximum number of chars which should be passed to the charsConsumer;
+   *     <b>must be &gt;= 1</b>
+   * @return whether the end of the value has been reached
    */
   private boolean nextQuotedValue(char quote, CharsConsumer charsConsumer, int maxAccept) throws IOException {
     char[] buffer = this.buffer;
@@ -1364,13 +1346,10 @@ public class JsonReader implements Closeable {
   /**
    * See {@link #nextUnquotedValue()}
    *
-   * @param charsConsumer
-   *    consuming the chars of the value
-   * @param maxAccept
-   *    maximum number of chars which should be passed to the charsConsumer;
-   *    <b>must be &gt;= 1</b>
-   * @return
-   *    Whether the end of the value has been reached
+   * @param charsConsumer consuming the chars of the value
+   * @param maxAccept maximum number of chars which should be passed to the charsConsumer;
+   *     <b>must be &gt;= 1</b>
+   * @return whether the end of the value has been reached
    */
   @SuppressWarnings("fallthrough")
   private boolean nextUnquotedValue(CharsConsumer charsConsumer, int maxAccept) throws IOException {
@@ -1445,11 +1424,9 @@ public class JsonReader implements Closeable {
   /**
    * See {@link #skipQuotedValue(char)}
    *
-   * @param toSkip
-   *    Number of chars to skip; <b>must be &gt;= 1</b>
-   * @return
-   *    Actual number of skipped chars; negative and - 1 if end of value has been reached.
-   *    E.g. {@code -5} means 4 chars were skipped and end has been reached.
+   * @param toSkip number of chars to skip; <b>must be &gt;= 1</b>
+   * @return actual number of skipped chars; negative and - 1 if end of value has been reached.
+   *     E.g. {@code -5} means 4 chars were skipped and end has been reached.
    */
   private long skipQuotedValue(char quote, long toSkip) throws IOException {
     long skipped = 0;
@@ -1495,8 +1472,7 @@ public class JsonReader implements Closeable {
   /**
    * See {@link #skipUnquotedValue()}
    *
-   * @param toSkip
-   *    Number of chars to skip; <b>must be &gt;= 1</b>
+   * @param toSkip number of chars to skip; <b>must be &gt;= 1</b>
    * @return
    *    Actual number of skipped chars; negative and - 1 if end of value has been reached.
    *    E.g. {@code -5} means 4 chars were skipped and end has been reached.
@@ -1618,9 +1594,8 @@ public class JsonReader implements Closeable {
    * elements are skipped. This method is intended for use when the JSON token
    * stream contains unrecognized or unhandled values.
    *
-   * @throws IllegalStateException
-   *    If a reader created using {@link #nextStringReader()} or {@link #nextNameReader()}
-   *    has not consumed all data yet
+   * @throws IllegalStateException if a reader created using {@link #nextStringReader()}
+   *     or {@link #nextNameReader()} has not consumed all data yet
    */
   public void skipValue() throws IOException {
     if (peekInternal() == PEEKED_STRING_READER) {
@@ -1968,8 +1943,7 @@ public class JsonReader implements Closeable {
    * created by {@link #nextStringReader()} or {@link #nextNameReader()} is currently
    * consuming the input.
    *
-   * @throws IllegalStateException
-   *    <i>always</i>
+   * @throws IllegalStateException <i>always</i>
    */
   private static IllegalStateException throwActiveValueReaderError() throws IllegalStateException {
     throw new IllegalStateException("Name or string reader has not consumed all data yet");
@@ -1983,12 +1957,9 @@ public class JsonReader implements Closeable {
    * Throws a new {@code IllegalStateException} indicating that the peeked
    * type is unexpected.
    *
-   * @param expected
-   *    Expected type name
-   * @param peeked
-   *    Peeked type
-   * @throws IllegalStateException
-   *    <i>always</i>
+   * @param expected expected type name
+   * @param peeked peeked type
+   * @throws IllegalStateException <i>always</i>
    */
   private IllegalStateException throwUnexpectedTokenError(String expected, int peeked) throws IllegalStateException {
     if (peeked == PEEKED_STRING_READER) {
