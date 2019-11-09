@@ -288,7 +288,16 @@ public final class JsonPrimitive extends JsonElement {
     if (primitive.value instanceof Number) {
       Number number = (Number) primitive.value;
       return number instanceof BigInteger || number instanceof Long || number instanceof Integer
-          || number instanceof Short || number instanceof Byte;
+          || number instanceof Short || number instanceof Byte || isIntegralLazilyParsedNumber(number);
+    }
+    return false;
+  }
+
+  /** @return true if the specified number is of type LazilyParsedNumber and has an integral value */
+  private static boolean isIntegralLazilyParsedNumber(Number number) {
+    if (number instanceof LazilyParsedNumber) {
+      double value = number.doubleValue();
+      return value == Math.rint(value);
     }
     return false;
   }
