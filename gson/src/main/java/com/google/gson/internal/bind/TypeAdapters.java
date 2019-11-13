@@ -57,6 +57,8 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
+import static com.google.gson.stream.JsonToken.NUMBER;
+
 /**
  * Type adapters for basic types.
  */
@@ -173,13 +175,20 @@ public final class TypeAdapters {
   public static final TypeAdapter<Number> BYTE = new TypeAdapter<Number>() {
     @Override
     public Number read(JsonReader in) throws IOException {
-      if (in.peek() == JsonToken.NULL) {
+      JsonToken peek = in.peek();
+      if (peek == JsonToken.NULL) {
         in.nextNull();
+        return null;
+      } else if (peek == JsonToken.NUMBER) {
+        return (byte) in.nextInt();
+      }
+      String value = in.nextString();
+      // support strings empty return null
+      if (value == null || value.length() == 0) {
         return null;
       }
       try {
-        int intValue = in.nextInt();
-        return (byte) intValue;
+        return (byte) in.parseInt(value);
       } catch (NumberFormatException e) {
         throw new JsonSyntaxException(e);
       }
@@ -196,12 +205,20 @@ public final class TypeAdapters {
   public static final TypeAdapter<Number> SHORT = new TypeAdapter<Number>() {
     @Override
     public Number read(JsonReader in) throws IOException {
-      if (in.peek() == JsonToken.NULL) {
+      JsonToken peek = in.peek();
+      if (peek == JsonToken.NULL) {
         in.nextNull();
+        return null;
+      } else if (peek == JsonToken.NUMBER) {
+        return (short) in.nextInt();
+      }
+      String value = in.nextString();
+      // support strings empty return null
+      if (value == null || value.length() == 0) {
         return null;
       }
       try {
-        return (short) in.nextInt();
+        return (short) in.parseInt(value);
       } catch (NumberFormatException e) {
         throw new JsonSyntaxException(e);
       }
@@ -218,12 +235,20 @@ public final class TypeAdapters {
   public static final TypeAdapter<Number> INTEGER = new TypeAdapter<Number>() {
     @Override
     public Number read(JsonReader in) throws IOException {
-      if (in.peek() == JsonToken.NULL) {
+      JsonToken peek = in.peek();
+      if (peek == JsonToken.NULL) {
         in.nextNull();
+        return null;
+      } else if (peek == JsonToken.NUMBER) {
+        return in.nextInt();
+      }
+      String value = in.nextString();
+      // support strings empty return null
+      if(value == null || value.length() == 0){
         return null;
       }
       try {
-        return in.nextInt();
+        return in.parseInt(value);
       } catch (NumberFormatException e) {
         throw new JsonSyntaxException(e);
       }
@@ -296,12 +321,20 @@ public final class TypeAdapters {
   public static final TypeAdapter<Number> LONG = new TypeAdapter<Number>() {
     @Override
     public Number read(JsonReader in) throws IOException {
-      if (in.peek() == JsonToken.NULL) {
+      JsonToken peek = in.peek();
+      if (peek == JsonToken.NULL) {
         in.nextNull();
+        return null;
+      } else if (peek == JsonToken.NUMBER) {
+        return in.nextLong();
+      }
+      String value = in.nextString();
+      // support strings empty return null
+      if (value == null || value.length() == 0) {
         return null;
       }
       try {
-        return in.nextLong();
+        return in.parseLong(value);
       } catch (NumberFormatException e) {
         throw new JsonSyntaxException(e);
       }
@@ -315,11 +348,19 @@ public final class TypeAdapters {
   public static final TypeAdapter<Number> FLOAT = new TypeAdapter<Number>() {
     @Override
     public Number read(JsonReader in) throws IOException {
-      if (in.peek() == JsonToken.NULL) {
+      JsonToken peek = in.peek();
+      if (peek == JsonToken.NULL) {
         in.nextNull();
         return null;
+      } else if (peek == JsonToken.NUMBER) {
+        return (float) in.nextDouble();
       }
-      return (float) in.nextDouble();
+      String value = in.nextString();
+      // support strings empty return null
+      if (value == null || value.length() == 0) {
+        return null;
+      }
+      return (float)in.parseDouble(value);
     }
     @Override
     public void write(JsonWriter out, Number value) throws IOException {
@@ -330,11 +371,19 @@ public final class TypeAdapters {
   public static final TypeAdapter<Number> DOUBLE = new TypeAdapter<Number>() {
     @Override
     public Number read(JsonReader in) throws IOException {
-      if (in.peek() == JsonToken.NULL) {
+      JsonToken peek = in.peek();
+      if (peek == JsonToken.NULL) {
         in.nextNull();
         return null;
+      } else if (peek == JsonToken.NUMBER) {
+        return in.nextDouble();
       }
-      return in.nextDouble();
+      String value = in.nextString();
+      // support strings empty return null
+      if (value == null || value.length() == 0) {
+        return null;
+      }
+      return in.parseDouble(value);
     }
     @Override
     public void write(JsonWriter out, Number value) throws IOException {
@@ -409,12 +458,18 @@ public final class TypeAdapters {
   
   public static final TypeAdapter<BigDecimal> BIG_DECIMAL = new TypeAdapter<BigDecimal>() {
     @Override public BigDecimal read(JsonReader in) throws IOException {
-      if (in.peek() == JsonToken.NULL) {
+      JsonToken peek = in.peek();
+      if (peek == JsonToken.NULL) {
         in.nextNull();
         return null;
       }
+      String value = in.nextString();
+      // support strings empty return null
+      if (value == null || value.length() == 0) {
+        return null;
+      }
       try {
-        return new BigDecimal(in.nextString());
+        return new BigDecimal(value);
       } catch (NumberFormatException e) {
         throw new JsonSyntaxException(e);
       }
@@ -427,12 +482,17 @@ public final class TypeAdapters {
   
   public static final TypeAdapter<BigInteger> BIG_INTEGER = new TypeAdapter<BigInteger>() {
     @Override public BigInteger read(JsonReader in) throws IOException {
-      if (in.peek() == JsonToken.NULL) {
+      JsonToken peek = in.peek();
+      if (peek == JsonToken.NULL) {
         in.nextNull();
         return null;
       }
+      String value = in.nextString();
+      if (value == null || value.length() == 0) {
+        return null;
+      }
       try {
-        return new BigInteger(in.nextString());
+        return new BigInteger(value);
       } catch (NumberFormatException e) {
         throw new JsonSyntaxException(e);
       }
