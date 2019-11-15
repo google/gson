@@ -183,6 +183,14 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   }
 
   /**
+   *
+   * @return a list containing the elements of the array in the order they were inserted
+   */
+  public List<JsonElement> asList() {
+    return elements;
+  }
+
+  /**
    * Returns the ith element of the array.
    *
    * @param i the index of the element that is being sought.
