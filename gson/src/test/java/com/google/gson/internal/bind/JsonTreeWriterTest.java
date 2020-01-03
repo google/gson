@@ -120,6 +120,34 @@ public final class JsonTreeWriterTest extends TestCase {
     assertEquals(JsonNull.INSTANCE, writer.get());
   }
 
+  public void testBeginArray() throws Exception {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    assertEquals(writer, writer.beginArray());
+  }
+
+  public void testBeginObject() throws Exception {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    assertEquals(writer, writer.beginObject());
+  }
+
+  public void testValueString() throws Exception {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    String n = "as";
+    assertEquals(writer, writer.value(n));
+  }
+
+  public void testBoolValue() throws Exception {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    boolean bool = true;
+    assertEquals(writer, writer.value(bool));
+  }
+
+  public void testBoolMaisValue() throws Exception {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    Boolean bool = true;
+    assertEquals(writer, writer.value(bool));
+  }
+
   public void testLenientNansAndInfinities() throws IOException {
     JsonTreeWriter writer = new JsonTreeWriter();
     writer.setLenient(true);
