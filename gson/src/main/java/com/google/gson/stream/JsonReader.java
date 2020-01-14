@@ -354,7 +354,8 @@ public class JsonReader implements Closeable {
     }
 
     private void setHasFinished(boolean hasFinished) {
-      if (hasFinished) {
+      // Only update if not finished yet, ignore otherwise
+      if (hasFinished && !this.hasFinished) {
         this.hasFinished = true;
         // Update enclosing JsonReader
         pathIndices[stackSize - 1]++;
@@ -396,6 +397,7 @@ public class JsonReader implements Closeable {
       }
 
       ArrayCharsConsumer charsConsumer = new ArrayCharsConsumer(cbuf, off);
+      // Do not have to check if end has already been reached, read does that
       boolean hasFinished = read(charsConsumer, len);
       setHasFinished(hasFinished);
       int accepted = charsConsumer.accepted();
@@ -405,6 +407,7 @@ public class JsonReader implements Closeable {
     @Override
     public int read() throws IOException {
       singleCharConsumer.c = -1;
+      // Do not have to check if end has already been reached, read does that
       boolean hasFinished = read(singleCharConsumer, 1);
       setHasFinished(hasFinished);
       return singleCharConsumer.c; // If no char was read value is still -1
