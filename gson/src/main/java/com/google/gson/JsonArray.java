@@ -171,6 +171,15 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   public int size() {
     return elements.size();
   }
+  
+  /**
+   * Returns true if the array is empty
+   *
+   * @return true if the array is empty
+   */
+  public boolean isEmpty() {
+    return elements.isEmpty();
+  }
 
   /**
    * Returns an iterator to navigate the elements of the array. Since the array is an ordered list,
