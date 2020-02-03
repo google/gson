@@ -54,7 +54,7 @@ public class DefaultTypingTest extends TestCase  {
     }
 
     private static class ComplexTestType {
-        List<Nested> listWithSubTypes = new ArrayList<>();
+        List<Nested> listWithSubTypes = new ArrayList<Nested>();
         SubTypeOfNestedWithGenericObject<Nested> subTypeOfNestedWithGenericObject;
         Nested nested;
         Nested subTypeOfNested;
