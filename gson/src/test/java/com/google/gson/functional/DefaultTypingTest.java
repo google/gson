@@ -13,35 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.google.gson.functional;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.common.TestTypes.Nested;
 import junit.framework.TestCase;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.google.gson.common.TestTypes.*;
+import static com.google.gson.common.TestTypes.BagOfPrimitives;
+
 
 public class DefaultTypingTest extends TestCase  {
     private Gson gson;
+    private ComplexTestType testOverThisClass;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
         gson = new GsonBuilder().enableDefaultTyping().create();
+        this.testOverThisClass = prepareComplexType();
     }
 
     public void testDefaultTypingSerialization() {
-        String result = gson.toJson(new ComplexTestType());
+        String result = gson.toJson(testOverThisClass);
         assertEquals(getJson(), result);
     }
 
     public void testDefaultTypingDeserialization() {
         ComplexTestType result = gson.fromJson(getJson(), ComplexTestType.class);
-        assertEquals(new ComplexTestType(), result);
+        assertEquals(this.testOverThisClass, result);
         //Explicite check type of some subtypes
         assertTrue(result.listWithSubTypes.get(0) instanceof SubTypeOfNested);
         assertTrue(result.listWithSubTypes.get(1) instanceof Nested);
@@ -50,23 +54,13 @@ public class DefaultTypingTest extends TestCase  {
     }
 
     private static class ComplexTestType {
-        List<Nested> listWithSubTypes = new ArrayList<Nested>();
+        List<Nested> listWithSubTypes = new ArrayList<>();
         SubTypeOfNestedWithGenericObject<Nested> subTypeOfNestedWithGenericObject;
         Nested nested;
         Nested subTypeOfNested;
-        int primitive = 3;
-        BigDecimal bigDecimal = BigDecimal.valueOf(1.11);
-
+        int primitive;
+        BigDecimal bigDecimal;
         public ComplexTestType() {
-            BagOfPrimitives bagOfPrimitives1 = new BagOfPrimitives(1L, 1, true, "String1");
-            BagOfPrimitives bagOfPrimitives2 = new BagOfPrimitives(2L, 2, true, "String2");
-            BagOfPrimitives bagOfPrimitives3 = new BagOfPrimitives(3L, 3, true, "String3");
-            BagOfPrimitives bagOfPrimitives4 = new BagOfPrimitives(4L, 4, true, "String4");
-            this.listWithSubTypes.add(new SubTypeOfNested(bagOfPrimitives1, bagOfPrimitives2));
-            this.listWithSubTypes.add(new Nested(bagOfPrimitives1, bagOfPrimitives2));
-            this.nested = new Nested(bagOfPrimitives3, bagOfPrimitives4);
-            this.subTypeOfNested = new SubTypeOfNested(bagOfPrimitives3, bagOfPrimitives4);
-            this.subTypeOfNestedWithGenericObject = new SubTypeOfNestedWithGenericObject<Nested>(bagOfPrimitives1, bagOfPrimitives2, new SubTypeOfNested(bagOfPrimitives3, bagOfPrimitives4));
         }
 
         @Override
@@ -88,6 +82,23 @@ public class DefaultTypingTest extends TestCase  {
         }
 
     }
+
+    private ComplexTestType prepareComplexType() {
+        ComplexTestType complexType = new ComplexTestType();
+        complexType.bigDecimal = BigDecimal.valueOf(1.11);
+        complexType.primitive = 3;
+        BagOfPrimitives bagOfPrimitives1 = new BagOfPrimitives(1L, 1, true, "String1");
+        BagOfPrimitives bagOfPrimitives2 = new BagOfPrimitives(2L, 2, true, "String2");
+        BagOfPrimitives bagOfPrimitives3 = new BagOfPrimitives(3L, 3, true, "String3");
+        BagOfPrimitives bagOfPrimitives4 = new BagOfPrimitives(4L, 4, true, "String4");
+        complexType.listWithSubTypes.add(new SubTypeOfNested(bagOfPrimitives1, bagOfPrimitives2));
+        complexType.listWithSubTypes.add(new Nested(bagOfPrimitives1, bagOfPrimitives2));
+        complexType.nested = new Nested(bagOfPrimitives3, bagOfPrimitives4);
+        complexType.subTypeOfNested = new SubTypeOfNested(bagOfPrimitives3, bagOfPrimitives4);
+        complexType.subTypeOfNestedWithGenericObject = new SubTypeOfNestedWithGenericObject<Nested>(bagOfPrimitives1, bagOfPrimitives2, new SubTypeOfNested(bagOfPrimitives3, bagOfPrimitives4));
+        return complexType;
+    }
+
 
     private static class SubTypeOfNested extends Nested {
         private final long value = 5;
