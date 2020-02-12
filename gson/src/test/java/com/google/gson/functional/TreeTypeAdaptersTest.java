@@ -172,6 +172,7 @@ public class TreeTypeAdaptersTest extends TestCase {
     int numClasses;
   }
 
+  @SafeVarargs
   private static <T> List<T> createList(T ...items) {
     return Arrays.asList(items);
   }

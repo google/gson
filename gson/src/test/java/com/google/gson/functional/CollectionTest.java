@@ -37,7 +37,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import com.google.gson.common.MoreAsserts;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.reflect.TypeToken;
 
