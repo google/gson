@@ -41,11 +41,52 @@ import com.google.gson.stream.JsonWriter;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-final class DefaultDateTypeAdapter extends TypeAdapter<Date> {
-
+final class DefaultDateTypeAdapter<T extends Date> extends TypeAdapter<T> {
   private static final String SIMPLE_NAME = "DefaultDateTypeAdapter";
 
-  private final Class<? extends Date> dateType;
+  static abstract class DateType<T extends Date> {
+    private DateType() {
+    }
+
+    public static final DateType<Date> DATE = new DateType<Date>() {
+      @Override
+      protected Date deserialize(Date date) {
+        return date;
+      }
+    };
+    public static final DateType<java.sql.Date> SQL_DATE = new DateType<java.sql.Date>() {
+      @Override
+      protected java.sql.Date deserialize(Date date) {
+        return new java.sql.Date(date.getTime());
+      }
+    };
+    public static final DateType<Timestamp> SQL_TIMESTAMP = new DateType<Timestamp>() {
+      @Override
+      protected Timestamp deserialize(Date date) {
+        return new Timestamp(date.getTime());
+      }
+    };
+
+    protected abstract T deserialize(Date date);
+
+    public DefaultDateTypeAdapter<T> createAdapter(String datePattern) {
+      return new DefaultDateTypeAdapter<T>(this, datePattern);
+    }
+
+    public DefaultDateTypeAdapter<T> createAdapter(int style) {
+      return new DefaultDateTypeAdapter<T>(this, style);
+    }
+
+    public DefaultDateTypeAdapter<T> createAdapter(int dateStyle, int timeStyle) {
+      return new DefaultDateTypeAdapter<T>(this, dateStyle, timeStyle);
+    }
+
+    public DefaultDateTypeAdapter<T> createDefaultsAdapter() {
+      return new DefaultDateTypeAdapter<T>(this, DateFormat.DEFAULT, DateFormat.DEFAULT);
+    }
+  }
+
+  private final DateType<T> dateType;
 
   /**
    * List of 1 or more different date formats used for de-serialization attempts.
@@ -53,18 +94,7 @@ final class DefaultDateTypeAdapter extends TypeAdapter<Date> {
    */
   private final List<DateFormat> dateFormats = new ArrayList<DateFormat>();
 
-  DefaultDateTypeAdapter(Class<? extends Date> dateType) {
-    this.dateType = verifyDateType(dateType);
-    dateFormats.add(DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.US));
-    if (!Locale.getDefault().equals(Locale.US)) {
-      dateFormats.add(DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT));
-    }
-    if (JavaVersion.isJava9OrLater()) {
-      dateFormats.add(PreJava9DateFormatProvider.getUSDateTimeFormat(DateFormat.DEFAULT, DateFormat.DEFAULT));
-    }
-  }
-
-  DefaultDateTypeAdapter(Class<? extends Date> dateType, String datePattern) {
+  private DefaultDateTypeAdapter(DateType<T> dateType, String datePattern) {
     this.dateType = verifyDateType(dateType);
     dateFormats.add(new SimpleDateFormat(datePattern, Locale.US));
     if (!Locale.getDefault().equals(Locale.US)) {
@@ -72,7 +102,7 @@ final class DefaultDateTypeAdapter extends TypeAdapter<Date> {
     }
   }
 
-  DefaultDateTypeAdapter(Class<? extends Date> dateType, int style) {
+  private DefaultDateTypeAdapter(DateType<T> dateType, int style) {
     this.dateType = verifyDateType(dateType);
     dateFormats.add(DateFormat.getDateInstance(style, Locale.US));
     if (!Locale.getDefault().equals(Locale.US)) {
@@ -83,11 +113,7 @@ final class DefaultDateTypeAdapter extends TypeAdapter<Date> {
     }
   }
 
-  public DefaultDateTypeAdapter(int dateStyle, int timeStyle) {
-    this(Date.class, dateStyle, timeStyle);
-  }
-
-  public DefaultDateTypeAdapter(Class<? extends Date> dateType, int dateStyle, int timeStyle) {
+  private DefaultDateTypeAdapter(DateType<T> dateType, int dateStyle, int timeStyle) {
     this.dateType = verifyDateType(dateType);
     dateFormats.add(DateFormat.getDateTimeInstance(dateStyle, timeStyle, Locale.US));
     if (!Locale.getDefault().equals(Locale.US)) {
@@ -98,9 +124,9 @@ final class DefaultDateTypeAdapter extends TypeAdapter<Date> {
     }
   }
 
-  private static Class<? extends Date> verifyDateType(Class<? extends Date> dateType) {
-    if ( dateType != Date.class && dateType != java.sql.Date.class && dateType != Timestamp.class ) {
-      throw new IllegalArgumentException("Date type must be one of " + Date.class + ", " + Timestamp.class + ", or " + java.sql.Date.class + " but was " + dateType);
+  private static <T extends Date> DateType<T> verifyDateType(DateType<T> dateType) {
+    if (dateType == null) {
+      throw new NullPointerException("dateType == null");
     }
     return dateType;
   }
@@ -120,22 +146,13 @@ final class DefaultDateTypeAdapter extends TypeAdapter<Date> {
   }
 
   @Override
-  public Date read(JsonReader in) throws IOException {
+  public T read(JsonReader in) throws IOException {
     if (in.peek() == JsonToken.NULL) {
       in.nextNull();
       return null;
     }
     Date date = deserializeToDate(in.nextString());
-    if (dateType == Date.class) {
-      return date;
-    } else if (dateType == Timestamp.class) {
-      return new Timestamp(date.getTime());
-    } else if (dateType == java.sql.Date.class) {
-      return new java.sql.Date(date.getTime());
-    } else {
-      // This must never happen: dateType is guarded in the primary constructor
-      throw new AssertionError();
-    }
+    return dateType.deserialize(date);
   }
 
   private Date deserializeToDate(String s) {

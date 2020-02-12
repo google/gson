@@ -602,20 +602,19 @@ public final class GsonBuilder {
         this.factories, this.hierarchyFactories, factories);
   }
 
-  @SuppressWarnings("unchecked")
   private void addTypeAdaptersForDate(String datePattern, int dateStyle, int timeStyle,
       List<TypeAdapterFactory> factories) {
-    DefaultDateTypeAdapter dateTypeAdapter;
+    DefaultDateTypeAdapter<Date> dateTypeAdapter;
     TypeAdapter<Timestamp> timestampTypeAdapter;
     TypeAdapter<java.sql.Date> javaSqlDateTypeAdapter;
     if (datePattern != null && !"".equals(datePattern.trim())) {
-      dateTypeAdapter = new DefaultDateTypeAdapter(Date.class, datePattern);
-      timestampTypeAdapter = (TypeAdapter) new DefaultDateTypeAdapter(Timestamp.class, datePattern);
-      javaSqlDateTypeAdapter = (TypeAdapter) new DefaultDateTypeAdapter(java.sql.Date.class, datePattern);
+      dateTypeAdapter = DefaultDateTypeAdapter.DateType.DATE.createAdapter(datePattern);
+      timestampTypeAdapter = DefaultDateTypeAdapter.DateType.SQL_TIMESTAMP.createAdapter(datePattern);
+      javaSqlDateTypeAdapter = DefaultDateTypeAdapter.DateType.SQL_DATE.createAdapter(datePattern);
     } else if (dateStyle != DateFormat.DEFAULT && timeStyle != DateFormat.DEFAULT) {
-      dateTypeAdapter = new DefaultDateTypeAdapter(Date.class, dateStyle, timeStyle);
-      timestampTypeAdapter = (TypeAdapter) new DefaultDateTypeAdapter(Timestamp.class, dateStyle, timeStyle);
-      javaSqlDateTypeAdapter = (TypeAdapter) new DefaultDateTypeAdapter(java.sql.Date.class, dateStyle, timeStyle);
+      dateTypeAdapter = DefaultDateTypeAdapter.DateType.DATE.createAdapter(dateStyle, timeStyle);
+      timestampTypeAdapter = DefaultDateTypeAdapter.DateType.SQL_TIMESTAMP.createAdapter(dateStyle, timeStyle);
+      javaSqlDateTypeAdapter = DefaultDateTypeAdapter.DateType.SQL_DATE.createAdapter(dateStyle, timeStyle);
     } else {
       return;
     }
