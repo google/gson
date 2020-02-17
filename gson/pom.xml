@@ -27,7 +27,7 @@
           <includePackageNames>com.google.gson</includePackageNames>
           <excludePackageNames>com.google.gson.internal:com.google.gson.internal.bind</excludePackageNames>
           <links>
-            <link>http://docs.oracle.com/javase/6/docs/api/</link>
+            <link>https://docs.oracle.com/javase/6/docs/api/</link>
           </links>
         </configuration>
       </plugin>
