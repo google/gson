@@ -38,8 +38,8 @@ import java.lang.annotation.Target;
  * public class User {
  *   private String firstName;
  *   private String lastName;
- *   &#64Until(1.1) private String emailAddress;
- *   &#64Until(1.1) private String password;
+ *   &#64;Until(1.1) private String emailAddress;
+ *   &#64;Until(1.1) private String password;
  * }
  * </pre>
  *

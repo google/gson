@@ -34,9 +34,9 @@ import java.lang.annotation.Target;
  * <p>Here is an example of how this annotation is meant to be used:
  * <p><pre>
  * public class User {
- *   &#64Expose private String firstName;
- *   &#64Expose(serialize = false) private String lastName;
- *   &#64Expose (serialize = false, deserialize = false) private String emailAddress;
+ *   &#64;Expose private String firstName;
+ *   &#64;Expose(serialize = false) private String lastName;
+ *   &#64;Expose (serialize = false, deserialize = false) private String emailAddress;
  *   private String password;
  * }
  * </pre></p>
