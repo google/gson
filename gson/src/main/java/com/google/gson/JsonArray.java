@@ -182,6 +182,13 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   }
 
   /**
+   * Removes all elements from the array.
+   */
+  public void clear() {
+    elements.clear();
+  }
+
+  /**
    * Returns an iterator to navigate the elements of the array. Since the array is an ordered list,
    * the iterator navigates the elements in the order they were inserted.
    *
