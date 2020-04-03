@@ -26,6 +26,7 @@ import junit.framework.TestCase;
  * @author Inderjeet Singh
  */
 public class InternationalizationTest extends TestCase {
+
   private Gson gson;
 
   @Override
@@ -34,14 +35,12 @@ public class InternationalizationTest extends TestCase {
     gson = new Gson();
   }
 
-  /*
   public void testStringsWithRawChineseCharactersSerialization() throws Exception {
     String target = "好好好";
     String json = gson.toJson(target);
-    String expected = "\"\\u597d\\u597d\\u597d\"";
+    String expected = "\"" + target + "\"";
     assertEquals(expected, json);
   }
-  */
 
   public void testStringsWithRawChineseCharactersDeserialization() throws Exception {
     String expected = "好好好";
