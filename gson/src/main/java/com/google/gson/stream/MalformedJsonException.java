@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,26 +19,48 @@ package com.google.gson.stream;
 import java.io.IOException;
 
 /**
- * Thrown when a reader encounters malformed JSON. Some syntax errors can be
- * ignored by calling {@link JsonReader#setLenient(boolean)}.
+ * Thrown when a reader encounters malformed JSON. Some syntax errors can be ignored by calling
+ * {@link JsonReader#setLenient(boolean)}.
+ *
+ * @author Inderjeet Singh
+ * @author Joel Leitch
  */
 public final class MalformedJsonException extends IOException {
-  private static final long serialVersionUID = 1L;
 
-  public MalformedJsonException(String msg) {
+  private static final long serialVersionUID = -4087810063524778887L;
+
+  /**
+   * Creates exception with the specified message. If you are wrapping another exception, consider
+   * using {@link #MalformedJsonException(String, Throwable)} instead.
+   *
+   * @param msg error message describing a possible cause of this exception.
+   */
+  public MalformedJsonException(final String msg) {
     super(msg);
   }
 
-  public MalformedJsonException(String msg, Throwable throwable) {
+  /**
+   * Creates exception with the specified message and cause.
+   *
+   * @param msg   error message describing what happened.
+   * @param cause root exception that caused this exception to be thrown.
+   */
+  public MalformedJsonException(final String msg, final Throwable cause) {
     super(msg);
     // Using initCause() instead of calling super() because Java 1.5 didn't retrofit IOException
     // with a constructor with Throwable. This was done in Java 1.6
-    initCause(throwable);
+    initCause(cause);
   }
 
-  public MalformedJsonException(Throwable throwable) {
+  /**
+   * Creates exception with the specified cause. Consider using {@link
+   * #MalformedJsonException(String, Throwable)} instead if you can describe what happened.
+   *
+   * @param cause root exception that caused this exception to be thrown.
+   */
+  public MalformedJsonException(final Throwable cause) {
     // Using initCause() instead of calling super() because Java 1.5 didn't retrofit IOException
     // with a constructor with Throwable. This was done in Java 1.6
-    initCause(throwable);
+    initCause(cause);
   }
 }

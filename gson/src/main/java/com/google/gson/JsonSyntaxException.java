@@ -16,32 +16,42 @@
 package com.google.gson;
 
 /**
- * This exception is raised when Gson attempts to read (or write) a malformed
- * JSON element.
+ * This exception is raised when Gson attempts to read (or write) a malformed JSON element.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
 public final class JsonSyntaxException extends JsonParseException {
 
-  private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = -5720608064000865903L;
 
-  public JsonSyntaxException(String msg) {
+  /**
+   * Creates exception with the specified message. If you are wrapping another exception, consider
+   * using {@link #JsonSyntaxException(String, Throwable)} instead.
+   *
+   * @param msg error message describing a possible cause of this exception.
+   */
+  public JsonSyntaxException(final String msg) {
     super(msg);
   }
 
-  public JsonSyntaxException(String msg, Throwable cause) {
+  /**
+   * Creates exception with the specified message and cause.
+   *
+   * @param msg   error message describing what happened.
+   * @param cause root exception that caused this exception to be thrown.
+   */
+  public JsonSyntaxException(final String msg, final Throwable cause) {
     super(msg, cause);
   }
 
   /**
-   * Creates exception with the specified cause. Consider using
-   * {@link #JsonSyntaxException(String, Throwable)} instead if you can
-   * describe what actually happened.
+   * Creates exception with the specified cause. Consider using {@link #JsonSyntaxException(String,
+   * Throwable)} instead if you can describe what happened.
    *
    * @param cause root exception that caused this exception to be thrown.
    */
-  public JsonSyntaxException(Throwable cause) {
+  public JsonSyntaxException(final Throwable cause) {
     super(cause);
   }
 }
