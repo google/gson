@@ -149,6 +149,24 @@ public final class JsonPrimitive extends JsonElement {
       return (String) value;
     }
   }
+	
+  /**
+   * convenience method to get this element as a String
+   * and blank String if element is null
+   * @return get this element as a String.
+   */
+  @Override
+  public String getAsStringByForce() {
+    if(value == null) {
+      return "";
+    } else if (isNumber()) {
+      return getAsNumber().toString();
+    } else if (isBoolean()) {
+      return ((Boolean) value).toString();
+    } else {
+      return (String) value;
+    }
+  }
 
   /**
    * convenience method to get this element as a primitive double.
