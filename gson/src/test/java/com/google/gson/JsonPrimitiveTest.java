@@ -111,6 +111,9 @@ public class JsonPrimitiveTest extends TestCase {
 
     json = new JsonPrimitive(true);
     assertEquals("true", json.getAsString());
+    
+    json = null;
+    assertEquals("", json.getAsStringByForce());
   }
 
   public void testExponential() throws Exception {
