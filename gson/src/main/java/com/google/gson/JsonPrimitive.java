@@ -159,13 +159,8 @@ public final class JsonPrimitive extends JsonElement {
   public String getAsStringByForce() {
     if(value == null) {
       return "";
-    } else if (isNumber()) {
-      return getAsNumber().toString();
-    } else if (isBoolean()) {
-      return ((Boolean) value).toString();
-    } else {
-      return (String) value;
     }
+    return getAsString();
   }
 
   /**
