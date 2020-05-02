@@ -192,6 +192,8 @@ import java.util.Arrays;
  */
 public class JsonReader implements Closeable {
   private static final long MIN_INCOMPLETE_INTEGER = Long.MIN_VALUE / 10;
+  /** Special JSON path value indicating that Reader was used for property name */
+  private static final String STREAMED_NAME = "#streamedName";
 
   private static final int PEEKED_NONE = 0;
   private static final int PEEKED_BEGIN_OBJECT = 1;
@@ -276,7 +278,7 @@ public class JsonReader implements Closeable {
     /** {@code null} if nothing has been consumed yet */
     private StringBuilder stringBuilder;
     /**
-     * non-{@code null} if string has directly been created, {@link #stringBuilder} is 
+     * non-{@code null} if string has directly been created, {@link #stringBuilder} is
      * {@code null} then
      */
     private String string;
@@ -336,30 +338,42 @@ public class JsonReader implements Closeable {
   private class StringValueReader extends Reader {
     private static final char NO_QUOTE = '\0';
 
+    /**
+     * {@code true} if object property name is read,
+     * {@code false} if string value is read
+     */
+    private boolean isReadingName;
     /** Quote char or {@link #NO_QUOTE} */
     private final char quote;
     /** Used only by {@link #read()} to read one char */
     private SingleCharConsumer singleCharConsumer;
     private boolean hasFinished;
 
-    private StringValueReader(char quote) {
+    private StringValueReader(boolean isReadingName, char quote) {
+      this.isReadingName = isReadingName;
       this.quote = quote;
       this.singleCharConsumer = new SingleCharConsumer();
       this.hasFinished = false;
     }
 
     /** Reads unquoted string */
-    private StringValueReader() {
-      this(NO_QUOTE);
+    private StringValueReader(boolean isReadingName) {
+      this(isReadingName, NO_QUOTE);
     }
 
     private void setHasFinished(boolean hasFinished) {
       // Only update if not finished yet, ignore otherwise
       if (hasFinished && !this.hasFinished) {
         this.hasFinished = true;
+
         // Update enclosing JsonReader
-        pathIndices[stackSize - 1]++;
         peeked = PEEKED_NONE;
+
+        if (isReadingName) {
+          pathNames[stackSize - 1] = STREAMED_NAME;
+        } else {
+          pathIndices[stackSize - 1]++;
+        }
       }
     }
 
@@ -453,7 +467,13 @@ public class JsonReader implements Closeable {
 
     @Override
     public void close() {
-      // Do nothing
+      /*
+       * Do nothing
+       * Especially do not try to consume remaining chars until end is reached since that
+       * might undesirable, e.g. when reader is used in try-with-resources and an exception
+       * occurs within it. In that case code should fail fast and not try to read more data
+       * (which could even block!).
+       */
     }
   }
 
@@ -1036,7 +1056,11 @@ public class JsonReader implements Closeable {
   /**
    * Returns a reader for the next token, a {@link JsonToken#NAME property name}. The complete
    * data of the returned reader has to be consumed before a subsequent token can be processed.
-   * Closing the reader has no effect.
+   * Closing the reader has no effect. Closing this {@code JsonReader} and attempting to read
+   * from a name reader afterwards causes unspecified behavior.
+   *
+   * <p>For efficiency reasons implementations might record the string {@value #STREAMED_NAME}
+   * as name returned by {@link #getPath()} instead of the actually read name.
    *
    * @return reader for the next property name token
    * @throws IllegalStateException if the next token is not a property name
@@ -1047,11 +1071,11 @@ public class JsonReader implements Closeable {
     Reader r;
 
     if (p == PEEKED_UNQUOTED_NAME) {
-      r = new StringValueReader();
+      r = new StringValueReader(true);
     } else if (p == PEEKED_SINGLE_QUOTED_NAME) {
-      r = new StringValueReader('\'');
+      r = new StringValueReader(true, '\'');
     } else if (p == PEEKED_DOUBLE_QUOTED_NAME) {
-      r = new StringValueReader('"');
+      r = new StringValueReader(true, '"');
     } else {
       throw throwUnexpectedTokenError(JsonToken.NAME, p);
     }
@@ -1098,7 +1122,8 @@ public class JsonReader implements Closeable {
    * Returns a reader for the {@link JsonToken#STRING string} value of the next token. If the
    * next token is a number, this method will return a reader reading its string form. The complete
    * data of the returned reader has to be consumed before a subsequent token can be processed.
-   * Closing the reader has no effect.
+   * Closing the reader has no effect. Closing this {@code JsonReader} and attempting to read
+   * from a string reader afterwards causes unspecified behavior.
    *
    * @return reader for the next token
    * @throws IllegalStateException if the next token cannot be read as string
@@ -1110,13 +1135,13 @@ public class JsonReader implements Closeable {
     boolean isReading = false;
 
     if (p == PEEKED_UNQUOTED) {
-      r = new StringValueReader();
+      r = new StringValueReader(false);
       isReading = true;
     } else if (p == PEEKED_SINGLE_QUOTED) {
-      r = new StringValueReader('\'');
+      r = new StringValueReader(false, '\'');
       isReading = true;
     } else if (p == PEEKED_DOUBLE_QUOTED) {
-      r = new StringValueReader('"');
+      r = new StringValueReader(false, '"');
       isReading = true;
     } else if (p == PEEKED_BUFFERED) {
       String str = peekedString;
@@ -1624,7 +1649,7 @@ public class JsonReader implements Closeable {
       } else if (p == PEEKED_END_OBJECT) {
         stackSize--;
         count--;
-      } else if (p == PEEKED_UNQUOTED_NAME || p == PEEKED_UNQUOTED) {
+      } else if (p == PEEKED_UNQUOTED || p == PEEKED_UNQUOTED_NAME) {
         skipUnquotedValue();
       } else if (p == PEEKED_SINGLE_QUOTED || p == PEEKED_SINGLE_QUOTED_NAME) {
         skipQuotedValue('\'');

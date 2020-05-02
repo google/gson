@@ -2094,6 +2094,13 @@ public final class JsonReaderTest extends TestCase {
     assertArrayEquals("bc".toCharArray(), cbuf);
     assertEquals(-1, nameReader.read());
 
+    String expectedPath = "$#streamedName";
+    assertEquals(expectedPath, reader.getPath());
+
+    // Trying to read more when end has been reached should have no effect
+    assertEquals(-1, nameReader.read());
+    assertEquals(expectedPath, reader.getPath());
+
     assertEquals(JsonToken.NUMBER, reader.peek());
   }
 
