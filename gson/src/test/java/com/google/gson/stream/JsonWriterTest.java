@@ -892,10 +892,11 @@ public final class JsonWriterTest extends TestCase {
   public void testStrValWriter() throws IOException {
     StringWriter stringWriter = new StringWriter();
     JsonWriter writer = new JsonWriter(stringWriter);
-    writer.beginArray();
+    writer.beginObject();
+    writer.name("test");
     Writer strValWriter = writer.stringValueWriter();
     String expectedValue = testWriter(strValWriter);
-    writer.endArray();
-    assertEquals("[\"" + expectedValue + "\"]", stringWriter.toString());
+    writer.endObject();
+    assertEquals("{\"test\":\"" + expectedValue + "\"}", stringWriter.toString());
   }
 }

@@ -168,7 +168,7 @@ public class JsonWriter implements Closeable, Flushable {
   }
 
   private class StringValueWriter extends Writer {
-    private boolean isClosed;
+    private boolean isClosed = false;
 
     private void verifyNotClosed() throws IOException {
       if (isClosed) {
@@ -377,7 +377,7 @@ public class JsonWriter implements Closeable, Flushable {
   private boolean serializeNulls = true;
 
   /** Whether a {@code Writer} is currently writing a name or string */
-  private boolean isWriterActive;
+  private boolean isWriterActive = false;
 
   /**
    * Creates a new instance that writes a JSON-encoded stream to {@code out}.
@@ -665,6 +665,7 @@ public class JsonWriter implements Closeable, Flushable {
    */
   public Writer stringValueWriter() throws IOException {
     verifyNoWriterActive();
+    writeDeferredName();
     beforeValue();
     beginString();
     isWriterActive = true;
