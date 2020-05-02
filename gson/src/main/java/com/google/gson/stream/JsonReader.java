@@ -194,6 +194,8 @@ public class JsonReader implements Closeable {
   private static final long MIN_INCOMPLETE_INTEGER = Long.MIN_VALUE / 10;
   /** Special JSON path value indicating that Reader was used for property name */
   private static final String STREAMED_NAME = "#streamedName";
+  /** Special JSON path value indicating that property name was skipped */
+  private static final String SKIPPED_NAME = "#skippedName"; // Also used in JsonTreeReader
 
   private static final int PEEKED_NONE = 0;
   private static final int PEEKED_BEGIN_OBJECT = 1;
@@ -1625,6 +1627,10 @@ public class JsonReader implements Closeable {
    * elements are skipped. This method is intended for use when the JSON token
    * stream contains unrecognized or unhandled values.
    *
+   * <p>If used to skip a {@link com.google.gson.stream.JsonToken#NAME property name}
+   * the string {@value #SKIPPED_NAME} is recorded as name returned by
+   * {@link #getPath()} instead of the actually skipped name.
+   *
    * @throws IllegalStateException if a reader created using {@link #nextStringReader()}
    *     or {@link #nextNameReader()} has not consumed all data yet
    */
@@ -1663,7 +1669,10 @@ public class JsonReader implements Closeable {
     } while (count != 0);
 
     pathIndices[stackSize - 1]++;
-    pathNames[stackSize - 1] = "null";
+
+    if (peek() == JsonToken.NAME) {
+      pathNames[stackSize - 1] = SKIPPED_NAME;
+    }
   }
 
   private void push(int newTop) {
