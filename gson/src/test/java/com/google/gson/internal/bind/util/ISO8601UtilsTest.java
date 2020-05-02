@@ -15,9 +15,25 @@ public class ISO8601UtilsTest {
     @Rule
     public final ExpectedException exception = ExpectedException.none();
 
+    private static TimeZone utcTimeZone() {
+        return TimeZone.getTimeZone("UTC");
+    }
+
+    private static GregorianCalendar createUtcCalendar() {
+        TimeZone utc = utcTimeZone();
+        GregorianCalendar calendar = new GregorianCalendar(utc);
+        // Calendar was created with current time, must clear it
+        calendar.clear();
+        return calendar;
+    }
+
     @Test
     public void testDateFormatString() {
-        Date date = new GregorianCalendar(2018, Calendar.JUNE, 25).getTime();
+        GregorianCalendar calendar = new GregorianCalendar(utcTimeZone(), Locale.US);
+        // Calendar was created with current time, must clear it
+        calendar.clear();
+        calendar.set(2018, Calendar.JUNE, 25);
+        Date date = calendar.getTime();
         String dateStr = ISO8601Utils.format(date);
         String expectedDate = "2018-06-25";
         assertEquals(expectedDate, dateStr.substring(0, expectedDate.length()));
@@ -51,51 +67,28 @@ public class ISO8601UtilsTest {
 
     @Test
     public void testDateParseWithTimezone() throws ParseException {
-        TimeZone defaultTimeZone = TimeZone.getDefault();
-        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-        Locale defaultLocale = Locale.getDefault();
-        Locale.setDefault(Locale.US);
-        try {
-            String dateStr = "2018-06-25T00:00:00-03:00";
-            Date date = ISO8601Utils.parse(dateStr, new ParsePosition(0));
-            Date expectedDate = new GregorianCalendar(2018, Calendar.JUNE, 25, 3, 0).getTime();
-            assertEquals(expectedDate, date);
-        } finally {
-            TimeZone.setDefault(defaultTimeZone);
-            Locale.setDefault(defaultLocale);
-        }
+        String dateStr = "2018-06-25T00:00:00-03:00";
+        Date date = ISO8601Utils.parse(dateStr, new ParsePosition(0));
+        GregorianCalendar calendar = createUtcCalendar();
+        calendar.set(2018, Calendar.JUNE, 25, 3, 0);
+        Date expectedDate = calendar.getTime();
+        assertEquals(expectedDate, date);
     }
 
     @Test
     public void testDateParseSpecialTimezone() throws ParseException {
-        TimeZone defaultTimeZone = TimeZone.getDefault();
-        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-        Locale defaultLocale = Locale.getDefault();
-        Locale.setDefault(Locale.US);
-        try {
-            String dateStr = "2018-06-25T00:02:00-02:58";
-            Date date = ISO8601Utils.parse(dateStr, new ParsePosition(0));
-            Date expectedDate = new GregorianCalendar(2018, Calendar.JUNE, 25, 3, 0).getTime();
-            assertEquals(expectedDate, date);
-        } finally {
-            TimeZone.setDefault(defaultTimeZone);
-            Locale.setDefault(defaultLocale);
-        }
+        String dateStr = "2018-06-25T00:02:00-02:58";
+        Date date = ISO8601Utils.parse(dateStr, new ParsePosition(0));
+        GregorianCalendar calendar = createUtcCalendar();
+        calendar.set(2018, Calendar.JUNE, 25, 3, 0);
+        Date expectedDate = calendar.getTime();
+        assertEquals(expectedDate, date);
     }
 
     @Test
     public void testDateParseInvalidTime() throws ParseException {
-        TimeZone defaultTimeZone = TimeZone.getDefault();
-        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-        Locale defaultLocale = Locale.getDefault();
-        Locale.setDefault(Locale.US);
-        try {
-            String dateStr = "2018-06-25T61:60:62-03:00";
-            exception.expect(ParseException.class);
-            ISO8601Utils.parse(dateStr, new ParsePosition(0));
-        } finally {
-            TimeZone.setDefault(defaultTimeZone);
-            Locale.setDefault(defaultLocale);
-        }
+        String dateStr = "2018-06-25T61:60:62-03:00";
+        exception.expect(ParseException.class);
+        ISO8601Utils.parse(dateStr, new ParsePosition(0));
     }
 }
