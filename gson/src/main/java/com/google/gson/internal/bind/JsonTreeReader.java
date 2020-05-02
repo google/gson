@@ -48,11 +48,98 @@ public final class JsonTreeReader extends JsonReader {
   };
   private static final Object SENTINEL_CLOSED = new Object();
 
+  private class StringValueReader extends Reader {
+    private final String value;
+    private final boolean isName;
+    private int index = 0;
+    private boolean hasFinished = false;
+
+    private StringValueReader(String value, boolean isName) {
+      this.value = value;
+      this.isName = isName;
+    }
+
+    private boolean hasFinished() {
+      if (!hasFinished) {
+        hasFinished = index >= value.length();
+
+        if (hasFinished) {
+          // Update enclosing JsonReader
+          isReaderActive = false;
+          if (isName) {
+            pathNames[stackSize - 1] = value;
+          } else {
+            incrementPathIndex();
+          }
+        }
+      }
+
+      return hasFinished;
+    }
+
+    private int remaining() {
+      return value.length() - index;
+    }
+
+    @Override
+    public int read(char[] cbuf, int off, int len) throws IOException {
+      if (off < 0) {
+        throw new IndexOutOfBoundsException("offset < 0");
+      } else if (len < 0) {
+        throw new IndexOutOfBoundsException("length < 0");
+      } else if (len > cbuf.length - off) {
+        throw new IndexOutOfBoundsException("length > arr.length - offset");
+      }
+
+      if (len == 0 || hasFinished()) {
+        return 0;
+      } else {
+        int readAmount = Math.min(remaining(), len);
+        value.getChars(index, index + readAmount, cbuf, off);
+        index += readAmount;
+        return readAmount;
+      }
+    }
+
+    @Override
+    public int read() throws IOException {
+      if (hasFinished()) {
+        return -1;
+      } else {
+        return value.charAt(index++);
+      }
+    }
+
+    @Override
+    public long skip(long n) throws IOException {
+      if (n <= 0 || hasFinished()) {
+        return  0;
+      }
+      // Cast is safe because remaining() is int
+      int skipped = (int) Math.min(remaining(), n);
+      index += skipped;
+      return skipped;
+    }
+
+    @Override
+    public boolean ready() throws IOException {
+      // Always return true, even if finished, see also JDK-8196767
+      return true;
+    }
+
+    @Override
+    public void close() {
+      // Do nothing
+    }
+  }
+
   /*
    * The nesting stack. Using a manual array rather than an ArrayList saves 20%.
    */
   private Object[] stack = new Object[32];
   private int stackSize = 0;
+  /** Whether a {@code Reader} is currently reading a name or string */
+  private boolean isReaderActive = false;
 
   /*
    * The path members. It corresponds directly to stack: At indices where the
@@ -109,6 +196,8 @@ public final class JsonTreeReader extends JsonReader {
   @Override public JsonToken peek() throws IOException {
     if (stackSize == 0) {
       return JsonToken.END_DOCUMENT;
+    } else if (isReaderActive) {
+      throw new IllegalStateException("Name or string reader has not consumed all data yet");
     }
 
     Object o = peekStack();
@@ -202,6 +291,11 @@ public final class JsonTreeReader extends JsonReader {
     return name;
   }
 
+  @Override public Reader nextNameReader() throws IOException {
+    isReaderActive = true;
+    return new StringValueReader(popNextName(), true);
+  }
+
   private String popString() throws IOException {
     expectString();
     String result = ((JsonPrimitive) popStack()).getAsString();
@@ -212,6 +306,11 @@ public final class JsonTreeReader extends JsonReader {
     String result = popString();
     incrementPathIndex();
     return result;
+  }
+
+  @Override public Reader nextStringReader() throws IOException {
+    isReaderActive = true;
+    return new StringValueReader(popString(), false);
   }
 
   @Override public boolean nextBoolean() throws IOException {
@@ -252,6 +351,7 @@ public final class JsonTreeReader extends JsonReader {
   @Override public void close() throws IOException {
     stack = new Object[] { SENTINEL_CLOSED };
     stackSize = 1;
+    isReaderActive = false;
   }
 
   @Override public void skipValue() throws IOException {

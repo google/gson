@@ -619,8 +619,9 @@ public class JsonWriter implements Closeable, Flushable {
    * to be closed to indicate that writing the name has finished. No other
    * data can be written until the writer is closed.
    *
-   * <p>The property will always be written, regardless of whether
-   * {@linkplain #getSerializeNulls() null values should be serialized}.
+   * <p>For efficiency reasons implementations may always write the property,
+   * regardless of whether {@linkplain #getSerializeNulls() null values
+   * should be serialized}.
    *
    * @return writer for writing a property name
    * @throws IOException if creating the writer fails
