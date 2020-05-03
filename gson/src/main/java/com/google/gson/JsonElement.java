@@ -31,6 +31,11 @@ import java.math.BigInteger;
  * @author Joel Leitch
  */
 public abstract class JsonElement {
+  // Package-private to prevent custom subclasses because they would cause issues for
+  // the default type adapter
+  JsonElement() {
+  }
+
   /**
    * Returns a deep copy of this element. Immutable elements like primitives
    * and nulls are not copied.
