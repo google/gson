@@ -18,10 +18,12 @@ package com.google.gson.internal.bind;
 
 import com.google.gson.FieldNamingStrategy;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.annotations.ExplicitlyNullableJsonElement;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.internal.ConstructorConstructor;
@@ -117,6 +119,18 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     if (mapped == null) mapped = context.getAdapter(fieldType);
 
     final TypeAdapter<?> typeAdapter = mapped;
+
+    final boolean nullableJsonElement = field.getAnnotation(ExplicitlyNullableJsonElement.class) != null;
+    if (nullableJsonElement) {
+      // Check declared type instead of effective type to not allow unsafe
+      // constructs such as annotating a field of unbound generic type T
+      final Class<?> declaredFieldType = field.getType();
+      if (!JsonElement.class.isAssignableFrom(declaredFieldType)) {
+        throw new IllegalArgumentException("Non-" + JsonElement.class.getSimpleName()
+            + " field '" + field + "' annotated with @" + ExplicitlyNullableJsonElement.class.getSimpleName());
+      }
+    }
+
     return new ReflectiveTypeAdapterFactory.BoundField(name, serialize, deserialize) {
       @SuppressWarnings({"unchecked", "rawtypes"}) // the type adapter and field type always agree
       @Override void write(JsonWriter writer, Object value)
@@ -128,7 +142,13 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       }
       @Override void read(JsonReader reader, Object value)
           throws IOException, IllegalAccessException {
-        Object fieldValue = typeAdapter.read(reader);
+        Object fieldValue;
+        if (nullableJsonElement && reader.peek() == JsonToken.NULL) {
+          reader.skipValue();
+          fieldValue = null;
+        } else {
+          fieldValue = typeAdapter.read(reader);
+        }
         if (fieldValue != null || !isPrimitive) {
           field.set(value, fieldValue);
         }

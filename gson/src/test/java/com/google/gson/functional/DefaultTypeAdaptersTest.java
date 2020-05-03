@@ -146,7 +146,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
     URI target = gson.fromJson(json, URI.class);
     assertEquals(uriValue, target.toASCIIString());
   }
-  
+
   public void testNullSerialization() throws Exception {
     testNullSerializationAndDeserialization(Boolean.class);
     testNullSerializationAndDeserialization(Byte.class);
@@ -269,7 +269,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
     ClassWithBigInteger actual = gson.fromJson(json, ClassWithBigInteger.class);
     assertEquals(expected.value, actual.value);
   }
-  
+
   public void testOverrideBigIntegerTypeAdapter() throws Exception {
     gson = new GsonBuilder()
         .registerTypeAdapter(BigInteger.class, new NumberAsStringAdapter(BigInteger.class))
@@ -638,6 +638,15 @@ public class DefaultTypeAdaptersTest extends TestCase {
       fail();
     } catch (JsonSyntaxException expected) {
       assertEquals("Expected a com.google.gson.JsonObject but was com.google.gson.JsonPrimitive",
+          expected.getMessage());
+    }
+
+    // Verify that `null` is always deserialized as JsonNull
+    try {
+      gson.fromJson("null", JsonObject.class);
+      fail();
+    } catch (JsonSyntaxException expected) {
+      assertEquals("Expected a com.google.gson.JsonObject but was com.google.gson.JsonNull",
           expected.getMessage());
     }
   }
