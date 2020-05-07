@@ -260,4 +260,25 @@ public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
   private static final class D {
     @SuppressWarnings("unused") final String value = "a";
   }
+
+  /**
+   * Verifies that {@link TypeAdapterFactory} specified by JsonAdapter can
+   * call Gson.getDelegateAdapter without any issues, despite the factory
+   * not being directly registered on Gson.
+   */
+  public void testDelegatingAdapterFactory() {
+    E deserialized = new Gson().fromJson("{\"f\":\"test\"}", E.class);
+    assertEquals("test", deserialized.f);
+  }
+  @JsonAdapter(E.DelegatingAdapterFactory.class)
+  private static class E {
+    String f;
+
+    static class DelegatingAdapterFactory implements TypeAdapterFactory {
+      @Override
+      public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+        return gson.getDelegateAdapter(this, type);
+      }
+    }
+  }
 }

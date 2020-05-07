@@ -20,11 +20,16 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.internal.bind.ReflectiveTypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
@@ -301,6 +306,149 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
           return (T) Arrays.asList(new Part("GizmoPartTypeAdapterFactory"));
         }
       };
+    }
+  }
+
+  /**
+   * Verify that {@link JsonAdapter} annotation can overwrite adapters which
+   * can normally not be overwritten
+   */
+  public void testOverwriteBuiltIn() {
+    BuiltInOverwriting obj = new BuiltInOverwriting();
+    obj.f = new JsonPrimitive(true);
+    String json = new Gson().toJson(obj);
+    assertEquals("{\"f\":\"" + HardcodedTypeAdapter.SERIALIZED + "\"}", json);
+
+    BuiltInOverwriting deserialized = new Gson().fromJson("{\"f\": 2}", BuiltInOverwriting.class);
+    assertEquals(HardcodedTypeAdapter.DESERIALIZED, deserialized.f);
+  }
+
+  private static class BuiltInOverwriting {
+    @JsonAdapter(HardcodedTypeAdapter.class)
+    JsonElement f;
+  }
+
+  static class HardcodedTypeAdapter extends TypeAdapter<JsonElement> {
+    static final JsonPrimitive DESERIALIZED = new JsonPrimitive("deserialized hardcoded");
+    @Override public JsonElement read(JsonReader in) throws IOException {
+      in.skipValue();
+      return DESERIALIZED;
+    }
+
+    static final String SERIALIZED = "serialized hardcoded";
+    @Override public void write(JsonWriter out, JsonElement value) throws IOException {
+      out.value(SERIALIZED);
+    }
+  }
+
+  /**
+   * Verify that exclusion strategy preventing serialization has higher precedence than
+   * {@link JsonAdapter} annotation.
+   */
+  public void testExcludeSerializePrecedence() {
+    Gson gson = new GsonBuilder()
+        .addSerializationExclusionStrategy(new ExclusionStrategy() {
+          @Override public boolean shouldSkipField(FieldAttributes f) {
+            return true;
+          }
+          @Override public boolean shouldSkipClass(Class<?> clazz) {
+            return false;
+          }
+        })
+        .create();
+
+    DelegatingAndOverwriting obj = new DelegatingAndOverwriting();
+    obj.f = 1;
+    obj.f2 = new JsonPrimitive(2);
+    obj.f3 = new JsonPrimitive(true);
+    String json = gson.toJson(obj);
+    assertEquals("{}", json);
+
+    DelegatingAndOverwriting deserialized = gson.fromJson("{\"f\":1,\"f2\":2,\"f3\":3}", DelegatingAndOverwriting.class);
+    assertEquals(Integer.valueOf(1), deserialized.f);
+    assertEquals(new JsonPrimitive(2), deserialized.f2);
+    // Verify that for deserialization type adapter specified by @JsonAdapter
+    // is used
+    assertEquals(HardcodedTypeAdapter.DESERIALIZED, deserialized.f3);
+  }
+
+  /**
+   * Verify that exclusion strategy preventing deserialization has higher precedence than
+   * {@link JsonAdapter} annotation.
+   */
+  public void testExcludeDeserializePrecedence() {
+    Gson gson = new GsonBuilder()
+        .addDeserializationExclusionStrategy(new ExclusionStrategy() {
+          @Override public boolean shouldSkipField(FieldAttributes f) {
+            return true;
+          }
+          @Override public boolean shouldSkipClass(Class<?> clazz) {
+            return false;
+          }
+        })
+        .create();
+
+    DelegatingAndOverwriting obj = new DelegatingAndOverwriting();
+    obj.f = 1;
+    obj.f2 = new JsonPrimitive(2);
+    obj.f3 = new JsonPrimitive(true);
+    String json = gson.toJson(obj);
+    // Verify that for serialization type adapters specified by @JsonAdapter
+    // are used
+    assertEquals("{\"f\":1,\"f2\":2,\"f3\":\"" + HardcodedTypeAdapter.SERIALIZED + "\"}", json);
+
+    DelegatingAndOverwriting deserialized = gson.fromJson("{\"f\":1,\"f2\":2,\"f3\":3}", DelegatingAndOverwriting.class);
+    assertNull(deserialized.f);
+    assertNull(deserialized.f2);
+    assertNull(deserialized.f3);
+  }
+
+  /**
+   * Verify that exclusion strategy preventing serialization and deserialization has
+   * higher precedence than {@link JsonAdapter} annotation.
+   *
+   * This is a separate test method because {@link ReflectiveTypeAdapterFactory} handles
+   * this case differently.
+   */
+  public void testExcludePrecedence() {
+    Gson gson = new GsonBuilder()
+        .setExclusionStrategies(new ExclusionStrategy() {
+          @Override public boolean shouldSkipField(FieldAttributes f) {
+            return true;
+          }
+          @Override public boolean shouldSkipClass(Class<?> clazz) {
+            return false;
+          }
+        })
+        .create();
+
+    DelegatingAndOverwriting obj = new DelegatingAndOverwriting();
+    obj.f = 1;
+    obj.f2 = new JsonPrimitive(2);
+    obj.f3 = new JsonPrimitive(true);
+    String json = gson.toJson(obj);
+    assertEquals("{}", json);
+
+    DelegatingAndOverwriting deserialized = gson.fromJson("{\"f\":1,\"f2\":2,\"f3\":3}", DelegatingAndOverwriting.class);
+    assertNull(deserialized.f);
+    assertNull(deserialized.f2);
+    assertNull(deserialized.f3);
+  }
+
+  private static class DelegatingAndOverwriting {
+    @JsonAdapter(DelegatingAdapterFactory.class)
+    Integer f;
+    @JsonAdapter(DelegatingAdapterFactory.class)
+    JsonElement f2;
+    // Also have non-delegating adapter to make tests handle both cases
+    @JsonAdapter(HardcodedTypeAdapter.class)
+    JsonElement f3;
+
+    static class DelegatingAdapterFactory implements TypeAdapterFactory {
+      @Override
+      public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+        return gson.getDelegateAdapter(this, type);
+      }
     }
   }
 }
