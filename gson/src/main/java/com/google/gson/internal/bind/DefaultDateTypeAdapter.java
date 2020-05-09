@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package com.google.gson.internal.bind;
 
 import java.io.IOException;
-import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.ParsePosition;
@@ -27,6 +26,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.TypeAdapter;
+import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.JavaVersion;
 import com.google.gson.internal.PreJava9DateFormatProvider;
 import com.google.gson.internal.bind.util.ISO8601Utils;
@@ -35,54 +37,49 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
 /**
- * This type adapter supports three subclasses of date: Date, Timestamp, and
- * java.sql.Date.
+ * This type adapter supports subclasses of date by defining a
+ * {@link DefaultDateTypeAdapter.DateType} and then using its {@code createAdapterFactory}
+ * methods.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-final class DefaultDateTypeAdapter<T extends Date> extends TypeAdapter<T> {
+public final class DefaultDateTypeAdapter<T extends Date> extends TypeAdapter<T> {
   private static final String SIMPLE_NAME = "DefaultDateTypeAdapter";
 
-  static abstract class DateType<T extends Date> {
-    private DateType() {
-    }
-
-    public static final DateType<Date> DATE = new DateType<Date>() {
-      @Override
-      protected Date deserialize(Date date) {
+  public static abstract class DateType<T extends Date> {
+    public static final DateType<Date> DATE = new DateType<Date>(Date.class) {
+      @Override protected Date deserialize(Date date) {
         return date;
       }
     };
-    public static final DateType<java.sql.Date> SQL_DATE = new DateType<java.sql.Date>() {
-      @Override
-      protected java.sql.Date deserialize(Date date) {
-        return new java.sql.Date(date.getTime());
-      }
-    };
-    public static final DateType<Timestamp> SQL_TIMESTAMP = new DateType<Timestamp>() {
-      @Override
-      protected Timestamp deserialize(Date date) {
-        return new Timestamp(date.getTime());
-      }
-    };
+
+    private final Class<T> dateClass;
+
+    protected DateType(Class<T> dateClass) {
+      this.dateClass = dateClass;
+    }
 
     protected abstract T deserialize(Date date);
 
-    public DefaultDateTypeAdapter<T> createAdapter(String datePattern) {
-      return new DefaultDateTypeAdapter<T>(this, datePattern);
+    private final TypeAdapterFactory createFactory(DefaultDateTypeAdapter<T> adapter) {
+      return TypeAdapters.newFactory(dateClass, adapter);
     }
 
-    public DefaultDateTypeAdapter<T> createAdapter(int style) {
-      return new DefaultDateTypeAdapter<T>(this, style);
+    public final TypeAdapterFactory createAdapterFactory(String datePattern) {
+      return createFactory(new DefaultDateTypeAdapter<T>(this, datePattern));
     }
 
-    public DefaultDateTypeAdapter<T> createAdapter(int dateStyle, int timeStyle) {
-      return new DefaultDateTypeAdapter<T>(this, dateStyle, timeStyle);
+    public final TypeAdapterFactory createAdapterFactory(int style) {
+      return createFactory(new DefaultDateTypeAdapter<T>(this, style));
     }
 
-    public DefaultDateTypeAdapter<T> createDefaultsAdapter() {
-      return new DefaultDateTypeAdapter<T>(this, DateFormat.DEFAULT, DateFormat.DEFAULT);
+    public final TypeAdapterFactory createAdapterFactory(int dateStyle, int timeStyle) {
+      return createFactory(new DefaultDateTypeAdapter<T>(this, dateStyle, timeStyle));
+    }
+
+    public final TypeAdapterFactory createDefaultsAdapterFactory() {
+      return createFactory(new DefaultDateTypeAdapter<T>(this, DateFormat.DEFAULT, DateFormat.DEFAULT));
     }
   }
 
@@ -162,11 +159,12 @@ final class DefaultDateTypeAdapter<T extends Date> extends TypeAdapter<T> {
           return dateFormat.parse(s);
         } catch (ParseException ignored) {}
       }
-      try {
-        return ISO8601Utils.parse(s, new ParsePosition(0));
-      } catch (ParseException e) {
-        throw new JsonSyntaxException(s, e);
-      }
+    }
+
+    try {
+      return ISO8601Utils.parse(s, new ParsePosition(0));
+    } catch (ParseException e) {
+      throw new JsonSyntaxException(s, e);
     }
   }
 
