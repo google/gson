@@ -22,6 +22,8 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 
 import com.google.gson.reflect.TypeToken;
+
+import java.util.Arrays;
 import java.util.Map;
 import junit.framework.TestCase;
 
@@ -89,8 +91,8 @@ public class ReadersWritersTest extends TestCase {
   }
 
   public void testReadWriteTwoStrings() throws IOException {
-    Gson gson= new Gson();
-    CharArrayWriter writer= new CharArrayWriter();
+    Gson gson = new Gson();
+    CharArrayWriter writer = new CharArrayWriter();
     writer.write(gson.toJson("one").toCharArray());
     writer.write(gson.toJson("two").toCharArray());
     CharArrayReader reader = new CharArrayReader(writer.toCharArray());
@@ -102,8 +104,8 @@ public class ReadersWritersTest extends TestCase {
   }
 
   public void testReadWriteTwoObjects() throws IOException {
-    Gson gson= new Gson();
-    CharArrayWriter writer= new CharArrayWriter();
+    Gson gson = new Gson();
+    CharArrayWriter writer = new CharArrayWriter();
     BagOfPrimitives expectedOne = new BagOfPrimitives(1, 1, true, "one");
     writer.write(gson.toJson(expectedOne).toCharArray());
     BagOfPrimitives expectedTwo = new BagOfPrimitives(2, 2, false, "two");
@@ -131,5 +133,46 @@ public class ReadersWritersTest extends TestCase {
       fail();
     } catch (JsonSyntaxException expected) {
     }
+  }
+
+  /**
+   * Verifies that passing an {@link Appendable} which is not an instance of {@link Writer}
+   * to {@code Gson.toJson} works correctly.
+   */
+  public void testToJsonAppendable() {
+    class CustomAppendable implements Appendable {
+      final StringBuilder stringBuilder = new StringBuilder();
+
+      @Override
+      public Appendable append(char c) throws IOException {
+        stringBuilder.append(c);
+        return this;
+      }
+
+      @Override
+      public Appendable append(CharSequence csq) throws IOException {
+        if (csq == null) {
+          append("null"); // Requirement by Writer.append
+        } else {
+          append(csq, 0, csq.length());
+        }
+        return this;
+      }
+
+      public Appendable append(CharSequence csq, int start, int end) throws IOException {
+        if (csq == null) {
+          csq = "null"; // Requirement by Writer.append
+        }
+
+        // According to doc, toString() must return string representation
+        String s = csq.toString();
+        stringBuilder.append(s, start, end);
+        return this;
+      }
+    }
+
+    CustomAppendable appendable = new CustomAppendable();
+    gson.toJson(Arrays.asList("test", 123, true), appendable);
+    assertEquals("[\"test\",123,true]", appendable.stringBuilder.toString());
   }
 }
