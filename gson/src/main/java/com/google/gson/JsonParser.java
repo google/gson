@@ -85,8 +85,6 @@ public final class JsonParser {
       return Streams.parse(reader);
     } catch (StackOverflowError e) {
       throw new JsonParseException("Failed parsing JSON source: " + reader + " to Json", e);
-    } catch (OutOfMemoryError e) {
-      throw new JsonParseException("Failed parsing JSON source: " + reader + " to Json", e);
     } finally {
       reader.setLenient(lenient);
     }
