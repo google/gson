@@ -223,11 +223,11 @@ public class JsonWriter implements Closeable, Flushable {
       verifyNotClosed();
 
       if (csq == null) {
-        stringPiece("null"); // Requirement by Writer.append
-      } else {
-        validateIndices(csq.length(), start, end - start);
-        stringPiece(csq.subSequence(start, end));
+        csq = "null"; // Requirement by Writer.append
       }
+
+      validateIndices(csq.length(), start, end - start);
+      stringPiece(csq.subSequence(start, end));
       return this;
     }
 

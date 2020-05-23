@@ -867,6 +867,7 @@ public final class JsonWriterTest extends TestCase {
     assertSame(writer, writer.append("b\nc"));
     assertSame(writer, writer.append(null));
     assertSame(writer, writer.append("cd\nef", 1, 4));
+    // Indices should affect String "null": -> "ul"
     assertSame(writer, writer.append(null, 1, 3));
     writer.write("ar\nr".toCharArray());
     writer.write("_ar\nr_", 1, 4);
@@ -876,7 +877,7 @@ public final class JsonWriterTest extends TestCase {
     writer.flush();
     writer.close();
 
-    return "ab\\ncnulld\\nenullar\\nrar\\nrbst\\nrst\\nr"; // Expected written string
+    return "ab\\ncnulld\\neular\\nrar\\nrbst\\nrst\\nr"; // Expected written string
   }
 
   public void testNameWriter() throws IOException {
