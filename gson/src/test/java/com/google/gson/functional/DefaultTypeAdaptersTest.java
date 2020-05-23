@@ -69,12 +69,14 @@ import junit.framework.TestCase;
 public class DefaultTypeAdaptersTest extends TestCase {
   private Gson gson;
   private TimeZone oldTimeZone;
+  private Locale oldLocale;
 
   @Override
   protected void setUp() throws Exception {
     super.setUp();
     this.oldTimeZone = TimeZone.getDefault();
     TimeZone.setDefault(TimeZone.getTimeZone("America/Los_Angeles"));
+    this.oldLocale = Locale.getDefault();
     Locale.setDefault(Locale.US);
     gson = new Gson();
   }
@@ -82,6 +84,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
   @Override
   protected void tearDown() throws Exception {
     TimeZone.setDefault(oldTimeZone);
+    Locale.setDefault(oldLocale);
     super.tearDown();
   }
 
@@ -146,7 +149,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
     URI target = gson.fromJson(json, URI.class);
     assertEquals(uriValue, target.toASCIIString());
   }
-  
+
   public void testNullSerialization() throws Exception {
     testNullSerializationAndDeserialization(Boolean.class);
     testNullSerializationAndDeserialization(Byte.class);
@@ -175,14 +178,15 @@ public class DefaultTypeAdaptersTest extends TestCase {
     testNullSerializationAndDeserialization(Date.class);
     testNullSerializationAndDeserialization(GregorianCalendar.class);
     testNullSerializationAndDeserialization(Calendar.class);
-    testNullSerializationAndDeserialization(Time.class);
-    testNullSerializationAndDeserialization(Timestamp.class);
-    testNullSerializationAndDeserialization(java.sql.Date.class);
     testNullSerializationAndDeserialization(Enum.class);
     testNullSerializationAndDeserialization(Class.class);
   }
 
   private void testNullSerializationAndDeserialization(Class<?> c) {
+    testNullSerializationAndDeserialization(gson, c);
+  }
+
+  public static void testNullSerializationAndDeserialization(Gson gson, Class<?> c) {
     assertEquals("null", gson.toJson(null, c));
     assertEquals(null, gson.fromJson("null", c));
   }
@@ -269,7 +273,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
     ClassWithBigInteger actual = gson.fromJson(json, ClassWithBigInteger.class);
     assertEquals(expected.value, actual.value);
   }
-  
+
   public void testOverrideBigIntegerTypeAdapter() throws Exception {
     gson = new GsonBuilder()
         .registerTypeAdapter(BigInteger.class, new NumberAsStringAdapter(BigInteger.class))
@@ -347,58 +351,17 @@ public class DefaultTypeAdaptersTest extends TestCase {
   // Date can not directly be compared with another instance since the deserialization loses the
   // millisecond portion.
   @SuppressWarnings("deprecation")
-  private void assertEqualsDate(Date date, int year, int month, int day) {
+  public static void assertEqualsDate(Date date, int year, int month, int day) {
     assertEquals(year-1900, date.getYear());
     assertEquals(month, date.getMonth());
     assertEquals(day, date.getDate());
   }
 
   @SuppressWarnings("deprecation")
-  private void assertEqualsTime(Date date, int hours, int minutes, int seconds) {
+  public static void assertEqualsTime(Date date, int hours, int minutes, int seconds) {
     assertEquals(hours, date.getHours());
     assertEquals(minutes, date.getMinutes());
     assertEquals(seconds, date.getSeconds());
-  }
-
-  public void testDefaultJavaSqlDateSerialization() {
-    java.sql.Date instant = new java.sql.Date(1259875082000L);
-    String json = gson.toJson(instant);
-    assertEquals("\"Dec 3, 2009\"", json);
-  }
-
-  public void testDefaultJavaSqlDateDeserialization() {
-    String json = "'Dec 3, 2009'";
-    java.sql.Date extracted = gson.fromJson(json, java.sql.Date.class);
-    assertEqualsDate(extracted, 2009, 11, 3);
-  }
-
-  public void testDefaultJavaSqlTimestampSerialization() {
-    Timestamp now = new java.sql.Timestamp(1259875082000L);
-    String json = gson.toJson(now);
-    if (JavaVersion.isJava9OrLater()) {
-      assertEquals("\"Dec 3, 2009, 1:18:02 PM\"", json);
-    } else {
-      assertEquals("\"Dec 3, 2009 1:18:02 PM\"", json);
-    }
-  }
-
-  public void testDefaultJavaSqlTimestampDeserialization() {
-    String json = "'Dec 3, 2009 1:18:02 PM'";
-    Timestamp extracted = gson.fromJson(json, Timestamp.class);
-    assertEqualsDate(extracted, 2009, 11, 3);
-    assertEqualsTime(extracted, 13, 18, 2);
-  }
-
-  public void testDefaultJavaSqlTimeSerialization() {
-    Time now = new Time(1259875082000L);
-    String json = gson.toJson(now);
-    assertEquals("\"01:18:02 PM\"", json);
-  }
-
-  public void testDefaultJavaSqlTimeDeserialization() {
-    String json = "'1:18:02 PM'";
-    Time extracted = gson.fromJson(json, Time.class);
-    assertEqualsTime(extracted, 13, 18, 2);
   }
 
   public void testDefaultDateSerializationUsingBuilder() throws Exception {
@@ -518,42 +481,6 @@ public class DefaultTypeAdaptersTest extends TestCase {
       String json = gson.toJson(dates, listOfDates);
       assertEquals("[\"1970-01-01\"]", json);
       assertEquals(0L, gson.<List<Date>>fromJson("[\"1970-01-01\"]", listOfDates).get(0).getTime());
-    } finally {
-      TimeZone.setDefault(defaultTimeZone);
-      Locale.setDefault(defaultLocale);
-    }
-  }
-
-  // http://code.google.com/p/google-gson/issues/detail?id=230
-  public void testTimestampSerialization() throws Exception {
-    TimeZone defaultTimeZone = TimeZone.getDefault();
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-    Locale defaultLocale = Locale.getDefault();
-    Locale.setDefault(Locale.US);
-    try {
-      Timestamp timestamp = new Timestamp(0L);
-      Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
-      String json = gson.toJson(timestamp, Timestamp.class);
-      assertEquals("\"1970-01-01\"", json);
-      assertEquals(0, gson.fromJson("\"1970-01-01\"", Timestamp.class).getTime());
-    } finally {
-      TimeZone.setDefault(defaultTimeZone);
-      Locale.setDefault(defaultLocale);
-    }
-  }
-
-  // http://code.google.com/p/google-gson/issues/detail?id=230
-  public void testSqlDateSerialization() throws Exception {
-    TimeZone defaultTimeZone = TimeZone.getDefault();
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-    Locale defaultLocale = Locale.getDefault();
-    Locale.setDefault(Locale.US);
-    try {
-      java.sql.Date sqlDate = new java.sql.Date(0L);
-      Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
-      String json = gson.toJson(sqlDate, Timestamp.class);
-      assertEquals("\"1970-01-01\"", json);
-      assertEquals(0, gson.fromJson("\"1970-01-01\"", java.sql.Date.class).getTime());
     } finally {
       TimeZone.setDefault(defaultTimeZone);
       Locale.setDefault(defaultLocale);
