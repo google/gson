@@ -29,6 +29,7 @@ import java.util.Locale;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
+import com.google.gson.internal.$Gson$Preconditions;
 import com.google.gson.internal.JavaVersion;
 import com.google.gson.internal.PreJava9DateFormatProvider;
 import com.google.gson.internal.bind.util.ISO8601Utils;
@@ -92,7 +93,7 @@ public final class DefaultDateTypeAdapter<T extends Date> extends TypeAdapter<T>
   private final List<DateFormat> dateFormats = new ArrayList<DateFormat>();
 
   private DefaultDateTypeAdapter(DateType<T> dateType, String datePattern) {
-    this.dateType = verifyDateType(dateType);
+    this.dateType = $Gson$Preconditions.checkNotNull(dateType);
     dateFormats.add(new SimpleDateFormat(datePattern, Locale.US));
     if (!Locale.getDefault().equals(Locale.US)) {
       dateFormats.add(new SimpleDateFormat(datePattern));
@@ -100,7 +101,7 @@ public final class DefaultDateTypeAdapter<T extends Date> extends TypeAdapter<T>
   }
 
   private DefaultDateTypeAdapter(DateType<T> dateType, int style) {
-    this.dateType = verifyDateType(dateType);
+    this.dateType = $Gson$Preconditions.checkNotNull(dateType);
     dateFormats.add(DateFormat.getDateInstance(style, Locale.US));
     if (!Locale.getDefault().equals(Locale.US)) {
       dateFormats.add(DateFormat.getDateInstance(style));
@@ -111,7 +112,7 @@ public final class DefaultDateTypeAdapter<T extends Date> extends TypeAdapter<T>
   }
 
   private DefaultDateTypeAdapter(DateType<T> dateType, int dateStyle, int timeStyle) {
-    this.dateType = verifyDateType(dateType);
+    this.dateType = $Gson$Preconditions.checkNotNull(dateType);
     dateFormats.add(DateFormat.getDateTimeInstance(dateStyle, timeStyle, Locale.US));
     if (!Locale.getDefault().equals(Locale.US)) {
       dateFormats.add(DateFormat.getDateTimeInstance(dateStyle, timeStyle));
@@ -119,13 +120,6 @@ public final class DefaultDateTypeAdapter<T extends Date> extends TypeAdapter<T>
     if (JavaVersion.isJava9OrLater()) {
       dateFormats.add(PreJava9DateFormatProvider.getUSDateTimeFormat(dateStyle, timeStyle));
     }
-  }
-
-  private static <T extends Date> DateType<T> verifyDateType(DateType<T> dateType) {
-    if (dateType == null) {
-      throw new NullPointerException("dateType == null");
-    }
-    return dateType;
   }
 
   // These methods need to be synchronized since JDK DateFormat classes are not thread-safe
