@@ -49,6 +49,7 @@ import java.util.Map;
 public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   public static final String TYPE_FIELD_NAME = "_type";
   public static final String PROPERTIES_FIELD_NAME = "_properties";
+  private static final String JAVA_LANG_OBJECT = "java.lang.Object";
   private final ConstructorConstructor constructorConstructor;
   private final FieldNamingStrategy fieldNamingPolicy;
   private final Excluder excluder;
@@ -227,12 +228,15 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         in.beginObject();
         while (in.hasNext()) {
           String name = in.nextName();
-
           if (this.defaultTyping && TYPE_FIELD_NAME.equals(name)) {
             String className = in.nextString();
+
+            if(isObjectClass(className)) {
+              throw new JsonParseException("Because of security reasons you can not parse java.lang.Object");
+            }
             if (PROPERTIES_FIELD_NAME.equals(in.nextName())) {
               try {
-                Class<?> clazz = Class.forName(className);
+                Class<?> clazz = Class.forName(className, false, this.getClass().getClassLoader());
                 if (!instance.getClass().equals(clazz) && instance.getClass().isAssignableFrom(clazz)) {
                   return (T) context.getAdapter(clazz).read(in);
                 } else {
@@ -266,6 +270,10 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
 
       in.endObject();
       return (T) instance;
+    }
+
+    private boolean isObjectClass(String className) {
+      return JAVA_LANG_OBJECT.equals(className);
     }
 
     @Override public void write(JsonWriter out, T value) throws IOException {

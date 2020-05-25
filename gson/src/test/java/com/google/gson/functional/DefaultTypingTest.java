@@ -17,6 +17,7 @@ package com.google.gson.functional;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
 import com.google.gson.common.TestTypes.Nested;
 import junit.framework.TestCase;
 
@@ -46,11 +47,21 @@ public class DefaultTypingTest extends TestCase  {
     public void testDefaultTypingDeserialization() {
         ComplexTestType result = gson.fromJson(getJson(), ComplexTestType.class);
         assertEquals(this.testOverThisClass, result);
-        //Explicite check type of some subtypes
+        //Explicit check type of some subtypes
         assertTrue(result.listWithSubTypes.get(0) instanceof SubTypeOfNested);
         assertTrue(result.listWithSubTypes.get(1) instanceof Nested);
         assertTrue(result.subTypeOfNested instanceof SubTypeOfNested);
         assertTrue(result.subTypeOfNestedWithGenericObject.object instanceof SubTypeOfNested);
+    }
+
+    public void testThrowingExceptionWhenDeserializingGenericObject() {
+        try {
+            gson.fromJson(getJsonWithObject(), ComplexTestType.class);
+            fail();
+        } catch (JsonParseException excepted) {
+
+        }
+
     }
 
     private static class ComplexTestType {
@@ -141,5 +152,9 @@ public class DefaultTypingTest extends TestCase  {
 
     private String getJson() {
         return "{\"_type\":\"com.google.gson.functional.DefaultTypingTest$ComplexTestType\",\"_properties\":{\"listWithSubTypes\":[{\"_type\":\"com.google.gson.functional.DefaultTypingTest$SubTypeOfNested\",\"_properties\":{\"value\":5,\"primitive1\":{\"_type\":\"com.google.gson.common.TestTypes$BagOfPrimitives\",\"_properties\":{\"longValue\":1,\"intValue\":1,\"booleanValue\":true,\"stringValue\":\"String1\"}},\"primitive2\":{\"_type\":\"com.google.gson.common.TestTypes$BagOfPrimitives\",\"_properties\":{\"longValue\":2,\"intValue\":2,\"booleanValue\":true,\"stringValue\":\"String2\"}}}},{\"_type\":\"com.google.gson.common.TestTypes$Nested\",\"_properties\":{\"primitive1\":{\"_type\":\"com.google.gson.common.TestTypes$BagOfPrimitives\",\"_properties\":{\"longValue\":1,\"intValue\":1,\"booleanValue\":true,\"stringValue\":\"String1\"}},\"primitive2\":{\"_type\":\"com.google.gson.common.TestTypes$BagOfPrimitives\",\"_properties\":{\"longValue\":2,\"intValue\":2,\"booleanValue\":true,\"stringValue\":\"String2\"}}}}],\"subTypeOfNestedWithGenericObject\":{\"_type\":\"com.google.gson.functional.DefaultTypingTest$SubTypeOfNestedWithGenericObject\",\"_properties\":{\"object\":{\"_type\":\"com.google.gson.functional.DefaultTypingTest$SubTypeOfNested\",\"_properties\":{\"value\":5,\"primitive1\":{\"_type\":\"com.google.gson.common.TestTypes$BagOfPrimitives\",\"_properties\":{\"longValue\":3,\"intValue\":3,\"booleanValue\":true,\"stringValue\":\"String3\"}},\"primitive2\":{\"_type\":\"com.google.gson.common.TestTypes$BagOfPrimitives\",\"_properties\":{\"longValue\":4,\"intValue\":4,\"booleanValue\":true,\"stringValue\":\"String4\"}}}},\"primitive1\":{\"_type\":\"com.google.gson.common.TestTypes$BagOfPrimitives\",\"_properties\":{\"longValue\":1,\"intValue\":1,\"booleanValue\":true,\"stringValue\":\"String1\"}},\"primitive2\":{\"_type\":\"com.google.gson.common.TestTypes$BagOfPrimitives\",\"_properties\":{\"longValue\":2,\"intValue\":2,\"booleanValue\":true,\"stringValue\":\"String2\"}}}},\"nested\":{\"_type\":\"com.google.gson.common.TestTypes$Nested\",\"_properties\":{\"primitive1\":{\"_type\":\"com.google.gson.common.TestTypes$BagOfPrimitives\",\"_properties\":{\"longValue\":3,\"intValue\":3,\"booleanValue\":true,\"stringValue\":\"String3\"}},\"primitive2\":{\"_type\":\"com.google.gson.common.TestTypes$BagOfPrimitives\",\"_properties\":{\"longValue\":4,\"intValue\":4,\"booleanValue\":true,\"stringValue\":\"String4\"}}}},\"subTypeOfNested\":{\"_type\":\"com.google.gson.functional.DefaultTypingTest$SubTypeOfNested\",\"_properties\":{\"value\":5,\"primitive1\":{\"_type\":\"com.google.gson.common.TestTypes$BagOfPrimitives\",\"_properties\":{\"longValue\":3,\"intValue\":3,\"booleanValue\":true,\"stringValue\":\"String3\"}},\"primitive2\":{\"_type\":\"com.google.gson.common.TestTypes$BagOfPrimitives\",\"_properties\":{\"longValue\":4,\"intValue\":4,\"booleanValue\":true,\"stringValue\":\"String4\"}}}},\"primitive\":3,\"bigDecimal\":1.11}}";
+    }
+
+    private String getJsonWithObject() {
+        return "{\"_type\":\"java.lang.Object\",\"_properties\":{}}";
     }
 }
