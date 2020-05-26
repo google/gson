@@ -160,7 +160,7 @@ public final class GsonBuilder {
   /**
    * Makes the output JSON non-executable in Javascript by prefixing the generated JSON with some
    * special text. This prevents attacks from third-party sites through script sourcing. See
-   * <a href="http://code.google.com/p/google-gson/issues/detail?id=42">Gson Issue 42</a>
+   * <a href="https://github.com/google/gson/issues/42">Gson Issue 42</a>
    * for details.
    *
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
@@ -389,7 +389,7 @@ public final class GsonBuilder {
 
   /**
    * By default, Gson is strict and only accepts JSON as specified by
-   * <a href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>. This option makes the parser
+   * <a href="https://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>. This option makes the parser
    * liberal in what it accepts.
    *
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
@@ -553,9 +553,9 @@ public final class GsonBuilder {
   }
 
   /**
-   * Section 2.4 of <a href="http://www.ietf.org/rfc/rfc4627.txt">JSON specification</a> disallows
+   * Section 2.4 of <a href="https://www.ietf.org/rfc/rfc4627.txt">JSON specification</a> disallows
    * special double values (NaN, Infinity, -Infinity). However,
-   * <a href="http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-262.pdf">Javascript
+   * <a href="https://www.ecma-international.org/publications/files/ECMA-ST/Ecma-262.pdf">Javascript
    * specification</a> (see section 4.3.20, 4.3.22, 4.3.23) allows these values as valid Javascript
    * values. Moreover, most JavaScript engines will accept these special values in JSON without
    * problem. So, at a practical level, it makes sense to accept these values as valid JSON even

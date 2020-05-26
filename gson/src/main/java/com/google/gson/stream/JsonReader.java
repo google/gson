@@ -25,7 +25,7 @@ import java.io.Reader;
 import java.util.Arrays;
 
 /**
- * Reads a JSON (<a href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>)
+ * Reads a JSON (<a href="https://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>)
  * encoded value as a stream of tokens. This stream includes both literal
  * values (strings, numbers, booleans, and nulls) as well as the begin and
  * end delimiters of objects and arrays. The tokens are traversed in
@@ -172,7 +172,7 @@ import java.util.Arrays;
  *
  * <a id="nonexecuteprefix"/><h3>Non-Execute Prefix</h3>
  * Web servers that serve private data using JSON may be vulnerable to <a
- * href="http://en.wikipedia.org/wiki/JSON#Cross-site_request_forgery">Cross-site
+ * href="https://en.wikipedia.org/wiki/JSON#Cross-site_request_forgery">Cross-site
  * request forgery</a> attacks. In such an attack, a malicious site gains access
  * to a private JSON file by executing it with an HTML {@code <script>} tag.
  *
@@ -295,7 +295,7 @@ public class JsonReader implements Closeable {
   /**
    * Configure this parser to be liberal in what it accepts. By default,
    * this parser is strict and only accepts JSON as specified by <a
-   * href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>. Setting the
+   * href="https://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>. Setting the
    * parser to lenient causes it to ignore the following syntax errors:
    *
    * <ul>
@@ -1455,7 +1455,7 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Returns a <a href="http://goessner.net/articles/JsonPath/">JsonPath</a> to
+   * Returns a <a href="https://goessner.net/articles/JsonPath/">JsonPath</a> to
    * the current location in the JSON value.
    */
   public String getPath() {

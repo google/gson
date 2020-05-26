@@ -256,7 +256,7 @@ public class ArrayTest extends TestCase {
     assertEquals("Manufacturing", items[1][5]);
   }
 
-  /** http://code.google.com/p/google-gson/issues/detail?id=342 */
+  /** https://github.com/google/gson/issues/342 */
   public void testArrayElementsAreArrays() {
     Object[] stringArrays = {
         new String[] {"test1", "test2"},

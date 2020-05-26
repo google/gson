@@ -82,7 +82,7 @@ public class UncategorizedTest extends TestCase {
   /**
    * This test ensures that a custom deserializer is able to return a derived class instance for a
    * base class object. For a motivation for this test, see Issue 37 and
-   * http://groups.google.com/group/google-gson/browse_thread/thread/677d56e9976d7761
+   * https://groups.google.com/d/topic/google-gson/Z31W6Zdtd2E/discussion
    */
   public void testReturningDerivedClassesDuringDeserialization() {
     Gson gson = new GsonBuilder().registerTypeAdapter(Base.class, new BaseTypeAdapter()).create();
@@ -99,7 +99,7 @@ public class UncategorizedTest extends TestCase {
 
   /**
    * Test that trailing whitespace is ignored.
-   * http://code.google.com/p/google-gson/issues/detail?id=302
+   * https://github.com/google/gson/issues/302
    */
   public void testTrailingWhitespace() throws Exception {
     List<Integer> integers = gson.fromJson("[1,2,3]  \n\n  ",

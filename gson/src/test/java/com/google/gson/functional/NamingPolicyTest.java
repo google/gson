@@ -158,7 +158,7 @@ public class NamingPolicyTest extends TestCase {
     assertEquals(10, obj.value);
   }
 
-  /** http://code.google.com/p/google-gson/issues/detail?id=349 */
+  /** https://github.com/google/gson/issues/349 */
   public void testAtSignInSerializedName() {
     assertEquals("{\"@foo\":\"bar\"}", new Gson().toJson(new AtName()));
   }

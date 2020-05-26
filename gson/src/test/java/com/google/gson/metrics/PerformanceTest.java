@@ -109,7 +109,7 @@ public class PerformanceTest extends TestCase {
   }
   
   /**
-   * Created in response to http://code.google.com/p/google-gson/issues/detail?id=96
+   * Created in response to https://github.com/google/gson/issues/96
    */
   public void disabled_testLargeCollectionSerialization() {
     int count = 1400000;
@@ -121,7 +121,7 @@ public class PerformanceTest extends TestCase {
   }
   
   /**
-   * Created in response to http://code.google.com/p/google-gson/issues/detail?id=96
+   * Created in response to https://github.com/google/gson/issues/96
    */
   public void disabled_testLargeCollectionDeserialization() {
     StringBuilder sb = new StringBuilder();
@@ -144,7 +144,7 @@ public class PerformanceTest extends TestCase {
   }
 
   /**
-   * Created in response to http://code.google.com/p/google-gson/issues/detail?id=96
+   * Created in response to https://github.com/google/gson/issues/96
    */
   // Last I tested, Gson was able to serialize upto 14MB byte array
   public void disabled_testByteArraySerialization() {
@@ -159,7 +159,7 @@ public class PerformanceTest extends TestCase {
   }
   
   /**
-   * Created in response to http://code.google.com/p/google-gson/issues/detail?id=96
+   * Created in response to https://github.com/google/gson/issues/96
    */
   // Last I tested, Gson was able to deserialize a byte array of 11MB
   public void disable_testByteArrayDeserialization() {
@@ -184,7 +184,7 @@ public class PerformanceTest extends TestCase {
 
 // The tests to measure serialization and deserialization performance of Gson
 // Based on the discussion at
-// http://groups.google.com/group/google-gson/browse_thread/thread/7a50b17a390dfaeb
+// https://groups.google.com/d/topic/google-gson/elCxejkN-us/discussion
 // Test results: 10/19/2009 
 // Serialize classes avg time: 60 ms
 // Deserialized classes avg time: 70 ms

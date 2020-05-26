@@ -85,7 +85,7 @@ public class NullObjectAndFieldTest extends TestCase {
   }
   
   /** 
-   * Added to verify http://code.google.com/p/google-gson/issues/detail?id=68
+   * Added to verify https://github.com/google/gson/issues/68
    */
   public void testNullWrappedPrimitiveMemberSerialization() {
     Gson gson = gsonBuilder.serializeNulls().create();
@@ -95,7 +95,7 @@ public class NullObjectAndFieldTest extends TestCase {
   }
   
   /** 
-   * Added to verify http://code.google.com/p/google-gson/issues/detail?id=68
+   * Added to verify https://github.com/google/gson/issues/68
    */
   public void testNullWrappedPrimitiveMemberDeserialization() {
     Gson gson = gsonBuilder.create();

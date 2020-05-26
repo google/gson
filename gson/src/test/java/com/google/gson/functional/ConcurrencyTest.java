@@ -41,7 +41,7 @@ public class ConcurrencyTest extends TestCase {
 
   /**
    * Source-code based on
-   * http://groups.google.com/group/google-gson/browse_thread/thread/563bb51ee2495081
+   * https://groups.google.com/d/topic/google-gson/Vju1HuJJUIE/discussion
    */
   public void testSingleThreadSerialization() { 
     MyObject myObj = new MyObject(); 
@@ -52,7 +52,7 @@ public class ConcurrencyTest extends TestCase {
 
   /**
    * Source-code based on
-   * http://groups.google.com/group/google-gson/browse_thread/thread/563bb51ee2495081
+   * https://groups.google.com/d/topic/google-gson/Vju1HuJJUIE/discussion
    */
   public void testSingleThreadDeserialization() { 
     for (int i = 0; i < 10; i++) { 
@@ -62,7 +62,7 @@ public class ConcurrencyTest extends TestCase {
 
   /**
    * Source-code based on
-   * http://groups.google.com/group/google-gson/browse_thread/thread/563bb51ee2495081
+   * https://groups.google.com/d/topic/google-gson/Vju1HuJJUIE/discussion
    */
   public void testMultiThreadSerialization() throws InterruptedException {
     final CountDownLatch startLatch = new CountDownLatch(1);
@@ -93,7 +93,7 @@ public class ConcurrencyTest extends TestCase {
 
   /**
    * Source-code based on
-   * http://groups.google.com/group/google-gson/browse_thread/thread/563bb51ee2495081
+   * https://groups.google.com/d/topic/google-gson/Vju1HuJJUIE/discussion
    */
   public void testMultiThreadDeserialization() throws InterruptedException {
     final CountDownLatch startLatch = new CountDownLatch(1);

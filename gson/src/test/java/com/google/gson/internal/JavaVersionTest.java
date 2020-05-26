@@ -36,12 +36,12 @@ public class JavaVersionTest {
 
   @Test
   public void testJava6() {
-    assertEquals(6, JavaVersion.getMajorJavaVersion("1.6.0")); // http://www.oracle.com/technetwork/java/javase/version-6-141920.html
+    assertEquals(6, JavaVersion.getMajorJavaVersion("1.6.0")); // https://www.oracle.com/technetwork/java/javase/version-6-141920.html
   }
 
   @Test
   public void testJava7() {
-    assertEquals(7, JavaVersion.getMajorJavaVersion("1.7.0")); // http://www.oracle.com/technetwork/java/javase/jdk7-naming-418744.html
+    assertEquals(7, JavaVersion.getMajorJavaVersion("1.7.0")); // https://www.oracle.com/technetwork/java/javase/jdk7-naming-418744.html
   }
 
   @Test
