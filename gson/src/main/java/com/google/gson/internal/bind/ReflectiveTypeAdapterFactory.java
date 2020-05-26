@@ -230,10 +230,6 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           String name = in.nextName();
           if (this.defaultTyping && TYPE_FIELD_NAME.equals(name)) {
             String className = in.nextString();
-
-            if(isObjectClass(className)) {
-              throw new JsonParseException("Because of security reasons you can not parse java.lang.Object");
-            }
             if (PROPERTIES_FIELD_NAME.equals(in.nextName())) {
               try {
                 Class<?> clazz = Class.forName(className, false, this.getClass().getClassLoader());
@@ -270,10 +266,6 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
 
       in.endObject();
       return (T) instance;
-    }
-
-    private boolean isObjectClass(String className) {
-      return JAVA_LANG_OBJECT.equals(className);
     }
 
     @Override public void write(JsonWriter out, T value) throws IOException {
