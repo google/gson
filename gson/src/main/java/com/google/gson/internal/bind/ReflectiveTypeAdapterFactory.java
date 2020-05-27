@@ -49,7 +49,6 @@ import java.util.Map;
 public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   private static final String TYPE_FIELD_NAME = "_type";
   private static final String PROPERTIES_FIELD_NAME = "_properties";
-  private static final String JAVA_LANG_OBJECT = "java.lang.Object";
   private final ConstructorConstructor constructorConstructor;
   private final FieldNamingStrategy fieldNamingPolicy;
   private final Excluder excluder;
