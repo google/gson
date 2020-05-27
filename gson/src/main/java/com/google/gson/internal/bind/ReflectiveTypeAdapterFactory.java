@@ -228,7 +228,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         in.beginObject();
         while (in.hasNext()) {
           String name = in.nextName();
-          if (this.defaultTyping && TYPE_FIELD_NAME.equals(name)) {
+          if (defaultTyping && TYPE_FIELD_NAME.equals(name)) {
             String className = in.nextString();
             if (PROPERTIES_FIELD_NAME.equals(in.nextName())) {
               try {
