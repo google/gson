@@ -275,7 +275,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       }
 
       out.beginObject();
-      if(defaultTyping) {
+      if (defaultTyping) {
         out.name(TYPE_FIELD_NAME);
         out.value(value.getClass().getName());
         out.name(PROPERTIES_FIELD_NAME);
