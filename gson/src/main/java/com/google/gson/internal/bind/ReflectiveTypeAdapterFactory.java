@@ -295,8 +295,6 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         out.endObject();
       }
       out.endObject();
-
     }
-
   }
 }
