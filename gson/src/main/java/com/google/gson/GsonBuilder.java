@@ -404,7 +404,11 @@ public final class GsonBuilder {
 
   /**
    * Enable default inclusion of type information and use this information during deserialization.
-   * Every complex type will be serialized/deserialized using two additional JSON fields - _type and _properties.
+   * Every complex type will be serialized/deserialized using two additional JSON fields:
+   * <ul>
+   *   <li>{@code _type}: The class name of the type as JSON string, e.g. {@code "my.CustomClass$Nested"}</li>
+   *   <li>{@code _properties}: The properties of the serialized instance in a JSON object.</li>
+   * </ul>
    *
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
