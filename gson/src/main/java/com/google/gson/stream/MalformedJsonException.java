@@ -21,13 +21,10 @@ import java.io.IOException;
 /**
  * Thrown when a reader encounters malformed JSON. Some syntax errors can be ignored by calling
  * {@link JsonReader#setLenient(boolean)}.
- *
- * @author Inderjeet Singh
- * @author Joel Leitch
  */
 public final class MalformedJsonException extends IOException {
 
-  private static final long serialVersionUID = -4087810063524778887L;
+  private static final long serialVersionUID = 1L;
 
   /**
    * Creates exception with the specified message. If you are wrapping another exception, consider
@@ -35,7 +32,7 @@ public final class MalformedJsonException extends IOException {
    *
    * @param msg error message describing a possible cause of this exception.
    */
-  public MalformedJsonException(final String msg) {
+  public MalformedJsonException(String msg) {
     super(msg);
   }
 
@@ -45,11 +42,8 @@ public final class MalformedJsonException extends IOException {
    * @param msg   error message describing what happened.
    * @param cause root exception that caused this exception to be thrown.
    */
-  public MalformedJsonException(final String msg, final Throwable cause) {
-    super(msg);
-    // Using initCause() instead of calling super() because Java 1.5 didn't retrofit IOException
-    // with a constructor with Throwable. This was done in Java 1.6
-    initCause(cause);
+  public MalformedJsonException(String msg, Throwable cause) {
+    super(msg, cause);
   }
 
   /**
@@ -58,9 +52,7 @@ public final class MalformedJsonException extends IOException {
    *
    * @param cause root exception that caused this exception to be thrown.
    */
-  public MalformedJsonException(final Throwable cause) {
-    // Using initCause() instead of calling super() because Java 1.5 didn't retrofit IOException
-    // with a constructor with Throwable. This was done in Java 1.6
-    initCause(cause);
+  public MalformedJsonException(Throwable cause) {
+    super(cause);
   }
 }

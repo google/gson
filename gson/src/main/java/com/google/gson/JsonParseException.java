@@ -39,7 +39,7 @@ public class JsonParseException extends RuntimeException {
    *
    * @param msg error message describing a possible cause of this exception.
    */
-  public JsonParseException(final String msg) {
+  public JsonParseException(String msg) {
     super(msg);
   }
 
@@ -49,7 +49,7 @@ public class JsonParseException extends RuntimeException {
    * @param msg   error message describing what happened.
    * @param cause root exception that caused this exception to be thrown.
    */
-  public JsonParseException(final String msg, final Throwable cause) {
+  public JsonParseException(String msg, Throwable cause) {
     super(msg, cause);
   }
 
@@ -59,7 +59,7 @@ public class JsonParseException extends RuntimeException {
    *
    * @param cause root exception that caused this exception to be thrown.
    */
-  public JsonParseException(final Throwable cause) {
+  public JsonParseException(Throwable cause) {
     super(cause);
   }
 }

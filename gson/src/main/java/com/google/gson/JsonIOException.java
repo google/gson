@@ -23,7 +23,7 @@ package com.google.gson;
  */
 public final class JsonIOException extends JsonParseException {
 
-  private static final long serialVersionUID = 1818297422735748149L;
+  private static final long serialVersionUID = 1L;
 
   /**
    * Creates exception with the specified message. If you are wrapping another exception, consider
@@ -31,7 +31,7 @@ public final class JsonIOException extends JsonParseException {
    *
    * @param msg error message describing a possible cause of this exception.
    */
-  public JsonIOException(final String msg) {
+  public JsonIOException(String msg) {
     super(msg);
   }
 
@@ -41,7 +41,7 @@ public final class JsonIOException extends JsonParseException {
    * @param msg   error message describing what happened.
    * @param cause root exception that caused this exception to be thrown.
    */
-  public JsonIOException(final String msg, final Throwable cause) {
+  public JsonIOException(String msg, Throwable cause) {
     super(msg, cause);
   }
 
@@ -51,7 +51,7 @@ public final class JsonIOException extends JsonParseException {
    *
    * @param cause root exception that caused this exception to be thrown.
    */
-  public JsonIOException(final Throwable cause) {
+  public JsonIOException(Throwable cause) {
     super(cause);
   }
 }
