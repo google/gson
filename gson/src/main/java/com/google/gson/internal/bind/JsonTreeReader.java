@@ -91,8 +91,10 @@ public final class JsonTreeReader extends JsonReader {
         throw new IndexOutOfBoundsException("length > arr.length - offset");
       }
 
-      if (len == 0 || hasFinished()) {
+      if (len == 0) {
         return 0;
+      } else if (hasFinished()) {
+        return -1;
       } else {
         int readAmount = Math.min(remaining(), len);
         value.getChars(index, index + readAmount, cbuf, off);
