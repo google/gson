@@ -25,6 +25,8 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import java.io.IOException;
 import java.io.Reader;
+import java.nio.CharBuffer;
+import java.nio.ReadOnlyBufferException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Arrays;
@@ -110,6 +112,21 @@ public final class JsonTreeReader extends JsonReader {
       } else {
         return value.charAt(index++);
       }
+    }
+
+    @Override
+    public int read(CharBuffer target) throws IOException {
+      if (target.isReadOnly()) {
+        throw new ReadOnlyBufferException();
+      }
+      if (hasFinished()) {
+        return -1;
+      }
+
+      int readAmount = Math.min(remaining(), target.remaining());
+      target.put(value, index, index + readAmount);
+      index += readAmount;
+      return readAmount;
     }
 
     @Override
