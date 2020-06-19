@@ -20,6 +20,8 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.nio.CharBuffer;
+import java.nio.ReadOnlyBufferException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -2057,6 +2059,56 @@ public final class JsonReaderTest extends TestCase {
     assertTrue(stringReader.ready());
     assertEquals('a', stringReader.read());
     assertFalse(stringReader.ready()); // Underlying reader would block now
+  }
+
+  /**
+   * Returns the content which has been {@code put(...)} into the buffer,
+   * i.e. everything from absolute index 0 to (excluding) {@code position()}.
+   */
+  private static String getPutCharBufferContent(CharBuffer charBuffer) {
+    int length = charBuffer.position();
+    StringBuilder sb = new StringBuilder(length);
+    for (int i = 0; i < length; i++) {
+      sb.append(charBuffer.get(i));
+    }
+    return sb.toString();
+  }
+
+  public void testStringReaderReadToCharBuffer() throws IOException {
+    JsonReader reader = new JsonReader(reader("[\"abcd\"]"));
+    reader.beginArray();
+    Reader stringReader = reader.nextStringReader();
+    try {
+      // Reading into full CharBuffer should check for read-only anyways
+      stringReader.read(CharBuffer.allocate(0).asReadOnlyBuffer());
+      fail();
+    } catch (ReadOnlyBufferException expected) {
+    }
+
+    CharBuffer charBuffer = CharBuffer.allocate(10);
+    // Put something in buffer to make sure it is not overwritten
+    charBuffer.put('t');
+    charBuffer.limit(3);
+    assertEquals(2, stringReader.read(charBuffer));
+    assertEquals("tab", getPutCharBufferContent(charBuffer));
+    assertEquals(3, charBuffer.position());
+
+    // Read remaining chars
+    charBuffer.limit(10);
+    assertEquals(2, stringReader.read(charBuffer));
+    assertEquals("tabcd", getPutCharBufferContent(charBuffer));
+    assertEquals(5, charBuffer.position());
+
+    // End of stream should return -1
+    assertEquals(-1, stringReader.read(charBuffer));
+    // Trying to read into full CharBuffer should return 0, even at end of stream
+    assertEquals(0, stringReader.read(CharBuffer.allocate(0)));
+
+    // Make sure nothing changed after trying to read at end of stream
+    assertEquals("tabcd", getPutCharBufferContent(charBuffer));
+    assertEquals(5, charBuffer.position());
+
+    assertEquals(JsonToken.END_ARRAY, reader.peek());
   }
 
   /**

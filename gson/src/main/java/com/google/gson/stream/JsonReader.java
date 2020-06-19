@@ -24,6 +24,8 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.nio.CharBuffer;
+import java.nio.ReadOnlyBufferException;
 import java.util.Arrays;
 
 /**
@@ -276,6 +278,32 @@ public class JsonReader implements Closeable {
     }
   }
 
+  private static class CharBufferCharsConsumer extends CharsConsumer {
+    private final CharBuffer charBuffer;
+    private int accepted;
+
+    private CharBufferCharsConsumer(CharBuffer charBuffer) {
+      this.charBuffer = charBuffer;
+      this.accepted = 0;
+    }
+
+    @Override
+    public void accept(char[] chars, int start, int length) {
+      charBuffer.put(chars, start, length);
+      accepted += length;
+    }
+
+    @Override
+    public void accept(char c) {
+      charBuffer.put(c);
+      accepted++;
+    }
+
+    public int accepted() {
+      return accepted;
+    }
+  }
+
   private static class StringBuildingCharsConsumer extends CharsConsumer {
     /** {@code null} if nothing has been consumed yet */
     private StringBuilder stringBuilder;
@@ -427,6 +455,26 @@ public class JsonReader implements Closeable {
       boolean hasFinished = read(singleCharConsumer, 1);
       setHasFinished(hasFinished);
       return singleCharConsumer.c; // If no char was read value is still -1
+    }
+
+    @Override
+    public int read(CharBuffer target) throws IOException {
+      // read(CharBuffer) is not clear about how to behave for full (remaining() == 0)
+      // buffer, see also JDK-8222329
+      if (target.isReadOnly()) {
+        throw new ReadOnlyBufferException();
+      }
+      int length = target.remaining();
+      if (length == 0) {
+        return 0;
+      }
+
+      CharBufferCharsConsumer charsConsumer = new CharBufferCharsConsumer(target);
+      // Do not have to check if end has already been reached, read does that
+      boolean hasFinished = read(charsConsumer, length);
+      setHasFinished(hasFinished);
+      int accepted = charsConsumer.accepted();
+      return hasFinished && accepted == 0 ? -1 : accepted;
     }
 
     @Override
