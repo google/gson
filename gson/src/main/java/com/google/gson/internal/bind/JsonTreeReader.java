@@ -131,7 +131,10 @@ public final class JsonTreeReader extends JsonReader {
 
     @Override
     public long skip(long n) throws IOException {
-      if (n <= 0 || hasFinished()) {
+      if (n < 0) {
+        throw new IllegalArgumentException("skip value is negative");
+      }
+      if (n == 0 || hasFinished()) {
         return  0;
       }
       // Cast is safe because remaining() is int
