@@ -37,16 +37,15 @@ import java.util.Map;
  * serialization and a primitive/Map/List on deserialization.
  */
 public final class ObjectTypeAdapter extends TypeAdapter<Object> {
+  /**
+   * Gson default factory using {@link ToNumberPolicy#DOUBLE}.
+   */
   public static final TypeAdapterFactory FACTORY = newFactory(ToNumberPolicy.DOUBLE);
 
   private final Gson gson;
   private final ToNumberStrategy toNumberStrategy;
 
-  ObjectTypeAdapter(Gson gson) {
-    this(gson, ToNumberPolicy.DOUBLE);
-  }
-
-  ObjectTypeAdapter(Gson gson, ToNumberStrategy toNumberStrategy) {
+  private ObjectTypeAdapter(Gson gson, ToNumberStrategy toNumberStrategy) {
     this.gson = gson;
     this.toNumberStrategy = toNumberStrategy;
   }

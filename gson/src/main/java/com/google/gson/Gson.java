@@ -47,6 +47,7 @@ import com.google.gson.internal.bind.JsonAdapterAnnotationTypeAdapterFactory;
 import com.google.gson.internal.bind.JsonTreeReader;
 import com.google.gson.internal.bind.JsonTreeWriter;
 import com.google.gson.internal.bind.MapTypeAdapterFactory;
+import com.google.gson.internal.bind.NumberTypeAdapter;
 import com.google.gson.internal.bind.ObjectTypeAdapter;
 import com.google.gson.internal.bind.ReflectiveTypeAdapterFactory;
 import com.google.gson.internal.bind.TypeAdapters;
@@ -379,28 +380,9 @@ public final class Gson {
 
   private static TypeAdapterFactory numberAdapterFactory(final ToNumberStrategy numberToNumberStrategy) {
     if (numberToNumberStrategy == ToNumberPolicy.LAZILY_PARSED_NUMBER) {
-      return TypeAdapters.NUMBER_FACTORY;
+      return NumberTypeAdapter.FACTORY;
     }
-    return TypeAdapters.newFactory(Number.class, new TypeAdapter<Number>() {
-      @Override
-      public Number read(JsonReader in) throws IOException {
-        JsonToken jsonToken = in.peek();
-        switch (jsonToken) {
-        case NULL:
-          in.nextNull();
-          return null;
-        case NUMBER:
-        case STRING:
-          return numberToNumberStrategy.readNumber(in);
-        default:
-          throw new JsonSyntaxException("Expecting number, got: " + jsonToken);
-        }
-      }
-      @Override
-      public void write(JsonWriter out, Number value) throws IOException {
-        out.value(value);
-      }
-    });
+    return NumberTypeAdapter.newFactory(numberToNumberStrategy);
   }
 
   private static TypeAdapter<Number> longAdapter(LongSerializationPolicy longSerializationPolicy) {
