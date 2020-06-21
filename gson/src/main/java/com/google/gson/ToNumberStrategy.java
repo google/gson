@@ -27,8 +27,9 @@ import com.google.gson.stream.JsonReader;
  *
  * <ul>
  * <li>{@link Double} values are returned for JSON numbers if the deserialization type is declared as
- * {@code Object};</li>
- * <li>Lazily parsed number values are returned if the deserialization type is declared as {@code Number}.</li>
+ * {@code Object}, see {@link ToNumberPolicy#DOUBLE};</li>
+ * <li>Lazily parsed number values are returned if the deserialization type is declared as {@code Number},
+ * see {@link ToNumberPolicy#LAZILY_PARSED_NUMBER}.</li>
  * </ul>
  *
  * <p>For historical reasons, Gson does not support deserialization of arbitrary-length numbers for
