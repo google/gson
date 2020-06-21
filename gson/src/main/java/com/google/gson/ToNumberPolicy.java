@@ -55,9 +55,9 @@ public enum ToNumberPolicy implements ToNumberStrategy {
 
   /**
    * Using this policy will ensure that numbers will be read as {@link Long} or {@link Double}
-   * values depending on how JSON numbers are represented: {@link Long} if the JSON number can
-   * be parsed as a {@link Long} value, or otherwise {@link Double} if it can be parsed as a
-   * {@link Double} value. If the parsed double-precision number results in a positive or negative
+   * values depending on how JSON numbers are represented: {@code Long} if the JSON number can
+   * be parsed as a {@code Long} value, or otherwise {@code Double} if it can be parsed as a
+   * {@code Double} value. If the parsed double-precision number results in a positive or negative
    * infinity ({@link Double#isInfinite()}) or a NaN ({@link Double#isNaN()}) value and the
    * {@code JsonReader} is not {@link JsonReader#isLenient() lenient}, a {@link MalformedJsonException}
    * is thrown.

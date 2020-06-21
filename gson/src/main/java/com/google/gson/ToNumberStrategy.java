@@ -27,12 +27,12 @@ import com.google.gson.stream.JsonReader;
  *
  * <ul>
  * <li>{@link Double} values are returned for JSON numbers if the deserialization type is declared as
- * {@link Object};</li>
- * <li>Lazily parsed number values are returned if the deserialization type is declared as {@link Number}.</li>
+ * {@code Object};</li>
+ * <li>Lazily parsed number values are returned if the deserialization type is declared as {@code Number}.</li>
  * </ul>
  *
  * <p>For historical reasons, Gson does not support deserialization of arbitrary-length numbers for
- * {@link Object} and {@link Number} by default, potentially causing precision loss. However,
+ * {@code Object} and {@code Number} by default, potentially causing precision loss. However,
  * <a href="https://tools.ietf.org/html/rfc8259#section-6">RFC 8259</a> permits this:
  *
  * <pre>
