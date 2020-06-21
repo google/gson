@@ -31,9 +31,9 @@ import com.google.gson.stream.JsonReader;
  * <li>Lazily parsed number values are returned if the deserialization type is declared as {@link Number}.</li>
  * </ul>
  *
- * <p>For historical reasons, Gson does not support deserialization of arbitrary-length numbers as its stated in
- * <a href="https://tools.ietf.org/html/rfc8259#section-6">RFC 8259</a> for {@link Object} and {@link Number}
- * causing some data loss while deserialization:</p>
+ * <p>For historical reasons, Gson does not support deserialization of arbitrary-length numbers for
+ * {@link Object} and {@link Number} by default, potentially causing precision loss. However,
+ * <a href="https://tools.ietf.org/html/rfc8259#section-6">RFC 8259</a> permits this:
  *
  * <pre>
  *   This specification allows implementations to set limits on the range
@@ -49,8 +49,8 @@ import com.google.gson.stream.JsonReader;
  *   for numeric magnitude and precision than is widely available.
  * </pre>
  *
- * <p>Use for example, {@link ToNumberPolicy#LONG_OR_DOUBLE} or {@link ToNumberPolicy#BIG_DECIMAL} to overcome
- * possible data loss.</p>
+ * <p>To overcome the precision loss, use for example {@link ToNumberPolicy#LONG_OR_DOUBLE} or
+ * {@link ToNumberPolicy#BIG_DECIMAL}.</p>
  *
  * @see ToNumberPolicy
  * @see GsonBuilder#setObjectToNumberStrategy(ToNumberStrategy)
