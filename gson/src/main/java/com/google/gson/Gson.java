@@ -227,7 +227,7 @@ public final class Gson {
 
     // built-in type adapters that cannot be overridden
     factories.add(TypeAdapters.JSON_ELEMENT_FACTORY);
-    factories.add(objectAdapterFactory(objectToNumberStrategy));
+    factories.add(ObjectTypeAdapter.getFactory(objectToNumberStrategy));
 
     // the excluder must precede all adapters that handle user-defined types
     factories.add(excluder);
@@ -247,7 +247,7 @@ public final class Gson {
             doubleAdapter(serializeSpecialFloatingPointValues)));
     factories.add(TypeAdapters.newFactory(float.class, Float.class,
             floatAdapter(serializeSpecialFloatingPointValues)));
-    factories.add(numberAdapterFactory(numberToNumberStrategy));
+    factories.add(NumberTypeAdapter.getFactory(numberToNumberStrategy));
     factories.add(TypeAdapters.ATOMIC_INTEGER_FACTORY);
     factories.add(TypeAdapters.ATOMIC_BOOLEAN_FACTORY);
     factories.add(TypeAdapters.newFactory(AtomicLong.class, atomicLongAdapter(longAdapter)));
@@ -369,20 +369,6 @@ public final class Gson {
           + " is not a valid double value as per JSON specification. To override this"
           + " behavior, use GsonBuilder.serializeSpecialFloatingPointValues() method.");
     }
-  }
-
-  private static TypeAdapterFactory objectAdapterFactory(ToNumberStrategy objectToNumberStrategy) {
-    if (objectToNumberStrategy == ToNumberPolicy.DOUBLE) {
-      return ObjectTypeAdapter.FACTORY;
-    }
-    return ObjectTypeAdapter.newFactory(objectToNumberStrategy);
-  }
-
-  private static TypeAdapterFactory numberAdapterFactory(final ToNumberStrategy numberToNumberStrategy) {
-    if (numberToNumberStrategy == ToNumberPolicy.LAZILY_PARSED_NUMBER) {
-      return NumberTypeAdapter.FACTORY;
-    }
-    return NumberTypeAdapter.newFactory(numberToNumberStrategy);
   }
 
   private static TypeAdapter<Number> longAdapter(LongSerializationPolicy longSerializationPolicy) {

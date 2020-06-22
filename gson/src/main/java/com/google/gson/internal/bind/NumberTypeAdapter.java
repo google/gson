@@ -36,7 +36,7 @@ public final class NumberTypeAdapter extends TypeAdapter<Number> {
   /**
    * Gson default factory using {@link ToNumberPolicy#LAZILY_PARSED_NUMBER}.
    */
-  public static final TypeAdapterFactory FACTORY = newFactory(ToNumberPolicy.LAZILY_PARSED_NUMBER);
+  private static final TypeAdapterFactory LAZILY_PARSED_NUMBER_FACTORY = newFactory(ToNumberPolicy.LAZILY_PARSED_NUMBER);
 
   private final ToNumberStrategy toNumberStrategy;
 
@@ -44,16 +44,22 @@ public final class NumberTypeAdapter extends TypeAdapter<Number> {
     this.toNumberStrategy = toNumberStrategy;
   }
 
-  public static TypeAdapterFactory newFactory(final ToNumberStrategy toNumberStrategy) {
+  private static TypeAdapterFactory newFactory(ToNumberStrategy toNumberStrategy) {
+    final NumberTypeAdapter adapter = new NumberTypeAdapter(toNumberStrategy);
     return new TypeAdapterFactory() {
       @SuppressWarnings("unchecked")
       @Override public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-        if (type.getRawType() == Number.class) {
-          return (TypeAdapter<T>) new NumberTypeAdapter(toNumberStrategy);
-        }
-        return null;
+        return type.getRawType() == Number.class ? (TypeAdapter<T>) adapter : null;
       }
     };
+  }
+
+  public static TypeAdapterFactory getFactory(ToNumberStrategy toNumberStrategy) {
+    if (toNumberStrategy == ToNumberPolicy.LAZILY_PARSED_NUMBER) {
+      return LAZILY_PARSED_NUMBER_FACTORY;
+    } else {
+      return newFactory(toNumberStrategy);
+    }
   }
 
   @Override public Number read(JsonReader in) throws IOException {

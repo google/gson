@@ -40,7 +40,7 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
   /**
    * Gson default factory using {@link ToNumberPolicy#DOUBLE}.
    */
-  public static final TypeAdapterFactory FACTORY = newFactory(ToNumberPolicy.DOUBLE);
+  private static final TypeAdapterFactory DOUBLE_FACTORY = newFactory(ToNumberPolicy.DOUBLE);
 
   private final Gson gson;
   private final ToNumberStrategy toNumberStrategy;
@@ -50,7 +50,7 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
     this.toNumberStrategy = toNumberStrategy;
   }
 
-  public static TypeAdapterFactory newFactory(final ToNumberStrategy toNumberStrategy) {
+  private static TypeAdapterFactory newFactory(final ToNumberStrategy toNumberStrategy) {
     return new TypeAdapterFactory() {
       @SuppressWarnings("unchecked")
       @Override public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
@@ -60,6 +60,14 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
         return null;
       }
     };
+  }
+
+  public static TypeAdapterFactory getFactory(ToNumberStrategy toNumberStrategy) {
+    if (toNumberStrategy == ToNumberPolicy.DOUBLE) {
+      return DOUBLE_FACTORY;
+    } else {
+      return newFactory(toNumberStrategy);
+    }
   }
 
   @Override public Object read(JsonReader in) throws IOException {
