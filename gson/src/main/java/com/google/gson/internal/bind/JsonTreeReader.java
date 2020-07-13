@@ -21,6 +21,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.google.gson.internal.JsonReaderInternalAccess;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import java.io.IOException;
@@ -238,8 +239,29 @@ public final class JsonTreeReader extends JsonReader {
         throw new NumberFormatException(
             "Expected a long but was " + token + locationString());
       }
-    } else { // If not Number, parseLong is used which is safe
-      result = primitive.getAsLong();
+    } else {
+      String string = primitive.getAsString();
+      try {
+        result = Long.parseLong(string);
+      } catch (NumberFormatException numberFormatException) {
+        /*
+         * If value matches long syntax throw exception, otherwise try parsing as double
+         * Have to check this since large (positive and negative) long values cannot be
+         * precisely represented as double and parsing would otherwise erroneously
+         * successfully parse integral numbers outside of long range
+         * E.g. 9223372036854775808 as double = 9223372036854775807 (7 as last digit)
+         */
+        if (JsonReaderInternalAccess.matchesLongSyntax(string)) {
+          throw numberFormatException;
+        }
+
+        double asDouble = Double.parseDouble(string); // don't catch this NumberFormatException
+        result = (long) asDouble;
+        if (result != asDouble) { // Precision loss
+          throw new NumberFormatException(
+              "Expected a long but was " + token + locationString());
+        }
+      }
     }
 
     popStack();
@@ -266,8 +288,18 @@ public final class JsonTreeReader extends JsonReader {
         throw new NumberFormatException(
             "Expected an int but was " + token + locationString());
       }
-    } else { // If not Number, parseInt is used which is safe
-      result = primitive.getAsInt();
+    } else {
+      String string = primitive.getAsString();
+      try {
+        result = Integer.parseInt(string);
+      } catch (NumberFormatException ignored) {
+        double asDouble = Double.parseDouble(string); // don't catch this NumberFormatException
+        result = (int) asDouble;
+        if (result != asDouble) { // Precision loss
+          throw new NumberFormatException(
+              "Expected an int but was " + token + locationString());
+        }
+      }
     }
 
     popStack();

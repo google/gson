@@ -56,6 +56,9 @@ public class JsonTreeReaderTest extends TestCase {
     jsonArray.add(Double.parseDouble("-0"));
     jsonArray.add("-0");
     jsonArray.add("+1234");
+    jsonArray.add("1.0");
+    jsonArray.add("0xA.8p1");
+    jsonArray.add("2e1");
     JsonTreeReader reader = new JsonTreeReader(jsonArray);
 
     reader.beginArray();
@@ -65,6 +68,9 @@ public class JsonTreeReaderTest extends TestCase {
     assertEquals(0, reader.nextInt());
     assertEquals(0, reader.nextInt());
     assertEquals(1234, reader.nextInt());
+    assertEquals(1, reader.nextInt());
+    assertEquals(21, reader.nextInt());
+    assertEquals(20, reader.nextInt());
     reader.endArray();
   }
 
@@ -76,7 +82,11 @@ public class JsonTreeReaderTest extends TestCase {
     jsonArray.add(Float.POSITIVE_INFINITY);
     jsonArray.add(Float.NaN);
     jsonArray.add("1.5");
-    jsonArray.add("0xABCD");
+    jsonArray.add("1e100");
+    jsonArray.add("1e-1");
+    jsonArray.add("0x1p100");
+    jsonArray.add("2147483648"); // Integer.MAX_VALUE + 1
+    jsonArray.add("0xABCD"); // Missing binary exponent (...pX)
     jsonArray.add("+");
     JsonTreeReader reader = new JsonTreeReader(jsonArray);
 
@@ -100,6 +110,9 @@ public class JsonTreeReaderTest extends TestCase {
     jsonArray.add(Double.parseDouble("-0"));
     jsonArray.add("-0");
     jsonArray.add("+1234");
+    jsonArray.add("1.0");
+    jsonArray.add("0xA.8p1");
+    jsonArray.add("2e1");
     JsonTreeReader reader = new JsonTreeReader(jsonArray);
 
     reader.beginArray();
@@ -109,6 +122,9 @@ public class JsonTreeReaderTest extends TestCase {
     assertEquals(0, reader.nextLong());
     assertEquals(0, reader.nextLong());
     assertEquals(1234, reader.nextLong());
+    assertEquals(1, reader.nextLong());
+    assertEquals(21, reader.nextLong());
+    assertEquals(20, reader.nextLong());
     reader.endArray();
   }
 
@@ -120,7 +136,11 @@ public class JsonTreeReaderTest extends TestCase {
     jsonArray.add(Float.POSITIVE_INFINITY);
     jsonArray.add(Float.NaN);
     jsonArray.add("1.5");
-    jsonArray.add("0xABCD");
+    jsonArray.add("1e100");
+    jsonArray.add("1e-1");
+    jsonArray.add("0x1p100");
+    jsonArray.add("9223372036854775808"); // Long.MAX_VALUE + 1
+    jsonArray.add("0xABCD"); // Missing binary exponent (...pX)
     jsonArray.add("1L");
     jsonArray.add("+");
     JsonTreeReader reader = new JsonTreeReader(jsonArray);

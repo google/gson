@@ -941,37 +941,6 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Tests whether the string matches the syntax accepted by {@link Long#parseLong(String)},
-   * ignoring whether or not the value fits in the {@code long} value range.
-   */
-  private static boolean matchesLongSyntax(String string) {
-    int position = 0;
-    int end = string.length();
-
-    if (position < end) {
-      char firstChar = string.charAt(position);
-      if (firstChar == '-' || firstChar == '+') {
-        position++;
-      }
-    }
-
-    if (position >= end) {
-      // No digit
-      return false;
-    }
-
-    for (; position < end; position++) {
-      char c = string.charAt(position);
-
-      if (c < '0' || c > '9') {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  /**
    * Returns the {@link com.google.gson.stream.JsonToken#NUMBER long} value of the next token,
    * consuming it. If the next token is a string, this method will attempt to
    * parse it as a long. If this is not possible and the token does not match the syntax defined
@@ -1021,7 +990,7 @@ public class JsonReader implements Closeable {
          * successfully parse integral numbers outside of long range
          * E.g. 9223372036854775808 as double = 9223372036854775807 (7 as last digit)
          */
-        if (matchesLongSyntax(peekedString)) {
+        if (JsonReaderInternalAccess.matchesLongSyntax(peekedString)) {
           throw numberFormatException;
         }
       }
