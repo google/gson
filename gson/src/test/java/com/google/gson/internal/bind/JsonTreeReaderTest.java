@@ -47,4 +47,93 @@ public class JsonTreeReaderTest extends TestCase {
     in.skipValue();
     assertEquals(JsonToken.END_DOCUMENT, in.peek());
   }
+
+  public void testNextInt() throws IOException {
+    JsonArray jsonArray = new JsonArray();
+    jsonArray.add(10);
+    jsonArray.add((long) Integer.MAX_VALUE);
+    jsonArray.add((double) Integer.MIN_VALUE);
+    jsonArray.add(Double.parseDouble("-0"));
+    jsonArray.add("-0");
+    jsonArray.add("+1234");
+    JsonTreeReader reader = new JsonTreeReader(jsonArray);
+
+    reader.beginArray();
+    assertEquals(10, reader.nextInt());
+    assertEquals(Integer.MAX_VALUE, reader.nextInt());
+    assertEquals(Integer.MIN_VALUE, reader.nextInt());
+    assertEquals(0, reader.nextInt());
+    assertEquals(0, reader.nextInt());
+    assertEquals(1234, reader.nextInt());
+    reader.endArray();
+  }
+
+  public void testNextIntFailing() throws IOException {
+    JsonArray jsonArray = new JsonArray();
+    jsonArray.add(1.5);
+    jsonArray.add(((long) Integer.MAX_VALUE) + 1);
+    jsonArray.add(((double) Integer.MIN_VALUE) - 10);
+    jsonArray.add(Float.POSITIVE_INFINITY);
+    jsonArray.add(Float.NaN);
+    jsonArray.add("1.5");
+    jsonArray.add("0xABCD");
+    jsonArray.add("+");
+    JsonTreeReader reader = new JsonTreeReader(jsonArray);
+
+    reader.beginArray();
+    while (reader.hasNext()) {
+      try {
+        reader.nextInt();
+        fail();
+      } catch (IllegalArgumentException expected) {
+      }
+      reader.skipValue();
+    }
+    reader.endArray();
+  }
+
+  public void testNextLong() throws IOException {
+    JsonArray jsonArray = new JsonArray();
+    jsonArray.add(10);
+    jsonArray.add(Long.MAX_VALUE);
+    jsonArray.add((double) Long.MIN_VALUE);
+    jsonArray.add(Double.parseDouble("-0"));
+    jsonArray.add("-0");
+    jsonArray.add("+1234");
+    JsonTreeReader reader = new JsonTreeReader(jsonArray);
+
+    reader.beginArray();
+    assertEquals(10, reader.nextLong());
+    assertEquals(Long.MAX_VALUE, reader.nextLong());
+    assertEquals(Long.MIN_VALUE, reader.nextLong());
+    assertEquals(0, reader.nextLong());
+    assertEquals(0, reader.nextLong());
+    assertEquals(1234, reader.nextLong());
+    reader.endArray();
+  }
+
+  public void testNextLongFailing() throws IOException {
+    JsonArray jsonArray = new JsonArray();
+    jsonArray.add(1.5);
+    jsonArray.add((double) Long.MAX_VALUE + 10000);
+    jsonArray.add((double) Long.MIN_VALUE - 10000);
+    jsonArray.add(Float.POSITIVE_INFINITY);
+    jsonArray.add(Float.NaN);
+    jsonArray.add("1.5");
+    jsonArray.add("0xABCD");
+    jsonArray.add("1L");
+    jsonArray.add("+");
+    JsonTreeReader reader = new JsonTreeReader(jsonArray);
+
+    reader.beginArray();
+    while (reader.hasNext()) {
+      try {
+        reader.nextLong();
+        fail();
+      } catch (IllegalArgumentException expected) {
+      }
+      reader.skipValue();
+    }
+    reader.endArray();
+  }
 }

@@ -188,7 +188,7 @@ public final class JsonReaderTest extends TestCase {
     } catch (IOException expected) {
     }
   }
-  
+
   @SuppressWarnings("unused")
   public void testNulls() {
     try {
@@ -296,6 +296,33 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(1.0, reader.nextDouble());
     assertEquals(1, reader.nextInt());
     assertEquals(1L, reader.nextLong());
+  }
+
+  public void testNextIntFromDouble() throws IOException {
+    JsonReader reader = new JsonReader(reader("[\"1e2\", \"1e2d\", \"-0x123p0\", \"0x12345678p0\", \"0x9ABCDEF0p-4d\", \"0xA.8p1d\"]"));
+    reader.beginArray();
+    assertEquals(100, reader.nextInt());
+    assertEquals(100, reader.nextInt());
+    assertEquals(-291, reader.nextInt());
+    assertEquals(305419896, reader.nextInt());
+    assertEquals(162254319, reader.nextInt());
+    assertEquals(21, reader.nextInt());
+  }
+
+  public void testNextIntFromDoubleFail() throws IOException {
+    // Test values which cannot be converted to int without losing precision
+    // "0x123" is invalid because it is missing the binary exponent (...pX)
+    JsonReader reader = new JsonReader(reader("[\"1.03e1\", \"1e100d\", \"0x123\", \"0xA.1p0\", \"0xAp100d\", \"-NaN\", \"-Infinity\"]"));
+    reader.beginArray();
+
+    while (reader.hasNext()) {
+      try {
+        reader.nextInt();
+        fail();
+      } catch (NumberFormatException expected) {
+      }
+      reader.skipValue();
+    }
   }
 
   public void testDoubles() throws IOException {
@@ -411,6 +438,194 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
+  /**
+   * JsonReader does not directly parse -0 as long since user might
+   * want it as double -0.0
+   * Make sure that calling nextLong() for it returns correct value
+   */
+  public void testPeekLongNegativeZero() throws IOException {
+    JsonReader reader = new JsonReader(reader("[-0, \"-0\"]"));
+    reader.beginArray();
+    assertEquals(NUMBER, reader.peek());
+    assertEquals(0L, reader.nextLong());
+    assertEquals(STRING, reader.peek());
+    assertEquals(0L, reader.nextLong());
+    reader.endArray();
+  }
+
+  public void testPeekLongMinValue() throws IOException {
+    JsonReader reader = new JsonReader(reader("[-9223372036854775808, \"-9223372036854775808\"]"));
+    reader.beginArray();
+    assertEquals(NUMBER, reader.peek());
+    assertEquals(-9223372036854775808L, reader.nextLong());
+    assertEquals(STRING, reader.peek());
+    assertEquals(-9223372036854775808L, reader.nextLong());
+    reader.endArray();
+  }
+
+  public void testPeekLongMaxValue() throws IOException {
+    JsonReader reader = new JsonReader(reader("[9223372036854775807, \"9223372036854775807\"]"));
+    reader.beginArray();
+    assertEquals(NUMBER, reader.peek());
+    assertEquals(9223372036854775807L, reader.nextLong());
+    assertEquals(STRING, reader.peek());
+    assertEquals(9223372036854775807L, reader.nextLong());
+    reader.endArray();
+  }
+
+  public void testLongLargerThanMaxLongThatWrapsAround() throws IOException {
+    JsonReader reader = new JsonReader(reader("[22233720368547758070, \"22233720368547758070\"]"));
+    reader.beginArray();
+    assertEquals(NUMBER, reader.peek());
+    try {
+      reader.nextLong();
+      fail();
+    } catch (NumberFormatException expected) {
+    }
+    reader.skipValue();
+
+    assertEquals(STRING, reader.peek());
+    try {
+      reader.nextLong();
+      fail();
+    } catch (NumberFormatException expected) {
+    }
+    reader.skipValue();
+    reader.endArray();
+  }
+
+  public void testLongLargerThanMinLongThatWrapsAround() throws IOException {
+    JsonReader reader = new JsonReader(reader("[-22233720368547758070, \"-22233720368547758070\"]"));
+    reader.beginArray();
+    assertEquals(NUMBER, reader.peek());
+    try {
+      reader.nextLong();
+      fail();
+    } catch (NumberFormatException expected) {
+    }
+    reader.skipValue();
+
+    assertEquals(STRING, reader.peek());
+    try {
+      reader.nextLong();
+      fail();
+    } catch (NumberFormatException expected) {
+    }
+    reader.skipValue();
+    reader.endArray();
+  }
+
+  /**
+   * 9223372036854775808 = Long.MAX_VALUE + 1 so nextLong() should throw
+   */
+  public void testPeekLargerThanLongMaxValue() throws IOException {
+    JsonReader reader = new JsonReader(reader("[9223372036854775808, \"9223372036854775808\"]"));
+    reader.beginArray();
+    assertEquals(NUMBER, reader.peek());
+    try {
+      reader.nextLong();
+      fail();
+    } catch (NumberFormatException e) {
+    }
+    reader.skipValue();
+
+    assertEquals(STRING, reader.peek());
+    try {
+      reader.nextLong();
+      fail();
+    } catch (NumberFormatException e) {
+    }
+    reader.skipValue();
+    reader.endArray();
+  }
+
+  /**
+   * -9223372036854775809 = Long.MIN_VALUE - 1 so nextLong() should throw
+   */
+  public void testPeekLargerThanLongMinValue() throws IOException {
+    JsonReader reader = new JsonReader(reader("[-9223372036854775809, \"-9223372036854775809\"]"));
+    reader.beginArray();
+    assertEquals(NUMBER, reader.peek());
+    try {
+      reader.nextLong();
+      fail();
+    } catch (NumberFormatException expected) {
+    }
+    assertEquals(-9223372036854775809d, reader.nextDouble());
+
+    assertEquals(STRING, reader.peek());
+    try {
+      reader.nextLong();
+      fail();
+    } catch (NumberFormatException expected) {
+    }
+    assertEquals(-9223372036854775809d, reader.nextDouble());
+    reader.endArray();
+  }
+
+  /**
+   * If value does not match syntax defined by {@link Long#parseLong(String)}
+   * nextLong() falls back to {@link Double#parseDouble(String)} which can lead
+   * to precision loss because double cannot represent all values, e.g. 9223372036854775806
+   */
+  public void testHighPrecisionLong() throws IOException {
+    String json = "[9223372036854775806.000, \"9223372036854775806.000\"]";
+    JsonReader reader = new JsonReader(reader(json));
+    reader.beginArray();
+    assertEquals(9223372036854775807L, reader.nextLong());
+    assertEquals(9223372036854775807L, reader.nextLong());
+    reader.endArray();
+  }
+
+  public void testPeekMuchLargerThanLongMinValue() throws IOException {
+    JsonReader reader = new JsonReader(reader("[-92233720368547758080, \"-92233720368547758080\"]"));
+    reader.beginArray();
+    assertEquals(NUMBER, reader.peek());
+    try {
+      reader.nextLong();
+      fail();
+    } catch (NumberFormatException expected) {
+    }
+    assertEquals(-92233720368547758080d, reader.nextDouble());
+
+    assertEquals(STRING, reader.peek());
+    try {
+      reader.nextLong();
+      fail();
+    } catch (NumberFormatException expected) {
+    }
+    assertEquals(-92233720368547758080d, reader.nextDouble());
+    reader.endArray();
+  }
+
+  public void testNextLongFromDouble() throws IOException {
+    JsonReader reader = new JsonReader(reader("[\"1e2\", \"1e2d\", \"-0x123p0\", \"0x1234567890ABCDEFp0\", \"0xA.8p1d\"]"));
+    reader.beginArray();
+    assertEquals(100, reader.nextLong());
+    assertEquals(100, reader.nextLong());
+    assertEquals(-291, reader.nextLong());
+    assertEquals(1311768467294899712L, reader.nextLong());
+    assertEquals(21, reader.nextLong());
+    reader.endArray();
+  }
+
+  public void testNextLongFromDoubleFail() throws IOException {
+    // Test values which cannot be converted to long without losing precision
+    // "0x123" is invalid because it is missing the binary exponent (...pX)
+    JsonReader reader = new JsonReader(reader("[\"1.03e1\", \"1e100d\", \"0x123\", \"0xA.1p0\", \"0xAp100d\", \"-NaN\", \"-Infinity\"]"));
+    reader.beginArray();
+
+    while (reader.hasNext()) {
+      try {
+        reader.nextLong();
+        fail();
+      } catch (NumberFormatException expected) {
+      }
+      reader.skipValue();
+    }
+    reader.endArray();
+  }
+
   public void disabled_testNumberWithOctalPrefix() throws IOException {
     String json = "[01]";
     JsonReader reader = new JsonReader(reader(json));
@@ -522,114 +737,16 @@ public final class JsonReaderTest extends TestCase {
     assertEquals("12.34e5x", reader.nextString());
   }
 
-  public void testPeekLongMinValue() throws IOException {
-    JsonReader reader = new JsonReader(reader("[-9223372036854775808]"));
-    reader.setLenient(true);
-    reader.beginArray();
-    assertEquals(NUMBER, reader.peek());
-    assertEquals(-9223372036854775808L, reader.nextLong());
-  }
-
-  public void testPeekLongMaxValue() throws IOException {
-    JsonReader reader = new JsonReader(reader("[9223372036854775807]"));
-    reader.setLenient(true);
-    reader.beginArray();
-    assertEquals(NUMBER, reader.peek());
-    assertEquals(9223372036854775807L, reader.nextLong());
-  }
-
-  public void testLongLargerThanMaxLongThatWrapsAround() throws IOException {
-    JsonReader reader = new JsonReader(reader("[22233720368547758070]"));
-    reader.setLenient(true);
-    reader.beginArray();
-    assertEquals(NUMBER, reader.peek());
-    try {
-      reader.nextLong();
-      fail();
-    } catch (NumberFormatException expected) {
-    }
-  }
-
-  public void testLongLargerThanMinLongThatWrapsAround() throws IOException {
-    JsonReader reader = new JsonReader(reader("[-22233720368547758070]"));
-    reader.setLenient(true);
-    reader.beginArray();
-    assertEquals(NUMBER, reader.peek());
-    try {
-      reader.nextLong();
-      fail();
-    } catch (NumberFormatException expected) {
-    }
-  }
-  
   /**
    * Issue 1053, negative zero.
    * @throws Exception
    */
   public void testNegativeZero() throws Exception {
-	  	JsonReader reader = new JsonReader(reader("[-0]"));
-	    reader.setLenient(false);
-	    reader.beginArray();
-	    assertEquals(NUMBER, reader.peek());
-	    assertEquals("-0", reader.nextString());
-  }
-
-  /**
-   * This test fails because there's no double for 9223372036854775808, and our
-   * long parsing uses Double.parseDouble() for fractional values.
-   */
-  public void disabled_testPeekLargerThanLongMaxValue() throws IOException {
-    JsonReader reader = new JsonReader(reader("[9223372036854775808]"));
-    reader.setLenient(true);
+    JsonReader reader = new JsonReader(reader("[-0]"));
+    reader.setLenient(false);
     reader.beginArray();
     assertEquals(NUMBER, reader.peek());
-    try {
-      reader.nextLong();
-      fail();
-    } catch (NumberFormatException e) {
-    }
-  }
-
-  /**
-   * This test fails because there's no double for -9223372036854775809, and our
-   * long parsing uses Double.parseDouble() for fractional values.
-   */
-  public void disabled_testPeekLargerThanLongMinValue() throws IOException {
-    JsonReader reader = new JsonReader(reader("[-9223372036854775809]"));
-    reader.setLenient(true);
-    reader.beginArray();
-    assertEquals(NUMBER, reader.peek());
-    try {
-      reader.nextLong();
-      fail();
-    } catch (NumberFormatException expected) {
-    }
-    assertEquals(-9223372036854775809d, reader.nextDouble());
-  }
-
-  /**
-   * This test fails because there's no double for 9223372036854775806, and
-   * our long parsing uses Double.parseDouble() for fractional values.
-   */
-  public void disabled_testHighPrecisionLong() throws IOException {
-    String json = "[9223372036854775806.000]";
-    JsonReader reader = new JsonReader(reader(json));
-    reader.beginArray();
-    assertEquals(9223372036854775806L, reader.nextLong());
-    reader.endArray();
-  }
-
-  public void testPeekMuchLargerThanLongMinValue() throws IOException {
-    JsonReader reader = new JsonReader(reader("[-92233720368547758080]"));
-    reader.setLenient(true);
-    reader.beginArray();
-    assertEquals(NUMBER, reader.peek());
-    try {
-      reader.nextLong();
-      fail();
-    } catch (NumberFormatException expected) {
-    }
-    assertEquals(-92233720368547758080d, reader.nextDouble());
+    assertEquals("-0", reader.nextString());
   }
 
   public void testQuotedNumberWithEscape() throws IOException {

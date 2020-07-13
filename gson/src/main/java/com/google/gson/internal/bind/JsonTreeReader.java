@@ -227,7 +227,21 @@ public final class JsonTreeReader extends JsonReader {
       throw new IllegalStateException(
           "Expected " + JsonToken.NUMBER + " but was " + token + locationString());
     }
-    long result = ((JsonPrimitive) peekStack()).getAsLong();
+
+    JsonPrimitive primitive = (JsonPrimitive) peekStack();
+    long result;
+    if (primitive.isNumber()) {
+      Number number = primitive.getAsNumber();
+      result = number.longValue();
+
+      if (result != number.doubleValue()) { // Precision loss
+        throw new NumberFormatException(
+            "Expected a long but was " + token + locationString());
+      }
+    } else { // If not Number, parseLong is used which is safe
+      result = primitive.getAsLong();
+    }
+
     popStack();
     if (stackSize > 0) {
       pathIndices[stackSize - 1]++;
@@ -241,7 +255,21 @@ public final class JsonTreeReader extends JsonReader {
       throw new IllegalStateException(
           "Expected " + JsonToken.NUMBER + " but was " + token + locationString());
     }
-    int result = ((JsonPrimitive) peekStack()).getAsInt();
+
+    JsonPrimitive primitive = (JsonPrimitive) peekStack();
+    int result;
+    if (primitive.isNumber()) {
+      Number number = primitive.getAsNumber();
+      result = number.intValue();
+
+      if (result != number.doubleValue()) { // Precision loss
+        throw new NumberFormatException(
+            "Expected an int but was " + token + locationString());
+      }
+    } else { // If not Number, parseInt is used which is safe
+      result = primitive.getAsInt();
+    }
+
     popStack();
     if (stackSize > 0) {
       pathIndices[stackSize - 1]++;
