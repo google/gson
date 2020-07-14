@@ -328,6 +328,43 @@ public final class JsonWriterTest extends TestCase {
     assertEquals("[null]", stringWriter.toString());
   }
 
+  public void testSerializeNullsFalse() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter jsonWriter = new JsonWriter(stringWriter);
+    jsonWriter.setSerializeNulls(false);
+    jsonWriter.beginObject();
+    jsonWriter.name("test1");
+    jsonWriter.value((Boolean) null);
+    jsonWriter.name("test2");
+    jsonWriter.value((Number) null);
+    jsonWriter.name("test3");
+    jsonWriter.value((String) null);
+    jsonWriter.name("test4");
+    jsonWriter.nullValue();
+
+    // Make sure that methods throwing exceptions do not write name
+    jsonWriter.name("test5");
+    try {
+      // value(double)
+      jsonWriter.value(Double.NaN);
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
+    jsonWriter.nullValue();
+
+    jsonWriter.name("test6");
+    try {
+      // value(Number)
+      jsonWriter.value(Double.valueOf(Double.NaN));
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
+    jsonWriter.nullValue();
+
+    jsonWriter.endObject();
+    assertEquals("{}", stringWriter.toString());
+  }
+
   public void testStrings() throws IOException {
     StringWriter stringWriter = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(stringWriter);

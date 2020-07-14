@@ -490,10 +490,10 @@ public class JsonWriter implements Closeable, Flushable {
    * @return this writer.
    */
   public JsonWriter value(double value) throws IOException {
-    writeDeferredName();
     if (!lenient && (Double.isNaN(value) || Double.isInfinite(value))) {
       throw new IllegalArgumentException("Numeric values must be finite, but was " + value);
     }
+    writeDeferredName();
     beforeValue();
     out.append(Double.toString(value));
     return this;
@@ -523,12 +523,12 @@ public class JsonWriter implements Closeable, Flushable {
       return nullValue();
     }
 
-    writeDeferredName();
     String string = value.toString();
     if (!lenient
         && (string.equals("-Infinity") || string.equals("Infinity") || string.equals("NaN"))) {
       throw new IllegalArgumentException("Numeric values must be finite, but was " + value);
     }
+    writeDeferredName();
     beforeValue();
     out.append(string);
     return this;
