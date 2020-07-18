@@ -163,7 +163,7 @@ public class NullObjectAndFieldTest extends TestCase {
     assertFalse(target.bool2); // test the default value of a primitive boolean field per JVM spec
   }
 
-  public static class ClassWithInitializedMembers  {
+  public static class ClassWithInitializedMembers {
     // Using a mix of no-args constructor and field initializers
     // Also, some fields are intialized and some are not (so initialized per JVM spec)
     public static final String MY_STRING_DEFAULT = "string";
@@ -192,7 +192,7 @@ public class NullObjectAndFieldTest extends TestCase {
   }
   
   private static class ClassWithObjectsSerializer implements JsonSerializer<ClassWithObjects> {
-    public JsonElement serialize(ClassWithObjects src, Type typeOfSrc,
+    @Override public JsonElement serialize(ClassWithObjects src, Type typeOfSrc,
         JsonSerializationContext context) {
       JsonObject obj = new JsonObject();
       obj.add("bag", JsonNull.INSTANCE);
@@ -204,13 +204,13 @@ public class NullObjectAndFieldTest extends TestCase {
     Gson gson = new Gson();
     String json = "{value:null}";
     ObjectWithField obj = gson.fromJson(json, ObjectWithField.class);
-    assertNull(obj.value);    
+    assertNull(obj.value);
   }
 
   public void testCustomTypeAdapterPassesNullSerialization() {
     Gson gson = new GsonBuilder()
         .registerTypeAdapter(ObjectWithField.class, new JsonSerializer<ObjectWithField>() {
-          public JsonElement serialize(ObjectWithField src, Type typeOfSrc,
+          @Override public JsonElement serialize(ObjectWithField src, Type typeOfSrc,
               JsonSerializationContext context) {
             return context.serialize(null);
           }
@@ -224,7 +224,7 @@ public class NullObjectAndFieldTest extends TestCase {
   public void testCustomTypeAdapterPassesNullDesrialization() {
     Gson gson = new GsonBuilder()
         .registerTypeAdapter(ObjectWithField.class, new JsonDeserializer<ObjectWithField>() {
-          public ObjectWithField deserialize(JsonElement json, Type type,
+          @Override public ObjectWithField deserialize(JsonElement json, Type type,
               JsonDeserializationContext context) {
             return context.deserialize(null, type);
           }

@@ -88,7 +88,7 @@ public class VersioningTest extends TestCase {
   public void testIgnoreLaterVersionClassDeserialization() {
     Gson gson = builder.setVersion(1.0).create();
     String json = "{\"a\":3,\"b\":4,\"c\":5,\"d\":6}";
-    Version1_2 version1_2  = gson.fromJson(json, Version1_2.class);
+    Version1_2 version1_2 = gson.fromJson(json, Version1_2.class);
     // Since the class is versioned to be after 1.0, we expect null
     // This is the new behavior in Gson 2.0
     assertNull(version1_2);

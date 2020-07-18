@@ -63,6 +63,20 @@ public class NamingPolicyTest extends TestCase {
         + target.someConstantStringInstanceField + "\"}", gson.toJson(target));
   }
 
+  public void testGsonWithLowerCaseDotPolicySerialization() {
+    Gson gson = builder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_DOTS).create();
+    StringWrapper target = new StringWrapper("blah");
+    assertEquals("{\"some.constant.string.instance.field\":\""
+          + target.someConstantStringInstanceField + "\"}", gson.toJson(target));
+  }
+
+  public void testGsonWithLowerCaseDotPolicyDeserialiation() {
+    Gson gson = builder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_DOTS).create();
+    String target = "{\"some.constant.string.instance.field\":\"someValue\"}";
+    StringWrapper deserializedObject = gson.fromJson(target, StringWrapper.class);
+    assertEquals("someValue", deserializedObject.someConstantStringInstanceField);
+  }
+
   public void testGsonWithLowerCaseDashPolicyDeserialiation() {
     Gson gson = builder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_DASHES).create();
     String target = "{\"some-constant-string-instance-field\":\"someValue\"}";
@@ -149,11 +163,12 @@ public class NamingPolicyTest extends TestCase {
     assertEquals("{\"@foo\":\"bar\"}", new Gson().toJson(new AtName()));
   }
 
-  static class AtName {
+  static final class AtName {
     @SerializedName("@foo") String f = "bar";
   }
 
-  private static class UpperCaseNamingStrategy implements FieldNamingStrategy {
+  private static final class UpperCaseNamingStrategy implements FieldNamingStrategy {
+    @Override
     public String translateName(Field f) {
       return f.getName().toUpperCase();
     }

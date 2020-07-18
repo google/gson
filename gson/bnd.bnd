@@ -1,0 +1,15 @@
+Bundle-SymbolicName: com.google.gson
+Bundle-Name: ${project.name}
+Bundle-Description: ${project.description}
+Bundle-Vendor: Google Gson Project
+Bundle-ContactAddress: ${project.parent.url}
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6, JavaSE-1.7, JavaSE-1.8
+Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.6))"
+
+-removeheaders: Private-Package
+
+-exportcontents:\
+    com.google.gson,\
+    com.google.gson.annotations,\
+    com.google.gson.reflect,\
+    com.google.gson.stream

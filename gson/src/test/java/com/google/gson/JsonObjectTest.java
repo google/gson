@@ -128,7 +128,7 @@ public class JsonObjectTest extends TestCase {
   }
 
   public void testReadPropertyWithEmptyStringName() {
-    JsonObject jsonObj = new JsonParser().parse("{\"\":true}").getAsJsonObject();
+    JsonObject jsonObj = JsonParser.parseString("{\"\":true}").getAsJsonObject();
     assertEquals(true, jsonObj.get("").getAsBoolean());
   }
 
@@ -158,6 +158,20 @@ public class JsonObjectTest extends TestCase {
     assertFalse(b.equals(a));
   }
 
+  public void testSize() {
+    JsonObject o = new JsonObject();
+    assertEquals(0, o.size());
+
+    o.add("Hello", new JsonPrimitive(1));
+    assertEquals(1, o.size());
+
+    o.add("Hi", new JsonPrimitive(1));
+    assertEquals(2, o.size());
+
+    o.remove("Hello");
+    assertEquals(1, o.size());
+  }
+
   public void testDeepCopy() {
     JsonObject original = new JsonObject();
     JsonArray firstEntry = new JsonArray();
@@ -168,5 +182,20 @@ public class JsonObjectTest extends TestCase {
 
     assertEquals(1, original.get("key").getAsJsonArray().size());
     assertEquals(0, copy.get("key").getAsJsonArray().size());
+  }
+
+  /**
+   * From issue 941
+   */
+  public void testKeySet() {
+    JsonObject a = new JsonObject();
+
+    a.add("foo", new JsonArray());
+    a.add("bar", new JsonObject());
+
+    assertEquals(2, a.size());
+    assertEquals(2, a.keySet().size());
+    assertTrue(a.keySet().contains("foo"));
+    assertTrue(a.keySet().contains("bar"));
   }
 }

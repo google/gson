@@ -22,9 +22,10 @@ import java.io.Closeable;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Arrays;
 
 /**
- * Reads a JSON (<a href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>)
+ * Reads a JSON (<a href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>)
  * encoded value as a stream of tokens. This stream includes both literal
  * values (strings, numbers, booleans, and nulls) as well as the begin and
  * end delimiters of objects and arrays. The tokens are traversed in
@@ -169,7 +170,7 @@ import java.io.Reader;
  * precision loss, extremely large values should be written and read as strings
  * in JSON.
  *
- * <a name="nonexecuteprefix"/><h3>Non-Execute Prefix</h3>
+ * <a id="nonexecuteprefix"/><h3>Non-Execute Prefix</h3>
  * Web servers that serve private data using JSON may be vulnerable to <a
  * href="http://en.wikipedia.org/wiki/JSON#Cross-site_request_forgery">Cross-site
  * request forgery</a> attacks. In such an attack, a malicious site gains access
@@ -188,8 +189,6 @@ import java.io.Reader;
  * @since 1.6
  */
 public class JsonReader implements Closeable {
-  /** The only non-execute prefix this parser permits */
-  private static final char[] NON_EXECUTE_PREFIX = ")]}'\n".toCharArray();
   private static final long MIN_INCOMPLETE_INTEGER = Long.MIN_VALUE / 10;
 
   private static final int PEEKED_NONE = 0;
@@ -242,7 +241,7 @@ public class JsonReader implements Closeable {
   private int lineNumber = 0;
   private int lineStart = 0;
 
-  private int peeked = PEEKED_NONE;
+  int peeked = PEEKED_NONE;
 
   /**
    * A peeked value that was composed entirely of digits with an optional
@@ -294,7 +293,7 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Configure this parser to be  be liberal in what it accepts. By default,
+   * Configure this parser to be liberal in what it accepts. By default,
    * this parser is strict and only accepts JSON as specified by <a
    * href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>. Setting the
    * parser to lenient causes it to ignore the following syntax errors:
@@ -347,8 +346,7 @@ public class JsonReader implements Closeable {
       pathIndices[stackSize - 1] = 0;
       peeked = PEEKED_NONE;
     } else {
-      throw new IllegalStateException("Expected BEGIN_ARRAY but was " + peek()
-          + " at line " + getLineNumber() + " column " + getColumnNumber() + " path " + getPath());
+      throw new IllegalStateException("Expected BEGIN_ARRAY but was " + peek() + locationString());
     }
   }
 
@@ -366,8 +364,7 @@ public class JsonReader implements Closeable {
       pathIndices[stackSize - 1]++;
       peeked = PEEKED_NONE;
     } else {
-      throw new IllegalStateException("Expected END_ARRAY but was " + peek()
-          + " at line " + getLineNumber() + " column " + getColumnNumber() + " path " + getPath());
+      throw new IllegalStateException("Expected END_ARRAY but was " + peek() + locationString());
     }
   }
 
@@ -384,8 +381,7 @@ public class JsonReader implements Closeable {
       push(JsonScope.EMPTY_OBJECT);
       peeked = PEEKED_NONE;
     } else {
-      throw new IllegalStateException("Expected BEGIN_OBJECT but was " + peek()
-          + " at line " + getLineNumber() + " column " + getColumnNumber() + " path " + getPath());
+      throw new IllegalStateException("Expected BEGIN_OBJECT but was " + peek() + locationString());
     }
   }
 
@@ -404,8 +400,7 @@ public class JsonReader implements Closeable {
       pathIndices[stackSize - 1]++;
       peeked = PEEKED_NONE;
     } else {
-      throw new IllegalStateException("Expected END_OBJECT but was " + peek()
-          + " at line " + getLineNumber() + " column " + getColumnNumber() + " path " + getPath());
+      throw new IllegalStateException("Expected END_OBJECT but was " + peek() + locationString());
     }
   }
 
@@ -462,7 +457,7 @@ public class JsonReader implements Closeable {
     }
   }
 
-  private int doPeek() throws IOException {
+  int doPeek() throws IOException {
     int peekStack = stack[stackSize - 1];
     if (peekStack == JsonScope.EMPTY_ARRAY) {
       stack[stackSize - 1] = JsonScope.NONEMPTY_ARRAY;
@@ -571,9 +566,6 @@ public class JsonReader implements Closeable {
       checkLenient();
       return peeked = PEEKED_SINGLE_QUOTED;
     case '"':
-      if (stackSize == 1) {
-        checkLenient();
-      }
       return peeked = PEEKED_DOUBLE_QUOTED;
     case '[':
       return peeked = PEEKED_BEGIN_ARRAY;
@@ -581,10 +573,6 @@ public class JsonReader implements Closeable {
       return peeked = PEEKED_BEGIN_OBJECT;
     default:
       pos--; // Don't consume the first character in a literal value.
-    }
-
-    if (stackSize == 1) {
-      checkLenient(); // Top-level value isn't an array or an object.
     }
 
     int result = peekKeyword();
@@ -739,7 +727,7 @@ public class JsonReader implements Closeable {
     }
 
     // We've read a complete number. Decide if it's a PEEKED_LONG or a PEEKED_NUMBER.
-    if (last == NUMBER_CHAR_DIGIT && fitsInLong && (value != Long.MIN_VALUE || negative)) {
+    if (last == NUMBER_CHAR_DIGIT && fitsInLong && (value != Long.MIN_VALUE || negative) && (value!=0 || false==negative)) {
       peekedLong = negative ? value : -value;
       pos += i;
       return peeked = PEEKED_LONG;
@@ -797,8 +785,7 @@ public class JsonReader implements Closeable {
     } else if (p == PEEKED_DOUBLE_QUOTED_NAME) {
       result = nextQuotedValue('"');
     } else {
-      throw new IllegalStateException("Expected a name but was " + peek()
-          + " at line " + getLineNumber() + " column " + getColumnNumber() + " path " + getPath());
+      throw new IllegalStateException("Expected a name but was " + peek() + locationString());
     }
     peeked = PEEKED_NONE;
     pathNames[stackSize - 1] = result;
@@ -834,8 +821,7 @@ public class JsonReader implements Closeable {
       result = new String(buffer, pos, peekedNumberLength);
       pos += peekedNumberLength;
     } else {
-      throw new IllegalStateException("Expected a string but was " + peek()
-          + " at line " + getLineNumber() + " column " + getColumnNumber() + " path " + getPath());
+      throw new IllegalStateException("Expected a string but was " + peek() + locationString());
     }
     peeked = PEEKED_NONE;
     pathIndices[stackSize - 1]++;
@@ -863,8 +849,7 @@ public class JsonReader implements Closeable {
       pathIndices[stackSize - 1]++;
       return false;
     }
-    throw new IllegalStateException("Expected a boolean but was " + peek()
-        + " at line " + getLineNumber() + " column " + getColumnNumber() + " path " + getPath());
+    throw new IllegalStateException("Expected a boolean but was " + peek() + locationString());
   }
 
   /**
@@ -883,8 +868,7 @@ public class JsonReader implements Closeable {
       peeked = PEEKED_NONE;
       pathIndices[stackSize - 1]++;
     } else {
-      throw new IllegalStateException("Expected null but was " + peek()
-          + " at line " + getLineNumber() + " column " + getColumnNumber() + " path " + getPath());
+      throw new IllegalStateException("Expected null but was " + peek() + locationString());
     }
   }
 
@@ -917,15 +901,14 @@ public class JsonReader implements Closeable {
     } else if (p == PEEKED_UNQUOTED) {
       peekedString = nextUnquotedValue();
     } else if (p != PEEKED_BUFFERED) {
-      throw new IllegalStateException("Expected a double but was " + peek()
-          + " at line " + getLineNumber() + " column " + getColumnNumber() + " path " + getPath());
+      throw new IllegalStateException("Expected a double but was " + peek() + locationString());
     }
 
     peeked = PEEKED_BUFFERED;
     double result = Double.parseDouble(peekedString); // don't catch this NumberFormatException.
     if (!lenient && (Double.isNaN(result) || Double.isInfinite(result))) {
-      throw new MalformedJsonException("JSON forbids NaN and infinities: " + result
-          + " at line " + getLineNumber() + " column " + getColumnNumber() + " path " + getPath());
+      throw new MalformedJsonException(
+          "JSON forbids NaN and infinities: " + result + locationString());
     }
     peekedString = null;
     peeked = PEEKED_NONE;
@@ -958,8 +941,12 @@ public class JsonReader implements Closeable {
     if (p == PEEKED_NUMBER) {
       peekedString = new String(buffer, pos, peekedNumberLength);
       pos += peekedNumberLength;
-    } else if (p == PEEKED_SINGLE_QUOTED || p == PEEKED_DOUBLE_QUOTED) {
-      peekedString = nextQuotedValue(p == PEEKED_SINGLE_QUOTED ? '\'' : '"');
+    } else if (p == PEEKED_SINGLE_QUOTED || p == PEEKED_DOUBLE_QUOTED || p == PEEKED_UNQUOTED) {
+      if (p == PEEKED_UNQUOTED) {
+        peekedString = nextUnquotedValue();
+      } else {
+        peekedString = nextQuotedValue(p == PEEKED_SINGLE_QUOTED ? '\'' : '"');
+      }
       try {
         long result = Long.parseLong(peekedString);
         peeked = PEEKED_NONE;
@@ -969,16 +956,14 @@ public class JsonReader implements Closeable {
         // Fall back to parse as a double below.
       }
     } else {
-      throw new IllegalStateException("Expected a long but was " + peek()
-          + " at line " + getLineNumber() + " column " + getColumnNumber() + " path " + getPath());
+      throw new IllegalStateException("Expected a long but was " + peek() + locationString());
     }
 
     peeked = PEEKED_BUFFERED;
     double asDouble = Double.parseDouble(peekedString); // don't catch this NumberFormatException.
     long result = (long) asDouble;
     if (result != asDouble) { // Make sure no precision was lost casting to 'long'.
-      throw new NumberFormatException("Expected a long but was " + peekedString
-          + " at line " + getLineNumber() + " column " + getColumnNumber() + " path " + getPath());
+      throw new NumberFormatException("Expected a long but was " + peekedString + locationString());
     }
     peekedString = null;
     peeked = PEEKED_NONE;
@@ -999,7 +984,7 @@ public class JsonReader implements Closeable {
   private String nextQuotedValue(char quote) throws IOException {
     // Like nextNonWhitespace, this uses locals 'p' and 'l' to save inner-loop field access.
     char[] buffer = this.buffer;
-    StringBuilder builder = new StringBuilder();
+    StringBuilder builder = null;
     while (true) {
       int p = pos;
       int l = limit;
@@ -1010,11 +995,21 @@ public class JsonReader implements Closeable {
 
         if (c == quote) {
           pos = p;
-          builder.append(buffer, start, p - start - 1);
-          return builder.toString();
+          int len = p - start - 1;
+          if (builder == null) {
+            return new String(buffer, start, len);
+          } else {
+            builder.append(buffer, start, len);
+            return builder.toString();
+          }
         } else if (c == '\\') {
           pos = p;
-          builder.append(buffer, start, p - start - 1);
+          int len = p - start - 1;
+          if (builder == null) {
+            int estimatedLength = (len + 1) * 2;
+            builder = new StringBuilder(Math.max(estimatedLength, 16));
+          }
+          builder.append(buffer, start, len);
           builder.append(readEscapeCharacter());
           p = pos;
           l = limit;
@@ -1025,6 +1020,10 @@ public class JsonReader implements Closeable {
         }
       }
 
+      if (builder == null) {
+        int estimatedLength = (p - start) * 2;
+        builder = new StringBuilder(Math.max(estimatedLength, 16));
+      }
       builder.append(buffer, start, p - start);
       pos = p;
       if (!fillBuffer(1)) {
@@ -1077,7 +1076,7 @@ public class JsonReader implements Closeable {
 
       // use a StringBuilder when the value is too long. This is too long to be a number!
       if (builder == null) {
-        builder = new StringBuilder();
+        builder = new StringBuilder(Math.max(i,16));
       }
       builder.append(buffer, pos, i);
       pos += i;
@@ -1086,14 +1085,8 @@ public class JsonReader implements Closeable {
         break;
       }
     }
-
-    String result;
-    if (builder == null) {
-      result = new String(buffer, pos, i);
-    } else {
-      builder.append(buffer, pos, i);
-      result = builder.toString();
-    }
+   
+    String result = (null == builder) ? new String(buffer, pos, i) : builder.append(buffer, pos, i).toString();
     pos += i;
     return result;
   }
@@ -1175,8 +1168,7 @@ public class JsonReader implements Closeable {
     if (p == PEEKED_LONG) {
       result = (int) peekedLong;
       if (peekedLong != result) { // Make sure no precision was lost casting to 'int'.
-        throw new NumberFormatException("Expected an int but was " + peekedLong
-            + " at line " + getLineNumber() + " column " + getColumnNumber() + " path " + getPath());
+        throw new NumberFormatException("Expected an int but was " + peekedLong + locationString());
       }
       peeked = PEEKED_NONE;
       pathIndices[stackSize - 1]++;
@@ -1186,8 +1178,12 @@ public class JsonReader implements Closeable {
     if (p == PEEKED_NUMBER) {
       peekedString = new String(buffer, pos, peekedNumberLength);
       pos += peekedNumberLength;
-    } else if (p == PEEKED_SINGLE_QUOTED || p == PEEKED_DOUBLE_QUOTED) {
-      peekedString = nextQuotedValue(p == PEEKED_SINGLE_QUOTED ? '\'' : '"');
+    } else if (p == PEEKED_SINGLE_QUOTED || p == PEEKED_DOUBLE_QUOTED || p == PEEKED_UNQUOTED) {
+      if (p == PEEKED_UNQUOTED) {
+        peekedString = nextUnquotedValue();
+      } else {
+        peekedString = nextQuotedValue(p == PEEKED_SINGLE_QUOTED ? '\'' : '"');
+      }
       try {
         result = Integer.parseInt(peekedString);
         peeked = PEEKED_NONE;
@@ -1197,16 +1193,14 @@ public class JsonReader implements Closeable {
         // Fall back to parse as a double below.
       }
     } else {
-      throw new IllegalStateException("Expected an int but was " + peek()
-          + " at line " + getLineNumber() + " column " + getColumnNumber() + " path " + getPath());
+      throw new IllegalStateException("Expected an int but was " + peek() + locationString());
     }
 
     peeked = PEEKED_BUFFERED;
     double asDouble = Double.parseDouble(peekedString); // don't catch this NumberFormatException.
     result = (int) asDouble;
     if (result != asDouble) { // Make sure no precision was lost casting to 'int'.
-      throw new NumberFormatException("Expected an int but was " + peekedString
-          + " at line " + getLineNumber() + " column " + getColumnNumber() + " path " + getPath());
+      throw new NumberFormatException("Expected an int but was " + peekedString + locationString());
     }
     peekedString = null;
     peeked = PEEKED_NONE;
@@ -1267,15 +1261,10 @@ public class JsonReader implements Closeable {
 
   private void push(int newTop) {
     if (stackSize == stack.length) {
-      int[] newStack = new int[stackSize * 2];
-      int[] newPathIndices = new int[stackSize * 2];
-      String[] newPathNames = new String[stackSize * 2];
-      System.arraycopy(stack, 0, newStack, 0, stackSize);
-      System.arraycopy(pathIndices, 0, newPathIndices, 0, stackSize);
-      System.arraycopy(pathNames, 0, newPathNames, 0, stackSize);
-      stack = newStack;
-      pathIndices = newPathIndices;
-      pathNames = newPathNames;
+      int newLength = stackSize * 2;
+      stack = Arrays.copyOf(stack, newLength);
+      pathIndices = Arrays.copyOf(pathIndices, newLength);
+      pathNames = Arrays.copyOf(pathNames, newLength);
     }
     stack[stackSize++] = newTop;
   }
@@ -1312,14 +1301,6 @@ public class JsonReader implements Closeable {
       }
     }
     return false;
-  }
-
-  private int getLineNumber() {
-    return lineNumber + 1;
-  }
-
-  private int getColumnNumber() {
-    return pos - lineStart + 1;
   }
 
   /**
@@ -1411,8 +1392,7 @@ public class JsonReader implements Closeable {
       }
     }
     if (throwOnEof) {
-      throw new EOFException("End of input"
-          + " at line " + getLineNumber() + " column " + getColumnNumber());
+      throw new EOFException("End of input" + locationString());
     } else {
       return -1;
     }
@@ -1446,14 +1426,15 @@ public class JsonReader implements Closeable {
    * @param toFind a string to search for. Must not contain a newline.
    */
   private boolean skipTo(String toFind) throws IOException {
+    int length = toFind.length();
     outer:
-    for (; pos + toFind.length() <= limit || fillBuffer(toFind.length()); pos++) {
+    for (; pos + length <= limit || fillBuffer(length); pos++) {
       if (buffer[pos] == '\n') {
         lineNumber++;
         lineStart = pos + 1;
         continue;
       }
-      for (int c = 0; c < toFind.length(); c++) {
+      for (int c = 0; c < length; c++) {
         if (buffer[pos + c] != toFind.charAt(c)) {
           continue outer;
         }
@@ -1464,8 +1445,13 @@ public class JsonReader implements Closeable {
   }
 
   @Override public String toString() {
-    return getClass().getSimpleName()
-        + " at line " + getLineNumber() + " column " + getColumnNumber();
+    return getClass().getSimpleName() + locationString();
+  }
+
+  String locationString() {
+    int line = lineNumber + 1;
+    int column = pos - lineStart + 1;
+    return " at line " + line + " column " + column + " path " + getPath();
   }
 
   /**
@@ -1560,8 +1546,11 @@ public class JsonReader implements Closeable {
     case '\'':
     case '"':
     case '\\':
+    case '/':	
+    	return escaped;
     default:
-      return escaped;
+    	// throw error when none of the above cases are matched
+    	throw syntaxError("Invalid escape sequence");
     }
   }
 
@@ -1570,8 +1559,7 @@ public class JsonReader implements Closeable {
    * with this reader's content.
    */
   private IOException syntaxError(String message) throws IOException {
-    throw new MalformedJsonException(message
-        + " at line " + getLineNumber() + " column " + getColumnNumber() + " path " + getPath());
+    throw new MalformedJsonException(message + locationString());
   }
 
   /**
@@ -1582,18 +1570,18 @@ public class JsonReader implements Closeable {
     nextNonWhitespace(true);
     pos--;
 
-    if (pos + NON_EXECUTE_PREFIX.length > limit && !fillBuffer(NON_EXECUTE_PREFIX.length)) {
+    int p = pos;
+    if (p + 5 > limit && !fillBuffer(5)) {
       return;
     }
 
-    for (int i = 0; i < NON_EXECUTE_PREFIX.length; i++) {
-      if (buffer[pos + i] != NON_EXECUTE_PREFIX[i]) {
-        return; // not a security token!
-      }
+    char[] buf = buffer;
+    if(buf[p] != ')' || buf[p + 1] != ']' || buf[p + 2] != '}' || buf[p + 3] != '\'' || buf[p + 4] != '\n') {
+      return; // not a security token!
     }
 
     // we consumed a security token!
-    pos += NON_EXECUTE_PREFIX.length;
+    pos += 5;
   }
 
   static {
@@ -1614,9 +1602,8 @@ public class JsonReader implements Closeable {
         } else if (p == PEEKED_UNQUOTED_NAME) {
           reader.peeked = PEEKED_UNQUOTED;
         } else {
-          throw new IllegalStateException("Expected a name but was " + reader.peek() + " "
-              + " at line " + reader.getLineNumber() + " column " + reader.getColumnNumber()
-              + " path " + reader.getPath());
+          throw new IllegalStateException(
+              "Expected a name but was " + reader.peek() + reader.locationString());
         }
       }
     };

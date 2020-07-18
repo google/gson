@@ -121,7 +121,7 @@ public class ParameterizedTypesTest extends TestCase {
         .registerTypeAdapter(ptStringType, new MyParameterizedTypeAdapter<String>())
         .registerTypeAdapter(ptStringType, new MyParameterizedTypeInstanceCreator<String>(""))
         .registerTypeAdapter(ptIntegerType,
-            new MyParameterizedTypeInstanceCreator<Integer>(new Integer(0)))
+            new MyParameterizedTypeInstanceCreator<Integer>(0))
         .create();
 
     MyParameterizedType<Integer> src = new MyParameterizedType<Integer>(10);
@@ -472,11 +472,11 @@ public class ParameterizedTypesTest extends TestCase {
     @SuppressWarnings("unused")
     int q2 = 20;
   }
-  private interface Measurable<T> {    
+  private interface Measurable<T> {
   }
-  private interface Field<T> {    
+  private interface Field<T> {
   }
-  private interface Immutable {    
+  private interface Immutable {
   }
   
   public static final class Amount<Q extends Quantity> 
@@ -490,12 +490,12 @@ public class ParameterizedTypesTest extends TestCase {
     Amount<MyQuantity> amount = new Amount<MyQuantity>();
     String json = gson.toJson(amount);
     assertTrue(json.contains("value"));
-    assertTrue(json.contains("30"));    
+    assertTrue(json.contains("30"));
   }
   
   public void testDeepParameterizedTypeDeserialization() {
     String json = "{value:30}";
-    Type type = new TypeToken<Amount<MyQuantity>>() {}.getType();    
+    Type type = new TypeToken<Amount<MyQuantity>>() {}.getType();
     Amount<MyQuantity> amount = gson.fromJson(json, type);
     assertEquals(30, amount.value);
   }

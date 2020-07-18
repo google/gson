@@ -112,7 +112,7 @@ public class JsonParserTest extends TestCase {
   public void testChangingCustomTreeAndDeserializing() {
     StringReader json =
       new StringReader("{'stringValue':'no message','intValue':10,'longValue':20}");
-    JsonObject obj = (JsonObject) new JsonParser().parse(json);
+    JsonObject obj = (JsonObject) JsonParser.parseReader(json);
     obj.remove("stringValue");
     obj.addProperty("stringValue", "fooBar");
     BagOfPrimitives target = gson.fromJson(obj, BagOfPrimitives.class);
@@ -123,9 +123,9 @@ public class JsonParserTest extends TestCase {
 
   public void testExtraCommasInArrays() {
     Type type = new TypeToken<List<String>>() {}.getType();
-    assertEquals(list("a", null, "b", null, null), gson.fromJson("[a,,b,,]", type));
-    assertEquals(list(null, null), gson.fromJson("[,]", type));
-    assertEquals(list("a", null), gson.fromJson("[a,]", type));
+    assertEquals(Arrays.asList("a", null, "b", null, null), gson.fromJson("[a,,b,,]", type));
+    assertEquals(Arrays.asList(null, null), gson.fromJson("[,]", type));
+    assertEquals(Arrays.asList("a", null), gson.fromJson("[a,]", type));
   }
 
   public void testExtraCommasInMaps() {
@@ -135,9 +135,5 @@ public class JsonParserTest extends TestCase {
       fail();
     } catch (JsonSyntaxException expected) {
     }
-  }
-
-  private <T> List<T> list(T... elements) {
-    return Arrays.asList(elements);
   }
 }

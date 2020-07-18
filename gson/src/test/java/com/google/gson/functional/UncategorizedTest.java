@@ -118,7 +118,7 @@ public class UncategorizedTest extends TestCase {
     Derived2() { opType = OperationType.OP2; }
   }
   private static class BaseTypeAdapter implements JsonDeserializer<Base> {
-    public Base deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+    @Override public Base deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
       String opTypeStr = json.getAsJsonObject().get("opType").getAsString();
       OperationType opType = OperationType.valueOf(opTypeStr);

@@ -302,4 +302,19 @@ public class TypeToken<T> {
   public static <T> TypeToken<T> get(Class<T> type) {
     return new TypeToken<T>(type);
   }
+
+  /**
+   * Gets type literal for the parameterized type represented by applying {@code typeArguments} to
+   * {@code rawType}.
+   */
+  public static TypeToken<?> getParameterized(Type rawType, Type... typeArguments) {
+    return new TypeToken<Object>($Gson$Types.newParameterizedTypeWithOwner(null, rawType, typeArguments));
+  }
+
+  /**
+   * Gets type literal for the array type whose elements are all instances of {@code componentType}.
+   */
+  public static TypeToken<?> getArray(Type componentType) {
+    return new TypeToken<Object>($Gson$Types.arrayOf(componentType));
+  }
 }

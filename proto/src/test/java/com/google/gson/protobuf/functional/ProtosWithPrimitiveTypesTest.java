@@ -18,6 +18,7 @@ package com.google.gson.protobuf.functional;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.protobuf.ProtoTypeAdapter;
+import com.google.gson.protobuf.ProtoTypeAdapter.EnumSerialization;
 import com.google.gson.protobuf.generated.Bag.SimpleProto;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.GeneratedMessage;
@@ -31,7 +32,10 @@ public class ProtosWithPrimitiveTypesTest extends TestCase {
   protected void setUp() throws Exception {
     super.setUp();
     gson = new GsonBuilder().registerTypeHierarchyAdapter(
-      GeneratedMessage.class, new ProtoTypeAdapter()).create();
+      GeneratedMessage.class, ProtoTypeAdapter.newBuilder()
+          .setEnumSerialization(EnumSerialization.NUMBER)
+          .build())
+      .create();
   }
 
   public void testSerializeEmptyProto() {
@@ -62,4 +66,11 @@ public class ProtosWithPrimitiveTypesTest extends TestCase {
     assertEquals("foo", proto.getMsg());
     assertEquals(3, proto.getCount());
   }
+
+  public void testDeserializeWithExplicitNullValue() {
+    SimpleProto proto = gson.fromJson("{msg:'foo',count:null}", SimpleProto.class);
+    assertEquals("foo", proto.getMsg());
+    assertEquals(0, proto.getCount());
+  }
+
 }

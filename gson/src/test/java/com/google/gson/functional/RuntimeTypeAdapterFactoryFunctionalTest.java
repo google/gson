@@ -45,7 +45,7 @@ public final class RuntimeTypeAdapterFactoryFunctionalTest extends TestCase {
    * This test also ensures that {@link TypeAdapterFactory} registered through {@link JsonAdapter}
    * work correctly for {@link Gson#getDelegateAdapter(TypeAdapterFactory, TypeToken)}.
    */
-  public void testSubclassesAutomaticallySerialzed() throws Exception {
+  public void testSubclassesAutomaticallySerialized() throws Exception {
     Shape shape = new Circle(25);
     String json = gson.toJson(shape);
     shape = gson.fromJson(json, Shape.class);
@@ -146,7 +146,7 @@ public final class RuntimeTypeAdapterFactoryFunctionalTest extends TestCase {
       return registerSubtype(type, type.getSimpleName());
     }
 
-    public <R> TypeAdapter<R> create(Gson gson, TypeToken<R> type) {
+    @Override public <R> TypeAdapter<R> create(Gson gson, TypeToken<R> type) {
       if (type.getRawType() != baseType) {
         return null;
       }

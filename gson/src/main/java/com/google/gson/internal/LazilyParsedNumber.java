@@ -26,6 +26,7 @@ import java.math.BigDecimal;
 public final class LazilyParsedNumber extends Number {
   private final String value;
 
+  /** @param value must not be null */
   public LazilyParsedNumber(String value) {
     this.value = value;
   }
@@ -74,5 +75,22 @@ public final class LazilyParsedNumber extends Number {
    */
   private Object writeReplace() throws ObjectStreamException {
     return new BigDecimal(value);
+  }
+
+  @Override
+  public int hashCode() {
+    return value.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj instanceof LazilyParsedNumber) {
+      LazilyParsedNumber other = (LazilyParsedNumber) obj;
+      return value == other.value || value.equals(other.value);
+    }
+    return false;
   }
 }

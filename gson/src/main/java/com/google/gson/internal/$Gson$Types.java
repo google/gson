@@ -16,9 +16,6 @@
 
 package com.google.gson.internal;
 
-import static com.google.gson.internal.$Gson$Preconditions.checkArgument;
-import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
-
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
@@ -28,11 +25,10 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Properties;
+import java.util.*;
+
+import static com.google.gson.internal.$Gson$Preconditions.checkArgument;
+import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
 
 /**
  * Static methods for working with types.
@@ -43,7 +39,9 @@ import java.util.Properties;
 public final class $Gson$Types {
   static final Type[] EMPTY_TYPE_ARRAY = new Type[] {};
 
-  private $Gson$Types() {}
+  private $Gson$Types() {
+    throw new UnsupportedOperationException();
+  }
 
   /**
    * Returns a new parameterized type, applying {@code typeArguments} to
@@ -73,7 +71,13 @@ public final class $Gson$Types {
    * this returns {@code ?}, which is shorthand for {@code ? extends Object}.
    */
   public static WildcardType subtypeOf(Type bound) {
-    return new WildcardTypeImpl(new Type[] { bound }, EMPTY_TYPE_ARRAY);
+    Type[] upperBounds;
+    if (bound instanceof WildcardType) {
+      upperBounds = ((WildcardType) bound).getUpperBounds();
+    } else {
+      upperBounds = new Type[] { bound };
+    }
+    return new WildcardTypeImpl(upperBounds, EMPTY_TYPE_ARRAY);
   }
 
   /**
@@ -82,7 +86,13 @@ public final class $Gson$Types {
    * super String}.
    */
   public static WildcardType supertypeOf(Type bound) {
-    return new WildcardTypeImpl(new Type[] { Object.class }, new Type[] { bound });
+    Type[] lowerBounds;
+    if (bound instanceof WildcardType) {
+      lowerBounds = ((WildcardType) bound).getLowerBounds();
+    } else {
+      lowerBounds = new Type[] { bound };
+    }
+    return new WildcardTypeImpl(new Type[] { Object.class }, lowerBounds);
   }
 
   /**
@@ -210,7 +220,7 @@ public final class $Gson$Types {
     }
   }
 
-  private static int hashCodeOrZero(Object o) {
+  static int hashCodeOrZero(Object o) {
     return o != null ? o.hashCode() : 0;
   }
 
@@ -265,6 +275,10 @@ public final class $Gson$Types {
    * @param supertype a superclass of, or interface implemented by, this.
    */
   static Type getSupertype(Type context, Class<?> contextRawType, Class<?> supertype) {
+    if (context instanceof WildcardType) {
+      // wildcards are useless for resolving supertypes. As the upper bound has the same raw type, use it instead
+      context = ((WildcardType)context).getUpperBounds()[0];
+    }
     checkArgument(supertype.isAssignableFrom(contextRawType));
     return resolve(context, contextRawType,
         $Gson$Types.getGenericSupertype(context, contextRawType, supertype));
@@ -320,10 +334,21 @@ public final class $Gson$Types {
   }
 
   public static Type resolve(Type context, Class<?> contextRawType, Type toResolve) {
+    return resolve(context, contextRawType, toResolve, new HashSet<TypeVariable>());
+  }
+
+  private static Type resolve(Type context, Class<?> contextRawType, Type toResolve,
+                              Collection<TypeVariable> visitedTypeVariables) {
     // this implementation is made a little more complicated in an attempt to avoid object-creation
     while (true) {
       if (toResolve instanceof TypeVariable) {
         TypeVariable<?> typeVariable = (TypeVariable<?>) toResolve;
+        if (visitedTypeVariables.contains(typeVariable)) {
+          // cannot reduce due to infinite recursion
+          return toResolve;
+        } else {
+          visitedTypeVariables.add(typeVariable);
+        }
         toResolve = resolveTypeVariable(context, contextRawType, typeVariable);
         if (toResolve == typeVariable) {
           return toResolve;
@@ -332,7 +357,7 @@ public final class $Gson$Types {
       } else if (toResolve instanceof Class && ((Class<?>) toResolve).isArray()) {
         Class<?> original = (Class<?>) toResolve;
         Type componentType = original.getComponentType();
-        Type newComponentType = resolve(context, contextRawType, componentType);
+        Type newComponentType = resolve(context, contextRawType, componentType, visitedTypeVariables);
         return componentType == newComponentType
             ? original
             : arrayOf(newComponentType);
@@ -340,7 +365,7 @@ public final class $Gson$Types {
       } else if (toResolve instanceof GenericArrayType) {
         GenericArrayType original = (GenericArrayType) toResolve;
         Type componentType = original.getGenericComponentType();
-        Type newComponentType = resolve(context, contextRawType, componentType);
+        Type newComponentType = resolve(context, contextRawType, componentType, visitedTypeVariables);
         return componentType == newComponentType
             ? original
             : arrayOf(newComponentType);
@@ -348,12 +373,12 @@ public final class $Gson$Types {
       } else if (toResolve instanceof ParameterizedType) {
         ParameterizedType original = (ParameterizedType) toResolve;
         Type ownerType = original.getOwnerType();
-        Type newOwnerType = resolve(context, contextRawType, ownerType);
+        Type newOwnerType = resolve(context, contextRawType, ownerType, visitedTypeVariables);
         boolean changed = newOwnerType != ownerType;
 
         Type[] args = original.getActualTypeArguments();
         for (int t = 0, length = args.length; t < length; t++) {
-          Type resolvedTypeArgument = resolve(context, contextRawType, args[t]);
+          Type resolvedTypeArgument = resolve(context, contextRawType, args[t], visitedTypeVariables);
           if (resolvedTypeArgument != args[t]) {
             if (!changed) {
               args = args.clone();
@@ -373,12 +398,12 @@ public final class $Gson$Types {
         Type[] originalUpperBound = original.getUpperBounds();
 
         if (originalLowerBound.length == 1) {
-          Type lowerBound = resolve(context, contextRawType, originalLowerBound[0]);
+          Type lowerBound = resolve(context, contextRawType, originalLowerBound[0], visitedTypeVariables);
           if (lowerBound != originalLowerBound[0]) {
             return supertypeOf(lowerBound);
           }
         } else if (originalUpperBound.length == 1) {
-          Type upperBound = resolve(context, contextRawType, originalUpperBound[0]);
+          Type upperBound = resolve(context, contextRawType, originalUpperBound[0], visitedTypeVariables);
           if (upperBound != originalUpperBound[0]) {
             return subtypeOf(upperBound);
           }
@@ -409,7 +434,7 @@ public final class $Gson$Types {
   }
 
   private static int indexOf(Object[] array, Object toFind) {
-    for (int i = 0; i < array.length; i++) {
+    for (int i = 0, length = array.length; i < length; i++) {
       if (toFind.equals(array[i])) {
         return i;
       }
@@ -428,7 +453,7 @@ public final class $Gson$Types {
         : null;
   }
 
-  private static void checkNotPrimitive(Type type) {
+  static void checkNotPrimitive(Type type) {
     checkArgument(!(type instanceof Class<?>) || !((Class<?>) type).isPrimitive());
   }
 
@@ -449,7 +474,7 @@ public final class $Gson$Types {
       this.ownerType = ownerType == null ? null : canonicalize(ownerType);
       this.rawType = canonicalize(rawType);
       this.typeArguments = typeArguments.clone();
-      for (int t = 0; t < this.typeArguments.length; t++) {
+      for (int t = 0, length = this.typeArguments.length; t < length; t++) {
         checkNotNull(this.typeArguments[t]);
         checkNotPrimitive(this.typeArguments[t]);
         this.typeArguments[t] = canonicalize(this.typeArguments[t]);
@@ -480,15 +505,14 @@ public final class $Gson$Types {
     }
 
     @Override public String toString() {
-      StringBuilder stringBuilder = new StringBuilder(30 * (typeArguments.length + 1));
-      stringBuilder.append(typeToString(rawType));
-
-      if (typeArguments.length == 0) {
-        return stringBuilder.toString();
+      int length = typeArguments.length;
+      if (length == 0) {
+        return typeToString(rawType);
       }
 
-      stringBuilder.append("<").append(typeToString(typeArguments[0]));
-      for (int i = 1; i < typeArguments.length; i++) {
+      StringBuilder stringBuilder = new StringBuilder(30 * (length + 1));
+      stringBuilder.append(typeToString(rawType)).append("<").append(typeToString(typeArguments[0]));
+      for (int i = 1; i < length; i++) {
         stringBuilder.append(", ").append(typeToString(typeArguments[i]));
       }
       return stringBuilder.append(">").toString();

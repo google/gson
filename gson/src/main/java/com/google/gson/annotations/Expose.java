@@ -16,6 +16,7 @@
 
 package com.google.gson.annotations;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -33,9 +34,9 @@ import java.lang.annotation.Target;
  * <p>Here is an example of how this annotation is meant to be used:
  * <p><pre>
  * public class User {
- *   &#64Expose private String firstName;
- *   &#64Expose(serialize = false) private String lastName;
- *   &#64Expose (serialize = false, deserialize = false) private String emailAddress;
+ *   &#64;Expose private String firstName;
+ *   &#64;Expose(serialize = false) private String lastName;
+ *   &#64;Expose (serialize = false, deserialize = false) private String emailAddress;
  *   private String password;
  * }
  * </pre></p>
@@ -57,6 +58,7 @@ import java.lang.annotation.Target;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
+@Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface Expose {

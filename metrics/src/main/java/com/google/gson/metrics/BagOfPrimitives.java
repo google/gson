@@ -66,25 +66,18 @@ public class BagOfPrimitives {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
     BagOfPrimitives other = (BagOfPrimitives) obj;
-    if (booleanValue != other.booleanValue)
-      return false;
-    if (intValue != other.intValue)
-      return false;
-    if (longValue != other.longValue)
-      return false;
+    if (booleanValue != other.booleanValue) return false;
+    if (intValue != other.intValue) return false;
+    if (longValue != other.longValue) return false;
     if (stringValue == null) {
-      if (other.stringValue != null)
-        return false;
-    } else if (!stringValue.equals(other.stringValue))
-      return false;
-    return true;
+      return other.stringValue == null;
+    } else {
+      return stringValue.equals(other.stringValue);
+    }
   }
 
   @Override

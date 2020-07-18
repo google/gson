@@ -16,6 +16,7 @@
 
 package com.google.gson.annotations;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -35,9 +36,9 @@ import java.lang.annotation.Target;
  * public class User {
  *   private String firstName;
  *   private String lastName;
- *   &#64Since(1.0) private String emailAddress;
- *   &#64Since(1.0) private String password;
- *   &#64Since(1.1) private Address address;
+ *   &#64;Since(1.0) private String emailAddress;
+ *   &#64;Since(1.0) private String password;
+ *   &#64;Since(1.1) private Address address;
  * }
  * </pre>
  *
@@ -50,6 +51,7 @@ import java.lang.annotation.Target;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
+@Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.TYPE})
 public @interface Since {

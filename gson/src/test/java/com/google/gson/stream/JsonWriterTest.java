@@ -16,20 +16,54 @@
 
 package com.google.gson.stream;
 
+import junit.framework.TestCase;
+
 import java.io.IOException;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import junit.framework.TestCase;
 
 @SuppressWarnings("resource")
 public final class JsonWriterTest extends TestCase {
 
-  public void testWrongTopLevelType() throws IOException {
+  public void testTopLevelValueTypes() throws IOException {
+    StringWriter string1 = new StringWriter();
+    JsonWriter writer1 = new JsonWriter(string1);
+    writer1.value(true);
+    writer1.close();
+    assertEquals("true", string1.toString());
+
+    StringWriter string2 = new StringWriter();
+    JsonWriter writer2 = new JsonWriter(string2);
+    writer2.nullValue();
+    writer2.close();
+    assertEquals("null", string2.toString());
+
+    StringWriter string3 = new StringWriter();
+    JsonWriter writer3 = new JsonWriter(string3);
+    writer3.value(123);
+    writer3.close();
+    assertEquals("123", string3.toString());
+
+    StringWriter string4 = new StringWriter();
+    JsonWriter writer4 = new JsonWriter(string4);
+    writer4.value(123.4);
+    writer4.close();
+    assertEquals("123.4", string4.toString());
+
+    StringWriter string5 = new StringWriter();
+    JsonWriter writert = new JsonWriter(string5);
+    writert.value("a");
+    writert.close();
+    assertEquals("\"a\"", string5.toString());
+  }
+
+  public void testInvalidTopLevelTypes() throws IOException {
     StringWriter stringWriter = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
+    jsonWriter.name("hello");
     try {
-      jsonWriter.value("a");
+      jsonWriter.value("world");
       fail();
     } catch (IllegalStateException expected) {
     }
@@ -164,20 +198,44 @@ public final class JsonWriterTest extends TestCase {
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
     jsonWriter.beginArray();
     try {
-      jsonWriter.value(new Double(Double.NaN));
+      jsonWriter.value(Double.valueOf(Double.NaN));
       fail();
     } catch (IllegalArgumentException expected) {
     }
     try {
-      jsonWriter.value(new Double(Double.NEGATIVE_INFINITY));
+      jsonWriter.value(Double.valueOf(Double.NEGATIVE_INFINITY));
       fail();
     } catch (IllegalArgumentException expected) {
     }
     try {
-      jsonWriter.value(new Double(Double.POSITIVE_INFINITY));
+      jsonWriter.value(Double.valueOf(Double.POSITIVE_INFINITY));
       fail();
     } catch (IllegalArgumentException expected) {
     }
+  }
+
+  public void testNonFiniteDoublesWhenLenient() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter jsonWriter = new JsonWriter(stringWriter);
+    jsonWriter.setLenient(true);
+    jsonWriter.beginArray();
+    jsonWriter.value(Double.NaN);
+    jsonWriter.value(Double.NEGATIVE_INFINITY);
+    jsonWriter.value(Double.POSITIVE_INFINITY);
+    jsonWriter.endArray();
+    assertEquals("[NaN,-Infinity,Infinity]", stringWriter.toString());
+  }
+
+  public void testNonFiniteBoxedDoublesWhenLenient() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter jsonWriter = new JsonWriter(stringWriter);
+    jsonWriter.setLenient(true);
+    jsonWriter.beginArray();
+    jsonWriter.value(Double.valueOf(Double.NaN));
+    jsonWriter.value(Double.valueOf(Double.NEGATIVE_INFINITY));
+    jsonWriter.value(Double.valueOf(Double.POSITIVE_INFINITY));
+    jsonWriter.endArray();
+    assertEquals("[NaN,-Infinity,Infinity]", stringWriter.toString());
   }
 
   public void testDoubles() throws IOException {
@@ -248,6 +306,17 @@ public final class JsonWriterTest extends TestCase {
     jsonWriter.value(false);
     jsonWriter.endArray();
     assertEquals("[true,false]", stringWriter.toString());
+  }
+
+  public void testBoxedBooleans() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter jsonWriter = new JsonWriter(stringWriter);
+    jsonWriter.beginArray();
+    jsonWriter.value((Boolean) true);
+    jsonWriter.value((Boolean) false);
+    jsonWriter.value((Boolean) null);
+    jsonWriter.endArray();
+    assertEquals("[true,false,null]", stringWriter.toString());
   }
 
   public void testNulls() throws IOException {

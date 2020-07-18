@@ -33,7 +33,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 /**
- * Functional Test exercising custom serialization only.  When test applies to both
+ * Functional Test exercising custom serialization only. When test applies to both
  * serialization and deserialization then add it to CustomTypeAdapterTest.
  *
  * @author Inderjeet Singh
@@ -43,7 +43,7 @@ public class InstanceCreatorTest extends TestCase {
   public void testInstanceCreatorReturnsBaseType() {
     Gson gson = new GsonBuilder()
       .registerTypeAdapter(Base.class, new InstanceCreator<Base>() {
-       public Base createInstance(Type type) {
+        @Override public Base createInstance(Type type) {
          return new Base();
        }
       })
@@ -56,7 +56,7 @@ public class InstanceCreatorTest extends TestCase {
   public void testInstanceCreatorReturnsSubTypeForTopLevelObject() {
     Gson gson = new GsonBuilder()
     .registerTypeAdapter(Base.class, new InstanceCreator<Base>() {
-      public Base createInstance(Type type) {
+      @Override public Base createInstance(Type type) {
         return new Sub();
       }
     })
@@ -74,7 +74,7 @@ public class InstanceCreatorTest extends TestCase {
   public void testInstanceCreatorReturnsSubTypeForField() {
     Gson gson = new GsonBuilder()
     .registerTypeAdapter(Base.class, new InstanceCreator<Base>() {
-      public Base createInstance(Type type) {
+      @Override public Base createInstance(Type type) {
         return new Sub();
       }
     })
@@ -90,7 +90,7 @@ public class InstanceCreatorTest extends TestCase {
     @SuppressWarnings("serial")
     class SubArrayList<T> extends ArrayList<T> {}
     InstanceCreator<List<String>> listCreator = new InstanceCreator<List<String>>() {
-      public List<String> createInstance(Type type) {
+      @Override public List<String> createInstance(Type type) {
         return new SubArrayList<String>();
       }
     };
@@ -107,7 +107,7 @@ public class InstanceCreatorTest extends TestCase {
     @SuppressWarnings("serial")
     class SubTreeSet<T> extends TreeSet<T> {}
     InstanceCreator<SortedSet> sortedSetCreator = new InstanceCreator<SortedSet>() {
-      public SortedSet createInstance(Type type) {
+      @Override public SortedSet createInstance(Type type) {
         return new SubTreeSet();
       }
     };

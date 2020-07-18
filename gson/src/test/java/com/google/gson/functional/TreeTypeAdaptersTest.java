@@ -94,6 +94,7 @@ public class TreeTypeAdaptersTest extends TestCase {
       JsonDeserializer<Id<?>> {
 
     @SuppressWarnings("rawtypes")
+    @Override
     public Id<?> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
       if (!(typeOfT instanceof ParameterizedType)) {
@@ -106,6 +107,7 @@ public class TreeTypeAdaptersTest extends TestCase {
       return new Id(json.getAsString(), typeOfId);
     }
 
+    @Override
     public JsonElement serialize(Id<?> src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src.getValue());
     }

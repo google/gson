@@ -33,6 +33,10 @@ import java.io.Writer;
  * Reads and writes GSON parse trees over streams.
  */
 public final class Streams {
+  private Streams() {
+    throw new UnsupportedOperationException();
+  }
+
   /**
    * Takes a reader in any state and returns the next value as a JsonElement.
    */
@@ -68,7 +72,6 @@ public final class Streams {
     TypeAdapters.JSON_ELEMENT.write(writer, element);
   }
 
-  @SuppressWarnings("resource")
   public static Writer writerForAppendable(Appendable appendable) {
     return appendable instanceof Writer ? (Writer) appendable : new AppendableWriter(appendable);
   }
@@ -81,7 +84,7 @@ public final class Streams {
     private final Appendable appendable;
     private final CurrentWrite currentWrite = new CurrentWrite();
 
-    private AppendableWriter(Appendable appendable) {
+    AppendableWriter(Appendable appendable) {
       this.appendable = appendable;
     }
 

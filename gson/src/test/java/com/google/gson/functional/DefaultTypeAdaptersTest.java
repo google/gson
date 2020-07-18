@@ -15,6 +15,22 @@
  */
 package com.google.gson.functional;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.TypeAdapter;
+import com.google.gson.internal.JavaVersion;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Type;
@@ -42,21 +58,6 @@ import java.util.TreeSet;
 import java.util.UUID;
 
 import junit.framework.TestCase;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.TypeAdapter;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
 
 /**
  * Functional test for Json serialization and deserialization for common classes for which default
@@ -86,20 +87,20 @@ public class DefaultTypeAdaptersTest extends TestCase {
 
   public void testClassSerialization() {
     try {
-      gson.toJson(String.class);  
+      gson.toJson(String.class);
     } catch (UnsupportedOperationException expected) {}
     // Override with a custom type adapter for class.
     gson = new GsonBuilder().registerTypeAdapter(Class.class, new MyClassTypeAdapter()).create();
-    assertEquals("\"java.lang.String\"", gson.toJson(String.class));  
+    assertEquals("\"java.lang.String\"", gson.toJson(String.class));
   }
 
   public void testClassDeserialization() {
     try {
-      gson.fromJson("String.class", String.class.getClass());  
+      gson.fromJson("String.class", String.class.getClass());
     } catch (UnsupportedOperationException expected) {}
     // Override with a custom type adapter for class.
     gson = new GsonBuilder().registerTypeAdapter(Class.class, new MyClassTypeAdapter()).create();
-    assertEquals(String.class, gson.fromJson("java.lang.String", Class.class));  
+    assertEquals(String.class, gson.fromJson("java.lang.String", Class.class));
   }
 
   public void testUrlSerialization() throws Exception {
@@ -329,7 +330,11 @@ public class DefaultTypeAdaptersTest extends TestCase {
   public void testDefaultDateSerialization() {
     Date now = new Date(1315806903103L);
     String json = gson.toJson(now);
-    assertEquals("\"Sep 11, 2011 10:55:03 PM\"", json);
+    if (JavaVersion.isJava9OrLater()) {
+      assertEquals("\"Sep 11, 2011, 10:55:03 PM\"", json);
+    } else {
+      assertEquals("\"Sep 11, 2011 10:55:03 PM\"", json);
+    }
   }
 
   public void testDefaultDateDeserialization() {
@@ -370,7 +375,11 @@ public class DefaultTypeAdaptersTest extends TestCase {
   public void testDefaultJavaSqlTimestampSerialization() {
     Timestamp now = new java.sql.Timestamp(1259875082000L);
     String json = gson.toJson(now);
-    assertEquals("\"Dec 3, 2009 1:18:02 PM\"", json);
+    if (JavaVersion.isJava9OrLater()) {
+      assertEquals("\"Dec 3, 2009, 1:18:02 PM\"", json);
+    } else {
+      assertEquals("\"Dec 3, 2009 1:18:02 PM\"", json);
+    }
   }
 
   public void testDefaultJavaSqlTimestampDeserialization() {
@@ -396,7 +405,11 @@ public class DefaultTypeAdaptersTest extends TestCase {
     Gson gson = new GsonBuilder().create();
     Date now = new Date(1315806903103L);
     String json = gson.toJson(now);
-    assertEquals("\"Sep 11, 2011 10:55:03 PM\"", json);
+    if (JavaVersion.isJava9OrLater()) {
+      assertEquals("\"Sep 11, 2011, 10:55:03 PM\"", json);
+    } else {
+      assertEquals("\"Sep 11, 2011 10:55:03 PM\"", json);
+    }
   }
 
   public void testDefaultDateDeserializationUsingBuilder() throws Exception {
@@ -479,7 +492,8 @@ public class DefaultTypeAdaptersTest extends TestCase {
     Gson gson = new GsonBuilder()
         .setDateFormat(pattern)
         .registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
-          public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+          public Date deserialize(JsonElement json, Type typeOfT,
+              JsonDeserializationContext context)
               throws JsonParseException {
             return new Date(1315806903103L);
           }
@@ -616,6 +630,16 @@ public class DefaultTypeAdaptersTest extends TestCase {
   public void testJsonNullDeserialization() {
     assertEquals(JsonNull.INSTANCE, gson.fromJson("null", JsonElement.class));
     assertEquals(JsonNull.INSTANCE, gson.fromJson("null", JsonNull.class));
+  }
+
+  public void testJsonElementTypeMismatch() {
+    try {
+      gson.fromJson("\"abc\"", JsonObject.class);
+      fail();
+    } catch (JsonSyntaxException expected) {
+      assertEquals("Expected a com.google.gson.JsonObject but was com.google.gson.JsonPrimitive",
+          expected.getMessage());
+    }
   }
 
   private static class ClassWithBigDecimal {

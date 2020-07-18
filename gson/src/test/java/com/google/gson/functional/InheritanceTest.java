@@ -217,7 +217,7 @@ public class InheritanceTest extends TestCase {
           return false;
         }
       }
-      return true;      
+      return true;
     }
     
     boolean setContains(float... values) {
@@ -235,7 +235,7 @@ public class InheritanceTest extends TestCase {
           return false;
         }
       }
-      return true;      
+      return true;
     }
     
     public String getExpectedJson() {

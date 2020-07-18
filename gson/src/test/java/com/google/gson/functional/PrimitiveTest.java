@@ -144,12 +144,12 @@ public class PrimitiveTest extends TestCase {
 
   public void testNumberDeserialization() {
     String json = "1";
-    Number expected = new Integer(json);
+    Number expected = Integer.valueOf(json);
     Number actual = gson.fromJson(json, Number.class);
     assertEquals(expected.intValue(), actual.intValue());
 
     json = String.valueOf(Long.MAX_VALUE);
-    expected = new Long(json);
+    expected = Long.valueOf(json);
     actual = gson.fromJson(json, Number.class);
     assertEquals(expected.longValue(), actual.longValue());
 
@@ -158,17 +158,22 @@ public class PrimitiveTest extends TestCase {
     assertEquals(1L, actual.longValue());
   }
 
+  public void testNumberAsStringDeserialization() {
+    Number value = gson.fromJson("\"18\"", Number.class);
+    assertEquals(18, value.intValue());
+  }
+
   public void testPrimitiveDoubleAutoboxedSerialization() {
-    assertEquals("-122.08234335", gson.toJson(-122.08234335));
-    assertEquals("122.08112002", gson.toJson(new Double(122.08112002)));
+    assertEquals("-122.08234335", gson.toJson(-122.08234335D));
+    assertEquals("122.08112002", gson.toJson(122.08112002D));
   }
 
   public void testPrimitiveDoubleAutoboxedDeserialization() {
     double actual = gson.fromJson("-122.08858585", double.class);
-    assertEquals(-122.08858585, actual);
+    assertEquals(-122.08858585D, actual);
 
     actual = gson.fromJson("122.023900008000", Double.class);
-    assertEquals(122.023900008, actual);
+    assertEquals(122.023900008D, actual);
   }
 
   public void testPrimitiveDoubleAutoboxedInASingleElementArraySerialization() {
@@ -196,6 +201,19 @@ public class PrimitiveTest extends TestCase {
 
     double actual1 = gson.fromJson(doubleValue, double.class);
     assertEquals(expected.doubleValue(), actual1);
+  }
+
+  public void testDoubleArrayDeserialization() {
+      String json = "[0.0, 0.004761904761904762, 3.4013606962703525E-4, 7.936508173034305E-4,"
+              + "0.0011904761904761906, 0.0]";
+      double[] values = gson.fromJson(json, double[].class);
+      assertEquals(6, values.length);
+      assertEquals(0.0, values[0]);
+      assertEquals(0.004761904761904762, values[1]);
+      assertEquals(3.4013606962703525E-4, values[2]);
+      assertEquals(7.936508173034305E-4, values[3]);
+      assertEquals(0.0011904761904761906, values[4]);
+      assertEquals(0.0, values[5]);
   }
 
   public void testLargeDoubleDeserialization() {

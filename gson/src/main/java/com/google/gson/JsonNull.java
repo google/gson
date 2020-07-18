@@ -40,8 +40,12 @@ public final class JsonNull extends JsonElement {
     // Do nothing
   }
 
+  /**
+   * Returns the same instance since it is an immutable value
+   * @since 2.8.2
+   */
   @Override
-  JsonNull deepCopy() {
+  public JsonNull deepCopy() {
     return INSTANCE;
   }
 

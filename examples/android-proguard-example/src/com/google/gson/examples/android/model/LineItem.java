@@ -52,6 +52,6 @@ public class LineItem {
   @Override
   public String toString() {
     return String.format("(item: %s, qty: %s, price: %.2f %s)",
-        name, quantity, priceInMicros/(double)1000000, currencyCode);
+        name, quantity, priceInMicros / 1000000d, currencyCode);
   }
 }

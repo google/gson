@@ -30,6 +30,10 @@ package com.google.gson.internal;
  * @author Joel Leitch
  */
 public final class $Gson$Preconditions {
+  private $Gson$Preconditions() {
+    throw new UnsupportedOperationException();
+  }
+
   public static <T> T checkNotNull(T obj) {
     if (obj == null) {
       throw new NullPointerException();

@@ -130,6 +130,9 @@ public final class JsonTreeWriter extends JsonWriter {
   }
 
   @Override public JsonWriter name(String name) throws IOException {
+    if (name == null) {
+      throw new NullPointerException("name == null");
+    }
     if (stack.isEmpty() || pendingName != null) {
       throw new IllegalStateException();
     }
@@ -155,6 +158,14 @@ public final class JsonTreeWriter extends JsonWriter {
   }
 
   @Override public JsonWriter value(boolean value) throws IOException {
+    put(new JsonPrimitive(value));
+    return this;
+  }
+
+  @Override public JsonWriter value(Boolean value) throws IOException {
+    if (value == null) {
+      return nullValue();
+    }
     put(new JsonPrimitive(value));
     return this;
   }

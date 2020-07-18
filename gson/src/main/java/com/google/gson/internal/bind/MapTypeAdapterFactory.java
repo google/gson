@@ -104,7 +104,7 @@ import java.util.Map;
  */
 public final class MapTypeAdapterFactory implements TypeAdapterFactory {
   private final ConstructorConstructor constructorConstructor;
-  private final boolean complexMapKeySerialization;
+  final boolean complexMapKeySerialization;
 
   public MapTypeAdapterFactory(ConstructorConstructor constructorConstructor,
       boolean complexMapKeySerialization) {
@@ -112,7 +112,7 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
     this.complexMapKeySerialization = complexMapKeySerialization;
   }
 
-  public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
+  @Override public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
     Type type = typeToken.getType();
 
     Class<? super T> rawType = typeToken.getRawType();
@@ -157,7 +157,7 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
       this.constructor = constructor;
     }
 
-    public Map<K, V> read(JsonReader in) throws IOException {
+    @Override public Map<K, V> read(JsonReader in) throws IOException {
       JsonToken peek = in.peek();
       if (peek == JsonToken.NULL) {
         in.nextNull();
@@ -195,7 +195,7 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
       return map;
     }
 
-    public void write(JsonWriter out, Map<K, V> map) throws IOException {
+    @Override public void write(JsonWriter out, Map<K, V> map) throws IOException {
       if (map == null) {
         out.nullValue();
         return;
@@ -224,7 +224,7 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
 
       if (hasComplexKeys) {
         out.beginArray();
-        for (int i = 0; i < keys.size(); i++) {
+        for (int i = 0, size = keys.size(); i < size; i++) {
           out.beginArray(); // entry array
           Streams.write(keys.get(i), out);
           valueTypeAdapter.write(out, values.get(i));
@@ -233,7 +233,7 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
         out.endArray();
       } else {
         out.beginObject();
-        for (int i = 0; i < keys.size(); i++) {
+        for (int i = 0, size = keys.size(); i < size; i++) {
           JsonElement keyElement = keys.get(i);
           out.name(keyToString(keyElement));
           valueTypeAdapter.write(out, values.get(i));

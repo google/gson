@@ -2,7 +2,7 @@
 .project
 .settings
 eclipsebin
-
+target
 */target
 pom.xml.*
 release.properties
@@ -13,4 +13,10 @@ release.properties
 *.iws
 classes
 
+.gradle
+local.properties
+build
+
 .DS_Store
+
+examples/android-proguard-example/gen

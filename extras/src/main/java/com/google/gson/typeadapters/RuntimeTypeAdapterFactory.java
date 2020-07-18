@@ -94,31 +94,43 @@ import com.google.gson.stream.JsonWriter;
  * "Rectangle"}) are configurable.
  *
  * <h3>Registering Types</h3>
- * Create a {@code RuntimeTypeAdapter} by passing the base type and type field
+ * Create a {@code RuntimeTypeAdapterFactory} by passing the base type and type field
  * name to the {@link #of} factory method. If you don't supply an explicit type
  * field name, {@code "type"} will be used. <pre>   {@code
- *   RuntimeTypeAdapter<Shape> shapeAdapter
- *       = RuntimeTypeAdapter.of(Shape.class, "type");
+ *   RuntimeTypeAdapterFactory<Shape> shapeAdapterFactory
+ *       = RuntimeTypeAdapterFactory.of(Shape.class, "type");
  * }</pre>
  * Next register all of your subtypes. Every subtype must be explicitly
  * registered. This protects your application from injection attacks. If you
  * don't supply an explicit type label, the type's simple name will be used.
  * <pre>   {@code
- *   shapeAdapter.registerSubtype(Rectangle.class, "Rectangle");
- *   shapeAdapter.registerSubtype(Circle.class, "Circle");
- *   shapeAdapter.registerSubtype(Diamond.class, "Diamond");
+ *   shapeAdapterFactory.registerSubtype(Rectangle.class, "Rectangle");
+ *   shapeAdapterFactory.registerSubtype(Circle.class, "Circle");
+ *   shapeAdapterFactory.registerSubtype(Diamond.class, "Diamond");
  * }</pre>
- * Finally, register the type adapter in your application's GSON builder:
+ * Finally, register the type adapter factory in your application's GSON builder:
  * <pre>   {@code
  *   Gson gson = new GsonBuilder()
- *       .registerTypeAdapter(Shape.class, shapeAdapter)
+ *       .registerTypeAdapterFactory(shapeAdapterFactory)
  *       .create();
  * }</pre>
  * Like {@code GsonBuilder}, this API supports chaining: <pre>   {@code
- *   RuntimeTypeAdapter<Shape> shapeAdapter = RuntimeTypeAdapterFactory.of(Shape.class)
+ *   RuntimeTypeAdapterFactory<Shape> shapeAdapterFactory = RuntimeTypeAdapterFactory.of(Shape.class)
  *       .registerSubtype(Rectangle.class)
  *       .registerSubtype(Circle.class)
  *       .registerSubtype(Diamond.class);
+ * }</pre>
+ *
+ * <h3>Serialization and deserialization</h3>
+ * In order to serialize and deserialize a polymorphic object,
+ * you must specify the base type explicitly.
+ * <pre>   {@code
+ *   Diamond diamond = new Diamond();
+ *   String json = gson.toJson(diamond, Shape.class);
+ * }</pre>
+ * And then:
+ * <pre>   {@code
+ *   Shape shape = gson.fromJson(json, Shape.class);
  * }</pre>
  */
 public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
@@ -126,21 +138,32 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
   private final String typeFieldName;
   private final Map<String, Class<?>> labelToSubtype = new LinkedHashMap<String, Class<?>>();
   private final Map<Class<?>, String> subtypeToLabel = new LinkedHashMap<Class<?>, String>();
+  private final boolean maintainType;
 
-  private RuntimeTypeAdapterFactory(Class<?> baseType, String typeFieldName) {
+  private RuntimeTypeAdapterFactory(Class<?> baseType, String typeFieldName, boolean maintainType) {
     if (typeFieldName == null || baseType == null) {
       throw new NullPointerException();
     }
     this.baseType = baseType;
     this.typeFieldName = typeFieldName;
+    this.maintainType = maintainType;
   }
 
   /**
    * Creates a new runtime type adapter using for {@code baseType} using {@code
    * typeFieldName} as the type field name. Type field names are case sensitive.
+   * {@code maintainType} flag decide if the type will be stored in pojo or not.
+   */
+  public static <T> RuntimeTypeAdapterFactory<T> of(Class<T> baseType, String typeFieldName, boolean maintainType) {
+    return new RuntimeTypeAdapterFactory<T>(baseType, typeFieldName, maintainType);
+  }
+  
+  /**
+   * Creates a new runtime type adapter using for {@code baseType} using {@code
+   * typeFieldName} as the type field name. Type field names are case sensitive.
    */
   public static <T> RuntimeTypeAdapterFactory<T> of(Class<T> baseType, String typeFieldName) {
-    return new RuntimeTypeAdapterFactory<T>(baseType, typeFieldName);
+    return new RuntimeTypeAdapterFactory<T>(baseType, typeFieldName, false);
   }
 
   /**
@@ -148,7 +171,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
    * the type field name.
    */
   public static <T> RuntimeTypeAdapterFactory<T> of(Class<T> baseType) {
-    return new RuntimeTypeAdapterFactory<T>(baseType, "type");
+    return new RuntimeTypeAdapterFactory<T>(baseType, "type", false);
   }
 
   /**
@@ -199,7 +222,13 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
     return new TypeAdapter<R>() {
       @Override public R read(JsonReader in) throws IOException {
         JsonElement jsonElement = Streams.parse(in);
-        JsonElement labelJsonElement = jsonElement.getAsJsonObject().remove(typeFieldName);
+        JsonElement labelJsonElement;
+        if (maintainType) {
+            labelJsonElement = jsonElement.getAsJsonObject().get(typeFieldName);
+        } else {
+            labelJsonElement = jsonElement.getAsJsonObject().remove(typeFieldName);
+        }
+        
         if (labelJsonElement == null) {
           throw new JsonParseException("cannot deserialize " + baseType
               + " because it does not define a field named " + typeFieldName);
@@ -224,12 +253,20 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
               + "; did you forget to register a subtype?");
         }
         JsonObject jsonObject = delegate.toJsonTree(value).getAsJsonObject();
+
+        if (maintainType) {
+          Streams.write(jsonObject, out);
+          return;
+        }
+
+        JsonObject clone = new JsonObject();
+
         if (jsonObject.has(typeFieldName)) {
           throw new JsonParseException("cannot serialize " + srcType.getName()
               + " because it already defines a field named " + typeFieldName);
         }
-        JsonObject clone = new JsonObject();
         clone.add(typeFieldName, new JsonPrimitive(label));
+        
         for (Map.Entry<String, JsonElement> e : jsonObject.entrySet()) {
           clone.add(e.getKey(), e.getValue());
         }

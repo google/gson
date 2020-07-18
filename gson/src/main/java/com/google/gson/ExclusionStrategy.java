@@ -20,7 +20,7 @@ package com.google.gson;
  * A strategy (or policy) definition that is used to decide whether or not a field or top-level
  * class should be serialized or deserialized as part of the JSON output/input. For serialization,
  * if the {@link #shouldSkipClass(Class)} method returns true then that class or field type
- * will not be part of the JSON output.  For deserialization, if {@link #shouldSkipClass(Class)}
+ * will not be part of the JSON output. For deserialization, if {@link #shouldSkipClass(Class)}
  * returns true, then it will not be set as part of the Java object structure.
  *
  * <p>The following are a few examples that shows how you can use this exclusion mechanism.
@@ -46,11 +46,11 @@ package com.google.gson;
  *
  * <p><strong>Excludes fields and objects based on a particular annotation:</strong>
  * <pre class="code">
- * public &#64interface FooAnnotation {
+ * public &#64;interface FooAnnotation {
  *   // some implementation here
  * }
  *
- * // Excludes any field (or class) that is tagged with an "&#64FooAnnotation"
+ * // Excludes any field (or class) that is tagged with an "&#64;FooAnnotation"
  * private static class FooAnnotationExclusionStrategy implements ExclusionStrategy {
  *   public boolean shouldSkipClass(Class&lt;?&gt; clazz) {
  *     return clazz.getAnnotation(FooAnnotation.class) != null;

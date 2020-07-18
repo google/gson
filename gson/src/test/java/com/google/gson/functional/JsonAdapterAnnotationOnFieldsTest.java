@@ -16,6 +16,10 @@
 
 package com.google.gson.functional;
 
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
@@ -24,7 +28,7 @@ import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import java.io.IOException;
+
 import junit.framework.TestCase;
 
 /**
@@ -63,7 +67,6 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
         @Override public void write(JsonWriter out, Part part) throws IOException {
           throw new AssertionError();
         }
-
         @Override public Part read(JsonReader in) throws IOException {
           throw new AssertionError();
         }
@@ -116,7 +119,7 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
   }
 
   private static class GizmoPartTypeAdapterFactory implements TypeAdapterFactory {
-    public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
+    @Override public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
       return new TypeAdapter<T>() {
         @Override public void write(JsonWriter out, T value) throws IOException {
           out.value("GizmoPartTypeAdapterFactory");
@@ -198,6 +201,106 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
     @SuppressWarnings("unused") GadgetWithTwoParts(Part part1, Part part2) {
       this.part1 = part1;
       this.part2 = part2;
+    }
+  }
+
+  public void testJsonAdapterWrappedInNullSafeAsRequested() {
+    Gson gson = new Gson();
+    String fromJson = "{'part':null}";
+
+    GadgetWithOptionalPart gadget = gson.fromJson(fromJson, GadgetWithOptionalPart.class);
+    assertNull(gadget.part);
+
+    String toJson = gson.toJson(gadget);
+    assertFalse(toJson.contains("PartJsonFieldAnnotationAdapter"));
+  }
+
+  private static final class GadgetWithOptionalPart {
+    @JsonAdapter(value = PartJsonFieldAnnotationAdapter.class)
+    final Part part;
+
+    private GadgetWithOptionalPart(Part part) {
+      this.part = part;
+    }
+  }
+
+  /** Regression test contributed through https://github.com/google/gson/issues/831 */
+  public void testNonPrimitiveFieldAnnotationTakesPrecedenceOverDefault() {
+    Gson gson = new Gson();
+    String json = gson.toJson(new GadgetWithOptionalPart(new Part("foo")));
+    assertEquals("{\"part\":\"PartJsonFieldAnnotationAdapter\"}", json);
+    GadgetWithOptionalPart gadget = gson.fromJson("{'part':'foo'}", GadgetWithOptionalPart.class);
+    assertEquals("PartJsonFieldAnnotationAdapter", gadget.part.name);
+  }
+
+  /** Regression test contributed through https://github.com/google/gson/issues/831 */
+  public void testPrimitiveFieldAnnotationTakesPrecedenceOverDefault() {
+    Gson gson = new Gson();
+    String json = gson.toJson(new GadgetWithPrimitivePart(42));
+    assertEquals("{\"part\":\"42\"}", json);
+    GadgetWithPrimitivePart gadget = gson.fromJson(json, GadgetWithPrimitivePart.class);
+    assertEquals(42, gadget.part);
+  }
+
+  private static final class GadgetWithPrimitivePart {
+    @JsonAdapter(LongToStringTypeAdapterFactory.class)
+    final long part;
+
+    private GadgetWithPrimitivePart(long part) {
+      this.part = part;
+    }
+  }
+
+  private static final class LongToStringTypeAdapterFactory implements TypeAdapterFactory {
+    static final TypeAdapter<Long> ADAPTER = new TypeAdapter<Long>() {
+      @Override public void write(JsonWriter out, Long value) throws IOException {
+        out.value(value.toString());
+      }
+      @Override public Long read(JsonReader in) throws IOException {
+        return in.nextLong();
+      }
+    };
+    @SuppressWarnings("unchecked")
+    @Override public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
+      Class<?> cls = type.getRawType();
+      if (Long.class.isAssignableFrom(cls)) {
+        return (TypeAdapter<T>) ADAPTER;
+      } else if (long.class.isAssignableFrom(cls)) {
+        return (TypeAdapter<T>) ADAPTER;
+      }
+      throw new IllegalStateException("Non-long field of type " + type
+          + " annotated with @JsonAdapter(LongToStringTypeAdapterFactory.class)");
+    }
+  }
+
+  public void testFieldAnnotationWorksForParameterizedType() {
+    Gson gson = new Gson();
+    String json = gson.toJson(new Gizmo2(Arrays.asList(new Part("Part"))));
+    assertEquals("{\"part\":\"GizmoPartTypeAdapterFactory\"}", json);
+    Gizmo2 computer = gson.fromJson("{'part':'Part'}", Gizmo2.class);
+    assertEquals("GizmoPartTypeAdapterFactory", computer.part.get(0).name);
+  }
+
+  private static final class Gizmo2 {
+    @JsonAdapter(Gizmo2PartTypeAdapterFactory.class)
+    List<Part> part;
+    Gizmo2(List<Part> part) {
+      this.part = part;
+    }
+  }
+
+  private static class Gizmo2PartTypeAdapterFactory implements TypeAdapterFactory {
+    @Override public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
+      return new TypeAdapter<T>() {
+        @Override public void write(JsonWriter out, T value) throws IOException {
+          out.value("GizmoPartTypeAdapterFactory");
+        }
+        @SuppressWarnings("unchecked")
+        @Override public T read(JsonReader in) throws IOException {
+          in.nextString();
+          return (T) Arrays.asList(new Part("GizmoPartTypeAdapterFactory"));
+        }
+      };
     }
   }
 }
