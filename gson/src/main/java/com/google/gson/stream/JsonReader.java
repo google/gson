@@ -1041,7 +1041,7 @@ public class JsonReader implements Closeable {
             return builder.toString();
           }
         } else if (c == '\\') {
-          pos = p;
+          pos = p - 1; // don't consume '\' yet
           int len = p - start - 1;
           if (builder == null) {
             int estimatedLength = (len + 1) * 2;
@@ -1142,7 +1142,7 @@ public class JsonReader implements Closeable {
           pos = p;
           return;
         } else if (c == '\\') {
-          pos = p;
+          pos = p - 1; // don't consume '\' yet
           readEscapeCharacter();
           p = pos;
           l = limit;
@@ -1537,28 +1537,30 @@ public class JsonReader implements Closeable {
 
   /**
    * Unescapes the character identified by the character or characters that
-   * immediately follow a backslash. The backslash '\' should have already
-   * been read. This supports both unicode escapes "u000A" and two-character
-   * escapes "\n".
+   * immediately follow a backslash. The backslash '\' should not have been
+   * read yet, i.e. {@code buffer[pos]} should be the backslash.
+   * <p>This supports both unicode escapes "u000A" and two-character escapes "\n".
    *
    * @throws NumberFormatException if any unicode escape sequences are
    *     malformed.
    */
   private char readEscapeCharacter() throws IOException {
-    if (pos == limit && !fillBuffer(1)) {
+    if (pos + 1 == limit && !fillBuffer(1)) {
       throw syntaxError("Unterminated escape sequence");
     }
 
-    char escaped = buffer[pos++];
+    int peekedPos = pos + 1; // skip '\'
+    char escaped = buffer[peekedPos++];
+    char result;
     switch (escaped) {
     case 'u':
-      if (pos + 4 > limit && !fillBuffer(4)) {
+      if (peekedPos + 4 > limit && !fillBuffer(4)) {
         throw syntaxError("Unterminated escape sequence");
       }
-      // Equivalent to Integer.parseInt(stringPool.get(buffer, pos, 4), 16);
-      char result = 0;
-      for (int i = pos, end = i + 4; i < end; i++) {
-        char c = buffer[i];
+      // Equivalent to Integer.parseInt(new String(buffer, pos + 2, 4), 16);
+      result = 0;
+      for (int end = peekedPos + 4; peekedPos < end; peekedPos++) {
+        char c = buffer[peekedPos];
         result <<= 4;
         if (c >= '0' && c <= '9') {
           result += (c - '0');
@@ -1567,41 +1569,43 @@ public class JsonReader implements Closeable {
         } else if (c >= 'A' && c <= 'F') {
           result += (c - 'A' + 10);
         } else {
-          throw new NumberFormatException("\\u" + new String(buffer, pos, 4));
+          throw new NumberFormatException(new String(buffer, pos, 4));
         }
       }
-      pos += 4;
-      return result;
-
+      break;
     case 't':
-      return '\t';
-
+      result = '\t';
+      break;
     case 'b':
-      return '\b';
-
+      result = '\b';
+      break;
     case 'n':
-      return '\n';
-
+      result = '\n';
+      break;
     case 'r':
-      return '\r';
-
+      result = '\r';
+      break;
     case 'f':
-      return '\f';
-
+      result = '\f';
+      break;
     case '\n':
       lineNumber++;
-      lineStart = pos;
+      lineStart = peekedPos;
       // fall-through
 
     case '\'':
     case '"':
     case '\\':
     case '/':
-        return escaped;
+      result = escaped;
+      break;
     default:
         // throw error when none of the above cases are matched
         throw syntaxError("Invalid escape sequence");
     }
+
+    pos = peekedPos;
+    return result;
   }
 
   /**

@@ -1731,6 +1731,34 @@ public final class JsonReaderTest extends TestCase {
     }
   }
 
+  public void testThrowingStringEscapeSequence() throws IOException {
+    JsonReader reader = new JsonReader(reader("\"\\z\"")); // "\z" is not a valid escape sequence
+    assertEquals(JsonToken.STRING, reader.peek());
+
+    /*
+     * Make sure that neither nextString() nor skipValue() already advanced
+     * before throwing exception.
+     *
+     * In previous Gson versions they would have already consumed the '\' before
+     * the exception was thrown so a subsequent read would have read a "valid"
+     * string.
+     */
+    for (int i = 0; i < 3; i++) {
+      try {
+        reader.nextString();
+        fail();
+      } catch (MalformedJsonException expected) {
+      }
+    }
+    for (int i = 0; i < 3; i++) {
+      try {
+        reader.skipValue();
+        fail();
+      } catch (MalformedJsonException expected) {
+      }
+    }
+  }
+
   private String repeat(char c, int count) {
     char[] array = new char[count];
     Arrays.fill(array, c);
