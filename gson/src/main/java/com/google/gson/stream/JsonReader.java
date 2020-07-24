@@ -567,6 +567,12 @@ public class JsonReader implements Closeable {
     } else if (peekStack == JsonScope.EMPTY_DOCUMENT) {
       if (lenient) {
         consumeNonExecutePrefix();
+        /*
+         * Don't need to update stack because consuming second non-execute prefix
+         * is not possible.
+         * ')' of second prefix would be considered part of unquoted string so
+         * value parsing succeeds and stack is updated.
+         */
       }
       // fall-through to value parsing
     } else if (peekStack == JsonScope.NONEMPTY_DOCUMENT) {

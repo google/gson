@@ -1334,6 +1334,21 @@ public final class JsonReaderTest extends TestCase {
     }
   }
 
+  /**
+   * At most one non-execute prefix must be consumed.
+   */
+  public void testLenientDoubleNonExecutePrefix() throws IOException {
+    JsonReader reader = new JsonReader(reader(")]}'\n)]}'\n 1"));
+    reader.setLenient(true);
+    // Consumes the parenthesis after the first non-execute prefix
+    assertEquals(")", reader.nextString());
+    try {
+      reader.peek();
+      fail();
+    } catch (MalformedJsonException expected) {
+    }
+  }
+
   public void testBomIgnoredAsFirstCharacterOfDocument() throws IOException {
     JsonReader reader = new JsonReader(reader("\ufeff[]"));
     reader.beginArray();
