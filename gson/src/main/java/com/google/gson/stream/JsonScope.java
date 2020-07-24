@@ -75,18 +75,25 @@ final class JsonScope {
   static final int NONEMPTY_OBJECT = 8;
 
   /**
+   * A block comment <code>/* ... *&#x2F;</code> which has been started and
+   * requires the closing <code>*&#x2F;</code>.
+   * <p>Note: Only used by {@link JsonReader}.
+   */
+  static final int EXPECTING_BLOCK_COMMENT_END = 9;
+
+  /**
    * No object or array has been started.
    */
-  static final int EMPTY_DOCUMENT = 9;
+  static final int EMPTY_DOCUMENT = 10;
 
   /**
    * A document with an array or object.
    */
-  static final int NONEMPTY_DOCUMENT = 10;
+  static final int NONEMPTY_DOCUMENT = 11;
 
   /**
    * A document that's been closed and cannot be accessed.
    * <p>Note: Only used by {@link JsonReader}.
    */
-  static final int CLOSED = 11;
+  static final int CLOSED = 12;
 }

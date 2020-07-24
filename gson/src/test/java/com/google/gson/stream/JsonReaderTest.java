@@ -1705,6 +1705,30 @@ public final class JsonReaderTest extends TestCase {
     }
   }
 
+  public void testThrowingPeekIncompleteBlockComment() throws IOException {
+    JsonReader reader = new JsonReader(reader("[/*]"));
+    reader.setLenient(true); // lenient to support block comments
+    reader.beginArray();
+    /*
+     * Make sure that incomplete block comment (i.e. missing closing * /)
+     * is not skipped after first unsuccessful peek.
+     *
+     * In previous Gson versions a subsequent peek would have skipped the
+     * comment start (i.e. "/*") and therefore could have read "valid"
+     * JSON afterwards.
+     */
+    for (int i = 0; i < 3; i++) {
+      try {
+        reader.peek();
+      } catch (MalformedJsonException expected) {
+        // Note: Exact exception message does not matter, may be changed in the future
+        assertTrue(expected.getMessage().startsWith("Unterminated comment"));
+      }
+    }
+
+    assertEquals("$[0]", reader.getPath());
+  }
+
   public void testThrowingPeekEmptyDocument() throws IOException {
     JsonReader reader = new JsonReader(reader(":"));
     try {

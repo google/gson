@@ -579,6 +579,8 @@ public class JsonReader implements Closeable {
         checkLenient();
         // fall-through to value parsing
       }
+    } else if (peekStack == JsonScope.EXPECTING_BLOCK_COMMENT_END) {
+      throw syntaxError("Unterminated comment");
     } else if (peekStack == JsonScope.CLOSED) {
       throw new IllegalStateException("JsonReader is closed");
     }
@@ -1383,24 +1385,26 @@ public class JsonReader implements Closeable {
       }
 
       if (c == '/') {
-        pos = p;
         if (p == l) {
-          pos--; // push back '/' so it's still in the buffer when this method returns
+          pos = p - 1; // don't consume '/' yet
           boolean charsLoaded = fillBuffer(2);
           if (charsLoaded) {
-            p = ++pos; // consume '/' again
+            p = pos + 1; // skip '/'
           } else {
             return c;
           }
         }
 
         checkLenient();
-        char peek = buffer[p];
+        char peek = buffer[p++];
         switch (peek) {
         case '*':
           // skip a /* c-style comment */
-          pos++;
+          pos = p;
           if (!skipToIncluding("*/")) {
+            // skipToIncluding(...) might have skipped some chars already
+            // therefore update stack so subsequent call fails again for same reason
+            push(JsonScope.EXPECTING_BLOCK_COMMENT_END);
             throw syntaxError("Unterminated comment");
           }
           p = pos;
@@ -1409,14 +1413,15 @@ public class JsonReader implements Closeable {
 
         case '/':
           // skip a // end-of-line comment
-          pos++;
+          pos = p;
           skipToEndOfLine();
           p = pos;
           l = limit;
           continue;
 
         default:
-          pos--; // push back char
+          // Consume neither '/' nor `peek` character
+          pos = p - 2;
           return c;
         }
       } else if (c == '#') {
@@ -1526,8 +1531,9 @@ public class JsonReader implements Closeable {
           }
           break;
 
-        case JsonScope.NONEMPTY_DOCUMENT:
+        case JsonScope.EXPECTING_BLOCK_COMMENT_END:
         case JsonScope.EMPTY_DOCUMENT:
+        case JsonScope.NONEMPTY_DOCUMENT:
         case JsonScope.CLOSED:
           break;
       }
