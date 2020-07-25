@@ -149,7 +149,10 @@ public final class $Gson$Types {
       return Object.class;
 
     } else if (type instanceof WildcardType) {
-      return getRawType(((WildcardType) type).getUpperBounds()[0]);
+      Type[] bounds = ((WildcardType) type).getUpperBounds();
+      // Currently the JLS only permits one bound for wildcards so using first bound is safe
+      assert bounds.length == 1;
+      return getRawType(bounds[0]);
 
     } else {
       String className = type == null ? "null" : type.getClass().getName();
@@ -277,7 +280,10 @@ public final class $Gson$Types {
   static Type getSupertype(Type context, Class<?> contextRawType, Class<?> supertype) {
     if (context instanceof WildcardType) {
       // wildcards are useless for resolving supertypes. As the upper bound has the same raw type, use it instead
-      context = ((WildcardType)context).getUpperBounds()[0];
+      Type[] bounds = ((WildcardType)context).getUpperBounds();
+      // Currently the JLS only permits one bound for wildcards so using first bound is safe
+      assert bounds.length == 1;
+      context = bounds[0];
     }
     checkArgument(supertype.isAssignableFrom(contextRawType));
     return resolve(context, contextRawType,
@@ -334,11 +340,11 @@ public final class $Gson$Types {
   }
 
   public static Type resolve(Type context, Class<?> contextRawType, Type toResolve) {
-    return resolve(context, contextRawType, toResolve, new HashSet<TypeVariable>());
+    return resolve(context, contextRawType, toResolve, new HashSet<TypeVariable<?>>());
   }
 
   private static Type resolve(Type context, Class<?> contextRawType, Type toResolve,
-                              Collection<TypeVariable> visitedTypeVariables) {
+                              Collection<TypeVariable<?>> visitedTypeVariables) {
     // this implementation is made a little more complicated in an attempt to avoid object-creation
     while (true) {
       if (toResolve instanceof TypeVariable) {
@@ -550,8 +556,9 @@ public final class $Gson$Types {
 
   /**
    * The WildcardType interface supports multiple upper bounds and multiple
-   * lower bounds. We only support what the Java 6 language needs - at most one
-   * bound. If a lower bound is set, the upper bound must be Object.class.
+   * lower bounds. However, the Java Language Specification only permits at most
+   * one bounds so we are limiting it to that.
+   * If a lower bound is set, the upper bound must be Object.class.
    */
   private static final class WildcardTypeImpl implements WildcardType, Serializable {
     private final Type upperBound;
