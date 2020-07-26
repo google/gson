@@ -120,8 +120,7 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
       return null;
     }
 
-    Class<?> rawTypeOfSrc = $Gson$Types.getRawType(type);
-    Type[] keyAndValueTypes = $Gson$Types.getMapKeyAndValueTypes(type, rawTypeOfSrc);
+    Type[] keyAndValueTypes = $Gson$Types.getMapKeyAndValueTypes(type, rawType);
     TypeAdapter<?> keyAdapter = getKeyAdapter(gson, keyAndValueTypes[0]);
     TypeAdapter<?> valueAdapter = gson.getAdapter(TypeToken.get(keyAndValueTypes[1]));
     ObjectConstructor<T> constructor = constructorConstructor.get(typeToken);
