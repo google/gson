@@ -133,4 +133,45 @@ public final class TypeTokenTest extends TestCase {
     } catch (IllegalStateException expected) {
     }
   }
+
+  /**
+   * TypeToken type argument must not contain a type variable because, due to
+   * type erasure, at runtime only the bound of the type variable is available
+   * which is likely not what the user wanted.
+   *
+   * <p>Note that type variables are allowed for the methods calling {@code TypeToken(Type)}
+   * because there the return type is {@code TypeToken<?>} which does not give
+   * a false sense of type-safety.
+   */
+  public <T> void testTypeTokenTypeVariable() {
+    try {
+      new TypeToken<T>() {};
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
+
+    try {
+      new TypeToken<List<T>>() {};
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
+
+    try {
+      new TypeToken<List<? extends T>>() {};
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
+
+    try {
+      new TypeToken<List<? super T>>() {};
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
+
+    try {
+      new TypeToken<List<T[]>>() {};
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
+  }
 }
