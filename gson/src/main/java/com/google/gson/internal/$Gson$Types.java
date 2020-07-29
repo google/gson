@@ -236,19 +236,19 @@ public final class $Gson$Types {
    * IntegerSet}, the result for when supertype is {@code Set.class} is {@code Set<Integer>} and the
    * result when the supertype is {@code Collection.class} is {@code Collection<Integer>}.
    */
-  private static Type getGenericSupertype(Type context, Class<?> rawType, Class<?> toResolve) {
-    if (toResolve == rawType) {
+  private static Type getGenericSupertype(Type context, Class<?> rawType, Class<?> supertype) {
+    if (supertype == rawType) {
       return context;
     }
 
     // we skip searching through interfaces if unknown is an interface
-    if (toResolve.isInterface()) {
+    if (supertype.isInterface()) {
       Class<?>[] interfaces = rawType.getInterfaces();
       for (int i = 0, length = interfaces.length; i < length; i++) {
-        if (interfaces[i] == toResolve) {
+        if (interfaces[i] == supertype) {
           return rawType.getGenericInterfaces()[i];
-        } else if (toResolve.isAssignableFrom(interfaces[i])) {
-          return getGenericSupertype(rawType.getGenericInterfaces()[i], interfaces[i], toResolve);
+        } else if (supertype.isAssignableFrom(interfaces[i])) {
+          return getGenericSupertype(rawType.getGenericInterfaces()[i], interfaces[i], supertype);
         }
       }
     }
@@ -257,17 +257,17 @@ public final class $Gson$Types {
     if (!rawType.isInterface()) {
       while (rawType != Object.class) {
         Class<?> rawSupertype = rawType.getSuperclass();
-        if (rawSupertype == toResolve) {
+        if (rawSupertype == supertype) {
           return rawType.getGenericSuperclass();
-        } else if (toResolve.isAssignableFrom(rawSupertype)) {
-          return getGenericSupertype(rawType.getGenericSuperclass(), rawSupertype, toResolve);
+        } else if (supertype.isAssignableFrom(rawSupertype)) {
+          return getGenericSupertype(rawType.getGenericSuperclass(), rawSupertype, supertype);
         }
         rawType = rawSupertype;
       }
     }
 
     // we can't resolve this further
-    return toResolve;
+    return supertype;
   }
 
   /**
