@@ -37,7 +37,7 @@ import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
  * @author Jesse Wilson
  */
 public final class $Gson$Types {
-  static final Type[] EMPTY_TYPE_ARRAY = new Type[] {};
+  private static final Type[] EMPTY_TYPE_ARRAY = new Type[] {};
 
   private $Gson$Types() {
     throw new UnsupportedOperationException();
@@ -161,7 +161,7 @@ public final class $Gson$Types {
     }
   }
 
-  static boolean equal(Object a, Object b) {
+  private static boolean equal(Object a, Object b) {
     return a == b || (a != null && a.equals(b));
   }
 
@@ -223,7 +223,7 @@ public final class $Gson$Types {
     }
   }
 
-  static int hashCodeOrZero(Object o) {
+  private static int hashCodeOrZero(Object o) {
     return o != null ? o.hashCode() : 0;
   }
 
@@ -236,7 +236,7 @@ public final class $Gson$Types {
    * IntegerSet}, the result for when supertype is {@code Set.class} is {@code Set<Integer>} and the
    * result when the supertype is {@code Collection.class} is {@code Collection<Integer>}.
    */
-  static Type getGenericSupertype(Type context, Class<?> rawType, Class<?> toResolve) {
+  private static Type getGenericSupertype(Type context, Class<?> rawType, Class<?> toResolve) {
     if (toResolve == rawType) {
       return context;
     }
@@ -277,7 +277,7 @@ public final class $Gson$Types {
    *
    * @param supertype a superclass of, or interface implemented by, this.
    */
-  static Type getSupertype(Type context, Class<?> contextRawType, Class<?> supertype) {
+  private static Type getSupertype(Type context, Class<?> contextRawType, Class<?> supertype) {
     if (context instanceof WildcardType) {
       // wildcards are useless for resolving supertypes. As the upper bound has the same raw type, use it instead
       Type[] bounds = ((WildcardType)context).getUpperBounds();
@@ -419,7 +419,7 @@ public final class $Gson$Types {
     }
   }
 
-  static Type resolveTypeVariable(Type context, Class<?> contextRawType, TypeVariable<?> unknown) {
+  private static Type resolveTypeVariable(Type context, Class<?> contextRawType, TypeVariable<?> unknown) {
     Class<?> declaredByRaw = declaringClassOf(unknown);
 
     // we can't reduce this further
@@ -456,7 +456,7 @@ public final class $Gson$Types {
         : null;
   }
 
-  static void checkNotPrimitive(Type type) {
+  private static void checkNotPrimitive(Type type) {
     checkArgument(!(type instanceof Class<?>) || !((Class<?>) type).isPrimitive());
   }
 
