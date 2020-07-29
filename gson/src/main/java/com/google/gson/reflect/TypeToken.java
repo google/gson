@@ -37,9 +37,6 @@ import java.util.Map;
  * <p>
  * {@code TypeToken<List<String>> list = new TypeToken<List<String>>() {};}
  *
- * <p>This syntax cannot be used to create type literals that have wildcard
- * parameters, such as {@code Class<?>} or {@code List<? extends CharSequence>}.
- *
  * @author Bob Lee
  * @author Sven Mawson
  * @author Jesse Wilson
