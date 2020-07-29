@@ -45,9 +45,9 @@ import java.util.Map;
  * @author Jesse Wilson
  */
 public class TypeToken<T> {
-  final Class<? super T> rawType;
-  final Type type;
-  final int hashCode;
+  private final Class<? super T> rawType;
+  private final Type type;
+  private final int hashCode;
 
   /**
    * Constructs a new type literal. Derives represented class from type
@@ -68,7 +68,7 @@ public class TypeToken<T> {
    * Unsafe. Constructs a type literal manually.
    */
   @SuppressWarnings("unchecked")
-  TypeToken(Type type) {
+  private TypeToken(Type type) {
     this.type = $Gson$Types.canonicalize($Gson$Preconditions.checkNotNull(type));
     this.rawType = (Class<? super T>) $Gson$Types.getRawType(this.type);
     this.hashCode = this.type.hashCode();
@@ -78,7 +78,7 @@ public class TypeToken<T> {
    * Returns the type from super class's type parameter in {@link $Gson$Types#canonicalize
    * canonical form}.
    */
-  static Type getSuperclassTypeParameter(Class<?> subclass) {
+  private static Type getSuperclassTypeParameter(Class<?> subclass) {
     Type superclass = subclass.getGenericSuperclass();
     if (superclass instanceof Class) {
       throw new RuntimeException("Missing type parameter.");
