@@ -56,7 +56,7 @@ public class TypeToken<T> {
    */
   @SuppressWarnings("unchecked")
   protected TypeToken() {
-    this.type = getSuperclassTypeParameter(getClass());
+    this.type = getTypeTokenTypeArgument();
     this.rawType = (Class<? super T>) $Gson$Types.getRawType(type);
     this.hashCode = type.hashCode();
   }
@@ -72,16 +72,21 @@ public class TypeToken<T> {
   }
 
   /**
-   * Returns the type from super class's type parameter in {@link $Gson$Types#canonicalize
+   * Verifies that {@code this} is an instance of a direct subclass of TypeToken and
+   * returns the type argument for {@code T} in {@link $Gson$Types#canonicalize
    * canonical form}.
    */
-  private static Type getSuperclassTypeParameter(Class<?> subclass) {
-    Type superclass = subclass.getGenericSuperclass();
-    if (superclass instanceof Class) {
-      throw new RuntimeException("Missing type parameter.");
+  private Type getTypeTokenTypeArgument() {
+    Type superclass = getClass().getGenericSuperclass();
+    if (superclass instanceof ParameterizedType) {
+      ParameterizedType parameterized = (ParameterizedType) superclass;
+      if (parameterized.getRawType() == TypeToken.class) {
+        return $Gson$Types.canonicalize(parameterized.getActualTypeArguments()[0]);
+      }
     }
-    ParameterizedType parameterized = (ParameterizedType) superclass;
-    return $Gson$Types.canonicalize(parameterized.getActualTypeArguments()[0]);
+
+    // User created subclass of subclass of TypeToken
+    throw new IllegalStateException("Must only create direct subclasses of TypeToken");
   }
 
   /**
