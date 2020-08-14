@@ -54,29 +54,21 @@ public final class JsonTreeReader extends JsonReader {
     private final String value;
     private final boolean isName;
     private int index = 0;
-    private boolean hasFinished = false;
+    private boolean isClosed = false;
 
     private StringValueReader(String value, boolean isName) {
       this.value = value;
       this.isName = isName;
     }
 
-    private boolean hasFinished() {
-      if (!hasFinished) {
-        hasFinished = index >= value.length();
-
-        if (hasFinished) {
-          // Update enclosing JsonReader
-          isReaderActive = false;
-          if (isName) {
-            pathNames[stackSize - 1] = value;
-          } else {
-            incrementPathIndex();
-          }
-        }
+    private void verifyNotClosed() throws IOException {
+      if (isClosed) {
+        throw new IOException("Reader is closed");
       }
+    }
 
-      return hasFinished;
+    private boolean hasFinished() {
+      return index >= value.length();
     }
 
     private int remaining() {
@@ -92,6 +84,7 @@ public final class JsonTreeReader extends JsonReader {
       } else if (len > cbuf.length - off) {
         throw new IndexOutOfBoundsException("length > arr.length - offset");
       }
+      verifyNotClosed();
 
       if (len == 0) {
         return 0;
@@ -107,6 +100,8 @@ public final class JsonTreeReader extends JsonReader {
 
     @Override
     public int read() throws IOException {
+      verifyNotClosed();
+
       if (hasFinished()) {
         return -1;
       } else {
@@ -119,6 +114,8 @@ public final class JsonTreeReader extends JsonReader {
       if (target.isReadOnly()) {
         throw new ReadOnlyBufferException();
       }
+      verifyNotClosed();
+
       if (hasFinished()) {
         return -1;
       }
@@ -134,6 +131,8 @@ public final class JsonTreeReader extends JsonReader {
       if (n < 0) {
         throw new IllegalArgumentException("skip value is negative");
       }
+      verifyNotClosed();
+
       if (n == 0 || hasFinished()) {
         return  0;
       }
@@ -145,13 +144,28 @@ public final class JsonTreeReader extends JsonReader {
 
     @Override
     public boolean ready() throws IOException {
+      verifyNotClosed();
+
       // Always return true, even if finished, see also JDK-8196767
       return true;
     }
 
     @Override
     public void close() {
-      // Do nothing
+      if (!isClosed) {
+        isClosed = true;
+
+        // Update enclosing JsonTreeReader, but only if finished
+        // to be consistent with JsonReader's string value reader
+        if (hasFinished()) {
+          isReaderActive = false;
+          if (isName) {
+            pathNames[stackSize - 1] = value;
+          } else {
+            incrementPathIndex();
+          }
+        }
+      }
     }
   }
 
