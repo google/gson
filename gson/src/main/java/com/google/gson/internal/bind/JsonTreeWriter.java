@@ -98,6 +98,7 @@ public final class JsonTreeWriter extends JsonWriter {
     }
 
     @Override public void flush() throws IOException {
+      verifyNotClosed();
       // Do nothing
     }
 
