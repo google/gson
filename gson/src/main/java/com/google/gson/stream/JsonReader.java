@@ -1922,10 +1922,7 @@ public class JsonReader implements Closeable {
     } while (count != 0);
 
     pathIndices[stackSize - 1]++;
-
-    if (peek() == JsonToken.NAME) {
-      pathNames[stackSize - 1] = SKIPPED_NAME;
-    }
+    pathNames[stackSize - 1] = SKIPPED_NAME;
   }
 
   private void push(int newTop) {

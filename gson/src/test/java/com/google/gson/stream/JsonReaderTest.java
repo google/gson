@@ -1528,7 +1528,8 @@ public final class JsonReaderTest extends TestCase {
     reader1.beginArray();
     // Skip all chars of string value
     Reader stringReader = reader1.nextStringReader();
-    stringReader.skip(Long.MAX_VALUE);
+    while (stringReader.read() != -1) { }
+    stringReader.close();
     try {
       reader1.peek();
       fail();
@@ -2043,9 +2044,9 @@ public final class JsonReaderTest extends TestCase {
     }
     assertEquals(0, stringReader.skip(0)); // Skipping 0 chars should have no effect
     assertEquals(1, stringReader.skip(1));
-    char[] cbuf = new char[2];
-    stringReader.read(cbuf);
-    assertArrayEquals("bc".toCharArray(), cbuf);
+    assertEquals('b', stringReader.read());
+    // Trying to skip more than the remaining chars should only skip remaining
+    assertEquals(1, stringReader.skip(100));
     assertEquals(-1, stringReader.read());
     stringReader.close();
 
@@ -2462,9 +2463,9 @@ public final class JsonReaderTest extends TestCase {
     }
     assertEquals(0, nameReader.skip(0)); // Skipping 0 chars should have no effect
     assertEquals(1, nameReader.skip(1));
-    char[] cbuf = new char[2];
-    nameReader.read(cbuf);
-    assertArrayEquals("bc".toCharArray(), cbuf);
+    assertEquals('b', nameReader.read());
+    // Trying to skip more than the remaining chars should only skip remaining
+    assertEquals(1, nameReader.skip(100));
     assertEquals(-1, nameReader.read());
     nameReader.close();
 
