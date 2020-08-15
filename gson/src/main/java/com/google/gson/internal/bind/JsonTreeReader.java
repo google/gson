@@ -99,9 +99,7 @@ public final class JsonTreeReader extends JsonReader {
     expect(JsonToken.END_ARRAY);
     popStack(); // empty iterator
     popStack(); // array
-    if (stackSize > 0) {
-      pathIndices[stackSize - 1]++;
-    }
+    incrementPathIndex();
   }
 
   @Override public void beginObject() throws IOException {
@@ -114,9 +112,7 @@ public final class JsonTreeReader extends JsonReader {
     expect(JsonToken.END_OBJECT);
     popStack(); // empty iterator
     popStack(); // object
-    if (stackSize > 0) {
-      pathIndices[stackSize - 1]++;
-    }
+    incrementPathIndex();
   }
 
   @Override public boolean hasNext() throws IOException {
@@ -293,8 +289,8 @@ public final class JsonTreeReader extends JsonReader {
       pathNames[stackSize - 2] = SKIPPED_NAME; // - 2 because nextName() pushed value
     } else {
       popStack();
+      incrementPathIndex();
     }
-    incrementPathIndex();
   }
 
   @Override public String toString() {
