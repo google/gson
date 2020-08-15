@@ -298,7 +298,7 @@ public final class JsonTreeReader extends JsonReader {
   }
 
   @Override public String toString() {
-    return getClass().getSimpleName();
+    return getClass().getSimpleName() + locationString();
   }
 
   public void promoteNameToValue() throws IOException {
