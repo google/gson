@@ -2468,7 +2468,7 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(-1, nameReader.read());
     nameReader.close();
 
-    assertEquals("$#streamedName", reader.getPath());
+    assertEquals("$.#streamedName", reader.getPath());
 
     assertEquals(JsonToken.NUMBER, reader.peek());
   }
