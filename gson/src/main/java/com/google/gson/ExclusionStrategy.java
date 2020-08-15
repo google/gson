@@ -46,11 +46,11 @@ package com.google.gson;
  *
  * <p><strong>Excludes fields and objects based on a particular annotation:</strong>
  * <pre class="code">
- * public &#64interface FooAnnotation {
+ * public &#64;interface FooAnnotation {
  *   // some implementation here
  * }
  *
- * // Excludes any field (or class) that is tagged with an "&#64FooAnnotation"
+ * // Excludes any field (or class) that is tagged with an "&#64;FooAnnotation"
  * private static class FooAnnotationExclusionStrategy implements ExclusionStrategy {
  *   public boolean shouldSkipClass(Class&lt;?&gt; clazz) {
  *     return clazz.getAnnotation(FooAnnotation.class) != null;

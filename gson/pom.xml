@@ -27,7 +27,7 @@
           <includePackageNames>com.google.gson</includePackageNames>
           <excludePackageNames>com.google.gson.internal:com.google.gson.internal.bind</excludePackageNames>
           <links>
-            <link>http://docs.oracle.com/javase/6/docs/api/</link>
+            <link>https://docs.oracle.com/javase/6/docs/api/</link>
           </links>
         </configuration>
       </plugin>
@@ -51,10 +51,6 @@
             <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
           </archive>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>

@@ -35,8 +35,8 @@ import java.lang.annotation.Target;
  * <p>Here is an example of how this annotation is meant to be used:</p>
  * <pre>
  * public class MyClass {
- *   &#64SerializedName("name") String a;
- *   &#64SerializedName(value="name1", alternate={"name2", "name3"}) String b;
+ *   &#64;SerializedName("name") String a;
+ *   &#64;SerializedName(value="name1", alternate={"name2", "name3"}) String b;
  *   String c;
  *
  *   public MyClass(String a, String b, String c) {
