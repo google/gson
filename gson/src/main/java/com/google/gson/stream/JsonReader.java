@@ -461,13 +461,13 @@ public class JsonReader implements Closeable {
     public abstract void close() throws IOException;
   }
 
-  private class StringValueReaderImpl extends StringValueReader {
+  class StringValueReaderImpl extends StringValueReader {
     private static final char NO_QUOTE = '\0';
     /**
      * Minimum number of chars which should be tried to be read.
      * Mostly needed for cases where {@link #in} is rarely {@link Reader#ready()}.
      */
-    private static final int MIN_DESIRED_ACCEPT = 16; // Might need adjustment
+    static final int MIN_DESIRED_ACCEPT = 16; // Might need adjustment
 
     /**
      * {@code true} if object property name is read,
@@ -1580,6 +1580,13 @@ public class JsonReader implements Closeable {
             pos = p;
             int len = p - start - 1;
             charsConsumer.accept(buffer, start, len);
+            // Reading escape sequence might block so only try to read it
+            // if not consumed enough chars yet or if escape sequence can
+            // be read without blocking
+            if (acceptedCnt >= minDesiredAccept && !fillBufferForEscapeCharacter()) {
+              pos--; // Don't consume backslash
+              return false;
+            }
             charsConsumer.accept(readEscapeCharacter());
             p = pos;
             l = limit;
@@ -2155,6 +2162,38 @@ public class JsonReader implements Closeable {
       }
     }
     return result.toString();
+  }
+
+  /**
+   * Tries to fill the buffer for a '\' escape sequence without blocking.
+   * The backslash '\' of the escape sequence should be at {@link #pos} -1.
+   *
+   * @return {@code true} if the buffer could be filled and now contains the
+   *   complete escape sequence; {@code false} if the buffer could not be
+   *   filled because the method might have to block for input
+   * @see {@link #readEscapeCharacter()}
+   */
+  private boolean fillBufferForEscapeCharacter() throws IOException {
+    if (pos == limit) {
+      if (!in.ready()) {
+        return false;
+      } else if (!fillBuffer(1)) {
+        throw syntaxError("Unterminated escape sequence");
+      }
+    }
+
+    // For unicode escapes have to read all 4 hex digits
+    if (buffer[pos] == 'u') {
+      while (limit - pos < 5) { // 5 for uXXXX
+        if (!in.ready()) {
+          return false;
+        } else if (!fillBuffer(1)) {
+          throw syntaxError("Unterminated escape sequence");
+        }
+      }
+    }
+
+    return true;
   }
 
   /**

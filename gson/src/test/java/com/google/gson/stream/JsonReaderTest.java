@@ -24,8 +24,10 @@ import java.nio.CharBuffer;
 import java.nio.ReadOnlyBufferException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.google.gson.stream.JsonReader.StringValueReader;
+import com.google.gson.stream.JsonReader.StringValueReaderImpl;
 
 import junit.framework.TestCase;
 
@@ -1868,7 +1870,7 @@ public final class JsonReaderTest extends TestCase {
     }
   }
 
-  private String repeat(char c, int count) {
+  private static String repeat(char c, int count) {
     char[] array = new char[count];
     Arrays.fill(array, c);
     return new String(array);
@@ -2239,6 +2241,113 @@ public final class JsonReaderTest extends TestCase {
     stringReader.close();
 
     reader.endArray();
+  }
+
+  /**
+   * Tests against the implementation of {@link StringValueReaderImpl} and
+   * {@link JsonReader#fillBufferForEscapeCharacter()} to make sure an escape
+   * sequence is read in case the reader does not block.
+   */
+  public void testStringValueReaderEscapeSequence() throws IOException {
+    final int MIN_DESIRED_ACCEPT = StringValueReaderImpl.MIN_DESIRED_ACCEPT;
+    // Char indicating that reader ready() should return false for this char
+    final char blockingChar = '#';
+
+    String expectedName;
+    String expectedValue;
+    final String json;
+    final int[] portionLengths;
+
+    // Setup test:
+    {
+      String jsonName = repeat('a', MIN_DESIRED_ACCEPT) + "\\u1234" + blockingChar;
+      expectedName = repeat('a', MIN_DESIRED_ACCEPT) + "\u1234";
+      String jsonValue = repeat('b', MIN_DESIRED_ACCEPT) + "\\u2345" + blockingChar;
+      expectedValue = repeat('b', MIN_DESIRED_ACCEPT) + "\u2345";
+
+      String jsonPrefix = "{\"";
+      String nameValueSeparator = "\":\"";
+      String jsonSuffix = "\"}";
+      json = jsonPrefix + jsonName + nameValueSeparator + jsonValue + jsonSuffix;
+
+      portionLengths = new int[] {
+        jsonPrefix.length(),
+        // name; provide `a...a\` and then unicode escape chars + blockingChar
+        MIN_DESIRED_ACCEPT + 1, 1, 1, 1, 1, 1, 1,
+        nameValueSeparator.length(),
+        // value; provide `b...b\` and then unicode escape chars + blockingChar
+        MIN_DESIRED_ACCEPT + 1, 1, 1, 1, 1, 1, 1,
+        jsonSuffix.length(),
+        0
+      };
+
+      // Validate that test is working as expected
+      int sum = 0;
+      for (int portionLength : portionLengths) {
+        sum += portionLength;
+      }
+      assertEquals(json.length(), sum);
+    }
+
+    final AtomicBoolean checkedReady = new AtomicBoolean(false);
+    class PortionedReader extends Reader {
+      /** Index within {@code json} */
+      private int index = 0;
+      private int portionIndex = 0;
+      private int portionRemaining = portionLengths[portionIndex];
+
+      @Override
+      public int read(char[] cbuf, int off, int len) throws IOException {
+        if (portionRemaining <= 0) {
+          return -1;
+        }
+
+        int readAmount = Math.min(len, portionRemaining);
+        portionRemaining -= readAmount;
+        json.getChars(index, index + readAmount, cbuf, off);
+        index += readAmount;
+        if (portionRemaining <= 0) {
+          portionRemaining = portionLengths[++portionIndex];
+        }
+        return readAmount;
+      }
+
+      @Override
+      public boolean ready() throws IOException {
+        checkedReady.set(true);
+        return index >= json.length() || json.charAt(index) != blockingChar;
+      }
+
+      @Override
+      public void close() throws IOException {
+      }
+    }
+
+    JsonReader reader = new JsonReader(new PortionedReader());
+    reader.beginObject();
+
+    StringValueReader nameReader = reader.nextNameReader();
+    char[] nameBuf = new char[expectedName.length() + 1]; // + 1 for blockingChar
+    // StringValueReader implementation should have filled complete buffer
+    // except last char because reader indicated that it won't block
+    nameReader.readAtLeast(nameBuf, 0, 0, nameBuf.length);
+    assertTrue(checkedReady.get());
+    assertEquals(expectedName + '\0', new String(nameBuf));
+    assertEquals(blockingChar, nameReader.read());
+    assertEquals(-1, nameReader.read());
+    nameReader.close();
+
+    StringValueReader stringReader = reader.nextStringReader();
+    char[] valueBuf = new char[expectedValue.length() + 1]; // + 1 for blockingChar
+    // StringValueReader implementation should have filled complete buffer
+    // except last char because reader indicated that it won't block
+    stringReader.readAtLeast(valueBuf, 0, 0, valueBuf.length);
+    assertEquals(expectedValue + '\0', new String(valueBuf));
+    assertEquals(blockingChar, stringReader.read());
+    assertEquals(-1, stringReader.read());
+    stringReader.close();
+
+    reader.endObject();
   }
 
   /**
