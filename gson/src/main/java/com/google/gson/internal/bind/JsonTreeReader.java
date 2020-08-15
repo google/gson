@@ -223,8 +223,9 @@ public final class JsonTreeReader extends JsonReader {
   }
 
   @Override public StringValueReader nextNameReader() throws IOException {
+    String name = popNextName();
     isReaderActive = true;
-    return new StringValueReaderImpl(popNextName(), true);
+    return new StringValueReaderImpl(name, true);
   }
 
   private String popString() throws IOException {
@@ -240,8 +241,9 @@ public final class JsonTreeReader extends JsonReader {
   }
 
   @Override public StringValueReader nextStringReader() throws IOException {
+    String value = popString();
     isReaderActive = true;
-    return new StringValueReaderImpl(popString(), false);
+    return new StringValueReaderImpl(value, false);
   }
 
   @Override public boolean nextBoolean() throws IOException {
