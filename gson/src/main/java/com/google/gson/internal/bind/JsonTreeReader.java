@@ -288,12 +288,9 @@ public final class JsonTreeReader extends JsonReader {
   @Override public void skipValue() throws IOException {
     if (peek() == JsonToken.NAME) {
       nextName();
-      pathNames[stackSize - 2] = SKIPPED_NAME;
+      pathNames[stackSize - 2] = SKIPPED_NAME; // - 2 because nextName() pushed value
     } else {
       popStack();
-      if (stackSize > 0) {
-        pathNames[stackSize - 1] = SKIPPED_NAME;
-      }
     }
     incrementPathIndex();
   }

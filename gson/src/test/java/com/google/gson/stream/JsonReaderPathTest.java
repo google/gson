@@ -187,7 +187,7 @@ public class JsonReaderPathTest {
     assertEquals("$.", reader.getPath());
     reader.nextName();
     reader.skipValue();
-    assertEquals("$.#skippedName", reader.getPath());
+    assertEquals("$.a", reader.getPath());
     reader.nextName();
     assertEquals("$.b", reader.getPath());
   }

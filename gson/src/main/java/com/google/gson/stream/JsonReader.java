@@ -1893,8 +1893,9 @@ public class JsonReader implements Closeable {
     }
 
     int count = 0;
+    int p;
     do {
-      int p = peekInternal();
+      p = peekInternal();
 
       if (p == PEEKED_BEGIN_ARRAY) {
         push(JsonScope.EMPTY_ARRAY);
@@ -1921,8 +1922,13 @@ public class JsonReader implements Closeable {
       peeked = PEEKED_NONE;
     } while (count != 0);
 
-    pathIndices[stackSize - 1]++;
-    pathNames[stackSize - 1] = SKIPPED_NAME;
+    // Only update pathNames when last peeked was name
+    // That means don't replace name when JSON property value is skipped
+    if (p == PEEKED_UNQUOTED_NAME || p == PEEKED_SINGLE_QUOTED_NAME || p == PEEKED_DOUBLE_QUOTED_NAME) {
+      pathNames[stackSize - 1] = SKIPPED_NAME;
+    } else {
+      pathIndices[stackSize - 1]++;
+    }
   }
 
   private void push(int newTop) {
