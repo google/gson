@@ -57,7 +57,7 @@ public final class JsonTreeReader extends JsonReader {
     protected void onClosedAfterReachedEnd() {
       isReaderActive = false;
       if (isName) {
-        pathNames[stackSize - 1] = value;
+        pathNames[stackSize - 2] = value; // - 2 because popNextName() pushed value
       } else {
         incrementPathIndex();
       }
@@ -218,7 +218,7 @@ public final class JsonTreeReader extends JsonReader {
 
   @Override public String nextName() throws IOException {
     String name = popNextName();
-    pathNames[stackSize - 1] = name;
+    pathNames[stackSize - 2] = name; // - 2 because popNextName() pushed value
     return name;
   }
 
@@ -291,6 +291,9 @@ public final class JsonTreeReader extends JsonReader {
       pathNames[stackSize - 2] = SKIPPED_NAME;
     } else {
       popStack();
+      if (stackSize > 0) {
+        pathNames[stackSize - 1] = SKIPPED_NAME;
+      }
     }
     incrementPathIndex();
   }

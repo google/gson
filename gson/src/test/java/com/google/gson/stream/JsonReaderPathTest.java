@@ -36,8 +36,8 @@ public class JsonReaderPathTest {
   @Parameterized.Parameters(name = "{0}")
   public static List<Object[]> parameters() {
     return Arrays.asList(
-        new Object[] { Factory.STRING_READER },
-        new Object[] { Factory.OBJECT_READER }
+        new Object[] { Factory.STREAM_READER },
+        new Object[] { Factory.TREE_READER }
     );
   }
 
@@ -154,7 +154,7 @@ public class JsonReaderPathTest {
   }
 
   @Test public void multipleTopLevelValuesInOneDocument() throws IOException {
-    assumeTrue(factory == Factory.STRING_READER);
+    assumeTrue(factory == Factory.STREAM_READER);
 
     JsonReader reader = factory.create("[][]");
     reader.setLenient(true);
@@ -178,7 +178,7 @@ public class JsonReaderPathTest {
     JsonReader reader = factory.create("{\"a\":1}");
     reader.beginObject();
     reader.skipValue();
-    assertEquals("$.null", reader.getPath());
+    assertEquals("$.#skippedName", reader.getPath());
   }
 
   @Test public void skipObjectValues() throws IOException {
@@ -187,7 +187,7 @@ public class JsonReaderPathTest {
     assertEquals("$.", reader.getPath());
     reader.nextName();
     reader.skipValue();
-    assertEquals("$.null", reader.getPath());
+    assertEquals("$.#skippedName", reader.getPath());
     reader.nextName();
     assertEquals("$.b", reader.getPath());
   }
@@ -240,12 +240,12 @@ public class JsonReaderPathTest {
   }
 
   enum Factory {
-    STRING_READER {
+    STREAM_READER {
       @Override public JsonReader create(String data) {
         return new JsonReader(new StringReader(data));
       }
     },
-    OBJECT_READER {
+    TREE_READER {
       @Override public JsonReader create(String data) {
         JsonElement element = Streams.parse(new JsonReader(new StringReader(data)));
         return new JsonTreeReader(element);
