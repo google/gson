@@ -646,9 +646,9 @@ public class JsonReader implements Closeable {
         skipped = skipQuotedValue(quote, skipAmount);
       }
 
-      if (skipped < 0) {
+      if (skipped <= 0) {
         reachedEnd = true;
-        return -(skipped + 1);
+        return -skipped;
       } else {
         return skipped;
       }
@@ -1709,8 +1709,8 @@ public class JsonReader implements Closeable {
    * @param desiredSkipAmount desired number of chars to be skipped;
    *   might skip less chars if end of value is reached before;
    *   <b>must be &gt;= 1</b>
-   * @return actual number of skipped chars; negative and - 1 if end of value has been reached.
-   *     E.g. {@code -5} means 4 chars were skipped and end has been reached.
+   * @return actual number of skipped chars; negative or 0 if end of value has been reached.
+   *     E.g. {@code -4} means 4 chars were skipped and end has been reached.
    */
   private long skipQuotedValue(char quote, long desiredSkipAmount) throws IOException {
     long skipped = 0;
@@ -1724,7 +1724,7 @@ public class JsonReader implements Closeable {
         int c = buffer[p++];
         if (c == quote) {
           pos = p;
-          return -skipped - 1;  // Negate skipped to indicate that end has been reached
+          return -skipped;  // Negate skipped to indicate that end has been reached
         }
 
         if (c == '\n') {
@@ -1760,9 +1760,8 @@ public class JsonReader implements Closeable {
    * @param desiredSkipAmount desired number of chars to be skipped;
    *   might skip less chars if end of value is reached before;
    *   <b>must be &gt;= 1</b>
-   * @return
-   *    Actual number of skipped chars; negative and - 1 if end of value has been reached.
-   *    E.g. {@code -5} means 4 chars were skipped and end has been reached.
+   * @return actual number of skipped chars; negative or 0 if end of value has been reached.
+   *     E.g. {@code -4} means 4 chars were skipped and end has been reached.
    */
   @SuppressWarnings("fallthrough")
   private long skipUnquotedValue(long desiredSkipAmount) throws IOException {
@@ -1802,7 +1801,7 @@ public class JsonReader implements Closeable {
       pos += i;
     } while (fillBuffer(1));
 
-    return -skipped - 1; // Negate skipped to indicate that end has been reached
+    return -skipped; // Negate skipped to indicate that end has been reached
   }
 
   private void skipUnquotedValue() throws IOException {
