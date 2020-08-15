@@ -375,6 +375,7 @@ public class JsonReader implements Closeable {
    * in certain cases:
    * <ul>
    *   <li>{@link #readAtLeast(char[], int, int, int)}</li>
+   *   <li>{@link #readGreedily(char[], int, int)}</li>
    *   <li>{@link #skipExactly(long)}</li>
    *   <li>{@link #skipRemaining()}</li>
    * </ul>
@@ -424,6 +425,26 @@ public class JsonReader implements Closeable {
      *   it is possible that some characters have already been read and stored in {@code cbuf}
      */
     public abstract int readAtLeast(char[] cbuf, int off, int minLen, int maxLen) throws IOException, EOFException;
+
+    /**
+     * Tries to read as much characters as possible, only returning when the requested
+     * number of characters have been read, an IO error occurs or the end of the
+     * stream has been reached.
+     *
+     * @param cbuf destination for the read characters
+     * @param off at which 0-based position to start storing the characters in {@code cbuf}
+     * @param len number of characters to read
+     * @return number of read characters, or -1 if the end of the
+     *   stream has been reached and no characters have been read
+     * @throws IndexOutOfBoundsException if any of the following applies
+     *   <ul>
+     *   <li>{@code off} &lt; 0</li>
+     *   <li>{@code len} &lt; 0</li>
+     *   <li>{@code len} &gt; {@code cbuf.length} - {@code off}</li>
+     *   </ul>
+     * @throws IOException if reading fails
+     */
+    public abstract int readGreedily(char[] cbuf, int off, int len) throws IOException;
 
     /**
      * Tries to skip exactly {@code skipAmount} characters and blocks until at least
@@ -605,6 +626,28 @@ public class JsonReader implements Closeable {
         throw new EOFException("Read less than the requested " + minLen + " chars");
       }
       return accepted;
+    }
+
+    @Override
+    public int readGreedily(char[] cbuf, int off, int len) throws IOException {
+      if (off < 0) {
+        throw new IndexOutOfBoundsException("offset < 0");
+      } else if (len < 0) {
+        throw new IndexOutOfBoundsException("length < 0");
+      } else if (len > cbuf.length - off) {
+        throw new IndexOutOfBoundsException("length > arr.length - offset");
+      }
+
+      verifyNotClosed();
+      if (len == 0) {
+        return 0;
+      }
+
+      ArrayCharsConsumer charsConsumer = new ArrayCharsConsumer(cbuf, off);
+      // Do not have to check if end has already been reached, read does that
+      boolean reachedEnd = read(charsConsumer, len, len);
+      int accepted = charsConsumer.accepted();
+      return reachedEnd && accepted == 0 ? -1 : accepted;
     }
 
     @Override

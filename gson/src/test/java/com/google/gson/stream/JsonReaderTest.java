@@ -2199,8 +2199,12 @@ public final class JsonReaderTest extends TestCase {
     } catch (IndexOutOfBoundsException expected) {
     }
 
+    // Trying to read 0 chars should have no effect
+    int read = reader.readAtLeast(buf, 0, 0, 0);
+    assertEquals(0, read);
+
     int minRead = 2;
-    int read = reader.readAtLeast(buf, 0, minRead, minRead + 1);
+    read = reader.readAtLeast(buf, 0, minRead, minRead + 1);
     assertTrue(read >= minRead);
     char nextExpected;
     if (read == 2) { // Don't test against implementation; allow either 2 or 3
@@ -2213,9 +2217,9 @@ public final class JsonReaderTest extends TestCase {
 
     // Should always try to read at least one char even if minRead = 0
     minRead = 0;
-    read = reader.readAtLeast(buf, 0, minRead, minRead + 1);
+    read = reader.readAtLeast(buf, 2, minRead, minRead + 1);
     assertEquals(1, read);
-    assertEquals(nextExpected, buf[0]);
+    assertEquals(nextExpected, buf[2]);
 
     // Skip remaining chars
     while (reader.read() != -1) { }
@@ -2238,6 +2242,62 @@ public final class JsonReaderTest extends TestCase {
 
     StringValueReader stringReader = reader.nextStringReader();
     testStringValueReaderReadAtLeast(stringReader);
+    stringReader.close();
+
+    reader.endArray();
+  }
+
+  /**
+   * Tests {@link StringValueReader#readGreedily(char[], int, int)}.
+   * String value must be {@code "abcd"}.
+   */
+  private static void testStringValueReaderReadGreedily(StringValueReader reader) throws IOException {
+    char[] buf = new char[4];
+    // Try all kinds of invalid arguments
+    try {
+      // Invalid off
+      reader.readGreedily(buf, -1, 1);
+      fail();
+    } catch (IndexOutOfBoundsException expected) {
+    }
+    try {
+      // Invalid len
+      reader.readGreedily(buf, 0, -1);
+      fail();
+    } catch (IndexOutOfBoundsException expected) {
+    }
+    try {
+      // len > cbuf.length - off
+      reader.readGreedily(buf, 0, buf.length + 1);
+      fail();
+    } catch (IndexOutOfBoundsException expected) {
+    }
+
+    // Trying to read 0 chars should have no effect
+    assertEquals(0, reader.readGreedily(buf, 0, 0));
+
+    int expectedRead = 2;
+    int read = reader.readGreedily(buf, 0, expectedRead);
+    assertEquals(expectedRead, read);
+    assertArrayEquals(new char[] {'a', 'b', '\0', '\0'}, buf);
+
+    read = reader.readGreedily(buf, 1, 3);
+    assertEquals(2, read);
+    assertArrayEquals(new char[] {'a', 'c', 'd', '\0'}, buf);
+
+    assertEquals(-1, reader.read());
+    assertEquals(-1,  reader.readGreedily(buf, 0, 2));
+
+    // Trying to read 0 chars when end has been reached should return 0
+    assertEquals(0, reader.readGreedily(buf, 0, 0));
+  }
+
+  public void testStringReaderReadGreedily() throws IOException {
+    JsonReader reader = new JsonReader(reader("[\"abcd\"]"));
+    reader.beginArray();
+
+    StringValueReader stringReader = reader.nextStringReader();
+    testStringValueReaderReadGreedily(stringReader);
     stringReader.close();
 
     reader.endArray();
@@ -2461,8 +2521,21 @@ public final class JsonReaderTest extends TestCase {
       assertEquals("Reader is closed", expected.getMessage());
     }
     try {
-      // Should also fail when trying to read into full array
+      // Should also fail when trying to read 0 chars
       reader.readAtLeast(new char[2], 0, 0, 0);
+      fail();
+    } catch (IOException expected) {
+      assertEquals("Reader is closed", expected.getMessage());
+    }
+    try {
+      reader.readGreedily(new char[2], 0, 2);
+      fail();
+    } catch (IOException expected) {
+      assertEquals("Reader is closed", expected.getMessage());
+    }
+    try {
+      // Should also fail when trying to read 0 chars
+      reader.readGreedily(new char[2], 0, 0);
       fail();
     } catch (IOException expected) {
       assertEquals("Reader is closed", expected.getMessage());
@@ -2474,7 +2547,7 @@ public final class JsonReaderTest extends TestCase {
       assertEquals("Reader is closed", expected.getMessage());
     }
     try {
-      // Should also fail when trying to read into full array
+      // Should also fail when trying to read 0 chars
       reader.read(new char[2], 0, 0);
       fail();
     } catch (IOException expected) {
@@ -2493,7 +2566,7 @@ public final class JsonReaderTest extends TestCase {
       assertEquals("Reader is closed", expected.getMessage());
     }
     try {
-      // Should also fail when trying to skip no chars
+      // Should also fail when trying to skip 0 chars
       reader.skip(0);
       fail();
     } catch (IOException expected) {
@@ -2506,7 +2579,7 @@ public final class JsonReaderTest extends TestCase {
       assertEquals("Reader is closed", expected.getMessage());
     }
     try {
-      // Should also fail when trying to skip no chars
+      // Should also fail when trying to skip 0 chars
       reader.skipExactly(0);
       fail();
     } catch (IOException expected) {
@@ -2607,6 +2680,18 @@ public final class JsonReaderTest extends TestCase {
 
     StringValueReader nameReader = reader.nextNameReader();
     testStringValueReaderReadAtLeast(nameReader);
+    nameReader.close();
+
+    assertEquals(1, reader.nextInt());
+    reader.endObject();
+  }
+
+  public void testNameReaderReadGreedily() throws IOException {
+    JsonReader reader = new JsonReader(reader("{\"abcd\":1}"));
+    reader.beginObject();
+
+    StringValueReader nameReader = reader.nextNameReader();
+    testStringValueReaderReadGreedily(nameReader);
     nameReader.close();
 
     assertEquals(1, reader.nextInt());

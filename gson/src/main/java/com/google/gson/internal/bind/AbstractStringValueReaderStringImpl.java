@@ -43,6 +43,11 @@ public abstract class AbstractStringValueReaderStringImpl extends StringValueRea
 
   @Override
   public int read(char[] cbuf, int off, int len) throws IOException {
+    return readGreedily(cbuf, off, len);
+  }
+
+  @Override
+  public int readGreedily(char[] cbuf, int off, int len) throws IOException {
     if (off < 0) {
       throw new IndexOutOfBoundsException("offset < 0");
     } else if (len < 0) {
