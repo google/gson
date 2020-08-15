@@ -1750,7 +1750,8 @@ public class JsonReader implements Closeable {
   }
 
   private void skipQuotedValue(char quote) throws IOException {
-    skipQuotedValue(quote, Long.MAX_VALUE);
+    // Call in loop in case value is > Long.MAX_VALUE (rather unlikely)
+    while (skipQuotedValue(quote, Long.MAX_VALUE) > 0) { }
   }
 
   /**
@@ -1805,7 +1806,8 @@ public class JsonReader implements Closeable {
   }
 
   private void skipUnquotedValue() throws IOException {
-    skipUnquotedValue(Long.MAX_VALUE);
+    // Call in loop in case value is > Long.MAX_VALUE (rather unlikely)
+    while (skipUnquotedValue(Long.MAX_VALUE) > 0) { }
   }
 
   /**
