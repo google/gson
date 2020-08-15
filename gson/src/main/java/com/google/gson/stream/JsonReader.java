@@ -1307,7 +1307,7 @@ public class JsonReader implements Closeable {
    * Closing this {@code JsonReader} and attempting to read from a name reader afterwards
    * causes unspecified behavior.
    *
-   * <p>For efficiency reasons implementations might record the string {@value #STREAMED_NAME}
+   * <p>For efficiency reasons implementations might record the string {@code "#streamedName"}
    * as name returned by {@link #getPath()} instead of the actually read name.
    *
    * @return reader for the next property name token
@@ -1883,7 +1883,7 @@ public class JsonReader implements Closeable {
    * stream contains unrecognized or unhandled values.
    *
    * <p>If used to skip a {@link com.google.gson.stream.JsonToken#NAME property name}
-   * the string {@value #SKIPPED_NAME} is recorded as name returned by
+   * the string {@code "#skippedName"} is recorded as name returned by
    * {@link #getPath()} instead of the actually skipped name.
    *
    * @throws IllegalStateException if a reader created using {@link #nextStringReader()}
