@@ -25,8 +25,6 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import java.io.IOException;
 import java.io.Reader;
-import java.nio.CharBuffer;
-import java.nio.ReadOnlyBufferException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Arrays;
@@ -50,121 +48,18 @@ public final class JsonTreeReader extends JsonReader {
   };
   private static final Object SENTINEL_CLOSED = new Object();
 
-  private class StringValueReader extends Reader {
-    private final String value;
-    private final boolean isName;
-    private int index = 0;
-    private boolean isClosed = false;
-
-    private StringValueReader(String value, boolean isName) {
-      this.value = value;
-      this.isName = isName;
-    }
-
-    private void verifyNotClosed() throws IOException {
-      if (isClosed) {
-        throw new IOException("Reader is closed");
-      }
-    }
-
-    private boolean hasFinished() {
-      return index >= value.length();
-    }
-
-    private int remaining() {
-      return value.length() - index;
+  private class StringValueReaderImpl extends AbstractStringValueReaderStringImpl {
+    public StringValueReaderImpl(String value, boolean isName) {
+      super(value, isName);
     }
 
     @Override
-    public int read(char[] cbuf, int off, int len) throws IOException {
-      if (off < 0) {
-        throw new IndexOutOfBoundsException("offset < 0");
-      } else if (len < 0) {
-        throw new IndexOutOfBoundsException("length < 0");
-      } else if (len > cbuf.length - off) {
-        throw new IndexOutOfBoundsException("length > arr.length - offset");
-      }
-      verifyNotClosed();
-
-      if (len == 0) {
-        return 0;
-      } else if (hasFinished()) {
-        return -1;
+    protected void onClosedAfterReachedEnd() {
+      isReaderActive = false;
+      if (isName) {
+        pathNames[stackSize - 1] = value;
       } else {
-        int readAmount = Math.min(remaining(), len);
-        value.getChars(index, index + readAmount, cbuf, off);
-        index += readAmount;
-        return readAmount;
-      }
-    }
-
-    @Override
-    public int read() throws IOException {
-      verifyNotClosed();
-
-      if (hasFinished()) {
-        return -1;
-      } else {
-        return value.charAt(index++);
-      }
-    }
-
-    @Override
-    public int read(CharBuffer target) throws IOException {
-      if (target.isReadOnly()) {
-        throw new ReadOnlyBufferException();
-      }
-      verifyNotClosed();
-
-      if (hasFinished()) {
-        return -1;
-      }
-
-      int readAmount = Math.min(remaining(), target.remaining());
-      target.put(value, index, index + readAmount);
-      index += readAmount;
-      return readAmount;
-    }
-
-    @Override
-    public long skip(long n) throws IOException {
-      if (n < 0) {
-        throw new IllegalArgumentException("skip value is negative");
-      }
-      verifyNotClosed();
-
-      if (n == 0 || hasFinished()) {
-        return  0;
-      }
-      // Cast is safe because remaining() is int
-      int skipped = (int) Math.min(remaining(), n);
-      index += skipped;
-      return skipped;
-    }
-
-    @Override
-    public boolean ready() throws IOException {
-      verifyNotClosed();
-
-      // Always return true, even if finished, see also JDK-8196767
-      return true;
-    }
-
-    @Override
-    public void close() {
-      if (!isClosed) {
-        isClosed = true;
-
-        // Update enclosing JsonTreeReader, but only if finished
-        // to be consistent with JsonReader's string value reader
-        if (hasFinished()) {
-          isReaderActive = false;
-          if (isName) {
-            pathNames[stackSize - 1] = value;
-          } else {
-            incrementPathIndex();
-          }
-        }
+        incrementPathIndex();
       }
     }
   }
@@ -327,9 +222,9 @@ public final class JsonTreeReader extends JsonReader {
     return name;
   }
 
-  @Override public Reader nextNameReader() throws IOException {
+  @Override public StringValueReader nextNameReader() throws IOException {
     isReaderActive = true;
-    return new StringValueReader(popNextName(), true);
+    return new StringValueReaderImpl(popNextName(), true);
   }
 
   private String popString() throws IOException {
@@ -344,9 +239,9 @@ public final class JsonTreeReader extends JsonReader {
     return result;
   }
 
-  @Override public Reader nextStringReader() throws IOException {
+  @Override public StringValueReader nextStringReader() throws IOException {
     isReaderActive = true;
-    return new StringValueReader(popString(), false);
+    return new StringValueReaderImpl(popString(), false);
   }
 
   @Override public boolean nextBoolean() throws IOException {
