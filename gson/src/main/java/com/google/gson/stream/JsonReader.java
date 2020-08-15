@@ -1719,7 +1719,6 @@ public class JsonReader implements Closeable {
     do {
       int p = pos;
       int l = limit;
-      /* the index of the first character not yet appended to the builder. */
       while (p < l) {
         int c = buffer[p++];
         if (c == quote) {
