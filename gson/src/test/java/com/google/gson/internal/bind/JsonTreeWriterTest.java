@@ -17,6 +17,8 @@
 package com.google.gson.internal.bind;
 
 import com.google.gson.JsonNull;
+import com.google.gson.stream.JsonWriter;
+
 import java.io.IOException;
 import junit.framework.TestCase;
 
@@ -113,6 +115,27 @@ public final class JsonTreeWriterTest extends TestCase {
     writer.nullValue();
     writer.endObject();
     assertEquals("{\"A\":null}", writer.get().toString());
+  }
+
+  public void testForceNullValue() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.setSerializeNulls(false);
+    writer.beginArray();
+    writer.nullValue();
+    // Force null in array should have no special effect
+    JsonWriter returnedWriter = writer.forceNullValue();
+    assertSame(writer, returnedWriter);
+
+    writer.beginObject();
+    writer.name("regular");
+    writer.nullValue();
+    writer.name("forced");
+    writer.forceNullValue();
+    writer.endObject();
+
+    writer.endArray();
+
+    assertEquals("[null,null,{\"forced\":null}]", writer.get().toString());
   }
 
   public void testEmptyWriter() {

@@ -22,6 +22,9 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Arrays;
 
+import com.google.gson.internal.JsonWriterInternalAccess;
+import com.google.gson.internal.bind.JsonTreeWriter;
+
 import static com.google.gson.stream.JsonScope.DANGLING_NAME;
 import static com.google.gson.stream.JsonScope.EMPTY_ARRAY;
 import static com.google.gson.stream.JsonScope.EMPTY_DOCUMENT;
@@ -191,6 +194,14 @@ public class JsonWriter implements Closeable, Flushable {
   private boolean serializeNulls = true;
 
   /**
+   * Whether the next {@code null} should be {@link #forceNullValue() forcefully
+   * serialized}, regardless of whether the caller requested it. Affects {@code null}
+   * Strings, numbers, ... as well. Is reset to {@code false} once any value (even
+   * non-{@code null}) has been written.
+   */
+  private boolean forceSerializeNextNull = false;
+
+  /**
    * Creates a new instance that writes a JSON-encoded stream to {@code out}.
    * For best performance, ensure {@link Writer} is buffered; wrapping in
    * {@link java.io.BufferedWriter BufferedWriter} if necessary.
@@ -231,6 +242,8 @@ public class JsonWriter implements Closeable, Flushable {
    *   <li>Numbers may be {@link Double#isNaN() NaNs} or {@link
    *       Double#isInfinite() infinities}.
    * </ul>
+   *
+   * @see #isLenient()
    */
   public final void setLenient(boolean lenient) {
     this.lenient = lenient;
@@ -238,6 +251,8 @@ public class JsonWriter implements Closeable, Flushable {
 
   /**
    * Returns true if this writer has relaxed syntax rules.
+   *
+   * @see #setLenient(boolean)
    */
   public boolean isLenient() {
     return lenient;
@@ -249,6 +264,8 @@ public class JsonWriter implements Closeable, Flushable {
    * {@code &} and {@code =} before writing them to the stream. Without this
    * setting, your XML/HTML encoder should replace these characters with the
    * corresponding escape sequences.
+   *
+   * @see #isHtmlSafe()
    */
   public final void setHtmlSafe(boolean htmlSafe) {
     this.htmlSafe = htmlSafe;
@@ -257,6 +274,8 @@ public class JsonWriter implements Closeable, Flushable {
   /**
    * Returns true if this writer writes JSON that's safe for inclusion in HTML
    * and XML documents.
+   *
+   * @see #setHtmlSafe(boolean)
    */
   public final boolean isHtmlSafe() {
     return htmlSafe;
@@ -265,6 +284,8 @@ public class JsonWriter implements Closeable, Flushable {
   /**
    * Sets whether object members are serialized when their value is null.
    * This has no impact on array elements. The default is true.
+   *
+   * @see #getSerializeNulls()
    */
   public final void setSerializeNulls(boolean serializeNulls) {
     this.serializeNulls = serializeNulls;
@@ -273,6 +294,8 @@ public class JsonWriter implements Closeable, Flushable {
   /**
    * Returns true if object members are serialized when their value is null.
    * This has no impact on array elements. The default is true.
+   *
+   * @see #setSerializeNulls(boolean)
    */
   public final boolean getSerializeNulls() {
     return serializeNulls;
@@ -386,7 +409,7 @@ public class JsonWriter implements Closeable, Flushable {
       throw new NullPointerException("name == null");
     }
     if (deferredName != null) {
-      throw new IllegalStateException();
+      throw new IllegalStateException("Already wrote a name, expecting a value");
     }
     if (stackSize == 0) {
       throw new IllegalStateException("JsonWriter is closed.");
@@ -437,18 +460,41 @@ public class JsonWriter implements Closeable, Flushable {
   }
 
   /**
-   * Encodes {@code null}.
+   * Encodes {@code null}. In case this value is the value of a
+   * JSON object property and {@link #getSerializeNulls()} is
+   * {@code false} the property (i.e. name and {@code null} value)
+   * will be omitted. Use {@link #forceNullValue()} if you always
+   * want to write a JSON {@code null} regardless of that setting.
    *
    * @return this writer.
+   * @see #getSerializeNulls()
+   * @see #forceNullValue()
    */
   public JsonWriter nullValue() throws IOException {
     if (deferredName != null) {
-      if (serializeNulls) {
+      if (forceSerializeNextNull || serializeNulls) {
         writeDeferredName();
       } else {
         deferredName = null;
         return this; // skip the name and the value
       }
+    }
+    beforeValue();
+    out.write("null");
+    return this;
+  }
+
+  /**
+   * Encodes a {@code null}. In case this value is the value of a
+   * JSON object property the property will be written regardless
+   * of the {@link #getSerializeNulls()} setting.
+   *
+   * @return this writer.
+   * @see #nullValue()
+   */
+  public JsonWriter forceNullValue() throws IOException {
+    if (deferredName != null) {
+      writeDeferredName();
     }
     beforeValue();
     out.write("null");
@@ -625,6 +671,9 @@ public class JsonWriter implements Closeable, Flushable {
    */
   @SuppressWarnings("fallthrough")
   private void beforeValue() throws IOException {
+    // Always reset, regardless of whether null or non-null value was written
+    forceSerializeNextNull = false;
+
     switch (peek()) {
     case NONEMPTY_DOCUMENT:
       if (!lenient) {
@@ -654,5 +703,24 @@ public class JsonWriter implements Closeable, Flushable {
     default:
       throw new IllegalStateException("Nesting problem.");
     }
+  }
+
+  private void forceSerializeNextNull(boolean forceSerialize) {
+    // Only intended for object property values, so name must be present
+    assert !(forceSerialize && deferredName == null);
+    forceSerializeNextNull = forceSerialize;
+  }
+
+  static {
+    JsonWriterInternalAccess.INSTANCE = new JsonWriterInternalAccess() {
+      @Override
+      public void forceSerializeNextNull(JsonWriter writer, boolean forceSerialize) {
+        if (writer instanceof JsonTreeWriter) {
+          ((JsonTreeWriter) writer).forceSerializeNextNull(forceSerialize);
+        } else {
+          writer.forceSerializeNextNull(forceSerialize);
+        }
+      }
+    };
   }
 }

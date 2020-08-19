@@ -21,11 +21,14 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
+import com.google.gson.annotations.ForceSerializeNull;
+import com.google.gson.annotations.ForceSerializeNull.CheckTime;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.Excluder;
+import com.google.gson.internal.JsonWriterInternalAccess;
 import com.google.gson.internal.ObjectConstructor;
 import com.google.gson.internal.Primitives;
 import com.google.gson.internal.reflect.ReflectionAccessor;
@@ -107,11 +110,14 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       final TypeToken<?> fieldType, boolean serialize, boolean deserialize) {
     final boolean isPrimitive = Primitives.isPrimitive(fieldType.getRawType());
     // special casing primitives here saves ~5% on Android...
-    JsonAdapter annotation = field.getAnnotation(JsonAdapter.class);
+    JsonAdapter adapterAnnotation = field.getAnnotation(JsonAdapter.class);
+    ForceSerializeNull forceNullAnnotation = field.getAnnotation(ForceSerializeNull.class);
+    final CheckTime forceNullCheckTime = forceNullAnnotation != null ? forceNullAnnotation.checkTime() : null;
+
     TypeAdapter<?> mapped = null;
-    if (annotation != null) {
+    if (adapterAnnotation != null) {
       mapped = jsonAdapterFactory.getTypeAdapter(
-          constructorConstructor, context, fieldType, annotation);
+          constructorConstructor, context, fieldType, adapterAnnotation);
     }
     final boolean jsonAdapterPresent = mapped != null;
     if (mapped == null) mapped = context.getAdapter(fieldType);
@@ -122,9 +128,27 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       @Override void write(JsonWriter writer, Object value)
           throws IOException, IllegalAccessException {
         Object fieldValue = field.get(value);
+        if (fieldValue == null && forceNullCheckTime == CheckTime.BEFORE_ADAPTER) {
+          writer.forceNullValue();
+          return;
+        }
+
         TypeAdapter t = jsonAdapterPresent ? typeAdapter
             : new TypeAdapterRuntimeTypeWrapper(context, typeAdapter, fieldType.getType());
-        t.write(writer, fieldValue);
+
+        if (forceNullCheckTime == CheckTime.AFTER_ADAPTER) {
+          try {
+            JsonWriterInternalAccess.INSTANCE.forceSerializeNextNull(writer, true);
+            t.write(writer, fieldValue);
+          } finally {
+            // Always reset, so in case type adapter throws exception and does not
+            // write anything next user of writer is not affected
+            JsonWriterInternalAccess.INSTANCE.forceSerializeNextNull(writer, false);
+          }
+        } else {
+          t.write(writer, fieldValue);
+        }
+
       }
       @Override void read(JsonReader reader, Object value)
           throws IOException, IllegalAccessException {
