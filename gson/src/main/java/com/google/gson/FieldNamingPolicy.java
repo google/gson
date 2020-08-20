@@ -24,6 +24,10 @@ import java.util.Locale;
  * This enumeration should be used in conjunction with {@link com.google.gson.GsonBuilder}
  * to configure a {@link com.google.gson.Gson} instance to properly translate Java field
  * names into the desired JSON field names.
+ * <p>
+ * {@link org.immutables.gson.Gson.TypeAdapters#fieldNamingStrategy()} - Naming strategy is 
+ * ignored if fieldNamingStrategy is not set to true. 
+ * E.g. {@code @TypeAdapters(fieldNamingStrategy=true)}.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
