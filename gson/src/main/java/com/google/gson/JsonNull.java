@@ -33,7 +33,8 @@ public final class JsonNull extends JsonElement {
 
   /**
    * Creates a new JsonNull object.
-   * Deprecated since Gson version 1.8. Use {@link #INSTANCE} instead
+   *
+   * @deprecated Deprecated since Gson version 1.8. Use {@link #INSTANCE} instead
    */
   @Deprecated
   public JsonNull() {
