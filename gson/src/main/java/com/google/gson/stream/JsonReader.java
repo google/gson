@@ -1581,7 +1581,7 @@ public class JsonReader implements Closeable {
         } else if (c >= 'A' && c <= 'F') {
           result += (c - 'A' + 10);
         } else {
-          throw new NumberFormatException(new String(buffer, pos, 4));
+          throw new NumberFormatException(new String(buffer, pos, 6));
         }
       }
       break;
