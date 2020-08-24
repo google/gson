@@ -2324,7 +2324,7 @@ public class JsonReader implements Closeable {
    * @throws IllegalStateException <i>always</i>
    */
   private static IllegalStateException throwActiveValueReaderError() throws IllegalStateException {
-    throw new IllegalStateException("Name or string reader has not been closed or has not consumed "
+    throw new IllegalStateException("Name or string reader has not been closed or did not consume "
         + "all data before it was closed");
   }
 

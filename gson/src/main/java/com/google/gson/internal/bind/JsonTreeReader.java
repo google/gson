@@ -124,7 +124,8 @@ public final class JsonTreeReader extends JsonReader {
     if (stackSize == 0) {
       return JsonToken.END_DOCUMENT;
     } else if (isReaderActive) {
-      throw new IllegalStateException("Name or string reader has not consumed all data yet");
+      throw new IllegalStateException("Name or string reader has not been closed or did not consume "
+          + "all data before it was closed");
     }
 
     Object o = peekStack();
