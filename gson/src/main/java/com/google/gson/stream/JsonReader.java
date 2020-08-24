@@ -658,8 +658,16 @@ public class JsonReader implements Closeable {
       if (reachedEnd) {
         return true;
       } else if (limit - pos > 0) {
+        // Unquoted string has no escape sequences so will not block
         // In case of quoted string `\` starts an escape sequence and reading it might block
-        return quote == NO_QUOTE || buffer[pos] != '\\';
+        if (quote == NO_QUOTE || buffer[pos] != '\\') {
+          return true;
+        }
+
+        int remaining = limit - pos;
+        // Either contains at least complete \ + uXXXX escape sequence (6 chars)
+        // or is non-unicode escape sequence, e.g. \t (2 chars)
+        return remaining >= 6 || (remaining >= 2 && buffer[pos + 1] != 'u');
       } else {
         // Unquoted string does not have escape sequence so if `in` is ready then
         // there will be further input (or end of value)
