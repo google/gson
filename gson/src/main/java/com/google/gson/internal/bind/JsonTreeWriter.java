@@ -52,12 +52,11 @@ public final class JsonTreeWriter extends JsonWriter {
   private String pendingName;
 
   /**
-   * Whether the next {@code null} should be {@link #forceNullValue() forcefully
-   * serialized}, regardless of whether the caller requested it. Affects {@code null}
-   * Strings, numbers, ... as well. Is reset to {@code false} once any value (even
-   * non-{@code null}) has been written.
+   * Overwrites {@link #getSerializeNulls()}, but is reset to {@code null} once any
+   * value (even non-{@code null}) has been written.<br>
+   * {@code null} means that {@code serializeNulls} is not overwritten.
    */
-  private boolean forceSerializeNextNull = false;
+  private Boolean serializeNullsOverwrite = null;
 
   /** the JSON element constructed by this writer. */
   private JsonElement product = JsonNull.INSTANCE; // TODO: is this really what we want?;
@@ -82,7 +81,8 @@ public final class JsonTreeWriter extends JsonWriter {
 
   private void put(JsonElement value, boolean forceSerializeNull) {
     if (pendingName != null) {
-      if (forceSerializeNull || forceSerializeNextNull || !value.isJsonNull() || getSerializeNulls()) {
+      boolean serializeNull = serializeNullsOverwrite != null ? serializeNullsOverwrite : getSerializeNulls();
+      if (forceSerializeNull || serializeNull || !value.isJsonNull()) {
         JsonObject object = (JsonObject) peek();
         object.add(pendingName, value);
       }
@@ -99,7 +99,7 @@ public final class JsonTreeWriter extends JsonWriter {
     }
 
     // Always reset, regardless of whether null or non-null value was written
-    forceSerializeNextNull = false;
+    serializeNullsOverwrite = null;
   }
 
   private void put(JsonElement value) {
@@ -229,9 +229,9 @@ public final class JsonTreeWriter extends JsonWriter {
     stack.add(SENTINEL_CLOSED);
   }
 
-  public void forceSerializeNextNull(boolean forceSerialize) {
+  public void setSerializeNextNullOverwrite(Boolean serializeNull) {
     // Only intended for object property values, so name must be present
-    assert !(forceSerialize && pendingName == null);
-    forceSerializeNextNull = forceSerialize;
+    assert !(serializeNull == Boolean.TRUE && pendingName == null);
+    serializeNullsOverwrite = serializeNull;
   }
 }

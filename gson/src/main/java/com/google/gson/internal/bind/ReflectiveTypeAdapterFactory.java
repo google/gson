@@ -21,8 +21,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
-import com.google.gson.annotations.ForceSerializeNull;
-import com.google.gson.annotations.ForceSerializeNull.CheckTime;
+import com.google.gson.annotations.SerializeNull;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.internal.$Gson$Types;
@@ -111,8 +110,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     final boolean isPrimitive = Primitives.isPrimitive(fieldType.getRawType());
     // special casing primitives here saves ~5% on Android...
     JsonAdapter adapterAnnotation = field.getAnnotation(JsonAdapter.class);
-    ForceSerializeNull forceNullAnnotation = field.getAnnotation(ForceSerializeNull.class);
-    final CheckTime forceNullCheckTime = forceNullAnnotation != null ? forceNullAnnotation.checkTime() : null;
+    final SerializeNull serializeNullAnnotation = field.getAnnotation(SerializeNull.class);
 
     TypeAdapter<?> mapped = null;
     if (adapterAnnotation != null) {
@@ -128,22 +126,17 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       @Override void write(JsonWriter writer, Object value)
           throws IOException, IllegalAccessException {
         Object fieldValue = field.get(value);
-        if (fieldValue == null && forceNullCheckTime == CheckTime.BEFORE_ADAPTER) {
-          writer.forceNullValue();
-          return;
-        }
-
         TypeAdapter t = jsonAdapterPresent ? typeAdapter
             : new TypeAdapterRuntimeTypeWrapper(context, typeAdapter, fieldType.getType());
 
-        if (forceNullCheckTime == CheckTime.AFTER_ADAPTER) {
+        if (serializeNullAnnotation != null) {
           try {
-            JsonWriterInternalAccess.INSTANCE.forceSerializeNextNull(writer, true);
+            JsonWriterInternalAccess.INSTANCE.setSerializeNextNullOverwrite(writer, serializeNullAnnotation.value());
             t.write(writer, fieldValue);
           } finally {
             // Always reset, so in case type adapter throws exception and does not
             // write anything next user of writer is not affected
-            JsonWriterInternalAccess.INSTANCE.forceSerializeNextNull(writer, false);
+            JsonWriterInternalAccess.INSTANCE.setSerializeNextNullOverwrite(writer, null);
           }
         } else {
           t.write(writer, fieldValue);

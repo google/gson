@@ -9,13 +9,14 @@ public abstract class JsonWriterInternalAccess {
   public static JsonWriterInternalAccess INSTANCE;
 
   /**
-   * Enables / disables {@linkplain JsonWriter#forceNullValue() forced null serialization}
-   * of the next value even if the caller did not explicitly request it.
+   * Overwrites {@link JsonWriter#getSerializeNulls()} for the next value. Has no
+   * effect on {@link JsonWriter#forceNullValue()}.
    * Is disabled again once any value (regardless of whether it is {@code null}) has
    * been written.
    *
    * @param writer which should be changed.
-   * @param forceSerialize whether the next {@code null} should be forced.
+   * @param serializeNull whether the next {@code null} should be serialized;
+   *   {@code null} to disable overwrite again.
    */
-  public abstract void forceSerializeNextNull(JsonWriter writer, boolean forceSerialize);
+  public abstract void setSerializeNextNullOverwrite(JsonWriter writer, Boolean serializeNull);
 }

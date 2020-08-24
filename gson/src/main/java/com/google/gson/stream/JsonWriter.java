@@ -194,12 +194,11 @@ public class JsonWriter implements Closeable, Flushable {
   private boolean serializeNulls = true;
 
   /**
-   * Whether the next {@code null} should be {@link #forceNullValue() forcefully
-   * serialized}, regardless of whether the caller requested it. Affects {@code null}
-   * Strings, numbers, ... as well. Is reset to {@code false} once any value (even
-   * non-{@code null}) has been written.
+   * Overwrites {@link #serializeNulls}, but is reset to {@code null} once any
+   * value (even non-{@code null}) has been written.<br>
+   * {@code null} means that {@code serializeNulls} is not overwritten.
    */
-  private boolean forceSerializeNextNull = false;
+  private Boolean serializeNullsOverwrite = null;
 
   /**
    * Creates a new instance that writes a JSON-encoded stream to {@code out}.
@@ -472,7 +471,8 @@ public class JsonWriter implements Closeable, Flushable {
    */
   public JsonWriter nullValue() throws IOException {
     if (deferredName != null) {
-      if (forceSerializeNextNull || serializeNulls) {
+      boolean serializeNull = serializeNullsOverwrite != null ? serializeNullsOverwrite : serializeNulls;
+      if (serializeNull) {
         writeDeferredName();
       } else {
         deferredName = null;
@@ -672,7 +672,7 @@ public class JsonWriter implements Closeable, Flushable {
   @SuppressWarnings("fallthrough")
   private void beforeValue() throws IOException {
     // Always reset, regardless of whether null or non-null value was written
-    forceSerializeNextNull = false;
+    serializeNullsOverwrite = null;
 
     switch (peek()) {
     case NONEMPTY_DOCUMENT:
@@ -705,20 +705,20 @@ public class JsonWriter implements Closeable, Flushable {
     }
   }
 
-  private void forceSerializeNextNull(boolean forceSerialize) {
+  private void setSerializeNextNullOverwrite(Boolean serializeNull) {
     // Only intended for object property values, so name must be present
-    assert !(forceSerialize && deferredName == null);
-    forceSerializeNextNull = forceSerialize;
+    assert !(serializeNull == Boolean.TRUE && deferredName == null);
+    serializeNullsOverwrite = serializeNull;
   }
 
   static {
     JsonWriterInternalAccess.INSTANCE = new JsonWriterInternalAccess() {
       @Override
-      public void forceSerializeNextNull(JsonWriter writer, boolean forceSerialize) {
+      public void setSerializeNextNullOverwrite(JsonWriter writer, Boolean serializeNull) {
         if (writer instanceof JsonTreeWriter) {
-          ((JsonTreeWriter) writer).forceSerializeNextNull(forceSerialize);
+          ((JsonTreeWriter) writer).setSerializeNextNullOverwrite(serializeNull);
         } else {
-          writer.forceSerializeNextNull(forceSerialize);
+          writer.setSerializeNextNullOverwrite(serializeNull);
         }
       }
     };
