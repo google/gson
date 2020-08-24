@@ -61,11 +61,11 @@ public final class JsonWriterTest extends TestCase {
   public void testInvalidTopLevelTypes() throws IOException {
     StringWriter stringWriter = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
-    jsonWriter.name("hello");
     try {
-      jsonWriter.value("world");
+      jsonWriter.name("hello");
       fail();
     } catch (IllegalStateException expected) {
+      assertEquals("Currently not writing an object", expected.getMessage());
     }
   }
 
@@ -91,6 +91,7 @@ public final class JsonWriterTest extends TestCase {
       jsonWriter.endObject();
       fail();
     } catch (IllegalStateException expected) {
+      assertEquals("Dangling name: a", expected.getMessage());
     }
   }
 
@@ -102,6 +103,19 @@ public final class JsonWriterTest extends TestCase {
       jsonWriter.value(true);
       fail();
     } catch (IllegalStateException expected) {
+      assertEquals("Expecting a name but got a value", expected.getMessage());
+    }
+  }
+
+  public void testArrayWriteName() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter jsonWriter = new JsonWriter(stringWriter);
+    jsonWriter.beginArray();
+    try {
+      jsonWriter.name("a");
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Currently not writing an object", expected.getMessage());
     }
   }
 
