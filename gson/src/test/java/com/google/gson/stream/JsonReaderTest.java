@@ -353,7 +353,7 @@ public final class JsonReaderTest extends TestCase {
       reader.nextDouble();
       fail();
     } catch (MalformedJsonException expected) {
-      assertEquals("JSON forbids NaN and infinities: NaN at line 1 column 7 path $[0]", expected.getMessage());
+      assertEquals("JSON forbids NaN and infinities: NaN at line 1 column 2 path $[0]", expected.getMessage());
     }
   }
 
@@ -415,14 +415,14 @@ public final class JsonReaderTest extends TestCase {
       reader.nextInt();
       fail();
     } catch (NumberFormatException expected) {
-      assertEquals("Expected an int but was -9223372036854775808 at line 1 column 43 path $[9]", expected.getMessage());
+      assertEquals("Expected an int but was -9223372036854775808 at line 1 column 23 path $[9]", expected.getMessage());
     }
     assertEquals(Long.MIN_VALUE, reader.nextLong());
     try {
       reader.nextInt();
       fail();
     } catch (NumberFormatException expected) {
-      assertEquals("Expected an int but was 9223372036854775807 at line 1 column 63 path $[10]", expected.getMessage());
+      assertEquals("Expected an int but was 9223372036854775807 at line 1 column 44 path $[10]", expected.getMessage());
     }
     assertEquals(Long.MAX_VALUE, reader.nextLong());
     reader.endArray();
@@ -606,7 +606,7 @@ public final class JsonReaderTest extends TestCase {
       reader.nextLong();
       fail();
     } catch (NumberFormatException expected) {
-      assertEquals("Expected a long but was 22233720368547758070 at line 1 column 22 path $[0]", expected.getMessage());
+      assertEquals("Expected a long but was 22233720368547758070 at line 1 column 2 path $[0]", expected.getMessage());
     }
   }
 
@@ -619,7 +619,7 @@ public final class JsonReaderTest extends TestCase {
       reader.nextLong();
       fail();
     } catch (NumberFormatException expected) {
-      assertEquals("Expected a long but was -22233720368547758070 at line 1 column 23 path $[0]", expected.getMessage());
+      assertEquals("Expected a long but was -22233720368547758070 at line 1 column 2 path $[0]", expected.getMessage());
     }
   }
 
@@ -691,7 +691,7 @@ public final class JsonReaderTest extends TestCase {
       reader.nextLong();
       fail();
     } catch (NumberFormatException expected) {
-      assertEquals("Expected a long but was -92233720368547758080 at line 1 column 23 path $[0]", expected.getMessage());
+      assertEquals("Expected a long but was -92233720368547758080 at line 1 column 2 path $[0]", expected.getMessage());
     }
     assertEquals(-92233720368547758080d, reader.nextDouble());
   }
@@ -782,63 +782,63 @@ public final class JsonReaderTest extends TestCase {
       reader.nextString();
       fail();
     } catch (IllegalStateException expected) {
-      assertEquals("Expected a string but was NAME at line 1 column 3 path $.", expected.getMessage());
+      assertEquals("Expected a string but was NAME at line 1 column 2 path $.", expected.getMessage());
     }
     assertEquals("a", reader.nextName());
     try {
       reader.nextName();
       fail();
     } catch (IllegalStateException expected) {
-      assertEquals("Expected a name but was BOOLEAN at line 1 column 10 path $.a", expected.getMessage());
+      assertEquals("Expected a name but was BOOLEAN at line 1 column 6 path $.a", expected.getMessage());
     }
     try {
       reader.beginArray();
       fail();
     } catch (IllegalStateException expected) {
-      assertEquals("Expected BEGIN_ARRAY but was BOOLEAN at line 1 column 10 path $.a", expected.getMessage());
+      assertEquals("Expected BEGIN_ARRAY but was BOOLEAN at line 1 column 6 path $.a", expected.getMessage());
     }
     try {
       reader.endArray();
       fail();
     } catch (IllegalStateException expected) {
-      assertEquals("Expected END_ARRAY but was BOOLEAN at line 1 column 10 path $.a", expected.getMessage());
+      assertEquals("Expected END_ARRAY but was BOOLEAN at line 1 column 6 path $.a", expected.getMessage());
     }
     try {
       reader.beginObject();
       fail();
     } catch (IllegalStateException expected) {
-      assertEquals("Expected BEGIN_OBJECT but was BOOLEAN at line 1 column 10 path $.a", expected.getMessage());
+      assertEquals("Expected BEGIN_OBJECT but was BOOLEAN at line 1 column 6 path $.a", expected.getMessage());
     }
     try {
       reader.endObject();
       fail();
     } catch (IllegalStateException expected) {
-      assertEquals("Expected END_OBJECT but was BOOLEAN at line 1 column 10 path $.a", expected.getMessage());
+      assertEquals("Expected END_OBJECT but was BOOLEAN at line 1 column 6 path $.a", expected.getMessage());
     }
     assertEquals(true, reader.nextBoolean());
     try {
       reader.nextString();
       fail();
     } catch (IllegalStateException expected) {
-      assertEquals("Expected a string but was END_OBJECT at line 1 column 11 path $.a", expected.getMessage());
+      assertEquals("Expected a string but was END_OBJECT at line 1 column 10 path $.a", expected.getMessage());
     }
     try {
       reader.nextName();
       fail();
     } catch (IllegalStateException expected) {
-      assertEquals("Expected a name but was END_OBJECT at line 1 column 11 path $.a", expected.getMessage());
+      assertEquals("Expected a name but was END_OBJECT at line 1 column 10 path $.a", expected.getMessage());
     }
     try {
       reader.beginArray();
       fail();
     } catch (IllegalStateException expected) {
-      assertEquals("Expected BEGIN_ARRAY but was END_OBJECT at line 1 column 11 path $.a", expected.getMessage());
+      assertEquals("Expected BEGIN_ARRAY but was END_OBJECT at line 1 column 10 path $.a", expected.getMessage());
     }
     try {
       reader.endArray();
       fail();
     } catch (IllegalStateException expected) {
-      assertEquals("Expected END_ARRAY but was END_OBJECT at line 1 column 11 path $.a", expected.getMessage());
+      assertEquals("Expected END_ARRAY but was END_OBJECT at line 1 column 10 path $.a", expected.getMessage());
     }
     reader.endObject();
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
@@ -852,10 +852,27 @@ public final class JsonReaderTest extends TestCase {
       reader.nextInt();
       fail();
     } catch (NumberFormatException expected) {
-      assertEquals("Expected an int but was 1.5 at line 1 column 5 path $[0]", expected.getMessage());
+      assertEquals("Expected an int but was 1.5 at line 1 column 2 path $[0]", expected.getMessage());
     }
     assertEquals(1.5d, reader.nextDouble());
     reader.endArray();
+  }
+
+  public void testPeekLocationWithWrappedString() throws IOException {
+    JsonReader reader = new JsonReader(reader("\"a\nb\nc\""));
+    try {
+      reader.nextBoolean();
+    } catch (IllegalStateException expected) {
+      // After peeking, reader is already in line 3, however token mismatch
+      // exception message should use line number of peeked token start
+      assertEquals("Expected a boolean but was STRING at line 1 column 1 path $", expected.getMessage());
+    }
+    assertEquals("a\nb\nc", reader.nextString());
+    try {
+      reader.nextBoolean();
+    } catch (IllegalStateException expected) {
+      assertEquals("Expected a boolean but was END_DOCUMENT at line 3 column 3 path $", expected.getMessage());
+    }
   }
 
   public void testStringNullIsNotNull() throws IOException {
@@ -865,7 +882,7 @@ public final class JsonReaderTest extends TestCase {
       reader.nextNull();
       fail();
     } catch (IllegalStateException expected) {
-      assertEquals("Expected null but was STRING at line 1 column 3 path $[0]", expected.getMessage());
+      assertEquals("Expected null but was STRING at line 1 column 2 path $[0]", expected.getMessage());
     }
   }
 
@@ -876,7 +893,7 @@ public final class JsonReaderTest extends TestCase {
       reader.nextString();
       fail();
     } catch (IllegalStateException expected) {
-      assertEquals("Expected a string but was NULL at line 1 column 6 path $[0]", expected.getMessage());
+      assertEquals("Expected a string but was NULL at line 1 column 2 path $[0]", expected.getMessage());
     }
   }
 
