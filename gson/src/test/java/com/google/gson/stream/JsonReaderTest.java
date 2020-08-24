@@ -186,7 +186,7 @@ public final class JsonReaderTest extends TestCase {
       reader.nextName();
       fail();
     } catch (MalformedJsonException expected) {
-      assertEquals("Invalid escape sequence at line 2 column 8 path $.", expected.getMessage());
+      assertEquals("Invalid escape sequence at line 2 column 6 path $.", expected.getMessage());
     }
   }
 
@@ -281,7 +281,7 @@ public final class JsonReaderTest extends TestCase {
       reader.nextString();
       fail();
     } catch (MalformedJsonException expected) {
-      assertEquals("Unterminated escape sequence at line 1 column 5 path $[0]", expected.getMessage());
+      assertEquals("Unterminated escape sequence at line 1 column 3 path $[0]", expected.getMessage());
     }
   }
 
@@ -293,7 +293,7 @@ public final class JsonReaderTest extends TestCase {
       reader.nextString();
       fail();
     } catch (MalformedJsonException expected) {
-      assertEquals("Unterminated escape sequence at line 1 column 4 path $[0]", expected.getMessage());
+      assertEquals("Unterminated escape sequence at line 1 column 3 path $[0]", expected.getMessage());
     }
   }
 
@@ -429,8 +429,12 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
-  public void disabled_testNumberWithOctalPrefix() throws IOException {
-    String json = "[01]";
+  /**
+   * Octal number notation is not supported so non-lenient JsonReader
+   * should throw exception.
+   */
+  public void testNumberWithOctalPrefix() throws IOException {
+    String json = "[012]";
     JsonReader reader = new JsonReader(reader(json));
     reader.beginArray();
     try {
@@ -446,21 +450,50 @@ public final class JsonReaderTest extends TestCase {
       reader.nextInt();
       fail();
     } catch (MalformedJsonException expected) {
-      assertEquals("", expected.getMessage()); // Have to adjust this
+      assertEquals(
+        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 2 path $[0]",
+        expected.getMessage()
+      );
     }
     try {
       reader.nextLong();
       fail();
     } catch (MalformedJsonException expected) {
-      assertEquals("", expected.getMessage()); // Have to adjust this
+      assertEquals(
+        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 2 path $[0]",
+        expected.getMessage()
+      );
     }
     try {
       reader.nextDouble();
       fail();
     } catch (MalformedJsonException expected) {
-      assertEquals("", expected.getMessage()); // Have to adjust this
+      assertEquals(
+        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 2 path $[0]",
+        expected.getMessage()
+      );
     }
-    assertEquals("01", reader.nextString());
+  }
+
+  /**
+   * Octal number notation is not supported. In lenient mode it is
+   * read as unquoted string and then {@link Integer#parseInt(String)}
+   * parses it with radix 10 (simply ignoring leading 0).
+   */
+  public void testNumberWithOctalPrefixLenient() throws IOException {
+    String json = "[012, 012, 012, 012]";
+    JsonReader reader = new JsonReader(reader(json));
+    reader.setLenient(true);
+    reader.beginArray();
+    assertEquals(JsonToken.STRING, reader.peek());
+    assertEquals("012", reader.nextString());
+
+    // If it would be parsed as octal, decimal result would be 10
+    // However, it is parsed with radix 10 so leading 0 is simply ignored
+    assertEquals(12, reader.nextInt());
+    assertEquals(12, reader.nextLong());
+    assertEquals(12.0, reader.nextDouble());
+
     reader.endArray();
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
@@ -595,11 +628,11 @@ public final class JsonReaderTest extends TestCase {
    * @throws Exception
    */
   public void testNegativeZero() throws Exception {
-	  	JsonReader reader = new JsonReader(reader("[-0]"));
-	    reader.setLenient(false);
-	    reader.beginArray();
-	    assertEquals(NUMBER, reader.peek());
-	    assertEquals("-0", reader.nextString());
+    JsonReader reader = new JsonReader(reader("[-0]"));
+    reader.setLenient(false);
+    reader.beginArray();
+    assertEquals(NUMBER, reader.peek());
+    assertEquals("-0", reader.nextString());
   }
 
   /**
@@ -856,7 +889,7 @@ public final class JsonReaderTest extends TestCase {
       fail();
     } catch (MalformedJsonException expected) {
       assertEquals(
-        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 6 path $.a",
+        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 5 path $.a",
         expected.getMessage()
       );
     }
@@ -869,7 +902,7 @@ public final class JsonReaderTest extends TestCase {
       fail();
     } catch (MalformedJsonException expected) {
       assertEquals(
-        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 6 path $.a",
+        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 5 path $.a",
         expected.getMessage()
       );
     }
@@ -898,7 +931,7 @@ public final class JsonReaderTest extends TestCase {
       fail();
     } catch (MalformedJsonException expected) {
       assertEquals(
-        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 6 path $.a",
+        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 5 path $.a",
         expected.getMessage()
       );
     }
@@ -911,7 +944,7 @@ public final class JsonReaderTest extends TestCase {
       fail();
     } catch (MalformedJsonException expected) {
       assertEquals(
-        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 6 path $.a",
+        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 5 path $.a",
         expected.getMessage()
       );
     }
@@ -944,7 +977,7 @@ public final class JsonReaderTest extends TestCase {
       fail();
     } catch (MalformedJsonException expected) {
       assertEquals(
-        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 3 path $[0]",
+        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 2 path $[0]",
         expected.getMessage()
       );
     }
@@ -968,7 +1001,7 @@ public final class JsonReaderTest extends TestCase {
       fail();
     } catch (MalformedJsonException expected) {
       assertEquals(
-        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 3 path $[0]",
+        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 2 path $[0]",
         expected.getMessage()
       );
     }
@@ -999,7 +1032,7 @@ public final class JsonReaderTest extends TestCase {
       fail();
     } catch (MalformedJsonException expected) {
       assertEquals(
-        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 3 path $[0]",
+        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 2 path $[0]",
         expected.getMessage()
       );
     }
@@ -1023,7 +1056,7 @@ public final class JsonReaderTest extends TestCase {
       fail();
     } catch (MalformedJsonException expected) {
       assertEquals(
-        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 3 path $[0]",
+        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 2 path $[0]",
         expected.getMessage()
       );
     }
@@ -1037,7 +1070,7 @@ public final class JsonReaderTest extends TestCase {
       fail();
     } catch (MalformedJsonException expected) {
       assertEquals(
-        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 3 path $.",
+        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 2 path $.",
         expected.getMessage()
       );
     }
@@ -1058,7 +1091,7 @@ public final class JsonReaderTest extends TestCase {
       fail();
     } catch (MalformedJsonException expected) {
       assertEquals(
-        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 3 path $.",
+        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 2 path $.",
         expected.getMessage()
       );
     }
@@ -1072,7 +1105,7 @@ public final class JsonReaderTest extends TestCase {
       fail();
     } catch (MalformedJsonException expected) {
       assertEquals(
-        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 3 path $.",
+        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 2 path $.",
         expected.getMessage()
       );
     }
@@ -1093,7 +1126,7 @@ public final class JsonReaderTest extends TestCase {
       fail();
     } catch (MalformedJsonException expected) {
       assertEquals(
-        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 3 path $.",
+        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 2 path $.",
         expected.getMessage()
       );
     }
@@ -1142,7 +1175,7 @@ public final class JsonReaderTest extends TestCase {
       fail();
     } catch (MalformedJsonException expected) {
       assertEquals(
-        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 3 path $[0]",
+        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 2 path $[0]",
         expected.getMessage()
       );
     }
@@ -1163,7 +1196,7 @@ public final class JsonReaderTest extends TestCase {
       fail();
     } catch (MalformedJsonException expected) {
       assertEquals(
-        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 3 path $[0]",
+        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 2 path $[0]",
         expected.getMessage()
       );
     }
@@ -1253,7 +1286,7 @@ public final class JsonReaderTest extends TestCase {
       fail();
     } catch (MalformedJsonException expected) {
       assertEquals(
-        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 8 path $[1]",
+        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 7 path $[1]",
         expected.getMessage()
       );
     }
@@ -1265,7 +1298,7 @@ public final class JsonReaderTest extends TestCase {
       fail();
     } catch (MalformedJsonException expected) {
       assertEquals(
-        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 3 path $[0]",
+        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 2 path $[0]",
         expected.getMessage()
       );
     }
@@ -1278,7 +1311,7 @@ public final class JsonReaderTest extends TestCase {
       fail();
     } catch (MalformedJsonException expected) {
       assertEquals(
-        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 8 path $[1]",
+        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 7 path $[1]",
         expected.getMessage()
       );
     }
@@ -1290,7 +1323,7 @@ public final class JsonReaderTest extends TestCase {
       fail();
     } catch (MalformedJsonException expected) {
       assertEquals(
-        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 3 path $[0]",
+        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 2 path $[0]",
         expected.getMessage()
       );
     }
@@ -1336,7 +1369,7 @@ public final class JsonReaderTest extends TestCase {
       fail();
     } catch (MalformedJsonException expected) {
       assertEquals(
-        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 8 path $[1]",
+        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 7 path $[1]",
         expected.getMessage()
       );
     }
@@ -1348,7 +1381,7 @@ public final class JsonReaderTest extends TestCase {
       fail();
     } catch (MalformedJsonException expected) {
       assertEquals(
-        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 3 path $[0]",
+        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 2 path $[0]",
         expected.getMessage()
       );
     }
@@ -1361,7 +1394,7 @@ public final class JsonReaderTest extends TestCase {
       fail();
     } catch (MalformedJsonException expected) {
       assertEquals(
-        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 8 path $[1]",
+        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 7 path $[1]",
         expected.getMessage()
       );
     }
@@ -1373,7 +1406,7 @@ public final class JsonReaderTest extends TestCase {
       fail();
     } catch (MalformedJsonException expected) {
       assertEquals(
-        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 3 path $[0]",
+        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 2 path $[0]",
         expected.getMessage()
       );
     }
@@ -1388,7 +1421,7 @@ public final class JsonReaderTest extends TestCase {
       fail();
     } catch (MalformedJsonException expected) {
       assertEquals(
-        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 5 path $",
+        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 4 path $",
         expected.getMessage()
       );
     }
@@ -1414,7 +1447,7 @@ public final class JsonReaderTest extends TestCase {
       fail();
     } catch (MalformedJsonException expected) {
       assertEquals(
-        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 5 path $",
+        "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 4 path $",
         expected.getMessage()
       );
     }
@@ -1503,7 +1536,23 @@ public final class JsonReaderTest extends TestCase {
       reader.nextString();
       fail();
     } catch (MalformedJsonException expected) {
-      assertEquals("Unexpected value at line 1 column 3 path $", expected.getMessage());
+      assertEquals("Expected value at line 1 column 2 path $", expected.getMessage());
+    }
+  }
+
+  /**
+   * At most one non-execute prefix must be consumed.
+   */
+  public void testLenientDoubleNonExecutePrefix() throws IOException {
+    JsonReader reader = new JsonReader(reader(")]}'\n)]}'\n 1"));
+    reader.setLenient(true);
+    // Consumes the parenthesis after the first non-execute prefix
+    assertEquals(")", reader.nextString());
+    try {
+      reader.peek();
+      fail();
+    } catch (MalformedJsonException expected) {
+      assertEquals("Expected value at line 1 column 7 path $", expected.getMessage());
     }
   }
 
@@ -1730,7 +1779,7 @@ public final class JsonReaderTest extends TestCase {
       reader.peek();
       fail();
     } catch (MalformedJsonException expected) {
-      assertEquals("Unterminated object at line 1 column 16 path $.a", expected.getMessage());
+      assertEquals("Unterminated object at line 1 column 15 path $.a", expected.getMessage());
     }
   }
 
@@ -1847,7 +1896,7 @@ public final class JsonReaderTest extends TestCase {
       reader.peek();
       fail();
     } catch (MalformedJsonException expected) {
-      assertEquals("Expected name at line 1 column 11 path $.a", expected.getMessage());
+      assertEquals("Expected name at line 1 column 10 path $.a", expected.getMessage());
     }
   }
 
@@ -1861,7 +1910,119 @@ public final class JsonReaderTest extends TestCase {
       reader.peek();
       fail();
     } catch (MalformedJsonException expected) {
-      assertEquals("Expected name at line 1 column 11 path $.a", expected.getMessage());
+      assertEquals("Expected name at line 1 column 10 path $.a", expected.getMessage());
+    }
+  }
+
+  /**
+   * When {@link JsonReader#peek()} throws an exception due to malformed JSON
+   * it should not have advanced in the stream yet.
+   */
+  public void testThrowingPeekArray() throws IOException {
+    JsonReader reader = new JsonReader(reader("[a?$,1]"));
+    reader.beginArray();
+    for (int i = 0; i < 10; i++) {
+      try {
+        reader.peek();
+      } catch (MalformedJsonException expected) {
+        assertEquals(
+          "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 2 path $[0]",
+          expected.getMessage()
+        );
+      }
+    }
+  }
+
+  /**
+   * When {@link JsonReader#peek()} throws an exception due to malformed JSON
+   * it should not have advanced in the stream yet.
+   */
+  public void testThrowingPeekObject() throws IOException {
+    JsonReader reader = new JsonReader(reader("{\"test\"::}"));
+    reader.beginObject();
+    for (int i = 0; i < 10; i++) {
+      try {
+        reader.peek();
+      } catch (MalformedJsonException expected) {
+        assertEquals("Expected name at line 1 column 11 path $.a", expected.getMessage());
+      }
+    }
+  }
+
+  public void testThrowingPeekIncompleteBlockComment() throws IOException {
+    JsonReader reader = new JsonReader(reader("[/*]"));
+    reader.setLenient(true); // lenient to support block comments
+    reader.beginArray();
+    /*
+     * Make sure that incomplete block comment (i.e. missing closing * /)
+     * is not skipped after first unsuccessful peek.
+     *
+     * In previous Gson versions a subsequent peek would have skipped the
+     * comment start (i.e. "/*") and therefore could have read "valid"
+     * JSON afterwards.
+     */
+    for (int i = 0; i < 3; i++) {
+      try {
+        reader.peek();
+      } catch (MalformedJsonException expected) {
+        assertEquals("Unterminated comment at line 1 column 4 path $[0]", expected.getMessage());
+      }
+    }
+
+    assertEquals("$[0]", reader.getPath());
+  }
+
+  public void testThrowingPeekEmptyDocument() throws IOException {
+    JsonReader reader = new JsonReader(reader(":"));
+    try {
+      reader.peek();
+      fail();
+    } catch (MalformedJsonException expected) {
+      assertEquals("Expected value at line 1 column 1 path $", expected.getMessage());
+    }
+    /*
+     * Make sure that JsonReader still considers document empty
+     *
+     * In previous Gson versions JsonReader would have marked document
+     * as non-empty even though value parsing failed and would have
+     * now thrown a non-lenient exception because it thought there were
+     * multiple top-level values
+     */
+    try {
+      reader.peek();
+      fail();
+    } catch (MalformedJsonException expected) {
+      assertEquals("Expected value at line 1 column 1 path $", expected.getMessage());
+    }
+  }
+
+  public void testThrowingStringEscapeSequence() throws IOException {
+    JsonReader reader = new JsonReader(reader("\"\\z\"")); // "\z" is not a valid escape sequence
+    assertEquals(JsonToken.STRING, reader.peek());
+
+    /*
+     * Make sure that neither nextString() nor skipValue() already advanced
+     * before throwing exception.
+     *
+     * In previous Gson versions they would have already consumed the '\' before
+     * the exception was thrown so a subsequent read would have read a "valid"
+     * string.
+     */
+    for (int i = 0; i < 3; i++) {
+      try {
+        reader.nextString();
+        fail();
+      } catch (MalformedJsonException expected) {
+        assertEquals("Invalid escape sequence at line 1 column 2 path $", expected.getMessage());
+      }
+    }
+    for (int i = 0; i < 3; i++) {
+      try {
+        reader.skipValue();
+        fail();
+      } catch (MalformedJsonException expected) {
+        assertEquals("Invalid escape sequence at line 1 column 2 path $", expected.getMessage());
+      }
     }
   }
 
