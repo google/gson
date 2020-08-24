@@ -386,7 +386,7 @@ public class JsonWriter implements Closeable, Flushable {
       throw new NullPointerException("name == null");
     }
     if (deferredName != null) {
-      throw new IllegalStateException();
+      throw new IllegalStateException("Already wrote a name, expecting a value");
     }
     if (stackSize == 0) {
       throw new IllegalStateException("JsonWriter is closed.");

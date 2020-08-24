@@ -81,6 +81,7 @@ public final class JsonTreeWriterTest extends TestCase {
       writer.beginArray();
       fail();
     } catch (IllegalStateException expected) {
+      assertEquals("Writer is closed", expected.getMessage());
     }
   }
 
@@ -142,10 +143,108 @@ public final class JsonTreeWriterTest extends TestCase {
     assertEquals(writer, writer.value(bool));
   }
 
-  public void testBoolMaisValue() throws Exception {
+  public void testBoolBoxedValue() throws Exception {
     JsonTreeWriter writer = new JsonTreeWriter();
     Boolean bool = true;
     assertEquals(writer, writer.value(bool));
+  }
+
+  public void testEmptyEndArray() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    try {
+      writer.endArray();
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Currently not writing an array", expected.getMessage());
+    }
+  }
+
+  public void testObjectEndArray() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.beginObject();
+    try {
+      writer.endArray();
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Currently not writing an array", expected.getMessage());
+    }
+  }
+
+  public void testEmptyEndObject() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    try {
+      writer.endObject();
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Currently not writing an object", expected.getMessage());
+    }
+  }
+
+  public void testPendingNameEndObject() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.beginObject();
+    writer.name("test");
+    try {
+      writer.endObject();
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Expecting property value before object can be closed", expected.getMessage());
+    }
+  }
+
+  public void testArrayEndObject() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.beginArray();
+    try {
+      writer.endObject();
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Currently not writing an object", expected.getMessage());
+    }
+  }
+
+  public void testEmptyStackWriteName() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    try {
+      writer.name("a");
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Currently not writing an object", expected.getMessage());
+    }
+  }
+
+  public void testArrayWriteName() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.beginArray();
+    try {
+      writer.name("a");
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Currently not writing an object", expected.getMessage());
+    }
+  }
+
+  public void testTwoNames() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.beginObject();
+    writer.name("a");
+    try {
+      writer.name("a");
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Already wrote a name, expecting a value", expected.getMessage());
+    }
+  }
+
+  public void testValueInsteadOfName() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.beginObject();
+    try {
+      writer.value("a");
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Expecting a name but got a value", expected.getMessage());
+    }
   }
 
   public void testLenientNansAndInfinities() throws IOException {

@@ -78,6 +78,7 @@ public final class JsonWriterTest extends TestCase {
       jsonWriter.name("a");
       fail();
     } catch (IllegalStateException expected) {
+      assertEquals("Already wrote a name, expecting a value", expected.getMessage());
     }
   }
 
