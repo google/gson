@@ -103,6 +103,7 @@ public final class JsonTreeWriter extends JsonWriter {
   }
 
   private void put(JsonElement value) {
+    ensureOpen();
     if (pendingName != null) {
       if (!value.isJsonNull() || getSerializeNulls()) {
         JsonObject object = (JsonObject) peek();
@@ -110,7 +111,6 @@ public final class JsonTreeWriter extends JsonWriter {
       }
       pendingName = null;
     } else if (stack.isEmpty()) {
-      ensureOpen();
       if (product != null) {
         throw new IllegalStateException("JSON must have only one top-level value.");
       }

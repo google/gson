@@ -207,11 +207,7 @@ public final class JsonTreeWriterTest extends TestCase {
     }
   }
 
-  public void testClosedWriterThrowsOnValue() throws IOException {
-    JsonTreeWriter writer = new JsonTreeWriter();
-    writer.beginArray();
-    writer.endArray();
-    writer.close();
+  private static void testClosedWriterThrowsOnValue(JsonTreeWriter writer) throws IOException {
     try {
       writer.value("a");
       fail();
@@ -274,6 +270,28 @@ public final class JsonTreeWriterTest extends TestCase {
     } catch (IllegalArgumentException expected) {
       assertEquals("JSON forbids NaN and infinities: NaN", expected.getMessage());
     }
+  }
+
+  public void testClosedWriterThrowsOnValue() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.beginArray();
+    writer.endArray();
+    writer.close();
+    testClosedWriterThrowsOnValue(writer);
+  }
+
+  public void testClosedWriterThrowsOnPropertyValue() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.setSerializeNulls(true);
+    writer.beginObject();
+    writer.name("test");
+    try {
+      writer.close();
+      fail();
+    } catch (IOException expected) {
+      assertEquals("Incomplete document", expected.getMessage());
+    }
+    testClosedWriterThrowsOnValue(writer);
   }
 
   public void testClosedWriterThrowsOnFlush() throws IOException {
