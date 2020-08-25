@@ -42,8 +42,6 @@ public final class JsonTreeWriter extends JsonWriter {
       throw new AssertionError();
     }
   };
-  /** Added to the top of the stack when this writer is closed to cause following ops to fail. */
-  private static final JsonPrimitive SENTINEL_CLOSED = new JsonPrimitive("closed");
 
   /** The JsonElements and JsonArrays under modification, outermost to innermost. */
   private final List<JsonElement> stack = new ArrayList<JsonElement>();
@@ -89,11 +87,15 @@ public final class JsonTreeWriter extends JsonWriter {
     return product;
   }
 
-  private JsonElement peek() {
-    JsonElement element = stack.get(stack.size() - 1);
-    if (element == SENTINEL_CLOSED) {
+  private void ensureOpen() {
+    if (product != null && stack.isEmpty()) {
       throw new IllegalStateException("Writer is closed");
     }
+  }
+
+  private JsonElement peek() {
+    ensureOpen();
+    JsonElement element = stack.get(stack.size() - 1);
     return element;
   }
 
@@ -105,6 +107,7 @@ public final class JsonTreeWriter extends JsonWriter {
       }
       pendingName = null;
     } else if (stack.isEmpty()) {
+      ensureOpen();
       product = value;
     } else {
       JsonElement element = peek();
@@ -125,6 +128,7 @@ public final class JsonTreeWriter extends JsonWriter {
   }
 
   @Override public JsonWriter endArray() throws IOException {
+    ensureOpen();
     if (stack.isEmpty()) {
       throw new IllegalStateException("Currently not writing an array");
     }
@@ -144,6 +148,7 @@ public final class JsonTreeWriter extends JsonWriter {
   }
 
   @Override public JsonWriter endObject() throws IOException {
+    ensureOpen();
     if (stack.isEmpty()) {
       throw new IllegalStateException("Currently not writing an object");
     } else if (pendingName != null) {
@@ -161,6 +166,7 @@ public final class JsonTreeWriter extends JsonWriter {
     if (name == null) {
       throw new NullPointerException("name == null");
     }
+    ensureOpen();
     if (stack.isEmpty()) {
       throw new IllegalStateException("Currently not writing an object");
     } else if (pendingName != null) {
@@ -236,6 +242,7 @@ public final class JsonTreeWriter extends JsonWriter {
     if (product == null || !stack.isEmpty()) {
       throw new IOException("Incomplete document");
     }
-    stack.add(SENTINEL_CLOSED);
+    // Do nothing; product != null && stack.isEmpty() prevents
+    // any further interaction
   }
 }

@@ -105,6 +105,99 @@ public final class JsonTreeWriterTest extends TestCase {
     }
   }
 
+  public void testGetAfterClose() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.value("test");
+    writer.close();
+    assertEquals("\"test\"", writer.get().toString());
+  }
+
+  public void testClosedWriterThrowsOnStructure() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.beginArray();
+    writer.endArray();
+    writer.close();
+    try {
+      writer.beginArray();
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Writer is closed", expected.getMessage());
+    }
+    try {
+      writer.endArray();
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Writer is closed", expected.getMessage());
+    }
+    try {
+      writer.beginObject();
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Writer is closed", expected.getMessage());
+    }
+    try {
+      writer.endObject();
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Writer is closed", expected.getMessage());
+    }
+  }
+
+  public void testClosedWriterThrowsOnName() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.beginArray();
+    writer.endArray();
+    writer.close();
+    try {
+      writer.name("a");
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Writer is closed", expected.getMessage());
+    }
+    // Argument validation should have higher precedence
+    try {
+      writer.name(null);
+      fail();
+    } catch (NullPointerException expected) {
+      assertEquals("name == null", expected.getMessage());
+    }
+  }
+
+  public void testClosedWriterThrowsOnValue() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.beginArray();
+    writer.endArray();
+    writer.close();
+    try {
+      writer.value("a");
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Writer is closed", expected.getMessage());
+    }
+
+    // Argument validation should have higher precedence
+    try {
+      writer.value((double) Double.NaN);
+      fail();
+    } catch (IllegalArgumentException expected) {
+      assertEquals("JSON forbids NaN and infinities: NaN", expected.getMessage());
+    }
+    try {
+      writer.value((Number) Double.NaN);
+      fail();
+    } catch (IllegalArgumentException expected) {
+      assertEquals("JSON forbids NaN and infinities: NaN", expected.getMessage());
+    }
+  }
+
+  public void testWriterCloseIsIdempotent() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.beginArray();
+    writer.endArray();
+    writer.close();
+    writer.close();
+  }
+
   public void testSerializeNullsFalse() throws IOException {
     JsonTreeWriter writer = new JsonTreeWriter();
     writer.setSerializeNulls(false);
