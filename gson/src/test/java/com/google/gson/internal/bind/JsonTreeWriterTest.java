@@ -102,6 +102,43 @@ public final class JsonTreeWriterTest extends TestCase {
     }
   }
 
+  public void testClosedWriterDuplicateName() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.beginObject();
+    writer.name("test");
+    try {
+      writer.close();
+      fail();
+    } catch (IOException expected) {
+      assertEquals("Incomplete document", expected.getMessage());
+    }
+    // JsonTreeWriter being closed should have higher precedence than duplicate name
+    try {
+      writer.name("test");
+    } catch (IllegalStateException expected) {
+      assertEquals("Writer is closed", expected.getMessage());
+    }
+  }
+
+  public void testClosedWriterDontSerializeNulls() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.setSerializeNulls(false);
+    writer.beginObject();
+    writer.name("test");
+    try {
+      writer.close();
+      fail();
+    } catch (IOException expected) {
+      assertEquals("Incomplete document", expected.getMessage());
+    }
+    // JsonTreeWriter being closed should be checked, even if null is not serialized
+    try {
+      writer.nullValue();
+    } catch (IllegalStateException expected) {
+      assertEquals("Writer is closed", expected.getMessage());
+    }
+  }
+
   public void testCloseEmptyWriter() {
     JsonTreeWriter writer = new JsonTreeWriter();
     try {
@@ -177,6 +214,48 @@ public final class JsonTreeWriterTest extends TestCase {
     writer.close();
     try {
       writer.value("a");
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Writer is closed", expected.getMessage());
+    }
+    try {
+      writer.value(true);
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Writer is closed", expected.getMessage());
+    }
+    try {
+      writer.value(Boolean.TRUE);
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Writer is closed", expected.getMessage());
+    }
+    try {
+      writer.value((Boolean) null);
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Writer is closed", expected.getMessage());
+    }
+    try {
+      writer.value(1.0);
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Writer is closed", expected.getMessage());
+    }
+    try {
+      writer.value(1L);
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Writer is closed", expected.getMessage());
+    }
+    try {
+      writer.value((Number) 1.0);
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Writer is closed", expected.getMessage());
+    }
+    try {
+      writer.value((Number) null);
       fail();
     } catch (IllegalStateException expected) {
       assertEquals("Writer is closed", expected.getMessage());

@@ -170,6 +170,7 @@ public class JsonWriter implements Closeable, Flushable {
   {
     push(EMPTY_DOCUMENT);
   }
+  private boolean isClosed = false;
 
   /**
    * A string containing a full set of spaces for a single level of
@@ -278,6 +279,12 @@ public class JsonWriter implements Closeable, Flushable {
     return serializeNulls;
   }
 
+  private void ensureOpen() {
+    if (isClosed) {
+      throw new IllegalStateException("JsonWriter is closed.");
+    }
+  }
+
   /**
    * Begins encoding a new array. Each call to this method must be paired with
    * a call to {@link #endArray}.
@@ -362,9 +369,7 @@ public class JsonWriter implements Closeable, Flushable {
    * Returns the value on the top of the stack.
    */
   private int peek() {
-    if (stackSize == 0) {
-      throw new IllegalStateException("JsonWriter is closed.");
-    }
+    ensureOpen();
     return stack[stackSize - 1];
   }
 
@@ -385,6 +390,7 @@ public class JsonWriter implements Closeable, Flushable {
     if (name == null) {
       throw new NullPointerException("name == null");
     }
+    ensureOpen();
     if (deferredName != null) {
       throw new IllegalStateException("Already wrote a name, expecting a value");
     }
@@ -456,6 +462,7 @@ public class JsonWriter implements Closeable, Flushable {
       if (serializeNulls) {
         writeDeferredName();
       } else {
+        ensureOpen();
         deferredName = null;
         return this; // skip the name and the value
       }
@@ -500,10 +507,10 @@ public class JsonWriter implements Closeable, Flushable {
    * @return this writer.
    */
   public JsonWriter value(double value) throws IOException {
-    writeDeferredName();
     if (!lenient && (Double.isNaN(value) || Double.isInfinite(value))) {
       throw new IllegalArgumentException("Numeric values must be finite, but was " + value);
     }
+    writeDeferredName();
     beforeValue();
     out.append(Double.toString(value));
     return this;
@@ -533,12 +540,12 @@ public class JsonWriter implements Closeable, Flushable {
       return nullValue();
     }
 
-    writeDeferredName();
     String string = value.toString();
     if (!lenient
         && (string.equals("-Infinity") || string.equals("Infinity") || string.equals("NaN"))) {
       throw new IllegalArgumentException("Numeric values must be finite, but was " + value);
     }
+    writeDeferredName();
     beforeValue();
     out.append(string);
     return this;
@@ -549,9 +556,7 @@ public class JsonWriter implements Closeable, Flushable {
    * and flushes that writer.
    */
   public void flush() throws IOException {
-    if (stackSize == 0) {
-      throw new IllegalStateException("JsonWriter is closed.");
-    }
+    ensureOpen();
     out.flush();
   }
 
@@ -561,6 +566,7 @@ public class JsonWriter implements Closeable, Flushable {
    * @throws IOException if the JSON document is incomplete.
    */
   public void close() throws IOException {
+    isClosed = true;
     out.close();
 
     int size = stackSize;

@@ -20,7 +20,6 @@ import junit.framework.TestCase;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -624,6 +623,14 @@ public final class JsonWriterTest extends TestCase {
       writer.name("a");
       fail();
     } catch (IllegalStateException expected) {
+      assertEquals("JsonWriter is closed.", expected.getMessage());
+    }
+    // Argument validation should have higher precedence
+    try {
+      writer.name(null);
+      fail();
+    } catch (NullPointerException expected) {
+      assertEquals("name == null", expected.getMessage());
     }
   }
 
@@ -637,6 +644,69 @@ public final class JsonWriterTest extends TestCase {
       writer.value("a");
       fail();
     } catch (IllegalStateException expected) {
+      assertEquals("JsonWriter is closed.", expected.getMessage());
+    }
+    try {
+      writer.jsonValue("a");
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("JsonWriter is closed.", expected.getMessage());
+    }
+    try {
+      writer.value(true);
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("JsonWriter is closed.", expected.getMessage());
+    }
+    try {
+      writer.value(Boolean.TRUE);
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("JsonWriter is closed.", expected.getMessage());
+    }
+    try {
+      writer.value((Boolean) null);
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("JsonWriter is closed.", expected.getMessage());
+    }
+    try {
+      writer.value(1.0);
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("JsonWriter is closed.", expected.getMessage());
+    }
+    try {
+      writer.value(1L);
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("JsonWriter is closed.", expected.getMessage());
+    }
+    try {
+      writer.value((Number) 1.0);
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("JsonWriter is closed.", expected.getMessage());
+    }
+    try {
+      writer.value((Number) null);
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("JsonWriter is closed.", expected.getMessage());
+    }
+
+    // Argument validation should have higher precedence
+    try {
+      writer.value((double) Double.NaN);
+      fail();
+    } catch (IllegalArgumentException expected) {
+      assertEquals("Numeric values must be finite, but was NaN", expected.getMessage());
+    }
+    try {
+      writer.value((Number) Double.NaN);
+      fail();
+    } catch (IllegalArgumentException expected) {
+      assertEquals("Numeric values must be finite, but was NaN", expected.getMessage());
     }
   }
 
@@ -663,16 +733,8 @@ public final class JsonWriterTest extends TestCase {
   }
 
   public void testPrematureClose() throws IOException {
-    class DummyWriter extends Writer {
+    class CloseTrackingWriter extends StringWriter {
       boolean isClosed = false;
-
-      @Override public void write(char[] cbuf, int off, int len) throws IOException {
-        // Do nothing
-      }
-
-      @Override public void flush() throws IOException {
-        // Do nothing
-      }
 
       @Override public void close() throws IOException {
         if (isClosed) {
@@ -682,18 +744,63 @@ public final class JsonWriterTest extends TestCase {
       }
     }
 
-    DummyWriter dummyWriter = new DummyWriter();
-    JsonWriter jsonWriter = new JsonWriter(dummyWriter);
+    CloseTrackingWriter writer = new CloseTrackingWriter();
+    JsonWriter jsonWriter = new JsonWriter(writer);
     jsonWriter.beginArray();
-    assertFalse(dummyWriter.isClosed);
+    assertFalse(writer.isClosed);
     try {
       jsonWriter.close();
       fail();
     } catch (IOException expected) {
       assertEquals("Incomplete document", expected.getMessage());
     }
+
+    assertEquals("[", writer.toString());
     // Make sure underlying writer was closed even though document is incomplete
-    assertTrue(dummyWriter.isClosed);
+    assertTrue(writer.isClosed);
+  }
+
+  public void testClosedWriterDuplicateName() throws IOException {
+    StringWriter writer = new StringWriter();
+    JsonWriter jsonWriter = new JsonWriter(writer);
+    jsonWriter.beginObject();
+    jsonWriter.name("test");
+    try {
+      jsonWriter.close();
+      fail();
+    } catch (IOException expected) {
+      assertEquals("Incomplete document", expected.getMessage());
+    }
+    assertEquals("{", writer.toString());
+
+    // JsonWriter being closed should have higher precedence than duplicate name
+    try {
+      jsonWriter.name("test");
+    } catch (IllegalStateException expected) {
+      assertEquals("JsonWriter is closed.", expected.getMessage());
+    }
+  }
+
+  public void testClosedWriterDontSerializeNulls() throws IOException {
+    StringWriter writer = new StringWriter();
+    JsonWriter jsonWriter = new JsonWriter(writer);
+    jsonWriter.setSerializeNulls(false);
+    jsonWriter.beginObject();
+    jsonWriter.name("test");
+    try {
+      jsonWriter.close();
+      fail();
+    } catch (IOException expected) {
+      assertEquals("Incomplete document", expected.getMessage());
+    }
+    assertEquals("{", writer.toString());
+
+    // JsonWriter being closed should be checked, even if null is not serialized
+    try {
+      jsonWriter.nullValue();
+    } catch (IllegalStateException expected) {
+      assertEquals("JsonWriter is closed.", expected.getMessage());
+    }
   }
 
   public void testCloseEmptyWriter() {
