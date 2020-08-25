@@ -51,8 +51,11 @@ public final class JsonTreeWriter extends JsonWriter {
   /** The name for the next JSON object value. If non-null, the top of the stack is a JsonObject. */
   private String pendingName;
 
-  /** the JSON element constructed by this writer. */
-  private JsonElement product = JsonNull.INSTANCE; // TODO: is this really what we want?;
+  /**
+   * The JSON element constructed by this writer; {@code null} if no value has been
+   * written yet.
+   */
+  private JsonElement product = null;
 
   public JsonTreeWriter() {
     super(UNWRITABLE_WRITER);
@@ -60,9 +63,14 @@ public final class JsonTreeWriter extends JsonWriter {
 
   /**
    * Returns the top level object produced by this writer.
+   *
+   * @throws IllegalStateException if no value has been written yet.
+   * @throws IllegalStateException if the currently written value is incomplete.
    */
   public JsonElement get() {
-    if (!stack.isEmpty()) {
+    if (product == null) {
+      throw new IllegalStateException("No value has been written yet");
+    } else if (!stack.isEmpty()) {
       throw new IllegalStateException("Expected one JSON element but was " + stack);
     }
     return product;

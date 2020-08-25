@@ -16,7 +16,6 @@
 
 package com.google.gson.internal.bind;
 
-import com.google.gson.JsonNull;
 import java.io.IOException;
 import junit.framework.TestCase;
 
@@ -117,7 +116,23 @@ public final class JsonTreeWriterTest extends TestCase {
 
   public void testEmptyWriter() {
     JsonTreeWriter writer = new JsonTreeWriter();
-    assertEquals(JsonNull.INSTANCE, writer.get());
+    try {
+      writer.get();
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("No value has been written yet", expected.getMessage());
+    }
+  }
+
+  public void testGetImcompleteValue() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.beginArray();
+    try {
+      writer.get();
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Expected one JSON element but was [[]]", expected.getMessage());
+    }
   }
 
   public void testBeginArray() throws Exception {
