@@ -973,7 +973,16 @@ public class JsonReader implements Closeable {
     }
 
     peeked = PEEKED_BUFFERED;
-    double result = Double.parseDouble(peekedString); // don't catch this NumberFormatException.
+    double result;
+    try {
+      result = Double.parseDouble(peekedString);
+    } catch (NumberFormatException numberFormatException) {
+      // Add location information; don't include peekedString because it might not
+      // be a number at all making the exception message unreadable
+      NumberFormatException toThrow = new NumberFormatException("Value cannot be parsed as double" + locationString(true));
+      toThrow.initCause(numberFormatException);
+      throw toThrow;
+    }
     if (!lenient && (Double.isNaN(result) || Double.isInfinite(result))) {
       throw new MalformedJsonException(
           "JSON forbids NaN and infinities: " + result + locationString(true));
@@ -1028,7 +1037,16 @@ public class JsonReader implements Closeable {
     }
 
     peeked = PEEKED_BUFFERED;
-    double asDouble = Double.parseDouble(peekedString); // don't catch this NumberFormatException.
+    double asDouble;
+    try {
+      asDouble = Double.parseDouble(peekedString);
+    } catch (NumberFormatException numberFormatException) {
+      // Add location information; don't include peekedString because it might not
+      // be a number at all making the exception message unreadable
+      NumberFormatException toThrow = new NumberFormatException("Value cannot be parsed as long" + locationString(true));
+      toThrow.initCause(numberFormatException);
+      throw toThrow;
+    }
     long result = (long) asDouble;
     if (result != asDouble) { // Make sure no precision was lost casting to 'long'.
       throw new NumberFormatException("Expected a long but was " + peekedString + locationString(true));
@@ -1265,7 +1283,16 @@ public class JsonReader implements Closeable {
     }
 
     peeked = PEEKED_BUFFERED;
-    double asDouble = Double.parseDouble(peekedString); // don't catch this NumberFormatException.
+    double asDouble;
+    try {
+      asDouble = Double.parseDouble(peekedString);
+    } catch (NumberFormatException numberFormatException) {
+      // Add location information; don't include peekedString because it might not
+      // be a number at all making the exception message unreadable
+      NumberFormatException toThrow = new NumberFormatException("Value cannot be parsed as int" + locationString(true));
+      toThrow.initCause(numberFormatException);
+      throw toThrow;
+    }
     result = (int) asDouble;
     if (result != asDouble) { // Make sure no precision was lost casting to 'int'.
       throw new NumberFormatException("Expected an int but was " + peekedString + locationString(true));
@@ -1612,7 +1639,8 @@ public class JsonReader implements Closeable {
         } else if (c >= 'A' && c <= 'F') {
           result += (c - 'A' + 10);
         } else {
-          throw new NumberFormatException(new String(buffer, pos, 6));
+          throw new NumberFormatException("Malformed unicode escape sequence " + new String(buffer, pos, 6)
+              + locationString(false));
         }
       }
       break;

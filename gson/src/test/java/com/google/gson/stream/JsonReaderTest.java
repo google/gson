@@ -269,7 +269,7 @@ public final class JsonReaderTest extends TestCase {
       reader.nextString();
       fail();
     } catch (NumberFormatException expected) {
-      assertEquals("\\u000g", expected.getMessage());
+      assertEquals("Malformed unicode escape sequence \\u000g at line 1 column 3 path $[0]", expected.getMessage());
     }
   }
 
@@ -577,8 +577,33 @@ public final class JsonReaderTest extends TestCase {
       reader.nextInt();
       fail();
     } catch (NumberFormatException expected) {
+      assertEquals("Value cannot be parsed as int at line 1 column 2 path $[0]", expected.getMessage());
     }
     assertEquals("12.34e5x", reader.nextString());
+  }
+
+  public void testMalformedLong() throws IOException {
+    JsonReader reader = new JsonReader(reader("12xyz"));
+    reader.setLenient(true);
+    assertEquals(STRING, reader.peek());
+    try {
+      reader.nextLong();
+      fail();
+    } catch (NumberFormatException expected) {
+      assertEquals("Value cannot be parsed as long at line 1 column 1 path $", expected.getMessage());
+    }
+  }
+
+  public void testMalformedDouble() throws IOException {
+    JsonReader reader = new JsonReader(reader("12xyz"));
+    reader.setLenient(true);
+    assertEquals(STRING, reader.peek());
+    try {
+      reader.nextDouble();
+      fail();
+    } catch (NumberFormatException expected) {
+      assertEquals("Value cannot be parsed as double at line 1 column 1 path $", expected.getMessage());
+    }
   }
 
   public void testPeekLongMinValue() throws IOException {
