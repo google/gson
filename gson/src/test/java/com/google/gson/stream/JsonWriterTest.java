@@ -695,4 +695,15 @@ public final class JsonWriterTest extends TestCase {
     // Make sure underlying writer was closed even though document is incomplete
     assertTrue(dummyWriter.isClosed);
   }
+
+  public void testCloseEmptyWriter() {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter writer = new JsonWriter(stringWriter);
+    try {
+      writer.close();
+      fail();
+    } catch (IOException expected) {
+      assertEquals("Incomplete document", expected.getMessage());
+    }
+  }
 }

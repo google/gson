@@ -95,6 +95,16 @@ public final class JsonTreeWriterTest extends TestCase {
     }
   }
 
+  public void testCloseEmptyWriter() {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    try {
+      writer.close();
+      fail();
+    } catch (IOException expected) {
+      assertEquals("Incomplete document", expected.getMessage());
+    }
+  }
+
   public void testSerializeNullsFalse() throws IOException {
     JsonTreeWriter writer = new JsonTreeWriter();
     writer.setSerializeNulls(false);

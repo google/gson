@@ -233,7 +233,7 @@ public final class JsonTreeWriter extends JsonWriter {
   }
 
   @Override public void close() throws IOException {
-    if (!stack.isEmpty()) {
+    if (product == null || !stack.isEmpty()) {
       throw new IOException("Incomplete document");
     }
     stack.add(SENTINEL_CLOSED);
