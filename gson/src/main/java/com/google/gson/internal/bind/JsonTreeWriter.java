@@ -71,7 +71,20 @@ public final class JsonTreeWriter extends JsonWriter {
     if (product == null) {
       throw new IllegalStateException("No value has been written yet");
     } else if (!stack.isEmpty()) {
-      throw new IllegalStateException("Expected one JSON element but was " + stack);
+      StringBuilder stringBuilder = new StringBuilder(8);
+      for (JsonElement stackElement : stack) {
+        if (stackElement instanceof JsonArray) {
+          stringBuilder.append('[');
+        } else {
+          assert stackElement instanceof JsonObject;
+          stringBuilder.append('{');
+        }
+      }
+      if (pendingName != null) {
+        // Append colon to indicate that member value is missing as well
+        stringBuilder.append(':');
+      }
+      throw new IllegalStateException("JSON value is incomplete; open values: " + stringBuilder);
     }
     return product;
   }

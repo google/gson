@@ -127,11 +127,19 @@ public final class JsonTreeWriterTest extends TestCase {
   public void testGetImcompleteValue() throws IOException {
     JsonTreeWriter writer = new JsonTreeWriter();
     writer.beginArray();
+    writer.beginObject();
+    writer.name("test");
+    writer.beginObject();
+    writer.name("test2");
+    writer.beginArray();
+    writer.beginArray();
+    writer.beginObject();
+    writer.name("test3");
     try {
       writer.get();
       fail();
     } catch (IllegalStateException expected) {
-      assertEquals("Expected one JSON element but was [[]]", expected.getMessage());
+      assertEquals("JSON value is incomplete; open values: [{{[[{:", expected.getMessage());
     }
   }
 
