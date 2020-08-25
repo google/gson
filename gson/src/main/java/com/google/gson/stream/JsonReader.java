@@ -553,7 +553,7 @@ public class JsonReader implements Closeable {
       default:
         // Don't increment pos to consider `c` as part of unquoted name
 
-        if (!isLiteral((char) c, true)) {
+        if (!isLiteral((char) c, true, false)) {
           throw syntaxError("Expected name");
         }
         checkLenient();
@@ -595,7 +595,12 @@ public class JsonReader implements Closeable {
       if (c == -1) {
         setCurrentLocationAsPeekStart();
         return peeked = PEEKED_EOF;
-      } else {
+      } else if (!lenient) {
+        if (!isLiteral((char) c, true, true)) {
+          // No point in throwing exception for non-lenient if next char is
+          // not a valid value in lenient mode either
+          syntaxError("Unexpected character");
+        }
         // In lenient mode multiple JSON values may appear behind each other
         // e.g. "test"true[1,2,3]
         checkLenient();
@@ -635,7 +640,7 @@ public class JsonReader implements Closeable {
         peeked = peekNumber();
 
         if (peeked == PEEKED_NONE) {
-          if (!isLiteral(buffer[pos], true)) {
+          if (!isLiteral(buffer[pos], true, false)) {
             throw syntaxError("Expected value");
           }
 
@@ -694,7 +699,7 @@ public class JsonReader implements Closeable {
     // Don't make isLiteral(...) check lenient;
     // check will be performed when next token is peeked
     if ((pos + length < limit || fillBuffer(length + 1))
-        && isLiteral(buffer[pos + length], false)) {
+        && isLiteral(buffer[pos + length], false, false)) {
       return PEEKED_NONE; // Don't match trues, falsey or nullsoft!
     }
 
@@ -771,7 +776,7 @@ public class JsonReader implements Closeable {
         if (c < '0' || c > '9') {
           // Don't make isLiteral(...) check lenient;
           // check will be performed when next token is peeked
-          if (!isLiteral(c, false)) {
+          if (!isLiteral(c, false, false)) {
             break charactersOfNumber;
           }
           return PEEKED_NONE;
@@ -811,7 +816,7 @@ public class JsonReader implements Closeable {
     }
   }
 
-  private boolean isLiteral(char c, boolean checkLenient) throws IOException {
+  private boolean isLiteral(char c, boolean checkLenient, boolean allowValueStart) throws IOException {
     switch (c) {
     // Check if lenient in case char looks like comment start
     case '/':
@@ -823,9 +828,7 @@ public class JsonReader implements Closeable {
     case ';':
     case '=':
     case '\\':
-    case '{':
     case '}':
-    case '[':
     case ']':
     case ':':
     case ',':
@@ -835,6 +838,9 @@ public class JsonReader implements Closeable {
     case '\r':
     case '\n':
       return false;
+    case '{':
+    case '[':
+      return allowValueStart;
     default:
       return true;
     }
