@@ -553,7 +553,7 @@ public class JsonReader implements Closeable {
       default:
         // Don't increment pos to consider `c` as part of unquoted name
 
-        if (!isLiteral((char) c, true, false)) {
+        if (!isLiteral((char) c, false)) {
           throw syntaxError("Expected name");
         }
         checkLenient();
@@ -596,7 +596,7 @@ public class JsonReader implements Closeable {
         setCurrentLocationAsPeekStart();
         return peeked = PEEKED_EOF;
       } else if (!lenient) {
-        if (!isLiteral((char) c, true, true)) {
+        if (!isLiteral((char) c, true)) {
           // No point in throwing exception for non-lenient if next char is
           // not a valid value in lenient mode either
           syntaxError("Unexpected character");
@@ -640,7 +640,7 @@ public class JsonReader implements Closeable {
         peeked = peekNumber();
 
         if (peeked == PEEKED_NONE) {
-          if (!isLiteral(buffer[pos], true, false)) {
+          if (!isLiteral((char) c, false)) {
             throw syntaxError("Expected value");
           }
 
@@ -696,10 +696,8 @@ public class JsonReader implements Closeable {
       }
     }
 
-    // Don't make isLiteral(...) check lenient;
-    // check will be performed when next token is peeked
     if ((pos + length < limit || fillBuffer(length + 1))
-        && isLiteral(buffer[pos + length], false, false)) {
+        && isLiteral(buffer[pos + length], false)) {
       return PEEKED_NONE; // Don't match trues, falsey or nullsoft!
     }
 
@@ -774,9 +772,7 @@ public class JsonReader implements Closeable {
 
       default:
         if (c < '0' || c > '9') {
-          // Don't make isLiteral(...) check lenient;
-          // check will be performed when next token is peeked
-          if (!isLiteral(c, false, false)) {
+          if (!isLiteral(c, false)) {
             break charactersOfNumber;
           }
           return PEEKED_NONE;
@@ -816,15 +812,10 @@ public class JsonReader implements Closeable {
     }
   }
 
-  private boolean isLiteral(char c, boolean checkLenient, boolean allowValueStart) throws IOException {
+  private boolean isLiteral(char c, boolean allowValueStart) throws IOException {
     switch (c) {
-    // Check if lenient in case char looks like comment start
     case '/':
     case '#':
-      if (checkLenient) {
-        checkLenient();
-      }
-      // fall-through
     case ';':
     case '=':
     case '\\':
@@ -1463,10 +1454,10 @@ public class JsonReader implements Closeable {
           }
         }
 
-        checkLenient();
         char peek = buffer[p++];
         switch (peek) {
         case '*':
+          checkLenient();
           // skip a /* c-style comment */
           pos = p;
           if (!skipToIncluding("*/")) {
@@ -1480,6 +1471,7 @@ public class JsonReader implements Closeable {
           continue;
 
         case '/':
+          checkLenient();
           // skip a // end-of-line comment
           pos = p;
           skipToEndOfLine();
@@ -1488,6 +1480,8 @@ public class JsonReader implements Closeable {
           continue;
 
         default:
+          // Don't check lenient since a slash which is not a comment start
+          // is not valid in lenient mode either; caller will throw syntax exception
           // Consume neither '/' nor `peek` character
           pos = p - 2;
           return c;

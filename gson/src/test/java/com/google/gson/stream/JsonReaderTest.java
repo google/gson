@@ -2112,35 +2112,53 @@ public final class JsonReaderTest extends TestCase {
   }
 
   public void testStrictMalformedDocuments() throws IOException {
-    // `/` and `#` should be considered comment starts which can
-    // be read only in lenient mode
-    assertStrictDocument("{/", BEGIN_OBJECT, new MalformedJsonException("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 2 path $."));
+    // Incomplete or malformed comment should be considered not-a-name
+    assertStrictDocument("{/", BEGIN_OBJECT, new MalformedJsonException("Expected name at line 1 column 2 path $."));
+    assertStrictDocument("{/a", BEGIN_OBJECT, new MalformedJsonException("Expected name at line 1 column 2 path $."));
+    assertStrictDocument("{//", BEGIN_OBJECT, new MalformedJsonException("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 2 path $."));
+    assertStrictDocument("{/*", BEGIN_OBJECT, new MalformedJsonException("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 2 path $."));
     assertStrictDocument("{#", BEGIN_OBJECT, new MalformedJsonException("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 2 path $."));
     assertStrictDocument("{:", BEGIN_OBJECT, new MalformedJsonException("Expected name at line 1 column 2 path $."));
     assertStrictDocument("{,", BEGIN_OBJECT, new MalformedJsonException("Expected name at line 1 column 2 path $."));
     assertStrictDocument("{;", BEGIN_OBJECT, new MalformedJsonException("Expected name at line 1 column 2 path $."));
     assertStrictDocument("{a", BEGIN_OBJECT, new MalformedJsonException("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 2 path $."));
-    assertStrictDocument("{\"name\":/", BEGIN_OBJECT, NAME, new MalformedJsonException("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 9 path $.name"));
+    // Incomplete or malformed comment should be considered not-a-value
+    assertStrictDocument("{\"name\":/", BEGIN_OBJECT, NAME, new MalformedJsonException("Expected value at line 1 column 9 path $.name"));
+    assertStrictDocument("{\"name\":/a", BEGIN_OBJECT, NAME, new MalformedJsonException("Expected value at line 1 column 9 path $.name"));
+    assertStrictDocument("{\"name\"://", BEGIN_OBJECT, NAME, new MalformedJsonException("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 9 path $.name"));
+    assertStrictDocument("{\"name\":/*", BEGIN_OBJECT, NAME, new MalformedJsonException("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 9 path $.name"));
     assertStrictDocument("{\"name\":#", BEGIN_OBJECT, NAME, new MalformedJsonException("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 9 path $.name"));
     assertStrictDocument("{\"name\"::", BEGIN_OBJECT, NAME, new MalformedJsonException("Expected value at line 1 column 9 path $.name"));
     assertStrictDocument("{\"name\":,", BEGIN_OBJECT, NAME, new MalformedJsonException("Expected value at line 1 column 9 path $.name"));
     assertStrictDocument("{\"name\":;", BEGIN_OBJECT, NAME, new MalformedJsonException("Expected value at line 1 column 9 path $.name"));
     assertStrictDocument("{\"name\":a", BEGIN_OBJECT, NAME, new MalformedJsonException("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 9 path $.name"));
 
-    assertStrictDocument("[/", BEGIN_ARRAY, new MalformedJsonException("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 2 path $[0]"));
+    // Incomplete or malformed comment should be considered not-a-value
+    assertStrictDocument("[/", BEGIN_ARRAY, new MalformedJsonException("Expected value at line 1 column 2 path $[0]"));
+    assertStrictDocument("[/a", BEGIN_ARRAY, new MalformedJsonException("Expected value at line 1 column 2 path $[0]"));
+    assertStrictDocument("[//", BEGIN_ARRAY, new MalformedJsonException("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 2 path $[0]"));
+    assertStrictDocument("[/*", BEGIN_ARRAY, new MalformedJsonException("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 2 path $[0]"));
     assertStrictDocument("[#", BEGIN_ARRAY, new MalformedJsonException("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 2 path $[0]"));
     assertStrictDocument("[:", BEGIN_ARRAY, new MalformedJsonException("Expected value at line 1 column 2 path $[0]"));
     assertStrictDocument("[;", BEGIN_ARRAY, new MalformedJsonException("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 2 path $[0]"));
     assertStrictDocument("[a", BEGIN_ARRAY, new MalformedJsonException("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 2 path $[0]"));
 
-    assertStrictDocument("/", new MalformedJsonException("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 1 path $"));
+    // Incomplete or malformed comment should be considered not-a-value
+    assertStrictDocument("/", new MalformedJsonException("Expected value at line 1 column 1 path $"));
+    assertStrictDocument("/a", new MalformedJsonException("Expected value at line 1 column 1 path $"));
+    assertStrictDocument("//", new MalformedJsonException("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 1 path $"));
+    assertStrictDocument("/*", new MalformedJsonException("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 1 path $"));
     assertStrictDocument("#", new MalformedJsonException("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 1 path $"));
     assertStrictDocument(":", new MalformedJsonException("Expected value at line 1 column 1 path $"));
     assertStrictDocument(";", new MalformedJsonException("Expected value at line 1 column 1 path $"));
     assertStrictDocument("a", new MalformedJsonException("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 1 path $"));
     assertStrictDocument(" ", new EOFException("End of input at line 1 column 2 path $"));
 
-    assertStrictDocument("false/", BOOLEAN, new MalformedJsonException("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 6 path $"));
+    // Incomplete or malformed comment should be considered not-a-value
+    assertStrictDocument("false/", BOOLEAN, new MalformedJsonException("Unexpected character at line 1 column 6 path $"));
+    assertStrictDocument("false/a", BOOLEAN, new MalformedJsonException("Unexpected character at line 1 column 6 path $"));
+    assertStrictDocument("false//", BOOLEAN, new MalformedJsonException("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 6 path $"));
+    assertStrictDocument("false/*", BOOLEAN, new MalformedJsonException("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 6 path $"));
     assertStrictDocument("false#", BOOLEAN, new MalformedJsonException("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 6 path $"));
     assertStrictDocument("false:", BOOLEAN, new MalformedJsonException("Unexpected character at line 1 column 6 path $"));
     assertStrictDocument("false,", BOOLEAN, new MalformedJsonException("Unexpected character at line 1 column 6 path $"));
@@ -2148,7 +2166,11 @@ public final class JsonReaderTest extends TestCase {
     assertStrictDocument("falsea", new MalformedJsonException("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 1 path $"));
     assertStrictDocument("false ", BOOLEAN, END_DOCUMENT); // well-formed
 
-    assertStrictDocument("123/", NUMBER, new MalformedJsonException("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 4 path $"));
+    // Incomplete or malformed comment should be considered not-a-value
+    assertStrictDocument("123/", NUMBER, new MalformedJsonException("Unexpected character at line 1 column 4 path $"));
+    assertStrictDocument("123/a", NUMBER, new MalformedJsonException("Unexpected character at line 1 column 4 path $"));
+    assertStrictDocument("123/*", NUMBER, new MalformedJsonException("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 4 path $"));
+    assertStrictDocument("123//", NUMBER, new MalformedJsonException("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 4 path $"));
     assertStrictDocument("123#", NUMBER, new MalformedJsonException("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 4 path $"));
     assertStrictDocument("123:", NUMBER, new MalformedJsonException("Unexpected character at line 1 column 4 path $"));
     assertStrictDocument("123,", NUMBER, new MalformedJsonException("Unexpected character at line 1 column 4 path $"));
@@ -2159,6 +2181,8 @@ public final class JsonReaderTest extends TestCase {
 
   public void testLenientMalformedDocuments() throws IOException {
     assertLenientDocument("{", BEGIN_OBJECT, new EOFException("End of input at line 1 column 2 path $."));
+    assertLenientDocument("{/", BEGIN_OBJECT, new MalformedJsonException("Expected name at line 1 column 2 path $."));
+    assertLenientDocument("{/a", BEGIN_OBJECT, new MalformedJsonException("Expected name at line 1 column 2 path $."));
     assertLenientDocument("{]", BEGIN_OBJECT, new MalformedJsonException("Expected name at line 1 column 2 path $."));
     assertLenientDocument("{,", BEGIN_OBJECT, new MalformedJsonException("Expected name at line 1 column 2 path $."));
     assertLenientDocument("{{", BEGIN_OBJECT, new MalformedJsonException("Expected name at line 1 column 2 path $."));
