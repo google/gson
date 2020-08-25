@@ -553,14 +553,13 @@ public class JsonReader implements Closeable {
       default:
         // Don't increment pos to consider `c` as part of unquoted name
 
-        checkLenient();
-        if (isLiteral((char) c)) {
-          setCurrentLocationAsPeekStart();
-          stack[stackSize - 1] = JsonScope.DANGLING_NAME;
-          return peeked = PEEKED_UNQUOTED_NAME;
-        } else {
+        if (!isLiteral((char) c, true)) {
           throw syntaxError("Expected name");
         }
+        checkLenient();
+        setCurrentLocationAsPeekStart();
+        stack[stackSize - 1] = JsonScope.DANGLING_NAME;
+        return peeked = PEEKED_UNQUOTED_NAME;
       }
     } else if (peekStack == JsonScope.DANGLING_NAME) {
       // Look for a colon before the value.
@@ -636,7 +635,7 @@ public class JsonReader implements Closeable {
         peeked = peekNumber();
 
         if (peeked == PEEKED_NONE) {
-          if (!isLiteral(buffer[pos])) {
+          if (!isLiteral(buffer[pos], true)) {
             throw syntaxError("Expected value");
           }
 
@@ -692,8 +691,10 @@ public class JsonReader implements Closeable {
       }
     }
 
+    // Don't make isLiteral(...) check lenient;
+    // check will be performed when next token is peeked
     if ((pos + length < limit || fillBuffer(length + 1))
-        && isLiteral(buffer[pos + length])) {
+        && isLiteral(buffer[pos + length], false)) {
       return PEEKED_NONE; // Don't match trues, falsey or nullsoft!
     }
 
@@ -768,7 +769,9 @@ public class JsonReader implements Closeable {
 
       default:
         if (c < '0' || c > '9') {
-          if (!isLiteral(c)) {
+          // Don't make isLiteral(...) check lenient;
+          // check will be performed when next token is peeked
+          if (!isLiteral(c, false)) {
             break charactersOfNumber;
           }
           return PEEKED_NONE;
@@ -808,14 +811,18 @@ public class JsonReader implements Closeable {
     }
   }
 
-  private boolean isLiteral(char c) throws IOException {
+  private boolean isLiteral(char c, boolean checkLenient) throws IOException {
     switch (c) {
+    // Check if lenient in case char looks like comment start
     case '/':
-    case '\\':
-    case ';':
     case '#':
+      if (checkLenient) {
+        checkLenient();
+      }
+      // fall-through
+    case ';':
     case '=':
-      checkLenient(); // fall-through
+    case '\\':
     case '{':
     case '}':
     case '[':
