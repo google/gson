@@ -242,6 +242,8 @@ public final class JsonTreeWriter extends JsonWriter {
   }
 
   @Override public void flush() throws IOException {
+    // Ensure open to be consistent with JsonWriter
+    ensureOpen();
   }
 
   @Override public void close() throws IOException {

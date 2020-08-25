@@ -197,6 +197,19 @@ public final class JsonTreeWriterTest extends TestCase {
     }
   }
 
+  public void testClosedWriterThrowsOnFlush() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.beginArray();
+    writer.endArray();
+    writer.close();
+    try {
+      writer.flush();
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Writer is closed", expected.getMessage());
+    }
+  }
+
   public void testWriterCloseIsIdempotent() throws IOException {
     JsonTreeWriter writer = new JsonTreeWriter();
     writer.beginArray();
