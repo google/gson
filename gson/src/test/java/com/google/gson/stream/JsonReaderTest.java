@@ -341,7 +341,8 @@ public final class JsonReaderTest extends TestCase {
     try {
       reader.nextDouble();
       fail();
-    } catch (MalformedJsonException expected) {
+    } catch (NumberFormatException expected) {
+      assertEquals("JSON forbids NaN and infinities: NaN at line 1 column 7 path $[0]", expected.getMessage());
     }
   }
 
