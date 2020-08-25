@@ -92,6 +92,13 @@ public final class JsonTreeWriterTest extends TestCase {
       writer.close();
       fail();
     } catch (IOException expected) {
+      assertEquals("Incomplete document", expected.getMessage());
+    }
+    // Should prevent further interaction nonetheless
+    try {
+      writer.endArray();
+    } catch (IllegalStateException expected) {
+      assertEquals("Writer is closed", expected.getMessage());
     }
   }
 
@@ -423,6 +430,35 @@ public final class JsonTreeWriterTest extends TestCase {
       writer.value(Double.valueOf(Double.POSITIVE_INFINITY));
       fail();
     } catch (IllegalArgumentException expected) {
+    }
+  }
+
+  public void testStrictMultipleTopLevelValues() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.setLenient(false);
+    writer.value(123);
+    try {
+      writer.value(123);
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("JSON must have only one top-level value.", expected.getMessage());
+    }
+  }
+
+  /**
+   * Even if writer is in lenient mode it should not support multiple
+   * top-level values because they cannot be represented using a single
+   * JsonElement.
+   */
+  public void testLenientMultipleTopLevelValues() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.setLenient(true);
+    writer.value(123);
+    try {
+      writer.value(123);
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("JSON must have only one top-level value.", expected.getMessage());
     }
   }
 }

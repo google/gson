@@ -55,6 +55,9 @@ public final class JsonTreeWriter extends JsonWriter {
    */
   private JsonElement product = null;
 
+  /** Whether this writer is {@link #close() closed}. */
+  private boolean isClosed = false;
+
   public JsonTreeWriter() {
     super(UNWRITABLE_WRITER);
   }
@@ -88,7 +91,7 @@ public final class JsonTreeWriter extends JsonWriter {
   }
 
   private void ensureOpen() {
-    if (product != null && stack.isEmpty()) {
+    if (isClosed) {
       throw new IllegalStateException("Writer is closed");
     }
   }
@@ -108,6 +111,9 @@ public final class JsonTreeWriter extends JsonWriter {
       pendingName = null;
     } else if (stack.isEmpty()) {
       ensureOpen();
+      if (product != null) {
+        throw new IllegalStateException("JSON must have only one top-level value.");
+      }
       product = value;
     } else {
       JsonElement element = peek();
@@ -239,10 +245,9 @@ public final class JsonTreeWriter extends JsonWriter {
   }
 
   @Override public void close() throws IOException {
+    isClosed = true;
     if (product == null || !stack.isEmpty()) {
       throw new IOException("Incomplete document");
     }
-    // Do nothing; product != null && stack.isEmpty() prevents
-    // any further interaction
   }
 }
