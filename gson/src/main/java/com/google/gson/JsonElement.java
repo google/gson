@@ -268,7 +268,7 @@ public abstract class JsonElement {
    *
    * @return get this element as a {@link BigDecimal}.
    * @throws ClassCastException if the element is of not a {@link JsonPrimitive}.
-   * * @throws NumberFormatException if the element is not a valid {@link BigDecimal}.
+   * @throws NumberFormatException if the element is not a valid {@link BigDecimal}.
    * @throws IllegalStateException if the element is of the type {@link JsonArray} but contains
    * more than a single element.
    * @since 1.2
