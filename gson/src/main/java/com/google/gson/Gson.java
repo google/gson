@@ -1041,7 +1041,8 @@ public final class Gson {
    * @see #fromJson(JsonReader, Type)
    */
   public <T> T fromJson(JsonReader reader, Class<T> classOfT) throws JsonIOException, JsonSyntaxException {
-    return fromJson(reader, (Type) classOfT);
+    Object object = fromJson(reader, (Type) classOfT);
+    return Primitives.wrap(classOfT).cast(object);
   }
 
   /**
