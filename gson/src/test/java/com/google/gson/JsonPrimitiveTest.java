@@ -59,29 +59,98 @@ public class JsonPrimitiveTest extends TestCase {
 
     assertTrue(json.isBoolean());
     assertTrue(json.getAsBoolean());
-
-    // Extra support for booleans
-    json = new JsonPrimitive(1);
-    assertFalse(json.getAsBoolean());
-
-    json = new JsonPrimitive("1");
-    assertFalse(json.getAsBoolean());
-
-    json = new JsonPrimitive("true");
-    assertTrue(json.getAsBoolean());
-
-    json = new JsonPrimitive("TrUe");
-    assertTrue(json.getAsBoolean());
-
-    json = new JsonPrimitive("1.3");
-    assertFalse(json.getAsBoolean());
   }
 
   public void testParsingStringAsBoolean() throws Exception {
     JsonPrimitive json = new JsonPrimitive("true");
-
     assertFalse(json.isBoolean());
     assertTrue(json.getAsBoolean());
+
+    json = new JsonPrimitive("TrUe");
+    assertFalse(json.isBoolean());
+    assertTrue(json.getAsBoolean());
+
+    json = new JsonPrimitive("false");
+    assertFalse(json.isBoolean());
+    assertFalse(json.getAsBoolean());
+
+    json = new JsonPrimitive("FaLsE");
+    assertFalse(json.isBoolean());
+    assertFalse(json.getAsBoolean());
+  }
+
+  public void testParsingMalformedStringAsBoolean() {
+    JsonPrimitive json = new JsonPrimitive(1);
+    assertFalse(json.isBoolean());
+    try {
+      json.getAsBoolean();
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Not a valid boolean: 1", expected.getMessage());
+    }
+
+    json = new JsonPrimitive(0);
+    assertFalse(json.isBoolean());
+    try {
+      json.getAsBoolean();
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Not a valid boolean: 0", expected.getMessage());
+    }
+
+    json = new JsonPrimitive("yes");
+    assertFalse(json.isBoolean());
+    try {
+      json.getAsBoolean();
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Not a valid boolean: yes", expected.getMessage());
+    }
+
+    json = new JsonPrimitive("no");
+    assertFalse(json.isBoolean());
+    try {
+      json.getAsBoolean();
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Not a valid boolean: no", expected.getMessage());
+    }
+
+    json = new JsonPrimitive("trues");
+    assertFalse(json.isBoolean());
+    try {
+      json.getAsBoolean();
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Not a valid boolean: trues", expected.getMessage());
+    }
+
+    json = new JsonPrimitive("falsey");
+    assertFalse(json.isBoolean());
+    try {
+      json.getAsBoolean();
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Not a valid boolean: falsey", expected.getMessage());
+    }
+
+    json = new JsonPrimitive("1");
+    assertFalse(json.isBoolean());
+    try {
+      json.getAsBoolean();
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Not a valid boolean: 1", expected.getMessage());
+    }
+
+    json = new JsonPrimitive("0");
+    assertFalse(json.isBoolean());
+    try {
+      json.getAsBoolean();
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Not a valid boolean: 0", expected.getMessage());
+    }
   }
 
   public void testParsingStringAsNumber() throws Exception {
@@ -256,7 +325,7 @@ public class JsonPrimitiveTest extends TestCase {
   public void testEqualsIntegerAndBigInteger() {
     JsonPrimitive a = new JsonPrimitive(5L);
     JsonPrimitive b = new JsonPrimitive(new BigInteger("18446744073709551621")); // 2^64 + 5
-    // Ideally, the following assertion should have failed but the price is too much to pay 
+    // Ideally, the following assertion should have failed but the price is too much to pay
     // assertFalse(a + " equals " + b, a.equals(b));
     assertTrue(a + " equals " + b, a.equals(b));
   }
