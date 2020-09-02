@@ -875,14 +875,9 @@ public final class Gson {
    * @see #fromJson(String, Class)
    * @see #fromJson(String, TypeToken)
    */
+  @SuppressWarnings("unchecked")
   public <T> T fromJson(String json, Type typeOfT) throws JsonSyntaxException {
-    if (json == null) {
-      return null;
-    }
-    StringReader reader = new StringReader(json);
-    @SuppressWarnings("unchecked")
-    T target = (T) fromJson(reader, typeOfT);
-    return target;
+    return (T) fromJson(json, TypeToken.get(typeOfT));
   }
 
   /**
@@ -911,7 +906,12 @@ public final class Gson {
    * @see #fromJson(String, Class)
    */
   public <T> T fromJson(String json, TypeToken<T> typeOfT) throws JsonSyntaxException {
-    return fromJson(json, typeOfT.getType());
+    if (json == null) {
+      return null;
+    }
+    StringReader reader = new StringReader(json);
+    T target = fromJson(reader, typeOfT);
+    return target;
   }
 
   /**
@@ -939,9 +939,7 @@ public final class Gson {
    * @see #fromJson(Reader, Type)
    */
   public <T> T fromJson(Reader json, Class<T> classOfT) throws JsonSyntaxException, JsonIOException {
-    JsonReader jsonReader = newJsonReader(json);
-    Object object = fromJson(jsonReader, classOfT);
-    assertFullConsumption(object, jsonReader);
+    Object object = fromJson(json, (Type) classOfT);
     return Primitives.wrap(classOfT).cast(object);
   }
 
@@ -973,12 +971,9 @@ public final class Gson {
    * @see #fromJson(Reader, Class)
    * @see #fromJson(Reader, TypeToken)
    */
+  @SuppressWarnings("unchecked")
   public <T> T fromJson(Reader json, Type typeOfT) throws JsonIOException, JsonSyntaxException {
-    JsonReader jsonReader = newJsonReader(json);
-    @SuppressWarnings("unchecked")
-    T object = (T) fromJson(jsonReader, typeOfT);
-    assertFullConsumption(object, jsonReader);
-    return object;
+    return (T) fromJson(json, TypeToken.get(typeOfT));
   }
 
   /**
@@ -1007,7 +1002,10 @@ public final class Gson {
    * @see #fromJson(Reader, Class)
    */
   public <T> T fromJson(Reader json, TypeToken<T> typeOfT) throws JsonIOException, JsonSyntaxException {
-    return fromJson(json, typeOfT.getType());
+    JsonReader jsonReader = newJsonReader(json);
+    T object = fromJson(jsonReader, typeOfT);
+    assertFullConsumption(object, jsonReader);
+    return object;
   }
 
   private static void assertFullConsumption(Object obj, JsonReader reader) {
@@ -1070,39 +1068,9 @@ public final class Gson {
    * @see #fromJson(JsonReader, Class)
    * @see #fromJson(JsonReader, TypeToken)
    */
+  @SuppressWarnings("unchecked")
   public <T> T fromJson(JsonReader reader, Type typeOfT) throws JsonIOException, JsonSyntaxException {
-    boolean isEmpty = true;
-    boolean oldLenient = reader.isLenient();
-    reader.setLenient(true);
-    try {
-      reader.peek();
-      isEmpty = false;
-      @SuppressWarnings("unchecked")
-      TypeToken<T> typeToken = (TypeToken<T>) TypeToken.get(typeOfT);
-      TypeAdapter<T> typeAdapter = getAdapter(typeToken);
-      T object = typeAdapter.read(reader);
-      return object;
-    } catch (EOFException e) {
-      /*
-       * For compatibility with JSON 1.5 and earlier, we return null for empty
-       * documents instead of throwing.
-       */
-      if (isEmpty) {
-        return null;
-      }
-      throw new JsonSyntaxException(e);
-    } catch (IllegalStateException e) {
-      throw new JsonSyntaxException(e);
-    } catch (IOException e) {
-      // TODO(inder): Figure out whether it is indeed right to rethrow this as JsonSyntaxException
-      throw new JsonSyntaxException(e);
-    } catch (AssertionError e) {
-      AssertionError error = new AssertionError("AssertionError (GSON " + GsonBuildConfig.VERSION + "): " + e.getMessage());
-      error.initCause(e);
-      throw error;
-    } finally {
-      reader.setLenient(oldLenient);
-    }
+    return (T) fromJson(reader, TypeToken.get(typeOfT));
   }
 
   /**
@@ -1128,7 +1096,36 @@ public final class Gson {
    * @see #fromJson(JsonReader, Class)
    */
   public <T> T fromJson(JsonReader reader, TypeToken<T> typeOfT) throws JsonIOException, JsonSyntaxException {
-    return fromJson(reader, typeOfT.getType());
+    boolean isEmpty = true;
+    boolean oldLenient = reader.isLenient();
+    reader.setLenient(true);
+    try {
+      reader.peek();
+      isEmpty = false;
+      TypeAdapter<T> typeAdapter = getAdapter(typeOfT);
+      T object = typeAdapter.read(reader);
+      return object;
+    } catch (EOFException e) {
+      /*
+       * For compatibility with JSON 1.5 and earlier, we return null for empty
+       * documents instead of throwing.
+       */
+      if (isEmpty) {
+        return null;
+      }
+      throw new JsonSyntaxException(e);
+    } catch (IllegalStateException e) {
+      throw new JsonSyntaxException(e);
+    } catch (IOException e) {
+      // TODO(inder): Figure out whether it is indeed right to rethrow this as JsonSyntaxException
+      throw new JsonSyntaxException(e);
+    } catch (AssertionError e) {
+      AssertionError error = new AssertionError("AssertionError (GSON " + GsonBuildConfig.VERSION + "): " + e.getMessage());
+      error.initCause(e);
+      throw error;
+    } finally {
+      reader.setLenient(oldLenient);
+    }
   }
 
   /**
@@ -1184,10 +1181,7 @@ public final class Gson {
    */
   @SuppressWarnings("unchecked")
   public <T> T fromJson(JsonElement json, Type typeOfT) throws JsonSyntaxException {
-    if (json == null) {
-      return null;
-    }
-    return (T) fromJson(new JsonTreeReader(json), typeOfT);
+    return (T) fromJson(json, TypeToken.get(typeOfT));
   }
 
   /**
@@ -1215,7 +1209,10 @@ public final class Gson {
    * @see #fromJson(JsonElement, TypeToken)
    */
   public <T> T fromJson(JsonElement json, TypeToken<T> typeOfT) throws JsonSyntaxException {
-    return fromJson(json, typeOfT.getType());
+    if (json == null) {
+      return null;
+    }
+    return fromJson(new JsonTreeReader(json), typeOfT);
   }
 
   static class FutureTypeAdapter<T> extends TypeAdapter<T> {
