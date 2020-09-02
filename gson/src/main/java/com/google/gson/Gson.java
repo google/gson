@@ -860,7 +860,7 @@ public final class Gson {
    * <p>If you are creating the {@code Type} from a {@link TypeToken}, prefer using
    * {@link #fromJson(String, TypeToken)} instead since its return type is based on the
    * {@code TypeToken} and is therefore more type-safe.
-   * 
+   *
    * <p>This method tries to fully consume the JSON and throws an exception in case that is not
    * possible. Use {@link #fromJson(JsonReader, Type)} if this behavior is not desired.
    *
@@ -923,7 +923,7 @@ public final class Gson {
    * object itself should not be a generic type. For the cases when the object is of generic type,
    * invoke {@link #fromJson(Reader, Type)}. If you have the JSON in a String form instead of a
    * {@link Reader}, use {@link #fromJson(String, Class)} instead.
-   * 
+   *
    * <p>This method tries to fully consume the JSON and throws an exception in case that is not
    * possible. Use {@link #fromJson(JsonReader, Class)} if this behavior is not desired.
    *
@@ -955,7 +955,7 @@ public final class Gson {
    * <p>If you are creating the {@code Type} from a {@link TypeToken}, prefer using
    * {@link #fromJson(Reader, TypeToken)} instead since its return type is based on the
    * {@code TypeToken} and is therefore more type-safe.
-   * 
+   *
    * <p>This method tries to fully consume the JSON and throws an exception in case that is not
    * possible. Use {@link #fromJson(JsonReader, Type)} if this behavior is not desired.
    *
@@ -981,7 +981,7 @@ public final class Gson {
    * specified type. This method is useful if the specified object is a generic type. For
    * non-generic objects, use {@link #fromJson(Reader, Class)} instead. If you have the JSON in a
    * String form instead of a {@link Reader}, use {@link #fromJson(String, TypeToken)} instead.
-   * 
+   *
    * <p>This method tries to fully consume the JSON and throws an exception in case that is not
    * possible. Use {@link #fromJson(JsonReader, TypeToken)} if this behavior is not desired.
    *
