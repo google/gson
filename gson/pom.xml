@@ -145,7 +145,7 @@
               <outputDirectory>${project.build.directory}/test-classes/com/google/gson/functional</outputDirectory>
               <resources>
                 <resource>
-                  <directory>${project.build.directory}/test-classes-obfuscated-outjar/classes/classes/com/google/gson/functional</directory>
+                  <directory>${project.build.directory}/test-classes-obfuscated-outjar/com/google/gson/functional</directory>
                   <includes>
                     <include>EnumWithObfuscatedTest.class</include>
                     <include>EnumWithObfuscatedTest$Gender.class</include>
