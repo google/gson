@@ -26,14 +26,12 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.common.TestTypes.Nested;
 import com.google.gson.reflect.TypeToken;
-
-import junit.framework.TestCase;
-
 import java.io.StringReader;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import junit.framework.TestCase;
 
 /**
  * Functional tests for that use JsonParser and related Gson methods
@@ -54,7 +52,8 @@ public class JsonParserTest extends TestCase {
     try {
       gson.fromJson("[[]", Object[].class);
       fail();
-    } catch (JsonSyntaxException expected) { }
+    } catch (JsonSyntaxException expected) {
+    }
   }
 
   public void testDeserializingCustomTree() {
@@ -75,7 +74,8 @@ public class JsonParserTest extends TestCase {
     try {
       gson.fromJson(array, BagOfPrimitives.class);
       fail("BagOfPrimitives is not an array");
-    } catch (JsonParseException expected) { }
+    } catch (JsonParseException expected) {
+    }
   }
 
   public void testBadFieldTypeForCustomDeserializerCustomTree() {
@@ -89,7 +89,8 @@ public class JsonParserTest extends TestCase {
     try {
       gson.fromJson(obj, BagOfPrimitives.class);
       fail("BagOfPrimitives is not an array");
-    } catch (JsonParseException expected) { }
+    } catch (JsonParseException expected) {
+    }
   }
 
   public void testBadFieldTypeForDeserializingCustomTree() {
@@ -106,12 +107,13 @@ public class JsonParserTest extends TestCase {
     try {
       gson.fromJson(obj, Nested.class);
       fail("Nested has field BagOfPrimitives which is not an array");
-    } catch (JsonParseException expected) { }
+    } catch (JsonParseException expected) {
+    }
   }
 
   public void testChangingCustomTreeAndDeserializing() {
     StringReader json =
-      new StringReader("{'stringValue':'no message','intValue':10,'longValue':20}");
+        new StringReader("{'stringValue':'no message','intValue':10,'longValue':20}");
     JsonObject obj = (JsonObject) JsonParser.parseReader(json);
     obj.remove("stringValue");
     obj.addProperty("stringValue", "fooBar");

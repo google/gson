@@ -17,11 +17,9 @@
 package com.google.gson;
 
 import com.google.gson.annotations.Expose;
-
 import com.google.gson.internal.Excluder;
-import junit.framework.TestCase;
-
 import java.lang.reflect.Field;
+import junit.framework.TestCase;
 
 /**
  * Unit tests for GsonBuilder.REQUIRE_EXPOSE_DESERIALIZE.
@@ -72,16 +70,15 @@ public class ExposeAnnotationExclusionStrategyTest extends TestCase {
 
   @SuppressWarnings("unused")
   private static class MockObject {
-    @Expose
-    public final int exposedField = 0;
+    @Expose public final int exposedField = 0;
 
-    @Expose(serialize=true, deserialize=true)
+    @Expose(serialize = true, deserialize = true)
     public final int explicitlyExposedField = 0;
 
-    @Expose(serialize=false, deserialize=false)
+    @Expose(serialize = false, deserialize = false)
     public final int explicitlyHiddenField = 0;
 
-    @Expose(serialize=true, deserialize=false)
+    @Expose(serialize = true, deserialize = false)
     public final int explicitlyDifferentModeField = 0;
 
     public final int hiddenField = 0;

@@ -16,13 +16,11 @@
 
 package com.google.gson;
 
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
-
-import junit.framework.TestCase;
-
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
+import junit.framework.TestCase;
 
 /**
  * Unit tests for {@link GsonBuilder}.
@@ -30,14 +28,18 @@ import com.google.gson.stream.JsonWriter;
  * @author Inderjeet Singh
  */
 public class GsonBuilderTest extends TestCase {
-  private static final TypeAdapter<Object> NULL_TYPE_ADAPTER = new TypeAdapter<Object>() {
-    @Override public void write(JsonWriter out, Object value) {
-      throw new AssertionError();
-    }
-    @Override public Object read(JsonReader in) {
-      throw new AssertionError();
-    }
-  };
+  private static final TypeAdapter<Object> NULL_TYPE_ADAPTER =
+      new TypeAdapter<Object>() {
+        @Override
+        public void write(JsonWriter out, Object value) {
+          throw new AssertionError();
+        }
+
+        @Override
+        public Object read(JsonReader in) {
+          throw new AssertionError();
+        }
+      };
 
   public void testCreatingMoreThanOnce() {
     GsonBuilder builder = new GsonBuilder();
@@ -46,20 +48,14 @@ public class GsonBuilderTest extends TestCase {
   }
 
   public void testExcludeFieldsWithModifiers() {
-    Gson gson = new GsonBuilder()
-        .excludeFieldsWithModifiers(Modifier.VOLATILE, Modifier.PRIVATE)
-        .create();
+    Gson gson =
+        new GsonBuilder().excludeFieldsWithModifiers(Modifier.VOLATILE, Modifier.PRIVATE).create();
     assertEquals("{\"d\":\"d\"}", gson.toJson(new HasModifiers()));
   }
 
   public void testRegisterTypeAdapterForCoreType() {
     Type[] types = {
-        byte.class,
-        int.class,
-        double.class,
-        Short.class,
-        Long.class,
-        String.class,
+      byte.class, int.class, double.class, Short.class, Long.class, String.class,
     };
     for (Type type : types) {
       new GsonBuilder().registerTypeAdapter(type, NULL_TYPE_ADAPTER);
@@ -75,9 +71,7 @@ public class GsonBuilderTest extends TestCase {
   }
 
   public void testTransientFieldExclusion() {
-    Gson gson = new GsonBuilder()
-        .excludeFieldsWithModifiers()
-        .create();
+    Gson gson = new GsonBuilder().excludeFieldsWithModifiers().create();
     assertEquals("{\"a\":\"a\"}", gson.toJson(new HasTransients()));
   }
 

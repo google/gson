@@ -18,7 +18,6 @@ package com.google.gson.functional;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
 import junit.framework.TestCase;
 
 /**
@@ -76,11 +75,11 @@ public class FieldExclusionTest extends TestCase {
         super(value);
       }
     }
-
   }
 
   private static class NestedClass {
     private final String value;
+
     public NestedClass(String value) {
       this.value = value;
     }

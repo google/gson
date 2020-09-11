@@ -11,9 +11,9 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 /**
- * Functional tests for {@link Gson#toJsonTree(Object)} and 
- * {@link Gson#toJsonTree(Object, java.lang.reflect.Type)}
- * 
+ * Functional tests for {@link Gson#toJsonTree(Object)} and {@link Gson#toJsonTree(Object,
+ * java.lang.reflect.Type)}
+ *
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
@@ -77,10 +77,11 @@ public class JsonTreeTest extends TestCase {
     }
     fail();
   }
-  
+
   private static class SubTypeOfBagOfPrimitives extends BagOfPrimitives {
     @SuppressWarnings("unused")
     float f = 1.2F;
+
     public SubTypeOfBagOfPrimitives(long l, int i, boolean b, String string, float f) {
       super(l, i, b, string);
       this.f = f;

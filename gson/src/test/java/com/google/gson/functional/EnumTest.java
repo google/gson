@@ -16,12 +16,6 @@
 
 package com.google.gson.functional;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.Set;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -34,8 +28,13 @@ import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.common.MoreAsserts;
 import com.google.gson.reflect.TypeToken;
-
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.Set;
 import junit.framework.TestCase;
+
 /**
  * Functional tests for Java 5.0 enums.
  *
@@ -90,44 +89,51 @@ public class EnumTest extends TestCase {
   public void testClassWithEnumFieldDeserialization() throws Exception {
     String json = "{value1:'VALUE1',value2:'VALUE2'}";
     ClassWithEnumFields target = gson.fromJson(json, ClassWithEnumFields.class);
-    assertEquals(MyEnum.VALUE1,target.value1);
-    assertEquals(MyEnum.VALUE2,target.value2);
+    assertEquals(MyEnum.VALUE1, target.value1);
+    assertEquals(MyEnum.VALUE2, target.value2);
   }
 
   private static enum MyEnum {
-    VALUE1, VALUE2
+    VALUE1,
+    VALUE2
   }
 
   private static class ClassWithEnumFields {
     private final MyEnum value1 = MyEnum.VALUE1;
     private final MyEnum value2 = MyEnum.VALUE2;
+
     public String getExpectedJson() {
       return "{\"value1\":\"" + value1 + "\",\"value2\":\"" + value2 + "\"}";
     }
   }
 
-  /**
-   * Test for issue 226.
-   */
+  /** Test for issue 226. */
   public void testEnumSubclass() {
     assertFalse(Roshambo.class == Roshambo.ROCK.getClass());
     assertEquals("\"ROCK\"", gson.toJson(Roshambo.ROCK));
     assertEquals("[\"ROCK\",\"PAPER\",\"SCISSORS\"]", gson.toJson(EnumSet.allOf(Roshambo.class)));
     assertEquals(Roshambo.ROCK, gson.fromJson("\"ROCK\"", Roshambo.class));
-    assertEquals(EnumSet.allOf(Roshambo.class),
-        gson.fromJson("[\"ROCK\",\"PAPER\",\"SCISSORS\"]", new TypeToken<Set<Roshambo>>() {}.getType()));
+    assertEquals(
+        EnumSet.allOf(Roshambo.class),
+        gson.fromJson(
+            "[\"ROCK\",\"PAPER\",\"SCISSORS\"]", new TypeToken<Set<Roshambo>>() {}.getType()));
   }
 
   public void testEnumSubclassWithRegisteredTypeAdapter() {
-    gson = new GsonBuilder()
-        .registerTypeHierarchyAdapter(Roshambo.class, new MyEnumTypeAdapter())
-        .create();
+    gson =
+        new GsonBuilder()
+            .registerTypeHierarchyAdapter(Roshambo.class, new MyEnumTypeAdapter())
+            .create();
     assertFalse(Roshambo.class == Roshambo.ROCK.getClass());
     assertEquals("\"123ROCK\"", gson.toJson(Roshambo.ROCK));
-    assertEquals("[\"123ROCK\",\"123PAPER\",\"123SCISSORS\"]", gson.toJson(EnumSet.allOf(Roshambo.class)));
+    assertEquals(
+        "[\"123ROCK\",\"123PAPER\",\"123SCISSORS\"]", gson.toJson(EnumSet.allOf(Roshambo.class)));
     assertEquals(Roshambo.ROCK, gson.fromJson("\"123ROCK\"", Roshambo.class));
-    assertEquals(EnumSet.allOf(Roshambo.class),
-        gson.fromJson("[\"123ROCK\",\"123PAPER\",\"123SCISSORS\"]", new TypeToken<Set<Roshambo>>() {}.getType()));
+    assertEquals(
+        EnumSet.allOf(Roshambo.class),
+        gson.fromJson(
+            "[\"123ROCK\",\"123PAPER\",\"123SCISSORS\"]",
+            new TypeToken<Set<Roshambo>>() {}.getType()));
   }
 
   public void testEnumSubclassAsParameterizedType() {
@@ -161,17 +167,20 @@ public class EnumTest extends TestCase {
 
   public enum Roshambo {
     ROCK {
-      @Override Roshambo defeats() {
+      @Override
+      Roshambo defeats() {
         return SCISSORS;
       }
     },
     PAPER {
-      @Override Roshambo defeats() {
+      @Override
+      Roshambo defeats() {
         return ROCK;
       }
     },
     SCISSORS {
-      @Override Roshambo defeats() {
+      @Override
+      Roshambo defeats() {
         return PAPER;
       }
     };
@@ -181,11 +190,13 @@ public class EnumTest extends TestCase {
 
   private static class MyEnumTypeAdapter
       implements JsonSerializer<Roshambo>, JsonDeserializer<Roshambo> {
-    @Override public JsonElement serialize(Roshambo src, Type typeOfSrc, JsonSerializationContext context) {
+    @Override
+    public JsonElement serialize(Roshambo src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive("123" + src.name());
     }
 
-    @Override public Roshambo deserialize(JsonElement json, Type classOfT, JsonDeserializationContext context)
+    @Override
+    public Roshambo deserialize(JsonElement json, Type classOfT, JsonDeserializationContext context)
         throws JsonParseException {
       return Roshambo.valueOf(json.getAsString().substring(3));
     }
@@ -200,17 +211,20 @@ public class EnumTest extends TestCase {
   }
 
   public void testEnumClassWithFields() {
-	  assertEquals("\"RED\"", gson.toJson(Color.RED));
-	  assertEquals("red", gson.fromJson("RED", Color.class).value);
+    assertEquals("\"RED\"", gson.toJson(Color.RED));
+    assertEquals("red", gson.fromJson("RED", Color.class).value);
   }
 
   public enum Color {
-	  RED("red", 1), BLUE("blue", 2), GREEN("green", 3);
-	  String value;
-	  int index;
-	  private Color(String value, int index) {
-		  this.value = value;
-		  this.index = index;
-	  }
+    RED("red", 1),
+    BLUE("blue", 2),
+    GREEN("green", 3);
+    String value;
+    int index;
+
+    private Color(String value, int index) {
+      this.value = value;
+      this.index = index;
+    }
   }
 }

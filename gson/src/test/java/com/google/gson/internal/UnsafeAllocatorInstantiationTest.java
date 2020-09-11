@@ -19,22 +19,20 @@ import junit.framework.TestCase;
 
 /**
  * Test unsafe allocator instantiation
+ *
  * @author Ugljesa Jovanovic
  */
 public final class UnsafeAllocatorInstantiationTest extends TestCase {
 
-  public interface Interface {
-  }
+  public interface Interface {}
 
-  public static abstract class AbstractClass {
-  }
+  public abstract static class AbstractClass {}
 
-  public static class ConcreteClass {
-  }
+  public static class ConcreteClass {}
 
   /**
-   * Ensure that the {@link java.lang.UnsupportedOperationException} is thrown when trying
-   * to instantiate an interface
+   * Ensure that the {@link java.lang.UnsupportedOperationException} is thrown when trying to
+   * instantiate an interface
    */
   public void testInterfaceInstantiation() {
     UnsafeAllocator unsafeAllocator = UnsafeAllocator.create();
@@ -47,8 +45,8 @@ public final class UnsafeAllocatorInstantiationTest extends TestCase {
   }
 
   /**
-   * Ensure that the {@link java.lang.UnsupportedOperationException} is thrown when trying
-   * to instantiate an abstract class
+   * Ensure that the {@link java.lang.UnsupportedOperationException} is thrown when trying to
+   * instantiate an abstract class
    */
   public void testAbstractClassInstantiation() {
     UnsafeAllocator unsafeAllocator = UnsafeAllocator.create();
@@ -60,9 +58,7 @@ public final class UnsafeAllocatorInstantiationTest extends TestCase {
     }
   }
 
-  /**
-   * Ensure that no exception is thrown when trying to instantiate a concrete class
-   */
+  /** Ensure that no exception is thrown when trying to instantiate a concrete class */
   public void testConcreteClassInstantiation() {
     UnsafeAllocator unsafeAllocator = UnsafeAllocator.create();
     try {

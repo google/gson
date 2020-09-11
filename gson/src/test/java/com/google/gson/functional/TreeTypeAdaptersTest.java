@@ -16,14 +16,6 @@
 
 package com.google.gson.functional;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import junit.framework.TestCase;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -34,17 +26,21 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import junit.framework.TestCase;
 
-/**
- * Collection of functional tests for DOM tree based type adapters.
- */
+/** Collection of functional tests for DOM tree based type adapters. */
 public class TreeTypeAdaptersTest extends TestCase {
   private static final Id<Student> STUDENT1_ID = new Id<Student>("5", Student.class);
   private static final Id<Student> STUDENT2_ID = new Id<Student>("6", Student.class);
   private static final Student STUDENT1 = new Student(STUDENT1_ID, "first");
   private static final Student STUDENT2 = new Student(STUDENT2_ID, "second");
   private static final Type TYPE_COURSE_HISTORY =
-    new TypeToken<Course<HistoryCourse>>(){}.getType(); 
+      new TypeToken<Course<HistoryCourse>>() {}.getType();
   private static final Id<Course<HistoryCourse>> COURSE_ID =
       new Id<Course<HistoryCourse>>("10", TYPE_COURSE_HISTORY);
 
@@ -53,11 +49,13 @@ public class TreeTypeAdaptersTest extends TestCase {
 
   @Override
   protected void setUp() {
-    gson = new GsonBuilder()
-        .registerTypeAdapter(Id.class, new IdTreeTypeAdapter())
-        .create();
-    course = new Course<HistoryCourse>(COURSE_ID, 4,
-        new Assignment<HistoryCourse>(null, null), createList(STUDENT1, STUDENT2));
+    gson = new GsonBuilder().registerTypeAdapter(Id.class, new IdTreeTypeAdapter()).create();
+    course =
+        new Course<HistoryCourse>(
+            COURSE_ID,
+            4,
+            new Assignment<HistoryCourse>(null, null),
+            createList(STUDENT1, STUDENT2));
   }
 
   public void testSerializeId() {
@@ -68,8 +66,9 @@ public class TreeTypeAdaptersTest extends TestCase {
   }
 
   public void testDeserializeId() {
-    String json = "{courseId:1,students:[{id:1,name:'first'},{id:6,name:'second'}],"
-      + "numAssignments:4,assignment:{}}";
+    String json =
+        "{courseId:1,students:[{id:1,name:'first'},{id:6,name:'second'}],"
+            + "numAssignments:4,assignment:{}}";
     Course<HistoryCourse> target = gson.fromJson(json, TYPE_COURSE_HISTORY);
     assertEquals("1", target.getStudents().get(0).id.getValue());
     assertEquals("6", target.getStudents().get(1).id.getValue());
@@ -78,6 +77,7 @@ public class TreeTypeAdaptersTest extends TestCase {
 
   private static final class Id<R> {
     final String value;
+
     @SuppressWarnings("unused")
     final Type typeOfId;
 
@@ -85,13 +85,14 @@ public class TreeTypeAdaptersTest extends TestCase {
       this.value = value;
       this.typeOfId = typeOfId;
     }
+
     public String getValue() {
       return value;
     }
   }
 
-  private static final class IdTreeTypeAdapter implements JsonSerializer<Id<?>>,
-      JsonDeserializer<Id<?>> {
+  private static final class IdTreeTypeAdapter
+      implements JsonSerializer<Id<?>>, JsonDeserializer<Id<?>> {
 
     @SuppressWarnings("rawtypes")
     @Override
@@ -121,6 +122,7 @@ public class TreeTypeAdaptersTest extends TestCase {
     private Student() {
       this(null, null);
     }
+
     public Student(Id<Student> id, String name) {
       this.id = id;
       this.name = name;
@@ -138,16 +140,21 @@ public class TreeTypeAdaptersTest extends TestCase {
       this(null, 0, null, new ArrayList<Student>());
     }
 
-    public Course(Id<Course<T>> courseId, int numAssignments,
-        Assignment<T> assignment, List<Student> players) {
+    public Course(
+        Id<Course<T>> courseId,
+        int numAssignments,
+        Assignment<T> assignment,
+        List<Student> players) {
       this.courseId = courseId;
       this.numAssignments = numAssignments;
       this.assignment = assignment;
       this.students = players;
     }
+
     public Id<Course<T>> getId() {
       return courseId;
     }
+
     List<Student> getStudents() {
       return students;
     }
@@ -161,6 +168,7 @@ public class TreeTypeAdaptersTest extends TestCase {
     private Assignment() {
       this(null, null);
     }
+
     public Assignment(Id<Assignment<T>> id, T data) {
       this.id = id;
       this.data = data;
@@ -172,7 +180,7 @@ public class TreeTypeAdaptersTest extends TestCase {
     int numClasses;
   }
 
-  private static <T> List<T> createList(T ...items) {
+  private static <T> List<T> createList(T... items) {
     return Arrays.asList(items);
   }
 }

@@ -17,15 +17,13 @@
 package com.google.gson;
 
 import com.google.gson.internal.$Gson$Preconditions;
+import com.google.gson.internal.LazilyParsedNumber;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import com.google.gson.internal.LazilyParsedNumber;
-
 /**
- * A class representing a Json primitive value. A primitive value
- * is either a String, a Java primitive, or a Java primitive
- * wrapper type.
+ * A class representing a Json primitive value. A primitive value is either a String, a Java
+ * primitive, or a Java primitive wrapper type.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
@@ -75,6 +73,7 @@ public final class JsonPrimitive extends JsonElement {
 
   /**
    * Returns the same value as primitives are immutable.
+   *
    * @since 2.8.2
    */
   @Override
@@ -101,7 +100,7 @@ public final class JsonPrimitive extends JsonElement {
     if (isBoolean()) {
       return ((Boolean) value).booleanValue();
     }
-	// Check to see if the value as a String is "true" in any case.
+    // Check to see if the value as a String is "true" in any case.
     return Boolean.parseBoolean(getAsString());
   }
 
@@ -180,8 +179,7 @@ public final class JsonPrimitive extends JsonElement {
    */
   @Override
   public BigInteger getAsBigInteger() {
-    return value instanceof BigInteger ?
-        (BigInteger) value : new BigInteger(value.toString());
+    return value instanceof BigInteger ? (BigInteger) value : new BigInteger(value.toString());
   }
 
   /**
@@ -217,12 +215,12 @@ public final class JsonPrimitive extends JsonElement {
     return isNumber() ? getAsNumber().shortValue() : Short.parseShort(getAsString());
   }
 
- /**
-  * convenience method to get this element as a primitive integer.
-  *
-  * @return get this element as a primitive integer.
-  * @throws NumberFormatException if the value contained is not a valid integer.
-  */
+  /**
+   * convenience method to get this element as a primitive integer.
+   *
+   * @return get this element as a primitive integer.
+   * @throws NumberFormatException if the value contained is not a valid integer.
+   */
   @Override
   public int getAsInt() {
     return isNumber() ? getAsNumber().intValue() : Integer.parseInt(getAsString());
@@ -263,7 +261,7 @@ public final class JsonPrimitive extends JsonElement {
     if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    JsonPrimitive other = (JsonPrimitive)obj;
+    JsonPrimitive other = (JsonPrimitive) obj;
     if (value == null) {
       return other.value == null;
     }
@@ -281,14 +279,17 @@ public final class JsonPrimitive extends JsonElement {
   }
 
   /**
-   * Returns true if the specified number is an integral type
-   * (Long, Integer, Short, Byte, BigInteger)
+   * Returns true if the specified number is an integral type (Long, Integer, Short, Byte,
+   * BigInteger)
    */
   private static boolean isIntegral(JsonPrimitive primitive) {
     if (primitive.value instanceof Number) {
       Number number = (Number) primitive.value;
-      return number instanceof BigInteger || number instanceof Long || number instanceof Integer
-          || number instanceof Short || number instanceof Byte;
+      return number instanceof BigInteger
+          || number instanceof Long
+          || number instanceof Integer
+          || number instanceof Short
+          || number instanceof Byte;
     }
     return false;
   }

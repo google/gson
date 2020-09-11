@@ -20,8 +20,7 @@ import java.lang.reflect.Type;
 
 /**
  * Context for deserialization that is passed to a custom deserializer during invocation of its
- * {@link JsonDeserializer#deserialize(JsonElement, Type, JsonDeserializationContext)}
- * method.
+ * {@link JsonDeserializer#deserialize(JsonElement, Type, JsonDeserializationContext)} method.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
@@ -29,10 +28,10 @@ import java.lang.reflect.Type;
 public interface JsonDeserializationContext {
 
   /**
-   * Invokes default deserialization on the specified object. It should never be invoked on
-   * the element received as a parameter of the
-   * {@link JsonDeserializer#deserialize(JsonElement, Type, JsonDeserializationContext)} method. Doing
-   * so will result in an infinite loop since Gson will in-turn call the custom deserializer again.
+   * Invokes default deserialization on the specified object. It should never be invoked on the
+   * element received as a parameter of the {@link JsonDeserializer#deserialize(JsonElement, Type,
+   * JsonDeserializationContext)} method. Doing so will result in an infinite loop since Gson will
+   * in-turn call the custom deserializer again.
    *
    * @param json the parse tree.
    * @param typeOfT type of the expected return value.

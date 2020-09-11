@@ -17,7 +17,6 @@
 package com.google.gson;
 
 import com.google.gson.internal.LinkedTreeMap;
-
 import java.util.Map;
 import java.util.Set;
 
@@ -35,6 +34,7 @@ public final class JsonObject extends JsonElement {
 
   /**
    * Creates a deep copy of this element and all its children
+   *
    * @since 2.8.2
    */
   @Override
@@ -92,8 +92,8 @@ public final class JsonObject extends JsonElement {
   }
 
   /**
-   * Convenience method to add a boolean member. The specified value is converted to a
-   * JsonPrimitive of Boolean.
+   * Convenience method to add a boolean member. The specified value is converted to a JsonPrimitive
+   * of Boolean.
    *
    * @param property name of the member.
    * @param value the number value associated with the member.
@@ -103,8 +103,8 @@ public final class JsonObject extends JsonElement {
   }
 
   /**
-   * Convenience method to add a char member. The specified value is converted to a
-   * JsonPrimitive of Character.
+   * Convenience method to add a char member. The specified value is converted to a JsonPrimitive of
+   * Character.
    *
    * @param property name of the member.
    * @param value the number value associated with the member.
@@ -194,8 +194,7 @@ public final class JsonObject extends JsonElement {
 
   @Override
   public boolean equals(Object o) {
-    return (o == this) || (o instanceof JsonObject
-        && ((JsonObject) o).members.equals(members));
+    return (o == this) || (o instanceof JsonObject && ((JsonObject) o).members.equals(members));
   }
 
   @Override

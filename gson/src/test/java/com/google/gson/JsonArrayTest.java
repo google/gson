@@ -16,13 +16,10 @@
 
 package com.google.gson;
 
+import com.google.gson.common.MoreAsserts;
 import junit.framework.TestCase;
 
-import com.google.gson.common.MoreAsserts;
-
-/**
- * @author Jesse Wilson
- */
+/** @author Jesse Wilson */
 public final class JsonArrayTest extends TestCase {
 
   public void testEqualsOnEmptyArray() {
@@ -56,7 +53,8 @@ public final class JsonArrayTest extends TestCase {
     try {
       array.remove(0);
       fail();
-    } catch (IndexOutOfBoundsException expected) {}
+    } catch (IndexOutOfBoundsException expected) {
+    }
     JsonPrimitive a = new JsonPrimitive("a");
     array.add(a);
     assertTrue(array.remove(a));
@@ -73,7 +71,8 @@ public final class JsonArrayTest extends TestCase {
     try {
       array.set(0, new JsonPrimitive(1));
       fail();
-    } catch (IndexOutOfBoundsException expected) {}
+    } catch (IndexOutOfBoundsException expected) {
+    }
     JsonPrimitive a = new JsonPrimitive("a");
     array.add(a);
     array.set(0, new JsonPrimitive("b"));

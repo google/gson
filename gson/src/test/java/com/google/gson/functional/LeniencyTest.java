@@ -15,17 +15,15 @@
  */
 package com.google.gson.functional;
 
+import static java.util.Collections.singletonList;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import java.util.List;
 import junit.framework.TestCase;
 
-import static java.util.Collections.singletonList;
-
-/**
- * Functional tests for leniency option.
- */
+/** Functional tests for leniency option. */
 public class LeniencyTest extends TestCase {
 
   private Gson gson;
@@ -37,10 +35,10 @@ public class LeniencyTest extends TestCase {
   }
 
   public void testLenientFromJson() {
-    List<String> json = gson.fromJson(""
-        + "[ # One!\n"
-        + "  'Hi' #Element!\n"
-        + "] # Array!", new TypeToken<List<String>>() {}.getType());
+    List<String> json =
+        gson.fromJson(
+            "" + "[ # One!\n" + "  'Hi' #Element!\n" + "] # Array!",
+            new TypeToken<List<String>>() {}.getType());
     assertEquals(singletonList("Hi"), json);
   }
 }

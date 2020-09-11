@@ -59,12 +59,12 @@ public abstract class UnsafeAllocator {
     //   private static native Object newInstance(Class<?> instantiationClass, int methodId);
     // }
     try {
-      Method getConstructorId = ObjectStreamClass.class
-          .getDeclaredMethod("getConstructorId", Class.class);
+      Method getConstructorId =
+          ObjectStreamClass.class.getDeclaredMethod("getConstructorId", Class.class);
       getConstructorId.setAccessible(true);
       final int constructorId = (Integer) getConstructorId.invoke(null, Object.class);
-      final Method newInstance = ObjectStreamClass.class
-          .getDeclaredMethod("newInstance", Class.class, int.class);
+      final Method newInstance =
+          ObjectStreamClass.class.getDeclaredMethod("newInstance", Class.class, int.class);
       newInstance.setAccessible(true);
       return new UnsafeAllocator() {
         @Override
@@ -83,8 +83,8 @@ public abstract class UnsafeAllocator {
     //     Class<?> instantiationClass, Class<?> constructorClass);
     // }
     try {
-      final Method newInstance = ObjectInputStream.class
-          .getDeclaredMethod("newInstance", Class.class, Class.class);
+      final Method newInstance =
+          ObjectInputStream.class.getDeclaredMethod("newInstance", Class.class, Class.class);
       newInstance.setAccessible(true);
       return new UnsafeAllocator() {
         @Override
@@ -107,17 +107,20 @@ public abstract class UnsafeAllocator {
   }
 
   /**
-   * Check if the class can be instantiated by unsafe allocator. If the instance has interface or abstract modifiers
-   * throw an {@link java.lang.UnsupportedOperationException}
+   * Check if the class can be instantiated by unsafe allocator. If the instance has interface or
+   * abstract modifiers throw an {@link java.lang.UnsupportedOperationException}
+   *
    * @param c instance of the class to be checked
    */
   static void assertInstantiable(Class<?> c) {
     int modifiers = c.getModifiers();
     if (Modifier.isInterface(modifiers)) {
-      throw new UnsupportedOperationException("Interface can't be instantiated! Interface name: " + c.getName());
+      throw new UnsupportedOperationException(
+          "Interface can't be instantiated! Interface name: " + c.getName());
     }
     if (Modifier.isAbstract(modifiers)) {
-      throw new UnsupportedOperationException("Abstract class can't be instantiated! Class name: " + c.getName());
+      throw new UnsupportedOperationException(
+          "Abstract class can't be instantiated! Class name: " + c.getName());
     }
   }
 }

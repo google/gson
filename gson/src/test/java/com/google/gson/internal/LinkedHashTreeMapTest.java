@@ -42,7 +42,7 @@ public final class LinkedHashTreeMapTest extends TestCase {
     map.put("a", "android");
     map.put("c", "cola");
     map.put("b", "bbq");
-    Iterator<Map.Entry<String,String>> it = map.entrySet().iterator();
+    Iterator<Map.Entry<String, String>> it = map.entrySet().iterator();
     it.next();
     it.next();
     it.next();
@@ -64,7 +64,8 @@ public final class LinkedHashTreeMapTest extends TestCase {
     try {
       map.put(new Object(), "android");
       fail();
-    } catch (ClassCastException expected) {}
+    } catch (ClassCastException expected) {
+    }
   }
 
   public void testContainsNonComparableKeyReturnsFalse() {
@@ -144,16 +145,22 @@ public final class LinkedHashTreeMapTest extends TestCase {
   }
 
   public void testAvlWalker() {
-    assertAvlWalker(node(node("a"), "b", node("c")),
-        "a", "b", "c");
-    assertAvlWalker(node(node(node("a"), "b", node("c")), "d", node(node("e"), "f", node("g"))),
-        "a", "b", "c", "d", "e", "f", "g");
-    assertAvlWalker(node(node(null, "a", node("b")), "c", node(node("d"), "e", null)),
-        "a", "b", "c", "d", "e");
-    assertAvlWalker(node(null, "a", node(null, "b", node(null, "c", node("d")))),
-        "a", "b", "c", "d");
-    assertAvlWalker(node(node(node(node("a"), "b", null), "c", null), "d", null),
-        "a", "b", "c", "d");
+    assertAvlWalker(node(node("a"), "b", node("c")), "a", "b", "c");
+    assertAvlWalker(
+        node(node(node("a"), "b", node("c")), "d", node(node("e"), "f", node("g"))),
+        "a",
+        "b",
+        "c",
+        "d",
+        "e",
+        "f",
+        "g");
+    assertAvlWalker(
+        node(node(null, "a", node("b")), "c", node(node("d"), "e", null)), "a", "b", "c", "d", "e");
+    assertAvlWalker(
+        node(null, "a", node(null, "b", node(null, "c", node("d")))), "a", "b", "c", "d");
+    assertAvlWalker(
+        node(node(node(node("a"), "b", null), "c", null), "d", null), "a", "b", "c", "d");
   }
 
   private void assertAvlWalker(Node<String, String> root, String... values) {
@@ -182,10 +189,14 @@ public final class LinkedHashTreeMapTest extends TestCase {
     assertAvlBuilder(14, "(((. a b) c (d e f)) g ((h i j) k (l m n)))");
     assertAvlBuilder(15, "(((a b c) d (e f g)) h ((i j k) l (m n o)))");
     assertAvlBuilder(16, "(((a b c) d (e f g)) h ((i j k) l (m n (. o p))))");
-    assertAvlBuilder(30, "((((. a b) c (d e f)) g ((h i j) k (l m n))) o "
-        + "(((p q r) s (t u v)) w ((x y z) A (B C D))))");
-    assertAvlBuilder(31, "((((a b c) d (e f g)) h ((i j k) l (m n o))) p "
-        + "(((q r s) t (u v w)) x ((y z A) B (C D E))))");
+    assertAvlBuilder(
+        30,
+        "((((. a b) c (d e f)) g ((h i j) k (l m n))) o "
+            + "(((p q r) s (t u v)) w ((x y z) A (B C D))))");
+    assertAvlBuilder(
+        31,
+        "((((a b c) d (e f g)) h ((i j k) l (m n o))) p "
+            + "(((q r s) t (u v w)) x ((y z A) B (C D E))))");
   }
 
   private void assertAvlBuilder(int size, String expected) {
@@ -230,8 +241,8 @@ public final class LinkedHashTreeMapTest extends TestCase {
     return new Node<String, String>(null, value, value.hashCode(), head, head);
   }
 
-  private Node<String, String> node(Node<String, String> left, String value,
-      Node<String, String> right) {
+  private Node<String, String> node(
+      Node<String, String> left, String value, Node<String, String> right) {
     Node<String, String> result = node(value);
     if (left != null) {
       result.left = left;

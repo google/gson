@@ -16,15 +16,13 @@
 
 package com.google.gson.internal;
 
+import com.google.gson.common.MoreAsserts;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
-
 import junit.framework.TestCase;
-
-import com.google.gson.common.MoreAsserts;
 
 public final class LinkedTreeMapTest extends TestCase {
 
@@ -42,7 +40,7 @@ public final class LinkedTreeMapTest extends TestCase {
     map.put("a", "android");
     map.put("c", "cola");
     map.put("b", "bbq");
-    Iterator<Map.Entry<String,String>> it = map.entrySet().iterator();
+    Iterator<Map.Entry<String, String>> it = map.entrySet().iterator();
     it.next();
     it.next();
     it.next();
@@ -64,7 +62,8 @@ public final class LinkedTreeMapTest extends TestCase {
     try {
       map.put(new Object(), "android");
       fail();
-    } catch (ClassCastException expected) {}
+    } catch (ClassCastException expected) {
+    }
   }
 
   public void testContainsNonComparableKeyReturnsFalse() {

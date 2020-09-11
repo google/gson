@@ -15,12 +15,6 @@
  */
 package com.google.gson.functional;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import junit.framework.TestCase;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
@@ -29,6 +23,10 @@ import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import junit.framework.TestCase;
 
 /**
  * Functional tests for {@link Gson#getDelegateAdapter(TypeAdapterFactory, TypeToken)} method.
@@ -44,9 +42,7 @@ public class DelegateTypeAdapterTest extends TestCase {
   protected void setUp() throws Exception {
     super.setUp();
     stats = new StatsTypeAdapterFactory();
-    gson = new GsonBuilder()
-      .registerTypeAdapterFactory(stats)
-      .create();
+    gson = new GsonBuilder().registerTypeAdapterFactory(stats).create();
   }
 
   public void testDelegateInvoked() {
@@ -55,7 +51,7 @@ public class DelegateTypeAdapterTest extends TestCase {
       bags.add(new BagOfPrimitives(i, i, i % 2 == 0, String.valueOf(i)));
     }
     String json = gson.toJson(bags);
-    bags = gson.fromJson(json, new TypeToken<List<BagOfPrimitives>>(){}.getType());
+    bags = gson.fromJson(json, new TypeToken<List<BagOfPrimitives>>() {}.getType());
     // 11: 1 list object, and 10 entries. stats invoked on all 5 fields
     assertEquals(51, stats.numReads);
     assertEquals(51, stats.numWrites);
@@ -74,7 +70,8 @@ public class DelegateTypeAdapterTest extends TestCase {
     public int numReads = 0;
     public int numWrites = 0;
 
-    @Override public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+    @Override
+    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
       final TypeAdapter<T> delegate = gson.getDelegateAdapter(this, type);
       return new TypeAdapter<T>() {
         @Override

@@ -16,13 +16,11 @@
 
 package com.google.gson.common;
 
+import java.util.Collection;
 import org.junit.Assert;
 
-import java.util.Collection;
-
 /**
- * Handy asserts that we wish were present in {@link Assert}
- * so that we didn't have to write them.
+ * Handy asserts that we wish were present in {@link Assert} so that we didn't have to write them.
  *
  * @author Inderjeet Singh
  */
@@ -30,6 +28,7 @@ public class MoreAsserts {
 
   /**
    * Asserts that the specified {@code value} is not present in {@code collection}
+   *
    * @param collection the collection to look into
    * @param value the value that needs to be checked for presence
    */

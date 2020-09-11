@@ -34,22 +34,37 @@ import junit.framework.TestCase;
  */
 public final class GsonTest extends TestCase {
 
-  private static final Excluder CUSTOM_EXCLUDER = Excluder.DEFAULT
-      .excludeFieldsWithoutExposeAnnotation()
-      .disableInnerClassSerialization();
+  private static final Excluder CUSTOM_EXCLUDER =
+      Excluder.DEFAULT.excludeFieldsWithoutExposeAnnotation().disableInnerClassSerialization();
 
-  private static final FieldNamingStrategy CUSTOM_FIELD_NAMING_STRATEGY = new FieldNamingStrategy() {
-    @Override public String translateName(Field f) {
-      return "foo";
-    }
-  };
+  private static final FieldNamingStrategy CUSTOM_FIELD_NAMING_STRATEGY =
+      new FieldNamingStrategy() {
+        @Override
+        public String translateName(Field f) {
+          return "foo";
+        }
+      };
 
   public void testOverridesDefaultExcluder() {
-    Gson gson = new Gson(CUSTOM_EXCLUDER, CUSTOM_FIELD_NAMING_STRATEGY,
-        new HashMap<Type, InstanceCreator<?>>(), true, false, true, false,
-        true, true, false, LongSerializationPolicy.DEFAULT, null, DateFormat.DEFAULT,
-        DateFormat.DEFAULT, new ArrayList<TypeAdapterFactory>(),
-        new ArrayList<TypeAdapterFactory>(), new ArrayList<TypeAdapterFactory>());
+    Gson gson =
+        new Gson(
+            CUSTOM_EXCLUDER,
+            CUSTOM_FIELD_NAMING_STRATEGY,
+            new HashMap<Type, InstanceCreator<?>>(),
+            true,
+            false,
+            true,
+            false,
+            true,
+            true,
+            false,
+            LongSerializationPolicy.DEFAULT,
+            null,
+            DateFormat.DEFAULT,
+            DateFormat.DEFAULT,
+            new ArrayList<TypeAdapterFactory>(),
+            new ArrayList<TypeAdapterFactory>(),
+            new ArrayList<TypeAdapterFactory>());
 
     assertEquals(CUSTOM_EXCLUDER, gson.excluder());
     assertEquals(CUSTOM_FIELD_NAMING_STRATEGY, gson.fieldNamingStrategy());
@@ -58,23 +73,41 @@ public final class GsonTest extends TestCase {
   }
 
   public void testClonedTypeAdapterFactoryListsAreIndependent() {
-    Gson original = new Gson(CUSTOM_EXCLUDER, CUSTOM_FIELD_NAMING_STRATEGY,
-        new HashMap<Type, InstanceCreator<?>>(), true, false, true, false,
-        true, true, false, LongSerializationPolicy.DEFAULT, null, DateFormat.DEFAULT,
-        DateFormat.DEFAULT, new ArrayList<TypeAdapterFactory>(),
-        new ArrayList<TypeAdapterFactory>(), new ArrayList<TypeAdapterFactory>());
+    Gson original =
+        new Gson(
+            CUSTOM_EXCLUDER,
+            CUSTOM_FIELD_NAMING_STRATEGY,
+            new HashMap<Type, InstanceCreator<?>>(),
+            true,
+            false,
+            true,
+            false,
+            true,
+            true,
+            false,
+            LongSerializationPolicy.DEFAULT,
+            null,
+            DateFormat.DEFAULT,
+            DateFormat.DEFAULT,
+            new ArrayList<TypeAdapterFactory>(),
+            new ArrayList<TypeAdapterFactory>(),
+            new ArrayList<TypeAdapterFactory>());
 
-    Gson clone = original.newBuilder()
-        .registerTypeAdapter(Object.class, new TestTypeAdapter())
-        .create();
+    Gson clone =
+        original.newBuilder().registerTypeAdapter(Object.class, new TestTypeAdapter()).create();
 
     assertEquals(original.factories.size() + 1, clone.factories.size());
   }
 
   private static final class TestTypeAdapter extends TypeAdapter<Object> {
-    @Override public void write(JsonWriter out, Object value) throws IOException {
+    @Override
+    public void write(JsonWriter out, Object value) throws IOException {
       // Test stub.
     }
-    @Override public Object read(JsonReader in) throws IOException { return null; }
+
+    @Override
+    public Object read(JsonReader in) throws IOException {
+      return null;
+    }
   }
 }

@@ -33,19 +33,18 @@ import java.util.List;
 public final class JsonArray extends JsonElement implements Iterable<JsonElement> {
   private final List<JsonElement> elements;
 
-  /**
-   * Creates an empty JsonArray.
-   */
+  /** Creates an empty JsonArray. */
   public JsonArray() {
     elements = new ArrayList<JsonElement>();
   }
-  
+
   public JsonArray(int capacity) {
     elements = new ArrayList<JsonElement>(capacity);
   }
 
   /**
    * Creates a deep copy of this element and all its children
+   *
    * @since 2.8.2
    */
   @Override
@@ -119,7 +118,8 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
 
   /**
    * Replaces the element at the specified position in this array with the specified element.
-   *   Element can be null.
+   * Element can be null.
+   *
    * @param index index of the element to replace
    * @param element element to be stored at the specified position
    * @return the element previously at the specified position
@@ -130,8 +130,9 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   }
 
   /**
-   * Removes the first occurrence of the specified element from this array, if it is present.
-   * If the array does not contain the element, it is unchanged.
+   * Removes the first occurrence of the specified element from this array, if it is present. If the
+   * array does not contain the element, it is unchanged.
+   *
    * @param element element to be removed from this array, if present
    * @return true if this array contained the specified element, false otherwise
    * @since 2.3
@@ -141,9 +142,10 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   }
 
   /**
-   * Removes the element at the specified position in this array. Shifts any subsequent elements
-   * to the left (subtracts one from their indices). Returns the element that was removed from
-   * the array.
+   * Removes the element at the specified position in this array. Shifts any subsequent elements to
+   * the left (subtracts one from their indices). Returns the element that was removed from the
+   * array.
+   *
    * @param index index the index of the element to be removed
    * @return the element previously at the specified position
    * @throws IndexOutOfBoundsException if the specified index is outside the array bounds
@@ -155,6 +157,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
 
   /**
    * Returns true if this array contains the specified element.
+   *
    * @return true if this array contains the specified element.
    * @param element whose presence in this array is to be tested
    * @since 2.3
@@ -171,7 +174,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   public int size() {
     return elements.size();
   }
-  
+
   /**
    * Returns true if the array is empty
    *
@@ -196,8 +199,8 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    *
    * @param i the index of the element that is being sought.
    * @return the element present at the ith index.
-   * @throws IndexOutOfBoundsException if i is negative or greater than or equal to the
-   * {@link #size()} of the array.
+   * @throws IndexOutOfBoundsException if i is negative or greater than or equal to the {@link
+   *     #size()} of the array.
    */
   public JsonElement get(int i) {
     return elements.get(i);
@@ -207,8 +210,8 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * convenience method to get this array as a {@link Number} if it contains a single element.
    *
    * @return get this element as a number if it is single element array.
-   * @throws ClassCastException if the element in the array is of not a {@link JsonPrimitive} and
-   * is not a valid Number.
+   * @throws ClassCastException if the element in the array is of not a {@link JsonPrimitive} and is
+   *     not a valid Number.
    * @throws IllegalStateException if the array has more than one element.
    */
   @Override
@@ -223,8 +226,8 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * convenience method to get this array as a {@link String} if it contains a single element.
    *
    * @return get this element as a String if it is single element array.
-   * @throws ClassCastException if the element in the array is of not a {@link JsonPrimitive} and
-   * is not a valid String.
+   * @throws ClassCastException if the element in the array is of not a {@link JsonPrimitive} and is
+   *     not a valid String.
    * @throws IllegalStateException if the array has more than one element.
    */
   @Override
@@ -239,8 +242,8 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * convenience method to get this array as a double if it contains a single element.
    *
    * @return get this element as a double if it is single element array.
-   * @throws ClassCastException if the element in the array is of not a {@link JsonPrimitive} and
-   * is not a valid double.
+   * @throws ClassCastException if the element in the array is of not a {@link JsonPrimitive} and is
+   *     not a valid double.
    * @throws IllegalStateException if the array has more than one element.
    */
   @Override
@@ -289,8 +292,8 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * convenience method to get this array as a float if it contains a single element.
    *
    * @return get this element as a float if it is single element array.
-   * @throws ClassCastException if the element in the array is of not a {@link JsonPrimitive} and
-   * is not a valid float.
+   * @throws ClassCastException if the element in the array is of not a {@link JsonPrimitive} and is
+   *     not a valid float.
    * @throws IllegalStateException if the array has more than one element.
    */
   @Override
@@ -305,8 +308,8 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * convenience method to get this array as a long if it contains a single element.
    *
    * @return get this element as a long if it is single element array.
-   * @throws ClassCastException if the element in the array is of not a {@link JsonPrimitive} and
-   * is not a valid long.
+   * @throws ClassCastException if the element in the array is of not a {@link JsonPrimitive} and is
+   *     not a valid long.
    * @throws IllegalStateException if the array has more than one element.
    */
   @Override
@@ -321,8 +324,8 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * convenience method to get this array as an integer if it contains a single element.
    *
    * @return get this element as an integer if it is single element array.
-   * @throws ClassCastException if the element in the array is of not a {@link JsonPrimitive} and
-   * is not a valid integer.
+   * @throws ClassCastException if the element in the array is of not a {@link JsonPrimitive} and is
+   *     not a valid integer.
    * @throws IllegalStateException if the array has more than one element.
    */
   @Override
@@ -353,8 +356,8 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * convenience method to get this array as a primitive short if it contains a single element.
    *
    * @return get this element as a primitive short if it is single element array.
-   * @throws ClassCastException if the element in the array is of not a {@link JsonPrimitive} and
-   * is not a valid short.
+   * @throws ClassCastException if the element in the array is of not a {@link JsonPrimitive} and is
+   *     not a valid short.
    * @throws IllegalStateException if the array has more than one element.
    */
   @Override
@@ -369,8 +372,8 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * convenience method to get this array as a boolean if it contains a single element.
    *
    * @return get this element as a boolean if it is single element array.
-   * @throws ClassCastException if the element in the array is of not a {@link JsonPrimitive} and
-   * is not a valid boolean.
+   * @throws ClassCastException if the element in the array is of not a {@link JsonPrimitive} and is
+   *     not a valid boolean.
    * @throws IllegalStateException if the array has more than one element.
    */
   @Override

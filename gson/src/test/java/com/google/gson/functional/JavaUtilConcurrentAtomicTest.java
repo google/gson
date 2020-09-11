@@ -16,20 +16,19 @@
 
 package com.google.gson.functional;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.LongSerializationPolicy;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLongArray;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.LongSerializationPolicy;
-
 import junit.framework.TestCase;
 
 /**
- * Functional test for Json serialization and deserialization for classes in java.util.concurrent.atomic
+ * Functional test for Json serialization and deserialization for classes in
+ * java.util.concurrent.atomic
  */
 public class JavaUtilConcurrentAtomicTest extends TestCase {
   private Gson gson;
@@ -62,9 +61,8 @@ public class JavaUtilConcurrentAtomicTest extends TestCase {
   }
 
   public void testAtomicLongWithStringSerializationPolicy() throws Exception {
-    Gson gson = new GsonBuilder()
-        .setLongSerializationPolicy(LongSerializationPolicy.STRING)
-        .create();
+    Gson gson =
+        new GsonBuilder().setLongSerializationPolicy(LongSerializationPolicy.STRING).create();
     AtomicLongHolder target = gson.fromJson("{'value':'10'}", AtomicLongHolder.class);
     assertEquals(10, target.value.get());
     String json = gson.toJson(target);
@@ -92,9 +90,8 @@ public class JavaUtilConcurrentAtomicTest extends TestCase {
   }
 
   public void testAtomicLongArrayWithStringSerializationPolicy() throws Exception {
-    Gson gson = new GsonBuilder()
-        .setLongSerializationPolicy(LongSerializationPolicy.STRING)
-        .create();
+    Gson gson =
+        new GsonBuilder().setLongSerializationPolicy(LongSerializationPolicy.STRING).create();
     AtomicLongArray target = gson.fromJson("['10', '13', '14']", AtomicLongArray.class);
     assertEquals(3, target.length());
     assertEquals(10, target.get(0));

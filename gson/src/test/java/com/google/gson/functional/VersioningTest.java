@@ -20,7 +20,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Since;
 import com.google.gson.annotations.Until;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
-
 import junit.framework.TestCase;
 
 /**
@@ -146,12 +145,16 @@ public class VersioningTest extends TestCase {
   }
 
   private static class Version1 {
-    @Until(1.3) int a = A;
-    @Since(1.0) int b = B;
+    @Until(1.3)
+    int a = A;
+
+    @Since(1.0)
+    int b = B;
   }
 
   private static class Version1_1 extends Version1 {
-    @Since(1.1) int c = C;
+    @Since(1.1)
+    int c = C;
   }
 
   @Since(1.2)

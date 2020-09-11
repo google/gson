@@ -16,20 +16,20 @@
 
 package com.google.gson.functional;
 
+import static org.junit.Assert.assertArrayEquals;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.common.TestTypes.ClassWithObjects;
 import com.google.gson.reflect.TypeToken;
-
-import junit.framework.TestCase;
-import static org.junit.Assert.assertArrayEquals;
-
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
+import junit.framework.TestCase;
+
 /**
  * Functional tests for Json serialization and deserialization of arrays.
  *
@@ -51,7 +51,7 @@ public class ArrayTest extends TestCase {
   }
 
   public void testTopLevelArrayOfIntsDeserialization() {
-    int[] expected = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+    int[] expected = {1, 2, 3, 4, 5, 6, 7, 8, 9};
     int[] actual = gson.fromJson("[1,2,3,4,5,6,7,8,9]", int[].class);
     assertArrayEquals(expected, actual);
   }
@@ -130,7 +130,7 @@ public class ArrayTest extends TestCase {
   }
 
   public void testSingleStringArraySerialization() throws Exception {
-    String[] s = { "hello" };
+    String[] s = {"hello"};
     String output = gson.toJson(s);
     assertEquals("[\"hello\"]", output);
   }
@@ -173,8 +173,8 @@ public class ArrayTest extends TestCase {
     Collection<Integer>[] target = gson.fromJson(json, type);
 
     assertEquals(2, target.length);
-    assertArrayEquals(new Integer[] { 1, 2 }, target[0].toArray(new Integer[0]));
-    assertArrayEquals(new Integer[] { 3, 4 }, target[1].toArray(new Integer[0]));
+    assertArrayEquals(new Integer[] {1, 2}, target[0].toArray(new Integer[0]));
+    assertArrayEquals(new Integer[] {3, 4}, target[1].toArray(new Integer[0]));
   }
 
   public void testArrayOfPrimitivesAsObjectsSerialization() throws Exception {
@@ -188,11 +188,11 @@ public class ArrayTest extends TestCase {
   public void testArrayOfPrimitivesAsObjectsDeserialization() throws Exception {
     String json = "[1,'abc',0.3,1.1,5]";
     Object[] objs = gson.fromJson(json, Object[].class);
-    assertEquals(1, ((Number)objs[0]).intValue());
+    assertEquals(1, ((Number) objs[0]).intValue());
     assertEquals("abc", objs[1]);
-    assertEquals(0.3, ((Number)objs[2]).doubleValue());
+    assertEquals(0.3, ((Number) objs[2]).doubleValue());
     assertEquals(new BigDecimal("1.1"), new BigDecimal(objs[3].toString()));
-    assertEquals(5, ((Number)objs[4]).shortValue());
+    assertEquals(5, ((Number) objs[4]).shortValue());
   }
 
   public void testObjectArrayWithNonPrimitivesSerialization() throws Exception {
@@ -201,7 +201,7 @@ public class ArrayTest extends TestCase {
     String classWithObjectsJson = gson.toJson(classWithObjects);
     String bagOfPrimitivesJson = gson.toJson(bagOfPrimitives);
 
-    Object[] objects = new Object[] { classWithObjects, bagOfPrimitives };
+    Object[] objects = new Object[] {classWithObjects, bagOfPrimitives};
     String json = gson.toJson(objects);
 
     assertTrue(json.contains(classWithObjectsJson));
@@ -219,38 +219,34 @@ public class ArrayTest extends TestCase {
     assertNull(values[0]);
   }
 
-  /**
-   * Regression tests for Issue 272
-   */
+  /** Regression tests for Issue 272 */
   public void testMultidimenstionalArraysSerialization() {
-    String[][] items = new String[][]{
-        {"3m Co", "71.72", "0.02", "0.03", "4/2 12:00am", "Manufacturing"},
-        {"Alcoa Inc", "29.01", "0.42", "1.47", "4/1 12:00am", "Manufacturing"}
-    };
+    String[][] items =
+        new String[][] {
+          {"3m Co", "71.72", "0.02", "0.03", "4/2 12:00am", "Manufacturing"},
+          {"Alcoa Inc", "29.01", "0.42", "1.47", "4/1 12:00am", "Manufacturing"}
+        };
     String json = gson.toJson(items);
     assertTrue(json.contains("[[\"3m Co"));
     assertTrue(json.contains("Manufacturing\"]]"));
   }
 
   public void testMultiDimenstionalObjectArraysSerialization() {
-    Object[][] array = new Object[][] { new Object[] { 1, 2 } };
+    Object[][] array = new Object[][] {new Object[] {1, 2}};
     assertEquals("[[1,2]]", gson.toJson(array));
   }
 
-  /**
-   * Regression test for Issue 205
-   */
+  /** Regression test for Issue 205 */
   public void testMixingTypesInObjectArraySerialization() {
-    Object[] array = new Object[] { 1, 2, new Object[] { "one", "two", 3 } };
+    Object[] array = new Object[] {1, 2, new Object[] {"one", "two", 3}};
     assertEquals("[1,2,[\"one\",\"two\",3]]", gson.toJson(array));
   }
 
-  /**
-   * Regression tests for Issue 272
-   */
+  /** Regression tests for Issue 272 */
   public void testMultidimenstionalArraysDeserialization() {
-    String json = "[['3m Co','71.72','0.02','0.03','4/2 12:00am','Manufacturing'],"
-      + "['Alcoa Inc','29.01','0.42','1.47','4/1 12:00am','Manufacturing']]";
+    String json =
+        "[['3m Co','71.72','0.02','0.03','4/2 12:00am','Manufacturing'],"
+            + "['Alcoa Inc','29.01','0.42','1.47','4/1 12:00am','Manufacturing']]";
     String[][] items = gson.fromJson(json, String[][].class);
     assertEquals("3m Co", items[0][0]);
     assertEquals("Manufacturing", items[1][5]);
@@ -259,10 +255,9 @@ public class ArrayTest extends TestCase {
   /** http://code.google.com/p/google-gson/issues/detail?id=342 */
   public void testArrayElementsAreArrays() {
     Object[] stringArrays = {
-        new String[] {"test1", "test2"},
-        new String[] {"test3", "test4"}
+      new String[] {"test1", "test2"},
+      new String[] {"test3", "test4"}
     };
-    assertEquals("[[\"test1\",\"test2\"],[\"test3\",\"test4\"]]",
-        new Gson().toJson(stringArrays));
+    assertEquals("[[\"test1\",\"test2\"],[\"test3\",\"test4\"]]", new Gson().toJson(stringArrays));
   }
 }

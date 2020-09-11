@@ -19,7 +19,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.lang.reflect.Field;
-
 import org.junit.Test;
 
 /**
@@ -44,6 +43,7 @@ public class UnsafeReflectionAccessorTest {
   @SuppressWarnings("unused")
   private static final class ClassWithPrivateFinalFields {
     private final String a;
+
     public ClassWithPrivateFinalFields(String a) {
       this.a = a;
     }

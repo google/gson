@@ -17,7 +17,6 @@
 package com.google.gson.functional;
 
 import com.google.gson.Gson;
-
 import junit.framework.TestCase;
 
 /**
@@ -42,7 +41,7 @@ public class InterfaceTest extends TestCase {
   public void testSerializingObjectImplementingInterface() throws Exception {
     assertEquals(OBJ_JSON, gson.toJson(obj));
   }
-  
+
   public void testSerializingInterfaceObjectField() throws Exception {
     TestObjectWrapper objWrapper = new TestObjectWrapper(obj);
     assertEquals("{\"obj\":" + OBJ_JSON + "}", gson.toJson(objWrapper));
@@ -51,11 +50,11 @@ public class InterfaceTest extends TestCase {
   private static interface TestObjectInterface {
     // Holder
   }
-  
+
   private static class TestObject implements TestObjectInterface {
     @SuppressWarnings("unused")
     private String someStringValue;
-    
+
     private TestObject(String value) {
       this.someStringValue = value;
     }
@@ -64,7 +63,7 @@ public class InterfaceTest extends TestCase {
   private static class TestObjectWrapper {
     @SuppressWarnings("unused")
     private TestObjectInterface obj;
-    
+
     private TestObjectWrapper(TestObjectInterface obj) {
       this.obj = obj;
     }

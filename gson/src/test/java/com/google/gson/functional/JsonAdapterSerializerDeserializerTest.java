@@ -16,8 +16,6 @@
 
 package com.google.gson.functional;
 
-import java.lang.reflect.Type;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -27,28 +25,36 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.JsonAdapter;
-
+import java.lang.reflect.Type;
 import junit.framework.TestCase;
 
 /**
- * Functional tests for the {@link JsonAdapter} annotation on fields where the value is of
- * type {@link JsonSerializer} or {@link JsonDeserializer}.
+ * Functional tests for the {@link JsonAdapter} annotation on fields where the value is of type
+ * {@link JsonSerializer} or {@link JsonDeserializer}.
  */
 public final class JsonAdapterSerializerDeserializerTest extends TestCase {
 
   public void testJsonSerializerDeserializerBasedJsonAdapterOnFields() {
     Gson gson = new Gson();
-    String json = gson.toJson(new Computer(new User("Inderjeet Singh"), null, new User("Jesse Wilson")));
+    String json =
+        gson.toJson(new Computer(new User("Inderjeet Singh"), null, new User("Jesse Wilson")));
     assertEquals("{\"user1\":\"UserSerializer\",\"user3\":\"UserSerializerDeserializer\"}", json);
-    Computer computer = gson.fromJson("{'user2':'Jesse Wilson','user3':'Jake Wharton'}", Computer.class);
+    Computer computer =
+        gson.fromJson("{'user2':'Jesse Wilson','user3':'Jake Wharton'}", Computer.class);
     assertEquals("UserSerializer", computer.user2.name);
     assertEquals("UserSerializerDeserializer", computer.user3.name);
   }
 
   private static final class Computer {
-    @JsonAdapter(UserSerializer.class) final User user1;
-    @JsonAdapter(UserDeserializer.class) final User user2;
-    @JsonAdapter(UserSerializerDeserializer.class) final User user3;
+    @JsonAdapter(UserSerializer.class)
+    final User user1;
+
+    @JsonAdapter(UserDeserializer.class)
+    final User user2;
+
+    @JsonAdapter(UserSerializerDeserializer.class)
+    final User user3;
+
     Computer(User user1, User user2, User user3) {
       this.user1 = user1;
       this.user2 = user2;
@@ -58,6 +64,7 @@ public final class JsonAdapterSerializerDeserializerTest extends TestCase {
 
   private static final class User {
     public final String name;
+
     private User(String name) {
       this.name = name;
     }
@@ -78,11 +85,13 @@ public final class JsonAdapterSerializerDeserializerTest extends TestCase {
     }
   }
 
-  private static final class UserSerializerDeserializer implements JsonSerializer<User>, JsonDeserializer<User> {
+  private static final class UserSerializerDeserializer
+      implements JsonSerializer<User>, JsonDeserializer<User> {
     @Override
     public JsonElement serialize(User src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive("UserSerializerDeserializer");
     }
+
     @Override
     public User deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
@@ -100,6 +109,7 @@ public final class JsonAdapterSerializerDeserializerTest extends TestCase {
 
   private static final class Computer2 {
     final User2 user;
+
     Computer2(User2 user) {
       this.user = user;
     }
@@ -108,16 +118,19 @@ public final class JsonAdapterSerializerDeserializerTest extends TestCase {
   @JsonAdapter(UserSerializerDeserializer2.class)
   private static final class User2 {
     public final String name;
+
     private User2(String name) {
       this.name = name;
     }
   }
 
-  private static final class UserSerializerDeserializer2 implements JsonSerializer<User2>, JsonDeserializer<User2> {
+  private static final class UserSerializerDeserializer2
+      implements JsonSerializer<User2>, JsonDeserializer<User2> {
     @Override
     public JsonElement serialize(User2 src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive("UserSerializerDeserializer2");
     }
+
     @Override
     public User2 deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
@@ -134,8 +147,12 @@ public final class JsonAdapterSerializerDeserializerTest extends TestCase {
   }
 
   private static final class Container {
-    @JsonAdapter(BaseStringAdapter.class) Base<String> a;
-    @JsonAdapter(BaseIntegerAdapter.class) Base<Integer> b;
+    @JsonAdapter(BaseStringAdapter.class)
+    Base<String> a;
+
+    @JsonAdapter(BaseIntegerAdapter.class)
+    Base<Integer> b;
+
     Container(String a, int b) {
       this.a = new Base<String>(a);
       this.b = new Base<Integer>(b);
@@ -145,19 +162,24 @@ public final class JsonAdapterSerializerDeserializerTest extends TestCase {
   private static final class Base<T> {
     @SuppressWarnings("unused")
     T value;
+
     Base(T value) {
       this.value = value;
     }
   }
 
   private static final class BaseStringAdapter implements JsonSerializer<Base<String>> {
-    @Override public JsonElement serialize(Base<String> src, Type typeOfSrc, JsonSerializationContext context) {
+    @Override
+    public JsonElement serialize(
+        Base<String> src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive("BaseStringAdapter");
     }
   }
 
   private static final class BaseIntegerAdapter implements JsonSerializer<Base<Integer>> {
-    @Override public JsonElement serialize(Base<Integer> src, Type typeOfSrc, JsonSerializationContext context) {
+    @Override
+    public JsonElement serialize(
+        Base<Integer> src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive("BaseIntegerAdapter");
     }
   }

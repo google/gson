@@ -16,6 +16,9 @@
 
 package com.google.gson.stream;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assume.assumeTrue;
+
 import com.google.gson.JsonElement;
 import com.google.gson.internal.Streams;
 import com.google.gson.internal.bind.JsonTreeReader;
@@ -27,24 +30,19 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeTrue;
-
 @SuppressWarnings("resource")
 @RunWith(Parameterized.class)
 public class JsonReaderPathTest {
   @Parameterized.Parameters(name = "{0}")
   public static List<Object[]> parameters() {
     return Arrays.asList(
-        new Object[] { Factory.STRING_READER },
-        new Object[] { Factory.OBJECT_READER }
-    );
+        new Object[] {Factory.STRING_READER}, new Object[] {Factory.OBJECT_READER});
   }
 
-  @Parameterized.Parameter
-  public Factory factory;
+  @Parameterized.Parameter public Factory factory;
 
-  @Test public void path() throws IOException {
+  @Test
+  public void path() throws IOException {
     JsonReader reader = factory.create("{\"a\":[2,true,false,null,\"b\",{\"c\":\"d\"},[3]]}");
     assertEquals("$", reader.getPath());
     reader.beginObject();
@@ -83,7 +81,8 @@ public class JsonReaderPathTest {
     assertEquals("$", reader.getPath());
   }
 
-  @Test public void objectPath() throws IOException {
+  @Test
+  public void objectPath() throws IOException {
     JsonReader reader = factory.create("{\"a\":1,\"b\":2}");
     assertEquals("$", reader.getPath());
 
@@ -123,7 +122,8 @@ public class JsonReaderPathTest {
     assertEquals("$", reader.getPath());
   }
 
-  @Test public void arrayPath() throws IOException {
+  @Test
+  public void arrayPath() throws IOException {
     JsonReader reader = factory.create("[1,2]");
     assertEquals("$", reader.getPath());
 
@@ -153,7 +153,8 @@ public class JsonReaderPathTest {
     assertEquals("$", reader.getPath());
   }
 
-  @Test public void multipleTopLevelValuesInOneDocument() throws IOException {
+  @Test
+  public void multipleTopLevelValuesInOneDocument() throws IOException {
     assumeTrue(factory == Factory.STRING_READER);
 
     JsonReader reader = factory.create("[][]");
@@ -166,7 +167,8 @@ public class JsonReaderPathTest {
     assertEquals("$", reader.getPath());
   }
 
-  @Test public void skipArrayElements() throws IOException {
+  @Test
+  public void skipArrayElements() throws IOException {
     JsonReader reader = factory.create("[1,2,3]");
     reader.beginArray();
     reader.skipValue();
@@ -174,14 +176,16 @@ public class JsonReaderPathTest {
     assertEquals("$[2]", reader.getPath());
   }
 
-  @Test public void skipObjectNames() throws IOException {
+  @Test
+  public void skipObjectNames() throws IOException {
     JsonReader reader = factory.create("{\"a\":1}");
     reader.beginObject();
     reader.skipValue();
     assertEquals("$.null", reader.getPath());
   }
 
-  @Test public void skipObjectValues() throws IOException {
+  @Test
+  public void skipObjectValues() throws IOException {
     JsonReader reader = factory.create("{\"a\":1,\"b\":2}");
     reader.beginObject();
     assertEquals("$.", reader.getPath());
@@ -192,14 +196,16 @@ public class JsonReaderPathTest {
     assertEquals("$.b", reader.getPath());
   }
 
-  @Test public void skipNestedStructures() throws IOException {
+  @Test
+  public void skipNestedStructures() throws IOException {
     JsonReader reader = factory.create("[[1,2,3],4]");
     reader.beginArray();
     reader.skipValue();
     assertEquals("$[1]", reader.getPath());
   }
 
-  @Test public void arrayOfObjects() throws IOException {
+  @Test
+  public void arrayOfObjects() throws IOException {
     JsonReader reader = factory.create("[{},{},{}]");
     reader.beginArray();
     assertEquals("$[0]", reader.getPath());
@@ -219,7 +225,8 @@ public class JsonReaderPathTest {
     assertEquals("$", reader.getPath());
   }
 
-  @Test public void arrayOfArrays() throws IOException {
+  @Test
+  public void arrayOfArrays() throws IOException {
     JsonReader reader = factory.create("[[],[],[]]");
     reader.beginArray();
     assertEquals("$[0]", reader.getPath());
@@ -241,12 +248,14 @@ public class JsonReaderPathTest {
 
   enum Factory {
     STRING_READER {
-      @Override public JsonReader create(String data) {
+      @Override
+      public JsonReader create(String data) {
         return new JsonReader(new StringReader(data));
       }
     },
     OBJECT_READER {
-      @Override public JsonReader create(String data) {
+      @Override
+      public JsonReader create(String data) {
         JsonElement element = Streams.parse(new JsonReader(new StringReader(data)));
         return new JsonTreeReader(element);
       }

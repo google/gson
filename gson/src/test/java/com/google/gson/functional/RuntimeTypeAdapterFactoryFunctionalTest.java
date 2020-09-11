@@ -15,12 +15,6 @@
  */
 package com.google.gson.functional;
 
-import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import junit.framework.TestCase;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -33,10 +27,12 @@ import com.google.gson.internal.Streams;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import junit.framework.TestCase;
 
-/**
- * Functional tests for the RuntimeTypeAdapterFactory feature in extras.
- */
+/** Functional tests for the RuntimeTypeAdapterFactory feature in extras. */
 public final class RuntimeTypeAdapterFactoryFunctionalTest extends TestCase {
 
   private final Gson gson = new Gson();
@@ -49,19 +45,23 @@ public final class RuntimeTypeAdapterFactoryFunctionalTest extends TestCase {
     Shape shape = new Circle(25);
     String json = gson.toJson(shape);
     shape = gson.fromJson(json, Shape.class);
-    assertEquals(25, ((Circle)shape).radius);
+    assertEquals(25, ((Circle) shape).radius);
 
     shape = new Square(15);
     json = gson.toJson(shape);
     shape = gson.fromJson(json, Shape.class);
-    assertEquals(15, ((Square)shape).side);
+    assertEquals(15, ((Square) shape).side);
     assertEquals(ShapeType.SQUARE, shape.type);
   }
 
   @JsonAdapter(Shape.JsonAdapterFactory.class)
   static class Shape {
     final ShapeType type;
-    Shape(ShapeType type) { this.type = type; }
+
+    Shape(ShapeType type) {
+      this.type = type;
+    }
+
     private static final class JsonAdapterFactory extends RuntimeTypeAdapterFactory<Shape> {
       public JsonAdapterFactory() {
         super(Shape.class, "type");
@@ -72,17 +72,26 @@ public final class RuntimeTypeAdapterFactoryFunctionalTest extends TestCase {
   }
 
   public enum ShapeType {
-    SQUARE, CIRCLE
+    SQUARE,
+    CIRCLE
   }
 
   private static final class Circle extends Shape {
     final int radius;
-    Circle(int radius) { super(ShapeType.CIRCLE); this.radius = radius; }
+
+    Circle(int radius) {
+      super(ShapeType.CIRCLE);
+      this.radius = radius;
+    }
   }
 
   private static final class Square extends Shape {
     final int side;
-    Square(int side) { super(ShapeType.SQUARE); this.side = side; }
+
+    Square(int side) {
+      super(ShapeType.SQUARE);
+      this.side = side;
+    }
   }
 
   // Copied from the extras package
@@ -101,27 +110,26 @@ public final class RuntimeTypeAdapterFactoryFunctionalTest extends TestCase {
     }
 
     /**
-     * Creates a new runtime type adapter using for {@code baseType} using {@code
-     * typeFieldName} as the type field name. Type field names are case sensitive.
+     * Creates a new runtime type adapter using for {@code baseType} using {@code typeFieldName} as
+     * the type field name. Type field names are case sensitive.
      */
     public static <T> RuntimeTypeAdapterFactory<T> of(Class<T> baseType, String typeFieldName) {
       return new RuntimeTypeAdapterFactory<T>(baseType, typeFieldName);
     }
 
     /**
-     * Creates a new runtime type adapter for {@code baseType} using {@code "type"} as
-     * the type field name.
+     * Creates a new runtime type adapter for {@code baseType} using {@code "type"} as the type
+     * field name.
      */
     public static <T> RuntimeTypeAdapterFactory<T> of(Class<T> baseType) {
       return new RuntimeTypeAdapterFactory<T>(baseType, "type");
     }
 
     /**
-     * Registers {@code type} identified by {@code label}. Labels are case
-     * sensitive.
+     * Registers {@code type} identified by {@code label}. Labels are case sensitive.
      *
-     * @throws IllegalArgumentException if either {@code type} or {@code label}
-     *     have already been registered on this type adapter.
+     * @throws IllegalArgumentException if either {@code type} or {@code label} have already been
+     *     registered on this type adapter.
      */
     public RuntimeTypeAdapterFactory<T> registerSubtype(Class<? extends T> type, String label) {
       if (type == null || label == null) {
@@ -136,25 +144,26 @@ public final class RuntimeTypeAdapterFactoryFunctionalTest extends TestCase {
     }
 
     /**
-     * Registers {@code type} identified by its {@link Class#getSimpleName simple
-     * name}. Labels are case sensitive.
+     * Registers {@code type} identified by its {@link Class#getSimpleName simple name}. Labels are
+     * case sensitive.
      *
-     * @throws IllegalArgumentException if either {@code type} or its simple name
-     *     have already been registered on this type adapter.
+     * @throws IllegalArgumentException if either {@code type} or its simple name have already been
+     *     registered on this type adapter.
      */
     public RuntimeTypeAdapterFactory<T> registerSubtype(Class<? extends T> type) {
       return registerSubtype(type, type.getSimpleName());
     }
 
-    @Override public <R> TypeAdapter<R> create(Gson gson, TypeToken<R> type) {
+    @Override
+    public <R> TypeAdapter<R> create(Gson gson, TypeToken<R> type) {
       if (type.getRawType() != baseType) {
         return null;
       }
 
-      final Map<String, TypeAdapter<?>> labelToDelegate
-          = new LinkedHashMap<String, TypeAdapter<?>>();
-      final Map<Class<?>, TypeAdapter<?>> subtypeToDelegate
-          = new LinkedHashMap<Class<?>, TypeAdapter<?>>();
+      final Map<String, TypeAdapter<?>> labelToDelegate =
+          new LinkedHashMap<String, TypeAdapter<?>>();
+      final Map<Class<?>, TypeAdapter<?>> subtypeToDelegate =
+          new LinkedHashMap<Class<?>, TypeAdapter<?>>();
       for (Map.Entry<String, Class<?>> entry : labelToSubtype.entrySet()) {
         TypeAdapter<?> delegate = gson.getDelegateAdapter(this, TypeToken.get(entry.getValue()));
         labelToDelegate.put(entry.getKey(), delegate);
@@ -162,31 +171,42 @@ public final class RuntimeTypeAdapterFactoryFunctionalTest extends TestCase {
       }
 
       return new TypeAdapter<R>() {
-        @Override public R read(JsonReader in) throws IOException {
+        @Override
+        public R read(JsonReader in) throws IOException {
           JsonElement jsonElement = Streams.parse(in);
           JsonElement labelJsonElement = jsonElement.getAsJsonObject().get(typeFieldName);
           if (labelJsonElement == null) {
-            throw new JsonParseException("cannot deserialize " + baseType
-                + " because it does not define a field named " + typeFieldName);
+            throw new JsonParseException(
+                "cannot deserialize "
+                    + baseType
+                    + " because it does not define a field named "
+                    + typeFieldName);
           }
           String label = labelJsonElement.getAsString();
           @SuppressWarnings("unchecked") // registration requires that subtype extends T
           TypeAdapter<R> delegate = (TypeAdapter<R>) labelToDelegate.get(label);
           if (delegate == null) {
-            throw new JsonParseException("cannot deserialize " + baseType + " subtype named "
-                + label + "; did you forget to register a subtype?");
+            throw new JsonParseException(
+                "cannot deserialize "
+                    + baseType
+                    + " subtype named "
+                    + label
+                    + "; did you forget to register a subtype?");
           }
           return delegate.fromJsonTree(jsonElement);
         }
 
-        @Override public void write(JsonWriter out, R value) throws IOException {
+        @Override
+        public void write(JsonWriter out, R value) throws IOException {
           Class<?> srcType = value.getClass();
           String label = subtypeToLabel.get(srcType);
           @SuppressWarnings("unchecked") // registration requires that subtype extends T
           TypeAdapter<R> delegate = (TypeAdapter<R>) subtypeToDelegate.get(srcType);
           if (delegate == null) {
-            throw new JsonParseException("cannot serialize " + srcType.getName()
-                + "; did you forget to register a subtype?");
+            throw new JsonParseException(
+                "cannot serialize "
+                    + srcType.getName()
+                    + "; did you forget to register a subtype?");
           }
           JsonObject jsonObject = delegate.toJsonTree(value).getAsJsonObject();
           if (!jsonObject.has(typeFieldName)) {

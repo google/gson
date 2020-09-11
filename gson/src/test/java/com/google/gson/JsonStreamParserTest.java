@@ -15,18 +15,17 @@
  */
 package com.google.gson;
 
-import junit.framework.TestCase;
-
 import java.util.NoSuchElementException;
+import junit.framework.TestCase;
 
 /**
  * Unit tests for {@link JsonStreamParser}
- * 
+ *
  * @author Inderjeet Singh
  */
 public class JsonStreamParserTest extends TestCase {
   private JsonStreamParser parser;
-  
+
   @Override
   protected void setUp() throws Exception {
     super.setUp();
@@ -53,11 +52,11 @@ public class JsonStreamParserTest extends TestCase {
     assertTrue(parser.hasNext());
     assertTrue(parser.hasNext());
     assertEquals("one", parser.next().getAsString());
-    
+
     assertTrue(parser.hasNext());
     assertTrue(parser.hasNext());
     assertEquals("two", parser.next().getAsString());
-    
+
     assertFalse(parser.hasNext());
     assertFalse(parser.hasNext());
   }

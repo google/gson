@@ -15,12 +15,6 @@
  */
 package com.google.gson.functional;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collection;
-
-import junit.framework.TestCase;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -28,6 +22,10 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.common.TestTypes.ClassOverridingEquals;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collection;
+import junit.framework.TestCase;
 
 /**
  * Functional tests related to circular reference detection and error reporting.
@@ -66,7 +64,7 @@ public class CircularReferenceTest extends TestCase {
 
   public void testSelfReferenceArrayFieldSerialization() throws Exception {
     ClassWithSelfReferenceArray objA = new ClassWithSelfReferenceArray();
-    objA.children = new ClassWithSelfReferenceArray[]{objA};
+    objA.children = new ClassWithSelfReferenceArray[] {objA};
 
     try {
       gson.toJson(objA);
@@ -78,15 +76,22 @@ public class CircularReferenceTest extends TestCase {
   public void testSelfReferenceCustomHandlerSerialization() throws Exception {
     ClassWithSelfReference obj = new ClassWithSelfReference();
     obj.child = obj;
-    Gson gson = new GsonBuilder().registerTypeAdapter(ClassWithSelfReference.class, new JsonSerializer<ClassWithSelfReference>() {
-      public JsonElement serialize(ClassWithSelfReference src, Type typeOfSrc,
-          JsonSerializationContext context) {
-        JsonObject obj = new JsonObject();
-        obj.addProperty("property", "value");
-        obj.add("child", context.serialize(src.child));
-        return obj;
-      }
-    }).create();
+    Gson gson =
+        new GsonBuilder()
+            .registerTypeAdapter(
+                ClassWithSelfReference.class,
+                new JsonSerializer<ClassWithSelfReference>() {
+                  public JsonElement serialize(
+                      ClassWithSelfReference src,
+                      Type typeOfSrc,
+                      JsonSerializationContext context) {
+                    JsonObject obj = new JsonObject();
+                    obj.addProperty("property", "value");
+                    obj.add("child", context.serialize(src.child));
+                    return obj;
+                  }
+                })
+            .create();
     try {
       gson.toJson(obj);
       fail("Circular reference to self can not be serialized!");

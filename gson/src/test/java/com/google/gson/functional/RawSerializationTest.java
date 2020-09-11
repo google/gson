@@ -15,13 +15,11 @@
  */
 package com.google.gson.functional;
 
-import java.util.Arrays;
-import java.util.Collection;
-
-import junit.framework.TestCase;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import java.util.Arrays;
+import java.util.Collection;
+import junit.framework.TestCase;
 
 /**
  * Unit tests to validate serialization of parameterized types without explicit types
@@ -57,7 +55,7 @@ public class RawSerializationTest extends TestCase {
     String json = gson.toJson(bar);
     assertEquals(expectedJson, json);
     // Ensure that serialization also works when the type is specified explicitly
-    json = gson.toJson(bar, new TypeToken<Bar<Foo>>(){}.getType());
+    json = gson.toJson(bar, new TypeToken<Bar<Foo>>() {}.getType());
     assertEquals(expectedJson, json);
   }
 
@@ -68,7 +66,7 @@ public class RawSerializationTest extends TestCase {
     String json = gson.toJson(bar);
     assertEquals(expectedJson, json);
     // Ensure that serialization also works when the type is specified explicitly
-    json = gson.toJson(bar, new TypeToken<Bar<Bar<Foo>>>(){}.getType());
+    json = gson.toJson(bar, new TypeToken<Bar<Bar<Foo>>>() {}.getType());
     assertEquals(expectedJson, json);
   }
 
@@ -79,13 +77,14 @@ public class RawSerializationTest extends TestCase {
     String json = gson.toJson(bar);
     assertEquals(expectedJson, json);
     // Ensure that serialization also works when the type is specified explicitly
-    json = gson.toJson(bar, new TypeToken<Bar<Bar<Bar<Foo>>>>(){}.getType());
+    json = gson.toJson(bar, new TypeToken<Bar<Bar<Bar<Foo>>>>() {}.getType());
     assertEquals(expectedJson, json);
   }
 
   private static class Foo {
     @SuppressWarnings("unused")
     int b;
+
     Foo(int b) {
       this.b = b;
     }
@@ -94,6 +93,7 @@ public class RawSerializationTest extends TestCase {
   private static class Bar<T> {
     @SuppressWarnings("unused")
     T t;
+
     Bar(T t) {
       this.t = t;
     }

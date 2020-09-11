@@ -15,19 +15,16 @@
  */
 package com.google.gson.functional;
 
-import java.io.IOException;
-import java.util.regex.Pattern;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-
+import java.io.IOException;
+import java.util.regex.Pattern;
 import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Functional tests to validate printing of Gson version on AssertionErrors
@@ -35,20 +32,29 @@ import junit.framework.TestCase;
  * @author Inderjeet Singh
  */
 public class GsonVersionDiagnosticsTest extends TestCase {
-  private static final Pattern GSON_VERSION_PATTERN = Pattern.compile("(\\(GSON \\d\\.\\d\\.\\d)(?:[-.][A-Z]+)?\\)$");
+  private static final Pattern GSON_VERSION_PATTERN =
+      Pattern.compile("(\\(GSON \\d\\.\\d\\.\\d)(?:[-.][A-Z]+)?\\)$");
 
   private Gson gson;
 
   @Before
   public void setUp() {
-    gson = new GsonBuilder().registerTypeAdapter(TestType.class, new TypeAdapter<TestType>() {
-      @Override public void write(JsonWriter out, TestType value) {
-        throw new AssertionError("Expected during serialization");
-      }
-      @Override public TestType read(JsonReader in) throws IOException {
-        throw new AssertionError("Expected during deserialization");
-      }
-    }).create();
+    gson =
+        new GsonBuilder()
+            .registerTypeAdapter(
+                TestType.class,
+                new TypeAdapter<TestType>() {
+                  @Override
+                  public void write(JsonWriter out, TestType value) {
+                    throw new AssertionError("Expected during serialization");
+                  }
+
+                  @Override
+                  public TestType read(JsonReader in) throws IOException {
+                    throw new AssertionError("Expected during deserialization");
+                  }
+                })
+            .create();
   }
 
   @Test
