@@ -56,7 +56,6 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.UUID;
-
 import junit.framework.TestCase;
 
 /**
@@ -88,7 +87,8 @@ public class DefaultTypeAdaptersTest extends TestCase {
   public void testClassSerialization() {
     try {
       gson.toJson(String.class);
-    } catch (UnsupportedOperationException expected) {}
+    } catch (UnsupportedOperationException expected) {
+    }
     // Override with a custom type adapter for class.
     gson = new GsonBuilder().registerTypeAdapter(Class.class, new MyClassTypeAdapter()).create();
     assertEquals("\"java.lang.String\"", gson.toJson(String.class));
@@ -97,7 +97,8 @@ public class DefaultTypeAdaptersTest extends TestCase {
   public void testClassDeserialization() {
     try {
       gson.fromJson("String.class", String.class.getClass());
-    } catch (UnsupportedOperationException expected) {}
+    } catch (UnsupportedOperationException expected) {
+    }
     // Override with a custom type adapter for class.
     gson = new GsonBuilder().registerTypeAdapter(Class.class, new MyClassTypeAdapter()).create();
     assertEquals(String.class, gson.fromJson("java.lang.String", Class.class));
@@ -146,7 +147,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
     URI target = gson.fromJson(json, URI.class);
     assertEquals(uriValue, target.toASCIIString());
   }
-  
+
   public void testNullSerialization() throws Exception {
     testNullSerializationAndDeserialization(Boolean.class);
     testNullSerializationAndDeserialization(Byte.class);
@@ -254,7 +255,8 @@ public class DefaultTypeAdaptersTest extends TestCase {
     try {
       gson.fromJson("{\"value\"=1.5e-1.0031}", ClassWithBigDecimal.class);
       fail("Exponent of a BigDecimal must be an integer value.");
-    } catch (JsonParseException expected) { }
+    } catch (JsonParseException expected) {
+    }
   }
 
   public void testBigIntegerFieldSerialization() {
@@ -269,19 +271,21 @@ public class DefaultTypeAdaptersTest extends TestCase {
     ClassWithBigInteger actual = gson.fromJson(json, ClassWithBigInteger.class);
     assertEquals(expected.value, actual.value);
   }
-  
+
   public void testOverrideBigIntegerTypeAdapter() throws Exception {
-    gson = new GsonBuilder()
-        .registerTypeAdapter(BigInteger.class, new NumberAsStringAdapter(BigInteger.class))
-        .create();
+    gson =
+        new GsonBuilder()
+            .registerTypeAdapter(BigInteger.class, new NumberAsStringAdapter(BigInteger.class))
+            .create();
     assertEquals("\"123\"", gson.toJson(new BigInteger("123"), BigInteger.class));
     assertEquals(new BigInteger("123"), gson.fromJson("\"123\"", BigInteger.class));
   }
 
   public void testOverrideBigDecimalTypeAdapter() throws Exception {
-    gson = new GsonBuilder()
-        .registerTypeAdapter(BigDecimal.class, new NumberAsStringAdapter(BigDecimal.class))
-        .create();
+    gson =
+        new GsonBuilder()
+            .registerTypeAdapter(BigDecimal.class, new NumberAsStringAdapter(BigDecimal.class))
+            .create();
     assertEquals("\"1.1\"", gson.toJson(new BigDecimal("1.1"), BigDecimal.class));
     assertEquals(new BigDecimal("1.1"), gson.fromJson("\"1.1\"", BigDecimal.class));
   }
@@ -348,7 +352,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
   // millisecond portion.
   @SuppressWarnings("deprecation")
   private void assertEqualsDate(Date date, int year, int month, int day) {
-    assertEquals(year-1900, date.getYear());
+    assertEquals(year - 1900, date.getYear());
     assertEquals(month, date.getMonth());
     assertEquals(day, date.getDate());
   }
@@ -489,16 +493,19 @@ public class DefaultTypeAdaptersTest extends TestCase {
 
   public void testDateSerializationWithPatternNotOverridenByTypeAdapter() throws Exception {
     String pattern = "yyyy-MM-dd";
-    Gson gson = new GsonBuilder()
-        .setDateFormat(pattern)
-        .registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
-          public Date deserialize(JsonElement json, Type typeOfT,
-              JsonDeserializationContext context)
-              throws JsonParseException {
-            return new Date(1315806903103L);
-          }
-        })
-        .create();
+    Gson gson =
+        new GsonBuilder()
+            .setDateFormat(pattern)
+            .registerTypeAdapter(
+                Date.class,
+                new JsonDeserializer<Date>() {
+                  public Date deserialize(
+                      JsonElement json, Type typeOfT, JsonDeserializationContext context)
+                      throws JsonParseException {
+                    return new Date(1315806903103L);
+                  }
+                })
+            .create();
 
     Date now = new Date(1315806903103L);
     String json = gson.toJson(now);
@@ -637,16 +644,19 @@ public class DefaultTypeAdaptersTest extends TestCase {
       gson.fromJson("\"abc\"", JsonObject.class);
       fail();
     } catch (JsonSyntaxException expected) {
-      assertEquals("Expected a com.google.gson.JsonObject but was com.google.gson.JsonPrimitive",
+      assertEquals(
+          "Expected a com.google.gson.JsonObject but was com.google.gson.JsonPrimitive",
           expected.getMessage());
     }
   }
 
   private static class ClassWithBigDecimal {
     BigDecimal value;
+
     ClassWithBigDecimal(String value) {
       this.value = new BigDecimal(value);
     }
+
     String getExpectedJson() {
       return "{\"value\":" + value.toEngineeringString() + "}";
     }
@@ -654,9 +664,11 @@ public class DefaultTypeAdaptersTest extends TestCase {
 
   private static class ClassWithBigInteger {
     BigInteger value;
+
     ClassWithBigInteger(String value) {
       this.value = new BigInteger(value);
     }
+
     String getExpectedJson() {
       return "{\"value\":" + value + "}";
     }
@@ -718,6 +730,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
     public void write(JsonWriter out, Class value) throws IOException {
       out.value(value.getName());
     }
+
     @Override
     public Class read(JsonReader in) throws IOException {
       String className = in.nextString();
@@ -731,13 +744,18 @@ public class DefaultTypeAdaptersTest extends TestCase {
 
   static class NumberAsStringAdapter extends TypeAdapter<Number> {
     private final Constructor<? extends Number> constructor;
+
     NumberAsStringAdapter(Class<? extends Number> type) throws Exception {
       this.constructor = type.getConstructor(String.class);
     }
-    @Override public void write(JsonWriter out, Number value) throws IOException {
+
+    @Override
+    public void write(JsonWriter out, Number value) throws IOException {
       out.value(value.toString());
     }
-    @Override public Number read(JsonReader in) throws IOException {
+
+    @Override
+    public Number read(JsonReader in) throws IOException {
       try {
         return constructor.newInstance(in.nextString());
       } catch (Exception e) {

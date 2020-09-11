@@ -15,20 +15,18 @@
  */
 package com.google.gson.functional;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.common.TestTypes.ArrayOfObjects;
+import com.google.gson.common.TestTypes.BagOfPrimitives;
+import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
 import junit.framework.TestCase;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.common.TestTypes.ArrayOfObjects;
-import com.google.gson.common.TestTypes.BagOfPrimitives;
-import com.google.gson.reflect.TypeToken;
 
 /**
  * Functional tests for pretty printing option.
@@ -66,27 +64,30 @@ public class PrettyPrintingTest extends TestCase {
   }
 
   public void testPrettyPrintArrayOfPrimitives() {
-    int[] ints = new int[] { 1, 2, 3, 4, 5 };
+    int[] ints = new int[] {1, 2, 3, 4, 5};
     String json = gson.toJson(ints);
     assertEquals("[\n  1,\n  2,\n  3,\n  4,\n  5\n]", json);
   }
 
   public void testPrettyPrintArrayOfPrimitiveArrays() {
-    int[][] ints = new int[][] { { 1, 2 }, { 3, 4 }, { 5, 6 }, { 7, 8 },
-        { 9, 0 }, { 10 } };
+    int[][] ints = new int[][] {{1, 2}, {3, 4}, {5, 6}, {7, 8}, {9, 0}, {10}};
     String json = gson.toJson(ints);
-    assertEquals("[\n  [\n    1,\n    2\n  ],\n  [\n    3,\n    4\n  ],\n  [\n    5,\n    6\n  ],"
-        + "\n  [\n    7,\n    8\n  ],\n  [\n    9,\n    0\n  ],\n  [\n    10\n  ]\n]", json);
+    assertEquals(
+        "[\n  [\n    1,\n    2\n  ],\n  [\n    3,\n    4\n  ],\n  [\n    5,\n    6\n  ],"
+            + "\n  [\n    7,\n    8\n  ],\n  [\n    9,\n    0\n  ],\n  [\n    10\n  ]\n]",
+        json);
   }
 
   public void testPrettyPrintListOfPrimitiveArrays() {
-    List<Integer[]> list = Arrays.asList(new Integer[][] { { 1, 2 }, { 3, 4 },
-        { 5, 6 }, { 7, 8 }, { 9, 0 }, { 10 } });
+    List<Integer[]> list =
+        Arrays.asList(new Integer[][] {{1, 2}, {3, 4}, {5, 6}, {7, 8}, {9, 0}, {10}});
     String json = gson.toJson(list);
-    assertEquals("[\n  [\n    1,\n    2\n  ],\n  [\n    3,\n    4\n  ],\n  [\n    5,\n    6\n  ],"
-        + "\n  [\n    7,\n    8\n  ],\n  [\n    9,\n    0\n  ],\n  [\n    10\n  ]\n]", json);
+    assertEquals(
+        "[\n  [\n    1,\n    2\n  ],\n  [\n    3,\n    4\n  ],\n  [\n    5,\n    6\n  ],"
+            + "\n  [\n    7,\n    8\n  ],\n  [\n    9,\n    0\n  ],\n  [\n    10\n  ]\n]",
+        json);
   }
-  
+
   public void testMap() {
     Map<String, Integer> map = new LinkedHashMap<String, Integer>();
     map.put("abc", 1);
@@ -110,7 +111,7 @@ public class PrettyPrintingTest extends TestCase {
   }
 
   public void testMultipleArrays() {
-    int[][][] ints = new int[][][] { { { 1 }, { 2 } } };
+    int[][][] ints = new int[][][] {{{1}, {2}}};
     String json = gson.toJson(ints);
     assertEquals("[\n  [\n    [\n      1\n    ],\n    [\n      2\n    ]\n  ]\n]", json);
   }

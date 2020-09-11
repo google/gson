@@ -29,19 +29,18 @@ public class LongSerializationPolicyTest extends TestCase {
   public void testDefaultLongSerialization() throws Exception {
     JsonElement element = LongSerializationPolicy.DEFAULT.serialize(1556L);
     assertTrue(element.isJsonPrimitive());
-    
+
     JsonPrimitive jsonPrimitive = element.getAsJsonPrimitive();
     assertFalse(jsonPrimitive.isString());
     assertTrue(jsonPrimitive.isNumber());
     assertEquals(1556L, element.getAsLong());
   }
-  
+
   public void testDefaultLongSerializationIntegration() {
-    Gson gson = new GsonBuilder()
-        .setLongSerializationPolicy(LongSerializationPolicy.DEFAULT)
-        .create();
-    assertEquals("[1]", gson.toJson(new long[] { 1L }, long[].class));
-    assertEquals("[1]", gson.toJson(new Long[] { 1L }, Long[].class));
+    Gson gson =
+        new GsonBuilder().setLongSerializationPolicy(LongSerializationPolicy.DEFAULT).create();
+    assertEquals("[1]", gson.toJson(new long[] {1L}, long[].class));
+    assertEquals("[1]", gson.toJson(new Long[] {1L}, Long[].class));
   }
 
   public void testStringLongSerialization() throws Exception {
@@ -55,10 +54,9 @@ public class LongSerializationPolicyTest extends TestCase {
   }
 
   public void testStringLongSerializationIntegration() {
-    Gson gson = new GsonBuilder()
-        .setLongSerializationPolicy(LongSerializationPolicy.STRING)
-        .create();
-    assertEquals("[\"1\"]", gson.toJson(new long[] { 1L }, long[].class));
-    assertEquals("[\"1\"]", gson.toJson(new Long[] { 1L }, Long[].class));
+    Gson gson =
+        new GsonBuilder().setLongSerializationPolicy(LongSerializationPolicy.STRING).create();
+    assertEquals("[\"1\"]", gson.toJson(new long[] {1L}, long[].class));
+    assertEquals("[\"1\"]", gson.toJson(new Long[] {1L}, Long[].class));
   }
 }

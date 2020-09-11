@@ -20,20 +20,18 @@ import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.google.gson.annotations.Expose;
 import com.google.gson.reflect.TypeToken;
-
-import junit.framework.TestCase;
-
 import java.io.StringWriter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import junit.framework.TestCase;
 
 /**
  * Tests to measure performance for Gson. All tests in this file will be disabled in code. To run
  * them remove disabled_ prefix from the tests and run them.
- * 
+ *
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
@@ -49,7 +47,7 @@ public class PerformanceTest extends TestCase {
     super.setUp();
     gson = new Gson();
   }
-  
+
   public void testDummy() {
     // This is here to prevent Junit for complaining when we disable all tests.
   }
@@ -70,7 +68,7 @@ public class PerformanceTest extends TestCase {
       }
     }
   }
-  
+
   private void parseLongJson(String json) throws JsonParseException {
     ExceptionHolder target = gson.fromJson(json, ExceptionHolder.class);
     assertTrue(target.message.contains("Error"));
@@ -80,12 +78,13 @@ public class PerformanceTest extends TestCase {
   private static class ExceptionHolder {
     public final String message;
     public final String stackTrace;
-    
+
     // For use by Gson
     @SuppressWarnings("unused")
     private ExceptionHolder() {
       this("", "");
     }
+
     public ExceptionHolder(String message, String stackTrace) {
       this.message = message;
       this.stackTrace = stackTrace;
@@ -107,22 +106,18 @@ public class PerformanceTest extends TestCase {
       this.value = value;
     }
   }
-  
-  /**
-   * Created in response to http://code.google.com/p/google-gson/issues/detail?id=96
-   */
+
+  /** Created in response to http://code.google.com/p/google-gson/issues/detail?id=96 */
   public void disabled_testLargeCollectionSerialization() {
     int count = 1400000;
     List<CollectionEntry> list = new ArrayList<CollectionEntry>(count);
     for (int i = 0; i < count; ++i) {
-      list.add(new CollectionEntry("name"+i,"value"+i));
-    }    
+      list.add(new CollectionEntry("name" + i, "value" + i));
+    }
     gson.toJson(list);
   }
-  
-  /**
-   * Created in response to http://code.google.com/p/google-gson/issues/detail?id=96
-   */
+
+  /** Created in response to http://code.google.com/p/google-gson/issues/detail?id=96 */
   public void disabled_testLargeCollectionDeserialization() {
     StringBuilder sb = new StringBuilder();
     int count = 87000;
@@ -135,17 +130,15 @@ public class PerformanceTest extends TestCase {
         sb.append(',');
       }
       sb.append("{name:'name").append(i).append("',value:'value").append(i).append("'}");
-    }    
+    }
     sb.append(']');
     String json = sb.toString();
-    Type collectionType = new TypeToken<ArrayList<CollectionEntry>>(){}.getType();
+    Type collectionType = new TypeToken<ArrayList<CollectionEntry>>() {}.getType();
     List<CollectionEntry> list = gson.fromJson(json, collectionType);
     assertEquals(count, list.size());
   }
 
-  /**
-   * Created in response to http://code.google.com/p/google-gson/issues/detail?id=96
-   */
+  /** Created in response to http://code.google.com/p/google-gson/issues/detail?id=96 */
   // Last I tested, Gson was able to serialize upto 14MB byte array
   public void disabled_testByteArraySerialization() {
     for (int size = 4145152; true; size += 1036288) {
@@ -157,14 +150,12 @@ public class PerformanceTest extends TestCase {
       System.out.printf("Gson could serialize a byte array of size: %d\n", size);
     }
   }
-  
-  /**
-   * Created in response to http://code.google.com/p/google-gson/issues/detail?id=96
-   */
+
+  /** Created in response to http://code.google.com/p/google-gson/issues/detail?id=96 */
   // Last I tested, Gson was able to deserialize a byte array of 11MB
   public void disable_testByteArrayDeserialization() {
     for (int numElements = 10639296; true; numElements += 16384) {
-      StringBuilder sb = new StringBuilder(numElements*2);
+      StringBuilder sb = new StringBuilder(numElements * 2);
       sb.append("[");
       boolean first = true;
       for (int i = 0; i < numElements; ++i) {
@@ -182,26 +173,26 @@ public class PerformanceTest extends TestCase {
     }
   }
 
-// The tests to measure serialization and deserialization performance of Gson
-// Based on the discussion at
-// http://groups.google.com/group/google-gson/browse_thread/thread/7a50b17a390dfaeb
-// Test results: 10/19/2009 
-// Serialize classes avg time: 60 ms
-// Deserialized classes avg time: 70 ms
-// Serialize exposed classes avg time: 159 ms
-// Deserialized exposed classes avg time: 173 ms
-  
+  // The tests to measure serialization and deserialization performance of Gson
+  // Based on the discussion at
+  // http://groups.google.com/group/google-gson/browse_thread/thread/7a50b17a390dfaeb
+  // Test results: 10/19/2009
+  // Serialize classes avg time: 60 ms
+  // Deserialized classes avg time: 70 ms
+  // Serialize exposed classes avg time: 159 ms
+  // Deserialized exposed classes avg time: 173 ms
+
   public void disabled_testSerializeClasses() {
-    ClassWithList c = new ClassWithList("str"); 
-    for (int i = 0; i < COLLECTION_SIZE; ++i) { 
-      c.list.add(new ClassWithField("element-" + i)); 
+    ClassWithList c = new ClassWithList("str");
+    for (int i = 0; i < COLLECTION_SIZE; ++i) {
+      c.list.add(new ClassWithField("element-" + i));
     }
-    StringWriter w = new StringWriter(); 
-    long t1 = System.currentTimeMillis(); 
-    for (int i = 0; i < NUM_ITERATIONS; ++i) { 
-      gson.toJson(c, w); 
-    } 
-    long t2 = System.currentTimeMillis(); 
+    StringWriter w = new StringWriter();
+    long t1 = System.currentTimeMillis();
+    for (int i = 0; i < NUM_ITERATIONS; ++i) {
+      gson.toJson(c, w);
+    }
+    long t2 = System.currentTimeMillis();
     long avg = (t2 - t1) / NUM_ITERATIONS;
     System.out.printf("Serialize classes avg time: %d ms\n", avg);
   }
@@ -209,45 +200,44 @@ public class PerformanceTest extends TestCase {
   public void disabled_testDeserializeClasses() {
     String json = buildJsonForClassWithList();
     ClassWithList[] target = new ClassWithList[NUM_ITERATIONS];
-    long t1 = System.currentTimeMillis(); 
+    long t1 = System.currentTimeMillis();
     for (int i = 0; i < NUM_ITERATIONS; ++i) {
       target[i] = gson.fromJson(json, ClassWithList.class);
     }
-    long t2 = System.currentTimeMillis(); 
+    long t2 = System.currentTimeMillis();
     long avg = (t2 - t1) / NUM_ITERATIONS;
     System.out.printf("Deserialize classes avg time: %d ms\n", avg);
   }
-  
+
   public void disable_testLargeObjectSerializationAndDeserialization() {
     Map<String, Long> largeObject = new HashMap<String, Long>();
     for (long l = 0; l < 100000; l++) {
       largeObject.put("field" + l, l);
     }
-    
-    long t1 = System.currentTimeMillis(); 
+
+    long t1 = System.currentTimeMillis();
     String json = gson.toJson(largeObject);
     long t2 = System.currentTimeMillis();
     System.out.printf("Large object serialized in: %d ms\n", (t2 - t1));
 
-    t1 = System.currentTimeMillis(); 
+    t1 = System.currentTimeMillis();
     gson.fromJson(json, new TypeToken<Map<String, Long>>() {}.getType());
     t2 = System.currentTimeMillis();
     System.out.printf("Large object deserialized in: %d ms\n", (t2 - t1));
-    
   }
 
   public void disabled_testSerializeExposedClasses() {
-    ClassWithListOfObjects c1 = new ClassWithListOfObjects("str"); 
-    for (int i1 = 0; i1 < COLLECTION_SIZE; ++i1) { 
-      c1.list.add(new ClassWithExposedField("element-" + i1)); 
+    ClassWithListOfObjects c1 = new ClassWithListOfObjects("str");
+    for (int i1 = 0; i1 < COLLECTION_SIZE; ++i1) {
+      c1.list.add(new ClassWithExposedField("element-" + i1));
     }
-    ClassWithListOfObjects c = c1; 
-    StringWriter w = new StringWriter(); 
-    long t1 = System.currentTimeMillis(); 
-    for (int i = 0; i < NUM_ITERATIONS; ++i) { 
-      gson.toJson(c, w); 
-    } 
-    long t2 = System.currentTimeMillis(); 
+    ClassWithListOfObjects c = c1;
+    StringWriter w = new StringWriter();
+    long t1 = System.currentTimeMillis();
+    for (int i = 0; i < NUM_ITERATIONS; ++i) {
+      gson.toJson(c, w);
+    }
+    long t2 = System.currentTimeMillis();
     long avg = (t2 - t1) / NUM_ITERATIONS;
     System.out.printf("Serialize exposed classes avg time: %d ms\n", avg);
   }
@@ -255,11 +245,11 @@ public class PerformanceTest extends TestCase {
   public void disabled_testDeserializeExposedClasses() {
     String json = buildJsonForClassWithList();
     ClassWithListOfObjects[] target = new ClassWithListOfObjects[NUM_ITERATIONS];
-    long t1 = System.currentTimeMillis(); 
+    long t1 = System.currentTimeMillis();
     for (int i = 0; i < NUM_ITERATIONS; ++i) {
       target[i] = gson.fromJson(json, ClassWithListOfObjects.class);
     }
-    long t2 = System.currentTimeMillis(); 
+    long t2 = System.currentTimeMillis();
     long avg = (t2 - t1) / NUM_ITERATIONS;
     System.out.printf("Deserialize exposed classes avg time: %d ms\n", avg);
   }
@@ -272,7 +262,7 @@ public class PerformanceTest extends TestCase {
 
     Gson gson = new Gson();
     String json = gson.toJson(original);
-    Type longToLong = new TypeToken<Map<Long, Long>>(){}.getType();
+    Type longToLong = new TypeToken<Map<Long, Long>>() {}.getType();
     gson.fromJson(json, longToLong);
   }
 
@@ -296,51 +286,58 @@ public class PerformanceTest extends TestCase {
   }
 
   @SuppressWarnings("unused")
-  private static final class ClassWithList { 
-    final String field; 
+  private static final class ClassWithList {
+    final String field;
     final List<ClassWithField> list = new ArrayList<ClassWithField>(COLLECTION_SIZE);
+
     ClassWithList() {
       this(null);
     }
+
     ClassWithList(String field) {
       this.field = field;
     }
-  } 
-
-  @SuppressWarnings("unused")
-  private static final class ClassWithField { 
-    final String field;
-    ClassWithField() {
-      this("");
-    }
-    public ClassWithField(String field) { 
-      this.field = field; 
-    } 
   }
 
   @SuppressWarnings("unused")
-  private static final class ClassWithListOfObjects { 
-    @Expose 
-    final String field; 
-    @Expose 
+  private static final class ClassWithField {
+    final String field;
+
+    ClassWithField() {
+      this("");
+    }
+
+    public ClassWithField(String field) {
+      this.field = field;
+    }
+  }
+
+  @SuppressWarnings("unused")
+  private static final class ClassWithListOfObjects {
+    @Expose final String field;
+
+    @Expose
     final List<ClassWithExposedField> list = new ArrayList<ClassWithExposedField>(COLLECTION_SIZE);
+
     ClassWithListOfObjects() {
       this(null);
     }
+
     ClassWithListOfObjects(String field) {
       this.field = field;
     }
-  } 
+  }
 
   @SuppressWarnings("unused")
-  private static final class ClassWithExposedField { 
-    @Expose 
-    final String field;
+  private static final class ClassWithExposedField {
+    @Expose final String field;
+
     ClassWithExposedField() {
       this("");
     }
-    ClassWithExposedField(String field) { 
-      this.field = field; 
-    } 
+
+    ClassWithExposedField(String field) {
+      this.field = field;
+    }
   }
 }

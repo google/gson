@@ -16,6 +16,16 @@
 
 package com.google.gson.functional;
 
+import static org.junit.Assert.assertArrayEquals;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+import com.google.gson.common.TestTypes.BagOfPrimitives;
+import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,19 +40,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
-import com.google.gson.common.MoreAsserts;
-import com.google.gson.common.TestTypes.BagOfPrimitives;
-import com.google.gson.reflect.TypeToken;
-
 import junit.framework.TestCase;
-import static org.junit.Assert.assertArrayEquals;
 
 /**
  * Functional tests for Json serialization and deserialization of collections.
@@ -68,7 +66,7 @@ public class CollectionTest extends TestCase {
 
   public void testTopLevelCollectionOfIntegersDeserialization() {
     String json = "[0,1,2,3,4,5,6,7,8,9]";
-    Type collectionType = new TypeToken<Collection<Integer>>() { }.getType();
+    Type collectionType = new TypeToken<Collection<Integer>>() {}.getType();
     Collection<Integer> target = gson.fromJson(json, collectionType);
     int[] expected = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
     assertArrayEquals(expected, toIntArray(target));
@@ -129,7 +127,7 @@ public class CollectionTest extends TestCase {
   }
 
   public void testPriorityQueue() throws Exception {
-    Type type = new TypeToken<PriorityQueue<Integer>>(){}.getType();
+    Type type = new TypeToken<PriorityQueue<Integer>>() {}.getType();
     PriorityQueue<Integer> queue = gson.fromJson("[10, 20, 22]", type);
     assertEquals(3, queue.size());
     String json = gson.toJson(queue);
@@ -140,7 +138,7 @@ public class CollectionTest extends TestCase {
   }
 
   public void testVector() {
-    Type type = new TypeToken<Vector<Integer>>(){}.getType();
+    Type type = new TypeToken<Vector<Integer>>() {}.getType();
     Vector<Integer> target = gson.fromJson("[10, 20, 31]", type);
     assertEquals(3, target.size());
     assertEquals(10, target.get(0).intValue());
@@ -151,7 +149,7 @@ public class CollectionTest extends TestCase {
   }
 
   public void testStack() {
-    Type type = new TypeToken<Stack<Integer>>(){}.getType();
+    Type type = new TypeToken<Stack<Integer>>() {}.getType();
     Stack<Integer> target = gson.fromJson("[11, 13, 17]", type);
     assertEquals(3, target.size());
     String json = gson.toJson(target);
@@ -230,7 +228,7 @@ public class CollectionTest extends TestCase {
 
   public void testCollectionOfStringsDeserialization() {
     String json = "[\"Hello\",\"World\"]";
-    Type collectionType = new TypeToken<Collection<String>>() { }.getType();
+    Type collectionType = new TypeToken<Collection<String>>() {}.getType();
     Collection<String> target = gson.fromJson(json, collectionType);
 
     assertTrue(target.contains("Hello"));
@@ -280,7 +278,7 @@ public class CollectionTest extends TestCase {
 
   public void testWildcardPrimitiveCollectionSerilaization() throws Exception {
     Collection<? extends Integer> target = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9);
-    Type collectionType = new TypeToken<Collection<? extends Integer>>() { }.getType();
+    Type collectionType = new TypeToken<Collection<? extends Integer>>() {}.getType();
     String json = gson.toJson(target, collectionType);
     assertEquals("[1,2,3,4,5,6,7,8,9]", json);
 
@@ -290,7 +288,7 @@ public class CollectionTest extends TestCase {
 
   public void testWildcardPrimitiveCollectionDeserilaization() throws Exception {
     String json = "[1,2,3,4,5,6,7,8,9]";
-    Type collectionType = new TypeToken<Collection<? extends Integer>>() { }.getType();
+    Type collectionType = new TypeToken<Collection<? extends Integer>>() {}.getType();
     Collection<? extends Integer> target = gson.fromJson(json, collectionType);
     assertEquals(9, target.size());
     assertTrue(target.contains(1));
@@ -325,18 +323,17 @@ public class CollectionTest extends TestCase {
     HasArrayListField copy = gson.fromJson("{\"longs\":[1,3]}", HasArrayListField.class);
     assertEquals(Arrays.asList(1L, 3L), copy.longs);
   }
-  
+
   public void testUserCollectionTypeAdapter() {
     Type listOfString = new TypeToken<List<String>>() {}.getType();
-    Object stringListSerializer = new JsonSerializer<List<String>>() {
-      public JsonElement serialize(List<String> src, Type typeOfSrc,
-          JsonSerializationContext context) {
-        return new JsonPrimitive(src.get(0) + ";" + src.get(1));
-      }
-    };
-    Gson gson = new GsonBuilder()
-        .registerTypeAdapter(listOfString, stringListSerializer)
-        .create();
+    Object stringListSerializer =
+        new JsonSerializer<List<String>>() {
+          public JsonElement serialize(
+              List<String> src, Type typeOfSrc, JsonSerializationContext context) {
+            return new JsonPrimitive(src.get(0) + ";" + src.get(1));
+          }
+        };
+    Gson gson = new GsonBuilder().registerTypeAdapter(listOfString, stringListSerializer).create();
     assertEquals("\"ab;cd\"", gson.toJson(Arrays.asList("ab", "cd"), listOfString));
   }
 
@@ -351,9 +348,9 @@ public class CollectionTest extends TestCase {
     for (Iterator iterator = collection.iterator(); iterator.hasNext(); ++i) {
       Object obj = iterator.next();
       if (obj instanceof Integer) {
-        ints[i] = ((Integer)obj).intValue();
+        ints[i] = ((Integer) obj).intValue();
       } else if (obj instanceof Long) {
-        ints[i] = ((Long)obj).intValue();
+        ints[i] = ((Long) obj).intValue();
       }
     }
     return ints;
@@ -373,10 +370,12 @@ public class CollectionTest extends TestCase {
 
   private static class Entry {
     int value;
+
     Entry(int value) {
       this.value = value;
     }
   }
+
   public void testSetSerialization() {
     Set<Entry> set = new HashSet<Entry>();
     set.add(new Entry(1));
@@ -385,6 +384,7 @@ public class CollectionTest extends TestCase {
     assertTrue(json.contains("1"));
     assertTrue(json.contains("2"));
   }
+
   public void testSetDeserialization() {
     String json = "[{value:1},{value:2}]";
     Type type = new TypeToken<Set<Entry>>() {}.getType();
@@ -395,22 +395,26 @@ public class CollectionTest extends TestCase {
     }
   }
 
-  private class BigClass { private Map<String, ? extends List<SmallClass>> inBig; }
+  private class BigClass {
+    private Map<String, ? extends List<SmallClass>> inBig;
+  }
 
-  private class SmallClass { private String inSmall; }
+  private class SmallClass {
+    private String inSmall;
+  }
 
   public void testIssue1107() {
-    String json = "{\n" +
-            "  \"inBig\": {\n" +
-            "    \"key\": [\n" +
-            "      { \"inSmall\": \"hello\" }\n" +
-            "    ]\n" +
-            "  }\n" +
-            "}";
+    String json =
+        "{\n"
+            + "  \"inBig\": {\n"
+            + "    \"key\": [\n"
+            + "      { \"inSmall\": \"hello\" }\n"
+            + "    ]\n"
+            + "  }\n"
+            + "}";
     BigClass bigClass = new Gson().fromJson(json, BigClass.class);
     SmallClass small = bigClass.inBig.get("key").get(0);
     assertNotNull(small);
     assertEquals("hello", small.inSmall);
   }
-
 }

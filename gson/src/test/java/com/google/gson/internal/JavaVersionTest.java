@@ -19,15 +19,14 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import com.google.gson.internal.JavaVersion;
-
 /**
  * Unit and functional tests for {@link JavaVersion}
  *
  * @author Inderjeet Singh
  */
 public class JavaVersionTest {
-  // Borrowed some of test strings from https://github.com/prestodb/presto/blob/master/presto-main/src/test/java/com/facebook/presto/server/TestJavaVersion.java
+  // Borrowed some of test strings from
+  // https://github.com/prestodb/presto/blob/master/presto-main/src/test/java/com/facebook/presto/server/TestJavaVersion.java
 
   @Test
   public void testGetMajorJavaVersion() {
@@ -36,12 +35,18 @@ public class JavaVersionTest {
 
   @Test
   public void testJava6() {
-    assertEquals(6, JavaVersion.getMajorJavaVersion("1.6.0")); // http://www.oracle.com/technetwork/java/javase/version-6-141920.html
+    assertEquals(
+        6,
+        JavaVersion.getMajorJavaVersion(
+            "1.6.0")); // http://www.oracle.com/technetwork/java/javase/version-6-141920.html
   }
 
   @Test
   public void testJava7() {
-    assertEquals(7, JavaVersion.getMajorJavaVersion("1.7.0")); // http://www.oracle.com/technetwork/java/javase/jdk7-naming-418744.html
+    assertEquals(
+        7,
+        JavaVersion.getMajorJavaVersion(
+            "1.7.0")); // http://www.oracle.com/technetwork/java/javase/jdk7-naming-418744.html
   }
 
   @Test
@@ -61,7 +66,10 @@ public class JavaVersionTest {
   public void testJava9() {
     // Legacy style
     assertEquals(9, JavaVersion.getMajorJavaVersion("9.0.4")); // Oracle JDK 9
-    assertEquals(9, JavaVersion.getMajorJavaVersion("9-Debian")); // Debian as reported in https://github.com/google/gson/issues/1310
+    assertEquals(
+        9,
+        JavaVersion.getMajorJavaVersion(
+            "9-Debian")); // Debian as reported in https://github.com/google/gson/issues/1310
     // New style
     assertEquals(9, JavaVersion.getMajorJavaVersion("9-ea+19"));
     assertEquals(9, JavaVersion.getMajorJavaVersion("9+100"));

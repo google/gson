@@ -19,7 +19,6 @@ package com.google.gson.internal;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
-
 import junit.framework.TestCase;
 
 public final class GsonTypesTest extends TestCase {
@@ -33,13 +32,13 @@ public final class GsonTypesTest extends TestCase {
     type = $Gson$Types.newParameterizedTypeWithOwner(null, A.class, B.class);
     assertEquals(B.class, getFirstTypeArgument(type));
 
-    final class D {
-    }
+    final class D {}
     try {
       // D<A> is not allowed since D is not a static inner class
       $Gson$Types.newParameterizedTypeWithOwner(null, D.class, A.class);
       fail();
-    } catch (IllegalArgumentException expected) {}
+    } catch (IllegalArgumentException expected) {
+    }
 
     // A<D> is allowed.
     type = $Gson$Types.newParameterizedTypeWithOwner(null, A.class, D.class);
@@ -53,16 +52,15 @@ public final class GsonTypesTest extends TestCase {
     assertEquals(B.class, getFirstTypeArgument(type));
   }
 
-  private static final class A {
-  }
-  private static final class B {
-  }
-  private static final class C {
-  }
+  private static final class A {}
+
+  private static final class B {}
+
+  private static final class C {}
 
   /**
-   * Given a parameterized type A&lt;B,C&gt;, returns B. If the specified type is not
-   * a generic type, returns null.
+   * Given a parameterized type A&lt;B,C&gt;, returns B. If the specified type is not a generic
+   * type, returns null.
    */
   public static Type getFirstTypeArgument(Type type) throws Exception {
     if (!(type instanceof ParameterizedType)) return null;

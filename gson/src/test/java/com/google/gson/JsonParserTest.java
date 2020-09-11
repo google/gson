@@ -16,15 +16,13 @@
 
 package com.google.gson;
 
-import java.io.CharArrayReader;
-import java.io.CharArrayWriter;
-import java.io.StringReader;
-
-import junit.framework.TestCase;
-
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
+import java.io.CharArrayReader;
+import java.io.CharArrayWriter;
+import java.io.StringReader;
+import junit.framework.TestCase;
 
 /**
  * Unit test for {@link JsonParser}
@@ -37,7 +35,8 @@ public class JsonParserTest extends TestCase {
     try {
       JsonParser.parseString("[[]");
       fail();
-    } catch (JsonSyntaxException expected) { }
+    } catch (JsonSyntaxException expected) {
+    }
   }
 
   public void testParseUnquotedStringArrayFails() {
@@ -76,7 +75,8 @@ public class JsonParserTest extends TestCase {
     try {
       JsonParser.parseString(unquotedSentence);
       fail();
-    } catch (JsonSyntaxException expected) { }
+    } catch (JsonSyntaxException expected) {
+    }
   }
 
   public void testParseMixedArray() {
@@ -84,7 +84,7 @@ public class JsonParserTest extends TestCase {
     JsonElement e = JsonParser.parseString(json);
     assertTrue(e.isJsonArray());
 
-    JsonArray  array = e.getAsJsonArray();
+    JsonArray array = e.getAsJsonArray();
     assertEquals("{}", array.get(0).toString());
     assertEquals(13, array.get(1).getAsInt());
     assertEquals("stringValue", array.get(2).getAsString());

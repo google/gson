@@ -17,7 +17,6 @@
 package com.google.gson;
 
 import com.google.gson.common.MoreAsserts;
-
 import junit.framework.TestCase;
 
 /**
@@ -60,7 +59,8 @@ public class JsonObjectTest extends TestCase {
     try {
       jsonObj.add(null, JsonNull.INSTANCE);
       fail("Should not allow null property names.");
-    } catch (NullPointerException expected) { }
+    } catch (NullPointerException expected) {
+    }
 
     jsonObj.add("", JsonNull.INSTANCE);
     jsonObj.add("   \t", JsonNull.INSTANCE);
@@ -107,9 +107,7 @@ public class JsonObjectTest extends TestCase {
     assertEquals(value, jsonElement.getAsCharacter());
   }
 
-  /**
-   * From bug report http://code.google.com/p/google-gson/issues/detail?id=182
-   */
+  /** From bug report http://code.google.com/p/google-gson/issues/detail?id=182 */
   public void testPropertyWithQuotes() {
     JsonObject jsonObj = new JsonObject();
     jsonObj.add("a\"b", new JsonPrimitive("c\"d"));
@@ -117,14 +115,11 @@ public class JsonObjectTest extends TestCase {
     assertEquals("{\"a\\\"b\":\"c\\\"d\"}", json);
   }
 
-  /**
-   * From issue 227.
-   */
+  /** From issue 227. */
   public void testWritePropertyWithEmptyStringName() {
     JsonObject jsonObj = new JsonObject();
     jsonObj.add("", new JsonPrimitive(true));
     assertEquals("{\"\":true}", new Gson().toJson(jsonObj));
-
   }
 
   public void testReadPropertyWithEmptyStringName() {
@@ -184,9 +179,7 @@ public class JsonObjectTest extends TestCase {
     assertEquals(0, copy.get("key").getAsJsonArray().size());
   }
 
-  /**
-   * From issue 941
-   */
+  /** From issue 941 */
   public void testKeySet() {
     JsonObject a = new JsonObject();
 

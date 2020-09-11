@@ -39,7 +39,7 @@ public class EscapingTest extends TestCase {
   }
 
   public void testEscapingQuotesInStringArray() throws Exception {
-    String[] valueWithQuotes = { "beforeQuote\"afterQuote" };
+    String[] valueWithQuotes = {"beforeQuote\"afterQuote"};
     String jsonRepresentation = gson.toJson(valueWithQuotes);
     String[] target = gson.fromJson(jsonRepresentation, String[].class);
     assertEquals(1, target.length);
@@ -54,7 +54,8 @@ public class EscapingTest extends TestCase {
     strings.add("&");
     strings.add("'");
     strings.add("\"");
-    assertEquals("[\"\\u003c\",\"\\u003e\",\"\\u003d\",\"\\u0026\",\"\\u0027\",\"\\\"\"]",
+    assertEquals(
+        "[\"\\u003c\",\"\\u003e\",\"\\u003d\",\"\\u0026\",\"\\u0027\",\"\\\"\"]",
         gson.toJson(strings));
   }
 
@@ -68,16 +69,16 @@ public class EscapingTest extends TestCase {
     BagOfPrimitives expectedObject = gson.fromJson(jsonRepresentation, BagOfPrimitives.class);
     assertEquals(objWithPrimitives.getExpectedJson(), expectedObject.getExpectedJson());
   }
-  
+
   public void testGsonAcceptsEscapedAndNonEscapedJsonDeserialization() throws Exception {
     Gson escapeHtmlGson = new GsonBuilder().create();
     Gson noEscapeHtmlGson = new GsonBuilder().disableHtmlEscaping().create();
-    
+
     BagOfPrimitives target = new BagOfPrimitives(1L, 1, true, "test' / w'ith\" / \\ <script>");
     String escapedJsonForm = escapeHtmlGson.toJson(target);
     String nonEscapedJsonForm = noEscapeHtmlGson.toJson(target);
     assertFalse(escapedJsonForm.equals(nonEscapedJsonForm));
-    
+
     assertEquals(target, noEscapeHtmlGson.fromJson(escapedJsonForm, BagOfPrimitives.class));
     assertEquals(target, escapeHtmlGson.fromJson(nonEscapedJsonForm, BagOfPrimitives.class));
   }

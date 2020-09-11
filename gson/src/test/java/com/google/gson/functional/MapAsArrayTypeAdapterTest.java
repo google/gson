@@ -30,9 +30,7 @@ public class MapAsArrayTypeAdapterTest extends TestCase {
 
   public void testSerializeComplexMapWithTypeAdapter() {
     Type type = new TypeToken<Map<Point, String>>() {}.getType();
-    Gson gson = new GsonBuilder()
-        .enableComplexMapKeySerialization()
-        .create();
+    Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
 
     Map<Point, String> original = new LinkedHashMap<Point, String>();
     original.put(new Point(5, 5), "a");
@@ -45,18 +43,18 @@ public class MapAsArrayTypeAdapterTest extends TestCase {
     Map<String, Boolean> otherMap = new LinkedHashMap<String, Boolean>();
     otherMap.put("t", true);
     otherMap.put("f", false);
-    assertEquals("{\"t\":true,\"f\":false}",
-        gson.toJson(otherMap, Map.class));
-    assertEquals("{\"t\":true,\"f\":false}",
+    assertEquals("{\"t\":true,\"f\":false}", gson.toJson(otherMap, Map.class));
+    assertEquals(
+        "{\"t\":true,\"f\":false}",
         gson.toJson(otherMap, new TypeToken<Map<String, Boolean>>() {}.getType()));
-    assertEquals(otherMap, gson.<Object>fromJson("{\"t\":true,\"f\":false}",
-        new TypeToken<Map<String, Boolean>>() {}.getType()));
+    assertEquals(
+        otherMap,
+        gson.<Object>fromJson(
+            "{\"t\":true,\"f\":false}", new TypeToken<Map<String, Boolean>>() {}.getType()));
   }
 
   public void disabled_testTwoTypesCollapseToOneSerialize() {
-    Gson gson = new GsonBuilder()
-        .enableComplexMapKeySerialization()
-        .create();
+    Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
 
     Map<Number, String> original = new LinkedHashMap<Number, String>();
     original.put(1.0D, "a");
@@ -69,9 +67,7 @@ public class MapAsArrayTypeAdapterTest extends TestCase {
   }
 
   public void testTwoTypesCollapseToOneDeserialize() {
-    Gson gson = new GsonBuilder()
-        .enableComplexMapKeySerialization()
-        .create();
+    Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
 
     String s = "[[\"1.00\",\"a\"],[\"1.0\",\"b\"]]";
     try {
@@ -83,10 +79,11 @@ public class MapAsArrayTypeAdapterTest extends TestCase {
 
   public void testMultipleEnableComplexKeyRegistrationHasNoEffect() throws Exception {
     Type type = new TypeToken<Map<Point, String>>() {}.getType();
-    Gson gson = new GsonBuilder()
-        .enableComplexMapKeySerialization()
-        .enableComplexMapKeySerialization()
-        .create();
+    Gson gson =
+        new GsonBuilder()
+            .enableComplexMapKeySerialization()
+            .enableComplexMapKeySerialization()
+            .create();
 
     Map<Point, String> original = new LinkedHashMap<Point, String>();
     original.put(new Point(6, 5), "abc");
@@ -100,7 +97,7 @@ public class MapAsArrayTypeAdapterTest extends TestCase {
     Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
     PointWithProperty<Point> map = new PointWithProperty<Point>();
     map.map.put(new Point(2, 3), new Point(4, 5));
-    Type type = new TypeToken<PointWithProperty<Point>>(){}.getType();
+    Type type = new TypeToken<PointWithProperty<Point>>() {}.getType();
     String json = gson.toJson(map, type);
     assertEquals("{\"map\":[[{\"x\":2,\"y\":3},{\"x\":4,\"y\":5}]]}", json);
   }
@@ -108,7 +105,7 @@ public class MapAsArrayTypeAdapterTest extends TestCase {
   public void testMapWithTypeVariableDeserialization() {
     Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
     String json = "{map:[[{x:2,y:3},{x:4,y:5}]]}";
-    Type type = new TypeToken<PointWithProperty<Point>>(){}.getType();
+    Type type = new TypeToken<PointWithProperty<Point>>() {}.getType();
     PointWithProperty<Point> map = gson.fromJson(json, type);
     Point key = map.map.keySet().iterator().next();
     Point value = map.map.values().iterator().next();
@@ -119,18 +116,26 @@ public class MapAsArrayTypeAdapterTest extends TestCase {
   static class Point {
     int x;
     int y;
+
     Point(int x, int y) {
       this.x = x;
       this.y = y;
     }
+
     Point() {}
-    @Override public boolean equals(Object o) {
+
+    @Override
+    public boolean equals(Object o) {
       return o instanceof Point && ((Point) o).x == x && ((Point) o).y == y;
     }
-    @Override public int hashCode() {
+
+    @Override
+    public int hashCode() {
       return x * 37 + y;
     }
-    @Override public String toString() {
+
+    @Override
+    public String toString() {
       return "(" + x + "," + y + ")";
     }
   }

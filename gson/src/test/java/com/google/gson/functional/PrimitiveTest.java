@@ -70,7 +70,7 @@ public class PrimitiveTest extends TestCase {
 
   public void testByteDeserialization() {
     Byte target = gson.fromJson("1", Byte.class);
-    assertEquals(1, (byte)target);
+    assertEquals(1, (byte) target);
     byte primitive = gson.fromJson("1", byte.class);
     assertEquals(1, primitive);
   }
@@ -204,16 +204,17 @@ public class PrimitiveTest extends TestCase {
   }
 
   public void testDoubleArrayDeserialization() {
-      String json = "[0.0, 0.004761904761904762, 3.4013606962703525E-4, 7.936508173034305E-4,"
-              + "0.0011904761904761906, 0.0]";
-      double[] values = gson.fromJson(json, double[].class);
-      assertEquals(6, values.length);
-      assertEquals(0.0, values[0]);
-      assertEquals(0.004761904761904762, values[1]);
-      assertEquals(3.4013606962703525E-4, values[2]);
-      assertEquals(7.936508173034305E-4, values[3]);
-      assertEquals(0.0011904761904761906, values[4]);
-      assertEquals(0.0, values[5]);
+    String json =
+        "[0.0, 0.004761904761904762, 3.4013606962703525E-4, 7.936508173034305E-4,"
+            + "0.0011904761904761906, 0.0]";
+    double[] values = gson.fromJson(json, double[].class);
+    assertEquals(6, values.length);
+    assertEquals(0.0, values[0]);
+    assertEquals(0.004761904761904762, values[1]);
+    assertEquals(3.4013606962703525E-4, values[2]);
+    assertEquals(7.936508173034305E-4, values[3]);
+    assertEquals(0.0011904761904761906, values[4]);
+    assertEquals(0.0, values[5]);
   }
 
   public void testLargeDoubleDeserialization() {
@@ -329,7 +330,8 @@ public class PrimitiveTest extends TestCase {
     try {
       gson.fromJson("15.099", BigInteger.class);
       fail("BigInteger can not be decimal values.");
-    } catch (JsonSyntaxException expected) { }
+    } catch (JsonSyntaxException expected) {
+    }
   }
 
   public void testMoreSpecificSerialization() {
@@ -561,7 +563,8 @@ public class PrimitiveTest extends TestCase {
     try {
       gson.fromJson(value, String.class);
       fail();
-    } catch (JsonSyntaxException expected) { }
+    } catch (JsonSyntaxException expected) {
+    }
   }
 
   public void testHtmlCharacterSerialization() throws Exception {
@@ -594,140 +597,160 @@ public class PrimitiveTest extends TestCase {
     try {
       gson.fromJson("{'abc':1}", long.class);
       fail();
-    } catch (JsonSyntaxException expected) {}
+    } catch (JsonSyntaxException expected) {
+    }
   }
 
   public void testDeserializeJsonArrayAsLongWrapper() {
     try {
       gson.fromJson("[1,2,3]", Long.class);
       fail();
-    } catch (JsonSyntaxException expected) {}
+    } catch (JsonSyntaxException expected) {
+    }
   }
 
   public void testDeserializeJsonArrayAsInt() {
     try {
       gson.fromJson("[1, 2, 3, 4]", int.class);
       fail();
-    } catch (JsonSyntaxException expected) {}
+    } catch (JsonSyntaxException expected) {
+    }
   }
 
   public void testDeserializeJsonObjectAsInteger() {
     try {
       gson.fromJson("{}", Integer.class);
       fail();
-    } catch (JsonSyntaxException expected) {}
+    } catch (JsonSyntaxException expected) {
+    }
   }
 
   public void testDeserializeJsonObjectAsShortPrimitive() {
     try {
       gson.fromJson("{'abc':1}", short.class);
       fail();
-    } catch (JsonSyntaxException expected) {}
+    } catch (JsonSyntaxException expected) {
+    }
   }
 
   public void testDeserializeJsonArrayAsShortWrapper() {
     try {
       gson.fromJson("['a','b']", Short.class);
       fail();
-    } catch (JsonSyntaxException expected) {}
+    } catch (JsonSyntaxException expected) {
+    }
   }
 
   public void testDeserializeJsonArrayAsDoublePrimitive() {
     try {
       gson.fromJson("[1,2]", double.class);
       fail();
-    } catch (JsonSyntaxException expected) {}
+    } catch (JsonSyntaxException expected) {
+    }
   }
 
   public void testDeserializeJsonObjectAsDoubleWrapper() {
     try {
       gson.fromJson("{'abc':1}", Double.class);
       fail();
-    } catch (JsonSyntaxException expected) {}
+    } catch (JsonSyntaxException expected) {
+    }
   }
 
   public void testDeserializeJsonObjectAsFloatPrimitive() {
     try {
       gson.fromJson("{'abc':1}", float.class);
       fail();
-    } catch (JsonSyntaxException expected) {}
+    } catch (JsonSyntaxException expected) {
+    }
   }
 
   public void testDeserializeJsonArrayAsFloatWrapper() {
     try {
       gson.fromJson("[1,2,3]", Float.class);
       fail();
-    } catch (JsonSyntaxException expected) {}
+    } catch (JsonSyntaxException expected) {
+    }
   }
 
   public void testDeserializeJsonObjectAsBytePrimitive() {
     try {
       gson.fromJson("{'abc':1}", byte.class);
       fail();
-    } catch (JsonSyntaxException expected) {}
+    } catch (JsonSyntaxException expected) {
+    }
   }
 
   public void testDeserializeJsonArrayAsByteWrapper() {
     try {
       gson.fromJson("[1,2,3,4]", Byte.class);
       fail();
-    } catch (JsonSyntaxException expected) {}
+    } catch (JsonSyntaxException expected) {
+    }
   }
 
   public void testDeserializeJsonObjectAsBooleanPrimitive() {
     try {
       gson.fromJson("{'abc':1}", boolean.class);
       fail();
-    } catch (JsonSyntaxException expected) {}
+    } catch (JsonSyntaxException expected) {
+    }
   }
 
   public void testDeserializeJsonArrayAsBooleanWrapper() {
     try {
       gson.fromJson("[1,2,3,4]", Boolean.class);
       fail();
-    } catch (JsonSyntaxException expected) {}
+    } catch (JsonSyntaxException expected) {
+    }
   }
 
   public void testDeserializeJsonArrayAsBigDecimal() {
     try {
       gson.fromJson("[1,2,3,4]", BigDecimal.class);
       fail();
-    } catch (JsonSyntaxException expected) {}
+    } catch (JsonSyntaxException expected) {
+    }
   }
 
   public void testDeserializeJsonObjectAsBigDecimal() {
     try {
       gson.fromJson("{'a':1}", BigDecimal.class);
       fail();
-    } catch (JsonSyntaxException expected) {}
+    } catch (JsonSyntaxException expected) {
+    }
   }
 
   public void testDeserializeJsonArrayAsBigInteger() {
     try {
       gson.fromJson("[1,2,3,4]", BigInteger.class);
       fail();
-    } catch (JsonSyntaxException expected) {}
+    } catch (JsonSyntaxException expected) {
+    }
   }
 
   public void testDeserializeJsonObjectAsBigInteger() {
     try {
       gson.fromJson("{'c':2}", BigInteger.class);
       fail();
-    } catch (JsonSyntaxException expected) {}
+    } catch (JsonSyntaxException expected) {
+    }
   }
 
   public void testDeserializeJsonArrayAsNumber() {
     try {
       gson.fromJson("[1,2,3,4]", Number.class);
       fail();
-    } catch (JsonSyntaxException expected) {}
+    } catch (JsonSyntaxException expected) {
+    }
   }
 
   public void testDeserializeJsonObjectAsNumber() {
     try {
       gson.fromJson("{'c':2}", Number.class);
       fail();
-    } catch (JsonSyntaxException expected) {}
+    } catch (JsonSyntaxException expected) {
+    }
   }
 
   public void testDeserializingDecimalPointValueZeroSucceeds() {
@@ -814,13 +837,15 @@ public class PrimitiveTest extends TestCase {
 
   public void testDeserializingBigIntegerAsBigDecimal() {
     BigDecimal actual =
-      gson.fromJson("12121211243123245845384534687435634558945453489543985435", BigDecimal.class);
-    assertEquals("12121211243123245845384534687435634558945453489543985435", actual.toPlainString());
+        gson.fromJson("12121211243123245845384534687435634558945453489543985435", BigDecimal.class);
+    assertEquals(
+        "12121211243123245845384534687435634558945453489543985435", actual.toPlainString());
   }
 
   public void testStringsAsBooleans() {
     String json = "['true', 'false', 'TRUE', 'yes', '1']";
-    assertEquals(Arrays.asList(true, false, true, false, false),
+    assertEquals(
+        Arrays.asList(true, false, true, false, false),
         gson.<List<Boolean>>fromJson(json, new TypeToken<List<Boolean>>() {}.getType()));
   }
 }

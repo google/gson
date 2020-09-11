@@ -1,7 +1,6 @@
 package com.google.gson.functional;
 
 import com.google.gson.Gson;
-
 import junit.framework.TestCase;
 
 /**
@@ -105,7 +104,8 @@ public class StringTest extends TestCase {
   }
 
   /**
-   * Created in response to http://groups.google.com/group/google-gson/browse_thread/thread/2431d4a3d0d6cb23
+   * Created in response to
+   * http://groups.google.com/group/google-gson/browse_thread/thread/2431d4a3d0d6cb23
    */
   public void testAssignmentCharSerialization() {
     String value = "abc=";
@@ -114,7 +114,8 @@ public class StringTest extends TestCase {
   }
 
   /**
-   * Created in response to http://groups.google.com/group/google-gson/browse_thread/thread/2431d4a3d0d6cb23
+   * Created in response to
+   * http://groups.google.com/group/google-gson/browse_thread/thread/2431d4a3d0d6cb23
    */
   public void testAssignmentCharDeserialization() {
     String json = "\"abc=\"";

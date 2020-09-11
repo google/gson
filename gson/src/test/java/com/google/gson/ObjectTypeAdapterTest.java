@@ -38,7 +38,7 @@ public final class ObjectTypeAdapterTest extends TestCase {
     Object object = new RuntimeType();
     assertEquals("{'a':5,'b':[1,2,null]}", adapter.toJson(object).replace("\"", "'"));
   }
-  
+
   public void testSerializeNullValue() throws Exception {
     Map<String, Object> map = new LinkedHashMap<String, Object>();
     map.put("a", null);

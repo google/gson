@@ -15,15 +15,14 @@
  */
 package com.google.gson.internal.bind;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 
 final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
   private final Gson context;
@@ -47,7 +46,8 @@ final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
     // Order of preference for choosing type adapters
     // First preference: a type adapter registered for the runtime type
     // Second preference: a type adapter registered for the declared type
-    // Third preference: reflective type adapter for the runtime type (if it is a sub class of the declared type)
+    // Third preference: reflective type adapter for the runtime type (if it is a sub class of the
+    // declared type)
     // Fourth preference: reflective type adapter for the declared type
 
     TypeAdapter chosen = delegate;
@@ -69,9 +69,7 @@ final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
     chosen.write(out, value);
   }
 
-  /**
-   * Finds a compatible runtime type if it is more specific
-   */
+  /** Finds a compatible runtime type if it is more specific */
   private Type getRuntimeTypeIfMoreSpecific(Type type, Object value) {
     if (value != null
         && (type == Object.class || type instanceof TypeVariable<?> || type instanceof Class<?>)) {

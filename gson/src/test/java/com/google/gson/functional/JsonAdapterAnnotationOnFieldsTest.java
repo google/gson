@@ -16,10 +16,6 @@
 
 package com.google.gson.functional;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
@@ -28,7 +24,9 @@ import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import junit.framework.TestCase;
 
 /**
@@ -52,9 +50,8 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
   }
 
   public void testRegisteredTypeAdapterTakesPrecedenceOverClassAnnotationAdapter() {
-    Gson gson = new GsonBuilder()
-        .registerTypeAdapter(User.class, new RegisteredUserAdapter())
-        .create();
+    Gson gson =
+        new GsonBuilder().registerTypeAdapter(User.class, new RegisteredUserAdapter()).create();
     String json = gson.toJson(new Computer(new User("Inderjeet Singh")));
     assertEquals("{\"user\":\"RegisteredUserAdapter\"}", json);
     Computer computer = gson.fromJson("{'user':'Inderjeet Singh'}", Computer.class);
@@ -62,15 +59,22 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
   }
 
   public void testFieldAnnotationTakesPrecedenceOverRegisteredTypeAdapter() {
-    Gson gson = new GsonBuilder()
-      .registerTypeAdapter(Part.class, new TypeAdapter<Part>() {
-        @Override public void write(JsonWriter out, Part part) throws IOException {
-          throw new AssertionError();
-        }
-        @Override public Part read(JsonReader in) throws IOException {
-          throw new AssertionError();
-        }
-      }).create();
+    Gson gson =
+        new GsonBuilder()
+            .registerTypeAdapter(
+                Part.class,
+                new TypeAdapter<Part>() {
+                  @Override
+                  public void write(JsonWriter out, Part part) throws IOException {
+                    throw new AssertionError();
+                  }
+
+                  @Override
+                  public Part read(JsonReader in) throws IOException {
+                    throw new AssertionError();
+                  }
+                })
+            .create();
     String json = gson.toJson(new Gadget(new Part("screen")));
     assertEquals("{\"part\":\"PartJsonFieldAnnotationAdapter\"}", json);
     Gadget gadget = gson.fromJson("{'part':'screen'}", Gadget.class);
@@ -88,6 +92,7 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
   private static final class Gadget {
     @JsonAdapter(PartJsonFieldAnnotationAdapter.class)
     final Part part;
+
     Gadget(Part part) {
       this.part = part;
     }
@@ -96,6 +101,7 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
   private static final class Gizmo {
     @JsonAdapter(GizmoPartTypeAdapterFactory.class)
     final Part part;
+
     Gizmo(Part part) {
       this.part = part;
     }
@@ -103,29 +109,37 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
 
   private static final class Part {
     final String name;
+
     public Part(String name) {
       this.name = name;
     }
   }
 
   private static class PartJsonFieldAnnotationAdapter extends TypeAdapter<Part> {
-    @Override public void write(JsonWriter out, Part part) throws IOException {
+    @Override
+    public void write(JsonWriter out, Part part) throws IOException {
       out.value("PartJsonFieldAnnotationAdapter");
     }
-    @Override public Part read(JsonReader in) throws IOException {
+
+    @Override
+    public Part read(JsonReader in) throws IOException {
       in.nextString();
       return new Part("PartJsonFieldAnnotationAdapter");
     }
   }
 
   private static class GizmoPartTypeAdapterFactory implements TypeAdapterFactory {
-    @Override public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
+    @Override
+    public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
       return new TypeAdapter<T>() {
-        @Override public void write(JsonWriter out, T value) throws IOException {
+        @Override
+        public void write(JsonWriter out, T value) throws IOException {
           out.value("GizmoPartTypeAdapterFactory");
         }
+
         @SuppressWarnings("unchecked")
-        @Override public T read(JsonReader in) throws IOException {
+        @Override
+        public T read(JsonReader in) throws IOException {
           in.nextString();
           return (T) new Part("GizmoPartTypeAdapterFactory");
         }
@@ -135,6 +149,7 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
 
   private static final class Computer {
     final User user;
+
     Computer(User user) {
       this.user = user;
     }
@@ -143,16 +158,20 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
   @JsonAdapter(UserClassAnnotationAdapter.class)
   private static class User {
     public final String name;
+
     private User(String name) {
       this.name = name;
     }
   }
 
   private static class UserClassAnnotationAdapter extends TypeAdapter<User> {
-    @Override public void write(JsonWriter out, User user) throws IOException {
+    @Override
+    public void write(JsonWriter out, User user) throws IOException {
       out.value("UserClassAnnotationAdapter");
     }
-    @Override public User read(JsonReader in) throws IOException {
+
+    @Override
+    public User read(JsonReader in) throws IOException {
       in.nextString();
       return new User("UserClassAnnotationAdapter");
     }
@@ -162,26 +181,33 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
     // overrides the JsonAdapter annotation of User with this
     @JsonAdapter(UserFieldAnnotationAdapter.class)
     final User user;
+
     Computer2(User user) {
       this.user = user;
     }
   }
 
   private static final class UserFieldAnnotationAdapter extends TypeAdapter<User> {
-    @Override public void write(JsonWriter out, User user) throws IOException {
+    @Override
+    public void write(JsonWriter out, User user) throws IOException {
       out.value("UserFieldAnnotationAdapter");
     }
-    @Override public User read(JsonReader in) throws IOException {
+
+    @Override
+    public User read(JsonReader in) throws IOException {
       in.nextString();
       return new User("UserFieldAnnotationAdapter");
     }
   }
 
   private static final class RegisteredUserAdapter extends TypeAdapter<User> {
-    @Override public void write(JsonWriter out, User user) throws IOException {
+    @Override
+    public void write(JsonWriter out, User user) throws IOException {
       out.value("RegisteredUserAdapter");
     }
-    @Override public User read(JsonReader in) throws IOException {
+
+    @Override
+    public User read(JsonReader in) throws IOException {
       in.nextString();
       return new User("RegisteredUserAdapter");
     }
@@ -196,9 +222,13 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
   }
 
   private static final class GadgetWithTwoParts {
-    @JsonAdapter(PartJsonFieldAnnotationAdapter.class) final Part part1;
+    @JsonAdapter(PartJsonFieldAnnotationAdapter.class)
+    final Part part1;
+
     final Part part2; // Doesn't have the JsonAdapter annotation
-    @SuppressWarnings("unused") GadgetWithTwoParts(Part part1, Part part2) {
+
+    @SuppressWarnings("unused")
+    GadgetWithTwoParts(Part part1, Part part2) {
       this.part1 = part1;
       this.part2 = part2;
     }
@@ -252,24 +282,32 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
   }
 
   private static final class LongToStringTypeAdapterFactory implements TypeAdapterFactory {
-    static final TypeAdapter<Long> ADAPTER = new TypeAdapter<Long>() {
-      @Override public void write(JsonWriter out, Long value) throws IOException {
-        out.value(value.toString());
-      }
-      @Override public Long read(JsonReader in) throws IOException {
-        return in.nextLong();
-      }
-    };
+    static final TypeAdapter<Long> ADAPTER =
+        new TypeAdapter<Long>() {
+          @Override
+          public void write(JsonWriter out, Long value) throws IOException {
+            out.value(value.toString());
+          }
+
+          @Override
+          public Long read(JsonReader in) throws IOException {
+            return in.nextLong();
+          }
+        };
+
     @SuppressWarnings("unchecked")
-    @Override public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
+    @Override
+    public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
       Class<?> cls = type.getRawType();
       if (Long.class.isAssignableFrom(cls)) {
         return (TypeAdapter<T>) ADAPTER;
       } else if (long.class.isAssignableFrom(cls)) {
         return (TypeAdapter<T>) ADAPTER;
       }
-      throw new IllegalStateException("Non-long field of type " + type
-          + " annotated with @JsonAdapter(LongToStringTypeAdapterFactory.class)");
+      throw new IllegalStateException(
+          "Non-long field of type "
+              + type
+              + " annotated with @JsonAdapter(LongToStringTypeAdapterFactory.class)");
     }
   }
 
@@ -284,19 +322,24 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
   private static final class Gizmo2 {
     @JsonAdapter(Gizmo2PartTypeAdapterFactory.class)
     List<Part> part;
+
     Gizmo2(List<Part> part) {
       this.part = part;
     }
   }
 
   private static class Gizmo2PartTypeAdapterFactory implements TypeAdapterFactory {
-    @Override public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
+    @Override
+    public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
       return new TypeAdapter<T>() {
-        @Override public void write(JsonWriter out, T value) throws IOException {
+        @Override
+        public void write(JsonWriter out, T value) throws IOException {
           out.value("GizmoPartTypeAdapterFactory");
         }
+
         @SuppressWarnings("unchecked")
-        @Override public T read(JsonReader in) throws IOException {
+        @Override
+        public T read(JsonReader in) throws IOException {
           in.nextString();
           return (T) Arrays.asList(new Part("GizmoPartTypeAdapterFactory"));
         }

@@ -50,9 +50,7 @@ public class InnerClassExclusionStrategyTest extends TestCase {
     assertFalse(excluder.excludeField(f, true));
   }
 
-  class InnerClass {
-  }
+  class InnerClass {}
 
-  static class StaticNestedClass {
-  }
+  static class StaticNestedClass {}
 }

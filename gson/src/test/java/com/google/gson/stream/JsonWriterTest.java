@@ -16,12 +16,11 @@
 
 package com.google.gson.stream;
 
-import junit.framework.TestCase;
-
 import java.io.IOException;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import junit.framework.TestCase;
 
 @SuppressWarnings("resource")
 public final class JsonWriterTest extends TestCase {
@@ -253,15 +252,17 @@ public final class JsonWriterTest extends TestCase {
     jsonWriter.value(Math.E);
     jsonWriter.endArray();
     jsonWriter.close();
-    assertEquals("[-0.0,"
-        + "1.0,"
-        + "1.7976931348623157E308,"
-        + "4.9E-324,"
-        + "0.0,"
-        + "-0.5,"
-        + "2.2250738585072014E-308,"
-        + "3.141592653589793,"
-        + "2.718281828459045]", stringWriter.toString());
+    assertEquals(
+        "[-0.0,"
+            + "1.0,"
+            + "1.7976931348623157E308,"
+            + "4.9E-324,"
+            + "0.0,"
+            + "-0.5,"
+            + "2.2250738585072014E-308,"
+            + "3.141592653589793,"
+            + "2.718281828459045]",
+        stringWriter.toString());
   }
 
   public void testLongs() throws IOException {
@@ -275,11 +276,9 @@ public final class JsonWriterTest extends TestCase {
     jsonWriter.value(Long.MAX_VALUE);
     jsonWriter.endArray();
     jsonWriter.close();
-    assertEquals("[0,"
-        + "1,"
-        + "-1,"
-        + "-9223372036854775808,"
-        + "9223372036854775807]", stringWriter.toString());
+    assertEquals(
+        "[0," + "1," + "-1," + "-9223372036854775808," + "9223372036854775807]",
+        stringWriter.toString());
   }
 
   public void testNumbers() throws IOException {
@@ -292,10 +291,9 @@ public final class JsonWriterTest extends TestCase {
     jsonWriter.value(new BigDecimal("3.141592653589793238462643383"));
     jsonWriter.endArray();
     jsonWriter.close();
-    assertEquals("[0,"
-        + "9223372036854775808,"
-        + "-9223372036854775809,"
-        + "3.141592653589793238462643383]", stringWriter.toString());
+    assertEquals(
+        "[0," + "9223372036854775808," + "-9223372036854775809," + "3.141592653589793238462643383]",
+        stringWriter.toString());
   }
 
   public void testBooleans() throws IOException {
@@ -351,24 +349,26 @@ public final class JsonWriterTest extends TestCase {
     jsonWriter.value("\0");
     jsonWriter.value("\u0019");
     jsonWriter.endArray();
-    assertEquals("[\"a\","
-        + "\"a\\\"\","
-        + "\"\\\"\","
-        + "\":\","
-        + "\",\","
-        + "\"\\b\","
-        + "\"\\f\","
-        + "\"\\n\","
-        + "\"\\r\","
-        + "\"\\t\","
-        + "\" \","
-        + "\"\\\\\","
-        + "\"{\","
-        + "\"}\","
-        + "\"[\","
-        + "\"]\","
-        + "\"\\u0000\","
-        + "\"\\u0019\"]", stringWriter.toString());
+    assertEquals(
+        "[\"a\","
+            + "\"a\\\"\","
+            + "\"\\\"\","
+            + "\":\","
+            + "\",\","
+            + "\"\\b\","
+            + "\"\\f\","
+            + "\"\\n\","
+            + "\"\\r\","
+            + "\"\\t\","
+            + "\" \","
+            + "\"\\\\\","
+            + "\"{\","
+            + "\"}\","
+            + "\"[\","
+            + "\"]\","
+            + "\"\\u0000\","
+            + "\"\\u0019\"]",
+        stringWriter.toString());
   }
 
   public void testUnicodeLineBreaksEscaped() throws IOException {
@@ -409,8 +409,7 @@ public final class JsonWriterTest extends TestCase {
     jsonWriter.name("d").value(true);
     jsonWriter.endObject();
     jsonWriter.endArray();
-    assertEquals("[{\"a\":5,\"b\":false},"
-        + "{\"c\":6,\"d\":true}]", stringWriter.toString());
+    assertEquals("[{\"a\":5,\"b\":false}," + "{\"c\":6,\"d\":true}]", stringWriter.toString());
   }
 
   public void testArraysInObjects() throws IOException {
@@ -428,8 +427,7 @@ public final class JsonWriterTest extends TestCase {
     jsonWriter.value(true);
     jsonWriter.endArray();
     jsonWriter.endObject();
-    assertEquals("{\"a\":[5,false],"
-        + "\"b\":[6,true]}", stringWriter.toString());
+    assertEquals("{\"a\":[5,false]," + "\"b\":[6,true]}", stringWriter.toString());
   }
 
   public void testDeepNestingArrays() throws IOException {
@@ -456,9 +454,11 @@ public final class JsonWriterTest extends TestCase {
       jsonWriter.endObject();
     }
     jsonWriter.endObject();
-    assertEquals("{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":"
-        + "{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{"
-        + "}}}}}}}}}}}}}}}}}}}}}", stringWriter.toString());
+    assertEquals(
+        "{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":"
+            + "{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{"
+            + "}}}}}}}}}}}}}}}}}}}}}",
+        stringWriter.toString());
   }
 
   public void testRepeatedName() throws IOException {
@@ -492,20 +492,21 @@ public final class JsonWriterTest extends TestCase {
     jsonWriter.endObject();
     jsonWriter.endObject();
 
-    String expected = "{\n"
-        + "   \"a\": true,\n"
-        + "   \"b\": false,\n"
-        + "   \"c\": 5.0,\n"
-        + "   \"e\": null,\n"
-        + "   \"f\": [\n"
-        + "      6.0,\n"
-        + "      7.0\n"
-        + "   ],\n"
-        + "   \"g\": {\n"
-        + "      \"h\": 8.0,\n"
-        + "      \"i\": 9.0\n"
-        + "   }\n"
-        + "}";
+    String expected =
+        "{\n"
+            + "   \"a\": true,\n"
+            + "   \"b\": false,\n"
+            + "   \"c\": 5.0,\n"
+            + "   \"e\": null,\n"
+            + "   \"f\": [\n"
+            + "      6.0,\n"
+            + "      7.0\n"
+            + "   ],\n"
+            + "   \"g\": {\n"
+            + "      \"h\": 8.0,\n"
+            + "      \"i\": 9.0\n"
+            + "   }\n"
+            + "}";
     assertEquals(expected, stringWriter.toString());
   }
 
@@ -529,20 +530,21 @@ public final class JsonWriterTest extends TestCase {
     jsonWriter.endArray();
     jsonWriter.endArray();
 
-    String expected = "[\n"
-        + "   true,\n"
-        + "   false,\n"
-        + "   5.0,\n"
-        + "   null,\n"
-        + "   {\n"
-        + "      \"a\": 6.0,\n"
-        + "      \"b\": 7.0\n"
-        + "   },\n"
-        + "   [\n"
-        + "      8.0,\n"
-        + "      9.0\n"
-        + "   ]\n"
-        + "]";
+    String expected =
+        "[\n"
+            + "   true,\n"
+            + "   false,\n"
+            + "   5.0,\n"
+            + "   null,\n"
+            + "   {\n"
+            + "      \"a\": 6.0,\n"
+            + "      \"b\": 7.0\n"
+            + "   },\n"
+            + "   [\n"
+            + "      8.0,\n"
+            + "      9.0\n"
+            + "   ]\n"
+            + "]";
     assertEquals(expected, stringWriter.toString());
   }
 

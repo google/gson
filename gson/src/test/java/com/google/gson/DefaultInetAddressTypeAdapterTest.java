@@ -17,29 +17,28 @@
 package com.google.gson;
 
 import java.net.InetAddress;
-
 import junit.framework.TestCase;
 
 /**
  * Unit tests for the default serializer/deserializer for the {@code InetAddress} type.
- * 
+ *
  * @author Joel Leitch
  */
 public class DefaultInetAddressTypeAdapterTest extends TestCase {
   private Gson gson;
-  
+
   @Override
   protected void setUp() throws Exception {
     super.setUp();
     gson = new Gson();
   }
-  
+
   public void testInetAddressSerializationAndDeserialization() throws Exception {
     InetAddress address = InetAddress.getByName("8.8.8.8");
     String jsonAddress = gson.toJson(address);
     assertEquals("\"8.8.8.8\"", jsonAddress);
-    
+
     InetAddress value = gson.fromJson(jsonAddress, InetAddress.class);
     assertEquals(value, address);
-  } 
+  }
 }

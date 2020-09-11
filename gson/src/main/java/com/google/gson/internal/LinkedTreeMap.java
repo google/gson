@@ -29,19 +29,20 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
- * A map of comparable keys to values. Unlike {@code TreeMap}, this class uses
- * insertion order for iteration order. Comparison order is only used as an
- * optimization for efficient insertion and removal.
+ * A map of comparable keys to values. Unlike {@code TreeMap}, this class uses insertion order for
+ * iteration order. Comparison order is only used as an optimization for efficient insertion and
+ * removal.
  *
  * <p>This implementation was derived from Android 4.1's TreeMap class.
  */
 public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Serializable {
-  @SuppressWarnings({ "unchecked", "rawtypes" }) // to avoid Comparable<Comparable<Comparable<...>>>
-  private static final Comparator<Comparable> NATURAL_ORDER = new Comparator<Comparable>() {
-    public int compare(Comparable a, Comparable b) {
-      return a.compareTo(b);
-    }
-  };
+  @SuppressWarnings({"unchecked", "rawtypes"}) // to avoid Comparable<Comparable<Comparable<...>>>
+  private static final Comparator<Comparable> NATURAL_ORDER =
+      new Comparator<Comparable>() {
+        public int compare(Comparable a, Comparable b) {
+          return a.compareTo(b);
+        }
+      };
 
   Comparator<? super K> comparator;
   Node<K, V> root;
@@ -51,43 +52,45 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
   // Used to preserve iteration order
   final Node<K, V> header = new Node<K, V>();
 
-  /**
-   * Create a natural order, empty tree map whose keys must be mutually
-   * comparable and non-null.
-   */
+  /** Create a natural order, empty tree map whose keys must be mutually comparable and non-null. */
   @SuppressWarnings("unchecked") // unsafe! this assumes K is comparable
   public LinkedTreeMap() {
     this((Comparator<? super K>) NATURAL_ORDER);
   }
 
   /**
-   * Create a tree map ordered by {@code comparator}. This map's keys may only
-   * be null if {@code comparator} permits.
+   * Create a tree map ordered by {@code comparator}. This map's keys may only be null if {@code
+   * comparator} permits.
    *
-   * @param comparator the comparator to order elements with, or {@code null} to
-   *     use the natural ordering.
+   * @param comparator the comparator to order elements with, or {@code null} to use the natural
+   *     ordering.
    */
-  @SuppressWarnings({ "unchecked", "rawtypes" }) // unsafe! if comparator is null, this assumes K is comparable
+  @SuppressWarnings({
+    "unchecked",
+    "rawtypes"
+  }) // unsafe! if comparator is null, this assumes K is comparable
   public LinkedTreeMap(Comparator<? super K> comparator) {
-    this.comparator = comparator != null
-        ? comparator
-        : (Comparator) NATURAL_ORDER;
+    this.comparator = comparator != null ? comparator : (Comparator) NATURAL_ORDER;
   }
 
-  @Override public int size() {
+  @Override
+  public int size() {
     return size;
   }
 
-  @Override public V get(Object key) {
+  @Override
+  public V get(Object key) {
     Node<K, V> node = findByObject(key);
     return node != null ? node.value : null;
   }
 
-  @Override public boolean containsKey(Object key) {
+  @Override
+  public boolean containsKey(Object key) {
     return findByObject(key) != null;
   }
 
-  @Override public V put(K key, V value) {
+  @Override
+  public V put(K key, V value) {
     if (key == null) {
       throw new NullPointerException("key == null");
     }
@@ -97,7 +100,8 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
     return result;
   }
 
-  @Override public void clear() {
+  @Override
+  public void clear() {
     root = null;
     size = 0;
     modCount++;
@@ -107,7 +111,8 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
     header.next = header.prev = header;
   }
 
-  @Override public V remove(Object key) {
+  @Override
+  public V remove(Object key) {
     Node<K, V> node = removeInternalByKey(key);
     return node != null ? node.value : null;
   }
@@ -115,8 +120,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
   /**
    * Returns the node at or adjacent to the given key, creating it if requested.
    *
-   * @throws ClassCastException if {@code key} and the tree's keys aren't
-   *     mutually comparable.
+   * @throws ClassCastException if {@code key} and the tree's keys aren't mutually comparable.
    */
   Node<K, V> find(K key, boolean create) {
     Comparator<? super K> comparator = this.comparator;
@@ -126,14 +130,14 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
     if (nearest != null) {
       // Micro-optimization: avoid polymorphic calls to Comparator.compare().
       @SuppressWarnings("unchecked") // Throws a ClassCastException below if there's trouble.
-          Comparable<Object> comparableKey = (comparator == NATURAL_ORDER)
-          ? (Comparable<Object>) key
-          : null;
+      Comparable<Object> comparableKey =
+          (comparator == NATURAL_ORDER) ? (Comparable<Object>) key : null;
 
       while (true) {
-        comparison = (comparableKey != null)
-            ? comparableKey.compareTo(nearest.key)
-            : comparator.compare(key, nearest.key);
+        comparison =
+            (comparableKey != null)
+                ? comparableKey.compareTo(nearest.key)
+                : comparator.compare(key, nearest.key);
 
         // We found the requested key.
         if (comparison == 0) {
@@ -190,13 +194,12 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
   }
 
   /**
-   * Returns this map's entry that has the same key and value as {@code
-   * entry}, or null if this map has no such entry.
+   * Returns this map's entry that has the same key and value as {@code entry}, or null if this map
+   * has no such entry.
    *
-   * <p>This method uses the comparator for key equality rather than {@code
-   * equals}. If this map's comparator isn't consistent with equals (such as
-   * {@code String.CASE_INSENSITIVE_ORDER}), then {@code remove()} and {@code
-   * contains()} will violate the collections API.
+   * <p>This method uses the comparator for key equality rather than {@code equals}. If this map's
+   * comparator isn't consistent with equals (such as {@code String.CASE_INSENSITIVE_ORDER}), then
+   * {@code remove()} and {@code contains()} will violate the collections API.
    */
   Node<K, V> findByEntry(Entry<?, ?> entry) {
     Node<K, V> mine = findByObject(entry.getKey());
@@ -209,8 +212,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
   }
 
   /**
-   * Removes {@code node} from this tree, rearranging the tree's structure as
-   * necessary.
+   * Removes {@code node} from this tree, rearranging the tree's structure as necessary.
    *
    * @param unlink true to also unlink this node from the iteration linked list.
    */
@@ -301,11 +303,10 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
   }
 
   /**
-   * Rebalances the tree by making any AVL rotations necessary between the
-   * newly-unbalanced node and the tree's root.
+   * Rebalances the tree by making any AVL rotations necessary between the newly-unbalanced node and
+   * the tree's root.
    *
-   * @param insert true if the node was unbalanced by an insert; false if it
-   *     was by a removal.
+   * @param insert true if the node was unbalanced by an insert; false if it was by a removal.
    */
   private void rebalance(Node<K, V> unbalanced, boolean insert) {
     for (Node<K, V> node = unbalanced; node != null; node = node.parent) {
@@ -367,9 +368,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
     }
   }
 
-  /**
-   * Rotates the subtree so that its root's right child is the new root.
-   */
+  /** Rotates the subtree so that its root's right child is the new root. */
   private void rotateLeft(Node<K, V> root) {
     Node<K, V> left = root.left;
     Node<K, V> pivot = root.right;
@@ -389,15 +388,12 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
     root.parent = pivot;
 
     // fix heights
-    root.height = Math.max(left != null ? left.height : 0,
-        pivotLeft != null ? pivotLeft.height : 0) + 1;
-    pivot.height = Math.max(root.height,
-        pivotRight != null ? pivotRight.height : 0) + 1;
+    root.height =
+        Math.max(left != null ? left.height : 0, pivotLeft != null ? pivotLeft.height : 0) + 1;
+    pivot.height = Math.max(root.height, pivotRight != null ? pivotRight.height : 0) + 1;
   }
 
-  /**
-   * Rotates the subtree so that its root's left child is the new root.
-   */
+  /** Rotates the subtree so that its root's left child is the new root. */
   private void rotateRight(Node<K, V> root) {
     Node<K, V> pivot = root.left;
     Node<K, V> right = root.right;
@@ -417,21 +413,22 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
     root.parent = pivot;
 
     // fixup heights
-    root.height = Math.max(right != null ? right.height : 0,
-        pivotRight != null ? pivotRight.height : 0) + 1;
-    pivot.height = Math.max(root.height,
-        pivotLeft != null ? pivotLeft.height : 0) + 1;
+    root.height =
+        Math.max(right != null ? right.height : 0, pivotRight != null ? pivotRight.height : 0) + 1;
+    pivot.height = Math.max(root.height, pivotLeft != null ? pivotLeft.height : 0) + 1;
   }
 
   private EntrySet entrySet;
   private KeySet keySet;
 
-  @Override public Set<Entry<K, V>> entrySet() {
+  @Override
+  public Set<Entry<K, V>> entrySet() {
     EntrySet result = entrySet;
     return result != null ? result : (entrySet = new EntrySet());
   }
 
-  @Override public Set<K> keySet() {
+  @Override
+  public Set<K> keySet() {
     KeySet result = keySet;
     return result != null ? result : (keySet = new KeySet());
   }
@@ -478,7 +475,8 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
     }
 
     @SuppressWarnings("rawtypes")
-    @Override public boolean equals(Object o) {
+    @Override
+    public boolean equals(Object o) {
       if (o instanceof Entry) {
         Entry other = (Entry) o;
         return (key == null ? other.getKey() == null : key.equals(other.getKey()))
@@ -487,18 +485,17 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
       return false;
     }
 
-    @Override public int hashCode() {
-      return (key == null ? 0 : key.hashCode())
-          ^ (value == null ? 0 : value.hashCode());
+    @Override
+    public int hashCode() {
+      return (key == null ? 0 : key.hashCode()) ^ (value == null ? 0 : value.hashCode());
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
       return key + "=" + value;
     }
 
-    /**
-     * Returns the first node in this subtree.
-     */
+    /** Returns the first node in this subtree. */
     public Node<K, V> first() {
       Node<K, V> node = this;
       Node<K, V> child = node.left;
@@ -509,9 +506,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
       return node;
     }
 
-    /**
-     * Returns the last node in this subtree.
-     */
+    /** Returns the last node in this subtree. */
     public Node<K, V> last() {
       Node<K, V> node = this;
       Node<K, V> child = node.right;
@@ -528,8 +523,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
     Node<K, V> lastReturned = null;
     int expectedModCount = modCount;
 
-    LinkedTreeMapIterator() {
-    }
+    LinkedTreeMapIterator() {}
 
     public final boolean hasNext() {
       return next != header;
@@ -558,11 +552,13 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
   }
 
   class EntrySet extends AbstractSet<Entry<K, V>> {
-    @Override public int size() {
+    @Override
+    public int size() {
       return size;
     }
 
-    @Override public Iterator<Entry<K, V>> iterator() {
+    @Override
+    public Iterator<Entry<K, V>> iterator() {
       return new LinkedTreeMapIterator<Entry<K, V>>() {
         public Entry<K, V> next() {
           return nextNode();
@@ -570,11 +566,13 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
       };
     }
 
-    @Override public boolean contains(Object o) {
+    @Override
+    public boolean contains(Object o) {
       return o instanceof Entry && findByEntry((Entry<?, ?>) o) != null;
     }
 
-    @Override public boolean remove(Object o) {
+    @Override
+    public boolean remove(Object o) {
       if (!(o instanceof Entry)) {
         return false;
       }
@@ -587,17 +585,20 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
       return true;
     }
 
-    @Override public void clear() {
+    @Override
+    public void clear() {
       LinkedTreeMap.this.clear();
     }
   }
 
   final class KeySet extends AbstractSet<K> {
-    @Override public int size() {
+    @Override
+    public int size() {
       return size;
     }
 
-    @Override public Iterator<K> iterator() {
+    @Override
+    public Iterator<K> iterator() {
       return new LinkedTreeMapIterator<K>() {
         public K next() {
           return nextNode().key;
@@ -605,24 +606,26 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
       };
     }
 
-    @Override public boolean contains(Object o) {
+    @Override
+    public boolean contains(Object o) {
       return containsKey(o);
     }
 
-    @Override public boolean remove(Object key) {
+    @Override
+    public boolean remove(Object key) {
       return removeInternalByKey(key) != null;
     }
 
-    @Override public void clear() {
+    @Override
+    public void clear() {
       LinkedTreeMap.this.clear();
     }
   }
 
   /**
-   * If somebody is unlucky enough to have to serialize one of these, serialize
-   * it as a LinkedHashMap so that they won't need Gson on the other side to
-   * deserialize it. Using serialization defeats our DoS defence, so most apps
-   * shouldn't use it.
+   * If somebody is unlucky enough to have to serialize one of these, serialize it as a
+   * LinkedHashMap so that they won't need Gson on the other side to deserialize it. Using
+   * serialization defeats our DoS defence, so most apps shouldn't use it.
    */
   private Object writeReplace() throws ObjectStreamException {
     return new LinkedHashMap<K, V>(this);

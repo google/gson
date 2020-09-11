@@ -127,6 +127,31 @@
           <autoVersionSubmodules>true</autoVersionSubmodules>
         </configuration>
       </plugin>
+              <plugin>
+            <groupId>com.coveo</groupId>
+            <artifactId>fmt-maven-plugin</artifactId>
+            <version>2.10</version>
+            <configuration>
+                <sourceDirectory>some/source/directory</sourceDirectory>
+                <testSourceDirectory>some/test/directory</testSourceDirectory>
+                <verbose>true</verbose>
+                <filesNamePattern>.*\.java</filesNamePattern>
+                <additionalSourceDirectories>
+                    <param>some/dir</param>
+                    <param>some/other/dir</param>
+                </additionalSourceDirectories>
+                <skip>false</skip>
+                <skipSortingImports>false</skipSortingImports>
+                <style>google</style>
+            </configuration>
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>format</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
     </plugins>
   </build>
   <profiles>

@@ -17,12 +17,10 @@
 package com.google.gson;
 
 import com.google.gson.reflect.TypeToken;
-
-import junit.framework.TestCase;
-
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.List;
+import junit.framework.TestCase;
 
 /**
  * Unit tests for the {@link FieldAttributes} class.
@@ -44,7 +42,8 @@ public class FieldAttributesTest extends TestCase {
     try {
       new FieldAttributes(null);
       fail("Field parameter can not be null");
-    } catch (NullPointerException expected) { }
+    } catch (NullPointerException expected) {
+    }
   }
 
   public void testDeclaringClass() throws Exception {

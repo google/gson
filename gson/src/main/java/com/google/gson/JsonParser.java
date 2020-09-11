@@ -15,14 +15,13 @@
  */
 package com.google.gson;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.MalformedJsonException;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 
 /**
  * A parser to parse Json into a parse tree of {@link JsonElement}s
@@ -74,8 +73,8 @@ public final class JsonParser {
   /**
    * Returns the next value from the JSON stream as a parse tree.
    *
-   * @throws JsonParseException if there is an IOException or if the specified
-   *     text is not valid JSON
+   * @throws JsonParseException if there is an IOException or if the specified text is not valid
+   *     JSON
    */
   public static JsonElement parseReader(JsonReader reader)
       throws JsonIOException, JsonSyntaxException {

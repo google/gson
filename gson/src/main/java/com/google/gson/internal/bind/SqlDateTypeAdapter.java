@@ -30,19 +30,21 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 /**
- * Adapter for java.sql.Date. Although this class appears stateless, it is not.
- * DateFormat captures its time zone and locale when it is created, which gives
- * this class state. DateFormat isn't thread safe either, so this class has
- * to synchronize its read and write methods.
+ * Adapter for java.sql.Date. Although this class appears stateless, it is not. DateFormat captures
+ * its time zone and locale when it is created, which gives this class state. DateFormat isn't
+ * thread safe either, so this class has to synchronize its read and write methods.
  */
 public final class SqlDateTypeAdapter extends TypeAdapter<java.sql.Date> {
-  public static final TypeAdapterFactory FACTORY = new TypeAdapterFactory() {
-    @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
-    @Override public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
-      return typeToken.getRawType() == java.sql.Date.class
-          ? (TypeAdapter<T>) new SqlDateTypeAdapter() : null;
-    }
-  };
+  public static final TypeAdapterFactory FACTORY =
+      new TypeAdapterFactory() {
+        @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
+        @Override
+        public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
+          return typeToken.getRawType() == java.sql.Date.class
+              ? (TypeAdapter<T>) new SqlDateTypeAdapter()
+              : null;
+        }
+      };
 
   private final DateFormat format = new SimpleDateFormat("MMM d, yyyy");
 
