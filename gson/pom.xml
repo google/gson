@@ -116,7 +116,7 @@
           <injar>test-classes-obfuscated-injar</injar>
           <outjar>test-classes-obfuscated-outjar</outjar>
           <inFilter>**/*.class</inFilter>
-          <proguardInclude>${basedir}/testcases-proguard.conf</proguardInclude>
+          <proguardInclude>${basedir}/src/test/resources/testcases-proguard.conf</proguardInclude>
           <libs>
             <lib>${project.build.directory}/classes</lib>
             <lib>${java.home}/jmods/java.base.jmod</lib>
