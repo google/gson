@@ -797,10 +797,6 @@ public final class TypeAdapters {
         }
       } catch (IllegalAccessException e) {
         throw new AssertionError(e);
-      } catch (NullPointerException e) {
-        throw new AssertionError(e);
-      } catch (ExceptionInInitializerError e) {
-        throw new AssertionError(e);
       }
     }
     @Override public T read(JsonReader in) throws IOException {
