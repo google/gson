@@ -16,8 +16,6 @@
 
 package com.google.gson.functional;
 
-import java.lang.reflect.Field;
-
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 
