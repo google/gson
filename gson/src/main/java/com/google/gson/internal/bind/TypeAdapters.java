@@ -782,6 +782,7 @@ public final class TypeAdapters {
             continue;
           }
           field.setAccessible(true);
+          @SuppressWarnings("unchecked")
           T constant = (T)(field.get(null));
           String name = constant.name();
           SerializedName annotation = field.getAnnotation(SerializedName.class);
