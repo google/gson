@@ -925,7 +925,10 @@ public final class Gson {
     boolean oldLenient = reader.isLenient();
     reader.setLenient(true);
     try {
-      reader.peek();
+      JsonToken token = reader.peek();
+      if (token == JsonToken.END_DOCUMENT) {
+        return null; // we can also throw EOFException here but...
+      }
       isEmpty = false;
       TypeToken<T> typeToken = (TypeToken<T>) TypeToken.get(typeOfT);
       TypeAdapter<T> typeAdapter = getAdapter(typeToken);
