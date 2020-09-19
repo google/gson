@@ -17,15 +17,21 @@
 package com.google.gson.functional;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.annotations.JsonAdapter;
@@ -448,6 +454,60 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
       @Override
       public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
         return gson.getDelegateAdapter(this, type);
+      }
+    }
+  }
+
+  /**
+   * Tests usage of {@link JsonSerializer} as {@link JsonAdapter} value on a field
+   */
+  public void testJsonSerializer() {
+    Gson gson = new Gson();
+    // Verify that delegate deserializer for List is used
+    JsonSerializerTest deserialized = gson.fromJson("{\"f\":[1,2,3]}", JsonSerializerTest.class);
+    assertEquals(Arrays.asList(1, 2, 3), deserialized.f);
+
+    String json = gson.toJson(new JsonSerializerTest());
+    // Uses custom serializer which always returns `true`
+    assertEquals("{\"f\":true}", json);
+  }
+  private static class JsonSerializerTest {
+    @JsonAdapter(Serializer.class)
+    List<Integer> f = Collections.emptyList();
+
+    static class Serializer implements JsonSerializer<List<Integer>> {
+      @Override
+      public JsonElement serialize(List<Integer> src, Type typeOfSrc, JsonSerializationContext context) {
+        return new JsonPrimitive(true);
+      }
+    }
+  }
+
+  /**
+   * Tests usage of {@link JsonDeserializer} as {@link JsonAdapter} value on a field
+   */
+  public void testJsonDeserializer() {
+    Gson gson = new Gson();
+    JsonDeserializerTest deserialized = gson.fromJson("{\"f\":[5]}", JsonDeserializerTest.class);
+    // Uses custom deserializer which always returns `[3, 2, 1]`
+    assertEquals(Arrays.asList(3, 2, 1), deserialized.f);
+
+    // Verify that delegate serializer for List is used
+    String json = gson.toJson(new JsonDeserializerTest(Arrays.asList(4, 5, 6)));
+    assertEquals("{\"f\":[4,5,6]}", json);
+  }
+  private static class JsonDeserializerTest {
+    @JsonAdapter(Deserializer.class)
+    List<Integer> f;
+
+    JsonDeserializerTest(List<Integer> f) {
+      this.f = f;
+    }
+
+    static class Deserializer implements JsonDeserializer<List<Integer>> {
+      @Override
+      public List<Integer> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
+        return Arrays.asList(3, 2, 1);
       }
     }
   }
