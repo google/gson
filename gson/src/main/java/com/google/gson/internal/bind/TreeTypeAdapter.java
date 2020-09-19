@@ -90,6 +90,18 @@ public final class TreeTypeAdapter<T> extends TypeAdapter<T> {
   }
 
   /**
+   * Returns the type adapter which is used for serialization. Returns {@code this}
+   * if this {@code TreeTypeAdapter} has a {@link #serializer}; otherwise returns
+   * the delegate.
+   *
+   * @return the type adapter which is used for serialization.
+   */
+  // Package-private for TypeAdapterRuntimeTypeWrapper
+  TypeAdapter<T> getSerializingTypeAdapter() {
+    return serializer != null ? this : delegate();
+  }
+
+  /**
    * Returns a new factory that will match each type against {@code exactType}.
    */
   public static TypeAdapterFactory newFactory(TypeToken<?> exactType, Object typeAdapter) {

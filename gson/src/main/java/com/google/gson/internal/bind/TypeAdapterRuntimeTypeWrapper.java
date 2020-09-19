@@ -54,10 +54,10 @@ final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
     Type runtimeType = getRuntimeTypeIfMoreSpecific(type, value);
     if (runtimeType != type) {
       TypeAdapter runtimeTypeAdapter = context.getAdapter(TypeToken.get(runtimeType));
-      if (!(runtimeTypeAdapter instanceof ReflectiveTypeAdapterFactory.Adapter)) {
+      if (!isReflective(runtimeTypeAdapter)) {
         // The user registered a type adapter for the runtime type, so we will use that
         chosen = runtimeTypeAdapter;
-      } else if (!(delegate instanceof ReflectiveTypeAdapterFactory.Adapter)) {
+      } else if (!isReflective(delegate)) {
         // The user registered a type adapter for Base class, so we prefer it over the
         // reflective type adapter for the runtime type
         chosen = delegate;
@@ -70,11 +70,33 @@ final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
   }
 
   /**
+   * @param typeAdapter the type adapter to check.
+   * @return whether the type adapter uses reflection.
+   */
+  private static boolean isReflective(TypeAdapter<?> typeAdapter) {
+    if (typeAdapter instanceof ReflectiveTypeAdapterFactory.Adapter) {
+      return true;
+    } else if (typeAdapter instanceof TreeTypeAdapter) {
+      // Have to get actual serializing adapter for TreeTypeAdapter because
+      // TreeTypeAdapter without `serializer` might fall back to reflective
+      // type adapter
+      TreeTypeAdapter<?> treeTypeAdapter = (TreeTypeAdapter<?>) typeAdapter;
+      TypeAdapter<?> serializingTypeAdapter = treeTypeAdapter.getSerializingTypeAdapter();
+      if (serializingTypeAdapter == treeTypeAdapter) {
+        return false;
+      } else {
+        // Check TreeTypeAdapter delegate
+        return isReflective(serializingTypeAdapter);
+      }
+    }
+    return false;
+  }
+
+  /**
    * Finds a compatible runtime type if it is more specific
    */
-  private Type getRuntimeTypeIfMoreSpecific(Type type, Object value) {
-    if (value != null
-        && (type == Object.class || type instanceof TypeVariable<?> || type instanceof Class<?>)) {
+  private static Type getRuntimeTypeIfMoreSpecific(Type type, Object value) {
+    if (value != null && (type instanceof Class<?> || type instanceof TypeVariable<?>)) {
       type = value.getClass();
     }
     return type;
