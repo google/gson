@@ -20,6 +20,7 @@ import com.google.gson.internal.Excluder;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
+import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.text.DateFormat;
@@ -43,6 +44,16 @@ public final class GsonTest extends TestCase {
       return "foo";
     }
   };
+
+  public void testFromJsonOnEmptyLenientReader() {
+    Gson gson = new Gson();
+    JsonReader reader = new JsonReader(new StringReader(""));
+    reader.setLenient(true);
+    // doesn't matter what we request to deserialize from the reader, empty input
+    // stream means gson::fromJson returns null.
+    assertEquals(null, gson.fromJson(reader, Object.class));
+    assertEquals(null, gson.fromJson(reader, String.class));
+  }
 
   public void testOverridesDefaultExcluder() {
     Gson gson = new Gson(CUSTOM_EXCLUDER, CUSTOM_FIELD_NAMING_STRATEGY,

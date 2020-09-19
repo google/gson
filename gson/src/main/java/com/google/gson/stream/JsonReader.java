@@ -1581,8 +1581,8 @@ public class JsonReader implements Closeable {
     }
 
     char[] buf = buffer;
-    if(! (buf[p] != ')' || buf[p + 1] != ']' || buf[p + 2] != '}' ||
-          buf[p + 3] != '\'' || buf[p + 4] != '\n')) {
+    if (buf[p] == ')' && buf[p + 1] == ']' && buf[p + 2] == '}' &&
+        buf[p + 3] == '\'' && buf[p + 4] == '\n') {
       // we consumed a security token!
       pos += 5;
     }
