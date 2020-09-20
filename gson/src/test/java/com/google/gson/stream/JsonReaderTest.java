@@ -509,6 +509,20 @@ public final class JsonReaderTest extends TestCase {
     reader.endArray();
   }
 
+  public void testPeekEmptyStream() throws IOException {
+    JsonReader reader = new JsonReader(new StringReader(""));
+    try {
+      assertEquals(JsonToken.END_DOCUMENT, reader.peek());
+      fail();
+    } catch (EOFException expected) { }
+  }
+
+  public void testPeekEmptyStreamLenient() throws IOException {
+    JsonReader reader = new JsonReader(new StringReader(""));
+    reader.setLenient(true);
+    assertEquals(JsonToken.END_DOCUMENT, reader.peek());
+  }
+
   public void testPeekingUnquotedStringsPrefixedWithIntegers() throws IOException {
     JsonReader reader = new JsonReader(reader("[12.34e5x]"));
     reader.setLenient(true);

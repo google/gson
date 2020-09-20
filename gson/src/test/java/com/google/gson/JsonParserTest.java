@@ -19,14 +19,12 @@ package com.google.gson;
 import java.io.CharArrayReader;
 import java.io.CharArrayWriter;
 import java.io.StringReader;
-import java.io.IOException;
 
 import junit.framework.TestCase;
 
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
 
 /**
  * Unit test for {@link JsonParser}
@@ -117,19 +115,5 @@ public class JsonParserTest extends TestCase {
     assertEquals("one", actualOne.stringValue);
     BagOfPrimitives actualTwo = gson.fromJson(element2, BagOfPrimitives.class);
     assertEquals("two", actualTwo.stringValue);
-  }
-
-  public void testPeekEmptyStream() throws IOException {
-    JsonReader reader = new JsonReader(new StringReader(""));
-    try {
-      assertEquals(JsonToken.END_DOCUMENT, reader.peek());
-      fail();
-    } catch (java.io.EOFException expected) { }
-  }
-
-  public void testPeekEmptyStreamLenient() throws IOException {
-    JsonReader reader = new JsonReader(new StringReader(""));
-    reader.setLenient(true);
-    assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 }
