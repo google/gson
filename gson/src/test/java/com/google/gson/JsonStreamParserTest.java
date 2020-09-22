@@ -71,4 +71,9 @@ public class JsonStreamParserTest extends TestCase {
     } catch (NoSuchElementException expected) {
     }
   }
+
+  public void testParseEmptyInput() {
+    assertFalse(new JsonStreamParser("").hasNext());
+    assertFalse(new JsonStreamParser(" \n\t ").hasNext());
+  }
 }
