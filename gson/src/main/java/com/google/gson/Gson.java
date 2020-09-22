@@ -933,8 +933,6 @@ public final class Gson {
       TypeAdapter<T> typeAdapter = getAdapter(typeToken);
       T object = typeAdapter.read(reader);
       return object;
-    } catch (EOFException e) {
-      throw new JsonSyntaxException(e);
     } catch (IllegalStateException e) {
       throw new JsonSyntaxException(e);
     } catch (IOException e) {
