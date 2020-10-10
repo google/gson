@@ -94,7 +94,7 @@ import com.google.gson.stream.MalformedJsonException;
  * </pre></p>
  *
  * <p>See the <a href="https://sites.google.com/site/gson/gson-user-guide">Gson User Guide</a>
- * for a more complete set of examples.</p>
+ for a more complete reset of examples.</p>
  *
  * @see com.google.gson.reflect.TypeToken
  *
