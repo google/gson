@@ -46,30 +46,30 @@ import java.io.Writer;
  * Example usage:
  * </p>
  * <pre>
- * Writer _out=...;
+ * Writer out0=...;
  * //Getting a MutableJsonWriter, eitehr by new MutableJsonWriter(), or whatever...
- * MutableJsonWriter _json_writer =...
+ * MutableJsonWriter writer =...
  * //setting the out, and reset the state
- * _json_writer.reset(_out,true);// or  _json_writer.reset(_out);
- * //using the _json_writer...
+ * writer.reset(out0,true);// or  writer.reset(out0);
+ * //using the writer...
  * ...
- * //flushing, and closing the _json_writer
- * _json_writer.flush();
- * _json_writer.close();//could(by default) close the _out too
+ * //flushing, and closing the writer
+ * writer.flush();
+ * writer.close();//could(by default) close the out0 too
  * //getting the json result
- * String _json_res = _out.toString();
+ * String _json_res = out0.toString();
  *
- * Writer _out1=...;
- * //using the same _json_writer instance to write another json too
- * _json_writer.reset(_out1,true);
- * //ignorring closing the _out1, by closing _json_writer
- * _json_writer.setCloseWriterOnClose(false);
- * //using the _json_writer...
+ * Writer out1=...;
+ * //using the same writer instance to write another json too
+ * writer.reset(out1,true);
+ * //ignorring closing the out1, by closing writer
+ * writer.setCloseWriterOnClose(false);
+ * //using the writer...
  * ...
- * //flushing the _json_writer
- * _json_writer.flush();
- * //closing the _json_writer
- * _json_writer.close();//WILL NOT close the _out1, because of setCloseWriterOnClose(false)
+ * //flushing the writer
+ * writer.flush();
+ * //closing the writer
+ * writer.close();//WILL NOT close the out1, because of setCloseWriterOnClose(false)
  * </pre>
  *
  * @author https://github.com/911992
@@ -118,7 +118,7 @@ public class MutableJsonWriter extends JsonWriter {
 
     /**
      * Sets the working {@code out}({@link Writer}), also call for
-     * {@link #_init()} if appreciated.
+     * {@link #init()} if appreciated.
      * <p>
      * It <b>does not</b> closes the current associated
      * {@link Writer}({@code out}), neither flushes it.
@@ -128,25 +128,26 @@ public class MutableJsonWriter extends JsonWriter {
      * lenient, or html-safe), and {@link #closeWriterOnClose} property.
      * </p>
      *
-     * @param arg_out the non-{@code null} writer instance to be reset for out
-     * @param arg_also_init when {@code true}, then {@link #_init()} will be
+     * @param out the non-{@code null} writer instance to be reset for out
+     * @param alsoInit when {@code true}, then {@link #init()} will be
      * called too
      * @since +2.8.7-SNAPSHOT ?
      * @see #close()
      * @see #setCloseWriterOnClose(boolean)
      */
-    public void reset(Writer arg_out, boolean arg_also_init) {
-        super._reset(arg_out, arg_also_init);
+    @Override
+    public void reset(Writer out, boolean alsoInit) {
+        super.reset(out, alsoInit);
     }
 
     /**
-     * Calls the {@code reset(arg_out, true)}
+     * Calls the {@code reset(out, true)}.
      *
-     * @param arg_out the non-{@code null} writer instance to be reset for out
+     * @param out the non-{@code null} writer instance to be reset for out
      * @see #reset(java.io.Writer, boolean)
      */
-    public void reset(Writer arg_out) {
-        reset(arg_out, true);
+    public void reset(Writer out) {
+        reset(out, true);
     }
 
     /**
@@ -156,12 +157,12 @@ public class MutableJsonWriter extends JsonWriter {
      * The default value is {@code true}
      * </p>
      *
-     * @param arg_closeOutOnClose when {@code true} then underlying
+     * @param closeOutOnClose when {@code true} then underlying
      * {@link Writer} should be closed by closing this instance, {@code false}
      * otherwise
      */
-    public void setCloseWriterOnClose(boolean arg_closeOutOnClose) {
-        this.closeWriterOnClose = arg_closeOutOnClose;
+    public void setCloseWriterOnClose(boolean closeOutOnClose) {
+        this.closeWriterOnClose = closeOutOnClose;
     }
 
     /**

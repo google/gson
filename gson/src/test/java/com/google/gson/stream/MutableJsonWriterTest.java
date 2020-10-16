@@ -36,41 +36,41 @@ import junit.framework.TestCase;
 public class MutableJsonWriterTest extends TestCase{
     
     public void testMutability() throws Exception{
-        MutableJsonWriter _shared_writer = new MutableJsonWriter();
-        final String _a = "happy";
-        final String _b = "opensource";
+        MutableJsonWriter mutableJsonWriter = new MutableJsonWriter();
+        final String keyA = "happy";
+        final String keyB = "opensource";
         
-        String _val = "911";
-        String _expected_json=String.format("{\"%s\":\"%s\",\"%s\":\"%s\"}", _a,_val,_b,_val);
-        StringWriter _str_writer = new StringWriter();
-        _shared_writer.reset(_str_writer);
-        _shared_writer.beginObject();
-        _shared_writer.name(_a);
-        _shared_writer.value(_val);
-        _shared_writer.name(_b);
-        _shared_writer.value(_val);
-        _shared_writer.endObject();
-        _shared_writer.flush();
-        _shared_writer.close();
-        String _gen_json = _str_writer.toString();
-//        System.out.printf("gen json: %s\n",_gen_json);
-        assertEquals(_expected_json, _gen_json);
+        String value = "911";
+        String expectedJsonString=String.format("{\"%s\":\"%s\",\"%s\":\"%s\"}", keyA,value,keyB,value);
+        StringWriter stringWriter = new StringWriter();
+        mutableJsonWriter.reset(stringWriter);
+        mutableJsonWriter.beginObject();
+        mutableJsonWriter.name(keyA);
+        mutableJsonWriter.value(value);
+        mutableJsonWriter.name(keyB);
+        mutableJsonWriter.value(value);
+        mutableJsonWriter.endObject();
+        mutableJsonWriter.flush();
+        mutableJsonWriter.close();
+        String generatedJsonString = stringWriter.toString();
+//        System.out.printf("gen json: %s\n",generatedJsonString);
+        assertEquals(expectedJsonString, generatedJsonString);
         
-        _val = "992";
-        _expected_json=String.format("{\"%s\":\"%s\",\"%s\":\"%s\"}", _a,_val,_b,_val);
-        _str_writer = new StringWriter();
-        _shared_writer.reset(_str_writer);
-        _shared_writer.beginObject();
-        _shared_writer.name(_a);
-        _shared_writer.value(_val);
-        _shared_writer.name(_b);
-        _shared_writer.value(_val);
-        _shared_writer.endObject();
-        _shared_writer.flush();
-        _shared_writer.close();
-        _gen_json = _str_writer.toString();
-//        System.out.printf("gen json: %s\n",_gen_json);
-        assertEquals(_expected_json, _gen_json);
+        value = "992";
+        expectedJsonString=String.format("{\"%s\":\"%s\",\"%s\":\"%s\"}", keyA,value,keyB,value);
+        stringWriter = new StringWriter();
+        mutableJsonWriter.reset(stringWriter);
+        mutableJsonWriter.beginObject();
+        mutableJsonWriter.name(keyA);
+        mutableJsonWriter.value(value);
+        mutableJsonWriter.name(keyB);
+        mutableJsonWriter.value(value);
+        mutableJsonWriter.endObject();
+        mutableJsonWriter.flush();
+        mutableJsonWriter.close();
+        generatedJsonString = stringWriter.toString();
+//        System.out.printf("gen json: %s\n",generatedJsonString);
+        assertEquals(expectedJsonString, generatedJsonString);
     }
     
 }

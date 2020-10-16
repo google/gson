@@ -37,43 +37,43 @@ import java.io.StringReader;
 public class MutableJsonReaderTest extends TestCase{
 
     public void testMutability() throws Exception{
-        MutableJsonReader _shared_reader = new MutableJsonReader();
-        final String _a = "happy";
-        final String _b = "opensource";
+        MutableJsonReader mutableJsonReader = new MutableJsonReader();
+        final String keyA = "happy";
+        final String keyB = "opensource";
         
-        String _val = "911";
-        String _json=String.format("{\"%s\":\"%s\",\"%s\":\"%s\"}", _a,_val,_b,_val);
-        StringReader _str_reader = new StringReader(_json);
-        _shared_reader.reset(_str_reader);
-        String _a_name,_b_name;
-        String _a_val,_b_val;
-        _shared_reader.beginObject();
-        _a_name = _shared_reader.nextName();
-        assertEquals(_a_name, _a);
-        _a_val = _shared_reader.nextString();
-        assertEquals(_a_val, _val);
-        _b_name = _shared_reader.nextName();
-        assertEquals(_b_name, _b);
-        _b_val = _shared_reader.nextString();
-        assertEquals(_b_val, _val);
-        _shared_reader.endObject();
-        _shared_reader.close();
+        String value = "911";
+        String jsonStr=String.format("{\"%s\":\"%s\",\"%s\":\"%s\"}", keyA,value,keyB,value);
+        StringReader stringReader = new StringReader(jsonStr);
+        mutableJsonReader.reset(stringReader);
+        String keyAName,keyBName;
+        String keyAValue,keyBValue;
+        mutableJsonReader.beginObject();
+        keyAName = mutableJsonReader.nextName();
+        assertEquals(keyAName, keyA);
+        keyAValue = mutableJsonReader.nextString();
+        assertEquals(keyAValue, value);
+        keyBName = mutableJsonReader.nextName();
+        assertEquals(keyBName, keyB);
+        keyBValue = mutableJsonReader.nextString();
+        assertEquals(keyBValue, value);
+        mutableJsonReader.endObject();
+        mutableJsonReader.close();
         
-        _val ="992";
-        _json=String.format("{\"%s\":\"%s\",\"%s\":\"%s\"}", _a,_val,_b,_val);
-        _str_reader = new StringReader(_json);
-        _shared_reader.reset(_str_reader);
-        _shared_reader.beginObject();
-        _a_name = _shared_reader.nextName();
-        assertEquals(_a_name, _a);
-        _a_val = _shared_reader.nextString();
-        assertEquals(_a_val, _val);
-        _b_name = _shared_reader.nextName();
-        assertEquals(_b_name, _b);
-        _b_val = _shared_reader.nextString();
-        assertEquals(_b_val, _val);
-        _shared_reader.endObject();
-        _shared_reader.close();
+        value ="992";
+        jsonStr=String.format("{\"%s\":\"%s\",\"%s\":\"%s\"}", keyA,value,keyB,value);
+        stringReader = new StringReader(jsonStr);
+        mutableJsonReader.reset(stringReader);
+        mutableJsonReader.beginObject();
+        keyAName = mutableJsonReader.nextName();
+        assertEquals(keyAName, keyA);
+        keyAValue = mutableJsonReader.nextString();
+        assertEquals(keyAValue, value);
+        keyBName = mutableJsonReader.nextName();
+        assertEquals(keyBName, keyB);
+        keyBValue = mutableJsonReader.nextString();
+        assertEquals(keyBValue, value);
+        mutableJsonReader.endObject();
+        mutableJsonReader.close();
     }
     
 }
