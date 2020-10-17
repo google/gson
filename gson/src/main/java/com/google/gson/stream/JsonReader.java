@@ -193,7 +193,6 @@ import java.util.Arrays;
  * mutable version of this.
  *
  * @author Jesse Wilson
- * @author https://github.com/911992
  * @since 1.6
  */
 public class JsonReader implements Closeable {

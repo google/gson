@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 https://github.com/911992.
+ * Copyright (C) 2010 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,6 @@
  * limitations under the License.
  */
 
- /*
-gson
-File: MutableJsonWriter.java
-Created on: Oct 9, 2020 12:33:49 PM
-    @author https://github.com/911992
- 
-File History:
-    initial version: 0.1(20201009)
- */
 package com.google.gson.stream;
 
 import java.io.Writer;
@@ -72,8 +63,6 @@ import java.io.Writer;
  * writer.close();//WILL NOT close the out1, because of setCloseWriterOnClose(false)
  * </pre>
  *
- * @author https://github.com/911992
- * @since +2.8.7-SNAPSHOT ?
  */
 public class MutableJsonWriter extends JsonWriter {
 

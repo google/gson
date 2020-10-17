@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 https://github.com/911992.
+ * Copyright (C) 2010 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,6 @@
  * limitations under the License.
  */
 
- /*
-gson
-File: MutableJsonReader.java
-Created on: Oct 10, 2020 6:03:38 AM
-    @author https://github.com/911992
- 
-File History:
-    initial version: 0.1(20201010)
- */
 package com.google.gson.stream;
 
 import java.io.Reader;
@@ -68,8 +59,6 @@ import java.io.Reader;
  * reader.close();//WILL NOT close the _out1, becasue of setCloseReaderOnClose(false)
  * </pre>
  *
- * @author https://github.com/911992
- * @since +2.8.7-SNAPSHOT ?
  */
 public class MutableJsonReader extends JsonReader {
 

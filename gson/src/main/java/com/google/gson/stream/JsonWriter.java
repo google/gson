@@ -129,7 +129,6 @@ import static com.google.gson.stream.JsonScope.NONEMPTY_OBJECT;
  * mutable version of this.
  * 
  * @author Jesse Wilson
- * @author https://github.com/911992
  * @since 1.6
  */
 public class JsonWriter implements Closeable, Flushable {
