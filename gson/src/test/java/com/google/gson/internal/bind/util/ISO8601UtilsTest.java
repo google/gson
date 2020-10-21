@@ -17,6 +17,7 @@ public class ISO8601UtilsTest {
 
     @Test
     public void testDateFormatString() {
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         Date date = new GregorianCalendar(2018, Calendar.JUNE, 25).getTime();
         String dateStr = ISO8601Utils.format(date);
         String expectedDate = "2018-06-25";
