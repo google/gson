@@ -11,15 +11,15 @@ import java.util.List;
 public class GsonMutableCollectionsTest extends TestCase {
 
     public void testSerializationOfMutableCollectionWhenOtherThreadsAreMutatingIt() throws InterruptedException {
-        final List<ConcurrentModificationException> exceptionsBag = new ArrayList<>();
+        final List<ConcurrentModificationException> exceptionsBag = new ArrayList<ConcurrentModificationException>();
 
         final Model model = new Model(4, "Model $it");
         final List<Model> items = Collections.nCopies(1000, model);
 
-        final List<Model> mutableList = new ArrayList<>(items);
+        final List<Model> mutableList = new ArrayList<Model>(items);
         final Gson gson = new GsonBuilder().create();
 
-        final List<Thread> writers = new ArrayList<>();
+        final List<Thread> writers = new ArrayList<Thread>();
         for (int i=0; i<1000; ++i) {
             writers.add(new Thread(){
                 @Override
@@ -28,7 +28,7 @@ public class GsonMutableCollectionsTest extends TestCase {
                 }
             });
         }
-        final List<Thread> readers= new ArrayList<>();
+        final List<Thread> readers= new ArrayList<Thread>();
         for (int i=0; i<10000; ++i) {
             readers.add(new Thread() {
                 @Override

@@ -96,7 +96,7 @@ public final class CollectionTypeAdapterFactory implements TypeAdapterFactory {
 
       final List<E> collectionSnapshot;
       synchronized (collection){ // Lock collection to do not mutate during shallow copy
-        collectionSnapshot = new ArrayList<>(collection);
+        collectionSnapshot = new ArrayList<E>(collection);
       }
 
       out.beginArray();
