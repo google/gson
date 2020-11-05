@@ -28,7 +28,9 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Adapt a homogeneous collection of objects.
@@ -92,8 +94,13 @@ public final class CollectionTypeAdapterFactory implements TypeAdapterFactory {
         return;
       }
 
+      final List<E> collectionSnapshot;
+      synchronized (collection){ // Lock collection to do not mutate during shallow copy
+        collectionSnapshot = new ArrayList<>(collection);
+      }
+
       out.beginArray();
-      for (E element : collection) {
+      for (E element : collectionSnapshot) {
         elementTypeAdapter.write(out, element);
       }
       out.endArray();
