@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 
@@ -43,6 +44,88 @@ public class GsonBuilderTest extends TestCase {
     GsonBuilder builder = new GsonBuilder();
     builder.create();
     builder.create();
+  }
+
+  private static class HierarchyTest1 { }
+  private static class HierarchyTest2 { }
+
+  /**
+   * Verifies that multiple type hierarchy adapters for the same type overwrite
+   * each other.
+   */
+  public void testRegisterTypeHierarchyAdapter_Overwriting() {
+    JsonSerializer<Object> serializer = new JsonSerializer<Object>() {
+      @Override public JsonElement serialize(Object src, Type typeOfSrc, JsonSerializationContext context) {
+        return new JsonPrimitive("serializer");
+      }
+    };
+    TypeAdapter<Object> typeAdapter = new TypeAdapter<Object>() {
+      @Override public Object read(JsonReader in) throws IOException {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override public void write(JsonWriter out, Object value) throws IOException {
+        out.value("adapter");
+      }
+    };
+
+    Gson gson = new GsonBuilder()
+      // Overwrite TypeAdapter with JsonSerializer for HierarchyTest1
+      .registerTypeHierarchyAdapter(HierarchyTest1.class, typeAdapter)
+      .registerTypeHierarchyAdapter(HierarchyTest1.class, serializer)
+      // Overwrite JsonSerializer with TypeAdapter for HierarchyTest2
+      .registerTypeHierarchyAdapter(HierarchyTest2.class, serializer)
+      .registerTypeHierarchyAdapter(HierarchyTest2.class, typeAdapter)
+      .create();
+
+    String json1 = gson.toJson(new HierarchyTest1());
+    assertEquals("\"serializer\"", json1);
+
+    String json2 = gson.toJson(new HierarchyTest2());
+    assertEquals("\"adapter\"", json2);
+  }
+
+  /**
+   * Verifies that a specific type adapter has higher precedence than any
+   * type hierarchy adapters, even if it was registered first.
+   */
+  public void testRegisterTypeHierarchyAdapter_SpecificAdapterPrecedence() {
+    TypeAdapter<Object> typeAdapter = new TypeAdapter<Object>() {
+      @Override public Object read(JsonReader in) throws IOException {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override public void write(JsonWriter out, Object value) throws IOException {
+        out.value("adapter");
+      }
+    };
+
+    Gson gson = new GsonBuilder()
+      // TypeAdapter then hierarchy TypeAdapter for HierarchyTest1
+      .registerTypeAdapter(HierarchyTest1.class, typeAdapter)
+      .registerTypeHierarchyAdapter(HierarchyTest1.class, new TypeAdapter<HierarchyTest1>() {
+        @Override public HierarchyTest1 read(JsonReader in) throws IOException {
+          throw new UnsupportedOperationException();
+        }
+
+        @Override public void write(JsonWriter out, HierarchyTest1 value) throws IOException {
+          out.value("hierarchy-adapter");
+        }
+      })
+      // TypeAdapter then hierarchy JsonSerializer for HierarchyTest2
+      .registerTypeAdapter(HierarchyTest2.class, typeAdapter)
+      .registerTypeHierarchyAdapter(HierarchyTest2.class, new JsonSerializer<HierarchyTest2>() {
+        @Override public JsonElement serialize(HierarchyTest2 src, Type typeOfSrc, JsonSerializationContext context) {
+          return new JsonPrimitive("hierarchy-serializer");
+        }
+      })
+      .create();
+
+    String json1 = gson.toJson(new HierarchyTest1());
+    assertEquals("\"adapter\"", json1);
+
+    String json2 = gson.toJson(new HierarchyTest2());
+    assertEquals("\"adapter\"", json2);
   }
 
   public void testExcludeFieldsWithModifiers() {
