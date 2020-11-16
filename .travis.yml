@@ -4,7 +4,7 @@ jdk:
   - openjdk11
 
 install: mvn -f gson install -DskipTests=true
-script: mvn -f gson test
+script: mvn -f gson test && ./gradlew check
 
 branches:
   except:
