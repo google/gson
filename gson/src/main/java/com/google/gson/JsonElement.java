@@ -76,6 +76,16 @@ public abstract class JsonElement {
   }
 
   /**
+   * provides check for verifying if this element represents a raw json value or not.
+   *
+   * @return true if this element is of type {@link JsonValue}, false otherwise.
+   * @since 2.8.7
+   */
+  public boolean isJsonValue() {
+    return this instanceof JsonValue;
+  }
+
+  /**
    * convenience method to get this element as a {@link JsonObject}. If the element is of some
    * other type, a {@link IllegalStateException} will result. Hence it is best to use this method
    * after ensuring that this element is of the desired type by calling {@link #isJsonObject()}
@@ -136,6 +146,23 @@ public abstract class JsonElement {
   public JsonNull getAsJsonNull() {
     if (isJsonNull()) {
       return (JsonNull) this;
+    }
+    throw new IllegalStateException("Not a JSON Null: " + this);
+  }
+
+  /**
+   * convenience method to get this element as a {@link JsonValue}. If the element is of some
+   * other type, a {@link IllegalStateException} will result. Hence it is best to use this method
+   * after ensuring that this element is of the desired type by calling {@link #isJsonValue()}
+   * first.
+   *
+   * @return get this element as a {@link JsonValue}.
+   * @throws IllegalStateException if the element is of another type.
+   * @since 2.8.7
+   */
+  public JsonValue getAsJsonValue() {
+    if (isJsonValue()) {
+      return (JsonValue) this;
     }
     throw new IllegalStateException("Not a JSON Null: " + this);
   }
