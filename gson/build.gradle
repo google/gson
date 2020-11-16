@@ -7,7 +7,29 @@ version = '2.8.6-SNAPSHOT'
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
 
+def copyVersionTemplatesProvider = tasks.register("copyVersionTemplates", Copy) {
+    it.inputs.property("gsonversion", version)
+    it.from(layout.projectDirectory.dir("src/main/java-gradle-templates/com/google/gson/internal"))
+    it.into(project.layout.buildDirectory.dir("generated/sources/version-templates/java/main/com/google/gson/internal"))
+    it.expand(["gsonversion": version])
+    filteringCharset = "UTF-8"
+
+    it.doFirst {
+        if (it.destinationDir.exists()) {
+            // Clear output dir first if anything is present
+            for (File file : it.destinationDir.listFiles()) {
+                file.delete()
+            }
+        }
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.dependsOn(copyVersionTemplatesProvider)
+}
+
 sourceSets.main.java.exclude("**/module-info.java")
+sourceSets.main.java.srcDir("$buildDir/generated/sources/version-templates/java/main")
 dependencies {
     testCompile "junit:junit:4.12"
 }
