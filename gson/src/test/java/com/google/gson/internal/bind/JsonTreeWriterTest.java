@@ -54,6 +54,14 @@ public final class JsonTreeWriterTest extends TestCase {
     assertEquals("{\"A\":1,\"B\":2}", writer.get().toString());
   }
 
+  public void testJsonValue() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.beginObject();
+    writer.name("A").jsonValue("1234");
+    writer.endObject();
+    assertEquals("{\"A\":1234}", writer.get().toString());
+  }
+
   public void testNestedObject() throws IOException {
     JsonTreeWriter writer = new JsonTreeWriter();
     writer.beginObject();
