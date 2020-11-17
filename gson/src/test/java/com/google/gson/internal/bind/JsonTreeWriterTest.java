@@ -57,9 +57,22 @@ public final class JsonTreeWriterTest extends TestCase {
   public void testJsonValue() throws IOException {
     JsonTreeWriter writer = new JsonTreeWriter();
     writer.beginObject();
-    writer.name("A").jsonValue("1234");
+    writer.name("int")
+        .jsonValue("1234")
+        .name("double")
+        .jsonValue("12.34")
+        .name("string")
+        .jsonValue("\"hello\"")
+        .name("null")
+        .jsonValue("null")
+        .name("object")
+        .jsonValue("{\"A\":\"B\"}")
+        .name("array")
+        .jsonValue("[\"A\",\"B\"]")
+    ;
     writer.endObject();
-    assertEquals("{\"A\":1234}", writer.get().toString());
+    assertEquals("{\"int\":1234,\"double\":12.34,\"string\":\"hello\",\"null\":null,"
+        + "\"object\":{\"A\":\"B\"},\"array\":[\"A\",\"B\"]}", writer.get().toString());
   }
 
   public void testNestedObject() throws IOException {
