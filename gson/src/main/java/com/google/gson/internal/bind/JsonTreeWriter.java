@@ -20,8 +20,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonValue;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.io.Writer;
@@ -206,7 +206,7 @@ public final class JsonTreeWriter extends JsonWriter {
    * @since 2.8.7
    */
   @Override public JsonWriter jsonValue(String value) throws IOException {
-    put(new JsonValue(value));
+    put(JsonParser.parseString(value));
     return this;
   }
 

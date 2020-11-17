@@ -761,8 +761,6 @@ public final class TypeAdapters {
         }
         out.endObject();
 
-      } else if (value.isJsonValue()) {
-        out.jsonValue(value.getAsJsonValue().getJsonValue());
       } else {
         throw new IllegalArgumentException("Couldn't write " + value.getClass());
       }
