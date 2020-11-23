@@ -316,7 +316,7 @@ public final class Gson {
           in.nextNull();
           return null;
         }
-        return in.nextDouble();
+        return in.nextNumber().doubleValue();
       }
       @Override public void write(JsonWriter out, Number value) throws IOException {
         if (value == null) {
@@ -340,7 +340,7 @@ public final class Gson {
           in.nextNull();
           return null;
         }
-        return (float) in.nextDouble();
+        return (float) in.nextNumber().doubleValue();
       }
       @Override public void write(JsonWriter out, Number value) throws IOException {
         if (value == null) {

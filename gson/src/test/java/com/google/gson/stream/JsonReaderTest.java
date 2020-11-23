@@ -188,7 +188,7 @@ public final class JsonReaderTest extends TestCase {
     } catch (IOException expected) {
     }
   }
-  
+
   @SuppressWarnings("unused")
   public void testNulls() {
     try {
@@ -293,7 +293,7 @@ public final class JsonReaderTest extends TestCase {
   public void testIntegersWithFractionalPartSpecified() throws IOException {
     JsonReader reader = new JsonReader(reader("[1.0,1.0,1.0]"));
     reader.beginArray();
-    assertEquals(1.0, reader.nextDouble());
+    assertEquals(1.0, reader.nextNumber());
     assertEquals(1, reader.nextInt());
     assertEquals(1L, reader.nextLong());
   }
@@ -310,15 +310,15 @@ public final class JsonReaderTest extends TestCase {
         + "2.718281828459045]";
     JsonReader reader = new JsonReader(reader(json));
     reader.beginArray();
-    assertEquals(-0.0, reader.nextDouble());
-    assertEquals(1.0, reader.nextDouble());
-    assertEquals(1.7976931348623157E308, reader.nextDouble());
-    assertEquals(4.9E-324, reader.nextDouble());
-    assertEquals(0.0, reader.nextDouble());
-    assertEquals(-0.5, reader.nextDouble());
-    assertEquals(2.2250738585072014E-308, reader.nextDouble());
-    assertEquals(3.141592653589793, reader.nextDouble());
-    assertEquals(2.718281828459045, reader.nextDouble());
+    assertEquals(-0.0, reader.nextNumber());
+    assertEquals(1.0, reader.nextNumber());
+    assertEquals(1.7976931348623157E308, reader.nextNumber());
+    assertEquals(4.9E-324, reader.nextNumber());
+    assertEquals(0.0, reader.nextNumber());
+    assertEquals(-0.5, reader.nextNumber());
+    assertEquals(2.2250738585072014E-308, reader.nextNumber());
+    assertEquals(3.141592653589793, reader.nextNumber());
+    assertEquals(2.718281828459045, reader.nextNumber());
     reader.endArray();
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
@@ -328,7 +328,7 @@ public final class JsonReaderTest extends TestCase {
     JsonReader reader = new JsonReader(reader(json));
     reader.beginArray();
     try {
-      reader.nextDouble();
+      reader.nextNumber();
       fail();
     } catch (MalformedJsonException expected) {
     }
@@ -339,7 +339,7 @@ public final class JsonReaderTest extends TestCase {
     JsonReader reader = new JsonReader(reader(json));
     reader.beginArray();
     try {
-      reader.nextDouble();
+      reader.nextNumber();
       fail();
     } catch (MalformedJsonException expected) {
     }
@@ -350,9 +350,9 @@ public final class JsonReaderTest extends TestCase {
     JsonReader reader = new JsonReader(reader(json));
     reader.setLenient(true);
     reader.beginArray();
-    assertTrue(Double.isNaN(reader.nextDouble()));
-    assertEquals(Double.NEGATIVE_INFINITY, reader.nextDouble());
-    assertEquals(Double.POSITIVE_INFINITY, reader.nextDouble());
+    assertTrue(Double.isNaN(reader.nextNumber().doubleValue()));
+    assertEquals(Double.NEGATIVE_INFINITY, reader.nextNumber());
+    assertEquals(Double.POSITIVE_INFINITY, reader.nextNumber());
     reader.endArray();
   }
 
@@ -361,9 +361,9 @@ public final class JsonReaderTest extends TestCase {
     JsonReader reader = new JsonReader(reader(json));
     reader.setLenient(true);
     reader.beginArray();
-    assertTrue(Double.isNaN(reader.nextDouble()));
-    assertEquals(Double.NEGATIVE_INFINITY, reader.nextDouble());
-    assertEquals(Double.POSITIVE_INFINITY, reader.nextDouble());
+    assertTrue(Double.isNaN(reader.nextNumber().doubleValue()));
+    assertEquals(Double.NEGATIVE_INFINITY, reader.nextNumber());
+    assertEquals(Double.POSITIVE_INFINITY, reader.nextNumber());
     reader.endArray();
   }
 
@@ -388,13 +388,13 @@ public final class JsonReaderTest extends TestCase {
     reader.beginArray();
     assertEquals(0L, reader.nextLong());
     assertEquals(0, reader.nextInt());
-    assertEquals(0.0, reader.nextDouble());
+    assertEquals(0.0, reader.nextNumber());
     assertEquals(1L, reader.nextLong());
     assertEquals(1, reader.nextInt());
-    assertEquals(1.0, reader.nextDouble());
+    assertEquals(1.0, reader.nextNumber());
     assertEquals(-1L, reader.nextLong());
     assertEquals(-1, reader.nextInt());
-    assertEquals(-1.0, reader.nextDouble());
+    assertEquals(-1.0, reader.nextNumber());
     try {
       reader.nextInt();
       fail();
@@ -431,7 +431,7 @@ public final class JsonReaderTest extends TestCase {
     } catch (MalformedJsonException expected) {
     }
     try {
-      reader.nextDouble();
+      reader.nextNumber();
       fail();
     } catch (MalformedJsonException expected) {
     }
@@ -561,7 +561,7 @@ public final class JsonReaderTest extends TestCase {
     } catch (NumberFormatException expected) {
     }
   }
-  
+
   /**
    * Issue 1053, negative zero.
    * @throws Exception
@@ -604,7 +604,7 @@ public final class JsonReaderTest extends TestCase {
       fail();
     } catch (NumberFormatException expected) {
     }
-    assertEquals(-9223372036854775809d, reader.nextDouble());
+    assertEquals(-9223372036854775809d, reader.nextNumber());
   }
 
   /**
@@ -629,7 +629,7 @@ public final class JsonReaderTest extends TestCase {
       fail();
     } catch (NumberFormatException expected) {
     }
-    assertEquals(-92233720368547758080d, reader.nextDouble());
+    assertEquals(-92233720368547758080d, reader.nextNumber());
   }
 
   public void testQuotedNumberWithEscape() throws IOException {
@@ -774,7 +774,7 @@ public final class JsonReaderTest extends TestCase {
       fail();
     } catch (NumberFormatException expected) {
     }
-    assertEquals(1.5d, reader.nextDouble());
+    assertEquals(1.5d, reader.nextNumber());
     reader.endArray();
   }
 
@@ -1266,7 +1266,7 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(JsonToken.END_DOCUMENT, reader4.peek());
 
     JsonReader reader5 = new JsonReader(reader("123.4"));
-    assertEquals(123.4, reader5.nextDouble());
+    assertEquals(123.4, reader5.nextNumber());
     assertEquals(JsonToken.END_DOCUMENT, reader5.peek());
 
     JsonReader reader6 = new JsonReader(reader("\"a\""));
@@ -1432,7 +1432,7 @@ public final class JsonReaderTest extends TestCase {
     JsonReader reader = new JsonReader(reader("[0." + repeat('9', 8192) + "]"));
     reader.beginArray();
     try {
-      assertEquals(1d, reader.nextDouble());
+      assertEquals(1d, reader.nextNumber());
       fail();
     } catch (MalformedJsonException expected) {
     }
@@ -1443,7 +1443,7 @@ public final class JsonReaderTest extends TestCase {
     reader.setLenient(true);
     reader.beginArray();
     assertEquals(JsonToken.STRING, reader.peek());
-    assertEquals(1d, reader.nextDouble());
+    assertEquals(1d, reader.nextNumber());
     reader.endArray();
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }

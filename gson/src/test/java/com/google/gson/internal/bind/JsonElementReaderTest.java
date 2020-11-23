@@ -31,7 +31,7 @@ public final class JsonElementReaderTest extends TestCase {
     reader.beginArray();
     assertEquals(1, reader.nextInt());
     assertEquals(2L, reader.nextLong());
-    assertEquals(3.0, reader.nextDouble());
+    assertEquals(3.0, reader.nextNumber());
     reader.endArray();
   }
 
@@ -40,9 +40,9 @@ public final class JsonElementReaderTest extends TestCase {
     JsonTreeReader reader = new JsonTreeReader(element);
     reader.setLenient(true);
     reader.beginArray();
-    assertTrue(Double.isNaN(reader.nextDouble()));
-    assertEquals(Double.NEGATIVE_INFINITY, reader.nextDouble());
-    assertEquals(Double.POSITIVE_INFINITY, reader.nextDouble());
+    assertTrue(Double.isNaN(reader.nextNumber().doubleValue()));
+    assertEquals(Double.NEGATIVE_INFINITY, reader.nextNumber());
+    assertEquals(Double.POSITIVE_INFINITY, reader.nextNumber());
     reader.endArray();
   }
 
@@ -52,19 +52,19 @@ public final class JsonElementReaderTest extends TestCase {
     reader.setLenient(false);
     reader.beginArray();
     try {
-      reader.nextDouble();
+      reader.nextNumber();
       fail();
     } catch (NumberFormatException e) {
     }
     assertEquals("NaN", reader.nextString());
     try {
-      reader.nextDouble();
+      reader.nextNumber();
       fail();
     } catch (NumberFormatException e) {
     }
     assertEquals("-Infinity", reader.nextString());
     try {
-      reader.nextDouble();
+      reader.nextNumber();
       fail();
     } catch (NumberFormatException e) {
     }
@@ -78,7 +78,7 @@ public final class JsonElementReaderTest extends TestCase {
     reader.beginArray();
     assertEquals(1, reader.nextInt());
     assertEquals(2L, reader.nextLong());
-    assertEquals(3.0, reader.nextDouble());
+    assertEquals(3.0, reader.nextNumber());
     reader.endArray();
   }
 
@@ -237,7 +237,7 @@ public final class JsonElementReaderTest extends TestCase {
     } catch (IllegalStateException expected) {
     }
     try {
-      reader.nextDouble();
+      reader.nextNumber();
       fail();
     } catch (IllegalStateException expected) {
     }
@@ -285,7 +285,7 @@ public final class JsonElementReaderTest extends TestCase {
     } catch (NumberFormatException expected) {
     }
     try {
-      reader.nextDouble();
+      reader.nextNumber();
       fail();
     } catch (NumberFormatException expected) {
     }

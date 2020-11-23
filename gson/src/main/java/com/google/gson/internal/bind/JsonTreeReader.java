@@ -204,7 +204,7 @@ public final class JsonTreeReader extends JsonReader {
     }
   }
 
-  @Override public double nextDouble() throws IOException {
+  @Override public Number nextNumber() throws IOException {
     JsonToken token = peek();
     if (token != JsonToken.NUMBER && token != JsonToken.STRING) {
       throw new IllegalStateException(

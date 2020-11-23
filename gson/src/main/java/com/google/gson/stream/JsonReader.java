@@ -881,7 +881,7 @@ public class JsonReader implements Closeable {
    * @throws NumberFormatException if the next literal value cannot be parsed
    *     as a double, or is non-finite.
    */
-  public double nextDouble() throws IOException {
+  public Number nextNumber() throws IOException {
     int p = peeked;
     if (p == PEEKED_NONE) {
       p = doPeek();
@@ -890,7 +890,14 @@ public class JsonReader implements Closeable {
     if (p == PEEKED_LONG) {
       peeked = PEEKED_NONE;
       pathIndices[stackSize - 1]++;
-      return (double) peekedLong;
+      if (peekedLong >= Byte.MIN_VALUE && peekedLong <= Byte.MAX_VALUE) {
+        return (byte) peekedLong;
+      }else if (peekedLong >= Short.MIN_VALUE && peekedLong <= Short.MAX_VALUE){
+        return (short) peekedLong;
+      }else if (peekedLong >= Integer.MIN_VALUE && peekedLong <= Integer.MAX_VALUE){
+        return (int) peekedLong;
+      }
+      return peekedLong;
     }
 
     if (p == PEEKED_NUMBER) {
@@ -1085,7 +1092,7 @@ public class JsonReader implements Closeable {
         break;
       }
     }
-   
+
     String result = (null == builder) ? new String(buffer, pos, i) : builder.append(buffer, pos, i).toString();
     pos += i;
     return result;
@@ -1546,7 +1553,7 @@ public class JsonReader implements Closeable {
     case '\'':
     case '"':
     case '\\':
-    case '/':	
+    case '/':
     	return escaped;
     default:
     	// throw error when none of the above cases are matched

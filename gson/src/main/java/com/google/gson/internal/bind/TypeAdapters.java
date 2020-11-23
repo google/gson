@@ -319,7 +319,7 @@ public final class TypeAdapters {
         in.nextNull();
         return null;
       }
-      return (float) in.nextDouble();
+      return (float) in.nextNumber().doubleValue();
     }
     @Override
     public void write(JsonWriter out, Number value) throws IOException {
@@ -334,7 +334,7 @@ public final class TypeAdapters {
         in.nextNull();
         return null;
       }
-      return in.nextDouble();
+      return in.nextNumber();
     }
     @Override
     public void write(JsonWriter out, Number value) throws IOException {
@@ -406,7 +406,7 @@ public final class TypeAdapters {
       out.value(value);
     }
   };
-  
+
   public static final TypeAdapter<BigDecimal> BIG_DECIMAL = new TypeAdapter<BigDecimal>() {
     @Override public BigDecimal read(JsonReader in) throws IOException {
       if (in.peek() == JsonToken.NULL) {
@@ -424,7 +424,7 @@ public final class TypeAdapters {
       out.value(value);
     }
   };
-  
+
   public static final TypeAdapter<BigInteger> BIG_INTEGER = new TypeAdapter<BigInteger>() {
     @Override public BigInteger read(JsonReader in) throws IOException {
       if (in.peek() == JsonToken.NULL) {
