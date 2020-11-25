@@ -893,6 +893,49 @@ public class JsonReader implements Closeable {
       return (double) peekedLong;
     }
 
+    return nextDouble(p);
+  }
+
+  /**
+   * Returns the {@link com.google.gson.stream.JsonToken#NUMBER double} value of the next token,
+   * consuming it. If the next token is a string, this method will attempt to
+   * parse it as a Number using {@link Double#parseDouble(String)}.
+   *
+   * @throws IllegalStateException if the next token is not a literal value.
+   * @throws NumberFormatException if the next literal value cannot be parsed
+   *     as a double, or is non-finite.
+   */
+  public Number nextNumber() throws IOException {
+    int p = peeked;
+    if (p == PEEKED_NONE) {
+      p = doPeek();
+    }
+
+    if (p == PEEKED_LONG) {
+      peeked = PEEKED_NONE;
+      pathIndices[stackSize - 1]++;
+      if (peekedLong >= Byte.MIN_VALUE && peekedLong <= Byte.MAX_VALUE) {
+        return (byte) peekedLong;
+      }else if (peekedLong >= Short.MIN_VALUE && peekedLong <= Short.MAX_VALUE){
+        return (short) peekedLong;
+      }else if (peekedLong >= Integer.MIN_VALUE && peekedLong <= Integer.MAX_VALUE){
+        return (int) peekedLong;
+      }
+      return peekedLong;
+    }
+
+    return nextDouble(p);
+  }
+
+  /**
+   * nextNumber() and nextDouble() common parts
+   *
+   * @param p peeked
+   * @throws IllegalStateException if the next token is not a literal value.
+   * @throws NumberFormatException if the next literal value cannot be parsed
+   *     as a double, or is non-finite.
+   */
+  private double nextDouble(int p) throws IOException{
     if (p == PEEKED_NUMBER) {
       peekedString = new String(buffer, pos, peekedNumberLength);
       pos += peekedNumberLength;
@@ -908,7 +951,7 @@ public class JsonReader implements Closeable {
     double result = Double.parseDouble(peekedString); // don't catch this NumberFormatException.
     if (!lenient && (Double.isNaN(result) || Double.isInfinite(result))) {
       throw new MalformedJsonException(
-          "JSON forbids NaN and infinities: " + result + locationString());
+              "JSON forbids NaN and infinities: " + result + locationString());
     }
     peekedString = null;
     peeked = PEEKED_NONE;
@@ -1085,7 +1128,7 @@ public class JsonReader implements Closeable {
         break;
       }
     }
-   
+
     String result = (null == builder) ? new String(buffer, pos, i) : builder.append(buffer, pos, i).toString();
     pos += i;
     return result;
@@ -1546,7 +1589,7 @@ public class JsonReader implements Closeable {
     case '\'':
     case '"':
     case '\\':
-    case '/':	
+    case '/':
     	return escaped;
     default:
     	// throw error when none of the above cases are matched
