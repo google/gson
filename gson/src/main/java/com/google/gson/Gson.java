@@ -28,7 +28,8 @@ import java.math.BigInteger;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -122,8 +123,8 @@ public final class Gson {
    * lookup would stack overflow. We cheat by returning a proxy type adapter.
    * The proxy is wired up once the initial adapter has been created.
    */
-  private final ThreadLocal<Map<TypeToken<?>, FutureTypeAdapter<?>>> calls
-      = new ThreadLocal<Map<TypeToken<?>, FutureTypeAdapter<?>>>();
+  private final ThreadLocal<LinkedHashMap<TypeToken<?>, FutureTypeAdapter<?>>> calls
+      = new ThreadLocal<LinkedHashMap<TypeToken<?>, FutureTypeAdapter<?>>>();
 
   private final ConcurrentMap<TypeToken<?>, TypeAdapter<?>> typeTokenCache = new ConcurrentHashMap<TypeToken<?>, TypeAdapter<?>>();
 
@@ -437,10 +438,10 @@ public final class Gson {
       return (TypeAdapter<T>) cached;
     }
 
-    Map<TypeToken<?>, FutureTypeAdapter<?>> threadCalls = calls.get();
+    LinkedHashMap<TypeToken<?>, FutureTypeAdapter<?>> threadCalls = calls.get();
     boolean requiresThreadLocalCleanup = false;
     if (threadCalls == null) {
-      threadCalls = new HashMap<TypeToken<?>, FutureTypeAdapter<?>>();
+      threadCalls = new LinkedHashMap<TypeToken<?>, FutureTypeAdapter<?>>();
       calls.set(threadCalls);
       requiresThreadLocalCleanup = true;
     }
@@ -452,6 +453,8 @@ public final class Gson {
       return resolvedAdapter != null ? resolvedAdapter : ongoingCall;
     }
 
+    int existingAdaptersCount = threadCalls.size();
+    boolean foundCandidate = false;
     try {
       FutureTypeAdapter<T> call = new FutureTypeAdapter<T>();
       threadCalls.put(type, call);
@@ -468,14 +471,10 @@ public final class Gson {
             // See https://github.com/google/gson/issues/625
             for (Map.Entry<TypeToken<?>, FutureTypeAdapter<?>> resolvedAdapterEntry : threadCalls.entrySet()) {
               TypeAdapter<?> resolvedAdapter = resolvedAdapterEntry.getValue().delegate;
-
-              // resolvedAdapter might be null if getAdapter(...) threw exception, but caller
-              // discarded it (instead of rethrowing it)
-              if (resolvedAdapter != null) {
-                typeTokenCache.putIfAbsent(resolvedAdapterEntry.getKey(), resolvedAdapter);
-              }
+              typeTokenCache.putIfAbsent(resolvedAdapterEntry.getKey(), resolvedAdapter);
             }
           }
+          foundCandidate = true;
           return candidate;
         }
       }
@@ -483,6 +482,22 @@ public final class Gson {
     } finally {
       if (requiresThreadLocalCleanup) {
         calls.remove();
+      }
+      if (!foundCandidate) {
+        Iterator<FutureTypeAdapter<?>> adaptersIterator = threadCalls.values().iterator();
+        // Skip existing non-broken adapters
+        for (; existingAdaptersCount > 0; existingAdaptersCount--) {
+          adaptersIterator.next();
+        }
+        // Remove this future adapter and all nested ones because they might
+        // refer to broken adapters
+        while (adaptersIterator.hasNext()) {
+          FutureTypeAdapter<?> brokenAdapter = adaptersIterator.next();
+          // Mark adapter as broken so user sees useful exception message in
+          // case TypeAdapterFactory leaks reference to broken adapter
+          brokenAdapter.markBroken();
+          adaptersIterator.remove();
+        }
       }
     }
   }
@@ -1019,7 +1034,8 @@ public final class Gson {
   }
 
   static class FutureTypeAdapter<T> extends TypeAdapter<T> {
-    TypeAdapter<T> delegate;
+    TypeAdapter<T> delegate = null;
+    private boolean isBroken = false;
 
     public void setDelegate(TypeAdapter<T> typeAdapter) {
       if (delegate != null) {
@@ -1028,8 +1044,15 @@ public final class Gson {
       delegate = typeAdapter;
     }
 
+    public void markBroken() {
+      isBroken = true;
+    }
+
     private TypeAdapter<T> getResolvedDelegate() {
       TypeAdapter<T> delegate = this.delegate;
+      if (isBroken) {
+        throw new IllegalStateException("Broken adapter has been leaked by TypeAdapterFactory");
+      }
       if (delegate == null) {
         throw new IllegalStateException("Adapter for type with cyclic dependency has been leaked to "
             + "other thread before dependency has been resolved");

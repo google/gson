@@ -17,6 +17,7 @@
 package com.google.gson;
 
 import com.google.gson.internal.Excluder;
+import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
@@ -76,5 +77,96 @@ public final class GsonTest extends TestCase {
       // Test stub.
     }
     @Override public Object read(JsonReader in) throws IOException { return null; }
+  }
+
+  /**
+   * Verify that {@link Gson#getAdapter(TypeToken)} does not put broken adapters
+   * into {@code typeTokenCache} when caller of nested {@code getAdapter} discards
+   * exception, e.g.:
+   *
+   * Field dependencies:
+   * ClassA
+   *   -> ClassB1
+   *     -> ClassC -> ClassB1
+   *     -> ClassX
+   *   | ClassB2
+   *
+   * Let's assume the factory for ClassX throws an exception.
+   * 1. Factory for ClassA finds field of type ClassB1
+   * 2. Factory for ClassB1 finds field of type ClassC
+   * 3. Factory for ClassC find fields of type ClassB1 => stores future adapter
+   * 4. Factory for ClassB1 finds field of type ClassX => ClassX factory throws exception
+   * 5. Factory for ClassA ignores exception from getAdapter(ClassB1) and tries as alternative getting
+   *    adapter for ClassB2
+   *
+   * Then Gson must not cache adapter for ClassC because it refers to broken adapter
+   * for ClassB1 (since ClassX throw exception).
+   */
+  public void testGetAdapterDiscardedException() {
+    Gson gson = new GsonBuilder()
+      .registerTypeAdapterFactory(new TypeAdapterFactory() {
+        @Override
+        public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+          if (type.getRawType() == CustomClassA.class) {
+            // Factory will throw for CustomClassB1
+            try {
+              gson.getAdapter(CustomClassB1.class);
+              fail("Expected exception");
+            } catch (Exception e) {
+            }
+
+            return new DummyAdapter<T>();
+          }
+          else if (type.getRawType() == CustomClassB1.class) {
+            gson.getAdapter(CustomClassC.class);
+            // Will throw exception
+            gson.getAdapter(CustomClassX.class);
+
+            throw new AssertionError("Factory should have thrown exception for CustomClassX");
+          }
+          else if (type.getRawType() == CustomClassC.class) {
+            // Will return future adapter due to cyclic dependency B1 -> C -> B1
+            gson.getAdapter(CustomClassB1.class);
+            return new DummyAdapter<T>();
+          }
+          else if (type.getRawType() == CustomClassX.class) {
+            // Always throw exception
+            throw new RuntimeException("test exception");
+          }
+
+          throw new AssertionError("Requested adapter for unexpected type: " + type);
+        }
+      })
+      .create();
+
+    assertTrue(gson.getAdapter(CustomClassA.class) instanceof DummyAdapter);
+    // Gson must not have cached broken adapters for CustomClassB1 and CustomClassC
+    try {
+      gson.getAdapter(CustomClassB1.class);
+      fail("Expected exception");
+    } catch (Exception e) {
+    }
+    try {
+      gson.getAdapter(CustomClassC.class);
+      fail("Expected exception");
+    } catch (Exception e) {
+    }
+  }
+
+  private static class DummyAdapter<T> extends TypeAdapter<T> {
+    @Override public T read(JsonReader in) throws IOException {
+      return null;
+    }
+    @Override public void write(JsonWriter out, T value) throws IOException {
+    }
+  }
+
+  private static class CustomClassA {
+  }
+  private static class CustomClassB1 {
+  }
+  private static class CustomClassC {
+  }
+  private static class CustomClassX {
   }
 }
