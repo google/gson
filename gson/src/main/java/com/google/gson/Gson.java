@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLongArray;
 
@@ -124,7 +125,7 @@ public final class Gson {
   private final ThreadLocal<Map<TypeToken<?>, FutureTypeAdapter<?>>> calls
       = new ThreadLocal<Map<TypeToken<?>, FutureTypeAdapter<?>>>();
 
-  private final Map<TypeToken<?>, TypeAdapter<?>> typeTokenCache = new ConcurrentHashMap<TypeToken<?>, TypeAdapter<?>>();
+  private final ConcurrentMap<TypeToken<?>, TypeAdapter<?>> typeTokenCache = new ConcurrentHashMap<TypeToken<?>, TypeAdapter<?>>();
 
   private final ConstructorConstructor constructorConstructor;
   private final JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory;
@@ -447,7 +448,8 @@ public final class Gson {
     // the key and value type parameters always agree
     FutureTypeAdapter<T> ongoingCall = (FutureTypeAdapter<T>) threadCalls.get(type);
     if (ongoingCall != null) {
-      return ongoingCall;
+      TypeAdapter<T> resolvedAdapter = ongoingCall.delegate;
+      return resolvedAdapter != null ? resolvedAdapter : ongoingCall;
     }
 
     try {
@@ -458,14 +460,27 @@ public final class Gson {
         TypeAdapter<T> candidate = factory.create(this, type);
         if (candidate != null) {
           call.setDelegate(candidate);
-          typeTokenCache.put(type, candidate);
+
+          if (requiresThreadLocalCleanup) {
+            // Publish resolved adapters to all threads
+            // Can only do this for the initial request because cyclic dependency TypeA -> TypeB -> TypeA
+            // would otherwise publish adapter for TypeB which uses not yet resolved adapter for TypeA
+            // See https://github.com/google/gson/issues/625
+            for (Map.Entry<TypeToken<?>, FutureTypeAdapter<?>> resolvedAdapterEntry : threadCalls.entrySet()) {
+              TypeAdapter<?> resolvedAdapter = resolvedAdapterEntry.getValue().delegate;
+
+              // resolvedAdapter might be null if getAdapter(...) threw exception, but caller
+              // discarded it (instead of rethrowing it)
+              if (resolvedAdapter != null) {
+                typeTokenCache.putIfAbsent(resolvedAdapterEntry.getKey(), resolvedAdapter);
+              }
+            }
+          }
           return candidate;
         }
       }
       throw new IllegalArgumentException("GSON (" + GsonBuildConfig.VERSION + ") cannot handle " + type);
     } finally {
-      threadCalls.remove(type);
-
       if (requiresThreadLocalCleanup) {
         calls.remove();
       }
@@ -1004,7 +1019,7 @@ public final class Gson {
   }
 
   static class FutureTypeAdapter<T> extends TypeAdapter<T> {
-    private TypeAdapter<T> delegate;
+    TypeAdapter<T> delegate;
 
     public void setDelegate(TypeAdapter<T> typeAdapter) {
       if (delegate != null) {
@@ -1013,18 +1028,21 @@ public final class Gson {
       delegate = typeAdapter;
     }
 
-    @Override public T read(JsonReader in) throws IOException {
+    private TypeAdapter<T> getResolvedDelegate() {
+      TypeAdapter<T> delegate = this.delegate;
       if (delegate == null) {
-        throw new IllegalStateException();
+        throw new IllegalStateException("Adapter for type with cyclic dependency has been leaked to "
+            + "other thread before dependency has been resolved");
       }
-      return delegate.read(in);
+      return delegate;
+    }
+
+    @Override public T read(JsonReader in) throws IOException {
+      return getResolvedDelegate().read(in);
     }
 
     @Override public void write(JsonWriter out, T value) throws IOException {
-      if (delegate == null) {
-        throw new IllegalStateException();
-      }
-      delegate.write(out, value);
+      getResolvedDelegate().write(out, value);
     }
   }
 
