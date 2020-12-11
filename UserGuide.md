@@ -179,7 +179,7 @@ public class A {
 Gson can not deserialize `{"b":"abc"}` into an instance of B since the class B is an inner class. If it was defined as static class B then Gson would have been able to deserialize the string. Another solution is to write a custom instance creator for B. 
 
 ```java
-public class InstanceCreatorForB implements InstanceCreator<A.B> {
+public class InstanceCreatorForB implements InstanceCreator<A, B> {
   private final A a;
   public InstanceCreatorForB(A a)  {
     this.a = a;
