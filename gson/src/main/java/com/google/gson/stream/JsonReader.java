@@ -1485,7 +1485,8 @@ public class JsonReader implements Closeable {
     return result.toString();
   }
 
-  /** Return she current position of the input string
+  /**
+   * Return she current position of the input string
    *
    * @return Position of the json reader
    */
