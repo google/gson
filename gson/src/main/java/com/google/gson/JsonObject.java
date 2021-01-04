@@ -59,6 +59,18 @@ public final class JsonObject extends JsonElement {
   }
 
   /**
+   * Adds a member, which is a name-value pair, to self. The name must be a String, but the value
+   * can be an arbitrary JsonElement, thereby allowing you to build a full tree of JsonElements
+   * rooted at this node.
+   *
+   * @param property name of the member.
+   * @param value the member object.
+   */
+  public void set(String property, JsonElement value) {
+    set(property, value);
+  }
+
+  /**
    * Removes the {@code property} from this {@link JsonObject}.
    *
    * @param property name of the member that should be removed.
@@ -82,6 +94,17 @@ public final class JsonObject extends JsonElement {
 
   /**
    * Convenience method to add a primitive member. The specified value is converted to a
+   * JsonPrimitive of String.
+   *
+   * @param property name of the member.
+   * @param value the string value associated with the member.
+   */
+  public void set(String property, String value) {
+    addProperty(property, value);
+  }
+
+  /**
+   * Convenience method to add a primitive member. The specified value is converted to a
    * JsonPrimitive of Number.
    *
    * @param property name of the member.
@@ -89,6 +112,17 @@ public final class JsonObject extends JsonElement {
    */
   public void addProperty(String property, Number value) {
     add(property, value == null ? JsonNull.INSTANCE : new JsonPrimitive(value));
+  }
+
+  /**
+   * Convenience method to add a primitive member. The specified value is converted to a
+   * JsonPrimitive of Number.
+   *
+   * @param property name of the member.
+   * @param value the number value associated with the member.
+   */
+  public void set(String property, Number value) {
+    addProperty(property, value);
   }
 
   /**
@@ -103,6 +137,17 @@ public final class JsonObject extends JsonElement {
   }
 
   /**
+   * Convenience method to add a boolean member. The specified value is converted to a
+   * JsonPrimitive of Boolean.
+   *
+   * @param property name of the member.
+   * @param value the number value associated with the member.
+   */
+  public void set(String property, Boolean value) {
+    addProperty(property, value);
+  }
+
+  /**
    * Convenience method to add a char member. The specified value is converted to a
    * JsonPrimitive of Character.
    *
@@ -111,6 +156,17 @@ public final class JsonObject extends JsonElement {
    */
   public void addProperty(String property, Character value) {
     add(property, value == null ? JsonNull.INSTANCE : new JsonPrimitive(value));
+  }
+
+  /**
+   * Convenience method to add a char member. The specified value is converted to a
+   * JsonPrimitive of Character.
+   *
+   * @param property name of the member.
+   * @param value the number value associated with the member.
+   */
+  public void set(String property, Character value) {
+    addProperty(property, value);
   }
 
   /**
