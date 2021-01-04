@@ -1485,6 +1485,15 @@ public class JsonReader implements Closeable {
     return result.toString();
   }
 
+  /** Return she current position of the input string
+   *
+   * @return Position of the json reader
+   */
+
+  public int getPosition() {
+      return this.pos - this.lineStart + 1;
+  }
+
   /**
    * Unescapes the character identified by the character or characters that
    * immediately follow a backslash. The backslash '\' should have already
