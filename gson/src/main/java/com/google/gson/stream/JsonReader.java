@@ -1486,11 +1486,10 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Return she current position of the input string
+   * Return the current position of the JSON reader
    *
-   * @return Position of the json reader
+   * @return Position of the JSON reader
    */
-
   public int getPosition() {
       return this.pos - this.lineStart + 1;
   }

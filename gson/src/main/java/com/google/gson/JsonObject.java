@@ -67,7 +67,7 @@ public final class JsonObject extends JsonElement {
    * @param value the member object.
    */
   public void set(String property, JsonElement value) {
-    set(property, value);
+    add(property, value);
   }
 
   /**
@@ -130,7 +130,7 @@ public final class JsonObject extends JsonElement {
    * JsonPrimitive of Boolean.
    *
    * @param property name of the member.
-   * @param value the number value associated with the member.
+   * @param value the boolean value associated with the member.
    */
   public void addProperty(String property, Boolean value) {
     add(property, value == null ? JsonNull.INSTANCE : new JsonPrimitive(value));
@@ -141,7 +141,7 @@ public final class JsonObject extends JsonElement {
    * JsonPrimitive of Boolean.
    *
    * @param property name of the member.
-   * @param value the number value associated with the member.
+   * @param value the boolean value associated with the member.
    */
   public void set(String property, Boolean value) {
     addProperty(property, value);
@@ -152,7 +152,7 @@ public final class JsonObject extends JsonElement {
    * JsonPrimitive of Character.
    *
    * @param property name of the member.
-   * @param value the number value associated with the member.
+   * @param value the char value associated with the member.
    */
   public void addProperty(String property, Character value) {
     add(property, value == null ? JsonNull.INSTANCE : new JsonPrimitive(value));
@@ -163,7 +163,7 @@ public final class JsonObject extends JsonElement {
    * JsonPrimitive of Character.
    *
    * @param property name of the member.
-   * @param value the number value associated with the member.
+   * @param value the char value associated with the member.
    */
   public void set(String property, Character value) {
     addProperty(property, value);
