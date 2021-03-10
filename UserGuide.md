@@ -15,6 +15,7 @@
    * [Collections Examples](#TOC-Collections-Examples)
      * [Collections Limitations](#TOC-Collections-Limitations)
    * [Serializing and Deserializing Generic Types](#TOC-Serializing-and-Deserializing-Generic-Types)
+   * [Parsing a Collection with Objects of Non Arbitrary Types](#TOC-Parsing-a-Collection-with-Objects-of-Non-Arbitrary-Types)
    * [Serializing and Deserializing Collection with Objects of Arbitrary Types](#TOC-Serializing-and-Deserializing-Collection-with-Objects-of-Arbitrary-Types)
    * [Built-in Serializers and Deserializers](#TOC-Built-in-Serializers-and-Deserializers)
    * [Custom Serialization and Deserialization](#TOC-Custom-Serialization-and-Deserialization)
@@ -259,6 +260,36 @@ gson.toJson(foo, fooType);
 gson.fromJson(json, fooType);
 ```
 The idiom used to get `fooType` actually defines an anonymous local inner class containing a method `getType()` that returns the fully parameterized type.
+
+### <a name="TOC-Parsing-a-Collection-with-Objects-of-Non-Arbitrary-Types"></a>Parsing a Collection with Objects of Non Arbitrary Types
+
+At times you will try to parse a collection of a specific object. The `getJson` and `fromJson`
+methods both provide a variety of parameter configurations to suit your needs. To parse a collection of a class :
+
+```json
+[
+  {
+    "name": "John",
+    "age": 25
+  },
+  {
+    "name": "Steven",
+    "age": 30
+  }
+]  //Example of json response to parse
+```
+
+`fromJson` provides the ability to add a third party class as an argument for serialization as so:
+```java
+public class Person() {  //example class
+    String name;
+    int age;
+}
+
+Gson gson = new Gson();
+Person[] people = gson.fromJson(json, Person[].class);
+```
+
 
 ### <a name="TOC-Serializing-and-Deserializing-Collection-with-Objects-of-Arbitrary-Types"></a>Serializing and Deserializing Collection with Objects of Arbitrary Types
 
