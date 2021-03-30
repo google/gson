@@ -74,6 +74,11 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
         : (Comparator) NATURAL_ORDER;
   }
 
+  /**
+   * Return the size.
+   * 
+   * @return (int)
+   */
   @Override public int size() {
     return size;
   }
