@@ -216,11 +216,11 @@ public final class LinkedHashTreeMap<K, V> extends AbstractMap<K, V> implements 
    */
   Node<K, V> findByEntry(Entry<?, ?> entry) {
     Node<K, V> mine = findByObject(entry.getKey());
-    boolean valuesEqual = mine != null && equal(mine.value, entry.getValue());
+    boolean valuesEqual = mine != null && isEqual(mine.value, entry.getValue());
     return valuesEqual ? mine : null;
   }
 
-  private boolean equal(Object a, Object b) {
+  private boolean isEqual(Object a, Object b) {
     return a == b || (a != null && a.equals(b));
   }
 
