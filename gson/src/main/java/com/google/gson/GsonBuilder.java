@@ -34,6 +34,7 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 
 import static com.google.gson.Gson.DEFAULT_COMPLEX_MAP_KEYS;
+import static com.google.gson.Gson.DEFAULT_DUPLICATE_MAP_KEYS;
 import static com.google.gson.Gson.DEFAULT_ESCAPE_HTML;
 import static com.google.gson.Gson.DEFAULT_JSON_NON_EXECUTABLE;
 import static com.google.gson.Gson.DEFAULT_LENIENT;
@@ -89,6 +90,7 @@ public final class GsonBuilder {
   private int dateStyle = DateFormat.DEFAULT;
   private int timeStyle = DateFormat.DEFAULT;
   private boolean complexMapKeySerialization = DEFAULT_COMPLEX_MAP_KEYS;
+  private boolean duplicateMapKeyDeserialization = DEFAULT_DUPLICATE_MAP_KEYS;
   private boolean serializeSpecialFloatingPointValues = DEFAULT_SPECIALIZE_FLOAT_VALUES;
   private boolean escapeHtmlChars = DEFAULT_ESCAPE_HTML;
   private boolean prettyPrinting = DEFAULT_PRETTY_PRINT;
@@ -116,6 +118,7 @@ public final class GsonBuilder {
     this.instanceCreators.putAll(gson.instanceCreators);
     this.serializeNulls = gson.serializeNulls;
     this.complexMapKeySerialization = gson.complexMapKeySerialization;
+    this.duplicateMapKeyDeserialization = gson.duplicateMapKeyDeserialization;
     this.generateNonExecutableJson = gson.generateNonExecutableJson;
     this.escapeHtmlChars = gson.htmlSafe;
     this.prettyPrinting = gson.prettyPrinting;
@@ -272,6 +275,18 @@ public final class GsonBuilder {
    */
   public GsonBuilder enableComplexMapKeySerialization() {
     complexMapKeySerialization = true;
+    return this;
+  }
+
+  /**
+   * Configure Gson to deserialize duplicate map key. By default, Gson throw a {@code JsonSyntaxException} when there are more than
+   * one same key.
+   *
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @since 2.8
+   */
+  public GsonBuilder enableDuplicateMapKeyDeserialization() {
+    duplicateMapKeyDeserialization = true;
     return this;
   }
 
@@ -595,7 +610,7 @@ public final class GsonBuilder {
     addTypeAdaptersForDate(datePattern, dateStyle, timeStyle, factories);
 
     return new Gson(excluder, fieldNamingPolicy, instanceCreators,
-        serializeNulls, complexMapKeySerialization,
+        serializeNulls, complexMapKeySerialization, duplicateMapKeyDeserialization,
         generateNonExecutableJson, escapeHtmlChars, prettyPrinting, lenient,
         serializeSpecialFloatingPointValues, longSerializationPolicy,
         datePattern, dateStyle, timeStyle,

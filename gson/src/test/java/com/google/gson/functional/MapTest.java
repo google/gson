@@ -78,6 +78,17 @@ public class MapTest extends TestCase {
     assertEquals(2, target.get("b").intValue());
   }
 
+  public void testMapDuplicateKeyDeserialization() {
+    Gson gsonWithDuplicateKeys = new GsonBuilder()
+        .enableDuplicateMapKeyDeserialization()
+        .create();
+    Type typeOfMap = new TypeToken<Map<String,Integer>>(){}.getType();
+    String json = "{\"a\":1,\"b\":2,\"b\":3}";
+    Map<String,Integer> target = gsonWithDuplicateKeys.fromJson(json, typeOfMap);
+    assertEquals(1, target.get("a").intValue());
+    assertEquals(3, target.get("b").intValue());
+  }
+
   @SuppressWarnings({"unchecked", "rawtypes"})
   public void testRawMapSerialization() {
     Map map = new LinkedHashMap();
