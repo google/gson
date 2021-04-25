@@ -282,6 +282,10 @@ public final class GsonBuilder {
    * Configure Gson to deserialize duplicate map key. By default, Gson throw a {@code JsonSyntaxException} when there are more than
    * one same key.
    *
+   * <p>Note that enabling support for duplicate maps keys is discouraged because it can make an application less secure.
+   * When an application interacts with other components using different JSON libraries, they might treat duplicate keys
+   * differently, allowing an attacker to circumvent security checks.
+   *
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 2.8
    */
