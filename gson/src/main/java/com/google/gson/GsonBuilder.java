@@ -285,7 +285,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 2.8
    */
-  public GsonBuilder enableDuplicateMapKeyDeserialization() {
+  public GsonBuilder enableDuplicateMapKeysDeserialization() {
     duplicateMapKeyDeserialization = true;
     return this;
   }
