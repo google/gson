@@ -280,7 +280,7 @@ public final class GsonBuilder {
 
   /**
    * Configures Gson to deserialize duplicate map keys. Only the value of last entry with the same key will be used, previous values
-    * will be discarded. By default, Gson throws a {@link JsonSyntaxException} when a key occurs more than once.
+   * will be discarded. By default, Gson throws a {@link JsonSyntaxException} when a key occurs more than once.
    *
    * <p>Note that enabling support for duplicate maps keys is discouraged because it can make an application less secure.
    * When an application interacts with other components using different JSON libraries, they might treat duplicate keys
