@@ -289,7 +289,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 2.8
    */
-  public GsonBuilder enableDuplicateMapKeysDeserialization() {
+  public GsonBuilder enableDuplicateMapKeyDeserialization() {
     duplicateMapKeyDeserialization = true;
     return this;
   }
