@@ -106,7 +106,7 @@
         <plugin>
           <groupId>org.apache.felix</groupId>
           <artifactId>maven-bundle-plugin</artifactId>
-          <version>3.3.0</version>
+          <version>5.1.2</version>
           <inherited>true</inherited>
         </plugin>
       </plugins>
