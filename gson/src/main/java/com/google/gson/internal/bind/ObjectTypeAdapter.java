@@ -26,6 +26,8 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +37,13 @@ import java.util.Map;
  * serialization and a primitive/Map/List on deserialization.
  */
 public final class ObjectTypeAdapter extends TypeAdapter<Object> {
+  private final ThreadLocal<NumberFormat> numberFormat = new ThreadLocal<NumberFormat>() {
+    @Override
+    protected NumberFormat initialValue() {
+      return NumberFormat.getInstance();
+    }
+  };
+
   public static final TypeAdapterFactory FACTORY = new TypeAdapterFactory() {
     @SuppressWarnings("unchecked")
     @Override public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
@@ -76,9 +85,13 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
       return in.nextString();
 
     case NUMBER:
-      return in.nextDouble();
+      try {
+        return numberFormat.get().parse(in.nextString());
+      } catch (ParseException e) {
+        throw new IllegalStateException(e);
+      }
 
-    case BOOLEAN:
+      case BOOLEAN:
       return in.nextBoolean();
 
     case NULL:

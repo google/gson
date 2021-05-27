@@ -255,7 +255,7 @@ public class CollectionTest extends TestCase {
     String json = "[0,1,2,3,4,5,6,7,8,9]";
     Collection integers = gson.fromJson(json, Collection.class);
     // JsonReader converts numbers to double by default so we need a floating point comparison
-    assertEquals(Arrays.asList(0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0), integers);
+    assertEquals(Arrays.asList(0l, 1l, 2l, 3l, 4l, 5l, 6l, 7l, 8l, 9l), integers);
 
     json = "[\"Hello\", \"World\"]";
     Collection strings = gson.fromJson(json, Collection.class);
@@ -272,8 +272,8 @@ public class CollectionTest extends TestCase {
     for (Object bag1 : target) {
       // Gson 2.0 converts raw objects into maps
       Map<String, Object> values = (Map<String, Object>) bag1;
-      assertTrue(values.containsValue(10.0));
-      assertTrue(values.containsValue(20.0));
+      assertTrue(values.containsValue(10l));
+      assertTrue(values.containsValue(20l));
       assertTrue(values.containsValue("stringValue"));
     }
   }
