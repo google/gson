@@ -79,7 +79,7 @@ final class UnsafeReflectionAccessor extends ReflectionAccessor {
   private static Field getOverrideField() {
     try {
       return AccessibleObject.class.getDeclaredField("override");
-    } catch (NoSuchFieldException e) {
+    } catch (Exception e) {
       return null;
     }
   }
