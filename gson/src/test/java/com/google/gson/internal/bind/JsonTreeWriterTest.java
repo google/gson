@@ -99,8 +99,34 @@ public final class JsonTreeWriterTest extends TestCase {
     JsonTreeWriter writer = new JsonTreeWriter();
     writer.setSerializeNulls(false);
     writer.beginObject();
-    writer.name("A");
+    writer.name("test1");
+    writer.value((Boolean) null);
+    writer.name("test2");
+    writer.value((Number) null);
+    writer.name("test3");
+    writer.value((String) null);
+    writer.name("test4");
     writer.nullValue();
+
+    // Make sure that methods throwing exceptions do not write name
+    writer.name("test5");
+    try {
+      // value(double)
+      writer.value(Double.NaN);
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
+    writer.nullValue();
+
+    writer.name("test6");
+    try {
+      // value(Number)
+      writer.value(Double.valueOf(Double.NaN));
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
+    writer.nullValue();
+
     writer.endObject();
     assertEquals("{}", writer.get().toString());
   }
