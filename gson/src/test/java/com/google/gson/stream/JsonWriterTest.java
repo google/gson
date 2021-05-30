@@ -112,6 +112,7 @@ public final class JsonWriterTest extends TestCase {
       jsonWriter.beginArray();
       fail();
     } catch (IllegalStateException expected) {
+      assertEquals("JSON must have only one top-level value.", expected.getMessage());
     }
   }
 
@@ -124,6 +125,7 @@ public final class JsonWriterTest extends TestCase {
       jsonWriter.endArray();
       fail();
     } catch (IllegalStateException expected) {
+      assertEquals("Nesting problem.", expected.getMessage());
     }
   }
 
@@ -136,6 +138,7 @@ public final class JsonWriterTest extends TestCase {
       jsonWriter.endObject();
       fail();
     } catch (IllegalStateException expected) {
+      assertEquals("Nesting problem.", expected.getMessage());
     }
   }
 
@@ -147,6 +150,7 @@ public final class JsonWriterTest extends TestCase {
       jsonWriter.name(null);
       fail();
     } catch (NullPointerException expected) {
+      assertEquals("name == null", expected.getMessage());
     }
   }
 
@@ -180,16 +184,19 @@ public final class JsonWriterTest extends TestCase {
       jsonWriter.value(Double.NaN);
       fail();
     } catch (IllegalArgumentException expected) {
+      assertEquals("Numeric values must be finite, but was NaN", expected.getMessage());
     }
     try {
       jsonWriter.value(Double.NEGATIVE_INFINITY);
       fail();
     } catch (IllegalArgumentException expected) {
+      assertEquals("Numeric values must be finite, but was -Infinity", expected.getMessage());
     }
     try {
       jsonWriter.value(Double.POSITIVE_INFINITY);
       fail();
     } catch (IllegalArgumentException expected) {
+      assertEquals("Numeric values must be finite, but was Infinity", expected.getMessage());
     }
   }
 
@@ -201,16 +208,19 @@ public final class JsonWriterTest extends TestCase {
       jsonWriter.value(Double.valueOf(Double.NaN));
       fail();
     } catch (IllegalArgumentException expected) {
+      assertEquals("Numeric values must be finite, but was NaN", expected.getMessage());
     }
     try {
       jsonWriter.value(Double.valueOf(Double.NEGATIVE_INFINITY));
       fail();
     } catch (IllegalArgumentException expected) {
+      assertEquals("Numeric values must be finite, but was -Infinity", expected.getMessage());
     }
     try {
       jsonWriter.value(Double.valueOf(Double.POSITIVE_INFINITY));
       fail();
     } catch (IllegalArgumentException expected) {
+      assertEquals("Numeric values must be finite, but was Infinity", expected.getMessage());
     }
   }
 
@@ -558,18 +568,6 @@ public final class JsonWriterTest extends TestCase {
     assertEquals("[][]", stringWriter.toString());
   }
 
-  public void testStrictWriterDoesNotPermitMultipleTopLevelValues() throws IOException {
-    StringWriter stringWriter = new StringWriter();
-    JsonWriter writer = new JsonWriter(stringWriter);
-    writer.beginArray();
-    writer.endArray();
-    try {
-      writer.beginArray();
-      fail();
-    } catch (IllegalStateException expected) {
-    }
-  }
-
   public void testClosedWriterThrowsOnStructure() throws IOException {
     StringWriter stringWriter = new StringWriter();
     JsonWriter writer = new JsonWriter(stringWriter);
@@ -580,21 +578,25 @@ public final class JsonWriterTest extends TestCase {
       writer.beginArray();
       fail();
     } catch (IllegalStateException expected) {
+      assertEquals("JsonWriter is closed.", expected.getMessage());
     }
     try {
       writer.endArray();
       fail();
     } catch (IllegalStateException expected) {
+      assertEquals("JsonWriter is closed.", expected.getMessage());
     }
     try {
       writer.beginObject();
       fail();
     } catch (IllegalStateException expected) {
+      assertEquals("JsonWriter is closed.", expected.getMessage());
     }
     try {
       writer.endObject();
       fail();
     } catch (IllegalStateException expected) {
+      assertEquals("JsonWriter is closed.", expected.getMessage());
     }
   }
 
@@ -608,6 +610,7 @@ public final class JsonWriterTest extends TestCase {
       writer.name("a");
       fail();
     } catch (IllegalStateException expected) {
+      assertEquals("JsonWriter is closed.", expected.getMessage());
     }
   }
 
@@ -621,6 +624,7 @@ public final class JsonWriterTest extends TestCase {
       writer.value("a");
       fail();
     } catch (IllegalStateException expected) {
+      assertEquals("JsonWriter is closed.", expected.getMessage());
     }
   }
 
@@ -634,6 +638,7 @@ public final class JsonWriterTest extends TestCase {
       writer.flush();
       fail();
     } catch (IllegalStateException expected) {
+      assertEquals("JsonWriter is closed.", expected.getMessage());
     }
   }
 
