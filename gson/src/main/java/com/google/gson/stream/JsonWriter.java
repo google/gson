@@ -124,7 +124,10 @@ import static com.google.gson.stream.JsonScope.NONEMPTY_OBJECT;
  * <p>Each {@code JsonWriter} may be used to write a single JSON stream.
  * Instances of this class are not thread safe. Calls that would result in a
  * malformed JSON string will fail with an {@link IllegalStateException}.
- *
+ * <p>
+ * This type is immutable. Considering {@link MutableJsonWriter} which is a
+ * mutable version of this.
+ * 
  * @author Jesse Wilson
  * @since 1.6
  */
@@ -142,6 +145,7 @@ public class JsonWriter implements Closeable, Flushable {
    */
   private static final String[] REPLACEMENT_CHARS;
   private static final String[] HTML_SAFE_REPLACEMENT_CHARS;
+  private static final int DEFAULT_STACK_SIZE = 32;
   static {
     REPLACEMENT_CHARS = new String[128];
     for (int i = 0; i <= 0x1f; i++) {
@@ -163,13 +167,49 @@ public class JsonWriter implements Closeable, Flushable {
   }
 
   /** The output data, containing at most one top-level array or object. */
-  private final Writer out;
+  protected Writer out;
+  
+    /**
+    * indicates, if the out should be closed, by closing this instance.
+    */
+    protected boolean closeWriterOnClose = true;
 
-  private int[] stack = new int[32];
+  private int[] stack = new int[DEFAULT_STACK_SIZE];
   private int stackSize = 0;
   {
     push(EMPTY_DOCUMENT);
   }
+  
+    /**
+     * Resets and resize the stack variable, based on DEFAULT_STACK_SIZE.
+     */
+    protected void resetStacks(){
+        if(stack.length!=DEFAULT_STACK_SIZE){
+            stack = Arrays.copyOfRange(stack, 0, DEFAULT_STACK_SIZE);
+        }
+        Arrays.fill(stack, 0);
+    }
+    
+    /**
+     * Initializes the instance, as {@code EMPTY_DOCUMENT}.
+     */
+    protected void init() {
+        stackSize = 0;
+        resetStacks();
+        push(EMPTY_DOCUMENT);
+    }
+
+    /**
+     * Resets this instance of writer.
+     * @param out to be set for the underlying writer
+     * @param alsoInit tells if the current state of the instance must be reset
+     */
+    protected void reset(Writer out, boolean alsoInit) {
+        this.out = out;
+        if (alsoInit) {
+            init();
+        }
+    }
 
   /**
    * A string containing a full set of spaces for a single level of
@@ -190,17 +230,32 @@ public class JsonWriter implements Closeable, Flushable {
 
   private boolean serializeNulls = true;
 
-  /**
-   * Creates a new instance that writes a JSON-encoded stream to {@code out}.
-   * For best performance, ensure {@link Writer} is buffered; wrapping in
-   * {@link java.io.BufferedWriter BufferedWriter} if necessary.
-   */
-  public JsonWriter(Writer out) {
-    if (out == null) {
-      throw new NullPointerException("out == null");
+    /**
+     * Creates a new instance that writes a JSON-encoded stream to {@code out}.
+     * For best performance, ensure {@link Writer} is buffered; wrapping in
+     * {@link java.io.BufferedWriter BufferedWriter} if necessary.
+     */
+    public JsonWriter(Writer out) {
+        if (out == null) {
+            throw new NullPointerException("out == null");
+        }
+        reset(out, false);
     }
-    this.out = out;
-  }
+
+    /**
+     * Creates a new instance, with an invalid state.
+     * <p>
+     * Before any write-call, make sure the {@link #out} has been reset,
+     * otherwise there will be exceptions.
+     * </p>
+     *
+     * @see #reset(java.io.Writer, boolean)
+     * @see JsonWriterMutable
+     * @since +2.8.7-SNAPSHOT ?
+     */
+    protected JsonWriter() {
+
+    }
 
   /**
    * Sets the indentation string to be repeated for each level of indentation
@@ -545,20 +600,22 @@ public class JsonWriter implements Closeable, Flushable {
     out.flush();
   }
 
-  /**
-   * Flushes and closes this writer and the underlying {@link Writer}.
-   *
-   * @throws IOException if the JSON document is incomplete.
-   */
-  public void close() throws IOException {
-    out.close();
+    /**
+     * Flushes and closes this writer and the underlying {@link Writer}.
+     *
+     * @throws IOException if the JSON document is incomplete.
+     */
+    public void close() throws IOException {
+        if (closeWriterOnClose) {
+            out.close();
+        }
 
-    int size = stackSize;
-    if (size > 1 || size == 1 && stack[size - 1] != NONEMPTY_DOCUMENT) {
-      throw new IOException("Incomplete document");
+        int size = stackSize;
+        if (size > 1 || size == 1 && stack[size - 1] != NONEMPTY_DOCUMENT) {
+            throw new IOException("Incomplete document");
+        }
+        stackSize = 0;
     }
-    stackSize = 0;
-  }
 
   private void string(String value) throws IOException {
     String[] replacements = htmlSafe ? HTML_SAFE_REPLACEMENT_CHARS : REPLACEMENT_CHARS;

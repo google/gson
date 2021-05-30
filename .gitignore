@@ -20,3 +20,4 @@ build
 .DS_Store
 
 examples/android-proguard-example/gen
+/gson/nb-configuration.xml
