@@ -53,10 +53,16 @@ public class GsonTypeAdapterTest extends TestCase {
       fail("Type Adapter should have thrown an exception");
     } catch (IllegalStateException expected) { }
 
+    // Verify that serializer is made null-safe, i.e. it is not called for null
+    assertEquals("null", gson.toJson(null, AtomicLong.class));
+
     try {
       gson.fromJson("123", AtomicLong.class);
       fail("Type Adapter should have thrown an exception");
     } catch (JsonParseException expected) { }
+
+    // Verify that deserializer is made null-safe, i.e. it is not called for null
+    assertNull(gson.fromJson(JsonNull.INSTANCE, AtomicLong.class));
   }
 
   public void testTypeAdapterProperlyConvertsTypes() throws Exception {
