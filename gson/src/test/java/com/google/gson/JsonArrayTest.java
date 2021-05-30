@@ -51,6 +51,24 @@ public final class JsonArrayTest extends TestCase {
     assertFalse(b.equals(a));
   }
 
+  public void testClear() {
+    JsonArray array = new JsonArray();
+    assertTrue(array.isEmpty());
+
+    JsonPrimitive a = new JsonPrimitive("a");
+    array.add(a);
+    assertFalse(array.isEmpty());
+    array.clear();
+    assertTrue(array.isEmpty());
+
+    JsonPrimitive b = new JsonPrimitive("b");
+    array.add(a);
+    array.add(b);
+    assertFalse(array.isEmpty());
+    array.clear();
+    assertTrue(array.isEmpty());
+  }
+
   public void testRemove() {
     JsonArray array = new JsonArray();
     try {
