@@ -280,6 +280,7 @@ public final class LinkedHashTreeMapTest extends TestCase {
     }
   }
 
+  @SafeVarargs
   private <T> void assertIterationOrder(Iterable<T> actual, T... expected) {
     ArrayList<T> actualList = new ArrayList<T>();
     for (T t : actual) {
