@@ -34,6 +34,13 @@ public final class JsonObject extends JsonElement {
       new LinkedTreeMap<String, JsonElement>();
 
   /**
+   * Creates an empty JsonObject.
+   */
+  @SuppressWarnings("deprecation") // JsonElement constructor
+  public JsonObject() {
+  }
+
+  /**
    * Creates a deep copy of this element and all its children
    * @since 2.8.2
    */
