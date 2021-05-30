@@ -35,7 +35,7 @@ import java.util.Set;
  *
  * <p>This implementation was derived from Android 4.1's TreeMap class.
  */
-public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Serializable {
+public abstract final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Serializable {
   @SuppressWarnings({ "unchecked", "rawtypes" }) // to avoid Comparable<Comparable<Comparable<...>>>
   private static final Comparator<Comparable> NATURAL_ORDER = new Comparator<Comparable>() {
     public int compare(Comparable a, Comparable b) {
@@ -74,6 +74,11 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
         : (Comparator) NATURAL_ORDER;
   }
 
+  /**
+   * Return the size.
+   * 
+   * @return (int)
+   */
   @Override public int size() {
     return size;
   }

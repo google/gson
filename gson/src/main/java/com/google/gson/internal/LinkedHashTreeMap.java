@@ -37,7 +37,7 @@ import java.util.Set;
  * <p>This implementation was derived from Android 4.1's TreeMap and
  * LinkedHashMap classes.
  */
-public final class LinkedHashTreeMap<K, V> extends AbstractMap<K, V> implements Serializable {
+public final class LinkedHashTreeMap<K, V> extends LinkedTreeMap {
   @SuppressWarnings({ "unchecked", "rawtypes" }) // to avoid Comparable<Comparable<Comparable<...>>>
   private static final Comparator<Comparable> NATURAL_ORDER = new Comparator<Comparable>() {
     public int compare(Comparable a, Comparable b) {
@@ -45,11 +45,8 @@ public final class LinkedHashTreeMap<K, V> extends AbstractMap<K, V> implements 
     }
   };
 
-  Comparator<? super K> comparator;
   Node<K, V>[] table;
   final Node<K, V> header;
-  int size = 0;
-  int modCount = 0;
   int threshold;
 
   /**
@@ -58,7 +55,7 @@ public final class LinkedHashTreeMap<K, V> extends AbstractMap<K, V> implements 
    */
   @SuppressWarnings("unchecked") // unsafe! this assumes K is comparable
   public LinkedHashTreeMap() {
-    this((Comparator<? super K>) NATURAL_ORDER);
+    super();
   }
 
   /**
@@ -70,25 +67,10 @@ public final class LinkedHashTreeMap<K, V> extends AbstractMap<K, V> implements 
    */
   @SuppressWarnings({ "unchecked", "rawtypes" }) // unsafe! if comparator is null, this assumes K is comparable
   public LinkedHashTreeMap(Comparator<? super K> comparator) {
-    this.comparator = comparator != null
-        ? comparator
-        : (Comparator) NATURAL_ORDER;
+    super(comparator);
     this.header = new Node<K, V>();
     this.table = new Node[16]; // TODO: sizing/resizing policies
     this.threshold = (table.length / 2) + (table.length / 4); // 3/4 capacity
-  }
-
-  @Override public int size() {
-    return size;
-  }
-
-  @Override public V get(Object key) {
-    Node<K, V> node = findByObject(key);
-    return node != null ? node.value : null;
-  }
-
-  @Override public boolean containsKey(Object key) {
-    return findByObject(key) != null;
   }
 
   @Override public V put(K key, V value) {
@@ -196,34 +178,6 @@ public final class LinkedHashTreeMap<K, V> extends AbstractMap<K, V> implements 
     return created;
   }
 
-  @SuppressWarnings("unchecked")
-  Node<K, V> findByObject(Object key) {
-    try {
-      return key != null ? find((K) key, false) : null;
-    } catch (ClassCastException e) {
-      return null;
-    }
-  }
-
-  /**
-   * Returns this map's entry that has the same key and value as {@code
-   * entry}, or null if this map has no such entry.
-   *
-   * <p>This method uses the comparator for key equality rather than {@code
-   * equals}. If this map's comparator isn't consistent with equals (such as
-   * {@code String.CASE_INSENSITIVE_ORDER}), then {@code remove()} and {@code
-   * contains()} will violate the collections API.
-   */
-  Node<K, V> findByEntry(Entry<?, ?> entry) {
-    Node<K, V> mine = findByObject(entry.getKey());
-    boolean valuesEqual = mine != null && equal(mine.value, entry.getValue());
-    return valuesEqual ? mine : null;
-  }
-
-  private boolean equal(Object a, Object b) {
-    return a == b || (a != null && a.equals(b));
-  }
-
   /**
    * Applies a supplemental hash function to a given hashCode, which defends
    * against poor quality hash functions. This is critical because HashMap
@@ -242,7 +196,7 @@ public final class LinkedHashTreeMap<K, V> extends AbstractMap<K, V> implements 
    *
    * @param unlink true to also unlink this node from the iteration linked list.
    */
-  void removeInternal(Node<K, V> node, boolean unlink) {
+  @Override public void removeInternal(Node<K, V> node, boolean unlink) {
     if (unlink) {
       node.prev.next = node.next;
       node.next.prev = node.prev;
