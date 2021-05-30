@@ -23,7 +23,7 @@
   <repositories>
     <repository>
       <id>gson</id>
-      <url>http://google-gson.googlecode.com/svn/mavenrepo</url>
+      <url>https://google-gson.googlecode.com/svn/mavenrepo</url>
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
