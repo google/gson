@@ -486,7 +486,8 @@ public class JsonWriter implements Closeable, Flushable {
    * Encodes {@code value}.
    *
    * @param value a finite value. May not be {@link Double#isNaN() NaNs} or
-   *     {@link Double#isInfinite() infinities}.
+   *     {@link Double#isInfinite() infinities} if this writer is not
+   *     {@link #isLenient() lenient}.
    * @return this writer.
    */
   public JsonWriter value(double value) throws IOException {
@@ -515,7 +516,8 @@ public class JsonWriter implements Closeable, Flushable {
    * Encodes {@code value}.
    *
    * @param value a finite value. May not be {@link Double#isNaN() NaNs} or
-   *     {@link Double#isInfinite() infinities}.
+   *     {@link Double#isInfinite() infinities} if this writer is not
+   *     {@link #isLenient() lenient}.
    * @return this writer.
    */
   public JsonWriter value(Number value) throws IOException {
