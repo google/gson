@@ -594,12 +594,17 @@ public final class GsonBuilder {
 
     addTypeAdaptersForDate(datePattern, dateStyle, timeStyle, factories);
 
+    // Copy these collections to prevent subsequent modifications of builder from
+    // affecting Gson instance
+    Map<Type, InstanceCreator<?>> instanceCreators = new HashMap<Type, InstanceCreator<?>>(this.instanceCreators);
+    List<TypeAdapterFactory> builderFactories = new ArrayList<TypeAdapterFactory>(this.factories);
+    List<TypeAdapterFactory> builderHierarchyFactories = new ArrayList<TypeAdapterFactory>(this.hierarchyFactories);
     return new Gson(excluder, fieldNamingPolicy, instanceCreators,
         serializeNulls, complexMapKeySerialization,
         generateNonExecutableJson, escapeHtmlChars, prettyPrinting, lenient,
         serializeSpecialFloatingPointValues, longSerializationPolicy,
         datePattern, dateStyle, timeStyle,
-        this.factories, this.hierarchyFactories, factories);
+        builderFactories, builderHierarchyFactories, factories);
   }
 
   @SuppressWarnings("unchecked")
