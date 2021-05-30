@@ -34,32 +34,16 @@ public class InternationalizationTest extends TestCase {
     gson = new Gson();
   }
 
-  /*
-  public void testStringsWithRawChineseCharactersSerialization() throws Exception {
-    String target = "好好好";
-    String json = gson.toJson(target);
-    String expected = "\"\\u597d\\u597d\\u597d\"";
-    assertEquals(expected, json);
-  }
-  */
-
-  public void testStringsWithRawChineseCharactersDeserialization() throws Exception {
-    String expected = "好好好";
-    String json = "\"" + expected + "\"";
-    String actual = gson.fromJson(json, String.class);
-    assertEquals(expected, actual);
-  }
-
   public void testStringsWithUnicodeChineseCharactersSerialization() throws Exception {
     String target = "\u597d\u597d\u597d";
     String json = gson.toJson(target);
-    String expected = "\"\u597d\u597d\u597d\"";
+    String expected = '"' + target + '"';
     assertEquals(expected, json);
   }
 
   public void testStringsWithUnicodeChineseCharactersDeserialization() throws Exception {
     String expected = "\u597d\u597d\u597d";
-    String json = "\"" + expected + "\"";
+    String json = '"' + expected + '"';
     String actual = gson.fromJson(json, String.class);
     assertEquals(expected, actual);
   }
@@ -67,5 +51,26 @@ public class InternationalizationTest extends TestCase {
   public void testStringsWithUnicodeChineseCharactersEscapedDeserialization() throws Exception {
     String actual = gson.fromJson("'\\u597d\\u597d\\u597d'", String.class);
     assertEquals("\u597d\u597d\u597d", actual);
+  }
+
+  public void testSupplementaryUnicodeSerialization() throws Exception {
+    // Supplementary code point U+1F60A
+    String supplementaryChar = new String(new int[] {0x1F60A}, 0, 1);
+    String json = gson.toJson(supplementaryChar);
+    assertEquals('"' + supplementaryChar + '"', json);
+  }
+
+  public void testSupplementaryUnicodeDeserialization() throws Exception {
+    // Supplementary code point U+1F60A
+    String supplementaryChar = new String(new int[] {0x1F60A}, 0, 1);
+    String actual = gson.fromJson('"' + supplementaryChar + '"', String.class);
+    assertEquals(supplementaryChar, actual);
+  }
+
+  public void testSupplementaryUnicodeEscapedDeserialization() throws Exception {
+    // Supplementary code point U+1F60A
+    String supplementaryChar = new String(new int[] {0x1F60A}, 0, 1);
+    String actual = gson.fromJson("\"\uD83D\uDE0A\"", String.class);
+    assertEquals(supplementaryChar, actual);
   }
 }
