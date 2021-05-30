@@ -318,14 +318,14 @@ public class MapTest extends TestCase {
   }
 
   /**
-   * Created in response to http://code.google.com/p/google-gson/issues/detail?id=99
+   * Created in response to https://github.com/google/gson/issues/99
    */
   private static class ClassWithAMap {
     Map<String, String> map = new TreeMap<String, String>();
   }
 
   /**
-   * Created in response to http://code.google.com/p/google-gson/issues/detail?id=99
+   * Created in response to https://github.com/google/gson/issues/99
    */
   public void testMapSerializationWithNullValues() {
     ClassWithAMap target = new ClassWithAMap();
@@ -337,7 +337,7 @@ public class MapTest extends TestCase {
   }
 
   /**
-   * Created in response to http://code.google.com/p/google-gson/issues/detail?id=99
+   * Created in response to https://github.com/google/gson/issues/99
    */
   public void testMapSerializationWithNullValuesSerialized() {
     Gson gson = new GsonBuilder().serializeNulls().create();
@@ -376,7 +376,7 @@ public class MapTest extends TestCase {
   }
 
   /**
-   * From bug report http://code.google.com/p/google-gson/issues/detail?id=95
+   * From bug report https://github.com/google/gson/issues/95
    */
   public void testMapOfMapSerialization() {
     Map<String, Map<String, String>> map = new HashMap<String, Map<String, String>>();
@@ -391,7 +391,7 @@ public class MapTest extends TestCase {
   }
 
   /**
-   * From bug report http://code.google.com/p/google-gson/issues/detail?id=95
+   * From bug report https://github.com/google/gson/issues/95
    */
   public void testMapOfMapDeserialization() {
     String json = "{nestedMap:{'2':'2','1':'1'}}";
@@ -403,7 +403,7 @@ public class MapTest extends TestCase {
   }
 
   /**
-   * From bug report http://code.google.com/p/google-gson/issues/detail?id=178
+   * From bug report https://github.com/google/gson/issues/178
    */
   public void testMapWithQuotes() {
     Map<String, String> map = new HashMap<String, String>();
@@ -428,7 +428,7 @@ public class MapTest extends TestCase {
   }
 
   /**
-   * From bug report http://code.google.com/p/google-gson/issues/detail?id=204
+   * From bug report https://github.com/google/gson/issues/204
    */
   public void testSerializeMaps() {
     Map<String, Object> map = new LinkedHashMap<String, Object>();

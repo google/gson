@@ -31,7 +31,7 @@ import static com.google.gson.stream.JsonScope.NONEMPTY_DOCUMENT;
 import static com.google.gson.stream.JsonScope.NONEMPTY_OBJECT;
 
 /**
- * Writes a JSON (<a href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>)
+ * Writes a JSON (<a href="https://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>)
  * encoded value to a stream, one token at a time. The stream includes both
  * literal values (strings, numbers, booleans and nulls) as well as the begin
  * and end delimiters of objects and arrays.
@@ -138,7 +138,7 @@ public class JsonWriter implements Closeable, Flushable {
    *
    * We also escape '\u2028' and '\u2029', which JavaScript interprets as
    * newline characters. This prevents eval() from failing with a syntax
-   * error. http://code.google.com/p/google-gson/issues/detail?id=341
+   * error. https://github.com/google/gson/issues/341
    */
   private static final String[] REPLACEMENT_CHARS;
   private static final String[] HTML_SAFE_REPLACEMENT_CHARS;
@@ -223,7 +223,7 @@ public class JsonWriter implements Closeable, Flushable {
   /**
    * Configure this writer to relax its syntax rules. By default, this writer
    * only emits well-formed JSON as specified by <a
-   * href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>. Setting the writer
+   * href="https://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>. Setting the writer
    * to lenient permits the following:
    * <ul>
    *   <li>Top-level values of any type. With strict writing, the top-level

@@ -108,7 +108,7 @@ public class JsonObjectTest extends TestCase {
   }
 
   /**
-   * From bug report http://code.google.com/p/google-gson/issues/detail?id=182
+   * From bug report https://github.com/google/gson/issues/182
    */
   public void testPropertyWithQuotes() {
     JsonObject jsonObj = new JsonObject();

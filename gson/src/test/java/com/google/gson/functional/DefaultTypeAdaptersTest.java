@@ -505,7 +505,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
     assertEquals("\"2011-09-11\"", json);
   }
 
-  // http://code.google.com/p/google-gson/issues/detail?id=230
+  // https://github.com/google/gson/issues/230
   public void testDateSerializationInCollection() throws Exception {
     Type listOfDates = new TypeToken<List<Date>>() {}.getType();
     TimeZone defaultTimeZone = TimeZone.getDefault();
@@ -524,7 +524,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
     }
   }
 
-  // http://code.google.com/p/google-gson/issues/detail?id=230
+  // https://github.com/google/gson/issues/230
   public void testTimestampSerialization() throws Exception {
     TimeZone defaultTimeZone = TimeZone.getDefault();
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
@@ -542,7 +542,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
     }
   }
 
-  // http://code.google.com/p/google-gson/issues/detail?id=230
+  // https://github.com/google/gson/issues/230
   public void testSqlDateSerialization() throws Exception {
     TimeZone defaultTimeZone = TimeZone.getDefault();
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));

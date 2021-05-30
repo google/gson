@@ -229,7 +229,7 @@ public class ObjectTest extends TestCase {
   }
 
   /**
-   * Created in response to Issue 14: http://code.google.com/p/google-gson/issues/detail?id=14
+   * Created in response to Issue 14: https://github.com/google/gson/issues/14
    */
   public void testNullArraysDeserialization() throws Exception {
     String json = "{\"array\": null}";
@@ -238,7 +238,7 @@ public class ObjectTest extends TestCase {
   }
 
   /**
-   * Created in response to Issue 14: http://code.google.com/p/google-gson/issues/detail?id=14
+   * Created in response to Issue 14: https://github.com/google/gson/issues/14
    */
   public void testNullObjectFieldsDeserialization() throws Exception {
     String json = "{\"bag\": null}";
@@ -264,7 +264,7 @@ public class ObjectTest extends TestCase {
   }
 
   /**
-   * Created in response to Issue 14: http://code.google.com/p/google-gson/issues/detail?id=14
+   * Created in response to Issue 14: https://github.com/google/gson/issues/14
    */
   public void testNullPrimitiveFieldsDeserialization() throws Exception {
     String json = "{\"longValue\":null}";
@@ -399,7 +399,7 @@ public class ObjectTest extends TestCase {
   }
 
   /**
-   * In response to Issue 41 http://code.google.com/p/google-gson/issues/detail?id=41
+   * In response to Issue 41 https://github.com/google/gson/issues/41
    */
   public void testObjectFieldNamesWithoutQuotesDeserialization() {
     String json = "{longValue:1,'booleanValue':true,\"stringValue\":'bar'}";
@@ -480,7 +480,7 @@ public class ObjectTest extends TestCase {
     gson.fromJson(gson.toJson(product), Product.class);
   }
 
-  // http://code.google.com/p/google-gson/issues/detail?id=270
+  // https://github.com/google/gson/issues/270
   public void testDateAsMapObjectField() {
     HasObjectMap a = new HasObjectMap();
     a.map.put("date", new Date(0));
