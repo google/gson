@@ -158,7 +158,7 @@ public final class $Gson$Types {
     }
   }
 
-  static boolean equal(Object a, Object b) {
+  static boolean isEqual(Object a, Object b) {
     return a == b || (a != null && a.equals(b));
   }
 
@@ -182,7 +182,7 @@ public final class $Gson$Types {
       // TODO: save a .clone() call
       ParameterizedType pa = (ParameterizedType) a;
       ParameterizedType pb = (ParameterizedType) b;
-      return equal(pa.getOwnerType(), pb.getOwnerType())
+      return isEqual(pa.getOwnerType(), pb.getOwnerType())
           && pa.getRawType().equals(pb.getRawType())
           && Arrays.equals(pa.getActualTypeArguments(), pb.getActualTypeArguments());
 
