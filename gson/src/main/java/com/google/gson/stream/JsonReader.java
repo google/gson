@@ -529,8 +529,8 @@ public class JsonReader implements Closeable {
         throw syntaxError("Expected ':'");
       }
     } else if (peekStack == JsonScope.EMPTY_DOCUMENT) {
-      if (lenient) {
-        consumeNonExecutePrefix();
+      if (lenient && consumeNonExecutePrefix()) {
+        return peeked = PEEKED_EOF;
       }
       stack[stackSize - 1] = JsonScope.NONEMPTY_DOCUMENT;
     } else if (peekStack == JsonScope.NONEMPTY_DOCUMENT) {
@@ -1563,25 +1563,30 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Consumes the non-execute prefix if it exists.
+   * Consumes the non-execute prefix if it exists and return whether eof has
+   * been reached.
    */
-  private void consumeNonExecutePrefix() throws IOException {
+  private boolean consumeNonExecutePrefix() throws IOException {
     // fast forward through the leading whitespace
-    nextNonWhitespace(true);
-    pos--;
+    int c = nextNonWhitespace(false);
+    if (c == -1) {
+      return true;
+    } else {
+      pos--;
+    }
 
     int p = pos;
     if (p + 5 > limit && !fillBuffer(5)) {
-      return;
+      return false;
     }
 
     char[] buf = buffer;
-    if(buf[p] != ')' || buf[p + 1] != ']' || buf[p + 2] != '}' || buf[p + 3] != '\'' || buf[p + 4] != '\n') {
-      return; // not a security token!
+    if (buf[p] == ')' && buf[p + 1] == ']' && buf[p + 2] == '}' &&
+        buf[p + 3] == '\'' && buf[p + 4] == '\n') {
+      // we consumed a security token!
+      pos += 5;
     }
-
-    // we consumed a security token!
-    pos += 5;
+    return false;
   }
 
   static {
