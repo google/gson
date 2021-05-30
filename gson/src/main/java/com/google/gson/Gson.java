@@ -121,8 +121,8 @@ public final class Gson {
    * lookup would stack overflow. We cheat by returning a proxy type adapter.
    * The proxy is wired up once the initial adapter has been created.
    */
-  private final ThreadLocal<Map<TypeToken<?>, FutureTypeAdapter<?>>> calls
-      = new ThreadLocal<Map<TypeToken<?>, FutureTypeAdapter<?>>>();
+  private final ThreadLocal<Map<TypeToken<?>, TypeAdapter<?>>> calls
+      = new ThreadLocal<Map<TypeToken<?>, TypeAdapter<?>>>();
 
   private final Map<TypeToken<?>, TypeAdapter<?>> typeTokenCache = new ConcurrentHashMap<TypeToken<?>, TypeAdapter<?>>();
 
@@ -436,16 +436,15 @@ public final class Gson {
       return (TypeAdapter<T>) cached;
     }
 
-    Map<TypeToken<?>, FutureTypeAdapter<?>> threadCalls = calls.get();
-    boolean requiresThreadLocalCleanup = false;
-    if (threadCalls == null) {
-      threadCalls = new HashMap<TypeToken<?>, FutureTypeAdapter<?>>();
+    Map<TypeToken<?>, TypeAdapter<?>> threadCalls = calls.get();
+    boolean rootCallForThread = threadCalls == null;
+    if (rootCallForThread) {
+      threadCalls = new HashMap<TypeToken<?>, TypeAdapter<?>>();
       calls.set(threadCalls);
-      requiresThreadLocalCleanup = true;
     }
 
     // the key and value type parameters always agree
-    FutureTypeAdapter<T> ongoingCall = (FutureTypeAdapter<T>) threadCalls.get(type);
+    TypeAdapter<T> ongoingCall = (TypeAdapter<T>) threadCalls.get(type);
     if (ongoingCall != null) {
       return ongoingCall;
     }
@@ -458,15 +457,25 @@ public final class Gson {
         TypeAdapter<T> candidate = factory.create(this, type);
         if (candidate != null) {
           call.setDelegate(candidate);
-          typeTokenCache.put(type, candidate);
+          // update the current thread's type mapping to use the actual TypeAdapter rather than a FutureTypeAdapter
+          threadCalls.put(type, candidate);
+          // Only update typeTokenCache if this is the root call for the thread. In a recursive hierarchy
+          // such as A -> B -> A, the TypeAdapter for B is not ready to be used until the FutureTypeAdapter for A
+          // has its delegate set. A getAdapter call from another thread may retrieve this incomplete TypeAdapter for B
+          // and fail to deserialize
+          if (rootCallForThread) {
+            // Add all TypeAdapters generated from this call stack to the typeTokenCache since they are all fully
+            // defined at this point
+            for (Map.Entry<TypeToken<?>, TypeAdapter<?>> entry: threadCalls.entrySet()) {
+              typeTokenCache.put(entry.getKey(), entry.getValue());
+            }
+          }
           return candidate;
         }
       }
       throw new IllegalArgumentException("GSON (" + GsonBuildConfig.VERSION + ") cannot handle " + type);
     } finally {
-      threadCalls.remove(type);
-
-      if (requiresThreadLocalCleanup) {
+      if (rootCallForThread) {
         calls.remove();
       }
     }
