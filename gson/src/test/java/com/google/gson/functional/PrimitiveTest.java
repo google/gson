@@ -819,8 +819,47 @@ public class PrimitiveTest extends TestCase {
   }
 
   public void testStringsAsBooleans() {
-    String json = "['true', 'false', 'TRUE', 'yes', '1']";
-    assertEquals(Arrays.asList(true, false, true, false, false),
+    String json = "['true', 'TrUe', 'false', 'FaLsE']";
+    assertEquals(Arrays.asList(true, true, false, false),
         gson.<List<Boolean>>fromJson(json, new TypeToken<List<Boolean>>() {}.getType()));
+  }
+
+  public void testMalformedStringsAsBooleans() {
+    try {
+      gson.fromJson("'yes'", Boolean.class);
+      fail();
+    } catch (JsonSyntaxException expected) {
+      assertEquals("Not a valid boolean: yes", expected.getMessage());
+    }
+    try {
+      gson.fromJson("'no'", Boolean.class);
+      fail();
+    } catch (JsonSyntaxException expected) {
+      assertEquals("Not a valid boolean: no", expected.getMessage());
+    }
+    try {
+      gson.fromJson("'trues'", Boolean.class);
+      fail();
+    } catch (JsonSyntaxException expected) {
+      assertEquals("Not a valid boolean: trues", expected.getMessage());
+    }
+    try {
+      gson.fromJson("'falsey'", Boolean.class);
+      fail();
+    } catch (JsonSyntaxException expected) {
+      assertEquals("Not a valid boolean: falsey", expected.getMessage());
+    }
+    try {
+      gson.fromJson("'1'", Boolean.class);
+      fail();
+    } catch (JsonSyntaxException expected) {
+      assertEquals("Not a valid boolean: 1", expected.getMessage());
+    }
+    try {
+      gson.fromJson("'0'", Boolean.class);
+      fail();
+    } catch (JsonSyntaxException expected) {
+      assertEquals("Not a valid boolean: 0", expected.getMessage());
+    }
   }
 }
