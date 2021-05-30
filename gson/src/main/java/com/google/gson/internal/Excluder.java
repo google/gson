@@ -221,16 +221,16 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
       return false;
   }
 
-  private boolean isAnonymousOrLocal(Class<?> clazz) {
+  private static boolean isAnonymousOrLocal(Class<?> clazz) {
     return !Enum.class.isAssignableFrom(clazz)
         && (clazz.isAnonymousClass() || clazz.isLocalClass());
   }
 
-  private boolean isInnerClass(Class<?> clazz) {
+  private static boolean isInnerClass(Class<?> clazz) {
     return clazz.isMemberClass() && !isStatic(clazz);
   }
 
-  private boolean isStatic(Class<?> clazz) {
+  private static boolean isStatic(Class<?> clazz) {
     return (clazz.getModifiers() & Modifier.STATIC) != 0;
   }
 

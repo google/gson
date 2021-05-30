@@ -16,6 +16,9 @@
 
 package com.google.gson.internal.bind;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonSerializer;
@@ -32,6 +35,32 @@ import com.google.gson.reflect.TypeToken;
  * @since 2.3
  */
 public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapterFactory {
+  private static class DummyTypeAdapterFactory implements TypeAdapterFactory {
+    @Override public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+      throw new AssertionError("Factory should not be used");
+    }
+  }
+  /**
+   * Factory used for {@link TreeTypeAdapter}s created for a {@code @JsonAdapter}
+   * on a class.
+   */
+  private static final TypeAdapterFactory DUMMY_FACTORY_CLASS = new DummyTypeAdapterFactory();
+  /**
+   * Factory used for {@link TreeTypeAdapter}s created for a {@code @JsonAdapter}
+   * on a field.
+   */
+  private static final TypeAdapterFactory DUMMY_FACTORY_FIELD = new DummyTypeAdapterFactory();
+
+  /**
+   * Cache, mapping from a {@link TypeAdapterFactory} class to a corresponding
+   * instance which was created by {@code this}. Only contains type adapter
+   * factories specified for annotated fields. Allows reusing instances if an
+   * annotation on another field specifies the same adapter factory.
+   *
+   * <p>Does not impose type restrictions on key type to not require casting.
+   */
+  private final ThreadLocal<Map<Class<?>, Object>> fieldAdapterFactoryCache = new ThreadLocal<Map<Class<?>, Object>>();
+
   private final ConstructorConstructor constructorConstructor;
 
   public JsonAdapterAnnotationTypeAdapterFactory(ConstructorConstructor constructorConstructor) {
@@ -46,13 +75,56 @@ public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapte
     if (annotation == null) {
       return null;
     }
-    return (TypeAdapter<T>) getTypeAdapter(constructorConstructor, gson, targetType, annotation);
+    return (TypeAdapter<T>) getTypeAdapter(constructorConstructor, gson, targetType, annotation, false);
+  }
+
+  /**
+   * Returns whether the non-{@code null} adapter factory was created by
+   * this instance for an annotated field.
+   */
+  public boolean isFieldAdapterFactory(TypeAdapterFactory adapterFactory) {
+    if (adapterFactory == DUMMY_FACTORY_FIELD) {
+      return true;
+    } else if (adapterFactory == DUMMY_FACTORY_CLASS) {
+      return false;
+    }
+
+    Map<Class<?>, Object> cacheMap = fieldAdapterFactoryCache.get();
+    if (cacheMap == null) {
+      // ThreadLocal was initialized by get(), have to remove entry again
+      fieldAdapterFactoryCache.remove();
+      return false;
+    } else {
+      return cacheMap.get(adapterFactory.getClass()) == adapterFactory;
+    }
+  }
+
+  public void clearCache() {
+    fieldAdapterFactoryCache.remove();
   }
 
   @SuppressWarnings({ "unchecked", "rawtypes" }) // Casts guarded by conditionals.
   TypeAdapter<?> getTypeAdapter(ConstructorConstructor constructorConstructor, Gson gson,
-      TypeToken<?> type, JsonAdapter annotation) {
-    Object instance = constructorConstructor.get(TypeToken.get(annotation.value())).construct();
+      TypeToken<?> type, JsonAdapter annotation, boolean forField) {
+    Class<?> adapterClass = annotation.value();
+    TypeToken<?> adapterTypeToken = TypeToken.get(adapterClass);
+    Object instance = null;
+    if (forField && TypeAdapterFactory.class.isAssignableFrom(adapterClass)) {
+      Map<Class<?>, Object> cacheMap = fieldAdapterFactoryCache.get();
+      if (cacheMap == null) {
+        cacheMap = new HashMap<Class<?>, Object>();
+        fieldAdapterFactoryCache.set(cacheMap);
+      } else {
+        instance = cacheMap.get(adapterClass);
+      }
+
+      if (instance == null) {
+        instance = constructorConstructor.get(adapterTypeToken).construct();
+        cacheMap.put(adapterClass, instance);
+      }
+    } else {
+      instance = constructorConstructor.get(adapterTypeToken).construct();
+    }
 
     TypeAdapter<?> typeAdapter;
     if (instance instanceof TypeAdapter) {
@@ -66,7 +138,9 @@ public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapte
       JsonDeserializer<?> deserializer = instance instanceof JsonDeserializer
           ? (JsonDeserializer) instance
           : null;
-      typeAdapter = new TreeTypeAdapter(serializer, deserializer, gson, type, null);
+
+      TypeAdapterFactory dummyFactory = forField ? DUMMY_FACTORY_FIELD : DUMMY_FACTORY_CLASS;
+      typeAdapter = new TreeTypeAdapter(serializer, deserializer, gson, type, dummyFactory);
     } else {
       throw new IllegalArgumentException("Invalid attempt to bind an instance of "
           + instance.getClass().getName() + " as a @JsonAdapter for " + type.toString()

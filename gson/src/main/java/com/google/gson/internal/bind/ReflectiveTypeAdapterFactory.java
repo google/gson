@@ -61,11 +61,11 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     this.jsonAdapterFactory = jsonAdapterFactory;
   }
 
-  public boolean excludeField(Field f, boolean serialize) {
-    return excludeField(f, serialize, excluder);
+  public boolean includeField(Field f, boolean serialize) {
+    return includeField(f, serialize, excluder);
   }
 
-  static boolean excludeField(Field f, boolean serialize, Excluder excluder) {
+  static boolean includeField(Field f, boolean serialize, Excluder excluder) {
     return !excluder.excludeClass(f.getType(), serialize) && !excluder.excludeField(f, serialize);
   }
 
@@ -111,7 +111,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     TypeAdapter<?> mapped = null;
     if (annotation != null) {
       mapped = jsonAdapterFactory.getTypeAdapter(
-          constructorConstructor, context, fieldType, annotation);
+          constructorConstructor, context, fieldType, annotation, true);
     }
     final boolean jsonAdapterPresent = mapped != null;
     if (mapped == null) mapped = context.getAdapter(fieldType);
@@ -151,8 +151,8 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     while (raw != Object.class) {
       Field[] fields = raw.getDeclaredFields();
       for (Field field : fields) {
-        boolean serialize = excludeField(field, true);
-        boolean deserialize = excludeField(field, false);
+        boolean serialize = includeField(field, true);
+        boolean deserialize = includeField(field, false);
         if (!serialize && !deserialize) {
           continue;
         }

@@ -468,6 +468,7 @@ public final class Gson {
 
       if (requiresThreadLocalCleanup) {
         calls.remove();
+        jsonAdapterFactory.clearCache();
       }
     }
   }
@@ -523,26 +524,36 @@ public final class Gson {
    * @since 2.2
    */
   public <T> TypeAdapter<T> getDelegateAdapter(TypeAdapterFactory skipPast, TypeToken<T> type) {
-    // Hack. If the skipPast factory isn't registered, assume the factory is being requested via
-    // our @JsonAdapter annotation.
-    if (!factories.contains(skipPast)) {
-      skipPast = jsonAdapterFactory;
-    }
+    if (skipPast != null) {
+      boolean skipPastFound = false;
 
-    boolean skipPastFound = false;
-    for (TypeAdapterFactory factory : factories) {
-      if (!skipPastFound) {
-        if (factory == skipPast) {
+      // Hack. If the skipPast factory isn't registered, assume the factory is being requested via
+      // our @JsonAdapter annotation.
+      if (!factories.contains(skipPast)) {
+        if (jsonAdapterFactory.isFieldAdapterFactory(skipPast)) {
+          // @JsonAdapter on field has highest precedence, so if delegate
+          // for it should be searched, consider all factories
           skipPastFound = true;
+        } else {
+          skipPast = jsonAdapterFactory;
         }
-        continue;
       }
 
-      TypeAdapter<T> candidate = factory.create(this, type);
-      if (candidate != null) {
-        return candidate;
+      for (TypeAdapterFactory factory : factories) {
+        if (!skipPastFound) {
+          if (factory == skipPast) {
+            skipPastFound = true;
+          }
+          continue;
+        }
+
+        TypeAdapter<T> candidate = factory.create(this, type);
+        if (candidate != null) {
+          return candidate;
+        }
       }
     }
+
     throw new IllegalArgumentException("GSON cannot serialize " + type);
   }
 

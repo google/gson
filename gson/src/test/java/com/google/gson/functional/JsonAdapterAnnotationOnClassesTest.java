@@ -260,4 +260,79 @@ public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
   private static final class D {
     @SuppressWarnings("unused") final String value = "a";
   }
+
+  /**
+   * Verifies that {@link TypeAdapterFactory} specified by JsonAdapter can
+   * call Gson.getDelegateAdapter without any issues, despite the factory
+   * not being directly registered on Gson.
+   */
+  public void testDelegatingAdapterFactory() {
+    E deserialized = new Gson().fromJson("{\"f\":\"test\"}", E.class);
+    assertEquals("test", deserialized.f);
+  }
+  @JsonAdapter(E.DelegatingAdapterFactory.class)
+  private static class E {
+    String f;
+
+    static class DelegatingAdapterFactory implements TypeAdapterFactory {
+      @Override
+      public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+        return gson.getDelegateAdapter(this, type);
+      }
+    }
+  }
+
+  /**
+   * Tests usage of {@link JsonSerializer} as {@link JsonAdapter} value
+   */
+  public void testJsonSerializer() {
+    Gson gson = new Gson();
+    // Verify that delegate deserializer (reflection deserializer) is used
+    JsonSerializerTest deserialized = gson.fromJson("{\"f\":\"test\"}", JsonSerializerTest.class);
+    assertEquals("test", deserialized.f);
+
+    String json = gson.toJson(new JsonSerializerTest());
+    // Uses custom serializer which always returns `true`
+    assertEquals("true", json);
+  }
+  @JsonAdapter(JsonSerializerTest.Serializer.class)
+  private static class JsonSerializerTest {
+    String f = "";
+
+    static class Serializer implements JsonSerializer<JsonSerializerTest> {
+      @Override
+      public JsonElement serialize(JsonSerializerTest src, Type typeOfSrc, JsonSerializationContext context) {
+        return new JsonPrimitive(true);
+      }
+    }
+  }
+
+  /**
+   * Tests usage of {@link JsonDeserializer} as {@link JsonAdapter} value
+   */
+  public void testJsonDeserializer() {
+    Gson gson = new Gson();
+    JsonDeserializerTest deserialized = gson.fromJson("{\"f\":\"test\"}", JsonDeserializerTest.class);
+    // Uses custom deserializer which always uses "123" as field value
+    assertEquals("123", deserialized.f);
+
+    // Verify that delegate serializer (reflection serializer) is used
+    String json = gson.toJson(new JsonDeserializerTest("abc"));
+    assertEquals("{\"f\":\"abc\"}", json);
+  }
+  @JsonAdapter(JsonDeserializerTest.Deserializer.class)
+  private static class JsonDeserializerTest {
+    String f;
+
+    JsonDeserializerTest(String f) {
+      this.f = f;
+    }
+
+    static class Deserializer implements JsonDeserializer<JsonDeserializerTest> {
+      @Override
+      public JsonDeserializerTest deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
+        return new JsonDeserializerTest("123");
+      }
+    }
+  }
 }
