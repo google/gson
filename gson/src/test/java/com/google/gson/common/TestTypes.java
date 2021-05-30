@@ -268,6 +268,24 @@ public class TestTypes {
         sb.append("\"primitive2\":").append(primitive2.getExpectedJson());
       }
     }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+
+      Nested nested = (Nested) o;
+
+      if (primitive1 != null ? !primitive1.equals(nested.primitive1) : nested.primitive1 != null) return false;
+      return primitive2 != null ? primitive2.equals(nested.primitive2) : nested.primitive2 == null;
+    }
+
+    @Override
+    public int hashCode() {
+      int result = primitive1 != null ? primitive1.hashCode() : 0;
+      result = 31 * result + (primitive2 != null ? primitive2.hashCode() : 0);
+      return result;
+    }
   }
 
   public static class ClassWithTransientFields<T> {
