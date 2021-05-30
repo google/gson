@@ -916,6 +916,15 @@ public class JsonReader implements Closeable {
     return result;
   }
 
+  public double parseDouble(String s) throws  IOException{
+    double result = Double.parseDouble(s);
+    if (!lenient && (Double.isNaN(result) || Double.isInfinite(result))) {
+      throw new MalformedJsonException(
+              "JSON forbids NaN and infinities: " + result + locationString());
+    }
+    return result;
+  }
+
   /**
    * Returns the {@link com.google.gson.stream.JsonToken#NUMBER long} value of the next token,
    * consuming it. If the next token is a string, this method will attempt to
@@ -971,6 +980,19 @@ public class JsonReader implements Closeable {
     return result;
   }
 
+  public long parseLong(String s) throws  IOException{
+    try {
+      return Long.parseLong(s);
+    } catch (NumberFormatException ignored) {
+      // Fall back to parse as a double below.
+    }
+    double asDouble = Double.parseDouble(s); // don't catch this NumberFormatException.
+    long result = (long) asDouble;
+    if (result != asDouble) { // Make sure no precision was lost casting to 'long'.
+      throw new NumberFormatException("Expected a long but was " + s + locationString());
+    }
+    return result;
+  }
   /**
    * Returns the string up to but not including {@code quote}, unescaping any
    * character escape sequences encountered along the way. The opening quote
@@ -1206,6 +1228,20 @@ public class JsonReader implements Closeable {
     peeked = PEEKED_NONE;
     pathIndices[stackSize - 1]++;
     return result;
+  }
+
+  public int parseInt(String s) throws IOException{
+    try {
+      return Integer.parseInt(s);
+    } catch (NumberFormatException ignored) {
+      // Fall back to parse as a double below.
+    }
+    double asDouble = Double.parseDouble(s); // don't catch this NumberFormatException.
+    int result = (int) asDouble;
+    if (result != asDouble) { // Make sure no precision was lost casting to 'int'.
+      throw new NumberFormatException("Expected an int but was " + s + locationString());
+    }
+    return  result;
   }
 
   /**
