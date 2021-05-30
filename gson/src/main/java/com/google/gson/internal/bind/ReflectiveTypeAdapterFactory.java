@@ -216,7 +216,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       for (Map.Entry<String, BoundField> field : boundFields.entrySet()) {
         if (field.getValue().required) {
           if (requiredFields == null) {
-            requiredFields = new HashSet<>();
+            requiredFields = new HashSet<String>();
           }
           requiredFields.add(field.getKey());
         }
@@ -231,7 +231,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       }
 
       T instance = constructor.construct();
-      Set<String> required = (requiredFields == null) ? null : new HashSet<>(requiredFields);
+      Set<String> required = (requiredFields == null) ? null : new HashSet<String>(requiredFields);
 
       try {
         in.beginObject();
