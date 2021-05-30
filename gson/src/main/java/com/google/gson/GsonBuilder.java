@@ -17,7 +17,6 @@
 package com.google.gson;
 
 import java.lang.reflect.Type;
-import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,8 +27,10 @@ import java.util.Map;
 
 import com.google.gson.internal.$Gson$Preconditions;
 import com.google.gson.internal.Excluder;
+import com.google.gson.internal.bind.DefaultDateTypeAdapter;
 import com.google.gson.internal.bind.TreeTypeAdapter;
 import com.google.gson.internal.bind.TypeAdapters;
+import com.google.gson.internal.sql.SqlTypesSupport;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 
@@ -417,8 +418,8 @@ public final class GsonBuilder {
    * call this method or {@link #setDateFormat(int)} multiple times, but only the last invocation
    * will be used to decide the serialization format.
    *
-   * <p>The date format will be used to serialize and deserialize {@link java.util.Date}, {@link
-   * java.sql.Timestamp} and {@link java.sql.Date}.
+   * <p>The date format will be used to serialize and deserialize {@link java.util.Date} and in case
+   * the {@code java.sql} module is present, also {@link java.sql.Timestamp} and {@link java.sql.Date}.
    *
    * <p>Note that this pattern must abide by the convention provided by {@code SimpleDateFormat}
    * class. See the documentation in {@link java.text.SimpleDateFormat} for more information on
@@ -602,26 +603,35 @@ public final class GsonBuilder {
         this.factories, this.hierarchyFactories, factories);
   }
 
-  @SuppressWarnings("unchecked")
   private void addTypeAdaptersForDate(String datePattern, int dateStyle, int timeStyle,
       List<TypeAdapterFactory> factories) {
-    DefaultDateTypeAdapter dateTypeAdapter;
-    TypeAdapter<Timestamp> timestampTypeAdapter;
-    TypeAdapter<java.sql.Date> javaSqlDateTypeAdapter;
-    if (datePattern != null && !"".equals(datePattern.trim())) {
-      dateTypeAdapter = new DefaultDateTypeAdapter(Date.class, datePattern);
-      timestampTypeAdapter = (TypeAdapter) new DefaultDateTypeAdapter(Timestamp.class, datePattern);
-      javaSqlDateTypeAdapter = (TypeAdapter) new DefaultDateTypeAdapter(java.sql.Date.class, datePattern);
+    TypeAdapterFactory dateAdapterFactory;
+    boolean sqlTypesSupported = SqlTypesSupport.SUPPORTS_SQL_TYPES;
+    TypeAdapterFactory sqlTimestampAdapterFactory = null;
+    TypeAdapterFactory sqlDateAdapterFactory = null;
+
+    if (datePattern != null && !datePattern.trim().isEmpty()) {
+      dateAdapterFactory = DefaultDateTypeAdapter.DateType.DATE.createAdapterFactory(datePattern);
+
+      if (sqlTypesSupported) {
+        sqlTimestampAdapterFactory = SqlTypesSupport.TIMESTAMP_DATE_TYPE.createAdapterFactory(datePattern);
+        sqlDateAdapterFactory = SqlTypesSupport.DATE_DATE_TYPE.createAdapterFactory(datePattern);
+      }
     } else if (dateStyle != DateFormat.DEFAULT && timeStyle != DateFormat.DEFAULT) {
-      dateTypeAdapter = new DefaultDateTypeAdapter(Date.class, dateStyle, timeStyle);
-      timestampTypeAdapter = (TypeAdapter) new DefaultDateTypeAdapter(Timestamp.class, dateStyle, timeStyle);
-      javaSqlDateTypeAdapter = (TypeAdapter) new DefaultDateTypeAdapter(java.sql.Date.class, dateStyle, timeStyle);
+      dateAdapterFactory = DefaultDateTypeAdapter.DateType.DATE.createAdapterFactory(dateStyle, timeStyle);
+
+      if (sqlTypesSupported) {
+        sqlTimestampAdapterFactory = SqlTypesSupport.TIMESTAMP_DATE_TYPE.createAdapterFactory(dateStyle, timeStyle);
+        sqlDateAdapterFactory = SqlTypesSupport.DATE_DATE_TYPE.createAdapterFactory(dateStyle, timeStyle);
+      }
     } else {
       return;
     }
 
-    factories.add(TypeAdapters.newFactory(Date.class, dateTypeAdapter));
-    factories.add(TypeAdapters.newFactory(Timestamp.class, timestampTypeAdapter));
-    factories.add(TypeAdapters.newFactory(java.sql.Date.class, javaSqlDateTypeAdapter));
+    factories.add(dateAdapterFactory);
+    if (sqlTypesSupported) {
+      factories.add(sqlTimestampAdapterFactory);
+      factories.add(sqlDateAdapterFactory);
+    }
   }
 }
