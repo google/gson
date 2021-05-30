@@ -69,7 +69,11 @@ public final class JsonTreeWriter extends JsonWriter {
   }
 
   private JsonElement peek() {
-    return stack.get(stack.size() - 1);
+    JsonElement element = stack.get(stack.size() - 1);
+    if (element == SENTINEL_CLOSED) {
+      throw new IllegalStateException("Writer is closed");
+    }
+    return element;
   }
 
   private void put(JsonElement value) {
@@ -86,7 +90,8 @@ public final class JsonTreeWriter extends JsonWriter {
       if (element instanceof JsonArray) {
         ((JsonArray) element).add(value);
       } else {
-        throw new IllegalStateException();
+        assert element instanceof JsonObject;
+        throw new IllegalStateException("Expecting a name but got a value");
       }
     }
   }
@@ -99,15 +104,15 @@ public final class JsonTreeWriter extends JsonWriter {
   }
 
   @Override public JsonWriter endArray() throws IOException {
-    if (stack.isEmpty() || pendingName != null) {
-      throw new IllegalStateException();
+    if (stack.isEmpty()) {
+      throw new IllegalStateException("Currently not writing an array");
     }
     JsonElement element = peek();
     if (element instanceof JsonArray) {
       stack.remove(stack.size() - 1);
       return this;
     }
-    throw new IllegalStateException();
+    throw new IllegalStateException("Currently not writing an array");
   }
 
   @Override public JsonWriter beginObject() throws IOException {
@@ -118,30 +123,34 @@ public final class JsonTreeWriter extends JsonWriter {
   }
 
   @Override public JsonWriter endObject() throws IOException {
-    if (stack.isEmpty() || pendingName != null) {
-      throw new IllegalStateException();
+    if (stack.isEmpty()) {
+      throw new IllegalStateException("Currently not writing an object");
+    } else if (pendingName != null) {
+      throw new IllegalStateException("Expecting property value before object can be closed");
     }
     JsonElement element = peek();
     if (element instanceof JsonObject) {
       stack.remove(stack.size() - 1);
       return this;
     }
-    throw new IllegalStateException();
+    throw new IllegalStateException("Currently not writing an object");
   }
 
   @Override public JsonWriter name(String name) throws IOException {
     if (name == null) {
       throw new NullPointerException("name == null");
     }
-    if (stack.isEmpty() || pendingName != null) {
-      throw new IllegalStateException();
+    if (stack.isEmpty()) {
+      throw new IllegalStateException("Currently not writing an object");
+    } else if (pendingName != null) {
+      throw new IllegalStateException("Already wrote a name, expecting a value");
     }
     JsonElement element = peek();
     if (element instanceof JsonObject) {
       pendingName = name;
       return this;
     }
-    throw new IllegalStateException();
+    throw new IllegalStateException("Currently not writing an object");
   }
 
   @Override public JsonWriter value(String value) throws IOException {
