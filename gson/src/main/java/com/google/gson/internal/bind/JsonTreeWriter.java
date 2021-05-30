@@ -42,8 +42,6 @@ public final class JsonTreeWriter extends JsonWriter {
       throw new AssertionError();
     }
   };
-  /** Added to the top of the stack when this writer is closed to cause following ops to fail. */
-  private static final JsonPrimitive SENTINEL_CLOSED = new JsonPrimitive("closed");
 
   /** The JsonElements and JsonArrays under modification, outermost to innermost. */
   private final List<JsonElement> stack = new ArrayList<JsonElement>();
@@ -51,8 +49,14 @@ public final class JsonTreeWriter extends JsonWriter {
   /** The name for the next JSON object value. If non-null, the top of the stack is a JsonObject. */
   private String pendingName;
 
-  /** the JSON element constructed by this writer. */
-  private JsonElement product = JsonNull.INSTANCE; // TODO: is this really what we want?;
+  /**
+   * The JSON element constructed by this writer; {@code null} if no value has been
+   * written yet.
+   */
+  private JsonElement product = null;
+
+  /** Whether this writer is {@link #close() closed}. */
+  private boolean isClosed = false;
 
   public JsonTreeWriter() {
     super(UNWRITABLE_WRITER);
@@ -60,19 +64,46 @@ public final class JsonTreeWriter extends JsonWriter {
 
   /**
    * Returns the top level object produced by this writer.
+   *
+   * @throws IllegalStateException if no value has been written yet.
+   * @throws IllegalStateException if the currently written value is incomplete.
    */
   public JsonElement get() {
-    if (!stack.isEmpty()) {
-      throw new IllegalStateException("Expected one JSON element but was " + stack);
+    if (product == null) {
+      throw new IllegalStateException("No value has been written yet");
+    } else if (!stack.isEmpty()) {
+      StringBuilder stringBuilder = new StringBuilder(8);
+      for (JsonElement stackElement : stack) {
+        if (stackElement instanceof JsonArray) {
+          stringBuilder.append('[');
+        } else {
+          assert stackElement instanceof JsonObject;
+          stringBuilder.append('{');
+        }
+      }
+      if (pendingName != null) {
+        // Append colon to indicate that member value is missing as well
+        stringBuilder.append(':');
+      }
+      throw new IllegalStateException("JSON value is incomplete; open values: " + stringBuilder);
     }
     return product;
   }
 
+  private void ensureOpen() {
+    if (isClosed) {
+      throw new IllegalStateException("Writer is closed");
+    }
+  }
+
   private JsonElement peek() {
-    return stack.get(stack.size() - 1);
+    ensureOpen();
+    JsonElement element = stack.get(stack.size() - 1);
+    return element;
   }
 
   private void put(JsonElement value) {
+    ensureOpen();
     if (pendingName != null) {
       if (!value.isJsonNull() || getSerializeNulls()) {
         JsonObject object = (JsonObject) peek();
@@ -80,13 +111,17 @@ public final class JsonTreeWriter extends JsonWriter {
       }
       pendingName = null;
     } else if (stack.isEmpty()) {
+      if (product != null) {
+        throw new IllegalStateException("JSON must have only one top-level value.");
+      }
       product = value;
     } else {
       JsonElement element = peek();
       if (element instanceof JsonArray) {
         ((JsonArray) element).add(value);
       } else {
-        throw new IllegalStateException();
+        assert element instanceof JsonObject;
+        throw new IllegalStateException("Expecting a name but got a value");
       }
     }
   }
@@ -99,15 +134,16 @@ public final class JsonTreeWriter extends JsonWriter {
   }
 
   @Override public JsonWriter endArray() throws IOException {
-    if (stack.isEmpty() || pendingName != null) {
-      throw new IllegalStateException();
+    ensureOpen();
+    if (stack.isEmpty()) {
+      throw new IllegalStateException("Currently not writing an array");
     }
     JsonElement element = peek();
     if (element instanceof JsonArray) {
       stack.remove(stack.size() - 1);
       return this;
     }
-    throw new IllegalStateException();
+    throw new IllegalStateException("Currently not writing an array");
   }
 
   @Override public JsonWriter beginObject() throws IOException {
@@ -118,30 +154,36 @@ public final class JsonTreeWriter extends JsonWriter {
   }
 
   @Override public JsonWriter endObject() throws IOException {
-    if (stack.isEmpty() || pendingName != null) {
-      throw new IllegalStateException();
+    ensureOpen();
+    if (stack.isEmpty()) {
+      throw new IllegalStateException("Currently not writing an object");
+    } else if (pendingName != null) {
+      throw new IllegalStateException("Expecting property value before object can be closed");
     }
     JsonElement element = peek();
     if (element instanceof JsonObject) {
       stack.remove(stack.size() - 1);
       return this;
     }
-    throw new IllegalStateException();
+    throw new IllegalStateException("Currently not writing an object");
   }
 
   @Override public JsonWriter name(String name) throws IOException {
     if (name == null) {
       throw new NullPointerException("name == null");
     }
-    if (stack.isEmpty() || pendingName != null) {
-      throw new IllegalStateException();
+    ensureOpen();
+    if (stack.isEmpty()) {
+      throw new IllegalStateException("Currently not writing an object");
+    } else if (pendingName != null) {
+      throw new IllegalStateException("Already wrote a name, expecting a value");
     }
     JsonElement element = peek();
     if (element instanceof JsonObject) {
       pendingName = name;
       return this;
     }
-    throw new IllegalStateException();
+    throw new IllegalStateException("Currently not writing an object");
   }
 
   @Override public JsonWriter value(String value) throws IOException {
@@ -200,12 +242,14 @@ public final class JsonTreeWriter extends JsonWriter {
   }
 
   @Override public void flush() throws IOException {
+    // Ensure open to be consistent with JsonWriter
+    ensureOpen();
   }
 
   @Override public void close() throws IOException {
-    if (!stack.isEmpty()) {
+    isClosed = true;
+    if (product == null || !stack.isEmpty()) {
       throw new IOException("Incomplete document");
     }
-    stack.add(SENTINEL_CLOSED);
   }
 }

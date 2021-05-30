@@ -170,6 +170,7 @@ public class JsonWriter implements Closeable, Flushable {
   {
     push(EMPTY_DOCUMENT);
   }
+  private boolean isClosed = false;
 
   /**
    * A string containing a full set of spaces for a single level of
@@ -278,6 +279,12 @@ public class JsonWriter implements Closeable, Flushable {
     return serializeNulls;
   }
 
+  private void ensureOpen() {
+    if (isClosed) {
+      throw new IllegalStateException("JsonWriter is closed.");
+    }
+  }
+
   /**
    * Begins encoding a new array. Each call to this method must be paired with
    * a call to {@link #endArray}.
@@ -362,9 +369,7 @@ public class JsonWriter implements Closeable, Flushable {
    * Returns the value on the top of the stack.
    */
   private int peek() {
-    if (stackSize == 0) {
-      throw new IllegalStateException("JsonWriter is closed.");
-    }
+    ensureOpen();
     return stack[stackSize - 1];
   }
 
@@ -385,19 +390,30 @@ public class JsonWriter implements Closeable, Flushable {
     if (name == null) {
       throw new NullPointerException("name == null");
     }
+    ensureOpen();
     if (deferredName != null) {
-      throw new IllegalStateException();
+      throw new IllegalStateException("Already wrote a name, expecting a value");
     }
-    if (stackSize == 0) {
-      throw new IllegalStateException("JsonWriter is closed.");
+    int peeked = peek();
+    if (peeked == EMPTY_OBJECT || peeked == NONEMPTY_OBJECT) {
+      deferredName = name;
+      return this;
+    } else { // array or empty document
+      throw new IllegalStateException("Currently not writing an object");
     }
-    deferredName = name;
-    return this;
   }
 
   private void writeDeferredName() throws IOException {
-    if (deferredName != null) {
-      beforeName();
+    int context = peek();
+    if (context == EMPTY_OBJECT || context == NONEMPTY_OBJECT) {
+      if (deferredName == null) {
+        throw new IllegalStateException("Expecting a name but got a value");
+      }
+      if (context == NONEMPTY_OBJECT) { // first in object
+        out.write(',');
+      }
+      newline();
+      replaceTop(DANGLING_NAME);
       string(deferredName);
       deferredName = null;
     }
@@ -446,6 +462,7 @@ public class JsonWriter implements Closeable, Flushable {
       if (serializeNulls) {
         writeDeferredName();
       } else {
+        ensureOpen();
         deferredName = null;
         return this; // skip the name and the value
       }
@@ -490,10 +507,10 @@ public class JsonWriter implements Closeable, Flushable {
    * @return this writer.
    */
   public JsonWriter value(double value) throws IOException {
-    writeDeferredName();
     if (!lenient && (Double.isNaN(value) || Double.isInfinite(value))) {
       throw new IllegalArgumentException("Numeric values must be finite, but was " + value);
     }
+    writeDeferredName();
     beforeValue();
     out.append(Double.toString(value));
     return this;
@@ -523,12 +540,12 @@ public class JsonWriter implements Closeable, Flushable {
       return nullValue();
     }
 
-    writeDeferredName();
     String string = value.toString();
     if (!lenient
         && (string.equals("-Infinity") || string.equals("Infinity") || string.equals("NaN"))) {
       throw new IllegalArgumentException("Numeric values must be finite, but was " + value);
     }
+    writeDeferredName();
     beforeValue();
     out.append(string);
     return this;
@@ -539,9 +556,7 @@ public class JsonWriter implements Closeable, Flushable {
    * and flushes that writer.
    */
   public void flush() throws IOException {
-    if (stackSize == 0) {
-      throw new IllegalStateException("JsonWriter is closed.");
-    }
+    ensureOpen();
     out.flush();
   }
 
@@ -551,6 +566,7 @@ public class JsonWriter implements Closeable, Flushable {
    * @throws IOException if the JSON document is incomplete.
    */
   public void close() throws IOException {
+    isClosed = true;
     out.close();
 
     int size = stackSize;
@@ -601,21 +617,6 @@ public class JsonWriter implements Closeable, Flushable {
     for (int i = 1, size = stackSize; i < size; i++) {
       out.write(indent);
     }
-  }
-
-  /**
-   * Inserts any necessary separators and whitespace before a name. Also
-   * adjusts the stack to expect the name's value.
-   */
-  private void beforeName() throws IOException {
-    int context = peek();
-    if (context == NONEMPTY_OBJECT) { // first in object
-      out.write(',');
-    } else if (context != EMPTY_OBJECT) { // not in an object!
-      throw new IllegalStateException("Nesting problem.");
-    }
-    newline();
-    replaceTop(DANGLING_NAME);
   }
 
   /**

@@ -16,7 +16,6 @@
 
 package com.google.gson.internal.bind;
 
-import com.google.gson.JsonNull;
 import java.io.IOException;
 import junit.framework.TestCase;
 
@@ -81,6 +80,7 @@ public final class JsonTreeWriterTest extends TestCase {
       writer.beginArray();
       fail();
     } catch (IllegalStateException expected) {
+      assertEquals("Writer is closed", expected.getMessage());
     }
   }
 
@@ -92,7 +92,227 @@ public final class JsonTreeWriterTest extends TestCase {
       writer.close();
       fail();
     } catch (IOException expected) {
+      assertEquals("Incomplete document", expected.getMessage());
     }
+    // Should prevent further interaction nonetheless
+    try {
+      writer.endArray();
+    } catch (IllegalStateException expected) {
+      assertEquals("Writer is closed", expected.getMessage());
+    }
+  }
+
+  public void testClosedWriterDuplicateName() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.beginObject();
+    writer.name("test");
+    try {
+      writer.close();
+      fail();
+    } catch (IOException expected) {
+      assertEquals("Incomplete document", expected.getMessage());
+    }
+    // JsonTreeWriter being closed should have higher precedence than duplicate name
+    try {
+      writer.name("test");
+    } catch (IllegalStateException expected) {
+      assertEquals("Writer is closed", expected.getMessage());
+    }
+  }
+
+  public void testClosedWriterDontSerializeNulls() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.setSerializeNulls(false);
+    writer.beginObject();
+    writer.name("test");
+    try {
+      writer.close();
+      fail();
+    } catch (IOException expected) {
+      assertEquals("Incomplete document", expected.getMessage());
+    }
+    // JsonTreeWriter being closed should be checked, even if null is not serialized
+    try {
+      writer.nullValue();
+    } catch (IllegalStateException expected) {
+      assertEquals("Writer is closed", expected.getMessage());
+    }
+  }
+
+  public void testCloseEmptyWriter() {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    try {
+      writer.close();
+      fail();
+    } catch (IOException expected) {
+      assertEquals("Incomplete document", expected.getMessage());
+    }
+  }
+
+  public void testGetAfterClose() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.value("test");
+    writer.close();
+    assertEquals("\"test\"", writer.get().toString());
+  }
+
+  public void testClosedWriterThrowsOnStructure() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.beginArray();
+    writer.endArray();
+    writer.close();
+    try {
+      writer.beginArray();
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Writer is closed", expected.getMessage());
+    }
+    try {
+      writer.endArray();
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Writer is closed", expected.getMessage());
+    }
+    try {
+      writer.beginObject();
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Writer is closed", expected.getMessage());
+    }
+    try {
+      writer.endObject();
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Writer is closed", expected.getMessage());
+    }
+  }
+
+  public void testClosedWriterThrowsOnName() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.beginArray();
+    writer.endArray();
+    writer.close();
+    try {
+      writer.name("a");
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Writer is closed", expected.getMessage());
+    }
+    // Argument validation should have higher precedence
+    try {
+      writer.name(null);
+      fail();
+    } catch (NullPointerException expected) {
+      assertEquals("name == null", expected.getMessage());
+    }
+  }
+
+  private static void testClosedWriterThrowsOnValue(JsonTreeWriter writer) throws IOException {
+    try {
+      writer.value("a");
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Writer is closed", expected.getMessage());
+    }
+    try {
+      writer.value(true);
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Writer is closed", expected.getMessage());
+    }
+    try {
+      writer.value(Boolean.TRUE);
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Writer is closed", expected.getMessage());
+    }
+    try {
+      writer.value((Boolean) null);
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Writer is closed", expected.getMessage());
+    }
+    try {
+      writer.value(1.0);
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Writer is closed", expected.getMessage());
+    }
+    try {
+      writer.value(1L);
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Writer is closed", expected.getMessage());
+    }
+    try {
+      writer.value((Number) 1.0);
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Writer is closed", expected.getMessage());
+    }
+    try {
+      writer.value((Number) null);
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Writer is closed", expected.getMessage());
+    }
+
+    // Argument validation should have higher precedence
+    try {
+      writer.value((double) Double.NaN);
+      fail();
+    } catch (IllegalArgumentException expected) {
+      assertEquals("JSON forbids NaN and infinities: NaN", expected.getMessage());
+    }
+    try {
+      writer.value((Number) Double.NaN);
+      fail();
+    } catch (IllegalArgumentException expected) {
+      assertEquals("JSON forbids NaN and infinities: NaN", expected.getMessage());
+    }
+  }
+
+  public void testClosedWriterThrowsOnValue() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.beginArray();
+    writer.endArray();
+    writer.close();
+    testClosedWriterThrowsOnValue(writer);
+  }
+
+  public void testClosedWriterThrowsOnPropertyValue() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.setSerializeNulls(true);
+    writer.beginObject();
+    writer.name("test");
+    try {
+      writer.close();
+      fail();
+    } catch (IOException expected) {
+      assertEquals("Incomplete document", expected.getMessage());
+    }
+    testClosedWriterThrowsOnValue(writer);
+  }
+
+  public void testClosedWriterThrowsOnFlush() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.beginArray();
+    writer.endArray();
+    writer.close();
+    try {
+      writer.flush();
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Writer is closed", expected.getMessage());
+    }
+  }
+
+  public void testWriterCloseIsIdempotent() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.beginArray();
+    writer.endArray();
+    writer.close();
+    writer.close();
   }
 
   public void testSerializeNullsFalse() throws IOException {
@@ -117,7 +337,31 @@ public final class JsonTreeWriterTest extends TestCase {
 
   public void testEmptyWriter() {
     JsonTreeWriter writer = new JsonTreeWriter();
-    assertEquals(JsonNull.INSTANCE, writer.get());
+    try {
+      writer.get();
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("No value has been written yet", expected.getMessage());
+    }
+  }
+
+  public void testGetImcompleteValue() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.beginArray();
+    writer.beginObject();
+    writer.name("test");
+    writer.beginObject();
+    writer.name("test2");
+    writer.beginArray();
+    writer.beginArray();
+    writer.beginObject();
+    writer.name("test3");
+    try {
+      writer.get();
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("JSON value is incomplete; open values: [{{[[{:", expected.getMessage());
+    }
   }
 
   public void testBeginArray() throws Exception {
@@ -142,10 +386,108 @@ public final class JsonTreeWriterTest extends TestCase {
     assertEquals(writer, writer.value(bool));
   }
 
-  public void testBoolMaisValue() throws Exception {
+  public void testBoolBoxedValue() throws Exception {
     JsonTreeWriter writer = new JsonTreeWriter();
     Boolean bool = true;
     assertEquals(writer, writer.value(bool));
+  }
+
+  public void testEmptyEndArray() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    try {
+      writer.endArray();
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Currently not writing an array", expected.getMessage());
+    }
+  }
+
+  public void testObjectEndArray() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.beginObject();
+    try {
+      writer.endArray();
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Currently not writing an array", expected.getMessage());
+    }
+  }
+
+  public void testEmptyEndObject() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    try {
+      writer.endObject();
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Currently not writing an object", expected.getMessage());
+    }
+  }
+
+  public void testPendingNameEndObject() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.beginObject();
+    writer.name("test");
+    try {
+      writer.endObject();
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Expecting property value before object can be closed", expected.getMessage());
+    }
+  }
+
+  public void testArrayEndObject() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.beginArray();
+    try {
+      writer.endObject();
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Currently not writing an object", expected.getMessage());
+    }
+  }
+
+  public void testEmptyStackWriteName() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    try {
+      writer.name("a");
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Currently not writing an object", expected.getMessage());
+    }
+  }
+
+  public void testArrayWriteName() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.beginArray();
+    try {
+      writer.name("a");
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Currently not writing an object", expected.getMessage());
+    }
+  }
+
+  public void testTwoNames() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.beginObject();
+    writer.name("a");
+    try {
+      writer.name("a");
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Already wrote a name, expecting a value", expected.getMessage());
+    }
+  }
+
+  public void testValueInsteadOfName() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.beginObject();
+    try {
+      writer.value("a");
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Expecting a name but got a value", expected.getMessage());
+    }
   }
 
   public void testLenientNansAndInfinities() throws IOException {
@@ -198,6 +540,35 @@ public final class JsonTreeWriterTest extends TestCase {
       writer.value(Double.valueOf(Double.POSITIVE_INFINITY));
       fail();
     } catch (IllegalArgumentException expected) {
+    }
+  }
+
+  public void testStrictMultipleTopLevelValues() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.setLenient(false);
+    writer.value(123);
+    try {
+      writer.value(123);
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("JSON must have only one top-level value.", expected.getMessage());
+    }
+  }
+
+  /**
+   * Even if writer is in lenient mode it should not support multiple
+   * top-level values because they cannot be represented using a single
+   * JsonElement.
+   */
+  public void testLenientMultipleTopLevelValues() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.setLenient(true);
+    writer.value(123);
+    try {
+      writer.value(123);
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("JSON must have only one top-level value.", expected.getMessage());
     }
   }
 }
