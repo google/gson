@@ -18,10 +18,12 @@ package com.google.gson.internal.bind;
 
 import com.google.gson.FieldNamingStrategy;
 import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.annotations.Required;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.internal.ConstructorConstructor;
@@ -38,9 +40,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Type adapter that reflects over the fields and methods of a class.
@@ -104,7 +108,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
 
   private ReflectiveTypeAdapterFactory.BoundField createBoundField(
       final Gson context, final Field field, final String name,
-      final TypeToken<?> fieldType, boolean serialize, boolean deserialize) {
+      final TypeToken<?> fieldType, boolean serialize, boolean deserialize, boolean required) {
     final boolean isPrimitive = Primitives.isPrimitive(fieldType.getRawType());
     // special casing primitives here saves ~5% on Android...
     JsonAdapter annotation = field.getAnnotation(JsonAdapter.class);
@@ -117,7 +121,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     if (mapped == null) mapped = context.getAdapter(fieldType);
 
     final TypeAdapter<?> typeAdapter = mapped;
-    return new ReflectiveTypeAdapterFactory.BoundField(name, serialize, deserialize) {
+    return new ReflectiveTypeAdapterFactory.BoundField(name, serialize, deserialize, required) {
       @SuppressWarnings({"unchecked", "rawtypes"}) // the type adapter and field type always agree
       @Override void write(JsonWriter writer, Object value)
           throws IOException, IllegalAccessException {
@@ -126,12 +130,14 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
             : new TypeAdapterRuntimeTypeWrapper(context, typeAdapter, fieldType.getType());
         t.write(writer, fieldValue);
       }
-      @Override void read(JsonReader reader, Object value)
+      @Override boolean read(JsonReader reader, Object value)
           throws IOException, IllegalAccessException {
         Object fieldValue = typeAdapter.read(reader);
         if (fieldValue != null || !isPrimitive) {
           field.set(value, fieldValue);
+          return fieldValue != null;
         }
+        return false;
       }
       @Override public boolean writeField(Object value) throws IOException, IllegalAccessException {
         if (!serialized) return false;
@@ -156,6 +162,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         if (!serialize && !deserialize) {
           continue;
         }
+        boolean required = field.isAnnotationPresent(Required.class);
         accessor.makeAccessible(field);
         Type fieldType = $Gson$Types.resolve(type.getType(), raw, field.getGenericType());
         List<String> fieldNames = getFieldNames(field);
@@ -164,7 +171,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           String name = fieldNames.get(i);
           if (i != 0) serialize = false; // only serialize the default name
           BoundField boundField = createBoundField(context, field, name,
-              TypeToken.get(fieldType), serialize, deserialize);
+              TypeToken.get(fieldType), serialize, deserialize, required);
           BoundField replaced = result.put(name, boundField);
           if (previous == null) previous = replaced;
         }
@@ -183,24 +190,38 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     final String name;
     final boolean serialized;
     final boolean deserialized;
+    final boolean required;
 
-    protected BoundField(String name, boolean serialized, boolean deserialized) {
+    protected BoundField(String name, boolean serialized, boolean deserialized, boolean required) {
       this.name = name;
       this.serialized = serialized;
       this.deserialized = deserialized;
+      this.required = required;
     }
     abstract boolean writeField(Object value) throws IOException, IllegalAccessException;
     abstract void write(JsonWriter writer, Object value) throws IOException, IllegalAccessException;
-    abstract void read(JsonReader reader, Object value) throws IOException, IllegalAccessException;
+    abstract boolean read(JsonReader reader, Object value) throws IOException, IllegalAccessException;
   }
 
   public static final class Adapter<T> extends TypeAdapter<T> {
     private final ObjectConstructor<T> constructor;
     private final Map<String, BoundField> boundFields;
+    private final Set<String> requiredFields;
 
     Adapter(ObjectConstructor<T> constructor, Map<String, BoundField> boundFields) {
       this.constructor = constructor;
       this.boundFields = boundFields;
+
+      Set<String> requiredFields = null;
+      for (Map.Entry<String, BoundField> field : boundFields.entrySet()) {
+        if (field.getValue().required) {
+          if (requiredFields == null) {
+            requiredFields = new HashSet<String>();
+          }
+          requiredFields.add(field.getKey());
+        }
+      }
+      this.requiredFields = requiredFields;
     }
 
     @Override public T read(JsonReader in) throws IOException {
@@ -210,6 +231,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       }
 
       T instance = constructor.construct();
+      Set<String> required = (requiredFields == null) ? null : new HashSet<String>(requiredFields);
 
       try {
         in.beginObject();
@@ -219,8 +241,15 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           if (field == null || !field.deserialized) {
             in.skipValue();
           } else {
-            field.read(in, instance);
+            boolean didRead = field.read(in, instance);
+            if (required != null && didRead) {
+              required.remove(name);
+            }
           }
+        }
+
+        if (required != null && !required.isEmpty()) {
+          throw new JsonParseException("Object is missing required fields: " + required);
         }
       } catch (IllegalStateException e) {
         throw new JsonSyntaxException(e);
