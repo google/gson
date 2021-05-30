@@ -1,8 +1,16 @@
+os: linux
+arch:
+ - amd64
+ - ppc64le
 language: java
 
 jdk:
   - openjdk11
 
+addons:
+  apt:
+    packages:
+      - maven
 install: mvn -f gson install -DskipTests=true
 script: mvn -f gson test
 
