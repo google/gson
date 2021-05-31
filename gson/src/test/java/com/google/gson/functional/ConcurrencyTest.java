@@ -19,6 +19,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import junit.framework.TestCase;
 
@@ -120,6 +121,42 @@ public class ConcurrencyTest extends TestCase {
     finishedLatch.await();
     assertFalse(failed.get());
   }
+
+  /**
+   * Test for:
+   * https://github.com/google/gson/issues/764
+   */
+  public void testMultiThreadRecursiveObjectSerialization() throws InterruptedException {
+    final int threads = 4;
+    final ExecutorService executor = Executors.newFixedThreadPool(threads);
+    final AtomicReference<Throwable> throwable = new AtomicReference<Throwable>();
+
+    for (int i = 0; i < 1000; i++) {
+      final CountDownLatch startLatch = new CountDownLatch(1);
+      final CountDownLatch finishedLatch = new CountDownLatch(threads);
+      final Gson gson = new Gson();
+      final MyRecursiveObject obj = new MyRecursiveObject();
+
+      for (int j = 0; j < threads; j++) {
+        executor.execute(new Runnable() {
+          public void run() {
+            try {
+              startLatch.await();
+              gson.toJson(obj);
+            } catch (Throwable t) {
+              throwable.set(t);
+            } finally {
+              finishedLatch.countDown();
+            }
+          }
+        });
+      }
+
+      startLatch.countDown();
+      finishedLatch.await();
+      assertNull(throwable.get());
+    }
+  }
   
   @SuppressWarnings("unused")
   private static class MyObject {
@@ -137,4 +174,33 @@ public class ConcurrencyTest extends TestCase {
       this.i = i;
     }
   }
+
+  private static class MyRecursiveObject {
+    MyNestedObject obj;
+
+    MyRecursiveObject() {
+      this(true);
+    }
+
+    MyRecursiveObject(boolean init) {
+      if (init) {
+        this.obj = new MyNestedObject();
+      }
+    }
+
+    private static class MyNestedObject {
+      MyRecursiveObject obj;
+
+      MyNestedObject() {
+        this(true);
+      }
+
+      MyNestedObject(boolean init) {
+        if (init) {
+          this.obj = new MyRecursiveObject(false);
+        }
+      }
+    }
+  }
+
 }
