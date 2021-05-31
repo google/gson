@@ -36,6 +36,7 @@ import com.google.protobuf.Descriptors.EnumValueDescriptor;
 import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.Extension;
+import com.google.protobuf.MapEntry;
 import com.google.protobuf.Message;
 
 import java.lang.reflect.Field;
@@ -240,7 +241,19 @@ public class ProtoTypeAdapter
           ret.add(name, context.serialize(getEnumValue(enumDesc)));
         }
       } else {
-        ret.add(name, context.serialize(fieldPair.getValue()));
+        if(fieldPair.getKey().isMapField() && fieldPair.getValue() instanceof Collection){
+          JsonObject mapObject = new JsonObject();
+          @SuppressWarnings("unchecked")
+          Collection<MapEntry<Object,Object>> entries =
+                  (Collection<MapEntry<Object, Object>>) fieldPair.getValue();
+          for(MapEntry<Object,Object> entry : entries){
+            String key = context.serialize(entry.getKey()).getAsString();
+            mapObject.add(key, context.serialize(entry.getValue()));
+          }
+          ret.add(name, mapObject);
+        }else{
+          ret.add(name, context.serialize(fieldPair.getValue()));
+        }
       }
     }
     return ret;
