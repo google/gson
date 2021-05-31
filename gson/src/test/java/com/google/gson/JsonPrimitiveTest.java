@@ -17,6 +17,7 @@
 package com.google.gson;
 
 import com.google.gson.common.MoreAsserts;
+import com.google.gson.internal.LazilyParsedNumber;
 
 import junit.framework.TestCase;
 
@@ -265,6 +266,15 @@ public class JsonPrimitiveTest extends TestCase {
     assertFalse(new JsonPrimitive("true").equals(new JsonPrimitive(true)));
     assertFalse(new JsonPrimitive("0").equals(new JsonPrimitive(0)));
     assertFalse(new JsonPrimitive("NaN").equals(new JsonPrimitive(Float.NaN)));
+  }
+
+  public void testLazilyParsedNumbers() {
+    MoreAsserts.assertEqualsAndHashCode(
+        new JsonPrimitive(26),
+        new JsonPrimitive(new LazilyParsedNumber("26")));
+    MoreAsserts.assertEqualsAndHashCode(
+        new JsonPrimitive(0.26),
+        new JsonPrimitive(new LazilyParsedNumber("0.26")));
   }
 
   public void testDeepCopy() {
