@@ -21,6 +21,8 @@ import java.io.ObjectStreamClass;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 /**
  * Do sneaky things to allocate objects without invoking their constructors.
@@ -31,7 +33,18 @@ import java.lang.reflect.Modifier;
 public abstract class UnsafeAllocator {
   public abstract <T> T newInstance(Class<T> c) throws Exception;
 
+  /**
+   * Sneaky things require priviledged access when run under security manager.
+   */
   public static UnsafeAllocator create() {
+    return AccessController.doPrivileged(new PrivilegedAction<UnsafeAllocator>() {
+      public UnsafeAllocator run() {
+        return createImpl();
+      }
+    });
+  }
+
+  private static UnsafeAllocator createImpl() {
     // try JVM
     // public class Unsafe {
     //   public Object allocateInstance(Class<?> type);

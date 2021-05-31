@@ -18,6 +18,8 @@ package com.google.gson.internal.reflect;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 import com.google.gson.JsonIOException;
 
@@ -36,12 +38,17 @@ final class UnsafeReflectionAccessor extends ReflectionAccessor {
 
   /** {@inheritDoc} */
   @Override
-  public void makeAccessible(AccessibleObject ao) {
+  public void makeAccessible(final AccessibleObject ao) {
     boolean success = makeAccessibleWithUnsafe(ao);
     if (!success) {
       try {
         // unsafe couldn't be found, so try using accessible anyway
-        ao.setAccessible(true);
+        AccessController.doPrivileged(new PrivilegedAction<Void>() {
+          public Void run() {
+            ao.setAccessible(true);
+            return null;
+          }
+        });
       } catch (SecurityException e) {
         throw new JsonIOException("Gson couldn't modify fields for " + ao
           + "\nand sun.misc.Unsafe not found.\nEither write a custom type adapter,"
@@ -51,7 +58,15 @@ final class UnsafeReflectionAccessor extends ReflectionAccessor {
   }
 
   // Visible for testing only
-  boolean makeAccessibleWithUnsafe(AccessibleObject ao) {
+  boolean makeAccessibleWithUnsafe(final AccessibleObject ao) {
+    return AccessController.doPrivileged(new PrivilegedAction<Boolean> () {
+      public Boolean run() {
+        return makeAccessibleWithUnsafeImpl(ao);
+      }
+    });
+  }
+
+  boolean makeAccessibleWithUnsafeImpl(AccessibleObject ao) {
     if (theUnsafe != null && overrideField != null) {
       try {
         Method method = unsafeClass.getMethod("objectFieldOffset", Field.class);
@@ -66,6 +81,14 @@ final class UnsafeReflectionAccessor extends ReflectionAccessor {
   }
 
   private static Object getUnsafeInstance() {
+    return AccessController.doPrivileged(new PrivilegedAction<Object>() {
+      public Object run() {
+        return getUnsafeInstanceImpl();
+      }
+    });
+  }
+
+  private static Object getUnsafeInstanceImpl() {
     try {
       unsafeClass = Class.forName("sun.misc.Unsafe");
       Field unsafeField = unsafeClass.getDeclaredField("theUnsafe");
@@ -77,10 +100,14 @@ final class UnsafeReflectionAccessor extends ReflectionAccessor {
   }
 
   private static Field getOverrideField() {
-    try {
-      return AccessibleObject.class.getDeclaredField("override");
-    } catch (NoSuchFieldException e) {
-      return null;
-    }
+    return AccessController.doPrivileged(new PrivilegedAction<Field>() {
+      public Field run() {
+        try {
+          return AccessibleObject.class.getDeclaredField("override");
+        } catch (NoSuchFieldException e) {
+          return null;
+        }
+      }
+    });
   }
 }

@@ -17,6 +17,8 @@
 package com.google.gson;
 
 import java.io.IOException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -34,6 +36,23 @@ import junit.framework.TestCase;
  */
 public class DefaultDateTypeAdapterTest extends TestCase {
 
+  protected void setTimeZone(final TimeZone tz) {
+    AccessController.doPrivileged(new PrivilegedAction<Void>() {
+      public Void run() {
+        TimeZone.setDefault(tz);
+        return null;
+      }
+    });
+  }
+  protected void setLocale(final Locale l) {
+    AccessController.doPrivileged(new PrivilegedAction<Void>() {
+      public Void run() {
+        Locale.setDefault(l);
+        return null;
+      }
+    });
+  }
+
   public void testFormattingInEnUs() {
     assertFormattingAlwaysEmitsUsLocale(Locale.US);
   }
@@ -44,9 +63,9 @@ public class DefaultDateTypeAdapterTest extends TestCase {
 
   private void assertFormattingAlwaysEmitsUsLocale(Locale locale) {
     TimeZone defaultTimeZone = TimeZone.getDefault();
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+    setTimeZone(TimeZone.getTimeZone("UTC"));
     Locale defaultLocale = Locale.getDefault();
-    Locale.setDefault(locale);
+    setLocale(locale);
     try {
       String afterYearSep = JavaVersion.isJava9OrLater() ? ", " : " ";
       String afterYearLongSep = JavaVersion.isJava9OrLater() ? " at " : " ";
@@ -65,16 +84,16 @@ public class DefaultDateTypeAdapterTest extends TestCase {
       assertFormatted(String.format("Thursday, January 1, 1970%s12:00:00 AM %s", afterYearLongSep, utcFull),
           new DefaultDateTypeAdapter(DateFormat.FULL, DateFormat.FULL));
     } finally {
-      TimeZone.setDefault(defaultTimeZone);
-      Locale.setDefault(defaultLocale);
+      setTimeZone(defaultTimeZone);
+      setLocale(defaultLocale);
     }
   }
 
   public void testParsingDatesFormattedWithSystemLocale() throws Exception {
     TimeZone defaultTimeZone = TimeZone.getDefault();
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+    setTimeZone(TimeZone.getTimeZone("UTC"));
     Locale defaultLocale = Locale.getDefault();
-    Locale.setDefault(Locale.FRANCE);
+    setLocale(Locale.FRANCE);
     try {
       String afterYearSep = JavaVersion.isJava9OrLater() ? " à " : " ";
       assertParsed(String.format("1 janv. 1970%s00:00:00", afterYearSep),
@@ -94,16 +113,16 @@ public class DefaultDateTypeAdapterTest extends TestCase {
                       "jeudi 1 janvier 1970 00 h 00 UTC",
           new DefaultDateTypeAdapter(DateFormat.FULL, DateFormat.FULL));
     } finally {
-      TimeZone.setDefault(defaultTimeZone);
-      Locale.setDefault(defaultLocale);
+      setTimeZone(defaultTimeZone);
+      setLocale(defaultLocale);
     }
   }
 
   public void testParsingDatesFormattedWithUsLocale() throws Exception {
     TimeZone defaultTimeZone = TimeZone.getDefault();
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+    setTimeZone(TimeZone.getTimeZone("UTC"));
     Locale defaultLocale = Locale.getDefault();
-    Locale.setDefault(Locale.US);
+    setLocale(Locale.US);
     try {
       assertParsed("Jan 1, 1970 0:00:00 AM", new DefaultDateTypeAdapter(Date.class));
       assertParsed("1/1/70", new DefaultDateTypeAdapter(Date.class, DateFormat.SHORT));
@@ -118,24 +137,24 @@ public class DefaultDateTypeAdapterTest extends TestCase {
       assertParsed("Thursday, January 1, 1970 0:00:00 AM UTC",
           new DefaultDateTypeAdapter(DateFormat.FULL, DateFormat.FULL));
     } finally {
-      TimeZone.setDefault(defaultTimeZone);
-      Locale.setDefault(defaultLocale);
+      setTimeZone(defaultTimeZone);
+      setLocale(defaultLocale);
     }
   }
 
   public void testFormatUsesDefaultTimezone() throws Exception {
     TimeZone defaultTimeZone = TimeZone.getDefault();
-    TimeZone.setDefault(TimeZone.getTimeZone("America/Los_Angeles"));
+    setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
     Locale defaultLocale = Locale.getDefault();
-    Locale.setDefault(Locale.US);
+    setLocale(Locale.US);
     try {
       String afterYearSep = JavaVersion.isJava9OrLater() ? ", " : " ";
       assertFormatted(String.format("Dec 31, 1969%s4:00:00 PM", afterYearSep),
               new DefaultDateTypeAdapter(Date.class));
       assertParsed("Dec 31, 1969 4:00:00 PM", new DefaultDateTypeAdapter(Date.class));
     } finally {
-      TimeZone.setDefault(defaultTimeZone);
-      Locale.setDefault(defaultLocale);
+      setTimeZone(defaultTimeZone);
+      setLocale(defaultLocale);
     }
   }
 
