@@ -50,9 +50,10 @@ import java.util.List;
 public final class Excluder implements TypeAdapterFactory, Cloneable {
   private static final double IGNORE_VERSIONS = -1.0d;
   public static final Excluder DEFAULT = new Excluder();
+  private static final int MODIFIER_SYNTHETIC = 0x00001000;
 
   private double version = IGNORE_VERSIONS;
-  private int modifiers = Modifier.TRANSIENT | Modifier.STATIC;
+  private int modifiers = Modifier.TRANSIENT | Modifier.STATIC | MODIFIER_SYNTHETIC;
   private boolean serializeInnerClasses = true;
   private boolean requireExpose;
   private List<ExclusionStrategy> serializationStrategies = Collections.emptyList();
@@ -155,10 +156,6 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
 
     if (version != Excluder.IGNORE_VERSIONS
         && !isValidVersion(field.getAnnotation(Since.class), field.getAnnotation(Until.class))) {
-      return true;
-    }
-
-    if (field.isSynthetic()) {
       return true;
     }
 
