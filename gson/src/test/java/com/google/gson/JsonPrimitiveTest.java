@@ -23,6 +23,8 @@ import junit.framework.TestCase;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import static com.google.gson.JavaSerializationTest.serializedCopy;
+
 /**
  * Unit test for the {@link JsonPrimitive} class.
  *
@@ -270,5 +272,15 @@ public class JsonPrimitiveTest extends TestCase {
   public void testDeepCopy() {
     JsonPrimitive a = new JsonPrimitive("a");
     assertSame(a, a.deepCopy()); // Primitives are immutable!
+  }
+
+  public void testSerialization() throws Exception {
+    assertEquals(new JsonPrimitive(false), serializedCopy(new JsonPrimitive(false)));
+    assertEquals(new JsonPrimitive("a"), serializedCopy(new JsonPrimitive("a")));
+    assertEquals(new JsonPrimitive(Float.NaN), serializedCopy(new JsonPrimitive(Float.NaN)));
+    assertEquals(new JsonPrimitive(1d), serializedCopy(new JsonPrimitive(1d)));
+    assertEquals(new JsonPrimitive(2f), serializedCopy(new JsonPrimitive(2f)));
+    assertEquals(new JsonPrimitive(3), serializedCopy(new JsonPrimitive(3)));
+    assertEquals(new JsonPrimitive('q'), serializedCopy(new JsonPrimitive('q')));
   }
 }
