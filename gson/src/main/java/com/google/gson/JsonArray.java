@@ -381,6 +381,13 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
     throw new IllegalStateException();
   }
 
+  /**
+   * @return this array as {@link List} of {@link JsonElement}
+   */
+  public List<JsonElement> asList() {
+    return elements;
+  }
+
   @Override
   public boolean equals(Object o) {
     return (o == this) || (o instanceof JsonArray && ((JsonArray) o).elements.equals(elements));
