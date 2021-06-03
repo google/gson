@@ -40,7 +40,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 
 import com.google.gson.InstanceCreator;
 import com.google.gson.JsonIOException;
-import com.google.gson.internal.reflect.ReflectionAccessor;
+import com.google.gson.internal.reflect.ReflectionHelper;
 import com.google.gson.reflect.TypeToken;
 
 /**
@@ -48,7 +48,6 @@ import com.google.gson.reflect.TypeToken;
  */
 public final class ConstructorConstructor {
   private final Map<Type, InstanceCreator<?>> instanceCreators;
-  private final ReflectionAccessor accessor = ReflectionAccessor.getInstance();
 
   public ConstructorConstructor(Map<Type, InstanceCreator<?>> instanceCreators) {
     this.instanceCreators = instanceCreators;
@@ -99,9 +98,7 @@ public final class ConstructorConstructor {
   private <T> ObjectConstructor<T> newDefaultConstructor(Class<? super T> rawType) {
     try {
       final Constructor<? super T> constructor = rawType.getDeclaredConstructor();
-      if (!constructor.isAccessible()) {
-        accessor.makeAccessible(constructor);
-      }
+      ReflectionHelper.makeAccessible(constructor);
       return new ObjectConstructor<T>() {
         @SuppressWarnings("unchecked") // T is the same raw type as is requested
         @Override public T construct() {
