@@ -17,9 +17,22 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
- 
+
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.0.0-M5</version>
+        <configuration>
+          <jdkToolchain>
+            <!-- Use Java 11 for tests -->
+            <version>11</version>
+          </jdkToolchain>
+          <!-- Deny illegal access, this is required for ReflectionAccessTest -->
+          <argLine>--illegal-access=deny</argLine>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
@@ -46,6 +59,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
+        <version>3.2.0</version>
         <configuration>
           <archive>
             <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>

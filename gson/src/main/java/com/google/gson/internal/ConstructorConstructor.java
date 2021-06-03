@@ -96,31 +96,51 @@ public final class ConstructorConstructor {
   }
 
   private <T> ObjectConstructor<T> newDefaultConstructor(Class<? super T> rawType) {
+    final Constructor<? super T> constructor;
     try {
-      final Constructor<? super T> constructor = rawType.getDeclaredConstructor();
-      ReflectionHelper.makeAccessible(constructor);
-      return new ObjectConstructor<T>() {
-        @SuppressWarnings("unchecked") // T is the same raw type as is requested
-        @Override public T construct() {
-          try {
-            Object[] args = null;
-            return (T) constructor.newInstance(args);
-          } catch (InstantiationException e) {
-            // TODO: JsonParseException ?
-            throw new RuntimeException("Failed to invoke " + constructor + " with no args", e);
-          } catch (InvocationTargetException e) {
-            // TODO: don't wrap if cause is unchecked!
-            // TODO: JsonParseException ?
-            throw new RuntimeException("Failed to invoke " + constructor + " with no args",
-                e.getTargetException());
-          } catch (IllegalAccessException e) {
-            throw new AssertionError(e);
-          }
-        }
-      };
+      constructor = rawType.getDeclaredConstructor();
     } catch (NoSuchMethodException e) {
       return null;
     }
+
+    try {
+      ReflectionHelper.makeAccessible(constructor);
+    } catch (final JsonIOException accessibilityException) {
+      /*
+       * Create ObjectConstructor which rethrows exception.
+       * This keeps backward compatibility (compared to returning `null` which
+       * would then choose another way of creating object).
+       * And it supports types which are only serialized but not deserialized
+       * (compared to directly rethrowing exception), e.g. when runtime type
+       * of object is inaccessible, but compile-time type is accessible.
+       */
+      return new ObjectConstructor<T>() {
+        @Override
+        public T construct() {
+          throw accessibilityException;
+        }
+      };
+    }
+
+    return new ObjectConstructor<T>() {
+      @SuppressWarnings("unchecked") // T is the same raw type as is requested
+      @Override public T construct() {
+        try {
+          Object[] args = null;
+          return (T) constructor.newInstance(args);
+        } catch (InstantiationException e) {
+          // TODO: JsonParseException ?
+          throw new RuntimeException("Failed to invoke " + constructor + " with no args", e);
+        } catch (InvocationTargetException e) {
+          // TODO: don't wrap if cause is unchecked!
+          // TODO: JsonParseException ?
+          throw new RuntimeException("Failed to invoke " + constructor + " with no args",
+              e.getTargetException());
+        } catch (IllegalAccessException e) {
+          throw new AssertionError(e);
+        }
+      }
+    };
   }
 
   /**
