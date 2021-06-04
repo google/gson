@@ -178,7 +178,6 @@ public class DefaultTypeAdaptersTest extends TestCase {
     testNullSerializationAndDeserialization(Time.class);
     testNullSerializationAndDeserialization(Timestamp.class);
     testNullSerializationAndDeserialization(java.sql.Date.class);
-    testNullSerializationAndDeserialization(Enum.class);
     testNullSerializationAndDeserialization(Class.class);
   }
 
