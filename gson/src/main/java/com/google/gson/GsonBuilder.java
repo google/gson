@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -94,6 +95,7 @@ public final class GsonBuilder {
   private boolean prettyPrinting = DEFAULT_PRETTY_PRINT;
   private boolean generateNonExecutableJson = DEFAULT_JSON_NON_EXECUTABLE;
   private boolean lenient = DEFAULT_LENIENT;
+  private final LinkedList<ReflectionAccessFilter> reflectionFilters = new LinkedList<ReflectionAccessFilter>();
 
   /**
    * Creates a GsonBuilder instance that can be used to build Gson with various configuration
@@ -127,6 +129,7 @@ public final class GsonBuilder {
     this.timeStyle = gson.timeStyle;
     this.factories.addAll(gson.builderFactories);
     this.hierarchyFactories.addAll(gson.builderHierarchyFactories);
+    this.reflectionFilters.addAll(gson.reflectionFilters);
   }
 
   /**
@@ -578,6 +581,26 @@ public final class GsonBuilder {
   }
 
   /**
+   * Adds a reflection access filter. A reflection access filter allows restricting for
+   * which classes Gson is allowed to use reflection for serialization and deserialization.
+   *
+   * <p>Filters will be invoked in reverse registration order, that is, the least recently
+   * added filter will be invoked first.
+   *
+   * <p>By default Gson has no filters configured and will try to use reflection for
+   * all classes for which no {@link TypeAdapter} has been registered.
+   *
+   * @param filter filter to add
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   */
+  public GsonBuilder addReflectionAccessFilter(ReflectionAccessFilter filter) {
+    if (filter == null) throw new NullPointerException();
+
+    reflectionFilters.addFirst(filter);
+    return this;
+  }
+
+  /**
    * Creates a {@link Gson} instance based on the current configuration. This method is free of
    * side-effects to this {@code GsonBuilder} instance and hence can be called multiple times.
    *
@@ -599,7 +622,7 @@ public final class GsonBuilder {
         generateNonExecutableJson, escapeHtmlChars, prettyPrinting, lenient,
         serializeSpecialFloatingPointValues, longSerializationPolicy,
         datePattern, dateStyle, timeStyle,
-        this.factories, this.hierarchyFactories, factories);
+        this.factories, this.hierarchyFactories, factories, reflectionFilters);
   }
 
   @SuppressWarnings("unchecked")
