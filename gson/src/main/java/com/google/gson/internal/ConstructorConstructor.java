@@ -48,9 +48,11 @@ import com.google.gson.reflect.TypeToken;
  */
 public final class ConstructorConstructor {
   private final Map<Type, InstanceCreator<?>> instanceCreators;
+  private final boolean useJdkUnsafe;
 
-  public ConstructorConstructor(Map<Type, InstanceCreator<?>> instanceCreators) {
+  public ConstructorConstructor(Map<Type, InstanceCreator<?>> instanceCreators, boolean useJdkUnsafe) {
     this.instanceCreators = instanceCreators;
+    this.useJdkUnsafe = useJdkUnsafe;
   }
 
   public <T> ObjectConstructor<T> get(TypeToken<T> typeToken) {
@@ -92,7 +94,7 @@ public final class ConstructorConstructor {
     }
 
     // finally try unsafe
-    return newUnsafeAllocator(type, rawType);
+    return newUnsafeAllocator(rawType);
   }
 
   private <T> ObjectConstructor<T> newDefaultConstructor(Class<? super T> rawType) {
@@ -233,21 +235,32 @@ public final class ConstructorConstructor {
     return null;
   }
 
-  private <T> ObjectConstructor<T> newUnsafeAllocator(
-      final Type type, final Class<? super T> rawType) {
-    return new ObjectConstructor<T>() {
-      private final UnsafeAllocator unsafeAllocator = UnsafeAllocator.create();
-      @SuppressWarnings("unchecked")
-      @Override public T construct() {
-        try {
-          Object newInstance = unsafeAllocator.newInstance(rawType);
-          return (T) newInstance;
-        } catch (Exception e) {
-          throw new RuntimeException(("Unable to invoke no-args constructor for " + type + ". "
-              + "Registering an InstanceCreator with Gson for this type may fix this problem."), e);
+  private <T> ObjectConstructor<T> newUnsafeAllocator(final Class<? super T> rawType) {
+    if (useJdkUnsafe) {
+      return new ObjectConstructor<T>() {
+        private final UnsafeAllocator unsafeAllocator = UnsafeAllocator.create();
+        @SuppressWarnings("unchecked")
+        @Override public T construct() {
+          try {
+            Object newInstance = unsafeAllocator.newInstance(rawType);
+            return (T) newInstance;
+          } catch (Exception e) {
+            throw new RuntimeException(("Unable to create instance of " + rawType + ". "
+                + "Registering an InstanceCreator or a TypeAdapter for this type, or adding a no-args "
+                + "constructor may fix this problem."), e);
+          }
         }
-      }
-    };
+      };
+    } else {
+      final String exceptionMessage = "Unable to create instance of " + rawType + "; usage of JDK Unsafe "
+          + "is disabled. Registering an InstanceCreator or a TypeAdapter for this type, adding a no-args "
+          + "constructor, or enabling usage of JDK Unsafe may fix this problem.";
+      return new ObjectConstructor<T>() {
+        @Override public T construct() {
+          throw new JsonIOException(exceptionMessage);
+        }
+      };
+    }
   }
 
   @Override public String toString() {

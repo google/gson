@@ -41,6 +41,7 @@ import static com.google.gson.Gson.DEFAULT_LENIENT;
 import static com.google.gson.Gson.DEFAULT_PRETTY_PRINT;
 import static com.google.gson.Gson.DEFAULT_SERIALIZE_NULLS;
 import static com.google.gson.Gson.DEFAULT_SPECIALIZE_FLOAT_VALUES;
+import static com.google.gson.Gson.DEFAULT_USE_JDK_UNSAFE;
 
 /**
  * <p>Use this builder to construct a {@link Gson} instance when you need to set configuration
@@ -94,6 +95,7 @@ public final class GsonBuilder {
   private boolean prettyPrinting = DEFAULT_PRETTY_PRINT;
   private boolean generateNonExecutableJson = DEFAULT_JSON_NON_EXECUTABLE;
   private boolean lenient = DEFAULT_LENIENT;
+  private boolean useJdkUnsafe = DEFAULT_USE_JDK_UNSAFE;
   private ToNumberStrategy objectToNumberStrategy = ToNumberPolicy.DOUBLE;
   private ToNumberStrategy numberToNumberStrategy = ToNumberPolicy.LAZILY_PARSED_NUMBER;
 
@@ -129,6 +131,7 @@ public final class GsonBuilder {
     this.timeStyle = gson.timeStyle;
     this.factories.addAll(gson.builderFactories);
     this.hierarchyFactories.addAll(gson.builderHierarchyFactories);
+    this.useJdkUnsafe = gson.useJdkUnsafe;
     this.objectToNumberStrategy = gson.objectToNumberStrategy;
     this.numberToNumberStrategy = gson.numberToNumberStrategy;
   }
@@ -607,6 +610,26 @@ public final class GsonBuilder {
   }
 
   /**
+   * Disables usage of JDK's {@code sun.misc.Unsafe}.
+   *
+   * <p>By default Gson uses {@code Unsafe} to create instances of classes which don't have
+   * a no-args constructor. However, {@code Unsafe} might not be available for all Java
+   * runtimes. For example Android does not provide {@code Unsafe}, or only with limited
+   * functionality. Additionally {@code Unsafe} creates instances without executing any
+   * constructor or initializer block, or performing initialization of field values. This can
+   * lead to surprising and difficult to debug errors.<br>
+   * Therefore, to get reliable behavior regardless of which runtime is used, and to detect
+   * classes which cannot be deserialized in an early stage of development, this method allows
+   * disabling usage of {@code Unsafe}.
+   *
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   */
+  public GsonBuilder disableJdkUnsafe() {
+    this.useJdkUnsafe = false;
+    return this;
+  }
+
+  /**
    * Creates a {@link Gson} instance based on the current configuration. This method is free of
    * side-effects to this {@code GsonBuilder} instance and hence can be called multiple times.
    *
@@ -626,7 +649,7 @@ public final class GsonBuilder {
     return new Gson(excluder, fieldNamingPolicy, instanceCreators,
         serializeNulls, complexMapKeySerialization,
         generateNonExecutableJson, escapeHtmlChars, prettyPrinting, lenient,
-        serializeSpecialFloatingPointValues, longSerializationPolicy,
+        serializeSpecialFloatingPointValues, useJdkUnsafe, longSerializationPolicy,
         datePattern, dateStyle, timeStyle,
         this.factories, this.hierarchyFactories, factories, objectToNumberStrategy, numberToNumberStrategy);
   }
