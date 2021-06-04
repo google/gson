@@ -12,8 +12,10 @@ public class ReflectionHelper {
    * Tries making the field accessible, wrapping any thrown exception in a
    * {@link JsonIOException} with descriptive message.
    *
-   * @param field Field to make accessible
-   * @throws JsonIOException If making the field accessible fails
+   * @param field
+   *    Field to make accessible
+   * @throws JsonIOException
+   *    If making the field accessible fails
    */
   public static void makeAccessible(Field field) throws JsonIOException {
     try {
@@ -46,19 +48,24 @@ public class ReflectionHelper {
   }
 
   /**
-   * Tries making the constructor accessible, wrapping any thrown exception in a
-   * {@link JsonIOException} with descriptive message.
+   * Tries making the constructor accessible, returning an exception message
+   * if this fails.
    *
-   * @param constructor Constructor to make accessible
-   * @throws JsonIOException If making the constructor accessible fails
+   * @param constructor
+   *    Constructor to make accessible
+   * @return
+   *    Exception message; {@code null} if successful, non-{@code null} if
+   *    unsuccessful
    */
-  public static void makeAccessible(Constructor<?> constructor) throws JsonIOException {
+  public static String tryMakeAccessible(Constructor<?> constructor) {
     try {
       constructor.setAccessible(true);
+      return null;
     } catch (Exception exception) {
-      throw new JsonIOException("Failed making constructor '" + constructorToString(constructor)
-          + "' accessible; either change its visibility or write a custom InstanceCreator for its "
-          + "declaring type", exception);
+      return "Failed making constructor '" + constructorToString(constructor) + "' accessible; "
+          + "either change its visibility or write a custom InstanceCreator for its declaring type: "
+          // Include the message since it might contain more detailed information
+          + exception.getMessage();
     }
   }
 }

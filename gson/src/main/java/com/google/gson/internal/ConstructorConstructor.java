@@ -103,21 +103,23 @@ public final class ConstructorConstructor {
       return null;
     }
 
-    try {
-      ReflectionHelper.makeAccessible(constructor);
-    } catch (final JsonIOException accessibilityException) {
+    final String exceptionMessage = ReflectionHelper.tryMakeAccessible(constructor);
+    if (exceptionMessage != null) {
       /*
-       * Create ObjectConstructor which rethrows exception.
+       * Create ObjectConstructor which throws exception.
        * This keeps backward compatibility (compared to returning `null` which
        * would then choose another way of creating object).
        * And it supports types which are only serialized but not deserialized
-       * (compared to directly rethrowing exception), e.g. when runtime type
+       * (compared to directly throwing exception here), e.g. when runtime type
        * of object is inaccessible, but compile-time type is accessible.
        */
       return new ObjectConstructor<T>() {
         @Override
         public T construct() {
-          throw accessibilityException;
+          // New exception is created every time to avoid keeping reference
+          // to exception with potentially long stack trace, causing a
+          // memory leak
+          throw new JsonIOException(exceptionMessage);
         }
       };
     }

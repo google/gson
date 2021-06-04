@@ -1,6 +1,7 @@
 package com.google.gson.functional;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Collections;
@@ -34,11 +35,10 @@ public class ReflectionAccessTest {
       gson.fromJson("{}", internalClass);
       fail("Missing exception; test has to be run with `--illegal-access=deny`");
     } catch (JsonIOException expected) {
-      assertEquals(
+      assertTrue(expected.getMessage().startsWith(
         "Failed making constructor 'java.util.Collections$EmptyList#EmptyList()' accessible; "
-        + "either change its visibility or write a custom InstanceCreator for its declaring type",
-        expected.getMessage()
-      );
+        + "either change its visibility or write a custom InstanceCreator for its declaring type"
+      ));
     }
   }
 }
