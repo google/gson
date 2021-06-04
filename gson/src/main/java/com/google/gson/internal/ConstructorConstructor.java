@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -40,6 +41,8 @@ import java.util.concurrent.ConcurrentSkipListMap;
 
 import com.google.gson.InstanceCreator;
 import com.google.gson.JsonIOException;
+import com.google.gson.ReflectionAccessFilter;
+import com.google.gson.ReflectionAccessFilter.FilterResult;
 import com.google.gson.internal.reflect.ReflectionAccessor;
 import com.google.gson.reflect.TypeToken;
 
@@ -48,10 +51,13 @@ import com.google.gson.reflect.TypeToken;
  */
 public final class ConstructorConstructor {
   private final Map<Type, InstanceCreator<?>> instanceCreators;
+  private final List<ReflectionAccessFilter> reflectionFilters;
   private final ReflectionAccessor accessor = ReflectionAccessor.getInstance();
 
-  public ConstructorConstructor(Map<Type, InstanceCreator<?>> instanceCreators) {
+  public ConstructorConstructor(Map<Type, InstanceCreator<?>> instanceCreators,
+      List<ReflectionAccessFilter> reflectionFilters) {
     this.instanceCreators = instanceCreators;
+    this.reflectionFilters = reflectionFilters;
   }
 
   public <T> ObjectConstructor<T> get(TypeToken<T> typeToken) {
@@ -82,9 +88,13 @@ public final class ConstructorConstructor {
       };
     }
 
-    ObjectConstructor<T> defaultConstructor = newDefaultConstructor(rawType);
-    if (defaultConstructor != null) {
-      return defaultConstructor;
+    FilterResult filterResult = ReflectionAccessFilterHelper.getFilterResult(reflectionFilters, rawType);
+    boolean blockInaccessible = filterResult == FilterResult.BLOCK_INACCESSIBLE;
+    if (blockInaccessible || filterResult == FilterResult.ALLOW) {
+      ObjectConstructor<T> defaultConstructor = newDefaultConstructor(rawType, blockInaccessible);
+      if (defaultConstructor != null) {
+        return defaultConstructor;
+      }
     }
 
     ObjectConstructor<T> defaultImplementation = newDefaultImplementationConstructor(type, rawType);
@@ -92,38 +102,74 @@ public final class ConstructorConstructor {
       return defaultImplementation;
     }
 
-    // finally try unsafe
-    return newUnsafeAllocator(type, rawType);
-  }
-
-  private <T> ObjectConstructor<T> newDefaultConstructor(Class<? super T> rawType) {
-    try {
-      final Constructor<? super T> constructor = rawType.getDeclaredConstructor();
-      if (!constructor.isAccessible()) {
-        accessor.makeAccessible(constructor);
-      }
+    // Check whether type is instantiable; otherwise ReflectionAccessFilter recommendation
+    // of adjusting filter suggested below is irrelevant since it would not solve the problem
+    final String exceptionMessage = UnsafeAllocator.checkInstantiable(rawType);
+    if (exceptionMessage != null) {
       return new ObjectConstructor<T>() {
-        @SuppressWarnings("unchecked") // T is the same raw type as is requested
         @Override public T construct() {
-          try {
-            Object[] args = null;
-            return (T) constructor.newInstance(args);
-          } catch (InstantiationException e) {
-            // TODO: JsonParseException ?
-            throw new RuntimeException("Failed to invoke " + constructor + " with no args", e);
-          } catch (InvocationTargetException e) {
-            // TODO: don't wrap if cause is unchecked!
-            // TODO: JsonParseException ?
-            throw new RuntimeException("Failed to invoke " + constructor + " with no args",
-                e.getTargetException());
-          } catch (IllegalAccessException e) {
-            throw new AssertionError(e);
-          }
+          throw new JsonIOException(exceptionMessage);
         }
       };
+    }
+
+    // Consider usage of Unsafe as reflection, so don't use if BLOCK_ALL
+    // Additionally, since it is not calling any constructor at all, don't use if BLOCK_INACCESSIBLE
+    if (filterResult == FilterResult.ALLOW) {
+      // finally try unsafe
+      return newUnsafeAllocator(type, rawType);
+    } else {
+      final String message = "Unable to create instance of " + rawType + "; ReflectionAccessFilter "
+          + "does not permit using reflection or Unsafe. Register an InstanceCreator or a TypeAdapter "
+          + "for this type or adjust the access filter to allow using reflection.";
+      return new ObjectConstructor<T>() {
+        @Override public T construct() {
+          throw new JsonIOException(message);
+        }
+      };
+    }
+  }
+
+  private <T> ObjectConstructor<T> newDefaultConstructor(Class<? super T> rawType, boolean blockInaccessible) {
+    final Constructor<? super T> constructor;
+    try {
+      constructor = rawType.getDeclaredConstructor();
     } catch (NoSuchMethodException e) {
       return null;
     }
+
+    if (blockInaccessible && !ReflectionAccessFilterHelper.canAccess(constructor, null)) {
+      final String message = "Unable to invoke no-args constructor of " + rawType + "; "
+          + "constructor is not accessible and ReflectionAccessFilter does not permit making "
+          + "it accessible. Register an InstanceCreator or a TypeAdapter for this type, change "
+          + "the visibility of the constructor or adjust the access filter.";
+      return new ObjectConstructor<T>() {
+        @Override public T construct() {
+          throw new JsonIOException(message);
+        }
+      };
+    }
+    accessor.makeAccessible(constructor);
+
+    return new ObjectConstructor<T>() {
+      @SuppressWarnings("unchecked") // T is the same raw type as is requested
+      @Override public T construct() {
+        try {
+          Object[] args = null;
+          return (T) constructor.newInstance(args);
+        } catch (InstantiationException e) {
+          // TODO: JsonParseException ?
+          throw new RuntimeException("Failed to invoke " + constructor + " with no args", e);
+        } catch (InvocationTargetException e) {
+          // TODO: don't wrap if cause is unchecked!
+          // TODO: JsonParseException ?
+          throw new RuntimeException("Failed to invoke " + constructor + " with no args",
+              e.getTargetException());
+        } catch (IllegalAccessException e) {
+          throw new AssertionError(e);
+        }
+      }
+    };
   }
 
   /**

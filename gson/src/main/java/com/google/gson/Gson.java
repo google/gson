@@ -147,6 +147,7 @@ public final class Gson {
   final LongSerializationPolicy longSerializationPolicy;
   final List<TypeAdapterFactory> builderFactories;
   final List<TypeAdapterFactory> builderHierarchyFactories;
+  final List<ReflectionAccessFilter> reflectionFilters;
 
   /**
    * Constructs a Gson object with default configuration. The default configuration has the
@@ -189,7 +190,7 @@ public final class Gson {
         DEFAULT_PRETTY_PRINT, DEFAULT_LENIENT, DEFAULT_SPECIALIZE_FLOAT_VALUES,
         LongSerializationPolicy.DEFAULT, null, DateFormat.DEFAULT, DateFormat.DEFAULT,
         Collections.<TypeAdapterFactory>emptyList(), Collections.<TypeAdapterFactory>emptyList(),
-        Collections.<TypeAdapterFactory>emptyList());
+        Collections.<TypeAdapterFactory>emptyList(), Collections.<ReflectionAccessFilter>emptyList());
   }
 
   Gson(Excluder excluder, FieldNamingStrategy fieldNamingStrategy,
@@ -199,11 +200,11 @@ public final class Gson {
       LongSerializationPolicy longSerializationPolicy, String datePattern, int dateStyle,
       int timeStyle, List<TypeAdapterFactory> builderFactories,
       List<TypeAdapterFactory> builderHierarchyFactories,
-      List<TypeAdapterFactory> factoriesToBeAdded) {
+      List<TypeAdapterFactory> factoriesToBeAdded, List<ReflectionAccessFilter> reflectionFilters) {
     this.excluder = excluder;
     this.fieldNamingStrategy = fieldNamingStrategy;
     this.instanceCreators = instanceCreators;
-    this.constructorConstructor = new ConstructorConstructor(instanceCreators);
+    this.constructorConstructor = new ConstructorConstructor(instanceCreators, reflectionFilters);
     this.serializeNulls = serializeNulls;
     this.complexMapKeySerialization = complexMapKeySerialization;
     this.generateNonExecutableJson = generateNonExecutableGson;
@@ -217,6 +218,7 @@ public final class Gson {
     this.timeStyle = timeStyle;
     this.builderFactories = builderFactories;
     this.builderHierarchyFactories = builderHierarchyFactories;
+    this.reflectionFilters = new ArrayList<ReflectionAccessFilter>(reflectionFilters);
 
     List<TypeAdapterFactory> factories = new ArrayList<TypeAdapterFactory>();
 
@@ -275,7 +277,7 @@ public final class Gson {
     factories.add(jsonAdapterFactory);
     factories.add(TypeAdapters.ENUM_FACTORY);
     factories.add(new ReflectiveTypeAdapterFactory(
-        constructorConstructor, fieldNamingStrategy, excluder, jsonAdapterFactory));
+        constructorConstructor, fieldNamingStrategy, excluder, jsonAdapterFactory, reflectionFilters));
 
     this.factories = Collections.unmodifiableList(factories);
   }

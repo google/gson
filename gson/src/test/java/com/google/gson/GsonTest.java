@@ -24,6 +24,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import junit.framework.TestCase;
 
@@ -49,7 +50,8 @@ public final class GsonTest extends TestCase {
         new HashMap<Type, InstanceCreator<?>>(), true, false, true, false,
         true, true, false, LongSerializationPolicy.DEFAULT, null, DateFormat.DEFAULT,
         DateFormat.DEFAULT, new ArrayList<TypeAdapterFactory>(),
-        new ArrayList<TypeAdapterFactory>(), new ArrayList<TypeAdapterFactory>());
+        new ArrayList<TypeAdapterFactory>(), new ArrayList<TypeAdapterFactory>(),
+        Collections.<ReflectionAccessFilter>emptyList());
 
     assertEquals(CUSTOM_EXCLUDER, gson.excluder());
     assertEquals(CUSTOM_FIELD_NAMING_STRATEGY, gson.fieldNamingStrategy());
@@ -62,7 +64,8 @@ public final class GsonTest extends TestCase {
         new HashMap<Type, InstanceCreator<?>>(), true, false, true, false,
         true, true, false, LongSerializationPolicy.DEFAULT, null, DateFormat.DEFAULT,
         DateFormat.DEFAULT, new ArrayList<TypeAdapterFactory>(),
-        new ArrayList<TypeAdapterFactory>(), new ArrayList<TypeAdapterFactory>());
+        new ArrayList<TypeAdapterFactory>(), new ArrayList<TypeAdapterFactory>(),
+        Collections.<ReflectionAccessFilter>emptyList());
 
     Gson clone = original.newBuilder()
         .registerTypeAdapter(Object.class, new TestTypeAdapter())
