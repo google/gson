@@ -9,4 +9,7 @@ module com.google.gson {
 	exports com.google.gson.stream;
 
 	requires transitive java.sql;
+
+	// Optional dependency on `jdk.unsupported` for JDK sun.misc.Unsafe
+	requires static jdk.unsupported;
 }
