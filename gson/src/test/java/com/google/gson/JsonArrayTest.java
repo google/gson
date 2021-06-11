@@ -20,6 +20,9 @@ import junit.framework.TestCase;
 
 import com.google.gson.common.MoreAsserts;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 /**
  * @author Jesse Wilson
  */
@@ -98,5 +101,66 @@ public final class JsonArrayTest extends TestCase {
 
     assertEquals(1, original.get(0).getAsJsonArray().size());
     assertEquals(0, copy.get(0).getAsJsonArray().size());
+  }
+
+  public void testFailedGetArrayValues() {
+    String arrayStr = "[" + "true," + "false," + "\"true\"," + "\"false\"," + "\"hello\"," + "23.45e-4," + "\"23.45\"," + "42," + "\"43\"," + "[" + "\"world\"" + "]," + "{" + "\"key1\":\"value1\"," + "\"key2\":\"value2\"," + "\"key3\":\"value3\"," + "\"key4\":\"value4\"" + "}," + "0," + "\"-1\"" + "]";
+    JsonArray jsonArray = (JsonArray) JsonParser.parseString(arrayStr);
+    try {
+      jsonArray.get(10).getAsBoolean();
+      assertTrue("expected getBoolean to fail", false);
+    } catch (UnsupportedOperationException e) {
+      assertEquals("Expected an exception message",
+              "JsonObject",e.getMessage());
+    }
+    try {
+      jsonArray.get(-1);
+      assertTrue("expected get to fail", false);
+    } catch (IndexOutOfBoundsException e) {
+      assertEquals("Expected an exception message",
+              "Index -1 out of bounds for length 13",e.getMessage());
+    }
+    try {
+      jsonArray.get(4).getAsDouble();
+      assertTrue("expected getDouble to fail", false);
+    } catch (NumberFormatException e) {
+      assertEquals("Expected an exception message",
+              "For input string: \"hello\"",e.getMessage());
+    }
+    try {
+      jsonArray.get(4).getAsInt();
+      assertTrue("expected getInt to fail", false);
+    } catch (NumberFormatException e) {
+      assertEquals("Expected an exception message",
+              "For input string: \"hello\"",e.getMessage());
+    }
+    try {
+      jsonArray.get(4).getAsJsonArray();
+      assertTrue("expected getJSONArray to fail", false);
+    } catch (IllegalStateException e) {
+      assertEquals("Expected an exception message",
+              "Not a JSON Array: \"hello\"",e.getMessage());
+    }
+    try {
+      jsonArray.get(4).getAsJsonObject();
+      assertTrue("expected getJSONObject to fail", false);
+    } catch (IllegalStateException e) {
+      assertEquals("Expected an exception message",
+              "Not a JSON Object: \"hello\"",e.getMessage());
+    }
+    try {
+      jsonArray.get(4).getAsLong();
+      assertTrue("expected getLong to fail", false);
+    } catch (NumberFormatException e) {
+      assertEquals("Expected an exception message",
+              "For input string: \"hello\"",e.getMessage());
+    }
+    try {
+      jsonArray.get(10).getAsString();
+      assertTrue("expected getString to fail", false);
+    } catch (UnsupportedOperationException e) {
+      assertEquals("Expected an exception message",
+              "JsonObject",e.getMessage());
+    }
   }
 }
