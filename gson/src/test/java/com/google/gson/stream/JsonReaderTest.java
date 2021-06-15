@@ -1672,6 +1672,91 @@ public final class JsonReaderTest extends TestCase {
     return new String(array);
   }
 
+  public void testTopLevelString() throws IOException {
+	JsonReader reader = new JsonReader(reader("\"Some String\""));
+	assertEquals("Some String", reader.nextString());
+  }
+  
+  public void testNextRawValueTopLevelString() throws IOException {
+	JsonReader reader = new JsonReader(reader("\"Some String with\\nescapes.\""));
+	assertEquals("\"Some String with\\nescapes.\"", reader.nextRawJSONValue());
+  }
+  
+  public void testNextRawValueTopLevelNumber() throws IOException {
+	JsonReader reader = new JsonReader(reader("525.123"));
+	assertEquals("525.123", reader.nextRawJSONValue());
+  }
+  
+  public void testNextRawValueTopLevelNull() throws IOException {
+	JsonReader reader = new JsonReader(reader("null"));
+	assertEquals("null", reader.nextRawJSONValue());
+  }
+  
+  public void testNextRawValueQuotedNameNull() throws IOException {
+	JsonReader reader = new JsonReader(reader("{\"name\"  :  null}"));
+	assertEquals("{\"name\":null}", reader.nextRawJSONValue());
+  }
+  
+  public void testNextRawValueQuotedString() throws IOException {
+	JsonReader reader = new JsonReader(reader("{\"name\"  :  \"Some    String\"}"));
+	assertEquals("{\"name\":\"Some    String\"}", reader.nextRawJSONValue());
+  }
+  
+  public void testNextRawValueSingleQuotedString() throws IOException {
+	JsonReader reader = new JsonReader(reader("{'name'  :  'Some    String'}"));
+	reader.setLenient(true);
+	assertEquals("{'name':'Some    String'}", reader.nextRawJSONValue());
+  }
+  
+  public void testNextRawValueStrInObj() throws IOException {
+	  JsonReader reader = new JsonReader(reader("{\"name\"  :  \"Some    String\"}"));
+	  reader.beginObject();
+	  assertEquals("name", reader.nextName());
+	  assertEquals("\"Some    String\"", reader.nextRawJSONValue());
+	  reader.endObject();
+	  assertEquals(JsonToken.END_DOCUMENT, reader.peek());
+  }
+  
+  public void testNextRawValueComplex() throws IOException {
+	  JsonReader reader = new JsonReader(reader(
+			"{\n" + 
+	  		"  \"string\" : \"A String\",\n" + 
+	  		"  \"null_literal\": null,\n" + 
+	  		"  \"number\": 1234.5678,\n" + 
+	  		"  \"array\" : [\"a\", \"b\", \"c\", \"d\"],\n" + 
+	  		"  \"obj\" : {\n" + 
+	  		"    \"key\" : \"val\",\n" + 
+	  		"    \"subArr\" : [\"one\", \"two\", \"three\"],\n" + 
+	  		"    \"deeper\" : {\n" + 
+	  		"      \"arrayOfObj\" : [\n" + 
+	  		"        {\"key\" : \"val1\"},\n" + 
+	  		"        {\"key\" : \"val2\"},\n" + 
+	  		"        {\"key\" : null},\n" + 
+	  		"        {\"key\" : \"val4\"},\n" + 
+	  		"        {\"key\" : \"val9\"}\n" + 
+	  		"      ]\n" + 
+	  		"    }\n" + 
+	  		"  }\n" + 
+	  		"}"));
+	  String expected = "{"+
+	  		"\"string\":\"A String\","+
+			"\"null_literal\":null," + 
+	  		"\"number\":1234.5678," + 
+	  		"\"array\":[\"a\",\"b\",\"c\",\"d\"]," + 
+	  		"\"obj\":{" + 
+	  		"\"key\":\"val\"," + 
+	  		"\"subArr\":[\"one\",\"two\",\"three\"]," + 
+	  		"\"deeper\":{" + 
+	  		"\"arrayOfObj\":[" + 
+	  		"{\"key\":\"val1\"}," + 
+	  		"{\"key\":\"val2\"}," + 
+	  		"{\"key\":null}," + 
+	  		"{\"key\":\"val4\"}," + 
+	  		"{\"key\":\"val9\"}" + 
+	  		"]}}}";
+	  assertEquals(expected, reader.nextRawJSONValue());
+  }
+
   public void testMalformedDocuments() throws IOException {
     assertDocument("{]", BEGIN_OBJECT, IOException.class);
     assertDocument("{,", BEGIN_OBJECT, IOException.class);
@@ -1729,7 +1814,7 @@ public final class JsonReaderTest extends TestCase {
     } catch (MalformedJsonException expected) {
     }
   }
-
+  
   private void assertDocument(String document, Object... expectations) throws IOException {
     JsonReader reader = new JsonReader(reader(document));
     reader.setLenient(true);
