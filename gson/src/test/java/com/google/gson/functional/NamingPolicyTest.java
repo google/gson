@@ -170,8 +170,12 @@ public class NamingPolicyTest extends TestCase {
   private static final class UpperCaseNamingStrategy implements FieldNamingStrategy {
     @Override
     public String translateName(Field f) {
-      return f.getName().toUpperCase();
+      return translateName(f.getName());
     }
+    public String translateName(String s) {
+      return s.toUpperCase();
+    }
+
   }
 
   @SuppressWarnings("unused")
