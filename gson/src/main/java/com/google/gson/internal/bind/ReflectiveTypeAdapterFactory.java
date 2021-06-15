@@ -27,6 +27,7 @@ import com.google.gson.internal.$Gson$Types;
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.Excluder;
 import com.google.gson.internal.ObjectConstructor;
+import com.google.gson.internal.ObjectConstructorWrapper;
 import com.google.gson.internal.Primitives;
 import com.google.gson.internal.reflect.ReflectionAccessor;
 import com.google.gson.reflect.TypeToken;
@@ -51,6 +52,8 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   private final Excluder excluder;
   private final JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory;
   private final ReflectionAccessor accessor = ReflectionAccessor.getInstance();
+  // Helps with restricting the Adapter only to certain types for the Fill-In mechanic.
+  private final List<Type> typeIncluder;
 
   public ReflectiveTypeAdapterFactory(ConstructorConstructor constructorConstructor,
       FieldNamingStrategy fieldNamingPolicy, Excluder excluder,
@@ -59,6 +62,18 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     this.fieldNamingPolicy = fieldNamingPolicy;
     this.excluder = excluder;
     this.jsonAdapterFactory = jsonAdapterFactory;
+    this.typeIncluder = null;
+  }
+
+  public ReflectiveTypeAdapterFactory(ConstructorConstructor constructorConstructor,
+      FieldNamingStrategy fieldNamingPolicy, Excluder excluder,
+      JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory,
+      List<Type> typeIncluder) {
+    this.constructorConstructor = constructorConstructor;
+    this.fieldNamingPolicy = fieldNamingPolicy;
+    this.excluder = excluder;
+    this.jsonAdapterFactory = jsonAdapterFactory;
+    this.typeIncluder = typeIncluder;
   }
 
   public boolean excludeField(Field f, boolean serialize) {
@@ -95,11 +110,22 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     Class<? super T> raw = type.getRawType();
 
     if (!Object.class.isAssignableFrom(raw)) {
-      return null; // it's a primitive!
+     return null; // it's a primitive!
     }
 
-    ObjectConstructor<T> constructor = constructorConstructor.get(type);
-    return new Adapter<T>(constructor, getBoundFields(gson, type, raw));
+    if (typeIncluder == null) {
+      ObjectConstructor<T> constructor = constructorConstructor.get(type);
+      return new Adapter<T>(constructor, getBoundFields(gson, type, raw));
+    }
+
+    for (Type t : typeIncluder) {
+      if (t.equals(type.getType())) {
+        ObjectConstructor<T> constructor = constructorConstructor.get(type);
+        return new Adapter<T>(constructor, getBoundFields(gson, type, raw));
+      }
+    }
+
+    return null;
   }
 
   private ReflectiveTypeAdapterFactory.BoundField createBoundField(
@@ -209,7 +235,12 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         return null;
       }
 
-      T instance = constructor.construct();
+      T instance = null;
+      try {
+        instance = (T) ((ObjectConstructorWrapper) constructor).construct(in);
+      } catch (ClassCastException e) {
+        instance = constructor.construct();
+      }
 
       try {
         in.beginObject();

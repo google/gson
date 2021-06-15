@@ -16,6 +16,22 @@
 
 package com.google.gson;
 
+import static com.google.gson.Gson.DEFAULT_COMPLEX_MAP_KEYS;
+import static com.google.gson.Gson.DEFAULT_ESCAPE_HTML;
+import static com.google.gson.Gson.DEFAULT_JSON_NON_EXECUTABLE;
+import static com.google.gson.Gson.DEFAULT_LENIENT;
+import static com.google.gson.Gson.DEFAULT_PRETTY_PRINT;
+import static com.google.gson.Gson.DEFAULT_SERIALIZE_NULLS;
+import static com.google.gson.Gson.DEFAULT_SPECIALIZE_FLOAT_VALUES;
+
+import com.google.gson.internal.$Gson$Preconditions;
+import com.google.gson.internal.ConstructorConstructor;
+import com.google.gson.internal.Excluder;
+import com.google.gson.internal.bind.ReflectiveTypeAdapterFactory;
+import com.google.gson.internal.bind.TreeTypeAdapter;
+import com.google.gson.internal.bind.TypeAdapters;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
 import java.lang.reflect.Type;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -25,21 +41,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.google.gson.internal.$Gson$Preconditions;
-import com.google.gson.internal.Excluder;
-import com.google.gson.internal.bind.TreeTypeAdapter;
-import com.google.gson.internal.bind.TypeAdapters;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-
-import static com.google.gson.Gson.DEFAULT_COMPLEX_MAP_KEYS;
-import static com.google.gson.Gson.DEFAULT_ESCAPE_HTML;
-import static com.google.gson.Gson.DEFAULT_JSON_NON_EXECUTABLE;
-import static com.google.gson.Gson.DEFAULT_LENIENT;
-import static com.google.gson.Gson.DEFAULT_PRETTY_PRINT;
-import static com.google.gson.Gson.DEFAULT_SERIALIZE_NULLS;
-import static com.google.gson.Gson.DEFAULT_SPECIALIZE_FLOAT_VALUES;
 
 /**
  * <p>Use this builder to construct a {@link Gson} instance when you need to set configuration
@@ -493,7 +494,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public GsonBuilder registerTypeAdapter(Type type, Object typeAdapter) {
+  public GsonBuilder registerTypeAdapter(final Type type, final Object typeAdapter) {
     $Gson$Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
         || typeAdapter instanceof JsonDeserializer<?>
         || typeAdapter instanceof InstanceCreator<?>
@@ -506,7 +507,11 @@ public final class GsonBuilder {
       factories.add(TreeTypeAdapter.newFactoryWithMatchRawType(typeToken, typeAdapter));
     }
     if (typeAdapter instanceof TypeAdapter<?>) {
-      factories.add(TypeAdapters.newFactory(TypeToken.get(type), (TypeAdapter)typeAdapter));
+      if (typeAdapter instanceof ReflectiveTypeAdapter<?>) {
+        factories.add(((ReflectiveTypeAdapter)typeAdapter).getFactory(type));
+      } else {
+        factories.add(TypeAdapters.newFactory(TypeToken.get(type), (TypeAdapter)typeAdapter));
+      }
     }
     return this;
   }
