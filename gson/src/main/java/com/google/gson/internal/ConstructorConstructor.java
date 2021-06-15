@@ -212,6 +212,14 @@ public final class ConstructorConstructor {
       }
     }
 
+    if (Iterable.class.isAssignableFrom(rawType)) {
+      return new ObjectConstructor<T>() {
+        public T construct() {
+          return (T) new ArrayList<Object>();
+        }
+      };
+    }
+
     return null;
   }
 
