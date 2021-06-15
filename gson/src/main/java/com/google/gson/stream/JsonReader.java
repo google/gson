@@ -448,6 +448,7 @@ public class JsonReader implements Closeable {
     case PEEKED_BUFFERED:
       return JsonToken.STRING;
     case PEEKED_LONG:
+      return JsonToken.LONG_NUMBER;
     case PEEKED_NUMBER:
       return JsonToken.NUMBER;
     case PEEKED_EOF:

@@ -90,6 +90,7 @@ public final class TypeAdapters {
       while (tokenType != JsonToken.END_ARRAY) {
         boolean set;
         switch (tokenType) {
+        case LONG_NUMBER:
         case NUMBER:
           set = in.nextInt() != 0;
           break;
@@ -350,6 +351,7 @@ public final class TypeAdapters {
       case NULL:
         in.nextNull();
         return null;
+      case LONG_NUMBER:
       case NUMBER:
       case STRING:
         return new LazilyParsedNumber(in.nextString());
@@ -700,6 +702,7 @@ public final class TypeAdapters {
       switch (in.peek()) {
       case STRING:
         return new JsonPrimitive(in.nextString());
+      case LONG_NUMBER:
       case NUMBER:
         String number = in.nextString();
         return new JsonPrimitive(new LazilyParsedNumber(number));
