@@ -16,6 +16,7 @@ classes
 .gradle
 local.properties
 build
+/bazel-*
 
 .DS_Store
 
