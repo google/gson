@@ -39,6 +39,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerArray;
+import java.util.regex.Pattern;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -773,6 +774,7 @@ public final class TypeAdapters {
   private static final class EnumTypeAdapter<T extends Enum<T>> extends TypeAdapter<T> {
     private final Map<String, T> nameToConstant = new HashMap<String, T>();
     private final Map<T, String> constantToName = new HashMap<T, String>();
+    private List<Pair<Pattern, T>> patternToConstant;
 
     public EnumTypeAdapter(Class<T> classOfT) {
       try {
@@ -783,6 +785,14 @@ public final class TypeAdapters {
             name = annotation.value();
             for (String alternate : annotation.alternate()) {
               nameToConstant.put(alternate, constant);
+            }
+            String regex = annotation.pattern();
+            if (regex != "") {
+              Pattern pattern = Pattern.compile(regex);
+              if (patternToConstant == null) {
+                patternToConstant = new ArrayList<Pair<Pattern, T>>();
+              }
+              patternToConstant.add(new Pair<Pattern, T>(pattern, constant));
             }
           }
           nameToConstant.put(name, constant);
@@ -797,7 +807,19 @@ public final class TypeAdapters {
         in.nextNull();
         return null;
       }
-      return nameToConstant.get(in.nextString());
+      String value = in.nextString();
+      T matched = nameToConstant.get(value);
+      if (matched == null) {
+        // Try the patterns
+        if (patternToConstant != null) {
+          for (Pair<Pattern, T> pair : patternToConstant) {
+            if (pair.a.matcher(value).matches()) {
+              return pair.b;
+            }
+          }
+        }
+      }
+      return matched;
     }
 
     @Override public void write(JsonWriter out, T value) throws IOException {
