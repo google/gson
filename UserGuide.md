@@ -429,7 +429,7 @@ class IdInstanceCreator implements InstanceCreator<Id<?>> {
   public Id<?> createInstance(Type type) {
     Type[] typeParameters = ((ParameterizedType)type).getActualTypeArguments();
     Type idType = typeParameters[0]; // Id has only one parameterized type T
-    return Id.get((Class)idType, 0L);
+    return new Id<>((Class<?>)idType, 0L);
   }
 }
 ```
@@ -572,7 +572,7 @@ public class SampleObjectForTest {
   @Foo private final int annotatedField;
   private final String stringField;
   private final long longField;
-  private final Class<?> clazzField;
+  private Class<?> clazzField;
 
   public SampleObjectForTest() {
     annotatedField = 5;
@@ -611,7 +611,7 @@ public static void main(String[] args) {
 The output is:
 
 ```
-{"longField":1234}
+{"longField":1234,"clazzField":null}
 ```
 
 ### <a name="TOC-JSON-Field-Naming-Support"></a>JSON Field Naming Support
