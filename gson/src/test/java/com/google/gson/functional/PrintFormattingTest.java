@@ -47,7 +47,7 @@ public class PrintFormattingTest extends TestCase {
 
   @SuppressWarnings({"unchecked", "rawtypes"})
   public void testCompactFormattingLeavesNoWhiteSpace() {
-    List list = new ArrayList();
+    List<?> list = new ArrayList<>();
     list.add(new BagOfPrimitives());
     list.add(new Nested());
     list.add(new PrimitiveArray());
