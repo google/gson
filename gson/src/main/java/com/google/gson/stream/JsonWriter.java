@@ -53,6 +53,11 @@ import static com.google.gson.stream.JsonScope.NONEMPTY_OBJECT;
  *       Finally close the object using {@link #endObject()}.
  * </ul>
  *
+ * <p>Property names and string values of unknown length can be written using
+ * the {@code Writer}s created by {@link #nameWriter()} and
+ * {@link #stringValueWriter()}. However, while these writers are open no other
+ * data can be written.
+ *
  * <h3>Example</h3>
  * Suppose we'd like to encode a stream of messages such as the following: <pre> {@code
  * [
@@ -162,6 +167,186 @@ public class JsonWriter implements Closeable, Flushable {
     HTML_SAFE_REPLACEMENT_CHARS['\''] = "\\u0027";
   }
 
+  private class StringValueWriter extends Writer {
+    private boolean isClosed = false;
+
+    private void verifyNotClosed() throws IOException {
+      if (isClosed) {
+        throw new IOException("Writer is closed");
+      }
+    }
+
+    @Override
+    public void write(int c) throws IOException {
+      verifyNotClosed();
+      stringPiece((char) c);
+    }
+
+    /**
+     * @param length length of the data, e.g. array length
+     * @param offset 0-based offset where the section begins
+     * @param sectionLength length of the section
+     * @throws IndexOutOfBoundsException if {@code offset} or {@code sectionLength} is invalid
+     */
+    private void validateIndices(int length, int offset, int sectionLength) {
+      if (offset < 0) {
+        throw new IndexOutOfBoundsException("offset < 0");
+      } else if (sectionLength < 0) {
+        throw new IndexOutOfBoundsException("length < 0");
+      } else if (sectionLength > length - offset) {
+        throw new IndexOutOfBoundsException("length > data.length - offset");
+      }
+    }
+
+    @Override
+    public void write(char[] cbuf, int off, int len) throws IOException {
+      verifyNotClosed();
+      validateIndices(cbuf.length, off, len);
+      stringPiece(cbuf, off, len);
+    }
+
+    @Override
+    public void write(String str, int off, int len) throws IOException {
+      verifyNotClosed();
+      validateIndices(str.length(), off, len);
+      stringPiece(str.substring(off, off + len));
+    }
+
+    @Override
+    public void write(String str) throws IOException {
+      verifyNotClosed();
+      stringPiece(str);
+    }
+
+    @Override
+    public Writer append(CharSequence csq, int start, int end) throws IOException {
+      verifyNotClosed();
+
+      if (csq == null) {
+        csq = "null"; // Requirement by Writer.append
+      }
+
+      validateIndices(csq.length(), start, end - start);
+      stringPiece(csq.subSequence(start, end));
+      return this;
+    }
+
+    @Override
+    public Writer append(CharSequence csq) throws IOException {
+      verifyNotClosed();
+
+      if (csq == null) {
+        stringPiece("null"); // Requirement by Writer.append
+      } else {
+        stringPiece(csq);
+      }
+      return this;
+    }
+
+    @Override
+    public void flush() throws IOException {
+      verifyNotClosed();
+      JsonWriter.this.flush();
+    }
+
+    @Override
+    public void close() throws IOException {
+      if (!isClosed) {
+        endString();
+        flush();
+        isClosed = true;
+        // Update enclosing JsonWriter
+        isWriterActive = false;
+      }
+    }
+  }
+
+  /**
+   * Abstract class allowing to use the most efficient {@code Writer} methods for
+   * certain types.
+   */
+  private static abstract class WritingCharSequence {
+    public abstract int length();
+    public abstract char charAt(int index);
+    public abstract void writeTo(Writer out, int offset, int length) throws IOException;
+
+    public static WritingCharSequence of(final char[] chars, final int start, final int length) {
+      return new WritingCharSequence() {
+        @Override
+        public void writeTo(Writer out, int off, int len) throws IOException {
+          out.write(chars, start + off, len);
+        }
+
+        @Override
+        public int length() {
+          return length;
+        }
+
+        @Override
+        public char charAt(int index) {
+          return chars[start + index];
+        }
+      };
+    }
+
+    public static WritingCharSequence of(final CharSequence charSequence) {
+      return new WritingCharSequence() {
+        @Override
+        public void writeTo(Writer out, int off, int len) throws IOException {
+          out.append(charSequence, off, off + len);
+        }
+
+        @Override
+        public int length() {
+          return charSequence.length();
+        }
+
+        @Override
+        public char charAt(int index) {
+          return charSequence.charAt(index);
+        }
+      };
+    }
+
+    public static WritingCharSequence of(final String string) {
+      return new WritingCharSequence() {
+        @Override
+        public void writeTo(Writer out, int off, int len) throws IOException {
+          out.write(string, off, len);
+        }
+
+        @Override
+        public int length() {
+          return string.length();
+        }
+
+        @Override
+        public char charAt(int index) {
+          return string.charAt(index);
+        }
+      };
+    }
+
+    public static WritingCharSequence of(final char c) {
+      return new WritingCharSequence() {
+        @Override
+        public void writeTo(Writer out, int off, int len) throws IOException {
+          out.write(c);
+        }
+
+        @Override
+        public int length() {
+          return 1;
+        }
+
+        @Override
+        public char charAt(int index) {
+          return c;
+        }
+      };
+    }
+  }
+
   /** The output data, containing at most one top-level array or object. */
   private final Writer out;
 
@@ -187,8 +372,12 @@ public class JsonWriter implements Closeable, Flushable {
   private boolean htmlSafe;
 
   private String deferredName;
+  private boolean expectsPropertyValue;
 
   private boolean serializeNulls = true;
+
+  /** Whether a {@code Writer} is currently writing a name or string */
+  private boolean isWriterActive = false;
 
   /**
    * Creates a new instance that writes a JSON-encoded stream to {@code out}.
@@ -279,12 +468,22 @@ public class JsonWriter implements Closeable, Flushable {
   }
 
   /**
+   * @throws IllegalStateException if a {@code Writer} is currently writing a name or string
+   */
+  private void verifyNoWriterActive() {
+    if (isWriterActive) {
+      throw new IllegalStateException("Writer is currently writing name or string");
+    }
+  }
+
+  /**
    * Begins encoding a new array. Each call to this method must be paired with
    * a call to {@link #endArray}.
    *
    * @return this writer.
    */
   public JsonWriter beginArray() throws IOException {
+    verifyNoWriterActive();
     writeDeferredName();
     return open(EMPTY_ARRAY, '[');
   }
@@ -295,6 +494,7 @@ public class JsonWriter implements Closeable, Flushable {
    * @return this writer.
    */
   public JsonWriter endArray() throws IOException {
+    verifyNoWriterActive();
     return close(EMPTY_ARRAY, NONEMPTY_ARRAY, ']');
   }
 
@@ -305,6 +505,7 @@ public class JsonWriter implements Closeable, Flushable {
    * @return this writer.
    */
   public JsonWriter beginObject() throws IOException {
+    verifyNoWriterActive();
     writeDeferredName();
     return open(EMPTY_OBJECT, '{');
   }
@@ -315,6 +516,7 @@ public class JsonWriter implements Closeable, Flushable {
    * @return this writer.
    */
   public JsonWriter endObject() throws IOException {
+    verifyNoWriterActive();
     return close(EMPTY_OBJECT, NONEMPTY_OBJECT, '}');
   }
 
@@ -339,8 +541,8 @@ public class JsonWriter implements Closeable, Flushable {
     if (context != nonempty && context != empty) {
       throw new IllegalStateException("Nesting problem.");
     }
-    if (deferredName != null) {
-      throw new IllegalStateException("Dangling name: " + deferredName);
+    if (expectsPropertyValue) {
+      throw new IllegalStateException("Expecting property value.");
     }
 
     stackSize--;
@@ -378,20 +580,26 @@ public class JsonWriter implements Closeable, Flushable {
   /**
    * Encodes the property name.
    *
+   * <p>When writing property names of unknown length {@link #nameWriter()}
+   * should be preferred.
+   *
    * @param name the name of the forthcoming value. May not be null.
    * @return this writer.
    */
   public JsonWriter name(String name) throws IOException {
+    verifyNoWriterActive();
+
     if (name == null) {
       throw new NullPointerException("name == null");
     }
-    if (deferredName != null) {
-      throw new IllegalStateException();
+    if (expectsPropertyValue) {
+      throw new IllegalStateException("Expecting property value.");
     }
     if (stackSize == 0) {
       throw new IllegalStateException("JsonWriter is closed.");
     }
     deferredName = name;
+    expectsPropertyValue = true;
     return this;
   }
 
@@ -401,15 +609,44 @@ public class JsonWriter implements Closeable, Flushable {
       string(deferredName);
       deferredName = null;
     }
+
+    // nameWriter does not use deferredName
+    expectsPropertyValue = false;
+  }
+
+  /**
+   * Creates a new writer encoding a property name. The returned writer has
+   * to be closed to indicate that writing the name has finished. No other
+   * data can be written until the writer is closed.
+   *
+   * <p>For efficiency reasons implementations may always write the property,
+   * regardless of whether {@linkplain #getSerializeNulls() null values
+   * should be serialized}.
+   *
+   * @return writer for writing a property name
+   * @throws IOException if creating the writer fails
+   */
+  public Writer nameWriter() throws IOException {
+    verifyNoWriterActive();
+    beforeName();
+    beginString();
+    isWriterActive = true;
+    expectsPropertyValue = true;
+    return new StringValueWriter();
   }
 
   /**
    * Encodes {@code value}.
    *
+   * <p>When writing strings of unknown length {@link #stringValueWriter()}
+   * should be preferred.
+   *
    * @param value the literal string value, or null to encode a null literal.
    * @return this writer.
    */
   public JsonWriter value(String value) throws IOException {
+    verifyNoWriterActive();
+
     if (value == null) {
       return nullValue();
     }
@@ -420,6 +657,23 @@ public class JsonWriter implements Closeable, Flushable {
   }
 
   /**
+   * Creates a new writer encoding a string {@code value}. The returned writer
+   * has to be closed to indicate that writing the value has finished. No other
+   * data can be written until the writer is closed.
+   *
+   * @return writer for writing a string value
+   * @throws IOException if creating the writer fails
+   */
+  public Writer stringValueWriter() throws IOException {
+    verifyNoWriterActive();
+    writeDeferredName();
+    beforeValue();
+    beginString();
+    isWriterActive = true;
+    return new StringValueWriter();
+  }
+
+  /**
    * Writes {@code value} directly to the writer without quoting or
    * escaping.
    *
@@ -427,6 +681,8 @@ public class JsonWriter implements Closeable, Flushable {
    * @return this writer.
    */
   public JsonWriter jsonValue(String value) throws IOException {
+    verifyNoWriterActive();
+
     if (value == null) {
       return nullValue();
     }
@@ -442,6 +698,10 @@ public class JsonWriter implements Closeable, Flushable {
    * @return this writer.
    */
   public JsonWriter nullValue() throws IOException {
+    verifyNoWriterActive();
+    // Clear flag here because writeDeferredName() might not be called
+    expectsPropertyValue = false;
+
     if (deferredName != null) {
       if (serializeNulls) {
         writeDeferredName();
@@ -461,6 +721,7 @@ public class JsonWriter implements Closeable, Flushable {
    * @return this writer.
    */
   public JsonWriter value(boolean value) throws IOException {
+    verifyNoWriterActive();
     writeDeferredName();
     beforeValue();
     out.write(value ? "true" : "false");
@@ -473,6 +734,7 @@ public class JsonWriter implements Closeable, Flushable {
    * @return this writer.
    */
   public JsonWriter value(Boolean value) throws IOException {
+    verifyNoWriterActive();
     if (value == null) {
       return nullValue();
     }
@@ -490,6 +752,7 @@ public class JsonWriter implements Closeable, Flushable {
    * @return this writer.
    */
   public JsonWriter value(double value) throws IOException {
+    verifyNoWriterActive();
     writeDeferredName();
     if (!lenient && (Double.isNaN(value) || Double.isInfinite(value))) {
       throw new IllegalArgumentException("Numeric values must be finite, but was " + value);
@@ -505,6 +768,7 @@ public class JsonWriter implements Closeable, Flushable {
    * @return this writer.
    */
   public JsonWriter value(long value) throws IOException {
+    verifyNoWriterActive();
     writeDeferredName();
     beforeValue();
     out.write(Long.toString(value));
@@ -519,6 +783,8 @@ public class JsonWriter implements Closeable, Flushable {
    * @return this writer.
    */
   public JsonWriter value(Number value) throws IOException {
+    verifyNoWriterActive();
+
     if (value == null) {
       return nullValue();
     }
@@ -553,6 +819,10 @@ public class JsonWriter implements Closeable, Flushable {
   public void close() throws IOException {
     out.close();
 
+    if (isWriterActive) {
+      throw new IOException("Writer is currently writing name or string");
+    }
+
     int size = stackSize;
     if (size > 1 || size == 1 && stack[size - 1] != NONEMPTY_DOCUMENT) {
       throw new IOException("Incomplete document");
@@ -560,13 +830,16 @@ public class JsonWriter implements Closeable, Flushable {
     stackSize = 0;
   }
 
-  private void string(String value) throws IOException {
-    String[] replacements = htmlSafe ? HTML_SAFE_REPLACEMENT_CHARS : REPLACEMENT_CHARS;
+  private void beginString() throws IOException {
     out.write('\"');
+  }
+
+  private void stringPiece(WritingCharSequence charSequence) throws IOException {
+    String[] replacements = htmlSafe ? HTML_SAFE_REPLACEMENT_CHARS : REPLACEMENT_CHARS;
     int last = 0;
-    int length = value.length();
+    int length = charSequence.length();
     for (int i = 0; i < length; i++) {
-      char c = value.charAt(i);
+      char c = charSequence.charAt(i);
       String replacement;
       if (c < 128) {
         replacement = replacements[c];
@@ -581,15 +854,40 @@ public class JsonWriter implements Closeable, Flushable {
         continue;
       }
       if (last < i) {
-        out.write(value, last, i - last);
+        charSequence.writeTo(out, last, i - last);
       }
       out.write(replacement);
       last = i + 1;
     }
     if (last < length) {
-      out.write(value, last, length - last);
+      charSequence.writeTo(out, last, length - last);
     }
+  }
+
+  private void stringPiece(char[] chars, int start, int length) throws IOException {
+    stringPiece(WritingCharSequence.of(chars, start, length));
+  }
+
+  private void stringPiece(CharSequence charSequence) throws IOException {
+    stringPiece(WritingCharSequence.of(charSequence));
+  }
+
+  private void stringPiece(String string) throws IOException {
+    stringPiece(WritingCharSequence.of(string));
+  }
+
+  private void stringPiece(char c) throws IOException {
+    stringPiece(WritingCharSequence.of(c));
+  }
+
+  private void endString() throws IOException {
     out.write('\"');
+  }
+
+  private void string(String value) throws IOException {
+    beginString();
+    stringPiece(value);
+    endString();
   }
 
   private void newline() throws IOException {

@@ -19,6 +19,8 @@ package com.google.gson.stream;
 import com.google.gson.JsonElement;
 import com.google.gson.internal.Streams;
 import com.google.gson.internal.bind.JsonTreeReader;
+import com.google.gson.stream.JsonReader.StringValueReader;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Arrays;
@@ -28,6 +30,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;
 
 @SuppressWarnings("resource")
@@ -36,13 +39,16 @@ public class JsonReaderPathTest {
   @Parameterized.Parameters(name = "{0}")
   public static List<Object[]> parameters() {
     return Arrays.asList(
-        new Object[] { Factory.STRING_READER },
-        new Object[] { Factory.OBJECT_READER }
+        new Object[] { Factory.STREAM_READER, true },
+        new Object[] { Factory.TREE_READER, false }
     );
   }
 
-  @Parameterized.Parameter
+  @Parameterized.Parameter(0)
   public Factory factory;
+  /** Whether this JsonReader's {@code nextNameReader()} is streaming the name */
+  @Parameterized.Parameter(1)
+  public boolean isStreamingName;
 
   @Test public void path() throws IOException {
     JsonReader reader = factory.create("{\"a\":[2,true,false,null,\"b\",{\"c\":\"d\"},[3]]}");
@@ -154,7 +160,7 @@ public class JsonReaderPathTest {
   }
 
   @Test public void multipleTopLevelValuesInOneDocument() throws IOException {
-    assumeTrue(factory == Factory.STRING_READER);
+    assumeTrue(factory == Factory.STREAM_READER);
 
     JsonReader reader = factory.create("[][]");
     reader.setLenient(true);
@@ -178,7 +184,7 @@ public class JsonReaderPathTest {
     JsonReader reader = factory.create("{\"a\":1}");
     reader.beginObject();
     reader.skipValue();
-    assertEquals("$.null", reader.getPath());
+    assertEquals("$.#skippedName", reader.getPath());
   }
 
   @Test public void skipObjectValues() throws IOException {
@@ -187,7 +193,7 @@ public class JsonReaderPathTest {
     assertEquals("$.", reader.getPath());
     reader.nextName();
     reader.skipValue();
-    assertEquals("$.null", reader.getPath());
+    assertEquals("$.a", reader.getPath());
     reader.nextName();
     assertEquals("$.b", reader.getPath());
   }
@@ -239,13 +245,104 @@ public class JsonReaderPathTest {
     assertEquals("$", reader.getPath());
   }
 
+  /**
+   * Tests JSON path when {@code nextNameReader()} is used
+   */
+  @Test public void nameReader() throws IOException {
+    JsonReader reader = factory.create("{\"abc\":1}");
+    assertEquals("$", reader.getPath());
+    reader.beginObject();
+    assertEquals("$.", reader.getPath());
+    StringValueReader nameReader = reader.nextNameReader();
+    nameReader.skipRemaining();
+    // When reader is not closed yet path should not be updated
+    assertEquals("$.", reader.getPath());
+    nameReader.close();
+
+    String expectedPropertyName = isStreamingName ? "#streamedName" : "abc";
+    assertEquals("$." + expectedPropertyName, reader.getPath());
+    reader.skipValue();
+    assertEquals("$." + expectedPropertyName, reader.getPath());
+
+    reader.endObject();
+    assertEquals("$", reader.getPath());
+  }
+
+  /**
+   * Tests JSON path when {@code nextNameReader()} has been closed before
+   * all data has been consumed
+   */
+  @Test public void nameReaderPartial() throws IOException {
+    JsonReader reader = factory.create("{\"abc\":1}");
+    assertEquals("$", reader.getPath());
+    reader.beginObject();
+    assertEquals("$.", reader.getPath());
+    StringValueReader nameReader = reader.nextNameReader();
+    // When reader is not closed yet path should not be updated
+    assertEquals("$.", reader.getPath());
+    nameReader.close();
+    // Name has not been consumed completely so path should not be updated
+    assertEquals("$.", reader.getPath());
+
+    // Should not be able to use JsonReader when not complete name has
+    // been consumed, even though nameReader was closed
+    try {
+      reader.peek();
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+  }
+
+  /**
+   * Tests JSON path when {@code nextStringReader()} is used
+   */
+  @Test public void arrayStringReader() throws IOException {
+    JsonReader reader = factory.create("[\"abc\"]");
+    assertEquals("$", reader.getPath());
+    reader.beginArray();
+    assertEquals("$[0]", reader.getPath());
+    StringValueReader stringReader = reader.nextStringReader();
+    stringReader.skipRemaining();
+    // When reader is not closed yet path should not be updated
+    assertEquals("$[0]", reader.getPath());
+    stringReader.close();
+    assertEquals("$[1]", reader.getPath());
+    reader.endArray();
+    assertEquals("$", reader.getPath());
+  }
+
+  /**
+   * Tests JSON path when {@code nextStringReader()} has been closed before
+   * all data has been consumed
+   */
+  @Test public void arrayStringReaderPartial() throws IOException {
+    JsonReader reader = factory.create("[\"abc\"]");
+    assertEquals("$", reader.getPath());
+    reader.beginArray();
+    assertEquals("$[0]", reader.getPath());
+    StringValueReader stringReader = reader.nextStringReader();
+    // When reader is not closed yet path should not be updated
+    assertEquals("$[0]", reader.getPath());
+    stringReader.close();
+    // String value has not been consumed completely so path should not be updated
+    assertEquals("$[0]", reader.getPath());
+
+    // Should not be able to use JsonReader when not complete string value
+    // has been consumed, even though stringReader was closed
+    try {
+      reader.peek();
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+  }
+
   enum Factory {
-    STRING_READER {
+    STREAM_READER {
       @Override public JsonReader create(String data) {
         return new JsonReader(new StringReader(data));
       }
     },
-    OBJECT_READER {
+    TREE_READER {
       @Override public JsonReader create(String data) {
         JsonElement element = Streams.parse(new JsonReader(new StringReader(data)));
         return new JsonTreeReader(element);

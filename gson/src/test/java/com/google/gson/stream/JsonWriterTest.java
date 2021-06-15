@@ -20,8 +20,11 @@ import junit.framework.TestCase;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.List;
 
 @SuppressWarnings("resource")
 public final class JsonWriterTest extends TestCase {
@@ -69,6 +72,16 @@ public final class JsonWriterTest extends TestCase {
     }
   }
 
+  public void testInvalidTopLevelTypesWriter() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter jsonWriter = new JsonWriter(stringWriter);
+    try {
+      jsonWriter.nameWriter();
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+  }
+
   public void testTwoNames() throws IOException {
     StringWriter stringWriter = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
@@ -81,11 +94,39 @@ public final class JsonWriterTest extends TestCase {
     }
   }
 
+  public void testTwoNamesWriter() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter jsonWriter = new JsonWriter(stringWriter);
+    jsonWriter.beginObject();
+    Writer nameWriter = jsonWriter.nameWriter();
+    nameWriter.write("a");
+    nameWriter.close();
+    try {
+      jsonWriter.nameWriter();
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+  }
+
   public void testNameWithoutValue() throws IOException {
     StringWriter stringWriter = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
     jsonWriter.beginObject();
     jsonWriter.name("a");
+    try {
+      jsonWriter.endObject();
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+  }
+
+  public void testNameWithoutValueWriter() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter jsonWriter = new JsonWriter(stringWriter);
+    jsonWriter.beginObject();
+    Writer nameWriter = jsonWriter.nameWriter();
+    nameWriter.write("a");
+    nameWriter.close();
     try {
       jsonWriter.endObject();
       fail();
@@ -104,12 +145,12 @@ public final class JsonWriterTest extends TestCase {
     }
   }
 
-  public void testMultipleTopLevelValues() throws IOException {
+  public void testStrValueWriterWithoutName() throws IOException {
     StringWriter stringWriter = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
-    jsonWriter.beginArray().endArray();
+    jsonWriter.beginObject();
     try {
-      jsonWriter.beginArray();
+      jsonWriter.stringValueWriter();
       fail();
     } catch (IllegalStateException expected) {
     }
@@ -130,7 +171,8 @@ public final class JsonWriterTest extends TestCase {
   public void testBadNestingArray() throws IOException {
     StringWriter stringWriter = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
-    jsonWriter.beginArray();
+    jsonWriter.beginObject();
+    jsonWriter.name("a");
     jsonWriter.beginArray();
     try {
       jsonWriter.endObject();
@@ -157,6 +199,23 @@ public final class JsonWriterTest extends TestCase {
     jsonWriter.name("a");
     jsonWriter.value((String) null);
     jsonWriter.endObject();
+    assertEquals("{\"a\":null}", stringWriter.toString());
+  }
+
+  public void testSerializeNulls() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter jsonWriter = new JsonWriter(stringWriter);
+    assertTrue(jsonWriter.getSerializeNulls());
+    jsonWriter.setSerializeNulls(false);
+    assertFalse(jsonWriter.getSerializeNulls());
+
+    jsonWriter.beginObject().name("test").nullValue();
+    // nameWriter ignores serializeNulls
+    Writer nameWriter = jsonWriter.nameWriter();
+    nameWriter.write("a");
+    nameWriter.close();
+    jsonWriter.nullValue().endObject();
+
     assertEquals("{\"a\":null}", stringWriter.toString());
   }
 
@@ -371,11 +430,75 @@ public final class JsonWriterTest extends TestCase {
         + "\"\\u0019\"]", stringWriter.toString());
   }
 
+  public void testStringsWriter() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter jsonWriter = new JsonWriter(stringWriter);
+    jsonWriter.beginArray();
+    List<String> strings = Arrays.asList(
+      "a",
+      "a\"",
+      "\"",
+      ":",
+      ",",
+      "\b",
+      "\f",
+      "\n",
+      "\r",
+      "\t",
+      " ",
+      "\\",
+      "{",
+      "}",
+      "[",
+      "]",
+      "\0",
+      "\u0019"
+    );
+
+    for (String str : strings) {
+      Writer strValWriter = jsonWriter.stringValueWriter();
+      strValWriter.write(str);
+      strValWriter.close();
+    }
+
+    jsonWriter.endArray();
+
+    assertEquals("[\"a\","
+        + "\"a\\\"\","
+        + "\"\\\"\","
+        + "\":\","
+        + "\",\","
+        + "\"\\b\","
+        + "\"\\f\","
+        + "\"\\n\","
+        + "\"\\r\","
+        + "\"\\t\","
+        + "\" \","
+        + "\"\\\\\","
+        + "\"{\","
+        + "\"}\","
+        + "\"[\","
+        + "\"]\","
+        + "\"\\u0000\","
+        + "\"\\u0019\"]", stringWriter.toString());
+  }
+
   public void testUnicodeLineBreaksEscaped() throws IOException {
     StringWriter stringWriter = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
     jsonWriter.beginArray();
     jsonWriter.value("\u2028 \u2029");
+    jsonWriter.endArray();
+    assertEquals("[\"\\u2028 \\u2029\"]", stringWriter.toString());
+  }
+
+  public void testUnicodeLineBreaksEscapedWriter() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter jsonWriter = new JsonWriter(stringWriter);
+    jsonWriter.beginArray();
+    Writer strValWriter = jsonWriter.stringValueWriter();
+    strValWriter.write("\u2028 \u2029");
+    strValWriter.close();
     jsonWriter.endArray();
     assertEquals("[\"\\u2028 \\u2029\"]", stringWriter.toString());
   }
@@ -467,6 +590,26 @@ public final class JsonWriterTest extends TestCase {
     jsonWriter.beginObject();
     jsonWriter.name("a").value(true);
     jsonWriter.name("a").value(false);
+    jsonWriter.endObject();
+    // JsonWriter doesn't attempt to detect duplicate names
+    assertEquals("{\"a\":true,\"a\":false}", stringWriter.toString());
+  }
+
+  public void testRepeatedNameWriter() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter jsonWriter = new JsonWriter(stringWriter);
+    jsonWriter.beginObject();
+
+    Writer nameWriter = jsonWriter.nameWriter();
+    nameWriter.write("a");
+    nameWriter.close();
+    jsonWriter.value(true);
+
+    nameWriter = jsonWriter.nameWriter();
+    nameWriter.write("a");
+    nameWriter.close();
+    jsonWriter.value(false);
+
     jsonWriter.endObject();
     // JsonWriter doesn't attempt to detect duplicate names
     assertEquals("{\"a\":true,\"a\":false}", stringWriter.toString());
@@ -644,5 +787,117 @@ public final class JsonWriterTest extends TestCase {
     writer.endArray();
     writer.close();
     writer.close();
+  }
+
+  public void testActiveNameWriter() throws IOException {
+    JsonWriter writer = new JsonWriter(new StringWriter());
+    writer.beginObject();
+    writer.nameWriter();
+    try {
+      writer.value(true); // Should fail because nameWriter is not closed
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+  }
+
+  public void testActiveStrValWriter() throws IOException {
+    JsonWriter writer = new JsonWriter(new StringWriter());
+    writer.beginArray();
+    writer.stringValueWriter();
+    try {
+      writer.value(true); // Should fail because stringValueWriter is not closed
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+  }
+
+  private static void testCloseWriter(Writer writer) throws IOException {
+    writer.close();
+    writer.close(); // Closing closed writer should have no effect
+    try {
+      writer.write(new char[1]);
+    } catch (IOException expected) {
+    }
+    try {
+      writer.write(new char[2], 0, 1);
+    } catch (IOException expected) {
+    }
+    try {
+      writer.write('a');
+    } catch (IOException expected) {
+    }
+    try {
+      writer.write("test");
+    } catch (IOException expected) {
+    }
+    try {
+      writer.write("test", 1, 2);
+    } catch (IOException expected) {
+    }
+    try {
+      writer.append('a');
+    } catch (IOException expected) {
+    }
+    try {
+      writer.append("test");
+    } catch (IOException expected) {
+    }
+    try {
+      writer.append("test", 1, 3);
+    } catch (IOException expected) {
+    }
+  }
+
+  public void testCloseNameWriter() throws IOException {
+    JsonWriter writer = new JsonWriter(new StringWriter());
+    writer.beginObject();
+    Writer nameWriter = writer.nameWriter();
+    testCloseWriter(nameWriter);
+  }
+
+  public void testCloseStrValWriter() throws IOException {
+    JsonWriter writer = new JsonWriter(new StringWriter());
+    writer.beginArray();
+    Writer strValWriter = writer.stringValueWriter();
+    testCloseWriter(strValWriter);
+  }
+
+  private static String testWriter(Writer writer) throws IOException {
+    assertSame(writer, writer.append('a'));
+    assertSame(writer, writer.append("b\nc"));
+    assertSame(writer, writer.append(null));
+    assertSame(writer, writer.append("cd\nef", 1, 4));
+    // Indices should affect String "null": -> "ul"
+    assertSame(writer, writer.append(null, 1, 3));
+    writer.write("ar\nr".toCharArray());
+    writer.write("_ar\nr_", 1, 4);
+    writer.write('b');
+    writer.write("st\nr");
+    writer.write("_st\nr_", 1, 4);
+    writer.flush();
+    writer.close();
+
+    return "ab\\ncnulld\\neular\\nrar\\nrbst\\nrst\\nr"; // Expected written string
+  }
+
+  public void testNameWriter() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter writer = new JsonWriter(stringWriter);
+    writer.beginObject();
+    Writer nameWriter = writer.nameWriter();
+    String expectedName = testWriter(nameWriter);
+    writer.value(true).endObject();
+    assertEquals("{\"" + expectedName + "\":true}", stringWriter.toString());
+  }
+
+  public void testStrValWriter() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter writer = new JsonWriter(stringWriter);
+    writer.beginObject();
+    writer.name("test");
+    Writer strValWriter = writer.stringValueWriter();
+    String expectedValue = testWriter(strValWriter);
+    writer.endObject();
+    assertEquals("{\"test\":\"" + expectedValue + "\"}", stringWriter.toString());
   }
 }
