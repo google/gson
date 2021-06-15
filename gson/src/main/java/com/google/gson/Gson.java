@@ -189,7 +189,8 @@ public final class Gson {
         DEFAULT_PRETTY_PRINT, DEFAULT_LENIENT, DEFAULT_SPECIALIZE_FLOAT_VALUES,
         LongSerializationPolicy.DEFAULT, null, DateFormat.DEFAULT, DateFormat.DEFAULT,
         Collections.<TypeAdapterFactory>emptyList(), Collections.<TypeAdapterFactory>emptyList(),
-        Collections.<TypeAdapterFactory>emptyList());
+        Collections.<TypeAdapterFactory>emptyList(),
+            FieldNameDerivePolicy.IDENTITY);
   }
 
   Gson(Excluder excluder, FieldNamingStrategy fieldNamingStrategy,
@@ -199,7 +200,9 @@ public final class Gson {
       LongSerializationPolicy longSerializationPolicy, String datePattern, int dateStyle,
       int timeStyle, List<TypeAdapterFactory> builderFactories,
       List<TypeAdapterFactory> builderHierarchyFactories,
-      List<TypeAdapterFactory> factoriesToBeAdded) {
+      List<TypeAdapterFactory> factoriesToBeAdded,
+       FieldNameDeriveStrategy fieldNameDeriveStrategy
+  ) {
     this.excluder = excluder;
     this.fieldNamingStrategy = fieldNamingStrategy;
     this.instanceCreators = instanceCreators;
@@ -275,7 +278,7 @@ public final class Gson {
     factories.add(jsonAdapterFactory);
     factories.add(TypeAdapters.ENUM_FACTORY);
     factories.add(new ReflectiveTypeAdapterFactory(
-        constructorConstructor, fieldNamingStrategy, excluder, jsonAdapterFactory));
+        constructorConstructor, fieldNamingStrategy, excluder, jsonAdapterFactory,fieldNameDeriveStrategy));
 
     this.factories = Collections.unmodifiableList(factories);
   }
