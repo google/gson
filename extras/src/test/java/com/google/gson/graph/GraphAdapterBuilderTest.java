@@ -76,7 +76,7 @@ public final class GraphAdapterBuilderTest extends TestCase {
         .registerOn(gsonBuilder);
     Gson gson = gsonBuilder.create();
 
-    assertEquals("{'0x1':{'name':'SUICIDE','beats':'0x1'}}",
+    assertEquals("{'0x1':{'name':'SUICIDE'}}",
         gson.toJson(suicide).replace('"', '\''));
   }
 
