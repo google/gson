@@ -27,6 +27,7 @@ import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -51,42 +52,97 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
     this.gson = gson;
   }
 
-  @Override public Object read(JsonReader in) throws IOException {
-    JsonToken token = in.peek();
-    switch (token) {
-    case BEGIN_ARRAY:
-      List<Object> list = new ArrayList<Object>();
+  /**
+   * Tries to begin reading a JSON array or JSON object, returning {@code null} if
+   * the next element is neither of those.
+   */
+  private Object tryBeginNesting(JsonReader in, JsonToken peeked) throws IOException {
+    if (peeked == JsonToken.BEGIN_ARRAY) {
       in.beginArray();
-      while (in.hasNext()) {
-        list.add(read(in));
-      }
-      in.endArray();
-      return list;
-
-    case BEGIN_OBJECT:
-      Map<String, Object> map = new LinkedTreeMap<String, Object>();
+      return new ArrayList<Object>();
+    } else if (peeked == JsonToken.BEGIN_OBJECT) {
       in.beginObject();
-      while (in.hasNext()) {
-        map.put(in.nextName(), read(in));
-      }
-      in.endObject();
-      return map;
+      return new LinkedTreeMap<String, Object>();
+    } else {
+      return null;
+    }
+  }
 
+  /** Reads an {@code Object} which cannot have any nested elements */
+  private Object readTerminal(JsonReader in, JsonToken peeked) throws IOException {
+    switch (peeked) {
     case STRING:
       return in.nextString();
-
     case NUMBER:
       return in.nextDouble();
-
     case BOOLEAN:
       return in.nextBoolean();
-
     case NULL:
       in.nextNull();
       return null;
-
     default:
-      throw new IllegalStateException();
+      // When read(JsonReader) is called with JsonReader in invalid state
+      throw new IllegalStateException("Unexpected token: " + peeked);
+    }
+  }
+
+  @Override public Object read(JsonReader in) throws IOException {
+    // Either List or Map
+    Object current;
+    JsonToken peeked = in.peek();
+
+    current = tryBeginNesting(in, peeked);
+    if (current == null) {
+      return readTerminal(in, peeked);
+    }
+
+    LinkedList<Object> stack = new LinkedList<Object>();
+
+    while (true) {
+      while (in.hasNext()) {
+        String name = null;
+        // Name is only used for JSON object members
+        if (current instanceof Map) {
+          name = in.nextName();
+        }
+
+        peeked = in.peek();
+        Object value = tryBeginNesting(in, peeked);
+        boolean isNesting = value != null;
+
+        if (value == null) {
+          value = readTerminal(in, peeked);
+        }
+
+        if (current instanceof List) {
+          @SuppressWarnings("unchecked")
+          List<Object> list = (List<Object>) current;
+          list.add(value);
+        } else {
+          @SuppressWarnings("unchecked")
+          Map<String, Object> map = (Map<String, Object>) current;
+          map.put(name, value);
+        }
+
+        if (isNesting) {
+          stack.addLast(current);
+          current = value;
+        }
+      }
+
+      // End current element
+      if (current instanceof List) {
+        in.endArray();
+      } else {
+        in.endObject();
+      }
+
+      if (stack.isEmpty()) {
+        return current;
+      } else {
+        // Continue with enclosing element
+        current = stack.removeLast();
+      }
     }
   }
 
