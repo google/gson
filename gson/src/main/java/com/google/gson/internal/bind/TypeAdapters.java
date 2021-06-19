@@ -31,6 +31,7 @@ import java.util.Currency;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -406,7 +407,7 @@ public final class TypeAdapters {
       out.value(value);
     }
   };
-  
+
   public static final TypeAdapter<BigDecimal> BIG_DECIMAL = new TypeAdapter<BigDecimal>() {
     @Override public BigDecimal read(JsonReader in) throws IOException {
       if (in.peek() == JsonToken.NULL) {
@@ -424,7 +425,7 @@ public final class TypeAdapters {
       out.value(value);
     }
   };
-  
+
   public static final TypeAdapter<BigInteger> BIG_INTEGER = new TypeAdapter<BigInteger>() {
     @Override public BigInteger read(JsonReader in) throws IOException {
       if (in.peek() == JsonToken.NULL) {
@@ -696,8 +697,25 @@ public final class TypeAdapters {
   public static final TypeAdapterFactory LOCALE_FACTORY = newFactory(Locale.class, LOCALE);
 
   public static final TypeAdapter<JsonElement> JSON_ELEMENT = new TypeAdapter<JsonElement>() {
-    @Override public JsonElement read(JsonReader in) throws IOException {
-      switch (in.peek()) {
+    /**
+     * Tries to begin reading a JSON array or JSON object, returning {@code null} if
+     * the next element is neither of those.
+     */
+    private JsonElement tryBeginNesting(JsonReader in, JsonToken peeked) throws IOException {
+      if (peeked == JsonToken.BEGIN_ARRAY) {
+        in.beginArray();
+        return new JsonArray();
+      } else if (peeked == JsonToken.BEGIN_OBJECT) {
+        in.beginObject();
+        return new JsonObject();
+      } else {
+        return null;
+      }
+    }
+
+    /** Reads a {@link JsonElement} which cannot have any nested elements */
+    private JsonElement readTerminal(JsonReader in, JsonToken peeked) throws IOException {
+      switch (peeked) {
       case STRING:
         return new JsonPrimitive(in.nextString());
       case NUMBER:
@@ -708,28 +726,65 @@ public final class TypeAdapters {
       case NULL:
         in.nextNull();
         return JsonNull.INSTANCE;
-      case BEGIN_ARRAY:
-        JsonArray array = new JsonArray();
-        in.beginArray();
-        while (in.hasNext()) {
-          array.add(read(in));
-        }
-        in.endArray();
-        return array;
-      case BEGIN_OBJECT:
-        JsonObject object = new JsonObject();
-        in.beginObject();
-        while (in.hasNext()) {
-          object.add(in.nextName(), read(in));
-        }
-        in.endObject();
-        return object;
-      case END_DOCUMENT:
-      case NAME:
-      case END_OBJECT:
-      case END_ARRAY:
       default:
-        throw new IllegalArgumentException();
+        // When read(JsonReader) is called with JsonReader in invalid state
+        throw new IllegalStateException("Unexpected token: " + peeked);
+      }
+    }
+
+    @Override public JsonElement read(JsonReader in) throws IOException {
+      // Either JsonArray or JsonObject
+      JsonElement current;
+      JsonToken peeked = in.peek();
+
+      current = tryBeginNesting(in, peeked);
+      if (current == null) {
+        return readTerminal(in, peeked);
+      }
+
+      LinkedList<JsonElement> stack = new LinkedList<JsonElement>();
+
+      while (true) {
+        while (in.hasNext()) {
+          String name = null;
+          // Name is only used for JSON object members
+          if (current instanceof JsonObject) {
+            name = in.nextName();
+          }
+
+          peeked = in.peek();
+          JsonElement value = tryBeginNesting(in, peeked);
+          boolean isNesting = value != null;
+
+          if (value == null) {
+            value = readTerminal(in, peeked);
+          }
+
+          if (current instanceof JsonArray) {
+            ((JsonArray) current).add(value);
+          } else {
+            ((JsonObject) current).add(name, value);
+          }
+
+          if (isNesting) {
+            stack.addLast(current);
+            current = value;
+          }
+        }
+
+        // End current element
+        if (current instanceof JsonArray) {
+          in.endArray();
+        } else {
+          in.endObject();
+        }
+
+        if (stack.isEmpty()) {
+          return current;
+        } else {
+          // Continue with enclosing element
+          current = stack.removeLast();
+        }
       }
     }
 
