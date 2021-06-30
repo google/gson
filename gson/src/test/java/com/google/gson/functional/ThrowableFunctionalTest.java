@@ -13,12 +13,7 @@ public final class ThrowableFunctionalTest extends TestCase {
   private final Gson gson = new Gson();
 
   public void testExceptionWithoutCause() {
-    RuntimeException e = new RuntimeException("hello");
-    String json = gson.toJson(e);
-    assertTrue(json.contains("hello"));
-
-    e = gson.fromJson("{'detailMessage':'hello'}", RuntimeException.class);
-    assertEquals("hello", e.getMessage());
+    this.testThrowableWithoutCauseTemplate(RuntimeException.class, "hello", "{'detailMessage':'hello'}");
   }
 
   public void testExceptionWithCause() {
@@ -39,12 +34,7 @@ public final class ThrowableFunctionalTest extends TestCase {
   }
 
   public void testErrorWithoutCause() {
-    OutOfMemoryError e = new OutOfMemoryError("hello");
-    String json = gson.toJson(e);
-    assertTrue(json.contains("hello"));
-
-    e = gson.fromJson("{'detailMessage':'hello'}", OutOfMemoryError.class);
-    assertEquals("hello", e.getMessage());
+    this.testThrowableWithoutCauseTemplate(OutOfMemoryError.class, "hello", "{'detailMessage':'hello'}");
   }
 
   public void testErrornWithCause() {
@@ -61,5 +51,18 @@ public final class ThrowableFunctionalTest extends TestCase {
 
   private static final class MyException extends Throwable {
     @SerializedName("my_custom_name") String myCustomMessage = "myCustomMessageValue";
+  }
+
+  public <TThrowable extends Throwable> void testThrowableWithoutCauseTemplate(Class<TThrowable> clazzTThrowable, String msg, String jsonString) {
+    try {
+      TThrowable e = clazzTThrowable.getDeclaredConstructor(String.class).newInstance(msg);
+      String json = gson.toJson(e);
+      assertTrue(json.contains(msg));
+      e = (TThrowable) gson.fromJson(jsonString, clazzTThrowable);
+      assertEquals(msg, e.getMessage());
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw new RuntimeException();
+    }
   }
 }
