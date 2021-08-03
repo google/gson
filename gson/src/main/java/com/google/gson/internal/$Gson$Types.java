@@ -339,13 +339,13 @@ public final class $Gson$Types {
   }
 
   public static Type resolve(Type context, Class<?> contextRawType, Type toResolve) {
-    return resolve(context, contextRawType, toResolve, new HashMap<TypeVariable, Type>());
+    return resolve(context, contextRawType, toResolve, new HashMap<TypeVariable<?>, Type>());
   }
 
   private static Type resolve(Type context, Class<?> contextRawType, Type toResolve,
-                              Map<TypeVariable, Type> visitedTypeVariables) {
+                              Map<TypeVariable<?>, Type> visitedTypeVariables) {
     // this implementation is made a little more complicated in an attempt to avoid object-creation
-    TypeVariable resolving = null;
+    TypeVariable<?> resolving = null;
     while (true) {
       if (toResolve instanceof TypeVariable) {
         TypeVariable<?> typeVariable = (TypeVariable<?>) toResolve;
