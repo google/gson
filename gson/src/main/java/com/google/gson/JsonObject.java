@@ -17,6 +17,7 @@
 package com.google.gson;
 
 import com.google.gson.internal.LinkedTreeMap;
+import com.google.gson.visitor.JsonElementVisitor;
 
 import java.util.Map;
 import java.util.Set;
@@ -201,5 +202,18 @@ public final class JsonObject extends JsonElement {
   @Override
   public int hashCode() {
     return members.hashCode();
+  }
+
+  /**
+   * This method accepts a JsonElementVisitor and calls
+   * the visit method on it by passing itself.
+   *
+   * @param visitor JsonElementVisitor for traversing the json tree.
+   * @param data    Buffer to hold the result of processed node.
+   * @return Returns the processed data.
+   */
+  @Override
+  public <T> T accept(JsonElementVisitor visitor, T data) {
+    return (T)visitor.visitJsonObject(this, data);
   }
 }

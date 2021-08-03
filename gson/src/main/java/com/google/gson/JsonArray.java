@@ -16,6 +16,8 @@
 
 package com.google.gson;
 
+import com.google.gson.visitor.JsonElementVisitor;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -389,5 +391,18 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   @Override
   public int hashCode() {
     return elements.hashCode();
+  }
+
+  /**
+   * This method accepts a JsonElementVisitor visitor and calls
+   * the visit method on it by passing itself.
+   *
+   * @param visitor JsonElementVisitor for traversing the json tree.
+   * @param data    Buffer to hold the result of processed node.
+   * @return Returns the processed data.
+   */
+  @Override
+  public <T> T accept(JsonElementVisitor visitor, T data) {
+    return (T)visitor.visitJsonArray(this, data);
   }
 }

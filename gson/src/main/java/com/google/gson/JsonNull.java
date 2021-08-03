@@ -16,6 +16,8 @@
 
 package com.google.gson;
 
+import com.google.gson.visitor.JsonElementVisitor;
+
 /**
  * A class representing a Json {@code null} value.
  *
@@ -63,5 +65,18 @@ public final class JsonNull extends JsonElement {
   @Override
   public boolean equals(Object other) {
     return this == other || other instanceof JsonNull;
+  }
+
+  /**
+   * This method accepts a JsonElementVisitor and calls
+   * the visit method on it passing itself.
+   *
+   * @param visitor JsonElementVisitor for traversing the json tree.
+   * @param data    Buffer to hold the result of processed node.
+   * @return Returns the processed data.
+   */
+  @Override
+  public <T> T accept(JsonElementVisitor visitor, T data) {
+    return (T)visitor.visitJsonNull(this, data);
   }
 }

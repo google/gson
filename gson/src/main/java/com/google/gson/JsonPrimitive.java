@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.google.gson.internal.LazilyParsedNumber;
+import com.google.gson.visitor.JsonElementVisitor;
 
 /**
  * A class representing a Json primitive value. A primitive value
@@ -291,5 +292,18 @@ public final class JsonPrimitive extends JsonElement {
           || number instanceof Short || number instanceof Byte;
     }
     return false;
+  }
+
+  /**
+   * This method accepts a JsonElementVisitor and calls
+   * the visit method on it by passing itself.
+   *
+   * @param visitor JsonElementVisitor for traversing the json tree.
+   * @param data    Buffer to hold the result of processed node.
+   * @return Returns the processed data.
+   */
+  @Override
+  public <T> T accept(JsonElementVisitor visitor, T data) {
+    return (T)visitor.visitJsonPrimitive(this, data);
   }
 }

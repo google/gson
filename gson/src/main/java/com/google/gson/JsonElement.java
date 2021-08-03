@@ -18,6 +18,8 @@ package com.google.gson;
 
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonWriter;
+import com.google.gson.visitor.VisitableJsonElement;
+
 import java.io.IOException;
 import java.io.StringWriter;
 import java.math.BigDecimal;
@@ -30,7 +32,7 @@ import java.math.BigInteger;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public abstract class JsonElement {
+public abstract class JsonElement implements VisitableJsonElement {
   /**
    * Returns a deep copy of this element. Immutable elements like primitives
    * and nulls are not copied.
