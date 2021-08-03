@@ -16,6 +16,8 @@
 package com.google.gson.internal.reflect;
 
 import java.lang.reflect.AccessibleObject;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 /**
  * A basic implementation of {@link ReflectionAccessor} which is suitable for Java 8 and below.
@@ -27,7 +29,12 @@ final class PreJava9ReflectionAccessor extends ReflectionAccessor {
 
   /** {@inheritDoc} */
   @Override
-  public void makeAccessible(AccessibleObject ao) {
-    ao.setAccessible(true);
+  public void makeAccessible(final AccessibleObject ao) {
+    AccessController.doPrivileged(new PrivilegedAction<Void>() {
+      public Void run() {
+        ao.setAccessible(true);
+        return null;
+      }
+    });
   }
 }

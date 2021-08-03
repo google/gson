@@ -20,6 +20,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -96,34 +98,46 @@ public final class ConstructorConstructor {
     return newUnsafeAllocator(type, rawType);
   }
 
-  private <T> ObjectConstructor<T> newDefaultConstructor(Class<? super T> rawType) {
-    try {
-      final Constructor<? super T> constructor = rawType.getDeclaredConstructor();
-      if (!constructor.isAccessible()) {
-        accessor.makeAccessible(constructor);
-      }
-      return new ObjectConstructor<T>() {
-        @SuppressWarnings("unchecked") // T is the same raw type as is requested
-        @Override public T construct() {
-          try {
-            Object[] args = null;
-            return (T) constructor.newInstance(args);
-          } catch (InstantiationException e) {
-            // TODO: JsonParseException ?
-            throw new RuntimeException("Failed to invoke " + constructor + " with no args", e);
-          } catch (InvocationTargetException e) {
-            // TODO: don't wrap if cause is unchecked!
-            // TODO: JsonParseException ?
-            throw new RuntimeException("Failed to invoke " + constructor + " with no args",
-                e.getTargetException());
-          } catch (IllegalAccessException e) {
-            throw new AssertionError(e);
+  private <T> ObjectConstructor<T> newDefaultConstructor(final Class<? super T> rawType) {
+    final Constructor<? super T> constructor = AccessController
+        .doPrivileged(new PrivilegedAction<Constructor<? super T>>() {
+          public Constructor<? super T> run() {
+            Constructor<? super T> constructor;
+            try {
+              constructor = rawType.getDeclaredConstructor();
+              if (!constructor.isAccessible()) {
+                accessor.makeAccessible(constructor);
+              }
+            } catch (NoSuchMethodException e) {
+              return null;
+            }
+            return constructor;
           }
-        }
-      };
-    } catch (NoSuchMethodException e) {
+        });
+
+    if (constructor == null) {
       return null;
     }
+
+    return new ObjectConstructor<T>() {
+      @SuppressWarnings("unchecked") // T is the same raw type as is requested
+      @Override public T construct() {
+        try {
+          Object[] args = null;
+          return (T) constructor.newInstance(args);
+        } catch (InstantiationException e) {
+          // TODO: JsonParseException ?
+          throw new RuntimeException("Failed to invoke " + constructor + " with no args", e);
+        } catch (InvocationTargetException e) {
+          // TODO: don't wrap if cause is unchecked!
+          // TODO: JsonParseException ?
+          throw new RuntimeException("Failed to invoke " + constructor + " with no args",
+              e.getTargetException());
+        } catch (IllegalAccessException e) {
+          throw new AssertionError(e);
+        }
+      }
+    };
   }
 
   /**

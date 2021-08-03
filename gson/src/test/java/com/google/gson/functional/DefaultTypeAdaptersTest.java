@@ -39,6 +39,8 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URL;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -70,18 +72,35 @@ public class DefaultTypeAdaptersTest extends TestCase {
   private Gson gson;
   private TimeZone oldTimeZone;
 
+  protected void setTimeZone(final TimeZone tz) {
+    AccessController.doPrivileged(new PrivilegedAction<Void>() {
+      public Void run() {
+        TimeZone.setDefault(tz);
+        return null;
+      }
+    });
+  }
+  protected void setLocale(final Locale l) {
+    AccessController.doPrivileged(new PrivilegedAction<Void>() {
+      public Void run() {
+        Locale.setDefault(l);
+        return null;
+      }
+    });
+  }
+
   @Override
   protected void setUp() throws Exception {
     super.setUp();
     this.oldTimeZone = TimeZone.getDefault();
-    TimeZone.setDefault(TimeZone.getTimeZone("America/Los_Angeles"));
-    Locale.setDefault(Locale.US);
+    setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
+    setLocale(Locale.US);
     gson = new Gson();
   }
 
   @Override
   protected void tearDown() throws Exception {
-    TimeZone.setDefault(oldTimeZone);
+    setTimeZone(oldTimeZone);
     super.tearDown();
   }
 
@@ -509,9 +528,9 @@ public class DefaultTypeAdaptersTest extends TestCase {
   public void testDateSerializationInCollection() throws Exception {
     Type listOfDates = new TypeToken<List<Date>>() {}.getType();
     TimeZone defaultTimeZone = TimeZone.getDefault();
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+    setTimeZone(TimeZone.getTimeZone("UTC"));
     Locale defaultLocale = Locale.getDefault();
-    Locale.setDefault(Locale.US);
+    setLocale(Locale.US);
     try {
       Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
       List<Date> dates = Arrays.asList(new Date(0));
@@ -519,17 +538,17 @@ public class DefaultTypeAdaptersTest extends TestCase {
       assertEquals("[\"1970-01-01\"]", json);
       assertEquals(0L, gson.<List<Date>>fromJson("[\"1970-01-01\"]", listOfDates).get(0).getTime());
     } finally {
-      TimeZone.setDefault(defaultTimeZone);
-      Locale.setDefault(defaultLocale);
+      setTimeZone(defaultTimeZone);
+      setLocale(defaultLocale);
     }
   }
 
   // http://code.google.com/p/google-gson/issues/detail?id=230
   public void testTimestampSerialization() throws Exception {
     TimeZone defaultTimeZone = TimeZone.getDefault();
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+    setTimeZone(TimeZone.getTimeZone("UTC"));
     Locale defaultLocale = Locale.getDefault();
-    Locale.setDefault(Locale.US);
+    setLocale(Locale.US);
     try {
       Timestamp timestamp = new Timestamp(0L);
       Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
@@ -537,17 +556,17 @@ public class DefaultTypeAdaptersTest extends TestCase {
       assertEquals("\"1970-01-01\"", json);
       assertEquals(0, gson.fromJson("\"1970-01-01\"", Timestamp.class).getTime());
     } finally {
-      TimeZone.setDefault(defaultTimeZone);
-      Locale.setDefault(defaultLocale);
+      setTimeZone(defaultTimeZone);
+      setLocale(defaultLocale);
     }
   }
 
   // http://code.google.com/p/google-gson/issues/detail?id=230
   public void testSqlDateSerialization() throws Exception {
     TimeZone defaultTimeZone = TimeZone.getDefault();
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+    setTimeZone(TimeZone.getTimeZone("UTC"));
     Locale defaultLocale = Locale.getDefault();
-    Locale.setDefault(Locale.US);
+    setLocale(Locale.US);
     try {
       java.sql.Date sqlDate = new java.sql.Date(0L);
       Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
@@ -555,8 +574,8 @@ public class DefaultTypeAdaptersTest extends TestCase {
       assertEquals("\"1970-01-01\"", json);
       assertEquals(0, gson.fromJson("\"1970-01-01\"", java.sql.Date.class).getTime());
     } finally {
-      TimeZone.setDefault(defaultTimeZone);
-      Locale.setDefault(defaultLocale);
+      setTimeZone(defaultTimeZone);
+      setLocale(defaultLocale);
     }
   }
 
