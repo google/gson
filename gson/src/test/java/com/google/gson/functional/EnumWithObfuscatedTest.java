@@ -45,11 +45,11 @@ public class EnumWithObfuscatedTest extends TestCase {
 
   public void testEnumClassWithObfuscated() {
     for (Gender enumConstant: Gender.class.getEnumConstants()) {
-        try {
-            Gender.class.getField(enumConstant.name());
-            fail("Enum is not obfuscated");
-        } catch (NoSuchFieldException ignore) {
-        }
+      try {
+        Gender.class.getField(enumConstant.name());
+        fail("Enum is not obfuscated");
+      } catch (NoSuchFieldException ignore) {
+      }
     }
 
     assertEquals(Gender.MALE, gson.fromJson("\"MAIL\"", Gender.class));
