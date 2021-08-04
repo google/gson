@@ -24,6 +24,8 @@ import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -777,11 +779,16 @@ public final class TypeAdapters {
 
     public EnumTypeAdapter(Class<T> classOfT) {
       try {
-        for (Field field : classOfT.getDeclaredFields()) {
+        for (final Field field : classOfT.getDeclaredFields()) {
           if (!field.isEnumConstant()) {
             continue;
           }
-          field.setAccessible(true);
+          AccessController.doPrivileged(new PrivilegedAction<Void>() {
+            @Override public Void run() {
+              field.setAccessible(true);
+              return null;
+            }
+          });
           @SuppressWarnings("unchecked")
           T constant = (T)(field.get(null));
           String name = constant.name();
