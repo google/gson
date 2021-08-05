@@ -16,12 +16,8 @@
 
 package com.google.gson;
 
-import junit.framework.TestCase;
-
 import com.google.gson.common.MoreAsserts;
-
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
+import junit.framework.TestCase;
 
 /**
  * @author Jesse Wilson
