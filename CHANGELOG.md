@@ -1,6 +1,12 @@
 Change Log
 ==========
 
+## Version 2.8.8
+
+* Fixed issue with recursive types (#1390).
+* Better behaviour with Java 9+ and `Unsafe` if there is a security manager (#1712).
+* `EnumTypeAdapter` now works better when ProGuard has obfuscated enum fields (#1495).
+
 ## Version 2.8.7
 
 * Fixed `ISO8601UtilsTest` failing on systems with UTC+X.
