@@ -677,6 +677,10 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<JsonElement> JSON_ELEMENT = new TypeAdapter<JsonElement>() {
     @Override public JsonElement read(JsonReader in) throws IOException {
+      if (in instanceof JsonTreeReader) {
+        return ((JsonTreeReader) in).nextJsonElement();
+      }
+
       switch (in.peek()) {
       case STRING:
         return new JsonPrimitive(in.nextString());
