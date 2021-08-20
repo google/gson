@@ -249,6 +249,15 @@ public final class JsonTreeReader extends JsonReader {
     return result;
   }
 
+  JsonElement nextJsonElement() throws IOException {
+    if (peek() == JsonToken.NAME) {
+      throw new IllegalStateException("Can't turn a name into a JsonElement");
+    }
+    final JsonElement element = (JsonElement) peekStack();
+    skipValue();
+    return element;
+  }
+
   @Override public void close() throws IOException {
     stack = new Object[] { SENTINEL_CLOSED };
     stackSize = 1;
