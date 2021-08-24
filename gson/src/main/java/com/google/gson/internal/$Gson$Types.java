@@ -480,6 +480,22 @@ public final class $Gson$Types {
     checkArgument(!(type instanceof Class<?>) || !((Class<?>) type).isPrimitive());
   }
 
+  /**
+   * Returns the element type of this iterable type.
+   * @throws IllegalArgumentException if this type is not a iterable.
+   */
+  public static Type getIterableElementType(Type context, Class<?> contextRawType) {
+    Type iterableType = getSupertype(context, contextRawType, Iterable.class);
+
+    if (iterableType instanceof WildcardType) {
+      iterableType = ((WildcardType)iterableType).getUpperBounds()[0];
+    }
+    if (iterableType instanceof ParameterizedType) {
+      return ((ParameterizedType) iterableType).getActualTypeArguments()[0];
+    }
+    return Object.class;
+  }
+
   private static final class ParameterizedTypeImpl implements ParameterizedType, Serializable {
     private final Type ownerType;
     private final Type rawType;

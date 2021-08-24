@@ -40,18 +40,7 @@ import com.google.gson.internal.Excluder;
 import com.google.gson.internal.GsonBuildConfig;
 import com.google.gson.internal.Primitives;
 import com.google.gson.internal.Streams;
-import com.google.gson.internal.bind.ArrayTypeAdapter;
-import com.google.gson.internal.bind.CollectionTypeAdapterFactory;
-import com.google.gson.internal.bind.DateTypeAdapter;
-import com.google.gson.internal.bind.JsonAdapterAnnotationTypeAdapterFactory;
-import com.google.gson.internal.bind.JsonTreeReader;
-import com.google.gson.internal.bind.JsonTreeWriter;
-import com.google.gson.internal.bind.MapTypeAdapterFactory;
-import com.google.gson.internal.bind.ObjectTypeAdapter;
-import com.google.gson.internal.bind.ReflectiveTypeAdapterFactory;
-import com.google.gson.internal.bind.SqlDateTypeAdapter;
-import com.google.gson.internal.bind.TimeTypeAdapter;
-import com.google.gson.internal.bind.TypeAdapters;
+import com.google.gson.internal.bind.*;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -270,6 +259,7 @@ public final class Gson {
 
     // type adapters for composite and user-defined types
     factories.add(new CollectionTypeAdapterFactory(constructorConstructor));
+    factories.add(new IterableTypeAdapterFactory(constructorConstructor));
     factories.add(new MapTypeAdapterFactory(constructorConstructor, complexMapKeySerialization));
     this.jsonAdapterFactory = new JsonAdapterAnnotationTypeAdapterFactory(constructorConstructor);
     factories.add(jsonAdapterFactory);
