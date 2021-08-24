@@ -15,10 +15,12 @@
  */
 package com.google.gson.internal.reflect;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.lang.reflect.Field;
+import java.security.Permission;
 
 import org.junit.Test;
 
@@ -38,6 +40,30 @@ public class UnsafeReflectionAccessorTest {
       assertTrue(success);
     } catch (Exception e) {
       fail("Unsafe didn't work on the JDK");
+    }
+  }
+
+  @Test
+  public void testMakeAccessibleWithRestrictiveSecurityManager() throws Exception {
+    final Permission accessDeclaredMembers = new RuntimePermission("accessDeclaredMembers");
+    final SecurityManager original = System.getSecurityManager();
+    SecurityManager restrictiveManager = new SecurityManager() {
+      @Override
+      public void checkPermission(Permission perm) {
+        if (accessDeclaredMembers.equals(perm)) {
+          throw new SecurityException("nope");
+        }
+      }
+    };
+    System.setSecurityManager(restrictiveManager);
+
+    try {
+      UnsafeReflectionAccessor accessor = new UnsafeReflectionAccessor();
+      Field field = ClassWithPrivateFinalFields.class.getDeclaredField("a");
+      assertFalse("override field should have been inaccessible", accessor.makeAccessibleWithUnsafe(field));
+      accessor.makeAccessible(field);
+    } finally {
+      System.setSecurityManager(original);
     }
   }
 

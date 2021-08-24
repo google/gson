@@ -1,6 +1,22 @@
 Change Log
 ==========
 
+## Version 2.8.8
+
+* Fixed issue with recursive types (#1390).
+* Better behaviour with Java 9+ and `Unsafe` if there is a security manager (#1712).
+* `EnumTypeAdapter` now works better when ProGuard has obfuscated enum fields (#1495).
+
+## Version 2.8.7
+
+* Fixed `ISO8601UtilsTest` failing on systems with UTC+X.
+* Improved javadoc for `JsonStreamParser`.
+* Updated proguard.cfg (#1693).
+* Fixed `IllegalStateException` in `JsonTreeWriter` (#1592).
+* Added `JsonArray.isEmpty()` (#1640).
+* Added new test cases (#1638).
+* Fixed OSGi metadata generation to work on JavaSE < 9 (#1603).
+
 ## Version 2.8.6
 _2019-10-04_  [GitHub Diff](https://github.com/google/gson/compare/gson-parent-2.8.5...gson-parent-2.8.6)
  * Added static methods `JsonParser.parseString` and `JsonParser.parseReader` and deprecated instance method `JsonParser.parse`

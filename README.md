@@ -17,7 +17,7 @@ There are a few open-source projects that can convert Java objects to JSON. Howe
 Gradle:
 ```gradle
 dependencies {
-  implementation 'com.google.code.gson:gson:2.8.6'
+  implementation 'com.google.code.gson:gson:2.8.8'
 }
 ```
 
@@ -26,7 +26,7 @@ Maven:
 <dependency>
   <groupId>com.google.code.gson</groupId>
   <artifactId>gson</artifactId>
-  <version>2.8.6</version>
+  <version>2.8.8</version>
 </dependency>
 ```
 
