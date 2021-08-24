@@ -1494,7 +1494,7 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
-  // http://code.google.com/p/google-gson/issues/detail?id=409
+  // https://github.com/google/gson/issues/409
   public void testStringEndingInSlash() throws IOException {
     JsonReader reader = new JsonReader(reader("/"));
     reader.setLenient(true);

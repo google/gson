@@ -105,7 +105,7 @@ public class StringTest extends TestCase {
   }
 
   /**
-   * Created in response to http://groups.google.com/group/google-gson/browse_thread/thread/2431d4a3d0d6cb23
+   * Created in response to https://groups.google.com/d/topic/google-gson/JDHUo9DWyyM/discussion
    */
   public void testAssignmentCharSerialization() {
     String value = "abc=";
@@ -114,7 +114,7 @@ public class StringTest extends TestCase {
   }
 
   /**
-   * Created in response to http://groups.google.com/group/google-gson/browse_thread/thread/2431d4a3d0d6cb23
+   * Created in response to https://groups.google.com/d/topic/google-gson/JDHUo9DWyyM/discussion
    */
   public void testAssignmentCharDeserialization() {
     String json = "\"abc=\"";
