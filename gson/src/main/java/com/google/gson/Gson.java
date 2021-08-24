@@ -127,7 +127,7 @@ public final class Gson {
   private final Map<TypeToken<?>, TypeAdapter<?>> typeTokenCache = new ConcurrentHashMap<TypeToken<?>, TypeAdapter<?>>();
 
   private final ConstructorConstructor constructorConstructor;
-  private final JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory;
+  final JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory;
 
   final List<TypeAdapterFactory> factories;
 
@@ -895,7 +895,9 @@ public final class Gson {
   public <T> T fromJson(Reader json, Type typeOfT) throws JsonIOException, JsonSyntaxException {
     JsonReader jsonReader = newJsonReader(json);
     T object = (T) fromJson(jsonReader, typeOfT);
-    assertFullConsumption(object, jsonReader);
+    if (!ReflectiveTypeAdapterFactory.Adapter.class.isAssignableFrom(getAdapter(TypeToken.get(typeOfT)).getClass())) {
+      assertFullConsumption(object, jsonReader);
+    }
     return object;
   }
 
