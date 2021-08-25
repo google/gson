@@ -250,8 +250,14 @@ public final class JsonTreeReader extends JsonReader {
   }
 
   JsonElement nextJsonElement() throws IOException {
-    if (peek() == JsonToken.NAME) {
-      throw new IllegalStateException("Can't turn a name into a JsonElement");
+    final JsonToken peeked = peek();
+    if (
+      peeked == JsonToken.NAME
+      || peeked == JsonToken.END_ARRAY
+      || peeked == JsonToken.END_OBJECT
+      || peeked == JsonToken.END_DOCUMENT
+    ) {
+      throw new IllegalStateException("Unexpected " + peeked + " when reading a JsonElement.");
     }
     final JsonElement element = (JsonElement) peekStack();
     skipValue();
