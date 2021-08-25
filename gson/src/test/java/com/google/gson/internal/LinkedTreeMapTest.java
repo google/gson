@@ -140,6 +140,7 @@ public final class LinkedTreeMapTest extends TestCase {
     MoreAsserts.assertEqualsAndHashCode(map1, map2);
   }
 
+  @SafeVarargs
   private <T> void assertIterationOrder(Iterable<T> actual, T... expected) {
     ArrayList<T> actualList = new ArrayList<T>();
     for (T t : actual) {

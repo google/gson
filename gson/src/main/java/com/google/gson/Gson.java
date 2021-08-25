@@ -49,9 +49,8 @@ import com.google.gson.internal.bind.JsonTreeWriter;
 import com.google.gson.internal.bind.MapTypeAdapterFactory;
 import com.google.gson.internal.bind.ObjectTypeAdapter;
 import com.google.gson.internal.bind.ReflectiveTypeAdapterFactory;
-import com.google.gson.internal.bind.SqlDateTypeAdapter;
-import com.google.gson.internal.bind.TimeTypeAdapter;
 import com.google.gson.internal.bind.TypeAdapters;
+import com.google.gson.internal.sql.SqlTypesSupport;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -262,9 +261,13 @@ public final class Gson {
     factories.add(TypeAdapters.BIT_SET_FACTORY);
     factories.add(DateTypeAdapter.FACTORY);
     factories.add(TypeAdapters.CALENDAR_FACTORY);
-    factories.add(TimeTypeAdapter.FACTORY);
-    factories.add(SqlDateTypeAdapter.FACTORY);
-    factories.add(TypeAdapters.TIMESTAMP_FACTORY);
+
+    if (SqlTypesSupport.SUPPORTS_SQL_TYPES) {
+      factories.add(SqlTypesSupport.TIME_FACTORY);
+      factories.add(SqlTypesSupport.DATE_FACTORY);
+      factories.add(SqlTypesSupport.TIMESTAMP_FACTORY);
+    }
+
     factories.add(ArrayTypeAdapter.FACTORY);
     factories.add(TypeAdapters.CLASS_FACTORY);
 

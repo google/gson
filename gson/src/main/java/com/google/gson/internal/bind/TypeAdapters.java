@@ -26,12 +26,10 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Calendar;
 import java.util.Currency;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
@@ -409,7 +407,7 @@ public final class TypeAdapters {
       out.value(value);
     }
   };
-  
+
   public static final TypeAdapter<BigDecimal> BIG_DECIMAL = new TypeAdapter<BigDecimal>() {
     @Override public BigDecimal read(JsonReader in) throws IOException {
       if (in.peek() == JsonToken.NULL) {
@@ -427,7 +425,7 @@ public final class TypeAdapters {
       out.value(value);
     }
   };
-  
+
   public static final TypeAdapter<BigInteger> BIG_INTEGER = new TypeAdapter<BigInteger>() {
     @Override public BigInteger read(JsonReader in) throws IOException {
       if (in.peek() == JsonToken.NULL) {
@@ -571,27 +569,6 @@ public final class TypeAdapters {
     }
   }.nullSafe();
   public static final TypeAdapterFactory CURRENCY_FACTORY = newFactory(Currency.class, CURRENCY);
-
-  public static final TypeAdapterFactory TIMESTAMP_FACTORY = new TypeAdapterFactory() {
-    @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
-    @Override public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
-      if (typeToken.getRawType() != Timestamp.class) {
-        return null;
-      }
-
-      final TypeAdapter<Date> dateTypeAdapter = gson.getAdapter(Date.class);
-      return (TypeAdapter<T>) new TypeAdapter<Timestamp>() {
-        @Override public Timestamp read(JsonReader in) throws IOException {
-          Date date = dateTypeAdapter.read(in);
-          return date != null ? new Timestamp(date.getTime()) : null;
-        }
-
-        @Override public void write(JsonWriter out, Timestamp value) throws IOException {
-          dateTypeAdapter.write(out, value);
-        }
-      };
-    }
-  };
 
   public static final TypeAdapter<Calendar> CALENDAR = new TypeAdapter<Calendar>() {
     private static final String YEAR = "year";
