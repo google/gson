@@ -288,6 +288,17 @@ public final class GsonBuilder {
   }
 
   /**
+   * Configures Gson to include anonymous and local classes during serialization.
+   *
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @since 2.8.2
+   */
+  public GsonBuilder enableAnonymousAndLocalClassSerialization() {
+    excluder = excluder.enableAnonymousAndLocalClassSerialization();
+    return this;
+  }
+
+  /**
    * Configures Gson to apply a specific serialization policy for {@code Long} and {@code long}
    * objects.
    *
