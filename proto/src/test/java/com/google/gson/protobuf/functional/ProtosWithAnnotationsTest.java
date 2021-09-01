@@ -16,7 +16,7 @@
 package com.google.gson.protobuf.functional;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth.assert_;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import com.google.common.base.CaseFormat;
 import com.google.gson.Gson;
@@ -157,7 +157,7 @@ public class ProtosWithAnnotationsTest extends TestCase {
         + "}");
     try {
       gson.fromJson(json, InnerMessage.class);
-      assert_().fail("Should have thrown");
+      assertWithMessage("Should have thrown").fail();
     } catch (JsonParseException e) {
       // expected
     }
