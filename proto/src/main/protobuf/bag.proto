@@ -35,6 +35,22 @@ message ProtoWithRepeatedFields {
   optional string name = 3;
 }
 
+message ProtoWithMapFields {
+
+  map<int32,SimpleProto> map_of_int32_message = 3;
+  map<int64,SimpleProto> map_of_int64_message = 4;
+  map<uint32,SimpleProto> map_of_uint32_message = 5;
+  map<uint64,SimpleProto> map_of_uint64_message = 6;
+  map<sint32,SimpleProto> map_of_sint32_message = 7;
+  map<sint64,SimpleProto> map_of_sint64_message = 8;
+  map<fixed32,SimpleProto> map_of_fixed32_message = 9;
+  map<fixed64,SimpleProto> map_of_fixed64_message = 10;
+  map<sfixed32,SimpleProto> map_of_sfixed32_message = 11;
+  map<sfixed64,SimpleProto> map_of_sfixed64_message = 12;
+  map<bool,SimpleProto> map_of_bool_message = 13;
+  map<string,SimpleProto> map_of_string_message = 14;
+}
+
 // -- A more complex message with annotations and nested protos
 
 message OuterMessage {
