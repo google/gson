@@ -30,8 +30,7 @@ import com.google.gson.protobuf.generated.Bag.ProtoWithAnnotations;
 import com.google.gson.protobuf.generated.Bag.ProtoWithAnnotations.InnerMessage;
 import com.google.gson.protobuf.generated.Bag.ProtoWithAnnotations.InnerMessage.Data;
 import com.google.gson.protobuf.generated.Bag.ProtoWithAnnotations.InnerMessage.Type;
-import com.google.protobuf.GeneratedMessage;
-
+import com.google.protobuf.GeneratedMessageV3;
 import junit.framework.TestCase;
 
 /**
@@ -52,15 +51,15 @@ public class ProtosWithAnnotationsTest extends TestCase {
         .addSerializedNameExtension(Annotations.serializedName)
         .addSerializedEnumValueExtension(Annotations.serializedValue);
     gson = new GsonBuilder()
-        .registerTypeHierarchyAdapter(GeneratedMessage.class, protoTypeAdapter.build())
+        .registerTypeHierarchyAdapter(GeneratedMessageV3.class, protoTypeAdapter.build())
         .create();
     gsonWithEnumNumbers = new GsonBuilder()
-        .registerTypeHierarchyAdapter(GeneratedMessage.class, protoTypeAdapter
+        .registerTypeHierarchyAdapter(GeneratedMessageV3.class, protoTypeAdapter
             .setEnumSerialization(EnumSerialization.NUMBER)
             .build())
         .create();
     gsonWithLowerHyphen = new GsonBuilder()
-        .registerTypeHierarchyAdapter(GeneratedMessage.class, protoTypeAdapter
+        .registerTypeHierarchyAdapter(GeneratedMessageV3.class, protoTypeAdapter
             .setFieldNameSerializationFormat(CaseFormat.LOWER_UNDERSCORE, CaseFormat.LOWER_HYPHEN)
             .build())
         .create();
