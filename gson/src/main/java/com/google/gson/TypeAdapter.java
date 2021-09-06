@@ -92,6 +92,12 @@ import java.io.Writer;
  *   Gson gson = builder.create();
  * }</pre>
  *
+ * <p>When a type adapter needs to delegate to another type adapter (for example
+ * to serialize the elements of a generic collection) a {@link TypeAdapterFactory}
+ * should be used.
+ *
+ * @see GsonBuilder#registerTypeAdapter(java.lang.reflect.Type, Object)
+ * @see TypeAdapterFactory
  * @since 2.1
  */
 // non-Javadoc:

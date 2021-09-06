@@ -277,7 +277,7 @@ public class CollectionTest extends TestCase {
     }
   }
 
-  public void testWildcardPrimitiveCollectionSerilaization() throws Exception {
+  public void testWildcardPrimitiveCollectionSerialization() throws Exception {
     Collection<? extends Integer> target = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9);
     Type collectionType = new TypeToken<Collection<? extends Integer>>() { }.getType();
     String json = gson.toJson(target, collectionType);
@@ -287,7 +287,7 @@ public class CollectionTest extends TestCase {
     assertEquals("[1,2,3,4,5,6,7,8,9]", json);
   }
 
-  public void testWildcardPrimitiveCollectionDeserilaization() throws Exception {
+  public void testWildcardPrimitiveCollectionDeserialization() throws Exception {
     String json = "[1,2,3,4,5,6,7,8,9]";
     Type collectionType = new TypeToken<Collection<? extends Integer>>() { }.getType();
     Collection<? extends Integer> target = gson.fromJson(json, collectionType);

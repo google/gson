@@ -17,11 +17,13 @@
 package com.google.gson.reflect;
 
 import com.google.gson.internal.$Gson$Types;
+import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.$Gson$Preconditions;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -99,6 +101,146 @@ public class TypeToken<T> {
    */
   public final Type getType() {
     return type;
+  }
+
+  /**
+   * Gets the generic type arguments this type token has for the type parameters
+   * of {@code supertype}. {@code supertype} can either be the
+   * {@linkplain #getRawType() raw type} or a supertype of the raw type.
+   *
+   * <p>For wildcard type arguments the upper bound is returned, unless that is
+   * not specified (or {@code Object}) in which case the bound of the corresponding
+   * type parameter is returned.
+   *
+   * <p>For type parameters the first upper bound which is itself not a type
+   * parameter is returned. This is applied recursively until a non-type-parameter
+   * bound has been found. For type parameter bounds with infinite recursion
+   * (e.g. {@code T extends List<T>}) the erasure of the bound is returned.
+   *
+   * <h2>Example</h2>
+   * <p>Let's assume you want to write a custom {@link TypeAdapterFactory} for type
+   * {@code Map<K, V>}, then you can use this method to determine the key and value types:
+   * <pre>{@code
+   * Class<?> rawType = typeToken.getRawType();
+   * if (!Map.class.isAssignableFrom(rawType)) {
+   *   return null;
+   * }
+   *
+   * Type[] typeArguments = typeToken.getTypeArguments(Map.class);
+   * Type keyType = typeArguments[0]; // Argument for parameter K of type Map<K, V>
+   * Type valueType = typeArguments[1]; // Argument for parameter V of type Map<K, V>
+   * }</pre>
+   *
+   * This will even work correctly when the {@code TypeToken} this method is
+   * called for represents a custom subtype with different type parameters.
+   * For example:
+   * <pre>{@code
+   * class StringKeyMap<V> implements Map<String, V> {
+   *   ...
+   * }
+   *
+   * ...
+   *
+   * TypeToken<StringKeyMap<Integer>> typeToken = ...;
+   * // Will be [String.class (K), Integer.class (V)]
+   * Type[] typeArguments = typeToken.getTypeArguments(Map.class);
+   * }</pre>
+   *
+   * @param supertype Supertype for which the type arguments should be resolved
+   * @return The resolved type arguments for the supertype
+   * @throws IllegalArgumentException If {@code supertype} is neither the same as
+   *    nor a supertype of {@link #getRawType()}
+   * @throws IllegalArgumentException If {@code supertype} does not have any type
+   *    parameters
+   */
+  public final Type[] getTypeArguments(Class<?> supertype) {
+    if (!supertype.isAssignableFrom(rawType)) {
+      throw new IllegalArgumentException("Type " + supertype.getName() +
+        " is neither the same as nor a supertype of type " + rawType.getName());
+    }
+
+    TypeVariable<?>[] typeParameters = supertype.getTypeParameters();
+    int typeParametersCount = typeParameters.length;
+    if (typeParametersCount == 0) {
+      throw new IllegalArgumentException("Type " + supertype.getName() + " does not have any type parameters");
+    }
+
+    Type parameterizedSupertype = $Gson$Types.getSupertype(type, rawType, supertype);
+
+    // Arguments requested for same raw type, e.g. Map<K, V> for for Map<K, V>
+    // In this case use bounds of type variables
+    if (parameterizedSupertype == supertype) {
+      Type[] typeArguments = new Type[typeParametersCount];
+      for (int i = 0; i < typeParametersCount; i++) {
+        typeArguments[i] = $Gson$Types.getUltimateTypeVariableBound(typeParameters[i]);
+      }
+      return typeArguments;
+    }
+
+    assert parameterizedSupertype instanceof ParameterizedType :
+      "Unsupported type " + parameterizedSupertype + " (" + parameterizedSupertype.getClass() + ")";
+
+    Type[] typeArguments = ((ParameterizedType) parameterizedSupertype).getActualTypeArguments();
+    assert typeArguments.length == typeParametersCount;
+
+    boolean[] needsFinalResolve = new boolean[typeParametersCount];
+
+    // Convert wildcards and type variables
+    for (int i = 0; i < typeParametersCount; i++) {
+      Type typeArgument = typeArguments[i];
+      if (typeArgument instanceof WildcardType) {
+        // Only consider upper bounds (ignore lower bounds because they don't impose any restriction)
+        // Trust the upper bound (even though it could be 'illogical', see https://bugs.openjdk.java.net/browse/JDK-8250936)
+        Type bound = ((WildcardType) typeArgument).getUpperBounds()[0];
+        if (bound instanceof TypeVariable) {
+          typeArguments[i] = $Gson$Types.getUltimateTypeVariableBound((TypeVariable<?>) bound);
+        } else if (bound == Object.class) {
+          // When no upper bound is specified use the bounds of the underlying type variable
+          // Look up the type at the end since type variables can have forwards bounds
+          // for which the type argument is not available yet, e.g. `Generic<T extends U, U>`
+          // with `Generic<?, String>`
+          needsFinalResolve[i] = true;
+        } else {
+          typeArguments[i] = bound;
+        }
+      } else if (typeArgument instanceof TypeVariable) {
+        typeArguments[i] = $Gson$Types.getUltimateTypeVariableBound((TypeVariable<?>) typeArgument);
+      }
+    }
+
+    // Resolve wildcards whose bounds could not be resolved yet
+    for (int i = 0; i < typeParametersCount; i++) {
+      if (needsFinalResolve[i]) {
+        TypeVariable<?> typeParameter = typeParameters[i];
+        TypeVariable<?> ultimateTypeParameter = $Gson$Types.getUltimateTypeVariable(typeParameter);
+
+        // Type parameter has non-type-parameter as bound, use it as argument
+        if (typeParameter == ultimateTypeParameter) {
+          typeArguments[i] = $Gson$Types.getUltimateTypeVariableBound(typeParameter);
+          continue;
+        }
+
+        // Look up the type argument for ultimateTypeParameter
+        boolean foundArgument = false;
+        for (int typeParamIndex = 0; typeParamIndex < typeParametersCount; typeParamIndex++) {
+          if (typeParameters[typeParamIndex].equals(ultimateTypeParameter)) {
+            foundArgument = true;
+            Type typeArgument = typeArguments[typeParamIndex];
+            typeArguments[i] = typeArgument;
+            assert !(typeArgument instanceof TypeVariable || typeArgument instanceof WildcardType);
+            break;
+          }
+        }
+
+        // ultimateTypeParameter is not one of the type parameters of this type
+        // (but maybe of enclosing type); fall back to using its bound
+        if (!foundArgument) {
+          typeArguments[i] = $Gson$Types.getUltimateTypeVariableBound(ultimateTypeParameter);
+        }
+      }
+    }
+
+    return typeArguments;
   }
 
   /**
