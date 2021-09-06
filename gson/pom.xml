@@ -10,6 +10,13 @@
   <artifactId>gson</artifactId>
   <name>Gson</name>
 
+  <licenses>
+    <license>
+      <name>Apache 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
+  
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
