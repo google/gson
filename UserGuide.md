@@ -429,7 +429,7 @@ class IdInstanceCreator implements InstanceCreator<Id<?>> {
   public Id<?> createInstance(Type type) {
     Type[] typeParameters = ((ParameterizedType)type).getActualTypeArguments();
     Type idType = typeParameters[0]; // Id has only one parameterized type T
-    return Id.get((Class)idType, 0L);
+    return new Id((Class)idType, 0L);
   }
 }
 ```
