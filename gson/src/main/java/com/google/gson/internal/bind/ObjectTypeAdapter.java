@@ -17,6 +17,7 @@
 package com.google.gson.internal.bind;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.LinkedTreeMap;
@@ -35,20 +36,24 @@ import java.util.Map;
  * serialization and a primitive/Map/List on deserialization.
  */
 public final class ObjectTypeAdapter extends TypeAdapter<Object> {
-  public static final TypeAdapterFactory FACTORY = new TypeAdapterFactory() {
-    @SuppressWarnings("unchecked")
-    @Override public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-      if (type.getRawType() == Object.class) {
-        return (TypeAdapter<T>) new ObjectTypeAdapter(gson);
+  public static TypeAdapterFactory createFactory(final boolean disallowDuplicateProperties) {
+    return new TypeAdapterFactory() {
+      @SuppressWarnings("unchecked")
+      @Override public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+        if (type.getRawType() == Object.class) {
+          return (TypeAdapter<T>) new ObjectTypeAdapter(gson, disallowDuplicateProperties);
+        }
+        return null;
       }
-      return null;
-    }
-  };
+    };
+  }
 
   private final Gson gson;
+  private final boolean disallowDuplicateProperties;
 
-  ObjectTypeAdapter(Gson gson) {
+  ObjectTypeAdapter(Gson gson, boolean disallowDuplicateProperties) {
     this.gson = gson;
+    this.disallowDuplicateProperties = disallowDuplicateProperties;
   }
 
   @Override public Object read(JsonReader in) throws IOException {
@@ -67,7 +72,13 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
       Map<String, Object> map = new LinkedTreeMap<String, Object>();
       in.beginObject();
       while (in.hasNext()) {
-        map.put(in.nextName(), read(in));
+        String name = in.nextName();
+        // Cannot use `map.put` result because it would not allow detecting
+        // duplicate properties with null value
+        if (disallowDuplicateProperties && map.containsKey(name)) {
+          throw new JsonSyntaxException("Duplicate property '" + name + "'");
+        }
+        map.put(name, read(in));
       }
       in.endObject();
       return map;

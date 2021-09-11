@@ -35,7 +35,7 @@ import com.google.gson.stream.MalformedJsonException;
  * <p>This class is conditionally thread-safe (see Item 70, Effective Java second edition). To
  * properly use this class across multiple threads, you will need to add some external
  * synchronization. For example:
- * 
+ *
  * <pre>
  * JsonStreamParser parser = new JsonStreamParser("['first'] {'second':10} 'third'");
  * JsonElement element;
@@ -45,6 +45,9 @@ import com.google.gson.stream.MalformedJsonException;
  *   }
  * }
  * </pre>
+ *
+ * <p>In case the JSON data contains properties with duplicate names only the
+ * value of the last property is used.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
@@ -59,9 +62,9 @@ public final class JsonStreamParser implements Iterator<JsonElement> {
    * @since 1.4
    */
   public JsonStreamParser(String json) {
-    this(new StringReader(json));      
+    this(new StringReader(json));
   }
-  
+
   /**
    * @param reader The data stream containing JSON elements concatenated to each other.
    * @since 1.4
@@ -71,7 +74,7 @@ public final class JsonStreamParser implements Iterator<JsonElement> {
     parser.setLenient(true);
     lock = new Object();
   }
-  
+
   /**
    * Returns the next available {@link JsonElement} on the reader. Throws a
    * {@link NoSuchElementException} if no element is available.
@@ -85,7 +88,7 @@ public final class JsonStreamParser implements Iterator<JsonElement> {
     if (!hasNext()) {
       throw new NoSuchElementException();
     }
-    
+
     try {
       return Streams.parse(parser);
     } catch (StackOverflowError e) {

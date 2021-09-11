@@ -127,11 +127,6 @@ public class JsonObjectTest extends TestCase {
 
   }
 
-  public void testReadPropertyWithEmptyStringName() {
-    JsonObject jsonObj = JsonParser.parseString("{\"\":true}").getAsJsonObject();
-    assertEquals(true, jsonObj.get("").getAsBoolean());
-  }
-
   public void testEqualsOnEmptyObject() {
     MoreAsserts.assertEqualsAndHashCode(new JsonObject(), new JsonObject());
   }

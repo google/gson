@@ -21,6 +21,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -114,6 +115,26 @@ public class MapAsArrayTypeAdapterTest extends TestCase {
     Point value = map.map.values().iterator().next();
     assertEquals(new Point(2, 3), key);
     assertEquals(new Point(4, 5), value);
+  }
+
+  public void testMapDeserializationWithDuplicateNullProperties() {
+    Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
+    String json = "[['a', null], ['a', null]]";
+    Type type = new TypeToken<Map<String, String>>(){}.getType();
+    Map<String, String> map = gson.fromJson(json, type);
+    assertEquals(Collections.singletonMap("a", null), map);
+  }
+
+  public void testMapDeserializationWithDuplicateNullPropertiesDisallowed() {
+    Gson gson = new GsonBuilder().enableComplexMapKeySerialization().disallowDuplicatePropertyDeserialization().create();
+    String json = "[['a', null], ['a', null]]";
+    Type type = new TypeToken<Map<String, String>>(){}.getType();
+    try {
+      gson.fromJson(json, type);
+      fail();
+    } catch (JsonSyntaxException e) {
+      assertEquals("duplicate key: a", e.getMessage());
+    }
   }
 
   static class Point {

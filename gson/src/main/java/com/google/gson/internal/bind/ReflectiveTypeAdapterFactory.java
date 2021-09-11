@@ -38,9 +38,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Type adapter that reflects over the fields and methods of a class.
@@ -50,15 +52,17 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   private final FieldNamingStrategy fieldNamingPolicy;
   private final Excluder excluder;
   private final JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory;
+  private final boolean disallowDuplicateProperties;
   private final ReflectionAccessor accessor = ReflectionAccessor.getInstance();
 
   public ReflectiveTypeAdapterFactory(ConstructorConstructor constructorConstructor,
       FieldNamingStrategy fieldNamingPolicy, Excluder excluder,
-      JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory) {
+      JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory, boolean disallowDuplicateProperties) {
     this.constructorConstructor = constructorConstructor;
     this.fieldNamingPolicy = fieldNamingPolicy;
     this.excluder = excluder;
     this.jsonAdapterFactory = jsonAdapterFactory;
+    this.disallowDuplicateProperties = disallowDuplicateProperties;
   }
 
   public boolean excludeField(Field f, boolean serialize) {
@@ -99,7 +103,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     }
 
     ObjectConstructor<T> constructor = constructorConstructor.get(type);
-    return new Adapter<T>(constructor, getBoundFields(gson, type, raw));
+    return new Adapter<T>(constructor, getBoundFields(gson, type, raw), disallowDuplicateProperties);
   }
 
   private ReflectiveTypeAdapterFactory.BoundField createBoundField(
@@ -197,10 +201,12 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   public static final class Adapter<T> extends TypeAdapter<T> {
     private final ObjectConstructor<T> constructor;
     private final Map<String, BoundField> boundFields;
+    private final boolean disallowDuplicateProperties;
 
-    Adapter(ObjectConstructor<T> constructor, Map<String, BoundField> boundFields) {
+    Adapter(ObjectConstructor<T> constructor, Map<String, BoundField> boundFields, boolean disallowDuplicateProperties) {
       this.constructor = constructor;
       this.boundFields = boundFields;
+      this.disallowDuplicateProperties = disallowDuplicateProperties;
     }
 
     @Override public T read(JsonReader in) throws IOException {
@@ -210,11 +216,15 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       }
 
       T instance = constructor.construct();
+      Set<String> names = disallowDuplicateProperties ? new HashSet<String>() : null;
 
       try {
         in.beginObject();
         while (in.hasNext()) {
           String name = in.nextName();
+          if (names != null && !names.add(name)) {
+            throw new JsonSyntaxException("Duplicate property '" + name + "'");
+          }
           BoundField field = boundFields.get(name);
           if (field == null || !field.deserialized) {
             in.skipValue();

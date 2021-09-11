@@ -84,10 +84,49 @@ public class JsonParserTest extends TestCase {
     JsonElement e = JsonParser.parseString(json);
     assertTrue(e.isJsonArray());
 
-    JsonArray  array = e.getAsJsonArray();
+    JsonArray array = e.getAsJsonArray();
     assertEquals("{}", array.get(0).toString());
     assertEquals(13, array.get(1).getAsInt());
     assertEquals("stringValue", array.get(2).getAsString());
+  }
+
+  public void testParseStringDuplicateProperties() {
+    String json = "{\"a\":1,\"a\":2}";
+    JsonElement e = JsonParser.parseString(json);
+    assertTrue(e.isJsonObject());
+    assertEquals(2, e.getAsJsonObject().getAsJsonPrimitive("a").getAsInt());
+  }
+
+  // TODO: This is not really a JsonParser test, but at the moment there is
+  // not better fitting test class
+  public void testReadDuplicatePropertiesDisallowed() throws Exception {
+    Gson gson = new GsonBuilder().disallowDuplicatePropertyDeserialization().create();
+    TypeAdapter<JsonObject> adapter = gson.getAdapter(JsonObject.class);
+
+    {
+      String json = "{\"a\":1,\"a\":2}";
+      try {
+        adapter.fromJson(json);
+        fail();
+      } catch (JsonSyntaxException e) {
+        assertEquals("Duplicate property 'a'", e.getMessage());
+      }
+    }
+
+    {
+      String json = "{\"a\":null,\"a\":null}";
+      try {
+        adapter.fromJson(json);
+        fail();
+      } catch (JsonSyntaxException e) {
+        assertEquals("Duplicate property 'a'", e.getMessage());
+      }
+    }
+  }
+
+  public void testReadPropertyWithEmptyStringName() {
+    JsonObject jsonObj = JsonParser.parseString("{\"\":true}").getAsJsonObject();
+    assertEquals(true, jsonObj.get("").getAsBoolean());
   }
 
   public void testParseReader() {

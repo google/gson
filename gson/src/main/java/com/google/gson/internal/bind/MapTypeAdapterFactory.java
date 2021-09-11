@@ -104,12 +104,15 @@ import java.util.Map;
  */
 public final class MapTypeAdapterFactory implements TypeAdapterFactory {
   private final ConstructorConstructor constructorConstructor;
-  final boolean complexMapKeySerialization;
+  private final boolean complexMapKeySerialization;
+  private final boolean disallowDuplicateProperties;
+
 
   public MapTypeAdapterFactory(ConstructorConstructor constructorConstructor,
-      boolean complexMapKeySerialization) {
+      boolean complexMapKeySerialization, boolean disallowDuplicateProperties) {
     this.constructorConstructor = constructorConstructor;
     this.complexMapKeySerialization = complexMapKeySerialization;
+    this.disallowDuplicateProperties = disallowDuplicateProperties;
   }
 
   @Override public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
@@ -129,7 +132,8 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
     @SuppressWarnings({"unchecked", "rawtypes"})
     // we don't define a type parameter for the key or value types
     TypeAdapter<T> result = new Adapter(gson, keyAndValueTypes[0], keyAdapter,
-        keyAndValueTypes[1], valueAdapter, constructor);
+        keyAndValueTypes[1], valueAdapter, constructor, complexMapKeySerialization,
+        disallowDuplicateProperties);
     return result;
   }
 
@@ -142,19 +146,24 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
         : context.getAdapter(TypeToken.get(keyType));
   }
 
-  private final class Adapter<K, V> extends TypeAdapter<Map<K, V>> {
+  private static final class Adapter<K, V> extends TypeAdapter<Map<K, V>> {
     private final TypeAdapter<K> keyTypeAdapter;
     private final TypeAdapter<V> valueTypeAdapter;
     private final ObjectConstructor<? extends Map<K, V>> constructor;
+    private final boolean complexMapKeySerialization;
+    private final boolean disallowDuplicateProperties;
 
     public Adapter(Gson context, Type keyType, TypeAdapter<K> keyTypeAdapter,
         Type valueType, TypeAdapter<V> valueTypeAdapter,
-        ObjectConstructor<? extends Map<K, V>> constructor) {
+        ObjectConstructor<? extends Map<K, V>> constructor, boolean complexMapKeySerialization,
+        boolean disallowDuplicateProperties) {
       this.keyTypeAdapter =
         new TypeAdapterRuntimeTypeWrapper<K>(context, keyTypeAdapter, keyType);
       this.valueTypeAdapter =
         new TypeAdapterRuntimeTypeWrapper<V>(context, valueTypeAdapter, valueType);
       this.constructor = constructor;
+      this.complexMapKeySerialization = complexMapKeySerialization;
+      this.disallowDuplicateProperties = disallowDuplicateProperties;
     }
 
     @Override public Map<K, V> read(JsonReader in) throws IOException {
@@ -172,7 +181,16 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
           in.beginArray(); // entry array
           K key = keyTypeAdapter.read(in);
           V value = valueTypeAdapter.read(in);
+
+          // Cannot use `map.put` result because it would not allow detecting
+          // duplicate properties with null value
+          if (disallowDuplicateProperties && map.containsKey(key)) {
+            throw new JsonSyntaxException("duplicate key: " + key);
+          }
+
           V replaced = map.put(key, value);
+          // This check exists for legacy reasons because Gson has always disallowed
+          // duplicate keys (with non-null value)
           if (replaced != null) {
             throw new JsonSyntaxException("duplicate key: " + key);
           }
@@ -185,7 +203,16 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
           JsonReaderInternalAccess.INSTANCE.promoteNameToValue(in);
           K key = keyTypeAdapter.read(in);
           V value = valueTypeAdapter.read(in);
+
+          // Cannot use `map.put` result because it would not allow detecting
+          // duplicate properties with null value
+          if (disallowDuplicateProperties && map.containsKey(key)) {
+            throw new JsonSyntaxException("duplicate key: " + key);
+          }
+
           V replaced = map.put(key, value);
+          // This check exists for legacy reasons because Gson has always disallowed
+          // duplicate keys (with non-null value)
           if (replaced != null) {
             throw new JsonSyntaxException("duplicate key: " + key);
           }

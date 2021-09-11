@@ -23,6 +23,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Arrays;
+import java.util.Map;
 
 /**
  * Reads a JSON (<a href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>)
@@ -768,6 +769,12 @@ public class JsonReader implements Closeable {
   /**
    * Returns the next token, a {@link com.google.gson.stream.JsonToken#NAME property name}, and
    * consumes it.
+   *
+   * <p>This method does not detect or prevent multiple properties with the same name.
+   * Security sensitive applications should manually verify that no duplicate properties
+   * exist, also considering {@code null} values (checking the result of {@link Map#put}
+   * is therefore not sufficient), to protect against malicious JSON data which tries
+   * to circumvent security checks.
    *
    * @throws java.io.IOException if the next token in the stream is not a property
    *     name.

@@ -25,7 +25,10 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.MalformedJsonException;
 
 /**
- * A parser to parse Json into a parse tree of {@link JsonElement}s
+ * A parser to parse Json into a parse tree of {@link JsonElement}s.
+ *
+ * <p>In case the JSON data contains properties with duplicate names only the
+ * value of the last property is used.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
@@ -37,7 +40,7 @@ public final class JsonParser {
   public JsonParser() {}
 
   /**
-   * Parses the specified JSON string into a parse tree
+   * Parses the specified JSON string into a parse tree.
    *
    * @param json JSON text
    * @return a parse tree of {@link JsonElement}s corresponding to the specified JSON
@@ -48,7 +51,7 @@ public final class JsonParser {
   }
 
   /**
-   * Parses the specified JSON string into a parse tree
+   * Parses the specified JSON string into a parse tree.
    *
    * @param reader JSON text
    * @return a parse tree of {@link JsonElement}s corresponding to the specified JSON
