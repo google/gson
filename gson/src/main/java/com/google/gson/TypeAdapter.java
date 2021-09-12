@@ -66,7 +66,7 @@ import java.io.Writer;
  * For primitive types this is means readers should make exactly one call to
  * {@code nextBoolean()}, {@code nextDouble()}, {@code nextInt()}, {@code
  * nextLong()}, {@code nextString()} or {@code nextNull()}. Writers should make
- * exactly one call to one of <code>value()</code> or <code>nullValue()</code>.
+ * exactly one call to one of {@code value()} or {@code nullValue()} methods.
  * For arrays, type adapters should start with a call to {@code beginArray()},
  * convert all elements, and finish with a call to {@code endArray()}. For
  * objects, they should start with {@code beginObject()}, convert the object,
@@ -80,6 +80,11 @@ import java.io.Writer;
  * written to the final document. Otherwise the value (and the corresponding name
  * when writing to a JSON object) will be omitted automatically. In either case
  * your type adapter must handle null.
+ *
+ * <p>To customize how an object will be converted to and from a JSON object
+ * property name when used as key of a {@code Map}-like type, the methods
+ * {@link #createPropertyName(Object)} and {@link #readFromPropertyName(String)}
+ * can be overridden.
  *
  * <p>To use a custom type adapter with Gson, you must <i>register</i> it with a
  * {@link GsonBuilder}: <pre>   {@code
@@ -285,6 +290,107 @@ public abstract class TypeAdapter<T> {
       return read(jsonReader);
     } catch (IOException e) {
       throw new JsonIOException(e);
+    }
+  }
+
+  /**
+   * Converts a Java object to a JSON property name. This method is the reverse of
+   * {@link #readFromPropertyName(String)} and is intended for usage by type adapters
+   * for {@code Map}-like classes which want to serialize non-String map keys.
+   *
+   * <p>The default implementation of this method uses {@link String#valueOf(Object)}
+   * to create the property name (for legacy reasons). <b>This behavior is most likely
+   * never desired.</b> Adapter implementations which explicitly want to support
+   * serialization to a property name should override this method, and can for example
+   * delegate to a private serialization method which they also use for
+   * {@link #write(JsonWriter, Object)}. Adapter implementations which do <i>not</i>
+   * want to support serialization to a property name may override this method
+   * to throw an {@link UnsupportedOperationException}.
+   *
+   * <p>This method is not affected by {@link #nullSafe()}. Implementations always
+   * have to handle {@code null}, possibly by throwing an {@link UnsupportedOperationException}.
+   *
+   * <p>For serialization using Gson's built-in {@code Map} adapter, an alternative
+   * to overriding this method can be to use {@link GsonBuilder#enableComplexMapKeySerialization()}.
+   *
+   * @param value the Java object to serialize. May be null.
+   * @return The JSON property name. Must not be {@code null}.
+   * @throws UnsupportedOperationException If serialization to a property
+   *        name is not supported by this adapter
+   */
+  // TODO: Throwing UnsupportedOperationException is not ideal because it 'bubbles up'
+  // too far the call stack, but Gson has no better fitting exception
+  public String createPropertyName(T value) {
+    return String.valueOf(value);
+  }
+
+  /**
+   * Reads a Java object from the JSON property name. This method is the reverse of
+   * {@link #createPropertyName(Object)} and is intended for usage by type adapters
+   * for {@code Map}-like classes which want to deserialize non-String map keys.
+   * It is recommended that callers of this method wrap thrown exceptions and add
+   * context information, such as {@link JsonReader#getPath()}, to them.
+   *
+   * <p>The default implementation of this method calls {@link #read(JsonReader)}
+   * with a JsonReader containing only the property name as {@link JsonToken#STRING}.
+   *
+   * <p>Adapter implementations which explicitly want to support deserialization from
+   * a property name should override this method, and can for example delegate to a
+   * private parsing method which they also use for {@link #read(JsonReader)}.
+   * Adapter implementations which do <i>not</i> want to support deserialization
+   * from a property name may override this method to throw an
+   * {@link UnsupportedOperationException}.
+   *
+   * <p>For serialization using Gson's built-in {@code Map} adapter, an alternative
+   * to overriding this method can be to use {@link GsonBuilder#enableComplexMapKeySerialization()}.
+   *
+   * @param name the JSON property name; not {@code null}
+   * @return Java object (possibly {@code null}) parsed from the property name
+   * @throws UnsupportedOperationException If deserialization from a property
+   *        name is not supported by this adapter
+   * @throws JsonParseException If parsing the property name fails
+   */
+  // TODO: Throwing UnsupportedOperationException is not ideal because it 'bubbles up'
+  // too far the call stack, but Gson has no better fitting exception which also
+  // fits for createPropertyName
+  public T readFromPropertyName(String name) throws JsonParseException {
+    JsonTreeReader jsonReader = new PropertyNameJsonReader(name);
+    boolean wasLenient = jsonReader.isLenient();
+    T value;
+    try {
+      value = read(jsonReader);
+    } catch (IOException e) {
+      throw new JsonParseException("Failed reading from name", e);
+    }
+    // Catch RuntimeException to cover all exceptions which could occur during parsing
+    catch (RuntimeException e) {
+      throw new JsonParseException("Failed reading from name", e);
+    }
+
+    if (jsonReader.peek() != JsonToken.END_DOCUMENT) {
+      throw new IllegalStateException("Adapter did not consume name");
+    }
+    if (wasLenient != jsonReader.isLenient()) {
+      // Throw exception to allow detecting cases where type adapter might expect
+      // that change affects subsequent deserialization (which is not the case here)
+      throw new IllegalStateException("Lenient setting was changed but not reverted");
+    }
+    return value;
+  }
+
+  static class PropertyNameJsonReader extends JsonTreeReader {
+    public PropertyNameJsonReader(String propertyName) {
+      super(new JsonPrimitive(propertyName));
+    }
+
+    @Override public String getPath() {
+      // Does not have access to actual path, so at least make it obvious that
+      // path is unknown
+      return "#fake-property-name-path";
+    }
+
+    @Override public void close() {
+      throw new IllegalStateException("Closing property name reader is not supported");
     }
   }
 }

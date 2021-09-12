@@ -82,6 +82,20 @@ public final class TreeTypeAdapter<T> extends TypeAdapter<T> {
     Streams.write(tree, out);
   }
 
+  @Override public T readFromPropertyName(String name) throws JsonParseException {
+    if (deserializer == null) {
+      return delegate().readFromPropertyName(name);
+    }
+    return super.readFromPropertyName(name);
+  }
+
+  @Override public String createPropertyName(T value) {
+    if (serializer == null) {
+      return delegate().createPropertyName(value);
+    }
+    return super.createPropertyName(value);
+  }
+
   private TypeAdapter<T> delegate() {
     TypeAdapter<T> d = delegate;
     return d != null
