@@ -219,7 +219,15 @@ public class JsonWriter implements Closeable, Flushable {
       this.separator = ": ";
     }
   }
-
+  
+  /**
+   * Returns the indentation string to be repeated for each level of indentation
+   * in the encoded document.
+   */
+  public String getIndent() {
+    return indent;
+  }
+  
   /**
    * Configure this writer to relax its syntax rules. By default, this writer
    * only emits well-formed JSON as specified by <a
