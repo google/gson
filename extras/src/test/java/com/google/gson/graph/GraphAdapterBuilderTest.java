@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.gson.Gson;
@@ -72,22 +71,6 @@ public final class GraphAdapterBuilderTest {
     Roshambo paper = scissors.beats;
     assertEquals("PAPER", paper.name);
     assertSame(rock, paper.beats);
-  }
-
-  @Ignore("Does not work anymore due to ReflectiveTypeAdapterFactory ignoring self references")
-  @Test
-  public void testSerializationDirectSelfReference() {
-    Roshambo suicide = new Roshambo("SUICIDE");
-    suicide.beats = suicide;
-
-    GsonBuilder gsonBuilder = new GsonBuilder();
-    new GraphAdapterBuilder()
-        .addType(Roshambo.class)
-        .registerOn(gsonBuilder);
-    Gson gson = gsonBuilder.create();
-
-    assertEquals("{'0x1':{'name':'SUICIDE','beats':'0x1'}}",
-        gson.toJson(suicide).replace('"', '\''));
   }
 
   @Test
