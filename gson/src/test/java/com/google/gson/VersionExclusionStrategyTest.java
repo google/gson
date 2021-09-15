@@ -31,19 +31,19 @@ public class VersionExclusionStrategyTest extends TestCase {
   public void testClassAndFieldAreAtSameVersion() throws Exception {
     Excluder excluder = Excluder.DEFAULT.withVersion(VERSION);
     assertFalse(excluder.excludeClass(MockObject.class, true));
-    assertFalse(excluder.excludeField(MockObject.class.getField("someField"), true));
+    assertFalse(excluder.excludeField(MockObject.class,MockObject.class.getField("someField"), true));
   }
 
   public void testClassAndFieldAreBehindInVersion() throws Exception {
     Excluder excluder = Excluder.DEFAULT.withVersion(VERSION + 1);
     assertFalse(excluder.excludeClass(MockObject.class, true));
-    assertFalse(excluder.excludeField(MockObject.class.getField("someField"), true));
+    assertFalse(excluder.excludeField(MockObject.class,MockObject.class.getField("someField"), true));
   }
 
   public void testClassAndFieldAreAheadInVersion() throws Exception {
     Excluder excluder = Excluder.DEFAULT.withVersion(VERSION - 1);
     assertTrue(excluder.excludeClass(MockObject.class, true));
-    assertTrue(excluder.excludeField(MockObject.class.getField("someField"), true));
+    assertTrue(excluder.excludeField(MockObject.class,MockObject.class.getField("someField"), true));
   }
 
   @Since(VERSION)

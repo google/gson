@@ -32,7 +32,7 @@ final class MockExclusionStrategy implements ExclusionStrategy {
   }
 
   @Override
-  public boolean shouldSkipField(FieldAttributes f) {
+  public boolean shouldSkipField(Class<?> rootClass,FieldAttributes f) {
     return skipField;
   }
 

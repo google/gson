@@ -61,12 +61,20 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     this.jsonAdapterFactory = jsonAdapterFactory;
   }
 
-  public boolean excludeField(Field f, boolean serialize) {
-    return excludeField(f, serialize, excluder);
+  public boolean excludeField(Class<?> rootClass,Field f, boolean serialize) {
+    return excludeField(rootClass,f, serialize, excluder);
   }
 
-  static boolean excludeField(Field f, boolean serialize, Excluder excluder) {
-    return !excluder.excludeClass(f.getType(), serialize) && !excluder.excludeField(f, serialize);
+  static boolean excludeField(Class<?> rootClass,Field f, boolean serialize, Excluder excluder) {
+    return !excluder.excludeClass(f.getType(), serialize) && !excluder.excludeField(rootClass,f, serialize);
+  }
+
+  public boolean excludeProperties(Class<?> rootClass, Field field) {
+    return excludeProperties(rootClass, field, excluder);
+  }
+
+  public boolean excludeProperties(Class<?> rootClass, Field field, Excluder excluder) {
+    return excluder.excludeProperties(rootClass, field);
   }
 
   /** first element holds the default name */
@@ -147,13 +155,17 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       return result;
     }
 
+    Class<?> rootClass = raw;
     Type declaredType = type.getType();
     while (raw != Object.class) {
       Field[] fields = raw.getDeclaredFields();
       for (Field field : fields) {
-        boolean serialize = excludeField(field, true);
-        boolean deserialize = excludeField(field, false);
+        boolean serialize = excludeField(rootClass,field, true);
+        boolean deserialize = excludeField(rootClass,field, false);
         if (!serialize && !deserialize) {
+          continue;
+        }
+        if(excludeProperties(rootClass,field)){
           continue;
         }
         accessor.makeAccessible(field);

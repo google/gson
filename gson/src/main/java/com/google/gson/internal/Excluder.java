@@ -22,6 +22,7 @@ import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.JsonIgnoreProperties;
 import com.google.gson.annotations.Since;
 import com.google.gson.annotations.Until;
 import com.google.gson.reflect.TypeToken;
@@ -148,7 +149,27 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
     };
   }
 
-  public boolean excludeField(Field field, boolean serialize) {
+  public boolean excludeProperties(Class<?> rootClass, String fieldName) {
+    JsonIgnoreProperties ignoreProperties = rootClass.getAnnotation(JsonIgnoreProperties.class);
+    if (ignoreProperties != null) {
+      String[] names = ignoreProperties.value();
+      if (names == null || names.length == 0) {
+        return false;
+      }
+      for (String name : names) {
+        if (fieldName.equals(name)) {
+          return true;
+        }
+
+      }
+    }
+    return false;
+  }
+
+  public boolean excludeProperties(Class<?> rootClass, Field field) {
+    return excludeProperties(rootClass, field.getName());
+  }
+  public boolean excludeField(Class<?> rootClass,Field field, boolean serialize) {
     if ((modifiers & field.getModifiers()) != 0) {
       return true;
     }
@@ -181,7 +202,7 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
     if (!list.isEmpty()) {
       FieldAttributes fieldAttributes = new FieldAttributes(field);
       for (ExclusionStrategy exclusionStrategy : list) {
-        if (exclusionStrategy.shouldSkipField(fieldAttributes)) {
+        if (exclusionStrategy.shouldSkipField(rootClass,fieldAttributes)) {
           return true;
         }
       }

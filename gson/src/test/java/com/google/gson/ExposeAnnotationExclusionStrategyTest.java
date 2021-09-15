@@ -38,32 +38,32 @@ public class ExposeAnnotationExclusionStrategyTest extends TestCase {
 
   public void testSkipNonAnnotatedFields() throws Exception {
     Field f = createFieldAttributes("hiddenField");
-    assertTrue(excluder.excludeField(f, true));
-    assertTrue(excluder.excludeField(f, false));
+    assertTrue(excluder.excludeField(MockObject.class,f, true));
+    assertTrue(excluder.excludeField(MockObject.class,f, false));
   }
 
   public void testSkipExplicitlySkippedFields() throws Exception {
     Field f = createFieldAttributes("explicitlyHiddenField");
-    assertTrue(excluder.excludeField(f, true));
-    assertTrue(excluder.excludeField(f, false));
+    assertTrue(excluder.excludeField(MockObject.class,f, true));
+    assertTrue(excluder.excludeField(MockObject.class,f, false));
   }
 
   public void testNeverSkipExposedAnnotatedFields() throws Exception {
     Field f = createFieldAttributes("exposedField");
-    assertFalse(excluder.excludeField(f, true));
-    assertFalse(excluder.excludeField(f, false));
+    assertFalse(excluder.excludeField(MockObject.class,f, true));
+    assertFalse(excluder.excludeField(MockObject.class,f, false));
   }
 
   public void testNeverSkipExplicitlyExposedAnnotatedFields() throws Exception {
     Field f = createFieldAttributes("explicitlyExposedField");
-    assertFalse(excluder.excludeField(f, true));
-    assertFalse(excluder.excludeField(f, false));
+    assertFalse(excluder.excludeField(MockObject.class,f, true));
+    assertFalse(excluder.excludeField(MockObject.class,f, false));
   }
 
   public void testDifferentSerializeAndDeserializeField() throws Exception {
     Field f = createFieldAttributes("explicitlyDifferentModeField");
-    assertFalse(excluder.excludeField(f, true));
-    assertTrue(excluder.excludeField(f, false));
+    assertFalse(excluder.excludeField(MockObject.class,f, true));
+    assertTrue(excluder.excludeField(MockObject.class,f, false));
   }
 
   private static Field createFieldAttributes(String fieldName) throws Exception {

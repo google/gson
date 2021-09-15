@@ -63,7 +63,6 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.8.1</version>
           <executions>
             <execution>
               <id>default-compile</id>
@@ -87,9 +86,9 @@
             </execution>
           </executions>
           <configuration>
-            <jdkToolchain>
+           <!-- <jdkToolchain>
               <version>[1.5,9)</version>
-            </jdkToolchain>
+            </jdkToolchain>-->
             <source>1.6</source>
             <target>1.6</target>
           </configuration>
@@ -112,6 +111,21 @@
       </plugins>
     </pluginManagement>
     <plugins>
+      <plugin>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>2.4</version>
+        <configuration>
+          <attach>true</attach>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-release-plugin</artifactId>
@@ -148,4 +162,20 @@
       </build>
     </profile>
   </profiles>
+
+  <!-- 发布到仓库配置 -->
+  <distributionManagement>
+    <repository>
+      <id>releases</id>
+      <name>Releases</name>
+      <url>${maven.releases.url}</url>
+    </repository>
+    <snapshotRepository>
+      <id>snapshots</id>
+      <name>Snapshots</name>
+      <url>${maven.snapshots.url}</url>
+      <layout>default</layout>
+    </snapshotRepository>
+  </distributionManagement>
+
 </project>

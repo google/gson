@@ -37,7 +37,7 @@ public class InnerClassExclusionStrategyTest extends TestCase {
 
   public void testExcludeInnerClassField() throws Exception {
     Field f = getClass().getField("innerClass");
-    assertTrue(excluder.excludeField(f, true));
+    assertTrue(excluder.excludeField(getClass(),f, true));
   }
 
   public void testIncludeStaticNestedClassObject() throws Exception {
@@ -47,7 +47,7 @@ public class InnerClassExclusionStrategyTest extends TestCase {
 
   public void testIncludeStaticNestedClassField() throws Exception {
     Field f = getClass().getField("staticNestedClass");
-    assertFalse(excluder.excludeField(f, true));
+    assertFalse(excluder.excludeField(getClass(),f, true));
   }
 
   class InnerClass {
