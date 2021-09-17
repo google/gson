@@ -1006,6 +1006,25 @@ public final class Gson {
     return (T) fromJson(new JsonTreeReader(json), typeOfT);
   }
 
+  /**
+   * Creates a new instance of the type using either one of the {@link InstanceCreator}s
+   * {@linkplain GsonBuilder#registerTypeAdapter(Type, Object) registered with the <code>GsonBuilder</code>}
+   * or a built-in creator.
+   *
+   * <p>This method is mainly intended for {@link TypeAdapterFactory} implementations of
+   * collection-like types which want to create an empty collection instance and then add
+   * the values read from JSON to it.
+   *
+   * @param <T> type to create
+   * @param type token representing the type to create
+   * @return the created instance
+   */
+  // TODO: Specify thrown exception type; but ConstructorConstructor currently uses
+  // RuntimeException instead of specific exception
+  public <T> T createInstance(TypeToken<? extends T> type) {
+    return constructorConstructor.get(type).construct();
+  }
+
   static class FutureTypeAdapter<T> extends TypeAdapter<T> {
     private TypeAdapter<T> delegate;
 

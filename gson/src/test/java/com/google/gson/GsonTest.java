@@ -17,6 +17,7 @@
 package com.google.gson;
 
 import com.google.gson.internal.Excluder;
+import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
@@ -25,6 +26,8 @@ import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+
 import junit.framework.TestCase;
 
 /**
@@ -76,5 +79,57 @@ public final class GsonTest extends TestCase {
       // Test stub.
     }
     @Override public Object read(JsonReader in) throws IOException { return null; }
+  }
+
+  static class WithNoArgConstructor {
+    boolean calledConstructor = false;
+    WithNoArgConstructor() {
+      calledConstructor = true;
+    }
+  }
+  static class WithoutNoArgConstructor {
+    boolean calledConstructor = false;
+    WithoutNoArgConstructor(int i) {
+      calledConstructor = true;
+    }
+  }
+  public void testCreateInstance_Default() {
+    Gson gson = new Gson();
+
+    {
+      ArrayList<String> list = gson.createInstance(new TypeToken<ArrayList<String>>() {});
+      assertNotNull(list);
+      assertEquals(0, list.size());
+    }
+
+    {
+      WithNoArgConstructor instance = gson.createInstance(TypeToken.get(WithNoArgConstructor.class));
+      assertNotNull(instance);
+      // Verify that instance constructor was called (instead of being created using Unsafe)
+      assertTrue(instance.calledConstructor);
+    }
+
+    {
+      WithoutNoArgConstructor instance = gson.createInstance(TypeToken.get(WithoutNoArgConstructor.class));
+      assertNotNull(instance);
+      // Instance was created using Unsafe
+      assertFalse(instance.calledConstructor);
+    }
+  }
+
+  public void testCreateInstance_Custom() {
+    @SuppressWarnings("serial")
+    class MyListClass extends ArrayList<String> { }
+    Gson gson = new GsonBuilder()
+      .registerTypeAdapter(TypeToken.get(List.class).getType(), new InstanceCreator<List<?>>() {
+        @Override
+        public List<?> createInstance(Type type) {
+          return new MyListClass();
+        }
+      })
+      .create();
+
+    List<?> instance = gson.createInstance(TypeToken.get(List.class));
+    assertTrue(instance instanceof MyListClass);
   }
 }
