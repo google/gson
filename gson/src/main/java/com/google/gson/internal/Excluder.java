@@ -173,7 +173,7 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
       return true;
     }
 
-    if (isAnonymousOrLocal(field.getType())) {
+    if (isAnonymousOrNonStaticLocal(field.getType())) {
       return true;
     }
 
@@ -199,7 +199,7 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
           return true;
       }
 
-      if (isAnonymousOrLocal(clazz)) {
+      if (isAnonymousOrNonStaticLocal(clazz)) {
           return true;
       }
 
@@ -221,8 +221,8 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
       return false;
   }
 
-  private boolean isAnonymousOrLocal(Class<?> clazz) {
-    return !Enum.class.isAssignableFrom(clazz)
+  private boolean isAnonymousOrNonStaticLocal(Class<?> clazz) {
+    return !Enum.class.isAssignableFrom(clazz) && !isStatic(clazz)
         && (clazz.isAnonymousClass() || clazz.isLocalClass());
   }
 
