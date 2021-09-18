@@ -10,27 +10,25 @@
   <artifactId>gson</artifactId>
   <name>Gson</name>
 
+  <properties>
+    <proguardVersion>7.1.1</proguardVersion>
+  </properties>
+
   <licenses>
     <license>
       <name>Apache-2.0</name>
       <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
     </license>
   </licenses>
-  
+
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>com.github.wvengen</groupId>
-      <artifactId>proguard-maven-plugin</artifactId>
-      <version>2.4.0</version>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
- 
+
   <build>
     <plugins>
       <plugin>
@@ -111,14 +109,17 @@
       <plugin>
         <groupId>com.github.wvengen</groupId>
         <artifactId>proguard-maven-plugin</artifactId>
+        <version>2.4.0</version>
         <executions>
           <execution>
             <phase>process-test-classes</phase>
-            <goals><goal>proguard</goal></goals>
+            <goals>
+              <goal>proguard</goal>
+            </goals>
           </execution>
         </executions>
         <configuration>
-          <proguardVersion>6.2.2</proguardVersion>
+          <proguardVersion>${proguardVersion}</proguardVersion>
           <obfuscate>true</obfuscate>
           <injar>test-classes-obfuscated-injar</injar>
           <outjar>test-classes-obfuscated-outjar</outjar>
@@ -131,9 +132,15 @@
         </configuration>
         <dependencies>
           <dependency>
-            <groupId>net.sf.proguard</groupId>
+            <groupId>com.guardsquare</groupId>
+            <artifactId>proguard-core</artifactId>
+            <version>${proguardVersion}</version>
+            <scope>runtime</scope>
+          </dependency>
+          <dependency>
+            <groupId>com.guardsquare</groupId>
             <artifactId>proguard-base</artifactId>
-            <version>6.2.2</version>
+            <version>${proguardVersion}</version>
             <scope>runtime</scope>
           </dependency>
         </dependencies>
