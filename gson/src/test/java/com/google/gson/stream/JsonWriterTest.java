@@ -645,4 +645,39 @@ public final class JsonWriterTest extends TestCase {
     writer.close();
     writer.close();
   }
+
+  public void testEscapeNonAsciiChars() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter writer = new JsonWriter(stringWriter);
+    // false by default
+    assertFalse(writer.isEscapeNonAsciiChars());
+
+    String str = "\0ab\u007F\u0080\uFFFF unpaired \uDC00 paired \uD83D\uDE00";
+    writer.beginObject();
+
+    writer.name(str);
+    writer.value(str);
+
+    writer.setEscapeNonAsciiChars(true);
+    assertTrue(writer.isEscapeNonAsciiChars());
+    writer.name(str);
+    writer.value(str);
+
+    writer.setEscapeNonAsciiChars(false);
+    assertFalse(writer.isEscapeNonAsciiChars());
+    writer.name(str);
+    writer.value(str);
+
+    writer.endObject();
+    writer.close();
+
+    assertEquals(
+      "{"
+      + "\"\\u0000ab\u007F\u0080\uFFFF unpaired \uDC00 paired \uD83D\uDE00\":\"\\u0000ab\u007F\u0080\uFFFF unpaired \uDC00 paired \uD83D\uDE00\","
+      + "\"\\u0000ab\u007F\\u0080\\uffff unpaired \\udc00 paired \\ud83d\\ude00\":\"\\u0000ab\u007F\\u0080\\uffff unpaired \\udc00 paired \\ud83d\\ude00\","
+      + "\"\\u0000ab\u007F\u0080\uFFFF unpaired \uDC00 paired \uD83D\uDE00\":\"\\u0000ab\u007F\u0080\uFFFF unpaired \uDC00 paired \uD83D\uDE00\""
+      + "}",
+      stringWriter.toString()
+    );
+  }
 }
