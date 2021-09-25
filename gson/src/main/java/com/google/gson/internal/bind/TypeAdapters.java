@@ -47,6 +47,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
@@ -132,6 +133,9 @@ public final class TypeAdapters {
   public static final TypeAdapterFactory BIT_SET_FACTORY = newFactory(BitSet.class, BIT_SET);
 
   public static final TypeAdapter<Boolean> BOOLEAN = new TypeAdapter<Boolean>() {
+    private Boolean fromString(String string) {
+      return Boolean.valueOf(string);
+    }
     @Override
     public Boolean read(JsonReader in) throws IOException {
       JsonToken peek = in.peek();
@@ -140,7 +144,7 @@ public final class TypeAdapters {
         return null;
       } else if (peek == JsonToken.STRING) {
         // support strings for compatibility with GSON 1.7
-        return Boolean.parseBoolean(in.nextString());
+        return fromString(in.nextString());
       }
       return in.nextBoolean();
     }
@@ -148,28 +152,38 @@ public final class TypeAdapters {
     public void write(JsonWriter out, Boolean value) throws IOException {
       out.value(value);
     }
-  };
-
-  /**
-   * Writes a boolean as a string. Useful for map keys, where booleans aren't
-   * otherwise permitted.
-   */
-  public static final TypeAdapter<Boolean> BOOLEAN_AS_STRING = new TypeAdapter<Boolean>() {
-    @Override public Boolean read(JsonReader in) throws IOException {
-      if (in.peek() == JsonToken.NULL) {
-        in.nextNull();
-        return null;
-      }
-      return Boolean.valueOf(in.nextString());
-    }
-
-    @Override public void write(JsonWriter out, Boolean value) throws IOException {
-      out.value(value == null ? "null" : value.toString());
+    @Override
+    public Boolean readFromPropertyName(String name) throws JsonParseException {
+      return fromString(name);
     }
   };
 
   public static final TypeAdapterFactory BOOLEAN_FACTORY
       = newFactory(boolean.class, Boolean.class, BOOLEAN);
+
+  /**
+   * Parses an {@code int} in the same way {@link JsonReader#nextInt()} does it
+   * when the next token is a JSON string.
+   */
+  private static int parseInt(String string) {
+    try {
+      return Integer.parseInt(string);
+    } catch (NumberFormatException ignored) {
+      // Fall back to parse as a double below
+    }
+
+    double asDouble;
+    try {
+      asDouble = Double.parseDouble(string);
+    } catch (NumberFormatException e) {
+      throw new JsonSyntaxException("Failed parsing string as double", e);
+    }
+    int result = (int) asDouble;
+    if (result != asDouble) { // Make sure no precision was lost casting to 'int'
+      throw new JsonSyntaxException("Failed parsing string as int");
+    }
+    return result;
+  }
 
   public static final TypeAdapter<Number> BYTE = new TypeAdapter<Number>() {
     @Override
@@ -188,6 +202,10 @@ public final class TypeAdapters {
     @Override
     public void write(JsonWriter out, Number value) throws IOException {
       out.value(value);
+    }
+    @Override
+    public Byte readFromPropertyName(String name) throws JsonParseException {
+      return (byte) parseInt(name);
     }
   };
 
@@ -211,6 +229,10 @@ public final class TypeAdapters {
     public void write(JsonWriter out, Number value) throws IOException {
       out.value(value);
     }
+    @Override
+    public Short readFromPropertyName(String name) throws JsonParseException {
+      return (short) parseInt(name);
+    }
   };
 
   public static final TypeAdapterFactory SHORT_FACTORY
@@ -232,6 +254,10 @@ public final class TypeAdapters {
     @Override
     public void write(JsonWriter out, Number value) throws IOException {
       out.value(value);
+    }
+    @Override
+    public Integer readFromPropertyName(String name) throws JsonParseException {
+      return parseInt(name);
     }
   };
   public static final TypeAdapterFactory INTEGER_FACTORY
@@ -311,7 +337,22 @@ public final class TypeAdapters {
     public void write(JsonWriter out, Number value) throws IOException {
       out.value(value);
     }
+    // Cannot easily override readFromPropertyName to match `JsonReader.nextLong()` behavior
+    // Especially when this should reliably detect precision loss, see https://github.com/google/gson/pull/1737
   };
+
+  /**
+   * Parses a {@code double} in the same way {@link JsonReader#nextDouble()} does it
+   * when the next token is a JSON string.
+   */
+  private static double parseDouble(String string) {
+    try {
+      // Don't check if result is NaN or Infinity; assume that these are allowed
+      return Double.parseDouble(string);
+    } catch (NumberFormatException e) {
+      throw new JsonSyntaxException("Failed parsing string as double", e);
+    }
+  }
 
   public static final TypeAdapter<Number> FLOAT = new TypeAdapter<Number>() {
     @Override
@@ -325,6 +366,10 @@ public final class TypeAdapters {
     @Override
     public void write(JsonWriter out, Number value) throws IOException {
       out.value(value);
+    }
+    @Override
+    public Float readFromPropertyName(String name) throws JsonParseException {
+      return (float) parseDouble(name);
     }
   };
 
@@ -341,9 +386,16 @@ public final class TypeAdapters {
     public void write(JsonWriter out, Number value) throws IOException {
       out.value(value);
     }
+    @Override
+    public Double readFromPropertyName(String name) throws JsonParseException {
+      return parseDouble(name);
+    }
   };
 
   public static final TypeAdapter<Number> NUMBER = new TypeAdapter<Number>() {
+    private Number fromString(String string) {
+      return new LazilyParsedNumber(string);
+    }
     @Override
     public Number read(JsonReader in) throws IOException {
       JsonToken jsonToken = in.peek();
@@ -353,7 +405,7 @@ public final class TypeAdapters {
         return null;
       case NUMBER:
       case STRING:
-        return new LazilyParsedNumber(in.nextString());
+        return fromString(in.nextString());
       default:
         throw new JsonSyntaxException("Expecting number, got: " + jsonToken);
       }
@@ -362,26 +414,36 @@ public final class TypeAdapters {
     public void write(JsonWriter out, Number value) throws IOException {
       out.value(value);
     }
+    @Override
+    public Number readFromPropertyName(String name) throws JsonParseException {
+      return fromString(name);
+    }
   };
 
   public static final TypeAdapterFactory NUMBER_FACTORY = newFactory(Number.class, NUMBER);
 
   public static final TypeAdapter<Character> CHARACTER = new TypeAdapter<Character>() {
+    private Character fromString(String string) {
+      if (string.length() != 1) {
+        throw new JsonSyntaxException("Expecting character, got: " + string);
+      }
+      return string.charAt(0);
+    }
     @Override
     public Character read(JsonReader in) throws IOException {
       if (in.peek() == JsonToken.NULL) {
         in.nextNull();
         return null;
       }
-      String str = in.nextString();
-      if (str.length() != 1) {
-        throw new JsonSyntaxException("Expecting character, got: " + str);
-      }
-      return str.charAt(0);
+      return fromString(in.nextString());
     }
     @Override
     public void write(JsonWriter out, Character value) throws IOException {
       out.value(value == null ? null : String.valueOf(value));
+    }
+    @Override
+    public Character readFromPropertyName(String name) throws JsonParseException {
+      return fromString(name);
     }
   };
 
@@ -406,41 +468,61 @@ public final class TypeAdapters {
     public void write(JsonWriter out, String value) throws IOException {
       out.value(value);
     }
+    @Override
+    public String readFromPropertyName(String name) throws JsonParseException {
+      return name;
+    }
+    @Override
+    public String createPropertyName(String value) {
+      return value == null ? "null" : value;
+    }
   };
 
   public static final TypeAdapter<BigDecimal> BIG_DECIMAL = new TypeAdapter<BigDecimal>() {
+    private BigDecimal fromString(String string) {
+      try {
+        return new BigDecimal(string);
+      } catch (NumberFormatException e) {
+        throw new JsonSyntaxException(e);
+      }
+    }
     @Override public BigDecimal read(JsonReader in) throws IOException {
       if (in.peek() == JsonToken.NULL) {
         in.nextNull();
         return null;
       }
-      try {
-        return new BigDecimal(in.nextString());
-      } catch (NumberFormatException e) {
-        throw new JsonSyntaxException(e);
-      }
+      return fromString(in.nextString());
     }
-
     @Override public void write(JsonWriter out, BigDecimal value) throws IOException {
       out.value(value);
+    }
+    @Override
+    public BigDecimal readFromPropertyName(String name) throws JsonParseException {
+      return fromString(name);
     }
   };
 
   public static final TypeAdapter<BigInteger> BIG_INTEGER = new TypeAdapter<BigInteger>() {
+    private BigInteger fromString(String string) {
+      try {
+        return new BigInteger(string);
+      } catch (NumberFormatException e) {
+        throw new JsonSyntaxException(e);
+      }
+    }
     @Override public BigInteger read(JsonReader in) throws IOException {
       if (in.peek() == JsonToken.NULL) {
         in.nextNull();
         return null;
       }
-      try {
-        return new BigInteger(in.nextString());
-      } catch (NumberFormatException e) {
-        throw new JsonSyntaxException(e);
-      }
+      return fromString(in.nextString());
     }
-
     @Override public void write(JsonWriter out, BigInteger value) throws IOException {
       out.value(value);
+    }
+    @Override
+    public BigInteger readFromPropertyName(String name) throws JsonParseException {
+      return fromString(name);
     }
   };
 
@@ -542,17 +624,24 @@ public final class TypeAdapters {
     newTypeHierarchyFactory(InetAddress.class, INET_ADDRESS);
 
   public static final TypeAdapter<UUID> UUID = new TypeAdapter<UUID>() {
+    private UUID fromString(String string) {
+      return java.util.UUID.fromString(string);
+    }
     @Override
     public UUID read(JsonReader in) throws IOException {
       if (in.peek() == JsonToken.NULL) {
         in.nextNull();
         return null;
       }
-      return java.util.UUID.fromString(in.nextString());
+      return fromString(in.nextString());
     }
     @Override
     public void write(JsonWriter out, UUID value) throws IOException {
       out.value(value == null ? null : value.toString());
+    }
+    @Override
+    public UUID readFromPropertyName(String name) throws JsonParseException {
+      return fromString(name);
     }
   };
 
@@ -749,6 +838,11 @@ public final class TypeAdapters {
         throw new IllegalArgumentException("Couldn't write " + value.getClass());
       }
     }
+
+    @Override
+    public JsonElement readFromPropertyName(String name) throws JsonParseException {
+      return new JsonPrimitive(name);
+    }
   };
 
   public static final TypeAdapterFactory JSON_ELEMENT_FACTORY
@@ -797,6 +891,11 @@ public final class TypeAdapters {
 
     @Override public void write(JsonWriter out, T value) throws IOException {
       out.value(value == null ? null : constantToName.get(value));
+    }
+
+    @Override
+    public T readFromPropertyName(String name) throws JsonParseException {
+      return nameToConstant.get(name);
     }
   }
 

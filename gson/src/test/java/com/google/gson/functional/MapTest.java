@@ -16,8 +16,10 @@
 
 package com.google.gson.functional;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -32,6 +34,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
@@ -39,9 +43,13 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.TypeAdapter;
+import com.google.gson.TypeAdapterFactory;
 import com.google.gson.common.TestTypes;
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 
 import junit.framework.TestCase;
 
@@ -533,18 +541,35 @@ public class MapTest extends TestCase {
     Map<Point, String> map = new LinkedHashMap<Point, String>();
     map.put(new Point(2, 3), "a");
     map.put(new Point(5, 7), "b");
+    // Uses Point.toString()
     String json = "{\"2,3\":\"a\",\"5,7\":\"b\"}";
     assertEquals(json, gson.toJson(map, new TypeToken<Map<Point, String>>() {}.getType()));
     assertEquals(json, gson.toJson(map, Map.class));
   }
 
   public void testComplexKeysDeserialization() {
-    String json = "{'2,3':'a','5,7':'b'}";
+    String json = "{'2,3':'a'}";
+    Type type = new TypeToken<Map<Point, String>>() {}.getType();
     try {
-      gson.fromJson(json, new TypeToken<Map<Point, String>>() {}.getType());
+      gson.fromJson(json, type);
       fail();
     } catch (JsonParseException expected) {
     }
+
+    Gson gson = new GsonBuilder()
+      .registerTypeAdapter(Point.class, new TypeAdapter<Point>() {
+        @Override public Point read(JsonReader in) throws IOException {
+          String[] values = in.nextString().split(",");
+          return new Point(Integer.parseInt(values[0]), Integer.parseInt(values[1]));
+        }
+        @Override public void write(JsonWriter out, Point value) throws IOException {
+          fail("Not needed by this test");
+        }
+      })
+      .create();
+
+    Map<Point, String> deserialized = gson.fromJson(json, type);
+    assertEquals(Collections.singletonMap(new Point(2, 3), "a"), deserialized);
   }
 
   public void testStringKeyDeserialization() {
@@ -588,7 +613,7 @@ public class MapTest extends TestCase {
         gson.toJson(map, type).replace('"', '\''));
   }
 
-  public void testDeerializeMapOfMaps() {
+  public void testDeserializeMapOfMaps() {
     Type type = new TypeToken<Map<String, Map<String, String>>>() {}.getType();
     Map<String, Map<String, String>> map = newMap(
         "a", newMap("ka1", "va1", "ka2", "va2"),
@@ -612,9 +637,161 @@ public class MapTest extends TestCase {
     assertEquals(map, gson.fromJson(tree, new TypeToken<Map<Double, String>>() {}.getType()));
   }
 
+  static class CustomKeyConversionAdapter extends TypeAdapter<Point> {
+    @Override public Point read(JsonReader in) throws IOException {
+      String[] values = in.nextString().split("-value-");
+      return new Point(Integer.parseInt(values[0]), Integer.parseInt(values[1]));
+    }
+    @Override public void write(JsonWriter out, Point value) throws IOException {
+      out.value(value.x + "-value-" + value.y);
+    }
+    @Override public Point readFromPropertyName(String name) throws JsonParseException {
+      String[] values = name.split("-name-");
+      return new Point(Integer.parseInt(values[0]), Integer.parseInt(values[1]));
+    }
+    @Override public String createPropertyName(Point value) {
+      return value.x + "-name-" + value.y;
+    }
+  }
+
+  public void testCustomMapKeyConversion() {
+    Gson gson = new GsonBuilder().registerTypeAdapter(Point.class, new CustomKeyConversionAdapter()).create();
+    String json = gson.toJson(Collections.singletonMap(new Point(1, 2), "test"));
+    assertEquals("{\"1-name-2\":\"test\"}", json);
+
+    Map<Point, String> map = gson.fromJson(json, new TypeToken<Map<Point, String>>() {}.getType());
+    assertEquals(Collections.singletonMap(new Point(1, 2), "test"), map);
+  }
+
+  public void testCustomMapKeyConversionJsonSerializerFallback() {
+    Gson gson = new GsonBuilder()
+      .registerTypeAdapter(Point.class, new CustomKeyConversionAdapter())
+      .registerTypeAdapter(Point.class, new JsonSerializer<Point>() {
+        @Override public JsonElement serialize(Point src, Type typeOfSrc, JsonSerializationContext context) {
+          return new JsonPrimitive(src.x + "-serializer-" + src.y);
+        }
+      })
+      .create();
+
+    String serializedJson = gson.toJson(Collections.singletonMap(new Point(1, 2), new Point(3, 4)));
+    assertEquals("{\"1,2\":\"3-serializer-4\"}", serializedJson);
+
+    String json = "{\"1-name-2\":\"3-value-4\"}";
+    // Should fall back to CustomKeyConversionAdapter
+    Map<Point, String> map = gson.fromJson(json, new TypeToken<Map<Point, Point>>() {}.getType());
+    assertEquals(Collections.singletonMap(new Point(1, 2), new Point(3, 4)), map);
+  }
+
+  public void testCustomMapKeyConversionJsonDeserializerFallback() {
+    Gson gson = new GsonBuilder()
+      .registerTypeAdapter(Point.class, new CustomKeyConversionAdapter())
+      .registerTypeAdapter(Point.class, new JsonDeserializer<Point>() {
+        @Override public Point deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
+          String[] values = json.getAsString().split("-deserializer-");
+          return new Point(Integer.parseInt(values[0]), Integer.parseInt(values[1]));
+        }
+      })
+      .create();
+
+    // Should fall back to CustomKeyConversionAdapter
+    String serializedJson = gson.toJson(Collections.singletonMap(new Point(1, 2), new Point(3, 4)));
+    assertEquals("{\"1-name-2\":\"3-value-4\"}", serializedJson);
+
+    String json = "{\"1-deserializer-2\":\"3-deserializer-4\"}";
+    Map<Point, String> map = gson.fromJson(json, new TypeToken<Map<Point, Point>>() {}.getType());
+    assertEquals(Collections.singletonMap(new Point(1, 2), new Point(3, 4)), map);
+
+  }
+
+  enum CustomEnum {
+    A, B;
+
+    @Override
+    public String toString() {
+      return name() + "-string";
+    }
+  }
+
+  public void testCustomEnumMapKeyConversion() {
+    // Example for how property name conversion for an existing type adapter (here for Enum) can be 'fixed'
+    class EnumAdapterFactory implements TypeAdapterFactory {
+      @Override public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+        Class<? super T> rawType = type.getRawType();
+        if (!Enum.class.isAssignableFrom(rawType) || rawType == Enum.class) {
+          return null;
+        }
+        if (!rawType.isEnum()) {
+          rawType = rawType.getSuperclass(); // handle anonymous subclasses
+        }
+        final TypeAdapter<T> delegate = gson.getDelegateAdapter(this, type);
+
+        return new TypeAdapter<T>() {
+          @Override public T read(JsonReader in) throws IOException {
+            return delegate.read(in);
+          }
+          @Override public void write(JsonWriter out, T value) throws IOException {
+            delegate.write(out, value);
+          }
+          @Override public T readFromPropertyName(String name) throws JsonParseException {
+            return delegate.fromJsonTree(new JsonPrimitive(name));
+          }
+          @Override public String createPropertyName(T value) {
+            JsonElement jsonElement = delegate.toJsonTree(value);
+            if (!jsonElement.isJsonPrimitive()) {
+              throw new UnsupportedOperationException();
+            }
+            JsonPrimitive jsonPrimitive = jsonElement.getAsJsonPrimitive();
+            if (!jsonPrimitive.isString()) {
+              throw new UnsupportedOperationException();
+            }
+            return jsonPrimitive.getAsString();
+          }
+        };
+      }
+    }
+    Gson gson = new GsonBuilder().registerTypeAdapterFactory(new EnumAdapterFactory()).create();
+    String json = gson.toJson(Collections.singletonMap(CustomEnum.A, 1));
+    assertEquals("{\"A\":1}", json);
+
+    Map<Point, String> map = gson.fromJson(json, new TypeToken<Map<CustomEnum, Integer>>() {}.getType());
+    assertEquals(Collections.singletonMap(CustomEnum.A, 1), map);
+  }
+
+  public void testDisabledMapKeyConversion() {
+    class Adapter extends TypeAdapter<Point> {
+      @Override public Point read(JsonReader in) throws IOException {
+        String[] values = in.nextString().split("#");
+        return new Point(Integer.parseInt(values[0]), Integer.parseInt(values[1]));
+      }
+      @Override public void write(JsonWriter out, Point value) throws IOException {
+        out.value(value.x + "#" + value.y);
+      }
+      @Override public Point readFromPropertyName(String name) throws JsonParseException {
+        throw new UnsupportedOperationException("read not supported");
+      }
+      @Override public String createPropertyName(Point value) {
+        throw new UnsupportedOperationException("create not supported");
+      }
+    }
+    Gson gson = new GsonBuilder().registerTypeAdapter(Point.class, new Adapter()).create();
+    try {
+      gson.toJson(Collections.singletonMap(new Point(1, 2), "test"));
+      fail();
+    } catch (UnsupportedOperationException e) {
+      assertEquals("create not supported", e.getMessage());
+    }
+
+    try {
+      gson.fromJson("{\"1#2\":\"test\"}", new TypeToken<Map<Point, String>>() {}.getType());
+      fail();
+    } catch (UnsupportedOperationException e) {
+      assertEquals("read not supported", e.getMessage());
+    }
+  }
+
   static class Point {
-    private final int x;
-    private final int y;
+    final int x;
+    final int y;
 
     Point(int x, int y) {
       this.x = x;

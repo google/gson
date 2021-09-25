@@ -16,8 +16,6 @@
 
 package com.google.gson.stream;
 
-import com.google.gson.internal.JsonReaderInternalAccess;
-import com.google.gson.internal.bind.JsonTreeReader;
 import java.io.Closeable;
 import java.io.EOFException;
 import java.io.IOException;
@@ -1085,7 +1083,7 @@ public class JsonReader implements Closeable {
         break;
       }
     }
-   
+
     String result = (null == builder) ? new String(buffer, pos, i) : builder.append(buffer, pos, i).toString();
     pos += i;
     return result;
@@ -1546,11 +1544,11 @@ public class JsonReader implements Closeable {
     case '\'':
     case '"':
     case '\\':
-    case '/':	
-    	return escaped;
+    case '/':
+        return escaped;
     default:
-    	// throw error when none of the above cases are matched
-    	throw syntaxError("Invalid escape sequence");
+        // throw error when none of the above cases are matched
+        throw syntaxError("Invalid escape sequence");
     }
   }
 
@@ -1582,30 +1580,5 @@ public class JsonReader implements Closeable {
 
     // we consumed a security token!
     pos += 5;
-  }
-
-  static {
-    JsonReaderInternalAccess.INSTANCE = new JsonReaderInternalAccess() {
-      @Override public void promoteNameToValue(JsonReader reader) throws IOException {
-        if (reader instanceof JsonTreeReader) {
-          ((JsonTreeReader)reader).promoteNameToValue();
-          return;
-        }
-        int p = reader.peeked;
-        if (p == PEEKED_NONE) {
-          p = reader.doPeek();
-        }
-        if (p == PEEKED_DOUBLE_QUOTED_NAME) {
-          reader.peeked = PEEKED_DOUBLE_QUOTED;
-        } else if (p == PEEKED_SINGLE_QUOTED_NAME) {
-          reader.peeked = PEEKED_SINGLE_QUOTED;
-        } else if (p == PEEKED_UNQUOTED_NAME) {
-          reader.peeked = PEEKED_UNQUOTED;
-        } else {
-          throw new IllegalStateException(
-              "Expected a name but was " + reader.peek() + reader.locationString());
-        }
-      }
-    };
   }
 }

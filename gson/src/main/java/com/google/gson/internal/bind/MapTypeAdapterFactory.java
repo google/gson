@@ -18,13 +18,13 @@ package com.google.gson.internal.bind;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.internal.ConstructorConstructor;
-import com.google.gson.internal.JsonReaderInternalAccess;
 import com.google.gson.internal.ObjectConstructor;
 import com.google.gson.internal.Streams;
 import com.google.gson.reflect.TypeToken;
@@ -122,7 +122,7 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
 
     Class<?> rawTypeOfSrc = $Gson$Types.getRawType(type);
     Type[] keyAndValueTypes = $Gson$Types.getMapKeyAndValueTypes(type, rawTypeOfSrc);
-    TypeAdapter<?> keyAdapter = getKeyAdapter(gson, keyAndValueTypes[0]);
+    TypeAdapter<?> keyAdapter = gson.getAdapter(TypeToken.get(keyAndValueTypes[0]));
     TypeAdapter<?> valueAdapter = gson.getAdapter(TypeToken.get(keyAndValueTypes[1]));
     ObjectConstructor<T> constructor = constructorConstructor.get(typeToken);
 
@@ -131,15 +131,6 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
     TypeAdapter<T> result = new Adapter(gson, keyAndValueTypes[0], keyAdapter,
         keyAndValueTypes[1], valueAdapter, constructor);
     return result;
-  }
-
-  /**
-   * Returns a type adapter that writes the value as a string.
-   */
-  private TypeAdapter<?> getKeyAdapter(Gson context, Type keyType) {
-    return (keyType == boolean.class || keyType == Boolean.class)
-        ? TypeAdapters.BOOLEAN_AS_STRING
-        : context.getAdapter(TypeToken.get(keyType));
   }
 
   private final class Adapter<K, V> extends TypeAdapter<Map<K, V>> {
@@ -182,8 +173,13 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
       } else {
         in.beginObject();
         while (in.hasNext()) {
-          JsonReaderInternalAccess.INSTANCE.promoteNameToValue(in);
-          K key = keyTypeAdapter.read(in);
+          String name = in.nextName();
+          K key;
+          try {
+            key = keyTypeAdapter.readFromPropertyName(name);
+          } catch (JsonParseException parseException) {
+            throw new JsonParseException("Failed converting property name at " + in.getPath(), parseException);
+          }
           V value = valueTypeAdapter.read(in);
           V replaced = map.put(key, value);
           if (replaced != null) {
@@ -204,7 +200,7 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
       if (!complexMapKeySerialization) {
         out.beginObject();
         for (Map.Entry<K, V> entry : map.entrySet()) {
-          out.name(String.valueOf(entry.getKey()));
+          out.name(keyTypeAdapter.createPropertyName(entry.getKey()));
           valueTypeAdapter.write(out, entry.getValue());
         }
         out.endObject();
