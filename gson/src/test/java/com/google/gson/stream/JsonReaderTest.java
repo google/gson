@@ -28,6 +28,7 @@ import static com.google.gson.stream.JsonToken.BEGIN_OBJECT;
 import static com.google.gson.stream.JsonToken.BOOLEAN;
 import static com.google.gson.stream.JsonToken.END_ARRAY;
 import static com.google.gson.stream.JsonToken.END_OBJECT;
+import static com.google.gson.stream.JsonToken.LONG_NUMBER;
 import static com.google.gson.stream.JsonToken.NAME;
 import static com.google.gson.stream.JsonToken.NULL;
 import static com.google.gson.stream.JsonToken.NUMBER;
@@ -526,7 +527,7 @@ public final class JsonReaderTest extends TestCase {
     JsonReader reader = new JsonReader(reader("[-9223372036854775808]"));
     reader.setLenient(true);
     reader.beginArray();
-    assertEquals(NUMBER, reader.peek());
+    assertEquals(LONG_NUMBER, reader.peek());
     assertEquals(-9223372036854775808L, reader.nextLong());
   }
 
@@ -534,8 +535,16 @@ public final class JsonReaderTest extends TestCase {
     JsonReader reader = new JsonReader(reader("[9223372036854775807]"));
     reader.setLenient(true);
     reader.beginArray();
-    assertEquals(NUMBER, reader.peek());
+    assertEquals(LONG_NUMBER, reader.peek());
     assertEquals(9223372036854775807L, reader.nextLong());
+  }
+
+  public void testPeekDoubleValue() throws IOException {
+    JsonReader reader = new JsonReader(reader("[1.12346]"));
+    reader.setLenient(true);
+    reader.beginArray();
+    assertEquals(NUMBER, reader.peek());
+    assertEquals(1.12346, reader.nextDouble());
   }
 
   public void testLongLargerThanMaxLongThatWrapsAround() throws IOException {
@@ -598,7 +607,7 @@ public final class JsonReaderTest extends TestCase {
     JsonReader reader = new JsonReader(reader("[-9223372036854775809]"));
     reader.setLenient(true);
     reader.beginArray();
-    assertEquals(NUMBER, reader.peek());
+    assertEquals(LONG_NUMBER, reader.peek());
     try {
       reader.nextLong();
       fail();
@@ -1748,6 +1757,8 @@ public final class JsonReaderTest extends TestCase {
         assertEquals(false, reader.nextBoolean());
       } else if (expectation == STRING) {
         assertEquals("string", reader.nextString());
+      } else if (expectation == LONG_NUMBER) {
+        assertEquals(123, reader.nextInt());
       } else if (expectation == NUMBER) {
         assertEquals(123, reader.nextInt());
       } else if (expectation == NULL) {

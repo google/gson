@@ -61,10 +61,14 @@ public enum JsonToken {
   STRING,
 
   /**
-   * A JSON number represented in this API by a Java {@code double}, {@code
-   * long}, or {@code int}.
+   * A JSON number represented in this API by a Java {@code double}.
    */
   NUMBER,
+
+  /**
+   * A JSON number represented in this API by a Java {@code long} or {@code int}.
+   */
+  LONG_NUMBER,
 
   /**
    * A JSON {@code true} or {@code false}.
