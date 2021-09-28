@@ -16,9 +16,11 @@ assignees: ''
 
 
 # Used tools
-<!-- List relevant build tools here which might affect Gson -->
-- [ ] ProGuard
-- ...
+<!-- List relevant build tools and plugins with version number here which might affect Gson -->
+- [ ] Maven; version: 
+- [ ] Gradle; version: 
+- [ ] ProGuard (attach the configuration file please); version: 
+- [ ] ...
 
 # Description
 <!-- Describe the bug you experienced -->
