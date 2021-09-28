@@ -83,7 +83,7 @@ public final class TreeTypeAdapter<T> extends TypeAdapter<T> {
   }
 
   private TypeAdapter<T> delegate() {
-    // Allows racy initialization of `delegate` by multiple threads
+    // A race might lead to `delegate` being assigned by multiple threads but the last assignment will stick
     TypeAdapter<T> d = delegate;
     return d != null
         ? d
