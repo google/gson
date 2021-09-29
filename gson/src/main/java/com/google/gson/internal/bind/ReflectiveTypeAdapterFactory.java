@@ -18,6 +18,7 @@ package com.google.gson.internal.bind;
 
 import com.google.gson.FieldNamingStrategy;
 import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
@@ -46,19 +47,24 @@ import java.util.Map;
  * Type adapter that reflects over the fields and methods of a class.
  */
 public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
+  private static final String TYPE_FIELD_NAME = "_type";
+  private static final String PROPERTIES_FIELD_NAME = "_properties";
   private final ConstructorConstructor constructorConstructor;
   private final FieldNamingStrategy fieldNamingPolicy;
   private final Excluder excluder;
   private final JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory;
   private final ReflectionAccessor accessor = ReflectionAccessor.getInstance();
+  private final boolean defaultTyping;
 
   public ReflectiveTypeAdapterFactory(ConstructorConstructor constructorConstructor,
       FieldNamingStrategy fieldNamingPolicy, Excluder excluder,
-      JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory) {
+      JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory,
+      boolean defaultTyping) {
     this.constructorConstructor = constructorConstructor;
     this.fieldNamingPolicy = fieldNamingPolicy;
     this.excluder = excluder;
     this.jsonAdapterFactory = jsonAdapterFactory;
+    this.defaultTyping = defaultTyping;
   }
 
   public boolean excludeField(Field f, boolean serialize) {
@@ -99,7 +105,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     }
 
     ObjectConstructor<T> constructor = constructorConstructor.get(type);
-    return new Adapter<T>(constructor, getBoundFields(gson, type, raw));
+    return new Adapter<T>(constructor, getBoundFields(gson, type, raw), this.defaultTyping, gson);
   }
 
   private ReflectiveTypeAdapterFactory.BoundField createBoundField(
@@ -197,10 +203,16 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   public static final class Adapter<T> extends TypeAdapter<T> {
     private final ObjectConstructor<T> constructor;
     private final Map<String, BoundField> boundFields;
+    private final boolean defaultTyping;
+    private final Gson context;
 
-    Adapter(ObjectConstructor<T> constructor, Map<String, BoundField> boundFields) {
+    Adapter(ObjectConstructor<T> constructor, Map<String, BoundField> boundFields, boolean defaultTyping,
+            Gson context) {
       this.constructor = constructor;
       this.boundFields = boundFields;
+      this.defaultTyping = defaultTyping;
+      this.context = context;
+
     }
 
     @Override public T read(JsonReader in) throws IOException {
@@ -215,6 +227,25 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         in.beginObject();
         while (in.hasNext()) {
           String name = in.nextName();
+          if (defaultTyping && TYPE_FIELD_NAME.equals(name)) {
+            String className = in.nextString();
+            if (PROPERTIES_FIELD_NAME.equals(in.nextName())) {
+              try {
+                Class<?> clazz = Class.forName(className, false, this.getClass().getClassLoader());
+                if (!instance.getClass().equals(clazz) && instance.getClass().isAssignableFrom(clazz)) {
+                  return (T) context.getAdapter(clazz).read(in);
+                } else {
+                  in.beginObject();
+                  continue;
+                }
+              } catch (ClassNotFoundException e) {
+                throw new RuntimeException("Could not find class " + className);
+              }
+            } else {
+              throw new JsonParseException("Could not find _properties field at " + in.toString());
+            }
+          }
+
           BoundField field = boundFields.get(name);
           if (field == null || !field.deserialized) {
             in.skipValue();
@@ -227,8 +258,13 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       } catch (IllegalAccessException e) {
         throw new AssertionError(e);
       }
+
+      if (defaultTyping) {
+        in.endObject();
+      }
+
       in.endObject();
-      return instance;
+      return (T) instance;
     }
 
     @Override public void write(JsonWriter out, T value) throws IOException {
@@ -238,6 +274,12 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       }
 
       out.beginObject();
+      if (defaultTyping) {
+        out.name(TYPE_FIELD_NAME);
+        out.value(value.getClass().getName());
+        out.name(PROPERTIES_FIELD_NAME);
+        out.beginObject();
+      }
       try {
         for (BoundField boundField : boundFields.values()) {
           if (boundField.writeField(value)) {
@@ -247,6 +289,9 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         }
       } catch (IllegalAccessException e) {
         throw new AssertionError(e);
+      }
+      if (defaultTyping) {
+        out.endObject();
       }
       out.endObject();
     }

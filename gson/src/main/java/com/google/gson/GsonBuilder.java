@@ -41,6 +41,7 @@ import static com.google.gson.Gson.DEFAULT_LENIENT;
 import static com.google.gson.Gson.DEFAULT_PRETTY_PRINT;
 import static com.google.gson.Gson.DEFAULT_SERIALIZE_NULLS;
 import static com.google.gson.Gson.DEFAULT_SPECIALIZE_FLOAT_VALUES;
+import static com.google.gson.Gson.DEFAULT_TYPING;
 
 /**
  * <p>Use this builder to construct a {@link Gson} instance when you need to set configuration
@@ -95,6 +96,7 @@ public final class GsonBuilder {
   private boolean prettyPrinting = DEFAULT_PRETTY_PRINT;
   private boolean generateNonExecutableJson = DEFAULT_JSON_NON_EXECUTABLE;
   private boolean lenient = DEFAULT_LENIENT;
+  private boolean defaultTyping = DEFAULT_TYPING;
 
   /**
    * Creates a GsonBuilder instance that can be used to build Gson with various configuration
@@ -402,6 +404,22 @@ public final class GsonBuilder {
   }
 
   /**
+   * Enable default inclusion of type information and use this information during deserialization.
+   * Every complex type will be serialized/deserialized using two additional JSON fields:
+   * <ul>
+   *   <li>{@code _type}: The class name of the type as JSON string, e.g. {@code "my.CustomClass$Nested"}</li>
+   *   <li>{@code _properties}: The properties of the serialized instance in a JSON object.</li>
+   * </ul>
+   *
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   */
+
+  public GsonBuilder enableDefaultTyping() {
+    defaultTyping = true;
+    return this;
+  }
+
+  /**
    * By default, Gson escapes HTML characters such as &lt; &gt; etc. Use this option to configure
    * Gson to pass-through HTML characters as is.
    *
@@ -597,7 +615,7 @@ public final class GsonBuilder {
 
     return new Gson(excluder, fieldNamingPolicy, instanceCreators,
         serializeNulls, complexMapKeySerialization,
-        generateNonExecutableJson, escapeHtmlChars, prettyPrinting, lenient,
+        generateNonExecutableJson, escapeHtmlChars, prettyPrinting, lenient, defaultTyping,
         serializeSpecialFloatingPointValues, longSerializationPolicy,
         datePattern, dateStyle, timeStyle,
         this.factories, this.hierarchyFactories, factories);
