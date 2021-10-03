@@ -189,6 +189,8 @@ public class JsonWriter implements Closeable, Flushable {
 
   private boolean htmlSafe;
 
+  private boolean escapeAllControlChars;
+
   private boolean escapeNonAscii;
 
   private String deferredName;
@@ -265,6 +267,29 @@ public class JsonWriter implements Closeable, Flushable {
    */
   public final boolean isHtmlSafe() {
     return htmlSafe;
+  }
+
+  /**
+   * Sets whether for all ISO control characters (as reported by {@link Character#isISOControl(char)})
+   * in property names and string values the corresponding Unicode escape (<code>&bsol;u<i>xxxx</i></code>)
+   * should be written instead. The default is false, the JSON standard only requires usage of
+   * Unicode escapes for the control characters U+0000 to U+001F.
+   *
+   * @see #isEscapeAllControlChars()
+   */
+  public final void setEscapeAllControlChars(boolean escapeAllControlChars) {
+    this.escapeAllControlChars = escapeAllControlChars;
+  }
+
+  /**
+   * Returns true if for all ISO control characters (as reported by {@link Character#isISOControl(char)})
+   * in property names and string values the corresponding Unicode escape (<code>&bsol;u<i>xxxx</i></code>)
+   * should be written instead.
+   *
+   * @see #setEscapeAllControlChars(boolean)
+   */
+  public final boolean isEscapeAllControlChars() {
+    return escapeAllControlChars;
   }
 
   /**
@@ -595,7 +620,8 @@ public class JsonWriter implements Closeable, Flushable {
     for (int i = 0; i < length; i++) {
       char c = value.charAt(i);
       String replacement;
-      if (c < 128) {
+      // Cover code point 127 (DEL) in control char escaping further below
+      if (c < 127) {
         replacement = replacements[c];
         if (replacement == null) {
           continue;
@@ -604,7 +630,7 @@ public class JsonWriter implements Closeable, Flushable {
         replacement = "\\u2028";
       } else if (c == '\u2029') {
         replacement = "\\u2029";
-      } else if (escapeNonAscii) {
+      } else if (escapeAllControlChars && Character.isISOControl(c) || escapeNonAscii && c > 127) {
         replacement = createUnicodeEscape(c);
       } else {
         continue;

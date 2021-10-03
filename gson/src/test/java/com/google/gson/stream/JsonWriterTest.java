@@ -680,4 +680,39 @@ public final class JsonWriterTest extends TestCase {
       stringWriter.toString()
     );
   }
+
+  public void testEscapeAllControlChars() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter writer = new JsonWriter(stringWriter);
+    // false by default
+    assertFalse(writer.isEscapeAllControlChars());
+
+    String str = "\0ab\u007F\u0080\u009F\u00A0\uFFFF unpaired \uDC00 paired \uD83D\uDE00";
+    writer.beginObject();
+
+    writer.name(str);
+    writer.value(str);
+
+    writer.setEscapeAllControlChars(true);
+    assertTrue(writer.isEscapeAllControlChars());
+    writer.name(str);
+    writer.value(str);
+
+    writer.setEscapeAllControlChars(false);
+    assertFalse(writer.isEscapeAllControlChars());
+    writer.name(str);
+    writer.value(str);
+
+    writer.endObject();
+    writer.close();
+
+    assertEquals(
+      "{"
+      + "\"\\u0000ab\u007F\u0080\u009F\u00A0\uFFFF unpaired \uDC00 paired \uD83D\uDE00\":\"\\u0000ab\u007F\u0080\u009F\u00A0\uFFFF unpaired \uDC00 paired \uD83D\uDE00\","
+      + "\"\\u0000ab\\u007f\\u0080\\u009f\u00A0\uFFFF unpaired \uDC00 paired \uD83D\uDE00\":\"\\u0000ab\\u007f\\u0080\\u009f\u00A0\uFFFF unpaired \uDC00 paired \uD83D\uDE00\","
+      + "\"\\u0000ab\u007F\u0080\u009F\u00A0\uFFFF unpaired \uDC00 paired \uD83D\uDE00\":\"\\u0000ab\u007F\u0080\u009F\u00A0\uFFFF unpaired \uDC00 paired \uD83D\uDE00\""
+      + "}",
+      stringWriter.toString()
+    );
+  }
 }
