@@ -2,7 +2,7 @@
 name: Feature request
 about: Request a feature. ⚠️ Gson is in maintenance mode; large feature requests might be rejected.
 title: ''
-labels: feature-request
+labels: enhancement
 assignees: ''
 
 ---
