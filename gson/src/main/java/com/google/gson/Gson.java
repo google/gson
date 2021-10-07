@@ -924,25 +924,18 @@ public final class Gson {
    */
   @SuppressWarnings("unchecked")
   public <T> T fromJson(JsonReader reader, Type typeOfT) throws JsonIOException, JsonSyntaxException {
-    boolean isEmpty = true;
     boolean oldLenient = reader.isLenient();
     reader.setLenient(true);
     try {
-      reader.peek();
-      isEmpty = false;
+      // For compatibility with JSON 1.5 and earlier, we return null for empty
+      // documents instead of throwing.
+      if (reader.peek() == JsonToken.END_DOCUMENT) {
+        return null;
+      }
       TypeToken<T> typeToken = (TypeToken<T>) TypeToken.get(typeOfT);
       TypeAdapter<T> typeAdapter = getAdapter(typeToken);
       T object = typeAdapter.read(reader);
       return object;
-    } catch (EOFException e) {
-      /*
-       * For compatibility with JSON 1.5 and earlier, we return null for empty
-       * documents instead of throwing.
-       */
-      if (isEmpty) {
-        return null;
-      }
-      throw new JsonSyntaxException(e);
     } catch (IllegalStateException e) {
       throw new JsonSyntaxException(e);
     } catch (IOException e) {
