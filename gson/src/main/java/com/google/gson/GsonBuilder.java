@@ -35,6 +35,7 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 
 import static com.google.gson.Gson.DEFAULT_COMPLEX_MAP_KEYS;
+import static com.google.gson.Gson.DEFAULT_DISALLOW_DUPLICATE_PROPERTIES;
 import static com.google.gson.Gson.DEFAULT_ESCAPE_HTML;
 import static com.google.gson.Gson.DEFAULT_JSON_NON_EXECUTABLE;
 import static com.google.gson.Gson.DEFAULT_LENIENT;
@@ -90,6 +91,7 @@ public final class GsonBuilder {
   private int dateStyle = DateFormat.DEFAULT;
   private int timeStyle = DateFormat.DEFAULT;
   private boolean complexMapKeySerialization = DEFAULT_COMPLEX_MAP_KEYS;
+  private boolean disallowDuplicateProperties = DEFAULT_DISALLOW_DUPLICATE_PROPERTIES;
   private boolean serializeSpecialFloatingPointValues = DEFAULT_SPECIALIZE_FLOAT_VALUES;
   private boolean escapeHtmlChars = DEFAULT_ESCAPE_HTML;
   private boolean prettyPrinting = DEFAULT_PRETTY_PRINT;
@@ -117,6 +119,7 @@ public final class GsonBuilder {
     this.instanceCreators.putAll(gson.instanceCreators);
     this.serializeNulls = gson.serializeNulls;
     this.complexMapKeySerialization = gson.complexMapKeySerialization;
+    this.disallowDuplicateProperties = gson.disallowDuplicateProperties;
     this.generateNonExecutableJson = gson.generateNonExecutableJson;
     this.escapeHtmlChars = gson.htmlSafe;
     this.prettyPrinting = gson.prettyPrinting;
@@ -323,6 +326,26 @@ public final class GsonBuilder {
    */
   public GsonBuilder setFieldNamingStrategy(FieldNamingStrategy fieldNamingStrategy) {
     this.fieldNamingPolicy = fieldNamingStrategy;
+    return this;
+  }
+
+  /**
+   * Disallows duplicate JSON object properties during deserialization. When the JSON
+   * data contains multiple properties with the same name a {@link JsonSyntaxException}
+   * will be thrown. This affects the built-in adapters for {@code Object}, {@code Map}
+   * and {@link JsonObject} as well as the reflection based adapter.
+   *
+   * <p>By default Gson permits duplicate properties and only uses the value of the
+   * last property with the same name.<br>
+   * When an application interacts with other components using different JSON libraries,
+   * they might treat duplicate properties differently, allowing an attacker to circumvent
+   * security checks. It is therefore recommended to disable duplicate properties to
+   * make the application more secure.
+   *
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   */
+  public GsonBuilder disallowDuplicatePropertyDeserialization() {
+    this.disallowDuplicateProperties = true;
     return this;
   }
 
@@ -598,7 +621,7 @@ public final class GsonBuilder {
     return new Gson(excluder, fieldNamingPolicy, instanceCreators,
         serializeNulls, complexMapKeySerialization,
         generateNonExecutableJson, escapeHtmlChars, prettyPrinting, lenient,
-        serializeSpecialFloatingPointValues, longSerializationPolicy,
+        serializeSpecialFloatingPointValues, disallowDuplicateProperties, longSerializationPolicy,
         datePattern, dateStyle, timeStyle,
         this.factories, this.hierarchyFactories, factories);
   }

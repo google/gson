@@ -18,6 +18,7 @@ package com.google.gson.functional;
 
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -576,6 +577,21 @@ public class MapTest extends TestCase {
       gson.fromJson("{'a':1,'a':2}", new TypeToken<Map<String, Integer>>() {}.getType());
       fail();
     } catch (JsonSyntaxException expected) {
+    }
+  }
+
+  public void testMapDeserializationWithDuplicateNullKeys() {
+    Map<String, String> map = gson.fromJson("{'a':null,'a':null}", new TypeToken<Map<String, String>>() {}.getType());
+    assertEquals(Collections.singletonMap("a", null), map);
+  }
+
+  public void testMapDeserializationWithDuplicateNullKeysDisallowed() {
+    Gson gson = new GsonBuilder().disallowDuplicatePropertyDeserialization().create();
+    try {
+      gson.fromJson("{'a':null,'a':null}", new TypeToken<Map<String, String>>() {}.getType());
+      fail();
+    } catch (JsonSyntaxException e) {
+      assertEquals("duplicate key: a", e.getMessage());
     }
   }
 

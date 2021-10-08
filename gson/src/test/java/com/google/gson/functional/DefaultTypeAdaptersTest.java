@@ -409,6 +409,17 @@ public class DefaultTypeAdaptersTest extends TestCase {
     assertEquals(23, cal.get(Calendar.SECOND));
   }
 
+  public void testDefaultCalendarDeserializationDuplicatePropertiesDisallowed() throws Exception {
+    Gson gson = new GsonBuilder().disallowDuplicatePropertyDeserialization().create();
+    String json = "{year:2009,year:2010,month:2,dayOfMonth:11,hourOfDay:14,minute:29,second:23}";
+    try {
+      gson.fromJson(json, Calendar.class);
+      fail();
+    } catch (JsonSyntaxException e) {
+      assertEquals("Duplicate property 'year'", e.getMessage());
+    }
+  }
+
   public void testDefaultGregorianCalendarSerialization() throws Exception {
     Gson gson = new GsonBuilder().create();
     GregorianCalendar cal = new GregorianCalendar();
@@ -431,6 +442,17 @@ public class DefaultTypeAdaptersTest extends TestCase {
     assertEquals(14, cal.get(Calendar.HOUR_OF_DAY));
     assertEquals(29, cal.get(Calendar.MINUTE));
     assertEquals(23, cal.get(Calendar.SECOND));
+  }
+
+  public void testDefaultGregorianCalendarDeserializationDuplicatePropertiesDisallowed() throws Exception {
+    Gson gson = new GsonBuilder().disallowDuplicatePropertyDeserialization().create();
+    String json = "{year:2009,month:2,month:7,dayOfMonth:11,hourOfDay:14,minute:29,second:23}";
+    try {
+      gson.fromJson(json, GregorianCalendar.class);
+      fail();
+    } catch (JsonSyntaxException e) {
+      assertEquals("Duplicate property 'month'", e.getMessage());
+    }
   }
 
   public void testDateSerializationWithPattern() throws Exception {

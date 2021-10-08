@@ -39,6 +39,8 @@ public final class Streams {
 
   /**
    * Takes a reader in any state and returns the next value as a JsonElement.
+   * In case the JSON data contains properties with duplicate names only the
+   * value of the last property is used.
    */
   public static JsonElement parse(JsonReader reader) throws JsonParseException {
     boolean isEmpty = true;

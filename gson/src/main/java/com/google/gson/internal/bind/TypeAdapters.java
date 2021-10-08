@@ -32,9 +32,11 @@ import java.util.Calendar;
 import java.util.Currency;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -570,73 +572,80 @@ public final class TypeAdapters {
   }.nullSafe();
   public static final TypeAdapterFactory CURRENCY_FACTORY = newFactory(Currency.class, CURRENCY);
 
-  public static final TypeAdapter<Calendar> CALENDAR = new TypeAdapter<Calendar>() {
-    private static final String YEAR = "year";
-    private static final String MONTH = "month";
-    private static final String DAY_OF_MONTH = "dayOfMonth";
-    private static final String HOUR_OF_DAY = "hourOfDay";
-    private static final String MINUTE = "minute";
-    private static final String SECOND = "second";
-
-    @Override
-    public Calendar read(JsonReader in) throws IOException {
-      if (in.peek() == JsonToken.NULL) {
-        in.nextNull();
-        return  null;
-      }
-      in.beginObject();
-      int year = 0;
-      int month = 0;
-      int dayOfMonth = 0;
-      int hourOfDay = 0;
-      int minute = 0;
-      int second = 0;
-      while (in.peek() != JsonToken.END_OBJECT) {
-        String name = in.nextName();
-        int value = in.nextInt();
-        if (YEAR.equals(name)) {
-          year = value;
-        } else if (MONTH.equals(name)) {
-          month = value;
-        } else if (DAY_OF_MONTH.equals(name)) {
-          dayOfMonth = value;
-        } else if (HOUR_OF_DAY.equals(name)) {
-          hourOfDay = value;
-        } else if (MINUTE.equals(name)) {
-          minute = value;
-        } else if (SECOND.equals(name)) {
-          second = value;
+  private static final String YEAR = "year";
+  private static final String MONTH = "month";
+  private static final String DAY_OF_MONTH = "dayOfMonth";
+  private static final String HOUR_OF_DAY = "hourOfDay";
+  private static final String MINUTE = "minute";
+  private static final String SECOND = "second";
+  public static TypeAdapter<Calendar> createCalendarAdapter(final boolean disallowDuplicateProperties) {
+    return new TypeAdapter<Calendar>() {
+      @Override
+      public Calendar read(JsonReader in) throws IOException {
+        if (in.peek() == JsonToken.NULL) {
+          in.nextNull();
+          return null;
         }
-      }
-      in.endObject();
-      return new GregorianCalendar(year, month, dayOfMonth, hourOfDay, minute, second);
-    }
+        in.beginObject();
+        int year = 0;
+        int month = 0;
+        int dayOfMonth = 0;
+        int hourOfDay = 0;
+        int minute = 0;
+        int second = 0;
+        Set<String> names = disallowDuplicateProperties ? new HashSet<String>() : null;
+        while (in.peek() != JsonToken.END_OBJECT) {
+          String name = in.nextName();
+          if (names != null && !names.add(name)) {
+            throw new JsonSyntaxException("Duplicate property '" + name + "'");
+          }
 
-    @Override
-    public void write(JsonWriter out, Calendar value) throws IOException {
-      if (value == null) {
-        out.nullValue();
-        return;
+          int value = in.nextInt();
+          if (YEAR.equals(name)) {
+            year = value;
+          } else if (MONTH.equals(name)) {
+            month = value;
+          } else if (DAY_OF_MONTH.equals(name)) {
+            dayOfMonth = value;
+          } else if (HOUR_OF_DAY.equals(name)) {
+            hourOfDay = value;
+          } else if (MINUTE.equals(name)) {
+            minute = value;
+          } else if (SECOND.equals(name)) {
+            second = value;
+          }
+        }
+        in.endObject();
+        return new GregorianCalendar(year, month, dayOfMonth, hourOfDay, minute, second);
       }
-      out.beginObject();
-      out.name(YEAR);
-      out.value(value.get(Calendar.YEAR));
-      out.name(MONTH);
-      out.value(value.get(Calendar.MONTH));
-      out.name(DAY_OF_MONTH);
-      out.value(value.get(Calendar.DAY_OF_MONTH));
-      out.name(HOUR_OF_DAY);
-      out.value(value.get(Calendar.HOUR_OF_DAY));
-      out.name(MINUTE);
-      out.value(value.get(Calendar.MINUTE));
-      out.name(SECOND);
-      out.value(value.get(Calendar.SECOND));
-      out.endObject();
-    }
-  };
 
-  public static final TypeAdapterFactory CALENDAR_FACTORY =
-    newFactoryForMultipleTypes(Calendar.class, GregorianCalendar.class, CALENDAR);
+      @Override
+      public void write(JsonWriter out, Calendar value) throws IOException {
+        if (value == null) {
+          out.nullValue();
+          return;
+        }
+        out.beginObject();
+        out.name(YEAR);
+        out.value(value.get(Calendar.YEAR));
+        out.name(MONTH);
+        out.value(value.get(Calendar.MONTH));
+        out.name(DAY_OF_MONTH);
+        out.value(value.get(Calendar.DAY_OF_MONTH));
+        out.name(HOUR_OF_DAY);
+        out.value(value.get(Calendar.HOUR_OF_DAY));
+        out.name(MINUTE);
+        out.value(value.get(Calendar.MINUTE));
+        out.name(SECOND);
+        out.value(value.get(Calendar.SECOND));
+        out.endObject();
+      }
+    };
+  }
+
+  public static TypeAdapterFactory createCalendarFactory(boolean disallowDuplicateProperties) {
+    return newFactoryForMultipleTypes(Calendar.class, GregorianCalendar.class, createCalendarAdapter(disallowDuplicateProperties));
+  }
 
   public static final TypeAdapter<Locale> LOCALE = new TypeAdapter<Locale>() {
     @Override
@@ -675,84 +684,96 @@ public final class TypeAdapters {
 
   public static final TypeAdapterFactory LOCALE_FACTORY = newFactory(Locale.class, LOCALE);
 
-  public static final TypeAdapter<JsonElement> JSON_ELEMENT = new TypeAdapter<JsonElement>() {
-    @Override public JsonElement read(JsonReader in) throws IOException {
-      if (in instanceof JsonTreeReader) {
-        return ((JsonTreeReader) in).nextJsonElement();
+  private static TypeAdapter<JsonElement> createJsonElementAdapter(final boolean disallowDuplicateProperties) {
+    return new TypeAdapter<JsonElement>() {
+      @Override public JsonElement read(JsonReader in) throws IOException {
+        if (in instanceof JsonTreeReader) {
+          return ((JsonTreeReader) in).nextJsonElement();
+        }
+
+        switch (in.peek()) {
+        case STRING:
+          return new JsonPrimitive(in.nextString());
+        case NUMBER:
+          String number = in.nextString();
+          return new JsonPrimitive(new LazilyParsedNumber(number));
+        case BOOLEAN:
+          return new JsonPrimitive(in.nextBoolean());
+        case NULL:
+          in.nextNull();
+          return JsonNull.INSTANCE;
+        case BEGIN_ARRAY:
+          JsonArray array = new JsonArray();
+          in.beginArray();
+          while (in.hasNext()) {
+            array.add(read(in));
+          }
+          in.endArray();
+          return array;
+        case BEGIN_OBJECT:
+          JsonObject object = new JsonObject();
+          in.beginObject();
+
+          while (in.hasNext()) {
+            String name = in.nextName();
+
+            if (disallowDuplicateProperties && object.has(name)) {
+              throw new JsonSyntaxException("Duplicate property '" + name + "'");
+            }
+            object.add(name, read(in));
+          }
+          in.endObject();
+          return object;
+        case END_DOCUMENT:
+        case NAME:
+        case END_OBJECT:
+        case END_ARRAY:
+        default:
+          throw new IllegalArgumentException();
+        }
       }
 
-      switch (in.peek()) {
-      case STRING:
-        return new JsonPrimitive(in.nextString());
-      case NUMBER:
-        String number = in.nextString();
-        return new JsonPrimitive(new LazilyParsedNumber(number));
-      case BOOLEAN:
-        return new JsonPrimitive(in.nextBoolean());
-      case NULL:
-        in.nextNull();
-        return JsonNull.INSTANCE;
-      case BEGIN_ARRAY:
-        JsonArray array = new JsonArray();
-        in.beginArray();
-        while (in.hasNext()) {
-          array.add(read(in));
-        }
-        in.endArray();
-        return array;
-      case BEGIN_OBJECT:
-        JsonObject object = new JsonObject();
-        in.beginObject();
-        while (in.hasNext()) {
-          object.add(in.nextName(), read(in));
-        }
-        in.endObject();
-        return object;
-      case END_DOCUMENT:
-      case NAME:
-      case END_OBJECT:
-      case END_ARRAY:
-      default:
-        throw new IllegalArgumentException();
-      }
-    }
+      @Override public void write(JsonWriter out, JsonElement value) throws IOException {
+        if (value == null || value.isJsonNull()) {
+          out.nullValue();
+        } else if (value.isJsonPrimitive()) {
+          JsonPrimitive primitive = value.getAsJsonPrimitive();
+          if (primitive.isNumber()) {
+            out.value(primitive.getAsNumber());
+          } else if (primitive.isBoolean()) {
+            out.value(primitive.getAsBoolean());
+          } else {
+            out.value(primitive.getAsString());
+          }
 
-    @Override public void write(JsonWriter out, JsonElement value) throws IOException {
-      if (value == null || value.isJsonNull()) {
-        out.nullValue();
-      } else if (value.isJsonPrimitive()) {
-        JsonPrimitive primitive = value.getAsJsonPrimitive();
-        if (primitive.isNumber()) {
-          out.value(primitive.getAsNumber());
-        } else if (primitive.isBoolean()) {
-          out.value(primitive.getAsBoolean());
+        } else if (value.isJsonArray()) {
+          out.beginArray();
+          for (JsonElement e : value.getAsJsonArray()) {
+            write(out, e);
+          }
+          out.endArray();
+
+        } else if (value.isJsonObject()) {
+          out.beginObject();
+          for (Map.Entry<String, JsonElement> e : value.getAsJsonObject().entrySet()) {
+            out.name(e.getKey());
+            write(out, e.getValue());
+          }
+          out.endObject();
+
         } else {
-          out.value(primitive.getAsString());
+          throw new IllegalArgumentException("Couldn't write " + value.getClass());
         }
-
-      } else if (value.isJsonArray()) {
-        out.beginArray();
-        for (JsonElement e : value.getAsJsonArray()) {
-          write(out, e);
-        }
-        out.endArray();
-
-      } else if (value.isJsonObject()) {
-        out.beginObject();
-        for (Map.Entry<String, JsonElement> e : value.getAsJsonObject().entrySet()) {
-          out.name(e.getKey());
-          write(out, e.getValue());
-        }
-        out.endObject();
-
-      } else {
-        throw new IllegalArgumentException("Couldn't write " + value.getClass());
       }
-    }
-  };
+    };
+  }
+  public static final TypeAdapter<JsonElement> JSON_ELEMENT = createJsonElementAdapter(false);
+  public static final TypeAdapter<JsonElement> JSON_ELEMENT_NO_DUPLICATES = createJsonElementAdapter(true);
 
-  public static final TypeAdapterFactory JSON_ELEMENT_FACTORY
-      = newTypeHierarchyFactory(JsonElement.class, JSON_ELEMENT);
+  public static TypeAdapterFactory createJsonElementFactory(boolean disallowDuplicateProperties) {
+    return newTypeHierarchyFactory(JsonElement.class,
+      disallowDuplicateProperties ? JSON_ELEMENT_NO_DUPLICATES : JSON_ELEMENT);
+  }
 
   private static final class EnumTypeAdapter<T extends Enum<T>> extends TypeAdapter<T> {
     private final Map<String, T> nameToConstant = new HashMap<String, T>();

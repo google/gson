@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
 import junit.framework.TestCase;
 
 public final class ObjectTypeAdapterTest extends TestCase {
@@ -38,7 +39,7 @@ public final class ObjectTypeAdapterTest extends TestCase {
     Object object = new RuntimeType();
     assertEquals("{'a':5,'b':[1,2,null]}", adapter.toJson(object).replace("\"", "'"));
   }
-  
+
   public void testSerializeNullValue() throws Exception {
     Map<String, Object> map = new LinkedHashMap<String, Object>();
     map.put("a", null);
@@ -53,6 +54,35 @@ public final class ObjectTypeAdapterTest extends TestCase {
 
   public void testSerializeObject() throws Exception {
     assertEquals("{}", adapter.toJson(new Object()));
+  }
+
+  public void testDeserializeDuplicateProperties() throws Exception {
+    String json = "{\"a\":1,\"a\":2}";
+    assertEquals(Collections.singletonMap("a", 2.0), adapter.fromJson(json));
+  }
+
+  public void testDeserializeDuplicatePropertiesDisallowed() throws Exception {
+    Gson gson = new GsonBuilder().disallowDuplicatePropertyDeserialization().create();
+
+    {
+      String json = "{\"a\":1,\"a\":2}";
+      try {
+        gson.getAdapter(Object.class).fromJson(json);
+        fail();
+      } catch (JsonSyntaxException e) {
+        assertEquals("Duplicate property 'a'", e.getMessage());
+      }
+    }
+
+    {
+      String json = "{\"a\":null,\"a\":null}";
+      try {
+        gson.getAdapter(Object.class).fromJson(json);
+        fail();
+      } catch (JsonSyntaxException e) {
+        assertEquals("Duplicate property 'a'", e.getMessage());
+      }
+    }
   }
 
   @SuppressWarnings("unused")
