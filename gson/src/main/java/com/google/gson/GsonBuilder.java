@@ -95,6 +95,8 @@ public final class GsonBuilder {
   private boolean prettyPrinting = DEFAULT_PRETTY_PRINT;
   private boolean generateNonExecutableJson = DEFAULT_JSON_NON_EXECUTABLE;
   private boolean lenient = DEFAULT_LENIENT;
+  private ToNumberStrategy objectToNumberStrategy = ToNumberPolicy.DOUBLE;
+  private ToNumberStrategy numberToNumberStrategy = ToNumberPolicy.LAZILY_PARSED_NUMBER;
 
   /**
    * Creates a GsonBuilder instance that can be used to build Gson with various configuration
@@ -323,6 +325,30 @@ public final class GsonBuilder {
    */
   public GsonBuilder setFieldNamingStrategy(FieldNamingStrategy fieldNamingStrategy) {
     this.fieldNamingPolicy = fieldNamingStrategy;
+    return this;
+  }
+
+  /**
+   * Configures Gson to apply a specific number strategy during deserialization of {@link Object}.
+   *
+   * @param objectToNumberStrategy the actual object-to-number strategy
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @see ToNumberPolicy#DOUBLE The default object-to-number strategy
+   */
+  public GsonBuilder setObjectToNumberStrategy(ToNumberStrategy objectToNumberStrategy) {
+    this.objectToNumberStrategy = objectToNumberStrategy;
+    return this;
+  }
+
+  /**
+   * Configures Gson to apply a specific number strategy during deserialization of {@link Number}.
+   *
+   * @param numberToNumberStrategy the actual number-to-number strategy
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @see ToNumberPolicy#LAZILY_PARSED_NUMBER The default number-to-number strategy
+   */
+  public GsonBuilder setNumberToNumberStrategy(ToNumberStrategy numberToNumberStrategy) {
+    this.numberToNumberStrategy = numberToNumberStrategy;
     return this;
   }
 
@@ -600,7 +626,7 @@ public final class GsonBuilder {
         generateNonExecutableJson, escapeHtmlChars, prettyPrinting, lenient,
         serializeSpecialFloatingPointValues, longSerializationPolicy,
         datePattern, dateStyle, timeStyle,
-        this.factories, this.hierarchyFactories, factories);
+        this.factories, this.hierarchyFactories, factories, objectToNumberStrategy, numberToNumberStrategy);
   }
 
   private void addTypeAdaptersForDate(String datePattern, int dateStyle, int timeStyle,

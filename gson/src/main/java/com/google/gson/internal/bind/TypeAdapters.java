@@ -343,29 +343,6 @@ public final class TypeAdapters {
     }
   };
 
-  public static final TypeAdapter<Number> NUMBER = new TypeAdapter<Number>() {
-    @Override
-    public Number read(JsonReader in) throws IOException {
-      JsonToken jsonToken = in.peek();
-      switch (jsonToken) {
-      case NULL:
-        in.nextNull();
-        return null;
-      case NUMBER:
-      case STRING:
-        return new LazilyParsedNumber(in.nextString());
-      default:
-        throw new JsonSyntaxException("Expecting number, got: " + jsonToken);
-      }
-    }
-    @Override
-    public void write(JsonWriter out, Number value) throws IOException {
-      out.value(value);
-    }
-  };
-
-  public static final TypeAdapterFactory NUMBER_FACTORY = newFactory(Number.class, NUMBER);
-
   public static final TypeAdapter<Character> CHARACTER = new TypeAdapter<Character>() {
     @Override
     public Character read(JsonReader in) throws IOException {
