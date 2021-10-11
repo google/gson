@@ -16,8 +16,14 @@
 
 package com.google.gson.internal;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
@@ -138,6 +144,20 @@ public final class LinkedTreeMapTest extends TestCase {
     map2.put("A", 1);
 
     MoreAsserts.assertEqualsAndHashCode(map1, map2);
+  }
+
+  public void testJavaSerialization() throws IOException, ClassNotFoundException {
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    ObjectOutputStream objOut = new ObjectOutputStream(out);
+    Map<String, Integer> map = new LinkedTreeMap<String, Integer>();
+    map.put("a", 1);
+    objOut.writeObject(map);
+    objOut.close();
+
+    ObjectInputStream objIn = new ObjectInputStream(new ByteArrayInputStream(out.toByteArray()));
+    @SuppressWarnings("unchecked")
+    Map<String, Integer> deserialized = (Map<String, Integer>) objIn.readObject();
+    assertEquals(Collections.singletonMap("a", 1), deserialized);
   }
 
   @SafeVarargs
