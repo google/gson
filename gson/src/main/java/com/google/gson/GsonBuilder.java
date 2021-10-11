@@ -130,6 +130,8 @@ public final class GsonBuilder {
     this.timeStyle = gson.timeStyle;
     this.factories.addAll(gson.builderFactories);
     this.hierarchyFactories.addAll(gson.builderHierarchyFactories);
+    this.objectToNumberStrategy = gson.objectToNumberStrategy;
+    this.numberToNumberStrategy = gson.numberToNumberStrategy;
   }
 
   /**
