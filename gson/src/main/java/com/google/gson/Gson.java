@@ -756,6 +756,13 @@ public final class Gson {
 
   /**
    * Returns a new JSON writer configured for the settings on this Gson instance.
+   *
+   * <p>The following settings are considered:
+   * <ul>
+   *   <li>{@link GsonBuilder#generateNonExecutableJson()}</li>
+   *   <li>{@link GsonBuilder#serializeNulls()}</li>
+   *   <li>{@link GsonBuilder#setPrettyPrinting()}</li>
+   * </ul>
    */
   public JsonWriter newJsonWriter(Writer writer) throws IOException {
     if (generateNonExecutableJson) {
@@ -771,6 +778,11 @@ public final class Gson {
 
   /**
    * Returns a new JSON reader configured for the settings on this Gson instance.
+   *
+   * <p>The following settings are considered:
+   * <ul>
+   *   <li>{@link GsonBuilder#setLenient()}</li>
+   * </ul>
    */
   public JsonReader newJsonReader(Reader reader) {
     JsonReader jsonReader = new JsonReader(reader);
