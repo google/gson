@@ -17,7 +17,7 @@
 package com.google.gson;
 
 /**
- * Defines the expected format for a {@code long} or {@code Long} type when its serialized.
+ * Defines the expected format for a {@code long} or {@code Long} type when it is serialized.
  *
  * @since 1.3
  *
@@ -26,13 +26,18 @@ package com.google.gson;
  */
 public enum LongSerializationPolicy {
   /**
-   * This is the "default" serialization policy that will output a {@code long} object as a JSON
+   * This is the "default" serialization policy that will output a {@code Long} object as a JSON
    * number. For example, assume an object has a long field named "f" then the serialized output
    * would be:
-   * {@code {"f":123}}.
+   * {@code {"f":123}}
+   *
+   * <p>A {@code null} value is serialized as {@link JsonNull}.
    */
   DEFAULT() {
     @Override public JsonElement serialize(Long value) {
+      if (value == null) {
+        return JsonNull.INSTANCE;
+      }
       return new JsonPrimitive(value);
     }
   },
@@ -40,11 +45,16 @@ public enum LongSerializationPolicy {
   /**
    * Serializes a long value as a quoted string. For example, assume an object has a long field 
    * named "f" then the serialized output would be:
-   * {@code {"f":"123"}}.
+   * {@code {"f":"123"}}
+   *
+   * <p>A {@code null} value is serialized as {@link JsonNull}.
    */
   STRING() {
     @Override public JsonElement serialize(Long value) {
-      return new JsonPrimitive(String.valueOf(value));
+      if (value == null) {
+        return JsonNull.INSTANCE;
+      }
+      return new JsonPrimitive(value.toString());
     }
   };
   
