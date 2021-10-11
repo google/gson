@@ -33,6 +33,12 @@ public class ToNumberPolicyTest extends TestCase {
       strategy.readNumber(fromString("1e400"));
       fail();
     } catch (MalformedJsonException expected) {
+      assertEquals("JSON forbids NaN and infinities: Infinity at line 1 column 6 path $", expected.getMessage());
+    }
+    try {
+      strategy.readNumber(fromString("\"not-a-number\""));
+      fail();
+    } catch (NumberFormatException expected) {
     }
   }
 
@@ -52,7 +58,15 @@ public class ToNumberPolicyTest extends TestCase {
       strategy.readNumber(fromString("1e400"));
       fail();
     } catch (MalformedJsonException expected) {
+      assertEquals("JSON forbids NaN and infinities: Infinity; at path $", expected.getMessage());
     }
+    try {
+      strategy.readNumber(fromString("\"not-a-number\""));
+      fail();
+    } catch (JsonParseException expected) {
+      assertEquals("Cannot parse not-a-number; at path $", expected.getMessage());
+    }
+
     assertEquals(Double.NaN, strategy.readNumber(fromStringLenient("NaN")));
     assertEquals(Double.POSITIVE_INFINITY, strategy.readNumber(fromStringLenient("Infinity")));
     assertEquals(Double.NEGATIVE_INFINITY, strategy.readNumber(fromStringLenient("-Infinity")));
@@ -60,16 +74,19 @@ public class ToNumberPolicyTest extends TestCase {
       strategy.readNumber(fromString("NaN"));
       fail();
     } catch (MalformedJsonException expected) {
+      assertEquals("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 1 path $", expected.getMessage());
     }
     try {
       strategy.readNumber(fromString("Infinity"));
       fail();
     } catch (MalformedJsonException expected) {
+      assertEquals("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 1 path $", expected.getMessage());
     }
     try {
       strategy.readNumber(fromString("-Infinity"));
       fail();
     } catch (MalformedJsonException expected) {
+      assertEquals("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 1 path $", expected.getMessage());
     }
   }
 
@@ -78,6 +95,13 @@ public class ToNumberPolicyTest extends TestCase {
     assertEquals(new BigDecimal("10.1"), strategy.readNumber(fromString("10.1")));
     assertEquals(new BigDecimal("3.141592653589793238462643383279"), strategy.readNumber(fromString("3.141592653589793238462643383279")));
     assertEquals(new BigDecimal("1e400"), strategy.readNumber(fromString("1e400")));
+
+    try {
+      strategy.readNumber(fromString("\"not-a-number\""));
+      fail();
+    } catch (JsonParseException expected) {
+      assertEquals("Cannot parse not-a-number; at path $", expected.getMessage());
+    }
   }
 
   public void testNullsAreNeverExpected() throws IOException {
