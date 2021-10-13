@@ -20,8 +20,15 @@ import com.google.gson.common.MoreAsserts;
 import com.google.gson.internal.LinkedHashTreeMap.AvlBuilder;
 import com.google.gson.internal.LinkedHashTreeMap.AvlIterator;
 import com.google.gson.internal.LinkedHashTreeMap.Node;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
@@ -222,6 +229,20 @@ public final class LinkedHashTreeMapTest extends TestCase {
         assertConsistent(node);
       }
     }
+  }
+
+  public void testJavaSerialization() throws IOException, ClassNotFoundException {
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    ObjectOutputStream objOut = new ObjectOutputStream(out);
+    Map<String, Integer> map = new LinkedHashTreeMap<String, Integer>();
+    map.put("a", 1);
+    objOut.writeObject(map);
+    objOut.close();
+
+    ObjectInputStream objIn = new ObjectInputStream(new ByteArrayInputStream(out.toByteArray()));
+    @SuppressWarnings("unchecked")
+    Map<String, Integer> deserialized = (Map<String, Integer>) objIn.readObject();
+    assertEquals(Collections.singletonMap("a", 1), deserialized);
   }
 
   private static final Node<String, String> head = new Node<String, String>();
