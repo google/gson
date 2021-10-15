@@ -36,6 +36,8 @@ import java.util.Arrays;
  * @author Jesse Wilson
  */
 public final class JsonTreeReader extends JsonReader {
+  /** Special JSON path value indicating that property name was skipped */
+  private static final String SKIPPED_NAME = "#skippedName"; // Also used in JsonReader
   private static final Reader UNREADABLE_READER = new Reader() {
     @Override public int read(char[] buffer, int offset, int count) throws IOException {
       throw new AssertionError();
@@ -46,11 +48,29 @@ public final class JsonTreeReader extends JsonReader {
   };
   private static final Object SENTINEL_CLOSED = new Object();
 
+  private class StringValueReaderImpl extends AbstractStringValueReaderStringImpl {
+    public StringValueReaderImpl(String value, boolean isName) {
+      super(value, isName);
+    }
+
+    @Override
+    protected void onClosedAfterReachedEnd() {
+      isReaderActive = false;
+      if (isName) {
+        pathNames[stackSize - 2] = value; // - 2 because popNextName() pushed value
+      } else {
+        incrementPathIndex();
+      }
+    }
+  }
+
   /*
    * The nesting stack. Using a manual array rather than an ArrayList saves 20%.
    */
   private Object[] stack = new Object[32];
   private int stackSize = 0;
+  /** Whether a {@code Reader} is currently reading a name or string */
+  private boolean isReaderActive = false;
 
   /*
    * The path members. It corresponds directly to stack: At indices where the
@@ -79,9 +99,7 @@ public final class JsonTreeReader extends JsonReader {
     expect(JsonToken.END_ARRAY);
     popStack(); // empty iterator
     popStack(); // array
-    if (stackSize > 0) {
-      pathIndices[stackSize - 1]++;
-    }
+    incrementPathIndex();
   }
 
   @Override public void beginObject() throws IOException {
@@ -94,9 +112,7 @@ public final class JsonTreeReader extends JsonReader {
     expect(JsonToken.END_OBJECT);
     popStack(); // empty iterator
     popStack(); // object
-    if (stackSize > 0) {
-      pathIndices[stackSize - 1]++;
-    }
+    incrementPathIndex();
   }
 
   @Override public boolean hasNext() throws IOException {
@@ -107,6 +123,9 @@ public final class JsonTreeReader extends JsonReader {
   @Override public JsonToken peek() throws IOException {
     if (stackSize == 0) {
       return JsonToken.END_DOCUMENT;
+    } else if (isReaderActive) {
+      throw new IllegalStateException("Name or string reader has not been closed or did not consume "
+          + "all data before it was closed");
     }
 
     Object o = peekStack();
@@ -157,6 +176,12 @@ public final class JsonTreeReader extends JsonReader {
     return result;
   }
 
+  private Object popStackAndIncrementIndex() {
+    Object result = popStack();
+    incrementPathIndex();
+    return result;
+  }
+
   private void expect(JsonToken expected) throws IOException {
     if (peek() != expected) {
       throw new IllegalStateException(
@@ -164,88 +189,92 @@ public final class JsonTreeReader extends JsonReader {
     }
   }
 
-  @Override public String nextName() throws IOException {
-    expect(JsonToken.NAME);
-    Iterator<?> i = (Iterator<?>) peekStack();
-    Map.Entry<?, ?> entry = (Map.Entry<?, ?>) i.next();
-    String result = (String) entry.getKey();
-    pathNames[stackSize - 1] = result;
-    push(entry.getValue());
-    return result;
+  private void expectNumber() throws IOException {
+    JsonToken token = peek();
+    if (token != JsonToken.NUMBER && token != JsonToken.STRING) {
+      throw new IllegalStateException(
+          "Expected " + JsonToken.NUMBER + " but was " + token + locationString());
+    }
   }
 
-  @Override public String nextString() throws IOException {
+  private void expectString() throws IOException {
     JsonToken token = peek();
     if (token != JsonToken.STRING && token != JsonToken.NUMBER) {
       throw new IllegalStateException(
           "Expected " + JsonToken.STRING + " but was " + token + locationString());
     }
+  }
+
+  private String popNextName() throws IOException {
+    expect(JsonToken.NAME);
+    Iterator<?> i = (Iterator<?>) peekStack();
+    Map.Entry<?, ?> entry = (Map.Entry<?, ?>) i.next();
+    push(entry.getValue());
+    return (String) entry.getKey();
+  }
+
+  @Override public String nextName() throws IOException {
+    String name = popNextName();
+    pathNames[stackSize - 2] = name; // - 2 because popNextName() pushed value
+    return name;
+  }
+
+  @Override public StringValueReader nextNameReader() throws IOException {
+    String name = popNextName();
+    isReaderActive = true;
+    return new StringValueReaderImpl(name, true);
+  }
+
+  private String popString() throws IOException {
+    expectString();
     String result = ((JsonPrimitive) popStack()).getAsString();
-    if (stackSize > 0) {
-      pathIndices[stackSize - 1]++;
-    }
     return result;
+  }
+
+  @Override public String nextString() throws IOException {
+    String result = popString();
+    incrementPathIndex();
+    return result;
+  }
+
+  @Override public StringValueReader nextStringReader() throws IOException {
+    String value = popString();
+    isReaderActive = true;
+    return new StringValueReaderImpl(value, false);
   }
 
   @Override public boolean nextBoolean() throws IOException {
     expect(JsonToken.BOOLEAN);
-    boolean result = ((JsonPrimitive) popStack()).getAsBoolean();
-    if (stackSize > 0) {
-      pathIndices[stackSize - 1]++;
-    }
+    boolean result = ((JsonPrimitive) popStackAndIncrementIndex()).getAsBoolean();
     return result;
   }
 
   @Override public void nextNull() throws IOException {
     expect(JsonToken.NULL);
-    popStack();
-    if (stackSize > 0) {
-      pathIndices[stackSize - 1]++;
-    }
+    popStackAndIncrementIndex();
   }
 
   @Override public double nextDouble() throws IOException {
-    JsonToken token = peek();
-    if (token != JsonToken.NUMBER && token != JsonToken.STRING) {
-      throw new IllegalStateException(
-          "Expected " + JsonToken.NUMBER + " but was " + token + locationString());
-    }
+    expectNumber();
     double result = ((JsonPrimitive) peekStack()).getAsDouble();
     if (!isLenient() && (Double.isNaN(result) || Double.isInfinite(result))) {
       throw new NumberFormatException("JSON forbids NaN and infinities: " + result);
     }
-    popStack();
-    if (stackSize > 0) {
-      pathIndices[stackSize - 1]++;
-    }
+    popStackAndIncrementIndex();
     return result;
   }
 
   @Override public long nextLong() throws IOException {
-    JsonToken token = peek();
-    if (token != JsonToken.NUMBER && token != JsonToken.STRING) {
-      throw new IllegalStateException(
-          "Expected " + JsonToken.NUMBER + " but was " + token + locationString());
-    }
+    expectNumber();
     long result = ((JsonPrimitive) peekStack()).getAsLong();
-    popStack();
-    if (stackSize > 0) {
-      pathIndices[stackSize - 1]++;
-    }
+    popStackAndIncrementIndex();
     return result;
   }
 
   @Override public int nextInt() throws IOException {
-    JsonToken token = peek();
-    if (token != JsonToken.NUMBER && token != JsonToken.STRING) {
-      throw new IllegalStateException(
-          "Expected " + JsonToken.NUMBER + " but was " + token + locationString());
-    }
+    expectNumber();
     int result = ((JsonPrimitive) peekStack()).getAsInt();
-    popStack();
-    if (stackSize > 0) {
-      pathIndices[stackSize - 1]++;
-    }
+    popStackAndIncrementIndex();
     return result;
   }
 
@@ -265,20 +294,16 @@ public final class JsonTreeReader extends JsonReader {
   @Override public void close() throws IOException {
     stack = new Object[] { SENTINEL_CLOSED };
     stackSize = 1;
+    isReaderActive = false;
   }
 
   @Override public void skipValue() throws IOException {
     if (peek() == JsonToken.NAME) {
       nextName();
-      pathNames[stackSize - 2] = "null";
+      pathNames[stackSize - 2] = SKIPPED_NAME; // - 2 because nextName() pushed value
     } else {
       popStack();
-      if (stackSize > 0) {
-        pathNames[stackSize - 1] = "null";
-      }
-    }
-    if (stackSize > 0) {
-      pathIndices[stackSize - 1]++;
+      incrementPathIndex();
     }
   }
 
@@ -302,6 +327,12 @@ public final class JsonTreeReader extends JsonReader {
       pathNames = Arrays.copyOf(pathNames, newLength);
     }
     stack[stackSize++] = newTop;
+  }
+
+  private void incrementPathIndex() {
+    if (stackSize > 0) {
+      pathIndices[stackSize - 1]++;
+    }
   }
 
   @Override public String getPath() {

@@ -17,11 +17,15 @@
 package com.google.gson.stream;
 
 import com.google.gson.internal.JsonReaderInternalAccess;
+import com.google.gson.internal.bind.AbstractStringValueReaderStringImpl;
 import com.google.gson.internal.bind.JsonTreeReader;
+
 import java.io.Closeable;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
+import java.nio.CharBuffer;
+import java.nio.ReadOnlyBufferException;
 import java.util.Arrays;
 
 /**
@@ -190,6 +194,10 @@ import java.util.Arrays;
  */
 public class JsonReader implements Closeable {
   private static final long MIN_INCOMPLETE_INTEGER = Long.MIN_VALUE / 10;
+  /** Special JSON path value indicating that Reader was used for property name */
+  private static final String STREAMED_NAME = "#streamedName";
+  /** Special JSON path value indicating that property name was skipped */
+  private static final String SKIPPED_NAME = "#skippedName"; // Also used in JsonTreeReader
 
   private static final int PEEKED_NONE = 0;
   private static final int PEEKED_BEGIN_OBJECT = 1;
@@ -211,6 +219,8 @@ public class JsonReader implements Closeable {
   private static final int PEEKED_LONG = 15;
   private static final int PEEKED_NUMBER = 16;
   private static final int PEEKED_EOF = 17;
+  /** When this is returned, string is currently read by reader */
+  private static final int PEEKED_STRING_READER = 18;
 
   /* State machine when parsing numbers */
   private static final int NUMBER_CHAR_NONE = 0;
@@ -221,6 +231,546 @@ public class JsonReader implements Closeable {
   private static final int NUMBER_CHAR_EXP_E = 5;
   private static final int NUMBER_CHAR_EXP_SIGN = 6;
   private static final int NUMBER_CHAR_EXP_DIGIT = 7;
+
+  private static abstract class CharsConsumer {
+    public void accept(char[] chars, int start, int length) {
+      for (int i = 0; i < length; i++) {
+        accept(chars[start + i]);
+      }
+    }
+
+    /**
+     * Called when no more data follows after this. Implementations can
+     * use this hint to process the data more efficiently. It is not
+     * required that this method has to be called.
+     */
+    public void acceptAndFinish(char[] chars, int start, int length) {
+      accept(chars, start, length);
+    }
+
+    public abstract void accept(char c);
+  }
+
+  private static class ArrayCharsConsumer extends CharsConsumer {
+    private final char[] array;
+    private final int start;
+    private int currrentIndex;
+
+    private ArrayCharsConsumer(char[] array, int start) {
+      this.array = array;
+      this.start = start;
+      this.currrentIndex = this.start;
+    }
+
+    @Override
+    public void accept(char[] chars, int start, int length) {
+      System.arraycopy(chars, start, array, currrentIndex, length);
+      currrentIndex += length;
+    }
+
+    @Override
+    public void accept(char c) {
+      array[currrentIndex++] = c;
+    }
+
+    public int accepted() {
+      return currrentIndex - start;
+    }
+  }
+
+  private static class CharBufferCharsConsumer extends CharsConsumer {
+    private final CharBuffer charBuffer;
+    private int accepted;
+
+    private CharBufferCharsConsumer(CharBuffer charBuffer) {
+      this.charBuffer = charBuffer;
+      this.accepted = 0;
+    }
+
+    @Override
+    public void accept(char[] chars, int start, int length) {
+      charBuffer.put(chars, start, length);
+      accepted += length;
+    }
+
+    @Override
+    public void accept(char c) {
+      charBuffer.put(c);
+      accepted++;
+    }
+
+    public int accepted() {
+      return accepted;
+    }
+  }
+
+  private static class StringBuildingCharsConsumer extends CharsConsumer {
+    /** {@code null} if nothing has been consumed yet */
+    private StringBuilder stringBuilder;
+    /**
+     * non-{@code null} if string has directly been created, {@link #stringBuilder} is
+     * {@code null} then
+     */
+    private String string;
+
+    private StringBuildingCharsConsumer() {
+      stringBuilder = null;
+    }
+
+    @Override
+    public void accept(char[] chars, int start, int length) {
+      if (stringBuilder == null) {
+        stringBuilder = new StringBuilder(length <= 8 ? 16 : length * 2);
+      }
+
+      stringBuilder.append(chars, start, length);
+    }
+
+    @Override
+    public void acceptAndFinish(char[] chars, int start, int length) {
+      if (stringBuilder == null) {
+        string = new String(chars, start, length);
+      } else {
+        // Might unnecessarily increase capacity to oldCap * 2 + 2
+        // Cannot solve this without relying on implementation details (e.g. JEP 280),
+        // see https://stackoverflow.com/q/58672391
+        stringBuilder.append(chars, start, length);
+      }
+    }
+
+    @Override
+    public void accept(char c) {
+      if (stringBuilder == null) {
+        stringBuilder = new StringBuilder();
+      }
+
+      stringBuilder.append(c);
+    }
+
+    public String build() {
+      if (string != null) {
+        return string;
+      } else {
+        return stringBuilder == null ? "" : stringBuilder.toString();
+      }
+    }
+  }
+
+  private static class SingleCharConsumer extends CharsConsumer {
+    private int c;
+
+    @Override
+    public void accept(char c) {
+      this.c = c;
+    }
+  }
+
+  /**
+   * A {@link Reader} for reading JSON property names and string values.
+   * Reader instances are obtained through the {@link JsonReader#nextNameReader()}
+   * and {@link JsonReader#nextStringReader()} methods.
+   *
+   * <p>In addition to the standard {@code Reader} methods this class defines
+   * the following methods which might perform better than the standard methods
+   * in certain cases:
+   * <ul>
+   *   <li>{@link #readAtLeast(char[], int, int, int)}</li>
+   *   <li>{@link #readGreedily(char[], int, int)}</li>
+   *   <li>{@link #skipExactly(long)}</li>
+   *   <li>{@link #skipRemaining()}</li>
+   * </ul>
+   *
+   * <p>When finished reading a value you have to make sure that the end
+   * of the stream has been reached, which is the case when either one of
+   * the {@code read} methods returned -1 or after calling {@link #skipRemaining()}.
+   * To be on the safe side it is recommended to always call {@code skipRemaining()}.
+   * Afterwards you have to {@link #close()} this reader.<br>
+   * Failing to do either of this can render this reader and the underlying
+   * {@code JsonReader} unusable.<br>
+   * The recommended pattern is therefore:
+   * <pre>
+   * try (StringValueReader stringValueReader = jsonReader.nextStringReader()) {
+   *     // Use the reader
+   *     ...
+   *
+   *     // Skip any remaining characters before closing the reader
+   *     stringValueReader.skipRemaining();
+   * }
+   * </pre>
+   */
+  public static abstract class StringValueReader extends Reader {
+    /**
+     * Tries to read at least {@code minLen} and at most {@code maxLen} characters into
+     * the given char array, blocks until at least {@code minLen} characters have been
+     * read, an IO error occurs or the end of the stream has been reached. If {@code maxLen}
+     * &gt; 0 tries to read at least one character even if {@code minLen} is 0, unless
+     * the end of the stream has been reached.
+     *
+     * @param cbuf destination for the read characters
+     * @param off at which 0-based position to start storing the characters in {@code cbuf}
+     * @param minLen minimum number of characters to read
+     * @param maxLen maximum number of characters to read
+     * @return number of read characters; always &gt;= 0 even if the end of the
+     *   stream has been reached
+     * @throws IndexOutOfBoundsException if any of the following applies
+     *   <ul>
+     *   <li>{@code off} &lt; 0</li>
+     *   <li>{@code minLen} &lt; 0</li>
+     *   <li>{@code minLen} &gt; {@code maxLen}</li>
+     *   <li>{@code maxLen} &gt; {@code cbuf.length} - {@code off}</li>
+     *   </ul>
+     * @throws IOException if reading fails
+     * @throws EOFException if less than {@code minLen} characters are remaining;
+     *   the state of the reader and the content of {@code cbuf} are undefined afterwards,
+     *   it is possible that some characters have already been read and stored in {@code cbuf}
+     */
+    public abstract int readAtLeast(char[] cbuf, int off, int minLen, int maxLen) throws IOException, EOFException;
+
+    /**
+     * Tries to read as much characters as possible, only returning when the requested
+     * number of characters have been read, an IO error occurs or the end of the
+     * stream has been reached.
+     *
+     * @param cbuf destination for the read characters
+     * @param off at which 0-based position to start storing the characters in {@code cbuf}
+     * @param len number of characters to read
+     * @return number of read characters, or -1 if the end of the
+     *   stream has been reached and no characters have been read
+     * @throws IndexOutOfBoundsException if any of the following applies
+     *   <ul>
+     *   <li>{@code off} &lt; 0</li>
+     *   <li>{@code len} &lt; 0</li>
+     *   <li>{@code len} &gt; {@code cbuf.length} - {@code off}</li>
+     *   </ul>
+     * @throws IOException if reading fails
+     */
+    public abstract int readGreedily(char[] cbuf, int off, int len) throws IOException;
+
+    /**
+     * Tries to skip exactly {@code skipAmount} characters and blocks until at least
+     * that amount of characters have been skipped.
+     *
+     * @param skipAmount the number of characters to skip
+     * @throws IllegalArgumentException if {@code skipAmount} &lt; 0
+     * @throws IOException if skipping fails
+     * @throws EOFException if less than {@code skipAmount} characters are remaining;
+     *   the state of the reader is undefined afterwards, it is possible that some
+     *   characters have already been skipped
+     */
+    public abstract void skipExactly(long skipAmount) throws IOException, EOFException;
+
+    /**
+     * Skips all remaining characters and blocks until the end of the stream has
+     * been reached. However, the stream is not {@link #close() closed} automatically
+     * afterwards.
+     *
+     * @throws IOException if skipping fails
+     */
+    public abstract void skipRemaining() throws IOException;
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Closing this reader will not consume any remaining characters which
+     * have not been consumed yet. This allows usage within a {@code try-with-resources}
+     * statement to fail fast in case of an exception. However, it requires
+     * that you have to consume all remaining characters (for example using
+     * {@link #skipRemaining()}) before closing this reader if you intend to
+     * read more JSON tokens. Failing to do so can render the underlying
+     * {@code JsonReader} unusable.
+     */
+    public abstract void close() throws IOException;
+  }
+
+  class StringValueReaderImpl extends StringValueReader {
+    private static final char NO_QUOTE = '\0';
+    /**
+     * Minimum number of chars which should be tried to be read.
+     * Mostly needed for cases where {@link #in} is rarely {@link Reader#ready()}.
+     */
+    static final int MIN_DESIRED_ACCEPT = 16; // Might need adjustment
+
+    /**
+     * {@code true} if object property name is read,
+     * {@code false} if string value is read
+     */
+    private boolean isReadingName;
+    /** Quote char or {@link #NO_QUOTE} */
+    private final char quote;
+    /** Used only by {@link #read()} to read one char */
+    private SingleCharConsumer singleCharConsumer;
+    private boolean reachedEnd;
+    private boolean isClosed;
+
+    private StringValueReaderImpl(boolean isReadingName, char quote) {
+      this.isReadingName = isReadingName;
+      this.quote = quote;
+      this.singleCharConsumer = new SingleCharConsumer();
+      this.reachedEnd = false;
+      this.isClosed = false;
+    }
+
+    /** Reads unquoted string */
+    private StringValueReaderImpl(boolean isReadingName) {
+      this(isReadingName, NO_QUOTE);
+    }
+
+    private void verifyNotClosed() throws IOException {
+      if (isClosed) {
+        throw new IOException("Reader is closed");
+      }
+    }
+
+    /**
+     * @param charsConsumer consuming the read chars
+     * @param minDesiredAccept desired minimum number of chars which should be read;
+     *   might read less chars if end of value is reached before;
+     *   <b>must be &gt;= 1</b>
+     * @param maxAccept maximum number of chars to pass to charsConsumer;
+     *   <b>must be &gt;= 1</b>
+     * @return whether the end of the value has been reached
+     * @throws IOException if reading fails
+     */
+    private boolean read(CharsConsumer charsConsumer, int minDesiredAccept, int maxAccept) throws IOException {
+      if (reachedEnd) {
+        return true;
+      }
+
+      if (quote == NO_QUOTE) {
+        return reachedEnd = nextUnquotedValue(charsConsumer, minDesiredAccept, maxAccept);
+      } else {
+        return reachedEnd = nextQuotedValue(quote, charsConsumer, minDesiredAccept, maxAccept);
+      }
+    }
+
+    @Override
+    public int read(char[] cbuf, int off, int len) throws IOException {
+      if (off < 0) {
+        throw new IndexOutOfBoundsException("offset < 0");
+      } else if (len < 0) {
+        throw new IndexOutOfBoundsException("length < 0");
+      } else if (len > cbuf.length - off) {
+        throw new IndexOutOfBoundsException("length > arr.length - offset");
+      }
+
+      verifyNotClosed();
+      if (len == 0) {
+        return 0;
+      }
+
+      ArrayCharsConsumer charsConsumer = new ArrayCharsConsumer(cbuf, off);
+      // Do not have to check if end has already been reached, read does that
+      boolean reachedEnd = read(charsConsumer, Math.min(MIN_DESIRED_ACCEPT, len), len);
+      int accepted = charsConsumer.accepted();
+      return reachedEnd && accepted == 0 ? -1 : accepted;
+    }
+
+    @Override
+    public int read() throws IOException {
+      verifyNotClosed();
+
+      singleCharConsumer.c = -1;
+      // Do not have to check if end has already been reached, read does that
+      read(singleCharConsumer, 1, 1);
+      // If no char was read value is still -1 so don't have to check `read()`
+      // return value
+      return singleCharConsumer.c;
+    }
+
+    @Override
+    public int read(CharBuffer target) throws IOException {
+      // read(CharBuffer) is not clear about how to behave for full (remaining() == 0)
+      // buffer, see also JDK-8222329
+      if (target.isReadOnly()) {
+        throw new ReadOnlyBufferException();
+      }
+      verifyNotClosed();
+
+      int length = target.remaining();
+      if (length == 0) {
+        return 0;
+      }
+
+      CharBufferCharsConsumer charsConsumer = new CharBufferCharsConsumer(target);
+      // Do not have to check if end has already been reached, read does that
+      boolean reachedEnd = read(charsConsumer, Math.min(MIN_DESIRED_ACCEPT, length), length);
+      int accepted = charsConsumer.accepted();
+      return reachedEnd && accepted == 0 ? -1 : accepted;
+    }
+
+    @Override
+    public int readAtLeast(char[] cbuf, int off, int minLen, int maxLen) throws IOException {
+      if (off < 0) {
+        throw new IndexOutOfBoundsException("offset < 0");
+      } else if (minLen < 0) {
+        throw new IndexOutOfBoundsException("minLen < 0");
+      } else if (minLen > maxLen) {
+        throw new IndexOutOfBoundsException("minLen > maxLen");
+      } else if (maxLen > cbuf.length - off) {
+        throw new IndexOutOfBoundsException("maxLen > arr.length - offset");
+      }
+
+      verifyNotClosed();
+      if (maxLen == 0) {
+        return 0;
+      }
+
+      ArrayCharsConsumer charsConsumer = new ArrayCharsConsumer(cbuf, off);
+      // Always try to at least read MIN_DESIRED_ACCEPT chars to be efficient
+      int minDesiredAccept = Math.min(Math.max(MIN_DESIRED_ACCEPT, minLen), maxLen);
+      // Do not have to check if end has already been reached, read does that
+      boolean reachedEnd = read(charsConsumer, minDesiredAccept, maxLen);
+      int accepted = charsConsumer.accepted();
+      if (accepted < minLen) {
+        assert reachedEnd;
+        throw new EOFException("Read less than the requested " + minLen + " chars");
+      }
+      return accepted;
+    }
+
+    @Override
+    public int readGreedily(char[] cbuf, int off, int len) throws IOException {
+      if (off < 0) {
+        throw new IndexOutOfBoundsException("offset < 0");
+      } else if (len < 0) {
+        throw new IndexOutOfBoundsException("length < 0");
+      } else if (len > cbuf.length - off) {
+        throw new IndexOutOfBoundsException("length > arr.length - offset");
+      }
+
+      verifyNotClosed();
+      if (len == 0) {
+        return 0;
+      }
+
+      ArrayCharsConsumer charsConsumer = new ArrayCharsConsumer(cbuf, off);
+      // Do not have to check if end has already been reached, read does that
+      boolean reachedEnd = read(charsConsumer, len, len);
+      int accepted = charsConsumer.accepted();
+      return reachedEnd && accepted == 0 ? -1 : accepted;
+    }
+
+    @Override
+    public boolean ready() throws IOException {
+      verifyNotClosed();
+
+      // If reachedEnd read() won't block, see also JDK-8196767
+      if (reachedEnd) {
+        return true;
+      } else if (limit - pos > 0) {
+        // Unquoted string has no escape sequences so will not block
+        // In case of quoted string `\` starts an escape sequence and reading it might block
+        if (quote == NO_QUOTE || buffer[pos] != '\\') {
+          return true;
+        }
+
+        int remaining = limit - pos;
+        // Either contains at least complete \ + uXXXX escape sequence (6 chars)
+        // or is non-unicode escape sequence, e.g. \t (2 chars)
+        return remaining >= 6 || (remaining >= 2 && buffer[pos + 1] != 'u');
+      } else {
+        // Unquoted string does not have escape sequence so if `in` is ready then
+        // there will be further input (or end of value)
+        return quote == NO_QUOTE && in.ready();
+      }
+    }
+
+    /**
+     * Implementation note: Skips exactly {@code skipAmount} characters
+     * unless end of value is reached before.
+     */
+    @Override
+    public long skip(long skipAmount) throws IOException {
+      if (skipAmount < 0) {
+        throw new IllegalArgumentException("skip amount is negative");
+      }
+      verifyNotClosed();
+
+      if (skipAmount == 0 || reachedEnd) {
+        return 0;
+      }
+
+      long skipped;
+      if (quote == NO_QUOTE) {
+        skipped = skipUnquotedValue(skipAmount);
+      } else {
+        skipped = skipQuotedValue(quote, skipAmount);
+      }
+
+      if (skipped <= 0) {
+        reachedEnd = true;
+        return -skipped;
+      } else {
+        return skipped;
+      }
+    }
+
+    @Override
+    public void skipExactly(long skipAmount) throws IOException {
+      long skipped = skip(skipAmount);
+      if (skipped < skipAmount) {
+        throw new EOFException("Skipped less than the requested " + skipAmount + " chars");
+      }
+    }
+
+    @Override
+    public void skipRemaining() throws IOException {
+      verifyNotClosed();
+
+      if (!reachedEnd) {
+        if (quote == NO_QUOTE) {
+          skipUnquotedValue();
+        } else {
+          skipQuotedValue(quote);
+        }
+        reachedEnd = true;
+      }
+    }
+
+    @Override
+    public void close() {
+      if (!isClosed) {
+        isClosed = true;
+
+        /*
+         * Update enclosing JsonReader, but only if end has been reached
+         * Otherwise it would continue somewhere in the middle of the
+         * string value
+         *
+         * Especially do not try to consume remaining chars until end is reached since that
+         * might undesirable, e.g. when reader is used in try-with-resources and an exception
+         * occurs within it. In that case code should fail fast and not try to read more data
+         * (which could even block!).
+         */
+        if (reachedEnd) {
+          peeked = PEEKED_NONE;
+
+          if (isReadingName) {
+            pathNames[stackSize - 1] = STREAMED_NAME;
+          } else {
+            pathIndices[stackSize - 1]++;
+          }
+        }
+      }
+    }
+  }
+
+  private class StringValueReaderStringImpl extends AbstractStringValueReaderStringImpl {
+    public StringValueReaderStringImpl(String value, boolean isName) {
+      super(value, isName);
+    }
+
+    @Override
+    protected void onClosedAfterReachedEnd() {
+      peeked = PEEKED_NONE;
+
+      if (isName) {
+        pathNames[stackSize - 1] = value;
+      } else {
+        pathIndices[stackSize - 1]++;
+      }
+    }
+  }
 
   /** The input JSON. */
   private final Reader in;
@@ -337,16 +887,13 @@ public class JsonReader implements Closeable {
    * beginning of a new array.
    */
   public void beginArray() throws IOException {
-    int p = peeked;
-    if (p == PEEKED_NONE) {
-      p = doPeek();
-    }
+    int p = peekInternal();
     if (p == PEEKED_BEGIN_ARRAY) {
       push(JsonScope.EMPTY_ARRAY);
       pathIndices[stackSize - 1] = 0;
       peeked = PEEKED_NONE;
     } else {
-      throw new IllegalStateException("Expected BEGIN_ARRAY but was " + peek() + locationString());
+      throw throwUnexpectedTokenError(JsonToken.BEGIN_ARRAY, p);
     }
   }
 
@@ -355,16 +902,13 @@ public class JsonReader implements Closeable {
    * end of the current array.
    */
   public void endArray() throws IOException {
-    int p = peeked;
-    if (p == PEEKED_NONE) {
-      p = doPeek();
-    }
+    int p = peekInternal();
     if (p == PEEKED_END_ARRAY) {
       stackSize--;
       pathIndices[stackSize - 1]++;
       peeked = PEEKED_NONE;
     } else {
-      throw new IllegalStateException("Expected END_ARRAY but was " + peek() + locationString());
+      throw throwUnexpectedTokenError(JsonToken.END_ARRAY, p);
     }
   }
 
@@ -373,15 +917,12 @@ public class JsonReader implements Closeable {
    * beginning of a new object.
    */
   public void beginObject() throws IOException {
-    int p = peeked;
-    if (p == PEEKED_NONE) {
-      p = doPeek();
-    }
+    int p = peekInternal();
     if (p == PEEKED_BEGIN_OBJECT) {
       push(JsonScope.EMPTY_OBJECT);
       peeked = PEEKED_NONE;
     } else {
-      throw new IllegalStateException("Expected BEGIN_OBJECT but was " + peek() + locationString());
+      throw throwUnexpectedTokenError(JsonToken.BEGIN_OBJECT, p);
     }
   }
 
@@ -390,40 +931,34 @@ public class JsonReader implements Closeable {
    * end of the current object.
    */
   public void endObject() throws IOException {
-    int p = peeked;
-    if (p == PEEKED_NONE) {
-      p = doPeek();
-    }
+    int p = peekInternal();
     if (p == PEEKED_END_OBJECT) {
       stackSize--;
       pathNames[stackSize] = null; // Free the last path name so that it can be garbage collected!
       pathIndices[stackSize - 1]++;
       peeked = PEEKED_NONE;
     } else {
-      throw new IllegalStateException("Expected END_OBJECT but was " + peek() + locationString());
+      throw throwUnexpectedTokenError(JsonToken.END_OBJECT, p);
     }
   }
 
   /**
    * Returns true if the current array or object has another element.
+   *
+   * @throws IllegalStateException if a reader created using {@link #nextStringReader()}
+   *     or {@link #nextNameReader()} has not consumed all data yet
    */
   public boolean hasNext() throws IOException {
-    int p = peeked;
-    if (p == PEEKED_NONE) {
-      p = doPeek();
+    int p = peekInternal();
+
+    if (p == PEEKED_STRING_READER) {
+      throw throwActiveValueReaderError();
     }
+
     return p != PEEKED_END_OBJECT && p != PEEKED_END_ARRAY;
   }
 
-  /**
-   * Returns the type of the next token without consuming it.
-   */
-  public JsonToken peek() throws IOException {
-    int p = peeked;
-    if (p == PEEKED_NONE) {
-      p = doPeek();
-    }
-
+  private static JsonToken peekedToToken(int p) {
     switch (p) {
     case PEEKED_BEGIN_OBJECT:
       return JsonToken.BEGIN_OBJECT;
@@ -452,9 +987,31 @@ public class JsonReader implements Closeable {
       return JsonToken.NUMBER;
     case PEEKED_EOF:
       return JsonToken.END_DOCUMENT;
+    case PEEKED_STRING_READER:
+      throw throwActiveValueReaderError();
     default:
       throw new AssertionError();
     }
+  }
+
+  /**
+   * Returns the type of the next token without consuming it.
+   *
+   * @throws IllegalStateException if a reader created using {@link #nextStringReader()}
+   *     or {@link #nextNameReader()} has not consumed all data yet
+   */
+  public JsonToken peek() throws IOException {
+    int p = peekInternal();
+    return peekedToToken(p);
+  }
+
+  private int peekInternal() throws IOException {
+    int p = peeked;
+    if (p == PEEKED_NONE) {
+      p = doPeek();
+    }
+
+    return p;
   }
 
   int doPeek() throws IOException {
@@ -769,14 +1326,13 @@ public class JsonReader implements Closeable {
    * Returns the next token, a {@link com.google.gson.stream.JsonToken#NAME property name}, and
    * consumes it.
    *
-   * @throws java.io.IOException if the next token in the stream is not a property
+   * <p>When reading large property names {@link #nextNameReader()} should be preferred.
+   *
+   * @throws IllegalStateException if the next token in the stream is not a property
    *     name.
    */
   public String nextName() throws IOException {
-    int p = peeked;
-    if (p == PEEKED_NONE) {
-      p = doPeek();
-    }
+    int p = peekInternal();
     String result;
     if (p == PEEKED_UNQUOTED_NAME) {
       result = nextUnquotedValue();
@@ -785,7 +1341,7 @@ public class JsonReader implements Closeable {
     } else if (p == PEEKED_DOUBLE_QUOTED_NAME) {
       result = nextQuotedValue('"');
     } else {
-      throw new IllegalStateException("Expected a name but was " + peek() + locationString());
+      throw throwUnexpectedTokenError(JsonToken.NAME, p);
     }
     peeked = PEEKED_NONE;
     pathNames[stackSize - 1] = result;
@@ -793,18 +1349,51 @@ public class JsonReader implements Closeable {
   }
 
   /**
+   * Returns a reader for the next token, a {@link JsonToken#NAME property name}.
+   *
+   * <p>The complete data of the returned reader has to be consumed (for example using
+   * {@link StringValueReader#skipRemaining()}) and the reader has to be closed before
+   * a subsequent token can be processed. Failing to do so can render this
+   * {@code JsonReader} unusable.<br>
+   * Closing this {@code JsonReader} and attempting to read from a name reader afterwards
+   * causes unspecified behavior.
+   *
+   * <p>For efficiency reasons implementations might record the string {@code "#streamedName"}
+   * as name returned by {@link #getPath()} instead of the actually read name.
+   *
+   * @return reader for the next property name token
+   * @throws IllegalStateException if the next token is not a property name
+   * @throws IOException if creating the reader fails
+   */
+  public StringValueReader nextNameReader() throws IOException {
+    int p = peekInternal();
+    StringValueReader r;
+
+    if (p == PEEKED_UNQUOTED_NAME) {
+      r = new StringValueReaderImpl(true);
+    } else if (p == PEEKED_SINGLE_QUOTED_NAME) {
+      r = new StringValueReaderImpl(true, '\'');
+    } else if (p == PEEKED_DOUBLE_QUOTED_NAME) {
+      r = new StringValueReaderImpl(true, '"');
+    } else {
+      throw throwUnexpectedTokenError(JsonToken.NAME, p);
+    }
+    peeked = PEEKED_STRING_READER;
+    return r;
+  }
+
+  /**
    * Returns the {@link com.google.gson.stream.JsonToken#STRING string} value of the next token,
    * consuming it. If the next token is a number, this method will return its
    * string form.
+   *
+   * <p>When reading large strings {@link #nextStringReader()} should be preferred.
    *
    * @throws IllegalStateException if the next token is not a string or if
    *     this reader is closed.
    */
   public String nextString() throws IOException {
-    int p = peeked;
-    if (p == PEEKED_NONE) {
-      p = doPeek();
-    }
+    int p = peekInternal();
     String result;
     if (p == PEEKED_UNQUOTED) {
       result = nextUnquotedValue();
@@ -821,11 +1410,56 @@ public class JsonReader implements Closeable {
       result = new String(buffer, pos, peekedNumberLength);
       pos += peekedNumberLength;
     } else {
-      throw new IllegalStateException("Expected a string but was " + peek() + locationString());
+      throw throwUnexpectedTokenError(JsonToken.STRING, p);
     }
     peeked = PEEKED_NONE;
     pathIndices[stackSize - 1]++;
     return result;
+  }
+
+  /**
+   * Returns a reader for the {@link JsonToken#STRING string} value of the next token. If the
+   * next token is a number, this method will return a reader reading its string form.
+   *
+   * <p>The complete data of the returned reader has to be consumed (for example using
+   * {@link StringValueReader#skipRemaining()}) and the reader has to be closed before
+   * a subsequent token can be processed. Failing to do so can render this
+   * {@code JsonReader} unusable.<br>
+   * Closing this {@code JsonReader} and attempting to read from a string reader afterwards
+   * causes unspecified behavior.
+   *
+   * @return reader for the next token
+   * @throws IllegalStateException if the next token cannot be read as string
+   * @throws IOException if creating the reader fails
+   */
+  public StringValueReader nextStringReader() throws IOException {
+    int p = peekInternal();
+    StringValueReader reader;
+
+    if (p == PEEKED_UNQUOTED) {
+      reader = new StringValueReaderImpl(false);
+    } else if (p == PEEKED_SINGLE_QUOTED) {
+      reader = new StringValueReaderImpl(false, '\'');
+    } else if (p == PEEKED_DOUBLE_QUOTED) {
+      reader = new StringValueReaderImpl(false, '"');
+    } else if (p == PEEKED_BUFFERED) {
+      reader = new StringValueReaderStringImpl(peekedString, false);
+      peekedString = null;
+    }
+    // For consistency with nextString() read parsed numbers, however there is no performance benefit
+    else if (p == PEEKED_LONG) {
+      reader = new StringValueReaderStringImpl(Long.toString(peekedLong), false);
+    } else if (p == PEEKED_NUMBER) {
+      // Note: If necessary could be made more efficient in the future by creating reader
+      // which directly reads from buffer instead of creating intermediate String
+      reader = new StringValueReaderStringImpl(new String(buffer, pos, peekedNumberLength), false);
+      pos += peekedNumberLength;
+    } else {
+      throw throwUnexpectedTokenError(JsonToken.STRING, p);
+    }
+
+    peeked = PEEKED_STRING_READER;
+    return reader;
   }
 
   /**
@@ -836,10 +1470,7 @@ public class JsonReader implements Closeable {
    *     this reader is closed.
    */
   public boolean nextBoolean() throws IOException {
-    int p = peeked;
-    if (p == PEEKED_NONE) {
-      p = doPeek();
-    }
+    int p = peekInternal();
     if (p == PEEKED_TRUE) {
       peeked = PEEKED_NONE;
       pathIndices[stackSize - 1]++;
@@ -849,7 +1480,7 @@ public class JsonReader implements Closeable {
       pathIndices[stackSize - 1]++;
       return false;
     }
-    throw new IllegalStateException("Expected a boolean but was " + peek() + locationString());
+    throw throwUnexpectedTokenError(JsonToken.BOOLEAN, p);
   }
 
   /**
@@ -860,15 +1491,12 @@ public class JsonReader implements Closeable {
    *     reader is closed.
    */
   public void nextNull() throws IOException {
-    int p = peeked;
-    if (p == PEEKED_NONE) {
-      p = doPeek();
-    }
+    int p = peekInternal();
     if (p == PEEKED_NULL) {
       peeked = PEEKED_NONE;
       pathIndices[stackSize - 1]++;
     } else {
-      throw new IllegalStateException("Expected null but was " + peek() + locationString());
+      throw throwUnexpectedTokenError(JsonToken.NULL, p);
     }
   }
 
@@ -882,10 +1510,7 @@ public class JsonReader implements Closeable {
    *     as a double, or is non-finite.
    */
   public double nextDouble() throws IOException {
-    int p = peeked;
-    if (p == PEEKED_NONE) {
-      p = doPeek();
-    }
+    int p = peekInternal();
 
     if (p == PEEKED_LONG) {
       peeked = PEEKED_NONE;
@@ -901,7 +1526,7 @@ public class JsonReader implements Closeable {
     } else if (p == PEEKED_UNQUOTED) {
       peekedString = nextUnquotedValue();
     } else if (p != PEEKED_BUFFERED) {
-      throw new IllegalStateException("Expected a double but was " + peek() + locationString());
+      throw throwUnexpectedTokenError("double", p);
     }
 
     peeked = PEEKED_BUFFERED;
@@ -927,10 +1552,7 @@ public class JsonReader implements Closeable {
    *     as a number, or exactly represented as a long.
    */
   public long nextLong() throws IOException {
-    int p = peeked;
-    if (p == PEEKED_NONE) {
-      p = doPeek();
-    }
+    int p = peekInternal();
 
     if (p == PEEKED_LONG) {
       peeked = PEEKED_NONE;
@@ -956,7 +1578,7 @@ public class JsonReader implements Closeable {
         // Fall back to parse as a double below.
       }
     } else {
-      throw new IllegalStateException("Expected a long but was " + peek() + locationString());
+      throw throwUnexpectedTokenError("long", p);
     }
 
     peeked = PEEKED_BUFFERED;
@@ -972,6 +1594,74 @@ public class JsonReader implements Closeable {
   }
 
   /**
+   * See {@link #nextQuotedValue(char)}
+   *
+   * @param charsConsumer consuming the chars of the value
+   * @param minDesiredAccept desired minimum number of chars which should be passed to the
+   *   charsConsumer; might read less chars if end of value is reached before;
+   *   <b>must be &gt;= 1</b>
+   * @param maxAccept maximum number of chars which should be passed to the charsConsumer;
+   *     <b>must be &gt;= 1</b>
+   * @return whether the end of the value has been reached
+   */
+  private boolean nextQuotedValue(char quote, CharsConsumer charsConsumer, int minDesiredAccept, int maxAccept) throws IOException {
+    char[] buffer = this.buffer;
+    int acceptedCnt = 0;
+
+    while (true) {
+      int p = pos;
+      int l = limit;
+      /* the index of the first character not yet consumed by the charsConsumer */
+      int start = p;
+      while (p < l) {
+        int c = buffer[p++];
+
+        if (c == quote) {
+          pos = p;
+          int len = p - start - 1;
+          charsConsumer.acceptAndFinish(buffer, start, len);
+          return true;
+        }
+
+        if (c == '\n') {
+          lineNumber++;
+          lineStart = p;
+        } else {
+          if (c == '\\') {
+            pos = p;
+            int len = p - start - 1;
+            charsConsumer.accept(buffer, start, len);
+            // Reading escape sequence might block so only try to read it
+            // if not consumed enough chars yet or if escape sequence can
+            // be read without blocking
+            if (acceptedCnt >= minDesiredAccept && !fillBufferForEscapeCharacter()) {
+              pos--; // Don't consume backslash
+              return false;
+            }
+            charsConsumer.accept(readEscapeCharacter());
+            p = pos;
+            l = limit;
+            start = p;
+          }
+        }
+
+        if (++acceptedCnt >= maxAccept) {
+          break;
+        }
+      }
+
+      charsConsumer.accept(buffer, start, p - start);
+      pos = p;
+
+      if (acceptedCnt >= maxAccept || (acceptedCnt >= minDesiredAccept && !in.ready())) {
+        return false;
+      } else if (!fillBuffer(1)) {
+        throw syntaxError("Unterminated string");
+      }
+    }
+  }
+
+  /**
    * Returns the string up to but not including {@code quote}, unescaping any
    * character escape sequences encountered along the way. The opening quote
    * should have already been read. This consumes the closing quote, but does
@@ -982,63 +1672,32 @@ public class JsonReader implements Closeable {
    *     malformed.
    */
   private String nextQuotedValue(char quote) throws IOException {
-    // Like nextNonWhitespace, this uses locals 'p' and 'l' to save inner-loop field access.
-    char[] buffer = this.buffer;
-    StringBuilder builder = null;
-    while (true) {
-      int p = pos;
-      int l = limit;
-      /* the index of the first character not yet appended to the builder. */
-      int start = p;
-      while (p < l) {
-        int c = buffer[p++];
-
-        if (c == quote) {
-          pos = p;
-          int len = p - start - 1;
-          if (builder == null) {
-            return new String(buffer, start, len);
-          } else {
-            builder.append(buffer, start, len);
-            return builder.toString();
-          }
-        } else if (c == '\\') {
-          pos = p;
-          int len = p - start - 1;
-          if (builder == null) {
-            int estimatedLength = (len + 1) * 2;
-            builder = new StringBuilder(Math.max(estimatedLength, 16));
-          }
-          builder.append(buffer, start, len);
-          builder.append(readEscapeCharacter());
-          p = pos;
-          l = limit;
-          start = p;
-        } else if (c == '\n') {
-          lineNumber++;
-          lineStart = p;
-        }
-      }
-
-      if (builder == null) {
-        int estimatedLength = (p - start) * 2;
-        builder = new StringBuilder(Math.max(estimatedLength, 16));
-      }
-      builder.append(buffer, start, p - start);
-      pos = p;
-      if (!fillBuffer(1)) {
-        throw syntaxError("Unterminated string");
-      }
+    StringBuildingCharsConsumer charsConsumer = new StringBuildingCharsConsumer();
+    boolean reachedEnd = nextQuotedValue(quote, charsConsumer, Integer.MAX_VALUE, Integer.MAX_VALUE);
+    if (!reachedEnd) {
+      // Currently unreachable because StringBuilder would have thrown exception, however
+      // that is an implementation detail
+      throw syntaxError("String values > " + Integer.MAX_VALUE + " are not supported");
     }
+    return charsConsumer.build();
   }
 
   /**
-   * Returns an unquoted value as a string.
+   * See {@link #nextUnquotedValue()}
+   *
+   * @param charsConsumer consuming the chars of the value
+   * @param minDesiredAccept desired minimum number of chars which should be passed to the
+   *   charsConsumer; might read less chars if end of value is reached before;
+   *   <b>must be &gt;= 1</b>
+   * @param maxAccept maximum number of chars which should be passed to the charsConsumer;
+   *     <b>must be &gt;= 1</b>
+   * @return whether the end of the value has been reached
    */
   @SuppressWarnings("fallthrough")
-  private String nextUnquotedValue() throws IOException {
-    StringBuilder builder = null;
+  private boolean nextUnquotedValue(CharsConsumer charsConsumer, int minDesiredAccept, int maxAccept) throws IOException {
+    int acceptedCnt = 0;
     int i = 0;
+    boolean foundEnd = false;
 
     findNonLiteralCharacter:
     while (true) {
@@ -1061,56 +1720,85 @@ public class JsonReader implements Closeable {
         case '\f':
         case '\r':
         case '\n':
+          foundEnd = true;
+          break findNonLiteralCharacter;
+        }
+
+        if ((++acceptedCnt) >= maxAccept) {
+          i++; // Current char should be consumed
           break findNonLiteralCharacter;
         }
       }
 
-      // Attempt to load the entire literal into the buffer at once.
-      if (i < buffer.length) {
-        if (fillBuffer(i + 1)) {
-          continue;
-        } else {
-          break;
-        }
-      }
-
-      // use a StringBuilder when the value is too long. This is too long to be a number!
-      if (builder == null) {
-        builder = new StringBuilder(Math.max(i,16));
-      }
-      builder.append(buffer, pos, i);
+      charsConsumer.accept(buffer, pos, i);
       pos += i;
       i = 0;
-      if (!fillBuffer(1)) {
+      if (acceptedCnt >= minDesiredAccept && !in.ready()) {
+        foundEnd = false;
+        break;
+      } else if (!fillBuffer(1)) {
+        foundEnd = true;
         break;
       }
     }
-   
-    String result = (null == builder) ? new String(buffer, pos, i) : builder.append(buffer, pos, i).toString();
+
+    charsConsumer.acceptAndFinish(buffer, pos, i);
     pos += i;
-    return result;
+    return foundEnd;
   }
 
-  private void skipQuotedValue(char quote) throws IOException {
+  /**
+   * Returns an unquoted value as a string.
+   */
+  private String nextUnquotedValue() throws IOException {
+    StringBuildingCharsConsumer charsConsumer = new StringBuildingCharsConsumer();
+    boolean reachedEnd = nextUnquotedValue(charsConsumer, Integer.MAX_VALUE, Integer.MAX_VALUE);
+    if (!reachedEnd) {
+      // Currently unreachable because StringBuilder would have thrown exception, however
+      // that is an implementation detail
+      throw syntaxError("String values > " + Integer.MAX_VALUE + " are not supported");
+    }
+    return charsConsumer.build();
+  }
+
+  /**
+   * See {@link #skipQuotedValue(char)}
+   *
+   * @param desiredSkipAmount desired number of chars to be skipped;
+   *   might skip less chars if end of value is reached before;
+   *   <b>must be &gt;= 1</b>
+   * @return actual number of skipped chars; negative or 0 if end of value has been reached.
+   *     E.g. {@code -4} means 4 chars were skipped and end has been reached.
+   */
+  private long skipQuotedValue(char quote, long desiredSkipAmount) throws IOException {
+    long skipped = 0;
     // Like nextNonWhitespace, this uses locals 'p' and 'l' to save inner-loop field access.
     char[] buffer = this.buffer;
     do {
       int p = pos;
       int l = limit;
-      /* the index of the first character not yet appended to the builder. */
       while (p < l) {
         int c = buffer[p++];
         if (c == quote) {
           pos = p;
-          return;
-        } else if (c == '\\') {
-          pos = p;
-          readEscapeCharacter();
-          p = pos;
-          l = limit;
-        } else if (c == '\n') {
+          return -skipped;  // Negate skipped to indicate that end has been reached
+        }
+
+        if (c == '\n') {
           lineNumber++;
           lineStart = p;
+        } else {
+          if (c == '\\') {
+            pos = p;
+            readEscapeCharacter();
+            p = pos;
+            l = limit;
+          }
+
+          if (++skipped >= desiredSkipAmount) {
+            pos = p;
+            return skipped;
+          }
         }
       }
       pos = p;
@@ -1118,7 +1806,25 @@ public class JsonReader implements Closeable {
     throw syntaxError("Unterminated string");
   }
 
-  private void skipUnquotedValue() throws IOException {
+  private void skipQuotedValue(char quote) throws IOException {
+    // Call in loop in case value is > Long.MAX_VALUE (rather unlikely)
+    while (skipQuotedValue(quote, Long.MAX_VALUE) > 0) { }
+  }
+
+  /**
+   * See {@link #skipUnquotedValue()}
+   *
+   * @param desiredSkipAmount desired number of chars to be skipped;
+   *   might skip less chars if end of value is reached before;
+   *   <b>must be &gt;= 1</b>
+   * @return actual number of skipped chars; negative or 0 if end of value has been reached.
+   *     E.g. {@code -4} means 4 chars were skipped and end has been reached.
+   */
+  @SuppressWarnings("fallthrough")
+  private long skipUnquotedValue(long desiredSkipAmount) throws IOException {
+    long skipped = 0;
+
+    findNonLiteralCharacter:
     do {
       int i = 0;
       for (; pos + i < limit; i++) {
@@ -1141,11 +1847,23 @@ public class JsonReader implements Closeable {
         case '\r':
         case '\n':
           pos += i;
-          return;
+          break findNonLiteralCharacter;
+        }
+
+        if ((++skipped) >= desiredSkipAmount) {
+          pos += i + 1; // + 1 to skip current char as well
+          return skipped;
         }
       }
       pos += i;
     } while (fillBuffer(1));
+
+    return -skipped; // Negate skipped to indicate that end has been reached
+  }
+
+  private void skipUnquotedValue() throws IOException {
+    // Call in loop in case value is > Long.MAX_VALUE (rather unlikely)
+    while (skipUnquotedValue(Long.MAX_VALUE) > 0) { }
   }
 
   /**
@@ -1159,10 +1877,7 @@ public class JsonReader implements Closeable {
    *     as a number, or exactly represented as an int.
    */
   public int nextInt() throws IOException {
-    int p = peeked;
-    if (p == PEEKED_NONE) {
-      p = doPeek();
-    }
+    int p = peekInternal();
 
     int result;
     if (p == PEEKED_LONG) {
@@ -1193,7 +1908,7 @@ public class JsonReader implements Closeable {
         // Fall back to parse as a double below.
       }
     } else {
-      throw new IllegalStateException("Expected an int but was " + peek() + locationString());
+      throw throwUnexpectedTokenError("int", p);
     }
 
     peeked = PEEKED_BUFFERED;
@@ -1222,14 +1937,23 @@ public class JsonReader implements Closeable {
    * Skips the next value recursively. If it is an object or array, all nested
    * elements are skipped. This method is intended for use when the JSON token
    * stream contains unrecognized or unhandled values.
+   *
+   * <p>If used to skip a {@link com.google.gson.stream.JsonToken#NAME property name}
+   * the string {@code "#skippedName"} is recorded as name returned by
+   * {@link #getPath()} instead of the actually skipped name.
+   *
+   * @throws IllegalStateException if a reader created using {@link #nextStringReader()}
+   *     or {@link #nextNameReader()} has not consumed all data yet
    */
   public void skipValue() throws IOException {
+    if (peekInternal() == PEEKED_STRING_READER) {
+      throw throwActiveValueReaderError();
+    }
+
     int count = 0;
+    int p;
     do {
-      int p = peeked;
-      if (p == PEEKED_NONE) {
-        p = doPeek();
-      }
+      p = peekInternal();
 
       if (p == PEEKED_BEGIN_ARRAY) {
         push(JsonScope.EMPTY_ARRAY);
@@ -1243,7 +1967,7 @@ public class JsonReader implements Closeable {
       } else if (p == PEEKED_END_OBJECT) {
         stackSize--;
         count--;
-      } else if (p == PEEKED_UNQUOTED_NAME || p == PEEKED_UNQUOTED) {
+      } else if (p == PEEKED_UNQUOTED || p == PEEKED_UNQUOTED_NAME) {
         skipUnquotedValue();
       } else if (p == PEEKED_SINGLE_QUOTED || p == PEEKED_SINGLE_QUOTED_NAME) {
         skipQuotedValue('\'');
@@ -1252,11 +1976,17 @@ public class JsonReader implements Closeable {
       } else if (p == PEEKED_NUMBER) {
         pos += peekedNumberLength;
       }
+
       peeked = PEEKED_NONE;
     } while (count != 0);
 
-    pathIndices[stackSize - 1]++;
-    pathNames[stackSize - 1] = "null";
+    // Only update pathNames when last peeked was name
+    // That means don't replace name when JSON property value is skipped
+    if (p == PEEKED_UNQUOTED_NAME || p == PEEKED_SINGLE_QUOTED_NAME || p == PEEKED_DOUBLE_QUOTED_NAME) {
+      pathNames[stackSize - 1] = SKIPPED_NAME;
+    } else {
+      pathIndices[stackSize - 1]++;
+    }
   }
 
   private void push(int newTop) {
@@ -1486,6 +2216,38 @@ public class JsonReader implements Closeable {
   }
 
   /**
+   * Tries to fill the buffer for a '\' escape sequence without blocking.
+   * The backslash '\' of the escape sequence should be at {@link #pos} -1.
+   *
+   * @return {@code true} if the buffer could be filled and now contains the
+   *   complete escape sequence; {@code false} if the buffer could not be
+   *   filled because the method might have to block for input
+   * @see {@link #readEscapeCharacter()}
+   */
+  private boolean fillBufferForEscapeCharacter() throws IOException {
+    if (pos == limit) {
+      if (!in.ready()) {
+        return false;
+      } else if (!fillBuffer(1)) {
+        throw syntaxError("Unterminated escape sequence");
+      }
+    }
+
+    // For unicode escapes have to read all 4 hex digits
+    if (buffer[pos] == 'u') {
+      while (limit - pos < 5) { // 5 for uXXXX
+        if (!in.ready()) {
+          return false;
+        } else if (!fillBuffer(1)) {
+          throw syntaxError("Unterminated escape sequence");
+        }
+      }
+    }
+
+    return true;
+  }
+
+  /**
    * Unescapes the character identified by the character or characters that
    * immediately follow a backslash. The backslash '\' should have already
    * been read. This supports both unicode escapes "u000A" and two-character
@@ -1546,11 +2308,11 @@ public class JsonReader implements Closeable {
     case '\'':
     case '"':
     case '\\':
-    case '/':	
-    	return escaped;
+    case '/':
+      return escaped;
     default:
-    	// throw error when none of the above cases are matched
-    	throw syntaxError("Invalid escape sequence");
+      // throw error when none of the above cases are matched
+      throw syntaxError("Invalid escape sequence");
     }
   }
 
@@ -1560,6 +2322,39 @@ public class JsonReader implements Closeable {
    */
   private IOException syntaxError(String message) throws IOException {
     throw new MalformedJsonException(message + locationString());
+  }
+
+  /**
+   * Throws a new {@code IllegalStateException} indicating that a {@code Reader}
+   * created by {@link #nextStringReader()} or {@link #nextNameReader()} is currently
+   * consuming the input.
+   *
+   * @throws IllegalStateException <i>always</i>
+   */
+  private static IllegalStateException throwActiveValueReaderError() throws IllegalStateException {
+    throw new IllegalStateException("Name or string reader has not been closed or did not consume "
+        + "all data before it was closed");
+  }
+
+  private IllegalStateException throwUnexpectedTokenError(JsonToken expected, int peeked) throws IllegalStateException {
+    throw throwUnexpectedTokenError(expected.name(), peeked);
+  }
+
+  /**
+   * Throws a new {@code IllegalStateException} indicating that the peeked
+   * type is unexpected.
+   *
+   * @param expected expected type name
+   * @param peeked peeked type
+   * @throws IllegalStateException <i>always</i>
+   */
+  private IllegalStateException throwUnexpectedTokenError(String expected, int peeked) throws IllegalStateException {
+    if (peeked == PEEKED_STRING_READER) {
+      throw throwActiveValueReaderError();
+    } else {
+      JsonToken actual = peekedToToken(peeked);
+      throw new IllegalStateException("Expected " + expected + " but was " + actual + locationString());
+    }
   }
 
   /**
@@ -1591,10 +2386,7 @@ public class JsonReader implements Closeable {
           ((JsonTreeReader)reader).promoteNameToValue();
           return;
         }
-        int p = reader.peeked;
-        if (p == PEEKED_NONE) {
-          p = reader.doPeek();
-        }
+        int p = reader.peekInternal();
         if (p == PEEKED_DOUBLE_QUOTED_NAME) {
           reader.peeked = PEEKED_DOUBLE_QUOTED;
         } else if (p == PEEKED_SINGLE_QUOTED_NAME) {
@@ -1602,8 +2394,7 @@ public class JsonReader implements Closeable {
         } else if (p == PEEKED_UNQUOTED_NAME) {
           reader.peeked = PEEKED_UNQUOTED;
         } else {
-          throw new IllegalStateException(
-              "Expected a name but was " + reader.peek() + reader.locationString());
+          throw reader.throwUnexpectedTokenError(JsonToken.NAME, p);
         }
       }
     };
