@@ -40,6 +40,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerArray;
+import java.util.IllegalFormatException;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -352,7 +353,15 @@ public final class TypeAdapters {
       }
       String str = in.nextString();
       if (str.length() != 1) {
-        throw new JsonSyntaxException("Expecting character, got: " + str);
+        // maybe the input string is a number representing a char (like 102 for 'f')
+        try {
+          // so try returning a Character from its value, 
+          // first make in a real int, because JsonReader.nextString() returns String
+          return Character.valueOf((char) Integer.parseInt(str)); 
+        } catch (IllegalFormatException ex) {
+          // or ... my bad ...
+          throw new JsonSyntaxException("Expecting character, got: " + str);
+        }
       }
       return str.charAt(0);
     }
