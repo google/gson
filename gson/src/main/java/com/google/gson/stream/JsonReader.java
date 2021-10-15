@@ -228,6 +228,9 @@ public class JsonReader implements Closeable {
   /** True to accept non-spec compliant JSON */
   private boolean lenient = false;
 
+  /** True to mark reader at the end of JSON if supported */
+  private boolean markAtEnd = false;
+
   /**
    * Use a manual buffer to easily read and unread upcoming characters, and
    * also so we can create strings without an intermediate StringBuilder.
@@ -237,6 +240,7 @@ public class JsonReader implements Closeable {
   private final char[] buffer = new char[1024];
   private int pos = 0;
   private int limit = 0;
+  private int lastMark = 0;
 
   private int lineNumber = 0;
   private int lineStart = 0;
@@ -293,6 +297,15 @@ public class JsonReader implements Closeable {
   }
 
   /**
+   * Returns current position of reader, this can be used to stop
+   * reading data at any point and be able to find how much data was
+   * already parsed.
+   */
+  public int getCurrentPosition() {
+    return lastMark + pos;
+  }
+
+  /**
    * Configure this parser to be liberal in what it accepts. By default,
    * this parser is strict and only accepts JSON as specified by <a
    * href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>. Setting the
@@ -333,6 +346,37 @@ public class JsonReader implements Closeable {
   }
 
   /**
+   * Configure this parser to try to put a mark at the end of JSON
+   * data, works only if reader support marking. Additional marks
+   * might be created while parsing.
+   *
+   * @see Reader#markSupported()
+   * @see Reader#mark(int)
+   */
+  public final void setMarkAtEnd(boolean markAtEnd) {
+    this.markAtEnd = markAtEnd;
+  }
+
+  /**
+   * Returns true if this parser should try to mark at the end of JSON
+   */
+  public final boolean isMarkAtEnd() {
+    return markAtEnd;
+  }
+
+  private void tryToMarkEnd() throws IOException {
+    if ((stackSize == 1) && shouldMarkAtEnd()) {
+      in.reset();
+      in.skip(pos);
+      in.mark(0);
+    }
+  }
+
+  private boolean shouldMarkAtEnd() {
+    return markAtEnd && in.markSupported();
+  }
+
+  /**
    * Consumes the next token from the JSON stream and asserts that it is the
    * beginning of a new array.
    */
@@ -363,6 +407,7 @@ public class JsonReader implements Closeable {
       stackSize--;
       pathIndices[stackSize - 1]++;
       peeked = PEEKED_NONE;
+      tryToMarkEnd();
     } else {
       throw new IllegalStateException("Expected END_ARRAY but was " + peek() + locationString());
     }
@@ -399,6 +444,7 @@ public class JsonReader implements Closeable {
       pathNames[stackSize] = null; // Free the last path name so that it can be garbage collected!
       pathIndices[stackSize - 1]++;
       peeked = PEEKED_NONE;
+      tryToMarkEnd();
     } else {
       throw new IllegalStateException("Expected END_OBJECT but was " + peek() + locationString());
     }
@@ -825,6 +871,7 @@ public class JsonReader implements Closeable {
     }
     peeked = PEEKED_NONE;
     pathIndices[stackSize - 1]++;
+    tryToMarkEnd();
     return result;
   }
 
@@ -843,10 +890,12 @@ public class JsonReader implements Closeable {
     if (p == PEEKED_TRUE) {
       peeked = PEEKED_NONE;
       pathIndices[stackSize - 1]++;
+      tryToMarkEnd();
       return true;
     } else if (p == PEEKED_FALSE) {
       peeked = PEEKED_NONE;
       pathIndices[stackSize - 1]++;
+      tryToMarkEnd();
       return false;
     }
     throw new IllegalStateException("Expected a boolean but was " + peek() + locationString());
@@ -867,6 +916,7 @@ public class JsonReader implements Closeable {
     if (p == PEEKED_NULL) {
       peeked = PEEKED_NONE;
       pathIndices[stackSize - 1]++;
+      tryToMarkEnd();
     } else {
       throw new IllegalStateException("Expected null but was " + peek() + locationString());
     }
@@ -890,6 +940,7 @@ public class JsonReader implements Closeable {
     if (p == PEEKED_LONG) {
       peeked = PEEKED_NONE;
       pathIndices[stackSize - 1]++;
+      tryToMarkEnd();
       return (double) peekedLong;
     }
 
@@ -913,6 +964,7 @@ public class JsonReader implements Closeable {
     peekedString = null;
     peeked = PEEKED_NONE;
     pathIndices[stackSize - 1]++;
+    tryToMarkEnd();
     return result;
   }
 
@@ -935,6 +987,7 @@ public class JsonReader implements Closeable {
     if (p == PEEKED_LONG) {
       peeked = PEEKED_NONE;
       pathIndices[stackSize - 1]++;
+      tryToMarkEnd();
       return peekedLong;
     }
 
@@ -951,6 +1004,7 @@ public class JsonReader implements Closeable {
         long result = Long.parseLong(peekedString);
         peeked = PEEKED_NONE;
         pathIndices[stackSize - 1]++;
+        tryToMarkEnd();
         return result;
       } catch (NumberFormatException ignored) {
         // Fall back to parse as a double below.
@@ -968,6 +1022,7 @@ public class JsonReader implements Closeable {
     peekedString = null;
     peeked = PEEKED_NONE;
     pathIndices[stackSize - 1]++;
+    tryToMarkEnd();
     return result;
   }
 
@@ -1085,7 +1140,7 @@ public class JsonReader implements Closeable {
         break;
       }
     }
-   
+
     String result = (null == builder) ? new String(buffer, pos, i) : builder.append(buffer, pos, i).toString();
     pos += i;
     return result;
@@ -1171,6 +1226,7 @@ public class JsonReader implements Closeable {
         throw new NumberFormatException("Expected an int but was " + peekedLong + locationString());
       }
       peeked = PEEKED_NONE;
+      tryToMarkEnd();
       pathIndices[stackSize - 1]++;
       return result;
     }
@@ -1187,6 +1243,7 @@ public class JsonReader implements Closeable {
       try {
         result = Integer.parseInt(peekedString);
         peeked = PEEKED_NONE;
+        tryToMarkEnd();
         pathIndices[stackSize - 1]++;
         return result;
       } catch (NumberFormatException ignored) {
@@ -1204,6 +1261,7 @@ public class JsonReader implements Closeable {
     }
     peekedString = null;
     peeked = PEEKED_NONE;
+    tryToMarkEnd();
     pathIndices[stackSize - 1]++;
     return result;
   }
@@ -1257,6 +1315,7 @@ public class JsonReader implements Closeable {
 
     pathIndices[stackSize - 1]++;
     pathNames[stackSize - 1] = "null";
+    tryToMarkEnd();
   }
 
   private void push(int newTop) {
@@ -1275,6 +1334,14 @@ public class JsonReader implements Closeable {
    * false.
    */
   private boolean fillBuffer(int minimum) throws IOException {
+    if (shouldMarkAtEnd()) {
+      if (pos == limit) {
+        lastMark += pos;
+      } else {
+        lastMark = pos;
+      }
+      in.mark(buffer.length);
+    }
     char[] buffer = this.buffer;
     lineStart -= pos;
     if (limit != pos) {
@@ -1546,7 +1613,7 @@ public class JsonReader implements Closeable {
     case '\'':
     case '"':
     case '\\':
-    case '/':	
+    case '/':
     	return escaped;
     default:
     	// throw error when none of the above cases are matched
