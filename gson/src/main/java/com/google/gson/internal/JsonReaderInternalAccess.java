@@ -29,4 +29,35 @@ public abstract class JsonReaderInternalAccess {
    * Changes the type of the current property name token to a string value.
    */
   public abstract void promoteNameToValue(JsonReader reader) throws IOException;
+
+  /**
+   * Tests whether the string matches the syntax accepted by {@link Long#parseLong(String)},
+   * ignoring whether or not the value fits in the {@code long} value range.
+   */
+  public static boolean matchesLongSyntax(String string) {
+    int position = 0;
+    int end = string.length();
+
+    if (position < end) {
+      char firstChar = string.charAt(position);
+      if (firstChar == '-' || firstChar == '+') {
+        position++;
+      }
+    }
+
+    if (position >= end) {
+      // No digit
+      return false;
+    }
+
+    for (; position < end; position++) {
+      char c = string.charAt(position);
+
+      if (c < '0' || c > '9') {
+        return false;
+      }
+    }
+
+    return true;
+  }
 }

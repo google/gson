@@ -209,8 +209,21 @@ public class JsonReader implements Closeable {
   private static final int PEEKED_UNQUOTED_NAME = 14;
   /** When this is returned, the integer value is stored in peekedLong. */
   private static final int PEEKED_LONG = 15;
-  private static final int PEEKED_NUMBER = 16;
-  private static final int PEEKED_EOF = 17;
+  /**
+   * When this is returned, number had the format accepted by
+   * {@link Long#parseLong(String)} but could not be parsed as {@code long}
+   * because it is too large. For -0 {@link #PEEKED_NUMBER} is used.
+   * <p>The start of the number is at {@link #pos} and it has the
+   * length {@link #peekedNumberLength}.
+   */
+  private static final int PEEKED_INTEGRAL = 16;
+  /**
+   * Neither {@link #PEEKED_LONG} nor {@link #PEEKED_INTEGRAL}.
+   * <p>The start of the number is at {@link #pos} and it has the
+   * length {@link #peekedNumberLength}.
+   */
+  private static final int PEEKED_NUMBER = 17;
+  private static final int PEEKED_EOF = 18;
 
   /* State machine when parsing numbers */
   private static final int NUMBER_CHAR_NONE = 0;
@@ -448,6 +461,7 @@ public class JsonReader implements Closeable {
     case PEEKED_BUFFERED:
       return JsonToken.STRING;
     case PEEKED_LONG:
+    case PEEKED_INTEGRAL:
     case PEEKED_NUMBER:
       return JsonToken.NUMBER;
     case PEEKED_EOF:
@@ -726,15 +740,25 @@ public class JsonReader implements Closeable {
       }
     }
 
-    // We've read a complete number. Decide if it's a PEEKED_LONG or a PEEKED_NUMBER.
-    if (last == NUMBER_CHAR_DIGIT && fitsInLong && (value != Long.MIN_VALUE || negative) && (value!=0 || false==negative)) {
+    // We've read a complete number. Decide if it's a PEEKED_LONG, PEEKED_INTEGRAL or PEEKED_NUMBER.
+    if (last == NUMBER_CHAR_DIGIT && fitsInLong && (value != Long.MIN_VALUE || negative)
+      // Don't lose information about -0, maybe user wants it as double -0.0
+      && !(value == 0 && negative))
+    {
       peekedLong = negative ? value : -value;
       pos += i;
       return peeked = PEEKED_LONG;
     } else if (last == NUMBER_CHAR_DIGIT || last == NUMBER_CHAR_FRACTION_DIGIT
         || last == NUMBER_CHAR_EXP_DIGIT) {
       peekedNumberLength = i;
-      return peeked = PEEKED_NUMBER;
+
+      // Use PEEKED_NUMBER for -0 to allow nextLong to parse it
+      if (last == NUMBER_CHAR_DIGIT && !(fitsInLong && value == 0 && negative)) {
+        peeked = PEEKED_INTEGRAL;
+      } else {
+        peeked = PEEKED_NUMBER;
+      }
+      return peeked;
     } else {
       return PEEKED_NONE;
     }
@@ -817,7 +841,7 @@ public class JsonReader implements Closeable {
       peekedString = null;
     } else if (p == PEEKED_LONG) {
       result = Long.toString(peekedLong);
-    } else if (p == PEEKED_NUMBER) {
+    } else if (p == PEEKED_INTEGRAL || p == PEEKED_NUMBER) {
       result = new String(buffer, pos, peekedNumberLength);
       pos += peekedNumberLength;
     } else {
@@ -893,7 +917,7 @@ public class JsonReader implements Closeable {
       return (double) peekedLong;
     }
 
-    if (p == PEEKED_NUMBER) {
+    if (p == PEEKED_INTEGRAL || p == PEEKED_NUMBER) {
       peekedString = new String(buffer, pos, peekedNumberLength);
       pos += peekedNumberLength;
     } else if (p == PEEKED_SINGLE_QUOTED || p == PEEKED_DOUBLE_QUOTED) {
@@ -919,8 +943,11 @@ public class JsonReader implements Closeable {
   /**
    * Returns the {@link com.google.gson.stream.JsonToken#NUMBER long} value of the next token,
    * consuming it. If the next token is a string, this method will attempt to
-   * parse it as a long. If the next token's numeric value cannot be exactly
-   * represented by a Java {@code long}, this method throws.
+   * parse it as a long. If this is not possible and the token does not match the syntax defined
+   * by {@link Long#parseLong(String)}, it will be parsed as double according to
+   * {@link Double#valueOf(String)} and then converted to a long, unless this conversion causes
+   * precision loss in which case an exception is thrown. This can cause precision loss if the
+   * value cannot be exactly represented as {@code double}.
    *
    * @throws IllegalStateException if the next token is not a literal value.
    * @throws NumberFormatException if the next literal value cannot be parsed
@@ -941,28 +968,47 @@ public class JsonReader implements Closeable {
     if (p == PEEKED_NUMBER) {
       peekedString = new String(buffer, pos, peekedNumberLength);
       pos += peekedNumberLength;
+      peeked = PEEKED_BUFFERED;
     } else if (p == PEEKED_SINGLE_QUOTED || p == PEEKED_DOUBLE_QUOTED || p == PEEKED_UNQUOTED) {
       if (p == PEEKED_UNQUOTED) {
         peekedString = nextUnquotedValue();
       } else {
         peekedString = nextQuotedValue(p == PEEKED_SINGLE_QUOTED ? '\'' : '"');
       }
+      peeked = PEEKED_BUFFERED;
+
       try {
         long result = Long.parseLong(peekedString);
         peeked = PEEKED_NONE;
         pathIndices[stackSize - 1]++;
         return result;
-      } catch (NumberFormatException ignored) {
-        // Fall back to parse as a double below.
+      } catch (NumberFormatException numberFormatException) {
+        /*
+         * If value matches long syntax throw exception, otherwise try parsing as double
+         * Have to check this since large (positive and negative) long values cannot be
+         * precisely represented as double and parsing would otherwise erroneously
+         * successfully parse integral numbers outside of long range
+         * E.g. 9223372036854775808 as double = 9223372036854775807 (7 as last digit)
+         */
+        if (JsonReaderInternalAccess.matchesLongSyntax(peekedString)) {
+          throw numberFormatException;
+        }
       }
+    } else if (p == PEEKED_INTEGRAL) { // value to large for long range
+      throw new NumberFormatException("Expected a long but was " + peekedString + locationString());
     } else {
       throw new IllegalStateException("Expected a long but was " + peek() + locationString());
     }
 
-    peeked = PEEKED_BUFFERED;
     double asDouble = Double.parseDouble(peekedString); // don't catch this NumberFormatException.
     long result = (long) asDouble;
-    if (result != asDouble) { // Make sure no precision was lost casting to 'long'.
+    /*
+     * Make sure no precision was lost casting to 'long'.
+     * Can cause false negatives for values which cannot be precisely represented as double
+     * (e.g. 9223372036854775808e0), but that is acceptable because value uses double syntax
+     * and therefore source of data is likely aware of precision loss
+     */
+    if (result != asDouble) {
       throw new NumberFormatException("Expected a long but was " + peekedString + locationString());
     }
     peekedString = null;
@@ -1085,7 +1131,7 @@ public class JsonReader implements Closeable {
         break;
       }
     }
-   
+
     String result = (null == builder) ? new String(buffer, pos, i) : builder.append(buffer, pos, i).toString();
     pos += i;
     return result;
@@ -1151,8 +1197,9 @@ public class JsonReader implements Closeable {
   /**
    * Returns the {@link com.google.gson.stream.JsonToken#NUMBER int} value of the next token,
    * consuming it. If the next token is a string, this method will attempt to
-   * parse it as an int. If the next token's numeric value cannot be exactly
-   * represented by a Java {@code int}, this method throws.
+   * parse it as an int. If this is not possible it will be parsed as double according to
+   * {@link Double#valueOf(String)} and then converted to an int, unless this conversion causes
+   * precision loss in which case an exception is thrown.
    *
    * @throws IllegalStateException if the next token is not a literal value.
    * @throws NumberFormatException if the next literal value cannot be parsed
@@ -1175,7 +1222,7 @@ public class JsonReader implements Closeable {
       return result;
     }
 
-    if (p == PEEKED_NUMBER) {
+    if (p == PEEKED_INTEGRAL || p == PEEKED_NUMBER) {
       peekedString = new String(buffer, pos, peekedNumberLength);
       pos += peekedNumberLength;
     } else if (p == PEEKED_SINGLE_QUOTED || p == PEEKED_DOUBLE_QUOTED || p == PEEKED_UNQUOTED) {
@@ -1249,7 +1296,7 @@ public class JsonReader implements Closeable {
         skipQuotedValue('\'');
       } else if (p == PEEKED_DOUBLE_QUOTED || p == PEEKED_DOUBLE_QUOTED_NAME) {
         skipQuotedValue('"');
-      } else if (p == PEEKED_NUMBER) {
+      } else if (p == PEEKED_INTEGRAL || p == PEEKED_NUMBER) {
         pos += peekedNumberLength;
       }
       peeked = PEEKED_NONE;
@@ -1546,7 +1593,7 @@ public class JsonReader implements Closeable {
     case '\'':
     case '"':
     case '\\':
-    case '/':	
+    case '/':
     	return escaped;
     default:
     	// throw error when none of the above cases are matched

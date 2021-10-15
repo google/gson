@@ -21,6 +21,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.google.gson.internal.JsonReaderInternalAccess;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import java.io.IOException;
@@ -227,7 +228,42 @@ public final class JsonTreeReader extends JsonReader {
       throw new IllegalStateException(
           "Expected " + JsonToken.NUMBER + " but was " + token + locationString());
     }
-    long result = ((JsonPrimitive) peekStack()).getAsLong();
+
+    JsonPrimitive primitive = (JsonPrimitive) peekStack();
+    long result;
+    if (primitive.isNumber()) {
+      Number number = primitive.getAsNumber();
+      result = number.longValue();
+
+      if (result != number.doubleValue()) { // Precision loss
+        throw new NumberFormatException(
+            "Expected a long but was " + token + locationString());
+      }
+    } else {
+      String string = primitive.getAsString();
+      try {
+        result = Long.parseLong(string);
+      } catch (NumberFormatException numberFormatException) {
+        /*
+         * If value matches long syntax throw exception, otherwise try parsing as double
+         * Have to check this since large (positive and negative) long values cannot be
+         * precisely represented as double and parsing would otherwise erroneously
+         * successfully parse integral numbers outside of long range
+         * E.g. 9223372036854775808 as double = 9223372036854775807 (7 as last digit)
+         */
+        if (JsonReaderInternalAccess.matchesLongSyntax(string)) {
+          throw numberFormatException;
+        }
+
+        double asDouble = Double.parseDouble(string); // don't catch this NumberFormatException
+        result = (long) asDouble;
+        if (result != asDouble) { // Precision loss
+          throw new NumberFormatException(
+              "Expected a long but was " + token + locationString());
+        }
+      }
+    }
+
     popStack();
     if (stackSize > 0) {
       pathIndices[stackSize - 1]++;
@@ -241,7 +277,31 @@ public final class JsonTreeReader extends JsonReader {
       throw new IllegalStateException(
           "Expected " + JsonToken.NUMBER + " but was " + token + locationString());
     }
-    int result = ((JsonPrimitive) peekStack()).getAsInt();
+
+    JsonPrimitive primitive = (JsonPrimitive) peekStack();
+    int result;
+    if (primitive.isNumber()) {
+      Number number = primitive.getAsNumber();
+      result = number.intValue();
+
+      if (result != number.doubleValue()) { // Precision loss
+        throw new NumberFormatException(
+            "Expected an int but was " + token + locationString());
+      }
+    } else {
+      String string = primitive.getAsString();
+      try {
+        result = Integer.parseInt(string);
+      } catch (NumberFormatException ignored) {
+        double asDouble = Double.parseDouble(string); // don't catch this NumberFormatException
+        result = (int) asDouble;
+        if (result != asDouble) { // Precision loss
+          throw new NumberFormatException(
+              "Expected an int but was " + token + locationString());
+        }
+      }
+    }
+
     popStack();
     if (stackSize > 0) {
       pathIndices[stackSize - 1]++;
