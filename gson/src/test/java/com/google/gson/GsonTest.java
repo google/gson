@@ -40,7 +40,12 @@ public final class GsonTest extends TestCase {
 
   private static final FieldNamingStrategy CUSTOM_FIELD_NAMING_STRATEGY = new FieldNamingStrategy() {
     @Override public String translateName(Field f) {
-      return "foo";
+      return translateName("foo");
+    }
+
+    @Override
+    public String translateName(final String s) {
+      return s;
     }
   };
 

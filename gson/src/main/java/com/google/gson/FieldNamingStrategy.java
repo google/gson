@@ -37,4 +37,13 @@ public interface FieldNamingStrategy {
    * @since 1.3
    */
   public String translateName(Field f);
+
+  /**
+   * Translates the string into its JSON field name representation.
+   *
+   * @param s the string object that we are translating
+   * @return the translated field name.
+   * @since 2.7.1
+   */
+  public String translateName(String s);
 }
