@@ -92,6 +92,7 @@ public final class JsonTreeWriterTest extends TestCase {
       writer.close();
       fail();
     } catch (IOException expected) {
+      assertEquals("Incomplete document", expected.getMessage());
     }
   }
 
@@ -167,16 +168,19 @@ public final class JsonTreeWriterTest extends TestCase {
       writer.value(Double.NaN);
       fail();
     } catch (IllegalArgumentException expected) {
+      assertEquals("JSON forbids NaN and infinities: NaN", expected.getMessage());
     }
     try {
       writer.value(Double.NEGATIVE_INFINITY);
       fail();
     } catch (IllegalArgumentException expected) {
+      assertEquals("JSON forbids NaN and infinities: -Infinity", expected.getMessage());
     }
     try {
       writer.value(Double.POSITIVE_INFINITY);
       fail();
     } catch (IllegalArgumentException expected) {
+      assertEquals("JSON forbids NaN and infinities: Infinity", expected.getMessage());
     }
   }
 
@@ -188,16 +192,19 @@ public final class JsonTreeWriterTest extends TestCase {
       writer.value(Double.valueOf(Double.NaN));
       fail();
     } catch (IllegalArgumentException expected) {
+      assertEquals("JSON forbids NaN and infinities: NaN", expected.getMessage());
     }
     try {
       writer.value(Double.valueOf(Double.NEGATIVE_INFINITY));
       fail();
     } catch (IllegalArgumentException expected) {
+      assertEquals("JSON forbids NaN and infinities: -Infinity", expected.getMessage());
     }
     try {
       writer.value(Double.valueOf(Double.POSITIVE_INFINITY));
       fail();
     } catch (IllegalArgumentException expected) {
+      assertEquals("JSON forbids NaN and infinities: Infinity", expected.getMessage());
     }
   }
 }
