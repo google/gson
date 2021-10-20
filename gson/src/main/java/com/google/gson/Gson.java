@@ -49,6 +49,7 @@ import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.DateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -148,6 +149,10 @@ public final class Gson {
 
   public static final List<TypeAdapterFactory> GLOBAL_ADAPTER_FACTORIES = new ArrayList<TypeAdapterFactory>();
   public static final Map<Type, TypeAdapter<?>> GLOBAL_TYPE_ADAPTERS = new HashMap<Type, TypeAdapter<?>>();
+
+  static {
+    GLOBAL_TYPE_ADAPTERS.put(Instant.class, Iso8601InstantTypeAdapter.INSTANCE);
+  }
 
   /**
    * This thread local guards against reentrant calls to getAdapter(). In
