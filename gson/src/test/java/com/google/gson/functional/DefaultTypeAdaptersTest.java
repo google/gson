@@ -332,6 +332,20 @@ public class DefaultTypeAdaptersTest extends TestCase {
 
     json = "[true,false,true,true,true,true,false,false,true,false,false]";
     assertEquals(expected, gson.fromJson(json, BitSet.class));
+
+    try {
+      gson.fromJson("[1, []]", BitSet.class);
+      fail();
+    } catch (JsonSyntaxException e) {
+      assertEquals("Invalid bitset value type: BEGIN_ARRAY; at path $[1]", e.getMessage());
+    }
+
+    try {
+      gson.fromJson("[1, 2]", BitSet.class);
+      fail();
+    } catch (JsonSyntaxException e) {
+      assertEquals("Invalid bitset value 2, expected 0 or 1; at path $[1]", e.getMessage());
+    }
   }
 
   public void testDefaultDateSerialization() {
@@ -567,7 +581,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
       gson.fromJson("\"abc\"", JsonObject.class);
       fail();
     } catch (JsonSyntaxException expected) {
-      assertEquals("Expected a com.google.gson.JsonObject but was com.google.gson.JsonPrimitive",
+      assertEquals("Expected a com.google.gson.JsonObject but was com.google.gson.JsonPrimitive; at path $",
           expected.getMessage());
     }
   }

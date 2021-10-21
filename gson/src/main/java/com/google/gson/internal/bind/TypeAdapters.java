@@ -92,22 +92,21 @@ public final class TypeAdapters {
         boolean set;
         switch (tokenType) {
         case NUMBER:
-          set = in.nextInt() != 0;
+        case STRING:
+          int intValue = in.nextInt();
+          if (intValue == 0) {
+            set = false;
+          } else if (intValue == 1) {
+            set = true;
+          } else {
+            throw new JsonSyntaxException("Invalid bitset value " + intValue + ", expected 0 or 1; at path " + in.getPreviousPath());
+          }
           break;
         case BOOLEAN:
           set = in.nextBoolean();
           break;
-        case STRING:
-          String stringValue = in.nextString();
-          try {
-            set = Integer.parseInt(stringValue) != 0;
-          } catch (NumberFormatException e) {
-            throw new JsonSyntaxException(
-                "Error: Expecting: bitset number value (1, 0), Found: " + stringValue);
-          }
-          break;
         default:
-          throw new JsonSyntaxException("Invalid bitset value type: " + tokenType);
+          throw new JsonSyntaxException("Invalid bitset value type: " + tokenType + "; at path " + in.getPath());
         }
         if (set) {
           bitset.set(i);
@@ -178,12 +177,18 @@ public final class TypeAdapters {
         in.nextNull();
         return null;
       }
+
+      int intValue;
       try {
-        int intValue = in.nextInt();
-        return (byte) intValue;
+        intValue = in.nextInt();
       } catch (NumberFormatException e) {
         throw new JsonSyntaxException(e);
       }
+      // Allow up to 255 to support unsigned values
+      if (intValue > 255 || intValue < Byte.MIN_VALUE) {
+        throw new JsonSyntaxException("Lossy conversion from " + intValue + " to byte; at path " + in.getPreviousPath());
+      }
+      return (byte) intValue;
     }
     @Override
     public void write(JsonWriter out, Number value) throws IOException {
@@ -201,11 +206,18 @@ public final class TypeAdapters {
         in.nextNull();
         return null;
       }
+
+      int intValue;
       try {
-        return (short) in.nextInt();
+        intValue = in.nextInt();
       } catch (NumberFormatException e) {
         throw new JsonSyntaxException(e);
       }
+      // Allow up to 65535 to support unsigned values
+      if (intValue > 65535 || intValue < Short.MIN_VALUE) {
+        throw new JsonSyntaxException("Lossy conversion from " + intValue + " to short; at path " + in.getPreviousPath());
+      }
+      return (short) intValue;
     }
     @Override
     public void write(JsonWriter out, Number value) throws IOException {
@@ -352,7 +364,7 @@ public final class TypeAdapters {
       }
       String str = in.nextString();
       if (str.length() != 1) {
-        throw new JsonSyntaxException("Expecting character, got: " + str);
+        throw new JsonSyntaxException("Expecting character, got: " + str + "; at " + in.getPreviousPath());
       }
       return str.charAt(0);
     }
@@ -391,10 +403,11 @@ public final class TypeAdapters {
         in.nextNull();
         return null;
       }
+      String s = in.nextString();
       try {
-        return new BigDecimal(in.nextString());
+        return new BigDecimal(s);
       } catch (NumberFormatException e) {
-        throw new JsonSyntaxException(e);
+        throw new JsonSyntaxException("Failed parsing '" + s + "' as BigDecimal; at path " + in.getPreviousPath(), e);
       }
     }
 
@@ -409,10 +422,11 @@ public final class TypeAdapters {
         in.nextNull();
         return null;
       }
+      String s = in.nextString();
       try {
-        return new BigInteger(in.nextString());
+        return new BigInteger(s);
       } catch (NumberFormatException e) {
-        throw new JsonSyntaxException(e);
+        throw new JsonSyntaxException("Failed parsing '" + s + "' as BigInteger; at path " + in.getPreviousPath(), e);
       }
     }
 
@@ -525,7 +539,12 @@ public final class TypeAdapters {
         in.nextNull();
         return null;
       }
-      return java.util.UUID.fromString(in.nextString());
+      String s = in.nextString();
+      try {
+        return java.util.UUID.fromString(s);
+      } catch (IllegalArgumentException e) {
+        throw new JsonSyntaxException("Failed parsing '" + s + "' as UUID; at path " + in.getPreviousPath(), e);
+      }
     }
     @Override
     public void write(JsonWriter out, UUID value) throws IOException {
@@ -538,7 +557,12 @@ public final class TypeAdapters {
   public static final TypeAdapter<Currency> CURRENCY = new TypeAdapter<Currency>() {
     @Override
     public Currency read(JsonReader in) throws IOException {
-      return Currency.getInstance(in.nextString());
+      String s = in.nextString();
+      try {
+        return Currency.getInstance(s);
+      } catch (IllegalArgumentException e) {
+        throw new JsonSyntaxException("Failed parsing '" + s + "' as Currency; at path " + in.getPreviousPath(), e);
+      }
     }
     @Override
     public void write(JsonWriter out, Currency value) throws IOException {
@@ -866,7 +890,7 @@ public final class TypeAdapters {
             T1 result = typeAdapter.read(in);
             if (result != null && !requestedType.isInstance(result)) {
               throw new JsonSyntaxException("Expected a " + requestedType.getName()
-                  + " but was " + result.getClass().getName());
+                  + " but was " + result.getClass().getName() + "; at path " + in.getPreviousPath());
             }
             return result;
           }

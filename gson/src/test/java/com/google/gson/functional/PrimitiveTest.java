@@ -16,6 +16,8 @@
 
 package com.google.gson.functional;
 
+import static org.junit.Assert.assertArrayEquals;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonPrimitive;
@@ -63,16 +65,75 @@ public class PrimitiveTest extends TestCase {
     assertEquals("1", gson.toJson(1, Byte.class));
   }
 
+  public void testByteDeserialization() {
+    Byte boxed = gson.fromJson("1", Byte.class);
+    assertEquals(1, (byte)boxed);
+    byte primitive = gson.fromJson("1", byte.class);
+    assertEquals(1, primitive);
+
+    byte[] bytes = gson.fromJson("[-128, 0, 127, 255]", byte[].class);
+    assertArrayEquals(new byte[] {-128, 0, 127, -1}, bytes);
+  }
+
+  public void testByteDeserializationLossy() {
+    try {
+      gson.fromJson("-129", byte.class);
+      fail();
+    } catch (JsonSyntaxException e) {
+      assertEquals("Lossy conversion from -129 to byte; at path $", e.getMessage());
+    }
+
+    try {
+      gson.fromJson("256", byte.class);
+      fail();
+    } catch (JsonSyntaxException e) {
+      assertEquals("Lossy conversion from 256 to byte; at path $", e.getMessage());
+    }
+
+    try {
+      gson.fromJson("2147483648", byte.class);
+      fail();
+    } catch (JsonSyntaxException e) {
+      assertEquals("java.lang.NumberFormatException: Expected an int but was 2147483648 at line 1 column 11 path $", e.getMessage());
+    }
+  }
+
   public void testShortSerialization() {
     assertEquals("1", gson.toJson(1, short.class));
     assertEquals("1", gson.toJson(1, Short.class));
   }
 
-  public void testByteDeserialization() {
-    Byte target = gson.fromJson("1", Byte.class);
-    assertEquals(1, (byte)target);
-    byte primitive = gson.fromJson("1", byte.class);
+  public void testShortDeserialization() {
+    Short boxed = gson.fromJson("1", Short.class);
+    assertEquals(1, (short)boxed);
+    short primitive = gson.fromJson("1", short.class);
     assertEquals(1, primitive);
+
+    short[] shorts = gson.fromJson("[-32768, 0, 32767, 65535]", short[].class);
+    assertArrayEquals(new short[] {-32768, 0, 32767, -1}, shorts);
+  }
+
+  public void testShortDeserializationLossy() {
+    try {
+      gson.fromJson("-32769", short.class);
+      fail();
+    } catch (JsonSyntaxException e) {
+      assertEquals("Lossy conversion from -32769 to short; at path $", e.getMessage());
+    }
+
+    try {
+      gson.fromJson("65536", short.class);
+      fail();
+    } catch (JsonSyntaxException e) {
+      assertEquals("Lossy conversion from 65536 to short; at path $", e.getMessage());
+    }
+
+    try {
+      gson.fromJson("2147483648", short.class);
+      fail();
+    } catch (JsonSyntaxException e) {
+      assertEquals("java.lang.NumberFormatException: Expected an int but was 2147483648 at line 1 column 11 path $", e.getMessage());
+    }
   }
 
   public void testPrimitiveIntegerAutoboxedInASingleElementArraySerialization() {

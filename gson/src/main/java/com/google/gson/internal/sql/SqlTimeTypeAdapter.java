@@ -50,20 +50,31 @@ final class SqlTimeTypeAdapter extends TypeAdapter<Time> {
   private SqlTimeTypeAdapter() {
   }
 
-  @Override public synchronized Time read(JsonReader in) throws IOException {
+  @Override public Time read(JsonReader in) throws IOException {
     if (in.peek() == JsonToken.NULL) {
       in.nextNull();
       return null;
     }
+    String s = in.nextString();
     try {
-      Date date = format.parse(in.nextString());
-      return new Time(date.getTime());
+      synchronized (this) {
+        Date date = format.parse(s);
+        return new Time(date.getTime());
+      }
     } catch (ParseException e) {
-      throw new JsonSyntaxException(e);
+      throw new JsonSyntaxException("Failed parsing '" + s + "' as SQL Time; at path " + in.getPreviousPath(), e);
     }
   }
 
-  @Override public synchronized void write(JsonWriter out, Time value) throws IOException {
-    out.value(value == null ? null : format.format(value));
+  @Override public void write(JsonWriter out, Time value) throws IOException {
+    if (value == null) {
+      out.nullValue();
+      return;
+    }
+    String timeString;
+    synchronized (this) {
+      timeString = format.format(value);
+    }
+    out.value(timeString);
   }
 }
