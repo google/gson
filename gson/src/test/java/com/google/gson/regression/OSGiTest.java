@@ -25,11 +25,23 @@ import java.util.jar.Manifest;
 import junit.framework.TestCase;
 
 public class OSGiTest extends TestCase {
+    public void testComGoogleGsonAnnotationsPackage() throws Exception {
+        Manifest mf = findManifest("com.google.gson");
+        String importPkg = mf.getMainAttributes().getValue("Import-Package");
+        assertNotNull("Import-Package statement is there", importPkg);
+        assertNotSame("There should be com.google.gson.annotations dependency, but was: " + importPkg, -1, importPkg.indexOf("com.google.gson.annotations"));
+    }
     public void testSunMiscImportPackage() throws Exception {
         Manifest mf = findManifest("com.google.gson");
         String importPkg = mf.getMainAttributes().getValue("Import-Package");
-        assertNotNull("Import-Package statement is currently there", importPkg);
-        assertEquals("There should be no sun.misc dependency, but was: " + importPkg, -1, importPkg.indexOf("sun.misc"));
+        assertNotNull("Import-Package statement is there", importPkg);
+        for (String dep : importPkg.split(",")) {
+            if (dep.contains("sun.misc")) {
+                assertNotSame("sun.misc import is optional", -1, dep.indexOf("resolution:=optional"));
+                return;
+            }
+        }
+        fail("There should be sun.misc dependency, but was: " + importPkg);
     }
 
     private Manifest findManifest(String pkg) throws IOException {
