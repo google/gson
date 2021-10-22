@@ -18,7 +18,7 @@ package com.google.gson.regression;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Enumeration;
+import java.util.Collections;
 import java.util.List;
 import java.util.jar.Manifest;
 
@@ -45,10 +45,8 @@ public class OSGiTest extends TestCase {
     }
 
     private Manifest findManifest(String pkg) throws IOException {
-        Enumeration<URL> en = getClass().getClassLoader().getResources("META-INF/MANIFEST.MF");
         List<URL> urls = new ArrayList<URL>();
-        while (en.hasMoreElements()) {
-            URL u = en.nextElement();
+        for (URL u : Collections.list(getClass().getClassLoader().getResources("META-INF/MANIFEST.MF"))) {
             Manifest mf = new Manifest(u.openStream());
             if (pkg.equals(mf.getMainAttributes().getValue("Bundle-SymbolicName"))) {
                 return mf;
