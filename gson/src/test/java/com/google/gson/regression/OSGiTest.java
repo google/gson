@@ -30,7 +30,7 @@ public class OSGiTest extends TestCase {
         Manifest mf = findManifest("com.google.gson");
         String importPkg = mf.getMainAttributes().getValue("Import-Package");
         assertNotNull("Import-Package statement is there", importPkg);
-        assertNotSame("There should be com.google.gson.annotations dependency, but was: " + importPkg, -1, importPkg.indexOf("com.google.gson.annotations"));
+        assertSubstring("There should be com.google.gson.annotations dependency", importPkg, "com.google.gson.annotations");
     }
 
     public void testSunMiscImportPackage() throws Exception {
@@ -39,7 +39,7 @@ public class OSGiTest extends TestCase {
         assertNotNull("Import-Package statement is there", importPkg);
         for (String dep : importPkg.split(",")) {
             if (dep.contains("sun.misc")) {
-                assertNotSame("sun.misc import is optional", -1, dep.indexOf("resolution:=optional"));
+                assertSubstring("sun.misc import is optional", dep, "resolution:=optional");
                 return;
             }
         }
@@ -59,5 +59,12 @@ public class OSGiTest extends TestCase {
         }
         fail("Cannot find " + pkg + " OSGi bundle manifest among: " + urls);
         return null;
+    }
+
+    private static void assertSubstring(String msg, String wholeText, String subString) {
+        if (wholeText.contains(subString)) {
+            return;
+        }
+        fail(msg + ". Expecting " + subString + " but was: " + wholeText);
     }
 }
