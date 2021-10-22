@@ -15,6 +15,7 @@
  */
 package com.google.gson.regression;
 
+import java.io.InputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -31,6 +32,7 @@ public class OSGiTest extends TestCase {
         assertNotNull("Import-Package statement is there", importPkg);
         assertNotSame("There should be com.google.gson.annotations dependency, but was: " + importPkg, -1, importPkg.indexOf("com.google.gson.annotations"));
     }
+
     public void testSunMiscImportPackage() throws Exception {
         Manifest mf = findManifest("com.google.gson");
         String importPkg = mf.getMainAttributes().getValue("Import-Package");
@@ -47,7 +49,9 @@ public class OSGiTest extends TestCase {
     private Manifest findManifest(String pkg) throws IOException {
         List<URL> urls = new ArrayList<URL>();
         for (URL u : Collections.list(getClass().getClassLoader().getResources("META-INF/MANIFEST.MF"))) {
-            Manifest mf = new Manifest(u.openStream());
+            InputStream is = u.openStream();
+            Manifest mf = new Manifest(is);
+            is.close();
             if (pkg.equals(mf.getMainAttributes().getValue("Bundle-SymbolicName"))) {
                 return mf;
             }
