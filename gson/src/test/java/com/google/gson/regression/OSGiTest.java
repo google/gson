@@ -53,7 +53,7 @@ public class OSGiTest extends TestCase {
             }
             urls.add(u);
         }
-        fail("Cannot find com.google.gson OSGi bundle manifest among: " + urls);
+        fail("Cannot find " + pkg + " OSGi bundle manifest among: " + urls);
         return null;
     }
 }
