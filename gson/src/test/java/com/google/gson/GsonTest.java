@@ -20,7 +20,6 @@ import com.google.gson.internal.Excluder;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.google.gson.stream.MalformedJsonException;
-
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
