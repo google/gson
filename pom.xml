@@ -25,7 +25,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <java.version>1.6</java.version>
+    <java.version>1.8</java.version>
   </properties>
 
   <scm>
@@ -89,10 +89,10 @@
           </executions>
           <configuration>
             <jdkToolchain>
-              <version>[1.5,9)</version>
+              <version>[1.8,9)</version>
             </jdkToolchain>
-            <source>1.6</source>
-            <target>1.6</target>
+            <source>1.8</source>
+            <target>1.8</target>
           </configuration>
         </plugin>
         <plugin>
