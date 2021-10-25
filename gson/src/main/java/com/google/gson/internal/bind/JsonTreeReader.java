@@ -308,11 +308,11 @@ public final class JsonTreeReader extends JsonReader {
     StringBuilder result = new StringBuilder().append('$');
     for (int i = 0; i < stackSize; i++) {
       if (stack[i] instanceof JsonArray) {
-        if (stack[++i] instanceof Iterator) {
+        if (++i < stackSize && stack[i] instanceof Iterator) {
           result.append('[').append(pathIndices[i]).append(']');
         }
       } else if (stack[i] instanceof JsonObject) {
-        if (stack[++i] instanceof Iterator) {
+        if (++i < stackSize && stack[i] instanceof Iterator) {
           result.append('.');
           if (pathNames[i] != null) {
             result.append(pathNames[i]);
