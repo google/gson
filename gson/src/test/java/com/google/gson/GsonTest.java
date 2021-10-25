@@ -55,7 +55,7 @@ public final class GsonTest extends TestCase {
         new ArrayList<TypeAdapterFactory>(), new ArrayList<TypeAdapterFactory>(),
         CUSTOM_OBJECT_TO_NUMBER_STRATEGY, CUSTOM_NUMBER_TO_NUMBER_STRATEGY);
 
-    assertEquals(CUSTOM_EXCLUDER, gson.excluder());
+    assertEquals(CUSTOM_EXCLUDER, gson.excluder);
     assertEquals(CUSTOM_FIELD_NAMING_STRATEGY, gson.fieldNamingStrategy());
     assertEquals(true, gson.serializeNulls());
     assertEquals(false, gson.htmlSafe());
