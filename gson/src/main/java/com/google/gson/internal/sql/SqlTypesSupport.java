@@ -1,6 +1,5 @@
 package com.google.gson.internal.sql;
 
-import java.sql.Timestamp;
 import java.util.Date;
 
 import com.google.gson.TypeAdapterFactory;
@@ -47,9 +46,9 @@ public final class SqlTypesSupport {
           return new java.sql.Date(date.getTime());
         }
       };
-      TIMESTAMP_DATE_TYPE = new DateType<Timestamp>(Timestamp.class) {
-        @Override protected Timestamp deserialize(Date date) {
-          return new Timestamp(date.getTime());
+      TIMESTAMP_DATE_TYPE = new DateType<java.sql.Timestamp>(java.sql.Timestamp.class) {
+        @Override protected java.sql.Timestamp deserialize(Date date) {
+          return new java.sql.Timestamp(date.getTime());
         }
       };
 
