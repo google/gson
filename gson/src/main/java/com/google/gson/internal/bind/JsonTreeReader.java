@@ -308,7 +308,7 @@ public final class JsonTreeReader extends JsonReader {
     StringBuilder result = new StringBuilder().append('$');
     for (int i = 0; i < stackSize; i++) {
       if (stack[i] instanceof JsonArray) {
-        if (stack[++i] instanceof Iterator) {
+        if (++i < stackSize && stack[i] instanceof Iterator) {
           int pathIndex = pathIndices[i];
           // If index is last path element it points to next array element; have to decrement
           // `- 1` covers case where iterator for next element is on stack
@@ -319,7 +319,7 @@ public final class JsonTreeReader extends JsonReader {
           result.append('[').append(pathIndex).append(']');
         }
       } else if (stack[i] instanceof JsonObject) {
-        if (stack[++i] instanceof Iterator) {
+        if (++i < stackSize && stack[i] instanceof Iterator) {
           result.append('.');
           if (pathNames[i] != null) {
             result.append(pathNames[i]);

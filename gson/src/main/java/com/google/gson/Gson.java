@@ -299,18 +299,40 @@ public final class Gson {
     return new GsonBuilder(this);
   }
 
+  /**
+   * @deprecated This method by accident exposes an internal Gson class; it might be removed in a
+   * future version.
+   */
+  @Deprecated
   public Excluder excluder() {
     return excluder;
   }
 
+  /**
+   * Returns the field naming strategy used by this Gson instance.
+   *
+   * @see GsonBuilder#setFieldNamingStrategy(FieldNamingStrategy)
+   */
   public FieldNamingStrategy fieldNamingStrategy() {
     return fieldNamingStrategy;
   }
 
+  /**
+   * Returns whether this Gson instance is serializing JSON object properties with
+   * {@code null} values, or just omits them.
+   *
+   * @see GsonBuilder#serializeNulls()
+   */
   public boolean serializeNulls() {
     return serializeNulls;
   }
 
+  /**
+   * Returns whether this Gson instance produces JSON output which is
+   * HTML-safe, that means all HTML characters are escaped.
+   *
+   * @see GsonBuilder#disableHtmlEscaping()
+   */
   public boolean htmlSafe() {
     return htmlSafe;
   }
