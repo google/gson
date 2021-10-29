@@ -1,6 +1,20 @@
 Change Log
 ==========
 
+## Version 2.8.9
+
+* Make OSGi bundle's dependency on `sun.misc` optional (#1993).
+* Deprecate `Gson.excluder()` exposing internal `Excluder` class (#1986).
+* Prevent Java deserialization of internal classes (#1991).
+* Improve number strategy implementation (#1987).
+* Fix LongSerializationPolicy null handling being inconsistent with Gson (#1990).
+* Support arbitrary Number implementation for Object and Number deserialization (#1290).
+* Bump proguard-maven-plugin from 2.4.0 to 2.5.1 (#1980).
+* Don't exclude static local classes (#1969).
+* Fix `RuntimeTypeAdapterFactory` depending on internal `Streams` class (#1959).
+* Improve Maven build (#1964).
+* Make dependency on `java.sql` optional (#1707).
+
 ## Version 2.8.8
 
 * Fixed issue with recursive types (#1390).
