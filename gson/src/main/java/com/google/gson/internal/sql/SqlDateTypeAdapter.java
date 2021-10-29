@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Adapter for java.sql.Date. Although this class appears stateless, it is not.
@@ -57,10 +58,11 @@ final class SqlDateTypeAdapter extends TypeAdapter<java.sql.Date> {
     }
     String s = in.nextString();
     try {
+      Date utilDate;
       synchronized (this) {
-        long utilDate = format.parse(s).getTime();
-        return new java.sql.Date(utilDate);
+        utilDate = format.parse(s);
       }
+      return new java.sql.Date(utilDate.getTime());
     } catch (ParseException e) {
       throw new JsonSyntaxException("Failed parsing '" + s + "' as SQL Date; at path " + in.getPreviousPath(), e);
     }
