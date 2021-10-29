@@ -1490,8 +1490,8 @@ public class JsonReader implements Closeable {
    * <ul>
    *   <li>For JSON arrays the path points to the index of the previous element.<br>
    *   If no element has been consumed yet it uses the index 0 (even if there are no elements).</li>
-   *   <li>For JSON objects the path points to the last, respectively currently consumed
-   *   property (if its value has not been consumed yet).</li>
+   *   <li>For JSON objects the path points to the last property, or to the current
+   *   property if its value has not been consumed yet.</li>
    * </ul>
    *
    * <p>This method can be useful to add additional context to exception messages
@@ -1507,8 +1507,8 @@ public class JsonReader implements Closeable {
    * <ul>
    *   <li>For JSON arrays the path points to the index of the next element (even
    *   if there are no further elements).</li>
-   *   <li>For JSON objects the path points to the last, respectively currently consumed
-   *   property (if its value has not been consumed yet).</li>
+   *   <li>For JSON objects the path points to the last property, or to the current
+   *   property if its value has not been consumed yet.</li>
    * </ul>
    *
    * <p>This method can be useful to add additional context to exception messages
