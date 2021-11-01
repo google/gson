@@ -72,30 +72,36 @@ public final class DateTypeAdapter extends TypeAdapter<Date> {
       in.nextNull();
       return null;
     }
-    return deserializeToDate(in.nextString());
+    return deserializeToDate(in);
   }
 
-  private synchronized Date deserializeToDate(String json) {
-    for (DateFormat dateFormat : dateFormats) {
-      try {
-        return dateFormat.parse(json);
-      } catch (ParseException ignored) {}
+  private Date deserializeToDate(JsonReader in) throws IOException {
+    String s = in.nextString();
+    synchronized (dateFormats) {
+      for (DateFormat dateFormat : dateFormats) {
+        try {
+          return dateFormat.parse(s);
+        } catch (ParseException ignored) {}
+      }
     }
     try {
-    	return ISO8601Utils.parse(json, new ParsePosition(0));
+      return ISO8601Utils.parse(s, new ParsePosition(0));
     } catch (ParseException e) {
-      throw new JsonSyntaxException(json, e);
+      throw new JsonSyntaxException("Failed parsing '" + s + "' as Date; at path " + in.getPreviousPath(), e);
     }
   }
 
-  @Override public synchronized void write(JsonWriter out, Date value) throws IOException {
+  @Override public void write(JsonWriter out, Date value) throws IOException {
     if (value == null) {
       out.nullValue();
       return;
     }
-    String dateFormatAsString = dateFormats.get(0).format(value);
+
+    DateFormat dateFormat = dateFormats.get(0);
+    String dateFormatAsString;
+    synchronized (dateFormats) {
+      dateFormatAsString = dateFormat.format(value);
+    }
     out.value(dateFormatAsString);
   }
-  
-  
 }

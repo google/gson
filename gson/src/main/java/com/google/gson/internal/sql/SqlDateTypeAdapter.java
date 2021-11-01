@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Adapter for java.sql.Date. Although this class appears stateless, it is not.
@@ -50,21 +51,33 @@ final class SqlDateTypeAdapter extends TypeAdapter<java.sql.Date> {
   }
 
   @Override
-  public synchronized java.sql.Date read(JsonReader in) throws IOException {
+  public java.sql.Date read(JsonReader in) throws IOException {
     if (in.peek() == JsonToken.NULL) {
       in.nextNull();
       return null;
     }
+    String s = in.nextString();
     try {
-      final long utilDate = format.parse(in.nextString()).getTime();
-      return new java.sql.Date(utilDate);
+      Date utilDate;
+      synchronized (this) {
+        utilDate = format.parse(s);
+      }
+      return new java.sql.Date(utilDate.getTime());
     } catch (ParseException e) {
-      throw new JsonSyntaxException(e);
+      throw new JsonSyntaxException("Failed parsing '" + s + "' as SQL Date; at path " + in.getPreviousPath(), e);
     }
   }
 
   @Override
-  public synchronized void write(JsonWriter out, java.sql.Date value) throws IOException {
-    out.value(value == null ? null : format.format(value));
+  public void write(JsonWriter out, java.sql.Date value) throws IOException {
+    if (value == null) {
+      out.nullValue();
+      return;
+    }
+    String dateString;
+    synchronized (this) {
+      dateString = format.format(value);
+    }
+    out.value(dateString);
   }
 }

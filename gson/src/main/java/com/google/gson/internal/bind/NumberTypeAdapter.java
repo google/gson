@@ -72,7 +72,7 @@ public final class NumberTypeAdapter extends TypeAdapter<Number> {
     case STRING:
       return toNumberStrategy.readNumber(in);
     default:
-      throw new JsonSyntaxException("Expecting number, got: " + jsonToken);
+      throw new JsonSyntaxException("Expecting number, got: " + jsonToken + "; at path " + in.getPath());
     }
   }
 
