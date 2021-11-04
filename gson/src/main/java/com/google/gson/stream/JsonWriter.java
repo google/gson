@@ -129,6 +129,9 @@ import static com.google.gson.stream.JsonScope.NONEMPTY_OBJECT;
  * @since 1.6
  */
 public class JsonWriter implements Closeable, Flushable {
+  private static final char[] HEX_CHARS = new char[] {
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
+  };
 
   /*
    * From RFC 7159, "All Unicode characters may be placed within the
@@ -145,7 +148,7 @@ public class JsonWriter implements Closeable, Flushable {
   static {
     REPLACEMENT_CHARS = new String[128];
     for (int i = 0; i <= 0x1f; i++) {
-      REPLACEMENT_CHARS[i] = String.format("\\u%04x", (int) i);
+      REPLACEMENT_CHARS[i] = createUnicodeEscape(i);
     }
     REPLACEMENT_CHARS['"'] = "\\\"";
     REPLACEMENT_CHARS['\\'] = "\\\\";
@@ -155,11 +158,11 @@ public class JsonWriter implements Closeable, Flushable {
     REPLACEMENT_CHARS['\r'] = "\\r";
     REPLACEMENT_CHARS['\f'] = "\\f";
     HTML_SAFE_REPLACEMENT_CHARS = REPLACEMENT_CHARS.clone();
-    HTML_SAFE_REPLACEMENT_CHARS['<'] = "\\u003c";
-    HTML_SAFE_REPLACEMENT_CHARS['>'] = "\\u003e";
-    HTML_SAFE_REPLACEMENT_CHARS['&'] = "\\u0026";
-    HTML_SAFE_REPLACEMENT_CHARS['='] = "\\u003d";
-    HTML_SAFE_REPLACEMENT_CHARS['\''] = "\\u0027";
+    HTML_SAFE_REPLACEMENT_CHARS['<'] = createUnicodeEscape('<');
+    HTML_SAFE_REPLACEMENT_CHARS['>'] = createUnicodeEscape('>');
+    HTML_SAFE_REPLACEMENT_CHARS['&'] = createUnicodeEscape('&');
+    HTML_SAFE_REPLACEMENT_CHARS['='] = createUnicodeEscape('=');
+    HTML_SAFE_REPLACEMENT_CHARS['\''] = createUnicodeEscape('\'');
   }
 
   /** The output data, containing at most one top-level array or object. */
@@ -185,6 +188,10 @@ public class JsonWriter implements Closeable, Flushable {
   private boolean lenient;
 
   private boolean htmlSafe;
+
+  private boolean escapeAllControlChars;
+
+  private boolean escapeNonAscii;
 
   private String deferredName;
 
@@ -260,6 +267,51 @@ public class JsonWriter implements Closeable, Flushable {
    */
   public final boolean isHtmlSafe() {
     return htmlSafe;
+  }
+
+  /**
+   * Sets whether for all ISO control characters (as reported by {@link Character#isISOControl(char)})
+   * in property names and string values the corresponding Unicode escape (<code>&bsol;u<i>xxxx</i></code>)
+   * should be written instead. The default is false, the JSON standard only requires usage of
+   * Unicode escapes for the control characters U+0000 to U+001F.
+   *
+   * @see #isEscapeAllControlChars()
+   */
+  public final void setEscapeAllControlChars(boolean escapeAllControlChars) {
+    this.escapeAllControlChars = escapeAllControlChars;
+  }
+
+  /**
+   * Returns true if for all ISO control characters (as reported by {@link Character#isISOControl(char)})
+   * in property names and string values the corresponding Unicode escape (<code>&bsol;u<i>xxxx</i></code>)
+   * should be written instead.
+   *
+   * @see #setEscapeAllControlChars(boolean)
+   */
+  public final boolean isEscapeAllControlChars() {
+    return escapeAllControlChars;
+  }
+
+  /**
+   * Sets whether for non-ASCII characters (&gt; U+007F) in property names and string
+   * values the corresponding Unicode escape (<code>&bsol;u<i>xxxx</i></code>) should be
+   * written instead. The default is false.
+   *
+   * @see #isEscapeNonAsciiChars()
+   */
+  public final void setEscapeNonAsciiChars(boolean escapeNonAscii) {
+    this.escapeNonAscii = escapeNonAscii;
+  }
+
+  /**
+   * Returns true if for non-ASCII characters (&gt; U+007F) in property names and string
+   * values the corresponding Unicode escape (<code>&bsol;u<i>xxxx</i></code>) should be
+   * written instead.
+   *
+   * @see #setEscapeNonAsciiChars(boolean)
+   */
+  public final boolean isEscapeNonAsciiChars() {
+    return escapeNonAscii;
   }
 
   /**
@@ -568,7 +620,8 @@ public class JsonWriter implements Closeable, Flushable {
     for (int i = 0; i < length; i++) {
       char c = value.charAt(i);
       String replacement;
-      if (c < 128) {
+      // Cover code point 127 (DEL) in control char escaping further below
+      if (c < 127) {
         replacement = replacements[c];
         if (replacement == null) {
           continue;
@@ -577,6 +630,8 @@ public class JsonWriter implements Closeable, Flushable {
         replacement = "\\u2028";
       } else if (c == '\u2029') {
         replacement = "\\u2029";
+      } else if (escapeAllControlChars && Character.isISOControl(c) || escapeNonAscii && c > 127) {
+        replacement = createUnicodeEscape(c);
       } else {
         continue;
       }
@@ -654,5 +709,15 @@ public class JsonWriter implements Closeable, Flushable {
     default:
       throw new IllegalStateException("Nesting problem.");
     }
+  }
+
+  private static String createUnicodeEscape(int codePoint) {
+    StringBuilder sb = new StringBuilder(6);
+    sb.append("\\u");
+    sb.append(HEX_CHARS[codePoint >> 12]);
+    sb.append(HEX_CHARS[(codePoint >> 8) & 0xF]);
+    sb.append(HEX_CHARS[(codePoint >> 4) & 0xF]);
+    sb.append(HEX_CHARS[codePoint & 0xF]);
+    return sb.toString();
   }
 }

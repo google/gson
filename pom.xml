@@ -91,8 +91,8 @@
             <jdkToolchain>
               <version>[1.5,9)</version>
             </jdkToolchain>
-            <source>1.6</source>
-            <target>1.6</target>
+            <source>${java.version}</source>
+            <target>${java.version}</target>
           </configuration>
         </plugin>
         <plugin>
