@@ -36,7 +36,7 @@ public class RecursiveTypesResolveTest extends TestCase {
 
   @SuppressWarnings("unused")
   private static class Foo1<A> {
-	public Foo2<? extends A> foo2;
+    public Foo2<? extends A> foo2;
   }
   @SuppressWarnings("unused")
   private static class Foo2<B> {
@@ -48,6 +48,7 @@ public class RecursiveTypesResolveTest extends TestCase {
    */
 
   public void testRecursiveResolveSimple() {
+    @SuppressWarnings("rawtypes")
     TypeAdapter<Foo1> adapter = new Gson().getAdapter(Foo1.class);
     assertNotNull(adapter);
   }
@@ -91,11 +92,13 @@ public class RecursiveTypesResolveTest extends TestCase {
   }
 
   public void testRecursiveTypeVariablesResolve1() throws Exception {
+    @SuppressWarnings("rawtypes")
     TypeAdapter<TestType> adapter = new Gson().getAdapter(TestType.class);
     assertNotNull(adapter);
   }
 
   public void testRecursiveTypeVariablesResolve12() throws Exception {
+    @SuppressWarnings("rawtypes")
     TypeAdapter<TestType2> adapter = new Gson().getAdapter(TestType2.class);
     assertNotNull(adapter);
   }

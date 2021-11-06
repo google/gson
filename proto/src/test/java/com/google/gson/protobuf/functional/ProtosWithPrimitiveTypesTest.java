@@ -21,8 +21,7 @@ import com.google.gson.protobuf.ProtoTypeAdapter;
 import com.google.gson.protobuf.ProtoTypeAdapter.EnumSerialization;
 import com.google.gson.protobuf.generated.Bag.SimpleProto;
 import com.google.protobuf.Descriptors.Descriptor;
-import com.google.protobuf.GeneratedMessage;
-
+import com.google.protobuf.GeneratedMessageV3;
 import junit.framework.TestCase;
 
 public class ProtosWithPrimitiveTypesTest extends TestCase {
@@ -32,7 +31,7 @@ public class ProtosWithPrimitiveTypesTest extends TestCase {
   protected void setUp() throws Exception {
     super.setUp();
     gson = new GsonBuilder().registerTypeHierarchyAdapter(
-      GeneratedMessage.class, ProtoTypeAdapter.newBuilder()
+      GeneratedMessageV3.class, ProtoTypeAdapter.newBuilder()
           .setEnumSerialization(EnumSerialization.NUMBER)
           .build())
       .create();

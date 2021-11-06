@@ -4,11 +4,22 @@
   <parent>
     <groupId>com.google.code.gson</groupId>
     <artifactId>gson-parent</artifactId>
-    <version>2.8.8-SNAPSHOT</version>
+    <version>2.9.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>gson</artifactId>
   <name>Gson</name>
+
+  <properties>
+    <proguardVersion>7.1.1</proguardVersion>
+  </properties>
+
+  <licenses>
+    <license>
+      <name>Apache-2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
 
   <dependencies>
     <dependency>
@@ -49,7 +60,7 @@
       <plugin>
         <groupId>biz.aQute.bnd</groupId>
         <artifactId>bnd-maven-plugin</artifactId>
-        <version>5.3.0</version>
+        <version>6.0.0</version>
         <executions>
           <execution>
             <goals>
@@ -61,7 +72,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>3.2.0</version>
         <configuration>
           <archive>
             <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
@@ -81,6 +91,96 @@
             <configuration>
               <sourceDirectory>${basedir}/src/main/java-templates</sourceDirectory>
               <outputDirectory>${project.build.directory}/generated-sources/java-templates</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>com.coderplus.maven.plugins</groupId>
+        <artifactId>copy-rename-maven-plugin</artifactId>
+        <version>1.0.1</version>
+        <executions>
+          <execution>
+            <id>pre-obfuscate-class</id>
+            <phase>process-test-classes</phase>
+            <goals>
+              <goal>rename</goal>
+            </goals>
+            <configuration>
+              <fileSets>
+                <fileSet>
+                  <sourceFile>${project.build.directory}/test-classes/com/google/gson/functional/EnumWithObfuscatedTest.class</sourceFile>
+                  <destinationFile>${project.build.directory}/test-classes-obfuscated-injar/com/google/gson/functional/EnumWithObfuscatedTest.class</destinationFile>
+                </fileSet>
+                <fileSet>
+                  <sourceFile>${project.build.directory}/test-classes/com/google/gson/functional/EnumWithObfuscatedTest$Gender.class</sourceFile>
+                  <destinationFile>${project.build.directory}/test-classes-obfuscated-injar/com/google/gson/functional/EnumWithObfuscatedTest$Gender.class</destinationFile>
+                </fileSet>
+              </fileSets>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>com.github.wvengen</groupId>
+        <artifactId>proguard-maven-plugin</artifactId>
+        <version>2.5.1</version>
+        <executions>
+          <execution>
+            <phase>process-test-classes</phase>
+            <goals>
+              <goal>proguard</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <proguardVersion>${proguardVersion}</proguardVersion>
+          <obfuscate>true</obfuscate>
+          <injar>test-classes-obfuscated-injar</injar>
+          <outjar>test-classes-obfuscated-outjar</outjar>
+          <inFilter>**/*.class</inFilter>
+          <proguardInclude>${basedir}/src/test/resources/testcases-proguard.conf</proguardInclude>
+          <libs>
+            <lib>${project.build.directory}/classes</lib>
+            <lib>${java.home}/jmods/java.base.jmod</lib>
+          </libs>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>com.guardsquare</groupId>
+            <artifactId>proguard-core</artifactId>
+            <version>${proguardVersion}</version>
+            <scope>runtime</scope>
+          </dependency>
+          <dependency>
+            <groupId>com.guardsquare</groupId>
+            <artifactId>proguard-base</artifactId>
+            <version>${proguardVersion}</version>
+            <scope>runtime</scope>
+          </dependency>
+        </dependencies>
+      </plugin>
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.2.0</version>
+        <executions>
+          <execution>
+            <id>post-obfuscate-class</id>
+            <phase>process-test-classes</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/test-classes/com/google/gson/functional</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${project.build.directory}/test-classes-obfuscated-outjar/com/google/gson/functional</directory>
+                  <includes>
+                    <include>EnumWithObfuscatedTest.class</include>
+                    <include>EnumWithObfuscatedTest$Gender.class</include>
+                  </includes>
+                </resource>
+              </resources>
             </configuration>
           </execution>
         </executions>

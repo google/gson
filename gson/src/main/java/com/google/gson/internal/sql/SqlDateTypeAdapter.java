@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson.internal.bind;
+package com.google.gson.internal.sql;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -25,42 +25,59 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
-import java.sql.Time;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * Adapter for Time. Although this class appears stateless, it is not.
+ * Adapter for java.sql.Date. Although this class appears stateless, it is not.
  * DateFormat captures its time zone and locale when it is created, which gives
  * this class state. DateFormat isn't thread safe either, so this class has
  * to synchronize its read and write methods.
  */
-public final class TimeTypeAdapter extends TypeAdapter<Time> {
-  public static final TypeAdapterFactory FACTORY = new TypeAdapterFactory() {
+final class SqlDateTypeAdapter extends TypeAdapter<java.sql.Date> {
+  static final TypeAdapterFactory FACTORY = new TypeAdapterFactory() {
     @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
     @Override public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
-      return typeToken.getRawType() == Time.class ? (TypeAdapter<T>) new TimeTypeAdapter() : null;
+      return typeToken.getRawType() == java.sql.Date.class
+          ? (TypeAdapter<T>) new SqlDateTypeAdapter() : null;
     }
   };
 
-  private final DateFormat format = new SimpleDateFormat("hh:mm:ss a");
+  private final DateFormat format = new SimpleDateFormat("MMM d, yyyy");
 
-  @Override public synchronized Time read(JsonReader in) throws IOException {
+  private SqlDateTypeAdapter() {
+  }
+
+  @Override
+  public java.sql.Date read(JsonReader in) throws IOException {
     if (in.peek() == JsonToken.NULL) {
       in.nextNull();
       return null;
     }
+    String s = in.nextString();
     try {
-      Date date = format.parse(in.nextString());
-      return new Time(date.getTime());
+      Date utilDate;
+      synchronized (this) {
+        utilDate = format.parse(s);
+      }
+      return new java.sql.Date(utilDate.getTime());
     } catch (ParseException e) {
-      throw new JsonSyntaxException(e);
+      throw new JsonSyntaxException("Failed parsing '" + s + "' as SQL Date; at path " + in.getPreviousPath(), e);
     }
   }
 
-  @Override public synchronized void write(JsonWriter out, Time value) throws IOException {
-    out.value(value == null ? null : format.format(value));
+  @Override
+  public void write(JsonWriter out, java.sql.Date value) throws IOException {
+    if (value == null) {
+      out.nullValue();
+      return;
+    }
+    String dateString;
+    synchronized (this) {
+      dateString = format.format(value);
+    }
+    out.value(dateString);
   }
 }

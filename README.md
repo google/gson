@@ -17,7 +17,7 @@ There are a few open-source projects that can convert Java objects to JSON. Howe
 Gradle:
 ```gradle
 dependencies {
-  implementation 'com.google.code.gson:gson:2.8.7'
+  implementation 'com.google.code.gson:gson:2.8.9'
 }
 ```
 
@@ -26,13 +26,13 @@ Maven:
 <dependency>
   <groupId>com.google.code.gson</groupId>
   <artifactId>gson</artifactId>
-  <version>2.8.7</version>
+  <version>2.8.9</version>
 </dependency>
 ```
 
 [Gson jar downloads](https://maven-badges.herokuapp.com/maven-central/com.google.code.gson/gson) are available from Maven Central.
 
-[![Build Status](https://travis-ci.org/google/gson.svg?branch=master)](https://travis-ci.org/google/gson)
+![Build Status](https://github.com/google/gson/actions/workflows/build.yml/badge.svg)
 
 ### Documentation
   * [API Javadoc](https://www.javadoc.io/doc/com.google.code.gson/gson): Documentation for the current release
@@ -40,7 +40,7 @@ Maven:
   * [Change log](https://github.com/google/gson/blob/master/CHANGELOG.md): Changes in the recent versions
   * [Design document](https://github.com/google/gson/blob/master/GsonDesignDocument.md): This document discusses issues we faced while designing Gson. It also includes a comparison of Gson with other Java libraries that can be used for Json conversion
 
-Please use the 'gson' tag on StackOverflow or the [google-gson Google group](https://groups.google.com/group/google-gson) to discuss Gson or to post questions.
+Please use the ['gson' tag on StackOverflow](https://stackoverflow.com/questions/tagged/gson) or the [google-gson Google group](https://groups.google.com/group/google-gson) to discuss Gson or to post questions.
 
 ### Related Content Created by Third Parties
   * [Gson Tutorial](https://www.studytrails.com/java/json/java-google-json-introduction/) by `StudyTrails`

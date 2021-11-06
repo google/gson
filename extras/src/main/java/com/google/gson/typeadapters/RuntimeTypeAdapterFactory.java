@@ -27,7 +27,6 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
-import com.google.gson.internal.Streams;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
@@ -204,11 +203,13 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
     return registerSubtype(type, type.getSimpleName());
   }
 
+  @Override
   public <R> TypeAdapter<R> create(Gson gson, TypeToken<R> type) {
     if (type.getRawType() != baseType) {
       return null;
     }
 
+    final TypeAdapter<JsonElement> jsonElementAdapter = gson.getAdapter(JsonElement.class);
     final Map<String, TypeAdapter<?>> labelToDelegate
         = new LinkedHashMap<String, TypeAdapter<?>>();
     final Map<Class<?>, TypeAdapter<?>> subtypeToDelegate
@@ -221,7 +222,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
 
     return new TypeAdapter<R>() {
       @Override public R read(JsonReader in) throws IOException {
-        JsonElement jsonElement = Streams.parse(in);
+        JsonElement jsonElement = jsonElementAdapter.read(in);
         JsonElement labelJsonElement;
         if (maintainType) {
             labelJsonElement = jsonElement.getAsJsonObject().get(typeFieldName);
@@ -255,7 +256,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
         JsonObject jsonObject = delegate.toJsonTree(value).getAsJsonObject();
 
         if (maintainType) {
-          Streams.write(jsonObject, out);
+          jsonElementAdapter.write(out, jsonObject);
           return;
         }
 
@@ -270,7 +271,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
         for (Map.Entry<String, JsonElement> e : jsonObject.entrySet()) {
           clone.add(e.getKey(), e.getValue());
         }
-        Streams.write(clone, out);
+        jsonElementAdapter.write(out, clone);
       }
     }.nullSafe();
   }

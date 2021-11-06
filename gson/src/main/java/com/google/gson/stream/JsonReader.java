@@ -1085,7 +1085,7 @@ public class JsonReader implements Closeable {
         break;
       }
     }
-   
+
     String result = (null == builder) ? new String(buffer, pos, i) : builder.append(buffer, pos, i).toString();
     pos += i;
     return result;
@@ -1454,19 +1454,19 @@ public class JsonReader implements Closeable {
     return " at line " + line + " column " + column + " path " + getPath();
   }
 
-  /**
-   * Returns a <a href="http://goessner.net/articles/JsonPath/">JsonPath</a> to
-   * the current location in the JSON value.
-   */
-  public String getPath() {
+  private String getPath(boolean usePreviousPath) {
     StringBuilder result = new StringBuilder().append('$');
-    for (int i = 0, size = stackSize; i < size; i++) {
+    for (int i = 0; i < stackSize; i++) {
       switch (stack[i]) {
         case JsonScope.EMPTY_ARRAY:
         case JsonScope.NONEMPTY_ARRAY:
-          result.append('[').append(pathIndices[i]).append(']');
+          int pathIndex = pathIndices[i];
+          // If index is last path element it points to next array element; have to decrement
+          if (usePreviousPath && pathIndex > 0 && i == stackSize - 1) {
+            pathIndex--;
+          }
+          result.append('[').append(pathIndex).append(']');
           break;
-
         case JsonScope.EMPTY_OBJECT:
         case JsonScope.DANGLING_NAME:
         case JsonScope.NONEMPTY_OBJECT:
@@ -1475,7 +1475,6 @@ public class JsonReader implements Closeable {
             result.append(pathNames[i]);
           }
           break;
-
         case JsonScope.NONEMPTY_DOCUMENT:
         case JsonScope.EMPTY_DOCUMENT:
         case JsonScope.CLOSED:
@@ -1483,6 +1482,41 @@ public class JsonReader implements Closeable {
       }
     }
     return result.toString();
+  }
+
+  /**
+   * Returns a <a href="https://goessner.net/articles/JsonPath/">JsonPath</a>
+   * in <i>dot-notation</i> to the previous (or current) location in the JSON document:
+   * <ul>
+   *   <li>For JSON arrays the path points to the index of the previous element.<br>
+   *   If no element has been consumed yet it uses the index 0 (even if there are no elements).</li>
+   *   <li>For JSON objects the path points to the last property, or to the current
+   *   property if its value has not been consumed yet.</li>
+   * </ul>
+   *
+   * <p>This method can be useful to add additional context to exception messages
+   * <i>after</i> a value has been consumed.
+   */
+  public String getPreviousPath() {
+    return getPath(true);
+  }
+
+  /**
+   * Returns a <a href="https://goessner.net/articles/JsonPath/">JsonPath</a>
+   * in <i>dot-notation</i> to the next (or current) location in the JSON document:
+   * <ul>
+   *   <li>For JSON arrays the path points to the index of the next element (even
+   *   if there are no further elements).</li>
+   *   <li>For JSON objects the path points to the last property, or to the current
+   *   property if its value has not been consumed yet.</li>
+   * </ul>
+   *
+   * <p>This method can be useful to add additional context to exception messages
+   * <i>before</i> a value is consumed, for example when the {@linkplain #peek() peeked}
+   * token is unexpected.
+   */
+  public String getPath() {
+    return getPath(false);
   }
 
   /**
@@ -1546,11 +1580,11 @@ public class JsonReader implements Closeable {
     case '\'':
     case '"':
     case '\\':
-    case '/':	
-    	return escaped;
+    case '/':
+      return escaped;
     default:
-    	// throw error when none of the above cases are matched
-    	throw syntaxError("Invalid escape sequence");
+      // throw error when none of the above cases are matched
+      throw syntaxError("Invalid escape sequence");
     }
   }
 
