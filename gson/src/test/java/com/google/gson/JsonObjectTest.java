@@ -92,7 +92,6 @@ public class JsonObjectTest extends TestCase {
     assertEquals(value, jsonElement.getAsString());
   }
 
-  @SuppressWarnings("deprecation")
   public void testAddingCharacterProperties() throws Exception {
     String propertyName = "property";
     char value = 'a';
@@ -105,7 +104,10 @@ public class JsonObjectTest extends TestCase {
     JsonElement jsonElement = jsonObj.get(propertyName);
     assertNotNull(jsonElement);
     assertEquals(String.valueOf(value), jsonElement.getAsString());
-    assertEquals(value, jsonElement.getAsCharacter());
+
+    @SuppressWarnings("deprecation")
+    char character = jsonElement.getAsCharacter();
+    assertEquals(value, character);
   }
 
   /**

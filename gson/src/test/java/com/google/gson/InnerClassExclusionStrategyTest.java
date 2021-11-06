@@ -26,8 +26,8 @@ import junit.framework.TestCase;
  * @author Joel Leitch
  */
 public class InnerClassExclusionStrategyTest extends TestCase {
-  private InnerClass innerClass = new InnerClass();
-  private StaticNestedClass staticNestedClass = new StaticNestedClass();
+  public InnerClass innerClass = new InnerClass();
+  public StaticNestedClass staticNestedClass = new StaticNestedClass();
   private Excluder excluder = Excluder.DEFAULT.disableInnerClassSerialization();
 
   public void testExcludeInnerClassObject() throws Exception {
@@ -36,7 +36,7 @@ public class InnerClassExclusionStrategyTest extends TestCase {
   }
 
   public void testExcludeInnerClassField() throws Exception {
-    Field f = getClass().getDeclaredField("innerClass");
+    Field f = getClass().getField("innerClass");
     assertTrue(excluder.excludeField(f, true));
   }
 
@@ -46,7 +46,7 @@ public class InnerClassExclusionStrategyTest extends TestCase {
   }
 
   public void testIncludeStaticNestedClassField() throws Exception {
-    Field f = getClass().getDeclaredField("staticNestedClass");
+    Field f = getClass().getField("staticNestedClass");
     assertFalse(excluder.excludeField(f, true));
   }
 
