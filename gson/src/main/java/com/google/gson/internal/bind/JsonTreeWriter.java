@@ -152,6 +152,13 @@ public final class JsonTreeWriter extends JsonWriter {
     return this;
   }
 
+  @Override public JsonWriter value(CharSequence value) throws IOException {
+    if (value == null) {
+      return nullValue();
+    }
+    return value(value.toString());
+  }
+
   @Override public JsonWriter nullValue() throws IOException {
     put(JsonNull.INSTANCE);
     return this;

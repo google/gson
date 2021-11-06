@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.CharBuffer;
 
 @SuppressWarnings("resource")
 public final class JsonWriterTest extends TestCase {
@@ -52,10 +53,16 @@ public final class JsonWriterTest extends TestCase {
     assertEquals("123.4", string4.toString());
 
     StringWriter string5 = new StringWriter();
-    JsonWriter writert = new JsonWriter(string5);
-    writert.value("a");
-    writert.close();
+    JsonWriter writer5 = new JsonWriter(string5);
+    writer5.value("a");
+    writer5.close();
     assertEquals("\"a\"", string5.toString());
+
+    StringWriter string6 = new StringWriter();
+    JsonWriter writer6 = new JsonWriter(string6);
+    writer6.value(CharBuffer.wrap("test".toCharArray()));
+    writer6.close();
+    assertEquals("\"test\"", string6.toString());
   }
 
   public void testInvalidTopLevelTypes() throws IOException {
