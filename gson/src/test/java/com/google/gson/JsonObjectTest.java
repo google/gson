@@ -92,6 +92,7 @@ public class JsonObjectTest extends TestCase {
     assertEquals(value, jsonElement.getAsString());
   }
 
+  @SuppressWarnings("deprecation")
   public void testAddingCharacterProperties() throws Exception {
     String propertyName = "property";
     char value = 'a';
