@@ -307,7 +307,7 @@ public class JsonReaderPathTest {
     assertEquals("$", reader.getPath());
   }
 
-  enum Factory {
+  public enum Factory {
     STRING_READER {
       @Override public JsonReader create(String data) {
         return new JsonReader(new StringReader(data));
