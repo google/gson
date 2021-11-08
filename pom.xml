@@ -28,7 +28,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <java.version>1.6</java.version>
+    <javaVersion>6</javaVersion>
   </properties>
 
   <scm>
@@ -68,22 +68,44 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.8.1</version>
+          <configuration>
+            <release>${javaVersion}</release>
+            <jdkToolchain>
+              <!-- Require at most JDK 11 because it is the last version 
+                supporting compiling Java 1.6, see https://bugs.openjdk.java.net/browse/JDK-8028563 -->
+              <!-- When Gson increases lowest supported Java version, can 
+                change this to an open version range (e.g. `[11,)`) -->
+              <version>[9,11]</version>
+            </jdkToolchain>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
           <version>3.3.1</version>
+          <configuration>
+            <jdkToolchain>
+              <version>[11,)</version>
+            </jdkToolchain>
+            <doclint>none</doclint>
+            <!-- Link against newer Java API Javadoc because most users likely 
+              use a newer Java version than the one used for building this project -->
+            <detectJavaApiLink>false</detectJavaApiLink>
+            <links>
+              <link>https://docs.oracle.com/en/java/javase/11/docs/api/</link>
+            </links>
+            <!-- Disable detection of offline links between Maven modules: 
+              (1) Only `gson` module is published, so for other modules Javadoc links don't 
+              matter much at the moment; (2) The derived URL for the modules is based on 
+              the project URL (= Gson GitHub repo) which is incorrect because it is not 
+              hosting the Javadoc (3) It might fail due to https://bugs.openjdk.java.net/browse/JDK-8212233 -->
+            <detectOfflineLinks>false</detectOfflineLinks>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
           <version>3.2.0</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.felix</groupId>
-          <artifactId>maven-bundle-plugin</artifactId>
-          <version>5.1.2</version>
-          <inherited>true</inherited>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -110,23 +132,4 @@
       </plugin>
     </plugins>
   </build>
-  <profiles>
-    <profile>
-      <id>doclint-java8-disable</id>
-      <activation>
-        <jdk>[1.8,)</jdk>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <configuration>
-              <additionalparam>-Xdoclint:none</additionalparam>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 </project>
