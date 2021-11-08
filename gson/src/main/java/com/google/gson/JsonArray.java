@@ -344,7 +344,10 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   @Override
   public char getAsCharacter() {
     if (elements.size() == 1) {
-      return elements.get(0).getAsCharacter();
+      JsonElement element = elements.get(0);
+      @SuppressWarnings("deprecation")
+      char result = element.getAsCharacter();
+      return result;
     }
     throw new IllegalStateException();
   }

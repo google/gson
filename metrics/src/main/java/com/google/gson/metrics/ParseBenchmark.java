@@ -16,6 +16,14 @@
 
 package com.google.gson.metrics;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonFactoryBuilder;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.google.caliper.Param;
 import com.google.caliper.Runner;
 import com.google.caliper.SimpleBenchmark;
@@ -34,11 +42,6 @@ import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 
 /**
  * Measure Gson and Jackson parsing and binding performance.
@@ -139,6 +142,7 @@ public final class ParseBenchmark extends SimpleBenchmark {
   }
 
   private static class GsonStreamParser implements Parser {
+    @Override
     public void parse(char[] data, Document document) throws Exception {
       com.google.gson.stream.JsonReader jsonReader
           = new com.google.gson.stream.JsonReader(new CharArrayReader(data));
@@ -186,6 +190,7 @@ public final class ParseBenchmark extends SimpleBenchmark {
   }
 
   private static class GsonSkipParser implements Parser {
+    @Override
     public void parse(char[] data, Document document) throws Exception {
       com.google.gson.stream.JsonReader jsonReader
           = new com.google.gson.stream.JsonReader(new CharArrayReader(data));
@@ -195,10 +200,10 @@ public final class ParseBenchmark extends SimpleBenchmark {
   }
 
   private static class JacksonStreamParser implements Parser {
+    @Override
     public void parse(char[] data, Document document) throws Exception {
-      JsonFactory jsonFactory = new JsonFactory();
-      org.codehaus.jackson.JsonParser jp = jsonFactory.createJsonParser(new CharArrayReader(data));
-      jp.configure(org.codehaus.jackson.JsonParser.Feature.CANONICALIZE_FIELD_NAMES, false);
+      JsonFactory jsonFactory = new JsonFactoryBuilder().configure(JsonFactory.Feature.CANONICALIZE_FIELD_NAMES, false).build();
+      com.fasterxml.jackson.core.JsonParser jp = jsonFactory.createParser(new CharArrayReader(data));
       int depth = 0;
       do {
         switch (jp.nextToken()) {
@@ -227,8 +232,9 @@ public final class ParseBenchmark extends SimpleBenchmark {
   }
 
   private static class GsonDomParser implements Parser {
+    @Override
     public void parse(char[] data, Document document) throws Exception {
-      new JsonParser().parse(new CharArrayReader(data));
+      JsonParser.parseReader(new CharArrayReader(data));
     }
   }
 
@@ -237,20 +243,24 @@ public final class ParseBenchmark extends SimpleBenchmark {
         .setDateFormat("EEE MMM dd HH:mm:ss Z yyyy")
         .create();
 
+    @Override
     public void parse(char[] data, Document document) throws Exception {
       gson.fromJson(new CharArrayReader(data), document.gsonType);
     }
   }
 
   private static class JacksonBindParser implements Parser {
-    private static ObjectMapper mapper = new ObjectMapper();
+    private static final ObjectMapper mapper;
 
     static {
-      mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-      mapper.configure(DeserializationConfig.Feature.AUTO_DETECT_FIELDS, true);
+      mapper = JsonMapper.builder()
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        .configure(MapperFeature.AUTO_DETECT_FIELDS, true)
+        .build();
       mapper.setDateFormat(new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy"));
     }
 
+    @Override
     public void parse(char[] data, Document document) throws Exception {
       mapper.readValue(new CharArrayReader(data), document.jacksonType);
     }
