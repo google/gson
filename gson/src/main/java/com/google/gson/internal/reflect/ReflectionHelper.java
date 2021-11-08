@@ -1,9 +1,8 @@
 package com.google.gson.internal.reflect;
 
+import com.google.gson.JsonIOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-
-import com.google.gson.JsonIOException;
 
 public class ReflectionHelper {
   private ReflectionHelper() { }
@@ -12,10 +11,8 @@ public class ReflectionHelper {
    * Tries making the field accessible, wrapping any thrown exception in a
    * {@link JsonIOException} with descriptive message.
    *
-   * @param field
-   *    Field to make accessible
-   * @throws JsonIOException
-   *    If making the field accessible fails
+   * @param field field to make accessible
+   * @throws JsonIOException if making the field accessible fails
    */
   public static void makeAccessible(Field field) throws JsonIOException {
     try {
@@ -44,17 +41,15 @@ public class ReflectionHelper {
       stringBuilder.append(parameters[i].getSimpleName());
     }
 
-    return stringBuilder.append(")").toString();
+    return stringBuilder.append(')').toString();
   }
 
   /**
    * Tries making the constructor accessible, returning an exception message
    * if this fails.
    *
-   * @param constructor
-   *    Constructor to make accessible
-   * @return
-   *    Exception message; {@code null} if successful, non-{@code null} if
+   * @param constructor constructor to make accessible
+   * @return exception message; {@code null} if successful, non-{@code null} if
    *    unsuccessful
    */
   public static String tryMakeAccessible(Constructor<?> constructor) {
@@ -63,7 +58,7 @@ public class ReflectionHelper {
       return null;
     } catch (Exception exception) {
       return "Failed making constructor '" + constructorToString(constructor) + "' accessible; "
-          + "either change its visibility or write a custom InstanceCreator for its declaring type: "
+          + "either change its visibility or write a custom InstanceCreator or TypeAdapter for its declaring type: "
           // Include the message since it might contain more detailed information
           + exception.getMessage();
     }

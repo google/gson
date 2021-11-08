@@ -128,8 +128,7 @@ public final class ConstructorConstructor {
       @SuppressWarnings("unchecked") // T is the same raw type as is requested
       @Override public T construct() {
         try {
-          Object[] args = null;
-          return (T) constructor.newInstance(args);
+          return (T) constructor.newInstance();
         } catch (InstantiationException e) {
           // TODO: JsonParseException ?
           throw new RuntimeException("Failed to invoke " + constructor + " with no args", e);
