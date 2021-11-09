@@ -1730,6 +1730,21 @@ public final class JsonReaderTest extends TestCase {
     }
   }
 
+  /**
+   * Regression test for an issue with buffer filling and consumeNonExecutePrefix.
+   */
+  public void testReadAcrossBuffers() throws IOException {
+    StringBuilder sb = new StringBuilder('#');
+    for (int i = 0; i < JsonReader.BUFFER_SIZE - 3; i++) {
+      sb.append(' ');
+    }
+    sb.append("\n)]}'\n3");
+    JsonReader reader = new JsonReader(reader(sb.toString()));
+    reader.setLenient(true);
+    JsonToken token = reader.peek();
+    assertEquals(JsonToken.NUMBER, token);
+  }
+
   private void assertDocument(String document, Object... expectations) throws IOException {
     JsonReader reader = new JsonReader(reader(document));
     reader.setLenient(true);

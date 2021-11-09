@@ -228,13 +228,14 @@ public class JsonReader implements Closeable {
   /** True to accept non-spec compliant JSON */
   private boolean lenient = false;
 
+  static final int BUFFER_SIZE = 1024;
   /**
    * Use a manual buffer to easily read and unread upcoming characters, and
    * also so we can create strings without an intermediate StringBuilder.
    * We decode literals directly out of this buffer, so it must be at least as
    * long as the longest token that can be reported as a number.
    */
-  private final char[] buffer = new char[1024];
+  private final char[] buffer = new char[BUFFER_SIZE];
   private int pos = 0;
   private int limit = 0;
 
@@ -1604,11 +1605,11 @@ public class JsonReader implements Closeable {
     nextNonWhitespace(true);
     pos--;
 
-    int p = pos;
-    if (p + 5 > limit && !fillBuffer(5)) {
+    if (pos + 5 > limit && !fillBuffer(5)) {
       return;
     }
 
+    int p = pos;
     char[] buf = buffer;
     if(buf[p] != ')' || buf[p + 1] != ']' || buf[p + 2] != '}' || buf[p + 3] != '\'' || buf[p + 4] != '\n') {
       return; // not a security token!
