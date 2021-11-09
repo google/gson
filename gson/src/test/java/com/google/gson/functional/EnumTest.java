@@ -16,12 +16,6 @@
 
 package com.google.gson.functional;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.Set;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -34,7 +28,11 @@ import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.common.MoreAsserts;
 import com.google.gson.reflect.TypeToken;
-
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.Set;
 import junit.framework.TestCase;
 /**
  * Functional tests for Java 5.0 enums.
@@ -200,17 +198,17 @@ public class EnumTest extends TestCase {
   }
 
   public void testEnumClassWithFields() {
-	  assertEquals("\"RED\"", gson.toJson(Color.RED));
-	  assertEquals("red", gson.fromJson("RED", Color.class).value);
+    assertEquals("\"RED\"", gson.toJson(Color.RED));
+    assertEquals("red", gson.fromJson("RED", Color.class).value);
   }
 
   public enum Color {
-	  RED("red", 1), BLUE("blue", 2), GREEN("green", 3);
-	  String value;
-	  int index;
-	  private Color(String value, int index) {
-		  this.value = value;
-		  this.index = index;
-	  }
+    RED("red", 1), BLUE("blue", 2), GREEN("green", 3);
+    String value;
+    int index;
+    private Color(String value, int index) {
+      this.value = value;
+      this.index = index;
+    }
   }
 }
