@@ -180,7 +180,6 @@ public class DefaultTypeAdaptersTest extends TestCase {
     testNullSerializationAndDeserialization(Date.class);
     testNullSerializationAndDeserialization(GregorianCalendar.class);
     testNullSerializationAndDeserialization(Calendar.class);
-    testNullSerializationAndDeserialization(Enum.class);
     testNullSerializationAndDeserialization(Class.class);
   }
 

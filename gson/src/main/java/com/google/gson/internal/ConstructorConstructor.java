@@ -40,7 +40,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 
 import com.google.gson.InstanceCreator;
 import com.google.gson.JsonIOException;
-import com.google.gson.internal.reflect.ReflectionAccessor;
+import com.google.gson.internal.reflect.ReflectionHelper;
 import com.google.gson.reflect.TypeToken;
 
 /**
@@ -48,7 +48,6 @@ import com.google.gson.reflect.TypeToken;
  */
 public final class ConstructorConstructor {
   private final Map<Type, InstanceCreator<?>> instanceCreators;
-  private final ReflectionAccessor accessor = ReflectionAccessor.getInstance();
 
   public ConstructorConstructor(Map<Type, InstanceCreator<?>> instanceCreators) {
     this.instanceCreators = instanceCreators;
@@ -97,33 +96,52 @@ public final class ConstructorConstructor {
   }
 
   private <T> ObjectConstructor<T> newDefaultConstructor(Class<? super T> rawType) {
+    final Constructor<? super T> constructor;
     try {
-      final Constructor<? super T> constructor = rawType.getDeclaredConstructor();
-      if (!constructor.isAccessible()) {
-        accessor.makeAccessible(constructor);
-      }
-      return new ObjectConstructor<T>() {
-        @SuppressWarnings("unchecked") // T is the same raw type as is requested
-        @Override public T construct() {
-          try {
-            Object[] args = null;
-            return (T) constructor.newInstance(args);
-          } catch (InstantiationException e) {
-            // TODO: JsonParseException ?
-            throw new RuntimeException("Failed to invoke " + constructor + " with no args", e);
-          } catch (InvocationTargetException e) {
-            // TODO: don't wrap if cause is unchecked!
-            // TODO: JsonParseException ?
-            throw new RuntimeException("Failed to invoke " + constructor + " with no args",
-                e.getTargetException());
-          } catch (IllegalAccessException e) {
-            throw new AssertionError(e);
-          }
-        }
-      };
+      constructor = rawType.getDeclaredConstructor();
     } catch (NoSuchMethodException e) {
       return null;
     }
+
+    final String exceptionMessage = ReflectionHelper.tryMakeAccessible(constructor);
+    if (exceptionMessage != null) {
+      /*
+       * Create ObjectConstructor which throws exception.
+       * This keeps backward compatibility (compared to returning `null` which
+       * would then choose another way of creating object).
+       * And it supports types which are only serialized but not deserialized
+       * (compared to directly throwing exception here), e.g. when runtime type
+       * of object is inaccessible, but compile-time type is accessible.
+       */
+      return new ObjectConstructor<T>() {
+        @Override
+        public T construct() {
+          // New exception is created every time to avoid keeping reference
+          // to exception with potentially long stack trace, causing a
+          // memory leak
+          throw new JsonIOException(exceptionMessage);
+        }
+      };
+    }
+
+    return new ObjectConstructor<T>() {
+      @SuppressWarnings("unchecked") // T is the same raw type as is requested
+      @Override public T construct() {
+        try {
+          return (T) constructor.newInstance();
+        } catch (InstantiationException e) {
+          // TODO: JsonParseException ?
+          throw new RuntimeException("Failed to invoke " + constructor + " with no args", e);
+        } catch (InvocationTargetException e) {
+          // TODO: don't wrap if cause is unchecked!
+          // TODO: JsonParseException ?
+          throw new RuntimeException("Failed to invoke " + constructor + " with no args",
+              e.getTargetException());
+        } catch (IllegalAccessException e) {
+          throw new AssertionError(e);
+        }
+      }
+    };
   }
 
   /**

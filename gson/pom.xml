@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -62,6 +64,21 @@
           </jdkToolchain>
           <source>1.6</source>
           <target>1.6</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.0.0-M5</version>
+        <configuration>
+          <!-- Deny illegal access, this is required for ReflectionAccessTest -->
+          <!-- Requires Java >= 9; Important: In case future Java versions 
+            don't support this flag anymore, don't remove it unless CI also runs with 
+            that Java version. Ideally would use toolchain to specify that this should 
+            run with e.g. Java 11, but Maven toolchain requirements (unlike Gradle ones) 
+            don't seem to be portable (every developer would have to set up toolchain 
+            configuration locally). -->
+          <argLine>--illegal-access=deny</argLine>
         </configuration>
       </plugin>
       <plugin>
