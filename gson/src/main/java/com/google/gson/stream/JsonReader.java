@@ -16,13 +16,16 @@
 
 package com.google.gson.stream;
 
-import com.google.gson.internal.JsonReaderInternalAccess;
-import com.google.gson.internal.bind.JsonTreeReader;
 import java.io.Closeable;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
+import java.nio.BufferOverflowException;
+import java.nio.CharBuffer;
 import java.util.Arrays;
+
+import com.google.gson.internal.JsonReaderInternalAccess;
+import com.google.gson.internal.bind.JsonTreeReader;
 
 /**
  * Reads a JSON (<a href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>)
@@ -222,6 +225,8 @@ public class JsonReader implements Closeable {
   private static final int NUMBER_CHAR_EXP_SIGN = 6;
   private static final int NUMBER_CHAR_EXP_DIGIT = 7;
 
+  private static final int BUFFER_SIZE = 1024;
+  
   /** The input JSON. */
   private final Reader in;
 
@@ -234,7 +239,7 @@ public class JsonReader implements Closeable {
    * We decode literals directly out of this buffer, so it must be at least as
    * long as the longest token that can be reported as a number.
    */
-  private final char[] buffer = new char[1024];
+  private final char[] buffer = new char[BUFFER_SIZE];
   private int pos = 0;
   private int limit = 0;
 
@@ -1091,10 +1096,12 @@ public class JsonReader implements Closeable {
     return result;
   }
 
-  private void skipQuotedValue(char quote) throws IOException {
+  private CharBuffer skipQuotedValue(char quote, CharBuffer buff) throws IOException {
     // Like nextNonWhitespace, this uses locals 'p' and 'l' to save inner-loop field access.
     char[] buffer = this.buffer;
+    buff = putInBuffer(buff, quote);
     do {
+      int startPos = pos;
       int p = pos;
       int l = limit;
       /* the index of the first character not yet appended to the builder. */
@@ -1102,7 +1109,7 @@ public class JsonReader implements Closeable {
         int c = buffer[p++];
         if (c == quote) {
           pos = p;
-          return;
+          return copyToBuffer(buff, startPos);
         } else if (c == '\\') {
           pos = p;
           readEscapeCharacter();
@@ -1114,13 +1121,15 @@ public class JsonReader implements Closeable {
         }
       }
       pos = p;
+      buff = copyToBuffer(buff, startPos);
     } while (fillBuffer(1));
     throw syntaxError("Unterminated string");
   }
 
-  private void skipUnquotedValue() throws IOException {
+  private CharBuffer skipUnquotedValue(CharBuffer buff) throws IOException {
     do {
       int i = 0;
+      int startPos = pos;
       for (; pos + i < limit; i++) {
         switch (buffer[pos + i]) {
         case '/':
@@ -1141,11 +1150,75 @@ public class JsonReader implements Closeable {
         case '\r':
         case '\n':
           pos += i;
-          return;
+          return copyToBuffer(buff, startPos);
         }
       }
       pos += i;
+      buff = copyToBuffer(buff, startPos);
     } while (fillBuffer(1));
+    return buff;
+  }
+  
+  private CharBuffer putInBuffer(CharBuffer buff, char c) {
+	  if(buff == null) return null;
+	  buff = expandToFit(buff, 1);
+	  return buff.put(c);
+  }
+  
+  private CharBuffer putInBuffer(CharBuffer buff, String cs) {
+	  if(buff == null) return null;
+	  buff = expandToFit(buff, cs.length());
+	  return buff.put(cs);
+  }
+  
+  /**
+   * <p>Does nothing and returns null if the first argument is null.</p>
+   * 
+   * <p>Otherwise copy characters to the given CharBuffer from {@code this.buffer}, beginning
+   * at the given start index (inclusive) and ending at {@code this.pos} (exclusive). If the
+   * CharBuffer doesn't have enough remaining space a new one is allocated which does and the
+   * contents of the given CharBuffer are copied.</p>
+   * @param buff The buffer to write to.
+   * @param start The first index in this.buffer to copy.
+   * @return Null if the first argument is null. Otherwise The first argument if it had enough
+   * remaining capacity to hold the desired characters, a new one if not.
+   * @throws IndexOutOfBoundsException if {@code start > this.pos}
+   * @throws BufferOverflowException if the required buffer size would be greater than
+   * {@link Integer#MAX_VALUE}
+   */
+  private CharBuffer copyToBuffer(CharBuffer buff, int start) {
+	  if(buff == null) return null;
+	  int len = this.pos - start;
+	  if(len == 0) return buff;
+	  buff = expandToFit(buff, len);
+	  buff.put(this.buffer, start, len);
+	  return buff;
+  }
+  
+  /**
+   * Expand the capacity of the given buffer to fit at least size more chars.
+   * @param buff The buffer to expand.
+   * @param size The number of chars you wish to add.
+   * @return The same buffer if it's already big enough, otherwise a new buffer
+   * with copied content but larger capacity.
+   */
+  private CharBuffer expandToFit(CharBuffer buff, int size) {
+	  if(buff == null || buff.remaining() >= size) return buff;
+	  int needed = buff.capacity() + size;
+	  //integer overflow
+	  if(needed < buff.capacity()) throw new BufferOverflowException();
+	  int capacity;
+	  if(needed >= 0x40000000) {
+  	    capacity = Integer.MAX_VALUE;
+	  }
+	  else {
+		capacity = buff.capacity() * 2;
+		while (capacity <= needed) capacity *= 2;
+	  }
+	  CharBuffer expanded = CharBuffer.allocate(capacity);
+	  buff.flip();
+	  expanded.put(buff);
+	  return expanded;
   }
 
   /**
@@ -1219,44 +1292,93 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Skips the next value recursively. If it is an object or array, all nested
+   * <p>Reads the next value recursively and returns the JSON value as a String.
+   * This method is intended for use when the JSON token stream contains a 
+   * value for which deserialization must be deferred.</p>
+   * 
+   * <p>Prefer {@link #skipValue()} when the value would be discarded as it is
+   * faster and uses less memory.</p>
+   * @return The next value in the JSON input. Not {@code null} but possibly
+   * {@code "null"}. Not {@code ""} but possibly {@code "\"\""}. Any escape 
+   * sequences in {@link com.google.gson.stream.JsonToken.STRING String} values
+   * are left intact but whitespace is removed.
+   * @see #skipValue()
+   * @since 2.8.6
+   */
+  public String nextRawJSONValue() throws IOException {
+	  return nextValue(true);
+  }
+  
+  /**
+   * <p>Skips the next value recursively. If it is an object or array, all nested
    * elements are skipped. This method is intended for use when the JSON token
-   * stream contains unrecognized or unhandled values.
+   * stream contains unrecognized or unhandled values.</p>
+   * 
+   * <p>Faster than {@link #nextRawJSONValue()} which returns the skipped portion
+   * of the input.</p>
+   * @see #nextRawJSONValue()
    */
   public void skipValue() throws IOException {
-    int count = 0;
-    do {
-      int p = peeked;
-      if (p == PEEKED_NONE) {
-        p = doPeek();
-      }
+    nextValue(false);
+  }
+  /**
+   * Recursively consume the next value from the stream.
+   * @param save Whether or not to return the consumed value.
+   * @return null if save is false, the value as JSON otherwise.
+   */
+  private String nextValue(boolean save) throws IOException {
+	  int count = 0;
+	  CharBuffer buff = save ? CharBuffer.allocate(BUFFER_SIZE) : null;
+	 do {
+	      int p = peeked;
+	      if (p == PEEKED_NONE) {
+	        p = doPeek();
+	      }
 
-      if (p == PEEKED_BEGIN_ARRAY) {
-        push(JsonScope.EMPTY_ARRAY);
-        count++;
-      } else if (p == PEEKED_BEGIN_OBJECT) {
-        push(JsonScope.EMPTY_OBJECT);
-        count++;
-      } else if (p == PEEKED_END_ARRAY) {
-        stackSize--;
-        count--;
-      } else if (p == PEEKED_END_OBJECT) {
-        stackSize--;
-        count--;
-      } else if (p == PEEKED_UNQUOTED_NAME || p == PEEKED_UNQUOTED) {
-        skipUnquotedValue();
-      } else if (p == PEEKED_SINGLE_QUOTED || p == PEEKED_SINGLE_QUOTED_NAME) {
-        skipQuotedValue('\'');
-      } else if (p == PEEKED_DOUBLE_QUOTED || p == PEEKED_DOUBLE_QUOTED_NAME) {
-        skipQuotedValue('"');
-      } else if (p == PEEKED_NUMBER) {
-        pos += peekedNumberLength;
-      }
-      peeked = PEEKED_NONE;
-    } while (count != 0);
+	      if (p == PEEKED_BEGIN_ARRAY) {
+	        push(JsonScope.EMPTY_ARRAY);
+	        count++;
+	        buff = putInBuffer(buff, '[');
+	      } else if (p == PEEKED_BEGIN_OBJECT) {
+	        push(JsonScope.EMPTY_OBJECT);
+	        count++;
+	        buff = putInBuffer(buff, '{');
+	      } else if (p == PEEKED_END_ARRAY) {
+	        stackSize--;
+	        count--;
+	        buff = putInBuffer(buff, ']');
+	      } else if (p == PEEKED_END_OBJECT) {
+	    	stackSize--;
+	        count--;
+	        buff = putInBuffer(buff, '}');
+	      } else if(p == PEEKED_NULL && save) { //peeking a literal null actually consumes it
+	    	buff = putInBuffer(buff, "null");
+	      } else if (p == PEEKED_UNQUOTED_NAME || p == PEEKED_UNQUOTED) {
+	    	  buff = skipUnquotedValue(buff);
+	      } else if (p == PEEKED_SINGLE_QUOTED || p == PEEKED_SINGLE_QUOTED_NAME) {
+	    	  buff = skipQuotedValue('\'', buff);
+	      } else if (p == PEEKED_DOUBLE_QUOTED || p == PEEKED_DOUBLE_QUOTED_NAME) {
+	    	  buff = skipQuotedValue('"', buff);
+	      } else if (p == PEEKED_NUMBER) {
+	    	int numStart = pos;
+	    	pos += peekedNumberLength;
+	    	buff = copyToBuffer(buff, numStart);  
+	      }
+	      peeked = PEEKED_NONE;
+	      
+	      if(save) {
+	    	  if(p == PEEKED_UNQUOTED_NAME || p == PEEKED_SINGLE_QUOTED_NAME || p == PEEKED_DOUBLE_QUOTED_NAME) {
+	    		  buff = putInBuffer(buff, ':');
+	    	  }
+	    	  else if(count > 0 && p != PEEKED_BEGIN_ARRAY && p != PEEKED_BEGIN_OBJECT && hasNext()) {
+	    		  buff = putInBuffer(buff, ',');
+	    	  }
+	      }
+	    } while (count != 0);
 
-    pathIndices[stackSize - 1]++;
-    pathNames[stackSize - 1] = "null";
+	    pathIndices[stackSize - 1]++;
+	    pathNames[stackSize - 1] = "null";
+	    return buff == null ? null : buff.flip().toString();
   }
 
   private void push(int newTop) {

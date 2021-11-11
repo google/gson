@@ -281,6 +281,24 @@ public final class JsonTreeReader extends JsonReader {
       pathIndices[stackSize - 1]++;
     }
   }
+  
+  @Override public String nextRawJSONValue() throws IOException {
+	if (peek() == JsonToken.NAME) {
+	  String name = nextName();
+	  pathNames[stackSize - 2] = "null";
+	  if (stackSize > 0) {
+		pathIndices[stackSize - 1]++;
+	  }
+	  return name;
+	}
+	
+	Object top = popStack();
+	if (stackSize > 0) {
+	  pathNames[stackSize - 1] = "null";
+	  pathIndices[stackSize - 1]++;
+	}
+	return top.toString();
+  }
 
   @Override public String toString() {
     return getClass().getSimpleName() + locationString();
