@@ -18,6 +18,8 @@ package com.google.gson.internal.bind;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -26,17 +28,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.Calendar;
-import java.util.Currency;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerArray;
@@ -788,6 +780,43 @@ public final class TypeAdapters {
         rawType = rawType.getSuperclass(); // handle anonymous subclasses
       }
       return (TypeAdapter<T>) new EnumTypeAdapter(rawType);
+    }
+  };
+
+  private static final class OptionalTypeAdapter<T> extends TypeAdapter<Optional<T>> {
+    private final TypeAdapter<T> adapter;
+
+    public OptionalTypeAdapter(TypeAdapter<T> adapter) {
+      this.adapter = adapter;
+    }
+    @Override public Optional<T> read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
+        return Optional.empty();
+      }
+      return Optional.ofNullable(adapter.read(in));
+    }
+
+    @Override public void write(JsonWriter out, Optional<T> value) throws IOException {
+      if (value != null && value.isPresent()) {
+        adapter.write(out, value.get());
+      } else {
+        out.nullValue();
+      }
+    }
+  }
+
+  public static final TypeAdapterFactory OPTIONAL_FACTORY = new TypeAdapterFactory() {
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    @Override public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
+      Class<? super T> rawType = typeToken.getRawType();
+      if (!Optional.class.isAssignableFrom(rawType)) {
+        return null;
+      }
+      final ParameterizedType parameterizedType = (ParameterizedType) typeToken.getType();
+      final Type actualType = parameterizedType.getActualTypeArguments()[0];
+      final TypeAdapter<?> adapter = gson.getAdapter(TypeToken.get(actualType));
+      return new OptionalTypeAdapter(adapter);
     }
   };
 

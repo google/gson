@@ -283,6 +283,7 @@ public final class Gson {
     this.jsonAdapterFactory = new JsonAdapterAnnotationTypeAdapterFactory(constructorConstructor);
     factories.add(jsonAdapterFactory);
     factories.add(TypeAdapters.ENUM_FACTORY);
+    factories.add(TypeAdapters.OPTIONAL_FACTORY);
     factories.add(new ReflectiveTypeAdapterFactory(
         constructorConstructor, fieldNamingStrategy, excluder, jsonAdapterFactory));
 
