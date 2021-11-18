@@ -284,6 +284,9 @@ public final class Gson {
     factories.add(jsonAdapterFactory);
     factories.add(TypeAdapters.ENUM_FACTORY);
     factories.add(TypeAdapters.OPTIONAL_FACTORY);
+    factories.add(TypeAdapters.OPTIONAL_INT_FACTORY);
+    factories.add(TypeAdapters.OPTIONAL_LONG_FACTORY);
+    factories.add(TypeAdapters.OPTIONAL_DOUBLE_FACTORY);
     factories.add(new ReflectiveTypeAdapterFactory(
         constructorConstructor, fieldNamingStrategy, excluder, jsonAdapterFactory));
 
