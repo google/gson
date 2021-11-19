@@ -17,6 +17,7 @@
 package com.google.gson;
 
 import com.google.gson.internal.Excluder;
+import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
@@ -26,6 +27,9 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import junit.framework.TestCase;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 /**
  * Unit tests for {@link Gson}.
@@ -81,5 +85,17 @@ public final class GsonTest extends TestCase {
       // Test stub.
     }
     @Override public Object read(JsonReader in) throws IOException { return null; }
+  }
+
+  public void testNullAdapterLookup() {
+    // Formalize the handling of null type tokens (previously it was partially handled, but still throwing an error)
+    // Note: ExpectedException cannot be used due to test suite extending TestCase
+    try {
+      new Gson().getAdapter((TypeToken<Object>) null);
+      assertTrue("Unreachable", false);
+    }
+    catch (NullPointerException e) {
+      assertEquals("No type specified", e.getMessage());
+    }
   }
 }
