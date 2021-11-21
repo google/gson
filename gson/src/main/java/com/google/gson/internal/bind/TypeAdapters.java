@@ -783,11 +783,15 @@ public final class TypeAdapters {
       return (TypeAdapter<T>) new EnumTypeAdapter(rawType);
     }
   };
-
+  /**
+   *Typeadpater used by  OPTIONAL_FACTORY
+   *
+   * @author N.Wood
+   */
   private static final class OptionalTypeAdapter<T> extends TypeAdapter<Optional<T>> {
     private final TypeAdapter<T> adapter;
 
-    public OptionalTypeAdapter(TypeAdapter<T> adapter) {
+    public OptionalTypeAdapter(final TypeAdapter<T> adapter) {
       this.adapter = adapter;
     }
     @Override public Optional<T> read(JsonReader in) throws IOException {
@@ -806,7 +810,11 @@ public final class TypeAdapters {
       }
     }
   }
-
+  /**
+   * Returns a factory for  {@code Optional}.
+   * The inner type will be resolved from the type token
+   * @author N.Wood
+   */
   public static final TypeAdapterFactory OPTIONAL_FACTORY = new TypeAdapterFactory() {
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
@@ -834,7 +842,7 @@ public final class TypeAdapters {
   private static final class OptionalIntTypeAdapter extends TypeAdapter<OptionalInt> {
     private final TypeAdapter<Integer> adapter;
 
-    public OptionalIntTypeAdapter(TypeAdapter<Integer> adapter) {
+    public OptionalIntTypeAdapter(final TypeAdapter<Integer> adapter) {
       this.adapter = adapter;
     }
     @Override public OptionalInt read(JsonReader in) throws IOException {
@@ -853,6 +861,13 @@ public final class TypeAdapters {
       }
     }
   }
+
+  /**
+   * Returns a factory for  {@code int}.
+   * The inner type will be resolved from the typeToken
+   * @author N.Wood
+   */
+
   public static final TypeAdapterFactory OPTIONAL_INT_FACTORY = new TypeAdapterFactory() {
     @SuppressWarnings({"unchecked"})
     @Override public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
@@ -869,7 +884,7 @@ public final class TypeAdapters {
   private static final class OptionalLongTypeAdapter extends TypeAdapter<OptionalLong> {
     private final TypeAdapter<Long> adapter;
 
-    public OptionalLongTypeAdapter(TypeAdapter<Long> adapter) {
+    public OptionalLongTypeAdapter(final TypeAdapter<Long> adapter) {
       this.adapter = adapter;
     }
     @Override public OptionalLong read(JsonReader in) throws IOException {
@@ -888,6 +903,13 @@ public final class TypeAdapters {
       }
     }
   }
+
+  /**
+   * Returns a factory for  {@code OPTIONAL_LONG_FACTORY}.
+   * The inner type will be resolved from the type token
+   * @author N.Wood
+   */
+
   public static final TypeAdapterFactory OPTIONAL_LONG_FACTORY = new TypeAdapterFactory() {
     @SuppressWarnings({"unchecked"})
     @Override public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
@@ -904,7 +926,7 @@ public final class TypeAdapters {
   private static final class OptionalDoubleTypeAdapter extends TypeAdapter<OptionalDouble> {
     private final TypeAdapter<Double> adapter;
 
-    public OptionalDoubleTypeAdapter(TypeAdapter<Double> adapter) {
+    public OptionalDoubleTypeAdapter(final TypeAdapter<Double> adapter) {
       this.adapter = adapter;
     }
     @Override public OptionalDouble read(JsonReader in) throws IOException {
@@ -923,6 +945,12 @@ public final class TypeAdapters {
       }
     }
   }
+
+  /**
+   * Returns a factory for  {@code OPTIONAL_DOUBLE_FACTORY}.
+   * The inner type will be resolved from the type token
+   * @author N.Wood
+   */
   public static final TypeAdapterFactory OPTIONAL_DOUBLE_FACTORY = new TypeAdapterFactory() {
     @SuppressWarnings({"unchecked"})
     @Override public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
