@@ -1,0 +1,9 @@
+com.google.gson
+com.google.gson.annotations
+com.google.gson.internal
+com.google.gson.internal.bind
+com.google.gson.internal.bind.util
+com.google.gson.internal.reflect
+com.google.gson.internal.sql
+com.google.gson.reflect
+com.google.gson.stream
