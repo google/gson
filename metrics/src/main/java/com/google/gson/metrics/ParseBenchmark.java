@@ -24,24 +24,27 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.google.caliper.BeforeExperiment;
 import com.google.caliper.Param;
-import com.google.caliper.Runner;
-import com.google.caliper.SimpleBenchmark;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import java.io.CharArrayReader;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.lang.reflect.Type;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 /**
  * Measure Gson and Jackson parsing and binding performance.
@@ -50,7 +53,7 @@ import java.util.List;
  * That file contains Twitter feed data, which is representative of what
  * applications will be parsing.
  */
-public final class ParseBenchmark extends SimpleBenchmark {
+public final class ParseBenchmark {
   @Param Document document;
   @Param Api api;
 
@@ -105,8 +108,9 @@ public final class ParseBenchmark extends SimpleBenchmark {
   private char[] text;
   private Parser parser;
 
-  @Override protected void setUp() throws Exception {
-    text = resourceToString("/" + document.name() + ".json").toCharArray();
+  @BeforeExperiment
+  void setUp() throws Exception {
+    text = resourceToString(document.name() + ".json").toCharArray();
     parser = api.newParser();
   }
 
@@ -116,25 +120,39 @@ public final class ParseBenchmark extends SimpleBenchmark {
     }
   }
 
-  private static String resourceToString(String path) throws Exception {
-    InputStream in = ParseBenchmark.class.getResourceAsStream(path);
-    if (in == null) {
-      throw new IllegalArgumentException("No such file: " + path);
+  private static File getResourceFile(String path) throws Exception {
+    URL url = ParseBenchmark.class.getResource(path);
+    if (url == null) {
+      throw new IllegalArgumentException("Resource " + path + " does not exist");
     }
+    File file = new File(url.toURI());
+    if (!file.isFile()) {
+      throw new IllegalArgumentException("Resource " + path + " is not a file");
+    }
+    return file;
+  }
 
-    Reader reader = new InputStreamReader(in, "UTF-8");
-    char[] buffer = new char[8192];
-    StringWriter writer = new StringWriter();
-    int count;
-    while ((count = reader.read(buffer)) != -1) {
-      writer.write(buffer, 0, count);
+  private static String resourceToString(String fileName) throws Exception {
+    ZipFile zipFile = new ZipFile(getResourceFile("/ParseBenchmarkData.zip"));
+    try {
+      ZipEntry zipEntry = zipFile.getEntry(fileName);
+      Reader reader = new InputStreamReader(zipFile.getInputStream(zipEntry));
+      char[] buffer = new char[8192];
+      StringWriter writer = new StringWriter();
+      int count;
+      while ((count = reader.read(buffer)) != -1) {
+        writer.write(buffer, 0, count);
+      }
+      reader.close();
+      return writer.toString();
+
+    } finally {
+      zipFile.close();
     }
-    reader.close();
-    return writer.toString();
   }
 
   public static void main(String[] args) throws Exception {
-    Runner.main(ParseBenchmark.class, args);
+    NonUploadingCaliperRunner.run(ParseBenchmark.class, args);
   }
 
   interface Parser {
@@ -257,7 +275,7 @@ public final class ParseBenchmark extends SimpleBenchmark {
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         .configure(MapperFeature.AUTO_DETECT_FIELDS, true)
         .build();
-      mapper.setDateFormat(new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy"));
+      mapper.setDateFormat(new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy", Locale.ENGLISH));
     }
 
     @Override
