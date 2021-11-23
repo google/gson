@@ -809,7 +809,7 @@ public final class TypeAdapters {
       }
       String key = in.nextString();
       T constant = nameToConstant.get(key);
-      if(constant == null)
+      if (constant == null)
         return stringToConstant.get(key);
       return constant;
     }
