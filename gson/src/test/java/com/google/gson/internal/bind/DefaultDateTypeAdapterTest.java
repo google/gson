@@ -27,7 +27,6 @@ import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.JavaVersion;
-import com.google.gson.internal.bind.DefaultDateTypeAdapter;
 import com.google.gson.internal.bind.DefaultDateTypeAdapter.DateType;
 import com.google.gson.reflect.TypeToken;
 

@@ -389,7 +389,7 @@ public class ProtoTypeAdapter
       EnumValueDescriptor fieldValue = desc.findValueByNumber(jsonElement.getAsInt());
       if (fieldValue == null) {
         throw new IllegalArgumentException(
-            String.format("Unrecognized enum value: %s", jsonElement.getAsInt()));
+            String.format("Unrecognized enum value: %d", jsonElement.getAsInt()));
       }
       return fieldValue;
     }

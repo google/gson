@@ -46,110 +46,154 @@ public class JsonReaderPathTest {
 
   @Test public void path() throws IOException {
     JsonReader reader = factory.create("{\"a\":[2,true,false,null,\"b\",{\"c\":\"d\"},[3]]}");
+    assertEquals("$", reader.getPreviousPath());
     assertEquals("$", reader.getPath());
     reader.beginObject();
+    assertEquals("$.", reader.getPreviousPath());
     assertEquals("$.", reader.getPath());
     reader.nextName();
+    assertEquals("$.a", reader.getPreviousPath());
     assertEquals("$.a", reader.getPath());
     reader.beginArray();
+    assertEquals("$.a[0]", reader.getPreviousPath());
     assertEquals("$.a[0]", reader.getPath());
     reader.nextInt();
+    assertEquals("$.a[0]", reader.getPreviousPath());
     assertEquals("$.a[1]", reader.getPath());
     reader.nextBoolean();
+    assertEquals("$.a[1]", reader.getPreviousPath());
     assertEquals("$.a[2]", reader.getPath());
     reader.nextBoolean();
+    assertEquals("$.a[2]", reader.getPreviousPath());
     assertEquals("$.a[3]", reader.getPath());
     reader.nextNull();
+    assertEquals("$.a[3]", reader.getPreviousPath());
     assertEquals("$.a[4]", reader.getPath());
     reader.nextString();
+    assertEquals("$.a[4]", reader.getPreviousPath());
     assertEquals("$.a[5]", reader.getPath());
     reader.beginObject();
+    assertEquals("$.a[5].", reader.getPreviousPath());
     assertEquals("$.a[5].", reader.getPath());
     reader.nextName();
+    assertEquals("$.a[5].c", reader.getPreviousPath());
     assertEquals("$.a[5].c", reader.getPath());
     reader.nextString();
+    assertEquals("$.a[5].c", reader.getPreviousPath());
     assertEquals("$.a[5].c", reader.getPath());
     reader.endObject();
+    assertEquals("$.a[5]", reader.getPreviousPath());
     assertEquals("$.a[6]", reader.getPath());
     reader.beginArray();
+    assertEquals("$.a[6][0]", reader.getPreviousPath());
     assertEquals("$.a[6][0]", reader.getPath());
     reader.nextInt();
+    assertEquals("$.a[6][0]", reader.getPreviousPath());
     assertEquals("$.a[6][1]", reader.getPath());
     reader.endArray();
+    assertEquals("$.a[6]", reader.getPreviousPath());
     assertEquals("$.a[7]", reader.getPath());
     reader.endArray();
+    assertEquals("$.a", reader.getPreviousPath());
     assertEquals("$.a", reader.getPath());
     reader.endObject();
+    assertEquals("$", reader.getPreviousPath());
     assertEquals("$", reader.getPath());
   }
 
   @Test public void objectPath() throws IOException {
     JsonReader reader = factory.create("{\"a\":1,\"b\":2}");
+    assertEquals("$", reader.getPreviousPath());
     assertEquals("$", reader.getPath());
 
     reader.peek();
+    assertEquals("$", reader.getPreviousPath());
     assertEquals("$", reader.getPath());
     reader.beginObject();
+    assertEquals("$.", reader.getPreviousPath());
     assertEquals("$.", reader.getPath());
 
     reader.peek();
+    assertEquals("$.", reader.getPreviousPath());
     assertEquals("$.", reader.getPath());
     reader.nextName();
+    assertEquals("$.a", reader.getPreviousPath());
     assertEquals("$.a", reader.getPath());
 
     reader.peek();
+    assertEquals("$.a", reader.getPreviousPath());
     assertEquals("$.a", reader.getPath());
     reader.nextInt();
+    assertEquals("$.a", reader.getPreviousPath());
     assertEquals("$.a", reader.getPath());
 
     reader.peek();
+    assertEquals("$.a", reader.getPreviousPath());
     assertEquals("$.a", reader.getPath());
     reader.nextName();
+    assertEquals("$.b", reader.getPreviousPath());
     assertEquals("$.b", reader.getPath());
 
     reader.peek();
+    assertEquals("$.b", reader.getPreviousPath());
     assertEquals("$.b", reader.getPath());
     reader.nextInt();
+    assertEquals("$.b", reader.getPreviousPath());
     assertEquals("$.b", reader.getPath());
 
     reader.peek();
+    assertEquals("$.b", reader.getPreviousPath());
     assertEquals("$.b", reader.getPath());
     reader.endObject();
+    assertEquals("$", reader.getPreviousPath());
     assertEquals("$", reader.getPath());
 
     reader.peek();
+    assertEquals("$", reader.getPreviousPath());
     assertEquals("$", reader.getPath());
     reader.close();
+    assertEquals("$", reader.getPreviousPath());
     assertEquals("$", reader.getPath());
   }
 
   @Test public void arrayPath() throws IOException {
     JsonReader reader = factory.create("[1,2]");
+    assertEquals("$", reader.getPreviousPath());
     assertEquals("$", reader.getPath());
 
     reader.peek();
+    assertEquals("$", reader.getPreviousPath());
     assertEquals("$", reader.getPath());
     reader.beginArray();
+    assertEquals("$[0]", reader.getPreviousPath());
     assertEquals("$[0]", reader.getPath());
 
     reader.peek();
+    assertEquals("$[0]", reader.getPreviousPath());
     assertEquals("$[0]", reader.getPath());
     reader.nextInt();
+    assertEquals("$[0]", reader.getPreviousPath());
     assertEquals("$[1]", reader.getPath());
 
     reader.peek();
+    assertEquals("$[0]", reader.getPreviousPath());
     assertEquals("$[1]", reader.getPath());
     reader.nextInt();
+    assertEquals("$[1]", reader.getPreviousPath());
     assertEquals("$[2]", reader.getPath());
 
     reader.peek();
+    assertEquals("$[1]", reader.getPreviousPath());
     assertEquals("$[2]", reader.getPath());
     reader.endArray();
+    assertEquals("$", reader.getPreviousPath());
     assertEquals("$", reader.getPath());
 
     reader.peek();
+    assertEquals("$", reader.getPreviousPath());
     assertEquals("$", reader.getPath());
     reader.close();
+    assertEquals("$", reader.getPreviousPath());
     assertEquals("$", reader.getPath());
   }
 
@@ -160,9 +204,11 @@ public class JsonReaderPathTest {
     reader.setLenient(true);
     reader.beginArray();
     reader.endArray();
+    assertEquals("$", reader.getPreviousPath());
     assertEquals("$", reader.getPath());
     reader.beginArray();
     reader.endArray();
+    assertEquals("$", reader.getPreviousPath());
     assertEquals("$", reader.getPath());
   }
 
@@ -171,6 +217,7 @@ public class JsonReaderPathTest {
     reader.beginArray();
     reader.skipValue();
     reader.skipValue();
+    assertEquals("$[1]", reader.getPreviousPath());
     assertEquals("$[2]", reader.getPath());
   }
 
@@ -178,17 +225,21 @@ public class JsonReaderPathTest {
     JsonReader reader = factory.create("{\"a\":1}");
     reader.beginObject();
     reader.skipValue();
+    assertEquals("$.null", reader.getPreviousPath());
     assertEquals("$.null", reader.getPath());
   }
 
   @Test public void skipObjectValues() throws IOException {
     JsonReader reader = factory.create("{\"a\":1,\"b\":2}");
     reader.beginObject();
+    assertEquals("$.", reader.getPreviousPath());
     assertEquals("$.", reader.getPath());
     reader.nextName();
     reader.skipValue();
+    assertEquals("$.null", reader.getPreviousPath());
     assertEquals("$.null", reader.getPath());
     reader.nextName();
+    assertEquals("$.b", reader.getPreviousPath());
     assertEquals("$.b", reader.getPath());
   }
 
@@ -196,50 +247,67 @@ public class JsonReaderPathTest {
     JsonReader reader = factory.create("[[1,2,3],4]");
     reader.beginArray();
     reader.skipValue();
+    assertEquals("$[0]", reader.getPreviousPath());
     assertEquals("$[1]", reader.getPath());
   }
 
   @Test public void arrayOfObjects() throws IOException {
     JsonReader reader = factory.create("[{},{},{}]");
     reader.beginArray();
+    assertEquals("$[0]", reader.getPreviousPath());
     assertEquals("$[0]", reader.getPath());
     reader.beginObject();
+    assertEquals("$[0].", reader.getPreviousPath());
     assertEquals("$[0].", reader.getPath());
     reader.endObject();
+    assertEquals("$[0]", reader.getPreviousPath());
     assertEquals("$[1]", reader.getPath());
     reader.beginObject();
+    assertEquals("$[1].", reader.getPreviousPath());
     assertEquals("$[1].", reader.getPath());
     reader.endObject();
+    assertEquals("$[1]", reader.getPreviousPath());
     assertEquals("$[2]", reader.getPath());
     reader.beginObject();
+    assertEquals("$[2].", reader.getPreviousPath());
     assertEquals("$[2].", reader.getPath());
     reader.endObject();
+    assertEquals("$[2]", reader.getPreviousPath());
     assertEquals("$[3]", reader.getPath());
     reader.endArray();
+    assertEquals("$", reader.getPreviousPath());
     assertEquals("$", reader.getPath());
   }
 
   @Test public void arrayOfArrays() throws IOException {
     JsonReader reader = factory.create("[[],[],[]]");
     reader.beginArray();
+    assertEquals("$[0]", reader.getPreviousPath());
     assertEquals("$[0]", reader.getPath());
     reader.beginArray();
+    assertEquals("$[0][0]", reader.getPreviousPath());
     assertEquals("$[0][0]", reader.getPath());
     reader.endArray();
+    assertEquals("$[0]", reader.getPreviousPath());
     assertEquals("$[1]", reader.getPath());
     reader.beginArray();
+    assertEquals("$[1][0]", reader.getPreviousPath());
     assertEquals("$[1][0]", reader.getPath());
     reader.endArray();
+    assertEquals("$[1]", reader.getPreviousPath());
     assertEquals("$[2]", reader.getPath());
     reader.beginArray();
+    assertEquals("$[2][0]", reader.getPreviousPath());
     assertEquals("$[2][0]", reader.getPath());
     reader.endArray();
+    assertEquals("$[2]", reader.getPreviousPath());
     assertEquals("$[3]", reader.getPath());
     reader.endArray();
+    assertEquals("$", reader.getPreviousPath());
     assertEquals("$", reader.getPath());
   }
 
-  enum Factory {
+  public enum Factory {
     STRING_READER {
       @Override public JsonReader create(String data) {
         return new JsonReader(new StringReader(data));

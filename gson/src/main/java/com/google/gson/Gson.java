@@ -47,6 +47,7 @@ import com.google.gson.internal.bind.JsonAdapterAnnotationTypeAdapterFactory;
 import com.google.gson.internal.bind.JsonTreeReader;
 import com.google.gson.internal.bind.JsonTreeWriter;
 import com.google.gson.internal.bind.MapTypeAdapterFactory;
+import com.google.gson.internal.bind.NumberTypeAdapter;
 import com.google.gson.internal.bind.ObjectTypeAdapter;
 import com.google.gson.internal.bind.ReflectiveTypeAdapterFactory;
 import com.google.gson.internal.bind.TypeAdapters;
@@ -146,6 +147,8 @@ public final class Gson {
   final LongSerializationPolicy longSerializationPolicy;
   final List<TypeAdapterFactory> builderFactories;
   final List<TypeAdapterFactory> builderHierarchyFactories;
+  final ToNumberStrategy objectToNumberStrategy;
+  final ToNumberStrategy numberToNumberStrategy;
 
   /**
    * Constructs a Gson object with default configuration. The default configuration has the
@@ -188,7 +191,7 @@ public final class Gson {
         DEFAULT_PRETTY_PRINT, DEFAULT_LENIENT, DEFAULT_SPECIALIZE_FLOAT_VALUES,
         LongSerializationPolicy.DEFAULT, null, DateFormat.DEFAULT, DateFormat.DEFAULT,
         Collections.<TypeAdapterFactory>emptyList(), Collections.<TypeAdapterFactory>emptyList(),
-        Collections.<TypeAdapterFactory>emptyList());
+        Collections.<TypeAdapterFactory>emptyList(), ToNumberPolicy.DOUBLE, ToNumberPolicy.LAZILY_PARSED_NUMBER);
   }
 
   Gson(Excluder excluder, FieldNamingStrategy fieldNamingStrategy,
@@ -198,7 +201,8 @@ public final class Gson {
       LongSerializationPolicy longSerializationPolicy, String datePattern, int dateStyle,
       int timeStyle, List<TypeAdapterFactory> builderFactories,
       List<TypeAdapterFactory> builderHierarchyFactories,
-      List<TypeAdapterFactory> factoriesToBeAdded) {
+      List<TypeAdapterFactory> factoriesToBeAdded,
+          ToNumberStrategy objectToNumberStrategy, ToNumberStrategy numberToNumberStrategy) {
     this.excluder = excluder;
     this.fieldNamingStrategy = fieldNamingStrategy;
     this.instanceCreators = instanceCreators;
@@ -216,12 +220,14 @@ public final class Gson {
     this.timeStyle = timeStyle;
     this.builderFactories = builderFactories;
     this.builderHierarchyFactories = builderHierarchyFactories;
+    this.objectToNumberStrategy = objectToNumberStrategy;
+    this.numberToNumberStrategy = numberToNumberStrategy;
 
     List<TypeAdapterFactory> factories = new ArrayList<TypeAdapterFactory>();
 
     // built-in type adapters that cannot be overridden
     factories.add(TypeAdapters.JSON_ELEMENT_FACTORY);
-    factories.add(ObjectTypeAdapter.FACTORY);
+    factories.add(ObjectTypeAdapter.getFactory(objectToNumberStrategy));
 
     // the excluder must precede all adapters that handle user-defined types
     factories.add(excluder);
@@ -241,7 +247,7 @@ public final class Gson {
             doubleAdapter(serializeSpecialFloatingPointValues)));
     factories.add(TypeAdapters.newFactory(float.class, Float.class,
             floatAdapter(serializeSpecialFloatingPointValues)));
-    factories.add(TypeAdapters.NUMBER_FACTORY);
+    factories.add(NumberTypeAdapter.getFactory(numberToNumberStrategy));
     factories.add(TypeAdapters.ATOMIC_INTEGER_FACTORY);
     factories.add(TypeAdapters.ATOMIC_BOOLEAN_FACTORY);
     factories.add(TypeAdapters.newFactory(AtomicLong.class, atomicLongAdapter(longAdapter)));
@@ -293,18 +299,40 @@ public final class Gson {
     return new GsonBuilder(this);
   }
 
+  /**
+   * @deprecated This method by accident exposes an internal Gson class; it might be removed in a
+   * future version.
+   */
+  @Deprecated
   public Excluder excluder() {
     return excluder;
   }
 
+  /**
+   * Returns the field naming strategy used by this Gson instance.
+   *
+   * @see GsonBuilder#setFieldNamingStrategy(FieldNamingStrategy)
+   */
   public FieldNamingStrategy fieldNamingStrategy() {
     return fieldNamingStrategy;
   }
 
+  /**
+   * Returns whether this Gson instance is serializing JSON object properties with
+   * {@code null} values, or just omits them.
+   *
+   * @see GsonBuilder#serializeNulls()
+   */
   public boolean serializeNulls() {
     return serializeNulls;
   }
 
+  /**
+   * Returns whether this Gson instance produces JSON output which is
+   * HTML-safe, that means all HTML characters are escaped.
+   *
+   * @see GsonBuilder#disableHtmlEscaping()
+   */
   public boolean htmlSafe() {
     return htmlSafe;
   }
@@ -750,6 +778,15 @@ public final class Gson {
 
   /**
    * Returns a new JSON writer configured for the settings on this Gson instance.
+   *
+   * <p>The following settings are considered:
+   * <ul>
+   *   <li>{@link GsonBuilder#disableHtmlEscaping()}</li>
+   *   <li>{@link GsonBuilder#generateNonExecutableJson()}</li>
+   *   <li>{@link GsonBuilder#serializeNulls()}</li>
+   *   <li>{@link GsonBuilder#setLenient()}</li>
+   *   <li>{@link GsonBuilder#setPrettyPrinting()}</li>
+   * </ul>
    */
   public JsonWriter newJsonWriter(Writer writer) throws IOException {
     if (generateNonExecutableJson) {
@@ -759,12 +796,19 @@ public final class Gson {
     if (prettyPrinting) {
       jsonWriter.setIndent("  ");
     }
+    jsonWriter.setHtmlSafe(htmlSafe);
+    jsonWriter.setLenient(lenient);
     jsonWriter.setSerializeNulls(serializeNulls);
     return jsonWriter;
   }
 
   /**
    * Returns a new JSON reader configured for the settings on this Gson instance.
+   *
+   * <p>The following settings are considered:
+   * <ul>
+   *   <li>{@link GsonBuilder#setLenient()}</li>
+   * </ul>
    */
   public JsonReader newJsonReader(Reader reader) {
     JsonReader jsonReader = new JsonReader(reader);

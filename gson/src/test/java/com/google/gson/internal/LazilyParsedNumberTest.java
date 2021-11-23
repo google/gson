@@ -15,6 +15,13 @@
  */
 package com.google.gson.internal;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.math.BigDecimal;
+
 import junit.framework.TestCase;
 
 public class LazilyParsedNumberTest extends TestCase {
@@ -28,5 +35,16 @@ public class LazilyParsedNumberTest extends TestCase {
     LazilyParsedNumber n1 = new LazilyParsedNumber("1");
     LazilyParsedNumber n1Another = new LazilyParsedNumber("1");
     assertTrue(n1.equals(n1Another));
+  }
+
+  public void testJavaSerialization() throws IOException, ClassNotFoundException {
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    ObjectOutputStream objOut = new ObjectOutputStream(out);
+    objOut.writeObject(new LazilyParsedNumber("123"));
+    objOut.close();
+
+    ObjectInputStream objIn = new ObjectInputStream(new ByteArrayInputStream(out.toByteArray()));
+    Number deserialized = (Number) objIn.readObject();
+    assertEquals(new BigDecimal("123"), deserialized);
   }
 }
