@@ -77,7 +77,7 @@ public enum FieldNamingPolicy implements FieldNamingStrategy {
 
   /**
    * Using this naming policy with Gson will modify the Java Field name from its camel cased
-   * form to a upper case field name where each word is separated by an underscore (_).
+   * form to an upper case field name where each word is separated by an underscore (_).
    *
    * <p>Here's a few examples of the form "Java Field Name" ---&gt; "JSON Field Name":</p>
    * <ul>
