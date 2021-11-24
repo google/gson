@@ -225,6 +225,12 @@ public final class JsonPrimitive extends JsonElement {
   */
   @Override
   public int getAsInt() {
+    if (isNumber()) {
+      if (getAsLong() > Integer.MAX_VALUE)
+      {
+        throw new NumberFormatException("Expected an Integer but was " + getAsNumber());
+      }
+    }
     return isNumber() ? getAsNumber().intValue() : Integer.parseInt(getAsString());
   }
 
