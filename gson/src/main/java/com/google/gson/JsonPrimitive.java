@@ -205,8 +205,11 @@ public final class JsonPrimitive extends JsonElement {
   public long getAsLong() {
 
     if (isNumber()) {
-      if (getAsBigInteger().compareTo(BigInteger.valueOf(Long.MAX_VALUE)) > 0)
-      {
+      BigInteger val = getAsBigInteger();
+
+      if (val.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) > 0) {
+        throw new NumberFormatException("Expected a Long but was " + getAsNumber());
+      } else if (val.compareTo(BigInteger.valueOf(Long.MIN_VALUE)) < 0) {
         throw new NumberFormatException("Expected a Long but was " + getAsNumber());
       }
     }
@@ -224,8 +227,11 @@ public final class JsonPrimitive extends JsonElement {
   public short getAsShort() {
 
     if (isNumber()) {
-      if (getAsBigInteger().compareTo(BigInteger.valueOf(Short.MAX_VALUE)) > 0)
-      {
+      BigInteger val = getAsBigInteger();
+      
+      if (val.compareTo(BigInteger.valueOf(Short.MAX_VALUE)) > 0) {
+        throw new NumberFormatException("Expected a Short but was " + getAsNumber());
+      } else if (val.compareTo(BigInteger.valueOf(Short.MIN_VALUE)) < 0) {
         throw new NumberFormatException("Expected a Short but was " + getAsNumber());
       }
     }
@@ -242,10 +248,12 @@ public final class JsonPrimitive extends JsonElement {
   @Override
   public int getAsInt() {
     
-    
     if (isNumber()) {
-      if (getAsBigInteger().compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) > 0)
-      {
+      BigInteger val = getAsBigInteger();
+
+      if (val.compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) > 0) {
+        throw new NumberFormatException("Expected an Integer but was " + getAsNumber());
+      } else if (val.compareTo(BigInteger.valueOf(Integer.MIN_VALUE)) < 0) {
         throw new NumberFormatException("Expected an Integer but was " + getAsNumber());
       }
     }
@@ -257,8 +265,11 @@ public final class JsonPrimitive extends JsonElement {
   public byte getAsByte() {
 
     if (isNumber()) {
-      if (getAsBigInteger().compareTo(BigInteger.valueOf(Byte.MAX_VALUE)) > 0)
-      {
+      BigInteger val = getAsBigInteger();
+
+      if (val.compareTo(BigInteger.valueOf(Byte.MAX_VALUE)) > 0) {
+        throw new NumberFormatException("Expected a Byte but was " + getAsNumber());
+      } else if (val.compareTo(BigInteger.valueOf(Byte.MIN_VALUE)) < 0) {
         throw new NumberFormatException("Expected a Byte but was " + getAsNumber());
       }
     }

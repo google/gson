@@ -113,34 +113,68 @@ public class JsonParserTest extends TestCase {
   public void testParseIntegerTypes() {
 
     JsonObject jsonObject = new JsonObject();
-    jsonObject.addProperty("bigInteger", BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.valueOf(200L)) );
-    jsonObject.addProperty("long", Integer.MAX_VALUE+143L);
-    jsonObject.addProperty("integer", Short.MAX_VALUE+32);
-    jsonObject.addProperty("short", Byte.MAX_VALUE+17);
+
+    jsonObject.addProperty("bigIntegerU", BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.valueOf(200L)) );
+    jsonObject.addProperty("bigIntegerL", BigInteger.valueOf(Long.MIN_VALUE).subtract(BigInteger.valueOf(200L)) );
+
+    jsonObject.addProperty("longU", Integer.MAX_VALUE+143L);
+    jsonObject.addProperty("longL", Integer.MIN_VALUE-143L);
+
+    jsonObject.addProperty("integerU", Short.MAX_VALUE+32);
+    jsonObject.addProperty("integerL", Short.MIN_VALUE-32);
+
+    jsonObject.addProperty("shortU", Byte.MAX_VALUE+17);
+    jsonObject.addProperty("shortL", Byte.MIN_VALUE-17);
 
     try {
-      jsonObject.get("bigInteger").getAsLong();
-      fail("Big Integer should not parse as a Long");
+      jsonObject.get("bigIntegerU").getAsLong();
+      fail("Big Integer values greater than Long.MAX_VALUE should not parse as a Long");
     } catch (NumberFormatException expected) {
     }
 
     try {
-      jsonObject.get("long").getAsInt();
-      fail("Long should not parse as an Integer");
+      jsonObject.get("bigIntegerL").getAsLong();
+      fail("Big Integer values smaller than Long.MIN_VALUE should not parse as a Long");
     } catch (NumberFormatException expected) {
     }
 
     try {
-      jsonObject.get("integer").getAsShort();
-      fail("Integer should not parse as a Short");
+      jsonObject.get("longU").getAsInt();
+      fail("Long values larger than Integer.MAX_VALUE should not parse as an Integer");
     } catch (NumberFormatException expected) {
     }
 
     try {
-      jsonObject.get("short").getAsByte();
-      fail("Short should not parse as a Byte");
+      jsonObject.get("longL").getAsInt();
+      fail("Long values smaller than Integer.MIN_VALUE should not parse as an Integer");
     } catch (NumberFormatException expected) {
     }
+
+    try {
+      jsonObject.get("integerU").getAsShort();
+      fail("Integer values larger than Short.MAX_VALUE should not parse as a Short");
+    } catch (NumberFormatException expected) {
+    }
+
+    try {
+      jsonObject.get("integerL").getAsShort();
+      fail("Integer values smaller than Short.MIN_VALUE should not parse as a Short");
+    } catch (NumberFormatException expected) {
+    }
+
+    try {
+      jsonObject.get("shortU").getAsByte();
+      fail("Short values larger than Byte.MAX_VALUE should not parse as a Byte");
+    } catch (NumberFormatException expected) {
+    }
+
+    try {
+      jsonObject.get("shortL").getAsByte();
+      fail("Short values smaller than Byte.MIN_VALUE should not parse as a Byte");
+    } catch (NumberFormatException expected) {
+    }
+
+    assertTrue(jsonObject.isJsonObject());
   }
   
   public void testReadWriteTwoObjects() throws Exception {
