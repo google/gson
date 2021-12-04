@@ -203,6 +203,14 @@ public final class JsonPrimitive extends JsonElement {
    */
   @Override
   public long getAsLong() {
+
+    if (isNumber()) {
+      if (getAsBigInteger().compareTo(BigInteger.valueOf(Long.MAX_VALUE)) > 0)
+      {
+        throw new NumberFormatException("Expected a Long but was " + getAsNumber());
+      }
+    }
+
     return isNumber() ? getAsNumber().longValue() : Long.parseLong(getAsString());
   }
 
@@ -214,6 +222,14 @@ public final class JsonPrimitive extends JsonElement {
    */
   @Override
   public short getAsShort() {
+
+    if (isNumber()) {
+      if (getAsBigInteger().compareTo(BigInteger.valueOf(Short.MAX_VALUE)) > 0)
+      {
+        throw new NumberFormatException("Expected a Short but was " + getAsNumber());
+      }
+    }
+
     return isNumber() ? getAsNumber().shortValue() : Short.parseShort(getAsString());
   }
 
@@ -225,17 +241,28 @@ public final class JsonPrimitive extends JsonElement {
   */
   @Override
   public int getAsInt() {
+    
+    
     if (isNumber()) {
-      if (getAsLong() > Integer.MAX_VALUE)
+      if (getAsBigInteger().compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) > 0)
       {
         throw new NumberFormatException("Expected an Integer but was " + getAsNumber());
       }
     }
+    
     return isNumber() ? getAsNumber().intValue() : Integer.parseInt(getAsString());
   }
 
   @Override
   public byte getAsByte() {
+
+    if (isNumber()) {
+      if (getAsBigInteger().compareTo(BigInteger.valueOf(Byte.MAX_VALUE)) > 0)
+      {
+        throw new NumberFormatException("Expected a Byte but was " + getAsNumber());
+      }
+    }
+
     return isNumber() ? getAsNumber().byteValue() : Byte.parseByte(getAsString());
   }
 

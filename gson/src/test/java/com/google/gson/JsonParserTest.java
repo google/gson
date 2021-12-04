@@ -19,6 +19,7 @@ package com.google.gson;
 import java.io.CharArrayReader;
 import java.io.CharArrayWriter;
 import java.io.StringReader;
+import java.math.BigInteger;
 
 import junit.framework.TestCase;
 
@@ -98,6 +99,50 @@ public class JsonParserTest extends TestCase {
     assertEquals("c", e.getAsJsonObject().get("b").getAsString());
   }
 
+  public void testParseLongToInt() {
+    JsonObject jsonObject = new JsonObject();
+    jsonObject.addProperty("foo", 10000000000L);
+
+    try {
+      jsonObject.get("foo").getAsInt();
+      fail();
+    } catch (NumberFormatException expected) {
+    }
+  }
+
+  public void testParseIntegerTypes() {
+
+    JsonObject jsonObject = new JsonObject();
+    jsonObject.addProperty("bigInteger", BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.valueOf(200L)) );
+    jsonObject.addProperty("long", Integer.MAX_VALUE+143L);
+    jsonObject.addProperty("integer", Short.MAX_VALUE+32);
+    jsonObject.addProperty("short", Byte.MAX_VALUE+17);
+
+    try {
+      jsonObject.get("bigInteger").getAsLong();
+      fail("Big Integer should not parse as a Long");
+    } catch (NumberFormatException expected) {
+    }
+
+    try {
+      jsonObject.get("long").getAsInt();
+      fail("Long should not parse as an Integer");
+    } catch (NumberFormatException expected) {
+    }
+
+    try {
+      jsonObject.get("integer").getAsShort();
+      fail("Integer should not parse as a Short");
+    } catch (NumberFormatException expected) {
+    }
+
+    try {
+      jsonObject.get("short").getAsByte();
+      fail("Short should not parse as a Byte");
+    } catch (NumberFormatException expected) {
+    }
+  }
+  
   public void testReadWriteTwoObjects() throws Exception {
     Gson gson = new Gson();
     CharArrayWriter writer = new CharArrayWriter();
