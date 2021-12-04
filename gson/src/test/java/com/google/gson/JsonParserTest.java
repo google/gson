@@ -116,13 +116,10 @@ public class JsonParserTest extends TestCase {
 
     jsonObject.addProperty("bigIntegerU", BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.valueOf(200L)) );
     jsonObject.addProperty("bigIntegerL", BigInteger.valueOf(Long.MIN_VALUE).subtract(BigInteger.valueOf(200L)) );
-
     jsonObject.addProperty("longU", Integer.MAX_VALUE+143L);
     jsonObject.addProperty("longL", Integer.MIN_VALUE-143L);
-
     jsonObject.addProperty("integerU", Short.MAX_VALUE+32);
     jsonObject.addProperty("integerL", Short.MIN_VALUE-32);
-
     jsonObject.addProperty("shortU", Byte.MAX_VALUE+17);
     jsonObject.addProperty("shortL", Byte.MIN_VALUE-17);
 
