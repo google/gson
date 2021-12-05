@@ -14,8 +14,6 @@
 
   <properties>
     <proguardVersion>7.1.1</proguardVersion>
-    <maven.compiler.source>9</maven.compiler.source>
-    <maven.compiler.target>9</maven.compiler.target>
   </properties>
 
   <licenses>
@@ -42,8 +40,6 @@
           <execution>
             <id>default-compile</id>
             <configuration>
-                <source>9</source>
-                <target>9</target>
               <jdkToolchain>
                 <version>9</version>
               </jdkToolchain>
@@ -66,8 +62,8 @@
           <jdkToolchain>
             <version>[1.5,9)</version>
           </jdkToolchain>
-          <source>9</source>
-          <target>9</target>
+          <source>1.6</source>
+          <target>1.6</target>
         </configuration>
       </plugin>
       <plugin>
@@ -91,7 +87,7 @@
         <configuration>
           <excludePackageNames>com.google.gson.internal:com.google.gson.internal.bind</excludePackageNames>
           <links>
-            <link>https://docs.oracle.com/javase/9/docs/api/</link>
+            <link>https://docs.oracle.com/javase/6/docs/api/</link>
           </links>
         </configuration>
       </plugin>

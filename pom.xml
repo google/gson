@@ -28,9 +28,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <java.version>9</java.version>
-    <maven.compiler.source>9</maven.compiler.source>
-    <maven.compiler.target>9</maven.compiler.target>
+    <java.version>1.6</java.version>
   </properties>
 
   <scm>
@@ -69,10 +67,6 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <configuration>
-            <source>9</source>
-            <target>9</target>
-          </configuration>
           <version>3.8.1</version>
         </plugin>
         <plugin>
