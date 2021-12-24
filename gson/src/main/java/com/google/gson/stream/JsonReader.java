@@ -184,12 +184,20 @@ import java.util.Arrays;
  *
  * <p>Each {@code JsonReader} may be used to read a single JSON stream. Instances
  * of this class are not thread safe.
+ * 
+ * <p>
+ * Each {@code JsonReader} may be used to read a single JSON stream. Instances
+ * of this class are not thread safe.
+ * <p>
+ * This type is immutable. Considering {@link MutableJsonReader} which is a
+ * mutable version of this.
  *
  * @author Jesse Wilson
  * @since 1.6
  */
 public class JsonReader implements Closeable {
   private static final long MIN_INCOMPLETE_INTEGER = Long.MIN_VALUE / 10;
+  private static final int DEFAULT_STACK_SIZE = 32;
 
   private static final int PEEKED_NONE = 0;
   private static final int PEEKED_BEGIN_OBJECT = 1;
@@ -223,7 +231,7 @@ public class JsonReader implements Closeable {
   private static final int NUMBER_CHAR_EXP_DIGIT = 7;
 
   /** The input JSON. */
-  private final Reader in;
+  protected Reader in;
 
   /** True to accept non-spec compliant JSON */
   private boolean lenient = false;
@@ -266,11 +274,71 @@ public class JsonReader implements Closeable {
   /*
    * The nesting stack. Using a manual array rather than an ArrayList saves 20%.
    */
-  private int[] stack = new int[32];
+  private int[] stack = new int[DEFAULT_STACK_SIZE];
   private int stackSize = 0;
   {
     stack[stackSize++] = JsonScope.EMPTY_DOCUMENT;
   }
+  
+    /**
+     * Sets the working {@code in}({@link Reader}), also call for
+     * {@link #init()} if appreciated.
+     * <p>
+     * It <b>does not</b> closes the current associated
+     * {@link Reader}({@code in}).
+     * </p>
+     * <p>
+     * <b>Note:</b> It also does not resets the reading policies(such as
+     * lenient)
+     * </p>
+     *
+     * @param in the non-{@code null} reader instance to be reset for out
+     * @param alsoInit when {@code true}, then {@link #init()} will be
+     * called too
+     * @since +2.8.7-SNAPSHOT ?
+     */
+    protected void reset(Reader in, boolean alsoInit) {
+        this.in = in;
+        if (alsoInit) {
+            init();
+        }
+    }
+    
+    /**
+     * Resets and resize the stack, pathNames, and pathIndices variables,
+     * based on DEFAULT_STACK_SIZE.
+     */
+    protected void resetStacks(){
+        if(stack.length!=DEFAULT_STACK_SIZE){
+            stack = Arrays.copyOfRange(stack, 0, DEFAULT_STACK_SIZE);
+            pathNames = Arrays.copyOfRange(pathNames, 0, DEFAULT_STACK_SIZE);
+            pathIndices = Arrays.copyOfRange(pathIndices, 0, DEFAULT_STACK_SIZE);
+        }
+        Arrays.fill(stack, 0);
+        Arrays.fill(pathNames, null);
+        Arrays.fill(pathIndices, 0);
+    }
+
+    /**
+     * Sets the object state as init.
+     */
+    protected void init() {
+        Arrays.fill(buffer, (char) 0);
+        pos = 0;
+        limit = 0;
+        lineNumber = 0;
+        lineStart = 0;
+        peeked = PEEKED_NONE;
+
+        peekedLong = 0;
+        peekedNumberLength = 0;
+        peekedString = null;
+
+        resetStacks();
+        
+        stackSize = 1;
+        stack[0] = JsonScope.EMPTY_DOCUMENT;
+    }
 
   /*
    * The path members. It corresponds directly to stack: At indices where the
@@ -280,18 +348,28 @@ public class JsonReader implements Closeable {
    * that array. Otherwise the value is undefined, and we take advantage of that
    * by incrementing pathIndices when doing so isn't useful.
    */
-  private String[] pathNames = new String[32];
-  private int[] pathIndices = new int[32];
+  private String[] pathNames = new String[DEFAULT_STACK_SIZE];
+  private int[] pathIndices = new int[DEFAULT_STACK_SIZE];
 
-  /**
-   * Creates a new instance that reads a JSON-encoded stream from {@code in}.
-   */
-  public JsonReader(Reader in) {
-    if (in == null) {
-      throw new NullPointerException("in == null");
+    /**
+     * Tells if associated {@link #in} should be closed when this instance is
+     * closed or not.
+     */
+    protected boolean closeReaderOnClose = true;
+
+    /**
+     * Creates a new instance that reads a JSON-encoded stream from {@code in}.
+     */
+    public JsonReader(Reader in) {
+        if (in == null) {
+            throw new NullPointerException("in == null");
+        }
+        reset(in, false);
     }
-    this.in = in;
-  }
+
+    protected JsonReader() {
+
+    }
 
   /**
    * Configure this parser to be liberal in what it accepts. By default,
@@ -1209,15 +1287,40 @@ public class JsonReader implements Closeable {
     return result;
   }
 
-  /**
-   * Closes this JSON reader and the underlying {@link java.io.Reader}.
-   */
-  public void close() throws IOException {
-    peeked = PEEKED_NONE;
-    stack[0] = JsonScope.CLOSED;
-    stackSize = 1;
-    in.close();
-  }
+    /**
+     * Invalidates(closes) this JSON reader instance.
+     */
+    protected void invalidateInstance() {
+        peeked = PEEKED_NONE;
+        stack[0] = JsonScope.CLOSED;
+        stackSize = 1;
+    }
+
+    /**
+     * Closes the underlying {@link Reader} instance
+     *
+     * @throws IOException if closing the reader fails
+     * @throws NullPointerException if the underlying reader has not been set
+     * yet
+     */
+    protected void closeReader() throws IOException {
+        in.close();
+    }
+
+    /**
+     * Closes this JSON reader and the underlying {@link java.io.Reader}.
+     *
+     * @throws IOException if closing the underlying {@link Reader} fails
+     * @throws NullPointerException if underlying {@link Reader} is null, and
+     * should be closed.
+     */
+    @Override
+    public void close() throws IOException {
+        invalidateInstance();
+        if (closeReaderOnClose) {
+            closeReader();
+        }
+    }
 
   /**
    * Skips the next value recursively. If it is an object or array, all nested
