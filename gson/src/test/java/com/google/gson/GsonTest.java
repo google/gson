@@ -52,7 +52,7 @@ public final class GsonTest extends TestCase {
 
   public void testOverridesDefaultExcluder() {
     Gson gson = new Gson(CUSTOM_EXCLUDER, CUSTOM_FIELD_NAMING_STRATEGY,
-        new HashMap<Type, InstanceCreator<?>>(), true, false, true, false,
+        new HashMap<Type, InstanceCreator<?>>(), true, false, false, true, false,
         true, true, false, LongSerializationPolicy.DEFAULT, null, DateFormat.DEFAULT,
         DateFormat.DEFAULT, new ArrayList<TypeAdapterFactory>(),
         new ArrayList<TypeAdapterFactory>(), new ArrayList<TypeAdapterFactory>(),
@@ -66,7 +66,7 @@ public final class GsonTest extends TestCase {
 
   public void testClonedTypeAdapterFactoryListsAreIndependent() {
     Gson original = new Gson(CUSTOM_EXCLUDER, CUSTOM_FIELD_NAMING_STRATEGY,
-        new HashMap<Type, InstanceCreator<?>>(), true, false, true, false,
+        new HashMap<Type, InstanceCreator<?>>(), true, false, false, true, false,
         true, true, false, LongSerializationPolicy.DEFAULT, null, DateFormat.DEFAULT,
         DateFormat.DEFAULT, new ArrayList<TypeAdapterFactory>(),
         new ArrayList<TypeAdapterFactory>(), new ArrayList<TypeAdapterFactory>(),

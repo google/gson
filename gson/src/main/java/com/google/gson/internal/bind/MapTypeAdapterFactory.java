@@ -105,11 +105,13 @@ import java.util.Map;
 public final class MapTypeAdapterFactory implements TypeAdapterFactory {
   private final ConstructorConstructor constructorConstructor;
   final boolean complexMapKeySerialization;
+  final boolean duplicateMapKeyDeserialization;
 
   public MapTypeAdapterFactory(ConstructorConstructor constructorConstructor,
-      boolean complexMapKeySerialization) {
+      boolean complexMapKeySerialization, boolean duplicateMapKeyDeserialization) {
     this.constructorConstructor = constructorConstructor;
     this.complexMapKeySerialization = complexMapKeySerialization;
+    this.duplicateMapKeyDeserialization = duplicateMapKeyDeserialization;
   }
 
   @Override public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
@@ -173,7 +175,7 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
           K key = keyTypeAdapter.read(in);
           V value = valueTypeAdapter.read(in);
           V replaced = map.put(key, value);
-          if (replaced != null) {
+          if (!duplicateMapKeyDeserialization && replaced != null) {
             throw new JsonSyntaxException("duplicate key: " + key);
           }
           in.endArray();
@@ -186,7 +188,7 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
           K key = keyTypeAdapter.read(in);
           V value = valueTypeAdapter.read(in);
           V replaced = map.put(key, value);
-          if (replaced != null) {
+          if (!duplicateMapKeyDeserialization && replaced != null) {
             throw new JsonSyntaxException("duplicate key: " + key);
           }
         }

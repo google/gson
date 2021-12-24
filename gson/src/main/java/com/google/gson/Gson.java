@@ -109,6 +109,7 @@ public final class Gson {
   static final boolean DEFAULT_ESCAPE_HTML = true;
   static final boolean DEFAULT_SERIALIZE_NULLS = false;
   static final boolean DEFAULT_COMPLEX_MAP_KEYS = false;
+  static final boolean DEFAULT_DUPLICATE_MAP_KEYS = false;
   static final boolean DEFAULT_SPECIALIZE_FLOAT_VALUES = false;
 
   private static final TypeToken<?> NULL_KEY_SURROGATE = TypeToken.get(Object.class);
@@ -136,6 +137,7 @@ public final class Gson {
   final Map<Type, InstanceCreator<?>> instanceCreators;
   final boolean serializeNulls;
   final boolean complexMapKeySerialization;
+  final boolean duplicateMapKeyDeserialization;
   final boolean generateNonExecutableJson;
   final boolean htmlSafe;
   final boolean prettyPrinting;
@@ -187,7 +189,7 @@ public final class Gson {
   public Gson() {
     this(Excluder.DEFAULT, FieldNamingPolicy.IDENTITY,
         Collections.<Type, InstanceCreator<?>>emptyMap(), DEFAULT_SERIALIZE_NULLS,
-        DEFAULT_COMPLEX_MAP_KEYS, DEFAULT_JSON_NON_EXECUTABLE, DEFAULT_ESCAPE_HTML,
+        DEFAULT_COMPLEX_MAP_KEYS, DEFAULT_DUPLICATE_MAP_KEYS, DEFAULT_JSON_NON_EXECUTABLE, DEFAULT_ESCAPE_HTML,
         DEFAULT_PRETTY_PRINT, DEFAULT_LENIENT, DEFAULT_SPECIALIZE_FLOAT_VALUES,
         LongSerializationPolicy.DEFAULT, null, DateFormat.DEFAULT, DateFormat.DEFAULT,
         Collections.<TypeAdapterFactory>emptyList(), Collections.<TypeAdapterFactory>emptyList(),
@@ -196,7 +198,7 @@ public final class Gson {
 
   Gson(Excluder excluder, FieldNamingStrategy fieldNamingStrategy,
       Map<Type, InstanceCreator<?>> instanceCreators, boolean serializeNulls,
-      boolean complexMapKeySerialization, boolean generateNonExecutableGson, boolean htmlSafe,
+      boolean complexMapKeySerialization, boolean duplicateMapKeyDeserialization, boolean generateNonExecutableGson, boolean htmlSafe,
       boolean prettyPrinting, boolean lenient, boolean serializeSpecialFloatingPointValues,
       LongSerializationPolicy longSerializationPolicy, String datePattern, int dateStyle,
       int timeStyle, List<TypeAdapterFactory> builderFactories,
@@ -209,6 +211,7 @@ public final class Gson {
     this.constructorConstructor = new ConstructorConstructor(instanceCreators);
     this.serializeNulls = serializeNulls;
     this.complexMapKeySerialization = complexMapKeySerialization;
+    this.duplicateMapKeyDeserialization = duplicateMapKeyDeserialization;
     this.generateNonExecutableJson = generateNonExecutableGson;
     this.htmlSafe = htmlSafe;
     this.prettyPrinting = prettyPrinting;
@@ -279,7 +282,7 @@ public final class Gson {
 
     // type adapters for composite and user-defined types
     factories.add(new CollectionTypeAdapterFactory(constructorConstructor));
-    factories.add(new MapTypeAdapterFactory(constructorConstructor, complexMapKeySerialization));
+    factories.add(new MapTypeAdapterFactory(constructorConstructor, complexMapKeySerialization, duplicateMapKeyDeserialization));
     this.jsonAdapterFactory = new JsonAdapterAnnotationTypeAdapterFactory(constructorConstructor);
     factories.add(jsonAdapterFactory);
     factories.add(TypeAdapters.ENUM_FACTORY);
