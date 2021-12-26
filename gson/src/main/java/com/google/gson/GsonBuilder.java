@@ -61,7 +61,7 @@ import static com.google.gson.Gson.DEFAULT_SPECIALIZE_FLOAT_VALUES;
  *     .setPrettyPrinting()
  *     .setVersion(1.0)
  *     .create();
- * </pre></p>
+ * </pre>
  *
  * <p>NOTES:
  * <ul>
@@ -69,8 +69,7 @@ import static com.google.gson.Gson.DEFAULT_SPECIALIZE_FLOAT_VALUES;
  * <li> The default serialization of {@link Date} and its subclasses in Gson does
  *  not contain time-zone information. So, if you are using date/time instances,
  *  use {@code GsonBuilder} and its {@code setDateFormat} methods.</li>
- *  </ul>
- * </p>
+ * </ul>
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
@@ -251,6 +250,7 @@ public final class GsonBuilder {
    *   original.put(new Point(8, 8), "b");
    *   System.out.println(gson.toJson(original, type));
    * }
+   * </pre>
    *
    * The JSON output would look as follows:
    * <pre>   {@code

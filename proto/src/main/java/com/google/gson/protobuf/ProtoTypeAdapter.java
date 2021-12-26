@@ -37,7 +37,6 @@ import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.Extension;
 import com.google.protobuf.Message;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -76,7 +75,7 @@ public class ProtoTypeAdapter
   /**
    * Determines how enum <u>values</u> should be serialized.
    */
-  public static enum EnumSerialization {
+  public enum EnumSerialization {
     /**
      * Serializes and deserializes enum values using their <b>number</b>. When this is used, custom
      * value names set on enums are ignored.
@@ -117,12 +116,12 @@ public class ProtoTypeAdapter
      * For example, if you use the following parameters: {@link CaseFormat#LOWER_UNDERSCORE},
      * {@link CaseFormat#LOWER_CAMEL}, the following conversion will occur:
      *
-     * <pre>
+     * <pre>{@code
      * PROTO     <->  JSON
      * my_field       myField
      * foo            foo
      * n__id_ct       nIdCt
-     * </pre>
+     * }</pre>
      */
     public Builder setFieldNameSerializationFormat(CaseFormat fromFieldNameFormat,
         CaseFormat toFieldNameFormat) {

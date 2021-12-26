@@ -76,7 +76,7 @@ import com.google.gson.stream.MalformedJsonException;
  * MyType target = new MyType();
  * String json = gson.toJson(target); // serializes target to Json
  * MyType target2 = gson.fromJson(json, MyType.class); // deserializes json into target2
- * </pre></p>
+ * </pre>
  *
  * <p>If the object that your are serializing/deserializing is a {@code ParameterizedType}
  * (i.e. contains at least one type parameter and may be an array) then you must use the
@@ -91,7 +91,7 @@ import com.google.gson.stream.MalformedJsonException;
  * Gson gson = new Gson();
  * String json = gson.toJson(target, listType);
  * List&lt;String&gt; target2 = gson.fromJson(json, listType);
- * </pre></p>
+ * </pre>
  *
  * <p>See the <a href="https://sites.google.com/site/gson/gson-user-guide">Gson User Guide</a>
  * for a more complete set of examples.</p>
@@ -548,7 +548,7 @@ public final class Gson {
    *  read or written.
    * @param skipPast The type adapter factory that needs to be skipped while searching for
    *   a matching type adapter. In most cases, you should just pass <i>this</i> (the type adapter
-   *   factory from where {@link #getDelegateAdapter} method is being invoked).
+   *   factory from where {@code getDelegateAdapter} method is being invoked).
    * @param type Type for which the delegate adapter is being searched for.
    *
    * @since 2.2
