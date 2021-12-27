@@ -65,7 +65,6 @@ public interface ToNumberStrategy {
    *
    * @param in JSON reader to read a number from
    * @return number read from the JSON reader.
-   * @throws IOException
    */
   public Number readNumber(JsonReader in) throws IOException;
 }

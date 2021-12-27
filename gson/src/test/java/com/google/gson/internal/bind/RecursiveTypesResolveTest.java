@@ -54,21 +54,6 @@ public class RecursiveTypesResolveTest extends TestCase {
   }
 
   /**
-   * Real-world samples, found in Issues #603 and #440.
-   */
-
-  public void testIssue603PrintStream() {
-    TypeAdapter<PrintStream> adapter = new Gson().getAdapter(PrintStream.class);
-    assertNotNull(adapter);
-  }
-
-  public void testIssue440WeakReference() throws Exception {
-    @SuppressWarnings("rawtypes")
-    TypeAdapter<WeakReference> adapter = new Gson().getAdapter(WeakReference.class);
-    assertNotNull(adapter);
-  }
-
-  /**
    * Tests belows check the behaviour of the methods changed for the fix.
    */
 

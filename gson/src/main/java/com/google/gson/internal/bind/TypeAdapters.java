@@ -17,6 +17,7 @@
 package com.google.gson.internal.bind;
 
 import java.io.IOException;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -759,22 +760,31 @@ public final class TypeAdapters {
     private final Map<String, T> nameToConstant = new HashMap<String, T>();
     private final Map<T, String> constantToName = new HashMap<T, String>();
 
-    public EnumTypeAdapter(Class<T> classOfT) {
+    public EnumTypeAdapter(final Class<T> classOfT) {
       try {
-        for (final Field field : classOfT.getDeclaredFields()) {
-          if (!field.isEnumConstant()) {
-            continue;
-          }
-          AccessController.doPrivileged(new PrivilegedAction<Void>() {
-            @Override public Void run() {
-              field.setAccessible(true);
-              return null;
+        // Uses reflection to find enum constants to work around name mismatches for obfuscated classes
+        // Reflection access might throw SecurityException, therefore run this in privileged context;
+        // should be acceptable because this only retrieves enum constants, but does not expose anything else
+        Field[] constantFields = AccessController.doPrivileged(new PrivilegedAction<Field[]>() {
+          @Override public Field[] run() {
+            Field[] fields = classOfT.getDeclaredFields();
+            ArrayList<Field> constantFieldsList = new ArrayList<Field>(fields.length);
+            for (Field f : fields) {
+              if (f.isEnumConstant()) {
+                constantFieldsList.add(f);
+              }
             }
-          });
+
+            Field[] constantFields = constantFieldsList.toArray(new Field[0]);
+            AccessibleObject.setAccessible(constantFields, true);
+            return constantFields;
+          }
+        });
+        for (Field constantField : constantFields) {
           @SuppressWarnings("unchecked")
-          T constant = (T)(field.get(null));
+          T constant = (T)(constantField.get(null));
           String name = constant.name();
-          SerializedName annotation = field.getAnnotation(SerializedName.class);
+          SerializedName annotation = constantField.getAnnotation(SerializedName.class);
           if (annotation != null) {
             name = annotation.value();
             for (String alternate : annotation.alternate()) {
