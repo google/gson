@@ -34,6 +34,25 @@ Maven:
 
 ![Build Status](https://github.com/google/gson/actions/workflows/build.yml/badge.svg)
 
+### Requirements
+#### Java version
+- Gson 2.9.0 and newer: Java 7
+- Gson 2.8.9 and older: Java 6
+
+Despite supporting older Java versions, Gson also provides a JPMS module descriptor (module name `com.google.gson`) for users of Java 9 or newer.
+
+#### JPMS dependencies (Java 9+)
+These are the optional Java Platform Module System (JPMS) JDK modules which Gson depends on.
+This only applies when running Java 9 or newer.
+
+- `java.sql` (optional since Gson 2.8.9)  
+When this module is present, Gson provides default adapters for some SQL date and time classes.
+
+- `jdk.unsupported`, respectively class `sun.misc.Unsafe` (optional)  
+When this module is present, Gson can use the `Unsafe` class to create instances of classes without no-args constructor.
+However, care should be taken when relying on this. `Unsafe` is not available in all environments and its usage has some pitfalls,
+see [`GsonBuilder.disableJdkUnsafe()`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/GsonBuilder.html#disableJdkUnsafe()).
+
 ### Documentation
   * [API Javadoc](https://www.javadoc.io/doc/com.google.code.gson/gson): Documentation for the current release
   * [User guide](https://github.com/google/gson/blob/master/UserGuide.md): This guide contains examples on how to use Gson in your code.

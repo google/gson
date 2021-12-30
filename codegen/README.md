@@ -1,4 +1,4 @@
-# gson-codegen
+# codegen
 
 This Maven module contains the source code for automatically generating Gson type adapters.
 
