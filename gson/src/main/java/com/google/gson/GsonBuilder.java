@@ -617,7 +617,7 @@ public final class GsonBuilder {
    * runtimes. For example Android does not provide {@code Unsafe}, or only with limited
    * functionality. Additionally {@code Unsafe} creates instances without executing any
    * constructor or initializer block, or performing initialization of field values. This can
-   * lead to surprising and difficult to debug errors.<br>
+   * lead to surprising and difficult to debug errors.
    * Therefore, to get reliable behavior regardless of which runtime is used, and to detect
    * classes which cannot be deserialized in an early stage of development, this method allows
    * disabling usage of {@code Unsafe}.

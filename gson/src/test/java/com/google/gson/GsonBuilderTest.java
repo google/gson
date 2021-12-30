@@ -87,8 +87,8 @@ public class GsonBuilderTest extends TestCase {
 
   public void testDisableJdkUnsafe() {
     Gson gson = new GsonBuilder()
-      .disableJdkUnsafe()
-      .create();
+        .disableJdkUnsafe()
+        .create();
     try {
       gson.fromJson("{}", ClassWithoutNoArgsConstructor.class);
       fail("Expected exception");

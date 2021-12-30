@@ -127,10 +127,11 @@ public final class ConstructorConstructor {
     }
 
     return new ObjectConstructor<T>() {
-      @SuppressWarnings("unchecked") // T is the same raw type as is requested
       @Override public T construct() {
         try {
-          return (T) constructor.newInstance();
+          @SuppressWarnings("unchecked") // T is the same raw type as is requested
+          T newInstance = (T) constructor.newInstance();
+          return newInstance;
         } catch (InstantiationException e) {
           // TODO: JsonParseException ?
           throw new RuntimeException("Failed to invoke " + constructor + " with no args", e);
@@ -239,11 +240,11 @@ public final class ConstructorConstructor {
     if (useJdkUnsafe) {
       return new ObjectConstructor<T>() {
         private final UnsafeAllocator unsafeAllocator = UnsafeAllocator.create();
-        @SuppressWarnings("unchecked")
         @Override public T construct() {
           try {
-            Object newInstance = unsafeAllocator.newInstance(rawType);
-            return (T) newInstance;
+            @SuppressWarnings("unchecked")
+            T newInstance = (T) unsafeAllocator.newInstance(rawType);
+            return newInstance;
           } catch (Exception e) {
             throw new RuntimeException(("Unable to create instance of " + rawType + ". "
                 + "Registering an InstanceCreator or a TypeAdapter for this type, or adding a no-args "
