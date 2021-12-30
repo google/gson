@@ -58,8 +58,8 @@
           <jdkToolchain>
             <version>[1.5,9)</version>
           </jdkToolchain>
-          <source>1.6</source>
-          <target>1.6</target>
+          <source>1.7</source>
+          <target>1.7</target>
         </configuration>
       </plugin>
       <plugin>
@@ -83,7 +83,7 @@
         <configuration>
           <excludePackageNames>com.google.gson.internal:com.google.gson.internal.bind</excludePackageNames>
           <links>
-            <link>https://docs.oracle.com/javase/6/docs/api/</link>
+            <link>https://docs.oracle.com/javase/7/docs/api/</link>
           </links>
         </configuration>
       </plugin>

@@ -574,8 +574,9 @@ public final class $Gson$Types {
 
   /**
    * The WildcardType interface supports multiple upper bounds and multiple
-   * lower bounds. We only support what the Java 6 language needs - at most one
-   * bound. If a lower bound is set, the upper bound must be Object.class.
+   * lower bounds. We only support what the target Java version supports - at most one
+   * bound, see also https://bugs.openjdk.java.net/browse/JDK-8250660. If a lower bound
+   * is set, the upper bound must be Object.class.
    */
   private static final class WildcardTypeImpl implements WildcardType, Serializable {
     private final Type upperBound;
