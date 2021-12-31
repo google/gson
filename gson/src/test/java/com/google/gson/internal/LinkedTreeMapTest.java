@@ -161,7 +161,7 @@ public final class LinkedTreeMapTest extends TestCase {
   }
 
   @SafeVarargs
-  private <T> void assertIterationOrder(Iterable<T> actual, T... expected) {
+  private final <T> void assertIterationOrder(Iterable<T> actual, T... expected) {
     ArrayList<T> actualList = new ArrayList<T>();
     for (T t : actual) {
       actualList.add(t);
