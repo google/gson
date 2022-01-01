@@ -71,11 +71,7 @@
           <configuration>
             <release>${javaVersion}</release>
             <jdkToolchain>
-              <!-- Require at most JDK 11 because it is the last version 
-                supporting compiling Java 1.6, see https://bugs.openjdk.java.net/browse/JDK-8028563 -->
-              <!-- When Gson increases lowest supported Java version, can 
-                change this to an open version range (e.g. `[11,)`) -->
-              <version>[9,11]</version>
+              <version>[11,)</version>
             </jdkToolchain>
           </configuration>
         </plugin>
