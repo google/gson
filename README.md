@@ -35,7 +35,7 @@ Maven:
 ![Build Status](https://github.com/google/gson/actions/workflows/build.yml/badge.svg)
 
 ### Requirements
-#### Java version
+#### Minimum Java version
 - Gson 2.9.0 and newer: Java 7
 - Gson 2.8.9 and older: Java 6
 
