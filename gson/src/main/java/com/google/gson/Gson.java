@@ -110,6 +110,7 @@ public final class Gson {
   static final boolean DEFAULT_SERIALIZE_NULLS = false;
   static final boolean DEFAULT_COMPLEX_MAP_KEYS = false;
   static final boolean DEFAULT_SPECIALIZE_FLOAT_VALUES = false;
+  static final boolean DEFAULT_USE_JDK_UNSAFE = true;
 
   private static final TypeToken<?> NULL_KEY_SURROGATE = TypeToken.get(Object.class);
   private static final String JSON_NON_EXECUTABLE_PREFIX = ")]}'\n";
@@ -141,6 +142,7 @@ public final class Gson {
   final boolean prettyPrinting;
   final boolean lenient;
   final boolean serializeSpecialFloatingPointValues;
+  final boolean useJdkUnsafe;
   final String datePattern;
   final int dateStyle;
   final int timeStyle;
@@ -189,6 +191,7 @@ public final class Gson {
         Collections.<Type, InstanceCreator<?>>emptyMap(), DEFAULT_SERIALIZE_NULLS,
         DEFAULT_COMPLEX_MAP_KEYS, DEFAULT_JSON_NON_EXECUTABLE, DEFAULT_ESCAPE_HTML,
         DEFAULT_PRETTY_PRINT, DEFAULT_LENIENT, DEFAULT_SPECIALIZE_FLOAT_VALUES,
+        DEFAULT_USE_JDK_UNSAFE,
         LongSerializationPolicy.DEFAULT, null, DateFormat.DEFAULT, DateFormat.DEFAULT,
         Collections.<TypeAdapterFactory>emptyList(), Collections.<TypeAdapterFactory>emptyList(),
         Collections.<TypeAdapterFactory>emptyList(), ToNumberPolicy.DOUBLE, ToNumberPolicy.LAZILY_PARSED_NUMBER);
@@ -198,15 +201,16 @@ public final class Gson {
       Map<Type, InstanceCreator<?>> instanceCreators, boolean serializeNulls,
       boolean complexMapKeySerialization, boolean generateNonExecutableGson, boolean htmlSafe,
       boolean prettyPrinting, boolean lenient, boolean serializeSpecialFloatingPointValues,
+      boolean useJdkUnsafe,
       LongSerializationPolicy longSerializationPolicy, String datePattern, int dateStyle,
       int timeStyle, List<TypeAdapterFactory> builderFactories,
       List<TypeAdapterFactory> builderHierarchyFactories,
       List<TypeAdapterFactory> factoriesToBeAdded,
-          ToNumberStrategy objectToNumberStrategy, ToNumberStrategy numberToNumberStrategy) {
+      ToNumberStrategy objectToNumberStrategy, ToNumberStrategy numberToNumberStrategy) {
     this.excluder = excluder;
     this.fieldNamingStrategy = fieldNamingStrategy;
     this.instanceCreators = instanceCreators;
-    this.constructorConstructor = new ConstructorConstructor(instanceCreators);
+    this.constructorConstructor = new ConstructorConstructor(instanceCreators, useJdkUnsafe);
     this.serializeNulls = serializeNulls;
     this.complexMapKeySerialization = complexMapKeySerialization;
     this.generateNonExecutableJson = generateNonExecutableGson;
@@ -214,6 +218,7 @@ public final class Gson {
     this.prettyPrinting = prettyPrinting;
     this.lenient = lenient;
     this.serializeSpecialFloatingPointValues = serializeSpecialFloatingPointValues;
+    this.useJdkUnsafe = useJdkUnsafe;
     this.longSerializationPolicy = longSerializationPolicy;
     this.datePattern = datePattern;
     this.dateStyle = dateStyle;

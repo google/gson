@@ -160,7 +160,8 @@ public final class LinkedTreeMapTest extends TestCase {
     assertEquals(Collections.singletonMap("a", 1), deserialized);
   }
 
-  private <T> void assertIterationOrder(Iterable<T> actual, T... expected) {
+  @SafeVarargs
+  private final <T> void assertIterationOrder(Iterable<T> actual, T... expected) {
     ArrayList<T> actualList = new ArrayList<T>();
     for (T t : actual) {
       actualList.add(t);
