@@ -191,7 +191,7 @@ public class ProtoTypeAdapter
   private static final com.google.protobuf.Descriptors.FieldDescriptor.Type ENUM_TYPE =
       com.google.protobuf.Descriptors.FieldDescriptor.Type.ENUM;
 
-  private static final ConcurrentMap<String, Map<Class<?>, Method>> mapOfMapOfMethods =
+  private static final ConcurrentMap<String, ConcurrentMap<Class<?>, Method>> mapOfMapOfMethods =
       new MapMaker().makeMap();
 
   private final EnumSerialization enumSerialization;
@@ -308,7 +308,7 @@ public class ProtoTypeAdapter
             }
           }
         }
-        return (Message) protoBuilder.build();
+        return protoBuilder.build();
       } catch (SecurityException e) {
         throw new JsonParseException(e);
       } catch (NoSuchMethodException e) {
@@ -396,10 +396,10 @@ public class ProtoTypeAdapter
 
   private static Method getCachedMethod(Class<?> clazz, String methodName,
       Class<?>... methodParamTypes) throws NoSuchMethodException {
-    Map<Class<?>, Method> mapOfMethods = mapOfMapOfMethods.get(methodName);
+    ConcurrentMap<Class<?>, Method> mapOfMethods = mapOfMapOfMethods.get(methodName);
     if (mapOfMethods == null) {
       mapOfMethods = new MapMaker().makeMap();
-      Map<Class<?>, Method> previous =
+      ConcurrentMap<Class<?>, Method> previous =
           mapOfMapOfMethods.putIfAbsent(methodName, mapOfMethods);
       mapOfMethods = previous == null ? mapOfMethods : previous;
     }

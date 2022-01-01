@@ -57,7 +57,7 @@ public class TreeTypeAdaptersTest extends TestCase {
         .registerTypeAdapter(Id.class, new IdTreeTypeAdapter())
         .create();
     course = new Course<HistoryCourse>(COURSE_ID, 4,
-        new Assignment<HistoryCourse>(null, null), createList(STUDENT1, STUDENT2));
+        new Assignment<HistoryCourse>(null, null), Arrays.asList(STUDENT1, STUDENT2));
   }
 
   public void testSerializeId() {
@@ -170,10 +170,5 @@ public class TreeTypeAdaptersTest extends TestCase {
   @SuppressWarnings("unused")
   private static class HistoryCourse {
     int numClasses;
-  }
-
-  @SafeVarargs
-  private static <T> List<T> createList(T ...items) {
-    return Arrays.asList(items);
   }
 }
