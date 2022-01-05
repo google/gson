@@ -98,11 +98,9 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>3.0.0-M5</version>
-          <configuration>
-            <jdkToolchain>
-              <version>[${testJavaVersion},)</version>
-            </jdkToolchain>
-          </configuration>
+          <!-- Note: Ideally this would specify `jdkToolchain` to make sure 
+            a JDK >= ${testJavaVersion} is used, but unlike other plugins maven-surefire-plugin 
+            seems to fail when no Maven toolchains are configured locally -->
         </plugin>
 
         <plugin>
