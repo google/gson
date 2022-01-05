@@ -29,6 +29,8 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <javaVersion>7</javaVersion>
+    <!-- Java version used for compiling and running unit tests -->
+    <testJavaVersion>11</testJavaVersion>
   </properties>
 
   <scm>
@@ -53,9 +55,9 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>4.13.2</version>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter</artifactId>
+        <version>5.8.2</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
@@ -68,13 +70,41 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.8.1</version>
+          <executions>
+            <execution>
+              <!-- Overwrite default-compile configuration -->
+              <id>default-compile</id>
+              <configuration>
+                <release>${javaVersion}</release>
+                <jdkToolchain>
+                  <version>[11,)</version>
+                </jdkToolchain>
+              </configuration>
+            </execution>
+            <execution>
+              <!-- Overwrite default-testCompile configuration -->
+              <id>default-testCompile</id>
+              <configuration>
+                <release>${testJavaVersion}</release>
+                <jdkToolchain>
+                  <version>[${testJavaVersion},)</version>
+                </jdkToolchain>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>3.0.0-M5</version>
           <configuration>
-            <release>${javaVersion}</release>
             <jdkToolchain>
-              <version>[11,)</version>
+              <version>[${testJavaVersion},)</version>
             </jdkToolchain>
           </configuration>
         </plugin>
+
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
@@ -99,6 +129,7 @@
             <detectOfflineLinks>false</detectOfflineLinks>
           </configuration>
         </plugin>
+
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>

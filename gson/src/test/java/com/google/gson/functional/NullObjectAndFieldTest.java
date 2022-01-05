@@ -16,22 +16,26 @@
 
 package com.google.gson.functional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.common.TestTypes.ClassWithObjects;
-
-import junit.framework.TestCase;
-
 import java.lang.reflect.Type;
 import java.util.Collection;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Functional tests for the different cases for serializing (or ignoring) null fields and object.
@@ -39,16 +43,16 @@ import java.util.Collection;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class NullObjectAndFieldTest extends TestCase {
+class NullObjectAndFieldTest {
   private GsonBuilder gsonBuilder;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @BeforeEach
+  void setUp() throws Exception {
     gsonBuilder = new GsonBuilder().serializeNulls();
   }
 
-  public void testTopLevelNullObjectSerialization() {
+  @Test
+  void testTopLevelNullObjectSerialization() {
     Gson gson = gsonBuilder.create();
     String actual = gson.toJson(null);
     assertEquals("null", actual);
@@ -57,13 +61,15 @@ public class NullObjectAndFieldTest extends TestCase {
     assertEquals("null", actual);
   }
 
-  public void testTopLevelNullObjectDeserialization() throws Exception {
+  @Test
+  void testTopLevelNullObjectDeserialization() throws Exception {
     Gson gson = gsonBuilder.create();
     String actual = gson.fromJson("null", String.class);
     assertNull(actual);
   }
 
-  public void testExplicitSerializationOfNulls() {
+  @Test
+  void testExplicitSerializationOfNulls() {
     Gson gson = gsonBuilder.create();
     ClassWithObjects target = new ClassWithObjects(null);
     String actual = gson.toJson(target);
@@ -71,54 +77,61 @@ public class NullObjectAndFieldTest extends TestCase {
     assertEquals(expected, actual);
   }
 
-  public void testExplicitDeserializationOfNulls() throws Exception {
+  @Test
+  void testExplicitDeserializationOfNulls() throws Exception {
     Gson gson = gsonBuilder.create();
     ClassWithObjects target = gson.fromJson("{\"bag\":null}", ClassWithObjects.class);
     assertNull(target.bag);
   }
-  
-  public void testExplicitSerializationOfNullArrayMembers() {
+
+  @Test
+  void testExplicitSerializationOfNullArrayMembers() {
     Gson gson = gsonBuilder.create();
     ClassWithMembers target = new ClassWithMembers();
     String json = gson.toJson(target);
     assertTrue(json.contains("\"array\":null"));
   }
-  
-  /** 
+
+  /**
    * Added to verify http://code.google.com/p/google-gson/issues/detail?id=68
    */
-  public void testNullWrappedPrimitiveMemberSerialization() {
+  @Test
+  void testNullWrappedPrimitiveMemberSerialization() {
     Gson gson = gsonBuilder.serializeNulls().create();
     ClassWithNullWrappedPrimitive target = new ClassWithNullWrappedPrimitive();
     String json = gson.toJson(target);
     assertTrue(json.contains("\"value\":null"));
   }
-  
-  /** 
+
+  /**
    * Added to verify http://code.google.com/p/google-gson/issues/detail?id=68
    */
-  public void testNullWrappedPrimitiveMemberDeserialization() {
+  @Test
+  void testNullWrappedPrimitiveMemberDeserialization() {
     Gson gson = gsonBuilder.create();
     String json = "{'value':null}";
     ClassWithNullWrappedPrimitive target = gson.fromJson(json, ClassWithNullWrappedPrimitive.class);
     assertNull(target.value);
   }
-  
-  public void testExplicitSerializationOfNullCollectionMembers() {
+
+  @Test
+  void testExplicitSerializationOfNullCollectionMembers() {
     Gson gson = gsonBuilder.create();
     ClassWithMembers target = new ClassWithMembers();
     String json = gson.toJson(target);
     assertTrue(json.contains("\"col\":null"));
   }
-  
-  public void testExplicitSerializationOfNullStringMembers() {
+
+  @Test
+  void testExplicitSerializationOfNullStringMembers() {
     Gson gson = gsonBuilder.create();
     ClassWithMembers target = new ClassWithMembers();
     String json = gson.toJson(target);
     assertTrue(json.contains("\"str\":null"));
   }
 
-  public void testCustomSerializationOfNulls() {
+  @Test
+  void testCustomSerializationOfNulls() {
     gsonBuilder.registerTypeAdapter(ClassWithObjects.class, new ClassWithObjectsSerializer());
     Gson gson = gsonBuilder.create();
     ClassWithObjects target = new ClassWithObjects(new BagOfPrimitives());
@@ -126,8 +139,9 @@ public class NullObjectAndFieldTest extends TestCase {
     String expected = "{\"bag\":null}";
     assertEquals(expected, actual);
   }
-  
-  public void testPrintPrintingObjectWithNulls() throws Exception {
+
+  @Test
+  void testPrintPrintingObjectWithNulls() throws Exception {
     gsonBuilder = new GsonBuilder();
     Gson gson = gsonBuilder.create();
     String result = gson.toJson(new ClassWithMembers());
@@ -137,8 +151,9 @@ public class NullObjectAndFieldTest extends TestCase {
     result = gson.toJson(new ClassWithMembers());
     assertTrue(result.contains("\"str\":null"));
   }
-  
-  public void testPrintPrintingArraysWithNulls() throws Exception {
+
+  @Test
+  void testPrintPrintingArraysWithNulls() throws Exception {
     gsonBuilder = new GsonBuilder();
     Gson gson = gsonBuilder.create();
     String result = gson.toJson(new String[] { "1", null, "3" });
@@ -150,7 +165,8 @@ public class NullObjectAndFieldTest extends TestCase {
   }
 
   // test for issue 389
-  public void testAbsentJsonElementsAreSetToNull() {
+  @Test
+  void testAbsentJsonElementsAreSetToNull() {
     Gson gson = new Gson();
     ClassWithInitializedMembers target =
         gson.fromJson("{array:[1,2,3]}", ClassWithInitializedMembers.class);
@@ -163,7 +179,7 @@ public class NullObjectAndFieldTest extends TestCase {
     assertFalse(target.bool2); // test the default value of a primitive boolean field per JVM spec
   }
 
-  public static class ClassWithInitializedMembers {
+  static class ClassWithInitializedMembers {
     // Using a mix of no-args constructor and field initializers
     // Also, some fields are intialized and some are not (so initialized per JVM spec)
     public static final String MY_STRING_DEFAULT = "string";
@@ -190,7 +206,7 @@ public class NullObjectAndFieldTest extends TestCase {
     int[] array;
     Collection<String> col;
   }
-  
+
   private static class ClassWithObjectsSerializer implements JsonSerializer<ClassWithObjects> {
     @Override public JsonElement serialize(ClassWithObjects src, Type typeOfSrc,
         JsonSerializationContext context) {
@@ -200,14 +216,16 @@ public class NullObjectAndFieldTest extends TestCase {
     }
   }
 
-  public void testExplicitNullSetsFieldToNullDuringDeserialization() {
+  @Test
+  void testExplicitNullSetsFieldToNullDuringDeserialization() {
     Gson gson = new Gson();
     String json = "{value:null}";
     ObjectWithField obj = gson.fromJson(json, ObjectWithField.class);
     assertNull(obj.value);
   }
 
-  public void testCustomTypeAdapterPassesNullSerialization() {
+  @Test
+  void testCustomTypeAdapterPassesNullSerialization() {
     Gson gson = new GsonBuilder()
         .registerTypeAdapter(ObjectWithField.class, new JsonSerializer<ObjectWithField>() {
           @Override public JsonElement serialize(ObjectWithField src, Type typeOfSrc,
@@ -221,7 +239,8 @@ public class NullObjectAndFieldTest extends TestCase {
     assertFalse(json.contains("value1"));
   }
 
-  public void testCustomTypeAdapterPassesNullDesrialization() {
+  @Test
+  void testCustomTypeAdapterPassesNullDesrialization() {
     Gson gson = new GsonBuilder()
         .registerTypeAdapter(ObjectWithField.class, new JsonDeserializer<ObjectWithField>() {
           @Override public ObjectWithField deserialize(JsonElement json, Type type,

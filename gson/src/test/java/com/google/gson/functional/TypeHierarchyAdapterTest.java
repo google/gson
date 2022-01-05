@@ -16,6 +16,8 @@
 
 package com.google.gson.functional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -27,14 +29,15 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import java.lang.reflect.Type;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test that the hierarchy adapter works when subtypes are used.
  */
-public final class TypeHierarchyAdapterTest extends TestCase {
+class TypeHierarchyAdapterTest {
 
-  public void testTypeHierarchy() {
+  @Test
+  void testTypeHierarchy() {
     Manager andy = new Manager();
     andy.userid = "andy";
     andy.startDate = 2005;
@@ -116,7 +119,8 @@ public final class TypeHierarchyAdapterTest extends TestCase {
         ((Manager) company.ceo.minions[2]).minions[1].userid);
   }
 
-  public void testRegisterSuperTypeFirst() {
+  @Test
+  void testRegisterSuperTypeFirst() {
     Gson gson = new GsonBuilder()
         .registerTypeHierarchyAdapter(Employee.class, new EmployeeAdapter())
         .registerTypeHierarchyAdapter(Manager.class, new ManagerAdapter())
@@ -132,7 +136,8 @@ public final class TypeHierarchyAdapterTest extends TestCase {
   }
 
   /** This behaviour changed in Gson 2.1; it used to throw. */
-  public void testRegisterSubTypeFirstAllowed() {
+  @Test
+  void testRegisterSubTypeFirstAllowed() {
     new GsonBuilder()
         .registerTypeHierarchyAdapter(Manager.class, new ManagerAdapter())
         .registerTypeHierarchyAdapter(Employee.class, new EmployeeAdapter())

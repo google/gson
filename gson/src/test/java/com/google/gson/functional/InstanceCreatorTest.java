@@ -16,21 +16,23 @@
 
 package com.google.gson.functional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 import com.google.gson.common.TestTypes.Base;
 import com.google.gson.common.TestTypes.ClassWithBaseField;
 import com.google.gson.common.TestTypes.Sub;
-
 import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
-import junit.framework.TestCase;
-
-import java.lang.reflect.Type;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import org.junit.jupiter.api.Test;
 
 /**
  * Functional Test exercising custom serialization only. When test applies to both
@@ -38,9 +40,10 @@ import java.util.TreeSet;
  *
  * @author Inderjeet Singh
  */
-public class InstanceCreatorTest extends TestCase {
+class InstanceCreatorTest {
 
-  public void testInstanceCreatorReturnsBaseType() {
+  @Test
+  void testInstanceCreatorReturnsBaseType() {
     Gson gson = new GsonBuilder()
       .registerTypeAdapter(Base.class, new InstanceCreator<Base>() {
         @Override public Base createInstance(Type type) {
@@ -53,7 +56,8 @@ public class InstanceCreatorTest extends TestCase {
     assertEquals("BaseRevised", base.baseName);
   }
 
-  public void testInstanceCreatorReturnsSubTypeForTopLevelObject() {
+  @Test
+  void testInstanceCreatorReturnsSubTypeForTopLevelObject() {
     Gson gson = new GsonBuilder()
     .registerTypeAdapter(Base.class, new InstanceCreator<Base>() {
       @Override public Base createInstance(Type type) {
@@ -71,7 +75,8 @@ public class InstanceCreatorTest extends TestCase {
     assertEquals(Sub.SUB_NAME, sub.subName);
   }
 
-  public void testInstanceCreatorReturnsSubTypeForField() {
+  @Test
+  void testInstanceCreatorReturnsSubTypeForField() {
     Gson gson = new GsonBuilder()
     .registerTypeAdapter(Base.class, new InstanceCreator<Base>() {
       @Override public Base createInstance(Type type) {
@@ -86,7 +91,8 @@ public class InstanceCreatorTest extends TestCase {
   }
 
   // This regressed in Gson 2.0 and 2.1
-  public void testInstanceCreatorForCollectionType() {
+  @Test
+  void testInstanceCreatorForCollectionType() {
     @SuppressWarnings("serial")
     class SubArrayList<T> extends ArrayList<T> {}
     InstanceCreator<List<String>> listCreator = new InstanceCreator<List<String>>() {
@@ -103,7 +109,8 @@ public class InstanceCreatorTest extends TestCase {
   }
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  public void testInstanceCreatorForParametrizedType() throws Exception {
+  @Test
+  void testInstanceCreatorForParametrizedType() throws Exception {
     @SuppressWarnings("serial")
     class SubTreeSet<T> extends TreeSet<T> {}
     InstanceCreator<SortedSet> sortedSetCreator = new InstanceCreator<SortedSet>() {

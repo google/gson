@@ -16,16 +16,20 @@
 
 package com.google.gson;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.math.BigDecimal;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import com.google.gson.internal.LazilyParsedNumber;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.MalformedJsonException;
-import junit.framework.TestCase;
+import java.io.IOException;
+import java.io.StringReader;
+import java.math.BigDecimal;
+import org.junit.jupiter.api.Test;
 
-public class ToNumberPolicyTest extends TestCase {
-  public void testDouble() throws IOException {
+class ToNumberPolicyTest {
+  @Test
+  void testDouble() throws IOException {
     ToNumberStrategy strategy = ToNumberPolicy.DOUBLE;
     assertEquals(10.1, strategy.readNumber(fromString("10.1")));
     assertEquals(3.141592653589793D, strategy.readNumber(fromString("3.141592653589793238462643383279")));
@@ -42,14 +46,16 @@ public class ToNumberPolicyTest extends TestCase {
     }
   }
 
-  public void testLazilyParsedNumber() throws IOException {
+  @Test
+  void testLazilyParsedNumber() throws IOException {
     ToNumberStrategy strategy = ToNumberPolicy.LAZILY_PARSED_NUMBER;
     assertEquals(new LazilyParsedNumber("10.1"), strategy.readNumber(fromString("10.1")));
     assertEquals(new LazilyParsedNumber("3.141592653589793238462643383279"), strategy.readNumber(fromString("3.141592653589793238462643383279")));
     assertEquals(new LazilyParsedNumber("1e400"), strategy.readNumber(fromString("1e400")));
   }
 
-  public void testLongOrDouble() throws IOException {
+  @Test
+  void testLongOrDouble() throws IOException {
     ToNumberStrategy strategy = ToNumberPolicy.LONG_OR_DOUBLE;
     assertEquals(10L, strategy.readNumber(fromString("10")));
     assertEquals(10.1, strategy.readNumber(fromString("10.1")));
@@ -90,7 +96,8 @@ public class ToNumberPolicyTest extends TestCase {
     }
   }
 
-  public void testBigDecimal() throws IOException {
+  @Test
+  void testBigDecimal() throws IOException {
     ToNumberStrategy strategy = ToNumberPolicy.BIG_DECIMAL;
     assertEquals(new BigDecimal("10.1"), strategy.readNumber(fromString("10.1")));
     assertEquals(new BigDecimal("3.141592653589793238462643383279"), strategy.readNumber(fromString("3.141592653589793238462643383279")));
@@ -104,7 +111,8 @@ public class ToNumberPolicyTest extends TestCase {
     }
   }
 
-  public void testNullsAreNeverExpected() throws IOException {
+  @Test
+  void testNullsAreNeverExpected() throws IOException {
     try {
       ToNumberPolicy.DOUBLE.readNumber(fromString("null"));
       fail();

@@ -1,15 +1,19 @@
 package com.google.gson.internal.bind.util;
 
-import org.junit.Test;
-import org.junit.function.ThrowingRunnable;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.text.ParseException;
 import java.text.ParsePosition;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Locale;
+import java.util.TimeZone;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
-
-public class ISO8601UtilsTest {
+class ISO8601UtilsTest {
 
     private static TimeZone utcTimeZone() {
         return TimeZone.getTimeZone("UTC");
@@ -24,7 +28,7 @@ public class ISO8601UtilsTest {
     }
 
     @Test
-    public void testDateFormatString() {
+    void testDateFormatString() {
         GregorianCalendar calendar = new GregorianCalendar(utcTimeZone(), Locale.US);
         // Calendar was created with current time, must clear it
         calendar.clear();
@@ -36,7 +40,7 @@ public class ISO8601UtilsTest {
     }
 
     @Test
-    public void testDateFormatWithMilliseconds() {
+    void testDateFormatWithMilliseconds() {
         long time = 1530209176870L;
         Date date = new Date(time);
         String dateStr = ISO8601Utils.format(date, true);
@@ -45,7 +49,7 @@ public class ISO8601UtilsTest {
     }
 
     @Test
-    public void testDateFormatWithTimezone() {
+    void testDateFormatWithTimezone() {
         long time = 1530209176870L;
         Date date = new Date(time);
         String dateStr = ISO8601Utils.format(date, true, TimeZone.getTimeZone("Brazil/East"));
@@ -54,7 +58,7 @@ public class ISO8601UtilsTest {
     }
 
     @Test
-    public void testDateParseWithDefaultTimezone() throws ParseException {
+    void testDateParseWithDefaultTimezone() throws ParseException {
         String dateStr = "2018-06-25";
         Date date = ISO8601Utils.parse(dateStr, new ParsePosition(0));
         Date expectedDate = new GregorianCalendar(2018, Calendar.JUNE, 25).getTime();
@@ -62,7 +66,7 @@ public class ISO8601UtilsTest {
     }
 
     @Test
-    public void testDateParseWithTimezone() throws ParseException {
+    void testDateParseWithTimezone() throws ParseException {
         String dateStr = "2018-06-25T00:00:00-03:00";
         Date date = ISO8601Utils.parse(dateStr, new ParsePosition(0));
         GregorianCalendar calendar = createUtcCalendar();
@@ -72,7 +76,7 @@ public class ISO8601UtilsTest {
     }
 
     @Test
-    public void testDateParseSpecialTimezone() throws ParseException {
+    void testDateParseSpecialTimezone() throws ParseException {
         String dateStr = "2018-06-25T00:02:00-02:58";
         Date date = ISO8601Utils.parse(dateStr, new ParsePosition(0));
         GregorianCalendar calendar = createUtcCalendar();
@@ -82,11 +86,11 @@ public class ISO8601UtilsTest {
     }
 
     @Test
-    public void testDateParseInvalidTime() throws ParseException {
+    void testDateParseInvalidTime() throws ParseException {
         final String dateStr = "2018-06-25T61:60:62-03:00";
-        assertThrows(ParseException.class, new ThrowingRunnable() {
+        assertThrows(ParseException.class, new Executable() {
           @Override
-          public void run() throws Throwable {
+          public void execute() throws Throwable {
             ISO8601Utils.parse(dateStr, new ParsePosition(0));
           }
         });

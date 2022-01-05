@@ -16,6 +16,10 @@
 
 package com.google.gson.functional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -33,34 +37,38 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Set;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 /**
  * Functional tests for Java 5.0 enums.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class EnumTest extends TestCase {
+class EnumTest {
 
   private Gson gson;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @BeforeEach
+  void setUp() throws Exception {
     gson = new Gson();
   }
 
-  public void testTopLevelEnumSerialization() throws Exception {
+  @Test
+  void testTopLevelEnumSerialization() throws Exception {
     String result = gson.toJson(MyEnum.VALUE1);
     assertEquals('"' + MyEnum.VALUE1.toString() + '"', result);
   }
 
-  public void testTopLevelEnumDeserialization() throws Exception {
+  @Test
+  void testTopLevelEnumDeserialization() throws Exception {
     MyEnum result = gson.fromJson('"' + MyEnum.VALUE1.toString() + '"', MyEnum.class);
     assertEquals(MyEnum.VALUE1, result);
   }
 
-  public void testCollectionOfEnumsSerialization() {
+  @Test
+  void testCollectionOfEnumsSerialization() {
     Type type = new TypeToken<Collection<MyEnum>>() {}.getType();
     Collection<MyEnum> target = new ArrayList<MyEnum>();
     target.add(MyEnum.VALUE1);
@@ -72,7 +80,8 @@ public class EnumTest extends TestCase {
     assertEquals(expectedJson, actualJson);
   }
 
-  public void testCollectionOfEnumsDeserialization() {
+  @Test
+  void testCollectionOfEnumsDeserialization() {
     Type type = new TypeToken<Collection<MyEnum>>() {}.getType();
     String json = "[\"VALUE1\",\"VALUE2\"]";
     Collection<MyEnum> target = gson.fromJson(json, type);
@@ -80,12 +89,14 @@ public class EnumTest extends TestCase {
     MoreAsserts.assertContains(target, MyEnum.VALUE2);
   }
 
-  public void testClassWithEnumFieldSerialization() throws Exception {
+  @Test
+  void testClassWithEnumFieldSerialization() throws Exception {
     ClassWithEnumFields target = new ClassWithEnumFields();
     assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 
-  public void testClassWithEnumFieldDeserialization() throws Exception {
+  @Test
+  void testClassWithEnumFieldDeserialization() throws Exception {
     String json = "{value1:'VALUE1',value2:'VALUE2'}";
     ClassWithEnumFields target = gson.fromJson(json, ClassWithEnumFields.class);
     assertEquals(MyEnum.VALUE1,target.value1);
@@ -107,7 +118,8 @@ public class EnumTest extends TestCase {
   /**
    * Test for issue 226.
    */
-  public void testEnumSubclass() {
+  @Test
+  void testEnumSubclass() {
     assertFalse(Roshambo.class == Roshambo.ROCK.getClass());
     assertEquals("\"ROCK\"", gson.toJson(Roshambo.ROCK));
     assertEquals("[\"ROCK\",\"PAPER\",\"SCISSORS\"]", gson.toJson(EnumSet.allOf(Roshambo.class)));
@@ -116,7 +128,8 @@ public class EnumTest extends TestCase {
         gson.fromJson("[\"ROCK\",\"PAPER\",\"SCISSORS\"]", new TypeToken<Set<Roshambo>>() {}.getType()));
   }
 
-  public void testEnumSubclassWithRegisteredTypeAdapter() {
+  @Test
+  void testEnumSubclassWithRegisteredTypeAdapter() {
     gson = new GsonBuilder()
         .registerTypeHierarchyAdapter(Roshambo.class, new MyEnumTypeAdapter())
         .create();
@@ -128,7 +141,8 @@ public class EnumTest extends TestCase {
         gson.fromJson("[\"123ROCK\",\"123PAPER\",\"123SCISSORS\"]", new TypeToken<Set<Roshambo>>() {}.getType()));
   }
 
-  public void testEnumSubclassAsParameterizedType() {
+  @Test
+  void testEnumSubclassAsParameterizedType() {
     Collection<Roshambo> list = new ArrayList<Roshambo>();
     list.add(Roshambo.ROCK);
     list.add(Roshambo.PAPER);
@@ -142,12 +156,14 @@ public class EnumTest extends TestCase {
     MoreAsserts.assertContains(actualJsonList, Roshambo.PAPER);
   }
 
-  public void testEnumCaseMapping() {
+  @Test
+  void testEnumCaseMapping() {
     assertEquals(Gender.MALE, gson.fromJson("\"boy\"", Gender.class));
     assertEquals("\"boy\"", gson.toJson(Gender.MALE, Gender.class));
   }
 
-  public void testEnumSet() {
+  @Test
+  void testEnumSet() {
     EnumSet<Roshambo> foo = EnumSet.of(Roshambo.ROCK, Roshambo.PAPER);
     String json = gson.toJson(foo);
     Type type = new TypeToken<EnumSet<Roshambo>>() {}.getType();
@@ -157,7 +173,7 @@ public class EnumTest extends TestCase {
     assertFalse(bar.contains(Roshambo.SCISSORS));
   }
 
-  public enum Roshambo {
+  enum Roshambo {
     ROCK {
       @Override Roshambo defeats() {
         return SCISSORS;
@@ -189,7 +205,7 @@ public class EnumTest extends TestCase {
     }
   }
 
-  public enum Gender {
+  enum Gender {
     @SerializedName("boy")
     MALE,
 
@@ -197,12 +213,13 @@ public class EnumTest extends TestCase {
     FEMALE
   }
 
-  public void testEnumClassWithFields() {
+  @Test
+  void testEnumClassWithFields() {
     assertEquals("\"RED\"", gson.toJson(Color.RED));
     assertEquals("red", gson.fromJson("RED", Color.class).value);
   }
 
-  public enum Color {
+  enum Color {
     RED("red", 1), BLUE("blue", 2), GREEN("green", 3);
     String value;
     int index;

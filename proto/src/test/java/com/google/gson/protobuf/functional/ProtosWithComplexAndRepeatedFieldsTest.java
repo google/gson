@@ -15,6 +15,9 @@
  */
 package com.google.gson.protobuf.functional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.google.common.base.CaseFormat;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -25,20 +28,20 @@ import com.google.gson.protobuf.generated.Bag.ProtoWithDifferentCaseFormat;
 import com.google.gson.protobuf.generated.Bag.ProtoWithRepeatedFields;
 import com.google.gson.protobuf.generated.Bag.SimpleProto;
 import com.google.protobuf.GeneratedMessageV3;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Functional tests for protocol buffers using complex and repeated fields
  *
  * @author Inderjeet Singh
  */
-public class ProtosWithComplexAndRepeatedFieldsTest extends TestCase {
+class ProtosWithComplexAndRepeatedFieldsTest {
   private Gson gson;
   private Gson upperCamelGson;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @BeforeEach
+  void setUp() throws Exception {
     gson =
         new GsonBuilder()
             .registerTypeHierarchyAdapter(GeneratedMessageV3.class,
@@ -56,7 +59,8 @@ public class ProtosWithComplexAndRepeatedFieldsTest extends TestCase {
             .create();
   }
 
-  public void testSerializeRepeatedFields() {
+  @Test
+  void testSerializeRepeatedFields() {
     ProtoWithRepeatedFields proto = ProtoWithRepeatedFields.newBuilder()
       .addNumbers(2)
       .addNumbers(3)
@@ -69,7 +73,8 @@ public class ProtosWithComplexAndRepeatedFieldsTest extends TestCase {
     assertTrue(json.contains("count"));
   }
 
-  public void testDeserializeRepeatedFieldsProto() {
+  @Test
+  void testDeserializeRepeatedFieldsProto() {
     String json = "{numbers:[4,6],simples:[{msg:'bar'},{count:7}]}";
     ProtoWithRepeatedFields proto =
       gson.fromJson(json, ProtoWithRepeatedFields.class);
@@ -79,7 +84,8 @@ public class ProtosWithComplexAndRepeatedFieldsTest extends TestCase {
     assertEquals(7, proto.getSimples(1).getCount());
   }
 
-  public void testSerializeDifferentCaseFormat() {
+  @Test
+  void testSerializeDifferentCaseFormat() {
     final ProtoWithDifferentCaseFormat proto =
       ProtoWithDifferentCaseFormat.newBuilder()
         .setAnotherField("foo")
@@ -90,7 +96,8 @@ public class ProtosWithComplexAndRepeatedFieldsTest extends TestCase {
     assertEquals("bar", json.get("NameThatTestsCaseFormat").getAsJsonArray().get(0).getAsString());
   }
 
-  public void testDeserializeDifferentCaseFormat() {
+  @Test
+  void testDeserializeDifferentCaseFormat() {
     final String json = "{NameThatTestsCaseFormat:['bar'],AnotherField:'foo'}";
     ProtoWithDifferentCaseFormat proto =
       upperCamelGson.fromJson(json, ProtoWithDifferentCaseFormat.class);

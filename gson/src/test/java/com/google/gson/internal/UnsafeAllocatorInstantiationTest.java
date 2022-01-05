@@ -15,28 +15,32 @@
  */
 package com.google.gson.internal;
 
-import junit.framework.TestCase;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import org.junit.jupiter.api.Test;
 
 /**
  * Test unsafe allocator instantiation
  * @author Ugljesa Jovanovic
  */
-public final class UnsafeAllocatorInstantiationTest extends TestCase {
+class UnsafeAllocatorInstantiationTest {
 
-  public interface Interface {
+  interface Interface {
   }
 
-  public static abstract class AbstractClass {
+  static abstract class AbstractClass {
   }
 
-  public static class ConcreteClass {
+  static class ConcreteClass {
   }
 
   /**
    * Ensure that the {@link java.lang.UnsupportedOperationException} is thrown when trying
    * to instantiate an interface
    */
-  public void testInterfaceInstantiation() {
+  @Test
+  void testInterfaceInstantiation() {
     UnsafeAllocator unsafeAllocator = UnsafeAllocator.create();
     try {
       unsafeAllocator.newInstance(Interface.class);
@@ -50,7 +54,8 @@ public final class UnsafeAllocatorInstantiationTest extends TestCase {
    * Ensure that the {@link java.lang.UnsupportedOperationException} is thrown when trying
    * to instantiate an abstract class
    */
-  public void testAbstractClassInstantiation() {
+  @Test
+  void testAbstractClassInstantiation() {
     UnsafeAllocator unsafeAllocator = UnsafeAllocator.create();
     try {
       unsafeAllocator.newInstance(AbstractClass.class);
@@ -63,7 +68,8 @@ public final class UnsafeAllocatorInstantiationTest extends TestCase {
   /**
    * Ensure that no exception is thrown when trying to instantiate a concrete class
    */
-  public void testConcreteClassInstantiation() {
+  @Test
+  void testConcreteClassInstantiation() {
     UnsafeAllocator unsafeAllocator = UnsafeAllocator.create();
     try {
       unsafeAllocator.newInstance(ConcreteClass.class);

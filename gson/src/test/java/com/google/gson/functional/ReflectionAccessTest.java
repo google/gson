@@ -1,13 +1,14 @@
 package com.google.gson.functional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
@@ -18,9 +19,9 @@ import java.net.URLClassLoader;
 import java.security.Permission;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class ReflectionAccessTest {
+class ReflectionAccessTest {
   @SuppressWarnings("unused")
   private static class ClassWithPrivateMembers {
     private String s;
@@ -36,7 +37,7 @@ public class ReflectionAccessTest {
   }
 
   @Test
-  public void testRestrictiveSecurityManager() throws Exception {
+  void testRestrictiveSecurityManager() throws Exception {
     // Must use separate class loader, otherwise permission is not checked, see Class.getDeclaredFields()
     Class<?> clazz = loadClassWithDifferentClassLoader(ClassWithPrivateMembers.class);
 
@@ -103,7 +104,7 @@ public class ReflectionAccessTest {
    * <p>See https://github.com/google/gson/issues/1875
    */
   @Test
-  public void testSerializeInternalImplementationObject() {
+  void testSerializeInternalImplementationObject() {
     Gson gson = new Gson();
     String json = gson.toJson(Collections.emptyList());
     assertEquals("[]", json);
@@ -113,6 +114,8 @@ public class ReflectionAccessTest {
     try {
       gson.fromJson("{}", internalClass);
       fail("Missing exception; test has to be run with `--illegal-access=deny`");
+    } catch (JsonSyntaxException unexpected) {
+      fail("Unexpected exception type; test has to be run with `--illegal-access=deny`", unexpected);
     } catch (JsonIOException expected) {
       assertTrue(expected.getMessage().startsWith(
           "Failed making constructor 'java.util.Collections$EmptyList#EmptyList()' accessible; "

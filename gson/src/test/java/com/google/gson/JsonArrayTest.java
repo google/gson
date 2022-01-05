@@ -16,19 +16,26 @@
 
 package com.google.gson;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import com.google.gson.common.MoreAsserts;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Jesse Wilson
  */
-public final class JsonArrayTest extends TestCase {
-
-  public void testEqualsOnEmptyArray() {
+class JsonArrayTest {
+  @Test
+  void testEqualsOnEmptyArray() {
     MoreAsserts.assertEqualsAndHashCode(new JsonArray(), new JsonArray());
   }
 
-  public void testEqualsNonEmptyArray() {
+  @Test
+  void testEqualsNonEmptyArray() {
     JsonArray a = new JsonArray();
     JsonArray b = new JsonArray();
 
@@ -50,7 +57,8 @@ public final class JsonArrayTest extends TestCase {
     assertFalse(b.equals(a));
   }
 
-  public void testRemove() {
+  @Test
+  void testRemove() {
     JsonArray array = new JsonArray();
     try {
       array.remove(0);
@@ -67,7 +75,8 @@ public final class JsonArrayTest extends TestCase {
     assertTrue(array.contains(a));
   }
 
-  public void testSet() {
+  @Test
+  void testSet() {
     JsonArray array = new JsonArray();
     try {
       array.set(0, new JsonPrimitive(1));
@@ -84,7 +93,8 @@ public final class JsonArrayTest extends TestCase {
     assertEquals(1, array.size());
   }
 
-  public void testDeepCopy() {
+  @Test
+  void testDeepCopy() {
     JsonArray original = new JsonArray();
     JsonArray firstEntry = new JsonArray();
     original.add(firstEntry);
@@ -99,29 +109,27 @@ public final class JsonArrayTest extends TestCase {
     assertEquals(0, copy.get(0).getAsJsonArray().size());
   }
 
-  public void testFailedGetArrayValues() {
+  @Test
+  void testFailedGetArrayValues() {
     JsonArray jsonArray = new JsonArray();
     jsonArray.add(JsonParser.parseString("{" + "\"key1\":\"value1\"," + "\"key2\":\"value2\"," + "\"key3\":\"value3\"," + "\"key4\":\"value4\"" + "}"));
     try {
       jsonArray.getAsBoolean();
       fail("expected getBoolean to fail");
     } catch (UnsupportedOperationException e) {
-      assertEquals("Expected an exception message",
-              "JsonObject", e.getMessage());
+      assertEquals("JsonObject", e.getMessage());
     }
     try {
       jsonArray.get(-1);
       fail("expected get to fail");
     } catch (IndexOutOfBoundsException e) {
-      assertEquals("Expected an exception message",
-              "Index -1 out of bounds for length 1", e.getMessage());
+      assertEquals("Index -1 out of bounds for length 1", e.getMessage());
     }
     try {
       jsonArray.getAsString();
       fail("expected getString to fail");
     } catch (UnsupportedOperationException e) {
-      assertEquals("Expected an exception message",
-              "JsonObject", e.getMessage());
+      assertEquals("JsonObject", e.getMessage());
     }
 
     jsonArray.remove(0);
@@ -130,36 +138,31 @@ public final class JsonArrayTest extends TestCase {
       jsonArray.getAsDouble();
       fail("expected getDouble to fail");
     } catch (NumberFormatException e) {
-      assertEquals("Expected an exception message",
-              "For input string: \"hello\"", e.getMessage());
+      assertEquals("For input string: \"hello\"", e.getMessage());
     }
     try {
       jsonArray.getAsInt();
       fail("expected getInt to fail");
     } catch (NumberFormatException e) {
-      assertEquals("Expected an exception message",
-              "For input string: \"hello\"", e.getMessage());
+      assertEquals("For input string: \"hello\"", e.getMessage());
     }
     try {
       jsonArray.get(0).getAsJsonArray();
       fail("expected getJSONArray to fail");
     } catch (IllegalStateException e) {
-      assertEquals("Expected an exception message",
-              "Not a JSON Array: \"hello\"", e.getMessage());
+      assertEquals("Not a JSON Array: \"hello\"", e.getMessage());
     }
     try {
       jsonArray.getAsJsonObject();
       fail("expected getJSONObject to fail");
     } catch (IllegalStateException e) {
-      assertEquals("Expected an exception message",
-              "Not a JSON Object: [\"hello\"]", e.getMessage());
+      assertEquals("Not a JSON Object: [\"hello\"]", e.getMessage());
     }
     try {
       jsonArray.getAsLong();
       fail("expected getLong to fail");
     } catch (NumberFormatException e) {
-      assertEquals("Expected an exception message",
-              "For input string: \"hello\"", e.getMessage());
+      assertEquals("For input string: \"hello\"", e.getMessage());
     }
   }
 }

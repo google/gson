@@ -16,6 +16,9 @@
 
 package com.google.gson;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import com.google.gson.internal.Excluder;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
@@ -28,14 +31,14 @@ import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for {@link Gson}.
  *
  * @author Ryan Harter
  */
-public final class GsonTest extends TestCase {
+class GsonTest {
 
   private static final Excluder CUSTOM_EXCLUDER = Excluder.DEFAULT
       .excludeFieldsWithoutExposeAnnotation()
@@ -50,7 +53,8 @@ public final class GsonTest extends TestCase {
   private static final ToNumberStrategy CUSTOM_OBJECT_TO_NUMBER_STRATEGY = ToNumberPolicy.DOUBLE;
   private static final ToNumberStrategy CUSTOM_NUMBER_TO_NUMBER_STRATEGY = ToNumberPolicy.LAZILY_PARSED_NUMBER;
 
-  public void testOverridesDefaultExcluder() {
+  @Test
+  void testOverridesDefaultExcluder() {
     Gson gson = new Gson(CUSTOM_EXCLUDER, CUSTOM_FIELD_NAMING_STRATEGY,
         new HashMap<Type, InstanceCreator<?>>(), true, false, true, false,
         true, true, false, true, LongSerializationPolicy.DEFAULT, null, DateFormat.DEFAULT,
@@ -64,7 +68,8 @@ public final class GsonTest extends TestCase {
     assertEquals(false, gson.htmlSafe());
   }
 
-  public void testClonedTypeAdapterFactoryListsAreIndependent() {
+  @Test
+  void testClonedTypeAdapterFactoryListsAreIndependent() {
     Gson original = new Gson(CUSTOM_EXCLUDER, CUSTOM_FIELD_NAMING_STRATEGY,
         new HashMap<Type, InstanceCreator<?>>(), true, false, true, false,
         true, true, false, true, LongSerializationPolicy.DEFAULT, null, DateFormat.DEFAULT,
@@ -86,7 +91,8 @@ public final class GsonTest extends TestCase {
     @Override public Object read(JsonReader in) throws IOException { return null; }
   }
 
-  public void testNewJsonWriter_Default() throws IOException {
+  @Test
+  void testNewJsonWriter_Default() throws IOException {
     StringWriter writer = new StringWriter();
     JsonWriter jsonWriter = new Gson().newJsonWriter(writer);
     jsonWriter.beginObject();
@@ -108,7 +114,8 @@ public final class GsonTest extends TestCase {
     assertEquals("{\"\\u003ctest2\":true}", writer.toString());
   }
 
-  public void testNewJsonWriter_Custom() throws IOException {
+  @Test
+  void testNewJsonWriter_Custom() throws IOException {
     StringWriter writer = new StringWriter();
     JsonWriter jsonWriter = new GsonBuilder()
       .disableHtmlEscaping()
@@ -132,7 +139,8 @@ public final class GsonTest extends TestCase {
     assertEquals(")]}'\n{\n  \"test\": null,\n  \"<test2\": true\n}1", writer.toString());
   }
 
-  public void testNewJsonReader_Default() throws IOException {
+  @Test
+  void testNewJsonReader_Default() throws IOException {
     String json = "test"; // String without quotes
     JsonReader jsonReader = new Gson().newJsonReader(new StringReader(json));
     try {
@@ -143,7 +151,8 @@ public final class GsonTest extends TestCase {
     jsonReader.close();
   }
 
-  public void testNewJsonReader_Custom() throws IOException {
+  @Test
+  void testNewJsonReader_Custom() throws IOException {
     String json = "test"; // String without quotes
     JsonReader jsonReader = new GsonBuilder()
       .setLenient()

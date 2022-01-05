@@ -16,26 +16,28 @@
 
 package com.google.gson.functional;
 
-import com.google.gson.Gson;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import junit.framework.TestCase;
+import com.google.gson.Gson;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Functional tests for internationalized strings.
  *
  * @author Inderjeet Singh
  */
-public class InternationalizationTest extends TestCase {
+class InternationalizationTest {
   private Gson gson;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @BeforeEach
+  void setUp() throws Exception {
     gson = new Gson();
   }
 
   /*
-  public void testStringsWithRawChineseCharactersSerialization() throws Exception {
+  @Test
+  void testStringsWithRawChineseCharactersSerialization() throws Exception {
     String target = "好好好";
     String json = gson.toJson(target);
     String expected = "\"\\u597d\\u597d\\u597d\"";
@@ -43,28 +45,32 @@ public class InternationalizationTest extends TestCase {
   }
   */
 
-  public void testStringsWithRawChineseCharactersDeserialization() throws Exception {
+  @Test
+  void testStringsWithRawChineseCharactersDeserialization() throws Exception {
     String expected = "好好好";
     String json = "\"" + expected + "\"";
     String actual = gson.fromJson(json, String.class);
     assertEquals(expected, actual);
   }
 
-  public void testStringsWithUnicodeChineseCharactersSerialization() throws Exception {
+  @Test
+  void testStringsWithUnicodeChineseCharactersSerialization() throws Exception {
     String target = "\u597d\u597d\u597d";
     String json = gson.toJson(target);
     String expected = "\"\u597d\u597d\u597d\"";
     assertEquals(expected, json);
   }
 
-  public void testStringsWithUnicodeChineseCharactersDeserialization() throws Exception {
+  @Test
+  void testStringsWithUnicodeChineseCharactersDeserialization() throws Exception {
     String expected = "\u597d\u597d\u597d";
     String json = "\"" + expected + "\"";
     String actual = gson.fromJson(json, String.class);
     assertEquals(expected, actual);
   }
 
-  public void testStringsWithUnicodeChineseCharactersEscapedDeserialization() throws Exception {
+  @Test
+  void testStringsWithUnicodeChineseCharactersEscapedDeserialization() throws Exception {
     String actual = gson.fromJson("'\\u597d\\u597d\\u597d'", String.class);
     assertEquals("\u597d\u597d\u597d", actual);
   }

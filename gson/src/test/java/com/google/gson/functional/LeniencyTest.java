@@ -15,28 +15,30 @@
  */
 package com.google.gson.functional;
 
+import static java.util.Collections.singletonList;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import java.util.List;
-import junit.framework.TestCase;
-
-import static java.util.Collections.singletonList;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Functional tests for leniency option.
  */
-public class LeniencyTest extends TestCase {
+class LeniencyTest {
 
   private Gson gson;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @BeforeEach
+  void setUp() throws Exception {
     gson = new GsonBuilder().setLenient().create();
   }
 
-  public void testLenientFromJson() {
+  @Test
+  void testLenientFromJson() {
     List<String> json = gson.fromJson(""
         + "[ # One!\n"
         + "  'Hi' #Element!\n"

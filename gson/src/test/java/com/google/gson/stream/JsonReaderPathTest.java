@@ -16,35 +16,22 @@
 
 package com.google.gson.stream;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.google.gson.JsonElement;
 import com.google.gson.internal.Streams;
 import com.google.gson.internal.bind.JsonTreeReader;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Arrays;
-import java.util.List;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeTrue;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 @SuppressWarnings("resource")
-@RunWith(Parameterized.class)
-public class JsonReaderPathTest {
-  @Parameterized.Parameters(name = "{0}")
-  public static List<Object[]> parameters() {
-    return Arrays.asList(
-        new Object[] { Factory.STRING_READER },
-        new Object[] { Factory.OBJECT_READER }
-    );
-  }
-
-  @Parameterized.Parameter
-  public Factory factory;
-
-  @Test public void path() throws IOException {
+class JsonReaderPathTest {
+  @ParameterizedTest
+  @EnumSource(Factory.class)
+  void path(Factory factory) throws IOException {
     JsonReader reader = factory.create("{\"a\":[2,true,false,null,\"b\",{\"c\":\"d\"},[3]]}");
     assertEquals("$", reader.getPreviousPath());
     assertEquals("$", reader.getPath());
@@ -101,7 +88,9 @@ public class JsonReaderPathTest {
     assertEquals("$", reader.getPath());
   }
 
-  @Test public void objectPath() throws IOException {
+  @ParameterizedTest
+  @EnumSource(Factory.class)
+  void objectPath(Factory factory) throws IOException {
     JsonReader reader = factory.create("{\"a\":1,\"b\":2}");
     assertEquals("$", reader.getPreviousPath());
     assertEquals("$", reader.getPath());
@@ -156,7 +145,9 @@ public class JsonReaderPathTest {
     assertEquals("$", reader.getPath());
   }
 
-  @Test public void arrayPath() throws IOException {
+  @ParameterizedTest
+  @EnumSource(Factory.class)
+  void arrayPath(Factory factory) throws IOException {
     JsonReader reader = factory.create("[1,2]");
     assertEquals("$", reader.getPreviousPath());
     assertEquals("$", reader.getPath());
@@ -197,9 +188,9 @@ public class JsonReaderPathTest {
     assertEquals("$", reader.getPath());
   }
 
-  @Test public void multipleTopLevelValuesInOneDocument() throws IOException {
-    assumeTrue(factory == Factory.STRING_READER);
-
+  @Test
+  void multipleTopLevelValuesInOneDocument() throws IOException {
+    Factory factory = Factory.STRING_READER;
     JsonReader reader = factory.create("[][]");
     reader.setLenient(true);
     reader.beginArray();
@@ -212,7 +203,9 @@ public class JsonReaderPathTest {
     assertEquals("$", reader.getPath());
   }
 
-  @Test public void skipArrayElements() throws IOException {
+  @ParameterizedTest
+  @EnumSource(Factory.class)
+  void skipArrayElements(Factory factory) throws IOException {
     JsonReader reader = factory.create("[1,2,3]");
     reader.beginArray();
     reader.skipValue();
@@ -221,7 +214,9 @@ public class JsonReaderPathTest {
     assertEquals("$[2]", reader.getPath());
   }
 
-  @Test public void skipObjectNames() throws IOException {
+  @ParameterizedTest
+  @EnumSource(Factory.class)
+  void skipObjectNames(Factory factory) throws IOException {
     JsonReader reader = factory.create("{\"a\":1}");
     reader.beginObject();
     reader.skipValue();
@@ -229,7 +224,9 @@ public class JsonReaderPathTest {
     assertEquals("$.null", reader.getPath());
   }
 
-  @Test public void skipObjectValues() throws IOException {
+  @ParameterizedTest
+  @EnumSource(Factory.class)
+  void skipObjectValues(Factory factory) throws IOException {
     JsonReader reader = factory.create("{\"a\":1,\"b\":2}");
     reader.beginObject();
     assertEquals("$.", reader.getPreviousPath());
@@ -243,7 +240,9 @@ public class JsonReaderPathTest {
     assertEquals("$.b", reader.getPath());
   }
 
-  @Test public void skipNestedStructures() throws IOException {
+  @ParameterizedTest
+  @EnumSource(Factory.class)
+  void skipNestedStructures(Factory factory) throws IOException {
     JsonReader reader = factory.create("[[1,2,3],4]");
     reader.beginArray();
     reader.skipValue();
@@ -251,7 +250,9 @@ public class JsonReaderPathTest {
     assertEquals("$[1]", reader.getPath());
   }
 
-  @Test public void arrayOfObjects() throws IOException {
+  @ParameterizedTest
+  @EnumSource(Factory.class)
+  void arrayOfObjects(Factory factory) throws IOException {
     JsonReader reader = factory.create("[{},{},{}]");
     reader.beginArray();
     assertEquals("$[0]", reader.getPreviousPath());
@@ -279,7 +280,9 @@ public class JsonReaderPathTest {
     assertEquals("$", reader.getPath());
   }
 
-  @Test public void arrayOfArrays() throws IOException {
+  @ParameterizedTest
+  @EnumSource(Factory.class)
+  void arrayOfArrays(Factory factory) throws IOException {
     JsonReader reader = factory.create("[[],[],[]]");
     reader.beginArray();
     assertEquals("$[0]", reader.getPreviousPath());
@@ -307,7 +310,7 @@ public class JsonReaderPathTest {
     assertEquals("$", reader.getPath());
   }
 
-  public enum Factory {
+  enum Factory {
     STRING_READER {
       @Override public JsonReader create(String data) {
         return new JsonReader(new StringReader(data));

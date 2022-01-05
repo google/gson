@@ -1,19 +1,19 @@
 package com.google.gson;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+
 import java.lang.reflect.Field;
 import java.util.Locale;
-import org.junit.Test;
-import com.google.gson.functional.FieldNamingTest;
+import org.junit.jupiter.api.Test;
 
 /**
  * Performs tests directly against {@link FieldNamingPolicy}; for integration tests
  * see {@link FieldNamingTest}.
  */
-public class FieldNamingPolicyTest {
+class FieldNamingPolicyTest {
   @Test
-  public void testSeparateCamelCase() {
+  void testSeparateCamelCase() {
     // Map from original -> expected
     String[][] argumentPairs =  {
       { "a", "a" },
@@ -33,7 +33,7 @@ public class FieldNamingPolicyTest {
   }
 
   @Test
-  public void testUpperCaseFirstLetter() {
+  void testUpperCaseFirstLetter() {
     // Map from original -> expected
     String[][] argumentPairs =  {
       { "a", "A" },
@@ -59,7 +59,7 @@ public class FieldNamingPolicyTest {
    * Upper casing policies should be unaffected by default Locale.
    */
   @Test
-  public void testUpperCasingLocaleIndependent() throws Exception {
+  void testUpperCasingLocaleIndependent() throws Exception {
     class Dummy {
       @SuppressWarnings("unused")
       int i;
@@ -81,11 +81,11 @@ public class FieldNamingPolicyTest {
 
     try {
       // Verify that default Locale has different case conversion rules
-      assertNotEquals("Test setup is broken", expected, name.toUpperCase());
+      assertNotEquals(expected, name.toUpperCase(), "Test setup is broken");
 
       for (FieldNamingPolicy policy : policies) {
         // Should ignore default Locale
-        assertEquals("Unexpected conversion for " + policy, expected, policy.translateName(field));
+        assertEquals(expected, policy.translateName(field), "Unexpected conversion for " + policy);
       }
     } finally {
         Locale.setDefault(oldLocale);
@@ -96,7 +96,7 @@ public class FieldNamingPolicyTest {
    * Lower casing policies should be unaffected by default Locale.
    */
   @Test
-  public void testLowerCasingLocaleIndependent() throws Exception {
+  void testLowerCasingLocaleIndependent() throws Exception {
     class Dummy {
       @SuppressWarnings("unused")
       int I;
@@ -118,11 +118,11 @@ public class FieldNamingPolicyTest {
 
     try {
       // Verify that default Locale has different case conversion rules
-      assertNotEquals("Test setup is broken", expected, name.toLowerCase());
+      assertNotEquals(expected, name.toLowerCase(), "Test setup is broken");
 
       for (FieldNamingPolicy policy : policies) {
         // Should ignore default Locale
-        assertEquals("Unexpected conversion for " + policy, expected, policy.translateName(field));
+        assertEquals(expected, policy.translateName(field), "Unexpected conversion for " + policy);
       }
     } finally {
         Locale.setDefault(oldLocale);

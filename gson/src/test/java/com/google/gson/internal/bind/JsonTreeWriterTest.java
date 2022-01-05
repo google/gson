@@ -16,13 +16,17 @@
 
 package com.google.gson.internal.bind;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import com.google.gson.JsonNull;
 import java.io.IOException;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("resource")
-public final class JsonTreeWriterTest extends TestCase {
-  public void testArray() throws IOException {
+class JsonTreeWriterTest {
+  @Test
+  void testArray() throws IOException {
     JsonTreeWriter writer = new JsonTreeWriter();
     writer.beginArray();
     writer.value(1);
@@ -32,7 +36,8 @@ public final class JsonTreeWriterTest extends TestCase {
     assertEquals("[1,2,3]", writer.get().toString());
   }
 
-  public void testNestedArray() throws IOException {
+  @Test
+  void testNestedArray() throws IOException {
     JsonTreeWriter writer = new JsonTreeWriter();
     writer.beginArray();
     writer.beginArray();
@@ -45,7 +50,8 @@ public final class JsonTreeWriterTest extends TestCase {
     assertEquals("[[],[[]]]", writer.get().toString());
   }
 
-  public void testObject() throws IOException {
+  @Test
+  void testObject() throws IOException {
     JsonTreeWriter writer = new JsonTreeWriter();
     writer.beginObject();
     writer.name("A").value(1);
@@ -54,7 +60,8 @@ public final class JsonTreeWriterTest extends TestCase {
     assertEquals("{\"A\":1,\"B\":2}", writer.get().toString());
   }
 
-  public void testNestedObject() throws IOException {
+  @Test
+  void testNestedObject() throws IOException {
     JsonTreeWriter writer = new JsonTreeWriter();
     writer.beginObject();
     writer.name("A");
@@ -70,7 +77,8 @@ public final class JsonTreeWriterTest extends TestCase {
     assertEquals("{\"A\":{\"B\":{}},\"C\":{}}", writer.get().toString());
   }
 
-  public void testWriteAfterClose() throws Exception {
+  @Test
+  void testWriteAfterClose() throws Exception {
     JsonTreeWriter writer = new JsonTreeWriter();
     writer.setLenient(true);
     writer.beginArray();
@@ -84,7 +92,8 @@ public final class JsonTreeWriterTest extends TestCase {
     }
   }
 
-  public void testPrematureClose() throws Exception {
+  @Test
+  void testPrematureClose() throws Exception {
     JsonTreeWriter writer = new JsonTreeWriter();
     writer.setLenient(true);
     writer.beginArray();
@@ -95,7 +104,8 @@ public final class JsonTreeWriterTest extends TestCase {
     }
   }
 
-  public void testSerializeNullsFalse() throws IOException {
+  @Test
+  void testSerializeNullsFalse() throws IOException {
     JsonTreeWriter writer = new JsonTreeWriter();
     writer.setSerializeNulls(false);
     writer.beginObject();
@@ -105,7 +115,8 @@ public final class JsonTreeWriterTest extends TestCase {
     assertEquals("{}", writer.get().toString());
   }
 
-  public void testSerializeNullsTrue() throws IOException {
+  @Test
+  void testSerializeNullsTrue() throws IOException {
     JsonTreeWriter writer = new JsonTreeWriter();
     writer.setSerializeNulls(true);
     writer.beginObject();
@@ -115,40 +126,47 @@ public final class JsonTreeWriterTest extends TestCase {
     assertEquals("{\"A\":null}", writer.get().toString());
   }
 
-  public void testEmptyWriter() {
+  @Test
+  void testEmptyWriter() {
     JsonTreeWriter writer = new JsonTreeWriter();
     assertEquals(JsonNull.INSTANCE, writer.get());
   }
 
-  public void testBeginArray() throws Exception {
+  @Test
+  void testBeginArray() throws Exception {
     JsonTreeWriter writer = new JsonTreeWriter();
     assertEquals(writer, writer.beginArray());
   }
 
-  public void testBeginObject() throws Exception {
+  @Test
+  void testBeginObject() throws Exception {
     JsonTreeWriter writer = new JsonTreeWriter();
     assertEquals(writer, writer.beginObject());
   }
 
-  public void testValueString() throws Exception {
+  @Test
+  void testValueString() throws Exception {
     JsonTreeWriter writer = new JsonTreeWriter();
     String n = "as";
     assertEquals(writer, writer.value(n));
   }
 
-  public void testBoolValue() throws Exception {
+  @Test
+  void testBoolValue() throws Exception {
     JsonTreeWriter writer = new JsonTreeWriter();
     boolean bool = true;
     assertEquals(writer, writer.value(bool));
   }
 
-  public void testBoolMaisValue() throws Exception {
+  @Test
+  void testBoolMaisValue() throws Exception {
     JsonTreeWriter writer = new JsonTreeWriter();
     Boolean bool = true;
     assertEquals(writer, writer.value(bool));
   }
 
-  public void testLenientNansAndInfinities() throws IOException {
+  @Test
+  void testLenientNansAndInfinities() throws IOException {
     JsonTreeWriter writer = new JsonTreeWriter();
     writer.setLenient(true);
     writer.beginArray();
@@ -159,7 +177,8 @@ public final class JsonTreeWriterTest extends TestCase {
     assertEquals("[NaN,-Infinity,Infinity]", writer.get().toString());
   }
 
-  public void testStrictNansAndInfinities() throws IOException {
+  @Test
+  void testStrictNansAndInfinities() throws IOException {
     JsonTreeWriter writer = new JsonTreeWriter();
     writer.setLenient(false);
     writer.beginArray();
@@ -180,7 +199,8 @@ public final class JsonTreeWriterTest extends TestCase {
     }
   }
 
-  public void testStrictBoxedNansAndInfinities() throws IOException {
+  @Test
+  void testStrictBoxedNansAndInfinities() throws IOException {
     JsonTreeWriter writer = new JsonTreeWriter();
     writer.setLenient(false);
     writer.beginArray();

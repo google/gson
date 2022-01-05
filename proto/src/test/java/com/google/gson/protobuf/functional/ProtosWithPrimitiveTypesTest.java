@@ -15,6 +15,10 @@
  */
 package com.google.gson.protobuf.functional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.protobuf.ProtoTypeAdapter;
@@ -22,14 +26,14 @@ import com.google.gson.protobuf.ProtoTypeAdapter.EnumSerialization;
 import com.google.gson.protobuf.generated.Bag.SimpleProto;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.GeneratedMessageV3;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class ProtosWithPrimitiveTypesTest extends TestCase {
+class ProtosWithPrimitiveTypesTest {
   private Gson gson;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @BeforeEach
+  void setUp() throws Exception {
     gson = new GsonBuilder().registerTypeHierarchyAdapter(
       GeneratedMessageV3.class, ProtoTypeAdapter.newBuilder()
           .setEnumSerialization(EnumSerialization.NUMBER)
@@ -37,19 +41,22 @@ public class ProtosWithPrimitiveTypesTest extends TestCase {
       .create();
   }
 
-  public void testSerializeEmptyProto() {
+  @Test
+  void testSerializeEmptyProto() {
     SimpleProto proto = SimpleProto.newBuilder().build();
     String json = gson.toJson(proto);
     assertEquals("{}", json);
   }
 
-  public void testDeserializeEmptyProto() {
+  @Test
+  void testDeserializeEmptyProto() {
     SimpleProto proto = gson.fromJson("{}", SimpleProto.class);
     assertFalse(proto.hasCount());
     assertFalse(proto.hasMsg());
   }
 
-  public void testSerializeProto() {
+  @Test
+  void testSerializeProto() {
     Descriptor descriptor = SimpleProto.getDescriptor();
     SimpleProto proto = SimpleProto.newBuilder()
       .setCount(3)
@@ -60,13 +67,15 @@ public class ProtosWithPrimitiveTypesTest extends TestCase {
     assertTrue(json.contains("\"count\":3"));
   }
 
-  public void testDeserializeProto() {
+  @Test
+  void testDeserializeProto() {
     SimpleProto proto = gson.fromJson("{msg:'foo',count:3}", SimpleProto.class);
     assertEquals("foo", proto.getMsg());
     assertEquals(3, proto.getCount());
   }
 
-  public void testDeserializeWithExplicitNullValue() {
+  @Test
+  void testDeserializeWithExplicitNullValue() {
     SimpleProto proto = gson.fromJson("{msg:'foo',count:null}", SimpleProto.class);
     assertEquals("foo", proto.getMsg());
     assertEquals(0, proto.getCount());

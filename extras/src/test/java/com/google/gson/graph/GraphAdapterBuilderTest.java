@@ -16,23 +16,21 @@
 
 package com.google.gson.graph;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import org.junit.jupiter.api.Test;
 
-public final class GraphAdapterBuilderTest {
+class GraphAdapterBuilderTest {
   @Test
-  public void testSerialization() {
+  void testSerialization() {
     Roshambo rock = new Roshambo("ROCK");
     Roshambo scissors = new Roshambo("SCISSORS");
     Roshambo paper = new Roshambo("PAPER");
@@ -53,7 +51,7 @@ public final class GraphAdapterBuilderTest {
   }
 
   @Test
-  public void testDeserialization() {
+  void testDeserialization() {
     String json = "{'0x1':{'name':'ROCK','beats':'0x2'}," +
         "'0x2':{'name':'SCISSORS','beats':'0x3'}," +
         "'0x3':{'name':'PAPER','beats':'0x1'}}";
@@ -74,7 +72,7 @@ public final class GraphAdapterBuilderTest {
   }
 
   @Test
-  public void testDeserializationDirectSelfReference() {
+  void testDeserializationDirectSelfReference() {
     String json = "{'0x1':{'name':'SUICIDE','beats':'0x1'}}";
 
     GsonBuilder gsonBuilder = new GsonBuilder();
@@ -89,7 +87,7 @@ public final class GraphAdapterBuilderTest {
   }
 
   @Test
-  public void testSerializeListOfLists() {
+  void testSerializeListOfLists() {
     Type listOfListsType = new TypeToken<List<List<?>>>() {}.getType();
     Type listOfAnyType = new TypeToken<List<?>>() {}.getType();
 
@@ -109,7 +107,7 @@ public final class GraphAdapterBuilderTest {
   }
 
   @Test
-  public void testDeserializeListOfLists() {
+  void testDeserializeListOfLists() {
     Type listOfAnyType = new TypeToken<List<?>>() {}.getType();
     Type listOfListsType = new TypeToken<List<List<?>>>() {}.getType();
 
@@ -127,7 +125,7 @@ public final class GraphAdapterBuilderTest {
   }
 
   @Test
-  public void testSerializationWithMultipleTypes() {
+  void testSerializationWithMultipleTypes() {
     Company google = new Company("Google");
     new Employee("Jesse", google);
     new Employee("Joel", google);
@@ -146,7 +144,7 @@ public final class GraphAdapterBuilderTest {
   }
 
   @Test
-  public void testDeserializationWithMultipleTypes() {
+  void testDeserializationWithMultipleTypes() {
     GsonBuilder gsonBuilder = new GsonBuilder();
     new GraphAdapterBuilder()
         .addType(Company.class)

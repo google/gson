@@ -16,53 +16,68 @@
 
 package com.google.gson;
 
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
-
-import junit.framework.TestCase;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+import java.lang.reflect.Modifier;
+import java.util.Objects;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /**
  * Unit tests for {@link GsonBuilder}.
  *
  * @author Inderjeet Singh
  */
-public class GsonBuilderTest extends TestCase {
-  private static final TypeAdapter<Object> NULL_TYPE_ADAPTER = new TypeAdapter<Object>() {
-    @Override public void write(JsonWriter out, Object value) {
-      throw new AssertionError();
-    }
-    @Override public Object read(JsonReader in) {
-      throw new AssertionError();
-    }
-  };
-
-  public void testCreatingMoreThanOnce() {
+class GsonBuilderTest {
+  @Test
+  void testCreatingMoreThanOnce() {
     GsonBuilder builder = new GsonBuilder();
     builder.create();
     builder.create();
   }
 
-  public void testExcludeFieldsWithModifiers() {
+  @Test
+  void testExcludeFieldsWithModifiers() {
     Gson gson = new GsonBuilder()
         .excludeFieldsWithModifiers(Modifier.VOLATILE, Modifier.PRIVATE)
         .create();
     assertEquals("{\"d\":\"d\"}", gson.toJson(new HasModifiers()));
   }
 
-  public void testRegisterTypeAdapterForCoreType() {
-    Type[] types = {
-        byte.class,
-        int.class,
-        double.class,
-        Short.class,
-        Long.class,
-        String.class,
-    };
-    for (Type type : types) {
-      new GsonBuilder().registerTypeAdapter(type, NULL_TYPE_ADAPTER);
+  @ParameterizedTest
+  @ValueSource(classes = {
+    byte.class,
+    int.class,
+    double.class,
+    Short.class,
+    Long.class,
+    String.class,
+  })
+  void testRegisterTypeAdapterForCoreType(Class<?> type) {
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapter(type, new TypeAdapter<Object>() {
+          @Override public void write(JsonWriter out, Object value) throws IOException {
+            out.value("custom-write: " + Objects.toString(value));
+          }
+          @Override public Object read(JsonReader in) throws IOException {
+            throw new IOException("custom-read: " + in.nextString());
+          }
+        })
+        .create();
+
+    String actualJson = gson.toJson(null, type);
+    assertEquals("\"custom-write: null\"", actualJson);
+
+    try {
+      gson.fromJson("\"test\"", type);
+      fail();
+    } catch (JsonSyntaxException e) {
+      assertEquals("custom-read: test", e.getCause().getMessage());
     }
   }
 
@@ -74,7 +89,8 @@ public class GsonBuilderTest extends TestCase {
     String d = "d";
   }
 
-  public void testTransientFieldExclusion() {
+  @Test
+  void testTransientFieldExclusion() {
     Gson gson = new GsonBuilder()
         .excludeFieldsWithModifiers()
         .create();
@@ -85,7 +101,8 @@ public class GsonBuilderTest extends TestCase {
     transient String a = "a";
   }
 
-  public void testDisableJdkUnsafe() {
+  @Test
+  void testDisableJdkUnsafe() {
     Gson gson = new GsonBuilder()
         .disableJdkUnsafe()
         .create();

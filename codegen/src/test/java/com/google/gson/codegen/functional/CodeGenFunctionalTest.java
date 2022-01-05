@@ -15,11 +15,12 @@
  */
 package com.google.gson.codegen.functional;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
-public class CodeGenFunctionalTest extends TestCase {
+class CodeGenFunctionalTest {
 
-  public void testGeneratedJson() {
+  @Test
+  void testGeneratedJson() {
     Order order = new Order("toy", 10);
     // TODO: figure out how to access the generated type adapter
   }

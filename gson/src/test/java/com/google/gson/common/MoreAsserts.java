@@ -16,7 +16,10 @@
 
 package com.google.gson.common;
 
-import org.junit.Assert;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Collection;
 
@@ -39,14 +42,14 @@ public class MoreAsserts {
         return;
       }
     }
-    Assert.fail(value + " not present in " + collection);
+    fail(value + " not present in " + collection);
   }
 
   public static void assertEqualsAndHashCode(Object a, Object b) {
-    Assert.assertTrue(a.equals(b));
-    Assert.assertTrue(b.equals(a));
-    Assert.assertEquals(a.hashCode(), b.hashCode());
-    Assert.assertFalse(a.equals(null));
-    Assert.assertFalse(a.equals(new Object()));
+    assertTrue(a.equals(b));
+    assertTrue(b.equals(a));
+    assertEquals(a.hashCode(), b.hashCode());
+    assertFalse(a.equals(null));
+    assertFalse(a.equals(new Object()));
   }
 }

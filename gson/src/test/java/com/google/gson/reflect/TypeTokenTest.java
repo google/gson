@@ -16,19 +16,23 @@
 
 package com.google.gson.reflect;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.RandomAccess;
 import java.util.Set;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Jesse Wilson
  */
 @SuppressWarnings({"deprecation"})
-public final class TypeTokenTest extends TestCase {
+class TypeTokenTest {
 
   List<Integer> listOfInteger = null;
   List<Number> listOfNumber = null;
@@ -37,14 +41,16 @@ public final class TypeTokenTest extends TestCase {
   List<Set<String>> listOfSetOfString = null;
   List<Set<?>> listOfSetOfUnknown = null;
 
-  public void testIsAssignableFromRawTypes() {
+  @Test
+  void testIsAssignableFromRawTypes() {
     assertTrue(TypeToken.get(Object.class).isAssignableFrom(String.class));
     assertFalse(TypeToken.get(String.class).isAssignableFrom(Object.class));
     assertTrue(TypeToken.get(RandomAccess.class).isAssignableFrom(ArrayList.class));
     assertFalse(TypeToken.get(ArrayList.class).isAssignableFrom(RandomAccess.class));
   }
 
-  public void testIsAssignableFromWithTypeParameters() throws Exception {
+  @Test
+  void testIsAssignableFromWithTypeParameters() throws Exception {
     Type a = getClass().getDeclaredField("listOfInteger").getGenericType();
     Type b = getClass().getDeclaredField("listOfNumber").getGenericType();
     assertTrue(TypeToken.get(a).isAssignableFrom(a));
@@ -56,7 +62,8 @@ public final class TypeTokenTest extends TestCase {
     assertFalse(TypeToken.get(b).isAssignableFrom(a));
   }
 
-  public void testIsAssignableFromWithBasicWildcards() throws Exception {
+  @Test
+  void testIsAssignableFromWithBasicWildcards() throws Exception {
     Type a = getClass().getDeclaredField("listOfString").getGenericType();
     Type b = getClass().getDeclaredField("listOfUnknown").getGenericType();
     assertTrue(TypeToken.get(a).isAssignableFrom(a));
@@ -69,7 +76,8 @@ public final class TypeTokenTest extends TestCase {
     // assertTrue(TypeToken.get(b).isAssignableFrom(a));
   }
 
-  public void testIsAssignableFromWithNestedWildcards() throws Exception {
+  @Test
+  void testIsAssignableFromWithNestedWildcards() throws Exception {
     Type a = getClass().getDeclaredField("listOfSetOfString").getGenericType();
     Type b = getClass().getDeclaredField("listOfSetOfUnknown").getGenericType();
     assertTrue(TypeToken.get(a).isAssignableFrom(a));
@@ -81,7 +89,8 @@ public final class TypeTokenTest extends TestCase {
     assertFalse(TypeToken.get(b).isAssignableFrom(a));
   }
 
-  public void testArrayFactory() {
+  @Test
+  void testArrayFactory() {
     TypeToken<?> expectedStringArray = new TypeToken<String[]>() {};
     assertEquals(expectedStringArray, TypeToken.getArray(String.class));
 
@@ -90,7 +99,8 @@ public final class TypeTokenTest extends TestCase {
     assertEquals(expectedListOfStringArray, TypeToken.getArray(listOfString));
   }
 
-  public void testParameterizedFactory() {
+  @Test
+  void testParameterizedFactory() {
     TypeToken<?> expectedListOfString = new TypeToken<List<String>>() {};
     assertEquals(expectedListOfString, TypeToken.getParameterized(List.class, String.class));
 

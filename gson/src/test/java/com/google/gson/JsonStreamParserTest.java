@@ -15,32 +15,38 @@
  */
 package com.google.gson;
 
-import junit.framework.TestCase;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.NoSuchElementException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for {@link JsonStreamParser}
  * 
  * @author Inderjeet Singh
  */
-public class JsonStreamParserTest extends TestCase {
+class JsonStreamParserTest {
   private JsonStreamParser parser;
   
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @BeforeEach
+  void setUp() throws Exception {
     parser = new JsonStreamParser("'one' 'two'");
   }
 
-  public void testParseTwoStrings() {
+  @Test
+  void testParseTwoStrings() {
     String actualOne = parser.next().getAsString();
     assertEquals("one", actualOne);
     String actualTwo = parser.next().getAsString();
     assertEquals("two", actualTwo);
   }
 
-  public void testIterator() {
+  @Test
+  void testIterator() {
     assertTrue(parser.hasNext());
     assertEquals("one", parser.next().getAsString());
     assertTrue(parser.hasNext());
@@ -48,7 +54,8 @@ public class JsonStreamParserTest extends TestCase {
     assertFalse(parser.hasNext());
   }
 
-  public void testNoSideEffectForHasNext() throws Exception {
+  @Test
+  void testNoSideEffectForHasNext() throws Exception {
     assertTrue(parser.hasNext());
     assertTrue(parser.hasNext());
     assertTrue(parser.hasNext());
@@ -62,7 +69,8 @@ public class JsonStreamParserTest extends TestCase {
     assertFalse(parser.hasNext());
   }
 
-  public void testCallingNextBeyondAvailableInput() {
+  @Test
+  void testCallingNextBeyondAvailableInput() {
     parser.next();
     parser.next();
     try {

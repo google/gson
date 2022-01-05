@@ -1,26 +1,27 @@
 package com.google.gson.internal.sql;
 
-import java.sql.Date;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.util.Locale;
-import java.util.TimeZone;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.functional.DefaultTypeAdaptersTest;
 import com.google.gson.internal.JavaVersion;
+import java.sql.Date;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.util.Locale;
+import java.util.TimeZone;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import junit.framework.TestCase;
-
-public class SqlTypesGsonTest extends TestCase {
+class SqlTypesGsonTest {
   private Gson gson;
   private TimeZone oldTimeZone;
   private Locale oldLocale;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @BeforeEach
+  void setUp() throws Exception {
     this.oldTimeZone = TimeZone.getDefault();
     TimeZone.setDefault(TimeZone.getTimeZone("America/Los_Angeles"));
     this.oldLocale = Locale.getDefault();
@@ -28,14 +29,14 @@ public class SqlTypesGsonTest extends TestCase {
     gson = new Gson();
   }
 
-  @Override
-  protected void tearDown() throws Exception {
-    super.tearDown();
+  @AfterEach
+  void tearDown() throws Exception {
     TimeZone.setDefault(oldTimeZone);
     Locale.setDefault(oldLocale);
   }
 
-  public void testNullSerializationAndDeserialization() {
+  @Test
+  void testNullSerializationAndDeserialization() {
     testNullSerializationAndDeserialization(Date.class);
     testNullSerializationAndDeserialization(Time.class);
     testNullSerializationAndDeserialization(Timestamp.class);
@@ -45,20 +46,23 @@ public class SqlTypesGsonTest extends TestCase {
     DefaultTypeAdaptersTest.testNullSerializationAndDeserialization(gson, c);
   }
 
-  public void testDefaultSqlDateSerialization() {
+  @Test
+  void testDefaultSqlDateSerialization() {
     java.sql.Date instant = new java.sql.Date(1259875082000L);
     String json = gson.toJson(instant);
     assertEquals("\"Dec 3, 2009\"", json);
   }
 
-  public void testDefaultSqlDateDeserialization() {
+  @Test
+  void testDefaultSqlDateDeserialization() {
     String json = "'Dec 3, 2009'";
     java.sql.Date extracted = gson.fromJson(json, java.sql.Date.class);
     DefaultTypeAdaptersTest.assertEqualsDate(extracted, 2009, 11, 3);
   }
 
   // http://code.google.com/p/google-gson/issues/detail?id=230
-  public void testSqlDateSerialization() throws Exception {
+  @Test
+  void testSqlDateSerialization() throws Exception {
     TimeZone defaultTimeZone = TimeZone.getDefault();
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     Locale defaultLocale = Locale.getDefault();
@@ -75,19 +79,22 @@ public class SqlTypesGsonTest extends TestCase {
     }
   }
 
-  public void testDefaultSqlTimeSerialization() {
+  @Test
+  void testDefaultSqlTimeSerialization() {
     Time now = new Time(1259875082000L);
     String json = gson.toJson(now);
     assertEquals("\"01:18:02 PM\"", json);
   }
 
-  public void testDefaultSqlTimeDeserialization() {
+  @Test
+  void testDefaultSqlTimeDeserialization() {
     String json = "'1:18:02 PM'";
     Time extracted = gson.fromJson(json, Time.class);
     DefaultTypeAdaptersTest.assertEqualsTime(extracted, 13, 18, 2);
   }
 
-  public void testDefaultSqlTimestampSerialization() {
+  @Test
+  void testDefaultSqlTimestampSerialization() {
     Timestamp now = new java.sql.Timestamp(1259875082000L);
     String json = gson.toJson(now);
     if (JavaVersion.isJava9OrLater()) {
@@ -97,7 +104,8 @@ public class SqlTypesGsonTest extends TestCase {
     }
   }
 
-  public void testDefaultSqlTimestampDeserialization() {
+  @Test
+  void testDefaultSqlTimestampDeserialization() {
     String json = "'Dec 3, 2009 1:18:02 PM'";
     Timestamp extracted = gson.fromJson(json, Timestamp.class);
     DefaultTypeAdaptersTest.assertEqualsDate(extracted, 2009, 11, 3);
@@ -105,7 +113,8 @@ public class SqlTypesGsonTest extends TestCase {
   }
 
   // http://code.google.com/p/google-gson/issues/detail?id=230
-  public void testTimestampSerialization() throws Exception {
+  @Test
+  void testTimestampSerialization() throws Exception {
     TimeZone defaultTimeZone = TimeZone.getDefault();
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     Locale defaultLocale = Locale.getDefault();

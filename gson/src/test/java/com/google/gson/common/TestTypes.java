@@ -16,9 +16,6 @@
 
 package com.google.gson.common;
 
-import java.lang.reflect.Type;
-import java.util.Collection;
-
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
@@ -28,6 +25,8 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.SerializedName;
+import java.lang.reflect.Type;
+import java.util.Collection;
 
 /**
  * Types used for testing JSON serialization and deserialization

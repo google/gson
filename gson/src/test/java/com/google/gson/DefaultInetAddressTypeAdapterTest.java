@@ -16,30 +16,32 @@
 
 package com.google.gson;
 
-import java.net.InetAddress;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import junit.framework.TestCase;
+import java.net.InetAddress;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for the default serializer/deserializer for the {@code InetAddress} type.
  * 
  * @author Joel Leitch
  */
-public class DefaultInetAddressTypeAdapterTest extends TestCase {
+class DefaultInetAddressTypeAdapterTest {
   private Gson gson;
-  
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+
+  @BeforeEach
+  void setUp() throws Exception {
     gson = new Gson();
   }
-  
-  public void testInetAddressSerializationAndDeserialization() throws Exception {
+
+  @Test
+  void testInetAddressSerializationAndDeserialization() throws Exception {
     InetAddress address = InetAddress.getByName("8.8.8.8");
     String jsonAddress = gson.toJson(address);
     assertEquals("\"8.8.8.8\"", jsonAddress);
-    
+
     InetAddress value = gson.fromJson(jsonAddress, InetAddress.class);
     assertEquals(value, address);
-  } 
+  }
 }

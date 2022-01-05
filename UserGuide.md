@@ -53,13 +53,13 @@ Gson can work with arbitrary Java objects including pre-existing objects that yo
 
 Here are some metrics that we obtained on a desktop (dual opteron, 8GB RAM, 64-bit Ubuntu) running lots of other things along-with the tests. You can rerun these tests by using the class [`PerformanceTest`](gson/src/test/java/com/google/gson/metrics/PerformanceTest.java).
 
-* Strings: Deserialized strings of over 25MB without any problems (see `disabled_testStringDeserializationPerformance` method in `PerformanceTest`)
+* Strings: Deserialized strings of over 25MB without any problems (see `testStringDeserialization` method in `PerformanceTest`)
 * Large collections:
-  * Serialized a collection of 1.4 million objects (see `disabled_testLargeCollectionSerialization` method in `PerformanceTest`)
-  * Deserialized a collection of 87,000 objects (see `disabled_testLargeCollectionDeserialization` in `PerformanceTest`)
+  * Serialized a collection of 1.4 million objects (see `testLargeCollectionSerialization` method in `PerformanceTest`)
+  * Deserialized a collection of 87,000 objects (see `testLargeCollectionDeserialization` in `PerformanceTest`)
 * Gson 1.4 raised the deserialization limit for byte arrays and collection to over 11MB from 80KB.
 
-Note: Delete the `disabled_` prefix to run these tests. We use this prefix to prevent running these tests every time we run JUnit tests.
+Note: Remove the `@Disabled` annotations to run these tests. They are disabled by default to not run them every time we run JUnit tests.
 
 ## <a name="TOC-Gson-Users"></a>Gson Users
 

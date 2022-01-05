@@ -16,18 +16,19 @@
 
 package com.google.gson.typeadapters;
 
-import javax.annotation.PostConstruct;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
-import junit.framework.TestCase;
-
 import java.util.Arrays;
 import java.util.List;
+import javax.annotation.PostConstruct;
+import org.junit.jupiter.api.Test;
 
-public class PostConstructAdapterFactoryTest extends TestCase {
-    public void test() throws Exception {
+class PostConstructAdapterFactoryTest {
+    @Test
+    void test() throws Exception {
         Gson gson = new GsonBuilder()
                 .registerTypeAdapterFactory(new PostConstructAdapterFactory())
                 .create();
@@ -40,7 +41,8 @@ public class PostConstructAdapterFactoryTest extends TestCase {
         }
     }
 
-    public void testList() {
+    @Test
+    void testList() {
         MultipleSandwiches sandwiches = new MultipleSandwiches(Arrays.asList(
             new Sandwich("white", "cheddar"),
             new Sandwich("whole wheat", "swiss")));
@@ -70,6 +72,7 @@ public class PostConstructAdapterFactoryTest extends TestCase {
             }
         }
 
+        @Override
         public boolean equals(Object o) {
             if (o == this) {
                 return true;
@@ -95,6 +98,7 @@ public class PostConstructAdapterFactoryTest extends TestCase {
             this.sandwiches = sandwiches;
         }
 
+        @Override
         public boolean equals(Object o) {
             if (o == this) {
                 return true;

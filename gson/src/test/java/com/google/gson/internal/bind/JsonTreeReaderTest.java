@@ -15,22 +15,26 @@
  */
 package com.google.gson.internal.bind;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonToken;
 import java.io.IOException;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("resource")
-public class JsonTreeReaderTest extends TestCase {
-  public void testSkipValue_emptyJsonObject() throws IOException {
+class JsonTreeReaderTest {
+  @Test
+  void testSkipValue_emptyJsonObject() throws IOException {
     JsonTreeReader in = new JsonTreeReader(new JsonObject());
     in.skipValue();
     assertEquals(JsonToken.END_DOCUMENT, in.peek());
   }
 
-  public void testSkipValue_filledJsonObject() throws IOException {
+  @Test
+  void testSkipValue_filledJsonObject() throws IOException {
     JsonObject jsonObject = new JsonObject();
     JsonArray jsonArray = new JsonArray();
     jsonArray.add('c');

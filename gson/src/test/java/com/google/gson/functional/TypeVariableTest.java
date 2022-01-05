@@ -15,17 +15,17 @@
  */
 package com.google.gson.functional;
 
-import com.google.gson.Gson;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
-import java.util.Arrays;
-import junit.framework.TestCase;
-
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.junit.jupiter.api.Test;
 
 /**
  * Functional test for Gson serialization and deserialization of
@@ -33,9 +33,10 @@ import java.util.Map;
  *
  * @author Joel Leitch
  */
-public class TypeVariableTest extends TestCase {
+class TypeVariableTest {
 
-  public void testAdvancedTypeVariables() throws Exception {
+  @Test
+  void testAdvancedTypeVariables() throws Exception {
     Gson gson = new Gson();
     Bar bar1 = new Bar("someString", 1, true);
     ArrayList<Integer> arrayList = new ArrayList<Integer>();
@@ -50,7 +51,8 @@ public class TypeVariableTest extends TestCase {
     assertEquals(bar1, bar2);
   }
 
-  public void testTypeVariablesViaTypeParameter() throws Exception {
+  @Test
+  void testTypeVariablesViaTypeParameter() throws Exception {
     Gson gson = new Gson();
     Foo<String, Integer> original = new Foo<String, Integer>("e", 5, false);
     original.map.put("f", Arrays.asList(6, 7));
@@ -61,7 +63,8 @@ public class TypeVariableTest extends TestCase {
     assertEquals(original, gson.<Foo<String, Integer>>fromJson(json, type));
   }
 
-  public void testBasicTypeVariables() throws Exception {
+  @Test
+  void testBasicTypeVariables() throws Exception {
     Gson gson = new Gson();
     Blue blue1 = new Blue(true);
     String json = gson.toJson(blue1);
@@ -70,7 +73,7 @@ public class TypeVariableTest extends TestCase {
     assertEquals(blue1, blue2);
   }
 
-  public static class Blue extends Red<Boolean> {
+  static class Blue extends Red<Boolean> {
     public Blue() {
       super(false);
     }
@@ -90,7 +93,7 @@ public class TypeVariableTest extends TestCase {
     }
   }
 
-  public static class Red<S> {
+  static class Red<S> {
     protected S redField;
 
     public Red() {}
@@ -100,7 +103,7 @@ public class TypeVariableTest extends TestCase {
     }
   }
 
-  public static class Foo<S, T> extends Red<Boolean> {
+  static class Foo<S, T> extends Red<Boolean> {
     private S someSField;
     private T someTField;
     public final Map<S, List<T>> map = new HashMap<S, List<T>>();
@@ -128,7 +131,7 @@ public class TypeVariableTest extends TestCase {
     }
   }
 
-  public static class Bar extends Foo<String, Integer> {
+  static class Bar extends Foo<String, Integer> {
     public Bar() {
       this("", 0, false);
     }

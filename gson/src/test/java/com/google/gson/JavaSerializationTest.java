@@ -16,6 +16,8 @@
 
 package com.google.gson;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.google.gson.reflect.TypeToken;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -27,17 +29,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * Check that Gson doesn't return non-serializable data types.
  *
  * @author Jesse Wilson
  */
-public final class JavaSerializationTest extends TestCase {
+class JavaSerializationTest {
   private final Gson gson = new Gson();
 
-  public void testMapIsSerializable() throws Exception {
+  @Test
+  void testMapIsSerializable() throws Exception {
     Type type = new TypeToken<Map<String, Integer>>() {}.getType();
     Map<String, Integer> map = gson.fromJson("{\"b\":1,\"c\":2,\"a\":3}", type);
     Map<String, Integer> serialized = serializedCopy(map);
@@ -46,14 +49,16 @@ public final class JavaSerializationTest extends TestCase {
     assertEquals(Arrays.asList("b", "c", "a"), new ArrayList<String>(serialized.keySet()));
   }
 
-  public void testListIsSerializable() throws Exception {
+  @Test
+  void testListIsSerializable() throws Exception {
     Type type = new TypeToken<List<String>>() {}.getType();
     List<String> list = gson.fromJson("[\"a\",\"b\",\"c\"]", type);
     List<String> serialized = serializedCopy(list);
     assertEquals(list, serialized);
   }
 
-  public void testNumberIsSerializable() throws Exception {
+  @Test
+  void testNumberIsSerializable() throws Exception {
     Type type = new TypeToken<List<Number>>() {}.getType();
     List<Number> list = gson.fromJson("[1,3.14,6.673e-11]", type);
     List<Number> serialized = serializedCopy(list);

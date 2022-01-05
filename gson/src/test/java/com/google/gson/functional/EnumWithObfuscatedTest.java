@@ -16,26 +16,28 @@
 
 package com.google.gson.functional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
-
-import junit.framework.TestCase;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Functional tests for enums with Proguard.
  *
  * @author Young Cha
  */
-public class EnumWithObfuscatedTest extends TestCase {
+class EnumWithObfuscatedTest {
   private Gson gson;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @BeforeEach
+  void setUp() throws Exception {
     gson = new Gson();
   }
 
-  public enum Gender {
+  enum Gender {
     @SerializedName("MAIL")
     MALE,
 
@@ -43,7 +45,8 @@ public class EnumWithObfuscatedTest extends TestCase {
     FEMALE
   }
 
-  public void testEnumClassWithObfuscated() {
+  @Test
+  void testEnumClassWithObfuscated() {
     for (Gender enumConstant: Gender.class.getEnumConstants()) {
       try {
         Gender.class.getField(enumConstant.name());

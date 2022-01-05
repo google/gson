@@ -16,6 +16,9 @@
 
 package com.google.gson.functional;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -23,11 +26,10 @@ import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.common.TestTypes.ClassWithTransientFields;
 import com.google.gson.common.TestTypes.Nested;
 import com.google.gson.common.TestTypes.PrimitiveArray;
-
-import junit.framework.TestCase;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Functional tests for print formatting.
@@ -35,18 +37,18 @@ import java.util.List;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class PrintFormattingTest extends TestCase {
+class PrintFormattingTest {
 
   private Gson gson;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @BeforeEach
+  void setUp() throws Exception {
     gson = new Gson();
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public void testCompactFormattingLeavesNoWhiteSpace() {
+  @Test
+  void testCompactFormattingLeavesNoWhiteSpace() {
     List list = new ArrayList();
     list.add(new BagOfPrimitives());
     list.add(new Nested());
@@ -57,7 +59,8 @@ public class PrintFormattingTest extends TestCase {
     assertContainsNoWhiteSpace(json);
   }
 
-  public void testJsonObjectWithNullValues() {
+  @Test
+  void testJsonObjectWithNullValues() {
     JsonObject obj = new JsonObject();
     obj.addProperty("field1", "value1");
     obj.addProperty("field2", (String) null);
@@ -66,7 +69,8 @@ public class PrintFormattingTest extends TestCase {
     assertFalse(json.contains("field2"));
   }
 
-  public void testJsonObjectWithNullValuesSerialized() {
+  @Test
+  void testJsonObjectWithNullValuesSerialized() {
     gson = new GsonBuilder().serializeNulls().create();
     JsonObject obj = new JsonObject();
     obj.addProperty("field1", "value1");

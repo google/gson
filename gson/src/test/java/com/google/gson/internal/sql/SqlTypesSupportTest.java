@@ -1,9 +1,13 @@
 package com.google.gson.internal.sql;
 
-import junit.framework.TestCase;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class SqlTypesSupportTest extends TestCase {
-  public void testSupported() {
+import org.junit.jupiter.api.Test;
+
+class SqlTypesSupportTest {
+  @Test
+  void testSupported() {
     assertTrue(SqlTypesSupport.SUPPORTS_SQL_TYPES);
 
     assertNotNull(SqlTypesSupport.DATE_DATE_TYPE);

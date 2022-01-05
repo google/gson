@@ -16,11 +16,13 @@
 
 package com.google.gson;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit test for the default JSON map serialization object located in the
@@ -28,10 +30,11 @@ import junit.framework.TestCase;
  *
  * @author Joel Leitch
  */
-public class DefaultMapJsonSerializerTest extends TestCase {
+class DefaultMapJsonSerializerTest {
   private Gson gson = new Gson();
 
-  public void testEmptyMapNoTypeSerialization() {
+  @Test
+  void testEmptyMapNoTypeSerialization() {
     Map<String, String> emptyMap = new HashMap<String, String>();
     JsonElement element = gson.toJsonTree(emptyMap, emptyMap.getClass());
     assertTrue(element instanceof JsonObject);
@@ -39,7 +42,8 @@ public class DefaultMapJsonSerializerTest extends TestCase {
     assertTrue(emptyMapJsonObject.entrySet().isEmpty());
   }
 
-  public void testEmptyMapSerialization() {
+  @Test
+  void testEmptyMapSerialization() {
     Type mapType = new TypeToken<Map<String, String>>() { }.getType();
     Map<String, String> emptyMap = new HashMap<String, String>();
     JsonElement element = gson.toJsonTree(emptyMap, mapType);
@@ -49,7 +53,8 @@ public class DefaultMapJsonSerializerTest extends TestCase {
     assertTrue(emptyMapJsonObject.entrySet().isEmpty());
   }
 
-  public void testNonEmptyMapSerialization() {
+  @Test
+  void testNonEmptyMapSerialization() {
     Type mapType = new TypeToken<Map<String, String>>() { }.getType();
     Map<String, String> myMap = new HashMap<String, String>();
     String key = "key1";

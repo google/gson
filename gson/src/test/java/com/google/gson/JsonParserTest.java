@@ -16,31 +16,35 @@
 
 package com.google.gson;
 
-import java.io.CharArrayReader;
-import java.io.CharArrayWriter;
-import java.io.StringReader;
-
-import junit.framework.TestCase;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
+import java.io.CharArrayReader;
+import java.io.CharArrayWriter;
+import java.io.StringReader;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit test for {@link JsonParser}
  *
  * @author Inderjeet Singh
  */
-public class JsonParserTest extends TestCase {
+class JsonParserTest {
 
-  public void testParseInvalidJson() {
+  @Test
+  void testParseInvalidJson() {
     try {
       JsonParser.parseString("[[]");
       fail();
     } catch (JsonSyntaxException expected) { }
   }
 
-  public void testParseUnquotedStringArrayFails() {
+  @Test
+  void testParseUnquotedStringArrayFails() {
     JsonElement element = JsonParser.parseString("[a,b,c]");
     assertEquals("a", element.getAsJsonArray().get(0).getAsString());
     assertEquals("b", element.getAsJsonArray().get(1).getAsString());
@@ -48,7 +52,8 @@ public class JsonParserTest extends TestCase {
     assertEquals(3, element.getAsJsonArray().size());
   }
 
-  public void testParseString() {
+  @Test
+  void testParseString() {
     String json = "{a:10,b:'c'}";
     JsonElement e = JsonParser.parseString(json);
     assertTrue(e.isJsonObject());
@@ -56,22 +61,26 @@ public class JsonParserTest extends TestCase {
     assertEquals("c", e.getAsJsonObject().get("b").getAsString());
   }
 
-  public void testParseEmptyString() {
+  @Test
+  void testParseEmptyString() {
     JsonElement e = JsonParser.parseString("\"   \"");
     assertTrue(e.isJsonPrimitive());
     assertEquals("   ", e.getAsString());
   }
 
-  public void testParseEmptyWhitespaceInput() {
+  @Test
+  void testParseEmptyWhitespaceInput() {
     JsonElement e = JsonParser.parseString("     ");
     assertTrue(e.isJsonNull());
   }
 
-  public void testParseUnquotedSingleWordStringFails() {
+  @Test
+  void testParseUnquotedSingleWordStringFails() {
     assertEquals("Test", JsonParser.parseString("Test").getAsString());
   }
 
-  public void testParseUnquotedMultiWordStringFails() {
+  @Test
+  void testParseUnquotedMultiWordStringFails() {
     String unquotedSentence = "Test is a test..blah blah";
     try {
       JsonParser.parseString(unquotedSentence);
@@ -79,7 +88,8 @@ public class JsonParserTest extends TestCase {
     } catch (JsonSyntaxException expected) { }
   }
 
-  public void testParseMixedArray() {
+  @Test
+  void testParseMixedArray() {
     String json = "[{},13,\"stringValue\"]";
     JsonElement e = JsonParser.parseString(json);
     assertTrue(e.isJsonArray());
@@ -90,7 +100,8 @@ public class JsonParserTest extends TestCase {
     assertEquals("stringValue", array.get(2).getAsString());
   }
 
-  public void testParseReader() {
+  @Test
+  void testParseReader() {
     StringReader reader = new StringReader("{a:10,b:'c'}");
     JsonElement e = JsonParser.parseReader(reader);
     assertTrue(e.isJsonObject());
@@ -98,7 +109,8 @@ public class JsonParserTest extends TestCase {
     assertEquals("c", e.getAsJsonObject().get("b").getAsString());
   }
 
-  public void testReadWriteTwoObjects() throws Exception {
+  @Test
+  void testReadWriteTwoObjects() throws Exception {
     Gson gson = new Gson();
     CharArrayWriter writer = new CharArrayWriter();
     BagOfPrimitives expectedOne = new BagOfPrimitives(1, 1, true, "one");
