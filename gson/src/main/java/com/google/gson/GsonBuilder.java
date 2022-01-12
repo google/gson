@@ -35,9 +35,12 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 
 import static com.google.gson.Gson.DEFAULT_COMPLEX_MAP_KEYS;
+import static com.google.gson.Gson.DEFAULT_DATE_PATTERN;
 import static com.google.gson.Gson.DEFAULT_ESCAPE_HTML;
 import static com.google.gson.Gson.DEFAULT_JSON_NON_EXECUTABLE;
 import static com.google.gson.Gson.DEFAULT_LENIENT;
+import static com.google.gson.Gson.DEFAULT_NUMBER_TO_NUMBER_STRATEGY;
+import static com.google.gson.Gson.DEFAULT_OBJECT_TO_NUMBER_STRATEGY;
 import static com.google.gson.Gson.DEFAULT_PRETTY_PRINT;
 import static com.google.gson.Gson.DEFAULT_SERIALIZE_NULLS;
 import static com.google.gson.Gson.DEFAULT_SPECIALIZE_FLOAT_VALUES;
@@ -86,7 +89,7 @@ public final class GsonBuilder {
   /** tree-style hierarchy factories. These come after factories for backwards compatibility. */
   private final List<TypeAdapterFactory> hierarchyFactories = new ArrayList<TypeAdapterFactory>();
   private boolean serializeNulls = DEFAULT_SERIALIZE_NULLS;
-  private String datePattern;
+  private String datePattern = DEFAULT_DATE_PATTERN;
   private int dateStyle = DateFormat.DEFAULT;
   private int timeStyle = DateFormat.DEFAULT;
   private boolean complexMapKeySerialization = DEFAULT_COMPLEX_MAP_KEYS;
@@ -96,8 +99,8 @@ public final class GsonBuilder {
   private boolean generateNonExecutableJson = DEFAULT_JSON_NON_EXECUTABLE;
   private boolean lenient = DEFAULT_LENIENT;
   private boolean useJdkUnsafe = DEFAULT_USE_JDK_UNSAFE;
-  private ToNumberStrategy objectToNumberStrategy = ToNumberPolicy.DOUBLE;
-  private ToNumberStrategy numberToNumberStrategy = ToNumberPolicy.LAZILY_PARSED_NUMBER;
+  private ToNumberStrategy objectToNumberStrategy = DEFAULT_OBJECT_TO_NUMBER_STRATEGY;
+  private ToNumberStrategy numberToNumberStrategy = DEFAULT_NUMBER_TO_NUMBER_STRATEGY;
 
   /**
    * Creates a GsonBuilder instance that can be used to build Gson with various configuration
