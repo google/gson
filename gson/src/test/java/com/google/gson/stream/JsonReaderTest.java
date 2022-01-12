@@ -1734,7 +1734,7 @@ public final class JsonReaderTest extends TestCase {
    * Regression test for an issue with buffer filling and consumeNonExecutePrefix.
    */
   public void testReadAcrossBuffers() throws IOException {
-    StringBuilder sb = new StringBuilder('#');
+    StringBuilder sb = new StringBuilder("#");
     for (int i = 0; i < JsonReader.BUFFER_SIZE - 3; i++) {
       sb.append(' ');
     }
