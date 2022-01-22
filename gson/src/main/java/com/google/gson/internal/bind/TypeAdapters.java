@@ -436,6 +436,23 @@ public final class TypeAdapters {
     }
   };
 
+  public static final TypeAdapter<LazilyParsedNumber> LAZILY_PARSED_NUMBER = new TypeAdapter<LazilyParsedNumber>() {
+    // Normally users should not be able to access and deserialize LazilyParsedNumber because
+    // it is an internal type, but implement this nonetheless in case there are legit corner
+    // cases where this is possible
+    @Override public LazilyParsedNumber read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
+        return null;
+      }
+      return new LazilyParsedNumber(in.nextString());
+    }
+
+    @Override public void write(JsonWriter out, LazilyParsedNumber value) throws IOException {
+      out.value(value);
+    }
+  };
+
   public static final TypeAdapterFactory STRING_FACTORY = newFactory(String.class, STRING);
 
   public static final TypeAdapter<StringBuilder> STRING_BUILDER = new TypeAdapter<StringBuilder>() {

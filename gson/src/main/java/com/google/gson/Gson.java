@@ -38,6 +38,7 @@ import java.util.concurrent.atomic.AtomicLongArray;
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.Excluder;
 import com.google.gson.internal.GsonBuildConfig;
+import com.google.gson.internal.LazilyParsedNumber;
 import com.google.gson.internal.Primitives;
 import com.google.gson.internal.Streams;
 import com.google.gson.internal.bind.ArrayTypeAdapter;
@@ -267,6 +268,8 @@ public final class Gson {
     factories.add(TypeAdapters.STRING_BUFFER_FACTORY);
     factories.add(TypeAdapters.newFactory(BigDecimal.class, TypeAdapters.BIG_DECIMAL));
     factories.add(TypeAdapters.newFactory(BigInteger.class, TypeAdapters.BIG_INTEGER));
+    // Add adapter for LazilyParsedNumber because user can obtain it from Gson and then try to serialize it again
+    factories.add(TypeAdapters.newFactory(LazilyParsedNumber.class, TypeAdapters.LAZILY_PARSED_NUMBER));
     factories.add(TypeAdapters.URL_FACTORY);
     factories.add(TypeAdapters.URI_FACTORY);
     factories.add(TypeAdapters.UUID_FACTORY);
