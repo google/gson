@@ -72,6 +72,13 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
+  public void testHasNextEndOfDocument() throws IOException {
+    JsonReader reader = new JsonReader(reader("{}"));
+    reader.beginObject();
+    reader.endObject();
+    assertFalse(reader.hasNext());
+  }
+
   public void testSkipArray() throws IOException {
     JsonReader reader = new JsonReader(reader(
         "{\"a\": [\"one\", \"two\", \"three\"], \"b\": 123}"));

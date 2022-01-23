@@ -413,7 +413,7 @@ public class JsonReader implements Closeable {
     if (p == PEEKED_NONE) {
       p = doPeek();
     }
-    return p != PEEKED_END_OBJECT && p != PEEKED_END_ARRAY;
+    return p != PEEKED_END_OBJECT && p != PEEKED_END_ARRAY && p != PEEKED_EOF;
   }
 
   /**
