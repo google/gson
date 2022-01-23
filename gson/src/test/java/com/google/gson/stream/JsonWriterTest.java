@@ -16,12 +16,12 @@
 
 package com.google.gson.stream;
 
-import junit.framework.TestCase;
-
+import com.google.gson.internal.LazilyParsedNumber;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import junit.framework.TestCase;
 
 @SuppressWarnings("resource")
 public final class JsonWriterTest extends TestCase {
@@ -180,20 +180,23 @@ public final class JsonWriterTest extends TestCase {
       jsonWriter.value(Double.NaN);
       fail();
     } catch (IllegalArgumentException expected) {
+      assertEquals("Numeric values must be finite, but was NaN", expected.getMessage());
     }
     try {
       jsonWriter.value(Double.NEGATIVE_INFINITY);
       fail();
     } catch (IllegalArgumentException expected) {
+      assertEquals("Numeric values must be finite, but was -Infinity", expected.getMessage());
     }
     try {
       jsonWriter.value(Double.POSITIVE_INFINITY);
       fail();
     } catch (IllegalArgumentException expected) {
+      assertEquals("Numeric values must be finite, but was Infinity", expected.getMessage());
     }
   }
 
-  public void testNonFiniteBoxedDoubles() throws IOException {
+  public void testNonFiniteNumbers() throws IOException {
     StringWriter stringWriter = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
     jsonWriter.beginArray();
@@ -201,16 +204,25 @@ public final class JsonWriterTest extends TestCase {
       jsonWriter.value(Double.valueOf(Double.NaN));
       fail();
     } catch (IllegalArgumentException expected) {
+      assertEquals("Numeric values must be finite, but was NaN", expected.getMessage());
     }
     try {
       jsonWriter.value(Double.valueOf(Double.NEGATIVE_INFINITY));
       fail();
     } catch (IllegalArgumentException expected) {
+      assertEquals("Numeric values must be finite, but was -Infinity", expected.getMessage());
     }
     try {
       jsonWriter.value(Double.valueOf(Double.POSITIVE_INFINITY));
       fail();
     } catch (IllegalArgumentException expected) {
+      assertEquals("Numeric values must be finite, but was Infinity", expected.getMessage());
+    }
+    try {
+      jsonWriter.value(new LazilyParsedNumber("Infinity"));
+      fail();
+    } catch (IllegalArgumentException expected) {
+      assertEquals("Numeric values must be finite, but was Infinity", expected.getMessage());
     }
   }
 
@@ -226,7 +238,7 @@ public final class JsonWriterTest extends TestCase {
     assertEquals("[NaN,-Infinity,Infinity]", stringWriter.toString());
   }
 
-  public void testNonFiniteBoxedDoublesWhenLenient() throws IOException {
+  public void testNonFiniteNumbersWhenLenient() throws IOException {
     StringWriter stringWriter = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
     jsonWriter.setLenient(true);
@@ -234,8 +246,9 @@ public final class JsonWriterTest extends TestCase {
     jsonWriter.value(Double.valueOf(Double.NaN));
     jsonWriter.value(Double.valueOf(Double.NEGATIVE_INFINITY));
     jsonWriter.value(Double.valueOf(Double.POSITIVE_INFINITY));
+    jsonWriter.value(new LazilyParsedNumber("Infinity"));
     jsonWriter.endArray();
-    assertEquals("[NaN,-Infinity,Infinity]", stringWriter.toString());
+    assertEquals("[NaN,-Infinity,Infinity,Infinity]", stringWriter.toString());
   }
 
   public void testDoubles() throws IOException {
@@ -290,12 +303,37 @@ public final class JsonWriterTest extends TestCase {
     jsonWriter.value(new BigInteger("9223372036854775808"));
     jsonWriter.value(new BigInteger("-9223372036854775809"));
     jsonWriter.value(new BigDecimal("3.141592653589793238462643383"));
+    jsonWriter.value(new LazilyParsedNumber("1.3e-1"));
     jsonWriter.endArray();
     jsonWriter.close();
     assertEquals("[0,"
         + "9223372036854775808,"
         + "-9223372036854775809,"
-        + "3.141592653589793238462643383]", stringWriter.toString());
+        + "3.141592653589793238462643383,"
+        + "1.3e-1]", stringWriter.toString());
+  }
+
+  public void testMalformedNumbers() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter jsonWriter = new JsonWriter(stringWriter);
+    try {
+      jsonWriter.value(new LazilyParsedNumber("some text"));
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertEquals("String created by class com.google.gson.internal.LazilyParsedNumber is not a valid JSON number: some text", e.getMessage());
+    }
+    try {
+      jsonWriter.value(new LazilyParsedNumber("00"));
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertEquals("String created by class com.google.gson.internal.LazilyParsedNumber is not a valid JSON number: 00", e.getMessage());
+    }
+    try {
+      jsonWriter.value(new LazilyParsedNumber("+0"));
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertEquals("String created by class com.google.gson.internal.LazilyParsedNumber is not a valid JSON number: +0", e.getMessage());
+    }
   }
 
   public void testBooleans() throws IOException {
