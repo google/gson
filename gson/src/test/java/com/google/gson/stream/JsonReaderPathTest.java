@@ -225,8 +225,8 @@ public class JsonReaderPathTest {
     JsonReader reader = factory.create("{\"a\":1}");
     reader.beginObject();
     reader.skipValue();
-    assertEquals("$.null", reader.getPreviousPath());
-    assertEquals("$.null", reader.getPath());
+    assertEquals("$.<skipped>", reader.getPreviousPath());
+    assertEquals("$.<skipped>", reader.getPath());
   }
 
   @Test public void skipObjectValues() throws IOException {
@@ -236,8 +236,8 @@ public class JsonReaderPathTest {
     assertEquals("$.", reader.getPath());
     reader.nextName();
     reader.skipValue();
-    assertEquals("$.null", reader.getPreviousPath());
-    assertEquals("$.null", reader.getPath());
+    assertEquals("$.a", reader.getPreviousPath());
+    assertEquals("$.a", reader.getPath());
     reader.nextName();
     assertEquals("$.b", reader.getPreviousPath());
     assertEquals("$.b", reader.getPath());

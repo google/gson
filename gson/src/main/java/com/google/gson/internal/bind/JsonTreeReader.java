@@ -95,6 +95,7 @@ public final class JsonTreeReader extends JsonReader {
     popStack(); // empty iterator
     popStack(); // object
     if (stackSize > 0) {
+      pathNames[stackSize - 1] = null; // Free the last path name so that it can be garbage collected
       pathIndices[stackSize - 1]++;
     }
   }
@@ -271,7 +272,7 @@ public final class JsonTreeReader extends JsonReader {
     JsonToken peeked = peek();
     if (peeked == JsonToken.NAME) {
       nextName();
-      pathNames[stackSize - 2] = "null";
+      pathNames[stackSize - 2] = "<skipped>";
     } else if (peeked == JsonToken.END_ARRAY) {
       endArray();
     } else if (peeked == JsonToken.END_OBJECT) {
@@ -280,9 +281,6 @@ public final class JsonTreeReader extends JsonReader {
       throw new IllegalStateException("Cannot skip at end of document");
     } else {
       popStack();
-      if (stackSize > 0) {
-        pathNames[stackSize - 1] = "null";
-      }
     }
     if (stackSize > 0) {
       pathIndices[stackSize - 1]++;

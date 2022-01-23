@@ -1249,14 +1249,36 @@ public class JsonReader implements Closeable {
         stackSize--;
         count--;
       } else if (p == PEEKED_END_OBJECT) {
+        // Only update when object end is explicitly skipped, otherwise stack is not updated anyways
+        if (count == 0) {
+          pathNames[stackSize - 1] = null; // Free the last path name so that it can be garbage collected
+        }
         stackSize--;
         count--;
-      } else if (p == PEEKED_UNQUOTED_NAME || p == PEEKED_UNQUOTED) {
+      } else if (p == PEEKED_UNQUOTED) {
         skipUnquotedValue();
-      } else if (p == PEEKED_SINGLE_QUOTED || p == PEEKED_SINGLE_QUOTED_NAME) {
+      } else if (p == PEEKED_SINGLE_QUOTED) {
         skipQuotedValue('\'');
-      } else if (p == PEEKED_DOUBLE_QUOTED || p == PEEKED_DOUBLE_QUOTED_NAME) {
+      } else if (p == PEEKED_DOUBLE_QUOTED) {
         skipQuotedValue('"');
+      } else if (p == PEEKED_UNQUOTED_NAME) {
+        skipUnquotedValue();
+        // Only update when name is explicitly skipped, otherwise stack is not updated anyways
+        if (count == 0) {
+          pathNames[stackSize - 1] = "<skipped>";
+        }
+      } else if (p == PEEKED_SINGLE_QUOTED_NAME) {
+        skipQuotedValue('\'');
+        // Only update when name is explicitly skipped, otherwise stack is not updated anyways
+        if (count == 0) {
+          pathNames[stackSize - 1] = "<skipped>";
+        }
+      } else if (p == PEEKED_DOUBLE_QUOTED_NAME) {
+        skipQuotedValue('"');
+        // Only update when name is explicitly skipped, otherwise stack is not updated anyways
+        if (count == 0) {
+          pathNames[stackSize - 1] = "<skipped>";
+        }
       } else if (p == PEEKED_NUMBER) {
         pos += peekedNumberLength;
       } else if (p == PEEKED_EOF) {
@@ -1266,7 +1288,6 @@ public class JsonReader implements Closeable {
     } while (count > 0);
 
     pathIndices[stackSize - 1]++;
-    pathNames[stackSize - 1] = "null";
   }
 
   private void push(int newTop) {
