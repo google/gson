@@ -157,6 +157,20 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
+  public void testSkipValueAfterEndOfDocument() throws IOException {
+    JsonReader reader = new JsonReader(reader("{}"));
+    reader.beginObject();
+    reader.endObject();
+    assertEquals(JsonToken.END_DOCUMENT, reader.peek());
+
+    try {
+      reader.skipValue();
+      fail();
+    } catch (IllegalStateException e) {
+      assertEquals("Cannot skip at end of document", e.getMessage());
+    }
+  }
+
   public void testHelloWorld() throws IOException {
     String json = "{\n" +
         "   \"hello\": true,\n" +

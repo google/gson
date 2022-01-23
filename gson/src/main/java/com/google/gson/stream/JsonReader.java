@@ -1223,6 +1223,9 @@ public class JsonReader implements Closeable {
    * Skips the next value recursively. If it is an object or array, all nested
    * elements are skipped. This method is intended for use when the JSON token
    * stream contains unrecognized or unhandled values.
+   *
+   * @throws IllegalStateException when called at the end of the document, that is,
+   *     after the last value.
    */
   public void skipValue() throws IOException {
     int count = 0;
@@ -1252,6 +1255,8 @@ public class JsonReader implements Closeable {
         skipQuotedValue('"');
       } else if (p == PEEKED_NUMBER) {
         pos += peekedNumberLength;
+      } else if (p == PEEKED_EOF) {
+        throw new IllegalStateException("Cannot skip at end of document");
       }
       peeked = PEEKED_NONE;
     } while (count != 0);

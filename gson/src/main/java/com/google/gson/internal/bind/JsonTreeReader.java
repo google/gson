@@ -268,9 +268,12 @@ public final class JsonTreeReader extends JsonReader {
   }
 
   @Override public void skipValue() throws IOException {
-    if (peek() == JsonToken.NAME) {
+    JsonToken peeked = peek();
+    if (peeked == JsonToken.NAME) {
       nextName();
       pathNames[stackSize - 2] = "null";
+    } else if (peeked == JsonToken.END_DOCUMENT) {
+      throw new IllegalStateException("Cannot skip at end of document");
     } else {
       popStack();
       if (stackSize > 0) {
