@@ -272,6 +272,10 @@ public final class JsonTreeReader extends JsonReader {
     if (peeked == JsonToken.NAME) {
       nextName();
       pathNames[stackSize - 2] = "null";
+    } else if (peeked == JsonToken.END_ARRAY) {
+      endArray();
+    } else if (peeked == JsonToken.END_OBJECT) {
+      endObject();
     } else if (peeked == JsonToken.END_DOCUMENT) {
       throw new IllegalStateException("Cannot skip at end of document");
     } else {

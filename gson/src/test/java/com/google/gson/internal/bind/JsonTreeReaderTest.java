@@ -61,4 +61,18 @@ public class JsonTreeReaderTest extends TestCase {
       assertEquals("Cannot skip at end of document", e.getMessage());
     }
   }
+
+  public void testSkipValue_atArrayEnd() throws IOException {
+    JsonTreeReader reader = new JsonTreeReader(new JsonArray());
+    reader.beginArray();
+    reader.skipValue();
+    assertEquals(JsonToken.END_DOCUMENT, reader.peek());
+  }
+
+  public void testSkipValue_atObjectEnd() throws IOException {
+    JsonTreeReader reader = new JsonTreeReader(new JsonObject());
+    reader.beginObject();
+    reader.skipValue();
+    assertEquals(JsonToken.END_DOCUMENT, reader.peek());
+  }
 }

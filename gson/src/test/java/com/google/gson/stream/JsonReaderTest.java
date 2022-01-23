@@ -171,6 +171,20 @@ public final class JsonReaderTest extends TestCase {
     }
   }
 
+  public void testSkipValueAtArrayEnd() throws IOException {
+    JsonReader reader = new JsonReader(reader("[]"));
+    reader.beginArray();
+    reader.skipValue();
+    assertEquals(JsonToken.END_DOCUMENT, reader.peek());
+  }
+
+  public void testSkipValueAtObjectEnd() throws IOException {
+    JsonReader reader = new JsonReader(reader("{}"));
+    reader.beginObject();
+    reader.skipValue();
+    assertEquals(JsonToken.END_DOCUMENT, reader.peek());
+  }
+
   public void testHelloWorld() throws IOException {
     String json = "{\n" +
         "   \"hello\": true,\n" +
