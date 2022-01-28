@@ -23,6 +23,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.LongSerializationPolicy;
+import com.google.gson.internal.LazilyParsedNumber;
 import com.google.gson.reflect.TypeToken;
 import java.io.Serializable;
 import java.io.StringReader;
@@ -391,6 +392,18 @@ public class PrimitiveTest extends TestCase {
       gson.fromJson("15.099", BigInteger.class);
       fail("BigInteger can not be decimal values.");
     } catch (JsonSyntaxException expected) { }
+  }
+
+  public void testLazilyParsedNumberSerialization() {
+    LazilyParsedNumber target = new LazilyParsedNumber("1.5");
+    String actual = gson.toJson(target);
+    assertEquals("1.5", actual);
+  }
+
+  public void testLazilyParsedNumberDeserialization() {
+    LazilyParsedNumber expected = new LazilyParsedNumber("1.5");
+    LazilyParsedNumber actual = gson.fromJson("1.5", LazilyParsedNumber.class);
+    assertEquals(expected, actual);
   }
 
   public void testMoreSpecificSerialization() {
