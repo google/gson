@@ -75,4 +75,11 @@ public class JsonTreeReaderTest extends TestCase {
     reader.skipValue();
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
+  
+  public void testHasNext_endOfDocument() throws IOException {
+    JsonTreeReader reader = new JsonTreeReader(new JsonObject());
+    reader.beginObject();
+    reader.endObject();
+    assertFalse(reader.hasNext());
+  }
 }
