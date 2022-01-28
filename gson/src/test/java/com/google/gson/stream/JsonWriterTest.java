@@ -303,36 +303,86 @@ public final class JsonWriterTest extends TestCase {
     jsonWriter.value(new BigInteger("9223372036854775808"));
     jsonWriter.value(new BigInteger("-9223372036854775809"));
     jsonWriter.value(new BigDecimal("3.141592653589793238462643383"));
-    jsonWriter.value(new LazilyParsedNumber("1.3e-1"));
     jsonWriter.endArray();
     jsonWriter.close();
     assertEquals("[0,"
         + "9223372036854775808,"
         + "-9223372036854775809,"
-        + "3.141592653589793238462643383,"
-        + "1.3e-1]", stringWriter.toString());
+        + "3.141592653589793238462643383]", stringWriter.toString());
+  }
+
+  /**
+   * Tests writing {@code Number} instances which are not one of the standard JDK ones.
+   */
+  public void testNumbersCustomClass() throws IOException {
+    String[] validNumbers = {
+        "-0.0",
+        "1.0",
+        "1.7976931348623157E308",
+        "4.9E-324",
+        "0.0",
+        "0.00",
+        "-0.5",
+        "2.2250738585072014E-308",
+        "3.141592653589793",
+        "2.718281828459045",
+        "0",
+        "0.01",
+        "0e0",
+        "1e+0",
+        "1e-0",
+        "1e0000", // leading 0 is allowed for exponent
+        "1e00001",
+        "1e+1",
+    };
+
+    for (String validNumber : validNumbers) {
+      StringWriter stringWriter = new StringWriter();
+      JsonWriter jsonWriter = new JsonWriter(stringWriter);
+
+      jsonWriter.value(new LazilyParsedNumber(validNumber));
+      jsonWriter.close();
+
+      assertEquals(validNumber, stringWriter.toString());
+    }
   }
 
   public void testMalformedNumbers() throws IOException {
-    StringWriter stringWriter = new StringWriter();
-    JsonWriter jsonWriter = new JsonWriter(stringWriter);
-    try {
-      jsonWriter.value(new LazilyParsedNumber("some text"));
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertEquals("String created by class com.google.gson.internal.LazilyParsedNumber is not a valid JSON number: some text", e.getMessage());
-    }
-    try {
-      jsonWriter.value(new LazilyParsedNumber("00"));
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertEquals("String created by class com.google.gson.internal.LazilyParsedNumber is not a valid JSON number: 00", e.getMessage());
-    }
-    try {
-      jsonWriter.value(new LazilyParsedNumber("+0"));
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertEquals("String created by class com.google.gson.internal.LazilyParsedNumber is not a valid JSON number: +0", e.getMessage());
+    String[] malformedNumbers = {
+        "some text",
+        "",
+        ".",
+        "00",
+        "01",
+        "-00",
+        "-",
+        "--1",
+        "+1", // plus sign is not allowed for integer part
+        "+",
+        "1,0",
+        "1,000",
+        "0.", // decimal digit is required
+        ".1", // integer part is required
+        "e1",
+        ".e1",
+        ".1e1",
+        "1e-",
+        "1e+",
+        "1e--1",
+        "1e+-1",
+        "1e1e1",
+        "1+e1",
+        "1e1.0",
+    };
+
+    for (String malformedNumber : malformedNumbers) {
+      JsonWriter jsonWriter = new JsonWriter(new StringWriter());
+      try {
+        jsonWriter.value(new LazilyParsedNumber(malformedNumber));
+        fail("Should have failed writing malformed number: " + malformedNumber);
+      } catch (IllegalArgumentException e) {
+        assertEquals("String created by class com.google.gson.internal.LazilyParsedNumber is not a valid JSON number: " + malformedNumber, e.getMessage());
+      }
     }
   }
 

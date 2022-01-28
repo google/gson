@@ -135,6 +135,9 @@ import static com.google.gson.stream.JsonScope.NONEMPTY_OBJECT;
  */
 public class JsonWriter implements Closeable, Flushable {
 
+  // Syntax as defined by https://datatracker.ietf.org/doc/html/rfc8259#section-6
+  private static final Pattern VALID_JSON_NUMBER_PATTERN = Pattern.compile("-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:[eE][-+]?[0-9]+)?");
+
   /*
    * From RFC 7159, "All Unicode characters may be placed within the
    * quotation marks except for the characters that must be escaped:
@@ -147,7 +150,6 @@ public class JsonWriter implements Closeable, Flushable {
    */
   private static final String[] REPLACEMENT_CHARS;
   private static final String[] HTML_SAFE_REPLACEMENT_CHARS;
-  private static final Pattern VALID_JSON_NUMBER_PATTERN;
   static {
     REPLACEMENT_CHARS = new String[128];
     for (int i = 0; i <= 0x1f; i++) {
@@ -166,9 +168,6 @@ public class JsonWriter implements Closeable, Flushable {
     HTML_SAFE_REPLACEMENT_CHARS['&'] = "\\u0026";
     HTML_SAFE_REPLACEMENT_CHARS['='] = "\\u003d";
     HTML_SAFE_REPLACEMENT_CHARS['\''] = "\\u0027";
-
-    // Syntax as defined by https://datatracker.ietf.org/doc/html/rfc8259#section-6
-    VALID_JSON_NUMBER_PATTERN = Pattern.compile("-?(?:0|[1-9][0-9]*(?:\\.[0-9]+)?(?:[eE][-+]?[0-9]+)?)");
   }
 
   /** The output data, containing at most one top-level array or object. */
@@ -558,7 +557,7 @@ public class JsonWriter implements Closeable, Flushable {
     } else {
       Class<? extends Number> numberClass = value.getClass();
       // Validate that string is valid before writing it directly to JSON output
-      if (!(isTrustedNumberType(numberClass) || VALID_JSON_NUMBER_PATTERN.matcher(string).matches())) {
+      if (!isTrustedNumberType(numberClass) && !VALID_JSON_NUMBER_PATTERN.matcher(string).matches()) {
         throw new IllegalArgumentException("String created by " + numberClass + " is not a valid JSON number: " + string);
       }
     }
