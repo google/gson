@@ -16,18 +16,6 @@
 
 package com.google.gson.functional;
 
-import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ConcurrentNavigableMap;
-import java.util.concurrent.ConcurrentSkipListMap;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
@@ -41,8 +29,20 @@ import com.google.gson.JsonSerializer;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.common.TestTypes;
 import com.google.gson.internal.$Gson$Types;
+import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.reflect.TypeToken;
-
+import java.lang.reflect.Type;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentNavigableMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 import junit.framework.TestCase;
 
 /**
@@ -193,6 +193,28 @@ public class MapTest extends TestCase {
     assertEquals(1, map.size());
     assertTrue(map.containsKey(longKey));
     assertEquals("456", map.get(longKey));
+  }
+
+  public void testMapStringKeyDeserialization() {
+    Type typeOfMap = new TypeToken<Map<String, Integer>>() {}.getType();
+    Map<?, ?> map = gson.fromJson("{\"a\":1}", typeOfMap);
+
+    assertTrue("Map<String, ...> should use LinkedTreeMap to protect against DoS in older JDK versions",
+        map instanceof LinkedTreeMap);
+
+    Map<?, ?> expectedMap = Collections.singletonMap("a", 1);
+    assertEquals(expectedMap, map);
+  }
+
+  public void testMapNonStringKeyDeserialization() {
+    Type typeOfMap = new TypeToken<Map<Integer, Integer>>() {}.getType();
+    Map<?, ?> map = gson.fromJson("{\"1\":1}", typeOfMap);
+
+    assertFalse("non-Map<String, ...> should not use Gson Map implementation",
+        map instanceof LinkedTreeMap);
+
+    Map<?, ?> expectedMap = Collections.singletonMap(1, 1);
+    assertEquals(expectedMap, map);
   }
 
   public void testHashMapDeserialization() throws Exception {

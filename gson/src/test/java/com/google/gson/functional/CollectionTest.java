@@ -16,6 +16,16 @@
 
 package com.google.gson.functional;
 
+import static org.junit.Assert.assertArrayEquals;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+import com.google.gson.common.TestTypes.BagOfPrimitives;
+import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,18 +40,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
-import com.google.gson.common.TestTypes.BagOfPrimitives;
-import com.google.gson.reflect.TypeToken;
-
 import junit.framework.TestCase;
-import static org.junit.Assert.assertArrayEquals;
 
 /**
  * Functional tests for Json serialization and deserialization of collections.
@@ -324,7 +323,7 @@ public class CollectionTest extends TestCase {
     HasArrayListField copy = gson.fromJson("{\"longs\":[1,3]}", HasArrayListField.class);
     assertEquals(Arrays.asList(1L, 3L), copy.longs);
   }
-  
+
   public void testUserCollectionTypeAdapter() {
     Type listOfString = new TypeToken<List<String>>() {}.getType();
     Object stringListSerializer = new JsonSerializer<List<String>>() {
