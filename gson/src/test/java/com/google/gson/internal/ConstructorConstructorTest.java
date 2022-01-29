@@ -10,6 +10,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -106,6 +107,17 @@ public class ConstructorConstructorTest {
     }
   }
 
+  private enum MyEnum {
+  }
+
+  @SuppressWarnings("serial")
+  private static class CustomEnumMap<K, V> extends EnumMap<MyEnum, V> {
+    @SuppressWarnings("unused")
+    CustomEnumMap(Void v) {
+      super(MyEnum.class);
+    }
+  }
+
   @SuppressWarnings("serial")
   private static class CustomConcurrentNavigableMap<K, V> extends ConcurrentSkipListMap<K, V> {
     // Removes default no-args constructor
@@ -149,6 +161,7 @@ public class ConstructorConstructorTest {
   @Test
   public void testCustomMapCreation() {
     Class<?>[] mapTypes = {
+        CustomEnumMap.class,
         CustomConcurrentNavigableMap.class,
         CustomConcurrentMap.class,
         CustomSortedMap.class,

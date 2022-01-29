@@ -989,6 +989,9 @@ public final class Gson {
       TypeToken<T> typeToken = (TypeToken<T>) TypeToken.get(typeOfT);
       TypeAdapter<T> typeAdapter = getAdapter(typeToken);
       T object = typeAdapter.read(reader);
+
+      // Verify that adapter created the correct type
+      Primitives.wrap(typeToken.getRawType()).cast(object);
       return object;
     } catch (EOFException e) {
       /*

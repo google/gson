@@ -27,6 +27,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -234,13 +235,33 @@ public final class ConstructorConstructor {
     return TypeToken.get(typeArguments[0]).getRawType() == String.class;
   }
 
-  private static ObjectConstructor<? extends Map<? extends Object, Object>> newMapConstructor(Type type, Class<?> rawType) {
+  private static ObjectConstructor<? extends Map<? extends Object, Object>> newMapConstructor(final Type type, Class<?> rawType) {
+    // Only support creation of EnumMap, but not of custom subtypes; for them type parameters
+    // and constructor parameter might have completely different meaning
+    if (rawType == EnumMap.class) {
+      return new ObjectConstructor<EnumMap<?, Object>>() {
+        @Override public EnumMap<?, Object> construct() {
+          if (type instanceof ParameterizedType) {
+            Type elementType = ((ParameterizedType) type).getActualTypeArguments()[0];
+            if (elementType instanceof Class) {
+              @SuppressWarnings({"unchecked", "rawtypes"})
+              EnumMap<?, Object> map = new EnumMap((Class) elementType);
+              return map;
+            } else {
+              throw new JsonIOException("Invalid EnumMap type: " + type.toString());
+            }
+          } else {
+            throw new JsonIOException("Invalid EnumMap type: " + type.toString());
+          }
+        }
+      };
+    }
     // First try Map implementation
     /*
      * Legacy special casing for Map<String, ...> to avoid DoS from colliding String hashCode
      * values for older JDKs; use own LinkedTreeMap<String, Object> instead
      */
-    if (rawType.isAssignableFrom(LinkedHashMap.class) && !hasStringKeyType(type)) {
+    else if (rawType.isAssignableFrom(LinkedHashMap.class) && !hasStringKeyType(type)) {
       return new ObjectConstructor<LinkedHashMap<Object, Object>>() {
         @Override public LinkedHashMap<Object, Object> construct() {
           return new LinkedHashMap<Object, Object>();
