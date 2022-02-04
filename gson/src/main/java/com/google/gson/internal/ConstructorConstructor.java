@@ -24,6 +24,7 @@ import com.google.gson.internal.reflect.ReflectionHelper;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayDeque;
@@ -88,13 +89,18 @@ public final class ConstructorConstructor {
       };
     }
 
+    // First consider special constructors before checking for no-args constructors
+    // below to avoid matching internal no-args constructors which might be added in
+    // future JDK versions
+    ObjectConstructor<T> specialConstructor = newSpecialCollectionConstructor(type, rawType);
+    if (specialConstructor != null) {
+      return specialConstructor;
+    }
+
     FilterResult filterResult = ReflectionAccessFilterHelper.getFilterResult(reflectionFilters, rawType);
-    boolean blockInaccessible = filterResult == FilterResult.BLOCK_INACCESSIBLE;
-    if (blockInaccessible || filterResult == FilterResult.ALLOW) {
-      ObjectConstructor<T> defaultConstructor = newDefaultConstructor(rawType, blockInaccessible);
-      if (defaultConstructor != null) {
-        return defaultConstructor;
-      }
+    ObjectConstructor<T> defaultConstructor = newDefaultConstructor(rawType, filterResult);
+    if (defaultConstructor != null) {
+      return defaultConstructor;
     }
 
     ObjectConstructor<T> defaultImplementation = newDefaultImplementationConstructor(type, rawType);
@@ -130,7 +136,53 @@ public final class ConstructorConstructor {
     }
   }
 
-  private <T> ObjectConstructor<T> newDefaultConstructor(Class<? super T> rawType, boolean blockInaccessible) {
+  /**
+   * Creates constructors for special JDK collection types which do not have a public no-args constructor.
+   */
+  private static <T> ObjectConstructor<T> newSpecialCollectionConstructor(final Type type, Class<? super T> rawType) {
+    if (EnumSet.class.isAssignableFrom(rawType)) {
+      return new ObjectConstructor<T>() {
+        @Override public T construct() {
+          if (type instanceof ParameterizedType) {
+            Type elementType = ((ParameterizedType) type).getActualTypeArguments()[0];
+            if (elementType instanceof Class) {
+              @SuppressWarnings({"unchecked", "rawtypes"})
+              T set = (T) EnumSet.noneOf((Class)elementType);
+              return set;
+            } else {
+              throw new JsonIOException("Invalid EnumSet type: " + type.toString());
+            }
+          } else {
+            throw new JsonIOException("Invalid EnumSet type: " + type.toString());
+          }
+        }
+      };
+    }
+    // Only support creation of EnumMap, but not of custom subtypes; for them type parameters
+    // and constructor parameter might have completely different meaning
+    else if (rawType == EnumMap.class) {
+      return new ObjectConstructor<T>() {
+        @Override public T construct() {
+          if (type instanceof ParameterizedType) {
+            Type elementType = ((ParameterizedType) type).getActualTypeArguments()[0];
+            if (elementType instanceof Class) {
+              @SuppressWarnings({"unchecked", "rawtypes"})
+              T map = (T) new EnumMap((Class) elementType);
+              return map;
+            } else {
+              throw new JsonIOException("Invalid EnumMap type: " + type.toString());
+            }
+          } else {
+            throw new JsonIOException("Invalid EnumMap type: " + type.toString());
+          }
+        }
+      };
+    }
+
+    return null;
+  }
+
+  private static <T> ObjectConstructor<T> newDefaultConstructor(Class<? super T> rawType, FilterResult filterResult) {
     final Constructor<? super T> constructor;
     try {
       constructor = rawType.getDeclaredConstructor();
@@ -138,7 +190,11 @@ public final class ConstructorConstructor {
       return null;
     }
 
-    if (blockInaccessible && !ReflectionAccessFilterHelper.canAccess(constructor, null)) {
+    boolean canAccess = filterResult == FilterResult.ALLOW || (ReflectionAccessFilterHelper.canAccess(constructor, null)
+        // Be a bit more lenient here for BLOCK_ALL; if constructor is accessible and public then allow calling it
+        && (filterResult != FilterResult.BLOCK_ALL || Modifier.isPublic(constructor.getModifiers())));
+
+    if (!canAccess) {
       final String message = "Unable to invoke no-args constructor of " + rawType + "; "
           + "constructor is not accessible and ReflectionAccessFilter does not permit making "
           + "it accessible. Register an InstanceCreator or a TypeAdapter for this type, change "
@@ -197,29 +253,22 @@ public final class ConstructorConstructor {
    * subtypes.
    */
   @SuppressWarnings("unchecked") // use runtime checks to guarantee that 'T' is what it is
-  private <T> ObjectConstructor<T> newDefaultImplementationConstructor(
+  private static <T> ObjectConstructor<T> newDefaultImplementationConstructor(
       final Type type, Class<? super T> rawType) {
+
+    /*
+     * IMPORTANT: Must only create instances for classes with public no-args constructor.
+     * For classes with special constructors / factory methods (e.g. EnumSet)
+     * `newSpecialCollectionConstructor` defined above must be used, to avoid no-args
+     * constructor check (which is called before this method) detecting internal no-args
+     * constructors which might be added in a future JDK version
+     */
+
     if (Collection.class.isAssignableFrom(rawType)) {
       if (SortedSet.class.isAssignableFrom(rawType)) {
         return new ObjectConstructor<T>() {
           @Override public T construct() {
             return (T) new TreeSet<Object>();
-          }
-        };
-      } else if (EnumSet.class.isAssignableFrom(rawType)) {
-        return new ObjectConstructor<T>() {
-          @SuppressWarnings("rawtypes")
-          @Override public T construct() {
-            if (type instanceof ParameterizedType) {
-              Type elementType = ((ParameterizedType) type).getActualTypeArguments()[0];
-              if (elementType instanceof Class) {
-                return (T) EnumSet.noneOf((Class)elementType);
-              } else {
-                throw new JsonIOException("Invalid EnumSet type: " + type.toString());
-              }
-            } else {
-              throw new JsonIOException("Invalid EnumSet type: " + type.toString());
-            }
           }
         };
       } else if (Set.class.isAssignableFrom(rawType)) {
@@ -244,26 +293,7 @@ public final class ConstructorConstructor {
     }
 
     if (Map.class.isAssignableFrom(rawType)) {
-      // Only support creation of EnumMap, but not of custom subtypes; for them type parameters
-      // and constructor parameter might have completely different meaning
-      if (rawType == EnumMap.class) {
-        return new ObjectConstructor<T>() {
-          @Override public T construct() {
-            if (type instanceof ParameterizedType) {
-              Type elementType = ((ParameterizedType) type).getActualTypeArguments()[0];
-              if (elementType instanceof Class) {
-                @SuppressWarnings("rawtypes")
-                T map = (T) new EnumMap((Class) elementType);
-                return map;
-              } else {
-                throw new JsonIOException("Invalid EnumMap type: " + type.toString());
-              }
-            } else {
-              throw new JsonIOException("Invalid EnumMap type: " + type.toString());
-            }
-          }
-        };
-      } else if (ConcurrentNavigableMap.class.isAssignableFrom(rawType)) {
+      if (ConcurrentNavigableMap.class.isAssignableFrom(rawType)) {
         return new ObjectConstructor<T>() {
           @Override public T construct() {
             return (T) new ConcurrentSkipListMap<Object, Object>();

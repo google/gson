@@ -3,13 +3,6 @@ package com.google.gson.functional;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.awt.Point;
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-
-import org.junit.Test;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
@@ -19,10 +12,17 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.ReflectionAccessFilter;
+import com.google.gson.ReflectionAccessFilter.FilterResult;
 import com.google.gson.TypeAdapter;
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import java.awt.Point;
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.LinkedList;
+import java.util.List;
+import org.junit.Test;
 
 public class ReflectionAccessFilterTest {
   @Test
@@ -235,11 +235,11 @@ public class ReflectionAccessFilterTest {
   }
 
   /**
-   * Should not fail when deserializing collection implementation
+   * Should not fail when deserializing collection interface
    * (Even though this goes through {@link ConstructorConstructor} as well)
    */
   @Test
-  public void testBlockAllCollection() {
+  public void testBlockAllCollectionInterface() {
     Gson gson = new GsonBuilder()
       .addReflectionAccessFilter(new ReflectionAccessFilter() {
         @Override public FilterResult check(Class<?> rawClass) {
@@ -247,7 +247,24 @@ public class ReflectionAccessFilterTest {
         }
       })
       .create();
-    ArrayList<?> deserialized = gson.fromJson("[1.0]", ArrayList.class);
+    List<?> deserialized = gson.fromJson("[1.0]", List.class);
+    assertEquals(1.0, deserialized.get(0));
+  }
+
+  /**
+   * Should not fail when deserializing specific collection implementation
+   * (Even though this goes through {@link ConstructorConstructor} as well)
+   */
+  @Test
+  public void testBlockAllCollectionImplementation() {
+    Gson gson = new GsonBuilder()
+      .addReflectionAccessFilter(new ReflectionAccessFilter() {
+        @Override public FilterResult check(Class<?> rawClass) {
+          return FilterResult.BLOCK_ALL;
+        }
+      })
+      .create();
+    List<?> deserialized = gson.fromJson("[1.0]", LinkedList.class);
     assertEquals(1.0, deserialized.get(0));
   }
 
