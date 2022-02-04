@@ -16,6 +16,12 @@
 
 package com.google.gson.internal;
 
+import com.google.gson.InstanceCreator;
+import com.google.gson.JsonIOException;
+import com.google.gson.ReflectionAccessFilter;
+import com.google.gson.ReflectionAccessFilter.FilterResult;
+import com.google.gson.internal.reflect.ReflectionHelper;
+import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
@@ -23,6 +29,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -39,24 +46,17 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
-import com.google.gson.InstanceCreator;
-import com.google.gson.JsonIOException;
-import com.google.gson.ReflectionAccessFilter;
-import com.google.gson.ReflectionAccessFilter.FilterResult;
-import com.google.gson.internal.reflect.ReflectionAccessor;
-import com.google.gson.reflect.TypeToken;
-
 /**
  * Returns a function that can construct an instance of a requested type.
  */
 public final class ConstructorConstructor {
   private final Map<Type, InstanceCreator<?>> instanceCreators;
+  private final boolean useJdkUnsafe;
   private final List<ReflectionAccessFilter> reflectionFilters;
-  private final ReflectionAccessor accessor = ReflectionAccessor.getInstance();
 
-  public ConstructorConstructor(Map<Type, InstanceCreator<?>> instanceCreators,
-      List<ReflectionAccessFilter> reflectionFilters) {
+  public ConstructorConstructor(Map<Type, InstanceCreator<?>> instanceCreators, boolean useJdkUnsafe, List<ReflectionAccessFilter> reflectionFilters) {
     this.instanceCreators = instanceCreators;
+    this.useJdkUnsafe = useJdkUnsafe;
     this.reflectionFilters = reflectionFilters;
   }
 
@@ -117,7 +117,7 @@ public final class ConstructorConstructor {
     // Additionally, since it is not calling any constructor at all, don't use if BLOCK_INACCESSIBLE
     if (filterResult == FilterResult.ALLOW) {
       // finally try unsafe
-      return newUnsafeAllocator(type, rawType);
+      return newUnsafeAllocator(rawType);
     } else {
       final String message = "Unable to create instance of " + rawType + "; ReflectionAccessFilter "
           + "does not permit using reflection or Unsafe. Register an InstanceCreator or a TypeAdapter "
@@ -149,14 +149,34 @@ public final class ConstructorConstructor {
         }
       };
     }
-    accessor.makeAccessible(constructor);
+
+    final String exceptionMessage = ReflectionHelper.tryMakeAccessible(constructor);
+    if (exceptionMessage != null) {
+      /*
+       * Create ObjectConstructor which throws exception.
+       * This keeps backward compatibility (compared to returning `null` which
+       * would then choose another way of creating object).
+       * And it supports types which are only serialized but not deserialized
+       * (compared to directly throwing exception here), e.g. when runtime type
+       * of object is inaccessible, but compile-time type is accessible.
+       */
+      return new ObjectConstructor<T>() {
+        @Override
+        public T construct() {
+          // New exception is created every time to avoid keeping reference
+          // to exception with potentially long stack trace, causing a
+          // memory leak
+          throw new JsonIOException(exceptionMessage);
+        }
+      };
+    }
 
     return new ObjectConstructor<T>() {
-      @SuppressWarnings("unchecked") // T is the same raw type as is requested
       @Override public T construct() {
         try {
-          Object[] args = null;
-          return (T) constructor.newInstance(args);
+          @SuppressWarnings("unchecked") // T is the same raw type as is requested
+          T newInstance = (T) constructor.newInstance();
+          return newInstance;
         } catch (InstantiationException e) {
           // TODO: JsonParseException ?
           throw new RuntimeException("Failed to invoke " + constructor + " with no args", e);
@@ -224,7 +244,26 @@ public final class ConstructorConstructor {
     }
 
     if (Map.class.isAssignableFrom(rawType)) {
-      if (ConcurrentNavigableMap.class.isAssignableFrom(rawType)) {
+      // Only support creation of EnumMap, but not of custom subtypes; for them type parameters
+      // and constructor parameter might have completely different meaning
+      if (rawType == EnumMap.class) {
+        return new ObjectConstructor<T>() {
+          @Override public T construct() {
+            if (type instanceof ParameterizedType) {
+              Type elementType = ((ParameterizedType) type).getActualTypeArguments()[0];
+              if (elementType instanceof Class) {
+                @SuppressWarnings("rawtypes")
+                T map = (T) new EnumMap((Class) elementType);
+                return map;
+              } else {
+                throw new JsonIOException("Invalid EnumMap type: " + type.toString());
+              }
+            } else {
+              throw new JsonIOException("Invalid EnumMap type: " + type.toString());
+            }
+          }
+        };
+      } else if (ConcurrentNavigableMap.class.isAssignableFrom(rawType)) {
         return new ObjectConstructor<T>() {
           @Override public T construct() {
             return (T) new ConcurrentSkipListMap<Object, Object>();
@@ -261,21 +300,32 @@ public final class ConstructorConstructor {
     return null;
   }
 
-  private <T> ObjectConstructor<T> newUnsafeAllocator(
-      final Type type, final Class<? super T> rawType) {
-    return new ObjectConstructor<T>() {
-      private final UnsafeAllocator unsafeAllocator = UnsafeAllocator.create();
-      @SuppressWarnings("unchecked")
-      @Override public T construct() {
-        try {
-          Object newInstance = unsafeAllocator.newInstance(rawType);
-          return (T) newInstance;
-        } catch (Exception e) {
-          throw new RuntimeException(("Unable to invoke no-args constructor for " + type + ". "
-              + "Registering an InstanceCreator with Gson for this type may fix this problem."), e);
+  private <T> ObjectConstructor<T> newUnsafeAllocator(final Class<? super T> rawType) {
+    if (useJdkUnsafe) {
+      return new ObjectConstructor<T>() {
+        private final UnsafeAllocator unsafeAllocator = UnsafeAllocator.create();
+        @Override public T construct() {
+          try {
+            @SuppressWarnings("unchecked")
+            T newInstance = (T) unsafeAllocator.newInstance(rawType);
+            return newInstance;
+          } catch (Exception e) {
+            throw new RuntimeException(("Unable to create instance of " + rawType + ". "
+                + "Registering an InstanceCreator or a TypeAdapter for this type, or adding a no-args "
+                + "constructor may fix this problem."), e);
+          }
         }
-      }
-    };
+      };
+    } else {
+      final String exceptionMessage = "Unable to create instance of " + rawType + "; usage of JDK Unsafe "
+          + "is disabled. Registering an InstanceCreator or a TypeAdapter for this type, adding a no-args "
+          + "constructor, or enabling usage of JDK Unsafe may fix this problem.";
+      return new ObjectConstructor<T>() {
+        @Override public T construct() {
+          throw new JsonIOException(exceptionMessage);
+        }
+      };
+    }
   }
 
   @Override public String toString() {

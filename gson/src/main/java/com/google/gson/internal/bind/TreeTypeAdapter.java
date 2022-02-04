@@ -47,7 +47,7 @@ public final class TreeTypeAdapter<T> extends TypeAdapter<T> {
   private final GsonContextImpl context = new GsonContextImpl();
 
   /** The delegate is lazily created because it may not be needed, and creating it may fail. */
-  private TypeAdapter<T> delegate;
+  private volatile TypeAdapter<T> delegate;
 
   public TreeTypeAdapter(JsonSerializer<T> serializer, JsonDeserializer<T> deserializer,
       Gson gson, TypeToken<T> typeToken, TypeAdapterFactory skipPast) {
@@ -83,6 +83,7 @@ public final class TreeTypeAdapter<T> extends TypeAdapter<T> {
   }
 
   private TypeAdapter<T> delegate() {
+    // A race might lead to `delegate` being assigned by multiple threads but the last assignment will stick
     TypeAdapter<T> d = delegate;
     return d != null
         ? d

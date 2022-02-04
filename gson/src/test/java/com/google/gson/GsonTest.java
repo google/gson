@@ -19,7 +19,10 @@ package com.google.gson;
 import com.google.gson.internal.Excluder;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import com.google.gson.stream.MalformedJsonException;
 import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.text.DateFormat;
@@ -45,15 +48,19 @@ public final class GsonTest extends TestCase {
     }
   };
 
+  private static final ToNumberStrategy CUSTOM_OBJECT_TO_NUMBER_STRATEGY = ToNumberPolicy.DOUBLE;
+  private static final ToNumberStrategy CUSTOM_NUMBER_TO_NUMBER_STRATEGY = ToNumberPolicy.LAZILY_PARSED_NUMBER;
+
   public void testOverridesDefaultExcluder() {
     Gson gson = new Gson(CUSTOM_EXCLUDER, CUSTOM_FIELD_NAMING_STRATEGY,
         new HashMap<Type, InstanceCreator<?>>(), true, false, true, false,
-        true, true, false, LongSerializationPolicy.DEFAULT, null, DateFormat.DEFAULT,
+        true, true, false, true, LongSerializationPolicy.DEFAULT, null, DateFormat.DEFAULT,
         DateFormat.DEFAULT, new ArrayList<TypeAdapterFactory>(),
         new ArrayList<TypeAdapterFactory>(), new ArrayList<TypeAdapterFactory>(),
+        CUSTOM_OBJECT_TO_NUMBER_STRATEGY, CUSTOM_NUMBER_TO_NUMBER_STRATEGY,
         Collections.<ReflectionAccessFilter>emptyList());
 
-    assertEquals(CUSTOM_EXCLUDER, gson.excluder());
+    assertEquals(CUSTOM_EXCLUDER, gson.excluder);
     assertEquals(CUSTOM_FIELD_NAMING_STRATEGY, gson.fieldNamingStrategy());
     assertEquals(true, gson.serializeNulls());
     assertEquals(false, gson.htmlSafe());
@@ -62,9 +69,10 @@ public final class GsonTest extends TestCase {
   public void testClonedTypeAdapterFactoryListsAreIndependent() {
     Gson original = new Gson(CUSTOM_EXCLUDER, CUSTOM_FIELD_NAMING_STRATEGY,
         new HashMap<Type, InstanceCreator<?>>(), true, false, true, false,
-        true, true, false, LongSerializationPolicy.DEFAULT, null, DateFormat.DEFAULT,
+        true, true, false, true, LongSerializationPolicy.DEFAULT, null, DateFormat.DEFAULT,
         DateFormat.DEFAULT, new ArrayList<TypeAdapterFactory>(),
         new ArrayList<TypeAdapterFactory>(), new ArrayList<TypeAdapterFactory>(),
+        CUSTOM_OBJECT_TO_NUMBER_STRATEGY, CUSTOM_NUMBER_TO_NUMBER_STRATEGY,
         Collections.<ReflectionAccessFilter>emptyList());
 
     Gson clone = original.newBuilder()
@@ -79,5 +87,72 @@ public final class GsonTest extends TestCase {
       // Test stub.
     }
     @Override public Object read(JsonReader in) throws IOException { return null; }
+  }
+
+  public void testNewJsonWriter_Default() throws IOException {
+    StringWriter writer = new StringWriter();
+    JsonWriter jsonWriter = new Gson().newJsonWriter(writer);
+    jsonWriter.beginObject();
+    jsonWriter.name("test");
+    jsonWriter.nullValue();
+    jsonWriter.name("<test2");
+    jsonWriter.value(true);
+    jsonWriter.endObject();
+
+    try {
+      // Additional top-level value
+      jsonWriter.value(1);
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("JSON must have only one top-level value.", expected.getMessage());
+    }
+
+    jsonWriter.close();
+    assertEquals("{\"\\u003ctest2\":true}", writer.toString());
+  }
+
+  public void testNewJsonWriter_Custom() throws IOException {
+    StringWriter writer = new StringWriter();
+    JsonWriter jsonWriter = new GsonBuilder()
+      .disableHtmlEscaping()
+      .generateNonExecutableJson()
+      .setPrettyPrinting()
+      .serializeNulls()
+      .setLenient()
+      .create()
+      .newJsonWriter(writer);
+    jsonWriter.beginObject();
+    jsonWriter.name("test");
+    jsonWriter.nullValue();
+    jsonWriter.name("<test2");
+    jsonWriter.value(true);
+    jsonWriter.endObject();
+
+    // Additional top-level value
+    jsonWriter.value(1);
+
+    jsonWriter.close();
+    assertEquals(")]}'\n{\n  \"test\": null,\n  \"<test2\": true\n}1", writer.toString());
+  }
+
+  public void testNewJsonReader_Default() throws IOException {
+    String json = "test"; // String without quotes
+    JsonReader jsonReader = new Gson().newJsonReader(new StringReader(json));
+    try {
+      jsonReader.nextString();
+      fail();
+    } catch (MalformedJsonException expected) {
+    }
+    jsonReader.close();
+  }
+
+  public void testNewJsonReader_Custom() throws IOException {
+    String json = "test"; // String without quotes
+    JsonReader jsonReader = new GsonBuilder()
+      .setLenient()
+      .create()
+      .newJsonReader(new StringReader(json));
+    assertEquals("test", jsonReader.nextString());
+    jsonReader.close();
   }
 }

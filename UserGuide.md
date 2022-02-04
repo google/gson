@@ -74,7 +74,7 @@ The Gson instance does not maintain any state while invoking Json operations. So
 ## <a name="TOC-Gson-With-Gradle"></a>Using Gson with Gradle/Android
 ```
 dependencies {
-    implementation 'com.google.code.gson:gson:2.8.7'
+    implementation 'com.google.code.gson:gson:2.8.9'
 }
 ```
 ## <a name="TOC-Gson-With-Maven"></a>Using Gson with Maven
@@ -86,7 +86,7 @@ To use Gson with Maven2/3, you can use the Gson version available in Maven Centr
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
-      <version>2.8.7</version>
+      <version>2.8.9</version>
       <scope>compile</scope>
     </dependency>
 </dependencies>
@@ -429,7 +429,7 @@ class IdInstanceCreator implements InstanceCreator<Id<?>> {
   public Id<?> createInstance(Type type) {
     Type[] typeParameters = ((ParameterizedType)type).getActualTypeArguments();
     Type idType = typeParameters[0]; // Id has only one parameterized type T
-    return Id.get((Class)idType, 0L);
+    return new Id((Class)idType, 0L);
   }
 }
 ```

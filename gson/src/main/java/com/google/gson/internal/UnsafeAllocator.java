@@ -132,7 +132,8 @@ public abstract class UnsafeAllocator {
     return new UnsafeAllocator() {
       @Override
       public <T> T newInstance(Class<T> c) {
-        throw new UnsupportedOperationException("Cannot allocate " + c);
+        throw new UnsupportedOperationException("Cannot allocate " + c + ". Usage of JDK sun.misc.Unsafe is enabled, "
+            + "but it could not be used. Make sure your runtime is configured correctly.");
       }
     };
   }
