@@ -674,12 +674,13 @@ public final class GsonBuilder {
 
     addTypeAdaptersForDate(datePattern, dateStyle, timeStyle, factories);
 
-    return new Gson(excluder, fieldNamingPolicy, instanceCreators,
+    return new Gson(excluder, fieldNamingPolicy, new HashMap<Type, InstanceCreator<?>>(instanceCreators),
         serializeNulls, complexMapKeySerialization,
         generateNonExecutableJson, escapeHtmlChars, prettyPrinting, lenient,
         serializeSpecialFloatingPointValues, useJdkUnsafe, longSerializationPolicy,
-        datePattern, dateStyle, timeStyle, this.factories, this.hierarchyFactories,
-        factories, objectToNumberStrategy, numberToNumberStrategy, reflectionFilters);
+        datePattern, dateStyle, timeStyle, new ArrayList<TypeAdapterFactory>(this.factories),
+        new ArrayList<TypeAdapterFactory>(this.hierarchyFactories), factories,
+        objectToNumberStrategy, numberToNumberStrategy, new ArrayList<ReflectionAccessFilter>(reflectionFilters));
   }
 
   private void addTypeAdaptersForDate(String datePattern, int dateStyle, int timeStyle,

@@ -235,7 +235,7 @@ public final class Gson {
     this.builderHierarchyFactories = builderHierarchyFactories;
     this.objectToNumberStrategy = objectToNumberStrategy;
     this.numberToNumberStrategy = numberToNumberStrategy;
-    this.reflectionFilters = new ArrayList<ReflectionAccessFilter>(reflectionFilters);
+    this.reflectionFilters = reflectionFilters;
 
     List<TypeAdapterFactory> factories = new ArrayList<TypeAdapterFactory>();
 
