@@ -15,8 +15,8 @@ import com.google.gson.reflect.TypeToken;
 
 public class ConstructorConstructorTest {
   private ConstructorConstructor constructorConstructor = new ConstructorConstructor(
-    Collections.<Type, InstanceCreator<?>>emptyMap(),
-    Collections.<ReflectionAccessFilter>emptyList()
+      Collections.<Type, InstanceCreator<?>>emptyMap(), true,
+      Collections.<ReflectionAccessFilter>emptyList()
   );
 
   public interface Interface {
