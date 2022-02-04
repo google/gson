@@ -145,11 +145,17 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       @SuppressWarnings({"unchecked", "rawtypes"}) // the type adapter and field type always agree
       @Override void write(JsonWriter writer, Object value)
           throws IOException, IllegalAccessException {
+        if (!serialized) return;
         if (blockInaccessible) {
           checkAccessible(value, field);
         }
 
         Object fieldValue = field.get(value);
+        if (fieldValue == value) {
+          // avoid direct recursion
+          return;
+        }
+        writer.name(name);
         TypeAdapter t = jsonAdapterPresent ? typeAdapter
             : new TypeAdapterRuntimeTypeWrapper(context, typeAdapter, fieldType.getType());
         t.write(writer, fieldValue);
@@ -163,14 +169,6 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           }
           field.set(value, fieldValue);
         }
-      }
-      @Override public boolean writeField(Object value) throws IOException, IllegalAccessException {
-        if (!serialized) return false;
-        if (blockInaccessible) {
-          checkAccessible(value, field);
-        }
-        Object fieldValue = field.get(value);
-        return fieldValue != value; // avoid recursion for example for Throwable.cause
       }
     };
   }
@@ -240,7 +238,6 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       this.serialized = serialized;
       this.deserialized = deserialized;
     }
-    abstract boolean writeField(Object value) throws IOException, IllegalAccessException;
     abstract void write(JsonWriter writer, Object value) throws IOException, IllegalAccessException;
     abstract void read(JsonReader reader, Object value) throws IOException, IllegalAccessException;
   }
@@ -291,10 +288,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       out.beginObject();
       try {
         for (BoundField boundField : boundFields.values()) {
-          if (boundField.writeField(value)) {
-            out.name(boundField.name);
-            boundField.write(out, value);
-          }
+          boundField.write(out, value);
         }
       } catch (IllegalAccessException e) {
         throw new AssertionError(e);
