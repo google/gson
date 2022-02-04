@@ -9,7 +9,7 @@ import com.google.gson.internal.ReflectionAccessFilterHelper;
  * deserialization is allowed for a class.
  *
  * <p>A filter can be useful in multiple scenarios, for example when
- * upgrading to newer Java versions using the Java Platform Module
+ * upgrading to newer Java versions which use the Java Platform Module
  * System (JPMS). A filter then allows to {@linkplain FilterResult#BLOCK_INACCESSIBLE
  * prevent making inaccessible members accessible}, even if the used
  * Java version might still allow illegal access (but logs a warning),
@@ -62,7 +62,7 @@ public interface ReflectionAccessFilter {
      * Language Specification (<a href="https://docs.oracle.com/javase/specs/jls/se11/html/jls-6.html#jls-6.6">JLS 11 &sect;6.6</a>),
      * restrictions imposed by a {@link SecurityManager} are not considered.
      *
-     * <p>This result type is mainly intended to help enforcing the access checks of
+     * <p>This result type is mainly intended to help enforce the access checks of
      * the Java Platform Module System. It allows detecting illegal access, even if
      * the used Java version would only log a warning, or is configured to open
      * packages for reflection using command line arguments.

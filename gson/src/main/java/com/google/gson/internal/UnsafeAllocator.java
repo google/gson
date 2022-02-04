@@ -32,7 +32,7 @@ public abstract class UnsafeAllocator {
   public abstract <T> T newInstance(Class<T> c) throws Exception;
 
   /**
-   * Check if the class can be instantiated by unsafe allocator. If the instance has interface or abstract modifiers
+   * Check if the class can be instantiated by Unsafe allocator. If the instance has interface or abstract modifiers
    * return an exception message.
    * @param c instance of the class to be checked
    * @return if instantiable {@code null}, else a non-{@code null} exception message

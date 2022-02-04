@@ -206,25 +206,29 @@ public final class ConstructorConstructor {
       };
     }
 
-    final String exceptionMessage = ReflectionHelper.tryMakeAccessible(constructor);
-    if (exceptionMessage != null) {
-      /*
-       * Create ObjectConstructor which throws exception.
-       * This keeps backward compatibility (compared to returning `null` which
-       * would then choose another way of creating object).
-       * And it supports types which are only serialized but not deserialized
-       * (compared to directly throwing exception here), e.g. when runtime type
-       * of object is inaccessible, but compile-time type is accessible.
-       */
-      return new ObjectConstructor<T>() {
-        @Override
-        public T construct() {
-          // New exception is created every time to avoid keeping reference
-          // to exception with potentially long stack trace, causing a
-          // memory leak
-          throw new JsonIOException(exceptionMessage);
-        }
-      };
+    // Only try to make accessible if allowed; in all other cases checks above should
+    // have verified that constructor is accessible
+    if (filterResult == FilterResult.ALLOW) {
+      final String exceptionMessage = ReflectionHelper.tryMakeAccessible(constructor);
+      if (exceptionMessage != null) {
+        /*
+         * Create ObjectConstructor which throws exception.
+         * This keeps backward compatibility (compared to returning `null` which
+         * would then choose another way of creating object).
+         * And it supports types which are only serialized but not deserialized
+         * (compared to directly throwing exception here), e.g. when runtime type
+         * of object is inaccessible, but compile-time type is accessible.
+         */
+        return new ObjectConstructor<T>() {
+          @Override
+          public T construct() {
+            // New exception is created every time to avoid keeping reference
+            // to exception with potentially long stack trace, causing a
+            // memory leak
+            throw new JsonIOException(exceptionMessage);
+          }
+        };
+      }
     }
 
     return new ObjectConstructor<T>() {

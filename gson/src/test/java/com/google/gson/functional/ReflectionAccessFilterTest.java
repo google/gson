@@ -112,8 +112,8 @@ public class ReflectionAccessFilterTest {
     } catch (JsonIOException expected) {
       assertEquals(
         "ReflectionAccessFilter does not permit using reflection for class java.io.Reader "
-        + "(supertype of " + ClassExtendingJdkClass.class + "). Register a TypeAdapter for "
-        + "this type or adjust the access filter.",
+        + "(supertype of class com.google.gson.functional.ReflectionAccessFilterTest$ClassExtendingJdkClass). "
+        + "Register a TypeAdapter for this type or adjust the access filter.",
         expected.getMessage()
       );
     }
@@ -243,6 +243,11 @@ public class ReflectionAccessFilterTest {
     assertEquals("{\"i\":1}", json);
   }
 
+  private static class ClassWithPrivateNoArgsConstructor {
+    private ClassWithPrivateNoArgsConstructor() {
+    }
+  }
+
   @Test
   public void testInaccessibleNoArgsConstructor() {
     Gson gson = new GsonBuilder()
@@ -254,14 +259,13 @@ public class ReflectionAccessFilterTest {
       .create();
 
     try {
-      // Class Runtime has private no-args constructor
-      gson.fromJson("{}", Runtime.class);
+      gson.fromJson("{}", ClassWithPrivateNoArgsConstructor.class);
       fail("Expected exception; test needs to be run with Java >= 9");
     } catch (JsonIOException expected) {
       assertEquals(
-        "Unable to invoke no-args constructor of class java.lang.Runtime; constructor is not accessible "
-        + "and ReflectionAccessFilter does not permit making it accessible. Register an InstanceCreator "
-        + "or a TypeAdapter for this type, change the visibility of the constructor or adjust the access filter.",
+        "Unable to invoke no-args constructor of class com.google.gson.functional.ReflectionAccessFilterTest$ClassWithPrivateNoArgsConstructor; "
+        + "constructor is not accessible and ReflectionAccessFilter does not permit making it accessible. Register an "
+        + "InstanceCreator or a TypeAdapter for this type, change the visibility of the constructor or adjust the access filter.",
         expected.getMessage()
       );
     }
