@@ -27,15 +27,15 @@ public class ConstructorConstructorTest {
    */
   @Test
   public void testGet_AbstractClassNoArgConstructor() {
-    ConstructorConstructor constructorFactory = new ConstructorConstructor(NO_INSTANCE_CREATORS);
+    ConstructorConstructor constructorFactory = new ConstructorConstructor(NO_INSTANCE_CREATORS, true);
     ObjectConstructor<AbstractClass> constructor = constructorFactory.get(TypeToken.get(AbstractClass.class));
     try {
       constructor.construct();
       fail("Expected exception");
     } catch (RuntimeException exception) {
       assertEquals(
-        "Unable to invoke no-args constructor for " + AbstractClass.class
-        + ". Registering an InstanceCreator with Gson for this type may fix this problem.",
+        "Unable to create instance of class com.google.gson.internal.ConstructorConstructorTest$AbstractClass. "
+        + "Registering an InstanceCreator or a TypeAdapter for this type, or adding a no-args constructor may fix this problem.",
         exception.getMessage()
       );
     }
@@ -43,15 +43,15 @@ public class ConstructorConstructorTest {
 
   @Test
   public void testGet_Interface() {
-    ConstructorConstructor constructorFactory = new ConstructorConstructor(NO_INSTANCE_CREATORS);
+    ConstructorConstructor constructorFactory = new ConstructorConstructor(NO_INSTANCE_CREATORS, true);
     ObjectConstructor<Interface> constructor = constructorFactory.get(TypeToken.get(Interface.class));
     try {
       constructor.construct();
       fail("Expected exception");
     } catch (RuntimeException exception) {
       assertEquals(
-        "Unable to invoke no-args constructor for " + Interface.class
-        + ". Registering an InstanceCreator with Gson for this type may fix this problem.",
+        "Unable to create instance of interface com.google.gson.internal.ConstructorConstructorTest$Interface. "
+        + "Registering an InstanceCreator or a TypeAdapter for this type, or adding a no-args constructor may fix this problem.",
         exception.getMessage()
       );
     }
