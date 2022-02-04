@@ -18,13 +18,27 @@ import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.awt.Point;
+import java.io.File;
 import java.io.IOException;
+import java.io.Reader;
 import java.lang.reflect.Type;
 import java.util.LinkedList;
 import java.util.List;
 import org.junit.Test;
 
 public class ReflectionAccessFilterTest {
+  // Reader has protected `lock` field which cannot be accessed
+  private static class ClassExtendingJdkClass extends Reader {
+    @Override
+    public int read(char[] cbuf, int off, int len) throws IOException {
+      return 0;
+    }
+
+    @Override
+    public void close() throws IOException {
+    }
+  }
+
   @Test
   public void testBlockInaccessibleJava() {
     Gson gson = new GsonBuilder()
@@ -33,11 +47,12 @@ public class ReflectionAccessFilterTest {
 
     // Serialization should fail for classes with non-public fields
     try {
-      gson.toJson(Thread.currentThread());
+      gson.toJson(new File("a"));
       fail("Expected exception; test needs to be run with Java >= 9");
     } catch (JsonIOException expected) {
+      // Note: This test is rather brittle and depends on the JDK implementation
       assertEquals(
-        "Field 'java.lang.Thread#name' is not accessible and ReflectionAccessFilter does not permit "
+        "Field 'java.io.File#path' is not accessible and ReflectionAccessFilter does not permit "
         + "making it accessible. Register a TypeAdapter for the declaring type or adjust the access filter.",
         expected.getMessage()
       );
@@ -46,6 +61,24 @@ public class ReflectionAccessFilterTest {
     // But serialization should succeed for classes with only public fields
     String json = gson.toJson(new Point(1, 2));
     assertEquals("{\"x\":1,\"y\":2}", json);
+  }
+
+  @Test
+  public void testBlockInaccessibleJavaExtendingJdkClass() {
+    Gson gson = new GsonBuilder()
+      .addReflectionAccessFilter(ReflectionAccessFilter.BLOCK_INACCESSIBLE_JAVA)
+      .create();
+
+    try {
+      gson.toJson(new ClassExtendingJdkClass());
+      fail("Expected exception; test needs to be run with Java >= 9");
+    } catch (JsonIOException expected) {
+      assertEquals(
+        "Field 'java.io.Reader#lock' is not accessible and ReflectionAccessFilter does not permit "
+        + "making it accessible. Register a TypeAdapter for the declaring type or adjust the access filter.",
+        expected.getMessage()
+      );
+    }
   }
 
   @Test
@@ -67,11 +100,30 @@ public class ReflectionAccessFilterTest {
     }
   }
 
+  @Test
+  public void testBlockAllJavaExtendingJdkClass() {
+    Gson gson = new GsonBuilder()
+      .addReflectionAccessFilter(ReflectionAccessFilter.BLOCK_ALL_JAVA)
+      .create();
+
+    try {
+      gson.toJson(new ClassExtendingJdkClass());
+      fail();
+    } catch (JsonIOException expected) {
+      assertEquals(
+        "ReflectionAccessFilter does not permit using reflection for class java.io.Reader "
+        + "(supertype of " + ClassExtendingJdkClass.class + "). Register a TypeAdapter for "
+        + "this type or adjust the access filter.",
+        expected.getMessage()
+      );
+    }
+  }
+
   private static class SuperTestClass {
-    @SuppressWarnings("unused")
-    public int i = 1;
   }
   private static class SubTestClass extends SuperTestClass {
+    @SuppressWarnings("unused")
+    public int i = 1;
   }
   private static class OtherClass {
     @SuppressWarnings("unused")
@@ -115,6 +167,50 @@ public class ReflectionAccessFilterTest {
     // And unrelated class should not be affected
     json = gson.toJson(new OtherClass());
     assertEquals("{\"i\":2}", json);
+  }
+
+  private static class ClassWithPrivateField {
+    @SuppressWarnings("unused")
+    private int i = 1;
+  }
+  private static class ExtendingClassWithPrivateField extends ClassWithPrivateField {
+  }
+
+  @Test
+  public void testAllowForSupertype() {
+    Gson gson = new GsonBuilder()
+      .addReflectionAccessFilter(new ReflectionAccessFilter() {
+        @Override public FilterResult check(Class<?> rawClass) {
+          return FilterResult.BLOCK_INACCESSIBLE;
+        }
+      })
+      .create();
+
+    // First make sure test is implemented correctly and access is blocked
+    try {
+      gson.toJson(new ExtendingClassWithPrivateField());
+      fail("Expected exception; test needs to be run with Java >= 9");
+    } catch (JsonIOException expected) {
+      assertEquals(
+        "Field 'com.google.gson.functional.ReflectionAccessFilterTest$ClassWithPrivateField#i' "
+        + "is not accessible and ReflectionAccessFilter does not permit making it accessible. "
+        + "Register a TypeAdapter for the declaring type or adjust the access filter.",
+        expected.getMessage()
+      );
+    }
+
+    gson = gson.newBuilder()
+      // Allow reflective access for supertype
+      .addReflectionAccessFilter(new ReflectionAccessFilter() {
+        @Override public FilterResult check(Class<?> rawClass) {
+          return rawClass == ClassWithPrivateField.class ? FilterResult.ALLOW : FilterResult.INDECISIVE;
+        }
+      })
+      .create();
+
+    // Inherited (inaccessible) private field should have been made accessible
+    String json = gson.toJson(new ExtendingClassWithPrivateField());
+    assertEquals("{\"i\":1}", json);
   }
 
   @Test

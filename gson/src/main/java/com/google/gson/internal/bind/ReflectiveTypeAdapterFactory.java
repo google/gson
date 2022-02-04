@@ -181,8 +181,21 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     }
 
     Type declaredType = type.getType();
+    Class<?> originalRaw = raw;
     while (raw != Object.class) {
       Field[] fields = raw.getDeclaredFields();
+
+      // For inherited fields, check if access to their declaring class is allowed
+      if (raw != originalRaw && fields.length > 0) {
+        FilterResult filterResult = ReflectionAccessFilterHelper.getFilterResult(reflectionFilters, raw);
+        if (filterResult == FilterResult.BLOCK_ALL) {
+          throw new JsonIOException("ReflectionAccessFilter does not permit using reflection for "
+              + raw + " (supertype of " + originalRaw + "). Register a TypeAdapter for this type "
+              + "or adjust the access filter.");
+        }
+        blockInaccessible = filterResult == FilterResult.BLOCK_INACCESSIBLE;
+      }
+
       for (Field field : fields) {
         boolean serialize = excludeField(field, true);
         boolean deserialize = excludeField(field, false);
