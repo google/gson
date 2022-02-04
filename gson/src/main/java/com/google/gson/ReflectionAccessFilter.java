@@ -50,22 +50,23 @@ public interface ReflectionAccessFilter {
     INDECISIVE,
     /**
      * Blocks reflection access if a member of the class is not accessible
-     * by default and would have to be made accessible. This if unaffected
+     * by default and would have to be made accessible. This is unaffected
      * by any {@code java} command line arguments being used to make packages
-     * accessible.
+     * accessible, or by module declaration directives which <i>open</i> the
+     * complete module or certain packages for reflection and will consider
+     * such packages inaccessible.
      *
      * <p>Note that this <b>only works for Java 9 and higher</b>, for older
      * Java versions its functionality will be limited and it might behave like
      * {@link #ALLOW}. Access checks are only performed as defined by the Java
-     * Language Platform System, restrictions imposed by a {@link SecurityManager}
-     * are not considered.
+     * Language Specification (<a href="https://docs.oracle.com/javase/specs/jls/se11/html/jls-6.html#jls-6.6">JLS 11 &sect;6.6</a>),
+     * restrictions imposed by a {@link SecurityManager} are not considered.
      *
      * <p>This result type is mainly intended to help enforcing the access checks of
      * the Java Platform Module System. It allows detecting illegal access, even if
      * the used Java version would only log a warning, or is configured to open
      * packages for reflection using command line arguments.
      *
-     * @see AccessibleObject#setAccessible(boolean)
      * @see AccessibleObject#canAccess(Object)
      */
     BLOCK_INACCESSIBLE,
@@ -93,8 +94,9 @@ public interface ReflectionAccessFilter {
    * higher</b>, when using an older Java version its functionality will be
    * limited.
    *
-   * <p>Note that this filter might not cover all standard Java classes. The set
-   * of detected classes might be expanded in the future without prior notice.
+   * <p>Note that this filter might not cover all standard Java classes. Currently
+   * only classes in a {@code java.*} or {@code javax.*} package are considered. The
+   * set of detected classes might be expanded in the future without prior notice.
    *
    * @see FilterResult#BLOCK_INACCESSIBLE
    */
@@ -116,8 +118,9 @@ public interface ReflectionAccessFilter {
    * details of the Java platform and to help applications prepare for upgrading
    * to the Java Platform Module System.
    *
-   * <p>Note that this filter might not cover all standard Java classes. The set
-   * of detected classes might be expanded in the future without prior notice.
+   * <p>Note that this filter might not cover all standard Java classes. Currently
+   * only classes in a {@code java.*} or {@code javax.*} package are considered. The
+   * set of detected classes might be expanded in the future without prior notice.
    *
    * @see #BLOCK_INACCESSIBLE_JAVA
    * @see FilterResult#BLOCK_ALL
@@ -139,8 +142,10 @@ public interface ReflectionAccessFilter {
    * <p>This filter is mainly intended to prevent depending on implementation
    * details of the Android platform.
    *
-   * <p>Note that this filter might not cover all standard Android classes. The set
-   * of detected classes might be expanded in the future without prior notice.
+   * <p>Note that this filter might not cover all standard Android classes. Currently
+   * only classes in an {@code android.*} or {@code androidx.*} package, and standard
+   * Java classes in a {@code java.*} or {@code javax.*} package are considered. The
+   * set of detected classes might be expanded in the future without prior notice.
    *
    * @see FilterResult#BLOCK_ALL
    */
@@ -162,8 +167,10 @@ public interface ReflectionAccessFilter {
    * <p>This filter is mainly intended to prevent depending on implementation
    * details of the platform classes.
    *
-   * <p>Note that this filter might not cover all platform classes. The set
-   * of detected classes might be expanded in the future without prior notice.
+   * <p>Note that this filter might not cover all platform classes. Currently it
+   * combines the filters {@link #BLOCK_ALL_JAVA} and {@link #BLOCK_ALL_ANDROID},
+   * and checks for other language-specific platform classes like {@code kotlin.*}.
+   * The set of detected classes might be expanded in the future without prior notice.
    *
    * @see FilterResult#BLOCK_ALL
    */

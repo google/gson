@@ -636,14 +636,16 @@ public final class GsonBuilder {
   }
 
   /**
-   * Adds a reflection access filter. A reflection access filter allows restricting for
-   * which classes Gson is allowed to use reflection for serialization and deserialization.
+   * Adds a reflection access filter. A reflection access filter prevents Gson from using
+   * reflection for the serialization and deserialization of certain classes. The logic in
+   * the filter specifies which classes those are.
    *
    * <p>Filters will be invoked in reverse registration order, that is, the least recently
    * added filter will be invoked first.
    *
    * <p>By default Gson has no filters configured and will try to use reflection for
-   * all classes for which no {@link TypeAdapter} has been registered.
+   * all classes for which no {@link TypeAdapter} has been registered, and for which no
+   * built-in Gson {@code TypeAdapter} exists.
    *
    * @param filter filter to add
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
