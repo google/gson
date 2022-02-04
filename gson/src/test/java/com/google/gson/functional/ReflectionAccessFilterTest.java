@@ -119,6 +119,36 @@ public class ReflectionAccessFilterTest {
     }
   }
 
+  private static class ClassWithStaticField {
+    @SuppressWarnings("unused")
+    private static int i = 1;
+  }
+
+  @Test
+  public void testBlockInaccessibleStaticField() {
+    Gson gson = new GsonBuilder()
+      .addReflectionAccessFilter(new ReflectionAccessFilter() {
+        @Override public FilterResult check(Class<?> rawClass) {
+          return FilterResult.BLOCK_INACCESSIBLE;
+        }
+      })
+      // Include static fields
+      .excludeFieldsWithModifiers(0)
+      .create();
+
+      try {
+        gson.toJson(new ClassWithStaticField());
+        fail("Expected exception; test needs to be run with Java >= 9");
+      } catch (JsonIOException expected) {
+        assertEquals(
+          "Field 'com.google.gson.functional.ReflectionAccessFilterTest$ClassWithStaticField#i' "
+          + "is not accessible and ReflectionAccessFilter does not permit making it accessible. "
+          + "Register a TypeAdapter for the declaring type or adjust the access filter.",
+          expected.getMessage()
+        );
+      }
+  }
+
   private static class SuperTestClass {
   }
   private static class SubTestClass extends SuperTestClass {

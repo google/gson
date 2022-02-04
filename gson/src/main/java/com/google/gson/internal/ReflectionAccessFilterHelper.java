@@ -76,12 +76,12 @@ public class ReflectionAccessFilterHelper {
             @Override public boolean canAccess(AccessibleObject accessibleObject, Object object) {
               try {
                 return (Boolean) canAccessMethod.invoke(accessibleObject, object);
-              } catch (Exception ignored) {
-                return true;
+              } catch (Exception e) {
+                throw new RuntimeException("Failed invoking canAccess", e);
               }
             }
           };
-        } catch (Exception ignored) {
+        } catch (NoSuchMethodException ignored) {
         }
       }
 

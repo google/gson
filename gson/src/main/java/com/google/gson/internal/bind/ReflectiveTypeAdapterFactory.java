@@ -39,6 +39,7 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -116,7 +117,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   }
 
   private static void checkAccessible(Object object, Field field) {
-    if (!ReflectionAccessFilterHelper.canAccess(field, object)) {
+    if (!ReflectionAccessFilterHelper.canAccess(field, Modifier.isStatic(field.getModifiers()) ? null : object)) {
       throw new JsonIOException("Field '" + field.getDeclaringClass().getName() + "#"
           + field.getName() + "' is not accessible and ReflectionAccessFilter does not "
           + "permit making it accessible. Register a TypeAdapter for the declaring type "
