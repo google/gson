@@ -183,6 +183,11 @@ public final class ConstructorConstructor {
   }
 
   private static <T> ObjectConstructor<T> newDefaultConstructor(Class<? super T> rawType, FilterResult filterResult) {
+    // Cannot invoke constructor of abstract class
+    if (Modifier.isAbstract(rawType.getModifiers())) {
+      return null;
+    }
+
     final Constructor<? super T> constructor;
     try {
       constructor = rawType.getDeclaredConstructor();
