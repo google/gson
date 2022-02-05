@@ -482,11 +482,11 @@ public final class Gson {
     }
 
     LinkedHashMap<TypeToken<?>, FutureTypeAdapter<?>> threadCalls = calls.get();
-    boolean requiresThreadLocalCleanup = false;
+    boolean isInitialAdapterRequest = false;
     if (threadCalls == null) {
       threadCalls = new LinkedHashMap<TypeToken<?>, FutureTypeAdapter<?>>();
       calls.set(threadCalls);
-      requiresThreadLocalCleanup = true;
+      isInitialAdapterRequest = true;
     }
 
     // the key and value type parameters always agree
@@ -507,7 +507,7 @@ public final class Gson {
         if (candidate != null) {
           call.setDelegate(candidate);
 
-          if (requiresThreadLocalCleanup) {
+          if (isInitialAdapterRequest) {
             // Publish resolved adapters to all threads
             // Can only do this for the initial request because cyclic dependency TypeA -> TypeB -> TypeA
             // would otherwise publish adapter for TypeB which uses not yet resolved adapter for TypeA
@@ -523,7 +523,7 @@ public final class Gson {
       }
       throw new IllegalArgumentException("GSON (" + GsonBuildConfig.VERSION + ") cannot handle " + type);
     } finally {
-      if (requiresThreadLocalCleanup) {
+      if (isInitialAdapterRequest) {
         calls.remove();
       }
       if (!foundCandidate) {

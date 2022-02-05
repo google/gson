@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import com.google.gson.Gson.FutureTypeAdapter;
 import com.google.gson.internal.Excluder;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
@@ -175,22 +176,27 @@ public final class GsonTest extends TestCase {
    *    adapter for ClassB2
    *
    * Then Gson must not cache adapter for ClassC because it refers to broken adapter
-   * for ClassB1 (since ClassX throw exception).
+   * for ClassB1 (since ClassX threw exception).
    */
   public void testGetAdapterDiscardedException() {
+    final TypeAdapter<?> alternativeAdapter = new DummyAdapter<>();
+
     Gson gson = new GsonBuilder()
       .registerTypeAdapterFactory(new TypeAdapterFactory() {
         @Override
         public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
           if (type.getRawType() == CustomClassA.class) {
-            // Factory will throw for CustomClassB1
+            // Factory will throw for CustomClassB1; discard exception
             try {
               gson.getAdapter(CustomClassB1.class);
               fail("Expected exception");
             } catch (Exception e) {
+              assertEquals("test exception", e.getMessage());
             }
 
-            return new DummyAdapter<T>();
+            @SuppressWarnings("unchecked")
+            TypeAdapter<T> adapter = (TypeAdapter<T>) alternativeAdapter;
+            return adapter;
           }
           else if (type.getRawType() == CustomClassB1.class) {
             gson.getAdapter(CustomClassC.class);
@@ -201,7 +207,8 @@ public final class GsonTest extends TestCase {
           }
           else if (type.getRawType() == CustomClassC.class) {
             // Will return future adapter due to cyclic dependency B1 -> C -> B1
-            gson.getAdapter(CustomClassB1.class);
+            TypeAdapter<?> adapter = gson.getAdapter(CustomClassB1.class);
+            assertTrue(adapter instanceof FutureTypeAdapter);
             return new DummyAdapter<T>();
           }
           else if (type.getRawType() == CustomClassX.class) {
@@ -214,17 +221,19 @@ public final class GsonTest extends TestCase {
       })
       .create();
 
-    assertTrue(gson.getAdapter(CustomClassA.class) instanceof DummyAdapter);
+    assertSame(alternativeAdapter, gson.getAdapter(CustomClassA.class));
     // Gson must not have cached broken adapters for CustomClassB1 and CustomClassC
     try {
       gson.getAdapter(CustomClassB1.class);
       fail("Expected exception");
     } catch (Exception e) {
+      assertEquals("test exception", e.getMessage());
     }
     try {
       gson.getAdapter(CustomClassC.class);
       fail("Expected exception");
     } catch (Exception e) {
+      assertEquals("test exception", e.getMessage());
     }
   }
 
@@ -243,4 +252,5 @@ public final class GsonTest extends TestCase {
   private static class CustomClassC {
   }
   private static class CustomClassX {
-  }}
+  }
+}
