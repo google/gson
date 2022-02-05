@@ -15,9 +15,8 @@
  */
 package com.google.gson.metrics;
 
+import com.google.caliper.BeforeExperiment;
 import com.google.caliper.Param;
-import com.google.caliper.Runner;
-import com.google.caliper.SimpleBenchmark;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -28,7 +27,7 @@ import com.google.gson.GsonBuilder;
  * @author Jesse Wilson
  * @author Joel Leitch
  */
-public class SerializationBenchmark extends SimpleBenchmark {
+public class SerializationBenchmark {
 
   private Gson gson;
   private BagOfPrimitives bag;
@@ -36,11 +35,11 @@ public class SerializationBenchmark extends SimpleBenchmark {
   private boolean pretty;
 
   public static void main(String[] args) {
-    Runner.main(SerializationBenchmark.class, args);
+    NonUploadingCaliperRunner.run(SerializationBenchmark.class, args);
   }
   
-  @Override
-  protected void setUp() throws Exception {
+  @BeforeExperiment
+  void setUp() throws Exception {
     this.gson = pretty ? new GsonBuilder().setPrettyPrinting().create() : new Gson();
     this.bag = new BagOfPrimitives(10L, 1, false, "foo");
   }

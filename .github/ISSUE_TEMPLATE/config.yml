@@ -1,0 +1,4 @@
+contact_links:
+  - name: Usage question
+    url: https://stackoverflow.com/questions/tagged/gson
+    about: Ask usage questions on StackOverflow.
