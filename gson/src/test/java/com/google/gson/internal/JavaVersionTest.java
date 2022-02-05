@@ -19,8 +19,6 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import com.google.gson.internal.JavaVersion;
-
 /**
  * Unit and functional tests for {@link JavaVersion}
  *

@@ -50,8 +50,15 @@ public class JsonTreeReaderTest extends TestCase {
     in.skipValue();
     assertEquals(JsonToken.END_DOCUMENT, in.peek());
   }
-  
-  public void testCustomJsonElementSubclass() throws IOException {
+
+  public void testHasNext_endOfDocument() throws IOException {
+    JsonTreeReader reader = new JsonTreeReader(new JsonObject());
+    reader.beginObject();
+    reader.endObject();
+    assertFalse(reader.hasNext());
+  }
+
+public void testCustomJsonElementSubclass() throws IOException {
     @SuppressWarnings("deprecation") // JsonElement constructor
     class CustomSubclass extends JsonElement {
       @Override
@@ -59,10 +66,10 @@ public class JsonTreeReaderTest extends TestCase {
         return this;
       }
     }
-    
+
     JsonArray array = new JsonArray();
     array.add(new CustomSubclass());
-    
+
     JsonTreeReader reader = new JsonTreeReader(array);
     reader.beginArray();
     try {

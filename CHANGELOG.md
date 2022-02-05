@@ -1,6 +1,36 @@
 Change Log
 ==========
 
+## Version 2.8.9
+
+* Make OSGi bundle's dependency on `sun.misc` optional (#1993).
+* Deprecate `Gson.excluder()` exposing internal `Excluder` class (#1986).
+* Prevent Java deserialization of internal classes (#1991).
+* Improve number strategy implementation (#1987).
+* Fix LongSerializationPolicy null handling being inconsistent with Gson (#1990).
+* Support arbitrary Number implementation for Object and Number deserialization (#1290).
+* Bump proguard-maven-plugin from 2.4.0 to 2.5.1 (#1980).
+* Don't exclude static local classes (#1969).
+* Fix `RuntimeTypeAdapterFactory` depending on internal `Streams` class (#1959).
+* Improve Maven build (#1964).
+* Make dependency on `java.sql` optional (#1707).
+
+## Version 2.8.8
+
+* Fixed issue with recursive types (#1390).
+* Better behaviour with Java 9+ and `Unsafe` if there is a security manager (#1712).
+* `EnumTypeAdapter` now works better when ProGuard has obfuscated enum fields (#1495).
+
+## Version 2.8.7
+
+* Fixed `ISO8601UtilsTest` failing on systems with UTC+X.
+* Improved javadoc for `JsonStreamParser`.
+* Updated proguard.cfg (#1693).
+* Fixed `IllegalStateException` in `JsonTreeWriter` (#1592).
+* Added `JsonArray.isEmpty()` (#1640).
+* Added new test cases (#1638).
+* Fixed OSGi metadata generation to work on JavaSE < 9 (#1603).
+
 ## Version 2.8.6
 _2019-10-04_  [GitHub Diff](https://github.com/google/gson/compare/gson-parent-2.8.5...gson-parent-2.8.6)
  * Added static methods `JsonParser.parseString` and `JsonParser.parseReader` and deprecated instance method `JsonParser.parse`

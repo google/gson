@@ -15,14 +15,12 @@
  */
 package com.google.gson.metrics;
 
+import com.google.caliper.BeforeExperiment;
+import com.google.gson.Gson;
+import com.google.gson.stream.JsonReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.lang.reflect.Field;
-
-import com.google.caliper.Runner;
-import com.google.caliper.SimpleBenchmark;
-import com.google.gson.Gson;
-import com.google.gson.stream.JsonReader;
 
 /**
  * Caliper based micro benchmarks for Gson
@@ -31,17 +29,17 @@ import com.google.gson.stream.JsonReader;
  * @author Jesse Wilson
  * @author Joel Leitch
  */
-public class BagOfPrimitivesDeserializationBenchmark extends SimpleBenchmark {
+public class BagOfPrimitivesDeserializationBenchmark {
 
   private Gson gson;
   private String json;
 
   public static void main(String[] args) {
-    Runner.main(BagOfPrimitivesDeserializationBenchmark.class, args);
+    NonUploadingCaliperRunner.run(BagOfPrimitivesDeserializationBenchmark.class, args);
   }
   
-  @Override
-  protected void setUp() throws Exception {
+  @BeforeExperiment
+  void setUp() throws Exception {
     this.gson = new Gson();
     BagOfPrimitives bag = new BagOfPrimitives(10L, 1, false, "foo");
     this.json = gson.toJson(bag);

@@ -15,6 +15,10 @@
  */
 package com.google.gson.metrics;
 
+import com.google.caliper.BeforeExperiment;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.lang.reflect.Field;
@@ -22,29 +26,23 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.caliper.Runner;
-import com.google.caliper.SimpleBenchmark;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-
 /**
  * Caliper based micro benchmarks for Gson
  *
  * @author Inderjeet Singh
  */
-public class CollectionsDeserializationBenchmark extends SimpleBenchmark {
+public class CollectionsDeserializationBenchmark {
 
   private static final Type LIST_TYPE = new TypeToken<List<BagOfPrimitives>>(){}.getType();
   private Gson gson;
   private String json;
 
   public static void main(String[] args) {
-    Runner.main(CollectionsDeserializationBenchmark.class, args);
+    NonUploadingCaliperRunner.run(CollectionsDeserializationBenchmark.class, args);
   }
   
-  @Override
-  protected void setUp() throws Exception {
+  @BeforeExperiment
+  void setUp() throws Exception {
     this.gson = new Gson();
     List<BagOfPrimitives> bags = new ArrayList<BagOfPrimitives>();
     for (int i = 0; i < 100; ++i) {
