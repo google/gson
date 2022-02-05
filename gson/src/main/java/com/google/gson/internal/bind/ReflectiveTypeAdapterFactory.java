@@ -273,7 +273,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       } catch (IllegalStateException e) {
         throw new JsonSyntaxException(e);
       } catch (IllegalAccessException e) {
-        throw new AssertionError(e);
+        throw ReflectionHelper.createExceptionForUnexpectedIllegalAccess(e);
       }
       in.endObject();
       return instance;
@@ -291,7 +291,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           boundField.write(out, value);
         }
       } catch (IllegalAccessException e) {
-        throw new AssertionError(e);
+        throw ReflectionHelper.createExceptionForUnexpectedIllegalAccess(e);
       }
       out.endObject();
     }
