@@ -24,12 +24,11 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.MalformedJsonException;
-
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Arrays;
 
 /**
  * This reader walks the elements of a JsonElement as if it was coming from a

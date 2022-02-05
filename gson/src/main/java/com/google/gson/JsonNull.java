@@ -25,7 +25,7 @@ package com.google.gson;
  */
 public final class JsonNull extends JsonElement {
   /**
-   * singleton for JsonNull
+   * Singleton for JsonNull
    *
    * @since 1.8
    */

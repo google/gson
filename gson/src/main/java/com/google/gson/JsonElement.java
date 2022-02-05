@@ -34,7 +34,7 @@ public abstract class JsonElement {
   /**
    * @deprecated Creating custom {@code JsonElement} subclasses is highly discouraged
    *   and can lead to undefined behavior.<br>
-   *   This constructor is only kept for backward compability.
+   *   This constructor is only kept for backward compatibility.
    */
   @Deprecated
   public JsonElement() {

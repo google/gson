@@ -21,7 +21,6 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.MalformedJsonException;
-
 import java.io.IOException;
 import junit.framework.TestCase;
 
@@ -58,7 +57,7 @@ public class JsonTreeReaderTest extends TestCase {
     assertFalse(reader.hasNext());
   }
 
-public void testCustomJsonElementSubclass() throws IOException {
+  public void testCustomJsonElementSubclass() throws IOException {
     @SuppressWarnings("deprecation") // JsonElement constructor
     class CustomSubclass extends JsonElement {
       @Override
@@ -77,6 +76,8 @@ public void testCustomJsonElementSubclass() throws IOException {
       reader.peek();
       fail();
     } catch (MalformedJsonException expected) {
+      assertEquals("Custom JsonElement subclass com.google.gson.internal.bind.JsonTreeReaderTest$1CustomSubclass is not supported",
+          expected.getMessage());
     }
   }
 }
