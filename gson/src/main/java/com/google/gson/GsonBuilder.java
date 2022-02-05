@@ -640,7 +640,7 @@ public final class GsonBuilder {
    * reflection for the serialization and deserialization of certain classes. The logic in
    * the filter specifies which classes those are.
    *
-   * <p>Filters will be invoked in reverse registration order, that is, the least recently
+   * <p>Filters will be invoked in reverse registration order, that is, the most recently
    * added filter will be invoked first.
    *
    * <p>By default Gson has no filters configured and will try to use reflection for
