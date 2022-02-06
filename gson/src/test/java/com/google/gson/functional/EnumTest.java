@@ -16,12 +16,6 @@
 
 package com.google.gson.functional;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.Set;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -34,7 +28,14 @@ import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.common.MoreAsserts;
 import com.google.gson.reflect.TypeToken;
-
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.Map;
+import java.util.Set;
 import junit.framework.TestCase;
 /**
  * Functional tests for Java 5.0 enums.
@@ -152,11 +153,25 @@ public class EnumTest extends TestCase {
   public void testEnumSet() {
     EnumSet<Roshambo> foo = EnumSet.of(Roshambo.ROCK, Roshambo.PAPER);
     String json = gson.toJson(foo);
+    assertEquals("[\"ROCK\",\"PAPER\"]", json);
+
     Type type = new TypeToken<EnumSet<Roshambo>>() {}.getType();
     EnumSet<Roshambo> bar = gson.fromJson(json, type);
     assertTrue(bar.contains(Roshambo.ROCK));
     assertTrue(bar.contains(Roshambo.PAPER));
     assertFalse(bar.contains(Roshambo.SCISSORS));
+  }
+
+  public void testEnumMap() throws Exception {
+    EnumMap<MyEnum, String> map = new EnumMap<MyEnum, String>(MyEnum.class);
+    map.put(MyEnum.VALUE1, "test");
+    String json = gson.toJson(map);
+    assertEquals("{\"VALUE1\":\"test\"}", json);
+
+    Type type = new TypeToken<EnumMap<MyEnum, String>>() {}.getType();
+    EnumMap<?, ?> actualMap = gson.fromJson("{\"VALUE1\":\"test\"}", type);
+    Map<?, ?> expectedMap = Collections.singletonMap(MyEnum.VALUE1, "test");
+    assertEquals(expectedMap, actualMap);
   }
 
   public enum Roshambo {
@@ -200,17 +215,17 @@ public class EnumTest extends TestCase {
   }
 
   public void testEnumClassWithFields() {
-	  assertEquals("\"RED\"", gson.toJson(Color.RED));
-	  assertEquals("red", gson.fromJson("RED", Color.class).value);
+    assertEquals("\"RED\"", gson.toJson(Color.RED));
+    assertEquals("red", gson.fromJson("RED", Color.class).value);
   }
 
   public enum Color {
-	  RED("red", 1), BLUE("blue", 2), GREEN("green", 3);
-	  String value;
-	  int index;
-	  private Color(String value, int index) {
-		  this.value = value;
-		  this.index = index;
-	  }
+    RED("red", 1), BLUE("blue", 2), GREEN("green", 3);
+    String value;
+    int index;
+    private Color(String value, int index) {
+      this.value = value;
+      this.index = index;
+    }
   }
 }
