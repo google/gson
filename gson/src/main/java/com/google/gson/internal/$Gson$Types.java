@@ -42,7 +42,7 @@ import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
  * @author Jesse Wilson
  */
 public final class $Gson$Types {
-  private static final Type[] EMPTY_TYPE_ARRAY = new Type[] {};
+  static final Type[] EMPTY_TYPE_ARRAY = new Type[] {};
 
   private $Gson$Types() {
     throw new UnsupportedOperationException();
@@ -226,10 +226,6 @@ public final class $Gson$Types {
       // This isn't a type we support. Could be a generic array type, wildcard type, etc.
       return false;
     }
-  }
-
-  private static int hashCodeOrZero(Object o) {
-    return o != null ? o.hashCode() : 0;
   }
 
   public static String typeToString(Type type) {
@@ -480,7 +476,7 @@ public final class $Gson$Types {
         : null;
   }
 
-  private static void checkNotPrimitive(Type type) {
+  static void checkNotPrimitive(Type type) {
     checkArgument(!(type instanceof Class<?>) || !((Class<?>) type).isPrimitive());
   }
 
@@ -523,6 +519,10 @@ public final class $Gson$Types {
     @Override public boolean equals(Object other) {
       return other instanceof ParameterizedType
           && $Gson$Types.equals(this, (ParameterizedType) other);
+    }
+
+    private static int hashCodeOrZero(Object o) {
+      return o != null ? o.hashCode() : 0;
     }
 
     @Override public int hashCode() {
