@@ -94,6 +94,11 @@ public class TypeToken<T> {
         return typeArgument;
       }
     }
+    // Check for raw TypeToken as superclass
+    else if (superclass == TypeToken.class) {
+      throw new IllegalStateException("TypeToken must be created with a type argument: new TypeToken<...>() {}; "
+          + "When using code shrinkers (ProGuard, R8, ...) make sure that generic signatures are preserved.");
+    }
 
     // User created subclass of subclass of TypeToken
     throw new IllegalStateException("Must only create direct subclasses of TypeToken");
@@ -101,7 +106,9 @@ public class TypeToken<T> {
 
   private static void verifyNoTypeVariable(Type type) {
     if (type instanceof TypeVariable) {
-      throw new IllegalArgumentException("TypeToken type argument must not contain a type variable");
+      TypeVariable<?> typeVariable = (TypeVariable<?>) type;
+      throw new IllegalArgumentException("TypeToken type argument must not contain a type variable; captured type variable "
+          + typeVariable.getName() + " declared by " + typeVariable.getGenericDeclaration());
     } else if (type instanceof GenericArrayType) {
       verifyNoTypeVariable(((GenericArrayType) type).getGenericComponentType());
     } else if (type instanceof ParameterizedType) {

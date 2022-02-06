@@ -106,6 +106,15 @@ public final class TypeTokenTest extends TestCase {
     assertEquals(expectedListOfListOfListOfString, TypeToken.getParameterized(List.class, listOfListOfString));
   }
 
+  private static class CustomTypeToken extends TypeToken<String> {
+  }
+
+  public void testTypeTokenNonAnonymousSubclass() {
+    TypeToken<?> typeToken = new CustomTypeToken();
+    assertEquals(String.class, typeToken.getRawType());
+    assertEquals(String.class, typeToken.getType());
+  }
+
   /**
    * User must only create direct subclasses of TypeToken, but not subclasses
    * of subclasses (...) of TypeToken.
@@ -119,18 +128,21 @@ public final class TypeTokenTest extends TestCase {
       new SubTypeToken<Integer>() {};
       fail();
     } catch (IllegalStateException expected) {
+      assertEquals("Must only create direct subclasses of TypeToken", expected.getMessage());
     }
 
     try {
       new SubSubTypeToken1<Integer>();
       fail();
     } catch (IllegalStateException expected) {
+      assertEquals("Must only create direct subclasses of TypeToken", expected.getMessage());
     }
 
     try {
       new SubSubTypeToken2();
       fail();
     } catch (IllegalStateException expected) {
+      assertEquals("Must only create direct subclasses of TypeToken", expected.getMessage());
     }
   }
 
@@ -148,30 +160,57 @@ public final class TypeTokenTest extends TestCase {
       new TypeToken<T>() {};
       fail();
     } catch (IllegalArgumentException expected) {
+      assertEquals("TypeToken type argument must not contain a type variable; captured type variable T "
+          + "declared by public void com.google.gson.reflect.TypeTokenTest.testTypeTokenTypeVariable()",
+          expected.getMessage());
     }
 
     try {
-      new TypeToken<List<T>>() {};
+      new TypeToken<List<List<T>>>() {};
       fail();
     } catch (IllegalArgumentException expected) {
+      assertEquals("TypeToken type argument must not contain a type variable; captured type variable T "
+          + "declared by public void com.google.gson.reflect.TypeTokenTest.testTypeTokenTypeVariable()",
+          expected.getMessage());
     }
 
     try {
-      new TypeToken<List<? extends T>>() {};
+      new TypeToken<List<? extends List<T>>>() {};
       fail();
     } catch (IllegalArgumentException expected) {
+      assertEquals("TypeToken type argument must not contain a type variable; captured type variable T "
+          + "declared by public void com.google.gson.reflect.TypeTokenTest.testTypeTokenTypeVariable()",
+          expected.getMessage());
     }
 
     try {
-      new TypeToken<List<? super T>>() {};
+      new TypeToken<List<? super List<T>>>() {};
       fail();
     } catch (IllegalArgumentException expected) {
+      assertEquals("TypeToken type argument must not contain a type variable; captured type variable T "
+          + "declared by public void com.google.gson.reflect.TypeTokenTest.testTypeTokenTypeVariable()",
+          expected.getMessage());
     }
 
     try {
-      new TypeToken<List<T[]>>() {};
+      new TypeToken<List<T>[]>() {};
       fail();
     } catch (IllegalArgumentException expected) {
+      assertEquals("TypeToken type argument must not contain a type variable; captured type variable T "
+          + "declared by public void com.google.gson.reflect.TypeTokenTest.testTypeTokenTypeVariable()",
+          expected.getMessage());
+    }
+  }
+
+  @SuppressWarnings("rawtypes")
+  public void testTypeTokenRaw() {
+    try {
+      new TypeToken() {};
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("TypeToken must be created with a type argument: new TypeToken<...>() {}; "
+          + "When using code shrinkers (ProGuard, R8, ...) make sure that generic signatures are preserved.",
+          expected.getMessage());
     }
   }
 }
