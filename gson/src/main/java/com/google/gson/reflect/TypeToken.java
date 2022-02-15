@@ -22,7 +22,6 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
-import java.lang.reflect.WildcardType;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,6 +36,12 @@ import java.util.Map;
  *
  * <p>
  * {@code TypeToken<List<String>> list = new TypeToken<List<String>>() {};}
+ *
+ * <p>Capturing a type variable as type argument of a {@code TypeToken} should
+ * be avoided. Due to type erasure the runtime type of a type variable is not
+ * available to Gson and therefore it cannot provide the functionality one
+ * might expect, which gives a false sense of type-safety at compilation time
+ * and can lead to an unexpected {@code ClassCastException} at runtime.
  *
  * @author Bob Lee
  * @author Sven Mawson
@@ -54,13 +59,6 @@ public class TypeToken<T> {
    * <p>Clients create an empty anonymous subclass. Doing so embeds the type
    * parameter in the anonymous class's type hierarchy so we can reconstitute it
    * at runtime despite erasure.
-   *
-   * <p>Because {@code TypeToken} is mainly intended for usage with Gson
-   * (and not other libraries) using a type variable as part of the type
-   * argument for {@code TypeToken} is not allowed. Due to type erasure the
-   * runtime type of a type variable is not available to Gson and therefore
-   * it cannot provide the functionality the user might expect, which would
-   * give a false sense of type-safety.
    */
   @SuppressWarnings("unchecked")
   protected TypeToken() {
@@ -89,9 +87,7 @@ public class TypeToken<T> {
     if (superclass instanceof ParameterizedType) {
       ParameterizedType parameterized = (ParameterizedType) superclass;
       if (parameterized.getRawType() == TypeToken.class) {
-        Type typeArgument = $Gson$Types.canonicalize(parameterized.getActualTypeArguments()[0]);
-        verifyNoTypeVariable(typeArgument);
-        return typeArgument;
+        return $Gson$Types.canonicalize(parameterized.getActualTypeArguments()[0]);
       }
     }
     // Check for raw TypeToken as superclass
@@ -102,28 +98,6 @@ public class TypeToken<T> {
 
     // User created subclass of subclass of TypeToken
     throw new IllegalStateException("Must only create direct subclasses of TypeToken");
-  }
-
-  private static void verifyNoTypeVariable(Type type) {
-    if (type instanceof TypeVariable) {
-      TypeVariable<?> typeVariable = (TypeVariable<?>) type;
-      throw new IllegalArgumentException("TypeToken type argument must not contain a type variable; captured type variable "
-          + typeVariable.getName() + " declared by " + typeVariable.getGenericDeclaration());
-    } else if (type instanceof GenericArrayType) {
-      verifyNoTypeVariable(((GenericArrayType) type).getGenericComponentType());
-    } else if (type instanceof ParameterizedType) {
-      for (Type typeArgument : ((ParameterizedType) type).getActualTypeArguments()) {
-        verifyNoTypeVariable(typeArgument);
-      }
-    } else if (type instanceof WildcardType) {
-      WildcardType wildcardType = (WildcardType) type;
-      for (Type bound : wildcardType.getLowerBounds()) {
-        verifyNoTypeVariable(bound);
-      }
-      for (Type bound : wildcardType.getUpperBounds()) {
-        verifyNoTypeVariable(bound);
-      }
-    }
   }
 
   /**
