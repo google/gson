@@ -86,6 +86,8 @@
               <module>
                 <moduleInfoFile>${project.build.sourceDirectory}/module-info.java</moduleInfoFile>
               </module>
+              <!-- Overwrite the previously generated JAR file, if any -->
+              <overwriteExistingFiles>true</overwriteExistingFiles>
             </configuration>
           </execution>
         </executions>
