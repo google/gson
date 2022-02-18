@@ -40,6 +40,7 @@ public class GsonVersionDiagnosticsTest extends TestCase {
   private Gson gson;
 
   @Before
+  @Override
   public void setUp() {
     gson = new GsonBuilder().registerTypeAdapter(TestType.class, new TypeAdapter<TestType>() {
       @Override public void write(JsonWriter out, TestType value) {

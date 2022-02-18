@@ -328,7 +328,7 @@ public class CollectionTest extends TestCase {
   public void testUserCollectionTypeAdapter() {
     Type listOfString = new TypeToken<List<String>>() {}.getType();
     Object stringListSerializer = new JsonSerializer<List<String>>() {
-      public JsonElement serialize(List<String> src, Type typeOfSrc,
+      @Override public JsonElement serialize(List<String> src, Type typeOfSrc,
           JsonSerializationContext context) {
         return new JsonPrimitive(src.get(0) + ";" + src.get(1));
       }

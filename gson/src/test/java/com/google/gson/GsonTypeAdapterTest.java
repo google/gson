@@ -130,7 +130,7 @@ public class GsonTypeAdapterTest extends TestCase {
   private void assertSerialized(String expected, Class<?> instanceType, boolean registerAbstractDeserializer,
       boolean registerAbstractHierarchyDeserializer, Object instance) {
     JsonDeserializer<Abstract> deserializer = new JsonDeserializer<Abstract>() {
-      public Abstract deserialize(JsonElement json, Type typeOfT,
+      @Override public Abstract deserialize(JsonElement json, Type typeOfT,
           JsonDeserializationContext context) throws JsonParseException {
         throw new AssertionError();
       }

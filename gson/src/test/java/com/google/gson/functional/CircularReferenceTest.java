@@ -79,7 +79,7 @@ public class CircularReferenceTest extends TestCase {
     ClassWithSelfReference obj = new ClassWithSelfReference();
     obj.child = obj;
     Gson gson = new GsonBuilder().registerTypeAdapter(ClassWithSelfReference.class, new JsonSerializer<ClassWithSelfReference>() {
-      public JsonElement serialize(ClassWithSelfReference src, Type typeOfSrc,
+      @Override public JsonElement serialize(ClassWithSelfReference src, Type typeOfSrc,
           JsonSerializationContext context) {
         JsonObject obj = new JsonObject();
         obj.addProperty("property", "value");

@@ -12,7 +12,7 @@ import java.io.IOException;
  * A type adapter factory that implements {@code @Intercept}.
  */
 public final class InterceptorFactory implements TypeAdapterFactory {
-  public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+  @Override public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
     Intercept intercept = type.getRawType().getAnnotation(Intercept.class);
     if (intercept == null) {
       return null;
