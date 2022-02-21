@@ -37,6 +37,7 @@ import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 import junit.framework.TestCase;
+
 /**
  * Functional tests for Java 5.0 enums.
  *
@@ -174,7 +175,7 @@ public class EnumTest extends TestCase {
     assertEquals(expectedMap, actualMap);
   }
 
-  public enum Roshambo {
+  private enum Roshambo {
     ROCK {
       @Override Roshambo defeats() {
         return SCISSORS;
@@ -206,7 +207,7 @@ public class EnumTest extends TestCase {
     }
   }
 
-  public enum Gender {
+  private enum Gender {
     @SerializedName("boy")
     MALE,
 
@@ -217,15 +218,59 @@ public class EnumTest extends TestCase {
   public void testEnumClassWithFields() {
     assertEquals("\"RED\"", gson.toJson(Color.RED));
     assertEquals("red", gson.fromJson("RED", Color.class).value);
+    assertEquals(2, gson.fromJson("BLUE", Color.class).index);
   }
 
-  public enum Color {
+  private enum Color {
     RED("red", 1), BLUE("blue", 2), GREEN("green", 3);
     String value;
     int index;
     private Color(String value, int index) {
       this.value = value;
       this.index = index;
+    }
+  }
+
+  public void testEnumToStringRead() {
+    // Should still be able to read constant name
+    assertEquals(CustomToString.A, gson.fromJson("\"A\"", CustomToString.class));
+    // Should be able to read toString() value
+    assertEquals(CustomToString.A, gson.fromJson("\"test\"", CustomToString.class));
+
+    assertNull(gson.fromJson("\"other\"", CustomToString.class));
+  }
+
+  private enum CustomToString {
+    A;
+
+    @Override
+    public String toString() {
+      return "test";
+    }
+  }
+
+  /**
+   * Test that enum constant names have higher precedence than {@code toString()}
+   * result.
+   */
+  public void testEnumToStringReadInterchanged() {
+    assertEquals(InterchangedToString.A, gson.fromJson("\"A\"", InterchangedToString.class));
+    assertEquals(InterchangedToString.B, gson.fromJson("\"B\"", InterchangedToString.class));
+  }
+
+  private enum InterchangedToString {
+    A("B"),
+    B("A");
+
+    private final String toString;
+
+    InterchangedToString(String toString) {
+      this.toString = toString;
+    }
+
+    @Override
+    public String toString() {
+      return toString;
     }
   }
 }
