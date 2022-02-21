@@ -809,9 +809,7 @@ public final class TypeAdapters {
       }
       String key = in.nextString();
       T constant = nameToConstant.get(key);
-      if (constant == null)
-        return stringToConstant.get(key);
-      return constant;
+      return (constant == null) ? stringToConstant.get(key) : constant;
     }
 
     @Override public void write(JsonWriter out, T value) throws IOException {
