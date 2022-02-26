@@ -399,7 +399,7 @@ public class JsonReader implements Closeable {
   private int peeked() {
     int p = peeked;
     if (p == PEEKED_NONE) {
-         p = doPeek();
+      p = doPeek();
     }
     return p;
   }
