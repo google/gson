@@ -284,7 +284,7 @@ public class MapTest extends TestCase {
 
   public void testMapSubclassDeserialization() {
     Gson gson = new GsonBuilder().registerTypeAdapter(MyMap.class, new InstanceCreator<MyMap>() {
-      public MyMap createInstance(Type type) {
+      @Override public MyMap createInstance(Type type) {
         return new MyMap();
       }
     }).create();
@@ -299,7 +299,7 @@ public class MapTest extends TestCase {
         null, Map.class, String.class, Long.class);
     Gson gson = new GsonBuilder()
         .registerTypeAdapter(type, new JsonSerializer<Map<String, Long>>() {
-          public JsonElement serialize(Map<String, Long> src, Type typeOfSrc,
+          @Override public JsonElement serialize(Map<String, Long> src, Type typeOfSrc,
               JsonSerializationContext context) {
             JsonArray array = new JsonArray();
             for (long value : src.values()) {
@@ -493,7 +493,7 @@ public class MapTest extends TestCase {
         + "\"subs\":{\"Test\":" + subTypeJson + "}}";
 
     JsonSerializer<TestTypes.Base> baseTypeAdapter = new JsonSerializer<TestTypes.Base>() {
-      public JsonElement serialize(TestTypes.Base src, Type typeOfSrc,
+      @Override public JsonElement serialize(TestTypes.Base src, Type typeOfSrc,
           JsonSerializationContext context) {
         return baseTypeJsonElement;
       }

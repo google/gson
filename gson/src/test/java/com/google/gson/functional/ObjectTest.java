@@ -298,7 +298,7 @@ public class ObjectTest extends TestCase {
     gson = new GsonBuilder()
         .registerTypeHierarchyAdapter(ClassWithNoFields.class,
             new JsonSerializer<ClassWithNoFields>() {
-              public JsonElement serialize(
+              @Override public JsonElement serialize(
                   ClassWithNoFields src, Type typeOfSrc, JsonSerializationContext context) {
                 return new JsonObject();
               }
@@ -342,7 +342,7 @@ public class ObjectTest extends TestCase {
     final Parent p = new Parent();
     Gson gson = new GsonBuilder().registerTypeAdapter(
         Parent.Child.class, new InstanceCreator<Parent.Child>() {
-      public Parent.Child createInstance(Type type) {
+      @Override public Parent.Child createInstance(Type type) {
         return p.new Child();
       }
     }).create();

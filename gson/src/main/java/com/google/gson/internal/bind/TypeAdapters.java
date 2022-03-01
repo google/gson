@@ -436,6 +436,23 @@ public final class TypeAdapters {
     }
   };
 
+  public static final TypeAdapter<LazilyParsedNumber> LAZILY_PARSED_NUMBER = new TypeAdapter<LazilyParsedNumber>() {
+    // Normally users should not be able to access and deserialize LazilyParsedNumber because
+    // it is an internal type, but implement this nonetheless in case there are legit corner
+    // cases where this is possible
+    @Override public LazilyParsedNumber read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
+        return null;
+      }
+      return new LazilyParsedNumber(in.nextString());
+    }
+
+    @Override public void write(JsonWriter out, LazilyParsedNumber value) throws IOException {
+      out.value(value);
+    }
+  };
+
   public static final TypeAdapterFactory STRING_FACTORY = newFactory(String.class, STRING);
 
   public static final TypeAdapter<StringBuilder> STRING_BUILDER = new TypeAdapter<StringBuilder>() {
@@ -758,6 +775,7 @@ public final class TypeAdapters {
 
   private static final class EnumTypeAdapter<T extends Enum<T>> extends TypeAdapter<T> {
     private final Map<String, T> nameToConstant = new HashMap<String, T>();
+    private final Map<String, T> stringToConstant = new HashMap<String, T>();
     private final Map<T, String> constantToName = new HashMap<T, String>();
 
     public EnumTypeAdapter(final Class<T> classOfT) {
@@ -784,6 +802,8 @@ public final class TypeAdapters {
           @SuppressWarnings("unchecked")
           T constant = (T)(constantField.get(null));
           String name = constant.name();
+          String toStringVal = constant.toString();
+          
           SerializedName annotation = constantField.getAnnotation(SerializedName.class);
           if (annotation != null) {
             name = annotation.value();
@@ -792,6 +812,7 @@ public final class TypeAdapters {
             }
           }
           nameToConstant.put(name, constant);
+          stringToConstant.put(toStringVal, constant);
           constantToName.put(constant, name);
         }
       } catch (IllegalAccessException e) {
@@ -803,7 +824,9 @@ public final class TypeAdapters {
         in.nextNull();
         return null;
       }
-      return nameToConstant.get(in.nextString());
+      String key = in.nextString();
+      T constant = nameToConstant.get(key);
+      return (constant == null) ? stringToConstant.get(key) : constant;
     }
 
     @Override public void write(JsonWriter out, T value) throws IOException {

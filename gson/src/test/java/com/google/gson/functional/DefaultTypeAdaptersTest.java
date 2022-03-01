@@ -470,7 +470,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
     Gson gson = new GsonBuilder()
         .setDateFormat(pattern)
         .registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
-          public Date deserialize(JsonElement json, Type typeOfT,
+          @Override public Date deserialize(JsonElement json, Type typeOfT,
               JsonDeserializationContext context)
               throws JsonParseException {
             return new Date(1315806903103L);
