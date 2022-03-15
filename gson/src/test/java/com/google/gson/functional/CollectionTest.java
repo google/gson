@@ -128,14 +128,16 @@ public class CollectionTest extends TestCase {
   }
 
   public void testPriorityQueue() throws Exception {
+    int[] value = {10, 20, 22};
+    String stringToSerialize = value.toString();
     Type type = new TypeToken<PriorityQueue<Integer>>(){}.getType();
-    PriorityQueue<Integer> queue = gson.fromJson("[10, 20, 22]", type);
-    assertEquals(3, queue.size());
+    PriorityQueue<Integer> queue = gson.fromJson(stringToSerialize, type);
+    assertEquals(value.length, queue.size());
     String json = gson.toJson(queue);
-    assertEquals(10, queue.remove().intValue());
-    assertEquals(20, queue.remove().intValue());
-    assertEquals(22, queue.remove().intValue());
-    assertEquals("[10,20,22]", json);
+    for (int i = 0; i< value.length; i++){
+      assertEquals(value[i], queue.remove().intValue());
+    }
+    assertEquals(stringToSerialize, json);
   }
 
   public void testVector() {
