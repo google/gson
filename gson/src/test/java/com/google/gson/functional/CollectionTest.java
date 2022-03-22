@@ -129,41 +129,38 @@ public class CollectionTest extends TestCase {
 
   public void testPriorityQueue() throws Exception {
     int[] value = {10, 20, 22};
-    String stringToSerialize = value.toString();
     Type type = new TypeToken<PriorityQueue<Integer>>(){}.getType();
-    PriorityQueue<Integer> queue = gson.fromJson(stringToSerialize, type);
+    PriorityQueue<Integer> queue = gson.fromJson("[10, 20, 22]", type);
     assertEquals(value.length, queue.size());
     String json = gson.toJson(queue);
     for (int i = 0; i < value.length; i++){
       assertEquals(value[i], queue.remove().intValue());
     }
-    assertEquals(stringToSerialize, json);
+    assertEquals("[10,20,22]", json);
   }
 
   public void testVector() {
     int[] value = {10, 20, 31};
-    String stringToSerialize = value.toString();
     Type type = new TypeToken<Vector<Integer>>(){}.getType();
-    Vector<Integer> target = gson.fromJson(stringToSerialize, type);
+    Vector<Integer> target = gson.fromJson("[10, 20, 31]", type);
     assertEquals(value.length, target.size());
     for (int i = 0; i < value.length; i++){
       assertEquals(value[i], target.get(i).intValue());
     }
     String json = gson.toJson(target);
-    assertEquals(stringToSerialize, json);
+    assertEquals("[10,20,31]", json);
   }
 
   public void testStack() {
     int[] value = {11, 13, 17};
-    String stringToSerialize = value.toString();
     Type type = new TypeToken<Stack<Integer>>(){}.getType();
-    Stack<Integer> target = gson.fromJson(stringToSerialize, type);
+    Stack<Integer> target = gson.fromJson("[11, 13, 17]", type);
     assertEquals(value.length, target.size());
     String json = gson.toJson(target);
-    for (int i = 3; i > 0; i--){
+    for (int i = 2; i > 0; i--){
       assertEquals(value[i], target.pop().intValue());
     }
-    assertEquals(stringToSerialize, json);
+    assertEquals("[11,13,17]", json);
   }
 
   public void testNullsInListSerialization() {
