@@ -300,17 +300,27 @@ public final class $Gson$Types {
   }
 
   /**
-   * Returns the element type of this collection type.
-   * @throws IllegalArgumentException if this type is not a collection.
+   * Returns the element type of this {@link Collection} type.
+   * @throws IllegalArgumentException if this type is not a {@code Collection}.
    */
   public static Type getCollectionElementType(Type context, Class<?> contextRawType) {
-    Type collectionType = getSupertype(context, contextRawType, Collection.class);
+    checkArgument(Collection.class.isAssignableFrom(contextRawType));
+    // `Collection<E> extends Iterable<E>`, so can delegate to that method
+    return getIterableElementType(context, contextRawType);
+  }
 
-    if (collectionType instanceof WildcardType) {
-      collectionType = ((WildcardType)collectionType).getUpperBounds()[0];
+  /**
+   * Returns the element type of this {@link Iterable} type.
+   * @throws IllegalArgumentException if this type is not a {@code Iterable}.
+   */
+  public static Type getIterableElementType(Type context, Class<?> contextRawType) {
+    Type iterableType = getSupertype(context, contextRawType, Iterable.class);
+
+    if (iterableType instanceof WildcardType) {
+      iterableType = ((WildcardType)iterableType).getUpperBounds()[0];
     }
-    if (collectionType instanceof ParameterizedType) {
-      return ((ParameterizedType) collectionType).getActualTypeArguments()[0];
+    if (iterableType instanceof ParameterizedType) {
+      return ((ParameterizedType) iterableType).getActualTypeArguments()[0];
     }
     return Object.class;
   }
