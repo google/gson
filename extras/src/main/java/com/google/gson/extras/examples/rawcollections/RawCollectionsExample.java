@@ -39,6 +39,8 @@ public class RawCollectionsExample {
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public static void main(String[] args) {
+
+    Logger logger = Logger.getLogger(RawCollectionsExample.class.getName());
     Gson gson = new Gson();
     Collection collection = new ArrayList();
     collection.add("hello");
