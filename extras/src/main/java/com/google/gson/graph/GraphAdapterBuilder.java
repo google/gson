@@ -98,10 +98,10 @@ public final class GraphAdapterBuilder {
             out.nullValue();
             return;
           }
+          writeTypeAdapter( out, value);
+        }
 
-          Graph graph = graphThreadLocal.get();
-          boolean writeEntireGraph = false;
-
+        public void writeTypeAdapter(JsonWriter out, T value) throws IOException {
           /*
            * We have one of two cases:
            *  1. We've encountered the first known object in this graph. Write
@@ -110,6 +110,9 @@ public final class GraphAdapterBuilder {
            *     Just write out this object's name. We'll circle back to writing
            *     out the object's value as a part of #1.
            */
+          
+          Graph graph = graphThreadLocal.get();
+          boolean writeEntireGraph = false;
 
           if (graph == null) {
             writeEntireGraph = true;
@@ -147,7 +150,10 @@ public final class GraphAdapterBuilder {
             in.nextNull();
             return null;
           }
+          readTypeAdapter(in);
+        }
 
+        public T readTypeAdapter(JsonReader in) throws IOException {
           /*
            * Again we have one of two cases:
            *  1. We've encountered the first known object in this graph. Read
@@ -284,7 +290,7 @@ public final class GraphAdapterBuilder {
     /**
      * The element to deserialize. Unused in serialization.
      */
-    private final JsonElement element;
+    private final JsonElement deserialized;
 
     Element(T value, String id, TypeAdapter<T> typeAdapter, JsonElement element) {
       this.value = value;
@@ -297,14 +303,14 @@ public final class GraphAdapterBuilder {
       typeAdapter.write(out, value);
     }
 
-    void read(Graph graph) throws IOException {
+    void read(Graph graph) throws IllegalStateException {
       if (graph.nextCreate != null) {
         throw new IllegalStateException("Unexpected recursive call to read() for " + id);
       }
       graph.nextCreate = this;
-      value = typeAdapter.fromJsonTree(element);
+      value = typeAdapter.fromJsonTree(deserialized);
       if (value == null) {
-        throw new IllegalStateException("non-null value deserialized to null: " + element);
+        throw new IllegalStateException("non-null value deserialized to null: " + deserialized);
       }
     }
   }
