@@ -150,7 +150,7 @@ public final class GraphAdapterBuilder {
             in.nextNull();
             return null;
           }
-          readTypeAdapter(in);
+          return readTypeAdapter(in);
         }
 
         public T readTypeAdapter(JsonReader in) throws IOException {
