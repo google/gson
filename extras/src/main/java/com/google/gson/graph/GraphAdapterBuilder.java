@@ -110,7 +110,7 @@ public final class GraphAdapterBuilder {
            *     Just write out this object's name. We'll circle back to writing
            *     out the object's value as a part of #1.
            */
-          
+
           Graph graph = graphThreadLocal.get();
           boolean writeEntireGraph = false;
 
@@ -292,11 +292,11 @@ public final class GraphAdapterBuilder {
      */
     private final JsonElement deserialized;
 
-    Element(T value, String id, TypeAdapter<T> typeAdapter, JsonElement element) {
+    Element(T value, String id, TypeAdapter<T> typeAdapter, JsonElement deserialized) {
       this.value = value;
       this.id = id;
       this.typeAdapter = typeAdapter;
-      this.element = element;
+      this.element = deserialized;
     }
 
     void write(JsonWriter out) throws IOException {

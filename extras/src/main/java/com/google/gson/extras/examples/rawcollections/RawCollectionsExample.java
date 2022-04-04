@@ -17,8 +17,9 @@ package com.google.gson.extras.examples.rawcollections;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -44,15 +45,18 @@ public class RawCollectionsExample {
     Logger logger = Logger.getLogger(RawCollectionsExample.class.getName());
     Gson gson = new Gson();
     Collection collection = new ArrayList();
+
     collection.add("hello");
     collection.add(5);
     collection.add(new Event("GREETINGS", "guest"));
     String json = gson.toJson(collection);
-    logger.log(Level.INFO, "Using Gson.toJson() on a raw collection: " + json);
+    LogRecord record1 = new LogRecord(Level.INFO, "Using Gson.toJson() on a raw collection: " + json);
+    logger.log(record1);
     JsonArray array = JsonParser.parseString(json).getAsJsonArray();
     String message = gson.fromJson(array.get(0), String.class);
     int number = gson.fromJson(array.get(1), int.class);
     Event event = gson.fromJson(array.get(2), Event.class);
-    logger.log(Level.INFO, "Using Gson.fromJson() to get: %s, %d, %s", message, number, event);
+    LogRecord record2 = new LogRecord(Level.INFO, String.format("Using Gson.fromJson() to get: %s, %d, %s", message, number, event));
+    logger.log(record2); 
   }
 }
