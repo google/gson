@@ -17,6 +17,7 @@ package com.google.gson.extras.examples.rawcollections;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.logging.Logger;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
