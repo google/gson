@@ -120,11 +120,11 @@ public final class GraphAdapterBuilder {
           }
 
           @SuppressWarnings("unchecked") // graph.map guarantees consistency between value and T
-          Element<T> element = (Element<T>) graph.map.get(value);
-          if (element == null) {
-            element = new Element<T>(value, graph.nextName(), typeAdapter, null);
-            graph.map.put(value, element);
-            graph.queue.add(element);
+          Element<T> deserialized = (Element<T>) graph.map.get(value);
+          if (deserialized == null) {
+            deserialized = new Element<T>(value, graph.nextName(), typeAdapter, null);
+            graph.map.put(value, deserialized);
+            graph.queue.add(deserialized);
           }
 
           if (writeEntireGraph) {
@@ -141,7 +141,7 @@ public final class GraphAdapterBuilder {
               graphThreadLocal.remove();
             }
           } else {
-            out.value(element.id);
+            out.value(deserialized.id);
           }
         }
 
@@ -181,8 +181,8 @@ public final class GraphAdapterBuilder {
               if (currentName == null) {
                 currentName = name;
               }
-              JsonElement element = elementAdapter.read(in);
-              graph.map.put(name, new Element<T>(null, name, typeAdapter, element));
+              JsonElement deserialized = elementAdapter.read(in);
+              graph.map.put(name, new Element<T>(null, name, typeAdapter, deserialized));
             }
             in.endObject();
           } else {
@@ -194,13 +194,13 @@ public final class GraphAdapterBuilder {
           }
           try {
             @SuppressWarnings("unchecked") // graph.map guarantees consistency between value and T
-            Element<T> element = (Element<T>) graph.map.get(currentName);
+            Element<T> deserialized = (Element<T>) graph.map.get(currentName);
             // now that we know the typeAdapter for this name, go from JsonElement to 'T'
-            if (element.value == null) {
-              element.typeAdapter = typeAdapter;
-              element.read(graph);
+            if (deserialized.value == null) {
+              deserialized.typeAdapter = typeAdapter;
+              deserialized.read(graph);
             }
-            return element.value;
+            return deserialized.value;
           } finally {
             if (readEntireGraph) {
               graphThreadLocal.remove();
@@ -296,7 +296,7 @@ public final class GraphAdapterBuilder {
       this.value = value;
       this.id = id;
       this.typeAdapter = typeAdapter;
-      this.element = deserialized;
+      this.deserialized = deserialized;
     }
 
     void write(JsonWriter out) throws IOException {
