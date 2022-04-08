@@ -121,7 +121,7 @@ public final class GraphAdapterBuilder {
             graph = putAndAddElement(value, graph, element); 
           }
 
-          if (graph instanceof Graph) {
+         // if (graph instanceof Graph) {
             graphThreadLocal.set(graph);
             try {
               out.beginObject();
@@ -134,9 +134,9 @@ public final class GraphAdapterBuilder {
             } finally {
               graphThreadLocal.remove();
             }
-          } else {
-            out.value(element.id);
-          }
+          // } else {
+          //   out.value(element.id);
+          // }
         }
 
         public Graph putAndAddElement(T value, Graph graph, Element<T> element){
