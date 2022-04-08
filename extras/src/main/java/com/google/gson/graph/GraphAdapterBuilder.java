@@ -100,6 +100,7 @@ public final class GraphAdapterBuilder {
           }
 
           Graph graph = graphThreadLocal.get();  
+          boolean check = false;
 
           /*
            * We have one of two cases:
@@ -110,7 +111,8 @@ public final class GraphAdapterBuilder {
            *     out the object's value as a part of #1.
            */
 
-          if (graph == null) {  
+          if (graph == null) { 
+            check = true; 
             graph = new Graph(new IdentityHashMap<Object, Element<?>>());
           }
 
@@ -120,7 +122,8 @@ public final class GraphAdapterBuilder {
             graph = putAndAddElement(element, value, graph);
           }
 
-          if (graph.getClass() == Graph.class) { 
+          //if (graph.getClass() == Graph.class) {
+            if(check){ 
             graphThreadLocal.set(graph);
             try {
               out.beginObject();
