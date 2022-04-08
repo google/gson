@@ -100,7 +100,7 @@ public final class GraphAdapterBuilder {
           }
 
           Graph graph = graphThreadLocal.get();  
-          boolean check = false;
+
           /*
            * We have one of two cases:
            *  1. We've encountered the first known object in this graph. Write
@@ -111,7 +111,6 @@ public final class GraphAdapterBuilder {
            */
 
           if (graph == null) { 
-            check = true;
             graph = new Graph(new IdentityHashMap<Object, Element<?>>());
           }
 
@@ -119,14 +118,10 @@ public final class GraphAdapterBuilder {
           Element<T> element = (Element<T>) graph.map.get(value);
           if (element == null) {
             element = new Element<T>(value, graph.nextName(), typeAdapter, null);
-            graph = putAndAddElement(value, graph, element);
-
-            // graph.map.put(value, element);
-            // graph.queue.add(element);
+            graph = putAndAddElement(value, graph, element); 
           }
 
-          //if (graph.getClass() == Graph.class) {
-            if(check){
+          if (graph.getClass() == Graph.class) {
             graphThreadLocal.set(graph);
             try {
               out.beginObject();
