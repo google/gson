@@ -252,7 +252,7 @@ public final class GraphAdapterBuilder {
      */
     private Element nextCreate;
 
-    private boolean writeEntireGraph;
+    public boolean writeEntireGraph = false;
 
     private Graph(Map<Object, Element<?>> map, boolean writeEntireGraph) {
       this.map = map;
