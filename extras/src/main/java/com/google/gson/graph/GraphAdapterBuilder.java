@@ -100,7 +100,6 @@ public final class GraphAdapterBuilder {
           }
 
           Graph graph = graphThreadLocal.get();  
-          boolean check = false;
 
           /*
            * We have one of two cases:
@@ -112,18 +111,19 @@ public final class GraphAdapterBuilder {
            */
 
           if (graph == null) { 
-            check = true; 
             graph = new Graph(new IdentityHashMap<Object, Element<?>>());
           }
 
           @SuppressWarnings("unchecked") // graph.map guarantees consistency between value and T
           Element<T> element = (Element<T>) graph.map.get(value);
           if (element == null) {
-            graph = putAndAddElement(value, graph, typeAdapter);
+            //graph = putAndAddElement(value, graph, typeAdapter);
+            element = new Element<T>(value, graph.nextName(), typeAdapter, null);
+            graph.map.put(value, element);
+            graph.queue.add(element);
           }
 
-          //if (graph.getClass() == Graph.class) {
-            if(check){ 
+          if (graph.getClass() == Graph.class) {
             graphThreadLocal.set(graph);
             try {
               out.beginObject();
