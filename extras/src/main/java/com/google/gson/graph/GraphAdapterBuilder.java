@@ -99,7 +99,7 @@ public final class GraphAdapterBuilder {
             return;
           }
 
-          Graph graph = graphThreadLocal.get(); 
+          Graph graph = graphThreadLocal.get();  
 
           /*
            * We have one of two cases:
@@ -110,14 +110,14 @@ public final class GraphAdapterBuilder {
            *     out the object's value as a part of #1.
            */
 
-          if (graph == null) { 
+          if (graph == null) {  
             graph = new Graph(new IdentityHashMap<Object, Element<?>>());
           }
 
           @SuppressWarnings("unchecked") // graph.map guarantees consistency between value and T
           Element<T> element = (Element<T>) graph.map.get(value);
           if (element == null) {
-            putAndAddElement(element, value, graph);
+            graph = putAndAddElement(element, value, graph);
           }
 
           if (graph.getClass() == Graph.class) { 
@@ -138,10 +138,11 @@ public final class GraphAdapterBuilder {
           }
         }
 
-        public void putAndAddElement(Element<T> element, T value, Graph graph){
+        public Graph putAndAddElement(Element<T> element, T value, Graph graph){
             element = new Element<T>(value, graph.nextName(), typeAdapter, null);
             graph.map.put(value, element);
             graph.queue.add(element);
+            return graph;
         }
 
         @Override public T read(JsonReader in) throws IOException {
