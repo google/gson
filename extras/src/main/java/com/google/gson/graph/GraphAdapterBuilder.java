@@ -121,7 +121,7 @@ public final class GraphAdapterBuilder {
             graph = putAndAddElement(value, graph, element); 
           }
 
-          if (graph.getClass() == Graph.class) {
+          if (graph instanceof Graph) {
             graphThreadLocal.set(graph);
             try {
               out.beginObject();
