@@ -98,10 +98,9 @@ public final class GraphAdapterBuilder {
             out.nullValue();
             return;
           }
-          writeTypeAdapter( out, value);
-        }
 
-        public void writeTypeAdapter(JsonWriter out, T value) throws IOException {
+          Graph graph = graphThreadLocal.get(); 
+
           /*
            * We have one of two cases:
            *  1. We've encountered the first known object in this graph. Write
@@ -111,23 +110,17 @@ public final class GraphAdapterBuilder {
            *     out the object's value as a part of #1.
            */
 
-          Graph graph = graphThreadLocal.get();
-          boolean writeEntireGraph = false;
-
-          if (graph == null) {
-            writeEntireGraph = true;
+          if (graph == null) { 
             graph = new Graph(new IdentityHashMap<Object, Element<?>>());
           }
 
           @SuppressWarnings("unchecked") // graph.map guarantees consistency between value and T
-          Element<T> deserialized = (Element<T>) graph.map.get(value);
-          if (deserialized == null) {
-            deserialized = new Element<T>(value, graph.nextName(), typeAdapter, null);
-            graph.map.put(value, deserialized);
-            graph.queue.add(deserialized);
+          Element<T> element = (Element<T>) graph.map.get(value);
+          if (element == null) {
+            putAndAddElement(element, value, graph);
           }
 
-          if (writeEntireGraph) {
+          if (graph.getClass() == Graph.class) { 
             graphThreadLocal.set(graph);
             try {
               out.beginObject();
@@ -141,8 +134,14 @@ public final class GraphAdapterBuilder {
               graphThreadLocal.remove();
             }
           } else {
-            out.value(deserialized.id);
+            out.value(element.id);
           }
+        }
+
+        public void putAndAddElement(Element<T> element, T value, Graph graph){
+            element = new Element<T>(value, graph.nextName(), typeAdapter, null);
+            graph.map.put(value, element);
+            graph.queue.add(element);
         }
 
         @Override public T read(JsonReader in) throws IOException {
@@ -150,10 +149,7 @@ public final class GraphAdapterBuilder {
             in.nextNull();
             return null;
           }
-          return readTypeAdapter(in);
-        }
 
-        public T readTypeAdapter(JsonReader in) throws IOException {
           /*
            * Again we have one of two cases:
            *  1. We've encountered the first known object in this graph. Read
@@ -181,8 +177,8 @@ public final class GraphAdapterBuilder {
               if (currentName == null) {
                 currentName = name;
               }
-              JsonElement deserialized = elementAdapter.read(in);
-              graph.map.put(name, new Element<T>(null, name, typeAdapter, deserialized));
+              JsonElement element = elementAdapter.read(in);
+              graph.map.put(name, new Element<T>(null, name, typeAdapter, element));
             }
             in.endObject();
           } else {
@@ -194,13 +190,13 @@ public final class GraphAdapterBuilder {
           }
           try {
             @SuppressWarnings("unchecked") // graph.map guarantees consistency between value and T
-            Element<T> deserialized = (Element<T>) graph.map.get(currentName);
+            Element<T> element = (Element<T>) graph.map.get(currentName);
             // now that we know the typeAdapter for this name, go from JsonElement to 'T'
-            if (deserialized.value == null) {
-              deserialized.typeAdapter = typeAdapter;
-              deserialized.read(graph);
+            if (element.value == null) {
+              element.typeAdapter = typeAdapter;
+              element.read(graph);
             }
-            return deserialized.value;
+            return element.value;
           } finally {
             if (readEntireGraph) {
               graphThreadLocal.remove();
@@ -290,27 +286,27 @@ public final class GraphAdapterBuilder {
     /**
      * The element to deserialize. Unused in serialization.
      */
-    private final JsonElement deserialized;
+    private final JsonElement element;
 
-    Element(T value, String id, TypeAdapter<T> typeAdapter, JsonElement deserialized) {
+    Element(T value, String id, TypeAdapter<T> typeAdapter, JsonElement element) {
       this.value = value;
       this.id = id;
       this.typeAdapter = typeAdapter;
-      this.deserialized = deserialized;
+      this.element = element;
     }
 
     void write(JsonWriter out) throws IOException {
       typeAdapter.write(out, value);
     }
 
-    void read(Graph graph) throws IllegalStateException {
+    void read(Graph graph) throws IOException {
       if (graph.nextCreate != null) {
         throw new IllegalStateException("Unexpected recursive call to read() for " + id);
       }
       graph.nextCreate = this;
-      value = typeAdapter.fromJsonTree(deserialized);
+      value = typeAdapter.fromJsonTree(element);
       if (value == null) {
-        throw new IllegalStateException("non-null value deserialized to null: " + deserialized);
+        throw new IllegalStateException("non-null value deserialized to null: " + element);
       }
     }
   }
