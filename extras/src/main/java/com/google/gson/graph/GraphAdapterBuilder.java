@@ -119,7 +119,9 @@ public final class GraphAdapterBuilder {
           @SuppressWarnings("unchecked") // graph.map guarantees consistency between value and T
           Element<T> element = (Element<T>) graph.map.get(value);
           if (element == null) {
-            graph = putAndAddElement(element, value, graph);
+            element = new Element<T>(value, graph.nextName(), typeAdapter, null);
+            graph.map.put(value, element);
+            graph.queue.add(element);
           }
 
           //if (graph.getClass() == Graph.class) {
