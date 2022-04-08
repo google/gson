@@ -118,8 +118,9 @@ public final class GraphAdapterBuilder {
           @SuppressWarnings("unchecked") // graph.map guarantees consistency between value and T
           Element<T> element = (Element<T>) graph.map.get(value);
           if (element == null) {
-            putAndAddElement(value, graph, typeAdapter);
-            // element = new Element<T>(value, graph.nextName(), typeAdapter, null);
+            element = new Element<T>(value, graph.nextName(), typeAdapter, null);
+            graph = putAndAddElement(value, graph, element);
+
             // graph.map.put(value, element);
             // graph.queue.add(element);
           }
@@ -143,8 +144,7 @@ public final class GraphAdapterBuilder {
           }
         }
 
-        public Graph putAndAddElement(T value, Graph graph, TypeAdapter<T> typeAdapter){
-            Element<T> element = new Element<T>(value, graph.nextName(), typeAdapter, null);
+        public Graph putAndAddElement(T value, Graph graph, Element<T> element){
             graph.map.put(value, element);
             graph.queue.add(element);
             return graph;
