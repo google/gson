@@ -111,7 +111,7 @@ public final class GraphAdapterBuilder {
            */
 
           if (graph == null) { 
-            graph = new Graph(new IdentityHashMap<Object, Element<?>>());
+            graph = new Graph(new IdentityHashMap<Object, Element<?>>(), true);
           }
 
           @SuppressWarnings("unchecked") // graph.map guarantees consistency between value and T
@@ -121,7 +121,7 @@ public final class GraphAdapterBuilder {
             graph = putAndAddElement(value, graph, element); 
           }
 
-         // if (graph instanceof Graph) {
+          if (graph.writeEntireGraph) {
             graphThreadLocal.set(graph);
             try {
               out.beginObject();
@@ -134,9 +134,9 @@ public final class GraphAdapterBuilder {
             } finally {
               graphThreadLocal.remove();
             }
-          // } else {
-          //   out.value(element.id);
-          // }
+          } else {
+            out.value(element.id);
+          }
         }
 
         public Graph putAndAddElement(T value, Graph graph, Element<T> element){
@@ -168,7 +168,7 @@ public final class GraphAdapterBuilder {
           boolean readEntireGraph = false;
 
           if (graph == null) {
-            graph = new Graph(new HashMap<Object, Element<?>>());
+            graph = new Graph(new HashMap<Object, Element<?>>(), true);
             readEntireGraph = true;
 
             // read the entire tree into memory
@@ -252,8 +252,11 @@ public final class GraphAdapterBuilder {
      */
     private Element nextCreate;
 
-    private Graph(Map<Object, Element<?>> map) {
+    private boolean writeEntireGraph;
+
+    private Graph(Map<Object, Element<?>> map, boolean writeEntireGraph) {
       this.map = map;
+      this.writeEntireGraph = writeEntireGraph;
     }
 
     /**
