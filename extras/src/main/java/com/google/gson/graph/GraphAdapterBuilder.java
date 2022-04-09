@@ -99,7 +99,7 @@ public final class GraphAdapterBuilder {
             return;
           }
 
-          Graph graph = graphThreadLocal.get();  
+          Graph graph = graphThreadLocal.get();   
 
           /*
            * We have one of two cases:
@@ -112,31 +112,33 @@ public final class GraphAdapterBuilder {
 
           if (graph == null) { 
             graph = new Graph(new IdentityHashMap<Object, Element<?>>(), true);
-          }
-
-          @SuppressWarnings("unchecked") // graph.map guarantees consistency between value and T
-          Element<T> element = (Element<T>) graph.map.get(value);
-          if (element == null) {
-            element = new Element<T>(value, graph.nextName(), typeAdapter, null);
-            graph = putAndAddElement(value, graph, element); 
-          }
-
-          if (graph.writeEntireGraph) {
-            graphThreadLocal.set(graph);
-            try {
-              out.beginObject();
-              Element<?> current;
-              while ((current = graph.queue.poll()) != null) {
-                out.name(current.id);
-                current.write(out);
-              }
-              out.endObject();
-            } finally {
-              graphThreadLocal.remove();
+            @SuppressWarnings("unchecked") // graph.map guarantees consistency between value and T
+            Element<T> element = (Element<T>) graph.map.get(value);
+            if (element == null) {
+              element = new Element<T>(value, graph.nextName(), typeAdapter, null);
+              graph = putAndAddElement(value, graph, element); 
             }
+
+              graphThreadLocal.set(graph);
+              try {
+                out.beginObject();
+                Element<?> current;
+                while ((current = graph.queue.poll()) != null) {
+                  out.name(current.id);
+                  current.write(out);
+                }
+                out.endObject();
+              } finally {
+                graphThreadLocal.remove();
+              } 
           } else {
+            @SuppressWarnings("unchecked") // graph.map guarantees consistency between value and T
+            Element<T> element = (Element<T>) graph.map.get(value);
+            if (element == null) {
+              element = new Element<T>(value, graph.nextName(), typeAdapter, null);
+            }
             out.value(element.id);
-          }
+          } 
         }
 
         public Graph putAndAddElement(T value, Graph graph, Element<T> element){
@@ -181,7 +183,7 @@ public final class GraphAdapterBuilder {
               JsonElement element = elementAdapter.read(in);
               graph.map.put(name, new Element<T>(null, name, typeAdapter, element));
             }
-            in.endObject();
+            in.endObject(); 
           } else {
             currentName = in.nextString();
           }
@@ -252,7 +254,7 @@ public final class GraphAdapterBuilder {
      */
     private Element nextCreate;
 
-    public boolean writeEntireGraph = false;
+    private boolean writeEntireGraph = false;
 
     private Graph(Map<Object, Element<?>> map, boolean writeEntireGraph) {
       this.map = map;
