@@ -111,26 +111,28 @@ public final class GraphAdapterBuilder {
            */
 
           if (graph == null) { 
-            graph = new Graph(new IdentityHashMap<Object, Element<?>>(), true);
+            graph = new Graph(new IdentityHashMap<Object, Element<?>>());
             @SuppressWarnings("unchecked") // graph.map guarantees consistency between value and T
             Element<T> element = (Element<T>) graph.map.get(value);
+
             if (element == null) {
               element = new Element<T>(value, graph.nextName(), typeAdapter, null);
               graph = putAndAddElement(value, graph, element); 
             }
 
-              graphThreadLocal.set(graph);
-              try {
-                out.beginObject();
-                Element<?> current;
-                while ((current = graph.queue.poll()) != null) {
-                  out.name(current.id);
-                  current.write(out);
-                }
-                out.endObject();
-              } finally {
-                graphThreadLocal.remove();
-              } 
+            graphThreadLocal.set(graph);
+            try {
+              out.beginObject();
+              Element<?> current;
+              while ((current = graph.queue.poll()) != null) {
+                out.name(current.id);
+                current.write(out);
+              }
+              out.endObject();
+            } finally {
+              graphThreadLocal.remove();
+            } 
+            
           } else {
             @SuppressWarnings("unchecked") // graph.map guarantees consistency between value and T
             Element<T> element = (Element<T>) graph.map.get(value);
@@ -170,7 +172,7 @@ public final class GraphAdapterBuilder {
           boolean readEntireGraph = false;
 
           if (graph == null) {
-            graph = new Graph(new HashMap<Object, Element<?>>(), true);
+            graph = new Graph(new HashMap<Object, Element<?>>());
             readEntireGraph = true;
 
             // read the entire tree into memory
@@ -252,13 +254,10 @@ public final class GraphAdapterBuilder {
      * the graph traversal (which needs to know instances) and instance creators
      * which create them.
      */
-    private Element nextCreate;
+    private Element nextCreate; 
 
-    private boolean writeEntireGraph = false;
-
-    private Graph(Map<Object, Element<?>> map, boolean writeEntireGraph) {
-      this.map = map;
-      this.writeEntireGraph = writeEntireGraph;
+    private Graph(Map<Object, Element<?>> map) {
+      this.map = map; 
     }
 
     /**
