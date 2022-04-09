@@ -112,6 +112,7 @@ public final class GraphAdapterBuilder {
 
           if (graph == null) { 
             graph = new Graph(new IdentityHashMap<Object, Element<?>>());
+
             @SuppressWarnings("unchecked") // graph.map guarantees consistency between value and T
             Element<T> element = (Element<T>) graph.map.get(value);
 
@@ -132,12 +133,14 @@ public final class GraphAdapterBuilder {
             } finally {
               graphThreadLocal.remove();
             } 
-            
+
           } else {
             @SuppressWarnings("unchecked") // graph.map guarantees consistency between value and T
             Element<T> element = (Element<T>) graph.map.get(value);
+
             if (element == null) {
               element = new Element<T>(value, graph.nextName(), typeAdapter, null);
+              graph = putAndAddElement(value, graph, element); 
             }
             out.value(element.id);
           } 
