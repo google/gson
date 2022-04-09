@@ -134,7 +134,12 @@ public final class GraphAdapterBuilder {
 
           } else {
             @SuppressWarnings("unchecked") // graph.map guarantees consistency between value and T
-            Element<T> element = (Element<T>) graph.map.get(value); 
+            Element<T> element = (Element<T>) graph.map.get(value);
+
+            if (element == null) {
+              element = new Element<T>(value, graph.nextName(), typeAdapter, null);
+              graph = putAndAddElement(value, graph, element); 
+            }
             out.value(element.id);
           } 
         }
