@@ -133,12 +133,12 @@ public class CollectionTest extends TestCase {
     int[] value = {10, 20, 22};
     Type type = new TypeToken<PriorityQueue<Integer>>(){}.getType();
     PriorityQueue<Integer> queue = gson.fromJson("[10, 20, 22]", type);
-    assertEquals(value.length, queue.size());
+    assertThat(queue.size()).isEqualTo(value.length);
     String json = gson.toJson(queue);
     for (int i = 0; i < value.length; i++){
-      assertEquals(value[i], queue.remove().intValue());
+      assertThat(queue.remove().intValue()).isEqualTo(value[i]);
     }
-    assertEquals("[10,20,22]", json);
+    assertThat(json).isEqualTo("[10,20,22]");
   }
 
   public void testVector() {
