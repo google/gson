@@ -253,7 +253,7 @@ public class CollectionTest extends TestCase {
     BagOfPrimitives bag1 = new BagOfPrimitives();
     Collection target = Arrays.asList(bag1, bag1);
     String json = gson.toJson(target);
-    assertTrue(json.contains(bag1.getExpectedJson()));
+    assertThat(json.contains(bag1.getExpectedJson())).isTrue();
   }
 
   @SuppressWarnings("rawtypes")
