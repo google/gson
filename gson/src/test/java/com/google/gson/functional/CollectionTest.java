@@ -193,10 +193,10 @@ public class CollectionTest extends TestCase {
     List<Object> target = new ArrayList<Object>();
     target.add("Hello");
     target.add("World");
-    assertEquals("[\"Hello\",\"World\"]", gson.toJson(target));
+    assertThat(gson.toJson(target)).isEqualTo("[\"Hello\",\"World\"]");
 
     Type type = new TypeToken<List<Object>>() {}.getType();
-    assertEquals("[\"Hello\",\"World\"]", gson.toJson(target, type));
+    assertThat(gson.toJson(target, type)).isEqualTo("[\"Hello\",\"World\"]");
   }
 
   public void testCollectionOfObjectWithNullSerialization() {
