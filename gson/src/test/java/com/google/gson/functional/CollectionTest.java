@@ -288,10 +288,9 @@ public class CollectionTest extends TestCase {
     Collection<? extends Integer> target = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9);
     Type collectionType = new TypeToken<Collection<? extends Integer>>() { }.getType();
     String json = gson.toJson(target, collectionType);
-    assertEquals("[1,2,3,4,5,6,7,8,9]", json);
-
+    assertThat(json).isEqualTo("[1,2,3,4,5,6,7,8,9]");
     json = gson.toJson(target);
-    assertEquals("[1,2,3,4,5,6,7,8,9]", json);
+    assertThat(json).isEqualTo("[1,2,3,4,5,6,7,8,9]");
   }
 
   public void testWildcardPrimitiveCollectionDeserilaization() throws Exception {
