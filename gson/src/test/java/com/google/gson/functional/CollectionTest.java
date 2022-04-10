@@ -116,8 +116,8 @@ public class CollectionTest extends TestCase {
     queue.add("a2");
     Type queueType = new TypeToken<Queue<String>>() {}.getType();
     String json = gson.toJson(queue, queueType);
-    assertTrue(json.contains("a1"));
-    assertTrue(json.contains("a2"));
+    assertThat(json.contains("a1")).isTrue();
+    assertThat(json.contains("a2")).isTrue();
   }
 
   public void testQueueDeserialization() {
