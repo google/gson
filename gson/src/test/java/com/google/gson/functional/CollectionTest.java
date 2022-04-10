@@ -388,8 +388,8 @@ public class CollectionTest extends TestCase {
     set.add(new Entry(1));
     set.add(new Entry(2));
     String json = gson.toJson(set);
-    assertTrue(json.contains("1"));
-    assertTrue(json.contains("2"));
+    assertThat(json.contains("1")).isTrue();
+    assertThat(json.contains("2")).isTrue();
   }
   public void testSetDeserialization() {
     String json = "[{value:1},{value:2}]";
