@@ -88,7 +88,7 @@ public class CollectionTest extends TestCase {
     }
 
     for (int i = 0; i < 3; i++) {
-      assertArrayEquals(expected[i], toIntArray(target.get(i)));
+      assertThat(toIntArray(target.get(i))).isEqualTo(expected[i]);
     }
   }
 
