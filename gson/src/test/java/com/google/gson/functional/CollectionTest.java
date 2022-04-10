@@ -98,8 +98,8 @@ public class CollectionTest extends TestCase {
     list.add("a2");
     Type linkedListType = new TypeToken<LinkedList<String>>() {}.getType();
     String json = gson.toJson(list, linkedListType);
-    assertTrue(json.contains("a1"));
-    assertTrue(json.contains("a2"));
+    assertThat(json.contains("a1")).isTrue();
+    assertThat(json.contains("a2")).isTrue();
   }
 
   public void testLinkedListDeserialization() {
