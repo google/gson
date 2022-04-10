@@ -173,7 +173,7 @@ public class CollectionTest extends TestCase {
     String expected = "[\"foo\",null,\"bar\"]";
     Type typeOfList = new TypeToken<List<String>>() {}.getType();
     String json = gson.toJson(list, typeOfList);
-    assertEquals(expected, json);
+    assertThat(json).isEqualTo(expected);
   }
 
   public void testNullsInListDeserialization() {
