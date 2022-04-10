@@ -415,8 +415,8 @@ public class CollectionTest extends TestCase {
             "}";
     BigClass bigClass = new Gson().fromJson(json, BigClass.class);
     SmallClass small = bigClass.inBig.get("key").get(0);
-    assertNotNull(small);
-    assertEquals("hello", small.inSmall);
+    assertThat(small).isNotNull();
+    assertThat(small.inSmall).isEqualTo("hello");
   }
 
 }
