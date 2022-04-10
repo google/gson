@@ -226,10 +226,10 @@ public class CollectionTest extends TestCase {
     target.add(objB);
 
     String result = gson.toJson(target);
-    assertTrue(result.startsWith("["));
-    assertTrue(result.endsWith("]"));
+    assertThat(result.startsWith("[")).isTrue();
+    assertThat(result.endsWith("]")).isTrue();
     for (BagOfPrimitives obj : target) {
-      assertTrue(result.contains(obj.getExpectedJson()));
+      assertThat(result.contains(obj.getExpectedJson())).isTrue();
     }
   }
 
