@@ -265,8 +265,8 @@ public class CollectionTest extends TestCase {
 
     json = "[\"Hello\", \"World\"]";
     Collection strings = gson.fromJson(json, Collection.class);
-    assertTrue(strings.contains("Hello"));
-    assertTrue(strings.contains("World"));
+    assertThat(strings.contains("Hello")).isTrue();
+    assertThat(strings.contains("World")).isTrue();
   }
 
   @SuppressWarnings({"rawtypes", "unchecked"})
