@@ -146,11 +146,12 @@ public class CollectionTest extends TestCase {
     Type type = new TypeToken<Vector<Integer>>(){}.getType();
     Vector<Integer> target = gson.fromJson("[10, 20, 31]", type);
     assertEquals(value.length, target.size());
+    assertThat(target.size()).isEqualTo(value.length);
     for (int i = 0; i < value.length; i++){
-      assertEquals(value[i], target.get(i).intValue());
+      assertThat(target.get(i).intValue()).isEqualTo(value[i]);
     }
     String json = gson.toJson(target);
-    assertEquals("[10,20,31]", json);
+    assertThat(json).isEqualTo("[10,20,31]");
   }
 
   public void testStack() {
