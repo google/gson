@@ -185,7 +185,7 @@ public class CollectionTest extends TestCase {
     Type expectedType = new TypeToken<List<String>>() {}.getType();
     List<String> target = gson.fromJson(json, expectedType);
     for (int i = 0; i < expected.size(); ++i) {
-      assertEquals(expected.get(i), target.get(i));
+      assertThat(target.get(i)).isEqualTo(expected.get(i));
     }
   }
 
