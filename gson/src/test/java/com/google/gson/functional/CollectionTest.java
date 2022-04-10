@@ -124,9 +124,9 @@ public class CollectionTest extends TestCase {
     String json = "['a1','a2']";
     Type queueType = new TypeToken<Queue<String>>() {}.getType();
     Queue<String> queue = gson.fromJson(json, queueType);
-    assertEquals("a1", queue.element());
+    assertThat(queue.element()).isEqualTo("a1");
     queue.remove();
-    assertEquals("a2", queue.element());
+    assertThat(queue.element()).isEqualTo("a2");
   }
 
   public void testPriorityQueue() throws Exception {
