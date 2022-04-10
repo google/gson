@@ -145,7 +145,6 @@ public class CollectionTest extends TestCase {
     int[] value = {10, 20, 31};
     Type type = new TypeToken<Vector<Integer>>(){}.getType();
     Vector<Integer> target = gson.fromJson("[10, 20, 31]", type);
-    assertEquals(value.length, target.size());
     assertThat(target.size()).isEqualTo(value.length);
     for (int i = 0; i < value.length; i++){
       assertThat(target.get(i).intValue()).isEqualTo(value[i]);
@@ -158,12 +157,12 @@ public class CollectionTest extends TestCase {
     int[] value = {11, 13, 17};
     Type type = new TypeToken<Stack<Integer>>(){}.getType();
     Stack<Integer> target = gson.fromJson("[11, 13, 17]", type);
-    assertEquals(value.length, target.size());
+    assertThat(target.size()).isEqualTo(value.length);
     String json = gson.toJson(target);
     for (int i = (value.length - 1); i >= 0; i--){
-      assertEquals(value[i], target.pop().intValue());
+      assertThat(target.pop().intValue()).isEqualTo(value[i]);
     }
-    assertEquals("[11,13,17]", json);
+    assertThat(json).isEqualTo("[11,13,17]");
   }
 
   public void testNullsInListSerialization() {
