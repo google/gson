@@ -312,14 +312,14 @@ public class CollectionTest extends TestCase {
 
     ObjectWithWildcardCollection target = new ObjectWithWildcardCollection(collection);
     String json = gson.toJson(target);
-    assertTrue(json.contains(objA.getExpectedJson()));
-    assertTrue(json.contains(objB.getExpectedJson()));
+    assertThat(json.contains(objA.getExpectedJson())).isTrue();
+    assertThat(json.contains(objB.getExpectedJson())).isTrue();
 
     target = gson.fromJson(json, ObjectWithWildcardCollection.class);
     Collection<? extends BagOfPrimitives> deserializedCollection = target.getCollection();
-    assertEquals(2, deserializedCollection.size());
-    assertTrue(deserializedCollection.contains(objA));
-    assertTrue(deserializedCollection.contains(objB));
+    assertThat(deserializedCollection.size()).isEqualTo(2);
+    assertThat(deserializedCollection.contains(objA)).isTrue();
+    assertThat(deserializedCollection.contains(objB)).isTrue();
   }
 
   public void testFieldIsArrayList() {
@@ -327,9 +327,9 @@ public class CollectionTest extends TestCase {
     object.longs.add(1L);
     object.longs.add(3L);
     String json = gson.toJson(object, HasArrayListField.class);
-    assertEquals("{\"longs\":[1,3]}", json);
+    assertThat(json).isEqualTo("{\"longs\":[1,3]}");
     HasArrayListField copy = gson.fromJson("{\"longs\":[1,3]}", HasArrayListField.class);
-    assertEquals(Arrays.asList(1L, 3L), copy.longs);
+    assertThat(copy.longs).isEqualTo(Arrays.asList(1L, 3L));
   }
   
   public void testUserCollectionTypeAdapter() {
