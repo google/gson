@@ -23,6 +23,10 @@
       <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.google.truth</groupId>
+      <artifactId>truth</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
@@ -41,6 +45,10 @@
             </configuration>
           </execution>
         </executions>
+        <configuration>
+          <source>9</source>
+          <target>9</target>
+        </configuration>
       </plugin>
       <!-- Note: Javadoc plugin has to be run in combination with >= `package` 
         phase, e.g. `mvn package javadoc:javadoc`, otherwise it fails with

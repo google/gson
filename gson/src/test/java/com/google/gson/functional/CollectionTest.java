@@ -41,7 +41,9 @@ import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.reflect.TypeToken;
 
 import junit.framework.TestCase;
+
 import static org.junit.Assert.assertArrayEquals;
+import static com.google.common.truth.Truth.assertThat;
 
 /**
  * Functional tests for Json serialization and deserialization of collections.
@@ -157,7 +159,7 @@ public class CollectionTest extends TestCase {
     Stack<Integer> target = gson.fromJson("[11, 13, 17]", type);
     assertEquals(value.length, target.size());
     String json = gson.toJson(target);
-    for (int i = 2; i > 0; i--){
+    for (int i = (value.length - 1); i >= 0; i--){
       assertEquals(value[i], target.pop().intValue());
     }
     assertEquals("[11,13,17]", json);
@@ -235,8 +237,9 @@ public class CollectionTest extends TestCase {
     Type collectionType = new TypeToken<Collection<String>>() { }.getType();
     Collection<String> target = gson.fromJson(json, collectionType);
 
-    assertTrue(target.contains("Hello"));
-    assertTrue(target.contains("World"));
+    //assertTrue(target.contains("Hello"));
+    assertThat(target.contains("Hello")).isTrue();
+    assertThat(target.contains("World")).isTrue();
   }
 
   public void testRawCollectionOfIntegersSerialization() {
@@ -257,7 +260,7 @@ public class CollectionTest extends TestCase {
     String json = "[0,1,2,3,4,5,6,7,8,9]";
     Collection integers = gson.fromJson(json, Collection.class);
     // JsonReader converts numbers to double by default so we need a floating point comparison
-    assertEquals(Arrays.asList(0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0), integers);
+    assertThat(integers).containsAtLeast(0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0);
 
     json = "[\"Hello\", \"World\"]";
     Collection strings = gson.fromJson(json, Collection.class);
