@@ -64,7 +64,7 @@ public class CollectionTest extends TestCase {
     Collection<Integer> target = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9);
     Type targetType = new TypeToken<Collection<Integer>>() {}.getType();
     String json = gson.toJson(target, targetType);
-    assertEquals("[1,2,3,4,5,6,7,8,9]", json);
+    assertThat("[1,2,3,4,5,6,7,8,9]").isEqualTo(json);
   }
 
   public void testTopLevelCollectionOfIntegersDeserialization() {
