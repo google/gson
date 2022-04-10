@@ -106,8 +106,8 @@ public class CollectionTest extends TestCase {
     String json = "['a1','a2']";
     Type linkedListType = new TypeToken<LinkedList<String>>() {}.getType();
     List<String> list = gson.fromJson(json, linkedListType);
-    assertEquals("a1", list.get(0));
-    assertEquals("a2", list.get(1));
+    assertThat(list.get(0)).isEqualTo("a1");
+    assertThat(list.get(1)).isEqualTo("a2");
   }
 
   public void testQueueSerialization() {
