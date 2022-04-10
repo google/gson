@@ -274,13 +274,13 @@ public class CollectionTest extends TestCase {
     BagOfPrimitives bag = new BagOfPrimitives(10, 20, false, "stringValue");
     String json = '[' + bag.getExpectedJson() + ',' + bag.getExpectedJson() + ']';
     Collection target = gson.fromJson(json, Collection.class);
-    assertEquals(2, target.size());
+    assertThat(target.size()).isEqualTo(2);
     for (Object bag1 : target) {
       // Gson 2.0 converts raw objects into maps
       Map<String, Object> values = (Map<String, Object>) bag1;
-      assertTrue(values.containsValue(10.0));
-      assertTrue(values.containsValue(20.0));
-      assertTrue(values.containsValue("stringValue"));
+      assertThat(values.containsValue(10.0)).isTrue();
+      assertThat(values.containsValue(20.0)).isTrue();
+      assertThat(values.containsValue("stringValue")).isTrue();
     }
   }
 
