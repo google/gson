@@ -207,7 +207,6 @@ public class CollectionTest extends TestCase {
     assertThat(gson.toJson(target)).isEqualTo("[\"Hello\",null,\"World\"]");
 
     Type type = new TypeToken<List<Object>>() {}.getType();
-    assertEquals("[\"Hello\",null,\"World\"]", gson.toJson(target, type));
     assertThat(gson.toJson(target, type)).isEqualTo("[\"Hello\",null,\"World\"]");
 
   }
@@ -216,7 +215,7 @@ public class CollectionTest extends TestCase {
     List<String> target = new ArrayList<String>();
     target.add("Hello");
     target.add("World");
-    assertEquals("[\"Hello\",\"World\"]", gson.toJson(target));
+    assertThat(gson.toJson(target)).isEqualTo("[\"Hello\",\"World\"]");
   }
 
   public void testCollectionOfBagOfPrimitivesSerialization() {
