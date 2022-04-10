@@ -244,7 +244,7 @@ public class CollectionTest extends TestCase {
 
   public void testRawCollectionOfIntegersSerialization() {
     Collection<Integer> target = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9);
-    assertEquals("[1,2,3,4,5,6,7,8,9]", gson.toJson(target));
+    assertThat(gson.toJson(target)).contains("[1,2,3,4,5,6,7,8,9]");
   }
 
   @SuppressWarnings("rawtypes")
