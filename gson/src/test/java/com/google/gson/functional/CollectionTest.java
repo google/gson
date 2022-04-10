@@ -395,9 +395,9 @@ public class CollectionTest extends TestCase {
     String json = "[{value:1},{value:2}]";
     Type type = new TypeToken<Set<Entry>>() {}.getType();
     Set<Entry> set = gson.fromJson(json, type);
-    assertEquals(2, set.size());
+    assertThat(set.size()).isEqualTo(2);
     for (Entry entry : set) {
-      assertTrue(entry.value == 1 || entry.value == 2);
+      assertThat(entry.value == 1 || entry.value == 2).isTrue();
     }
   }
 
