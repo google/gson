@@ -297,9 +297,10 @@ public class CollectionTest extends TestCase {
     String json = "[1,2,3,4,5,6,7,8,9]";
     Type collectionType = new TypeToken<Collection<? extends Integer>>() { }.getType();
     Collection<? extends Integer> target = gson.fromJson(json, collectionType);
-    assertEquals(9, target.size());
-    assertTrue(target.contains(1));
-    assertTrue(target.contains(9));
+    assertThat(target.size()).isEqualTo(9);
+
+    assertThat(target.contains(1)).isTrue();
+    assertThat(target.contains(9)).isTrue();
   }
 
   public void testWildcardCollectionField() throws Exception {
