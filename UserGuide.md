@@ -427,14 +427,14 @@ public class Id<T> {
 
 class IdInstanceCreator implements InstanceCreator<Id<?>> {
   public Id<?> createInstance(Type type) {
-    Type[] typeParameters = ((ParameterizedType)type).getActualTypeArguments();
-    Type idType = typeParameters[0]; // Id has only one parameterized type T
-    return new Id((Class)idType, 0L);
+    Type[] typeArguments = TypeToken.get(type).getTypeArguments(Id.class);
+    Type idType = typeArguments[0]; // Id has only one parameterized type T
+    return new Id(TypeToken.get(idType).getRawType(), 0L);
   }
 }
 ```
 
-In the above example, an instance of the Id class can not be created without actually passing in the actual type for the parameterized type. We solve this problem by using the passed method parameter, `type`. The `type` object in this case is the Java parameterized type representation of `Id<Foo>` where the actual instance should be bound to `Id<Foo>`. Since `Id` class has just one parameterized type parameter, `T`, we use the zeroth element of the type array returned by `getActualTypeArgument()` which will hold `Foo.class` in this case.
+In the above example, an instance of the Id class can not be created without actually passing in the actual type for the parameterized type. We solve this problem by using the passed method parameter, `type`. The `type` object in this case is the Java parameterized type representation of `Id<Foo>` where the actual instance should be bound to `Id<Foo>`. We could use the methods of Java's `ParameterizedType` to get the type argument, but we use Gson's `TypeToken.getTypeArguments` instead which offers a safer and more powerful API. Since `Id` class has just one parameterized type parameter, `T`, we use the zeroth element of the `typeArguments` array which will hold `Foo.class` in this case.
 
 ### <a name="TOC-Compact-Vs.-Pretty-Printing-for-JSON-Output-Format"></a>Compact Vs. Pretty Printing for JSON Output Format
 

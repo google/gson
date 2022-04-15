@@ -28,9 +28,11 @@ import java.lang.reflect.WildcardType;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Properties;
+import java.util.Set;
 
 import static com.google.gson.internal.$Gson$Preconditions.checkArgument;
 import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
@@ -129,6 +131,8 @@ public final class $Gson$Types {
     }
   }
 
+  // This implementation matches how the Java Language Specification defines "Type Erasure"
+  // And additionally also covers WildcardType
   public static Class<?> getRawType(Type type) {
     if (type instanceof Class<?>) {
       // type is a normal class.
@@ -149,9 +153,7 @@ public final class $Gson$Types {
       return Array.newInstance(getRawType(componentType), 0).getClass();
 
     } else if (type instanceof TypeVariable) {
-      // we could use the variable's bounds, but that won't work if there are multiple.
-      // having a raw type that's more general than necessary is okay
-      return Object.class;
+      return getRawType(getUltimateTypeVariableBound((TypeVariable<?>) type));
 
     } else if (type instanceof WildcardType) {
       return getRawType(((WildcardType) type).getUpperBounds()[0]);
@@ -234,42 +236,53 @@ public final class $Gson$Types {
   }
 
   /**
-   * Returns the generic supertype for {@code supertype}. For example, given a class {@code
-   * IntegerSet}, the result for when supertype is {@code Set.class} is {@code Set<Integer>} and the
-   * result when the supertype is {@code Collection.class} is {@code Collection<Integer>}.
+   * Returns the parameterized variant of {@code toResolve} which is implemented (transitively)
+   * by {@code context}. If {@code contextRawType} and {@code toResolve} are the same, then
+   * {@code context} is returned.
+   *
+   * <p>For example, for a class {@code StringKeyMap<V> implements Map<String, V>} where
+   * {@code contextRawType} is {@code StringKeyMap.class} and {@code toResolve} is
+   * {@code Map.class}, the result would be {@code Map<String, V>}.
+   *
+   * @param context Used as starting point to resolve the supertype
+   * @param contextRawType Raw type of {@code context}
+   * @param toResolve Raw type of the desired generic supertype
    */
-  static Type getGenericSupertype(Type context, Class<?> rawType, Class<?> toResolve) {
-    if (toResolve == rawType) {
+  static Type getGenericSupertype(Type context, Class<?> contextRawType, Class<?> toResolve) {
+    if (toResolve == contextRawType) {
       return context;
     }
 
-    // we skip searching through interfaces if unknown is an interface
+    // we skip searching through interfaces if toResolve is a class
     if (toResolve.isInterface()) {
-      Class<?>[] interfaces = rawType.getInterfaces();
+      Class<?>[] interfaces = contextRawType.getInterfaces();
       for (int i = 0, length = interfaces.length; i < length; i++) {
         if (interfaces[i] == toResolve) {
-          return rawType.getGenericInterfaces()[i];
+          return contextRawType.getGenericInterfaces()[i];
         } else if (toResolve.isAssignableFrom(interfaces[i])) {
-          return getGenericSupertype(rawType.getGenericInterfaces()[i], interfaces[i], toResolve);
+          return getGenericSupertype(contextRawType.getGenericInterfaces()[i], interfaces[i], toResolve);
         }
       }
     }
 
-    // check our supertypes
-    if (!rawType.isInterface()) {
-      while (rawType != Object.class) {
-        Class<?> rawSupertype = rawType.getSuperclass();
+    // check superclasses
+    if (!contextRawType.isInterface()) {
+      while (contextRawType != Object.class) {
+        Class<?> rawSupertype = contextRawType.getSuperclass();
         if (rawSupertype == toResolve) {
-          return rawType.getGenericSuperclass();
+          return contextRawType.getGenericSuperclass();
         } else if (toResolve.isAssignableFrom(rawSupertype)) {
-          return getGenericSupertype(rawType.getGenericSuperclass(), rawSupertype, toResolve);
+          return getGenericSupertype(contextRawType.getGenericSuperclass(), rawSupertype, toResolve);
         }
-        rawType = rawSupertype;
+        contextRawType = rawSupertype;
       }
     }
 
-    // we can't resolve this further
-    return toResolve;
+    if (toResolve == Object.class) {
+      return toResolve;
+    }
+    assert !toResolve.isAssignableFrom(contextRawType);
+    throw new IllegalArgumentException("Type " + toResolve + " is not a supertype of " + contextRawType);
   }
 
   /**
@@ -279,10 +292,16 @@ public final class $Gson$Types {
    *
    * @param supertype a superclass of, or interface implemented by, this.
    */
-  static Type getSupertype(Type context, Class<?> contextRawType, Class<?> supertype) {
+  public static Type getSupertype(Type context, Class<?> contextRawType, Class<?> supertype) {
+    // For wildcards and type variables have to use their (ultimate) upper bounds
+    // Important: `context` should be determined here in a similar way to how
+    // the `getRawType(Type)` method of this class works
     if (context instanceof WildcardType) {
-      // wildcards are useless for resolving supertypes. As the upper bound has the same raw type, use it instead
       context = ((WildcardType)context).getUpperBounds()[0];
+    }
+    // No `else if`; acts as fall-through when bound of wildcard is type variable
+    if (context instanceof TypeVariable) {
+      context = getUltimateTypeVariableBound((TypeVariable<?>) context);
     }
     checkArgument(supertype.isAssignableFrom(contextRawType));
     return resolve(context, contextRawType,
@@ -409,9 +428,9 @@ public final class $Gson$Types {
         break;
 
       } else if (toResolve instanceof WildcardType) {
-        WildcardType original = (WildcardType) toResolve;
-        Type[] originalLowerBound = original.getLowerBounds();
-        Type[] originalUpperBound = original.getUpperBounds();
+        WildcardType wildcard = (WildcardType) toResolve;
+        Type[] originalLowerBound = wildcard.getLowerBounds();
+        Type[] originalUpperBound = wildcard.getUpperBounds();
 
         if (originalLowerBound.length == 1) {
           Type lowerBound = resolve(context, contextRawType, originalLowerBound[0], visitedTypeVariables);
@@ -426,7 +445,7 @@ public final class $Gson$Types {
             break;
           }
         }
-        toResolve = original;
+        toResolve = wildcard;
         break;
 
       } else {
@@ -448,10 +467,12 @@ public final class $Gson$Types {
       return unknown;
     }
 
-    Type declaredBy = getGenericSupertype(context, contextRawType, declaredByRaw);
-    if (declaredBy instanceof ParameterizedType) {
-      int index = indexOf(declaredByRaw.getTypeParameters(), unknown);
-      return ((ParameterizedType) declaredBy).getActualTypeArguments()[index];
+    if (declaredByRaw.isAssignableFrom(contextRawType)) {
+      Type declaredBy = getGenericSupertype(context, contextRawType, declaredByRaw);
+      if (declaredBy instanceof ParameterizedType) {
+        int index = indexOf(declaredByRaw.getTypeParameters(), unknown);
+        return ((ParameterizedType) declaredBy).getActualTypeArguments()[index];
+      }
     }
 
     return unknown;
@@ -477,6 +498,104 @@ public final class $Gson$Types {
         : null;
   }
 
+  /**
+   * Returns whether {@code start} (transitively) reaches {@code destination} by
+   * referencing it as type argument, array component type or bound. All visited
+   * type variables are collected in {@code visited} to detect infinite recursion.
+   */
+  private static boolean reaches(Type start, TypeVariable<?> destination, Set<TypeVariable<?>> visited) {
+    if (start == destination) {
+      return true;
+    }
+    // If start is Class, then it cannot reach destination type variable
+    if (start instanceof Class) {
+      return false;
+
+    } else if (start instanceof ParameterizedType) {
+      ParameterizedType parameterizedType = (ParameterizedType) start;
+      for (Type typeArgument : parameterizedType.getActualTypeArguments()) {
+        if (reaches(typeArgument, destination, visited)) {
+          return true;
+        }
+      }
+      return false;
+
+    } else if (start instanceof TypeVariable) {
+      TypeVariable<?> typeVariable = ((TypeVariable<?>) start);
+      boolean isNew = visited.add(typeVariable);
+      // Prevent infinite recursion if variable has already been visited
+      if (isNew) {
+        for (Type bound : typeVariable.getBounds()) {
+          if (reaches(bound, destination, visited)) {
+            return true;
+          }
+        }
+      }
+      return false;
+
+    } else if (start instanceof WildcardType) {
+      WildcardType wildcard = (WildcardType) start;
+      for (Type lowerBound : wildcard.getLowerBounds()) {
+        if (reaches(lowerBound, destination, visited)) {
+          return true;
+        }
+      }
+      for (Type upperBound : wildcard.getUpperBounds()) {
+        if (reaches(upperBound, destination, visited)) {
+          return true;
+        }
+      }
+      return false;
+
+    } else if (start instanceof GenericArrayType) {
+      return reaches(((GenericArrayType) start).getGenericComponentType(), destination, visited);
+    }
+
+    // Should not be reachable
+    throw new AssertionError("Unsupported start " + start + " (" + start.getClass() + ")");
+  }
+
+  /**
+   * Returns the ultimate bound of a type variable, which might itself have other type variables
+   * as bounds. For example for {@code Generic<T1 extends T2, T2 extends T3, T3 extends Number>}
+   * getting the ultimate bound of {@code T1} returns {@code Number}.
+   */
+  public static Type getUltimateTypeVariableBound(TypeVariable<?> typeVariable) {
+    // Only get the first bound (ignoring other bounds of intersection types)
+    Type bound = getUltimateTypeVariable(typeVariable).getBounds()[0];
+
+    // If there is recursion return the raw type
+    if (reaches(bound, typeVariable, new HashSet<TypeVariable<?>>(2))) {
+      /*
+       * Note: The most extensive solution would be to only erase recursive type variable usage
+       * within `current`, e.g. `T extends List<T>` would become `List<List>`
+       * However, that would be quite complex and might, depending on the relations of the type
+       * variables, require recreating a lot of Types with updated parameters (e.g.
+       * `List<T>` -> `List<List>`), therefore for now simply erase `current`.
+       */
+      return getRawType(bound);
+    }
+    return bound;
+  }
+
+  /**
+   * Returns the type variable, in a potential chain of type variables, which has
+   * a bound which is not a type variable. For example for
+   * {@code Generic<T1 extends T2, T2 extends T3, T3 extends Number>} getting the
+   * ultimate type variable of {@code T1} returns {@code T3}.
+   */
+  public static TypeVariable<?> getUltimateTypeVariable(TypeVariable<?> typeVariable) {
+    while (true) {
+      // Only follow the first bound (ignoring other bounds of intersection types)
+      Type bound = typeVariable.getBounds()[0];
+      if (bound instanceof TypeVariable) {
+        typeVariable = (TypeVariable<?>) bound;
+      } else {
+        return typeVariable;
+      }
+    }
+  }
+
   static void checkNotPrimitive(Type type) {
     checkArgument(!(type instanceof Class<?>) || !((Class<?>) type).isPrimitive());
   }
@@ -492,7 +611,9 @@ public final class $Gson$Types {
         Class<?> rawTypeAsClass = (Class<?>) rawType;
         boolean isStaticOrTopLevelClass = Modifier.isStatic(rawTypeAsClass.getModifiers())
             || rawTypeAsClass.getEnclosingClass() == null;
-        checkArgument(ownerType != null || isStaticOrTopLevelClass);
+        if (ownerType == null && !isStaticOrTopLevelClass) {
+          throw new IllegalArgumentException("Local and anonymous classes are not supported");
+        }
       }
 
       this.ownerType = ownerType == null ? null : canonicalize(ownerType);

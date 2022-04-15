@@ -22,11 +22,39 @@ import com.google.gson.reflect.TypeToken;
  * Creates type adapters for set of related types. Type adapter factories are
  * most useful when several types share similar structure in their JSON form.
  *
+ * <p>Type adapter factories select which types they provide type adapters
+ * for. If a factory cannot support a given type, it must return null when
+ * that type is passed to {@link #create}. Factories should expect {@code
+ * create()} to be called on them for many types and should return null for
+ * most of those types.
+ *
+ * <p>A factory is typically called once per type, but the returned type
+ * adapter may be used many times. It is most efficient to do expensive work
+ * like reflection in {@code create()} so that the type adapter's {@code
+ * read()} and {@code write()} methods can be very fast.
+ *
+ * <p>Factories for generic types can use {@link TypeToken#getTypeArguments(Class)}
+ * to get the type arguments used for the generic supertype.
+ *
+ * <p>As with type adapters, factories must be <i>registered</i> with a {@link
+ * com.google.gson.GsonBuilder} for them to take effect:
+ * <pre>{@code
+ *  GsonBuilder builder = new GsonBuilder();
+ *  builder.registerTypeAdapterFactory(new LowercaseEnumTypeAdapterFactory());
+ *  ...
+ *  Gson gson = builder.create();
+ * }</pre>
+ *
  * <h3>Example: Converting enums to lowercase</h3>
  * In this example, we implement a factory that creates type adapters for all
- * enums. The type adapters will write enums in lowercase, despite the fact
+ * enums. The factory returns null for calls to {@code create()} where
+ * {@code type} is not an enum.
+ *
+ * <p>The type adapters will write enums in lowercase, despite the fact
  * that they're defined in {@code CONSTANT_CASE} in the corresponding Java
- * model: <pre>   {@code
+ * model. The mapping from lowercase name to enum value is computed eagerly
+ * within the factory and then used by the adapter for better performance.
+ * <pre>{@code
  *
  *   public class LowercaseEnumTypeAdapterFactory implements TypeAdapterFactory {
  *     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
@@ -66,30 +94,6 @@ import com.google.gson.reflect.TypeToken;
  *   }
  * }</pre>
  *
- * <p>Type adapter factories select which types they provide type adapters
- * for. If a factory cannot support a given type, it must return null when
- * that type is passed to {@link #create}. Factories should expect {@code
- * create()} to be called on them for many types and should return null for
- * most of those types. In the above example the factory returns null for
- * calls to {@code create()} where {@code type} is not an enum.
- *
- * <p>A factory is typically called once per type, but the returned type
- * adapter may be used many times. It is most efficient to do expensive work
- * like reflection in {@code create()} so that the type adapter's {@code
- * read()} and {@code write()} methods can be very fast. In this example the
- * mapping from lowercase name to enum value is computed eagerly.
- *
- * <p>As with type adapters, factories must be <i>registered</i> with a {@link
- * com.google.gson.GsonBuilder} for them to take effect: <pre>   {@code
- *
- *  GsonBuilder builder = new GsonBuilder();
- *  builder.registerTypeAdapterFactory(new LowercaseEnumTypeAdapterFactory());
- *  ...
- *  Gson gson = builder.create();
- * }</pre>
- * If multiple factories support the same type, the factory registered earlier
- * takes precedence.
- *
  * <h3>Example: composing other type adapters</h3>
  * In this example we implement a factory for Guava's {@code Multiset}
  * collection type. The factory can be used to create type adapters for
@@ -100,7 +104,8 @@ import com.google.gson.reflect.TypeToken;
  * <p>The type adapter <i>delegates</i> to another type adapter for the
  * multiset elements. It figures out the element type by reflecting on the
  * multiset's type token. A {@code Gson} is passed in to {@code create} for
- * just this purpose: <pre>   {@code
+ * just this purpose:
+ * <pre>{@code
  *
  *   public class MultisetTypeAdapterFactory implements TypeAdapterFactory {
  *     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
@@ -110,7 +115,7 @@ import com.google.gson.reflect.TypeToken;
  *         return null;
  *       }
  *
- *       Type elementType = ((ParameterizedType) type).getActualTypeArguments()[0];
+ *       Type elementType = typeToken.getTypeArguments(Multiset.class)[0];
  *       TypeAdapter<?> elementAdapter = gson.getAdapter(TypeToken.get(elementType));
  *       return (TypeAdapter<T>) newMultisetAdapter(elementAdapter);
  *     }
@@ -159,6 +164,8 @@ import com.google.gson.reflect.TypeToken;
  * creation happens only once.
  *
  * @since 2.1
+ * @see GsonBuilder#registerTypeAdapterFactory(TypeAdapterFactory)
+ * @see TypeAdapter
  */
 public interface TypeAdapterFactory {
 
