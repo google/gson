@@ -40,13 +40,13 @@ public final class ObjectTypeAdapterTest extends TestCase {
   }
   
   public void testSerializeNullValue() throws Exception {
-    Map<String, Object> map = new LinkedHashMap<String, Object>();
+    Map<String, Object> map = new LinkedHashMap<>();
     map.put("a", null);
     assertEquals("{'a':null}", adapter.toJson(map).replace('"', '\''));
   }
 
   public void testDeserializeNullValue() throws Exception {
-    Map<String, Object> map = new LinkedHashMap<String, Object>();
+    Map<String, Object> map = new LinkedHashMap<>();
     map.put("a", null);
     assertEquals(map, adapter.fromJson("{\"a\":null}"));
   }

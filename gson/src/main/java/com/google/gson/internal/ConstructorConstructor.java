@@ -277,25 +277,25 @@ public final class ConstructorConstructor {
       if (SortedSet.class.isAssignableFrom(rawType)) {
         return new ObjectConstructor<T>() {
           @Override public T construct() {
-            return (T) new TreeSet<Object>();
+            return (T) new TreeSet<>();
           }
         };
       } else if (Set.class.isAssignableFrom(rawType)) {
         return new ObjectConstructor<T>() {
           @Override public T construct() {
-            return (T) new LinkedHashSet<Object>();
+            return (T) new LinkedHashSet<>();
           }
         };
       } else if (Queue.class.isAssignableFrom(rawType)) {
         return new ObjectConstructor<T>() {
           @Override public T construct() {
-            return (T) new ArrayDeque<Object>();
+            return (T) new ArrayDeque<>();
           }
         };
       } else {
         return new ObjectConstructor<T>() {
           @Override public T construct() {
-            return (T) new ArrayList<Object>();
+            return (T) new ArrayList<>();
           }
         };
       }
@@ -305,32 +305,32 @@ public final class ConstructorConstructor {
       if (ConcurrentNavigableMap.class.isAssignableFrom(rawType)) {
         return new ObjectConstructor<T>() {
           @Override public T construct() {
-            return (T) new ConcurrentSkipListMap<Object, Object>();
+            return (T) new ConcurrentSkipListMap<>();
           }
         };
       } else if (ConcurrentMap.class.isAssignableFrom(rawType)) {
         return new ObjectConstructor<T>() {
           @Override public T construct() {
-            return (T) new ConcurrentHashMap<Object, Object>();
+            return (T) new ConcurrentHashMap<>();
           }
         };
       } else if (SortedMap.class.isAssignableFrom(rawType)) {
         return new ObjectConstructor<T>() {
           @Override public T construct() {
-            return (T) new TreeMap<Object, Object>();
+            return (T) new TreeMap<>();
           }
         };
       } else if (type instanceof ParameterizedType && !(String.class.isAssignableFrom(
           TypeToken.get(((ParameterizedType) type).getActualTypeArguments()[0]).getRawType()))) {
         return new ObjectConstructor<T>() {
           @Override public T construct() {
-            return (T) new LinkedHashMap<Object, Object>();
+            return (T) new LinkedHashMap<>();
           }
         };
       } else {
         return new ObjectConstructor<T>() {
           @Override public T construct() {
-            return (T) new LinkedTreeMap<String, Object>();
+            return (T) new LinkedTreeMap<>();
           }
         };
       }

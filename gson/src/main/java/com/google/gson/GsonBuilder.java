@@ -84,11 +84,10 @@ public final class GsonBuilder {
   private Excluder excluder = Excluder.DEFAULT;
   private LongSerializationPolicy longSerializationPolicy = LongSerializationPolicy.DEFAULT;
   private FieldNamingStrategy fieldNamingPolicy = FieldNamingPolicy.IDENTITY;
-  private final Map<Type, InstanceCreator<?>> instanceCreators
-      = new HashMap<Type, InstanceCreator<?>>();
-  private final List<TypeAdapterFactory> factories = new ArrayList<TypeAdapterFactory>();
+  private final Map<Type, InstanceCreator<?>> instanceCreators = new HashMap<>();
+  private final List<TypeAdapterFactory> factories = new ArrayList<>();
   /** tree-style hierarchy factories. These come after factories for backwards compatibility. */
-  private final List<TypeAdapterFactory> hierarchyFactories = new ArrayList<TypeAdapterFactory>();
+  private final List<TypeAdapterFactory> hierarchyFactories = new ArrayList<>();
   private boolean serializeNulls = DEFAULT_SERIALIZE_NULLS;
   private String datePattern = DEFAULT_DATE_PATTERN;
   private int dateStyle = DateFormat.DEFAULT;
@@ -102,7 +101,7 @@ public final class GsonBuilder {
   private boolean useJdkUnsafe = DEFAULT_USE_JDK_UNSAFE;
   private ToNumberStrategy objectToNumberStrategy = DEFAULT_OBJECT_TO_NUMBER_STRATEGY;
   private ToNumberStrategy numberToNumberStrategy = DEFAULT_NUMBER_TO_NUMBER_STRATEGY;
-  private final LinkedList<ReflectionAccessFilter> reflectionFilters = new LinkedList<ReflectionAccessFilter>();
+  private final LinkedList<ReflectionAccessFilter> reflectionFilters = new LinkedList<>();
 
   /**
    * Creates a GsonBuilder instance that can be used to build Gson with various configuration
@@ -227,7 +226,7 @@ public final class GsonBuilder {
    *       .enableComplexMapKeySerialization()
    *       .create();
    *
-   *   Map<Point, String> original = new LinkedHashMap<Point, String>();
+   *   Map<Point, String> original = new LinkedHashMap<>();
    *   original.put(new Point(5, 6), "a");
    *   original.put(new Point(8, 8), "b");
    *   System.out.println(gson.toJson(original, type));
@@ -254,7 +253,7 @@ public final class GsonBuilder {
    *       .enableComplexMapKeySerialization()
    *       .create();
    *
-   *   Map<Point, String> original = new LinkedHashMap<Point, String>();
+   *   Map<Point, String> original = new LinkedHashMap<>();
    *   original.put(new Point(5, 6), "a");
    *   original.put(new Point(8, 8), "b");
    *   System.out.println(gson.toJson(original, type));
@@ -664,23 +663,23 @@ public final class GsonBuilder {
    * @return an instance of Gson configured with the options currently set in this builder
    */
   public Gson create() {
-    List<TypeAdapterFactory> factories = new ArrayList<TypeAdapterFactory>(this.factories.size() + this.hierarchyFactories.size() + 3);
+    List<TypeAdapterFactory> factories = new ArrayList<>(this.factories.size() + this.hierarchyFactories.size() + 3);
     factories.addAll(this.factories);
     Collections.reverse(factories);
 
-    List<TypeAdapterFactory> hierarchyFactories = new ArrayList<TypeAdapterFactory>(this.hierarchyFactories);
+    List<TypeAdapterFactory> hierarchyFactories = new ArrayList<>(this.hierarchyFactories);
     Collections.reverse(hierarchyFactories);
     factories.addAll(hierarchyFactories);
 
     addTypeAdaptersForDate(datePattern, dateStyle, timeStyle, factories);
 
-    return new Gson(excluder, fieldNamingPolicy, new HashMap<Type, InstanceCreator<?>>(instanceCreators),
+    return new Gson(excluder, fieldNamingPolicy, new HashMap<>(instanceCreators),
         serializeNulls, complexMapKeySerialization,
         generateNonExecutableJson, escapeHtmlChars, prettyPrinting, lenient,
         serializeSpecialFloatingPointValues, useJdkUnsafe, longSerializationPolicy,
-        datePattern, dateStyle, timeStyle, new ArrayList<TypeAdapterFactory>(this.factories),
-        new ArrayList<TypeAdapterFactory>(this.hierarchyFactories), factories,
-        objectToNumberStrategy, numberToNumberStrategy, new ArrayList<ReflectionAccessFilter>(reflectionFilters));
+        datePattern, dateStyle, timeStyle, new ArrayList<>(this.factories),
+        new ArrayList<>(this.hierarchyFactories), factories,
+        objectToNumberStrategy, numberToNumberStrategy, new ArrayList<>(reflectionFilters));
   }
 
   private void addTypeAdaptersForDate(String datePattern, int dateStyle, int timeStyle,

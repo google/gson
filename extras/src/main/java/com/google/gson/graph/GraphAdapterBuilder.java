@@ -48,7 +48,7 @@ public final class GraphAdapterBuilder {
   private final ConstructorConstructor constructorConstructor;
 
   public GraphAdapterBuilder() {
-      this.instanceCreators = new HashMap<Type, InstanceCreator<?>>();
+      this.instanceCreators = new HashMap<>();
       this.constructorConstructor = new ConstructorConstructor(instanceCreators, true, Collections.<ReflectionAccessFilter>emptyList());
   }
   public GraphAdapterBuilder addType(Type type) {
@@ -80,7 +80,7 @@ public final class GraphAdapterBuilder {
 
   static class Factory implements TypeAdapterFactory, InstanceCreator {
     private final Map<Type, InstanceCreator<?>> instanceCreators;
-    private final ThreadLocal<Graph> graphThreadLocal = new ThreadLocal<Graph>();
+    private final ThreadLocal<Graph> graphThreadLocal = new ThreadLocal<>();
 
     Factory(Map<Type, InstanceCreator<?>> instanceCreators) {
       this.instanceCreators = instanceCreators;
@@ -121,7 +121,7 @@ public final class GraphAdapterBuilder {
           @SuppressWarnings("unchecked") // graph.map guarantees consistency between value and T
           Element<T> element = (Element<T>) graph.map.get(value);
           if (element == null) {
-            element = new Element<T>(value, graph.nextName(), typeAdapter, null);
+            element = new Element<>(value, graph.nextName(), typeAdapter, null);
             graph.map.put(value, element);
             graph.queue.add(element);
           }
@@ -178,7 +178,7 @@ public final class GraphAdapterBuilder {
                 currentName = name;
               }
               JsonElement element = elementAdapter.read(in);
-              graph.map.put(name, new Element<T>(null, name, typeAdapter, element));
+              graph.map.put(name, new Element<>(null, name, typeAdapter, element));
             }
             in.endObject();
           } else {
@@ -242,7 +242,7 @@ public final class GraphAdapterBuilder {
      * The queue of elements to write during serialization. Unused during
      * deserialization.
      */
-    private final Queue<Element> queue = new LinkedList<Element>();
+    private final Queue<Element> queue = new LinkedList<>();
 
     /**
      * The instance currently being deserialized. Used as a backdoor between

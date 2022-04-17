@@ -112,7 +112,7 @@ public class CircularReferenceTest extends TestCase {
   }
 
   private static class ContainsReferenceToSelfType {
-    Collection<ContainsReferenceToSelfType> children = new ArrayList<ContainsReferenceToSelfType>();
+    Collection<ContainsReferenceToSelfType> children = new ArrayList<>();
   }
 
   private static class ClassWithSelfReference {

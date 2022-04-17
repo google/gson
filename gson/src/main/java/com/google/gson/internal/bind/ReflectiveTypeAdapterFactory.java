@@ -90,7 +90,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       return Collections.singletonList(serializedName);
     }
 
-    List<String> fieldNames = new ArrayList<String>(alternates.length + 1);
+    List<String> fieldNames = new ArrayList<>(alternates.length + 1);
     fieldNames.add(serializedName);
     for (String alternate : alternates) {
       fieldNames.add(alternate);
@@ -113,7 +113,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     boolean blockInaccessible = filterResult == FilterResult.BLOCK_INACCESSIBLE;
 
     ObjectConstructor<T> constructor = constructorConstructor.get(type);
-    return new Adapter<T>(constructor, getBoundFields(gson, type, raw, blockInaccessible));
+    return new Adapter<>(constructor, getBoundFields(gson, type, raw, blockInaccessible));
   }
 
   private static void checkAccessible(Object object, Field field) {
@@ -174,7 +174,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   }
 
   private Map<String, BoundField> getBoundFields(Gson context, TypeToken<?> type, Class<?> raw, boolean blockInaccessible) {
-    Map<String, BoundField> result = new LinkedHashMap<String, BoundField>();
+    Map<String, BoundField> result = new LinkedHashMap<>();
     if (raw.isInterface()) {
       return result;
     }
