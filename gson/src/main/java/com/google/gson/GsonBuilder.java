@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -101,6 +102,7 @@ public final class GsonBuilder {
   private boolean useJdkUnsafe = DEFAULT_USE_JDK_UNSAFE;
   private ToNumberStrategy objectToNumberStrategy = DEFAULT_OBJECT_TO_NUMBER_STRATEGY;
   private ToNumberStrategy numberToNumberStrategy = DEFAULT_NUMBER_TO_NUMBER_STRATEGY;
+  private final LinkedList<ReflectionAccessFilter> reflectionFilters = new LinkedList<ReflectionAccessFilter>();
 
   /**
    * Creates a GsonBuilder instance that can be used to build Gson with various configuration
@@ -137,6 +139,7 @@ public final class GsonBuilder {
     this.useJdkUnsafe = gson.useJdkUnsafe;
     this.objectToNumberStrategy = gson.objectToNumberStrategy;
     this.numberToNumberStrategy = gson.numberToNumberStrategy;
+    this.reflectionFilters.addAll(gson.reflectionFilters);
   }
 
   /**
@@ -633,6 +636,28 @@ public final class GsonBuilder {
   }
 
   /**
+   * Adds a reflection access filter. A reflection access filter prevents Gson from using
+   * reflection for the serialization and deserialization of certain classes. The logic in
+   * the filter specifies which classes those are.
+   *
+   * <p>Filters will be invoked in reverse registration order, that is, the most recently
+   * added filter will be invoked first.
+   *
+   * <p>By default Gson has no filters configured and will try to use reflection for
+   * all classes for which no {@link TypeAdapter} has been registered, and for which no
+   * built-in Gson {@code TypeAdapter} exists.
+   *
+   * @param filter filter to add
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   */
+  public GsonBuilder addReflectionAccessFilter(ReflectionAccessFilter filter) {
+    if (filter == null) throw new NullPointerException();
+
+    reflectionFilters.addFirst(filter);
+    return this;
+  }
+
+  /**
    * Creates a {@link Gson} instance based on the current configuration. This method is free of
    * side-effects to this {@code GsonBuilder} instance and hence can be called multiple times.
    *
@@ -649,12 +674,13 @@ public final class GsonBuilder {
 
     addTypeAdaptersForDate(datePattern, dateStyle, timeStyle, factories);
 
-    return new Gson(excluder, fieldNamingPolicy, instanceCreators,
+    return new Gson(excluder, fieldNamingPolicy, new HashMap<Type, InstanceCreator<?>>(instanceCreators),
         serializeNulls, complexMapKeySerialization,
         generateNonExecutableJson, escapeHtmlChars, prettyPrinting, lenient,
         serializeSpecialFloatingPointValues, useJdkUnsafe, longSerializationPolicy,
-        datePattern, dateStyle, timeStyle,
-        this.factories, this.hierarchyFactories, factories, objectToNumberStrategy, numberToNumberStrategy);
+        datePattern, dateStyle, timeStyle, new ArrayList<TypeAdapterFactory>(this.factories),
+        new ArrayList<TypeAdapterFactory>(this.hierarchyFactories), factories,
+        objectToNumberStrategy, numberToNumberStrategy, new ArrayList<ReflectionAccessFilter>(reflectionFilters));
   }
 
   private void addTypeAdaptersForDate(String datePattern, int dateStyle, int timeStyle,

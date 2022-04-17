@@ -20,6 +20,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 import com.google.gson.JsonElement;
+import com.google.gson.ReflectionAccessFilter;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.ConstructorConstructor;
@@ -30,6 +31,7 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.LinkedList;
@@ -47,7 +49,7 @@ public final class GraphAdapterBuilder {
 
   public GraphAdapterBuilder() {
       this.instanceCreators = new HashMap<Type, InstanceCreator<?>>();
-      this.constructorConstructor = new ConstructorConstructor(instanceCreators, true);
+      this.constructorConstructor = new ConstructorConstructor(instanceCreators, true, Collections.<ReflectionAccessFilter>emptyList());
   }
   public GraphAdapterBuilder addType(Type type) {
     final ObjectConstructor<?> objectConstructor = constructorConstructor.get(TypeToken.get(type));
