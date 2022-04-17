@@ -19,7 +19,7 @@ public final class InterceptorFactory implements TypeAdapterFactory {
     }
 
     TypeAdapter<T> delegate = gson.getDelegateAdapter(this, type);
-    return new InterceptorAdapter<T>(delegate, intercept);
+    return new InterceptorAdapter<>(delegate, intercept);
   }
 
   static class InterceptorAdapter<T> extends TypeAdapter<T> {

@@ -37,11 +37,11 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * Creates an empty JsonArray.
    */
   public JsonArray() {
-    elements = new ArrayList<JsonElement>();
+    elements = new ArrayList<>();
   }
   
   public JsonArray(int capacity) {
-    elements = new ArrayList<JsonElement>(capacity);
+    elements = new ArrayList<>(capacity);
   }
 
   /**

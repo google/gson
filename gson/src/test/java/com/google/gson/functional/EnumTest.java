@@ -66,7 +66,7 @@ public class EnumTest extends TestCase {
 
   public void testCollectionOfEnumsSerialization() {
     Type type = new TypeToken<Collection<MyEnum>>() {}.getType();
-    Collection<MyEnum> target = new ArrayList<MyEnum>();
+    Collection<MyEnum> target = new ArrayList<>();
     target.add(MyEnum.VALUE1);
     target.add(MyEnum.VALUE2);
     String expectedJson = "[\"VALUE1\",\"VALUE2\"]";
@@ -133,7 +133,7 @@ public class EnumTest extends TestCase {
   }
 
   public void testEnumSubclassAsParameterizedType() {
-    Collection<Roshambo> list = new ArrayList<Roshambo>();
+    Collection<Roshambo> list = new ArrayList<>();
     list.add(Roshambo.ROCK);
     list.add(Roshambo.PAPER);
 
@@ -164,7 +164,7 @@ public class EnumTest extends TestCase {
   }
 
   public void testEnumMap() throws Exception {
-    EnumMap<MyEnum, String> map = new EnumMap<MyEnum, String>(MyEnum.class);
+    EnumMap<MyEnum, String> map = new EnumMap<>(MyEnum.class);
     map.put(MyEnum.VALUE1, "test");
     String json = gson.toJson(map);
     assertEquals("{\"VALUE1\":\"test\"}", json);

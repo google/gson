@@ -50,7 +50,7 @@ public class PrettyPrintingTest extends TestCase {
 
   public void testPrettyPrintList() {
     BagOfPrimitives b = new BagOfPrimitives();
-    List<BagOfPrimitives> listOfB = new LinkedList<BagOfPrimitives>();
+    List<BagOfPrimitives> listOfB = new LinkedList<>();
     for (int i = 0; i < 15; ++i) {
       listOfB.add(b);
     }
@@ -88,7 +88,7 @@ public class PrettyPrintingTest extends TestCase {
   }
   
   public void testMap() {
-    Map<String, Integer> map = new LinkedHashMap<String, Integer>();
+    Map<String, Integer> map = new LinkedHashMap<>();
     map.put("abc", 1);
     map.put("def", 5);
     String json = gson.toJson(map);
@@ -98,7 +98,7 @@ public class PrettyPrintingTest extends TestCase {
   // In response to bug 153
   public void testEmptyMapField() {
     ClassWithMap obj = new ClassWithMap();
-    obj.map = new LinkedHashMap<String, Integer>();
+    obj.map = new LinkedHashMap<>();
     String json = gson.toJson(obj);
     assertTrue(json.contains("{\n  \"map\": {},\n  \"value\": 2\n}"));
   }

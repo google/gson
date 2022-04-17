@@ -152,7 +152,7 @@ public class ArrayTest extends TestCase {
     for (int i = 0; i < arraySize; ++i) {
       int startValue = (3 * i) + 1;
       sb.append('[').append(startValue).append(',').append(startValue + 1).append(']');
-      ArrayList<Integer> tmpList = new ArrayList<Integer>();
+      ArrayList<Integer> tmpList = new ArrayList<>();
       tmpList.add(startValue);
       tmpList.add(startValue + 1);
       arrayOfCollection[i] = tmpList;
