@@ -78,7 +78,7 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
   private Object tryBeginNesting(JsonReader in, JsonToken peeked) throws IOException {
     if (peeked == JsonToken.BEGIN_ARRAY) {
       in.beginArray();
-      return new ArrayList<Object>();
+      return new ArrayList<>();
     } else if (peeked == JsonToken.BEGIN_OBJECT) {
       in.beginObject();
       return new LinkedTreeMap<String, Object>();
@@ -115,7 +115,7 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
       return readTerminal(in, peeked);
     }
 
-    LinkedList<Object> stack = new LinkedList<Object>();
+    LinkedList<Object> stack = new LinkedList<>();
 
     while (true) {
       while (in.hasNext()) {

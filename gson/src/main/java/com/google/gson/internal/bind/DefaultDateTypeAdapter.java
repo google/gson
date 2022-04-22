@@ -68,19 +68,19 @@ public final class DefaultDateTypeAdapter<T extends Date> extends TypeAdapter<T>
     }
 
     public final TypeAdapterFactory createAdapterFactory(String datePattern) {
-      return createFactory(new DefaultDateTypeAdapter<T>(this, datePattern));
+      return createFactory(new DefaultDateTypeAdapter<>(this, datePattern));
     }
 
     public final TypeAdapterFactory createAdapterFactory(int style) {
-      return createFactory(new DefaultDateTypeAdapter<T>(this, style));
+      return createFactory(new DefaultDateTypeAdapter<>(this, style));
     }
 
     public final TypeAdapterFactory createAdapterFactory(int dateStyle, int timeStyle) {
-      return createFactory(new DefaultDateTypeAdapter<T>(this, dateStyle, timeStyle));
+      return createFactory(new DefaultDateTypeAdapter<>(this, dateStyle, timeStyle));
     }
 
     public final TypeAdapterFactory createDefaultsAdapterFactory() {
-      return createFactory(new DefaultDateTypeAdapter<T>(this, DateFormat.DEFAULT, DateFormat.DEFAULT));
+      return createFactory(new DefaultDateTypeAdapter<>(this, DateFormat.DEFAULT, DateFormat.DEFAULT));
     }
   }
 
@@ -90,7 +90,7 @@ public final class DefaultDateTypeAdapter<T extends Date> extends TypeAdapter<T>
    * List of 1 or more different date formats used for de-serialization attempts.
    * The first of them is used for serialization as well.
    */
-  private final List<DateFormat> dateFormats = new ArrayList<DateFormat>();
+  private final List<DateFormat> dateFormats = new ArrayList<>();
 
   private DefaultDateTypeAdapter(DateType<T> dateType, String datePattern) {
     this.dateType = $Gson$Preconditions.checkNotNull(dateType);

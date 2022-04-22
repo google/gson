@@ -19,6 +19,7 @@ package com.google.gson.metrics;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonFactoryBuilder;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -224,7 +225,8 @@ public final class ParseBenchmark {
       com.fasterxml.jackson.core.JsonParser jp = jsonFactory.createParser(new CharArrayReader(data));
       int depth = 0;
       do {
-        switch (jp.nextToken()) {
+        JsonToken token = jp.nextToken();
+        switch (token) {
         case START_OBJECT:
         case START_ARRAY:
           depth++;
@@ -243,6 +245,15 @@ public final class ParseBenchmark {
         case VALUE_NUMBER_FLOAT:
           jp.getLongValue();
           break;
+        case VALUE_TRUE:
+        case VALUE_FALSE:
+          jp.getBooleanValue();
+          break;
+        case VALUE_NULL:
+          // Do nothing; nextToken() will advance in stream
+          break;
+        default:
+          throw new IllegalArgumentException("Unexpected token " + token);
         }
       } while (depth > 0);
       jp.close();

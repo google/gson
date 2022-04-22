@@ -279,7 +279,7 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<AtomicIntegerArray> ATOMIC_INTEGER_ARRAY = new TypeAdapter<AtomicIntegerArray>() {
     @Override public AtomicIntegerArray read(JsonReader in) throws IOException {
-        List<Integer> list = new ArrayList<Integer>();
+        List<Integer> list = new ArrayList<>();
         in.beginArray();
         while (in.hasNext()) {
           try {
@@ -745,7 +745,7 @@ public final class TypeAdapters {
         return readTerminal(in, peeked);
       }
 
-      LinkedList<JsonElement> stack = new LinkedList<JsonElement>();
+      LinkedList<JsonElement> stack = new LinkedList<>();
 
       while (true) {
         while (in.hasNext()) {
@@ -829,8 +829,9 @@ public final class TypeAdapters {
       = newTypeHierarchyFactory(JsonElement.class, JSON_ELEMENT);
 
   private static final class EnumTypeAdapter<T extends Enum<T>> extends TypeAdapter<T> {
-    private final Map<String, T> nameToConstant = new HashMap<String, T>();
-    private final Map<T, String> constantToName = new HashMap<T, String>();
+    private final Map<String, T> nameToConstant = new HashMap<>();
+    private final Map<String, T> stringToConstant = new HashMap<>();
+    private final Map<T, String> constantToName = new HashMap<>();
 
     public EnumTypeAdapter(final Class<T> classOfT) {
       try {
@@ -840,7 +841,7 @@ public final class TypeAdapters {
         Field[] constantFields = AccessController.doPrivileged(new PrivilegedAction<Field[]>() {
           @Override public Field[] run() {
             Field[] fields = classOfT.getDeclaredFields();
-            ArrayList<Field> constantFieldsList = new ArrayList<Field>(fields.length);
+            ArrayList<Field> constantFieldsList = new ArrayList<>(fields.length);
             for (Field f : fields) {
               if (f.isEnumConstant()) {
                 constantFieldsList.add(f);
@@ -856,6 +857,8 @@ public final class TypeAdapters {
           @SuppressWarnings("unchecked")
           T constant = (T)(constantField.get(null));
           String name = constant.name();
+          String toStringVal = constant.toString();
+          
           SerializedName annotation = constantField.getAnnotation(SerializedName.class);
           if (annotation != null) {
             name = annotation.value();
@@ -864,6 +867,7 @@ public final class TypeAdapters {
             }
           }
           nameToConstant.put(name, constant);
+          stringToConstant.put(toStringVal, constant);
           constantToName.put(constant, name);
         }
       } catch (IllegalAccessException e) {
@@ -875,7 +879,9 @@ public final class TypeAdapters {
         in.nextNull();
         return null;
       }
-      return nameToConstant.get(in.nextString());
+      String key = in.nextString();
+      T constant = nameToConstant.get(key);
+      return (constant == null) ? stringToConstant.get(key) : constant;
     }
 
     @Override public void write(JsonWriter out, T value) throws IOException {

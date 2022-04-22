@@ -293,7 +293,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
 
   public void testSetSerialization() throws Exception {
     Gson gson = new Gson();
-    HashSet<String> s = new HashSet<String>();
+    HashSet<String> s = new HashSet<>();
     s.add("blah");
     String json = gson.toJson(s);
     assertEquals("[\"blah\"]", json);
@@ -470,7 +470,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
     Gson gson = new GsonBuilder()
         .setDateFormat(pattern)
         .registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
-          public Date deserialize(JsonElement json, Type typeOfT,
+          @Override public Date deserialize(JsonElement json, Type typeOfT,
               JsonDeserializationContext context)
               throws JsonParseException {
             return new Date(1315806903103L);
@@ -619,7 +619,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
   }
 
   public void testTreeSetSerialization() {
-    TreeSet<String> treeSet = new TreeSet<String>();
+    TreeSet<String> treeSet = new TreeSet<>();
     treeSet.add("Value1");
     String json = gson.toJson(treeSet);
     assertEquals("[\"Value1\"]", json);
