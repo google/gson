@@ -74,7 +74,7 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
     JsonToken token = in.peek();
     switch (token) {
     case BEGIN_ARRAY:
-      List<Object> list = new ArrayList<Object>();
+      List<Object> list = new ArrayList<>();
       in.beginArray();
       while (in.hasNext()) {
         list.add(read(in));
@@ -83,7 +83,7 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
       return list;
 
     case BEGIN_OBJECT:
-      Map<String, Object> map = new LinkedTreeMap<String, Object>();
+      Map<String, Object> map = new LinkedTreeMap<>();
       in.beginObject();
       while (in.hasNext()) {
         map.put(in.nextName(), read(in));

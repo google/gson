@@ -70,6 +70,7 @@ public class PostConstructAdapterFactoryTest extends TestCase {
             }
         }
 
+        @Override
         public boolean equals(Object o) {
             if (o == this) {
                 return true;
@@ -95,6 +96,7 @@ public class PostConstructAdapterFactoryTest extends TestCase {
             this.sandwiches = sandwiches;
         }
 
+        @Override
         public boolean equals(Object o) {
             if (o == this) {
                 return true;

@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import com.google.gson.InstanceCreator;
+import com.google.gson.ReflectionAccessFilter;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -24,7 +25,50 @@ import java.util.concurrent.LinkedBlockingDeque;
 import org.junit.Test;
 
 public class ConstructorConstructorTest {
-  private final ConstructorConstructor constructor = new ConstructorConstructor(Collections.<Type, InstanceCreator<?>>emptyMap(), true);
+  private ConstructorConstructor constructorConstructor = new ConstructorConstructor(
+      Collections.<Type, InstanceCreator<?>>emptyMap(), true,
+      Collections.<ReflectionAccessFilter>emptyList()
+  );
+
+  private abstract static class AbstractClass {
+    @SuppressWarnings("unused")
+    public AbstractClass() { }
+  }
+  private interface Interface { }
+
+  /**
+   * Verify that ConstructorConstructor does not try to invoke no-arg constructor
+   * of abstract class.
+   */
+  @Test
+  public void testGet_AbstractClassNoArgConstructor() {
+    ObjectConstructor<AbstractClass> constructor = constructorConstructor.get(TypeToken.get(AbstractClass.class));
+    try {
+      constructor.construct();
+      fail("Expected exception");
+    } catch (RuntimeException exception) {
+      assertEquals(
+        "Abstract classes can't be instantiated! Register an InstanceCreator or a TypeAdapter for this "
+        + "type. Class name: com.google.gson.internal.ConstructorConstructorTest$AbstractClass",
+        exception.getMessage()
+      );
+    }
+  }
+
+  @Test
+  public void testGet_Interface() {
+    ObjectConstructor<Interface> constructor = constructorConstructor.get(TypeToken.get(Interface.class));
+    try {
+      constructor.construct();
+      fail("Expected exception");
+    } catch (RuntimeException exception) {
+      assertEquals(
+        "Interfaces can't be instantiated! Register an InstanceCreator or a TypeAdapter for "
+        + "this type. Interface name: com.google.gson.internal.ConstructorConstructorTest$Interface",
+        exception.getMessage()
+      );
+    }
+  }
 
   @SuppressWarnings("serial")
   private static class CustomSortedSet<E> extends TreeSet<E> {
@@ -76,7 +120,7 @@ public class ConstructorConstructorTest {
     };
 
     for (Class<?> collectionType : collectionTypes) {
-      Object actual = constructor.get(TypeToken.getParameterized(collectionType, Integer.class)).construct();
+      Object actual = constructorConstructor.get(TypeToken.getParameterized(collectionType, Integer.class)).construct();
       assertTrue("Failed for " + collectionType + "; created instance of " + actual.getClass(), collectionType.isInstance(actual));
     }
   }
@@ -98,11 +142,11 @@ public class ConstructorConstructorTest {
 
     for (Class<?> interfaceType : interfaces) {
       try {
-        constructor.get(TypeToken.get(interfaceType)).construct();
+        constructorConstructor.get(TypeToken.get(interfaceType)).construct();
         fail();
       } catch (RuntimeException e) {
-        assertEquals("Unable to create instance of " + interfaceType + ". Registering an InstanceCreator or a TypeAdapter"
-            + " for this type, or adding a no-args constructor may fix this problem.", e.getMessage());
+        assertEquals("Interfaces can't be instantiated! Register an InstanceCreator or a TypeAdapter"
+            + " for this type. Interface name: " + interfaceType.getName(), e.getMessage());
       }
     }
   }
@@ -169,7 +213,7 @@ public class ConstructorConstructorTest {
     };
 
     for (Class<?> mapType : mapTypes) {
-      Object actual = constructor.get(TypeToken.getParameterized(mapType, String.class, Integer.class)).construct();
+      Object actual = constructorConstructor.get(TypeToken.getParameterized(mapType, String.class, Integer.class)).construct();
       assertTrue("Failed for " + mapType + "; created instance of " + actual.getClass(), mapType.isInstance(actual));
     }
   }
@@ -180,11 +224,11 @@ public class ConstructorConstructorTest {
   @Test
   public void testCustomMapInterfaceCreation() {
     try {
-      constructor.get(TypeToken.get(CustomMapInterface.class)).construct();
+      constructorConstructor.get(TypeToken.get(CustomMapInterface.class)).construct();
       fail();
     } catch (RuntimeException e) {
-      assertEquals("Unable to create instance of " + CustomMapInterface.class + ". Registering an InstanceCreator or a TypeAdapter"
-          + " for this type, or adding a no-args constructor may fix this problem.", e.getMessage());
+      assertEquals("Interfaces can't be instantiated! Register an InstanceCreator or a TypeAdapter"
+          + " for this type. Interface name: " + CustomMapInterface.class.getName(), e.getMessage());
     }
   }
 }

@@ -90,7 +90,7 @@ public class CollectionTest extends TestCase {
   }
 
   public void testLinkedListSerialization() {
-    List<String> list = new LinkedList<String>();
+    List<String> list = new LinkedList<>();
     list.add("a1");
     list.add("a2");
     Type linkedListType = new TypeToken<LinkedList<String>>() {}.getType();
@@ -108,7 +108,7 @@ public class CollectionTest extends TestCase {
   }
 
   public void testQueueSerialization() {
-    Queue<String> queue = new LinkedList<String>();
+    Queue<String> queue = new LinkedList<>();
     queue.add("a1");
     queue.add("a2");
     Type queueType = new TypeToken<Queue<String>>() {}.getType();
@@ -160,7 +160,7 @@ public class CollectionTest extends TestCase {
   }
 
   public void testNullsInListSerialization() {
-    List<String> list = new ArrayList<String>();
+    List<String> list = new ArrayList<>();
     list.add("foo");
     list.add(null);
     list.add("bar");
@@ -171,7 +171,7 @@ public class CollectionTest extends TestCase {
   }
 
   public void testNullsInListDeserialization() {
-    List<String> expected = new ArrayList<String>();
+    List<String> expected = new ArrayList<>();
     expected.add("foo");
     expected.add(null);
     expected.add("bar");
@@ -184,7 +184,7 @@ public class CollectionTest extends TestCase {
   }
 
   public void testCollectionOfObjectSerialization() {
-    List<Object> target = new ArrayList<Object>();
+    List<Object> target = new ArrayList<>();
     target.add("Hello");
     target.add("World");
     assertEquals("[\"Hello\",\"World\"]", gson.toJson(target));
@@ -194,7 +194,7 @@ public class CollectionTest extends TestCase {
   }
 
   public void testCollectionOfObjectWithNullSerialization() {
-    List<Object> target = new ArrayList<Object>();
+    List<Object> target = new ArrayList<>();
     target.add("Hello");
     target.add(null);
     target.add("World");
@@ -205,14 +205,14 @@ public class CollectionTest extends TestCase {
   }
 
   public void testCollectionOfStringsSerialization() {
-    List<String> target = new ArrayList<String>();
+    List<String> target = new ArrayList<>();
     target.add("Hello");
     target.add("World");
     assertEquals("[\"Hello\",\"World\"]", gson.toJson(target));
   }
 
   public void testCollectionOfBagOfPrimitivesSerialization() {
-    List<BagOfPrimitives> target = new ArrayList<BagOfPrimitives>();
+    List<BagOfPrimitives> target = new ArrayList<>();
     BagOfPrimitives objA = new BagOfPrimitives(3L, 1, true, "blah");
     BagOfPrimitives objB = new BagOfPrimitives(2L, 6, false, "blahB");
     target.add(objA);
@@ -296,7 +296,7 @@ public class CollectionTest extends TestCase {
   }
 
   public void testWildcardCollectionField() throws Exception {
-    Collection<BagOfPrimitives> collection = new ArrayList<BagOfPrimitives>();
+    Collection<BagOfPrimitives> collection = new ArrayList<>();
     BagOfPrimitives objA = new BagOfPrimitives(3L, 1, true, "blah");
     BagOfPrimitives objB = new BagOfPrimitives(2L, 6, false, "blahB");
     collection.add(objA);
@@ -327,7 +327,7 @@ public class CollectionTest extends TestCase {
   public void testUserCollectionTypeAdapter() {
     Type listOfString = new TypeToken<List<String>>() {}.getType();
     Object stringListSerializer = new JsonSerializer<List<String>>() {
-      public JsonElement serialize(List<String> src, Type typeOfSrc,
+      @Override public JsonElement serialize(List<String> src, Type typeOfSrc,
           JsonSerializationContext context) {
         return new JsonPrimitive(src.get(0) + ";" + src.get(1));
       }
@@ -339,7 +339,7 @@ public class CollectionTest extends TestCase {
   }
 
   static class HasArrayListField {
-    ArrayList<Long> longs = new ArrayList<Long>();
+    ArrayList<Long> longs = new ArrayList<>();
   }
 
   @SuppressWarnings("rawtypes")
@@ -376,7 +376,7 @@ public class CollectionTest extends TestCase {
     }
   }
   public void testSetSerialization() {
-    Set<Entry> set = new HashSet<Entry>();
+    Set<Entry> set = new HashSet<>();
     set.add(new Entry(1));
     set.add(new Entry(2));
     String json = gson.toJson(set);

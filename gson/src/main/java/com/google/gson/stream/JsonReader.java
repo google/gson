@@ -95,7 +95,7 @@ import java.util.Arrays;
  *   }
  *
  *   public List<Message> readMessagesArray(JsonReader reader) throws IOException {
- *     List<Message> messages = new ArrayList<Message>();
+ *     List<Message> messages = new ArrayList<>();
  *
  *     reader.beginArray();
  *     while (reader.hasNext()) {
@@ -131,7 +131,7 @@ import java.util.Arrays;
  *   }
  *
  *   public List<Double> readDoublesArray(JsonReader reader) throws IOException {
- *     List<Double> doubles = new ArrayList<Double>();
+ *     List<Double> doubles = new ArrayList<>();
  *
  *     reader.beginArray();
  *     while (reader.hasNext()) {
@@ -1212,7 +1212,7 @@ public class JsonReader implements Closeable {
   /**
    * Closes this JSON reader and the underlying {@link java.io.Reader}.
    */
-  public void close() throws IOException {
+  @Override public void close() throws IOException {
     peeked = PEEKED_NONE;
     stack[0] = JsonScope.CLOSED;
     stackSize = 1;

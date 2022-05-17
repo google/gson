@@ -71,7 +71,7 @@ public class ConcurrencyTest extends TestCase {
     ExecutorService executor = Executors.newFixedThreadPool(10);
     for (int taskCount = 0; taskCount < 10; taskCount++) {
       executor.execute(new Runnable() {
-        public void run() {
+        @Override public void run() {
           MyObject myObj = new MyObject();
           try {
             startLatch.await();
@@ -102,7 +102,7 @@ public class ConcurrencyTest extends TestCase {
     ExecutorService executor = Executors.newFixedThreadPool(10);
     for (int taskCount = 0; taskCount < 10; taskCount++) {
       executor.execute(new Runnable() {
-        public void run() {
+        @Override public void run() {
           try {
             startLatch.await();
             for (int i = 0; i < 10; i++) {

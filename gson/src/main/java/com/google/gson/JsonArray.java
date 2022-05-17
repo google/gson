@@ -37,11 +37,11 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * Creates an empty JsonArray.
    */
   public JsonArray() {
-    elements = new ArrayList<JsonElement>();
+    elements = new ArrayList<>();
   }
   
   public JsonArray(int capacity) {
-    elements = new ArrayList<JsonElement>(capacity);
+    elements = new ArrayList<>(capacity);
   }
 
   /**
@@ -187,6 +187,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    *
    * @return an iterator to navigate the elements of the array.
    */
+  @Override
   public Iterator<JsonElement> iterator() {
     return elements.iterator();
   }
@@ -341,13 +342,12 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
     throw new IllegalStateException();
   }
 
+  @Deprecated
   @Override
   public char getAsCharacter() {
     if (elements.size() == 1) {
       JsonElement element = elements.get(0);
-      @SuppressWarnings("deprecation")
-      char result = element.getAsCharacter();
-      return result;
+      return element.getAsCharacter();
     }
     throw new IllegalStateException();
   }

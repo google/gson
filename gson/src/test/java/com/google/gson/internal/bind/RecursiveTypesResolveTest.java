@@ -21,9 +21,6 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.internal.$Gson$Types;
 import junit.framework.TestCase;
 
-import java.io.PrintStream;
-import java.lang.ref.WeakReference;
-
 /**
  * Test fixes for infinite recursion on {@link $Gson$Types#resolve(java.lang.reflect.Type, Class,
  * java.lang.reflect.Type)}, described at <a href="https://github.com/google/gson/issues/440">Issue #440</a>
