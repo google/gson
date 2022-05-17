@@ -620,7 +620,7 @@ public class MapTest extends TestCase {
         gson.toJson(map, type).replace('"', '\''));
   }
 
-  public void testDeerializeMapOfMaps() {
+  public void testDeserializeMapOfMaps() {
     Type type = new TypeToken<Map<String, Map<String, String>>>() {}.getType();
     Map<String, Map<String, String>> map = newMap(
         "a", newMap("ka1", "va1", "ka2", "va2"),
