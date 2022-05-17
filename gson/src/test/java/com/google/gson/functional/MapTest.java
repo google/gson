@@ -206,6 +206,17 @@ public class MapTest extends TestCase {
     assertEquals(expectedMap, map);
   }
 
+  public void testMapStringSupertypeKeyDeserialization() {
+    Type typeOfMap = new TypeToken<Map<Object, Integer>>() {}.getType();
+    Map<?, ?> map = gson.fromJson("{\"a\":1}", typeOfMap);
+
+    assertTrue("Map<Object, ...> should use LinkedTreeMap to protect against DoS in older JDK versions",
+        map instanceof LinkedTreeMap);
+
+    Map<?, ?> expectedMap = Collections.singletonMap("a", 1);
+    assertEquals(expectedMap, map);
+  }
+
   public void testMapNonStringKeyDeserialization() {
     Type typeOfMap = new TypeToken<Map<Integer, Integer>>() {}.getType();
     Map<?, ?> map = gson.fromJson("{\"1\":1}", typeOfMap);
@@ -306,7 +317,7 @@ public class MapTest extends TestCase {
 
   public void testMapSubclassDeserialization() {
     Gson gson = new GsonBuilder().registerTypeAdapter(MyMap.class, new InstanceCreator<MyMap>() {
-      public MyMap createInstance(Type type) {
+      @Override public MyMap createInstance(Type type) {
         return new MyMap();
       }
     }).create();
@@ -321,7 +332,7 @@ public class MapTest extends TestCase {
         null, Map.class, String.class, Long.class);
     Gson gson = new GsonBuilder()
         .registerTypeAdapter(type, new JsonSerializer<Map<String, Long>>() {
-          public JsonElement serialize(Map<String, Long> src, Type typeOfSrc,
+          @Override public JsonElement serialize(Map<String, Long> src, Type typeOfSrc,
               JsonSerializationContext context) {
             JsonArray array = new JsonArray();
             for (long value : src.values()) {
@@ -515,7 +526,7 @@ public class MapTest extends TestCase {
         + "\"subs\":{\"Test\":" + subTypeJson + "}}";
 
     JsonSerializer<TestTypes.Base> baseTypeAdapter = new JsonSerializer<TestTypes.Base>() {
-      public JsonElement serialize(TestTypes.Base src, Type typeOfSrc,
+      @Override public JsonElement serialize(TestTypes.Base src, Type typeOfSrc,
           JsonSerializationContext context) {
         return baseTypeJsonElement;
       }

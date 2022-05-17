@@ -232,7 +232,8 @@ public final class ConstructorConstructor {
     if (typeArguments.length == 0) {
       return false;
     }
-    return TypeToken.get(typeArguments[0]).getRawType() == String.class;
+    // Consider String and supertypes of it
+    return TypeToken.get(typeArguments[0]).getRawType().isAssignableFrom(String.class);
   }
 
   private static ObjectConstructor<? extends Map<? extends Object, Object>> newMapConstructor(final Type type, Class<?> rawType) {
