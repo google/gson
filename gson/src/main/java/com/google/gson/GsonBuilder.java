@@ -34,6 +34,7 @@ import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.internal.sql.SqlTypesSupport;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 
 import static com.google.gson.Gson.DEFAULT_COMPLEX_MAP_KEYS;
 import static com.google.gson.Gson.DEFAULT_DATE_PATTERN;
@@ -425,12 +426,14 @@ public final class GsonBuilder {
   }
 
   /**
-   * By default, Gson is strict and only accepts JSON as specified by
-   * <a href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>. This option makes the parser
-   * liberal in what it accepts.
+   * Configures Gson to allow JSON data which does not strictly comply with the JSON specification.
+   *
+   * <p>Note: Due to legacy reasons most methods of Gson are always lenient, regardless of
+   * whether this builder method is used.
    *
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @see JsonReader#setLenient(boolean)
+   * @see JsonWriter#setLenient(boolean)
    */
   public GsonBuilder setLenient() {
     lenient = true;
