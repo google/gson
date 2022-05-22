@@ -17,8 +17,8 @@
 package com.google.gson.internal.bind;
 
 import com.google.gson.Gson;
-import com.google.gson.ToNumberStrategy;
 import com.google.gson.ToNumberPolicy;
+import com.google.gson.ToNumberStrategy;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.LinkedTreeMap;
@@ -26,10 +26,10 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-
 import java.io.IOException;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 
@@ -76,32 +76,33 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
    * the next element is neither of those.
    */
   private Object tryBeginNesting(JsonReader in, JsonToken peeked) throws IOException {
-    if (peeked == JsonToken.BEGIN_ARRAY) {
-      in.beginArray();
-      return new ArrayList<>();
-    } else if (peeked == JsonToken.BEGIN_OBJECT) {
-      in.beginObject();
-      return new LinkedTreeMap<String, Object>();
-    } else {
-      return null;
+    switch (peeked) {
+      case BEGIN_ARRAY:
+        in.beginArray();
+        return new ArrayList<>();
+      case BEGIN_OBJECT:
+        in.beginObject();
+        return new LinkedTreeMap<>();
+      default:
+        return null;
     }
   }
 
   /** Reads an {@code Object} which cannot have any nested elements */
   private Object readTerminal(JsonReader in, JsonToken peeked) throws IOException {
     switch (peeked) {
-    case STRING:
-      return in.nextString();
-    case NUMBER:
-      return toNumberStrategy.readNumber(in);
-    case BOOLEAN:
-      return in.nextBoolean();
-    case NULL:
-      in.nextNull();
-      return null;
-    default:
-      // When read(JsonReader) is called with JsonReader in invalid state
-      throw new IllegalStateException("Unexpected token: " + peeked);
+      case STRING:
+        return in.nextString();
+      case NUMBER:
+        return toNumberStrategy.readNumber(in);
+      case BOOLEAN:
+        return in.nextBoolean();
+      case NULL:
+        in.nextNull();
+        return null;
+      default:
+        // When read(JsonReader) is called with JsonReader in invalid state
+        throw new IllegalStateException("Unexpected token: " + peeked);
     }
   }
 
@@ -115,7 +116,7 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
       return readTerminal(in, peeked);
     }
 
-    LinkedList<Object> stack = new LinkedList<>();
+    Deque<Object> stack = new ArrayDeque<>();
 
     while (true) {
       while (in.hasNext()) {
