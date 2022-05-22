@@ -62,7 +62,7 @@ public final class TreeTypeAdapter<T> extends TypeAdapter<T> {
     if (deserializer == null) {
       return delegate().read(in);
     }
-    JsonElement value = Streams.parse(in);
+    JsonElement value = Streams.parse(in, false);
     if (value.isJsonNull()) {
       return null;
     }
@@ -162,5 +162,5 @@ public final class TreeTypeAdapter<T> extends TypeAdapter<T> {
     @Override public <R> R deserialize(JsonElement json, Type typeOfT) throws JsonParseException {
       return (R) gson.fromJson(json, typeOfT);
     }
-  };
+  }
 }

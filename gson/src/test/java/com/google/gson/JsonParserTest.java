@@ -16,23 +16,27 @@
 
 package com.google.gson;
 
-import java.io.CharArrayReader;
-import java.io.CharArrayWriter;
-import java.io.IOException;
-import java.io.StringReader;
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
+import java.io.CharArrayReader;
+import java.io.CharArrayWriter;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import org.junit.Test;
 
 /**
  * Unit test for {@link JsonParser}
  *
  * @author Inderjeet Singh
  */
-public class JsonParserTest extends TestCase {
-
+public class JsonParserTest {
+  @Test
   public void testParseInvalidJson() {
     try {
       JsonParser.parseString("[[]");
@@ -40,6 +44,7 @@ public class JsonParserTest extends TestCase {
     } catch (JsonSyntaxException expected) { }
   }
 
+  @Test
   public void testParseUnquotedStringArrayFails() {
     JsonElement element = JsonParser.parseString("[a,b,c]");
     assertEquals("a", element.getAsJsonArray().get(0).getAsString());
@@ -48,6 +53,7 @@ public class JsonParserTest extends TestCase {
     assertEquals(3, element.getAsJsonArray().size());
   }
 
+  @Test
   public void testParseString() {
     String json = "{a:10,b:'c'}";
     JsonElement e = JsonParser.parseString(json);
@@ -56,21 +62,36 @@ public class JsonParserTest extends TestCase {
     assertEquals("c", e.getAsJsonObject().get("b").getAsString());
   }
 
+  @Test
+  public void testParseStringMultipleTopLevel() {
+    String json = "{}1";
+    try {
+      JsonParser.parseString(json);
+      fail();
+    } catch (JsonSyntaxException expected) {
+      assertEquals("Did not consume the entire document.", expected.getMessage());
+    }
+  }
+
+  @Test
   public void testParseEmptyString() {
     JsonElement e = JsonParser.parseString("\"   \"");
     assertTrue(e.isJsonPrimitive());
     assertEquals("   ", e.getAsString());
   }
 
+  @Test
   public void testParseEmptyWhitespaceInput() {
     JsonElement e = JsonParser.parseString("     ");
     assertTrue(e.isJsonNull());
   }
 
+  @Test
   public void testParseUnquotedSingleWordStringFails() {
     assertEquals("Test", JsonParser.parseString("Test").getAsString());
   }
 
+  @Test
   public void testParseUnquotedMultiWordStringFails() {
     String unquotedSentence = "Test is a test..blah blah";
     try {
@@ -79,6 +100,7 @@ public class JsonParserTest extends TestCase {
     } catch (JsonSyntaxException expected) { }
   }
 
+  @Test
   public void testParseMixedArray() {
     String json = "[{},13,\"stringValue\"]";
     JsonElement e = JsonParser.parseString(json);
@@ -88,6 +110,75 @@ public class JsonParserTest extends TestCase {
     assertEquals("{}", array.get(0).toString());
     assertEquals(13, array.get(1).getAsInt());
     assertEquals("stringValue", array.get(2).getAsString());
+  }
+
+  @Test
+  public void testParseReader() {
+    StringReader reader = new StringReader("{a:10,b:'c'}");
+    JsonElement e = JsonParser.parseReader(reader);
+    assertTrue(e.isJsonObject());
+    assertEquals(10, e.getAsJsonObject().get("a").getAsInt());
+    assertEquals("c", e.getAsJsonObject().get("b").getAsString());
+  }
+
+  @Test
+  public void testParseReaderMultipleTopLevel() {
+    Reader reader = new StringReader("{}1");
+    try {
+      JsonParser.parseReader(reader);
+      fail();
+    } catch (JsonSyntaxException expected) {
+      assertEquals("Did not consume the entire document.", expected.getMessage());
+    }
+  }
+
+  @Test
+  public void testParseReaderMultipleTopLevelNull() {
+    Reader reader = new StringReader("null[]");
+    try {
+      JsonParser.parseReader(reader);
+      fail();
+    } catch (JsonSyntaxException expected) {
+      assertEquals("Did not consume the entire document.", expected.getMessage());
+    }
+  }
+
+  @Test
+  public void testParseJsonReaderMultipleTopLevel() {
+    String json = "{}1";
+    JsonReader jsonReader = new JsonReader(new StringReader(json));
+    JsonElement element = JsonParser.parseReader(jsonReader);
+    assertEquals(new JsonObject(), element);
+
+    element = JsonParser.parseReader(jsonReader);
+    assertEquals(new JsonPrimitive(1), element);
+
+    try {
+      JsonParser.parseReader(jsonReader);
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Unexpected token: END_DOCUMENT", expected.getMessage());
+    }
+  }
+
+  @Test
+  public void testReadWriteTwoObjects() throws Exception {
+    Gson gson = new Gson();
+    CharArrayWriter writer = new CharArrayWriter();
+    BagOfPrimitives expectedOne = new BagOfPrimitives(1, 1, true, "one");
+    writer.write(gson.toJson(expectedOne).toCharArray());
+    BagOfPrimitives expectedTwo = new BagOfPrimitives(2, 2, false, "two");
+    writer.write(gson.toJson(expectedTwo).toCharArray());
+    CharArrayReader reader = new CharArrayReader(writer.toCharArray());
+
+    JsonReader parser = new JsonReader(reader);
+    parser.setLenient(true);
+    JsonElement element1 = Streams.parse(parser, false);
+    JsonElement element2 = Streams.parse(parser, false);
+    BagOfPrimitives actualOne = gson.fromJson(element1, BagOfPrimitives.class);
+    assertEquals("one", actualOne.stringValue);
+    BagOfPrimitives actualTwo = gson.fromJson(element2, BagOfPrimitives.class);
+    assertEquals("two", actualTwo.stringValue);
   }
 
   private static String repeat(String s, int times) {
@@ -136,32 +227,5 @@ public class JsonParserTest extends TestCase {
       }
     }
     assertEquals(times, actualTimes);
-  }
-
-  public void testParseReader() {
-    StringReader reader = new StringReader("{a:10,b:'c'}");
-    JsonElement e = JsonParser.parseReader(reader);
-    assertTrue(e.isJsonObject());
-    assertEquals(10, e.getAsJsonObject().get("a").getAsInt());
-    assertEquals("c", e.getAsJsonObject().get("b").getAsString());
-  }
-
-  public void testReadWriteTwoObjects() throws Exception {
-    Gson gson = new Gson();
-    CharArrayWriter writer = new CharArrayWriter();
-    BagOfPrimitives expectedOne = new BagOfPrimitives(1, 1, true, "one");
-    writer.write(gson.toJson(expectedOne).toCharArray());
-    BagOfPrimitives expectedTwo = new BagOfPrimitives(2, 2, false, "two");
-    writer.write(gson.toJson(expectedTwo).toCharArray());
-    CharArrayReader reader = new CharArrayReader(writer.toCharArray());
-
-    JsonReader parser = new JsonReader(reader);
-    parser.setLenient(true);
-    JsonElement element1 = Streams.parse(parser);
-    JsonElement element2 = Streams.parse(parser);
-    BagOfPrimitives actualOne = gson.fromJson(element1, BagOfPrimitives.class);
-    assertEquals("one", actualOne.stringValue);
-    BagOfPrimitives actualTwo = gson.fromJson(element2, BagOfPrimitives.class);
-    assertEquals("two", actualTwo.stringValue);
   }
 }

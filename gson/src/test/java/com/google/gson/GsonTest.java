@@ -16,11 +16,15 @@
 
 package com.google.gson;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import com.google.gson.internal.Excluder;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.google.gson.stream.MalformedJsonException;
 import java.io.IOException;
+import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
@@ -29,14 +33,14 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
  * Unit tests for {@link Gson}.
  *
  * @author Ryan Harter
  */
-public final class GsonTest extends TestCase {
+public final class GsonTest {
 
   private static final Excluder CUSTOM_EXCLUDER = Excluder.DEFAULT
       .excludeFieldsWithoutExposeAnnotation()
@@ -51,6 +55,7 @@ public final class GsonTest extends TestCase {
   private static final ToNumberStrategy CUSTOM_OBJECT_TO_NUMBER_STRATEGY = ToNumberPolicy.DOUBLE;
   private static final ToNumberStrategy CUSTOM_NUMBER_TO_NUMBER_STRATEGY = ToNumberPolicy.LAZILY_PARSED_NUMBER;
 
+  @Test
   public void testOverridesDefaultExcluder() {
     Gson gson = new Gson(CUSTOM_EXCLUDER, CUSTOM_FIELD_NAMING_STRATEGY,
         new HashMap<Type, InstanceCreator<?>>(), true, false, true, false,
@@ -66,6 +71,7 @@ public final class GsonTest extends TestCase {
     assertEquals(false, gson.htmlSafe());
   }
 
+  @Test
   public void testClonedTypeAdapterFactoryListsAreIndependent() {
     Gson original = new Gson(CUSTOM_EXCLUDER, CUSTOM_FIELD_NAMING_STRATEGY,
         new HashMap<Type, InstanceCreator<?>>(), true, false, true, false,
@@ -89,6 +95,7 @@ public final class GsonTest extends TestCase {
     @Override public Object read(JsonReader in) throws IOException { return null; }
   }
 
+  @Test
   public void testNewJsonWriter_Default() throws IOException {
     StringWriter writer = new StringWriter();
     JsonWriter jsonWriter = new Gson().newJsonWriter(writer);
@@ -111,6 +118,7 @@ public final class GsonTest extends TestCase {
     assertEquals("{\"\\u003ctest2\":true}", writer.toString());
   }
 
+  @Test
   public void testNewJsonWriter_Custom() throws IOException {
     StringWriter writer = new StringWriter();
     JsonWriter jsonWriter = new GsonBuilder()
@@ -135,6 +143,7 @@ public final class GsonTest extends TestCase {
     assertEquals(")]}'\n{\n  \"test\": null,\n  \"<test2\": true\n}1", writer.toString());
   }
 
+  @Test
   public void testNewJsonReader_Default() throws IOException {
     String json = "test"; // String without quotes
     JsonReader jsonReader = new Gson().newJsonReader(new StringReader(json));
@@ -146,6 +155,7 @@ public final class GsonTest extends TestCase {
     jsonReader.close();
   }
 
+  @Test
   public void testNewJsonReader_Custom() throws IOException {
     String json = "test"; // String without quotes
     JsonReader jsonReader = new GsonBuilder()
@@ -154,5 +164,47 @@ public final class GsonTest extends TestCase {
       .newJsonReader(new StringReader(json));
     assertEquals("test", jsonReader.nextString());
     jsonReader.close();
+  }
+
+  @Test
+  public void testFromJson_Reader_MultipleTopLevel() {
+    Gson gson = new Gson();
+    Reader reader = new StringReader("{}1");
+    try {
+      gson.fromJson(reader, Object.class);
+      fail();
+    } catch (JsonSyntaxException expected) {
+      assertEquals("JSON document was not fully consumed.", expected.getMessage());
+    }
+  }
+
+  @Test
+  public void testFromJson_Reader_MultipleTopLevel_Null() {
+    Gson gson = new Gson();
+    Reader reader = new StringReader("null[]");
+    try {
+      gson.fromJson(reader, Object.class);
+      fail();
+    } catch (JsonSyntaxException expected) {
+      assertEquals("JSON document was not fully consumed.", expected.getMessage());
+    }
+  }
+
+  @Test
+  public void testFromJson_JsonReader_MultipleTopLevel() {
+    Gson gson = new Gson();
+    String json = "{}1";
+    JsonReader jsonReader = new JsonReader(new StringReader(json));
+    Object object = gson.fromJson(jsonReader, Object.class);
+    assertEquals(Collections.emptyMap(), object);
+
+    object = gson.fromJson(jsonReader, Integer.class);
+    assertEquals(1, object);
+
+    try {
+      gson.fromJson(jsonReader, Object.class);
+      fail();
+    } catch (JsonSyntaxException expected) {
+    }
   }
 }

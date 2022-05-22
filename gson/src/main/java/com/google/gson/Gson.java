@@ -38,7 +38,6 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import com.google.gson.stream.MalformedJsonException;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
@@ -983,8 +982,7 @@ public final class Gson {
    */
   public <T> T fromJson(Reader json, Class<T> classOfT) throws JsonSyntaxException, JsonIOException {
     JsonReader jsonReader = newJsonReader(json);
-    Object object = fromJson(jsonReader, classOfT);
-    assertFullConsumption(object, jsonReader);
+    Object object = fromJson(jsonReader, classOfT, true);
     return Primitives.wrap(classOfT).cast(object);
   }
 
@@ -1013,49 +1011,29 @@ public final class Gson {
   @SuppressWarnings("unchecked")
   public <T> T fromJson(Reader json, Type typeOfT) throws JsonIOException, JsonSyntaxException {
     JsonReader jsonReader = newJsonReader(json);
-    T object = (T) fromJson(jsonReader, typeOfT);
-    assertFullConsumption(object, jsonReader);
+    T object = (T) fromJson(jsonReader, typeOfT, true);
     return object;
   }
 
-  private static void assertFullConsumption(Object obj, JsonReader reader) {
-    try {
-      if (obj != null && reader.peek() != JsonToken.END_DOCUMENT) {
-        throw new JsonSyntaxException("JSON document was not fully consumed.");
-      }
-    } catch (MalformedJsonException e) {
-      throw new JsonSyntaxException(e);
-    } catch (IOException e) {
-      throw new JsonIOException(e);
-    }
-  }
-
   /**
-   * Reads the next JSON value from {@code reader} and convert it to an object
-   * of type {@code typeOfT}. Returns {@code null}, if the {@code reader} is at EOF.
-   * Since Type is not parameterized by T, this method is type unsafe and should be used carefully.
-   *
-   * <p>Unlike the other {@code fromJson} methods, no exception is thrown if the JSON data has
-   * multiple top-level JSON elements, or if there is trailing data.
-   *
-   * <p>The JSON data is parsed in {@linkplain JsonReader#setLenient(boolean) lenient mode},
-   * regardless of the lenient mode setting of the provided reader. The lenient mode setting
-   * of the reader is restored once this method returns.
-   *
-   * @throws JsonIOException if there was a problem writing to the Reader
-   * @throws JsonSyntaxException if json is not a valid representation for an object of type
+   * @param requireEndDocument whether there must not be any trailing data after
+   *    the first read JSON element
    */
-  @SuppressWarnings("unchecked")
-  public <T> T fromJson(JsonReader reader, Type typeOfT) throws JsonIOException, JsonSyntaxException {
+  private <T> T fromJson(JsonReader reader, Type typeOfT, boolean requireEndDocument) throws JsonIOException, JsonSyntaxException {
     boolean isEmpty = true;
     boolean oldLenient = reader.isLenient();
     reader.setLenient(true);
     try {
       reader.peek();
       isEmpty = false;
+      @SuppressWarnings("unchecked") // this is not actually safe
       TypeToken<T> typeToken = (TypeToken<T>) TypeToken.get(typeOfT);
       TypeAdapter<T> typeAdapter = getAdapter(typeToken);
       T object = typeAdapter.read(reader);
+
+      if (requireEndDocument && reader.peek() != JsonToken.END_DOCUMENT) {
+        throw new JsonSyntaxException("JSON document was not fully consumed.");
+      }
       return object;
     } catch (EOFException e) {
       /*
@@ -1078,6 +1056,25 @@ public final class Gson {
     } finally {
       reader.setLenient(oldLenient);
     }
+  }
+
+  /**
+   * Reads the next JSON value from {@code reader} and convert it to an object
+   * of type {@code typeOfT}. Returns {@code null}, if the {@code reader} is at EOF.
+   * Since Type is not parameterized by T, this method is type unsafe and should be used carefully.
+   *
+   * <p>Unlike the other {@code fromJson} methods, no exception is thrown if the JSON data has
+   * multiple top-level JSON elements, or if there is trailing data.
+   *
+   * <p>The JSON data is parsed in {@linkplain JsonReader#setLenient(boolean) lenient mode},
+   * regardless of the lenient mode setting of the provided reader. The lenient mode setting
+   * of the reader is restored once this method returns.
+   *
+   * @throws JsonIOException if there was a problem writing to the Reader
+   * @throws JsonSyntaxException if json is not a valid representation for an object of type
+   */
+  public <T> T fromJson(JsonReader reader, Type typeOfT) throws JsonIOException, JsonSyntaxException {
+    return fromJson(reader, typeOfT, false);
   }
 
   /**

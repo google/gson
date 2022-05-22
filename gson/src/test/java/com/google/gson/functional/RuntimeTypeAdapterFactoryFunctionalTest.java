@@ -161,7 +161,7 @@ public final class RuntimeTypeAdapterFactoryFunctionalTest extends TestCase {
 
       return new TypeAdapter<R>() {
         @Override public R read(JsonReader in) throws IOException {
-          JsonElement jsonElement = Streams.parse(in);
+          JsonElement jsonElement = Streams.parse(in, false);
           JsonElement labelJsonElement = jsonElement.getAsJsonObject().get(typeFieldName);
           if (labelJsonElement == null) {
             throw new JsonParseException("cannot deserialize " + baseType

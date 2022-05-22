@@ -17,9 +17,6 @@ package com.google.gson;
 
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.MalformedJsonException;
-import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 
@@ -46,7 +43,7 @@ public final class JsonParser {
    * @return a parse tree of {@link JsonElement}s corresponding to the specified JSON
    * @throws JsonParseException if the specified text is not valid JSON
    */
-  public static JsonElement parseString(String json) throws JsonSyntaxException {
+  public static JsonElement parseString(String json) throws JsonParseException {
     return parseReader(new StringReader(json));
   }
 
@@ -62,20 +59,25 @@ public final class JsonParser {
    * @throws JsonParseException if there is an IOException or if the specified
    *     text is not valid JSON
    */
-  public static JsonElement parseReader(Reader reader) throws JsonIOException, JsonSyntaxException {
+  public static JsonElement parseReader(Reader reader) throws JsonParseException {
+    JsonReader jsonReader = new JsonReader(reader);
+    return parseReader(jsonReader, true);
+  }
+
+  private static JsonElement parseReader(JsonReader reader, boolean requiredEndDocument)
+      throws JsonParseException {
+    boolean lenient = reader.isLenient();
+    reader.setLenient(true);
     try {
-      JsonReader jsonReader = new JsonReader(reader);
-      JsonElement element = parseReader(jsonReader);
-      if (!element.isJsonNull() && jsonReader.peek() != JsonToken.END_DOCUMENT) {
-        throw new JsonSyntaxException("Did not consume the entire document.");
-      }
-      return element;
-    } catch (MalformedJsonException e) {
-      throw new JsonSyntaxException(e);
-    } catch (IOException e) {
-      throw new JsonIOException(e);
+      return Streams.parse(reader, requiredEndDocument);
     } catch (NumberFormatException e) {
       throw new JsonSyntaxException(e);
+    } catch (StackOverflowError e) {
+      throw new JsonParseException("Failed parsing JSON source: " + reader + " to Json", e);
+    } catch (OutOfMemoryError e) {
+      throw new JsonParseException("Failed parsing JSON source: " + reader + " to Json", e);
+    } finally {
+      reader.setLenient(lenient);
     }
   }
 
@@ -91,19 +93,8 @@ public final class JsonParser {
    * @throws JsonParseException if there is an IOException or if the specified
    *     text is not valid JSON
    */
-  public static JsonElement parseReader(JsonReader reader)
-      throws JsonIOException, JsonSyntaxException {
-    boolean lenient = reader.isLenient();
-    reader.setLenient(true);
-    try {
-      return Streams.parse(reader);
-    } catch (StackOverflowError e) {
-      throw new JsonParseException("Failed parsing JSON source: " + reader + " to Json", e);
-    } catch (OutOfMemoryError e) {
-      throw new JsonParseException("Failed parsing JSON source: " + reader + " to Json", e);
-    } finally {
-      reader.setLenient(lenient);
-    }
+  public static JsonElement parseReader(JsonReader reader) throws JsonParseException {
+    return parseReader(reader, false);
   }
 
   /** @deprecated Use {@link JsonParser#parseString} */
