@@ -172,6 +172,30 @@ public final class JsonWriterTest extends TestCase {
     assertEquals("{\"a\":{\"b\":true},\"c\":1}", stringWriter.toString());
   }
 
+  public void testNonFiniteFloats() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter jsonWriter = new JsonWriter(stringWriter);
+    jsonWriter.beginArray();
+    try {
+      jsonWriter.value(Float.NaN);
+      fail();
+    } catch (IllegalArgumentException expected) {
+      assertEquals("Numeric values must be finite, but was NaN", expected.getMessage());
+    }
+    try {
+      jsonWriter.value(Float.NEGATIVE_INFINITY);
+      fail();
+    } catch (IllegalArgumentException expected) {
+      assertEquals("Numeric values must be finite, but was -Infinity", expected.getMessage());
+    }
+    try {
+      jsonWriter.value(Float.POSITIVE_INFINITY);
+      fail();
+    } catch (IllegalArgumentException expected) {
+      assertEquals("Numeric values must be finite, but was Infinity", expected.getMessage());
+    }
+  }
+
   public void testNonFiniteDoubles() throws IOException {
     StringWriter stringWriter = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
@@ -226,6 +250,18 @@ public final class JsonWriterTest extends TestCase {
     }
   }
 
+  public void testNonFiniteFloatsWhenLenient() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter jsonWriter = new JsonWriter(stringWriter);
+    jsonWriter.setLenient(true);
+    jsonWriter.beginArray();
+    jsonWriter.value(Float.NaN);
+    jsonWriter.value(Float.NEGATIVE_INFINITY);
+    jsonWriter.value(Float.POSITIVE_INFINITY);
+    jsonWriter.endArray();
+    assertEquals("[NaN,-Infinity,Infinity]", stringWriter.toString());
+  }
+
   public void testNonFiniteDoublesWhenLenient() throws IOException {
     StringWriter stringWriter = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
@@ -249,6 +285,36 @@ public final class JsonWriterTest extends TestCase {
     jsonWriter.value(new LazilyParsedNumber("Infinity"));
     jsonWriter.endArray();
     assertEquals("[NaN,-Infinity,Infinity,Infinity]", stringWriter.toString());
+  }
+
+  public void testFloats() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter jsonWriter = new JsonWriter(stringWriter);
+    jsonWriter.beginArray();
+    jsonWriter.value(-0.0f);
+    jsonWriter.value(1.0f);
+    jsonWriter.value(Float.MAX_VALUE);
+    jsonWriter.value(Float.MIN_VALUE);
+    jsonWriter.value(0.0f);
+    jsonWriter.value(-0.5f);
+    jsonWriter.value(2.2250739E-38f);
+    jsonWriter.value(3.723379f);
+    jsonWriter.value((float) Math.PI);
+    jsonWriter.value((float) Math.E);
+    jsonWriter.endArray();
+    jsonWriter.close();
+    assertEquals(
+        "[-0.0,"
+            + "1.0,"
+            + "3.4028235E38,"
+            + "1.4E-45,"
+            + "0.0,"
+            + "-0.5,"
+            + "2.2250739E-38,"
+            + "3.723379,"
+            + "3.1415927,"
+            + "2.7182817]",
+        stringWriter.toString());
   }
 
   public void testDoubles() throws IOException {

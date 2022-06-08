@@ -493,6 +493,25 @@ public class JsonWriter implements Closeable, Flushable {
   /**
    * Encodes {@code value}.
    *
+   * @param value a finite value. May not be {@link Float#isNaN() NaNs} or {@link Float#isInfinite()
+   *     infinities}.
+   * @return this writer.
+   * @throws IllegalArgumentException if the value is NaN or Infinity and this writer is not {@link
+   *     #setLenient(boolean) lenient}.
+   */
+  public JsonWriter value(float value) throws IOException {
+    writeDeferredName();
+    if (!lenient && (Float.isNaN(value) || Float.isInfinite(value))) {
+      throw new IllegalArgumentException("Numeric values must be finite, but was " + value);
+    }
+    beforeValue();
+    out.append(Float.toString(value));
+    return this;
+  }
+
+  /**
+   * Encodes {@code value}.
+   *
    * @param value a finite value. May not be {@link Double#isNaN() NaNs} or
    *     {@link Double#isInfinite() infinities}.
    * @return this writer.
