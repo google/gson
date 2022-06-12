@@ -67,12 +67,22 @@ public class ISO8601UtilsTest {
     }
 
     @Test
-    public void testDateParseInvalid() {
-      String dateStr = "2022-15-01";
+    public void testDateParseInvalidDay() {
+      String dateStr = "2022-12-33";
       try {
         ISO8601Utils.parse(dateStr, new ParsePosition(0));
-        fail();
-      } catch (ParseException e) {
+        fail("Expected parsing to fail");
+      } catch (ParseException expected) {
+      }
+    }
+
+    @Test
+    public void testDateParseInvalidMonth() {
+      String dateStr = "2022-14-30";
+      try {
+        ISO8601Utils.parse(dateStr, new ParsePosition(0));
+        fail("Expected parsing to fail");
+      } catch (ParseException expected) {
       }
     }
 
