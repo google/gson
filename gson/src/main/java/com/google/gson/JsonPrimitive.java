@@ -203,6 +203,17 @@ public final class JsonPrimitive extends JsonElement {
    */
   @Override
   public long getAsLong() {
+
+    if (isNumber()) {
+      final BigInteger val = getAsBigInteger();
+
+      if (val.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) > 0) {
+        throw new NumberFormatException("Expected a Long but was " + getAsNumber());
+      } else if (val.compareTo(BigInteger.valueOf(Long.MIN_VALUE)) < 0) {
+        throw new NumberFormatException("Expected a Long but was " + getAsNumber());
+      }
+    }
+
     return isNumber() ? getAsNumber().longValue() : Long.parseLong(getAsString());
   }
 
@@ -214,6 +225,17 @@ public final class JsonPrimitive extends JsonElement {
    */
   @Override
   public short getAsShort() {
+
+    if (isNumber()) {
+      final BigInteger val = getAsBigInteger();
+
+      if (val.compareTo(BigInteger.valueOf(Short.MAX_VALUE)) > 0) {
+        throw new NumberFormatException("Expected a Short but was " + getAsNumber());
+      } else if (val.compareTo(BigInteger.valueOf(Short.MIN_VALUE)) < 0) {
+        throw new NumberFormatException("Expected a Short but was " + getAsNumber());
+      }
+    }
+
     return isNumber() ? getAsNumber().shortValue() : Short.parseShort(getAsString());
   }
 
@@ -225,11 +247,39 @@ public final class JsonPrimitive extends JsonElement {
   */
   @Override
   public int getAsInt() {
+
+    if (isNumber()) {
+      final BigInteger val = getAsBigInteger();
+
+      if (val.compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) > 0) {
+        throw new NumberFormatException("Expected an Integer but was " + getAsNumber());
+      } else if (val.compareTo(BigInteger.valueOf(Integer.MIN_VALUE)) < 0) {
+        throw new NumberFormatException("Expected an Integer but was " + getAsNumber());
+      }
+    }
+
     return isNumber() ? getAsNumber().intValue() : Integer.parseInt(getAsString());
   }
 
+  /**
+   * convenience method to get this element as a primitive byte.
+   *
+   * @return get this element as a primitive byte.
+   * @throws NumberFormatException if the value contained is not a valid integer.
+   */
   @Override
   public byte getAsByte() {
+
+    if (isNumber()) {
+      final BigInteger val = getAsBigInteger();
+
+      if (val.compareTo(BigInteger.valueOf(Byte.MAX_VALUE)) > 0) {
+        throw new NumberFormatException("Expected a Byte but was " + getAsNumber());
+      } else if (val.compareTo(BigInteger.valueOf(Byte.MIN_VALUE)) < 0) {
+        throw new NumberFormatException("Expected a Byte but was " + getAsNumber());
+      }
+    }
+
     return isNumber() ? getAsNumber().byteValue() : Byte.parseByte(getAsString());
   }
 
