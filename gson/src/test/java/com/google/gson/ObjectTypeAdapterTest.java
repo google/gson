@@ -16,9 +16,11 @@
 
 package com.google.gson;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import junit.framework.TestCase;
 
@@ -38,7 +40,7 @@ public final class ObjectTypeAdapterTest extends TestCase {
     Object object = new RuntimeType();
     assertEquals("{'a':5,'b':[1,2,null]}", adapter.toJson(object).replace("\"", "'"));
   }
-  
+
   public void testSerializeNullValue() throws Exception {
     Map<String, Object> map = new LinkedHashMap<>();
     map.put("a", null);
@@ -53,6 +55,51 @@ public final class ObjectTypeAdapterTest extends TestCase {
 
   public void testSerializeObject() throws Exception {
     assertEquals("{}", adapter.toJson(new Object()));
+  }
+
+  private static String repeat(String s, int times) {
+    StringBuilder stringBuilder = new StringBuilder(s.length() * times);
+    for (int i = 0; i < times; i++) {
+      stringBuilder.append(s);
+    }
+    return stringBuilder.toString();
+  }
+
+  /** Deeply nested JSON arrays should not cause {@link StackOverflowError} */
+  @SuppressWarnings("unchecked")
+  public void testDeserializeDeeplyNestedArrays() throws IOException {
+    int times = 10000;
+    // [[[ ... ]]]
+    String json = repeat("[", times) + repeat("]", times);
+
+    int actualTimes = 0;
+    List<List<?>> current = (List<List<?>>) adapter.fromJson(json);
+    while (true) {
+      actualTimes++;
+      if (current.isEmpty()) {
+        break;
+      }
+      assertEquals(1, current.size());
+      current = (List<List<?>>) current.get(0);
+    }
+    assertEquals(times, actualTimes);
+  }
+
+  /** Deeply nested JSON objects should not cause {@link StackOverflowError} */
+  @SuppressWarnings("unchecked")
+  public void testDeserializeDeeplyNestedObjects() throws IOException {
+    int times = 10000;
+    // {"a":{"a": ... {"a":null} ... }}
+    String json = repeat("{\"a\":", times) + "null" + repeat("}", times);
+
+    int actualTimes = 0;
+    Map<String, Map<?, ?>> current = (Map<String, Map<?, ?>>) adapter.fromJson(json);
+    while (current != null) {
+      assertEquals(1, current.size());
+      actualTimes++;
+      current = (Map<String, Map<?, ?>>) current.get("a");
+    }
+    assertEquals(times, actualTimes);
   }
 
   @SuppressWarnings("unused")

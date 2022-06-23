@@ -16,32 +16,6 @@
 
 package com.google.gson.internal.bind;
 
-import java.io.IOException;
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Field;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.net.InetAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.Calendar;
-import java.util.Currency;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicIntegerArray;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -58,6 +32,33 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Field;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.net.InetAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.Calendar;
+import java.util.Currency;
+import java.util.Deque;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicIntegerArray;
 
 /**
  * Type adapters for basic types.
@@ -695,44 +696,99 @@ public final class TypeAdapters {
   public static final TypeAdapterFactory LOCALE_FACTORY = newFactory(Locale.class, LOCALE);
 
   public static final TypeAdapter<JsonElement> JSON_ELEMENT = new TypeAdapter<JsonElement>() {
+    /**
+     * Tries to begin reading a JSON array or JSON object, returning {@code null} if
+     * the next element is neither of those.
+     */
+    private JsonElement tryBeginNesting(JsonReader in, JsonToken peeked) throws IOException {
+      switch (peeked) {
+        case BEGIN_ARRAY:
+          in.beginArray();
+          return new JsonArray();
+        case BEGIN_OBJECT:
+          in.beginObject();
+          return new JsonObject();
+        default:
+          return null;
+      }
+    }
+
+    /** Reads a {@link JsonElement} which cannot have any nested elements */
+    private JsonElement readTerminal(JsonReader in, JsonToken peeked) throws IOException {
+      switch (peeked) {
+        case STRING:
+          return new JsonPrimitive(in.nextString());
+        case NUMBER:
+          String number = in.nextString();
+          return new JsonPrimitive(new LazilyParsedNumber(number));
+        case BOOLEAN:
+          return new JsonPrimitive(in.nextBoolean());
+        case NULL:
+          in.nextNull();
+          return JsonNull.INSTANCE;
+        default:
+          // When read(JsonReader) is called with JsonReader in invalid state
+          throw new IllegalStateException("Unexpected token: " + peeked);
+      }
+    }
+
     @Override public JsonElement read(JsonReader in) throws IOException {
       if (in instanceof JsonTreeReader) {
         return ((JsonTreeReader) in).nextJsonElement();
       }
 
-      switch (in.peek()) {
-      case STRING:
-        return new JsonPrimitive(in.nextString());
-      case NUMBER:
-        String number = in.nextString();
-        return new JsonPrimitive(new LazilyParsedNumber(number));
-      case BOOLEAN:
-        return new JsonPrimitive(in.nextBoolean());
-      case NULL:
-        in.nextNull();
-        return JsonNull.INSTANCE;
-      case BEGIN_ARRAY:
-        JsonArray array = new JsonArray();
-        in.beginArray();
+      // Either JsonArray or JsonObject
+      JsonElement current;
+      JsonToken peeked = in.peek();
+
+      current = tryBeginNesting(in, peeked);
+      if (current == null) {
+        return readTerminal(in, peeked);
+      }
+
+      Deque<JsonElement> stack = new ArrayDeque<>();
+
+      while (true) {
         while (in.hasNext()) {
-          array.add(read(in));
+          String name = null;
+          // Name is only used for JSON object members
+          if (current instanceof JsonObject) {
+            name = in.nextName();
+          }
+
+          peeked = in.peek();
+          JsonElement value = tryBeginNesting(in, peeked);
+          boolean isNesting = value != null;
+
+          if (value == null) {
+            value = readTerminal(in, peeked);
+          }
+
+          if (current instanceof JsonArray) {
+            ((JsonArray) current).add(value);
+          } else {
+            ((JsonObject) current).add(name, value);
+          }
+
+          if (isNesting) {
+            stack.addLast(current);
+            current = value;
+          }
         }
-        in.endArray();
-        return array;
-      case BEGIN_OBJECT:
-        JsonObject object = new JsonObject();
-        in.beginObject();
-        while (in.hasNext()) {
-          object.add(in.nextName(), read(in));
+
+        // End current element
+        if (current instanceof JsonArray) {
+          in.endArray();
+        } else {
+          in.endObject();
         }
-        in.endObject();
-        return object;
-      case END_DOCUMENT:
-      case NAME:
-      case END_OBJECT:
-      case END_ARRAY:
-      default:
-        throw new IllegalArgumentException();
+
+        if (stack.isEmpty()) {
+          return current;
+        } else {
+          // Continue with enclosing element
+          current = stack.removeLast();
+        }
       }
     }
 
@@ -803,7 +859,7 @@ public final class TypeAdapters {
           T constant = (T)(constantField.get(null));
           String name = constant.name();
           String toStringVal = constant.toString();
-          
+
           SerializedName annotation = constantField.getAnnotation(SerializedName.class);
           if (annotation != null) {
             name = annotation.value();
