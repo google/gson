@@ -14,6 +14,7 @@
    * [Array Examples](#TOC-Array-Examples)
    * [Collections Examples](#TOC-Collections-Examples)
      * [Collections Limitations](#TOC-Collections-Limitations)
+   * [Maps Examples](#TOC-Maps-Examples)
    * [Serializing and Deserializing Generic Types](#TOC-Serializing-and-Deserializing-Generic-Types)
    * [Serializing and Deserializing Collection with Objects of Arbitrary Types](#TOC-Serializing-and-Deserializing-Collection-with-Objects-of-Arbitrary-Types)
    * [Built-in Serializers and Deserializers](#TOC-Built-in-Serializers-and-Deserializers)
@@ -69,20 +70,23 @@ Gson was originally created for use inside Google where it is currently used in 
 
 The primary class to use is [`Gson`](gson/src/main/java/com/google/gson/Gson.java) which you can just create by calling `new Gson()`. There is also a class [`GsonBuilder`](gson/src/main/java/com/google/gson/GsonBuilder.java) available that can be used to create a Gson instance with various settings like version control and so on.
 
-The Gson instance does not maintain any state while invoking Json operations. So, you are free to reuse the same object for multiple Json serialization and deserialization operations.
+The Gson instance does not maintain any state while invoking JSON operations. So, you are free to reuse the same object for multiple JSON serialization and deserialization operations.
 
 ## <a name="TOC-Gson-With-Gradle"></a>Using Gson with Gradle/Android
-```
+
+```gradle
 dependencies {
     implementation 'com.google.code.gson:gson:2.9.0'
 }
 ```
+
 ## <a name="TOC-Gson-With-Maven"></a>Using Gson with Maven
+
 To use Gson with Maven2/3, you can use the Gson version available in Maven Central by adding the following dependency:
 
 ```xml
 <dependencies>
-    <!--  Gson: Java to Json conversion -->
+    <!--  Gson: Java to JSON conversion -->
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
@@ -92,7 +96,7 @@ To use Gson with Maven2/3, you can use the Gson version available in Maven Centr
 </dependencies>
 ```
 
-That is it, now your maven project is Gson enabled. 
+That is it, now your Maven project is Gson enabled.
 
 ### <a name="TOC-Primitives-Examples"></a>Primitives Examples
 
@@ -129,7 +133,7 @@ class BagOfPrimitives {
 // Serialization
 BagOfPrimitives obj = new BagOfPrimitives();
 Gson gson = new Gson();
-String json = gson.toJson(obj);  
+String json = gson.toJson(obj);
 
 // ==> json is {"value1":1,"value2":"abc"}
 ```
@@ -160,23 +164,23 @@ Gson can serialize static nested classes quite easily.
 Gson can also deserialize static nested classes. However, Gson can **not** automatically deserialize the **pure inner classes since their no-args constructor also need a reference to the containing Object** which is not available at the time of deserialization. You can address this problem by either making the inner class static or by providing a custom InstanceCreator for it. Here is an example:
 
 ```java
-public class A { 
-  public String a; 
+public class A {
+  public String a;
 
-  class B { 
+  class B {
 
-    public String b; 
+    public String b;
 
     public B() {
       // No args constructor for B
     }
-  } 
+  }
 }
 ```
 
 **NOTE**: The above class B can not (by default) be serialized with Gson.
 
-Gson can not deserialize `{"b":"abc"}` into an instance of B since the class B is an inner class. If it was defined as static class B then Gson would have been able to deserialize the string. Another solution is to write a custom instance creator for B. 
+Gson can not deserialize `{"b":"abc"}` into an instance of B since the class B is an inner class. If it was defined as static class B then Gson would have been able to deserialize the string. Another solution is to write a custom instance creator for B.
 
 ```java
 public class InstanceCreatorForB implements InstanceCreator<A.B> {
@@ -204,7 +208,7 @@ gson.toJson(ints);     // ==> [1,2,3,4,5]
 gson.toJson(strings);  // ==> ["abc", "def", "ghi"]
 
 // Deserialization
-int[] ints2 = gson.fromJson("[1,2,3,4,5]", int[].class); 
+int[] ints2 = gson.fromJson("[1,2,3,4,5]", int[].class);
 // ==> ints2 will be same as ints
 ```
 
@@ -214,7 +218,7 @@ We also support multi-dimensional arrays, with arbitrarily complex element types
 
 ```java
 Gson gson = new Gson();
-Collection<Integer> ints = Lists.immutableList(1,2,3,4,5);
+Collection<Integer> ints = Arrays.asList(1,2,3,4,5);
 
 // Serialization
 String json = gson.toJson(ints);  // ==> json is [1,2,3,4,5]
@@ -233,6 +237,73 @@ Unfortunately, there is no way to get around this in Java.
 Gson can serialize collection of arbitrary objects but can not deserialize from it, because there is no way for the user to indicate the type of the resulting object. Instead, while deserializing, the Collection must be of a specific, generic type.
 This makes sense, and is rarely a problem when following good Java coding practices.
 
+### <a name="TOC-Maps-Examples"></a>Maps Examples
+
+Gson by default serializes any `java.util.Map` implementation as a JSON object. Because JSON objects only support strings as member names, Gson converts the Map keys to strings by calling `toString()` on them, and using `"null"` for `null` keys:
+
+```java
+Gson gson = new Gson();
+Map<String, String> stringMap = new LinkedHashMap<>();
+stringMap.put("key", "value");
+stringMap.put(null, "null-entry");
+
+// Serialization
+String json = gson.toJson(stringMap); // ==> json is {"key":"value","null":"null-entry"}
+
+Map<Integer, Integer> intMap = new LinkedHashMap<>();
+intMap.put(2, 4);
+intMap.put(3, 6);
+
+// Serialization
+String json = gson.toJson(intMap); // ==> json is {"2":4,"3":6}
+```
+
+For deserialization Gson uses the `read` method of the `TypeAdapter` registered for the Map key type. Similar to the Collection example shown above, for deserialization a `TypeToken` has to be used to tell Gson what types the Map keys and values have:
+
+```java
+Gson gson = new Gson();
+Type mapType = new TypeToken<Map<String, String>>(){}.getType();
+String json = "{\"key\": \"value\"}";
+
+// Deserialization
+Map<String, String> stringMap = gson.fromJson(json, mapType);
+// ==> stringMap is {key=value}
+```
+
+Gson also supports using complex types as Map keys. This feature can be enabled with [`GsonBuilder.enableComplexMapKeySerialization()`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/GsonBuilder.html#enableComplexMapKeySerialization()). If enabled, Gson uses the `write` method of the `TypeAdapter` registered for the Map key type to serialize the keys, instead of using `toString()`. When any of the keys is serialized by the adapter as JSON array or JSON object, Gson will serialize the complete Map as JSON array, consisting of key-value pairs (encoded as JSON array). Otherwise, if none of the keys is serialized as a JSON array or JSON object, Gson will use a JSON object to encode the Map:
+
+```java
+class PersonName {
+  String firstName;
+  String lastName;
+
+  PersonName(String firstName, String lastName) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+  }
+
+  // ... equals and hashCode
+}
+
+Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
+Map<PersonName, Integer> complexMap = new LinkedHashMap<>();
+complexMap.put(new PersonName("John", "Doe"), 30);
+complexMap.put(new PersonName("Jane", "Doe"), 35);
+
+// Serialization; complex map is serialized as a JSON array containing key-value pairs (as JSON arrays)
+String json = gson.toJson(complexMap);
+// ==> json is [[{"firstName":"John","lastName":"Doe"},30],[{"firstName":"Jane","lastName":"Doe"},35]]
+
+Map<String, String> stringMap = new LinkedHashMap<>();
+stringMap.put("key", "value");
+// Serialization; non-complex map is serialized as a regular JSON object
+String json = gson.toJson(stringMap); // json is {"key":"value"}
+```
+
+**Important:** Because Gson by default uses `toString()` to serialize Map keys, this can lead to malformed encoded keys or can cause mismatch between serialization and deserialization of the keys, for example when `toString()` is not properly implemented. A workaround for this can be to use `enableComplexMapKeySerialization()` to make sure the `TypeAdapter` registered for the Map key type is used for deserialization _and_ serialization. As shown in the example above, when none of the keys are serialized by the adapter as JSON array or JSON object, the Map is serialized as a regular JSON object, as desired.
+
+Note that when deserializing enums as Map keys, if Gson is unable to find an enum constant with a matching `name()` value respectively `@SerializedName` annotation, it falls back to looking up the enum constant by its `toString()` value. This is to work around the issue described above, but only applies to enum constants.
+
 ### <a name="TOC-Serializing-and-Deserializing-Generic-Types"></a>Serializing and Deserializing Generic Types
 
 When you call `toJson(obj)`, Gson calls `obj.getClass()` to get information on the fields to serialize. Similarly, you can typically pass `MyClass.class` object in the `fromJson(json, MyClass.class)` method. This works fine if the object is a non-generic type. However, if the object is of a generic type, then the Generic type information is lost because of Java Type Erasure. Here is an example illustrating the point:
@@ -250,7 +321,7 @@ gson.fromJson(json, foo.getClass()); // Fails to deserialize foo.value as Bar
 
 The above code fails to interpret value as type Bar because Gson invokes `foo.getClass()` to get its class information, but this method returns a raw class, `Foo.class`. This means that Gson has no way of knowing that this is an object of type `Foo<Bar>`, and not just plain `Foo`.
 
-You can solve this problem by specifying the correct parameterized type for your generic type. You can do this by using the [`TypeToken`](https://static.javadoc.io/com.google.code.gson/gson/2.8.5/com/google/gson/reflect/TypeToken.html) class.
+You can solve this problem by specifying the correct parameterized type for your generic type. You can do this by using the [`TypeToken`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/reflect/TypeToken.html) class.
 
 ```java
 Type fooType = new TypeToken<Foo<Bar>>() {}.getType();
@@ -258,6 +329,7 @@ gson.toJson(foo, fooType);
 
 gson.fromJson(json, fooType);
 ```
+
 The idiom used to get `fooType` actually defines an anonymous local inner class containing a method `getType()` that returns the fully parameterized type.
 
 ### <a name="TOC-Serializing-and-Deserializing-Collection-with-Objects-of-Arbitrary-Types"></a>Serializing and Deserializing Collection with Objects of Arbitrary Types
@@ -306,7 +378,7 @@ Gson has built-in serializers and deserializers for commonly used classes whose 
 * `java.net.URL` to match it with strings like `"https://github.com/google/gson/"`
 * `java.net.URI` to match it with strings like `"/google/gson/"`
 
-For many more, see the internal class [`TypeAdapters`](https://github.com/google/gson/blob/master/gson/src/main/java/com/google/gson/internal/bind/TypeAdapters.java).
+For many more, see the internal class [`TypeAdapters`](gson/src/main/java/com/google/gson/internal/bind/TypeAdapters.java).
 
 You can also find source code for some commonly used classes such as JodaTime at [this page](https://sites.google.com/site/gson/gson-type-adapters-for-common-classes-1).
 
@@ -315,8 +387,8 @@ You can also find source code for some commonly used classes such as JodaTime at
 Sometimes default representation is not what you want. This is often the case when dealing with library classes (DateTime, etc).
 Gson allows you to register your own custom serializers and deserializers. This is done by defining two parts:
 
-* Json Serializers: Need to define custom serialization for an object
-* Json Deserializers: Needed to define custom deserialization for a type
+* JSON Serializers: Need to define custom serialization for an object
+* JSON Deserializers: Needed to define custom deserialization for a type
 
 * Instance Creators: Not needed if no-args constructor is available or a deserializer is registered
 
@@ -443,10 +515,12 @@ The default JSON output that is provided by Gson is a compact JSON format. This 
 If you would like to use the Pretty Print feature, you must configure your `Gson` instance using the `GsonBuilder`. The `JsonFormatter` is not exposed through our public API, so the client is unable to configure the default print settings/margins for the JSON output. For now, we only provide a default `JsonPrintFormatter` that has default line length of 80 character, 2 character indentation, and 4 character right margin.
 
 The following is an example shows how to configure a `Gson` instance to use the default `JsonPrintFormatter` instead of the `JsonCompactFormatter`:
-```
+
+```java
 Gson gson = new GsonBuilder().setPrettyPrinting().create();
 String jsonOutput = gson.toJson(someObject);
 ```
+
 ### <a name="TOC-Null-Object-Support"></a>Null Object Support
 
 The default behaviour that is implemented in Gson is that `null` object fields are ignored. This allows for a more compact output format; however, the client must define a default value for these fields as the JSON format is converted back into its Java form.
@@ -557,7 +631,7 @@ This feature provides a way where you can mark certain fields of your objects to
 
 #### <a name="TOC-User-Defined-Exclusion-Strategies"></a>User Defined Exclusion Strategies
 
-If the above mechanisms for excluding fields and class type do not work for you then you can always write your own exclusion strategy and plug it into Gson. See the [`ExclusionStrategy`](https://static.javadoc.io/com.google.code.gson/gson/2.8.5/com/google/gson/ExclusionStrategy.html) JavaDoc for more information.
+If the above mechanisms for excluding fields and class type do not work for you then you can always write your own exclusion strategy and plug it into Gson. See the [`ExclusionStrategy`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/ExclusionStrategy.html) JavaDoc for more information.
 
 The following example shows how to exclude fields marked with a specific `@Foo` annotation and excludes top-level types (or declared field type) of class `String`.
 
@@ -610,13 +684,13 @@ public static void main(String[] args) {
 
 The output is:
 
-```
+```json
 {"longField":1234}
 ```
 
 ### <a name="TOC-JSON-Field-Naming-Support"></a>JSON Field Naming Support
 
-Gson supports some pre-defined field naming policies to convert the standard Java field names (i.e., camel cased names starting with lower case --- `sampleFieldNameInJava`) to a Json field name (i.e., `sample_field_name_in_java` or `SampleFieldNameInJava`). See the [FieldNamingPolicy](https://static.javadoc.io/com.google.code.gson/gson/2.8.5/com/google/gson/FieldNamingPolicy.html) class for information on the pre-defined naming policies.
+Gson supports some pre-defined field naming policies to convert the standard Java field names (i.e., camel cased names starting with lower case --- `sampleFieldNameInJava`) to a JSON field name (i.e., `sample_field_name_in_java` or `SampleFieldNameInJava`). See the [FieldNamingPolicy](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/FieldNamingPolicy.html) class for information on the pre-defined naming policies.
 
 It also has an annotation based strategy to allows clients to define custom names on a per field basis. Note, that the annotation based strategy has field name validation which will raise "Runtime" exceptions if an invalid field name is provided as the annotation value.
 
@@ -641,11 +715,11 @@ System.out.println(jsonRepresentation);
 
 The output is:
 
-```
+```json
 {"custom_naming":"first","SomeOtherField":"second"}
 ```
 
-If you have a need for custom naming policy ([see this discussion](https://groups.google.com/group/google-gson/browse_thread/thread/cb441a2d717f6892)), you can use the [@SerializedName](https://static.javadoc.io/com.google.code.gson/gson/2.8.5/com/google/gson/annotations/SerializedName.html) annotation.
+If you have a need for custom naming policy ([see this discussion](https://groups.google.com/group/google-gson/browse_thread/thread/cb441a2d717f6892)), you can use the [@SerializedName](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/annotations/SerializedName.html) annotation.
 
 ### <a name="TOC-Sharing-State-Across-Custom-Serializers-and-Deserializers"></a>Sharing State Across Custom Serializers and Deserializers
 
@@ -663,7 +737,7 @@ In addition Gson's object model and data binding, you can use Gson to read from 
 
 ## <a name="TOC-Issues-in-Designing-Gson"></a>Issues in Designing Gson
 
-See the [Gson design document](https://github.com/google/gson/blob/master/GsonDesignDocument.md "Gson design document") for a discussion of issues we faced while designing Gson. It also include a comparison of Gson with other Java libraries that can be used for Json conversion.
+See the [Gson design document](GsonDesignDocument.md "Gson design document") for a discussion of issues we faced while designing Gson. It also include a comparison of Gson with other Java libraries that can be used for JSON conversion.
 
 ## <a name="TOC-Future-Enhancements-to-Gson"></a>Future Enhancements to Gson
 
