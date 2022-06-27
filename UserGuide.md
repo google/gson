@@ -239,7 +239,7 @@ This makes sense, and is rarely a problem when following good Java coding practi
 
 ### <a name="TOC-Maps-Examples"></a>Maps Examples
 
-Gson by default serializes `java.util.Map` implementations as JSON object. Because JSON objects only support strings as member names, Gson converts the Map keys to strings by calling `toString()` on them, and using `"null"` for `null` keys:
+Gson by default serializes any `java.util.Map` implementation as a JSON object. Because JSON objects only support strings as member names, Gson converts the Map keys to strings by calling `toString()` on them, and using `"null"` for `null` keys:
 
 ```java
 Gson gson = new Gson();
@@ -270,7 +270,7 @@ Map<String, String> stringMap = gson.fromJson(json, mapType);
 // ==> stringMap is {key=value}
 ```
 
-Gson also supports using complex types as Map keys. This feature can be enabled with [`GsonBuilder.enableComplexMapKeySerialization()`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/GsonBuilder.html#enableComplexMapKeySerialization()). If enabled, Gson uses the `write` method of the `TypeAdapter` registered for the Map key type to serialize the keys, instead of using `toString()`. When any of the keys is serialized by the adapter as JSON array or JSON object, Gson will serialize the complete Map as JSON array, consisting of key-value pairs (encoded as JSON array). Otherwise, if none of the keys is serialized as JSON array or JSON object, Gson will use a JSON object to encode the Map:
+Gson also supports using complex types as Map keys. This feature can be enabled with [`GsonBuilder.enableComplexMapKeySerialization()`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/GsonBuilder.html#enableComplexMapKeySerialization()). If enabled, Gson uses the `write` method of the `TypeAdapter` registered for the Map key type to serialize the keys, instead of using `toString()`. When any of the keys is serialized by the adapter as JSON array or JSON object, Gson will serialize the complete Map as JSON array, consisting of key-value pairs (encoded as JSON array). Otherwise, if none of the keys is serialized as a JSON array or JSON object, Gson will use a JSON object to encode the Map:
 
 ```java
 class PersonName {
@@ -290,19 +290,19 @@ Map<PersonName, Integer> complexMap = new LinkedHashMap<>();
 complexMap.put(new PersonName("John", "Doe"), 30);
 complexMap.put(new PersonName("Jane", "Doe"), 35);
 
-// Serialization; complex map is serialized as JSON array containing key-value pairs (as JSON arrays)
+// Serialization; complex map is serialized as a JSON array containing key-value pairs (as JSON arrays)
 String json = gson.toJson(complexMap);
 // ==> json is [[{"firstName":"John","lastName":"Doe"},30],[{"firstName":"Jane","lastName":"Doe"},35]]
 
 Map<String, String> stringMap = new LinkedHashMap<>();
 stringMap.put("key", "value");
-// Serialization; non-complex map is serialized as regular JSON object
+// Serialization; non-complex map is serialized as a regular JSON object
 String json = gson.toJson(stringMap); // json is {"key":"value"}
 ```
 
-**Important:** Because Gson by default uses `toString()` to serialize Map keys, this can lead to malformed encoded keys or can cause mismatch between serialization and deserialization of the keys, for example when `toString()` is not properly implemented. A workaround for this can be to use `enableComplexMapKeySerialization()` to make sure the `TypeAdapter` registered for the Map key type is used for deserialization _and_ serialization. As shown in the example above, when none of the keys are serialized by the adapter as JSON array or JSON object, the Map is serialized as regular JSON object, as desired.
+**Important:** Because Gson by default uses `toString()` to serialize Map keys, this can lead to malformed encoded keys or can cause mismatch between serialization and deserialization of the keys, for example when `toString()` is not properly implemented. A workaround for this can be to use `enableComplexMapKeySerialization()` to make sure the `TypeAdapter` registered for the Map key type is used for deserialization _and_ serialization. As shown in the example above, when none of the keys are serialized by the adapter as JSON array or JSON object, the Map is serialized as a regular JSON object, as desired.
 
-Note that when deserializing enums as Map keys and Gson is unable to find an enum constant with a matching `name()` value respectively `@SerializedName` annotation, it falls back to looking up the enum constant by its `toString()` value. This is to work around the issue described above, but only applies to enum constants.
+Note that when deserializing enums as Map keys, if Gson is unable to find an enum constant with a matching `name()` value respectively `@SerializedName` annotation, it falls back to looking up the enum constant by its `toString()` value. This is to work around the issue described above, but only applies to enum constants.
 
 ### <a name="TOC-Serializing-and-Deserializing-Generic-Types"></a>Serializing and Deserializing Generic Types
 
