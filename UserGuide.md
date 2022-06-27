@@ -14,6 +14,7 @@
    * [Array Examples](#TOC-Array-Examples)
    * [Collections Examples](#TOC-Collections-Examples)
      * [Collections Limitations](#TOC-Collections-Limitations)
+   * [Maps Examples](#TOC-Maps-Examples)
    * [Serializing and Deserializing Generic Types](#TOC-Serializing-and-Deserializing-Generic-Types)
    * [Serializing and Deserializing Collection with Objects of Arbitrary Types](#TOC-Serializing-and-Deserializing-Collection-with-Objects-of-Arbitrary-Types)
    * [Built-in Serializers and Deserializers](#TOC-Built-in-Serializers-and-Deserializers)
@@ -214,7 +215,7 @@ We also support multi-dimensional arrays, with arbitrarily complex element types
 
 ```java
 Gson gson = new Gson();
-Collection<Integer> ints = Lists.immutableList(1,2,3,4,5);
+Collection<Integer> ints = Arrays.asList(1,2,3,4,5);
 
 // Serialization
 String json = gson.toJson(ints);  // ==> json is [1,2,3,4,5]
@@ -232,6 +233,73 @@ Unfortunately, there is no way to get around this in Java.
 
 Gson can serialize collection of arbitrary objects but can not deserialize from it, because there is no way for the user to indicate the type of the resulting object. Instead, while deserializing, the Collection must be of a specific, generic type.
 This makes sense, and is rarely a problem when following good Java coding practices.
+
+### <a name="TOC-Maps-Examples"></a>Maps Examples
+
+Gson by default serializes `java.util.Map` implementations as JSON object. Because JSON objects only support strings as member names, Gson converts the Map keys to strings by calling `toString()` on them, and using `"null"` for `null` keys:
+
+```java
+Gson gson = new Gson();
+Map<String, String> stringMap = new LinkedHashMap<>();
+stringMap.put("key", "value");
+stringMap.put(null, "null-entry");
+
+// Serialization
+String json = gson.toJson(stringMap); // ==> json is {"key":"value","null":"null-entry"}
+
+Map<Integer, Integer> intMap = new LinkedHashMap<>();
+intMap.put(2, 4);
+intMap.put(3, 6);
+
+// Serialization
+String json = gson.toJson(intMap); // ==> json is {"2":4,"3":6}
+```
+
+For deserialization Gson uses the `read` method of the `TypeAdapter` registered for the Map key type. Similar to the Collection example shown above, for deserialization a `TypeToken` has to be used to tell Gson what types the Map keys and values have:
+
+```java
+Gson gson = new Gson();
+Type mapType = new TypeToken<Map<String, String>>(){}.getType();
+String json = "{\"key\": \"value\"}";
+
+// Deserialization
+Map<String, String> stringMap = gson.fromJson(json, mapType);
+// ==> stringMap is {key=value}
+```
+
+Gson also supports using complex types as Map keys. This feature can be enabled with [`GsonBuilder.enableComplexMapKeySerialization()`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/GsonBuilder.html#enableComplexMapKeySerialization()). If enabled, Gson uses the `write` method of the `TypeAdapter` registered for the Map key type to serialize the keys, instead of using `toString()`. When any of the keys is serialized by the adapter as JSON array or JSON object, Gson will serialize the complete Map as JSON array, consisting of key-value pairs (encoded as JSON array). Otherwise, if none of the keys is serialized as JSON array or JSON object, Gson will use a JSON object to encode the Map:
+
+```java
+class PersonName {
+  String firstName;
+  String lastName;
+
+  PersonName(String firstName, String lastName) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+  }
+
+  // ... equals and hashCode
+}
+
+Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
+Map<PersonName, Integer> complexMap = new LinkedHashMap<>();
+complexMap.put(new PersonName("John", "Doe"), 30);
+complexMap.put(new PersonName("Jane", "Doe"), 35);
+
+// Serialization; complex map is serialized as JSON array containing key-value pairs (as JSON arrays)
+String json = gson.toJson(complexMap);
+// ==> json is [[{"firstName":"John","lastName":"Doe"},30],[{"firstName":"Jane","lastName":"Doe"},35]]
+
+Map<String, String> stringMap = new LinkedHashMap<>();
+stringMap.put("key", "value");
+// Serialization; non-complex map is serialized as regular JSON object
+String json = gson.toJson(stringMap); // json is {"key":"value"}
+```
+
+**Important:** Because Gson by default uses `toString()` to serialize Map keys, this can lead to malformed encoded keys or can cause mismatch between serialization and deserialization of the keys, for example when `toString()` is not properly implemented. A workaround for this can be to use `enableComplexMapKeySerialization()` to make sure the `TypeAdapter` registered for the Map key type is used for deserialization _and_ serialization. As shown in the example above, when none of the keys are serialized by the adapter as JSON array or JSON object, the Map is serialized as regular JSON object, as desired.
+
+Note that when deserializing enums as Map keys and Gson is unable to find an enum constant with a matching `name()` value respectively `@SerializedName` annotation, it falls back to looking up the enum constant by its `toString()` value. This is to work around the issue described above, but only applies to enum constants.
 
 ### <a name="TOC-Serializing-and-Deserializing-Generic-Types"></a>Serializing and Deserializing Generic Types
 
