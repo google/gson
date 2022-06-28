@@ -304,8 +304,6 @@ public class JsonReader implements Closeable {
    *       prefix</a>, <code>")]}'\n"</code>.
    *   <li>Streams that include multiple top-level values. With strict parsing,
    *       each stream must contain exactly one top-level value.
-   *   <li>Top-level values of any type. With strict parsing, the top-level
-   *       value must be an object or an array.
    *   <li>Numbers may be {@link Double#isNaN() NaNs} or {@link
    *       Double#isInfinite() infinities}.
    *   <li>End of line comments starting with {@code //} or {@code #} and
@@ -320,6 +318,18 @@ public class JsonReader implements Closeable {
    *   <li>Names and values separated by {@code =} or {@code =>} instead of
    *       {@code :}.
    *   <li>Name/value pairs separated by {@code ;} instead of {@code ,}.
+   * </ul>
+   *
+   * <p>Note: Even in strict mode there are slight derivations from the JSON
+   * specification:
+   * <ul>
+   *   <li>JsonReader allows the literals {@code true}, {@code false} and {@code null}
+   *       to have any capitalization, for example {@code fAlSe}
+   *   <li>JsonReader supports the escape sequence {@code \'}, representing a {@code '}
+   *   <li>JsonReader supports the escape sequence <code>\<i>LF</i></code> (with {@code LF}
+   *       being the Unicode character U+000A), resulting in a {@code LF} within the
+   *       read JSON string
+   *   <li>JsonReader allows unescaped control characters (U+0000 through U+001F)
    * </ul>
    */
   public final void setLenient(boolean lenient) {

@@ -15,17 +15,16 @@
  */
 package com.google.gson;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.MalformedJsonException;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 
 /**
- * A parser to parse Json into a parse tree of {@link JsonElement}s
+ * A parser to parse JSON into a parse tree of {@link JsonElement}s.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
@@ -37,7 +36,11 @@ public final class JsonParser {
   public JsonParser() {}
 
   /**
-   * Parses the specified JSON string into a parse tree
+   * Parses the specified JSON string into a parse tree.
+   * An exception is thrown if the JSON string has multiple top-level JSON elements,
+   * or if there is trailing data.
+   *
+   * <p>The JSON string is parsed in {@linkplain JsonReader#setLenient(boolean) lenient mode}.
    *
    * @param json JSON text
    * @return a parse tree of {@link JsonElement}s corresponding to the specified JSON
@@ -48,11 +51,16 @@ public final class JsonParser {
   }
 
   /**
-   * Parses the specified JSON string into a parse tree
+   * Parses the complete JSON string provided by the reader into a parse tree.
+   * An exception is thrown if the JSON string has multiple top-level JSON elements,
+   * or if there is trailing data.
+   *
+   * <p>The JSON data is parsed in {@linkplain JsonReader#setLenient(boolean) lenient mode}.
    *
    * @param reader JSON text
    * @return a parse tree of {@link JsonElement}s corresponding to the specified JSON
-   * @throws JsonParseException if the specified text is not valid JSON
+   * @throws JsonParseException if there is an IOException or if the specified
+   *     text is not valid JSON
    */
   public static JsonElement parseReader(Reader reader) throws JsonIOException, JsonSyntaxException {
     try {
@@ -73,6 +81,12 @@ public final class JsonParser {
 
   /**
    * Returns the next value from the JSON stream as a parse tree.
+   * Unlike the other {@code parse} methods, no exception is thrown if the JSON data has
+   * multiple top-level JSON elements, or if there is trailing data.
+   *
+   * <p>The JSON data is parsed in {@linkplain JsonReader#setLenient(boolean) lenient mode},
+   * regardless of the lenient mode setting of the provided reader. The lenient mode setting
+   * of the reader is restored once this method returns.
    *
    * @throws JsonParseException if there is an IOException or if the specified
    *     text is not valid JSON

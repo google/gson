@@ -16,25 +16,6 @@
 
 package com.google.gson;
 
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.lang.reflect.Type;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicLongArray;
-
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.Excluder;
 import com.google.gson.internal.GsonBuildConfig;
@@ -58,6 +39,24 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.google.gson.stream.MalformedJsonException;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicLongArray;
 
 /**
  * This is the main class for using Gson. Gson is typically used by first constructing a
@@ -96,6 +95,33 @@ import com.google.gson.stream.MalformedJsonException;
  *
  * <p>See the <a href="https://sites.google.com/site/gson/gson-user-guide">Gson User Guide</a>
  * for a more complete set of examples.</p>
+ *
+ * <h2>Lenient JSON handling</h2>
+ * For legacy reasons most of the {@code Gson} methods allow JSON data which does not
+ * comply with the JSON specification, regardless of whether {@link GsonBuilder#setLenient()}
+ * is used or not. If this behavior is not desired, the following workarounds can be used:
+ *
+ * <h3>Serialization</h3>
+ * <ol>
+ *   <li>Use {@link #getAdapter(Class)} to obtain the adapter for the type to be serialized
+ *   <li>When using an existing {@code JsonWriter}, manually apply the writer settings of this
+ *       {@code Gson} instance listed by {@link #newJsonWriter(Writer)}.<br>
+ *       Otherwise, when not using an existing {@code JsonWriter}, use {@link #newJsonWriter(Writer)}
+ *       to construct one.
+ *   <li>Call {@link TypeAdapter#write(JsonWriter, Object)}
+ * </ol>
+ *
+ * <h3>Deserialization</h3>
+ * <ol>
+ *   <li>Use {@link #getAdapter(Class)} to obtain the adapter for the type to be deserialized
+ *   <li>When using an existing {@code JsonReader}, manually apply the reader settings of this
+ *       {@code Gson} instance listed by {@link #newJsonReader(Reader)}.<br>
+ *       Otherwise, when not using an existing {@code JsonReader}, use {@link #newJsonReader(Reader)}
+ *       to construct one.
+ *   <li>Call {@link TypeAdapter#read(JsonReader)}
+ *   <li>Call {@link JsonReader#peek()} and verify that the result is {@link JsonToken#END_DOCUMENT}
+ *       to make sure there is no trailing data
+ * </ol>
  *
  * @see com.google.gson.reflect.TypeToken
  *
@@ -736,6 +762,15 @@ public final class Gson {
   /**
    * Writes the JSON representation of {@code src} of type {@code typeOfSrc} to
    * {@code writer}.
+   *
+   * <p>The JSON data is written in {@linkplain JsonWriter#setLenient(boolean) lenient mode},
+   * regardless of the lenient mode setting of the provided writer. The lenient mode setting
+   * of the writer is restored once this method returns.
+   *
+   * <p>The 'HTML-safe' and 'serialize {@code null}' settings of this {@code Gson} instance
+   * (configured by the {@link GsonBuilder}) are applied, and the original settings of the
+   * writer are restored once this method returns.
+   *
    * @throws JsonIOException if there was a problem writing to the writer
    */
   @SuppressWarnings("unchecked")
@@ -834,6 +869,15 @@ public final class Gson {
 
   /**
    * Writes the JSON for {@code jsonElement} to {@code writer}.
+   *
+   * <p>The JSON data is written in {@linkplain JsonWriter#setLenient(boolean) lenient mode},
+   * regardless of the lenient mode setting of the provided writer. The lenient mode setting
+   * of the writer is restored once this method returns.
+   *
+   * <p>The 'HTML-safe' and 'serialize {@code null}' settings of this {@code Gson} instance
+   * (configured by the {@link GsonBuilder}) are applied, and the original settings of the
+   * writer are restored once this method returns.
+   *
    * @throws JsonIOException if there was a problem writing to the writer
    */
   public void toJson(JsonElement jsonElement, JsonWriter writer) throws JsonIOException {
@@ -868,6 +912,9 @@ public final class Gson {
    * {@link #fromJson(String, Type)}. If you have the Json in a {@link Reader} instead of
    * a String, use {@link #fromJson(Reader, Class)} instead.
    *
+   * <p>An exception is thrown if the JSON string has multiple top-level JSON elements,
+   * or if there is trailing data.
+   *
    * @param <T> the type of the desired object
    * @param json the string from which the object is to be deserialized
    * @param classOfT the class of T
@@ -886,6 +933,9 @@ public final class Gson {
    * is useful if the specified object is a generic type. For non-generic objects, use
    * {@link #fromJson(String, Class)} instead. If you have the Json in a {@link Reader} instead of
    * a String, use {@link #fromJson(Reader, Type)} instead.
+   *
+   * <p>An exception is thrown if the JSON string has multiple top-level JSON elements,
+   * or if there is trailing data.
    *
    * @param <T> the type of the desired object
    * @param json the string from which the object is to be deserialized
@@ -920,6 +970,9 @@ public final class Gson {
    * invoke {@link #fromJson(Reader, Type)}. If you have the Json in a String form instead of a
    * {@link Reader}, use {@link #fromJson(String, Class)} instead.
    *
+   * <p>An exception is thrown if the JSON data has multiple top-level JSON elements,
+   * or if there is trailing data.
+   *
    * @param <T> the type of the desired object
    * @param json the reader producing the Json from which the object is to be deserialized.
    * @param classOfT the class of T
@@ -940,6 +993,9 @@ public final class Gson {
    * specified type. This method is useful if the specified object is a generic type. For
    * non-generic objects, use {@link #fromJson(Reader, Class)} instead. If you have the Json in a
    * String form instead of a {@link Reader}, use {@link #fromJson(String, Type)} instead.
+   *
+   * <p>An exception is thrown if the JSON data has multiple top-level JSON elements,
+   * or if there is trailing data.
    *
    * @param <T> the type of the desired object
    * @param json the reader producing Json from which the object is to be deserialized
@@ -965,7 +1021,7 @@ public final class Gson {
   private static void assertFullConsumption(Object obj, JsonReader reader) {
     try {
       if (obj != null && reader.peek() != JsonToken.END_DOCUMENT) {
-        throw new JsonIOException("JSON document was not fully consumed.");
+        throw new JsonSyntaxException("JSON document was not fully consumed.");
       }
     } catch (MalformedJsonException e) {
       throw new JsonSyntaxException(e);
@@ -977,7 +1033,14 @@ public final class Gson {
   /**
    * Reads the next JSON value from {@code reader} and convert it to an object
    * of type {@code typeOfT}. Returns {@code null}, if the {@code reader} is at EOF.
-   * Since Type is not parameterized by T, this method is type unsafe and should be used carefully
+   * Since Type is not parameterized by T, this method is type unsafe and should be used carefully.
+   *
+   * <p>Unlike the other {@code fromJson} methods, no exception is thrown if the JSON data has
+   * multiple top-level JSON elements, or if there is trailing data.
+   *
+   * <p>The JSON data is parsed in {@linkplain JsonReader#setLenient(boolean) lenient mode},
+   * regardless of the lenient mode setting of the provided reader. The lenient mode setting
+   * of the reader is restored once this method returns.
    *
    * @throws JsonIOException if there was a problem writing to the Reader
    * @throws JsonSyntaxException if json is not a valid representation for an object of type
