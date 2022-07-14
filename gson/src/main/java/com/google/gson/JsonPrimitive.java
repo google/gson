@@ -267,6 +267,12 @@ public final class JsonPrimitive extends JsonElement {
     if (value == null) {
       return other.value == null;
     }
+    if (isBigNumber(this) || isBigNumber(other)) {
+      // As a BigDecimal is essentially a wrapper around a BigInteger that
+      // "remembers where the decimal point is", casting BigInteger to BigDecimal
+      // makes more sense, avoiding max long/double values comparison.
+      return getAsBigDecimal().equals(other.getAsBigDecimal());
+    }
     if (isIntegral(this) && isIntegral(other)) {
       return getAsNumber().longValue() == other.getAsNumber().longValue();
     }
@@ -291,5 +297,17 @@ public final class JsonPrimitive extends JsonElement {
           || number instanceof Short || number instanceof Byte;
     }
     return false;
+  }
+
+  private static boolean isBigInteger(JsonPrimitive primitive) {
+    return primitive.value instanceof BigDecimal;
+  }
+
+  private static boolean isBigDecimal(JsonPrimitive primitive) {
+    return primitive.value instanceof BigDecimal;
+  }
+
+  private static boolean isBigNumber(JsonPrimitive primitive) {
+    return isBigDecimal(primitive) || isBigInteger(primitive);
   }
 }
