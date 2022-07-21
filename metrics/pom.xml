@@ -47,7 +47,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-deploy-plugin</artifactId>
-          <version>3.0.0-M2</version>
+          <version>3.0.0</version>
           <configuration>
             <!-- Not deployed -->
             <skip>true</skip>
