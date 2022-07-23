@@ -68,11 +68,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     this.reflectionFilters = reflectionFilters;
   }
 
-  public boolean excludeField(Field f, boolean serialize) {
-    return excludeField(f, serialize, excluder);
-  }
-
-  static boolean excludeField(Field f, boolean serialize, Excluder excluder) {
+  private boolean includeField(Field f, boolean serialize) {
     return !excluder.excludeClass(f.getType(), serialize) && !excluder.excludeField(f, serialize);
   }
 
@@ -196,8 +192,8 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       }
 
       for (Field field : fields) {
-        boolean serialize = excludeField(field, true);
-        boolean deserialize = excludeField(field, false);
+        boolean serialize = includeField(field, true);
+        boolean deserialize = includeField(field, false);
         if (!serialize && !deserialize) {
           continue;
         }

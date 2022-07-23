@@ -34,7 +34,9 @@ public final class RuntimeTypeAdapterFactoryTest extends TestCase {
 
     CreditCard original = new CreditCard("Jesse", 234);
     assertEquals("{\"type\":\"CreditCard\",\"cvv\":234,\"ownerName\":\"Jesse\"}",
-        gson.toJson(original, BillingInstrument.class));
+        //do not give the explicit typeOfSrc, because if this would be in a list
+        //or an attribute, there would also be no hint. See #712
+        gson.toJson(original));
     BillingInstrument deserialized = gson.fromJson(
         "{type:'CreditCard',cvv:234,ownerName:'Jesse'}", BillingInstrument.class);
     assertEquals("Jesse", deserialized.ownerName);
