@@ -156,7 +156,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
   public static <T> RuntimeTypeAdapterFactory<T> of(Class<T> baseType, String typeFieldName, boolean maintainType) {
     return new RuntimeTypeAdapterFactory<>(baseType, typeFieldName, maintainType);
   }
-  
+
   /**
    * Creates a new runtime type adapter using for {@code baseType} using {@code
    * typeFieldName} as the type field name. Type field names are case sensitive.
@@ -179,6 +179,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
    *
    * @throws IllegalArgumentException if either {@code type} or {@code label}
    *     have already been registered on this type adapter.
+   * @return this
    */
   public RuntimeTypeAdapterFactory<T> registerSubtype(Class<? extends T> type, String label) {
     if (type == null || label == null) {
@@ -198,6 +199,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
    *
    * @throws IllegalArgumentException if either {@code type} or its simple name
    *     have already been registered on this type adapter.
+   * @return this
    */
   public RuntimeTypeAdapterFactory<T> registerSubtype(Class<? extends T> type) {
     return registerSubtype(type, type.getSimpleName());
@@ -227,7 +229,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
         } else {
             labelJsonElement = jsonElement.getAsJsonObject().remove(typeFieldName);
         }
-        
+
         if (labelJsonElement == null) {
           throw new JsonParseException("cannot deserialize " + baseType
               + " because it does not define a field named " + typeFieldName);
@@ -265,7 +267,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
               + " because it already defines a field named " + typeFieldName);
         }
         clone.add(typeFieldName, new JsonPrimitive(label));
-        
+
         for (Map.Entry<String, JsonElement> e : jsonObject.entrySet()) {
           clone.add(e.getKey(), e.getValue());
         }
