@@ -20,6 +20,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.stream.JsonReader;
@@ -36,6 +37,22 @@ import java.io.Writer;
 public final class Streams {
   private Streams() {
     throw new UnsupportedOperationException();
+  }
+
+  /**
+   * @deprecated
+   *    This method is declared in an internal Gson class. Use the public API class {@link JsonParser}
+   *    (note that {@code JsonParser} parses JSON in lenient mode), or obtain the {@code TypeAdapter}
+   *    for {@code JsonElement} and use that for parsing:
+   *    <pre>{@code
+   *TypeAdapter<JsonElement> adapter = gson.getAdapter(JsonElement.class);
+   *JsonElement element = adapter.read(...);
+   *    }</pre>
+   */
+  // Only keeping this internal method because third-party projects depend on it
+  @Deprecated
+  public static JsonElement parse(JsonReader reader) {
+    return parse(reader, false);
   }
 
   /**
