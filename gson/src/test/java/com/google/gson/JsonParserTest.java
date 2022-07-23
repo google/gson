@@ -190,6 +190,7 @@ public class JsonParserTest {
   }
 
   /** Deeply nested JSON arrays should not cause {@link StackOverflowError} */
+  @Test
   public void testParseDeeplyNestedArrays() throws IOException {
     int times = 10000;
     // [[[ ... ]]]
@@ -209,6 +210,7 @@ public class JsonParserTest {
   }
 
   /** Deeply nested JSON objects should not cause {@link StackOverflowError} */
+  @Test
   public void testParseDeeplyNestedObjects() throws IOException {
     int times = 10000;
     // {"a":{"a": ... {"a":null} ... }}
