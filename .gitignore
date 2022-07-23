@@ -20,3 +20,5 @@ build
 .DS_Store
 
 examples/android-proguard-example/gen
+
+bazel-*
