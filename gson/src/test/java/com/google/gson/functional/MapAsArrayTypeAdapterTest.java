@@ -26,7 +26,7 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.reflect.Type;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import junit.framework.TestCase;
@@ -141,7 +141,7 @@ public class MapAsArrayTypeAdapterTest extends TestCase {
   }
 
   static class PointWithProperty<T> {
-    Map<Point, T> map = new HashMap<>();
+    Map<Point, T> map = new LinkedHashMap<>();
   }
 
   /**
@@ -153,19 +153,45 @@ public class MapAsArrayTypeAdapterTest extends TestCase {
         .enableComplexMapKeySerialization()
         .serializeSpecialFloatingPointValues()
         .create();
-    StringWriter writer = new StringWriter();
-    JsonWriter jsonWriter = new JsonWriter(writer);
-    jsonWriter.setLenient(true);
-    jsonWriter.setSerializeNulls(false);
-
-    Map<DoubleContainer, Integer> map = new HashMap<>();
-    map.put(new DoubleContainer(null), 1);
-    map.put(new DoubleContainer(Double.NaN), 2);
 
     // Use TypeAdapter to avoid default lenientness of Gson
     TypeAdapter<Map<DoubleContainer, Integer>> adapter = gson.getAdapter(new TypeToken<Map<DoubleContainer, Integer>>() {});
-    adapter.write(jsonWriter, map);
-    assertEquals("[[{},1],[{\"d\":NaN},2]]", writer.toString());
+
+    {
+      StringWriter writer = new StringWriter();
+      JsonWriter jsonWriter = new JsonWriter(writer);
+      jsonWriter.setSerializeNulls(true);
+
+      adapter.write(jsonWriter, Collections.singletonMap(new DoubleContainer(null), 1));
+      assertEquals("[[{\"d\":null},1]]", writer.toString());
+    }
+
+
+    Map<DoubleContainer, Integer> map = new LinkedHashMap<>();
+    map.put(new DoubleContainer(null), 1);
+    map.put(new DoubleContainer(Double.NaN), 2);
+
+    {
+      JsonWriter jsonWriter = new JsonWriter(new StringWriter());
+      jsonWriter.setLenient(false);
+
+      try {
+        adapter.write(jsonWriter, map);
+        fail();
+      } catch (IllegalArgumentException e) {
+        assertEquals("JSON forbids NaN and infinities: NaN", e.getMessage());
+      }
+    }
+
+    {
+      StringWriter writer = new StringWriter();
+      JsonWriter jsonWriter = new JsonWriter(writer);
+      jsonWriter.setLenient(true);
+      jsonWriter.setSerializeNulls(false);
+
+      adapter.write(jsonWriter, map);
+      assertEquals("[[{},1],[{\"d\":NaN},2]]", writer.toString());
+    }
   }
 
   /**
@@ -200,7 +226,7 @@ public class MapAsArrayTypeAdapterTest extends TestCase {
         })
         .create();
 
-    Map<DoubleContainer, Integer> map = new HashMap<>();
+    Map<DoubleContainer, Integer> map = new LinkedHashMap<>();
     map.put(new DoubleContainer(null), 1);
 
     // Use TypeAdapter to avoid default lenientness of Gson
@@ -209,31 +235,35 @@ public class MapAsArrayTypeAdapterTest extends TestCase {
     String expectedJson = "[[{\"c1\":NaN,\"c2\":null},1]]";
 
     // First create a permissive writer
-    StringWriter writer = new StringWriter();
-    JsonWriter jsonWriter = new JsonWriter(writer);
-    jsonWriter.setSerializeNulls(true);
-    jsonWriter.setLenient(true);
+    {
+      StringWriter writer = new StringWriter();
+      JsonWriter jsonWriter = new JsonWriter(writer);
+      jsonWriter.setSerializeNulls(true);
+      jsonWriter.setLenient(true);
 
-    adapter.write(jsonWriter, map);
-    assertEquals(expectedJson, writer.toString());
+      adapter.write(jsonWriter, map);
+      assertEquals(expectedJson, writer.toString());
 
-    // Should still have original settings values
-    assertEquals(true, jsonWriter.getSerializeNulls());
-    assertEquals(true, jsonWriter.isLenient());
+      // Should still have original settings values
+      assertEquals(true, jsonWriter.getSerializeNulls());
+      assertEquals(true, jsonWriter.isLenient());
+    }
 
     // Then try non-permissive writer; should have same result because custom
     // adapter temporarily changed writer settings
-    writer = new StringWriter();
-    jsonWriter = new JsonWriter(writer);
-    jsonWriter.setSerializeNulls(false);
-    jsonWriter.setLenient(false);
+    {
+      StringWriter writer = new StringWriter();
+      JsonWriter jsonWriter = new JsonWriter(writer);
+      jsonWriter.setSerializeNulls(false);
+      jsonWriter.setLenient(false);
 
-    adapter.write(jsonWriter, map);
-    assertEquals(expectedJson, writer.toString());
+      adapter.write(jsonWriter, map);
+      assertEquals(expectedJson, writer.toString());
 
-    // Should still have original settings values
-    assertEquals(false, jsonWriter.getSerializeNulls());
-    assertEquals(false, jsonWriter.isLenient());
+      // Should still have original settings values
+      assertEquals(false, jsonWriter.getSerializeNulls());
+      assertEquals(false, jsonWriter.isLenient());
+    }
   }
 
   static class DoubleContainer {

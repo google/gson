@@ -383,31 +383,35 @@ public final class RuntimeTypeAdapterFactoryTest extends TestCase {
     String expectedJson = "{\"type\":\"d\",\"c1\":NaN,\"c2\":null}";
 
     // First create a permissive writer
-    StringWriter writer = new StringWriter();
-    JsonWriter jsonWriter = new JsonWriter(writer);
-    jsonWriter.setSerializeNulls(true);
-    jsonWriter.setLenient(true);
+    {
+      StringWriter writer = new StringWriter();
+      JsonWriter jsonWriter = new JsonWriter(writer);
+      jsonWriter.setSerializeNulls(true);
+      jsonWriter.setLenient(true);
 
-    adapter.write(jsonWriter, new DoubleContainer(0.0));
-    assertEquals(expectedJson, writer.toString());
+      adapter.write(jsonWriter, new DoubleContainer(0.0));
+      assertEquals(expectedJson, writer.toString());
 
-    // Should still have original settings values
-    assertEquals(true, jsonWriter.getSerializeNulls());
-    assertEquals(true, jsonWriter.isLenient());
+      // Should still have original settings values
+      assertEquals(true, jsonWriter.getSerializeNulls());
+      assertEquals(true, jsonWriter.isLenient());
+    }
 
     // Then try non-permissive writer; should have same result because custom
     // adapter temporarily changed writer settings
-    writer = new StringWriter();
-    jsonWriter = new JsonWriter(writer);
-    jsonWriter.setSerializeNulls(false);
-    jsonWriter.setLenient(false);
+    {
+      StringWriter writer = new StringWriter();
+      JsonWriter jsonWriter = new JsonWriter(writer);
+      jsonWriter.setSerializeNulls(false);
+      jsonWriter.setLenient(false);
 
-    adapter.write(jsonWriter, new DoubleContainer(0.0));
-    assertEquals(expectedJson, writer.toString());
+      adapter.write(jsonWriter, new DoubleContainer(0.0));
+      assertEquals(expectedJson, writer.toString());
 
-    // Should still have original settings values
-    assertEquals(false, jsonWriter.getSerializeNulls());
-    assertEquals(false, jsonWriter.isLenient());
+      // Should still have original settings values
+      assertEquals(false, jsonWriter.getSerializeNulls());
+      assertEquals(false, jsonWriter.isLenient());
+    }
   }
 
   static class DummyBaseClass {

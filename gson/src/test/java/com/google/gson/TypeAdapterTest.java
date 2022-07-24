@@ -68,10 +68,19 @@ public class TypeAdapterTest {
 
   @Test
   public void testToJsonTree() {
-    JsonObject expectedJson = new JsonObject();
-    expectedJson.add("d", JsonNull.INSTANCE);
+    {
+      JsonObject expectedJson = new JsonObject();
+      expectedJson.addProperty("d", 1.0);
 
-    assertEquals(expectedJson, customDoubleAdapter.toJsonTree(null));
+      assertEquals(expectedJson, customDoubleAdapter.toJsonTree(1.0));
+    }
+
+    {
+      JsonObject expectedJson = new JsonObject();
+      expectedJson.add("d", JsonNull.INSTANCE);
+
+      assertEquals(expectedJson, customDoubleAdapter.toJsonTree(null));
+    }
 
     try {
       customDoubleAdapter.toJsonTree(Double.NaN);
@@ -85,10 +94,12 @@ public class TypeAdapterTest {
   public void testToJsonTreeWithSettingsFrom() {
     JsonWriter customWriter = new JsonWriter(new StringWriter());
 
-    JsonObject expectedJson = new JsonObject();
-    expectedJson.add("d", JsonNull.INSTANCE);
+    {
+      JsonObject expectedJson = new JsonObject();
+      expectedJson.add("d", JsonNull.INSTANCE);
 
-    assertEquals(expectedJson, customDoubleAdapter.toJsonTreeWithSettingsFrom(null, customWriter));
+      assertEquals(expectedJson, customDoubleAdapter.toJsonTreeWithSettingsFrom(null, customWriter));
+    }
 
     try {
       customDoubleAdapter.toJsonTreeWithSettingsFrom(Double.NaN, customWriter);
@@ -103,13 +114,17 @@ public class TypeAdapterTest {
     // Should be empty JSON object
     assertEquals(new JsonObject(), customDoubleAdapter.toJsonTreeWithSettingsFrom(null, customWriter));
 
-    expectedJson = new JsonObject();
-    expectedJson.addProperty("d", Double.NaN);
-    assertEquals(expectedJson, customDoubleAdapter.toJsonTreeWithSettingsFrom(Double.NaN, customWriter));
+    {
+      JsonObject expectedJson = new JsonObject();
+      expectedJson.addProperty("d", Double.NaN);
+      assertEquals(expectedJson, customDoubleAdapter.toJsonTreeWithSettingsFrom(Double.NaN, customWriter));
+    }
   }
 
   @Test
   public void testFromJsonTree() {
+    assertEquals((Double) 1.0, customDoubleAdapter.fromJsonTree(new JsonPrimitive(1.0)));
+
     try {
       customDoubleAdapter.fromJsonTree(new JsonPrimitive(Double.NaN));
       fail();
