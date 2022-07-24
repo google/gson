@@ -32,6 +32,17 @@ Maven:
 </dependency>
 ```
 
+<!-- TODO(pawelz): replace branch="master" with tag="gson-parent-X.Y.Z" once the bazel BUILD files make it to a release. -->
+Bazel:
+```bzl
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+git_repository(
+    name="gson",
+    remote="https://github.com/google/gson.git",
+    branch="master",
+)
+```
+
 [Gson jar downloads](https://maven-badges.herokuapp.com/maven-central/com.google.code.gson/gson) are available from Maven Central.
 
 ![Build Status](https://github.com/google/gson/actions/workflows/build.yml/badge.svg)
