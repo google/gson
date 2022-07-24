@@ -21,6 +21,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
+import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
@@ -217,10 +218,87 @@ public final class RuntimeTypeAdapterFactoryTest extends TestCase {
     }
   }
 
+  @JsonAdapter(CustomClass.Adapter.class)
+  static class CustomClass extends DummyBaseClass {
+    Boolean hasTypeField = null;
+    int f;
+
+    CustomClass(int f) {
+      this.f = f;
+    }
+
+    static class Adapter extends TypeAdapter<CustomClass> {
+      @Override public void write(JsonWriter out, CustomClass value) throws IOException {
+        out.beginObject();
+        out.name("f");
+        out.value(value.f);
+        out.endObject();
+      }
+
+      @Override public CustomClass read(JsonReader in) throws IOException {
+        Boolean hasTypeField = null;
+        Integer fieldValue = null;
+
+        in.beginObject();
+        while (in.hasNext()) {
+          String name = in.nextName();
+          if (name.equals("t")) {
+            assertNull(hasTypeField);
+            hasTypeField = true;
+            assertEquals(in.nextString(), "custom-name");
+          } else if (name.equals("f")) {
+            assertNull(fieldValue);
+            fieldValue = in.nextInt();
+          } else {
+            fail("Unexpected name: " + name);
+          }
+        }
+        in.endObject();
+
+        assertNotNull(fieldValue);
+
+        CustomClass result = new CustomClass(fieldValue);
+        // Compare with Boolean.TRUE because value might be null
+        result.hasTypeField = Boolean.TRUE.equals(hasTypeField);
+        return result;
+      }
+    }
+  }
+
+  public void testCustomTypeFieldName() {
+    TypeAdapterFactory factory = RuntimeTypeAdapterFactory.of(DummyBaseClass.class, "t")
+        .registerSubtype(CustomClass.class, "custom-name");
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapterFactory(factory)
+        .create();
+
+    assertEquals("{\"t\":\"custom-name\",\"f\":1}", gson.toJson(new CustomClass(1)));
+
+    CustomClass deserialized = (CustomClass) gson.fromJson("{\"t\":\"custom-name\",\"f\":1}", DummyBaseClass.class);
+    // Type field should have been removed
+    assertFalse(deserialized.hasTypeField);
+    assertEquals(1, deserialized.f);
+  }
+
+  public void testMaintainType() {
+    TypeAdapterFactory factory = RuntimeTypeAdapterFactory.of(DummyBaseClass.class, "t", true)
+        .registerSubtype(CustomClass.class, "custom-name");
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapterFactory(factory)
+        .create();
+
+    assertEquals("{\"f\":1}", gson.toJson(new CustomClass(1)));
+
+    CustomClass deserialized = (CustomClass) gson.fromJson("{\"t\":\"custom-name\",\"f\":1}", DummyBaseClass.class);
+    // Type field should not have been removed, and type adapter should have seen it
+    assertTrue(deserialized.hasTypeField);
+    assertEquals(1, deserialized.f);
+  }
+
   public void testDeserializeReaderSettings() throws IOException {
     Gson gson = new GsonBuilder()
         .registerTypeAdapterFactory(RuntimeTypeAdapterFactory
-            .of(DummyBaseClass.class, "type", true).registerSubtype(DoubleContainer.class, "d"))
+            .of(DummyBaseClass.class, "type").registerSubtype(DoubleContainer.class, "d"))
         .create();
     // Use TypeAdapter to avoid default lenientness of Gson
     TypeAdapter<DummyBaseClass> adapter = gson.getAdapter(DummyBaseClass.class);
