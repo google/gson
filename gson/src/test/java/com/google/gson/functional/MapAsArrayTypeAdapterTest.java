@@ -20,6 +20,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonWriter;
+import java.io.StringWriter;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -137,5 +139,37 @@ public class MapAsArrayTypeAdapterTest extends TestCase {
 
   static class PointWithProperty<T> {
     Map<Point, T> map = new HashMap<>();
+  }
+
+  /**
+   * Complex map key serialization should use same {@link JsonWriter} settings are
+   * originally provided writer.
+   */
+  public void testCustomJsonWriter() {
+    Gson gson = new GsonBuilder()
+        .enableComplexMapKeySerialization()
+        .serializeSpecialFloatingPointValues()
+        .create();
+    StringWriter writer = new StringWriter();
+    JsonWriter jsonWriter = new JsonWriter(writer);
+    jsonWriter.setHtmlSafe(true);
+    jsonWriter.setLenient(true);
+    jsonWriter.setSerializeNulls(false);
+
+    Map<DoubleContainer, Integer> map = new HashMap<>();
+    map.put(new DoubleContainer(null), 1);
+    map.put(new DoubleContainer(Double.NaN), 2);
+
+    Type type = new TypeToken<Map<DoubleContainer, Integer>>() {}.getType();
+    gson.toJson(map, type, jsonWriter);
+    assertEquals("[[{},1],[{\"d\":NaN},2]]", writer.toString());
+  }
+
+  static class DoubleContainer {
+    Double d = Double.NaN;
+
+    DoubleContainer(Double d) {
+      this.d = d;
+    }
   }
 }

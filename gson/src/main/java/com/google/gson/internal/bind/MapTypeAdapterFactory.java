@@ -215,7 +215,7 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
 
       List<V> values = new ArrayList<>(map.size());
       for (Map.Entry<K, V> entry : map.entrySet()) {
-        JsonElement keyElement = keyTypeAdapter.toJsonTree(entry.getKey());
+        JsonElement keyElement = keyTypeAdapter.toJsonTreeWithSettingsFrom(entry.getKey(), out);
         keys.add(keyElement);
         values.add(entry.getValue());
         hasComplexKeys |= keyElement.isJsonArray() || keyElement.isJsonObject();

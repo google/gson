@@ -18,17 +18,20 @@ package com.google.gson.graph;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.TypeAdapter;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import java.io.IOException;
+import java.io.StringReader;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import org.junit.Test;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 
 public final class GraphAdapterBuilderTest {
   @Test
@@ -86,6 +89,35 @@ public final class GraphAdapterBuilderTest {
     Roshambo suicide = gson.fromJson(json, Roshambo.class);
     assertEquals("SUICIDE", suicide.name);
     assertSame(suicide, suicide.beats);
+  }
+
+  static class DoubleContainer {
+    double d;
+  }
+
+  @Test
+  public void testDeserializationLenientness() throws IOException {
+    String json = "{\"0x1\":{\"d\":\"NaN\"}}";
+
+    GsonBuilder gsonBuilder = new GsonBuilder();
+    new GraphAdapterBuilder()
+        .addType(DoubleContainer.class)
+        .registerOn(gsonBuilder);
+    // Use TypeAdapter to avoid default lenientness of Gson
+    TypeAdapter<DoubleContainer> adapter = gsonBuilder.create().getAdapter(DoubleContainer.class);
+
+    try {
+      adapter.read(new JsonReader(new StringReader(json)));
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertEquals("JSON forbids NaN and infinities: NaN", e.getMessage());
+    }
+
+    JsonReader lenientReader = new JsonReader(new StringReader(json));
+    lenientReader.setLenient(true);
+
+    DoubleContainer deserialized = adapter.read(lenientReader);
+    assertEquals((Double) Double.NaN, (Double) deserialized.d);
   }
 
   @Test

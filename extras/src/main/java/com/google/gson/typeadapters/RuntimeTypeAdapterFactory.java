@@ -151,12 +151,15 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
   /**
    * Creates a new runtime type adapter using for {@code baseType} using {@code
    * typeFieldName} as the type field name. Type field names are case sensitive.
-   * {@code maintainType} flag decide if the type will be stored in pojo or not.
+   * {@code maintainType} flag decides if during deserialization the type field
+   * is kept ({@code true}) or removed ({@code false}), and whether during
+   * serialization it is added by this factory ({@code false}) or assumed to be
+   * already present for the class ({@code true}).
    */
   public static <T> RuntimeTypeAdapterFactory<T> of(Class<T> baseType, String typeFieldName, boolean maintainType) {
     return new RuntimeTypeAdapterFactory<>(baseType, typeFieldName, maintainType);
   }
-  
+
   /**
    * Creates a new runtime type adapter using for {@code baseType} using {@code
    * typeFieldName} as the type field name. Type field names are case sensitive.
@@ -227,7 +230,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
         } else {
             labelJsonElement = jsonElement.getAsJsonObject().remove(typeFieldName);
         }
-        
+
         if (labelJsonElement == null) {
           throw new JsonParseException("cannot deserialize " + baseType
               + " because it does not define a field named " + typeFieldName);
@@ -239,7 +242,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
           throw new JsonParseException("cannot deserialize " + baseType + " subtype named "
               + label + "; did you forget to register a subtype?");
         }
-        return delegate.fromJsonTree(jsonElement);
+        return delegate.fromJsonTreeWithSettingsFrom(jsonElement, in);
       }
 
       @Override public void write(JsonWriter out, R value) throws IOException {
@@ -251,7 +254,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
           throw new JsonParseException("cannot serialize " + srcType.getName()
               + "; did you forget to register a subtype?");
         }
-        JsonObject jsonObject = delegate.toJsonTree(value).getAsJsonObject();
+        JsonObject jsonObject = delegate.toJsonTreeWithSettingsFrom(value, out).getAsJsonObject();
 
         if (maintainType) {
           jsonElementAdapter.write(out, jsonObject);
@@ -265,7 +268,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
               + " because it already defines a field named " + typeFieldName);
         }
         clone.add(typeFieldName, new JsonPrimitive(label));
-        
+
         for (Map.Entry<String, JsonElement> e : jsonObject.entrySet()) {
           clone.add(e.getKey(), e.getValue());
         }

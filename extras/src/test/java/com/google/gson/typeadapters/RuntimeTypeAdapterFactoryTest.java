@@ -19,7 +19,14 @@ package com.google.gson.typeadapters;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
+import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import junit.framework.TestCase;
 
 public final class RuntimeTypeAdapterFactoryTest extends TestCase {
@@ -172,10 +179,10 @@ public final class RuntimeTypeAdapterFactoryTest extends TestCase {
   public void testSerializeWrappedNullValue() {
     TypeAdapterFactory billingAdapter = RuntimeTypeAdapterFactory.of(BillingInstrument.class)
         .registerSubtype(CreditCard.class)
-        .registerSubtype(BankTransfer.class);    
+        .registerSubtype(BankTransfer.class);
     Gson gson = new GsonBuilder()
         .registerTypeAdapterFactory(billingAdapter)
-        .create();    
+        .create();
     String serialized = gson.toJson(new BillingInstrumentWrapper(null), BillingInstrumentWrapper.class);
     BillingInstrumentWrapper deserialized = gson.fromJson(serialized, BillingInstrumentWrapper.class);
     assertNull(deserialized.instrument);
@@ -208,6 +215,64 @@ public final class RuntimeTypeAdapterFactoryTest extends TestCase {
     BankTransfer(String ownerName, int bankAccount) {
       super(ownerName);
       this.bankAccount = bankAccount;
+    }
+  }
+
+  public void testDeserializeReaderSettings() throws IOException {
+    // Directly use TypeAdapter to avoid default lenientness of Gson
+    TypeAdapter<DummyBaseClass> adapter = RuntimeTypeAdapterFactory.of(DummyBaseClass.class, "type", true)
+        .registerSubtype(DoubleContainer.class, "d")
+        .create(new Gson(), TypeToken.get(DummyBaseClass.class));
+
+    String json = "{\"type\":\"d\",\"d\":\"NaN\"}";
+    try {
+      adapter.read(new JsonReader(new StringReader(json)));
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertEquals("JSON forbids NaN and infinities: NaN", e.getMessage());
+    }
+
+    JsonReader lenientReader = new JsonReader(new StringReader(json));
+    lenientReader.setLenient(true);
+    DoubleContainer deserialized = (DoubleContainer) adapter.read(lenientReader);
+    assertEquals((Double) Double.NaN, deserialized.d);
+  }
+
+  public void testSerializeWriterSettings() throws IOException {
+    Gson gson = new GsonBuilder().serializeSpecialFloatingPointValues().create();
+    // Directly use TypeAdapter to avoid default lenientness of Gson
+    TypeAdapter<DummyBaseClass> adapter = RuntimeTypeAdapterFactory.of(DummyBaseClass.class, "type")
+        .registerSubtype(DoubleContainer.class, "d")
+        .create(gson, TypeToken.get(DummyBaseClass.class));
+
+    String json = adapter.toJson(new DoubleContainer(1.0));
+    assertEquals("{\"type\":\"d\",\"d\":1.0,\"d2\":null}", json);
+
+    try {
+      adapter.toJson(new DoubleContainer(Double.NaN));
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertEquals("JSON forbids NaN and infinities: NaN", e.getMessage());
+    }
+
+    StringWriter writer = new StringWriter();
+    JsonWriter customWriter = new JsonWriter(writer);
+    customWriter.setLenient(true);
+    customWriter.setSerializeNulls(false);
+
+    adapter.write(customWriter, new DoubleContainer(Double.NaN));
+    assertEquals("{\"type\":\"d\",\"d\":NaN}", writer.toString());
+  }
+
+  static class DummyBaseClass {
+  }
+
+  static class DoubleContainer extends DummyBaseClass {
+    Double d;
+    Double d2;
+
+    DoubleContainer(Double d) {
+      this.d = d;
     }
   }
 }
