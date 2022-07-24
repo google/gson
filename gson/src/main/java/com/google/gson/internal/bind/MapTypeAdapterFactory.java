@@ -215,7 +215,7 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
 
       List<V> values = new ArrayList<>(map.size());
       for (Map.Entry<K, V> entry : map.entrySet()) {
-        JsonElement keyElement = keyTypeAdapter.toJsonTree(entry.getKey());
+        JsonElement keyElement = keyTypeAdapter.toJsonTreeWithSettingsFrom(entry.getKey(), out);
         keys.add(keyElement);
         values.add(entry.getValue());
         hasComplexKeys |= keyElement.isJsonArray() || keyElement.isJsonObject();
@@ -225,7 +225,30 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
         out.beginArray();
         for (int i = 0, size = keys.size(); i < size; i++) {
           out.beginArray(); // entry array
-          Streams.write(keys.get(i), out);
+
+          /*
+           * When key was written to JsonElement its adapter might have temporarily overwritten
+           * JsonWriter settings. Cannot know which settings it used, therefore when writing
+           * JsonElement here, make it as permissive as possible.
+           *
+           * This has no effect if adapter did not change settings. Then JsonElement was written
+           * with same settings as `out` and the following temporary settings changes won't make
+           * a difference (assuming JsonTreeWriter and JsonWriter both handle the settings in the
+           * same way).
+           *
+           * Unfortunately this workaround won't work for HTML-safe and indentation settings,
+           * though at least they do not affect the JSON data, only the formatting.
+           */
+          boolean oldLenient = out.isLenient();
+          boolean oldSerializeNulls = out.getSerializeNulls();
+          try {
+            out.setLenient(true);
+            out.setSerializeNulls(true);
+            Streams.write(keys.get(i), out);
+          } finally {
+            out.setLenient(oldLenient);
+            out.setSerializeNulls(oldSerializeNulls);
+          }
           valueTypeAdapter.write(out, values.get(i));
           out.endArray();
         }

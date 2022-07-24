@@ -59,6 +59,14 @@ public final class JsonTreeWriter extends JsonWriter {
   }
 
   /**
+   * Applies all settings relevant for {@code JsonTreeWriter} from the given writer.
+   */
+  public void applySettingsFrom(JsonWriter writer) {
+    setLenient(writer.isLenient());
+    setSerializeNulls(writer.getSerializeNulls());
+  }
+
+  /**
    * Returns the top level object produced by this writer.
    */
   public JsonElement get() {

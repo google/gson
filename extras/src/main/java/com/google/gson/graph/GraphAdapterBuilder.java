@@ -194,7 +194,7 @@ public final class GraphAdapterBuilder {
             // now that we know the typeAdapter for this name, go from JsonElement to 'T'
             if (element.value == null) {
               element.typeAdapter = typeAdapter;
-              element.read(graph);
+              element.read(graph, in);
             }
             return element.value;
           } finally {
@@ -299,12 +299,12 @@ public final class GraphAdapterBuilder {
       typeAdapter.write(out, value);
     }
 
-    void read(Graph graph) throws IOException {
+    void read(Graph graph, JsonReader originalReader) throws IOException {
       if (graph.nextCreate != null) {
         throw new IllegalStateException("Unexpected recursive call to read() for " + id);
       }
       graph.nextCreate = this;
-      value = typeAdapter.fromJsonTree(element);
+      value = typeAdapter.fromJsonTreeWithSettingsFrom(element, originalReader);
       if (value == null) {
         throw new IllegalStateException("non-null value deserialized to null: " + element);
       }

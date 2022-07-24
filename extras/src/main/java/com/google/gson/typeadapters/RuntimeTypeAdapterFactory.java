@@ -151,12 +151,15 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
   /**
    * Creates a new runtime type adapter using for {@code baseType} using {@code
    * typeFieldName} as the type field name. Type field names are case sensitive.
-   * {@code maintainType} flag decide if the type will be stored in pojo or not.
+   * {@code maintainType} flag decides if during deserialization the type field
+   * is kept ({@code true}) or removed ({@code false}), and whether during
+   * serialization it is added by this factory ({@code false}) or assumed to be
+   * already present for the class ({@code true}).
    */
   public static <T> RuntimeTypeAdapterFactory<T> of(Class<T> baseType, String typeFieldName, boolean maintainType) {
     return new RuntimeTypeAdapterFactory<>(baseType, typeFieldName, maintainType);
   }
-  
+
   /**
    * Creates a new runtime type adapter using for {@code baseType} using {@code
    * typeFieldName} as the type field name. Type field names are case sensitive.
@@ -227,7 +230,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
         } else {
             labelJsonElement = jsonElement.getAsJsonObject().remove(typeFieldName);
         }
-        
+
         if (labelJsonElement == null) {
           throw new JsonParseException("cannot deserialize " + baseType
               + " because it does not define a field named " + typeFieldName);
@@ -239,7 +242,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
           throw new JsonParseException("cannot deserialize " + baseType + " subtype named "
               + label + "; did you forget to register a subtype?");
         }
-        return delegate.fromJsonTree(jsonElement);
+        return delegate.fromJsonTreeWithSettingsFrom(jsonElement, in);
       }
 
       @Override public void write(JsonWriter out, R value) throws IOException {
@@ -251,10 +254,10 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
           throw new JsonParseException("cannot serialize " + srcType.getName()
               + "; did you forget to register a subtype?");
         }
-        JsonObject jsonObject = delegate.toJsonTree(value).getAsJsonObject();
+        JsonObject jsonObject = delegate.toJsonTreeWithSettingsFrom(value, out).getAsJsonObject();
 
         if (maintainType) {
-          jsonElementAdapter.write(out, jsonObject);
+          writeObjectPermissively(out, jsonObject);
           return;
         }
 
@@ -265,11 +268,37 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
               + " because it already defines a field named " + typeFieldName);
         }
         clone.add(typeFieldName, new JsonPrimitive(label));
-        
+
         for (Map.Entry<String, JsonElement> e : jsonObject.entrySet()) {
           clone.add(e.getKey(), e.getValue());
         }
-        jsonElementAdapter.write(out, clone);
+        writeObjectPermissively(out, clone);
+      }
+
+      private void writeObjectPermissively(JsonWriter out, JsonObject object) throws IOException {
+        /*
+         * When object was written to JsonObject its adapter might have temporarily overwritten
+         * JsonWriter settings. Cannot know which settings it used, therefore when writing
+         * JsonObject here, make it as permissive as possible.
+         *
+         * This has no effect if adapter did not change settings. Then JsonObject was written
+         * with same settings as `out` and the following temporary settings changes won't make
+         * a difference (assuming JsonTreeWriter and JsonWriter both handle the settings in the
+         * same way).
+         *
+         * Unfortunately this workaround won't work for HTML-safe and indentation settings,
+         * though at least they do not affect the JSON data, only the formatting.
+         */
+        boolean oldLenient = out.isLenient();
+        boolean oldSerializeNulls = out.getSerializeNulls();
+        try {
+          out.setLenient(true);
+          out.setSerializeNulls(true);
+          jsonElementAdapter.write(out, object);
+        } finally {
+          out.setLenient(oldLenient);
+          out.setSerializeNulls(oldSerializeNulls);
+        }
       }
     }.nullSafe();
   }

@@ -16,6 +16,14 @@
 
 package com.google.gson.stream;
 
+import static com.google.gson.stream.JsonScope.DANGLING_NAME;
+import static com.google.gson.stream.JsonScope.EMPTY_ARRAY;
+import static com.google.gson.stream.JsonScope.EMPTY_DOCUMENT;
+import static com.google.gson.stream.JsonScope.EMPTY_OBJECT;
+import static com.google.gson.stream.JsonScope.NONEMPTY_ARRAY;
+import static com.google.gson.stream.JsonScope.NONEMPTY_DOCUMENT;
+import static com.google.gson.stream.JsonScope.NONEMPTY_OBJECT;
+
 import java.io.Closeable;
 import java.io.Flushable;
 import java.io.IOException;
@@ -26,14 +34,6 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
-
-import static com.google.gson.stream.JsonScope.DANGLING_NAME;
-import static com.google.gson.stream.JsonScope.EMPTY_ARRAY;
-import static com.google.gson.stream.JsonScope.EMPTY_DOCUMENT;
-import static com.google.gson.stream.JsonScope.EMPTY_OBJECT;
-import static com.google.gson.stream.JsonScope.NONEMPTY_ARRAY;
-import static com.google.gson.stream.JsonScope.NONEMPTY_DOCUMENT;
-import static com.google.gson.stream.JsonScope.NONEMPTY_OBJECT;
 
 /**
  * Writes a JSON (<a href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>)
@@ -198,6 +198,8 @@ public class JsonWriter implements Closeable, Flushable {
 
   private boolean serializeNulls = true;
 
+  // Important: When adding more settings, adjust JsonTreeWriter.applySettingsFrom, if necessary
+
   /**
    * Creates a new instance that writes a JSON-encoded stream to {@code out}.
    * For best performance, ensure {@link Writer} is buffered; wrapping in
@@ -213,8 +215,8 @@ public class JsonWriter implements Closeable, Flushable {
   /**
    * Sets the indentation string to be repeated for each level of indentation
    * in the encoded document. If {@code indent.isEmpty()} the encoded document
-   * will be compact. Otherwise the encoded document will be more
-   * human-readable.
+   * will be compact, this is the default. Otherwise the encoded document will
+   * be more human-readable.
    *
    * @param indent a string containing only whitespace.
    */
@@ -256,7 +258,8 @@ public class JsonWriter implements Closeable, Flushable {
    * and XML documents. This escapes the HTML characters {@code <}, {@code >},
    * {@code &} and {@code =} before writing them to the stream. Without this
    * setting, your XML/HTML encoder should replace these characters with the
-   * corresponding escape sequences.
+   * corresponding escape sequences. By default this writer does not emit
+   * HTML-safe JSON.
    */
   public final void setHtmlSafe(boolean htmlSafe) {
     this.htmlSafe = htmlSafe;

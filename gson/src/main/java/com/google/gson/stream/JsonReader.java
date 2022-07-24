@@ -228,6 +228,8 @@ public class JsonReader implements Closeable {
   /** True to accept non-spec compliant JSON */
   private boolean lenient = false;
 
+  //Important: When adding more settings, adjust JsonTreeReader.applySettingsFrom, if necessary
+
   static final int BUFFER_SIZE = 1024;
   /**
    * Use a manual buffer to easily read and unread upcoming characters, and

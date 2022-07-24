@@ -222,7 +222,9 @@ public abstract class TypeAdapter<T> {
   }
 
   /**
-   * Converts {@code value} to a JSON tree.
+   * Converts {@code value} to a JSON tree. The internally used writer is
+   * {@linkplain JsonWriter#setLenient(boolean) strict} and
+   * {@linkplain JsonWriter#setSerializeNulls(boolean) serializes <code>null</code>}.
    *
    * @param value the Java object to convert. May be null.
    * @return the converted JSON tree. May be {@link JsonNull}.
@@ -231,6 +233,50 @@ public abstract class TypeAdapter<T> {
   public final JsonElement toJsonTree(T value) {
     try {
       JsonTreeWriter jsonWriter = new JsonTreeWriter();
+      write(jsonWriter, value);
+      return jsonWriter.get();
+    } catch (IOException e) {
+      throw new JsonIOException(e);
+    }
+  }
+
+  /**
+   * Converts {@code value} to a JSON tree, with the settings such as the
+   * {@linkplain JsonWriter#setLenient(boolean) lenient mode} applied from
+   * the given writer.
+   *
+   * <p>Note: The {@link #write(JsonWriter, Object)} implementation of this
+   * type adapter might temporarily change the settings of the internally
+   * used writer during serialization, for example to make it lenient. In
+   * case the {@code JsonElement} result of this method is afterwards written
+   * to {@code otherWriter}, possibly after some modifications to the
+   * {@code JsonElement}, it might be necessary to temporarily reconfigure
+   * {@code otherWriter} to make sure the result is fully preserved (e.g.
+   * no fields with {@code null} value are omitted) and no exceptions are
+   * thrown due to lenient mode mismatch:
+   * <pre>{@code
+   *boolean oldLenient = otherWriter.isLenient();
+   *boolean oldSerializeNulls = otherWriter.getSerializeNulls();
+   *try {
+   *  otherWriter.setLenient(true);
+   *  otherWriter.setSerializeNulls(true);
+   *
+   *  ... // write JsonElement result to otherWriter
+   *
+   *} finally {
+   *  otherWriter.setLenient(oldLenient);
+   *  otherWriter.setSerializeNulls(oldSerializeNulls);
+   *}
+   * }</pre>
+   *
+   * @param value the Java object to convert. May be null.
+   * @param otherWriter whose settings should be used for serialization.
+   * @return the converted JSON tree. May be {@link JsonNull}.
+   */
+  public final JsonElement toJsonTreeWithSettingsFrom(T value, JsonWriter otherWriter) {
+    try {
+      JsonTreeWriter jsonWriter = new JsonTreeWriter();
+      jsonWriter.applySettingsFrom(otherWriter);
       write(jsonWriter, value);
       return jsonWriter.get();
     } catch (IOException e) {
@@ -280,7 +326,8 @@ public abstract class TypeAdapter<T> {
   }
 
   /**
-   * Converts {@code jsonTree} to a Java object.
+   * Converts {@code jsonTree} to a Java object. The internally used reader is
+   * strict and does not allow non-finite floating point values.
    *
    * @param jsonTree the JSON element to convert. May be {@link JsonNull}.
    * @return the converted Java object. May be null.
@@ -288,7 +335,26 @@ public abstract class TypeAdapter<T> {
    */
   public final T fromJsonTree(JsonElement jsonTree) {
     try {
-      JsonReader jsonReader = new JsonTreeReader(jsonTree);
+      JsonTreeReader jsonReader = new JsonTreeReader(jsonTree);
+      return read(jsonReader);
+    } catch (IOException e) {
+      throw new JsonIOException(e);
+    }
+  }
+
+  /**
+   * Converts {@code jsonTree} to a Java object, with the settings such as the
+   * {@linkplain JsonReader#setLenient(boolean) lenient mode} applied from
+   * the given reader.
+   *
+   * @param jsonTree the JSON element to convert. May be {@link JsonNull}.
+   * @param otherReader whose settings should be used for deserialization.
+   * @return the converted Java object. May be null.
+   */
+  public final T fromJsonTreeWithSettingsFrom(JsonElement jsonTree, JsonReader otherReader) {
+    try {
+      JsonTreeReader jsonReader = new JsonTreeReader(jsonTree);
+      jsonReader.applySettingsFrom(otherReader);
       return read(jsonReader);
     } catch (IOException e) {
       throw new JsonIOException(e);
