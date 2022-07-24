@@ -68,6 +68,9 @@ public final class JsonTreeReader extends JsonReader {
     push(element);
   }
 
+  /**
+   * Applies all settings relevant for {@code JsonTreeReader} from the given reader.
+   */
   public void applySettingsFrom(JsonReader reader) {
     setLenient(reader.isLenient());
   }

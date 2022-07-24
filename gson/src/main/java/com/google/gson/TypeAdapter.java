@@ -245,10 +245,15 @@ public abstract class TypeAdapter<T> {
    * {@linkplain JsonWriter#setLenient(boolean) lenient mode} applied from
    * the given writer.
    *
-   * <p>Note: In case the result of this method is afterwards written
+   * <p>Note: The {@link #write(JsonWriter, Object)} implementation of this
+   * type adapter might temporarily change the settings of the internally
+   * used writer during serialization, for example to make it lenient. In
+   * case the {@code JsonElement} result of this method is afterwards written
    * to {@code otherWriter}, possibly after some modifications to the
    * {@code JsonElement}, it might be necessary to temporarily reconfigure
-   * {@code otherWriter}:
+   * {@code otherWriter} to make sure the result is fully preserved (e.g.
+   * no fields with {@code null} value are omitted) and no exceptions are
+   * thrown due to lenient mode mismatch:
    * <pre>{@code
    *boolean oldLenient = otherWriter.isLenient();
    *boolean oldSerializeNulls = otherWriter.getSerializeNulls();
@@ -263,12 +268,9 @@ public abstract class TypeAdapter<T> {
    *  otherWriter.setSerializeNulls(oldSerializeNulls);
    *}
    * }</pre>
-   * This is necessary because this type adapter might have temporarily
-   * changed the settings of the internally used writer during serialization,
-   * for example to make it lenient.
    *
    * @param value the Java object to convert. May be null.
-   * @param otherWriter whose settings should be used for serialization
+   * @param otherWriter whose settings should be used for serialization.
    * @return the converted JSON tree. May be {@link JsonNull}.
    */
   public final JsonElement toJsonTreeWithSettingsFrom(T value, JsonWriter otherWriter) {
@@ -346,7 +348,7 @@ public abstract class TypeAdapter<T> {
    * the given reader.
    *
    * @param jsonTree the JSON element to convert. May be {@link JsonNull}.
-   * @param otherReader whose settings should be used for deserialization
+   * @param otherReader whose settings should be used for deserialization.
    * @return the converted Java object. May be null.
    */
   public final T fromJsonTreeWithSettingsFrom(JsonElement jsonTree, JsonReader otherReader) {

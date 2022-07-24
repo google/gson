@@ -232,8 +232,9 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
            * JsonElement here, make it as permissive as possible.
            *
            * This has no effect if adapter did not change settings. Then JsonElement was written
-           * with same settings as `out` and the following temporary setting changes won't make
-           * a difference.
+           * with same settings as `out` and the following temporary settings changes won't make
+           * a difference (assuming JsonTreeWriter and JsonWriter both handle the settings in the
+           * same way).
            *
            * Unfortunately this workaround won't work for HTML-safe and indentation settings,
            * though at least they do not affect the JSON data, only the formatting.
