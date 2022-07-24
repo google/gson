@@ -257,7 +257,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
         JsonObject jsonObject = delegate.toJsonTreeWithSettingsFrom(value, out).getAsJsonObject();
 
         if (maintainType) {
-          jsonElementAdapter.write(out, jsonObject);
+          writeObjectPermissively(out, jsonObject);
           return;
         }
 
@@ -272,7 +272,32 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
         for (Map.Entry<String, JsonElement> e : jsonObject.entrySet()) {
           clone.add(e.getKey(), e.getValue());
         }
-        jsonElementAdapter.write(out, clone);
+        writeObjectPermissively(out, clone);
+      }
+
+      private void writeObjectPermissively(JsonWriter out, JsonObject object) throws IOException {
+        /*
+         * When object was written to JsonObject its adapter might have temporarily overwritten
+         * JsonWriter settings. Cannot know which settings it used, therefore when writing
+         * JsonObject here, make it as permissive as possible.
+         *
+         * This has no effect if adapter did not change settings. Then JsonObject was written
+         * with same settings as `out` and the following temporary setting changes won't make
+         * a difference.
+         *
+         * Unfortunately this workaround won't work for HTML-safe and indentation settings,
+         * though at least they do not affect the JSON data, only the formatting.
+         */
+        boolean oldLenient = out.isLenient();
+        boolean oldSerializeNulls = out.getSerializeNulls();
+        try {
+          out.setLenient(true);
+          out.setSerializeNulls(true);
+          jsonElementAdapter.write(out, object);
+        } finally {
+          out.setLenient(oldLenient);
+          out.setSerializeNulls(oldSerializeNulls);
+        }
       }
     }.nullSafe();
   }

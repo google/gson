@@ -245,6 +245,28 @@ public abstract class TypeAdapter<T> {
    * {@linkplain JsonWriter#setLenient(boolean) lenient mode} applied from
    * the given writer.
    *
+   * <p>Note: In case the result of this method is afterwards written
+   * to {@code otherWriter}, possibly after some modifications to the
+   * {@code JsonElement}, it might be necessary to temporarily reconfigure
+   * {@code otherWriter}:
+   * <pre>{@code
+   *boolean oldLenient = otherWriter.isLenient();
+   *boolean oldSerializeNulls = otherWriter.getSerializeNulls();
+   *try {
+   *  otherWriter.setLenient(true);
+   *  otherWriter.setSerializeNulls(true);
+   *
+   *  ... // write JsonElement result to otherWriter
+   *
+   *} finally {
+   *  otherWriter.setLenient(oldLenient);
+   *  otherWriter.setSerializeNulls(oldSerializeNulls);
+   *}
+   * }</pre>
+   * This is necessary because this type adapter might have temporarily
+   * changed the settings of the internally used writer during serialization,
+   * for example to make it lenient.
+   *
    * @param value the Java object to convert. May be null.
    * @param otherWriter whose settings should be used for serialization
    * @return the converted JSON tree. May be {@link JsonNull}.
