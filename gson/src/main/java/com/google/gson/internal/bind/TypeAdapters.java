@@ -731,16 +731,16 @@ public final class TypeAdapters {
     /** Reads a {@link JsonElement} which cannot have any nested elements */
     private JsonElement readTerminal(JsonReader in, JsonToken peeked) throws IOException {
       switch (peeked) {
-      case STRING:
-        return new JsonPrimitive(in.nextString());
-      case NUMBER:
-        String number = in.nextString();
-        return new JsonPrimitive(new LazilyParsedNumber(number));
-      case BOOLEAN:
-        return new JsonPrimitive(in.nextBoolean());
-      case NULL:
-        in.nextNull();
-        return JsonNull.INSTANCE;
+        case STRING:
+          return new JsonPrimitive(in.nextString());
+        case NUMBER:
+          String number = in.nextString();
+          return new JsonPrimitive(new LazilyParsedNumber(number));
+        case BOOLEAN:
+          return new JsonPrimitive(in.nextBoolean());
+        case NULL:
+          in.nextNull();
+          return JsonNull.INSTANCE;
         default:
           // When read(JsonReader) is called with JsonReader in invalid state
           throw new IllegalStateException("Unexpected token: " + peeked);
@@ -769,7 +769,7 @@ public final class TypeAdapters {
           // Name is only used for JSON object members
           if (current instanceof JsonObject) {
             name = in.nextName();
-        }
+          }
 
           peeked = in.peek();
           JsonElement value = tryBeginNesting(in, peeked);
@@ -793,17 +793,17 @@ public final class TypeAdapters {
 
         // End current element
         if (current instanceof JsonArray) {
-        in.endArray();
+          in.endArray();
         } else {
-        in.endObject();
-      }
+          in.endObject();
+        }
 
         if (stack.isEmpty()) {
           return current;
         } else {
           // Continue with enclosing element
           current = stack.removeLast();
-    }
+        }
       }
     }
 
@@ -861,14 +861,14 @@ public final class TypeAdapters {
             for (Field f : fields) {
               if (f.isEnumConstant()) {
                 constantFieldsList.add(f);
-          }
+              }
             }
 
             Field[] constantFields = constantFieldsList.toArray(new Field[0]);
             AccessibleObject.setAccessible(constantFields, true);
             return constantFields;
           }
-          });
+        });
         for (Field constantField : constantFields) {
           @SuppressWarnings("unchecked")
           T constant = (T)(constantField.get(null));

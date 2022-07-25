@@ -255,7 +255,7 @@ public final class JsonWriterTest extends TestCase {
       fail();
     } catch (IllegalArgumentException expected) {
       assertEquals("Numeric values must be finite, but was Infinity", expected.getMessage());
-  }
+    }
   }
 
   public void testNonFiniteFloatsWhenLenient() throws IOException {
