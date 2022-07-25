@@ -61,7 +61,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
 	/**
 	 * Adds all values from the passed array to this {@link JsonArray}.
 	 *
-	 * @param values can be a collection of any kind.
+	 * @param values can be an array of any kind.
 	 */
 	public <T> void addAll(T... values) {
 		addAll(Arrays.asList(values));
