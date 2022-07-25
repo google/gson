@@ -16,31 +16,6 @@
 
 package com.google.gson.internal.bind;
 
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.net.InetAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.Calendar;
-import java.util.Currency;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicIntegerArray;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -57,6 +32,33 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Field;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.net.InetAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.Calendar;
+import java.util.Currency;
+import java.util.Deque;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicIntegerArray;
 
 /**
  * Type adapters for basic types.
@@ -277,7 +279,7 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<AtomicIntegerArray> ATOMIC_INTEGER_ARRAY = new TypeAdapter<AtomicIntegerArray>() {
     @Override public AtomicIntegerArray read(JsonReader in) throws IOException {
-        List<Integer> list = new ArrayList<Integer>();
+        List<Integer> list = new ArrayList<>();
         in.beginArray();
         while (in.hasNext()) {
           try {
@@ -453,6 +455,22 @@ public final class TypeAdapters {
     }
   };
 
+  public static final TypeAdapter<LazilyParsedNumber> LAZILY_PARSED_NUMBER = new TypeAdapter<LazilyParsedNumber>() {
+    // Normally users should not be able to access and deserialize LazilyParsedNumber because
+    // it is an internal type, but implement this nonetheless in case there are legit corner
+    // cases where this is possible
+    @Override public LazilyParsedNumber read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
+        return null;
+      }
+      return new LazilyParsedNumber(in.nextString());
+    }
+
+    @Override public void write(JsonWriter out, LazilyParsedNumber value) throws IOException {
+      out.value(value);
+    }
+  };
   public static final TypeAdapter<StringBuilder> STRING_BUILDER = new TypeAdapter<StringBuilder>() {
     @Override
     public StringBuilder read(JsonReader in) throws IOException {
@@ -693,12 +711,26 @@ public final class TypeAdapters {
   public static final TypeAdapterFactory LOCALE_FACTORY = newFactory(Locale.class, LOCALE);
 
   public static final TypeAdapter<JsonElement> JSON_ELEMENT = new TypeAdapter<JsonElement>() {
-    @Override public JsonElement read(JsonReader in) throws IOException {
-      if (in instanceof JsonTreeReader) {
-        return ((JsonTreeReader) in).nextJsonElement();
+    /**
+     * Tries to begin reading a JSON array or JSON object, returning {@code null} if
+     * the next element is neither of those.
+     */
+    private JsonElement tryBeginNesting(JsonReader in, JsonToken peeked) throws IOException {
+      switch (peeked) {
+        case BEGIN_ARRAY:
+          in.beginArray();
+          return new JsonArray();
+        case BEGIN_OBJECT:
+          in.beginObject();
+          return new JsonObject();
+        default:
+          return null;
       }
+    }
 
-      switch (in.peek()) {
+    /** Reads a {@link JsonElement} which cannot have any nested elements */
+    private JsonElement readTerminal(JsonReader in, JsonToken peeked) throws IOException {
+      switch (peeked) {
       case STRING:
         return new JsonPrimitive(in.nextString());
       case NUMBER:
@@ -709,28 +741,69 @@ public final class TypeAdapters {
       case NULL:
         in.nextNull();
         return JsonNull.INSTANCE;
-      case BEGIN_ARRAY:
-        JsonArray array = new JsonArray();
-        in.beginArray();
+        default:
+          // When read(JsonReader) is called with JsonReader in invalid state
+          throw new IllegalStateException("Unexpected token: " + peeked);
+      }
+    }
+
+    @Override public JsonElement read(JsonReader in) throws IOException {
+      if (in instanceof JsonTreeReader) {
+        return ((JsonTreeReader) in).nextJsonElement();
+      }
+
+      // Either JsonArray or JsonObject
+      JsonElement current;
+      JsonToken peeked = in.peek();
+
+      current = tryBeginNesting(in, peeked);
+      if (current == null) {
+        return readTerminal(in, peeked);
+      }
+
+      Deque<JsonElement> stack = new ArrayDeque<>();
+
+      while (true) {
         while (in.hasNext()) {
-          array.add(read(in));
+          String name = null;
+          // Name is only used for JSON object members
+          if (current instanceof JsonObject) {
+            name = in.nextName();
         }
+
+          peeked = in.peek();
+          JsonElement value = tryBeginNesting(in, peeked);
+          boolean isNesting = value != null;
+
+          if (value == null) {
+            value = readTerminal(in, peeked);
+          }
+
+          if (current instanceof JsonArray) {
+            ((JsonArray) current).add(value);
+          } else {
+            ((JsonObject) current).add(name, value);
+          }
+
+          if (isNesting) {
+            stack.addLast(current);
+            current = value;
+          }
+        }
+
+        // End current element
+        if (current instanceof JsonArray) {
         in.endArray();
-        return array;
-      case BEGIN_OBJECT:
-        JsonObject object = new JsonObject();
-        in.beginObject();
-        while (in.hasNext()) {
-          object.add(in.nextName(), read(in));
-        }
+        } else {
         in.endObject();
-        return object;
-      case END_DOCUMENT:
-      case NAME:
-      case END_OBJECT:
-      case END_ARRAY:
-      default:
-        throw new IllegalArgumentException();
+      }
+
+        if (stack.isEmpty()) {
+          return current;
+        } else {
+          // Continue with enclosing element
+          current = stack.removeLast();
+    }
       }
     }
 
@@ -772,25 +845,37 @@ public final class TypeAdapters {
       = newTypeHierarchyFactory(JsonElement.class, JSON_ELEMENT);
 
   private static final class EnumTypeAdapter<T extends Enum<T>> extends TypeAdapter<T> {
-    private final Map<String, T> nameToConstant = new HashMap<String, T>();
-    private final Map<T, String> constantToName = new HashMap<T, String>();
+    private final Map<String, T> nameToConstant = new HashMap<>();
+    private final Map<String, T> stringToConstant = new HashMap<>();
+    private final Map<T, String> constantToName = new HashMap<>();
 
-    public EnumTypeAdapter(Class<T> classOfT) {
+    public EnumTypeAdapter(final Class<T> classOfT) {
       try {
-        for (final Field field : classOfT.getDeclaredFields()) {
-          if (!field.isEnumConstant()) {
-            continue;
+        // Uses reflection to find enum constants to work around name mismatches for obfuscated classes
+        // Reflection access might throw SecurityException, therefore run this in privileged context;
+        // should be acceptable because this only retrieves enum constants, but does not expose anything else
+        Field[] constantFields = AccessController.doPrivileged(new PrivilegedAction<Field[]>() {
+          @Override public Field[] run() {
+            Field[] fields = classOfT.getDeclaredFields();
+            ArrayList<Field> constantFieldsList = new ArrayList<>(fields.length);
+            for (Field f : fields) {
+              if (f.isEnumConstant()) {
+                constantFieldsList.add(f);
           }
-          AccessController.doPrivileged(new PrivilegedAction<Void>() {
-            @Override public Void run() {
-              field.setAccessible(true);
-              return null;
             }
+
+            Field[] constantFields = constantFieldsList.toArray(new Field[0]);
+            AccessibleObject.setAccessible(constantFields, true);
+            return constantFields;
+          }
           });
+        for (Field constantField : constantFields) {
           @SuppressWarnings("unchecked")
-          T constant = (T)(field.get(null));
+          T constant = (T)(constantField.get(null));
           String name = constant.name();
-          SerializedName annotation = field.getAnnotation(SerializedName.class);
+          String toStringVal = constant.toString();
+
+          SerializedName annotation = constantField.getAnnotation(SerializedName.class);
           if (annotation != null) {
             name = annotation.value();
             for (String alternate : annotation.alternate()) {
@@ -798,6 +883,7 @@ public final class TypeAdapters {
             }
           }
           nameToConstant.put(name, constant);
+          stringToConstant.put(toStringVal, constant);
           constantToName.put(constant, name);
         }
       } catch (IllegalAccessException e) {
@@ -809,7 +895,9 @@ public final class TypeAdapters {
         in.nextNull();
         return null;
       }
-      return nameToConstant.get(in.nextString());
+      String key = in.nextString();
+      T constant = nameToConstant.get(key);
+      return (constant == null) ? stringToConstant.get(key) : constant;
     }
 
     @Override public void write(JsonWriter out, T value) throws IOException {

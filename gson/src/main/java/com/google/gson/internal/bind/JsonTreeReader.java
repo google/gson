@@ -101,7 +101,7 @@ public final class JsonTreeReader extends JsonReader {
 
   @Override public boolean hasNext() throws IOException {
     JsonToken token = peek();
-    return token != JsonToken.END_OBJECT && token != JsonToken.END_ARRAY;
+    return token != JsonToken.END_OBJECT && token != JsonToken.END_ARRAY && token != JsonToken.END_DOCUMENT;
   }
 
   @Override public JsonToken peek() throws IOException {

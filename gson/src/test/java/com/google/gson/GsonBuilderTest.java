@@ -84,4 +84,27 @@ public class GsonBuilderTest extends TestCase {
   static class HasTransients {
     transient String a = "a";
   }
+
+  public void testDisableJdkUnsafe() {
+    Gson gson = new GsonBuilder()
+        .disableJdkUnsafe()
+        .create();
+    try {
+      gson.fromJson("{}", ClassWithoutNoArgsConstructor.class);
+      fail("Expected exception");
+    } catch (JsonIOException expected) {
+      assertEquals(
+        "Unable to create instance of class com.google.gson.GsonBuilderTest$ClassWithoutNoArgsConstructor; "
+        + "usage of JDK Unsafe is disabled. Registering an InstanceCreator or a TypeAdapter for this type, "
+        + "adding a no-args constructor, or enabling usage of JDK Unsafe may fix this problem.",
+        expected.getMessage()
+      );
+    }
+  }
+
+  private static class ClassWithoutNoArgsConstructor {
+    @SuppressWarnings("unused")
+    public ClassWithoutNoArgsConstructor(String s) {
+    }
+  }
 }

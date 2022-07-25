@@ -21,9 +21,6 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.internal.$Gson$Types;
 import junit.framework.TestCase;
 
-import java.io.PrintStream;
-import java.lang.ref.WeakReference;
-
 /**
  * Test fixes for infinite recursion on {@link $Gson$Types#resolve(java.lang.reflect.Type, Class,
  * java.lang.reflect.Type)}, described at <a href="https://github.com/google/gson/issues/440">Issue #440</a>
@@ -50,21 +47,6 @@ public class RecursiveTypesResolveTest extends TestCase {
   public void testRecursiveResolveSimple() {
     @SuppressWarnings("rawtypes")
     TypeAdapter<Foo1> adapter = new Gson().getAdapter(Foo1.class);
-    assertNotNull(adapter);
-  }
-
-  /**
-   * Real-world samples, found in Issues #603 and #440.
-   */
-
-  public void testIssue603PrintStream() {
-    TypeAdapter<PrintStream> adapter = new Gson().getAdapter(PrintStream.class);
-    assertNotNull(adapter);
-  }
-
-  public void testIssue440WeakReference() throws Exception {
-    @SuppressWarnings("rawtypes")
-    TypeAdapter<WeakReference> adapter = new Gson().getAdapter(WeakReference.class);
     assertNotNull(adapter);
   }
 

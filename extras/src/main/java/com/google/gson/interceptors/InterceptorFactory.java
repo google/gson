@@ -12,14 +12,14 @@ import java.io.IOException;
  * A type adapter factory that implements {@code @Intercept}.
  */
 public final class InterceptorFactory implements TypeAdapterFactory {
-  public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+  @Override public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
     Intercept intercept = type.getRawType().getAnnotation(Intercept.class);
     if (intercept == null) {
       return null;
     }
 
     TypeAdapter<T> delegate = gson.getDelegateAdapter(this, type);
-    return new InterceptorAdapter<T>(delegate, intercept);
+    return new InterceptorAdapter<>(delegate, intercept);
   }
 
   static class InterceptorAdapter<T> extends TypeAdapter<T> {

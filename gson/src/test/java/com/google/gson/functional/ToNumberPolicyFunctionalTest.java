@@ -95,7 +95,7 @@ public class ToNumberPolicyFunctionalTest extends TestCase {
         .setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
         .setNumberToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
         .create();
-    List<Object> expected = new LinkedList<Object>();
+    List<Object> expected = new LinkedList<>();
     expected.add(null);
     expected.add(10L);
     expected.add(10.0);

@@ -47,7 +47,7 @@ public class EscapingTest extends TestCase {
   }
 
   public void testEscapeAllHtmlCharacters() {
-    List<String> strings = new ArrayList<String>();
+    List<String> strings = new ArrayList<>();
     strings.add("<");
     strings.add(">");
     strings.add("=");

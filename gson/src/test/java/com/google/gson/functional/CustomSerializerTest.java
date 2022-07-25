@@ -91,7 +91,7 @@ public class CustomSerializerTest extends TestCase {
    public void testSerializerReturnsNull() {
      Gson gson = new GsonBuilder()
        .registerTypeAdapter(Base.class, new JsonSerializer<Base>() {
-         public JsonElement serialize(Base src, Type typeOfSrc, JsonSerializationContext context) {
+         @Override public JsonElement serialize(Base src, Type typeOfSrc, JsonSerializationContext context) {
            return null;
          }
        })

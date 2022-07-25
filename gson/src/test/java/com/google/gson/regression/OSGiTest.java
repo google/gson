@@ -47,7 +47,7 @@ public class OSGiTest extends TestCase {
     }
 
     private Manifest findManifest(String pkg) throws IOException {
-        List<URL> urls = new ArrayList<URL>();
+        List<URL> urls = new ArrayList<>();
         for (URL u : Collections.list(getClass().getClassLoader().getResources("META-INF/MANIFEST.MF"))) {
             InputStream is = u.openStream();
             Manifest mf = new Manifest(is);

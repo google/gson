@@ -46,7 +46,7 @@ public final class JsonTreeWriter extends JsonWriter {
   private static final JsonPrimitive SENTINEL_CLOSED = new JsonPrimitive("closed");
 
   /** The JsonElements and JsonArrays under modification, outermost to innermost. */
-  private final List<JsonElement> stack = new ArrayList<JsonElement>();
+  private final List<JsonElement> stack = new ArrayList<>();
 
   /** The name for the next JSON object value. If non-null, the top of the stack is a JsonObject. */
   private String pendingName;
@@ -172,6 +172,14 @@ public final class JsonTreeWriter extends JsonWriter {
   @Override public JsonWriter value(Boolean value) throws IOException {
     if (value == null) {
       return nullValue();
+    }
+    put(new JsonPrimitive(value));
+    return this;
+  }
+
+  @Override public JsonWriter value(float value) throws IOException {
+    if (!isLenient() && (Float.isNaN(value) || Float.isInfinite(value))) {
+      throw new IllegalArgumentException("JSON forbids NaN and infinities: " + value);
     }
     put(new JsonPrimitive(value));
     return this;

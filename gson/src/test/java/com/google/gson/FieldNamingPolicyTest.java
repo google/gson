@@ -67,7 +67,8 @@ public class FieldNamingPolicyTest {
 
     FieldNamingPolicy[] policies = {
       FieldNamingPolicy.UPPER_CAMEL_CASE,
-      FieldNamingPolicy.UPPER_CAMEL_CASE_WITH_SPACES
+      FieldNamingPolicy.UPPER_CAMEL_CASE_WITH_SPACES,
+      FieldNamingPolicy.UPPER_CASE_WITH_UNDERSCORES,
     };
 
     Field field = Dummy.class.getDeclaredField("i");

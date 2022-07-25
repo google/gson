@@ -39,14 +39,14 @@ import com.google.gson.reflect.TypeToken;
  * Collection of functional tests for DOM tree based type adapters.
  */
 public class TreeTypeAdaptersTest extends TestCase {
-  private static final Id<Student> STUDENT1_ID = new Id<Student>("5", Student.class);
-  private static final Id<Student> STUDENT2_ID = new Id<Student>("6", Student.class);
+  private static final Id<Student> STUDENT1_ID = new Id<>("5", Student.class);
+  private static final Id<Student> STUDENT2_ID = new Id<>("6", Student.class);
   private static final Student STUDENT1 = new Student(STUDENT1_ID, "first");
   private static final Student STUDENT2 = new Student(STUDENT2_ID, "second");
   private static final Type TYPE_COURSE_HISTORY =
     new TypeToken<Course<HistoryCourse>>(){}.getType(); 
   private static final Id<Course<HistoryCourse>> COURSE_ID =
-      new Id<Course<HistoryCourse>>("10", TYPE_COURSE_HISTORY);
+      new Id<>("10", TYPE_COURSE_HISTORY);
 
   private Gson gson;
   private Course<HistoryCourse> course;
@@ -56,8 +56,8 @@ public class TreeTypeAdaptersTest extends TestCase {
     gson = new GsonBuilder()
         .registerTypeAdapter(Id.class, new IdTreeTypeAdapter())
         .create();
-    course = new Course<HistoryCourse>(COURSE_ID, 4,
-        new Assignment<HistoryCourse>(null, null), createList(STUDENT1, STUDENT2));
+    course = new Course<>(COURSE_ID, 4,
+        new Assignment<HistoryCourse>(null, null), Arrays.asList(STUDENT1, STUDENT2));
   }
 
   public void testSerializeId() {
@@ -170,10 +170,5 @@ public class TreeTypeAdaptersTest extends TestCase {
   @SuppressWarnings("unused")
   private static class HistoryCourse {
     int numClasses;
-  }
-
-  @SafeVarargs
-  private static <T> List<T> createList(T ...items) {
-    return Arrays.asList(items);
   }
 }
