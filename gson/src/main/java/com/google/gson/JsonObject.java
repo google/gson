@@ -17,14 +17,14 @@
 package com.google.gson;
 
 import com.google.gson.internal.LinkedTreeMap;
-
 import java.util.Map;
 import java.util.Set;
 
 /**
- * A class representing an object type in Json. An object consists of name-value pairs where names
+ * A class representing an object type in JSON. An object consists of name-value pairs where names
  * are strings, and values are any other type of {@link JsonElement}. This allows for a creating a
  * tree of JsonElements. The member elements of this object are maintained in order they were added.
+ * Member names must be non-{@code null}.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
