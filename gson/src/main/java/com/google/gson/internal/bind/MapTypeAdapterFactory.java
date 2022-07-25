@@ -25,6 +25,7 @@ import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.JsonReaderInternalAccess;
+import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.internal.ObjectConstructor;
 import com.google.gson.internal.Streams;
 import com.google.gson.reflect.TypeToken;
@@ -34,6 +35,7 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -164,6 +166,7 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
       }
 
       Map<K, V> map = constructor.construct();
+      boolean isLinkedTreeMap = map instanceof LinkedTreeMap;
 
       if (peek == JsonToken.BEGIN_ARRAY) {
         in.beginArray();
@@ -171,6 +174,17 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
           in.beginArray(); // entry array
           K key = keyTypeAdapter.read(in);
           V value = valueTypeAdapter.read(in);
+
+          // LinkedTreeMap requires that keys are Comparable, if they are not must switch to
+          // a different map type. LinkedTreeMap is an internal class so switching map type
+          // should be invisible to user code.
+          if (isLinkedTreeMap && !(key instanceof Comparable)) {
+            Map<K, V> oldMap = map;
+            map = new LinkedHashMap<>();
+            map.putAll(oldMap);
+            isLinkedTreeMap = false;
+          }
+
           V replaced = map.put(key, value);
           if (replaced != null) {
             throw new JsonSyntaxException("duplicate key: " + key);
@@ -184,6 +198,17 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
           JsonReaderInternalAccess.INSTANCE.promoteNameToValue(in);
           K key = keyTypeAdapter.read(in);
           V value = valueTypeAdapter.read(in);
+
+          // LinkedTreeMap requires that keys are Comparable, if they are not must switch to
+          // a different map type. LinkedTreeMap is an internal class so switching map type
+          // should be invisible to user code.
+          if (isLinkedTreeMap && !(key instanceof Comparable)) {
+            Map<K, V> oldMap = map;
+            map = new LinkedHashMap<>();
+            map.putAll(oldMap);
+            isLinkedTreeMap = false;
+          }
+
           V replaced = map.put(key, value);
           if (replaced != null) {
             throw new JsonSyntaxException("duplicate key: " + key);

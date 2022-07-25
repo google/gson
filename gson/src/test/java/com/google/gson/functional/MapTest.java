@@ -16,18 +16,6 @@
 
 package com.google.gson.functional;
 
-import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ConcurrentNavigableMap;
-import java.util.concurrent.ConcurrentSkipListMap;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
@@ -39,10 +27,27 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.TypeAdapter;
 import com.google.gson.common.TestTypes;
 import com.google.gson.internal.$Gson$Types;
+import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.reflect.TypeToken;
-
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentNavigableMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 import junit.framework.TestCase;
 
 /**
@@ -587,13 +592,120 @@ public class MapTest extends TestCase {
         gson.toJson(map, type).replace('"', '\''));
   }
 
-  public void testDeerializeMapOfMaps() {
+  public void testDeserializeMapOfMaps() {
     Type type = new TypeToken<Map<String, Map<String, String>>>() {}.getType();
     Map<String, Map<String, String>> map = newMap(
         "a", newMap("ka1", "va1", "ka2", "va2"),
         "b", newMap("kb1", "vb1", "kb2", "vb2"));
     String json = "{'a':{'ka1':'va1','ka2':'va2'},'b':{'kb1':'vb1','kb2':'vb2'}}";
     assertEquals(map, gson.fromJson(json, type));
+  }
+
+  /**
+   * Tests deserializing as {@code Map<String, ...>} with a key being deserialized as
+   * {@code null}. This can only occur if a custom type adapter for {@code String} is
+   * used.
+   */
+  public void testDeserializeStringMapNullKey() {
+    Gson gson = new GsonBuilder().registerTypeAdapter(String.class, new TypeAdapter<String>() {
+      @Override public String read(JsonReader in) throws IOException {
+        String value = in.nextString();
+        return value.isEmpty() ? null : value;
+      }
+
+      @Override public void write(JsonWriter out, String value) throws IOException {
+        throw new AssertionError("not needed for this test");
+      }
+    }).create();
+
+    String json = "{\"a\":1,\"\":2,\"b\":3}";
+
+    Map<String, Integer> expectedMap = new LinkedHashMap<>();
+    expectedMap.put("a", 1);
+    expectedMap.put(null, 2);
+    expectedMap.put("b", 3);
+
+    Type type = new TypeToken<Map<String, Integer>>() {}.getType();
+    assertEquals(expectedMap, gson.fromJson(json, type));
+  }
+
+  /**
+   * Tests deserializing as {@code Map<String, ...>} with the map being encoded as JSON array
+   * and containing a {@code null} key.
+   */
+  public void testDeserializeArrayStringMapNullKey() {
+    String json = "[[\"a\", 1], [null, 2], [\"b\", 3]]";
+
+    Map<String, Integer> expectedMap = new LinkedHashMap<>();
+    expectedMap.put("a", 1);
+    expectedMap.put(null, 2);
+    expectedMap.put("b", 3);
+
+    Type type = new TypeToken<Map<String, Integer>>() {}.getType();
+    assertEquals(expectedMap, gson.fromJson(json, type));
+  }
+
+  /**
+   * Deserialization of array should work, even if {@link GsonBuilder#enableComplexMapKeySerialization()}
+   * is not used.
+   */
+  public void testDeserializeArray() {
+    Type type = new TypeToken<Map<Integer, Integer>>() {}.getType();
+    String json = "[[1, 11], [2, 22]]";
+    Map<Integer, Integer> expectedMap = newMap(1, 11, 2, 22);
+    assertEquals(expectedMap, gson.fromJson(json, type));
+
+    try {
+      gson.fromJson("[[1, 11], 2, 22]", type);
+      fail();
+    } catch (JsonSyntaxException e) {
+      assertEquals("java.lang.IllegalStateException: Expected BEGIN_ARRAY but was NUMBER at line 1 column 12 path $[1]", e.getMessage());
+    }
+  }
+
+  /**
+   * Tests deserializing as raw {@code Map} with non-{@code Comparable} keys, with the map being
+   * encoded as JSON array.
+   */
+  public void testDeserializeArrayRawMapNonComparableKey() {
+    String json = "[[\"a\", 1.0], [{}, 2.0], [\"b\", 3.0]]";
+
+    Map<Object, Double> expectedMap = new LinkedHashMap<>();
+    expectedMap.put("a", 1.0);
+    expectedMap.put(Collections.emptyMap(), 2.0);
+    expectedMap.put("b", 3.0);
+
+    @SuppressWarnings("unchecked")
+    Map<Object, Double> map = gson.fromJson(json, Map.class);
+
+    assertEquals(expectedMap, map);
+    // LinkedTreeMap requires that keys implement Comparable so it should not have
+    // been used
+    assertFalse(map instanceof LinkedTreeMap);
+
+    Iterator<Map.Entry<Object, Double>> iterator = map.entrySet().iterator();
+    iterator.next();
+    Map.Entry<Object, Double> entry = iterator.next();
+    Object key = entry.getKey();
+    assertEquals(Collections.emptyMap(), key);
+    // Explicitly check that key is not Comparable
+    assertFalse(key instanceof Comparable);
+    assertEquals(2.0, entry.getValue());
+  }
+
+  /**
+   * Tests deserializing as raw {@code Map} with {@code null} key, with the map being encoded
+   * as JSON array.
+   */
+  public void testDeserializeArrayRawMapNullKey() {
+    String json = "[[\"a\", 1.0], [null, 2.0], [\"b\", 3.0]]";
+
+    Map<Object, Double> expectedMap = new LinkedHashMap<>();
+    expectedMap.put("a", 1.0);
+    expectedMap.put(null, 2.0);
+    expectedMap.put("b", 3.0);
+
+    assertEquals(expectedMap, gson.fromJson(json, Map.class));
   }
 
   private <K, V> Map<K, V> newMap(K key1, V value1, K key2, V value2) {

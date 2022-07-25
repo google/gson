@@ -257,6 +257,21 @@ public final class ConstructorConstructor {
     };
   }
 
+  private static boolean hasStringKeyType(Type mapType) {
+    // If mapType is not parameterized, cannot assume that key is String, because if it
+    // is not String and does not implement Comparable it would lead to a ClassCastException
+    if (!(mapType instanceof ParameterizedType)) {
+      return false;
+    }
+
+    Type[] typeArguments = ((ParameterizedType) mapType).getActualTypeArguments();
+    if (typeArguments.length == 0) {
+      return false;
+    }
+    // Consider String and supertypes of it
+    return TypeToken.get(typeArguments[0]).getRawType().isAssignableFrom(String.class);
+  }
+
   /**
    * Constructors for common interface types like Map and List and their
    * subtypes.
@@ -320,17 +335,16 @@ public final class ConstructorConstructor {
             return (T) new TreeMap<>();
           }
         };
-      } else if (type instanceof ParameterizedType && !(String.class.isAssignableFrom(
-          TypeToken.get(((ParameterizedType) type).getActualTypeArguments()[0]).getRawType()))) {
+      } else if (hasStringKeyType(type)) {
         return new ObjectConstructor<T>() {
           @Override public T construct() {
-            return (T) new LinkedHashMap<>();
+            return (T) new LinkedTreeMap<>();
           }
         };
       } else {
         return new ObjectConstructor<T>() {
           @Override public T construct() {
-            return (T) new LinkedTreeMap<>();
+            return (T) new LinkedHashMap<>();
           }
         };
       }
