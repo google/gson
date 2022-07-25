@@ -18,9 +18,7 @@ package com.google.gson;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * A class representing an array type in Json. An array is a list of {@link JsonElement}s each of
@@ -59,6 +57,37 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
     }
     return new JsonArray();
   }
+  
+	/**
+	 * Adds all values from the passed array to this {@link JsonArray}.
+	 *
+	 * @param values can be a collection of any kind.
+	 */
+	public <T> void addAll(T... values) {
+		addAll(Arrays.asList(values));
+	}
+
+	/**
+	 * Adds all values from the passed {@link Collection} to this {@link JsonArray}.
+	 *
+	 * @param values can be a collection of any kind.
+	 */
+	public synchronized <T> void addAll(Collection<T> values) {
+		for (T val : values) {
+			if (val instanceof Boolean)
+				add((Boolean) val);
+			else if (val instanceof Character)
+				add((Character) val);
+			else if (val instanceof Number)
+				add((Number) val);
+			else if (val instanceof String)
+				add((String) val);
+			else if (val instanceof JsonElement)
+				add((JsonElement) val);
+			else
+				add(new Gson().toJsonTree(val));
+		}
+	}
 
   /**
    * Adds the specified boolean to self.
