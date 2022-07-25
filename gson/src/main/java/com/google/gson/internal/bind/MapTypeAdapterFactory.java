@@ -179,9 +179,7 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
           // a different map type. LinkedTreeMap is an internal class so switching map type
           // should be invisible to user code.
           if (isLinkedTreeMap && !(key instanceof Comparable)) {
-            Map<K, V> oldMap = map;
-            map = new LinkedHashMap<>();
-            map.putAll(oldMap);
+            map = new LinkedHashMap<>(map);
             isLinkedTreeMap = false;
           }
 
@@ -203,9 +201,7 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
           // a different map type. LinkedTreeMap is an internal class so switching map type
           // should be invisible to user code.
           if (isLinkedTreeMap && !(key instanceof Comparable)) {
-            Map<K, V> oldMap = map;
-            map = new LinkedHashMap<>();
-            map.putAll(oldMap);
+            map = new LinkedHashMap<>(map);
             isLinkedTreeMap = false;
           }
 
