@@ -398,7 +398,7 @@ public final class Gson {
         }
         double doubleValue = value.doubleValue();
         checkValidFloatingPoint(doubleValue);
-        out.value(value);
+        out.value(doubleValue);
       }
     };
   }
@@ -422,7 +422,7 @@ public final class Gson {
         }
         float floatValue = value.floatValue();
         checkValidFloatingPoint(floatValue);
-        out.value(value);
+        out.value(floatValue);
       }
     };
   }

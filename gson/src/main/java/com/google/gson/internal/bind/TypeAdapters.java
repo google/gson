@@ -194,7 +194,11 @@ public final class TypeAdapters {
     }
     @Override
     public void write(JsonWriter out, Number value) throws IOException {
-      out.value(value);
+      if (value == null) {
+        out.nullValue();
+      } else {
+        out.value(value.byteValue());
+      }
     }
   };
 
@@ -223,7 +227,11 @@ public final class TypeAdapters {
     }
     @Override
     public void write(JsonWriter out, Number value) throws IOException {
-      out.value(value);
+      if (value == null) {
+        out.nullValue();
+      } else {
+        out.value(value.shortValue());
+      }
     }
   };
 
@@ -245,7 +253,11 @@ public final class TypeAdapters {
     }
     @Override
     public void write(JsonWriter out, Number value) throws IOException {
-      out.value(value);
+      if (value == null) {
+        out.nullValue();
+      } else {
+        out.value(value.intValue());
+      }
     }
   };
   public static final TypeAdapterFactory INTEGER_FACTORY
@@ -323,7 +335,11 @@ public final class TypeAdapters {
     }
     @Override
     public void write(JsonWriter out, Number value) throws IOException {
-      out.value(value);
+      if (value == null) {
+        out.nullValue();
+      } else {
+        out.value(value.longValue());
+      }
     }
   };
 
@@ -338,7 +354,11 @@ public final class TypeAdapters {
     }
     @Override
     public void write(JsonWriter out, Number value) throws IOException {
-      out.value(value);
+      if (value == null) {
+        out.nullValue();
+      } else {
+        out.value(value.floatValue());
+      }
     }
   };
 
@@ -353,7 +373,11 @@ public final class TypeAdapters {
     }
     @Override
     public void write(JsonWriter out, Number value) throws IOException {
-      out.value(value);
+      if (value == null) {
+        out.nullValue();
+      } else {
+        out.value(value.doubleValue());
+      }
     }
   };
 
