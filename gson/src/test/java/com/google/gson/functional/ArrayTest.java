@@ -16,20 +16,19 @@
 
 package com.google.gson.functional;
 
+import static org.junit.Assert.assertArrayEquals;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.common.TestTypes.ClassWithObjects;
 import com.google.gson.reflect.TypeToken;
-
-import junit.framework.TestCase;
-import static org.junit.Assert.assertArrayEquals;
-
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
+import junit.framework.TestCase;
 /**
  * Functional tests for Json serialization and deserialization of arrays.
  *
@@ -222,7 +221,7 @@ public class ArrayTest extends TestCase {
   /**
    * Regression tests for Issue 272
    */
-  public void testMultidimenstionalArraysSerialization() {
+  public void testMultidimensionalArraysSerialization() {
     String[][] items = {
         {"3m Co", "71.72", "0.02", "0.03", "4/2 12:00am", "Manufacturing"},
         {"Alcoa Inc", "29.01", "0.42", "1.47", "4/1 12:00am", "Manufacturing"}
@@ -232,12 +231,12 @@ public class ArrayTest extends TestCase {
     assertTrue(json.contains("Manufacturing\"]]"));
   }
 
-  public void testMultidimenstionalObjectArraysSerialization() {
+  public void testMultidimensionalObjectArraysSerialization() {
     Object[][] array = {new Object[] { 1, 2 }};
     assertEquals("[[1,2]]", gson.toJson(array));
   }
 
-  public void testMultidimenstionalPrimitiveArraysSerialization() {
+  public void testMultidimensionalPrimitiveArraysSerialization() {
     int[][] array = {{1, 2}, {3, 4}};
     assertEquals("[[1,2],[3,4]]", gson.toJson(array));
   }
@@ -253,7 +252,7 @@ public class ArrayTest extends TestCase {
   /**
    * Regression tests for Issue 272
    */
-  public void testMultidimenstionalArraysDeserialization() {
+  public void testMultidimensionalArraysDeserialization() {
     String json = "[['3m Co','71.72','0.02','0.03','4/2 12:00am','Manufacturing'],"
       + "['Alcoa Inc','29.01','0.42','1.47','4/1 12:00am','Manufacturing']]";
     String[][] items = gson.fromJson(json, String[][].class);
@@ -261,7 +260,7 @@ public class ArrayTest extends TestCase {
     assertEquals("Manufacturing", items[1][5]);
   }
 
-  public void testMultidimenstionalPrimitiveArraysDeserialization() {
+  public void testMultidimensionalPrimitiveArraysDeserialization() {
     String json = "[[1,2],[3,4]]";
     int[][] expected = {{1, 2}, {3, 4}};
     assertArrayEquals(expected, gson.fromJson(json, int[][].class));
