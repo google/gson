@@ -91,7 +91,7 @@ public class InstanceCreatorTest extends TestCase {
     class SubArrayList<T> extends ArrayList<T> {}
     InstanceCreator<List<String>> listCreator = new InstanceCreator<List<String>>() {
       @Override public List<String> createInstance(Type type) {
-        return new SubArrayList<String>();
+        return new SubArrayList<>();
       }
     };
     Type listOfStringType = new TypeToken<List<String>>() {}.getType();

@@ -35,7 +35,7 @@ import com.google.gson.reflect.TypeToken;
  *         return null;
  *       }
  *
- *       final Map<String, T> lowercaseToConstant = new HashMap<String, T>();
+ *       final Map<String, T> lowercaseToConstant = new HashMap<>();
  *       for (T constant : rawType.getEnumConstants()) {
  *         lowercaseToConstant.put(toLowercase(constant), constant);
  *       }

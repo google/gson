@@ -41,6 +41,27 @@ public final class RuntimeTypeAdapterFactoryTest extends TestCase {
     assertTrue(deserialized instanceof CreditCard);
   }
 
+  public void testRuntimeTypeAdapterRecognizeSubtypes() {
+    // We don't have an explicit factory for CreditCard.class, but we do have one for
+    // BillingInstrument.class that has recognizeSubtypes(). So it should recognize CreditCard, and
+    // when we call gson.toJson(original) below, without an explicit type, it should be invoked.
+    RuntimeTypeAdapterFactory<BillingInstrument> rta = RuntimeTypeAdapterFactory.of(
+        BillingInstrument.class)
+        .recognizeSubtypes()
+        .registerSubtype(CreditCard.class);
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapterFactory(rta)
+        .create();
+
+    CreditCard original = new CreditCard("Jesse", 234);
+    assertEquals("{\"type\":\"CreditCard\",\"cvv\":234,\"ownerName\":\"Jesse\"}",
+        gson.toJson(original));
+    BillingInstrument deserialized = gson.fromJson(
+        "{type:'CreditCard',cvv:234,ownerName:'Jesse'}", BillingInstrument.class);
+    assertEquals("Jesse", deserialized.ownerName);
+    assertTrue(deserialized instanceof CreditCard);
+  }
+
   public void testRuntimeTypeIsBaseType() {
     TypeAdapterFactory rta = RuntimeTypeAdapterFactory.of(
         BillingInstrument.class)

@@ -16,8 +16,8 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.bind.JsonTreeWriter;
 import com.google.gson.internal.bind.JsonTreeReader;
+import com.google.gson.internal.bind.JsonTreeWriter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
@@ -252,6 +252,9 @@ public abstract class TypeAdapter<T> {
    * read is strict. Create a {@link JsonReader#setLenient(boolean) lenient}
    * {@code JsonReader} and call {@link #read(JsonReader)} for lenient reading.
    *
+   * <p>No exception is thrown if the JSON data has multiple top-level JSON elements,
+   * or if there is trailing data.
+   *
    * @return the converted Java object. May be null.
    * @since 2.2
    */
@@ -266,6 +269,9 @@ public abstract class TypeAdapter<T> {
    * strict. Create a {@link JsonReader#setLenient(boolean) lenient} {@code
    * JsonReader} and call {@link #read(JsonReader)} for lenient reading.
    *
+   * <p>No exception is thrown if the JSON data has multiple top-level JSON elements,
+   * or if there is trailing data.
+   *
    * @return the converted Java object. May be null.
    * @since 2.2
    */
@@ -276,7 +282,8 @@ public abstract class TypeAdapter<T> {
   /**
    * Converts {@code jsonTree} to a Java object.
    *
-   * @param jsonTree the Java object to convert. May be {@link JsonNull}.
+   * @param jsonTree the JSON element to convert. May be {@link JsonNull}.
+   * @return the converted Java object. May be null.
    * @since 2.2
    */
   public final T fromJsonTree(JsonElement jsonTree) {
