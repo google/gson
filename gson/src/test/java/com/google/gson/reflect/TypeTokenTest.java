@@ -27,9 +27,8 @@ import junit.framework.TestCase;
 /**
  * @author Jesse Wilson
  */
-@SuppressWarnings({"deprecation"})
 public final class TypeTokenTest extends TestCase {
-
+  // These fields are accessed using reflection by the tests below
   List<Integer> listOfInteger = null;
   List<Number> listOfNumber = null;
   List<String> listOfString = null;
@@ -37,6 +36,7 @@ public final class TypeTokenTest extends TestCase {
   List<Set<String>> listOfSetOfString = null;
   List<Set<?>> listOfSetOfUnknown = null;
 
+  @SuppressWarnings({"deprecation"})
   public void testIsAssignableFromRawTypes() {
     assertTrue(TypeToken.get(Object.class).isAssignableFrom(String.class));
     assertFalse(TypeToken.get(String.class).isAssignableFrom(Object.class));
@@ -44,6 +44,7 @@ public final class TypeTokenTest extends TestCase {
     assertFalse(TypeToken.get(ArrayList.class).isAssignableFrom(RandomAccess.class));
   }
 
+  @SuppressWarnings({"deprecation"})
   public void testIsAssignableFromWithTypeParameters() throws Exception {
     Type a = getClass().getDeclaredField("listOfInteger").getGenericType();
     Type b = getClass().getDeclaredField("listOfNumber").getGenericType();
@@ -56,6 +57,7 @@ public final class TypeTokenTest extends TestCase {
     assertFalse(TypeToken.get(b).isAssignableFrom(a));
   }
 
+  @SuppressWarnings({"deprecation"})
   public void testIsAssignableFromWithBasicWildcards() throws Exception {
     Type a = getClass().getDeclaredField("listOfString").getGenericType();
     Type b = getClass().getDeclaredField("listOfUnknown").getGenericType();
@@ -69,6 +71,7 @@ public final class TypeTokenTest extends TestCase {
     // assertTrue(TypeToken.get(b).isAssignableFrom(a));
   }
 
+  @SuppressWarnings({"deprecation"})
   public void testIsAssignableFromWithNestedWildcards() throws Exception {
     Type a = getClass().getDeclaredField("listOfSetOfString").getGenericType();
     Type b = getClass().getDeclaredField("listOfSetOfUnknown").getGenericType();
@@ -101,5 +104,57 @@ public final class TypeTokenTest extends TestCase {
     Type listOfString = TypeToken.getParameterized(List.class, String.class).getType();
     Type listOfListOfString = TypeToken.getParameterized(List.class, listOfString).getType();
     assertEquals(expectedListOfListOfListOfString, TypeToken.getParameterized(List.class, listOfListOfString));
+  }
+
+  private static class CustomTypeToken extends TypeToken<String> {
+  }
+
+  public void testTypeTokenNonAnonymousSubclass() {
+    TypeToken<?> typeToken = new CustomTypeToken();
+    assertEquals(String.class, typeToken.getRawType());
+    assertEquals(String.class, typeToken.getType());
+  }
+
+  /**
+   * User must only create direct subclasses of TypeToken, but not subclasses
+   * of subclasses (...) of TypeToken.
+   */
+  public void testTypeTokenSubSubClass() {
+    class SubTypeToken<T> extends TypeToken<String> {}
+    class SubSubTypeToken1<T> extends SubTypeToken<T> {}
+    class SubSubTypeToken2 extends SubTypeToken<Integer> {}
+
+    try {
+      new SubTypeToken<Integer>() {};
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Must only create direct subclasses of TypeToken", expected.getMessage());
+    }
+
+    try {
+      new SubSubTypeToken1<Integer>();
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Must only create direct subclasses of TypeToken", expected.getMessage());
+    }
+
+    try {
+      new SubSubTypeToken2();
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Must only create direct subclasses of TypeToken", expected.getMessage());
+    }
+  }
+
+  @SuppressWarnings("rawtypes")
+  public void testTypeTokenRaw() {
+    try {
+      new TypeToken() {};
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("TypeToken must be created with a type argument: new TypeToken<...>() {}; "
+          + "When using code shrinkers (ProGuard, R8, ...) make sure that generic signatures are preserved.",
+          expected.getMessage());
+    }
   }
 }

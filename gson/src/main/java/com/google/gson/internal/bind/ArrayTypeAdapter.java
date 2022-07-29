@@ -56,7 +56,7 @@ public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
 
   public ArrayTypeAdapter(Gson context, TypeAdapter<E> componentTypeAdapter, Class<E> componentType) {
     this.componentTypeAdapter =
-      new TypeAdapterRuntimeTypeWrapper<E>(context, componentTypeAdapter, componentType);
+      new TypeAdapterRuntimeTypeWrapper<>(context, componentTypeAdapter, componentType);
     this.componentType = componentType;
   }
 
@@ -66,7 +66,7 @@ public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
       return null;
     }
 
-    List<E> list = new ArrayList<E>();
+    List<E> list = new ArrayList<>();
     in.beginArray();
     while (in.hasNext()) {
       E instance = componentTypeAdapter.read(in);
