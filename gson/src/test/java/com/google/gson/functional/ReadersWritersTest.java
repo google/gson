@@ -20,13 +20,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonStreamParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
-
 import com.google.gson.reflect.TypeToken;
-
-import java.util.Arrays;
-import java.util.Map;
-import junit.framework.TestCase;
-
 import java.io.CharArrayReader;
 import java.io.CharArrayWriter;
 import java.io.IOException;
@@ -34,6 +28,9 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.Arrays;
+import java.util.Map;
+import junit.framework.TestCase;
 
 /**
  * Functional tests for the support of {@link Reader}s and {@link Writer}s.
@@ -142,6 +139,7 @@ public class ReadersWritersTest extends TestCase {
   public void testToJsonAppendable() {
     class CustomAppendable implements Appendable {
       final StringBuilder stringBuilder = new StringBuilder();
+      int toStringCallCount = 0;
 
       @Override
       public Appendable append(char c) throws IOException {
@@ -152,13 +150,13 @@ public class ReadersWritersTest extends TestCase {
       @Override
       public Appendable append(CharSequence csq) throws IOException {
         if (csq == null) {
-          append("null"); // Requirement by Writer.append
-        } else {
-          append(csq, 0, csq.length());
+          csq = "null"; // Requirement by Writer.append
         }
+        append(csq, 0, csq.length());
         return this;
       }
 
+      @Override
       public Appendable append(CharSequence csq, int start, int end) throws IOException {
         if (csq == null) {
           csq = "null"; // Requirement by Writer.append
@@ -166,6 +164,7 @@ public class ReadersWritersTest extends TestCase {
 
         // According to doc, toString() must return string representation
         String s = csq.toString();
+        toStringCallCount++;
         stringBuilder.append(s, start, end);
         return this;
       }
@@ -173,6 +172,9 @@ public class ReadersWritersTest extends TestCase {
 
     CustomAppendable appendable = new CustomAppendable();
     gson.toJson(Arrays.asList("test", 123, true), appendable);
+    // Make sure CharSequence.toString() was called at least two times to verify that
+    // CurrentWrite.cachedString is properly overwritten when char array changes
+    assertTrue(appendable.toStringCallCount >= 2);
     assertEquals("[\"test\",123,true]", appendable.stringBuilder.toString());
   }
 }
