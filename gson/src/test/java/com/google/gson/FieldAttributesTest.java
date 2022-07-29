@@ -17,12 +17,10 @@
 package com.google.gson;
 
 import com.google.gson.reflect.TypeToken;
-
-import junit.framework.TestCase;
-
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.List;
+import junit.framework.TestCase;
 
 /**
  * Unit tests for the {@link FieldAttributes} class.
@@ -60,10 +58,6 @@ public class FieldAttributesTest extends TestCase {
 
     assertTrue(fieldAttributes.hasModifier(Modifier.PUBLIC));
     assertTrue(fieldAttributes.hasModifier(Modifier.TRANSIENT));
-  }
-
-  public void testIsSynthetic() throws Exception {
-    assertFalse(fieldAttributes.isSynthetic());
   }
 
   public void testName() throws Exception {
