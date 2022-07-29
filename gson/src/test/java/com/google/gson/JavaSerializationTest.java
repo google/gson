@@ -43,7 +43,7 @@ public final class JavaSerializationTest extends TestCase {
     Map<String, Integer> serialized = serializedCopy(map);
     assertEquals(map, serialized);
     // Also check that the iteration order is retained.
-    assertEquals(Arrays.asList("b", "c", "a"), new ArrayList<String>(serialized.keySet()));
+    assertEquals(Arrays.asList("b", "c", "a"), new ArrayList<>(serialized.keySet()));
   }
 
   public void testListIsSerializable() throws Exception {

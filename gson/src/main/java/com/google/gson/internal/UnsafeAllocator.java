@@ -31,6 +31,37 @@ import java.lang.reflect.Modifier;
 public abstract class UnsafeAllocator {
   public abstract <T> T newInstance(Class<T> c) throws Exception;
 
+  /**
+   * Check if the class can be instantiated by Unsafe allocator. If the instance has interface or abstract modifiers
+   * return an exception message.
+   * @param c instance of the class to be checked
+   * @return if instantiable {@code null}, else a non-{@code null} exception message
+   */
+  static String checkInstantiable(Class<?> c) {
+    int modifiers = c.getModifiers();
+    if (Modifier.isInterface(modifiers)) {
+      return "Interfaces can't be instantiated! Register an InstanceCreator "
+          + "or a TypeAdapter for this type. Interface name: " + c.getName();
+    }
+    if (Modifier.isAbstract(modifiers)) {
+      return "Abstract classes can't be instantiated! Register an InstanceCreator "
+          + "or a TypeAdapter for this type. Class name: " + c.getName();
+    }
+    return null;
+  }
+
+  /**
+   * Asserts that the class is instantiable. This check should have already occurred
+   * in {@link ConstructorConstructor}; this check here acts as safeguard since trying
+   * to use Unsafe for non-instantiable classes might crash the JVM on some devices.
+   */
+  private static void assertInstantiable(Class<?> c) {
+    String exceptionMessage = checkInstantiable(c);
+    if (exceptionMessage != null) {
+      throw new AssertionError("UnsafeAllocator is used for non-instantiable type: " + exceptionMessage);
+    }
+  }
+
   public static UnsafeAllocator create() {
     // try JVM
     // public class Unsafe {
@@ -101,23 +132,9 @@ public abstract class UnsafeAllocator {
     return new UnsafeAllocator() {
       @Override
       public <T> T newInstance(Class<T> c) {
-        throw new UnsupportedOperationException("Cannot allocate " + c);
+        throw new UnsupportedOperationException("Cannot allocate " + c + ". Usage of JDK sun.misc.Unsafe is enabled, "
+            + "but it could not be used. Make sure your runtime is configured correctly.");
       }
     };
-  }
-
-  /**
-   * Check if the class can be instantiated by unsafe allocator. If the instance has interface or abstract modifiers
-   * throw an {@link java.lang.UnsupportedOperationException}
-   * @param c instance of the class to be checked
-   */
-  static void assertInstantiable(Class<?> c) {
-    int modifiers = c.getModifiers();
-    if (Modifier.isInterface(modifiers)) {
-      throw new UnsupportedOperationException("Interface can't be instantiated! Interface name: " + c.getName());
-    }
-    if (Modifier.isAbstract(modifiers)) {
-      throw new UnsupportedOperationException("Abstract class can't be instantiated! Class name: " + c.getName());
-    }
   }
 }

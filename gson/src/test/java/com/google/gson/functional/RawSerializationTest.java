@@ -51,7 +51,7 @@ public class RawSerializationTest extends TestCase {
   }
 
   public void testParameterizedObject() {
-    Bar<Foo> bar = new Bar<Foo>(new Foo(1));
+    Bar<Foo> bar = new Bar<>(new Foo(1));
     String expectedJson = "{\"t\":{\"b\":1}}";
     // Ensure that serialization works without specifying the type explicitly
     String json = gson.toJson(bar);
@@ -62,7 +62,7 @@ public class RawSerializationTest extends TestCase {
   }
 
   public void testTwoLevelParameterizedObject() {
-    Bar<Bar<Foo>> bar = new Bar<Bar<Foo>>(new Bar<Foo>(new Foo(1)));
+    Bar<Bar<Foo>> bar = new Bar<>(new Bar<>(new Foo(1)));
     String expectedJson = "{\"t\":{\"t\":{\"b\":1}}}";
     // Ensure that serialization works without specifying the type explicitly
     String json = gson.toJson(bar);
@@ -73,7 +73,7 @@ public class RawSerializationTest extends TestCase {
   }
 
   public void testThreeLevelParameterizedObject() {
-    Bar<Bar<Bar<Foo>>> bar = new Bar<Bar<Bar<Foo>>>(new Bar<Bar<Foo>>(new Bar<Foo>(new Foo(1))));
+    Bar<Bar<Bar<Foo>>> bar = new Bar<>(new Bar<>(new Bar<>(new Foo(1))));
     String expectedJson = "{\"t\":{\"t\":{\"t\":{\"b\":1}}}}";
     // Ensure that serialization works without specifying the type explicitly
     String json = gson.toJson(bar);
