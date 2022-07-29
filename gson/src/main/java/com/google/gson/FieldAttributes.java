@@ -135,27 +135,8 @@ public final class FieldAttributes {
     return (field.getModifiers() & modifier) != 0;
   }
 
-  /**
-   * Returns the value of the field represented by this {@code Field}, on
-   * the specified object. The value is automatically wrapped in an
-   * object if it has a primitive type.
-   *
-   * @return the value of the represented field in object
-   * {@code obj}; primitive values are wrapped in an appropriate
-   * object before being returned
-   * @throws IllegalAccessException
-   * @throws IllegalArgumentException
-   */
-  Object get(Object instance) throws IllegalAccessException {
-    return field.get(instance);
-  }
-
-  /**
-   * This is exposed internally only for the removing synthetic fields from the JSON output.
-   *
-   * @return true if the field is synthetic; otherwise false
-   */
-  boolean isSynthetic() {
-    return field.isSynthetic();
+  @Override
+  public String toString() {
+    return field.toString();
   }
 }
