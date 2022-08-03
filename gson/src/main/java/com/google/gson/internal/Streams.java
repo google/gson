@@ -107,7 +107,7 @@ public final class Streams {
       private char[] chars;
       private String cachedString;
 
-      public void setChars(char[] chars) {
+      void setChars(char[] chars) {
         this.chars = chars;
         this.cachedString = null;
       }
