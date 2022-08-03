@@ -58,7 +58,7 @@ public class JsonTreeReaderTest extends TestCase {
   }
 
   public void testCustomJsonElementSubclass() throws IOException {
-    @SuppressWarnings("deprecation") // JsonElement constructor
+    @SuppressWarnings("deprecation") // superclass constructor
     class CustomSubclass extends JsonElement {
       @Override
       public JsonElement deepCopy() {
@@ -76,7 +76,7 @@ public class JsonTreeReaderTest extends TestCase {
       reader.peek();
       fail();
     } catch (MalformedJsonException expected) {
-      assertEquals("Custom JsonElement subclass com.google.gson.internal.bind.JsonTreeReaderTest$1CustomSubclass is not supported",
+      assertEquals("Custom JsonElement subclass " + CustomSubclass.class.getName() + " is not supported",
           expected.getMessage());
     }
   }
