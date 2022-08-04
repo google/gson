@@ -24,11 +24,13 @@ import com.google.gson.ReflectionAccessFilter;
 import com.google.gson.ReflectionAccessFilter.FilterResult;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
+import com.google.gson.annotations.SerializeNull;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.Excluder;
+import com.google.gson.internal.JsonWriterInternalAccess;
 import com.google.gson.internal.ObjectConstructor;
 import com.google.gson.internal.Primitives;
 import com.google.gson.internal.ReflectionAccessFilterHelper;
@@ -127,11 +129,13 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       final boolean blockInaccessible) {
     final boolean isPrimitive = Primitives.isPrimitive(fieldType.getRawType());
     // special casing primitives here saves ~5% on Android...
-    JsonAdapter annotation = field.getAnnotation(JsonAdapter.class);
+    JsonAdapter adapterAnnotation = field.getAnnotation(JsonAdapter.class);
+    final SerializeNull serializeNullAnnotation = field.getAnnotation(SerializeNull.class);
+
     TypeAdapter<?> mapped = null;
-    if (annotation != null) {
+    if (adapterAnnotation != null) {
       mapped = jsonAdapterFactory.getTypeAdapter(
-          constructorConstructor, context, fieldType, annotation);
+          constructorConstructor, context, fieldType, adapterAnnotation);
     }
     final boolean jsonAdapterPresent = mapped != null;
     if (mapped == null) mapped = context.getAdapter(fieldType);
@@ -154,7 +158,20 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         writer.name(name);
         TypeAdapter t = jsonAdapterPresent ? typeAdapter
             : new TypeAdapterRuntimeTypeWrapper(context, typeAdapter, fieldType.getType());
-        t.write(writer, fieldValue);
+
+        if (serializeNullAnnotation != null) {
+          try {
+            JsonWriterInternalAccess.INSTANCE.setSerializeNextNullOverwrite(writer, serializeNullAnnotation.value());
+            t.write(writer, fieldValue);
+          } finally {
+            // Always reset, so in case type adapter throws exception and does not
+            // write anything next user of writer is not affected
+            JsonWriterInternalAccess.INSTANCE.setSerializeNextNullOverwrite(writer, null);
+          }
+        } else {
+          t.write(writer, fieldValue);
+        }
+
       }
       @Override void read(JsonReader reader, Object value)
           throws IOException, IllegalAccessException {

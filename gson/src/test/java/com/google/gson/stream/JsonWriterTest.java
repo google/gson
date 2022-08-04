@@ -482,6 +482,29 @@ public final class JsonWriterTest extends TestCase {
     assertEquals("[null]", stringWriter.toString());
   }
 
+  public void testForceNullValue() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter jsonWriter = new JsonWriter(stringWriter);
+    jsonWriter.setSerializeNulls(false);
+    jsonWriter.beginArray();
+    jsonWriter.nullValue();
+    // Force null in array should have no special effect
+    JsonWriter returnedWriter = jsonWriter.forceNullValue();
+    assertSame(jsonWriter, returnedWriter);
+
+    jsonWriter.beginObject();
+    jsonWriter.name("regular");
+    jsonWriter.nullValue();
+    jsonWriter.name("forced");
+    jsonWriter.forceNullValue();
+    jsonWriter.endObject();
+
+    jsonWriter.endArray();
+    jsonWriter.close();
+
+    assertEquals("[null,null,{\"forced\":null}]", stringWriter.toString());
+  }
+
   public void testStrings() throws IOException {
     StringWriter stringWriter = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(stringWriter);

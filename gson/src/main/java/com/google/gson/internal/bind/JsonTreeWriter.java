@@ -51,6 +51,13 @@ public final class JsonTreeWriter extends JsonWriter {
   /** The name for the next JSON object value. If non-null, the top of the stack is a JsonObject. */
   private String pendingName;
 
+  /**
+   * Overwrites {@link #getSerializeNulls()}, but is reset to {@code null} once any
+   * value (even non-{@code null}) has been written.<br>
+   * {@code null} means that {@code serializeNulls} is not overwritten.
+   */
+  private Boolean serializeNullsOverwrite = null;
+
   /** the JSON element constructed by this writer. */
   private JsonElement product = JsonNull.INSTANCE; // TODO: is this really what we want?;
 
@@ -72,9 +79,10 @@ public final class JsonTreeWriter extends JsonWriter {
     return stack.get(stack.size() - 1);
   }
 
-  private void put(JsonElement value) {
+  private void put(JsonElement value, boolean forceSerializeNull) {
     if (pendingName != null) {
-      if (!value.isJsonNull() || getSerializeNulls()) {
+      boolean serializeNull = serializeNullsOverwrite != null ? serializeNullsOverwrite : getSerializeNulls();
+      if (forceSerializeNull || serializeNull || !value.isJsonNull()) {
         JsonObject object = (JsonObject) peek();
         object.add(pendingName, value);
       }
@@ -89,6 +97,13 @@ public final class JsonTreeWriter extends JsonWriter {
         throw new IllegalStateException();
       }
     }
+
+    // Always reset, regardless of whether null or non-null value was written
+    serializeNullsOverwrite = null;
+  }
+
+  private void put(JsonElement value) {
+    put(value, false);
   }
 
   @Override public JsonWriter beginArray() throws IOException {
@@ -157,6 +172,11 @@ public final class JsonTreeWriter extends JsonWriter {
     return this;
   }
 
+  @Override public JsonWriter forceNullValue() throws IOException {
+    put(JsonNull.INSTANCE, true);
+    return this;
+  }
+
   @Override public JsonWriter value(boolean value) throws IOException {
     put(new JsonPrimitive(value));
     return this;
@@ -215,5 +235,11 @@ public final class JsonTreeWriter extends JsonWriter {
       throw new IOException("Incomplete document");
     }
     stack.add(SENTINEL_CLOSED);
+  }
+
+  public void setSerializeNextNullOverwrite(Boolean serializeNull) {
+    // Only intended for object property values, so name must be present
+    assert !(serializeNull == Boolean.TRUE && pendingName == null);
+    serializeNullsOverwrite = serializeNull;
   }
 }
