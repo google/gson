@@ -394,18 +394,28 @@ public class JsonWriter implements Closeable, Flushable {
       throw new NullPointerException("name == null");
     }
     if (deferredName != null) {
-      throw new IllegalStateException();
+      throw new IllegalStateException("Already wrote a name, expecting a value");
     }
-    if (stackSize == 0) {
-      throw new IllegalStateException("JsonWriter is closed.");
+    int peeked = peek();
+    if (peeked == EMPTY_OBJECT || peeked == NONEMPTY_OBJECT) {
+      deferredName = name;
+      return this;
+    } else { // array or empty document
+      throw new IllegalStateException("Currently not writing an object");
     }
-    deferredName = name;
-    return this;
   }
 
   private void writeDeferredName() throws IOException {
-    if (deferredName != null) {
-      beforeName();
+    int context = peek();
+    if (context == EMPTY_OBJECT || context == NONEMPTY_OBJECT) {
+      if (deferredName == null) {
+        throw new IllegalStateException("Expecting a name but got a value");
+      }
+      if (context == NONEMPTY_OBJECT) { // first in object
+        out.write(',');
+      }
+      newline();
+      replaceTop(DANGLING_NAME);
       string(deferredName);
       deferredName = null;
     }
@@ -654,21 +664,6 @@ public class JsonWriter implements Closeable, Flushable {
     for (int i = 1, size = stackSize; i < size; i++) {
       out.write(indent);
     }
-  }
-
-  /**
-   * Inserts any necessary separators and whitespace before a name. Also
-   * adjusts the stack to expect the name's value.
-   */
-  private void beforeName() throws IOException {
-    int context = peek();
-    if (context == NONEMPTY_OBJECT) { // first in object
-      out.write(',');
-    } else if (context != EMPTY_OBJECT) { // not in an object!
-      throw new IllegalStateException("Nesting problem.");
-    }
-    newline();
-    replaceTop(DANGLING_NAME);
   }
 
   /**

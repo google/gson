@@ -19,6 +19,7 @@ package com.google.gson.stream;
 import com.google.gson.internal.LazilyParsedNumber;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import junit.framework.TestCase;
@@ -61,11 +62,11 @@ public final class JsonWriterTest extends TestCase {
   public void testInvalidTopLevelTypes() throws IOException {
     StringWriter stringWriter = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
-    jsonWriter.name("hello");
     try {
-      jsonWriter.value("world");
+      jsonWriter.name("hello");
       fail();
     } catch (IllegalStateException expected) {
+      assertEquals("Currently not writing an object", expected.getMessage());
     }
   }
 
@@ -78,6 +79,7 @@ public final class JsonWriterTest extends TestCase {
       jsonWriter.name("a");
       fail();
     } catch (IllegalStateException expected) {
+      assertEquals("Already wrote a name, expecting a value", expected.getMessage());
     }
   }
 
@@ -90,6 +92,7 @@ public final class JsonWriterTest extends TestCase {
       jsonWriter.endObject();
       fail();
     } catch (IllegalStateException expected) {
+      assertEquals("Dangling name: a", expected.getMessage());
     }
   }
 
@@ -101,6 +104,19 @@ public final class JsonWriterTest extends TestCase {
       jsonWriter.value(true);
       fail();
     } catch (IllegalStateException expected) {
+      assertEquals("Expecting a name but got a value", expected.getMessage());
+    }
+  }
+
+  public void testArrayWriteName() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter jsonWriter = new JsonWriter(stringWriter);
+    jsonWriter.beginArray();
+    try {
+      jsonWriter.name("a");
+      fail();
+    } catch (IllegalStateException expected) {
+      assertEquals("Currently not writing an object", expected.getMessage());
     }
   }
 
@@ -798,5 +814,39 @@ public final class JsonWriterTest extends TestCase {
     writer.endArray();
     writer.close();
     writer.close();
+  }
+
+  public void testPrematureClose() throws IOException {
+    class DummyWriter extends Writer {
+      boolean isClosed = false;
+
+      @Override public void write(char[] cbuf, int off, int len) throws IOException {
+        // Do nothing
+      }
+
+      @Override public void flush() throws IOException {
+        // Do nothing
+      }
+
+      @Override public void close() throws IOException {
+        if (isClosed) {
+          fail("close() called multiple times");
+        }
+        isClosed = true;
+      }
+    }
+
+    DummyWriter dummyWriter = new DummyWriter();
+    JsonWriter jsonWriter = new JsonWriter(dummyWriter);
+    jsonWriter.beginArray();
+    assertFalse(dummyWriter.isClosed);
+    try {
+      jsonWriter.close();
+      fail();
+    } catch (IOException expected) {
+      assertEquals("Incomplete document", expected.getMessage());
+    }
+    // Make sure underlying writer was closed even though document is incomplete
+    assertTrue(dummyWriter.isClosed);
   }
 }
