@@ -36,10 +36,19 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   /**
    * Creates an empty JsonArray.
    */
+  @SuppressWarnings("deprecation") // superclass constructor
   public JsonArray() {
     elements = new ArrayList<>();
   }
-  
+
+  /**
+   * Creates an empty JsonArray with the desired initial capacity.
+   *
+   * @param capacity initial capacity.
+   * @throws IllegalArgumentException if the {@code capacity} is
+   *   negative
+   */
+  @SuppressWarnings("deprecation") // superclass constructor
   public JsonArray(int capacity) {
     elements = new ArrayList<>(capacity);
   }
@@ -171,7 +180,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   public int size() {
     return elements.size();
   }
-  
+
   /**
    * Returns true if the array is empty
    *

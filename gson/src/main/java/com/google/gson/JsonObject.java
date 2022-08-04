@@ -17,7 +17,6 @@
 package com.google.gson;
 
 import com.google.gson.internal.LinkedTreeMap;
-
 import java.util.Map;
 import java.util.Set;
 
@@ -31,6 +30,13 @@ import java.util.Set;
  */
 public final class JsonObject extends JsonElement {
   private final LinkedTreeMap<String, JsonElement> members = new LinkedTreeMap<>();
+
+  /**
+   * Creates an empty JsonObject.
+   */
+  @SuppressWarnings("deprecation") // superclass constructor
+  public JsonObject() {
+  }
 
   /**
    * Creates a deep copy of this element and all its children
