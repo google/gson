@@ -379,6 +379,23 @@ public final class TypeAdapters {
   public static final TypeAdapterFactory CHARACTER_FACTORY
       = newFactory(char.class, Character.class, CHARACTER);
 
+  public static final TypeAdapter<CharSequence> CHAR_SEQUENCE = new TypeAdapter<CharSequence>() {
+    @Override
+    public CharSequence read(JsonReader in) throws IOException {
+      JsonToken peek = in.peek();
+      if (peek == JsonToken.NULL) {
+        in.nextNull();
+        return null;
+      }
+      return in.nextString();
+    }
+    @Override
+    public void write(JsonWriter out, CharSequence value) throws IOException {
+      out.value(value);
+    }
+  };
+  public static final TypeAdapterFactory CHAR_SEQUENCE_FACTORY = newFactory(CharSequence.class, CHAR_SEQUENCE);
+
   public static final TypeAdapter<String> STRING = new TypeAdapter<String>() {
     @Override
     public String read(JsonReader in) throws IOException {
@@ -398,6 +415,7 @@ public final class TypeAdapters {
       out.value(value);
     }
   };
+  public static final TypeAdapterFactory STRING_FACTORY = newFactory(String.class, STRING);
 
   public static final TypeAdapter<BigDecimal> BIG_DECIMAL = new TypeAdapter<BigDecimal>() {
     @Override public BigDecimal read(JsonReader in) throws IOException {
@@ -453,9 +471,6 @@ public final class TypeAdapters {
       out.value(value);
     }
   };
-
-  public static final TypeAdapterFactory STRING_FACTORY = newFactory(String.class, STRING);
-
   public static final TypeAdapter<StringBuilder> STRING_BUILDER = new TypeAdapter<StringBuilder>() {
     @Override
     public StringBuilder read(JsonReader in) throws IOException {

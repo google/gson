@@ -418,6 +418,16 @@ public class JsonWriter implements Closeable, Flushable {
    * @return this writer.
    */
   public JsonWriter value(String value) throws IOException {
+    return value((CharSequence) value);
+  }
+
+  /**
+   * Encodes {@code value}.
+   *
+   * @param value the literal string value, or null to encode a null literal.
+   * @return this writer.
+   */
+  public JsonWriter value(CharSequence value) throws IOException {
     if (value == null) {
       return nullValue();
     }
@@ -613,7 +623,7 @@ public class JsonWriter implements Closeable, Flushable {
     stackSize = 0;
   }
 
-  private void string(String value) throws IOException {
+  private void string(CharSequence value) throws IOException {
     String[] replacements = htmlSafe ? HTML_SAFE_REPLACEMENT_CHARS : REPLACEMENT_CHARS;
     out.write('\"');
     int last = 0;
@@ -634,13 +644,29 @@ public class JsonWriter implements Closeable, Flushable {
         continue;
       }
       if (last < i) {
-        out.write(value, last, i - last);
+        if (value instanceof String) {
+          out.write((String) value, last, i - last);
+        } else {
+          out.append(value, last, i);
+        }
       }
       out.write(replacement);
       last = i + 1;
     }
-    if (last < length) {
-      out.write(value, last, length - last);
+
+    if (last == 0) {
+      // Special casing for String because write(String) might be more efficient
+      if (value instanceof String) {
+        out.write((String) value);
+      } else {
+        out.append(value);
+      }
+    } else if (last < length) {
+      if (value instanceof String) {
+        out.write((String) value, last, length - last);
+      } else {
+        out.append(value, last, length);
+      }
     }
     out.write('\"');
   }

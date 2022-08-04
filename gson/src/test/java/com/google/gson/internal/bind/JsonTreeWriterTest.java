@@ -16,8 +16,13 @@
 
 package com.google.gson.internal.bind;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import java.io.IOException;
+import java.math.BigInteger;
+import java.nio.CharBuffer;
 import junit.framework.TestCase;
 
 @SuppressWarnings("resource")
@@ -120,32 +125,87 @@ public final class JsonTreeWriterTest extends TestCase {
     assertEquals(JsonNull.INSTANCE, writer.get());
   }
 
-  public void testBeginArray() throws Exception {
+  public void testBeginEndArray() throws Exception {
     JsonTreeWriter writer = new JsonTreeWriter();
-    assertEquals(writer, writer.beginArray());
+    assertSame(writer, writer.beginArray());
+    assertSame(writer, writer.endArray());
+
+    assertEquals(new JsonArray(), writer.get());
   }
 
-  public void testBeginObject() throws Exception {
+  public void testBeginEndObject() throws Exception {
     JsonTreeWriter writer = new JsonTreeWriter();
-    assertEquals(writer, writer.beginObject());
+    assertSame(writer, writer.beginObject());
+    assertSame(writer, writer.name("a"));
+    assertSame(writer, writer.value(1));
+    assertSame(writer, writer.endObject());
+
+    JsonObject expected = new JsonObject();
+    expected.addProperty("a", 1);
+    assertEquals(expected, writer.get());
   }
 
   public void testValueString() throws Exception {
     JsonTreeWriter writer = new JsonTreeWriter();
     String n = "as";
-    assertEquals(writer, writer.value(n));
+    assertSame(writer, writer.value(n));
+
+    assertEquals(new JsonPrimitive(n), writer.get());
   }
 
-  public void testBoolValue() throws Exception {
+  public void testValueCharSequence() throws Exception {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    String n = "as";
+    assertSame(writer, writer.value(CharBuffer.wrap(n.toCharArray())));
+
+    assertEquals(new JsonPrimitive(n), writer.get());
+  }
+
+  public void testBooleanValue() throws Exception {
     JsonTreeWriter writer = new JsonTreeWriter();
     boolean bool = true;
-    assertEquals(writer, writer.value(bool));
+    assertSame(writer, writer.value(bool));
+
+    assertEquals(new JsonPrimitive(bool), writer.get());
   }
 
-  public void testBoolMaisValue() throws Exception {
+  public void testBooleanWrappedValue() throws Exception {
     JsonTreeWriter writer = new JsonTreeWriter();
     Boolean bool = true;
-    assertEquals(writer, writer.value(bool));
+    assertSame(writer, writer.value(bool));
+
+    assertEquals(new JsonPrimitive(bool), writer.get());
+  }
+
+  public void testDoubleValue() throws Exception {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    double value = 123.45;
+    assertSame(writer, writer.value(value));
+
+    assertEquals(new JsonPrimitive(value), writer.get());
+  }
+
+  public void testLongValue() throws Exception {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    long value = 1234L;
+    assertSame(writer, writer.value(value));
+
+    assertEquals(new JsonPrimitive(value), writer.get());
+  }
+
+  public void testNumberValue() throws Exception {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    BigInteger value = new BigInteger("1234");
+    assertSame(writer, writer.value(value));
+
+    assertEquals(new JsonPrimitive(value), writer.get());
+  }
+
+  public void testNullValue() throws Exception {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    assertSame(writer, writer.nullValue());
+
+    assertEquals(JsonNull.INSTANCE, writer.get());
   }
 
   public void testLenientNansAndInfinities() throws IOException {

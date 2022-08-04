@@ -39,6 +39,7 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URL;
+import java.nio.CharBuffer;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -630,6 +631,19 @@ public class DefaultTypeAdaptersTest extends TestCase {
     Type type = new TypeToken<TreeSet<String>>() {}.getType();
     TreeSet<String> treeSet = gson.fromJson(json, type);
     assertTrue(treeSet.contains("Value1"));
+  }
+
+  public void testCharSequenceSerialization() {
+    CharSequence charSeq = CharBuffer.wrap("abc".toCharArray());
+    String json = gson.toJson(charSeq, CharSequence.class);
+    assertEquals("\"abc\"", json);
+  }
+
+  public void testCharSequenceDeserialization() {
+    // Only require that result implements CharSequence; the fact that it returns String
+    // is an implementation detail
+    CharSequence charSeq = gson.fromJson("'abc'", CharSequence.class);
+    assertEquals("abc", charSeq.toString());
   }
 
   public void testStringBuilderSerialization() {

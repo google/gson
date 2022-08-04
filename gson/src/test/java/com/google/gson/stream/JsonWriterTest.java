@@ -19,8 +19,10 @@ package com.google.gson.stream;
 import com.google.gson.internal.LazilyParsedNumber;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.CharBuffer;
 import junit.framework.TestCase;
 
 @SuppressWarnings("resource")
@@ -52,10 +54,16 @@ public final class JsonWriterTest extends TestCase {
     assertEquals("123.4", string4.toString());
 
     StringWriter string5 = new StringWriter();
-    JsonWriter writert = new JsonWriter(string5);
-    writert.value("a");
-    writert.close();
+    JsonWriter writer5 = new JsonWriter(string5);
+    writer5.value("a");
+    writer5.close();
     assertEquals("\"a\"", string5.toString());
+
+    StringWriter string6 = new StringWriter();
+    JsonWriter writer6 = new JsonWriter(string6);
+    writer6.value(CharBuffer.wrap("test".toCharArray()));
+    writer6.close();
+    assertEquals("\"test\"", string6.toString());
   }
 
   public void testInvalidTopLevelTypes() throws IOException {
@@ -523,6 +531,92 @@ public final class JsonWriterTest extends TestCase {
         + "\"]\","
         + "\"\\u0000\","
         + "\"\\u0019\"]", stringWriter.toString());
+  }
+
+  /**
+   * {@link CharSequence} which does not allow calls to {@link #toString()}.
+   */
+  static class NoToStringCharSequence implements CharSequence {
+    String value;
+
+    NoToStringCharSequence(String value) {
+      this.value = value;
+    }
+
+    @Override public int length() {
+      return value.length();
+    }
+
+    @Override public char charAt(int index) {
+      return value.charAt(index);
+    }
+
+    @Override public CharSequence subSequence(int start, int end) {
+      return value.subSequence(start, end);
+    }
+
+    @Override public String toString() {
+      throw new AssertionError("toString call is not allowed");
+    }
+  }
+
+  /**
+   * Verifies that {@link JsonWriter#value(CharSequence)} does not call {@link CharSequence#toString()}.
+   * This is a requirement for some users where the char sequence wraps a {@code char[]} storing
+   * sensitive information which should be manually zeroed-out after serialization. A call to
+   * {@code toString()} would defeat this, creating a temporary {@code String} object.
+   */
+  public void testCharSequenceNoToStringCall() throws IOException {
+    // Custom Writer implementation which does not call CharSequence.toString()
+    // This is needed because JDK classes such as StringWriter make no guarantees regarding their implementation
+    final StringBuilder builder = new StringBuilder();
+    Writer customWriter = new Writer() {
+
+      @Override public void write(char[] cbuf, int off, int len) throws IOException {
+        builder.append(cbuf, off, len);
+      }
+
+      // Override to avoid CharSequence.toString() calls
+      @Override public Writer append(CharSequence csq) throws IOException {
+        // Special null handling mandated by `append`
+        if (csq == null) {
+          csq = "null";
+        }
+        return append(csq, 0, csq.length());
+      }
+
+      // Override to avoid CharSequence.toString() calls
+      @Override public Writer append(CharSequence csq, int start, int end) throws IOException {
+        // Special null handling mandated by `append`
+        if (csq == null) {
+          csq = "null";
+        }
+
+        while (start < end) {
+          append(csq.charAt(start));
+          start++;
+        }
+        return this;
+      }
+
+      @Override public void flush() throws IOException {
+      }
+
+      @Override public void close() throws IOException {
+      }
+    };
+
+    JsonWriter jsonWriter = new JsonWriter(customWriter);
+    jsonWriter.beginArray();
+    jsonWriter.value(new NoToStringCharSequence("test"));
+    // Try char sequences which need to be split to include escape sequences in JSON
+    jsonWriter.value(new NoToStringCharSequence("\ntest"));
+    jsonWriter.value(new NoToStringCharSequence("test\n"));
+    jsonWriter.value(new NoToStringCharSequence("te\nst"));
+    jsonWriter.value(new NoToStringCharSequence("\nte\nst\n"));
+    jsonWriter.endArray();
+
+    assertEquals("[\"test\",\"\\ntest\",\"test\\n\",\"te\\nst\",\"\\nte\\nst\\n\"]", builder.toString());
   }
 
   public void testUnicodeLineBreaksEscaped() throws IOException {

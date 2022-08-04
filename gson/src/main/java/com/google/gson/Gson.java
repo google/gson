@@ -294,6 +294,7 @@ public final class Gson {
     factories.add(TypeAdapters.newFactory(AtomicLongArray.class, atomicLongArrayAdapter(longAdapter)));
     factories.add(TypeAdapters.ATOMIC_INTEGER_ARRAY_FACTORY);
     factories.add(TypeAdapters.CHARACTER_FACTORY);
+    factories.add(TypeAdapters.CHAR_SEQUENCE_FACTORY);
     factories.add(TypeAdapters.STRING_BUILDER_FACTORY);
     factories.add(TypeAdapters.STRING_BUFFER_FACTORY);
     factories.add(TypeAdapters.newFactory(BigDecimal.class, TypeAdapters.BIG_DECIMAL));
