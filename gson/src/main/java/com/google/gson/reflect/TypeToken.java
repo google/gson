@@ -16,8 +16,8 @@
 
 package com.google.gson.reflect;
 
-import com.google.gson.internal.$Gson$Types;
 import com.google.gson.internal.$Gson$Preconditions;
+import com.google.gson.internal.$Gson$Types;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -319,8 +319,46 @@ public class TypeToken<T> {
   /**
    * Gets type literal for the parameterized type represented by applying {@code typeArguments} to
    * {@code rawType}.
+   *
+   * @throws IllegalArgumentException
+   *   If {@code rawType} is not of type {@code Class}, or if the type arguments are invalid for
+   *   the raw type
    */
   public static TypeToken<?> getParameterized(Type rawType, Type... typeArguments) {
+    $Gson$Preconditions.checkNotNull(rawType);
+    $Gson$Preconditions.checkNotNull(typeArguments);
+
+    // Perform basic validation here because this is the only public API where users
+    // can create malformed parameterized types
+    if (!(rawType instanceof Class)) {
+      // See also https://bugs.openjdk.org/browse/JDK-8250659
+      throw new IllegalArgumentException("rawType must be of type Class, but was " + rawType);
+    }
+    Class<?> rawClass = (Class<?>) rawType;
+    TypeVariable<?>[] typeVariables = rawClass.getTypeParameters();
+
+    int expectedArgsCount = typeVariables.length;
+    int actualArgsCount = typeArguments.length;
+    if (actualArgsCount != expectedArgsCount) {
+      throw new IllegalArgumentException(rawClass.getName() + " requires " + expectedArgsCount +
+          " type arguments, but got " + actualArgsCount);
+    }
+
+    for (int i = 0; i < expectedArgsCount; i++) {
+      Type typeArgument = typeArguments[i];
+      Class<?> rawTypeArgument = $Gson$Types.getRawType(typeArgument);
+      TypeVariable<?> typeVariable = typeVariables[i];
+
+      for (Type bound : typeVariable.getBounds()) {
+        Class<?> rawBound = $Gson$Types.getRawType(bound);
+
+        if (!rawBound.isAssignableFrom(rawTypeArgument)) {
+          throw new IllegalArgumentException("Type argument " + typeArgument + " does not satisfy bounds "
+              + "for type variable " + typeVariable + " declared by " + rawType);
+        }
+      }
+    }
+
     return new TypeToken<>($Gson$Types.newParameterizedTypeWithOwner(null, rawType, typeArguments));
   }
 
