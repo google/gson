@@ -23,9 +23,10 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * A class representing an array type in Json. An array is a list of {@link JsonElement}s each of
+ * A class representing an array type in JSON. An array is a list of {@link JsonElement}s each of
  * which can be of a different type. This is an ordered list, meaning that the order in which
- * elements are added is preserved.
+ * elements are added is preserved. This class does not support {@code null} values. If {@code null}
+ * is provided as element argument to any of the methods, it is converted to a {@link JsonNull}.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
@@ -128,14 +129,13 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
 
   /**
    * Replaces the element at the specified position in this array with the specified element.
-   *   Element can be null.
    * @param index index of the element to replace
    * @param element element to be stored at the specified position
    * @return the element previously at the specified position
    * @throws IndexOutOfBoundsException if the specified index is outside the array bounds
    */
   public JsonElement set(int index, JsonElement element) {
-    return elements.set(index, element);
+    return elements.set(index, element == null ? JsonNull.INSTANCE : element);
   }
 
   /**
