@@ -216,7 +216,7 @@ public abstract class TypeAdapter<T> {
     try {
       toJson(stringWriter, value);
     } catch (IOException e) {
-      throw new AssertionError(e); // No I/O writing to a StringWriter.
+      throw new JsonIOException(e);
     }
     return stringWriter.toString();
   }
