@@ -216,6 +216,7 @@ public class JsonObjectTest extends TestCase {
 
     // Insertion order should be preserved by keySet()
     Deque<String> expectedKeys = new ArrayDeque<>(Arrays.asList("foo", "bar", "1", "2"));
+    // Note: Must wrap in ArrayList because Deque implementations do not implement `equals`
     assertEquals(new ArrayList<>(expectedKeys), new ArrayList<>(a.keySet()));
     Iterator<String> iterator = a.keySet().iterator();
 
@@ -227,7 +228,6 @@ public class JsonObjectTest extends TestCase {
       expectedKeys.removeFirst();
 
       assertEquals(i - 1, a.size());
-      // Note: Must wrap in ArrayList because Deque implementations do not implement `equals`
       assertEquals(new ArrayList<>(expectedKeys), new ArrayList<>(a.keySet()));
     }
   }
@@ -267,6 +267,8 @@ public class JsonObjectTest extends TestCase {
     Entry<String, JsonElement> entry = o.entrySet().iterator().next();
     try {
       // null value is not permitted, only JsonNull is supported
+      // This intentionally deviates from the behavior of the other JsonObject methods which
+      // implicitly convert null -> JsonNull, to match more closely the contract of Map.Entry
       entry.setValue(null);
       fail();
     } catch (NullPointerException e) {
@@ -283,6 +285,7 @@ public class JsonObjectTest extends TestCase {
         new SimpleEntry<>("key1", new JsonPrimitive(1)),
         new SimpleEntry<>("key2", new JsonPrimitive(2))
       ));
+    // Note: Must wrap in ArrayList because Deque implementations do not implement `equals`
     assertEquals(new ArrayList<>(expectedEntriesQueue), new ArrayList<>(o.entrySet()));
     iterator = o.entrySet().iterator();
 
@@ -294,7 +297,6 @@ public class JsonObjectTest extends TestCase {
       expectedEntriesQueue.removeFirst();
 
       assertEquals(i - 1, o.size());
-      // Note: Must wrap in ArrayList because Deque implementations do not implement `equals`
       assertEquals(new ArrayList<>(expectedEntriesQueue), new ArrayList<>(o.entrySet()));
     }
   }
