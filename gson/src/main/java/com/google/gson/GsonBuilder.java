@@ -368,6 +368,8 @@ public final class GsonBuilder {
    * deserialization. Each of the {@code strategies} will be applied as a disjunction rule.
    * This means that if one of the {@code strategies} suggests that a field (or class) should be
    * skipped then that field (or object) is skipped during serialization/deserialization.
+   * The strategies are added to the existing strategies (if any); the existing strategies
+   * are not replaced.
    *
    * @param strategies the set of strategy object to apply during object (de)serialization.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
