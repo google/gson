@@ -42,7 +42,7 @@ import static com.google.gson.stream.JsonScope.NONEMPTY_OBJECT;
  * and end delimiters of objects and arrays.
  *
  * <h3>Encoding JSON</h3>
- * To encode your data as JSON, create a new {@code JsonWriter}.Call methods
+ * To encode your data as JSON, create a new {@code JsonWriter}. Call methods
  * on the writer as you walk the structure's contents, nesting arrays and objects
  * as necessary:
  * <ul>
