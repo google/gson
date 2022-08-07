@@ -16,17 +16,15 @@
 
 package com.google.gson.typeadapters;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
-
-import com.google.gson.JsonParseException;
 import junit.framework.TestCase;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 public final class UtcDateTypeAdapterTest extends TestCase {
   private final Gson gson = new GsonBuilder()
@@ -83,7 +81,7 @@ public final class UtcDateTypeAdapterTest extends TestCase {
       gson.fromJson("2017-06-20T14:32:30", Date.class);
       fail("No exception");
     } catch (JsonParseException exe) {
-      assertEquals(exe.getMessage(), "java.text.ParseException: Failed to parse date ['2017-06-20T14']: 2017-06-20T14");
+      assertEquals("java.text.ParseException: Failed to parse date ['2017-06-20T14']: 2017-06-20T14", exe.getMessage());
     }
   }
 }

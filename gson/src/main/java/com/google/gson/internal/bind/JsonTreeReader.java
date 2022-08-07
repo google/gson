@@ -23,11 +23,12 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.MalformedJsonException;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Arrays;
 
 /**
  * This reader walks the elements of a JsonElement as if it was coming from a
@@ -101,7 +102,7 @@ public final class JsonTreeReader extends JsonReader {
 
   @Override public boolean hasNext() throws IOException {
     JsonToken token = peek();
-    return token != JsonToken.END_OBJECT && token != JsonToken.END_ARRAY;
+    return token != JsonToken.END_OBJECT && token != JsonToken.END_ARRAY && token != JsonToken.END_DOCUMENT;
   }
 
   @Override public JsonToken peek() throws IOException {
@@ -143,7 +144,7 @@ public final class JsonTreeReader extends JsonReader {
     } else if (o == SENTINEL_CLOSED) {
       throw new IllegalStateException("JsonReader is closed");
     } else {
-      throw new AssertionError();
+      throw new MalformedJsonException("Custom JsonElement subclass " + o.getClass().getName() + " is not supported");
     }
   }
 
@@ -249,6 +250,19 @@ public final class JsonTreeReader extends JsonReader {
     return result;
   }
 
+  JsonElement nextJsonElement() throws IOException {
+    final JsonToken peeked = peek();
+    if (peeked == JsonToken.NAME
+        || peeked == JsonToken.END_ARRAY
+        || peeked == JsonToken.END_OBJECT
+        || peeked == JsonToken.END_DOCUMENT) {
+      throw new IllegalStateException("Unexpected " + peeked + " when reading a JsonElement.");
+    }
+    final JsonElement element = (JsonElement) peekStack();
+    skipValue();
+    return element;
+  }
+
   @Override public void close() throws IOException {
     stack = new Object[] { SENTINEL_CLOSED };
     stackSize = 1;
@@ -270,7 +284,7 @@ public final class JsonTreeReader extends JsonReader {
   }
 
   @Override public String toString() {
-    return getClass().getSimpleName();
+    return getClass().getSimpleName() + locationString();
   }
 
   public void promoteNameToValue() throws IOException {
@@ -291,15 +305,22 @@ public final class JsonTreeReader extends JsonReader {
     stack[stackSize++] = newTop;
   }
 
-  @Override public String getPath() {
+  private String getPath(boolean usePreviousPath) {
     StringBuilder result = new StringBuilder().append('$');
     for (int i = 0; i < stackSize; i++) {
       if (stack[i] instanceof JsonArray) {
-        if (stack[++i] instanceof Iterator) {
-          result.append('[').append(pathIndices[i]).append(']');
+        if (++i < stackSize && stack[i] instanceof Iterator) {
+          int pathIndex = pathIndices[i];
+          // If index is last path element it points to next array element; have to decrement
+          // `- 1` covers case where iterator for next element is on stack
+          // `- 2` covers case where peek() already pushed next element onto stack
+          if (usePreviousPath && pathIndex > 0 && (i == stackSize - 1 || i == stackSize - 2)) {
+            pathIndex--;
+          }
+          result.append('[').append(pathIndex).append(']');
         }
       } else if (stack[i] instanceof JsonObject) {
-        if (stack[++i] instanceof Iterator) {
+        if (++i < stackSize && stack[i] instanceof Iterator) {
           result.append('.');
           if (pathNames[i] != null) {
             result.append(pathNames[i]);
@@ -308,6 +329,14 @@ public final class JsonTreeReader extends JsonReader {
       }
     }
     return result.toString();
+  }
+
+  @Override public String getPreviousPath() {
+    return getPath(true);
+  }
+
+  @Override public String getPath() {
+    return getPath(false);
   }
 
   private String locationString() {

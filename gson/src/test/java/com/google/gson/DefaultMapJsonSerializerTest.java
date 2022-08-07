@@ -32,7 +32,7 @@ public class DefaultMapJsonSerializerTest extends TestCase {
   private Gson gson = new Gson();
 
   public void testEmptyMapNoTypeSerialization() {
-    Map<String, String> emptyMap = new HashMap<String, String>();
+    Map<String, String> emptyMap = new HashMap<>();
     JsonElement element = gson.toJsonTree(emptyMap, emptyMap.getClass());
     assertTrue(element instanceof JsonObject);
     JsonObject emptyMapJsonObject = (JsonObject) element;
@@ -41,7 +41,7 @@ public class DefaultMapJsonSerializerTest extends TestCase {
 
   public void testEmptyMapSerialization() {
     Type mapType = new TypeToken<Map<String, String>>() { }.getType();
-    Map<String, String> emptyMap = new HashMap<String, String>();
+    Map<String, String> emptyMap = new HashMap<>();
     JsonElement element = gson.toJsonTree(emptyMap, mapType);
 
     assertTrue(element instanceof JsonObject);
@@ -51,7 +51,7 @@ public class DefaultMapJsonSerializerTest extends TestCase {
 
   public void testNonEmptyMapSerialization() {
     Type mapType = new TypeToken<Map<String, String>>() { }.getType();
-    Map<String, String> myMap = new HashMap<String, String>();
+    Map<String, String> myMap = new HashMap<>();
     String key = "key1";
     myMap.put(key, "value1");
     Gson gson = new Gson();
