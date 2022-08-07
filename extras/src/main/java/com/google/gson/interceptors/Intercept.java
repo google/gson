@@ -28,8 +28,8 @@ import java.lang.annotation.Target;
  * after it has been deserialized from Json.
  * Here is an example of how this annotation is used:
  * <p>Here is an example of how this annotation is used:
- * <p><pre>
- * &#64Intercept(postDeserialize=UserValidator.class)
+ * <pre>
+ * &#64;Intercept(postDeserialize=UserValidator.class)
  * public class User {
  *   String name;
  *   String password;
@@ -47,7 +47,7 @@ import java.lang.annotation.Target;
  *     }
  *   }
  * }
- * </pre></p>
+ * </pre>
  *
  * @author Inderjeet Singh
  */

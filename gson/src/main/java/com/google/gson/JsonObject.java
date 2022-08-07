@@ -17,7 +17,6 @@
 package com.google.gson;
 
 import com.google.gson.internal.LinkedTreeMap;
-
 import java.util.Map;
 import java.util.Set;
 
@@ -25,13 +24,21 @@ import java.util.Set;
  * A class representing an object type in Json. An object consists of name-value pairs where names
  * are strings, and values are any other type of {@link JsonElement}. This allows for a creating a
  * tree of JsonElements. The member elements of this object are maintained in order they were added.
+ * This class does not support {@code null} values. If {@code null} is provided as value argument
+ * to any of the methods, it is converted to a {@link JsonNull}.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
 public final class JsonObject extends JsonElement {
-  private final LinkedTreeMap<String, JsonElement> members =
-      new LinkedTreeMap<String, JsonElement>();
+  private final LinkedTreeMap<String, JsonElement> members = new LinkedTreeMap<>();
+
+  /**
+   * Creates an empty JsonObject.
+   */
+  @SuppressWarnings("deprecation") // superclass constructor
+  public JsonObject() {
+  }
 
   /**
    * Creates a deep copy of this element and all its children

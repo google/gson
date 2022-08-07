@@ -18,9 +18,9 @@ package com.google.gson.internal.bind;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.MalformedJsonException;
-
 import java.io.IOException;
 import junit.framework.TestCase;
 
@@ -56,22 +56,22 @@ public final class JsonElementReaderTest extends TestCase {
     try {
       reader.nextDouble();
       fail();
-    } catch (MalformedJsonException expected) {
-      assertEquals("JSON forbids NaN and infinities: NaN", expected.getMessage());
+    } catch (MalformedJsonException e) {
+      assertEquals("JSON forbids NaN and infinities: NaN", e.getMessage());
     }
     assertEquals("NaN", reader.nextString());
     try {
       reader.nextDouble();
       fail();
-    } catch (MalformedJsonException expected) {
-      assertEquals("JSON forbids NaN and infinities: -Infinity", expected.getMessage());
+    } catch (MalformedJsonException e) {
+      assertEquals("JSON forbids NaN and infinities: -Infinity", e.getMessage());
     }
     assertEquals("-Infinity", reader.nextString());
     try {
       reader.nextDouble();
       fail();
-    } catch (MalformedJsonException expected) {
-      assertEquals("JSON forbids NaN and infinities: Infinity", expected.getMessage());
+    } catch (MalformedJsonException e) {
+      assertEquals("JSON forbids NaN and infinities: Infinity", e.getMessage());
     }
     assertEquals("Infinity", reader.nextString());
     reader.endArray();
@@ -301,6 +301,41 @@ public final class JsonElementReaderTest extends TestCase {
     }
     assertEquals("A", reader.nextString());
     reader.endArray();
+  }
+
+  public void testNextJsonElement() throws IOException {
+    final JsonElement element = JsonParser.parseString("{\"A\": 1, \"B\" : {}, \"C\" : []}");
+    JsonTreeReader reader = new JsonTreeReader(element);
+    reader.beginObject();
+    try {
+      reader.nextJsonElement();
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+    reader.nextName();
+    assertEquals(reader.nextJsonElement(), new JsonPrimitive(1));
+    reader.nextName();
+    reader.beginObject();
+    try {
+      reader.nextJsonElement();
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+    reader.endObject();
+    reader.nextName();
+    reader.beginArray();
+    try {
+      reader.nextJsonElement();
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+    reader.endArray();
+    reader.endObject();
+    try {
+      reader.nextJsonElement();
+      fail();
+    } catch (IllegalStateException expected) {
+    }
   }
 
   public void testEarlyClose() throws IOException {

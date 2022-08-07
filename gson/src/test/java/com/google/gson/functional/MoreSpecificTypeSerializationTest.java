@@ -49,7 +49,7 @@ public class MoreSpecificTypeSerializationTest extends TestCase {
   }
 
   public void testListOfSubclassFields() {
-    Collection<Base> list = new ArrayList<Base>();
+    Collection<Base> list = new ArrayList<>();
     list.add(new Base(1));
     list.add(new Sub(2, 3));
     ClassWithContainersOfBaseFields target = new ClassWithContainersOfBaseFields(list, null);
@@ -59,7 +59,7 @@ public class MoreSpecificTypeSerializationTest extends TestCase {
   }
 
   public void testMapOfSubclassFields() {
-    Map<String, Base> map = new HashMap<String, Base>();
+    Map<String, Base> map = new HashMap<>();
     map.put("base", new Base(1));
     map.put("sub", new Sub(2, 3));
     ClassWithContainersOfBaseFields target = new ClassWithContainersOfBaseFields(null, map);
@@ -75,7 +75,7 @@ public class MoreSpecificTypeSerializationTest extends TestCase {
    */
   public void testParameterizedSubclassFields() {
     ClassWithParameterizedBaseFields target = new ClassWithParameterizedBaseFields(
-        new ParameterizedSub<String>("one", "two"));
+        new ParameterizedSub<>("one", "two"));
     String json = gson.toJson(target);
     assertTrue(json.contains("\"t\":\"one\""));
     assertFalse(json.contains("\"s\""));
@@ -86,9 +86,9 @@ public class MoreSpecificTypeSerializationTest extends TestCase {
    * the declared type
    */
   public void testListOfParameterizedSubclassFields() {
-    Collection<ParameterizedBase<String>> list = new ArrayList<ParameterizedBase<String>>();
-    list.add(new ParameterizedBase<String>("one"));
-    list.add(new ParameterizedSub<String>("two", "three"));
+    Collection<ParameterizedBase<String>> list = new ArrayList<>();
+    list.add(new ParameterizedBase<>("one"));
+    list.add(new ParameterizedSub<>("two", "three"));
     ClassWithContainersOfParameterizedBaseFields target =
       new ClassWithContainersOfParameterizedBaseFields(list, null);
     String json = gson.toJson(target);
@@ -101,9 +101,9 @@ public class MoreSpecificTypeSerializationTest extends TestCase {
    * declared type
    */
   public void testMapOfParameterizedSubclassFields() {
-    Map<String, ParameterizedBase<String>> map = new HashMap<String, ParameterizedBase<String>>();
-    map.put("base", new ParameterizedBase<String>("one"));
-    map.put("sub", new ParameterizedSub<String>("two", "three"));
+    Map<String, ParameterizedBase<String>> map = new HashMap<>();
+    map.put("base", new ParameterizedBase<>("one"));
+    map.put("sub", new ParameterizedSub<>("two", "three"));
     ClassWithContainersOfParameterizedBaseFields target =
       new ClassWithContainersOfParameterizedBaseFields(null, map);
     JsonObject json = gson.toJsonTree(target).getAsJsonObject().get("map").getAsJsonObject();

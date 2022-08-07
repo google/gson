@@ -38,7 +38,7 @@ public class TypeVariableTest extends TestCase {
   public void testAdvancedTypeVariables() throws Exception {
     Gson gson = new Gson();
     Bar bar1 = new Bar("someString", 1, true);
-    ArrayList<Integer> arrayList = new ArrayList<Integer>();
+    ArrayList<Integer> arrayList = new ArrayList<>();
     arrayList.add(1);
     arrayList.add(2);
     arrayList.add(3);
@@ -52,7 +52,7 @@ public class TypeVariableTest extends TestCase {
 
   public void testTypeVariablesViaTypeParameter() throws Exception {
     Gson gson = new Gson();
-    Foo<String, Integer> original = new Foo<String, Integer>("e", 5, false);
+    Foo<String, Integer> original = new Foo<>("e", 5, false);
     original.map.put("f", Arrays.asList(6, 7));
     Type type = new TypeToken<Foo<String, Integer>>() {}.getType();
     String json = gson.toJson(original, type);
@@ -103,7 +103,7 @@ public class TypeVariableTest extends TestCase {
   public static class Foo<S, T> extends Red<Boolean> {
     private S someSField;
     private T someTField;
-    public final Map<S, List<T>> map = new HashMap<S, List<T>>();
+    public final Map<S, List<T>> map = new HashMap<>();
 
     public Foo() {}
 

@@ -32,14 +32,14 @@ import java.lang.annotation.Target;
  * method.</p>
  *
  * <p>Here is an example of how this annotation is meant to be used:
- * <p><pre>
+ * <pre>
  * public class User {
  *   &#64;Expose private String firstName;
  *   &#64;Expose(serialize = false) private String lastName;
  *   &#64;Expose (serialize = false, deserialize = false) private String emailAddress;
  *   private String password;
  * }
- * </pre></p>
+ * </pre>
  * If you created Gson with {@code new Gson()}, the {@code toJson()} and {@code fromJson()}
  * methods will use the {@code password} field along-with {@code firstName}, {@code lastName},
  * and {@code emailAddress} for serialization and deserialization. However, if you created Gson
