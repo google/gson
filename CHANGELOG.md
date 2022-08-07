@@ -1,6 +1,71 @@
 Change Log
 ==========
 
+## Version 2.9.1
+
+* Make `Object` and `JsonElement` deserialization iterative rather than
+  recursive (#1912)
+* Added parsing support for enum that has overridden toString() method (#1950)
+* Removed support for building Gson with Gradle (#2081)
+* Removed obsolete `codegen` hierarchy (#2099)
+* Add support for reflection access filter (#1905)
+* Improve `TypeToken` creation validation (#2072)
+* Add explicit support for `float` in `JsonWriter` (#2130, #2132)
+* Fail when parsing invalid local date (#2134)
+
+Also many small improvements to javadoc.
+
+## Version 2.9.0
+
+**The minimum supported Java version changes from 6 to 7.**
+
+* Change target Java version to 7 (#2043)
+* Put `module-info.class` into Multi-Release JAR folder (#2013)
+* Improve error message when abstract class cannot be constructed (#1814)
+* Support EnumMap deserialization (#2071)
+* Add LazilyParsedNumber default adapter (#2060)
+* Fix JsonReader.hasNext() returning true at end of document (#2061)
+* Remove Gradle build support. Build script was outdated and not actively
+  maintained anymore (#2063)
+* Add `GsonBuilder.disableJdkUnsafe()` (#1904)
+* Add `UPPER_CASE_WITH_UNDERSCORES` in FieldNamingPolicy (#2024)
+* Fix failing to serialize Collection or Map with inaccessible constructor (#1902)
+* Improve TreeTypeAdapter thread-safety (#1976)
+* Fix `Gson.newJsonWriter` ignoring lenient and HTML-safe setting (#1989)
+* Delete unused LinkedHashTreeMap (#1992)
+* Make default adapters stricter; improve exception messages (#2000)
+* Fix `FieldNamingPolicy.upperCaseFirstLetter` uppercasing non-letter (#2004)
+
+## Version 2.8.9
+
+* Make OSGi bundle's dependency on `sun.misc` optional (#1993).
+* Deprecate `Gson.excluder()` exposing internal `Excluder` class (#1986).
+* Prevent Java deserialization of internal classes (#1991).
+* Improve number strategy implementation (#1987).
+* Fix LongSerializationPolicy null handling being inconsistent with Gson (#1990).
+* Support arbitrary Number implementation for Object and Number deserialization (#1290).
+* Bump proguard-maven-plugin from 2.4.0 to 2.5.1 (#1980).
+* Don't exclude static local classes (#1969).
+* Fix `RuntimeTypeAdapterFactory` depending on internal `Streams` class (#1959).
+* Improve Maven build (#1964).
+* Make dependency on `java.sql` optional (#1707).
+
+## Version 2.8.8
+
+* Fixed issue with recursive types (#1390).
+* Better behaviour with Java 9+ and `Unsafe` if there is a security manager (#1712).
+* `EnumTypeAdapter` now works better when ProGuard has obfuscated enum fields (#1495).
+
+## Version 2.8.7
+
+* Fixed `ISO8601UtilsTest` failing on systems with UTC+X.
+* Improved javadoc for `JsonStreamParser`.
+* Updated proguard.cfg (#1693).
+* Fixed `IllegalStateException` in `JsonTreeWriter` (#1592).
+* Added `JsonArray.isEmpty()` (#1640).
+* Added new test cases (#1638).
+* Fixed OSGi metadata generation to work on JavaSE < 9 (#1603).
+
 ## Version 2.8.6
 _2019-10-04_  [GitHub Diff](https://github.com/google/gson/compare/gson-parent-2.8.5...gson-parent-2.8.6)
  * Added static methods `JsonParser.parseString` and `JsonParser.parseReader` and deprecated instance method `JsonParser.parse`

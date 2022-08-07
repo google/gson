@@ -17,10 +17,9 @@
 package com.google.gson;
 
 import com.google.gson.internal.$Gson$Preconditions;
+import com.google.gson.internal.LazilyParsedNumber;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-
-import com.google.gson.internal.LazilyParsedNumber;
 
 /**
  * A class representing a Json primitive value. A primitive value
@@ -39,6 +38,7 @@ public final class JsonPrimitive extends JsonElement {
    *
    * @param bool the value to create the primitive with.
    */
+  @SuppressWarnings("deprecation") // superclass constructor
   public JsonPrimitive(Boolean bool) {
     value = $Gson$Preconditions.checkNotNull(bool);
   }
@@ -48,6 +48,7 @@ public final class JsonPrimitive extends JsonElement {
    *
    * @param number the value to create the primitive with.
    */
+  @SuppressWarnings("deprecation") // superclass constructor
   public JsonPrimitive(Number number) {
     value = $Gson$Preconditions.checkNotNull(number);
   }
@@ -57,6 +58,7 @@ public final class JsonPrimitive extends JsonElement {
    *
    * @param string the value to create the primitive with.
    */
+  @SuppressWarnings("deprecation") // superclass constructor
   public JsonPrimitive(String string) {
     value = $Gson$Preconditions.checkNotNull(string);
   }
@@ -67,6 +69,7 @@ public final class JsonPrimitive extends JsonElement {
    *
    * @param c the value to create the primitive with.
    */
+  @SuppressWarnings("deprecation") // superclass constructor
   public JsonPrimitive(Character c) {
     // convert characters to strings since in JSON, characters are represented as a single
     // character string

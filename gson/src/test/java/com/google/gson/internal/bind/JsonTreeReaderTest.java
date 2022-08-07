@@ -16,9 +16,11 @@
 package com.google.gson.internal.bind;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.MalformedJsonException;
 import java.io.IOException;
 import junit.framework.TestCase;
 
@@ -46,5 +48,36 @@ public class JsonTreeReaderTest extends TestCase {
     JsonTreeReader in = new JsonTreeReader(jsonObject);
     in.skipValue();
     assertEquals(JsonToken.END_DOCUMENT, in.peek());
+  }
+
+  public void testHasNext_endOfDocument() throws IOException {
+    JsonTreeReader reader = new JsonTreeReader(new JsonObject());
+    reader.beginObject();
+    reader.endObject();
+    assertFalse(reader.hasNext());
+  }
+
+  public void testCustomJsonElementSubclass() throws IOException {
+    @SuppressWarnings("deprecation") // superclass constructor
+    class CustomSubclass extends JsonElement {
+      @Override
+      public JsonElement deepCopy() {
+        return this;
+      }
+    }
+
+    JsonArray array = new JsonArray();
+    array.add(new CustomSubclass());
+
+    JsonTreeReader reader = new JsonTreeReader(array);
+    reader.beginArray();
+    try {
+      // Should fail due to custom JsonElement subclass
+      reader.peek();
+      fail();
+    } catch (MalformedJsonException expected) {
+      assertEquals("Custom JsonElement subclass " + CustomSubclass.class.getName() + " is not supported",
+          expected.getMessage());
+    }
   }
 }

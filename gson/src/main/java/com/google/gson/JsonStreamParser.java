@@ -29,8 +29,9 @@ import com.google.gson.stream.MalformedJsonException;
 
 /**
  * A streaming parser that allows reading of multiple {@link JsonElement}s from the specified reader
- * asynchronously.
- * 
+ * asynchronously. The JSON data is parsed in lenient mode, see also
+ * {@link JsonReader#setLenient(boolean)}.
+ *
  * <p>This class is conditionally thread-safe (see Item 70, Effective Java second edition). To
  * properly use this class across multiple threads, you will need to add some external
  * synchronization. For example:
@@ -58,7 +59,7 @@ public final class JsonStreamParser implements Iterator<JsonElement> {
    * @since 1.4
    */
   public JsonStreamParser(String json) {
-    this(new StringReader(json));      
+    this(new StringReader(json));
   }
   
   /**
@@ -72,12 +73,15 @@ public final class JsonStreamParser implements Iterator<JsonElement> {
   }
   
   /**
-   * Returns the next available {@link JsonElement} on the reader. Null if none available.
-   * 
-   * @return the next available {@link JsonElement} on the reader. Null if none available.
-   * @throws JsonParseException if the incoming stream is malformed JSON.
+   * Returns the next available {@link JsonElement} on the reader. Throws a
+   * {@link NoSuchElementException} if no element is available.
+   *
+   * @return the next available {@code JsonElement} on the reader.
+   * @throws JsonSyntaxException if the incoming stream is malformed JSON.
+   * @throws NoSuchElementException if no {@code JsonElement} is available.
    * @since 1.4
    */
+  @Override
   public JsonElement next() throws JsonParseException {
     if (!hasNext()) {
       throw new NoSuchElementException();
@@ -97,8 +101,10 @@ public final class JsonStreamParser implements Iterator<JsonElement> {
   /**
    * Returns true if a {@link JsonElement} is available on the input for consumption
    * @return true if a {@link JsonElement} is available on the input, false otherwise
+   * @throws JsonSyntaxException if the incoming stream is malformed JSON.
    * @since 1.4
    */
+  @Override
   public boolean hasNext() {
     synchronized (lock) {
       try {
@@ -116,6 +122,7 @@ public final class JsonStreamParser implements Iterator<JsonElement> {
    * implemented.
    * @since 1.4
    */
+  @Override
   public void remove() {
     throw new UnsupportedOperationException();
   }
