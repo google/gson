@@ -213,7 +213,7 @@ public final class JsonTreeReader extends JsonReader {
     }
     double result = ((JsonPrimitive) peekStack()).getAsDouble();
     if (!isLenient() && (Double.isNaN(result) || Double.isInfinite(result))) {
-      throw new NumberFormatException("JSON forbids NaN and infinities: " + result);
+      throw new MalformedJsonException("JSON forbids NaN and infinities: " + result);
     }
     popStack();
     if (stackSize > 0) {

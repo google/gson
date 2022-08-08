@@ -20,6 +20,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.MalformedJsonException;
 import java.io.IOException;
 import junit.framework.TestCase;
 
@@ -55,19 +56,22 @@ public final class JsonElementReaderTest extends TestCase {
     try {
       reader.nextDouble();
       fail();
-    } catch (NumberFormatException e) {
+    } catch (MalformedJsonException e) {
+      assertEquals("JSON forbids NaN and infinities: NaN", e.getMessage());
     }
     assertEquals("NaN", reader.nextString());
     try {
       reader.nextDouble();
       fail();
-    } catch (NumberFormatException e) {
+    } catch (MalformedJsonException e) {
+      assertEquals("JSON forbids NaN and infinities: -Infinity", e.getMessage());
     }
     assertEquals("-Infinity", reader.nextString());
     try {
       reader.nextDouble();
       fail();
-    } catch (NumberFormatException e) {
+    } catch (MalformedJsonException e) {
+      assertEquals("JSON forbids NaN and infinities: Infinity", e.getMessage());
     }
     assertEquals("Infinity", reader.nextString());
     reader.endArray();
