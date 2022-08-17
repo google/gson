@@ -111,7 +111,7 @@ public class ReflectionAccessTest {
     // But deserialization should fail
     Class<?> internalClass = Collections.emptyList().getClass();
     try {
-      gson.fromJson("{}", internalClass);
+      gson.fromJson("[]", internalClass);
       fail("Missing exception; test has to be run with `--illegal-access=deny`");
     } catch (JsonIOException expected) {
       assertTrue(expected.getMessage().startsWith(

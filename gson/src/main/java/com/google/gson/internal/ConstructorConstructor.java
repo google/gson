@@ -36,15 +36,9 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 /**
@@ -261,7 +255,6 @@ public final class ConstructorConstructor {
    * Constructors for common interface types like Map and List and their
    * subtypes.
    */
-  @SuppressWarnings("unchecked") // use runtime checks to guarantee that 'T' is what it is
   private static <T> ObjectConstructor<T> newDefaultImplementationConstructor(
       final Type type, Class<? super T> rawType) {
 
@@ -274,68 +267,120 @@ public final class ConstructorConstructor {
      */
 
     if (Collection.class.isAssignableFrom(rawType)) {
-      if (SortedSet.class.isAssignableFrom(rawType)) {
-        return new ObjectConstructor<T>() {
-          @Override public T construct() {
-            return (T) new TreeSet<>();
-          }
-        };
-      } else if (Set.class.isAssignableFrom(rawType)) {
-        return new ObjectConstructor<T>() {
-          @Override public T construct() {
-            return (T) new LinkedHashSet<>();
-          }
-        };
-      } else if (Queue.class.isAssignableFrom(rawType)) {
-        return new ObjectConstructor<T>() {
-          @Override public T construct() {
-            return (T) new ArrayDeque<>();
-          }
-        };
-      } else {
-        return new ObjectConstructor<T>() {
-          @Override public T construct() {
-            return (T) new ArrayList<>();
-          }
-        };
-      }
+      @SuppressWarnings("unchecked")
+      ObjectConstructor<T> constructor = (ObjectConstructor<T>) newCollectionConstructor(type, rawType);
+      return constructor;
     }
 
     if (Map.class.isAssignableFrom(rawType)) {
-      if (ConcurrentNavigableMap.class.isAssignableFrom(rawType)) {
-        return new ObjectConstructor<T>() {
-          @Override public T construct() {
-            return (T) new ConcurrentSkipListMap<>();
-          }
-        };
-      } else if (ConcurrentMap.class.isAssignableFrom(rawType)) {
-        return new ObjectConstructor<T>() {
-          @Override public T construct() {
-            return (T) new ConcurrentHashMap<>();
-          }
-        };
-      } else if (SortedMap.class.isAssignableFrom(rawType)) {
-        return new ObjectConstructor<T>() {
-          @Override public T construct() {
-            return (T) new TreeMap<>();
-          }
-        };
-      } else if (type instanceof ParameterizedType && !(String.class.isAssignableFrom(
-          TypeToken.get(((ParameterizedType) type).getActualTypeArguments()[0]).getRawType()))) {
-        return new ObjectConstructor<T>() {
-          @Override public T construct() {
-            return (T) new LinkedHashMap<>();
-          }
-        };
-      } else {
-        return new ObjectConstructor<T>() {
-          @Override public T construct() {
-            return (T) new LinkedTreeMap<>();
-          }
-        };
-      }
+      @SuppressWarnings("unchecked")
+      ObjectConstructor<T> constructor = (ObjectConstructor<T>) newMapConstructor(type, rawType);
+      return constructor;
     }
 
+    // Unsupported type; try other means of creating constructor
+    return null;
+  }
+
+  private static ObjectConstructor<? extends Collection<? extends Object>> newCollectionConstructor(
+      final Type type, Class<?> rawType) {
+
+    // First try List implementation
+    if (rawType.isAssignableFrom(ArrayList.class)) {
+      return new ObjectConstructor<ArrayList<Object>>() {
+        @Override public ArrayList<Object> construct() {
+          return new ArrayList<>();
+        }
+      };
+    }
+    // Then try Set implementation
+    else if (rawType.isAssignableFrom(LinkedHashSet.class)) {
+      return new ObjectConstructor<LinkedHashSet<Object>>() {
+        @Override public LinkedHashSet<Object> construct() {
+          return new LinkedHashSet<>();
+        }
+      };
+    }
+    // Then try SortedSet / NavigableSet implementation
+    else if (rawType.isAssignableFrom(TreeSet.class)) {
+      return new ObjectConstructor<TreeSet<Object>>() {
+        @Override public TreeSet<Object> construct() {
+          return new TreeSet<>();
+        }
+      };
+    }
+    // Then try Queue implementation
+    else if (rawType.isAssignableFrom(ArrayDeque.class)) {
+      return new ObjectConstructor<ArrayDeque<Object>>() {
+        @Override public ArrayDeque<Object> construct() {
+          return new ArrayDeque<>();
+        }
+      };
+    }
+
+    // Was unable to create matching Collection constructor
+    return null;
+  }
+
+  private static boolean hasStringKeyType(Type mapType) {
+    // If mapType is not parameterized, assume it might have String as key type
+    if (!(mapType instanceof ParameterizedType)) {
+      return true;
+    }
+
+    Type[] typeArguments = ((ParameterizedType) mapType).getActualTypeArguments();
+    if (typeArguments.length == 0) {
+      return false;
+    }
+    // Consider String and supertypes of it
+    return TypeToken.get(typeArguments[0]).getRawType().isAssignableFrom(String.class);
+  }
+
+  private static ObjectConstructor<? extends Map<? extends Object, Object>> newMapConstructor(final Type type, Class<?> rawType) {
+    // First try Map implementation
+    /*
+     * Legacy special casing for Map<String, ...> to avoid DoS from colliding String hashCode
+     * values for older JDKs; use own LinkedTreeMap<String, Object> instead
+     */
+    if (rawType.isAssignableFrom(LinkedHashMap.class) && !hasStringKeyType(type)) {
+      return new ObjectConstructor<LinkedHashMap<Object, Object>>() {
+        @Override public LinkedHashMap<Object, Object> construct() {
+          return new LinkedHashMap<>();
+        }
+      };
+    } else if (rawType.isAssignableFrom(LinkedTreeMap.class)) {
+      return new ObjectConstructor<LinkedTreeMap<String, Object>>() {
+        @Override public LinkedTreeMap<String, Object> construct() {
+          return new LinkedTreeMap<>();
+        }
+      };
+    }
+    // Then try SortedMap / NavigableMap implementation
+    else if (rawType.isAssignableFrom(TreeMap.class)) {
+      return new ObjectConstructor<TreeMap<Object, Object>>() {
+        @Override public TreeMap<Object, Object> construct() {
+          return new TreeMap<>();
+        }
+      };
+    }
+    // Then try ConcurrentMap implementation
+    else if (rawType.isAssignableFrom(ConcurrentHashMap.class)) {
+      return new ObjectConstructor<ConcurrentHashMap<Object, Object>>() {
+        @Override public ConcurrentHashMap<Object, Object> construct() {
+          return new ConcurrentHashMap<>();
+        }
+      };
+    }
+    // Then try ConcurrentNavigableMap implementation
+    else if (rawType.isAssignableFrom(ConcurrentSkipListMap.class)) {
+      return new ObjectConstructor<ConcurrentSkipListMap<Object, Object>>() {
+        @Override public ConcurrentSkipListMap<Object, Object> construct() {
+          return new ConcurrentSkipListMap<>();
+        }
+      };
+    }
+
+    // Was unable to create matching Map constructor
     return null;
   }
 
