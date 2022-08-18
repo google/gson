@@ -31,7 +31,7 @@ import java.util.Set;
  * @author Joel Leitch
  */
 public final class JsonObject extends JsonElement {
-  private final LinkedTreeMap<String, JsonElement> members = new LinkedTreeMap<>();
+  private final LinkedTreeMap<String, JsonElement> members = new LinkedTreeMap<>(false);
 
   /**
    * Creates an empty JsonObject.
