@@ -30,6 +30,7 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import junit.framework.TestCase;
 
@@ -102,6 +103,17 @@ public final class GsonTest extends TestCase {
   }
 
   public void testGetAdapter_Concurrency() {
+    class DummyAdapter<T> extends TypeAdapter<T> {
+      @Override public void write(JsonWriter out, T value) throws IOException {
+        throw new AssertionError("not needed for test");
+      }
+
+      @Override public T read(JsonReader in) throws IOException {
+        throw new AssertionError("not needed for test");
+      }
+    }
+
+    final AtomicInteger adapterInstancesCreated = new AtomicInteger(0);
     final AtomicReference<TypeAdapter<?>> threadAdapter = new AtomicReference<>();
     final Class<?> requestedType = Number.class;
 
@@ -130,24 +142,15 @@ public final class GsonTest extends TestCase {
             }
 
             // Create a new dummy adapter instance
-
-            @SuppressWarnings("unchecked")
-            TypeAdapter<T> r = (TypeAdapter<T>) new TypeAdapter<Number>() {
-              @Override public void write(JsonWriter out, Number value) throws IOException {
-                throw new AssertionError("not needed for test");
-              }
-
-              @Override public Number read(JsonReader in) throws IOException {
-                throw new AssertionError("not needed for test");
-              }
-            };
-            return r;
+            adapterInstancesCreated.incrementAndGet();
+            return new DummyAdapter<>();
           }
         })
         .create();
 
     TypeAdapter<?> adapter = gson.getAdapter(requestedType);
-    assertNotNull(adapter);
+    assertTrue(adapter instanceof DummyAdapter);
+    assertEquals(2, adapterInstancesCreated.get());
     // Should be the same adapter instance the concurrent thread received
     assertSame(threadAdapter.get(), adapter);
   }
