@@ -16,6 +16,9 @@
 
 package com.google.gson.internal;
 
+import static com.google.gson.internal.$Gson$Preconditions.checkArgument;
+import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
+
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
@@ -31,9 +34,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Properties;
-
-import static com.google.gson.internal.$Gson$Preconditions.checkArgument;
-import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
 
 /**
  * Static methods for working with types.
@@ -486,6 +486,7 @@ public final class $Gson$Types {
     private final Type[] typeArguments;
 
     public ParameterizedTypeImpl(Type ownerType, Type rawType, Type... typeArguments) {
+      checkNotNull(rawType);
       // require an owner type if the raw type needs it
       if (rawType instanceof Class<?>) {
         Class<?> rawTypeAsClass = (Class<?>) rawType;
@@ -552,6 +553,7 @@ public final class $Gson$Types {
     private final Type componentType;
 
     public GenericArrayTypeImpl(Type componentType) {
+      checkNotNull(componentType);
       this.componentType = canonicalize(componentType);
     }
 

@@ -42,10 +42,9 @@ import static com.google.gson.stream.JsonScope.NONEMPTY_OBJECT;
  * and end delimiters of objects and arrays.
  *
  * <h3>Encoding JSON</h3>
- * To encode your data as JSON, create a new {@code JsonWriter}. Each JSON
- * document must contain one top-level array or object. Call methods on the
- * writer as you walk the structure's contents, nesting arrays and objects as
- * necessary:
+ * To encode your data as JSON, create a new {@code JsonWriter}. Call methods
+ * on the writer as you walk the structure's contents, nesting arrays and objects
+ * as necessary:
  * <ul>
  *   <li>To write <strong>arrays</strong>, first call {@link #beginArray()}.
  *       Write each of the array's elements with the appropriate {@link #value}
@@ -170,7 +169,7 @@ public class JsonWriter implements Closeable, Flushable {
     HTML_SAFE_REPLACEMENT_CHARS['\''] = "\\u0027";
   }
 
-  /** The output data, containing at most one top-level array or object. */
+  /** The JSON output destination */
   private final Writer out;
 
   private int[] stack = new int[32];
@@ -234,8 +233,6 @@ public class JsonWriter implements Closeable, Flushable {
    * href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>. Setting the writer
    * to lenient permits the following:
    * <ul>
-   *   <li>Top-level values of any type. With strict writing, the top-level
-   *       value must be an object or an array.
    *   <li>Numbers may be {@link Double#isNaN() NaNs} or {@link
    *       Double#isInfinite() infinities}.
    * </ul>

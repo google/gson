@@ -32,6 +32,15 @@ import java.math.BigInteger;
  */
 public abstract class JsonElement {
   /**
+   * @deprecated Creating custom {@code JsonElement} subclasses is highly discouraged
+   *   and can lead to undefined behavior.<br>
+   *   This constructor is only kept for backward compatibility.
+   */
+  @Deprecated
+  public JsonElement() {
+  }
+
+  /**
    * Returns a deep copy of this element. Immutable elements like primitives
    * and nulls are not copied.
    * @since 2.8.2
@@ -268,7 +277,7 @@ public abstract class JsonElement {
    *
    * @return get this element as a {@link BigDecimal}.
    * @throws ClassCastException if the element is of not a {@link JsonPrimitive}.
-   * * @throws NumberFormatException if the element is not a valid {@link BigDecimal}.
+   * @throws NumberFormatException if the element is not a valid {@link BigDecimal}.
    * @throws IllegalStateException if the element is of the type {@link JsonArray} but contains
    * more than a single element.
    * @since 1.2

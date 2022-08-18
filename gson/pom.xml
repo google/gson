@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.google.code.gson</groupId>
     <artifactId>gson-parent</artifactId>
-    <version>2.9.1-SNAPSHOT</version>
+    <version>2.9.2-SNAPSHOT</version>
   </parent>
 
   <artifactId>gson</artifactId>
@@ -183,7 +183,7 @@
       </plugin>
       <plugin>
         <artifactId>maven-resources-plugin</artifactId>
-        <version>3.2.0</version>
+        <version>3.3.0</version>
         <executions>
           <execution>
             <id>post-obfuscate-class</id>

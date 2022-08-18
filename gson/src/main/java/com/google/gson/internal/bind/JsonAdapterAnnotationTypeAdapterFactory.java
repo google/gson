@@ -55,6 +55,7 @@ public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapte
     Object instance = constructorConstructor.get(TypeToken.get(annotation.value())).construct();
 
     TypeAdapter<?> typeAdapter;
+    boolean nullSafe = annotation.nullSafe();
     if (instance instanceof TypeAdapter) {
       typeAdapter = (TypeAdapter<?>) instance;
     } else if (instance instanceof TypeAdapterFactory) {
@@ -66,7 +67,8 @@ public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapte
       JsonDeserializer<?> deserializer = instance instanceof JsonDeserializer
           ? (JsonDeserializer) instance
           : null;
-      typeAdapter = new TreeTypeAdapter(serializer, deserializer, gson, type, null);
+      typeAdapter = new TreeTypeAdapter(serializer, deserializer, gson, type, null, nullSafe);
+      nullSafe = false;
     } else {
       throw new IllegalArgumentException("Invalid attempt to bind an instance of "
           + instance.getClass().getName() + " as a @JsonAdapter for " + type.toString()
@@ -74,7 +76,7 @@ public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapte
           + " JsonSerializer or JsonDeserializer.");
     }
 
-    if (typeAdapter != null && annotation.nullSafe()) {
+    if (typeAdapter != null && nullSafe) {
       typeAdapter = typeAdapter.nullSafe();
     }
 

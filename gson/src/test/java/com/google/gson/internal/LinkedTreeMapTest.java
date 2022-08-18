@@ -16,6 +16,7 @@
 
 package com.google.gson.internal;
 
+import com.google.gson.common.MoreAsserts;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -26,11 +27,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
-
 import junit.framework.TestCase;
-
-import com.google.gson.common.MoreAsserts;
 
 public final class LinkedTreeMapTest extends TestCase {
 
@@ -73,6 +72,59 @@ public final class LinkedTreeMapTest extends TestCase {
     } catch (ClassCastException expected) {}
   }
 
+  public void testPutNullValue() {
+    LinkedTreeMap<String, String> map = new LinkedTreeMap<>();
+    map.put("a", null);
+    assertEquals(1, map.size());
+    assertTrue(map.containsKey("a"));
+    assertTrue(map.containsValue(null));
+    assertNull(map.get("a"));
+  }
+
+  public void testPutNullValue_Forbidden() {
+    LinkedTreeMap<String, String> map = new LinkedTreeMap<>(false);
+    try {
+      map.put("a", null);
+      fail();
+    } catch (NullPointerException e) {
+      assertEquals("value == null", e.getMessage());
+    }
+    assertEquals(0, map.size());
+    assertFalse(map.containsKey("a"));
+    assertFalse(map.containsValue(null));
+  }
+
+  public void testEntrySetValueNull() {
+    LinkedTreeMap<String, String> map = new LinkedTreeMap<>();
+    map.put("a", "1");
+    assertEquals("1", map.get("a"));
+    Entry<String, String> entry = map.entrySet().iterator().next();
+    assertEquals("a", entry.getKey());
+    assertEquals("1", entry.getValue());
+    entry.setValue(null);
+    assertNull(entry.getValue());
+
+    assertTrue(map.containsKey("a"));
+    assertTrue(map.containsValue(null));
+    assertNull(map.get("a"));
+  }
+
+
+  public void testEntrySetValueNull_Forbidden() {
+    LinkedTreeMap<String, String> map = new LinkedTreeMap<>(false);
+    map.put("a", "1");
+    Entry<String, String> entry = map.entrySet().iterator().next();
+    try {
+      entry.setValue(null);
+      fail();
+    } catch (NullPointerException e) {
+      assertEquals("value == null", e.getMessage());
+    }
+    assertEquals("1", entry.getValue());
+    assertEquals("1", map.get("a"));
+    assertFalse(map.containsValue(null));
+  }
+
   public void testContainsNonComparableKeyReturnsFalse() {
     LinkedTreeMap<String, String> map = new LinkedTreeMap<>();
     map.put("a", "android");
@@ -81,6 +133,7 @@ public final class LinkedTreeMapTest extends TestCase {
 
   public void testContainsNullKeyIsAlwaysFalse() {
     LinkedTreeMap<String, String> map = new LinkedTreeMap<>();
+    assertFalse(map.containsKey(null));
     map.put("a", "android");
     assertFalse(map.containsKey(null));
   }

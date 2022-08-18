@@ -66,7 +66,7 @@ public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
       return null;
     }
 
-    List<E> list = new ArrayList<>();
+    ArrayList<E> list = new ArrayList<>();
     in.beginArray();
     while (in.hasNext()) {
       E instance = componentTypeAdapter.read(in);
@@ -75,11 +75,20 @@ public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
     in.endArray();
 
     int size = list.size();
-    Object array = Array.newInstance(componentType, size);
-    for (int i = 0; i < size; i++) {
-      Array.set(array, i, list.get(i));
+    // Have to copy primitives one by one to primitive array
+    if (componentType.isPrimitive()) {
+      Object array = Array.newInstance(componentType, size);
+      for (int i = 0; i < size; i++) {
+        Array.set(array, i, list.get(i));
+      }
+      return array;
     }
-    return array;
+    // But for Object[] can use ArrayList.toArray
+    else {
+      @SuppressWarnings("unchecked")
+      E[] array = (E[]) Array.newInstance(componentType, size);
+      return list.toArray(array);
+    }
   }
 
   @SuppressWarnings("unchecked")

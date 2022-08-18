@@ -16,6 +16,7 @@
 
 package com.google.gson.reflect;
 
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -91,6 +92,12 @@ public final class TypeTokenTest extends TestCase {
     TypeToken<?> expectedListOfStringArray = new TypeToken<List<String>[]>() {};
     Type listOfString = new TypeToken<List<String>>() {}.getType();
     assertEquals(expectedListOfStringArray, TypeToken.getArray(listOfString));
+
+    try {
+      TypeToken.getArray(null);
+      fail();
+    } catch (NullPointerException e) {
+    }
   }
 
   public void testParameterizedFactory() {
@@ -104,6 +111,97 @@ public final class TypeTokenTest extends TestCase {
     Type listOfString = TypeToken.getParameterized(List.class, String.class).getType();
     Type listOfListOfString = TypeToken.getParameterized(List.class, listOfString).getType();
     assertEquals(expectedListOfListOfListOfString, TypeToken.getParameterized(List.class, listOfListOfString));
+
+    TypeToken<?> expectedWithExactArg = new TypeToken<GenericWithBound<Number>>() {};
+    assertEquals(expectedWithExactArg, TypeToken.getParameterized(GenericWithBound.class, Number.class));
+
+    TypeToken<?> expectedWithSubclassArg = new TypeToken<GenericWithBound<Integer>>() {};
+    assertEquals(expectedWithSubclassArg, TypeToken.getParameterized(GenericWithBound.class, Integer.class));
+
+    TypeToken<?> expectedSatisfyingTwoBounds = new TypeToken<GenericWithMultiBound<ClassSatisfyingBounds>>() {};
+    assertEquals(expectedSatisfyingTwoBounds, TypeToken.getParameterized(GenericWithMultiBound.class, ClassSatisfyingBounds.class));
+  }
+
+  public void testParameterizedFactory_Invalid() {
+    try {
+      TypeToken.getParameterized(null, new Type[0]);
+      fail();
+    } catch (NullPointerException e) {
+    }
+
+    GenericArrayType arrayType = (GenericArrayType) TypeToken.getArray(String.class).getType();
+    try {
+      TypeToken.getParameterized(arrayType, new Type[0]);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertEquals("rawType must be of type Class, but was java.lang.String[]", e.getMessage());
+    }
+
+    try {
+      TypeToken.getParameterized(String.class, String.class);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertEquals("java.lang.String requires 0 type arguments, but got 1", e.getMessage());
+    }
+
+    try {
+      TypeToken.getParameterized(List.class, new Type[0]);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertEquals("java.util.List requires 1 type arguments, but got 0", e.getMessage());
+    }
+
+    try {
+      TypeToken.getParameterized(List.class, String.class, String.class);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertEquals("java.util.List requires 1 type arguments, but got 2", e.getMessage());
+    }
+
+    try {
+      TypeToken.getParameterized(GenericWithBound.class, String.class);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertEquals("Type argument class java.lang.String does not satisfy bounds "
+          + "for type variable T declared by " + GenericWithBound.class,
+          e.getMessage());
+    }
+
+    try {
+      TypeToken.getParameterized(GenericWithBound.class, Object.class);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertEquals("Type argument class java.lang.Object does not satisfy bounds "
+          + "for type variable T declared by " + GenericWithBound.class,
+          e.getMessage());
+    }
+
+    try {
+      TypeToken.getParameterized(GenericWithMultiBound.class, Number.class);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertEquals("Type argument class java.lang.Number does not satisfy bounds "
+          + "for type variable T declared by " + GenericWithMultiBound.class,
+          e.getMessage());
+    }
+
+    try {
+      TypeToken.getParameterized(GenericWithMultiBound.class, CharSequence.class);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertEquals("Type argument interface java.lang.CharSequence does not satisfy bounds "
+          + "for type variable T declared by " + GenericWithMultiBound.class,
+          e.getMessage());
+    }
+
+    try {
+      TypeToken.getParameterized(GenericWithMultiBound.class, Object.class);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertEquals("Type argument class java.lang.Object does not satisfy bounds "
+          + "for type variable T declared by " + GenericWithMultiBound.class,
+          e.getMessage());
+    }
   }
 
   private static class CustomTypeToken extends TypeToken<String> {
@@ -157,4 +255,14 @@ public final class TypeTokenTest extends TestCase {
           expected.getMessage());
     }
   }
+}
+
+// Have to declare these classes here as top-level classes because otherwise tests for
+// TypeToken.getParameterized fail due to owner type mismatch
+class GenericWithBound<T extends Number> {
+}
+class GenericWithMultiBound<T extends Number & CharSequence> {
+}
+@SuppressWarnings("serial")
+abstract class ClassSatisfyingBounds extends Number implements CharSequence {
 }

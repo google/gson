@@ -75,11 +75,18 @@ public final class JsonArrayTest extends TestCase {
     } catch (IndexOutOfBoundsException expected) {}
     JsonPrimitive a = new JsonPrimitive("a");
     array.add(a);
-    array.set(0, new JsonPrimitive("b"));
+
+    JsonPrimitive b = new JsonPrimitive("b");
+    JsonElement oldValue = array.set(0, b);
+    assertEquals(a, oldValue);
     assertEquals("b", array.get(0).getAsString());
-    array.set(0, null);
-    assertNull(array.get(0));
-    array.set(0, new JsonPrimitive("c"));
+
+    oldValue = array.set(0, null);
+    assertEquals(b, oldValue);
+    assertEquals(JsonNull.INSTANCE, array.get(0));
+
+    oldValue = array.set(0, new JsonPrimitive("c"));
+    assertEquals(JsonNull.INSTANCE, oldValue);
     assertEquals("c", array.get(0).getAsString());
     assertEquals(1, array.size());
   }
@@ -97,6 +104,18 @@ public final class JsonArrayTest extends TestCase {
 
     assertEquals(1, original.get(0).getAsJsonArray().size());
     assertEquals(0, copy.get(0).getAsJsonArray().size());
+  }
+  
+  public void testIsEmpty() {
+    JsonArray array = new JsonArray();
+    assertTrue(array.isEmpty());
+
+    JsonPrimitive a = new JsonPrimitive("a");
+    array.add(a);
+    assertFalse(array.isEmpty());
+
+    array.remove(0);
+    assertTrue(array.isEmpty());
   }
 
   public void testFailedGetArrayValues() {
