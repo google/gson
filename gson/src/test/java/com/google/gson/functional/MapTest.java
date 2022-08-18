@@ -556,7 +556,12 @@ public class MapTest extends TestCase {
     Map<String, String> map = new LinkedHashMap<>();
     map.put("2,3", "a");
     map.put("5,7", "b");
-    assertEquals(map, gson.fromJson(json, new TypeToken<Map<String, String>>() {}.getType()));
+
+    Map<String, String> actualMap = gson.fromJson(json, new TypeToken<Map<String, String>>() {}.getType());
+    // Should use LinkedTreeMap to protect against potential DoS in older Java versions
+    // See also https://bugs.openjdk.org/browse/JDK-8046170
+    assertTrue(actualMap instanceof LinkedTreeMap);
+    assertEquals(map, actualMap);
   }
 
   public void testNumberKeyDeserialization() {
