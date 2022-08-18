@@ -177,7 +177,7 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
 
           // LinkedTreeMap requires that keys are Comparable, if they are not must switch to
           // a different map type. LinkedTreeMap is an internal class so switching map type
-          // should be invisible to user code.
+          // should not be noticeable for user code.
           if (isLinkedTreeMap && !(key instanceof Comparable)) {
             map = new LinkedHashMap<>(map);
             isLinkedTreeMap = false;
@@ -199,7 +199,7 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
 
           // LinkedTreeMap requires that keys are Comparable, if they are not must switch to
           // a different map type. LinkedTreeMap is an internal class so switching map type
-          // should be invisible to user code.
+          // should not be noticeable for user code.
           if (isLinkedTreeMap && !(key instanceof Comparable)) {
             map = new LinkedHashMap<>(map);
             isLinkedTreeMap = false;
