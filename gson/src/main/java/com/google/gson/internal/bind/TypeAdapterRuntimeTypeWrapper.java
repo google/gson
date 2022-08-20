@@ -15,15 +15,14 @@
  */
 package com.google.gson.internal.bind;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 
 final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
   private final Gson context;
@@ -70,8 +69,9 @@ final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
   }
 
   /**
+   * Returns whether the type adapter uses reflection.
+   *
    * @param typeAdapter the type adapter to check.
-   * @return whether the type adapter uses reflection.
    */
   private static boolean isReflective(TypeAdapter<?> typeAdapter) {
     if (typeAdapter instanceof ReflectiveTypeAdapterFactory.Adapter) {

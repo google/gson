@@ -101,8 +101,6 @@ public final class TreeTypeAdapter<T> extends TypeAdapter<T> {
    * Returns the type adapter which is used for serialization. Returns {@code this}
    * if this {@code TreeTypeAdapter} has a {@link #serializer}; otherwise returns
    * the delegate.
-   *
-   * @return the type adapter which is used for serialization.
    */
   // Package-private for TypeAdapterRuntimeTypeWrapper
   TypeAdapter<T> getSerializingTypeAdapter() {
@@ -181,5 +179,5 @@ public final class TreeTypeAdapter<T> extends TypeAdapter<T> {
     @Override public <R> R deserialize(JsonElement json, Type typeOfT) throws JsonParseException {
       return (R) gson.fromJson(json, typeOfT);
     }
-  };
+  }
 }
