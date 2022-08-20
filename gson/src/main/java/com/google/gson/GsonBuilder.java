@@ -166,6 +166,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
   public GsonBuilder excludeFieldsWithModifiers(int... modifiers) {
+    $Gson$Preconditions.checkNotNull(modifiers);
     excluder = excluder.withModifiers(modifiers);
     return this;
   }
@@ -309,32 +310,31 @@ public final class GsonBuilder {
    * @since 1.3
    */
   public GsonBuilder setLongSerializationPolicy(LongSerializationPolicy serializationPolicy) {
+    $Gson$Preconditions.checkNotNull(serializationPolicy);
     this.longSerializationPolicy = serializationPolicy;
     return this;
   }
 
   /**
-   * Configures Gson to apply a specific naming policy to an object's field during serialization
+   * Configures Gson to apply a specific naming policy to an object's fields during serialization
    * and deserialization.
    *
-   * @param namingConvention the JSON field naming convention to use for serialization and
-   * deserialization.
-   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * <p>This method just delegates to {@link #setFieldNamingStrategy(FieldNamingStrategy)}.
    */
   public GsonBuilder setFieldNamingPolicy(FieldNamingPolicy namingConvention) {
-    this.fieldNamingPolicy = namingConvention;
-    return this;
+    return setFieldNamingStrategy(namingConvention);
   }
 
   /**
-   * Configures Gson to apply a specific naming policy strategy to an object's field during
+   * Configures Gson to apply a specific naming strategy to an object's fields during
    * serialization and deserialization.
    *
-   * @param fieldNamingStrategy the actual naming strategy to apply to the fields
+   * @param fieldNamingStrategy the naming strategy to apply to the fields
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.3
    */
   public GsonBuilder setFieldNamingStrategy(FieldNamingStrategy fieldNamingStrategy) {
+    $Gson$Preconditions.checkNotNull(fieldNamingStrategy);
     this.fieldNamingPolicy = fieldNamingStrategy;
     return this;
   }
@@ -347,6 +347,7 @@ public final class GsonBuilder {
    * @see ToNumberPolicy#DOUBLE The default object-to-number strategy
    */
   public GsonBuilder setObjectToNumberStrategy(ToNumberStrategy objectToNumberStrategy) {
+    $Gson$Preconditions.checkNotNull(objectToNumberStrategy);
     this.objectToNumberStrategy = objectToNumberStrategy;
     return this;
   }
@@ -359,6 +360,7 @@ public final class GsonBuilder {
    * @see ToNumberPolicy#LAZILY_PARSED_NUMBER The default number-to-number strategy
    */
   public GsonBuilder setNumberToNumberStrategy(ToNumberStrategy numberToNumberStrategy) {
+    $Gson$Preconditions.checkNotNull(numberToNumberStrategy);
     this.numberToNumberStrategy = numberToNumberStrategy;
     return this;
   }
@@ -376,6 +378,7 @@ public final class GsonBuilder {
    * @since 1.4
    */
   public GsonBuilder setExclusionStrategies(ExclusionStrategy... strategies) {
+    $Gson$Preconditions.checkNotNull(strategies);
     for (ExclusionStrategy strategy : strategies) {
       excluder = excluder.withExclusionStrategy(strategy, true, true);
     }
@@ -395,6 +398,7 @@ public final class GsonBuilder {
    * @since 1.7
    */
   public GsonBuilder addSerializationExclusionStrategy(ExclusionStrategy strategy) {
+    $Gson$Preconditions.checkNotNull(strategy);
     excluder = excluder.withExclusionStrategy(strategy, true, false);
     return this;
   }
@@ -412,6 +416,7 @@ public final class GsonBuilder {
    * @since 1.7
    */
   public GsonBuilder addDeserializationExclusionStrategy(ExclusionStrategy strategy) {
+    $Gson$Preconditions.checkNotNull(strategy);
     excluder = excluder.withExclusionStrategy(strategy, false, true);
     return this;
   }
@@ -536,6 +541,7 @@ public final class GsonBuilder {
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
   public GsonBuilder registerTypeAdapter(Type type, Object typeAdapter) {
+    $Gson$Preconditions.checkNotNull(type);
     $Gson$Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
         || typeAdapter instanceof JsonDeserializer<?>
         || typeAdapter instanceof InstanceCreator<?>
@@ -562,6 +568,7 @@ public final class GsonBuilder {
    * @since 2.1
    */
   public GsonBuilder registerTypeAdapterFactory(TypeAdapterFactory factory) {
+    $Gson$Preconditions.checkNotNull(factory);
     factories.add(factory);
     return this;
   }
@@ -582,6 +589,7 @@ public final class GsonBuilder {
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
   public GsonBuilder registerTypeHierarchyAdapter(Class<?> baseType, Object typeAdapter) {
+    $Gson$Preconditions.checkNotNull(baseType);
     $Gson$Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
         || typeAdapter instanceof JsonDeserializer<?>
         || typeAdapter instanceof TypeAdapter<?>);
@@ -655,8 +663,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
   public GsonBuilder addReflectionAccessFilter(ReflectionAccessFilter filter) {
-    if (filter == null) throw new NullPointerException();
-
+    $Gson$Preconditions.checkNotNull(filter);
     reflectionFilters.addFirst(filter);
     return this;
   }
