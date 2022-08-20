@@ -17,29 +17,36 @@
 package com.google.gson;
 
 import java.lang.reflect.Type;
-import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import com.google.gson.internal.$Gson$Preconditions;
 import com.google.gson.internal.Excluder;
+import com.google.gson.internal.bind.DefaultDateTypeAdapter;
 import com.google.gson.internal.bind.TreeTypeAdapter;
 import com.google.gson.internal.bind.TypeAdapters;
+import com.google.gson.internal.sql.SqlTypesSupport;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 
 import static com.google.gson.Gson.DEFAULT_COMPLEX_MAP_KEYS;
+import static com.google.gson.Gson.DEFAULT_DATE_PATTERN;
 import static com.google.gson.Gson.DEFAULT_ESCAPE_HTML;
 import static com.google.gson.Gson.DEFAULT_JSON_NON_EXECUTABLE;
 import static com.google.gson.Gson.DEFAULT_LENIENT;
+import static com.google.gson.Gson.DEFAULT_NUMBER_TO_NUMBER_STRATEGY;
+import static com.google.gson.Gson.DEFAULT_OBJECT_TO_NUMBER_STRATEGY;
 import static com.google.gson.Gson.DEFAULT_PRETTY_PRINT;
 import static com.google.gson.Gson.DEFAULT_SERIALIZE_NULLS;
 import static com.google.gson.Gson.DEFAULT_SPECIALIZE_FLOAT_VALUES;
+import static com.google.gson.Gson.DEFAULT_USE_JDK_UNSAFE;
 
 /**
  * <p>Use this builder to construct a {@link Gson} instance when you need to set configuration
@@ -60,7 +67,7 @@ import static com.google.gson.Gson.DEFAULT_SPECIALIZE_FLOAT_VALUES;
  *     .setPrettyPrinting()
  *     .setVersion(1.0)
  *     .create();
- * </pre></p>
+ * </pre>
  *
  * <p>NOTES:
  * <ul>
@@ -68,8 +75,7 @@ import static com.google.gson.Gson.DEFAULT_SPECIALIZE_FLOAT_VALUES;
  * <li> The default serialization of {@link Date} and its subclasses in Gson does
  *  not contain time-zone information. So, if you are using date/time instances,
  *  use {@code GsonBuilder} and its {@code setDateFormat} methods.</li>
- *  </ul>
- * </p>
+ * </ul>
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
@@ -79,13 +85,12 @@ public final class GsonBuilder {
   private Excluder excluder = Excluder.DEFAULT;
   private LongSerializationPolicy longSerializationPolicy = LongSerializationPolicy.DEFAULT;
   private FieldNamingStrategy fieldNamingPolicy = FieldNamingPolicy.IDENTITY;
-  private final Map<Type, InstanceCreator<?>> instanceCreators
-      = new HashMap<Type, InstanceCreator<?>>();
-  private final List<TypeAdapterFactory> factories = new ArrayList<TypeAdapterFactory>();
+  private final Map<Type, InstanceCreator<?>> instanceCreators = new HashMap<>();
+  private final List<TypeAdapterFactory> factories = new ArrayList<>();
   /** tree-style hierarchy factories. These come after factories for backwards compatibility. */
-  private final List<TypeAdapterFactory> hierarchyFactories = new ArrayList<TypeAdapterFactory>();
+  private final List<TypeAdapterFactory> hierarchyFactories = new ArrayList<>();
   private boolean serializeNulls = DEFAULT_SERIALIZE_NULLS;
-  private String datePattern;
+  private String datePattern = DEFAULT_DATE_PATTERN;
   private int dateStyle = DateFormat.DEFAULT;
   private int timeStyle = DateFormat.DEFAULT;
   private boolean complexMapKeySerialization = DEFAULT_COMPLEX_MAP_KEYS;
@@ -94,6 +99,10 @@ public final class GsonBuilder {
   private boolean prettyPrinting = DEFAULT_PRETTY_PRINT;
   private boolean generateNonExecutableJson = DEFAULT_JSON_NON_EXECUTABLE;
   private boolean lenient = DEFAULT_LENIENT;
+  private boolean useJdkUnsafe = DEFAULT_USE_JDK_UNSAFE;
+  private ToNumberStrategy objectToNumberStrategy = DEFAULT_OBJECT_TO_NUMBER_STRATEGY;
+  private ToNumberStrategy numberToNumberStrategy = DEFAULT_NUMBER_TO_NUMBER_STRATEGY;
+  private final LinkedList<ReflectionAccessFilter> reflectionFilters = new LinkedList<>();
 
   /**
    * Creates a GsonBuilder instance that can be used to build Gson with various configuration
@@ -127,6 +136,10 @@ public final class GsonBuilder {
     this.timeStyle = gson.timeStyle;
     this.factories.addAll(gson.builderFactories);
     this.hierarchyFactories.addAll(gson.builderHierarchyFactories);
+    this.useJdkUnsafe = gson.useJdkUnsafe;
+    this.objectToNumberStrategy = gson.objectToNumberStrategy;
+    this.numberToNumberStrategy = gson.numberToNumberStrategy;
+    this.reflectionFilters.addAll(gson.reflectionFilters);
   }
 
   /**
@@ -214,7 +227,7 @@ public final class GsonBuilder {
    *       .enableComplexMapKeySerialization()
    *       .create();
    *
-   *   Map<Point, String> original = new LinkedHashMap<Point, String>();
+   *   Map<Point, String> original = new LinkedHashMap<>();
    *   original.put(new Point(5, 6), "a");
    *   original.put(new Point(8, 8), "b");
    *   System.out.println(gson.toJson(original, type));
@@ -241,11 +254,12 @@ public final class GsonBuilder {
    *       .enableComplexMapKeySerialization()
    *       .create();
    *
-   *   Map<Point, String> original = new LinkedHashMap<Point, String>();
+   *   Map<Point, String> original = new LinkedHashMap<>();
    *   original.put(new Point(5, 6), "a");
    *   original.put(new Point(8, 8), "b");
    *   System.out.println(gson.toJson(original, type));
    * }
+   * </pre>
    *
    * The JSON output would look as follows:
    * <pre>   {@code
@@ -326,10 +340,36 @@ public final class GsonBuilder {
   }
 
   /**
+   * Configures Gson to apply a specific number strategy during deserialization of {@link Object}.
+   *
+   * @param objectToNumberStrategy the actual object-to-number strategy
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @see ToNumberPolicy#DOUBLE The default object-to-number strategy
+   */
+  public GsonBuilder setObjectToNumberStrategy(ToNumberStrategy objectToNumberStrategy) {
+    this.objectToNumberStrategy = objectToNumberStrategy;
+    return this;
+  }
+
+  /**
+   * Configures Gson to apply a specific number strategy during deserialization of {@link Number}.
+   *
+   * @param numberToNumberStrategy the actual number-to-number strategy
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @see ToNumberPolicy#LAZILY_PARSED_NUMBER The default number-to-number strategy
+   */
+  public GsonBuilder setNumberToNumberStrategy(ToNumberStrategy numberToNumberStrategy) {
+    this.numberToNumberStrategy = numberToNumberStrategy;
+    return this;
+  }
+
+  /**
    * Configures Gson to apply a set of exclusion strategies during both serialization and
    * deserialization. Each of the {@code strategies} will be applied as a disjunction rule.
    * This means that if one of the {@code strategies} suggests that a field (or class) should be
    * skipped then that field (or object) is skipped during serialization/deserialization.
+   * The strategies are added to the existing strategies (if any); the existing strategies
+   * are not replaced.
    *
    * @param strategies the set of strategy object to apply during object (de)serialization.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
@@ -388,12 +428,14 @@ public final class GsonBuilder {
   }
 
   /**
-   * By default, Gson is strict and only accepts JSON as specified by
-   * <a href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>. This option makes the parser
-   * liberal in what it accepts.
+   * Configures Gson to allow JSON data which does not strictly comply with the JSON specification.
+   *
+   * <p>Note: Due to legacy reasons most methods of Gson are always lenient, regardless of
+   * whether this builder method is used.
    *
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @see JsonReader#setLenient(boolean)
+   * @see JsonWriter#setLenient(boolean)
    */
   public GsonBuilder setLenient() {
     lenient = true;
@@ -417,8 +459,8 @@ public final class GsonBuilder {
    * call this method or {@link #setDateFormat(int)} multiple times, but only the last invocation
    * will be used to decide the serialization format.
    *
-   * <p>The date format will be used to serialize and deserialize {@link java.util.Date}, {@link
-   * java.sql.Timestamp} and {@link java.sql.Date}.
+   * <p>The date format will be used to serialize and deserialize {@link java.util.Date} and in case
+   * the {@code java.sql} module is present, also {@link java.sql.Timestamp} and {@link java.sql.Date}.
    *
    * <p>Note that this pattern must abide by the convention provided by {@code SimpleDateFormat}
    * class. See the documentation in {@link java.text.SimpleDateFormat} for more information on
@@ -578,50 +620,102 @@ public final class GsonBuilder {
   }
 
   /**
+   * Disables usage of JDK's {@code sun.misc.Unsafe}.
+   *
+   * <p>By default Gson uses {@code Unsafe} to create instances of classes which don't have
+   * a no-args constructor. However, {@code Unsafe} might not be available for all Java
+   * runtimes. For example Android does not provide {@code Unsafe}, or only with limited
+   * functionality. Additionally {@code Unsafe} creates instances without executing any
+   * constructor or initializer block, or performing initialization of field values. This can
+   * lead to surprising and difficult to debug errors.
+   * Therefore, to get reliable behavior regardless of which runtime is used, and to detect
+   * classes which cannot be deserialized in an early stage of development, this method allows
+   * disabling usage of {@code Unsafe}.
+   *
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   */
+  public GsonBuilder disableJdkUnsafe() {
+    this.useJdkUnsafe = false;
+    return this;
+  }
+
+  /**
+   * Adds a reflection access filter. A reflection access filter prevents Gson from using
+   * reflection for the serialization and deserialization of certain classes. The logic in
+   * the filter specifies which classes those are.
+   *
+   * <p>Filters will be invoked in reverse registration order, that is, the most recently
+   * added filter will be invoked first.
+   *
+   * <p>By default Gson has no filters configured and will try to use reflection for
+   * all classes for which no {@link TypeAdapter} has been registered, and for which no
+   * built-in Gson {@code TypeAdapter} exists.
+   *
+   * @param filter filter to add
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   */
+  public GsonBuilder addReflectionAccessFilter(ReflectionAccessFilter filter) {
+    if (filter == null) throw new NullPointerException();
+
+    reflectionFilters.addFirst(filter);
+    return this;
+  }
+
+  /**
    * Creates a {@link Gson} instance based on the current configuration. This method is free of
    * side-effects to this {@code GsonBuilder} instance and hence can be called multiple times.
    *
    * @return an instance of Gson configured with the options currently set in this builder
    */
   public Gson create() {
-    List<TypeAdapterFactory> factories = new ArrayList<TypeAdapterFactory>(this.factories.size() + this.hierarchyFactories.size() + 3);
+    List<TypeAdapterFactory> factories = new ArrayList<>(this.factories.size() + this.hierarchyFactories.size() + 3);
     factories.addAll(this.factories);
     Collections.reverse(factories);
 
-    List<TypeAdapterFactory> hierarchyFactories = new ArrayList<TypeAdapterFactory>(this.hierarchyFactories);
+    List<TypeAdapterFactory> hierarchyFactories = new ArrayList<>(this.hierarchyFactories);
     Collections.reverse(hierarchyFactories);
     factories.addAll(hierarchyFactories);
 
     addTypeAdaptersForDate(datePattern, dateStyle, timeStyle, factories);
 
-    return new Gson(excluder, fieldNamingPolicy, instanceCreators,
+    return new Gson(excluder, fieldNamingPolicy, new HashMap<>(instanceCreators),
         serializeNulls, complexMapKeySerialization,
         generateNonExecutableJson, escapeHtmlChars, prettyPrinting, lenient,
-        serializeSpecialFloatingPointValues, longSerializationPolicy,
-        datePattern, dateStyle, timeStyle,
-        this.factories, this.hierarchyFactories, factories);
+        serializeSpecialFloatingPointValues, useJdkUnsafe, longSerializationPolicy,
+        datePattern, dateStyle, timeStyle, new ArrayList<>(this.factories),
+        new ArrayList<>(this.hierarchyFactories), factories,
+        objectToNumberStrategy, numberToNumberStrategy, new ArrayList<>(reflectionFilters));
   }
 
-  @SuppressWarnings("unchecked")
   private void addTypeAdaptersForDate(String datePattern, int dateStyle, int timeStyle,
       List<TypeAdapterFactory> factories) {
-    DefaultDateTypeAdapter dateTypeAdapter;
-    TypeAdapter<Timestamp> timestampTypeAdapter;
-    TypeAdapter<java.sql.Date> javaSqlDateTypeAdapter;
-    if (datePattern != null && !"".equals(datePattern.trim())) {
-      dateTypeAdapter = new DefaultDateTypeAdapter(Date.class, datePattern);
-      timestampTypeAdapter = (TypeAdapter) new DefaultDateTypeAdapter(Timestamp.class, datePattern);
-      javaSqlDateTypeAdapter = (TypeAdapter) new DefaultDateTypeAdapter(java.sql.Date.class, datePattern);
+    TypeAdapterFactory dateAdapterFactory;
+    boolean sqlTypesSupported = SqlTypesSupport.SUPPORTS_SQL_TYPES;
+    TypeAdapterFactory sqlTimestampAdapterFactory = null;
+    TypeAdapterFactory sqlDateAdapterFactory = null;
+
+    if (datePattern != null && !datePattern.trim().isEmpty()) {
+      dateAdapterFactory = DefaultDateTypeAdapter.DateType.DATE.createAdapterFactory(datePattern);
+
+      if (sqlTypesSupported) {
+        sqlTimestampAdapterFactory = SqlTypesSupport.TIMESTAMP_DATE_TYPE.createAdapterFactory(datePattern);
+        sqlDateAdapterFactory = SqlTypesSupport.DATE_DATE_TYPE.createAdapterFactory(datePattern);
+      }
     } else if (dateStyle != DateFormat.DEFAULT && timeStyle != DateFormat.DEFAULT) {
-      dateTypeAdapter = new DefaultDateTypeAdapter(Date.class, dateStyle, timeStyle);
-      timestampTypeAdapter = (TypeAdapter) new DefaultDateTypeAdapter(Timestamp.class, dateStyle, timeStyle);
-      javaSqlDateTypeAdapter = (TypeAdapter) new DefaultDateTypeAdapter(java.sql.Date.class, dateStyle, timeStyle);
+      dateAdapterFactory = DefaultDateTypeAdapter.DateType.DATE.createAdapterFactory(dateStyle, timeStyle);
+
+      if (sqlTypesSupported) {
+        sqlTimestampAdapterFactory = SqlTypesSupport.TIMESTAMP_DATE_TYPE.createAdapterFactory(dateStyle, timeStyle);
+        sqlDateAdapterFactory = SqlTypesSupport.DATE_DATE_TYPE.createAdapterFactory(dateStyle, timeStyle);
+      }
     } else {
       return;
     }
 
-    factories.add(TypeAdapters.newFactory(Date.class, dateTypeAdapter));
-    factories.add(TypeAdapters.newFactory(Timestamp.class, timestampTypeAdapter));
-    factories.add(TypeAdapters.newFactory(java.sql.Date.class, javaSqlDateTypeAdapter));
+    factories.add(dateAdapterFactory);
+    if (sqlTypesSupported) {
+      factories.add(sqlTimestampAdapterFactory);
+      factories.add(sqlDateAdapterFactory);
+    }
   }
 }

@@ -20,7 +20,12 @@ import java.io.Closeable;
 import java.io.Flushable;
 import java.io.IOException;
 import java.io.Writer;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.regex.Pattern;
 
 import static com.google.gson.stream.JsonScope.DANGLING_NAME;
 import static com.google.gson.stream.JsonScope.EMPTY_ARRAY;
@@ -37,10 +42,9 @@ import static com.google.gson.stream.JsonScope.NONEMPTY_OBJECT;
  * and end delimiters of objects and arrays.
  *
  * <h3>Encoding JSON</h3>
- * To encode your data as JSON, create a new {@code JsonWriter}. Each JSON
- * document must contain one top-level array or object. Call methods on the
- * writer as you walk the structure's contents, nesting arrays and objects as
- * necessary:
+ * To encode your data as JSON, create a new {@code JsonWriter}. Call methods
+ * on the writer as you walk the structure's contents, nesting arrays and objects
+ * as necessary:
  * <ul>
  *   <li>To write <strong>arrays</strong>, first call {@link #beginArray()}.
  *       Write each of the array's elements with the appropriate {@link #value}
@@ -130,6 +134,9 @@ import static com.google.gson.stream.JsonScope.NONEMPTY_OBJECT;
  */
 public class JsonWriter implements Closeable, Flushable {
 
+  // Syntax as defined by https://datatracker.ietf.org/doc/html/rfc8259#section-6
+  private static final Pattern VALID_JSON_NUMBER_PATTERN = Pattern.compile("-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:[eE][-+]?[0-9]+)?");
+
   /*
    * From RFC 7159, "All Unicode characters may be placed within the
    * quotation marks except for the characters that must be escaped:
@@ -162,7 +169,7 @@ public class JsonWriter implements Closeable, Flushable {
     HTML_SAFE_REPLACEMENT_CHARS['\''] = "\\u0027";
   }
 
-  /** The output data, containing at most one top-level array or object. */
+  /** The JSON output destination */
   private final Writer out;
 
   private int[] stack = new int[32];
@@ -226,8 +233,6 @@ public class JsonWriter implements Closeable, Flushable {
    * href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>. Setting the writer
    * to lenient permits the following:
    * <ul>
-   *   <li>Top-level values of any type. With strict writing, the top-level
-   *       value must be an object or an array.
    *   <li>Numbers may be {@link Double#isNaN() NaNs} or {@link
    *       Double#isInfinite() infinities}.
    * </ul>
@@ -488,9 +493,31 @@ public class JsonWriter implements Closeable, Flushable {
   /**
    * Encodes {@code value}.
    *
-   * @param value a finite value. May not be {@link Double#isNaN() NaNs} or
-   *     {@link Double#isInfinite() infinities}.
+   * @param value a finite value, or if {@link #setLenient(boolean) lenient},
+   *     also {@link Float#isNaN() NaN} or {@link Float#isInfinite()
+   *     infinity}.
    * @return this writer.
+   * @throws IllegalArgumentException if the value is NaN or Infinity and this writer is not {@link
+   *     #setLenient(boolean) lenient}.
+   */
+  public JsonWriter value(float value) throws IOException {
+    writeDeferredName();
+    if (!lenient && (Float.isNaN(value) || Float.isInfinite(value))) {
+      throw new IllegalArgumentException("Numeric values must be finite, but was " + value);
+    }
+    beforeValue();
+    out.append(Float.toString(value));
+    return this;
+  }
+
+  /**
+   * Encodes {@code value}.
+   *
+   * @param value a finite value, or if {@link #setLenient(boolean) lenient},
+   *     also {@link Double#isNaN() NaN} or {@link Double#isInfinite() infinity}.
+   * @return this writer.
+   * @throws IllegalArgumentException if the value is NaN or Infinity and this writer is
+   *     not {@link #setLenient(boolean) lenient}.
    */
   public JsonWriter value(double value) throws IOException {
     writeDeferredName();
@@ -515,11 +542,26 @@ public class JsonWriter implements Closeable, Flushable {
   }
 
   /**
-   * Encodes {@code value}.
+   * Returns whether the {@code toString()} of {@code c} can be trusted to return
+   * a valid JSON number.
+   */
+  private static boolean isTrustedNumberType(Class<? extends Number> c) {
+    // Note: Don't consider LazilyParsedNumber trusted because it could contain
+    // an arbitrary malformed string
+    return c == Integer.class || c == Long.class || c == Double.class || c == Float.class || c == Byte.class || c == Short.class
+        || c == BigDecimal.class || c == BigInteger.class || c == AtomicInteger.class || c == AtomicLong.class;
+  }
+
+  /**
+   * Encodes {@code value}. The value is written by directly writing the {@link Number#toString()}
+   * result to JSON. Implementations must make sure that the result represents a valid JSON number.
    *
-   * @param value a finite value. May not be {@link Double#isNaN() NaNs} or
-   *     {@link Double#isInfinite() infinities}.
+   * @param value a finite value, or if {@link #setLenient(boolean) lenient},
+   *     also {@link Double#isNaN() NaN} or {@link Double#isInfinite() infinity}.
    * @return this writer.
+   * @throws IllegalArgumentException if the value is NaN or Infinity and this writer is
+   *     not {@link #setLenient(boolean) lenient}; or if the {@code toString()} result is not a
+   *     valid JSON number.
    */
   public JsonWriter value(Number value) throws IOException {
     if (value == null) {
@@ -528,10 +570,18 @@ public class JsonWriter implements Closeable, Flushable {
 
     writeDeferredName();
     String string = value.toString();
-    if (!lenient
-        && (string.equals("-Infinity") || string.equals("Infinity") || string.equals("NaN"))) {
-      throw new IllegalArgumentException("Numeric values must be finite, but was " + value);
+    if (string.equals("-Infinity") || string.equals("Infinity") || string.equals("NaN")) {
+      if (!lenient) {
+        throw new IllegalArgumentException("Numeric values must be finite, but was " + string);
+      }
+    } else {
+      Class<? extends Number> numberClass = value.getClass();
+      // Validate that string is valid before writing it directly to JSON output
+      if (!isTrustedNumberType(numberClass) && !VALID_JSON_NUMBER_PATTERN.matcher(string).matches()) {
+        throw new IllegalArgumentException("String created by " + numberClass + " is not a valid JSON number: " + string);
+      }
     }
+
     beforeValue();
     out.append(string);
     return this;
@@ -541,7 +591,7 @@ public class JsonWriter implements Closeable, Flushable {
    * Ensures all buffered data is written to the underlying {@link Writer}
    * and flushes that writer.
    */
-  public void flush() throws IOException {
+  @Override public void flush() throws IOException {
     if (stackSize == 0) {
       throw new IllegalStateException("JsonWriter is closed.");
     }
@@ -553,7 +603,7 @@ public class JsonWriter implements Closeable, Flushable {
    *
    * @throws IOException if the JSON document is incomplete.
    */
-  public void close() throws IOException {
+  @Override public void close() throws IOException {
     out.close();
 
     int size = stackSize;

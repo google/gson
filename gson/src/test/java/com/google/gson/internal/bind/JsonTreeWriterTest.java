@@ -120,21 +120,67 @@ public final class JsonTreeWriterTest extends TestCase {
     assertEquals(JsonNull.INSTANCE, writer.get());
   }
 
+  public void testBeginArray() throws Exception {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    assertEquals(writer, writer.beginArray());
+  }
+
+  public void testBeginObject() throws Exception {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    assertEquals(writer, writer.beginObject());
+  }
+
+  public void testValueString() throws Exception {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    String n = "as";
+    assertEquals(writer, writer.value(n));
+  }
+
+  public void testBoolValue() throws Exception {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    boolean bool = true;
+    assertEquals(writer, writer.value(bool));
+  }
+
+  public void testBoolMaisValue() throws Exception {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    Boolean bool = true;
+    assertEquals(writer, writer.value(bool));
+  }
+
   public void testLenientNansAndInfinities() throws IOException {
     JsonTreeWriter writer = new JsonTreeWriter();
     writer.setLenient(true);
     writer.beginArray();
+    writer.value(Float.NaN);
+    writer.value(Float.NEGATIVE_INFINITY);
+    writer.value(Float.POSITIVE_INFINITY);
     writer.value(Double.NaN);
     writer.value(Double.NEGATIVE_INFINITY);
     writer.value(Double.POSITIVE_INFINITY);
     writer.endArray();
-    assertEquals("[NaN,-Infinity,Infinity]", writer.get().toString());
+    assertEquals("[NaN,-Infinity,Infinity,NaN,-Infinity,Infinity]", writer.get().toString());
   }
 
   public void testStrictNansAndInfinities() throws IOException {
     JsonTreeWriter writer = new JsonTreeWriter();
     writer.setLenient(false);
     writer.beginArray();
+    try {
+      writer.value(Float.NaN);
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
+    try {
+      writer.value(Float.NEGATIVE_INFINITY);
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
+    try {
+      writer.value(Float.POSITIVE_INFINITY);
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
     try {
       writer.value(Double.NaN);
       fail();
@@ -156,6 +202,21 @@ public final class JsonTreeWriterTest extends TestCase {
     JsonTreeWriter writer = new JsonTreeWriter();
     writer.setLenient(false);
     writer.beginArray();
+    try {
+      writer.value(Float.valueOf(Float.NaN));
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
+    try {
+      writer.value(Float.valueOf(Float.NEGATIVE_INFINITY));
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
+    try {
+      writer.value(Float.valueOf(Float.POSITIVE_INFINITY));
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
     try {
       writer.value(Double.valueOf(Double.NaN));
       fail();

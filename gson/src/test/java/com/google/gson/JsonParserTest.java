@@ -18,8 +18,8 @@ package com.google.gson;
 
 import java.io.CharArrayReader;
 import java.io.CharArrayWriter;
+import java.io.IOException;
 import java.io.StringReader;
-
 import junit.framework.TestCase;
 
 import com.google.gson.common.TestTypes.BagOfPrimitives;
@@ -88,6 +88,54 @@ public class JsonParserTest extends TestCase {
     assertEquals("{}", array.get(0).toString());
     assertEquals(13, array.get(1).getAsInt());
     assertEquals("stringValue", array.get(2).getAsString());
+  }
+
+  private static String repeat(String s, int times) {
+    StringBuilder stringBuilder = new StringBuilder(s.length() * times);
+    for (int i = 0; i < times; i++) {
+      stringBuilder.append(s);
+    }
+    return stringBuilder.toString();
+  }
+
+  /** Deeply nested JSON arrays should not cause {@link StackOverflowError} */
+  public void testParseDeeplyNestedArrays() throws IOException {
+    int times = 10000;
+    // [[[ ... ]]]
+    String json = repeat("[", times) + repeat("]", times);
+
+    int actualTimes = 0;
+    JsonArray current = JsonParser.parseString(json).getAsJsonArray();
+    while (true) {
+      actualTimes++;
+      if (current.isEmpty()) {
+        break;
+      }
+      assertEquals(1, current.size());
+      current = current.get(0).getAsJsonArray();
+    }
+    assertEquals(times, actualTimes);
+  }
+
+  /** Deeply nested JSON objects should not cause {@link StackOverflowError} */
+  public void testParseDeeplyNestedObjects() throws IOException {
+    int times = 10000;
+    // {"a":{"a": ... {"a":null} ... }}
+    String json = repeat("{\"a\":", times) + "null" + repeat("}", times);
+
+    int actualTimes = 0;
+    JsonObject current = JsonParser.parseString(json).getAsJsonObject();
+    while (true) {
+      assertEquals(1, current.size());
+      actualTimes++;
+      JsonElement next = current.get("a");
+      if (next.isJsonNull()) {
+        break;
+      } else {
+        current = next.getAsJsonObject();
+      }
+    }
+    assertEquals(times, actualTimes);
   }
 
   public void testParseReader() {
