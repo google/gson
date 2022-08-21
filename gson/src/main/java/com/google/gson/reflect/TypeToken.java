@@ -16,7 +16,6 @@
 
 package com.google.gson.reflect;
 
-import com.google.gson.internal.$Gson$Preconditions;
 import com.google.gson.internal.$Gson$Types;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
@@ -24,6 +23,7 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Represents a generic type {@code T}. Java doesn't yet provide a way to
@@ -72,7 +72,7 @@ public class TypeToken<T> {
    */
   @SuppressWarnings("unchecked")
   private TypeToken(Type type) {
-    this.type = $Gson$Types.canonicalize($Gson$Preconditions.checkNotNull(type));
+    this.type = $Gson$Types.canonicalize(Objects.requireNonNull(type));
     this.rawType = (Class<? super T>) $Gson$Types.getRawType(this.type);
     this.hashCode = this.type.hashCode();
   }
@@ -325,8 +325,8 @@ public class TypeToken<T> {
    *   the raw type
    */
   public static TypeToken<?> getParameterized(Type rawType, Type... typeArguments) {
-    $Gson$Preconditions.checkNotNull(rawType);
-    $Gson$Preconditions.checkNotNull(typeArguments);
+    Objects.requireNonNull(rawType);
+    Objects.requireNonNull(typeArguments);
 
     // Perform basic validation here because this is the only public API where users
     // can create malformed parameterized types

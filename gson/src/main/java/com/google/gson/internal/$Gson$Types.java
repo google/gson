@@ -17,7 +17,7 @@
 package com.google.gson.internal;
 
 import static com.google.gson.internal.$Gson$Preconditions.checkArgument;
-import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
@@ -486,7 +486,7 @@ public final class $Gson$Types {
     private final Type[] typeArguments;
 
     public ParameterizedTypeImpl(Type ownerType, Type rawType, Type... typeArguments) {
-      checkNotNull(rawType);
+      requireNonNull(rawType);
       // require an owner type if the raw type needs it
       if (rawType instanceof Class<?>) {
         Class<?> rawTypeAsClass = (Class<?>) rawType;
@@ -499,7 +499,7 @@ public final class $Gson$Types {
       this.rawType = canonicalize(rawType);
       this.typeArguments = typeArguments.clone();
       for (int t = 0, length = this.typeArguments.length; t < length; t++) {
-        checkNotNull(this.typeArguments[t]);
+        requireNonNull(this.typeArguments[t]);
         checkNotPrimitive(this.typeArguments[t]);
         this.typeArguments[t] = canonicalize(this.typeArguments[t]);
       }
@@ -553,7 +553,7 @@ public final class $Gson$Types {
     private final Type componentType;
 
     public GenericArrayTypeImpl(Type componentType) {
-      checkNotNull(componentType);
+      requireNonNull(componentType);
       this.componentType = canonicalize(componentType);
     }
 
@@ -592,14 +592,14 @@ public final class $Gson$Types {
       checkArgument(upperBounds.length == 1);
 
       if (lowerBounds.length == 1) {
-        checkNotNull(lowerBounds[0]);
+        requireNonNull(lowerBounds[0]);
         checkNotPrimitive(lowerBounds[0]);
         checkArgument(upperBounds[0] == Object.class);
         this.lowerBound = canonicalize(lowerBounds[0]);
         this.upperBound = Object.class;
 
       } else {
-        checkNotNull(upperBounds[0]);
+        requireNonNull(upperBounds[0]);
         checkNotPrimitive(upperBounds[0]);
         this.lowerBound = null;
         this.upperBound = canonicalize(upperBounds[0]);
