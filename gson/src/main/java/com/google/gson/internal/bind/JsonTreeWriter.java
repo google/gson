@@ -152,6 +152,10 @@ public final class JsonTreeWriter extends JsonWriter {
     return this;
   }
 
+  @Override public JsonWriter jsonValue(String value) throws IOException {
+    throw new UnsupportedOperationException();
+  }
+
   @Override public JsonWriter nullValue() throws IOException {
     put(JsonNull.INSTANCE);
     return this;

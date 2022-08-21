@@ -426,10 +426,13 @@ public class JsonWriter implements Closeable, Flushable {
 
   /**
    * Writes {@code value} directly to the writer without quoting or
-   * escaping.
+   * escaping. This might not be supported by all implementations, if
+   * not supported an {@code UnsupportedOperationException} is thrown.
    *
    * @param value the literal string value, or null to encode a null literal.
    * @return this writer.
+   * @throws UnsupportedOperationException if this writer does not support
+   *    writing raw JSON values.
    */
   public JsonWriter jsonValue(String value) throws IOException {
     if (value == null) {

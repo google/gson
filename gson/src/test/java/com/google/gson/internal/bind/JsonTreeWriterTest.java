@@ -233,4 +233,14 @@ public final class JsonTreeWriterTest extends TestCase {
     } catch (IllegalArgumentException expected) {
     }
   }
+
+  public void testJsonValue() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.beginArray();
+    try {
+      writer.jsonValue("test");
+      fail();
+    } catch (UnsupportedOperationException expected) {
+    }
+  }
 }
