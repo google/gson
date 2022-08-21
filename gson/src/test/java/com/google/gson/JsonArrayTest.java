@@ -105,7 +105,7 @@ public final class JsonArrayTest extends TestCase {
     assertEquals(1, original.get(0).getAsJsonArray().size());
     assertEquals(0, copy.get(0).getAsJsonArray().size());
   }
-  
+
   public void testIsEmpty() {
     JsonArray array = new JsonArray();
     assertTrue(array.isEmpty());
@@ -179,6 +179,25 @@ public final class JsonArrayTest extends TestCase {
     } catch (NumberFormatException e) {
       assertEquals("Expected an exception message",
               "For input string: \"hello\"", e.getMessage());
+    }
+  }
+
+  public void testGetAs_WrongArraySize() {
+    JsonArray jsonArray = new JsonArray();
+    try {
+      jsonArray.getAsByte();
+      fail();
+    } catch (IllegalStateException e) {
+      assertEquals("Array must have size 1, but has size 0", e.getMessage());
+    }
+
+    jsonArray.add(true);
+    jsonArray.add(false);
+    try {
+      jsonArray.getAsByte();
+      fail();
+    } catch (IllegalStateException e) {
+      assertEquals("Array must have size 1, but has size 2", e.getMessage());
     }
   }
 }
