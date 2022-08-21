@@ -95,17 +95,26 @@ public final class JsonPrimitive extends JsonElement {
   }
 
   /**
-   * convenience method to get this element as a boolean value.
+   * Convenience method to get this element as a boolean value.
    *
    * @return get this element as a primitive boolean value.
+   * @throws IllegalStateException if this element does not represent a
+   *   valid boolean value.
    */
   @Override
   public boolean getAsBoolean() {
     if (isBoolean()) {
       return ((Boolean) value).booleanValue();
     }
-	// Check to see if the value as a String is "true" in any case.
-    return Boolean.parseBoolean(getAsString());
+    // Check to see if the value as a String is a boolean
+    String string = getAsString();
+    if (string.equalsIgnoreCase("true")) {
+      return true;
+    } else if (string.equalsIgnoreCase("false")) {
+      return false;
+    } else {
+      throw new IllegalStateException("Not a valid boolean: " + string);
+    }
   }
 
   /**
