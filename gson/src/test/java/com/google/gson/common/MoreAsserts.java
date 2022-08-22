@@ -63,12 +63,10 @@ public class MoreAsserts {
     StringBuilder builder = new StringBuilder(method.getName());
     builder.append('(');
 
-    Class<?>[] paramTypes = method.getParameterTypes();
-    for (int i = 0; i < paramTypes.length; i++) {
-      if (i > 0) {
-        builder.append(',');
-      }
-      builder.append(paramTypes[i].getName());
+    String sep = "";
+    for (Class<?> paramType : method.getParameterTypes()) {
+      builder.append(sep).append(paramType.getName());
+      sep = ",";
     }
 
     builder.append(')');
