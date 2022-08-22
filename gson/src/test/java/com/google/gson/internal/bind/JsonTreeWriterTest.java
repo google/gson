@@ -16,8 +16,14 @@
 
 package com.google.gson.internal.bind;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
+import com.google.gson.common.MoreAsserts;
+import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
+import java.io.Writer;
+import java.util.Arrays;
+import java.util.List;
 import junit.framework.TestCase;
 
 @SuppressWarnings("resource")
@@ -242,5 +248,16 @@ public final class JsonTreeWriterTest extends TestCase {
       fail();
     } catch (UnsupportedOperationException expected) {
     }
+  }
+
+  /**
+   * {@link JsonTreeWriter} effectively replaces the complete writing logic of {@link JsonWriter} to
+   * create a {@link JsonElement} tree instead of writing to a {@link Writer}. Therefore all relevant
+   * methods of {@code JsonWriter} must be overridden.
+   */
+  public void testOverrides() {
+    List<String> ignoredMethods = Arrays.asList("setLenient(boolean)", "isLenient()", "setIndent(java.lang.String)",
+        "setHtmlSafe(boolean)", "isHtmlSafe()", "setSerializeNulls(boolean)", "getSerializeNulls()");
+    MoreAsserts.assertOverridesMethods(JsonWriter.class, JsonTreeWriter.class, ignoredMethods);
   }
 }
