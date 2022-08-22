@@ -534,6 +534,12 @@ public final class GsonBuilder {
    * types! For example, applications registering {@code boolean.class} should also register {@code
    * Boolean.class}.
    *
+   * <p>{@link JsonSerializer} and {@link JsonDeserializer} are made "{@code null}-safe". This
+   * means when trying to serialize {@code null}, Gson will write a JSON {@code null} and the
+   * serializer is not called. Similarly when deserializing a JSON {@code null}, Gson will emit
+   * {@code null} without calling the deserializer. If it is desired to handle {@code null} values,
+   * a {@link TypeAdapter} should be used instead.
+   *
    * @param type the type definition for the type adapter being registered
    * @param typeAdapter This object must implement at least one of the {@link TypeAdapter},
    * {@link InstanceCreator}, {@link JsonSerializer}, and a {@link JsonDeserializer} interfaces.
