@@ -16,18 +16,6 @@
 
 package com.google.gson.functional;
 
-import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ConcurrentNavigableMap;
-import java.util.concurrent.ConcurrentSkipListMap;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
@@ -42,7 +30,17 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.common.TestTypes;
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.reflect.TypeToken;
-
+import java.lang.reflect.Type;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentNavigableMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 import junit.framework.TestCase;
 
 /**
@@ -78,9 +76,8 @@ public class MapTest extends TestCase {
     assertEquals(2, target.get("b").intValue());
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes"})
-  public void testRawMapSerialization() {
-    Map map = new LinkedHashMap();
+  public void testObjectMapSerialization() {
+    Map<String, Object> map = new LinkedHashMap<>();
     map.put("a", 1);
     map.put("b", "string");
     String json = gson.toJson(map);
@@ -647,7 +644,6 @@ public class MapTest extends TestCase {
   }
 
   static final class MapWithGeneralMapParameters {
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    final Map<String, Object> map = new LinkedHashMap();
+    final Map<String, Object> map = new LinkedHashMap<>();
   }
 }

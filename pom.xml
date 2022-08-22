@@ -69,6 +69,12 @@
           <version>3.10.1</version>
           <configuration>
             <release>${javaVersion}</release>
+            <showWarnings>true</showWarnings>
+            <showDeprecation>true</showDeprecation>
+            <failOnWarning>true</failOnWarning>
+            <compilerArgs>
+              <compilerArg>-Xlint:all</compilerArg>
+            </compilerArgs>
             <jdkToolchain>
               <version>[11,)</version>
             </jdkToolchain>

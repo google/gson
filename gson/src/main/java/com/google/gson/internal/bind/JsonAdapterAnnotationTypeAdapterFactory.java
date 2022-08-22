@@ -62,10 +62,10 @@ public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapte
       typeAdapter = ((TypeAdapterFactory) instance).create(gson, type);
     } else if (instance instanceof JsonSerializer || instance instanceof JsonDeserializer) {
       JsonSerializer<?> serializer = instance instanceof JsonSerializer
-          ? (JsonSerializer) instance
+          ? (JsonSerializer<?>) instance
           : null;
       JsonDeserializer<?> deserializer = instance instanceof JsonDeserializer
-          ? (JsonDeserializer) instance
+          ? (JsonDeserializer<?>) instance
           : null;
       typeAdapter = new TreeTypeAdapter(serializer, deserializer, gson, type, null, nullSafe);
       nullSafe = false;
