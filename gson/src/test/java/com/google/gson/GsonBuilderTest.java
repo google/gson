@@ -16,14 +16,13 @@
 
 package com.google.gson;
 
-import java.io.IOException;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
-
-import junit.framework.TestCase;
-
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
+import junit.framework.TestCase;
 
 /**
  * Unit tests for {@link GsonBuilder}.
@@ -42,8 +41,20 @@ public class GsonBuilderTest extends TestCase {
 
   public void testCreatingMoreThanOnce() {
     GsonBuilder builder = new GsonBuilder();
-    builder.create();
-    builder.create();
+    Gson gson = builder.create();
+    assertNotNull(gson);
+    assertNotNull(builder.create());
+
+    builder.setFieldNamingStrategy(new FieldNamingStrategy() {
+      @Override public String translateName(Field f) {
+        return "test";
+      }
+    });
+
+    Gson otherGson = builder.create();
+    assertNotNull(otherGson);
+    // Should be different instances because builder has been modified in the meantime
+    assertNotSame(gson, otherGson);
   }
 
   /**
@@ -162,6 +173,29 @@ public class GsonBuilderTest extends TestCase {
     };
     for (Type type : types) {
       new GsonBuilder().registerTypeAdapter(type, NULL_TYPE_ADAPTER);
+    }
+  }
+
+  public void testDisableJdkUnsafe() {
+    Gson gson = new GsonBuilder()
+        .disableJdkUnsafe()
+        .create();
+    try {
+      gson.fromJson("{}", ClassWithoutNoArgsConstructor.class);
+      fail("Expected exception");
+    } catch (JsonIOException expected) {
+      assertEquals(
+        "Unable to create instance of class com.google.gson.GsonBuilderTest$ClassWithoutNoArgsConstructor; "
+        + "usage of JDK Unsafe is disabled. Registering an InstanceCreator or a TypeAdapter for this type, "
+        + "adding a no-args constructor, or enabling usage of JDK Unsafe may fix this problem.",
+        expected.getMessage()
+      );
+    }
+  }
+
+  private static class ClassWithoutNoArgsConstructor {
+    @SuppressWarnings("unused")
+    public ClassWithoutNoArgsConstructor(String s) {
     }
   }
 }

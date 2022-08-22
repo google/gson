@@ -15,6 +15,9 @@
  */
 package com.google.gson.internal;
 
+import java.io.IOException;
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
 import java.io.ObjectStreamException;
 import java.math.BigDecimal;
 
@@ -75,6 +78,11 @@ public final class LazilyParsedNumber extends Number {
    */
   private Object writeReplace() throws ObjectStreamException {
     return new BigDecimal(value);
+  }
+
+  private void readObject(ObjectInputStream in) throws IOException {
+    // Don't permit directly deserializing this class; writeReplace() should have written a replacement
+    throw new InvalidObjectException("Deserialization is unsupported");
   }
 
   @Override

@@ -87,7 +87,7 @@ public class InheritanceTest extends TestCase {
   }
 
   public void testClassWithBaseCollectionFieldSerialization() {
-    Collection<Base> baseClasses = new ArrayList<Base>();
+    Collection<Base> baseClasses = new ArrayList<>();
     baseClasses.add(new Sub());
     baseClasses.add(new Sub());
     ClassWithBaseCollectionField sub = new ClassWithBaseCollectionField(baseClasses);
@@ -151,22 +151,22 @@ public class InheritanceTest extends TestCase {
   }
 
   public void testSubInterfacesOfCollectionSerialization() throws Exception {
-    List<Integer> list = new LinkedList<Integer>();
+    List<Integer> list = new LinkedList<>();
     list.add(0);
     list.add(1);
     list.add(2);
     list.add(3);
-    Queue<Long> queue = new LinkedList<Long>();
+    Queue<Long> queue = new LinkedList<>();
     queue.add(0L);
     queue.add(1L);
     queue.add(2L);
     queue.add(3L);
-    Set<Float> set = new TreeSet<Float>();
+    Set<Float> set = new TreeSet<>();
     set.add(0.1F);
     set.add(0.2F);
     set.add(0.3F);
     set.add(0.4F);
-    SortedSet<Character> sortedSet = new TreeSet<Character>();
+    SortedSet<Character> sortedSet = new TreeSet<>();
     sortedSet.add('a');
     sortedSet.add('b');
     sortedSet.add('c');
