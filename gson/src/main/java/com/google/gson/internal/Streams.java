@@ -28,6 +28,7 @@ import com.google.gson.stream.MalformedJsonException;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Objects;
 
 /**
  * Reads and writes GSON parse trees over streams.
@@ -105,7 +106,7 @@ public final class Streams {
 
     @Override public void write(String str, int off, int len) throws IOException {
       // Appendable.append turns null -> "null", which is not desired here
-      $Gson$Preconditions.checkNotNull(str);
+      Objects.requireNonNull(str);
       appendable.append(str, off, off + len);
     }
 

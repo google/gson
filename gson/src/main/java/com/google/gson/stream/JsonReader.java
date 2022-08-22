@@ -23,6 +23,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Reads a JSON (<a href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>)
@@ -287,10 +288,7 @@ public class JsonReader implements Closeable {
    * Creates a new instance that reads a JSON-encoded stream from {@code in}.
    */
   public JsonReader(Reader in) {
-    if (in == null) {
-      throw new NullPointerException("in == null");
-    }
-    this.in = in;
+    this.in = Objects.requireNonNull(in, "in == null");
   }
 
   /**

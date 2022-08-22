@@ -16,12 +16,12 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.$Gson$Preconditions;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * A data object that stores attributes of a field.
@@ -42,8 +42,7 @@ public final class FieldAttributes {
    * @param f the field to pull attributes from
    */
   public FieldAttributes(Field f) {
-    $Gson$Preconditions.checkNotNull(f);
-    this.field = f;
+    this.field = Objects.requireNonNull(f);
   }
 
   /**
