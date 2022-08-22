@@ -16,17 +16,6 @@
 
 package com.google.gson.stream;
 
-import java.io.Closeable;
-import java.io.Flushable;
-import java.io.IOException;
-import java.io.Writer;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.regex.Pattern;
-
 import static com.google.gson.stream.JsonScope.DANGLING_NAME;
 import static com.google.gson.stream.JsonScope.EMPTY_ARRAY;
 import static com.google.gson.stream.JsonScope.EMPTY_DOCUMENT;
@@ -34,6 +23,18 @@ import static com.google.gson.stream.JsonScope.EMPTY_OBJECT;
 import static com.google.gson.stream.JsonScope.NONEMPTY_ARRAY;
 import static com.google.gson.stream.JsonScope.NONEMPTY_DOCUMENT;
 import static com.google.gson.stream.JsonScope.NONEMPTY_OBJECT;
+
+import java.io.Closeable;
+import java.io.Flushable;
+import java.io.IOException;
+import java.io.Writer;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.regex.Pattern;
 
 /**
  * Writes a JSON (<a href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>)
@@ -203,10 +204,7 @@ public class JsonWriter implements Closeable, Flushable {
    * {@link java.io.BufferedWriter BufferedWriter} if necessary.
    */
   public JsonWriter(Writer out) {
-    if (out == null) {
-      throw new NullPointerException("out == null");
-    }
-    this.out = out;
+    this.out = Objects.requireNonNull(out, "out == null");
   }
 
   /**
@@ -387,9 +385,7 @@ public class JsonWriter implements Closeable, Flushable {
    * @return this writer.
    */
   public JsonWriter name(String name) throws IOException {
-    if (name == null) {
-      throw new NullPointerException("name == null");
-    }
+    Objects.requireNonNull(name, "name == null");
     if (deferredName != null) {
       throw new IllegalStateException();
     }

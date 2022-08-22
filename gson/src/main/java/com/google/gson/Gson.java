@@ -54,6 +54,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -504,9 +505,7 @@ public final class Gson {
    */
   @SuppressWarnings("unchecked")
   public <T> TypeAdapter<T> getAdapter(TypeToken<T> type) {
-    if (type == null) {
-      throw new NullPointerException("type must not be null");
-    }
+    Objects.requireNonNull(type, "type must not be null");
     TypeAdapter<?> cached = typeTokenCache.get(type);
     if (cached != null) {
       return (TypeAdapter<T>) cached;
