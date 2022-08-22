@@ -46,7 +46,7 @@ import java.util.Map;
  * can be serialized as strings; this is insufficient for some key types. For
  * example, consider a map whose keys are points on a grid. The default JSON
  * form encodes reasonably: <pre>   {@code
- *   Map<Point, String> original = new LinkedHashMap<Point, String>();
+ *   Map<Point, String> original = new LinkedHashMap<>();
  *   original.put(new Point(5, 6), "a");
  *   original.put(new Point(8, 8), "b");
  *   System.out.println(gson.toJson(original, type));
@@ -120,8 +120,7 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
       return null;
     }
 
-    Class<?> rawTypeOfSrc = $Gson$Types.getRawType(type);
-    Type[] keyAndValueTypes = $Gson$Types.getMapKeyAndValueTypes(type, rawTypeOfSrc);
+    Type[] keyAndValueTypes = $Gson$Types.getMapKeyAndValueTypes(type, rawType);
     TypeAdapter<?> keyAdapter = getKeyAdapter(gson, keyAndValueTypes[0]);
     TypeAdapter<?> valueAdapter = gson.getAdapter(TypeToken.get(keyAndValueTypes[1]));
     ObjectConstructor<T> constructor = constructorConstructor.get(typeToken);
@@ -151,9 +150,9 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
         Type valueType, TypeAdapter<V> valueTypeAdapter,
         ObjectConstructor<? extends Map<K, V>> constructor) {
       this.keyTypeAdapter =
-        new TypeAdapterRuntimeTypeWrapper<K>(context, keyTypeAdapter, keyType);
+        new TypeAdapterRuntimeTypeWrapper<>(context, keyTypeAdapter, keyType);
       this.valueTypeAdapter =
-        new TypeAdapterRuntimeTypeWrapper<V>(context, valueTypeAdapter, valueType);
+        new TypeAdapterRuntimeTypeWrapper<>(context, valueTypeAdapter, valueType);
       this.constructor = constructor;
     }
 
@@ -212,9 +211,9 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
       }
 
       boolean hasComplexKeys = false;
-      List<JsonElement> keys = new ArrayList<JsonElement>(map.size());
+      List<JsonElement> keys = new ArrayList<>(map.size());
 
-      List<V> values = new ArrayList<V>(map.size());
+      List<V> values = new ArrayList<>(map.size());
       for (Map.Entry<K, V> entry : map.entrySet()) {
         JsonElement keyElement = keyTypeAdapter.toJsonTree(entry.getKey());
         keys.add(keyElement);
