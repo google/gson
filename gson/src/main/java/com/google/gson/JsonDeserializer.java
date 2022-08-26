@@ -51,6 +51,8 @@ import java.lang.reflect.Type;
  * class IdDeserializer implements JsonDeserializer&lt;Id&gt;() {
  *   public Id deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
  *       throws JsonParseException {
+ *         JsonObject jsonObject = jsonElement.getAsJsonObject();
+ *         long idValue = jsonObject.get("value").getAsLong();
  *     return new Id((Class)typeOfT, id.getValue());
  *   }
  * </pre>
