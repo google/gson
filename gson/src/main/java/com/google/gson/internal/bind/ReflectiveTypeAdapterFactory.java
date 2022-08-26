@@ -126,10 +126,10 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       final TypeToken<?> fieldType, boolean serialize, boolean deserialize,
       final boolean blockInaccessible) {
     final boolean isPrimitive = Primitives.isPrimitive(fieldType.getRawType());
-    // special casing primitives here saves ~5% on Android...
     JsonAdapter annotation = field.getAnnotation(JsonAdapter.class);
     TypeAdapter<?> mapped = null;
     if (annotation != null) {
+      // This is not safe; requires that user has specified correct adapter class for @JsonAdapter
       mapped = jsonAdapterFactory.getTypeAdapter(
           constructorConstructor, context, fieldType, annotation);
     }
@@ -138,7 +138,6 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
 
     final TypeAdapter<?> typeAdapter = mapped;
     return new ReflectiveTypeAdapterFactory.BoundField(name, serialize, deserialize) {
-      @SuppressWarnings({"unchecked", "rawtypes"}) // the type adapter and field type always agree
       @Override void write(JsonWriter writer, Object value)
           throws IOException, IllegalAccessException {
         if (!serialized) return;
@@ -152,7 +151,8 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           return;
         }
         writer.name(name);
-        TypeAdapter t = jsonAdapterPresent ? typeAdapter
+        @SuppressWarnings({"unchecked", "rawtypes"})
+        TypeAdapter<Object> t = jsonAdapterPresent ? typeAdapter
             : new TypeAdapterRuntimeTypeWrapper(context, typeAdapter, fieldType.getType());
         t.write(writer, fieldValue);
       }

@@ -38,7 +38,7 @@ public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapte
     this.constructorConstructor = constructorConstructor;
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("unchecked") // this is not safe; requires that user has specified correct adapter class for @JsonAdapter
   @Override
   public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> targetType) {
     Class<? super T> rawType = targetType.getRawType();
@@ -49,7 +49,6 @@ public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapte
     return (TypeAdapter<T>) getTypeAdapter(constructorConstructor, gson, targetType, annotation);
   }
 
-  @SuppressWarnings({ "unchecked", "rawtypes" }) // Casts guarded by conditionals.
   TypeAdapter<?> getTypeAdapter(ConstructorConstructor constructorConstructor, Gson gson,
       TypeToken<?> type, JsonAdapter annotation) {
     Object instance = constructorConstructor.get(TypeToken.get(annotation.value())).construct();
@@ -67,7 +66,11 @@ public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapte
       JsonDeserializer<?> deserializer = instance instanceof JsonDeserializer
           ? (JsonDeserializer<?>) instance
           : null;
-      typeAdapter = new TreeTypeAdapter(serializer, deserializer, gson, type, null, nullSafe);
+
+      @SuppressWarnings({ "unchecked", "rawtypes" })
+      TypeAdapter<?> tempAdapter = new TreeTypeAdapter(serializer, deserializer, gson, type, null, nullSafe);
+      typeAdapter = tempAdapter;
+
       nullSafe = false;
     } else {
       throw new IllegalArgumentException("Invalid attempt to bind an instance of "

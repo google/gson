@@ -35,7 +35,6 @@ import java.util.ArrayList;
  */
 public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
   public static final TypeAdapterFactory FACTORY = new TypeAdapterFactory() {
-    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
       Type type = typeToken.getType();
       if (!(type instanceof GenericArrayType || type instanceof Class && ((Class<?>) type).isArray())) {
@@ -44,8 +43,11 @@ public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
 
       Type componentType = $Gson$Types.getArrayComponentType(type);
       TypeAdapter<?> componentTypeAdapter = gson.getAdapter(TypeToken.get(componentType));
-      return new ArrayTypeAdapter(
+
+      @SuppressWarnings({"unchecked", "rawtypes"})
+      TypeAdapter<T> arrayAdapter = new ArrayTypeAdapter(
               gson, componentTypeAdapter, $Gson$Types.getRawType(componentType));
+      return arrayAdapter;
     }
   };
 
@@ -89,7 +91,6 @@ public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
     }
   }
 
-  @SuppressWarnings("unchecked")
   @Override public void write(JsonWriter out, Object array) throws IOException {
     if (array == null) {
       out.nullValue();
@@ -98,6 +99,7 @@ public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
 
     out.beginArray();
     for (int i = 0, length = Array.getLength(array); i < length; i++) {
+      @SuppressWarnings("unchecked")
       E value = (E) Array.get(array, i);
       componentTypeAdapter.write(out, value);
     }
