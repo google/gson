@@ -466,6 +466,7 @@ public class JsonReader implements Closeable {
     }
   }
 
+  @SuppressWarnings("fallthrough")
   int doPeek() throws IOException {
     int peekStack = stack[stackSize - 1];
     if (peekStack == JsonScope.EMPTY_ARRAY) {
@@ -749,6 +750,7 @@ public class JsonReader implements Closeable {
     }
   }
 
+  @SuppressWarnings("fallthrough")
   private boolean isLiteral(char c) throws IOException {
     switch (c) {
     case '/':
@@ -1129,6 +1131,7 @@ public class JsonReader implements Closeable {
     throw syntaxError("Unterminated string");
   }
 
+  @SuppressWarnings("fallthrough")
   private void skipUnquotedValue() throws IOException {
     do {
       int i = 0;
@@ -1539,6 +1542,7 @@ public class JsonReader implements Closeable {
    * @throws NumberFormatException if any unicode escape sequences are
    *     malformed.
    */
+  @SuppressWarnings("fallthrough")
   private char readEscapeCharacter() throws IOException {
     if (pos == limit && !fillBuffer(1)) {
       throw syntaxError("Unterminated escape sequence");

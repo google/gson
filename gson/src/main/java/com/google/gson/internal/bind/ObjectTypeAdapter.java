@@ -166,13 +166,13 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
     }
   }
 
-  @SuppressWarnings("unchecked")
   @Override public void write(JsonWriter out, Object value) throws IOException {
     if (value == null) {
       out.nullValue();
       return;
     }
 
+    @SuppressWarnings("unchecked")
     TypeAdapter<Object> typeAdapter = (TypeAdapter<Object>) gson.getAdapter(value.getClass());
     if (typeAdapter instanceof ObjectTypeAdapter) {
       out.beginObject();
