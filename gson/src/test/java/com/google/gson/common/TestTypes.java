@@ -16,9 +16,6 @@
 
 package com.google.gson.common;
 
-import java.lang.reflect.Type;
-import java.util.Collection;
-
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
@@ -28,6 +25,8 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.SerializedName;
+import java.lang.reflect.Type;
+import java.util.Collection;
 
 /**
  * Types used for testing JSON serialization and deserialization
@@ -36,7 +35,7 @@ import com.google.gson.annotations.SerializedName;
  * @author Joel Leitch
  */
 public class TestTypes {
-  
+
   public static class Base {
     public static final String BASE_NAME = Base.class.getSimpleName();
     public static final String BASE_FIELD_KEY = "baseName";
@@ -76,7 +75,7 @@ public class TestTypes {
   }
 
   public static class BaseSerializer implements JsonSerializer<Base> {
-    public static final String NAME = BaseSerializer.class.getSimpleName(); 
+    public static final String NAME = BaseSerializer.class.getSimpleName();
     @Override
     public JsonElement serialize(Base src, Type typeOfSrc, JsonSerializationContext context) {
       JsonObject obj = new JsonObject();
@@ -85,13 +84,13 @@ public class TestTypes {
     }
   }
   public static class SubSerializer implements JsonSerializer<Sub> {
-    public static final String NAME = SubSerializer.class.getSimpleName(); 
+    public static final String NAME = SubSerializer.class.getSimpleName();
     @Override
     public JsonElement serialize(Sub src, Type typeOfSrc, JsonSerializationContext context) {
       JsonObject obj = new JsonObject();
       obj.addProperty(Base.SERIALIZER_KEY, NAME);
       return obj;
-    }    
+    }
   }
 
   public static class StringWrapper {
@@ -228,6 +227,7 @@ public class TestTypes {
     }
   }
 
+  @SuppressWarnings("overrides") // for missing hashCode() override
   public static class ClassWithNoFields {
     // Nothing here..
     @Override
@@ -271,7 +271,7 @@ public class TestTypes {
   }
 
   public static class ClassWithTransientFields<T> {
-    public transient T transientT; 
+    public transient T transientT;
     public final transient long transientLongValue;
     private final long[] longValue;
 

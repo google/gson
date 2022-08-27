@@ -16,16 +16,14 @@
 package com.google.gson.functional;
 
 import com.google.gson.Gson;
-
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
-import java.util.Arrays;
-import junit.framework.TestCase;
-
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import junit.framework.TestCase;
 
 /**
  * Functional test for Gson serialization and deserialization of
@@ -70,6 +68,7 @@ public class TypeVariableTest extends TestCase {
     assertEquals(blue1, blue2);
   }
 
+  @SuppressWarnings("overrides") // for missing hashCode() override
   public static class Blue extends Red<Boolean> {
     public Blue() {
       super(false);
@@ -79,7 +78,6 @@ public class TypeVariableTest extends TestCase {
       super(value);
     }
 
-    // Technically, we should implement hashcode too
     @Override
     public boolean equals(Object o) {
       if (!(o instanceof Blue)) {
@@ -100,6 +98,7 @@ public class TypeVariableTest extends TestCase {
     }
   }
 
+  @SuppressWarnings("overrides") // for missing hashCode() override
   public static class Foo<S, T> extends Red<Boolean> {
     private S someSField;
     private T someTField;
@@ -113,7 +112,6 @@ public class TypeVariableTest extends TestCase {
       this.someTField = tValue;
     }
 
-    // Technically, we should implement hashcode too
     @Override
     @SuppressWarnings("unchecked")
     public boolean equals(Object o) {

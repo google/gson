@@ -141,12 +141,12 @@ public class ArrayTest extends TestCase {
     assertEquals("hello", arrayType[0]);
   }
 
-  @SuppressWarnings("unchecked")
   public void testArrayOfCollectionSerialization() throws Exception {
     StringBuilder sb = new StringBuilder("[");
     int arraySize = 3;
 
     Type typeToSerialize = new TypeToken<Collection<Integer>[]>() {}.getType();
+    @SuppressWarnings({"rawtypes", "unchecked"})
     Collection<Integer>[] arrayOfCollection = new ArrayList[arraySize];
     for (int i = 0; i < arraySize; ++i) {
       int startValue = (3 * i) + 1;
