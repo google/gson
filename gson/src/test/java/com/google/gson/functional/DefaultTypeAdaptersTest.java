@@ -54,7 +54,6 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.UUID;
-
 import junit.framework.TestCase;
 
 /**
@@ -654,14 +653,13 @@ public class DefaultTypeAdaptersTest extends TestCase {
     assertEquals("abc", sb.toString());
   }
 
-  @SuppressWarnings("rawtypes")
-  private static class MyClassTypeAdapter extends TypeAdapter<Class> {
+  private static class MyClassTypeAdapter extends TypeAdapter<Class<?>> {
     @Override
-    public void write(JsonWriter out, Class value) throws IOException {
+    public void write(JsonWriter out, Class<?> value) throws IOException {
       out.value(value.getName());
     }
     @Override
-    public Class read(JsonReader in) throws IOException {
+    public Class<?> read(JsonReader in) throws IOException {
       String className = in.nextString();
       try {
         return Class.forName(className);

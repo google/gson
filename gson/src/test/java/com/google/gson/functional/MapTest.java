@@ -83,9 +83,8 @@ public class MapTest extends TestCase {
     assertEquals(2, target.get("b").intValue());
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes"})
-  public void testRawMapSerialization() {
-    Map map = new LinkedHashMap();
+  public void testObjectMapSerialization() {
+    Map<String, Object> map = new LinkedHashMap<>();
     map.put("a", 1);
     map.put("b", "string");
     String json = gson.toJson(map);
@@ -764,7 +763,6 @@ public class MapTest extends TestCase {
   }
 
   static final class MapWithGeneralMapParameters {
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    final Map<String, Object> map = new LinkedHashMap();
+    final Map<String, Object> map = new LinkedHashMap<>();
   }
 }

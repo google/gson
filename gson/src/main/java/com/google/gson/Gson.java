@@ -54,6 +54,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -502,14 +503,13 @@ public final class Gson {
    * @throws IllegalArgumentException if this GSON cannot serialize and
    *     deserialize {@code type}.
    */
-  @SuppressWarnings("unchecked")
   public <T> TypeAdapter<T> getAdapter(TypeToken<T> type) {
-    if (type == null) {
-      throw new NullPointerException("type must not be null");
-    }
+    Objects.requireNonNull(type, "type must not be null");
     TypeAdapter<?> cached = typeTokenCache.get(type);
     if (cached != null) {
-      return (TypeAdapter<T>) cached;
+      @SuppressWarnings("unchecked")
+      TypeAdapter<T> adapter = (TypeAdapter<T>) cached;
+      return adapter;
     }
 
     Map<TypeToken<?>, FutureTypeAdapter<?>> threadCalls = calls.get();
@@ -521,6 +521,7 @@ public final class Gson {
     }
 
     // the key and value type parameters always agree
+    @SuppressWarnings("unchecked")
     FutureTypeAdapter<T> ongoingCall = (FutureTypeAdapter<T>) threadCalls.get(type);
     if (ongoingCall != null) {
       return ongoingCall;
@@ -533,6 +534,7 @@ public final class Gson {
       for (TypeAdapterFactory factory : factories) {
         TypeAdapter<T> candidate = factory.create(this, type);
         if (candidate != null) {
+          @SuppressWarnings("unchecked")
           TypeAdapter<T> existingAdapter = (TypeAdapter<T>) typeTokenCache.putIfAbsent(type, candidate);
           // If other thread concurrently added adapter prefer that one instead
           if (existingAdapter != null) {
@@ -781,9 +783,9 @@ public final class Gson {
    *
    * @throws JsonIOException if there was a problem writing to the writer
    */
-  @SuppressWarnings("unchecked")
   public void toJson(Object src, Type typeOfSrc, JsonWriter writer) throws JsonIOException {
-    TypeAdapter<?> adapter = getAdapter(TypeToken.get(typeOfSrc));
+    @SuppressWarnings("unchecked")
+    TypeAdapter<Object> adapter = (TypeAdapter<Object>) getAdapter(TypeToken.get(typeOfSrc));
     boolean oldLenient = writer.isLenient();
     writer.setLenient(true);
     boolean oldHtmlSafe = writer.isHtmlSafe();
@@ -791,7 +793,7 @@ public final class Gson {
     boolean oldSerializeNulls = writer.getSerializeNulls();
     writer.setSerializeNulls(serializeNulls);
     try {
-      ((TypeAdapter<Object>) adapter).write(writer, src);
+      adapter.write(writer, src);
     } catch (IOException e) {
       throw new JsonIOException(e);
     } catch (AssertionError e) {
@@ -958,12 +960,12 @@ public final class Gson {
    * @throws JsonParseException if json is not a valid representation for an object of type typeOfT
    * @throws JsonSyntaxException if json is not a valid representation for an object of type
    */
-  @SuppressWarnings("unchecked")
   public <T> T fromJson(String json, Type typeOfT) throws JsonSyntaxException {
     if (json == null) {
       return null;
     }
     StringReader reader = new StringReader(json);
+    @SuppressWarnings("unchecked")
     T target = (T) fromJson(reader, typeOfT);
     return target;
   }
@@ -1018,9 +1020,9 @@ public final class Gson {
    * @throws JsonSyntaxException if json is not a valid representation for an object of type
    * @since 1.2
    */
-  @SuppressWarnings("unchecked")
   public <T> T fromJson(Reader json, Type typeOfT) throws JsonIOException, JsonSyntaxException {
     JsonReader jsonReader = newJsonReader(json);
+    @SuppressWarnings("unchecked")
     T object = (T) fromJson(jsonReader, typeOfT);
     assertFullConsumption(object, jsonReader);
     return object;
@@ -1053,7 +1055,6 @@ public final class Gson {
    * @throws JsonIOException if there was a problem writing to the Reader
    * @throws JsonSyntaxException if json is not a valid representation for an object of type
    */
-  @SuppressWarnings("unchecked")
   public <T> T fromJson(JsonReader reader, Type typeOfT) throws JsonIOException, JsonSyntaxException {
     boolean isEmpty = true;
     boolean oldLenient = reader.isLenient();
@@ -1061,6 +1062,7 @@ public final class Gson {
     try {
       reader.peek();
       isEmpty = false;
+      @SuppressWarnings("unchecked")
       TypeToken<T> typeToken = (TypeToken<T>) TypeToken.get(typeOfT);
       TypeAdapter<T> typeAdapter = getAdapter(typeToken);
       T object = typeAdapter.read(reader);

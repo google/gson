@@ -17,9 +17,8 @@
 package com.google.gson.functional;
 
 import com.google.gson.JsonArray;
-import junit.framework.TestCase;
-
 import java.math.BigInteger;
+import junit.framework.TestCase;
 
 /**
  * Functional tests for adding primitives to a JsonArray.
