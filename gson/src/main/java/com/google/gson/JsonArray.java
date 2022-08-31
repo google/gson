@@ -76,8 +76,9 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    *
    * @param bool the boolean that needs to be added to the array.
    */
-  public void add(Boolean bool) {
+  public JsonArray add(Boolean bool) {
     elements.add(bool == null ? JsonNull.INSTANCE : new JsonPrimitive(bool));
+    return this;
   }
 
   /**
@@ -85,8 +86,9 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    *
    * @param character the character that needs to be added to the array.
    */
-  public void add(Character character) {
+  public JsonArray add(Character character) {
     elements.add(character == null ? JsonNull.INSTANCE : new JsonPrimitive(character));
+    return this;
   }
 
   /**
@@ -94,8 +96,9 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    *
    * @param number the number that needs to be added to the array.
    */
-  public void add(Number number) {
+  public JsonArray add(Number number) {
     elements.add(number == null ? JsonNull.INSTANCE : new JsonPrimitive(number));
+    return this;
   }
 
   /**
@@ -103,8 +106,9 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    *
    * @param string the string that needs to be added to the array.
    */
-  public void add(String string) {
+  public JsonArray add(String string) {
     elements.add(string == null ? JsonNull.INSTANCE : new JsonPrimitive(string));
+    return this;
   }
 
   /**
@@ -112,11 +116,12 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    *
    * @param element the element that needs to be added to the array.
    */
-  public void add(JsonElement element) {
+  public JsonArray add(JsonElement element) {
     if (element == null) {
       element = JsonNull.INSTANCE;
     }
     elements.add(element);
+    return this;
   }
 
   /**
@@ -124,8 +129,9 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    *
    * @param array the array whose elements need to be added to the array.
    */
-  public void addAll(JsonArray array) {
+  public JsonArray addAll(JsonArray array) {
     elements.addAll(array.elements);
+    return this;
   }
 
   /**

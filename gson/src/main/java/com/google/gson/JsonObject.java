@@ -61,8 +61,9 @@ public final class JsonObject extends JsonElement {
    * @param property name of the member.
    * @param value the member object.
    */
-  public void add(String property, JsonElement value) {
+  public JsonObject add(String property, JsonElement value) {
     members.put(property, value == null ? JsonNull.INSTANCE : value);
+    return this;
   }
 
   /**
@@ -83,8 +84,9 @@ public final class JsonObject extends JsonElement {
    * @param property name of the member.
    * @param value the string value associated with the member.
    */
-  public void addProperty(String property, String value) {
+  public JsonObject addProperty(String property, String value) {
     add(property, value == null ? JsonNull.INSTANCE : new JsonPrimitive(value));
+    return this;
   }
 
   /**
@@ -94,8 +96,9 @@ public final class JsonObject extends JsonElement {
    * @param property name of the member.
    * @param value the number value associated with the member.
    */
-  public void addProperty(String property, Number value) {
+  public JsonObject addProperty(String property, Number value) {
     add(property, value == null ? JsonNull.INSTANCE : new JsonPrimitive(value));
+    return this;
   }
 
   /**
@@ -105,8 +108,9 @@ public final class JsonObject extends JsonElement {
    * @param property name of the member.
    * @param value the number value associated with the member.
    */
-  public void addProperty(String property, Boolean value) {
+  public JsonObject addProperty(String property, Boolean value) {
     add(property, value == null ? JsonNull.INSTANCE : new JsonPrimitive(value));
+    return this;
   }
 
   /**
@@ -116,8 +120,9 @@ public final class JsonObject extends JsonElement {
    * @param property name of the member.
    * @param value the number value associated with the member.
    */
-  public void addProperty(String property, Character value) {
+  public JsonObject addProperty(String property, Character value) {
     add(property, value == null ? JsonNull.INSTANCE : new JsonPrimitive(value));
+    return this;
   }
 
   /**
