@@ -291,7 +291,20 @@ public final class GsonBuilder {
   }
 
   /**
-   * Configures Gson to exclude inner classes during serialization.
+   * Configures Gson to exclude inner classes (= non-{@code static} nested classes) during serialization
+   * and deserialization. This is a convenience method which behaves as if an {@link ExclusionStrategy}
+   * which excludes inner classes was registered with this builder. This means inner classes will be
+   * serialized as JSON {@code null}, and will be deserialized as Java {@code null} with their JSON data
+   * being ignored. And fields with an inner class as type will be ignored during serialization and
+   * deserialization.
+   *
+   * <p>By default Gson serializes and deserializes inner classes, but ignores references to the
+   * enclosing instance. Deserialization might not be possible at all when {@link #disableJdkUnsafe()}
+   * is used (and no custom {@link InstanceCreator} is registered), or it  can lead to unexpected
+   * {@code NullPointerException}s when the deserialized instance is used.
+   *
+   * <p>In general using inner classes with Gson should be avoided; they should be converted to {@code static}
+   * nested classes if possible.
    *
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.3

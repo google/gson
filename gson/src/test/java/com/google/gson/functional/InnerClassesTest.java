@@ -18,17 +18,9 @@ package com.google.gson.functional;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
 import junit.framework.TestCase;
 
-/**
- * Performs some functional testing to ensure GSON infrastructure properly serializes/deserializes
- * fields that either should or should not be included in the output based on the GSON
- * configuration.
- *
- * @author Joel Leitch
- */
-public class FieldExclusionTest extends TestCase {
+public class InnerClassesTest extends TestCase {
   private static final String VALUE = "blah_1234";
 
   private Outer outer;
@@ -39,11 +31,13 @@ public class FieldExclusionTest extends TestCase {
     outer = new Outer();
   }
 
-  public void testDefaultInnerClassExclusion() throws Exception {
+  public void testDefaultInnerClassExclusionSerialization() {
     Gson gson = new Gson();
     Outer.Inner target = outer.new Inner(VALUE);
     String result = gson.toJson(target);
     assertEquals(target.toJson(), result);
+
+    assertEquals("{\"inner\":" + target.toJson() + "}", gson.toJson(new WithInnerClassField(target)));
 
     gson = new GsonBuilder().create();
     target = outer.new Inner(VALUE);
@@ -51,23 +45,40 @@ public class FieldExclusionTest extends TestCase {
     assertEquals(target.toJson(), result);
   }
 
-  public void testInnerClassExclusion() throws Exception {
+  public void testDefaultInnerClassExclusionDeserialization() {
+    Gson gson = new Gson();
+    Outer.Inner deserialized = gson.fromJson("{\"value\":\"a\"}", Outer.Inner.class);
+    assertNotNull(deserialized);
+    assertEquals("a", deserialized.value);
+
+    WithInnerClassField deserializedWithField = gson.fromJson("{\"inner\":{\"value\":\"a\"}}", WithInnerClassField.class);
+    deserialized = deserializedWithField.inner;
+    assertNotNull(deserialized);
+    assertEquals("a", deserialized.value);
+
+    gson = new GsonBuilder().create();
+    deserialized = gson.fromJson("{\"value\":\"a\"}", Outer.Inner.class);
+    assertNotNull(deserialized);
+    assertEquals("a", deserialized.value);
+  }
+
+  public void testInnerClassExclusionSerialization() {
     Gson gson = new GsonBuilder().disableInnerClassSerialization().create();
     Outer.Inner target = outer.new Inner(VALUE);
     String result = gson.toJson(target);
     assertEquals("null", result);
+
+    assertEquals("{}", gson.toJson(new WithInnerClassField(target)));
   }
 
-  public void testDefaultNestedStaticClassIncluded() throws Exception {
-    Gson gson = new Gson();
-    Outer.Inner target = outer.new Inner(VALUE);
-    String result = gson.toJson(target);
-    assertEquals(target.toJson(), result);
+  public void testInnerClassExclusionDeserialization() {
+    Gson gson = new GsonBuilder().disableInnerClassSerialization().create();
+    Outer.Inner deserialized = gson.fromJson("{\"value\":\"a\"}", Outer.Inner.class);
+    assertNull(deserialized);
 
-    gson = new GsonBuilder().create();
-    target = outer.new Inner(VALUE);
-    result = gson.toJson(target);
-    assertEquals(target.toJson(), result);
+    WithInnerClassField deserializedWithField = gson.fromJson("{\"inner\":{\"value\":\"a\"}}", WithInnerClassField.class);
+    deserialized = deserializedWithField.inner;
+    assertNull(deserialized);
   }
 
   private static class Outer {
@@ -76,17 +87,24 @@ public class FieldExclusionTest extends TestCase {
         super(value);
       }
     }
-
   }
 
   private static class NestedClass {
-    private final String value;
+    final String value;
     public NestedClass(String value) {
       this.value = value;
     }
 
     public String toJson() {
       return "{\"value\":\"" + value + "\"}";
+    }
+  }
+
+  private static class WithInnerClassField {
+    Outer.Inner inner;
+
+    WithInnerClassField(Outer.Inner inner) {
+      this.inner = inner;
     }
   }
 }
