@@ -16,21 +16,20 @@
 
 package com.google.gson.functional;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class InnerClassesTest extends TestCase {
+public class InnerClassesTest {
   private static final String VALUE = "blah_1234";
 
-  private Outer outer;
+  private Outer outer = new Outer();
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
-    outer = new Outer();
-  }
-
+  @Test
   public void testDefaultInnerClassExclusionSerialization() {
     Gson gson = new Gson();
     Outer.Inner target = outer.new Inner(VALUE);
@@ -45,6 +44,7 @@ public class InnerClassesTest extends TestCase {
     assertEquals(target.toJson(), result);
   }
 
+  @Test
   public void testDefaultInnerClassExclusionDeserialization() {
     Gson gson = new Gson();
     Outer.Inner deserialized = gson.fromJson("{\"value\":\"a\"}", Outer.Inner.class);
@@ -62,6 +62,7 @@ public class InnerClassesTest extends TestCase {
     assertEquals("a", deserialized.value);
   }
 
+  @Test
   public void testInnerClassExclusionSerialization() {
     Gson gson = new GsonBuilder().disableInnerClassSerialization().create();
     Outer.Inner target = outer.new Inner(VALUE);
@@ -71,6 +72,7 @@ public class InnerClassesTest extends TestCase {
     assertEquals("{}", gson.toJson(new WithInnerClassField(target)));
   }
 
+  @Test
   public void testInnerClassExclusionDeserialization() {
     Gson gson = new GsonBuilder().disableInnerClassSerialization().create();
     Outer.Inner deserialized = gson.fromJson("{\"value\":\"a\"}", Outer.Inner.class);
