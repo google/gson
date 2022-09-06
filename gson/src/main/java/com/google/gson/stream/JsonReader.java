@@ -23,6 +23,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Reads a JSON (<a href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>)
@@ -287,10 +288,7 @@ public class JsonReader implements Closeable {
    * Creates a new instance that reads a JSON-encoded stream from {@code in}.
    */
   public JsonReader(Reader in) {
-    if (in == null) {
-      throw new NullPointerException("in == null");
-    }
-    this.in = in;
+    this.in = Objects.requireNonNull(in, "in == null");
   }
 
   /**
@@ -468,6 +466,7 @@ public class JsonReader implements Closeable {
     }
   }
 
+  @SuppressWarnings("fallthrough")
   int doPeek() throws IOException {
     int peekStack = stack[stackSize - 1];
     if (peekStack == JsonScope.EMPTY_ARRAY) {
@@ -751,6 +750,7 @@ public class JsonReader implements Closeable {
     }
   }
 
+  @SuppressWarnings("fallthrough")
   private boolean isLiteral(char c) throws IOException {
     switch (c) {
     case '/':
@@ -890,7 +890,9 @@ public class JsonReader implements Closeable {
    *
    * @throws IllegalStateException if the next token is not a literal value.
    * @throws NumberFormatException if the next literal value cannot be parsed
-   *     as a double, or is non-finite.
+   *     as a double.
+   * @throws MalformedJsonException if the next literal value is NaN or Infinity
+   *     and this reader is not {@link #setLenient(boolean) lenient}.
    */
   public double nextDouble() throws IOException {
     int p = peeked;
@@ -1129,6 +1131,7 @@ public class JsonReader implements Closeable {
     throw syntaxError("Unterminated string");
   }
 
+  @SuppressWarnings("fallthrough")
   private void skipUnquotedValue() throws IOException {
     do {
       int i = 0;
@@ -1539,6 +1542,7 @@ public class JsonReader implements Closeable {
    * @throws NumberFormatException if any unicode escape sequences are
    *     malformed.
    */
+  @SuppressWarnings("fallthrough")
   private char readEscapeCharacter() throws IOException {
     if (pos == limit && !fillBuffer(1)) {
       throw syntaxError("Unterminated escape sequence");

@@ -16,6 +16,15 @@
 
 package com.google.gson.internal.bind;
 
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.TypeAdapter;
+import com.google.gson.TypeAdapterFactory;
+import com.google.gson.internal.JavaVersion;
+import com.google.gson.internal.PreJava9DateFormatProvider;
+import com.google.gson.internal.bind.util.ISO8601Utils;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -25,17 +34,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.TypeAdapter;
-import com.google.gson.TypeAdapterFactory;
-import com.google.gson.internal.$Gson$Preconditions;
-import com.google.gson.internal.JavaVersion;
-import com.google.gson.internal.PreJava9DateFormatProvider;
-import com.google.gson.internal.bind.util.ISO8601Utils;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
+import java.util.Objects;
 
 /**
  * This type adapter supports subclasses of date by defining a
@@ -93,7 +92,7 @@ public final class DefaultDateTypeAdapter<T extends Date> extends TypeAdapter<T>
   private final List<DateFormat> dateFormats = new ArrayList<>();
 
   private DefaultDateTypeAdapter(DateType<T> dateType, String datePattern) {
-    this.dateType = $Gson$Preconditions.checkNotNull(dateType);
+    this.dateType = Objects.requireNonNull(dateType);
     dateFormats.add(new SimpleDateFormat(datePattern, Locale.US));
     if (!Locale.getDefault().equals(Locale.US)) {
       dateFormats.add(new SimpleDateFormat(datePattern));
@@ -101,7 +100,7 @@ public final class DefaultDateTypeAdapter<T extends Date> extends TypeAdapter<T>
   }
 
   private DefaultDateTypeAdapter(DateType<T> dateType, int style) {
-    this.dateType = $Gson$Preconditions.checkNotNull(dateType);
+    this.dateType = Objects.requireNonNull(dateType);
     dateFormats.add(DateFormat.getDateInstance(style, Locale.US));
     if (!Locale.getDefault().equals(Locale.US)) {
       dateFormats.add(DateFormat.getDateInstance(style));
@@ -112,7 +111,7 @@ public final class DefaultDateTypeAdapter<T extends Date> extends TypeAdapter<T>
   }
 
   private DefaultDateTypeAdapter(DateType<T> dateType, int dateStyle, int timeStyle) {
-    this.dateType = $Gson$Preconditions.checkNotNull(dateType);
+    this.dateType = Objects.requireNonNull(dateType);
     dateFormats.add(DateFormat.getDateTimeInstance(dateStyle, timeStyle, Locale.US));
     if (!Locale.getDefault().equals(Locale.US)) {
       dateFormats.add(DateFormat.getDateTimeInstance(dateStyle, timeStyle));

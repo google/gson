@@ -5,7 +5,7 @@
 
   <groupId>com.google.code.gson</groupId>
   <artifactId>gson-parent</artifactId>
-  <version>2.9.1-SNAPSHOT</version>
+  <version>2.9.2-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Gson Parent</name>
@@ -71,6 +71,14 @@
           <version>3.10.1</version>
           <configuration>
             <release>${javaVersion}</release>
+            <showWarnings>true</showWarnings>
+            <showDeprecation>true</showDeprecation>
+            <failOnWarning>true</failOnWarning>
+            <compilerArgs>
+              <!-- Enable all warnings, except for ones which cause issues when building with newer JDKs, see also
+                https://docs.oracle.com/en/java/javase/11/tools/javac.html -->
+              <compilerArg>-Xlint:all,-options</compilerArg>
+            </compilerArgs>
             <jdkToolchain>
               <version>[11,)</version>
             </jdkToolchain>
@@ -79,7 +87,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>3.4.0</version>
+          <version>3.4.1</version>
           <configuration>
             <jdkToolchain>
               <version>[11,)</version>
@@ -126,6 +134,37 @@
             <!-- Disable Maven Super POM release profile and instead use own one -->
             <useReleaseProfile>false</useReleaseProfile>
             <releaseProfiles>release</releaseProfiles>
+          </configuration>
+        </plugin>
+        <!-- Plugin for checking source and binary compatibility; used by GitHub workflow -->
+        <plugin>
+          <groupId>com.github.siom79.japicmp</groupId>
+          <artifactId>japicmp-maven-plugin</artifactId>
+          <version>0.16.0</version>
+          <configuration>
+            <oldVersion>
+              <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>${project.artifactId}</artifactId>
+                <!-- This is set by the GitHub workflow -->
+                <version>JAPICMP-OLD</version>
+              </dependency>
+            </oldVersion>
+            <newVersion>
+              <file>
+                <path>${project.build.directory}/${project.build.finalName}.${project.packaging}</path>
+              </file>
+            </newVersion>
+            <parameter>
+              <breakBuildOnSourceIncompatibleModifications>true</breakBuildOnSourceIncompatibleModifications>
+              <breakBuildOnBinaryIncompatibleModifications>true</breakBuildOnBinaryIncompatibleModifications>
+              <excludes>
+                <exclude>com.google.gson.internal</exclude>
+              </excludes>
+              <onlyModified>true</onlyModified>
+              <skipXmlReport>true</skipXmlReport>
+              <reportOnlyFilename>true</reportOnlyFilename>
+            </parameter>
           </configuration>
         </plugin>
       </plugins>

@@ -16,17 +16,6 @@
 
 package com.google.gson.stream;
 
-import java.io.Closeable;
-import java.io.Flushable;
-import java.io.IOException;
-import java.io.Writer;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.regex.Pattern;
-
 import static com.google.gson.stream.JsonScope.DANGLING_NAME;
 import static com.google.gson.stream.JsonScope.EMPTY_ARRAY;
 import static com.google.gson.stream.JsonScope.EMPTY_DOCUMENT;
@@ -35,6 +24,18 @@ import static com.google.gson.stream.JsonScope.NONEMPTY_ARRAY;
 import static com.google.gson.stream.JsonScope.NONEMPTY_DOCUMENT;
 import static com.google.gson.stream.JsonScope.NONEMPTY_OBJECT;
 
+import java.io.Closeable;
+import java.io.Flushable;
+import java.io.IOException;
+import java.io.Writer;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.regex.Pattern;
+
 /**
  * Writes a JSON (<a href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>)
  * encoded value to a stream, one token at a time. The stream includes both
@@ -42,10 +43,9 @@ import static com.google.gson.stream.JsonScope.NONEMPTY_OBJECT;
  * and end delimiters of objects and arrays.
  *
  * <h3>Encoding JSON</h3>
- * To encode your data as JSON, create a new {@code JsonWriter}. Each JSON
- * document must contain one top-level array or object. Call methods on the
- * writer as you walk the structure's contents, nesting arrays and objects as
- * necessary:
+ * To encode your data as JSON, create a new {@code JsonWriter}. Call methods
+ * on the writer as you walk the structure's contents, nesting arrays and objects
+ * as necessary:
  * <ul>
  *   <li>To write <strong>arrays</strong>, first call {@link #beginArray()}.
  *       Write each of the array's elements with the appropriate {@link #value}
@@ -153,7 +153,7 @@ public class JsonWriter implements Closeable, Flushable {
   static {
     REPLACEMENT_CHARS = new String[128];
     for (int i = 0; i <= 0x1f; i++) {
-      REPLACEMENT_CHARS[i] = String.format("\\u%04x", (int) i);
+      REPLACEMENT_CHARS[i] = String.format("\\u%04x", i);
     }
     REPLACEMENT_CHARS['"'] = "\\\"";
     REPLACEMENT_CHARS['\\'] = "\\\\";
@@ -170,7 +170,7 @@ public class JsonWriter implements Closeable, Flushable {
     HTML_SAFE_REPLACEMENT_CHARS['\''] = "\\u0027";
   }
 
-  /** The output data, containing at most one top-level array or object. */
+  /** The JSON output destination */
   private final Writer out;
 
   private int[] stack = new int[32];
@@ -204,10 +204,7 @@ public class JsonWriter implements Closeable, Flushable {
    * {@link java.io.BufferedWriter BufferedWriter} if necessary.
    */
   public JsonWriter(Writer out) {
-    if (out == null) {
-      throw new NullPointerException("out == null");
-    }
-    this.out = out;
+    this.out = Objects.requireNonNull(out, "out == null");
   }
 
   /**
@@ -234,8 +231,6 @@ public class JsonWriter implements Closeable, Flushable {
    * href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>. Setting the writer
    * to lenient permits the following:
    * <ul>
-   *   <li>Top-level values of any type. With strict writing, the top-level
-   *       value must be an object or an array.
    *   <li>Numbers may be {@link Double#isNaN() NaNs} or {@link
    *       Double#isInfinite() infinities}.
    * </ul>
@@ -390,9 +385,7 @@ public class JsonWriter implements Closeable, Flushable {
    * @return this writer.
    */
   public JsonWriter name(String name) throws IOException {
-    if (name == null) {
-      throw new NullPointerException("name == null");
-    }
+    Objects.requireNonNull(name, "name == null");
     if (deferredName != null) {
       throw new IllegalStateException();
     }
@@ -429,10 +422,13 @@ public class JsonWriter implements Closeable, Flushable {
 
   /**
    * Writes {@code value} directly to the writer without quoting or
-   * escaping.
+   * escaping. This might not be supported by all implementations, if
+   * not supported an {@code UnsupportedOperationException} is thrown.
    *
    * @param value the literal string value, or null to encode a null literal.
    * @return this writer.
+   * @throws UnsupportedOperationException if this writer does not support
+   *    writing raw JSON values.
    */
   public JsonWriter jsonValue(String value) throws IOException {
     if (value == null) {

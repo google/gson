@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * This writer creates a JsonElement.
@@ -130,9 +131,7 @@ public final class JsonTreeWriter extends JsonWriter {
   }
 
   @Override public JsonWriter name(String name) throws IOException {
-    if (name == null) {
-      throw new NullPointerException("name == null");
-    }
+    Objects.requireNonNull(name, "name == null");
     if (stack.isEmpty() || pendingName != null) {
       throw new IllegalStateException();
     }
@@ -150,6 +149,10 @@ public final class JsonTreeWriter extends JsonWriter {
     }
     put(new JsonPrimitive(value));
     return this;
+  }
+
+  @Override public JsonWriter jsonValue(String value) throws IOException {
+    throw new UnsupportedOperationException();
   }
 
   @Override public JsonWriter nullValue() throws IOException {

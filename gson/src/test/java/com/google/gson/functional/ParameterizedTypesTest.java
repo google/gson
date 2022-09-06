@@ -23,9 +23,6 @@ import com.google.gson.ParameterizedTypeFixtures.MyParameterizedTypeAdapter;
 import com.google.gson.ParameterizedTypeFixtures.MyParameterizedTypeInstanceCreator;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.reflect.TypeToken;
-
-import junit.framework.TestCase;
-
 import java.io.Reader;
 import java.io.Serializable;
 import java.io.StringReader;
@@ -35,6 +32,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import junit.framework.TestCase;
 
 /**
  * Functional tests for the serialization and deserialization of parameterized types in Gson.
@@ -154,14 +152,19 @@ public class ParameterizedTypesTest extends TestCase {
     assertEquals(expected, actual);
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("varargs")
+  @SafeVarargs
+  private static <T> T[] arrayOf(T... args) {
+    return args;
+  }
+
   public void testVariableTypeFieldsAndGenericArraysSerialization() throws Exception {
     Integer obj = 0;
     Integer[] array = { 1, 2, 3 };
     List<Integer> list = new ArrayList<>();
     list.add(4);
     list.add(5);
-    List<Integer>[] arrayOfLists = new List[] { list, list };
+    List<Integer>[] arrayOfLists = arrayOf(list, list);
 
     Type typeOfSrc = new TypeToken<ObjectWithTypeVariables<Integer>>() {}.getType();
     ObjectWithTypeVariables<Integer> objToSerialize =
@@ -171,14 +174,13 @@ public class ParameterizedTypesTest extends TestCase {
     assertEquals(objToSerialize.getExpectedJson(), json);
   }
 
-  @SuppressWarnings("unchecked")
   public void testVariableTypeFieldsAndGenericArraysDeserialization() throws Exception {
     Integer obj = 0;
     Integer[] array = { 1, 2, 3 };
     List<Integer> list = new ArrayList<>();
     list.add(4);
     list.add(5);
-    List<Integer>[] arrayOfLists = new List[] { list, list };
+    List<Integer>[] arrayOfLists = arrayOf(list, list);
 
     Type typeOfSrc = new TypeToken<ObjectWithTypeVariables<Integer>>() {}.getType();
     ObjectWithTypeVariables<Integer> objToSerialize =
@@ -225,12 +227,11 @@ public class ParameterizedTypesTest extends TestCase {
     assertEquals(objAfterDeserialization.getExpectedJson(), json);
   }
 
-  @SuppressWarnings("unchecked")
   public void testParameterizedTypeGenericArraysSerialization() throws Exception {
     List<Integer> list = new ArrayList<>();
     list.add(1);
     list.add(2);
-    List<Integer>[] arrayOfLists = new List[] { list, list };
+    List<Integer>[] arrayOfLists = arrayOf(list, list);
 
     Type typeOfSrc = new TypeToken<ObjectWithTypeVariables<Integer>>() {}.getType();
     ObjectWithTypeVariables<Integer> objToSerialize =
@@ -239,12 +240,11 @@ public class ParameterizedTypesTest extends TestCase {
     assertEquals("{\"arrayOfListOfTypeParameters\":[[1,2],[1,2]]}", json);
   }
 
-  @SuppressWarnings("unchecked")
   public void testParameterizedTypeGenericArraysDeserialization() throws Exception {
     List<Integer> list = new ArrayList<>();
     list.add(1);
     list.add(2);
-    List<Integer>[] arrayOfLists = new List[] { list, list };
+    List<Integer>[] arrayOfLists = arrayOf(list, list);
 
     Type typeOfSrc = new TypeToken<ObjectWithTypeVariables<Integer>>() {}.getType();
     ObjectWithTypeVariables<Integer> objToSerialize =
@@ -459,7 +459,7 @@ public class ParameterizedTypesTest extends TestCase {
       return true;
     }
   }
-  
+
   // Begin: tests to reproduce issue 103
   private static class Quantity {
     @SuppressWarnings("unused")
@@ -475,21 +475,21 @@ public class ParameterizedTypesTest extends TestCase {
   }
   private interface Immutable {
   }
-  
-  public static final class Amount<Q extends Quantity> 
+
+  public static final class Amount<Q extends Quantity>
       implements Measurable<Q>, Field<Amount<?>>, Serializable, Immutable {
     private static final long serialVersionUID = -7560491093120970437L;
 
     int value = 30;
   }
-  
+
   public void testDeepParameterizedTypeSerialization() {
     Amount<MyQuantity> amount = new Amount<>();
     String json = gson.toJson(amount);
     assertTrue(json.contains("value"));
     assertTrue(json.contains("30"));
   }
-  
+
   public void testDeepParameterizedTypeDeserialization() {
     String json = "{value:30}";
     Type type = new TypeToken<Amount<MyQuantity>>() {}.getType();

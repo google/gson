@@ -15,7 +15,8 @@
  */
 package com.google.gson.internal;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -29,7 +30,7 @@ public class JavaVersionTest {
 
   @Test
   public void testGetMajorJavaVersion() {
-    JavaVersion.getMajorJavaVersion();
+    assertTrue(JavaVersion.getMajorJavaVersion() >= 7); // Gson currently requires at least Java 7
   }
 
   @Test
