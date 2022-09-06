@@ -42,7 +42,6 @@ import java.util.Queue;
  * Writes a graph of objects as a list of named nodes.
  */
 // TODO: proper documentation
-@SuppressWarnings("rawtypes")
 public final class GraphAdapterBuilder {
   private final Map<Type, InstanceCreator<?>> instanceCreators;
   private final ConstructorConstructor constructorConstructor;
@@ -78,7 +77,7 @@ public final class GraphAdapterBuilder {
     }
   }
 
-  static class Factory implements TypeAdapterFactory, InstanceCreator {
+  static class Factory implements TypeAdapterFactory, InstanceCreator<Object> {
     private final Map<Type, InstanceCreator<?>> instanceCreators;
     private final ThreadLocal<Graph> graphThreadLocal = new ThreadLocal<>();
 
@@ -215,7 +214,6 @@ public final class GraphAdapterBuilder {
      * <p>Gson should only ever call this method when we're expecting it to;
      * that is only when we've called back into Gson to deserialize a tree.
      */
-    @SuppressWarnings("unchecked")
     @Override
     public Object createInstance(Type type) {
       Graph graph = graphThreadLocal.get();
@@ -242,14 +240,14 @@ public final class GraphAdapterBuilder {
      * The queue of elements to write during serialization. Unused during
      * deserialization.
      */
-    private final Queue<Element> queue = new LinkedList<>();
+    private final Queue<Element<?>> queue = new LinkedList<>();
 
     /**
      * The instance currently being deserialized. Used as a backdoor between
      * the graph traversal (which needs to know instances) and instance creators
      * which create them.
      */
-    private Element nextCreate;
+    private Element<Object> nextCreate;
 
     private Graph(Map<Object, Element<?>> map) {
       this.map = map;
@@ -299,11 +297,12 @@ public final class GraphAdapterBuilder {
       typeAdapter.write(out, value);
     }
 
+    @SuppressWarnings("unchecked")
     void read(Graph graph) throws IOException {
       if (graph.nextCreate != null) {
         throw new IllegalStateException("Unexpected recursive call to read() for " + id);
       }
-      graph.nextCreate = this;
+      graph.nextCreate = (Element<Object>) this;
       value = typeAdapter.fromJsonTree(element);
       if (value == null) {
         throw new IllegalStateException("non-null value deserialized to null: " + element);

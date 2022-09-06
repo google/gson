@@ -38,6 +38,7 @@ import java.util.Set;
  *
  * <p>This implementation was derived from Android 4.1's TreeMap class.
  */
+@SuppressWarnings("serial") // ignore warning about missing serialVersionUID
 public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Serializable {
   @SuppressWarnings({ "unchecked", "rawtypes" }) // to avoid Comparable<Comparable<Comparable<...>>>
   private static final Comparator<Comparable> NATURAL_ORDER = new Comparator<Comparable>() {
@@ -504,10 +505,9 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
       return oldValue;
     }
 
-    @SuppressWarnings("rawtypes")
     @Override public boolean equals(Object o) {
       if (o instanceof Entry) {
-        Entry other = (Entry) o;
+        Entry<?, ?> other = (Entry<?, ?>) o;
         return (key == null ? other.getKey() == null : key.equals(other.getKey()))
             && (value == null ? other.getValue() == null : value.equals(other.getValue()));
       }

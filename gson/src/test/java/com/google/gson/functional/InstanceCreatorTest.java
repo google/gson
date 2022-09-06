@@ -22,15 +22,13 @@ import com.google.gson.InstanceCreator;
 import com.google.gson.common.TestTypes.Base;
 import com.google.gson.common.TestTypes.ClassWithBaseField;
 import com.google.gson.common.TestTypes.Sub;
-
 import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
-import junit.framework.TestCase;
-
-import java.lang.reflect.Type;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import junit.framework.TestCase;
 
 /**
  * Functional Test exercising custom serialization only. When test applies to both
@@ -102,13 +100,13 @@ public class InstanceCreatorTest extends TestCase {
     assertEquals(SubArrayList.class, list.getClass());
   }
 
-  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @SuppressWarnings("unchecked")
   public void testInstanceCreatorForParametrizedType() throws Exception {
     @SuppressWarnings("serial")
     class SubTreeSet<T> extends TreeSet<T> {}
-    InstanceCreator<SortedSet> sortedSetCreator = new InstanceCreator<SortedSet>() {
-      @Override public SortedSet createInstance(Type type) {
-        return new SubTreeSet();
+    InstanceCreator<SortedSet<?>> sortedSetCreator = new InstanceCreator<SortedSet<?>>() {
+      @Override public SortedSet<?> createInstance(Type type) {
+        return new SubTreeSet<>();
       }
     };
     Gson gson = new GsonBuilder()
