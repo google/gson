@@ -48,7 +48,7 @@ import java.lang.reflect.Type;
  * serializer:</p>
  *
  * <pre>
- * class IdSerializer implements JsonSerializer&lt;Id&gt;() {
+ * class IdSerializer implements JsonSerializer&lt;Id&gt; {
  *   public JsonElement serialize(Id id, Type typeOfId, JsonSerializationContext context) {
  *     return new JsonPrimitive(id.getValue());
  *   }
