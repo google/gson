@@ -387,11 +387,20 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
     return getAsSingleElement().getAsBoolean();
   }
 
+  /**
+   * Returns whether the other object is equal to this. This method only considers
+   * the other object to be equal if it is an instance of {@code JsonArray} and has
+   * equal elements in the same order.
+   */
   @Override
   public boolean equals(Object o) {
     return (o == this) || (o instanceof JsonArray && ((JsonArray) o).elements.equals(elements));
   }
 
+  /**
+   * Returns the hash code of this array. This method calculates the hash code based
+   * on the elements of this array.
+   */
   @Override
   public int hashCode() {
     return elements.hashCode();

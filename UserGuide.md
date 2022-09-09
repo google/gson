@@ -155,7 +155,8 @@ BagOfPrimitives obj2 = gson.fromJson(json, BagOfPrimitives.class);
   * While serializing, a null field is omitted from the output.
   * While deserializing, a missing entry in JSON results in setting the corresponding field in the object to its default value: null for object types, zero for numeric types, and false for booleans.
 * If a field is _synthetic_, it is ignored and not included in JSON serialization or deserialization.
-* Fields corresponding to the outer classes in inner classes, anonymous classes, and local classes are ignored and not included in serialization or deserialization.
+* Fields corresponding to the outer classes in inner classes are ignored and not included in serialization or deserialization.
+* Anonymous and local classes are excluded. They will be serialized as JSON `null` and when deserialized their JSON value is ignored and `null` is returned. Convert the classes to `static` nested classes to enable serialization and deserialization for them.
 
 ### <a name="TOC-Nested-Classes-including-Inner-Classes-"></a>Nested Classes (including Inner Classes)
 

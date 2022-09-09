@@ -50,6 +50,8 @@ public class JsonObjectTest extends TestCase {
     assertEquals(value, removedElement);
     assertFalse(jsonObj.has(propertyName));
     assertNull(jsonObj.get(propertyName));
+
+    assertNull(jsonObj.remove(propertyName));
   }
 
   public void testAddingNullPropertyValue() throws Exception {
@@ -168,6 +170,22 @@ public class JsonObjectTest extends TestCase {
     b.add("bar", JsonNull.INSTANCE);
     assertFalse(a.equals(b));
     assertFalse(b.equals(a));
+  }
+
+  public void testEqualsHashCodeIgnoringOrder() {
+    JsonObject a = new JsonObject();
+    JsonObject b = new JsonObject();
+
+    a.addProperty("1", true);
+    b.addProperty("2", false);
+
+    a.addProperty("2", false);
+    b.addProperty("1", true);
+
+    assertEquals(Arrays.asList("1", "2"), new ArrayList<>(a.keySet()));
+    assertEquals(Arrays.asList("2", "1"), new ArrayList<>(b.keySet()));
+
+    MoreAsserts.assertEqualsAndHashCode(a, b);
   }
 
   public void testSize() {
