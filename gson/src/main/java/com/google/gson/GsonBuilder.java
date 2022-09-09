@@ -156,8 +156,11 @@ public final class GsonBuilder {
 
   /**
    * Configures Gson to excludes all class fields that have the specified modifiers. By default,
-   * Gson will exclude all fields marked transient or static. This method will override that
-   * behavior.
+   * Gson will exclude all fields marked {@code transient} or {@code static}. This method will
+   * override that behavior.
+   *
+   * <p>This is a convenience method which behaves as if an {@link ExclusionStrategy} which
+   * excludes these fields was {@linkplain #setExclusionStrategies(ExclusionStrategy...) registered with this builder}.
    *
    * @param modifiers the field modifiers. You must use the modifiers specified in the
    * {@link java.lang.reflect.Modifier} class. For example,
@@ -186,8 +189,11 @@ public final class GsonBuilder {
   }
 
   /**
-   * Configures Gson to exclude all fields from consideration for serialization or deserialization
+   * Configures Gson to exclude all fields from consideration for serialization and deserialization
    * that do not have the {@link com.google.gson.annotations.Expose} annotation.
+   *
+   * <p>This is a convenience method which behaves as if an {@link ExclusionStrategy} which excludes
+   * these fields was {@linkplain #setExclusionStrategies(ExclusionStrategy...) registered with this builder}.
    *
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
@@ -291,7 +297,20 @@ public final class GsonBuilder {
   }
 
   /**
-   * Configures Gson to exclude inner classes during serialization.
+   * Configures Gson to exclude inner classes (= non-{@code static} nested classes) during serialization
+   * and deserialization. This is a convenience method which behaves as if an {@link ExclusionStrategy}
+   * which excludes inner classes was {@linkplain #setExclusionStrategies(ExclusionStrategy...) registered with this builder}.
+   * This means inner classes will be serialized as JSON {@code null}, and will be deserialized as
+   * Java {@code null} with their JSON data being ignored. And fields with an inner class as type will
+   * be ignored during serialization and deserialization.
+   *
+   * <p>By default Gson serializes and deserializes inner classes, but ignores references to the
+   * enclosing instance. Deserialization might not be possible at all when {@link #disableJdkUnsafe()}
+   * is used (and no custom {@link InstanceCreator} is registered), or it can lead to unexpected
+   * {@code NullPointerException}s when the deserialized instance is used afterwards.
+   *
+   * <p>In general using inner classes with Gson should be avoided; they should be converted to {@code static}
+   * nested classes if possible.
    *
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.3
@@ -369,6 +388,16 @@ public final class GsonBuilder {
    * The strategies are added to the existing strategies (if any); the existing strategies
    * are not replaced.
    *
+   * <p>Fields are excluded for serialization and deserialization when
+   * {@link ExclusionStrategy#shouldSkipField(FieldAttributes) shouldSkipField} returns {@code true},
+   * or when {@link ExclusionStrategy#shouldSkipClass(Class) shouldSkipClass} returns {@code true}
+   * for the field type. Gson behaves as if the field did not exist; its value is not serialized
+   * and on deserialization if a JSON member with this name exists it is skipped by default.<br>
+   * When objects of an excluded type (as determined by
+   * {@link ExclusionStrategy#shouldSkipClass(Class) shouldSkipClass}) are serialized a
+   * JSON null is written to output, and when deserialized the JSON value is skipped and
+   * {@code null} is returned.
+   *
    * @param strategies the set of strategy object to apply during object (de)serialization.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.4
@@ -389,6 +418,9 @@ public final class GsonBuilder {
    * class) should be skipped then that field (or object) is skipped during its
    * serialization.
    *
+   * <p>See the documentation of {@link #setExclusionStrategies(ExclusionStrategy...)}
+   * for a detailed description of the effect of exclusion strategies.
+   *
    * @param strategy an exclusion strategy to apply during serialization.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.7
@@ -406,6 +438,9 @@ public final class GsonBuilder {
    * This means that if one of the added exclusion strategies suggests that a field (or
    * class) should be skipped then that field (or object) is skipped during its
    * deserialization.
+   *
+   * <p>See the documentation of {@link #setExclusionStrategies(ExclusionStrategy...)}
+   * for a detailed description of the effect of exclusion strategies.
    *
    * @param strategy an exclusion strategy to apply during deserialization.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
