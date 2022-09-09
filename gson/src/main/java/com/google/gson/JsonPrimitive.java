@@ -78,6 +78,7 @@ public final class JsonPrimitive extends JsonElement {
 
   /**
    * Returns the same value as primitives are immutable.
+   *
    * @since 2.8.2
    */
   @Override
@@ -243,6 +244,9 @@ public final class JsonPrimitive extends JsonElement {
     }
   }
 
+  /**
+   * Returns the hash code of this object.
+   */
   @Override
   public int hashCode() {
     if (value == null) {
@@ -260,6 +264,11 @@ public final class JsonPrimitive extends JsonElement {
     return value.hashCode();
   }
 
+  /**
+   * Returns whether the other object is equal to this. This method only considers
+   * the other object to be equal if it is an instance of {@code JsonPrimitive} and
+   * has an equal value.
+   */
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
