@@ -23,6 +23,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Reads a JSON (<a href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>)
@@ -95,7 +96,7 @@ import java.util.Arrays;
  *   }
  *
  *   public List<Message> readMessagesArray(JsonReader reader) throws IOException {
- *     List<Message> messages = new ArrayList<Message>();
+ *     List<Message> messages = new ArrayList<>();
  *
  *     reader.beginArray();
  *     while (reader.hasNext()) {
@@ -131,7 +132,7 @@ import java.util.Arrays;
  *   }
  *
  *   public List<Double> readDoublesArray(JsonReader reader) throws IOException {
- *     List<Double> doubles = new ArrayList<Double>();
+ *     List<Double> doubles = new ArrayList<>();
  *
  *     reader.beginArray();
  *     while (reader.hasNext()) {
@@ -287,10 +288,7 @@ public class JsonReader implements Closeable {
    * Creates a new instance that reads a JSON-encoded stream from {@code in}.
    */
   public JsonReader(Reader in) {
-    if (in == null) {
-      throw new NullPointerException("in == null");
-    }
-    this.in = in;
+    this.in = Objects.requireNonNull(in, "in == null");
   }
 
   /**
@@ -304,8 +302,6 @@ public class JsonReader implements Closeable {
    *       prefix</a>, <code>")]}'\n"</code>.
    *   <li>Streams that include multiple top-level values. With strict parsing,
    *       each stream must contain exactly one top-level value.
-   *   <li>Top-level values of any type. With strict parsing, the top-level
-   *       value must be an object or an array.
    *   <li>Numbers may be {@link Double#isNaN() NaNs} or {@link
    *       Double#isInfinite() infinities}.
    *   <li>End of line comments starting with {@code //} or {@code #} and
@@ -320,6 +316,18 @@ public class JsonReader implements Closeable {
    *   <li>Names and values separated by {@code =} or {@code =>} instead of
    *       {@code :}.
    *   <li>Name/value pairs separated by {@code ;} instead of {@code ,}.
+   * </ul>
+   *
+   * <p>Note: Even in strict mode there are slight derivations from the JSON
+   * specification:
+   * <ul>
+   *   <li>JsonReader allows the literals {@code true}, {@code false} and {@code null}
+   *       to have any capitalization, for example {@code fAlSe}
+   *   <li>JsonReader supports the escape sequence {@code \'}, representing a {@code '}
+   *   <li>JsonReader supports the escape sequence <code>\<i>LF</i></code> (with {@code LF}
+   *       being the Unicode character U+000A), resulting in a {@code LF} within the
+   *       read JSON string
+   *   <li>JsonReader allows unescaped control characters (U+0000 through U+001F)
    * </ul>
    */
   public final void setLenient(boolean lenient) {
@@ -458,6 +466,7 @@ public class JsonReader implements Closeable {
     }
   }
 
+  @SuppressWarnings("fallthrough")
   int doPeek() throws IOException {
     int peekStack = stack[stackSize - 1];
     if (peekStack == JsonScope.EMPTY_ARRAY) {
@@ -741,6 +750,7 @@ public class JsonReader implements Closeable {
     }
   }
 
+  @SuppressWarnings("fallthrough")
   private boolean isLiteral(char c) throws IOException {
     switch (c) {
     case '/':
@@ -880,7 +890,9 @@ public class JsonReader implements Closeable {
    *
    * @throws IllegalStateException if the next token is not a literal value.
    * @throws NumberFormatException if the next literal value cannot be parsed
-   *     as a double, or is non-finite.
+   *     as a double.
+   * @throws MalformedJsonException if the next literal value is NaN or Infinity
+   *     and this reader is not {@link #setLenient(boolean) lenient}.
    */
   public double nextDouble() throws IOException {
     int p = peeked;
@@ -1119,6 +1131,7 @@ public class JsonReader implements Closeable {
     throw syntaxError("Unterminated string");
   }
 
+  @SuppressWarnings("fallthrough")
   private void skipUnquotedValue() throws IOException {
     do {
       int i = 0;
@@ -1212,7 +1225,7 @@ public class JsonReader implements Closeable {
   /**
    * Closes this JSON reader and the underlying {@link java.io.Reader}.
    */
-  public void close() throws IOException {
+  @Override public void close() throws IOException {
     peeked = PEEKED_NONE;
     stack[0] = JsonScope.CLOSED;
     stackSize = 1;
@@ -1559,6 +1572,7 @@ public class JsonReader implements Closeable {
    * @throws NumberFormatException if any unicode escape sequences are
    *     malformed.
    */
+  @SuppressWarnings("fallthrough")
   private char readEscapeCharacter() throws IOException {
     if (pos == limit && !fillBuffer(1)) {
       throw syntaxError("Unterminated escape sequence");

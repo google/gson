@@ -112,14 +112,14 @@ public final class StreamingTypeAdaptersTest extends TestCase {
   }
 
   public void testSerializeMap() {
-    Map<String, Double> map = new LinkedHashMap<String, Double>();
+    Map<String, Double> map = new LinkedHashMap<>();
     map.put("a", 5.0);
     map.put("b", 10.0);
     assertEquals("{'a':5.0,'b':10.0}", mapAdapter.toJson(map).replace('"', '\''));
   }
 
   public void testDeserializeMap() throws IOException {
-    Map<String, Double> map = new LinkedHashMap<String, Double>();
+    Map<String, Double> map = new LinkedHashMap<>();
     map.put("a", 5.0);
     map.put("b", 10.0);
     assertEquals(map, mapAdapter.fromJson("{'a':5.0,'b':10.0}".replace('\'', '\"')));
@@ -155,7 +155,7 @@ public final class StreamingTypeAdaptersTest extends TestCase {
         String[] values = in.nextString().split(",");
         return new Person(values[0], Integer.parseInt(values[1]));
       }
-      public void write(JsonWriter out, Person person) throws IOException {
+      @Override public void write(JsonWriter out, Person person) throws IOException {
         out.value(person.name + "," + person.age);
       }
     };
@@ -163,7 +163,7 @@ public final class StreamingTypeAdaptersTest extends TestCase {
         Person.class, typeAdapter).create();
     Truck truck = new Truck();
     truck.horsePower = 1.0D;
-    truck.passengers = new ArrayList<Person>();
+    truck.passengers = new ArrayList<>();
     truck.passengers.add(null);
     truck.passengers.add(new Person("jesse", 30));
     try {

@@ -1,6 +1,41 @@
 Change Log
 ==========
 
+## Version 2.9.1
+
+* Make `Object` and `JsonElement` deserialization iterative rather than
+  recursive (#1912)
+* Added parsing support for enum that has overridden toString() method (#1950)
+* Removed support for building Gson with Gradle (#2081)
+* Removed obsolete `codegen` hierarchy (#2099)
+* Add support for reflection access filter (#1905)
+* Improve `TypeToken` creation validation (#2072)
+* Add explicit support for `float` in `JsonWriter` (#2130, #2132)
+* Fail when parsing invalid local date (#2134)
+
+Also many small improvements to javadoc.
+
+## Version 2.9.0
+
+**The minimum supported Java version changes from 6 to 7.**
+
+* Change target Java version to 7 (#2043)
+* Put `module-info.class` into Multi-Release JAR folder (#2013)
+* Improve error message when abstract class cannot be constructed (#1814)
+* Support EnumMap deserialization (#2071)
+* Add LazilyParsedNumber default adapter (#2060)
+* Fix JsonReader.hasNext() returning true at end of document (#2061)
+* Remove Gradle build support. Build script was outdated and not actively
+  maintained anymore (#2063)
+* Add `GsonBuilder.disableJdkUnsafe()` (#1904)
+* Add `UPPER_CASE_WITH_UNDERSCORES` in FieldNamingPolicy (#2024)
+* Fix failing to serialize Collection or Map with inaccessible constructor (#1902)
+* Improve TreeTypeAdapter thread-safety (#1976)
+* Fix `Gson.newJsonWriter` ignoring lenient and HTML-safe setting (#1989)
+* Delete unused LinkedHashTreeMap (#1992)
+* Make default adapters stricter; improve exception messages (#2000)
+* Fix `FieldNamingPolicy.upperCaseFirstLetter` uppercasing non-letter (#2004)
+
 ## Version 2.8.9
 
 * Make OSGi bundle's dependency on `sun.misc` optional (#1993).

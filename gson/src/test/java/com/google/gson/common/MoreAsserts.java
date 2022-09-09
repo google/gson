@@ -16,9 +16,13 @@
 
 package com.google.gson.common;
 
-import org.junit.Assert;
-
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import org.junit.Assert;
 
 /**
  * Handy asserts that we wish were present in {@link Assert}
@@ -48,5 +52,54 @@ public class MoreAsserts {
     Assert.assertEquals(a.hashCode(), b.hashCode());
     Assert.assertFalse(a.equals(null));
     Assert.assertFalse(a.equals(new Object()));
+  }
+
+  private static boolean isProtectedOrPublic(Method method) {
+    int modifiers = method.getModifiers();
+    return Modifier.isProtected(modifiers) || Modifier.isPublic(modifiers);
+  }
+
+  private static String getMethodSignature(Method method) {
+    StringBuilder builder = new StringBuilder(method.getName());
+    builder.append('(');
+
+    String sep = "";
+    for (Class<?> paramType : method.getParameterTypes()) {
+      builder.append(sep).append(paramType.getName());
+      sep = ",";
+    }
+
+    builder.append(')');
+    return builder.toString();
+  }
+
+  /**
+   * Asserts that {@code subClass} overrides all protected and public methods declared by
+   * {@code baseClass} except for the ones whose signatures are in {@code ignoredMethods}.
+   */
+  public static void assertOverridesMethods(Class<?> baseClass, Class<?> subClass, List<String> ignoredMethods) {
+    Set<String> requiredOverriddenMethods = new LinkedHashSet<>();
+    for (Method method : baseClass.getDeclaredMethods()) {
+      // Note: Do not filter out `final` methods; maybe they should not be `final` and subclass needs
+      // to override them
+      if (isProtectedOrPublic(method)) {
+        requiredOverriddenMethods.add(getMethodSignature(method));
+      }
+    }
+
+    for (Method method : subClass.getDeclaredMethods()) {
+      requiredOverriddenMethods.remove(getMethodSignature(method));
+    }
+
+    for (String ignoredMethod : ignoredMethods) {
+      boolean foundIgnored = requiredOverriddenMethods.remove(ignoredMethod);
+      if (!foundIgnored) {
+        throw new IllegalArgumentException("Method '" + ignoredMethod + "' does not exist or is already overridden");
+      }
+    }
+
+    if (!requiredOverriddenMethods.isEmpty()) {
+      Assert.fail(subClass.getSimpleName() + " must override these methods: " + requiredOverriddenMethods);
+    }
   }
 }

@@ -223,7 +223,7 @@ public final class JsonReaderTest extends TestCase {
     } catch (IOException expected) {
     }
   }
-  
+
   @SuppressWarnings("unused")
   public void testNulls() {
     try {
@@ -339,10 +339,19 @@ public final class JsonReaderTest extends TestCase {
         + "1.7976931348623157E308,"
         + "4.9E-324,"
         + "0.0,"
+        + "0.00,"
         + "-0.5,"
         + "2.2250738585072014E-308,"
         + "3.141592653589793,"
-        + "2.718281828459045]";
+        + "2.718281828459045,"
+        + "0,"
+        + "0.01,"
+        + "0e0,"
+        + "1e+0,"
+        + "1e-0,"
+        + "1e0000," // leading 0 is allowed for exponent
+        + "1e00001,"
+        + "1e+1]";
     JsonReader reader = new JsonReader(reader(json));
     reader.beginArray();
     assertEquals(-0.0, reader.nextDouble());
@@ -350,10 +359,19 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(1.7976931348623157E308, reader.nextDouble());
     assertEquals(4.9E-324, reader.nextDouble());
     assertEquals(0.0, reader.nextDouble());
+    assertEquals(0.0, reader.nextDouble());
     assertEquals(-0.5, reader.nextDouble());
     assertEquals(2.2250738585072014E-308, reader.nextDouble());
     assertEquals(3.141592653589793, reader.nextDouble());
     assertEquals(2.718281828459045, reader.nextDouble());
+    assertEquals(0.0, reader.nextDouble());
+    assertEquals(0.01, reader.nextDouble());
+    assertEquals(0.0, reader.nextDouble());
+    assertEquals(1.0, reader.nextDouble());
+    assertEquals(1.0, reader.nextDouble());
+    assertEquals(1.0, reader.nextDouble());
+    assertEquals(10.0, reader.nextDouble());
+    assertEquals(10.0, reader.nextDouble());
     reader.endArray();
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
@@ -502,6 +520,13 @@ public final class JsonReaderTest extends TestCase {
     assertNotANumber("-");
     assertNotANumber(".");
 
+    // plus sign is not allowed for integer part
+    assertNotANumber("+1");
+
+    // leading 0 is not allowed for integer part
+    assertNotANumber("00");
+    assertNotANumber("01");
+
     // exponent lacks digit
     assertNotANumber("e");
     assertNotANumber("0e");
@@ -536,12 +561,17 @@ public final class JsonReaderTest extends TestCase {
   }
 
   private void assertNotANumber(String s) throws IOException {
-    JsonReader reader = new JsonReader(reader("[" + s + "]"));
+    JsonReader reader = new JsonReader(reader(s));
     reader.setLenient(true);
-    reader.beginArray();
     assertEquals(JsonToken.STRING, reader.peek());
     assertEquals(s, reader.nextString());
-    reader.endArray();
+
+    JsonReader strictReader = new JsonReader(reader(s));
+    try {
+      strictReader.nextDouble();
+      fail("Should have failed reading " + s + " as double");
+    } catch (MalformedJsonException e) {
+    }
   }
 
   public void testPeekingUnquotedStringsPrefixedWithIntegers() throws IOException {
@@ -596,17 +626,17 @@ public final class JsonReaderTest extends TestCase {
     } catch (NumberFormatException expected) {
     }
   }
-  
+
   /**
    * Issue 1053, negative zero.
    * @throws Exception
    */
   public void testNegativeZero() throws Exception {
-	  	JsonReader reader = new JsonReader(reader("[-0]"));
-	    reader.setLenient(false);
-	    reader.beginArray();
-	    assertEquals(NUMBER, reader.peek());
-	    assertEquals("-0", reader.nextString());
+    JsonReader reader = new JsonReader(reader("[-0]"));
+    reader.setLenient(false);
+    reader.beginArray();
+    assertEquals(NUMBER, reader.peek());
+    assertEquals("-0", reader.nextString());
   }
 
   /**

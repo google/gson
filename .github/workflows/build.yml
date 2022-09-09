@@ -7,12 +7,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up JDK 11
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '11'
           cache: 'maven'
       - name: Build with Maven
-        run: mvn --batch-mode --update-snapshots verify
+        # This also runs javadoc:jar to detect any issues with the Javadoc generated during release
+        run: mvn --batch-mode --update-snapshots verify javadoc:jar

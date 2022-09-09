@@ -16,15 +16,12 @@
 
 package com.google.gson.typeadapters;
 
-import javax.annotation.PostConstruct;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
-import junit.framework.TestCase;
-
 import java.util.Arrays;
 import java.util.List;
+import javax.annotation.PostConstruct;
+import junit.framework.TestCase;
 
 public class PostConstructAdapterFactoryTest extends TestCase {
     public void test() throws Exception {
@@ -55,6 +52,7 @@ public class PostConstructAdapterFactoryTest extends TestCase {
         assertEquals(sandwiches, sandwichesFromJson);
     }
 
+    @SuppressWarnings("overrides") // for missing hashCode() override
     static class Sandwich {
         public String bread;
         public String cheese;
@@ -70,6 +68,7 @@ public class PostConstructAdapterFactoryTest extends TestCase {
             }
         }
 
+        @Override
         public boolean equals(Object o) {
             if (o == this) {
                 return true;
@@ -88,6 +87,7 @@ public class PostConstructAdapterFactoryTest extends TestCase {
         }
     }
 
+    @SuppressWarnings("overrides") // for missing hashCode() override
     static class MultipleSandwiches {
         public List<Sandwich> sandwiches;
 
@@ -95,6 +95,7 @@ public class PostConstructAdapterFactoryTest extends TestCase {
             this.sandwiches = sandwiches;
         }
 
+        @Override
         public boolean equals(Object o) {
             if (o == this) {
                 return true;

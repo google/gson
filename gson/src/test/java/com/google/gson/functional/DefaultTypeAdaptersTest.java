@@ -54,7 +54,6 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.UUID;
-
 import junit.framework.TestCase;
 
 /**
@@ -293,7 +292,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
 
   public void testSetSerialization() throws Exception {
     Gson gson = new Gson();
-    HashSet<String> s = new HashSet<String>();
+    HashSet<String> s = new HashSet<>();
     s.add("blah");
     String json = gson.toJson(s);
     assertEquals("[\"blah\"]", json);
@@ -470,7 +469,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
     Gson gson = new GsonBuilder()
         .setDateFormat(pattern)
         .registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
-          public Date deserialize(JsonElement json, Type typeOfT,
+          @Override public Date deserialize(JsonElement json, Type typeOfT,
               JsonDeserializationContext context)
               throws JsonParseException {
             return new Date(1315806903103L);
@@ -619,7 +618,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
   }
 
   public void testTreeSetSerialization() {
-    TreeSet<String> treeSet = new TreeSet<String>();
+    TreeSet<String> treeSet = new TreeSet<>();
     treeSet.add("Value1");
     String json = gson.toJson(treeSet);
     assertEquals("[\"Value1\"]", json);
@@ -654,14 +653,13 @@ public class DefaultTypeAdaptersTest extends TestCase {
     assertEquals("abc", sb.toString());
   }
 
-  @SuppressWarnings("rawtypes")
-  private static class MyClassTypeAdapter extends TypeAdapter<Class> {
+  private static class MyClassTypeAdapter extends TypeAdapter<Class<?>> {
     @Override
-    public void write(JsonWriter out, Class value) throws IOException {
+    public void write(JsonWriter out, Class<?> value) throws IOException {
       out.value(value.getName());
     }
     @Override
-    public Class read(JsonReader in) throws IOException {
+    public Class<?> read(JsonReader in) throws IOException {
       String className = in.nextString();
       try {
         return Class.forName(className);

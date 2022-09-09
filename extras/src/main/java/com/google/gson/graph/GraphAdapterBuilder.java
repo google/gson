@@ -20,6 +20,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 import com.google.gson.JsonElement;
+import com.google.gson.ReflectionAccessFilter;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.ConstructorConstructor;
@@ -30,6 +31,7 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.LinkedList;
@@ -40,14 +42,13 @@ import java.util.Queue;
  * Writes a graph of objects as a list of named nodes.
  */
 // TODO: proper documentation
-@SuppressWarnings("rawtypes")
 public final class GraphAdapterBuilder {
   private final Map<Type, InstanceCreator<?>> instanceCreators;
   private final ConstructorConstructor constructorConstructor;
 
   public GraphAdapterBuilder() {
-      this.instanceCreators = new HashMap<Type, InstanceCreator<?>>();
-      this.constructorConstructor = new ConstructorConstructor(instanceCreators, true);
+      this.instanceCreators = new HashMap<>();
+      this.constructorConstructor = new ConstructorConstructor(instanceCreators, true, Collections.<ReflectionAccessFilter>emptyList());
   }
   public GraphAdapterBuilder addType(Type type) {
     final ObjectConstructor<?> objectConstructor = constructorConstructor.get(TypeToken.get(type));
@@ -76,9 +77,9 @@ public final class GraphAdapterBuilder {
     }
   }
 
-  static class Factory implements TypeAdapterFactory, InstanceCreator {
+  static class Factory implements TypeAdapterFactory, InstanceCreator<Object> {
     private final Map<Type, InstanceCreator<?>> instanceCreators;
-    private final ThreadLocal<Graph> graphThreadLocal = new ThreadLocal<Graph>();
+    private final ThreadLocal<Graph> graphThreadLocal = new ThreadLocal<>();
 
     Factory(Map<Type, InstanceCreator<?>> instanceCreators) {
       this.instanceCreators = instanceCreators;
@@ -119,7 +120,7 @@ public final class GraphAdapterBuilder {
           @SuppressWarnings("unchecked") // graph.map guarantees consistency between value and T
           Element<T> element = (Element<T>) graph.map.get(value);
           if (element == null) {
-            element = new Element<T>(value, graph.nextName(), typeAdapter, null);
+            element = new Element<>(value, graph.nextName(), typeAdapter, null);
             graph.map.put(value, element);
             graph.queue.add(element);
           }
@@ -176,7 +177,7 @@ public final class GraphAdapterBuilder {
                 currentName = name;
               }
               JsonElement element = elementAdapter.read(in);
-              graph.map.put(name, new Element<T>(null, name, typeAdapter, element));
+              graph.map.put(name, new Element<>(null, name, typeAdapter, element));
             }
             in.endObject();
           } else {
@@ -213,7 +214,6 @@ public final class GraphAdapterBuilder {
      * <p>Gson should only ever call this method when we're expecting it to;
      * that is only when we've called back into Gson to deserialize a tree.
      */
-    @SuppressWarnings("unchecked")
     @Override
     public Object createInstance(Type type) {
       Graph graph = graphThreadLocal.get();
@@ -240,14 +240,14 @@ public final class GraphAdapterBuilder {
      * The queue of elements to write during serialization. Unused during
      * deserialization.
      */
-    private final Queue<Element> queue = new LinkedList<Element>();
+    private final Queue<Element<?>> queue = new LinkedList<>();
 
     /**
      * The instance currently being deserialized. Used as a backdoor between
      * the graph traversal (which needs to know instances) and instance creators
      * which create them.
      */
-    private Element nextCreate;
+    private Element<Object> nextCreate;
 
     private Graph(Map<Object, Element<?>> map) {
       this.map = map;
@@ -297,11 +297,12 @@ public final class GraphAdapterBuilder {
       typeAdapter.write(out, value);
     }
 
+    @SuppressWarnings("unchecked")
     void read(Graph graph) throws IOException {
       if (graph.nextCreate != null) {
         throw new IllegalStateException("Unexpected recursive call to read() for " + id);
       }
-      graph.nextCreate = this;
+      graph.nextCreate = (Element<Object>) this;
       value = typeAdapter.fromJsonTree(element);
       if (value == null) {
         throw new IllegalStateException("non-null value deserialized to null: " + element);
