@@ -106,6 +106,13 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       throw new JsonIOException("ReflectionAccessFilter does not permit using reflection for "
           + raw + ". Register a TypeAdapter for this type or adjust the access filter.");
     }
+
+    // Check isStatic to allow serialization for static local classes, e.g. record classes (Java 16+)
+    boolean isAnonymousOrLocal = !Modifier.isStatic(raw.getModifiers()) && (raw.isAnonymousClass() || raw.isLocalClass());
+    if (isAnonymousOrLocal) {
+      return new AnonymousLocalClassAdapter<>(raw);
+    }
+
     boolean blockInaccessible = filterResult == FilterResult.BLOCK_INACCESSIBLE;
 
     ObjectConstructor<T> constructor = constructorConstructor.get(type);
@@ -238,7 +245,14 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     abstract void read(JsonReader reader, Object value) throws IOException, IllegalAccessException;
   }
 
-  public static final class Adapter<T> extends TypeAdapter<T> {
+  /**
+   * Base class for reflection-based adapters; can be tested for to detect when reflection is used to
+   * serialize or deserialize a type.
+   */
+  public abstract static class ReflectiveAdapter<T> extends TypeAdapter<T> {
+  }
+
+  public static class Adapter<T> extends ReflectiveAdapter<T> {
     private final ObjectConstructor<T> constructor;
     private final Map<String, BoundField> boundFields;
 
@@ -290,6 +304,29 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         throw ReflectionHelper.createExceptionForUnexpectedIllegalAccess(e);
       }
       out.endObject();
+    }
+  }
+
+  /**
+   * Adapter which throws an exception for anonymous and local classes. These types of classes are problematic
+   * because they might capture values of the enclosing context, which prevents proper deserialization and might
+   * also be missing information on serialization since synthetic fields are ignored by Gson.
+   */
+  static class AnonymousLocalClassAdapter<T> extends ReflectiveAdapter<T> {
+    private final Class<?> type;
+
+    AnonymousLocalClassAdapter(Class<?> type) {
+      this.type = type;
+    }
+
+    @Override public void write(JsonWriter out, T value) throws IOException {
+      throw new UnsupportedOperationException("Serialization of anonymous or local class " + type.getName() + " is not supported. "
+          + "Register a TypeAdapter for the class or convert it to a static nested class.");
+    }
+
+    @Override public T read(JsonReader in) throws IOException {
+      throw new UnsupportedOperationException("Deserialization of anonymous or local class " + type.getName() + " is not supported. "
+          + "Register a TypeAdapter for the class or convert it to a static nested class.");
     }
   }
 }

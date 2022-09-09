@@ -172,10 +172,6 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
       return true;
     }
 
-    if (isAnonymousOrNonStaticLocal(field.getType())) {
-      return true;
-    }
-
     List<ExclusionStrategy> list = serialize ? serializationStrategies : deserializationStrategies;
     if (!list.isEmpty()) {
       FieldAttributes fieldAttributes = new FieldAttributes(field);
@@ -198,10 +194,6 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
           return true;
       }
 
-      if (isAnonymousOrNonStaticLocal(clazz)) {
-          return true;
-      }
-
       return false;
   }
 
@@ -218,11 +210,6 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
           }
       }
       return false;
-  }
-
-  private boolean isAnonymousOrNonStaticLocal(Class<?> clazz) {
-    return !Enum.class.isAssignableFrom(clazz) && !isStatic(clazz)
-        && (clazz.isAnonymousClass() || clazz.isLocalClass());
   }
 
   private boolean isInnerClass(Class<?> clazz) {

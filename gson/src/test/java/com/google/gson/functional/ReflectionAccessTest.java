@@ -8,6 +8,7 @@ import static org.junit.Assert.fail;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
@@ -113,6 +114,8 @@ public class ReflectionAccessTest {
     try {
       gson.fromJson("{}", internalClass);
       fail("Missing exception; test has to be run with `--illegal-access=deny`");
+    } catch (JsonSyntaxException e) {
+      fail("Unexpected exception; test has to be run with `--illegal-access=deny`");
     } catch (JsonIOException expected) {
       assertTrue(expected.getMessage().startsWith(
           "Failed making constructor 'java.util.Collections$EmptyList#EmptyList()' accessible; "

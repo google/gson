@@ -22,6 +22,7 @@ import com.google.gson.InstanceCreator;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.common.TestTypes.ArrayOfObjects;
@@ -285,25 +286,144 @@ public class ObjectTest extends TestCase {
     assertEquals(20, target.a);
   }
 
-  public void testAnonymousLocalClassesSerialization() throws Exception {
-    assertEquals("null", gson.toJson(new ClassWithNoFields() {
+  public void testAnonymousClasses() {
+    Object anonymousClassInstance = new ClassWithNoFields() {
       // empty anonymous class
-    }));
+    };
+    Class<?> anonymousClass = anonymousClassInstance.getClass();
+
+    try {
+      gson.toJson(anonymousClassInstance);
+      fail();
+    } catch (UnsupportedOperationException e) {
+      assertEquals("Serialization of anonymous or local class " + anonymousClass.getName() + " is not supported. "
+          + "Register a TypeAdapter for the class or convert it to a static nested class.",
+          e.getMessage());
+    }
+
+    try {
+      gson.fromJson("{}", anonymousClass);
+      fail();
+    } catch (UnsupportedOperationException e) {
+      assertEquals("Deserialization of anonymous or local class " + anonymousClass.getName() + " is not supported. "
+          + "Register a TypeAdapter for the class or convert it to a static nested class.",
+          e.getMessage());
+    }
   }
 
-  public void testAnonymousLocalClassesCustomSerialization() throws Exception {
+  public void testAnonymousClassesCustomSerialization() {
     gson = new GsonBuilder()
         .registerTypeHierarchyAdapter(ClassWithNoFields.class,
             new JsonSerializer<ClassWithNoFields>() {
               @Override public JsonElement serialize(
                   ClassWithNoFields src, Type typeOfSrc, JsonSerializationContext context) {
-                return new JsonObject();
+                return new JsonPrimitive("custom-serializer");
               }
             }).create();
 
-    assertEquals("null", gson.toJson(new ClassWithNoFields() {
+    Object anonymousClassInstance = new ClassWithNoFields() {
       // empty anonymous class
-    }));
+    };
+    Class<?> anonymousClass = anonymousClassInstance.getClass();
+
+    assertEquals("\"custom-serializer\"", gson.toJson(anonymousClassInstance));
+
+    // But deserialization should still fail
+    try {
+      gson.fromJson("{}", anonymousClass);
+      fail();
+    } catch (UnsupportedOperationException e) {
+      assertEquals("Deserialization of anonymous or local class " + anonymousClass.getName() + " is not supported. "
+          + "Register a TypeAdapter for the class or convert it to a static nested class.",
+          e.getMessage());
+    }
+  }
+
+  public void testLocalClasses() {
+    class Local extends ClassWithNoFields {
+    }
+
+    try {
+      gson.toJson(new Local());
+      fail();
+    } catch (UnsupportedOperationException e) {
+      assertEquals("Serialization of anonymous or local class " + Local.class.getName() + " is not supported. "
+          + "Register a TypeAdapter for the class or convert it to a static nested class.",
+          e.getMessage());
+    }
+
+    try {
+      gson.fromJson("{}", Local.class);
+      fail();
+    } catch (UnsupportedOperationException e) {
+      assertEquals("Deserialization of anonymous or local class " + Local.class.getName() + " is not supported. "
+          + "Register a TypeAdapter for the class or convert it to a static nested class.",
+          e.getMessage());
+    }
+  }
+
+  public void testLocalClassesCustomSerialization() {
+    gson = new GsonBuilder()
+        .registerTypeHierarchyAdapter(ClassWithNoFields.class,
+            new JsonSerializer<ClassWithNoFields>() {
+              @Override public JsonElement serialize(
+                  ClassWithNoFields src, Type typeOfSrc, JsonSerializationContext context) {
+                return new JsonPrimitive("custom-serializer");
+              }
+            }).create();
+
+    class Local extends ClassWithNoFields {
+    }
+
+    assertEquals("\"custom-serializer\"", gson.toJson(new Local()));
+
+    // But deserialization should still fail
+    try {
+      gson.fromJson("{}", Local.class);
+      fail();
+    } catch (UnsupportedOperationException e) {
+      assertEquals("Deserialization of anonymous or local class " + Local.class.getName() + " is not supported. "
+          + "Register a TypeAdapter for the class or convert it to a static nested class.",
+          e.getMessage());
+    }
+  }
+
+  private static class ClassWithNoFieldsContainer {
+    @SuppressWarnings("unused")
+    ClassWithNoFields f;
+
+    ClassWithNoFieldsContainer(ClassWithNoFields f) {
+      this.f = f;
+    }
+  }
+
+  public void testLocalClassesCustomSerializationForBaseClass() {
+    gson = new GsonBuilder()
+        // Only register adapter for base class
+        .registerTypeAdapter(ClassWithNoFields.class,
+            new JsonSerializer<ClassWithNoFields>() {
+              @Override public JsonElement serialize(
+                  ClassWithNoFields src, Type typeOfSrc, JsonSerializationContext context) {
+                return new JsonPrimitive("custom-serializer");
+              }
+            }).create();
+
+    class Local extends ClassWithNoFields {
+    }
+
+    // TypeAdapterRuntimeTypeWrapper should prefer adapter for base class over reflective
+    // adapter for runtime class (= local class)
+    assertEquals("{\"f\":\"custom-serializer\"}", gson.toJson(new ClassWithNoFieldsContainer(new Local())));
+
+    // But deserialization should still fail
+    try {
+      gson.fromJson("{}", Local.class);
+      fail();
+    } catch (UnsupportedOperationException e) {
+      assertEquals("Deserialization of anonymous or local class " + Local.class.getName() + " is not supported. "
+          + "Register a TypeAdapter for the class or convert it to a static nested class.",
+          e.getMessage());
+    }
   }
 
   public void testPrimitiveArrayFieldSerialization() {
