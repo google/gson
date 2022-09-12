@@ -51,8 +51,10 @@ import java.lang.reflect.Type;
  * class IdDeserializer implements JsonDeserializer&lt;Id&gt; {
  *   public Id deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
  *       throws JsonParseException {
- *     return new Id((Class) typeOfT, json.getAsJsonPrimitive().getAsLong());
+ *     long idValue = json.getAsJsonPrimitive().getAsLong();
+ *     return new Id((Class) typeOfT, idValue);
  *   }
+ * }
  * </pre>
  *
  * <p>You will also need to register {@code IdDeserializer} with Gson as follows:</p>
