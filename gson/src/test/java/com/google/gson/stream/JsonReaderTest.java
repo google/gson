@@ -16,13 +16,6 @@
 
 package com.google.gson.stream;
 
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-import java.util.Arrays;
-import junit.framework.TestCase;
-
 import static com.google.gson.stream.JsonToken.BEGIN_ARRAY;
 import static com.google.gson.stream.JsonToken.BEGIN_OBJECT;
 import static com.google.gson.stream.JsonToken.BOOLEAN;
@@ -32,6 +25,13 @@ import static com.google.gson.stream.JsonToken.NAME;
 import static com.google.gson.stream.JsonToken.NULL;
 import static com.google.gson.stream.JsonToken.NUMBER;
 import static com.google.gson.stream.JsonToken.STRING;
+
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.Arrays;
+import junit.framework.TestCase;
 
 @SuppressWarnings("resource")
 public final class JsonReaderTest extends TestCase {
@@ -140,6 +140,35 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
+  public void testSkipObjectName() throws IOException {
+    JsonReader reader = new JsonReader(reader("{\"a\": 1}"));
+    reader.beginObject();
+    reader.skipValue();
+    assertEquals(JsonToken.NUMBER, reader.peek());
+    assertEquals("$.<skipped>", reader.getPath());
+    assertEquals(1, reader.nextInt());
+  }
+
+  public void testSkipObjectNameSingleQuoted() throws IOException {
+    JsonReader reader = new JsonReader(reader("{'a': 1}"));
+    reader.setLenient(true);
+    reader.beginObject();
+    reader.skipValue();
+    assertEquals(JsonToken.NUMBER, reader.peek());
+    assertEquals("$.<skipped>", reader.getPath());
+    assertEquals(1, reader.nextInt());
+  }
+
+  public void testSkipObjectNameUnquoted() throws IOException {
+    JsonReader reader = new JsonReader(reader("{a: 1}"));
+    reader.setLenient(true);
+    reader.beginObject();
+    reader.skipValue();
+    assertEquals(JsonToken.NUMBER, reader.peek());
+    assertEquals("$.<skipped>", reader.getPath());
+    assertEquals(1, reader.nextInt());
+  }
+
   public void testSkipInteger() throws IOException {
     JsonReader reader = new JsonReader(reader(
         "{\"a\":123456789,\"b\":-123456789}"));
@@ -170,12 +199,10 @@ public final class JsonReaderTest extends TestCase {
     reader.endObject();
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
 
-    try {
-      reader.skipValue();
-      fail();
-    } catch (IllegalStateException e) {
-      assertEquals("Cannot skip at end of document", e.getMessage());
-    }
+    assertEquals("$", reader.getPath());
+    reader.skipValue();
+    assertEquals(JsonToken.END_DOCUMENT, reader.peek());
+    assertEquals("$", reader.getPath());
   }
 
   public void testSkipValueAtArrayEnd() throws IOException {
@@ -183,6 +210,7 @@ public final class JsonReaderTest extends TestCase {
     reader.beginArray();
     reader.skipValue();
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
+    assertEquals("$", reader.getPath());
   }
 
   public void testSkipValueAtObjectEnd() throws IOException {
@@ -190,6 +218,7 @@ public final class JsonReaderTest extends TestCase {
     reader.beginObject();
     reader.skipValue();
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
+    assertEquals("$", reader.getPath());
   }
 
   public void testHelloWorld() throws IOException {

@@ -93,10 +93,10 @@ public final class JsonTreeReader extends JsonReader {
 
   @Override public void endObject() throws IOException {
     expect(JsonToken.END_OBJECT);
+    pathNames[stackSize - 1] = null; // Free the last path name so that it can be garbage collected
     popStack(); // empty iterator
     popStack(); // object
     if (stackSize > 0) {
-      pathNames[stackSize - 1] = null; // Free the last path name so that it can be garbage collected
       pathIndices[stackSize - 1]++;
     }
   }
@@ -166,14 +166,18 @@ public final class JsonTreeReader extends JsonReader {
     }
   }
 
-  @Override public String nextName() throws IOException {
+  private String nextName(boolean skipName) throws IOException {
     expect(JsonToken.NAME);
     Iterator<?> i = (Iterator<?>) peekStack();
     Map.Entry<?, ?> entry = (Map.Entry<?, ?>) i.next();
     String result = (String) entry.getKey();
-    pathNames[stackSize - 1] = result;
+    pathNames[stackSize - 1] = skipName ? "<skipped>" : result;
     push(entry.getValue());
     return result;
+  }
+
+  @Override public String nextName() throws IOException {
+    return nextName(false);
   }
 
   @Override public String nextString() throws IOException {
@@ -271,20 +275,25 @@ public final class JsonTreeReader extends JsonReader {
 
   @Override public void skipValue() throws IOException {
     JsonToken peeked = peek();
-    if (peeked == JsonToken.NAME) {
-      nextName();
-      pathNames[stackSize - 2] = "<skipped>";
-    } else if (peeked == JsonToken.END_ARRAY) {
-      endArray();
-    } else if (peeked == JsonToken.END_OBJECT) {
-      endObject();
-    } else if (peeked == JsonToken.END_DOCUMENT) {
-      throw new IllegalStateException("Cannot skip at end of document");
-    } else {
-      popStack();
-    }
-    if (stackSize > 0) {
-      pathIndices[stackSize - 1]++;
+    switch (peeked) {
+      case NAME:
+        nextName(true);
+        break;
+      case END_ARRAY:
+        endArray();
+        break;
+      case END_OBJECT:
+        endObject();
+        break;
+      case END_DOCUMENT:
+        // Do nothing
+        break;
+      default:
+        popStack();
+        if (stackSize > 0) {
+          pathIndices[stackSize - 1]++;
+        }
+        break;
     }
   }
 

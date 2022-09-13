@@ -16,6 +16,9 @@
 
 package com.google.gson.stream;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assume.assumeTrue;
+
 import com.google.gson.JsonElement;
 import com.google.gson.internal.Streams;
 import com.google.gson.internal.bind.JsonTreeReader;
@@ -26,9 +29,6 @@ import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeTrue;
 
 @SuppressWarnings("resource")
 @RunWith(Parameterized.class)
@@ -221,12 +221,27 @@ public class JsonReaderPathTest {
     assertEquals("$[2]", reader.getPath());
   }
 
+  @Test public void skipArrayEnd() throws IOException {
+    JsonReader reader = factory.create("[[],1]");
+    reader.beginArray();
+    reader.beginArray();
+    assertEquals("$[0][0]", reader.getPreviousPath());
+    assertEquals("$[0][0]", reader.getPath());
+    reader.skipValue(); // skip end of array
+    assertEquals("$[0]", reader.getPreviousPath());
+    assertEquals("$[1]", reader.getPath());
+  }
+
   @Test public void skipObjectNames() throws IOException {
-    JsonReader reader = factory.create("{\"a\":1}");
+    JsonReader reader = factory.create("{\"a\":[]}");
     reader.beginObject();
     reader.skipValue();
     assertEquals("$.<skipped>", reader.getPreviousPath());
     assertEquals("$.<skipped>", reader.getPath());
+
+    reader.beginArray();
+    assertEquals("$.<skipped>[0]", reader.getPreviousPath());
+    assertEquals("$.<skipped>[0]", reader.getPath());
   }
 
   @Test public void skipObjectValues() throws IOException {
@@ -243,12 +258,38 @@ public class JsonReaderPathTest {
     assertEquals("$.b", reader.getPath());
   }
 
+  @Test public void skipObjectEnd() throws IOException {
+    JsonReader reader = factory.create("{\"a\":{},\"b\":2}");
+    reader.beginObject();
+    reader.nextName();
+    reader.beginObject();
+    assertEquals("$.a.", reader.getPreviousPath());
+    assertEquals("$.a.", reader.getPath());
+    reader.skipValue(); // skip end of object
+    assertEquals("$.a", reader.getPreviousPath());
+    assertEquals("$.a", reader.getPath());
+  }
+
   @Test public void skipNestedStructures() throws IOException {
     JsonReader reader = factory.create("[[1,2,3],4]");
     reader.beginArray();
     reader.skipValue();
     assertEquals("$[0]", reader.getPreviousPath());
     assertEquals("$[1]", reader.getPath());
+  }
+
+  @Test public void skipEndOfDocument() throws IOException {
+    JsonReader reader = factory.create("[]");
+    reader.beginArray();
+    reader.endArray();
+    assertEquals("$", reader.getPreviousPath());
+    assertEquals("$", reader.getPath());
+    reader.skipValue();
+    assertEquals("$", reader.getPreviousPath());
+    assertEquals("$", reader.getPath());
+    reader.skipValue();
+    assertEquals("$", reader.getPreviousPath());
+    assertEquals("$", reader.getPath());
   }
 
   @Test public void arrayOfObjects() throws IOException {
@@ -303,6 +344,52 @@ public class JsonReaderPathTest {
     assertEquals("$[2]", reader.getPreviousPath());
     assertEquals("$[3]", reader.getPath());
     reader.endArray();
+    assertEquals("$", reader.getPreviousPath());
+    assertEquals("$", reader.getPath());
+  }
+
+  @Test public void objectOfObjects() throws IOException {
+    JsonReader reader = factory.create("{\"a\":{\"a1\":1,\"a2\":2},\"b\":{\"b1\":1}}");
+    reader.beginObject();
+    assertEquals("$.", reader.getPreviousPath());
+    assertEquals("$.", reader.getPath());
+    reader.nextName();
+    assertEquals("$.a", reader.getPreviousPath());
+    assertEquals("$.a", reader.getPath());
+    reader.beginObject();
+    assertEquals("$.a.", reader.getPreviousPath());
+    assertEquals("$.a.", reader.getPath());
+    reader.nextName();
+    assertEquals("$.a.a1", reader.getPreviousPath());
+    assertEquals("$.a.a1", reader.getPath());
+    reader.nextInt();
+    assertEquals("$.a.a1", reader.getPreviousPath());
+    assertEquals("$.a.a1", reader.getPath());
+    reader.nextName();
+    assertEquals("$.a.a2", reader.getPreviousPath());
+    assertEquals("$.a.a2", reader.getPath());
+    reader.nextInt();
+    assertEquals("$.a.a2", reader.getPreviousPath());
+    assertEquals("$.a.a2", reader.getPath());
+    reader.endObject();
+    assertEquals("$.a", reader.getPreviousPath());
+    assertEquals("$.a", reader.getPath());
+    reader.nextName();
+    assertEquals("$.b", reader.getPreviousPath());
+    assertEquals("$.b", reader.getPath());
+    reader.beginObject();
+    assertEquals("$.b.", reader.getPreviousPath());
+    assertEquals("$.b.", reader.getPath());
+    reader.nextName();
+    assertEquals("$.b.b1", reader.getPreviousPath());
+    assertEquals("$.b.b1", reader.getPath());
+    reader.nextInt();
+    assertEquals("$.b.b1", reader.getPreviousPath());
+    assertEquals("$.b.b1", reader.getPath());
+    reader.endObject();
+    assertEquals("$.b", reader.getPreviousPath());
+    assertEquals("$.b", reader.getPath());
+    reader.endObject();
     assertEquals("$", reader.getPreviousPath());
     assertEquals("$", reader.getPath());
   }
