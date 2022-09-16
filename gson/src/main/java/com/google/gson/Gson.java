@@ -16,6 +16,29 @@
 
 package com.google.gson;
 
+import com.google.gson.internal.ConstructorConstructor;
+import com.google.gson.internal.Excluder;
+import com.google.gson.internal.GsonBuildConfig;
+import com.google.gson.internal.LazilyParsedNumber;
+import com.google.gson.internal.Primitives;
+import com.google.gson.internal.Streams;
+import com.google.gson.internal.bind.ArrayTypeAdapter;
+import com.google.gson.internal.bind.CollectionTypeAdapterFactory;
+import com.google.gson.internal.bind.DateTypeAdapter;
+import com.google.gson.internal.bind.JsonAdapterAnnotationTypeAdapterFactory;
+import com.google.gson.internal.bind.JsonTreeReader;
+import com.google.gson.internal.bind.JsonTreeWriter;
+import com.google.gson.internal.bind.MapTypeAdapterFactory;
+import com.google.gson.internal.bind.NumberTypeAdapter;
+import com.google.gson.internal.bind.ObjectTypeAdapter;
+import com.google.gson.internal.bind.ReflectiveTypeAdapterFactory;
+import com.google.gson.internal.bind.TypeAdapters;
+import com.google.gson.internal.sql.SqlTypesSupport;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
+import com.google.gson.stream.MalformedJsonException;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
@@ -31,32 +54,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLongArray;
-
-import com.google.gson.internal.ConstructorConstructor;
-import com.google.gson.internal.Excluder;
-import com.google.gson.internal.GsonBuildConfig;
-import com.google.gson.internal.Primitives;
-import com.google.gson.internal.Streams;
-import com.google.gson.internal.bind.ArrayTypeAdapter;
-import com.google.gson.internal.bind.CollectionTypeAdapterFactory;
-import com.google.gson.internal.bind.DateTypeAdapter;
-import com.google.gson.internal.bind.JsonAdapterAnnotationTypeAdapterFactory;
-import com.google.gson.internal.bind.JsonTreeReader;
-import com.google.gson.internal.bind.JsonTreeWriter;
-import com.google.gson.internal.bind.MapTypeAdapterFactory;
-import com.google.gson.internal.bind.ObjectTypeAdapter;
-import com.google.gson.internal.bind.ReflectiveTypeAdapterFactory;
-import com.google.gson.internal.bind.SqlDateTypeAdapter;
-import com.google.gson.internal.bind.TimeTypeAdapter;
-import com.google.gson.internal.bind.TypeAdapters;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
-import com.google.gson.stream.MalformedJsonException;
 
 /**
  * This is the main class for using Gson. Gson is typically used by first constructing a
@@ -76,11 +78,11 @@ import com.google.gson.stream.MalformedJsonException;
  * MyType target = new MyType();
  * String json = gson.toJson(target); // serializes target to JSON
  * MyType target2 = gson.fromJson(json, MyType.class); // deserializes json into target2
- * </pre></p>
+ * </pre>
  *
  * <p>If the object that your are serializing/deserializing is a {@code ParameterizedType}
  * (i.e. contains at least one type parameter and may be an array) then you must use the
- * {@link #toJson(Object, Type)} or {@link #fromJson(String, Type)} method. Gson provides
+ * {@link #toJson(Object, Type)} or {@link #fromJson(String, TypeToken)} method. Gson provides
  * the {@link TypeToken} class which helps you with this. Here is an example showing how
  * this can be done:
  * <pre>
@@ -89,18 +91,45 @@ import com.google.gson.stream.MalformedJsonException;
  * target.add(new MyType(1, "abc"));
  *
  * Gson gson = new Gson();
- * // For serialization you normally do not have to provide the type, Gson will
- * // use the class of the objects, however you can also specify it explicitly
- * String json = gson.toJson(target, listType);
+ * // For serialization you normally do not have to specify the type, Gson will use
+ * // the runtime class of the objects, however you can also specify it explicitly
+ * String json = gson.toJson(target, listType.getType());
  *
- * // But for deserialization you have to provide the type
+ * // But for deserialization you have to specify the type
  * List&lt;MyType&gt; target2 = gson.fromJson(json, listType);
- * </pre></p>
+ * </pre>
  *
  * <p>See the <a href="https://sites.google.com/site/gson/gson-user-guide">Gson User Guide</a>
  * for a more complete set of examples.</p>
  *
- * @see com.google.gson.reflect.TypeToken
+ * <h2>Lenient JSON handling</h2>
+ * For legacy reasons most of the {@code Gson} methods allow JSON data which does not
+ * comply with the JSON specification, regardless of whether {@link GsonBuilder#setLenient()}
+ * is used or not. If this behavior is not desired, the following workarounds can be used:
+ *
+ * <h3>Serialization</h3>
+ * <ol>
+ *   <li>Use {@link #getAdapter(Class)} to obtain the adapter for the type to be serialized
+ *   <li>When using an existing {@code JsonWriter}, manually apply the writer settings of this
+ *       {@code Gson} instance listed by {@link #newJsonWriter(Writer)}.<br>
+ *       Otherwise, when not using an existing {@code JsonWriter}, use {@link #newJsonWriter(Writer)}
+ *       to construct one.
+ *   <li>Call {@link TypeAdapter#write(JsonWriter, Object)}
+ * </ol>
+ *
+ * <h3>Deserialization</h3>
+ * <ol>
+ *   <li>Use {@link #getAdapter(Class)} to obtain the adapter for the type to be deserialized
+ *   <li>When using an existing {@code JsonReader}, manually apply the reader settings of this
+ *       {@code Gson} instance listed by {@link #newJsonReader(Reader)}.<br>
+ *       Otherwise, when not using an existing {@code JsonReader}, use {@link #newJsonReader(Reader)}
+ *       to construct one.
+ *   <li>Call {@link TypeAdapter#read(JsonReader)}
+ *   <li>Call {@link JsonReader#peek()} and verify that the result is {@link JsonToken#END_DOCUMENT}
+ *       to make sure there is no trailing data
+ * </ol>
+ *
+ * @see TypeToken
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
@@ -114,8 +143,12 @@ public final class Gson {
   static final boolean DEFAULT_SERIALIZE_NULLS = false;
   static final boolean DEFAULT_COMPLEX_MAP_KEYS = false;
   static final boolean DEFAULT_SPECIALIZE_FLOAT_VALUES = false;
+  static final boolean DEFAULT_USE_JDK_UNSAFE = true;
+  static final String DEFAULT_DATE_PATTERN = null;
+  static final FieldNamingStrategy DEFAULT_FIELD_NAMING_STRATEGY = FieldNamingPolicy.IDENTITY;
+  static final ToNumberStrategy DEFAULT_OBJECT_TO_NUMBER_STRATEGY = ToNumberPolicy.DOUBLE;
+  static final ToNumberStrategy DEFAULT_NUMBER_TO_NUMBER_STRATEGY = ToNumberPolicy.LAZILY_PARSED_NUMBER;
 
-  private static final TypeToken<?> NULL_KEY_SURROGATE = TypeToken.get(Object.class);
   private static final String JSON_NON_EXECUTABLE_PREFIX = ")]}'\n";
 
   /**
@@ -126,9 +159,9 @@ public final class Gson {
    * The proxy is wired up once the initial adapter has been created.
    */
   private final ThreadLocal<Map<TypeToken<?>, FutureTypeAdapter<?>>> calls
-      = new ThreadLocal<Map<TypeToken<?>, FutureTypeAdapter<?>>>();
+      = new ThreadLocal<>();
 
-  private final Map<TypeToken<?>, TypeAdapter<?>> typeTokenCache = new ConcurrentHashMap<TypeToken<?>, TypeAdapter<?>>();
+  private final ConcurrentMap<TypeToken<?>, TypeAdapter<?>> typeTokenCache = new ConcurrentHashMap<>();
 
   private final ConstructorConstructor constructorConstructor;
   private final JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory;
@@ -145,12 +178,16 @@ public final class Gson {
   final boolean prettyPrinting;
   final boolean lenient;
   final boolean serializeSpecialFloatingPointValues;
+  final boolean useJdkUnsafe;
   final String datePattern;
   final int dateStyle;
   final int timeStyle;
   final LongSerializationPolicy longSerializationPolicy;
   final List<TypeAdapterFactory> builderFactories;
   final List<TypeAdapterFactory> builderHierarchyFactories;
+  final ToNumberStrategy objectToNumberStrategy;
+  final ToNumberStrategy numberToNumberStrategy;
+  final List<ReflectionAccessFilter> reflectionFilters;
 
   /**
    * Constructs a Gson object with default configuration. The default configuration has the
@@ -187,27 +224,32 @@ public final class Gson {
    * </ul>
    */
   public Gson() {
-    this(Excluder.DEFAULT, FieldNamingPolicy.IDENTITY,
+    this(Excluder.DEFAULT, DEFAULT_FIELD_NAMING_STRATEGY,
         Collections.<Type, InstanceCreator<?>>emptyMap(), DEFAULT_SERIALIZE_NULLS,
         DEFAULT_COMPLEX_MAP_KEYS, DEFAULT_JSON_NON_EXECUTABLE, DEFAULT_ESCAPE_HTML,
         DEFAULT_PRETTY_PRINT, DEFAULT_LENIENT, DEFAULT_SPECIALIZE_FLOAT_VALUES,
-        LongSerializationPolicy.DEFAULT, null, DateFormat.DEFAULT, DateFormat.DEFAULT,
+        DEFAULT_USE_JDK_UNSAFE,
+        LongSerializationPolicy.DEFAULT, DEFAULT_DATE_PATTERN, DateFormat.DEFAULT, DateFormat.DEFAULT,
         Collections.<TypeAdapterFactory>emptyList(), Collections.<TypeAdapterFactory>emptyList(),
-        Collections.<TypeAdapterFactory>emptyList());
+        Collections.<TypeAdapterFactory>emptyList(), DEFAULT_OBJECT_TO_NUMBER_STRATEGY, DEFAULT_NUMBER_TO_NUMBER_STRATEGY,
+        Collections.<ReflectionAccessFilter>emptyList());
   }
 
   Gson(Excluder excluder, FieldNamingStrategy fieldNamingStrategy,
       Map<Type, InstanceCreator<?>> instanceCreators, boolean serializeNulls,
       boolean complexMapKeySerialization, boolean generateNonExecutableGson, boolean htmlSafe,
       boolean prettyPrinting, boolean lenient, boolean serializeSpecialFloatingPointValues,
+      boolean useJdkUnsafe,
       LongSerializationPolicy longSerializationPolicy, String datePattern, int dateStyle,
       int timeStyle, List<TypeAdapterFactory> builderFactories,
       List<TypeAdapterFactory> builderHierarchyFactories,
-      List<TypeAdapterFactory> factoriesToBeAdded) {
+      List<TypeAdapterFactory> factoriesToBeAdded,
+      ToNumberStrategy objectToNumberStrategy, ToNumberStrategy numberToNumberStrategy,
+      List<ReflectionAccessFilter> reflectionFilters) {
     this.excluder = excluder;
     this.fieldNamingStrategy = fieldNamingStrategy;
     this.instanceCreators = instanceCreators;
-    this.constructorConstructor = new ConstructorConstructor(instanceCreators);
+    this.constructorConstructor = new ConstructorConstructor(instanceCreators, useJdkUnsafe, reflectionFilters);
     this.serializeNulls = serializeNulls;
     this.complexMapKeySerialization = complexMapKeySerialization;
     this.generateNonExecutableJson = generateNonExecutableGson;
@@ -215,18 +257,22 @@ public final class Gson {
     this.prettyPrinting = prettyPrinting;
     this.lenient = lenient;
     this.serializeSpecialFloatingPointValues = serializeSpecialFloatingPointValues;
+    this.useJdkUnsafe = useJdkUnsafe;
     this.longSerializationPolicy = longSerializationPolicy;
     this.datePattern = datePattern;
     this.dateStyle = dateStyle;
     this.timeStyle = timeStyle;
     this.builderFactories = builderFactories;
     this.builderHierarchyFactories = builderHierarchyFactories;
+    this.objectToNumberStrategy = objectToNumberStrategy;
+    this.numberToNumberStrategy = numberToNumberStrategy;
+    this.reflectionFilters = reflectionFilters;
 
-    List<TypeAdapterFactory> factories = new ArrayList<TypeAdapterFactory>();
+    List<TypeAdapterFactory> factories = new ArrayList<>();
 
     // built-in type adapters that cannot be overridden
     factories.add(TypeAdapters.JSON_ELEMENT_FACTORY);
-    factories.add(ObjectTypeAdapter.FACTORY);
+    factories.add(ObjectTypeAdapter.getFactory(objectToNumberStrategy));
 
     // the excluder must precede all adapters that handle user-defined types
     factories.add(excluder);
@@ -246,7 +292,7 @@ public final class Gson {
             doubleAdapter(serializeSpecialFloatingPointValues)));
     factories.add(TypeAdapters.newFactory(float.class, Float.class,
             floatAdapter(serializeSpecialFloatingPointValues)));
-    factories.add(TypeAdapters.NUMBER_FACTORY);
+    factories.add(NumberTypeAdapter.getFactory(numberToNumberStrategy));
     factories.add(TypeAdapters.ATOMIC_INTEGER_FACTORY);
     factories.add(TypeAdapters.ATOMIC_BOOLEAN_FACTORY);
     factories.add(TypeAdapters.newFactory(AtomicLong.class, atomicLongAdapter(longAdapter)));
@@ -257,6 +303,8 @@ public final class Gson {
     factories.add(TypeAdapters.STRING_BUFFER_FACTORY);
     factories.add(TypeAdapters.newFactory(BigDecimal.class, TypeAdapters.BIG_DECIMAL));
     factories.add(TypeAdapters.newFactory(BigInteger.class, TypeAdapters.BIG_INTEGER));
+    // Add adapter for LazilyParsedNumber because user can obtain it from Gson and then try to serialize it again
+    factories.add(TypeAdapters.newFactory(LazilyParsedNumber.class, TypeAdapters.LAZILY_PARSED_NUMBER));
     factories.add(TypeAdapters.URL_FACTORY);
     factories.add(TypeAdapters.URI_FACTORY);
     factories.add(TypeAdapters.UUID_FACTORY);
@@ -266,9 +314,13 @@ public final class Gson {
     factories.add(TypeAdapters.BIT_SET_FACTORY);
     factories.add(DateTypeAdapter.FACTORY);
     factories.add(TypeAdapters.CALENDAR_FACTORY);
-    factories.add(TimeTypeAdapter.FACTORY);
-    factories.add(SqlDateTypeAdapter.FACTORY);
-    factories.add(TypeAdapters.TIMESTAMP_FACTORY);
+
+    if (SqlTypesSupport.SUPPORTS_SQL_TYPES) {
+      factories.add(SqlTypesSupport.TIME_FACTORY);
+      factories.add(SqlTypesSupport.DATE_FACTORY);
+      factories.add(SqlTypesSupport.TIMESTAMP_FACTORY);
+    }
+
     factories.add(ArrayTypeAdapter.FACTORY);
     factories.add(TypeAdapters.CLASS_FACTORY);
 
@@ -279,7 +331,7 @@ public final class Gson {
     factories.add(jsonAdapterFactory);
     factories.add(TypeAdapters.ENUM_FACTORY);
     factories.add(new ReflectiveTypeAdapterFactory(
-        constructorConstructor, fieldNamingStrategy, excluder, jsonAdapterFactory));
+        constructorConstructor, fieldNamingStrategy, excluder, jsonAdapterFactory, reflectionFilters));
 
     this.factories = Collections.unmodifiableList(factories);
   }
@@ -294,18 +346,40 @@ public final class Gson {
     return new GsonBuilder(this);
   }
 
+  /**
+   * @deprecated This method by accident exposes an internal Gson class; it might be removed in a
+   * future version.
+   */
+  @Deprecated
   public Excluder excluder() {
     return excluder;
   }
 
+  /**
+   * Returns the field naming strategy used by this Gson instance.
+   *
+   * @see GsonBuilder#setFieldNamingStrategy(FieldNamingStrategy)
+   */
   public FieldNamingStrategy fieldNamingStrategy() {
     return fieldNamingStrategy;
   }
 
+  /**
+   * Returns whether this Gson instance is serializing JSON object properties with
+   * {@code null} values, or just omits them.
+   *
+   * @see GsonBuilder#serializeNulls()
+   */
   public boolean serializeNulls() {
     return serializeNulls;
   }
 
+  /**
+   * Returns whether this Gson instance produces JSON output which is
+   * HTML-safe, that means all HTML characters are escaped.
+   *
+   * @see GsonBuilder#disableHtmlEscaping()
+   */
   public boolean htmlSafe() {
     return htmlSafe;
   }
@@ -410,7 +484,7 @@ public final class Gson {
         out.endArray();
       }
       @Override public AtomicLongArray read(JsonReader in) throws IOException {
-        List<Long> list = new ArrayList<Long>();
+        List<Long> list = new ArrayList<>();
         in.beginArray();
         while (in.hasNext()) {
             long value = longAdapter.read(in).longValue();
@@ -434,17 +508,18 @@ public final class Gson {
    *     deserialize {@code type}.
    */
   public <T> TypeAdapter<T> getAdapter(TypeToken<T> type) {
-    TypeAdapter<?> cached = typeTokenCache.get(type == null ? NULL_KEY_SURROGATE : type);
+    Objects.requireNonNull(type, "type must not be null");
+    TypeAdapter<?> cached = typeTokenCache.get(type);
     if (cached != null) {
       @SuppressWarnings("unchecked")
-      TypeAdapter<T> result = (TypeAdapter<T>) cached;
-      return result;
+      TypeAdapter<T> adapter = (TypeAdapter<T>) cached;
+      return adapter;
     }
 
     Map<TypeToken<?>, FutureTypeAdapter<?>> threadCalls = calls.get();
     boolean requiresThreadLocalCleanup = false;
     if (threadCalls == null) {
-      threadCalls = new HashMap<TypeToken<?>, FutureTypeAdapter<?>>();
+      threadCalls = new HashMap<>();
       calls.set(threadCalls);
       requiresThreadLocalCleanup = true;
     }
@@ -457,14 +532,20 @@ public final class Gson {
     }
 
     try {
-      FutureTypeAdapter<T> call = new FutureTypeAdapter<T>();
+      FutureTypeAdapter<T> call = new FutureTypeAdapter<>();
       threadCalls.put(type, call);
 
       for (TypeAdapterFactory factory : factories) {
         TypeAdapter<T> candidate = factory.create(this, type);
         if (candidate != null) {
+          @SuppressWarnings("unchecked")
+          TypeAdapter<T> existingAdapter = (TypeAdapter<T>) typeTokenCache.putIfAbsent(type, candidate);
+          // If other thread concurrently added adapter prefer that one instead
+          if (existingAdapter != null) {
+            candidate = existingAdapter;
+          }
+
           call.setDelegate(candidate);
-          typeTokenCache.put(type, candidate);
           return candidate;
         }
       }
@@ -523,7 +604,7 @@ public final class Gson {
    *  read or written.
    * @param skipPast The type adapter factory that needs to be skipped while searching for
    *   a matching type adapter. In most cases, you should just pass <i>this</i> (the type adapter
-   *   factory from where {@link #getDelegateAdapter} method is being invoked).
+   *   factory from where {@code getDelegateAdapter} method is being invoked).
    * @param type Type for which the delegate adapter is being searched for.
    *
    * @since 2.2
@@ -713,6 +794,15 @@ public final class Gson {
   /**
    * Writes the JSON representation of {@code src} of type {@code typeOfSrc} to
    * {@code writer}.
+   *
+   * <p>The JSON data is written in {@linkplain JsonWriter#setLenient(boolean) lenient mode},
+   * regardless of the lenient mode setting of the provided writer. The lenient mode setting
+   * of the writer is restored once this method returns.
+   *
+   * <p>The 'HTML-safe' and 'serialize {@code null}' settings of this {@code Gson} instance
+   * (configured by the {@link GsonBuilder}) are applied, and the original settings of the
+   * writer are restored once this method returns.
+   *
    * @throws JsonIOException if there was a problem writing to the writer
    */
   public void toJson(Object src, Type typeOfSrc, JsonWriter writer) throws JsonIOException {
@@ -771,6 +861,15 @@ public final class Gson {
 
   /**
    * Returns a new JSON writer configured for the settings on this Gson instance.
+   *
+   * <p>The following settings are considered:
+   * <ul>
+   *   <li>{@link GsonBuilder#disableHtmlEscaping()}</li>
+   *   <li>{@link GsonBuilder#generateNonExecutableJson()}</li>
+   *   <li>{@link GsonBuilder#serializeNulls()}</li>
+   *   <li>{@link GsonBuilder#setLenient()}</li>
+   *   <li>{@link GsonBuilder#setPrettyPrinting()}</li>
+   * </ul>
    */
   public JsonWriter newJsonWriter(Writer writer) throws IOException {
     if (generateNonExecutableJson) {
@@ -780,12 +879,19 @@ public final class Gson {
     if (prettyPrinting) {
       jsonWriter.setIndent("  ");
     }
+    jsonWriter.setHtmlSafe(htmlSafe);
+    jsonWriter.setLenient(lenient);
     jsonWriter.setSerializeNulls(serializeNulls);
     return jsonWriter;
   }
 
   /**
    * Returns a new JSON reader configured for the settings on this Gson instance.
+   *
+   * <p>The following settings are considered:
+   * <ul>
+   *   <li>{@link GsonBuilder#setLenient()}</li>
+   * </ul>
    */
   public JsonReader newJsonReader(Reader reader) {
     JsonReader jsonReader = new JsonReader(reader);
@@ -795,6 +901,15 @@ public final class Gson {
 
   /**
    * Writes the JSON for {@code jsonElement} to {@code writer}.
+   *
+   * <p>The JSON data is written in {@linkplain JsonWriter#setLenient(boolean) lenient mode},
+   * regardless of the lenient mode setting of the provided writer. The lenient mode setting
+   * of the writer is restored once this method returns.
+   *
+   * <p>The 'HTML-safe' and 'serialize {@code null}' settings of this {@code Gson} instance
+   * (configured by the {@link GsonBuilder}) are applied, and the original settings of the
+   * writer are restored once this method returns.
+   *
    * @throws JsonIOException if there was a problem writing to the writer
    */
   public void toJson(JsonElement jsonElement, JsonWriter writer) throws JsonIOException {
@@ -829,8 +944,8 @@ public final class Gson {
    * {@link #fromJson(String, Type)}. If you have the JSON in a {@link Reader} instead of
    * a String, use {@link #fromJson(Reader, Class)} instead.
    *
-   * <p>This method tries to fully consume the JSON and throws an exception in case that is not
-   * possible. Use {@link #fromJson(JsonReader, Class)} if this behavior is not desired.
+   * <p>An exception is thrown if the JSON string has multiple top-level JSON elements, or if there
+   * is trailing data. Use {@link #fromJson(JsonReader, Class)} if this behavior is not desired.
    *
    * @param <T> the type of the desired object
    * @param json the string from which the object is to be deserialized
@@ -861,8 +976,9 @@ public final class Gson {
    * {@link #fromJson(String, TypeToken)} instead since its return type is based on the
    * {@code TypeToken} and is therefore more type-safe.
    *
-   * <p>This method tries to fully consume the JSON and throws an exception in case that is not
-   * possible. Use {@link #fromJson(JsonReader, Type)} if this behavior is not desired.
+   * <p>An exception is thrown if the JSON string has multiple top-level JSON elements,
+   * or if there is trailing data. Use {@link #fromJson(JsonReader, Type)} if this behavior is
+   * not desired.
    *
    * @param <T> the type of the desired object
    * @param json the string from which the object is to be deserialized
@@ -886,8 +1002,8 @@ public final class Gson {
    * {@link #fromJson(String, Class)} instead. If you have the JSON in a {@link Reader} instead of
    * a String, use {@link #fromJson(Reader, TypeToken)} instead.
    *
-   * <p>This method tries to fully consume the JSON and throws an exception in case that is not
-   * possible. Use {@link #fromJson(JsonReader, TypeToken)} if this behavior is not desired.
+   * <p>An exception is thrown if the JSON string has multiple top-level JSON elements, or if there
+   * is trailing data. Use {@link #fromJson(JsonReader, TypeToken)} if this behavior is not desired.
    *
    * @param <T> the type of the desired object
    * @param json the string from which the object is to be deserialized
@@ -899,8 +1015,7 @@ public final class Gson {
    * </pre>
    * @return an object of type T from the string. Returns {@code null} if {@code json} is {@code null}
    * or if {@code json} is empty.
-   * @throws JsonSyntaxException if json is not a valid representation for an object of the erasure type
-   * of typeOfT
+   * @throws JsonSyntaxException if json is not a valid representation for an object of the type typeOfT
    *
    * @see #fromJson(Reader, TypeToken)
    * @see #fromJson(String, Class)
@@ -910,8 +1025,7 @@ public final class Gson {
       return null;
     }
     StringReader reader = new StringReader(json);
-    T target = fromJson(reader, typeOfT);
-    return target;
+    return fromJson(reader, typeOfT);
   }
 
   /**
@@ -924,8 +1038,8 @@ public final class Gson {
    * invoke {@link #fromJson(Reader, Type)}. If you have the JSON in a String form instead of a
    * {@link Reader}, use {@link #fromJson(String, Class)} instead.
    *
-   * <p>This method tries to fully consume the JSON and throws an exception in case that is not
-   * possible. Use {@link #fromJson(JsonReader, Class)} if this behavior is not desired.
+   * <p>An exception is thrown if the JSON data has multiple top-level JSON elements, or if there
+   * is trailing data. Use {@link #fromJson(JsonReader, Class)} if this behavior is not desired.
    *
    * @param <T> the type of the desired object
    * @param json the reader producing the JSON from which the object is to be deserialized.
@@ -956,8 +1070,8 @@ public final class Gson {
    * {@link #fromJson(Reader, TypeToken)} instead since its return type is based on the
    * {@code TypeToken} and is therefore more type-safe.
    *
-   * <p>This method tries to fully consume the JSON and throws an exception in case that is not
-   * possible. Use {@link #fromJson(JsonReader, Type)} if this behavior is not desired.
+   * <p>An exception is thrown if the JSON data has multiple top-level JSON elements, or if there
+   * is trailing data. Use {@link #fromJson(JsonReader, Type)} if this behavior is not desired.
    *
    * @param <T> the type of the desired object
    * @param json the reader producing JSON from which the object is to be deserialized
@@ -982,8 +1096,8 @@ public final class Gson {
    * non-generic objects, use {@link #fromJson(Reader, Class)} instead. If you have the JSON in a
    * String form instead of a {@link Reader}, use {@link #fromJson(String, TypeToken)} instead.
    *
-   * <p>This method tries to fully consume the JSON and throws an exception in case that is not
-   * possible. Use {@link #fromJson(JsonReader, TypeToken)} if this behavior is not desired.
+   * <p>An exception is thrown if the JSON data has multiple top-level JSON elements, or if there
+   * is trailing data. Use {@link #fromJson(JsonReader, TypeToken)} if this behavior is not desired.
    *
    * @param <T> the type of the desired object
    * @param json the reader producing JSON from which the object is to be deserialized
@@ -995,8 +1109,7 @@ public final class Gson {
    * </pre>
    * @return an object of type T from the Reader. Returns {@code null} if {@code json} is at EOF.
    * @throws JsonIOException if there was a problem reading from the Reader
-   * @throws JsonSyntaxException if json is not a valid representation for an object of the erasure type
-   * of typeOfT
+   * @throws JsonSyntaxException if json is not a valid representation for an object of type of typeOfT
    *
    * @see #fromJson(String, TypeToken)
    * @see #fromJson(Reader, Class)
@@ -1011,7 +1124,7 @@ public final class Gson {
   private static void assertFullConsumption(Object obj, JsonReader reader) {
     try {
       if (obj != null && reader.peek() != JsonToken.END_DOCUMENT) {
-        throw new JsonIOException("JSON document was not fully consumed.");
+        throw new JsonSyntaxException("JSON document was not fully consumed.");
       }
     } catch (MalformedJsonException e) {
       throw new JsonSyntaxException(e);
@@ -1058,6 +1171,13 @@ public final class Gson {
    * {@link #fromJson(JsonReader, TypeToken)} instead since its return type is based on the
    * {@code TypeToken} and is therefore more type-safe.
    *
+   * <p>Unlike the other {@code fromJson} methods, no exception is thrown if the JSON data has
+   * multiple top-level JSON elements, or if there is trailing data.
+   *
+   * <p>The JSON data is parsed in {@linkplain JsonReader#setLenient(boolean) lenient mode},
+   * regardless of the lenient mode setting of the provided reader. The lenient mode setting
+   * of the reader is restored once this method returns.
+   *
    * @param <T> the type of the desired object
    * @param reader the reader whose next JSON value should be deserialized
    * @param typeOfT The specific genericized type of src
@@ -1090,8 +1210,7 @@ public final class Gson {
    * </pre>
    * @return an object of type T from the JsonReader. Returns {@code null} if {@code reader} is at EOF.
    * @throws JsonIOException if there was a problem reading from the JsonReader
-   * @throws JsonSyntaxException if json is not a valid representation for an object of the erasure type
-   * of typeOfT
+   * @throws JsonSyntaxException if json is not a valid representation for an object of the type typeOfT
    *
    * @see #fromJson(Reader, Type)
    * @see #fromJson(JsonReader, Class)
@@ -1201,8 +1320,7 @@ public final class Gson {
    * </pre>
    * @return an object of type T from the JSON. Returns {@code null} if {@code json} is {@code null}
    * or if {@code json} is empty.
-   * @throws JsonSyntaxException if json is not a valid representation for an object of the erasure type
-   * of typeOfT
+   * @throws JsonSyntaxException if json is not a valid representation for an object of type typeOfT
    * @since 1.3
    *
    * @see #fromJson(Reader, Type)

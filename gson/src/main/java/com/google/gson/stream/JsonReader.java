@@ -23,6 +23,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Reads a JSON (<a href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>)
@@ -95,7 +96,7 @@ import java.util.Arrays;
  *   }
  *
  *   public List<Message> readMessagesArray(JsonReader reader) throws IOException {
- *     List<Message> messages = new ArrayList<Message>();
+ *     List<Message> messages = new ArrayList<>();
  *
  *     reader.beginArray();
  *     while (reader.hasNext()) {
@@ -131,7 +132,7 @@ import java.util.Arrays;
  *   }
  *
  *   public List<Double> readDoublesArray(JsonReader reader) throws IOException {
- *     List<Double> doubles = new ArrayList<Double>();
+ *     List<Double> doubles = new ArrayList<>();
  *
  *     reader.beginArray();
  *     while (reader.hasNext()) {
@@ -170,7 +171,7 @@ import java.util.Arrays;
  * precision loss, extremely large values should be written and read as strings
  * in JSON.
  *
- * <a id="nonexecuteprefix"/><h3>Non-Execute Prefix</h3>
+ * <h3 id="nonexecuteprefix">Non-Execute Prefix</h3>
  * Web servers that serve private data using JSON may be vulnerable to <a
  * href="http://en.wikipedia.org/wiki/JSON#Cross-site_request_forgery">Cross-site
  * request forgery</a> attacks. In such an attack, a malicious site gains access
@@ -228,13 +229,14 @@ public class JsonReader implements Closeable {
   /** True to accept non-spec compliant JSON */
   private boolean lenient = false;
 
+  static final int BUFFER_SIZE = 1024;
   /**
    * Use a manual buffer to easily read and unread upcoming characters, and
    * also so we can create strings without an intermediate StringBuilder.
    * We decode literals directly out of this buffer, so it must be at least as
    * long as the longest token that can be reported as a number.
    */
-  private final char[] buffer = new char[1024];
+  private final char[] buffer = new char[BUFFER_SIZE];
   private int pos = 0;
   private int limit = 0;
 
@@ -286,10 +288,7 @@ public class JsonReader implements Closeable {
    * Creates a new instance that reads a JSON-encoded stream from {@code in}.
    */
   public JsonReader(Reader in) {
-    if (in == null) {
-      throw new NullPointerException("in == null");
-    }
-    this.in = in;
+    this.in = Objects.requireNonNull(in, "in == null");
   }
 
   /**
@@ -303,8 +302,6 @@ public class JsonReader implements Closeable {
    *       prefix</a>, <code>")]}'\n"</code>.
    *   <li>Streams that include multiple top-level values. With strict parsing,
    *       each stream must contain exactly one top-level value.
-   *   <li>Top-level values of any type. With strict parsing, the top-level
-   *       value must be an object or an array.
    *   <li>Numbers may be {@link Double#isNaN() NaNs} or {@link
    *       Double#isInfinite() infinities}.
    *   <li>End of line comments starting with {@code //} or {@code #} and
@@ -319,6 +316,18 @@ public class JsonReader implements Closeable {
    *   <li>Names and values separated by {@code =} or {@code =>} instead of
    *       {@code :}.
    *   <li>Name/value pairs separated by {@code ;} instead of {@code ,}.
+   * </ul>
+   *
+   * <p>Note: Even in strict mode there are slight derivations from the JSON
+   * specification:
+   * <ul>
+   *   <li>JsonReader allows the literals {@code true}, {@code false} and {@code null}
+   *       to have any capitalization, for example {@code fAlSe}
+   *   <li>JsonReader supports the escape sequence {@code \'}, representing a {@code '}
+   *   <li>JsonReader supports the escape sequence <code>\<i>LF</i></code> (with {@code LF}
+   *       being the Unicode character U+000A), resulting in a {@code LF} within the
+   *       read JSON string
+   *   <li>JsonReader allows unescaped control characters (U+0000 through U+001F)
    * </ul>
    */
   public final void setLenient(boolean lenient) {
@@ -412,7 +421,7 @@ public class JsonReader implements Closeable {
     if (p == PEEKED_NONE) {
       p = doPeek();
     }
-    return p != PEEKED_END_OBJECT && p != PEEKED_END_ARRAY;
+    return p != PEEKED_END_OBJECT && p != PEEKED_END_ARRAY && p != PEEKED_EOF;
   }
 
   /**
@@ -457,6 +466,7 @@ public class JsonReader implements Closeable {
     }
   }
 
+  @SuppressWarnings("fallthrough")
   int doPeek() throws IOException {
     int peekStack = stack[stackSize - 1];
     if (peekStack == JsonScope.EMPTY_ARRAY) {
@@ -740,6 +750,7 @@ public class JsonReader implements Closeable {
     }
   }
 
+  @SuppressWarnings("fallthrough")
   private boolean isLiteral(char c) throws IOException {
     switch (c) {
     case '/':
@@ -879,7 +890,9 @@ public class JsonReader implements Closeable {
    *
    * @throws IllegalStateException if the next token is not a literal value.
    * @throws NumberFormatException if the next literal value cannot be parsed
-   *     as a double, or is non-finite.
+   *     as a double.
+   * @throws MalformedJsonException if the next literal value is NaN or Infinity
+   *     and this reader is not {@link #setLenient(boolean) lenient}.
    */
   public double nextDouble() throws IOException {
     int p = peeked;
@@ -1085,7 +1098,7 @@ public class JsonReader implements Closeable {
         break;
       }
     }
-   
+
     String result = (null == builder) ? new String(buffer, pos, i) : builder.append(buffer, pos, i).toString();
     pos += i;
     return result;
@@ -1118,6 +1131,7 @@ public class JsonReader implements Closeable {
     throw syntaxError("Unterminated string");
   }
 
+  @SuppressWarnings("fallthrough")
   private void skipUnquotedValue() throws IOException {
     do {
       int i = 0;
@@ -1211,7 +1225,7 @@ public class JsonReader implements Closeable {
   /**
    * Closes this JSON reader and the underlying {@link java.io.Reader}.
    */
-  public void close() throws IOException {
+  @Override public void close() throws IOException {
     peeked = PEEKED_NONE;
     stack[0] = JsonScope.CLOSED;
     stackSize = 1;
@@ -1454,19 +1468,19 @@ public class JsonReader implements Closeable {
     return " at line " + line + " column " + column + " path " + getPath();
   }
 
-  /**
-   * Returns a <a href="http://goessner.net/articles/JsonPath/">JsonPath</a> to
-   * the current location in the JSON value.
-   */
-  public String getPath() {
+  private String getPath(boolean usePreviousPath) {
     StringBuilder result = new StringBuilder().append('$');
-    for (int i = 0, size = stackSize; i < size; i++) {
+    for (int i = 0; i < stackSize; i++) {
       switch (stack[i]) {
         case JsonScope.EMPTY_ARRAY:
         case JsonScope.NONEMPTY_ARRAY:
-          result.append('[').append(pathIndices[i]).append(']');
+          int pathIndex = pathIndices[i];
+          // If index is last path element it points to next array element; have to decrement
+          if (usePreviousPath && pathIndex > 0 && i == stackSize - 1) {
+            pathIndex--;
+          }
+          result.append('[').append(pathIndex).append(']');
           break;
-
         case JsonScope.EMPTY_OBJECT:
         case JsonScope.DANGLING_NAME:
         case JsonScope.NONEMPTY_OBJECT:
@@ -1475,7 +1489,6 @@ public class JsonReader implements Closeable {
             result.append(pathNames[i]);
           }
           break;
-
         case JsonScope.NONEMPTY_DOCUMENT:
         case JsonScope.EMPTY_DOCUMENT:
         case JsonScope.CLOSED:
@@ -1483,6 +1496,41 @@ public class JsonReader implements Closeable {
       }
     }
     return result.toString();
+  }
+
+  /**
+   * Returns a <a href="https://goessner.net/articles/JsonPath/">JsonPath</a>
+   * in <i>dot-notation</i> to the previous (or current) location in the JSON document:
+   * <ul>
+   *   <li>For JSON arrays the path points to the index of the previous element.<br>
+   *   If no element has been consumed yet it uses the index 0 (even if there are no elements).</li>
+   *   <li>For JSON objects the path points to the last property, or to the current
+   *   property if its value has not been consumed yet.</li>
+   * </ul>
+   *
+   * <p>This method can be useful to add additional context to exception messages
+   * <i>after</i> a value has been consumed.
+   */
+  public String getPreviousPath() {
+    return getPath(true);
+  }
+
+  /**
+   * Returns a <a href="https://goessner.net/articles/JsonPath/">JsonPath</a>
+   * in <i>dot-notation</i> to the next (or current) location in the JSON document:
+   * <ul>
+   *   <li>For JSON arrays the path points to the index of the next element (even
+   *   if there are no further elements).</li>
+   *   <li>For JSON objects the path points to the last property, or to the current
+   *   property if its value has not been consumed yet.</li>
+   * </ul>
+   *
+   * <p>This method can be useful to add additional context to exception messages
+   * <i>before</i> a value is consumed, for example when the {@linkplain #peek() peeked}
+   * token is unexpected.
+   */
+  public String getPath() {
+    return getPath(false);
   }
 
   /**
@@ -1494,6 +1542,7 @@ public class JsonReader implements Closeable {
    * @throws NumberFormatException if any unicode escape sequences are
    *     malformed.
    */
+  @SuppressWarnings("fallthrough")
   private char readEscapeCharacter() throws IOException {
     if (pos == limit && !fillBuffer(1)) {
       throw syntaxError("Unterminated escape sequence");
@@ -1546,11 +1595,11 @@ public class JsonReader implements Closeable {
     case '\'':
     case '"':
     case '\\':
-    case '/':	
-    	return escaped;
+    case '/':
+      return escaped;
     default:
-    	// throw error when none of the above cases are matched
-    	throw syntaxError("Invalid escape sequence");
+      // throw error when none of the above cases are matched
+      throw syntaxError("Invalid escape sequence");
     }
   }
 
@@ -1570,11 +1619,11 @@ public class JsonReader implements Closeable {
     nextNonWhitespace(true);
     pos--;
 
-    int p = pos;
-    if (p + 5 > limit && !fillBuffer(5)) {
+    if (pos + 5 > limit && !fillBuffer(5)) {
       return;
     }
 
+    int p = pos;
     char[] buf = buffer;
     if(buf[p] != ')' || buf[p + 1] != ']' || buf[p + 2] != '}' || buf[p + 3] != '\'' || buf[p + 4] != '\n') {
       return; // not a security token!

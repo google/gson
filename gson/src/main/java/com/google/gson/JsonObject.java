@@ -17,7 +17,6 @@
 package com.google.gson;
 
 import com.google.gson.internal.LinkedTreeMap;
-
 import java.util.Map;
 import java.util.Set;
 
@@ -25,16 +24,25 @@ import java.util.Set;
  * A class representing an object type in Json. An object consists of name-value pairs where names
  * are strings, and values are any other type of {@link JsonElement}. This allows for a creating a
  * tree of JsonElements. The member elements of this object are maintained in order they were added.
+ * This class does not support {@code null} values. If {@code null} is provided as value argument
+ * to any of the methods, it is converted to a {@link JsonNull}.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
 public final class JsonObject extends JsonElement {
-  private final LinkedTreeMap<String, JsonElement> members =
-      new LinkedTreeMap<String, JsonElement>();
+  private final LinkedTreeMap<String, JsonElement> members = new LinkedTreeMap<>(false);
 
   /**
-   * Creates a deep copy of this element and all its children
+   * Creates an empty JsonObject.
+   */
+  @SuppressWarnings("deprecation") // superclass constructor
+  public JsonObject() {
+  }
+
+  /**
+   * Creates a deep copy of this element and all its children.
+   *
    * @since 2.8.2
    */
   @Override
@@ -48,7 +56,7 @@ public final class JsonObject extends JsonElement {
 
   /**
    * Adds a member, which is a name-value pair, to self. The name must be a String, but the value
-   * can be an arbitrary JsonElement, thereby allowing you to build a full tree of JsonElements
+   * can be an arbitrary {@link JsonElement}, thereby allowing you to build a full tree of JsonElements
    * rooted at this node.
    *
    * @param property name of the member.
@@ -59,10 +67,11 @@ public final class JsonObject extends JsonElement {
   }
 
   /**
-   * Removes the {@code property} from this {@link JsonObject}.
+   * Removes the {@code property} from this object.
    *
    * @param property name of the member that should be removed.
-   * @return the {@link JsonElement} object that is being removed.
+   * @return the {@link JsonElement} object that is being removed, or {@code null} if no
+   *   member with this name exists.
    * @since 1.3
    */
   public JsonElement remove(String property) {
@@ -70,8 +79,8 @@ public final class JsonObject extends JsonElement {
   }
 
   /**
-   * Convenience method to add a primitive member. The specified value is converted to a
-   * JsonPrimitive of String.
+   * Convenience method to add a string member. The specified value is converted to a
+   * {@link JsonPrimitive} of String.
    *
    * @param property name of the member.
    * @param value the string value associated with the member.
@@ -81,8 +90,8 @@ public final class JsonObject extends JsonElement {
   }
 
   /**
-   * Convenience method to add a primitive member. The specified value is converted to a
-   * JsonPrimitive of Number.
+   * Convenience method to add a number member. The specified value is converted to a
+   * {@link JsonPrimitive} of Number.
    *
    * @param property name of the member.
    * @param value the number value associated with the member.
@@ -93,10 +102,10 @@ public final class JsonObject extends JsonElement {
 
   /**
    * Convenience method to add a boolean member. The specified value is converted to a
-   * JsonPrimitive of Boolean.
+   * {@link JsonPrimitive} of Boolean.
    *
    * @param property name of the member.
-   * @param value the number value associated with the member.
+   * @param value the boolean value associated with the member.
    */
   public void addProperty(String property, Boolean value) {
     add(property, value == null ? JsonNull.INSTANCE : new JsonPrimitive(value));
@@ -104,10 +113,10 @@ public final class JsonObject extends JsonElement {
 
   /**
    * Convenience method to add a char member. The specified value is converted to a
-   * JsonPrimitive of Character.
+   * {@link JsonPrimitive} of Character.
    *
    * @param property name of the member.
-   * @param value the number value associated with the member.
+   * @param value the char value associated with the member.
    */
   public void addProperty(String property, Character value) {
     add(property, value == null ? JsonNull.INSTANCE : new JsonPrimitive(value));
@@ -156,48 +165,63 @@ public final class JsonObject extends JsonElement {
    * Returns the member with the specified name.
    *
    * @param memberName name of the member that is being requested.
-   * @return the member matching the name. Null if no such member exists.
+   * @return the member matching the name, or {@code null} if no such member exists.
    */
   public JsonElement get(String memberName) {
     return members.get(memberName);
   }
 
   /**
-   * Convenience method to get the specified member as a JsonPrimitive element.
+   * Convenience method to get the specified member as a {@link JsonPrimitive}.
    *
    * @param memberName name of the member being requested.
-   * @return the JsonPrimitive corresponding to the specified member.
+   * @return the {@code JsonPrimitive} corresponding to the specified member, or {@code null} if no
+   *   member with this name exists.
+   * @throws ClassCastException if the member is not of type {@code JsonPrimitive}.
    */
   public JsonPrimitive getAsJsonPrimitive(String memberName) {
     return (JsonPrimitive) members.get(memberName);
   }
 
   /**
-   * Convenience method to get the specified member as a JsonArray.
+   * Convenience method to get the specified member as a {@link JsonArray}.
    *
    * @param memberName name of the member being requested.
-   * @return the JsonArray corresponding to the specified member.
+   * @return the {@code JsonArray} corresponding to the specified member, or {@code null} if no
+   *   member with this name exists.
+   * @throws ClassCastException if the member is not of type {@code JsonArray}.
    */
   public JsonArray getAsJsonArray(String memberName) {
     return (JsonArray) members.get(memberName);
   }
 
   /**
-   * Convenience method to get the specified member as a JsonObject.
+   * Convenience method to get the specified member as a {@link JsonObject}.
    *
    * @param memberName name of the member being requested.
-   * @return the JsonObject corresponding to the specified member.
+   * @return the {@code JsonObject} corresponding to the specified member, or {@code null} if no
+   *   member with this name exists.
+   * @throws ClassCastException if the member is not of type {@code JsonObject}.
    */
   public JsonObject getAsJsonObject(String memberName) {
     return (JsonObject) members.get(memberName);
   }
 
+  /**
+   * Returns whether the other object is equal to this. This method only considers
+   * the other object to be equal if it is an instance of {@code JsonObject} and has
+   * equal members, ignoring order.
+   */
   @Override
   public boolean equals(Object o) {
     return (o == this) || (o instanceof JsonObject
         && ((JsonObject) o).members.equals(members));
   }
 
+  /**
+   * Returns the hash code of this object. This method calculates the hash code based
+   * on the members of this object, ignoring order.
+   */
   @Override
   public int hashCode() {
     return members.hashCode();

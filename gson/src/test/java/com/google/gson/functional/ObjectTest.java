@@ -44,7 +44,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
-
 import junit.framework.TestCase;
 
 /**
@@ -55,22 +54,27 @@ import junit.framework.TestCase;
  */
 public class ObjectTest extends TestCase {
   private Gson gson;
-  private TimeZone oldTimeZone = TimeZone.getDefault();
+  private TimeZone oldTimeZone;
+  private Locale oldLocale;
 
   @Override
   protected void setUp() throws Exception {
     super.setUp();
     gson = new Gson();
 
+    oldTimeZone = TimeZone.getDefault();
     TimeZone.setDefault(TimeZone.getTimeZone("America/Los_Angeles"));
+    oldLocale = Locale.getDefault();
     Locale.setDefault(Locale.US);
   }
 
   @Override
   protected void tearDown() throws Exception {
     TimeZone.setDefault(oldTimeZone);
+    Locale.setDefault(oldLocale);
     super.tearDown();
   }
+
   public void testJsonInSingleQuotesDeserialization() {
     String json = "{'stringValue':'no message','intValue':10,'longValue':20}";
     BagOfPrimitives target = gson.fromJson(json, BagOfPrimitives.class);
@@ -112,22 +116,20 @@ public class ObjectTest extends TestCase {
   }
 
   public void testClassWithTransientFieldsSerialization() throws Exception {
-    ClassWithTransientFields<Long> target = new ClassWithTransientFields<Long>(1L);
+    ClassWithTransientFields<Long> target = new ClassWithTransientFields<>(1L);
     assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 
-  @SuppressWarnings("rawtypes")
   public void testClassWithTransientFieldsDeserialization() throws Exception {
     String json = "{\"longValue\":[1]}";
-    ClassWithTransientFields target = gson.fromJson(json, ClassWithTransientFields.class);
+    ClassWithTransientFields<?> target = gson.fromJson(json, ClassWithTransientFields.class);
     assertEquals(json, target.getExpectedJson());
   }
 
-  @SuppressWarnings("rawtypes")
   public void testClassWithTransientFieldsDeserializationTransientFieldsPassedInJsonAreIgnored()
       throws Exception {
     String json = "{\"transientLongValue\":1,\"longValue\":[1]}";
-    ClassWithTransientFields target = gson.fromJson(json, ClassWithTransientFields.class);
+    ClassWithTransientFields<?> target = gson.fromJson(json, ClassWithTransientFields.class);
     assertFalse(target.transientLongValue != 1);
   }
 
@@ -254,7 +256,7 @@ public class ObjectTest extends TestCase {
   }
 
   private static class ClassWithCollectionField {
-    Collection<String> children = new ArrayList<String>();
+    Collection<String> children = new ArrayList<>();
   }
 
   public void testPrimitiveArrayInAnObjectDeserialization() throws Exception {
@@ -293,7 +295,7 @@ public class ObjectTest extends TestCase {
     gson = new GsonBuilder()
         .registerTypeHierarchyAdapter(ClassWithNoFields.class,
             new JsonSerializer<ClassWithNoFields>() {
-              public JsonElement serialize(
+              @Override public JsonElement serialize(
                   ClassWithNoFields src, Type typeOfSrc, JsonSerializationContext context) {
                 return new JsonObject();
               }
@@ -337,7 +339,7 @@ public class ObjectTest extends TestCase {
     final Parent p = new Parent();
     Gson gson = new GsonBuilder().registerTypeAdapter(
         Parent.Child.class, new InstanceCreator<Parent.Child>() {
-      public Parent.Child createInstance(Type type) {
+      @Override public Parent.Child createInstance(Type type) {
         return p.new Child();
       }
     }).create();
@@ -492,7 +494,7 @@ public class ObjectTest extends TestCase {
   }
 
   public class HasObjectMap {
-    Map<String, Object> map = new HashMap<String, Object>();
+    Map<String, Object> map = new HashMap<>();
   }
 
   static final class Department {
@@ -501,7 +503,7 @@ public class ObjectTest extends TestCase {
   }
 
   static final class Product {
-    private List<String> attributes = new ArrayList<String>();
-    private List<Department> departments = new ArrayList<Department>();
+    private List<String> attributes = new ArrayList<>();
+    private List<Department> departments = new ArrayList<>();
   }
 }

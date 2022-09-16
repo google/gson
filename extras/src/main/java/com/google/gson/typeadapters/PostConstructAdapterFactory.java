@@ -38,7 +38,7 @@ public class PostConstructAdapterFactory implements TypeAdapterFactory {
                 if (m.isAnnotationPresent(PostConstruct.class)) {
                     m.setAccessible(true);
                     TypeAdapter<T> delegate = gson.getDelegateAdapter(this, type);
-                    return new PostConstructAdapter<T>(delegate, m);
+                    return new PostConstructAdapter<>(delegate, m);
                 }
             }
         }

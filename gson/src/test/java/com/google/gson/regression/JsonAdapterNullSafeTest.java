@@ -46,7 +46,7 @@ public class JsonAdapterNullSafeTest extends TestCase {
     static final class JsonAdapterFactory implements TypeAdapterFactory {
       // The recursiveCall in {@link Device.JsonAdapterFactory} is the source of this bug
       // because we use it to return a null type adapter on a recursive call.
-      private static final ThreadLocal<Boolean> recursiveCall = new ThreadLocal<Boolean>();
+      private static final ThreadLocal<Boolean> recursiveCall = new ThreadLocal<>();
 
       @Override public <T> TypeAdapter<T> create(final Gson gson, TypeToken<T> type) {
         if (type.getRawType() != Device.class || recursiveCall.get() != null) {

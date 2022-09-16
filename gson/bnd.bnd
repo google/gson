@@ -3,8 +3,12 @@ Bundle-Name: ${project.name}
 Bundle-Description: ${project.description}
 Bundle-Vendor: Google Gson Project
 Bundle-ContactAddress: ${project.parent.url}
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6, JavaSE-1.7, JavaSE-1.8
-Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.6))"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7, JavaSE-1.8
+Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.7))"
+
+# Optional dependency for JDK's sun.misc.Unsafe
+# https://bnd.bndtools.org/chapters/920-faq.html#remove-unwanted-imports-
+Import-Package: sun.misc;resolution:=optional, *
 
 -removeheaders: Private-Package
 

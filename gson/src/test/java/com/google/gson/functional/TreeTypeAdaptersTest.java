@@ -16,14 +16,6 @@
 
 package com.google.gson.functional;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import junit.framework.TestCase;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -34,19 +26,25 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import junit.framework.TestCase;
 
 /**
  * Collection of functional tests for DOM tree based type adapters.
  */
 public class TreeTypeAdaptersTest extends TestCase {
-  private static final Id<Student> STUDENT1_ID = new Id<Student>("5", Student.class);
-  private static final Id<Student> STUDENT2_ID = new Id<Student>("6", Student.class);
+  private static final Id<Student> STUDENT1_ID = new Id<>("5", Student.class);
+  private static final Id<Student> STUDENT2_ID = new Id<>("6", Student.class);
   private static final Student STUDENT1 = new Student(STUDENT1_ID, "first");
   private static final Student STUDENT2 = new Student(STUDENT2_ID, "second");
   private static final Type TYPE_COURSE_HISTORY =
-    new TypeToken<Course<HistoryCourse>>(){}.getType(); 
+    new TypeToken<Course<HistoryCourse>>(){}.getType();
   private static final Id<Course<HistoryCourse>> COURSE_ID =
-      new Id<Course<HistoryCourse>>("10", TYPE_COURSE_HISTORY);
+      new Id<>("10", TYPE_COURSE_HISTORY);
 
   private Gson gson;
   private Course<HistoryCourse> course;
@@ -56,8 +54,8 @@ public class TreeTypeAdaptersTest extends TestCase {
     gson = new GsonBuilder()
         .registerTypeAdapter(Id.class, new IdTreeTypeAdapter())
         .create();
-    course = new Course<HistoryCourse>(COURSE_ID, 4,
-        new Assignment<HistoryCourse>(null, null), createList(STUDENT1, STUDENT2));
+    course = new Course<>(COURSE_ID, 4,
+        new Assignment<HistoryCourse>(null, null), Arrays.asList(STUDENT1, STUDENT2));
   }
 
   public void testSerializeId() {
@@ -93,7 +91,6 @@ public class TreeTypeAdaptersTest extends TestCase {
   private static final class IdTreeTypeAdapter implements JsonSerializer<Id<?>>,
       JsonDeserializer<Id<?>> {
 
-    @SuppressWarnings("rawtypes")
     @Override
     public Id<?> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
@@ -104,7 +101,7 @@ public class TreeTypeAdaptersTest extends TestCase {
       // Since Id takes only one TypeVariable, the actual type corresponding to the first
       // TypeVariable is the Type we are looking for
       Type typeOfId = parameterizedType.getActualTypeArguments()[0];
-      return new Id(json.getAsString(), typeOfId);
+      return new Id<>(json.getAsString(), typeOfId);
     }
 
     @Override
@@ -170,9 +167,5 @@ public class TreeTypeAdaptersTest extends TestCase {
   @SuppressWarnings("unused")
   private static class HistoryCourse {
     int numClasses;
-  }
-
-  private static <T> List<T> createList(T ...items) {
-    return Arrays.asList(items);
   }
 }

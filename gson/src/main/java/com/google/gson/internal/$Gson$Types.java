@@ -16,6 +16,9 @@
 
 package com.google.gson.internal;
 
+import static com.google.gson.internal.$Gson$Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
+
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
@@ -25,10 +28,12 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
-import java.util.*;
-
-import static com.google.gson.internal.$Gson$Preconditions.checkArgument;
-import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Properties;
 
 /**
  * Static methods for working with types.
@@ -149,7 +154,10 @@ public final class $Gson$Types {
       return Object.class;
 
     } else if (type instanceof WildcardType) {
-      return getRawType(((WildcardType) type).getUpperBounds()[0]);
+      Type[] bounds = ((WildcardType) type).getUpperBounds();
+      // Currently the JLS only permits one bound for wildcards so using first bound is safe
+      assert bounds.length == 1;
+      return getRawType(bounds[0]);
 
     } else {
       String className = type == null ? "null" : type.getClass().getName();
@@ -158,7 +166,7 @@ public final class $Gson$Types {
     }
   }
 
-  static boolean equal(Object a, Object b) {
+  private static boolean equal(Object a, Object b) {
     return a == b || (a != null && a.equals(b));
   }
 
@@ -220,10 +228,6 @@ public final class $Gson$Types {
     }
   }
 
-  static int hashCodeOrZero(Object o) {
-    return o != null ? o.hashCode() : 0;
-  }
-
   public static String typeToString(Type type) {
     return type instanceof Class ? ((Class<?>) type).getName() : type.toString();
   }
@@ -233,19 +237,19 @@ public final class $Gson$Types {
    * IntegerSet}, the result for when supertype is {@code Set.class} is {@code Set<Integer>} and the
    * result when the supertype is {@code Collection.class} is {@code Collection<Integer>}.
    */
-  static Type getGenericSupertype(Type context, Class<?> rawType, Class<?> toResolve) {
-    if (toResolve == rawType) {
+  private static Type getGenericSupertype(Type context, Class<?> rawType, Class<?> supertype) {
+    if (supertype == rawType) {
       return context;
     }
 
     // we skip searching through interfaces if unknown is an interface
-    if (toResolve.isInterface()) {
+    if (supertype.isInterface()) {
       Class<?>[] interfaces = rawType.getInterfaces();
       for (int i = 0, length = interfaces.length; i < length; i++) {
-        if (interfaces[i] == toResolve) {
+        if (interfaces[i] == supertype) {
           return rawType.getGenericInterfaces()[i];
-        } else if (toResolve.isAssignableFrom(interfaces[i])) {
-          return getGenericSupertype(rawType.getGenericInterfaces()[i], interfaces[i], toResolve);
+        } else if (supertype.isAssignableFrom(interfaces[i])) {
+          return getGenericSupertype(rawType.getGenericInterfaces()[i], interfaces[i], supertype);
         }
       }
     }
@@ -254,17 +258,17 @@ public final class $Gson$Types {
     if (!rawType.isInterface()) {
       while (rawType != Object.class) {
         Class<?> rawSupertype = rawType.getSuperclass();
-        if (rawSupertype == toResolve) {
+        if (rawSupertype == supertype) {
           return rawType.getGenericSuperclass();
-        } else if (toResolve.isAssignableFrom(rawSupertype)) {
-          return getGenericSupertype(rawType.getGenericSuperclass(), rawSupertype, toResolve);
+        } else if (supertype.isAssignableFrom(rawSupertype)) {
+          return getGenericSupertype(rawType.getGenericSuperclass(), rawSupertype, supertype);
         }
         rawType = rawSupertype;
       }
     }
 
     // we can't resolve this further
-    return toResolve;
+    return supertype;
   }
 
   /**
@@ -274,10 +278,13 @@ public final class $Gson$Types {
    *
    * @param supertype a superclass of, or interface implemented by, this.
    */
-  static Type getSupertype(Type context, Class<?> contextRawType, Class<?> supertype) {
+  private static Type getSupertype(Type context, Class<?> contextRawType, Class<?> supertype) {
     if (context instanceof WildcardType) {
       // wildcards are useless for resolving supertypes. As the upper bound has the same raw type, use it instead
-      context = ((WildcardType)context).getUpperBounds()[0];
+      Type[] bounds = ((WildcardType)context).getUpperBounds();
+      // Currently the JLS only permits one bound for wildcards so using first bound is safe
+      assert bounds.length == 1;
+      context = bounds[0];
     }
     checkArgument(supertype.isAssignableFrom(contextRawType));
     return resolve(context, contextRawType,
@@ -301,9 +308,6 @@ public final class $Gson$Types {
   public static Type getCollectionElementType(Type context, Class<?> contextRawType) {
     Type collectionType = getSupertype(context, contextRawType, Collection.class);
 
-    if (collectionType instanceof WildcardType) {
-      collectionType = ((WildcardType)collectionType).getUpperBounds()[0];
-    }
     if (collectionType instanceof ParameterizedType) {
       return ((ParameterizedType) collectionType).getActualTypeArguments()[0];
     }
@@ -334,52 +338,62 @@ public final class $Gson$Types {
   }
 
   public static Type resolve(Type context, Class<?> contextRawType, Type toResolve) {
-    return resolve(context, contextRawType, toResolve, new HashSet<TypeVariable>());
+
+    return resolve(context, contextRawType, toResolve, new HashMap<TypeVariable<?>, Type>());
   }
 
   private static Type resolve(Type context, Class<?> contextRawType, Type toResolve,
-                              Collection<TypeVariable> visitedTypeVariables) {
+                              Map<TypeVariable<?>, Type> visitedTypeVariables) {
     // this implementation is made a little more complicated in an attempt to avoid object-creation
+    TypeVariable<?> resolving = null;
     while (true) {
       if (toResolve instanceof TypeVariable) {
         TypeVariable<?> typeVariable = (TypeVariable<?>) toResolve;
-        if (visitedTypeVariables.contains(typeVariable)) {
+        Type previouslyResolved = visitedTypeVariables.get(typeVariable);
+        if (previouslyResolved != null) {
           // cannot reduce due to infinite recursion
-          return toResolve;
-        } else {
-          visitedTypeVariables.add(typeVariable);
+          return (previouslyResolved == Void.TYPE) ? toResolve : previouslyResolved;
         }
+
+        // Insert a placeholder to mark the fact that we are in the process of resolving this type
+        visitedTypeVariables.put(typeVariable, Void.TYPE);
+        if (resolving == null) {
+          resolving = typeVariable;
+        }
+
         toResolve = resolveTypeVariable(context, contextRawType, typeVariable);
         if (toResolve == typeVariable) {
-          return toResolve;
+          break;
         }
 
       } else if (toResolve instanceof Class && ((Class<?>) toResolve).isArray()) {
         Class<?> original = (Class<?>) toResolve;
         Type componentType = original.getComponentType();
         Type newComponentType = resolve(context, contextRawType, componentType, visitedTypeVariables);
-        return componentType == newComponentType
+        toResolve = equal(componentType, newComponentType)
             ? original
             : arrayOf(newComponentType);
+        break;
 
       } else if (toResolve instanceof GenericArrayType) {
         GenericArrayType original = (GenericArrayType) toResolve;
         Type componentType = original.getGenericComponentType();
         Type newComponentType = resolve(context, contextRawType, componentType, visitedTypeVariables);
-        return componentType == newComponentType
+        toResolve = equal(componentType, newComponentType)
             ? original
             : arrayOf(newComponentType);
+        break;
 
       } else if (toResolve instanceof ParameterizedType) {
         ParameterizedType original = (ParameterizedType) toResolve;
         Type ownerType = original.getOwnerType();
         Type newOwnerType = resolve(context, contextRawType, ownerType, visitedTypeVariables);
-        boolean changed = newOwnerType != ownerType;
+        boolean changed = !equal(newOwnerType, ownerType);
 
         Type[] args = original.getActualTypeArguments();
         for (int t = 0, length = args.length; t < length; t++) {
           Type resolvedTypeArgument = resolve(context, contextRawType, args[t], visitedTypeVariables);
-          if (resolvedTypeArgument != args[t]) {
+          if (!equal(resolvedTypeArgument, args[t])) {
             if (!changed) {
               args = args.clone();
               changed = true;
@@ -388,9 +402,10 @@ public final class $Gson$Types {
           }
         }
 
-        return changed
+        toResolve = changed
             ? newParameterizedTypeWithOwner(newOwnerType, original.getRawType(), args)
             : original;
+        break;
 
       } else if (toResolve instanceof WildcardType) {
         WildcardType original = (WildcardType) toResolve;
@@ -400,23 +415,31 @@ public final class $Gson$Types {
         if (originalLowerBound.length == 1) {
           Type lowerBound = resolve(context, contextRawType, originalLowerBound[0], visitedTypeVariables);
           if (lowerBound != originalLowerBound[0]) {
-            return supertypeOf(lowerBound);
+            toResolve = supertypeOf(lowerBound);
+            break;
           }
         } else if (originalUpperBound.length == 1) {
           Type upperBound = resolve(context, contextRawType, originalUpperBound[0], visitedTypeVariables);
           if (upperBound != originalUpperBound[0]) {
-            return subtypeOf(upperBound);
+            toResolve = subtypeOf(upperBound);
+            break;
           }
         }
-        return original;
+        toResolve = original;
+        break;
 
       } else {
-        return toResolve;
+        break;
       }
     }
+    // ensure that any in-process resolution gets updated with the final result
+    if (resolving != null) {
+      visitedTypeVariables.put(resolving, toResolve);
+    }
+    return toResolve;
   }
 
-  static Type resolveTypeVariable(Type context, Class<?> contextRawType, TypeVariable<?> unknown) {
+  private static Type resolveTypeVariable(Type context, Class<?> contextRawType, TypeVariable<?> unknown) {
     Class<?> declaredByRaw = declaringClassOf(unknown);
 
     // we can't reduce this further
@@ -463,6 +486,7 @@ public final class $Gson$Types {
     private final Type[] typeArguments;
 
     public ParameterizedTypeImpl(Type ownerType, Type rawType, Type... typeArguments) {
+      requireNonNull(rawType);
       // require an owner type if the raw type needs it
       if (rawType instanceof Class<?>) {
         Class<?> rawTypeAsClass = (Class<?>) rawType;
@@ -475,27 +499,31 @@ public final class $Gson$Types {
       this.rawType = canonicalize(rawType);
       this.typeArguments = typeArguments.clone();
       for (int t = 0, length = this.typeArguments.length; t < length; t++) {
-        checkNotNull(this.typeArguments[t]);
+        requireNonNull(this.typeArguments[t]);
         checkNotPrimitive(this.typeArguments[t]);
         this.typeArguments[t] = canonicalize(this.typeArguments[t]);
       }
     }
 
-    public Type[] getActualTypeArguments() {
+    @Override public Type[] getActualTypeArguments() {
       return typeArguments.clone();
     }
 
-    public Type getRawType() {
+    @Override public Type getRawType() {
       return rawType;
     }
 
-    public Type getOwnerType() {
+    @Override public Type getOwnerType() {
       return ownerType;
     }
 
     @Override public boolean equals(Object other) {
       return other instanceof ParameterizedType
           && $Gson$Types.equals(this, (ParameterizedType) other);
+    }
+
+    private static int hashCodeOrZero(Object o) {
+      return o != null ? o.hashCode() : 0;
     }
 
     @Override public int hashCode() {
@@ -525,10 +553,11 @@ public final class $Gson$Types {
     private final Type componentType;
 
     public GenericArrayTypeImpl(Type componentType) {
+      requireNonNull(componentType);
       this.componentType = canonicalize(componentType);
     }
 
-    public Type getGenericComponentType() {
+    @Override public Type getGenericComponentType() {
       return componentType;
     }
 
@@ -550,8 +579,9 @@ public final class $Gson$Types {
 
   /**
    * The WildcardType interface supports multiple upper bounds and multiple
-   * lower bounds. We only support what the Java 6 language needs - at most one
-   * bound. If a lower bound is set, the upper bound must be Object.class.
+   * lower bounds. We only support what the target Java version supports - at most one
+   * bound, see also https://bugs.openjdk.java.net/browse/JDK-8250660. If a lower bound
+   * is set, the upper bound must be Object.class.
    */
   private static final class WildcardTypeImpl implements WildcardType, Serializable {
     private final Type upperBound;
@@ -562,25 +592,25 @@ public final class $Gson$Types {
       checkArgument(upperBounds.length == 1);
 
       if (lowerBounds.length == 1) {
-        checkNotNull(lowerBounds[0]);
+        requireNonNull(lowerBounds[0]);
         checkNotPrimitive(lowerBounds[0]);
         checkArgument(upperBounds[0] == Object.class);
         this.lowerBound = canonicalize(lowerBounds[0]);
         this.upperBound = Object.class;
 
       } else {
-        checkNotNull(upperBounds[0]);
+        requireNonNull(upperBounds[0]);
         checkNotPrimitive(upperBounds[0]);
         this.lowerBound = null;
         this.upperBound = canonicalize(upperBounds[0]);
       }
     }
 
-    public Type[] getUpperBounds() {
+    @Override public Type[] getUpperBounds() {
       return new Type[] { upperBound };
     }
 
-    public Type[] getLowerBounds() {
+    @Override public Type[] getLowerBounds() {
       return lowerBound != null ? new Type[] { lowerBound } : EMPTY_TYPE_ARRAY;
     }
 

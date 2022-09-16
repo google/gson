@@ -23,9 +23,6 @@ import com.google.gson.ParameterizedTypeFixtures.MyParameterizedTypeAdapter;
 import com.google.gson.ParameterizedTypeFixtures.MyParameterizedTypeInstanceCreator;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.reflect.TypeToken;
-
-import junit.framework.TestCase;
-
 import java.io.Reader;
 import java.io.Serializable;
 import java.io.StringReader;
@@ -35,6 +32,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import junit.framework.TestCase;
 
 /**
  * Functional tests for the serialization and deserialization of parameterized types in Gson.
@@ -52,7 +50,7 @@ public class ParameterizedTypesTest extends TestCase {
   }
 
   public void testParameterizedTypesSerialization() throws Exception {
-    MyParameterizedType<Integer> src = new MyParameterizedType<Integer>(10);
+    MyParameterizedType<Integer> src = new MyParameterizedType<>(10);
     Type typeOfSrc = new TypeToken<MyParameterizedType<Integer>>() {}.getType();
     String json = gson.toJson(src, typeOfSrc);
     assertEquals(src.getExpectedJson(), json);
@@ -60,11 +58,11 @@ public class ParameterizedTypesTest extends TestCase {
 
   public void testParameterizedTypeDeserialization() throws Exception {
     BagOfPrimitives bag = new BagOfPrimitives();
-    MyParameterizedType<BagOfPrimitives> expected = new MyParameterizedType<BagOfPrimitives>(bag);
+    MyParameterizedType<BagOfPrimitives> expected = new MyParameterizedType<>(bag);
     Type expectedType = new TypeToken<MyParameterizedType<BagOfPrimitives>>() {}.getType();
     BagOfPrimitives bagDefaultInstance = new BagOfPrimitives();
     Gson gson = new GsonBuilder().registerTypeAdapter(
-        expectedType, new MyParameterizedTypeInstanceCreator<BagOfPrimitives>(bagDefaultInstance))
+        expectedType, new MyParameterizedTypeInstanceCreator<>(bagDefaultInstance))
         .create();
 
     String json = expected.getExpectedJson();
@@ -74,8 +72,7 @@ public class ParameterizedTypesTest extends TestCase {
 
   public void testTypesWithMultipleParametersSerialization() throws Exception {
     MultiParameters<Integer, Float, Double, String, BagOfPrimitives> src =
-        new MultiParameters<Integer, Float, Double, String, BagOfPrimitives>(10, 1.0F, 2.1D,
-            "abc", new BagOfPrimitives());
+        new MultiParameters<>(10, 1.0F, 2.1D, "abc", new BagOfPrimitives());
     Type typeOfSrc = new TypeToken<MultiParameters<Integer, Float, Double, String,
         BagOfPrimitives>>() {}.getType();
     String json = gson.toJson(src, typeOfSrc);
@@ -92,8 +89,7 @@ public class ParameterizedTypesTest extends TestCase {
     MultiParameters<Integer, Float, Double, String, BagOfPrimitives> target =
         gson.fromJson(json, typeOfTarget);
     MultiParameters<Integer, Float, Double, String, BagOfPrimitives> expected =
-        new MultiParameters<Integer, Float, Double, String, BagOfPrimitives>(10, 1.0F, 2.1D,
-            "abc", new BagOfPrimitives());
+        new MultiParameters<>(10, 1.0F, 2.1D, "abc", new BagOfPrimitives());
     assertEquals(expected, target);
   }
 
@@ -104,11 +100,11 @@ public class ParameterizedTypesTest extends TestCase {
         .registerTypeAdapter(ptIntegerType, new MyParameterizedTypeAdapter<Integer>())
         .registerTypeAdapter(ptStringType, new MyParameterizedTypeAdapter<String>())
         .create();
-    MyParameterizedType<Integer> intTarget = new MyParameterizedType<Integer>(10);
+    MyParameterizedType<Integer> intTarget = new MyParameterizedType<>(10);
     String json = gson.toJson(intTarget, ptIntegerType);
     assertEquals(MyParameterizedTypeAdapter.<Integer>getExpectedJson(intTarget), json);
 
-    MyParameterizedType<String> stringTarget = new MyParameterizedType<String>("abc");
+    MyParameterizedType<String> stringTarget = new MyParameterizedType<>("abc");
     json = gson.toJson(stringTarget, ptStringType);
     assertEquals(MyParameterizedTypeAdapter.<String>getExpectedJson(stringTarget), json);
   }
@@ -119,17 +115,16 @@ public class ParameterizedTypesTest extends TestCase {
     Gson gson = new GsonBuilder().registerTypeAdapter(
         ptIntegerType, new MyParameterizedTypeAdapter<Integer>())
         .registerTypeAdapter(ptStringType, new MyParameterizedTypeAdapter<String>())
-        .registerTypeAdapter(ptStringType, new MyParameterizedTypeInstanceCreator<String>(""))
-        .registerTypeAdapter(ptIntegerType,
-            new MyParameterizedTypeInstanceCreator<Integer>(0))
+        .registerTypeAdapter(ptStringType, new MyParameterizedTypeInstanceCreator<>(""))
+        .registerTypeAdapter(ptIntegerType, new MyParameterizedTypeInstanceCreator<>(0))
         .create();
 
-    MyParameterizedType<Integer> src = new MyParameterizedType<Integer>(10);
+    MyParameterizedType<Integer> src = new MyParameterizedType<>(10);
     String json = MyParameterizedTypeAdapter.<Integer>getExpectedJson(src);
     MyParameterizedType<Integer> intTarget = gson.fromJson(json, ptIntegerType);
     assertEquals(10, intTarget.value.intValue());
 
-    MyParameterizedType<String> srcStr = new MyParameterizedType<String>("abc");
+    MyParameterizedType<String> srcStr = new MyParameterizedType<>("abc");
     json = MyParameterizedTypeAdapter.<String>getExpectedJson(srcStr);
     MyParameterizedType<String> stringTarget = gson.fromJson(json, ptStringType);
     assertEquals("abc", stringTarget.value);
@@ -137,7 +132,7 @@ public class ParameterizedTypesTest extends TestCase {
 
   public void testParameterizedTypesWithWriterSerialization() throws Exception {
     Writer writer = new StringWriter();
-    MyParameterizedType<Integer> src = new MyParameterizedType<Integer>(10);
+    MyParameterizedType<Integer> src = new MyParameterizedType<>(10);
     Type typeOfSrc = new TypeToken<MyParameterizedType<Integer>>() {}.getType();
     gson.toJson(src, typeOfSrc, writer);
     assertEquals(src.getExpectedJson(), writer.toString());
@@ -145,11 +140,11 @@ public class ParameterizedTypesTest extends TestCase {
 
   public void testParameterizedTypeWithReaderDeserialization() throws Exception {
     BagOfPrimitives bag = new BagOfPrimitives();
-    MyParameterizedType<BagOfPrimitives> expected = new MyParameterizedType<BagOfPrimitives>(bag);
+    MyParameterizedType<BagOfPrimitives> expected = new MyParameterizedType<>(bag);
     Type expectedType = new TypeToken<MyParameterizedType<BagOfPrimitives>>() {}.getType();
     BagOfPrimitives bagDefaultInstance = new BagOfPrimitives();
     Gson gson = new GsonBuilder().registerTypeAdapter(
-        expectedType, new MyParameterizedTypeInstanceCreator<BagOfPrimitives>(bagDefaultInstance))
+        expectedType, new MyParameterizedTypeInstanceCreator<>(bagDefaultInstance))
         .create();
 
     Reader json = new StringReader(expected.getExpectedJson());
@@ -157,35 +152,39 @@ public class ParameterizedTypesTest extends TestCase {
     assertEquals(expected, actual);
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("varargs")
+  @SafeVarargs
+  private static <T> T[] arrayOf(T... args) {
+    return args;
+  }
+
   public void testVariableTypeFieldsAndGenericArraysSerialization() throws Exception {
     Integer obj = 0;
     Integer[] array = { 1, 2, 3 };
-    List<Integer> list = new ArrayList<Integer>();
+    List<Integer> list = new ArrayList<>();
     list.add(4);
     list.add(5);
-    List<Integer>[] arrayOfLists = new List[] { list, list };
+    List<Integer>[] arrayOfLists = arrayOf(list, list);
 
     Type typeOfSrc = new TypeToken<ObjectWithTypeVariables<Integer>>() {}.getType();
     ObjectWithTypeVariables<Integer> objToSerialize =
-        new ObjectWithTypeVariables<Integer>(obj, array, list, arrayOfLists, list, arrayOfLists);
+        new ObjectWithTypeVariables<>(obj, array, list, arrayOfLists, list, arrayOfLists);
     String json = gson.toJson(objToSerialize, typeOfSrc);
 
     assertEquals(objToSerialize.getExpectedJson(), json);
   }
 
-  @SuppressWarnings("unchecked")
   public void testVariableTypeFieldsAndGenericArraysDeserialization() throws Exception {
     Integer obj = 0;
     Integer[] array = { 1, 2, 3 };
-    List<Integer> list = new ArrayList<Integer>();
+    List<Integer> list = new ArrayList<>();
     list.add(4);
     list.add(5);
-    List<Integer>[] arrayOfLists = new List[] { list, list };
+    List<Integer>[] arrayOfLists = arrayOf(list, list);
 
     Type typeOfSrc = new TypeToken<ObjectWithTypeVariables<Integer>>() {}.getType();
     ObjectWithTypeVariables<Integer> objToSerialize =
-        new ObjectWithTypeVariables<Integer>(obj, array, list, arrayOfLists, list, arrayOfLists);
+        new ObjectWithTypeVariables<>(obj, array, list, arrayOfLists, list, arrayOfLists);
     String json = gson.toJson(objToSerialize, typeOfSrc);
     ObjectWithTypeVariables<Integer> objAfterDeserialization = gson.fromJson(json, typeOfSrc);
 
@@ -195,7 +194,7 @@ public class ParameterizedTypesTest extends TestCase {
   public void testVariableTypeDeserialization() throws Exception {
     Type typeOfSrc = new TypeToken<ObjectWithTypeVariables<Integer>>() {}.getType();
     ObjectWithTypeVariables<Integer> objToSerialize =
-        new ObjectWithTypeVariables<Integer>(0, null, null, null, null, null);
+        new ObjectWithTypeVariables<>(0, null, null, null, null, null);
     String json = gson.toJson(objToSerialize, typeOfSrc);
     ObjectWithTypeVariables<Integer> objAfterDeserialization = gson.fromJson(json, typeOfSrc);
 
@@ -207,7 +206,7 @@ public class ParameterizedTypesTest extends TestCase {
 
     Type typeOfSrc = new TypeToken<ObjectWithTypeVariables<Integer>>() {}.getType();
     ObjectWithTypeVariables<Integer> objToSerialize =
-        new ObjectWithTypeVariables<Integer>(null, array, null, null, null, null);
+        new ObjectWithTypeVariables<>(null, array, null, null, null, null);
     String json = gson.toJson(objToSerialize, typeOfSrc);
     ObjectWithTypeVariables<Integer> objAfterDeserialization = gson.fromJson(json, typeOfSrc);
 
@@ -215,43 +214,41 @@ public class ParameterizedTypesTest extends TestCase {
   }
 
   public void testParameterizedTypeWithVariableTypeDeserialization() throws Exception {
-    List<Integer> list = new ArrayList<Integer>();
+    List<Integer> list = new ArrayList<>();
     list.add(4);
     list.add(5);
 
     Type typeOfSrc = new TypeToken<ObjectWithTypeVariables<Integer>>() {}.getType();
     ObjectWithTypeVariables<Integer> objToSerialize =
-        new ObjectWithTypeVariables<Integer>(null, null, list, null, null, null);
+        new ObjectWithTypeVariables<>(null, null, list, null, null, null);
     String json = gson.toJson(objToSerialize, typeOfSrc);
     ObjectWithTypeVariables<Integer> objAfterDeserialization = gson.fromJson(json, typeOfSrc);
 
     assertEquals(objAfterDeserialization.getExpectedJson(), json);
   }
 
-  @SuppressWarnings("unchecked")
   public void testParameterizedTypeGenericArraysSerialization() throws Exception {
-    List<Integer> list = new ArrayList<Integer>();
+    List<Integer> list = new ArrayList<>();
     list.add(1);
     list.add(2);
-    List<Integer>[] arrayOfLists = new List[] { list, list };
+    List<Integer>[] arrayOfLists = arrayOf(list, list);
 
     Type typeOfSrc = new TypeToken<ObjectWithTypeVariables<Integer>>() {}.getType();
     ObjectWithTypeVariables<Integer> objToSerialize =
-        new ObjectWithTypeVariables<Integer>(null, null, null, arrayOfLists, null, null);
+        new ObjectWithTypeVariables<>(null, null, null, arrayOfLists, null, null);
     String json = gson.toJson(objToSerialize, typeOfSrc);
     assertEquals("{\"arrayOfListOfTypeParameters\":[[1,2],[1,2]]}", json);
   }
 
-  @SuppressWarnings("unchecked")
   public void testParameterizedTypeGenericArraysDeserialization() throws Exception {
-    List<Integer> list = new ArrayList<Integer>();
+    List<Integer> list = new ArrayList<>();
     list.add(1);
     list.add(2);
-    List<Integer>[] arrayOfLists = new List[] { list, list };
+    List<Integer>[] arrayOfLists = arrayOf(list, list);
 
     Type typeOfSrc = new TypeToken<ObjectWithTypeVariables<Integer>>() {}.getType();
     ObjectWithTypeVariables<Integer> objToSerialize =
-        new ObjectWithTypeVariables<Integer>(null, null, null, arrayOfLists, null, null);
+        new ObjectWithTypeVariables<>(null, null, null, arrayOfLists, null, null);
     String json = gson.toJson(objToSerialize, typeOfSrc);
     ObjectWithTypeVariables<Integer> objAfterDeserialization = gson.fromJson(json, typeOfSrc);
 
@@ -462,7 +459,7 @@ public class ParameterizedTypesTest extends TestCase {
       return true;
     }
   }
-  
+
   // Begin: tests to reproduce issue 103
   private static class Quantity {
     @SuppressWarnings("unused")
@@ -478,21 +475,21 @@ public class ParameterizedTypesTest extends TestCase {
   }
   private interface Immutable {
   }
-  
-  public static final class Amount<Q extends Quantity> 
+
+  public static final class Amount<Q extends Quantity>
       implements Measurable<Q>, Field<Amount<?>>, Serializable, Immutable {
     private static final long serialVersionUID = -7560491093120970437L;
 
     int value = 30;
   }
-  
+
   public void testDeepParameterizedTypeSerialization() {
-    Amount<MyQuantity> amount = new Amount<MyQuantity>();
+    Amount<MyQuantity> amount = new Amount<>();
     String json = gson.toJson(amount);
     assertTrue(json.contains("value"));
     assertTrue(json.contains("30"));
   }
-  
+
   public void testDeepParameterizedTypeDeserialization() {
     String json = "{value:30}";
     Type type = new TypeToken<Amount<MyQuantity>>() {}.getType();
