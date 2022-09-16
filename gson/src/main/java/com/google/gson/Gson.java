@@ -1139,6 +1139,13 @@ public final class Gson {
    * object itself should not be a generic type. For the cases when the object is of generic type,
    * invoke {@link #fromJson(JsonReader, TypeToken)}.
    *
+   * <p>Unlike the other {@code fromJson} methods, no exception is thrown if the JSON data has
+   * multiple top-level JSON elements, or if there is trailing data.
+   *
+   * <p>The JSON data is parsed in {@linkplain JsonReader#setLenient(boolean) lenient mode},
+   * regardless of the lenient mode setting of the provided reader. The lenient mode setting
+   * of the reader is restored once this method returns.
+   *
    * @param <T> the type of the desired object
    * @param reader the reader whose next JSON value should be deserialized
    * @param classOfT the class of T
@@ -1193,6 +1200,13 @@ public final class Gson {
    * of type {@code typeOfT}. Returns {@code null}, if the {@code reader} is at EOF.
    * This method is useful if the specified object is a generic type. For non-generic objects,
    * use {@link #fromJson(JsonReader, Class)} instead.
+   *
+   * <p>Unlike the other {@code fromJson} methods, no exception is thrown if the JSON data has
+   * multiple top-level JSON elements, or if there is trailing data.
+   *
+   * <p>The JSON data is parsed in {@linkplain JsonReader#setLenient(boolean) lenient mode},
+   * regardless of the lenient mode setting of the provided reader. The lenient mode setting
+   * of the reader is restored once this method returns.
    *
    * @param <T> the type of the desired object
    * @param reader the reader whose next JSON value should be deserialized
