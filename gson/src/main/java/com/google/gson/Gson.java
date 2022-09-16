@@ -941,7 +941,7 @@ public final class Gson {
    * be used if the desired type is a generic type. Note that this method works fine if the any of
    * the fields of the specified object are generics, just the object itself should not be a
    * generic type. For the cases when the object is of generic type, invoke
-   * {@link #fromJson(String, Type)}. If you have the JSON in a {@link Reader} instead of
+   * {@link #fromJson(String, TypeToken)}. If you have the JSON in a {@link Reader} instead of
    * a String, use {@link #fromJson(Reader, Class)} instead.
    *
    * <p>An exception is thrown if the JSON string has multiple top-level JSON elements, or if there
@@ -956,10 +956,10 @@ public final class Gson {
    * classOfT
    *
    * @see #fromJson(Reader, Class)
-   * @see #fromJson(String, Type)
+   * @see #fromJson(String, TypeToken)
    */
   public <T> T fromJson(String json, Class<T> classOfT) throws JsonSyntaxException {
-    Object object = fromJson(json, (Type) classOfT);
+    T object = fromJson(json, TypeToken.get(classOfT));
     return Primitives.wrap(classOfT).cast(object);
   }
 
@@ -970,11 +970,9 @@ public final class Gson {
    * a String, use {@link #fromJson(Reader, Type)} instead.
    *
    * <p>Since {@code Type} is not parameterized by T, this method is not type-safe and
-   * should be used carefully.
-   *
-   * <p>If you are creating the {@code Type} from a {@link TypeToken}, prefer using
-   * {@link #fromJson(String, TypeToken)} instead since its return type is based on the
-   * {@code TypeToken} and is therefore more type-safe.
+   * should be used carefully. If you are creating the {@code Type} from a {@link TypeToken},
+   * prefer using {@link #fromJson(String, TypeToken)} instead since its return type is based
+   * on the {@code TypeToken} and is therefore more type-safe.
    *
    * <p>An exception is thrown if the JSON string has multiple top-level JSON elements,
    * or if there is trailing data. Use {@link #fromJson(JsonReader, Type)} if this behavior is
@@ -1035,7 +1033,7 @@ public final class Gson {
    * Therefore, this method should not be used if the desired type is a generic type. Note that
    * this method works fine if any of the fields of the specified object are generics, just the
    * object itself should not be a generic type. For the cases when the object is of generic type,
-   * invoke {@link #fromJson(Reader, Type)}. If you have the JSON in a String form instead of a
+   * invoke {@link #fromJson(Reader, TypeToken)}. If you have the JSON in a String form instead of a
    * {@link Reader}, use {@link #fromJson(String, Class)} instead.
    *
    * <p>An exception is thrown if the JSON data has multiple top-level JSON elements, or if there
@@ -1050,10 +1048,10 @@ public final class Gson {
    * @since 1.2
    *
    * @see #fromJson(String, Class)
-   * @see #fromJson(Reader, Type)
+   * @see #fromJson(Reader, TypeToken)
    */
   public <T> T fromJson(Reader json, Class<T> classOfT) throws JsonSyntaxException, JsonIOException {
-    Object object = fromJson(json, (Type) classOfT);
+    T object = fromJson(json, TypeToken.get(classOfT));
     return Primitives.wrap(classOfT).cast(object);
   }
 
@@ -1064,11 +1062,9 @@ public final class Gson {
    * String form instead of a {@link Reader}, use {@link #fromJson(String, Type)} instead.
    *
    * <p>Since {@code Type} is not parameterized by T, this method is not type-safe and
-   * should be used carefully.
-   *
-   * <p>If you are creating the {@code Type} from a {@link TypeToken}, prefer using
-   * {@link #fromJson(Reader, TypeToken)} instead since its return type is based on the
-   * {@code TypeToken} and is therefore more type-safe.
+   * should be used carefully. If you are creating the {@code Type} from a {@link TypeToken},
+   * prefer using {@link #fromJson(Reader, TypeToken)} instead since its return type is based
+   * on the {@code TypeToken} and is therefore more type-safe.
    *
    * <p>An exception is thrown if the JSON data has multiple top-level JSON elements, or if there
    * is trailing data. Use {@link #fromJson(JsonReader, Type)} if this behavior is not desired.
@@ -1141,7 +1137,7 @@ public final class Gson {
    * Therefore, this method should not be used if the desired type is a generic type. Note that
    * this method works fine if any of the fields of the specified object are generics, just the
    * object itself should not be a generic type. For the cases when the object is of generic type,
-   * invoke {@link #fromJson(JsonReader, Type)}.
+   * invoke {@link #fromJson(JsonReader, TypeToken)}.
    *
    * @param <T> the type of the desired object
    * @param reader the reader whose next JSON value should be deserialized
@@ -1151,10 +1147,10 @@ public final class Gson {
    * @throws JsonSyntaxException if json is not a valid representation for an object of type classOfT
    *
    * @see #fromJson(Reader, Class)
-   * @see #fromJson(JsonReader, Type)
+   * @see #fromJson(JsonReader, TypeToken)
    */
   public <T> T fromJson(JsonReader reader, Class<T> classOfT) throws JsonIOException, JsonSyntaxException {
-    Object object = fromJson(reader, (Type) classOfT);
+    T object = fromJson(reader, TypeToken.get(classOfT));
     return Primitives.wrap(classOfT).cast(object);
   }
 
@@ -1165,11 +1161,9 @@ public final class Gson {
    * use {@link #fromJson(JsonReader, Class)} instead.
    *
    * <p>Since {@code Type} is not parameterized by T, this method is not type-safe and
-   * should be used carefully.
-   *
-   * <p>If you are creating the {@code Type} from a {@link TypeToken}, prefer using
-   * {@link #fromJson(JsonReader, TypeToken)} instead since its return type is based on the
-   * {@code TypeToken} and is therefore more type-safe.
+   * should be used carefully. If you are creating the {@code Type} from a {@link TypeToken},
+   * prefer using {@link #fromJson(JsonReader, TypeToken)} instead since its return type is based
+   * on the {@code TypeToken} and is therefore more type-safe.
    *
    * <p>Unlike the other {@code fromJson} methods, no exception is thrown if the JSON data has
    * multiple top-level JSON elements, or if there is trailing data.
@@ -1212,7 +1206,7 @@ public final class Gson {
    * @throws JsonIOException if there was a problem reading from the JsonReader
    * @throws JsonSyntaxException if json is not a valid representation for an object of the type typeOfT
    *
-   * @see #fromJson(Reader, Type)
+   * @see #fromJson(Reader, TypeToken)
    * @see #fromJson(JsonReader, Class)
    */
   public <T> T fromJson(JsonReader reader, TypeToken<T> typeOfT) throws JsonIOException, JsonSyntaxException {
@@ -1255,7 +1249,7 @@ public final class Gson {
    * Therefore, this method should not be used if the desired type is a generic type. Note that
    * this method works fine if any of the fields of the specified object are generics, just the
    * object itself should not be a generic type. For the cases when the object is of generic type,
-   * invoke {@link #fromJson(JsonElement, Type)}.
+   * invoke {@link #fromJson(JsonElement, TypeToken)}.
    *
    * @param <T> the type of the desired object
    * @param json the root of the parse tree of {@link JsonElement}s from which the object is to
@@ -1267,10 +1261,10 @@ public final class Gson {
    * @since 1.3
    *
    * @see #fromJson(Reader, Class)
-   * @see #fromJson(JsonElement, Type)
+   * @see #fromJson(JsonElement, TypeToken)
    */
   public <T> T fromJson(JsonElement json, Class<T> classOfT) throws JsonSyntaxException {
-    Object object = fromJson(json, (Type) classOfT);
+    T object = fromJson(json, TypeToken.get(classOfT));
     return Primitives.wrap(classOfT).cast(object);
   }
 
@@ -1280,11 +1274,9 @@ public final class Gson {
    * non-generic objects, use {@link #fromJson(JsonElement, Class)} instead.
    *
    * <p>Since {@code Type} is not parameterized by T, this method is not type-safe and
-   * should be used carefully.
-   *
-   * <p>If you are creating the {@code Type} from a {@link TypeToken}, prefer using
-   * {@link #fromJson(JsonElement, TypeToken)} instead since its return type is based on the
-   * {@code TypeToken} and is therefore more type-safe.
+   * should be used carefully. If you are creating the {@code Type} from a {@link TypeToken},
+   * prefer using {@link #fromJson(JsonElement, TypeToken)} instead since its return type is based
+   * on the {@code TypeToken} and is therefore more type-safe.
    *
    * @param <T> the type of the desired object
    * @param json the root of the parse tree of {@link JsonElement}s from which the object is to
@@ -1323,9 +1315,8 @@ public final class Gson {
    * @throws JsonSyntaxException if json is not a valid representation for an object of type typeOfT
    * @since 1.3
    *
-   * @see #fromJson(Reader, Type)
+   * @see #fromJson(Reader, TypeToken)
    * @see #fromJson(JsonElement, Class)
-   * @see #fromJson(JsonElement, TypeToken)
    */
   public <T> T fromJson(JsonElement json, TypeToken<T> typeOfT) throws JsonSyntaxException {
     if (json == null) {
