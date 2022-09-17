@@ -252,7 +252,7 @@ public final class GsonBuilder {
    * <p>For this case, assume that a type adapter was NOT registered for some
    * {@code Point} class, but rather the default Gson serialization is applied.
    * In this case, some {@code new Point(2,3)} would serialize as {@code
-   * {"x":2,"y":5}}.
+   * {"x":2,"y":3}}.
    *
    * <p>Given the assumption above, a {@code Map<Point, String>} will be
    * serialize as an array of arrays (can be viewed as an entry set of pairs).
