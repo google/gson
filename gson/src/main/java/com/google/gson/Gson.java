@@ -80,11 +80,13 @@ import java.util.concurrent.atomic.AtomicLongArray;
  * MyType target2 = gson.fromJson(json, MyType.class); // deserializes json into target2
  * </pre>
  *
- * <p>If the object that your are serializing/deserializing is a {@code ParameterizedType}
- * (i.e. contains at least one type parameter and may be an array) then you must use the
- * {@link #toJson(Object, Type)} or {@link #fromJson(String, TypeToken)} method. Gson provides
- * the {@link TypeToken} class which helps you with this. Here is an example showing how
- * this can be done:
+ * <p>If the type of the object that you are converting is a {@code ParameterizedType}
+ * (i.e. has at least one type argument, for example {@code List<MyType>}) then for
+ * deserialization you must use a {@code fromJson} method with {@link Type} or {@link TypeToken}
+ * parameter to specify the parameterized type. For serialization specifying a {@code Type}
+ * or {@code TypeToken} is optional, otherwise Gson will use the runtime type of the object.
+ * {@link TypeToken} is a class provided by Gson which helps creating parameterized types.
+ * Here is an example showing how this can be done:
  * <pre>
  * TypeToken&lt;List&lt;MyType&gt;&gt; listType = new TypeToken&lt;List&lt;MyType&gt;&gt;() {};
  * List&lt;MyType&gt; target = new LinkedList&lt;MyType&gt;();
@@ -92,7 +94,7 @@ import java.util.concurrent.atomic.AtomicLongArray;
  *
  * Gson gson = new Gson();
  * // For serialization you normally do not have to specify the type, Gson will use
- * // the runtime class of the objects, however you can also specify it explicitly
+ * // the runtime type of the objects, however you can also specify it explicitly
  * String json = gson.toJson(target, listType.getType());
  *
  * // But for deserialization you have to specify the type

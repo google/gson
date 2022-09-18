@@ -32,7 +32,7 @@ import java.util.Objects;
  * runtime.
  *
  * <p>For example, to create a type literal for {@code List<String>}, you can
- * create an empty anonymous inner class:
+ * create an empty anonymous class:
  *
  * <p>
  * {@code TypeToken<List<String>> list = new TypeToken<List<String>>() {};}
@@ -42,6 +42,11 @@ import java.util.Objects;
  * available to Gson and therefore it cannot provide the functionality one
  * might expect, which gives a false sense of type-safety at compilation time
  * and can lead to an unexpected {@code ClassCastException} at runtime.
+ *
+ * <p>If the type arguments of the parameterized type are only available at
+ * runtime, for example when you want to create a {@code List<E>} based on
+ * a {@code Class<E>} representing the element type, the method
+ * {@link #getParameterized(Type, Type...)} can be used.
  *
  * @author Bob Lee
  * @author Sven Mawson
@@ -317,8 +322,17 @@ public class TypeToken<T> {
   }
 
   /**
-   * Gets type literal for the parameterized type represented by applying {@code typeArguments} to
-   * {@code rawType}.
+   * Gets a type literal for the parameterized type represented by applying {@code typeArguments} to
+   * {@code rawType}. This is mainly intended for situations where the type arguments are not
+   * available at compile time. The following example shows how a type token for {@code Map<K, V>}
+   * can be created:
+   * <pre>{@code
+   * Class<K> keyClass = ...;
+   * Class<V> valueClass = ...;
+   * TypeToken<?> mapTypeToken = TypeToken.getParameterized(Map.class, keyClass, valueClass);
+   * }</pre>
+   * As seen here the result is a {@code TypeToken<?>}; this method cannot provide any type safety,
+   * and care must be taken to pass in the correct number of type arguments.
    *
    * @throws IllegalArgumentException
    *   If {@code rawType} is not of type {@code Class}, or if the type arguments are invalid for
