@@ -225,7 +225,7 @@ Collection<Integer> ints = Arrays.asList(1,2,3,4,5);
 String json = gson.toJson(ints);  // ==> json is [1,2,3,4,5]
 
 // Deserialization
-Type collectionType = new TypeToken<Collection<Integer>>(){}.getType();
+TypeToken<Collection<Integer>> collectionType = new TypeToken<Collection<Integer>>(){};
 Collection<Integer> ints2 = gson.fromJson(json, collectionType);
 // ==> ints2 is same as ints
 ```
@@ -263,7 +263,7 @@ For deserialization Gson uses the `read` method of the `TypeAdapter` registered 
 
 ```java
 Gson gson = new Gson();
-Type mapType = new TypeToken<Map<String, String>>(){}.getType();
+TypeToken<Map<String, String>> mapType = new TypeToken<Map<String, String>>(){};
 String json = "{\"key\": \"value\"}";
 
 // Deserialization

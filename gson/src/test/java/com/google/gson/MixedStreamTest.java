@@ -174,7 +174,7 @@ public final class MixedStreamTest extends TestCase {
     } catch (NullPointerException expected) {
     }
     try {
-      gson.fromJson(new JsonReader(new StringReader("true")), null);
+      gson.fromJson(new JsonReader(new StringReader("true")), (Type) null);
       fail();
     } catch (NullPointerException expected) {
     }
