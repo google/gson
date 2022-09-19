@@ -342,11 +342,10 @@ public final class ConstructorConstructor {
   private <T> ObjectConstructor<T> newUnsafeAllocator(final Class<? super T> rawType) {
     if (useJdkUnsafe) {
       return new ObjectConstructor<T>() {
-        private final UnsafeAllocator unsafeAllocator = UnsafeAllocator.create();
         @Override public T construct() {
           try {
             @SuppressWarnings("unchecked")
-            T newInstance = (T) unsafeAllocator.newInstance(rawType);
+            T newInstance = (T) UnsafeAllocator.INSTANCE.newInstance(rawType);
             return newInstance;
           } catch (Exception e) {
             throw new RuntimeException(("Unable to create instance of " + rawType + ". "
