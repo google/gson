@@ -137,8 +137,8 @@ public final class JsonAdapterSerializerDeserializerTest extends TestCase {
     @JsonAdapter(BaseStringAdapter.class) Base<String> a;
     @JsonAdapter(BaseIntegerAdapter.class) Base<Integer> b;
     Container(String a, int b) {
-      this.a = new Base<String>(a);
-      this.b = new Base<Integer>(b);
+      this.a = new Base<>(a);
+      this.b = new Base<>(b);
     }
   }
 

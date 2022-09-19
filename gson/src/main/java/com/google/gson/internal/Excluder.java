@@ -97,18 +97,17 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
       boolean serialization, boolean deserialization) {
     Excluder result = clone();
     if (serialization) {
-      result.serializationStrategies = new ArrayList<ExclusionStrategy>(serializationStrategies);
+      result.serializationStrategies = new ArrayList<>(serializationStrategies);
       result.serializationStrategies.add(exclusionStrategy);
     }
     if (deserialization) {
-      result.deserializationStrategies
-          = new ArrayList<ExclusionStrategy>(deserializationStrategies);
+      result.deserializationStrategies = new ArrayList<>(deserializationStrategies);
       result.deserializationStrategies.add(exclusionStrategy);
     }
     return result;
   }
 
-  public <T> TypeAdapter<T> create(final Gson gson, final TypeToken<T> type) {
+  @Override public <T> TypeAdapter<T> create(final Gson gson, final TypeToken<T> type) {
     Class<?> rawType = type.getRawType();
     boolean excludeClass = excludeClassChecks(rawType);
 

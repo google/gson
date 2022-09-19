@@ -154,7 +154,10 @@ public final class $Gson$Types {
       return Object.class;
 
     } else if (type instanceof WildcardType) {
-      return getRawType(((WildcardType) type).getUpperBounds()[0]);
+      Type[] bounds = ((WildcardType) type).getUpperBounds();
+      // Currently the JLS only permits one bound for wildcards so using first bound is safe
+      assert bounds.length == 1;
+      return getRawType(bounds[0]);
 
     } else {
       String className = type == null ? "null" : type.getClass().getName();
@@ -163,7 +166,7 @@ public final class $Gson$Types {
     }
   }
 
-  static boolean equal(Object a, Object b) {
+  private static boolean equal(Object a, Object b) {
     return a == b || (a != null && a.equals(b));
   }
 
@@ -225,10 +228,6 @@ public final class $Gson$Types {
     }
   }
 
-  static int hashCodeOrZero(Object o) {
-    return o != null ? o.hashCode() : 0;
-  }
-
   public static String typeToString(Type type) {
     return type instanceof Class ? ((Class<?>) type).getName() : type.toString();
   }
@@ -238,19 +237,19 @@ public final class $Gson$Types {
    * IntegerSet}, the result for when supertype is {@code Set.class} is {@code Set<Integer>} and the
    * result when the supertype is {@code Collection.class} is {@code Collection<Integer>}.
    */
-  static Type getGenericSupertype(Type context, Class<?> rawType, Class<?> toResolve) {
-    if (toResolve == rawType) {
+  private static Type getGenericSupertype(Type context, Class<?> rawType, Class<?> supertype) {
+    if (supertype == rawType) {
       return context;
     }
 
     // we skip searching through interfaces if unknown is an interface
-    if (toResolve.isInterface()) {
+    if (supertype.isInterface()) {
       Class<?>[] interfaces = rawType.getInterfaces();
       for (int i = 0, length = interfaces.length; i < length; i++) {
-        if (interfaces[i] == toResolve) {
+        if (interfaces[i] == supertype) {
           return rawType.getGenericInterfaces()[i];
-        } else if (toResolve.isAssignableFrom(interfaces[i])) {
-          return getGenericSupertype(rawType.getGenericInterfaces()[i], interfaces[i], toResolve);
+        } else if (supertype.isAssignableFrom(interfaces[i])) {
+          return getGenericSupertype(rawType.getGenericInterfaces()[i], interfaces[i], supertype);
         }
       }
     }
@@ -259,17 +258,17 @@ public final class $Gson$Types {
     if (!rawType.isInterface()) {
       while (rawType != Object.class) {
         Class<?> rawSupertype = rawType.getSuperclass();
-        if (rawSupertype == toResolve) {
+        if (rawSupertype == supertype) {
           return rawType.getGenericSuperclass();
-        } else if (toResolve.isAssignableFrom(rawSupertype)) {
-          return getGenericSupertype(rawType.getGenericSuperclass(), rawSupertype, toResolve);
+        } else if (supertype.isAssignableFrom(rawSupertype)) {
+          return getGenericSupertype(rawType.getGenericSuperclass(), rawSupertype, supertype);
         }
         rawType = rawSupertype;
       }
     }
 
     // we can't resolve this further
-    return toResolve;
+    return supertype;
   }
 
   /**
@@ -279,10 +278,13 @@ public final class $Gson$Types {
    *
    * @param supertype a superclass of, or interface implemented by, this.
    */
-  static Type getSupertype(Type context, Class<?> contextRawType, Class<?> supertype) {
+  private static Type getSupertype(Type context, Class<?> contextRawType, Class<?> supertype) {
     if (context instanceof WildcardType) {
       // wildcards are useless for resolving supertypes. As the upper bound has the same raw type, use it instead
-      context = ((WildcardType)context).getUpperBounds()[0];
+      Type[] bounds = ((WildcardType)context).getUpperBounds();
+      // Currently the JLS only permits one bound for wildcards so using first bound is safe
+      assert bounds.length == 1;
+      context = bounds[0];
     }
     checkArgument(supertype.isAssignableFrom(contextRawType));
     return resolve(context, contextRawType,
@@ -306,9 +308,6 @@ public final class $Gson$Types {
   public static Type getCollectionElementType(Type context, Class<?> contextRawType) {
     Type collectionType = getSupertype(context, contextRawType, Collection.class);
 
-    if (collectionType instanceof WildcardType) {
-      collectionType = ((WildcardType)collectionType).getUpperBounds()[0];
-    }
     if (collectionType instanceof ParameterizedType) {
       return ((ParameterizedType) collectionType).getActualTypeArguments()[0];
     }
@@ -440,7 +439,7 @@ public final class $Gson$Types {
     return toResolve;
   }
 
-  static Type resolveTypeVariable(Type context, Class<?> contextRawType, TypeVariable<?> unknown) {
+  private static Type resolveTypeVariable(Type context, Class<?> contextRawType, TypeVariable<?> unknown) {
     Class<?> declaredByRaw = declaringClassOf(unknown);
 
     // we can't reduce this further
@@ -505,21 +504,25 @@ public final class $Gson$Types {
       }
     }
 
-    public Type[] getActualTypeArguments() {
+    @Override public Type[] getActualTypeArguments() {
       return typeArguments.clone();
     }
 
-    public Type getRawType() {
+    @Override public Type getRawType() {
       return rawType;
     }
 
-    public Type getOwnerType() {
+    @Override public Type getOwnerType() {
       return ownerType;
     }
 
     @Override public boolean equals(Object other) {
       return other instanceof ParameterizedType
           && $Gson$Types.equals(this, (ParameterizedType) other);
+    }
+
+    private static int hashCodeOrZero(Object o) {
+      return o != null ? o.hashCode() : 0;
     }
 
     @Override public int hashCode() {
@@ -552,7 +555,7 @@ public final class $Gson$Types {
       this.componentType = canonicalize(componentType);
     }
 
-    public Type getGenericComponentType() {
+    @Override public Type getGenericComponentType() {
       return componentType;
     }
 
@@ -574,8 +577,9 @@ public final class $Gson$Types {
 
   /**
    * The WildcardType interface supports multiple upper bounds and multiple
-   * lower bounds. We only support what the Java 6 language needs - at most one
-   * bound. If a lower bound is set, the upper bound must be Object.class.
+   * lower bounds. We only support what the target Java version supports - at most one
+   * bound, see also https://bugs.openjdk.java.net/browse/JDK-8250660. If a lower bound
+   * is set, the upper bound must be Object.class.
    */
   private static final class WildcardTypeImpl implements WildcardType, Serializable {
     private final Type upperBound;
@@ -600,11 +604,11 @@ public final class $Gson$Types {
       }
     }
 
-    public Type[] getUpperBounds() {
+    @Override public Type[] getUpperBounds() {
       return new Type[] { upperBound };
     }
 
-    public Type[] getLowerBounds() {
+    @Override public Type[] getLowerBounds() {
       return lowerBound != null ? new Type[] { lowerBound } : EMPTY_TYPE_ARRAY;
     }
 

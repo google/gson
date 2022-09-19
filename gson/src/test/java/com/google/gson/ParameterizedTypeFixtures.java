@@ -119,7 +119,7 @@ public class ParameterizedTypeFixtures {
       this.instanceOfT = instanceOfT;
     }
     @Override public MyParameterizedType<T> createInstance(Type type) {
-      return new MyParameterizedType<T>(instanceOfT);
+      return new MyParameterizedType<>(instanceOfT);
     }
   }
 
@@ -171,7 +171,7 @@ public class ParameterizedTypeFixtures {
         PrimitiveTypeAdapter typeAdapter = new PrimitiveTypeAdapter();
         value = (T) typeAdapter.adaptType(value, rawType);
       }
-      return new MyParameterizedType<T>(value);
+      return new MyParameterizedType<>(value);
     }
   }
 }

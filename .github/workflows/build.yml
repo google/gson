@@ -15,4 +15,5 @@ jobs:
           java-version: '11'
           cache: 'maven'
       - name: Build with Maven
-        run: mvn --batch-mode --update-snapshots verify
+        # This also runs javadoc:javadoc to detect any issues with the Javadoc
+        run: mvn --batch-mode --update-snapshots verify javadoc:javadoc

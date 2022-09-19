@@ -1,19 +1,20 @@
 package com.google.gson.internal.bind.util;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.fail;
 
 import java.text.ParseException;
 import java.text.ParsePosition;
-import java.util.*;
-
-import static org.junit.Assert.assertEquals;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Locale;
+import java.util.TimeZone;
+import org.junit.Test;
+import org.junit.function.ThrowingRunnable;
 
 public class ISO8601UtilsTest {
-
-    @Rule
-    public final ExpectedException exception = ExpectedException.none();
 
     private static TimeZone utcTimeZone() {
         return TimeZone.getTimeZone("UTC");
@@ -66,6 +67,26 @@ public class ISO8601UtilsTest {
     }
 
     @Test
+    public void testDateParseInvalidDay() {
+      String dateStr = "2022-12-33";
+      try {
+        ISO8601Utils.parse(dateStr, new ParsePosition(0));
+        fail("Expected parsing to fail");
+      } catch (ParseException expected) {
+      }
+    }
+
+    @Test
+    public void testDateParseInvalidMonth() {
+      String dateStr = "2022-14-30";
+      try {
+        ISO8601Utils.parse(dateStr, new ParsePosition(0));
+        fail("Expected parsing to fail");
+      } catch (ParseException expected) {
+      }
+    }
+
+    @Test
     public void testDateParseWithTimezone() throws ParseException {
         String dateStr = "2018-06-25T00:00:00-03:00";
         Date date = ISO8601Utils.parse(dateStr, new ParsePosition(0));
@@ -87,8 +108,12 @@ public class ISO8601UtilsTest {
 
     @Test
     public void testDateParseInvalidTime() throws ParseException {
-        String dateStr = "2018-06-25T61:60:62-03:00";
-        exception.expect(ParseException.class);
-        ISO8601Utils.parse(dateStr, new ParsePosition(0));
+        final String dateStr = "2018-06-25T61:60:62-03:00";
+        assertThrows(ParseException.class, new ThrowingRunnable() {
+          @Override
+          public void run() throws Throwable {
+            ISO8601Utils.parse(dateStr, new ParsePosition(0));
+          }
+        });
     }
 }

@@ -1,0 +1,72 @@
+//
+// Copyright (C) 2010 Google Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+syntax = "proto2";
+
+package google.gson.protobuf.generated;
+option java_package = "com.google.gson.protobuf.generated";
+
+import "annotations.proto";
+
+message SimpleProto {
+  optional string msg = 1;
+  optional int32 count = 2;
+}
+
+message ProtoWithDifferentCaseFormat {
+  repeated string name_that_tests_case_format = 1;
+  optional string another_field = 2;
+}
+
+message ProtoWithRepeatedFields {
+  repeated int64 numbers = 1;
+  repeated SimpleProto simples = 2;
+  optional string name = 3;
+}
+
+// -- A more complex message with annotations and nested protos
+
+message OuterMessage {
+  optional int32 month = 1;
+  optional int32 year = 2;
+  optional int64 long_timestamp = 3 [(serialized_name) = "timeStamp"];
+  optional string country_code_5f55 = 4;
+}
+
+message ProtoWithAnnotations {
+  optional string id = 1;
+  optional OuterMessage outer_message = 2 [(serialized_name) = "expiration_date"];
+
+  message InnerMessage {
+    optional int32 n__id_ct = 1;
+
+    enum Type {
+      UNKNOWN = 0;
+      TEXT = 1 [(serialized_value) = "text/plain"];
+      IMAGE = 2 [(serialized_value) = "image/png"];
+    }
+    optional Type content = 2;
+
+    message Data {
+      optional string data = 1;
+      optional int32 width = 2;
+      optional int32 height = 3;
+    }
+    repeated Data data = 3 [(serialized_name) = "$binary_data$"];
+  }
+  optional InnerMessage inner_message_1 = 3;
+  optional InnerMessage inner_message_2 = 4;
+}

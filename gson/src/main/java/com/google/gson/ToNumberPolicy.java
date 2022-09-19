@@ -71,11 +71,11 @@ public enum ToNumberPolicy implements ToNumberStrategy {
         try {
           Double d = Double.valueOf(value);
           if ((d.isInfinite() || d.isNaN()) && !in.isLenient()) {
-            throw new MalformedJsonException("JSON forbids NaN and infinities: " + d + "; at path " + in.getPath());
+            throw new MalformedJsonException("JSON forbids NaN and infinities: " + d + "; at path " + in.getPreviousPath());
           }
           return d;
         } catch (NumberFormatException doubleE) {
-          throw new JsonParseException("Cannot parse " + value + "; at path " + in.getPath(), doubleE);
+          throw new JsonParseException("Cannot parse " + value + "; at path " + in.getPreviousPath(), doubleE);
         }
       }
     }
@@ -91,7 +91,7 @@ public enum ToNumberPolicy implements ToNumberStrategy {
       try {
         return new BigDecimal(value);
       } catch (NumberFormatException e) {
-        throw new JsonParseException("Cannot parse " + value + "; at path " + in.getPath(), e);
+        throw new JsonParseException("Cannot parse " + value + "; at path " + in.getPreviousPath(), e);
       }
     }
   }

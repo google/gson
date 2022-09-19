@@ -35,11 +35,12 @@ import junit.framework.TestCase;
  * @author Inderjeet Singh
  */
 public class GsonVersionDiagnosticsTest extends TestCase {
-  private static final Pattern GSON_VERSION_PATTERN = Pattern.compile("(\\(GSON \\d\\.\\d\\.\\d)(?:[-.][A-Z]+)?\\)$");
+  private static final Pattern GSON_VERSION_PATTERN = Pattern.compile("(\\(GSON \\d\\.\\d\\.\\d)(?:[-][A-Za-z]+)?(?:[-][0-9]+)?\\)$");
 
   private Gson gson;
 
   @Before
+  @Override
   public void setUp() {
     gson = new GsonBuilder().registerTypeAdapter(TestType.class, new TypeAdapter<TestType>() {
       @Override public void write(JsonWriter out, TestType value) {

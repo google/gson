@@ -41,7 +41,7 @@ import java.util.Set;
 public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Serializable {
   @SuppressWarnings({ "unchecked", "rawtypes" }) // to avoid Comparable<Comparable<Comparable<...>>>
   private static final Comparator<Comparable> NATURAL_ORDER = new Comparator<Comparable>() {
-    public int compare(Comparable a, Comparable b) {
+    @Override public int compare(Comparable a, Comparable b) {
       return a.compareTo(b);
     }
   };
@@ -52,7 +52,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
   int modCount = 0;
 
   // Used to preserve iteration order
-  final Node<K, V> header = new Node<K, V>();
+  final Node<K, V> header = new Node<>();
 
   /**
    * Create a natural order, empty tree map whose keys must be mutually
@@ -166,10 +166,10 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
       if (comparator == NATURAL_ORDER && !(key instanceof Comparable)) {
         throw new ClassCastException(key.getClass().getName() + " is not Comparable");
       }
-      created = new Node<K, V>(nearest, key, header, header.prev);
+      created = new Node<>(nearest, key, header, header.prev);
       root = created;
     } else {
-      created = new Node<K, V>(nearest, key, header, header.prev);
+      created = new Node<>(nearest, key, header, header.prev);
       if (comparison < 0) { // nearest.key is higher
         nearest.left = created;
       } else { // comparison > 0, nearest.key is lower
@@ -466,15 +466,15 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
       next.prev = this;
     }
 
-    public K getKey() {
+    @Override public K getKey() {
       return key;
     }
 
-    public V getValue() {
+    @Override public V getValue() {
       return value;
     }
 
-    public V setValue(V value) {
+    @Override public V setValue(V value) {
       V oldValue = this.value;
       this.value = value;
       return oldValue;
@@ -534,7 +534,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
     LinkedTreeMapIterator() {
     }
 
-    public final boolean hasNext() {
+    @Override public final boolean hasNext() {
       return next != header;
     }
 
@@ -550,7 +550,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
       return lastReturned = e;
     }
 
-    public final void remove() {
+    @Override public final void remove() {
       if (lastReturned == null) {
         throw new IllegalStateException();
       }
@@ -567,7 +567,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
 
     @Override public Iterator<Entry<K, V>> iterator() {
       return new LinkedTreeMapIterator<Entry<K, V>>() {
-        public Entry<K, V> next() {
+        @Override public Entry<K, V> next() {
           return nextNode();
         }
       };
@@ -602,7 +602,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
 
     @Override public Iterator<K> iterator() {
       return new LinkedTreeMapIterator<K>() {
-        public K next() {
+        @Override public K next() {
           return nextNode().key;
         }
       };
@@ -628,7 +628,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
    * shouldn't use it.
    */
   private Object writeReplace() throws ObjectStreamException {
-    return new LinkedHashMap<K, V>(this);
+    return new LinkedHashMap<>(this);
   }
 
   private void readObject(ObjectInputStream in) throws IOException {

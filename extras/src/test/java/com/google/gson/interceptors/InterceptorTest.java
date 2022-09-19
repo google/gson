@@ -141,7 +141,7 @@ public final class InterceptorTest extends TestCase {
   }
 
   public static final class UserValidator implements JsonPostDeserializer<User> {
-    public void postDeserialize(User user) {
+    @Override public void postDeserialize(User user) {
       if (user.name == null || user.password == null) {
         throw new JsonSyntaxException("name and password are required fields.");
       }
@@ -161,7 +161,7 @@ public final class InterceptorTest extends TestCase {
   }
 
   public static final class AddressValidator implements JsonPostDeserializer<Address> {
-    public void postDeserialize(Address address) {
+    @Override public void postDeserialize(Address address) {
       if (address.city == null || address.state == null || address.zip == null) {
         throw new JsonSyntaxException("Address city, state and zip are required fields.");
       }
