@@ -947,7 +947,7 @@ public final class Gson {
    * a String, use {@link #fromJson(Reader, Class)} instead.
    *
    * <p>An exception is thrown if the JSON string has multiple top-level JSON elements, or if there
-   * is trailing data. Use {@link #fromJson(JsonReader, Class)} if this behavior is not desired.
+   * is trailing data. Use {@link #fromJson(JsonReader, Type)} if this behavior is not desired.
    *
    * @param <T> the type of the desired object
    * @param json the string from which the object is to be deserialized
@@ -1039,7 +1039,7 @@ public final class Gson {
    * {@link Reader}, use {@link #fromJson(String, Class)} instead.
    *
    * <p>An exception is thrown if the JSON data has multiple top-level JSON elements, or if there
-   * is trailing data. Use {@link #fromJson(JsonReader, Class)} if this behavior is not desired.
+   * is trailing data. Use {@link #fromJson(JsonReader, Type)} if this behavior is not desired.
    *
    * @param <T> the type of the desired object
    * @param json the reader producing the JSON from which the object is to be deserialized.
@@ -1131,48 +1131,18 @@ public final class Gson {
     }
   }
 
-  /**
-   * Reads the next JSON value from {@code reader} and converts it to an object
-   * of type {@code classOfT}. Returns {@code null}, if the {@code reader} is at EOF.
-   * It is not suitable to use if the specified class is a generic type since it
-   * will not have the generic type information because of the Type Erasure feature of Java.
-   * Therefore, this method should not be used if the desired type is a generic type. Note that
-   * this method works fine if any of the fields of the specified object are generics, just the
-   * object itself should not be a generic type. For the cases when the object is of generic type,
-   * invoke {@link #fromJson(JsonReader, TypeToken)}.
-   *
-   * <p>Unlike the other {@code fromJson} methods, no exception is thrown if the JSON data has
-   * multiple top-level JSON elements, or if there is trailing data.
-   *
-   * <p>The JSON data is parsed in {@linkplain JsonReader#setLenient(boolean) lenient mode},
-   * regardless of the lenient mode setting of the provided reader. The lenient mode setting
-   * of the reader is restored once this method returns.
-   *
-   * @param <T> the type of the desired object
-   * @param reader the reader whose next JSON value should be deserialized
-   * @param classOfT the class of T
-   * @return an object of type T from the JsonReader. Returns {@code null} if {@code reader} is at EOF.
-   * @throws JsonIOException if there was a problem reading from the JsonReader
-   * @throws JsonSyntaxException if json is not a valid representation for an object of type classOfT
-   *
-   * @see #fromJson(Reader, Class)
-   * @see #fromJson(JsonReader, TypeToken)
-   */
-  public <T> T fromJson(JsonReader reader, Class<T> classOfT) throws JsonIOException, JsonSyntaxException {
-    T object = fromJson(reader, TypeToken.get(classOfT));
-    return Primitives.wrap(classOfT).cast(object);
-  }
+  // fromJson(JsonReader, Class) is unfortunately missing and cannot be added now without breaking
+  // source compatibility in certain cases, see https://github.com/google/gson/pull/1700#discussion_r973764414
 
   /**
    * Reads the next JSON value from {@code reader} and converts it to an object
    * of type {@code typeOfT}. Returns {@code null}, if the {@code reader} is at EOF.
-   * This method is useful if the specified object is a generic type. For non-generic objects,
-   * use {@link #fromJson(JsonReader, Class)} instead.
    *
    * <p>Since {@code Type} is not parameterized by T, this method is not type-safe and
    * should be used carefully. If you are creating the {@code Type} from a {@link TypeToken},
    * prefer using {@link #fromJson(JsonReader, TypeToken)} instead since its return type is based
-   * on the {@code TypeToken} and is therefore more type-safe.
+   * on the {@code TypeToken} and is therefore more type-safe. If the provided type is a
+   * {@code Class} the {@code TypeToken} can be created with {@link TypeToken#get(Class)}.
    *
    * <p>Unlike the other {@code fromJson} methods, no exception is thrown if the JSON data has
    * multiple top-level JSON elements, or if there is trailing data.
@@ -1189,7 +1159,6 @@ public final class Gson {
    * @throws JsonSyntaxException if json is not a valid representation for an object of type typeOfT
    *
    * @see #fromJson(Reader, Type)
-   * @see #fromJson(JsonReader, Class)
    * @see #fromJson(JsonReader, TypeToken)
    */
   @SuppressWarnings("unchecked")
@@ -1201,7 +1170,8 @@ public final class Gson {
    * Reads the next JSON value from {@code reader} and converts it to an object
    * of type {@code typeOfT}. Returns {@code null}, if the {@code reader} is at EOF.
    * This method is useful if the specified object is a generic type. For non-generic objects,
-   * use {@link #fromJson(JsonReader, Class)} instead.
+   * {@link #fromJson(JsonReader, Type)} can be called, or {@link TypeToken#get(Class)} can
+   * be used to create the type token.
    *
    * <p>Unlike the other {@code fromJson} methods, no exception is thrown if the JSON data has
    * multiple top-level JSON elements, or if there is trailing data.
@@ -1223,7 +1193,7 @@ public final class Gson {
    * @throws JsonSyntaxException if json is not a valid representation for an object of the type typeOfT
    *
    * @see #fromJson(Reader, TypeToken)
-   * @see #fromJson(JsonReader, Class)
+   * @see #fromJson(JsonReader, Type)
    */
   public <T> T fromJson(JsonReader reader, TypeToken<T> typeOfT) throws JsonIOException, JsonSyntaxException {
     boolean isEmpty = true;
