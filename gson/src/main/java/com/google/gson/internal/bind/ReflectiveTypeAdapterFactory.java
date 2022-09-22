@@ -38,12 +38,16 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -94,22 +98,32 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     return fieldNames;
   }
 
-  @Override public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
+  @Override
+  public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
     Class<? super T> raw = type.getRawType();
 
     if (!Object.class.isAssignableFrom(raw)) {
       return null; // it's a primitive!
     }
 
-    FilterResult filterResult = ReflectionAccessFilterHelper.getFilterResult(reflectionFilters, raw);
+    if (ReflectionHelper.isRecord(raw)) {
+      // We can assume blockInaccessible here, because it will never kick inn. We are not doing
+      // direct field access, and are instead constructing records via their canonical constructor.
+      return new RecordAdapter<>(raw, getBoundFields(gson, type, raw, true));
+    }
+
+    FilterResult filterResult =
+        ReflectionAccessFilterHelper.getFilterResult(reflectionFilters, raw);
     if (filterResult == FilterResult.BLOCK_ALL) {
-      throw new JsonIOException("ReflectionAccessFilter does not permit using reflection for "
-          + raw + ". Register a TypeAdapter for this type or adjust the access filter.");
+      throw new JsonIOException(
+          "ReflectionAccessFilter does not permit using reflection for "
+              + raw
+              + ". Register a TypeAdapter for this type or adjust the access filter.");
     }
     boolean blockInaccessible = filterResult == FilterResult.BLOCK_INACCESSIBLE;
 
     ObjectConstructor<T> constructor = constructorConstructor.get(type);
-    return new Adapter<>(constructor, getBoundFields(gson, type, raw, blockInaccessible));
+    return new FieldReflectionAdapter<>(constructor, getBoundFields(gson, type, raw, blockInaccessible));
   }
 
   private static void checkAccessible(Object object, Field field) {
@@ -156,7 +170,14 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
             : new TypeAdapterRuntimeTypeWrapper<>(context, typeAdapter, fieldType.getType());
         t.write(writer, fieldValue);
       }
-      @Override void read(JsonReader reader, Object value)
+
+      @Override
+      Object read(JsonReader reader) throws IOException {
+        return typeAdapter.read(reader);
+      }
+
+      @Override
+      void read(JsonReader reader, Object value)
           throws IOException, IllegalAccessException {
         Object fieldValue = typeAdapter.read(reader);
         if (fieldValue != null || !isPrimitive) {
@@ -234,48 +255,35 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       this.serialized = serialized;
       this.deserialized = deserialized;
     }
+
     abstract void write(JsonWriter writer, Object value) throws IOException, IllegalAccessException;
+
+    abstract Object read(JsonReader reader) throws IOException;
+
     abstract void read(JsonReader reader, Object value) throws IOException, IllegalAccessException;
   }
 
-  public static final class Adapter<T> extends TypeAdapter<T> {
-    private final ObjectConstructor<T> constructor;
-    private final Map<String, BoundField> boundFields;
+  /**
+   * Base class for Adapters produced by this factory.
+   *
+   * <p>The {@link RecordAdapter} is a special case to handle Java 17 and later records, for all
+   * other types we use the {@link FieldReflectionAdapter}. This class encapuslates the common logic
+   * for serialization and deserialization. During deserialization, we construct an intermediary
+   * ResultHolder R, which we append values to. After the object has been read in full, the {@link
+   * #finalize(Object)} method is used to convert the intermediary to an instance of T.
+   *
+   * @param <T> type of objects that this Adapter creates.
+   * @param <I> intermediary type used to build the deserialization result.
+   */
+  abstract static class Adapter<T, I> extends TypeAdapter<T> {
+    protected final Map<String, BoundField> boundFields;
 
-    Adapter(ObjectConstructor<T> constructor, Map<String, BoundField> boundFields) {
-      this.constructor = constructor;
+    protected Adapter(Map<String, BoundField> boundFields) {
       this.boundFields = boundFields;
     }
 
-    @Override public T read(JsonReader in) throws IOException {
-      if (in.peek() == JsonToken.NULL) {
-        in.nextNull();
-        return null;
-      }
-
-      T instance = constructor.construct();
-
-      try {
-        in.beginObject();
-        while (in.hasNext()) {
-          String name = in.nextName();
-          BoundField field = boundFields.get(name);
-          if (field == null || !field.deserialized) {
-            in.skipValue();
-          } else {
-            field.read(in, instance);
-          }
-        }
-      } catch (IllegalStateException e) {
-        throw new JsonSyntaxException(e);
-      } catch (IllegalAccessException e) {
-        throw ReflectionHelper.createExceptionForUnexpectedIllegalAccess(e);
-      }
-      in.endObject();
-      return instance;
-    }
-
-    @Override public void write(JsonWriter out, T value) throws IOException {
+    @Override
+    public void write(JsonWriter out, T value) throws IOException {
       if (value == null) {
         out.nullValue();
         return;
@@ -290,6 +298,130 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         throw ReflectionHelper.createExceptionForUnexpectedIllegalAccess(e);
       }
       out.endObject();
+    }
+
+    @Override
+    public T read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
+        return null;
+      }
+
+      I intermediary = createIntermediary();
+
+      try {
+        in.beginObject();
+        while (in.hasNext()) {
+          String name = in.nextName();
+          BoundField field = boundFields.get(name);
+          if (field == null || !field.deserialized) {
+            in.skipValue();
+          } else {
+            readField(intermediary, in, field);
+          }
+        }
+      } catch (IllegalStateException e) {
+        throw new JsonSyntaxException(e);
+      } catch (IllegalAccessException e) {
+        throw ReflectionHelper.createExceptionForUnexpectedIllegalAccess(e);
+      }
+      in.endObject();
+      return finalize(intermediary);
+    }
+
+    // Create the Object that will be used to collect each field value
+    abstract I createIntermediary();
+    // Read a single Bounded field into the intermediary. The JsonReader will be pointed at the
+    // start of the value
+    // for the BoundField to read from.
+    abstract void readField(I intermediary, JsonReader in, BoundField field)
+        throws IllegalAccessException, IOException;
+    // Convert the intermediary to a final instance of T.
+    abstract T finalize(I intermediary);
+  }
+
+  private static final class FieldReflectionAdapter<T> extends Adapter<T, T> {
+    private final ObjectConstructor<T> constructor;
+
+    FieldReflectionAdapter(ObjectConstructor<T> constructor, Map<String, BoundField> boundFields) {
+      super(boundFields);
+      this.constructor = constructor;
+    }
+
+    @Override
+    T createIntermediary() {
+      return constructor.construct();
+    }
+
+    @Override
+    void readField(T intermediary, JsonReader in, BoundField field)
+        throws IllegalAccessException, IOException {
+      field.read(in, intermediary);
+    }
+
+    @Override
+    T finalize(T intermediary) {
+      return intermediary;
+    }
+  }
+
+  private static final class RecordAdapter<T> extends Adapter<T, Object[]> {
+    // The actual record constructor.
+    private final Constructor<? super T> constructor;
+    // Array of arguments to the constructor, initialized with default values for primitives
+    private final Object[] constructorArgsDefaults;
+    // Map from field names to index into the constructors arguments.
+    private final Map<String, Integer> fieldIndices = new HashMap<>();
+
+    RecordAdapter(Class<? super T> raw, Map<String, BoundField> boundFields) {
+      super(boundFields);
+      this.constructor = ReflectionHelper.getCanonicalRecordConstructor(raw);
+      String[] recordFields = ReflectionHelper.recordFields(raw);
+      for (int i = 0; i < recordFields.length; i++) {
+        fieldIndices.put(recordFields[i], i);
+      }
+      Class<?>[] parameterTypes = constructor.getParameterTypes();
+      constructorArgsDefaults = new Object[parameterTypes.length];
+      for (int i = 0; i < parameterTypes.length; i++) {
+        if (parameterTypes[i].isPrimitive()) {
+          constructorArgsDefaults[i] = Array.get(Array.newInstance(parameterTypes[i], 1), 0);
+        }
+      }
+    }
+
+    @Override
+    Object[] createIntermediary() {
+      Object[] constructorArgs = new Object[constructorArgsDefaults.length];
+      System.arraycopy(constructorArgsDefaults, 0, constructorArgs, 0, constructorArgs.length);
+      return constructorArgs;
+    }
+
+    @Override
+    void readField(Object[] intermediary, JsonReader in, BoundField field) throws IOException {
+      Integer fieldIndex = fieldIndices.get(field.name);
+      if (fieldIndex == null) {
+        throw new IllegalStateException(
+            "Could not find the index in the constructor "
+                + constructor
+                + " for field with name "
+                + field.name
+                + ", unable to determine which argument in the constructor the field corresponds"
+                + " to. This is unexpected behaviour, as we expect the RecordComponents to have the"
+                + " same names as the fields in the Java class, and that the order of the"
+                + " RecordComponents is the same as the order of the canonical arguments.");
+      }
+      intermediary[fieldIndex] = field.read(in);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    T finalize(Object[] intermediary) {
+      try {
+        return (T) constructor.newInstance(intermediary);
+      } catch (ReflectiveOperationException e) {
+        throw new RuntimeException(
+            "Failed to invoke " + constructor + " with args " + Arrays.toString(intermediary), e);
+      }
     }
   }
 }
