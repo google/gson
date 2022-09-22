@@ -31,6 +31,7 @@ import com.google.gson.internal.bind.JsonTreeWriter;
 import com.google.gson.internal.bind.MapTypeAdapterFactory;
 import com.google.gson.internal.bind.NumberTypeAdapter;
 import com.google.gson.internal.bind.ObjectTypeAdapter;
+import com.google.gson.internal.bind.RecordTypeAdapterFactory;
 import com.google.gson.internal.bind.ReflectiveTypeAdapterFactory;
 import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.internal.sql.SqlTypesSupport;
@@ -332,8 +333,16 @@ public final class Gson {
     this.jsonAdapterFactory = new JsonAdapterAnnotationTypeAdapterFactory(constructorConstructor);
     factories.add(jsonAdapterFactory);
     factories.add(TypeAdapters.ENUM_FACTORY);
+
+    // If we are on Java 17, we want to include the RecordTypeAdapterFactory before the ReflectiveTypeAdapterFactory,
+    // so that we intercept all Record types first.
+    if (RecordTypeAdapterFactory.SUPPORTS_RECORD_TYPES) {
+      factories.add(new RecordTypeAdapterFactory(this.excluder, constructorConstructor, jsonAdapterFactory));
+    }
+
     factories.add(new ReflectiveTypeAdapterFactory(
         constructorConstructor, fieldNamingStrategy, excluder, jsonAdapterFactory, reflectionFilters));
+
 
     this.factories = Collections.unmodifiableList(factories);
   }
