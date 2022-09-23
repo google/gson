@@ -7,7 +7,7 @@ jobs:
     name: "Build on JDK ${{ matrix.java }}"
     strategy:
       matrix:
-        java: [ 11, 17 ]
+        java: [ 8, 11, 17 ]
     runs-on: ubuntu-latest
 
     steps:
