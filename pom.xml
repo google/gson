@@ -93,7 +93,8 @@
               <version>[11,)</version>
             </jdkToolchain>
             <!-- Exclude `missing` group because some tags have been omitted when they are redundant -->
-            <doclint>all,-missing</doclint>
+            <!-- Exclude `html` group because we sometimes use h3 without h2 or h1. -->
+            <doclint>all,-missing,-html</doclint>
             <!-- Link against newer Java API Javadoc because most users likely 
               use a newer Java version than the one used for building this project -->
             <detectJavaApiLink>false</detectJavaApiLink>
