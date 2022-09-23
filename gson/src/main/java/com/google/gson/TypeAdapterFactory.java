@@ -22,7 +22,7 @@ import com.google.gson.reflect.TypeToken;
  * Creates type adapters for set of related types. Type adapter factories are
  * most useful when several types share similar structure in their JSON form.
  *
- * <h3>Example: Converting enums to lowercase</h3>
+ * <h2>Example: Converting enums to lowercase</h2>
  * In this example, we implement a factory that creates type adapters for all
  * enums. The type adapters will write enums in lowercase, despite the fact
  * that they're defined in {@code CONSTANT_CASE} in the corresponding Java

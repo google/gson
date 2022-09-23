@@ -221,8 +221,9 @@ public final class GsonBuilder {
    * on the key; however, when this is called then one of the following cases
    * apply:
    *
-   * <h3>Maps as JSON objects</h3>
-   * For this case, assume that a type adapter is registered to serialize and
+   * <p><b>Maps as JSON objects</b>
+   *
+   * <p>For this case, assume that a type adapter is registered to serialize and
    * deserialize some {@code Point} class, which contains an x and y coordinate,
    * to/from the JSON Primitive string value {@code "(x,y)"}. The Java map would
    * then be serialized as a {@link JsonObject}.
@@ -246,8 +247,9 @@ public final class GsonBuilder {
    *   }
    * }</pre>
    *
-   * <h3>Maps as JSON arrays</h3>
-   * For this case, assume that a type adapter was NOT registered for some
+   * <p><b>Maps as JSON arrays</b>
+   *
+   * <p>For this case, assume that a type adapter was NOT registered for some
    * {@code Point} class, but rather the default Gson serialization is applied.
    * In this case, some {@code new Point(2,3)} would serialize as {@code
    * {"x":2,"y":5}}.

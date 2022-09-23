@@ -64,7 +64,6 @@ import java.util.concurrent.ConcurrentMap;
  *   string os_build_id = 1 [(serialized_name) = "osBuildID"];
  * }
  * </pre>
- * <p>
  *
  * @author Inderjeet Singh
  * @author Emmanuel Cron
