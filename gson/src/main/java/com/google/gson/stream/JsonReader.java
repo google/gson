@@ -33,7 +33,7 @@ import java.util.Objects;
  * depth-first order, the same order that they appear in the JSON document.
  * Within JSON objects, name/value pairs are represented by a single token.
  *
- * <h3>Parsing JSON</h3>
+ * <h2>Parsing JSON</h2>
  * To create a recursive descent parser for your own JSON streams, first create
  * an entry point method that creates a {@code JsonReader}.
  *

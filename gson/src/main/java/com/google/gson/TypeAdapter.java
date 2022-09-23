@@ -30,7 +30,7 @@ import java.io.Writer;
 /**
  * Converts Java objects to and from JSON.
  *
- * <h3>Defining a type's JSON form</h3>
+ * <h2>Defining a type's JSON form</h2>
  * By default Gson converts application classes to JSON using its built-in type
  * adapters. If Gson's default JSON conversion isn't appropriate for a type,
  * extend this class to customize the conversion. Here's an example of a type

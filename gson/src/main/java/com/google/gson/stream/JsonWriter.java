@@ -42,7 +42,7 @@ import java.util.regex.Pattern;
  * literal values (strings, numbers, booleans and nulls) as well as the begin
  * and end delimiters of objects and arrays.
  *
- * <h3>Encoding JSON</h3>
+ * <h2>Encoding JSON</h2>
  * To encode your data as JSON, create a new {@code JsonWriter}. Call methods
  * on the writer as you walk the structure's contents, nesting arrays and objects
  * as necessary:
