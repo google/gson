@@ -96,7 +96,7 @@ import java.io.Writer;
  */
 // non-Javadoc:
 //
-// <h3>JSON Conversion</h3>
+// <h2>JSON Conversion</h2>
 // <p>A type adapter registered with Gson is automatically invoked while serializing
 // or deserializing JSON. However, you can also use type adapters directly to serialize
 // and deserialize JSON. Here is an example for deserialization: <pre>   {@code
