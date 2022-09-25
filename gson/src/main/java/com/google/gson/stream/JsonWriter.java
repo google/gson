@@ -58,7 +58,7 @@ import java.util.regex.Pattern;
  *       Finally close the object using {@link #endObject()}.
  * </ul>
  *
- * <h3>Example</h3>
+ * <h2>Example</h2>
  * Suppose we'd like to encode a stream of messages such as the following: <pre> {@code
  * [
  *   {
