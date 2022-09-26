@@ -5,7 +5,6 @@ import com.google.gson.internal.GsonBuildConfig;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class ReflectionHelper {
@@ -82,12 +81,22 @@ public class ReflectionHelper {
     }
   }
 
+  /** If records are supported on the JVM, this is equivalent to a call to Class.isRecord() */
   public static boolean isRecord(Class<?> raw) {
     return RECORD_HELPER.isRecord(raw);
   }
 
-  public static String[] recordFields(Class<?> raw) {
-    return RECORD_HELPER.recordFields(raw);
+  public static String[] getRecordComponentNames(Class<?> raw) {
+    return RECORD_HELPER.getRecordComponentNames(raw);
+  }
+
+  /** Looks up the record accessor method that corresponds to the given record field */
+  public static Method getAccessor(Class<?> raw, Field field) {
+    return RECORD_HELPER.getAccessor(raw, field);
+  }
+
+  public static <T> Constructor<T> getCanonicalRecordConstructor(Class<T> raw) {
+    return RECORD_HELPER.getCanonicalRecordConstructor(raw);
   }
 
   public static RuntimeException createExceptionForUnexpectedIllegalAccess(
@@ -98,8 +107,15 @@ public class ReflectionHelper {
         exception);
   }
 
-  public static <T> Constructor<T> getCanonicalRecordConstructor(Class<T> raw) {
-    return RECORD_HELPER.getCanonicalRecordConstructor(raw);
+
+  public static RuntimeException createExceptionForRecordReflectionException(
+          ReflectiveOperationException exception) {
+    throw new RuntimeException("Unexpected ReflectiveOperationException occurred "
+            + "(Gson " + GsonBuildConfig.VERSION + "). "
+            + "To support Java records, reflection is utilized to read out information "
+            + "about records. All these invocations happens after it is established "
+            + "that records exists in the JVM. This exception is unexpected behaviour",
+            exception);
   }
 
   /**
@@ -108,9 +124,11 @@ public class ReflectionHelper {
   private abstract static class RecordHelper {
     abstract boolean isRecord(Class<?> clazz);
 
-    abstract String[] recordFields(Class<?> clazz);
+    abstract String[] getRecordComponentNames(Class<?> clazz);
 
     abstract <T> Constructor<T> getCanonicalRecordConstructor(Class<T> raw);
+
+    public abstract Method getAccessor(Class<?> raw, Field field);
   }
 
   private static class RecordSupportedHelper extends RecordHelper {
@@ -118,71 +136,62 @@ public class ReflectionHelper {
     private final Method getRecordComponents;
     private final Method getName;
     private final Method getType;
+    private final Method getAccessor;
 
     private RecordSupportedHelper() throws NoSuchMethodException {
       isRecord = Class.class.getMethod("isRecord");
-      getRecordComponents = Class.class.getDeclaredMethod("getRecordComponents");
+      getRecordComponents = Class.class.getMethod("getRecordComponents");
       Class<?> recordComponentType = getRecordComponents.getReturnType().getComponentType();
-      getName = recordComponentType.getDeclaredMethod("getName");
-      getType = recordComponentType.getDeclaredMethod("getType");
+      getName = recordComponentType.getMethod("getName");
+      getType = recordComponentType.getMethod("getType");
+      getAccessor = recordComponentType.getMethod("getAccessor");
     }
 
     @Override
     boolean isRecord(Class<?> raw) {
       try {
-        return boolean.class.cast(isRecord.invoke(raw));
-      } catch (IllegalAccessException e) {
-        throw createExceptionForUnexpectedIllegalAccess(e);
-      } catch (InvocationTargetException e) {
-        throw new RuntimeException("Failed to reflect into record components on"
-                + " class [" + raw + "], this is unexpected behaviour, as these methods should"
-                + " not throw when they are defined on Class",
-                e
-        );
+        return Boolean.class.cast(isRecord.invoke(raw)).booleanValue();
+      } catch (ReflectiveOperationException e) {
+        throw createExceptionForRecordReflectionException(e);
       }
     }
 
     @Override
-    String[] recordFields(Class<?> raw) {
+    String[] getRecordComponentNames(Class<?> raw) {
       try {
-        Object recordComponents = getRecordComponents.invoke(raw);
-        int componentCount = Array.getLength(recordComponents);
-        String[] recordFields = new String[componentCount];
-        for (int i = 0; i < componentCount; i++) {
-          recordFields[i] =
-                  String.class.cast(getName.invoke(Array.get(recordComponents, i)));
+        Object[] recordComponents = (Object[]) getRecordComponents.invoke(raw);
+        String[] componentNames = new String[recordComponents.length];
+        for (int i = 0; i < recordComponents.length; i++) {
+          componentNames[i] = (String) getName.invoke(recordComponents[i]);
         }
-        return recordFields;
-      } catch (IllegalAccessException e) {
-        throw createExceptionForUnexpectedIllegalAccess(e);
+        return componentNames;
       } catch (ReflectiveOperationException e) {
-        throw new RuntimeException("Failed to reflect into record components on"
-                + " class [" + raw + "], this is unexpected behaviour, as these methods should"
-                + " not throw when they are defined on Class",
-                e
-        );
+        throw createExceptionForRecordReflectionException(e);
       }
     }
 
     @Override
     public <T> Constructor<T> getCanonicalRecordConstructor(Class<T> raw) {
       try {
-        Object recordComponents = getRecordComponents.invoke(raw);
-        int componentCount = Array.getLength(recordComponents);
-        Class[] recordFields = new Class[componentCount];
-        for (int i = 0; i < componentCount; i++) {
-          recordFields[i] =
-                  Class.class.cast(getType.invoke(Array.get(recordComponents, i)));
+        Object[] recordComponents = (Object[]) getRecordComponents.invoke(raw);
+        Class<?>[] recordComponentTypes = new Class<?>[recordComponents.length];
+        for (int i = 0; i < recordComponents.length; i++) {
+          recordComponentTypes[i] = (Class<?>) getType.invoke(recordComponents[i]);
         }
-        return raw.getConstructor(recordFields);
-      } catch (IllegalAccessException e) {
-        throw createExceptionForUnexpectedIllegalAccess(e);
+        return raw.getDeclaredConstructor(recordComponentTypes);
       } catch (ReflectiveOperationException e) {
-        throw new RuntimeException("Failed to reflect into record components on"
-                + " class [" + raw + "], this is unexpected behaviour, as these methods should"
-                + " not throw when they are defined on Class",
-                e
-        );
+        throw createExceptionForRecordReflectionException(e);
+      }
+    }
+
+    @Override
+    public Method getAccessor(Class<?> raw, Field field) {
+      try {
+        // Records consists of record components, each with a unique name, a corresponding field and accessor method
+        // with the same name. Ref.: https://docs.oracle.com/javase/specs/jls/se17/html/jls-8.html#jls-8.10.3
+        return raw.getMethod(field.getName());
+      } catch (ReflectiveOperationException e) {
+        throw createExceptionForRecordReflectionException(e);
       }
     }
   }
@@ -198,13 +207,19 @@ public class ReflectionHelper {
     }
 
     @Override
-    String[] recordFields(Class<?> clazz) {
+    String[] getRecordComponentNames(Class<?> clazz) {
       throw new UnsupportedOperationException(
               "Records are not supported on this JVM, this method should not be called");
     }
 
     @Override
     <T> Constructor<T> getCanonicalRecordConstructor(Class<T> raw) {
+      throw new UnsupportedOperationException(
+              "Records are not supported on this JVM, this method should not be called");
+    }
+
+    @Override
+    public Method getAccessor(Class<?> raw, Field field) {
       throw new UnsupportedOperationException(
               "Records are not supported on this JVM, this method should not be called");
     }
