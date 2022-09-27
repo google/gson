@@ -67,7 +67,7 @@ public interface ReflectionAccessFilter {
      * the used Java version would only log a warning, or is configured to open
      * packages for reflection using command line arguments.
      *
-     * @see AccessibleObject#canAccess(Object)
+     * @see java.lang.reflect.AccessibleObject#canAccess(Object)
      */
     BLOCK_INACCESSIBLE,
     /**
