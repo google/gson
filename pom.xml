@@ -21,7 +21,8 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <javaVersion>7</javaVersion>
+    <maven.compiler.release>7</maven.compiler.release>
+    <extraLintSuppressions></extraLintSuppressions>
   </properties>
 
   <scm>
@@ -70,14 +71,13 @@
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.10.1</version>
           <configuration>
-            <release>${javaVersion}</release>
             <showWarnings>true</showWarnings>
             <showDeprecation>true</showDeprecation>
             <failOnWarning>true</failOnWarning>
             <compilerArgs>
               <!-- Enable all warnings, except for ones which cause issues when building with newer JDKs, see also
                 https://docs.oracle.com/en/java/javase/11/tools/javac.html -->
-              <compilerArg>-Xlint:all,-options</compilerArg>
+              <compilerArg>-Xlint:all,-options${extraLintSuppressions}</compilerArg>
             </compilerArgs>
             <jdkToolchain>
               <version>[11,)</version>
@@ -92,6 +92,7 @@
             <jdkToolchain>
               <version>[11,)</version>
             </jdkToolchain>
+            <release>11</release>
             <!-- Exclude `missing` group because some tags have been omitted when they are redundant -->
             <doclint>all,-missing</doclint>
             <!-- Link against newer Java API Javadoc because most users likely 
