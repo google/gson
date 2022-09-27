@@ -67,7 +67,8 @@ public interface ReflectionAccessFilter {
      * the used Java version would only log a warning, or is configured to open
      * packages for reflection using command line arguments.
      *
-     * @see java.lang.reflect.AccessibleObject#canAccess(Object)
+     * <p>See {@code AccessibleObject.canAccess(Object)}.
+     * <!-- This is not a @see because that API doesn't exist in Java 7. -->
      */
     BLOCK_INACCESSIBLE,
     /**
