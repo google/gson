@@ -17,10 +17,10 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import java.awt.Point;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Type;
 import java.util.LinkedList;
 import java.util.List;
@@ -40,7 +40,7 @@ public class ReflectionAccessFilterTest {
   }
 
   @Test
-  public void testBlockInaccessibleJava() {
+  public void testBlockInaccessibleJava() throws ReflectiveOperationException {
     Gson gson = new GsonBuilder()
       .addReflectionAccessFilter(ReflectionAccessFilter.BLOCK_INACCESSIBLE_JAVA)
       .create();
@@ -58,9 +58,20 @@ public class ReflectionAccessFilterTest {
       );
     }
 
-    // But serialization should succeed for classes with only public fields
-    String json = gson.toJson(new Point(1, 2));
-    assertEquals("{\"x\":1,\"y\":2}", json);
+
+    // But serialization should succeed for classes with only public fields.
+    // Not many JDK classes have mutable public fields, thank goodness, but java.awt.Point does.
+    Class<?> pointClass = null;
+    try {
+      pointClass = Class.forName("java.awt.Point");
+    } catch (ClassNotFoundException e) {
+    }
+    if (pointClass != null) {
+      Constructor<?> pointConstructor = pointClass.getConstructor(int.class, int.class);
+      Object point = pointConstructor.newInstance(1, 2);
+      String json = gson.toJson(point);
+      assertEquals("{\"x\":1,\"y\":2}", json);
+    }
   }
 
   @Test
