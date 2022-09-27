@@ -247,7 +247,6 @@
       <properties>
         <maven.compiler.testRelease>17</maven.compiler.testRelease>
         <excludeTestCompilation></excludeTestCompilation>
-        <extraLintSuppressions>,-exports,-missing-explicit-ctor,-removal</extraLintSuppressions>
       </properties>
     </profile>
   </profiles>
