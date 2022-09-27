@@ -831,7 +831,8 @@ public final class TypeAdapters {
 
   private static final class EnumTypeAdapter<T extends Enum<T>> extends TypeAdapter<T> {
     private final Map<String, T> nameToConstant = new HashMap<>();
-    private final Map<String, T> stringToConstant = new HashMap<>();
+    // we don't use enum toString() to serialize data, so don't need also toString() to deserialize
+//    private final Map<String, T> stringToConstant = new HashMap<>();
     private final Map<T, String> constantToName = new HashMap<>();
 
     public EnumTypeAdapter(final Class<T> classOfT) {
@@ -868,7 +869,8 @@ public final class TypeAdapters {
             }
           }
           nameToConstant.put(name, constant);
-          stringToConstant.put(toStringVal, constant);
+          // we don't use enum toString() to serialize data, so don't need also toString() to deserialize
+//          stringToConstant.put(toStringVal, constant);
           constantToName.put(constant, name);
         }
       } catch (IllegalAccessException e) {
@@ -880,9 +882,12 @@ public final class TypeAdapters {
         in.nextNull();
         return null;
       }
-      String key = in.nextString();
-      T constant = nameToConstant.get(key);
-      return (constant == null) ? stringToConstant.get(key) : constant;
+      return nameToConstant.get(in.nextString());
+      // we don't use enum toString() to serialize data, so don't need also toString() to deserialize
+//      String key = in.nextString();
+//      T constant = nameToConstant.get(key);
+//      return (constant == null) ? stringToConstant.get(key) : constant;
+
     }
 
     @Override public void write(JsonWriter out, T value) throws IOException {
