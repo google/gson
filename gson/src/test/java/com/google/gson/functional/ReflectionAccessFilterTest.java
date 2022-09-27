@@ -2,6 +2,7 @@ package com.google.gson.functional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeNotNull;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -66,12 +67,11 @@ public class ReflectionAccessFilterTest {
       pointClass = Class.forName("java.awt.Point");
     } catch (ClassNotFoundException e) {
     }
-    if (pointClass != null) {
-      Constructor<?> pointConstructor = pointClass.getConstructor(int.class, int.class);
-      Object point = pointConstructor.newInstance(1, 2);
-      String json = gson.toJson(point);
-      assertEquals("{\"x\":1,\"y\":2}", json);
-    }
+    assumeNotNull(pointClass);
+    Constructor<?> pointConstructor = pointClass.getConstructor(int.class, int.class);
+    Object point = pointConstructor.newInstance(1, 2);
+    String json = gson.toJson(point);
+    assertEquals("{\"x\":1,\"y\":2}", json);
   }
 
   @Test

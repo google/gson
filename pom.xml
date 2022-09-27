@@ -21,7 +21,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <javaVersion>7</javaVersion>
+    <maven.compiler.release>7</maven.compiler.release>
     <extraLintSuppressions></extraLintSuppressions>
   </properties>
 
