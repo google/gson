@@ -22,6 +22,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <javaVersion>7</javaVersion>
+    <extraLintSuppressions></extraLintSuppressions>
   </properties>
 
   <scm>
@@ -77,7 +78,7 @@
             <compilerArgs>
               <!-- Enable all warnings, except for ones which cause issues when building with newer JDKs, see also
                 https://docs.oracle.com/en/java/javase/11/tools/javac.html -->
-              <compilerArg>-Xlint:all,-options</compilerArg>
+              <compilerArg>-Xlint:all,-options${extraLintSuppressions}</compilerArg>
             </compilerArgs>
             <jdkToolchain>
               <version>[11,)</version>

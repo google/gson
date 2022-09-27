@@ -247,6 +247,7 @@
       <properties>
         <javaVersion>17</javaVersion>
         <excludeTestCompilation></excludeTestCompilation>
+        <extraLintSuppressions>,-exports,-missing-explicit-ctor,-removal</extraLintSuppressions>
       </properties>
     </profile>
   </profiles>
