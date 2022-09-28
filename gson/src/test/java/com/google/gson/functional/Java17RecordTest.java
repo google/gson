@@ -27,7 +27,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
-@Ignore
+@Ignore // Disabled until record support is added
 public final class Java17RecordTest {
   private final Gson gson = new Gson();
 

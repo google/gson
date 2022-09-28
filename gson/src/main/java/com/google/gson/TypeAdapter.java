@@ -118,6 +118,9 @@ import java.io.Writer;
 //
 public abstract class TypeAdapter<T> {
 
+  public TypeAdapter() {
+  }
+
   /**
    * Writes one JSON value (an array, object, string, number, boolean or null)
    * for {@code value}.
