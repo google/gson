@@ -24,9 +24,9 @@ jobs:
         run: |
           cd gson-old-japicmp
           # Set dummy version
-          mvn --batch-mode org.codehaus.mojo:versions-maven-plugin:2.11.0:set -DnewVersion=JAPICMP-OLD
+          mvn --batch-mode --no-transfer-progress org.codehaus.mojo:versions-maven-plugin:2.11.0:set -DnewVersion=JAPICMP-OLD
           # Install artifacts with dummy version in local repository; used later by Maven plugin for comparison
-          mvn --batch-mode install -DskipTests
+          mvn --batch-mode --no-transfer-progress install -DskipTests
 
       - name: Checkout new version
         uses: actions/checkout@v3
@@ -34,7 +34,7 @@ jobs:
       - name: Check API compatibility
         id: check-compatibility
         run: |
-          mvn --batch-mode --fail-at-end package japicmp:cmp -DskipTests
+          mvn --batch-mode --fail-at-end --no-transfer-progress package japicmp:cmp -DskipTests
 
       - name: Upload API differences artifacts
         uses: actions/upload-artifact@v3
