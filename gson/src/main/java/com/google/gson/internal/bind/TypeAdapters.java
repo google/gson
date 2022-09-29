@@ -859,7 +859,8 @@ public final class TypeAdapters {
           @SuppressWarnings("unchecked")
           T constant = (T)(constantField.get(null));
           String name = constant.name();
-          String toStringVal = constant.toString();
+          // we don't use enum toString() to serialize data, so don't need also toString() to deserialize
+//          String toStringVal = constant.toString();
 
           SerializedName annotation = constantField.getAnnotation(SerializedName.class);
           if (annotation != null) {
