@@ -263,7 +263,7 @@ For deserialization Gson uses the `read` method of the `TypeAdapter` registered 
 
 ```java
 Gson gson = new Gson();
-TypeToken<Map<String, String>> mapType = new TypeToken<Map<String, String>>(){};
+TypeToken<Map<String, String>> mapType = new TypeToken<Map<String, String>>(){}.getType();
 String json = "{\"key\": \"value\"}";
 
 // Deserialization
