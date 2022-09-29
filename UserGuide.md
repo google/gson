@@ -226,6 +226,8 @@ String json = gson.toJson(ints);  // ==> json is [1,2,3,4,5]
 
 // Deserialization
 TypeToken<Collection<Integer>> collectionType = new TypeToken<Collection<Integer>>(){};
+// Note: For older Gson versions it is necessary to use `collectionType.getType()` as argument below,
+// this is however not type-safe and care must be taken to specify the correct type for the local variable
 Collection<Integer> ints2 = gson.fromJson(json, collectionType);
 // ==> ints2 is same as ints
 ```
@@ -267,6 +269,8 @@ TypeToken<Map<String, String>> mapType = new TypeToken<Map<String, String>>(){};
 String json = "{\"key\": \"value\"}";
 
 // Deserialization
+// Note: For older Gson versions it is necessary to use `mapType.getType()` as argument below,
+// this is however not type-safe and care must be taken to specify the correct type for the local variable
 Map<String, String> stringMap = gson.fromJson(json, mapType);
 // ==> stringMap is {key=value}
 ```
