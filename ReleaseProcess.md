@@ -6,7 +6,6 @@ The following is a step-by-step procedure for releasing a new version of Google-
 1. Ensure all changelists are code-reviewed and have +1
 1. `cd gson` to the parent directory; ensure there are no open files and all changes are committed.
 1. Run `mvn release:clean`
-1. Do a dry run: `mvn release:prepare -DdryRun=true`
 1. Start the release: `mvn release:prepare`
     - Answer questions: usually the defaults are fine. Try to follow [Semantic Versioning](https://semver.org/) when choosing the release version number.
     - This will do a full build, change version from `-SNAPSHOT` to the released version, commit and create the tags. It will then change the version to `-SNAPSHOT` for the next release.
@@ -18,8 +17,12 @@ The following is a step-by-step procedure for releasing a new version of Google-
 1. Update version references in (version might be referenced multiple times):
     - [`README.md`](README.md)
     - [`UserGuide.md`](UserGuide.md)
+
+    Note: When using the Maven Release Plugin as described above, these version references should have been replaced automatically, but verify this manually nonetheless to be on the safe side.
 1. Optional: Create a post on the [Gson Discussion Forum](https://groups.google.com/group/google-gson).
 1. Optional: Update the release version in [Wikipedia](https://en.wikipedia.org/wiki/Gson) and update the current "stable" release.
+
+Important: When aborting a release / rolling back release preparations, make sure to also revert all changes to files which were done during the release (e.g. automatic replacement of version references).
 
 ## Configuring a machine for deployment to Sonatype Repository
 
