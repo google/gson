@@ -48,6 +48,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * @param capacity initial capacity.
    * @throws IllegalArgumentException if the {@code capacity} is
    *   negative
+   * @since 2.8.1
    */
   @SuppressWarnings("deprecation") // superclass constructor
   public JsonArray(int capacity) {
@@ -75,6 +76,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * Adds the specified boolean to self.
    *
    * @param bool the boolean that needs to be added to the array.
+   * @since 2.4
    */
   public void add(Boolean bool) {
     elements.add(bool == null ? JsonNull.INSTANCE : new JsonPrimitive(bool));
@@ -84,6 +86,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * Adds the specified character to self.
    *
    * @param character the character that needs to be added to the array.
+   * @since 2.4
    */
   public void add(Character character) {
     elements.add(character == null ? JsonNull.INSTANCE : new JsonPrimitive(character));
@@ -93,6 +96,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * Adds the specified number to self.
    *
    * @param number the number that needs to be added to the array.
+   * @since 2.4
    */
   public void add(Number number) {
     elements.add(number == null ? JsonNull.INSTANCE : new JsonPrimitive(number));
@@ -102,6 +106,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * Adds the specified string to self.
    *
    * @param string the string that needs to be added to the array.
+   * @since 2.4
    */
   public void add(String string) {
     elements.add(string == null ? JsonNull.INSTANCE : new JsonPrimitive(string));
@@ -190,6 +195,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * Returns true if the array is empty.
    *
    * @return true if the array is empty.
+   * @since 2.8.7
    */
   public boolean isEmpty() {
     return elements.isEmpty();
