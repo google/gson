@@ -364,6 +364,7 @@ public final class GsonBuilder {
    * @param objectToNumberStrategy the actual object-to-number strategy
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @see ToNumberPolicy#DOUBLE The default object-to-number strategy
+   * @since 2.8.9
    */
   public GsonBuilder setObjectToNumberStrategy(ToNumberStrategy objectToNumberStrategy) {
     this.objectToNumberStrategy = Objects.requireNonNull(objectToNumberStrategy);
@@ -376,6 +377,7 @@ public final class GsonBuilder {
    * @param numberToNumberStrategy the actual number-to-number strategy
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @see ToNumberPolicy#LAZILY_PARSED_NUMBER The default number-to-number strategy
+   * @since 2.8.9
    */
   public GsonBuilder setNumberToNumberStrategy(ToNumberStrategy numberToNumberStrategy) {
     this.numberToNumberStrategy = Objects.requireNonNull(numberToNumberStrategy);
@@ -682,6 +684,7 @@ public final class GsonBuilder {
    * disabling usage of {@code Unsafe}.
    *
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @since 2.9.0
    */
   public GsonBuilder disableJdkUnsafe() {
     this.useJdkUnsafe = false;
@@ -702,6 +705,7 @@ public final class GsonBuilder {
    *
    * @param filter filter to add
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @since 2.9.1
    */
   public GsonBuilder addReflectionAccessFilter(ReflectionAccessFilter filter) {
     Objects.requireNonNull(filter);

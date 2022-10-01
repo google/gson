@@ -343,6 +343,7 @@ public final class Gson {
    * instance.
    *
    * @return a GsonBuilder instance.
+   * @since 2.8.3
    */
   public GsonBuilder newBuilder() {
     return new GsonBuilder(this);

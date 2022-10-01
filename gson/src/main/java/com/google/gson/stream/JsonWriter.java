@@ -429,6 +429,7 @@ public class JsonWriter implements Closeable, Flushable {
    * @return this writer.
    * @throws UnsupportedOperationException if this writer does not support
    *    writing raw JSON values.
+   * @since 2.4
    */
   public JsonWriter jsonValue(String value) throws IOException {
     if (value == null) {
@@ -475,6 +476,7 @@ public class JsonWriter implements Closeable, Flushable {
    * Encodes {@code value}.
    *
    * @return this writer.
+   * @since 2.7
    */
   public JsonWriter value(Boolean value) throws IOException {
     if (value == null) {
@@ -495,6 +497,7 @@ public class JsonWriter implements Closeable, Flushable {
    * @return this writer.
    * @throws IllegalArgumentException if the value is NaN or Infinity and this writer is not {@link
    *     #setLenient(boolean) lenient}.
+   * @since 2.9.1
    */
   public JsonWriter value(float value) throws IOException {
     writeDeferredName();
