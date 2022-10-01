@@ -159,11 +159,11 @@
                 <goal>run</goal>
               </goals>
               <configuration>
-                <!-- Don't fail because for gson-parent the source directory does not exist; will still print
-                  exception with stack trace on console, but won't fail the build -->
-                <failOnError>false</failOnError>
                 <target>
-                  <replace dir="${project.build.sourceDirectory}" token="$next-version$" value="${project.version}" />
+                  <replace token="$next-version$" value="${project.version}" encoding="${project.build.sourceEncoding}">
+                    <!-- erroronmissingdir=false for gson-parent which does not have source directory -->
+                    <fileset dir="${project.build.sourceDirectory}" includes="**" erroronmissingdir="false" />
+                  </replace>
                 </target>
               </configuration>
             </execution>
@@ -176,12 +176,12 @@
               <configuration>
                 <target>
                   <!-- Replace Maven and Gradle version references; uses regex lookbehind and lookahead -->
-                  <replaceregexp match="(?&lt;=&lt;version&gt;).*(?=&lt;/version&gt;)|(?&lt;='com\.google\.code\.gson:gson:).*(?=')" flags="g" replace="${project.version}">
-                  <fileset dir="${project.basedir}">
-                    <include name="README.md" />
-                    <include name="UserGuide.md" />
-                  </fileset>
-                </replaceregexp>
+                  <replaceregexp match="(?&lt;=&lt;version&gt;).*(?=&lt;/version&gt;)|(?&lt;='com\.google\.code\.gson:gson:).*(?=')" flags="g" replace="${project.version}" encoding="${project.build.sourceEncoding}">
+                    <fileset dir="${project.basedir}">
+                      <include name="README.md" />
+                      <include name="UserGuide.md" />
+                    </fileset>
+                  </replaceregexp>
                 </target>
               </configuration>
               <!-- Only has to be executed for parent project; don't inherit this to modules -->
