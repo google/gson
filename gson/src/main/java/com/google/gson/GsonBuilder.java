@@ -28,6 +28,8 @@ import static com.google.gson.Gson.DEFAULT_SERIALIZE_NULLS;
 import static com.google.gson.Gson.DEFAULT_SPECIALIZE_FLOAT_VALUES;
 import static com.google.gson.Gson.DEFAULT_USE_JDK_UNSAFE;
 
+import com.google.gson.annotations.Since;
+import com.google.gson.annotations.Until;
 import com.google.gson.internal.$Gson$Preconditions;
 import com.google.gson.internal.Excluder;
 import com.google.gson.internal.bind.DefaultDateTypeAdapter;
@@ -143,14 +145,25 @@ public final class GsonBuilder {
   }
 
   /**
-   * Configures Gson to enable versioning support.
+   * Configures Gson to enable versioning support. Versioning support works based on the
+   * annotation types {@link Since} and {@link Until}. It allows including or excluding fields
+   * and classes based on the specified version. See the documentation of these annotation
+   * types for more information.
    *
-   * @param ignoreVersionsAfter any field or type marked with a version higher than this value
-   * are ignored during serialization or deserialization.
+   * <p>By default versioning support is disabled and usage of {@code @Since} and {@code @Until}
+   * has no effect.
+   *
+   * @param version the version number to use.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @throws IllegalArgumentException if the version number is NaN or negative
+   * @see Since
+   * @see Until
    */
-  public GsonBuilder setVersion(double ignoreVersionsAfter) {
-    excluder = excluder.withVersion(ignoreVersionsAfter);
+  public GsonBuilder setVersion(double version) {
+    if (Double.isNaN(version) || version < 0.0) {
+      throw new IllegalArgumentException("Invalid version: " + version);
+    }
+    excluder = excluder.withVersion(version);
     return this;
   }
 
