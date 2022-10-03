@@ -349,9 +349,9 @@ public final class GsonBuilder {
    * Configures Gson to apply a specific naming strategy to an object's fields during
    * serialization and deserialization.
    *
-   * <p>The Gson instance might only use the field naming strategy once for a field and
-   * cache the result. It is not guaranteed that the strategy will be used again every
-   * time the value of a field is serialized or deserialized.
+   * <p>The created Gson instance might only use the field naming strategy once for a
+   * field and cache the result. It is not guaranteed that the strategy will be used
+   * again every time the value of a field is serialized or deserialized.
    *
    * @param fieldNamingStrategy the naming strategy to apply to the fields
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
@@ -406,9 +406,9 @@ public final class GsonBuilder {
    * JSON null is written to output, and when deserialized the JSON value is skipped and
    * {@code null} is returned.
    *
-   * <p>The Gson instance might only use an exclusion strategy once for a field or class and
-   * cache the result. It is not guaranteed that the strategy will be used again every time
-   * the value of a field or a class is serialized or deserialized.
+   * <p>The created Gson instance might only use an exclusion strategy once for a field or
+   * class and cache the result. It is not guaranteed that the strategy will be used again
+   * every time the value of a field or a class is serialized or deserialized.
    *
    * @param strategies the set of strategy object to apply during object (de)serialization.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
@@ -615,6 +615,10 @@ public final class GsonBuilder {
    * is designed to handle a large number of factories, so you should consider registering
    * them to be at par with registering an individual type adapter.
    *
+   * <p>The created Gson instance might only use the factory once to create an adapter for
+   * a specific type and cache the result. It is not guaranteed that the factory will be used
+   * again every time the type is serialized or deserialized.
+   *
    * @since 2.1
    */
   public GsonBuilder registerTypeAdapterFactory(TypeAdapterFactory factory) {
@@ -711,9 +715,9 @@ public final class GsonBuilder {
    * all classes for which no {@link TypeAdapter} has been registered, and for which no
    * built-in Gson {@code TypeAdapter} exists.
    *
-   * <p>The Gson instance might only use an access filter once for a class or its members
-   * and cache the result. It is not guaranteed that the filter will be used again every
-   * time a class or its members are accessed during serialization or deserialization.
+   * <p>The created Gson instance might only use an access filter once for a class or its
+   * members and cache the result. It is not guaranteed that the filter will be used again
+   * every time a class or its members are accessed during serialization or deserialization.
    *
    * @param filter filter to add
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
