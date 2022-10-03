@@ -357,7 +357,10 @@ public final class TypeAdapters {
       if (value == null) {
         out.nullValue();
       } else {
-        out.value(value.floatValue());
+        // For backward compatibility don't call `JsonWriter.value(float)` because that methods has
+        // been newly added and not all custom JsonWriter implementations might override it yet
+        Number floatNumber = value instanceof Float ? value : value.floatValue();
+        out.value(floatNumber);
       }
     }
   };
