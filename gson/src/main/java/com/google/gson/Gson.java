@@ -406,7 +406,7 @@ public final class Gson {
         }
         double doubleValue = value.doubleValue();
         checkValidFloatingPoint(doubleValue);
-        out.value(value);
+        out.value(doubleValue);
       }
     };
   }
@@ -430,7 +430,10 @@ public final class Gson {
         }
         float floatValue = value.floatValue();
         checkValidFloatingPoint(floatValue);
-        out.value(value);
+        // For backward compatibility don't call `JsonWriter.value(float)` because that method has
+        // been newly added and not all custom JsonWriter implementations might override it yet
+        Number floatNumber = value instanceof Float ? value : floatValue;
+        out.value(floatNumber);
       }
     };
   }

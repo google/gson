@@ -194,7 +194,11 @@ public final class TypeAdapters {
     }
     @Override
     public void write(JsonWriter out, Number value) throws IOException {
-      out.value(value);
+      if (value == null) {
+        out.nullValue();
+      } else {
+        out.value(value.byteValue());
+      }
     }
   };
 
@@ -223,7 +227,11 @@ public final class TypeAdapters {
     }
     @Override
     public void write(JsonWriter out, Number value) throws IOException {
-      out.value(value);
+      if (value == null) {
+        out.nullValue();
+      } else {
+        out.value(value.shortValue());
+      }
     }
   };
 
@@ -245,7 +253,11 @@ public final class TypeAdapters {
     }
     @Override
     public void write(JsonWriter out, Number value) throws IOException {
-      out.value(value);
+      if (value == null) {
+        out.nullValue();
+      } else {
+        out.value(value.intValue());
+      }
     }
   };
   public static final TypeAdapterFactory INTEGER_FACTORY
@@ -323,7 +335,11 @@ public final class TypeAdapters {
     }
     @Override
     public void write(JsonWriter out, Number value) throws IOException {
-      out.value(value);
+      if (value == null) {
+        out.nullValue();
+      } else {
+        out.value(value.longValue());
+      }
     }
   };
 
@@ -338,7 +354,14 @@ public final class TypeAdapters {
     }
     @Override
     public void write(JsonWriter out, Number value) throws IOException {
-      out.value(value);
+      if (value == null) {
+        out.nullValue();
+      } else {
+        // For backward compatibility don't call `JsonWriter.value(float)` because that method has
+        // been newly added and not all custom JsonWriter implementations might override it yet
+        Number floatNumber = value instanceof Float ? value : value.floatValue();
+        out.value(floatNumber);
+      }
     }
   };
 
@@ -353,7 +376,11 @@ public final class TypeAdapters {
     }
     @Override
     public void write(JsonWriter out, Number value) throws IOException {
-      out.value(value);
+      if (value == null) {
+        out.nullValue();
+      } else {
+        out.value(value.doubleValue());
+      }
     }
   };
 
