@@ -263,7 +263,12 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           if (field == null || !field.deserialized) {
             in.skipValue();
           } else {
-            field.read(in, instance);
+             try {
+                            field.read(in, instance);
+                        } catch (IllegalStateException e) {
+//                            e.printStackTrace();
+                            in.skipValue();
+                        }
           }
         }
       } catch (IllegalStateException e) {
