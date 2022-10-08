@@ -16,12 +16,11 @@
 
 package com.google.gson;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-
 import com.google.gson.internal.LazilyParsedNumber;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.MalformedJsonException;
+import java.io.IOException;
+import java.math.BigDecimal;
 
 /**
  * An enumeration that defines two standard number reading strategies and a couple of
@@ -29,6 +28,7 @@ import com.google.gson.stream.MalformedJsonException;
  * {@link Object} and {@link Number}.
  *
  * @see ToNumberStrategy
+ * @since 2.8.9
  */
 public enum ToNumberPolicy implements ToNumberStrategy {
 

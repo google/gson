@@ -17,7 +17,7 @@
 package com.google.gson;
 
 /**
- * A class representing a Json {@code null} value.
+ * A class representing a JSON {@code null} value.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
@@ -25,16 +25,16 @@ package com.google.gson;
  */
 public final class JsonNull extends JsonElement {
   /**
-   * Singleton for JsonNull
+   * Singleton for {@code JsonNull}.
    *
    * @since 1.8
    */
   public static final JsonNull INSTANCE = new JsonNull();
 
   /**
-   * Creates a new JsonNull object.
+   * Creates a new {@code JsonNull} object.
    *
-   * @deprecated Deprecated since Gson version 1.8. Use {@link #INSTANCE} instead
+   * @deprecated Deprecated since Gson version 1.8, use {@link #INSTANCE} instead.
    */
   @Deprecated
   public JsonNull() {
@@ -42,7 +42,8 @@ public final class JsonNull extends JsonElement {
   }
 
   /**
-   * Returns the same instance since it is an immutable value
+   * Returns the same instance since it is an immutable value.
+   *
    * @since 2.8.2
    */
   @Override
@@ -51,7 +52,7 @@ public final class JsonNull extends JsonElement {
   }
 
   /**
-   * All instances of JsonNull have the same hash code since they are indistinguishable
+   * All instances of {@code JsonNull} have the same hash code since they are indistinguishable.
    */
   @Override
   public int hashCode() {
@@ -59,7 +60,7 @@ public final class JsonNull extends JsonElement {
   }
 
   /**
-   * All instances of JsonNull are the same
+   * All instances of {@code JsonNull} are considered equal.
    */
   @Override
   public boolean equals(Object other) {

@@ -42,7 +42,7 @@ import java.util.regex.Pattern;
  * literal values (strings, numbers, booleans and nulls) as well as the begin
  * and end delimiters of objects and arrays.
  *
- * <h3>Encoding JSON</h3>
+ * <h2>Encoding JSON</h2>
  * To encode your data as JSON, create a new {@code JsonWriter}. Call methods
  * on the writer as you walk the structure's contents, nesting arrays and objects
  * as necessary:
@@ -58,7 +58,7 @@ import java.util.regex.Pattern;
  *       Finally close the object using {@link #endObject()}.
  * </ul>
  *
- * <h3>Example</h3>
+ * <h2>Example</h2>
  * Suppose we'd like to encode a stream of messages such as the following: <pre> {@code
  * [
  *   {
@@ -429,6 +429,7 @@ public class JsonWriter implements Closeable, Flushable {
    * @return this writer.
    * @throws UnsupportedOperationException if this writer does not support
    *    writing raw JSON values.
+   * @since 2.4
    */
   public JsonWriter jsonValue(String value) throws IOException {
     if (value == null) {
@@ -475,6 +476,7 @@ public class JsonWriter implements Closeable, Flushable {
    * Encodes {@code value}.
    *
    * @return this writer.
+   * @since 2.7
    */
   public JsonWriter value(Boolean value) throws IOException {
     if (value == null) {
@@ -495,6 +497,7 @@ public class JsonWriter implements Closeable, Flushable {
    * @return this writer.
    * @throws IllegalArgumentException if the value is NaN or Infinity and this writer is not {@link
    *     #setLenient(boolean) lenient}.
+   * @since 2.9.1
    */
   public JsonWriter value(float value) throws IOException {
     writeDeferredName();

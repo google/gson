@@ -37,9 +37,8 @@ public final class UnsafeAllocatorInstantiationTest extends TestCase {
    * to instantiate an interface
    */
   public void testInterfaceInstantiation() throws Exception {
-    UnsafeAllocator unsafeAllocator = UnsafeAllocator.create();
     try {
-      unsafeAllocator.newInstance(Interface.class);
+      UnsafeAllocator.INSTANCE.newInstance(Interface.class);
       fail();
     } catch (AssertionError e) {
       assertTrue(e.getMessage().startsWith("UnsafeAllocator is used for non-instantiable type"));
@@ -51,9 +50,8 @@ public final class UnsafeAllocatorInstantiationTest extends TestCase {
    * to instantiate an abstract class
    */
   public void testAbstractClassInstantiation() throws Exception {
-    UnsafeAllocator unsafeAllocator = UnsafeAllocator.create();
     try {
-      unsafeAllocator.newInstance(AbstractClass.class);
+      UnsafeAllocator.INSTANCE.newInstance(AbstractClass.class);
       fail();
     } catch (AssertionError e) {
       assertTrue(e.getMessage().startsWith("UnsafeAllocator is used for non-instantiable type"));
@@ -64,8 +62,7 @@ public final class UnsafeAllocatorInstantiationTest extends TestCase {
    * Ensure that no exception is thrown when trying to instantiate a concrete class
    */
   public void testConcreteClassInstantiation() throws Exception {
-    UnsafeAllocator unsafeAllocator = UnsafeAllocator.create();
-    ConcreteClass instance = unsafeAllocator.newInstance(ConcreteClass.class);
+    ConcreteClass instance = UnsafeAllocator.INSTANCE.newInstance(ConcreteClass.class);
     assertNotNull(instance);
   }
 }

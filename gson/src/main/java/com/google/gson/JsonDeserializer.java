@@ -19,7 +19,7 @@ package com.google.gson;
 import java.lang.reflect.Type;
 
 /**
- * <p>Interface representing a custom deserializer for Json. You should write a custom
+ * <p>Interface representing a custom deserializer for JSON. You should write a custom
  * deserializer, if you are not happy with the default deserialization done by Gson. You will
  * also need to register this deserializer through
  * {@link GsonBuilder#registerTypeAdapter(Type, Object)}.</p>
@@ -42,17 +42,19 @@ import java.lang.reflect.Type;
  * </pre>
  *
  * <p>The default deserialization of {@code Id(com.foo.MyObject.class, 20L)} will require the
- * Json string to be <code>{"clazz":com.foo.MyObject,"value":20}</code>. Suppose, you already know
+ * JSON string to be <code>{"clazz":"com.foo.MyObject","value":20}</code>. Suppose, you already know
  * the type of the field that the {@code Id} will be deserialized into, and hence just want to
- * deserialize it from a Json string {@code 20}. You can achieve that by writing a custom
+ * deserialize it from a JSON string {@code 20}. You can achieve that by writing a custom
  * deserializer:</p>
  *
  * <pre>
- * class IdDeserializer implements JsonDeserializer&lt;Id&gt;() {
+ * class IdDeserializer implements JsonDeserializer&lt;Id&gt; {
  *   public Id deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
  *       throws JsonParseException {
- *     return new Id((Class)typeOfT, id.getValue());
+ *     long idValue = json.getAsJsonPrimitive().getAsLong();
+ *     return new Id((Class) typeOfT, idValue);
  *   }
+ * }
  * </pre>
  *
  * <p>You will also need to register {@code IdDeserializer} with Gson as follows:</p>

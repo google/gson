@@ -16,20 +16,25 @@
 
 package com.google.gson;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.fail;
+
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
  * Unit tests for {@link GsonBuilder}.
  *
  * @author Inderjeet Singh
  */
-public class GsonBuilderTest extends TestCase {
+public class GsonBuilderTest {
   private static final TypeAdapter<Object> NULL_TYPE_ADAPTER = new TypeAdapter<Object>() {
     @Override public void write(JsonWriter out, Object value) {
       throw new AssertionError();
@@ -39,6 +44,7 @@ public class GsonBuilderTest extends TestCase {
     }
   };
 
+  @Test
   public void testCreatingMoreThanOnce() {
     GsonBuilder builder = new GsonBuilder();
     Gson gson = builder.create();
@@ -61,6 +67,7 @@ public class GsonBuilderTest extends TestCase {
    * Gson instances should not be affected by subsequent modification of GsonBuilder
    * which created them.
    */
+  @Test
   public void testModificationAfterCreate() {
     GsonBuilder gsonBuilder = new GsonBuilder();
     Gson gson = gsonBuilder.create();
@@ -136,6 +143,7 @@ public class GsonBuilderTest extends TestCase {
     }
   }
 
+  @Test
   public void testExcludeFieldsWithModifiers() {
     Gson gson = new GsonBuilder()
         .excludeFieldsWithModifiers(Modifier.VOLATILE, Modifier.PRIVATE)
@@ -151,6 +159,7 @@ public class GsonBuilderTest extends TestCase {
     String d = "d";
   }
 
+  @Test
   public void testTransientFieldExclusion() {
     Gson gson = new GsonBuilder()
         .excludeFieldsWithModifiers()
@@ -162,6 +171,7 @@ public class GsonBuilderTest extends TestCase {
     transient String a = "a";
   }
 
+  @Test
   public void testRegisterTypeAdapterForCoreType() {
     Type[] types = {
         byte.class,
@@ -176,6 +186,7 @@ public class GsonBuilderTest extends TestCase {
     }
   }
 
+  @Test
   public void testDisableJdkUnsafe() {
     Gson gson = new GsonBuilder()
         .disableJdkUnsafe()
@@ -196,6 +207,24 @@ public class GsonBuilderTest extends TestCase {
   private static class ClassWithoutNoArgsConstructor {
     @SuppressWarnings("unused")
     public ClassWithoutNoArgsConstructor(String s) {
+    }
+  }
+
+  @Test
+  public void testSetVersionInvalid() {
+    GsonBuilder builder = new GsonBuilder();
+    try {
+      builder.setVersion(Double.NaN);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertEquals("Invalid version: NaN", e.getMessage());
+    }
+
+    try {
+      builder.setVersion(-0.1);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertEquals("Invalid version: -0.1", e.getMessage());
     }
   }
 }
