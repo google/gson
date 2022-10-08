@@ -1,7 +1,6 @@
 package com.google.gson.functional;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
+import static org.junit.Assert.assertEquals;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -14,10 +13,11 @@ import com.google.gson.JsonSerializer;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+import java.lang.reflect.Type;
+import org.junit.Test;
 
-import junit.framework.TestCase;
-
-public class TypeAdapterRuntimeTypeWrapperTest extends TestCase {
+public class TypeAdapterRuntimeTypeWrapperTest {
   private static class Base {
   }
   private static class Subclass extends Base {
@@ -39,6 +39,7 @@ public class TypeAdapterRuntimeTypeWrapperTest extends TestCase {
    * When custom {@link JsonSerializer} is registered for Base should
    * prefer that over reflective adapter for Subclass for serialization.
    */
+  @Test
   public void testJsonSerializer() {
     Gson gson = new GsonBuilder()
       .registerTypeAdapter(Base.class, new JsonSerializer<Base>() {
@@ -57,6 +58,7 @@ public class TypeAdapterRuntimeTypeWrapperTest extends TestCase {
    * serialization should prefer reflective adapter for Subclass since
    * Base would use reflective adapter as delegate.
    */
+  @Test
   public void testJsonDeserializer_ReflectiveSerializerDelegate() {
     Gson gson = new GsonBuilder()
       .registerTypeAdapter(Base.class, new Deserializer())
@@ -70,6 +72,7 @@ public class TypeAdapterRuntimeTypeWrapperTest extends TestCase {
    * registered for Base, then on serialization should prefer custom adapter
    * delegate for Base over reflective adapter for Subclass.
    */
+  @Test
   public void testJsonDeserializer_CustomSerializerDelegate() {
     Gson gson = new GsonBuilder()
        // Register custom delegate
@@ -94,6 +97,7 @@ public class TypeAdapterRuntimeTypeWrapperTest extends TestCase {
    * which eventually fall back to reflective adapter as delegate, then on
    * serialization should prefer reflective adapter for Subclass.
    */
+  @Test
   public void testJsonDeserializer_ReflectiveTreeSerializerDelegate() {
     Gson gson = new GsonBuilder()
        // Register delegate which itself falls back to reflective serialization
@@ -109,6 +113,7 @@ public class TypeAdapterRuntimeTypeWrapperTest extends TestCase {
    * is registered for Base, then on serialization should prefer
    * {@code JsonSerializer} over reflective adapter for Subclass.
    */
+  @Test
   public void testJsonDeserializer_JsonSerializerDelegate() {
     Gson gson = new GsonBuilder()
         // Register JsonSerializer as delegate
