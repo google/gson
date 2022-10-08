@@ -23,6 +23,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Reads a JSON (<a href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>)
@@ -32,7 +33,7 @@ import java.util.Arrays;
  * depth-first order, the same order that they appear in the JSON document.
  * Within JSON objects, name/value pairs are represented by a single token.
  *
- * <h3>Parsing JSON</h3>
+ * <h2>Parsing JSON</h2>
  * To create a recursive descent parser for your own JSON streams, first create
  * an entry point method that creates a {@code JsonReader}.
  *
@@ -61,7 +62,7 @@ import java.util.Arrays;
  * Null literals can be consumed using either {@link #nextNull()} or {@link
  * #skipValue()}.
  *
- * <h3>Example</h3>
+ * <h2>Example</h2>
  * Suppose we'd like to parse a stream of messages such as the following: <pre> {@code
  * [
  *   {
@@ -160,7 +161,7 @@ import java.util.Arrays;
  *     return new User(username, followersCount);
  *   }}</pre>
  *
- * <h3>Number Handling</h3>
+ * <h2>Number Handling</h2>
  * This reader permits numeric values to be read as strings and string values to
  * be read as numbers. For example, both elements of the JSON array {@code
  * [1, "1"]} may be read using either {@link #nextInt} or {@link #nextString}.
@@ -170,7 +171,7 @@ import java.util.Arrays;
  * precision loss, extremely large values should be written and read as strings
  * in JSON.
  *
- * <h3 id="nonexecuteprefix">Non-Execute Prefix</h3>
+ * <h2 id="nonexecuteprefix">Non-Execute Prefix</h2>
  * Web servers that serve private data using JSON may be vulnerable to <a
  * href="http://en.wikipedia.org/wiki/JSON#Cross-site_request_forgery">Cross-site
  * request forgery</a> attacks. In such an attack, a malicious site gains access
@@ -287,10 +288,7 @@ public class JsonReader implements Closeable {
    * Creates a new instance that reads a JSON-encoded stream from {@code in}.
    */
   public JsonReader(Reader in) {
-    if (in == null) {
-      throw new NullPointerException("in == null");
-    }
-    this.in = in;
+    this.in = Objects.requireNonNull(in, "in == null");
   }
 
   /**
@@ -468,6 +466,7 @@ public class JsonReader implements Closeable {
     }
   }
 
+  @SuppressWarnings("fallthrough")
   int doPeek() throws IOException {
     int peekStack = stack[stackSize - 1];
     if (peekStack == JsonScope.EMPTY_ARRAY) {
@@ -751,6 +750,7 @@ public class JsonReader implements Closeable {
     }
   }
 
+  @SuppressWarnings("fallthrough")
   private boolean isLiteral(char c) throws IOException {
     switch (c) {
     case '/':
@@ -1131,6 +1131,7 @@ public class JsonReader implements Closeable {
     throw syntaxError("Unterminated string");
   }
 
+  @SuppressWarnings("fallthrough")
   private void skipUnquotedValue() throws IOException {
     do {
       int i = 0;
@@ -1541,6 +1542,7 @@ public class JsonReader implements Closeable {
    * @throws NumberFormatException if any unicode escape sequences are
    *     malformed.
    */
+  @SuppressWarnings("fallthrough")
   private char readEscapeCharacter() throws IOException {
     if (pos == limit && !fillBuffer(1)) {
       throw syntaxError("Unterminated escape sequence");

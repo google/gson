@@ -45,6 +45,7 @@ public final class JsonParser {
    * @param json JSON text
    * @return a parse tree of {@link JsonElement}s corresponding to the specified JSON
    * @throws JsonParseException if the specified text is not valid JSON
+   * @since 2.8.6
    */
   public static JsonElement parseString(String json) throws JsonSyntaxException {
     return parseReader(new StringReader(json));
@@ -61,6 +62,7 @@ public final class JsonParser {
    * @return a parse tree of {@link JsonElement}s corresponding to the specified JSON
    * @throws JsonParseException if there is an IOException or if the specified
    *     text is not valid JSON
+   * @since 2.8.6
    */
   public static JsonElement parseReader(Reader reader) throws JsonIOException, JsonSyntaxException {
     try {
@@ -90,6 +92,7 @@ public final class JsonParser {
    *
    * @throws JsonParseException if there is an IOException or if the specified
    *     text is not valid JSON
+   * @since 2.8.6
    */
   public static JsonElement parseReader(JsonReader reader)
       throws JsonIOException, JsonSyntaxException {

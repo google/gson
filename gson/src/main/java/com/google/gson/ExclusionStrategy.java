@@ -17,11 +17,8 @@
 package com.google.gson;
 
 /**
- * A strategy (or policy) definition that is used to decide whether or not a field or top-level
- * class should be serialized or deserialized as part of the JSON output/input. For serialization,
- * if the {@link #shouldSkipClass(Class)} method returns true then that class or field type
- * will not be part of the JSON output. For deserialization, if {@link #shouldSkipClass(Class)}
- * returns true, then it will not be set as part of the Java object structure.
+ * A strategy (or policy) definition that is used to decide whether or not a field or
+ * class should be serialized or deserialized as part of the JSON output/input.
  *
  * <p>The following are a few examples that shows how you can use this exclusion mechanism.
  *
@@ -64,7 +61,7 @@ package com.google.gson;
  *
  * <p>Now if you want to configure {@code Gson} to use a user defined exclusion strategy, then
  * the {@code GsonBuilder} is required. The following is an example of how you can use the
- * {@code GsonBuilder} to configure Gson to use one of the above sample:
+ * {@code GsonBuilder} to configure Gson to use one of the above samples:
  * <pre class="code">
  * ExclusionStrategy excludeStrings = new UserDefinedExclusionStrategy(String.class);
  * Gson gson = new GsonBuilder()

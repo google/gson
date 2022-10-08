@@ -1,0 +1,50 @@
+name: Check API compatibility
+
+on: pull_request
+
+jobs:
+  check-api-compatibility:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout old version
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: 'gson-old-japicmp'
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+          cache: 'maven'
+
+      - name: Build old version
+        run: |
+          cd gson-old-japicmp
+          # Set dummy version
+          mvn --batch-mode --no-transfer-progress org.codehaus.mojo:versions-maven-plugin:2.11.0:set -DnewVersion=JAPICMP-OLD
+          # Install artifacts with dummy version in local repository; used later by Maven plugin for comparison
+          mvn --batch-mode --no-transfer-progress install -DskipTests
+
+      - name: Checkout new version
+        uses: actions/checkout@v3
+
+      - name: Check API compatibility
+        id: check-compatibility
+        run: |
+          mvn --batch-mode --fail-at-end --no-transfer-progress package japicmp:cmp -DskipTests
+
+      - name: Upload API differences artifacts
+        uses: actions/upload-artifact@v3
+        # Run on workflow success (in that case differences report might include added methods and classes)
+        # or when API compatibility check failed
+        if: success() || ( failure() && steps.check-compatibility.outcome == 'failure' )
+        with:
+          name: api-differences
+          path: |
+            **/japicmp/default-cli.html
+            **/japicmp/default-cli.diff
+          # Plugin should always have created report files (though they might be empty)
+          if-no-files-found: error

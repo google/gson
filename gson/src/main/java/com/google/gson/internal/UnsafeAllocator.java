@@ -20,7 +20,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectStreamClass;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 
 /**
  * Do sneaky things to allocate objects without invoking their constructors.
@@ -32,37 +31,20 @@ public abstract class UnsafeAllocator {
   public abstract <T> T newInstance(Class<T> c) throws Exception;
 
   /**
-   * Check if the class can be instantiated by Unsafe allocator. If the instance has interface or abstract modifiers
-   * return an exception message.
-   * @param c instance of the class to be checked
-   * @return if instantiable {@code null}, else a non-{@code null} exception message
-   */
-  static String checkInstantiable(Class<?> c) {
-    int modifiers = c.getModifiers();
-    if (Modifier.isInterface(modifiers)) {
-      return "Interfaces can't be instantiated! Register an InstanceCreator "
-          + "or a TypeAdapter for this type. Interface name: " + c.getName();
-    }
-    if (Modifier.isAbstract(modifiers)) {
-      return "Abstract classes can't be instantiated! Register an InstanceCreator "
-          + "or a TypeAdapter for this type. Class name: " + c.getName();
-    }
-    return null;
-  }
-
-  /**
    * Asserts that the class is instantiable. This check should have already occurred
    * in {@link ConstructorConstructor}; this check here acts as safeguard since trying
    * to use Unsafe for non-instantiable classes might crash the JVM on some devices.
    */
   private static void assertInstantiable(Class<?> c) {
-    String exceptionMessage = checkInstantiable(c);
+    String exceptionMessage = ConstructorConstructor.checkInstantiable(c);
     if (exceptionMessage != null) {
       throw new AssertionError("UnsafeAllocator is used for non-instantiable type: " + exceptionMessage);
     }
   }
 
-  public static UnsafeAllocator create() {
+  public static final UnsafeAllocator INSTANCE = create();
+
+  private static UnsafeAllocator create() {
     // try JVM
     // public class Unsafe {
     //   public Object allocateInstance(Class<?> type);

@@ -91,7 +91,7 @@ import java.util.Map;
  * Both the type field name ({@code "type"}) and the type labels ({@code
  * "Rectangle"}) are configurable.
  *
- * <h3>Registering Types</h3>
+ * <h2>Registering Types</h2>
  * Create a {@code RuntimeTypeAdapterFactory} by passing the base type and type field
  * name to the {@link #of} factory method. If you don't supply an explicit type
  * field name, {@code "type"} will be used. <pre>   {@code
@@ -119,7 +119,7 @@ import java.util.Map;
  *       .registerSubtype(Diamond.class);
  * }</pre>
  *
- * <h3>Serialization and deserialization</h3>
+ * <h2>Serialization and deserialization</h2>
  * In order to serialize and deserialize a polymorphic object,
  * you must specify the base type explicitly.
  * <pre>   {@code
@@ -158,7 +158,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
   public static <T> RuntimeTypeAdapterFactory<T> of(Class<T> baseType, String typeFieldName, boolean maintainType) {
     return new RuntimeTypeAdapterFactory<>(baseType, typeFieldName, maintainType);
   }
-  
+
   /**
    * Creates a new runtime type adapter using for {@code baseType} using {@code
    * typeFieldName} as the type field name. Type field names are case sensitive.
@@ -244,7 +244,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
         } else {
             labelJsonElement = jsonElement.getAsJsonObject().remove(typeFieldName);
         }
-        
+
         if (labelJsonElement == null) {
           throw new JsonParseException("cannot deserialize " + baseType
               + " because it does not define a field named " + typeFieldName);
@@ -282,7 +282,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
               + " because it already defines a field named " + typeFieldName);
         }
         clone.add(typeFieldName, new JsonPrimitive(label));
-        
+
         for (Map.Entry<String, JsonElement> e : jsonObject.entrySet()) {
           clone.add(e.getKey(), e.getValue());
         }

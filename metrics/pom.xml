@@ -32,7 +32,7 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.13.3</version>
+      <version>2.13.4</version>
     </dependency>
     <dependency>
       <groupId>com.google.caliper</groupId>
@@ -45,9 +45,17 @@
     <pluginManagement>
       <plugins>
         <plugin>
+          <groupId>com.github.siom79.japicmp</groupId>
+          <artifactId>japicmp-maven-plugin</artifactId>
+          <version>0.16.0</version>
+          <configuration>
+            <!-- This module is not supposed to be consumed as library, so no need to check API -->
+            <skip>true</skip>
+          </configuration>
+        </plugin>
+        <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-deploy-plugin</artifactId>
-          <version>3.0.0</version>
           <configuration>
             <!-- Not deployed -->
             <skip>true</skip>
