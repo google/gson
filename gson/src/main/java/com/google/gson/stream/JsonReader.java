@@ -1267,7 +1267,7 @@ public class JsonReader implements Closeable {
         pos += peekedNumberLength;
       }
       peeked = PEEKED_NONE;
-    } while (count != 0);
+    } while (count > 0);
 
     pathIndices[stackSize - 1]++;
     pathNames[stackSize - 1] = "null";

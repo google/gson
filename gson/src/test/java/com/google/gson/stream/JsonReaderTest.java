@@ -16,13 +16,6 @@
 
 package com.google.gson.stream;
 
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-import java.util.Arrays;
-import junit.framework.TestCase;
-
 import static com.google.gson.stream.JsonToken.BEGIN_ARRAY;
 import static com.google.gson.stream.JsonToken.BEGIN_OBJECT;
 import static com.google.gson.stream.JsonToken.BOOLEAN;
@@ -32,6 +25,16 @@ import static com.google.gson.stream.JsonToken.NAME;
 import static com.google.gson.stream.JsonToken.NULL;
 import static com.google.gson.stream.JsonToken.NUMBER;
 import static com.google.gson.stream.JsonToken.STRING;
+
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.Arrays;
+
+import org.junit.Assert;
+
+import junit.framework.TestCase;
 
 @SuppressWarnings("resource")
 public final class JsonReaderTest extends TestCase {
@@ -1627,6 +1630,28 @@ public final class JsonReaderTest extends TestCase {
     reader.setLenient(true);
     reader.skipValue();
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
+  }
+
+  public void testSkipValueInfiniteLoopOnObjectEnd() throws IOException {
+      final String json = "{\"input\":{\"authToken\":\"7f79v2fav7jj48t70vh2jfo84h\",\"packageId\":\"649b1fa1-d323-499a-99b2-fb00da8b1f12\",\"version\":\"1.0.0\"},\"requestId\":\"0a7bd76f-6a3c-417d-b2c8-022e17ea46c0\",\"name\":\"com.seagullsw.appinterface.server.admin.Reconfigure\",\"type\":\"BasicRequest\"}";
+      final String search = "AMissingValue";
+      final JsonReader jsonReader = new JsonReader(new StringReader(json));
+      try {
+          if (jsonReader.peek() == BEGIN_OBJECT) {
+              jsonReader.beginObject();
+              while (jsonReader.peek() == NAME) {
+                  final String jsonName = jsonReader.nextName();
+                  if ("type".equals(jsonName)) {
+                      if (jsonReader.peek() == STRING && search.equals(jsonReader.nextString())) {
+                          Assert.fail();
+                      }
+                  }
+                  jsonReader.skipValue();
+              }
+          }
+      } finally {
+    	  jsonReader.close();
+      }
   }
 
   public void testSkipVeryLongQuotedString() throws IOException {
