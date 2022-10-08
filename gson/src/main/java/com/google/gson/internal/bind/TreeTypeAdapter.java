@@ -38,7 +38,7 @@ import java.lang.reflect.Type;
  * tree adapter may be serialization-only or deserialization-only, this class
  * has a facility to lookup a delegate type adapter on demand.
  */
-public final class TreeTypeAdapter<T> extends TypeAdapter<T> {
+public final class TreeTypeAdapter<T> extends SerializationDelegatingTypeAdapter<T> {
   private final JsonSerializer<T> serializer;
   private final JsonDeserializer<T> deserializer;
   final Gson gson;
@@ -102,8 +102,7 @@ public final class TreeTypeAdapter<T> extends TypeAdapter<T> {
    * if this {@code TreeTypeAdapter} has a {@link #serializer}; otherwise returns
    * the delegate.
    */
-  // Package-private for TypeAdapterRuntimeTypeWrapper
-  TypeAdapter<T> getSerializingTypeAdapter() {
+  @Override public TypeAdapter<T> getSerializationDelegate() {
     return serializer != null ? this : delegate();
   }
 

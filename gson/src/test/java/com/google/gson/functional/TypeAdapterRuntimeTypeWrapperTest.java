@@ -162,4 +162,32 @@ public class TypeAdapterRuntimeTypeWrapperTest {
     String json = gson.toJson(new Container());
     assertEquals("{\"b\":{\"f\":\"test\"}}", json);
   }
+
+  private static class CyclicBase {
+    @SuppressWarnings("unused")
+    CyclicBase f;
+  }
+
+  private static class CyclicSub extends CyclicBase {
+    @SuppressWarnings("unused")
+    int i;
+
+    public CyclicSub(int i) {
+      this.i = i;
+    }
+  }
+
+  /**
+   * Tests behavior when the type of a field refers to a type whose adapter is
+   * currently in the process of being created. For these cases {@link Gson}
+   * uses a future adapter for the type. That adapter later uses the actual
+   * adapter as delegate.
+   */
+  @Test
+  public void testGsonFutureAdapter() {
+    CyclicBase b = new CyclicBase();
+    b.f = new CyclicSub(2);
+    String json = new Gson().toJson(b);
+    assertEquals("{\"f\":{\"i\":2}}", json);
+  }
 }

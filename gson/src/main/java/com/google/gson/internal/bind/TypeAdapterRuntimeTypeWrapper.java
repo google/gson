@@ -76,22 +76,17 @@ final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
    * @param typeAdapter the type adapter to check.
    */
   private static boolean isReflective(TypeAdapter<?> typeAdapter) {
-    if (typeAdapter instanceof ReflectiveTypeAdapterFactory.Adapter) {
-      return true;
-    } else if (typeAdapter instanceof TreeTypeAdapter) {
-      // Have to get actual serializing adapter for TreeTypeAdapter because
-      // TreeTypeAdapter without `serializer` might fall back to reflective
-      // type adapter
-      TreeTypeAdapter<?> treeTypeAdapter = (TreeTypeAdapter<?>) typeAdapter;
-      TypeAdapter<?> serializingTypeAdapter = treeTypeAdapter.getSerializingTypeAdapter();
-      if (serializingTypeAdapter == treeTypeAdapter) {
-        return false;
-      } else {
-        // Check TreeTypeAdapter delegate
-        return isReflective(serializingTypeAdapter);
+    // Run this in loop in case multiple delegating adapters are nested
+    while(typeAdapter instanceof SerializationDelegatingTypeAdapter) {
+      TypeAdapter<?> delegate = ((SerializationDelegatingTypeAdapter<?>) typeAdapter).getSerializationDelegate();
+      // Break if adapter does not delegate serialization
+      if (delegate == typeAdapter) {
+        break;
       }
+      typeAdapter = delegate;
     }
-    return false;
+
+    return typeAdapter instanceof ReflectiveTypeAdapterFactory.Adapter;
   }
 
   /**
