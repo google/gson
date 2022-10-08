@@ -48,7 +48,7 @@ jobs:
     # Can replace this with github/codeql-action/autobuild action to run complete build
     - name: Compile sources
       run: |
-        mvn compile --batch-mode
+        mvn compile --batch-mode --no-transfer-progress
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2

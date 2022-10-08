@@ -17,6 +17,10 @@
     </license>
   </licenses>
 
+  <properties>
+    <excludeTestCompilation>**/Java17*</excludeTestCompilation>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
@@ -58,6 +62,18 @@
                 <!-- module-info.java is compiled using ModiTect -->
                 <exclude>module-info.java</exclude>
               </excludes>
+            </configuration>
+          </execution>
+          <execution>
+            <id>default-testCompile</id>
+            <phase>test-compile</phase>
+            <goals>
+              <goal>testCompile</goal>
+            </goals>
+            <configuration>
+              <testExcludes>
+                <exclude>${excludeTestCompilation}</exclude>
+              </testExcludes>
             </configuration>
           </execution>
         </executions>
@@ -222,4 +238,16 @@
       </plugin>
     </plugins>
   </build>
+  <profiles>
+    <profile>
+      <id>JDK17</id>
+      <activation>
+        <jdk>[17,)</jdk>
+      </activation>
+      <properties>
+        <maven.compiler.testRelease>17</maven.compiler.testRelease>
+        <excludeTestCompilation></excludeTestCompilation>
+      </properties>
+    </profile>
+  </profiles>
 </project>

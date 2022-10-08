@@ -146,6 +146,7 @@ public final class JsonObject extends JsonElement {
    * Returns the number of key/value pairs in the object.
    *
    * @return the number of key/value pairs in the object.
+   * @since 2.7
    */
   public int size() {
     return members.size();

@@ -28,6 +28,8 @@ import static com.google.gson.Gson.DEFAULT_SERIALIZE_NULLS;
 import static com.google.gson.Gson.DEFAULT_SPECIALIZE_FLOAT_VALUES;
 import static com.google.gson.Gson.DEFAULT_USE_JDK_UNSAFE;
 
+import com.google.gson.annotations.Since;
+import com.google.gson.annotations.Until;
 import com.google.gson.internal.$Gson$Preconditions;
 import com.google.gson.internal.Excluder;
 import com.google.gson.internal.bind.DefaultDateTypeAdapter;
@@ -143,14 +145,25 @@ public final class GsonBuilder {
   }
 
   /**
-   * Configures Gson to enable versioning support.
+   * Configures Gson to enable versioning support. Versioning support works based on the
+   * annotation types {@link Since} and {@link Until}. It allows including or excluding fields
+   * and classes based on the specified version. See the documentation of these annotation
+   * types for more information.
    *
-   * @param ignoreVersionsAfter any field or type marked with a version higher than this value
-   * are ignored during serialization or deserialization.
+   * <p>By default versioning support is disabled and usage of {@code @Since} and {@code @Until}
+   * has no effect.
+   *
+   * @param version the version number to use.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @throws IllegalArgumentException if the version number is NaN or negative
+   * @see Since
+   * @see Until
    */
-  public GsonBuilder setVersion(double ignoreVersionsAfter) {
-    excluder = excluder.withVersion(ignoreVersionsAfter);
+  public GsonBuilder setVersion(double version) {
+    if (Double.isNaN(version) || version < 0.0) {
+      throw new IllegalArgumentException("Invalid version: " + version);
+    }
+    excluder = excluder.withVersion(version);
     return this;
   }
 
@@ -221,8 +234,9 @@ public final class GsonBuilder {
    * on the key; however, when this is called then one of the following cases
    * apply:
    *
-   * <h3>Maps as JSON objects</h3>
-   * For this case, assume that a type adapter is registered to serialize and
+   * <p><b>Maps as JSON objects</b>
+   *
+   * <p>For this case, assume that a type adapter is registered to serialize and
    * deserialize some {@code Point} class, which contains an x and y coordinate,
    * to/from the JSON Primitive string value {@code "(x,y)"}. The Java map would
    * then be serialized as a {@link JsonObject}.
@@ -246,11 +260,12 @@ public final class GsonBuilder {
    *   }
    * }</pre>
    *
-   * <h3>Maps as JSON arrays</h3>
-   * For this case, assume that a type adapter was NOT registered for some
+   * <p><b>Maps as JSON arrays</b>
+   *
+   * <p>For this case, assume that a type adapter was NOT registered for some
    * {@code Point} class, but rather the default Gson serialization is applied.
    * In this case, some {@code new Point(2,3)} would serialize as {@code
-   * {"x":2,"y":5}}.
+   * {"x":2,"y":3}}.
    *
    * <p>Given the assumption above, a {@code Map<Point, String>} will be
    * serialize as an array of arrays (can be viewed as an entry set of pairs).
@@ -347,6 +362,10 @@ public final class GsonBuilder {
    * Configures Gson to apply a specific naming strategy to an object's fields during
    * serialization and deserialization.
    *
+   * <p>The created Gson instance might only use the field naming strategy once for a
+   * field and cache the result. It is not guaranteed that the strategy will be used
+   * again every time the value of a field is serialized or deserialized.
+   *
    * @param fieldNamingStrategy the naming strategy to apply to the fields
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.3
@@ -362,6 +381,7 @@ public final class GsonBuilder {
    * @param objectToNumberStrategy the actual object-to-number strategy
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @see ToNumberPolicy#DOUBLE The default object-to-number strategy
+   * @since 2.8.9
    */
   public GsonBuilder setObjectToNumberStrategy(ToNumberStrategy objectToNumberStrategy) {
     this.objectToNumberStrategy = Objects.requireNonNull(objectToNumberStrategy);
@@ -374,6 +394,7 @@ public final class GsonBuilder {
    * @param numberToNumberStrategy the actual number-to-number strategy
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @see ToNumberPolicy#LAZILY_PARSED_NUMBER The default number-to-number strategy
+   * @since 2.8.9
    */
   public GsonBuilder setNumberToNumberStrategy(ToNumberStrategy numberToNumberStrategy) {
     this.numberToNumberStrategy = Objects.requireNonNull(numberToNumberStrategy);
@@ -397,6 +418,10 @@ public final class GsonBuilder {
    * {@link ExclusionStrategy#shouldSkipClass(Class) shouldSkipClass}) are serialized a
    * JSON null is written to output, and when deserialized the JSON value is skipped and
    * {@code null} is returned.
+   *
+   * <p>The created Gson instance might only use an exclusion strategy once for a field or
+   * class and cache the result. It is not guaranteed that the strategy will be used again
+   * every time the value of a field or a class is serialized or deserialized.
    *
    * @param strategies the set of strategy object to apply during object (de)serialization.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
@@ -603,6 +628,10 @@ public final class GsonBuilder {
    * is designed to handle a large number of factories, so you should consider registering
    * them to be at par with registering an individual type adapter.
    *
+   * <p>The created Gson instance might only use the factory once to create an adapter for
+   * a specific type and cache the result. It is not guaranteed that the factory will be used
+   * again every time the type is serialized or deserialized.
+   *
    * @since 2.1
    */
   public GsonBuilder registerTypeAdapterFactory(TypeAdapterFactory factory) {
@@ -680,6 +709,7 @@ public final class GsonBuilder {
    * disabling usage of {@code Unsafe}.
    *
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @since 2.9.0
    */
   public GsonBuilder disableJdkUnsafe() {
     this.useJdkUnsafe = false;
@@ -698,8 +728,13 @@ public final class GsonBuilder {
    * all classes for which no {@link TypeAdapter} has been registered, and for which no
    * built-in Gson {@code TypeAdapter} exists.
    *
+   * <p>The created Gson instance might only use an access filter once for a class or its
+   * members and cache the result. It is not guaranteed that the filter will be used again
+   * every time a class or its members are accessed during serialization or deserialization.
+   *
    * @param filter filter to add
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @since 2.9.1
    */
   public GsonBuilder addReflectionAccessFilter(ReflectionAccessFilter filter) {
     Objects.requireNonNull(filter);

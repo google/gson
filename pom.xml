@@ -21,7 +21,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <javaVersion>7</javaVersion>
+    <maven.compiler.release>7</maven.compiler.release>
   </properties>
 
   <scm>
@@ -70,7 +70,6 @@
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.10.1</version>
           <configuration>
-            <release>${javaVersion}</release>
             <showWarnings>true</showWarnings>
             <showDeprecation>true</showDeprecation>
             <failOnWarning>true</failOnWarning>
@@ -92,6 +91,9 @@
             <jdkToolchain>
               <version>[11,)</version>
             </jdkToolchain>
+            <!-- Specify newer JDK as target to allow linking to newer Java API, and to generate
+              module overview in Javadoc for Gson's module descriptor -->
+            <release>11</release>
             <!-- Exclude `missing` group because some tags have been omitted when they are redundant -->
             <doclint>all,-missing</doclint>
             <!-- Link against newer Java API Javadoc because most users likely 
@@ -113,7 +115,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
-          <version>3.2.2</version>
+          <version>3.3.0</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>

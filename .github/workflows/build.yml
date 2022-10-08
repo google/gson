@@ -4,16 +4,20 @@ on: [push, pull_request]
 
 jobs:
   build:
+    name: "Build on JDK ${{ matrix.java }}"
+    strategy:
+      matrix:
+        java: [ 11, 17 ]
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
-      - name: Set up JDK 11
+      - name: "Set up JDK ${{ matrix.java }}"
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '11'
+          java-version: ${{ matrix.java }}
           cache: 'maven'
       - name: Build with Maven
         # This also runs javadoc:jar to detect any issues with the Javadoc generated during release
-        run: mvn --batch-mode --update-snapshots verify javadoc:jar
+        run: mvn --batch-mode --update-snapshots --no-transfer-progress verify javadoc:jar

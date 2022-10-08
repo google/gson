@@ -16,6 +16,7 @@
 
 package com.google.gson.annotations;
 
+import com.google.gson.GsonBuilder;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -24,12 +25,11 @@ import java.lang.annotation.Target;
 
 /**
  * An annotation that indicates the version number since a member or a type has been present.
- * This annotation is useful to manage versioning of your Json classes for a web-service.
+ * This annotation is useful to manage versioning of your JSON classes for a web-service.
  *
  * <p>
  * This annotation has no effect unless you build {@link com.google.gson.Gson} with a
- * {@link com.google.gson.GsonBuilder} and invoke
- * {@link com.google.gson.GsonBuilder#setVersion(double)} method.
+ * {@code GsonBuilder} and invoke the {@link GsonBuilder#setVersion(double)} method.
  *
  * <p>Here is an example of how this annotation is meant to be used:</p>
  * <pre>
@@ -50,14 +50,16 @@ import java.lang.annotation.Target;
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
+ * @see GsonBuilder#setVersion(double)
+ * @see Until
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.TYPE})
 public @interface Since {
   /**
-   * the value indicating a version number since this member
-   * or type has been present.
+   * The value indicating a version number since this member or type has been present.
+   * The number is inclusive; annotated elements will be included if {@code gsonVersion >= value}.
    */
   double value();
 }
