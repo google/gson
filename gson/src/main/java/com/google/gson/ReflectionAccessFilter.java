@@ -1,8 +1,7 @@
 package com.google.gson;
 
-import java.lang.reflect.AccessibleObject;
-
 import com.google.gson.internal.ReflectionAccessFilterHelper;
+import java.lang.reflect.AccessibleObject;
 
 /**
  * Filter for determining whether reflection based serialization and
@@ -28,10 +27,13 @@ import com.google.gson.internal.ReflectionAccessFilterHelper;
  * fields and classes.
  *
  * @see GsonBuilder#addReflectionAccessFilter(ReflectionAccessFilter)
+ * @since 2.9.1
  */
 public interface ReflectionAccessFilter {
   /**
    * Result of a filter check.
+   *
+   * @since 2.9.1
    */
   enum FilterResult {
     /**

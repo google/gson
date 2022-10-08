@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-
 /**
  * Adapts values whose runtime type may differ from their declaration type. This
  * is necessary when a field's type is not the same type that GSON should create
@@ -92,7 +91,7 @@ import java.util.Map;
  * Both the type field name ({@code "type"}) and the type labels ({@code
  * "Rectangle"}) are configurable.
  *
- * <h3>Registering Types</h3>
+ * <h2>Registering Types</h2>
  * Create a {@code RuntimeTypeAdapterFactory} by passing the base type and type field
  * name to the {@link #of} factory method. If you don't supply an explicit type
  * field name, {@code "type"} will be used. <pre>   {@code
@@ -120,7 +119,7 @@ import java.util.Map;
  *       .registerSubtype(Diamond.class);
  * }</pre>
  *
- * <h3>Serialization and deserialization</h3>
+ * <h2>Serialization and deserialization</h2>
  * In order to serialize and deserialize a polymorphic object,
  * you must specify the base type explicitly.
  * <pre>   {@code
@@ -138,8 +137,10 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
   private final Map<String, Class<?>> labelToSubtype = new LinkedHashMap<>();
   private final Map<Class<?>, String> subtypeToLabel = new LinkedHashMap<>();
   private final boolean maintainType;
+  private boolean recognizeSubtypes;
 
-  private RuntimeTypeAdapterFactory(Class<?> baseType, String typeFieldName, boolean maintainType) {
+  private RuntimeTypeAdapterFactory(
+      Class<?> baseType, String typeFieldName, boolean maintainType) {
     if (typeFieldName == null || baseType == null) {
       throw new NullPointerException();
     }
@@ -151,7 +152,8 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
   /**
    * Creates a new runtime type adapter using for {@code baseType} using {@code
    * typeFieldName} as the type field name. Type field names are case sensitive.
-   * {@code maintainType} flag decide if the type will be stored in pojo or not.
+   *
+   * @param maintainType true if the type field should be included in deserialized objects
    */
   public static <T> RuntimeTypeAdapterFactory<T> of(Class<T> baseType, String typeFieldName, boolean maintainType) {
     return new RuntimeTypeAdapterFactory<>(baseType, typeFieldName, maintainType);
@@ -171,6 +173,17 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
    */
   public static <T> RuntimeTypeAdapterFactory<T> of(Class<T> baseType) {
     return new RuntimeTypeAdapterFactory<>(baseType, "type", false);
+  }
+
+  /**
+   * Ensures that this factory will handle not just the given {@code baseType}, but any subtype
+   * of that type.
+   *
+   * @return this
+   */
+  public RuntimeTypeAdapterFactory<T> recognizeSubtypes() {
+    this.recognizeSubtypes = true;
+    return this;
   }
 
   /**
@@ -207,7 +220,13 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
 
   @Override
   public <R> TypeAdapter<R> create(Gson gson, TypeToken<R> type) {
-    if (type == null || !baseType.isAssignableFrom(type.getRawType())) {
+    if (type == null) {
+      return null;
+    }
+    Class<?> rawType = type.getRawType();
+    boolean handle =
+        recognizeSubtypes ? baseType.isAssignableFrom(rawType) : baseType.equals(rawType);
+    if (!handle) {
       return null;
     }
 

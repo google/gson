@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.google.code.gson</groupId>
     <artifactId>gson-parent</artifactId>
-    <version>2.9.1-SNAPSHOT</version>
+    <version>2.9.2-SNAPSHOT</version>
   </parent>
 
   <artifactId>proto</artifactId>
@@ -87,7 +87,6 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-deploy-plugin</artifactId>
-          <version>3.0.0</version>
           <configuration>
             <!-- Not deployed -->
             <skip>true</skip>

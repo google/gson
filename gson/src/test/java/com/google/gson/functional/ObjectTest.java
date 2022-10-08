@@ -44,7 +44,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
-
 import junit.framework.TestCase;
 
 /**
@@ -121,18 +120,16 @@ public class ObjectTest extends TestCase {
     assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 
-  @SuppressWarnings("rawtypes")
   public void testClassWithTransientFieldsDeserialization() throws Exception {
     String json = "{\"longValue\":[1]}";
-    ClassWithTransientFields target = gson.fromJson(json, ClassWithTransientFields.class);
+    ClassWithTransientFields<?> target = gson.fromJson(json, ClassWithTransientFields.class);
     assertEquals(json, target.getExpectedJson());
   }
 
-  @SuppressWarnings("rawtypes")
   public void testClassWithTransientFieldsDeserializationTransientFieldsPassedInJsonAreIgnored()
       throws Exception {
     String json = "{\"transientLongValue\":1,\"longValue\":[1]}";
-    ClassWithTransientFields target = gson.fromJson(json, ClassWithTransientFields.class);
+    ClassWithTransientFields<?> target = gson.fromJson(json, ClassWithTransientFields.class);
     assertFalse(target.transientLongValue != 1);
   }
 

@@ -30,7 +30,7 @@ import java.io.Writer;
 /**
  * Converts Java objects to and from JSON.
  *
- * <h3>Defining a type's JSON form</h3>
+ * <h2>Defining a type's JSON form</h2>
  * By default Gson converts application classes to JSON using its built-in type
  * adapters. If Gson's default JSON conversion isn't appropriate for a type,
  * extend this class to customize the conversion. Here's an example of a type
@@ -96,7 +96,7 @@ import java.io.Writer;
  */
 // non-Javadoc:
 //
-// <h3>JSON Conversion</h3>
+// <h2>JSON Conversion</h2>
 // <p>A type adapter registered with Gson is automatically invoked while serializing
 // or deserializing JSON. However, you can also use type adapters directly to serialize
 // and deserialize JSON. Here is an example for deserialization: <pre>   {@code
@@ -118,6 +118,9 @@ import java.io.Writer;
 //
 public abstract class TypeAdapter<T> {
 
+  public TypeAdapter() {
+  }
+
   /**
    * Writes one JSON value (an array, object, string, number, boolean or null)
    * for {@code value}.
@@ -131,8 +134,7 @@ public abstract class TypeAdapter<T> {
    * Unlike Gson's similar {@link Gson#toJson(JsonElement, Appendable) toJson}
    * method, this write is strict. Create a {@link
    * JsonWriter#setLenient(boolean) lenient} {@code JsonWriter} and call
-   * {@link #write(com.google.gson.stream.JsonWriter, Object)} for lenient
-   * writing.
+   * {@link #write(JsonWriter, Object)} for lenient writing.
    *
    * @param value the Java object to convert. May be null.
    * @since 2.2
@@ -205,9 +207,9 @@ public abstract class TypeAdapter<T> {
    * Converts {@code value} to a JSON document. Unlike Gson's similar {@link
    * Gson#toJson(Object) toJson} method, this write is strict. Create a {@link
    * JsonWriter#setLenient(boolean) lenient} {@code JsonWriter} and call
-   * {@link #write(com.google.gson.stream.JsonWriter, Object)} for lenient
-   * writing.
+   * {@link #write(JsonWriter, Object)} for lenient writing.
    *
+   * @throws JsonIOException wrapping {@code IOException}s thrown by {@link #write(JsonWriter, Object)}
    * @param value the Java object to convert. May be null.
    * @since 2.2
    */
@@ -216,7 +218,7 @@ public abstract class TypeAdapter<T> {
     try {
       toJson(stringWriter, value);
     } catch (IOException e) {
-      throw new AssertionError(e); // No I/O writing to a StringWriter.
+      throw new JsonIOException(e);
     }
     return stringWriter.toString();
   }
@@ -226,6 +228,7 @@ public abstract class TypeAdapter<T> {
    *
    * @param value the Java object to convert. May be null.
    * @return the converted JSON tree. May be {@link JsonNull}.
+   * @throws JsonIOException wrapping {@code IOException}s thrown by {@link #write(JsonWriter, Object)}
    * @since 2.2
    */
   public final JsonElement toJsonTree(T value) {
@@ -248,7 +251,7 @@ public abstract class TypeAdapter<T> {
 
   /**
    * Converts the JSON document in {@code in} to a Java object. Unlike Gson's
-   * similar {@link Gson#fromJson(java.io.Reader, Class) fromJson} method, this
+   * similar {@link Gson#fromJson(Reader, Class) fromJson} method, this
    * read is strict. Create a {@link JsonReader#setLenient(boolean) lenient}
    * {@code JsonReader} and call {@link #read(JsonReader)} for lenient reading.
    *
@@ -284,6 +287,7 @@ public abstract class TypeAdapter<T> {
    *
    * @param jsonTree the JSON element to convert. May be {@link JsonNull}.
    * @return the converted Java object. May be null.
+   * @throws JsonIOException wrapping {@code IOException}s thrown by {@link #read(JsonReader)}
    * @since 2.2
    */
   public final T fromJsonTree(JsonElement jsonTree) {

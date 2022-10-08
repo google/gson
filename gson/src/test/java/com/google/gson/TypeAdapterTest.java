@@ -2,6 +2,7 @@ package com.google.gson;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
@@ -24,6 +25,38 @@ public class TypeAdapterTest {
 
     assertEquals("null", adapter.toJson(null));
     assertNull(adapter.fromJson("null"));
+  }
+
+  /**
+   * Tests behavior when {@link TypeAdapter#write(JsonWriter, Object)} manually throws
+   * {@link IOException} which is not caused by writer usage.
+   */
+  @Test
+  public void testToJson_ThrowingIOException() {
+    final IOException exception = new IOException("test");
+    TypeAdapter<Integer> adapter = new TypeAdapter<Integer>() {
+      @Override public void write(JsonWriter out, Integer value) throws IOException {
+        throw exception;
+      }
+
+      @Override public Integer read(JsonReader in) throws IOException {
+        throw new AssertionError("not needed by this test");
+      }
+    };
+
+    try {
+      adapter.toJson(1);
+      fail();
+    } catch (JsonIOException e) {
+      assertEquals(exception, e.getCause());
+    }
+
+    try {
+      adapter.toJsonTree(1);
+      fail();
+    } catch (JsonIOException e) {
+      assertEquals(exception, e.getCause());
+    }
   }
 
   private static final TypeAdapter<String> adapter = new TypeAdapter<String>() {

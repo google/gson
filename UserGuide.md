@@ -76,7 +76,7 @@ The Gson instance does not maintain any state while invoking JSON operations. So
 
 ```gradle
 dependencies {
-    implementation 'com.google.code.gson:gson:2.9.0'
+    implementation 'com.google.code.gson:gson:2.9.1'
 }
 ```
 
@@ -90,7 +90,7 @@ To use Gson with Maven2/3, you can use the Gson version available in Maven Centr
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
-      <version>2.9.0</version>
+      <version>2.9.1</version>
       <scope>compile</scope>
     </dependency>
 </dependencies>
@@ -155,7 +155,8 @@ BagOfPrimitives obj2 = gson.fromJson(json, BagOfPrimitives.class);
   * While serializing, a null field is omitted from the output.
   * While deserializing, a missing entry in JSON results in setting the corresponding field in the object to its default value: null for object types, zero for numeric types, and false for booleans.
 * If a field is _synthetic_, it is ignored and not included in JSON serialization or deserialization.
-* Fields corresponding to the outer classes in inner classes, anonymous classes, and local classes are ignored and not included in serialization or deserialization.
+* Fields corresponding to the outer classes in inner classes are ignored and not included in serialization or deserialization.
+* Anonymous and local classes are excluded. They will be serialized as JSON `null` and when deserialized their JSON value is ignored and `null` is returned. Convert the classes to `static` nested classes to enable serialization and deserialization for them.
 
 ### <a name="TOC-Nested-Classes-including-Inner-Classes-"></a>Nested Classes (including Inner Classes)
 
@@ -224,7 +225,9 @@ Collection<Integer> ints = Arrays.asList(1,2,3,4,5);
 String json = gson.toJson(ints);  // ==> json is [1,2,3,4,5]
 
 // Deserialization
-Type collectionType = new TypeToken<Collection<Integer>>(){}.getType();
+TypeToken<Collection<Integer>> collectionType = new TypeToken<Collection<Integer>>(){};
+// Note: For older Gson versions it is necessary to use `collectionType.getType()` as argument below,
+// this is however not type-safe and care must be taken to specify the correct type for the local variable
 Collection<Integer> ints2 = gson.fromJson(json, collectionType);
 // ==> ints2 is same as ints
 ```
@@ -262,10 +265,12 @@ For deserialization Gson uses the `read` method of the `TypeAdapter` registered 
 
 ```java
 Gson gson = new Gson();
-Type mapType = new TypeToken<Map<String, String>>(){}.getType();
+TypeToken<Map<String, String>> mapType = new TypeToken<Map<String, String>>(){};
 String json = "{\"key\": \"value\"}";
 
 // Deserialization
+// Note: For older Gson versions it is necessary to use `mapType.getType()` as argument below,
+// this is however not type-safe and care must be taken to specify the correct type for the local variable
 Map<String, String> stringMap = gson.fromJson(json, mapType);
 // ==> stringMap is {key=value}
 ```

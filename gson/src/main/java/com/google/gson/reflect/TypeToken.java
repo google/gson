@@ -17,13 +17,13 @@
 package com.google.gson.reflect;
 
 import com.google.gson.internal.$Gson$Types;
-import com.google.gson.internal.$Gson$Preconditions;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Represents a generic type {@code T}. Java doesn't yet provide a way to
@@ -32,7 +32,7 @@ import java.util.Map;
  * runtime.
  *
  * <p>For example, to create a type literal for {@code List<String>}, you can
- * create an empty anonymous inner class:
+ * create an empty anonymous class:
  *
  * <p>
  * {@code TypeToken<List<String>> list = new TypeToken<List<String>>() {};}
@@ -42,6 +42,11 @@ import java.util.Map;
  * available to Gson and therefore it cannot provide the functionality one
  * might expect, which gives a false sense of type-safety at compilation time
  * and can lead to an unexpected {@code ClassCastException} at runtime.
+ *
+ * <p>If the type arguments of the parameterized type are only available at
+ * runtime, for example when you want to create a {@code List<E>} based on
+ * a {@code Class<E>} representing the element type, the method
+ * {@link #getParameterized(Type, Type...)} can be used.
  *
  * @author Bob Lee
  * @author Sven Mawson
@@ -72,7 +77,7 @@ public class TypeToken<T> {
    */
   @SuppressWarnings("unchecked")
   private TypeToken(Type type) {
-    this.type = $Gson$Types.canonicalize($Gson$Preconditions.checkNotNull(type));
+    this.type = $Gson$Types.canonicalize(Objects.requireNonNull(type));
     this.rawType = (Class<? super T>) $Gson$Types.getRawType(this.type);
     this.hashCode = this.type.hashCode();
   }
@@ -317,10 +322,57 @@ public class TypeToken<T> {
   }
 
   /**
-   * Gets type literal for the parameterized type represented by applying {@code typeArguments} to
-   * {@code rawType}.
+   * Gets a type literal for the parameterized type represented by applying {@code typeArguments} to
+   * {@code rawType}. This is mainly intended for situations where the type arguments are not
+   * available at compile time. The following example shows how a type token for {@code Map<K, V>}
+   * can be created:
+   * <pre>{@code
+   * Class<K> keyClass = ...;
+   * Class<V> valueClass = ...;
+   * TypeToken<?> mapTypeToken = TypeToken.getParameterized(Map.class, keyClass, valueClass);
+   * }</pre>
+   * As seen here the result is a {@code TypeToken<?>}; this method cannot provide any type safety,
+   * and care must be taken to pass in the correct number of type arguments.
+   *
+   * @throws IllegalArgumentException
+   *   If {@code rawType} is not of type {@code Class}, or if the type arguments are invalid for
+   *   the raw type
    */
   public static TypeToken<?> getParameterized(Type rawType, Type... typeArguments) {
+    Objects.requireNonNull(rawType);
+    Objects.requireNonNull(typeArguments);
+
+    // Perform basic validation here because this is the only public API where users
+    // can create malformed parameterized types
+    if (!(rawType instanceof Class)) {
+      // See also https://bugs.openjdk.org/browse/JDK-8250659
+      throw new IllegalArgumentException("rawType must be of type Class, but was " + rawType);
+    }
+    Class<?> rawClass = (Class<?>) rawType;
+    TypeVariable<?>[] typeVariables = rawClass.getTypeParameters();
+
+    int expectedArgsCount = typeVariables.length;
+    int actualArgsCount = typeArguments.length;
+    if (actualArgsCount != expectedArgsCount) {
+      throw new IllegalArgumentException(rawClass.getName() + " requires " + expectedArgsCount +
+          " type arguments, but got " + actualArgsCount);
+    }
+
+    for (int i = 0; i < expectedArgsCount; i++) {
+      Type typeArgument = typeArguments[i];
+      Class<?> rawTypeArgument = $Gson$Types.getRawType(typeArgument);
+      TypeVariable<?> typeVariable = typeVariables[i];
+
+      for (Type bound : typeVariable.getBounds()) {
+        Class<?> rawBound = $Gson$Types.getRawType(bound);
+
+        if (!rawBound.isAssignableFrom(rawTypeArgument)) {
+          throw new IllegalArgumentException("Type argument " + typeArgument + " does not satisfy bounds "
+              + "for type variable " + typeVariable + " declared by " + rawType);
+        }
+      }
+    }
+
     return new TypeToken<>($Gson$Types.newParameterizedTypeWithOwner(null, rawType, typeArguments));
   }
 

@@ -63,11 +63,11 @@ public final class ParseBenchmark {
     READER_SHORT(new TypeToken<Feed>() {}, new TypeReference<Feed>() {}),
     READER_LONG(new TypeToken<Feed>() {}, new TypeReference<Feed>() {});
 
-    private final Type gsonType;
+    private final TypeToken<?> gsonType;
     private final TypeReference<?> jacksonType;
 
     private Document(TypeToken<?> typeToken, TypeReference<?> typeReference) {
-      this.gsonType = typeToken.getType();
+      this.gsonType = typeToken;
       this.jacksonType = typeReference;
     }
   }

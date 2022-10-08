@@ -30,6 +30,7 @@ import com.google.gson.stream.MalformedJsonException;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Objects;
 
 /**
  * Reads and writes GSON parse trees over streams.
@@ -45,8 +46,8 @@ public final class Streams {
    *    (note that {@code JsonParser} parses JSON in lenient mode), or obtain the {@code TypeAdapter}
    *    for {@code JsonElement} and use that for parsing:
    *    <pre>{@code
-   *TypeAdapter<JsonElement> adapter = gson.getAdapter(JsonElement.class);
-   *JsonElement element = adapter.read(...);
+   *    TypeAdapter<JsonElement> adapter = gson.getAdapter(JsonElement.class);
+   *    JsonElement element = adapter.read(...);
    *    }</pre>
    */
   // Only keeping this internal method because third-party projects depend on it
@@ -116,22 +117,48 @@ public final class Streams {
     }
 
     @Override public void write(char[] chars, int offset, int length) throws IOException {
-      currentWrite.chars = chars;
+      currentWrite.setChars(chars);
       appendable.append(currentWrite, offset, offset + length);
-    }
-
-    @Override public void write(int i) throws IOException {
-      appendable.append((char) i);
     }
 
     @Override public void flush() {}
     @Override public void close() {}
 
+    // Override these methods for better performance
+    // They would otherwise unnecessarily create Strings or char arrays
+
+    @Override public void write(int i) throws IOException {
+      appendable.append((char) i);
+    }
+
+    @Override public void write(String str, int off, int len) throws IOException {
+      // Appendable.append turns null -> "null", which is not desired here
+      Objects.requireNonNull(str);
+      appendable.append(str, off, off + len);
+    }
+
+    @Override public Writer append(CharSequence csq) throws IOException {
+      appendable.append(csq);
+      return this;
+    }
+
+    @Override public Writer append(CharSequence csq, int start, int end) throws IOException {
+      appendable.append(csq, start, end);
+      return this;
+    }
+
     /**
      * A mutable char sequence pointing at a single char[].
      */
-    static class CurrentWrite implements CharSequence {
-      char[] chars;
+    private static class CurrentWrite implements CharSequence {
+      private char[] chars;
+      private String cachedString;
+
+      void setChars(char[] chars) {
+        this.chars = chars;
+        this.cachedString = null;
+      }
+
       @Override public int length() {
         return chars.length;
       }
@@ -141,7 +168,14 @@ public final class Streams {
       @Override public CharSequence subSequence(int start, int end) {
         return new String(chars, start, end - start);
       }
+
+      // Must return string representation to satisfy toString() contract
+      @Override public String toString() {
+        if (cachedString == null) {
+          cachedString = new String(chars);
+        }
+        return cachedString;
+      }
     }
   }
-
 }

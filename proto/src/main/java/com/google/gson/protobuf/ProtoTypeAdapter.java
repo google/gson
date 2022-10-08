@@ -16,7 +16,7 @@
 
 package com.google.gson.protobuf;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.MapMaker;
@@ -64,7 +64,6 @@ import java.util.concurrent.ConcurrentMap;
  *   string os_build_id = 1 [(serialized_name) = "osBuildID"];
  * }
  * </pre>
- * <p>
  *
  * @author Inderjeet Singh
  * @author Emmanuel Cron
@@ -104,7 +103,7 @@ public class ProtoTypeAdapter
     }
 
     public Builder setEnumSerialization(EnumSerialization enumSerialization) {
-      this.enumSerialization = checkNotNull(enumSerialization);
+      this.enumSerialization = requireNonNull(enumSerialization);
       return this;
     }
 
@@ -144,7 +143,7 @@ public class ProtoTypeAdapter
      */
     public Builder addSerializedNameExtension(
         Extension<FieldOptions, String> serializedNameExtension) {
-      serializedNameExtensions.add(checkNotNull(serializedNameExtension));
+      serializedNameExtensions.add(requireNonNull(serializedNameExtension));
       return this;
     }
 
@@ -169,7 +168,7 @@ public class ProtoTypeAdapter
      */
     public Builder addSerializedEnumValueExtension(
         Extension<EnumValueOptions, String> serializedEnumValueExtension) {
-      serializedEnumValueExtensions.add(checkNotNull(serializedEnumValueExtension));
+      serializedEnumValueExtensions.add(requireNonNull(serializedEnumValueExtension));
       return this;
     }
 

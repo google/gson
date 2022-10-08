@@ -86,6 +86,8 @@ public enum FieldNamingPolicy implements FieldNamingStrategy {
    *   <li>aStringField ---&gt; A_STRING_FIELD</li>
    *   <li>aURL ---&gt; A_U_R_L</li>
    * </ul>
+   *
+   * @since 2.9.0
    */
   UPPER_CASE_WITH_UNDERSCORES() {
     @Override public String translateName(Field f) {
@@ -125,7 +127,8 @@ public enum FieldNamingPolicy implements FieldNamingStrategy {
    * Using dashes in JavaScript is not recommended since dash is also used for a minus sign in
    * expressions. This requires that a field named with dashes is always accessed as a quoted
    * property like {@code myobject['my-field']}. Accessing it as an object field
-   * {@code myobject.my-field} will result in an unintended javascript expression.
+   * {@code myobject.my-field} will result in an unintended JavaScript expression.
+   *
    * @since 1.4
    */
   LOWER_CASE_WITH_DASHES() {
@@ -148,8 +151,9 @@ public enum FieldNamingPolicy implements FieldNamingStrategy {
    * Using dots in JavaScript is not recommended since dot is also used for a member sign in
    * expressions. This requires that a field named with dots is always accessed as a quoted
    * property like {@code myobject['my.field']}. Accessing it as an object field
-   * {@code myobject.my.field} will result in an unintended javascript expression.
-   * @since 2.8
+   * {@code myobject.my.field} will result in an unintended JavaScript expression.
+   *
+   * @since 2.8.4
    */
   LOWER_CASE_WITH_DOTS() {
     @Override public String translateName(Field f) {
