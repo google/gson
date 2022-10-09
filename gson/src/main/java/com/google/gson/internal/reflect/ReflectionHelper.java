@@ -2,10 +2,8 @@ package com.google.gson.internal.reflect;
 
 import com.google.gson.JsonIOException;
 import com.google.gson.internal.GsonBuildConfig;
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+
+import java.lang.reflect.*;
 
 public class ReflectionHelper {
 
@@ -32,12 +30,36 @@ public class ReflectionHelper {
    * @throws JsonIOException if making the field accessible fails
    */
   public static void makeAccessible(Field field) throws JsonIOException {
+    makeAccessible("field '" + field.getDeclaringClass().getName() + "#" + field.getName() + "'", field);
+  }
+
+  /**
+   * Tries making the constructor accessible, wrapping any thrown exception in a {@link JsonIOException}
+   * with descriptive message.
+   *
+   * @param constructor constructor to make accessible
+   * @throws JsonIOException if making the constructor accessible fails
+   */
+  public static void makeAccessible(Constructor<?> constructor) throws JsonIOException {
+    makeAccessible(
+            "constructor " + constructor + " in " + constructor.getDeclaringClass().getName(),
+            constructor
+    );
+  }
+
+  /**
+   * Internal implementation of making an {@link AccessibleObject} accessible.
+   *
+   * @param description describe what we are attempting to make accessible
+   * @param object the object that {@link AccessibleObject#setAccessible(boolean)} should be called on.
+   * @throws JsonIOException if making the object accessible fails
+   */
+  private static void makeAccessible(String description, AccessibleObject object) throws JsonIOException {
     try {
-      field.setAccessible(true);
+      object.setAccessible(true);
     } catch (Exception exception) {
-      throw new JsonIOException("Failed making field '" + field.getDeclaringClass().getName() + "#"
-          + field.getName() + "' accessible; either change its visibility or write a custom "
-          + "TypeAdapter for its declaring type", exception);
+      throw new JsonIOException("Failed making " + description + "' accessible; either change its visibility "
+              + "or write a custom TypeAdapter for its declaring type", exception);
     }
   }
 
@@ -114,7 +136,7 @@ public class ReflectionHelper {
             + "(Gson " + GsonBuildConfig.VERSION + "). "
             + "To support Java records, reflection is utilized to read out information "
             + "about records. All these invocations happens after it is established "
-            + "that records exists in the JVM. This exception is unexpected behaviour",
+            + "that records exists in the JVM. This exception is unexpected behaviour.",
             exception);
   }
 
@@ -178,6 +200,8 @@ public class ReflectionHelper {
         for (int i = 0; i < recordComponents.length; i++) {
           recordComponentTypes[i] = (Class<?>) getType.invoke(recordComponents[i]);
         }
+        // Uses getDeclaredConstructor because implicit constructor has same visibility as record and might
+        // therefore not be public
         return raw.getDeclaredConstructor(recordComponentTypes);
       } catch (ReflectiveOperationException e) {
         throw createExceptionForRecordReflectionException(e);

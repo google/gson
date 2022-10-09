@@ -227,8 +227,10 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         }
         // The accessor method is only used for records. If the type is a record, we will read out values
         // via its accessor method instead of via reflection. This way we will bypass the accessible restrictions
+        // If there is a static field on a record, there will not be an accessor. Instead we will use the default
+        // field logic for dealing with statics.
         Method accessor = null;
-        if (isRecord) {
+        if (isRecord && !Modifier.isStatic(field.getModifiers())) {
           accessor = ReflectionHelper.getAccessor(raw, field);
         }
 
@@ -264,18 +266,18 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   static abstract class BoundField {
     final String name;
     /** Name of the underlying field */
-    final String componentName;
+    final String fieldName;
     final boolean serialized;
     final boolean deserialized;
 
-    protected BoundField(String name, String componentName, boolean serialized, boolean deserialized) {
+    protected BoundField(String name, String fieldName, boolean serialized, boolean deserialized) {
       this.name = name;
-      this.componentName = componentName;
+      this.fieldName = fieldName;
       this.serialized = serialized;
       this.deserialized = deserialized;
     }
 
-    /** Read this field value from the source, and append its json value to the writer */
+    /** Read this field value from the source, and append its JSON value to the writer */
     abstract void write(JsonWriter writer, Object source) throws IOException, ReflectiveOperationException;
 
     /** Read the value into the target array, used to provide constructor arguments for records */
@@ -291,7 +293,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
    * <p>The {@link RecordAdapter} is a special case to handle records for JVMs that support it, for
    * all other types we use the {@link FieldReflectionAdapter}. This class encapsulates the common
    * logic for serialization and deserialization. During deserialization, we construct an
-   * accumulator A, which we use to accumulate values from the source Json. After the object has been read in
+   * accumulator A, which we use to accumulate values from the source JSON. After the object has been read in
    * full, the {@link #finalize(Object)} method is used to convert the accumulator to an instance
    * of T.
    *
@@ -357,7 +359,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     /** Create the Object that will be used to collect each field value */
     abstract A createAccumulator();
     /**
-     * Read a single Bounded field into the accumulator. The JsonReader will be pointed at the
+     * Read a single BoundedField into the accumulator. The JsonReader will be pointed at the
      * start of the value for the BoundField to read from.
      */
     abstract void readField(A accumulator, JsonReader in, BoundField field)
@@ -396,15 +398,18 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     private final Constructor<? super T> constructor;
     // Array of arguments to the constructor, initialized with default values for primitives
     private final Object[] constructorArgsDefaults;
-    // Map from field names to index into the constructors arguments.
+    // Map from component names to index into the constructors arguments.
     private final Map<String, Integer> componentIndices = new HashMap<>();
 
     RecordAdapter(Class<? super T> raw, Map<String, BoundField> boundFields) {
       super(boundFields);
       this.constructor = ReflectionHelper.getCanonicalRecordConstructor(raw);
-      String[] recordFields = ReflectionHelper.getRecordComponentNames(raw);
-      for (int i = 0; i < recordFields.length; i++) {
-        componentIndices.put(recordFields[i], i);
+      // Ensure the constructor is accessible
+      ReflectionHelper.makeAccessible(this.constructor);
+
+      String[] componentNames = ReflectionHelper.getRecordComponentNames(raw);
+      for (int i = 0; i < componentNames.length; i++) {
+        componentIndices.put(componentNames[i], i);
       }
       Class<?>[] parameterTypes = constructor.getParameterTypes();
 
@@ -429,7 +434,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
 
     @Override
     void readField(Object[] accumulator, JsonReader in, BoundField field) throws IOException {
-      Integer fieldIndex = componentIndices.get(field.componentName);
+      Integer fieldIndex = componentIndices.get(field.fieldName);
       if (fieldIndex == null) {
         throw new IllegalStateException(
             "Could not find the index in the constructor "
