@@ -77,7 +77,7 @@ final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
    */
   private static boolean isReflective(TypeAdapter<?> typeAdapter) {
     // Run this in loop in case multiple delegating adapters are nested
-    while(typeAdapter instanceof SerializationDelegatingTypeAdapter) {
+    while (typeAdapter instanceof SerializationDelegatingTypeAdapter) {
       TypeAdapter<?> delegate = ((SerializationDelegatingTypeAdapter<?>) typeAdapter).getSerializationDelegate();
       // Break if adapter does not delegate serialization
       if (delegate == typeAdapter) {
