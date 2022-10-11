@@ -300,7 +300,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
    * @param <T> type of objects that this Adapter creates.
    * @param <A> type of accumulator used to build the deserialization result.
    */
-  abstract static class Adapter<T, A> extends TypeAdapter<T> {
+  public static abstract class Adapter<T, A> extends TypeAdapter<T> {
     protected final Map<String, BoundField> boundFields;
 
     protected Adapter(Map<String, BoundField> boundFields) {
