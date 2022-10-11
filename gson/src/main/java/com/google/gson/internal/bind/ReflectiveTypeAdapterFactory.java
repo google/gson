@@ -391,7 +391,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   }
 
   private static final class RecordAdapter<T> extends Adapter<T, Object[]> {
-    static Map<Class<?>, Object> ZEROES = primitiveZeroes();
+    static Map<Class<?>, Object> PRIMITIVE_DEFAULTS = primitiveDefaults();
 
     // The actual record constructor.
     private final Constructor<? super T> constructor;
@@ -416,12 +416,12 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       // we create an Object[] where all primitives are initialized to non-null values.
       constructorArgsDefaults = new Object[parameterTypes.length];
       for (int i = 0; i < parameterTypes.length; i++) {
-        constructorArgsDefaults[i] = ZEROES.get(parameterTypes[i]);
-        // This will correctly be null for non-primitive types.
+        // This will correctly be null for non-primitive types:
+        constructorArgsDefaults[i] = PRIMITIVE_DEFAULTS.get(parameterTypes[i]);
       }
     }
 
-    private static Map<Class<?>, Object> primitiveZeroes() {
+    private static Map<Class<?>, Object> primitiveDefaults() {
       Map<Class<?>, Object> zeroes = new HashMap<>();
       zeroes.put(byte.class, (byte) 0);
       zeroes.put(short.class, (short) 0);
