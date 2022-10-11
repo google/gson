@@ -16,18 +16,17 @@
 package com.google.gson.functional;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 import java.util.Objects;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
-@Ignore // Disabled until record support is added
 public final class Java17RecordTest {
   private final Gson gson = new Gson();
 
@@ -43,28 +42,42 @@ public final class Java17RecordTest {
     assertEquals("v1", gson.fromJson("{'name':'v1'}", MyRecord.class).a);
 
     // Both name1 and name2 gets deserialized to b
-    assertEquals("v11", gson.fromJson("{'name1':'v11'}", MyRecord.class).b);
-    assertEquals("v2", gson.fromJson("{'name2':'v2'}", MyRecord.class).b);
-    assertEquals("v3", gson.fromJson("{'name3':'v3'}", MyRecord.class).b);
+    assertEquals("v11", gson.fromJson("{'name': 'v1', 'name1':'v11'}", MyRecord.class).b);
+    assertEquals("v2", gson.fromJson("{'name': 'v1', 'name2':'v2'}", MyRecord.class).b);
+    assertEquals("v3", gson.fromJson("{'name': 'v1', 'name3':'v3'}", MyRecord.class).b);
   }
 
   @Test
   public void testMultipleNamesInTheSameString() {
     // The last value takes precedence
-    assertEquals("v3", gson.fromJson("{'name1':'v1','name2':'v2','name3':'v3'}", MyRecord.class).b);
+    assertEquals("v3",
+        gson.fromJson("{'name': 'foo', 'name1':'v1','name2':'v2','name3':'v3'}", MyRecord.class).b);
   }
 
   @Test
   public void testConstructorRuns() {
-    assertThrows(NullPointerException.class,
-        () -> gson.fromJson("{'name1': null, 'name2': null", MyRecord.class));
+    Throwable e = assertThrows(RuntimeException.class,
+        () -> gson.fromJson("{'name1': null, 'name2': null}", MyRecord.class));
+    while (e != null && !(e instanceof NullPointerException)) {
+      e = e.getCause();
+    }
+    assertNotNull(e);
   }
 
-  private static record MyRecord(
+  @Test
+  public void testPrimitiveDefaultValues() {
+    RecordWithPrimitives zero = new RecordWithPrimitives((byte) 0, (short) 0, 0, 0, 0, 0, '\0', false);
+    assertEquals(zero, gson.fromJson("{}", RecordWithPrimitives.class));
+  }
+
+  public record MyRecord(
       @SerializedName("name") String a,
       @SerializedName(value = "name1", alternate = {"name2", "name3"}) String b) {
-    MyRecord {
+    public MyRecord {
       Objects.requireNonNull(a);
     }
   }
+
+  public record RecordWithPrimitives(
+      byte aByte, short aShort, int anInt, long aLong, float aFloat, double aDouble, char aChar, boolean aBoolean) {}
 }
