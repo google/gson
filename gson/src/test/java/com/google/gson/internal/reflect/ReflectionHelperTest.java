@@ -1,6 +1,9 @@
 package com.google.gson.internal.reflect;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -76,10 +79,10 @@ public class ReflectionHelperTest {
 
     @Override
     public boolean equals(Object o) {
-      if (this == o) return true;
-      if (o == null || getClass() != o.getClass()) return false;
-      PrincipalImpl principal = (PrincipalImpl) o;
-      return Objects.equals(name, principal.name);
+      if (o instanceof PrincipalImpl) {
+        return Objects.equals(name, ((PrincipalImpl) o).name);
+      }
+      return false;
     }
 
     @Override
