@@ -43,7 +43,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -93,9 +92,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
 
     List<String> fieldNames = new ArrayList<>(alternates.length + 1);
     fieldNames.add(serializedName);
-    for (String alternate : alternates) {
-      fieldNames.add(alternate);
-    }
+    Collections.addAll(fieldNames, alternates);
     return fieldNames;
   }
 
@@ -394,6 +391,8 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   }
 
   private static final class RecordAdapter<T> extends Adapter<T, Object[]> {
+    static Map<Class<?>, Object> PRIMITIVE_DEFAULTS = primitiveDefaults();
+
     // The actual record constructor.
     private final Constructor<? super T> constructor;
     // Array of arguments to the constructor, initialized with default values for primitives
@@ -417,14 +416,22 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       // we create an Object[] where all primitives are initialized to non-null values.
       constructorArgsDefaults = new Object[parameterTypes.length];
       for (int i = 0; i < parameterTypes.length; i++) {
-        if (parameterTypes[i].isPrimitive()) {
-          // Voodoo magic, we create a new instance of this primitive type using reflection via an
-          // array. The array has 1 element, that of course will be initialized to the primitives
-          // default value. We then retrieve this value back from the array to get the properly
-          // initialized default value for the primitve type.
-          constructorArgsDefaults[i] = Array.get(Array.newInstance(parameterTypes[i], 1), 0);
-        }
+        // This will correctly be null for non-primitive types:
+        constructorArgsDefaults[i] = PRIMITIVE_DEFAULTS.get(parameterTypes[i]);
       }
+    }
+
+    private static Map<Class<?>, Object> primitiveDefaults() {
+      Map<Class<?>, Object> zeroes = new HashMap<>();
+      zeroes.put(byte.class, (byte) 0);
+      zeroes.put(short.class, (short) 0);
+      zeroes.put(int.class, 0);
+      zeroes.put(long.class, 0L);
+      zeroes.put(float.class, 0F);
+      zeroes.put(double.class, 0D);
+      zeroes.put(char.class, '\0');
+      zeroes.put(boolean.class, false);
+      return zeroes;
     }
 
     @Override

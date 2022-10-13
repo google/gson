@@ -1,6 +1,7 @@
 package com.google.gson.internal.bind;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

@@ -2,8 +2,10 @@ package com.google.gson.internal.reflect;
 
 import com.google.gson.JsonIOException;
 import com.google.gson.internal.GsonBuildConfig;
-
-import java.lang.reflect.*;
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 public class ReflectionHelper {
 
@@ -158,7 +160,6 @@ public class ReflectionHelper {
     private final Method getRecordComponents;
     private final Method getName;
     private final Method getType;
-    private final Method getAccessor;
 
     private RecordSupportedHelper() throws NoSuchMethodException {
       isRecord = Class.class.getMethod("isRecord");
@@ -166,13 +167,12 @@ public class ReflectionHelper {
       Class<?> recordComponentType = getRecordComponents.getReturnType().getComponentType();
       getName = recordComponentType.getMethod("getName");
       getType = recordComponentType.getMethod("getType");
-      getAccessor = recordComponentType.getMethod("getAccessor");
     }
 
     @Override
     boolean isRecord(Class<?> raw) {
       try {
-        return Boolean.class.cast(isRecord.invoke(raw)).booleanValue();
+        return (boolean) isRecord.invoke(raw);
       } catch (ReflectiveOperationException e) {
         throw createExceptionForRecordReflectionException(e);
       }
