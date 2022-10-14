@@ -25,44 +25,51 @@ public class ReflectionHelper {
   private ReflectionHelper() {}
 
   /**
-   * Tries making the field accessible, wrapping any thrown exception in a {@link JsonIOException}
-   * with descriptive message.
-   *
-   * @param field field to make accessible
-   * @throws JsonIOException if making the field accessible fails
-   */
-  public static void makeAccessible(Field field) throws JsonIOException {
-    makeAccessible("field '" + field.getDeclaringClass().getName() + "#" + field.getName() + "'", field);
-  }
-
-  /**
-   * Tries making the constructor accessible, wrapping any thrown exception in a {@link JsonIOException}
-   * with descriptive message.
-   *
-   * @param constructor constructor to make accessible
-   * @throws JsonIOException if making the constructor accessible fails
-   */
-  public static void makeAccessible(Constructor<?> constructor) throws JsonIOException {
-    makeAccessible(
-            "constructor " + constructor + " in " + constructor.getDeclaringClass().getName(),
-            constructor
-    );
-  }
-
-  /**
    * Internal implementation of making an {@link AccessibleObject} accessible.
    *
-   * @param description describe what we are attempting to make accessible
    * @param object the object that {@link AccessibleObject#setAccessible(boolean)} should be called on.
    * @throws JsonIOException if making the object accessible fails
    */
-  private static void makeAccessible(String description, AccessibleObject object) throws JsonIOException {
+  public static void makeAccessible(AccessibleObject object) throws JsonIOException {
     try {
       object.setAccessible(true);
     } catch (Exception exception) {
-      throw new JsonIOException("Failed making " + description + "' accessible; either change its visibility "
-              + "or write a custom TypeAdapter for its declaring type", exception);
+      String description = getAccessibleObjectDescription(object, false);
+      throw new JsonIOException("Failed making " + description + " accessible; either increase its visibility "
+              + "or write a custom TypeAdapter for its declaring type.", exception);
     }
+  }
+
+  /**
+   * Returns a short string describing the {@link AccessibleObject} in a human-readable way.
+   *
+   * @param object object to describe
+   * @param uppercaseFirstLetter whether the first letter of the description should be uppercased
+   */
+  public static String getAccessibleObjectDescription(AccessibleObject object, boolean uppercaseFirstLetter) {
+    String description;
+
+    if (object instanceof Field) {
+      Field field = (Field) object;
+      description = "field '" + field.getDeclaringClass().getName() + "#" + field.getName() + "'";
+    } else if (object instanceof Method) {
+      Method method = (Method) object;
+
+      StringBuilder methodSignatureBuilder = new StringBuilder(method.getName());
+      appendExecutableParameters(method, methodSignatureBuilder);
+      String methodSignature = methodSignatureBuilder.toString();
+
+      description = "method '" + method.getDeclaringClass().getName() + "#" + methodSignature + "'";
+    } else if (object instanceof Constructor) {
+      description = "constructor '" + constructorToString((Constructor<?>) object) + "'";
+    } else {
+      description = "<unknown AccessibleObject> " + object.toString();
+    }
+
+    if (uppercaseFirstLetter && Character.isLowerCase(description.charAt(0))) {
+      description = Character.toUpperCase(description.charAt(0)) + description.substring(1);
+    }
+    return description;
   }
 
   /**
@@ -72,9 +79,18 @@ public class ReflectionHelper {
   private static String constructorToString(Constructor<?> constructor) {
     StringBuilder stringBuilder = new StringBuilder(constructor.getDeclaringClass().getName())
       .append('#')
-      .append(constructor.getDeclaringClass().getSimpleName())
-      .append('(');
-    Class<?>[] parameters = constructor.getParameterTypes();
+      .append(constructor.getDeclaringClass().getSimpleName());
+    appendExecutableParameters(constructor, stringBuilder);
+
+    return stringBuilder.toString();
+  }
+
+  // Note: Ideally parameter type would be java.lang.reflect.Executable, but that was added in Java 8
+  private static void appendExecutableParameters(AccessibleObject executable, StringBuilder stringBuilder) {
+    stringBuilder.append('(');
+
+    Class<?>[] parameters = (executable instanceof Method) ? ((Method) executable).getParameterTypes()
+        : ((Constructor<?>) executable).getParameterTypes();
     for (int i = 0; i < parameters.length; i++) {
       if (i > 0) {
         stringBuilder.append(", ");
@@ -82,7 +98,7 @@ public class ReflectionHelper {
       stringBuilder.append(parameters[i].getSimpleName());
     }
 
-    return stringBuilder.append(')').toString();
+    stringBuilder.append(')');
   }
 
   /**
@@ -99,7 +115,7 @@ public class ReflectionHelper {
       return null;
     } catch (Exception exception) {
       return "Failed making constructor '" + constructorToString(constructor) + "' accessible; "
-          + "either change its visibility or write a custom InstanceCreator or TypeAdapter for its declaring type: "
+          + "either increase its visibility or write a custom InstanceCreator or TypeAdapter for its declaring type: "
           // Include the message since it might contain more detailed information
           + exception.getMessage();
     }
@@ -138,7 +154,7 @@ public class ReflectionHelper {
             + "(Gson " + GsonBuildConfig.VERSION + "). "
             + "To support Java records, reflection is utilized to read out information "
             + "about records. All these invocations happens after it is established "
-            + "that records exists in the JVM. This exception is unexpected behaviour.",
+            + "that records exist in the JVM. This exception is unexpected behavior.",
             exception);
   }
 
@@ -164,9 +180,10 @@ public class ReflectionHelper {
     private RecordSupportedHelper() throws NoSuchMethodException {
       isRecord = Class.class.getMethod("isRecord");
       getRecordComponents = Class.class.getMethod("getRecordComponents");
-      Class<?> recordComponentType = getRecordComponents.getReturnType().getComponentType();
-      getName = recordComponentType.getMethod("getName");
-      getType = recordComponentType.getMethod("getType");
+      // Class java.lang.reflect.RecordComponent
+      Class<?> classRecordComponent = getRecordComponents.getReturnType().getComponentType();
+      getName = classRecordComponent.getMethod("getName");
+      getType = classRecordComponent.getMethod("getType");
     }
 
     @Override

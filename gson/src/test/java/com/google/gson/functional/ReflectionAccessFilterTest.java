@@ -54,7 +54,8 @@ public class ReflectionAccessFilterTest {
       // Note: This test is rather brittle and depends on the JDK implementation
       assertEquals(
         "Field 'java.io.File#path' is not accessible and ReflectionAccessFilter does not permit "
-        + "making it accessible. Register a TypeAdapter for the declaring type or adjust the access filter.",
+        + "making it accessible. Register a TypeAdapter for the declaring type, adjust the access "
+        + "filter or increase the visibility of the element and its declaring type.",
         expected.getMessage()
       );
     }
@@ -86,7 +87,8 @@ public class ReflectionAccessFilterTest {
     } catch (JsonIOException expected) {
       assertEquals(
         "Field 'java.io.Reader#lock' is not accessible and ReflectionAccessFilter does not permit "
-        + "making it accessible. Register a TypeAdapter for the declaring type or adjust the access filter.",
+        + "making it accessible. Register a TypeAdapter for the declaring type, adjust the access "
+        + "filter or increase the visibility of the element and its declaring type.",
         expected.getMessage()
       );
     }
@@ -154,7 +156,8 @@ public class ReflectionAccessFilterTest {
         assertEquals(
           "Field 'com.google.gson.functional.ReflectionAccessFilterTest$ClassWithStaticField#i' "
           + "is not accessible and ReflectionAccessFilter does not permit making it accessible. "
-          + "Register a TypeAdapter for the declaring type or adjust the access filter.",
+          + "Register a TypeAdapter for the declaring type, adjust the access filter or increase "
+          + "the visibility of the element and its declaring type.",
           expected.getMessage()
         );
       }
@@ -235,7 +238,8 @@ public class ReflectionAccessFilterTest {
       assertEquals(
         "Field 'com.google.gson.functional.ReflectionAccessFilterTest$ClassWithPrivateField#i' "
         + "is not accessible and ReflectionAccessFilter does not permit making it accessible. "
-        + "Register a TypeAdapter for the declaring type or adjust the access filter.",
+        + "Register a TypeAdapter for the declaring type, adjust the access filter or increase "
+        + "the visibility of the element and its declaring type.",
         expected.getMessage()
       );
     }
@@ -322,7 +326,7 @@ public class ReflectionAccessFilterTest {
         }
         @Override public void write(JsonWriter out, ClassWithoutNoArgsConstructor value) throws IOException {
           throw new AssertionError("Not needed for test");
-        };
+        }
       })
       .create();
     ClassWithoutNoArgsConstructor deserialized = gson.fromJson("{}", ClassWithoutNoArgsConstructor.class);

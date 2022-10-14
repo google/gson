@@ -11,22 +11,9 @@ import java.lang.reflect.Method;
 import java.nio.file.attribute.GroupPrincipal;
 import java.nio.file.attribute.UserPrincipal;
 import java.util.Objects;
-import org.junit.AssumptionViolatedException;
-import org.junit.Before;
 import org.junit.Test;
 
-public class ReflectionHelperTest {
-
-  @Before
-  public void setUp() throws Exception {
-    try {
-      Class.forName("java.lang.Record");
-    } catch (ClassNotFoundException e) {
-      // Records not supported, ignore
-      throw new AssumptionViolatedException("java.lang.Record not supported");
-    }
-  }
-
+public class Java17ReflectionHelperTest {
   @Test
   public void testJava17Record() throws ClassNotFoundException {
     Class<?> unixDomainPrincipalClass = Class.forName("jdk.net.UnixDomainPrincipal");
@@ -54,8 +41,11 @@ public class ReflectionHelperTest {
     Object unixDomainPrincipal =
         ReflectionHelper.getCanonicalRecordConstructor(unixDomainPrincipalClass)
             .newInstance(new PrincipalImpl("user"), new PrincipalImpl("group"));
-    for (String componentName :
-        ReflectionHelper.getRecordComponentNames(unixDomainPrincipalClass)) {
+
+    String[] componentNames = ReflectionHelper.getRecordComponentNames(unixDomainPrincipalClass);
+    assertTrue(componentNames.length > 0);
+
+    for (String componentName : componentNames) {
       Field componentField = unixDomainPrincipalClass.getDeclaredField(componentName);
       Method accessor = ReflectionHelper.getAccessor(unixDomainPrincipalClass, componentField);
       Object principal = accessor.invoke(unixDomainPrincipal);

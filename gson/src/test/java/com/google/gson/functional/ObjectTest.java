@@ -482,6 +482,16 @@ public class ObjectTest extends TestCase {
     gson.fromJson(gson.toJson(product), Product.class);
   }
 
+  static final class Department {
+    public String name = "abc";
+    public String code = "123";
+  }
+
+  static final class Product {
+    private List<String> attributes = new ArrayList<>();
+    private List<Department> departments = new ArrayList<>();
+  }
+
   // http://code.google.com/p/google-gson/issues/detail?id=270
   public void testDateAsMapObjectField() {
     HasObjectMap a = new HasObjectMap();
@@ -493,17 +503,49 @@ public class ObjectTest extends TestCase {
     }
   }
 
-  public class HasObjectMap {
+  static class HasObjectMap {
     Map<String, Object> map = new HashMap<>();
   }
 
-  static final class Department {
-    public String name = "abc";
-    public String code = "123";
+  /**
+   * Tests serialization of a class with {@code static} field.
+   *
+   * <p>Important: It is not documented that this is officially supported; this
+   * test just checks the current behavior.
+   */
+  public void testStaticFieldSerialization() {
+    Gson gson = new GsonBuilder()
+        // Include static fields
+        .excludeFieldsWithModifiers(0)
+        .create();
+
+    String json = gson.toJson(new ClassWithStaticField());
+    assertEquals("{\"s\":\"initial\"}", json);
   }
 
-  static final class Product {
-    private List<String> attributes = new ArrayList<>();
-    private List<Department> departments = new ArrayList<>();
+  /**
+   * Tests deserialization of a class with {@code static} field.
+   *
+   * <p>Important: It is not documented that this is officially supported; this
+   * test just checks the current behavior.
+   */
+  public void testStaticFieldDeserialization() {
+    Gson gson = new GsonBuilder()
+        // Include static fields
+        .excludeFieldsWithModifiers(0)
+        .create();
+
+    String oldValue = ClassWithStaticField.s;
+    try {
+      ClassWithStaticField obj = gson.fromJson("{\"s\":\"custom\"}", ClassWithStaticField.class);
+      assertNotNull(obj);
+      assertEquals("custom", ClassWithStaticField.s);
+    } finally {
+      ClassWithStaticField.s = oldValue;
+    }
+  }
+
+  static class ClassWithStaticField {
+    static String s = "initial";
   }
 }
