@@ -119,7 +119,7 @@ public class ReflectionAccessTest {
       fail("Unexpected exception; test has to be run with `--illegal-access=deny`");
     } catch (JsonIOException expected) {
       assertTrue(expected.getMessage().startsWith(
-          "Failed making constructor 'java.util.Collections$EmptyList#EmptyList()' accessible;"
+          "Failed making constructor 'java.util.Collections$EmptyList()' accessible;"
           + " either increase its visibility or write a custom InstanceCreator or TypeAdapter for its declaring type: "
       ));
     }

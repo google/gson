@@ -480,7 +480,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       Integer componentIndex = componentIndices.get(field.fieldName);
       if (componentIndex == null) {
         throw new IllegalStateException(
-            "Could not find the index in the constructor " + constructor
+            "Could not find the index in the constructor " + ReflectionHelper.constructorToString(constructor)
                 + " for field with name " + field.fieldName + ","
                 + " unable to determine which argument in the constructor the field corresponds"
                 + " to. This is unexpected behavior, as we expect the RecordComponents to have the"
@@ -496,7 +496,8 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         return constructor.newInstance(accumulator);
       } catch (ReflectiveOperationException e) {
         throw new RuntimeException(
-            "Failed to invoke " + constructor + " with args " + Arrays.toString(accumulator), e);
+            "Failed to invoke constructor " + ReflectionHelper.constructorToString(constructor)
+            + " with args " + Arrays.toString(accumulator), e);
       }
     }
   }

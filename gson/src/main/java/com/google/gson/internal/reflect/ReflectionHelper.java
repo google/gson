@@ -42,6 +42,9 @@ public class ReflectionHelper {
 
   /**
    * Returns a short string describing the {@link AccessibleObject} in a human-readable way.
+   * The result is normally shorter than {@link AccessibleObject#toString()} because it omits
+   * modifiers (e.g. {@code final}) and uses simple names for constructor and method parameter
+   * types.
    *
    * @param object object to describe
    * @param uppercaseFirstLetter whether the first letter of the description should be uppercased
@@ -74,12 +77,10 @@ public class ReflectionHelper {
 
   /**
    * Creates a string representation for a constructor.
-   * E.g.: {@code java.lang.String#String(char[], int, int)}
+   * E.g.: {@code java.lang.String(char[], int, int)}
    */
-  private static String constructorToString(Constructor<?> constructor) {
-    StringBuilder stringBuilder = new StringBuilder(constructor.getDeclaringClass().getName())
-      .append('#')
-      .append(constructor.getDeclaringClass().getSimpleName());
+  public static String constructorToString(Constructor<?> constructor) {
+    StringBuilder stringBuilder = new StringBuilder(constructor.getDeclaringClass().getName());
     appendExecutableParameters(constructor, stringBuilder);
 
     return stringBuilder.toString();

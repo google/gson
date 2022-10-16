@@ -339,13 +339,13 @@ public final class Java17RecordTest {
         .create();
 
     var exception = assertThrows(JsonIOException.class, () -> gson.toJson(new PrivateRecord(1)));
-    assertEquals("Constructor '" + PrivateRecord.class.getName() + "#PrivateRecord(int)' is not accessible and"
+    assertEquals("Constructor 'com.google.gson.functional.Java17RecordTest$PrivateRecord(int)' is not accessible and"
         + " ReflectionAccessFilter does not permit making it accessible. Register a TypeAdapter for the declaring"
         + " type, adjust the access filter or increase the visibility of the element and its declaring type.",
         exception.getMessage());
 
     exception = assertThrows(JsonIOException.class, () -> gson.fromJson("{}", PrivateRecord.class));
-    assertEquals("Constructor '" + PrivateRecord.class.getName() + "#PrivateRecord(int)' is not accessible and"
+    assertEquals("Constructor 'com.google.gson.functional.Java17RecordTest$PrivateRecord(int)' is not accessible and"
         + " ReflectionAccessFilter does not permit making it accessible. Register a TypeAdapter for the declaring"
         + " type, adjust the access filter or increase the visibility of the element and its declaring type.",
         exception.getMessage());
