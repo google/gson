@@ -111,8 +111,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         ReflectionAccessFilterHelper.getFilterResult(reflectionFilters, raw);
     if (filterResult == FilterResult.BLOCK_ALL) {
       throw new JsonIOException(
-          "ReflectionAccessFilter does not permit using reflection for "
-              + raw
+          "ReflectionAccessFilter does not permit using reflection for " + raw
               + ". Register a TypeAdapter for this type or adjust the access filter.");
     }
     boolean blockInaccessible = filterResult == FilterResult.BLOCK_INACCESSIBLE;
@@ -133,9 +132,9 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   private static <M extends AccessibleObject & Member> void checkAccessible(Object object, M member) {
     if (!ReflectionAccessFilterHelper.canAccess(member, Modifier.isStatic(member.getModifiers()) ? null : object)) {
       String memberDescription = ReflectionHelper.getAccessibleObjectDescription(member, true);
-      throw new JsonIOException(memberDescription + " is not accessible and ReflectionAccessFilter does not "
-          + "permit making it accessible. Register a TypeAdapter for the declaring type, adjust the "
-          + "access filter or increase the visibility of the element and its declaring type.");
+      throw new JsonIOException(memberDescription + " is not accessible and ReflectionAccessFilter does not"
+          + " permit making it accessible. Register a TypeAdapter for the declaring type, adjust the"
+          + " access filter or increase the visibility of the element and its declaring type.");
     }
   }
 
@@ -187,8 +186,8 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       void readIntoArray(JsonReader reader, int index, Object[] target) throws IOException, JsonParseException {
         Object fieldValue = typeAdapter.read(reader);
         if (fieldValue == null && isPrimitive) {
-          throw new JsonParseException("null is not allowed as value for record component '" + fieldName + "' "
-              + "of primitive type; at path " + reader.getPath());
+          throw new JsonParseException("null is not allowed as value for record component '" + fieldName + "'"
+              + " of primitive type; at path " + reader.getPath());
         }
         target[index] = fieldValue;
       }
@@ -223,9 +222,9 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       if (raw != originalRaw && fields.length > 0) {
         FilterResult filterResult = ReflectionAccessFilterHelper.getFilterResult(reflectionFilters, raw);
         if (filterResult == FilterResult.BLOCK_ALL) {
-          throw new JsonIOException("ReflectionAccessFilter does not permit using reflection for "
-              + raw + " (supertype of " + originalRaw + "). Register a TypeAdapter for this type "
-              + "or adjust the access filter.");
+          throw new JsonIOException("ReflectionAccessFilter does not permit using reflection for " + raw
+              + " (supertype of " + originalRaw + "). Register a TypeAdapter for this type"
+              + " or adjust the access filter.");
         }
         blockInaccessible = filterResult == FilterResult.BLOCK_INACCESSIBLE;
       }
@@ -241,7 +240,8 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         Method accessor = null;
         if (isRecord) {
           // If there is a static field on a record, there will not be an accessor. Instead we will use the default
-          // field logic for dealing with statics. For deserialization the field is ignored.
+          // field serialization logic, but for deserialization the field is excluded for simplicity. Note that Gson
+          // ignores static fields by default, but GsonBuilder.excludeFieldsWithModifiers can overwrite this.
           if (Modifier.isStatic(field.getModifiers())) {
             deserialize = false;
           } else {
@@ -326,7 +326,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
    * @param <T> type of objects that this Adapter creates.
    * @param <A> type of accumulator used to build the deserialization result.
    */
-  // This class is public because external projects check for this class (even though it is internal)
+  // This class is public because external projects check for this class with `instanceof` (even though it is internal)
   public static abstract class Adapter<T, A> extends TypeAdapter<T> {
     final Map<String, BoundField> boundFields;
 
@@ -480,11 +480,9 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       Integer componentIndex = componentIndices.get(field.fieldName);
       if (componentIndex == null) {
         throw new IllegalStateException(
-            "Could not find the index in the constructor "
-                + constructor
-                + " for field with name "
-                + field.fieldName
-                + ", unable to determine which argument in the constructor the field corresponds"
+            "Could not find the index in the constructor " + constructor
+                + " for field with name " + field.fieldName + ","
+                + " unable to determine which argument in the constructor the field corresponds"
                 + " to. This is unexpected behavior, as we expect the RecordComponents to have the"
                 + " same names as the fields in the Java class, and that the order of the"
                 + " RecordComponents is the same as the order of the canonical constructor parameters.");

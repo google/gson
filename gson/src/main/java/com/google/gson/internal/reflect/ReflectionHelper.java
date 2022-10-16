@@ -35,8 +35,8 @@ public class ReflectionHelper {
       object.setAccessible(true);
     } catch (Exception exception) {
       String description = getAccessibleObjectDescription(object, false);
-      throw new JsonIOException("Failed making " + description + " accessible; either increase its visibility "
-              + "or write a custom TypeAdapter for its declaring type.", exception);
+      throw new JsonIOException("Failed making " + description + " accessible; either increase its visibility"
+              + " or write a custom TypeAdapter for its declaring type.", exception);
     }
   }
 
@@ -89,7 +89,8 @@ public class ReflectionHelper {
   private static void appendExecutableParameters(AccessibleObject executable, StringBuilder stringBuilder) {
     stringBuilder.append('(');
 
-    Class<?>[] parameters = (executable instanceof Method) ? ((Method) executable).getParameterTypes()
+    Class<?>[] parameters = (executable instanceof Method)
+        ? ((Method) executable).getParameterTypes()
         : ((Constructor<?>) executable).getParameterTypes();
     for (int i = 0; i < parameters.length; i++) {
       if (i > 0) {
@@ -114,10 +115,10 @@ public class ReflectionHelper {
       constructor.setAccessible(true);
       return null;
     } catch (Exception exception) {
-      return "Failed making constructor '" + constructorToString(constructor) + "' accessible; "
-          + "either increase its visibility or write a custom InstanceCreator or TypeAdapter for its declaring type: "
+      return "Failed making constructor '" + constructorToString(constructor) + "' accessible;"
+          + " either increase its visibility or write a custom InstanceCreator or TypeAdapter for"
           // Include the message since it might contain more detailed information
-          + exception.getMessage();
+          + " its declaring type: " + exception.getMessage();
     }
   }
 
@@ -141,20 +142,20 @@ public class ReflectionHelper {
 
   public static RuntimeException createExceptionForUnexpectedIllegalAccess(
       IllegalAccessException exception) {
-    throw new RuntimeException("Unexpected IllegalAccessException occurred (Gson " + GsonBuildConfig.VERSION + "). "
-        + "Certain ReflectionAccessFilter features require Java >= 9 to work correctly. If you are not using "
-        + "ReflectionAccessFilter, report this to the Gson maintainers.",
+    throw new RuntimeException("Unexpected IllegalAccessException occurred (Gson " + GsonBuildConfig.VERSION + ")."
+        + " Certain ReflectionAccessFilter features require Java >= 9 to work correctly. If you are not using"
+        + " ReflectionAccessFilter, report this to the Gson maintainers.",
         exception);
   }
 
 
   public static RuntimeException createExceptionForRecordReflectionException(
           ReflectiveOperationException exception) {
-    throw new RuntimeException("Unexpected ReflectiveOperationException occurred "
-            + "(Gson " + GsonBuildConfig.VERSION + "). "
-            + "To support Java records, reflection is utilized to read out information "
-            + "about records. All these invocations happens after it is established "
-            + "that records exist in the JVM. This exception is unexpected behavior.",
+    throw new RuntimeException("Unexpected ReflectiveOperationException occurred"
+            + " (Gson " + GsonBuildConfig.VERSION + ")."
+            + " To support Java records, reflection is utilized to read out information"
+            + " about records. All these invocations happens after it is established"
+            + " that records exist in the JVM. This exception is unexpected behavior.",
             exception);
   }
 

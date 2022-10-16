@@ -339,15 +339,15 @@ public final class Java17RecordTest {
         .create();
 
     var exception = assertThrows(JsonIOException.class, () -> gson.toJson(new PrivateRecord(1)));
-    assertEquals("Constructor '" + PrivateRecord.class.getName() + "#PrivateRecord(int)' is not accessible and "
-        + "ReflectionAccessFilter does not permit making it accessible. Register a TypeAdapter for the declaring "
-        + "type, adjust the access filter or increase the visibility of the element and its declaring type.",
+    assertEquals("Constructor '" + PrivateRecord.class.getName() + "#PrivateRecord(int)' is not accessible and"
+        + " ReflectionAccessFilter does not permit making it accessible. Register a TypeAdapter for the declaring"
+        + " type, adjust the access filter or increase the visibility of the element and its declaring type.",
         exception.getMessage());
 
     exception = assertThrows(JsonIOException.class, () -> gson.fromJson("{}", PrivateRecord.class));
-    assertEquals("Constructor '" + PrivateRecord.class.getName() + "#PrivateRecord(int)' is not accessible and "
-        + "ReflectionAccessFilter does not permit making it accessible. Register a TypeAdapter for the declaring "
-        + "type, adjust the access filter or increase the visibility of the element and its declaring type.",
+    assertEquals("Constructor '" + PrivateRecord.class.getName() + "#PrivateRecord(int)' is not accessible and"
+        + " ReflectionAccessFilter does not permit making it accessible. Register a TypeAdapter for the declaring"
+        + " type, adjust the access filter or increase the visibility of the element and its declaring type.",
         exception.getMessage());
 
     assertEquals("{\"i\":1}", gson.toJson(new PublicRecord(1)));
@@ -368,8 +368,8 @@ public final class Java17RecordTest {
     assertEquals("{}", gson.toJson(new LocalRecord(1), Record.class));
 
     var exception = assertThrows(JsonIOException.class, () -> gson.fromJson("{}", Record.class));
-    assertEquals("Abstract classes can't be instantiated! Register an InstanceCreator or a TypeAdapter for "
-        + "this type. Class name: java.lang.Record",
+    assertEquals("Abstract classes can't be instantiated! Register an InstanceCreator or a TypeAdapter for"
+        + " this type. Class name: java.lang.Record",
         exception.getMessage());
   }
 }
