@@ -30,7 +30,7 @@ import java.util.List;
  * is provided as element argument to any of the methods, it is converted to a {@link JsonNull}.
  *
  * <p>{@code JsonArray} only implements the {@link Iterable} interface but not the {@link List}
- * interface, but a {@code List} view of it can be obtained with {@link #asList()}.
+ * interface. A {@code List} view of it can be obtained with {@link #asList()}.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
@@ -399,7 +399,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
 
   /**
    * Returns a mutable {@link List} view of this {@code JsonArray}. Changes to the {@code List}
-   * are visible for this {@code JsonArray} and the other way around.
+   * are visible in this {@code JsonArray} and the other way around.
    *
    * <p>The {@code List} does not permit {@code null} elements. Unlike {@code JsonArray}'s
    * {@code null} handling, a {@link NullPointerException} is thrown when trying to add {@code null}.

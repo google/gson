@@ -213,7 +213,7 @@ public final class JsonObject extends JsonElement {
 
   /**
    * Returns a mutable {@link Map} view of this {@code JsonObject}. Changes to the {@code Map}
-   * are visible for this {@code JsonObject} and the other way around.
+   * are visible in this {@code JsonObject} and the other way around.
    *
    * <p>The {@code Map} does not permit {@code null} keys or values. Unlike {@code JsonObject}'s
    * {@code null} handling, a {@link NullPointerException} is thrown when trying to add {@code null}.
