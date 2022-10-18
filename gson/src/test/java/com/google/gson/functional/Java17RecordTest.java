@@ -18,7 +18,9 @@ package com.google.gson.functional;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.fail;
 
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
@@ -144,6 +146,28 @@ public final class Java17RecordTest {
     }
 
     assertEquals("{\"s\":\"accessor-value\"}", gson.toJson(new LocalRecord(null)));
+  }
+
+  /** Tests behavior when a record accessor method throws an exception */
+  @Test
+  public void testThrowingAccessor() {
+    record LocalRecord(String s) {
+      static final RuntimeException thrownException = new RuntimeException("Custom exception");
+
+      @Override
+      public String s() {
+        throw thrownException;
+      }
+    }
+
+    try {
+      gson.toJson(new LocalRecord("a"));
+      fail();
+    } catch (JsonIOException e) {
+      assertEquals("Accessor method '" + LocalRecord.class.getName() + "#s()' threw exception",
+          e.getMessage());
+      assertSame(LocalRecord.thrownException, e.getCause());
+    }
   }
 
   /** Tests behavior for a record without components */

@@ -42,6 +42,7 @@ import java.io.IOException;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -162,7 +163,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     final TypeAdapter<Object> typeAdapter = (TypeAdapter<Object>) mapped;
     return new ReflectiveTypeAdapterFactory.BoundField(name, field.getName(), serialize, deserialize) {
       @Override void write(JsonWriter writer, Object source)
-          throws IOException, ReflectiveOperationException {
+          throws IOException, IllegalAccessException {
         if (!serialized) return;
         if (blockInaccessible) {
           if (accessor == null) {
@@ -174,9 +175,17 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           }
         }
 
-        Object fieldValue = (accessor != null)
-          ? accessor.invoke(source)
-          : field.get(source);
+        Object fieldValue;
+        if (accessor != null) {
+          try {
+            fieldValue = accessor.invoke(source);
+          } catch (InvocationTargetException e) {
+            String accessorDescription = ReflectionHelper.getAccessibleObjectDescription(accessor, false);
+            throw new JsonIOException("Accessor " + accessorDescription + " threw exception", e.getCause());
+          }
+        } else {
+          fieldValue = field.get(source);
+        }
         if (fieldValue == source) {
           // avoid direct recursion
           return;
@@ -314,7 +323,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     }
 
     /** Read this field value from the source, and append its JSON value to the writer */
-    abstract void write(JsonWriter writer, Object source) throws IOException, ReflectiveOperationException;
+    abstract void write(JsonWriter writer, Object source) throws IOException, IllegalAccessException;
 
     /** Read the value into the target array, used to provide constructor arguments for records */
     abstract void readIntoArray(JsonReader reader, int index, Object[] target) throws IOException, JsonParseException;
@@ -358,8 +367,6 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         }
       } catch (IllegalAccessException e) {
         throw ReflectionHelper.createExceptionForUnexpectedIllegalAccess(e);
-      } catch (ReflectiveOperationException e) {
-        throw ReflectionHelper.createExceptionForRecordReflectionException(e);
       }
       out.endObject();
     }

@@ -150,7 +150,7 @@ public class ReflectionHelper {
   }
 
 
-  public static RuntimeException createExceptionForRecordReflectionException(
+  private static RuntimeException createExceptionForRecordReflectionException(
           ReflectiveOperationException exception) {
     throw new RuntimeException("Unexpected ReflectiveOperationException occurred"
             + " (Gson " + GsonBuildConfig.VERSION + ")."
