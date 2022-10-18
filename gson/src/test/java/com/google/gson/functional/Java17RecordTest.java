@@ -227,6 +227,9 @@ public final class Java17RecordTest {
    */
   @Test
   public void testStaticFieldSerialization() {
+    // By default Gson should ignore static fields
+    assertEquals("{}", gson.toJson(new RecordWithStaticField()));
+
     Gson gson = new GsonBuilder()
         // Include static fields
         .excludeFieldsWithModifiers(0)
@@ -244,6 +247,10 @@ public final class Java17RecordTest {
    */
   @Test
   public void testStaticFieldDeserialization() {
+    // By default Gson should ignore static fields
+    gson.fromJson("{\"s\":\"custom\"}", RecordWithStaticField.class);
+    assertEquals("initial", RecordWithStaticField.s);
+
     Gson gson = new GsonBuilder()
         // Include static fields
         .excludeFieldsWithModifiers(0)

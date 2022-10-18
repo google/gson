@@ -514,6 +514,9 @@ public class ObjectTest extends TestCase {
    * test just checks the current behavior.
    */
   public void testStaticFieldSerialization() {
+    // By default Gson should ignore static fields
+    assertEquals("{}", gson.toJson(new ClassWithStaticField()));
+
     Gson gson = new GsonBuilder()
         // Include static fields
         .excludeFieldsWithModifiers(0)
@@ -530,6 +533,10 @@ public class ObjectTest extends TestCase {
    * test just checks the current behavior.
    */
   public void testStaticFieldDeserialization() {
+    // By default Gson should ignore static fields
+    gson.fromJson("{\"s\":\"custom\"}", ClassWithStaticField.class);
+    assertEquals("initial", ClassWithStaticField.s);
+
     Gson gson = new GsonBuilder()
         // Include static fields
         .excludeFieldsWithModifiers(0)
