@@ -142,7 +142,12 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       final Gson context, final Field field, final Method accessor, final String name,
       final TypeToken<?> fieldType, boolean serialize, boolean deserialize,
       final boolean blockInaccessible) {
+
     final boolean isPrimitive = Primitives.isPrimitive(fieldType.getRawType());
+
+    int modifiers = field.getModifiers();
+    final boolean isStaticFinalField = Modifier.isStatic(modifiers) && Modifier.isFinal(modifiers);
+
     JsonAdapter annotation = field.getAnnotation(JsonAdapter.class);
     TypeAdapter<?> mapped = null;
     if (annotation != null) {
@@ -199,6 +204,11 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         if (fieldValue != null || !isPrimitive) {
           if (blockInaccessible) {
             checkAccessible(target, field);
+          } else if (isStaticFinalField) {
+            // Reflection does not permit setting value of `static final` field, even after calling `setAccessible`
+            // Handle this here to avoid causing IllegalAccessException when calling `Field.set`
+            String fieldDescription = ReflectionHelper.getAccessibleObjectDescription(field, false);
+            throw new JsonIOException("Cannot set value of 'static final' " + fieldDescription);
           }
           field.set(target, fieldValue);
         }

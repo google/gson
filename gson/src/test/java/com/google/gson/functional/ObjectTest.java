@@ -20,6 +20,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
@@ -524,6 +525,9 @@ public class ObjectTest extends TestCase {
 
     String json = gson.toJson(new ClassWithStaticField());
     assertEquals("{\"s\":\"initial\"}", json);
+
+    json = gson.toJson(new ClassWithStaticFinalField());
+    assertEquals("{\"s\":\"initial\"}", json);
   }
 
   /**
@@ -550,9 +554,21 @@ public class ObjectTest extends TestCase {
     } finally {
       ClassWithStaticField.s = oldValue;
     }
+
+    try {
+      gson.fromJson("{\"s\":\"custom\"}", ClassWithStaticFinalField.class);
+      fail();
+    } catch (JsonIOException e) {
+      assertEquals("Cannot set value of 'static final' field 'com.google.gson.functional.ObjectTest$ClassWithStaticFinalField#s'",
+          e.getMessage());
+    }
   }
 
   static class ClassWithStaticField {
     static String s = "initial";
+  }
+
+  static class ClassWithStaticFinalField {
+    static final String s = "initial";
   }
 }
