@@ -497,8 +497,8 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       Integer componentIndex = componentIndices.get(field.fieldName);
       if (componentIndex == null) {
         throw new IllegalStateException(
-            "Could not find the index in the constructor " + ReflectionHelper.constructorToString(constructor)
-                + " for field with name " + field.fieldName + ","
+            "Could not find the index in the constructor '" + ReflectionHelper.constructorToString(constructor) + "'"
+                + " for field with name '" + field.fieldName + "',"
                 + " unable to determine which argument in the constructor the field corresponds"
                 + " to. This is unexpected behavior, as we expect the RecordComponents to have the"
                 + " same names as the fields in the Java class, and that the order of the"
@@ -511,10 +511,21 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     T finalize(Object[] accumulator) {
       try {
         return constructor.newInstance(accumulator);
-      } catch (ReflectiveOperationException e) {
+      } catch (IllegalAccessException e) {
+        throw ReflectionHelper.createExceptionForUnexpectedIllegalAccess(e);
+      }
+      // Note: InstantiationException should be impossible because record class is not abstract;
+      //  IllegalArgumentException should not be possible unless a bad adapter returns objects of the wrong type
+      catch (InstantiationException | IllegalArgumentException e) {
         throw new RuntimeException(
-            "Failed to invoke constructor " + ReflectionHelper.constructorToString(constructor)
+            "Failed to invoke constructor '" + ReflectionHelper.constructorToString(constructor) + "'"
             + " with args " + Arrays.toString(accumulator), e);
+      }
+      catch (InvocationTargetException e) {
+        // TODO: JsonParseException ?
+        throw new RuntimeException(
+            "Failed to invoke constructor '" + ReflectionHelper.constructorToString(constructor) + "'"
+            + " with args " + Arrays.toString(accumulator), e.getCause());
       }
     }
   }

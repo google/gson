@@ -136,6 +136,30 @@ public final class Java17RecordTest {
     assertEquals("custom-null", deserialized.s());
   }
 
+  /** Tests behavior when the canonical constructor throws an exception */
+  @Test
+  public void testThrowingConstructor() {
+    record LocalRecord(String s) {
+      static final RuntimeException thrownException = new RuntimeException("Custom exception");
+
+      @SuppressWarnings("unused")
+      LocalRecord {
+        throw thrownException;
+      }
+    }
+
+    try {
+      gson.fromJson("{\"s\":\"value\"}", LocalRecord.class);
+      fail();
+    }
+    // TODO: Adjust this once Gson throws more specific exception type
+    catch (RuntimeException e) {
+      assertEquals("Failed to invoke constructor '" + LocalRecord.class.getName() + "(String)' with args [value]",
+          e.getMessage());
+      assertSame(LocalRecord.thrownException, e.getCause());
+    }
+  }
+
   @Test
   public void testAccessorIsCalled() {
     record LocalRecord(String s) {

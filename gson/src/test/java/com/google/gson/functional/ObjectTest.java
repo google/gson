@@ -571,4 +571,25 @@ public class ObjectTest extends TestCase {
   static class ClassWithStaticFinalField {
     static final String s = "initial";
   }
+
+  public void testThrowingDefaultConstructor() {
+    try {
+      gson.fromJson("{}", ClassWithThrowingConstructor.class);
+      fail();
+    }
+    // TODO: Adjust this once Gson throws more specific exception type
+    catch (RuntimeException e) {
+      assertEquals("Failed to invoke constructor 'com.google.gson.functional.ObjectTest$ClassWithThrowingConstructor()' with no args",
+          e.getMessage());
+      assertSame(ClassWithThrowingConstructor.thrownException, e.getCause());
+    }
+  }
+
+  static class ClassWithThrowingConstructor {
+    static final RuntimeException thrownException = new RuntimeException("Custom exception");
+
+    public ClassWithThrowingConstructor() {
+      throw thrownException;
+    }
+  }
 }
