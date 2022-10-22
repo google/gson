@@ -240,9 +240,7 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
   private boolean isValidSince(Since annotation) {
     if (annotation != null) {
       double annotationVersion = annotation.value();
-      if (annotationVersion > version) {
-        return false;
-      }
+      return version >= annotationVersion;
     }
     return true;
   }
@@ -250,9 +248,7 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
   private boolean isValidUntil(Until annotation) {
     if (annotation != null) {
       double annotationVersion = annotation.value();
-      if (annotationVersion <= version) {
-        return false;
-      }
+      return version < annotationVersion;
     }
     return true;
   }

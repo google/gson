@@ -53,10 +53,12 @@ final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
     if (runtimeType != type) {
       @SuppressWarnings("unchecked")
       TypeAdapter<T> runtimeTypeAdapter = (TypeAdapter<T>) context.getAdapter(TypeToken.get(runtimeType));
+      // For backward compatibility only check ReflectiveTypeAdapterFactory.Adapter here but not any other
+      // wrapping adapters, see https://github.com/google/gson/pull/1787#issuecomment-1222175189
       if (!(runtimeTypeAdapter instanceof ReflectiveTypeAdapterFactory.Adapter)) {
         // The user registered a type adapter for the runtime type, so we will use that
         chosen = runtimeTypeAdapter;
-      } else if (!(delegate instanceof ReflectiveTypeAdapterFactory.Adapter)) {
+      } else if (!isReflective(delegate)) {
         // The user registered a type adapter for Base class, so we prefer it over the
         // reflective type adapter for the runtime type
         chosen = delegate;
@@ -69,11 +71,29 @@ final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
   }
 
   /**
+   * Returns whether the type adapter uses reflection.
+   *
+   * @param typeAdapter the type adapter to check.
+   */
+  private static boolean isReflective(TypeAdapter<?> typeAdapter) {
+    // Run this in loop in case multiple delegating adapters are nested
+    while (typeAdapter instanceof SerializationDelegatingTypeAdapter) {
+      TypeAdapter<?> delegate = ((SerializationDelegatingTypeAdapter<?>) typeAdapter).getSerializationDelegate();
+      // Break if adapter does not delegate serialization
+      if (delegate == typeAdapter) {
+        break;
+      }
+      typeAdapter = delegate;
+    }
+
+    return typeAdapter instanceof ReflectiveTypeAdapterFactory.Adapter;
+  }
+
+  /**
    * Finds a compatible runtime type if it is more specific
    */
-  private Type getRuntimeTypeIfMoreSpecific(Type type, Object value) {
-    if (value != null
-        && (type == Object.class || type instanceof TypeVariable<?> || type instanceof Class<?>)) {
+  private static Type getRuntimeTypeIfMoreSpecific(Type type, Object value) {
+    if (value != null && (type instanceof Class<?> || type instanceof TypeVariable<?>)) {
       type = value.getClass();
     }
     return type;

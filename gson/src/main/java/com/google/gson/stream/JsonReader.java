@@ -777,10 +777,9 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Returns the next token, a {@link com.google.gson.stream.JsonToken#NAME property name}, and
-   * consumes it.
+   * Returns the next token, a {@link JsonToken#NAME property name}, and consumes it.
    *
-   * @throws java.io.IOException if the next token in the stream is not a property
+   * @throws IOException if the next token in the stream is not a property
    *     name.
    */
   public String nextName() throws IOException {
@@ -804,7 +803,7 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Returns the {@link com.google.gson.stream.JsonToken#STRING string} value of the next token,
+   * Returns the {@link JsonToken#STRING string} value of the next token,
    * consuming it. If the next token is a number, this method will return its
    * string form.
    *
@@ -840,7 +839,7 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Returns the {@link com.google.gson.stream.JsonToken#BOOLEAN boolean} value of the next token,
+   * Returns the {@link JsonToken#BOOLEAN boolean} value of the next token,
    * consuming it.
    *
    * @throws IllegalStateException if the next token is not a boolean or if
@@ -884,7 +883,7 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Returns the {@link com.google.gson.stream.JsonToken#NUMBER double} value of the next token,
+   * Returns the {@link JsonToken#NUMBER double} value of the next token,
    * consuming it. If the next token is a string, this method will attempt to
    * parse it as a double using {@link Double#parseDouble(String)}.
    *
@@ -930,7 +929,7 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Returns the {@link com.google.gson.stream.JsonToken#NUMBER long} value of the next token,
+   * Returns the {@link JsonToken#NUMBER long} value of the next token,
    * consuming it. If the next token is a string, this method will attempt to
    * parse it as a long. If the next token's numeric value cannot be exactly
    * represented by a Java {@code long}, this method throws.
@@ -1163,7 +1162,7 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Returns the {@link com.google.gson.stream.JsonToken#NUMBER int} value of the next token,
+   * Returns the {@link JsonToken#NUMBER int} value of the next token,
    * consuming it. If the next token is a string, this method will attempt to
    * parse it as an int. If the next token's numeric value cannot be exactly
    * represented by a Java {@code int}, this method throws.
@@ -1223,7 +1222,7 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Closes this JSON reader and the underlying {@link java.io.Reader}.
+   * Closes this JSON reader and the underlying {@link Reader}.
    */
   @Override public void close() throws IOException {
     peeked = PEEKED_NONE;
@@ -1233,9 +1232,19 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Skips the next value recursively. If it is an object or array, all nested
-   * elements are skipped. This method is intended for use when the JSON token
-   * stream contains unrecognized or unhandled values.
+   * Skips the next value recursively. This method is intended for use when
+   * the JSON token stream contains unrecognized or unhandled values.
+   *
+   * <p>The behavior depends on the type of the next JSON token:
+   * <ul>
+   *   <li>Start of a JSON array or object: It and all of its nested values are skipped.</li>
+   *   <li>Primitive value (for example a JSON number): The primitive value is skipped.</li>
+   *   <li>Property name: Only the name but not the value of the property is skipped.
+   *   {@code skipValue()} has to be called again to skip the property value as well.</li>
+   *   <li>End of a JSON array or object: Only this end token is skipped.</li>
+   *   <li>End of JSON document: Skipping has no effect, the next token continues to be the
+   *   end of the document.</li>
+   * </ul>
    */
   public void skipValue() throws IOException {
     int count = 0;
@@ -1245,32 +1254,69 @@ public class JsonReader implements Closeable {
         p = doPeek();
       }
 
-      if (p == PEEKED_BEGIN_ARRAY) {
-        push(JsonScope.EMPTY_ARRAY);
-        count++;
-      } else if (p == PEEKED_BEGIN_OBJECT) {
-        push(JsonScope.EMPTY_OBJECT);
-        count++;
-      } else if (p == PEEKED_END_ARRAY) {
-        stackSize--;
-        count--;
-      } else if (p == PEEKED_END_OBJECT) {
-        stackSize--;
-        count--;
-      } else if (p == PEEKED_UNQUOTED_NAME || p == PEEKED_UNQUOTED) {
-        skipUnquotedValue();
-      } else if (p == PEEKED_SINGLE_QUOTED || p == PEEKED_SINGLE_QUOTED_NAME) {
-        skipQuotedValue('\'');
-      } else if (p == PEEKED_DOUBLE_QUOTED || p == PEEKED_DOUBLE_QUOTED_NAME) {
-        skipQuotedValue('"');
-      } else if (p == PEEKED_NUMBER) {
-        pos += peekedNumberLength;
+      switch (p) {
+        case PEEKED_BEGIN_ARRAY:
+          push(JsonScope.EMPTY_ARRAY);
+          count++;
+          break;
+        case PEEKED_BEGIN_OBJECT:
+          push(JsonScope.EMPTY_OBJECT);
+          count++;
+          break;
+        case PEEKED_END_ARRAY:
+          stackSize--;
+          count--;
+          break;
+        case PEEKED_END_OBJECT:
+          // Only update when object end is explicitly skipped, otherwise stack is not updated anyways
+          if (count == 0) {
+            pathNames[stackSize - 1] = null; // Free the last path name so that it can be garbage collected
+          }
+          stackSize--;
+          count--;
+          break;
+        case PEEKED_UNQUOTED:
+          skipUnquotedValue();
+          break;
+        case PEEKED_SINGLE_QUOTED:
+          skipQuotedValue('\'');
+          break;
+        case PEEKED_DOUBLE_QUOTED:
+          skipQuotedValue('"');
+          break;
+        case PEEKED_UNQUOTED_NAME:
+          skipUnquotedValue();
+          // Only update when name is explicitly skipped, otherwise stack is not updated anyways
+          if (count == 0) {
+            pathNames[stackSize - 1] = "<skipped>";
+          }
+          break;
+        case PEEKED_SINGLE_QUOTED_NAME:
+          skipQuotedValue('\'');
+          // Only update when name is explicitly skipped, otherwise stack is not updated anyways
+          if (count == 0) {
+            pathNames[stackSize - 1] = "<skipped>";
+          }
+          break;
+        case PEEKED_DOUBLE_QUOTED_NAME:
+          skipQuotedValue('"');
+          // Only update when name is explicitly skipped, otherwise stack is not updated anyways
+          if (count == 0) {
+            pathNames[stackSize - 1] = "<skipped>";
+          }
+          break;
+        case PEEKED_NUMBER:
+          pos += peekedNumberLength;
+          break;
+        case PEEKED_EOF:
+          // Do nothing
+          return;
+        // For all other tokens there is nothing to do; token has already been consumed from underlying reader
       }
       peeked = PEEKED_NONE;
-    } while (count != 0);
+    } while (count > 0);
 
     pathIndices[stackSize - 1]++;
-    pathNames[stackSize - 1] = "null";
   }
 
   private void push(int newTop) {
@@ -1505,7 +1551,7 @@ public class JsonReader implements Closeable {
    *   <li>For JSON arrays the path points to the index of the previous element.<br>
    *   If no element has been consumed yet it uses the index 0 (even if there are no elements).</li>
    *   <li>For JSON objects the path points to the last property, or to the current
-   *   property if its value has not been consumed yet.</li>
+   *   property if its name has already been consumed.</li>
    * </ul>
    *
    * <p>This method can be useful to add additional context to exception messages
@@ -1522,7 +1568,7 @@ public class JsonReader implements Closeable {
    *   <li>For JSON arrays the path points to the index of the next element (even
    *   if there are no further elements).</li>
    *   <li>For JSON objects the path points to the last property, or to the current
-   *   property if its value has not been consumed yet.</li>
+   *   property if its name has already been consumed.</li>
    * </ul>
    *
    * <p>This method can be useful to add additional context to exception messages

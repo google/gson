@@ -16,6 +16,7 @@
 
 package com.google.gson.annotations;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonSerializer;
 import com.google.gson.TypeAdapter;
@@ -60,7 +61,7 @@ import java.lang.annotation.Target;
  * </pre>
  *
  * Since User class specified UserJsonAdapter.class in &#64;JsonAdapter annotation, it
- * will automatically be invoked to serialize/deserialize User instances. <br>
+ * will automatically be invoked to serialize/deserialize User instances.
  *
  * <p> Here is an example of how to apply this annotation to a field.
  * <pre>
@@ -80,9 +81,14 @@ import java.lang.annotation.Target;
  *
  * <p>The class referenced by this annotation must be either a {@link
  * TypeAdapter} or a {@link TypeAdapterFactory}, or must implement one
- * or both of {@link JsonDeserializer} or {@link JsonSerializer}. 
- * Using {@link TypeAdapterFactory} makes it possible to delegate 
- * to the enclosing {@code Gson} instance.
+ * or both of {@link JsonDeserializer} or {@link JsonSerializer}.
+ * Using {@link TypeAdapterFactory} makes it possible to delegate
+ * to the enclosing {@link Gson} instance.
+ *
+ * <p>{@code Gson} instances might cache the adapter they create for
+ * a {@code @JsonAdapter} annotation. It is not guaranteed that a new
+ * adapter is created every time the annotated class or field is serialized
+ * or deserialized.
  *
  * @since 2.3
  *

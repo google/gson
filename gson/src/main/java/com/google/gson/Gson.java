@@ -32,6 +32,7 @@ import com.google.gson.internal.bind.MapTypeAdapterFactory;
 import com.google.gson.internal.bind.NumberTypeAdapter;
 import com.google.gson.internal.bind.ObjectTypeAdapter;
 import com.google.gson.internal.bind.ReflectiveTypeAdapterFactory;
+import com.google.gson.internal.bind.SerializationDelegatingTypeAdapter;
 import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.internal.sql.SqlTypesSupport;
 import com.google.gson.reflect.TypeToken;
@@ -343,6 +344,7 @@ public final class Gson {
    * instance.
    *
    * @return a GsonBuilder instance.
+   * @since 2.8.3
    */
   public GsonBuilder newBuilder() {
     return new GsonBuilder(this);
@@ -405,7 +407,7 @@ public final class Gson {
         }
         double doubleValue = value.doubleValue();
         checkValidFloatingPoint(doubleValue);
-        out.value(value);
+        out.value(doubleValue);
       }
     };
   }
@@ -429,7 +431,10 @@ public final class Gson {
         }
         float floatValue = value.floatValue();
         checkValidFloatingPoint(floatValue);
-        out.value(value);
+        // For backward compatibility don't call `JsonWriter.value(float)` because that method has
+        // been newly added and not all custom JsonWriter implementations might override it yet
+        Number floatNumber = value instanceof Float ? value : floatValue;
+        out.value(floatNumber);
       }
     };
   }
@@ -1314,7 +1319,7 @@ public final class Gson {
     return fromJson(new JsonTreeReader(json), typeOfT);
   }
 
-  static class FutureTypeAdapter<T> extends TypeAdapter<T> {
+  static class FutureTypeAdapter<T> extends SerializationDelegatingTypeAdapter<T> {
     private TypeAdapter<T> delegate;
 
     public void setDelegate(TypeAdapter<T> typeAdapter) {
@@ -1324,18 +1329,23 @@ public final class Gson {
       delegate = typeAdapter;
     }
 
-    @Override public T read(JsonReader in) throws IOException {
+    private TypeAdapter<T> delegate() {
       if (delegate == null) {
-        throw new IllegalStateException();
+        throw new IllegalStateException("Delegate has not been set yet");
       }
-      return delegate.read(in);
+      return delegate;
+    }
+
+    @Override public TypeAdapter<T> getSerializationDelegate() {
+      return delegate();
+    }
+
+    @Override public T read(JsonReader in) throws IOException {
+      return delegate().read(in);
     }
 
     @Override public void write(JsonWriter out, T value) throws IOException {
-      if (delegate == null) {
-        throw new IllegalStateException();
-      }
-      delegate.write(out, value);
+      delegate().write(out, value);
     }
   }
 

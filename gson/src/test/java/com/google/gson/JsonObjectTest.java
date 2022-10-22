@@ -16,6 +16,13 @@
 
 package com.google.gson;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import com.google.gson.common.MoreAsserts;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayDeque;
@@ -27,15 +34,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
  * Unit test for the {@link JsonObject} class.
  *
  * @author Joel Leitch
  */
-public class JsonObjectTest extends TestCase {
+public class JsonObjectTest {
 
+  @Test
   public void testAddingAndRemovingObjectProperties() throws Exception {
     JsonObject jsonObj = new JsonObject();
     String propertyName = "property";
@@ -54,6 +62,7 @@ public class JsonObjectTest extends TestCase {
     assertNull(jsonObj.remove(propertyName));
   }
 
+  @Test
   public void testAddingNullPropertyValue() throws Exception {
     String propertyName = "property";
     JsonObject jsonObj = new JsonObject();
@@ -66,6 +75,7 @@ public class JsonObjectTest extends TestCase {
     assertTrue(jsonElement.isJsonNull());
   }
 
+  @Test
   public void testAddingNullOrEmptyPropertyName() throws Exception {
     JsonObject jsonObj = new JsonObject();
     try {
@@ -77,6 +87,7 @@ public class JsonObjectTest extends TestCase {
     jsonObj.add("   \t", JsonNull.INSTANCE);
   }
 
+  @Test
   public void testAddingBooleanProperties() throws Exception {
     String propertyName = "property";
     JsonObject jsonObj = new JsonObject();
@@ -89,6 +100,7 @@ public class JsonObjectTest extends TestCase {
     assertTrue(jsonElement.getAsBoolean());
   }
 
+  @Test
   public void testAddingStringProperties() throws Exception {
     String propertyName = "property";
     String value = "blah";
@@ -103,6 +115,7 @@ public class JsonObjectTest extends TestCase {
     assertEquals(value, jsonElement.getAsString());
   }
 
+  @Test
   public void testAddingCharacterProperties() throws Exception {
     String propertyName = "property";
     char value = 'a';
@@ -124,6 +137,7 @@ public class JsonObjectTest extends TestCase {
   /**
    * From bug report http://code.google.com/p/google-gson/issues/detail?id=182
    */
+  @Test
   public void testPropertyWithQuotes() {
     JsonObject jsonObj = new JsonObject();
     jsonObj.add("a\"b", new JsonPrimitive("c\"d"));
@@ -134,6 +148,7 @@ public class JsonObjectTest extends TestCase {
   /**
    * From issue 227.
    */
+  @Test
   public void testWritePropertyWithEmptyStringName() {
     JsonObject jsonObj = new JsonObject();
     jsonObj.add("", new JsonPrimitive(true));
@@ -141,15 +156,18 @@ public class JsonObjectTest extends TestCase {
 
   }
 
+  @Test
   public void testReadPropertyWithEmptyStringName() {
     JsonObject jsonObj = JsonParser.parseString("{\"\":true}").getAsJsonObject();
     assertEquals(true, jsonObj.get("").getAsBoolean());
   }
 
+  @Test
   public void testEqualsOnEmptyObject() {
     MoreAsserts.assertEqualsAndHashCode(new JsonObject(), new JsonObject());
   }
 
+  @Test
   public void testEqualsNonEmptyObject() {
     JsonObject a = new JsonObject();
     JsonObject b = new JsonObject();
@@ -172,6 +190,7 @@ public class JsonObjectTest extends TestCase {
     assertFalse(b.equals(a));
   }
 
+  @Test
   public void testEqualsHashCodeIgnoringOrder() {
     JsonObject a = new JsonObject();
     JsonObject b = new JsonObject();
@@ -188,6 +207,7 @@ public class JsonObjectTest extends TestCase {
     MoreAsserts.assertEqualsAndHashCode(a, b);
   }
 
+  @Test
   public void testSize() {
     JsonObject o = new JsonObject();
     assertEquals(0, o.size());
@@ -202,6 +222,7 @@ public class JsonObjectTest extends TestCase {
     assertEquals(1, o.size());
   }
 
+  @Test
   public void testDeepCopy() {
     JsonObject original = new JsonObject();
     JsonArray firstEntry = new JsonArray();
@@ -217,6 +238,7 @@ public class JsonObjectTest extends TestCase {
   /**
    * From issue 941
    */
+  @Test
   public void testKeySet() {
     JsonObject a = new JsonObject();
     assertEquals(0, a.keySet().size());
@@ -250,6 +272,7 @@ public class JsonObjectTest extends TestCase {
     }
   }
 
+  @Test
   public void testEntrySet() {
     JsonObject o = new JsonObject();
     assertEquals(0, o.entrySet().size());
