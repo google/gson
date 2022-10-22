@@ -35,6 +35,7 @@ public class JsonTreeReaderTest extends TestCase {
     JsonTreeReader in = new JsonTreeReader(new JsonObject());
     in.skipValue();
     assertEquals(JsonToken.END_DOCUMENT, in.peek());
+    assertEquals("$", in.getPath());
   }
 
   public void testSkipValue_filledJsonObject() throws IOException {
@@ -53,6 +54,46 @@ public class JsonTreeReaderTest extends TestCase {
     JsonTreeReader in = new JsonTreeReader(jsonObject);
     in.skipValue();
     assertEquals(JsonToken.END_DOCUMENT, in.peek());
+    assertEquals("$", in.getPath());
+  }
+
+  public void testSkipValue_name() throws IOException {
+    JsonObject jsonObject = new JsonObject();
+    jsonObject.addProperty("a", "value");
+    JsonTreeReader in = new JsonTreeReader(jsonObject);
+    in.beginObject();
+    in.skipValue();
+    assertEquals(JsonToken.STRING, in.peek());
+    assertEquals("$.<skipped>", in.getPath());
+    assertEquals("value", in.nextString());
+  }
+
+  public void testSkipValue_afterEndOfDocument() throws IOException {
+    JsonTreeReader reader = new JsonTreeReader(new JsonObject());
+    reader.beginObject();
+    reader.endObject();
+    assertEquals(JsonToken.END_DOCUMENT, reader.peek());
+
+    assertEquals("$", reader.getPath());
+    reader.skipValue();
+    assertEquals(JsonToken.END_DOCUMENT, reader.peek());
+    assertEquals("$", reader.getPath());
+  }
+
+  public void testSkipValue_atArrayEnd() throws IOException {
+    JsonTreeReader reader = new JsonTreeReader(new JsonArray());
+    reader.beginArray();
+    reader.skipValue();
+    assertEquals(JsonToken.END_DOCUMENT, reader.peek());
+    assertEquals("$", reader.getPath());
+  }
+
+  public void testSkipValue_atObjectEnd() throws IOException {
+    JsonTreeReader reader = new JsonTreeReader(new JsonObject());
+    reader.beginObject();
+    reader.skipValue();
+    assertEquals(JsonToken.END_DOCUMENT, reader.peek());
+    assertEquals("$", reader.getPath());
   }
 
   public void testHasNext_endOfDocument() throws IOException {

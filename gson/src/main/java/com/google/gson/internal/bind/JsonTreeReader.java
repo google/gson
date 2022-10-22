@@ -93,6 +93,7 @@ public final class JsonTreeReader extends JsonReader {
 
   @Override public void endObject() throws IOException {
     expect(JsonToken.END_OBJECT);
+    pathNames[stackSize - 1] = null; // Free the last path name so that it can be garbage collected
     popStack(); // empty iterator
     popStack(); // object
     if (stackSize > 0) {
@@ -165,14 +166,18 @@ public final class JsonTreeReader extends JsonReader {
     }
   }
 
-  @Override public String nextName() throws IOException {
+  private String nextName(boolean skipName) throws IOException {
     expect(JsonToken.NAME);
     Iterator<?> i = (Iterator<?>) peekStack();
     Map.Entry<?, ?> entry = (Map.Entry<?, ?>) i.next();
     String result = (String) entry.getKey();
-    pathNames[stackSize - 1] = result;
+    pathNames[stackSize - 1] = skipName ? "<skipped>" : result;
     push(entry.getValue());
     return result;
+  }
+
+  @Override public String nextName() throws IOException {
+    return nextName(false);
   }
 
   @Override public String nextString() throws IOException {
@@ -269,17 +274,26 @@ public final class JsonTreeReader extends JsonReader {
   }
 
   @Override public void skipValue() throws IOException {
-    if (peek() == JsonToken.NAME) {
-      nextName();
-      pathNames[stackSize - 2] = "null";
-    } else {
-      popStack();
-      if (stackSize > 0) {
-        pathNames[stackSize - 1] = "null";
-      }
-    }
-    if (stackSize > 0) {
-      pathIndices[stackSize - 1]++;
+    JsonToken peeked = peek();
+    switch (peeked) {
+      case NAME:
+        nextName(true);
+        break;
+      case END_ARRAY:
+        endArray();
+        break;
+      case END_OBJECT:
+        endObject();
+        break;
+      case END_DOCUMENT:
+        // Do nothing
+        break;
+      default:
+        popStack();
+        if (stackSize > 0) {
+          pathIndices[stackSize - 1]++;
+        }
+        break;
     }
   }
 
