@@ -261,14 +261,17 @@ public final class ConstructorConstructor {
           @SuppressWarnings("unchecked") // T is the same raw type as is requested
           T newInstance = (T) constructor.newInstance();
           return newInstance;
-        } catch (InstantiationException e) {
-          // TODO: JsonParseException ?
-          throw new RuntimeException("Failed to invoke " + constructor + " with no args", e);
+        }
+        // Note: InstantiationException should be impossible because check at start of method made sure
+        //   that class is not abstract
+        catch (InstantiationException e) {
+          throw new RuntimeException("Failed to invoke constructor '" + ReflectionHelper.constructorToString(constructor) + "'"
+              + " with no args", e);
         } catch (InvocationTargetException e) {
-          // TODO: don't wrap if cause is unchecked!
+          // TODO: don't wrap if cause is unchecked?
           // TODO: JsonParseException ?
-          throw new RuntimeException("Failed to invoke " + constructor + " with no args",
-              e.getTargetException());
+          throw new RuntimeException("Failed to invoke constructor '" + ReflectionHelper.constructorToString(constructor) + "'"
+              + " with no args", e.getCause());
         } catch (IllegalAccessException e) {
           throw ReflectionHelper.createExceptionForUnexpectedIllegalAccess(e);
         }
