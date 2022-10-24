@@ -59,7 +59,7 @@ public class JsonObjectAsMapTest {
     assertFalse(map.containsValue(new JsonPrimitive(2)));
     assertFalse(map.containsValue(null));
 
-    @SuppressWarnings("unlikely-arg-type")
+    @SuppressWarnings({"unlikely-arg-type", "CollectionIncompatibleType"})
     boolean containsInt = map.containsValue(1); // should only contain JsonPrimitive(1)
     assertFalse(containsInt);
   }
