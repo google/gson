@@ -210,7 +210,7 @@ public class JsonArrayAsListTest {
     assertFalse(list.contains(new JsonPrimitive(2)));
     assertFalse(list.contains(null));
 
-    @SuppressWarnings("unlikely-arg-type")
+    @SuppressWarnings({"unlikely-arg-type", "CollectionIncompatibleType"})
     boolean containsInt = list.contains(1); // should only contain JsonPrimitive(1)
     assertFalse(containsInt);
   }
@@ -227,7 +227,7 @@ public class JsonArrayAsListTest {
     assertEquals(-1, list.indexOf(new JsonPrimitive(2)));
     assertEquals(-1, list.indexOf(null));
 
-    @SuppressWarnings("unlikely-arg-type")
+    @SuppressWarnings({"unlikely-arg-type", "CollectionIncompatibleType"})
     int indexOfInt = list.indexOf(1); // should only contain JsonPrimitive(1)
     assertEquals(-1, indexOfInt);
 

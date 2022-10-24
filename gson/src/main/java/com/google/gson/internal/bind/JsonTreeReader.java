@@ -277,7 +277,7 @@ public final class JsonTreeReader extends JsonReader {
     JsonToken peeked = peek();
     switch (peeked) {
       case NAME:
-        nextName(true);
+        String unused = nextName(true);
         break;
       case END_ARRAY:
         endArray();
