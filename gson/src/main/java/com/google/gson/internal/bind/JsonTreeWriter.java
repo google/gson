@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * This writer creates a JsonElement.
@@ -46,7 +47,7 @@ public final class JsonTreeWriter extends JsonWriter {
   private static final JsonPrimitive SENTINEL_CLOSED = new JsonPrimitive("closed");
 
   /** The JsonElements and JsonArrays under modification, outermost to innermost. */
-  private final List<JsonElement> stack = new ArrayList<JsonElement>();
+  private final List<JsonElement> stack = new ArrayList<>();
 
   /** The name for the next JSON object value. If non-null, the top of the stack is a JsonObject. */
   private String pendingName;
@@ -130,9 +131,7 @@ public final class JsonTreeWriter extends JsonWriter {
   }
 
   @Override public JsonWriter name(String name) throws IOException {
-    if (name == null) {
-      throw new NullPointerException("name == null");
-    }
+    Objects.requireNonNull(name, "name == null");
     if (stack.isEmpty() || pendingName != null) {
       throw new IllegalStateException();
     }
@@ -152,6 +151,10 @@ public final class JsonTreeWriter extends JsonWriter {
     return this;
   }
 
+  @Override public JsonWriter jsonValue(String value) throws IOException {
+    throw new UnsupportedOperationException();
+  }
+
   @Override public JsonWriter nullValue() throws IOException {
     put(JsonNull.INSTANCE);
     return this;
@@ -165,6 +168,14 @@ public final class JsonTreeWriter extends JsonWriter {
   @Override public JsonWriter value(Boolean value) throws IOException {
     if (value == null) {
       return nullValue();
+    }
+    put(new JsonPrimitive(value));
+    return this;
+  }
+
+  @Override public JsonWriter value(float value) throws IOException {
+    if (!isLenient() && (Float.isNaN(value) || Float.isInfinite(value))) {
+      throw new IllegalArgumentException("JSON forbids NaN and infinities: " + value);
     }
     put(new JsonPrimitive(value));
     return this;

@@ -16,30 +16,39 @@
 
 package com.google.gson;
 
+import static com.google.gson.Gson.DEFAULT_COMPLEX_MAP_KEYS;
+import static com.google.gson.Gson.DEFAULT_DATE_PATTERN;
+import static com.google.gson.Gson.DEFAULT_ESCAPE_HTML;
+import static com.google.gson.Gson.DEFAULT_JSON_NON_EXECUTABLE;
+import static com.google.gson.Gson.DEFAULT_LENIENT;
+import static com.google.gson.Gson.DEFAULT_NUMBER_TO_NUMBER_STRATEGY;
+import static com.google.gson.Gson.DEFAULT_OBJECT_TO_NUMBER_STRATEGY;
+import static com.google.gson.Gson.DEFAULT_PRETTY_PRINT;
+import static com.google.gson.Gson.DEFAULT_SERIALIZE_NULLS;
+import static com.google.gson.Gson.DEFAULT_SPECIALIZE_FLOAT_VALUES;
+import static com.google.gson.Gson.DEFAULT_USE_JDK_UNSAFE;
+
+import com.google.gson.annotations.Since;
+import com.google.gson.annotations.Until;
+import com.google.gson.internal.$Gson$Preconditions;
+import com.google.gson.internal.Excluder;
+import com.google.gson.internal.bind.DefaultDateTypeAdapter;
+import com.google.gson.internal.bind.TreeTypeAdapter;
+import com.google.gson.internal.bind.TypeAdapters;
+import com.google.gson.internal.sql.SqlTypesSupport;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 import java.lang.reflect.Type;
-import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import com.google.gson.internal.$Gson$Preconditions;
-import com.google.gson.internal.Excluder;
-import com.google.gson.internal.bind.TreeTypeAdapter;
-import com.google.gson.internal.bind.TypeAdapters;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-
-import static com.google.gson.Gson.DEFAULT_COMPLEX_MAP_KEYS;
-import static com.google.gson.Gson.DEFAULT_ESCAPE_HTML;
-import static com.google.gson.Gson.DEFAULT_JSON_NON_EXECUTABLE;
-import static com.google.gson.Gson.DEFAULT_LENIENT;
-import static com.google.gson.Gson.DEFAULT_PRETTY_PRINT;
-import static com.google.gson.Gson.DEFAULT_SERIALIZE_NULLS;
-import static com.google.gson.Gson.DEFAULT_SPECIALIZE_FLOAT_VALUES;
+import java.util.Objects;
 
 /**
  * <p>Use this builder to construct a {@link Gson} instance when you need to set configuration
@@ -60,7 +69,7 @@ import static com.google.gson.Gson.DEFAULT_SPECIALIZE_FLOAT_VALUES;
  *     .setPrettyPrinting()
  *     .setVersion(1.0)
  *     .create();
- * </pre></p>
+ * </pre>
  *
  * <p>NOTES:
  * <ul>
@@ -68,8 +77,7 @@ import static com.google.gson.Gson.DEFAULT_SPECIALIZE_FLOAT_VALUES;
  * <li> The default serialization of {@link Date} and its subclasses in Gson does
  *  not contain time-zone information. So, if you are using date/time instances,
  *  use {@code GsonBuilder} and its {@code setDateFormat} methods.</li>
- *  </ul>
- * </p>
+ * </ul>
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
@@ -79,13 +87,12 @@ public final class GsonBuilder {
   private Excluder excluder = Excluder.DEFAULT;
   private LongSerializationPolicy longSerializationPolicy = LongSerializationPolicy.DEFAULT;
   private FieldNamingStrategy fieldNamingPolicy = FieldNamingPolicy.IDENTITY;
-  private final Map<Type, InstanceCreator<?>> instanceCreators
-      = new HashMap<Type, InstanceCreator<?>>();
-  private final List<TypeAdapterFactory> factories = new ArrayList<TypeAdapterFactory>();
+  private final Map<Type, InstanceCreator<?>> instanceCreators = new HashMap<>();
+  private final List<TypeAdapterFactory> factories = new ArrayList<>();
   /** tree-style hierarchy factories. These come after factories for backwards compatibility. */
-  private final List<TypeAdapterFactory> hierarchyFactories = new ArrayList<TypeAdapterFactory>();
+  private final List<TypeAdapterFactory> hierarchyFactories = new ArrayList<>();
   private boolean serializeNulls = DEFAULT_SERIALIZE_NULLS;
-  private String datePattern;
+  private String datePattern = DEFAULT_DATE_PATTERN;
   private int dateStyle = DateFormat.DEFAULT;
   private int timeStyle = DateFormat.DEFAULT;
   private boolean complexMapKeySerialization = DEFAULT_COMPLEX_MAP_KEYS;
@@ -94,6 +101,10 @@ public final class GsonBuilder {
   private boolean prettyPrinting = DEFAULT_PRETTY_PRINT;
   private boolean generateNonExecutableJson = DEFAULT_JSON_NON_EXECUTABLE;
   private boolean lenient = DEFAULT_LENIENT;
+  private boolean useJdkUnsafe = DEFAULT_USE_JDK_UNSAFE;
+  private ToNumberStrategy objectToNumberStrategy = DEFAULT_OBJECT_TO_NUMBER_STRATEGY;
+  private ToNumberStrategy numberToNumberStrategy = DEFAULT_NUMBER_TO_NUMBER_STRATEGY;
+  private final LinkedList<ReflectionAccessFilter> reflectionFilters = new LinkedList<>();
 
   /**
    * Creates a GsonBuilder instance that can be used to build Gson with various configuration
@@ -127,24 +138,42 @@ public final class GsonBuilder {
     this.timeStyle = gson.timeStyle;
     this.factories.addAll(gson.builderFactories);
     this.hierarchyFactories.addAll(gson.builderHierarchyFactories);
+    this.useJdkUnsafe = gson.useJdkUnsafe;
+    this.objectToNumberStrategy = gson.objectToNumberStrategy;
+    this.numberToNumberStrategy = gson.numberToNumberStrategy;
+    this.reflectionFilters.addAll(gson.reflectionFilters);
   }
 
   /**
-   * Configures Gson to enable versioning support.
+   * Configures Gson to enable versioning support. Versioning support works based on the
+   * annotation types {@link Since} and {@link Until}. It allows including or excluding fields
+   * and classes based on the specified version. See the documentation of these annotation
+   * types for more information.
    *
-   * @param ignoreVersionsAfter any field or type marked with a version higher than this value
-   * are ignored during serialization or deserialization.
+   * <p>By default versioning support is disabled and usage of {@code @Since} and {@code @Until}
+   * has no effect.
+   *
+   * @param version the version number to use.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @throws IllegalArgumentException if the version number is NaN or negative
+   * @see Since
+   * @see Until
    */
-  public GsonBuilder setVersion(double ignoreVersionsAfter) {
-    excluder = excluder.withVersion(ignoreVersionsAfter);
+  public GsonBuilder setVersion(double version) {
+    if (Double.isNaN(version) || version < 0.0) {
+      throw new IllegalArgumentException("Invalid version: " + version);
+    }
+    excluder = excluder.withVersion(version);
     return this;
   }
 
   /**
    * Configures Gson to excludes all class fields that have the specified modifiers. By default,
-   * Gson will exclude all fields marked transient or static. This method will override that
-   * behavior.
+   * Gson will exclude all fields marked {@code transient} or {@code static}. This method will
+   * override that behavior.
+   *
+   * <p>This is a convenience method which behaves as if an {@link ExclusionStrategy} which
+   * excludes these fields was {@linkplain #setExclusionStrategies(ExclusionStrategy...) registered with this builder}.
    *
    * @param modifiers the field modifiers. You must use the modifiers specified in the
    * {@link java.lang.reflect.Modifier} class. For example,
@@ -153,6 +182,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
   public GsonBuilder excludeFieldsWithModifiers(int... modifiers) {
+    Objects.requireNonNull(modifiers);
     excluder = excluder.withModifiers(modifiers);
     return this;
   }
@@ -172,8 +202,11 @@ public final class GsonBuilder {
   }
 
   /**
-   * Configures Gson to exclude all fields from consideration for serialization or deserialization
+   * Configures Gson to exclude all fields from consideration for serialization and deserialization
    * that do not have the {@link com.google.gson.annotations.Expose} annotation.
+   *
+   * <p>This is a convenience method which behaves as if an {@link ExclusionStrategy} which excludes
+   * these fields was {@linkplain #setExclusionStrategies(ExclusionStrategy...) registered with this builder}.
    *
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
@@ -201,8 +234,9 @@ public final class GsonBuilder {
    * on the key; however, when this is called then one of the following cases
    * apply:
    *
-   * <h3>Maps as JSON objects</h3>
-   * For this case, assume that a type adapter is registered to serialize and
+   * <p><b>Maps as JSON objects</b>
+   *
+   * <p>For this case, assume that a type adapter is registered to serialize and
    * deserialize some {@code Point} class, which contains an x and y coordinate,
    * to/from the JSON Primitive string value {@code "(x,y)"}. The Java map would
    * then be serialized as a {@link JsonObject}.
@@ -214,7 +248,7 @@ public final class GsonBuilder {
    *       .enableComplexMapKeySerialization()
    *       .create();
    *
-   *   Map<Point, String> original = new LinkedHashMap<Point, String>();
+   *   Map<Point, String> original = new LinkedHashMap<>();
    *   original.put(new Point(5, 6), "a");
    *   original.put(new Point(8, 8), "b");
    *   System.out.println(gson.toJson(original, type));
@@ -226,11 +260,12 @@ public final class GsonBuilder {
    *   }
    * }</pre>
    *
-   * <h3>Maps as JSON arrays</h3>
-   * For this case, assume that a type adapter was NOT registered for some
+   * <p><b>Maps as JSON arrays</b>
+   *
+   * <p>For this case, assume that a type adapter was NOT registered for some
    * {@code Point} class, but rather the default Gson serialization is applied.
    * In this case, some {@code new Point(2,3)} would serialize as {@code
-   * {"x":2,"y":5}}.
+   * {"x":2,"y":3}}.
    *
    * <p>Given the assumption above, a {@code Map<Point, String>} will be
    * serialize as an array of arrays (can be viewed as an entry set of pairs).
@@ -241,11 +276,12 @@ public final class GsonBuilder {
    *       .enableComplexMapKeySerialization()
    *       .create();
    *
-   *   Map<Point, String> original = new LinkedHashMap<Point, String>();
+   *   Map<Point, String> original = new LinkedHashMap<>();
    *   original.put(new Point(5, 6), "a");
    *   original.put(new Point(8, 8), "b");
    *   System.out.println(gson.toJson(original, type));
    * }
+   * </pre>
    *
    * The JSON output would look as follows:
    * <pre>   {@code
@@ -276,7 +312,20 @@ public final class GsonBuilder {
   }
 
   /**
-   * Configures Gson to exclude inner classes during serialization.
+   * Configures Gson to exclude inner classes (= non-{@code static} nested classes) during serialization
+   * and deserialization. This is a convenience method which behaves as if an {@link ExclusionStrategy}
+   * which excludes inner classes was {@linkplain #setExclusionStrategies(ExclusionStrategy...) registered with this builder}.
+   * This means inner classes will be serialized as JSON {@code null}, and will be deserialized as
+   * Java {@code null} with their JSON data being ignored. And fields with an inner class as type will
+   * be ignored during serialization and deserialization.
+   *
+   * <p>By default Gson serializes and deserializes inner classes, but ignores references to the
+   * enclosing instance. Deserialization might not be possible at all when {@link #disableJdkUnsafe()}
+   * is used (and no custom {@link InstanceCreator} is registered), or it can lead to unexpected
+   * {@code NullPointerException}s when the deserialized instance is used afterwards.
+   *
+   * <p>In general using inner classes with Gson should be avoided; they should be converted to {@code static}
+   * nested classes if possible.
    *
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.3
@@ -295,33 +344,60 @@ public final class GsonBuilder {
    * @since 1.3
    */
   public GsonBuilder setLongSerializationPolicy(LongSerializationPolicy serializationPolicy) {
-    this.longSerializationPolicy = serializationPolicy;
+    this.longSerializationPolicy = Objects.requireNonNull(serializationPolicy);
     return this;
   }
 
   /**
-   * Configures Gson to apply a specific naming policy to an object's field during serialization
+   * Configures Gson to apply a specific naming policy to an object's fields during serialization
    * and deserialization.
    *
-   * @param namingConvention the JSON field naming convention to use for serialization and
-   * deserialization.
-   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * <p>This method just delegates to {@link #setFieldNamingStrategy(FieldNamingStrategy)}.
    */
   public GsonBuilder setFieldNamingPolicy(FieldNamingPolicy namingConvention) {
-    this.fieldNamingPolicy = namingConvention;
-    return this;
+    return setFieldNamingStrategy(namingConvention);
   }
 
   /**
-   * Configures Gson to apply a specific naming policy strategy to an object's field during
+   * Configures Gson to apply a specific naming strategy to an object's fields during
    * serialization and deserialization.
    *
-   * @param fieldNamingStrategy the actual naming strategy to apply to the fields
+   * <p>The created Gson instance might only use the field naming strategy once for a
+   * field and cache the result. It is not guaranteed that the strategy will be used
+   * again every time the value of a field is serialized or deserialized.
+   *
+   * @param fieldNamingStrategy the naming strategy to apply to the fields
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.3
    */
   public GsonBuilder setFieldNamingStrategy(FieldNamingStrategy fieldNamingStrategy) {
-    this.fieldNamingPolicy = fieldNamingStrategy;
+    this.fieldNamingPolicy = Objects.requireNonNull(fieldNamingStrategy);
+    return this;
+  }
+
+  /**
+   * Configures Gson to apply a specific number strategy during deserialization of {@link Object}.
+   *
+   * @param objectToNumberStrategy the actual object-to-number strategy
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @see ToNumberPolicy#DOUBLE The default object-to-number strategy
+   * @since 2.8.9
+   */
+  public GsonBuilder setObjectToNumberStrategy(ToNumberStrategy objectToNumberStrategy) {
+    this.objectToNumberStrategy = Objects.requireNonNull(objectToNumberStrategy);
+    return this;
+  }
+
+  /**
+   * Configures Gson to apply a specific number strategy during deserialization of {@link Number}.
+   *
+   * @param numberToNumberStrategy the actual number-to-number strategy
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @see ToNumberPolicy#LAZILY_PARSED_NUMBER The default number-to-number strategy
+   * @since 2.8.9
+   */
+  public GsonBuilder setNumberToNumberStrategy(ToNumberStrategy numberToNumberStrategy) {
+    this.numberToNumberStrategy = Objects.requireNonNull(numberToNumberStrategy);
     return this;
   }
 
@@ -330,12 +406,29 @@ public final class GsonBuilder {
    * deserialization. Each of the {@code strategies} will be applied as a disjunction rule.
    * This means that if one of the {@code strategies} suggests that a field (or class) should be
    * skipped then that field (or object) is skipped during serialization/deserialization.
+   * The strategies are added to the existing strategies (if any); the existing strategies
+   * are not replaced.
+   *
+   * <p>Fields are excluded for serialization and deserialization when
+   * {@link ExclusionStrategy#shouldSkipField(FieldAttributes) shouldSkipField} returns {@code true},
+   * or when {@link ExclusionStrategy#shouldSkipClass(Class) shouldSkipClass} returns {@code true}
+   * for the field type. Gson behaves as if the field did not exist; its value is not serialized
+   * and on deserialization if a JSON member with this name exists it is skipped by default.<br>
+   * When objects of an excluded type (as determined by
+   * {@link ExclusionStrategy#shouldSkipClass(Class) shouldSkipClass}) are serialized a
+   * JSON null is written to output, and when deserialized the JSON value is skipped and
+   * {@code null} is returned.
+   *
+   * <p>The created Gson instance might only use an exclusion strategy once for a field or
+   * class and cache the result. It is not guaranteed that the strategy will be used again
+   * every time the value of a field or a class is serialized or deserialized.
    *
    * @param strategies the set of strategy object to apply during object (de)serialization.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.4
    */
   public GsonBuilder setExclusionStrategies(ExclusionStrategy... strategies) {
+    Objects.requireNonNull(strategies);
     for (ExclusionStrategy strategy : strategies) {
       excluder = excluder.withExclusionStrategy(strategy, true, true);
     }
@@ -350,11 +443,15 @@ public final class GsonBuilder {
    * class) should be skipped then that field (or object) is skipped during its
    * serialization.
    *
+   * <p>See the documentation of {@link #setExclusionStrategies(ExclusionStrategy...)}
+   * for a detailed description of the effect of exclusion strategies.
+   *
    * @param strategy an exclusion strategy to apply during serialization.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.7
    */
   public GsonBuilder addSerializationExclusionStrategy(ExclusionStrategy strategy) {
+    Objects.requireNonNull(strategy);
     excluder = excluder.withExclusionStrategy(strategy, true, false);
     return this;
   }
@@ -367,11 +464,15 @@ public final class GsonBuilder {
    * class) should be skipped then that field (or object) is skipped during its
    * deserialization.
    *
+   * <p>See the documentation of {@link #setExclusionStrategies(ExclusionStrategy...)}
+   * for a detailed description of the effect of exclusion strategies.
+   *
    * @param strategy an exclusion strategy to apply during deserialization.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.7
    */
   public GsonBuilder addDeserializationExclusionStrategy(ExclusionStrategy strategy) {
+    Objects.requireNonNull(strategy);
     excluder = excluder.withExclusionStrategy(strategy, false, true);
     return this;
   }
@@ -388,12 +489,14 @@ public final class GsonBuilder {
   }
 
   /**
-   * By default, Gson is strict and only accepts JSON as specified by
-   * <a href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>. This option makes the parser
-   * liberal in what it accepts.
+   * Configures Gson to allow JSON data which does not strictly comply with the JSON specification.
+   *
+   * <p>Note: Due to legacy reasons most methods of Gson are always lenient, regardless of
+   * whether this builder method is used.
    *
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @see JsonReader#setLenient(boolean)
+   * @see JsonWriter#setLenient(boolean)
    */
   public GsonBuilder setLenient() {
     lenient = true;
@@ -417,8 +520,8 @@ public final class GsonBuilder {
    * call this method or {@link #setDateFormat(int)} multiple times, but only the last invocation
    * will be used to decide the serialization format.
    *
-   * <p>The date format will be used to serialize and deserialize {@link java.util.Date}, {@link
-   * java.sql.Timestamp} and {@link java.sql.Date}.
+   * <p>The date format will be used to serialize and deserialize {@link java.util.Date} and in case
+   * the {@code java.sql} module is present, also {@link java.sql.Timestamp} and {@link java.sql.Date}.
    *
    * <p>Note that this pattern must abide by the convention provided by {@code SimpleDateFormat}
    * class. See the documentation in {@link java.text.SimpleDateFormat} for more information on
@@ -487,26 +590,34 @@ public final class GsonBuilder {
    * types! For example, applications registering {@code boolean.class} should also register {@code
    * Boolean.class}.
    *
+   * <p>{@link JsonSerializer} and {@link JsonDeserializer} are made "{@code null}-safe". This
+   * means when trying to serialize {@code null}, Gson will write a JSON {@code null} and the
+   * serializer is not called. Similarly when deserializing a JSON {@code null}, Gson will emit
+   * {@code null} without calling the deserializer. If it is desired to handle {@code null} values,
+   * a {@link TypeAdapter} should be used instead.
+   *
    * @param type the type definition for the type adapter being registered
    * @param typeAdapter This object must implement at least one of the {@link TypeAdapter},
    * {@link InstanceCreator}, {@link JsonSerializer}, and a {@link JsonDeserializer} interfaces.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
-  @SuppressWarnings({"unchecked", "rawtypes"})
   public GsonBuilder registerTypeAdapter(Type type, Object typeAdapter) {
+    Objects.requireNonNull(type);
     $Gson$Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
         || typeAdapter instanceof JsonDeserializer<?>
         || typeAdapter instanceof InstanceCreator<?>
         || typeAdapter instanceof TypeAdapter<?>);
     if (typeAdapter instanceof InstanceCreator<?>) {
-      instanceCreators.put(type, (InstanceCreator) typeAdapter);
+      instanceCreators.put(type, (InstanceCreator<?>) typeAdapter);
     }
     if (typeAdapter instanceof JsonSerializer<?> || typeAdapter instanceof JsonDeserializer<?>) {
       TypeToken<?> typeToken = TypeToken.get(type);
       factories.add(TreeTypeAdapter.newFactoryWithMatchRawType(typeToken, typeAdapter));
     }
     if (typeAdapter instanceof TypeAdapter<?>) {
-      factories.add(TypeAdapters.newFactory(TypeToken.get(type), (TypeAdapter)typeAdapter));
+      @SuppressWarnings({"unchecked", "rawtypes"})
+      TypeAdapterFactory factory = TypeAdapters.newFactory(TypeToken.get(type), (TypeAdapter)typeAdapter);
+      factories.add(factory);
     }
     return this;
   }
@@ -517,9 +628,14 @@ public final class GsonBuilder {
    * is designed to handle a large number of factories, so you should consider registering
    * them to be at par with registering an individual type adapter.
    *
+   * <p>The created Gson instance might only use the factory once to create an adapter for
+   * a specific type and cache the result. It is not guaranteed that the factory will be used
+   * again every time the type is serialized or deserialized.
+   *
    * @since 2.1
    */
   public GsonBuilder registerTypeAdapterFactory(TypeAdapterFactory factory) {
+    Objects.requireNonNull(factory);
     factories.add(factory);
     return this;
   }
@@ -538,8 +654,8 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.7
    */
-  @SuppressWarnings({"unchecked", "rawtypes"})
   public GsonBuilder registerTypeHierarchyAdapter(Class<?> baseType, Object typeAdapter) {
+    Objects.requireNonNull(baseType);
     $Gson$Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
         || typeAdapter instanceof JsonDeserializer<?>
         || typeAdapter instanceof TypeAdapter<?>);
@@ -547,7 +663,9 @@ public final class GsonBuilder {
       hierarchyFactories.add(TreeTypeAdapter.newTypeHierarchyFactory(baseType, typeAdapter));
     }
     if (typeAdapter instanceof TypeAdapter<?>) {
-      factories.add(TypeAdapters.newTypeHierarchyFactory(baseType, (TypeAdapter)typeAdapter));
+      @SuppressWarnings({"unchecked", "rawtypes"})
+      TypeAdapterFactory factory = TypeAdapters.newTypeHierarchyFactory(baseType, (TypeAdapter)typeAdapter);
+      factories.add(factory);
     }
     return this;
   }
@@ -578,50 +696,107 @@ public final class GsonBuilder {
   }
 
   /**
+   * Disables usage of JDK's {@code sun.misc.Unsafe}.
+   *
+   * <p>By default Gson uses {@code Unsafe} to create instances of classes which don't have
+   * a no-args constructor. However, {@code Unsafe} might not be available for all Java
+   * runtimes. For example Android does not provide {@code Unsafe}, or only with limited
+   * functionality. Additionally {@code Unsafe} creates instances without executing any
+   * constructor or initializer block, or performing initialization of field values. This can
+   * lead to surprising and difficult to debug errors.
+   * Therefore, to get reliable behavior regardless of which runtime is used, and to detect
+   * classes which cannot be deserialized in an early stage of development, this method allows
+   * disabling usage of {@code Unsafe}.
+   *
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @since 2.9.0
+   */
+  public GsonBuilder disableJdkUnsafe() {
+    this.useJdkUnsafe = false;
+    return this;
+  }
+
+  /**
+   * Adds a reflection access filter. A reflection access filter prevents Gson from using
+   * reflection for the serialization and deserialization of certain classes. The logic in
+   * the filter specifies which classes those are.
+   *
+   * <p>Filters will be invoked in reverse registration order, that is, the most recently
+   * added filter will be invoked first.
+   *
+   * <p>By default Gson has no filters configured and will try to use reflection for
+   * all classes for which no {@link TypeAdapter} has been registered, and for which no
+   * built-in Gson {@code TypeAdapter} exists.
+   *
+   * <p>The created Gson instance might only use an access filter once for a class or its
+   * members and cache the result. It is not guaranteed that the filter will be used again
+   * every time a class or its members are accessed during serialization or deserialization.
+   *
+   * @param filter filter to add
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @since 2.9.1
+   */
+  public GsonBuilder addReflectionAccessFilter(ReflectionAccessFilter filter) {
+    Objects.requireNonNull(filter);
+    reflectionFilters.addFirst(filter);
+    return this;
+  }
+
+  /**
    * Creates a {@link Gson} instance based on the current configuration. This method is free of
    * side-effects to this {@code GsonBuilder} instance and hence can be called multiple times.
    *
    * @return an instance of Gson configured with the options currently set in this builder
    */
   public Gson create() {
-    List<TypeAdapterFactory> factories = new ArrayList<TypeAdapterFactory>(this.factories.size() + this.hierarchyFactories.size() + 3);
+    List<TypeAdapterFactory> factories = new ArrayList<>(this.factories.size() + this.hierarchyFactories.size() + 3);
     factories.addAll(this.factories);
     Collections.reverse(factories);
 
-    List<TypeAdapterFactory> hierarchyFactories = new ArrayList<TypeAdapterFactory>(this.hierarchyFactories);
+    List<TypeAdapterFactory> hierarchyFactories = new ArrayList<>(this.hierarchyFactories);
     Collections.reverse(hierarchyFactories);
     factories.addAll(hierarchyFactories);
 
     addTypeAdaptersForDate(datePattern, dateStyle, timeStyle, factories);
 
-    return new Gson(excluder, fieldNamingPolicy, instanceCreators,
+    return new Gson(excluder, fieldNamingPolicy, new HashMap<>(instanceCreators),
         serializeNulls, complexMapKeySerialization,
         generateNonExecutableJson, escapeHtmlChars, prettyPrinting, lenient,
-        serializeSpecialFloatingPointValues, longSerializationPolicy,
-        datePattern, dateStyle, timeStyle,
-        this.factories, this.hierarchyFactories, factories);
+        serializeSpecialFloatingPointValues, useJdkUnsafe, longSerializationPolicy,
+        datePattern, dateStyle, timeStyle, new ArrayList<>(this.factories),
+        new ArrayList<>(this.hierarchyFactories), factories,
+        objectToNumberStrategy, numberToNumberStrategy, new ArrayList<>(reflectionFilters));
   }
 
-  @SuppressWarnings("unchecked")
   private void addTypeAdaptersForDate(String datePattern, int dateStyle, int timeStyle,
       List<TypeAdapterFactory> factories) {
-    DefaultDateTypeAdapter dateTypeAdapter;
-    TypeAdapter<Timestamp> timestampTypeAdapter;
-    TypeAdapter<java.sql.Date> javaSqlDateTypeAdapter;
-    if (datePattern != null && !"".equals(datePattern.trim())) {
-      dateTypeAdapter = new DefaultDateTypeAdapter(Date.class, datePattern);
-      timestampTypeAdapter = (TypeAdapter) new DefaultDateTypeAdapter(Timestamp.class, datePattern);
-      javaSqlDateTypeAdapter = (TypeAdapter) new DefaultDateTypeAdapter(java.sql.Date.class, datePattern);
+    TypeAdapterFactory dateAdapterFactory;
+    boolean sqlTypesSupported = SqlTypesSupport.SUPPORTS_SQL_TYPES;
+    TypeAdapterFactory sqlTimestampAdapterFactory = null;
+    TypeAdapterFactory sqlDateAdapterFactory = null;
+
+    if (datePattern != null && !datePattern.trim().isEmpty()) {
+      dateAdapterFactory = DefaultDateTypeAdapter.DateType.DATE.createAdapterFactory(datePattern);
+
+      if (sqlTypesSupported) {
+        sqlTimestampAdapterFactory = SqlTypesSupport.TIMESTAMP_DATE_TYPE.createAdapterFactory(datePattern);
+        sqlDateAdapterFactory = SqlTypesSupport.DATE_DATE_TYPE.createAdapterFactory(datePattern);
+      }
     } else if (dateStyle != DateFormat.DEFAULT && timeStyle != DateFormat.DEFAULT) {
-      dateTypeAdapter = new DefaultDateTypeAdapter(Date.class, dateStyle, timeStyle);
-      timestampTypeAdapter = (TypeAdapter) new DefaultDateTypeAdapter(Timestamp.class, dateStyle, timeStyle);
-      javaSqlDateTypeAdapter = (TypeAdapter) new DefaultDateTypeAdapter(java.sql.Date.class, dateStyle, timeStyle);
+      dateAdapterFactory = DefaultDateTypeAdapter.DateType.DATE.createAdapterFactory(dateStyle, timeStyle);
+
+      if (sqlTypesSupported) {
+        sqlTimestampAdapterFactory = SqlTypesSupport.TIMESTAMP_DATE_TYPE.createAdapterFactory(dateStyle, timeStyle);
+        sqlDateAdapterFactory = SqlTypesSupport.DATE_DATE_TYPE.createAdapterFactory(dateStyle, timeStyle);
+      }
     } else {
       return;
     }
 
-    factories.add(TypeAdapters.newFactory(Date.class, dateTypeAdapter));
-    factories.add(TypeAdapters.newFactory(Timestamp.class, timestampTypeAdapter));
-    factories.add(TypeAdapters.newFactory(java.sql.Date.class, javaSqlDateTypeAdapter));
+    factories.add(dateAdapterFactory);
+    if (sqlTypesSupported) {
+      factories.add(sqlTimestampAdapterFactory);
+      factories.add(sqlDateAdapterFactory);
+    }
   }
 }

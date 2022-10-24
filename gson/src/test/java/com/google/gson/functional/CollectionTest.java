@@ -16,6 +16,16 @@
 
 package com.google.gson.functional;
 
+import static org.junit.Assert.assertArrayEquals;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+import com.google.gson.common.TestTypes.BagOfPrimitives;
+import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,19 +40,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
-import com.google.gson.common.MoreAsserts;
-import com.google.gson.common.TestTypes.BagOfPrimitives;
-import com.google.gson.reflect.TypeToken;
-
 import junit.framework.TestCase;
-import static org.junit.Assert.assertArrayEquals;
 
 /**
  * Functional tests for Json serialization and deserialization of collections.
@@ -92,7 +90,7 @@ public class CollectionTest extends TestCase {
   }
 
   public void testLinkedListSerialization() {
-    List<String> list = new LinkedList<String>();
+    List<String> list = new LinkedList<>();
     list.add("a1");
     list.add("a2");
     Type linkedListType = new TypeToken<LinkedList<String>>() {}.getType();
@@ -110,7 +108,7 @@ public class CollectionTest extends TestCase {
   }
 
   public void testQueueSerialization() {
-    Queue<String> queue = new LinkedList<String>();
+    Queue<String> queue = new LinkedList<>();
     queue.add("a1");
     queue.add("a2");
     Type queueType = new TypeToken<Queue<String>>() {}.getType();
@@ -162,7 +160,7 @@ public class CollectionTest extends TestCase {
   }
 
   public void testNullsInListSerialization() {
-    List<String> list = new ArrayList<String>();
+    List<String> list = new ArrayList<>();
     list.add("foo");
     list.add(null);
     list.add("bar");
@@ -173,7 +171,7 @@ public class CollectionTest extends TestCase {
   }
 
   public void testNullsInListDeserialization() {
-    List<String> expected = new ArrayList<String>();
+    List<String> expected = new ArrayList<>();
     expected.add("foo");
     expected.add(null);
     expected.add("bar");
@@ -186,7 +184,7 @@ public class CollectionTest extends TestCase {
   }
 
   public void testCollectionOfObjectSerialization() {
-    List<Object> target = new ArrayList<Object>();
+    List<Object> target = new ArrayList<>();
     target.add("Hello");
     target.add("World");
     assertEquals("[\"Hello\",\"World\"]", gson.toJson(target));
@@ -196,7 +194,7 @@ public class CollectionTest extends TestCase {
   }
 
   public void testCollectionOfObjectWithNullSerialization() {
-    List<Object> target = new ArrayList<Object>();
+    List<Object> target = new ArrayList<>();
     target.add("Hello");
     target.add(null);
     target.add("World");
@@ -207,14 +205,14 @@ public class CollectionTest extends TestCase {
   }
 
   public void testCollectionOfStringsSerialization() {
-    List<String> target = new ArrayList<String>();
+    List<String> target = new ArrayList<>();
     target.add("Hello");
     target.add("World");
     assertEquals("[\"Hello\",\"World\"]", gson.toJson(target));
   }
 
   public void testCollectionOfBagOfPrimitivesSerialization() {
-    List<BagOfPrimitives> target = new ArrayList<BagOfPrimitives>();
+    List<BagOfPrimitives> target = new ArrayList<>();
     BagOfPrimitives objA = new BagOfPrimitives(3L, 1, true, "blah");
     BagOfPrimitives objB = new BagOfPrimitives(2L, 6, false, "blahB");
     target.add(objA);
@@ -242,35 +240,33 @@ public class CollectionTest extends TestCase {
     assertEquals("[1,2,3,4,5,6,7,8,9]", gson.toJson(target));
   }
 
-  @SuppressWarnings("rawtypes")
-  public void testRawCollectionSerialization() {
+  public void testObjectCollectionSerialization() {
     BagOfPrimitives bag1 = new BagOfPrimitives();
-    Collection target = Arrays.asList(bag1, bag1);
+    Collection<?> target = Arrays.asList(bag1, bag1, "test");
     String json = gson.toJson(target);
     assertTrue(json.contains(bag1.getExpectedJson()));
   }
 
-  @SuppressWarnings("rawtypes")
   public void testRawCollectionDeserializationNotAlllowed() {
     String json = "[0,1,2,3,4,5,6,7,8,9]";
-    Collection integers = gson.fromJson(json, Collection.class);
+    Collection<?> integers = gson.fromJson(json, Collection.class);
     // JsonReader converts numbers to double by default so we need a floating point comparison
     assertEquals(Arrays.asList(0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0), integers);
 
     json = "[\"Hello\", \"World\"]";
-    Collection strings = gson.fromJson(json, Collection.class);
+    Collection<?> strings = gson.fromJson(json, Collection.class);
     assertTrue(strings.contains("Hello"));
     assertTrue(strings.contains("World"));
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked"})
   public void testRawCollectionOfBagOfPrimitivesNotAllowed() {
     BagOfPrimitives bag = new BagOfPrimitives(10, 20, false, "stringValue");
     String json = '[' + bag.getExpectedJson() + ',' + bag.getExpectedJson() + ']';
-    Collection target = gson.fromJson(json, Collection.class);
+    Collection<?> target = gson.fromJson(json, Collection.class);
     assertEquals(2, target.size());
     for (Object bag1 : target) {
       // Gson 2.0 converts raw objects into maps
+      @SuppressWarnings("unchecked")
       Map<String, Object> values = (Map<String, Object>) bag1;
       assertTrue(values.containsValue(10.0));
       assertTrue(values.containsValue(20.0));
@@ -298,7 +294,7 @@ public class CollectionTest extends TestCase {
   }
 
   public void testWildcardCollectionField() throws Exception {
-    Collection<BagOfPrimitives> collection = new ArrayList<BagOfPrimitives>();
+    Collection<BagOfPrimitives> collection = new ArrayList<>();
     BagOfPrimitives objA = new BagOfPrimitives(3L, 1, true, "blah");
     BagOfPrimitives objB = new BagOfPrimitives(2L, 6, false, "blahB");
     collection.add(objA);
@@ -325,11 +321,11 @@ public class CollectionTest extends TestCase {
     HasArrayListField copy = gson.fromJson("{\"longs\":[1,3]}", HasArrayListField.class);
     assertEquals(Arrays.asList(1L, 3L), copy.longs);
   }
-  
+
   public void testUserCollectionTypeAdapter() {
     Type listOfString = new TypeToken<List<String>>() {}.getType();
     Object stringListSerializer = new JsonSerializer<List<String>>() {
-      public JsonElement serialize(List<String> src, Type typeOfSrc,
+      @Override public JsonElement serialize(List<String> src, Type typeOfSrc,
           JsonSerializationContext context) {
         return new JsonPrimitive(src.get(0) + ";" + src.get(1));
       }
@@ -341,14 +337,13 @@ public class CollectionTest extends TestCase {
   }
 
   static class HasArrayListField {
-    ArrayList<Long> longs = new ArrayList<Long>();
+    ArrayList<Long> longs = new ArrayList<>();
   }
 
-  @SuppressWarnings("rawtypes")
-  private static int[] toIntArray(Collection collection) {
+  private static int[] toIntArray(Collection<?> collection) {
     int[] ints = new int[collection.size()];
     int i = 0;
-    for (Iterator iterator = collection.iterator(); iterator.hasNext(); ++i) {
+    for (Iterator<?> iterator = collection.iterator(); iterator.hasNext(); ++i) {
       Object obj = iterator.next();
       if (obj instanceof Integer) {
         ints[i] = ((Integer)obj).intValue();
@@ -378,7 +373,7 @@ public class CollectionTest extends TestCase {
     }
   }
   public void testSetSerialization() {
-    Set<Entry> set = new HashSet<Entry>();
+    Set<Entry> set = new HashSet<>();
     set.add(new Entry(1));
     set.add(new Entry(2));
     String json = gson.toJson(set);

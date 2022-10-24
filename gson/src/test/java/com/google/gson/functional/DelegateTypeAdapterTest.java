@@ -50,7 +50,7 @@ public class DelegateTypeAdapterTest extends TestCase {
   }
 
   public void testDelegateInvoked() {
-    List<BagOfPrimitives> bags = new ArrayList<BagOfPrimitives>();
+    List<BagOfPrimitives> bags = new ArrayList<>();
     for (int i = 0; i < 10; ++i) {
       bags.add(new BagOfPrimitives(i, i, i % 2 == 0, String.valueOf(i)));
     }

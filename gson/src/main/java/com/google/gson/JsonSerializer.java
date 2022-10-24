@@ -19,14 +19,14 @@ package com.google.gson;
 import java.lang.reflect.Type;
 
 /**
- * Interface representing a custom serializer for Json. You should write a custom serializer, if
+ * Interface representing a custom serializer for JSON. You should write a custom serializer, if
  * you are not happy with the default serialization done by Gson. You will also need to register
  * this serializer through {@link com.google.gson.GsonBuilder#registerTypeAdapter(Type, Object)}.
  *
  * <p>Let us look at example where defining a serializer will be useful. The {@code Id} class
  * defined below has two fields: {@code clazz} and {@code value}.</p>
  *
- * <p><pre>
+ * <pre>
  * public class Id&lt;T&gt; {
  *   private final Class&lt;T&gt; clazz;
  *   private final long value;
@@ -40,20 +40,20 @@ import java.lang.reflect.Type;
  *     return value;
  *   }
  * }
- * </pre></p>
+ * </pre>
  *
  * <p>The default serialization of {@code Id(com.foo.MyObject.class, 20L)} will be
- * <code>{"clazz":com.foo.MyObject,"value":20}</code>. Suppose, you just want the output to be
+ * <code>{"clazz":"com.foo.MyObject","value":20}</code>. Suppose, you just want the output to be
  * the value instead, which is {@code 20} in this case. You can achieve that by writing a custom
  * serializer:</p>
  *
- * <p><pre>
- * class IdSerializer implements JsonSerializer&lt;Id&gt;() {
+ * <pre>
+ * class IdSerializer implements JsonSerializer&lt;Id&gt; {
  *   public JsonElement serialize(Id id, Type typeOfId, JsonSerializationContext context) {
  *     return new JsonPrimitive(id.getValue());
  *   }
  * }
- * </pre></p>
+ * </pre>
  *
  * <p>You will also need to register {@code IdSerializer} with Gson as follows:</p>
  * <pre>

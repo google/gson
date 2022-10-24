@@ -16,30 +16,6 @@
 
 package com.google.gson.internal.bind;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.net.InetAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.Calendar;
-import java.util.Currency;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicIntegerArray;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -56,6 +32,33 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Field;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.net.InetAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.Calendar;
+import java.util.Currency;
+import java.util.Deque;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicIntegerArray;
 
 /**
  * Type adapters for basic types.
@@ -91,22 +94,21 @@ public final class TypeAdapters {
         boolean set;
         switch (tokenType) {
         case NUMBER:
-          set = in.nextInt() != 0;
+        case STRING:
+          int intValue = in.nextInt();
+          if (intValue == 0) {
+            set = false;
+          } else if (intValue == 1) {
+            set = true;
+          } else {
+            throw new JsonSyntaxException("Invalid bitset value " + intValue + ", expected 0 or 1; at path " + in.getPreviousPath());
+          }
           break;
         case BOOLEAN:
           set = in.nextBoolean();
           break;
-        case STRING:
-          String stringValue = in.nextString();
-          try {
-            set = Integer.parseInt(stringValue) != 0;
-          } catch (NumberFormatException e) {
-            throw new JsonSyntaxException(
-                "Error: Expecting: bitset number value (1, 0), Found: " + stringValue);
-          }
-          break;
         default:
-          throw new JsonSyntaxException("Invalid bitset value type: " + tokenType);
+          throw new JsonSyntaxException("Invalid bitset value type: " + tokenType + "; at path " + in.getPath());
         }
         if (set) {
           bitset.set(i);
@@ -177,16 +179,26 @@ public final class TypeAdapters {
         in.nextNull();
         return null;
       }
+
+      int intValue;
       try {
-        int intValue = in.nextInt();
-        return (byte) intValue;
+        intValue = in.nextInt();
       } catch (NumberFormatException e) {
         throw new JsonSyntaxException(e);
       }
+      // Allow up to 255 to support unsigned values
+      if (intValue > 255 || intValue < Byte.MIN_VALUE) {
+        throw new JsonSyntaxException("Lossy conversion from " + intValue + " to byte; at path " + in.getPreviousPath());
+      }
+      return (byte) intValue;
     }
     @Override
     public void write(JsonWriter out, Number value) throws IOException {
-      out.value(value);
+      if (value == null) {
+        out.nullValue();
+      } else {
+        out.value(value.byteValue());
+      }
     }
   };
 
@@ -200,15 +212,26 @@ public final class TypeAdapters {
         in.nextNull();
         return null;
       }
+
+      int intValue;
       try {
-        return (short) in.nextInt();
+        intValue = in.nextInt();
       } catch (NumberFormatException e) {
         throw new JsonSyntaxException(e);
       }
+      // Allow up to 65535 to support unsigned values
+      if (intValue > 65535 || intValue < Short.MIN_VALUE) {
+        throw new JsonSyntaxException("Lossy conversion from " + intValue + " to short; at path " + in.getPreviousPath());
+      }
+      return (short) intValue;
     }
     @Override
     public void write(JsonWriter out, Number value) throws IOException {
-      out.value(value);
+      if (value == null) {
+        out.nullValue();
+      } else {
+        out.value(value.shortValue());
+      }
     }
   };
 
@@ -230,7 +253,11 @@ public final class TypeAdapters {
     }
     @Override
     public void write(JsonWriter out, Number value) throws IOException {
-      out.value(value);
+      if (value == null) {
+        out.nullValue();
+      } else {
+        out.value(value.intValue());
+      }
     }
   };
   public static final TypeAdapterFactory INTEGER_FACTORY
@@ -264,7 +291,7 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<AtomicIntegerArray> ATOMIC_INTEGER_ARRAY = new TypeAdapter<AtomicIntegerArray>() {
     @Override public AtomicIntegerArray read(JsonReader in) throws IOException {
-        List<Integer> list = new ArrayList<Integer>();
+        List<Integer> list = new ArrayList<>();
         in.beginArray();
         while (in.hasNext()) {
           try {
@@ -308,7 +335,11 @@ public final class TypeAdapters {
     }
     @Override
     public void write(JsonWriter out, Number value) throws IOException {
-      out.value(value);
+      if (value == null) {
+        out.nullValue();
+      } else {
+        out.value(value.longValue());
+      }
     }
   };
 
@@ -323,7 +354,14 @@ public final class TypeAdapters {
     }
     @Override
     public void write(JsonWriter out, Number value) throws IOException {
-      out.value(value);
+      if (value == null) {
+        out.nullValue();
+      } else {
+        // For backward compatibility don't call `JsonWriter.value(float)` because that method has
+        // been newly added and not all custom JsonWriter implementations might override it yet
+        Number floatNumber = value instanceof Float ? value : value.floatValue();
+        out.value(floatNumber);
+      }
     }
   };
 
@@ -338,32 +376,13 @@ public final class TypeAdapters {
     }
     @Override
     public void write(JsonWriter out, Number value) throws IOException {
-      out.value(value);
-    }
-  };
-
-  public static final TypeAdapter<Number> NUMBER = new TypeAdapter<Number>() {
-    @Override
-    public Number read(JsonReader in) throws IOException {
-      JsonToken jsonToken = in.peek();
-      switch (jsonToken) {
-      case NULL:
-        in.nextNull();
-        return null;
-      case NUMBER:
-      case STRING:
-        return new LazilyParsedNumber(in.nextString());
-      default:
-        throw new JsonSyntaxException("Expecting number, got: " + jsonToken);
+      if (value == null) {
+        out.nullValue();
+      } else {
+        out.value(value.doubleValue());
       }
     }
-    @Override
-    public void write(JsonWriter out, Number value) throws IOException {
-      out.value(value);
-    }
   };
-
-  public static final TypeAdapterFactory NUMBER_FACTORY = newFactory(Number.class, NUMBER);
 
   public static final TypeAdapter<Character> CHARACTER = new TypeAdapter<Character>() {
     @Override
@@ -374,7 +393,7 @@ public final class TypeAdapters {
       }
       String str = in.nextString();
       if (str.length() != 1) {
-        throw new JsonSyntaxException("Expecting character, got: " + str);
+        throw new JsonSyntaxException("Expecting character, got: " + str + "; at " + in.getPreviousPath());
       }
       return str.charAt(0);
     }
@@ -406,17 +425,18 @@ public final class TypeAdapters {
       out.value(value);
     }
   };
-  
+
   public static final TypeAdapter<BigDecimal> BIG_DECIMAL = new TypeAdapter<BigDecimal>() {
     @Override public BigDecimal read(JsonReader in) throws IOException {
       if (in.peek() == JsonToken.NULL) {
         in.nextNull();
         return null;
       }
+      String s = in.nextString();
       try {
-        return new BigDecimal(in.nextString());
+        return new BigDecimal(s);
       } catch (NumberFormatException e) {
-        throw new JsonSyntaxException(e);
+        throw new JsonSyntaxException("Failed parsing '" + s + "' as BigDecimal; at path " + in.getPreviousPath(), e);
       }
     }
 
@@ -424,21 +444,39 @@ public final class TypeAdapters {
       out.value(value);
     }
   };
-  
+
   public static final TypeAdapter<BigInteger> BIG_INTEGER = new TypeAdapter<BigInteger>() {
     @Override public BigInteger read(JsonReader in) throws IOException {
       if (in.peek() == JsonToken.NULL) {
         in.nextNull();
         return null;
       }
+      String s = in.nextString();
       try {
-        return new BigInteger(in.nextString());
+        return new BigInteger(s);
       } catch (NumberFormatException e) {
-        throw new JsonSyntaxException(e);
+        throw new JsonSyntaxException("Failed parsing '" + s + "' as BigInteger; at path " + in.getPreviousPath(), e);
       }
     }
 
     @Override public void write(JsonWriter out, BigInteger value) throws IOException {
+      out.value(value);
+    }
+  };
+
+  public static final TypeAdapter<LazilyParsedNumber> LAZILY_PARSED_NUMBER = new TypeAdapter<LazilyParsedNumber>() {
+    // Normally users should not be able to access and deserialize LazilyParsedNumber because
+    // it is an internal type, but implement this nonetheless in case there are legit corner
+    // cases where this is possible
+    @Override public LazilyParsedNumber read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
+        return null;
+      }
+      return new LazilyParsedNumber(in.nextString());
+    }
+
+    @Override public void write(JsonWriter out, LazilyParsedNumber value) throws IOException {
       out.value(value);
     }
   };
@@ -547,7 +585,12 @@ public final class TypeAdapters {
         in.nextNull();
         return null;
       }
-      return java.util.UUID.fromString(in.nextString());
+      String s = in.nextString();
+      try {
+        return java.util.UUID.fromString(s);
+      } catch (IllegalArgumentException e) {
+        throw new JsonSyntaxException("Failed parsing '" + s + "' as UUID; at path " + in.getPreviousPath(), e);
+      }
     }
     @Override
     public void write(JsonWriter out, UUID value) throws IOException {
@@ -560,7 +603,12 @@ public final class TypeAdapters {
   public static final TypeAdapter<Currency> CURRENCY = new TypeAdapter<Currency>() {
     @Override
     public Currency read(JsonReader in) throws IOException {
-      return Currency.getInstance(in.nextString());
+      String s = in.nextString();
+      try {
+        return Currency.getInstance(s);
+      } catch (IllegalArgumentException e) {
+        throw new JsonSyntaxException("Failed parsing '" + s + "' as Currency; at path " + in.getPreviousPath(), e);
+      }
     }
     @Override
     public void write(JsonWriter out, Currency value) throws IOException {
@@ -568,27 +616,6 @@ public final class TypeAdapters {
     }
   }.nullSafe();
   public static final TypeAdapterFactory CURRENCY_FACTORY = newFactory(Currency.class, CURRENCY);
-
-  public static final TypeAdapterFactory TIMESTAMP_FACTORY = new TypeAdapterFactory() {
-    @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
-    @Override public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
-      if (typeToken.getRawType() != Timestamp.class) {
-        return null;
-      }
-
-      final TypeAdapter<Date> dateTypeAdapter = gson.getAdapter(Date.class);
-      return (TypeAdapter<T>) new TypeAdapter<Timestamp>() {
-        @Override public Timestamp read(JsonReader in) throws IOException {
-          Date date = dateTypeAdapter.read(in);
-          return date != null ? new Timestamp(date.getTime()) : null;
-        }
-
-        @Override public void write(JsonWriter out, Timestamp value) throws IOException {
-          dateTypeAdapter.write(out, value);
-        }
-      };
-    }
-  };
 
   public static final TypeAdapter<Calendar> CALENDAR = new TypeAdapter<Calendar>() {
     private static final String YEAR = "year";
@@ -696,40 +723,99 @@ public final class TypeAdapters {
   public static final TypeAdapterFactory LOCALE_FACTORY = newFactory(Locale.class, LOCALE);
 
   public static final TypeAdapter<JsonElement> JSON_ELEMENT = new TypeAdapter<JsonElement>() {
+    /**
+     * Tries to begin reading a JSON array or JSON object, returning {@code null} if
+     * the next element is neither of those.
+     */
+    private JsonElement tryBeginNesting(JsonReader in, JsonToken peeked) throws IOException {
+      switch (peeked) {
+        case BEGIN_ARRAY:
+          in.beginArray();
+          return new JsonArray();
+        case BEGIN_OBJECT:
+          in.beginObject();
+          return new JsonObject();
+        default:
+          return null;
+      }
+    }
+
+    /** Reads a {@link JsonElement} which cannot have any nested elements */
+    private JsonElement readTerminal(JsonReader in, JsonToken peeked) throws IOException {
+      switch (peeked) {
+        case STRING:
+          return new JsonPrimitive(in.nextString());
+        case NUMBER:
+          String number = in.nextString();
+          return new JsonPrimitive(new LazilyParsedNumber(number));
+        case BOOLEAN:
+          return new JsonPrimitive(in.nextBoolean());
+        case NULL:
+          in.nextNull();
+          return JsonNull.INSTANCE;
+        default:
+          // When read(JsonReader) is called with JsonReader in invalid state
+          throw new IllegalStateException("Unexpected token: " + peeked);
+      }
+    }
+
     @Override public JsonElement read(JsonReader in) throws IOException {
-      switch (in.peek()) {
-      case STRING:
-        return new JsonPrimitive(in.nextString());
-      case NUMBER:
-        String number = in.nextString();
-        return new JsonPrimitive(new LazilyParsedNumber(number));
-      case BOOLEAN:
-        return new JsonPrimitive(in.nextBoolean());
-      case NULL:
-        in.nextNull();
-        return JsonNull.INSTANCE;
-      case BEGIN_ARRAY:
-        JsonArray array = new JsonArray();
-        in.beginArray();
+      if (in instanceof JsonTreeReader) {
+        return ((JsonTreeReader) in).nextJsonElement();
+      }
+
+      // Either JsonArray or JsonObject
+      JsonElement current;
+      JsonToken peeked = in.peek();
+
+      current = tryBeginNesting(in, peeked);
+      if (current == null) {
+        return readTerminal(in, peeked);
+      }
+
+      Deque<JsonElement> stack = new ArrayDeque<>();
+
+      while (true) {
         while (in.hasNext()) {
-          array.add(read(in));
+          String name = null;
+          // Name is only used for JSON object members
+          if (current instanceof JsonObject) {
+            name = in.nextName();
+          }
+
+          peeked = in.peek();
+          JsonElement value = tryBeginNesting(in, peeked);
+          boolean isNesting = value != null;
+
+          if (value == null) {
+            value = readTerminal(in, peeked);
+          }
+
+          if (current instanceof JsonArray) {
+            ((JsonArray) current).add(value);
+          } else {
+            ((JsonObject) current).add(name, value);
+          }
+
+          if (isNesting) {
+            stack.addLast(current);
+            current = value;
+          }
         }
-        in.endArray();
-        return array;
-      case BEGIN_OBJECT:
-        JsonObject object = new JsonObject();
-        in.beginObject();
-        while (in.hasNext()) {
-          object.add(in.nextName(), read(in));
+
+        // End current element
+        if (current instanceof JsonArray) {
+          in.endArray();
+        } else {
+          in.endObject();
         }
-        in.endObject();
-        return object;
-      case END_DOCUMENT:
-      case NAME:
-      case END_OBJECT:
-      case END_ARRAY:
-      default:
-        throw new IllegalArgumentException();
+
+        if (stack.isEmpty()) {
+          return current;
+        } else {
+          // Continue with enclosing element
+          current = stack.removeLast();
+        }
       }
     }
 
@@ -771,14 +857,37 @@ public final class TypeAdapters {
       = newTypeHierarchyFactory(JsonElement.class, JSON_ELEMENT);
 
   private static final class EnumTypeAdapter<T extends Enum<T>> extends TypeAdapter<T> {
-    private final Map<String, T> nameToConstant = new HashMap<String, T>();
-    private final Map<T, String> constantToName = new HashMap<T, String>();
+    private final Map<String, T> nameToConstant = new HashMap<>();
+    private final Map<String, T> stringToConstant = new HashMap<>();
+    private final Map<T, String> constantToName = new HashMap<>();
 
-    public EnumTypeAdapter(Class<T> classOfT) {
+    public EnumTypeAdapter(final Class<T> classOfT) {
       try {
-        for (T constant : classOfT.getEnumConstants()) {
+        // Uses reflection to find enum constants to work around name mismatches for obfuscated classes
+        // Reflection access might throw SecurityException, therefore run this in privileged context;
+        // should be acceptable because this only retrieves enum constants, but does not expose anything else
+        Field[] constantFields = AccessController.doPrivileged(new PrivilegedAction<Field[]>() {
+          @Override public Field[] run() {
+            Field[] fields = classOfT.getDeclaredFields();
+            ArrayList<Field> constantFieldsList = new ArrayList<>(fields.length);
+            for (Field f : fields) {
+              if (f.isEnumConstant()) {
+                constantFieldsList.add(f);
+              }
+            }
+
+            Field[] constantFields = constantFieldsList.toArray(new Field[0]);
+            AccessibleObject.setAccessible(constantFields, true);
+            return constantFields;
+          }
+        });
+        for (Field constantField : constantFields) {
+          @SuppressWarnings("unchecked")
+          T constant = (T)(constantField.get(null));
           String name = constant.name();
-          SerializedName annotation = classOfT.getField(name).getAnnotation(SerializedName.class);
+          String toStringVal = constant.toString();
+
+          SerializedName annotation = constantField.getAnnotation(SerializedName.class);
           if (annotation != null) {
             name = annotation.value();
             for (String alternate : annotation.alternate()) {
@@ -786,9 +895,10 @@ public final class TypeAdapters {
             }
           }
           nameToConstant.put(name, constant);
+          stringToConstant.put(toStringVal, constant);
           constantToName.put(constant, name);
         }
-      } catch (NoSuchFieldException e) {
+      } catch (IllegalAccessException e) {
         throw new AssertionError(e);
       }
     }
@@ -797,7 +907,9 @@ public final class TypeAdapters {
         in.nextNull();
         return null;
       }
-      return nameToConstant.get(in.nextString());
+      String key = in.nextString();
+      T constant = nameToConstant.get(key);
+      return (constant == null) ? stringToConstant.get(key) : constant;
     }
 
     @Override public void write(JsonWriter out, T value) throws IOException {
@@ -806,7 +918,6 @@ public final class TypeAdapters {
   }
 
   public static final TypeAdapterFactory ENUM_FACTORY = new TypeAdapterFactory() {
-    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
       Class<? super T> rawType = typeToken.getRawType();
       if (!Enum.class.isAssignableFrom(rawType) || rawType == Enum.class) {
@@ -815,7 +926,9 @@ public final class TypeAdapters {
       if (!rawType.isEnum()) {
         rawType = rawType.getSuperclass(); // handle anonymous subclasses
       }
-      return (TypeAdapter<T>) new EnumTypeAdapter(rawType);
+      @SuppressWarnings({"rawtypes", "unchecked"})
+      TypeAdapter<T> adapter = (TypeAdapter<T>) new EnumTypeAdapter(rawType);
+      return adapter;
     }
   };
 
@@ -894,7 +1007,7 @@ public final class TypeAdapters {
             T1 result = typeAdapter.read(in);
             if (result != null && !requestedType.isInstance(result)) {
               throw new JsonSyntaxException("Expected a " + requestedType.getName()
-                  + " but was " + result.getClass().getName());
+                  + " but was " + result.getClass().getName() + "; at path " + in.getPreviousPath());
             }
             return result;
           }

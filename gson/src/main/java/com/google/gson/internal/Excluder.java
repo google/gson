@@ -97,18 +97,17 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
       boolean serialization, boolean deserialization) {
     Excluder result = clone();
     if (serialization) {
-      result.serializationStrategies = new ArrayList<ExclusionStrategy>(serializationStrategies);
+      result.serializationStrategies = new ArrayList<>(serializationStrategies);
       result.serializationStrategies.add(exclusionStrategy);
     }
     if (deserialization) {
-      result.deserializationStrategies
-          = new ArrayList<ExclusionStrategy>(deserializationStrategies);
+      result.deserializationStrategies = new ArrayList<>(deserializationStrategies);
       result.deserializationStrategies.add(exclusionStrategy);
     }
     return result;
   }
 
-  public <T> TypeAdapter<T> create(final Gson gson, final TypeToken<T> type) {
+  @Override public <T> TypeAdapter<T> create(final Gson gson, final TypeToken<T> type) {
     Class<?> rawType = type.getRawType();
     boolean excludeClass = excludeClassChecks(rawType);
 
@@ -173,7 +172,7 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
       return true;
     }
 
-    if (isAnonymousOrLocal(field.getType())) {
+    if (isAnonymousOrNonStaticLocal(field.getType())) {
       return true;
     }
 
@@ -199,7 +198,7 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
           return true;
       }
 
-      if (isAnonymousOrLocal(clazz)) {
+      if (isAnonymousOrNonStaticLocal(clazz)) {
           return true;
       }
 
@@ -221,8 +220,8 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
       return false;
   }
 
-  private boolean isAnonymousOrLocal(Class<?> clazz) {
-    return !Enum.class.isAssignableFrom(clazz)
+  private boolean isAnonymousOrNonStaticLocal(Class<?> clazz) {
+    return !Enum.class.isAssignableFrom(clazz) && !isStatic(clazz)
         && (clazz.isAnonymousClass() || clazz.isLocalClass());
   }
 
@@ -241,9 +240,7 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
   private boolean isValidSince(Since annotation) {
     if (annotation != null) {
       double annotationVersion = annotation.value();
-      if (annotationVersion > version) {
-        return false;
-      }
+      return version >= annotationVersion;
     }
     return true;
   }
@@ -251,9 +248,7 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
   private boolean isValidUntil(Until annotation) {
     if (annotation != null) {
       double annotationVersion = annotation.value();
-      if (annotationVersion <= version) {
-        return false;
-      }
+      return version < annotationVersion;
     }
     return true;
   }

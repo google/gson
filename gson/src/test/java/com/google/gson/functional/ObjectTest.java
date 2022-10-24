@@ -20,6 +20,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
@@ -44,7 +45,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
-
 import junit.framework.TestCase;
 
 /**
@@ -55,22 +55,27 @@ import junit.framework.TestCase;
  */
 public class ObjectTest extends TestCase {
   private Gson gson;
-  private TimeZone oldTimeZone = TimeZone.getDefault();
+  private TimeZone oldTimeZone;
+  private Locale oldLocale;
 
   @Override
   protected void setUp() throws Exception {
     super.setUp();
     gson = new Gson();
 
+    oldTimeZone = TimeZone.getDefault();
     TimeZone.setDefault(TimeZone.getTimeZone("America/Los_Angeles"));
+    oldLocale = Locale.getDefault();
     Locale.setDefault(Locale.US);
   }
 
   @Override
   protected void tearDown() throws Exception {
     TimeZone.setDefault(oldTimeZone);
+    Locale.setDefault(oldLocale);
     super.tearDown();
   }
+
   public void testJsonInSingleQuotesDeserialization() {
     String json = "{'stringValue':'no message','intValue':10,'longValue':20}";
     BagOfPrimitives target = gson.fromJson(json, BagOfPrimitives.class);
@@ -112,22 +117,20 @@ public class ObjectTest extends TestCase {
   }
 
   public void testClassWithTransientFieldsSerialization() throws Exception {
-    ClassWithTransientFields<Long> target = new ClassWithTransientFields<Long>(1L);
+    ClassWithTransientFields<Long> target = new ClassWithTransientFields<>(1L);
     assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 
-  @SuppressWarnings("rawtypes")
   public void testClassWithTransientFieldsDeserialization() throws Exception {
     String json = "{\"longValue\":[1]}";
-    ClassWithTransientFields target = gson.fromJson(json, ClassWithTransientFields.class);
+    ClassWithTransientFields<?> target = gson.fromJson(json, ClassWithTransientFields.class);
     assertEquals(json, target.getExpectedJson());
   }
 
-  @SuppressWarnings("rawtypes")
   public void testClassWithTransientFieldsDeserializationTransientFieldsPassedInJsonAreIgnored()
       throws Exception {
     String json = "{\"transientLongValue\":1,\"longValue\":[1]}";
-    ClassWithTransientFields target = gson.fromJson(json, ClassWithTransientFields.class);
+    ClassWithTransientFields<?> target = gson.fromJson(json, ClassWithTransientFields.class);
     assertFalse(target.transientLongValue != 1);
   }
 
@@ -254,7 +257,7 @@ public class ObjectTest extends TestCase {
   }
 
   private static class ClassWithCollectionField {
-    Collection<String> children = new ArrayList<String>();
+    Collection<String> children = new ArrayList<>();
   }
 
   public void testPrimitiveArrayInAnObjectDeserialization() throws Exception {
@@ -293,7 +296,7 @@ public class ObjectTest extends TestCase {
     gson = new GsonBuilder()
         .registerTypeHierarchyAdapter(ClassWithNoFields.class,
             new JsonSerializer<ClassWithNoFields>() {
-              public JsonElement serialize(
+              @Override public JsonElement serialize(
                   ClassWithNoFields src, Type typeOfSrc, JsonSerializationContext context) {
                 return new JsonObject();
               }
@@ -337,7 +340,7 @@ public class ObjectTest extends TestCase {
     final Parent p = new Parent();
     Gson gson = new GsonBuilder().registerTypeAdapter(
         Parent.Child.class, new InstanceCreator<Parent.Child>() {
-      public Parent.Child createInstance(Type type) {
+      @Override public Parent.Child createInstance(Type type) {
         return p.new Child();
       }
     }).create();
@@ -480,6 +483,16 @@ public class ObjectTest extends TestCase {
     gson.fromJson(gson.toJson(product), Product.class);
   }
 
+  static final class Department {
+    public String name = "abc";
+    public String code = "123";
+  }
+
+  static final class Product {
+    private List<String> attributes = new ArrayList<>();
+    private List<Department> departments = new ArrayList<>();
+  }
+
   // http://code.google.com/p/google-gson/issues/detail?id=270
   public void testDateAsMapObjectField() {
     HasObjectMap a = new HasObjectMap();
@@ -491,17 +504,92 @@ public class ObjectTest extends TestCase {
     }
   }
 
-  public class HasObjectMap {
-    Map<String, Object> map = new HashMap<String, Object>();
+  static class HasObjectMap {
+    Map<String, Object> map = new HashMap<>();
   }
 
-  static final class Department {
-    public String name = "abc";
-    public String code = "123";
+  /**
+   * Tests serialization of a class with {@code static} field.
+   *
+   * <p>Important: It is not documented that this is officially supported; this
+   * test just checks the current behavior.
+   */
+  public void testStaticFieldSerialization() {
+    // By default Gson should ignore static fields
+    assertEquals("{}", gson.toJson(new ClassWithStaticField()));
+
+    Gson gson = new GsonBuilder()
+        // Include static fields
+        .excludeFieldsWithModifiers(0)
+        .create();
+
+    String json = gson.toJson(new ClassWithStaticField());
+    assertEquals("{\"s\":\"initial\"}", json);
+
+    json = gson.toJson(new ClassWithStaticFinalField());
+    assertEquals("{\"s\":\"initial\"}", json);
   }
 
-  static final class Product {
-    private List<String> attributes = new ArrayList<String>();
-    private List<Department> departments = new ArrayList<Department>();
+  /**
+   * Tests deserialization of a class with {@code static} field.
+   *
+   * <p>Important: It is not documented that this is officially supported; this
+   * test just checks the current behavior.
+   */
+  public void testStaticFieldDeserialization() {
+    // By default Gson should ignore static fields
+    gson.fromJson("{\"s\":\"custom\"}", ClassWithStaticField.class);
+    assertEquals("initial", ClassWithStaticField.s);
+
+    Gson gson = new GsonBuilder()
+        // Include static fields
+        .excludeFieldsWithModifiers(0)
+        .create();
+
+    String oldValue = ClassWithStaticField.s;
+    try {
+      ClassWithStaticField obj = gson.fromJson("{\"s\":\"custom\"}", ClassWithStaticField.class);
+      assertNotNull(obj);
+      assertEquals("custom", ClassWithStaticField.s);
+    } finally {
+      ClassWithStaticField.s = oldValue;
+    }
+
+    try {
+      gson.fromJson("{\"s\":\"custom\"}", ClassWithStaticFinalField.class);
+      fail();
+    } catch (JsonIOException e) {
+      assertEquals("Cannot set value of 'static final' field 'com.google.gson.functional.ObjectTest$ClassWithStaticFinalField#s'",
+          e.getMessage());
+    }
+  }
+
+  static class ClassWithStaticField {
+    static String s = "initial";
+  }
+
+  static class ClassWithStaticFinalField {
+    static final String s = "initial";
+  }
+
+  public void testThrowingDefaultConstructor() {
+    try {
+      gson.fromJson("{}", ClassWithThrowingConstructor.class);
+      fail();
+    }
+    // TODO: Adjust this once Gson throws more specific exception type
+    catch (RuntimeException e) {
+      assertEquals("Failed to invoke constructor 'com.google.gson.functional.ObjectTest$ClassWithThrowingConstructor()' with no args",
+          e.getMessage());
+      assertSame(ClassWithThrowingConstructor.thrownException, e.getCause());
+    }
+  }
+
+  static class ClassWithThrowingConstructor {
+    static final RuntimeException thrownException = new RuntimeException("Custom exception");
+
+    public ClassWithThrowingConstructor() {
+      throw thrownException;
+    }
   }
 }

@@ -16,7 +16,7 @@
 
 package com.google.gson.protobuf;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.MapMaker;
@@ -37,7 +37,6 @@ import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.Extension;
 import com.google.protobuf.Message;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -65,7 +64,6 @@ import java.util.concurrent.ConcurrentMap;
  *   string os_build_id = 1 [(serialized_name) = "osBuildID"];
  * }
  * </pre>
- * <p>
  *
  * @author Inderjeet Singh
  * @author Emmanuel Cron
@@ -76,7 +74,7 @@ public class ProtoTypeAdapter
   /**
    * Determines how enum <u>values</u> should be serialized.
    */
-  public static enum EnumSerialization {
+  public enum EnumSerialization {
     /**
      * Serializes and deserializes enum values using their <b>number</b>. When this is used, custom
      * value names set on enums are ignored.
@@ -98,14 +96,14 @@ public class ProtoTypeAdapter
 
     private Builder(EnumSerialization enumSerialization, CaseFormat fromFieldNameFormat,
         CaseFormat toFieldNameFormat) {
-      this.serializedNameExtensions = new HashSet<Extension<FieldOptions, String>>();
-      this.serializedEnumValueExtensions = new HashSet<Extension<EnumValueOptions, String>>();
+      this.serializedNameExtensions = new HashSet<>();
+      this.serializedEnumValueExtensions = new HashSet<>();
       setEnumSerialization(enumSerialization);
       setFieldNameSerializationFormat(fromFieldNameFormat, toFieldNameFormat);
     }
 
     public Builder setEnumSerialization(EnumSerialization enumSerialization) {
-      this.enumSerialization = checkNotNull(enumSerialization);
+      this.enumSerialization = requireNonNull(enumSerialization);
       return this;
     }
 
@@ -117,12 +115,12 @@ public class ProtoTypeAdapter
      * For example, if you use the following parameters: {@link CaseFormat#LOWER_UNDERSCORE},
      * {@link CaseFormat#LOWER_CAMEL}, the following conversion will occur:
      *
-     * <pre>
+     * <pre>{@code
      * PROTO     <->  JSON
      * my_field       myField
      * foo            foo
      * n__id_ct       nIdCt
-     * </pre>
+     * }</pre>
      */
     public Builder setFieldNameSerializationFormat(CaseFormat fromFieldNameFormat,
         CaseFormat toFieldNameFormat) {
@@ -145,7 +143,7 @@ public class ProtoTypeAdapter
      */
     public Builder addSerializedNameExtension(
         Extension<FieldOptions, String> serializedNameExtension) {
-      serializedNameExtensions.add(checkNotNull(serializedNameExtension));
+      serializedNameExtensions.add(requireNonNull(serializedNameExtension));
       return this;
     }
 
@@ -170,7 +168,7 @@ public class ProtoTypeAdapter
      */
     public Builder addSerializedEnumValueExtension(
         Extension<EnumValueOptions, String> serializedEnumValueExtension) {
-      serializedEnumValueExtensions.add(checkNotNull(serializedEnumValueExtension));
+      serializedEnumValueExtensions.add(requireNonNull(serializedEnumValueExtension));
       return this;
     }
 
@@ -192,7 +190,7 @@ public class ProtoTypeAdapter
   private static final com.google.protobuf.Descriptors.FieldDescriptor.Type ENUM_TYPE =
       com.google.protobuf.Descriptors.FieldDescriptor.Type.ENUM;
 
-  private static final ConcurrentMap<String, Map<Class<?>, Method>> mapOfMapOfMethods =
+  private static final ConcurrentMap<String, ConcurrentMap<Class<?>, Method>> mapOfMapOfMethods =
       new MapMaker().makeMap();
 
   private final EnumSerialization enumSerialization;
@@ -281,7 +279,7 @@ public class ProtoTypeAdapter
               if (jsonElement.isJsonArray()) {
                 // Handling array
                 Collection<EnumValueDescriptor> enumCollection =
-                    new ArrayList<EnumValueDescriptor>(jsonElement.getAsJsonArray().size());
+                    new ArrayList<>(jsonElement.getAsJsonArray().size());
                 for (JsonElement element : jsonElement.getAsJsonArray()) {
                   enumCollection.add(
                       findValueByNameAndExtension(fieldDescriptor.getEnumType(), element));
@@ -309,7 +307,7 @@ public class ProtoTypeAdapter
             }
           }
         }
-        return (Message) protoBuilder.build();
+        return protoBuilder.build();
       } catch (SecurityException e) {
         throw new JsonParseException(e);
       } catch (NoSuchMethodException e) {
@@ -389,7 +387,7 @@ public class ProtoTypeAdapter
       EnumValueDescriptor fieldValue = desc.findValueByNumber(jsonElement.getAsInt());
       if (fieldValue == null) {
         throw new IllegalArgumentException(
-            String.format("Unrecognized enum value: %s", jsonElement.getAsInt()));
+            String.format("Unrecognized enum value: %d", jsonElement.getAsInt()));
       }
       return fieldValue;
     }
@@ -397,10 +395,10 @@ public class ProtoTypeAdapter
 
   private static Method getCachedMethod(Class<?> clazz, String methodName,
       Class<?>... methodParamTypes) throws NoSuchMethodException {
-    Map<Class<?>, Method> mapOfMethods = mapOfMapOfMethods.get(methodName);
+    ConcurrentMap<Class<?>, Method> mapOfMethods = mapOfMapOfMethods.get(methodName);
     if (mapOfMethods == null) {
       mapOfMethods = new MapMaker().makeMap();
-      Map<Class<?>, Method> previous =
+      ConcurrentMap<Class<?>, Method> previous =
           mapOfMapOfMethods.putIfAbsent(methodName, mapOfMethods);
       mapOfMethods = previous == null ? mapOfMethods : previous;
     }

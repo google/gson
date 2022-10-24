@@ -16,8 +16,14 @@
 
 package com.google.gson.internal.bind;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
+import com.google.gson.common.MoreAsserts;
+import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
+import java.io.Writer;
+import java.util.Arrays;
+import java.util.List;
 import junit.framework.TestCase;
 
 @SuppressWarnings("resource")
@@ -152,17 +158,35 @@ public final class JsonTreeWriterTest extends TestCase {
     JsonTreeWriter writer = new JsonTreeWriter();
     writer.setLenient(true);
     writer.beginArray();
+    writer.value(Float.NaN);
+    writer.value(Float.NEGATIVE_INFINITY);
+    writer.value(Float.POSITIVE_INFINITY);
     writer.value(Double.NaN);
     writer.value(Double.NEGATIVE_INFINITY);
     writer.value(Double.POSITIVE_INFINITY);
     writer.endArray();
-    assertEquals("[NaN,-Infinity,Infinity]", writer.get().toString());
+    assertEquals("[NaN,-Infinity,Infinity,NaN,-Infinity,Infinity]", writer.get().toString());
   }
 
   public void testStrictNansAndInfinities() throws IOException {
     JsonTreeWriter writer = new JsonTreeWriter();
     writer.setLenient(false);
     writer.beginArray();
+    try {
+      writer.value(Float.NaN);
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
+    try {
+      writer.value(Float.NEGATIVE_INFINITY);
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
+    try {
+      writer.value(Float.POSITIVE_INFINITY);
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
     try {
       writer.value(Double.NaN);
       fail();
@@ -185,6 +209,21 @@ public final class JsonTreeWriterTest extends TestCase {
     writer.setLenient(false);
     writer.beginArray();
     try {
+      writer.value(Float.valueOf(Float.NaN));
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
+    try {
+      writer.value(Float.valueOf(Float.NEGATIVE_INFINITY));
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
+    try {
+      writer.value(Float.valueOf(Float.POSITIVE_INFINITY));
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
+    try {
       writer.value(Double.valueOf(Double.NaN));
       fail();
     } catch (IllegalArgumentException expected) {
@@ -199,5 +238,26 @@ public final class JsonTreeWriterTest extends TestCase {
       fail();
     } catch (IllegalArgumentException expected) {
     }
+  }
+
+  public void testJsonValue() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.beginArray();
+    try {
+      writer.jsonValue("test");
+      fail();
+    } catch (UnsupportedOperationException expected) {
+    }
+  }
+
+  /**
+   * {@link JsonTreeWriter} effectively replaces the complete writing logic of {@link JsonWriter} to
+   * create a {@link JsonElement} tree instead of writing to a {@link Writer}. Therefore all relevant
+   * methods of {@code JsonWriter} must be overridden.
+   */
+  public void testOverrides() {
+    List<String> ignoredMethods = Arrays.asList("setLenient(boolean)", "isLenient()", "setIndent(java.lang.String)",
+        "setHtmlSafe(boolean)", "isHtmlSafe()", "setSerializeNulls(boolean)", "getSerializeNulls()");
+    MoreAsserts.assertOverridesMethods(JsonWriter.class, JsonTreeWriter.class, ignoredMethods);
   }
 }

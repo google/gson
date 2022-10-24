@@ -15,6 +15,10 @@
  */
 package com.google.gson.metrics;
 
+import com.google.caliper.BeforeExperiment;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.lang.reflect.Field;
@@ -22,43 +26,38 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.caliper.Runner;
-import com.google.caliper.SimpleBenchmark;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-
 /**
  * Caliper based micro benchmarks for Gson
  *
  * @author Inderjeet Singh
  */
-public class CollectionsDeserializationBenchmark extends SimpleBenchmark {
+public class CollectionsDeserializationBenchmark {
 
-  private static final Type LIST_TYPE = new TypeToken<List<BagOfPrimitives>>(){}.getType();
+  private static final TypeToken<List<BagOfPrimitives>> LIST_TYPE_TOKEN = new TypeToken<List<BagOfPrimitives>>(){};
+  private static final Type LIST_TYPE = LIST_TYPE_TOKEN.getType();
   private Gson gson;
   private String json;
 
   public static void main(String[] args) {
-    Runner.main(CollectionsDeserializationBenchmark.class, args);
+    NonUploadingCaliperRunner.run(CollectionsDeserializationBenchmark.class, args);
   }
-  
-  @Override
-  protected void setUp() throws Exception {
+
+  @BeforeExperiment
+  void setUp() throws Exception {
     this.gson = new Gson();
-    List<BagOfPrimitives> bags = new ArrayList<BagOfPrimitives>();
+    List<BagOfPrimitives> bags = new ArrayList<>();
     for (int i = 0; i < 100; ++i) {
       bags.add(new BagOfPrimitives(10L, 1, false, "foo"));
     }
     this.json = gson.toJson(bags, LIST_TYPE);
   }
 
-  /** 
+  /**
    * Benchmark to measure Gson performance for deserializing an object
    */
   public void timeCollectionsDefault(int reps) {
     for (int i=0; i<reps; ++i) {
-      gson.fromJson(json, LIST_TYPE);
+      gson.fromJson(json, LIST_TYPE_TOKEN);
     }
   }
 
@@ -70,7 +69,7 @@ public class CollectionsDeserializationBenchmark extends SimpleBenchmark {
       StringReader reader = new StringReader(json);
       JsonReader jr = new JsonReader(reader);
       jr.beginArray();
-      List<BagOfPrimitives> bags = new ArrayList<BagOfPrimitives>();
+      List<BagOfPrimitives> bags = new ArrayList<>();
       while(jr.hasNext()) {
         jr.beginObject();
         long longValue = 0;
@@ -108,7 +107,7 @@ public class CollectionsDeserializationBenchmark extends SimpleBenchmark {
       StringReader reader = new StringReader(json);
       JsonReader jr = new JsonReader(reader);
       jr.beginArray();
-      List<BagOfPrimitives> bags = new ArrayList<BagOfPrimitives>();
+      List<BagOfPrimitives> bags = new ArrayList<>();
       while(jr.hasNext()) {
         jr.beginObject();
         BagOfPrimitives bag = new BagOfPrimitives();

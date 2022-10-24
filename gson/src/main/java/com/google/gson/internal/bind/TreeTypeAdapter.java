@@ -38,24 +38,31 @@ import java.lang.reflect.Type;
  * tree adapter may be serialization-only or deserialization-only, this class
  * has a facility to lookup a delegate type adapter on demand.
  */
-public final class TreeTypeAdapter<T> extends TypeAdapter<T> {
+public final class TreeTypeAdapter<T> extends SerializationDelegatingTypeAdapter<T> {
   private final JsonSerializer<T> serializer;
   private final JsonDeserializer<T> deserializer;
   final Gson gson;
   private final TypeToken<T> typeToken;
   private final TypeAdapterFactory skipPast;
   private final GsonContextImpl context = new GsonContextImpl();
+  private final boolean nullSafe;
 
   /** The delegate is lazily created because it may not be needed, and creating it may fail. */
-  private TypeAdapter<T> delegate;
+  private volatile TypeAdapter<T> delegate;
 
   public TreeTypeAdapter(JsonSerializer<T> serializer, JsonDeserializer<T> deserializer,
-      Gson gson, TypeToken<T> typeToken, TypeAdapterFactory skipPast) {
+      Gson gson, TypeToken<T> typeToken, TypeAdapterFactory skipPast, boolean nullSafe) {
     this.serializer = serializer;
     this.deserializer = deserializer;
     this.gson = gson;
     this.typeToken = typeToken;
     this.skipPast = skipPast;
+    this.nullSafe = nullSafe;
+  }
+
+  public TreeTypeAdapter(JsonSerializer<T> serializer, JsonDeserializer<T> deserializer,
+                         Gson gson, TypeToken<T> typeToken, TypeAdapterFactory skipPast) {
+    this(serializer, deserializer, gson, typeToken, skipPast, true);
   }
 
   @Override public T read(JsonReader in) throws IOException {
@@ -63,7 +70,7 @@ public final class TreeTypeAdapter<T> extends TypeAdapter<T> {
       return delegate().read(in);
     }
     JsonElement value = Streams.parse(in);
-    if (value.isJsonNull()) {
+    if (nullSafe && value.isJsonNull()) {
       return null;
     }
     return deserializer.deserialize(value, typeToken.getType(), context);
@@ -74,7 +81,7 @@ public final class TreeTypeAdapter<T> extends TypeAdapter<T> {
       delegate().write(out, value);
       return;
     }
-    if (value == null) {
+    if (nullSafe && value == null) {
       out.nullValue();
       return;
     }
@@ -83,10 +90,20 @@ public final class TreeTypeAdapter<T> extends TypeAdapter<T> {
   }
 
   private TypeAdapter<T> delegate() {
+    // A race might lead to `delegate` being assigned by multiple threads but the last assignment will stick
     TypeAdapter<T> d = delegate;
     return d != null
         ? d
         : (delegate = gson.getDelegateAdapter(skipPast, typeToken));
+  }
+
+  /**
+   * Returns the type adapter which is used for serialization. Returns {@code this}
+   * if this {@code TreeTypeAdapter} has a {@link #serializer}; otherwise returns
+   * the delegate.
+   */
+  @Override public TypeAdapter<T> getSerializationDelegate() {
+    return serializer != null ? this : delegate();
   }
 
   /**
@@ -144,7 +161,7 @@ public final class TreeTypeAdapter<T> extends TypeAdapter<T> {
           ? exactType.equals(type) || matchRawType && exactType.getType() == type.getRawType()
           : hierarchyType.isAssignableFrom(type.getRawType());
       return matches
-          ? new TreeTypeAdapter<T>((JsonSerializer<T>) serializer,
+          ? new TreeTypeAdapter<>((JsonSerializer<T>) serializer,
               (JsonDeserializer<T>) deserializer, gson, type, this)
           : null;
     }
@@ -161,5 +178,5 @@ public final class TreeTypeAdapter<T> extends TypeAdapter<T> {
     @Override public <R> R deserialize(JsonElement json, Type typeOfT) throws JsonParseException {
       return (R) gson.fromJson(json, typeOfT);
     }
-  };
+  }
 }

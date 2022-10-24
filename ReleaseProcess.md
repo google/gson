@@ -8,17 +8,18 @@ The following is a step-by-step procedure for releasing a new version of Google-
 1. Run `mvn release:clean`
 1. Do a dry run: `mvn release:prepare -DdryRun=true`
 1. Start the release: `mvn release:prepare`
-   * Answer questions: usually the defaults are fine.
-   * This will do a full build, change version from `-SNAPSHOT` to the released version, commit and create the tags. It will then change the version to `-SNAPSHOT` for the next release.
+    - Answer questions: usually the defaults are fine. Try to follow [Semantic Versioning](https://semver.org/) when choosing the release version number.
+    - This will do a full build, change version from `-SNAPSHOT` to the released version, commit and create the tags. It will then change the version to `-SNAPSHOT` for the next release.
 1. Complete the release: `mvn release:perform`
 1. [Log in to Nexus repository manager](https://oss.sonatype.org/index.html#welcome) at Sonatype and close the staging repository for Gson.
-1. Download and sanity check all downloads. Do not skip this step! Once you release the staging repository, there is no going back. It will get synced with Maven central and you will not be able to update or delete anything. Your only recourse will be to release a new version of Gson and hope that no one uses the old one.
-1. Release the staging repository for Gson. Gson will now get synced to Maven central with-in the next hour. For issues consult [Sonatype Guide](https://docs.sonatype.org/display/Repository/Sonatype+OSS+Maven+Repository+Usage+Guide#SonatypeOSSMavenRepositoryUsageGuide-8.ReleaseIt).
-
-1. Update the version in the [Using Gson with Maven2 page](https://github.com/google/gson/blob/master/UserGuide.md#TOC-Gson-With-Maven)
-1. Update [Gson Changelog](https://github.com/google/gson/blob/master/CHANGELOG.md). Also, look at all bugs that were fixed and add a few lines describing what changed in the release.
-1. Create a post on the [Gson Discussion Forum](https://groups.google.com/group/google-gson)
-1. Update the release version in [Wikipedia](https://en.wikipedia.org/wiki/GSON) and update the current "stable" release.
+1. Download and sanity check all downloads. Do not skip this step! Once you release the staging repository, there is no going back. It will get synced with Maven Central and you will not be able to update or delete anything. Your only recourse will be to release a new version of Gson and hope that no one uses the old one.
+1. Release the staging repository for Gson. Gson will now get synced to Maven Central with-in the next hour. For issues consult [Sonatype Guide](https://central.sonatype.org/publish/release/).
+1. Update [Gson Changelog](CHANGELOG.md). Also, look at all bugs that were fixed and add a few lines describing what changed in the release.
+1. Update version references in (version might be referenced multiple times):
+    - [`README.md`](README.md)
+    - [`UserGuide.md`](UserGuide.md)
+1. Optional: Create a post on the [Gson Discussion Forum](https://groups.google.com/group/google-gson).
+1. Optional: Update the release version in [Wikipedia](https://en.wikipedia.org/wiki/Gson) and update the current "stable" release.
 
 ## Configuring a machine for deployment to Sonatype Repository
 
@@ -31,10 +32,7 @@ This section was borrowed heavily from [Doclava release process](https://code.go
 
 ## Getting Maven Publishing Privileges
 
-Based on [Gson group thread](https://groups.google.com/d/topic/google-gson/DHWJHVFpIBg/discussion):
-
-1. [Sign up for a Sonatype account](https://docs.sonatype.org/display/Repository/Sonatype+OSS+Maven+Repository+Usage+Guide) following instructions under (2) on that page
-1. Ask one of the existing members of the repository to create a JIRA ticket (Step 3 of above document) to add you to the publisher list.
+See [OSSRH Publish Guide](https://central.sonatype.org/publish/publish-guide/).
 
 ## Running Benchmarks or Tests on Android
 
