@@ -218,8 +218,7 @@ public class PerformanceTest extends TestCase {
     System.out.printf("Deserialize classes avg time: %d ms\n", avg);
   }
   
-
-  public void disable_testLargeObjectSerializationAndDeserialization() {
+  public void disabled_testLargeObjectSerializationAndDeserialization() {
     Map<String, Long> largeObject = new HashMap<>();
     for (long l = 0; l < 100000; l++) {
       largeObject.put("field" + l, l);
