@@ -27,6 +27,9 @@ import java.util.Set;
  * This class does not support {@code null} values. If {@code null} is provided as value argument
  * to any of the methods, it is converted to a {@link JsonNull}.
  *
+ * <p>{@code JsonObject} does not implement the {@link Map} interface, but a {@code Map} view
+ * of it can be obtained with {@link #asMap()}.
+ *
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
@@ -206,6 +209,22 @@ public final class JsonObject extends JsonElement {
    */
   public JsonObject getAsJsonObject(String memberName) {
     return (JsonObject) members.get(memberName);
+  }
+
+  /**
+   * Returns a mutable {@link Map} view of this {@code JsonObject}. Changes to the {@code Map}
+   * are visible in this {@code JsonObject} and the other way around.
+   *
+   * <p>The {@code Map} does not permit {@code null} keys or values. Unlike {@code JsonObject}'s
+   * {@code null} handling, a {@link NullPointerException} is thrown when trying to add {@code null}.
+   * Use {@link JsonNull} for JSON null values.
+   *
+   * @return mutable {@code Map} view
+   * @since 2.10
+   */
+  public Map<String, JsonElement> asMap() {
+    // It is safe to expose the underlying map because it disallows null keys and values
+    return members;
   }
 
   /**

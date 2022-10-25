@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import com.google.gson.internal.NonNullElementWrapperList;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -28,11 +29,14 @@ import java.util.List;
  * elements are added is preserved. This class does not support {@code null} values. If {@code null}
  * is provided as element argument to any of the methods, it is converted to a {@link JsonNull}.
  *
+ * <p>{@code JsonArray} only implements the {@link Iterable} interface but not the {@link List}
+ * interface. A {@code List} view of it can be obtained with {@link #asList()}.
+ *
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
 public final class JsonArray extends JsonElement implements Iterable<JsonElement> {
-  private final List<JsonElement> elements;
+  private final ArrayList<JsonElement> elements;
 
   /**
    * Creates an empty JsonArray.
@@ -391,6 +395,21 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   @Override
   public boolean getAsBoolean() {
     return getAsSingleElement().getAsBoolean();
+  }
+
+  /**
+   * Returns a mutable {@link List} view of this {@code JsonArray}. Changes to the {@code List}
+   * are visible in this {@code JsonArray} and the other way around.
+   *
+   * <p>The {@code List} does not permit {@code null} elements. Unlike {@code JsonArray}'s
+   * {@code null} handling, a {@link NullPointerException} is thrown when trying to add {@code null}.
+   * Use {@link JsonNull} for JSON null values.
+   *
+   * @return mutable {@code List} view
+   * @since 2.10
+   */
+  public List<JsonElement> asList() {
+    return new NonNullElementWrapperList<>(elements);
   }
 
   /**

@@ -20,6 +20,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
@@ -482,6 +483,16 @@ public class ObjectTest extends TestCase {
     gson.fromJson(gson.toJson(product), Product.class);
   }
 
+  static final class Department {
+    public String name = "abc";
+    public String code = "123";
+  }
+
+  static final class Product {
+    private List<String> attributes = new ArrayList<>();
+    private List<Department> departments = new ArrayList<>();
+  }
+
   // http://code.google.com/p/google-gson/issues/detail?id=270
   public void testDateAsMapObjectField() {
     HasObjectMap a = new HasObjectMap();
@@ -493,17 +504,92 @@ public class ObjectTest extends TestCase {
     }
   }
 
-  public class HasObjectMap {
+  static class HasObjectMap {
     Map<String, Object> map = new HashMap<>();
   }
 
-  static final class Department {
-    public String name = "abc";
-    public String code = "123";
+  /**
+   * Tests serialization of a class with {@code static} field.
+   *
+   * <p>Important: It is not documented that this is officially supported; this
+   * test just checks the current behavior.
+   */
+  public void testStaticFieldSerialization() {
+    // By default Gson should ignore static fields
+    assertEquals("{}", gson.toJson(new ClassWithStaticField()));
+
+    Gson gson = new GsonBuilder()
+        // Include static fields
+        .excludeFieldsWithModifiers(0)
+        .create();
+
+    String json = gson.toJson(new ClassWithStaticField());
+    assertEquals("{\"s\":\"initial\"}", json);
+
+    json = gson.toJson(new ClassWithStaticFinalField());
+    assertEquals("{\"s\":\"initial\"}", json);
   }
 
-  static final class Product {
-    private List<String> attributes = new ArrayList<>();
-    private List<Department> departments = new ArrayList<>();
+  /**
+   * Tests deserialization of a class with {@code static} field.
+   *
+   * <p>Important: It is not documented that this is officially supported; this
+   * test just checks the current behavior.
+   */
+  public void testStaticFieldDeserialization() {
+    // By default Gson should ignore static fields
+    gson.fromJson("{\"s\":\"custom\"}", ClassWithStaticField.class);
+    assertEquals("initial", ClassWithStaticField.s);
+
+    Gson gson = new GsonBuilder()
+        // Include static fields
+        .excludeFieldsWithModifiers(0)
+        .create();
+
+    String oldValue = ClassWithStaticField.s;
+    try {
+      ClassWithStaticField obj = gson.fromJson("{\"s\":\"custom\"}", ClassWithStaticField.class);
+      assertNotNull(obj);
+      assertEquals("custom", ClassWithStaticField.s);
+    } finally {
+      ClassWithStaticField.s = oldValue;
+    }
+
+    try {
+      gson.fromJson("{\"s\":\"custom\"}", ClassWithStaticFinalField.class);
+      fail();
+    } catch (JsonIOException e) {
+      assertEquals("Cannot set value of 'static final' field 'com.google.gson.functional.ObjectTest$ClassWithStaticFinalField#s'",
+          e.getMessage());
+    }
+  }
+
+  static class ClassWithStaticField {
+    static String s = "initial";
+  }
+
+  static class ClassWithStaticFinalField {
+    static final String s = "initial";
+  }
+
+  public void testThrowingDefaultConstructor() {
+    try {
+      gson.fromJson("{}", ClassWithThrowingConstructor.class);
+      fail();
+    }
+    // TODO: Adjust this once Gson throws more specific exception type
+    catch (RuntimeException e) {
+      assertEquals("Failed to invoke constructor 'com.google.gson.functional.ObjectTest$ClassWithThrowingConstructor()' with no args",
+          e.getMessage());
+      assertSame(ClassWithThrowingConstructor.thrownException, e.getCause());
+    }
+  }
+
+  static class ClassWithThrowingConstructor {
+    static final RuntimeException thrownException = new RuntimeException("Custom exception");
+
+    public ClassWithThrowingConstructor() {
+      throw thrownException;
+    }
   }
 }

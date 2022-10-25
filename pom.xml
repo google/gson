@@ -5,7 +5,7 @@
 
   <groupId>com.google.code.gson</groupId>
   <artifactId>gson-parent</artifactId>
-  <version>2.9.2-SNAPSHOT</version>
+  <version>2.11-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Gson Parent</name>
@@ -30,6 +30,13 @@
     <developerConnection>scm:git:git@github.com:google/gson.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
+
+  <developers>
+    <developer>
+      <organization>Google</organization>
+      <organizationUrl>http://www.google.com</organizationUrl>
+    </developer>
+  </developers>
 
   <issueManagement>
     <system>GitHub Issues</system>
@@ -136,7 +143,79 @@
             <!-- Disable Maven Super POM release profile and instead use own one -->
             <useReleaseProfile>false</useReleaseProfile>
             <releaseProfiles>release</releaseProfiles>
+            <!-- Run custom goals to replace version references, see plugin configuration below -->
+            <!-- Also run `package`; otherwise goals fail for modules depending on each; possibly
+              same issue as https://issues.apache.org/jira/browse/MRELEASE-271 -->
+            <preparationGoals>
+              package -DskipTests
+              antrun:run@replace-version-placeholders
+              antrun:run@replace-old-version-references
+              antrun:run@git-add-changed
+            </preparationGoals>
           </configuration>
+        </plugin>
+        <plugin>
+          <artifactId>maven-antrun-plugin</artifactId>
+          <version>3.1.0</version>
+          <executions>
+            <!-- Replaces version placeholders with the current version; this is mainly useful for
+              Javadoc where this allows writing `@since $next-version$` -->
+            <execution>
+              <id>replace-version-placeholders</id>
+              <goals>
+                <goal>run</goal>
+              </goals>
+              <configuration>
+                <target>
+                  <replace token="$next-version$" value="${project.version}" encoding="${project.build.sourceEncoding}">
+                    <!-- erroronmissingdir=false for gson-parent which does not have source directory -->
+                    <fileset dir="${project.build.sourceDirectory}" includes="**" erroronmissingdir="false" />
+                  </replace>
+                </target>
+              </configuration>
+            </execution>
+            <!-- Replaces references to the old version in the documentation -->
+            <execution>
+              <id>replace-old-version-references</id>
+              <goals>
+                <goal>run</goal>
+              </goals>
+              <configuration>
+                <target>
+                  <!-- Replace Maven and Gradle version references; uses regex lookbehind and lookahead -->
+                  <replaceregexp match="(?&lt;=&lt;version&gt;).*(?=&lt;/version&gt;)|(?&lt;='com\.google\.code\.gson:gson:).*(?=')" flags="g" replace="${project.version}" encoding="${project.build.sourceEncoding}">
+                    <fileset dir="${project.basedir}">
+                      <include name="README.md" />
+                      <include name="UserGuide.md" />
+                    </fileset>
+                  </replaceregexp>
+                </target>
+              </configuration>
+              <!-- Only has to be executed for parent project; don't inherit this to modules -->
+              <!-- This might be a bit hacky; execution with this ID seems to be missing for modules and Maven just executes default
+                configuration which does not have any targets configured. (not sure if this behavior is guaranteed) -->
+              <inherited>false</inherited>
+            </execution>
+            <!-- Adds changed files to the Git index; workaround because Maven Release Plugin does not support committing
+              additional files yet (https://issues.apache.org/jira/browse/MRELEASE-798), and for workarounds with
+              Maven SCM Plugin it is apparently necessary to know modified files in advance -->
+            <!-- Maven Release Plugin then just happens to include these changed files in its Git commit;
+              not sure if this behavior is guaranteed or if this relies on implementation details -->
+            <execution>
+              <id>git-add-changed</id>
+              <goals>
+                <goal>run</goal>
+              </goals>
+              <configuration>
+                <target>
+                  <exec executable="git" dir="${project.basedir}" failonerror="true">
+                    <arg value="add" />
+                    <arg value="." />
+                  </exec>
+                </target>
+              </configuration>
+            </execution>
+          </executions>
         </plugin>
         <!-- Plugin for checking source and binary compatibility; used by GitHub workflow -->
         <plugin>
