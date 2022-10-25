@@ -31,6 +31,13 @@
     <tag>HEAD</tag>
   </scm>
 
+  <developers>
+    <developer>
+      <organization>Google</organization>
+      <organizationUrl>http://www.google.com</organizationUrl>
+    </developer>
+  </developers>
+
   <issueManagement>
     <system>GitHub Issues</system>
     <url>https://github.com/google/gson/issues</url>
