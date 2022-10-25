@@ -33,6 +33,7 @@
 
   <developers>
     <developer>
+      <id>google</id>
       <organization>Google</organization>
       <organizationUrl>https://www.google.com</organizationUrl>
     </developer>
