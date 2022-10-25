@@ -1,6 +1,27 @@
 Change Log
 ==========
 
+## Version 2.10
+
+* Support for serializing and deserializing Java records, on Java ≥ 16. (#2201)
+* Add `JsonArray.asList` and `JsonObject.asMap` view methods (#2225)
+* Fix `TypeAdapterRuntimeTypeWrapper` not detecting reflective `TreeTypeAdapter` and `FutureTypeAdapter` (#1787)
+* Improve `JsonReader.skipValue()` (#2062)
+* Perform numeric conversion for primitive numeric type adapters (#2158)
+* Add `Gson.fromJson(..., TypeToken)` overloads (#1700)
+* Fix changes to `GsonBuilder` affecting existing `Gson` instances (#1815)
+* Make `JsonElement` conversion methods more consistent and fix javadoc (#2178)
+* Throw `UnsupportedOperationException` when `JsonWriter.jsonValue` is not supported (#1651)
+* Disallow `JsonObject` `Entry.setValue(null)` (#2167)
+* Fix `TypeAdapter.toJson` throwing AssertionError for custom IOException (#2172)
+* Convert null to JsonNull for `JsonArray.set` (#2170)
+* Fixed nullSafe usage. (#1555)
+* Validate `TypeToken.getParameterized` arguments (#2166)
+* Fix #1702: Gson.toJson creates CharSequence which does not implement toString (#1703)
+* Prefer existing adapter for concurrent `Gson.getAdapter` calls (#2153)
+* Improve `ArrayTypeAdapter` for `Object[]` (#1716)
+* Improve `AppendableWriter` performance (#1706)
+
 ## Version 2.9.1
 
 * Make `Object` and `JsonElement` deserialization iterative rather than

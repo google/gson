@@ -34,7 +34,7 @@
   <developers>
     <developer>
       <organization>Google</organization>
-      <organizationUrl>http://www.google.com</organizationUrl>
+      <organizationUrl>https://www.google.com</organizationUrl>
     </developer>
   </developers>
 
@@ -211,6 +211,8 @@
                   <exec executable="git" dir="${project.basedir}" failonerror="true">
                     <arg value="add" />
                     <arg value="." />
+                    <!-- Don't add (unrelated) not yet tracked files -->
+                    <arg value="--update" />
                   </exec>
                 </target>
               </configuration>
