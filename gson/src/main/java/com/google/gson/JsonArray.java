@@ -406,6 +406,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * Use {@link JsonNull} for JSON null values.
    *
    * @return mutable {@code List} view
+   * @since $next-version$
    */
   public List<JsonElement> asList() {
     return new NonNullElementWrapperList<>(elements);
