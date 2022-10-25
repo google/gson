@@ -212,9 +212,9 @@
                 <target>
                   <exec executable="git" dir="${project.basedir}" failonerror="true">
                     <arg value="add" />
-                    <arg value="." />
                     <!-- Don't add (unrelated) not yet tracked files -->
                     <arg value="--update" />
+                    <arg value="." />
                   </exec>
                 </target>
               </configuration>
