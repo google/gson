@@ -220,7 +220,7 @@ public final class JsonObject extends JsonElement {
    * Use {@link JsonNull} for JSON null values.
    *
    * @return mutable {@code Map} view
-   * @since $next-version$
+   * @since 2.10
    */
   public Map<String, JsonElement> asMap() {
     // It is safe to expose the underlying map because it disallows null keys and values

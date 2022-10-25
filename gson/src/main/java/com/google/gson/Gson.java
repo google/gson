@@ -1024,7 +1024,7 @@ public final class Gson {
    *
    * @see #fromJson(Reader, TypeToken)
    * @see #fromJson(String, Class)
-   * @since $next-version$
+   * @since 2.10
    */
   public <T> T fromJson(String json, TypeToken<T> typeOfT) throws JsonSyntaxException {
     if (json == null) {
@@ -1117,7 +1117,7 @@ public final class Gson {
    *
    * @see #fromJson(String, TypeToken)
    * @see #fromJson(Reader, Class)
-   * @since $next-version$
+   * @since 2.10
    */
   public <T> T fromJson(Reader json, TypeToken<T> typeOfT) throws JsonIOException, JsonSyntaxException {
     JsonReader jsonReader = newJsonReader(json);
@@ -1201,7 +1201,7 @@ public final class Gson {
    *
    * @see #fromJson(Reader, TypeToken)
    * @see #fromJson(JsonReader, Type)
-   * @since $next-version$
+   * @since 2.10
    */
   public <T> T fromJson(JsonReader reader, TypeToken<T> typeOfT) throws JsonIOException, JsonSyntaxException {
     boolean isEmpty = true;
@@ -1310,7 +1310,7 @@ public final class Gson {
    *
    * @see #fromJson(Reader, TypeToken)
    * @see #fromJson(JsonElement, Class)
-   * @since $next-version$
+   * @since 2.10
    */
   public <T> T fromJson(JsonElement json, TypeToken<T> typeOfT) throws JsonSyntaxException {
     if (json == null) {
