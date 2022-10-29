@@ -162,7 +162,7 @@ public class PerformanceTest extends TestCase {
    * Created in response to http://code.google.com/p/google-gson/issues/detail?id=96
    */
   // Last I tested, Gson was able to deserialize a byte array of 11MB
-  public void disable_testByteArrayDeserialization() {
+  public void disabled_testByteArrayDeserialization() {
     for (int numElements = 10639296; true; numElements += 16384) {
       StringBuilder sb = new StringBuilder(numElements*2);
       sb.append("[");
@@ -218,7 +218,7 @@ public class PerformanceTest extends TestCase {
     System.out.printf("Deserialize classes avg time: %d ms\n", avg);
   }
   
-  public void disable_testLargeObjectSerializationAndDeserialization() {
+  public void disabled_testLargeObjectSerializationAndDeserialization() {
     Map<String, Long> largeObject = new HashMap<>();
     for (long l = 0; l < 100000; l++) {
       largeObject.put("field" + l, l);
