@@ -1,6 +1,8 @@
 Change Log
 ==========
 
+The change log for versions newer than 2.10 is available only on the [GitHub Releases page](https://github.com/google/gson/releases).
+
 ## Version 2.10
 
 * Support for serializing and deserializing Java records, on Java ≥ 16. (https://github.com/google/gson/pull/2201)
