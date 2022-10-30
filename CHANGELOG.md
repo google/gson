@@ -1,17 +1,38 @@
 Change Log
 ==========
 
+## Version 2.10
+
+* Support for serializing and deserializing Java records, on Java ≥ 16. (https://github.com/google/gson/pull/2201)
+* Add `JsonArray.asList` and `JsonObject.asMap` view methods (https://github.com/google/gson/pull/2225)
+* Fix `TypeAdapterRuntimeTypeWrapper` not detecting reflective `TreeTypeAdapter` and `FutureTypeAdapter` (https://github.com/google/gson/pull/1787)
+* Improve `JsonReader.skipValue()` (https://github.com/google/gson/pull/2062)
+* Perform numeric conversion for primitive numeric type adapters (https://github.com/google/gson/pull/2158)
+* Add `Gson.fromJson(..., TypeToken)` overloads (https://github.com/google/gson/pull/1700)
+* Fix changes to `GsonBuilder` affecting existing `Gson` instances (https://github.com/google/gson/pull/1815)
+* Make `JsonElement` conversion methods more consistent and fix javadoc (https://github.com/google/gson/pull/2178)
+* Throw `UnsupportedOperationException` when `JsonWriter.jsonValue` is not supported (https://github.com/google/gson/pull/1651)
+* Disallow `JsonObject` `Entry.setValue(null)` (https://github.com/google/gson/pull/2167)
+* Fix `TypeAdapter.toJson` throwing AssertionError for custom IOException (https://github.com/google/gson/pull/2172)
+* Convert null to JsonNull for `JsonArray.set` (https://github.com/google/gson/pull/2170)
+* Fixed nullSafe usage. (https://github.com/google/gson/pull/1555)
+* Validate `TypeToken.getParameterized` arguments (https://github.com/google/gson/pull/2166)
+* Fix #1702: Gson.toJson creates CharSequence which does not implement toString (https://github.com/google/gson/pull/1703)
+* Prefer existing adapter for concurrent `Gson.getAdapter` calls (https://github.com/google/gson/pull/2153)
+* Improve `ArrayTypeAdapter` for `Object[]` (https://github.com/google/gson/pull/1716)
+* Improve `AppendableWriter` performance (https://github.com/google/gson/pull/1706)
+
 ## Version 2.9.1
 
 * Make `Object` and `JsonElement` deserialization iterative rather than
-  recursive (#1912)
-* Added parsing support for enum that has overridden toString() method (#1950)
-* Removed support for building Gson with Gradle (#2081)
-* Removed obsolete `codegen` hierarchy (#2099)
-* Add support for reflection access filter (#1905)
-* Improve `TypeToken` creation validation (#2072)
-* Add explicit support for `float` in `JsonWriter` (#2130, #2132)
-* Fail when parsing invalid local date (#2134)
+  recursive (https://github.com/google/gson/pull/1912)
+* Added parsing support for enum that has overridden toString() method (https://github.com/google/gson/pull/1950)
+* Removed support for building Gson with Gradle (https://github.com/google/gson/pull/2081)
+* Removed obsolete `codegen` hierarchy (https://github.com/google/gson/pull/2099)
+* Add support for reflection access filter (https://github.com/google/gson/pull/1905)
+* Improve `TypeToken` creation validation (https://github.com/google/gson/pull/2072)
+* Add explicit support for `float` in `JsonWriter` (https://github.com/google/gson/pull/2130, https://github.com/google/gson/pull/2132)
+* Fail when parsing invalid local date (https://github.com/google/gson/pull/2134)
 
 Also many small improvements to javadoc.
 
@@ -19,52 +40,52 @@ Also many small improvements to javadoc.
 
 **The minimum supported Java version changes from 6 to 7.**
 
-* Change target Java version to 7 (#2043)
-* Put `module-info.class` into Multi-Release JAR folder (#2013)
-* Improve error message when abstract class cannot be constructed (#1814)
-* Support EnumMap deserialization (#2071)
-* Add LazilyParsedNumber default adapter (#2060)
-* Fix JsonReader.hasNext() returning true at end of document (#2061)
+* Change target Java version to 7 (https://github.com/google/gson/pull/2043)
+* Put `module-info.class` into Multi-Release JAR folder (https://github.com/google/gson/pull/2013)
+* Improve error message when abstract class cannot be constructed (https://github.com/google/gson/pull/1814)
+* Support EnumMap deserialization (https://github.com/google/gson/pull/2071)
+* Add LazilyParsedNumber default adapter (https://github.com/google/gson/pull/2060)
+* Fix JsonReader.hasNext() returning true at end of document (https://github.com/google/gson/pull/2061)
 * Remove Gradle build support. Build script was outdated and not actively
-  maintained anymore (#2063)
-* Add `GsonBuilder.disableJdkUnsafe()` (#1904)
-* Add `UPPER_CASE_WITH_UNDERSCORES` in FieldNamingPolicy (#2024)
-* Fix failing to serialize Collection or Map with inaccessible constructor (#1902)
-* Improve TreeTypeAdapter thread-safety (#1976)
-* Fix `Gson.newJsonWriter` ignoring lenient and HTML-safe setting (#1989)
-* Delete unused LinkedHashTreeMap (#1992)
-* Make default adapters stricter; improve exception messages (#2000)
-* Fix `FieldNamingPolicy.upperCaseFirstLetter` uppercasing non-letter (#2004)
+  maintained anymore (https://github.com/google/gson/pull/2063)
+* Add `GsonBuilder.disableJdkUnsafe()` (https://github.com/google/gson/pull/1904)
+* Add `UPPER_CASE_WITH_UNDERSCORES` in FieldNamingPolicy (https://github.com/google/gson/pull/2024)
+* Fix failing to serialize Collection or Map with inaccessible constructor (https://github.com/google/gson/pull/1902)
+* Improve TreeTypeAdapter thread-safety (https://github.com/google/gson/pull/1976)
+* Fix `Gson.newJsonWriter` ignoring lenient and HTML-safe setting (https://github.com/google/gson/pull/1989)
+* Delete unused LinkedHashTreeMap (https://github.com/google/gson/pull/1992)
+* Make default adapters stricter; improve exception messages (https://github.com/google/gson/pull/2000)
+* Fix `FieldNamingPolicy.upperCaseFirstLetter` uppercasing non-letter (https://github.com/google/gson/pull/2004)
 
 ## Version 2.8.9
 
-* Make OSGi bundle's dependency on `sun.misc` optional (#1993).
-* Deprecate `Gson.excluder()` exposing internal `Excluder` class (#1986).
-* Prevent Java deserialization of internal classes (#1991).
-* Improve number strategy implementation (#1987).
-* Fix LongSerializationPolicy null handling being inconsistent with Gson (#1990).
-* Support arbitrary Number implementation for Object and Number deserialization (#1290).
-* Bump proguard-maven-plugin from 2.4.0 to 2.5.1 (#1980).
-* Don't exclude static local classes (#1969).
-* Fix `RuntimeTypeAdapterFactory` depending on internal `Streams` class (#1959).
-* Improve Maven build (#1964).
-* Make dependency on `java.sql` optional (#1707).
+* Make OSGi bundle's dependency on `sun.misc` optional (https://github.com/google/gson/pull/1993).
+* Deprecate `Gson.excluder()` exposing internal `Excluder` class (https://github.com/google/gson/pull/1986).
+* Prevent Java deserialization of internal classes (https://github.com/google/gson/pull/1991).
+* Improve number strategy implementation (https://github.com/google/gson/pull/1987).
+* Fix LongSerializationPolicy null handling being inconsistent with Gson (https://github.com/google/gson/pull/1990).
+* Support arbitrary Number implementation for Object and Number deserialization (https://github.com/google/gson/pull/1290).
+* Bump proguard-maven-plugin from 2.4.0 to 2.5.1 (https://github.com/google/gson/pull/1980).
+* Don't exclude static local classes (https://github.com/google/gson/pull/1969).
+* Fix `RuntimeTypeAdapterFactory` depending on internal `Streams` class (https://github.com/google/gson/pull/1959).
+* Improve Maven build (https://github.com/google/gson/pull/1964).
+* Make dependency on `java.sql` optional (https://github.com/google/gson/pull/1707).
 
 ## Version 2.8.8
 
-* Fixed issue with recursive types (#1390).
-* Better behaviour with Java 9+ and `Unsafe` if there is a security manager (#1712).
-* `EnumTypeAdapter` now works better when ProGuard has obfuscated enum fields (#1495).
+* Fixed issue with recursive types (https://github.com/google/gson/issues/1390).
+* Better behaviour with Java 9+ and `Unsafe` if there is a security manager (https://github.com/google/gson/pull/1712).
+* `EnumTypeAdapter` now works better when ProGuard has obfuscated enum fields (https://github.com/google/gson/pull/1495).
 
 ## Version 2.8.7
 
 * Fixed `ISO8601UtilsTest` failing on systems with UTC+X.
 * Improved javadoc for `JsonStreamParser`.
-* Updated proguard.cfg (#1693).
-* Fixed `IllegalStateException` in `JsonTreeWriter` (#1592).
-* Added `JsonArray.isEmpty()` (#1640).
-* Added new test cases (#1638).
-* Fixed OSGi metadata generation to work on JavaSE < 9 (#1603).
+* Updated proguard.cfg (https://github.com/google/gson/pull/1693).
+* Fixed `IllegalStateException` in `JsonTreeWriter` (https://github.com/google/gson/issues/1592).
+* Added `JsonArray.isEmpty()` (https://github.com/google/gson/pull/1640).
+* Added new test cases (https://github.com/google/gson/pull/1638).
+* Fixed OSGi metadata generation to work on JavaSE < 9 (https://github.com/google/gson/pull/1603).
 
 ## Version 2.8.6
 _2019-10-04_  [GitHub Diff](https://github.com/google/gson/compare/gson-parent-2.8.5...gson-parent-2.8.6)

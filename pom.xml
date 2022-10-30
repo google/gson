@@ -33,8 +33,9 @@
 
   <developers>
     <developer>
+      <id>google</id>
       <organization>Google</organization>
-      <organizationUrl>http://www.google.com</organizationUrl>
+      <organizationUrl>https://www.google.com</organizationUrl>
     </developer>
   </developers>
 
@@ -144,10 +145,11 @@
             <useReleaseProfile>false</useReleaseProfile>
             <releaseProfiles>release</releaseProfiles>
             <!-- Run custom goals to replace version references, see plugin configuration below -->
-            <!-- Also run `package`; otherwise goals fail for modules depending on each; possibly
-              same issue as https://issues.apache.org/jira/browse/MRELEASE-271 -->
+            <!-- Also run `verify` to make sure tests still pass with new version number;
+              also seems to be necessary because without `package`, goals fail for modules depending
+              on each other; possibly same issue as https://issues.apache.org/jira/browse/MRELEASE-271 -->
             <preparationGoals>
-              package -DskipTests
+              clean verify
               antrun:run@replace-version-placeholders
               antrun:run@replace-old-version-references
               antrun:run@git-add-changed
@@ -210,6 +212,8 @@
                 <target>
                   <exec executable="git" dir="${project.basedir}" failonerror="true">
                     <arg value="add" />
+                    <!-- Don't add (unrelated) not yet tracked files -->
+                    <arg value="--update" />
                     <arg value="." />
                   </exec>
                 </target>
