@@ -24,6 +24,7 @@ import static com.google.gson.Gson.DEFAULT_LENIENT;
 import static com.google.gson.Gson.DEFAULT_NUMBER_TO_NUMBER_STRATEGY;
 import static com.google.gson.Gson.DEFAULT_OBJECT_TO_NUMBER_STRATEGY;
 import static com.google.gson.Gson.DEFAULT_PRETTY_PRINT;
+import static com.google.gson.Gson.DEFAULT_NEWLINE_STYLE;
 import static com.google.gson.Gson.DEFAULT_SERIALIZE_NULLS;
 import static com.google.gson.Gson.DEFAULT_SPECIALIZE_FLOAT_VALUES;
 import static com.google.gson.Gson.DEFAULT_USE_JDK_UNSAFE;
@@ -67,6 +68,7 @@ import java.util.Objects;
  *     .setDateFormat(DateFormat.LONG)
  *     .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
  *     .setPrettyPrinting()
+ *     .setNewlineStyle(NewlineStyle.CURRENT_OS)
  *     .setVersion(1.0)
  *     .create();
  * </pre>
@@ -99,6 +101,7 @@ public final class GsonBuilder {
   private boolean serializeSpecialFloatingPointValues = DEFAULT_SPECIALIZE_FLOAT_VALUES;
   private boolean escapeHtmlChars = DEFAULT_ESCAPE_HTML;
   private boolean prettyPrinting = DEFAULT_PRETTY_PRINT;
+  private NewlineStyle newlineStyle = DEFAULT_NEWLINE_STYLE;
   private boolean generateNonExecutableJson = DEFAULT_JSON_NON_EXECUTABLE;
   private boolean lenient = DEFAULT_LENIENT;
   private boolean useJdkUnsafe = DEFAULT_USE_JDK_UNSAFE;
@@ -130,6 +133,7 @@ public final class GsonBuilder {
     this.generateNonExecutableJson = gson.generateNonExecutableJson;
     this.escapeHtmlChars = gson.htmlSafe;
     this.prettyPrinting = gson.prettyPrinting;
+    this.newlineStyle = gson.newlineStyle;
     this.lenient = gson.lenient;
     this.serializeSpecialFloatingPointValues = gson.serializeSpecialFloatingPointValues;
     this.longSerializationPolicy = gson.longSerializationPolicy;
@@ -489,6 +493,17 @@ public final class GsonBuilder {
   }
 
   /**
+   * Configures Gson to output Json that uses a certain kind of newline.
+   * This option only affects Json serialization.
+   *
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   */
+  public GsonBuilder setNewlineStyle(NewlineStyle newlineStyle) {
+    this.newlineStyle = newlineStyle;
+    return this;
+  }
+
+  /**
    * Configures Gson to allow JSON data which does not strictly comply with the JSON specification.
    *
    * <p>Note: Due to legacy reasons most methods of Gson are always lenient, regardless of
@@ -761,7 +776,7 @@ public final class GsonBuilder {
 
     return new Gson(excluder, fieldNamingPolicy, new HashMap<>(instanceCreators),
         serializeNulls, complexMapKeySerialization,
-        generateNonExecutableJson, escapeHtmlChars, prettyPrinting, lenient,
+        generateNonExecutableJson, escapeHtmlChars, prettyPrinting, newlineStyle, lenient,
         serializeSpecialFloatingPointValues, useJdkUnsafe, longSerializationPolicy,
         datePattern, dateStyle, timeStyle, new ArrayList<>(this.factories),
         new ArrayList<>(this.hierarchyFactories), factories,

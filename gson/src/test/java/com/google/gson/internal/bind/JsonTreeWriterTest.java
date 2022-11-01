@@ -256,8 +256,12 @@ public final class JsonTreeWriterTest extends TestCase {
    * methods of {@code JsonWriter} must be overridden.
    */
   public void testOverrides() {
-    List<String> ignoredMethods = Arrays.asList("setLenient(boolean)", "isLenient()", "setIndent(java.lang.String)",
-        "setHtmlSafe(boolean)", "isHtmlSafe()", "setSerializeNulls(boolean)", "getSerializeNulls()");
+    List<String> ignoredMethods = Arrays.asList(
+        "setLenient(boolean)", "isLenient()",
+        "setIndent(java.lang.String)",
+        "setHtmlSafe(boolean)", "isHtmlSafe()",
+        "setNewline(java.lang.String)", "getNewline()",
+        "setSerializeNulls(boolean)", "getSerializeNulls()");
     MoreAsserts.assertOverridesMethods(JsonWriter.class, JsonTreeWriter.class, ignoredMethods);
   }
 }

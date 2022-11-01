@@ -186,6 +186,11 @@ public class JsonWriter implements Closeable, Flushable {
   private String indent;
 
   /**
+   * A string to be used as newline.
+   */
+  private String newline = "\n";
+
+  /**
    * The name/value separator; either ":" or ": ".
    */
   private String separator = ":";
@@ -223,6 +228,22 @@ public class JsonWriter implements Closeable, Flushable {
       this.indent = indent;
       this.separator = ": ";
     }
+  }
+
+  /**
+   * Sets the newline string to be used in the encoded document.
+   *
+   * @param newline the string that will be used for newline.
+   */
+  public final void setNewline(String newline) {
+    this.newline = newline == null ? "\n": newline;
+  }
+
+  /**
+   * Returns the newline string used by this writer.
+   */
+  public final String getNewline() {
+    return newline;
   }
 
   /**
@@ -649,7 +670,7 @@ public class JsonWriter implements Closeable, Flushable {
       return;
     }
 
-    out.write('\n');
+    out.write(newline);
     for (int i = 1, size = stackSize; i < size; i++) {
       out.write(indent);
     }
