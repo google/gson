@@ -27,25 +27,26 @@ public enum NewlineStyle {
   /**
    * Using this style will result in the same kind of new lines that the current environment uses.
    *
-   * <p>So it will produce {@code "\r\n"} when running on Windows, and {@code "\n"} when running on macOS & Linux.</p>
+   * <p>So it will produce {@code "\r\n"} when running on Windows, and {@code "\n"} when running
+   * on macOS &amp; Linux.</p>
    */
   CURRENT_OS,
 
   /**
-   * Using this style will result in the same new line convention that Windows uses (and MS-DOS used).
-   * This is {@code CR+LF} ({@code 0D 0A}, {@code "\r\n"})
+   * Using this style will result in the same new line convention that Windows uses
+   * (and MS-DOS used). This is {@code CR+LF} ({@code 0D 0A}, {@code "\r\n"})
    */
   WINDOWS,
 
   /**
-   * Using this style will result in the same new line convention that macOS, Linux, and UNIX-like systems use.
-   * This is {@code LF} ({@code 0A}, {@code "\n"})
+   * Using this style will result in the same new line convention that macOS, Linux, and UNIX-like
+   * systems use. This is {@code LF} ({@code 0A}, {@code "\n"})
    */
   MACOS_AND_LINUX,
 
   /**
-   * Using this style will result in the same new line convention that classic Mac OS used. Rarely needed.
-   * This is {@code CR} ({@code 0D}, {@code "\r"})
+   * Using this style will result in the same new line convention that classic Mac OS used.
+   * Rarely needed. This is {@code CR} ({@code 0D}, {@code "\r"})
    */
   OLD_MACOS;
 }
