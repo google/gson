@@ -21,7 +21,7 @@ package com.google.gson;
  *
  * @see <a href="https://en.wikipedia.org/wiki/Newline">Wikipedia Newline article</a>
  *
- * @since 2.10.1
+ * @since $next-version$
  */
 public enum NewlineStyle {
   /**
