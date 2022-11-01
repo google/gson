@@ -236,7 +236,7 @@ public class JsonWriter implements Closeable, Flushable {
    * @param newline the string that will be used for newline.
    */
   public final void setNewline(String newline) {
-    this.newline = newline == null ? "\n": newline;
+    this.newline = Objects.requireNonNull(newline, "newline == null");
   }
 
   /**

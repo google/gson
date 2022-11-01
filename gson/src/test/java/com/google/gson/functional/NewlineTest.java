@@ -15,47 +15,46 @@
  */
 package com.google.gson.functional;
 
-import java.lang.reflect.Type;
-import java.util.Arrays;
+import static org.junit.Assert.assertEquals;
+
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.NewlineStyle;
-import com.google.gson.common.TestTypes.ArrayOfObjects;
-import com.google.gson.common.TestTypes.BagOfPrimitives;
-import com.google.gson.reflect.TypeToken;
 
 /**
- * Functional tests for pretty printing option.
+ * Functional tests for newline option.
  *
- * @author Inderjeet Singh
- * @author Joel Leitch
+ * @author Mihai Nita
  */
-public class NewlineTest extends TestCase {
+@RunWith(JUnit4.class)
+public class NewlineTest {
 
   private Map<String, Integer> map;
   private static final String EXPECTED = "{<EOL>  \"abc\": 1,<EOL>  \"def\": 5<EOL>}";
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void setUp() {
     map = new LinkedHashMap<>();
     map.put("abc", 1);
     map.put("def", 5);
   }
 
+  @Test
   public void testNewlineDefault() {
     Gson gson = new GsonBuilder().setPrettyPrinting().create();
     String json = gson.toJson(map);
     assertEquals(EXPECTED.replace("<EOL>", "\n"), json);
   }
 
+  @Test
   public void testNewlineCrLf() {
     Gson gson = new GsonBuilder()
         .setPrettyPrinting()
@@ -65,6 +64,7 @@ public class NewlineTest extends TestCase {
     assertEquals(EXPECTED.replace("<EOL>", "\r\n"), json);
   }
 
+  @Test
   public void testNewlineLf() {
     Gson gson = new GsonBuilder()
         .setPrettyPrinting()
@@ -74,6 +74,7 @@ public class NewlineTest extends TestCase {
     assertEquals(EXPECTED.replace("<EOL>", "\n"), json);
   }
 
+  @Test
   public void testNewlineCr() {
     Gson gson = new GsonBuilder()
         .setPrettyPrinting()
@@ -83,7 +84,8 @@ public class NewlineTest extends TestCase {
     assertEquals(EXPECTED.replace("<EOL>", "\r"), json);
   }
 
-  public void testNewlineOS() {
+  @Test
+  public void testNewlineOs() {
     Gson gson = new GsonBuilder()
         .setPrettyPrinting()
         .setNewlineStyle(NewlineStyle.CURRENT_OS)
