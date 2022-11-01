@@ -19,7 +19,7 @@ package com.google.gson;
 /**
  * An enumeration that defines the kind of newline to use for serialization.
  *
- * See {@see https://en.wikipedia.org/wiki/Newline}
+ * @see <a href="https://en.wikipedia.org/wiki/Newline">Wikipedia Newline article</a>
  *
  * @since 2.10.1
  */
