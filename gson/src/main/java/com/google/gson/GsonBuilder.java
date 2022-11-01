@@ -499,7 +499,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
   public GsonBuilder setNewlineStyle(NewlineStyle newlineStyle) {
-    this.newlineStyle = newlineStyle;
+    this.newlineStyle = Objects.requireNonNull(newlineStyle);
     return this;
   }
 
