@@ -493,8 +493,8 @@ public final class GsonBuilder {
   }
 
   /**
-   * Configures Gson to output Json that uses a certain kind of newline.
-   * This option only affects Json serialization.
+   * Configures Gson to output JSON that uses a certain kind of newline.
+   * This option only affects JSON serialization.
    *
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
