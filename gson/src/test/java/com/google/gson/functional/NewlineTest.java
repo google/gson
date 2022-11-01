@@ -65,7 +65,7 @@ public class NewlineTest extends TestCase {
     assertEquals(EXPECTED.replace("<EOL>", "\r\n"), json);
   }
 
-  public void testNewlineLF() {
+  public void testNewlineLf() {
     Gson gson = new GsonBuilder()
         .setPrettyPrinting()
         .setNewlineStyle(NewlineStyle.MACOS_AND_LINUX)
