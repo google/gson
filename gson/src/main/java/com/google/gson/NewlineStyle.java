@@ -32,23 +32,33 @@ public enum NewlineStyle {
    *
    * @see System#lineSeparator()
    */
-  CURRENT_OS,
+  CURRENT_OS(""),
 
   /**
    * Using this style will result in the same newline convention that Windows uses
-   * (and MS-DOS used). This is {@code CR+LF} ({@code 0D 0A}, {@code "\r\n"}).
+   * and MS-DOS used. This is {@code "\r\n"} ({@code U+000D U+000A}).
    */
-  WINDOWS,
+  CRLF("\r\n"),
 
   /**
    * Using this style will result in the same newline convention that macOS, Linux, and UNIX-like
-   * systems use. This is {@code LF} ({@code 0A}, {@code "\n"}).
+   * systems use. This is {@code "\n"} ({@code U+000A}).
    */
-  MACOS_AND_LINUX,
+  LF("\n"),
 
   /**
    * Using this style will result in the same newline convention that classic Mac OS used.
-   * Rarely needed. This is {@code CR} ({@code 0D}, {@code "\r"}).
+   * Rarely needed. This is {@code "\r"} ({@code U+000D}).
    */
-  OLD_MACOS;
+  CR("\r");
+
+  private final String value;
+
+  private NewlineStyle(String value) {
+    this.value = value;
+  }
+
+  public String getValue() {
+    return this.value;
+  }
 }

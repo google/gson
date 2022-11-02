@@ -142,7 +142,7 @@ public final class Gson {
   static final boolean DEFAULT_JSON_NON_EXECUTABLE = false;
   static final boolean DEFAULT_LENIENT = false;
   static final boolean DEFAULT_PRETTY_PRINT = false;
-  static final NewlineStyle DEFAULT_NEWLINE_STYLE = NewlineStyle.MACOS_AND_LINUX;
+  static final NewlineStyle DEFAULT_NEWLINE_STYLE = NewlineStyle.LF;
   static final boolean DEFAULT_ESCAPE_HTML = true;
   static final boolean DEFAULT_SERIALIZE_NULLS = false;
   static final boolean DEFAULT_COMPLEX_MAP_KEYS = false;
@@ -892,21 +892,10 @@ public final class Gson {
     if (prettyPrinting) {
       jsonWriter.setIndent("  ");
     }
-    switch (newlineStyle) {
-      case CURRENT_OS:
-        jsonWriter.setNewline(System.lineSeparator());
-        break;
-      case WINDOWS:
-        jsonWriter.setNewline("\r\n");
-        break;
-      case OLD_MACOS:
-        jsonWriter.setNewline("\r");
-        break;
-      case MACOS_AND_LINUX:
-        jsonWriter.setNewline("\n");
-        break;
-      default:
-        throw new AssertionError();
+    if (newlineStyle == NewlineStyle.CURRENT_OS) {
+      jsonWriter.setNewline(System.lineSeparator());
+    } else {
+      jsonWriter.setNewline(newlineStyle.getValue());
     }
     jsonWriter.setHtmlSafe(htmlSafe);
     jsonWriter.setLenient(lenient);

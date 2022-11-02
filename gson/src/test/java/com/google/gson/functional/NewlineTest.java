@@ -58,7 +58,7 @@ public class NewlineTest {
   public void testNewlineCrLf() {
     Gson gson = new GsonBuilder()
         .setPrettyPrinting()
-        .setNewlineStyle(NewlineStyle.WINDOWS)
+        .setNewlineStyle(NewlineStyle.CRLF)
         .create();
     String json = gson.toJson(map);
     assertEquals(EXPECTED.replace("<EOL>", "\r\n"), json);
@@ -68,7 +68,7 @@ public class NewlineTest {
   public void testNewlineLf() {
     Gson gson = new GsonBuilder()
         .setPrettyPrinting()
-        .setNewlineStyle(NewlineStyle.MACOS_AND_LINUX)
+        .setNewlineStyle(NewlineStyle.LF)
         .create();
     String json = gson.toJson(map);
     assertEquals(EXPECTED.replace("<EOL>", "\n"), json);
@@ -78,7 +78,7 @@ public class NewlineTest {
   public void testNewlineCr() {
     Gson gson = new GsonBuilder()
         .setPrettyPrinting()
-        .setNewlineStyle(NewlineStyle.OLD_MACOS)
+        .setNewlineStyle(NewlineStyle.CR)
         .create();
     String json = gson.toJson(map);
     assertEquals(EXPECTED.replace("<EOL>", "\r"), json);
