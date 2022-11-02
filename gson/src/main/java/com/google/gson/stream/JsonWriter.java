@@ -233,6 +233,8 @@ public class JsonWriter implements Closeable, Flushable {
   /**
    * Sets the newline string to be used in the encoded document.
    *
+   * <p>Has no effect if the serialized format is a single line.</p>
+   *
    * @param newline the string that will be used for newline.
    */
   public final void setNewline(String newline) {

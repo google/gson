@@ -482,8 +482,8 @@ public final class GsonBuilder {
   }
 
   /**
-   * Configures Gson to output Json that fits in a page for pretty printing. This option only
-   * affects Json serialization.
+   * Configures Gson to output JSON that fits in a page for pretty printing. This option only
+   * affects JSON serialization.
    *
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
@@ -495,6 +495,8 @@ public final class GsonBuilder {
   /**
    * Configures Gson to output JSON that uses a certain kind of newline.
    * This option only affects JSON serialization.
+   *
+   * <p>Has no effect if the serialized format is a single line.</p>
    *
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */

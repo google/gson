@@ -57,7 +57,7 @@ public final class GsonTest extends TestCase {
   public void testOverridesDefaultExcluder() {
     Gson gson = new Gson(CUSTOM_EXCLUDER, CUSTOM_FIELD_NAMING_STRATEGY,
         new HashMap<Type, InstanceCreator<?>>(), true, false, true, false,
-        true,  NewlineStyle.MACOS_AND_LINUX, true, false, true, LongSerializationPolicy.DEFAULT, null, DateFormat.DEFAULT,
+        true, NewlineStyle.MACOS_AND_LINUX, true, false, true, LongSerializationPolicy.DEFAULT, null, DateFormat.DEFAULT,
         DateFormat.DEFAULT, new ArrayList<TypeAdapterFactory>(),
         new ArrayList<TypeAdapterFactory>(), new ArrayList<TypeAdapterFactory>(),
         CUSTOM_OBJECT_TO_NUMBER_STRATEGY, CUSTOM_NUMBER_TO_NUMBER_STRATEGY,

@@ -799,4 +799,30 @@ public final class JsonWriterTest extends TestCase {
     writer.close();
     writer.close();
   }
+
+  public void testSetGetNewline() throws IOException {
+    String lineSeparator = "\u2028";
+
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter jsonWriter = new JsonWriter(stringWriter);
+    jsonWriter.setIndent("   ");
+    jsonWriter.setNewline(lineSeparator);
+
+    jsonWriter.beginArray();
+    jsonWriter.value(true);
+    jsonWriter.value("text");
+    jsonWriter.value(5.0);
+    jsonWriter.nullValue();
+    jsonWriter.endArray();
+
+    String expected = "[\u2028"
+        + "   true,\u2028"
+        + "   \"text\",\u2028"
+        + "   5.0,\u2028"
+        + "   null\u2028"
+        + "]";
+    assertEquals(expected, stringWriter.toString());
+
+    assertEquals(lineSeparator, jsonWriter.getNewline());
+  }
 }

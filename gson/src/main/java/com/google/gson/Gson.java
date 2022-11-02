@@ -690,7 +690,7 @@ public final class Gson {
    * <pre>
    * Type typeOfSrc = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType();
    * </pre>
-   * @return Json representation of {@code src}
+   * @return JSON representation of {@code src}.
    * @since 1.4
    *
    * @see #toJsonTree(Object)
@@ -712,7 +712,7 @@ public final class Gson {
    * {@link Writer}, use {@link #toJson(Object, Appendable)} instead.
    *
    * @param src the object for which JSON representation is to be created
-   * @return Json representation of {@code src}.
+   * @return JSON representation of {@code src}.
    *
    * @see #toJson(Object, Appendable)
    * @see #toJson(Object, Type)
@@ -737,7 +737,7 @@ public final class Gson {
    * <pre>
    * Type typeOfSrc = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType();
    * </pre>
-   * @return JSON representation of {@code src}
+   * @return JSON representation of {@code src}.
    *
    * @see #toJson(Object, Type, Appendable)
    * @see #toJson(Object)
@@ -845,7 +845,7 @@ public final class Gson {
    * Converts a tree of {@link JsonElement}s into its equivalent JSON representation.
    *
    * @param jsonElement root of a tree of {@link JsonElement}s
-   * @return JSON String representation of the tree
+   * @return JSON String representation of the tree.
    * @since 1.4
    */
   public String toJson(JsonElement jsonElement) {
@@ -902,10 +902,11 @@ public final class Gson {
       case OLD_MACOS:
         jsonWriter.setNewline("\r");
         break;
-      case MACOS_AND_LINUX: // intentional fallthrough
-      default:
+      case MACOS_AND_LINUX:
         jsonWriter.setNewline("\n");
         break;
+      default:
+        throw new AssertionError();
     }
     jsonWriter.setHtmlSafe(htmlSafe);
     jsonWriter.setLenient(lenient);
