@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 The Gson Authors
+ * Copyright (C) 2016 The Gson Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
