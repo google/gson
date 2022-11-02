@@ -58,6 +58,11 @@ public enum NewlineStyle {
     this.value = value;
   }
 
+  /**
+   * The string value that will be used as newline, not the name of the constant.
+   *
+   * @return the string value of the enum constant.
+  */
   public String getValue() {
     return this.value;
   }
