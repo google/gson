@@ -138,7 +138,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-release-plugin</artifactId>
-          <version>3.0.0-M6</version>
+          <version>3.0.0-M7</version>
           <configuration>
             <autoVersionSubmodules>true</autoVersionSubmodules>
             <!-- Disable Maven Super POM release profile and instead use own one -->
