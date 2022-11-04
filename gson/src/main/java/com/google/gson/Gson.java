@@ -892,11 +892,7 @@ public final class Gson {
     if (prettyPrinting) {
       jsonWriter.setIndent("  ");
     }
-    if (newlineStyle == NewlineStyle.CURRENT_OS) {
-      jsonWriter.setNewline(System.lineSeparator());
-    } else {
-      jsonWriter.setNewline(newlineStyle.getValue());
-    }
+    jsonWriter.setNewline(newlineStyle.getNewlineValue());
     jsonWriter.setHtmlSafe(htmlSafe);
     jsonWriter.setLenient(lenient);
     jsonWriter.setSerializeNulls(serializeNulls);

@@ -499,6 +499,7 @@ public final class GsonBuilder {
    * <p>Has no effect if the serialized format is a single line.</p>
    *
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @since $next-version$
    */
   public GsonBuilder setNewlineStyle(NewlineStyle newlineStyle) {
     this.newlineStyle = Objects.requireNonNull(newlineStyle);

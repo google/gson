@@ -30,9 +30,15 @@ public enum NewlineStyle {
    * <p>So it will produce {@code "\r\n"} when running on Windows, and {@code "\n"} when running
    * on macOS &amp; Linux.</p>
    *
+   * <p>It might be good discipline to not use {@code CURRENT_OS} when exchanging JSON data
+   * between systems, or storing them long term.<br>
+   * Gson will parse any valid JSON regardless the newline style.<br>
+   * But mixing newline styles might afect other kind of operations
+   * (grep, comparing against gold files, version control).</p>
+   *
    * @see System#lineSeparator()
    */
-  CURRENT_OS(""),
+  CURRENT_OS(System.lineSeparator()),
 
   /**
    * Using this style will result in the same newline convention that Windows uses
@@ -61,9 +67,9 @@ public enum NewlineStyle {
   /**
    * The string value that will be used as newline, not the name of the constant.
    *
-   * @return the string value of the enum constant.
+   * @return the newline value.
   */
-  public String getValue() {
+  public String getNewlineValue() {
     return this.value;
   }
 }

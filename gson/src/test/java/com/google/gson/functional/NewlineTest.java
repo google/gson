@@ -15,6 +15,7 @@
  */
 package com.google.gson.functional;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import java.util.LinkedHashMap;
@@ -37,21 +38,19 @@ import com.google.gson.NewlineStyle;
 @RunWith(JUnit4.class)
 public class NewlineTest {
 
-  private Map<String, Integer> map;
-  private static final String EXPECTED = "{<EOL>  \"abc\": 1,<EOL>  \"def\": 5<EOL>}";
-
-  @Before
-  public void setUp() {
-    map = new LinkedHashMap<>();
-    map.put("abc", 1);
-    map.put("def", 5);
-  }
+  private static final String[] INPUT = { "v1", "v2" };
+  private static final String EXPECTED = "[<EOL>  \"v1\",<EOL>  \"v2\"<EOL>]";
+  private static final String EXPECTED_OS = EXPECTED.replace("<EOL>", System.lineSeparator());
+  private static final String EXPECTED_CR = EXPECTED.replace("<EOL>", "\r");
+  private static final String EXPECTED_LF = EXPECTED.replace("<EOL>", "\n");
+  private static final String EXPECTED_CRLF = EXPECTED.replace("<EOL>", "\r\n");
 
   @Test
   public void testNewlineDefault() {
     Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    String json = gson.toJson(map);
-    assertEquals(EXPECTED.replace("<EOL>", "\n"), json);
+    String json = gson.toJson(INPUT);
+    // Make sure the default uses LF, like before.
+    assertEquals(EXPECTED_LF, json);
   }
 
   @Test
@@ -60,8 +59,8 @@ public class NewlineTest {
         .setPrettyPrinting()
         .setNewlineStyle(NewlineStyle.CRLF)
         .create();
-    String json = gson.toJson(map);
-    assertEquals(EXPECTED.replace("<EOL>", "\r\n"), json);
+    String json = gson.toJson(INPUT);
+    assertEquals(EXPECTED_CRLF, json);
   }
 
   @Test
@@ -70,8 +69,8 @@ public class NewlineTest {
         .setPrettyPrinting()
         .setNewlineStyle(NewlineStyle.LF)
         .create();
-    String json = gson.toJson(map);
-    assertEquals(EXPECTED.replace("<EOL>", "\n"), json);
+    String json = gson.toJson(INPUT);
+    assertEquals(EXPECTED_LF, json);
   }
 
   @Test
@@ -80,8 +79,8 @@ public class NewlineTest {
         .setPrettyPrinting()
         .setNewlineStyle(NewlineStyle.CR)
         .create();
-    String json = gson.toJson(map);
-    assertEquals(EXPECTED.replace("<EOL>", "\r"), json);
+    String json = gson.toJson(INPUT);
+    assertEquals(EXPECTED_CR, json);
   }
 
   @Test
@@ -90,8 +89,32 @@ public class NewlineTest {
         .setPrettyPrinting()
         .setNewlineStyle(NewlineStyle.CURRENT_OS)
         .create();
-    String json = gson.toJson(map);
-    assertEquals(EXPECTED.replace("<EOL>", System.lineSeparator()), json);
+    String json = gson.toJson(INPUT);
+    assertEquals(EXPECTED_OS, json);
   }
 
+  @Test
+  public void testNewlineInterop() {
+    String jsonStringMix = "[\r  'v1',\r\n  'v2'\n]";
+
+    String[] actual;
+    // Test all combinations of newline between the parser and input.
+    for (NewlineStyle newlineStyle : NewlineStyle.values()) {
+      Gson gson = new GsonBuilder()
+          .setPrettyPrinting()
+          .setNewlineStyle(newlineStyle)
+          .create();
+
+      actual = gson.fromJson(EXPECTED_OS, INPUT.getClass());
+      assertArrayEquals(INPUT, actual);
+      actual = gson.fromJson(EXPECTED_CR, INPUT.getClass());
+      assertArrayEquals(INPUT, actual);
+      actual = gson.fromJson(EXPECTED_LF, INPUT.getClass());
+      assertArrayEquals(INPUT, actual);
+      actual = gson.fromJson(EXPECTED_CRLF, INPUT.getClass());
+      assertArrayEquals(INPUT, actual);
+      actual = gson.fromJson(jsonStringMix, INPUT.getClass());
+      assertArrayEquals(INPUT, actual);
+    }
+  }
 }

@@ -236,6 +236,7 @@ public class JsonWriter implements Closeable, Flushable {
    * <p>Has no effect if the serialized format is a single line.</p>
    *
    * @param newline the string that will be used for newline.
+   * @since $next-version$
    */
   public final void setNewline(String newline) {
     this.newline = Objects.requireNonNull(newline, "newline == null");
@@ -243,6 +244,9 @@ public class JsonWriter implements Closeable, Flushable {
 
   /**
    * Returns the newline string used by this writer.
+   *
+   * @return the string that will be used for newline.
+   * @since $next-version$
    */
   public final String getNewline() {
     return newline;
