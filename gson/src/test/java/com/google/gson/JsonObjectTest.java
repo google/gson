@@ -223,6 +223,18 @@ public class JsonObjectTest {
   }
 
   @Test
+  public void testIsEmpty() {
+    JsonObject o = new JsonObject();
+    assertEquals(true, o.isEmpty());
+
+    o.add("Hello", new JsonPrimitive(1));
+    assertEquals(false, o.isEmpty());
+
+    o.remove("Hello");
+    assertEquals(true, o.isEmpty());
+  }
+
+  @Test
   public void testDeepCopy() {
     JsonObject original = new JsonObject();
     JsonArray firstEntry = new JsonArray();

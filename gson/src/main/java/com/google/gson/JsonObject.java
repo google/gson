@@ -148,11 +148,21 @@ public final class JsonObject extends JsonElement {
   /**
    * Returns the number of key/value pairs in the object.
    *
-   * @return the number of key/value pairs in the object.
+   * @return the number of key/value pairs in the objezct.
    * @since 2.7
    */
   public int size() {
     return members.size();
+  }
+
+  /**
+   * Returns true if the number of key/value pairs in the object is zero.
+   *
+   * @return true if the number of key/value pairs in the object is zero.
+   * @since $next-version$
+   */
+  public boolean isEmpty() {
+    return members.size() == 0;
   }
 
   /**
