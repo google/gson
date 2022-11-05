@@ -33,7 +33,7 @@ public enum NewlineStyle {
    * <p>It might be good discipline to not use {@code CURRENT_OS} when exchanging JSON data
    * between systems, or storing them long term.<br>
    * Gson will parse any valid JSON regardless the newline style.<br>
-   * But mixing newline styles might afect other kind of operations
+   * But mixing newline styles might affect other kind of operations
    * (grep, comparing against gold files, version control).</p>
    *
    * @see System#lineSeparator()
