@@ -65,7 +65,7 @@ public enum NewlineStyle {
   }
 
   /**
-   * The string value that will be used as newline, not the name of the constant.
+   * The string value that will be used as newline.
    *
    * @return the newline value.
   */
