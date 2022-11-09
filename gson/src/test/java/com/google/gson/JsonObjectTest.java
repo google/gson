@@ -225,13 +225,13 @@ public class JsonObjectTest {
   @Test
   public void testIsEmpty() {
     JsonObject o = new JsonObject();
-    assertEquals(true, o.isEmpty());
+    assertTrue(o.isEmpty());
 
     o.add("Hello", new JsonPrimitive(1));
-    assertEquals(false, o.isEmpty());
+    assertFalse(o.isEmpty());
 
     o.remove("Hello");
-    assertEquals(true, o.isEmpty());
+    assertTrue(o.isEmpty());
   }
 
   @Test
