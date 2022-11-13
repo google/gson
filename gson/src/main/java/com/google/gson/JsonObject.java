@@ -156,6 +156,16 @@ public final class JsonObject extends JsonElement {
   }
 
   /**
+   * Returns true if the number of key/value pairs in the object is zero.
+   *
+   * @return true if the number of key/value pairs in the object is zero.
+   * @since $next-version$
+   */
+  public boolean isEmpty() {
+    return members.size() == 0;
+  }
+
+  /**
    * Convenience method to check if a member with the specified name is present in this object.
    *
    * @param memberName name of the member that is being checked for presence.
