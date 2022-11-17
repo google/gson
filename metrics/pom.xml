@@ -47,7 +47,7 @@
         <plugin>
           <groupId>com.github.siom79.japicmp</groupId>
           <artifactId>japicmp-maven-plugin</artifactId>
-          <version>0.16.0</version>
+          <version>0.17.1</version>
           <configuration>
             <!-- This module is not supposed to be consumed as library, so no need to check API -->
             <skip>true</skip>
