@@ -260,7 +260,7 @@ public final class JsonTreeWriterTest extends TestCase {
         "setLenient(boolean)", "isLenient()",
         "setIndent(java.lang.String)",
         "setHtmlSafe(boolean)", "isHtmlSafe()",
-        "setNewline(java.lang.String)", "getNewline()",
+        "setFormattingStyle(com.google.gson.FormattingStyle)", "getFormattingStyle()",
         "setSerializeNulls(boolean)", "getSerializeNulls()");
     MoreAsserts.assertOverridesMethods(JsonWriter.class, JsonTreeWriter.class, ignoredMethods);
   }

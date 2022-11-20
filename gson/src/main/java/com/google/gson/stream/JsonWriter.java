@@ -36,6 +36,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
 
+import com.google.gson.FormattingStyle;
+
 /**
  * Writes a JSON (<a href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>)
  * encoded value to a stream, one token at a time. The stream includes both
@@ -180,15 +182,9 @@ public class JsonWriter implements Closeable, Flushable {
   }
 
   /**
-   * A string containing a full set of spaces for a single level of
-   * indentation, or null for no pretty printing.
+   * The settings used for pretty printing, or null for no pretty printing.
    */
-  private String indent;
-
-  /**
-   * A string to be used as newline.
-   */
-  private String newline = "\n";
+  private FormattingStyle formattingStyle;
 
   /**
    * The name/value separator; either ":" or ": ".
@@ -222,34 +218,42 @@ public class JsonWriter implements Closeable, Flushable {
    */
   public final void setIndent(String indent) {
     if (indent.length() == 0) {
-      this.indent = null;
+      setFormattingStyle(null);
+    } else {
+      setFormattingStyle(FormattingStyle.DEFAULT.withIndent(indent));
+    }
+  }
+
+  /**
+   * Sets the pretty printing style to be used in the encoded document.
+   * No pretty printing if null.
+   *
+   * <p>Sets the various attributes to be used in the encoded document. 
+   * For example the indentation string to be repeated for each level of indentation.
+   * Or the newline style, to accommodate various OS styles.</p>
+   *
+   * <p>Has no effect if the serialized format is a single line.</p>
+   *
+   * @param formattingStyle the style used for pretty printing, no pretty printing if null.
+   * @since $next-version$
+   */
+  public final void setFormattingStyle(FormattingStyle formattingStyle) {
+    this.formattingStyle = formattingStyle;
+    if (formattingStyle == null) {
       this.separator = ":";
     } else {
-      this.indent = indent;
       this.separator = ": ";
     }
   }
 
   /**
-   * Sets the newline string to be used in the encoded document.
+   * Returns the pretty printing style used by this writer.
    *
-   * <p>Has no effect if the serialized format is a single line.</p>
-   *
-   * @param newline the string that will be used for newline.
+   * @return the FormattingStyle that will be used.
    * @since $next-version$
    */
-  public final void setNewline(String newline) {
-    this.newline = Objects.requireNonNull(newline, "newline == null");
-  }
-
-  /**
-   * Returns the newline string used by this writer.
-   *
-   * @return the string that will be used for newline.
-   * @since $next-version$
-   */
-  public final String getNewline() {
-    return newline;
+  public final FormattingStyle getFormattingStyle() {
+    return formattingStyle;
   }
 
   /**
@@ -672,13 +676,13 @@ public class JsonWriter implements Closeable, Flushable {
   }
 
   private void newline() throws IOException {
-    if (indent == null) {
+    if (formattingStyle == null) {
       return;
     }
 
-    out.write(newline);
+    out.write(formattingStyle.getNewline());
     for (int i = 1, size = stackSize; i < size; i++) {
-      out.write(indent);
+      out.write(formattingStyle.getIndent());
     }
   }
 

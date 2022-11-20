@@ -16,6 +16,7 @@
 
 package com.google.gson.stream;
 
+import com.google.gson.FormattingStyle;
 import com.google.gson.internal.LazilyParsedNumber;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -800,13 +801,12 @@ public final class JsonWriterTest extends TestCase {
     writer.close();
   }
 
-  public void testSetGetNewline() throws IOException {
-    String lineSeparator = "\u2028";
+  public void testSetGetFormattingStyle() throws IOException {
+    String lineSeparator = "\r\n";
 
     StringWriter stringWriter = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
-    jsonWriter.setIndent("   ");
-    jsonWriter.setNewline(lineSeparator);
+    jsonWriter.setFormattingStyle(FormattingStyle.DEFAULT.withIndent(" \t ").withNewline(lineSeparator));
 
     jsonWriter.beginArray();
     jsonWriter.value(true);
@@ -815,14 +815,14 @@ public final class JsonWriterTest extends TestCase {
     jsonWriter.nullValue();
     jsonWriter.endArray();
 
-    String expected = "[\u2028"
-        + "   true,\u2028"
-        + "   \"text\",\u2028"
-        + "   5.0,\u2028"
-        + "   null\u2028"
+    String expected = "[\r\n"
+        + " \t true,\r\n"
+        + " \t \"text\",\r\n"
+        + " \t 5.0,\r\n"
+        + " \t null\r\n"
         + "]";
     assertEquals(expected, stringWriter.toString());
 
-    assertEquals(lineSeparator, jsonWriter.getNewline());
+    assertEquals(lineSeparator, jsonWriter.getFormattingStyle().getNewline());
   }
 }

@@ -23,8 +23,7 @@ import static com.google.gson.Gson.DEFAULT_JSON_NON_EXECUTABLE;
 import static com.google.gson.Gson.DEFAULT_LENIENT;
 import static com.google.gson.Gson.DEFAULT_NUMBER_TO_NUMBER_STRATEGY;
 import static com.google.gson.Gson.DEFAULT_OBJECT_TO_NUMBER_STRATEGY;
-import static com.google.gson.Gson.DEFAULT_PRETTY_PRINT;
-import static com.google.gson.Gson.DEFAULT_NEWLINE_STYLE;
+import static com.google.gson.Gson.DEFAULT_FORMATTING_STYLE;
 import static com.google.gson.Gson.DEFAULT_SERIALIZE_NULLS;
 import static com.google.gson.Gson.DEFAULT_SPECIALIZE_FLOAT_VALUES;
 import static com.google.gson.Gson.DEFAULT_USE_JDK_UNSAFE;
@@ -68,7 +67,6 @@ import java.util.Objects;
  *     .setDateFormat(DateFormat.LONG)
  *     .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
  *     .setPrettyPrinting()
- *     .setNewlineStyle(NewlineStyle.CURRENT_OS)
  *     .setVersion(1.0)
  *     .create();
  * </pre>
@@ -100,8 +98,7 @@ public final class GsonBuilder {
   private boolean complexMapKeySerialization = DEFAULT_COMPLEX_MAP_KEYS;
   private boolean serializeSpecialFloatingPointValues = DEFAULT_SPECIALIZE_FLOAT_VALUES;
   private boolean escapeHtmlChars = DEFAULT_ESCAPE_HTML;
-  private boolean prettyPrinting = DEFAULT_PRETTY_PRINT;
-  private NewlineStyle newlineStyle = DEFAULT_NEWLINE_STYLE;
+  private FormattingStyle formattingStyle = DEFAULT_FORMATTING_STYLE;
   private boolean generateNonExecutableJson = DEFAULT_JSON_NON_EXECUTABLE;
   private boolean lenient = DEFAULT_LENIENT;
   private boolean useJdkUnsafe = DEFAULT_USE_JDK_UNSAFE;
@@ -132,8 +129,7 @@ public final class GsonBuilder {
     this.complexMapKeySerialization = gson.complexMapKeySerialization;
     this.generateNonExecutableJson = gson.generateNonExecutableJson;
     this.escapeHtmlChars = gson.htmlSafe;
-    this.prettyPrinting = gson.prettyPrinting;
-    this.newlineStyle = gson.newlineStyle;
+    this.formattingStyle = gson.formattingStyle;
     this.lenient = gson.lenient;
     this.serializeSpecialFloatingPointValues = gson.serializeSpecialFloatingPointValues;
     this.longSerializationPolicy = gson.longSerializationPolicy;
@@ -488,12 +484,11 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
   public GsonBuilder setPrettyPrinting() {
-    prettyPrinting = true;
-    return this;
+    return setPrettyPrinting(FormattingStyle.DEFAULT);
   }
 
   /**
-   * Configures Gson to output JSON that uses a certain kind of newline.
+   * Configures Gson to output JSON that uses a certain kind of formatting stile (for example newline and indent).
    * This option only affects JSON serialization.
    *
    * <p>Has no effect if the serialized format is a single line.</p>
@@ -501,8 +496,8 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since $next-version$
    */
-  public GsonBuilder setNewlineStyle(NewlineStyle newlineStyle) {
-    this.newlineStyle = Objects.requireNonNull(newlineStyle);
+  public GsonBuilder setPrettyPrinting(FormattingStyle formattingStyle) {
+    this.formattingStyle = formattingStyle;
     return this;
   }
 
@@ -779,7 +774,7 @@ public final class GsonBuilder {
 
     return new Gson(excluder, fieldNamingPolicy, new HashMap<>(instanceCreators),
         serializeNulls, complexMapKeySerialization,
-        generateNonExecutableJson, escapeHtmlChars, prettyPrinting, newlineStyle, lenient,
+        generateNonExecutableJson, escapeHtmlChars, formattingStyle, lenient,
         serializeSpecialFloatingPointValues, useJdkUnsafe, longSerializationPolicy,
         datePattern, dateStyle, timeStyle, new ArrayList<>(this.factories),
         new ArrayList<>(this.hierarchyFactories), factories,
