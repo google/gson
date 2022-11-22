@@ -30,6 +30,8 @@ import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 import junit.framework.TestCase;
 
 /**
@@ -156,7 +158,7 @@ public final class GsonTest extends TestCase {
   }
 
   /**
-   * Verify that {@link Gson#getAdapter(TypeToken)} does not put broken adapters
+   * Verifies that {@link Gson#getAdapter(TypeToken)} does not put broken adapters
    * into {@code typeTokenCache} when caller of nested {@code getAdapter} discards
    * exception, e.g.:
    *
@@ -178,8 +180,9 @@ public final class GsonTest extends TestCase {
    * Then Gson must not cache adapter for ClassC because it refers to broken adapter
    * for ClassB1 (since ClassX threw exception).
    */
-  public void testGetAdapterDiscardedException() {
+  public void testGetAdapterDiscardedException() throws Exception {
     final TypeAdapter<?> alternativeAdapter = new DummyAdapter<>();
+    final AtomicReference<TypeAdapter<?>> leakedAdapter = new AtomicReference<>();
 
     Gson gson = new GsonBuilder()
       .registerTypeAdapterFactory(new TypeAdapterFactory() {
@@ -209,6 +212,8 @@ public final class GsonTest extends TestCase {
             // Will return future adapter due to cyclic dependency B1 -> C -> B1
             TypeAdapter<?> adapter = gson.getAdapter(CustomClassB1.class);
             assertTrue(adapter instanceof FutureTypeAdapter);
+            // Pretend this factory somehow leaks this FutureTypeAdapter
+            leakedAdapter.set(adapter);
             return new DummyAdapter<T>();
           }
           else if (type.getRawType() == CustomClassX.class) {
@@ -235,13 +240,127 @@ public final class GsonTest extends TestCase {
     } catch (Exception e) {
       assertEquals("test exception", e.getMessage());
     }
+
+    // Leaked adapter should have been marked as "broken"
+    try {
+      leakedAdapter.get().fromJson("{}");
+      fail("Expected exception");
+    } catch (IllegalStateException e) {
+      assertEquals("Broken adapter has been leaked by TypeAdapterFactory", e.getMessage());
+    }
+  }
+
+  /**
+   * Verifies that two threads calling {@link Gson#getAdapter(TypeToken)} do not see the
+   * same unresolved {@link FutureTypeAdapter} instance, since that would not be thread-safe.
+   *
+   * This test constructs the cyclic dependency CustomClassA -> CustomClassB1 -> CustomClassA
+   * and lets one thread wait after the adapter for CustomClassB1 has been obtained (which still
+   * contains the nested unresolved FutureTypeAdapter for CustomClassA).
+   */
+  public void testGetAdapterFutureAdapterConcurrency() throws Exception {
+    /**
+     * Adapter which wraps another adapter. Can be imagined as a simplified version of the
+     * ReflectiveTypeAdapterFactory$Adapter.
+     */
+    class WrappingAdapter<T> extends TypeAdapter<T> {
+      final TypeAdapter<?> wrapped;
+      int callCount = 0;
+
+      WrappingAdapter(TypeAdapter<?> wrapped) {
+        this.wrapped = wrapped;
+      }
+
+      @Override public void write(JsonWriter out, T value) throws IOException {
+        // Due to how this test is set up there is infinite recursion, therefore
+        // need to track how deeply nested this call is
+        if (callCount == 0) {
+          callCount++;
+          out.beginArray();
+          wrapped.write(out, null);
+          out.endArray();
+        } else {
+          out.value("wrapped-nested");
+        }
+      }
+
+      @Override public T read(JsonReader in) throws IOException {
+        throw new AssertionError("not needed for this test");
+      }
+    }
+
+    final CountDownLatch isThreadWaiting = new CountDownLatch(1);
+    final CountDownLatch canThreadProceed = new CountDownLatch(1);
+
+    final Gson gson = new GsonBuilder()
+      .registerTypeAdapterFactory(new TypeAdapterFactory() {
+        // volatile instead of AtomicBoolean is safe here because CountDownLatch prevents
+        // "true" concurrency
+        volatile boolean isFirstCaller = true;
+
+        @Override
+        public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+          Class<?> raw = type.getRawType();
+
+          if (raw == CustomClassA.class) {
+            // Retrieves a WrappingAdapter containing a nested FutureAdapter for CustomClassA
+            TypeAdapter<?> adapter = gson.getAdapter(CustomClassB1.class);
+
+            // Let thread wait so the FutureAdapter for CustomClassA nested in the adapter
+            // for CustomClassB1 has not been resolved yet
+            if (isFirstCaller) {
+              isFirstCaller = false;
+              isThreadWaiting.countDown();
+
+              try {
+                canThreadProceed.await();
+              } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+              }
+            }
+
+            return new WrappingAdapter<>(adapter);
+          }
+          else if (raw == CustomClassB1.class) {
+            TypeAdapter<?> adapter = gson.getAdapter(CustomClassA.class);
+            assertTrue(adapter instanceof FutureTypeAdapter);
+            return new WrappingAdapter<>(adapter);
+          }
+          else {
+            throw new AssertionError("Adapter for unexpected type requested: " + raw);
+          }
+        }
+      })
+      .create();
+
+    final AtomicReference<TypeAdapter<?>> otherThreadAdapter = new AtomicReference<>();
+    Thread thread = new Thread() {
+      @Override
+      public void run() {
+        otherThreadAdapter.set(gson.getAdapter(CustomClassA.class));
+      }
+    };
+    thread.start();
+
+    // Wait until other thread has obtained FutureAdapter
+    isThreadWaiting.await();
+    TypeAdapter<?> adapter = gson.getAdapter(CustomClassA.class);
+    // Should not fail due to referring to unresolved FutureTypeAdapter
+    assertEquals("[[\"wrapped-nested\"]]", adapter.toJson(null));
+
+    // Let other thread proceed and have it resolve its FutureTypeAdapter
+    canThreadProceed.countDown();
+    thread.join();
+    assertEquals("[[\"wrapped-nested\"]]", otherThreadAdapter.get().toJson(null));
   }
 
   private static class DummyAdapter<T> extends TypeAdapter<T> {
-    @Override public T read(JsonReader in) throws IOException {
-      return null;
-    }
     @Override public void write(JsonWriter out, T value) throws IOException {
+      throw new AssertionError("not needed for this test");
+    }
+
+    @Override public T read(JsonReader in) throws IOException {
+      throw new AssertionError("not needed for this test");
     }
   }
 

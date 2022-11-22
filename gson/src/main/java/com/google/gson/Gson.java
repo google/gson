@@ -16,27 +16,6 @@
 
 package com.google.gson;
 
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.lang.reflect.Type;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicLongArray;
-
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.Excluder;
 import com.google.gson.internal.GsonBuildConfig;
@@ -60,6 +39,26 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.google.gson.stream.MalformedJsonException;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicLongArray;
 
 /**
  * This is the main class for using Gson. Gson is typically used by first constructing a
@@ -129,8 +128,8 @@ public final class Gson {
    * lookup would stack overflow. We cheat by returning a proxy type adapter.
    * The proxy is wired up once the initial adapter has been created.
    */
-  private final ThreadLocal<LinkedHashMap<TypeToken<?>, FutureTypeAdapter<?>>> calls
-      = new ThreadLocal<LinkedHashMap<TypeToken<?>, FutureTypeAdapter<?>>>();
+  // Uses LinkedHashMap because iteration order is important, see getAdapter() implementation below
+  private final ThreadLocal<LinkedHashMap<TypeToken<?>, TypeAdapter<?>>> calls = new ThreadLocal<>();
 
   private final ConcurrentMap<TypeToken<?>, TypeAdapter<?>> typeTokenCache = new ConcurrentHashMap<TypeToken<?>, TypeAdapter<?>>();
 
@@ -481,40 +480,40 @@ public final class Gson {
       return (TypeAdapter<T>) cached;
     }
 
-    LinkedHashMap<TypeToken<?>, FutureTypeAdapter<?>> threadCalls = calls.get();
+    LinkedHashMap<TypeToken<?>, TypeAdapter<?>> threadCalls = calls.get();
     boolean isInitialAdapterRequest = false;
     if (threadCalls == null) {
-      threadCalls = new LinkedHashMap<TypeToken<?>, FutureTypeAdapter<?>>();
+      threadCalls = new LinkedHashMap<>();
       calls.set(threadCalls);
       isInitialAdapterRequest = true;
     }
 
     // the key and value type parameters always agree
-    FutureTypeAdapter<T> ongoingCall = (FutureTypeAdapter<T>) threadCalls.get(type);
+    TypeAdapter<T> ongoingCall = (TypeAdapter<T>) threadCalls.get(type);
     if (ongoingCall != null) {
-      TypeAdapter<T> resolvedAdapter = ongoingCall.delegate;
-      return resolvedAdapter != null ? resolvedAdapter : ongoingCall;
+      return ongoingCall;
     }
 
     int existingAdaptersCount = threadCalls.size();
     boolean foundCandidate = false;
     try {
-      FutureTypeAdapter<T> call = new FutureTypeAdapter<T>();
+      FutureTypeAdapter<T> call = new FutureTypeAdapter<>();
       threadCalls.put(type, call);
 
       for (TypeAdapterFactory factory : factories) {
         TypeAdapter<T> candidate = factory.create(this, type);
         if (candidate != null) {
           call.setDelegate(candidate);
+          // Replace future adapter with actual adapter
+          threadCalls.put(type, candidate);
 
           if (isInitialAdapterRequest) {
             // Publish resolved adapters to all threads
             // Can only do this for the initial request because cyclic dependency TypeA -> TypeB -> TypeA
             // would otherwise publish adapter for TypeB which uses not yet resolved adapter for TypeA
             // See https://github.com/google/gson/issues/625
-            for (Map.Entry<TypeToken<?>, FutureTypeAdapter<?>> resolvedAdapterEntry : threadCalls.entrySet()) {
-              TypeAdapter<?> resolvedAdapter = resolvedAdapterEntry.getValue().delegate;
-              typeTokenCache.putIfAbsent(resolvedAdapterEntry.getKey(), resolvedAdapter);
+            for (Map.Entry<TypeToken<?>, TypeAdapter<?>> resolvedAdapterEntry : threadCalls.entrySet()) {
+              typeTokenCache.putIfAbsent(resolvedAdapterEntry.getKey(), resolvedAdapterEntry.getValue());
             }
           }
           foundCandidate = true;
@@ -527,7 +526,7 @@ public final class Gson {
         calls.remove();
       }
       if (!foundCandidate) {
-        Iterator<FutureTypeAdapter<?>> adaptersIterator = threadCalls.values().iterator();
+        Iterator<TypeAdapter<?>> adaptersIterator = threadCalls.values().iterator();
         // Skip existing non-broken adapters
         for (; existingAdaptersCount > 0; existingAdaptersCount--) {
           adaptersIterator.next();
@@ -535,10 +534,12 @@ public final class Gson {
         // Remove this future adapter and all nested ones because they might
         // refer to broken adapters
         while (adaptersIterator.hasNext()) {
-          FutureTypeAdapter<?> brokenAdapter = adaptersIterator.next();
-          // Mark adapter as broken so user sees useful exception message in
-          // case TypeAdapterFactory leaks reference to broken adapter
-          brokenAdapter.markBroken();
+          TypeAdapter<?> brokenAdapter = adaptersIterator.next();
+          if (brokenAdapter instanceof FutureTypeAdapter) {
+            // Mark adapter as broken so user sees useful exception message in
+            // case TypeAdapterFactory leaks reference to broken adapter
+            ((FutureTypeAdapter<T>) brokenAdapter).markBroken();
+          }
           adaptersIterator.remove();
         }
       }
@@ -1093,7 +1094,7 @@ public final class Gson {
   }
 
   static class FutureTypeAdapter<T> extends TypeAdapter<T> {
-    TypeAdapter<T> delegate = null;
+    private TypeAdapter<T> delegate = null;
     private boolean isBroken = false;
 
     public void setDelegate(TypeAdapter<T> typeAdapter) {
@@ -1113,8 +1114,10 @@ public final class Gson {
         throw new IllegalStateException("Broken adapter has been leaked by TypeAdapterFactory");
       }
       if (delegate == null) {
-        throw new IllegalStateException("Adapter for type with cyclic dependency has been leaked to "
-            + "other thread before dependency has been resolved");
+        // Can occur when adapter is leaked to other thread or when adapter is used for (de-)serialization
+        // directly within the TypeAdapterFactory which requested it
+        throw new IllegalStateException("Adapter for type with cyclic dependency has been used"
+            + " before dependency has been resolved");
       }
       return delegate;
     }
