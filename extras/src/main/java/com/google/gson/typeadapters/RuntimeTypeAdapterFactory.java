@@ -16,10 +16,6 @@
 
 package com.google.gson.typeadapters;
 
-import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -30,6 +26,9 @@ import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Adapts values whose runtime type may differ from their declaration type. This
@@ -92,7 +91,7 @@ import com.google.gson.stream.JsonWriter;
  * Both the type field name ({@code "type"}) and the type labels ({@code
  * "Rectangle"}) are configurable.
  *
- * <h3>Registering Types</h3>
+ * <h2>Registering Types</h2>
  * Create a {@code RuntimeTypeAdapterFactory} by passing the base type and type field
  * name to the {@link #of} factory method. If you don't supply an explicit type
  * field name, {@code "type"} will be used. <pre>   {@code
@@ -120,7 +119,7 @@ import com.google.gson.stream.JsonWriter;
  *       .registerSubtype(Diamond.class);
  * }</pre>
  *
- * <h3>Serialization and deserialization</h3>
+ * <h2>Serialization and deserialization</h2>
  * In order to serialize and deserialize a polymorphic object,
  * you must specify the base type explicitly.
  * <pre>   {@code
@@ -135,11 +134,13 @@ import com.google.gson.stream.JsonWriter;
 public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
   private final Class<?> baseType;
   private final String typeFieldName;
-  private final Map<String, Class<?>> labelToSubtype = new LinkedHashMap<String, Class<?>>();
-  private final Map<Class<?>, String> subtypeToLabel = new LinkedHashMap<Class<?>, String>();
+  private final Map<String, Class<?>> labelToSubtype = new LinkedHashMap<>();
+  private final Map<Class<?>, String> subtypeToLabel = new LinkedHashMap<>();
   private final boolean maintainType;
+  private boolean recognizeSubtypes;
 
-  private RuntimeTypeAdapterFactory(Class<?> baseType, String typeFieldName, boolean maintainType) {
+  private RuntimeTypeAdapterFactory(
+      Class<?> baseType, String typeFieldName, boolean maintainType) {
     if (typeFieldName == null || baseType == null) {
       throw new NullPointerException();
     }
@@ -151,18 +152,19 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
   /**
    * Creates a new runtime type adapter using for {@code baseType} using {@code
    * typeFieldName} as the type field name. Type field names are case sensitive.
-   * {@code maintainType} flag decide if the type will be stored in pojo or not.
+   *
+   * @param maintainType true if the type field should be included in deserialized objects
    */
   public static <T> RuntimeTypeAdapterFactory<T> of(Class<T> baseType, String typeFieldName, boolean maintainType) {
-    return new RuntimeTypeAdapterFactory<T>(baseType, typeFieldName, maintainType);
+    return new RuntimeTypeAdapterFactory<>(baseType, typeFieldName, maintainType);
   }
-  
+
   /**
    * Creates a new runtime type adapter using for {@code baseType} using {@code
    * typeFieldName} as the type field name. Type field names are case sensitive.
    */
   public static <T> RuntimeTypeAdapterFactory<T> of(Class<T> baseType, String typeFieldName) {
-    return new RuntimeTypeAdapterFactory<T>(baseType, typeFieldName, false);
+    return new RuntimeTypeAdapterFactory<>(baseType, typeFieldName, false);
   }
 
   /**
@@ -170,7 +172,16 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
    * the type field name.
    */
   public static <T> RuntimeTypeAdapterFactory<T> of(Class<T> baseType) {
-    return new RuntimeTypeAdapterFactory<T>(baseType, "type", false);
+    return new RuntimeTypeAdapterFactory<>(baseType, "type", false);
+  }
+
+  /**
+   * Ensures that this factory will handle not just the given {@code baseType}, but any subtype
+   * of that type.
+   */
+  public RuntimeTypeAdapterFactory<T> recognizeSubtypes() {
+    this.recognizeSubtypes = true;
+    return this;
   }
 
   /**
@@ -205,15 +216,19 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
 
   @Override
   public <R> TypeAdapter<R> create(Gson gson, TypeToken<R> type) {
-    if (type.getRawType() != baseType) {
+    if (type == null) {
+      return null;
+    }
+    Class<?> rawType = type.getRawType();
+    boolean handle =
+        recognizeSubtypes ? baseType.isAssignableFrom(rawType) : baseType.equals(rawType);
+    if (!handle) {
       return null;
     }
 
     final TypeAdapter<JsonElement> jsonElementAdapter = gson.getAdapter(JsonElement.class);
-    final Map<String, TypeAdapter<?>> labelToDelegate
-        = new LinkedHashMap<String, TypeAdapter<?>>();
-    final Map<Class<?>, TypeAdapter<?>> subtypeToDelegate
-        = new LinkedHashMap<Class<?>, TypeAdapter<?>>();
+    final Map<String, TypeAdapter<?>> labelToDelegate = new LinkedHashMap<>();
+    final Map<Class<?>, TypeAdapter<?>> subtypeToDelegate = new LinkedHashMap<>();
     for (Map.Entry<String, Class<?>> entry : labelToSubtype.entrySet()) {
       TypeAdapter<?> delegate = gson.getDelegateAdapter(this, TypeToken.get(entry.getValue()));
       labelToDelegate.put(entry.getKey(), delegate);
@@ -229,7 +244,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
         } else {
             labelJsonElement = jsonElement.getAsJsonObject().remove(typeFieldName);
         }
-        
+
         if (labelJsonElement == null) {
           throw new JsonParseException("cannot deserialize " + baseType
               + " because it does not define a field named " + typeFieldName);
@@ -267,7 +282,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
               + " because it already defines a field named " + typeFieldName);
         }
         clone.add(typeFieldName, new JsonPrimitive(label));
-        
+
         for (Map.Entry<String, JsonElement> e : jsonObject.entrySet()) {
           clone.add(e.getKey(), e.getValue());
         }

@@ -29,15 +29,13 @@ import com.google.gson.JsonSerializer;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.common.TestTypes.ClassWithCustomTypeConverter;
 import com.google.gson.reflect.TypeToken;
-
-import java.util.Date;
-import junit.framework.TestCase;
-
 import java.lang.reflect.Type;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import junit.framework.TestCase;
 
 /**
  * Functional tests for the support of custom serializer and deserializers.
@@ -220,12 +218,11 @@ public class CustomTypeAdaptersTest extends TestCase {
     assertEquals("true", gson.toJson(true, Boolean.class));
   }
 
-  @SuppressWarnings("rawtypes")
   public void testCustomDeserializerInvokedForPrimitives() {
     Gson gson = new GsonBuilder()
-        .registerTypeAdapter(boolean.class, new JsonDeserializer() {
+        .registerTypeAdapter(boolean.class, new JsonDeserializer<Boolean>() {
           @Override
-          public Object deserialize(JsonElement json, Type t, JsonDeserializationContext context) {
+          public Boolean deserialize(JsonElement json, Type t, JsonDeserializationContext context) {
             return json.getAsInt() != 0;
           }
         })
@@ -314,7 +311,7 @@ public class CustomTypeAdaptersTest extends TestCase {
       .create();
     Type setType = new TypeToken<Set<StringHolder>>() {}.getType();
     StringHolder holder = new StringHolder("Jacob", "Tomaw");
-    Set<StringHolder> setOfHolders = new HashSet<StringHolder>();
+    Set<StringHolder> setOfHolders = new HashSet<>();
     setOfHolders.add(holder);
     String json = gson.toJson(setOfHolders, setType);
     assertTrue(json.contains("Jacob:Tomaw"));
@@ -326,7 +323,7 @@ public class CustomTypeAdaptersTest extends TestCase {
       .registerTypeAdapter(StringHolder.class, new StringHolderTypeAdapter())
       .create();
     StringHolder holder = new StringHolder("Jacob", "Tomaw");
-    Set<StringHolder> setOfHolders = new HashSet<StringHolder>();
+    Set<StringHolder> setOfHolders = new HashSet<>();
     setOfHolders.add(holder);
     String json = gson.toJson(setOfHolders);
     assertTrue(json.contains("Jacob:Tomaw"));
@@ -352,7 +349,7 @@ public class CustomTypeAdaptersTest extends TestCase {
       .create();
     Type mapType = new TypeToken<Map<String,StringHolder>>() {}.getType();
     StringHolder holder = new StringHolder("Jacob", "Tomaw");
-    Map<String, StringHolder> mapOfHolders = new HashMap<String, StringHolder>();
+    Map<String, StringHolder> mapOfHolders = new HashMap<>();
     mapOfHolders.put("foo", holder);
     String json = gson.toJson(mapOfHolders, mapType);
     assertTrue(json.contains("\"foo\":\"Jacob:Tomaw\""));
@@ -364,7 +361,7 @@ public class CustomTypeAdaptersTest extends TestCase {
       .registerTypeAdapter(StringHolder.class, new StringHolderTypeAdapter())
       .create();
     StringHolder holder = new StringHolder("Jacob", "Tomaw");
-    Map<String, StringHolder> mapOfHolders = new HashMap<String, StringHolder>();
+    Map<String, StringHolder> mapOfHolders = new HashMap<>();
     mapOfHolders.put("foo", holder);
     String json = gson.toJson(mapOfHolders);
     assertTrue(json.contains("\"foo\":\"Jacob:Tomaw\""));

@@ -33,42 +33,36 @@ public final class UnsafeAllocatorInstantiationTest extends TestCase {
   }
 
   /**
-   * Ensure that the {@link java.lang.UnsupportedOperationException} is thrown when trying
+   * Ensure that an {@link AssertionError} is thrown when trying
    * to instantiate an interface
    */
-  public void testInterfaceInstantiation() {
-    UnsafeAllocator unsafeAllocator = UnsafeAllocator.create();
+  public void testInterfaceInstantiation() throws Exception {
     try {
-      unsafeAllocator.newInstance(Interface.class);
+      UnsafeAllocator.INSTANCE.newInstance(Interface.class);
       fail();
-    } catch (Exception e) {
-      assertEquals(e.getClass(), UnsupportedOperationException.class);
+    } catch (AssertionError e) {
+      assertTrue(e.getMessage().startsWith("UnsafeAllocator is used for non-instantiable type"));
     }
   }
 
   /**
-   * Ensure that the {@link java.lang.UnsupportedOperationException} is thrown when trying
+   * Ensure that an {@link AssertionError} is thrown when trying
    * to instantiate an abstract class
    */
-  public void testAbstractClassInstantiation() {
-    UnsafeAllocator unsafeAllocator = UnsafeAllocator.create();
+  public void testAbstractClassInstantiation() throws Exception {
     try {
-      unsafeAllocator.newInstance(AbstractClass.class);
+      UnsafeAllocator.INSTANCE.newInstance(AbstractClass.class);
       fail();
-    } catch (Exception e) {
-      assertEquals(e.getClass(), UnsupportedOperationException.class);
+    } catch (AssertionError e) {
+      assertTrue(e.getMessage().startsWith("UnsafeAllocator is used for non-instantiable type"));
     }
   }
 
   /**
    * Ensure that no exception is thrown when trying to instantiate a concrete class
    */
-  public void testConcreteClassInstantiation() {
-    UnsafeAllocator unsafeAllocator = UnsafeAllocator.create();
-    try {
-      unsafeAllocator.newInstance(ConcreteClass.class);
-    } catch (Exception e) {
-      fail();
-    }
+  public void testConcreteClassInstantiation() throws Exception {
+    ConcreteClass instance = UnsafeAllocator.INSTANCE.newInstance(ConcreteClass.class);
+    assertNotNull(instance);
   }
 }

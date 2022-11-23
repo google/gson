@@ -34,7 +34,7 @@ public class MapAsArrayTypeAdapterTest extends TestCase {
         .enableComplexMapKeySerialization()
         .create();
 
-    Map<Point, String> original = new LinkedHashMap<Point, String>();
+    Map<Point, String> original = new LinkedHashMap<>();
     original.put(new Point(5, 5), "a");
     original.put(new Point(8, 8), "b");
     String json = gson.toJson(original, type);
@@ -42,7 +42,7 @@ public class MapAsArrayTypeAdapterTest extends TestCase {
     assertEquals(original, gson.<Map<Point, String>>fromJson(json, type));
 
     // test that registering a type adapter for one map doesn't interfere with others
-    Map<String, Boolean> otherMap = new LinkedHashMap<String, Boolean>();
+    Map<String, Boolean> otherMap = new LinkedHashMap<>();
     otherMap.put("t", true);
     otherMap.put("f", false);
     assertEquals("{\"t\":true,\"f\":false}",
@@ -58,7 +58,7 @@ public class MapAsArrayTypeAdapterTest extends TestCase {
         .enableComplexMapKeySerialization()
         .create();
 
-    Map<Number, String> original = new LinkedHashMap<Number, String>();
+    Map<Number, String> original = new LinkedHashMap<>();
     original.put(1.0D, "a");
     original.put(1.0F, "b");
     try {
@@ -88,7 +88,7 @@ public class MapAsArrayTypeAdapterTest extends TestCase {
         .enableComplexMapKeySerialization()
         .create();
 
-    Map<Point, String> original = new LinkedHashMap<Point, String>();
+    Map<Point, String> original = new LinkedHashMap<>();
     original.put(new Point(6, 5), "abc");
     original.put(new Point(1, 8), "def");
     String json = gson.toJson(original, type);
@@ -98,7 +98,7 @@ public class MapAsArrayTypeAdapterTest extends TestCase {
 
   public void testMapWithTypeVariableSerialization() {
     Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
-    PointWithProperty<Point> map = new PointWithProperty<Point>();
+    PointWithProperty<Point> map = new PointWithProperty<>();
     map.map.put(new Point(2, 3), new Point(4, 5));
     Type type = new TypeToken<PointWithProperty<Point>>(){}.getType();
     String json = gson.toJson(map, type);
@@ -136,6 +136,6 @@ public class MapAsArrayTypeAdapterTest extends TestCase {
   }
 
   static class PointWithProperty<T> {
-    Map<Point, T> map = new HashMap<Point, T>();
+    Map<Point, T> map = new HashMap<>();
   }
 }

@@ -113,7 +113,7 @@ public class PerformanceTest extends TestCase {
    */
   public void disabled_testLargeCollectionSerialization() {
     int count = 1400000;
-    List<CollectionEntry> list = new ArrayList<CollectionEntry>(count);
+    List<CollectionEntry> list = new ArrayList<>(count);
     for (int i = 0; i < count; ++i) {
       list.add(new CollectionEntry("name"+i,"value"+i));
     }    
@@ -162,7 +162,7 @@ public class PerformanceTest extends TestCase {
    * Created in response to http://code.google.com/p/google-gson/issues/detail?id=96
    */
   // Last I tested, Gson was able to deserialize a byte array of 11MB
-  public void disable_testByteArrayDeserialization() {
+  public void disabled_testByteArrayDeserialization() {
     for (int numElements = 10639296; true; numElements += 16384) {
       StringBuilder sb = new StringBuilder(numElements*2);
       sb.append("[");
@@ -218,8 +218,8 @@ public class PerformanceTest extends TestCase {
     System.out.printf("Deserialize classes avg time: %d ms\n", avg);
   }
   
-  public void disable_testLargeObjectSerializationAndDeserialization() {
-    Map<String, Long> largeObject = new HashMap<String, Long>();
+  public void disabled_testLargeObjectSerializationAndDeserialization() {
+    Map<String, Long> largeObject = new HashMap<>();
     for (long l = 0; l < 100000; l++) {
       largeObject.put("field" + l, l);
     }
@@ -265,7 +265,7 @@ public class PerformanceTest extends TestCase {
   }
 
   public void disabled_testLargeGsonMapRoundTrip() throws Exception {
-    Map<Long, Long> original = new HashMap<Long, Long>();
+    Map<Long, Long> original = new HashMap<>();
     for (long i = 0; i < 1000000; i++) {
       original.put(i, i + 1);
     }
@@ -298,7 +298,7 @@ public class PerformanceTest extends TestCase {
   @SuppressWarnings("unused")
   private static final class ClassWithList { 
     final String field; 
-    final List<ClassWithField> list = new ArrayList<ClassWithField>(COLLECTION_SIZE);
+    final List<ClassWithField> list = new ArrayList<>(COLLECTION_SIZE);
     ClassWithList() {
       this(null);
     }
@@ -323,7 +323,7 @@ public class PerformanceTest extends TestCase {
     @Expose 
     final String field; 
     @Expose 
-    final List<ClassWithExposedField> list = new ArrayList<ClassWithExposedField>(COLLECTION_SIZE);
+    final List<ClassWithExposedField> list = new ArrayList<>(COLLECTION_SIZE);
     ClassWithListOfObjects() {
       this(null);
     }

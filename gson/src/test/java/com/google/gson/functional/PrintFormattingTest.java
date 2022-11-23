@@ -23,11 +23,9 @@ import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.common.TestTypes.ClassWithTransientFields;
 import com.google.gson.common.TestTypes.Nested;
 import com.google.gson.common.TestTypes.PrimitiveArray;
-
-import junit.framework.TestCase;
-
 import java.util.ArrayList;
 import java.util.List;
+import junit.framework.TestCase;
 
 /**
  * Functional tests for print formatting.
@@ -45,13 +43,12 @@ public class PrintFormattingTest extends TestCase {
     gson = new Gson();
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes"})
   public void testCompactFormattingLeavesNoWhiteSpace() {
-    List list = new ArrayList();
+    List<Object> list = new ArrayList<>();
     list.add(new BagOfPrimitives());
     list.add(new Nested());
     list.add(new PrimitiveArray());
-    list.add(new ClassWithTransientFields());
+    list.add(new ClassWithTransientFields<>());
 
     String json = gson.toJson(list);
     assertContainsNoWhiteSpace(json);

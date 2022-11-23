@@ -17,11 +17,9 @@
 package com.google.gson;
 
 import com.google.gson.common.MoreAsserts;
-
-import junit.framework.TestCase;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import junit.framework.TestCase;
 
 /**
  * Unit test for the {@link JsonPrimitive} class.
@@ -98,6 +96,17 @@ public class JsonPrimitiveTest extends TestCase {
     assertEquals(new BigDecimal("1"), json.getAsBigDecimal());
   }
 
+  public void testAsNumber_Boolean() {
+    JsonPrimitive json = new JsonPrimitive(true);
+    try {
+      json.getAsNumber();
+      fail();
+    } catch (UnsupportedOperationException e) {
+      assertEquals("Primitive is neither a number nor a string", e.getMessage());
+    }
+  }
+
+  @SuppressWarnings("deprecation")
   public void testStringsAndChar() throws Exception {
     JsonPrimitive json = new JsonPrimitive("abc");
     assertTrue(json.isString());
@@ -111,6 +120,15 @@ public class JsonPrimitiveTest extends TestCase {
 
     json = new JsonPrimitive(true);
     assertEquals("true", json.getAsString());
+
+    json = new JsonPrimitive("");
+    assertEquals("", json.getAsString());
+    try {
+      json.getAsCharacter();
+      fail();
+    } catch (UnsupportedOperationException e) {
+      assertEquals("String value is empty", e.getMessage());
+    }
   }
 
   public void testExponential() throws Exception {
@@ -256,7 +274,7 @@ public class JsonPrimitiveTest extends TestCase {
   public void testEqualsIntegerAndBigInteger() {
     JsonPrimitive a = new JsonPrimitive(5L);
     JsonPrimitive b = new JsonPrimitive(new BigInteger("18446744073709551621")); // 2^64 + 5
-    // Ideally, the following assertion should have failed but the price is too much to pay 
+    // Ideally, the following assertion should have failed but the price is too much to pay
     // assertFalse(a + " equals " + b, a.equals(b));
     assertTrue(a + " equals " + b, a.equals(b));
   }

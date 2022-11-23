@@ -23,11 +23,12 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.MalformedJsonException;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Arrays;
 
 /**
  * This reader walks the elements of a JsonElement as if it was coming from a
@@ -92,6 +93,7 @@ public final class JsonTreeReader extends JsonReader {
 
   @Override public void endObject() throws IOException {
     expect(JsonToken.END_OBJECT);
+    pathNames[stackSize - 1] = null; // Free the last path name so that it can be garbage collected
     popStack(); // empty iterator
     popStack(); // object
     if (stackSize > 0) {
@@ -143,7 +145,7 @@ public final class JsonTreeReader extends JsonReader {
     } else if (o == SENTINEL_CLOSED) {
       throw new IllegalStateException("JsonReader is closed");
     } else {
-      throw new AssertionError();
+      throw new MalformedJsonException("Custom JsonElement subclass " + o.getClass().getName() + " is not supported");
     }
   }
 
@@ -164,14 +166,18 @@ public final class JsonTreeReader extends JsonReader {
     }
   }
 
-  @Override public String nextName() throws IOException {
+  private String nextName(boolean skipName) throws IOException {
     expect(JsonToken.NAME);
     Iterator<?> i = (Iterator<?>) peekStack();
     Map.Entry<?, ?> entry = (Map.Entry<?, ?>) i.next();
     String result = (String) entry.getKey();
-    pathNames[stackSize - 1] = result;
+    pathNames[stackSize - 1] = skipName ? "<skipped>" : result;
     push(entry.getValue());
     return result;
+  }
+
+  @Override public String nextName() throws IOException {
+    return nextName(false);
   }
 
   @Override public String nextString() throws IOException {
@@ -212,7 +218,7 @@ public final class JsonTreeReader extends JsonReader {
     }
     double result = ((JsonPrimitive) peekStack()).getAsDouble();
     if (!isLenient() && (Double.isNaN(result) || Double.isInfinite(result))) {
-      throw new NumberFormatException("JSON forbids NaN and infinities: " + result);
+      throw new MalformedJsonException("JSON forbids NaN and infinities: " + result);
     }
     popStack();
     if (stackSize > 0) {
@@ -268,17 +274,27 @@ public final class JsonTreeReader extends JsonReader {
   }
 
   @Override public void skipValue() throws IOException {
-    if (peek() == JsonToken.NAME) {
-      nextName();
-      pathNames[stackSize - 2] = "null";
-    } else {
-      popStack();
-      if (stackSize > 0) {
-        pathNames[stackSize - 1] = "null";
-      }
-    }
-    if (stackSize > 0) {
-      pathIndices[stackSize - 1]++;
+    JsonToken peeked = peek();
+    switch (peeked) {
+      case NAME:
+        @SuppressWarnings("unused")
+        String unused = nextName(true);
+        break;
+      case END_ARRAY:
+        endArray();
+        break;
+      case END_OBJECT:
+        endObject();
+        break;
+      case END_DOCUMENT:
+        // Do nothing
+        break;
+      default:
+        popStack();
+        if (stackSize > 0) {
+          pathIndices[stackSize - 1]++;
+        }
+        break;
     }
   }
 
