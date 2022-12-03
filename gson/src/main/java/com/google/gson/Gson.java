@@ -52,8 +52,7 @@ import java.math.BigInteger;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -156,14 +155,18 @@ public final class Gson {
   private static final String JSON_NON_EXECUTABLE_PREFIX = ")]}'\n";
 
   /**
-   * This thread local guards against reentrant calls to getAdapter(). In
-   * certain object graphs, creating an adapter for a type may recursively
+   * This thread local guards against reentrant calls to {@link #getAdapter(TypeToken)}.
+   * In certain object graphs, creating an adapter for a type may recursively
    * require an adapter for the same type! Without intervention, the recursive
-   * lookup would stack overflow. We cheat by returning a proxy type adapter.
-   * The proxy is wired up once the initial adapter has been created.
+   * lookup would stack overflow. We cheat by returning a proxy type adapter,
+   * {@link FutureTypeAdapter}, which is wired up once the initial adapter has
+   * been created.
+   *
+   * <p>The map stores the type adapters for ongoing {@code getAdapter} calls,
+   * with the type token provided to {@code getAdapter} as key and either
+   * {@code FutureTypeAdapter} or a regular {@code TypeAdapter} as value.
    */
-  // Uses LinkedHashMap because iteration order is important, see getAdapter() implementation below
-  private final ThreadLocal<LinkedHashMap<TypeToken<?>, TypeAdapter<?>>> calls = new ThreadLocal<>();
+  private final ThreadLocal<Map<TypeToken<?>, TypeAdapter<?>>> threadLocalAdapterResults = new ThreadLocal<>();
 
   private final ConcurrentMap<TypeToken<?>, TypeAdapter<?>> typeTokenCache = new ConcurrentHashMap<>();
 
@@ -524,77 +527,55 @@ public final class Gson {
       return adapter;
     }
 
-    LinkedHashMap<TypeToken<?>, TypeAdapter<?>> threadCalls = calls.get();
+    Map<TypeToken<?>, TypeAdapter<?>> threadCalls = threadLocalAdapterResults.get();
     boolean isInitialAdapterRequest = false;
     if (threadCalls == null) {
-      threadCalls = new LinkedHashMap<>();
-      calls.set(threadCalls);
+      threadCalls = new HashMap<>();
+      threadLocalAdapterResults.set(threadCalls);
       isInitialAdapterRequest = true;
+    } else {
+      // the key and value type parameters always agree
+      @SuppressWarnings("unchecked")
+      TypeAdapter<T> ongoingCall = (TypeAdapter<T>) threadCalls.get(type);
+      if (ongoingCall != null) {
+        return ongoingCall;
+      }
     }
 
-    // the key and value type parameters always agree
-    @SuppressWarnings("unchecked")
-    TypeAdapter<T> ongoingCall = (TypeAdapter<T>) threadCalls.get(type);
-    if (ongoingCall != null) {
-      return ongoingCall;
-    }
-
-    int existingAdaptersCount = threadCalls.size();
-    boolean foundCandidate = false;
+    TypeAdapter<T> candidate = null;
     try {
       FutureTypeAdapter<T> call = new FutureTypeAdapter<>();
       threadCalls.put(type, call);
 
       for (TypeAdapterFactory factory : factories) {
-        TypeAdapter<T> candidate = factory.create(this, type);
+        candidate = factory.create(this, type);
         if (candidate != null) {
           call.setDelegate(candidate);
           // Replace future adapter with actual adapter
           threadCalls.put(type, candidate);
-
-          if (isInitialAdapterRequest) {
-            // Publish resolved adapters to all threads
-            // Can only do this for the initial request because cyclic dependency TypeA -> TypeB -> TypeA
-            // would otherwise publish adapter for TypeB which uses not yet resolved adapter for TypeA
-            // See https://github.com/google/gson/issues/625
-            for (Map.Entry<TypeToken<?>, TypeAdapter<?>> resolvedAdapterEntry : threadCalls.entrySet()) {
-              typeTokenCache.putIfAbsent(resolvedAdapterEntry.getKey(), resolvedAdapterEntry.getValue());
-            }
-
-            @SuppressWarnings("unchecked")
-            TypeAdapter<T> actualAdapter = (TypeAdapter<T>) typeTokenCache.get(type);
-            // Prefer the actual adapter, in case putIfAbsent call above had no effect because other
-            // thread already concurrently added other adapter instance for the same type
-            candidate = actualAdapter;
-          }
-          foundCandidate = true;
-          return candidate;
+          break;
         }
       }
-      throw new IllegalArgumentException("GSON (" + GsonBuildConfig.VERSION + ") cannot handle " + type);
     } finally {
       if (isInitialAdapterRequest) {
-        calls.remove();
-      }
-      if (!foundCandidate) {
-        Iterator<TypeAdapter<?>> adaptersIterator = threadCalls.values().iterator();
-        // Skip existing non-broken adapters
-        for (; existingAdaptersCount > 0; existingAdaptersCount--) {
-          adaptersIterator.next();
-        }
-        // Remove this future adapter and all nested ones because they might
-        // refer to broken adapters
-        while (adaptersIterator.hasNext()) {
-          TypeAdapter<?> brokenAdapter = adaptersIterator.next();
-          if (brokenAdapter instanceof FutureTypeAdapter) {
-            // Mark adapter as broken so user sees useful exception message in
-            // case TypeAdapterFactory leaks reference to broken adapter
-            ((FutureTypeAdapter<?>) brokenAdapter).markBroken();
-          }
-          adaptersIterator.remove();
-        }
+        threadLocalAdapterResults.remove();
       }
     }
+
+    if (candidate == null) {
+      throw new IllegalArgumentException("GSON (" + GsonBuildConfig.VERSION + ") cannot handle " + type);
+    }
+
+    if (isInitialAdapterRequest) {
+      /*
+       * Publish resolved adapters to all threads
+       * Can only do this for the initial request because cyclic dependency TypeA -> TypeB -> TypeA
+       * would otherwise publish adapter for TypeB which uses not yet resolved adapter for TypeA
+       * See https://github.com/google/gson/issues/625
+       */
+      typeTokenCache.putAll(threadCalls);
+    }
+    return candidate;
   }
 
   /**
@@ -1350,26 +1331,27 @@ public final class Gson {
     return fromJson(new JsonTreeReader(json), typeOfT);
   }
 
+  /**
+   * Proxy type adapter for cyclic type graphs.
+   *
+   * <p><b>Important:</b> Setting the delegate adapter is not thread-safe; instances of
+   * {@code FutureTypeAdapter} must only be published to other threads after the delegate
+   * has been set.
+   *
+   * @see Gson#threadLocalAdapterResults
+   */
   static class FutureTypeAdapter<T> extends SerializationDelegatingTypeAdapter<T> {
     private TypeAdapter<T> delegate = null;
-    private boolean isBroken = false;
 
     public void setDelegate(TypeAdapter<T> typeAdapter) {
       if (delegate != null) {
-        throw new AssertionError();
+        throw new AssertionError("Delegate is already set");
       }
       delegate = typeAdapter;
     }
 
-    public void markBroken() {
-      isBroken = true;
-    }
-
     private TypeAdapter<T> delegate() {
       TypeAdapter<T> delegate = this.delegate;
-      if (isBroken) {
-        throw new IllegalStateException("Broken adapter has been leaked by TypeAdapterFactory");
-      }
       if (delegate == null) {
         // Can occur when adapter is leaked to other thread or when adapter is used for (de-)serialization
         // directly within the TypeAdapterFactory which requested it
