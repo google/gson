@@ -513,9 +513,14 @@ public final class Gson {
   }
 
   /**
-   * Returns the type adapter for {@code} type.
+   * Returns the type adapter for {@code type}.
    *
-   * @throws IllegalArgumentException if this GSON cannot serialize and
+   * <p>When calling this method concurrently from multiple threads and requesting
+   * an adapter for the same type this method may return different {@code TypeAdapter}
+   * instances. However, that should normally not be an issue because {@code TypeAdapter}
+   * implementations are supposed to be stateless.
+   *
+   * @throws IllegalArgumentException if this Gson instance cannot serialize and
    *     deserialize {@code type}.
    */
   public <T> TypeAdapter<T> getAdapter(TypeToken<T> type) {
@@ -653,9 +658,9 @@ public final class Gson {
   }
 
   /**
-   * Returns the type adapter for {@code} type.
+   * Returns the type adapter for {@code type}.
    *
-   * @throws IllegalArgumentException if this GSON cannot serialize and
+   * @throws IllegalArgumentException if this Gson instance cannot serialize and
    *     deserialize {@code type}.
    */
   public <T> TypeAdapter<T> getAdapter(Class<T> type) {

@@ -63,6 +63,9 @@ import java.lang.reflect.Type;
  * Gson gson = new GsonBuilder().registerTypeAdapter(Id.class, new IdDeserializer()).create();
  * </pre>
  *
+ * <p>Deserializers should be stateless and thread-safe, otherwise the thread-safety
+ * guarantees of {@link Gson} might not apply.
+ *
  * <p>New applications should prefer {@link TypeAdapter}, whose streaming API
  * is more efficient than this interface's tree API.
  *
