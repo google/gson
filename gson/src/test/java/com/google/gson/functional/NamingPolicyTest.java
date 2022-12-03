@@ -22,10 +22,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.common.TestTypes.ClassWithSerializedNameFields;
 import com.google.gson.common.TestTypes.StringWrapper;
-
-import junit.framework.TestCase;
-
 import java.lang.reflect.Field;
+import junit.framework.TestCase;
 
 /**
  * Functional tests for naming policies.
@@ -122,6 +120,12 @@ public class NamingPolicyTest extends TestCase {
       gson.toJson(target);
       fail();
     } catch (IllegalArgumentException expected) {
+      assertEquals(
+          "Class com.google.gson.functional.NamingPolicyTest$ClassWithDuplicateFields declares multiple JSON fields named 'a';"
+          + " conflict is caused by fields com.google.gson.functional.NamingPolicyTest$ClassWithDuplicateFields#a and"
+          + " com.google.gson.functional.NamingPolicyTest$ClassWithDuplicateFields#b",
+          expected.getMessage()
+      );
     }
   }
 
