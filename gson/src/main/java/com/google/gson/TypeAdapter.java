@@ -81,6 +81,9 @@ import java.io.Writer;
  * when writing to a JSON object) will be omitted automatically. In either case
  * your type adapter must handle null.
  *
+ * <p>Type adapters should be stateless and thread-safe, otherwise the thread-safety
+ * guarantees of {@link Gson} might not apply.
+ *
  * <p>To use a custom type adapter with Gson, you must <i>register</i> it with a
  * {@link GsonBuilder}: <pre>   {@code
  *
