@@ -69,7 +69,7 @@ public final class TreeTypeAdapter<T> extends SerializationDelegatingTypeAdapter
     if (deserializer == null) {
       return delegate().read(in);
     }
-    JsonElement value = Streams.parse(in);
+    JsonElement value = Streams.parse(in, false);
     if (nullSafe && value.isJsonNull()) {
       return null;
     }

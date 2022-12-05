@@ -402,7 +402,7 @@ public class JsonReaderPathTest {
     },
     OBJECT_READER {
       @Override public JsonReader create(String data) {
-        JsonElement element = Streams.parse(new JsonReader(new StringReader(data)));
+        JsonElement element = Streams.parse(new JsonReader(new StringReader(data)), false);
         return new JsonTreeReader(element);
       }
     };

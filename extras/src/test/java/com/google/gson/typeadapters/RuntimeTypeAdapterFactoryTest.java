@@ -19,7 +19,10 @@ package com.google.gson.typeadapters;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
+import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
+import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.reflect.TypeToken;
 import junit.framework.TestCase;
 
 public final class RuntimeTypeAdapterFactoryTest extends TestCase {
@@ -191,10 +194,10 @@ public final class RuntimeTypeAdapterFactoryTest extends TestCase {
   public void testSerializeWrappedNullValue() {
     TypeAdapterFactory billingAdapter = RuntimeTypeAdapterFactory.of(BillingInstrument.class)
         .registerSubtype(CreditCard.class)
-        .registerSubtype(BankTransfer.class);    
+        .registerSubtype(BankTransfer.class);
     Gson gson = new GsonBuilder()
         .registerTypeAdapterFactory(billingAdapter)
-        .create();    
+        .create();
     String serialized = gson.toJson(new BillingInstrumentWrapper(null), BillingInstrumentWrapper.class);
     BillingInstrumentWrapper deserialized = gson.fromJson(serialized, BillingInstrumentWrapper.class);
     assertNull(deserialized.instrument);
@@ -228,5 +231,52 @@ public final class RuntimeTypeAdapterFactoryTest extends TestCase {
       super(ownerName);
       this.bankAccount = bankAccount;
     }
+  }
+
+  public void testJsonAdapterDelegate() throws Exception {
+    Gson gson = new Gson();
+    Shape shape = new Circle(25);
+    String json = gson.toJson(shape);
+    assertEquals("{\"radius\":25,\"type\":\"CIRCLE\"}", json);
+    shape = gson.fromJson(json, Shape.class);
+    assertEquals(25, ((Circle)shape).radius);
+
+    shape = new Square(15);
+    json = gson.toJson(shape);
+    assertEquals("{\"side\":15,\"type\":\"SQUARE\"}", json);
+    shape = gson.fromJson(json, Shape.class);
+    assertEquals(15, ((Square)shape).side);
+    assertEquals(ShapeType.SQUARE, shape.type);
+  }
+
+  @JsonAdapter(Shape.JsonAdapterFactory.class)
+  static class Shape {
+    final ShapeType type;
+    Shape(ShapeType type) { this.type = type; }
+
+    private static final class JsonAdapterFactory implements TypeAdapterFactory {
+      private static final RuntimeTypeAdapterFactory<Shape> delegate = RuntimeTypeAdapterFactory.of(Shape.class, "type", true)
+          .registerSubtype(Circle.class, ShapeType.CIRCLE.toString())
+          .registerSubtype(Square.class, ShapeType.SQUARE.toString());
+
+      @Override
+      public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+        return delegate.create(gson, type);
+      }
+    }
+  }
+
+  enum ShapeType {
+    SQUARE, CIRCLE
+  }
+
+  private static final class Circle extends Shape {
+    final int radius;
+    Circle(int radius) { super(ShapeType.CIRCLE); this.radius = radius; }
+  }
+
+  private static final class Square extends Shape {
+    final int side;
+    Square(int side) { super(ShapeType.SQUARE); this.side = side; }
   }
 }

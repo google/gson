@@ -39,7 +39,6 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import com.google.gson.stream.MalformedJsonException;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
@@ -1121,21 +1120,8 @@ public final class Gson {
    */
   public <T> T fromJson(Reader json, TypeToken<T> typeOfT) throws JsonIOException, JsonSyntaxException {
     JsonReader jsonReader = newJsonReader(json);
-    T object = fromJson(jsonReader, typeOfT);
-    assertFullConsumption(object, jsonReader);
+    T object = fromJson(jsonReader, typeOfT, true);
     return object;
-  }
-
-  private static void assertFullConsumption(Object obj, JsonReader reader) {
-    try {
-      if (obj != null && reader.peek() != JsonToken.END_DOCUMENT) {
-        throw new JsonSyntaxException("JSON document was not fully consumed.");
-      }
-    } catch (MalformedJsonException e) {
-      throw new JsonSyntaxException(e);
-    } catch (IOException e) {
-      throw new JsonIOException(e);
-    }
   }
 
   // fromJson(JsonReader, Class) is unfortunately missing and cannot be added now without breaking
@@ -1204,6 +1190,14 @@ public final class Gson {
    * @since 2.10
    */
   public <T> T fromJson(JsonReader reader, TypeToken<T> typeOfT) throws JsonIOException, JsonSyntaxException {
+    return fromJson(reader, typeOfT, false);
+  }
+
+  /**
+   * @param requireEndDocument whether there must not be any trailing data after
+   *    the first read JSON element
+   */
+  private <T> T fromJson(JsonReader reader, TypeToken<T> typeOfT, boolean requireEndDocument) throws JsonIOException, JsonSyntaxException {
     boolean isEmpty = true;
     boolean oldLenient = reader.isLenient();
     reader.setLenient(true);
@@ -1212,6 +1206,10 @@ public final class Gson {
       isEmpty = false;
       TypeAdapter<T> typeAdapter = getAdapter(typeOfT);
       T object = typeAdapter.read(reader);
+
+      if (requireEndDocument && reader.peek() != JsonToken.END_DOCUMENT) {
+        throw new JsonSyntaxException("JSON document was not fully consumed.");
+      }
       return object;
     } catch (EOFException e) {
       /*
@@ -1316,7 +1314,7 @@ public final class Gson {
     if (json == null) {
       return null;
     }
-    return fromJson(new JsonTreeReader(json), typeOfT);
+    return fromJson(new JsonTreeReader(json), typeOfT, false);
   }
 
   static class FutureTypeAdapter<T> extends SerializationDelegatingTypeAdapter<T> {
