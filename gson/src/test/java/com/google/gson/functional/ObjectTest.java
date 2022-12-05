@@ -145,6 +145,31 @@ public class ObjectTest extends TestCase {
     assertEquals(expected, target);
   }
 
+  private static class Subclass extends Superclass1 {
+  }
+  private static class Superclass1 extends Superclass2 {
+    @SuppressWarnings("unused")
+    String s;
+  }
+  private static class Superclass2 {
+    @SuppressWarnings("unused")
+    String s;
+  }
+
+  public void testClassWithDuplicateFields() {
+    try {
+      gson.getAdapter(Subclass.class);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertEquals(
+          "Class com.google.gson.functional.ObjectTest$Subclass declares multiple JSON fields named 's';"
+          + " conflict is caused by fields com.google.gson.functional.ObjectTest$Superclass1#s and"
+          + " com.google.gson.functional.ObjectTest$Superclass2#s",
+          e.getMessage()
+      );
+    }
+  }
+
   public void testNestedSerialization() throws Exception {
     Nested target = new Nested(new BagOfPrimitives(10, 20, false, "stringValue"),
        new BagOfPrimitives(30, 40, true, "stringValue"));

@@ -53,8 +53,7 @@ public class ReflectionHelper {
     String description;
 
     if (object instanceof Field) {
-      Field field = (Field) object;
-      description = "field '" + field.getDeclaringClass().getName() + "#" + field.getName() + "'";
+      description = "field '" + fieldToString((Field) object) + "'";
     } else if (object instanceof Method) {
       Method method = (Method) object;
 
@@ -73,6 +72,14 @@ public class ReflectionHelper {
       description = Character.toUpperCase(description.charAt(0)) + description.substring(1);
     }
     return description;
+  }
+
+  /**
+   * Creates a string representation for a field, omitting modifiers and
+   * the field type.
+   */
+  public static String fieldToString(Field field) {
+    return field.getDeclaringClass().getName() + "#" + field.getName();
   }
 
   /**
