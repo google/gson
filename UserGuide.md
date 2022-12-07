@@ -17,6 +17,7 @@
    * [Maps Examples](#TOC-Maps-Examples)
    * [Serializing and Deserializing Generic Types](#TOC-Serializing-and-Deserializing-Generic-Types)
    * [Serializing and Deserializing Collection with Objects of Arbitrary Types](#TOC-Serializing-and-Deserializing-Collection-with-Objects-of-Arbitrary-Types)
+   * [Deserializing Using Generic List, Map, or Object](#Deserializing-Using-Generic-List-Map-or-Object)
    * [Built-in Serializers and Deserializers](#TOC-Built-in-Serializers-and-Deserializers)
    * [Custom Serialization and Deserialization](#TOC-Custom-Serialization-and-Deserialization)
      * [Writing a Serializer](#TOC-Writing-a-Serializer)
@@ -375,6 +376,28 @@ However, deserialization with `fromJson(json, Collection.class)` will not work s
 3. Register a type adapter for `MyCollectionMemberType` and use `fromJson()` with `Collection<MyCollectionMemberType>`.
 
 This approach is practical only if the array appears as a top-level element or if you can change the field type holding the collection to be of type `Collection<MyCollectionMemberType>`.
+
+### <a name="Deserializing-Using-Generic-List-Map-or-Object"></a>Deserializing Using Generic List, Map, or Object
+
+The above approaches assume you really need to map your json to a specific java class, but what if you don't?  Gson is happy to parse json strings and give you generic java objects.
+
+```java
+// Deserialization
+
+// If the type of your json is an object you and deserialize into a generic Map class
+Map map = gson.fromJson("{\"value1\":1,\"value2\":\"abc\"}", Map.class);
+// ==> map is: {value1=1.0, value2=abc}
+
+// If you don't know beforehand what is in the json string you can use Object.class,
+// and trust Gson to return an Object of the correct type
+Object mapObj = gson.fromJson("{\"value1\":1,\"value2\":\"abc\"}", Object.class);
+// ==> mapObj is a Map
+Object numObj = gson.fromJson("1", Object.class);
+// ==> numObj is a Double
+Object listObj = gson.fromJson("[1, 3, {\"k\":\"v\"}]", Object.class);
+// ==> listObj is a List of Double, Double, Map
+```
+
 
 ### <a name="TOC-Built-in-Serializers-and-Deserializers"></a>Built-in Serializers and Deserializers
 
