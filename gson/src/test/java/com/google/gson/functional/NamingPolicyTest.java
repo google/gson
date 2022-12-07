@@ -82,6 +82,22 @@ public class NamingPolicyTest extends TestCase {
     assertEquals("someValue", deserializedObject.someConstantStringInstanceField);
   }
 
+  public void testGsonWithLowerCasePolicySerialization() {
+    Gson gson = builder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE)
+            .create();
+    StringWrapper target = new StringWrapper("blah");
+    assertEquals("{\"someconstantstringinstancefield\":\""
+            + target.someConstantStringInstanceField + "\"}", gson.toJson(target));
+  }
+
+  public void testGsonWithLowerCasePolicyDeserialiation() {
+    Gson gson = builder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE)
+            .create();
+    String target = "{\"someconstantstringinstancefield\":\"someValue\"}";
+    StringWrapper deserializedObject = gson.fromJson(target, StringWrapper.class);
+    assertEquals("someValue", deserializedObject.someConstantStringInstanceField);
+  }
+
   public void testGsonWithLowerCaseUnderscorePolicySerialization() {
     Gson gson = builder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
         .create();

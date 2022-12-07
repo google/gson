@@ -97,6 +97,24 @@ public enum FieldNamingPolicy implements FieldNamingStrategy {
 
   /**
    * Using this naming policy with Gson will modify the Java Field name from its camel cased
+   * form to a lower case field name.
+   *
+   * <p>Here's a few examples of the form "Java Field Name" ---> "JSON Field Name":</p>
+   * <ul>
+   *   <li>someFieldName ---> somefieldname</li>
+   *   <li>_someFieldName ---> _somefieldname</li>
+   *   <li>aStringField ---> astringfield</li>
+   *   <li>aURL ---> aurl</li>
+   * </ul>
+   */
+  LOWER_CASE() {
+    @Override public String translateName(Field f) {
+      return f.getName().toLowerCase(Locale.ENGLISH);
+    }
+  },
+
+  /**
+   * Using this naming policy with Gson will modify the Java Field name from its camel cased
    * form to a lower case field name where each word is separated by an underscore (_).
    *
    * <p>Here are a few examples of the form "Java Field Name" ---&gt; "JSON Field Name":</p>
