@@ -20,9 +20,76 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.google.gson.TypeAdapterFactory;
+import com.google.gson.reflect.TypeToken;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import junit.framework.TestCase;
 
 public final class RuntimeTypeAdapterFactoryTest extends TestCase {
+
+  public void testRuntimeTypeAdapterCollectionSerializationAndDeserialization() {
+    final RuntimeTypeAdapterFactory<BillingInstrument> rta = RuntimeTypeAdapterFactory.of(
+        BillingInstrument.class)
+        .registerSubtype(CreditCard.class);
+    final Gson gson = new GsonBuilder()
+        .registerTypeAdapterFactory(rta)
+        .create();
+    final Collection<BillingInstrument> collection = new ArrayList<BillingInstrument>();
+    final BillingInstrument original = new CreditCard("Jesse", 234);
+    collection.add(original);
+    assertEquals("[{\"type\":\"CreditCard\",\"cvv\":234,\"ownerName\":\"Jesse\"}]",
+        gson.toJson(collection));
+    final Collection<?> deserialized = gson.fromJson(
+        "[{type:'CreditCard',cvv:234,ownerName:'Jesse'}]", collection.getClass());
+    assertFalse(deserialized.isEmpty());
+    assertTrue(deserialized instanceof ArrayList);
+    assertTrue(deserialized.iterator().next() instanceof CreditCard);
+  }
+
+  public void testRuntimeTypeAdapterCollectionDeserializationViaTypeToken() {
+    final RuntimeTypeAdapterFactory<BillingInstrument> rta = RuntimeTypeAdapterFactory.of(
+        BillingInstrument.class)
+        .registerSubtype(CreditCard.class);
+    final Gson gson = new GsonBuilder()
+        .registerTypeAdapterFactory(rta)
+        .create();
+    final Collection<?> deserialized = gson.fromJson(
+        "[{type:'CreditCard',cvv:234,ownerName:'Jesse'}]", new TypeToken<List<BillingInstrument>>() {
+        }.getType());
+    assertFalse(deserialized.isEmpty());
+    assertTrue(deserialized instanceof ArrayList);
+    assertTrue(deserialized.iterator().next() instanceof CreditCard);
+  }
+
+  public void testRuntimeTypeAdapterCollectionDeserializationViaCollectionClass() {
+    final RuntimeTypeAdapterFactory<BillingInstrument> rta = RuntimeTypeAdapterFactory.of(
+        BillingInstrument.class)
+        .registerSubtype(CreditCard.class);
+    final Gson gson = new GsonBuilder()
+        .registerTypeAdapterFactory(rta)
+        .create();
+    final Collection<?> deserialized = gson.fromJson(
+        "[{type:'CreditCard',cvv:234,ownerName:'Jesse'}]", new ArrayList<BillingInstrument>().getClass());
+    assertFalse(deserialized.isEmpty());
+    assertTrue(deserialized instanceof ArrayList);
+    assertTrue(deserialized.iterator().next() instanceof CreditCard);
+  }
+
+  public void testRuntimeTypeAdapterCollectionDeserializationViaTypeTokenFromCollectionClass() {
+    final RuntimeTypeAdapterFactory<BillingInstrument> rta = RuntimeTypeAdapterFactory.of(
+        BillingInstrument.class)
+        .registerSubtype(CreditCard.class);
+    final Gson gson = new GsonBuilder()
+        .registerTypeAdapterFactory(rta)
+        .create();
+    TypeToken<?> typeToken = TypeToken.get(new ArrayList<BillingInstrument>().getClass());
+    Collection<?> deserialized = gson.fromJson(
+        "[{type:'CreditCard',cvv:234,ownerName:'Jesse'}]", typeToken.getType());
+    assertFalse(deserialized.isEmpty());
+    assertTrue(deserialized instanceof ArrayList);
+    assertTrue(deserialized.iterator().next() instanceof CreditCard);
+  }
 
   public void testRuntimeTypeAdapter() {
     RuntimeTypeAdapterFactory<BillingInstrument> rta = RuntimeTypeAdapterFactory.of(
