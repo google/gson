@@ -62,7 +62,7 @@ public final class DefaultDateTypeAdapter<T extends Date> extends TypeAdapter<T>
 
     protected abstract T deserialize(Date date);
 
-    private final TypeAdapterFactory createFactory(DefaultDateTypeAdapter<T> adapter) {
+    private TypeAdapterFactory createFactory(DefaultDateTypeAdapter<T> adapter) {
       return TypeAdapters.newFactory(dateClass, adapter);
     }
 
