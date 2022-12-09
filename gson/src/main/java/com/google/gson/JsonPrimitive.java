@@ -104,7 +104,7 @@ public final class JsonPrimitive extends JsonElement {
   @Override
   public boolean getAsBoolean() {
     if (isBoolean()) {
-      return ((Boolean) value).booleanValue();
+      return (Boolean) value;
     }
 	// Check to see if the value as a String is "true" in any case.
     return Boolean.parseBoolean(getAsString());
