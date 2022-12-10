@@ -75,7 +75,7 @@ public final class JsonStreamParser implements Iterator<JsonElement> {
    * {@link NoSuchElementException} if no element is available.
    *
    * @return the next available {@code JsonElement} on the reader.
-   * @throws JsonSyntaxException if the incoming stream is malformed JSON.
+   * @throws JsonParseException if the incoming stream is malformed JSON.
    * @throws NoSuchElementException if no {@code JsonElement} is available.
    * @since 1.4
    */
@@ -97,7 +97,7 @@ public final class JsonStreamParser implements Iterator<JsonElement> {
   /**
    * Returns true if a {@link JsonElement} is available on the input for consumption
    * @return true if a {@link JsonElement} is available on the input, false otherwise
-   * @throws JsonSyntaxException if the incoming stream is malformed JSON.
+   * @throws JsonParseException if the incoming stream is malformed JSON.
    * @since 1.4
    */
   @Override
