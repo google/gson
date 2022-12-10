@@ -265,13 +265,13 @@ public final class ConstructorConstructor {
         // Note: InstantiationException should be impossible because check at start of method made sure
         //   that class is not abstract
         catch (InstantiationException e) {
-          throw new RuntimeException("Failed to invoke constructor '" + ReflectionHelper.constructorToString(constructor) + "'"
-              + " with no args", e);
+          // Return null to try other constructor (newUnsafeAllocator as example), because no-args constructor
+          // may be shrinked by obfuscator
+          return null;
         } catch (InvocationTargetException e) {
-          // TODO: don't wrap if cause is unchecked?
-          // TODO: JsonParseException ?
-          throw new RuntimeException("Failed to invoke constructor '" + ReflectionHelper.constructorToString(constructor) + "'"
-              + " with no args", e.getCause());
+          // Return null to try other constructor (newUnsafeAllocator as example), because no-args constructor
+          // may be shrinked by obfuscator
+          return null;
         } catch (IllegalAccessException e) {
           throw ReflectionHelper.createExceptionForUnexpectedIllegalAccess(e);
         }
