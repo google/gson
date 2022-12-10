@@ -15,17 +15,15 @@
  */
 package com.google.gson;
 
-import java.io.EOFException;
+import com.google.gson.internal.Streams;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.MalformedJsonException;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-
-import com.google.gson.internal.Streams;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.MalformedJsonException;
 
 /**
  * A streaming parser that allows reading of multiple {@link JsonElement}s from the specified reader
@@ -61,7 +59,7 @@ public final class JsonStreamParser implements Iterator<JsonElement> {
   public JsonStreamParser(String json) {
     this(new StringReader(json));
   }
-  
+
   /**
    * @param reader The data stream containing JSON elements concatenated to each other.
    * @since 1.4
@@ -71,7 +69,7 @@ public final class JsonStreamParser implements Iterator<JsonElement> {
     parser.setLenient(true);
     lock = new Object();
   }
-  
+
   /**
    * Returns the next available {@link JsonElement} on the reader. Throws a
    * {@link NoSuchElementException} if no element is available.
@@ -86,15 +84,13 @@ public final class JsonStreamParser implements Iterator<JsonElement> {
     if (!hasNext()) {
       throw new NoSuchElementException();
     }
-    
+
     try {
       return Streams.parse(parser);
     } catch (StackOverflowError e) {
       throw new JsonParseException("Failed parsing JSON source to Json", e);
     } catch (OutOfMemoryError e) {
       throw new JsonParseException("Failed parsing JSON source to Json", e);
-    } catch (JsonParseException e) {
-      throw e.getCause() instanceof EOFException ? new NoSuchElementException() : e;
     }
   }
 
