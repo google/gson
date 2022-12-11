@@ -1228,8 +1228,7 @@ public final class Gson {
       reader.peek();
       isEmpty = false;
       TypeAdapter<T> typeAdapter = getAdapter(typeOfT);
-      T object = typeAdapter.read(reader);
-      return object;
+      return typeAdapter.read(reader);
     } catch (EOFException e) {
       /*
        * For compatibility with JSON 1.5 and earlier, we return null for empty
