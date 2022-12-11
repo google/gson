@@ -28,12 +28,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Static methods for working with types.
@@ -167,7 +162,7 @@ public final class $Gson$Types {
   }
 
   private static boolean equal(Object a, Object b) {
-    return a == b || (a != null && a.equals(b));
+    return Objects.equals(a, b);
   }
 
   /**
