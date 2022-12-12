@@ -1374,9 +1374,9 @@ public final class Gson {
 
   @Override
   public String toString() {
-    return "{serializeNulls:" + serializeNulls +
-            ",factories:" + factories +
-            ",instanceCreators:" + constructorConstructor +
-            "}";
+    return "{serializeNulls:" + serializeNulls
+      + ",factories:" + factories
+      + ",instanceCreators:" + constructorConstructor
+      + "}";
   }
 }
