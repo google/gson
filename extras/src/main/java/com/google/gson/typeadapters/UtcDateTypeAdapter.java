@@ -19,8 +19,11 @@ package com.google.gson.typeadapters;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.ParsePosition;
-import java.util.*;
-
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Locale;
+import java.util.TimeZone;
 import com.google.gson.JsonParseException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
@@ -43,14 +46,16 @@ public final class UtcDateTypeAdapter extends TypeAdapter<Date> {
   @Override
   public Date read(JsonReader in) throws IOException {
     try {
-        if (Objects.requireNonNull(in.peek()) == JsonToken.NULL) {
-            in.nextNull();
-            return null;
+        switch (in.peek()) {
+            case NULL:
+                in.nextNull();
+                return null;
+            default:
+                String date = in.nextString();
+                // Instead of using iso8601Format.parse(value), we use Jackson's date parsing
+                // This is because Android doesn't support XXX because it is JDK 1.6
+                return parse(date, new ParsePosition(0));
         }
-        String date = in.nextString();
-        // Instead of using iso8601Format.parse(value), we use Jackson's date parsing
-        // This is because Android doesn't support XXX because it is JDK 1.6
-        return parse(date, new ParsePosition(0));
     } catch (ParseException e) {
       throw new JsonParseException(e);
     }
