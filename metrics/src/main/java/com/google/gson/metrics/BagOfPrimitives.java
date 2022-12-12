@@ -44,11 +44,11 @@ public class BagOfPrimitives {
 
   public String getExpectedJson() {
     return "{"
-      + "\"longValue\":" + longValue + ","
-      + "\"intValue\":" + intValue + ","
-      + "\"booleanValue\":" + booleanValue + ","
-      + "\"stringValue\":\"" + stringValue + "\""
-      + "}";
+        + "\"longValue\":" + longValue + ","
+        + "\"intValue\":" + intValue + ","
+        + "\"booleanValue\":" + booleanValue + ","
+        + "\"stringValue\":\"" + stringValue + "\""
+        + "}";
   }
 
   @Override
