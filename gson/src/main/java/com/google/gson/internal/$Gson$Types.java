@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Properties;
+import java.util.Objects;
 
 /**
  * Static methods for working with types.
