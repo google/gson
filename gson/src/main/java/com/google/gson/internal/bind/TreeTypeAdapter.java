@@ -176,7 +176,7 @@ public final class TreeTypeAdapter<T> extends SerializationDelegatingTypeAdapter
     }
     @SuppressWarnings("unchecked")
     @Override public <R> R deserialize(JsonElement json, Type typeOfT) throws JsonParseException {
-      return (R) gson.fromJson(json, typeOfT);
+      return gson.fromJson(json, typeOfT);
     }
   }
 }

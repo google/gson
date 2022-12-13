@@ -298,7 +298,7 @@ public final class GraphAdapterBuilder {
     }
 
     @SuppressWarnings("unchecked")
-    void read(Graph graph) throws IOException {
+    void read(Graph graph) {
       if (graph.nextCreate != null) {
         throw new IllegalStateException("Unexpected recursive call to read() for " + id);
       }
