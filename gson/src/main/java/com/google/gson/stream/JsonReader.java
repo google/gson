@@ -737,7 +737,9 @@ public class JsonReader implements Closeable {
     }
 
     // We've read a complete number. Decide if it's a PEEKED_LONG or a PEEKED_NUMBER.
-    if (last == NUMBER_CHAR_DIGIT && fitsInLong && (value != Long.MIN_VALUE || negative) && (value!=0 || false==negative)) {
+    // Don't store -0 as long; user might want to read it as double -0.0
+    // Don't try to convert Long.MIN_VALUE to positive long; it would overflow MAX_VALUE
+    if (last == NUMBER_CHAR_DIGIT && fitsInLong && (value != Long.MIN_VALUE || negative) && (value!=0 || !negative)) {
       peekedLong = negative ? value : -value;
       pos += i;
       return peeked = PEEKED_LONG;
