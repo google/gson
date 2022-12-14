@@ -1547,7 +1547,7 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Returns a <a href="https://goessner.net/articles/JsonPath/">JsonPath</a>
+   * Returns a <a href="https://goessner.net/articles/JsonPath/">JSONPath</a>
    * in <i>dot-notation</i> to the previous (or current) location in the JSON document:
    * <ul>
    *   <li>For JSON arrays the path points to the index of the previous element.<br>
@@ -1564,7 +1564,7 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Returns a <a href="https://goessner.net/articles/JsonPath/">JsonPath</a>
+   * Returns a <a href="https://goessner.net/articles/JsonPath/">JSONPath</a>
    * in <i>dot-notation</i> to the next (or current) location in the JSON document:
    * <ul>
    *   <li>For JSON arrays the path points to the index of the next element (even
