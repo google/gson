@@ -82,36 +82,28 @@ public class DefaultDateTypeAdapterTest extends TestCase {
       Date date = new Date(0);
       assertParsed(
           DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM).format(date),
-          DateType.DATE.createDefaultsAdapterFactory()
-      );
+          DateType.DATE.createDefaultsAdapterFactory());
       assertParsed(
           DateFormat.getDateInstance(DateFormat.SHORT).format(date),
-          DateType.DATE.createAdapterFactory(DateFormat.SHORT)
-      );
+          DateType.DATE.createAdapterFactory(DateFormat.SHORT));
       assertParsed(
           DateFormat.getDateInstance(DateFormat.MEDIUM).format(date),
-          DateType.DATE.createAdapterFactory(DateFormat.MEDIUM)
-      );
+          DateType.DATE.createAdapterFactory(DateFormat.MEDIUM));
       assertParsed(
           DateFormat.getDateInstance(DateFormat.LONG).format(date),
-          DateType.DATE.createAdapterFactory(DateFormat.LONG)
-      );
+          DateType.DATE.createAdapterFactory(DateFormat.LONG));
       assertParsed(
           DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(date),
-          DateType.DATE.createAdapterFactory(DateFormat.SHORT, DateFormat.SHORT)
-      );
+          DateType.DATE.createAdapterFactory(DateFormat.SHORT, DateFormat.SHORT));
       assertParsed(
           DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM).format(date),
-          DateType.DATE.createAdapterFactory(DateFormat.MEDIUM, DateFormat.MEDIUM)
-      );
+          DateType.DATE.createAdapterFactory(DateFormat.MEDIUM, DateFormat.MEDIUM));
       assertParsed(
           DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG).format(date),
-          DateType.DATE.createAdapterFactory(DateFormat.LONG, DateFormat.LONG)
-      );
+          DateType.DATE.createAdapterFactory(DateFormat.LONG, DateFormat.LONG));
       assertParsed(
           DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL).format(date),
-          DateType.DATE.createAdapterFactory(DateFormat.FULL, DateFormat.FULL)
-      );
+          DateType.DATE.createAdapterFactory(DateFormat.FULL, DateFormat.FULL));
     } finally {
       TimeZone.setDefault(defaultTimeZone);
       Locale.setDefault(defaultLocale);
