@@ -2,11 +2,10 @@ package com.google.gson;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-
-import com.google.gson.functional.FieldNamingTest;
 import java.lang.reflect.Field;
 import java.util.Locale;
 import org.junit.Test;
+import com.google.gson.functional.FieldNamingTest;
 
 /**
  * Performs tests directly against {@link FieldNamingPolicy}; for integration tests

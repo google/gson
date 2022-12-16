@@ -16,14 +16,15 @@
 
 package com.google.gson;
 
-import com.google.gson.common.TestTypes.BagOfPrimitives;
-import com.google.gson.internal.Streams;
-import com.google.gson.stream.JsonReader;
 import java.io.CharArrayReader;
 import java.io.CharArrayWriter;
 import java.io.IOException;
 import java.io.StringReader;
 import junit.framework.TestCase;
+
+import com.google.gson.common.TestTypes.BagOfPrimitives;
+import com.google.gson.internal.Streams;
+import com.google.gson.stream.JsonReader;
 
 /**
  * Unit test for {@link JsonParser}
@@ -31,14 +32,6 @@ import junit.framework.TestCase;
  * @author Inderjeet Singh
  */
 public class JsonParserTest extends TestCase {
-
-  private static String repeat(String s, int times) {
-    StringBuilder stringBuilder = new StringBuilder(s.length() * times);
-    for (int i = 0; i < times; i++) {
-      stringBuilder.append(s);
-    }
-    return stringBuilder.toString();
-  }
 
   public void testParseInvalidJson() {
     try {
@@ -95,6 +88,14 @@ public class JsonParserTest extends TestCase {
     assertEquals("{}", array.get(0).toString());
     assertEquals(13, array.get(1).getAsInt());
     assertEquals("stringValue", array.get(2).getAsString());
+  }
+
+  private static String repeat(String s, int times) {
+    StringBuilder stringBuilder = new StringBuilder(s.length() * times);
+    for (int i = 0; i < times; i++) {
+      stringBuilder.append(s);
+    }
+    return stringBuilder.toString();
   }
 
   /** Deeply nested JSON arrays should not cause {@link StackOverflowError} */

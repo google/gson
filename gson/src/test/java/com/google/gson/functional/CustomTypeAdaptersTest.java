@@ -165,8 +165,45 @@ public class CustomTypeAdaptersTest extends TestCase {
     assertFalse(json.contains("derivedValue"));
   }
 
+  private static class Base {
+    int baseValue = 2;
+  }
+
+  private static class Derived extends Base {
+    @SuppressWarnings("unused")
+    int derivedValue = 3;
+  }
+
+
   private Gson createGsonObjectWithFooTypeAdapter() {
     return new GsonBuilder().registerTypeAdapter(Foo.class, new FooTypeAdapter()).create();
+  }
+
+  public static class Foo {
+    private final int key;
+    private final long value;
+
+    public Foo() {
+      this(0, 0L);
+    }
+
+    public Foo(int key, long value) {
+      this.key = key;
+      this.value = value;
+    }
+  }
+
+  public static final class FooTypeAdapter implements JsonSerializer<Foo>, JsonDeserializer<Foo> {
+    @Override
+    public Foo deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+        throws JsonParseException {
+      return context.deserialize(json, typeOfT);
+    }
+
+    @Override
+    public JsonElement serialize(Foo src, Type typeOfSrc, JsonSerializationContext context) {
+      return context.serialize(src, typeOfSrc);
+    }
   }
 
   public void testCustomSerializerInvokedForPrimitives() {
@@ -229,6 +266,41 @@ public class CustomTypeAdaptersTest extends TestCase {
     byte[] expected = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
     for (int i = 0; i < actual.length; ++i) {
       assertEquals(expected[i], actual[i]);
+    }
+  }
+
+  private static final class StringHolder {
+    String part1;
+    String part2;
+
+    public StringHolder(String string) {
+      String[] parts = string.split(":");
+      part1 = parts[0];
+      part2 = parts[1];
+    }
+    public StringHolder(String part1, String part2) {
+      this.part1 = part1;
+      this.part2 = part2;
+    }
+  }
+
+  private static class StringHolderTypeAdapter implements JsonSerializer<StringHolder>,
+      JsonDeserializer<StringHolder>, InstanceCreator<StringHolder> {
+
+    @Override public StringHolder createInstance(Type type) {
+      //Fill up with objects that will be thrown away
+      return new StringHolder("unknown:thing");
+    }
+
+    @Override public StringHolder deserialize(JsonElement src, Type type,
+        JsonDeserializationContext context) {
+      return new StringHolder(src.getAsString());
+    }
+
+    @Override public JsonElement serialize(StringHolder src, Type typeOfSrc,
+        JsonSerializationContext context) {
+      String contents = src.part1 + ':' + src.part2;
+      return new JsonPrimitive(contents);
     }
   }
 
@@ -335,77 +407,6 @@ public class CustomTypeAdaptersTest extends TestCase {
     assertEquals("0", gson.toJson(new java.sql.Date(0)));
     assertEquals(new Date(0), gson.fromJson("0", Date.class));
     assertEquals(new java.sql.Date(0), gson.fromJson("0", java.sql.Date.class));
-  }
-
-  private static class Base {
-    int baseValue = 2;
-  }
-
-  private static class Derived extends Base {
-    @SuppressWarnings("unused")
-    int derivedValue = 3;
-  }
-
-  public static class Foo {
-    private final int key;
-    private final long value;
-
-    public Foo() {
-      this(0, 0L);
-    }
-
-    public Foo(int key, long value) {
-      this.key = key;
-      this.value = value;
-    }
-  }
-
-  public static final class FooTypeAdapter implements JsonSerializer<Foo>, JsonDeserializer<Foo> {
-    @Override
-    public Foo deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-        throws JsonParseException {
-      return context.deserialize(json, typeOfT);
-    }
-
-    @Override
-    public JsonElement serialize(Foo src, Type typeOfSrc, JsonSerializationContext context) {
-      return context.serialize(src, typeOfSrc);
-    }
-  }
-
-  private static final class StringHolder {
-    String part1;
-    String part2;
-
-    public StringHolder(String string) {
-      String[] parts = string.split(":");
-      part1 = parts[0];
-      part2 = parts[1];
-    }
-    public StringHolder(String part1, String part2) {
-      this.part1 = part1;
-      this.part2 = part2;
-    }
-  }
-
-  private static class StringHolderTypeAdapter implements JsonSerializer<StringHolder>,
-      JsonDeserializer<StringHolder>, InstanceCreator<StringHolder> {
-
-    @Override public StringHolder createInstance(Type type) {
-      //Fill up with objects that will be thrown away
-      return new StringHolder("unknown:thing");
-    }
-
-    @Override public StringHolder deserialize(JsonElement src, Type type,
-        JsonDeserializationContext context) {
-      return new StringHolder(src.getAsString());
-    }
-
-    @Override public JsonElement serialize(StringHolder src, Type typeOfSrc,
-        JsonSerializationContext context) {
-      String contents = src.part1 + ':' + src.part2;
-      return new JsonPrimitive(contents);
-    }
   }
 
   private static class DataHolder {

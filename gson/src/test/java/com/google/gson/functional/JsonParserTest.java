@@ -26,12 +26,14 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.common.TestTypes.Nested;
 import com.google.gson.reflect.TypeToken;
+
+import junit.framework.TestCase;
+
 import java.io.StringReader;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import junit.framework.TestCase;
 
 /**
  * Functional tests for that use JsonParser and related Gson methods

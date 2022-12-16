@@ -35,35 +35,6 @@ final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
     this.type = type;
   }
 
-  /**
-   * Returns whether the type adapter uses reflection.
-   *
-   * @param typeAdapter the type adapter to check.
-   */
-  private static boolean isReflective(TypeAdapter<?> typeAdapter) {
-    // Run this in loop in case multiple delegating adapters are nested
-    while (typeAdapter instanceof SerializationDelegatingTypeAdapter) {
-      TypeAdapter<?> delegate = ((SerializationDelegatingTypeAdapter<?>) typeAdapter).getSerializationDelegate();
-      // Break if adapter does not delegate serialization
-      if (delegate == typeAdapter) {
-        break;
-      }
-      typeAdapter = delegate;
-    }
-
-    return typeAdapter instanceof ReflectiveTypeAdapterFactory.Adapter;
-  }
-
-  /**
-   * Finds a compatible runtime type if it is more specific
-   */
-  private static Type getRuntimeTypeIfMoreSpecific(Type type, Object value) {
-    if (value != null && (type instanceof Class<?> || type instanceof TypeVariable<?>)) {
-      type = value.getClass();
-    }
-    return type;
-  }
-
   @Override
   public T read(JsonReader in) throws IOException {
     return delegate.read(in);
@@ -97,5 +68,34 @@ final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
       }
     }
     chosen.write(out, value);
+  }
+
+  /**
+   * Returns whether the type adapter uses reflection.
+   *
+   * @param typeAdapter the type adapter to check.
+   */
+  private static boolean isReflective(TypeAdapter<?> typeAdapter) {
+    // Run this in loop in case multiple delegating adapters are nested
+    while (typeAdapter instanceof SerializationDelegatingTypeAdapter) {
+      TypeAdapter<?> delegate = ((SerializationDelegatingTypeAdapter<?>) typeAdapter).getSerializationDelegate();
+      // Break if adapter does not delegate serialization
+      if (delegate == typeAdapter) {
+        break;
+      }
+      typeAdapter = delegate;
+    }
+
+    return typeAdapter instanceof ReflectiveTypeAdapterFactory.Adapter;
+  }
+
+  /**
+   * Finds a compatible runtime type if it is more specific
+   */
+  private static Type getRuntimeTypeIfMoreSpecific(Type type, Object value) {
+    if (value != null && (type instanceof Class<?> || type instanceof TypeVariable<?>)) {
+      type = value.getClass();
+    }
+    return type;
   }
 }

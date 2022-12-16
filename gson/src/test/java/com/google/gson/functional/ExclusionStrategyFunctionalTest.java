@@ -47,18 +47,6 @@ public class ExclusionStrategyFunctionalTest extends TestCase {
 
   private SampleObjectForTest src;
 
-  private static Gson createGson(ExclusionStrategy exclusionStrategy, boolean serialization) {
-    GsonBuilder gsonBuilder = new GsonBuilder();
-    if (serialization) {
-      gsonBuilder.addSerializationExclusionStrategy(exclusionStrategy);
-    } else {
-      gsonBuilder.addDeserializationExclusionStrategy(exclusionStrategy);
-    }
-    return gsonBuilder
-        .serializeNulls()
-        .create();
-  }
-
   @Override
   protected void setUp() throws Exception {
     super.setUp();
@@ -159,6 +147,18 @@ public class ExclusionStrategyFunctionalTest extends TestCase {
     assertTrue(json.contains("\"stringField\""));
     assertTrue(json.contains("\"annotatedField\""));
     assertTrue(json.contains("\"longField\""));
+  }
+
+  private static Gson createGson(ExclusionStrategy exclusionStrategy, boolean serialization) {
+    GsonBuilder gsonBuilder = new GsonBuilder();
+    if (serialization) {
+      gsonBuilder.addSerializationExclusionStrategy(exclusionStrategy);
+    } else {
+      gsonBuilder.addDeserializationExclusionStrategy(exclusionStrategy);
+    }
+    return gsonBuilder
+        .serializeNulls()
+        .create();
   }
 
   @Retention(RetentionPolicy.RUNTIME)

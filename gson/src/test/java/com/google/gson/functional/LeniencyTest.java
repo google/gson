@@ -15,13 +15,13 @@
  */
 package com.google.gson.functional;
 
-import static java.util.Collections.singletonList;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import java.util.List;
 import junit.framework.TestCase;
+
+import static java.util.Collections.singletonList;
 
 /**
  * Functional tests for leniency option.

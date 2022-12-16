@@ -175,23 +175,28 @@ public class JsonWriter implements Closeable, Flushable {
 
   private int[] stack = new int[32];
   private int stackSize = 0;
+  {
+    push(EMPTY_DOCUMENT);
+  }
+
   /**
    * A string containing a full set of spaces for a single level of
    * indentation, or null for no pretty printing.
    */
   private String indent;
+
   /**
    * The name/value separator; either ":" or ": ".
    */
   private String separator = ":";
-  private boolean lenient;
-  private boolean htmlSafe;
-  private String deferredName;
-  private boolean serializeNulls = true;
 
-  {
-    push(EMPTY_DOCUMENT);
-  }
+  private boolean lenient;
+
+  private boolean htmlSafe;
+
+  private String deferredName;
+
+  private boolean serializeNulls = true;
 
   /**
    * Creates a new instance that writes a JSON-encoded stream to {@code out}.
@@ -200,17 +205,6 @@ public class JsonWriter implements Closeable, Flushable {
    */
   public JsonWriter(Writer out) {
     this.out = Objects.requireNonNull(out, "out == null");
-  }
-
-  /**
-   * Returns whether the {@code toString()} of {@code c} can be trusted to return
-   * a valid JSON number.
-   */
-  private static boolean isTrustedNumberType(Class<? extends Number> c) {
-    // Note: Don't consider LazilyParsedNumber trusted because it could contain
-    // an arbitrary malformed string
-    return c == Integer.class || c == Long.class || c == Double.class || c == Float.class || c == Byte.class || c == Short.class
-        || c == BigDecimal.class || c == BigInteger.class || c == AtomicInteger.class || c == AtomicLong.class;
   }
 
   /**
@@ -232,13 +226,6 @@ public class JsonWriter implements Closeable, Flushable {
   }
 
   /**
-   * Returns true if this writer has relaxed syntax rules.
-   */
-  public boolean isLenient() {
-    return lenient;
-  }
-
-  /**
    * Configure this writer to relax its syntax rules. By default, this writer
    * only emits well-formed JSON as specified by <a
    * href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>. Setting the writer
@@ -253,11 +240,10 @@ public class JsonWriter implements Closeable, Flushable {
   }
 
   /**
-   * Returns true if this writer writes JSON that's safe for inclusion in HTML
-   * and XML documents.
+   * Returns true if this writer has relaxed syntax rules.
    */
-  public final boolean isHtmlSafe() {
-    return htmlSafe;
+  public boolean isLenient() {
+    return lenient;
   }
 
   /**
@@ -272,11 +258,11 @@ public class JsonWriter implements Closeable, Flushable {
   }
 
   /**
-   * Returns true if object members are serialized when their value is null.
-   * This has no impact on array elements. The default is true.
+   * Returns true if this writer writes JSON that's safe for inclusion in HTML
+   * and XML documents.
    */
-  public final boolean getSerializeNulls() {
-    return serializeNulls;
+  public final boolean isHtmlSafe() {
+    return htmlSafe;
   }
 
   /**
@@ -285,6 +271,14 @@ public class JsonWriter implements Closeable, Flushable {
    */
   public final void setSerializeNulls(boolean serializeNulls) {
     this.serializeNulls = serializeNulls;
+  }
+
+  /**
+   * Returns true if object members are serialized when their value is null.
+   * This has no impact on array elements. The default is true.
+   */
+  public final boolean getSerializeNulls() {
+    return serializeNulls;
   }
 
   /**
@@ -544,6 +538,17 @@ public class JsonWriter implements Closeable, Flushable {
     beforeValue();
     out.write(Long.toString(value));
     return this;
+  }
+
+  /**
+   * Returns whether the {@code toString()} of {@code c} can be trusted to return
+   * a valid JSON number.
+   */
+  private static boolean isTrustedNumberType(Class<? extends Number> c) {
+    // Note: Don't consider LazilyParsedNumber trusted because it could contain
+    // an arbitrary malformed string
+    return c == Integer.class || c == Long.class || c == Double.class || c == Float.class || c == Byte.class || c == Short.class
+        || c == BigDecimal.class || c == BigInteger.class || c == AtomicInteger.class || c == AtomicLong.class;
   }
 
   /**

@@ -11,16 +11,6 @@ import java.io.StringReader;
 import org.junit.Test;
 
 public class TypeAdapterTest {
-  private static final TypeAdapter<String> adapter = new TypeAdapter<String>() {
-    @Override public void write(JsonWriter out, String value) throws IOException {
-      out.value(value);
-    }
-
-    @Override public String read(JsonReader in) throws IOException {
-      return in.nextString();
-    }
-  };
-
   @Test
   public void testNullSafe() throws IOException {
     TypeAdapter<String> adapter = new TypeAdapter<String>() {
@@ -68,6 +58,16 @@ public class TypeAdapterTest {
       assertEquals(exception, e.getCause());
     }
   }
+
+  private static final TypeAdapter<String> adapter = new TypeAdapter<String>() {
+    @Override public void write(JsonWriter out, String value) throws IOException {
+      out.value(value);
+    }
+
+    @Override public String read(JsonReader in) throws IOException {
+      return in.nextString();
+    }
+  };
 
   // Note: This test just verifies the current behavior; it is a bit questionable
   // whether that behavior is actually desired

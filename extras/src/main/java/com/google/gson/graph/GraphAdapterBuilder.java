@@ -269,19 +269,22 @@ public final class GraphAdapterBuilder {
      * This element's name in the top level graph object.
      */
     private final String id;
-    /**
-     * The element to deserialize. Unused in serialization.
-     */
-    private final JsonElement element;
+
     /**
      * The value if known. During deserialization this is lazily populated.
      */
     private T value;
+
     /**
      * This element's type adapter if known. During deserialization this is
      * lazily populated.
      */
     private TypeAdapter<T> typeAdapter;
+
+    /**
+     * The element to deserialize. Unused in serialization.
+     */
+    private final JsonElement element;
 
     Element(T value, String id, TypeAdapter<T> typeAdapter, JsonElement element) {
       this.value = value;

@@ -18,6 +18,7 @@ package com.google.gson.functional;
 
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
+
 import junit.framework.TestCase;
 
 /**
@@ -34,6 +35,14 @@ public class EnumWithObfuscatedTest extends TestCase {
     gson = new Gson();
   }
 
+  public enum Gender {
+    @SerializedName("MAIL")
+    MALE,
+
+    @SerializedName("FEMAIL")
+    FEMALE
+  }
+
   public void testEnumClassWithObfuscated() {
     for (Gender enumConstant: Gender.class.getEnumConstants()) {
       try {
@@ -45,13 +54,5 @@ public class EnumWithObfuscatedTest extends TestCase {
 
     assertEquals(Gender.MALE, gson.fromJson("\"MAIL\"", Gender.class));
     assertEquals("\"MAIL\"", gson.toJson(Gender.MALE, Gender.class));
-  }
-
-  public enum Gender {
-    @SerializedName("MAIL")
-    MALE,
-
-    @SerializedName("FEMAIL")
-    FEMALE
   }
 }

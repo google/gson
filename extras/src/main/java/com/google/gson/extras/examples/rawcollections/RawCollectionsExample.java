@@ -15,13 +15,27 @@
  */
 package com.google.gson.extras.examples.rawcollections;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonParser;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonParser;
+
 public class RawCollectionsExample {
+  static class Event {
+    private String name;
+    private String source;
+    private Event(String name, String source) {
+      this.name = name;
+      this.source = source;
+    }
+    @Override
+    public String toString() {
+      return String.format("(name=%s, source=%s)", name, source);
+    }
+  }
+
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public static void main(String[] args) {
     Gson gson = new Gson();
@@ -36,18 +50,5 @@ public class RawCollectionsExample {
     int number = gson.fromJson(array.get(1), int.class);
     Event event = gson.fromJson(array.get(2), Event.class);
     System.out.printf("Using Gson.fromJson() to get: %s, %d, %s", message, number, event);
-  }
-
-  static class Event {
-    private String name;
-    private String source;
-    private Event(String name, String source) {
-      this.name = name;
-      this.source = source;
-    }
-    @Override
-    public String toString() {
-      return String.format("(name=%s, source=%s)", name, source);
-    }
   }
 }

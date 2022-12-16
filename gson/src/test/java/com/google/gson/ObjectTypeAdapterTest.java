@@ -28,14 +28,6 @@ public final class ObjectTypeAdapterTest extends TestCase {
   private final Gson gson = new GsonBuilder().create();
   private final TypeAdapter<Object> adapter = gson.getAdapter(Object.class);
 
-  private static String repeat(String s, int times) {
-    StringBuilder stringBuilder = new StringBuilder(s.length() * times);
-    for (int i = 0; i < times; i++) {
-      stringBuilder.append(s);
-    }
-    return stringBuilder.toString();
-  }
-
   public void testDeserialize() throws Exception {
     Map<?, ?> map = (Map<?, ?>) adapter.fromJson("{\"a\":5,\"b\":[1,2,null],\"c\":{\"x\":\"y\"}}");
     assertEquals(5.0, map.get("a"));
@@ -63,6 +55,14 @@ public final class ObjectTypeAdapterTest extends TestCase {
 
   public void testSerializeObject() throws Exception {
     assertEquals("{}", adapter.toJson(new Object()));
+  }
+
+  private static String repeat(String s, int times) {
+    StringBuilder stringBuilder = new StringBuilder(s.length() * times);
+    for (int i = 0; i < times; i++) {
+      stringBuilder.append(s);
+    }
+    return stringBuilder.toString();
   }
 
   /** Deeply nested JSON arrays should not cause {@link StackOverflowError} */

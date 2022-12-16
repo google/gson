@@ -71,25 +71,111 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class ProtoTypeAdapter
     implements JsonSerializer<Message>, JsonDeserializer<Message> {
-  private static final com.google.protobuf.Descriptors.FieldDescriptor.Type ENUM_TYPE =
-      com.google.protobuf.Descriptors.FieldDescriptor.Type.ENUM;
-  private static final ConcurrentMap<String, ConcurrentMap<Class<?>, Method>> mapOfMapOfMethods =
-      new MapMaker().makeMap();
-  private final EnumSerialization enumSerialization;
-  private final CaseFormat protoFormat;
-  private final CaseFormat jsonFormat;
-  private final Set<Extension<FieldOptions, String>> serializedNameExtensions;
-  private final Set<Extension<EnumValueOptions, String>> serializedEnumValueExtensions;
-  private ProtoTypeAdapter(EnumSerialization enumSerialization,
-      CaseFormat protoFormat,
-      CaseFormat jsonFormat,
-      Set<Extension<FieldOptions, String>> serializedNameExtensions,
-      Set<Extension<EnumValueOptions, String>> serializedEnumValueExtensions) {
-    this.enumSerialization = enumSerialization;
-    this.protoFormat = protoFormat;
-    this.jsonFormat = jsonFormat;
-    this.serializedNameExtensions = serializedNameExtensions;
-    this.serializedEnumValueExtensions = serializedEnumValueExtensions;
+  /**
+   * Determines how enum <u>values</u> should be serialized.
+   */
+  public enum EnumSerialization {
+    /**
+     * Serializes and deserializes enum values using their <b>number</b>. When this is used, custom
+     * value names set on enums are ignored.
+     */
+    NUMBER,
+    /** Serializes and deserializes enum values using their <b>name</b>. */
+    NAME;
+  }
+
+  /**
+   * Builder for {@link ProtoTypeAdapter}s.
+   */
+  public static class Builder {
+    private final Set<Extension<FieldOptions, String>> serializedNameExtensions;
+    private final Set<Extension<EnumValueOptions, String>> serializedEnumValueExtensions;
+    private EnumSerialization enumSerialization;
+    private CaseFormat protoFormat;
+    private CaseFormat jsonFormat;
+
+    private Builder(EnumSerialization enumSerialization, CaseFormat fromFieldNameFormat,
+        CaseFormat toFieldNameFormat) {
+      this.serializedNameExtensions = new HashSet<>();
+      this.serializedEnumValueExtensions = new HashSet<>();
+      setEnumSerialization(enumSerialization);
+      setFieldNameSerializationFormat(fromFieldNameFormat, toFieldNameFormat);
+    }
+
+    public Builder setEnumSerialization(EnumSerialization enumSerialization) {
+      this.enumSerialization = requireNonNull(enumSerialization);
+      return this;
+    }
+
+    /**
+     * Sets the field names serialization format. The first parameter defines how to read the format
+     * of the proto field names you are converting to JSON. The second parameter defines which
+     * format to use when serializing them.
+     * <p>
+     * For example, if you use the following parameters: {@link CaseFormat#LOWER_UNDERSCORE},
+     * {@link CaseFormat#LOWER_CAMEL}, the following conversion will occur:
+     *
+     * <pre>{@code
+     * PROTO     <->  JSON
+     * my_field       myField
+     * foo            foo
+     * n__id_ct       nIdCt
+     * }</pre>
+     */
+    public Builder setFieldNameSerializationFormat(CaseFormat fromFieldNameFormat,
+        CaseFormat toFieldNameFormat) {
+      this.protoFormat = fromFieldNameFormat;
+      this.jsonFormat = toFieldNameFormat;
+      return this;
+    }
+
+    /**
+     * Adds a field proto annotation that, when set, overrides the default field name
+     * serialization/deserialization. For example, if you add the '{@code serialized_name}'
+     * annotation and you define a field in your proto like the one below:
+     *
+     * <pre>
+     * string client_app_id = 1 [(serialized_name) = "appId"];
+     * </pre>
+     *
+     * ...the adapter will serialize the field using '{@code appId}' instead of the default '
+     * {@code clientAppId}'. This lets you customize the name serialization of any proto field.
+     */
+    public Builder addSerializedNameExtension(
+        Extension<FieldOptions, String> serializedNameExtension) {
+      serializedNameExtensions.add(requireNonNull(serializedNameExtension));
+      return this;
+    }
+
+    /**
+     * Adds an enum value proto annotation that, when set, overrides the default <b>enum</b> value
+     * serialization/deserialization of this adapter. For example, if you add the '
+     * {@code serialized_value}' annotation and you define an enum in your proto like the one below:
+     *
+     * <pre>
+     * enum MyEnum {
+     *   UNKNOWN = 0;
+     *   CLIENT_APP_ID = 1 [(serialized_value) = "APP_ID"];
+     *   TWO = 2 [(serialized_value) = "2"];
+     * }
+     * </pre>
+     *
+     * ...the adapter will serialize the value {@code CLIENT_APP_ID} as "{@code APP_ID}" and the
+     * value {@code TWO} as "{@code 2}". This works for both serialization and deserialization.
+     * <p>
+     * Note that you need to set the enum serialization of this adapter to
+     * {@link EnumSerialization#NAME}, otherwise these annotations will be ignored.
+     */
+    public Builder addSerializedEnumValueExtension(
+        Extension<EnumValueOptions, String> serializedEnumValueExtension) {
+      serializedEnumValueExtensions.add(requireNonNull(serializedEnumValueExtension));
+      return this;
+    }
+
+    public ProtoTypeAdapter build() {
+      return new ProtoTypeAdapter(enumSerialization, protoFormat, jsonFormat,
+          serializedNameExtensions, serializedEnumValueExtensions);
+    }
   }
 
   /**
@@ -101,23 +187,28 @@ public class ProtoTypeAdapter
     return new Builder(EnumSerialization.NAME, CaseFormat.LOWER_UNDERSCORE, CaseFormat.LOWER_CAMEL);
   }
 
-  private static Method getCachedMethod(Class<?> clazz, String methodName,
-      Class<?>... methodParamTypes) throws NoSuchMethodException {
-    ConcurrentMap<Class<?>, Method> mapOfMethods = mapOfMapOfMethods.get(methodName);
-    if (mapOfMethods == null) {
-      mapOfMethods = new MapMaker().makeMap();
-      ConcurrentMap<Class<?>, Method> previous =
-          mapOfMapOfMethods.putIfAbsent(methodName, mapOfMethods);
-      mapOfMethods = previous == null ? mapOfMethods : previous;
-    }
+  private static final com.google.protobuf.Descriptors.FieldDescriptor.Type ENUM_TYPE =
+      com.google.protobuf.Descriptors.FieldDescriptor.Type.ENUM;
 
-    Method method = mapOfMethods.get(clazz);
-    if (method == null) {
-      method = clazz.getMethod(methodName, methodParamTypes);
-      mapOfMethods.putIfAbsent(clazz, method);
-      // NB: it doesn't matter which method we return in the event of a race.
-    }
-    return method;
+  private static final ConcurrentMap<String, ConcurrentMap<Class<?>, Method>> mapOfMapOfMethods =
+      new MapMaker().makeMap();
+
+  private final EnumSerialization enumSerialization;
+  private final CaseFormat protoFormat;
+  private final CaseFormat jsonFormat;
+  private final Set<Extension<FieldOptions, String>> serializedNameExtensions;
+  private final Set<Extension<EnumValueOptions, String>> serializedEnumValueExtensions;
+
+  private ProtoTypeAdapter(EnumSerialization enumSerialization,
+      CaseFormat protoFormat,
+      CaseFormat jsonFormat,
+      Set<Extension<FieldOptions, String>> serializedNameExtensions,
+      Set<Extension<EnumValueOptions, String>> serializedEnumValueExtensions) {
+    this.enumSerialization = enumSerialization;
+    this.protoFormat = protoFormat;
+    this.jsonFormat = jsonFormat;
+    this.serializedNameExtensions = serializedNameExtensions;
+    this.serializedEnumValueExtensions = serializedEnumValueExtensions;
   }
 
   @Override
@@ -302,111 +393,23 @@ public class ProtoTypeAdapter
     }
   }
 
-  /**
-   * Determines how enum <u>values</u> should be serialized.
-   */
-  public enum EnumSerialization {
-    /**
-     * Serializes and deserializes enum values using their <b>number</b>. When this is used, custom
-     * value names set on enums are ignored.
-     */
-    NUMBER,
-    /** Serializes and deserializes enum values using their <b>name</b>. */
-    NAME;
-  }
-
-  /**
-   * Builder for {@link ProtoTypeAdapter}s.
-   */
-  public static class Builder {
-    private final Set<Extension<FieldOptions, String>> serializedNameExtensions;
-    private final Set<Extension<EnumValueOptions, String>> serializedEnumValueExtensions;
-    private EnumSerialization enumSerialization;
-    private CaseFormat protoFormat;
-    private CaseFormat jsonFormat;
-
-    private Builder(EnumSerialization enumSerialization, CaseFormat fromFieldNameFormat,
-        CaseFormat toFieldNameFormat) {
-      this.serializedNameExtensions = new HashSet<>();
-      this.serializedEnumValueExtensions = new HashSet<>();
-      setEnumSerialization(enumSerialization);
-      setFieldNameSerializationFormat(fromFieldNameFormat, toFieldNameFormat);
+  private static Method getCachedMethod(Class<?> clazz, String methodName,
+      Class<?>... methodParamTypes) throws NoSuchMethodException {
+    ConcurrentMap<Class<?>, Method> mapOfMethods = mapOfMapOfMethods.get(methodName);
+    if (mapOfMethods == null) {
+      mapOfMethods = new MapMaker().makeMap();
+      ConcurrentMap<Class<?>, Method> previous =
+          mapOfMapOfMethods.putIfAbsent(methodName, mapOfMethods);
+      mapOfMethods = previous == null ? mapOfMethods : previous;
     }
 
-    public Builder setEnumSerialization(EnumSerialization enumSerialization) {
-      this.enumSerialization = requireNonNull(enumSerialization);
-      return this;
+    Method method = mapOfMethods.get(clazz);
+    if (method == null) {
+      method = clazz.getMethod(methodName, methodParamTypes);
+      mapOfMethods.putIfAbsent(clazz, method);
+      // NB: it doesn't matter which method we return in the event of a race.
     }
-
-    /**
-     * Sets the field names serialization format. The first parameter defines how to read the format
-     * of the proto field names you are converting to JSON. The second parameter defines which
-     * format to use when serializing them.
-     * <p>
-     * For example, if you use the following parameters: {@link CaseFormat#LOWER_UNDERSCORE},
-     * {@link CaseFormat#LOWER_CAMEL}, the following conversion will occur:
-     *
-     * <pre>{@code
-     * PROTO     <->  JSON
-     * my_field       myField
-     * foo            foo
-     * n__id_ct       nIdCt
-     * }</pre>
-     */
-    public Builder setFieldNameSerializationFormat(CaseFormat fromFieldNameFormat,
-        CaseFormat toFieldNameFormat) {
-      this.protoFormat = fromFieldNameFormat;
-      this.jsonFormat = toFieldNameFormat;
-      return this;
-    }
-
-    /**
-     * Adds a field proto annotation that, when set, overrides the default field name
-     * serialization/deserialization. For example, if you add the '{@code serialized_name}'
-     * annotation and you define a field in your proto like the one below:
-     *
-     * <pre>
-     * string client_app_id = 1 [(serialized_name) = "appId"];
-     * </pre>
-     *
-     * ...the adapter will serialize the field using '{@code appId}' instead of the default '
-     * {@code clientAppId}'. This lets you customize the name serialization of any proto field.
-     */
-    public Builder addSerializedNameExtension(
-        Extension<FieldOptions, String> serializedNameExtension) {
-      serializedNameExtensions.add(requireNonNull(serializedNameExtension));
-      return this;
-    }
-
-    /**
-     * Adds an enum value proto annotation that, when set, overrides the default <b>enum</b> value
-     * serialization/deserialization of this adapter. For example, if you add the '
-     * {@code serialized_value}' annotation and you define an enum in your proto like the one below:
-     *
-     * <pre>
-     * enum MyEnum {
-     *   UNKNOWN = 0;
-     *   CLIENT_APP_ID = 1 [(serialized_value) = "APP_ID"];
-     *   TWO = 2 [(serialized_value) = "2"];
-     * }
-     * </pre>
-     *
-     * ...the adapter will serialize the value {@code CLIENT_APP_ID} as "{@code APP_ID}" and the
-     * value {@code TWO} as "{@code 2}". This works for both serialization and deserialization.
-     * <p>
-     * Note that you need to set the enum serialization of this adapter to
-     * {@link EnumSerialization#NAME}, otherwise these annotations will be ignored.
-     */
-    public Builder addSerializedEnumValueExtension(
-        Extension<EnumValueOptions, String> serializedEnumValueExtension) {
-      serializedEnumValueExtensions.add(requireNonNull(serializedEnumValueExtension));
-      return this;
-    }
-
-    public ProtoTypeAdapter build() {
-      return new ProtoTypeAdapter(enumSerialization, protoFormat, jsonFormat,
-          serializedNameExtensions, serializedEnumValueExtensions);
-    }
+    return method;
   }
 
 }

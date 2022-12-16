@@ -80,6 +80,81 @@ public final class ConstructorConstructor {
     return null;
   }
 
+  public <T> ObjectConstructor<T> get(TypeToken<T> typeToken) {
+    final Type type = typeToken.getType();
+    final Class<? super T> rawType = typeToken.getRawType();
+
+    // first try an instance creator
+
+    @SuppressWarnings("unchecked") // types must agree
+    final InstanceCreator<T> typeCreator = (InstanceCreator<T>) instanceCreators.get(type);
+    if (typeCreator != null) {
+      return new ObjectConstructor<T>() {
+        @Override public T construct() {
+          return typeCreator.createInstance(type);
+        }
+      };
+    }
+
+    // Next try raw type match for instance creators
+    @SuppressWarnings("unchecked") // types must agree
+    final InstanceCreator<T> rawTypeCreator =
+        (InstanceCreator<T>) instanceCreators.get(rawType);
+    if (rawTypeCreator != null) {
+      return new ObjectConstructor<T>() {
+        @Override public T construct() {
+          return rawTypeCreator.createInstance(type);
+        }
+      };
+    }
+
+    // First consider special constructors before checking for no-args constructors
+    // below to avoid matching internal no-args constructors which might be added in
+    // future JDK versions
+    ObjectConstructor<T> specialConstructor = newSpecialCollectionConstructor(type, rawType);
+    if (specialConstructor != null) {
+      return specialConstructor;
+    }
+
+    FilterResult filterResult = ReflectionAccessFilterHelper.getFilterResult(reflectionFilters, rawType);
+    ObjectConstructor<T> defaultConstructor = newDefaultConstructor(rawType, filterResult);
+    if (defaultConstructor != null) {
+      return defaultConstructor;
+    }
+
+    ObjectConstructor<T> defaultImplementation = newDefaultImplementationConstructor(type, rawType);
+    if (defaultImplementation != null) {
+      return defaultImplementation;
+    }
+
+    // Check whether type is instantiable; otherwise ReflectionAccessFilter recommendation
+    // of adjusting filter suggested below is irrelevant since it would not solve the problem
+    final String exceptionMessage = checkInstantiable(rawType);
+    if (exceptionMessage != null) {
+      return new ObjectConstructor<T>() {
+        @Override public T construct() {
+          throw new JsonIOException(exceptionMessage);
+        }
+      };
+    }
+
+    // Consider usage of Unsafe as reflection, so don't use if BLOCK_ALL
+    // Additionally, since it is not calling any constructor at all, don't use if BLOCK_INACCESSIBLE
+    if (filterResult == FilterResult.ALLOW) {
+      // finally try unsafe
+      return newUnsafeAllocator(rawType);
+    } else {
+      final String message = "Unable to create instance of " + rawType + "; ReflectionAccessFilter "
+          + "does not permit using reflection or Unsafe. Register an InstanceCreator or a TypeAdapter "
+          + "for this type or adjust the access filter to allow using reflection.";
+      return new ObjectConstructor<T>() {
+        @Override public T construct() {
+          throw new JsonIOException(message);
+        }
+      };
+    }
+  }
+
   /**
    * Creates constructors for special JDK collection types which do not have a public no-args constructor.
    */
@@ -284,81 +359,6 @@ public final class ConstructorConstructor {
     }
 
     return null;
-  }
-
-  public <T> ObjectConstructor<T> get(TypeToken<T> typeToken) {
-    final Type type = typeToken.getType();
-    final Class<? super T> rawType = typeToken.getRawType();
-
-    // first try an instance creator
-
-    @SuppressWarnings("unchecked") // types must agree
-    final InstanceCreator<T> typeCreator = (InstanceCreator<T>) instanceCreators.get(type);
-    if (typeCreator != null) {
-      return new ObjectConstructor<T>() {
-        @Override public T construct() {
-          return typeCreator.createInstance(type);
-        }
-      };
-    }
-
-    // Next try raw type match for instance creators
-    @SuppressWarnings("unchecked") // types must agree
-    final InstanceCreator<T> rawTypeCreator =
-        (InstanceCreator<T>) instanceCreators.get(rawType);
-    if (rawTypeCreator != null) {
-      return new ObjectConstructor<T>() {
-        @Override public T construct() {
-          return rawTypeCreator.createInstance(type);
-        }
-      };
-    }
-
-    // First consider special constructors before checking for no-args constructors
-    // below to avoid matching internal no-args constructors which might be added in
-    // future JDK versions
-    ObjectConstructor<T> specialConstructor = newSpecialCollectionConstructor(type, rawType);
-    if (specialConstructor != null) {
-      return specialConstructor;
-    }
-
-    FilterResult filterResult = ReflectionAccessFilterHelper.getFilterResult(reflectionFilters, rawType);
-    ObjectConstructor<T> defaultConstructor = newDefaultConstructor(rawType, filterResult);
-    if (defaultConstructor != null) {
-      return defaultConstructor;
-    }
-
-    ObjectConstructor<T> defaultImplementation = newDefaultImplementationConstructor(type, rawType);
-    if (defaultImplementation != null) {
-      return defaultImplementation;
-    }
-
-    // Check whether type is instantiable; otherwise ReflectionAccessFilter recommendation
-    // of adjusting filter suggested below is irrelevant since it would not solve the problem
-    final String exceptionMessage = checkInstantiable(rawType);
-    if (exceptionMessage != null) {
-      return new ObjectConstructor<T>() {
-        @Override public T construct() {
-          throw new JsonIOException(exceptionMessage);
-        }
-      };
-    }
-
-    // Consider usage of Unsafe as reflection, so don't use if BLOCK_ALL
-    // Additionally, since it is not calling any constructor at all, don't use if BLOCK_INACCESSIBLE
-    if (filterResult == FilterResult.ALLOW) {
-      // finally try unsafe
-      return newUnsafeAllocator(rawType);
-    } else {
-      final String message = "Unable to create instance of " + rawType + "; ReflectionAccessFilter "
-          + "does not permit using reflection or Unsafe. Register an InstanceCreator or a TypeAdapter "
-          + "for this type or adjust the access filter to allow using reflection.";
-      return new ObjectConstructor<T>() {
-        @Override public T construct() {
-          throw new JsonIOException(message);
-        }
-      };
-    }
   }
 
   private <T> ObjectConstructor<T> newUnsafeAllocator(final Class<? super T> rawType) {

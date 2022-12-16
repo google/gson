@@ -16,8 +16,9 @@
 
 package com.google.gson.functional;
 
-import com.google.gson.Gson;
 import junit.framework.TestCase;
+
+import com.google.gson.Gson;
 
 /**
  * Functional tests for Java Character values.

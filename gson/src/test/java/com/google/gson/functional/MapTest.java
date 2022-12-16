@@ -256,6 +256,14 @@ public class MapTest extends TestCase {
     assertTrue(json.contains("\"a\":\"b\""));
   }
 
+  @SuppressWarnings({ "unused", "serial" })
+  private static class MyParameterizedMap<K, V> extends LinkedHashMap<K, V> {
+    final int foo;
+    MyParameterizedMap(int foo) {
+      this.foo = foo;
+    }
+  }
+
   public void testMapSubclassSerialization() {
     MyMap map = new MyMap();
     map.put("a", "b");
@@ -309,6 +317,13 @@ public class MapTest extends TestCase {
   /**
    * Created in response to http://code.google.com/p/google-gson/issues/detail?id=99
    */
+  private static class ClassWithAMap {
+    Map<String, String> map = new TreeMap<>();
+  }
+
+  /**
+   * Created in response to http://code.google.com/p/google-gson/issues/detail?id=99
+   */
   public void testMapSerializationWithNullValues() {
     ClassWithAMap target = new ClassWithAMap();
     target.map.put("name1", null);
@@ -346,6 +361,14 @@ public class MapTest extends TestCase {
     Map<String, ? extends Long> map = gson.fromJson("{\"test\":123}", typeOfMap);
     assertEquals(1, map.size());
     assertEquals(Long.valueOf(123L), map.get("test"));
+  }
+
+
+  private static class MyMap extends LinkedHashMap<String, String> {
+    private static final long serialVersionUID = 1L;
+
+    @SuppressWarnings("unused")
+    int foo = 10;
   }
 
   /**
@@ -583,28 +606,6 @@ public class MapTest extends TestCase {
     map.put(2.3, "a");
     JsonElement tree = JsonParser.parseString(json);
     assertEquals(map, gson.fromJson(tree, new TypeToken<Map<Double, String>>() {}.getType()));
-  }
-
-  @SuppressWarnings({ "unused", "serial" })
-  private static class MyParameterizedMap<K, V> extends LinkedHashMap<K, V> {
-    final int foo;
-    MyParameterizedMap(int foo) {
-      this.foo = foo;
-    }
-  }
-
-  /**
-   * Created in response to http://code.google.com/p/google-gson/issues/detail?id=99
-   */
-  private static class ClassWithAMap {
-    Map<String, String> map = new TreeMap<>();
-  }
-
-  private static class MyMap extends LinkedHashMap<String, String> {
-    private static final long serialVersionUID = 1L;
-
-    @SuppressWarnings("unused")
-    int foo = 10;
   }
 
   static class Point {

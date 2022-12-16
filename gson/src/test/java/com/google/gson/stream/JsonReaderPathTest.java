@@ -33,9 +33,6 @@ import org.junit.runners.Parameterized;
 @SuppressWarnings("resource")
 @RunWith(Parameterized.class)
 public class JsonReaderPathTest {
-  @Parameterized.Parameter
-  public Factory factory;
-
   @Parameterized.Parameters(name = "{0}")
   public static List<Object[]> parameters() {
     return Arrays.asList(
@@ -43,6 +40,9 @@ public class JsonReaderPathTest {
         new Object[] { Factory.OBJECT_READER }
     );
   }
+
+  @Parameterized.Parameter
+  public Factory factory;
 
   @Test public void path() throws IOException {
     JsonReader reader = factory.create("{\"a\":[2,true,false,null,\"b\",{\"c\":\"d\"},[3]]}");

@@ -51,20 +51,6 @@ import junit.framework.TestCase;
 public class CollectionTest extends TestCase {
   private Gson gson;
 
-  private static int[] toIntArray(Collection<?> collection) {
-    int[] ints = new int[collection.size()];
-    int i = 0;
-    for (Iterator<?> iterator = collection.iterator(); iterator.hasNext(); ++i) {
-      Object obj = iterator.next();
-      if (obj instanceof Integer) {
-        ints[i] = ((Integer)obj).intValue();
-      } else if (obj instanceof Long) {
-        ints[i] = ((Long)obj).intValue();
-      }
-    }
-    return ints;
-  }
-
   @Override
   protected void setUp() throws Exception {
     super.setUp();
@@ -350,41 +336,22 @@ public class CollectionTest extends TestCase {
     assertEquals("\"ab;cd\"", gson.toJson(Arrays.asList("ab", "cd"), listOfString));
   }
 
-  public void testSetSerialization() {
-    Set<Entry> set = new HashSet<>();
-    set.add(new Entry(1));
-    set.add(new Entry(2));
-    String json = gson.toJson(set);
-    assertTrue(json.contains("1"));
-    assertTrue(json.contains("2"));
-  }
-
-  public void testSetDeserialization() {
-    String json = "[{value:1},{value:2}]";
-    Type type = new TypeToken<Set<Entry>>() {}.getType();
-    Set<Entry> set = gson.fromJson(json, type);
-    assertEquals(2, set.size());
-    for (Entry entry : set) {
-      assertTrue(entry.value == 1 || entry.value == 2);
-    }
-  }
-
-  public void testIssue1107() {
-    String json = "{\n" +
-            "  \"inBig\": {\n" +
-            "    \"key\": [\n" +
-            "      { \"inSmall\": \"hello\" }\n" +
-            "    ]\n" +
-            "  }\n" +
-            "}";
-    BigClass bigClass = new Gson().fromJson(json, BigClass.class);
-    SmallClass small = bigClass.inBig.get("key").get(0);
-    assertNotNull(small);
-    assertEquals("hello", small.inSmall);
-  }
-
   static class HasArrayListField {
     ArrayList<Long> longs = new ArrayList<>();
+  }
+
+  private static int[] toIntArray(Collection<?> collection) {
+    int[] ints = new int[collection.size()];
+    int i = 0;
+    for (Iterator<?> iterator = collection.iterator(); iterator.hasNext(); ++i) {
+      Object obj = iterator.next();
+      if (obj instanceof Integer) {
+        ints[i] = ((Integer)obj).intValue();
+      } else if (obj instanceof Long) {
+        ints[i] = ((Long)obj).intValue();
+      }
+    }
+    return ints;
   }
 
   private static class ObjectWithWildcardCollection {
@@ -405,9 +372,40 @@ public class CollectionTest extends TestCase {
       this.value = value;
     }
   }
+  public void testSetSerialization() {
+    Set<Entry> set = new HashSet<>();
+    set.add(new Entry(1));
+    set.add(new Entry(2));
+    String json = gson.toJson(set);
+    assertTrue(json.contains("1"));
+    assertTrue(json.contains("2"));
+  }
+  public void testSetDeserialization() {
+    String json = "[{value:1},{value:2}]";
+    Type type = new TypeToken<Set<Entry>>() {}.getType();
+    Set<Entry> set = gson.fromJson(json, type);
+    assertEquals(2, set.size());
+    for (Entry entry : set) {
+      assertTrue(entry.value == 1 || entry.value == 2);
+    }
+  }
 
   private class BigClass { private Map<String, ? extends List<SmallClass>> inBig; }
 
   private class SmallClass { private String inSmall; }
+
+  public void testIssue1107() {
+    String json = "{\n" +
+            "  \"inBig\": {\n" +
+            "    \"key\": [\n" +
+            "      { \"inSmall\": \"hello\" }\n" +
+            "    ]\n" +
+            "  }\n" +
+            "}";
+    BigClass bigClass = new Gson().fromJson(json, BigClass.class);
+    SmallClass small = bigClass.inBig.get("key").get(0);
+    assertNotNull(small);
+    assertEquals("hello", small.inSmall);
+  }
 
 }

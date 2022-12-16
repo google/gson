@@ -96,6 +96,18 @@ public class EnumTest extends TestCase {
     assertEquals(MyEnum.VALUE2,target.value2);
   }
 
+  private static enum MyEnum {
+    VALUE1, VALUE2
+  }
+
+  private static class ClassWithEnumFields {
+    private final MyEnum value1 = MyEnum.VALUE1;
+    private final MyEnum value2 = MyEnum.VALUE2;
+    public String getExpectedJson() {
+      return "{\"value1\":\"" + value1 + "\",\"value2\":\"" + value2 + "\"}";
+    }
+  }
+
   /**
    * Test for issue 226.
    */
@@ -163,34 +175,6 @@ public class EnumTest extends TestCase {
     assertEquals(expectedMap, actualMap);
   }
 
-  public void testEnumClassWithFields() {
-    assertEquals("\"RED\"", gson.toJson(Color.RED));
-    assertEquals("red", gson.fromJson("RED", Color.class).value);
-    assertEquals(2, gson.fromJson("BLUE", Color.class).index);
-  }
-
-  public void testEnumToStringRead() {
-    // Should still be able to read constant name
-    assertEquals(CustomToString.A, gson.fromJson("\"A\"", CustomToString.class));
-    // Should be able to read toString() value
-    assertEquals(CustomToString.A, gson.fromJson("\"test\"", CustomToString.class));
-
-    assertNull(gson.fromJson("\"other\"", CustomToString.class));
-  }
-
-  /**
-   * Test that enum constant names have higher precedence than {@code toString()}
-   * result.
-   */
-  public void testEnumToStringReadInterchanged() {
-    assertEquals(InterchangedToString.A, gson.fromJson("\"A\"", InterchangedToString.class));
-    assertEquals(InterchangedToString.B, gson.fromJson("\"B\"", InterchangedToString.class));
-  }
-
-  private static enum MyEnum {
-    VALUE1, VALUE2
-  }
-
   private enum Roshambo {
     ROCK {
       @Override Roshambo defeats() {
@@ -211,12 +195,30 @@ public class EnumTest extends TestCase {
     abstract Roshambo defeats();
   }
 
+  private static class MyEnumTypeAdapter
+      implements JsonSerializer<Roshambo>, JsonDeserializer<Roshambo> {
+    @Override public JsonElement serialize(Roshambo src, Type typeOfSrc, JsonSerializationContext context) {
+      return new JsonPrimitive("123" + src.name());
+    }
+
+    @Override public Roshambo deserialize(JsonElement json, Type classOfT, JsonDeserializationContext context)
+        throws JsonParseException {
+      return Roshambo.valueOf(json.getAsString().substring(3));
+    }
+  }
+
   private enum Gender {
     @SerializedName("boy")
     MALE,
 
     @SerializedName("girl")
     FEMALE
+  }
+
+  public void testEnumClassWithFields() {
+    assertEquals("\"RED\"", gson.toJson(Color.RED));
+    assertEquals("red", gson.fromJson("RED", Color.class).value);
+    assertEquals(2, gson.fromJson("BLUE", Color.class).index);
   }
 
   private enum Color {
@@ -229,6 +231,15 @@ public class EnumTest extends TestCase {
     }
   }
 
+  public void testEnumToStringRead() {
+    // Should still be able to read constant name
+    assertEquals(CustomToString.A, gson.fromJson("\"A\"", CustomToString.class));
+    // Should be able to read toString() value
+    assertEquals(CustomToString.A, gson.fromJson("\"test\"", CustomToString.class));
+
+    assertNull(gson.fromJson("\"other\"", CustomToString.class));
+  }
+
   private enum CustomToString {
     A;
 
@@ -236,6 +247,15 @@ public class EnumTest extends TestCase {
     public String toString() {
       return "test";
     }
+  }
+
+  /**
+   * Test that enum constant names have higher precedence than {@code toString()}
+   * result.
+   */
+  public void testEnumToStringReadInterchanged() {
+    assertEquals(InterchangedToString.A, gson.fromJson("\"A\"", InterchangedToString.class));
+    assertEquals(InterchangedToString.B, gson.fromJson("\"B\"", InterchangedToString.class));
   }
 
   private enum InterchangedToString {
@@ -251,26 +271,6 @@ public class EnumTest extends TestCase {
     @Override
     public String toString() {
       return toString;
-    }
-  }
-
-  private static class ClassWithEnumFields {
-    private final MyEnum value1 = MyEnum.VALUE1;
-    private final MyEnum value2 = MyEnum.VALUE2;
-    public String getExpectedJson() {
-      return "{\"value1\":\"" + value1 + "\",\"value2\":\"" + value2 + "\"}";
-    }
-  }
-
-  private static class MyEnumTypeAdapter
-      implements JsonSerializer<Roshambo>, JsonDeserializer<Roshambo> {
-    @Override public JsonElement serialize(Roshambo src, Type typeOfSrc, JsonSerializationContext context) {
-      return new JsonPrimitive("123" + src.name());
-    }
-
-    @Override public Roshambo deserialize(JsonElement json, Type classOfT, JsonDeserializationContext context)
-        throws JsonParseException {
-      return Roshambo.valueOf(json.getAsString().substring(3));
     }
   }
 }

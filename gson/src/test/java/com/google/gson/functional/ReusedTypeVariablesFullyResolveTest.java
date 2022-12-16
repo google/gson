@@ -6,11 +6,11 @@ import static org.junit.Assert.assertTrue;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.junit.Before;
+import org.junit.Test;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
 
 /**
  * This test covers the scenario described in #1390 where a type variable needs to be used

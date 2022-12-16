@@ -16,11 +16,13 @@
 
 package com.google.gson.functional;
 
+import java.lang.reflect.Type;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 import com.google.gson.annotations.Expose;
-import java.lang.reflect.Type;
+
 import junit.framework.TestCase;
 
 /**
@@ -108,16 +110,12 @@ public class ExposeFieldsTest extends TestCase {
     assertNotNull(obj.interfaceField);
   }
 
-  private static interface SomeInterface {
-    // Empty interface
-  }
-
   private static class ClassWithExposedFields {
+    @Expose private final Integer a;
+    private final Integer b;
     @Expose(serialize = false) final long c;
     @Expose(deserialize = false) final double d;
     @Expose(serialize = false, deserialize = false) final char e;
-    @Expose private final Integer a;
-    private final Integer b;
 
     public ClassWithExposedFields(Integer a, Integer b) {
       this(a, b, 1L, 2.0, 'a');
@@ -140,10 +138,14 @@ public class ExposeFieldsTest extends TestCase {
       return sb.toString();
     }
   }
-  
+
   private static class ClassWithNoExposedFields {
     private final int a = 0;
     private final int b = 1;
+  }
+  
+  private static interface SomeInterface {
+    // Empty interface
   }
   
   private static class SomeObject implements SomeInterface {

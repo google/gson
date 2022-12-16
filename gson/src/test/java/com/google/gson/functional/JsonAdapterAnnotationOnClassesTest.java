@@ -139,16 +139,6 @@ public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
     assertNull(fromJson);
   }
 
-  public void testIncorrectJsonAdapterType() {
-    try {
-      new Gson().toJson(new D());
-      fail();
-    } catch (IllegalArgumentException expected) {}
-  }
-
-  @JsonAdapter(FooJsonAdapter.class)
-  private static enum Foo { BAR, BAZ }
-
   @JsonAdapter(A.JsonAdapter.class)
   private static class A {
     final String value;
@@ -193,7 +183,6 @@ public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
       super(value);
     }
   }
-
   // Note that the type is NOT TypeAdapter<ClassWithIncorrectJsonAdapter> so this
   // should cause error
   @JsonAdapter(A.JsonAdapter.class)
@@ -213,7 +202,6 @@ public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
       this.lastName = lastName;
     }
   }
-
   private static class UserJsonAdapter extends TypeAdapter<User> {
     @Override public void write(JsonWriter out, User user) throws IOException {
       // implement write: combine firstName and lastName into name
@@ -250,6 +238,8 @@ public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
     }
   }
 
+  @JsonAdapter(FooJsonAdapter.class)
+  private static enum Foo { BAR, BAZ }
   private static class FooJsonAdapter extends TypeAdapter<Foo> {
     @Override public void write(JsonWriter out, Foo value) throws IOException {
       out.value(value.name().toLowerCase(Locale.US));
@@ -260,6 +250,12 @@ public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
     }
   }
 
+  public void testIncorrectJsonAdapterType() {
+    try {
+      new Gson().toJson(new D());
+      fail();
+    } catch (IllegalArgumentException expected) {}
+  }
   @JsonAdapter(Integer.class)
   private static final class D {
     @SuppressWarnings("unused") final String value = "a";

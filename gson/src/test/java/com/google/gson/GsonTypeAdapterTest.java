@@ -84,40 +84,6 @@ public class GsonTypeAdapterTest extends TestCase {
     assertEquals(expected, actual);
   }
 
-  // https://groups.google.com/d/topic/google-gson/EBmOCa8kJPE/discussion
-  public void testDeserializerForAbstractClass() {
-    Concrete instance = new Concrete();
-    instance.a = "android";
-    instance.b = "beep";
-    assertSerialized("{\"a\":\"android\"}", Abstract.class, true, true, instance);
-    assertSerialized("{\"a\":\"android\"}", Abstract.class, true, false, instance);
-    assertSerialized("{\"a\":\"android\"}", Abstract.class, false, true, instance);
-    assertSerialized("{\"a\":\"android\"}", Abstract.class, false, false, instance);
-    assertSerialized("{\"b\":\"beep\",\"a\":\"android\"}", Concrete.class, true, true, instance);
-    assertSerialized("{\"b\":\"beep\",\"a\":\"android\"}", Concrete.class, true, false, instance);
-    assertSerialized("{\"b\":\"beep\",\"a\":\"android\"}", Concrete.class, false, true, instance);
-    assertSerialized("{\"b\":\"beep\",\"a\":\"android\"}", Concrete.class, false, false, instance);
-  }
-
-  private void assertSerialized(String expected, Class<?> instanceType, boolean registerAbstractDeserializer,
-      boolean registerAbstractHierarchyDeserializer, Object instance) {
-    JsonDeserializer<Abstract> deserializer = new JsonDeserializer<Abstract>() {
-      @Override public Abstract deserialize(JsonElement json, Type typeOfT,
-          JsonDeserializationContext context) throws JsonParseException {
-        throw new AssertionError();
-      }
-    };
-    GsonBuilder builder = new GsonBuilder();
-    if (registerAbstractDeserializer) {
-      builder.registerTypeAdapter(Abstract.class, deserializer);
-    }
-    if (registerAbstractHierarchyDeserializer) {
-      builder.registerTypeHierarchyAdapter(Abstract.class, deserializer);
-    }
-    Gson gson = builder.create();
-    assertEquals(expected, gson.toJson(instance, instanceType));
-  }
-
   private static class ExceptionTypeAdapter
       implements JsonSerializer<AtomicLong>, JsonDeserializer<AtomicLong> {
     @Override public JsonElement serialize(
@@ -150,5 +116,39 @@ public class GsonTypeAdapterTest extends TestCase {
 
   static class Concrete extends Abstract {
     String b;
+  }
+
+  // https://groups.google.com/d/topic/google-gson/EBmOCa8kJPE/discussion
+  public void testDeserializerForAbstractClass() {
+    Concrete instance = new Concrete();
+    instance.a = "android";
+    instance.b = "beep";
+    assertSerialized("{\"a\":\"android\"}", Abstract.class, true, true, instance);
+    assertSerialized("{\"a\":\"android\"}", Abstract.class, true, false, instance);
+    assertSerialized("{\"a\":\"android\"}", Abstract.class, false, true, instance);
+    assertSerialized("{\"a\":\"android\"}", Abstract.class, false, false, instance);
+    assertSerialized("{\"b\":\"beep\",\"a\":\"android\"}", Concrete.class, true, true, instance);
+    assertSerialized("{\"b\":\"beep\",\"a\":\"android\"}", Concrete.class, true, false, instance);
+    assertSerialized("{\"b\":\"beep\",\"a\":\"android\"}", Concrete.class, false, true, instance);
+    assertSerialized("{\"b\":\"beep\",\"a\":\"android\"}", Concrete.class, false, false, instance);
+  }
+
+  private void assertSerialized(String expected, Class<?> instanceType, boolean registerAbstractDeserializer,
+      boolean registerAbstractHierarchyDeserializer, Object instance) {
+    JsonDeserializer<Abstract> deserializer = new JsonDeserializer<Abstract>() {
+      @Override public Abstract deserialize(JsonElement json, Type typeOfT,
+          JsonDeserializationContext context) throws JsonParseException {
+        throw new AssertionError();
+      }
+    };
+    GsonBuilder builder = new GsonBuilder();
+    if (registerAbstractDeserializer) {
+      builder.registerTypeAdapter(Abstract.class, deserializer);
+    }
+    if (registerAbstractHierarchyDeserializer) {
+      builder.registerTypeHierarchyAdapter(Abstract.class, deserializer);
+    }
+    Gson gson = builder.create();
+    assertEquals(expected, gson.toJson(instance, instanceType));
   }
 }

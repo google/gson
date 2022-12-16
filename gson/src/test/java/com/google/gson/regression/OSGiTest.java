@@ -15,23 +15,17 @@
  */
 package com.google.gson.regression;
 
-import java.io.IOException;
 import java.io.InputStream;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.jar.Manifest;
+
 import junit.framework.TestCase;
 
 public class OSGiTest extends TestCase {
-    private static void assertSubstring(String msg, String wholeText, String subString) {
-        if (wholeText.contains(subString)) {
-            return;
-        }
-        fail(msg + ". Expecting " + subString + " but was: " + wholeText);
-    }
-
     public void testComGoogleGsonAnnotationsPackage() throws Exception {
         Manifest mf = findManifest("com.google.gson");
         String importPkg = mf.getMainAttributes().getValue("Import-Package");
@@ -65,5 +59,12 @@ public class OSGiTest extends TestCase {
         }
         fail("Cannot find " + pkg + " OSGi bundle manifest among: " + urls);
         return null;
+    }
+
+    private static void assertSubstring(String msg, String wholeText, String subString) {
+        if (wholeText.contains(subString)) {
+            return;
+        }
+        fail(msg + ". Expecting " + subString + " but was: " + wholeText);
     }
 }

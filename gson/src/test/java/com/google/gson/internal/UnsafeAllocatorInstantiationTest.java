@@ -23,6 +23,15 @@ import junit.framework.TestCase;
  */
 public final class UnsafeAllocatorInstantiationTest extends TestCase {
 
+  public interface Interface {
+  }
+
+  public static abstract class AbstractClass {
+  }
+
+  public static class ConcreteClass {
+  }
+
   /**
    * Ensure that an {@link AssertionError} is thrown when trying
    * to instantiate an interface
@@ -55,14 +64,5 @@ public final class UnsafeAllocatorInstantiationTest extends TestCase {
   public void testConcreteClassInstantiation() throws Exception {
     ConcreteClass instance = UnsafeAllocator.INSTANCE.newInstance(ConcreteClass.class);
     assertNotNull(instance);
-  }
-
-  public interface Interface {
-  }
-
-  public static abstract class AbstractClass {
-  }
-
-  public static class ConcreteClass {
   }
 }

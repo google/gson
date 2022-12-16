@@ -1,14 +1,16 @@
 package com.google.gson.internal.sql;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.functional.DefaultTypeAdaptersTest;
-import com.google.gson.internal.JavaVersion;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Locale;
 import java.util.TimeZone;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.functional.DefaultTypeAdaptersTest;
+import com.google.gson.internal.JavaVersion;
+
 import junit.framework.TestCase;
 
 public class SqlTypesGsonTest extends TestCase {

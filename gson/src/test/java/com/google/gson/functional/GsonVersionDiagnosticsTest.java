@@ -15,16 +15,19 @@
  */
 package com.google.gson.functional;
 
+import java.io.IOException;
+import java.util.regex.Pattern;
+
+import org.junit.Before;
+import org.junit.Test;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import java.io.IOException;
-import java.util.regex.Pattern;
+
 import junit.framework.TestCase;
-import org.junit.Before;
-import org.junit.Test;
 
 /**
  * Functional tests to validate printing of Gson version on AssertionErrors

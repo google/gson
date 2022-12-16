@@ -19,6 +19,7 @@ package com.google.gson.functional;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
+
 import junit.framework.TestCase;
 
 /**

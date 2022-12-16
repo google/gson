@@ -77,19 +77,6 @@ public final class JsonPrimitive extends JsonElement {
   }
 
   /**
-   * Returns true if the specified number is an integral type
-   * (Long, Integer, Short, Byte, BigInteger)
-   */
-  private static boolean isIntegral(JsonPrimitive primitive) {
-    if (primitive.value instanceof Number) {
-      Number number = (Number) primitive.value;
-      return number instanceof BigInteger || number instanceof Long || number instanceof Integer
-          || number instanceof Short || number instanceof Byte;
-    }
-    return false;
-  }
-
-  /**
    * Returns the same value as primitives are immutable.
    *
    * @since 2.8.2
@@ -305,5 +292,18 @@ public final class JsonPrimitive extends JsonElement {
       return a == b || (Double.isNaN(a) && Double.isNaN(b));
     }
     return value.equals(other.value);
+  }
+
+  /**
+   * Returns true if the specified number is an integral type
+   * (Long, Integer, Short, Byte, BigInteger)
+   */
+  private static boolean isIntegral(JsonPrimitive primitive) {
+    if (primitive.value instanceof Number) {
+      Number number = (Number) primitive.value;
+      return number instanceof BigInteger || number instanceof Long || number instanceof Integer
+          || number instanceof Short || number instanceof Byte;
+    }
+    return false;
   }
 }

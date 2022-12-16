@@ -18,10 +18,12 @@ package com.google.gson;
 
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.reflect.TypeToken;
+
+import junit.framework.TestCase;
+
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Type;
 import java.util.List;
-import junit.framework.TestCase;
 
 /**
  * Unit tests for the {@code GenericArrayType}s created by the {@link $Gson$Types} class.

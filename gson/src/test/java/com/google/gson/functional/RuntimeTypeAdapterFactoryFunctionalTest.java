@@ -15,6 +15,12 @@
  */
 package com.google.gson.functional;
 
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import junit.framework.TestCase;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -27,10 +33,6 @@ import com.google.gson.internal.Streams;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import junit.framework.TestCase;
 
 /**
  * Functional tests for the RuntimeTypeAdapterFactory feature in extras.
@@ -56,10 +58,6 @@ public final class RuntimeTypeAdapterFactoryFunctionalTest extends TestCase {
     assertEquals(ShapeType.SQUARE, shape.type);
   }
 
-  public enum ShapeType {
-    SQUARE, CIRCLE
-  }
-
   @JsonAdapter(Shape.JsonAdapterFactory.class)
   static class Shape {
     final ShapeType type;
@@ -71,6 +69,10 @@ public final class RuntimeTypeAdapterFactoryFunctionalTest extends TestCase {
         registerSubtype(Square.class, ShapeType.SQUARE.toString());
       }
     }
+  }
+
+  public enum ShapeType {
+    SQUARE, CIRCLE
   }
 
   private static final class Circle extends Shape {

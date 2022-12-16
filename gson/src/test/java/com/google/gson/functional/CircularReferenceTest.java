@@ -15,6 +15,12 @@
  */
 package com.google.gson.functional;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collection;
+
+import junit.framework.TestCase;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -22,10 +28,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.common.TestTypes.ClassOverridingEquals;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collection;
-import junit.framework.TestCase;
 
 /**
  * Functional tests related to circular reference detection and error reporting.

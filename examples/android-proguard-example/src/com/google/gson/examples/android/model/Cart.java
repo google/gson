@@ -41,34 +41,6 @@ public class Cart {
     this.creditCard = creditCard;
   }
 
-  @SuppressWarnings("unchecked")
-  public static String getSimpleTypeName(Type type) {
-    if (type == null) {
-      return "null";
-    }
-    if (type instanceof Class) {
-      return ((Class)type).getSimpleName();
-    } else if (type instanceof ParameterizedType) {
-      ParameterizedType pType = (ParameterizedType) type;
-      StringBuilder sb = new StringBuilder(getSimpleTypeName(pType.getRawType()));
-      sb.append('<');
-      boolean first = true;
-      for (Type argumentType : pType.getActualTypeArguments()) {
-        if (first) {
-          first = false;
-        } else {
-          sb.append(',');
-        }
-        sb.append(getSimpleTypeName(argumentType));
-      }
-      sb.append('>');
-      return sb.toString();
-    } else if (type instanceof WildcardType) {
-      return "?";
-    }
-    return type.toString();
-  }
-
   public List<LineItem> getLineItems() {
     return lineItems;
   }
@@ -103,6 +75,34 @@ public class Cart {
     }
     return "[BUYER: " + buyerName + "; CC: " + creditCard + "; "
     + "LINE_ITEMS: " + itemsText.toString() + "]";
+  }
+
+  @SuppressWarnings("unchecked")
+  public static String getSimpleTypeName(Type type) {
+    if (type == null) {
+      return "null";
+    }
+    if (type instanceof Class) {
+      return ((Class)type).getSimpleName();
+    } else if (type instanceof ParameterizedType) {
+      ParameterizedType pType = (ParameterizedType) type;
+      StringBuilder sb = new StringBuilder(getSimpleTypeName(pType.getRawType()));
+      sb.append('<');
+      boolean first = true;
+      for (Type argumentType : pType.getActualTypeArguments()) {
+        if (first) {
+          first = false;
+        } else {
+          sb.append(',');
+        }
+        sb.append(getSimpleTypeName(argumentType));
+      }
+      sb.append('>');
+      return sb.toString();
+    } else if (type instanceof WildcardType) {
+      return "?";
+    }
+    return type.toString();
   }
 
 }

@@ -26,6 +26,9 @@ import com.google.gson.common.TestTypes.ClassWithBaseCollectionField;
 import com.google.gson.common.TestTypes.ClassWithBaseField;
 import com.google.gson.common.TestTypes.Nested;
 import com.google.gson.common.TestTypes.Sub;
+
+import junit.framework.TestCase;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -34,7 +37,6 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import junit.framework.TestCase;
 
 /**
  * Functional tests for Json serialization and deserialization of classes with 
@@ -134,6 +136,20 @@ public class InheritanceTest extends TestCase {
     assertTrue(json.contains(Sub.SUB_NAME));
   }
 
+  private static class SubTypeOfNested extends Nested {
+    private final long value = 5;
+
+    public SubTypeOfNested(BagOfPrimitives primitive1, BagOfPrimitives primitive2) {
+      super(primitive1, primitive2);
+    }
+
+    @Override
+    public void appendFields(StringBuilder sb) {
+      sb.append("\"value\":").append(value).append(",");
+      super.appendFields(sb);
+    }
+  }
+
   public void testSubInterfacesOfCollectionSerialization() throws Exception {
     List<Integer> list = new LinkedList<>();
     list.add(0);
@@ -164,26 +180,12 @@ public class InheritanceTest extends TestCase {
     String json = "{\"list\":[0,1,2,3],\"queue\":[0,1,2,3],\"set\":[0.1,0.2,0.3,0.4],"
         + "\"sortedSet\":[\"a\",\"b\",\"c\",\"d\"]"
         + "}";
-    ClassWithSubInterfacesOfCollection target =
+    ClassWithSubInterfacesOfCollection target = 
       gson.fromJson(json, ClassWithSubInterfacesOfCollection.class);
     assertTrue(target.listContains(0, 1, 2, 3));
     assertTrue(target.queueContains(0, 1, 2, 3));
     assertTrue(target.setContains(0.1F, 0.2F, 0.3F, 0.4F));
     assertTrue(target.sortedSetContains('a', 'b', 'c', 'd'));
-  }
-
-  private static class SubTypeOfNested extends Nested {
-    private final long value = 5;
-
-    public SubTypeOfNested(BagOfPrimitives primitive1, BagOfPrimitives primitive2) {
-      super(primitive1, primitive2);
-    }
-
-    @Override
-    public void appendFields(StringBuilder sb) {
-      sb.append("\"value\":").append(value).append(",");
-      super.appendFields(sb);
-    }
   }
   
   private static class ClassWithSubInterfacesOfCollection {

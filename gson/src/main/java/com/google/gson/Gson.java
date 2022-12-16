@@ -153,7 +153,28 @@ public final class Gson {
   static final ToNumberStrategy DEFAULT_NUMBER_TO_NUMBER_STRATEGY = ToNumberPolicy.LAZILY_PARSED_NUMBER;
 
   private static final String JSON_NON_EXECUTABLE_PREFIX = ")]}'\n";
+
+  /**
+   * This thread local guards against reentrant calls to {@link #getAdapter(TypeToken)}.
+   * In certain object graphs, creating an adapter for a type may recursively
+   * require an adapter for the same type! Without intervention, the recursive
+   * lookup would stack overflow. We cheat by returning a proxy type adapter,
+   * {@link FutureTypeAdapter}, which is wired up once the initial adapter has
+   * been created.
+   *
+   * <p>The map stores the type adapters for ongoing {@code getAdapter} calls,
+   * with the type token provided to {@code getAdapter} as key and either
+   * {@code FutureTypeAdapter} or a regular {@code TypeAdapter} as value.
+   */
+  private final ThreadLocal<Map<TypeToken<?>, TypeAdapter<?>>> threadLocalAdapterResults = new ThreadLocal<>();
+
+  private final ConcurrentMap<TypeToken<?>, TypeAdapter<?>> typeTokenCache = new ConcurrentHashMap<>();
+
+  private final ConstructorConstructor constructorConstructor;
+  private final JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory;
+
   final List<TypeAdapterFactory> factories;
+
   final Excluder excluder;
   final FieldNamingStrategy fieldNamingStrategy;
   final Map<Type, InstanceCreator<?>> instanceCreators;
@@ -174,22 +195,6 @@ public final class Gson {
   final ToNumberStrategy objectToNumberStrategy;
   final ToNumberStrategy numberToNumberStrategy;
   final List<ReflectionAccessFilter> reflectionFilters;
-  /**
-   * This thread local guards against reentrant calls to {@link #getAdapter(TypeToken)}.
-   * In certain object graphs, creating an adapter for a type may recursively
-   * require an adapter for the same type! Without intervention, the recursive
-   * lookup would stack overflow. We cheat by returning a proxy type adapter,
-   * {@link FutureTypeAdapter}, which is wired up once the initial adapter has
-   * been created.
-   *
-   * <p>The map stores the type adapters for ongoing {@code getAdapter} calls,
-   * with the type token provided to {@code getAdapter} as key and either
-   * {@code FutureTypeAdapter} or a regular {@code TypeAdapter} as value.
-   */
-  private final ThreadLocal<Map<TypeToken<?>, TypeAdapter<?>>> threadLocalAdapterResults = new ThreadLocal<>();
-  private final ConcurrentMap<TypeToken<?>, TypeAdapter<?>> typeTokenCache = new ConcurrentHashMap<>();
-  private final ConstructorConstructor constructorConstructor;
-  private final JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory;
 
   /**
    * Constructs a Gson object with default configuration. The default configuration has the
@@ -338,87 +343,6 @@ public final class Gson {
     this.factories = Collections.unmodifiableList(factories);
   }
 
-  static void checkValidFloatingPoint(double value) {
-    if (Double.isNaN(value) || Double.isInfinite(value)) {
-      throw new IllegalArgumentException(value
-          + " is not a valid double value as per JSON specification. To override this"
-          + " behavior, use GsonBuilder.serializeSpecialFloatingPointValues() method.");
-    }
-  }
-
-  private static TypeAdapter<Number> longAdapter(LongSerializationPolicy longSerializationPolicy) {
-    if (longSerializationPolicy == LongSerializationPolicy.DEFAULT) {
-      return TypeAdapters.LONG;
-    }
-    return new TypeAdapter<Number>() {
-      @Override public Number read(JsonReader in) throws IOException {
-        if (in.peek() == JsonToken.NULL) {
-          in.nextNull();
-          return null;
-        }
-        return in.nextLong();
-      }
-      @Override public void write(JsonWriter out, Number value) throws IOException {
-        if (value == null) {
-          out.nullValue();
-          return;
-        }
-        out.value(value.toString());
-      }
-    };
-  }
-
-  private static TypeAdapter<AtomicLong> atomicLongAdapter(final TypeAdapter<Number> longAdapter) {
-    return new TypeAdapter<AtomicLong>() {
-      @Override public void write(JsonWriter out, AtomicLong value) throws IOException {
-        longAdapter.write(out, value.get());
-      }
-      @Override public AtomicLong read(JsonReader in) throws IOException {
-        Number value = longAdapter.read(in);
-        return new AtomicLong(value.longValue());
-      }
-    }.nullSafe();
-  }
-
-  private static TypeAdapter<AtomicLongArray> atomicLongArrayAdapter(final TypeAdapter<Number> longAdapter) {
-    return new TypeAdapter<AtomicLongArray>() {
-      @Override public void write(JsonWriter out, AtomicLongArray value) throws IOException {
-        out.beginArray();
-        for (int i = 0, length = value.length(); i < length; i++) {
-          longAdapter.write(out, value.get(i));
-        }
-        out.endArray();
-      }
-      @Override public AtomicLongArray read(JsonReader in) throws IOException {
-        List<Long> list = new ArrayList<>();
-        in.beginArray();
-        while (in.hasNext()) {
-            long value = longAdapter.read(in).longValue();
-            list.add(value);
-        }
-        in.endArray();
-        int length = list.size();
-        AtomicLongArray array = new AtomicLongArray(length);
-        for (int i = 0; i < length; ++i) {
-          array.set(i, list.get(i));
-        }
-        return array;
-      }
-    }.nullSafe();
-  }
-
-  private static void assertFullConsumption(Object obj, JsonReader reader) {
-    try {
-      if (obj != null && reader.peek() != JsonToken.END_DOCUMENT) {
-        throw new JsonSyntaxException("JSON document was not fully consumed.");
-      }
-    } catch (MalformedJsonException e) {
-      throw new JsonSyntaxException(e);
-    } catch (IOException e) {
-      throw new JsonIOException(e);
-    }
-  }
-
   /**
    * Returns a new GsonBuilder containing all custom factories and configuration used by the current
    * instance.
@@ -517,6 +441,75 @@ public final class Gson {
         out.value(floatNumber);
       }
     };
+  }
+
+  static void checkValidFloatingPoint(double value) {
+    if (Double.isNaN(value) || Double.isInfinite(value)) {
+      throw new IllegalArgumentException(value
+          + " is not a valid double value as per JSON specification. To override this"
+          + " behavior, use GsonBuilder.serializeSpecialFloatingPointValues() method.");
+    }
+  }
+
+  private static TypeAdapter<Number> longAdapter(LongSerializationPolicy longSerializationPolicy) {
+    if (longSerializationPolicy == LongSerializationPolicy.DEFAULT) {
+      return TypeAdapters.LONG;
+    }
+    return new TypeAdapter<Number>() {
+      @Override public Number read(JsonReader in) throws IOException {
+        if (in.peek() == JsonToken.NULL) {
+          in.nextNull();
+          return null;
+        }
+        return in.nextLong();
+      }
+      @Override public void write(JsonWriter out, Number value) throws IOException {
+        if (value == null) {
+          out.nullValue();
+          return;
+        }
+        out.value(value.toString());
+      }
+    };
+  }
+
+  private static TypeAdapter<AtomicLong> atomicLongAdapter(final TypeAdapter<Number> longAdapter) {
+    return new TypeAdapter<AtomicLong>() {
+      @Override public void write(JsonWriter out, AtomicLong value) throws IOException {
+        longAdapter.write(out, value.get());
+      }
+      @Override public AtomicLong read(JsonReader in) throws IOException {
+        Number value = longAdapter.read(in);
+        return new AtomicLong(value.longValue());
+      }
+    }.nullSafe();
+  }
+
+  private static TypeAdapter<AtomicLongArray> atomicLongArrayAdapter(final TypeAdapter<Number> longAdapter) {
+    return new TypeAdapter<AtomicLongArray>() {
+      @Override public void write(JsonWriter out, AtomicLongArray value) throws IOException {
+        out.beginArray();
+        for (int i = 0, length = value.length(); i < length; i++) {
+          longAdapter.write(out, value.get(i));
+        }
+        out.endArray();
+      }
+      @Override public AtomicLongArray read(JsonReader in) throws IOException {
+        List<Long> list = new ArrayList<>();
+        in.beginArray();
+        while (in.hasNext()) {
+            long value = longAdapter.read(in).longValue();
+            list.add(value);
+        }
+        in.endArray();
+        int length = list.size();
+        AtomicLongArray array = new AtomicLongArray(length);
+        for (int i = 0; i < length; ++i) {
+          array.set(i, list.get(i));
+        }
+        return array;
+      }
+    }.nullSafe();
   }
 
   /**
@@ -1146,6 +1139,18 @@ public final class Gson {
     return object;
   }
 
+  private static void assertFullConsumption(Object obj, JsonReader reader) {
+    try {
+      if (obj != null && reader.peek() != JsonToken.END_DOCUMENT) {
+        throw new JsonSyntaxException("JSON document was not fully consumed.");
+      }
+    } catch (MalformedJsonException e) {
+      throw new JsonSyntaxException(e);
+    } catch (IOException e) {
+      throw new JsonIOException(e);
+    }
+  }
+
   // fromJson(JsonReader, Class) is unfortunately missing and cannot be added now without breaking
   // source compatibility in certain cases, see https://github.com/google/gson/pull/1700#discussion_r973764414
 
@@ -1324,14 +1329,6 @@ public final class Gson {
     return fromJson(new JsonTreeReader(json), typeOfT);
   }
 
-  @Override
-  public String toString() {
-    return "{serializeNulls:" + serializeNulls
-        + ",factories:" + factories
-        + ",instanceCreators:" + constructorConstructor
-        + "}";
-  }
-
   /**
    * Proxy type adapter for cyclic type graphs.
    *
@@ -1373,5 +1370,13 @@ public final class Gson {
     @Override public void write(JsonWriter out, T value) throws IOException {
       delegate().write(out, value);
     }
+  }
+
+  @Override
+  public String toString() {
+    return "{serializeNulls:" + serializeNulls
+        + ",factories:" + factories
+        + ",instanceCreators:" + constructorConstructor
+        + "}";
   }
 }

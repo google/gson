@@ -204,6 +204,9 @@ public final class TypeTokenTest extends TestCase {
     }
   }
 
+  private static class CustomTypeToken extends TypeToken<String> {
+  }
+
   public void testTypeTokenNonAnonymousSubclass() {
     TypeToken<?> typeToken = new CustomTypeToken();
     assertEquals(String.class, typeToken.getRawType());
@@ -251,9 +254,6 @@ public final class TypeTokenTest extends TestCase {
           + "When using code shrinkers (ProGuard, R8, ...) make sure that generic signatures are preserved.",
           expected.getMessage());
     }
-  }
-
-  private static class CustomTypeToken extends TypeToken<String> {
   }
 }
 

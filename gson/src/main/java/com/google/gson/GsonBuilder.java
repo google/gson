@@ -84,14 +84,13 @@ import java.util.Objects;
  * @author Jesse Wilson
  */
 public final class GsonBuilder {
+  private Excluder excluder = Excluder.DEFAULT;
+  private LongSerializationPolicy longSerializationPolicy = LongSerializationPolicy.DEFAULT;
+  private FieldNamingStrategy fieldNamingPolicy = FieldNamingPolicy.IDENTITY;
   private final Map<Type, InstanceCreator<?>> instanceCreators = new HashMap<>();
   private final List<TypeAdapterFactory> factories = new ArrayList<>();
   /** tree-style hierarchy factories. These come after factories for backwards compatibility. */
   private final List<TypeAdapterFactory> hierarchyFactories = new ArrayList<>();
-  private final LinkedList<ReflectionAccessFilter> reflectionFilters = new LinkedList<>();
-  private Excluder excluder = Excluder.DEFAULT;
-  private LongSerializationPolicy longSerializationPolicy = LongSerializationPolicy.DEFAULT;
-  private FieldNamingStrategy fieldNamingPolicy = FieldNamingPolicy.IDENTITY;
   private boolean serializeNulls = DEFAULT_SERIALIZE_NULLS;
   private String datePattern = DEFAULT_DATE_PATTERN;
   private int dateStyle = DateFormat.DEFAULT;
@@ -105,6 +104,7 @@ public final class GsonBuilder {
   private boolean useJdkUnsafe = DEFAULT_USE_JDK_UNSAFE;
   private ToNumberStrategy objectToNumberStrategy = DEFAULT_OBJECT_TO_NUMBER_STRATEGY;
   private ToNumberStrategy numberToNumberStrategy = DEFAULT_NUMBER_TO_NUMBER_STRATEGY;
+  private final LinkedList<ReflectionAccessFilter> reflectionFilters = new LinkedList<>();
 
   /**
    * Creates a GsonBuilder instance that can be used to build Gson with various configuration

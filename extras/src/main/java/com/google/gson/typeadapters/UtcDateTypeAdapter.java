@@ -16,10 +16,6 @@
 
 package com.google.gson.typeadapters;
 
-import com.google.gson.JsonParseException;
-import com.google.gson.TypeAdapter;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.ParsePosition;
@@ -28,12 +24,46 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
+import com.google.gson.JsonParseException;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
 
 public final class UtcDateTypeAdapter extends TypeAdapter<Date> {
+  private final TimeZone UTC_TIME_ZONE = TimeZone.getTimeZone("UTC");
+
+  @Override
+  public void write(JsonWriter out, Date date) throws IOException {
+    if (date == null) {
+      out.nullValue();
+    } else {
+      String value = format(date, true, UTC_TIME_ZONE);
+      out.value(value);
+    }
+  }
+
+  @Override
+  public Date read(JsonReader in) throws IOException {
+    try {
+      switch (in.peek()) {
+        case NULL:
+          in.nextNull();
+          return null;
+        default:
+          String date = in.nextString();
+          // Instead of using iso8601Format.parse(value), we use Jackson's date parsing
+          // This is because Android doesn't support XXX because it is JDK 1.6
+          return parse(date, new ParsePosition(0));
+      }
+    } catch (ParseException e) {
+      throw new JsonParseException(e);
+    }
+  }
+
   // Date parsing code from Jackson databind ISO8601Utils.java
   // https://github.com/FasterXML/jackson-databind/blob/master/src/main/java/com/fasterxml/jackson/databind/util/ISO8601Utils.java
   private static final String GMT_ID = "GMT";
-  private final TimeZone UTC_TIME_ZONE = TimeZone.getTimeZone("UTC");
 
   /**
    * Format date into yyyy-MM-ddThh:mm:ss[.sss][Z|[+-]hh:mm]
@@ -83,7 +113,6 @@ public final class UtcDateTypeAdapter extends TypeAdapter<Date> {
 
       return formatted.toString();
   }
-
   /**
    * Zero pad a number to a specified length
    *
@@ -249,33 +278,5 @@ public final class UtcDateTypeAdapter extends TypeAdapter<Date> {
       result -= digit;
     }
     return -result;
-  }
-
-  @Override
-  public void write(JsonWriter out, Date date) throws IOException {
-    if (date == null) {
-      out.nullValue();
-    } else {
-      String value = format(date, true, UTC_TIME_ZONE);
-      out.value(value);
-    }
-  }
-
-  @Override
-  public Date read(JsonReader in) throws IOException {
-    try {
-      switch (in.peek()) {
-        case NULL:
-          in.nextNull();
-          return null;
-        default:
-          String date = in.nextString();
-          // Instead of using iso8601Format.parse(value), we use Jackson's date parsing
-          // This is because Android doesn't support XXX because it is JDK 1.6
-          return parse(date, new ParsePosition(0));
-      }
-    } catch (ParseException e) {
-      throw new JsonParseException(e);
-    }
   }
 }

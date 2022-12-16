@@ -103,8 +103,8 @@ import java.util.Map;
  * is registered.
  */
 public final class MapTypeAdapterFactory implements TypeAdapterFactory {
-  final boolean complexMapKeySerialization;
   private final ConstructorConstructor constructorConstructor;
+  final boolean complexMapKeySerialization;
 
   public MapTypeAdapterFactory(ConstructorConstructor constructorConstructor,
       boolean complexMapKeySerialization) {

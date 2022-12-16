@@ -48,8 +48,9 @@ import java.util.List;
  * @author Jesse Wilson
  */
 public final class Excluder implements TypeAdapterFactory, Cloneable {
-  public static final Excluder DEFAULT = new Excluder();
   private static final double IGNORE_VERSIONS = -1.0d;
+  public static final Excluder DEFAULT = new Excluder();
+
   private double version = IGNORE_VERSIONS;
   private int modifiers = Modifier.TRANSIENT | Modifier.STATIC;
   private boolean serializeInnerClasses = true;

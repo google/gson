@@ -76,15 +76,6 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     this.reflectionFilters = reflectionFilters;
   }
 
-  private static <M extends AccessibleObject & Member> void checkAccessible(Object object, M member) {
-    if (!ReflectionAccessFilterHelper.canAccess(member, Modifier.isStatic(member.getModifiers()) ? null : object)) {
-      String memberDescription = ReflectionHelper.getAccessibleObjectDescription(member, true);
-      throw new JsonIOException(memberDescription + " is not accessible and ReflectionAccessFilter does not"
-          + " permit making it accessible. Register a TypeAdapter for the declaring type, adjust the"
-          + " access filter or increase the visibility of the element and its declaring type.");
-    }
-  }
-
   private boolean includeField(Field f, boolean serialize) {
     return !excluder.excludeClass(f.getType(), serialize) && !excluder.excludeField(f, serialize);
   }
@@ -137,6 +128,15 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
 
     ObjectConstructor<T> constructor = constructorConstructor.get(type);
     return new FieldReflectionAdapter<>(constructor, getBoundFields(gson, type, raw, blockInaccessible, false));
+  }
+
+  private static <M extends AccessibleObject & Member> void checkAccessible(Object object, M member) {
+    if (!ReflectionAccessFilterHelper.canAccess(member, Modifier.isStatic(member.getModifiers()) ? null : object)) {
+      String memberDescription = ReflectionHelper.getAccessibleObjectDescription(member, true);
+      throw new JsonIOException(memberDescription + " is not accessible and ReflectionAccessFilter does not"
+          + " permit making it accessible. Register a TypeAdapter for the declaring type, adjust the"
+          + " access filter or increase the visibility of the element and its declaring type.");
+    }
   }
 
   private BoundField createBoundField(
