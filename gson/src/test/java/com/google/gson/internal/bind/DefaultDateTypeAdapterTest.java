@@ -74,32 +74,44 @@ public class DefaultDateTypeAdapterTest extends TestCase {
   }
 
   public void testParsingDatesFormattedWithSystemLocale() throws Exception {
-    // TODO(eamonnmcmanus): fix this test, which fails on JDK 8 and 17
-    if (JavaVersion.getMajorJavaVersion() != 11) {
-      return;
-    }
     TimeZone defaultTimeZone = TimeZone.getDefault();
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     Locale defaultLocale = Locale.getDefault();
     Locale.setDefault(Locale.FRANCE);
     try {
-      String afterYearSep = JavaVersion.isJava9OrLater() ? " à " : " ";
-      assertParsed(String.format("1 janv. 1970%s00:00:00", afterYearSep),
-          DateType.DATE.createDefaultsAdapterFactory());
-      assertParsed("01/01/70", DateType.DATE.createAdapterFactory(DateFormat.SHORT));
-      assertParsed("1 janv. 1970", DateType.DATE.createAdapterFactory(DateFormat.MEDIUM));
-      assertParsed("1 janvier 1970", DateType.DATE.createAdapterFactory(DateFormat.LONG));
-      assertParsed("01/01/70 00:00",
-          DateType.DATE.createAdapterFactory(DateFormat.SHORT, DateFormat.SHORT));
-      assertParsed(String.format("1 janv. 1970%s00:00:00", afterYearSep),
-          DateType.DATE.createAdapterFactory(DateFormat.MEDIUM, DateFormat.MEDIUM));
-      assertParsed(String.format("1 janvier 1970%s00:00:00 UTC", afterYearSep),
-          DateType.DATE.createAdapterFactory(DateFormat.LONG, DateFormat.LONG));
-      assertParsed(JavaVersion.isJava9OrLater() ? (JavaVersion.getMajorJavaVersion() <11 ?
-                      "jeudi 1 janvier 1970 à 00:00:00 Coordinated Universal Time" :
-                      "jeudi 1 janvier 1970 à 00:00:00 Temps universel coordonné") :
-                      "jeudi 1 janvier 1970 00 h 00 UTC",
-          DateType.DATE.createAdapterFactory(DateFormat.FULL, DateFormat.FULL));
+      Date date = new Date(0);
+      assertParsed(
+          DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM).format(date),
+          DateType.DATE.createDefaultsAdapterFactory()
+      );
+      assertParsed(
+          DateFormat.getDateInstance(DateFormat.SHORT).format(date),
+          DateType.DATE.createAdapterFactory(DateFormat.SHORT)
+      );
+      assertParsed(
+          DateFormat.getDateInstance(DateFormat.MEDIUM).format(date),
+          DateType.DATE.createAdapterFactory(DateFormat.MEDIUM)
+      );
+      assertParsed(
+          DateFormat.getDateInstance(DateFormat.LONG).format(date),
+          DateType.DATE.createAdapterFactory(DateFormat.LONG)
+      );
+      assertParsed(
+          DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(date),
+          DateType.DATE.createAdapterFactory(DateFormat.SHORT, DateFormat.SHORT)
+      );
+      assertParsed(
+          DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM).format(date),
+          DateType.DATE.createAdapterFactory(DateFormat.MEDIUM, DateFormat.MEDIUM)
+      );
+      assertParsed(
+          DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG).format(date),
+          DateType.DATE.createAdapterFactory(DateFormat.LONG, DateFormat.LONG)
+      );
+      assertParsed(
+          DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL).format(date),
+          DateType.DATE.createAdapterFactory(DateFormat.FULL, DateFormat.FULL)
+      );
     } finally {
       TimeZone.setDefault(defaultTimeZone);
       Locale.setDefault(defaultLocale);
