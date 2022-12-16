@@ -16,18 +16,16 @@
 
 package com.google.gson.typeadapters;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
-import javax.annotation.PostConstruct;
-
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import javax.annotation.PostConstruct;
 
 public class PostConstructAdapterFactory implements TypeAdapterFactory {
     // copied from https://gist.github.com/swankjesse/20df26adaf639ed7fd160f145a0b661a

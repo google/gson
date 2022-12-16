@@ -37,6 +37,12 @@ public class PrintFormattingTest extends TestCase {
 
   private Gson gson;
 
+  private static void assertContainsNoWhiteSpace(String str) {
+    for (char c : str.toCharArray()) {
+      assertFalse(Character.isWhitespace(c));
+    }
+  }
+
   @Override
   protected void setUp() throws Exception {
     super.setUp();
@@ -71,11 +77,5 @@ public class PrintFormattingTest extends TestCase {
     String json = gson.toJson(obj);
     assertTrue(json.contains("field1"));
     assertTrue(json.contains("field2"));
-  }
-
-  private static void assertContainsNoWhiteSpace(String str) {
-    for (char c : str.toCharArray()) {
-      assertFalse(Character.isWhitespace(c));
-    }
   }
 }

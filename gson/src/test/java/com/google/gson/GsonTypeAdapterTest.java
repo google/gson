@@ -84,40 +84,6 @@ public class GsonTypeAdapterTest extends TestCase {
     assertEquals(expected, actual);
   }
 
-  private static class ExceptionTypeAdapter
-      implements JsonSerializer<AtomicLong>, JsonDeserializer<AtomicLong> {
-    @Override public JsonElement serialize(
-        AtomicLong src, Type typeOfSrc, JsonSerializationContext context) {
-      throw new IllegalStateException();
-    }
-    @Override public AtomicLong deserialize(
-        JsonElement json, Type typeOfT, JsonDeserializationContext context)
-        throws JsonParseException {
-      throw new IllegalStateException();
-    }
-  }
-
-  private static class AtomicIntegerTypeAdapter
-      implements JsonSerializer<AtomicInteger>, JsonDeserializer<AtomicInteger> {
-    @Override public JsonElement serialize(AtomicInteger src, Type typeOfSrc, JsonSerializationContext context) {
-      return new JsonPrimitive(src.incrementAndGet());
-    }
-
-    @Override public AtomicInteger deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-        throws JsonParseException {
-      int intValue = json.getAsInt();
-      return new AtomicInteger(--intValue);
-    }
-  }
-
-  static abstract class Abstract {
-    String a;
-  }
-
-  static class Concrete extends Abstract {
-    String b;
-  }
-
   // https://groups.google.com/d/topic/google-gson/EBmOCa8kJPE/discussion
   public void testDeserializerForAbstractClass() {
     Concrete instance = new Concrete();
@@ -150,5 +116,39 @@ public class GsonTypeAdapterTest extends TestCase {
     }
     Gson gson = builder.create();
     assertEquals(expected, gson.toJson(instance, instanceType));
+  }
+
+  private static class ExceptionTypeAdapter
+      implements JsonSerializer<AtomicLong>, JsonDeserializer<AtomicLong> {
+    @Override public JsonElement serialize(
+        AtomicLong src, Type typeOfSrc, JsonSerializationContext context) {
+      throw new IllegalStateException();
+    }
+    @Override public AtomicLong deserialize(
+        JsonElement json, Type typeOfT, JsonDeserializationContext context)
+        throws JsonParseException {
+      throw new IllegalStateException();
+    }
+  }
+
+  private static class AtomicIntegerTypeAdapter
+      implements JsonSerializer<AtomicInteger>, JsonDeserializer<AtomicInteger> {
+    @Override public JsonElement serialize(AtomicInteger src, Type typeOfSrc, JsonSerializationContext context) {
+      return new JsonPrimitive(src.incrementAndGet());
+    }
+
+    @Override public AtomicInteger deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+        throws JsonParseException {
+      int intValue = json.getAsInt();
+      return new AtomicInteger(--intValue);
+    }
+  }
+
+  static abstract class Abstract {
+    String a;
+  }
+
+  static class Concrete extends Abstract {
+    String b;
   }
 }

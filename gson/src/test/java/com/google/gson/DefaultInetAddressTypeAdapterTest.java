@@ -17,7 +17,6 @@
 package com.google.gson;
 
 import java.net.InetAddress;
-
 import junit.framework.TestCase;
 
 /**

@@ -16,12 +16,6 @@ public class ConstructorConstructorTest {
       Collections.<ReflectionAccessFilter>emptyList()
   );
 
-  private abstract static class AbstractClass {
-    @SuppressWarnings("unused")
-    public AbstractClass() { }
-  }
-  private interface Interface { }
-
   /**
    * Verify that ConstructorConstructor does not try to invoke no-arg constructor
    * of abstract class.
@@ -54,5 +48,12 @@ public class ConstructorConstructorTest {
         exception.getMessage()
       );
     }
+  }
+
+  private interface Interface { }
+
+  private abstract static class AbstractClass {
+    @SuppressWarnings("unused")
+    public AbstractClass() { }
   }
 }

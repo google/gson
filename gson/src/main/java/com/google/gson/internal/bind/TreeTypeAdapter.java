@@ -39,9 +39,9 @@ import java.lang.reflect.Type;
  * has a facility to lookup a delegate type adapter on demand.
  */
 public final class TreeTypeAdapter<T> extends SerializationDelegatingTypeAdapter<T> {
+  final Gson gson;
   private final JsonSerializer<T> serializer;
   private final JsonDeserializer<T> deserializer;
-  final Gson gson;
   private final TypeToken<T> typeToken;
   private final TypeAdapterFactory skipPast;
   private final GsonContextImpl context = new GsonContextImpl();
@@ -63,6 +63,33 @@ public final class TreeTypeAdapter<T> extends SerializationDelegatingTypeAdapter
   public TreeTypeAdapter(JsonSerializer<T> serializer, JsonDeserializer<T> deserializer,
                          Gson gson, TypeToken<T> typeToken, TypeAdapterFactory skipPast) {
     this(serializer, deserializer, gson, typeToken, skipPast, true);
+  }
+
+  /**
+   * Returns a new factory that will match each type against {@code exactType}.
+   */
+  public static TypeAdapterFactory newFactory(TypeToken<?> exactType, Object typeAdapter) {
+    return new SingleTypeFactory(typeAdapter, exactType, false, null);
+  }
+
+  /**
+   * Returns a new factory that will match each type and its raw type against
+   * {@code exactType}.
+   */
+  public static TypeAdapterFactory newFactoryWithMatchRawType(
+      TypeToken<?> exactType, Object typeAdapter) {
+    // only bother matching raw types if exact type is a raw type
+    boolean matchRawType = exactType.getType() == exactType.getRawType();
+    return new SingleTypeFactory(typeAdapter, exactType, matchRawType, null);
+  }
+
+  /**
+   * Returns a new factory that will match each type's raw type for assignability
+   * to {@code hierarchyType}.
+   */
+  public static TypeAdapterFactory newTypeHierarchyFactory(
+      Class<?> hierarchyType, Object typeAdapter) {
+    return new SingleTypeFactory(typeAdapter, null, false, hierarchyType);
   }
 
   @Override public T read(JsonReader in) throws IOException {
@@ -104,33 +131,6 @@ public final class TreeTypeAdapter<T> extends SerializationDelegatingTypeAdapter
    */
   @Override public TypeAdapter<T> getSerializationDelegate() {
     return serializer != null ? this : delegate();
-  }
-
-  /**
-   * Returns a new factory that will match each type against {@code exactType}.
-   */
-  public static TypeAdapterFactory newFactory(TypeToken<?> exactType, Object typeAdapter) {
-    return new SingleTypeFactory(typeAdapter, exactType, false, null);
-  }
-
-  /**
-   * Returns a new factory that will match each type and its raw type against
-   * {@code exactType}.
-   */
-  public static TypeAdapterFactory newFactoryWithMatchRawType(
-      TypeToken<?> exactType, Object typeAdapter) {
-    // only bother matching raw types if exact type is a raw type
-    boolean matchRawType = exactType.getType() == exactType.getRawType();
-    return new SingleTypeFactory(typeAdapter, exactType, matchRawType, null);
-  }
-
-  /**
-   * Returns a new factory that will match each type's raw type for assignability
-   * to {@code hierarchyType}.
-   */
-  public static TypeAdapterFactory newTypeHierarchyFactory(
-      Class<?> hierarchyType, Object typeAdapter) {
-    return new SingleTypeFactory(typeAdapter, null, false, hierarchyType);
   }
 
   private static final class SingleTypeFactory implements TypeAdapterFactory {

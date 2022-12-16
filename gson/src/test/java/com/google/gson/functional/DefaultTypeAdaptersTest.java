@@ -68,6 +68,27 @@ public class DefaultTypeAdaptersTest extends TestCase {
   private TimeZone oldTimeZone;
   private Locale oldLocale;
 
+  public static void testNullSerializationAndDeserialization(Gson gson, Class<?> c) {
+    assertEquals("null", gson.toJson(null, c));
+    assertEquals(null, gson.fromJson("null", c));
+  }
+
+  // Date can not directly be compared with another instance since the deserialization loses the
+  // millisecond portion.
+  @SuppressWarnings("deprecation")
+  public static void assertEqualsDate(Date date, int year, int month, int day) {
+    assertEquals(year-1900, date.getYear());
+    assertEquals(month, date.getMonth());
+    assertEquals(day, date.getDate());
+  }
+
+  @SuppressWarnings("deprecation")
+  public static void assertEqualsTime(Date date, int hours, int minutes, int seconds) {
+    assertEquals(hours, date.getHours());
+    assertEquals(minutes, date.getMinutes());
+    assertEquals(seconds, date.getSeconds());
+  }
+
   @Override
   protected void setUp() throws Exception {
     super.setUp();
@@ -134,10 +155,6 @@ public class DefaultTypeAdaptersTest extends TestCase {
     assertNull(target.url);
   }
 
-  private static class ClassWithUrlField {
-    URL url;
-  }
-
   public void testUriSerialization() throws Exception {
     String uriValue = "http://google.com/";
     URI uri = new URI(uriValue);
@@ -184,11 +201,6 @@ public class DefaultTypeAdaptersTest extends TestCase {
 
   private void testNullSerializationAndDeserialization(Class<?> c) {
     testNullSerializationAndDeserialization(gson, c);
-  }
-
-  public static void testNullSerializationAndDeserialization(Gson gson, Class<?> c) {
-    assertEquals("null", gson.toJson(null, c));
-    assertEquals(null, gson.fromJson("null", c));
   }
 
   public void testUuidSerialization() throws Exception {
@@ -360,22 +372,6 @@ public class DefaultTypeAdaptersTest extends TestCase {
     Date extracted = gson.fromJson(json, Date.class);
     assertEqualsDate(extracted, 2009, 11, 13);
     assertEqualsTime(extracted, 7, 18, 2);
-  }
-
-  // Date can not directly be compared with another instance since the deserialization loses the
-  // millisecond portion.
-  @SuppressWarnings("deprecation")
-  public static void assertEqualsDate(Date date, int year, int month, int day) {
-    assertEquals(year-1900, date.getYear());
-    assertEquals(month, date.getMonth());
-    assertEquals(day, date.getDate());
-  }
-
-  @SuppressWarnings("deprecation")
-  public static void assertEqualsTime(Date date, int hours, int minutes, int seconds) {
-    assertEquals(hours, date.getHours());
-    assertEquals(minutes, date.getMinutes());
-    assertEquals(seconds, date.getSeconds());
   }
 
   public void testDefaultDateSerializationUsingBuilder() throws Exception {
@@ -583,26 +579,6 @@ public class DefaultTypeAdaptersTest extends TestCase {
     }
   }
 
-  private static class ClassWithBigDecimal {
-    BigDecimal value;
-    ClassWithBigDecimal(String value) {
-      this.value = new BigDecimal(value);
-    }
-    String getExpectedJson() {
-      return "{\"value\":" + value.toEngineeringString() + "}";
-    }
-  }
-
-  private static class ClassWithBigInteger {
-    BigInteger value;
-    ClassWithBigInteger(String value) {
-      this.value = new BigInteger(value);
-    }
-    String getExpectedJson() {
-      return "{\"value\":" + value + "}";
-    }
-  }
-
   public void testPropertiesSerialization() {
     Properties props = new Properties();
     props.setProperty("foo", "bar");
@@ -651,6 +627,30 @@ public class DefaultTypeAdaptersTest extends TestCase {
   public void testStringBufferDeserialization() {
     StringBuffer sb = gson.fromJson("'abc'", StringBuffer.class);
     assertEquals("abc", sb.toString());
+  }
+
+  private static class ClassWithUrlField {
+    URL url;
+  }
+
+  private static class ClassWithBigDecimal {
+    BigDecimal value;
+    ClassWithBigDecimal(String value) {
+      this.value = new BigDecimal(value);
+    }
+    String getExpectedJson() {
+      return "{\"value\":" + value.toEngineeringString() + "}";
+    }
+  }
+
+  private static class ClassWithBigInteger {
+    BigInteger value;
+    ClassWithBigInteger(String value) {
+      this.value = new BigInteger(value);
+    }
+    String getExpectedJson() {
+      return "{\"value\":" + value + "}";
+    }
   }
 
   private static class MyClassTypeAdapter extends TypeAdapter<Class<?>> {

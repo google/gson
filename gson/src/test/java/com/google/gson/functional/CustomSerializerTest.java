@@ -29,10 +29,8 @@ import com.google.gson.common.TestTypes.ClassWithBaseArrayField;
 import com.google.gson.common.TestTypes.ClassWithBaseField;
 import com.google.gson.common.TestTypes.Sub;
 import com.google.gson.common.TestTypes.SubSerializer;
-
-import junit.framework.TestCase;
-
 import java.lang.reflect.Type;
+import junit.framework.TestCase;
 
 /**
  * Functional Test exercising custom serialization only.  When test applies to both

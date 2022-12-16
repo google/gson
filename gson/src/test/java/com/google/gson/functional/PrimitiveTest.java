@@ -714,10 +714,6 @@ public class PrimitiveTest extends TestCase {
     assertEquals(10, target.i.intValue());
   }
 
-  private static class ClassWithIntegerField {
-    Integer i;
-  }
-
   public void testPrimitiveClassLiteral() {
     assertEquals(1, gson.fromJson("1", int.class).intValue());
     assertEquals(1, gson.fromJson(new StringReader("1"), int.class).intValue());
@@ -956,5 +952,9 @@ public class PrimitiveTest extends TestCase {
     String json = "['true', 'false', 'TRUE', 'yes', '1']";
     assertEquals(Arrays.asList(true, false, true, false, false),
         gson.<List<Boolean>>fromJson(json, new TypeToken<List<Boolean>>() {}.getType()));
+  }
+
+  private static class ClassWithIntegerField {
+    Integer i;
   }
 }

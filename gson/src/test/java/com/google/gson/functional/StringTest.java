@@ -1,7 +1,6 @@
 package com.google.gson.functional;
 
 import com.google.gson.Gson;
-
 import junit.framework.TestCase;
 
 /**

@@ -33,8 +33,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Properties;
 import java.util.Objects;
+import java.util.Properties;
 
 /**
  * Static methods for working with types.
@@ -482,6 +482,7 @@ public final class $Gson$Types {
   }
 
   private static final class ParameterizedTypeImpl implements ParameterizedType, Serializable {
+    private static final long serialVersionUID = 0;
     private final Type ownerType;
     private final Type rawType;
     private final Type[] typeArguments;
@@ -506,6 +507,10 @@ public final class $Gson$Types {
       }
     }
 
+    private static int hashCodeOrZero(Object o) {
+      return o != null ? o.hashCode() : 0;
+    }
+
     @Override public Type[] getActualTypeArguments() {
       return typeArguments.clone();
     }
@@ -521,10 +526,6 @@ public final class $Gson$Types {
     @Override public boolean equals(Object other) {
       return other instanceof ParameterizedType
           && $Gson$Types.equals(this, (ParameterizedType) other);
-    }
-
-    private static int hashCodeOrZero(Object o) {
-      return o != null ? o.hashCode() : 0;
     }
 
     @Override public int hashCode() {
@@ -546,11 +547,10 @@ public final class $Gson$Types {
       }
       return stringBuilder.append(">").toString();
     }
-
-    private static final long serialVersionUID = 0;
   }
 
   private static final class GenericArrayTypeImpl implements GenericArrayType, Serializable {
+    private static final long serialVersionUID = 0;
     private final Type componentType;
 
     public GenericArrayTypeImpl(Type componentType) {
@@ -574,8 +574,6 @@ public final class $Gson$Types {
     @Override public String toString() {
       return typeToString(componentType) + "[]";
     }
-
-    private static final long serialVersionUID = 0;
   }
 
   /**
@@ -585,6 +583,7 @@ public final class $Gson$Types {
    * is set, the upper bound must be Object.class.
    */
   private static final class WildcardTypeImpl implements WildcardType, Serializable {
+    private static final long serialVersionUID = 0;
     private final Type upperBound;
     private final Type lowerBound;
 
@@ -635,7 +634,5 @@ public final class $Gson$Types {
         return "? extends " + typeToString(upperBound);
       }
     }
-
-    private static final long serialVersionUID = 0;
   }
 }

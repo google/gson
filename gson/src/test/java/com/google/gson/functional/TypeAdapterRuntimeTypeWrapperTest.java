@@ -18,23 +18,6 @@ import java.lang.reflect.Type;
 import org.junit.Test;
 
 public class TypeAdapterRuntimeTypeWrapperTest {
-  private static class Base {
-  }
-  private static class Subclass extends Base {
-    @SuppressWarnings("unused")
-    String f = "test";
-  }
-  private static class Container {
-    @SuppressWarnings("unused")
-    Base b = new Subclass();
-  }
-  private static class Deserializer implements JsonDeserializer<Base> {
-    @Override
-    public Base deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
-      throw new AssertionError("not needed for this test");
-    }
-  }
-
   /**
    * When custom {@link JsonSerializer} is registered for Base should
    * prefer that over reflective adapter for Subclass for serialization.
@@ -163,20 +146,6 @@ public class TypeAdapterRuntimeTypeWrapperTest {
     assertEquals("{\"b\":{\"f\":\"test\"}}", json);
   }
 
-  private static class CyclicBase {
-    @SuppressWarnings("unused")
-    CyclicBase f;
-  }
-
-  private static class CyclicSub extends CyclicBase {
-    @SuppressWarnings("unused")
-    int i;
-
-    public CyclicSub(int i) {
-      this.i = i;
-    }
-  }
-
   /**
    * Tests behavior when the type of a field refers to a type whose adapter is
    * currently in the process of being created. For these cases {@link Gson}
@@ -189,5 +158,39 @@ public class TypeAdapterRuntimeTypeWrapperTest {
     b.f = new CyclicSub(2);
     String json = new Gson().toJson(b);
     assertEquals("{\"f\":{\"i\":2}}", json);
+  }
+
+  private static class Base {
+  }
+
+  private static class Subclass extends Base {
+    @SuppressWarnings("unused")
+    String f = "test";
+  }
+
+  private static class Container {
+    @SuppressWarnings("unused")
+    Base b = new Subclass();
+  }
+
+  private static class Deserializer implements JsonDeserializer<Base> {
+    @Override
+    public Base deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
+      throw new AssertionError("not needed for this test");
+    }
+  }
+
+  private static class CyclicBase {
+    @SuppressWarnings("unused")
+    CyclicBase f;
+  }
+
+  private static class CyclicSub extends CyclicBase {
+    @SuppressWarnings("unused")
+    int i;
+
+    public CyclicSub(int i) {
+      this.i = i;
+    }
   }
 }

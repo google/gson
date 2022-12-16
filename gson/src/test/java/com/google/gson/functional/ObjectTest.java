@@ -145,17 +145,6 @@ public class ObjectTest extends TestCase {
     assertEquals(expected, target);
   }
 
-  private static class Subclass extends Superclass1 {
-  }
-  private static class Superclass1 extends Superclass2 {
-    @SuppressWarnings("unused")
-    String s;
-  }
-  private static class Superclass2 {
-    @SuppressWarnings("unused")
-    String s;
-  }
-
   public void testClassWithDuplicateFields() {
     try {
       gson.getAdapter(Subclass.class);
@@ -183,6 +172,7 @@ public class ObjectTest extends TestCase {
     Nested target = gson.fromJson(json, Nested.class);
     assertEquals(json, target.getExpectedJson());
   }
+
   public void testNullSerialization() throws Exception {
     assertEquals("null", gson.toJson(null));
   }
@@ -281,10 +271,6 @@ public class ObjectTest extends TestCase {
     assertTrue(target.children.isEmpty());
   }
 
-  private static class ClassWithCollectionField {
-    Collection<String> children = new ArrayList<>();
-  }
-
   public void testPrimitiveArrayInAnObjectDeserialization() throws Exception {
     String json = "{\"longArray\":[0,1,2,3,4,5,6,7,8,9]}";
     PrimitiveArray target = gson.fromJson(json, PrimitiveArray.class);
@@ -348,11 +334,6 @@ public class ObjectTest extends TestCase {
     assertTrue(json.contains("abc"));
   }
 
-  private static class ClassWithObjectField {
-    @SuppressWarnings("unused")
-    Object member;
-  }
-
   public void testInnerClassSerialization() {
     Parent p = new Parent();
     Parent.Child c = p.new Child();
@@ -372,58 +353,6 @@ public class ObjectTest extends TestCase {
     String json = "{'value2':3}";
     Parent.Child c = gson.fromJson(json, Parent.Child.class);
     assertEquals(3, c.value2);
-  }
-
-  private static class Parent {
-    @SuppressWarnings("unused")
-    int value1 = 1;
-    private class Child {
-      int value2 = 2;
-    }
-  }
-
-  private static class ArrayOfArrays {
-    private final BagOfPrimitives[][] elements;
-    public ArrayOfArrays() {
-      elements = new BagOfPrimitives[3][2];
-      for (int i = 0; i < elements.length; ++i) {
-        BagOfPrimitives[] row = elements[i];
-        for (int j = 0; j < row.length; ++j) {
-          row[j] = new BagOfPrimitives(i+j, i*j, false, i+"_"+j);
-        }
-      }
-    }
-    public String getExpectedJson() {
-      StringBuilder sb = new StringBuilder("{\"elements\":[");
-      boolean first = true;
-      for (BagOfPrimitives[] row : elements) {
-        if (first) {
-          first = false;
-        } else {
-          sb.append(",");
-        }
-        boolean firstOfRow = true;
-        sb.append("[");
-        for (BagOfPrimitives element : row) {
-          if (firstOfRow) {
-            firstOfRow = false;
-          } else {
-            sb.append(",");
-          }
-          sb.append(element.getExpectedJson());
-        }
-        sb.append("]");
-      }
-      sb.append("]}");
-      return sb.toString();
-    }
-  }
-
-  private static class ClassWithPrivateNoArgsConstructor {
-    public int a;
-    private ClassWithPrivateNoArgsConstructor() {
-      a = 10;
-    }
   }
 
   /**
@@ -474,12 +403,6 @@ public class ObjectTest extends TestCase {
     assertEquals("", target.c);
   }
 
-  private static class ClassWithEmptyStringFields {
-    String a = "";
-    String b = "";
-    String c = "";
-  }
-
   public void testJsonObjectSerialization() {
     Gson gson = new GsonBuilder().serializeNulls().create();
     JsonObject obj = new JsonObject();
@@ -508,16 +431,6 @@ public class ObjectTest extends TestCase {
     gson.fromJson(gson.toJson(product), Product.class);
   }
 
-  static final class Department {
-    public String name = "abc";
-    public String code = "123";
-  }
-
-  static final class Product {
-    private List<String> attributes = new ArrayList<>();
-    private List<Department> departments = new ArrayList<>();
-  }
-
   // http://code.google.com/p/google-gson/issues/detail?id=270
   public void testDateAsMapObjectField() {
     HasObjectMap a = new HasObjectMap();
@@ -527,10 +440,6 @@ public class ObjectTest extends TestCase {
     } else {
       assertEquals("{\"map\":{\"date\":\"Dec 31, 1969 4:00:00 PM\"}}", gson.toJson(a));
     }
-  }
-
-  static class HasObjectMap {
-    Map<String, Object> map = new HashMap<>();
   }
 
   /**
@@ -589,14 +498,6 @@ public class ObjectTest extends TestCase {
     }
   }
 
-  static class ClassWithStaticField {
-    static String s = "initial";
-  }
-
-  static class ClassWithStaticFinalField {
-    static final String s = "initial";
-  }
-
   public void testThrowingDefaultConstructor() {
     try {
       gson.fromJson("{}", ClassWithThrowingConstructor.class);
@@ -608,6 +509,108 @@ public class ObjectTest extends TestCase {
           e.getMessage());
       assertSame(ClassWithThrowingConstructor.thrownException, e.getCause());
     }
+  }
+
+  private static class Subclass extends Superclass1 {
+  }
+
+  private static class Superclass1 extends Superclass2 {
+    @SuppressWarnings("unused")
+    String s;
+  }
+
+  private static class Superclass2 {
+    @SuppressWarnings("unused")
+    String s;
+  }
+
+  private static class ClassWithCollectionField {
+    Collection<String> children = new ArrayList<>();
+  }
+
+  private static class ClassWithObjectField {
+    @SuppressWarnings("unused")
+    Object member;
+  }
+
+  private static class Parent {
+    @SuppressWarnings("unused")
+    int value1 = 1;
+    private class Child {
+      int value2 = 2;
+    }
+  }
+
+  private static class ArrayOfArrays {
+    private final BagOfPrimitives[][] elements;
+    public ArrayOfArrays() {
+      elements = new BagOfPrimitives[3][2];
+      for (int i = 0; i < elements.length; ++i) {
+        BagOfPrimitives[] row = elements[i];
+        for (int j = 0; j < row.length; ++j) {
+          row[j] = new BagOfPrimitives(i+j, i*j, false, i+"_"+j);
+        }
+      }
+    }
+    public String getExpectedJson() {
+      StringBuilder sb = new StringBuilder("{\"elements\":[");
+      boolean first = true;
+      for (BagOfPrimitives[] row : elements) {
+        if (first) {
+          first = false;
+        } else {
+          sb.append(",");
+        }
+        boolean firstOfRow = true;
+        sb.append("[");
+        for (BagOfPrimitives element : row) {
+          if (firstOfRow) {
+            firstOfRow = false;
+          } else {
+            sb.append(",");
+          }
+          sb.append(element.getExpectedJson());
+        }
+        sb.append("]");
+      }
+      sb.append("]}");
+      return sb.toString();
+    }
+  }
+
+  private static class ClassWithPrivateNoArgsConstructor {
+    public int a;
+    private ClassWithPrivateNoArgsConstructor() {
+      a = 10;
+    }
+  }
+
+  private static class ClassWithEmptyStringFields {
+    String a = "";
+    String b = "";
+    String c = "";
+  }
+
+  static final class Department {
+    public String name = "abc";
+    public String code = "123";
+  }
+
+  static final class Product {
+    private List<String> attributes = new ArrayList<>();
+    private List<Department> departments = new ArrayList<>();
+  }
+
+  static class HasObjectMap {
+    Map<String, Object> map = new HashMap<>();
+  }
+
+  static class ClassWithStaticField {
+    static String s = "initial";
+  }
+
+  static class ClassWithStaticFinalField {
+    static final String s = "initial";
   }
 
   static class ClassWithThrowingConstructor {

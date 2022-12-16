@@ -1,11 +1,10 @@
 package com.google.gson.internal;
 
+import com.google.gson.ReflectionAccessFilter;
+import com.google.gson.ReflectionAccessFilter.FilterResult;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
 import java.util.List;
-
-import com.google.gson.ReflectionAccessFilter;
-import com.google.gson.ReflectionAccessFilter.FilterResult;
 
 /**
  * Internal helper class for {@link ReflectionAccessFilter}.

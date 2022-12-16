@@ -17,11 +17,9 @@
 package com.google.gson;
 
 import com.google.gson.annotations.Expose;
-
 import com.google.gson.internal.Excluder;
-import junit.framework.TestCase;
-
 import java.lang.reflect.Field;
+import junit.framework.TestCase;
 
 /**
  * Unit tests for GsonBuilder.REQUIRE_EXPOSE_DESERIALIZE.
@@ -30,6 +28,10 @@ import java.lang.reflect.Field;
  */
 public class ExposeAnnotationExclusionStrategyTest extends TestCase {
   private Excluder excluder = Excluder.DEFAULT.excludeFieldsWithoutExposeAnnotation();
+
+  private static Field createFieldAttributes(String fieldName) throws Exception {
+    return MockObject.class.getField(fieldName);
+  }
 
   public void testNeverSkipClasses() throws Exception {
     assertFalse(excluder.excludeClass(MockObject.class, true));
@@ -64,10 +66,6 @@ public class ExposeAnnotationExclusionStrategyTest extends TestCase {
     Field f = createFieldAttributes("explicitlyDifferentModeField");
     assertFalse(excluder.excludeField(f, true));
     assertTrue(excluder.excludeField(f, false));
-  }
-
-  private static Field createFieldAttributes(String fieldName) throws Exception {
-    return MockObject.class.getField(fieldName);
   }
 
   @SuppressWarnings("unused")

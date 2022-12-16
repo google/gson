@@ -60,6 +60,31 @@ public final class GsonTest {
   private static final ToNumberStrategy CUSTOM_OBJECT_TO_NUMBER_STRATEGY = ToNumberPolicy.DOUBLE;
   private static final ToNumberStrategy CUSTOM_NUMBER_TO_NUMBER_STRATEGY = ToNumberPolicy.LAZILY_PARSED_NUMBER;
 
+  private static void assertDefaultGson(Gson gson) {
+    // Should use default reflective adapter
+    String json1 = gson.toJson(new CustomClass1());
+    assertEquals("{}", json1);
+
+    // Should use default reflective adapter
+    String json2 = gson.toJson(new CustomClass2());
+    assertEquals("{}", json2);
+
+    // Should use default instance creator
+    CustomClass3 customClass3 = gson.fromJson("{}", CustomClass3.class);
+    assertEquals(CustomClass3.NO_ARG_CONSTRUCTOR_VALUE, customClass3.s);
+  }
+
+  private static void assertCustomGson(Gson gson) {
+    String json1 = gson.toJson(new CustomClass1());
+    assertEquals("\"custom-adapter\"", json1);
+
+    String json2 = gson.toJson(new CustomClass2());
+    assertEquals("\"custom-hierarchy-adapter\"", json2);
+
+    CustomClass3 customClass3 = gson.fromJson("{}", CustomClass3.class);
+    assertEquals("custom-instance", customClass3.s);
+  }
+
   @Test
   public void testOverridesDefaultExcluder() {
     Gson gson = new Gson(CUSTOM_EXCLUDER, CUSTOM_FIELD_NAMING_STRATEGY,
@@ -91,13 +116,6 @@ public final class GsonTest {
         .create();
 
     assertEquals(original.factories.size() + 1, clone.factories.size());
-  }
-
-  private static final class TestTypeAdapter extends TypeAdapter<Object> {
-    @Override public void write(JsonWriter out, Object value) throws IOException {
-      // Test stub.
-    }
-    @Override public Object read(JsonReader in) throws IOException { return null; }
   }
 
   @Test
@@ -379,20 +397,6 @@ public final class GsonTest {
     assertCustomGson(gsonBuilder.create());
   }
 
-  private static void assertDefaultGson(Gson gson) {
-    // Should use default reflective adapter
-    String json1 = gson.toJson(new CustomClass1());
-    assertEquals("{}", json1);
-
-    // Should use default reflective adapter
-    String json2 = gson.toJson(new CustomClass2());
-    assertEquals("{}", json2);
-
-    // Should use default instance creator
-    CustomClass3 customClass3 = gson.fromJson("{}", CustomClass3.class);
-    assertEquals(CustomClass3.NO_ARG_CONSTRUCTOR_VALUE, customClass3.s);
-  }
-
   /**
    * Modifying a GsonBuilder obtained from {@link Gson#newBuilder()} of a custom
    * Gson instance (created using a GsonBuilder) should not affect the Gson instance
@@ -463,15 +467,11 @@ public final class GsonTest {
     assertEquals("overwritten custom-instance", customClass3.s);
   }
 
-  private static void assertCustomGson(Gson gson) {
-    String json1 = gson.toJson(new CustomClass1());
-    assertEquals("\"custom-adapter\"", json1);
-
-    String json2 = gson.toJson(new CustomClass2());
-    assertEquals("\"custom-hierarchy-adapter\"", json2);
-
-    CustomClass3 customClass3 = gson.fromJson("{}", CustomClass3.class);
-    assertEquals("custom-instance", customClass3.s);
+  private static final class TestTypeAdapter extends TypeAdapter<Object> {
+    @Override public void write(JsonWriter out, Object value) throws IOException {
+      // Test stub.
+    }
+    @Override public Object read(JsonReader in) throws IOException { return null; }
   }
 
   private static class CustomClass1 { }

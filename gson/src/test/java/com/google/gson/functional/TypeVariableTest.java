@@ -100,9 +100,9 @@ public class TypeVariableTest extends TestCase {
 
   @SuppressWarnings("overrides") // for missing hashCode() override
   public static class Foo<S, T> extends Red<Boolean> {
+    public final Map<S, List<T>> map = new HashMap<>();
     private S someSField;
     private T someTField;
-    public final Map<S, List<T>> map = new HashMap<>();
 
     public Foo() {}
 

@@ -16,18 +16,18 @@
 
 package com.google.gson.internal.bind;
 
-import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.JavaVersion;
 import com.google.gson.internal.bind.DefaultDateTypeAdapter.DateType;
 import com.google.gson.reflect.TypeToken;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 import junit.framework.TestCase;
 
 /**
@@ -36,6 +36,27 @@ import junit.framework.TestCase;
  * @author Joel Leitch
  */
 public class DefaultDateTypeAdapterTest extends TestCase {
+
+  private static TypeAdapter<Date> dateAdapter(TypeAdapterFactory adapterFactory) {
+    TypeAdapter<Date> adapter = adapterFactory.create(new Gson(), TypeToken.get(Date.class));
+    assertNotNull(adapter);
+    return adapter;
+  }
+
+  private static void assertFormatted(String formatted, TypeAdapterFactory adapterFactory) {
+    TypeAdapter<Date> adapter = dateAdapter(adapterFactory);
+    assertEquals(toLiteral(formatted), adapter.toJson(new Date(0)));
+  }
+
+  private static void assertParsed(String date, TypeAdapterFactory adapterFactory) throws IOException {
+    TypeAdapter<Date> adapter = dateAdapter(adapterFactory);
+    assertEquals(date, new Date(0), adapter.fromJson(toLiteral(date)));
+    assertEquals("ISO 8601", new Date(0), adapter.fromJson(toLiteral("1970-01-01T00:00:00Z")));
+  }
+
+  private static String toLiteral(String s) {
+    return '"' + s + '"';
+  }
 
   public void testFormattingInEnUs() {
     assertFormattingAlwaysEmitsUsLocale(Locale.US);
@@ -198,26 +219,5 @@ public class DefaultDateTypeAdapterTest extends TestCase {
       adapter.fromJson("{}");
       fail("Unexpected token should fail.");
     } catch (IllegalStateException expected) { }
-  }
-
-  private static TypeAdapter<Date> dateAdapter(TypeAdapterFactory adapterFactory) {
-    TypeAdapter<Date> adapter = adapterFactory.create(new Gson(), TypeToken.get(Date.class));
-    assertNotNull(adapter);
-    return adapter;
-  }
-
-  private static void assertFormatted(String formatted, TypeAdapterFactory adapterFactory) {
-    TypeAdapter<Date> adapter = dateAdapter(adapterFactory);
-    assertEquals(toLiteral(formatted), adapter.toJson(new Date(0)));
-  }
-
-  private static void assertParsed(String date, TypeAdapterFactory adapterFactory) throws IOException {
-    TypeAdapter<Date> adapter = dateAdapter(adapterFactory);
-    assertEquals(date, new Date(0), adapter.fromJson(toLiteral(date)));
-    assertEquals("ISO 8601", new Date(0), adapter.fromJson(toLiteral("1970-01-01T00:00:00Z")));
-  }
-
-  private static String toLiteral(String s) {
-    return '"' + s + '"';
   }
 }

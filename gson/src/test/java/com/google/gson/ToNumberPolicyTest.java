@@ -16,15 +16,25 @@
 
 package com.google.gson;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.math.BigDecimal;
 import com.google.gson.internal.LazilyParsedNumber;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.MalformedJsonException;
+import java.io.IOException;
+import java.io.StringReader;
+import java.math.BigDecimal;
 import junit.framework.TestCase;
 
 public class ToNumberPolicyTest extends TestCase {
+  private static JsonReader fromString(String json) {
+    return new JsonReader(new StringReader(json));
+  }
+
+  private static JsonReader fromStringLenient(String json) {
+    JsonReader jsonReader = fromString(json);
+    jsonReader.setLenient(true);
+    return jsonReader;
+  }
+
   public void testDouble() throws IOException {
     ToNumberStrategy strategy = ToNumberPolicy.DOUBLE;
     assertEquals(10.1, strategy.readNumber(fromString("10.1")));
@@ -125,15 +135,5 @@ public class ToNumberPolicyTest extends TestCase {
       fail();
     } catch (IllegalStateException expected) {
     }
-  }
-
-  private static JsonReader fromString(String json) {
-    return new JsonReader(new StringReader(json));
-  }
-
-  private static JsonReader fromStringLenient(String json) {
-    JsonReader jsonReader = fromString(json);
-    jsonReader.setLenient(true);
-    return jsonReader;
   }
 }

@@ -28,12 +28,6 @@ public class Java17ReflectiveTypeAdapterFactoryTest {
     unixDomainPrincipalClass = Class.forName("jdk.net.UnixDomainPrincipal");
   }
 
-  // Class for which the normal reflection based adapter is used
-  private static class DummyClass {
-    @SuppressWarnings("unused")
-    public String s;
-  }
-
   @Test
   public void testCustomAdapterForRecords() {
     Gson gson = new Gson();
@@ -61,6 +55,12 @@ public class Java17ReflectiveTypeAdapterFactoryTest {
 
     assertEquals(recordInstance, deserializedRecordInstance);
     assertEquals("{\"user\":\"user\",\"group\":\"group\"}", serialized);
+  }
+
+  // Class for which the normal reflection based adapter is used
+  private static class DummyClass {
+    @SuppressWarnings("unused")
+    public String s;
   }
 
   private static class PrincipalTypeAdapter<T extends Principal> extends TypeAdapter<T> {
