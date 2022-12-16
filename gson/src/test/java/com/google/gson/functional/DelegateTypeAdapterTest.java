@@ -15,12 +15,6 @@
  */
 package com.google.gson.functional;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import junit.framework.TestCase;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
@@ -29,6 +23,10 @@ import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import junit.framework.TestCase;
 
 /**
  * Functional tests for {@link Gson#getDelegateAdapter(TypeAdapterFactory, TypeToken)} method.

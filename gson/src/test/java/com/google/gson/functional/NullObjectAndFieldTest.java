@@ -18,20 +18,18 @@ package com.google.gson.functional;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.common.TestTypes.ClassWithObjects;
-
-import junit.framework.TestCase;
-
 import java.lang.reflect.Type;
 import java.util.Collection;
+import junit.framework.TestCase;
 
 /**
  * Functional tests for the different cases for serializing (or ignoring) null fields and object.
@@ -163,43 +161,6 @@ public class NullObjectAndFieldTest extends TestCase {
     assertFalse(target.bool2); // test the default value of a primitive boolean field per JVM spec
   }
 
-  public static class ClassWithInitializedMembers {
-    // Using a mix of no-args constructor and field initializers
-    // Also, some fields are intialized and some are not (so initialized per JVM spec)
-    public static final String MY_STRING_DEFAULT = "string";
-    private static final int MY_INT_DEFAULT = 2;
-    private static final boolean MY_BOOLEAN_DEFAULT = true;
-    int[] array;
-    String str1, str2;
-    int int1 = MY_INT_DEFAULT;
-    int int2;
-    boolean bool1 = MY_BOOLEAN_DEFAULT;
-    boolean bool2;
-    public ClassWithInitializedMembers() {
-      str1 = MY_STRING_DEFAULT;
-    }
-  }
-
-  private static class ClassWithNullWrappedPrimitive {
-    private Long value;
-  }
-
-  @SuppressWarnings("unused")
-  private static class ClassWithMembers {
-    String str;
-    int[] array;
-    Collection<String> col;
-  }
-  
-  private static class ClassWithObjectsSerializer implements JsonSerializer<ClassWithObjects> {
-    @Override public JsonElement serialize(ClassWithObjects src, Type typeOfSrc,
-        JsonSerializationContext context) {
-      JsonObject obj = new JsonObject();
-      obj.add("bag", JsonNull.INSTANCE);
-      return obj;
-    }
-  }
-
   public void testExplicitNullSetsFieldToNullDuringDeserialization() {
     Gson gson = new Gson();
     String json = "{value:null}";
@@ -232,6 +193,43 @@ public class NullObjectAndFieldTest extends TestCase {
     String json = "{value:'value1'}";
     ObjectWithField target = gson.fromJson(json, ObjectWithField.class);
     assertNull(target);
+  }
+  
+  public static class ClassWithInitializedMembers {
+    // Using a mix of no-args constructor and field initializers
+    // Also, some fields are intialized and some are not (so initialized per JVM spec)
+    public static final String MY_STRING_DEFAULT = "string";
+    private static final int MY_INT_DEFAULT = 2;
+    private static final boolean MY_BOOLEAN_DEFAULT = true;
+    int[] array;
+    String str1, str2;
+    int int1 = MY_INT_DEFAULT;
+    int int2;
+    boolean bool1 = MY_BOOLEAN_DEFAULT;
+    boolean bool2;
+    public ClassWithInitializedMembers() {
+      str1 = MY_STRING_DEFAULT;
+    }
+  }
+
+  private static class ClassWithNullWrappedPrimitive {
+    private Long value;
+  }
+
+  @SuppressWarnings("unused")
+  private static class ClassWithMembers {
+    String str;
+    int[] array;
+    Collection<String> col;
+  }
+
+  private static class ClassWithObjectsSerializer implements JsonSerializer<ClassWithObjects> {
+    @Override public JsonElement serialize(ClassWithObjects src, Type typeOfSrc,
+        JsonSerializationContext context) {
+      JsonObject obj = new JsonObject();
+      obj.add("bag", JsonNull.INSTANCE);
+      return obj;
+    }
   }
 
   private static class ObjectWithField {

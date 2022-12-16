@@ -19,10 +19,21 @@ package com.google.gson.internal;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
-
 import junit.framework.TestCase;
 
 public final class GsonTypesTest extends TestCase {
+
+  /**
+   * Given a parameterized type A&lt;B,C&gt;, returns B. If the specified type is not
+   * a generic type, returns null.
+   */
+  public static Type getFirstTypeArgument(Type type) throws Exception {
+    if (!(type instanceof ParameterizedType)) return null;
+    ParameterizedType ptype = (ParameterizedType) type;
+    Type[] actualTypeArguments = ptype.getActualTypeArguments();
+    if (actualTypeArguments.length == 0) return null;
+    return $Gson$Types.canonicalize(actualTypeArguments[0]);
+  }
 
   public void testNewParameterizedTypeWithoutOwner() throws Exception {
     // List<A>. List is a top-level class
@@ -55,20 +66,10 @@ public final class GsonTypesTest extends TestCase {
 
   private static final class A {
   }
+
   private static final class B {
   }
-  private static final class C {
-  }
 
-  /**
-   * Given a parameterized type A&lt;B,C&gt;, returns B. If the specified type is not
-   * a generic type, returns null.
-   */
-  public static Type getFirstTypeArgument(Type type) throws Exception {
-    if (!(type instanceof ParameterizedType)) return null;
-    ParameterizedType ptype = (ParameterizedType) type;
-    Type[] actualTypeArguments = ptype.getActualTypeArguments();
-    if (actualTypeArguments.length == 0) return null;
-    return $Gson$Types.canonicalize(actualTypeArguments[0]);
+  private static final class C {
   }
 }

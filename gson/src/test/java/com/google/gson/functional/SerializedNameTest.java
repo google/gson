@@ -17,7 +17,6 @@ package com.google.gson.functional;
 
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
-
 import junit.framework.TestCase;
 
 public final class SerializedNameTest extends TestCase {

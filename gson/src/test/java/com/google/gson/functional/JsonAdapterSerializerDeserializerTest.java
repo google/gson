@@ -16,8 +16,6 @@
 
 package com.google.gson.functional;
 
-import java.lang.reflect.Type;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -27,7 +25,7 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.JsonAdapter;
-
+import java.lang.reflect.Type;
 import junit.framework.TestCase;
 
 /**
@@ -43,6 +41,31 @@ public final class JsonAdapterSerializerDeserializerTest extends TestCase {
     Computer computer = gson.fromJson("{'user2':'Jesse Wilson','user3':'Jake Wharton'}", Computer.class);
     assertEquals("UserSerializer", computer.user2.name);
     assertEquals("UserSerializerDeserializer", computer.user3.name);
+  }
+
+  public void testJsonSerializerDeserializerBasedJsonAdapterOnClass() {
+    Gson gson = new Gson();
+    String json = gson.toJson(new Computer2(new User2("Inderjeet Singh")));
+    assertEquals("{\"user\":\"UserSerializerDeserializer2\"}", json);
+    Computer2 computer = gson.fromJson("{'user':'Inderjeet Singh'}", Computer2.class);
+    assertEquals("UserSerializerDeserializer2", computer.user.name);
+  }
+
+  public void testDifferentJsonAdaptersForGenericFieldsOfSameRawType() {
+    Container c = new Container("Foo", 10);
+    Gson gson = new Gson();
+    String json = gson.toJson(c);
+    assertTrue(json.contains("\"a\":\"BaseStringAdapter\""));
+    assertTrue(json.contains("\"b\":\"BaseIntegerAdapter\""));
+  }
+
+  public void testJsonAdapterNullSafe() {
+    Gson gson = new Gson();
+    String json = gson.toJson(new Computer3(null, null));
+    assertEquals("{\"user1\":\"UserSerializerDeserializer\"}", json);
+    Computer3 computer3 = gson.fromJson("{\"user1\":null, \"user2\":null}", Computer3.class);
+    assertEquals("UserSerializerDeserializer", computer3.user1.name);
+    assertNull(computer3.user2);
   }
 
   private static final class Computer {
@@ -90,14 +113,6 @@ public final class JsonAdapterSerializerDeserializerTest extends TestCase {
     }
   }
 
-  public void testJsonSerializerDeserializerBasedJsonAdapterOnClass() {
-    Gson gson = new Gson();
-    String json = gson.toJson(new Computer2(new User2("Inderjeet Singh")));
-    assertEquals("{\"user\":\"UserSerializerDeserializer2\"}", json);
-    Computer2 computer = gson.fromJson("{'user':'Inderjeet Singh'}", Computer2.class);
-    assertEquals("UserSerializerDeserializer2", computer.user.name);
-  }
-
   private static final class Computer2 {
     final User2 user;
     Computer2(User2 user) {
@@ -123,14 +138,6 @@ public final class JsonAdapterSerializerDeserializerTest extends TestCase {
         throws JsonParseException {
       return new User2("UserSerializerDeserializer2");
     }
-  }
-
-  public void testDifferentJsonAdaptersForGenericFieldsOfSameRawType() {
-    Container c = new Container("Foo", 10);
-    Gson gson = new Gson();
-    String json = gson.toJson(c);
-    assertTrue(json.contains("\"a\":\"BaseStringAdapter\""));
-    assertTrue(json.contains("\"b\":\"BaseIntegerAdapter\""));
   }
 
   private static final class Container {
@@ -160,15 +167,6 @@ public final class JsonAdapterSerializerDeserializerTest extends TestCase {
     @Override public JsonElement serialize(Base<Integer> src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive("BaseIntegerAdapter");
     }
-  }
-
-  public void testJsonAdapterNullSafe() {
-    Gson gson = new Gson();
-    String json = gson.toJson(new Computer3(null, null));
-    assertEquals("{\"user1\":\"UserSerializerDeserializer\"}", json);
-    Computer3 computer3 = gson.fromJson("{\"user1\":null, \"user2\":null}", Computer3.class);
-    assertEquals("UserSerializerDeserializer", computer3.user1.name);
-    assertNull(computer3.user2);
   }
 
   private static final class Computer3 {

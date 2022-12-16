@@ -75,10 +75,6 @@ public final class Java17RecordTest {
         gson.fromJson("{'name': 'foo', 'name1':'v1','name2':'v2','name3':'v3'}", RecordWithCustomNames.class).b);
   }
 
-  private record RecordWithCustomNames(
-      @SerializedName("name") String a,
-      @SerializedName(value = "name1", alternate = {"name2", "name3"}) String b) {}
-
   @Test
   public void testSerializedNameOnAccessor() {
     record LocalRecord(int i) {
@@ -256,9 +252,6 @@ public final class Java17RecordTest {
         exception.getMessage());
   }
 
-  private record RecordWithPrimitives(
-      String aString, byte aByte, short aShort, int anInt, long aLong, float aFloat, double aDouble, char aChar, boolean aBoolean) {}
-
   /** Tests behavior when value of Object component is missing; should default to null */
   @Test
   public void testObjectDefaultValue() {
@@ -313,10 +306,6 @@ public final class Java17RecordTest {
     } finally {
       RecordWithStaticField.s = oldValue;
     }
-  }
-
-  private record RecordWithStaticField() {
-    static String s = "initial";
   }
 
   @Test
@@ -409,9 +398,6 @@ public final class Java17RecordTest {
     assertEquals(new PublicRecord(2), gson.fromJson("{\"i\":2}", PublicRecord.class));
   }
 
-  private record PrivateRecord(int i) {}
-  public record PublicRecord(int i) {}
-
   /**
    * Tests behavior when {@code java.lang.Record} is used as type for serialization
    * and deserialization.
@@ -427,4 +413,19 @@ public final class Java17RecordTest {
         + " this type. Class name: java.lang.Record",
         exception.getMessage());
   }
+
+  private record RecordWithCustomNames(
+      @SerializedName("name") String a,
+      @SerializedName(value = "name1", alternate = {"name2", "name3"}) String b) {}
+
+  private record RecordWithPrimitives(
+      String aString, byte aByte, short aShort, int anInt, long aLong, float aFloat, double aDouble, char aChar, boolean aBoolean) {}
+
+  private record RecordWithStaticField() {
+    static String s = "initial";
+  }
+
+  private record PrivateRecord(int i) {}
+
+  public record PublicRecord(int i) {}
 }

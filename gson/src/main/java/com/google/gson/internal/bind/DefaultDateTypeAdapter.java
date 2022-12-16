@@ -46,45 +46,7 @@ import java.util.Objects;
  */
 public final class DefaultDateTypeAdapter<T extends Date> extends TypeAdapter<T> {
   private static final String SIMPLE_NAME = "DefaultDateTypeAdapter";
-
-  public static abstract class DateType<T extends Date> {
-    public static final DateType<Date> DATE = new DateType<Date>(Date.class) {
-      @Override protected Date deserialize(Date date) {
-        return date;
-      }
-    };
-
-    private final Class<T> dateClass;
-
-    protected DateType(Class<T> dateClass) {
-      this.dateClass = dateClass;
-    }
-
-    protected abstract T deserialize(Date date);
-
-    private TypeAdapterFactory createFactory(DefaultDateTypeAdapter<T> adapter) {
-      return TypeAdapters.newFactory(dateClass, adapter);
-    }
-
-    public final TypeAdapterFactory createAdapterFactory(String datePattern) {
-      return createFactory(new DefaultDateTypeAdapter<>(this, datePattern));
-    }
-
-    public final TypeAdapterFactory createAdapterFactory(int style) {
-      return createFactory(new DefaultDateTypeAdapter<>(this, style));
-    }
-
-    public final TypeAdapterFactory createAdapterFactory(int dateStyle, int timeStyle) {
-      return createFactory(new DefaultDateTypeAdapter<>(this, dateStyle, timeStyle));
-    }
-
-    public final TypeAdapterFactory createDefaultsAdapterFactory() {
-      return createFactory(new DefaultDateTypeAdapter<>(this, DateFormat.DEFAULT, DateFormat.DEFAULT));
-    }
-  }
-
   private final DateType<T> dateType;
-
   /**
    * List of 1 or more different date formats used for de-serialization attempts.
    * The first of them is used for serialization as well.
@@ -172,6 +134,42 @@ public final class DefaultDateTypeAdapter<T extends Date> extends TypeAdapter<T>
       return SIMPLE_NAME + '(' + ((SimpleDateFormat) defaultFormat).toPattern() + ')';
     } else {
       return SIMPLE_NAME + '(' + defaultFormat.getClass().getSimpleName() + ')';
+    }
+  }
+
+  public static abstract class DateType<T extends Date> {
+    public static final DateType<Date> DATE = new DateType<Date>(Date.class) {
+      @Override protected Date deserialize(Date date) {
+        return date;
+      }
+    };
+
+    private final Class<T> dateClass;
+
+    protected DateType(Class<T> dateClass) {
+      this.dateClass = dateClass;
+    }
+
+    protected abstract T deserialize(Date date);
+
+    private TypeAdapterFactory createFactory(DefaultDateTypeAdapter<T> adapter) {
+      return TypeAdapters.newFactory(dateClass, adapter);
+    }
+
+    public final TypeAdapterFactory createAdapterFactory(String datePattern) {
+      return createFactory(new DefaultDateTypeAdapter<>(this, datePattern));
+    }
+
+    public final TypeAdapterFactory createAdapterFactory(int style) {
+      return createFactory(new DefaultDateTypeAdapter<>(this, style));
+    }
+
+    public final TypeAdapterFactory createAdapterFactory(int dateStyle, int timeStyle) {
+      return createFactory(new DefaultDateTypeAdapter<>(this, dateStyle, timeStyle));
+    }
+
+    public final TypeAdapterFactory createDefaultsAdapterFactory() {
+      return createFactory(new DefaultDateTypeAdapter<>(this, DateFormat.DEFAULT, DateFormat.DEFAULT));
     }
   }
 }

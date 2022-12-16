@@ -18,13 +18,11 @@ package com.google.gson.functional;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-
-import junit.framework.TestCase;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import junit.framework.TestCase;
 
 /**
  * Tests for Gson serialization of a sub-class object while encountering a base-class type

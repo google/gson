@@ -25,6 +25,8 @@ public final class JavaVersion {
 
   private static final int majorJavaVersion = determineMajorJavaVersion();
 
+  private JavaVersion() { }
+
   private static int determineMajorJavaVersion() {
     String javaVersion = System.getProperty("java.version");
     return getMajorJavaVersion(javaVersion);
@@ -42,7 +44,7 @@ public final class JavaVersion {
     return version;
   }
 
-  // Parses both legacy 1.8 style and newer 9.0.4 style 
+  // Parses both legacy 1.8 style and newer 9.0.4 style
   private static int parseDotted(String javaVersion) {
     try {
       String[] parts = javaVersion.split("[._]");
@@ -87,6 +89,4 @@ public final class JavaVersion {
   public static boolean isJava9OrLater() {
     return majorJavaVersion >= 9;
   }
-
-  private JavaVersion() { }
 }

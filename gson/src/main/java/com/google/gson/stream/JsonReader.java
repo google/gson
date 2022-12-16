@@ -190,8 +190,8 @@ import java.util.Objects;
  * @since 1.6
  */
 public class JsonReader implements Closeable {
+  static final int BUFFER_SIZE = 1024;
   private static final long MIN_INCOMPLETE_INTEGER = Long.MIN_VALUE / 10;
-
   private static final int PEEKED_NONE = 0;
   private static final int PEEKED_BEGIN_OBJECT = 1;
   private static final int PEEKED_END_OBJECT = 2;
@@ -212,7 +212,6 @@ public class JsonReader implements Closeable {
   private static final int PEEKED_LONG = 15;
   private static final int PEEKED_NUMBER = 16;
   private static final int PEEKED_EOF = 17;
-
   /* State machine when parsing numbers */
   private static final int NUMBER_CHAR_NONE = 0;
   private static final int NUMBER_CHAR_SIGN = 1;
@@ -223,13 +222,33 @@ public class JsonReader implements Closeable {
   private static final int NUMBER_CHAR_EXP_SIGN = 6;
   private static final int NUMBER_CHAR_EXP_DIGIT = 7;
 
+  static {
+    JsonReaderInternalAccess.INSTANCE = new JsonReaderInternalAccess() {
+      @Override public void promoteNameToValue(JsonReader reader) throws IOException {
+        if (reader instanceof JsonTreeReader) {
+          ((JsonTreeReader)reader).promoteNameToValue();
+          return;
+        }
+        int p = reader.peeked;
+        if (p == PEEKED_NONE) {
+          p = reader.doPeek();
+        }
+        if (p == PEEKED_DOUBLE_QUOTED_NAME) {
+          reader.peeked = PEEKED_DOUBLE_QUOTED;
+        } else if (p == PEEKED_SINGLE_QUOTED_NAME) {
+          reader.peeked = PEEKED_SINGLE_QUOTED;
+        } else if (p == PEEKED_UNQUOTED_NAME) {
+          reader.peeked = PEEKED_UNQUOTED;
+        } else {
+          throw new IllegalStateException(
+              "Expected a name but was " + reader.peek() + reader.locationString());
+        }
+      }
+    };
+  }
+
   /** The input JSON. */
   private final Reader in;
-
-  /** True to accept non-spec compliant JSON */
-  private boolean lenient = false;
-
-  static final int BUFFER_SIZE = 1024;
   /**
    * Use a manual buffer to easily read and unread upcoming characters, and
    * also so we can create strings without an intermediate StringBuilder.
@@ -237,42 +256,34 @@ public class JsonReader implements Closeable {
    * long as the longest token that can be reported as a number.
    */
   private final char[] buffer = new char[BUFFER_SIZE];
+  int peeked = PEEKED_NONE;
+  /** True to accept non-spec compliant JSON */
+  private boolean lenient = false;
   private int pos = 0;
   private int limit = 0;
-
   private int lineNumber = 0;
   private int lineStart = 0;
-
-  int peeked = PEEKED_NONE;
-
   /**
    * A peeked value that was composed entirely of digits with an optional
    * leading dash. Positive values may not have a leading 0.
    */
   private long peekedLong;
-
   /**
    * The number of characters in a peeked number literal. Increment 'pos' by
    * this after reading a number.
    */
   private int peekedNumberLength;
-
   /**
    * A peeked string that should be parsed on the next double, long or string.
    * This is populated before a numeric value is parsed and used if that parsing
    * fails.
    */
   private String peekedString;
-
   /*
    * The nesting stack. Using a manual array rather than an ArrayList saves 20%.
    */
   private int[] stack = new int[32];
   private int stackSize = 0;
-  {
-    stack[stackSize++] = JsonScope.EMPTY_DOCUMENT;
-  }
-
   /*
    * The path members. It corresponds directly to stack: At indices where the
    * stack contains an object (EMPTY_OBJECT, DANGLING_NAME or NONEMPTY_OBJECT),
@@ -284,11 +295,22 @@ public class JsonReader implements Closeable {
   private String[] pathNames = new String[32];
   private int[] pathIndices = new int[32];
 
+  {
+    stack[stackSize++] = JsonScope.EMPTY_DOCUMENT;
+  }
+
   /**
    * Creates a new instance that reads a JSON-encoded stream from {@code in}.
    */
   public JsonReader(Reader in) {
     this.in = Objects.requireNonNull(in, "in == null");
+  }
+
+  /**
+   * Returns true if this parser is liberal in what it accepts.
+   */
+  public final boolean isLenient() {
+    return lenient;
   }
 
   /**
@@ -332,13 +354,6 @@ public class JsonReader implements Closeable {
    */
   public final void setLenient(boolean lenient) {
     this.lenient = lenient;
-  }
-
-  /**
-   * Returns true if this parser is liberal in what it accepts.
-   */
-  public final boolean isLenient() {
-    return lenient;
   }
 
   /**
@@ -1679,30 +1694,5 @@ public class JsonReader implements Closeable {
 
     // we consumed a security token!
     pos += 5;
-  }
-
-  static {
-    JsonReaderInternalAccess.INSTANCE = new JsonReaderInternalAccess() {
-      @Override public void promoteNameToValue(JsonReader reader) throws IOException {
-        if (reader instanceof JsonTreeReader) {
-          ((JsonTreeReader)reader).promoteNameToValue();
-          return;
-        }
-        int p = reader.peeked;
-        if (p == PEEKED_NONE) {
-          p = reader.doPeek();
-        }
-        if (p == PEEKED_DOUBLE_QUOTED_NAME) {
-          reader.peeked = PEEKED_DOUBLE_QUOTED;
-        } else if (p == PEEKED_SINGLE_QUOTED_NAME) {
-          reader.peeked = PEEKED_SINGLE_QUOTED;
-        } else if (p == PEEKED_UNQUOTED_NAME) {
-          reader.peeked = PEEKED_UNQUOTED;
-        } else {
-          throw new IllegalStateException(
-              "Expected a name but was " + reader.peek() + reader.locationString());
-        }
-      }
-    };
   }
 }

@@ -15,14 +15,12 @@
  */
 package com.google.gson.functional;
 
+import com.google.gson.Gson;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import junit.framework.TestCase;
-
-import com.google.gson.Gson;
 
 /**
  * Tests for ensuring Gson thread-safety.

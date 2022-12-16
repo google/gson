@@ -15,13 +15,11 @@
  */
 package com.google.gson.functional;
 
-import java.util.Arrays;
-import java.util.Collection;
-
-import junit.framework.TestCase;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import java.util.Arrays;
+import java.util.Collection;
+import junit.framework.TestCase;
 
 /**
  * Unit tests to validate serialization of parameterized types without explicit types

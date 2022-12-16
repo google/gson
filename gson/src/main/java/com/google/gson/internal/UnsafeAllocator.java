@@ -28,7 +28,7 @@ import java.lang.reflect.Method;
  * @author Jesse Wilson
  */
 public abstract class UnsafeAllocator {
-  public abstract <T> T newInstance(Class<T> c) throws Exception;
+  public static final UnsafeAllocator INSTANCE = create();
 
   /**
    * Asserts that the class is instantiable. This check should have already occurred
@@ -41,8 +41,6 @@ public abstract class UnsafeAllocator {
       throw new AssertionError("UnsafeAllocator is used for non-instantiable type: " + exceptionMessage);
     }
   }
-
-  public static final UnsafeAllocator INSTANCE = create();
 
   private static UnsafeAllocator create() {
     // try JVM
@@ -119,4 +117,6 @@ public abstract class UnsafeAllocator {
       }
     };
   }
+
+  public abstract <T> T newInstance(Class<T> c) throws Exception;
 }

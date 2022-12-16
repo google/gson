@@ -16,12 +16,6 @@
 
 package com.google.gson.functional;
 
-import java.lang.reflect.Type;
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.ToNumberPolicy;
@@ -29,6 +23,12 @@ import com.google.gson.ToNumberStrategy;
 import com.google.gson.internal.LazilyParsedNumber;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
+import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 import junit.framework.TestCase;
 
 public class ToNumberPolicyFunctionalTest extends TestCase {

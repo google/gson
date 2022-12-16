@@ -25,10 +25,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.common.TestTypes.Base;
 import com.google.gson.common.TestTypes.ClassWithBaseField;
-
-import junit.framework.TestCase;
-
 import java.lang.reflect.Type;
+import junit.framework.TestCase;
 
 /**
  * Functional Test exercising custom deserialization only. When test applies to both
@@ -64,52 +62,6 @@ public class CustomDeserializerTest extends TestCase {
     assertEquals(DEFAULT_VALUE + SUFFIX, actual.getWrappedData().getData());
   }
 
-  private static class DataHolder {
-    private final String data;
-
-    // For use by Gson
-    @SuppressWarnings("unused")
-    private DataHolder() {
-      throw new IllegalStateException();
-    }
-
-    public DataHolder(String data) {
-      this.data = data;
-    }
-
-    public String getData() {
-      return data;
-    }
-  }
-
-  private static class DataHolderWrapper {
-    private final DataHolder wrappedData;
-
-    // For use by Gson
-    @SuppressWarnings("unused")
-    private DataHolderWrapper() {
-      this(new DataHolder(DEFAULT_VALUE));
-    }
-
-    public DataHolderWrapper(DataHolder data) {
-      this.wrappedData = data;
-    }
-
-    public DataHolder getWrappedData() {
-      return wrappedData;
-    }
-  }
-
-  private static class DataHolderDeserializer implements JsonDeserializer<DataHolder> {
-    @Override
-    public DataHolder deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-        throws JsonParseException {
-      JsonObject jsonObj = json.getAsJsonObject();
-      String dataString = jsonObj.get("data").getAsString();
-      return new DataHolder(dataString + SUFFIX);
-    }
-  }
-
   public void testJsonTypeFieldBasedDeserialization() {
     String json = "{field1:'abc',field2:'def',__type__:'SUB_TYPE1'}";
     Gson gson = new GsonBuilder().registerTypeAdapter(MyBase.class, new JsonDeserializer<MyBase>() {
@@ -121,31 +73,6 @@ public class CustomDeserializerTest extends TestCase {
     }).create();
     SubType1 target = (SubType1) gson.fromJson(json, MyBase.class);
     assertEquals("abc", target.field1);
-  }
-
-  private static class MyBase {
-    static final String TYPE_ACCESS = "__type__";
-  }
-
-  private enum SubTypes {
-    SUB_TYPE1(SubType1.class),
-    SUB_TYPE2(SubType2.class);
-    private final Type subClass;
-    private SubTypes(Type subClass) {
-      this.subClass = subClass;
-    }
-    public Type getSubclass() {
-      return subClass;
-    }
-  }
-
-  private static class SubType1 extends MyBase {
-    String field1;
-  }
-
-  private static class SubType2 extends MyBase {
-    @SuppressWarnings("unused")
-    String field2;
   }
 
   public void testCustomDeserializerReturnsNullForTopLevelObject() {
@@ -204,6 +131,77 @@ public class CustomDeserializerTest extends TestCase {
     ClassWithBaseArray target = gson.fromJson(json, ClassWithBaseArray.class);
     assertNull(target.bases[0]);
     assertNull(target.bases[1]);
+  }
+
+  private enum SubTypes {
+    SUB_TYPE1(SubType1.class),
+    SUB_TYPE2(SubType2.class);
+    private final Type subClass;
+    private SubTypes(Type subClass) {
+      this.subClass = subClass;
+    }
+    public Type getSubclass() {
+      return subClass;
+    }
+  }
+
+  private static class DataHolder {
+    private final String data;
+
+    // For use by Gson
+    @SuppressWarnings("unused")
+    private DataHolder() {
+      throw new IllegalStateException();
+    }
+
+    public DataHolder(String data) {
+      this.data = data;
+    }
+
+    public String getData() {
+      return data;
+    }
+  }
+
+  private static class DataHolderWrapper {
+    private final DataHolder wrappedData;
+
+    // For use by Gson
+    @SuppressWarnings("unused")
+    private DataHolderWrapper() {
+      this(new DataHolder(DEFAULT_VALUE));
+    }
+
+    public DataHolderWrapper(DataHolder data) {
+      this.wrappedData = data;
+    }
+
+    public DataHolder getWrappedData() {
+      return wrappedData;
+    }
+  }
+
+  private static class DataHolderDeserializer implements JsonDeserializer<DataHolder> {
+    @Override
+    public DataHolder deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+        throws JsonParseException {
+      JsonObject jsonObj = json.getAsJsonObject();
+      String dataString = jsonObj.get("data").getAsString();
+      return new DataHolder(dataString + SUFFIX);
+    }
+  }
+
+  private static class MyBase {
+    static final String TYPE_ACCESS = "__type__";
+  }
+
+  private static class SubType1 extends MyBase {
+    String field1;
+  }
+
+  private static class SubType2 extends MyBase {
+    @SuppressWarnings("unused")
+    String field2;
   }
 
   private static final class ClassWithBaseArray {

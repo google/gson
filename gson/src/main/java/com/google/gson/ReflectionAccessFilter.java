@@ -31,6 +31,117 @@ import java.lang.reflect.AccessibleObject;
  */
 public interface ReflectionAccessFilter {
   /**
+   * Blocks all reflection access to members of standard Java classes which are
+   * not accessible by default. However, reflection access is still allowed for
+   * classes for which all fields are accessible and which have an accessible
+   * no-args constructor (or for which an {@link InstanceCreator} has been registered).
+   *
+   * <p>If this filter encounters a class other than a standard Java class it
+   * returns {@link FilterResult#INDECISIVE}.
+   *
+   * <p>This filter is mainly intended to help enforcing the access checks of
+   * Java Platform Module System. It allows detecting illegal access, even if
+   * the used Java version would only log a warning, or is configured to open
+   * packages for reflection. However, this filter <b>only works for Java 9 and
+   * higher</b>, when using an older Java version its functionality will be
+   * limited.
+   *
+   * <p>Note that this filter might not cover all standard Java classes. Currently
+   * only classes in a {@code java.*} or {@code javax.*} package are considered. The
+   * set of detected classes might be expanded in the future without prior notice.
+   *
+   * @see FilterResult#BLOCK_INACCESSIBLE
+   */
+  ReflectionAccessFilter BLOCK_INACCESSIBLE_JAVA = new ReflectionAccessFilter() {
+    @Override public FilterResult check(Class<?> rawClass) {
+      return ReflectionAccessFilterHelper.isJavaType(rawClass)
+        ? FilterResult.BLOCK_INACCESSIBLE
+        : FilterResult.INDECISIVE;
+    }
+  };
+  /**
+   * Blocks all reflection access to members of standard Java classes.
+   *
+   * <p>If this filter encounters a class other than a standard Java class it
+   * returns {@link FilterResult#INDECISIVE}.
+   *
+   * <p>This filter is mainly intended to prevent depending on implementation
+   * details of the Java platform and to help applications prepare for upgrading
+   * to the Java Platform Module System.
+   *
+   * <p>Note that this filter might not cover all standard Java classes. Currently
+   * only classes in a {@code java.*} or {@code javax.*} package are considered. The
+   * set of detected classes might be expanded in the future without prior notice.
+   *
+   * @see #BLOCK_INACCESSIBLE_JAVA
+   * @see FilterResult#BLOCK_ALL
+   */
+  ReflectionAccessFilter BLOCK_ALL_JAVA = new ReflectionAccessFilter() {
+    @Override public FilterResult check(Class<?> rawClass) {
+      return ReflectionAccessFilterHelper.isJavaType(rawClass)
+        ? FilterResult.BLOCK_ALL
+        : FilterResult.INDECISIVE;
+    }
+  };
+  /**
+   * Blocks all reflection access to members of standard Android classes.
+   *
+   * <p>If this filter encounters a class other than a standard Android class it
+   * returns {@link FilterResult#INDECISIVE}.
+   *
+   * <p>This filter is mainly intended to prevent depending on implementation
+   * details of the Android platform.
+   *
+   * <p>Note that this filter might not cover all standard Android classes. Currently
+   * only classes in an {@code android.*} or {@code androidx.*} package, and standard
+   * Java classes in a {@code java.*} or {@code javax.*} package are considered. The
+   * set of detected classes might be expanded in the future without prior notice.
+   *
+   * @see FilterResult#BLOCK_ALL
+   */
+  ReflectionAccessFilter BLOCK_ALL_ANDROID = new ReflectionAccessFilter() {
+    @Override public FilterResult check(Class<?> rawClass) {
+      return ReflectionAccessFilterHelper.isAndroidType(rawClass)
+        ? FilterResult.BLOCK_ALL
+        : FilterResult.INDECISIVE;
+    }
+  };
+  /**
+   * Blocks all reflection access to members of classes belonging to programming
+   * language platforms, such as Java, Android, Kotlin or Scala.
+   *
+   * <p>If this filter encounters a class other than a standard platform class it
+   * returns {@link FilterResult#INDECISIVE}.
+   *
+   * <p>This filter is mainly intended to prevent depending on implementation
+   * details of the platform classes.
+   *
+   * <p>Note that this filter might not cover all platform classes. Currently it
+   * combines the filters {@link #BLOCK_ALL_JAVA} and {@link #BLOCK_ALL_ANDROID},
+   * and checks for other language-specific platform classes like {@code kotlin.*}.
+   * The set of detected classes might be expanded in the future without prior notice.
+   *
+   * @see FilterResult#BLOCK_ALL
+   */
+  ReflectionAccessFilter BLOCK_ALL_PLATFORM = new ReflectionAccessFilter() {
+    @Override public FilterResult check(Class<?> rawClass) {
+      return ReflectionAccessFilterHelper.isAnyPlatformType(rawClass)
+        ? FilterResult.BLOCK_ALL
+        : FilterResult.INDECISIVE;
+    }
+  };
+
+  /**
+   * Checks if reflection access should be allowed for a class.
+   *
+   * @param rawClass
+   *    Class to check
+   * @return
+   *    Result indicating whether reflection access is allowed
+   */
+  FilterResult check(Class<?> rawClass);
+
+  /**
    * Result of a filter check.
    *
    * @since 2.9.1
@@ -79,118 +190,4 @@ public interface ReflectionAccessFilter {
      */
     BLOCK_ALL
   }
-
-  /**
-   * Blocks all reflection access to members of standard Java classes which are
-   * not accessible by default. However, reflection access is still allowed for
-   * classes for which all fields are accessible and which have an accessible
-   * no-args constructor (or for which an {@link InstanceCreator} has been registered).
-   *
-   * <p>If this filter encounters a class other than a standard Java class it
-   * returns {@link FilterResult#INDECISIVE}.
-   *
-   * <p>This filter is mainly intended to help enforcing the access checks of
-   * Java Platform Module System. It allows detecting illegal access, even if
-   * the used Java version would only log a warning, or is configured to open
-   * packages for reflection. However, this filter <b>only works for Java 9 and
-   * higher</b>, when using an older Java version its functionality will be
-   * limited.
-   *
-   * <p>Note that this filter might not cover all standard Java classes. Currently
-   * only classes in a {@code java.*} or {@code javax.*} package are considered. The
-   * set of detected classes might be expanded in the future without prior notice.
-   *
-   * @see FilterResult#BLOCK_INACCESSIBLE
-   */
-  ReflectionAccessFilter BLOCK_INACCESSIBLE_JAVA = new ReflectionAccessFilter() {
-    @Override public FilterResult check(Class<?> rawClass) {
-      return ReflectionAccessFilterHelper.isJavaType(rawClass)
-        ? FilterResult.BLOCK_INACCESSIBLE
-        : FilterResult.INDECISIVE;
-    }
-  };
-
-  /**
-   * Blocks all reflection access to members of standard Java classes.
-   *
-   * <p>If this filter encounters a class other than a standard Java class it
-   * returns {@link FilterResult#INDECISIVE}.
-   *
-   * <p>This filter is mainly intended to prevent depending on implementation
-   * details of the Java platform and to help applications prepare for upgrading
-   * to the Java Platform Module System.
-   *
-   * <p>Note that this filter might not cover all standard Java classes. Currently
-   * only classes in a {@code java.*} or {@code javax.*} package are considered. The
-   * set of detected classes might be expanded in the future without prior notice.
-   *
-   * @see #BLOCK_INACCESSIBLE_JAVA
-   * @see FilterResult#BLOCK_ALL
-   */
-  ReflectionAccessFilter BLOCK_ALL_JAVA = new ReflectionAccessFilter() {
-    @Override public FilterResult check(Class<?> rawClass) {
-      return ReflectionAccessFilterHelper.isJavaType(rawClass)
-        ? FilterResult.BLOCK_ALL
-        : FilterResult.INDECISIVE;
-    }
-  };
-
-  /**
-   * Blocks all reflection access to members of standard Android classes.
-   *
-   * <p>If this filter encounters a class other than a standard Android class it
-   * returns {@link FilterResult#INDECISIVE}.
-   *
-   * <p>This filter is mainly intended to prevent depending on implementation
-   * details of the Android platform.
-   *
-   * <p>Note that this filter might not cover all standard Android classes. Currently
-   * only classes in an {@code android.*} or {@code androidx.*} package, and standard
-   * Java classes in a {@code java.*} or {@code javax.*} package are considered. The
-   * set of detected classes might be expanded in the future without prior notice.
-   *
-   * @see FilterResult#BLOCK_ALL
-   */
-  ReflectionAccessFilter BLOCK_ALL_ANDROID = new ReflectionAccessFilter() {
-    @Override public FilterResult check(Class<?> rawClass) {
-      return ReflectionAccessFilterHelper.isAndroidType(rawClass)
-        ? FilterResult.BLOCK_ALL
-        : FilterResult.INDECISIVE;
-    }
-  };
-
-  /**
-   * Blocks all reflection access to members of classes belonging to programming
-   * language platforms, such as Java, Android, Kotlin or Scala.
-   *
-   * <p>If this filter encounters a class other than a standard platform class it
-   * returns {@link FilterResult#INDECISIVE}.
-   *
-   * <p>This filter is mainly intended to prevent depending on implementation
-   * details of the platform classes.
-   *
-   * <p>Note that this filter might not cover all platform classes. Currently it
-   * combines the filters {@link #BLOCK_ALL_JAVA} and {@link #BLOCK_ALL_ANDROID},
-   * and checks for other language-specific platform classes like {@code kotlin.*}.
-   * The set of detected classes might be expanded in the future without prior notice.
-   *
-   * @see FilterResult#BLOCK_ALL
-   */
-  ReflectionAccessFilter BLOCK_ALL_PLATFORM = new ReflectionAccessFilter() {
-    @Override public FilterResult check(Class<?> rawClass) {
-      return ReflectionAccessFilterHelper.isAnyPlatformType(rawClass)
-        ? FilterResult.BLOCK_ALL
-        : FilterResult.INDECISIVE;
-    }
-  };
-
-  /**
-   * Checks if reflection access should be allowed for a class.
-   *
-   * @param rawClass
-   *    Class to check
-   * @return
-   *    Result indicating whether reflection access is allowed
-   */
-  FilterResult check(Class<?> rawClass);
 }

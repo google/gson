@@ -28,18 +28,6 @@ import java.util.List;
 import org.junit.Test;
 
 public class ReflectionAccessFilterTest {
-  // Reader has protected `lock` field which cannot be accessed
-  private static class ClassExtendingJdkClass extends Reader {
-    @Override
-    public int read(char[] cbuf, int off, int len) throws IOException {
-      return 0;
-    }
-
-    @Override
-    public void close() throws IOException {
-    }
-  }
-
   @Test
   public void testBlockInaccessibleJava() throws ReflectiveOperationException {
     Gson gson = new GsonBuilder()
@@ -132,11 +120,6 @@ public class ReflectionAccessFilterTest {
     }
   }
 
-  private static class ClassWithStaticField {
-    @SuppressWarnings("unused")
-    private static int i = 1;
-  }
-
   @Test
   public void testBlockInaccessibleStaticField() {
     Gson gson = new GsonBuilder()
@@ -161,17 +144,6 @@ public class ReflectionAccessFilterTest {
           expected.getMessage()
         );
       }
-  }
-
-  private static class SuperTestClass {
-  }
-  private static class SubTestClass extends SuperTestClass {
-    @SuppressWarnings("unused")
-    public int i = 1;
-  }
-  private static class OtherClass {
-    @SuppressWarnings("unused")
-    public int i = 2;
   }
 
   @Test
@@ -213,13 +185,6 @@ public class ReflectionAccessFilterTest {
     assertEquals("{\"i\":2}", json);
   }
 
-  private static class ClassWithPrivateField {
-    @SuppressWarnings("unused")
-    private int i = 1;
-  }
-  private static class ExtendingClassWithPrivateField extends ClassWithPrivateField {
-  }
-
   @Test
   public void testAllowForSupertype() {
     Gson gson = new GsonBuilder()
@@ -258,11 +223,6 @@ public class ReflectionAccessFilterTest {
     assertEquals("{\"i\":1}", json);
   }
 
-  private static class ClassWithPrivateNoArgsConstructor {
-    private ClassWithPrivateNoArgsConstructor() {
-    }
-  }
-
   @Test
   public void testInaccessibleNoArgsConstructor() {
     Gson gson = new GsonBuilder()
@@ -283,14 +243,6 @@ public class ReflectionAccessFilterTest {
         + " InstanceCreator or a TypeAdapter for this type, change the visibility of the constructor or adjust the access filter.",
         expected.getMessage()
       );
-    }
-  }
-
-  private static class ClassWithoutNoArgsConstructor {
-    public String s;
-
-    public ClassWithoutNoArgsConstructor(String s) {
-      this.s = s;
     }
   }
 
@@ -436,6 +388,57 @@ public class ReflectionAccessFilterTest {
         + " this type. Interface name: java.lang.Runnable",
         expected.getMessage()
       );
+    }
+  }
+
+  // Reader has protected `lock` field which cannot be accessed
+  private static class ClassExtendingJdkClass extends Reader {
+    @Override
+    public int read(char[] cbuf, int off, int len) throws IOException {
+      return 0;
+    }
+
+    @Override
+    public void close() throws IOException {
+    }
+  }
+
+  private static class ClassWithStaticField {
+    @SuppressWarnings("unused")
+    private static int i = 1;
+  }
+
+  private static class SuperTestClass {
+  }
+
+  private static class SubTestClass extends SuperTestClass {
+    @SuppressWarnings("unused")
+    public int i = 1;
+  }
+
+  private static class OtherClass {
+    @SuppressWarnings("unused")
+    public int i = 2;
+  }
+
+  private static class ClassWithPrivateField {
+    @SuppressWarnings("unused")
+    private int i = 1;
+  }
+
+  private static class ExtendingClassWithPrivateField extends ClassWithPrivateField {
+  }
+
+  private static class ClassWithPrivateNoArgsConstructor {
+    private ClassWithPrivateNoArgsConstructor() {
+    }
+  }
+
+  private static class ClassWithoutNoArgsConstructor {
+    public String s;
+
+    public ClassWithoutNoArgsConstructor(String s) {
+      this.s = s;
     }
   }
 }

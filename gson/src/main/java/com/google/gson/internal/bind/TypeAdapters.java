@@ -64,10 +64,6 @@ import java.util.concurrent.atomic.AtomicIntegerArray;
  * Type adapters for basic types.
  */
 public final class TypeAdapters {
-  private TypeAdapters() {
-    throw new UnsupportedOperationException();
-  }
-
   @SuppressWarnings("rawtypes")
   public static final TypeAdapter<Class> CLASS = new TypeAdapter<Class>() {
     @Override
@@ -81,9 +77,7 @@ public final class TypeAdapters {
               "Attempted to deserialize a java.lang.Class. Forgot to register a type adapter?");
     }
   }.nullSafe();
-
   public static final TypeAdapterFactory CLASS_FACTORY = newFactory(Class.class, CLASS);
-
   public static final TypeAdapter<BitSet> BIT_SET = new TypeAdapter<BitSet>() {
     @Override public BitSet read(JsonReader in) throws IOException {
       BitSet bitset = new BitSet();
@@ -129,9 +123,7 @@ public final class TypeAdapters {
       out.endArray();
     }
   }.nullSafe();
-
   public static final TypeAdapterFactory BIT_SET_FACTORY = newFactory(BitSet.class, BIT_SET);
-
   public static final TypeAdapter<Boolean> BOOLEAN = new TypeAdapter<Boolean>() {
     @Override
     public Boolean read(JsonReader in) throws IOException {
@@ -150,7 +142,6 @@ public final class TypeAdapters {
       out.value(value);
     }
   };
-
   /**
    * Writes a boolean as a string. Useful for map keys, where booleans aren't
    * otherwise permitted.
@@ -168,10 +159,8 @@ public final class TypeAdapters {
       out.value(value == null ? "null" : value.toString());
     }
   };
-
   public static final TypeAdapterFactory BOOLEAN_FACTORY
       = newFactory(boolean.class, Boolean.class, BOOLEAN);
-
   public static final TypeAdapter<Number> BYTE = new TypeAdapter<Number>() {
     @Override
     public Number read(JsonReader in) throws IOException {
@@ -201,10 +190,8 @@ public final class TypeAdapters {
       }
     }
   };
-
   public static final TypeAdapterFactory BYTE_FACTORY
       = newFactory(byte.class, Byte.class, BYTE);
-
   public static final TypeAdapter<Number> SHORT = new TypeAdapter<Number>() {
     @Override
     public Number read(JsonReader in) throws IOException {
@@ -234,10 +221,8 @@ public final class TypeAdapters {
       }
     }
   };
-
   public static final TypeAdapterFactory SHORT_FACTORY
       = newFactory(short.class, Short.class, SHORT);
-
   public static final TypeAdapter<Number> INTEGER = new TypeAdapter<Number>() {
     @Override
     public Number read(JsonReader in) throws IOException {
@@ -262,7 +247,6 @@ public final class TypeAdapters {
   };
   public static final TypeAdapterFactory INTEGER_FACTORY
       = newFactory(int.class, Integer.class, INTEGER);
-
   public static final TypeAdapter<AtomicInteger> ATOMIC_INTEGER = new TypeAdapter<AtomicInteger>() {
     @Override public AtomicInteger read(JsonReader in) throws IOException {
       try {
@@ -277,7 +261,6 @@ public final class TypeAdapters {
   }.nullSafe();
   public static final TypeAdapterFactory ATOMIC_INTEGER_FACTORY =
       newFactory(AtomicInteger.class, TypeAdapters.ATOMIC_INTEGER);
-
   public static final TypeAdapter<AtomicBoolean> ATOMIC_BOOLEAN = new TypeAdapter<AtomicBoolean>() {
     @Override public AtomicBoolean read(JsonReader in) throws IOException {
       return new AtomicBoolean(in.nextBoolean());
@@ -288,7 +271,6 @@ public final class TypeAdapters {
   }.nullSafe();
   public static final TypeAdapterFactory ATOMIC_BOOLEAN_FACTORY =
       newFactory(AtomicBoolean.class, TypeAdapters.ATOMIC_BOOLEAN);
-
   public static final TypeAdapter<AtomicIntegerArray> ATOMIC_INTEGER_ARRAY = new TypeAdapter<AtomicIntegerArray>() {
     @Override public AtomicIntegerArray read(JsonReader in) throws IOException {
         List<Integer> list = new ArrayList<>();
@@ -319,7 +301,6 @@ public final class TypeAdapters {
   }.nullSafe();
   public static final TypeAdapterFactory ATOMIC_INTEGER_ARRAY_FACTORY =
       newFactory(AtomicIntegerArray.class, TypeAdapters.ATOMIC_INTEGER_ARRAY);
-
   public static final TypeAdapter<Number> LONG = new TypeAdapter<Number>() {
     @Override
     public Number read(JsonReader in) throws IOException {
@@ -342,7 +323,6 @@ public final class TypeAdapters {
       }
     }
   };
-
   public static final TypeAdapter<Number> FLOAT = new TypeAdapter<Number>() {
     @Override
     public Number read(JsonReader in) throws IOException {
@@ -364,7 +344,6 @@ public final class TypeAdapters {
       }
     }
   };
-
   public static final TypeAdapter<Number> DOUBLE = new TypeAdapter<Number>() {
     @Override
     public Number read(JsonReader in) throws IOException {
@@ -383,7 +362,6 @@ public final class TypeAdapters {
       }
     }
   };
-
   public static final TypeAdapter<Character> CHARACTER = new TypeAdapter<Character>() {
     @Override
     public Character read(JsonReader in) throws IOException {
@@ -402,10 +380,8 @@ public final class TypeAdapters {
       out.value(value == null ? null : String.valueOf(value));
     }
   };
-
   public static final TypeAdapterFactory CHARACTER_FACTORY
       = newFactory(char.class, Character.class, CHARACTER);
-
   public static final TypeAdapter<String> STRING = new TypeAdapter<String>() {
     @Override
     public String read(JsonReader in) throws IOException {
@@ -425,7 +401,6 @@ public final class TypeAdapters {
       out.value(value);
     }
   };
-
   public static final TypeAdapter<BigDecimal> BIG_DECIMAL = new TypeAdapter<BigDecimal>() {
     @Override public BigDecimal read(JsonReader in) throws IOException {
       if (in.peek() == JsonToken.NULL) {
@@ -444,7 +419,6 @@ public final class TypeAdapters {
       out.value(value);
     }
   };
-
   public static final TypeAdapter<BigInteger> BIG_INTEGER = new TypeAdapter<BigInteger>() {
     @Override public BigInteger read(JsonReader in) throws IOException {
       if (in.peek() == JsonToken.NULL) {
@@ -463,7 +437,6 @@ public final class TypeAdapters {
       out.value(value);
     }
   };
-
   public static final TypeAdapter<LazilyParsedNumber> LAZILY_PARSED_NUMBER = new TypeAdapter<LazilyParsedNumber>() {
     // Normally users should not be able to access and deserialize LazilyParsedNumber because
     // it is an internal type, but implement this nonetheless in case there are legit corner
@@ -480,9 +453,7 @@ public final class TypeAdapters {
       out.value(value);
     }
   };
-
   public static final TypeAdapterFactory STRING_FACTORY = newFactory(String.class, STRING);
-
   public static final TypeAdapter<StringBuilder> STRING_BUILDER = new TypeAdapter<StringBuilder>() {
     @Override
     public StringBuilder read(JsonReader in) throws IOException {
@@ -497,10 +468,8 @@ public final class TypeAdapters {
       out.value(value == null ? null : value.toString());
     }
   };
-
   public static final TypeAdapterFactory STRING_BUILDER_FACTORY =
     newFactory(StringBuilder.class, STRING_BUILDER);
-
   public static final TypeAdapter<StringBuffer> STRING_BUFFER = new TypeAdapter<StringBuffer>() {
     @Override
     public StringBuffer read(JsonReader in) throws IOException {
@@ -515,10 +484,8 @@ public final class TypeAdapters {
       out.value(value == null ? null : value.toString());
     }
   };
-
   public static final TypeAdapterFactory STRING_BUFFER_FACTORY =
     newFactory(StringBuffer.class, STRING_BUFFER);
-
   public static final TypeAdapter<URL> URL = new TypeAdapter<URL>() {
     @Override
     public URL read(JsonReader in) throws IOException {
@@ -534,9 +501,7 @@ public final class TypeAdapters {
       out.value(value == null ? null : value.toExternalForm());
     }
   };
-
   public static final TypeAdapterFactory URL_FACTORY = newFactory(URL.class, URL);
-
   public static final TypeAdapter<URI> URI = new TypeAdapter<URI>() {
     @Override
     public URI read(JsonReader in) throws IOException {
@@ -556,9 +521,7 @@ public final class TypeAdapters {
       out.value(value == null ? null : value.toASCIIString());
     }
   };
-
   public static final TypeAdapterFactory URI_FACTORY = newFactory(URI.class, URI);
-
   public static final TypeAdapter<InetAddress> INET_ADDRESS = new TypeAdapter<InetAddress>() {
     @Override
     public InetAddress read(JsonReader in) throws IOException {
@@ -574,10 +537,8 @@ public final class TypeAdapters {
       out.value(value == null ? null : value.getHostAddress());
     }
   };
-
   public static final TypeAdapterFactory INET_ADDRESS_FACTORY =
     newTypeHierarchyFactory(InetAddress.class, INET_ADDRESS);
-
   public static final TypeAdapter<UUID> UUID = new TypeAdapter<UUID>() {
     @Override
     public UUID read(JsonReader in) throws IOException {
@@ -597,9 +558,7 @@ public final class TypeAdapters {
       out.value(value == null ? null : value.toString());
     }
   };
-
   public static final TypeAdapterFactory UUID_FACTORY = newFactory(UUID.class, UUID);
-
   public static final TypeAdapter<Currency> CURRENCY = new TypeAdapter<Currency>() {
     @Override
     public Currency read(JsonReader in) throws IOException {
@@ -616,7 +575,6 @@ public final class TypeAdapters {
     }
   }.nullSafe();
   public static final TypeAdapterFactory CURRENCY_FACTORY = newFactory(Currency.class, CURRENCY);
-
   public static final TypeAdapter<Calendar> CALENDAR = new TypeAdapter<Calendar>() {
     private static final String YEAR = "year";
     private static final String MONTH = "month";
@@ -681,10 +639,8 @@ public final class TypeAdapters {
       out.endObject();
     }
   };
-
   public static final TypeAdapterFactory CALENDAR_FACTORY =
     newFactoryForMultipleTypes(Calendar.class, GregorianCalendar.class, CALENDAR);
-
   public static final TypeAdapter<Locale> LOCALE = new TypeAdapter<Locale>() {
     @Override
     public Locale read(JsonReader in) throws IOException {
@@ -719,9 +675,7 @@ public final class TypeAdapters {
       out.value(value == null ? null : value.toString());
     }
   };
-
   public static final TypeAdapterFactory LOCALE_FACTORY = newFactory(Locale.class, LOCALE);
-
   public static final TypeAdapter<JsonElement> JSON_ELEMENT = new TypeAdapter<JsonElement>() {
     /**
      * Tries to begin reading a JSON array or JSON object, returning {@code null} if
@@ -852,71 +806,8 @@ public final class TypeAdapters {
       }
     }
   };
-
   public static final TypeAdapterFactory JSON_ELEMENT_FACTORY
       = newTypeHierarchyFactory(JsonElement.class, JSON_ELEMENT);
-
-  private static final class EnumTypeAdapter<T extends Enum<T>> extends TypeAdapter<T> {
-    private final Map<String, T> nameToConstant = new HashMap<>();
-    private final Map<String, T> stringToConstant = new HashMap<>();
-    private final Map<T, String> constantToName = new HashMap<>();
-
-    public EnumTypeAdapter(final Class<T> classOfT) {
-      try {
-        // Uses reflection to find enum constants to work around name mismatches for obfuscated classes
-        // Reflection access might throw SecurityException, therefore run this in privileged context;
-        // should be acceptable because this only retrieves enum constants, but does not expose anything else
-        Field[] constantFields = AccessController.doPrivileged(new PrivilegedAction<Field[]>() {
-          @Override public Field[] run() {
-            Field[] fields = classOfT.getDeclaredFields();
-            ArrayList<Field> constantFieldsList = new ArrayList<>(fields.length);
-            for (Field f : fields) {
-              if (f.isEnumConstant()) {
-                constantFieldsList.add(f);
-              }
-            }
-
-            Field[] constantFields = constantFieldsList.toArray(new Field[0]);
-            AccessibleObject.setAccessible(constantFields, true);
-            return constantFields;
-          }
-        });
-        for (Field constantField : constantFields) {
-          @SuppressWarnings("unchecked")
-          T constant = (T)(constantField.get(null));
-          String name = constant.name();
-          String toStringVal = constant.toString();
-
-          SerializedName annotation = constantField.getAnnotation(SerializedName.class);
-          if (annotation != null) {
-            name = annotation.value();
-            for (String alternate : annotation.alternate()) {
-              nameToConstant.put(alternate, constant);
-            }
-          }
-          nameToConstant.put(name, constant);
-          stringToConstant.put(toStringVal, constant);
-          constantToName.put(constant, name);
-        }
-      } catch (IllegalAccessException e) {
-        throw new AssertionError(e);
-      }
-    }
-    @Override public T read(JsonReader in) throws IOException {
-      if (in.peek() == JsonToken.NULL) {
-        in.nextNull();
-        return null;
-      }
-      String key = in.nextString();
-      T constant = nameToConstant.get(key);
-      return (constant == null) ? stringToConstant.get(key) : constant;
-    }
-
-    @Override public void write(JsonWriter out, T value) throws IOException {
-      out.value(value == null ? null : constantToName.get(value));
-    }
-  }
-
   public static final TypeAdapterFactory ENUM_FACTORY = new TypeAdapterFactory() {
     @Override public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
       Class<? super T> rawType = typeToken.getRawType();
@@ -931,6 +822,10 @@ public final class TypeAdapters {
       return adapter;
     }
   };
+
+  private TypeAdapters() {
+    throw new UnsupportedOperationException();
+  }
 
   public static <TT> TypeAdapterFactory newFactory(
       final TypeToken<TT> type, final TypeAdapter<TT> typeAdapter) {
@@ -1017,5 +912,66 @@ public final class TypeAdapters {
         return "Factory[typeHierarchy=" + clazz.getName() + ",adapter=" + typeAdapter + "]";
       }
     };
+  }
+
+  private static final class EnumTypeAdapter<T extends Enum<T>> extends TypeAdapter<T> {
+    private final Map<String, T> nameToConstant = new HashMap<>();
+    private final Map<String, T> stringToConstant = new HashMap<>();
+    private final Map<T, String> constantToName = new HashMap<>();
+
+    public EnumTypeAdapter(final Class<T> classOfT) {
+      try {
+        // Uses reflection to find enum constants to work around name mismatches for obfuscated classes
+        // Reflection access might throw SecurityException, therefore run this in privileged context;
+        // should be acceptable because this only retrieves enum constants, but does not expose anything else
+        Field[] constantFields = AccessController.doPrivileged(new PrivilegedAction<Field[]>() {
+          @Override public Field[] run() {
+            Field[] fields = classOfT.getDeclaredFields();
+            ArrayList<Field> constantFieldsList = new ArrayList<>(fields.length);
+            for (Field f : fields) {
+              if (f.isEnumConstant()) {
+                constantFieldsList.add(f);
+              }
+            }
+
+            Field[] constantFields = constantFieldsList.toArray(new Field[0]);
+            AccessibleObject.setAccessible(constantFields, true);
+            return constantFields;
+          }
+        });
+        for (Field constantField : constantFields) {
+          @SuppressWarnings("unchecked")
+          T constant = (T)(constantField.get(null));
+          String name = constant.name();
+          String toStringVal = constant.toString();
+
+          SerializedName annotation = constantField.getAnnotation(SerializedName.class);
+          if (annotation != null) {
+            name = annotation.value();
+            for (String alternate : annotation.alternate()) {
+              nameToConstant.put(alternate, constant);
+            }
+          }
+          nameToConstant.put(name, constant);
+          stringToConstant.put(toStringVal, constant);
+          constantToName.put(constant, name);
+        }
+      } catch (IllegalAccessException e) {
+        throw new AssertionError(e);
+      }
+    }
+    @Override public T read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
+        return null;
+      }
+      String key = in.nextString();
+      T constant = nameToConstant.get(key);
+      return (constant == null) ? stringToConstant.get(key) : constant;
+    }
+
+    @Override public void write(JsonWriter out, T value) throws IOException {
+      out.value(value == null ? null : constantToName.get(value));
+    }
   }
 }

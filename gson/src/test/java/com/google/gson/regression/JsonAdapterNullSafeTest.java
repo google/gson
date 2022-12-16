@@ -20,7 +20,6 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.reflect.TypeToken;
-
 import junit.framework.TestCase;
 
 public class JsonAdapterNullSafeTest extends TestCase {

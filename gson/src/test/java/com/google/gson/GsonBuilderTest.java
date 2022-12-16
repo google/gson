@@ -44,6 +44,31 @@ public class GsonBuilderTest {
     }
   };
 
+  private static void assertDefaultGson(Gson gson) {
+    // Should use default reflective adapter
+    String json1 = gson.toJson(new CustomClass1());
+    assertEquals("{}", json1);
+
+    // Should use default reflective adapter
+    String json2 = gson.toJson(new CustomClass2());
+    assertEquals("{}", json2);
+
+    // Should use default instance creator
+    CustomClass3 customClass3 = gson.fromJson("{}", CustomClass3.class);
+    assertEquals(CustomClass3.NO_ARG_CONSTRUCTOR_VALUE, customClass3.s);
+  }
+
+  private static void assertCustomGson(Gson gson) {
+    String json1 = gson.toJson(new CustomClass1());
+    assertEquals("\"custom-adapter\"", json1);
+
+    String json2 = gson.toJson(new CustomClass2());
+    assertEquals("\"custom-hierarchy-adapter\"", json2);
+
+    CustomClass3 customClass3 = gson.fromJson("{}", CustomClass3.class);
+    assertEquals("custom-instance", customClass3.s);
+  }
+
   @Test
   public void testCreatingMoreThanOnce() {
     GsonBuilder builder = new GsonBuilder();
@@ -102,47 +127,6 @@ public class GsonBuilderTest {
     assertCustomGson(gsonBuilder.create());
   }
 
-  private static void assertDefaultGson(Gson gson) {
-    // Should use default reflective adapter
-    String json1 = gson.toJson(new CustomClass1());
-    assertEquals("{}", json1);
-
-    // Should use default reflective adapter
-    String json2 = gson.toJson(new CustomClass2());
-    assertEquals("{}", json2);
-
-    // Should use default instance creator
-    CustomClass3 customClass3 = gson.fromJson("{}", CustomClass3.class);
-    assertEquals(CustomClass3.NO_ARG_CONSTRUCTOR_VALUE, customClass3.s);
-  }
-
-  private static void assertCustomGson(Gson gson) {
-    String json1 = gson.toJson(new CustomClass1());
-    assertEquals("\"custom-adapter\"", json1);
-
-    String json2 = gson.toJson(new CustomClass2());
-    assertEquals("\"custom-hierarchy-adapter\"", json2);
-
-    CustomClass3 customClass3 = gson.fromJson("{}", CustomClass3.class);
-    assertEquals("custom-instance", customClass3.s);
-  }
-
-  static class CustomClass1 { }
-  static class CustomClass2 { }
-  static class CustomClass3 {
-    static final String NO_ARG_CONSTRUCTOR_VALUE = "default instance";
-
-    final String s;
-
-    public CustomClass3(String s) {
-      this.s = s;
-    }
-
-    public CustomClass3() {
-      this(NO_ARG_CONSTRUCTOR_VALUE);
-    }
-  }
-
   @Test
   public void testExcludeFieldsWithModifiers() {
     Gson gson = new GsonBuilder()
@@ -151,24 +135,12 @@ public class GsonBuilderTest {
     assertEquals("{\"d\":\"d\"}", gson.toJson(new HasModifiers()));
   }
 
-  @SuppressWarnings("unused")
-  static class HasModifiers {
-    private String a = "a";
-    volatile String b = "b";
-    private volatile String c = "c";
-    String d = "d";
-  }
-
   @Test
   public void testTransientFieldExclusion() {
     Gson gson = new GsonBuilder()
         .excludeFieldsWithModifiers()
         .create();
     assertEquals("{\"a\":\"a\"}", gson.toJson(new HasTransients()));
-  }
-
-  static class HasTransients {
-    transient String a = "a";
   }
 
   @Test
@@ -204,12 +176,6 @@ public class GsonBuilderTest {
     }
   }
 
-  private static class ClassWithoutNoArgsConstructor {
-    @SuppressWarnings("unused")
-    public ClassWithoutNoArgsConstructor(String s) {
-    }
-  }
-
   @Test
   public void testSetVersionInvalid() {
     GsonBuilder builder = new GsonBuilder();
@@ -225,6 +191,42 @@ public class GsonBuilderTest {
       fail();
     } catch (IllegalArgumentException e) {
       assertEquals("Invalid version: -0.1", e.getMessage());
+    }
+  }
+
+  static class CustomClass1 { }
+
+  static class CustomClass2 { }
+
+  static class CustomClass3 {
+    static final String NO_ARG_CONSTRUCTOR_VALUE = "default instance";
+
+    final String s;
+
+    public CustomClass3(String s) {
+      this.s = s;
+    }
+
+    public CustomClass3() {
+      this(NO_ARG_CONSTRUCTOR_VALUE);
+    }
+  }
+
+  @SuppressWarnings("unused")
+  static class HasModifiers {
+    volatile String b = "b";
+    String d = "d";
+    private String a = "a";
+    private volatile String c = "c";
+  }
+
+  static class HasTransients {
+    transient String a = "a";
+  }
+
+  private static class ClassWithoutNoArgsConstructor {
+    @SuppressWarnings("unused")
+    public ClassWithoutNoArgsConstructor(String s) {
     }
   }
 }

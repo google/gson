@@ -29,8 +29,8 @@ import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.NoSuchElementException;
-import java.util.Set;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * A map of comparable keys to values. Unlike {@code TreeMap}, this class uses
@@ -47,15 +47,15 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
       return a.compareTo(b);
     }
   };
-
+  // Used to preserve iteration order
+  final Node<K, V> header;
   private final Comparator<? super K> comparator;
   private final boolean allowNullValues;
   Node<K, V> root;
   int size = 0;
   int modCount = 0;
-
-  // Used to preserve iteration order
-  final Node<K, V> header;
+  private EntrySet entrySet;
+  private KeySet keySet;
 
   /**
    * Create a natural order, empty tree map whose keys must be mutually
@@ -446,9 +446,6 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
         pivotLeft != null ? pivotLeft.height : 0) + 1;
   }
 
-  private EntrySet entrySet;
-  private KeySet keySet;
-
   @Override public Set<Entry<K, V>> entrySet() {
     EntrySet result = entrySet;
     return result != null ? result : (entrySet = new EntrySet());
@@ -459,14 +456,29 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
     return result != null ? result : (keySet = new KeySet());
   }
 
+  /**
+   * If somebody is unlucky enough to have to serialize one of these, serialize
+   * it as a LinkedHashMap so that they won't need Gson on the other side to
+   * deserialize it. Using serialization defeats our DoS defence, so most apps
+   * shouldn't use it.
+   */
+  private Object writeReplace() throws ObjectStreamException {
+    return new LinkedHashMap<>(this);
+  }
+
+  private void readObject(ObjectInputStream in) throws IOException {
+    // Don't permit directly deserializing this class; writeReplace() should have written a replacement
+    throw new InvalidObjectException("Deserialization is unsupported");
+  }
+
   static final class Node<K, V> implements Entry<K, V> {
+    final K key;
+    final boolean allowNullValue;
     Node<K, V> parent;
     Node<K, V> left;
     Node<K, V> right;
     Node<K, V> next;
     Node<K, V> prev;
-    final K key;
-    final boolean allowNullValue;
     V value;
     int height;
 
@@ -644,20 +656,5 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
     @Override public void clear() {
       LinkedTreeMap.this.clear();
     }
-  }
-
-  /**
-   * If somebody is unlucky enough to have to serialize one of these, serialize
-   * it as a LinkedHashMap so that they won't need Gson on the other side to
-   * deserialize it. Using serialization defeats our DoS defence, so most apps
-   * shouldn't use it.
-   */
-  private Object writeReplace() throws ObjectStreamException {
-    return new LinkedHashMap<>(this);
-  }
-
-  private void readObject(ObjectInputStream in) throws IOException {
-    // Don't permit directly deserializing this class; writeReplace() should have written a replacement
-    throw new InvalidObjectException("Deserialization is unsupported");
   }
 }

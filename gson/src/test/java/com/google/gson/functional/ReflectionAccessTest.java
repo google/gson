@@ -22,14 +22,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.Test;
 
 public class ReflectionAccessTest {
-  @SuppressWarnings("unused")
-  private static class ClassWithPrivateMembers {
-    private String s;
-
-    private ClassWithPrivateMembers() {
-    }
-  }
-
   private static Class<?> loadClassWithDifferentClassLoader(Class<?> c) throws Exception {
     URL url = c.getProtectionDomain().getCodeSource().getLocation();
     URLClassLoader classLoader = new URLClassLoader(new URL[] { url }, null);
@@ -122,6 +114,14 @@ public class ReflectionAccessTest {
           "Failed making constructor 'java.util.Collections$EmptyList()' accessible;"
           + " either increase its visibility or write a custom InstanceCreator or TypeAdapter for its declaring type: "
       ));
+    }
+  }
+
+  @SuppressWarnings("unused")
+  private static class ClassWithPrivateMembers {
+    private String s;
+
+    private ClassWithPrivateMembers() {
     }
   }
 }

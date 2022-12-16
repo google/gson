@@ -113,13 +113,6 @@ public final class TypeAdapterPrecedenceTest extends TestCase {
     assertEquals("foo via non hierarchical", gson.fromJson("foo", Foo.class).name);
   }
 
-  private static class Foo {
-    final String name;
-    private Foo(String name) {
-      this.name = name;
-    }
-  }
-
   private JsonSerializer<Foo> newSerializer(final String name) {
     return new JsonSerializer<Foo>() {
       @Override
@@ -147,5 +140,12 @@ public final class TypeAdapterPrecedenceTest extends TestCase {
         out.value(value.name + " via " + name);
       }
     };
+  }
+
+  private static class Foo {
+    final String name;
+    private Foo(String name) {
+      this.name = name;
+    }
   }
 }

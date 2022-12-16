@@ -31,15 +31,6 @@ import junit.framework.TestCase;
  */
 public class RecursiveTypesResolveTest extends TestCase {
 
-  @SuppressWarnings("unused")
-  private static class Foo1<A> {
-    public Foo2<? extends A> foo2;
-  }
-  @SuppressWarnings("unused")
-  private static class Foo2<B> {
-    public Foo1<? super B> foo1;
-  }
-
   /**
    * Test simplest case of recursion.
    */
@@ -74,6 +65,28 @@ public class RecursiveTypesResolveTest extends TestCase {
             $Gson$Types.subtypeOf($Gson$Types.supertypeOf(Number.class)));
   }
 
+  public void testRecursiveTypeVariablesResolve1() throws Exception {
+    @SuppressWarnings("rawtypes")
+    TypeAdapter<TestType> adapter = new Gson().getAdapter(TestType.class);
+    assertNotNull(adapter);
+  }
+
+  public void testRecursiveTypeVariablesResolve12() throws Exception {
+    @SuppressWarnings("rawtypes")
+    TypeAdapter<TestType2> adapter = new Gson().getAdapter(TestType2.class);
+    assertNotNull(adapter);
+  }
+
+  @SuppressWarnings("unused")
+  private static class Foo1<A> {
+    public Foo2<? extends A> foo2;
+  }
+
+  @SuppressWarnings("unused")
+  private static class Foo2<B> {
+    public Foo1<? super B> foo1;
+  }
+
   /**
    * Tests for recursion while resolving type variables.
    */
@@ -86,17 +99,5 @@ public class RecursiveTypesResolveTest extends TestCase {
   @SuppressWarnings("unused")
   private static class TestType2<X, Y> {
     TestType2<? super Y, ? super X> superReversedType;
-  }
-
-  public void testRecursiveTypeVariablesResolve1() throws Exception {
-    @SuppressWarnings("rawtypes")
-    TypeAdapter<TestType> adapter = new Gson().getAdapter(TestType.class);
-    assertNotNull(adapter);
-  }
-
-  public void testRecursiveTypeVariablesResolve12() throws Exception {
-    @SuppressWarnings("rawtypes")
-    TypeAdapter<TestType2> adapter = new Gson().getAdapter(TestType2.class);
-    assertNotNull(adapter);
   }
 }
