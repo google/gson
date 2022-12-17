@@ -11,7 +11,7 @@ This guide describes how to troubleshoot common issues when using Gson.
 **Solution:** Make sure your code adheres to the following:
 
 - Avoid raw types: Instead of calling `fromJson(..., List.class)`, create for example a `TypeToken<List<MyClass>>`.
-  See the [user guide](UserGuide.md#TOC-Collections-Examples) for more information.
+  See the [user guide](UserGuide.md#collections-examples) for more information.
 - When using `TypeToken` prefer the `Gson.fromJson` overloads with `TypeToken` parameter such as [`fromJson(Reader, TypeToken)`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/Gson.html#fromJson(java.io.Reader,com.google.gson.reflect.TypeToken)).
   The overloads with `Type` parameter do not provide any type-safety guarantees.
 - When using `TypeToken` make sure you don't capture a type variable. For example avoid something like `new TypeToken<List<T>>()` (where `T` is a type variable). Due to Java type erasure the actual type of `T` is not available at runtime. Refactor your code to pass around `TypeToken` instances or use [`TypeToken.getParameterized(...)`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/reflect/TypeToken.html#getParameterized(java.lang.reflect.Type,java.lang.reflect.Type...)), for example `TypeToken.getParameterized(List.class, elementClass)`.
@@ -101,7 +101,7 @@ Notes:
 
 **Reason:** The `Map` key type is 'complex' and you have not configured the `GsonBuilder` properly
 
-**Solution:** Use [`GsonBuilder.enableComplexMapKeySerialization()`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/GsonBuilder.html#enableComplexMapKeySerialization()). See also the [user guide](UserGuide.md#TOC-Maps-Examples) for more information.
+**Solution:** Use [`GsonBuilder.enableComplexMapKeySerialization()`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/GsonBuilder.html#enableComplexMapKeySerialization()). See also the [user guide](UserGuide.md#maps-examples) for more information.
 
 ## Parsing JSON fails with `MalformedJsonException`
 
