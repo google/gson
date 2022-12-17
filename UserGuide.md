@@ -110,12 +110,12 @@ int[] values = { 1 };
 gson.toJson(values);       // ==> [1]
 
 // Deserialization
-int one = gson.fromJson("1", int.class);
-Integer one = gson.fromJson("1", Integer.class);
-Long one = gson.fromJson("1", Long.class);
-Boolean false = gson.fromJson("false", Boolean.class);
+int i = gson.fromJson("1", int.class);
+Integer intObj = gson.fromJson("1", Integer.class);
+Long longObj = gson.fromJson("1", Long.class);
+Boolean boolObj = gson.fromJson("false", Boolean.class);
 String str = gson.fromJson("\"abc\"", String.class);
-String[] anotherStr = gson.fromJson("[\"abc\"]", String[].class);
+String[] strArray = gson.fromJson("[\"abc\"]", String[].class);
 ```
 
 ### Object Examples
@@ -482,7 +482,7 @@ class MyList<T> extends ArrayList<T> {
 }
 
 class MyListInstanceCreator implements InstanceCreator<MyList<?>> {
-    @SuppressWarnings("unchecked")
+  @SuppressWarnings("unchecked")
   public MyList<?> createInstance(Type type) {
     // No need to use a parameterized list since the actual instance will have the raw type anyway.
     return new MyList();
