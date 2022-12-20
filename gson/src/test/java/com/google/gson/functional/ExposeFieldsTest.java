@@ -16,33 +16,37 @@
 
 package com.google.gson.functional;
 
-import java.lang.reflect.Type;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 import com.google.gson.annotations.Expose;
-
-import junit.framework.TestCase;
+import java.lang.reflect.Type;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Unit tests for the regarding functional "@Expose" type tests.
  *
  * @author Joel Leitch
  */
-public class ExposeFieldsTest extends TestCase {
+public class ExposeFieldsTest {
 
   private Gson gson;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void setUp() throws Exception {
     gson = new GsonBuilder()
         .excludeFieldsWithoutExposeAnnotation()
         .registerTypeAdapter(SomeInterface.class, new SomeInterfaceInstanceCreator())
         .create();
   }
 
+  @Test
   public void testNullExposeFieldSerialization() throws Exception {
     ClassWithExposedFields object = new ClassWithExposedFields(null, 1);
     String json = gson.toJson(object);
@@ -50,11 +54,12 @@ public class ExposeFieldsTest extends TestCase {
     assertEquals(object.getExpectedJson(), json);
   }
 
+  @Test
   public void testArrayWithOneNullExposeFieldObjectSerialization() throws Exception {
     ClassWithExposedFields object1 = new ClassWithExposedFields(1, 1);
     ClassWithExposedFields object2 = new ClassWithExposedFields(null, 1);
     ClassWithExposedFields object3 = new ClassWithExposedFields(2, 2);
-    ClassWithExposedFields[] objects = { object1, object2, object3 };
+    ClassWithExposedFields[] objects = {object1, object2, object3};
 
     String json = gson.toJson(objects);
     String expected = new StringBuilder()
@@ -66,11 +71,13 @@ public class ExposeFieldsTest extends TestCase {
     assertEquals(expected, json);
   }
 
+  @Test
   public void testExposeAnnotationSerialization() throws Exception {
     ClassWithExposedFields target = new ClassWithExposedFields(1, 2);
     assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 
+  @Test
   public void testExposeAnnotationDeserialization() throws Exception {
     String json = "{a:3,b:4,d:20.0}";
     ClassWithExposedFields target = gson.fromJson(json, ClassWithExposedFields.class);
@@ -80,6 +87,7 @@ public class ExposeFieldsTest extends TestCase {
     assertFalse(target.d == 20);
   }
 
+  @Test
   public void testNoExposedFieldSerialization() throws Exception {
     ClassWithNoExposedFields obj = new ClassWithNoExposedFields();
     String json = gson.toJson(obj);
@@ -87,6 +95,7 @@ public class ExposeFieldsTest extends TestCase {
     assertEquals("{}", json);
   }
 
+  @Test
   public void testNoExposedFieldDeserialization() throws Exception {
     String json = "{a:4,b:5}";
     ClassWithNoExposedFields obj = gson.fromJson(json, ClassWithNoExposedFields.class);
@@ -94,15 +103,17 @@ public class ExposeFieldsTest extends TestCase {
     assertEquals(0, obj.a);
     assertEquals(1, obj.b);
   }
-  
+
+  @Test
   public void testExposedInterfaceFieldSerialization() throws Exception {
     String expected = "{\"interfaceField\":{}}";
     ClassWithInterfaceField target = new ClassWithInterfaceField(new SomeObject());
     String actual = gson.toJson(target);
-    
+
     assertEquals(expected, actual);
   }
-  
+
+  @Test
   public void testExposedInterfaceFieldDeserialization() throws Exception {
     String json = "{\"interfaceField\":{}}";
     ClassWithInterfaceField obj = gson.fromJson(json, ClassWithInterfaceField.class);
@@ -111,9 +122,12 @@ public class ExposeFieldsTest extends TestCase {
   }
 
   private static class ClassWithExposedFields {
-    @Expose private final Integer a;
+
+    @Expose(serialize = false)
+    final long c;
     private final Integer b;
-    @Expose(serialize = false) final long c;
+    @Expose
+    private final Integer a;
     @Expose(deserialize = false) final double d;
     @Expose(serialize = false, deserialize = false) final char e;
 

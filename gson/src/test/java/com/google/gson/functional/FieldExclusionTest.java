@@ -16,10 +16,12 @@
 
 package com.google.gson.functional;
 
+import static org.junit.Assert.assertEquals;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Performs some functional testing to ensure GSON infrastructure properly serializes/deserializes
@@ -28,17 +30,18 @@ import junit.framework.TestCase;
  *
  * @author Joel Leitch
  */
-public class FieldExclusionTest extends TestCase {
+public class FieldExclusionTest {
+
   private static final String VALUE = "blah_1234";
 
   private Outer outer;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void setUp() throws Exception {
     outer = new Outer();
   }
 
+  @Test
   public void testDefaultInnerClassExclusion() throws Exception {
     Gson gson = new Gson();
     Outer.Inner target = outer.new Inner(VALUE);
@@ -51,6 +54,7 @@ public class FieldExclusionTest extends TestCase {
     assertEquals(target.toJson(), result);
   }
 
+  @Test
   public void testInnerClassExclusion() throws Exception {
     Gson gson = new GsonBuilder().disableInnerClassSerialization().create();
     Outer.Inner target = outer.new Inner(VALUE);
@@ -58,6 +62,7 @@ public class FieldExclusionTest extends TestCase {
     assertEquals("null", result);
   }
 
+  @Test
   public void testDefaultNestedStaticClassIncluded() throws Exception {
     Gson gson = new Gson();
     Outer.Inner target = outer.new Inner(VALUE);

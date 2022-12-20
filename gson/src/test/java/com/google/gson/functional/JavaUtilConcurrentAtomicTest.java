@@ -16,30 +16,34 @@
 
 package com.google.gson.functional;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.LongSerializationPolicy;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLongArray;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.LongSerializationPolicy;
-
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
- * Functional test for Json serialization and deserialization for classes in java.util.concurrent.atomic
+ * Functional test for Json serialization and deserialization for classes in
+ * java.util.concurrent.atomic
  */
-public class JavaUtilConcurrentAtomicTest extends TestCase {
+public class JavaUtilConcurrentAtomicTest {
+
   private Gson gson;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void setUp() throws Exception {
     gson = new Gson();
   }
 
+  @Test
   public void testAtomicBoolean() throws Exception {
     AtomicBoolean target = gson.fromJson("true", AtomicBoolean.class);
     assertTrue(target.get());
@@ -47,6 +51,7 @@ public class JavaUtilConcurrentAtomicTest extends TestCase {
     assertEquals("true", json);
   }
 
+  @Test
   public void testAtomicInteger() throws Exception {
     AtomicInteger target = gson.fromJson("10", AtomicInteger.class);
     assertEquals(10, target.get());
@@ -54,6 +59,7 @@ public class JavaUtilConcurrentAtomicTest extends TestCase {
     assertEquals("10", json);
   }
 
+  @Test
   public void testAtomicLong() throws Exception {
     AtomicLong target = gson.fromJson("10", AtomicLong.class);
     assertEquals(10, target.get());
@@ -61,6 +67,7 @@ public class JavaUtilConcurrentAtomicTest extends TestCase {
     assertEquals("10", json);
   }
 
+  @Test
   public void testAtomicLongWithStringSerializationPolicy() throws Exception {
     Gson gson = new GsonBuilder()
         .setLongSerializationPolicy(LongSerializationPolicy.STRING)
@@ -71,6 +78,7 @@ public class JavaUtilConcurrentAtomicTest extends TestCase {
     assertEquals("{\"value\":\"10\"}", json);
   }
 
+  @Test
   public void testAtomicIntegerArray() throws Exception {
     AtomicIntegerArray target = gson.fromJson("[10, 13, 14]", AtomicIntegerArray.class);
     assertEquals(3, target.length());
@@ -81,6 +89,7 @@ public class JavaUtilConcurrentAtomicTest extends TestCase {
     assertEquals("[10,13,14]", json);
   }
 
+  @Test
   public void testAtomicLongArray() throws Exception {
     AtomicLongArray target = gson.fromJson("[10, 13, 14]", AtomicLongArray.class);
     assertEquals(3, target.length());
@@ -91,6 +100,7 @@ public class JavaUtilConcurrentAtomicTest extends TestCase {
     assertEquals("[10,13,14]", json);
   }
 
+  @Test
   public void testAtomicLongArrayWithStringSerializationPolicy() throws Exception {
     Gson gson = new GsonBuilder()
         .setLongSerializationPolicy(LongSerializationPolicy.STRING)

@@ -16,9 +16,11 @@
 
 package com.google.gson.functional;
 
-import com.google.gson.Gson;
+import static org.junit.Assert.assertEquals;
 
-import junit.framework.TestCase;
+import com.google.gson.Gson;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Functional tests involving interfaces.
@@ -26,23 +28,25 @@ import junit.framework.TestCase;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class InterfaceTest extends TestCase {
+public class InterfaceTest {
+
   private static final String OBJ_JSON = "{\"someStringValue\":\"StringValue\"}";
 
   private Gson gson;
   private TestObject obj;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void setUp() throws Exception {
     gson = new Gson();
     obj = new TestObject("StringValue");
   }
 
+  @Test
   public void testSerializingObjectImplementingInterface() throws Exception {
     assertEquals(OBJ_JSON, gson.toJson(obj));
   }
-  
+
+  @Test
   public void testSerializingInterfaceObjectField() throws Exception {
     TestObjectWrapper objWrapper = new TestObjectWrapper(obj);
     assertEquals("{\"obj\":" + OBJ_JSON + "}", gson.toJson(objWrapper));
@@ -51,8 +55,9 @@ public class InterfaceTest extends TestCase {
   private static interface TestObjectInterface {
     // Holder
   }
-  
+
   private static class TestObject implements TestObjectInterface {
+
     @SuppressWarnings("unused")
     private String someStringValue;
     

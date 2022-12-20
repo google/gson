@@ -11,14 +11,17 @@ import java.io.StringReader;
 import org.junit.Test;
 
 public class TypeAdapterTest {
+
   @Test
   public void testNullSafe() throws IOException {
     TypeAdapter<String> adapter = new TypeAdapter<String>() {
-      @Override public void write(JsonWriter out, String value) {
+      @Override
+      public void write(JsonWriter out, String value) {
         throw new AssertionError("unexpected call");
       }
 
-      @Override public String read(JsonReader in) {
+      @Override
+      public String read(JsonReader in) {
         throw new AssertionError("unexpected call");
       }
     }.nullSafe();
@@ -35,11 +38,13 @@ public class TypeAdapterTest {
   public void testToJson_ThrowingIOException() {
     final IOException exception = new IOException("test");
     TypeAdapter<Integer> adapter = new TypeAdapter<Integer>() {
-      @Override public void write(JsonWriter out, Integer value) throws IOException {
+      @Override
+      public void write(JsonWriter out, Integer value) throws IOException {
         throw exception;
       }
 
-      @Override public Integer read(JsonReader in) throws IOException {
+      @Override
+      public Integer read(JsonReader in) throws IOException {
         throw new AssertionError("not needed by this test");
       }
     };

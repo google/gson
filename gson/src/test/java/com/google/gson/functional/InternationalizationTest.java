@@ -16,23 +16,27 @@
 
 package com.google.gson.functional;
 
+import static org.junit.Assert.assertEquals;
+
 import com.google.gson.Gson;
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Functional tests for internationalized strings.
  *
  * @author Inderjeet Singh
  */
-public class InternationalizationTest extends TestCase {
+public class InternationalizationTest {
+
   private Gson gson;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void setUp() throws Exception {
     gson = new Gson();
   }
 
+  @Test
   public void testStringsWithUnicodeChineseCharactersSerialization() throws Exception {
     String target = "\u597d\u597d\u597d";
     String json = gson.toJson(target);
@@ -40,6 +44,7 @@ public class InternationalizationTest extends TestCase {
     assertEquals(expected, json);
   }
 
+  @Test
   public void testStringsWithUnicodeChineseCharactersDeserialization() throws Exception {
     String expected = "\u597d\u597d\u597d";
     String json = '"' + expected + '"';
@@ -47,28 +52,32 @@ public class InternationalizationTest extends TestCase {
     assertEquals(expected, actual);
   }
 
+  @Test
   public void testStringsWithUnicodeChineseCharactersEscapedDeserialization() throws Exception {
     String actual = gson.fromJson("'\\u597d\\u597d\\u597d'", String.class);
     assertEquals("\u597d\u597d\u597d", actual);
   }
 
+  @Test
   public void testSupplementaryUnicodeSerialization() throws Exception {
     // Supplementary code point U+1F60A
-    String supplementaryCodePoint = new String(new int[] {0x1F60A}, 0, 1);
+    String supplementaryCodePoint = new String(new int[]{0x1F60A}, 0, 1);
     String json = gson.toJson(supplementaryCodePoint);
     assertEquals('"' + supplementaryCodePoint + '"', json);
   }
 
+  @Test
   public void testSupplementaryUnicodeDeserialization() throws Exception {
     // Supplementary code point U+1F60A
-    String supplementaryCodePoint = new String(new int[] {0x1F60A}, 0, 1);
+    String supplementaryCodePoint = new String(new int[]{0x1F60A}, 0, 1);
     String actual = gson.fromJson('"' + supplementaryCodePoint + '"', String.class);
     assertEquals(supplementaryCodePoint, actual);
   }
 
+  @Test
   public void testSupplementaryUnicodeEscapedDeserialization() throws Exception {
     // Supplementary code point U+1F60A
-    String supplementaryCodePoint = new String(new int[] {0x1F60A}, 0, 1);
+    String supplementaryCodePoint = new String(new int[]{0x1F60A}, 0, 1);
     String actual = gson.fromJson("\"\\uD83D\\uDE0A\"", String.class);
     assertEquals(supplementaryCodePoint, actual);
   }

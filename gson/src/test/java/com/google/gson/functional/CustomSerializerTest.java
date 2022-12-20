@@ -16,6 +16,9 @@
 
 package com.google.gson.functional;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -29,74 +32,78 @@ import com.google.gson.common.TestTypes.ClassWithBaseArrayField;
 import com.google.gson.common.TestTypes.ClassWithBaseField;
 import com.google.gson.common.TestTypes.Sub;
 import com.google.gson.common.TestTypes.SubSerializer;
-
-import junit.framework.TestCase;
-
 import java.lang.reflect.Type;
+import org.junit.Test;
 
 /**
- * Functional Test exercising custom serialization only.  When test applies to both
- * serialization and deserialization then add it to CustomTypeAdapterTest.
+ * Functional Test exercising custom serialization only.  When test applies to both serialization
+ * and deserialization then add it to CustomTypeAdapterTest.
  *
  * @author Inderjeet Singh
  */
-public class CustomSerializerTest extends TestCase {
+public class CustomSerializerTest {
 
-   public void testBaseClassSerializerInvokedForBaseClassFields() {
-     Gson gson = new GsonBuilder()
-         .registerTypeAdapter(Base.class, new BaseSerializer())
-         .registerTypeAdapter(Sub.class, new SubSerializer())
-         .create();
-     ClassWithBaseField target = new ClassWithBaseField(new Base());
-     JsonObject json = (JsonObject) gson.toJsonTree(target);
-     JsonObject base = json.get("base").getAsJsonObject();
-     assertEquals(BaseSerializer.NAME, base.get(Base.SERIALIZER_KEY).getAsString());
-   }
+  @Test
+  public void testBaseClassSerializerInvokedForBaseClassFields() {
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapter(Base.class, new BaseSerializer())
+        .registerTypeAdapter(Sub.class, new SubSerializer())
+        .create();
+    ClassWithBaseField target = new ClassWithBaseField(new Base());
+    JsonObject json = (JsonObject) gson.toJsonTree(target);
+    JsonObject base = json.get("base").getAsJsonObject();
+    assertEquals(BaseSerializer.NAME, base.get(Base.SERIALIZER_KEY).getAsString());
+  }
 
-   public void testSubClassSerializerInvokedForBaseClassFieldsHoldingSubClassInstances() {
-     Gson gson = new GsonBuilder()
-         .registerTypeAdapter(Base.class, new BaseSerializer())
-         .registerTypeAdapter(Sub.class, new SubSerializer())
-         .create();
-     ClassWithBaseField target = new ClassWithBaseField(new Sub());
-     JsonObject json = (JsonObject) gson.toJsonTree(target);
-     JsonObject base = json.get("base").getAsJsonObject();
-     assertEquals(SubSerializer.NAME, base.get(Base.SERIALIZER_KEY).getAsString());
-   }
+  @Test
+  public void testSubClassSerializerInvokedForBaseClassFieldsHoldingSubClassInstances() {
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapter(Base.class, new BaseSerializer())
+        .registerTypeAdapter(Sub.class, new SubSerializer())
+        .create();
+    ClassWithBaseField target = new ClassWithBaseField(new Sub());
+    JsonObject json = (JsonObject) gson.toJsonTree(target);
+    JsonObject base = json.get("base").getAsJsonObject();
+    assertEquals(SubSerializer.NAME, base.get(Base.SERIALIZER_KEY).getAsString());
+  }
 
-   public void testSubClassSerializerInvokedForBaseClassFieldsHoldingArrayOfSubClassInstances() {
-     Gson gson = new GsonBuilder()
-         .registerTypeAdapter(Base.class, new BaseSerializer())
-         .registerTypeAdapter(Sub.class, new SubSerializer())
-         .create();
-     ClassWithBaseArrayField target = new ClassWithBaseArrayField(new Base[] {new Sub(), new Sub()});
-     JsonObject json = (JsonObject) gson.toJsonTree(target);
-     JsonArray array = json.get("base").getAsJsonArray();
-     for (JsonElement element : array) {
-       JsonElement serializerKey = element.getAsJsonObject().get(Base.SERIALIZER_KEY);
+  @Test
+  public void testSubClassSerializerInvokedForBaseClassFieldsHoldingArrayOfSubClassInstances() {
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapter(Base.class, new BaseSerializer())
+        .registerTypeAdapter(Sub.class, new SubSerializer())
+        .create();
+    ClassWithBaseArrayField target = new ClassWithBaseArrayField(new Base[]{new Sub(), new Sub()});
+    JsonObject json = (JsonObject) gson.toJsonTree(target);
+    JsonArray array = json.get("base").getAsJsonArray();
+    for (JsonElement element : array) {
+      JsonElement serializerKey = element.getAsJsonObject().get(Base.SERIALIZER_KEY);
       assertEquals(SubSerializer.NAME, serializerKey.getAsString());
-     }
-   }
+    }
+  }
 
-   public void testBaseClassSerializerInvokedForBaseClassFieldsHoldingSubClassInstances() {
-     Gson gson = new GsonBuilder()
-         .registerTypeAdapter(Base.class, new BaseSerializer())
-         .create();
-     ClassWithBaseField target = new ClassWithBaseField(new Sub());
-     JsonObject json = (JsonObject) gson.toJsonTree(target);
-     JsonObject base = json.get("base").getAsJsonObject();
-     assertEquals(BaseSerializer.NAME, base.get(Base.SERIALIZER_KEY).getAsString());
-   }
+  @Test
+  public void testBaseClassSerializerInvokedForBaseClassFieldsHoldingSubClassInstances() {
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapter(Base.class, new BaseSerializer())
+        .create();
+    ClassWithBaseField target = new ClassWithBaseField(new Sub());
+    JsonObject json = (JsonObject) gson.toJsonTree(target);
+    JsonObject base = json.get("base").getAsJsonObject();
+    assertEquals(BaseSerializer.NAME, base.get(Base.SERIALIZER_KEY).getAsString());
+  }
 
-   public void testSerializerReturnsNull() {
-     Gson gson = new GsonBuilder()
-       .registerTypeAdapter(Base.class, new JsonSerializer<Base>() {
-         @Override public JsonElement serialize(Base src, Type typeOfSrc, JsonSerializationContext context) {
-           return null;
-         }
-       })
-       .create();
-       JsonElement json = gson.toJsonTree(new Base());
-       assertTrue(json.isJsonNull());
-   }
+  @Test
+  public void testSerializerReturnsNull() {
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapter(Base.class, new JsonSerializer<Base>() {
+          @Override
+          public JsonElement serialize(Base src, Type typeOfSrc, JsonSerializationContext context) {
+            return null;
+          }
+        })
+        .create();
+    JsonElement json = gson.toJsonTree(new Base());
+    assertTrue(json.isJsonNull());
+  }
 }

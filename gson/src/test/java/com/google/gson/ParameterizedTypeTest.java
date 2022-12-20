@@ -16,14 +16,17 @@
 
 package com.google.gson;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.reflect.TypeToken;
-
-import junit.framework.TestCase;
-
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Unit tests for {@code ParameterizedType}s created by the {@link $Gson$Types} class.
@@ -31,17 +34,19 @@ import java.util.List;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class ParameterizedTypeTest extends TestCase {
+public class ParameterizedTypeTest {
+
   private ParameterizedType ourType;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void setUp() throws Exception {
     ourType = $Gson$Types.newParameterizedTypeWithOwner(null, List.class, String.class);
   }
 
+  @Test
   public void testOurTypeFunctionality() throws Exception {
-    Type parameterizedType = new TypeToken<List<String>>() {}.getType();
+    Type parameterizedType = new TypeToken<List<String>>() {
+    }.getType();
     assertNull(ourType.getOwnerType());
     assertEquals(String.class, ourType.getActualTypeArguments()[0]);
     assertEquals(List.class, ourType.getRawType());
@@ -49,8 +54,10 @@ public class ParameterizedTypeTest extends TestCase {
     assertEquals(parameterizedType.hashCode(), ourType.hashCode());
   }
 
+  @Test
   public void testNotEquals() throws Exception {
-    Type differentParameterizedType = new TypeToken<List<Integer>>() {}.getType();
+    Type differentParameterizedType = new TypeToken<List<Integer>>() {
+    }.getType();
     assertFalse(differentParameterizedType.equals(ourType));
     assertFalse(ourType.equals(differentParameterizedType));
   }

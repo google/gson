@@ -16,7 +16,11 @@
 
 package com.google.gson;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
 
 /**
  * Unit test for the {@link LongSerializationPolicy} class.
@@ -24,8 +28,9 @@ import junit.framework.TestCase;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class LongSerializationPolicyTest extends TestCase {
+public class LongSerializationPolicyTest {
 
+  @Test
   public void testDefaultLongSerialization() throws Exception {
     JsonElement element = LongSerializationPolicy.DEFAULT.serialize(1556L);
     assertTrue(element.isJsonPrimitive());
@@ -36,24 +41,27 @@ public class LongSerializationPolicyTest extends TestCase {
     assertEquals(1556L, element.getAsLong());
   }
 
+  @Test
   public void testDefaultLongSerializationIntegration() {
     Gson gson = new GsonBuilder()
-      .setLongSerializationPolicy(LongSerializationPolicy.DEFAULT)
-      .create();
-    assertEquals("[1]", gson.toJson(new long[] { 1L }, long[].class));
-    assertEquals("[1]", gson.toJson(new Long[] { 1L }, Long[].class));
+        .setLongSerializationPolicy(LongSerializationPolicy.DEFAULT)
+        .create();
+    assertEquals("[1]", gson.toJson(new long[]{1L}, long[].class));
+    assertEquals("[1]", gson.toJson(new Long[]{1L}, Long[].class));
   }
 
+  @Test
   public void testDefaultLongSerializationNull() {
     LongSerializationPolicy policy = LongSerializationPolicy.DEFAULT;
     assertTrue(policy.serialize(null).isJsonNull());
 
     Gson gson = new GsonBuilder()
-      .setLongSerializationPolicy(policy)
-      .create();
+        .setLongSerializationPolicy(policy)
+        .create();
     assertEquals("null", gson.toJson(null, Long.class));
   }
 
+  @Test
   public void testStringLongSerialization() throws Exception {
     JsonElement element = LongSerializationPolicy.STRING.serialize(1556L);
     assertTrue(element.isJsonPrimitive());
@@ -64,21 +72,23 @@ public class LongSerializationPolicyTest extends TestCase {
     assertEquals("1556", element.getAsString());
   }
 
+  @Test
   public void testStringLongSerializationIntegration() {
     Gson gson = new GsonBuilder()
-      .setLongSerializationPolicy(LongSerializationPolicy.STRING)
-      .create();
-    assertEquals("[\"1\"]", gson.toJson(new long[] { 1L }, long[].class));
-    assertEquals("[\"1\"]", gson.toJson(new Long[] { 1L }, Long[].class));
+        .setLongSerializationPolicy(LongSerializationPolicy.STRING)
+        .create();
+    assertEquals("[\"1\"]", gson.toJson(new long[]{1L}, long[].class));
+    assertEquals("[\"1\"]", gson.toJson(new Long[]{1L}, Long[].class));
   }
 
+  @Test
   public void testStringLongSerializationNull() {
     LongSerializationPolicy policy = LongSerializationPolicy.STRING;
     assertTrue(policy.serialize(null).isJsonNull());
 
     Gson gson = new GsonBuilder()
-      .setLongSerializationPolicy(policy)
-      .create();
+        .setLongSerializationPolicy(policy)
+        .create();
     assertEquals("null", gson.toJson(null, Long.class));
   }
 }

@@ -16,12 +16,9 @@
 
 package com.google.gson.functional;
 
-import java.lang.reflect.Type;
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.ToNumberPolicy;
@@ -29,9 +26,17 @@ import com.google.gson.ToNumberStrategy;
 import com.google.gson.internal.LazilyParsedNumber;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
-import junit.framework.TestCase;
+import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import org.junit.Test;
 
-public class ToNumberPolicyFunctionalTest extends TestCase {
+public class ToNumberPolicyFunctionalTest {
+
+  @Test
   public void testDefault() {
     Gson gson = new Gson();
     assertEquals(null, gson.fromJson("null", Object.class));
@@ -40,6 +45,7 @@ public class ToNumberPolicyFunctionalTest extends TestCase {
     assertEquals(new LazilyParsedNumber("10"), gson.fromJson("10", Number.class));
   }
 
+  @Test
   public void testAsDoubles() {
     Gson gson = new GsonBuilder()
         .setObjectToNumberStrategy(ToNumberPolicy.DOUBLE)
@@ -51,6 +57,7 @@ public class ToNumberPolicyFunctionalTest extends TestCase {
     assertEquals(10.0, gson.fromJson("10", Number.class));
   }
 
+  @Test
   public void testAsLazilyParsedNumbers() {
     Gson gson = new GsonBuilder()
         .setObjectToNumberStrategy(ToNumberPolicy.LAZILY_PARSED_NUMBER)
@@ -62,6 +69,7 @@ public class ToNumberPolicyFunctionalTest extends TestCase {
     assertEquals(new LazilyParsedNumber("10"), gson.fromJson("10", Number.class));
   }
 
+  @Test
   public void testAsLongsOrDoubles() {
     Gson gson = new GsonBuilder()
         .setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
@@ -75,6 +83,7 @@ public class ToNumberPolicyFunctionalTest extends TestCase {
     assertEquals(10.0, gson.fromJson("10.0", Number.class));
   }
 
+  @Test
   public void testAsBigDecimals() {
     Gson gson = new GsonBuilder()
         .setObjectToNumberStrategy(ToNumberPolicy.BIG_DECIMAL)
@@ -86,10 +95,12 @@ public class ToNumberPolicyFunctionalTest extends TestCase {
     assertEquals(null, gson.fromJson("null", Number.class));
     assertEquals(new BigDecimal("10"), gson.fromJson("10", Number.class));
     assertEquals(new BigDecimal("10.0"), gson.fromJson("10.0", Number.class));
-    assertEquals(new BigDecimal("3.141592653589793238462643383279"), gson.fromJson("3.141592653589793238462643383279", BigDecimal.class));
+    assertEquals(new BigDecimal("3.141592653589793238462643383279"),
+        gson.fromJson("3.141592653589793238462643383279", BigDecimal.class));
     assertEquals(new BigDecimal("1e400"), gson.fromJson("1e400", BigDecimal.class));
   }
 
+  @Test
   public void testAsListOfLongsOrDoubles() {
     Gson gson = new GsonBuilder()
         .setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
@@ -99,14 +110,17 @@ public class ToNumberPolicyFunctionalTest extends TestCase {
     expected.add(null);
     expected.add(10L);
     expected.add(10.0);
-    Type objectCollectionType = new TypeToken<Collection<Object>>() { }.getType();
+    Type objectCollectionType = new TypeToken<Collection<Object>>() {
+    }.getType();
     Collection<Object> objects = gson.fromJson("[null,10,10.0]", objectCollectionType);
     assertEquals(expected, objects);
-    Type numberCollectionType = new TypeToken<Collection<Number>>() { }.getType();
+    Type numberCollectionType = new TypeToken<Collection<Number>>() {
+    }.getType();
     Collection<Object> numbers = gson.fromJson("[null,10,10.0]", numberCollectionType);
     assertEquals(expected, numbers);
   }
 
+  @Test
   public void testCustomStrategiesCannotAffectConcreteDeclaredNumbers() {
     ToNumberStrategy fail = new ToNumberStrategy() {
       @Override

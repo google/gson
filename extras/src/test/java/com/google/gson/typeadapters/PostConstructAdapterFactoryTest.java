@@ -16,41 +16,47 @@
 
 package com.google.gson.typeadapters;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.util.Arrays;
 import java.util.List;
 import javax.annotation.PostConstruct;
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class PostConstructAdapterFactoryTest extends TestCase {
-    public void test() throws Exception {
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapterFactory(new PostConstructAdapterFactory())
-                .create();
-        gson.fromJson("{\"bread\": \"white\", \"cheese\": \"cheddar\"}", Sandwich.class);
-        try {
-            gson.fromJson("{\"bread\": \"cheesey bread\", \"cheese\": \"swiss\"}", Sandwich.class);
-            fail();
-        } catch (IllegalArgumentException expected) {
-            assertEquals("too cheesey", expected.getMessage());
+public class PostConstructAdapterFactoryTest {
+
+  @Test
+  public void test() throws Exception {
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapterFactory(new PostConstructAdapterFactory())
+        .create();
+    gson.fromJson("{\"bread\": \"white\", \"cheese\": \"cheddar\"}", Sandwich.class);
+    try {
+      gson.fromJson("{\"bread\": \"cheesey bread\", \"cheese\": \"swiss\"}", Sandwich.class);
+      fail();
+    } catch (IllegalArgumentException expected) {
+      assertEquals("too cheesey", expected.getMessage());
         }
     }
 
-    public void testList() {
-        MultipleSandwiches sandwiches = new MultipleSandwiches(Arrays.asList(
-            new Sandwich("white", "cheddar"),
-            new Sandwich("whole wheat", "swiss")));
+  @Test
+  public void testList() {
+    MultipleSandwiches sandwiches = new MultipleSandwiches(Arrays.asList(
+        new Sandwich("white", "cheddar"),
+        new Sandwich("whole wheat", "swiss")));
 
-        Gson gson = new GsonBuilder().registerTypeAdapterFactory(new PostConstructAdapterFactory()).create();
+    Gson gson = new GsonBuilder().registerTypeAdapterFactory(new PostConstructAdapterFactory()).create();
 
-        // Throws NullPointerException without the fix in https://github.com/google/gson/pull/1103
-        String json = gson.toJson(sandwiches);
-        assertEquals("{\"sandwiches\":[{\"bread\":\"white\",\"cheese\":\"cheddar\"},{\"bread\":\"whole wheat\",\"cheese\":\"swiss\"}]}", json);
+    // Throws NullPointerException without the fix in https://github.com/google/gson/pull/1103
+    String json = gson.toJson(sandwiches);
+    assertEquals("{\"sandwiches\":[{\"bread\":\"white\",\"cheese\":\"cheddar\"},{\"bread\":\"whole wheat\",\"cheese\":\"swiss\"}]}", json);
 
-        MultipleSandwiches sandwichesFromJson = gson.fromJson(json, MultipleSandwiches.class);
-        assertEquals(sandwiches, sandwichesFromJson);
-    }
+    MultipleSandwiches sandwichesFromJson = gson.fromJson(json, MultipleSandwiches.class);
+    assertEquals(sandwiches, sandwichesFromJson);
+  }
 
     @SuppressWarnings("overrides") // for missing hashCode() override
     static class Sandwich {

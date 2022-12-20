@@ -16,14 +16,18 @@
 
 package com.google.gson.internal;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
+import org.junit.Test;
 
-import junit.framework.TestCase;
+public final class GsonTypesTest {
 
-public final class GsonTypesTest extends TestCase {
-
+  @Test
   public void testNewParameterizedTypeWithoutOwner() throws Exception {
     // List<A>. List is a top-level class
     Type type = $Gson$Types.newParameterizedTypeWithOwner(null, List.class, A.class);
@@ -34,18 +38,21 @@ public final class GsonTypesTest extends TestCase {
     assertEquals(B.class, getFirstTypeArgument(type));
 
     final class D {
+
     }
     try {
       // D<A> is not allowed since D is not a static inner class
       $Gson$Types.newParameterizedTypeWithOwner(null, D.class, A.class);
       fail();
-    } catch (IllegalArgumentException expected) {}
+    } catch (IllegalArgumentException expected) {
+    }
 
     // A<D> is allowed.
     type = $Gson$Types.newParameterizedTypeWithOwner(null, A.class, D.class);
     assertEquals(D.class, getFirstTypeArgument(type));
   }
 
+  @Test
   public void testGetFirstTypeArgument() throws Exception {
     assertNull(getFirstTypeArgument(A.class));
 
@@ -54,8 +61,11 @@ public final class GsonTypesTest extends TestCase {
   }
 
   private static final class A {
+
   }
+
   private static final class B {
+
   }
   private static final class C {
   }

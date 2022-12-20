@@ -15,11 +15,7 @@
  */
 package com.google.gson.functional;
 
-import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -33,11 +29,15 @@ import com.google.gson.internal.Streams;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import org.junit.Test;
 
 /**
  * Functional tests for the RuntimeTypeAdapterFactory feature in extras.
  */
-public final class RuntimeTypeAdapterFactoryFunctionalTest extends TestCase {
+public final class RuntimeTypeAdapterFactoryFunctionalTest {
 
   private final Gson gson = new Gson();
 
@@ -45,16 +45,17 @@ public final class RuntimeTypeAdapterFactoryFunctionalTest extends TestCase {
    * This test also ensures that {@link TypeAdapterFactory} registered through {@link JsonAdapter}
    * work correctly for {@link Gson#getDelegateAdapter(TypeAdapterFactory, TypeToken)}.
    */
+  @Test
   public void testSubclassesAutomaticallySerialized() throws Exception {
     Shape shape = new Circle(25);
     String json = gson.toJson(shape);
     shape = gson.fromJson(json, Shape.class);
-    assertEquals(25, ((Circle)shape).radius);
+    assertEquals(25, ((Circle) shape).radius);
 
     shape = new Square(15);
     json = gson.toJson(shape);
     shape = gson.fromJson(json, Shape.class);
-    assertEquals(15, ((Square)shape).side);
+    assertEquals(15, ((Square) shape).side);
     assertEquals(ShapeType.SQUARE, shape.type);
   }
 

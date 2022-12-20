@@ -35,11 +35,15 @@ import org.junit.Test;
  * @author Inderjeet Singh
  */
 public class GsonBuilderTest {
+
   private static final TypeAdapter<Object> NULL_TYPE_ADAPTER = new TypeAdapter<Object>() {
-    @Override public void write(JsonWriter out, Object value) {
+    @Override
+    public void write(JsonWriter out, Object value) {
       throw new AssertionError();
     }
-    @Override public Object read(JsonReader in) {
+
+    @Override
+    public Object read(JsonReader in) {
       throw new AssertionError();
     }
   };
@@ -52,7 +56,8 @@ public class GsonBuilderTest {
     assertNotNull(builder.create());
 
     builder.setFieldNamingStrategy(new FieldNamingStrategy() {
-      @Override public String translateName(Field f) {
+      @Override
+      public String translateName(Field f) {
         return "test";
       }
     });
@@ -64,8 +69,8 @@ public class GsonBuilderTest {
   }
 
   /**
-   * Gson instances should not be affected by subsequent modification of GsonBuilder
-   * which created them.
+   * Gson instances should not be affected by subsequent modification of GsonBuilder which created
+   * them.
    */
   @Test
   public void testModificationAfterCreate() {
@@ -74,11 +79,13 @@ public class GsonBuilderTest {
 
     // Modifications of `gsonBuilder` should not affect `gson` object
     gsonBuilder.registerTypeAdapter(CustomClass1.class, new TypeAdapter<CustomClass1>() {
-      @Override public CustomClass1 read(JsonReader in) throws IOException {
+      @Override
+      public CustomClass1 read(JsonReader in) throws IOException {
         throw new UnsupportedOperationException();
       }
 
-      @Override public void write(JsonWriter out, CustomClass1 value) throws IOException {
+      @Override
+      public void write(JsonWriter out, CustomClass1 value) throws IOException {
         out.value("custom-adapter");
       }
     });
@@ -151,12 +158,22 @@ public class GsonBuilderTest {
     assertEquals("{\"d\":\"d\"}", gson.toJson(new HasModifiers()));
   }
 
-  @SuppressWarnings("unused")
-  static class HasModifiers {
-    private String a = "a";
-    volatile String b = "b";
-    private volatile String c = "c";
-    String d = "d";
+  @Test
+  public void testDisableJdkUnsafe() {
+    Gson gson = new GsonBuilder()
+        .disableJdkUnsafe()
+        .create();
+    try {
+      gson.fromJson("{}", ClassWithoutNoArgsConstructor.class);
+      fail("Expected exception");
+    } catch (JsonIOException expected) {
+      assertEquals(
+          "Unable to create instance of class com.google.gson.GsonBuilderTest$ClassWithoutNoArgsConstructor; "
+              + "usage of JDK Unsafe is disabled. Registering an InstanceCreator or a TypeAdapter for this type, "
+        + "adding a no-args constructor, or enabling usage of JDK Unsafe may fix this problem.",
+        expected.getMessage()
+      );
+    }
   }
 
   @Test
@@ -167,8 +184,13 @@ public class GsonBuilderTest {
     assertEquals("{\"a\":\"a\"}", gson.toJson(new HasTransients()));
   }
 
-  static class HasTransients {
-    transient String a = "a";
+  @SuppressWarnings("unused")
+  static class HasModifiers {
+
+    private String a = "a";
+    volatile String b = "b";
+    private volatile String c = "c";
+    String d = "d";
   }
 
   @Test
@@ -186,25 +208,13 @@ public class GsonBuilderTest {
     }
   }
 
-  @Test
-  public void testDisableJdkUnsafe() {
-    Gson gson = new GsonBuilder()
-        .disableJdkUnsafe()
-        .create();
-    try {
-      gson.fromJson("{}", ClassWithoutNoArgsConstructor.class);
-      fail("Expected exception");
-    } catch (JsonIOException expected) {
-      assertEquals(
-        "Unable to create instance of class com.google.gson.GsonBuilderTest$ClassWithoutNoArgsConstructor; "
-        + "usage of JDK Unsafe is disabled. Registering an InstanceCreator or a TypeAdapter for this type, "
-        + "adding a no-args constructor, or enabling usage of JDK Unsafe may fix this problem.",
-        expected.getMessage()
-      );
-    }
+  static class HasTransients {
+
+    transient String a = "a";
   }
 
   private static class ClassWithoutNoArgsConstructor {
+
     @SuppressWarnings("unused")
     public ClassWithoutNoArgsConstructor(String s) {
     }

@@ -52,7 +52,8 @@ public final class GsonTest {
       .disableInnerClassSerialization();
 
   private static final FieldNamingStrategy CUSTOM_FIELD_NAMING_STRATEGY = new FieldNamingStrategy() {
-    @Override public String translateName(Field f) {
+    @Override
+    public String translateName(Field f) {
       return "foo";
     }
   };
@@ -93,32 +94,17 @@ public final class GsonTest {
     assertEquals(original.factories.size() + 1, clone.factories.size());
   }
 
-  private static final class TestTypeAdapter extends TypeAdapter<Object> {
-    @Override public void write(JsonWriter out, Object value) throws IOException {
-      // Test stub.
-    }
-    @Override public Object read(JsonReader in) throws IOException { return null; }
-  }
-
-  @Test
-  public void testGetAdapter_Null() {
-    Gson gson = new Gson();
-    try {
-      gson.getAdapter((TypeToken<?>) null);
-      fail();
-    } catch (NullPointerException e) {
-      assertEquals("type must not be null", e.getMessage());
-    }
-  }
-
   @Test
   public void testGetAdapter_Concurrency() {
     class DummyAdapter<T> extends TypeAdapter<T> {
-      @Override public void write(JsonWriter out, T value) throws IOException {
+
+      @Override
+      public void write(JsonWriter out, T value) throws IOException {
         throw new AssertionError("not needed for this test");
       }
 
-      @Override public T read(JsonReader in) throws IOException {
+      @Override
+      public T read(JsonReader in) throws IOException {
         throw new AssertionError("not needed for this test");
       }
     }
@@ -164,13 +150,25 @@ public final class GsonTest {
     assertTrue(threadAdapter.get() instanceof DummyAdapter);
   }
 
+  @Test
+  public void testGetAdapter_Null() {
+    Gson gson = new Gson();
+    try {
+      gson.getAdapter((TypeToken<?>) null);
+      fail();
+    } catch (NullPointerException e) {
+      assertEquals("type must not be null", e.getMessage());
+    }
+  }
+
   /**
-   * Verifies that two threads calling {@link Gson#getAdapter(TypeToken)} do not see the
-   * same unresolved {@link FutureTypeAdapter} instance, since that would not be thread-safe.
-   *
-   * This test constructs the cyclic dependency {@literal CustomClass1 -> CustomClass2 -> CustomClass1}
-   * and lets one thread wait after the adapter for CustomClass2 has been obtained (which still
-   * refers to the nested unresolved FutureTypeAdapter for CustomClass1).
+   * Verifies that two threads calling {@link Gson#getAdapter(TypeToken)} do not see the same
+   * unresolved {@link FutureTypeAdapter} instance, since that would not be thread-safe.
+   * <p>
+   * This test constructs the cyclic dependency
+   * {@literal CustomClass1 -> CustomClass2 -> CustomClass1} and lets one thread wait after the
+   * adapter for CustomClass2 has been obtained (which still refers to the nested unresolved
+   * FutureTypeAdapter for CustomClass1).
    */
   @Test
   public void testGetAdapter_FutureAdapterConcurrency() throws Exception {
@@ -179,6 +177,7 @@ public final class GsonTest {
      * {@code ReflectiveTypeAdapterFactory$Adapter}.
      */
     class WrappingAdapter<T> extends TypeAdapter<T> {
+
       final TypeAdapter<?> wrapped;
       boolean isFirstCall = true;
 
@@ -271,6 +270,31 @@ public final class GsonTest {
   }
 
   @Test
+  public void testNewJsonWriter_Custom() throws IOException {
+    StringWriter writer = new StringWriter();
+    JsonWriter jsonWriter = new GsonBuilder()
+        .disableHtmlEscaping()
+        .generateNonExecutableJson()
+        .setPrettyPrinting()
+        .serializeNulls()
+        .setLenient()
+        .create()
+        .newJsonWriter(writer);
+    jsonWriter.beginObject();
+    jsonWriter.name("test");
+    jsonWriter.nullValue();
+    jsonWriter.name("<test2");
+    jsonWriter.value(true);
+    jsonWriter.endObject();
+
+    // Additional top-level value
+    jsonWriter.value(1);
+
+    jsonWriter.close();
+    assertEquals(")]}'\n{\n  \"test\": null,\n  \"<test2\": true\n}1", writer.toString());
+  }
+
+  @Test
   public void testNewJsonWriter_Default() throws IOException {
     StringWriter writer = new StringWriter();
     JsonWriter jsonWriter = new Gson().newJsonWriter(writer);
@@ -294,28 +318,14 @@ public final class GsonTest {
   }
 
   @Test
-  public void testNewJsonWriter_Custom() throws IOException {
-    StringWriter writer = new StringWriter();
-    JsonWriter jsonWriter = new GsonBuilder()
-      .disableHtmlEscaping()
-      .generateNonExecutableJson()
-      .setPrettyPrinting()
-      .serializeNulls()
-      .setLenient()
-      .create()
-      .newJsonWriter(writer);
-    jsonWriter.beginObject();
-    jsonWriter.name("test");
-    jsonWriter.nullValue();
-    jsonWriter.name("<test2");
-    jsonWriter.value(true);
-    jsonWriter.endObject();
-
-    // Additional top-level value
-    jsonWriter.value(1);
-
-    jsonWriter.close();
-    assertEquals(")]}'\n{\n  \"test\": null,\n  \"<test2\": true\n}1", writer.toString());
+  public void testNewJsonReader_Custom() throws IOException {
+    String json = "test"; // String without quotes
+    JsonReader jsonReader = new GsonBuilder()
+        .setLenient()
+        .create()
+        .newJsonReader(new StringReader(json));
+    assertEquals("test", jsonReader.nextString());
+    jsonReader.close();
   }
 
   @Test
@@ -330,20 +340,9 @@ public final class GsonTest {
     jsonReader.close();
   }
 
-  @Test
-  public void testNewJsonReader_Custom() throws IOException {
-    String json = "test"; // String without quotes
-    JsonReader jsonReader = new GsonBuilder()
-      .setLenient()
-      .create()
-      .newJsonReader(new StringReader(json));
-    assertEquals("test", jsonReader.nextString());
-    jsonReader.close();
-  }
-
   /**
-   * Modifying a GsonBuilder obtained from {@link Gson#newBuilder()} of a
-   * {@code new Gson()} should not affect the Gson instance it came from.
+   * Modifying a GsonBuilder obtained from {@link Gson#newBuilder()} of a {@code new Gson()} should
+   * not affect the Gson instance it came from.
    */
   @Test
   public void testDefaultGsonNewBuilderModification() {
@@ -352,11 +351,13 @@ public final class GsonTest {
 
     // Modifications of `gsonBuilder` should not affect `gson` object
     gsonBuilder.registerTypeAdapter(CustomClass1.class, new TypeAdapter<CustomClass1>() {
-      @Override public CustomClass1 read(JsonReader in) throws IOException {
+      @Override
+      public CustomClass1 read(JsonReader in) throws IOException {
         throw new UnsupportedOperationException();
       }
 
-      @Override public void write(JsonWriter out, CustomClass1 value) throws IOException {
+      @Override
+      public void write(JsonWriter out, CustomClass1 value) throws IOException {
         out.value("custom-adapter");
       }
     });
@@ -379,36 +380,23 @@ public final class GsonTest {
     assertCustomGson(gsonBuilder.create());
   }
 
-  private static void assertDefaultGson(Gson gson) {
-    // Should use default reflective adapter
-    String json1 = gson.toJson(new CustomClass1());
-    assertEquals("{}", json1);
-
-    // Should use default reflective adapter
-    String json2 = gson.toJson(new CustomClass2());
-    assertEquals("{}", json2);
-
-    // Should use default instance creator
-    CustomClass3 customClass3 = gson.fromJson("{}", CustomClass3.class);
-    assertEquals(CustomClass3.NO_ARG_CONSTRUCTOR_VALUE, customClass3.s);
-  }
-
   /**
-   * Modifying a GsonBuilder obtained from {@link Gson#newBuilder()} of a custom
-   * Gson instance (created using a GsonBuilder) should not affect the Gson instance
-   * it came from.
+   * Modifying a GsonBuilder obtained from {@link Gson#newBuilder()} of a custom Gson instance
+   * (created using a GsonBuilder) should not affect the Gson instance it came from.
    */
   @Test
   public void testNewBuilderModification() {
     Gson gson = new GsonBuilder()
-      .registerTypeAdapter(CustomClass1.class, new TypeAdapter<CustomClass1>() {
-        @Override public CustomClass1 read(JsonReader in) throws IOException {
-          throw new UnsupportedOperationException();
-        }
+        .registerTypeAdapter(CustomClass1.class, new TypeAdapter<CustomClass1>() {
+          @Override
+          public CustomClass1 read(JsonReader in) throws IOException {
+            throw new UnsupportedOperationException();
+          }
 
-        @Override public void write(JsonWriter out, CustomClass1 value) throws IOException {
-          out.value("custom-adapter");
-        }
+          @Override
+          public void write(JsonWriter out, CustomClass1 value) throws IOException {
+            out.value("custom-adapter");
+          }
       })
       .registerTypeHierarchyAdapter(CustomClass2.class, new JsonSerializer<CustomClass2>() {
         @Override public JsonElement serialize(CustomClass2 src, Type typeOfSrc, JsonSerializationContext context) {
@@ -461,6 +449,33 @@ public final class GsonTest {
 
     CustomClass3 customClass3 = otherGson.fromJson("{}", CustomClass3.class);
     assertEquals("overwritten custom-instance", customClass3.s);
+  }
+
+  private static void assertDefaultGson(Gson gson) {
+    // Should use default reflective adapter
+    String json1 = gson.toJson(new CustomClass1());
+    assertEquals("{}", json1);
+
+    // Should use default reflective adapter
+    String json2 = gson.toJson(new CustomClass2());
+    assertEquals("{}", json2);
+
+    // Should use default instance creator
+    CustomClass3 customClass3 = gson.fromJson("{}", CustomClass3.class);
+    assertEquals(CustomClass3.NO_ARG_CONSTRUCTOR_VALUE, customClass3.s);
+  }
+
+  private static final class TestTypeAdapter extends TypeAdapter<Object> {
+
+    @Override
+    public void write(JsonWriter out, Object value) throws IOException {
+      // Test stub.
+    }
+
+    @Override
+    public Object read(JsonReader in) throws IOException {
+      return null;
+    }
   }
 
   private static void assertCustomGson(Gson gson) {

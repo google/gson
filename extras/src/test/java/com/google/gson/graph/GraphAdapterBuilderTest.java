@@ -19,18 +19,17 @@ package com.google.gson.graph;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import org.junit.Test;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
-
 public final class GraphAdapterBuilderTest {
+
   @Test
   public void testSerialization() {
     Roshambo rock = new Roshambo("ROCK");
@@ -47,8 +46,8 @@ public final class GraphAdapterBuilderTest {
     Gson gson = gsonBuilder.create();
 
     assertEquals("{'0x1':{'name':'ROCK','beats':'0x2'}," +
-        "'0x2':{'name':'SCISSORS','beats':'0x3'}," +
-        "'0x3':{'name':'PAPER','beats':'0x1'}}",
+            "'0x2':{'name':'SCISSORS','beats':'0x3'}," +
+            "'0x3':{'name':'PAPER','beats':'0x1'}}",
         gson.toJson(rock).replace('"', '\''));
   }
 
@@ -90,8 +89,10 @@ public final class GraphAdapterBuilderTest {
 
   @Test
   public void testSerializeListOfLists() {
-    Type listOfListsType = new TypeToken<List<List<?>>>() {}.getType();
-    Type listOfAnyType = new TypeToken<List<?>>() {}.getType();
+    Type listOfListsType = new TypeToken<List<List<?>>>() {
+    }.getType();
+    Type listOfAnyType = new TypeToken<List<?>>() {
+    }.getType();
 
     List<List<?>> listOfLists = new ArrayList<>();
     listOfLists.add(listOfLists);
@@ -110,8 +111,10 @@ public final class GraphAdapterBuilderTest {
 
   @Test
   public void testDeserializeListOfLists() {
-    Type listOfAnyType = new TypeToken<List<?>>() {}.getType();
-    Type listOfListsType = new TypeToken<List<List<?>>>() {}.getType();
+    Type listOfAnyType = new TypeToken<List<?>>() {
+    }.getType();
+    Type listOfListsType = new TypeToken<List<List<?>>>() {
+    }.getType();
 
     GsonBuilder gsonBuilder = new GsonBuilder();
     new GraphAdapterBuilder()
@@ -140,8 +143,8 @@ public final class GraphAdapterBuilderTest {
     Gson gson = gsonBuilder.create();
 
     assertEquals("{'0x1':{'name':'Google','employees':['0x2','0x3']},"
-        + "'0x2':{'name':'Jesse','company':'0x1'},"
-        + "'0x3':{'name':'Joel','company':'0x1'}}",
+            + "'0x2':{'name':'Jesse','company':'0x1'},"
+            + "'0x3':{'name':'Joel','company':'0x1'}}",
         gson.toJson(google).replace('"', '\''));
   }
 

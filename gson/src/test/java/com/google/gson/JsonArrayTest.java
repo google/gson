@@ -64,7 +64,8 @@ public final class JsonArrayTest {
     try {
       array.remove(0);
       fail();
-    } catch (IndexOutOfBoundsException expected) {}
+    } catch (IndexOutOfBoundsException expected) {
+    }
     JsonPrimitive a = new JsonPrimitive("a");
     array.add(a);
     assertTrue(array.remove(a));
@@ -82,7 +83,8 @@ public final class JsonArrayTest {
     try {
       array.set(0, new JsonPrimitive(1));
       fail();
-    } catch (IndexOutOfBoundsException expected) {}
+    } catch (IndexOutOfBoundsException expected) {
+    }
     JsonPrimitive a = new JsonPrimitive("a");
     array.add(a);
 
@@ -133,13 +135,15 @@ public final class JsonArrayTest {
   @Test
   public void testFailedGetArrayValues() {
     JsonArray jsonArray = new JsonArray();
-    jsonArray.add(JsonParser.parseString("{" + "\"key1\":\"value1\"," + "\"key2\":\"value2\"," + "\"key3\":\"value3\"," + "\"key4\":\"value4\"" + "}"));
+    jsonArray.add(JsonParser.parseString(
+        "{" + "\"key1\":\"value1\"," + "\"key2\":\"value2\"," + "\"key3\":\"value3\","
+            + "\"key4\":\"value4\"" + "}"));
     try {
       jsonArray.getAsBoolean();
       fail("expected getBoolean to fail");
     } catch (UnsupportedOperationException e) {
       assertEquals("Expected an exception message",
-              "JsonObject", e.getMessage());
+          "JsonObject", e.getMessage());
     }
     try {
       jsonArray.get(-1);
@@ -191,7 +195,7 @@ public final class JsonArrayTest {
       fail("expected getLong to fail");
     } catch (NumberFormatException e) {
       assertEquals("Expected an exception message",
-              "For input string: \"hello\"", e.getMessage());
+          "For input string: \"hello\"", e.getMessage());
     }
   }
 

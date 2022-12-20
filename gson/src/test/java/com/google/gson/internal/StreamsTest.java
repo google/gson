@@ -8,6 +8,7 @@ import java.io.Writer;
 import org.junit.Test;
 
 public class StreamsTest {
+
   @Test
   public void testWriterForAppendable() throws IOException {
     StringBuilder stringBuilder = new StringBuilder();

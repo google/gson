@@ -14,6 +14,7 @@ import java.util.Objects;
 import org.junit.Test;
 
 public class Java17ReflectionHelperTest {
+
   @Test
   public void testJava17Record() throws ClassNotFoundException {
     Class<?> unixDomainPrincipalClass = Class.forName("jdk.net.UnixDomainPrincipal");
@@ -21,14 +22,14 @@ public class Java17ReflectionHelperTest {
     assertTrue(ReflectionHelper.isRecord(unixDomainPrincipalClass));
     // with 2 components
     assertArrayEquals(
-        new String[] {"user", "group"},
+        new String[]{"user", "group"},
         ReflectionHelper.getRecordComponentNames(unixDomainPrincipalClass));
     // Check canonical constructor
     Constructor<?> constructor =
         ReflectionHelper.getCanonicalRecordConstructor(unixDomainPrincipalClass);
     assertNotNull(constructor);
     assertArrayEquals(
-        new Class<?>[] {UserPrincipal.class, GroupPrincipal.class},
+        new Class<?>[]{UserPrincipal.class, GroupPrincipal.class},
         constructor.getParameterTypes());
   }
 

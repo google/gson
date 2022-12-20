@@ -16,6 +16,9 @@
 
 package com.google.gson.functional;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
@@ -24,12 +27,15 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import junit.framework.TestCase;
+import org.junit.Ignore;
+import org.junit.Test;
 
-public class MapAsArrayTypeAdapterTest extends TestCase {
+public class MapAsArrayTypeAdapterTest {
 
+  @Test
   public void testSerializeComplexMapWithTypeAdapter() {
-    Type type = new TypeToken<Map<Point, String>>() {}.getType();
+    Type type = new TypeToken<Map<Point, String>>() {
+    }.getType();
     Gson gson = new GsonBuilder()
         .enableComplexMapKeySerialization()
         .create();
@@ -53,6 +59,7 @@ public class MapAsArrayTypeAdapterTest extends TestCase {
         new TypeToken<Map<String, Boolean>>() {}.getType()));
   }
 
+  @Ignore
   public void disabled_testTwoTypesCollapseToOneSerialize() {
     Gson gson = new GsonBuilder()
         .enableComplexMapKeySerialization()
@@ -62,12 +69,14 @@ public class MapAsArrayTypeAdapterTest extends TestCase {
     original.put(1.0D, "a");
     original.put(1.0F, "b");
     try {
-      gson.toJson(original, new TypeToken<Map<Number, String>>() {}.getType());
+      gson.toJson(original, new TypeToken<Map<Number, String>>() {
+      }.getType());
       fail(); // we no longer hash keys at serialization time
     } catch (JsonSyntaxException expected) {
     }
   }
 
+  @Test
   public void testTwoTypesCollapseToOneDeserialize() {
     Gson gson = new GsonBuilder()
         .enableComplexMapKeySerialization()
@@ -75,14 +84,17 @@ public class MapAsArrayTypeAdapterTest extends TestCase {
 
     String s = "[[\"1.00\",\"a\"],[\"1.0\",\"b\"]]";
     try {
-      gson.fromJson(s, new TypeToken<Map<Double, String>>() {}.getType());
+      gson.fromJson(s, new TypeToken<Map<Double, String>>() {
+      }.getType());
       fail();
     } catch (JsonSyntaxException expected) {
     }
   }
 
+  @Test
   public void testMultipleEnableComplexKeyRegistrationHasNoEffect() throws Exception {
-    Type type = new TypeToken<Map<Point, String>>() {}.getType();
+    Type type = new TypeToken<Map<Point, String>>() {
+    }.getType();
     Gson gson = new GsonBuilder()
         .enableComplexMapKeySerialization()
         .enableComplexMapKeySerialization()
@@ -96,19 +108,23 @@ public class MapAsArrayTypeAdapterTest extends TestCase {
     assertEquals(original, gson.<Map<Point, String>>fromJson(json, type));
   }
 
+  @Test
   public void testMapWithTypeVariableSerialization() {
     Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
     PointWithProperty<Point> map = new PointWithProperty<>();
     map.map.put(new Point(2, 3), new Point(4, 5));
-    Type type = new TypeToken<PointWithProperty<Point>>(){}.getType();
+    Type type = new TypeToken<PointWithProperty<Point>>() {
+    }.getType();
     String json = gson.toJson(map, type);
     assertEquals("{\"map\":[[{\"x\":2,\"y\":3},{\"x\":4,\"y\":5}]]}", json);
   }
 
+  @Test
   public void testMapWithTypeVariableDeserialization() {
     Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
     String json = "{map:[[{x:2,y:3},{x:4,y:5}]]}";
-    Type type = new TypeToken<PointWithProperty<Point>>(){}.getType();
+    Type type = new TypeToken<PointWithProperty<Point>>() {
+    }.getType();
     PointWithProperty<Point> map = gson.fromJson(json, type);
     Point key = map.map.keySet().iterator().next();
     Point value = map.map.values().iterator().next();

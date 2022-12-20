@@ -34,6 +34,7 @@ import org.junit.Test;
  * @author Joel Leitch
  */
 public class VersioningTest {
+
   private static final int A = 0;
   private static final int B = 1;
   private static final int C = 2;

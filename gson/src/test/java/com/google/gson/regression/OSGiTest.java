@@ -15,36 +15,42 @@
  */
 package com.google.gson.regression;
 
-import java.io.InputStream;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.jar.Manifest;
+import org.junit.Test;
 
-import junit.framework.TestCase;
+public class OSGiTest {
 
-public class OSGiTest extends TestCase {
-    public void testComGoogleGsonAnnotationsPackage() throws Exception {
-        Manifest mf = findManifest("com.google.gson");
-        String importPkg = mf.getMainAttributes().getValue("Import-Package");
-        assertNotNull("Import-Package statement is there", importPkg);
-        assertSubstring("There should be com.google.gson.annotations dependency", importPkg, "com.google.gson.annotations");
+  @Test
+  public void testComGoogleGsonAnnotationsPackage() throws Exception {
+    Manifest mf = findManifest("com.google.gson");
+    String importPkg = mf.getMainAttributes().getValue("Import-Package");
+    assertNotNull("Import-Package statement is there", importPkg);
+    assertSubstring("There should be com.google.gson.annotations dependency", importPkg,
+        "com.google.gson.annotations");
+  }
+
+  @Test
+  public void testSunMiscImportPackage() throws Exception {
+    Manifest mf = findManifest("com.google.gson");
+    String importPkg = mf.getMainAttributes().getValue("Import-Package");
+    assertNotNull("Import-Package statement is there", importPkg);
+    for (String dep : importPkg.split(",")) {
+      if (dep.contains("sun.misc")) {
+        assertSubstring("sun.misc import is optional", dep, "resolution:=optional");
+        return;
+      }
     }
-
-    public void testSunMiscImportPackage() throws Exception {
-        Manifest mf = findManifest("com.google.gson");
-        String importPkg = mf.getMainAttributes().getValue("Import-Package");
-        assertNotNull("Import-Package statement is there", importPkg);
-        for (String dep : importPkg.split(",")) {
-            if (dep.contains("sun.misc")) {
-                assertSubstring("sun.misc import is optional", dep, "resolution:=optional");
-                return;
-            }
-        }
-        fail("There should be sun.misc dependency, but was: " + importPkg);
-    }
+    fail("There should be sun.misc dependency, but was: " + importPkg);
+  }
 
     private Manifest findManifest(String pkg) throws IOException {
         List<URL> urls = new ArrayList<>();

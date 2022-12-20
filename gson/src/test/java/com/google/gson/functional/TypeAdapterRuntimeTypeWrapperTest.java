@@ -36,34 +36,33 @@ public class TypeAdapterRuntimeTypeWrapperTest {
   }
 
   /**
-   * When custom {@link JsonSerializer} is registered for Base should
-   * prefer that over reflective adapter for Subclass for serialization.
+   * When custom {@link JsonSerializer} is registered for Base should prefer that over reflective
+   * adapter for Subclass for serialization.
    */
   @Test
   public void testJsonSerializer() {
     Gson gson = new GsonBuilder()
-      .registerTypeAdapter(Base.class, new JsonSerializer<Base>() {
-        @Override
-        public JsonElement serialize(Base src, Type typeOfSrc, JsonSerializationContext context) {
-          return new JsonPrimitive("serializer");
-        }
-      })
-      .create();
+        .registerTypeAdapter(Base.class, new JsonSerializer<Base>() {
+          @Override
+          public JsonElement serialize(Base src, Type typeOfSrc, JsonSerializationContext context) {
+            return new JsonPrimitive("serializer");
+          }
+        })
+        .create();
 
     String json = gson.toJson(new Container());
     assertEquals("{\"b\":\"serializer\"}", json);
   }
 
   /**
-   * When only {@link JsonDeserializer} is registered for Base, then on
-   * serialization should prefer reflective adapter for Subclass since
-   * Base would use reflective adapter as delegate.
+   * When only {@link JsonDeserializer} is registered for Base, then on serialization should prefer
+   * reflective adapter for Subclass since Base would use reflective adapter as delegate.
    */
   @Test
   public void testJsonDeserializer_ReflectiveSerializerDelegate() {
     Gson gson = new GsonBuilder()
-      .registerTypeAdapter(Base.class, new Deserializer())
-      .create();
+        .registerTypeAdapter(Base.class, new Deserializer())
+        .create();
 
     String json = gson.toJson(new Container());
     assertEquals("{\"b\":{\"f\":\"test\"}}", json);
@@ -77,16 +76,17 @@ public class TypeAdapterRuntimeTypeWrapperTest {
   @Test
   public void testJsonDeserializer_CustomSerializerDelegate() {
     Gson gson = new GsonBuilder()
-      // Register custom delegate
-      .registerTypeAdapter(Base.class, new TypeAdapter<Base>() {
-        @Override
-        public Base read(JsonReader in) throws IOException {
-          throw new UnsupportedOperationException();
-        }
-        @Override
-        public void write(JsonWriter out, Base value) throws IOException {
-          out.value("custom delegate");
-        }
+        // Register custom delegate
+        .registerTypeAdapter(Base.class, new TypeAdapter<Base>() {
+          @Override
+          public Base read(JsonReader in) throws IOException {
+            throw new UnsupportedOperationException();
+          }
+
+          @Override
+          public void write(JsonWriter out, Base value) throws IOException {
+            out.value("custom delegate");
+          }
       })
       .registerTypeAdapter(Base.class, new Deserializer())
       .create();
@@ -103,10 +103,10 @@ public class TypeAdapterRuntimeTypeWrapperTest {
   @Test
   public void testJsonDeserializer_ReflectiveTreeSerializerDelegate() {
     Gson gson = new GsonBuilder()
-      // Register delegate which itself falls back to reflective serialization
-      .registerTypeAdapter(Base.class, new Deserializer())
-      .registerTypeAdapter(Base.class, new Deserializer())
-      .create();
+        // Register delegate which itself falls back to reflective serialization
+        .registerTypeAdapter(Base.class, new Deserializer())
+        .registerTypeAdapter(Base.class, new Deserializer())
+        .create();
 
     String json = gson.toJson(new Container());
     assertEquals("{\"b\":{\"f\":\"test\"}}", json);
@@ -120,15 +120,15 @@ public class TypeAdapterRuntimeTypeWrapperTest {
   @Test
   public void testJsonDeserializer_JsonSerializerDelegate() {
     Gson gson = new GsonBuilder()
-      // Register JsonSerializer as delegate
-      .registerTypeAdapter(Base.class, new JsonSerializer<Base>() {
-        @Override
-        public JsonElement serialize(Base src, Type typeOfSrc, JsonSerializationContext context) {
-          return new JsonPrimitive("custom delegate");
-        }
-      })
-      .registerTypeAdapter(Base.class, new Deserializer())
-      .create();
+        // Register JsonSerializer as delegate
+        .registerTypeAdapter(Base.class, new JsonSerializer<Base>() {
+          @Override
+          public JsonElement serialize(Base src, Type typeOfSrc, JsonSerializationContext context) {
+            return new JsonPrimitive("custom delegate");
+          }
+        })
+        .registerTypeAdapter(Base.class, new Deserializer())
+        .create();
 
     String json = gson.toJson(new Container());
     assertEquals("{\"b\":\"custom delegate\"}", json);
@@ -145,16 +145,17 @@ public class TypeAdapterRuntimeTypeWrapperTest {
   @Test
   public void testJsonDeserializer_SubclassBackwardCompatibility() {
     Gson gson = new GsonBuilder()
-      .registerTypeAdapter(Subclass.class, new JsonDeserializer<Subclass>() {
-        @Override
-        public Subclass deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
-          throw new AssertionError("not needed for this test");
-        }
-      })
-      .registerTypeAdapter(Base.class, new JsonSerializer<Base>() {
-        @Override
-        public JsonElement serialize(Base src, Type typeOfSrc, JsonSerializationContext context) {
-          return new JsonPrimitive("base");
+        .registerTypeAdapter(Subclass.class, new JsonDeserializer<Subclass>() {
+          @Override
+          public Subclass deserialize(JsonElement json, Type typeOfT,
+              JsonDeserializationContext context) {
+            throw new AssertionError("not needed for this test");
+          }
+        })
+        .registerTypeAdapter(Base.class, new JsonSerializer<Base>() {
+          @Override
+          public JsonElement serialize(Base src, Type typeOfSrc, JsonSerializationContext context) {
+            return new JsonPrimitive("base");
         }
       })
       .create();

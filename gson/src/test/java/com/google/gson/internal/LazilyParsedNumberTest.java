@@ -15,28 +15,34 @@
  */
 package com.google.gson.internal;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.math.BigDecimal;
+import org.junit.Test;
 
-import junit.framework.TestCase;
+public class LazilyParsedNumberTest {
 
-public class LazilyParsedNumberTest extends TestCase {
+  @Test
   public void testHashCode() {
     LazilyParsedNumber n1 = new LazilyParsedNumber("1");
     LazilyParsedNumber n1Another = new LazilyParsedNumber("1");
     assertEquals(n1.hashCode(), n1Another.hashCode());
   }
 
+  @Test
   public void testEquals() {
     LazilyParsedNumber n1 = new LazilyParsedNumber("1");
     LazilyParsedNumber n1Another = new LazilyParsedNumber("1");
     assertTrue(n1.equals(n1Another));
   }
 
+  @Test
   public void testJavaSerialization() throws IOException, ClassNotFoundException {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     ObjectOutputStream objOut = new ObjectOutputStream(out);

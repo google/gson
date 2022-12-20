@@ -23,6 +23,7 @@ import org.junit.Test;
  * Tests for {@link JsonObject#asMap()}.
  */
 public class JsonObjectAsMapTest {
+
   @Test
   public void testSize() {
     JsonObject o = new JsonObject();
@@ -201,7 +202,8 @@ public class JsonObjectAsMapTest {
     Map<String, JsonElement> map = o.asMap();
     Collection<JsonElement> values = map.values();
     // Should contain values in same order
-    assertEquals(Arrays.asList(new JsonPrimitive(2), new JsonPrimitive(1)), new ArrayList<>(values));
+    assertEquals(Arrays.asList(new JsonPrimitive(2), new JsonPrimitive(1)),
+        new ArrayList<>(values));
 
     // Values collection doesn't support insertions
     try {
@@ -270,7 +272,9 @@ public class JsonObjectAsMapTest {
     assertFalse(map.equals(Collections.singletonMap("a", new JsonPrimitive(2))));
   }
 
-  /** Verify that {@code JsonObject} updates are visible to view and vice versa */
+  /**
+   * Verify that {@code JsonObject} updates are visible to view and vice versa
+   */
   @Test
   public void testViewUpdates() {
     JsonObject o = new JsonObject();

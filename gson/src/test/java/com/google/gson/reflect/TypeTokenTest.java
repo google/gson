@@ -16,6 +16,11 @@
 
 package com.google.gson.reflect;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -23,12 +28,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.RandomAccess;
 import java.util.Set;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
  * @author Jesse Wilson
  */
-public final class TypeTokenTest extends TestCase {
+public final class TypeTokenTest {
+
   // These fields are accessed using reflection by the tests below
   List<Integer> listOfInteger = null;
   List<Number> listOfNumber = null;
@@ -38,6 +44,7 @@ public final class TypeTokenTest extends TestCase {
   List<Set<?>> listOfSetOfUnknown = null;
 
   @SuppressWarnings({"deprecation"})
+  @Test
   public void testIsAssignableFromRawTypes() {
     assertTrue(TypeToken.get(Object.class).isAssignableFrom(String.class));
     assertFalse(TypeToken.get(String.class).isAssignableFrom(Object.class));
@@ -46,6 +53,7 @@ public final class TypeTokenTest extends TestCase {
   }
 
   @SuppressWarnings({"deprecation"})
+  @Test
   public void testIsAssignableFromWithTypeParameters() throws Exception {
     Type a = getClass().getDeclaredField("listOfInteger").getGenericType();
     Type b = getClass().getDeclaredField("listOfNumber").getGenericType();
@@ -59,6 +67,7 @@ public final class TypeTokenTest extends TestCase {
   }
 
   @SuppressWarnings({"deprecation"})
+  @Test
   public void testIsAssignableFromWithBasicWildcards() throws Exception {
     Type a = getClass().getDeclaredField("listOfString").getGenericType();
     Type b = getClass().getDeclaredField("listOfUnknown").getGenericType();
@@ -73,6 +82,7 @@ public final class TypeTokenTest extends TestCase {
   }
 
   @SuppressWarnings({"deprecation"})
+  @Test
   public void testIsAssignableFromWithNestedWildcards() throws Exception {
     Type a = getClass().getDeclaredField("listOfSetOfString").getGenericType();
     Type b = getClass().getDeclaredField("listOfSetOfUnknown").getGenericType();
@@ -85,12 +95,16 @@ public final class TypeTokenTest extends TestCase {
     assertFalse(TypeToken.get(b).isAssignableFrom(a));
   }
 
+  @Test
   public void testArrayFactory() {
-    TypeToken<?> expectedStringArray = new TypeToken<String[]>() {};
+    TypeToken<?> expectedStringArray = new TypeToken<String[]>() {
+    };
     assertEquals(expectedStringArray, TypeToken.getArray(String.class));
 
-    TypeToken<?> expectedListOfStringArray = new TypeToken<List<String>[]>() {};
-    Type listOfString = new TypeToken<List<String>>() {}.getType();
+    TypeToken<?> expectedListOfStringArray = new TypeToken<List<String>[]>() {
+    };
+    Type listOfString = new TypeToken<List<String>>() {
+    }.getType();
     assertEquals(expectedListOfStringArray, TypeToken.getArray(listOfString));
 
     try {
@@ -100,28 +114,41 @@ public final class TypeTokenTest extends TestCase {
     }
   }
 
+  @Test
   public void testParameterizedFactory() {
-    TypeToken<?> expectedListOfString = new TypeToken<List<String>>() {};
+    TypeToken<?> expectedListOfString = new TypeToken<List<String>>() {
+    };
     assertEquals(expectedListOfString, TypeToken.getParameterized(List.class, String.class));
 
-    TypeToken<?> expectedMapOfStringToString = new TypeToken<Map<String, String>>() {};
-    assertEquals(expectedMapOfStringToString, TypeToken.getParameterized(Map.class, String.class, String.class));
+    TypeToken<?> expectedMapOfStringToString = new TypeToken<Map<String, String>>() {
+    };
+    assertEquals(expectedMapOfStringToString,
+        TypeToken.getParameterized(Map.class, String.class, String.class));
 
-    TypeToken<?> expectedListOfListOfListOfString = new TypeToken<List<List<List<String>>>>() {};
+    TypeToken<?> expectedListOfListOfListOfString = new TypeToken<List<List<List<String>>>>() {
+    };
     Type listOfString = TypeToken.getParameterized(List.class, String.class).getType();
     Type listOfListOfString = TypeToken.getParameterized(List.class, listOfString).getType();
-    assertEquals(expectedListOfListOfListOfString, TypeToken.getParameterized(List.class, listOfListOfString));
+    assertEquals(expectedListOfListOfListOfString,
+        TypeToken.getParameterized(List.class, listOfListOfString));
 
-    TypeToken<?> expectedWithExactArg = new TypeToken<GenericWithBound<Number>>() {};
-    assertEquals(expectedWithExactArg, TypeToken.getParameterized(GenericWithBound.class, Number.class));
+    TypeToken<?> expectedWithExactArg = new TypeToken<GenericWithBound<Number>>() {
+    };
+    assertEquals(expectedWithExactArg,
+        TypeToken.getParameterized(GenericWithBound.class, Number.class));
 
-    TypeToken<?> expectedWithSubclassArg = new TypeToken<GenericWithBound<Integer>>() {};
-    assertEquals(expectedWithSubclassArg, TypeToken.getParameterized(GenericWithBound.class, Integer.class));
+    TypeToken<?> expectedWithSubclassArg = new TypeToken<GenericWithBound<Integer>>() {
+    };
+    assertEquals(expectedWithSubclassArg,
+        TypeToken.getParameterized(GenericWithBound.class, Integer.class));
 
-    TypeToken<?> expectedSatisfyingTwoBounds = new TypeToken<GenericWithMultiBound<ClassSatisfyingBounds>>() {};
-    assertEquals(expectedSatisfyingTwoBounds, TypeToken.getParameterized(GenericWithMultiBound.class, ClassSatisfyingBounds.class));
+    TypeToken<?> expectedSatisfyingTwoBounds = new TypeToken<GenericWithMultiBound<ClassSatisfyingBounds>>() {
+    };
+    assertEquals(expectedSatisfyingTwoBounds,
+        TypeToken.getParameterized(GenericWithMultiBound.class, ClassSatisfyingBounds.class));
   }
 
+  @Test
   public void testParameterizedFactory_Invalid() {
     try {
       TypeToken.getParameterized(null, new Type[0]);
@@ -199,14 +226,12 @@ public final class TypeTokenTest extends TestCase {
       fail();
     } catch (IllegalArgumentException e) {
       assertEquals("Type argument class java.lang.Object does not satisfy bounds "
-          + "for type variable T declared by " + GenericWithMultiBound.class,
+              + "for type variable T declared by " + GenericWithMultiBound.class,
           e.getMessage());
     }
   }
 
-  private static class CustomTypeToken extends TypeToken<String> {
-  }
-
+  @Test
   public void testTypeTokenNonAnonymousSubclass() {
     TypeToken<?> typeToken = new CustomTypeToken();
     assertEquals(String.class, typeToken.getRawType());
@@ -214,16 +239,24 @@ public final class TypeTokenTest extends TestCase {
   }
 
   /**
-   * User must only create direct subclasses of TypeToken, but not subclasses
-   * of subclasses (...) of TypeToken.
+   * User must only create direct subclasses of TypeToken, but not subclasses of subclasses (...) of
+   * TypeToken.
    */
+  @Test
   public void testTypeTokenSubSubClass() {
-    class SubTypeToken<T> extends TypeToken<String> {}
-    class SubSubTypeToken1<T> extends SubTypeToken<T> {}
-    class SubSubTypeToken2 extends SubTypeToken<Integer> {}
+    class SubTypeToken<T> extends TypeToken<String> {
+
+    }
+    class SubSubTypeToken1<T> extends SubTypeToken<T> {
+
+    }
+    class SubSubTypeToken2 extends SubTypeToken<Integer> {
+
+    }
 
     try {
-      new SubTypeToken<Integer>() {};
+      new SubTypeToken<Integer>() {
+      };
       fail();
     } catch (IllegalStateException expected) {
       assertEquals("Must only create direct subclasses of TypeToken", expected.getMessage());
@@ -245,15 +278,21 @@ public final class TypeTokenTest extends TestCase {
   }
 
   @SuppressWarnings("rawtypes")
+  @Test
   public void testTypeTokenRaw() {
     try {
-      new TypeToken() {};
+      new TypeToken() {
+      };
       fail();
     } catch (IllegalStateException expected) {
       assertEquals("TypeToken must be created with a type argument: new TypeToken<...>() {}; "
-          + "When using code shrinkers (ProGuard, R8, ...) make sure that generic signatures are preserved.",
+              + "When using code shrinkers (ProGuard, R8, ...) make sure that generic signatures are preserved.",
           expected.getMessage());
     }
+  }
+
+  private static class CustomTypeToken extends TypeToken<String> {
+
   }
 }
 

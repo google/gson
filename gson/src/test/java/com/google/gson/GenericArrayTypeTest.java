@@ -16,14 +16,16 @@
 
 package com.google.gson;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.reflect.TypeToken;
-
-import junit.framework.TestCase;
-
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Type;
 import java.util.List;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Unit tests for the {@code GenericArrayType}s created by the {@link $Gson$Types} class.
@@ -31,26 +33,32 @@ import java.util.List;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class GenericArrayTypeTest extends TestCase {
+public class GenericArrayTypeTest {
+
   private GenericArrayType ourType;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
-    ourType = $Gson$Types.arrayOf($Gson$Types.newParameterizedTypeWithOwner(null, List.class, String.class));
+  @Before
+  public void setUp() throws Exception {
+    ourType = $Gson$Types.arrayOf(
+        $Gson$Types.newParameterizedTypeWithOwner(null, List.class, String.class));
   }
 
+  @Test
   public void testOurTypeFunctionality() throws Exception {
-    Type parameterizedType = new TypeToken<List<String>>() {}.getType();
-    Type genericArrayType = new TypeToken<List<String>[]>() {}.getType();
+    Type parameterizedType = new TypeToken<List<String>>() {
+    }.getType();
+    Type genericArrayType = new TypeToken<List<String>[]>() {
+    }.getType();
 
     assertEquals(parameterizedType, ourType.getGenericComponentType());
     assertEquals(genericArrayType, ourType);
     assertEquals(genericArrayType.hashCode(), ourType.hashCode());
   }
 
+  @Test
   public void testNotEquals() throws Exception {
-    Type differentGenericArrayType = new TypeToken<List<String>[][]>() {}.getType();
+    Type differentGenericArrayType = new TypeToken<List<String>[][]>() {
+    }.getType();
     assertFalse(differentGenericArrayType.equals(ourType));
     assertFalse(ourType.equals(differentGenericArrayType));
   }

@@ -81,7 +81,8 @@ public class JsonObjectTest {
     try {
       jsonObj.add(null, JsonNull.INSTANCE);
       fail("Should not allow null property names.");
-    } catch (NullPointerException expected) { }
+    } catch (NullPointerException expected) {
+    }
 
     jsonObj.add("", JsonNull.INSTANCE);
     jsonObj.add("   \t", JsonNull.INSTANCE);

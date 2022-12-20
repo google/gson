@@ -30,6 +30,7 @@ import org.junit.Test;
  * @author Joel Leitch
  */
 public class VersionExclusionStrategyTest {
+
   private static final double VERSION = 5.0D;
 
   @Test

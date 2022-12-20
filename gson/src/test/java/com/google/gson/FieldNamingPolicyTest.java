@@ -2,29 +2,31 @@ package com.google.gson;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+
+import com.google.gson.functional.FieldNamingTest;
 import java.lang.reflect.Field;
 import java.util.Locale;
 import org.junit.Test;
-import com.google.gson.functional.FieldNamingTest;
 
 /**
- * Performs tests directly against {@link FieldNamingPolicy}; for integration tests
- * see {@link FieldNamingTest}.
+ * Performs tests directly against {@link FieldNamingPolicy}; for integration tests see
+ * {@link FieldNamingTest}.
  */
 public class FieldNamingPolicyTest {
+
   @Test
   public void testSeparateCamelCase() {
     // Map from original -> expected
-    String[][] argumentPairs =  {
-      { "a", "a" },
-      { "ab", "ab" },
-      { "Ab", "Ab" },
-      { "aB", "a_B" },
-      { "AB", "A_B" },
-      { "A_B", "A__B" },
-      { "firstSecondThird", "first_Second_Third" },
-      { "__", "__" },
-      { "_123", "_123" }
+    String[][] argumentPairs = {
+        {"a", "a"},
+        {"ab", "ab"},
+        {"Ab", "Ab"},
+        {"aB", "a_B"},
+        {"AB", "A_B"},
+        {"A_B", "A__B"},
+        {"firstSecondThird", "first_Second_Third"},
+        {"__", "__"},
+        {"_123", "_123"}
     };
 
     for (String[] pair : argumentPairs) {
@@ -35,15 +37,15 @@ public class FieldNamingPolicyTest {
   @Test
   public void testUpperCaseFirstLetter() {
     // Map from original -> expected
-    String[][] argumentPairs =  {
-      { "a", "A" },
-      { "ab", "Ab" },
-      { "AB", "AB" },
-      { "_a", "_A" },
-      { "_ab", "_Ab" },
-      { "__", "__" },
-      { "_1", "_1" },
-      // Not a letter, but has uppercase variant (should not be uppercased)
+    String[][] argumentPairs = {
+        {"a", "A"},
+        {"ab", "Ab"},
+        {"AB", "AB"},
+        {"_a", "_A"},
+        {"_ab", "_Ab"},
+        {"__", "__"},
+        {"_1", "_1"},
+        // Not a letter, but has uppercase variant (should not be uppercased)
       // See https://github.com/google/gson/issues/1965
       { "\u2170", "\u2170" },
       { "_\u2170", "_\u2170" },
@@ -61,14 +63,15 @@ public class FieldNamingPolicyTest {
   @Test
   public void testUpperCasingLocaleIndependent() throws Exception {
     class Dummy {
+
       @SuppressWarnings("unused")
       int i;
     }
 
     FieldNamingPolicy[] policies = {
-      FieldNamingPolicy.UPPER_CAMEL_CASE,
-      FieldNamingPolicy.UPPER_CAMEL_CASE_WITH_SPACES,
-      FieldNamingPolicy.UPPER_CASE_WITH_UNDERSCORES,
+        FieldNamingPolicy.UPPER_CAMEL_CASE,
+        FieldNamingPolicy.UPPER_CAMEL_CASE_WITH_SPACES,
+        FieldNamingPolicy.UPPER_CASE_WITH_UNDERSCORES,
     };
 
     Field field = Dummy.class.getDeclaredField("i");
@@ -98,14 +101,15 @@ public class FieldNamingPolicyTest {
   @Test
   public void testLowerCasingLocaleIndependent() throws Exception {
     class Dummy {
+
       @SuppressWarnings("unused")
       int I;
     }
 
     FieldNamingPolicy[] policies = {
-      FieldNamingPolicy.LOWER_CASE_WITH_DASHES,
-      FieldNamingPolicy.LOWER_CASE_WITH_DOTS,
-      FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES,
+        FieldNamingPolicy.LOWER_CASE_WITH_DASHES,
+        FieldNamingPolicy.LOWER_CASE_WITH_DOTS,
+        FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES,
     };
 
     Field field = Dummy.class.getDeclaredField("I");

@@ -17,6 +17,7 @@ import org.junit.Test;
  * Tests for {@link JsonArray#asList()}.
  */
 public class JsonArrayAsListTest {
+
   @Test
   public void testGet() {
     JsonArray a = new JsonArray();
@@ -242,19 +243,19 @@ public class JsonArrayAsListTest {
     a.add(1);
 
     List<JsonElement> list = a.asList();
-    assertArrayEquals(new Object[] {new JsonPrimitive(1)}, list.toArray());
+    assertArrayEquals(new Object[]{new JsonPrimitive(1)}, list.toArray());
 
     JsonElement[] array = list.toArray(new JsonElement[0]);
-    assertArrayEquals(new Object[] {new JsonPrimitive(1)}, array);
+    assertArrayEquals(new Object[]{new JsonPrimitive(1)}, array);
 
     array = new JsonElement[1];
     assertSame(array, list.toArray(array));
-    assertArrayEquals(new Object[] {new JsonPrimitive(1)}, array);
+    assertArrayEquals(new Object[]{new JsonPrimitive(1)}, array);
 
-    array = new JsonElement[] {null, new JsonPrimitive(2)};
+    array = new JsonElement[]{null, new JsonPrimitive(2)};
     assertSame(array, list.toArray(array));
     // Should have set existing array element to null
-    assertArrayEquals(new Object[] {new JsonPrimitive(1), null}, array);
+    assertArrayEquals(new Object[]{new JsonPrimitive(1), null}, array);
   }
 
   @Test
@@ -268,7 +269,9 @@ public class JsonArrayAsListTest {
     assertFalse(list.equals(Collections.singletonList(new JsonPrimitive(2))));
   }
 
-  /** Verify that {@code JsonArray} updates are visible to view and vice versa */
+  /**
+   * Verify that {@code JsonArray} updates are visible to view and vice versa
+   */
   @Test
   public void testViewUpdates() {
     JsonArray a = new JsonArray();

@@ -15,22 +15,26 @@
  */
 package com.google.gson.regression;
 
+import static org.junit.Assert.assertEquals;
+
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.reflect.TypeToken;
+import org.junit.Test;
 
-import junit.framework.TestCase;
+public class JsonAdapterNullSafeTest {
 
-public class JsonAdapterNullSafeTest extends TestCase {
   private final Gson gson = new Gson();
 
+  @Test
   public void testNullSafeBugSerialize() throws Exception {
     Device device = new Device("ec57803e");
     gson.toJson(device);
   }
 
+  @Test
   public void testNullSafeBugDeserialize() throws Exception {
     Device device = gson.fromJson("{'id':'ec57803e2'}", Device.class);
     assertEquals("ec57803e2", device.id);
@@ -38,7 +42,9 @@ public class JsonAdapterNullSafeTest extends TestCase {
 
   @JsonAdapter(Device.JsonAdapterFactory.class)
   private static final class Device {
+
     String id;
+
     Device(String id) {
       this.id = id;
     }

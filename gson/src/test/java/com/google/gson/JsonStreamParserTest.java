@@ -31,6 +31,7 @@ import org.junit.Test;
  * @author Inderjeet Singh
  */
 public class JsonStreamParserTest {
+
   private JsonStreamParser parser;
 
   @Before

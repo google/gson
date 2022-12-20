@@ -16,35 +16,45 @@
 
 package com.google.gson;
 
+import static org.junit.Assert.assertEquals;
+
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.util.Locale;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
  * @author Jesse Wilson
  */
-public class OverrideCoreTypeAdaptersTest extends TestCase {
+public class OverrideCoreTypeAdaptersTest {
+
   private static final TypeAdapter<Boolean> booleanAsIntAdapter = new TypeAdapter<Boolean>() {
-    @Override public void write(JsonWriter out, Boolean value) throws IOException {
+    @Override
+    public void write(JsonWriter out, Boolean value) throws IOException {
       out.value(value ? 1 : 0);
     }
-    @Override public Boolean read(JsonReader in) throws IOException {
+
+    @Override
+    public Boolean read(JsonReader in) throws IOException {
       int value = in.nextInt();
       return value != 0;
     }
   };
 
   private static final TypeAdapter<String> swapCaseStringAdapter = new TypeAdapter<String>() {
-    @Override public void write(JsonWriter out, String value) throws IOException {
+    @Override
+    public void write(JsonWriter out, String value) throws IOException {
       out.value(value.toUpperCase(Locale.US));
     }
-    @Override public String read(JsonReader in) throws IOException {
+
+    @Override
+    public String read(JsonReader in) throws IOException {
       return in.nextString().toLowerCase(Locale.US);
     }
   };
 
+  @Test
   public void testOverrideWrapperBooleanAdapter() {
     Gson gson = new GsonBuilder()
         .registerTypeAdapter(Boolean.class, booleanAsIntAdapter)
@@ -56,6 +66,7 @@ public class OverrideCoreTypeAdaptersTest extends TestCase {
     assertEquals(Boolean.FALSE, gson.fromJson("0", Boolean.class));
   }
 
+  @Test
   public void testOverridePrimitiveBooleanAdapter() {
     Gson gson = new GsonBuilder()
         .registerTypeAdapter(boolean.class, booleanAsIntAdapter)
@@ -67,6 +78,7 @@ public class OverrideCoreTypeAdaptersTest extends TestCase {
     assertEquals("0", gson.toJson(false, boolean.class));
   }
 
+  @Test
   public void testOverrideStringAdapter() {
     Gson gson = new GsonBuilder()
         .registerTypeAdapter(String.class, swapCaseStringAdapter)

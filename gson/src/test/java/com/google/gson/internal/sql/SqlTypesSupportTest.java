@@ -1,8 +1,13 @@
 package com.google.gson.internal.sql;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-public class SqlTypesSupportTest extends TestCase {
+import org.junit.Test;
+
+public class SqlTypesSupportTest {
+
+  @Test
   public void testSupported() {
     assertTrue(SqlTypesSupport.SUPPORTS_SQL_TYPES);
 
