@@ -190,8 +190,7 @@ public class ArrayTest {
   @Test
   public void testArrayOfCollectionDeserialization() {
     String json = "[[1,2],[3,4]]";
-    Type type = new TypeToken<Collection<Integer>[]>() {
-    }.getType();
+    Type type = new TypeToken<Collection<Integer>[]>() {}.getType();
     Collection<Integer>[] target = gson.fromJson(json, type);
 
     assertEquals(2, target.length);

@@ -107,8 +107,7 @@ public class InstanceCreatorTest {
         return new SubArrayList<>();
       }
     };
-    Type listOfStringType = new TypeToken<List<String>>() {
-    }.getType();
+    Type listOfStringType = new TypeToken<List<String>>() {}.getType();
     Gson gson = new GsonBuilder()
         .registerTypeAdapter(listOfStringType, listCreator)
         .create();

@@ -46,9 +46,7 @@ public class TreeTypeAdaptersTest {
   private static final Id<Student> STUDENT2_ID = new Id<>("6", Student.class);
   private static final Student STUDENT1 = new Student(STUDENT1_ID, "first");
   private static final Student STUDENT2 = new Student(STUDENT2_ID, "second");
-  private static final Type TYPE_COURSE_HISTORY =
-      new TypeToken<Course<HistoryCourse>>() {
-      }.getType();
+  private static final Type TYPE_COURSE_HISTORY = new TypeToken<Course<HistoryCourse>>() {}.getType();
   private static final Id<Course<HistoryCourse>> COURSE_ID =
       new Id<>("10", TYPE_COURSE_HISTORY);
 

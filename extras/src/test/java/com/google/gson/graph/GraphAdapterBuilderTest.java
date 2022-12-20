@@ -89,10 +89,8 @@ public final class GraphAdapterBuilderTest {
 
   @Test
   public void testSerializeListOfLists() {
-    Type listOfListsType = new TypeToken<List<List<?>>>() {
-    }.getType();
-    Type listOfAnyType = new TypeToken<List<?>>() {
-    }.getType();
+    Type listOfListsType = new TypeToken<List<List<?>>>() {}.getType();
+    Type listOfAnyType = new TypeToken<List<?>>() {}.getType();
 
     List<List<?>> listOfLists = new ArrayList<>();
     listOfLists.add(listOfLists);
@@ -111,10 +109,8 @@ public final class GraphAdapterBuilderTest {
 
   @Test
   public void testDeserializeListOfLists() {
-    Type listOfAnyType = new TypeToken<List<?>>() {
-    }.getType();
-    Type listOfListsType = new TypeToken<List<List<?>>>() {
-    }.getType();
+    Type listOfAnyType = new TypeToken<List<?>>() {}.getType();
+    Type listOfListsType = new TypeToken<List<List<?>>>() {}.getType();
 
     GsonBuilder gsonBuilder = new GsonBuilder();
     new GraphAdapterBuilder()

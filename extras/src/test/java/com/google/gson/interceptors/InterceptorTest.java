@@ -69,8 +69,7 @@ public final class InterceptorTest {
 
   @Test
   public void testList() {
-    List<User> list = gson.fromJson("[{name:'bob',password:'pwd'}]", new TypeToken<List<User>>() {
-    }.getType());
+    List<User> list = gson.fromJson("[{name:'bob',password:'pwd'}]", new TypeToken<List<User>>() {}.getType());
     User user = list.get(0);
     assertEquals(User.DEFAULT_EMAIL, user.email);
   }
@@ -78,16 +77,14 @@ public final class InterceptorTest {
   @Test
   public void testCollection() {
     Collection<User> list = gson.fromJson("[{name:'bob',password:'pwd'}]",
-        new TypeToken<Collection<User>>() {
-        }.getType());
+        new TypeToken<Collection<User>>() {}.getType());
     User user = list.iterator().next();
     assertEquals(User.DEFAULT_EMAIL, user.email);
   }
 
   @Test
   public void testMapKeyAndValues() {
-    Type mapType = new TypeToken<Map<User, Address>>() {
-    }.getType();
+    Type mapType = new TypeToken<Map<User, Address>>() {}.getType();
     try {
       gson.fromJson("[[{name:'bob',password:'pwd'},{}]]", mapType);
       fail();

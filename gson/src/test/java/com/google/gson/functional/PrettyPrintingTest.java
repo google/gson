@@ -56,8 +56,7 @@ public class PrettyPrintingTest {
     for (int i = 0; i < 15; ++i) {
       listOfB.add(b);
     }
-    Type typeOfSrc = new TypeToken<List<BagOfPrimitives>>() {
-    }.getType();
+    Type typeOfSrc = new TypeToken<List<BagOfPrimitives>>() {}.getType();
     String json = gson.toJson(listOfB, typeOfSrc);
     print(json);
   }

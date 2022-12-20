@@ -103,8 +103,7 @@ public final class TypeTokenTest {
 
     TypeToken<?> expectedListOfStringArray = new TypeToken<List<String>[]>() {
     };
-    Type listOfString = new TypeToken<List<String>>() {
-    }.getType();
+    Type listOfString = new TypeToken<List<String>>() {}.getType();
     assertEquals(expectedListOfStringArray, TypeToken.getArray(listOfString));
 
     try {

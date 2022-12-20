@@ -111,12 +111,10 @@ public class ToNumberPolicyFunctionalTest {
     expected.add(null);
     expected.add(10L);
     expected.add(10.0);
-    Type objectCollectionType = new TypeToken<Collection<Object>>() {
-    }.getType();
+    Type objectCollectionType = new TypeToken<Collection<Object>>() {}.getType();
     Collection<Object> objects = gson.fromJson("[null,10,10.0]", objectCollectionType);
     assertEquals(expected, objects);
-    Type numberCollectionType = new TypeToken<Collection<Number>>() {
-    }.getType();
+    Type numberCollectionType = new TypeToken<Collection<Number>>() {}.getType();
     Collection<Object> numbers = gson.fromJson("[null,10,10.0]", numberCollectionType);
     assertEquals(expected, numbers);
   }

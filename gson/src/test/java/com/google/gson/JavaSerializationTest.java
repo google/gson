@@ -42,8 +42,7 @@ public final class JavaSerializationTest {
 
   @Test
   public void testMapIsSerializable() throws Exception {
-    Type type = new TypeToken<Map<String, Integer>>() {
-    }.getType();
+    Type type = new TypeToken<Map<String, Integer>>() {}.getType();
     Map<String, Integer> map = gson.fromJson("{\"b\":1,\"c\":2,\"a\":3}", type);
     Map<String, Integer> serialized = serializedCopy(map);
     assertEquals(map, serialized);
@@ -53,8 +52,7 @@ public final class JavaSerializationTest {
 
   @Test
   public void testListIsSerializable() throws Exception {
-    Type type = new TypeToken<List<String>>() {
-    }.getType();
+    Type type = new TypeToken<List<String>>() {}.getType();
     List<String> list = gson.fromJson("[\"a\",\"b\",\"c\"]", type);
     List<String> serialized = serializedCopy(list);
     assertEquals(list, serialized);
@@ -62,8 +60,7 @@ public final class JavaSerializationTest {
 
   @Test
   public void testNumberIsSerializable() throws Exception {
-    Type type = new TypeToken<List<Number>>() {
-    }.getType();
+    Type type = new TypeToken<List<Number>>() {}.getType();
     List<Number> list = gson.fromJson("[1,3.14,6.673e-11]", type);
     List<Number> serialized = serializedCopy(list);
     assertEquals(1.0, serialized.get(0).doubleValue(), 0);

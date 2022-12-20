@@ -135,8 +135,7 @@ public class JsonParserTest {
 
   @Test
   public void testExtraCommasInArrays() {
-    Type type = new TypeToken<List<String>>() {
-    }.getType();
+    Type type = new TypeToken<List<String>>() {}.getType();
     assertEquals(Arrays.asList("a", null, "b", null, null), gson.fromJson("[a,,b,,]", type));
     assertEquals(Arrays.asList(null, null), gson.fromJson("[,]", type));
     assertEquals(Arrays.asList("a", null), gson.fromJson("[a,]", type));
@@ -144,8 +143,7 @@ public class JsonParserTest {
 
   @Test
   public void testExtraCommasInMaps() {
-    Type type = new TypeToken<Map<String, String>>() {
-    }.getType();
+    Type type = new TypeToken<Map<String, String>>() {}.getType();
     try {
       gson.fromJson("{a:b,}", type);
       fail();

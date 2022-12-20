@@ -55,8 +55,7 @@ public class TypeVariableTest {
     Gson gson = new Gson();
     Foo<String, Integer> original = new Foo<>("e", 5, false);
     original.map.put("f", Arrays.asList(6, 7));
-    Type type = new TypeToken<Foo<String, Integer>>() {
-    }.getType();
+    Type type = new TypeToken<Foo<String, Integer>>() {}.getType();
     String json = gson.toJson(original, type);
     assertEquals("{\"someSField\":\"e\",\"someTField\":5,\"map\":{\"f\":[6,7]},\"redField\":false}",
         json);

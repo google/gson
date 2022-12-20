@@ -77,8 +77,7 @@ public class FieldAttributesTest {
 
   @Test
   public void testDeclaredTypeAndClass() throws Exception {
-    Type expectedType = new TypeToken<List<String>>() {
-    }.getType();
+    Type expectedType = new TypeToken<List<String>>() {}.getType();
     assertEquals(expectedType, fieldAttributes.getDeclaredType());
     assertEquals(List.class, fieldAttributes.getDeclaredClass());
   }

@@ -73,8 +73,7 @@ public class EnumTest {
 
   @Test
   public void testCollectionOfEnumsSerialization() {
-    Type type = new TypeToken<Collection<MyEnum>>() {
-    }.getType();
+    Type type = new TypeToken<Collection<MyEnum>>() {}.getType();
     Collection<MyEnum> target = new ArrayList<>();
     target.add(MyEnum.VALUE1);
     target.add(MyEnum.VALUE2);
@@ -87,8 +86,7 @@ public class EnumTest {
 
   @Test
   public void testCollectionOfEnumsDeserialization() {
-    Type type = new TypeToken<Collection<MyEnum>>() {
-    }.getType();
+    Type type = new TypeToken<Collection<MyEnum>>() {}.getType();
     String json = "[\"VALUE1\",\"VALUE2\"]";
     Collection<MyEnum> target = gson.fromJson(json, type);
     MoreAsserts.assertContains(target, MyEnum.VALUE1);
@@ -131,8 +129,7 @@ public class EnumTest {
     assertEquals("[\"ROCK\",\"PAPER\",\"SCISSORS\"]", gson.toJson(EnumSet.allOf(Roshambo.class)));
     assertEquals(Roshambo.ROCK, gson.fromJson("\"ROCK\"", Roshambo.class));
     assertEquals(EnumSet.allOf(Roshambo.class),
-        gson.fromJson("[\"ROCK\",\"PAPER\",\"SCISSORS\"]", new TypeToken<Set<Roshambo>>() {
-        }.getType()));
+        gson.fromJson("[\"ROCK\",\"PAPER\",\"SCISSORS\"]", new TypeToken<Set<Roshambo>>() {}.getType()));
   }
 
   @Test
@@ -159,8 +156,7 @@ public class EnumTest {
     String json = gson.toJson(list);
     assertEquals("[\"ROCK\",\"PAPER\"]", json);
 
-    Type collectionType = new TypeToken<Collection<Roshambo>>() {
-    }.getType();
+    Type collectionType = new TypeToken<Collection<Roshambo>>() {}.getType();
     Collection<Roshambo> actualJsonList = gson.fromJson(json, collectionType);
     MoreAsserts.assertContains(actualJsonList, Roshambo.ROCK);
     MoreAsserts.assertContains(actualJsonList, Roshambo.PAPER);
@@ -178,8 +174,7 @@ public class EnumTest {
     String json = gson.toJson(foo);
     assertEquals("[\"ROCK\",\"PAPER\"]", json);
 
-    Type type = new TypeToken<EnumSet<Roshambo>>() {
-    }.getType();
+    Type type = new TypeToken<EnumSet<Roshambo>>() {}.getType();
     EnumSet<Roshambo> bar = gson.fromJson(json, type);
     assertTrue(bar.contains(Roshambo.ROCK));
     assertTrue(bar.contains(Roshambo.PAPER));
@@ -193,8 +188,7 @@ public class EnumTest {
     String json = gson.toJson(map);
     assertEquals("{\"VALUE1\":\"test\"}", json);
 
-    Type type = new TypeToken<EnumMap<MyEnum, String>>() {
-    }.getType();
+    Type type = new TypeToken<EnumMap<MyEnum, String>>() {}.getType();
     EnumMap<?, ?> actualMap = gson.fromJson("{\"VALUE1\":\"test\"}", type);
     Map<?, ?> expectedMap = Collections.singletonMap(MyEnum.VALUE1, "test");
     assertEquals(expectedMap, actualMap);

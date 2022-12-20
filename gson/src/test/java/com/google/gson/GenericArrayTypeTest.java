@@ -46,10 +46,8 @@ public class GenericArrayTypeTest {
 
   @Test
   public void testOurTypeFunctionality() throws Exception {
-    Type parameterizedType = new TypeToken<List<String>>() {
-    }.getType();
-    Type genericArrayType = new TypeToken<List<String>[]>() {
-    }.getType();
+    Type parameterizedType = new TypeToken<List<String>>() {}.getType();
+    Type genericArrayType = new TypeToken<List<String>[]>() {}.getType();
 
     assertEquals(parameterizedType, ourType.getGenericComponentType());
     assertEquals(genericArrayType, ourType);
@@ -58,8 +56,7 @@ public class GenericArrayTypeTest {
 
   @Test
   public void testNotEquals() throws Exception {
-    Type differentGenericArrayType = new TypeToken<List<String>[][]>() {
-    }.getType();
+    Type differentGenericArrayType = new TypeToken<List<String>[][]>() {}.getType();
     assertNotEquals(differentGenericArrayType, ourType);
     assertNotEquals(ourType, differentGenericArrayType);
   }

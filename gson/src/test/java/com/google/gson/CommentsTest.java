@@ -42,8 +42,7 @@ public final class CommentsTest {
         + "  \"c\"\n"
         + "]";
 
-    List<String> abc = new Gson().fromJson(json, new TypeToken<List<String>>() {
-    }.getType());
+    List<String> abc = new Gson().fromJson(json, new TypeToken<List<String>>() {}.getType());
     assertEquals(Arrays.asList("a", "b", "c"), abc);
   }
 }

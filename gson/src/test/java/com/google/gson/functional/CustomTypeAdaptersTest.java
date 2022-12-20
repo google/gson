@@ -335,8 +335,7 @@ public class CustomTypeAdaptersTest {
     Gson gson = new GsonBuilder()
         .registerTypeAdapter(StringHolder.class, new StringHolderTypeAdapter())
         .create();
-    Type setType = new TypeToken<Set<StringHolder>>() {
-    }.getType();
+    Type setType = new TypeToken<Set<StringHolder>>() {}.getType();
     StringHolder holder = new StringHolder("Jacob", "Tomaw");
     Set<StringHolder> setOfHolders = new HashSet<>();
     setOfHolders.add(holder);
@@ -363,8 +362,7 @@ public class CustomTypeAdaptersTest {
     Gson gson = new GsonBuilder()
         .registerTypeAdapter(StringHolder.class, new StringHolderTypeAdapter())
         .create();
-    Type setType = new TypeToken<Set<StringHolder>>() {
-    }.getType();
+    Type setType = new TypeToken<Set<StringHolder>>() {}.getType();
     Set<StringHolder> setOfHolders = gson.fromJson("['Jacob:Tomaw']", setType);
     assertEquals(1, setOfHolders.size());
     StringHolder foo = setOfHolders.iterator().next();
@@ -378,8 +376,7 @@ public class CustomTypeAdaptersTest {
     Gson gson = new GsonBuilder()
         .registerTypeAdapter(StringHolder.class, new StringHolderTypeAdapter())
         .create();
-    Type mapType = new TypeToken<Map<String, StringHolder>>() {
-    }.getType();
+    Type mapType = new TypeToken<Map<String, StringHolder>>() {}.getType();
     StringHolder holder = new StringHolder("Jacob", "Tomaw");
     Map<String, StringHolder> mapOfHolders = new HashMap<>();
     mapOfHolders.put("foo", holder);
@@ -406,8 +403,7 @@ public class CustomTypeAdaptersTest {
     Gson gson = new GsonBuilder()
         .registerTypeAdapter(StringHolder.class, new StringHolderTypeAdapter())
         .create();
-    Type mapType = new TypeToken<Map<String, StringHolder>>() {
-    }.getType();
+    Type mapType = new TypeToken<Map<String, StringHolder>>() {}.getType();
     Map<String, StringHolder> mapOfFoo = gson.fromJson("{'foo':'Jacob:Tomaw'}", mapType);
     assertEquals(1, mapOfFoo.size());
     StringHolder foo = mapOfFoo.get("foo");

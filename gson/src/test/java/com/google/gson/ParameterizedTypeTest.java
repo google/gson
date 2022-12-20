@@ -46,8 +46,7 @@ public class ParameterizedTypeTest {
 
   @Test
   public void testOurTypeFunctionality() throws Exception {
-    Type parameterizedType = new TypeToken<List<String>>() {
-    }.getType();
+    Type parameterizedType = new TypeToken<List<String>>() {}.getType();
     assertNull(ourType.getOwnerType());
     assertEquals(String.class, ourType.getActualTypeArguments()[0]);
     assertEquals(List.class, ourType.getRawType());
@@ -57,8 +56,7 @@ public class ParameterizedTypeTest {
 
   @Test
   public void testNotEquals() throws Exception {
-    Type differentParameterizedType = new TypeToken<List<Integer>>() {
-    }.getType();
+    Type differentParameterizedType = new TypeToken<List<Integer>>() {}.getType();
     assertNotEquals(differentParameterizedType, ourType);
     assertNotEquals(ourType, differentParameterizedType);
   }
