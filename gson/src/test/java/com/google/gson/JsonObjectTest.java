@@ -18,6 +18,7 @@ package com.google.gson;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -160,7 +161,7 @@ public class JsonObjectTest {
   @Test
   public void testReadPropertyWithEmptyStringName() {
     JsonObject jsonObj = JsonParser.parseString("{\"\":true}").getAsJsonObject();
-    assertEquals(true, jsonObj.get("").getAsBoolean());
+    assertTrue(jsonObj.get("").getAsBoolean());
   }
 
   @Test
@@ -176,19 +177,19 @@ public class JsonObjectTest {
     assertEquals(a, a);
 
     a.add("foo", new JsonObject());
-    assertFalse(a.equals(b));
-    assertFalse(b.equals(a));
+    assertNotEquals(a, b);
+    assertNotEquals(b, a);
 
     b.add("foo", new JsonObject());
     MoreAsserts.assertEqualsAndHashCode(a, b);
 
     a.add("bar", new JsonObject());
-    assertFalse(a.equals(b));
-    assertFalse(b.equals(a));
+    assertNotEquals(a, b);
+    assertNotEquals(b, a);
 
     b.add("bar", JsonNull.INSTANCE);
-    assertFalse(a.equals(b));
-    assertFalse(b.equals(a));
+    assertNotEquals(a, b);
+    assertNotEquals(b, a);
   }
 
   @Test

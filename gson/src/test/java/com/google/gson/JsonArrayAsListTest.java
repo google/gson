@@ -3,6 +3,7 @@ package com.google.gson;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -265,8 +266,8 @@ public class JsonArrayAsListTest {
 
     List<JsonElement> list = a.asList();
     MoreAsserts.assertEqualsAndHashCode(list, Collections.singletonList(new JsonPrimitive(1)));
-    assertFalse(list.equals(Collections.emptyList()));
-    assertFalse(list.equals(Collections.singletonList(new JsonPrimitive(2))));
+    assertNotEquals(list, Collections.emptyList());
+    assertNotEquals(list, Collections.singletonList(new JsonPrimitive(2)));
   }
 
   /**

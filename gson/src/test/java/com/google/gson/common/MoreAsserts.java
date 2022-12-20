@@ -47,11 +47,11 @@ public class MoreAsserts {
   }
 
   public static void assertEqualsAndHashCode(Object a, Object b) {
-    Assert.assertTrue(a.equals(b));
-    Assert.assertTrue(b.equals(a));
+    Assert.assertEquals(a, b);
+    Assert.assertEquals(b, a);
     Assert.assertEquals(a.hashCode(), b.hashCode());
-    Assert.assertFalse(a.equals(null));
-    Assert.assertFalse(a.equals(new Object()));
+    Assert.assertNotEquals(null, a);
+    Assert.assertNotEquals(a, new Object());
   }
 
   private static boolean isProtectedOrPublic(Method method) {

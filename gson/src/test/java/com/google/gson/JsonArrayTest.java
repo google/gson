@@ -18,6 +18,7 @@ package com.google.gson;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -43,19 +44,19 @@ public final class JsonArrayTest {
     assertEquals(a, a);
 
     a.add(new JsonObject());
-    assertFalse(a.equals(b));
-    assertFalse(b.equals(a));
+    assertNotEquals(a, b);
+    assertNotEquals(b, a);
 
     b.add(new JsonObject());
     MoreAsserts.assertEqualsAndHashCode(a, b);
 
     a.add(new JsonObject());
-    assertFalse(a.equals(b));
-    assertFalse(b.equals(a));
+    assertNotEquals(a, b);
+    assertNotEquals(b, a);
 
     b.add(JsonNull.INSTANCE);
-    assertFalse(a.equals(b));
-    assertFalse(b.equals(a));
+    assertNotEquals(a, b);
+    assertNotEquals(b, a);
   }
 
   @Test

@@ -39,7 +39,7 @@ public class LazilyParsedNumberTest {
   public void testEquals() {
     LazilyParsedNumber n1 = new LazilyParsedNumber("1");
     LazilyParsedNumber n1Another = new LazilyParsedNumber("1");
-    assertTrue(n1.equals(n1Another));
+    assertEquals(n1, n1Another);
   }
 
   @Test

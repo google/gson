@@ -18,6 +18,7 @@ package com.google.gson;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 
 import com.google.gson.internal.$Gson$Types;
@@ -58,7 +59,7 @@ public class ParameterizedTypeTest {
   public void testNotEquals() throws Exception {
     Type differentParameterizedType = new TypeToken<List<Integer>>() {
     }.getType();
-    assertFalse(differentParameterizedType.equals(ourType));
-    assertFalse(ourType.equals(differentParameterizedType));
+    assertNotEquals(differentParameterizedType, ourType);
+    assertNotEquals(ourType, differentParameterizedType);
   }
 }

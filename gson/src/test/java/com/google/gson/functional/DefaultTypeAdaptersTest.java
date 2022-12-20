@@ -206,7 +206,7 @@ public class DefaultTypeAdaptersTest {
 
   public static void testNullSerializationAndDeserialization(Gson gson, Class<?> c) {
     assertEquals("null", gson.toJson(null, c));
-    assertEquals(null, gson.fromJson("null", c));
+    assertNull(gson.fromJson("null", c));
   }
 
   @Test

@@ -18,6 +18,7 @@ package com.google.gson.functional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import com.google.gson.Gson;
@@ -73,7 +74,7 @@ public class InstanceCreatorTest {
     assertTrue(base instanceof Sub);
 
     Sub sub = (Sub) base;
-    assertFalse("SubRevised".equals(sub.subName));
+    assertNotEquals("SubRevised", sub.subName);
     assertEquals(Sub.SUB_NAME, sub.subName);
   }
 

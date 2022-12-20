@@ -2,6 +2,7 @@ package com.google.gson;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -268,8 +269,8 @@ public class JsonObjectAsMapTest {
 
     Map<String, JsonElement> map = o.asMap();
     MoreAsserts.assertEqualsAndHashCode(map, Collections.singletonMap("a", new JsonPrimitive(1)));
-    assertFalse(map.equals(Collections.emptyMap()));
-    assertFalse(map.equals(Collections.singletonMap("a", new JsonPrimitive(2))));
+    assertNotEquals(map, Collections.emptyMap());
+    assertNotEquals(map, Collections.singletonMap("a", new JsonPrimitive(2)));
   }
 
   /**

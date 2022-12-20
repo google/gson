@@ -18,6 +18,7 @@ package com.google.gson;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.reflect.TypeToken;
@@ -59,7 +60,7 @@ public class GenericArrayTypeTest {
   public void testNotEquals() throws Exception {
     Type differentGenericArrayType = new TypeToken<List<String>[][]>() {
     }.getType();
-    assertFalse(differentGenericArrayType.equals(ourType));
-    assertFalse(ourType.equals(differentGenericArrayType));
+    assertNotEquals(differentGenericArrayType, ourType);
+    assertNotEquals(ourType, differentGenericArrayType);
   }
 }

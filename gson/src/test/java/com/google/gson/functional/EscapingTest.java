@@ -18,6 +18,7 @@ package com.google.gson.functional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import com.google.gson.Gson;
@@ -85,7 +86,7 @@ public class EscapingTest {
     BagOfPrimitives target = new BagOfPrimitives(1L, 1, true, "test' / w'ith\" / \\ <script>");
     String escapedJsonForm = escapeHtmlGson.toJson(target);
     String nonEscapedJsonForm = noEscapeHtmlGson.toJson(target);
-    assertFalse(escapedJsonForm.equals(nonEscapedJsonForm));
+    assertNotEquals(escapedJsonForm, nonEscapedJsonForm);
 
     assertEquals(target, noEscapeHtmlGson.fromJson(escapedJsonForm, BagOfPrimitives.class));
     assertEquals(target, escapeHtmlGson.fromJson(nonEscapedJsonForm, BagOfPrimitives.class));

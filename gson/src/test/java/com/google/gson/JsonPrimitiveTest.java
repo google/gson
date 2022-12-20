@@ -18,6 +18,7 @@ package com.google.gson;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -288,9 +289,9 @@ public class JsonPrimitiveTest {
         new JsonPrimitive(Double.NEGATIVE_INFINITY));
     MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive(Double.POSITIVE_INFINITY),
         new JsonPrimitive(Double.POSITIVE_INFINITY));
-    assertFalse(new JsonPrimitive("a").equals(new JsonPrimitive("b")));
-    assertFalse(new JsonPrimitive(true).equals(new JsonPrimitive(false)));
-    assertFalse(new JsonPrimitive(0).equals(new JsonPrimitive(1)));
+    assertNotEquals(new JsonPrimitive("a"), new JsonPrimitive("b"));
+    assertNotEquals(new JsonPrimitive(true), new JsonPrimitive(false));
+    assertNotEquals(new JsonPrimitive(0), new JsonPrimitive(1));
   }
 
   @Test
@@ -311,14 +312,14 @@ public class JsonPrimitiveTest {
     JsonPrimitive b = new JsonPrimitive(new BigInteger("18446744073709551621")); // 2^64 + 5
     // Ideally, the following assertion should have failed but the price is too much to pay
     // assertFalse(a + " equals " + b, a.equals(b));
-    assertTrue(a + " equals " + b, a.equals(b));
+    assertEquals(a + " equals " + b, a, b);
   }
 
   @Test
   public void testEqualsDoesNotEquateStringAndNonStringTypes() {
-    assertFalse(new JsonPrimitive("true").equals(new JsonPrimitive(true)));
-    assertFalse(new JsonPrimitive("0").equals(new JsonPrimitive(0)));
-    assertFalse(new JsonPrimitive("NaN").equals(new JsonPrimitive(Float.NaN)));
+    assertNotEquals(new JsonPrimitive("true"), new JsonPrimitive(true));
+    assertNotEquals(new JsonPrimitive("0"), new JsonPrimitive(0));
+    assertNotEquals(new JsonPrimitive("NaN"), new JsonPrimitive(Float.NaN));
   }
 
   @Test

@@ -17,6 +17,7 @@
 package com.google.gson;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -73,8 +74,8 @@ public final class GsonTest {
 
     assertEquals(CUSTOM_EXCLUDER, gson.excluder);
     assertEquals(CUSTOM_FIELD_NAMING_STRATEGY, gson.fieldNamingStrategy());
-    assertEquals(true, gson.serializeNulls());
-    assertEquals(false, gson.htmlSafe());
+    assertTrue(gson.serializeNulls());
+    assertFalse(gson.htmlSafe());
   }
 
   @Test
