@@ -16,15 +16,19 @@
 
 package com.google.gson.internal;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
+import org.junit.Test;
 
-import junit.framework.TestCase;
+public final class GsonTypesTest {
 
-public final class GsonTypesTest extends TestCase {
-
-  public void testNewParameterizedTypeWithoutOwner() throws Exception {
+    @Test
+    public void testNewParameterizedTypeWithoutOwner() throws Exception {
     // List<A>. List is a top-level class
     Type type = $Gson$Types.newParameterizedTypeWithOwner(null, List.class, A.class);
     assertEquals(A.class, getFirstTypeArgument(type));
@@ -46,7 +50,8 @@ public final class GsonTypesTest extends TestCase {
     assertEquals(D.class, getFirstTypeArgument(type));
   }
 
-  public void testGetFirstTypeArgument() throws Exception {
+    @Test
+    public void testGetFirstTypeArgument() throws Exception {
     assertNull(getFirstTypeArgument(A.class));
 
     Type type = $Gson$Types.newParameterizedTypeWithOwner(null, A.class, B.class, C.class);

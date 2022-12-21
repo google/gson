@@ -16,6 +16,9 @@
 
 package com.google.gson.functional;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -29,10 +32,8 @@ import com.google.gson.common.TestTypes.ClassWithBaseArrayField;
 import com.google.gson.common.TestTypes.ClassWithBaseField;
 import com.google.gson.common.TestTypes.Sub;
 import com.google.gson.common.TestTypes.SubSerializer;
-
-import junit.framework.TestCase;
-
 import java.lang.reflect.Type;
+import org.junit.Test;
 
 /**
  * Functional Test exercising custom serialization only.  When test applies to both
@@ -40,9 +41,10 @@ import java.lang.reflect.Type;
  *
  * @author Inderjeet Singh
  */
-public class CustomSerializerTest extends TestCase {
+public class CustomSerializerTest {
 
-   public void testBaseClassSerializerInvokedForBaseClassFields() {
+    @Test
+    public void testBaseClassSerializerInvokedForBaseClassFields() {
      Gson gson = new GsonBuilder()
          .registerTypeAdapter(Base.class, new BaseSerializer())
          .registerTypeAdapter(Sub.class, new SubSerializer())
@@ -53,7 +55,8 @@ public class CustomSerializerTest extends TestCase {
      assertEquals(BaseSerializer.NAME, base.get(Base.SERIALIZER_KEY).getAsString());
    }
 
-   public void testSubClassSerializerInvokedForBaseClassFieldsHoldingSubClassInstances() {
+    @Test
+    public void testSubClassSerializerInvokedForBaseClassFieldsHoldingSubClassInstances() {
      Gson gson = new GsonBuilder()
          .registerTypeAdapter(Base.class, new BaseSerializer())
          .registerTypeAdapter(Sub.class, new SubSerializer())
@@ -64,7 +67,8 @@ public class CustomSerializerTest extends TestCase {
      assertEquals(SubSerializer.NAME, base.get(Base.SERIALIZER_KEY).getAsString());
    }
 
-   public void testSubClassSerializerInvokedForBaseClassFieldsHoldingArrayOfSubClassInstances() {
+    @Test
+    public void testSubClassSerializerInvokedForBaseClassFieldsHoldingArrayOfSubClassInstances() {
      Gson gson = new GsonBuilder()
          .registerTypeAdapter(Base.class, new BaseSerializer())
          .registerTypeAdapter(Sub.class, new SubSerializer())
@@ -78,7 +82,8 @@ public class CustomSerializerTest extends TestCase {
      }
    }
 
-   public void testBaseClassSerializerInvokedForBaseClassFieldsHoldingSubClassInstances() {
+    @Test
+    public void testBaseClassSerializerInvokedForBaseClassFieldsHoldingSubClassInstances() {
      Gson gson = new GsonBuilder()
          .registerTypeAdapter(Base.class, new BaseSerializer())
          .create();
@@ -88,7 +93,8 @@ public class CustomSerializerTest extends TestCase {
      assertEquals(BaseSerializer.NAME, base.get(Base.SERIALIZER_KEY).getAsString());
    }
 
-   public void testSerializerReturnsNull() {
+    @Test
+    public void testSerializerReturnsNull() {
      Gson gson = new GsonBuilder()
        .registerTypeAdapter(Base.class, new JsonSerializer<Base>() {
          @Override public JsonElement serialize(Base src, Type typeOfSrc, JsonSerializationContext context) {

@@ -15,21 +15,24 @@
  */
 package com.google.gson.functional;
 
+import static org.junit.Assert.assertEquals;
+
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
+import org.junit.Test;
 
-import junit.framework.TestCase;
-
-public final class SerializedNameTest extends TestCase {
+public final class SerializedNameTest {
   private final Gson gson = new Gson();
 
-  public void testFirstNameIsChosenForSerialization() {
+    @Test
+    public void testFirstNameIsChosenForSerialization() {
     MyClass target = new MyClass("v1", "v2");
     // Ensure name1 occurs exactly once, and name2 and name3 don't appear
     assertEquals("{\"name\":\"v1\",\"name1\":\"v2\"}", gson.toJson(target));
   }
 
-  public void testMultipleNamesDeserializedCorrectly() {
+    @Test
+    public void testMultipleNamesDeserializedCorrectly() {
     assertEquals("v1", gson.fromJson("{'name':'v1'}", MyClass.class).a);
 
     // Both name1 and name2 gets deserialized to b
@@ -38,7 +41,8 @@ public final class SerializedNameTest extends TestCase {
     assertEquals("v3", gson.fromJson("{'name3':'v3'}", MyClass.class).b);
   }
 
-  public void testMultipleNamesInTheSameString() {
+    @Test
+    public void testMultipleNamesInTheSameString() {
     // The last value takes precedence
     assertEquals("v3", gson.fromJson("{'name1':'v1','name2':'v2','name3':'v3'}", MyClass.class).b);
   }

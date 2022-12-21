@@ -39,8 +39,8 @@ public class TypeAdapterRuntimeTypeWrapperTest {
    * When custom {@link JsonSerializer} is registered for Base should
    * prefer that over reflective adapter for Subclass for serialization.
    */
-  @Test
-  public void testJsonSerializer() {
+    @Test
+    public void testJsonSerializer() {
     Gson gson = new GsonBuilder()
       .registerTypeAdapter(Base.class, new JsonSerializer<Base>() {
         @Override
@@ -59,8 +59,8 @@ public class TypeAdapterRuntimeTypeWrapperTest {
    * serialization should prefer reflective adapter for Subclass since
    * Base would use reflective adapter as delegate.
    */
-  @Test
-  public void testJsonDeserializer_ReflectiveSerializerDelegate() {
+    @Test
+    public void testJsonDeserializer_ReflectiveSerializerDelegate() {
     Gson gson = new GsonBuilder()
       .registerTypeAdapter(Base.class, new Deserializer())
       .create();
@@ -74,8 +74,8 @@ public class TypeAdapterRuntimeTypeWrapperTest {
    * registered for Base, then on serialization should prefer custom adapter
    * delegate for Base over reflective adapter for Subclass.
    */
-  @Test
-  public void testJsonDeserializer_CustomSerializerDelegate() {
+    @Test
+    public void testJsonDeserializer_CustomSerializerDelegate() {
     Gson gson = new GsonBuilder()
       // Register custom delegate
       .registerTypeAdapter(Base.class, new TypeAdapter<Base>() {
@@ -100,8 +100,8 @@ public class TypeAdapterRuntimeTypeWrapperTest {
    * which eventually fall back to reflective adapter as delegate, then on
    * serialization should prefer reflective adapter for Subclass.
    */
-  @Test
-  public void testJsonDeserializer_ReflectiveTreeSerializerDelegate() {
+    @Test
+    public void testJsonDeserializer_ReflectiveTreeSerializerDelegate() {
     Gson gson = new GsonBuilder()
       // Register delegate which itself falls back to reflective serialization
       .registerTypeAdapter(Base.class, new Deserializer())
@@ -117,8 +117,8 @@ public class TypeAdapterRuntimeTypeWrapperTest {
    * is registered for Base, then on serialization should prefer
    * {@code JsonSerializer} over reflective adapter for Subclass.
    */
-  @Test
-  public void testJsonDeserializer_JsonSerializerDelegate() {
+    @Test
+    public void testJsonDeserializer_JsonSerializerDelegate() {
     Gson gson = new GsonBuilder()
       // Register JsonSerializer as delegate
       .registerTypeAdapter(Base.class, new JsonSerializer<Base>() {
@@ -142,8 +142,8 @@ public class TypeAdapterRuntimeTypeWrapperTest {
    * though normally TypeAdapterRuntimeTypeWrapper should prefer the custom
    * serializer for Base.
    */
-  @Test
-  public void testJsonDeserializer_SubclassBackwardCompatibility() {
+    @Test
+    public void testJsonDeserializer_SubclassBackwardCompatibility() {
     Gson gson = new GsonBuilder()
       .registerTypeAdapter(Subclass.class, new JsonDeserializer<Subclass>() {
         @Override
@@ -183,8 +183,8 @@ public class TypeAdapterRuntimeTypeWrapperTest {
    * uses a future adapter for the type. That adapter later uses the actual
    * adapter as delegate.
    */
-  @Test
-  public void testGsonFutureAdapter() {
+    @Test
+    public void testGsonFutureAdapter() {
     CyclicBase b = new CyclicBase();
     b.f = new CyclicSub(2);
     String json = new Gson().toJson(b);

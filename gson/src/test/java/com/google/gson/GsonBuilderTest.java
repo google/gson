@@ -44,8 +44,8 @@ public class GsonBuilderTest {
     }
   };
 
-  @Test
-  public void testCreatingMoreThanOnce() {
+    @Test
+    public void testCreatingMoreThanOnce() {
     GsonBuilder builder = new GsonBuilder();
     Gson gson = builder.create();
     assertNotNull(gson);
@@ -67,8 +67,8 @@ public class GsonBuilderTest {
    * Gson instances should not be affected by subsequent modification of GsonBuilder
    * which created them.
    */
-  @Test
-  public void testModificationAfterCreate() {
+    @Test
+    public void testModificationAfterCreate() {
     GsonBuilder gsonBuilder = new GsonBuilder();
     Gson gson = gsonBuilder.create();
 
@@ -143,8 +143,8 @@ public class GsonBuilderTest {
     }
   }
 
-  @Test
-  public void testExcludeFieldsWithModifiers() {
+    @Test
+    public void testExcludeFieldsWithModifiers() {
     Gson gson = new GsonBuilder()
         .excludeFieldsWithModifiers(Modifier.VOLATILE, Modifier.PRIVATE)
         .create();
@@ -159,8 +159,8 @@ public class GsonBuilderTest {
     String d = "d";
   }
 
-  @Test
-  public void testTransientFieldExclusion() {
+    @Test
+    public void testTransientFieldExclusion() {
     Gson gson = new GsonBuilder()
         .excludeFieldsWithModifiers()
         .create();
@@ -171,8 +171,8 @@ public class GsonBuilderTest {
     transient String a = "a";
   }
 
-  @Test
-  public void testRegisterTypeAdapterForCoreType() {
+    @Test
+    public void testRegisterTypeAdapterForCoreType() {
     Type[] types = {
         byte.class,
         int.class,
@@ -186,8 +186,8 @@ public class GsonBuilderTest {
     }
   }
 
-  @Test
-  public void testDisableJdkUnsafe() {
+    @Test
+    public void testDisableJdkUnsafe() {
     Gson gson = new GsonBuilder()
         .disableJdkUnsafe()
         .create();
@@ -210,8 +210,8 @@ public class GsonBuilderTest {
     }
   }
 
-  @Test
-  public void testSetVersionInvalid() {
+    @Test
+    public void testSetVersionInvalid() {
     GsonBuilder builder = new GsonBuilder();
     try {
       builder.setVersion(Double.NaN);

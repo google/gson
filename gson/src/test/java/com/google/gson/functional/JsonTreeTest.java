@@ -1,5 +1,10 @@
 package com.google.gson.functional;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -8,7 +13,8 @@ import com.google.gson.common.TestTypes.BagOfPrimitives;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Functional tests for {@link Gson#toJsonTree(Object)} and 
@@ -17,16 +23,16 @@ import junit.framework.TestCase;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class JsonTreeTest extends TestCase {
+public class JsonTreeTest {
   private Gson gson;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+    @Before
+    public void setUp() throws Exception {
     gson = new Gson();
   }
 
-  public void testToJsonTree() {
+    @Test
+    public void testToJsonTree() {
     BagOfPrimitives bag = new BagOfPrimitives(10L, 5, false, "foo");
     JsonElement json = gson.toJsonTree(bag);
     assertTrue(json.isJsonObject());
@@ -39,7 +45,8 @@ public class JsonTreeTest extends TestCase {
     assertContains(obj, new JsonPrimitive("foo"));
   }
 
-  public void testToJsonTreeObjectType() {
+    @Test
+    public void testToJsonTreeObjectType() {
     SubTypeOfBagOfPrimitives bag = new SubTypeOfBagOfPrimitives(10L, 5, false, "foo", 1.4F);
     JsonElement json = gson.toJsonTree(bag, BagOfPrimitives.class);
     assertTrue(json.isJsonObject());
@@ -52,7 +59,8 @@ public class JsonTreeTest extends TestCase {
     assertContains(obj, new JsonPrimitive("foo"));
   }
 
-  public void testJsonTreeToString() {
+    @Test
+    public void testJsonTreeToString() {
     SubTypeOfBagOfPrimitives bag = new SubTypeOfBagOfPrimitives(10L, 5, false, "foo", 1.4F);
     String json1 = gson.toJson(bag);
     JsonElement jsonElement = gson.toJsonTree(bag, SubTypeOfBagOfPrimitives.class);
@@ -60,7 +68,8 @@ public class JsonTreeTest extends TestCase {
     assertEquals(json1, json2);
   }
 
-  public void testJsonTreeNull() {
+    @Test
+    public void testJsonTreeNull() {
     BagOfPrimitives bag = new BagOfPrimitives(10L, 5, false, null);
     JsonObject jsonElement = (JsonObject) gson.toJsonTree(bag, BagOfPrimitives.class);
     assertFalse(jsonElement.has("stringValue"));

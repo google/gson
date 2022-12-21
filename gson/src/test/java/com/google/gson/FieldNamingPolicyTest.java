@@ -2,18 +2,19 @@ package com.google.gson;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+
+import com.google.gson.functional.FieldNamingTest;
 import java.lang.reflect.Field;
 import java.util.Locale;
 import org.junit.Test;
-import com.google.gson.functional.FieldNamingTest;
 
 /**
  * Performs tests directly against {@link FieldNamingPolicy}; for integration tests
  * see {@link FieldNamingTest}.
  */
 public class FieldNamingPolicyTest {
-  @Test
-  public void testSeparateCamelCase() {
+    @Test
+    public void testSeparateCamelCase() {
     // Map from original -> expected
     String[][] argumentPairs =  {
       { "a", "a" },
@@ -32,8 +33,8 @@ public class FieldNamingPolicyTest {
     }
   }
 
-  @Test
-  public void testUpperCaseFirstLetter() {
+    @Test
+    public void testUpperCaseFirstLetter() {
     // Map from original -> expected
     String[][] argumentPairs =  {
       { "a", "A" },
@@ -58,8 +59,8 @@ public class FieldNamingPolicyTest {
   /**
    * Upper casing policies should be unaffected by default Locale.
    */
-  @Test
-  public void testUpperCasingLocaleIndependent() throws Exception {
+    @Test
+    public void testUpperCasingLocaleIndependent() throws Exception {
     class Dummy {
       @SuppressWarnings("unused")
       int i;
@@ -95,8 +96,8 @@ public class FieldNamingPolicyTest {
   /**
    * Lower casing policies should be unaffected by default Locale.
    */
-  @Test
-  public void testLowerCasingLocaleIndependent() throws Exception {
+    @Test
+    public void testLowerCasingLocaleIndependent() throws Exception {
     class Dummy {
       @SuppressWarnings("unused")
       int I;

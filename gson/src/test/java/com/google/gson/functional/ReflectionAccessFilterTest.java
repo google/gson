@@ -40,8 +40,8 @@ public class ReflectionAccessFilterTest {
     }
   }
 
-  @Test
-  public void testBlockInaccessibleJava() throws ReflectiveOperationException {
+    @Test
+    public void testBlockInaccessibleJava() throws ReflectiveOperationException {
     Gson gson = new GsonBuilder()
       .addReflectionAccessFilter(ReflectionAccessFilter.BLOCK_INACCESSIBLE_JAVA)
       .create();
@@ -75,8 +75,8 @@ public class ReflectionAccessFilterTest {
     assertEquals("{\"x\":1,\"y\":2}", json);
   }
 
-  @Test
-  public void testBlockInaccessibleJavaExtendingJdkClass() {
+    @Test
+    public void testBlockInaccessibleJavaExtendingJdkClass() {
     Gson gson = new GsonBuilder()
       .addReflectionAccessFilter(ReflectionAccessFilter.BLOCK_INACCESSIBLE_JAVA)
       .create();
@@ -94,8 +94,8 @@ public class ReflectionAccessFilterTest {
     }
   }
 
-  @Test
-  public void testBlockAllJava() {
+    @Test
+    public void testBlockAllJava() {
     Gson gson = new GsonBuilder()
       .addReflectionAccessFilter(ReflectionAccessFilter.BLOCK_ALL_JAVA)
       .create();
@@ -113,8 +113,8 @@ public class ReflectionAccessFilterTest {
     }
   }
 
-  @Test
-  public void testBlockAllJavaExtendingJdkClass() {
+    @Test
+    public void testBlockAllJavaExtendingJdkClass() {
     Gson gson = new GsonBuilder()
       .addReflectionAccessFilter(ReflectionAccessFilter.BLOCK_ALL_JAVA)
       .create();
@@ -137,8 +137,8 @@ public class ReflectionAccessFilterTest {
     private static int i = 1;
   }
 
-  @Test
-  public void testBlockInaccessibleStaticField() {
+    @Test
+    public void testBlockInaccessibleStaticField() {
     Gson gson = new GsonBuilder()
       .addReflectionAccessFilter(new ReflectionAccessFilter() {
         @Override public FilterResult check(Class<?> rawClass) {
@@ -174,8 +174,8 @@ public class ReflectionAccessFilterTest {
     public int i = 2;
   }
 
-  @Test
-  public void testDelegation() {
+    @Test
+    public void testDelegation() {
     Gson gson = new GsonBuilder()
       .addReflectionAccessFilter(new ReflectionAccessFilter() {
         @Override public FilterResult check(Class<?> rawClass) {
@@ -220,8 +220,8 @@ public class ReflectionAccessFilterTest {
   private static class ExtendingClassWithPrivateField extends ClassWithPrivateField {
   }
 
-  @Test
-  public void testAllowForSupertype() {
+    @Test
+    public void testAllowForSupertype() {
     Gson gson = new GsonBuilder()
       .addReflectionAccessFilter(new ReflectionAccessFilter() {
         @Override public FilterResult check(Class<?> rawClass) {
@@ -263,8 +263,8 @@ public class ReflectionAccessFilterTest {
     }
   }
 
-  @Test
-  public void testInaccessibleNoArgsConstructor() {
+    @Test
+    public void testInaccessibleNoArgsConstructor() {
     Gson gson = new GsonBuilder()
       .addReflectionAccessFilter(new ReflectionAccessFilter() {
         @Override public FilterResult check(Class<?> rawClass) {
@@ -294,8 +294,8 @@ public class ReflectionAccessFilterTest {
     }
   }
 
-  @Test
-  public void testClassWithoutNoArgsConstructor() {
+    @Test
+    public void testClassWithoutNoArgsConstructor() {
     GsonBuilder gsonBuilder = new GsonBuilder()
       .addReflectionAccessFilter(new ReflectionAccessFilter() {
         @Override public FilterResult check(Class<?> rawClass) {
@@ -348,8 +348,8 @@ public class ReflectionAccessFilterTest {
    * When using {@link FilterResult#BLOCK_ALL}, registering only a {@link JsonSerializer}
    * but not performing any deserialization should not throw any exception.
    */
-  @Test
-  public void testBlockAllPartial() {
+    @Test
+    public void testBlockAllPartial() {
     Gson gson = new GsonBuilder()
       .addReflectionAccessFilter(new ReflectionAccessFilter() {
         @Override public FilterResult check(Class<?> rawClass) {
@@ -383,8 +383,8 @@ public class ReflectionAccessFilterTest {
    * Should not fail when deserializing collection interface
    * (Even though this goes through {@link ConstructorConstructor} as well)
    */
-  @Test
-  public void testBlockAllCollectionInterface() {
+    @Test
+    public void testBlockAllCollectionInterface() {
     Gson gson = new GsonBuilder()
       .addReflectionAccessFilter(new ReflectionAccessFilter() {
         @Override public FilterResult check(Class<?> rawClass) {
@@ -400,8 +400,8 @@ public class ReflectionAccessFilterTest {
    * Should not fail when deserializing specific collection implementation
    * (Even though this goes through {@link ConstructorConstructor} as well)
    */
-  @Test
-  public void testBlockAllCollectionImplementation() {
+    @Test
+    public void testBlockAllCollectionImplementation() {
     Gson gson = new GsonBuilder()
       .addReflectionAccessFilter(new ReflectionAccessFilter() {
         @Override public FilterResult check(Class<?> rawClass) {
@@ -417,8 +417,8 @@ public class ReflectionAccessFilterTest {
    * When trying to deserialize interface an exception for that should
    * be thrown, even if {@link FilterResult#BLOCK_INACCESSIBLE} is used
    */
-  @Test
-  public void testBlockInaccessibleInterface() {
+    @Test
+    public void testBlockInaccessibleInterface() {
     Gson gson = new GsonBuilder()
       .addReflectionAccessFilter(new ReflectionAccessFilter() {
         @Override public FilterResult check(Class<?> rawClass) {

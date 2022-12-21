@@ -31,21 +31,21 @@ import com.google.gson.protobuf.generated.Bag.ProtoWithAnnotations.InnerMessage;
 import com.google.gson.protobuf.generated.Bag.ProtoWithAnnotations.InnerMessage.Data;
 import com.google.gson.protobuf.generated.Bag.ProtoWithAnnotations.InnerMessage.Type;
 import com.google.protobuf.GeneratedMessageV3;
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Functional tests for protocol buffers using annotations for field names and enum values.
  *
  * @author Emmanuel Cron
  */
-public class ProtosWithAnnotationsTest extends TestCase {
+public class ProtosWithAnnotationsTest {
   private Gson gson;
   private Gson gsonWithEnumNumbers;
   private Gson gsonWithLowerHyphen;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+    @Before
+    public void setUp() throws Exception {
     ProtoTypeAdapter.Builder protoTypeAdapter = ProtoTypeAdapter.newBuilder()
         .setEnumSerialization(EnumSerialization.NAME)
         .addSerializedNameExtension(Annotations.serializedName)
@@ -65,7 +65,8 @@ public class ProtosWithAnnotationsTest extends TestCase {
         .create();
   }
 
-  public void testProtoWithAnnotations_deserialize() {
+    @Test
+    public void testProtoWithAnnotations_deserialize() {
     String json = String.format("{  %n"
         + "   \"id\":\"41e5e7fd6065d101b97018a465ffff01\",%n"
         + "   \"expiration_date\":{  %n"
@@ -142,7 +143,8 @@ public class ProtosWithAnnotationsTest extends TestCase {
         + "}]}}");
   }
 
-  public void testProtoWithAnnotations_deserializeUnknownEnumValue() {
+    @Test
+    public void testProtoWithAnnotations_deserializeUnknownEnumValue() {
     String json = String.format("{  %n"
         + "   \"content\":\"UNKNOWN\"%n"
         + "}");
@@ -150,7 +152,8 @@ public class ProtosWithAnnotationsTest extends TestCase {
     assertThat(proto.getContent()).isEqualTo(Type.UNKNOWN);
   }
 
-  public void testProtoWithAnnotations_deserializeUnrecognizedEnumValue() {
+    @Test
+    public void testProtoWithAnnotations_deserializeUnrecognizedEnumValue() {
     String json = String.format("{  %n"
         + "   \"content\":\"UNRECOGNIZED\"%n"
         + "}");
@@ -162,7 +165,8 @@ public class ProtosWithAnnotationsTest extends TestCase {
     }
   }
 
-  public void testProtoWithAnnotations_deserializeWithEnumNumbers() {
+    @Test
+    public void testProtoWithAnnotations_deserializeWithEnumNumbers() {
     String json = String.format("{  %n"
         + "   \"content\":\"0\"%n"
         + "}");
@@ -180,7 +184,8 @@ public class ProtosWithAnnotationsTest extends TestCase {
     assertThat(rebuilt).isEqualTo("{\"content\":2}");
   }
 
-  public void testProtoWithAnnotations_serialize() {
+    @Test
+    public void testProtoWithAnnotations_serialize() {
     ProtoWithAnnotations proto = ProtoWithAnnotations.newBuilder()
         .setId("09f3j20839h032y0329hf30932h0nffn")
         .setOuterMessage(OuterMessage.newBuilder()

@@ -15,6 +15,11 @@
  */
 package com.google.gson.functional;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -26,9 +31,6 @@ import com.google.gson.common.TestTypes.ClassWithBaseCollectionField;
 import com.google.gson.common.TestTypes.ClassWithBaseField;
 import com.google.gson.common.TestTypes.Nested;
 import com.google.gson.common.TestTypes.Sub;
-
-import junit.framework.TestCase;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -37,6 +39,8 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Functional tests for Json serialization and deserialization of classes with 
@@ -45,22 +49,23 @@ import java.util.TreeSet;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class InheritanceTest extends TestCase {
+public class InheritanceTest {
   private Gson gson;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+    @Before
+    public void setUp() throws Exception {
     gson = new Gson();
   }
 
-  public void testSubClassSerialization() throws Exception {
+    @Test
+    public void testSubClassSerialization() throws Exception {
     SubTypeOfNested target = new SubTypeOfNested(new BagOfPrimitives(10, 20, false, "stringValue"),
         new BagOfPrimitives(30, 40, true, "stringValue"));
     assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 
-  public void testSubClassDeserialization() throws Exception {
+    @Test
+    public void testSubClassDeserialization() throws Exception {
     String json = "{\"value\":5,\"primitive1\":{\"longValue\":10,\"intValue\":20,"
         + "\"booleanValue\":false,\"stringValue\":\"stringValue\"},\"primitive2\":"
         + "{\"longValue\":30,\"intValue\":40,\"booleanValue\":true,"
@@ -69,14 +74,16 @@ public class InheritanceTest extends TestCase {
     assertEquals(json, target.getExpectedJson());
   }
 
-  public void testClassWithBaseFieldSerialization() {
+    @Test
+    public void testClassWithBaseFieldSerialization() {
     ClassWithBaseField sub = new ClassWithBaseField(new Sub());
     JsonObject json = (JsonObject) gson.toJsonTree(sub);
     JsonElement base = json.getAsJsonObject().get(ClassWithBaseField.FIELD_KEY);
     assertEquals(Sub.SUB_NAME, base.getAsJsonObject().get(Sub.SUB_FIELD_KEY).getAsString());
   }
 
-  public void testClassWithBaseArrayFieldSerialization() {
+    @Test
+    public void testClassWithBaseArrayFieldSerialization() {
     Base[] baseClasses = new Base[]{ new Sub(), new Sub()};
     ClassWithBaseArrayField sub = new ClassWithBaseArrayField(baseClasses);
     JsonObject json = gson.toJsonTree(sub).getAsJsonObject();
@@ -86,7 +93,8 @@ public class InheritanceTest extends TestCase {
     }
   }
 
-  public void testClassWithBaseCollectionFieldSerialization() {
+    @Test
+    public void testClassWithBaseCollectionFieldSerialization() {
     Collection<Base> baseClasses = new ArrayList<>();
     baseClasses.add(new Sub());
     baseClasses.add(new Sub());
@@ -98,39 +106,45 @@ public class InheritanceTest extends TestCase {
     }
   }
 
-  public void testBaseSerializedAsSub() {
+    @Test
+    public void testBaseSerializedAsSub() {
     Base base = new Sub();
     JsonObject json = gson.toJsonTree(base).getAsJsonObject();
     assertEquals(Sub.SUB_NAME, json.get(Sub.SUB_FIELD_KEY).getAsString());
   }
 
-  public void testBaseSerializedAsSubForToJsonMethod() {
+    @Test
+    public void testBaseSerializedAsSubForToJsonMethod() {
     Base base = new Sub();
     String json = gson.toJson(base);
     assertTrue(json.contains(Sub.SUB_NAME));
   }
 
-  public void testBaseSerializedAsBaseWhenSpecifiedWithExplicitType() {
+    @Test
+    public void testBaseSerializedAsBaseWhenSpecifiedWithExplicitType() {
     Base base = new Sub();
     JsonObject json = gson.toJsonTree(base, Base.class).getAsJsonObject();
     assertEquals(Base.BASE_NAME, json.get(Base.BASE_FIELD_KEY).getAsString());
     assertNull(json.get(Sub.SUB_FIELD_KEY));
   }
 
-  public void testBaseSerializedAsBaseWhenSpecifiedWithExplicitTypeForToJsonMethod() {
+    @Test
+    public void testBaseSerializedAsBaseWhenSpecifiedWithExplicitTypeForToJsonMethod() {
     Base base = new Sub();
     String json = gson.toJson(base, Base.class);
     assertTrue(json.contains(Base.BASE_NAME));
     assertFalse(json.contains(Sub.SUB_FIELD_KEY));
   }
 
-  public void testBaseSerializedAsSubWhenSpecifiedWithExplicitType() {
+    @Test
+    public void testBaseSerializedAsSubWhenSpecifiedWithExplicitType() {
     Base base = new Sub();
     JsonObject json = gson.toJsonTree(base, Sub.class).getAsJsonObject();
     assertEquals(Sub.SUB_NAME, json.get(Sub.SUB_FIELD_KEY).getAsString());
   }
 
-  public void testBaseSerializedAsSubWhenSpecifiedWithExplicitTypeForToJsonMethod() {
+    @Test
+    public void testBaseSerializedAsSubWhenSpecifiedWithExplicitTypeForToJsonMethod() {
     Base base = new Sub();
     String json = gson.toJson(base, Sub.class);
     assertTrue(json.contains(Sub.SUB_NAME));
@@ -150,7 +164,8 @@ public class InheritanceTest extends TestCase {
     }
   }
 
-  public void testSubInterfacesOfCollectionSerialization() throws Exception {
+    @Test
+    public void testSubInterfacesOfCollectionSerialization() throws Exception {
     List<Integer> list = new LinkedList<>();
     list.add(0);
     list.add(1);
@@ -176,7 +191,8 @@ public class InheritanceTest extends TestCase {
     assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 
-  public void testSubInterfacesOfCollectionDeserialization() throws Exception {
+    @Test
+    public void testSubInterfacesOfCollectionDeserialization() throws Exception {
     String json = "{\"list\":[0,1,2,3],\"queue\":[0,1,2,3],\"set\":[0.1,0.2,0.3,0.4],"
         + "\"sortedSet\":[\"a\",\"b\",\"c\",\"d\"]"
         + "}";

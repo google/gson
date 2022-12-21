@@ -23,8 +23,8 @@ import org.junit.Test;
  * Tests for {@link JsonObject#asMap()}.
  */
 public class JsonObjectAsMapTest {
-  @Test
-  public void testSize() {
+    @Test
+    public void testSize() {
     JsonObject o = new JsonObject();
     assertEquals(0, o.asMap().size());
 
@@ -37,8 +37,8 @@ public class JsonObjectAsMapTest {
     assertEquals(0, o.size());
   }
 
-  @Test
-  public void testContainsKey() {
+    @Test
+    public void testContainsKey() {
     JsonObject o = new JsonObject();
     o.addProperty("a", 1);
 
@@ -48,8 +48,8 @@ public class JsonObjectAsMapTest {
     assertFalse(map.containsKey(null));
   }
 
-  @Test
-  public void testContainsValue() {
+    @Test
+    public void testContainsValue() {
     JsonObject o = new JsonObject();
     o.addProperty("a", 1);
     o.add("b", JsonNull.INSTANCE);
@@ -64,8 +64,8 @@ public class JsonObjectAsMapTest {
     assertFalse(containsInt);
   }
 
-  @Test
-  public void testGet() {
+    @Test
+    public void testGet() {
     JsonObject o = new JsonObject();
     o.addProperty("a", 1);
 
@@ -75,8 +75,8 @@ public class JsonObjectAsMapTest {
     assertNull(map.get(null));
   }
 
-  @Test
-  public void testPut() {
+    @Test
+    public void testPut() {
     JsonObject o = new JsonObject();
     Map<String, JsonElement> map = o.asMap();
 
@@ -108,8 +108,8 @@ public class JsonObjectAsMapTest {
     }
   }
 
-  @Test
-  public void testRemove() {
+    @Test
+    public void testRemove() {
     JsonObject o = new JsonObject();
     o.addProperty("a", 1);
 
@@ -128,8 +128,8 @@ public class JsonObjectAsMapTest {
     assertNull(map.remove(null));
   }
 
-  @Test
-  public void testPutAll() {
+    @Test
+    public void testPutAll() {
     JsonObject o = new JsonObject();
     o.addProperty("a", 1);
 
@@ -158,8 +158,8 @@ public class JsonObjectAsMapTest {
     }
   }
 
-  @Test
-  public void testClear() {
+    @Test
+    public void testClear() {
     JsonObject o = new JsonObject();
     o.addProperty("a", 1);
 
@@ -169,8 +169,8 @@ public class JsonObjectAsMapTest {
     assertEquals(0, o.size());
   }
 
-  @Test
-  public void testKeySet() {
+    @Test
+    public void testKeySet() {
     JsonObject o = new JsonObject();
     o.addProperty("b", 1);
     o.addProperty("a", 2);
@@ -192,8 +192,8 @@ public class JsonObjectAsMapTest {
     assertEquals(Collections.singleton("b"), o.keySet());
   }
 
-  @Test
-  public void testValues() {
+    @Test
+    public void testValues() {
     JsonObject o = new JsonObject();
     o.addProperty("a", 2);
     o.addProperty("b", 1);
@@ -216,8 +216,8 @@ public class JsonObjectAsMapTest {
     assertEquals(new JsonPrimitive(1), o.get("b"));
   }
 
-  @Test
-  public void testEntrySet() {
+    @Test
+    public void testEntrySet() {
     JsonObject o = new JsonObject();
     o.addProperty("b", 2);
     o.addProperty("a", 1);
@@ -259,8 +259,8 @@ public class JsonObjectAsMapTest {
     }
   }
 
-  @Test
-  public void testEqualsHashCode() {
+    @Test
+    public void testEqualsHashCode() {
     JsonObject o = new JsonObject();
     o.addProperty("a", 1);
 
@@ -271,8 +271,8 @@ public class JsonObjectAsMapTest {
   }
 
   /** Verify that {@code JsonObject} updates are visible to view and vice versa */
-  @Test
-  public void testViewUpdates() {
+    @Test
+    public void testViewUpdates() {
     JsonObject o = new JsonObject();
     Map<String, JsonElement> map = o.asMap();
 

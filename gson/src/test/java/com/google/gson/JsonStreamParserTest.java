@@ -33,21 +33,21 @@ import org.junit.Test;
 public class JsonStreamParserTest {
   private JsonStreamParser parser;
 
-  @Before
-  public void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
     parser = new JsonStreamParser("'one' 'two'");
   }
 
-  @Test
-  public void testParseTwoStrings() {
+    @Test
+    public void testParseTwoStrings() {
     String actualOne = parser.next().getAsString();
     assertEquals("one", actualOne);
     String actualTwo = parser.next().getAsString();
     assertEquals("two", actualTwo);
   }
 
-  @Test
-  public void testIterator() {
+    @Test
+    public void testIterator() {
     assertTrue(parser.hasNext());
     assertEquals("one", parser.next().getAsString());
     assertTrue(parser.hasNext());
@@ -55,8 +55,8 @@ public class JsonStreamParserTest {
     assertFalse(parser.hasNext());
   }
 
-  @Test
-  public void testNoSideEffectForHasNext() throws Exception {
+    @Test
+    public void testNoSideEffectForHasNext() throws Exception {
     assertTrue(parser.hasNext());
     assertTrue(parser.hasNext());
     assertTrue(parser.hasNext());
@@ -70,8 +70,8 @@ public class JsonStreamParserTest {
     assertFalse(parser.hasNext());
   }
 
-  @Test
-  public void testCallingNextBeyondAvailableInput() {
+    @Test
+    public void testCallingNextBeyondAvailableInput() {
     parser.next();
     parser.next();
     try {
@@ -81,8 +81,8 @@ public class JsonStreamParserTest {
     }
   }
 
-  @Test
-  public void testEmptyInput() {
+    @Test
+    public void testEmptyInput() {
     JsonStreamParser parser = new JsonStreamParser("");
     try {
       parser.next();
@@ -100,8 +100,8 @@ public class JsonStreamParserTest {
     }
   }
 
-  @Test
-  public void testIncompleteInput() {
+    @Test
+    public void testIncompleteInput() {
     JsonStreamParser parser = new JsonStreamParser("[");
     assertTrue(parser.hasNext());
     try {
@@ -111,8 +111,8 @@ public class JsonStreamParserTest {
     }
   }
 
-  @Test
-  public void testMalformedInput() {
+    @Test
+    public void testMalformedInput() {
     JsonStreamParser parser = new JsonStreamParser(":");
     try {
       parser.hasNext();

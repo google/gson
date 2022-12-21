@@ -23,8 +23,8 @@ public class Java17ReflectiveTypeAdapterFactoryTest {
   // have record support at the language level for these tests. This class was added in JDK 16.
   Class<?> unixDomainPrincipalClass;
 
-  @Before
-  public void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
     unixDomainPrincipalClass = Class.forName("jdk.net.UnixDomainPrincipal");
   }
 
@@ -34,16 +34,16 @@ public class Java17ReflectiveTypeAdapterFactoryTest {
     public String s;
   }
 
-  @Test
-  public void testCustomAdapterForRecords() {
+    @Test
+    public void testCustomAdapterForRecords() {
     Gson gson = new Gson();
     TypeAdapter<?> recordAdapter = gson.getAdapter(unixDomainPrincipalClass);
     TypeAdapter<?> defaultReflectionAdapter = gson.getAdapter(DummyClass.class);
     assertNotEquals(recordAdapter.getClass(), defaultReflectionAdapter.getClass());
   }
 
-  @Test
-  public void testSerializeRecords() throws ReflectiveOperationException {
+    @Test
+    public void testSerializeRecords() throws ReflectiveOperationException {
     Gson gson =
         new GsonBuilder()
             .registerTypeAdapter(UserPrincipal.class, new PrincipalTypeAdapter<>())

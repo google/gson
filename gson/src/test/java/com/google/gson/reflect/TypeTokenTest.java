@@ -16,6 +16,11 @@
 
 package com.google.gson.reflect;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -23,12 +28,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.RandomAccess;
 import java.util.Set;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
  * @author Jesse Wilson
  */
-public final class TypeTokenTest extends TestCase {
+public final class TypeTokenTest {
   // These fields are accessed using reflection by the tests below
   List<Integer> listOfInteger = null;
   List<Number> listOfNumber = null;
@@ -38,7 +43,8 @@ public final class TypeTokenTest extends TestCase {
   List<Set<?>> listOfSetOfUnknown = null;
 
   @SuppressWarnings({"deprecation"})
-  public void testIsAssignableFromRawTypes() {
+    @Test
+    public void testIsAssignableFromRawTypes() {
     assertTrue(TypeToken.get(Object.class).isAssignableFrom(String.class));
     assertFalse(TypeToken.get(String.class).isAssignableFrom(Object.class));
     assertTrue(TypeToken.get(RandomAccess.class).isAssignableFrom(ArrayList.class));
@@ -46,7 +52,8 @@ public final class TypeTokenTest extends TestCase {
   }
 
   @SuppressWarnings({"deprecation"})
-  public void testIsAssignableFromWithTypeParameters() throws Exception {
+    @Test
+    public void testIsAssignableFromWithTypeParameters() throws Exception {
     Type a = getClass().getDeclaredField("listOfInteger").getGenericType();
     Type b = getClass().getDeclaredField("listOfNumber").getGenericType();
     assertTrue(TypeToken.get(a).isAssignableFrom(a));
@@ -59,7 +66,8 @@ public final class TypeTokenTest extends TestCase {
   }
 
   @SuppressWarnings({"deprecation"})
-  public void testIsAssignableFromWithBasicWildcards() throws Exception {
+    @Test
+    public void testIsAssignableFromWithBasicWildcards() throws Exception {
     Type a = getClass().getDeclaredField("listOfString").getGenericType();
     Type b = getClass().getDeclaredField("listOfUnknown").getGenericType();
     assertTrue(TypeToken.get(a).isAssignableFrom(a));
@@ -73,7 +81,8 @@ public final class TypeTokenTest extends TestCase {
   }
 
   @SuppressWarnings({"deprecation"})
-  public void testIsAssignableFromWithNestedWildcards() throws Exception {
+    @Test
+    public void testIsAssignableFromWithNestedWildcards() throws Exception {
     Type a = getClass().getDeclaredField("listOfSetOfString").getGenericType();
     Type b = getClass().getDeclaredField("listOfSetOfUnknown").getGenericType();
     assertTrue(TypeToken.get(a).isAssignableFrom(a));
@@ -85,7 +94,8 @@ public final class TypeTokenTest extends TestCase {
     assertFalse(TypeToken.get(b).isAssignableFrom(a));
   }
 
-  public void testArrayFactory() {
+    @Test
+    public void testArrayFactory() {
     TypeToken<?> expectedStringArray = new TypeToken<String[]>() {};
     assertEquals(expectedStringArray, TypeToken.getArray(String.class));
 
@@ -100,7 +110,8 @@ public final class TypeTokenTest extends TestCase {
     }
   }
 
-  public void testParameterizedFactory() {
+    @Test
+    public void testParameterizedFactory() {
     TypeToken<?> expectedListOfString = new TypeToken<List<String>>() {};
     assertEquals(expectedListOfString, TypeToken.getParameterized(List.class, String.class));
 
@@ -122,7 +133,8 @@ public final class TypeTokenTest extends TestCase {
     assertEquals(expectedSatisfyingTwoBounds, TypeToken.getParameterized(GenericWithMultiBound.class, ClassSatisfyingBounds.class));
   }
 
-  public void testParameterizedFactory_Invalid() {
+    @Test
+    public void testParameterizedFactory_Invalid() {
     try {
       TypeToken.getParameterized(null, new Type[0]);
       fail();
@@ -207,7 +219,8 @@ public final class TypeTokenTest extends TestCase {
   private static class CustomTypeToken extends TypeToken<String> {
   }
 
-  public void testTypeTokenNonAnonymousSubclass() {
+    @Test
+    public void testTypeTokenNonAnonymousSubclass() {
     TypeToken<?> typeToken = new CustomTypeToken();
     assertEquals(String.class, typeToken.getRawType());
     assertEquals(String.class, typeToken.getType());
@@ -217,7 +230,8 @@ public final class TypeTokenTest extends TestCase {
    * User must only create direct subclasses of TypeToken, but not subclasses
    * of subclasses (...) of TypeToken.
    */
-  public void testTypeTokenSubSubClass() {
+    @Test
+    public void testTypeTokenSubSubClass() {
     class SubTypeToken<T> extends TypeToken<String> {}
     class SubSubTypeToken1<T> extends SubTypeToken<T> {}
     class SubSubTypeToken2 extends SubTypeToken<Integer> {}
@@ -245,7 +259,8 @@ public final class TypeTokenTest extends TestCase {
   }
 
   @SuppressWarnings("rawtypes")
-  public void testTypeTokenRaw() {
+    @Test
+    public void testTypeTokenRaw() {
     try {
       new TypeToken() {};
       fail();

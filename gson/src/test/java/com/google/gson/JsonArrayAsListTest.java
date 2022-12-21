@@ -17,8 +17,8 @@ import org.junit.Test;
  * Tests for {@link JsonArray#asList()}.
  */
 public class JsonArrayAsListTest {
-  @Test
-  public void testGet() {
+    @Test
+    public void testGet() {
     JsonArray a = new JsonArray();
     a.add(1);
 
@@ -41,8 +41,8 @@ public class JsonArrayAsListTest {
     assertEquals(JsonNull.INSTANCE, list.get(1));
   }
 
-  @Test
-  public void testSize() {
+    @Test
+    public void testSize() {
     JsonArray a = new JsonArray();
     a.add(1);
 
@@ -52,8 +52,8 @@ public class JsonArrayAsListTest {
     assertEquals(2, list.size());
   }
 
-  @Test
-  public void testSet() {
+    @Test
+    public void testSet() {
     JsonArray a = new JsonArray();
     a.add(1);
 
@@ -83,8 +83,8 @@ public class JsonArrayAsListTest {
     }
   }
 
-  @Test
-  public void testAdd() {
+    @Test
+    public void testAdd() {
     JsonArray a = new JsonArray();
     a.add(1);
 
@@ -129,8 +129,8 @@ public class JsonArrayAsListTest {
     }
   }
 
-  @Test
-  public void testAddAll() {
+    @Test
+    public void testAddAll() {
     JsonArray a = new JsonArray();
     a.add(1);
 
@@ -158,8 +158,8 @@ public class JsonArrayAsListTest {
     }
   }
 
-  @Test
-  public void testRemoveIndex() {
+    @Test
+    public void testRemoveIndex() {
     JsonArray a = new JsonArray();
     a.add(1);
 
@@ -175,8 +175,8 @@ public class JsonArrayAsListTest {
     }
   }
 
-  @Test
-  public void testRemoveElement() {
+    @Test
+    public void testRemoveElement() {
     JsonArray a = new JsonArray();
     a.add(1);
 
@@ -189,8 +189,8 @@ public class JsonArrayAsListTest {
     assertFalse(list.remove(null));
   }
 
-  @Test
-  public void testClear() {
+    @Test
+    public void testClear() {
     JsonArray a = new JsonArray();
     a.add(1);
 
@@ -200,8 +200,8 @@ public class JsonArrayAsListTest {
     assertEquals(0, a.size());
   }
 
-  @Test
-  public void testContains() {
+    @Test
+    public void testContains() {
     JsonArray a = new JsonArray();
     a.add(1);
 
@@ -215,8 +215,8 @@ public class JsonArrayAsListTest {
     assertFalse(containsInt);
   }
 
-  @Test
-  public void testIndexOf() {
+    @Test
+    public void testIndexOf() {
     JsonArray a = new JsonArray();
     // Add the same value twice to test indexOf vs. lastIndexOf
     a.add(1);
@@ -236,8 +236,8 @@ public class JsonArrayAsListTest {
     assertEquals(-1, list.lastIndexOf(null));
   }
 
-  @Test
-  public void testToArray() {
+    @Test
+    public void testToArray() {
     JsonArray a = new JsonArray();
     a.add(1);
 
@@ -257,8 +257,8 @@ public class JsonArrayAsListTest {
     assertArrayEquals(new Object[] {new JsonPrimitive(1), null}, array);
   }
 
-  @Test
-  public void testEqualsHashCode() {
+    @Test
+    public void testEqualsHashCode() {
     JsonArray a = new JsonArray();
     a.add(1);
 
@@ -269,8 +269,8 @@ public class JsonArrayAsListTest {
   }
 
   /** Verify that {@code JsonArray} updates are visible to view and vice versa */
-  @Test
-  public void testViewUpdates() {
+    @Test
+    public void testViewUpdates() {
     JsonArray a = new JsonArray();
     List<JsonElement> list = a.asList();
 

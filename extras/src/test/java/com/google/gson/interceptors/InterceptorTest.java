@@ -15,6 +15,9 @@
  */
 package com.google.gson.interceptors;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
@@ -29,51 +32,56 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Unit tests for {@link Intercept} and {@link JsonPostDeserializer}.
  *
  * @author Inderjeet Singh
  */
-public final class InterceptorTest extends TestCase {
+public final class InterceptorTest {
 
   private Gson gson;
 
-  @Override
-  public void setUp() throws Exception {
-    super.setUp();
+    @Before
+    public void setUp() throws Exception {
     this.gson = new GsonBuilder()
         .registerTypeAdapterFactory(new InterceptorFactory())
         .enableComplexMapKeySerialization()
         .create();
   }
 
-  public void testExceptionsPropagated() {
+    @Test
+    public void testExceptionsPropagated() {
     try {
       gson.fromJson("{}", User.class);
       fail();
     } catch (JsonParseException expected) {}
   }
 
-  public void testTopLevelClass() {
+    @Test
+    public void testTopLevelClass() {
     User user = gson.fromJson("{name:'bob',password:'pwd'}", User.class);
     assertEquals(User.DEFAULT_EMAIL, user.email);
   }
 
-  public void testList() {
+    @Test
+    public void testList() {
     List<User> list = gson.fromJson("[{name:'bob',password:'pwd'}]", new TypeToken<List<User>>(){}.getType());
     User user = list.get(0);
     assertEquals(User.DEFAULT_EMAIL, user.email);
   }
 
-  public void testCollection() {
+    @Test
+    public void testCollection() {
     Collection<User> list = gson.fromJson("[{name:'bob',password:'pwd'}]", new TypeToken<Collection<User>>(){}.getType());
     User user = list.iterator().next();
     assertEquals(User.DEFAULT_EMAIL, user.email);
   }
 
-  public void testMapKeyAndValues() {
+    @Test
+    public void testMapKeyAndValues() {
     Type mapType = new TypeToken<Map<User, Address>>(){}.getType();
     try {
       gson.fromJson("[[{name:'bob',password:'pwd'},{}]]", mapType);
@@ -86,12 +94,14 @@ public final class InterceptorTest extends TestCase {
     assertEquals(Address.DEFAULT_FIRST_LINE, entry.getValue().firstLine);
   }
 
-  public void testField() {
+    @Test
+    public void testField() {
     UserGroup userGroup = gson.fromJson("{user:{name:'bob',password:'pwd'}}", UserGroup.class);
     assertEquals(User.DEFAULT_EMAIL, userGroup.user.email);
   }
 
-  public void testCustomTypeAdapter() {
+    @Test
+    public void testCustomTypeAdapter() {
     Gson gson = new GsonBuilder()
         .registerTypeAdapter(User.class, new TypeAdapter<User>() {
           @Override public void write(JsonWriter out, User value) throws IOException {
@@ -114,7 +124,8 @@ public final class InterceptorTest extends TestCase {
     assertEquals(User.DEFAULT_EMAIL, userGroup.user.email);
   }
 
-  public void testDirectInvocationOfTypeAdapter() throws Exception {
+    @Test
+    public void testDirectInvocationOfTypeAdapter() throws Exception {
     TypeAdapter<UserGroup> adapter = gson.getAdapter(UserGroup.class);
     UserGroup userGroup = adapter.fromJson("{\"user\":{\"name\":\"bob\",\"password\":\"pwd\"}}");
     assertEquals(User.DEFAULT_EMAIL, userGroup.user.email);

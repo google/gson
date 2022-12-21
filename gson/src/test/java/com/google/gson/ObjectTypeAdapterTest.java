@@ -16,19 +16,22 @@
 
 package com.google.gson;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public final class ObjectTypeAdapterTest extends TestCase {
+public final class ObjectTypeAdapterTest {
   private final Gson gson = new GsonBuilder().create();
   private final TypeAdapter<Object> adapter = gson.getAdapter(Object.class);
 
-  public void testDeserialize() throws Exception {
+    @Test
+    public void testDeserialize() throws Exception {
     Map<?, ?> map = (Map<?, ?>) adapter.fromJson("{\"a\":5,\"b\":[1,2,null],\"c\":{\"x\":\"y\"}}");
     assertEquals(5.0, map.get("a"));
     assertEquals(Arrays.asList(1.0, 2.0, null), map.get("b"));
@@ -36,24 +39,28 @@ public final class ObjectTypeAdapterTest extends TestCase {
     assertEquals(3, map.size());
   }
 
-  public void testSerialize() throws Exception {
+    @Test
+    public void testSerialize() throws Exception {
     Object object = new RuntimeType();
     assertEquals("{'a':5,'b':[1,2,null]}", adapter.toJson(object).replace("\"", "'"));
   }
 
-  public void testSerializeNullValue() throws Exception {
+    @Test
+    public void testSerializeNullValue() throws Exception {
     Map<String, Object> map = new LinkedHashMap<>();
     map.put("a", null);
     assertEquals("{'a':null}", adapter.toJson(map).replace('"', '\''));
   }
 
-  public void testDeserializeNullValue() throws Exception {
+    @Test
+    public void testDeserializeNullValue() throws Exception {
     Map<String, Object> map = new LinkedHashMap<>();
     map.put("a", null);
     assertEquals(map, adapter.fromJson("{\"a\":null}"));
   }
 
-  public void testSerializeObject() throws Exception {
+    @Test
+    public void testSerializeObject() throws Exception {
     assertEquals("{}", adapter.toJson(new Object()));
   }
 
@@ -67,7 +74,8 @@ public final class ObjectTypeAdapterTest extends TestCase {
 
   /** Deeply nested JSON arrays should not cause {@link StackOverflowError} */
   @SuppressWarnings("unchecked")
-  public void testDeserializeDeeplyNestedArrays() throws IOException {
+    @Test
+    public void testDeserializeDeeplyNestedArrays() throws IOException {
     int times = 10000;
     // [[[ ... ]]]
     String json = repeat("[", times) + repeat("]", times);
@@ -87,7 +95,8 @@ public final class ObjectTypeAdapterTest extends TestCase {
 
   /** Deeply nested JSON objects should not cause {@link StackOverflowError} */
   @SuppressWarnings("unchecked")
-  public void testDeserializeDeeplyNestedObjects() throws IOException {
+    @Test
+    public void testDeserializeDeeplyNestedObjects() throws IOException {
     int times = 10000;
     // {"a":{"a": ... {"a":null} ... }}
     String json = repeat("{\"a\":", times) + "null" + repeat("}", times);

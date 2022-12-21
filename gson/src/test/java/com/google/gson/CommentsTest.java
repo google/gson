@@ -16,20 +16,23 @@
 
 package com.google.gson;
 
+import static org.junit.Assert.assertEquals;
+
 import com.google.gson.reflect.TypeToken;
 import java.util.Arrays;
 import java.util.List;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
  * @author Jesse Wilson
  */
-public final class CommentsTest extends TestCase {
+public final class CommentsTest {
 
   /**
    * Test for issue 212.
    */
-  public void testParseComments() {
+    @Test
+    public void testParseComments() {
     String json = "[\n"
         + "  // this is a comment\n"
         + "  \"a\",\n"

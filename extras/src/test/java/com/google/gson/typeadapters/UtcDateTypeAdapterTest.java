@@ -16,6 +16,9 @@
 
 package com.google.gson.typeadapters;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
@@ -24,21 +27,23 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public final class UtcDateTypeAdapterTest extends TestCase {
+public final class UtcDateTypeAdapterTest {
   private final Gson gson = new GsonBuilder()
     .registerTypeAdapter(Date.class, new UtcDateTypeAdapter())
     .create();
 
-  public void testLocalTimeZone() {
+    @Test
+    public void testLocalTimeZone() {
     Date expected = new Date();
     String json = gson.toJson(expected);
     Date actual = gson.fromJson(json, Date.class);
     assertEquals(expected.getTime(), actual.getTime());
   }
 
-  public void testDifferentTimeZones() {
+    @Test
+    public void testDifferentTimeZones() {
     for (String timeZone : TimeZone.getAvailableIDs()) {
       Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(timeZone));
       Date expected = cal.getTime();
@@ -53,14 +58,16 @@ public final class UtcDateTypeAdapterTest extends TestCase {
    * JDK 1.7 introduced support for XXX format to indicate UTC date. But Android is older JDK.
    * We want to make sure that this date is parseable in Android.
    */
-  public void testUtcDatesOnJdkBefore1_7() {
+    @Test
+    public void testUtcDatesOnJdkBefore1_7() {
     Gson gson = new GsonBuilder()
       .registerTypeAdapter(Date.class, new UtcDateTypeAdapter())
       .create();
     gson.fromJson("'2014-12-05T04:00:00.000Z'", Date.class);
   }
 
-  public void testUtcWithJdk7Default() {
+    @Test
+    public void testUtcWithJdk7Default() {
     Date expected = new Date();
     SimpleDateFormat iso8601Format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.US);
     iso8601Format.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -71,12 +78,14 @@ public final class UtcDateTypeAdapterTest extends TestCase {
     assertEquals(expected.getTime(), actual.getTime());
   }
 
-  public void testNullDateSerialization() {
+    @Test
+    public void testNullDateSerialization() {
     String json = gson.toJson(null, Date.class);
     assertEquals("null", json);
   }
 
-  public void testWellFormedParseException() {
+    @Test
+    public void testWellFormedParseException() {
     try {
       gson.fromJson("2017-06-20T14:32:30", Date.class);
       fail("No exception");

@@ -19,20 +19,18 @@ package com.google.gson.graph;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import org.junit.Test;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
-
 public final class GraphAdapterBuilderTest {
-  @Test
-  public void testSerialization() {
+    @Test
+    public void testSerialization() {
     Roshambo rock = new Roshambo("ROCK");
     Roshambo scissors = new Roshambo("SCISSORS");
     Roshambo paper = new Roshambo("PAPER");
@@ -52,8 +50,8 @@ public final class GraphAdapterBuilderTest {
         gson.toJson(rock).replace('"', '\''));
   }
 
-  @Test
-  public void testDeserialization() {
+    @Test
+    public void testDeserialization() {
     String json = "{'0x1':{'name':'ROCK','beats':'0x2'}," +
         "'0x2':{'name':'SCISSORS','beats':'0x3'}," +
         "'0x3':{'name':'PAPER','beats':'0x1'}}";
@@ -73,8 +71,8 @@ public final class GraphAdapterBuilderTest {
     assertSame(rock, paper.beats);
   }
 
-  @Test
-  public void testDeserializationDirectSelfReference() {
+    @Test
+    public void testDeserializationDirectSelfReference() {
     String json = "{'0x1':{'name':'SUICIDE','beats':'0x1'}}";
 
     GsonBuilder gsonBuilder = new GsonBuilder();
@@ -88,8 +86,8 @@ public final class GraphAdapterBuilderTest {
     assertSame(suicide, suicide.beats);
   }
 
-  @Test
-  public void testSerializeListOfLists() {
+    @Test
+    public void testSerializeListOfLists() {
     Type listOfListsType = new TypeToken<List<List<?>>>() {}.getType();
     Type listOfAnyType = new TypeToken<List<?>>() {}.getType();
 
@@ -108,8 +106,8 @@ public final class GraphAdapterBuilderTest {
     assertEquals("{'0x1':['0x1','0x2'],'0x2':[]}", json.replace('"', '\''));
   }
 
-  @Test
-  public void testDeserializeListOfLists() {
+    @Test
+    public void testDeserializeListOfLists() {
     Type listOfAnyType = new TypeToken<List<?>>() {}.getType();
     Type listOfListsType = new TypeToken<List<List<?>>>() {}.getType();
 
@@ -126,8 +124,8 @@ public final class GraphAdapterBuilderTest {
     assertEquals(Collections.emptyList(), listOfLists.get(1));
   }
 
-  @Test
-  public void testSerializationWithMultipleTypes() {
+    @Test
+    public void testSerializationWithMultipleTypes() {
     Company google = new Company("Google");
     new Employee("Jesse", google);
     new Employee("Joel", google);
@@ -145,8 +143,8 @@ public final class GraphAdapterBuilderTest {
         gson.toJson(google).replace('"', '\''));
   }
 
-  @Test
-  public void testDeserializationWithMultipleTypes() {
+    @Test
+    public void testDeserializationWithMultipleTypes() {
     GsonBuilder gsonBuilder = new GsonBuilder();
     new GraphAdapterBuilder()
         .addType(Company.class)

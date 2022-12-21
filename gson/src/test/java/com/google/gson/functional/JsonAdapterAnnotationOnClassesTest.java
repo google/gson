@@ -16,6 +16,11 @@
 
 package com.google.gson.functional;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -34,14 +39,15 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Locale;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
  * Functional tests for the {@link com.google.gson.annotations.JsonAdapter} annotation on classes.
  */
-public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
+public final class JsonAdapterAnnotationOnClassesTest {
 
-  public void testJsonAdapterInvoked() {
+    @Test
+    public void testJsonAdapterInvoked() {
     Gson gson = new Gson();
     String json = gson.toJson(new A("bar"));
     assertEquals("\"jsonAdapter\"", json);
@@ -59,7 +65,8 @@ public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
     assertEquals(Foo.BAZ, baz);
   }
 
-  public void testJsonAdapterFactoryInvoked() {
+    @Test
+    public void testJsonAdapterFactoryInvoked() {
     Gson gson = new Gson();
     String json = gson.toJson(new C("bar"));
     assertEquals("\"jsonAdapterFactory\"", json);
@@ -67,7 +74,8 @@ public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
     assertEquals("jsonAdapterFactory", c.value);
   }
 
-  public void testRegisteredAdapterOverridesJsonAdapter() {
+    @Test
+    public void testRegisteredAdapterOverridesJsonAdapter() {
     TypeAdapter<A> typeAdapter = new TypeAdapter<A>() {
       @Override public void write(JsonWriter out, A value) throws IOException {
         out.value("registeredAdapter");
@@ -86,7 +94,8 @@ public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
   /**
    * The serializer overrides field adapter, but for deserializer the fieldAdapter is used.
    */
-  public void testRegisteredSerializerOverridesJsonAdapter() {
+    @Test
+    public void testRegisteredSerializerOverridesJsonAdapter() {
     JsonSerializer<A> serializer = new JsonSerializer<A>() {
       @Override public JsonElement serialize(A src, Type typeOfSrc,
           JsonSerializationContext context) {
@@ -105,7 +114,8 @@ public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
   /**
    * The deserializer overrides Json adapter, but for serializer the jsonAdapter is used.
    */
-  public void testRegisteredDeserializerOverridesJsonAdapter() {
+    @Test
+    public void testRegisteredDeserializerOverridesJsonAdapter() {
     JsonDeserializer<A> deserializer = new JsonDeserializer<A>() {
       @Override public A deserialize(JsonElement json, Type typeOfT,
           JsonDeserializationContext context) throws JsonParseException {
@@ -121,19 +131,22 @@ public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
     assertEquals("registeredDeserializer", target.value);
   }
 
-  public void testIncorrectTypeAdapterFails() {
+    @Test
+    public void testIncorrectTypeAdapterFails() {
     try {
       String json = new Gson().toJson(new ClassWithIncorrectJsonAdapter("bar"));
       fail(json);
     } catch (ClassCastException expected) {}
   }
 
-  public void testSuperclassTypeAdapterNotInvoked() {
+    @Test
+    public void testSuperclassTypeAdapterNotInvoked() {
     String json = new Gson().toJson(new B("bar"));
     assertFalse(json.contains("jsonAdapter"));
   }
 
-  public void testNullSafeObjectFromJson() {
+    @Test
+    public void testNullSafeObjectFromJson() {
     Gson gson = new Gson();
     NullableClass fromJson = gson.fromJson("null", NullableClass.class);
     assertNull(fromJson);
@@ -250,7 +263,8 @@ public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
     }
   }
 
-  public void testIncorrectJsonAdapterType() {
+    @Test
+    public void testIncorrectJsonAdapterType() {
     try {
       new Gson().toJson(new D());
       fail();

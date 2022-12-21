@@ -32,8 +32,8 @@ import org.junit.Test;
 public class VersionExclusionStrategyTest {
   private static final double VERSION = 5.0D;
 
-  @Test
-  public void testSameVersion() throws Exception {
+    @Test
+    public void testSameVersion() throws Exception {
     Excluder excluder = Excluder.DEFAULT.withVersion(VERSION);
     assertFalse(excluder.excludeClass(MockClassSince.class, true));
     assertFalse(excluder.excludeField(MockClassSince.class.getField("someField"), true));
@@ -46,8 +46,8 @@ public class VersionExclusionStrategyTest {
     assertFalse(excluder.excludeField(MockClassBoth.class.getField("someField"), true));
   }
 
-  @Test
-  public void testNewerVersion() throws Exception {
+    @Test
+    public void testNewerVersion() throws Exception {
     Excluder excluder = Excluder.DEFAULT.withVersion(VERSION + 5);
     assertFalse(excluder.excludeClass(MockClassSince.class, true));
     assertFalse(excluder.excludeField(MockClassSince.class.getField("someField"), true));
@@ -59,8 +59,8 @@ public class VersionExclusionStrategyTest {
     assertTrue(excluder.excludeField(MockClassBoth.class.getField("someField"), true));
   }
 
-  @Test
-  public void testOlderVersion() throws Exception {
+    @Test
+    public void testOlderVersion() throws Exception {
     Excluder excluder = Excluder.DEFAULT.withVersion(VERSION - 5);
     assertTrue(excluder.excludeClass(MockClassSince.class, true));
     assertTrue(excluder.excludeField(MockClassSince.class.getField("someField"), true));

@@ -30,8 +30,8 @@ public class ObjectTypeAdapterParameterizedTest {
   @Parameter
   public String json;
 
-  @Test
-  public void testReadWrite() throws IOException {
+    @Test
+    public void testReadWrite() throws IOException {
     Object deserialized = adapter.fromJson(json);
     String actualSerialized = adapter.toJson(deserialized);
 

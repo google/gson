@@ -26,8 +26,8 @@ public class ConstructorConstructorTest {
    * Verify that ConstructorConstructor does not try to invoke no-arg constructor
    * of abstract class.
    */
-  @Test
-  public void testGet_AbstractClassNoArgConstructor() {
+    @Test
+    public void testGet_AbstractClassNoArgConstructor() {
     ObjectConstructor<AbstractClass> constructor = constructorConstructor.get(TypeToken.get(AbstractClass.class));
     try {
       constructor.construct();
@@ -41,8 +41,8 @@ public class ConstructorConstructorTest {
     }
   }
 
-  @Test
-  public void testGet_Interface() {
+    @Test
+    public void testGet_Interface() {
     ObjectConstructor<Interface> constructor = constructorConstructor.get(TypeToken.get(Interface.class));
     try {
       constructor.construct();

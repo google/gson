@@ -15,17 +15,20 @@
  */
 package com.google.gson.regression;
 
-import java.io.InputStream;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.jar.Manifest;
+import org.junit.Test;
 
-import junit.framework.TestCase;
-
-public class OSGiTest extends TestCase {
+public class OSGiTest {
+    @Test
     public void testComGoogleGsonAnnotationsPackage() throws Exception {
         Manifest mf = findManifest("com.google.gson");
         String importPkg = mf.getMainAttributes().getValue("Import-Package");
@@ -33,6 +36,7 @@ public class OSGiTest extends TestCase {
         assertSubstring("There should be com.google.gson.annotations dependency", importPkg, "com.google.gson.annotations");
     }
 
+    @Test
     public void testSunMiscImportPackage() throws Exception {
         Manifest mf = findManifest("com.google.gson");
         String importPkg = mf.getMainAttributes().getValue("Import-Package");

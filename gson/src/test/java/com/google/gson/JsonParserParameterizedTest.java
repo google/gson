@@ -30,8 +30,8 @@ public class JsonParserParameterizedTest {
   @Parameter
   public String json;
 
-  @Test
-  public void testParse() throws IOException {
+    @Test
+    public void testParse() throws IOException {
     JsonElement deserialized = JsonParser.parseString(json);
     String actualSerialized = adapter.toJson(deserialized);
 

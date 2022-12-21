@@ -16,11 +16,17 @@
 
 package com.google.gson;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.List;
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Unit tests for the {@link FieldAttributes} class.
@@ -28,28 +34,30 @@ import junit.framework.TestCase;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class FieldAttributesTest extends TestCase {
+public class FieldAttributesTest {
   private FieldAttributes fieldAttributes;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+    @Before
+    public void setUp() throws Exception {
     fieldAttributes = new FieldAttributes(Foo.class.getField("bar"));
   }
 
   @SuppressWarnings("unused")
-  public void testNullField() throws Exception {
+    @Test
+    public void testNullField() throws Exception {
     try {
       new FieldAttributes(null);
       fail("Field parameter can not be null");
     } catch (NullPointerException expected) { }
   }
 
-  public void testDeclaringClass() throws Exception {
+    @Test
+    public void testDeclaringClass() throws Exception {
     assertEquals(Foo.class, fieldAttributes.getDeclaringClass());
   }
 
-  public void testModifiers() throws Exception {
+    @Test
+    public void testModifiers() throws Exception {
     assertFalse(fieldAttributes.hasModifier(Modifier.STATIC));
     assertFalse(fieldAttributes.hasModifier(Modifier.FINAL));
     assertFalse(fieldAttributes.hasModifier(Modifier.ABSTRACT));
@@ -60,11 +68,13 @@ public class FieldAttributesTest extends TestCase {
     assertTrue(fieldAttributes.hasModifier(Modifier.TRANSIENT));
   }
 
-  public void testName() throws Exception {
+    @Test
+    public void testName() throws Exception {
     assertEquals("bar", fieldAttributes.getName());
   }
 
-  public void testDeclaredTypeAndClass() throws Exception {
+    @Test
+    public void testDeclaredTypeAndClass() throws Exception {
     Type expectedType = new TypeToken<List<String>>() {}.getType();
     assertEquals(expectedType, fieldAttributes.getDeclaredType());
     assertEquals(List.class, fieldAttributes.getDeclaredClass());

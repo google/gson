@@ -16,6 +16,9 @@
 
 package com.google.gson.functional;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -31,12 +34,13 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Collection of functional tests for DOM tree based type adapters.
  */
-public class TreeTypeAdaptersTest extends TestCase {
+public class TreeTypeAdaptersTest {
   private static final Id<Student> STUDENT1_ID = new Id<>("5", Student.class);
   private static final Id<Student> STUDENT2_ID = new Id<>("6", Student.class);
   private static final Student STUDENT1 = new Student(STUDENT1_ID, "first");
@@ -49,8 +53,8 @@ public class TreeTypeAdaptersTest extends TestCase {
   private Gson gson;
   private Course<HistoryCourse> course;
 
-  @Override
-  protected void setUp() {
+    @Before
+    public void setUp() {
     gson = new GsonBuilder()
         .registerTypeAdapter(Id.class, new IdTreeTypeAdapter())
         .create();
@@ -58,14 +62,16 @@ public class TreeTypeAdaptersTest extends TestCase {
         new Assignment<HistoryCourse>(null, null), Arrays.asList(STUDENT1, STUDENT2));
   }
 
-  public void testSerializeId() {
+    @Test
+    public void testSerializeId() {
     String json = gson.toJson(course, TYPE_COURSE_HISTORY);
     assertTrue(json.contains(String.valueOf(COURSE_ID.getValue())));
     assertTrue(json.contains(String.valueOf(STUDENT1_ID.getValue())));
     assertTrue(json.contains(String.valueOf(STUDENT2_ID.getValue())));
   }
 
-  public void testDeserializeId() {
+    @Test
+    public void testDeserializeId() {
     String json = "{courseId:1,students:[{id:1,name:'first'},{id:6,name:'second'}],"
       + "numAssignments:4,assignment:{}}";
     Course<HistoryCourse> target = gson.fromJson(json, TYPE_COURSE_HISTORY);

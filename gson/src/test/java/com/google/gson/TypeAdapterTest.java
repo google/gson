@@ -11,8 +11,8 @@ import java.io.StringReader;
 import org.junit.Test;
 
 public class TypeAdapterTest {
-  @Test
-  public void testNullSafe() throws IOException {
+    @Test
+    public void testNullSafe() throws IOException {
     TypeAdapter<String> adapter = new TypeAdapter<String>() {
       @Override public void write(JsonWriter out, String value) {
         throw new AssertionError("unexpected call");
@@ -31,8 +31,8 @@ public class TypeAdapterTest {
    * Tests behavior when {@link TypeAdapter#write(JsonWriter, Object)} manually throws
    * {@link IOException} which is not caused by writer usage.
    */
-  @Test
-  public void testToJson_ThrowingIOException() {
+    @Test
+    public void testToJson_ThrowingIOException() {
     final IOException exception = new IOException("test");
     TypeAdapter<Integer> adapter = new TypeAdapter<Integer>() {
       @Override public void write(JsonWriter out, Integer value) throws IOException {
@@ -71,15 +71,15 @@ public class TypeAdapterTest {
 
   // Note: This test just verifies the current behavior; it is a bit questionable
   // whether that behavior is actually desired
-  @Test
-  public void testFromJson_Reader_TrailingData() throws IOException {
+    @Test
+    public void testFromJson_Reader_TrailingData() throws IOException {
     assertEquals("a", adapter.fromJson(new StringReader("\"a\"1")));
   }
 
   // Note: This test just verifies the current behavior; it is a bit questionable
   // whether that behavior is actually desired
-  @Test
-  public void testFromJson_String_TrailingData() throws IOException {
+    @Test
+    public void testFromJson_String_TrailingData() throws IOException {
     assertEquals("a", adapter.fromJson("\"a\"1"));
   }
 }

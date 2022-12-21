@@ -6,11 +6,11 @@ import static org.junit.Assert.assertTrue;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.junit.Before;
-import org.junit.Test;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * This test covers the scenario described in #1390 where a type variable needs to be used
@@ -21,14 +21,14 @@ public class ReusedTypeVariablesFullyResolveTest {
 
   private Gson gson;
 
-  @Before
-  public void setUp() {
+    @Before
+    public void setUp() {
     gson = new GsonBuilder().create();
   }
 
   @SuppressWarnings("ConstantConditions") // The instances were being unmarshaled as Strings instead of TestEnums
-  @Test
-  public void testGenericsPreservation() {
+    @Test
+    public void testGenericsPreservation() {
     TestEnumSetCollection withSet = gson.fromJson("{\"collection\":[\"ONE\",\"THREE\"]}", TestEnumSetCollection.class);
     Iterator<TestEnum> iterator = withSet.collection.iterator();
     assertNotNull(withSet);

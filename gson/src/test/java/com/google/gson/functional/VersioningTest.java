@@ -43,8 +43,8 @@ public class VersioningTest {
     return new GsonBuilder().setVersion(version).create();
   }
 
-  @Test
-  public void testVersionedUntilSerialization() {
+    @Test
+    public void testVersionedUntilSerialization() {
     Version1 target = new Version1();
     Gson gson = gsonWithVersion(1.29);
     String json = gson.toJson(target);
@@ -59,8 +59,8 @@ public class VersioningTest {
     assertFalse(json.contains("\"a\":" + A));
   }
 
-  @Test
-  public void testVersionedUntilDeserialization() {
+    @Test
+    public void testVersionedUntilDeserialization() {
     String json = "{\"a\":3,\"b\":4,\"c\":5}";
 
     Gson gson = gsonWithVersion(1.29);
@@ -76,16 +76,16 @@ public class VersioningTest {
     assertEquals(A, version1.a);
   }
 
-  @Test
-  public void testVersionedClassesSerialization() {
+    @Test
+    public void testVersionedClassesSerialization() {
     Gson gson = gsonWithVersion(1.0);
     String json1 = gson.toJson(new Version1());
     String json2 = gson.toJson(new Version1_1());
     assertEquals(json1, json2);
   }
 
-  @Test
-  public void testVersionedClassesDeserialization() {
+    @Test
+    public void testVersionedClassesDeserialization() {
     Gson gson = gsonWithVersion(1.0);
     String json = "{\"a\":3,\"b\":4,\"c\":5}";
     Version1 version1 = gson.fromJson(json, Version1.class);
@@ -97,14 +97,14 @@ public class VersioningTest {
     assertEquals(C, version1_1.c);
   }
 
-  @Test
-  public void testIgnoreLaterVersionClassSerialization() {
+    @Test
+    public void testIgnoreLaterVersionClassSerialization() {
     Gson gson = gsonWithVersion(1.0);
     assertEquals("null", gson.toJson(new Version1_2()));
   }
 
-  @Test
-  public void testIgnoreLaterVersionClassDeserialization() {
+    @Test
+    public void testIgnoreLaterVersionClassDeserialization() {
     Gson gson = gsonWithVersion(1.0);
     String json = "{\"a\":3,\"b\":4,\"c\":5,\"d\":6}";
     Version1_2 version1_2 = gson.fromJson(json, Version1_2.class);
@@ -113,15 +113,15 @@ public class VersioningTest {
     assertNull(version1_2);
   }
 
-  @Test
-  public void testVersionedGsonWithUnversionedClassesSerialization() {
+    @Test
+    public void testVersionedGsonWithUnversionedClassesSerialization() {
     Gson gson = gsonWithVersion(1.0);
     BagOfPrimitives target = new BagOfPrimitives(10, 20, false, "stringValue");
     assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 
-  @Test
-  public void testVersionedGsonWithUnversionedClassesDeserialization() {
+    @Test
+    public void testVersionedGsonWithUnversionedClassesDeserialization() {
     Gson gson = gsonWithVersion(1.0);
     String json = "{\"longValue\":10,\"intValue\":20,\"booleanValue\":false}";
 
@@ -133,8 +133,8 @@ public class VersioningTest {
     assertEquals(expected, actual);
   }
 
-  @Test
-  public void testVersionedGsonMixingSinceAndUntilSerialization() {
+    @Test
+    public void testVersionedGsonMixingSinceAndUntilSerialization() {
     Gson gson = gsonWithVersion(1.0);
     SinceUntilMixing target = new SinceUntilMixing();
     String json = gson.toJson(target);
@@ -153,8 +153,8 @@ public class VersioningTest {
     assertFalse(json.contains("\"b\":" + B));
   }
 
-  @Test
-  public void testVersionedGsonMixingSinceAndUntilDeserialization() {
+    @Test
+    public void testVersionedGsonMixingSinceAndUntilDeserialization() {
     String json = "{\"a\":5,\"b\":6}";
     Gson gson = gsonWithVersion(1.0);
     SinceUntilMixing result = gson.fromJson(json, SinceUntilMixing.class);

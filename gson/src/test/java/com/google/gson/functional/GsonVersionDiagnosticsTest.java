@@ -15,35 +15,33 @@
  */
 package com.google.gson.functional;
 
-import java.io.IOException;
-import java.util.regex.Pattern;
-
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-
-import junit.framework.TestCase;
+import java.io.IOException;
+import java.util.regex.Pattern;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Functional tests to validate printing of Gson version on AssertionErrors
  *
  * @author Inderjeet Singh
  */
-public class GsonVersionDiagnosticsTest extends TestCase {
+public class GsonVersionDiagnosticsTest {
   // We require a patch number, even if it is .0, consistent with https://semver.org/#spec-item-2.
   private static final Pattern GSON_VERSION_PATTERN =
       Pattern.compile("(\\(GSON \\d\\.\\d+\\.\\d)(?:[-.][A-Z]+)?\\)$");
 
   private Gson gson;
 
-  @Before
-  @Override
-  public void setUp() {
+    @Before
+    public void setUp() {
     gson = new GsonBuilder().registerTypeAdapter(TestType.class, new TypeAdapter<TestType>() {
       @Override public void write(JsonWriter out, TestType value) {
         throw new AssertionError("Expected during serialization");
@@ -54,14 +52,14 @@ public class GsonVersionDiagnosticsTest extends TestCase {
     }).create();
   }
 
-  @Test
-  public void testVersionPattern() {
+    @Test
+    public void testVersionPattern() {
     assertTrue(GSON_VERSION_PATTERN.matcher("(GSON 2.8.5)").matches());
     assertTrue(GSON_VERSION_PATTERN.matcher("(GSON 2.8.5-SNAPSHOT)").matches());
   }
 
-  @Test
-  public void testAssertionErrorInSerializationPrintsVersion() {
+    @Test
+    public void testAssertionErrorInSerializationPrintsVersion() {
     try {
       gson.toJson(new TestType());
       fail();
@@ -70,8 +68,8 @@ public class GsonVersionDiagnosticsTest extends TestCase {
     }
   }
 
-  @Test
-  public void testAssertionErrorInDeserializationPrintsVersion() {
+    @Test
+    public void testAssertionErrorInDeserializationPrintsVersion() {
     try {
       gson.fromJson("{'a':'abc'}", TestType.class);
       fail();
