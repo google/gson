@@ -496,6 +496,7 @@ public class MapTest {
         new Gson().toJson(map));
   }
 
+  @Test
   public final void testInterfaceTypeMap() {
     MapClass element = new MapClass();
     TestTypes.Sub subType = new TestTypes.Sub();
@@ -517,6 +518,7 @@ public class MapTest {
     assertEquals(expected, json);
   }
 
+  @Test
   public final void testInterfaceTypeMapWithSerializer() {
     MapClass element = new MapClass();
     TestTypes.Sub subType = new TestTypes.Sub();
