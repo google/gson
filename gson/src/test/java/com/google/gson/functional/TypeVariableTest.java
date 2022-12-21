@@ -15,6 +15,8 @@
  */
 package com.google.gson.functional;
 
+import static org.junit.Assert.assertEquals;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
@@ -23,7 +25,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
  * Functional test for Gson serialization and deserialization of
@@ -31,8 +33,9 @@ import junit.framework.TestCase;
  *
  * @author Joel Leitch
  */
-public class TypeVariableTest extends TestCase {
+public class TypeVariableTest {
 
+  @Test
   public void testAdvancedTypeVariables() throws Exception {
     Gson gson = new Gson();
     Bar bar1 = new Bar("someString", 1, true);
@@ -48,6 +51,7 @@ public class TypeVariableTest extends TestCase {
     assertEquals(bar1, bar2);
   }
 
+  @Test
   public void testTypeVariablesViaTypeParameter() throws Exception {
     Gson gson = new Gson();
     Foo<String, Integer> original = new Foo<>("e", 5, false);
@@ -59,6 +63,7 @@ public class TypeVariableTest extends TestCase {
     assertEquals(original, gson.<Foo<String, Integer>>fromJson(json, type));
   }
 
+  @Test
   public void testBasicTypeVariables() throws Exception {
     Gson gson = new Gson();
     Blue blue1 = new Blue(true);

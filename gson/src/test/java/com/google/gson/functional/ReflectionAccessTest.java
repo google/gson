@@ -36,8 +36,8 @@ public class ReflectionAccessTest {
     return classLoader.loadClass(c.getName());
   }
 
-  @Test
   @SuppressWarnings("removal") // java.lang.SecurityManager deprecation in Java 17
+  @Test
   public void testRestrictiveSecurityManager() throws Exception {
     // Must use separate class loader, otherwise permission is not checked, see Class.getDeclaredFields()
     Class<?> clazz = loadClassWithDifferentClassLoader(ClassWithPrivateMembers.class);

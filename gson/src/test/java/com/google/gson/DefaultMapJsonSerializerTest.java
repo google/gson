@@ -16,11 +16,13 @@
 
 package com.google.gson;
 
+import static org.junit.Assert.assertTrue;
+
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
  * Unit test for the default JSON map serialization object located in the
@@ -28,9 +30,10 @@ import junit.framework.TestCase;
  *
  * @author Joel Leitch
  */
-public class DefaultMapJsonSerializerTest extends TestCase {
+public class DefaultMapJsonSerializerTest {
   private Gson gson = new Gson();
 
+  @Test
   public void testEmptyMapNoTypeSerialization() {
     Map<String, String> emptyMap = new HashMap<>();
     JsonElement element = gson.toJsonTree(emptyMap, emptyMap.getClass());
@@ -39,6 +42,7 @@ public class DefaultMapJsonSerializerTest extends TestCase {
     assertTrue(emptyMapJsonObject.entrySet().isEmpty());
   }
 
+  @Test
   public void testEmptyMapSerialization() {
     Type mapType = new TypeToken<Map<String, String>>() { }.getType();
     Map<String, String> emptyMap = new HashMap<>();
@@ -49,6 +53,7 @@ public class DefaultMapJsonSerializerTest extends TestCase {
     assertTrue(emptyMapJsonObject.entrySet().isEmpty());
   }
 
+  @Test
   public void testNonEmptyMapSerialization() {
     Type mapType = new TypeToken<Map<String, String>>() { }.getType();
     Map<String, String> myMap = new HashMap<>();

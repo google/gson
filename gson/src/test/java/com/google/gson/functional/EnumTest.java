@@ -16,6 +16,11 @@
 
 package com.google.gson.functional;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -36,7 +41,8 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Functional tests for Java 5.0 enums.
@@ -44,26 +50,28 @@ import junit.framework.TestCase;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class EnumTest extends TestCase {
+public class EnumTest {
 
   private Gson gson;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void setUp() throws Exception {
     gson = new Gson();
   }
 
+  @Test
   public void testTopLevelEnumSerialization() throws Exception {
     String result = gson.toJson(MyEnum.VALUE1);
     assertEquals('"' + MyEnum.VALUE1.toString() + '"', result);
   }
 
+  @Test
   public void testTopLevelEnumDeserialization() throws Exception {
     MyEnum result = gson.fromJson('"' + MyEnum.VALUE1.toString() + '"', MyEnum.class);
     assertEquals(MyEnum.VALUE1, result);
   }
 
+  @Test
   public void testCollectionOfEnumsSerialization() {
     Type type = new TypeToken<Collection<MyEnum>>() {}.getType();
     Collection<MyEnum> target = new ArrayList<>();
@@ -76,6 +84,7 @@ public class EnumTest extends TestCase {
     assertEquals(expectedJson, actualJson);
   }
 
+  @Test
   public void testCollectionOfEnumsDeserialization() {
     Type type = new TypeToken<Collection<MyEnum>>() {}.getType();
     String json = "[\"VALUE1\",\"VALUE2\"]";
@@ -84,11 +93,13 @@ public class EnumTest extends TestCase {
     MoreAsserts.assertContains(target, MyEnum.VALUE2);
   }
 
+  @Test
   public void testClassWithEnumFieldSerialization() throws Exception {
     ClassWithEnumFields target = new ClassWithEnumFields();
     assertEquals(target.getExpectedJson(), gson.toJson(target));
   }
 
+  @Test
   public void testClassWithEnumFieldDeserialization() throws Exception {
     String json = "{value1:'VALUE1',value2:'VALUE2'}";
     ClassWithEnumFields target = gson.fromJson(json, ClassWithEnumFields.class);
@@ -111,6 +122,7 @@ public class EnumTest extends TestCase {
   /**
    * Test for issue 226.
    */
+  @Test
   public void testEnumSubclass() {
     assertFalse(Roshambo.class == Roshambo.ROCK.getClass());
     assertEquals("\"ROCK\"", gson.toJson(Roshambo.ROCK));
@@ -120,6 +132,7 @@ public class EnumTest extends TestCase {
         gson.fromJson("[\"ROCK\",\"PAPER\",\"SCISSORS\"]", new TypeToken<Set<Roshambo>>() {}.getType()));
   }
 
+  @Test
   public void testEnumSubclassWithRegisteredTypeAdapter() {
     gson = new GsonBuilder()
         .registerTypeHierarchyAdapter(Roshambo.class, new MyEnumTypeAdapter())
@@ -132,6 +145,7 @@ public class EnumTest extends TestCase {
         gson.fromJson("[\"123ROCK\",\"123PAPER\",\"123SCISSORS\"]", new TypeToken<Set<Roshambo>>() {}.getType()));
   }
 
+  @Test
   public void testEnumSubclassAsParameterizedType() {
     Collection<Roshambo> list = new ArrayList<>();
     list.add(Roshambo.ROCK);
@@ -146,11 +160,13 @@ public class EnumTest extends TestCase {
     MoreAsserts.assertContains(actualJsonList, Roshambo.PAPER);
   }
 
+  @Test
   public void testEnumCaseMapping() {
     assertEquals(Gender.MALE, gson.fromJson("\"boy\"", Gender.class));
     assertEquals("\"boy\"", gson.toJson(Gender.MALE, Gender.class));
   }
 
+  @Test
   public void testEnumSet() {
     EnumSet<Roshambo> foo = EnumSet.of(Roshambo.ROCK, Roshambo.PAPER);
     String json = gson.toJson(foo);
@@ -163,6 +179,7 @@ public class EnumTest extends TestCase {
     assertFalse(bar.contains(Roshambo.SCISSORS));
   }
 
+  @Test
   public void testEnumMap() throws Exception {
     EnumMap<MyEnum, String> map = new EnumMap<>(MyEnum.class);
     map.put(MyEnum.VALUE1, "test");
@@ -215,6 +232,7 @@ public class EnumTest extends TestCase {
     FEMALE
   }
 
+  @Test
   public void testEnumClassWithFields() {
     assertEquals("\"RED\"", gson.toJson(Color.RED));
     assertEquals("red", gson.fromJson("RED", Color.class).value);
@@ -231,6 +249,7 @@ public class EnumTest extends TestCase {
     }
   }
 
+  @Test
   public void testEnumToStringRead() {
     // Should still be able to read constant name
     assertEquals(CustomToString.A, gson.fromJson("\"A\"", CustomToString.class));
@@ -253,6 +272,7 @@ public class EnumTest extends TestCase {
    * Test that enum constant names have higher precedence than {@code toString()}
    * result.
    */
+  @Test
   public void testEnumToStringReadInterchanged() {
     assertEquals(InterchangedToString.A, gson.fromJson("\"A\"", InterchangedToString.class));
     assertEquals(InterchangedToString.B, gson.fromJson("\"B\"", InterchangedToString.class));

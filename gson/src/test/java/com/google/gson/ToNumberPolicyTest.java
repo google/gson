@@ -16,15 +16,19 @@
 
 package com.google.gson;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.math.BigDecimal;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import com.google.gson.internal.LazilyParsedNumber;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.MalformedJsonException;
-import junit.framework.TestCase;
+import java.io.IOException;
+import java.io.StringReader;
+import java.math.BigDecimal;
+import org.junit.Test;
 
-public class ToNumberPolicyTest extends TestCase {
+public class ToNumberPolicyTest {
+  @Test
   public void testDouble() throws IOException {
     ToNumberStrategy strategy = ToNumberPolicy.DOUBLE;
     assertEquals(10.1, strategy.readNumber(fromString("10.1")));
@@ -42,6 +46,7 @@ public class ToNumberPolicyTest extends TestCase {
     }
   }
 
+  @Test
   public void testLazilyParsedNumber() throws IOException {
     ToNumberStrategy strategy = ToNumberPolicy.LAZILY_PARSED_NUMBER;
     assertEquals(new LazilyParsedNumber("10.1"), strategy.readNumber(fromString("10.1")));
@@ -49,6 +54,7 @@ public class ToNumberPolicyTest extends TestCase {
     assertEquals(new LazilyParsedNumber("1e400"), strategy.readNumber(fromString("1e400")));
   }
 
+  @Test
   public void testLongOrDouble() throws IOException {
     ToNumberStrategy strategy = ToNumberPolicy.LONG_OR_DOUBLE;
     assertEquals(10L, strategy.readNumber(fromString("10")));
@@ -90,6 +96,7 @@ public class ToNumberPolicyTest extends TestCase {
     }
   }
 
+  @Test
   public void testBigDecimal() throws IOException {
     ToNumberStrategy strategy = ToNumberPolicy.BIG_DECIMAL;
     assertEquals(new BigDecimal("10.1"), strategy.readNumber(fromString("10.1")));
@@ -104,6 +111,7 @@ public class ToNumberPolicyTest extends TestCase {
     }
   }
 
+  @Test
   public void testNullsAreNeverExpected() throws IOException {
     try {
       ToNumberPolicy.DOUBLE.readNumber(fromString("null"));

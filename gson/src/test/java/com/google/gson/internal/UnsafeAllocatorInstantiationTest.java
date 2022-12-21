@@ -15,13 +15,17 @@
  */
 package com.google.gson.internal;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import org.junit.Test;
 
 /**
  * Test unsafe allocator instantiation
  * @author Ugljesa Jovanovic
  */
-public final class UnsafeAllocatorInstantiationTest extends TestCase {
+public final class UnsafeAllocatorInstantiationTest {
 
   public interface Interface {
   }
@@ -36,6 +40,7 @@ public final class UnsafeAllocatorInstantiationTest extends TestCase {
    * Ensure that an {@link AssertionError} is thrown when trying
    * to instantiate an interface
    */
+  @Test
   public void testInterfaceInstantiation() throws Exception {
     try {
       UnsafeAllocator.INSTANCE.newInstance(Interface.class);
@@ -49,6 +54,7 @@ public final class UnsafeAllocatorInstantiationTest extends TestCase {
    * Ensure that an {@link AssertionError} is thrown when trying
    * to instantiate an abstract class
    */
+  @Test
   public void testAbstractClassInstantiation() throws Exception {
     try {
       UnsafeAllocator.INSTANCE.newInstance(AbstractClass.class);
@@ -61,6 +67,7 @@ public final class UnsafeAllocatorInstantiationTest extends TestCase {
   /**
    * Ensure that no exception is thrown when trying to instantiate a concrete class
    */
+  @Test
   public void testConcreteClassInstantiation() throws Exception {
     ConcreteClass instance = UnsafeAllocator.INSTANCE.newInstance(ConcreteClass.class);
     assertNotNull(instance);

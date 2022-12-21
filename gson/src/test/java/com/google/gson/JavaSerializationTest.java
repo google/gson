@@ -16,6 +16,8 @@
 
 package com.google.gson;
 
+import static org.junit.Assert.assertEquals;
+
 import com.google.gson.reflect.TypeToken;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -27,16 +29,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
  * Check that Gson doesn't return non-serializable data types.
  *
  * @author Jesse Wilson
  */
-public final class JavaSerializationTest extends TestCase {
+public final class JavaSerializationTest {
   private final Gson gson = new Gson();
 
+  @Test
   public void testMapIsSerializable() throws Exception {
     Type type = new TypeToken<Map<String, Integer>>() {}.getType();
     Map<String, Integer> map = gson.fromJson("{\"b\":1,\"c\":2,\"a\":3}", type);
@@ -46,6 +49,7 @@ public final class JavaSerializationTest extends TestCase {
     assertEquals(Arrays.asList("b", "c", "a"), new ArrayList<>(serialized.keySet()));
   }
 
+  @Test
   public void testListIsSerializable() throws Exception {
     Type type = new TypeToken<List<String>>() {}.getType();
     List<String> list = gson.fromJson("[\"a\",\"b\",\"c\"]", type);
@@ -53,13 +57,14 @@ public final class JavaSerializationTest extends TestCase {
     assertEquals(list, serialized);
   }
 
+  @Test
   public void testNumberIsSerializable() throws Exception {
     Type type = new TypeToken<List<Number>>() {}.getType();
     List<Number> list = gson.fromJson("[1,3.14,6.673e-11]", type);
     List<Number> serialized = serializedCopy(list);
-    assertEquals(1.0, serialized.get(0).doubleValue());
-    assertEquals(3.14, serialized.get(1).doubleValue());
-    assertEquals(6.673e-11, serialized.get(2).doubleValue());
+    assertEquals(1.0, serialized.get(0).doubleValue(), 0);
+    assertEquals(3.14, serialized.get(1).doubleValue(), 0);
+    assertEquals(6.673e-11, serialized.get(2).doubleValue(), 0);
   }
 
   @SuppressWarnings("unchecked") // Serialization promises to return the same type.

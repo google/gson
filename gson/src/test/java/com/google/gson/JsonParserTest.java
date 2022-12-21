@@ -16,23 +16,27 @@
 
 package com.google.gson;
 
-import java.io.CharArrayReader;
-import java.io.CharArrayWriter;
-import java.io.IOException;
-import java.io.StringReader;
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
+import java.io.CharArrayReader;
+import java.io.CharArrayWriter;
+import java.io.IOException;
+import java.io.StringReader;
+import org.junit.Test;
 
 /**
  * Unit test for {@link JsonParser}
  *
  * @author Inderjeet Singh
  */
-public class JsonParserTest extends TestCase {
+public class JsonParserTest {
 
+  @Test
   public void testParseInvalidJson() {
     try {
       JsonParser.parseString("[[]");
@@ -40,6 +44,7 @@ public class JsonParserTest extends TestCase {
     } catch (JsonSyntaxException expected) { }
   }
 
+  @Test
   public void testParseUnquotedStringArrayFails() {
     JsonElement element = JsonParser.parseString("[a,b,c]");
     assertEquals("a", element.getAsJsonArray().get(0).getAsString());
@@ -48,6 +53,7 @@ public class JsonParserTest extends TestCase {
     assertEquals(3, element.getAsJsonArray().size());
   }
 
+  @Test
   public void testParseString() {
     String json = "{a:10,b:'c'}";
     JsonElement e = JsonParser.parseString(json);
@@ -56,21 +62,25 @@ public class JsonParserTest extends TestCase {
     assertEquals("c", e.getAsJsonObject().get("b").getAsString());
   }
 
+  @Test
   public void testParseEmptyString() {
     JsonElement e = JsonParser.parseString("\"   \"");
     assertTrue(e.isJsonPrimitive());
     assertEquals("   ", e.getAsString());
   }
 
+  @Test
   public void testParseEmptyWhitespaceInput() {
     JsonElement e = JsonParser.parseString("     ");
     assertTrue(e.isJsonNull());
   }
 
+  @Test
   public void testParseUnquotedSingleWordStringFails() {
     assertEquals("Test", JsonParser.parseString("Test").getAsString());
   }
 
+  @Test
   public void testParseUnquotedMultiWordStringFails() {
     String unquotedSentence = "Test is a test..blah blah";
     try {
@@ -79,6 +89,7 @@ public class JsonParserTest extends TestCase {
     } catch (JsonSyntaxException expected) { }
   }
 
+  @Test
   public void testParseMixedArray() {
     String json = "[{},13,\"stringValue\"]";
     JsonElement e = JsonParser.parseString(json);
@@ -99,6 +110,7 @@ public class JsonParserTest extends TestCase {
   }
 
   /** Deeply nested JSON arrays should not cause {@link StackOverflowError} */
+  @Test
   public void testParseDeeplyNestedArrays() throws IOException {
     int times = 10000;
     // [[[ ... ]]]
@@ -118,6 +130,7 @@ public class JsonParserTest extends TestCase {
   }
 
   /** Deeply nested JSON objects should not cause {@link StackOverflowError} */
+  @Test
   public void testParseDeeplyNestedObjects() throws IOException {
     int times = 10000;
     // {"a":{"a": ... {"a":null} ... }}
@@ -138,6 +151,7 @@ public class JsonParserTest extends TestCase {
     assertEquals(times, actualTimes);
   }
 
+  @Test
   public void testParseReader() {
     StringReader reader = new StringReader("{a:10,b:'c'}");
     JsonElement e = JsonParser.parseReader(reader);
@@ -146,6 +160,7 @@ public class JsonParserTest extends TestCase {
     assertEquals("c", e.getAsJsonObject().get("b").getAsString());
   }
 
+  @Test
   public void testReadWriteTwoObjects() throws Exception {
     Gson gson = new Gson();
     CharArrayWriter writer = new CharArrayWriter();

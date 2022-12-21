@@ -16,6 +16,11 @@
 
 package com.google.gson.functional;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -34,13 +39,14 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Locale;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
  * Functional tests for the {@link com.google.gson.annotations.JsonAdapter} annotation on classes.
  */
-public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
+public final class JsonAdapterAnnotationOnClassesTest {
 
+  @Test
   public void testJsonAdapterInvoked() {
     Gson gson = new Gson();
     String json = gson.toJson(new A("bar"));
@@ -59,6 +65,7 @@ public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
     assertEquals(Foo.BAZ, baz);
   }
 
+  @Test
   public void testJsonAdapterFactoryInvoked() {
     Gson gson = new Gson();
     String json = gson.toJson(new C("bar"));
@@ -67,6 +74,7 @@ public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
     assertEquals("jsonAdapterFactory", c.value);
   }
 
+  @Test
   public void testRegisteredAdapterOverridesJsonAdapter() {
     TypeAdapter<A> typeAdapter = new TypeAdapter<A>() {
       @Override public void write(JsonWriter out, A value) throws IOException {
@@ -86,6 +94,7 @@ public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
   /**
    * The serializer overrides field adapter, but for deserializer the fieldAdapter is used.
    */
+  @Test
   public void testRegisteredSerializerOverridesJsonAdapter() {
     JsonSerializer<A> serializer = new JsonSerializer<A>() {
       @Override public JsonElement serialize(A src, Type typeOfSrc,
@@ -105,6 +114,7 @@ public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
   /**
    * The deserializer overrides Json adapter, but for serializer the jsonAdapter is used.
    */
+  @Test
   public void testRegisteredDeserializerOverridesJsonAdapter() {
     JsonDeserializer<A> deserializer = new JsonDeserializer<A>() {
       @Override public A deserialize(JsonElement json, Type typeOfT,
@@ -121,6 +131,7 @@ public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
     assertEquals("registeredDeserializer", target.value);
   }
 
+  @Test
   public void testIncorrectTypeAdapterFails() {
     try {
       String json = new Gson().toJson(new ClassWithIncorrectJsonAdapter("bar"));
@@ -128,11 +139,13 @@ public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
     } catch (ClassCastException expected) {}
   }
 
+  @Test
   public void testSuperclassTypeAdapterNotInvoked() {
     String json = new Gson().toJson(new B("bar"));
     assertFalse(json.contains("jsonAdapter"));
   }
 
+  @Test
   public void testNullSafeObjectFromJson() {
     Gson gson = new Gson();
     NullableClass fromJson = gson.fromJson("null", NullableClass.class);
@@ -250,6 +263,7 @@ public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
     }
   }
 
+  @Test
   public void testIncorrectJsonAdapterType() {
     try {
       new Gson().toJson(new D());

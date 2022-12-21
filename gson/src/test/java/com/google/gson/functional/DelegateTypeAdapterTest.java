@@ -15,11 +15,7 @@
  */
 package com.google.gson.functional;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -29,26 +25,31 @@ import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Functional tests for {@link Gson#getDelegateAdapter(TypeAdapterFactory, TypeToken)} method.
  *
  * @author Inderjeet Singh
  */
-public class DelegateTypeAdapterTest extends TestCase {
+public class DelegateTypeAdapterTest {
 
   private StatsTypeAdapterFactory stats;
   private Gson gson;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void setUp() throws Exception {
     stats = new StatsTypeAdapterFactory();
     gson = new GsonBuilder()
       .registerTypeAdapterFactory(stats)
       .create();
   }
 
+  @Test
   public void testDelegateInvoked() {
     List<BagOfPrimitives> bags = new ArrayList<>();
     for (int i = 0; i < 10; ++i) {
@@ -61,6 +62,7 @@ public class DelegateTypeAdapterTest extends TestCase {
     assertEquals(51, stats.numWrites);
   }
 
+  @Test
   public void testDelegateInvokedOnStrings() {
     String[] bags = {"1", "2", "3", "4"};
     String json = gson.toJson(bags);

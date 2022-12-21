@@ -16,7 +16,9 @@
 
 package com.google.gson.functional;
 
-import java.lang.reflect.Type;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonDeserializationContext;
@@ -27,15 +29,16 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.JsonAdapter;
-
-import junit.framework.TestCase;
+import java.lang.reflect.Type;
+import org.junit.Test;
 
 /**
  * Functional tests for the {@link JsonAdapter} annotation on fields where the value is of
  * type {@link JsonSerializer} or {@link JsonDeserializer}.
  */
-public final class JsonAdapterSerializerDeserializerTest extends TestCase {
+public final class JsonAdapterSerializerDeserializerTest {
 
+  @Test
   public void testJsonSerializerDeserializerBasedJsonAdapterOnFields() {
     Gson gson = new Gson();
     String json = gson.toJson(new Computer(new User("Inderjeet Singh"), null, new User("Jesse Wilson")));
@@ -90,6 +93,7 @@ public final class JsonAdapterSerializerDeserializerTest extends TestCase {
     }
   }
 
+  @Test
   public void testJsonSerializerDeserializerBasedJsonAdapterOnClass() {
     Gson gson = new Gson();
     String json = gson.toJson(new Computer2(new User2("Inderjeet Singh")));
@@ -125,6 +129,7 @@ public final class JsonAdapterSerializerDeserializerTest extends TestCase {
     }
   }
 
+  @Test
   public void testDifferentJsonAdaptersForGenericFieldsOfSameRawType() {
     Container c = new Container("Foo", 10);
     Gson gson = new Gson();
@@ -162,6 +167,7 @@ public final class JsonAdapterSerializerDeserializerTest extends TestCase {
     }
   }
 
+  @Test
   public void testJsonAdapterNullSafe() {
     Gson gson = new Gson();
     String json = gson.toJson(new Computer3(null, null));
