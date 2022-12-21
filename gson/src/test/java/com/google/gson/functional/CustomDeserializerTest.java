@@ -33,8 +33,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Functional Test exercising custom deserialization only. When test applies to both serialization
- * and deserialization then add it to CustomTypeAdapterTest.
+ * Functional Test exercising custom deserialization only. When test applies to both
+ * serialization and deserialization then add it to CustomTypeAdapterTest.
  *
  * @author Joel Leitch
  */

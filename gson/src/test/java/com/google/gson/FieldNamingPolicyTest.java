@@ -9,8 +9,8 @@ import java.util.Locale;
 import org.junit.Test;
 
 /**
- * Performs tests directly against {@link FieldNamingPolicy}; for integration tests see
- * {@link FieldNamingTest}.
+ * Performs tests directly against {@link FieldNamingPolicy}; for integration tests
+ * see {@link FieldNamingTest}.
  */
 public class FieldNamingPolicyTest {
 

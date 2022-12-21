@@ -163,13 +163,12 @@ public final class GsonTest {
   }
 
   /**
-   * Verifies that two threads calling {@link Gson#getAdapter(TypeToken)} do not see the same
-   * unresolved {@link FutureTypeAdapter} instance, since that would not be thread-safe.
-   * <p>
-   * This test constructs the cyclic dependency
-   * {@literal CustomClass1 -> CustomClass2 -> CustomClass1} and lets one thread wait after the
-   * adapter for CustomClass2 has been obtained (which still refers to the nested unresolved
-   * FutureTypeAdapter for CustomClass1).
+   * Verifies that two threads calling {@link Gson#getAdapter(TypeToken)} do not see the
+   * same unresolved {@link FutureTypeAdapter} instance, since that would not be thread-safe.
+   *
+   * This test constructs the cyclic dependency {@literal CustomClass1 -> CustomClass2 -> CustomClass1}
+   * and lets one thread wait after the adapter for CustomClass2 has been obtained (which still
+   * refers to the nested unresolved FutureTypeAdapter for CustomClass1).
    */
   @Test
   public void testGetAdapter_FutureAdapterConcurrency() throws Exception {
@@ -342,8 +341,8 @@ public final class GsonTest {
   }
 
   /**
-   * Modifying a GsonBuilder obtained from {@link Gson#newBuilder()} of a {@code new Gson()} should
-   * not affect the Gson instance it came from.
+   * Modifying a GsonBuilder obtained from {@link Gson#newBuilder()} of a
+   * {@code new Gson()} should not affect the Gson instance it came from.
    */
   @Test
   public void testDefaultGsonNewBuilderModification() {
@@ -382,8 +381,9 @@ public final class GsonTest {
   }
 
   /**
-   * Modifying a GsonBuilder obtained from {@link Gson#newBuilder()} of a custom Gson instance
-   * (created using a GsonBuilder) should not affect the Gson instance it came from.
+   * Modifying a GsonBuilder obtained from {@link Gson#newBuilder()} of a custom
+   * Gson instance (created using a GsonBuilder) should not affect the Gson instance
+   * it came from.
    */
   @Test
   public void testNewBuilderModification() {

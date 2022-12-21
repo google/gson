@@ -56,8 +56,8 @@ public final class UtcDateTypeAdapterTest {
   }
 
   /**
-   * JDK 1.7 introduced support for XXX format to indicate UTC date. But Android is older JDK. We
-   * want to make sure that this date is parseable in Android.
+   * JDK 1.7 introduced support for XXX format to indicate UTC date. But Android is older JDK.
+   * We want to make sure that this date is parseable in Android.
    */
   @Test
   public void testUtcDatesOnJdkBefore1_7() {

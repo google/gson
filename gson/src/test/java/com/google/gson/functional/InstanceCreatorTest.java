@@ -35,8 +35,8 @@ import java.util.TreeSet;
 import org.junit.Test;
 
 /**
- * Functional Test exercising custom serialization only. When test applies to both serialization and
- * deserialization then add it to CustomTypeAdapterTest.
+ * Functional Test exercising custom serialization only. When test applies to both
+ * serialization and deserialization then add it to CustomTypeAdapterTest.
  *
  * @author Inderjeet Singh
  */

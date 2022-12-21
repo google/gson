@@ -69,8 +69,8 @@ public class GsonBuilderTest {
   }
 
   /**
-   * Gson instances should not be affected by subsequent modification of GsonBuilder which created
-   * them.
+   * Gson instances should not be affected by subsequent modification of GsonBuilder
+   * which created them.
    */
   @Test
   public void testModificationAfterCreate() {

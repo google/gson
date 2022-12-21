@@ -43,8 +43,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Functional tests for Json serialization and deserialization of classes with inheritance
- * hierarchies.
+ * Functional tests for Json serialization and deserialization of classes with
+ * inheritance hierarchies.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
