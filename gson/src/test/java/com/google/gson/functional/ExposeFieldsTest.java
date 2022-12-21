@@ -18,6 +18,7 @@ package com.google.gson.functional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
@@ -84,7 +85,7 @@ public class ExposeFieldsTest {
 
     assertEquals(3, (int) target.a);
     assertNull(target.b);
-    assertFalse(target.d == 20);
+    assertNotEquals(20, target.d, 0.0);
   }
 
   @Test
