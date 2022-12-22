@@ -15,6 +15,10 @@
  */
 package com.google.gson.internal.bind;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
@@ -27,10 +31,11 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.Arrays;
 import java.util.List;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 @SuppressWarnings("resource")
-public class JsonTreeReaderTest extends TestCase {
+public class JsonTreeReaderTest {
+  @Test
   public void testSkipValue_emptyJsonObject() throws IOException {
     JsonTreeReader in = new JsonTreeReader(new JsonObject());
     in.skipValue();
@@ -38,6 +43,7 @@ public class JsonTreeReaderTest extends TestCase {
     assertEquals("$", in.getPath());
   }
 
+  @Test
   public void testSkipValue_filledJsonObject() throws IOException {
     JsonObject jsonObject = new JsonObject();
     JsonArray jsonArray = new JsonArray();
@@ -57,6 +63,7 @@ public class JsonTreeReaderTest extends TestCase {
     assertEquals("$", in.getPath());
   }
 
+  @Test
   public void testSkipValue_name() throws IOException {
     JsonObject jsonObject = new JsonObject();
     jsonObject.addProperty("a", "value");
@@ -68,6 +75,7 @@ public class JsonTreeReaderTest extends TestCase {
     assertEquals("value", in.nextString());
   }
 
+  @Test
   public void testSkipValue_afterEndOfDocument() throws IOException {
     JsonTreeReader reader = new JsonTreeReader(new JsonObject());
     reader.beginObject();
@@ -80,6 +88,7 @@ public class JsonTreeReaderTest extends TestCase {
     assertEquals("$", reader.getPath());
   }
 
+  @Test
   public void testSkipValue_atArrayEnd() throws IOException {
     JsonTreeReader reader = new JsonTreeReader(new JsonArray());
     reader.beginArray();
@@ -88,6 +97,7 @@ public class JsonTreeReaderTest extends TestCase {
     assertEquals("$", reader.getPath());
   }
 
+  @Test
   public void testSkipValue_atObjectEnd() throws IOException {
     JsonTreeReader reader = new JsonTreeReader(new JsonObject());
     reader.beginObject();
@@ -96,6 +106,7 @@ public class JsonTreeReaderTest extends TestCase {
     assertEquals("$", reader.getPath());
   }
 
+  @Test
   public void testHasNext_endOfDocument() throws IOException {
     JsonTreeReader reader = new JsonTreeReader(new JsonObject());
     reader.beginObject();
@@ -103,6 +114,7 @@ public class JsonTreeReaderTest extends TestCase {
     assertFalse(reader.hasNext());
   }
 
+  @Test
   public void testCustomJsonElementSubclass() throws IOException {
     @SuppressWarnings("deprecation") // superclass constructor
     class CustomSubclass extends JsonElement {
@@ -132,6 +144,7 @@ public class JsonTreeReaderTest extends TestCase {
    * read from a {@link JsonElement} instead of a {@link Reader}. Therefore all relevant methods of
    * {@code JsonReader} must be overridden.
    */
+  @Test
   public void testOverrides() {
     List<String> ignoredMethods = Arrays.asList("setLenient(boolean)", "isLenient()");
     MoreAsserts.assertOverridesMethods(JsonReader.class, JsonTreeReader.class, ignoredMethods);

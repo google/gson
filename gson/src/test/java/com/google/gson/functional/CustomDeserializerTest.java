@@ -16,6 +16,9 @@
 
 package com.google.gson.functional;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -25,10 +28,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.common.TestTypes.Base;
 import com.google.gson.common.TestTypes.ClassWithBaseField;
-
-import junit.framework.TestCase;
-
 import java.lang.reflect.Type;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Functional Test exercising custom deserialization only. When test applies to both
@@ -36,18 +38,18 @@ import java.lang.reflect.Type;
  *
  * @author Joel Leitch
  */
-public class CustomDeserializerTest extends TestCase {
+public class CustomDeserializerTest {
   private static final String DEFAULT_VALUE = "test123";
   private static final String SUFFIX = "blah";
 
   private Gson gson;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void setUp() throws Exception {
     gson = new GsonBuilder().registerTypeAdapter(DataHolder.class, new DataHolderDeserializer()).create();
   }
 
+  @Test
   public void testDefaultConstructorNotCalledOnObject() throws Exception {
     DataHolder data = new DataHolder(DEFAULT_VALUE);
     String json = gson.toJson(data);
@@ -56,6 +58,7 @@ public class CustomDeserializerTest extends TestCase {
     assertEquals(DEFAULT_VALUE + SUFFIX, actual.getData());
   }
 
+  @Test
   public void testDefaultConstructorNotCalledOnField() throws Exception {
     DataHolderWrapper dataWrapper = new DataHolderWrapper(new DataHolder(DEFAULT_VALUE));
     String json = gson.toJson(dataWrapper);
@@ -110,6 +113,7 @@ public class CustomDeserializerTest extends TestCase {
     }
   }
 
+  @Test
   public void testJsonTypeFieldBasedDeserialization() {
     String json = "{field1:'abc',field2:'def',__type__:'SUB_TYPE1'}";
     Gson gson = new GsonBuilder().registerTypeAdapter(MyBase.class, new JsonDeserializer<MyBase>() {
@@ -148,6 +152,7 @@ public class CustomDeserializerTest extends TestCase {
     String field2;
   }
 
+  @Test
   public void testCustomDeserializerReturnsNullForTopLevelObject() {
     Gson gson = new GsonBuilder()
       .registerTypeAdapter(Base.class, new JsonDeserializer<Base>() {
@@ -162,6 +167,7 @@ public class CustomDeserializerTest extends TestCase {
     assertNull(target);
   }
 
+  @Test
   public void testCustomDeserializerReturnsNull() {
     Gson gson = new GsonBuilder()
       .registerTypeAdapter(Base.class, new JsonDeserializer<Base>() {
@@ -176,6 +182,7 @@ public class CustomDeserializerTest extends TestCase {
     assertNull(target.base);
   }
 
+  @Test
   public void testCustomDeserializerReturnsNullForArrayElements() {
     Gson gson = new GsonBuilder()
       .registerTypeAdapter(Base.class, new JsonDeserializer<Base>() {
@@ -191,6 +198,7 @@ public class CustomDeserializerTest extends TestCase {
     assertNull(target[1]);
   }
 
+  @Test
   public void testCustomDeserializerReturnsNullForArrayElementsForArrayField() {
     Gson gson = new GsonBuilder()
       .registerTypeAdapter(Base.class, new JsonDeserializer<Base>() {

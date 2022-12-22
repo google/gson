@@ -15,6 +15,12 @@
  */
 package com.google.gson.functional;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonStreamParser;
@@ -30,7 +36,8 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Arrays;
 import java.util.Map;
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Functional tests for the support of {@link Reader}s and {@link Writer}s.
@@ -38,15 +45,15 @@ import junit.framework.TestCase;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class ReadersWritersTest extends TestCase {
+public class ReadersWritersTest {
   private Gson gson;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void setUp() throws Exception {
     gson = new Gson();
   }
 
+  @Test
   public void testWriterForSerialization() throws Exception {
     Writer writer = new StringWriter();
     BagOfPrimitives src = new BagOfPrimitives();
@@ -54,6 +61,7 @@ public class ReadersWritersTest extends TestCase {
     assertEquals(src.getExpectedJson(), writer.toString());
   }
 
+  @Test
   public void testReaderForDeserialization() throws Exception {
     BagOfPrimitives expected = new BagOfPrimitives();
     Reader json = new StringReader(expected.getExpectedJson());
@@ -61,18 +69,21 @@ public class ReadersWritersTest extends TestCase {
     assertEquals(expected, actual);
   }
 
+  @Test
   public void testTopLevelNullObjectSerializationWithWriter() {
     StringWriter writer = new StringWriter();
     gson.toJson(null, writer);
     assertEquals("null", writer.toString());
   }
 
+  @Test
   public void testTopLevelNullObjectDeserializationWithReader() {
     StringReader reader = new StringReader("null");
     Integer nullIntObject = gson.fromJson(reader, Integer.class);
     assertNull(nullIntObject);
   }
 
+  @Test
   public void testTopLevelNullObjectSerializationWithWriterAndSerializeNulls() {
     Gson gson = new GsonBuilder().serializeNulls().create();
     StringWriter writer = new StringWriter();
@@ -80,6 +91,7 @@ public class ReadersWritersTest extends TestCase {
     assertEquals("null", writer.toString());
   }
 
+  @Test
   public void testTopLevelNullObjectDeserializationWithReaderAndSerializeNulls() {
     Gson gson = new GsonBuilder().serializeNulls().create();
     StringReader reader = new StringReader("null");
@@ -87,6 +99,7 @@ public class ReadersWritersTest extends TestCase {
     assertNull(nullIntObject);
   }
 
+  @Test
   public void testReadWriteTwoStrings() throws IOException {
     Gson gson = new Gson();
     CharArrayWriter writer = new CharArrayWriter();
@@ -100,6 +113,7 @@ public class ReadersWritersTest extends TestCase {
     assertEquals("two", actualTwo);
   }
 
+  @Test
   public void testReadWriteTwoObjects() throws IOException {
     Gson gson = new Gson();
     CharArrayWriter writer = new CharArrayWriter();
@@ -116,6 +130,7 @@ public class ReadersWritersTest extends TestCase {
     assertFalse(parser.hasNext());
   }
 
+  @Test
   public void testTypeMismatchThrowsJsonSyntaxExceptionForStrings() {
     try {
       gson.fromJson("true", new TypeToken<Map<String, String>>() {}.getType());
@@ -124,6 +139,7 @@ public class ReadersWritersTest extends TestCase {
     }
   }
 
+  @Test
   public void testTypeMismatchThrowsJsonSyntaxExceptionForReaders() {
     try {
       gson.fromJson(new StringReader("true"), new TypeToken<Map<String, String>>() {}.getType());
@@ -136,6 +152,7 @@ public class ReadersWritersTest extends TestCase {
    * Verifies that passing an {@link Appendable} which is not an instance of {@link Writer}
    * to {@code Gson.toJson} works correctly.
    */
+  @Test
   public void testToJsonAppendable() {
     class CustomAppendable implements Appendable {
       final StringBuilder stringBuilder = new StringBuilder();

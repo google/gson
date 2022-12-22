@@ -16,6 +16,9 @@
 
 package com.google.gson.functional;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -25,7 +28,8 @@ import com.google.gson.common.TestTypes.Nested;
 import com.google.gson.common.TestTypes.PrimitiveArray;
 import java.util.ArrayList;
 import java.util.List;
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Functional tests for print formatting.
@@ -33,16 +37,16 @@ import junit.framework.TestCase;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class PrintFormattingTest extends TestCase {
+public class PrintFormattingTest {
 
   private Gson gson;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void setUp() throws Exception {
     gson = new Gson();
   }
 
+  @Test
   public void testCompactFormattingLeavesNoWhiteSpace() {
     List<Object> list = new ArrayList<>();
     list.add(new BagOfPrimitives());
@@ -54,6 +58,7 @@ public class PrintFormattingTest extends TestCase {
     assertContainsNoWhiteSpace(json);
   }
 
+  @Test
   public void testJsonObjectWithNullValues() {
     JsonObject obj = new JsonObject();
     obj.addProperty("field1", "value1");
@@ -63,6 +68,7 @@ public class PrintFormattingTest extends TestCase {
     assertFalse(json.contains("field2"));
   }
 
+  @Test
   public void testJsonObjectWithNullValuesSerialized() {
     gson = new GsonBuilder().serializeNulls().create();
     JsonObject obj = new JsonObject();

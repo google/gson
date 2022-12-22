@@ -16,21 +16,25 @@
 
 package com.google.gson;
 
+import static org.junit.Assert.assertSame;
+
 import com.google.gson.common.MoreAsserts;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
  * @author Jesse Wilson
  */
-public final class JsonNullTest extends TestCase {
+public final class JsonNullTest {
 
   @SuppressWarnings("deprecation")
+  @Test
   public void testEqualsAndHashcode() {
     MoreAsserts.assertEqualsAndHashCode(new JsonNull(), new JsonNull());
     MoreAsserts.assertEqualsAndHashCode(new JsonNull(), JsonNull.INSTANCE);
     MoreAsserts.assertEqualsAndHashCode(JsonNull.INSTANCE, JsonNull.INSTANCE);
   }
 
+  @Test
   public void testDeepCopy() {
     @SuppressWarnings("deprecation")
     JsonNull a = new JsonNull();

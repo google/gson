@@ -16,9 +16,9 @@
 
 package com.google.gson.functional;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -28,13 +28,16 @@ import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-
-import junit.framework.TestCase;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import org.junit.Test;
 
 /**
  * Functional tests for the {@link com.google.gson.annotations.JsonAdapter} annotation on fields.
  */
-public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
+public final class JsonAdapterAnnotationOnFieldsTest {
+  @Test
   public void testClassAnnotationAdapterTakesPrecedenceOverDefault() {
     Gson gson = new Gson();
     String json = gson.toJson(new Computer(new User("Inderjeet Singh")));
@@ -43,6 +46,7 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
     assertEquals("UserClassAnnotationAdapter", computer.user.name);
   }
 
+  @Test
   public void testClassAnnotationAdapterFactoryTakesPrecedenceOverDefault() {
     Gson gson = new Gson();
     String json = gson.toJson(new Gizmo(new Part("Part")));
@@ -51,6 +55,7 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
     assertEquals("GizmoPartTypeAdapterFactory", computer.part.name);
   }
 
+  @Test
   public void testRegisteredTypeAdapterTakesPrecedenceOverClassAnnotationAdapter() {
     Gson gson = new GsonBuilder()
         .registerTypeAdapter(User.class, new RegisteredUserAdapter())
@@ -61,6 +66,7 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
     assertEquals("RegisteredUserAdapter", computer.user.name);
   }
 
+  @Test
   public void testFieldAnnotationTakesPrecedenceOverRegisteredTypeAdapter() {
     Gson gson = new GsonBuilder()
       .registerTypeAdapter(Part.class, new TypeAdapter<Part>() {
@@ -77,6 +83,7 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
     assertEquals("PartJsonFieldAnnotationAdapter", gadget.part.name);
   }
 
+  @Test
   public void testFieldAnnotationTakesPrecedenceOverClassAnnotation() {
     Gson gson = new Gson();
     String json = gson.toJson(new Computer2(new User("Inderjeet Singh")));
@@ -187,6 +194,7 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
     }
   }
 
+  @Test
   public void testJsonAdapterInvokedOnlyForAnnotatedFields() {
     Gson gson = new Gson();
     String json = "{'part1':'name','part2':{'name':'name2'}}";
@@ -204,6 +212,7 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
     }
   }
 
+  @Test
   public void testJsonAdapterWrappedInNullSafeAsRequested() {
     Gson gson = new Gson();
     String fromJson = "{'part':null}";
@@ -225,6 +234,7 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
   }
 
   /** Regression test contributed through https://github.com/google/gson/issues/831 */
+  @Test
   public void testNonPrimitiveFieldAnnotationTakesPrecedenceOverDefault() {
     Gson gson = new Gson();
     String json = gson.toJson(new GadgetWithOptionalPart(new Part("foo")));
@@ -234,6 +244,7 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
   }
 
   /** Regression test contributed through https://github.com/google/gson/issues/831 */
+  @Test
   public void testPrimitiveFieldAnnotationTakesPrecedenceOverDefault() {
     Gson gson = new Gson();
     String json = gson.toJson(new GadgetWithPrimitivePart(42));
@@ -273,6 +284,7 @@ public final class JsonAdapterAnnotationOnFieldsTest extends TestCase {
     }
   }
 
+  @Test
   public void testFieldAnnotationWorksForParameterizedType() {
     Gson gson = new Gson();
     String json = gson.toJson(new Gizmo2(Arrays.asList(new Part("Part"))));

@@ -16,9 +16,11 @@
 
 package com.google.gson.functional;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
 
 import com.google.gson.Gson;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Functional tests for Java Character values.
@@ -26,21 +28,22 @@ import com.google.gson.Gson;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class PrimitiveCharacterTest extends TestCase {
+public class PrimitiveCharacterTest {
   private Gson gson;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void setUp() throws Exception {
     gson = new Gson();
   }
 
+  @Test
   public void testPrimitiveCharacterAutoboxedSerialization() {
     assertEquals("\"A\"", gson.toJson('A'));
     assertEquals("\"A\"", gson.toJson('A', char.class));
     assertEquals("\"A\"", gson.toJson('A', Character.class));
   }
 
+  @Test
   public void testPrimitiveCharacterAutoboxedDeserialization() {
     char expected = 'a';
     char actual = gson.fromJson("a", char.class);

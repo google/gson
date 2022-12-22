@@ -16,19 +16,26 @@
 
 package com.google.gson;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import com.google.gson.common.MoreAsserts;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
  * Unit test for the {@link JsonPrimitive} class.
  *
  * @author Joel Leitch
  */
-public class JsonPrimitiveTest extends TestCase {
+public class JsonPrimitiveTest {
 
   @SuppressWarnings("unused")
+  @Test
   public void testNulls() {
     try {
       new JsonPrimitive((Boolean) null);
@@ -52,6 +59,7 @@ public class JsonPrimitiveTest extends TestCase {
     }
   }
 
+  @Test
   public void testBoolean() throws Exception {
     JsonPrimitive json = new JsonPrimitive(Boolean.TRUE);
 
@@ -75,6 +83,7 @@ public class JsonPrimitiveTest extends TestCase {
     assertFalse(json.getAsBoolean());
   }
 
+  @Test
   public void testParsingStringAsBoolean() throws Exception {
     JsonPrimitive json = new JsonPrimitive("true");
 
@@ -82,6 +91,7 @@ public class JsonPrimitiveTest extends TestCase {
     assertTrue(json.getAsBoolean());
   }
 
+  @Test
   public void testParsingStringAsNumber() throws Exception {
     JsonPrimitive json = new JsonPrimitive("1");
 
@@ -96,6 +106,7 @@ public class JsonPrimitiveTest extends TestCase {
     assertEquals(new BigDecimal("1"), json.getAsBigDecimal());
   }
 
+  @Test
   public void testAsNumber_Boolean() {
     JsonPrimitive json = new JsonPrimitive(true);
     try {
@@ -107,6 +118,7 @@ public class JsonPrimitiveTest extends TestCase {
   }
 
   @SuppressWarnings("deprecation")
+  @Test
   public void testStringsAndChar() throws Exception {
     JsonPrimitive json = new JsonPrimitive("abc");
     assertTrue(json.isString());
@@ -131,6 +143,7 @@ public class JsonPrimitiveTest extends TestCase {
     }
   }
 
+  @Test
   public void testExponential() throws Exception {
     JsonPrimitive json = new JsonPrimitive("1E+7");
 
@@ -144,6 +157,7 @@ public class JsonPrimitiveTest extends TestCase {
     } catch (NumberFormatException expected) { }
   }
 
+  @Test
   public void testByteEqualsShort() {
     JsonPrimitive p1 = new JsonPrimitive(Byte.valueOf((byte)10));
     JsonPrimitive p2 = new JsonPrimitive(Short.valueOf((short)10));
@@ -151,6 +165,7 @@ public class JsonPrimitiveTest extends TestCase {
     assertEquals(p1.hashCode(), p2.hashCode());
   }
 
+  @Test
   public void testByteEqualsInteger() {
     JsonPrimitive p1 = new JsonPrimitive(Byte.valueOf((byte)10));
     JsonPrimitive p2 = new JsonPrimitive(Integer.valueOf(10));
@@ -158,6 +173,7 @@ public class JsonPrimitiveTest extends TestCase {
     assertEquals(p1.hashCode(), p2.hashCode());
   }
 
+  @Test
   public void testByteEqualsLong() {
     JsonPrimitive p1 = new JsonPrimitive(Byte.valueOf((byte)10));
     JsonPrimitive p2 = new JsonPrimitive(Long.valueOf(10L));
@@ -165,6 +181,7 @@ public class JsonPrimitiveTest extends TestCase {
     assertEquals(p1.hashCode(), p2.hashCode());
   }
 
+  @Test
   public void testByteEqualsBigInteger() {
     JsonPrimitive p1 = new JsonPrimitive(Byte.valueOf((byte)10));
     JsonPrimitive p2 = new JsonPrimitive(new BigInteger("10"));
@@ -172,6 +189,7 @@ public class JsonPrimitiveTest extends TestCase {
     assertEquals(p1.hashCode(), p2.hashCode());
   }
 
+  @Test
   public void testShortEqualsInteger() {
     JsonPrimitive p1 = new JsonPrimitive(Short.valueOf((short)10));
     JsonPrimitive p2 = new JsonPrimitive(Integer.valueOf(10));
@@ -179,6 +197,7 @@ public class JsonPrimitiveTest extends TestCase {
     assertEquals(p1.hashCode(), p2.hashCode());
   }
 
+  @Test
   public void testShortEqualsLong() {
     JsonPrimitive p1 = new JsonPrimitive(Short.valueOf((short)10));
     JsonPrimitive p2 = new JsonPrimitive(Long.valueOf(10));
@@ -186,6 +205,7 @@ public class JsonPrimitiveTest extends TestCase {
     assertEquals(p1.hashCode(), p2.hashCode());
   }
 
+  @Test
   public void testShortEqualsBigInteger() {
     JsonPrimitive p1 = new JsonPrimitive(Short.valueOf((short)10));
     JsonPrimitive p2 = new JsonPrimitive(new BigInteger("10"));
@@ -193,6 +213,7 @@ public class JsonPrimitiveTest extends TestCase {
     assertEquals(p1.hashCode(), p2.hashCode());
   }
 
+  @Test
   public void testIntegerEqualsLong() {
     JsonPrimitive p1 = new JsonPrimitive(Integer.valueOf(10));
     JsonPrimitive p2 = new JsonPrimitive(Long.valueOf(10L));
@@ -200,6 +221,7 @@ public class JsonPrimitiveTest extends TestCase {
     assertEquals(p1.hashCode(), p2.hashCode());
   }
 
+  @Test
   public void testIntegerEqualsBigInteger() {
     JsonPrimitive p1 = new JsonPrimitive(Integer.valueOf(10));
     JsonPrimitive p2 = new JsonPrimitive(new BigInteger("10"));
@@ -207,6 +229,7 @@ public class JsonPrimitiveTest extends TestCase {
     assertEquals(p1.hashCode(), p2.hashCode());
   }
 
+  @Test
   public void testLongEqualsBigInteger() {
     JsonPrimitive p1 = new JsonPrimitive(Long.valueOf(10L));
     JsonPrimitive p2 = new JsonPrimitive(new BigInteger("10"));
@@ -214,6 +237,7 @@ public class JsonPrimitiveTest extends TestCase {
     assertEquals(p1.hashCode(), p2.hashCode());
   }
 
+  @Test
   public void testFloatEqualsDouble() {
     JsonPrimitive p1 = new JsonPrimitive(Float.valueOf(10.25F));
     JsonPrimitive p2 = new JsonPrimitive(Double.valueOf(10.25D));
@@ -221,6 +245,7 @@ public class JsonPrimitiveTest extends TestCase {
     assertEquals(p1.hashCode(), p2.hashCode());
   }
 
+  @Test
   public void testFloatEqualsBigDecimal() {
     JsonPrimitive p1 = new JsonPrimitive(Float.valueOf(10.25F));
     JsonPrimitive p2 = new JsonPrimitive(new BigDecimal("10.25"));
@@ -228,6 +253,7 @@ public class JsonPrimitiveTest extends TestCase {
     assertEquals(p1.hashCode(), p2.hashCode());
   }
 
+  @Test
   public void testDoubleEqualsBigDecimal() {
     JsonPrimitive p1 = new JsonPrimitive(Double.valueOf(10.25D));
     JsonPrimitive p2 = new JsonPrimitive(new BigDecimal("10.25"));
@@ -235,6 +261,7 @@ public class JsonPrimitiveTest extends TestCase {
     assertEquals(p1.hashCode(), p2.hashCode());
   }
 
+  @Test
   public void testValidJsonOnToString() throws Exception {
     JsonPrimitive json = new JsonPrimitive("Some\nEscaped\nValue");
     assertEquals("\"Some\\nEscaped\\nValue\"", json.toString());
@@ -243,6 +270,7 @@ public class JsonPrimitiveTest extends TestCase {
     assertEquals("1.333", json.toString());
   }
 
+  @Test
   public void testEquals() {
     MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive("A"), new JsonPrimitive("A"));
     MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive(true), new JsonPrimitive(true));
@@ -263,6 +291,7 @@ public class JsonPrimitiveTest extends TestCase {
     assertFalse(new JsonPrimitive(0).equals(new JsonPrimitive(1)));
   }
 
+  @Test
   public void testEqualsAcrossTypes() {
     MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive("a"), new JsonPrimitive('a'));
     MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive(new BigInteger("0")), new JsonPrimitive(0));
@@ -271,6 +300,7 @@ public class JsonPrimitiveTest extends TestCase {
     MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive(Float.NaN), new JsonPrimitive(Double.NaN));
   }
 
+  @Test
   public void testEqualsIntegerAndBigInteger() {
     JsonPrimitive a = new JsonPrimitive(5L);
     JsonPrimitive b = new JsonPrimitive(new BigInteger("18446744073709551621")); // 2^64 + 5
@@ -279,12 +309,14 @@ public class JsonPrimitiveTest extends TestCase {
     assertTrue(a + " equals " + b, a.equals(b));
   }
 
+  @Test
   public void testEqualsDoesNotEquateStringAndNonStringTypes() {
     assertFalse(new JsonPrimitive("true").equals(new JsonPrimitive(true)));
     assertFalse(new JsonPrimitive("0").equals(new JsonPrimitive(0)));
     assertFalse(new JsonPrimitive("NaN").equals(new JsonPrimitive(Float.NaN)));
   }
 
+  @Test
   public void testDeepCopy() {
     JsonPrimitive a = new JsonPrimitive("a");
     assertSame(a, a.deepCopy()); // Primitives are immutable!
