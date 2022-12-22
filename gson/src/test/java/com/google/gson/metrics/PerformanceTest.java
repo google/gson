@@ -57,6 +57,7 @@ public class PerformanceTest {
     // This is here to prevent Junit for complaining when we disable all tests.
   }
 
+  @Test
   @Ignore
   public void disabled_testStringDeserialization() {
     StringBuilder sb = new StringBuilder(8096);
@@ -115,6 +116,7 @@ public class PerformanceTest {
   /**
    * Created in response to http://code.google.com/p/google-gson/issues/detail?id=96
    */
+  @Test
   @Ignore
   public void disabled_testLargeCollectionSerialization() {
     int count = 1400000;
@@ -128,6 +130,7 @@ public class PerformanceTest {
   /**
    * Created in response to http://code.google.com/p/google-gson/issues/detail?id=96
    */
+  @Test
   @Ignore
   public void disabled_testLargeCollectionDeserialization() {
     StringBuilder sb = new StringBuilder();
@@ -153,6 +156,7 @@ public class PerformanceTest {
    * Created in response to http://code.google.com/p/google-gson/issues/detail?id=96
    */
   // Last I tested, Gson was able to serialize upto 14MB byte array
+  @Test
   @Ignore
   public void disabled_testByteArraySerialization() {
     for (int size = 4145152; true; size += 1036288) {
@@ -169,6 +173,7 @@ public class PerformanceTest {
    * Created in response to http://code.google.com/p/google-gson/issues/detail?id=96
    */
   // Last I tested, Gson was able to deserialize a byte array of 11MB
+  @Test
   @Ignore
   public void disabled_testByteArrayDeserialization() {
     for (int numElements = 10639296; true; numElements += 16384) {
@@ -199,6 +204,7 @@ public class PerformanceTest {
 // Serialize exposed classes avg time: 159 ms
 // Deserialized exposed classes avg time: 173 ms
 
+  @Test
   @Ignore
   public void disabled_testSerializeClasses() {
     ClassWithList c = new ClassWithList("str"); 
@@ -215,6 +221,7 @@ public class PerformanceTest {
     System.out.printf("Serialize classes avg time: %d ms\n", avg);
   }
 
+  @Test
   @Ignore
   public void disabled_testDeserializeClasses() {
     String json = buildJsonForClassWithList();
@@ -228,6 +235,7 @@ public class PerformanceTest {
     System.out.printf("Deserialize classes avg time: %d ms\n", avg);
   }
 
+  @Test
   @Ignore
   public void disabled_testLargeObjectSerializationAndDeserialization() {
     Map<String, Long> largeObject = new HashMap<>();
@@ -247,6 +255,7 @@ public class PerformanceTest {
     
   }
 
+  @Test
   @Ignore
   public void disabled_testSerializeExposedClasses() {
     ClassWithListOfObjects c1 = new ClassWithListOfObjects("str"); 
@@ -264,6 +273,7 @@ public class PerformanceTest {
     System.out.printf("Serialize exposed classes avg time: %d ms\n", avg);
   }
 
+  @Test
   @Ignore
   public void disabled_testDeserializeExposedClasses() {
     String json = buildJsonForClassWithList();
@@ -277,6 +287,7 @@ public class PerformanceTest {
     System.out.printf("Deserialize exposed classes avg time: %d ms\n", avg);
   }
 
+  @Test
   @Ignore
   public void disabled_testLargeGsonMapRoundTrip() throws Exception {
     Map<Long, Long> original = new HashMap<>();
@@ -290,7 +301,6 @@ public class PerformanceTest {
     gson.fromJson(json, longToLong);
   }
 
-  @Ignore
   private String buildJsonForClassWithList() {
     StringBuilder sb = new StringBuilder("{");
     sb.append("field:").append("'str',");

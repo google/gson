@@ -58,6 +58,7 @@ public class MapAsArrayTypeAdapterTest {
         new TypeToken<Map<String, Boolean>>() {}.getType()));
   }
 
+  @Test
   @Ignore
   public void disabled_testTwoTypesCollapseToOneSerialize() {
     Gson gson = new GsonBuilder()

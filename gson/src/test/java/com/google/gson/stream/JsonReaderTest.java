@@ -532,6 +532,7 @@ public final class JsonReaderTest {
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
+  @Test
   @Ignore
   public void disabled_testNumberWithOctalPrefix() throws IOException {
     String json = "[01]";
@@ -721,6 +722,7 @@ public final class JsonReaderTest {
    * This test fails because there's no double for 9223372036854775808, and our
    * long parsing uses Double.parseDouble() for fractional values.
    */
+  @Test
   @Ignore
   public void disabled_testPeekLargerThanLongMaxValue() throws IOException {
     JsonReader reader = new JsonReader(reader("[9223372036854775808]"));
@@ -738,6 +740,7 @@ public final class JsonReaderTest {
    * This test fails because there's no double for -9223372036854775809, and our
    * long parsing uses Double.parseDouble() for fractional values.
    */
+  @Test
   @Ignore
   public void disabled_testPeekLargerThanLongMinValue() throws IOException {
     JsonReader reader = new JsonReader(reader("[-9223372036854775809]"));
@@ -756,6 +759,7 @@ public final class JsonReaderTest {
    * This test fails because there's no double for 9223372036854775806, and
    * our long parsing uses Double.parseDouble() for fractional values.
    */
+  @Test
   @Ignore
   public void disabled_testHighPrecisionLong() throws IOException {
     String json = "[9223372036854775806.000]";

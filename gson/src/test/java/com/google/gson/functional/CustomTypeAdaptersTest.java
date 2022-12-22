@@ -91,6 +91,7 @@ public class CustomTypeAdaptersTest {
     assertEquals(5, target.getBag().getIntValue());
   }
 
+  @Test
   @Ignore
   public void disable_testCustomSerializersOfSelf() {
     Gson gson = createGsonObjectWithFooTypeAdapter();
@@ -102,6 +103,7 @@ public class CustomTypeAdaptersTest {
     assertEquals(jsonFromGson, jsonFromCustomSerializer);
   }
 
+  @Test
   @Ignore
   public void disable_testCustomDeserializersOfSelf() {
     Gson gson = createGsonObjectWithFooTypeAdapter();
