@@ -159,7 +159,7 @@ public final class JsonObject extends JsonElement {
    * Returns true if the number of key/value pairs in the object is zero.
    *
    * @return true if the number of key/value pairs in the object is zero.
-   * @since $next-version$
+   * @since 2.10.1
    */
   public boolean isEmpty() {
     return members.size() == 0;
