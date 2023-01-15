@@ -16,8 +16,7 @@
 
 package com.google.gson;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import com.google.gson.Gson.FutureTypeAdapter;
@@ -70,10 +69,10 @@ public final class GsonTest {
         CUSTOM_OBJECT_TO_NUMBER_STRATEGY, CUSTOM_NUMBER_TO_NUMBER_STRATEGY,
         Collections.<ReflectionAccessFilter>emptyList());
 
-    assertEquals(CUSTOM_EXCLUDER, gson.excluder);
-    assertEquals(CUSTOM_FIELD_NAMING_STRATEGY, gson.fieldNamingStrategy());
-    assertEquals(true, gson.serializeNulls());
-    assertEquals(false, gson.htmlSafe());
+    assertThat(gson.excluder).isEqualTo(CUSTOM_EXCLUDER);
+    assertThat(gson.fieldNamingStrategy()).isEqualTo(CUSTOM_FIELD_NAMING_STRATEGY);
+    assertThat(gson.serializeNulls()).isTrue();
+    assertThat(gson.htmlSafe()).isFalse();
   }
 
   @Test
@@ -90,14 +89,14 @@ public final class GsonTest {
         .registerTypeAdapter(Object.class, new TestTypeAdapter())
         .create();
 
-    assertEquals(original.factories.size() + 1, clone.factories.size());
+    assertThat(clone.factories.size()).isEqualTo(original.factories.size() + 1);
   }
 
   private static final class TestTypeAdapter extends TypeAdapter<Object> {
-    @Override public void write(JsonWriter out, Object value) throws IOException {
+    @Override public void write(JsonWriter out, Object value) {
       // Test stub.
     }
-    @Override public Object read(JsonReader in) throws IOException { return null; }
+    @Override public Object read(JsonReader in) { return null; }
   }
 
   @Test
@@ -107,7 +106,7 @@ public final class GsonTest {
       gson.getAdapter((TypeToken<?>) null);
       fail();
     } catch (NullPointerException e) {
-      assertEquals("type must not be null", e.getMessage());
+      assertThat(e.getMessage()).isEqualTo("type must not be null");
     }
   }
 
@@ -159,9 +158,9 @@ public final class GsonTest {
         .create();
 
     TypeAdapter<?> adapter = gson.getAdapter(requestedType);
-    assertEquals(2, adapterInstancesCreated.get());
-    assertTrue(adapter instanceof DummyAdapter);
-    assertTrue(threadAdapter.get() instanceof DummyAdapter);
+    assertThat(adapterInstancesCreated.get()).isEqualTo(2);
+    assertThat(adapter).isInstanceOf(DummyAdapter.class);
+    assertThat(threadAdapter.get()).isInstanceOf(DummyAdapter.class);
   }
 
   /**
@@ -239,7 +238,7 @@ public final class GsonTest {
           }
           else if (raw == CustomClass2.class) {
             TypeAdapter<?> adapter = gson.getAdapter(CustomClass1.class);
-            assertTrue(adapter instanceof FutureTypeAdapter);
+            assertThat(adapter).isInstanceOf(FutureTypeAdapter.class);
             return new WrappingAdapter<>(adapter);
           }
           else {
@@ -262,12 +261,12 @@ public final class GsonTest {
     isThreadWaiting.await();
     TypeAdapter<?> adapter = gson.getAdapter(CustomClass1.class);
     // Should not fail due to referring to unresolved FutureTypeAdapter
-    assertEquals("[[\"wrapped-nested\"]]", adapter.toJson(null));
+    assertThat(adapter.toJson(null)).isEqualTo("[[\"wrapped-nested\"]]");
 
     // Let other thread proceed and have it resolve its FutureTypeAdapter
     canThreadProceed.countDown();
     thread.join();
-    assertEquals("[[\"wrapped-nested\"]]", otherThreadAdapter.get().toJson(null));
+    assertThat(otherThreadAdapter.get().toJson(null)).isEqualTo("[[\"wrapped-nested\"]]");
   }
 
   @Test
@@ -286,11 +285,11 @@ public final class GsonTest {
       jsonWriter.value(1);
       fail();
     } catch (IllegalStateException expected) {
-      assertEquals("JSON must have only one top-level value.", expected.getMessage());
+      assertThat(expected.getMessage()).isEqualTo("JSON must have only one top-level value.");
     }
 
     jsonWriter.close();
-    assertEquals("{\"\\u003ctest2\":true}", writer.toString());
+    assertThat(writer.toString()).isEqualTo("{\"\\u003ctest2\":true}");
   }
 
   @Test
@@ -315,7 +314,7 @@ public final class GsonTest {
     jsonWriter.value(1);
 
     jsonWriter.close();
-    assertEquals(")]}'\n{\n  \"test\": null,\n  \"<test2\": true\n}1", writer.toString());
+    assertThat(writer.toString()).isEqualTo(")]}'\n{\n  \"test\": null,\n  \"<test2\": true\n}1");
   }
 
   @Test
@@ -337,7 +336,7 @@ public final class GsonTest {
       .setLenient()
       .create()
       .newJsonReader(new StringReader(json));
-    assertEquals("test", jsonReader.nextString());
+    assertThat(jsonReader.nextString()).isEqualTo("test");
     jsonReader.close();
   }
 
@@ -382,15 +381,15 @@ public final class GsonTest {
   private static void assertDefaultGson(Gson gson) {
     // Should use default reflective adapter
     String json1 = gson.toJson(new CustomClass1());
-    assertEquals("{}", json1);
+    assertThat(json1).isEqualTo("{}");
 
     // Should use default reflective adapter
     String json2 = gson.toJson(new CustomClass2());
-    assertEquals("{}", json2);
+    assertThat(json2).isEqualTo("{}");
 
     // Should use default instance creator
     CustomClass3 customClass3 = gson.fromJson("{}", CustomClass3.class);
-    assertEquals(CustomClass3.NO_ARG_CONSTRUCTOR_VALUE, customClass3.s);
+    assertThat(customClass3.s).isEqualTo(CustomClass3.NO_ARG_CONSTRUCTOR_VALUE);
   }
 
   /**
@@ -454,24 +453,24 @@ public final class GsonTest {
     // But new Gson instance from `gsonBuilder` should be affected by changes
     Gson otherGson = gsonBuilder.create();
     String json1 = otherGson.toJson(new CustomClass1());
-    assertEquals("\"overwritten custom-adapter\"", json1);
+    assertThat(json1).isEqualTo("\"overwritten custom-adapter\"");
 
     String json2 = otherGson.toJson(new CustomClass2());
-    assertEquals("\"overwritten custom-hierarchy-adapter\"", json2);
+    assertThat(json2).isEqualTo("\"overwritten custom-hierarchy-adapter\"");
 
     CustomClass3 customClass3 = otherGson.fromJson("{}", CustomClass3.class);
-    assertEquals("overwritten custom-instance", customClass3.s);
+    assertThat(customClass3.s).isEqualTo("overwritten custom-instance");
   }
 
   private static void assertCustomGson(Gson gson) {
     String json1 = gson.toJson(new CustomClass1());
-    assertEquals("\"custom-adapter\"", json1);
+    assertThat(json1).isEqualTo("\"custom-adapter\"");
 
     String json2 = gson.toJson(new CustomClass2());
-    assertEquals("\"custom-hierarchy-adapter\"", json2);
+    assertThat(json2).isEqualTo("\"custom-hierarchy-adapter\"");
 
     CustomClass3 customClass3 = gson.fromJson("{}", CustomClass3.class);
-    assertEquals("custom-instance", customClass3.s);
+    assertThat(customClass3.s).isEqualTo("custom-instance");
   }
 
   private static class CustomClass1 { }

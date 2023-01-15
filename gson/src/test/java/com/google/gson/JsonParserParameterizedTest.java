@@ -1,8 +1,7 @@
 package com.google.gson;
 
-import static org.junit.Assert.assertEquals;
+import static com.google.common.truth.Truth.assertThat;
 
-import java.io.IOException;
 import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,11 +30,11 @@ public class JsonParserParameterizedTest {
   public String json;
 
   @Test
-  public void testParse() throws IOException {
+  public void testParse() {
     JsonElement deserialized = JsonParser.parseString(json);
     String actualSerialized = adapter.toJson(deserialized);
 
     // Serialized JsonElement should be the same as original JSON
-    assertEquals(json, actualSerialized);
+    assertThat(actualSerialized).isEqualTo(json);
   }
 }

@@ -16,7 +16,7 @@
 
 package com.google.gson;
 
-import static org.junit.Assert.assertSame;
+import static com.google.common.truth.Truth.assertThat;
 
 import com.google.gson.common.MoreAsserts;
 import org.junit.Test;
@@ -38,7 +38,7 @@ public final class JsonNullTest {
   public void testDeepCopy() {
     @SuppressWarnings("deprecation")
     JsonNull a = new JsonNull();
-    assertSame(JsonNull.INSTANCE, a.deepCopy());
-    assertSame(JsonNull.INSTANCE, JsonNull.INSTANCE.deepCopy());
+    assertThat(a.deepCopy()).isSameInstanceAs(JsonNull.INSTANCE);
+    assertThat(JsonNull.INSTANCE.deepCopy()).isSameInstanceAs(JsonNull.INSTANCE);
   }
 }

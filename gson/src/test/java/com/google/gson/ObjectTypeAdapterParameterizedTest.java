@@ -1,6 +1,6 @@
 package com.google.gson;
 
-import static org.junit.Assert.assertEquals;
+import static com.google.common.truth.Truth.assertThat;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -36,6 +36,6 @@ public class ObjectTypeAdapterParameterizedTest {
     String actualSerialized = adapter.toJson(deserialized);
 
     // Serialized Object should be the same as original JSON
-    assertEquals(json, actualSerialized);
+    assertThat(actualSerialized).isEqualTo(json);
   }
 }

@@ -16,8 +16,7 @@
 
 package com.google.gson;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import java.lang.reflect.Type;
@@ -60,7 +59,7 @@ public class GsonTypeAdapterTest {
     } catch (IllegalStateException expected) { }
 
     // Verify that serializer is made null-safe, i.e. it is not called for null
-    assertEquals("null", gson.toJson(null, AtomicLong.class));
+    assertThat(gson.toJson(null, AtomicLong.class)).isEqualTo("null");
 
     try {
       gson.fromJson("123", AtomicLong.class);
@@ -68,28 +67,28 @@ public class GsonTypeAdapterTest {
     } catch (JsonParseException expected) { }
 
     // Verify that deserializer is made null-safe, i.e. it is not called for null
-    assertNull(gson.fromJson(JsonNull.INSTANCE, AtomicLong.class));
+    assertThat(gson.fromJson(JsonNull.INSTANCE, AtomicLong.class)).isNull();
   }
 
   @Test
-  public void testTypeAdapterProperlyConvertsTypes() throws Exception {
+  public void testTypeAdapterProperlyConvertsTypes() {
     int intialValue = 1;
     AtomicInteger atomicInt = new AtomicInteger(intialValue);
     String json = gson.toJson(atomicInt);
-    assertEquals(intialValue + 1, Integer.parseInt(json));
+    assertThat(Integer.parseInt(json)).isEqualTo(intialValue + 1);
 
     atomicInt = gson.fromJson(json, AtomicInteger.class);
-    assertEquals(intialValue, atomicInt.get());
+    assertThat(atomicInt.get()).isEqualTo(intialValue);
   }
 
   @Test
-  public void testTypeAdapterDoesNotAffectNonAdaptedTypes() throws Exception {
+  public void testTypeAdapterDoesNotAffectNonAdaptedTypes() {
     String expected = "blah";
     String actual = gson.toJson(expected);
-    assertEquals("\"" + expected + "\"", actual);
+    assertThat(actual).isEqualTo("\"" + expected + "\"");
 
     actual = gson.fromJson(actual, String.class);
-    assertEquals(expected, actual);
+    assertThat(actual).isEqualTo(expected);
   }
 
   private static class ExceptionTypeAdapter
@@ -158,6 +157,6 @@ public class GsonTypeAdapterTest {
       builder.registerTypeHierarchyAdapter(Abstract.class, deserializer);
     }
     Gson gson = builder.create();
-    assertEquals(expected, gson.toJson(instance, instanceType));
+    assertThat(gson.toJson(instance, instanceType)).isEqualTo(expected);
   }
 }
