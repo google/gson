@@ -192,3 +192,21 @@ If you want to prevent using reflection on third-party classes in the future you
 **Reason:** You used `GsonBuilder.excludeFieldsWithModifiers` to overwrite the default excluded modifiers
 
 **Solution:** When calling `GsonBuilder.excludeFieldsWithModifiers` you overwrite the default excluded modifiers. Therefore, you have to explicitly exclude `static` fields if desired. This can be done by adding `Modifier.STATIC` as additional argument.
+
+## `NoSuchMethodError` when calling Gson methods
+
+**Symptom:** A `java.lang.NoSuchMethodError` is thrown when trying to call certain Gson methods
+
+**Reason:**
+
+- You have multiple versions of Gson on your classpath
+- Or, the Gson version you compiled against is different from the one on your classpath
+- Or, you are using a code shrinking tool such as ProGuard or R8 which removed methods from Gson
+
+**Solution:** First disable any code shrinking tools such as ProGuard or R8 and check if the issue persists. If not, you have to tweak the configuration of that tool to not modify Gson classes. Otherwise verify that the Gson JAR on your classpath is the same you are compiling against, and that there is only one Gson JAR on your classpath. See [this Stack Overflow question](https://stackoverflow.com/q/227486) to find out where a class is loaded from. For example, for debugging you could include the following code:
+
+```java
+System.out.println(Gson.class.getProtectionDomain().getCodeSource().getLocation());
+```
+
+If that fails with a `NullPointerException` you have to try one of the other ways to find out where a class is loaded from.
