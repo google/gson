@@ -22,7 +22,7 @@ This guide describes how to troubleshoot common issues when using Gson.
 
 **Reason:** You use Gson by accident to access internal fields of third-party classes
 
-**Solution:** Write custom Gson [`TypeAdapter`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/TypeAdapter.html) implementations for the affected classes or change the type of your data
+**Solution:** Write custom Gson [`TypeAdapter`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/TypeAdapter.html) implementations for the affected classes or change the type of your data. If this occurs for a field in one of your classes which did not actually want to serialize or deserialize in the first place, you can exclude that field, see the [user guide](UserGuide.md#excluding-fields-from-serialization-and-deserialization).
 
 **Explanation:**
 
@@ -48,6 +48,8 @@ module mymodule {
     opens mypackage to com.google.gson;
 }
 ```
+
+Or in case this occurs for a field in one of your classes which did not actually want to serialize or deserialize in the first place, you can exclude that field, see the [user guide](UserGuide.md#excluding-fields-from-serialization-and-deserialization).
 
 ## Android app not working in Release mode; random property names
 
@@ -189,4 +191,4 @@ If you want to prevent using reflection on third-party classes in the future you
 
 **Reason:** You used `GsonBuilder.excludeFieldsWithModifiers` to overwrite the default excluded modifiers
 
-**Solution:** When calling `GsonBuilder.excludeFieldsWithModifiers` you overwrite the default excluded modifiers. Therefore, you have to explicitly exclude `static` fields if desired. This can be done by adding `| Modifier.STATIC` to the argument.
+**Solution:** When calling `GsonBuilder.excludeFieldsWithModifiers` you overwrite the default excluded modifiers. Therefore, you have to explicitly exclude `static` fields if desired. This can be done by adding `Modifier.STATIC` as additional argument.
