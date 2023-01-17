@@ -16,7 +16,7 @@
 
 package com.google.gson;
 
-import static org.junit.Assert.assertEquals;
+import static com.google.common.truth.Truth.assertThat;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -33,35 +33,35 @@ public final class ObjectTypeAdapterTest {
   @Test
   public void testDeserialize() throws Exception {
     Map<?, ?> map = (Map<?, ?>) adapter.fromJson("{\"a\":5,\"b\":[1,2,null],\"c\":{\"x\":\"y\"}}");
-    assertEquals(5.0, map.get("a"));
-    assertEquals(Arrays.asList(1.0, 2.0, null), map.get("b"));
-    assertEquals(Collections.singletonMap("x", "y"), map.get("c"));
-    assertEquals(3, map.size());
+    assertThat(map.get("a")).isEqualTo(5.0);
+    assertThat(map.get("b")).isEqualTo(Arrays.asList(1.0, 2.0, null));
+    assertThat(map.get("c")).isEqualTo(Collections.singletonMap("x", "y"));
+    assertThat(map).hasSize(3);
   }
 
   @Test
-  public void testSerialize() throws Exception {
+  public void testSerialize() {
     Object object = new RuntimeType();
-    assertEquals("{'a':5,'b':[1,2,null]}", adapter.toJson(object).replace("\"", "'"));
+    assertThat(adapter.toJson(object).replace("\"", "'")).isEqualTo("{'a':5,'b':[1,2,null]}");
   }
 
   @Test
-  public void testSerializeNullValue() throws Exception {
+  public void testSerializeNullValue() {
     Map<String, Object> map = new LinkedHashMap<>();
     map.put("a", null);
-    assertEquals("{'a':null}", adapter.toJson(map).replace('"', '\''));
+    assertThat(adapter.toJson(map).replace('"', '\'')).isEqualTo("{'a':null}");
   }
 
   @Test
   public void testDeserializeNullValue() throws Exception {
     Map<String, Object> map = new LinkedHashMap<>();
     map.put("a", null);
-    assertEquals(map, adapter.fromJson("{\"a\":null}"));
+    assertThat(adapter.fromJson("{\"a\":null}")).isEqualTo(map);
   }
 
   @Test
-  public void testSerializeObject() throws Exception {
-    assertEquals("{}", adapter.toJson(new Object()));
+  public void testSerializeObject() {
+    assertThat(adapter.toJson(new Object())).isEqualTo("{}");
   }
 
   private static String repeat(String s, int times) {
@@ -87,10 +87,10 @@ public final class ObjectTypeAdapterTest {
       if (current.isEmpty()) {
         break;
       }
-      assertEquals(1, current.size());
+      assertThat(current).hasSize(1);
       current = (List<List<?>>) current.get(0);
     }
-    assertEquals(times, actualTimes);
+    assertThat(actualTimes).isEqualTo(times);
   }
 
   /** Deeply nested JSON objects should not cause {@link StackOverflowError} */
@@ -104,11 +104,11 @@ public final class ObjectTypeAdapterTest {
     int actualTimes = 0;
     Map<String, Map<?, ?>> current = (Map<String, Map<?, ?>>) adapter.fromJson(json);
     while (current != null) {
-      assertEquals(1, current.size());
+      assertThat(current).hasSize(1);
       actualTimes++;
       current = (Map<String, Map<?, ?>>) current.get("a");
     }
-    assertEquals(times, actualTimes);
+    assertThat(actualTimes).isEqualTo(times);
   }
 
   @SuppressWarnings("unused")

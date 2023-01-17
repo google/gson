@@ -1,7 +1,8 @@
 package com.google.gson;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
+
 import java.lang.reflect.Field;
 import java.util.Locale;
 import org.junit.Test;
@@ -28,7 +29,7 @@ public class FieldNamingPolicyTest {
     };
 
     for (String[] pair : argumentPairs) {
-      assertEquals(pair[1], FieldNamingPolicy.separateCamelCase(pair[0], '_'));
+      assertThat(FieldNamingPolicy.separateCamelCase(pair[0], '_')).isEqualTo(pair[1]);
     }
   }
 
@@ -51,12 +52,12 @@ public class FieldNamingPolicyTest {
     };
 
     for (String[] pair : argumentPairs) {
-      assertEquals(pair[1], FieldNamingPolicy.upperCaseFirstLetter(pair[0]));
+      assertThat(FieldNamingPolicy.upperCaseFirstLetter(pair[0])).isEqualTo(pair[1]);
     }
   }
 
   /**
-   * Upper casing policies should be unaffected by default Locale.
+   * Upper-casing policies should be unaffected by default Locale.
    */
   @Test
   public void testUpperCasingLocaleIndependent() throws Exception {
@@ -81,11 +82,13 @@ public class FieldNamingPolicyTest {
 
     try {
       // Verify that default Locale has different case conversion rules
-      assertNotEquals("Test setup is broken", expected, name.toUpperCase());
+      assertWithMessage("Test setup is broken")
+          .that(name.toUpperCase()).doesNotMatch(expected);
 
       for (FieldNamingPolicy policy : policies) {
         // Should ignore default Locale
-        assertEquals("Unexpected conversion for " + policy, expected, policy.translateName(field));
+        assertWithMessage("Unexpected conversion for %s", policy)
+            .that(policy.translateName(field)).matches(expected);
       }
     } finally {
         Locale.setDefault(oldLocale);
@@ -118,11 +121,13 @@ public class FieldNamingPolicyTest {
 
     try {
       // Verify that default Locale has different case conversion rules
-      assertNotEquals("Test setup is broken", expected, name.toLowerCase());
+      assertWithMessage("Test setup is broken")
+          .that(name.toLowerCase()).doesNotMatch(expected);
 
       for (FieldNamingPolicy policy : policies) {
         // Should ignore default Locale
-        assertEquals("Unexpected conversion for " + policy, expected, policy.translateName(field));
+        assertWithMessage("Unexpected conversion for %s", policy)
+            .that(policy.translateName(field)).matches(expected);
       }
     } finally {
         Locale.setDefault(oldLocale);

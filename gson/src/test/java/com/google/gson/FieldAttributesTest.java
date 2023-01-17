@@ -16,9 +16,7 @@
 
 package com.google.gson;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import com.google.gson.reflect.TypeToken;
@@ -44,7 +42,7 @@ public class FieldAttributesTest {
 
   @SuppressWarnings("unused")
   @Test
-  public void testNullField() throws Exception {
+  public void testNullField() {
     try {
       new FieldAttributes(null);
       fail("Field parameter can not be null");
@@ -52,32 +50,32 @@ public class FieldAttributesTest {
   }
 
   @Test
-  public void testDeclaringClass() throws Exception {
-    assertEquals(Foo.class, fieldAttributes.getDeclaringClass());
+  public void testDeclaringClass() {
+    assertThat(fieldAttributes.getDeclaringClass()).isAssignableTo(Foo.class);
   }
 
   @Test
-  public void testModifiers() throws Exception {
-    assertFalse(fieldAttributes.hasModifier(Modifier.STATIC));
-    assertFalse(fieldAttributes.hasModifier(Modifier.FINAL));
-    assertFalse(fieldAttributes.hasModifier(Modifier.ABSTRACT));
-    assertFalse(fieldAttributes.hasModifier(Modifier.VOLATILE));
-    assertFalse(fieldAttributes.hasModifier(Modifier.PROTECTED));
+  public void testModifiers() {
+    assertThat(fieldAttributes.hasModifier(Modifier.STATIC)).isFalse();
+    assertThat(fieldAttributes.hasModifier(Modifier.FINAL)).isFalse();
+    assertThat(fieldAttributes.hasModifier(Modifier.ABSTRACT)).isFalse();
+    assertThat(fieldAttributes.hasModifier(Modifier.VOLATILE)).isFalse();
+    assertThat(fieldAttributes.hasModifier(Modifier.PROTECTED)).isFalse();
 
-    assertTrue(fieldAttributes.hasModifier(Modifier.PUBLIC));
-    assertTrue(fieldAttributes.hasModifier(Modifier.TRANSIENT));
+    assertThat(fieldAttributes.hasModifier(Modifier.PUBLIC)).isTrue();
+    assertThat(fieldAttributes.hasModifier(Modifier.TRANSIENT)).isTrue();
   }
 
   @Test
-  public void testName() throws Exception {
-    assertEquals("bar", fieldAttributes.getName());
+  public void testName() {
+    assertThat(fieldAttributes.getName()).isEqualTo("bar");
   }
 
   @Test
-  public void testDeclaredTypeAndClass() throws Exception {
+  public void testDeclaredTypeAndClass() {
     Type expectedType = new TypeToken<List<String>>() {}.getType();
-    assertEquals(expectedType, fieldAttributes.getDeclaredType());
-    assertEquals(List.class, fieldAttributes.getDeclaredClass());
+    assertThat(fieldAttributes.getDeclaredType()).isEqualTo(expectedType);
+    assertThat(fieldAttributes.getDeclaredClass()).isAssignableTo(List.class);
   }
 
   private static class Foo {

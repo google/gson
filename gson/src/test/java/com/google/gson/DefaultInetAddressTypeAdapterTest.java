@@ -16,7 +16,7 @@
 
 package com.google.gson;
 
-import static org.junit.Assert.assertEquals;
+import static com.google.common.truth.Truth.assertThat;
 
 import java.net.InetAddress;
 import org.junit.Before;
@@ -39,9 +39,9 @@ public class DefaultInetAddressTypeAdapterTest {
   public void testInetAddressSerializationAndDeserialization() throws Exception {
     InetAddress address = InetAddress.getByName("8.8.8.8");
     String jsonAddress = gson.toJson(address);
-    assertEquals("\"8.8.8.8\"", jsonAddress);
-    
+    assertThat(jsonAddress).isEqualTo("\"8.8.8.8\"");
+
     InetAddress value = gson.fromJson(jsonAddress, InetAddress.class);
-    assertEquals(value, address);
-  } 
+    assertThat(address).isEqualTo(value);
+  }
 }

@@ -16,9 +16,7 @@
 
 package com.google.gson;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
+import static com.google.common.truth.Truth.assertThat;
 
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.reflect.TypeToken;
@@ -43,19 +41,19 @@ public class ParameterizedTypeTest {
   }
 
   @Test
-  public void testOurTypeFunctionality() throws Exception {
+  public void testOurTypeFunctionality() {
     Type parameterizedType = new TypeToken<List<String>>() {}.getType();
-    assertNull(ourType.getOwnerType());
-    assertEquals(String.class, ourType.getActualTypeArguments()[0]);
-    assertEquals(List.class, ourType.getRawType());
-    assertEquals(parameterizedType, ourType);
-    assertEquals(parameterizedType.hashCode(), ourType.hashCode());
+    assertThat(ourType.getOwnerType()).isNull();
+    assertThat(ourType.getActualTypeArguments()[0]).isSameInstanceAs(String.class);
+    assertThat(ourType.getRawType()).isSameInstanceAs(List.class);
+    assertThat(ourType).isEqualTo(parameterizedType);
+    assertThat(ourType.hashCode()).isEqualTo(parameterizedType.hashCode());
   }
 
   @Test
-  public void testNotEquals() throws Exception {
+  public void testNotEquals() {
     Type differentParameterizedType = new TypeToken<List<Integer>>() {}.getType();
-    assertFalse(differentParameterizedType.equals(ourType));
-    assertFalse(ourType.equals(differentParameterizedType));
+    assertThat(differentParameterizedType.equals(ourType)).isFalse();
+    assertThat(ourType.equals(differentParameterizedType)).isFalse();
   }
 }

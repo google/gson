@@ -16,10 +16,9 @@
 
 package com.google.gson;
 
-import static org.junit.Assert.assertEquals;
+import static com.google.common.truth.Truth.assertThat;
 
 import com.google.gson.reflect.TypeToken;
-import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
 
@@ -43,6 +42,6 @@ public final class CommentsTest {
         + "]";
 
     List<String> abc = new Gson().fromJson(json, new TypeToken<List<String>>() {}.getType());
-    assertEquals(Arrays.asList("a", "b", "c"), abc);
+    assertThat(abc).containsExactly("a", "b", "c").inOrder();
   }
 }

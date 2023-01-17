@@ -16,7 +16,7 @@
 
 package com.google.gson;
 
-import static org.junit.Assert.assertEquals;
+import static com.google.common.truth.Truth.assertThat;
 
 import com.google.gson.reflect.TypeToken;
 import java.io.ByteArrayInputStream;
@@ -25,8 +25,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.junit.Test;
@@ -44,9 +42,9 @@ public final class JavaSerializationTest {
     Type type = new TypeToken<Map<String, Integer>>() {}.getType();
     Map<String, Integer> map = gson.fromJson("{\"b\":1,\"c\":2,\"a\":3}", type);
     Map<String, Integer> serialized = serializedCopy(map);
-    assertEquals(map, serialized);
+    assertThat(serialized).isEqualTo(map);
     // Also check that the iteration order is retained.
-    assertEquals(Arrays.asList("b", "c", "a"), new ArrayList<>(serialized.keySet()));
+    assertThat(serialized.keySet()).containsExactly("b", "c", "a").inOrder();
   }
 
   @Test
@@ -54,7 +52,7 @@ public final class JavaSerializationTest {
     Type type = new TypeToken<List<String>>() {}.getType();
     List<String> list = gson.fromJson("[\"a\",\"b\",\"c\"]", type);
     List<String> serialized = serializedCopy(list);
-    assertEquals(list, serialized);
+    assertThat(serialized).isEqualTo(list);
   }
 
   @Test
@@ -62,9 +60,9 @@ public final class JavaSerializationTest {
     Type type = new TypeToken<List<Number>>() {}.getType();
     List<Number> list = gson.fromJson("[1,3.14,6.673e-11]", type);
     List<Number> serialized = serializedCopy(list);
-    assertEquals(1.0, serialized.get(0).doubleValue(), 0);
-    assertEquals(3.14, serialized.get(1).doubleValue(), 0);
-    assertEquals(6.673e-11, serialized.get(2).doubleValue(), 0);
+    assertThat(serialized.get(0).doubleValue()).isEqualTo(1.0);
+    assertThat(serialized.get(1).doubleValue()).isEqualTo(3.14);
+    assertThat(serialized.get(2).doubleValue()).isEqualTo(6.673e-11);
   }
 
   @SuppressWarnings("unchecked") // Serialization promises to return the same type.

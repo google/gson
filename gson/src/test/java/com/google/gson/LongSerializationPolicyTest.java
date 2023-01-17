@@ -16,9 +16,7 @@
 
 package com.google.gson;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static com.google.common.truth.Truth.assertThat;
 
 import org.junit.Test;
 
@@ -33,12 +31,12 @@ public class LongSerializationPolicyTest {
   @Test
   public void testDefaultLongSerialization() throws Exception {
     JsonElement element = LongSerializationPolicy.DEFAULT.serialize(1556L);
-    assertTrue(element.isJsonPrimitive());
+    assertThat(element.isJsonPrimitive()).isTrue();
 
     JsonPrimitive jsonPrimitive = element.getAsJsonPrimitive();
-    assertFalse(jsonPrimitive.isString());
-    assertTrue(jsonPrimitive.isNumber());
-    assertEquals(1556L, element.getAsLong());
+    assertThat(jsonPrimitive.isString()).isFalse();
+    assertThat(jsonPrimitive.isNumber()).isTrue();
+    assertThat(element.getAsLong()).isEqualTo(1556L);
   }
 
   @Test
@@ -46,30 +44,30 @@ public class LongSerializationPolicyTest {
     Gson gson = new GsonBuilder()
       .setLongSerializationPolicy(LongSerializationPolicy.DEFAULT)
       .create();
-    assertEquals("[1]", gson.toJson(new long[] { 1L }, long[].class));
-    assertEquals("[1]", gson.toJson(new Long[] { 1L }, Long[].class));
+    assertThat(gson.toJson(new long[] { 1L }, long[].class)).isEqualTo("[1]");
+    assertThat(gson.toJson(new Long[] { 1L }, Long[].class)).isEqualTo("[1]");
   }
 
   @Test
   public void testDefaultLongSerializationNull() {
     LongSerializationPolicy policy = LongSerializationPolicy.DEFAULT;
-    assertTrue(policy.serialize(null).isJsonNull());
+    assertThat(policy.serialize(null).isJsonNull()).isTrue();
 
     Gson gson = new GsonBuilder()
       .setLongSerializationPolicy(policy)
       .create();
-    assertEquals("null", gson.toJson(null, Long.class));
+    assertThat(gson.toJson(null, Long.class)).isEqualTo("null");
   }
 
   @Test
   public void testStringLongSerialization() throws Exception {
     JsonElement element = LongSerializationPolicy.STRING.serialize(1556L);
-    assertTrue(element.isJsonPrimitive());
+    assertThat(element.isJsonPrimitive()).isTrue();
 
     JsonPrimitive jsonPrimitive = element.getAsJsonPrimitive();
-    assertFalse(jsonPrimitive.isNumber());
-    assertTrue(jsonPrimitive.isString());
-    assertEquals("1556", element.getAsString());
+    assertThat(jsonPrimitive.isNumber()).isFalse();
+    assertThat(jsonPrimitive.isString()).isTrue();
+    assertThat(element.getAsString()).isEqualTo("1556");
   }
 
   @Test
@@ -77,18 +75,18 @@ public class LongSerializationPolicyTest {
     Gson gson = new GsonBuilder()
       .setLongSerializationPolicy(LongSerializationPolicy.STRING)
       .create();
-    assertEquals("[\"1\"]", gson.toJson(new long[] { 1L }, long[].class));
-    assertEquals("[\"1\"]", gson.toJson(new Long[] { 1L }, Long[].class));
+    assertThat(gson.toJson(new long[] { 1L }, long[].class)).isEqualTo("[\"1\"]");
+    assertThat(gson.toJson(new Long[] { 1L }, long[].class)).isEqualTo("[\"1\"]");
   }
 
   @Test
   public void testStringLongSerializationNull() {
     LongSerializationPolicy policy = LongSerializationPolicy.STRING;
-    assertTrue(policy.serialize(null).isJsonNull());
+    assertThat(policy.serialize(null).isJsonNull()).isTrue();
 
     Gson gson = new GsonBuilder()
       .setLongSerializationPolicy(policy)
       .create();
-    assertEquals("null", gson.toJson(null, Long.class));
+    assertThat(gson.toJson(null, Long.class)).isEqualTo("null");
   }
 }

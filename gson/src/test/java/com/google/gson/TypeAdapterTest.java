@@ -1,7 +1,6 @@
 package com.google.gson;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import com.google.gson.stream.JsonReader;
@@ -23,8 +22,8 @@ public class TypeAdapterTest {
       }
     }.nullSafe();
 
-    assertEquals("null", adapter.toJson(null));
-    assertNull(adapter.fromJson("null"));
+    assertThat(adapter.toJson(null)).isEqualTo("null");
+    assertThat(adapter.fromJson("null")).isNull();
   }
 
   /**
@@ -39,7 +38,7 @@ public class TypeAdapterTest {
         throw exception;
       }
 
-      @Override public Integer read(JsonReader in) throws IOException {
+      @Override public Integer read(JsonReader in) {
         throw new AssertionError("not needed by this test");
       }
     };
@@ -48,14 +47,14 @@ public class TypeAdapterTest {
       adapter.toJson(1);
       fail();
     } catch (JsonIOException e) {
-      assertEquals(exception, e.getCause());
+      assertThat(e.getCause()).isEqualTo(exception);
     }
 
     try {
       adapter.toJsonTree(1);
       fail();
     } catch (JsonIOException e) {
-      assertEquals(exception, e.getCause());
+      assertThat(e.getCause()).isEqualTo(exception);
     }
   }
 
@@ -73,13 +72,13 @@ public class TypeAdapterTest {
   // whether that behavior is actually desired
   @Test
   public void testFromJson_Reader_TrailingData() throws IOException {
-    assertEquals("a", adapter.fromJson(new StringReader("\"a\"1")));
+    assertThat(adapter.fromJson(new StringReader("\"a\"1"))).isEqualTo("a");
   }
 
   // Note: This test just verifies the current behavior; it is a bit questionable
   // whether that behavior is actually desired
   @Test
   public void testFromJson_String_TrailingData() throws IOException {
-    assertEquals("a", adapter.fromJson("\"a\"1"));
+    assertThat(adapter.fromJson("\"a\"1")).isEqualTo("a");
   }
 }
