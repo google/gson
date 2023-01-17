@@ -23,7 +23,7 @@ public class JsonObjectAsMapTest {
   @Test
   public void testSize() {
     JsonObject o = new JsonObject();
-    assertThat(o.asMap()).hasSize(0);
+    assertThat(o.asMap().size()).isEqualTo(0);
 
     o.addProperty("a", 1);
     Map<String, JsonElement> map = o.asMap();

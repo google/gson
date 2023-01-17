@@ -58,7 +58,7 @@ public class JsonPrimitiveTest {
   }
 
   @Test
-  public void testBoolean() throws Exception {
+  public void testBoolean() {
     JsonPrimitive json = new JsonPrimitive(Boolean.TRUE);
 
     assertThat(json.isBoolean()).isTrue();
@@ -82,7 +82,7 @@ public class JsonPrimitiveTest {
   }
 
   @Test
-  public void testParsingStringAsBoolean() throws Exception {
+  public void testParsingStringAsBoolean() {
     JsonPrimitive json = new JsonPrimitive("true");
 
     assertThat(json.isBoolean()).isFalse();
@@ -90,11 +90,11 @@ public class JsonPrimitiveTest {
   }
 
   @Test
-  public void testParsingStringAsNumber() throws Exception {
+  public void testParsingStringAsNumber() {
     JsonPrimitive json = new JsonPrimitive("1");
 
     assertThat(json.isNumber()).isFalse();
-    assertThat(json.getAsDouble()).isEqualTo(1D);
+    assertThat(json.getAsDouble()).isEqualTo(1.0);
     assertThat(json.getAsFloat()).isEqualTo(1F);
     assertThat(json.getAsInt()).isEqualTo(1);
     assertThat(json.getAsLong()).isEqualTo(1L);
@@ -303,7 +303,7 @@ public class JsonPrimitiveTest {
     JsonPrimitive b = new JsonPrimitive(new BigInteger("18446744073709551621")); // 2^64 + 5
     // Ideally, the following assertion should have failed but the price is too much to pay
     // assertFalse(a + " equals " + b, a.equals(b));
-    assertWithMessage(a + " equals " + b).that(a.equals(b)).isTrue();
+    assertWithMessage("%s equals %s", a, b).that(a.equals(b)).isTrue();
   }
 
   @Test

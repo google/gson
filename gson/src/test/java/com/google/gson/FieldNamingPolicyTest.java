@@ -87,7 +87,7 @@ public class FieldNamingPolicyTest {
 
       for (FieldNamingPolicy policy : policies) {
         // Should ignore default Locale
-        assertWithMessage("Unexpected conversion for " + policy)
+        assertWithMessage("Unexpected conversion for %s", policy)
             .that(policy.translateName(field)).matches(expected);
       }
     } finally {
@@ -126,7 +126,7 @@ public class FieldNamingPolicyTest {
 
       for (FieldNamingPolicy policy : policies) {
         // Should ignore default Locale
-        assertWithMessage("Unexpected conversion for " + policy)
+        assertWithMessage("Unexpected conversion for %s", policy)
             .that(policy.translateName(field)).matches(expected);
       }
     } finally {
