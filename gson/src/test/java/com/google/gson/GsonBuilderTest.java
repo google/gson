@@ -194,7 +194,7 @@ public class GsonBuilderTest {
       gson.fromJson("{}", ClassWithoutNoArgsConstructor.class);
       fail("Expected exception");
     } catch (JsonIOException expected) {
-      assertThat(expected.getMessage()).isEqualTo(
+      assertThat(expected).hasMessageThat().isEqualTo(
           "Unable to create instance of class com.google.gson.GsonBuilderTest$ClassWithoutNoArgsConstructor; "
           + "usage of JDK Unsafe is disabled. Registering an InstanceCreator or a TypeAdapter for this type, "
           + "adding a no-args constructor, or enabling usage of JDK Unsafe may fix this problem.");
@@ -214,14 +214,14 @@ public class GsonBuilderTest {
       builder.setVersion(Double.NaN);
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e.getMessage()).isEqualTo("Invalid version: NaN");
+      assertThat(e).hasMessageThat().isEqualTo("Invalid version: NaN");
     }
 
     try {
       builder.setVersion(-0.1);
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e.getMessage()).isEqualTo("Invalid version: -0.1");
+      assertThat(e).hasMessageThat().isEqualTo("Invalid version: -0.1");
     }
   }
 }

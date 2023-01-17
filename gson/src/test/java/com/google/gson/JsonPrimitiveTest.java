@@ -111,7 +111,7 @@ public class JsonPrimitiveTest {
       json.getAsNumber();
       fail();
     } catch (UnsupportedOperationException e) {
-      assertThat(e.getMessage()).isEqualTo("Primitive is neither a number nor a string");
+      assertThat(e).hasMessageThat().isEqualTo("Primitive is neither a number nor a string");
     }
   }
 
@@ -137,7 +137,7 @@ public class JsonPrimitiveTest {
       json.getAsCharacter();
       fail();
     } catch (UnsupportedOperationException e) {
-      assertThat(e.getMessage()).isEqualTo("String value is empty");
+      assertThat(e).hasMessageThat().isEqualTo("String value is empty");
     }
   }
 

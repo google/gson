@@ -138,21 +138,21 @@ public final class JsonArrayTest {
       fail("expected getBoolean to fail");
     } catch (UnsupportedOperationException e) {
       assertWithMessage("Expected an exception message")
-          .that(e.getMessage()).isEqualTo("JsonObject");
+          .that(e).hasMessageThat().isEqualTo("JsonObject");
     }
     try {
       jsonArray.get(-1);
       fail("expected get to fail");
     } catch (IndexOutOfBoundsException e) {
       assertWithMessage("Expected an exception message")
-          .that(e.getMessage()).isEqualTo("Index -1 out of bounds for length 1");
+          .that(e).hasMessageThat().isEqualTo("Index -1 out of bounds for length 1");
     }
     try {
       jsonArray.getAsString();
       fail("expected getString to fail");
     } catch (UnsupportedOperationException e) {
       assertWithMessage("Expected an exception message")
-          .that(e.getMessage()).isEqualTo("JsonObject");
+          .that(e).hasMessageThat().isEqualTo("JsonObject");
     }
 
     jsonArray.remove(0);
@@ -162,35 +162,35 @@ public final class JsonArrayTest {
       fail("expected getDouble to fail");
     } catch (NumberFormatException e) {
       assertWithMessage("Expected an exception message")
-          .that(e.getMessage()).isEqualTo("For input string: \"hello\"");
+          .that(e).hasMessageThat().isEqualTo("For input string: \"hello\"");
     }
     try {
       jsonArray.getAsInt();
       fail("expected getInt to fail");
     } catch (NumberFormatException e) {
       assertWithMessage("Expected an exception message")
-          .that(e.getMessage()).isEqualTo("For input string: \"hello\"");
+          .that(e).hasMessageThat().isEqualTo("For input string: \"hello\"");
     }
     try {
       jsonArray.get(0).getAsJsonArray();
       fail("expected getJSONArray to fail");
     } catch (IllegalStateException e) {
       assertWithMessage("Expected an exception message")
-          .that(e.getMessage()).isEqualTo("Not a JSON Array: \"hello\"");
+          .that(e).hasMessageThat().isEqualTo("Not a JSON Array: \"hello\"");
     }
     try {
       jsonArray.getAsJsonObject();
       fail("expected getJSONObject to fail");
     } catch (IllegalStateException e) {
       assertWithMessage("Expected an exception message")
-          .that(e.getMessage()).isEqualTo( "Not a JSON Object: [\"hello\"]");
+          .that(e).hasMessageThat().isEqualTo( "Not a JSON Object: [\"hello\"]");
     }
     try {
       jsonArray.getAsLong();
       fail("expected getLong to fail");
     } catch (NumberFormatException e) {
       assertWithMessage("Expected an exception message")
-          .that(e.getMessage()).isEqualTo("For input string: \"hello\"");
+          .that(e).hasMessageThat().isEqualTo("For input string: \"hello\"");
     }
   }
 
@@ -201,7 +201,7 @@ public final class JsonArrayTest {
       jsonArray.getAsByte();
       fail();
     } catch (IllegalStateException e) {
-      assertThat(e.getMessage()).isEqualTo("Array must have size 1, but has size 0");
+      assertThat(e).hasMessageThat().isEqualTo("Array must have size 1, but has size 0");
     }
 
     jsonArray.add(true);
@@ -210,7 +210,7 @@ public final class JsonArrayTest {
       jsonArray.getAsByte();
       fail();
     } catch (IllegalStateException e) {
-      assertThat(e.getMessage()).isEqualTo("Array must have size 1, but has size 2");
+      assertThat(e).hasMessageThat().isEqualTo("Array must have size 1, but has size 2");
     }
   }
 

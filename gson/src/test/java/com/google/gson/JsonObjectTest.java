@@ -320,7 +320,7 @@ public class JsonObjectTest {
       entry.setValue(null);
       fail();
     } catch (NullPointerException e) {
-      assertThat(e.getMessage()).isEqualTo("value == null");
+      assertThat(e).hasMessageThat().isEqualTo("value == null");
     }
     assertThat(entry.getValue()).isNotNull();
 

@@ -93,14 +93,14 @@ public class JsonObjectAsMapTest {
       map.put(null, new JsonPrimitive(1));
       fail();
     } catch (NullPointerException e) {
-      assertThat(e.getMessage()).isEqualTo("key == null");
+      assertThat(e).hasMessageThat().isEqualTo("key == null");
     }
 
     try {
       map.put("a", null);
       fail();
     } catch (NullPointerException e) {
-      assertThat(e.getMessage()).isEqualTo("value == null");
+      assertThat(e).hasMessageThat().isEqualTo("value == null");
     }
   }
 
@@ -143,14 +143,14 @@ public class JsonObjectAsMapTest {
       map.putAll(Collections.<String, JsonElement>singletonMap(null, new JsonPrimitive(1)));
       fail();
     } catch (NullPointerException e) {
-      assertThat(e.getMessage()).isEqualTo("key == null");
+      assertThat(e).hasMessageThat().isEqualTo("key == null");
     }
 
     try {
       map.putAll(Collections.<String, JsonElement>singletonMap("a", null));
       fail();
     } catch (NullPointerException e) {
-      assertThat(e.getMessage()).isEqualTo("value == null");
+      assertThat(e).hasMessageThat().isEqualTo("value == null");
     }
   }
 
@@ -251,7 +251,7 @@ public class JsonObjectAsMapTest {
       entry.setValue(null);
       fail();
     } catch (NullPointerException e) {
-      assertThat(e.getMessage()).isEqualTo("value == null");
+      assertThat(e).hasMessageThat().isEqualTo("value == null");
     }
   }
 

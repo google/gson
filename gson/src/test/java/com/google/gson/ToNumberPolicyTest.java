@@ -37,7 +37,7 @@ public class ToNumberPolicyTest {
       strategy.readNumber(fromString("1e400"));
       fail();
     } catch (MalformedJsonException expected) {
-      assertThat(expected.getMessage()).isEqualTo("JSON forbids NaN and infinities: Infinity at line 1 column 6 path $");
+      assertThat(expected).hasMessageThat().isEqualTo("JSON forbids NaN and infinities: Infinity at line 1 column 6 path $");
     }
     try {
       strategy.readNumber(fromString("\"not-a-number\""));
@@ -64,13 +64,13 @@ public class ToNumberPolicyTest {
       strategy.readNumber(fromString("1e400"));
       fail();
     } catch (MalformedJsonException expected) {
-      assertThat(expected.getMessage()).isEqualTo("JSON forbids NaN and infinities: Infinity; at path $");
+      assertThat(expected).hasMessageThat().isEqualTo("JSON forbids NaN and infinities: Infinity; at path $");
     }
     try {
       strategy.readNumber(fromString("\"not-a-number\""));
       fail();
     } catch (JsonParseException expected) {
-      assertThat(expected.getMessage()).isEqualTo("Cannot parse not-a-number; at path $");
+      assertThat(expected).hasMessageThat().isEqualTo("Cannot parse not-a-number; at path $");
     }
 
     assertThat(strategy.readNumber(fromStringLenient("NaN"))).isEqualTo(Double.NaN);
@@ -80,19 +80,19 @@ public class ToNumberPolicyTest {
       strategy.readNumber(fromString("NaN"));
       fail();
     } catch (MalformedJsonException expected) {
-      assertThat(expected.getMessage()).isEqualTo("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 1 path $");
+      assertThat(expected).hasMessageThat().isEqualTo("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 1 path $");
     }
     try {
       strategy.readNumber(fromString("Infinity"));
       fail();
     } catch (MalformedJsonException expected) {
-      assertThat(expected.getMessage()).isEqualTo("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 1 path $");
+      assertThat(expected).hasMessageThat().isEqualTo("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 1 path $");
     }
     try {
       strategy.readNumber(fromString("-Infinity"));
       fail();
     } catch (MalformedJsonException expected) {
-      assertThat(expected.getMessage()).isEqualTo("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 1 path $");
+      assertThat(expected).hasMessageThat().isEqualTo("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 1 path $");
     }
   }
 
@@ -107,7 +107,7 @@ public class ToNumberPolicyTest {
       strategy.readNumber(fromString("\"not-a-number\""));
       fail();
     } catch (JsonParseException expected) {
-      assertThat(expected.getMessage()).isEqualTo("Cannot parse not-a-number; at path $");
+      assertThat(expected).hasMessageThat().isEqualTo("Cannot parse not-a-number; at path $");
     }
   }
 

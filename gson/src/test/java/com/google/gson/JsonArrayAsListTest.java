@@ -75,7 +75,7 @@ public class JsonArrayAsListTest {
       list.set(0, null);
       fail();
     } catch (NullPointerException e) {
-      assertThat(e.getMessage()).isEqualTo("Element must be non-null");
+      assertThat(e).hasMessageThat().isEqualTo("Element must be non-null");
     }
   }
 
@@ -115,13 +115,13 @@ public class JsonArrayAsListTest {
       list.add(0, null);
       fail();
     } catch (NullPointerException e) {
-      assertThat(e.getMessage()).isEqualTo("Element must be non-null");
+      assertThat(e).hasMessageThat().isEqualTo("Element must be non-null");
     }
     try {
       list.add(null);
       fail();
     } catch (NullPointerException e) {
-      assertThat(e.getMessage()).isEqualTo("Element must be non-null");
+      assertThat(e).hasMessageThat().isEqualTo("Element must be non-null");
     }
   }
 
@@ -145,13 +145,13 @@ public class JsonArrayAsListTest {
       list.addAll(0, Collections.<JsonElement>singletonList(null));
       fail();
     } catch (NullPointerException e) {
-      assertThat(e.getMessage()).isEqualTo("Element must be non-null");
+      assertThat(e).hasMessageThat().isEqualTo("Element must be non-null");
     }
     try {
       list.addAll(Collections.<JsonElement>singletonList(null));
       fail();
     } catch (NullPointerException e) {
-      assertThat(e.getMessage()).isEqualTo("Element must be non-null");
+      assertThat(e).hasMessageThat().isEqualTo("Element must be non-null");
     }
   }
 

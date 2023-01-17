@@ -106,7 +106,7 @@ public final class GsonTest {
       gson.getAdapter((TypeToken<?>) null);
       fail();
     } catch (NullPointerException e) {
-      assertThat(e.getMessage()).isEqualTo("type must not be null");
+      assertThat(e).hasMessageThat().isEqualTo("type must not be null");
     }
   }
 
@@ -285,7 +285,7 @@ public final class GsonTest {
       jsonWriter.value(1);
       fail();
     } catch (IllegalStateException expected) {
-      assertThat(expected.getMessage()).isEqualTo("JSON must have only one top-level value.");
+      assertThat(expected).hasMessageThat().isEqualTo("JSON must have only one top-level value.");
     }
 
     jsonWriter.close();
