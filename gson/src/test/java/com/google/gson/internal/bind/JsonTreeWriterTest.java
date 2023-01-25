@@ -16,7 +16,7 @@
 
 package com.google.gson.internal.bind;
 
-import static org.junit.Assert.assertEquals;
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import com.google.gson.JsonElement;
@@ -39,7 +39,7 @@ public final class JsonTreeWriterTest {
     writer.value(2);
     writer.value(3);
     writer.endArray();
-    assertEquals("[1,2,3]", writer.get().toString());
+    assertThat(writer.get().toString()).isEqualTo("[1,2,3]");
   }
 
   @Test
@@ -53,7 +53,7 @@ public final class JsonTreeWriterTest {
     writer.endArray();
     writer.endArray();
     writer.endArray();
-    assertEquals("[[],[[]]]", writer.get().toString());
+    assertThat(writer.get().toString()).isEqualTo("[[],[[]]]");
   }
 
   @Test
@@ -63,7 +63,7 @@ public final class JsonTreeWriterTest {
     writer.name("A").value(1);
     writer.name("B").value(2);
     writer.endObject();
-    assertEquals("{\"A\":1,\"B\":2}", writer.get().toString());
+    assertThat(writer.get().toString()).isEqualTo("{\"A\":1,\"B\":2}");
   }
 
   @Test
@@ -80,7 +80,7 @@ public final class JsonTreeWriterTest {
     writer.beginObject();
     writer.endObject();
     writer.endObject();
-    assertEquals("{\"A\":{\"B\":{}},\"C\":{}}", writer.get().toString());
+    assertThat(writer.get().toString()).isEqualTo("{\"A\":{\"B\":{}},\"C\":{}}");
   }
 
   @Test
@@ -118,7 +118,7 @@ public final class JsonTreeWriterTest {
     writer.name("A");
     writer.nullValue();
     writer.endObject();
-    assertEquals("{}", writer.get().toString());
+    assertThat(writer.get().toString()).isEqualTo("{}");
   }
 
   @Test
@@ -129,46 +129,46 @@ public final class JsonTreeWriterTest {
     writer.name("A");
     writer.nullValue();
     writer.endObject();
-    assertEquals("{\"A\":null}", writer.get().toString());
+    assertThat(writer.get().toString()).isEqualTo("{\"A\":null}");
   }
 
   @Test
   public void testEmptyWriter() {
     JsonTreeWriter writer = new JsonTreeWriter();
-    assertEquals(JsonNull.INSTANCE, writer.get());
+    assertThat(writer.get()).isEqualTo(JsonNull.INSTANCE);
   }
 
   @Test
   public void testBeginArray() throws Exception {
     JsonTreeWriter writer = new JsonTreeWriter();
-    assertEquals(writer, writer.beginArray());
+    assertThat(writer.beginArray()).isEqualTo(writer);
   }
 
   @Test
   public void testBeginObject() throws Exception {
     JsonTreeWriter writer = new JsonTreeWriter();
-    assertEquals(writer, writer.beginObject());
+    assertThat(writer.beginObject()).isEqualTo(writer);
   }
 
   @Test
   public void testValueString() throws Exception {
     JsonTreeWriter writer = new JsonTreeWriter();
     String n = "as";
-    assertEquals(writer, writer.value(n));
+    assertThat(writer.value(n)).isEqualTo(writer);
   }
 
   @Test
   public void testBoolValue() throws Exception {
     JsonTreeWriter writer = new JsonTreeWriter();
     boolean bool = true;
-    assertEquals(writer, writer.value(bool));
+    assertThat(writer.value(bool)).isEqualTo(writer);
   }
 
   @Test
   public void testBoolMaisValue() throws Exception {
     JsonTreeWriter writer = new JsonTreeWriter();
     Boolean bool = true;
-    assertEquals(writer, writer.value(bool));
+    assertThat(writer.value(bool)).isEqualTo(writer);
   }
 
   @Test
@@ -183,7 +183,7 @@ public final class JsonTreeWriterTest {
     writer.value(Double.NEGATIVE_INFINITY);
     writer.value(Double.POSITIVE_INFINITY);
     writer.endArray();
-    assertEquals("[NaN,-Infinity,Infinity,NaN,-Infinity,Infinity]", writer.get().toString());
+    assertThat(writer.get().toString()).isEqualTo("[NaN,-Infinity,Infinity,NaN,-Infinity,Infinity]");
   }
 
   @Test
