@@ -1,6 +1,6 @@
 package com.google.gson.internal;
 
-import static org.junit.Assert.assertEquals;
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
@@ -57,12 +57,12 @@ public class StreamsTest {
     }
 
     String actualOutput = stringBuilder.toString();
-    assertEquals("a\u1234testnullcdul,a\u1234\u1234,charsha,stringtr", actualOutput);
+    assertThat(actualOutput).isEqualTo("a\u1234testnullcdul,a\u1234\u1234,charsha,stringtr");
 
     writer.flush();
     writer.close();
 
     // flush() and close() calls should have had no effect
-    assertEquals(actualOutput, stringBuilder.toString());
+    assertThat(stringBuilder.toString()).isEqualTo(actualOutput);
   }
 }

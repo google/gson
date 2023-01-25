@@ -1,6 +1,6 @@
 package com.google.gson.internal;
 
-import static org.junit.Assert.assertEquals;
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import com.google.gson.InstanceCreator;
@@ -33,11 +33,9 @@ public class ConstructorConstructorTest {
       constructor.construct();
       fail("Expected exception");
     } catch (RuntimeException exception) {
-      assertEquals(
-        "Abstract classes can't be instantiated! Register an InstanceCreator or a TypeAdapter for this "
-        + "type. Class name: com.google.gson.internal.ConstructorConstructorTest$AbstractClass",
-        exception.getMessage()
-      );
+      assertThat(exception).hasMessageThat().isEqualTo("Abstract classes can't be instantiated! "
+          + "Register an InstanceCreator or a TypeAdapter for this type. "
+          + "Class name: com.google.gson.internal.ConstructorConstructorTest$AbstractClass");
     }
   }
 
@@ -48,11 +46,9 @@ public class ConstructorConstructorTest {
       constructor.construct();
       fail("Expected exception");
     } catch (RuntimeException exception) {
-      assertEquals(
-        "Interfaces can't be instantiated! Register an InstanceCreator or a TypeAdapter for "
-        + "this type. Interface name: com.google.gson.internal.ConstructorConstructorTest$Interface",
-        exception.getMessage()
-      );
+      assertThat(exception).hasMessageThat().isEqualTo("Interfaces can't be instantiated! "
+          + "Register an InstanceCreator or a TypeAdapter for this type. "
+          + "Interface name: com.google.gson.internal.ConstructorConstructorTest$Interface");
     }
   }
 }
