@@ -1,6 +1,6 @@
 package com.google.gson.internal.bind.util;
 
-import static org.junit.Assert.assertEquals;
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 
@@ -37,7 +37,7 @@ public class ISO8601UtilsTest {
         Date date = calendar.getTime();
         String dateStr = ISO8601Utils.format(date);
         String expectedDate = "2018-06-25";
-        assertEquals(expectedDate, dateStr.substring(0, expectedDate.length()));
+        assertThat(dateStr.substring(0, expectedDate.length())).isEqualTo(expectedDate);
     }
 
   @Test
@@ -46,7 +46,7 @@ public class ISO8601UtilsTest {
         Date date = new Date(time);
         String dateStr = ISO8601Utils.format(date, true);
         String expectedDate = "2018-06-28T18:06:16.870Z";
-        assertEquals(expectedDate, dateStr);
+        assertThat(dateStr).isEqualTo(expectedDate);
     }
 
   @Test
@@ -55,7 +55,7 @@ public class ISO8601UtilsTest {
         Date date = new Date(time);
         String dateStr = ISO8601Utils.format(date, true, TimeZone.getTimeZone("Brazil/East"));
         String expectedDate = "2018-06-28T15:06:16.870-03:00";
-        assertEquals(expectedDate, dateStr);
+        assertThat(dateStr).isEqualTo(expectedDate);
     }
 
   @Test
@@ -63,7 +63,7 @@ public class ISO8601UtilsTest {
         String dateStr = "2018-06-25";
         Date date = ISO8601Utils.parse(dateStr, new ParsePosition(0));
         Date expectedDate = new GregorianCalendar(2018, Calendar.JUNE, 25).getTime();
-        assertEquals(expectedDate, date);
+        assertThat(date).isEqualTo(expectedDate);
     }
 
   @Test
@@ -93,7 +93,7 @@ public class ISO8601UtilsTest {
         GregorianCalendar calendar = createUtcCalendar();
         calendar.set(2018, Calendar.JUNE, 25, 3, 0);
         Date expectedDate = calendar.getTime();
-        assertEquals(expectedDate, date);
+        assertThat(date).isEqualTo(expectedDate);
     }
 
   @Test
@@ -103,11 +103,11 @@ public class ISO8601UtilsTest {
         GregorianCalendar calendar = createUtcCalendar();
         calendar.set(2018, Calendar.JUNE, 25, 3, 0);
         Date expectedDate = calendar.getTime();
-        assertEquals(expectedDate, date);
+        assertThat(date).isEqualTo(expectedDate);
     }
 
   @Test
-  public void testDateParseInvalidTime() throws ParseException {
+  public void testDateParseInvalidTime() {
         final String dateStr = "2018-06-25T61:60:62-03:00";
         assertThrows(ParseException.class, new ThrowingRunnable() {
           @Override
