@@ -71,17 +71,6 @@
   </dependencyManagement>
 
   <build>
-    <resources>
-      <resource>
-        <directory>../</directory>
-        <targetPath>META-INF</targetPath>
-        <includes>
-          <include>LICENSE</include>
-          <include>COPYRIGHT</include>
-        </includes>
-      </resource>
-    </resources>
-
     <pluginManagement>
       <plugins>
         <plugin>
