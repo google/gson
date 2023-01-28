@@ -229,7 +229,7 @@ public final class StreamingTypeAdaptersTest {
 
     Truck truck = truckAdapter.fromJsonTree(truckObject);
     assertThat(truck.horsePower).isEqualTo(300.0);
-    assertThat(truck.passengers).isEqualTo(List.of(new Person("Jesse", 30)));
+    assertThat(truck.passengers).isEqualTo(Arrays.asList(new Person("Jesse", 30)));
   }
 
   static class Truck {
