@@ -16,9 +16,7 @@
 
 package com.google.gson.functional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static com.google.common.truth.Truth.assertThat;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -43,12 +41,12 @@ public class EscapingTest {
   }
 
   @Test
-  public void testEscapingQuotesInStringArray() throws Exception {
+  public void testEscapingQuotesInStringArray() {
     String[] valueWithQuotes = { "beforeQuote\"afterQuote" };
     String jsonRepresentation = gson.toJson(valueWithQuotes);
     String[] target = gson.fromJson(jsonRepresentation, String[].class);
-    assertEquals(1, target.length);
-    assertEquals(valueWithQuotes[0], target[0]);
+    assertThat(target.length).isEqualTo(1);
+    assertThat(target[0]).isEqualTo(valueWithQuotes[0]);
   }
 
   @Test
@@ -60,34 +58,33 @@ public class EscapingTest {
     strings.add("&");
     strings.add("'");
     strings.add("\"");
-    assertEquals("[\"\\u003c\",\"\\u003e\",\"\\u003d\",\"\\u0026\",\"\\u0027\",\"\\\"\"]",
-        gson.toJson(strings));
+    assertThat(gson.toJson(strings)).isEqualTo("[\"\\u003c\",\"\\u003e\",\"\\u003d\",\"\\u0026\",\"\\u0027\",\"\\\"\"]");
   }
 
   @Test
-  public void testEscapingObjectFields() throws Exception {
+  public void testEscapingObjectFields() {
     BagOfPrimitives objWithPrimitives = new BagOfPrimitives(1L, 1, true, "test with\" <script>");
     String jsonRepresentation = gson.toJson(objWithPrimitives);
-    assertFalse(jsonRepresentation.contains("<"));
-    assertFalse(jsonRepresentation.contains(">"));
-    assertTrue(jsonRepresentation.contains("\\\""));
+    assertThat(jsonRepresentation.contains("<")).isFalse();
+    assertThat(jsonRepresentation.contains(">")).isFalse();
+    assertThat(jsonRepresentation.contains("\\\"")).isTrue();
 
     BagOfPrimitives expectedObject = gson.fromJson(jsonRepresentation, BagOfPrimitives.class);
-    assertEquals(objWithPrimitives.getExpectedJson(), expectedObject.getExpectedJson());
+    assertThat(expectedObject.getExpectedJson()).isEqualTo(objWithPrimitives.getExpectedJson());
   }
   
   @Test
-  public void testGsonAcceptsEscapedAndNonEscapedJsonDeserialization() throws Exception {
+  public void testGsonAcceptsEscapedAndNonEscapedJsonDeserialization() {
     Gson escapeHtmlGson = new GsonBuilder().create();
     Gson noEscapeHtmlGson = new GsonBuilder().disableHtmlEscaping().create();
     
     BagOfPrimitives target = new BagOfPrimitives(1L, 1, true, "test' / w'ith\" / \\ <script>");
     String escapedJsonForm = escapeHtmlGson.toJson(target);
     String nonEscapedJsonForm = noEscapeHtmlGson.toJson(target);
-    assertFalse(escapedJsonForm.equals(nonEscapedJsonForm));
+    assertThat(escapedJsonForm.equals(nonEscapedJsonForm)).isFalse();
     
-    assertEquals(target, noEscapeHtmlGson.fromJson(escapedJsonForm, BagOfPrimitives.class));
-    assertEquals(target, escapeHtmlGson.fromJson(nonEscapedJsonForm, BagOfPrimitives.class));
+    assertThat(noEscapeHtmlGson.fromJson(escapedJsonForm, BagOfPrimitives.class)).isEqualTo(target);
+    assertThat(escapeHtmlGson.fromJson(nonEscapedJsonForm, BagOfPrimitives.class)).isEqualTo(target);
   }
 
   @Test
@@ -96,6 +93,6 @@ public class EscapingTest {
     String json = gson.toJson(gson.toJson(expected));
     String value = gson.fromJson(json, String.class);
     BagOfPrimitives actual = gson.fromJson(value, BagOfPrimitives.class);
-    assertEquals(expected, actual);
+    assertThat(actual).isEqualTo(expected);
   }
 }

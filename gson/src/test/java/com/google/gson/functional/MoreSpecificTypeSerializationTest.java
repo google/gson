@@ -16,10 +16,8 @@
 
 package com.google.gson.functional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -48,8 +46,8 @@ public class MoreSpecificTypeSerializationTest {
   public void testSubclassFields() {
     ClassWithBaseFields target = new ClassWithBaseFields(new Sub(1, 2));
     String json = gson.toJson(target);
-    assertTrue(json.contains("\"b\":1"));
-    assertTrue(json.contains("\"s\":2"));
+    assertThat(json).contains("\"b\":1");
+    assertThat(json).contains("\"s\":2");
   }
 
   @Test
@@ -59,8 +57,8 @@ public class MoreSpecificTypeSerializationTest {
     list.add(new Sub(2, 3));
     ClassWithContainersOfBaseFields target = new ClassWithContainersOfBaseFields(list, null);
     String json = gson.toJson(target);
-    assertTrue(json, json.contains("{\"b\":1}"));
-    assertTrue(json, json.contains("{\"s\":3,\"b\":2}"));
+    assertWithMessage(json).that(json).contains("{\"b\":1}");
+    assertWithMessage(json).that(json).contains("{\"s\":3,\"b\":2}");
   }
 
   @Test
@@ -70,10 +68,10 @@ public class MoreSpecificTypeSerializationTest {
     map.put("sub", new Sub(2, 3));
     ClassWithContainersOfBaseFields target = new ClassWithContainersOfBaseFields(null, map);
     JsonObject json = gson.toJsonTree(target).getAsJsonObject().get("map").getAsJsonObject();
-    assertEquals(1, json.get("base").getAsJsonObject().get("b").getAsInt());
+    assertThat(json.get("base").getAsJsonObject().get("b").getAsInt()).isEqualTo(1);
     JsonObject sub = json.get("sub").getAsJsonObject();
-    assertEquals(2, sub.get("b").getAsInt());
-    assertEquals(3, sub.get("s").getAsInt());
+    assertThat(sub.get("b").getAsInt()).isEqualTo(2);
+    assertThat(sub.get("s").getAsInt()).isEqualTo(3);
   }
 
   /**
@@ -84,8 +82,8 @@ public class MoreSpecificTypeSerializationTest {
     ClassWithParameterizedBaseFields target = new ClassWithParameterizedBaseFields(
         new ParameterizedSub<>("one", "two"));
     String json = gson.toJson(target);
-    assertTrue(json.contains("\"t\":\"one\""));
-    assertFalse(json.contains("\"s\""));
+    assertThat(json).contains("\"t\":\"one\"");
+    assertThat(json).doesNotContain("\"s\"");
   }
 
   /**
@@ -100,8 +98,8 @@ public class MoreSpecificTypeSerializationTest {
     ClassWithContainersOfParameterizedBaseFields target =
       new ClassWithContainersOfParameterizedBaseFields(list, null);
     String json = gson.toJson(target);
-    assertTrue(json, json.contains("{\"t\":\"one\"}"));
-    assertFalse(json, json.contains("\"s\":"));
+    assertWithMessage(json).that(json).contains("{\"t\":\"one\"}");
+    assertWithMessage(json).that(json).doesNotContain("\"s\":");
   }
 
   /**
@@ -116,10 +114,10 @@ public class MoreSpecificTypeSerializationTest {
     ClassWithContainersOfParameterizedBaseFields target =
       new ClassWithContainersOfParameterizedBaseFields(null, map);
     JsonObject json = gson.toJsonTree(target).getAsJsonObject().get("map").getAsJsonObject();
-    assertEquals("one", json.get("base").getAsJsonObject().get("t").getAsString());
+    assertThat(json.get("base").getAsJsonObject().get("t").getAsString()).isEqualTo("one");
     JsonObject sub = json.get("sub").getAsJsonObject();
-    assertEquals("two", sub.get("t").getAsString());
-    assertNull(sub.get("s"));
+    assertThat(sub.get("t").getAsString()).isEqualTo("two");
+    assertThat(sub.get("s")).isNull();
   }
 
   private static class Base {

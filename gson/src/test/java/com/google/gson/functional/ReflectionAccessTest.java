@@ -1,8 +1,6 @@
 package com.google.gson.functional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import com.google.gson.Gson;
@@ -65,7 +63,7 @@ public class ReflectionAccessTest {
         gson.getAdapter(clazz);
         fail();
       } catch (SecurityException e) {
-        assertEquals("Gson: no-member-access", e.getMessage());
+        assertThat(e.getMessage()).isEqualTo("Gson: no-member-access");
       }
 
       final AtomicBoolean wasReadCalled = new AtomicBoolean(false);
@@ -85,9 +83,9 @@ public class ReflectionAccessTest {
         )
         .create();
 
-      assertEquals("\"custom-write\"", gson.toJson(null, clazz));
-      assertNull(gson.fromJson("{}", clazz));
-      assertTrue(wasReadCalled.get());
+      assertThat(gson.toJson(null, clazz)).isEqualTo("\"custom-write\"");
+      assertThat(gson.fromJson("{}", clazz)).isNull();
+      assertThat(wasReadCalled.get()).isTrue();
     } finally {
       System.setSecurityManager(original);
     }
@@ -108,7 +106,7 @@ public class ReflectionAccessTest {
   public void testSerializeInternalImplementationObject() {
     Gson gson = new Gson();
     String json = gson.toJson(Collections.emptyList());
-    assertEquals("[]", json);
+    assertThat(json).isEqualTo("[]");
 
     // But deserialization should fail
     Class<?> internalClass = Collections.emptyList().getClass();
@@ -118,10 +116,8 @@ public class ReflectionAccessTest {
     } catch (JsonSyntaxException e) {
       fail("Unexpected exception; test has to be run with `--illegal-access=deny`");
     } catch (JsonIOException expected) {
-      assertTrue(expected.getMessage().startsWith(
-          "Failed making constructor 'java.util.Collections$EmptyList()' accessible;"
-          + " either increase its visibility or write a custom InstanceCreator or TypeAdapter for its declaring type: "
-      ));
+      assertThat(expected).hasMessageThat().startsWith("Failed making constructor 'java.util.Collections$EmptyList()' accessible;"
+          + " either increase its visibility or write a custom InstanceCreator or TypeAdapter for its declaring type: ");
     }
   }
 }

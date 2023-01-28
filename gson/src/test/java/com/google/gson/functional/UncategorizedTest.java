@@ -15,9 +15,7 @@
  */
 package com.google.gson.functional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import com.google.gson.Gson;
@@ -69,13 +67,13 @@ public class UncategorizedTest {
     ClassOverridingEquals objB = new ClassOverridingEquals();
     objB.ref = objA;
     String json = gson.toJson(objB);
-    assertEquals(objB.getExpectedJson(), json);
+    assertThat(json).isEqualTo(objB.getExpectedJson());
   }
 
   @Test
   public void testStaticFieldsAreNotSerialized() {
     BagOfPrimitives target = new BagOfPrimitives();
-    assertFalse(gson.toJson(target).contains("DEFAULT_VALUE"));
+    assertThat(gson.toJson(target).contains("DEFAULT_VALUE")).isFalse();
   }
 
   @Test
@@ -83,7 +81,7 @@ public class UncategorizedTest {
     BagOfPrimitives bag = new BagOfPrimitives();
     String json = gson.toJson(bag);
     BagOfPrimitives deserialized = gson.fromJson(json, BagOfPrimitives.class);
-    assertEquals(bag, deserialized);
+    assertThat(deserialized).isEqualTo(bag);
   }
 
   /**
@@ -96,13 +94,13 @@ public class UncategorizedTest {
     Gson gson = new GsonBuilder().registerTypeAdapter(Base.class, new BaseTypeAdapter()).create();
     String json = "{\"opType\":\"OP1\"}";
     Base base = gson.fromJson(json, Base.class);
-    assertTrue(base instanceof Derived1);
-    assertEquals(OperationType.OP1, base.opType);
+    assertThat(base).isInstanceOf(Derived1.class);
+    assertThat(base.opType).isEqualTo(OperationType.OP1);
 
     json = "{\"opType\":\"OP2\"}";
     base = gson.fromJson(json, Base.class);
-    assertTrue(base instanceof Derived2);
-    assertEquals(OperationType.OP2, base.opType);
+    assertThat(base).isInstanceOf(Derived2.class);
+    assertThat(base.opType).isEqualTo(OperationType.OP2);
   }
 
   /**
@@ -113,7 +111,7 @@ public class UncategorizedTest {
   public void testTrailingWhitespace() throws Exception {
     List<Integer> integers = gson.fromJson("[1,2,3]  \n\n  ",
         new TypeToken<List<Integer>>() {}.getType());
-    assertEquals(Arrays.asList(1, 2, 3), integers);
+    assertThat(integers).containsExactly(1, 2, 3).inOrder();
   }
 
   private enum OperationType { OP1, OP2 }

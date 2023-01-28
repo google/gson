@@ -16,7 +16,7 @@
 
 package com.google.gson.functional;
 
-import static org.junit.Assert.assertEquals;
+import static com.google.common.truth.Truth.assertThat;
 
 import com.google.gson.Gson;
 import org.junit.Before;
@@ -38,21 +38,21 @@ public class PrimitiveCharacterTest {
 
   @Test
   public void testPrimitiveCharacterAutoboxedSerialization() {
-    assertEquals("\"A\"", gson.toJson('A'));
-    assertEquals("\"A\"", gson.toJson('A', char.class));
-    assertEquals("\"A\"", gson.toJson('A', Character.class));
+    assertThat(gson.toJson('A')).isEqualTo("\"A\"");
+    assertThat(gson.toJson('A', char.class)).isEqualTo("\"A\"");
+    assertThat(gson.toJson('A', Character.class)).isEqualTo("\"A\"");
   }
 
   @Test
   public void testPrimitiveCharacterAutoboxedDeserialization() {
     char expected = 'a';
     char actual = gson.fromJson("a", char.class);
-    assertEquals(expected, actual);
+    assertThat(actual).isEqualTo(expected);
 
     actual = gson.fromJson("\"a\"", char.class);
-    assertEquals(expected, actual);
+    assertThat(actual).isEqualTo(expected);
 
     actual = gson.fromJson("a", Character.class);
-    assertEquals(expected, actual);
+    assertThat(actual).isEqualTo(expected);
   }
 }

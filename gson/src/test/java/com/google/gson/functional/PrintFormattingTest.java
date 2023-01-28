@@ -16,8 +16,7 @@
 
 package com.google.gson.functional;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static com.google.common.truth.Truth.assertThat;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -64,8 +63,8 @@ public class PrintFormattingTest {
     obj.addProperty("field1", "value1");
     obj.addProperty("field2", (String) null);
     String json = gson.toJson(obj);
-    assertTrue(json.contains("field1"));
-    assertFalse(json.contains("field2"));
+    assertThat(json).contains("field1");
+    assertThat(json).doesNotContain("field2");
   }
 
   @Test
@@ -75,13 +74,13 @@ public class PrintFormattingTest {
     obj.addProperty("field1", "value1");
     obj.addProperty("field2", (String) null);
     String json = gson.toJson(obj);
-    assertTrue(json.contains("field1"));
-    assertTrue(json.contains("field2"));
+    assertThat(json).contains("field1");
+    assertThat(json).contains("field2");
   }
 
   private static void assertContainsNoWhiteSpace(String str) {
     for (char c : str.toCharArray()) {
-      assertFalse(Character.isWhitespace(c));
+      assertThat(Character.isWhitespace(c)).isFalse();
     }
   }
 }

@@ -15,10 +15,7 @@
  */
 package com.google.gson.functional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static com.google.common.truth.Truth.assertThat;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -48,15 +45,15 @@ public class VersioningTest {
     Version1 target = new Version1();
     Gson gson = gsonWithVersion(1.29);
     String json = gson.toJson(target);
-    assertTrue(json.contains("\"a\":" + A));
+    assertThat(json).contains("\"a\":" + A);
 
     gson = gsonWithVersion(1.3);
     json = gson.toJson(target);
-    assertFalse(json.contains("\"a\":" + A));
+    assertThat(json).doesNotContain("\"a\":" + A);
 
     gson = gsonWithVersion(1.31);
     json = gson.toJson(target);
-    assertFalse(json.contains("\"a\":" + A));
+    assertThat(json).doesNotContain("\"a\":" + A);
   }
 
   @Test
@@ -65,15 +62,15 @@ public class VersioningTest {
 
     Gson gson = gsonWithVersion(1.29);
     Version1 version1 = gson.fromJson(json, Version1.class);
-    assertEquals(3, version1.a);
+    assertThat(version1.a).isEqualTo(3);
 
     gson = gsonWithVersion(1.3);
     version1 = gson.fromJson(json, Version1.class);
-    assertEquals(A, version1.a);
+    assertThat(version1.a).isEqualTo(A);
 
     gson = gsonWithVersion(1.31);
     version1 = gson.fromJson(json, Version1.class);
-    assertEquals(A, version1.a);
+    assertThat(version1.a).isEqualTo(A);
   }
 
   @Test
@@ -81,7 +78,7 @@ public class VersioningTest {
     Gson gson = gsonWithVersion(1.0);
     String json1 = gson.toJson(new Version1());
     String json2 = gson.toJson(new Version1_1());
-    assertEquals(json1, json2);
+    assertThat(json2).isEqualTo(json1);
   }
 
   @Test
@@ -89,18 +86,18 @@ public class VersioningTest {
     Gson gson = gsonWithVersion(1.0);
     String json = "{\"a\":3,\"b\":4,\"c\":5}";
     Version1 version1 = gson.fromJson(json, Version1.class);
-    assertEquals(3, version1.a);
-    assertEquals(4, version1.b);
+    assertThat(version1.a).isEqualTo(3);
+    assertThat(version1.b).isEqualTo(4);
     Version1_1 version1_1 = gson.fromJson(json, Version1_1.class);
-    assertEquals(3, version1_1.a);
-    assertEquals(4, version1_1.b);
-    assertEquals(C, version1_1.c);
+    assertThat(version1_1.a).isEqualTo(3);
+    assertThat(version1_1.b).isEqualTo(4);
+    assertThat(version1_1.c).isEqualTo(C);
   }
 
   @Test
   public void testIgnoreLaterVersionClassSerialization() {
     Gson gson = gsonWithVersion(1.0);
-    assertEquals("null", gson.toJson(new Version1_2()));
+    assertThat(gson.toJson(new Version1_2())).isEqualTo("null");
   }
 
   @Test
@@ -110,14 +107,14 @@ public class VersioningTest {
     Version1_2 version1_2 = gson.fromJson(json, Version1_2.class);
     // Since the class is versioned to be after 1.0, we expect null
     // This is the new behavior in Gson 2.0
-    assertNull(version1_2);
+    assertThat(version1_2).isNull();
   }
 
   @Test
   public void testVersionedGsonWithUnversionedClassesSerialization() {
     Gson gson = gsonWithVersion(1.0);
     BagOfPrimitives target = new BagOfPrimitives(10, 20, false, "stringValue");
-    assertEquals(target.getExpectedJson(), gson.toJson(target));
+    assertThat(gson.toJson(target)).isEqualTo(target.getExpectedJson());
   }
 
   @Test
@@ -130,7 +127,7 @@ public class VersioningTest {
     expected.intValue = 20;
     expected.booleanValue = false;
     BagOfPrimitives actual = gson.fromJson(json, BagOfPrimitives.class);
-    assertEquals(expected, actual);
+    assertThat(actual).isEqualTo(expected);
   }
 
   @Test
@@ -138,19 +135,19 @@ public class VersioningTest {
     Gson gson = gsonWithVersion(1.0);
     SinceUntilMixing target = new SinceUntilMixing();
     String json = gson.toJson(target);
-    assertFalse(json.contains("\"b\":" + B));
+    assertThat(json).doesNotContain("\"b\":" + B);
 
     gson = gsonWithVersion(1.2);
     json = gson.toJson(target);
-    assertTrue(json.contains("\"b\":" + B));
+    assertThat(json).contains("\"b\":" + B);
 
     gson = gsonWithVersion(1.3);
     json = gson.toJson(target);
-    assertFalse(json.contains("\"b\":" + B));
+    assertThat(json).doesNotContain("\"b\":" + B);
 
     gson = gsonWithVersion(1.4);
     json = gson.toJson(target);
-    assertFalse(json.contains("\"b\":" + B));
+    assertThat(json).doesNotContain("\"b\":" + B);
   }
 
   @Test
@@ -158,23 +155,23 @@ public class VersioningTest {
     String json = "{\"a\":5,\"b\":6}";
     Gson gson = gsonWithVersion(1.0);
     SinceUntilMixing result = gson.fromJson(json, SinceUntilMixing.class);
-    assertEquals(5, result.a);
-    assertEquals(B, result.b);
+    assertThat(result.a).isEqualTo(5);
+    assertThat(result.b).isEqualTo(B);
 
     gson = gsonWithVersion(1.2);
     result = gson.fromJson(json, SinceUntilMixing.class);
-    assertEquals(5, result.a);
-    assertEquals(6, result.b);
+    assertThat(result.a).isEqualTo(5);
+    assertThat(result.b).isEqualTo(6);
 
     gson = gsonWithVersion(1.3);
     result = gson.fromJson(json, SinceUntilMixing.class);
-    assertEquals(5, result.a);
-    assertEquals(B, result.b);
+    assertThat(result.a).isEqualTo(5);
+    assertThat(result.b).isEqualTo(B);
 
     gson = gsonWithVersion(1.4);
     result = gson.fromJson(json, SinceUntilMixing.class);
-    assertEquals(5, result.a);
-    assertEquals(B, result.b);
+    assertThat(result.a).isEqualTo(5);
+    assertThat(result.b).isEqualTo(B);
   }
 
   private static class Version1 {

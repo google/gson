@@ -16,9 +16,7 @@
 
 package com.google.gson.functional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static com.google.common.truth.Truth.assertThat;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -53,7 +51,7 @@ public class InstanceCreatorTest {
       .create();
     String json = "{baseName:'BaseRevised',subName:'Sub'}";
     Base base = gson.fromJson(json, Base.class);
-    assertEquals("BaseRevised", base.baseName);
+    assertThat(base.baseName).isEqualTo("BaseRevised");
   }
 
   @Test
@@ -68,11 +66,11 @@ public class InstanceCreatorTest {
 
     String json = "{baseName:'Base',subName:'SubRevised'}";
     Base base = gson.fromJson(json, Base.class);
-    assertTrue(base instanceof Sub);
+    assertThat(base instanceof Sub).isTrue();
 
     Sub sub = (Sub) base;
-    assertFalse("SubRevised".equals(sub.subName));
-    assertEquals(Sub.SUB_NAME, sub.subName);
+    assertThat("SubRevised".equals(sub.subName)).isFalse();
+    assertThat(sub.subName).isEqualTo(Sub.SUB_NAME);
   }
 
   @Test
@@ -86,8 +84,8 @@ public class InstanceCreatorTest {
     .create();
     String json = "{base:{baseName:'Base',subName:'SubRevised'}}";
     ClassWithBaseField target = gson.fromJson(json, ClassWithBaseField.class);
-    assertTrue(target.base instanceof Sub);
-    assertEquals(Sub.SUB_NAME, ((Sub)target.base).subName);
+    assertThat(target.base instanceof Sub).isTrue();
+    assertThat(((Sub)target.base).subName).isEqualTo(Sub.SUB_NAME);
   }
 
   // This regressed in Gson 2.0 and 2.1
@@ -105,12 +103,12 @@ public class InstanceCreatorTest {
         .registerTypeAdapter(listOfStringType, listCreator)
         .create();
     List<String> list = gson.fromJson("[\"a\"]", listOfStringType);
-    assertEquals(SubArrayList.class, list.getClass());
+    assertThat(list.getClass()).isEqualTo(SubArrayList.class);
   }
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testInstanceCreatorForParametrizedType() throws Exception {
+  public void testInstanceCreatorForParametrizedType() {
     @SuppressWarnings("serial")
     class SubTreeSet<T> extends TreeSet<T> {}
     InstanceCreator<SortedSet<?>> sortedSetCreator = new InstanceCreator<SortedSet<?>>() {
@@ -124,11 +122,11 @@ public class InstanceCreatorTest {
 
     Type sortedSetType = new TypeToken<SortedSet<String>>() {}.getType();
     SortedSet<String> set = gson.fromJson("[\"a\"]", sortedSetType);
-    assertEquals(set.first(), "a");
-    assertEquals(SubTreeSet.class, set.getClass());
+    assertThat("a").isEqualTo(set.first());
+    assertThat(set.getClass()).isEqualTo(SubTreeSet.class);
 
     set = gson.fromJson("[\"b\"]", SortedSet.class);
-    assertEquals(set.first(), "b");
-    assertEquals(SubTreeSet.class, set.getClass());
+    assertThat("b").isEqualTo(set.first());
+    assertThat(set.getClass()).isEqualTo(SubTreeSet.class);
   }
 }

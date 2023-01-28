@@ -15,7 +15,7 @@
  */
 package com.google.gson.functional;
 
-import static org.junit.Assert.assertEquals;
+import static com.google.common.truth.Truth.assertThat;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -58,8 +58,8 @@ public class DelegateTypeAdapterTest {
     String json = gson.toJson(bags);
     bags = gson.fromJson(json, new TypeToken<List<BagOfPrimitives>>(){}.getType());
     // 11: 1 list object, and 10 entries. stats invoked on all 5 fields
-    assertEquals(51, stats.numReads);
-    assertEquals(51, stats.numWrites);
+    assertThat(stats.numReads).isEqualTo(51);
+    assertThat(stats.numWrites).isEqualTo(51);
   }
 
   @Test
@@ -68,8 +68,8 @@ public class DelegateTypeAdapterTest {
     String json = gson.toJson(bags);
     bags = gson.fromJson(json, String[].class);
     // 1 array object with 4 elements.
-    assertEquals(5, stats.numReads);
-    assertEquals(5, stats.numWrites);
+    assertThat(stats.numReads).isEqualTo(5);
+    assertThat(stats.numWrites).isEqualTo(5);
   }
 
   private static class StatsTypeAdapterFactory implements TypeAdapterFactory {

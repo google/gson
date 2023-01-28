@@ -15,10 +15,7 @@
  */
 package com.google.gson.functional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static com.google.common.truth.Truth.assertThat;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -71,7 +68,7 @@ public class CustomTypeAdaptersTest {
       }
     }).create();
     ClassWithCustomTypeConverter target = new ClassWithCustomTypeConverter();
-    assertEquals("{\"bag\":5,\"value\":25}", gson.toJson(target));
+    assertThat(gson.toJson(target)).isEqualTo("{\"bag\":5,\"value\":25}");
   }
 
   @Test
@@ -88,7 +85,7 @@ public class CustomTypeAdaptersTest {
     }).create();
     String json = "{\"bag\":5,\"value\":25}";
     ClassWithCustomTypeConverter target = gson.fromJson(json, ClassWithCustomTypeConverter.class);
-    assertEquals(5, target.getBag().getIntValue());
+    assertThat(target.getBag().getIntValue()).isEqualTo(5);
   }
 
   @Test
@@ -100,7 +97,7 @@ public class CustomTypeAdaptersTest {
     String jsonFromCustomSerializer = gson.toJson(newFooObject);
     String jsonFromGson = basicGson.toJson(newFooObject);
 
-    assertEquals(jsonFromGson, jsonFromCustomSerializer);
+    assertThat(jsonFromCustomSerializer).isEqualTo(jsonFromGson);
   }
 
   @Test
@@ -112,8 +109,8 @@ public class CustomTypeAdaptersTest {
     String json = basicGson.toJson(expectedFoo);
     Foo newFooObject = gson.fromJson(json, Foo.class);
 
-    assertEquals(expectedFoo.key, newFooObject.key);
-    assertEquals(expectedFoo.value, newFooObject.value);
+    assertThat(newFooObject.key).isEqualTo(expectedFoo.key);
+    assertThat(newFooObject.value).isEqualTo(expectedFoo.value);
   }
 
   @Test
@@ -126,7 +123,7 @@ public class CustomTypeAdaptersTest {
       }
     }).create();
     ClassWithCustomTypeConverter target = new ClassWithCustomTypeConverter();
-    assertEquals("{\"bag\":6,\"value\":10}", gson.toJson(target));
+    assertThat(gson.toJson(target)).isEqualTo("{\"bag\":6,\"value\":10}");
   }
 
   @Test
@@ -141,7 +138,7 @@ public class CustomTypeAdaptersTest {
     }).create();
     String json = "{\"bag\":7,\"value\":25}";
     ClassWithCustomTypeConverter target = gson.fromJson(json, ClassWithCustomTypeConverter.class);
-    assertEquals(7, target.getBag().getIntValue());
+    assertThat(target.getBag().getIntValue()).isEqualTo(7);
   }
 
   @Test
@@ -156,10 +153,10 @@ public class CustomTypeAdaptersTest {
     }).create();
     Base b = new Base();
     String json = gson.toJson(b);
-    assertTrue(json.contains("value"));
+    assertThat(json).contains("value");
     b = new Derived();
     json = gson.toJson(b);
-    assertTrue(json.contains("derivedValue"));
+    assertThat(json).contains("derivedValue");
   }
 
   @Test
@@ -174,11 +171,11 @@ public class CustomTypeAdaptersTest {
     }).create();
     Base b = new Base();
     String json = gson.toJson(b);
-    assertTrue(json.contains("value"));
+    assertThat(json.contains("value")).isTrue();
     b = new Derived();
     json = gson.toJson(b, Base.class);
-    assertTrue(json.contains("value"));
-    assertFalse(json.contains("derivedValue"));
+    assertThat(json.contains("value")).isTrue();
+    assertThat(json.contains("derivedValue")).isFalse();
   }
 
   private static class Base {
@@ -231,8 +228,8 @@ public class CustomTypeAdaptersTest {
           }
         })
         .create();
-    assertEquals("1", gson.toJson(true, boolean.class));
-    assertEquals("true", gson.toJson(true, Boolean.class));
+    assertThat(gson.toJson(true, boolean.class)).isEqualTo("1");
+    assertThat(gson.toJson(true, Boolean.class)).isEqualTo("true");
   }
 
   @Test
@@ -245,8 +242,8 @@ public class CustomTypeAdaptersTest {
           }
         })
         .create();
-    assertEquals(Boolean.TRUE, gson.fromJson("1", boolean.class));
-    assertEquals(Boolean.TRUE, gson.fromJson("true", Boolean.class));
+    assertThat(gson.fromJson("1", boolean.class)).isEqualTo(Boolean.TRUE);
+    assertThat(gson.fromJson("true", Boolean.class)).isEqualTo(Boolean.TRUE);
   }
 
   @Test
@@ -263,7 +260,7 @@ public class CustomTypeAdaptersTest {
     }).create();
     byte[] data = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
     String json = gson.toJson(data);
-    assertEquals("\"0123456789\"", json);
+    assertThat(json).isEqualTo("\"0123456789\"");
   }
 
   @Test
@@ -285,7 +282,7 @@ public class CustomTypeAdaptersTest {
     byte[] actual = gson.fromJson(json, byte[].class);
     byte[] expected = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
     for (int i = 0; i < actual.length; ++i) {
-      assertEquals(expected[i], actual[i]);
+      assertThat(actual[i]).isEqualTo(expected[i]);
     }
   }
 
@@ -335,7 +332,7 @@ public class CustomTypeAdaptersTest {
     Set<StringHolder> setOfHolders = new HashSet<>();
     setOfHolders.add(holder);
     String json = gson.toJson(setOfHolders, setType);
-    assertTrue(json.contains("Jacob:Tomaw"));
+    assertThat(json.contains("Jacob:Tomaw")).isTrue();
   }
 
   // Test created from Issue 70
@@ -348,7 +345,7 @@ public class CustomTypeAdaptersTest {
     Set<StringHolder> setOfHolders = new HashSet<>();
     setOfHolders.add(holder);
     String json = gson.toJson(setOfHolders);
-    assertTrue(json.contains("Jacob:Tomaw"));
+    assertThat(json.contains("Jacob:Tomaw")).isTrue();
   }
 
   // Test created from Issue 70
@@ -359,10 +356,10 @@ public class CustomTypeAdaptersTest {
       .create();
     Type setType = new TypeToken<Set<StringHolder>>() {}.getType();
     Set<StringHolder> setOfHolders = gson.fromJson("['Jacob:Tomaw']", setType);
-    assertEquals(1, setOfHolders.size());
+    assertThat(setOfHolders.size()).isEqualTo(1);
     StringHolder foo = setOfHolders.iterator().next();
-    assertEquals("Jacob", foo.part1);
-    assertEquals("Tomaw", foo.part2);
+    assertThat(foo.part1).isEqualTo("Jacob");
+    assertThat(foo.part2).isEqualTo("Tomaw");
   }
 
   // Test created from Issue 70
@@ -376,7 +373,7 @@ public class CustomTypeAdaptersTest {
     Map<String, StringHolder> mapOfHolders = new HashMap<>();
     mapOfHolders.put("foo", holder);
     String json = gson.toJson(mapOfHolders, mapType);
-    assertTrue(json.contains("\"foo\":\"Jacob:Tomaw\""));
+    assertThat(json.contains("\"foo\":\"Jacob:Tomaw\"")).isTrue();
   }
 
   // Test created from Issue 70
@@ -389,7 +386,7 @@ public class CustomTypeAdaptersTest {
     Map<String, StringHolder> mapOfHolders = new HashMap<>();
     mapOfHolders.put("foo", holder);
     String json = gson.toJson(mapOfHolders);
-    assertTrue(json.contains("\"foo\":\"Jacob:Tomaw\""));
+    assertThat(json.contains("\"foo\":\"Jacob:Tomaw\"")).isTrue();
   }
 
   // Test created from Issue 70
@@ -400,10 +397,10 @@ public class CustomTypeAdaptersTest {
       .create();
     Type mapType = new TypeToken<Map<String, StringHolder>>() {}.getType();
     Map<String, StringHolder> mapOfFoo = gson.fromJson("{'foo':'Jacob:Tomaw'}", mapType);
-    assertEquals(1, mapOfFoo.size());
+    assertThat(mapOfFoo.size()).isEqualTo(1);
     StringHolder foo = mapOfFoo.get("foo");
-    assertEquals("Jacob", foo.part1);
-    assertEquals("Tomaw", foo.part2);
+    assertThat(foo.part1).isEqualTo("Jacob");
+    assertThat(foo.part2).isEqualTo("Tomaw");
   }
 
   @Test
@@ -413,7 +410,7 @@ public class CustomTypeAdaptersTest {
         .create();
     DataHolderWrapper target = new DataHolderWrapper(new DataHolder("abc"));
     String json = gson.toJson(target);
-    assertEquals("{\"wrappedData\":{\"myData\":\"abc\"}}", json);
+    assertThat(json).isEqualTo("{\"wrappedData\":{\"myData\":\"abc\"}}");
   }
 
   @Test
@@ -423,7 +420,7 @@ public class CustomTypeAdaptersTest {
         .create();
     String json = "{wrappedData:null}";
     DataHolderWrapper actual = gson.fromJson(json, DataHolderWrapper.class);
-    assertNull(actual.wrappedData);
+    assertThat(actual.wrappedData).isNull();
   }
 
   // Test created from Issue 352
@@ -432,10 +429,10 @@ public class CustomTypeAdaptersTest {
     Gson gson = new GsonBuilder()
         .registerTypeHierarchyAdapter(Date.class, new DateTypeAdapter())
         .create();
-    assertEquals("0", gson.toJson(new Date(0)));
-    assertEquals("0", gson.toJson(new java.sql.Date(0)));
-    assertEquals(new Date(0), gson.fromJson("0", Date.class));
-    assertEquals(new java.sql.Date(0), gson.fromJson("0", java.sql.Date.class));
+    assertThat(gson.toJson(new Date(0))).isEqualTo("0");
+    assertThat(gson.toJson(new java.sql.Date(0))).isEqualTo("0");
+    assertThat(gson.fromJson("0", Date.class)).isEqualTo(new Date(0));
+    assertThat(gson.fromJson("0", java.sql.Date.class)).isEqualTo(new java.sql.Date(0));
   }
 
   private static class DataHolder {

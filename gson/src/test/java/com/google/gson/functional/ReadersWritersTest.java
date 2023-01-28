@@ -15,10 +15,7 @@
  */
 package com.google.gson.functional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import com.google.gson.Gson;
@@ -54,33 +51,33 @@ public class ReadersWritersTest {
   }
 
   @Test
-  public void testWriterForSerialization() throws Exception {
+  public void testWriterForSerialization() {
     Writer writer = new StringWriter();
     BagOfPrimitives src = new BagOfPrimitives();
     gson.toJson(src, writer);
-    assertEquals(src.getExpectedJson(), writer.toString());
+    assertThat(writer.toString()).isEqualTo(src.getExpectedJson());
   }
 
   @Test
-  public void testReaderForDeserialization() throws Exception {
+  public void testReaderForDeserialization() {
     BagOfPrimitives expected = new BagOfPrimitives();
     Reader json = new StringReader(expected.getExpectedJson());
     BagOfPrimitives actual = gson.fromJson(json, BagOfPrimitives.class);
-    assertEquals(expected, actual);
+    assertThat(actual).isEqualTo(expected);
   }
 
   @Test
   public void testTopLevelNullObjectSerializationWithWriter() {
     StringWriter writer = new StringWriter();
     gson.toJson(null, writer);
-    assertEquals("null", writer.toString());
+    assertThat(writer.toString()).isEqualTo("null");
   }
 
   @Test
   public void testTopLevelNullObjectDeserializationWithReader() {
     StringReader reader = new StringReader("null");
     Integer nullIntObject = gson.fromJson(reader, Integer.class);
-    assertNull(nullIntObject);
+    assertThat(nullIntObject).isNull();
   }
 
   @Test
@@ -88,7 +85,7 @@ public class ReadersWritersTest {
     Gson gson = new GsonBuilder().serializeNulls().create();
     StringWriter writer = new StringWriter();
     gson.toJson(null, writer);
-    assertEquals("null", writer.toString());
+    assertThat(writer.toString()).isEqualTo("null");
   }
 
   @Test
@@ -96,7 +93,7 @@ public class ReadersWritersTest {
     Gson gson = new GsonBuilder().serializeNulls().create();
     StringReader reader = new StringReader("null");
     Integer nullIntObject = gson.fromJson(reader, Integer.class);
-    assertNull(nullIntObject);
+    assertThat(nullIntObject).isNull();
   }
 
   @Test
@@ -108,9 +105,9 @@ public class ReadersWritersTest {
     CharArrayReader reader = new CharArrayReader(writer.toCharArray());
     JsonStreamParser parser = new JsonStreamParser(reader);
     String actualOne = gson.fromJson(parser.next(), String.class);
-    assertEquals("one", actualOne);
+    assertThat(actualOne).isEqualTo("one");
     String actualTwo = gson.fromJson(parser.next(), String.class);
-    assertEquals("two", actualTwo);
+    assertThat(actualTwo).isEqualTo("two");
   }
 
   @Test
@@ -124,10 +121,10 @@ public class ReadersWritersTest {
     CharArrayReader reader = new CharArrayReader(writer.toCharArray());
     JsonStreamParser parser = new JsonStreamParser(reader);
     BagOfPrimitives actualOne = gson.fromJson(parser.next(), BagOfPrimitives.class);
-    assertEquals("one", actualOne.stringValue);
+    assertThat(actualOne.stringValue).isEqualTo("one");
     BagOfPrimitives actualTwo = gson.fromJson(parser.next(), BagOfPrimitives.class);
-    assertEquals("two", actualTwo.stringValue);
-    assertFalse(parser.hasNext());
+    assertThat(actualTwo.stringValue).isEqualTo("two");
+    assertThat(parser.hasNext()).isFalse();
   }
 
   @Test
@@ -191,7 +188,7 @@ public class ReadersWritersTest {
     gson.toJson(Arrays.asList("test", 123, true), appendable);
     // Make sure CharSequence.toString() was called at least two times to verify that
     // CurrentWrite.cachedString is properly overwritten when char array changes
-    assertTrue(appendable.toStringCallCount >= 2);
-    assertEquals("[\"test\",123,true]", appendable.stringBuilder.toString());
+    assertThat(appendable.toStringCallCount >= 2).isTrue();
+    assertThat(appendable.stringBuilder.toString()).isEqualTo("[\"test\",123,true]");
   }
 }

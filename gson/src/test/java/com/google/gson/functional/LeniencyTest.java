@@ -15,8 +15,8 @@
  */
 package com.google.gson.functional;
 
+import static com.google.common.truth.Truth.assertThat;
 import static java.util.Collections.singletonList;
-import static org.junit.Assert.assertEquals;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -43,6 +43,6 @@ public class LeniencyTest {
         + "[ # One!\n"
         + "  'Hi' #Element!\n"
         + "] # Array!", new TypeToken<List<String>>() {}.getType());
-    assertEquals(singletonList("Hi"), json);
+    assertThat(json).isEqualTo(singletonList("Hi"));
   }
 }

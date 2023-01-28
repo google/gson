@@ -1,6 +1,6 @@
 package com.google.gson.functional;
 
-import static org.junit.Assert.assertEquals;
+import static com.google.common.truth.Truth.assertThat;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -51,7 +51,7 @@ public class TypeAdapterRuntimeTypeWrapperTest {
       .create();
 
     String json = gson.toJson(new Container());
-    assertEquals("{\"b\":\"serializer\"}", json);
+    assertThat(json).isEqualTo("{\"b\":\"serializer\"}");
   }
 
   /**
@@ -66,7 +66,7 @@ public class TypeAdapterRuntimeTypeWrapperTest {
       .create();
 
     String json = gson.toJson(new Container());
-    assertEquals("{\"b\":{\"f\":\"test\"}}", json);
+    assertThat(json).isEqualTo("{\"b\":{\"f\":\"test\"}}");
   }
 
   /**
@@ -92,7 +92,7 @@ public class TypeAdapterRuntimeTypeWrapperTest {
       .create();
 
     String json = gson.toJson(new Container());
-    assertEquals("{\"b\":\"custom delegate\"}", json);
+    assertThat(json).isEqualTo("{\"b\":\"custom delegate\"}");
   }
 
   /**
@@ -109,7 +109,7 @@ public class TypeAdapterRuntimeTypeWrapperTest {
       .create();
 
     String json = gson.toJson(new Container());
-    assertEquals("{\"b\":{\"f\":\"test\"}}", json);
+    assertThat(json).isEqualTo("{\"b\":{\"f\":\"test\"}}");
   }
 
   /**
@@ -131,7 +131,7 @@ public class TypeAdapterRuntimeTypeWrapperTest {
       .create();
 
     String json = gson.toJson(new Container());
-    assertEquals("{\"b\":\"custom delegate\"}", json);
+    assertThat(json).isEqualTo("{\"b\":\"custom delegate\"}");
   }
 
   /**
@@ -160,7 +160,7 @@ public class TypeAdapterRuntimeTypeWrapperTest {
       .create();
 
     String json = gson.toJson(new Container());
-    assertEquals("{\"b\":{\"f\":\"test\"}}", json);
+    assertThat(json).isEqualTo("{\"b\":{\"f\":\"test\"}}");
   }
 
   private static class CyclicBase {
@@ -188,6 +188,6 @@ public class TypeAdapterRuntimeTypeWrapperTest {
     CyclicBase b = new CyclicBase();
     b.f = new CyclicSub(2);
     String json = new Gson().toJson(b);
-    assertEquals("{\"f\":{\"i\":2}}", json);
+    assertThat(json).isEqualTo("{\"f\":{\"i\":2}}");
   }
 }

@@ -1,8 +1,6 @@
 package com.google.gson.functional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import com.google.gson.Gson;
@@ -35,10 +33,10 @@ public class JsonTreeTest {
   public void testToJsonTree() {
     BagOfPrimitives bag = new BagOfPrimitives(10L, 5, false, "foo");
     JsonElement json = gson.toJsonTree(bag);
-    assertTrue(json.isJsonObject());
+    assertThat(json.isJsonObject()).isTrue();
     JsonObject obj = json.getAsJsonObject();
     Set<Entry<String, JsonElement>> children = obj.entrySet();
-    assertEquals(4, children.size());
+    assertThat(children).hasSize(4);
     assertContains(obj, new JsonPrimitive(10L));
     assertContains(obj, new JsonPrimitive(5));
     assertContains(obj, new JsonPrimitive(false));
@@ -49,10 +47,10 @@ public class JsonTreeTest {
   public void testToJsonTreeObjectType() {
     SubTypeOfBagOfPrimitives bag = new SubTypeOfBagOfPrimitives(10L, 5, false, "foo", 1.4F);
     JsonElement json = gson.toJsonTree(bag, BagOfPrimitives.class);
-    assertTrue(json.isJsonObject());
+    assertThat(json.isJsonObject()).isTrue();
     JsonObject obj = json.getAsJsonObject();
     Set<Entry<String, JsonElement>> children = obj.entrySet();
-    assertEquals(4, children.size());
+    assertThat(children).hasSize(4);
     assertContains(obj, new JsonPrimitive(10L));
     assertContains(obj, new JsonPrimitive(5));
     assertContains(obj, new JsonPrimitive(false));
@@ -65,14 +63,14 @@ public class JsonTreeTest {
     String json1 = gson.toJson(bag);
     JsonElement jsonElement = gson.toJsonTree(bag, SubTypeOfBagOfPrimitives.class);
     String json2 = gson.toJson(jsonElement);
-    assertEquals(json1, json2);
+   assertThat(json2).isEqualTo(json1);
   }
 
   @Test
   public void testJsonTreeNull() {
     BagOfPrimitives bag = new BagOfPrimitives(10L, 5, false, null);
     JsonObject jsonElement = (JsonObject) gson.toJsonTree(bag, BagOfPrimitives.class);
-    assertFalse(jsonElement.has("stringValue"));
+    assertThat(jsonElement.has("stringValue")).isFalse();
   }
 
   private void assertContains(JsonObject json, JsonPrimitive child) {
