@@ -435,12 +435,12 @@ public class DefaultTypeAdaptersTest {
   public void testDefaultCalendarSerialization() {
     Gson gson = new GsonBuilder().create();
     String json = gson.toJson(Calendar.getInstance());
-    assertThat(json.contains("year")).isTrue();
-    assertThat(json.contains("month")).isTrue();
-    assertThat(json.contains("dayOfMonth")).isTrue();
-    assertThat(json.contains("hourOfDay")).isTrue();
-    assertThat(json.contains("minute")).isTrue();
-    assertThat(json.contains("second")).isTrue();
+    assertThat(json).contains("year");
+    assertThat(json).contains("month");
+    assertThat(json).contains("dayOfMonth");
+    assertThat(json).contains("hourOfDay");
+    assertThat(json).contains("minute");
+    assertThat(json).contains("second");
   }
 
   @Test
@@ -461,12 +461,12 @@ public class DefaultTypeAdaptersTest {
     Gson gson = new GsonBuilder().create();
     GregorianCalendar cal = new GregorianCalendar();
     String json = gson.toJson(cal);
-    assertThat(json.contains("year")).isTrue();
-    assertThat(json.contains("month")).isTrue();
-    assertThat(json.contains("dayOfMonth")).isTrue();
-    assertThat(json.contains("hourOfDay")).isTrue();
-    assertThat(json.contains("minute")).isTrue();
-    assertThat(json.contains("second")).isTrue();
+    assertThat(json).contains("year");
+    assertThat(json).contains("month");
+    assertThat(json).contains("dayOfMonth");
+    assertThat(json).contains("hourOfDay");
+    assertThat(json).contains("minute");
+    assertThat(json).contains("second");
   }
 
   @Test
@@ -683,7 +683,7 @@ public class DefaultTypeAdaptersTest {
     String json = "['Value1']";
     Type type = new TypeToken<TreeSet<String>>() {}.getType();
     TreeSet<String> treeSet = gson.fromJson(json, type);
-    assertThat(treeSet.contains("Value1")).isTrue();
+    assertThat(treeSet).contains("Value1");
   }
 
   @Test

@@ -197,9 +197,9 @@ public class ArrayTest {
   public void testArrayOfPrimitivesAsObjectsSerialization() {
     Object[] objs = new Object[] {1, "abc", 0.3f, 5L};
     String json = gson.toJson(objs);
-    assertThat(json.contains("abc")).isTrue();
-    assertThat(json.contains("0.3")).isTrue();
-    assertThat(json.contains("5")).isTrue();
+    assertThat(json).contains("abc");
+    assertThat(json).contains("0.3");
+    assertThat(json).contains("5");
   }
 
   @Test
@@ -223,8 +223,8 @@ public class ArrayTest {
     Object[] objects = {classWithObjects, bagOfPrimitives};
     String json = gson.toJson(objects);
 
-    assertThat(json.contains(classWithObjectsJson)).isTrue();
-    assertThat(json.contains(bagOfPrimitivesJson)).isTrue();
+    assertThat(json).contains(classWithObjectsJson);
+    assertThat(json).contains(bagOfPrimitivesJson);
   }
 
   @Test
@@ -250,8 +250,8 @@ public class ArrayTest {
         {"Alcoa Inc", "29.01", "0.42", "1.47", "4/1 12:00am", "Manufacturing"}
     };
     String json = gson.toJson(items);
-    assertThat(json.contains("[[\"3m Co")).isTrue();
-    assertThat(json.contains("Manufacturing\"]]")).isTrue();
+    assertThat(json).contains("[[\"3m Co");
+    assertThat(json).contains("Manufacturing\"]]");
   }
 
   @Test

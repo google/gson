@@ -64,7 +64,7 @@ public class CircularReferenceTest {
     objA.ref = objA;
 
     String json = gson.toJson(objA);
-    assertThat(json.contains("ref")).isFalse(); // self-reference is ignored
+    assertThat(json).doesNotContain("ref"); // self-reference is ignored
   }
 
   @Test

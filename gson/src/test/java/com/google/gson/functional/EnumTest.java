@@ -173,9 +173,8 @@ public class EnumTest {
 
     Type type = new TypeToken<EnumSet<Roshambo>>() {}.getType();
     EnumSet<Roshambo> bar = gson.fromJson(json, type);
-    assertThat(bar.contains(Roshambo.ROCK)).isTrue();
-    assertThat(bar.contains(Roshambo.PAPER)).isTrue();
-    assertThat(bar.contains(Roshambo.SCISSORS)).isFalse();
+    assertThat(bar).containsExactly(Roshambo.ROCK, Roshambo.PAPER).inOrder();
+    assertThat(bar).doesNotContain(Roshambo.SCISSORS);;
   }
 
   @Test

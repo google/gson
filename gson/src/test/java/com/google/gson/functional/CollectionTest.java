@@ -99,8 +99,8 @@ public class CollectionTest {
     list.add("a2");
     Type linkedListType = new TypeToken<LinkedList<String>>() {}.getType();
     String json = gson.toJson(list, linkedListType);
-    assertThat(json.contains("a1")).isTrue();
-    assertThat(json.contains("a2")).isTrue();
+    assertThat(json).contains("a1");
+    assertThat(json).contains("a2");
   }
 
   @Test
@@ -119,8 +119,8 @@ public class CollectionTest {
     queue.add("a2");
     Type queueType = new TypeToken<Queue<String>>() {}.getType();
     String json = gson.toJson(queue, queueType);
-    assertThat(json.contains("a1")).isTrue();
-    assertThat(json.contains("a2")).isTrue();
+    assertThat(json).contains("a1");
+    assertThat(json).contains("a2");
   }
 
   @Test
@@ -238,7 +238,7 @@ public class CollectionTest {
     assertThat(result.startsWith("[")).isTrue();
     assertThat(result.endsWith("]")).isTrue();
     for (BagOfPrimitives obj : target) {
-      assertThat(result.contains(obj.getExpectedJson())).isTrue();
+      assertThat(result).contains(obj.getExpectedJson());
     }
   }
 
@@ -248,8 +248,7 @@ public class CollectionTest {
     Type collectionType = new TypeToken<Collection<String>>() { }.getType();
     Collection<String> target = gson.fromJson(json, collectionType);
 
-    assertThat(target.contains("Hello")).isTrue();
-    assertThat(target.contains("World")).isTrue();
+    assertThat(target).containsExactly("Hello", "World").inOrder();
   }
 
   @Test
@@ -263,7 +262,7 @@ public class CollectionTest {
     BagOfPrimitives bag1 = new BagOfPrimitives();
     Collection<?> target = Arrays.asList(bag1, bag1, "test");
     String json = gson.toJson(target);
-    assertThat(json.contains(bag1.getExpectedJson())).isTrue();
+    assertThat(json).contains(bag1.getExpectedJson());
   }
 
   @Test
@@ -275,8 +274,7 @@ public class CollectionTest {
 
     json = "[\"Hello\", \"World\"]";
     Collection<?> strings = gson.fromJson(json, Collection.class);
-    assertThat(strings.contains("Hello")).isTrue();
-    assertThat(strings.contains("World")).isTrue();
+    assertThat(strings).containsExactly("Hello", "World").inOrder();
   }
 
   @Test
@@ -312,8 +310,8 @@ public class CollectionTest {
     Type collectionType = new TypeToken<Collection<? extends Integer>>() { }.getType();
     Collection<? extends Integer> target = gson.fromJson(json, collectionType);
     assertThat(target.size()).isEqualTo(9);
-    assertThat(target.contains(1)).isTrue();
-    assertThat(target.contains(9)).isTrue();
+    assertThat(target).contains(1);
+    assertThat(target).contains(2);
   }
 
   @Test
@@ -326,14 +324,14 @@ public class CollectionTest {
 
     ObjectWithWildcardCollection target = new ObjectWithWildcardCollection(collection);
     String json = gson.toJson(target);
-    assertThat(json.contains(objA.getExpectedJson())).isTrue();
-    assertThat(json.contains(objB.getExpectedJson())).isTrue();
+    assertThat(json).contains(objA.getExpectedJson());
+    assertThat(json).contains(objB.getExpectedJson());
 
     target = gson.fromJson(json, ObjectWithWildcardCollection.class);
     Collection<? extends BagOfPrimitives> deserializedCollection = target.getCollection();
     assertThat(deserializedCollection.size()).isEqualTo(2);
-    assertThat(deserializedCollection.contains(objA)).isTrue();
-    assertThat(deserializedCollection.contains(objB)).isTrue();
+    assertThat(deserializedCollection).contains(objA);
+    assertThat(deserializedCollection).contains(objB);
   }
 
   @Test
@@ -404,8 +402,8 @@ public class CollectionTest {
     set.add(new Entry(1));
     set.add(new Entry(2));
     String json = gson.toJson(set);
-    assertThat(json.contains("1")).isTrue();
-    assertThat(json.contains("2")).isTrue();
+    assertThat(json).contains("1");
+    assertThat(json).contains("2");
   }
   @Test
   public void testSetDeserialization() {

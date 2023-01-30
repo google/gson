@@ -67,12 +67,12 @@ public final class JsonArrayTest {
     JsonPrimitive a = new JsonPrimitive("a");
     array.add(a);
     assertThat(array.remove(a)).isTrue();
-    assertThat(array.contains(a)).isFalse();
+    assertThat(array).doesNotContain(a);
     array.add(a);
     array.add(new JsonPrimitive("b"));
     assertThat(array.remove(1).getAsString()).isEqualTo("b");
     assertThat(array).hasSize(1);
-    assertThat(array.contains(a)).isTrue();
+    assertThat(array).contains(a);
   }
 
   @Test

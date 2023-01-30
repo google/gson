@@ -62,7 +62,7 @@ public class UncategorizedTest {
   }
 
   @Test
-  public void testObjectEqualButNotSameSerialization() throws Exception {
+  public void testObjectEqualButNotSameSerialization() {
     ClassOverridingEquals objA = new ClassOverridingEquals();
     ClassOverridingEquals objB = new ClassOverridingEquals();
     objB.ref = objA;
@@ -73,7 +73,7 @@ public class UncategorizedTest {
   @Test
   public void testStaticFieldsAreNotSerialized() {
     BagOfPrimitives target = new BagOfPrimitives();
-    assertThat(gson.toJson(target).contains("DEFAULT_VALUE")).isFalse();
+    assertThat(gson.toJson(target)).doesNotContain("DEFAULT_VALUE");
   }
 
   @Test

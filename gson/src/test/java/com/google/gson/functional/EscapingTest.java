@@ -65,9 +65,9 @@ public class EscapingTest {
   public void testEscapingObjectFields() {
     BagOfPrimitives objWithPrimitives = new BagOfPrimitives(1L, 1, true, "test with\" <script>");
     String jsonRepresentation = gson.toJson(objWithPrimitives);
-    assertThat(jsonRepresentation.contains("<")).isFalse();
-    assertThat(jsonRepresentation.contains(">")).isFalse();
-    assertThat(jsonRepresentation.contains("\\\"")).isTrue();
+    assertThat(jsonRepresentation).doesNotContain("<");
+    assertThat(jsonRepresentation).doesNotContain(">");
+    assertThat(jsonRepresentation).contains("\\\"");
 
     BagOfPrimitives expectedObject = gson.fromJson(jsonRepresentation, BagOfPrimitives.class);
     assertThat(expectedObject.getExpectedJson()).isEqualTo(objWithPrimitives.getExpectedJson());

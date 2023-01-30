@@ -171,11 +171,11 @@ public class CustomTypeAdaptersTest {
     }).create();
     Base b = new Base();
     String json = gson.toJson(b);
-    assertThat(json.contains("value")).isTrue();
+    assertThat(json).contains("value");
     b = new Derived();
     json = gson.toJson(b, Base.class);
-    assertThat(json.contains("value")).isTrue();
-    assertThat(json.contains("derivedValue")).isFalse();
+    assertThat(json).contains("value");
+    assertThat(json).doesNotContain("derivedValue");
   }
 
   private static class Base {
@@ -332,7 +332,7 @@ public class CustomTypeAdaptersTest {
     Set<StringHolder> setOfHolders = new HashSet<>();
     setOfHolders.add(holder);
     String json = gson.toJson(setOfHolders, setType);
-    assertThat(json.contains("Jacob:Tomaw")).isTrue();
+    assertThat(json).contains("Jacob:Tomaw");
   }
 
   // Test created from Issue 70
@@ -345,7 +345,7 @@ public class CustomTypeAdaptersTest {
     Set<StringHolder> setOfHolders = new HashSet<>();
     setOfHolders.add(holder);
     String json = gson.toJson(setOfHolders);
-    assertThat(json.contains("Jacob:Tomaw")).isTrue();
+    assertThat(json).contains("Jacob:Tomaw");
   }
 
   // Test created from Issue 70
@@ -373,7 +373,7 @@ public class CustomTypeAdaptersTest {
     Map<String, StringHolder> mapOfHolders = new HashMap<>();
     mapOfHolders.put("foo", holder);
     String json = gson.toJson(mapOfHolders, mapType);
-    assertThat(json.contains("\"foo\":\"Jacob:Tomaw\"")).isTrue();
+    assertThat(json).contains("\"foo\":\"Jacob:Tomaw\"");
   }
 
   // Test created from Issue 70
@@ -386,7 +386,7 @@ public class CustomTypeAdaptersTest {
     Map<String, StringHolder> mapOfHolders = new HashMap<>();
     mapOfHolders.put("foo", holder);
     String json = gson.toJson(mapOfHolders);
-    assertThat(json.contains("\"foo\":\"Jacob:Tomaw\"")).isTrue();
+    assertThat(json).contains("\"foo\":\"Jacob:Tomaw\"");
   }
 
   // Test created from Issue 70

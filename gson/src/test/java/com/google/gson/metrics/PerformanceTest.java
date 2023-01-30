@@ -77,8 +77,8 @@ public class PerformanceTest {
   
   private void parseLongJson(String json) throws JsonParseException {
     ExceptionHolder target = gson.fromJson(json, ExceptionHolder.class);
-    assertThat(target.message.contains("Error")).isTrue();
-    assertThat(target.stackTrace.contains("Yippie")).isTrue();
+    assertThat(target.message).contains("Error");
+    assertThat(target.stackTrace).contains("Yippie");
   }
 
   private static class ExceptionHolder {
