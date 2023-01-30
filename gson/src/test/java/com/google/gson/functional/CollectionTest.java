@@ -414,7 +414,7 @@ public class CollectionTest {
     Set<Entry> set = gson.fromJson(json, type);
     assertThat(set.size()).isEqualTo(2);
     for (Entry entry : set) {
-      assertThat(entry.value == 1 || entry.value == 2).isTrue();
+      assertThat(entry.value).isAnyOf(1, 2);
     }
   }
 

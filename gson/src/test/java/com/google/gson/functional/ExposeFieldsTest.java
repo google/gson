@@ -79,9 +79,9 @@ public class ExposeFieldsTest {
     String json = "{a:3,b:4,d:20.0}";
     ClassWithExposedFields target = gson.fromJson(json, ClassWithExposedFields.class);
 
-    assertThat((int) target.a).isEqualTo(3);
+    assertThat(target.a).isEqualTo(3);
     assertThat(target.b).isNull();
-    assertThat(target.d == 20).isFalse();
+    assertThat(target.d).isNotEqualTo(20);
   }
 
   @Test

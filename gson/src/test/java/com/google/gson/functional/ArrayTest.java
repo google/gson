@@ -77,13 +77,13 @@ public class ArrayTest {
   @Test
   public void testEmptyArrayDeserialization() {
     int[] actualObject = gson.fromJson("[]", int[].class);
-    assertThat(actualObject.length == 0).isTrue();
+    assertThat(actualObject).hasLength(0);
 
     Integer[] actualObject2 = gson.fromJson("[]", Integer[].class);
-    assertThat(actualObject2.length == 0).isTrue();
+    assertThat(actualObject2).hasLength(0);
 
     actualObject = gson.fromJson("[ ]", int[].class);
-    assertThat(actualObject.length == 0).isTrue();
+    assertThat(actualObject).hasLength(0);
   }
 
   @Test
