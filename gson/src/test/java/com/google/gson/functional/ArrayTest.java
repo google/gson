@@ -28,6 +28,7 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import org.junit.Before;
 import org.junit.Test;
@@ -99,9 +100,7 @@ public class ArrayTest {
     String json = "[\"foo\",null,\"bar\"]";
     String[] expected = {"foo", null, "bar"};
     String[] target = gson.fromJson(json, expected.getClass());
-    for (int i = 0; i < expected.length; ++i) {
-      assertThat(target[i]).isEqualTo(expected[i]);
-    }
+    assertThat(target).asList().containsAnyIn(expected);
   }
 
   @Test
@@ -115,7 +114,7 @@ public class ArrayTest {
   @Test
   public void testSingleNullInArrayDeserialization() {
     BagOfPrimitives[] array = gson.fromJson("[null]", BagOfPrimitives[].class);
-    assertThat(array[0]).isNull();
+    assertThat(array).asList().containsExactly((Object) null);
   }
 
   @Test
@@ -137,8 +136,7 @@ public class ArrayTest {
   public void testArrayOfStringsDeserialization() {
     String json = "[\"Hello\",\"World\"]";
     String[] target = gson.fromJson(json, String[].class);
-    assertThat(target[0]).isEqualTo("Hello");
-    assertThat(target[1]).isEqualTo("World");
+    assertThat(target).asList().containsExactly("Hello", "World");
   }
 
   @Test
@@ -152,8 +150,7 @@ public class ArrayTest {
   public void testSingleStringArrayDeserialization() {
     String json = "[\"hello\"]";
     String[] arrayType = gson.fromJson(json, String[].class);
-    assertThat(arrayType.length).isEqualTo(1);
-    assertThat(arrayType[0]).isEqualTo("hello");
+    assertThat(arrayType).asList().containsExactly("hello");
   }
 
   @Test
