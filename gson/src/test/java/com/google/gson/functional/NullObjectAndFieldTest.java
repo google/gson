@@ -16,10 +16,7 @@
 
 package com.google.gson.functional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static com.google.common.truth.Truth.assertThat;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -55,17 +52,17 @@ public class NullObjectAndFieldTest {
   public void testTopLevelNullObjectSerialization() {
     Gson gson = gsonBuilder.create();
     String actual = gson.toJson(null);
-    assertEquals("null", actual);
+    assertThat(actual).isEqualTo("null");
 
     actual = gson.toJson(null, String.class);
-    assertEquals("null", actual);
+    assertThat(actual).isEqualTo("null");
   }
 
   @Test
-  public void testTopLevelNullObjectDeserialization() throws Exception {
+  public void testTopLevelNullObjectDeserialization() {
     Gson gson = gsonBuilder.create();
     String actual = gson.fromJson("null", String.class);
-    assertNull(actual);
+    assertThat(actual).isNull();
   }
 
   @Test
@@ -74,14 +71,14 @@ public class NullObjectAndFieldTest {
     ClassWithObjects target = new ClassWithObjects(null);
     String actual = gson.toJson(target);
     String expected = "{\"bag\":null}";
-    assertEquals(expected, actual);
+    assertThat(actual).isEqualTo(expected);
   }
 
   @Test
-  public void testExplicitDeserializationOfNulls() throws Exception {
+  public void testExplicitDeserializationOfNulls() {
     Gson gson = gsonBuilder.create();
     ClassWithObjects target = gson.fromJson("{\"bag\":null}", ClassWithObjects.class);
-    assertNull(target.bag);
+    assertThat(target.bag).isNull();
   }
   
   @Test
@@ -89,7 +86,7 @@ public class NullObjectAndFieldTest {
     Gson gson = gsonBuilder.create();
     ClassWithMembers target = new ClassWithMembers();
     String json = gson.toJson(target);
-    assertTrue(json.contains("\"array\":null"));
+    assertThat(json).contains("\"array\":null");
   }
   
   /** 
@@ -100,7 +97,7 @@ public class NullObjectAndFieldTest {
     Gson gson = gsonBuilder.serializeNulls().create();
     ClassWithNullWrappedPrimitive target = new ClassWithNullWrappedPrimitive();
     String json = gson.toJson(target);
-    assertTrue(json.contains("\"value\":null"));
+    assertThat(json).contains("\"value\":null");
   }
   
   /** 
@@ -111,7 +108,7 @@ public class NullObjectAndFieldTest {
     Gson gson = gsonBuilder.create();
     String json = "{'value':null}";
     ClassWithNullWrappedPrimitive target = gson.fromJson(json, ClassWithNullWrappedPrimitive.class);
-    assertNull(target.value);
+    assertThat(target.value).isNull();
   }
   
   @Test
@@ -119,7 +116,7 @@ public class NullObjectAndFieldTest {
     Gson gson = gsonBuilder.create();
     ClassWithMembers target = new ClassWithMembers();
     String json = gson.toJson(target);
-    assertTrue(json.contains("\"col\":null"));
+    assertThat(json).contains("\"col\":null");
   }
   
   @Test
@@ -127,7 +124,7 @@ public class NullObjectAndFieldTest {
     Gson gson = gsonBuilder.create();
     ClassWithMembers target = new ClassWithMembers();
     String json = gson.toJson(target);
-    assertTrue(json.contains("\"str\":null"));
+    assertThat(json).contains("\"str\":null");
   }
 
   @Test
@@ -137,31 +134,31 @@ public class NullObjectAndFieldTest {
     ClassWithObjects target = new ClassWithObjects(new BagOfPrimitives());
     String actual = gson.toJson(target);
     String expected = "{\"bag\":null}";
-    assertEquals(expected, actual);
+    assertThat(actual).isEqualTo(expected);
   }
   
   @Test
-  public void testPrintPrintingObjectWithNulls() throws Exception {
+  public void testPrintPrintingObjectWithNulls() {
     gsonBuilder = new GsonBuilder();
     Gson gson = gsonBuilder.create();
     String result = gson.toJson(new ClassWithMembers());
-    assertEquals("{}", result);
+    assertThat(result).isEqualTo("{}");
 
     gson = gsonBuilder.serializeNulls().create();
     result = gson.toJson(new ClassWithMembers());
-    assertTrue(result.contains("\"str\":null"));
+    assertThat(result).contains("\"str\":null");
   }
   
   @Test
-  public void testPrintPrintingArraysWithNulls() throws Exception {
+  public void testPrintPrintingArraysWithNulls() {
     gsonBuilder = new GsonBuilder();
     Gson gson = gsonBuilder.create();
     String result = gson.toJson(new String[] { "1", null, "3" });
-    assertEquals("[\"1\",null,\"3\"]", result);
+    assertThat(result).isEqualTo("[\"1\",null,\"3\"]");
 
     gson = gsonBuilder.serializeNulls().create();
     result = gson.toJson(new String[] { "1", null, "3" });
-    assertEquals("[\"1\",null,\"3\"]", result);
+    assertThat(result).isEqualTo("[\"1\",null,\"3\"]");
   }
 
   // test for issue 389
@@ -170,13 +167,14 @@ public class NullObjectAndFieldTest {
     Gson gson = new Gson();
     ClassWithInitializedMembers target =
         gson.fromJson("{array:[1,2,3]}", ClassWithInitializedMembers.class);
-    assertTrue(target.array.length == 3 && target.array[1] == 2);
-    assertEquals(ClassWithInitializedMembers.MY_STRING_DEFAULT, target.str1);
-    assertNull(target.str2);
-    assertEquals(ClassWithInitializedMembers.MY_INT_DEFAULT, target.int1);
-    assertEquals(0, target.int2); // test the default value of a primitive int field per JVM spec
-    assertEquals(ClassWithInitializedMembers.MY_BOOLEAN_DEFAULT, target.bool1);
-    assertFalse(target.bool2); // test the default value of a primitive boolean field per JVM spec
+    assertThat(target.array).hasLength(3);
+    assertThat(target.array[1]).isEqualTo(2);
+    assertThat(target.str1).isEqualTo(ClassWithInitializedMembers.MY_STRING_DEFAULT);
+    assertThat(target.str2).isNull();
+    assertThat(target.int1).isEqualTo(ClassWithInitializedMembers.MY_INT_DEFAULT);
+    assertThat(target.int2).isEqualTo(0); // test the default value of a primitive int field per JVM spec
+    assertThat(target.bool1).isEqualTo(ClassWithInitializedMembers.MY_BOOLEAN_DEFAULT);
+    assertThat(target.bool2).isFalse(); // test the default value of a primitive boolean field per JVM spec
   }
 
   public static class ClassWithInitializedMembers {
@@ -221,7 +219,7 @@ public class NullObjectAndFieldTest {
     Gson gson = new Gson();
     String json = "{value:null}";
     ObjectWithField obj = gson.fromJson(json, ObjectWithField.class);
-    assertNull(obj.value);
+    assertThat(obj.value).isNull();
   }
 
   @Test
@@ -236,7 +234,7 @@ public class NullObjectAndFieldTest {
     ObjectWithField target = new ObjectWithField();
     target.value = "value1";
     String json = gson.toJson(target);
-    assertFalse(json.contains("value1"));
+    assertThat(json).doesNotContain("value1");
   }
 
   @Test
@@ -250,7 +248,7 @@ public class NullObjectAndFieldTest {
         }).create();
     String json = "{value:'value1'}";
     ObjectWithField target = gson.fromJson(json, ObjectWithField.class);
-    assertNull(target);
+    assertThat(target).isNull();
   }
 
   private static class ObjectWithField {

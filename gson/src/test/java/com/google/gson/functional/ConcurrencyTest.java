@@ -15,7 +15,7 @@
  */
 package com.google.gson.functional;
 
-import static org.junit.Assert.assertFalse;
+import static com.google.common.truth.Truth.assertThat;
 
 import com.google.gson.Gson;
 import java.util.concurrent.CountDownLatch;
@@ -91,7 +91,7 @@ public class ConcurrencyTest {
     }
     startLatch.countDown();
     finishedLatch.await();
-    assertFalse(failed.get());
+    assertThat(failed.get()).isFalse();
   }
 
   /**
@@ -122,7 +122,7 @@ public class ConcurrencyTest {
     }
     startLatch.countDown();
     finishedLatch.await();
-    assertFalse(failed.get());
+    assertThat(failed.get()).isFalse();
   }
   
   @SuppressWarnings("unused")

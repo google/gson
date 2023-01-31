@@ -1,6 +1,6 @@
 package com.google.gson.internal.sql;
 
-import static org.junit.Assert.assertEquals;
+import static com.google.common.truth.Truth.assertThat;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -50,7 +50,7 @@ public class SqlTypesGsonTest {
   public void testDefaultSqlDateSerialization() {
     java.sql.Date instant = new java.sql.Date(1259875082000L);
     String json = gson.toJson(instant);
-    assertEquals("\"Dec 3, 2009\"", json);
+    assertThat(json).isEqualTo("\"Dec 3, 2009\"");
   }
 
   @Test
@@ -71,8 +71,8 @@ public class SqlTypesGsonTest {
       java.sql.Date sqlDate = new java.sql.Date(0L);
       Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
       String json = gson.toJson(sqlDate, Timestamp.class);
-      assertEquals("\"1970-01-01\"", json);
-      assertEquals(0, gson.fromJson("\"1970-01-01\"", java.sql.Date.class).getTime());
+      assertThat(json).isEqualTo("\"1970-01-01\"");
+      assertThat(gson.fromJson("\"1970-01-01\"", java.sql.Date.class).getTime()).isEqualTo(0);
     } finally {
       TimeZone.setDefault(defaultTimeZone);
       Locale.setDefault(defaultLocale);
@@ -83,7 +83,7 @@ public class SqlTypesGsonTest {
   public void testDefaultSqlTimeSerialization() {
     Time now = new Time(1259875082000L);
     String json = gson.toJson(now);
-    assertEquals("\"01:18:02 PM\"", json);
+    assertThat(json).isEqualTo("\"01:18:02 PM\"");
   }
 
   @Test
@@ -98,9 +98,9 @@ public class SqlTypesGsonTest {
     Timestamp now = new java.sql.Timestamp(1259875082000L);
     String json = gson.toJson(now);
     if (JavaVersion.isJava9OrLater()) {
-      assertEquals("\"Dec 3, 2009, 1:18:02 PM\"", json);
+      assertThat(json).isEqualTo("\"Dec 3, 2009, 1:18:02 PM\"");
     } else {
-      assertEquals("\"Dec 3, 2009 1:18:02 PM\"", json);
+      assertThat(json).isEqualTo("\"Dec 3, 2009 1:18:02 PM\"");
     }
   }
 
@@ -123,8 +123,8 @@ public class SqlTypesGsonTest {
       Timestamp timestamp = new Timestamp(0L);
       Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
       String json = gson.toJson(timestamp, Timestamp.class);
-      assertEquals("\"1970-01-01\"", json);
-      assertEquals(0, gson.fromJson("\"1970-01-01\"", Timestamp.class).getTime());
+      assertThat(json).isEqualTo("\"1970-01-01\"");
+      assertThat(gson.fromJson("\"1970-01-01\"", Timestamp.class).getTime()).isEqualTo(0);
     } finally {
       TimeZone.setDefault(defaultTimeZone);
       Locale.setDefault(defaultLocale);

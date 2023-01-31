@@ -16,8 +16,7 @@
 
 package com.google.gson.metrics;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static com.google.common.truth.Truth.assertThat;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
@@ -78,8 +77,8 @@ public class PerformanceTest {
   
   private void parseLongJson(String json) throws JsonParseException {
     ExceptionHolder target = gson.fromJson(json, ExceptionHolder.class);
-    assertTrue(target.message.contains("Error"));
-    assertTrue(target.stackTrace.contains("Yippie"));
+    assertThat(target.message).contains("Error");
+    assertThat(target.stackTrace).contains("Yippie");
   }
 
   private static class ExceptionHolder {
@@ -149,7 +148,7 @@ public class PerformanceTest {
     String json = sb.toString();
     Type collectionType = new TypeToken<ArrayList<CollectionEntry>>(){}.getType();
     List<CollectionEntry> list = gson.fromJson(json, collectionType);
-    assertEquals(count, list.size());
+    assertThat(list).hasSize(count);
   }
 
   /**

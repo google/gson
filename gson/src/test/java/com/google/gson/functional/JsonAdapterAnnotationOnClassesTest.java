@@ -16,9 +16,7 @@
 
 package com.google.gson.functional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import com.google.gson.Gson;
@@ -50,28 +48,28 @@ public final class JsonAdapterAnnotationOnClassesTest {
   public void testJsonAdapterInvoked() {
     Gson gson = new Gson();
     String json = gson.toJson(new A("bar"));
-    assertEquals("\"jsonAdapter\"", json);
+    assertThat(json).isEqualTo("\"jsonAdapter\"");
 
    // Also invoke the JsonAdapter javadoc sample
     json = gson.toJson(new User("Inderjeet", "Singh"));
-    assertEquals("{\"name\":\"Inderjeet Singh\"}", json);
+    assertThat(json).isEqualTo("{\"name\":\"Inderjeet Singh\"}");
     User user = gson.fromJson("{'name':'Joel Leitch'}", User.class);
-    assertEquals("Joel", user.firstName);
-    assertEquals("Leitch", user.lastName);
+    assertThat(user.firstName).isEqualTo("Joel");
+    assertThat(user.lastName).isEqualTo("Leitch");
 
     json = gson.toJson(Foo.BAR);
-    assertEquals("\"bar\"", json);
+    assertThat(json).isEqualTo("\"bar\"");
     Foo baz = gson.fromJson("\"baz\"", Foo.class);
-    assertEquals(Foo.BAZ, baz);
+    assertThat(baz).isEqualTo(Foo.BAZ);
   }
 
   @Test
   public void testJsonAdapterFactoryInvoked() {
     Gson gson = new Gson();
     String json = gson.toJson(new C("bar"));
-    assertEquals("\"jsonAdapterFactory\"", json);
+    assertThat(json).isEqualTo("\"jsonAdapterFactory\"");
     C c = gson.fromJson("\"bar\"", C.class);
-    assertEquals("jsonAdapterFactory", c.value);
+    assertThat(c.value).isEqualTo("jsonAdapterFactory");
   }
 
   @Test
@@ -88,7 +86,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
       .registerTypeAdapter(A.class, typeAdapter)
       .create();
     String json = gson.toJson(new A("abcd"));
-    assertEquals("\"registeredAdapter\"", json);
+    assertThat(json).isEqualTo("\"registeredAdapter\"");
   }
 
   /**
@@ -106,9 +104,9 @@ public final class JsonAdapterAnnotationOnClassesTest {
       .registerTypeAdapter(A.class, serializer)
       .create();
     String json = gson.toJson(new A("abcd"));
-    assertEquals("\"registeredSerializer\"", json);
+    assertThat(json).isEqualTo("\"registeredSerializer\"");
     A target = gson.fromJson("abcd", A.class);
-    assertEquals("jsonAdapter", target.value);
+    assertThat(target.value).isEqualTo("jsonAdapter");
   }
 
   /**
@@ -126,9 +124,9 @@ public final class JsonAdapterAnnotationOnClassesTest {
       .registerTypeAdapter(A.class, deserializer)
       .create();
     String json = gson.toJson(new A("abcd"));
-    assertEquals("\"jsonAdapter\"", json);
+    assertThat(json).isEqualTo("\"jsonAdapter\"");
     A target = gson.fromJson("abcd", A.class);
-    assertEquals("registeredDeserializer", target.value);
+    assertThat(target.value).isEqualTo("registeredDeserializer");
   }
 
   @Test
@@ -142,14 +140,14 @@ public final class JsonAdapterAnnotationOnClassesTest {
   @Test
   public void testSuperclassTypeAdapterNotInvoked() {
     String json = new Gson().toJson(new B("bar"));
-    assertFalse(json.contains("jsonAdapter"));
+    assertThat(json).doesNotContain("jsonAdapter");
   }
 
   @Test
   public void testNullSafeObjectFromJson() {
     Gson gson = new Gson();
     NullableClass fromJson = gson.fromJson("null", NullableClass.class);
-    assertNull(fromJson);
+    assertThat(fromJson).isNull();
   }
 
   @JsonAdapter(A.JsonAdapter.class)

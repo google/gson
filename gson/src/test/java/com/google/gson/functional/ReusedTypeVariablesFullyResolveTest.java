@@ -1,8 +1,6 @@
 package com.google.gson.functional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static com.google.common.truth.Truth.assertThat;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -31,14 +29,14 @@ public class ReusedTypeVariablesFullyResolveTest {
   public void testGenericsPreservation() {
     TestEnumSetCollection withSet = gson.fromJson("{\"collection\":[\"ONE\",\"THREE\"]}", TestEnumSetCollection.class);
     Iterator<TestEnum> iterator = withSet.collection.iterator();
-    assertNotNull(withSet);
-    assertNotNull(withSet.collection);
-    assertEquals(2, withSet.collection.size());
+    assertThat(withSet).isNotNull();
+    assertThat(withSet.collection).isNotNull();
+    assertThat(withSet.collection).hasSize(2);
     TestEnum first = iterator.next();
     TestEnum second = iterator.next();
 
-    assertTrue(first instanceof TestEnum);
-    assertTrue(second instanceof TestEnum);
+    assertThat(first).isInstanceOf(TestEnum.class);
+    assertThat(second).isInstanceOf(TestEnum.class);
   }
 
   enum TestEnum { ONE, TWO, THREE }

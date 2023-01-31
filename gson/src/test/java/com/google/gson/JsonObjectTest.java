@@ -255,8 +255,7 @@ public class JsonObjectTest {
 
     assertThat(a.size()).isEqualTo(2);
     assertThat(a.keySet()).hasSize(2);
-    assertThat(a.keySet().contains("foo")).isTrue();
-    assertThat(a.keySet().contains("bar")).isTrue();
+    assertThat(a.keySet()).containsExactly("foo", "bar").inOrder();
 
     a.addProperty("1", true);
     a.addProperty("2", false);

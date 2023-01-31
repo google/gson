@@ -16,8 +16,7 @@
 
 package com.google.gson.functional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static com.google.common.truth.Truth.assertThat;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -42,74 +41,74 @@ public class JavaUtilConcurrentAtomicTest {
   }
 
   @Test
-  public void testAtomicBoolean() throws Exception {
+  public void testAtomicBoolean() {
     AtomicBoolean target = gson.fromJson("true", AtomicBoolean.class);
-    assertTrue(target.get());
+    assertThat(target.get()).isTrue();
     String json = gson.toJson(target);
-    assertEquals("true", json);
+    assertThat(json).isEqualTo("true");
   }
 
   @Test
-  public void testAtomicInteger() throws Exception {
+  public void testAtomicInteger() {
     AtomicInteger target = gson.fromJson("10", AtomicInteger.class);
-    assertEquals(10, target.get());
+    assertThat(target.get()).isEqualTo(10);
     String json = gson.toJson(target);
-    assertEquals("10", json);
+    assertThat(json).isEqualTo("10");
   }
 
   @Test
-  public void testAtomicLong() throws Exception {
+  public void testAtomicLong() {
     AtomicLong target = gson.fromJson("10", AtomicLong.class);
-    assertEquals(10, target.get());
+    assertThat(target.get()).isEqualTo(10);
     String json = gson.toJson(target);
-    assertEquals("10", json);
+    assertThat(json).isEqualTo("10");
   }
 
   @Test
-  public void testAtomicLongWithStringSerializationPolicy() throws Exception {
+  public void testAtomicLongWithStringSerializationPolicy() {
     Gson gson = new GsonBuilder()
         .setLongSerializationPolicy(LongSerializationPolicy.STRING)
         .create();
     AtomicLongHolder target = gson.fromJson("{'value':'10'}", AtomicLongHolder.class);
-    assertEquals(10, target.value.get());
+    assertThat(target.value.get()).isEqualTo(10);
     String json = gson.toJson(target);
-    assertEquals("{\"value\":\"10\"}", json);
+    assertThat(json).isEqualTo("{\"value\":\"10\"}");
   }
 
   @Test
-  public void testAtomicIntegerArray() throws Exception {
+  public void testAtomicIntegerArray() {
     AtomicIntegerArray target = gson.fromJson("[10, 13, 14]", AtomicIntegerArray.class);
-    assertEquals(3, target.length());
-    assertEquals(10, target.get(0));
-    assertEquals(13, target.get(1));
-    assertEquals(14, target.get(2));
+    assertThat(target.length()).isEqualTo(3);
+    assertThat(target.get(0)).isEqualTo(10);
+    assertThat(target.get(1)).isEqualTo(13);
+    assertThat(target.get(2)).isEqualTo(14);
     String json = gson.toJson(target);
-    assertEquals("[10,13,14]", json);
+    assertThat(json).isEqualTo("[10,13,14]");
   }
 
   @Test
-  public void testAtomicLongArray() throws Exception {
+  public void testAtomicLongArray() {
     AtomicLongArray target = gson.fromJson("[10, 13, 14]", AtomicLongArray.class);
-    assertEquals(3, target.length());
-    assertEquals(10, target.get(0));
-    assertEquals(13, target.get(1));
-    assertEquals(14, target.get(2));
+    assertThat(target.length()).isEqualTo(3);
+    assertThat(target.get(0)).isEqualTo(10);
+    assertThat(target.get(1)).isEqualTo(13);
+    assertThat(target.get(2)).isEqualTo(14);
     String json = gson.toJson(target);
-    assertEquals("[10,13,14]", json);
+    assertThat(json).isEqualTo("[10,13,14]");
   }
 
   @Test
-  public void testAtomicLongArrayWithStringSerializationPolicy() throws Exception {
+  public void testAtomicLongArrayWithStringSerializationPolicy() {
     Gson gson = new GsonBuilder()
         .setLongSerializationPolicy(LongSerializationPolicy.STRING)
         .create();
     AtomicLongArray target = gson.fromJson("['10', '13', '14']", AtomicLongArray.class);
-    assertEquals(3, target.length());
-    assertEquals(10, target.get(0));
-    assertEquals(13, target.get(1));
-    assertEquals(14, target.get(2));
+    assertThat(target.length()).isEqualTo(3);
+    assertThat(target.get(0)).isEqualTo(10);
+    assertThat(target.get(1)).isEqualTo(13);
+    assertThat(target.get(2)).isEqualTo(14);
     String json = gson.toJson(target);
-    assertEquals("[\"10\",\"13\",\"14\"]", json);
+    assertThat(json).isEqualTo("[\"10\",\"13\",\"14\"]");
   }
 
   private static class AtomicLongHolder {

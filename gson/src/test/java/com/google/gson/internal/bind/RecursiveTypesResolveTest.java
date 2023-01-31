@@ -16,8 +16,7 @@
 
 package com.google.gson.internal.bind;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static com.google.common.truth.Truth.assertThat;
 
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
@@ -51,7 +50,7 @@ public class RecursiveTypesResolveTest {
   public void testRecursiveResolveSimple() {
     @SuppressWarnings("rawtypes")
     TypeAdapter<Foo1> adapter = new Gson().getAdapter(Foo1.class);
-    assertNotNull(adapter);
+    assertThat(adapter).isNotNull();
   }
 
   /**
@@ -60,26 +59,26 @@ public class RecursiveTypesResolveTest {
 
   @Test
   public void testDoubleSupertype() {
-    assertEquals($Gson$Types.supertypeOf(Number.class),
-            $Gson$Types.supertypeOf($Gson$Types.supertypeOf(Number.class)));
+    assertThat($Gson$Types.supertypeOf($Gson$Types.supertypeOf(Number.class)))
+        .isEqualTo($Gson$Types.supertypeOf(Number.class));
   }
 
   @Test
   public void testDoubleSubtype() {
-    assertEquals($Gson$Types.subtypeOf(Number.class),
-            $Gson$Types.subtypeOf($Gson$Types.subtypeOf(Number.class)));
+    assertThat($Gson$Types.subtypeOf($Gson$Types.subtypeOf(Number.class)))
+        .isEqualTo($Gson$Types.subtypeOf(Number.class));
   }
 
   @Test
   public void testSuperSubtype() {
-    assertEquals($Gson$Types.subtypeOf(Object.class),
-            $Gson$Types.supertypeOf($Gson$Types.subtypeOf(Number.class)));
+    assertThat($Gson$Types.supertypeOf($Gson$Types.subtypeOf(Number.class)))
+        .isEqualTo($Gson$Types.subtypeOf(Object.class));
   }
 
   @Test
   public void testSubSupertype() {
-    assertEquals($Gson$Types.subtypeOf(Object.class),
-            $Gson$Types.subtypeOf($Gson$Types.supertypeOf(Number.class)));
+    assertThat($Gson$Types.subtypeOf($Gson$Types.supertypeOf(Number.class)))
+        .isEqualTo($Gson$Types.subtypeOf(Object.class));
   }
 
   /**
@@ -97,16 +96,16 @@ public class RecursiveTypesResolveTest {
   }
 
   @Test
-  public void testRecursiveTypeVariablesResolve1() throws Exception {
+  public void testRecursiveTypeVariablesResolve1() {
     @SuppressWarnings("rawtypes")
     TypeAdapter<TestType> adapter = new Gson().getAdapter(TestType.class);
-    assertNotNull(adapter);
+    assertThat(adapter).isNotNull();
   }
 
   @Test
-  public void testRecursiveTypeVariablesResolve12() throws Exception {
+  public void testRecursiveTypeVariablesResolve12() {
     @SuppressWarnings("rawtypes")
     TypeAdapter<TestType2> adapter = new Gson().getAdapter(TestType2.class);
-    assertNotNull(adapter);
+    assertThat(adapter).isNotNull();
   }
 }

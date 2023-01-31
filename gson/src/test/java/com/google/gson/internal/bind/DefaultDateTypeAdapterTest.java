@@ -16,9 +16,8 @@
 
 package com.google.gson.internal.bind;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.fail;
 
 import com.google.gson.Gson;
@@ -171,29 +170,29 @@ public class DefaultDateTypeAdapterTest {
   }
 
   @Test
-  public void testDateSerialization() throws Exception {
+  public void testDateSerialization() {
     int dateStyle = DateFormat.LONG;
     TypeAdapter<Date> dateTypeAdapter = dateAdapter(DateType.DATE.createAdapterFactory(dateStyle));
     DateFormat formatter = DateFormat.getDateInstance(dateStyle, Locale.US);
     Date currentDate = new Date();
 
     String dateString = dateTypeAdapter.toJson(currentDate);
-    assertEquals(toLiteral(formatter.format(currentDate)), dateString);
+    assertThat(dateString).isEqualTo(toLiteral(formatter.format(currentDate)));
   }
 
   @Test
-  public void testDatePattern() throws Exception {
+  public void testDatePattern() {
     String pattern = "yyyy-MM-dd";
     TypeAdapter<Date> dateTypeAdapter = dateAdapter(DateType.DATE.createAdapterFactory(pattern));
     DateFormat formatter = new SimpleDateFormat(pattern);
     Date currentDate = new Date();
 
     String dateString = dateTypeAdapter.toJson(currentDate);
-    assertEquals(toLiteral(formatter.format(currentDate)), dateString);
+    assertThat(dateString).isEqualTo(toLiteral(formatter.format(currentDate)));
   }
 
   @Test
-  public void testInvalidDatePattern() throws Exception {
+  public void testInvalidDatePattern() {
     try {
       DateType.DATE.createAdapterFactory("I am a bad Date pattern....");
       fail("Invalid date pattern should fail.");
@@ -203,8 +202,8 @@ public class DefaultDateTypeAdapterTest {
   @Test
   public void testNullValue() throws Exception {
     TypeAdapter<Date> adapter = dateAdapter(DateType.DATE.createDefaultsAdapterFactory());
-    assertNull(adapter.fromJson("null"));
-    assertEquals("null", adapter.toJson(null));
+    assertThat(adapter.fromJson("null")).isNull();
+    assertThat(adapter.toJson(null)).isEqualTo("null");
   }
 
   @Test
@@ -218,19 +217,19 @@ public class DefaultDateTypeAdapterTest {
 
   private static TypeAdapter<Date> dateAdapter(TypeAdapterFactory adapterFactory) {
     TypeAdapter<Date> adapter = adapterFactory.create(new Gson(), TypeToken.get(Date.class));
-    assertNotNull(adapter);
+    assertThat(adapter).isNotNull();
     return adapter;
   }
 
   private static void assertFormatted(String formatted, TypeAdapterFactory adapterFactory) {
     TypeAdapter<Date> adapter = dateAdapter(adapterFactory);
-    assertEquals(toLiteral(formatted), adapter.toJson(new Date(0)));
+    assertThat(adapter.toJson(new Date(0))).isEqualTo(toLiteral(formatted));
   }
 
   private static void assertParsed(String date, TypeAdapterFactory adapterFactory) throws IOException {
     TypeAdapter<Date> adapter = dateAdapter(adapterFactory);
-    assertEquals(date, new Date(0), adapter.fromJson(toLiteral(date)));
-    assertEquals("ISO 8601", new Date(0), adapter.fromJson(toLiteral("1970-01-01T00:00:00Z")));
+    assertWithMessage(date).that(adapter.fromJson(toLiteral(date))).isEqualTo(new Date(0));
+    assertWithMessage("ISO 8601").that(adapter.fromJson(toLiteral("1970-01-01T00:00:00Z"))).isEqualTo(new Date(0));
   }
 
   private static String toLiteral(String s) {

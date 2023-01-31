@@ -16,8 +16,7 @@
 
 package com.google.gson.functional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static com.google.common.truth.Truth.assertThat;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -47,7 +46,7 @@ public class SecurityTest {
   public void testNonExecutableJsonSerialization() {
     Gson gson = gsonBuilder.generateNonExecutableJson().create();
     String json = gson.toJson(new BagOfPrimitives());
-    assertTrue(json.startsWith(JSON_NON_EXECUTABLE_PREFIX));
+    assertThat(json.startsWith(JSON_NON_EXECUTABLE_PREFIX)).isTrue();
   }
   
   @Test
@@ -55,14 +54,14 @@ public class SecurityTest {
     String json = JSON_NON_EXECUTABLE_PREFIX + "{longValue:1}";
     Gson gson = gsonBuilder.create();
     BagOfPrimitives target = gson.fromJson(json, BagOfPrimitives.class);
-    assertEquals(1, target.longValue);
+    assertThat(target.longValue).isEqualTo(1);
   }
   
   @Test
   public void testJsonWithNonExectuableTokenSerialization() {
     Gson gson = gsonBuilder.generateNonExecutableJson().create();
     String json = gson.toJson(JSON_NON_EXECUTABLE_PREFIX);
-    assertTrue(json.contains(")]}'\n"));
+    assertThat(json).contains(")]}'\n");
   }
   
   /**
@@ -74,7 +73,7 @@ public class SecurityTest {
     Gson gson = gsonBuilder.create();
     String json = JSON_NON_EXECUTABLE_PREFIX + "{stringValue:')]}\\u0027\\n'}";
     BagOfPrimitives target = gson.fromJson(json, BagOfPrimitives.class);
-    assertEquals(")]}'\n", target.stringValue);
+    assertThat(target.stringValue).isEqualTo(")]}'\n");
   }  
   
   /**
@@ -87,7 +86,7 @@ public class SecurityTest {
     Gson gson = gsonBuilder.generateNonExecutableJson().create();
     String json = JSON_NON_EXECUTABLE_PREFIX + "{intValue:2,stringValue:')]}\\u0027\\n'}";
     BagOfPrimitives target = gson.fromJson(json, BagOfPrimitives.class);
-    assertEquals(")]}'\n", target.stringValue);
-    assertEquals(2, target.intValue);
+    assertThat(target.stringValue).isEqualTo(")]}'\n");
+    assertThat(target.intValue).isEqualTo(2);
   }  
 }

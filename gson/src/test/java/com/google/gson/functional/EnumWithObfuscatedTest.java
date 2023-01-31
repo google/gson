@@ -16,7 +16,7 @@
 
 package com.google.gson.functional;
 
-import static org.junit.Assert.assertEquals;
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import com.google.gson.Gson;
@@ -55,7 +55,7 @@ public class EnumWithObfuscatedTest {
       }
     }
 
-    assertEquals(Gender.MALE, gson.fromJson("\"MAIL\"", Gender.class));
-    assertEquals("\"MAIL\"", gson.toJson(Gender.MALE, Gender.class));
+    assertThat(gson.fromJson("\"MAIL\"", Gender.class)).isEqualTo(Gender.MALE);
+    assertThat(gson.toJson(Gender.MALE, Gender.class)).isEqualTo("\"MAIL\"");
   }
 }

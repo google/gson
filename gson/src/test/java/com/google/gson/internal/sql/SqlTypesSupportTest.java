@@ -1,20 +1,19 @@
 package com.google.gson.internal.sql;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static com.google.common.truth.Truth.assertThat;
 
 import org.junit.Test;
 
 public class SqlTypesSupportTest {
   @Test
   public void testSupported() {
-    assertTrue(SqlTypesSupport.SUPPORTS_SQL_TYPES);
+    assertThat(SqlTypesSupport.SUPPORTS_SQL_TYPES).isTrue();
 
-    assertNotNull(SqlTypesSupport.DATE_DATE_TYPE);
-    assertNotNull(SqlTypesSupport.TIMESTAMP_DATE_TYPE);
+    assertThat(SqlTypesSupport.DATE_DATE_TYPE).isNotNull();
+    assertThat(SqlTypesSupport.TIMESTAMP_DATE_TYPE).isNotNull();
 
-    assertNotNull(SqlTypesSupport.DATE_FACTORY);
-    assertNotNull(SqlTypesSupport.TIME_FACTORY);
-    assertNotNull(SqlTypesSupport.TIMESTAMP_FACTORY);
+    assertThat(SqlTypesSupport.DATE_FACTORY).isNotNull();
+    assertThat(SqlTypesSupport.TIME_FACTORY).isNotNull();
+    assertThat(SqlTypesSupport.TIMESTAMP_FACTORY).isNotNull();
   }
 }

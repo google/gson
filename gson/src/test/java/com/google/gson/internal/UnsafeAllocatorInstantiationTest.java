@@ -15,8 +15,7 @@
  */
 package com.google.gson.internal;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
@@ -46,7 +45,7 @@ public final class UnsafeAllocatorInstantiationTest {
       UnsafeAllocator.INSTANCE.newInstance(Interface.class);
       fail();
     } catch (AssertionError e) {
-      assertTrue(e.getMessage().startsWith("UnsafeAllocator is used for non-instantiable type"));
+      assertThat(e).hasMessageThat().startsWith("UnsafeAllocator is used for non-instantiable type");
     }
   }
 
@@ -60,7 +59,7 @@ public final class UnsafeAllocatorInstantiationTest {
       UnsafeAllocator.INSTANCE.newInstance(AbstractClass.class);
       fail();
     } catch (AssertionError e) {
-      assertTrue(e.getMessage().startsWith("UnsafeAllocator is used for non-instantiable type"));
+      assertThat(e).hasMessageThat().startsWith("UnsafeAllocator is used for non-instantiable type");
     }
   }
 
@@ -70,6 +69,6 @@ public final class UnsafeAllocatorInstantiationTest {
   @Test
   public void testConcreteClassInstantiation() throws Exception {
     ConcreteClass instance = UnsafeAllocator.INSTANCE.newInstance(ConcreteClass.class);
-    assertNotNull(instance);
+    assertThat(instance).isNotNull();
   }
 }

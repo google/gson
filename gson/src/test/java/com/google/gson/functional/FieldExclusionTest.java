@@ -16,7 +16,7 @@
 
 package com.google.gson.functional;
 
-import static org.junit.Assert.assertEquals;
+import static com.google.common.truth.Truth.assertThat;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -41,37 +41,37 @@ public class FieldExclusionTest {
   }
 
   @Test
-  public void testDefaultInnerClassExclusion() throws Exception {
+  public void testDefaultInnerClassExclusion() {
     Gson gson = new Gson();
     Outer.Inner target = outer.new Inner(VALUE);
     String result = gson.toJson(target);
-    assertEquals(target.toJson(), result);
+    assertThat(result).isEqualTo(target.toJson());
 
     gson = new GsonBuilder().create();
     target = outer.new Inner(VALUE);
     result = gson.toJson(target);
-    assertEquals(target.toJson(), result);
+    assertThat(result).isEqualTo(target.toJson());
   }
 
   @Test
-  public void testInnerClassExclusion() throws Exception {
+  public void testInnerClassExclusion() {
     Gson gson = new GsonBuilder().disableInnerClassSerialization().create();
     Outer.Inner target = outer.new Inner(VALUE);
     String result = gson.toJson(target);
-    assertEquals("null", result);
+    assertThat(result).isEqualTo("null");
   }
 
   @Test
-  public void testDefaultNestedStaticClassIncluded() throws Exception {
+  public void testDefaultNestedStaticClassIncluded() {
     Gson gson = new Gson();
     Outer.Inner target = outer.new Inner(VALUE);
     String result = gson.toJson(target);
-    assertEquals(target.toJson(), result);
+    assertThat(result).isEqualTo(target.toJson());
 
     gson = new GsonBuilder().create();
     target = outer.new Inner(VALUE);
     result = gson.toJson(target);
-    assertEquals(target.toJson(), result);
+    assertThat(result).isEqualTo(target.toJson());
   }
 
   private static class Outer {

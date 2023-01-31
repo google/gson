@@ -15,8 +15,7 @@
  */
 package com.google.gson.functional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static com.google.common.truth.Truth.assertThat;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -72,7 +71,7 @@ public class PrettyPrintingTest {
   public void testPrettyPrintArrayOfPrimitives() {
     int[] ints = new int[] { 1, 2, 3, 4, 5 };
     String json = gson.toJson(ints);
-    assertEquals("[\n  1,\n  2,\n  3,\n  4,\n  5\n]", json);
+    assertThat(json).isEqualTo("[\n  1,\n  2,\n  3,\n  4,\n  5\n]");
   }
 
   @Test
@@ -80,8 +79,8 @@ public class PrettyPrintingTest {
     int[][] ints = new int[][] { { 1, 2 }, { 3, 4 }, { 5, 6 }, { 7, 8 },
         { 9, 0 }, { 10 } };
     String json = gson.toJson(ints);
-    assertEquals("[\n  [\n    1,\n    2\n  ],\n  [\n    3,\n    4\n  ],\n  [\n    5,\n    6\n  ],"
-        + "\n  [\n    7,\n    8\n  ],\n  [\n    9,\n    0\n  ],\n  [\n    10\n  ]\n]", json);
+    assertThat(json).isEqualTo("[\n  [\n    1,\n    2\n  ],\n  [\n    3,\n    4\n  ],\n  [\n    5,\n    6\n  ],"
+        + "\n  [\n    7,\n    8\n  ],\n  [\n    9,\n    0\n  ],\n  [\n    10\n  ]\n]");
   }
 
   @Test
@@ -89,8 +88,8 @@ public class PrettyPrintingTest {
     List<Integer[]> list = Arrays.asList(new Integer[][] { { 1, 2 }, { 3, 4 },
         { 5, 6 }, { 7, 8 }, { 9, 0 }, { 10 } });
     String json = gson.toJson(list);
-    assertEquals("[\n  [\n    1,\n    2\n  ],\n  [\n    3,\n    4\n  ],\n  [\n    5,\n    6\n  ],"
-        + "\n  [\n    7,\n    8\n  ],\n  [\n    9,\n    0\n  ],\n  [\n    10\n  ]\n]", json);
+    assertThat(json).isEqualTo("[\n  [\n    1,\n    2\n  ],\n  [\n    3,\n    4\n  ],\n  [\n    5,\n    6\n  ],"
+        + "\n  [\n    7,\n    8\n  ],\n  [\n    9,\n    0\n  ],\n  [\n    10\n  ]\n]");
   }
   
   @Test
@@ -99,7 +98,7 @@ public class PrettyPrintingTest {
     map.put("abc", 1);
     map.put("def", 5);
     String json = gson.toJson(map);
-    assertEquals("{\n  \"abc\": 1,\n  \"def\": 5\n}", json);
+    assertThat(json).isEqualTo("{\n  \"abc\": 1,\n  \"def\": 5\n}");
   }
 
   // In response to bug 153
@@ -108,7 +107,7 @@ public class PrettyPrintingTest {
     ClassWithMap obj = new ClassWithMap();
     obj.map = new LinkedHashMap<>();
     String json = gson.toJson(obj);
-    assertTrue(json.contains("{\n  \"map\": {},\n  \"value\": 2\n}"));
+    assertThat(json).contains("{\n  \"map\": {},\n  \"value\": 2\n}");
   }
 
   @SuppressWarnings("unused")
@@ -121,7 +120,7 @@ public class PrettyPrintingTest {
   public void testMultipleArrays() {
     int[][][] ints = new int[][][] { { { 1 }, { 2 } } };
     String json = gson.toJson(ints);
-    assertEquals("[\n  [\n    [\n      1\n    ],\n    [\n      2\n    ]\n  ]\n]", json);
+    assertThat(json).isEqualTo("[\n  [\n    [\n      1\n    ],\n    [\n      2\n    ]\n  ]\n]");
   }
 
   private void print(String msg) {

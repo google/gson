@@ -16,8 +16,7 @@
 
 package com.google.gson.functional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static com.google.common.truth.Truth.assertThat;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -52,7 +51,7 @@ public class CustomSerializerTest {
      ClassWithBaseField target = new ClassWithBaseField(new Base());
      JsonObject json = (JsonObject) gson.toJsonTree(target);
      JsonObject base = json.get("base").getAsJsonObject();
-     assertEquals(BaseSerializer.NAME, base.get(Base.SERIALIZER_KEY).getAsString());
+     assertThat(base.get(Base.SERIALIZER_KEY).getAsString()).isEqualTo(BaseSerializer.NAME);
    }
 
   @Test
@@ -64,7 +63,7 @@ public class CustomSerializerTest {
      ClassWithBaseField target = new ClassWithBaseField(new Sub());
      JsonObject json = (JsonObject) gson.toJsonTree(target);
      JsonObject base = json.get("base").getAsJsonObject();
-     assertEquals(SubSerializer.NAME, base.get(Base.SERIALIZER_KEY).getAsString());
+     assertThat(base.get(Base.SERIALIZER_KEY).getAsString()).isEqualTo(SubSerializer.NAME);
    }
 
   @Test
@@ -78,7 +77,7 @@ public class CustomSerializerTest {
      JsonArray array = json.get("base").getAsJsonArray();
      for (JsonElement element : array) {
        JsonElement serializerKey = element.getAsJsonObject().get(Base.SERIALIZER_KEY);
-      assertEquals(SubSerializer.NAME, serializerKey.getAsString());
+      assertThat(serializerKey.getAsString()).isEqualTo(SubSerializer.NAME);
      }
    }
 
@@ -90,7 +89,7 @@ public class CustomSerializerTest {
      ClassWithBaseField target = new ClassWithBaseField(new Sub());
      JsonObject json = (JsonObject) gson.toJsonTree(target);
      JsonObject base = json.get("base").getAsJsonObject();
-     assertEquals(BaseSerializer.NAME, base.get(Base.SERIALIZER_KEY).getAsString());
+     assertThat(base.get(Base.SERIALIZER_KEY).getAsString()).isEqualTo(BaseSerializer.NAME);
    }
 
   @Test
@@ -103,6 +102,6 @@ public class CustomSerializerTest {
        })
        .create();
        JsonElement json = gson.toJsonTree(new Base());
-       assertTrue(json.isJsonNull());
+       assertThat(json.isJsonNull()).isTrue();
    }
 }

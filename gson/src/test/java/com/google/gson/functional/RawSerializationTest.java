@@ -15,7 +15,7 @@
  */
 package com.google.gson.functional;
 
-import static org.junit.Assert.assertEquals;
+import static com.google.common.truth.Truth.assertThat;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -42,14 +42,14 @@ public class RawSerializationTest {
   public void testCollectionOfPrimitives() {
     Collection<Integer> ints = Arrays.asList(1, 2, 3, 4, 5);
     String json = gson.toJson(ints);
-    assertEquals("[1,2,3,4,5]", json);
+    assertThat(json).isEqualTo("[1,2,3,4,5]");
   }
 
   @Test
   public void testCollectionOfObjects() {
     Collection<Foo> foos = Arrays.asList(new Foo(1), new Foo(2));
     String json = gson.toJson(foos);
-    assertEquals("[{\"b\":1},{\"b\":2}]", json);
+    assertThat(json).isEqualTo("[{\"b\":1},{\"b\":2}]");
   }
 
   @Test
@@ -58,10 +58,10 @@ public class RawSerializationTest {
     String expectedJson = "{\"t\":{\"b\":1}}";
     // Ensure that serialization works without specifying the type explicitly
     String json = gson.toJson(bar);
-    assertEquals(expectedJson, json);
+    assertThat(json).isEqualTo(expectedJson);
     // Ensure that serialization also works when the type is specified explicitly
     json = gson.toJson(bar, new TypeToken<Bar<Foo>>(){}.getType());
-    assertEquals(expectedJson, json);
+    assertThat(json).isEqualTo(expectedJson);
   }
 
   @Test
@@ -70,10 +70,10 @@ public class RawSerializationTest {
     String expectedJson = "{\"t\":{\"t\":{\"b\":1}}}";
     // Ensure that serialization works without specifying the type explicitly
     String json = gson.toJson(bar);
-    assertEquals(expectedJson, json);
+    assertThat(json).isEqualTo(expectedJson);
     // Ensure that serialization also works when the type is specified explicitly
     json = gson.toJson(bar, new TypeToken<Bar<Bar<Foo>>>(){}.getType());
-    assertEquals(expectedJson, json);
+    assertThat(json).isEqualTo(expectedJson);
   }
 
   @Test
@@ -82,10 +82,10 @@ public class RawSerializationTest {
     String expectedJson = "{\"t\":{\"t\":{\"t\":{\"b\":1}}}}";
     // Ensure that serialization works without specifying the type explicitly
     String json = gson.toJson(bar);
-    assertEquals(expectedJson, json);
+    assertThat(json).isEqualTo(expectedJson);
     // Ensure that serialization also works when the type is specified explicitly
     json = gson.toJson(bar, new TypeToken<Bar<Bar<Bar<Foo>>>>(){}.getType());
-    assertEquals(expectedJson, json);
+    assertThat(json).isEqualTo(expectedJson);
   }
 
   private static class Foo {

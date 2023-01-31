@@ -15,7 +15,7 @@
  */
 package com.google.gson.functional;
 
-import static org.junit.Assert.assertEquals;
+import static com.google.common.truth.Truth.assertThat;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -46,17 +46,17 @@ public final class RuntimeTypeAdapterFactoryFunctionalTest {
    * work correctly for {@link Gson#getDelegateAdapter(TypeAdapterFactory, TypeToken)}.
    */
   @Test
-  public void testSubclassesAutomaticallySerialized() throws Exception {
+  public void testSubclassesAutomaticallySerialized() {
     Shape shape = new Circle(25);
     String json = gson.toJson(shape);
     shape = gson.fromJson(json, Shape.class);
-    assertEquals(25, ((Circle)shape).radius);
+    assertThat(((Circle)shape).radius).isEqualTo(25);
 
     shape = new Square(15);
     json = gson.toJson(shape);
     shape = gson.fromJson(json, Shape.class);
-    assertEquals(15, ((Square)shape).side);
-    assertEquals(ShapeType.SQUARE, shape.type);
+    assertThat(((Square)shape).side).isEqualTo(15);
+    assertThat(shape.type).isEqualTo(ShapeType.SQUARE);
   }
 
   @JsonAdapter(Shape.JsonAdapterFactory.class)
@@ -161,7 +161,7 @@ public final class RuntimeTypeAdapterFactoryFunctionalTest {
       }
 
       return new TypeAdapter<R>() {
-        @Override public R read(JsonReader in) throws IOException {
+        @Override public R read(JsonReader in) {
           JsonElement jsonElement = Streams.parse(in);
           JsonElement labelJsonElement = jsonElement.getAsJsonObject().get(typeFieldName);
           if (labelJsonElement == null) {

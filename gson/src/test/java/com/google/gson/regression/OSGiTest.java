@@ -15,7 +15,7 @@
  */
 package com.google.gson.regression;
 
-import static org.junit.Assert.assertNotNull;
+import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
@@ -32,7 +32,7 @@ public class OSGiTest {
   public void testComGoogleGsonAnnotationsPackage() throws Exception {
         Manifest mf = findManifest("com.google.gson");
         String importPkg = mf.getMainAttributes().getValue("Import-Package");
-        assertNotNull("Import-Package statement is there", importPkg);
+        assertWithMessage("Import-Package statement is there").that(importPkg).isNotNull();
         assertSubstring("There should be com.google.gson.annotations dependency", importPkg, "com.google.gson.annotations");
     }
 
@@ -40,7 +40,7 @@ public class OSGiTest {
   public void testSunMiscImportPackage() throws Exception {
         Manifest mf = findManifest("com.google.gson");
         String importPkg = mf.getMainAttributes().getValue("Import-Package");
-        assertNotNull("Import-Package statement is there", importPkg);
+    assertWithMessage("Import-Package statement is there").that(importPkg).isNotNull();
         for (String dep : importPkg.split(",")) {
             if (dep.contains("sun.misc")) {
                 assertSubstring("sun.misc import is optional", dep, "resolution:=optional");
