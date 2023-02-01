@@ -18,7 +18,7 @@ package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
-import static org.junit.Assume.assumeNotNull;;
+import static org.junit.Assume.assumeNotNull;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

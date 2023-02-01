@@ -101,6 +101,7 @@ public class DefaultTypeAdaptersTest {
   }
 
   @Test
+  @SuppressWarnings("GetClassOnClass")
   public void testClassDeserialization() {
     try {
       gson.fromJson("String.class", String.class.getClass());

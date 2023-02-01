@@ -73,7 +73,8 @@ public class TypeVariableTest {
     assertThat(blue2).isEqualTo(blue1);
   }
 
-  @SuppressWarnings("overrides") // for missing hashCode() override
+  // for missing hashCode() override
+  @SuppressWarnings({"overrides", "EqualsHashCode"})
   public static class Blue extends Red<Boolean> {
     public Blue() {
       super(false);
@@ -103,7 +104,7 @@ public class TypeVariableTest {
     }
   }
 
-  @SuppressWarnings("overrides") // for missing hashCode() override
+  @SuppressWarnings({"overrides", "EqualsHashCode"}) // for missing hashCode() override
   public static class Foo<S, T> extends Red<Boolean> {
     private S someSField;
     private T someTField;
