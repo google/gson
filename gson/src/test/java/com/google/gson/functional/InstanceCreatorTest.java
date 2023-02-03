@@ -122,11 +122,11 @@ public class InstanceCreatorTest {
 
     Type sortedSetType = new TypeToken<SortedSet<String>>() {}.getType();
     SortedSet<String> set = gson.fromJson("[\"a\"]", sortedSetType);
-    assertThat("a").isEqualTo(set.first());
+    assertThat(set.first()).isEqualTo("a");
     assertThat(set.getClass()).isEqualTo(SubTreeSet.class);
 
     set = gson.fromJson("[\"b\"]", SortedSet.class);
-    assertThat("b").isEqualTo(set.first());
+    assertThat(set.first()).isEqualTo("b");
     assertThat(set.getClass()).isEqualTo(SubTreeSet.class);
   }
 }
