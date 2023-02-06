@@ -96,7 +96,7 @@
             <showDeprecation>true</showDeprecation>
             <fork>true</fork>
             <compilerArgs>
-              <!-- Args related to Error Prone, see: https://github.com/google/error-prone/blob/f8e33bc460be82ab22256a7ef8b979d7a2cacaba/docs/installation.md -->
+              <!-- Args related to Error Prone, see: https://errorprone.info/docs/installation#maven -->
               <arg>-XDcompilePolicy=simple</arg>
               <arg>-Xplugin:ErrorProne</arg>
               <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
