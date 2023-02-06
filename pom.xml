@@ -311,7 +311,6 @@
         </plugins>
       </build>
     </profile>
-
     <!-- Profile defining additional plugins to be executed for release -->
     <profile>
       <id>release</id>
