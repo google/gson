@@ -1698,7 +1698,8 @@ public final class JsonReaderTest {
       reader.beginObject();
       assertThat(reader.nextName()).isEqualTo("a");
     }
-    assertThat(reader.getPath());
+    assertThat(reader.getPath()).isEqualTo("$.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a"
+        + ".a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a");
     assertThat(reader.nextBoolean()).isTrue();
     for (int i = 0; i < 40; i++) {
       reader.endObject();

@@ -57,8 +57,8 @@ public class PostConstructAdapterFactoryTest {
         assertEquals(sandwiches, sandwichesFromJson);
     }
 
-    @SuppressWarnings("overrides") // for missing hashCode() override
-    static class Sandwich {
+  @SuppressWarnings({"overrides", "EqualsHashCode"}) // for missing hashCode() override
+  static class Sandwich {
         public String bread;
         public String cheese;
 
@@ -92,7 +92,7 @@ public class PostConstructAdapterFactoryTest {
         }
     }
 
-    @SuppressWarnings("overrides") // for missing hashCode() override
+    @SuppressWarnings({"overrides", "EqualsHashCode"}) // for missing hashCode() override
     static class MultipleSandwiches {
         public List<Sandwich> sandwiches;
 

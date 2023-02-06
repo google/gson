@@ -35,6 +35,7 @@ public final class JsonArrayTest {
   }
 
   @Test
+  @SuppressWarnings("TruthSelfEquals")
   public void testEqualsNonEmptyArray() {
     JsonArray a = new JsonArray();
     JsonArray b = new JsonArray();

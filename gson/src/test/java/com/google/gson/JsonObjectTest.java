@@ -163,6 +163,7 @@ public class JsonObjectTest {
   }
 
   @Test
+  @SuppressWarnings("TruthSelfEquals")
   public void testEqualsNonEmptyObject() {
     JsonObject a = new JsonObject();
     JsonObject b = new JsonObject();

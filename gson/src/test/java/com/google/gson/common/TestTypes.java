@@ -227,7 +227,8 @@ public class TestTypes {
     }
   }
 
-  @SuppressWarnings("overrides") // for missing hashCode() override
+  // for missing hashCode() override
+  @SuppressWarnings({"overrides", "EqualsHashCode"})
   public static class ClassWithNoFields {
     // Nothing here..
     @Override
