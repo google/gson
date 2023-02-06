@@ -291,6 +291,27 @@
   </build>
 
   <profiles>
+    <!-- Disable Error Prone in Java 15 -->
+    <profile>
+      <id>jdk15</id>
+      <activation>
+        <jdk>15</jdk>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+             <compilerArgs combine.self="override">
+               <compilerArg>-Xlint:all,-options</compilerArg>
+             </compilerArgs>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
     <!-- Profile defining additional plugins to be executed for release -->
     <profile>
       <id>release</id>
