@@ -101,10 +101,9 @@ public class DefaultTypeAdaptersTest {
   }
 
   @Test
-  @SuppressWarnings("GetClassOnClass")
   public void testClassDeserialization() {
     try {
-      gson.fromJson("String.class", String.class.getClass());
+      gson.fromJson("String.class", Class.class);
       fail();
     } catch (UnsupportedOperationException expected) {
     }
