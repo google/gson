@@ -846,6 +846,7 @@ public final class JsonWriterTest {
     writer.close();
   }
 
+  @Test
   public void testSetGetFormattingStyle() throws IOException {
     String lineSeparator = "\r\n";
 
@@ -866,8 +867,8 @@ public final class JsonWriterTest {
         + " \t 5.0,\r\n"
         + " \t null\r\n"
         + "]";
-    assertEquals(expected, stringWriter.toString());
+    assertThat(stringWriter.toString()).isEqualTo(expected);
 
-    assertEquals(lineSeparator, jsonWriter.getFormattingStyle().getNewline());
+    assertThat(jsonWriter.getFormattingStyle().getNewline()).isEqualTo(lineSeparator);
   }
 }
