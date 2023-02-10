@@ -1,9 +1,22 @@
+/*
+ * Copyright (C) 2022 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.google.gson.internal.reflect;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static com.google.common.truth.Truth.assertThat;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -18,18 +31,14 @@ public class Java17ReflectionHelperTest {
   public void testJava17Record() throws ClassNotFoundException {
     Class<?> unixDomainPrincipalClass = Class.forName("jdk.net.UnixDomainPrincipal");
     // UnixDomainPrincipal is a record
-    assertTrue(ReflectionHelper.isRecord(unixDomainPrincipalClass));
+    assertThat(ReflectionHelper.isRecord(unixDomainPrincipalClass)).isTrue();
     // with 2 components
-    assertArrayEquals(
-        new String[] {"user", "group"},
-        ReflectionHelper.getRecordComponentNames(unixDomainPrincipalClass));
+    assertThat(ReflectionHelper.getRecordComponentNames(unixDomainPrincipalClass)).isEqualTo(new String[] {"user", "group"});
     // Check canonical constructor
     Constructor<?> constructor =
         ReflectionHelper.getCanonicalRecordConstructor(unixDomainPrincipalClass);
-    assertNotNull(constructor);
-    assertArrayEquals(
-        new Class<?>[] {UserPrincipal.class, GroupPrincipal.class},
-        constructor.getParameterTypes());
+    assertThat(constructor).isNotNull();
+    assertThat(constructor.getParameterTypes()).isEqualTo(new Class<?>[] {UserPrincipal.class, GroupPrincipal.class});
   }
 
   @Test
@@ -43,14 +52,14 @@ public class Java17ReflectionHelperTest {
             .newInstance(new PrincipalImpl("user"), new PrincipalImpl("group"));
 
     String[] componentNames = ReflectionHelper.getRecordComponentNames(unixDomainPrincipalClass);
-    assertTrue(componentNames.length > 0);
+    assertThat(componentNames.length > 0).isTrue();
 
     for (String componentName : componentNames) {
       Field componentField = unixDomainPrincipalClass.getDeclaredField(componentName);
       Method accessor = ReflectionHelper.getAccessor(unixDomainPrincipalClass, componentField);
       Object principal = accessor.invoke(unixDomainPrincipal);
 
-      assertEquals(new PrincipalImpl(componentName), principal);
+      assertThat(principal).isEqualTo(new PrincipalImpl(componentName));
     }
   }
 

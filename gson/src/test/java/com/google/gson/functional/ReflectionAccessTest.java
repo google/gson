@@ -1,8 +1,22 @@
+/*
+ * Copyright (C) 2021 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.google.gson.functional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import com.google.gson.Gson;
@@ -36,8 +50,8 @@ public class ReflectionAccessTest {
     return classLoader.loadClass(c.getName());
   }
 
-  @Test
   @SuppressWarnings("removal") // java.lang.SecurityManager deprecation in Java 17
+  @Test
   public void testRestrictiveSecurityManager() throws Exception {
     // Must use separate class loader, otherwise permission is not checked, see Class.getDeclaredFields()
     Class<?> clazz = loadClassWithDifferentClassLoader(ClassWithPrivateMembers.class);
@@ -65,7 +79,7 @@ public class ReflectionAccessTest {
         gson.getAdapter(clazz);
         fail();
       } catch (SecurityException e) {
-        assertEquals("Gson: no-member-access", e.getMessage());
+        assertThat(e.getMessage()).isEqualTo("Gson: no-member-access");
       }
 
       final AtomicBoolean wasReadCalled = new AtomicBoolean(false);
@@ -85,9 +99,9 @@ public class ReflectionAccessTest {
         )
         .create();
 
-      assertEquals("\"custom-write\"", gson.toJson(null, clazz));
-      assertNull(gson.fromJson("{}", clazz));
-      assertTrue(wasReadCalled.get());
+      assertThat(gson.toJson(null, clazz)).isEqualTo("\"custom-write\"");
+      assertThat(gson.fromJson("{}", clazz)).isNull();
+      assertThat(wasReadCalled.get()).isTrue();
     } finally {
       System.setSecurityManager(original);
     }
@@ -108,7 +122,7 @@ public class ReflectionAccessTest {
   public void testSerializeInternalImplementationObject() {
     Gson gson = new Gson();
     String json = gson.toJson(Collections.emptyList());
-    assertEquals("[]", json);
+    assertThat(json).isEqualTo("[]");
 
     // But deserialization should fail
     Class<?> internalClass = Collections.emptyList().getClass();
@@ -118,10 +132,8 @@ public class ReflectionAccessTest {
     } catch (JsonSyntaxException e) {
       fail("Unexpected exception; test has to be run with `--illegal-access=deny`");
     } catch (JsonIOException expected) {
-      assertTrue(expected.getMessage().startsWith(
-          "Failed making constructor 'java.util.Collections$EmptyList()' accessible;"
-          + " either increase its visibility or write a custom InstanceCreator or TypeAdapter for its declaring type: "
-      ));
+      assertThat(expected).hasMessageThat().startsWith("Failed making constructor 'java.util.Collections$EmptyList()' accessible;"
+          + " either increase its visibility or write a custom InstanceCreator or TypeAdapter for its declaring type: ");
     }
   }
 }

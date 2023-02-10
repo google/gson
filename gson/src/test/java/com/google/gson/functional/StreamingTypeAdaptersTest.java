@@ -16,6 +16,10 @@
 
 package com.google.gson.functional;
 
+import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
+import static org.junit.Assert.fail;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -33,68 +37,77 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public final class StreamingTypeAdaptersTest extends TestCase {
+public final class StreamingTypeAdaptersTest {
   private Gson miniGson = new GsonBuilder().create();
   private TypeAdapter<Truck> truckAdapter = miniGson.getAdapter(Truck.class);
   private TypeAdapter<Map<String, Double>> mapAdapter
       = miniGson.getAdapter(new TypeToken<Map<String, Double>>() {});
 
+  @Test
   public void testSerialize() {
     Truck truck = new Truck();
     truck.passengers = Arrays.asList(new Person("Jesse", 29), new Person("Jodie", 29));
     truck.horsePower = 300;
 
-    assertEquals("{'horsePower':300.0,"
-        + "'passengers':[{'age':29,'name':'Jesse'},{'age':29,'name':'Jodie'}]}",
-        truckAdapter.toJson(truck).replace('\"', '\''));
+    assertThat(truckAdapter.toJson(truck).replace('\"', '\''))
+        .isEqualTo("{'horsePower':300.0,"
+        + "'passengers':[{'age':29,'name':'Jesse'},{'age':29,'name':'Jodie'}]}");
   }
 
+  @Test
   public void testDeserialize() throws IOException {
     String json = "{'horsePower':300.0,"
         + "'passengers':[{'age':29,'name':'Jesse'},{'age':29,'name':'Jodie'}]}";
     Truck truck = truckAdapter.fromJson(json.replace('\'', '\"'));
-    assertEquals(300.0, truck.horsePower);
-    assertEquals(Arrays.asList(new Person("Jesse", 29), new Person("Jodie", 29)), truck.passengers);
+    assertThat(truck.horsePower).isEqualTo(300.0);
+    assertThat(truck.passengers)
+        .isEqualTo(Arrays.asList(new Person("Jesse", 29), new Person("Jodie", 29)));
   }
 
+  @Test
   public void testSerializeNullField() {
     Truck truck = new Truck();
     truck.passengers = null;
-    assertEquals("{'horsePower':0.0,'passengers':null}",
-        truckAdapter.toJson(truck).replace('\"', '\''));
+    assertThat(truckAdapter.toJson(truck).replace('\"', '\''))
+        .isEqualTo("{'horsePower':0.0,'passengers':null}");
   }
 
+  @Test
   public void testDeserializeNullField() throws IOException {
     Truck truck = truckAdapter.fromJson("{'horsePower':0.0,'passengers':null}".replace('\'', '\"'));
-    assertNull(truck.passengers);
+    assertThat(truck.passengers).isNull();
   }
 
+  @Test
   public void testSerializeNullObject() {
     Truck truck = new Truck();
     truck.passengers = Arrays.asList((Person) null);
-    assertEquals("{'horsePower':0.0,'passengers':[null]}",
-        truckAdapter.toJson(truck).replace('\"', '\''));
+    assertThat(truckAdapter.toJson(truck).replace('\"', '\''))
+        .isEqualTo("{'horsePower':0.0,'passengers':[null]}");
   }
 
+  @Test
   public void testDeserializeNullObject() throws IOException {
     Truck truck = truckAdapter.fromJson("{'horsePower':0.0,'passengers':[null]}".replace('\'', '\"'));
-    assertEquals(Arrays.asList((Person) null), truck.passengers);
+    assertThat(truck.passengers).isEqualTo(Arrays.asList((Person) null));
   }
 
+  @Test
   public void testSerializeWithCustomTypeAdapter() {
     usePersonNameAdapter();
     Truck truck = new Truck();
     truck.passengers = Arrays.asList(new Person("Jesse", 29), new Person("Jodie", 29));
-    assertEquals("{'horsePower':0.0,'passengers':['Jesse','Jodie']}",
-        truckAdapter.toJson(truck).replace('\"', '\''));
+    assertThat(truckAdapter.toJson(truck).replace('\"', '\''))
+        .isEqualTo("{'horsePower':0.0,'passengers':['Jesse','Jodie']}");
   }
 
+  @Test
   public void testDeserializeWithCustomTypeAdapter() throws IOException {
     usePersonNameAdapter();
     Truck truck = truckAdapter.fromJson("{'horsePower':0.0,'passengers':['Jesse','Jodie']}".replace('\'', '\"'));
-    assertEquals(Arrays.asList(new Person("Jesse", -1), new Person("Jodie", -1)), truck.passengers);
+    assertThat(truck.passengers).isEqualTo(Arrays.asList(new Person("Jesse", -1), new Person("Jodie", -1)));
   }
 
   private void usePersonNameAdapter() {
@@ -111,44 +124,51 @@ public final class StreamingTypeAdaptersTest extends TestCase {
     truckAdapter = miniGson.getAdapter(Truck.class);
   }
 
+  @Test
   public void testSerializeMap() {
     Map<String, Double> map = new LinkedHashMap<>();
     map.put("a", 5.0);
     map.put("b", 10.0);
-    assertEquals("{'a':5.0,'b':10.0}", mapAdapter.toJson(map).replace('"', '\''));
+    assertThat(mapAdapter.toJson(map).replace('"', '\'')).isEqualTo("{'a':5.0,'b':10.0}");
   }
 
+  @Test
   public void testDeserializeMap() throws IOException {
     Map<String, Double> map = new LinkedHashMap<>();
     map.put("a", 5.0);
     map.put("b", 10.0);
-    assertEquals(map, mapAdapter.fromJson("{'a':5.0,'b':10.0}".replace('\'', '\"')));
+    assertThat(mapAdapter.fromJson("{'a':5.0,'b':10.0}".replace('\'', '\"'))).isEqualTo(map);
   }
 
+  @Test
   public void testSerialize1dArray() {
     TypeAdapter<double[]> arrayAdapter = miniGson.getAdapter(new TypeToken<double[]>() {});
-    assertEquals("[1.0,2.0,3.0]", arrayAdapter.toJson(new double[]{ 1.0, 2.0, 3.0 }));
+    assertThat(arrayAdapter.toJson(new double[]{ 1.0, 2.0, 3.0 })).isEqualTo("[1.0,2.0,3.0]");
   }
 
+  @Test
   public void testDeserialize1dArray() throws IOException {
     TypeAdapter<double[]> arrayAdapter = miniGson.getAdapter(new TypeToken<double[]>() {});
     double[] array = arrayAdapter.fromJson("[1.0,2.0,3.0]");
-    assertTrue(Arrays.toString(array), Arrays.equals(new double[]{1.0, 2.0, 3.0}, array));
+    assertWithMessage(Arrays.toString(array)).that(Arrays.equals(new double[]{1.0, 2.0, 3.0}, array)).isTrue();
   }
 
+  @Test
   public void testSerialize2dArray() {
     TypeAdapter<double[][]> arrayAdapter = miniGson.getAdapter(new TypeToken<double[][]>() {});
     double[][] array = { {1.0, 2.0 }, { 3.0 } };
-    assertEquals("[[1.0,2.0],[3.0]]", arrayAdapter.toJson(array));
+    assertThat(arrayAdapter.toJson(array)).isEqualTo("[[1.0,2.0],[3.0]]");
   }
 
+  @Test
   public void testDeserialize2dArray() throws IOException {
     TypeAdapter<double[][]> arrayAdapter = miniGson.getAdapter(new TypeToken<double[][]>() {});
     double[][] array = arrayAdapter.fromJson("[[1.0,2.0],[3.0]]");
     double[][] expected = { {1.0, 2.0 }, { 3.0 } };
-    assertTrue(Arrays.toString(array), Arrays.deepEquals(expected, array));
+    assertWithMessage(Arrays.toString(array)).that(Arrays.deepEquals(expected, array)).isTrue();
   }
 
+  @Test
   public void testNullSafe() {
     TypeAdapter<Person> typeAdapter = new TypeAdapter<Person>() {
       @Override public Person read(JsonReader in) throws IOException {
@@ -176,25 +196,27 @@ public final class StreamingTypeAdaptersTest extends TestCase {
       fail();
     } catch (JsonSyntaxException expected) {}
     gson = new GsonBuilder().registerTypeAdapter(Person.class, typeAdapter.nullSafe()).create();
-    assertEquals("{\"horsePower\":1.0,\"passengers\":[null,\"jesse,30\"]}",
-        gson.toJson(truck, Truck.class));
+    assertThat(gson.toJson(truck, Truck.class))
+        .isEqualTo("{\"horsePower\":1.0,\"passengers\":[null,\"jesse,30\"]}");
     truck = gson.fromJson(json, Truck.class);
-    assertEquals(1.0D, truck.horsePower);
-    assertNull(truck.passengers.get(0));
-    assertEquals("jesse", truck.passengers.get(1).name);
+    assertThat(truck.horsePower).isEqualTo(1.0D);
+    assertThat(truck.passengers.get(0)).isNull();
+    assertThat(truck.passengers.get(1).name).isEqualTo("jesse");
   }
 
+  @Test
   public void testSerializeRecursive() {
     TypeAdapter<Node> nodeAdapter = miniGson.getAdapter(Node.class);
     Node root = new Node("root");
     root.left = new Node("left");
     root.right = new Node("right");
-    assertEquals("{'label':'root',"
-        + "'left':{'label':'left','left':null,'right':null},"
-        + "'right':{'label':'right','left':null,'right':null}}",
-        nodeAdapter.toJson(root).replace('"', '\''));
+    assertThat(nodeAdapter.toJson(root).replace('"', '\''))
+        .isEqualTo("{'label':'root',"
+            + "'left':{'label':'left','left':null,'right':null},"
+            + "'right':{'label':'right','left':null,'right':null}}");
   }
   
+  @Test
   public void testFromJsonTree() {
     JsonObject truckObject = new JsonObject();
     truckObject.add("horsePower", new JsonPrimitive(300));
@@ -206,8 +228,8 @@ public final class StreamingTypeAdaptersTest extends TestCase {
     truckObject.add("passengers", passengersArray);
 
     Truck truck = truckAdapter.fromJsonTree(truckObject);
-    assertEquals(300.0, truck.horsePower);
-    assertEquals(Arrays.asList(new Person("Jesse", 30)), truck.passengers);
+    assertThat(truck.horsePower).isEqualTo(300.0);
+    assertThat(truck.passengers).isEqualTo(Arrays.asList(new Person("Jesse", 30)));
   }
 
   static class Truck {

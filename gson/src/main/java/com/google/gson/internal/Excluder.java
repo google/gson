@@ -198,11 +198,7 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
           return true;
       }
 
-      if (isAnonymousOrNonStaticLocal(clazz)) {
-          return true;
-      }
-
-      return false;
+      return isAnonymousOrNonStaticLocal(clazz);
   }
 
   public boolean excludeClass(Class<?> clazz, boolean serialize) {

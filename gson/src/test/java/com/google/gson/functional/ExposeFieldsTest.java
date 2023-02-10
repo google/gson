@@ -16,41 +16,43 @@
 
 package com.google.gson.functional;
 
-import java.lang.reflect.Type;
+import static com.google.common.truth.Truth.assertThat;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 import com.google.gson.annotations.Expose;
-
-import junit.framework.TestCase;
+import java.lang.reflect.Type;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Unit tests for the regarding functional "@Expose" type tests.
  *
  * @author Joel Leitch
  */
-public class ExposeFieldsTest extends TestCase {
+public class ExposeFieldsTest {
 
   private Gson gson;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void setUp() throws Exception {
     gson = new GsonBuilder()
         .excludeFieldsWithoutExposeAnnotation()
         .registerTypeAdapter(SomeInterface.class, new SomeInterfaceInstanceCreator())
         .create();
   }
 
-  public void testNullExposeFieldSerialization() throws Exception {
+  @Test
+  public void testNullExposeFieldSerialization() {
     ClassWithExposedFields object = new ClassWithExposedFields(null, 1);
     String json = gson.toJson(object);
 
-    assertEquals(object.getExpectedJson(), json);
+    assertThat(json).isEqualTo(object.getExpectedJson());
   }
 
-  public void testArrayWithOneNullExposeFieldObjectSerialization() throws Exception {
+  @Test
+  public void testArrayWithOneNullExposeFieldObjectSerialization() {
     ClassWithExposedFields object1 = new ClassWithExposedFields(1, 1);
     ClassWithExposedFields object2 = new ClassWithExposedFields(null, 1);
     ClassWithExposedFields object3 = new ClassWithExposedFields(2, 2);
@@ -63,51 +65,57 @@ public class ExposeFieldsTest extends TestCase {
         .append(object3.getExpectedJson()).append(']')
         .toString();
 
-    assertEquals(expected, json);
+    assertThat(json).isEqualTo(expected);
   }
 
-  public void testExposeAnnotationSerialization() throws Exception {
+  @Test
+  public void testExposeAnnotationSerialization() {
     ClassWithExposedFields target = new ClassWithExposedFields(1, 2);
-    assertEquals(target.getExpectedJson(), gson.toJson(target));
+    assertThat(gson.toJson(target)).isEqualTo(target.getExpectedJson());
   }
 
-  public void testExposeAnnotationDeserialization() throws Exception {
+  @Test
+  public void testExposeAnnotationDeserialization() {
     String json = "{a:3,b:4,d:20.0}";
     ClassWithExposedFields target = gson.fromJson(json, ClassWithExposedFields.class);
 
-    assertEquals(3, (int) target.a);
-    assertNull(target.b);
-    assertFalse(target.d == 20);
+    assertThat(target.a).isEqualTo(3);
+    assertThat(target.b).isNull();
+    assertThat(target.d).isNotEqualTo(20);
   }
 
-  public void testNoExposedFieldSerialization() throws Exception {
+  @Test
+  public void testNoExposedFieldSerialization() {
     ClassWithNoExposedFields obj = new ClassWithNoExposedFields();
     String json = gson.toJson(obj);
 
-    assertEquals("{}", json);
+    assertThat(json).isEqualTo("{}");
   }
 
-  public void testNoExposedFieldDeserialization() throws Exception {
+  @Test
+  public void testNoExposedFieldDeserialization() {
     String json = "{a:4,b:5}";
     ClassWithNoExposedFields obj = gson.fromJson(json, ClassWithNoExposedFields.class);
 
-    assertEquals(0, obj.a);
-    assertEquals(1, obj.b);
+    assertThat(obj.a).isEqualTo(0);
+    assertThat(obj.b).isEqualTo(1);
   }
   
-  public void testExposedInterfaceFieldSerialization() throws Exception {
+  @Test
+  public void testExposedInterfaceFieldSerialization() {
     String expected = "{\"interfaceField\":{}}";
     ClassWithInterfaceField target = new ClassWithInterfaceField(new SomeObject());
     String actual = gson.toJson(target);
     
-    assertEquals(expected, actual);
+    assertThat(actual).isEqualTo(expected);
   }
   
-  public void testExposedInterfaceFieldDeserialization() throws Exception {
+  @Test
+  public void testExposedInterfaceFieldDeserialization() {
     String json = "{\"interfaceField\":{}}";
     ClassWithInterfaceField obj = gson.fromJson(json, ClassWithInterfaceField.class);
 
-    assertNotNull(obj.interfaceField);
+    assertThat(obj.interfaceField).isNotNull();
   }
 
   private static class ClassWithExposedFields {

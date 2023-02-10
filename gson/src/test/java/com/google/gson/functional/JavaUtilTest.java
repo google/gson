@@ -16,47 +16,49 @@
 
 package com.google.gson.functional;
 
-import java.util.Currency;
-import java.util.Properties;
+import static com.google.common.truth.Truth.assertThat;
 
 import com.google.gson.Gson;
-
-import junit.framework.TestCase;
+import java.util.Currency;
+import java.util.Properties;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Functional test for Json serialization and deserialization for classes in java.util
  */
-public class JavaUtilTest extends TestCase {
+public class JavaUtilTest {
   private Gson gson;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void setUp() throws Exception {
     gson = new Gson();
   }
 
-  public void testCurrency() throws Exception {
+  @Test
+  public void testCurrency() {
     CurrencyHolder target = gson.fromJson("{'value':'USD'}", CurrencyHolder.class);
-    assertEquals("USD", target.value.getCurrencyCode());
+    assertThat(target.value.getCurrencyCode()).isEqualTo("USD");
     String json = gson.toJson(target);
-    assertEquals("{\"value\":\"USD\"}", json);
+    assertThat(json).isEqualTo("{\"value\":\"USD\"}");
 
     // null handling
     target = gson.fromJson("{'value':null}", CurrencyHolder.class);
-    assertNull(target.value);
-    assertEquals("{}", gson.toJson(target));
+    assertThat(target.value).isNull();
+    assertThat(gson.toJson(target)).isEqualTo("{}");
   }
 
   private static class CurrencyHolder {
     Currency value;
   }
 
+  @Test
   public void testProperties() {
     Properties props = gson.fromJson("{'a':'v1','b':'v2'}", Properties.class);
-    assertEquals("v1", props.getProperty("a"));
-    assertEquals("v2", props.getProperty("b"));
+    assertThat(props.getProperty("a")).isEqualTo("v1");
+    assertThat(props.getProperty("b")).isEqualTo("v2");
     String json = gson.toJson(props);
-    assertTrue(json.contains("\"a\":\"v1\""));
-    assertTrue(json.contains("\"b\":\"v2\""));
+    assertThat(json).contains("\"a\":\"v1\"");
+    assertThat(json).contains("\"b\":\"v2\"");
   }
 }

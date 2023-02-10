@@ -15,32 +15,32 @@
  */
 package com.google.gson.functional;
 
-import java.io.IOException;
-import java.util.regex.Pattern;
-
-import org.junit.Before;
-import org.junit.Test;
+import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.fail;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-
-import junit.framework.TestCase;
+import java.io.IOException;
+import java.util.regex.Pattern;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Functional tests to validate printing of Gson version on AssertionErrors
  *
  * @author Inderjeet Singh
  */
-public class GsonVersionDiagnosticsTest extends TestCase {
-  private static final Pattern GSON_VERSION_PATTERN = Pattern.compile("(\\(GSON \\d\\.\\d+(\\.\\d)?)(?:[-.][A-Z]+)?\\)$");
+public class GsonVersionDiagnosticsTest {
+  // We require a patch number, even if it is .0, consistent with https://semver.org/#spec-item-2.
+  private static final Pattern GSON_VERSION_PATTERN =
+      Pattern.compile("(\\(GSON \\d\\.\\d+\\.\\d)(?:[-.][A-Z]+)?\\)$");
 
   private Gson gson;
 
   @Before
-  @Override
   public void setUp() {
     gson = new GsonBuilder().registerTypeAdapter(TestType.class, new TypeAdapter<TestType>() {
       @Override public void write(JsonWriter out, TestType value) {
@@ -54,8 +54,8 @@ public class GsonVersionDiagnosticsTest extends TestCase {
 
   @Test
   public void testVersionPattern() {
-    assertTrue(GSON_VERSION_PATTERN.matcher("(GSON 2.8.5)").matches());
-    assertTrue(GSON_VERSION_PATTERN.matcher("(GSON 2.8.5-SNAPSHOT)").matches());
+    assertThat(GSON_VERSION_PATTERN.matcher("(GSON 2.8.5)").matches()).isTrue();
+    assertThat(GSON_VERSION_PATTERN.matcher("(GSON 2.8.5-SNAPSHOT)").matches()).isTrue();
   }
 
   @Test
@@ -82,12 +82,12 @@ public class GsonVersionDiagnosticsTest extends TestCase {
     String msg = expected.getMessage();
     // System.err.println(msg);
     int start = msg.indexOf("(GSON");
-    assertTrue(start > 0);
+    assertThat(start > 0).isTrue();
     int end = msg.indexOf("):") + 1;
-    assertTrue(end > 0 && end > start + 6);
+    assertThat(end > 0 && end > start + 6).isTrue();
     String version = msg.substring(start, end);
     // System.err.println(version);
-    assertTrue(GSON_VERSION_PATTERN.matcher(version).matches());
+    assertThat(GSON_VERSION_PATTERN.matcher(version).matches()).isTrue();
   }
 
   private static final class TestType {

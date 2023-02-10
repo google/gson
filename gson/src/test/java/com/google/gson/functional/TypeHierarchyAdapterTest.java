@@ -16,6 +16,8 @@
 
 package com.google.gson.functional;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -27,13 +29,14 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import java.lang.reflect.Type;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
  * Test that the hierarchy adapter works when subtypes are used.
  */
-public final class TypeHierarchyAdapterTest extends TestCase {
+public final class TypeHierarchyAdapterTest {
 
+  @Test
   public void testTypeHierarchy() {
     Manager andy = new Manager();
     andy.userid = "andy";
@@ -64,7 +67,7 @@ public final class TypeHierarchyAdapterTest extends TestCase {
     company.ceo = eric;
 
     String json = gson.toJson(company, Company.class);
-    assertEquals("{\n" +
+    assertThat(json).isEqualTo("{\n" +
         "  \"ceo\": {\n" +
         "    \"userid\": \"eric\",\n" +
         "    \"startDate\": 2001,\n" +
@@ -101,21 +104,20 @@ public final class TypeHierarchyAdapterTest extends TestCase {
         "      \"startDate\": 2006\n" +
         "    }\n" +
         "  }\n" +
-        "}", json);
+        "}");
 
     Company copied = gson.fromJson(json, Company.class);
-    assertEquals(json, gson.toJson(copied, Company.class));
-    assertEquals(copied.ceo.userid, company.ceo.userid);
-    assertEquals(copied.ceo.assistant.userid, company.ceo.assistant.userid);
-    assertEquals(copied.ceo.minions[0].userid, company.ceo.minions[0].userid);
-    assertEquals(copied.ceo.minions[1].userid, company.ceo.minions[1].userid);
-    assertEquals(copied.ceo.minions[2].userid, company.ceo.minions[2].userid);
-    assertEquals(((Manager) copied.ceo.minions[2]).minions[0].userid,
-        ((Manager) company.ceo.minions[2]).minions[0].userid);
-    assertEquals(((Manager) copied.ceo.minions[2]).minions[1].userid,
-        ((Manager) company.ceo.minions[2]).minions[1].userid);
+    assertThat(gson.toJson(copied, Company.class)).isEqualTo(json);
+    assertThat(company.ceo.userid).isEqualTo(copied.ceo.userid);
+    assertThat(company.ceo.assistant.userid).isEqualTo(copied.ceo.assistant.userid);
+    assertThat(company.ceo.minions[0].userid).isEqualTo(copied.ceo.minions[0].userid);
+    assertThat(company.ceo.minions[1].userid).isEqualTo(copied.ceo.minions[1].userid);
+    assertThat(company.ceo.minions[2].userid).isEqualTo(copied.ceo.minions[2].userid);
+    assertThat(((Manager) company.ceo.minions[2]).minions[0].userid).isEqualTo(((Manager) copied.ceo.minions[2]).minions[0].userid);
+    assertThat(((Manager) company.ceo.minions[2]).minions[1].userid).isEqualTo(((Manager) copied.ceo.minions[2]).minions[1].userid);
   }
 
+  @Test
   public void testRegisterSuperTypeFirst() {
     Gson gson = new GsonBuilder()
         .registerTypeHierarchyAdapter(Employee.class, new EmployeeAdapter())
@@ -126,12 +128,13 @@ public final class TypeHierarchyAdapterTest extends TestCase {
     manager.userid = "inder";
 
     String json = gson.toJson(manager, Manager.class);
-    assertEquals("\"inder\"", json);
+    assertThat(json).isEqualTo("\"inder\"");
     Manager copied = gson.fromJson(json, Manager.class);
-    assertEquals(manager.userid, copied.userid);
+    assertThat(copied.userid).isEqualTo(manager.userid);
   }
 
   /** This behaviour changed in Gson 2.1; it used to throw. */
+  @Test
   public void testRegisterSubTypeFirstAllowed() {
     new GsonBuilder()
         .registerTypeHierarchyAdapter(Manager.class, new ManagerAdapter())

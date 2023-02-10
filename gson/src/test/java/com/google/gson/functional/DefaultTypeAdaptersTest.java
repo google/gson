@@ -15,6 +15,9 @@
  */
 package com.google.gson.functional;
 
+import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.fail;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -54,7 +57,9 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.UUID;
-import junit.framework.TestCase;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Functional test for Json serialization and deserialization for common classes for which default
@@ -63,14 +68,13 @@ import junit.framework.TestCase;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class DefaultTypeAdaptersTest extends TestCase {
+public class DefaultTypeAdaptersTest {
   private Gson gson;
   private TimeZone oldTimeZone;
   private Locale oldLocale;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void setUp() throws Exception {
     this.oldTimeZone = TimeZone.getDefault();
     TimeZone.setDefault(TimeZone.getTimeZone("America/Los_Angeles"));
     this.oldLocale = Locale.getDefault();
@@ -78,13 +82,13 @@ public class DefaultTypeAdaptersTest extends TestCase {
     gson = new Gson();
   }
 
-  @Override
-  protected void tearDown() throws Exception {
+  @After
+  public void tearDown() {
     TimeZone.setDefault(oldTimeZone);
     Locale.setDefault(oldLocale);
-    super.tearDown();
   }
 
+  @Test
   public void testClassSerialization() {
     try {
       gson.toJson(String.class);
@@ -93,65 +97,73 @@ public class DefaultTypeAdaptersTest extends TestCase {
     }
     // Override with a custom type adapter for class.
     gson = new GsonBuilder().registerTypeAdapter(Class.class, new MyClassTypeAdapter()).create();
-    assertEquals("\"java.lang.String\"", gson.toJson(String.class));
+    assertThat(gson.toJson(String.class)).isEqualTo("\"java.lang.String\"");
   }
 
+  @Test
   public void testClassDeserialization() {
     try {
-      gson.fromJson("String.class", String.class.getClass());
+      gson.fromJson("String.class", Class.class);
       fail();
     } catch (UnsupportedOperationException expected) {
     }
     // Override with a custom type adapter for class.
     gson = new GsonBuilder().registerTypeAdapter(Class.class, new MyClassTypeAdapter()).create();
-    assertEquals(String.class, gson.fromJson("java.lang.String", Class.class));
+    assertThat(gson.fromJson("java.lang.String", Class.class)).isAssignableTo(String.class);
   }
 
+  @Test
   public void testUrlSerialization() throws Exception {
     String urlValue = "http://google.com/";
     URL url = new URL(urlValue);
-    assertEquals("\"http://google.com/\"", gson.toJson(url));
+    assertThat(gson.toJson(url)).isEqualTo("\"http://google.com/\"");
   }
 
+  @Test
   public void testUrlDeserialization() {
     String urlValue = "http://google.com/";
     String json = "'http:\\/\\/google.com\\/'";
     URL target = gson.fromJson(json, URL.class);
-    assertEquals(urlValue, target.toExternalForm());
+    assertThat(target.toExternalForm()).isEqualTo(urlValue);
 
     gson.fromJson('"' + urlValue + '"', URL.class);
-    assertEquals(urlValue, target.toExternalForm());
+    assertThat(target.toExternalForm()).isEqualTo(urlValue);
   }
 
-  public void testUrlNullSerialization() throws Exception {
+  @Test
+  public void testUrlNullSerialization() {
     ClassWithUrlField target = new ClassWithUrlField();
-    assertEquals("{}", gson.toJson(target));
+    assertThat(gson.toJson(target)).isEqualTo("{}");
   }
 
+  @Test
   public void testUrlNullDeserialization() {
     String json = "{}";
     ClassWithUrlField target = gson.fromJson(json, ClassWithUrlField.class);
-    assertNull(target.url);
+    assertThat(target.url).isNull();
   }
 
   private static class ClassWithUrlField {
     URL url;
   }
 
+  @Test
   public void testUriSerialization() throws Exception {
     String uriValue = "http://google.com/";
     URI uri = new URI(uriValue);
-    assertEquals("\"http://google.com/\"", gson.toJson(uri));
+    assertThat(gson.toJson(uri)).isEqualTo("\"http://google.com/\"");
   }
 
+  @Test
   public void testUriDeserialization() {
     String uriValue = "http://google.com/";
     String json = '"' + uriValue + '"';
     URI target = gson.fromJson(json, URI.class);
-    assertEquals(uriValue, target.toASCIIString());
+    assertThat(target.toASCIIString()).isEqualTo(uriValue);
   }
 
-  public void testNullSerialization() throws Exception {
+  @Test
+  public void testNullSerialization() {
     testNullSerializationAndDeserialization(Boolean.class);
     testNullSerializationAndDeserialization(Byte.class);
     testNullSerializationAndDeserialization(Short.class);
@@ -187,73 +199,84 @@ public class DefaultTypeAdaptersTest extends TestCase {
   }
 
   public static void testNullSerializationAndDeserialization(Gson gson, Class<?> c) {
-    assertEquals("null", gson.toJson(null, c));
-    assertEquals(null, gson.fromJson("null", c));
+    assertThat(gson.toJson(null, c)).isEqualTo("null");
+    assertThat(gson.fromJson("null", c)).isEqualTo(null);
   }
 
-  public void testUuidSerialization() throws Exception {
+  @Test
+  public void testUuidSerialization() {
     String uuidValue = "c237bec1-19ef-4858-a98e-521cf0aad4c0";
     UUID uuid = UUID.fromString(uuidValue);
-    assertEquals('"' + uuidValue + '"', gson.toJson(uuid));
+    assertThat(gson.toJson(uuid)).isEqualTo('"' + uuidValue + '"');
   }
 
+  @Test
   public void testUuidDeserialization() {
     String uuidValue = "c237bec1-19ef-4858-a98e-521cf0aad4c0";
     String json = '"' + uuidValue + '"';
     UUID target = gson.fromJson(json, UUID.class);
-    assertEquals(uuidValue, target.toString());
+    assertThat(target.toString()).isEqualTo(uuidValue);
   }
 
+  @Test
   public void testLocaleSerializationWithLanguage() {
     Locale target = new Locale("en");
-    assertEquals("\"en\"", gson.toJson(target));
+    assertThat(gson.toJson(target)).isEqualTo("\"en\"");
   }
 
+  @Test
   public void testLocaleDeserializationWithLanguage() {
     String json = "\"en\"";
     Locale locale = gson.fromJson(json, Locale.class);
-    assertEquals("en", locale.getLanguage());
+    assertThat(locale.getLanguage()).isEqualTo("en");
   }
 
+  @Test
   public void testLocaleSerializationWithLanguageCountry() {
     Locale target = Locale.CANADA_FRENCH;
-    assertEquals("\"fr_CA\"", gson.toJson(target));
+    assertThat(gson.toJson(target)).isEqualTo("\"fr_CA\"");
   }
 
+  @Test
   public void testLocaleDeserializationWithLanguageCountry() {
     String json = "\"fr_CA\"";
     Locale locale = gson.fromJson(json, Locale.class);
-    assertEquals(Locale.CANADA_FRENCH, locale);
+    assertThat(locale).isEqualTo(Locale.CANADA_FRENCH);
   }
 
+  @Test
   public void testLocaleSerializationWithLanguageCountryVariant() {
     Locale target = new Locale("de", "DE", "EURO");
     String json = gson.toJson(target);
-    assertEquals("\"de_DE_EURO\"", json);
+    assertThat(json).isEqualTo("\"de_DE_EURO\"");
   }
 
+  @Test
   public void testLocaleDeserializationWithLanguageCountryVariant() {
     String json = "\"de_DE_EURO\"";
     Locale locale = gson.fromJson(json, Locale.class);
-    assertEquals("de", locale.getLanguage());
-    assertEquals("DE", locale.getCountry());
-    assertEquals("EURO", locale.getVariant());
+    assertThat(locale.getLanguage()).isEqualTo("de");
+    assertThat(locale.getCountry()).isEqualTo("DE");
+    assertThat(locale.getVariant()).isEqualTo("EURO");
   }
 
+  @Test
   public void testBigDecimalFieldSerialization() {
     ClassWithBigDecimal target = new ClassWithBigDecimal("-122.01e-21");
     String json = gson.toJson(target);
     String actual = json.substring(json.indexOf(':') + 1, json.indexOf('}'));
-    assertEquals(target.value, new BigDecimal(actual));
+    assertThat(new BigDecimal(actual)).isEqualTo(target.value);
   }
 
+  @Test
   public void testBigDecimalFieldDeserialization() {
     ClassWithBigDecimal expected = new ClassWithBigDecimal("-122.01e-21");
     String json = expected.getExpectedJson();
     ClassWithBigDecimal actual = gson.fromJson(json, ClassWithBigDecimal.class);
-    assertEquals(expected.value, actual.value);
+    assertThat(actual.value).isEqualTo(expected.value);
   }
 
+  @Test
   public void testBadValueForBigDecimalDeserialization() {
     try {
       gson.fromJson("{\"value\"=1.5e-1.0031}", ClassWithBigDecimal.class);
@@ -261,57 +284,64 @@ public class DefaultTypeAdaptersTest extends TestCase {
     } catch (JsonParseException expected) { }
   }
 
+  @Test
   public void testBigIntegerFieldSerialization() {
     ClassWithBigInteger target = new ClassWithBigInteger("23232323215323234234324324324324324324");
     String json = gson.toJson(target);
-    assertEquals(target.getExpectedJson(), json);
+    assertThat(json).isEqualTo(target.getExpectedJson());
   }
 
+  @Test
   public void testBigIntegerFieldDeserialization() {
     ClassWithBigInteger expected = new ClassWithBigInteger("879697697697697697697697697697697697");
     String json = expected.getExpectedJson();
     ClassWithBigInteger actual = gson.fromJson(json, ClassWithBigInteger.class);
-    assertEquals(expected.value, actual.value);
+    assertThat(actual.value).isEqualTo(expected.value);
   }
 
+  @Test
   public void testOverrideBigIntegerTypeAdapter() throws Exception {
     gson = new GsonBuilder()
         .registerTypeAdapter(BigInteger.class, new NumberAsStringAdapter(BigInteger.class))
         .create();
-    assertEquals("\"123\"", gson.toJson(new BigInteger("123"), BigInteger.class));
-    assertEquals(new BigInteger("123"), gson.fromJson("\"123\"", BigInteger.class));
+    assertThat(gson.toJson(new BigInteger("123"), BigInteger.class)).isEqualTo("\"123\"");
+    assertThat(gson.fromJson("\"123\"", BigInteger.class)).isEqualTo(new BigInteger("123"));
   }
 
+  @Test
   public void testOverrideBigDecimalTypeAdapter() throws Exception {
     gson = new GsonBuilder()
         .registerTypeAdapter(BigDecimal.class, new NumberAsStringAdapter(BigDecimal.class))
         .create();
-    assertEquals("\"1.1\"", gson.toJson(new BigDecimal("1.1"), BigDecimal.class));
-    assertEquals(new BigDecimal("1.1"), gson.fromJson("\"1.1\"", BigDecimal.class));
+    assertThat(gson.toJson(new BigDecimal("1.1"), BigDecimal.class)).isEqualTo("\"1.1\"");
+    assertThat(gson.fromJson("\"1.1\"", BigDecimal.class)).isEqualTo(new BigDecimal("1.1"));
   }
 
-  public void testSetSerialization() throws Exception {
+  @Test
+  public void testSetSerialization() {
     Gson gson = new Gson();
     HashSet<String> s = new HashSet<>();
     s.add("blah");
     String json = gson.toJson(s);
-    assertEquals("[\"blah\"]", json);
+    assertThat(json).isEqualTo("[\"blah\"]");
 
     json = gson.toJson(s, Set.class);
-    assertEquals("[\"blah\"]", json);
+    assertThat(json).isEqualTo("[\"blah\"]");
   }
 
-  public void testBitSetSerialization() throws Exception {
+  @Test
+  public void testBitSetSerialization() {
     Gson gson = new Gson();
     BitSet bits = new BitSet();
     bits.set(1);
     bits.set(3, 6);
     bits.set(9);
     String json = gson.toJson(bits);
-    assertEquals("[0,1,0,1,1,1,0,0,0,1]", json);
+    assertThat(json).isEqualTo("[0,1,0,1,1,1,0,0,0,1]");
   }
 
-  public void testBitSetDeserialization() throws Exception {
+  @Test
+  public void testBitSetDeserialization() {
     BitSet expected = new BitSet();
     expected.set(0);
     expected.set(2, 6);
@@ -319,42 +349,44 @@ public class DefaultTypeAdaptersTest extends TestCase {
 
     Gson gson = new Gson();
     String json = gson.toJson(expected);
-    assertEquals(expected, gson.fromJson(json, BitSet.class));
+    assertThat(gson.fromJson(json, BitSet.class)).isEqualTo(expected);
 
     json = "[1,0,1,1,1,1,0,0,1,0,0,0]";
-    assertEquals(expected, gson.fromJson(json, BitSet.class));
+    assertThat(gson.fromJson(json, BitSet.class)).isEqualTo(expected);
 
     json = "[\"1\",\"0\",\"1\",\"1\",\"1\",\"1\",\"0\",\"0\",\"1\"]";
-    assertEquals(expected, gson.fromJson(json, BitSet.class));
+    assertThat(gson.fromJson(json, BitSet.class)).isEqualTo(expected);
 
     json = "[true,false,true,true,true,true,false,false,true,false,false]";
-    assertEquals(expected, gson.fromJson(json, BitSet.class));
+    assertThat(gson.fromJson(json, BitSet.class)).isEqualTo(expected);
 
     try {
       gson.fromJson("[1, []]", BitSet.class);
       fail();
     } catch (JsonSyntaxException e) {
-      assertEquals("Invalid bitset value type: BEGIN_ARRAY; at path $[1]", e.getMessage());
+      assertThat(e.getMessage()).isEqualTo("Invalid bitset value type: BEGIN_ARRAY; at path $[1]");
     }
 
     try {
       gson.fromJson("[1, 2]", BitSet.class);
       fail();
     } catch (JsonSyntaxException e) {
-      assertEquals("Invalid bitset value 2, expected 0 or 1; at path $[1]", e.getMessage());
+      assertThat(e).hasMessageThat().isEqualTo("Invalid bitset value 2, expected 0 or 1; at path $[1]");
     }
   }
 
+  @Test
   public void testDefaultDateSerialization() {
     Date now = new Date(1315806903103L);
     String json = gson.toJson(now);
     if (JavaVersion.isJava9OrLater()) {
-      assertEquals("\"Sep 11, 2011, 10:55:03 PM\"", json);
+      assertThat(json).isEqualTo("\"Sep 11, 2011, 10:55:03 PM\"");
     } else {
-      assertEquals("\"Sep 11, 2011 10:55:03 PM\"", json);
+      assertThat(json).isEqualTo("\"Sep 11, 2011 10:55:03 PM\"");
     }
   }
 
+  @Test
   public void testDefaultDateDeserialization() {
     String json = "'Dec 13, 2009 07:18:02 AM'";
     Date extracted = gson.fromJson(json, Date.class);
@@ -366,105 +398,114 @@ public class DefaultTypeAdaptersTest extends TestCase {
   // millisecond portion.
   @SuppressWarnings("deprecation")
   public static void assertEqualsDate(Date date, int year, int month, int day) {
-    assertEquals(year-1900, date.getYear());
-    assertEquals(month, date.getMonth());
-    assertEquals(day, date.getDate());
+    assertThat(date.getYear()).isEqualTo(year-1900);
+    assertThat(date.getMonth()).isEqualTo(month);
+    assertThat(date.getDate()).isEqualTo(day);
   }
 
   @SuppressWarnings("deprecation")
   public static void assertEqualsTime(Date date, int hours, int minutes, int seconds) {
-    assertEquals(hours, date.getHours());
-    assertEquals(minutes, date.getMinutes());
-    assertEquals(seconds, date.getSeconds());
+    assertThat(date.getHours()).isEqualTo(hours);
+    assertThat(date.getMinutes()).isEqualTo(minutes);
+    assertThat(date.getSeconds()).isEqualTo(seconds);
   }
 
-  public void testDefaultDateSerializationUsingBuilder() throws Exception {
+  @Test
+  public void testDefaultDateSerializationUsingBuilder() {
     Gson gson = new GsonBuilder().create();
     Date now = new Date(1315806903103L);
     String json = gson.toJson(now);
     if (JavaVersion.isJava9OrLater()) {
-      assertEquals("\"Sep 11, 2011, 10:55:03 PM\"", json);
+      assertThat(json).isEqualTo("\"Sep 11, 2011, 10:55:03 PM\"");
     } else {
-      assertEquals("\"Sep 11, 2011 10:55:03 PM\"", json);
+      assertThat(json).isEqualTo("\"Sep 11, 2011 10:55:03 PM\"");
     }
   }
 
-  public void testDefaultDateDeserializationUsingBuilder() throws Exception {
+  @Test
+  public void testDefaultDateDeserializationUsingBuilder() {
     Gson gson = new GsonBuilder().create();
     Date now = new Date(1315806903103L);
     String json = gson.toJson(now);
     Date extracted = gson.fromJson(json, Date.class);
-    assertEquals(now.toString(), extracted.toString());
+    assertThat(extracted.toString()).isEqualTo(now.toString());
   }
 
-  public void testDefaultCalendarSerialization() throws Exception {
+  @Test
+  public void testDefaultCalendarSerialization() {
     Gson gson = new GsonBuilder().create();
     String json = gson.toJson(Calendar.getInstance());
-    assertTrue(json.contains("year"));
-    assertTrue(json.contains("month"));
-    assertTrue(json.contains("dayOfMonth"));
-    assertTrue(json.contains("hourOfDay"));
-    assertTrue(json.contains("minute"));
-    assertTrue(json.contains("second"));
+    assertThat(json).contains("year");
+    assertThat(json).contains("month");
+    assertThat(json).contains("dayOfMonth");
+    assertThat(json).contains("hourOfDay");
+    assertThat(json).contains("minute");
+    assertThat(json).contains("second");
   }
 
-  public void testDefaultCalendarDeserialization() throws Exception {
+  @Test
+  public void testDefaultCalendarDeserialization() {
     Gson gson = new GsonBuilder().create();
     String json = "{year:2009,month:2,dayOfMonth:11,hourOfDay:14,minute:29,second:23}";
     Calendar cal = gson.fromJson(json, Calendar.class);
-    assertEquals(2009, cal.get(Calendar.YEAR));
-    assertEquals(2, cal.get(Calendar.MONTH));
-    assertEquals(11, cal.get(Calendar.DAY_OF_MONTH));
-    assertEquals(14, cal.get(Calendar.HOUR_OF_DAY));
-    assertEquals(29, cal.get(Calendar.MINUTE));
-    assertEquals(23, cal.get(Calendar.SECOND));
+    assertThat(cal.get(Calendar.YEAR)).isEqualTo(2009);
+    assertThat(cal.get(Calendar.MONTH)).isEqualTo(2);
+    assertThat(cal.get(Calendar.DAY_OF_MONTH)).isEqualTo(11);
+    assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(14);
+    assertThat(cal.get(Calendar.MINUTE)).isEqualTo(29);
+    assertThat(cal.get(Calendar.SECOND)).isEqualTo(23);
   }
 
-  public void testDefaultGregorianCalendarSerialization() throws Exception {
+  @Test
+  public void testDefaultGregorianCalendarSerialization() {
     Gson gson = new GsonBuilder().create();
     GregorianCalendar cal = new GregorianCalendar();
     String json = gson.toJson(cal);
-    assertTrue(json.contains("year"));
-    assertTrue(json.contains("month"));
-    assertTrue(json.contains("dayOfMonth"));
-    assertTrue(json.contains("hourOfDay"));
-    assertTrue(json.contains("minute"));
-    assertTrue(json.contains("second"));
+    assertThat(json).contains("year");
+    assertThat(json).contains("month");
+    assertThat(json).contains("dayOfMonth");
+    assertThat(json).contains("hourOfDay");
+    assertThat(json).contains("minute");
+    assertThat(json).contains("second");
   }
 
-  public void testDefaultGregorianCalendarDeserialization() throws Exception {
+  @Test
+  public void testDefaultGregorianCalendarDeserialization() {
     Gson gson = new GsonBuilder().create();
     String json = "{year:2009,month:2,dayOfMonth:11,hourOfDay:14,minute:29,second:23}";
     GregorianCalendar cal = gson.fromJson(json, GregorianCalendar.class);
-    assertEquals(2009, cal.get(Calendar.YEAR));
-    assertEquals(2, cal.get(Calendar.MONTH));
-    assertEquals(11, cal.get(Calendar.DAY_OF_MONTH));
-    assertEquals(14, cal.get(Calendar.HOUR_OF_DAY));
-    assertEquals(29, cal.get(Calendar.MINUTE));
-    assertEquals(23, cal.get(Calendar.SECOND));
+    assertThat(cal.get(Calendar.YEAR)).isEqualTo(2009);
+    assertThat(cal.get(Calendar.MONTH)).isEqualTo(2);
+    assertThat(cal.get(Calendar.DAY_OF_MONTH)).isEqualTo(11);
+    assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(14);
+    assertThat(cal.get(Calendar.MINUTE)).isEqualTo(29);
+    assertThat(cal.get(Calendar.SECOND)).isEqualTo(23);
   }
 
-  public void testDateSerializationWithPattern() throws Exception {
+  @Test
+  public void testDateSerializationWithPattern() {
     String pattern = "yyyy-MM-dd";
     Gson gson = new GsonBuilder().setDateFormat(DateFormat.FULL).setDateFormat(pattern).create();
     Date now = new Date(1315806903103L);
     String json = gson.toJson(now);
-    assertEquals("\"2011-09-11\"", json);
+    assertThat(json).isEqualTo("\"2011-09-11\"");
   }
 
   @SuppressWarnings("deprecation")
-  public void testDateDeserializationWithPattern() throws Exception {
+  @Test
+  public void testDateDeserializationWithPattern() {
     String pattern = "yyyy-MM-dd";
     Gson gson = new GsonBuilder().setDateFormat(DateFormat.FULL).setDateFormat(pattern).create();
     Date now = new Date(1315806903103L);
     String json = gson.toJson(now);
     Date extracted = gson.fromJson(json, Date.class);
-    assertEquals(now.getYear(), extracted.getYear());
-    assertEquals(now.getMonth(), extracted.getMonth());
-    assertEquals(now.getDay(), extracted.getDay());
+    assertThat(extracted.getYear()).isEqualTo(now.getYear());
+    assertThat(extracted.getMonth()).isEqualTo(now.getMonth());
+    assertThat(extracted.getDay()).isEqualTo(now.getDay());
   }
 
-  public void testDateSerializationWithPatternNotOverridenByTypeAdapter() throws Exception {
+  @Test
+  public void testDateSerializationWithPatternNotOverridenByTypeAdapter() {
     String pattern = "yyyy-MM-dd";
     Gson gson = new GsonBuilder()
         .setDateFormat(pattern)
@@ -479,11 +520,12 @@ public class DefaultTypeAdaptersTest extends TestCase {
 
     Date now = new Date(1315806903103L);
     String json = gson.toJson(now);
-    assertEquals("\"2011-09-11\"", json);
+    assertThat(json).isEqualTo("\"2011-09-11\"");
   }
 
   // http://code.google.com/p/google-gson/issues/detail?id=230
-  public void testDateSerializationInCollection() throws Exception {
+  @Test
+  public void testDateSerializationInCollection() {
     Type listOfDates = new TypeToken<List<Date>>() {}.getType();
     TimeZone defaultTimeZone = TimeZone.getDefault();
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
@@ -493,50 +535,56 @@ public class DefaultTypeAdaptersTest extends TestCase {
       Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
       List<Date> dates = Arrays.asList(new Date(0));
       String json = gson.toJson(dates, listOfDates);
-      assertEquals("[\"1970-01-01\"]", json);
-      assertEquals(0L, gson.<List<Date>>fromJson("[\"1970-01-01\"]", listOfDates).get(0).getTime());
+      assertThat(json).isEqualTo("[\"1970-01-01\"]");
+      assertThat(gson.<List<Date>>fromJson("[\"1970-01-01\"]", listOfDates).get(0).getTime()).isEqualTo(0L);
     } finally {
       TimeZone.setDefault(defaultTimeZone);
       Locale.setDefault(defaultLocale);
     }
   }
 
+  @Test
   public void testJsonPrimitiveSerialization() {
-    assertEquals("5", gson.toJson(new JsonPrimitive(5), JsonElement.class));
-    assertEquals("true", gson.toJson(new JsonPrimitive(true), JsonElement.class));
-    assertEquals("\"foo\"", gson.toJson(new JsonPrimitive("foo"), JsonElement.class));
-    assertEquals("\"a\"", gson.toJson(new JsonPrimitive('a'), JsonElement.class));
+    assertThat(gson.toJson(new JsonPrimitive(5), JsonElement.class)).isEqualTo("5");
+    assertThat(gson.toJson(new JsonPrimitive(true), JsonElement.class)).isEqualTo("true");
+    assertThat(gson.toJson(new JsonPrimitive("foo"), JsonElement.class)).isEqualTo("\"foo\"");
+    assertThat(gson.toJson(new JsonPrimitive('a'), JsonElement.class)).isEqualTo("\"a\"");
   }
 
+  @Test
   public void testJsonPrimitiveDeserialization() {
-    assertEquals(new JsonPrimitive(5), gson.fromJson("5", JsonElement.class));
-    assertEquals(new JsonPrimitive(5), gson.fromJson("5", JsonPrimitive.class));
-    assertEquals(new JsonPrimitive(true), gson.fromJson("true", JsonElement.class));
-    assertEquals(new JsonPrimitive(true), gson.fromJson("true", JsonPrimitive.class));
-    assertEquals(new JsonPrimitive("foo"), gson.fromJson("\"foo\"", JsonElement.class));
-    assertEquals(new JsonPrimitive("foo"), gson.fromJson("\"foo\"", JsonPrimitive.class));
-    assertEquals(new JsonPrimitive('a'), gson.fromJson("\"a\"", JsonElement.class));
-    assertEquals(new JsonPrimitive('a'), gson.fromJson("\"a\"", JsonPrimitive.class));
+    assertThat(gson.fromJson("5", JsonElement.class)).isEqualTo(new JsonPrimitive(5));
+    assertThat(gson.fromJson("5", JsonPrimitive.class)).isEqualTo(new JsonPrimitive(5));
+    assertThat(gson.fromJson("true", JsonElement.class)).isEqualTo(new JsonPrimitive(true));
+    assertThat(gson.fromJson("true", JsonPrimitive.class)).isEqualTo(new JsonPrimitive(true));
+    assertThat(gson.fromJson("\"foo\"", JsonElement.class)).isEqualTo(new JsonPrimitive("foo"));
+    assertThat(gson.fromJson("\"foo\"", JsonPrimitive.class)).isEqualTo(new JsonPrimitive("foo"));
+    assertThat(gson.fromJson("\"a\"", JsonElement.class)).isEqualTo(new JsonPrimitive('a'));
+    assertThat(gson.fromJson("\"a\"", JsonPrimitive.class)).isEqualTo(new JsonPrimitive('a'));
   }
 
+  @Test
   public void testJsonNullSerialization() {
-    assertEquals("null", gson.toJson(JsonNull.INSTANCE, JsonElement.class));
-    assertEquals("null", gson.toJson(JsonNull.INSTANCE, JsonNull.class));
+    assertThat(gson.toJson(JsonNull.INSTANCE, JsonElement.class)).isEqualTo("null");
+    assertThat(gson.toJson(JsonNull.INSTANCE, JsonNull.class)).isEqualTo("null");
   }
 
+  @Test
   public void testNullJsonElementSerialization() {
-    assertEquals("null", gson.toJson(null, JsonElement.class));
-    assertEquals("null", gson.toJson(null, JsonNull.class));
+    assertThat(gson.toJson(null, JsonElement.class)).isEqualTo("null");
+    assertThat(gson.toJson(null, JsonNull.class)).isEqualTo("null");
   }
 
+  @Test
   public void testJsonArraySerialization() {
     JsonArray array = new JsonArray();
     array.add(new JsonPrimitive(1));
     array.add(new JsonPrimitive(2));
     array.add(new JsonPrimitive(3));
-    assertEquals("[1,2,3]", gson.toJson(array, JsonElement.class));
+    assertThat(gson.toJson(array, JsonElement.class)).isEqualTo("[1,2,3]");
   }
 
+  @Test
   public void testJsonArrayDeserialization() {
     JsonArray array = new JsonArray();
     array.add(new JsonPrimitive(1));
@@ -544,17 +592,19 @@ public class DefaultTypeAdaptersTest extends TestCase {
     array.add(new JsonPrimitive(3));
 
     String json = "[1,2,3]";
-    assertEquals(array, gson.fromJson(json, JsonElement.class));
-    assertEquals(array, gson.fromJson(json, JsonArray.class));
+    assertThat(gson.fromJson(json, JsonElement.class)).isEqualTo(array);
+    assertThat(gson.fromJson(json, JsonArray.class)).isEqualTo(array);
   }
 
+  @Test
   public void testJsonObjectSerialization() {
     JsonObject object = new JsonObject();
     object.add("foo", new JsonPrimitive(1));
     object.add("bar", new JsonPrimitive(2));
-    assertEquals("{\"foo\":1,\"bar\":2}", gson.toJson(object, JsonElement.class));
+    assertThat(gson.toJson(object, JsonElement.class)).isEqualTo("{\"foo\":1,\"bar\":2}");
   }
 
+  @Test
   public void testJsonObjectDeserialization() {
     JsonObject object = new JsonObject();
     object.add("foo", new JsonPrimitive(1));
@@ -562,24 +612,25 @@ public class DefaultTypeAdaptersTest extends TestCase {
 
     String json = "{\"foo\":1,\"bar\":2}";
     JsonElement actual = gson.fromJson(json, JsonElement.class);
-    assertEquals(object, actual);
+    assertThat(actual).isEqualTo(object);
 
     JsonObject actualObj = gson.fromJson(json, JsonObject.class);
-    assertEquals(object, actualObj);
+    assertThat(actualObj).isEqualTo(object);
   }
 
+  @Test
   public void testJsonNullDeserialization() {
-    assertEquals(JsonNull.INSTANCE, gson.fromJson("null", JsonElement.class));
-    assertEquals(JsonNull.INSTANCE, gson.fromJson("null", JsonNull.class));
+    assertThat(gson.fromJson("null", JsonElement.class)).isEqualTo(JsonNull.INSTANCE);
+    assertThat(gson.fromJson("null", JsonNull.class)).isEqualTo(JsonNull.INSTANCE);
   }
 
+  @Test
   public void testJsonElementTypeMismatch() {
     try {
       gson.fromJson("\"abc\"", JsonObject.class);
       fail();
     } catch (JsonSyntaxException expected) {
-      assertEquals("Expected a com.google.gson.JsonObject but was com.google.gson.JsonPrimitive; at path $",
-          expected.getMessage());
+      assertThat(expected.getMessage()).isEqualTo("Expected a com.google.gson.JsonObject but was com.google.gson.JsonPrimitive; at path $");
     }
   }
 
@@ -603,54 +654,62 @@ public class DefaultTypeAdaptersTest extends TestCase {
     }
   }
 
+  @Test
   public void testPropertiesSerialization() {
     Properties props = new Properties();
     props.setProperty("foo", "bar");
     String json = gson.toJson(props);
     String expected = "{\"foo\":\"bar\"}";
-    assertEquals(expected, json);
+    assertThat(json).isEqualTo(expected);
   }
 
+  @Test
   public void testPropertiesDeserialization() {
     String json = "{foo:'bar'}";
     Properties props = gson.fromJson(json, Properties.class);
-    assertEquals("bar", props.getProperty("foo"));
+    assertThat(props.getProperty("foo")).isEqualTo("bar");
   }
 
+  @Test
   public void testTreeSetSerialization() {
     TreeSet<String> treeSet = new TreeSet<>();
     treeSet.add("Value1");
     String json = gson.toJson(treeSet);
-    assertEquals("[\"Value1\"]", json);
+    assertThat(json).isEqualTo("[\"Value1\"]");
   }
 
+  @Test
   public void testTreeSetDeserialization() {
     String json = "['Value1']";
     Type type = new TypeToken<TreeSet<String>>() {}.getType();
     TreeSet<String> treeSet = gson.fromJson(json, type);
-    assertTrue(treeSet.contains("Value1"));
+    assertThat(treeSet).contains("Value1");
   }
 
+  @Test
   public void testStringBuilderSerialization() {
     StringBuilder sb = new StringBuilder("abc");
     String json = gson.toJson(sb);
-    assertEquals("\"abc\"", json);
+    assertThat(json).isEqualTo("\"abc\"");
   }
 
+  @Test
   public void testStringBuilderDeserialization() {
     StringBuilder sb = gson.fromJson("'abc'", StringBuilder.class);
-    assertEquals("abc", sb.toString());
+    assertThat(sb.toString()).isEqualTo("abc");
   }
 
+  @Test
   public void testStringBufferSerialization() {
     StringBuffer sb = new StringBuffer("abc");
     String json = gson.toJson(sb);
-    assertEquals("\"abc\"", json);
+    assertThat(json).isEqualTo("\"abc\"");
   }
 
+  @Test
   public void testStringBufferDeserialization() {
     StringBuffer sb = gson.fromJson("'abc'", StringBuffer.class);
-    assertEquals("abc", sb.toString());
+    assertThat(sb.toString()).isEqualTo("abc");
   }
 
   private static class MyClassTypeAdapter extends TypeAdapter<Class<?>> {

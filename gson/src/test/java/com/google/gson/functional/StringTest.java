@@ -1,8 +1,26 @@
+/*
+ * Copyright (C) 2008 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.google.gson.functional;
 
-import com.google.gson.Gson;
+import static com.google.common.truth.Truth.assertThat;
 
-import junit.framework.TestCase;
+import com.google.gson.Gson;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Functional tests for Json serialization and deserialization of strings.
@@ -10,131 +28,148 @@ import junit.framework.TestCase;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class StringTest extends TestCase {
+public class StringTest {
   private Gson gson;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void setUp() throws Exception {
     gson = new Gson();
   }
 
-  public void testStringValueSerialization() throws Exception {
+  @Test
+  public void testStringValueSerialization() {
     String value = "someRandomStringValue";
-    assertEquals('"' + value + '"', gson.toJson(value));
+    assertThat(gson.toJson(value)).isEqualTo('"' + value + '"');
   }
 
-  public void testStringValueDeserialization() throws Exception {
+  @Test
+  public void testStringValueDeserialization() {
     String value = "someRandomStringValue";
     String actual = gson.fromJson("\"" + value + "\"", String.class);
-    assertEquals(value, actual);
+    assertThat(actual).isEqualTo(value);
   }
 
-  public void testSingleQuoteInStringSerialization() throws Exception {
+  @Test
+  public void testSingleQuoteInStringSerialization() {
     String valueWithQuotes = "beforeQuote'afterQuote";
     String jsonRepresentation = gson.toJson(valueWithQuotes);
-    assertEquals(valueWithQuotes, gson.fromJson(jsonRepresentation, String.class));
+    assertThat(gson.fromJson(jsonRepresentation, String.class)).isEqualTo(valueWithQuotes);
   }
 
-  public void testEscapedCtrlNInStringSerialization() throws Exception {
+  @Test
+  public void testEscapedCtrlNInStringSerialization() {
     String value = "a\nb";
     String json = gson.toJson(value);
-    assertEquals("\"a\\nb\"", json);
+    assertThat(json).isEqualTo("\"a\\nb\"");
   }
 
-  public void testEscapedCtrlNInStringDeserialization() throws Exception {
+  @Test
+  public void testEscapedCtrlNInStringDeserialization() {
     String json = "'a\\nb'";
     String actual = gson.fromJson(json, String.class);
-    assertEquals("a\nb", actual);
+    assertThat(actual).isEqualTo("a\nb");
   }
 
-  public void testEscapedCtrlRInStringSerialization() throws Exception {
+  @Test
+  public void testEscapedCtrlRInStringSerialization() {
     String value = "a\rb";
     String json = gson.toJson(value);
-    assertEquals("\"a\\rb\"", json);
+    assertThat(json).isEqualTo("\"a\\rb\"");
   }
 
-  public void testEscapedCtrlRInStringDeserialization() throws Exception {
+  @Test
+  public void testEscapedCtrlRInStringDeserialization() {
     String json = "'a\\rb'";
     String actual = gson.fromJson(json, String.class);
-    assertEquals("a\rb", actual);
+    assertThat(actual).isEqualTo("a\rb");
   }
 
-  public void testEscapedBackslashInStringSerialization() throws Exception {
+  @Test
+  public void testEscapedBackslashInStringSerialization() {
     String value = "a\\b";
     String json = gson.toJson(value);
-    assertEquals("\"a\\\\b\"", json);
+    assertThat(json).isEqualTo("\"a\\\\b\"");
   }
 
-  public void testEscapedBackslashInStringDeserialization() throws Exception {
+  @Test
+  public void testEscapedBackslashInStringDeserialization() {
     String actual = gson.fromJson("'a\\\\b'", String.class);
-    assertEquals("a\\b", actual);
+    assertThat(actual).isEqualTo("a\\b");
   }
 
-  public void testSingleQuoteInStringDeserialization() throws Exception {
+  @Test
+  public void testSingleQuoteInStringDeserialization() {
     String value = "beforeQuote'afterQuote";
     String actual = gson.fromJson("\"" + value + "\"", String.class);
-    assertEquals(value, actual);
+    assertThat(actual).isEqualTo(value);
   }
 
-  public void testEscapingQuotesInStringSerialization() throws Exception {
+  @Test
+  public void testEscapingQuotesInStringSerialization() {
     String valueWithQuotes = "beforeQuote\"afterQuote";
     String jsonRepresentation = gson.toJson(valueWithQuotes);
     String target = gson.fromJson(jsonRepresentation, String.class);
-    assertEquals(valueWithQuotes, target);
+    assertThat(target).isEqualTo(valueWithQuotes);
   }
 
-  public void testEscapingQuotesInStringDeserialization() throws Exception {
+  @Test
+  public void testEscapingQuotesInStringDeserialization() {
     String value = "beforeQuote\\\"afterQuote";
     String actual = gson.fromJson("\"" + value + "\"", String.class);
     String expected = "beforeQuote\"afterQuote";
-    assertEquals(expected, actual);
+    assertThat(actual).isEqualTo(expected);
   }
 
-  public void testStringValueAsSingleElementArraySerialization() throws Exception {
+  @Test
+  public void testStringValueAsSingleElementArraySerialization() {
     String[] target = {"abc"};
-    assertEquals("[\"abc\"]", gson.toJson(target));
-    assertEquals("[\"abc\"]", gson.toJson(target, String[].class));
+    assertThat(gson.toJson(target)).isEqualTo("[\"abc\"]");
+    assertThat(gson.toJson(target, String[].class)).isEqualTo("[\"abc\"]");
   }
 
+  @Test
   public void testStringWithEscapedSlashDeserialization() {
     String value = "/";
     String json = "'\\/'";
     String actual = gson.fromJson(json, String.class);
-    assertEquals(value, actual);
+    assertThat(actual).isEqualTo(value);
   }
 
   /**
    * Created in response to http://groups.google.com/group/google-gson/browse_thread/thread/2431d4a3d0d6cb23
    */
+  @Test
   public void testAssignmentCharSerialization() {
     String value = "abc=";
     String json = gson.toJson(value);
-    assertEquals("\"abc\\u003d\"", json);
+    assertThat(json).isEqualTo("\"abc\\u003d\"");
   }
 
   /**
    * Created in response to http://groups.google.com/group/google-gson/browse_thread/thread/2431d4a3d0d6cb23
    */
+  @Test
   public void testAssignmentCharDeserialization() {
     String json = "\"abc=\"";
     String value = gson.fromJson(json, String.class);
-    assertEquals("abc=", value);
+    assertThat(value).isEqualTo("abc=");
 
     json = "'abc\u003d'";
     value = gson.fromJson(json, String.class);
-    assertEquals("abc=", value);
+    assertThat(value).isEqualTo("abc=");
   }
 
+  @Test
   public void testJavascriptKeywordsInStringSerialization() {
     String value = "null true false function";
     String json = gson.toJson(value);
-    assertEquals("\"" + value + "\"", json);
+    assertThat(json).isEqualTo("\"" + value + "\"");
   }
 
+  @Test
   public void testJavascriptKeywordsInStringDeserialization() {
     String json = "'null true false function'";
     String value = gson.fromJson(json, String.class);
-    assertEquals(json.substring(1, json.length() - 1), value);
+    assertThat(json.substring(1, json.length() - 1)).isEqualTo(value);
   }
 }

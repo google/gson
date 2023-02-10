@@ -16,23 +16,26 @@
 
 package com.google.gson;
 
-import java.io.CharArrayReader;
-import java.io.CharArrayWriter;
-import java.io.IOException;
-import java.io.StringReader;
-import junit.framework.TestCase;
+import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.fail;
 
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
+import java.io.CharArrayReader;
+import java.io.CharArrayWriter;
+import java.io.IOException;
+import java.io.StringReader;
+import org.junit.Test;
 
 /**
  * Unit test for {@link JsonParser}
  *
  * @author Inderjeet Singh
  */
-public class JsonParserTest extends TestCase {
+public class JsonParserTest {
 
+  @Test
   public void testParseInvalidJson() {
     try {
       JsonParser.parseString("[[]");
@@ -40,37 +43,43 @@ public class JsonParserTest extends TestCase {
     } catch (JsonSyntaxException expected) { }
   }
 
+  @Test
   public void testParseUnquotedStringArrayFails() {
     JsonElement element = JsonParser.parseString("[a,b,c]");
-    assertEquals("a", element.getAsJsonArray().get(0).getAsString());
-    assertEquals("b", element.getAsJsonArray().get(1).getAsString());
-    assertEquals("c", element.getAsJsonArray().get(2).getAsString());
-    assertEquals(3, element.getAsJsonArray().size());
+    assertThat(element.getAsJsonArray().get(0).getAsString()).isEqualTo("a");
+    assertThat(element.getAsJsonArray().get(1).getAsString()).isEqualTo("b");
+    assertThat(element.getAsJsonArray().get(2).getAsString()).isEqualTo("c");
+    assertThat(element.getAsJsonArray()).hasSize(3);
   }
 
+  @Test
   public void testParseString() {
     String json = "{a:10,b:'c'}";
     JsonElement e = JsonParser.parseString(json);
-    assertTrue(e.isJsonObject());
-    assertEquals(10, e.getAsJsonObject().get("a").getAsInt());
-    assertEquals("c", e.getAsJsonObject().get("b").getAsString());
+    assertThat(e.isJsonObject()).isTrue();
+    assertThat(e.getAsJsonObject().get("a").getAsInt()).isEqualTo(10);
+    assertThat(e.getAsJsonObject().get("b").getAsString()).isEqualTo("c");
   }
 
+  @Test
   public void testParseEmptyString() {
     JsonElement e = JsonParser.parseString("\"   \"");
-    assertTrue(e.isJsonPrimitive());
-    assertEquals("   ", e.getAsString());
+    assertThat(e.isJsonPrimitive()).isTrue();
+    assertThat(e.getAsString()).isEqualTo("   ");
   }
 
+  @Test
   public void testParseEmptyWhitespaceInput() {
     JsonElement e = JsonParser.parseString("     ");
-    assertTrue(e.isJsonNull());
+    assertThat(e.isJsonNull()).isTrue();
   }
 
+  @Test
   public void testParseUnquotedSingleWordStringFails() {
-    assertEquals("Test", JsonParser.parseString("Test").getAsString());
+    assertThat(JsonParser.parseString("Test").getAsString()).isEqualTo("Test");
   }
 
+  @Test
   public void testParseUnquotedMultiWordStringFails() {
     String unquotedSentence = "Test is a test..blah blah";
     try {
@@ -79,15 +88,16 @@ public class JsonParserTest extends TestCase {
     } catch (JsonSyntaxException expected) { }
   }
 
+  @Test
   public void testParseMixedArray() {
     String json = "[{},13,\"stringValue\"]";
     JsonElement e = JsonParser.parseString(json);
-    assertTrue(e.isJsonArray());
+    assertThat(e.isJsonArray()).isTrue();
 
     JsonArray  array = e.getAsJsonArray();
-    assertEquals("{}", array.get(0).toString());
-    assertEquals(13, array.get(1).getAsInt());
-    assertEquals("stringValue", array.get(2).getAsString());
+    assertThat(array.get(0).toString()).isEqualTo("{}");
+    assertThat(array.get(1).getAsInt()).isEqualTo(13);
+    assertThat(array.get(2).getAsString()).isEqualTo("stringValue");
   }
 
   private static String repeat(String s, int times) {
@@ -99,6 +109,7 @@ public class JsonParserTest extends TestCase {
   }
 
   /** Deeply nested JSON arrays should not cause {@link StackOverflowError} */
+  @Test
   public void testParseDeeplyNestedArrays() throws IOException {
     int times = 10000;
     // [[[ ... ]]]
@@ -111,13 +122,14 @@ public class JsonParserTest extends TestCase {
       if (current.isEmpty()) {
         break;
       }
-      assertEquals(1, current.size());
+      assertThat(current.size()).isEqualTo(1);
       current = current.get(0).getAsJsonArray();
     }
-    assertEquals(times, actualTimes);
+    assertThat(actualTimes).isEqualTo(times);
   }
 
   /** Deeply nested JSON objects should not cause {@link StackOverflowError} */
+  @Test
   public void testParseDeeplyNestedObjects() throws IOException {
     int times = 10000;
     // {"a":{"a": ... {"a":null} ... }}
@@ -126,7 +138,7 @@ public class JsonParserTest extends TestCase {
     int actualTimes = 0;
     JsonObject current = JsonParser.parseString(json).getAsJsonObject();
     while (true) {
-      assertEquals(1, current.size());
+      assertThat(current.size()).isEqualTo(1);
       actualTimes++;
       JsonElement next = current.get("a");
       if (next.isJsonNull()) {
@@ -135,17 +147,19 @@ public class JsonParserTest extends TestCase {
         current = next.getAsJsonObject();
       }
     }
-    assertEquals(times, actualTimes);
+    assertThat(actualTimes).isEqualTo(times);
   }
 
+  @Test
   public void testParseReader() {
     StringReader reader = new StringReader("{a:10,b:'c'}");
     JsonElement e = JsonParser.parseReader(reader);
-    assertTrue(e.isJsonObject());
-    assertEquals(10, e.getAsJsonObject().get("a").getAsInt());
-    assertEquals("c", e.getAsJsonObject().get("b").getAsString());
+    assertThat(e.isJsonObject()).isTrue();
+    assertThat(e.getAsJsonObject().get("a").getAsInt()).isEqualTo(10);
+    assertThat(e.getAsJsonObject().get("b").getAsString()).isEqualTo("c");
   }
 
+  @Test
   public void testReadWriteTwoObjects() throws Exception {
     Gson gson = new Gson();
     CharArrayWriter writer = new CharArrayWriter();
@@ -160,8 +174,8 @@ public class JsonParserTest extends TestCase {
     JsonElement element1 = Streams.parse(parser);
     JsonElement element2 = Streams.parse(parser);
     BagOfPrimitives actualOne = gson.fromJson(element1, BagOfPrimitives.class);
-    assertEquals("one", actualOne.stringValue);
+    assertThat(actualOne.stringValue).isEqualTo("one");
     BagOfPrimitives actualTwo = gson.fromJson(element2, BagOfPrimitives.class);
-    assertEquals("two", actualTwo.stringValue);
+    assertThat(actualTwo.stringValue).isEqualTo("two");
   }
 }

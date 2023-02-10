@@ -15,10 +15,7 @@
  */
 package com.google.gson.functional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 
@@ -55,24 +52,24 @@ public final class Java17RecordTest {
   public void testFirstNameIsChosenForSerialization() {
     RecordWithCustomNames target = new RecordWithCustomNames("v1", "v2");
     // Ensure name1 occurs exactly once, and name2 and name3 don't appear
-    assertEquals("{\"name\":\"v1\",\"name1\":\"v2\"}", gson.toJson(target));
+    assertThat(gson.toJson(target)).isEqualTo("{\"name\":\"v1\",\"name1\":\"v2\"}");
   }
 
   @Test
   public void testMultipleNamesDeserializedCorrectly() {
-    assertEquals("v1", gson.fromJson("{'name':'v1'}", RecordWithCustomNames.class).a);
+    assertThat(gson.fromJson("{'name':'v1'}", RecordWithCustomNames.class).a).isEqualTo("v1");
 
     // Both name1 and name2 gets deserialized to b
-    assertEquals("v11", gson.fromJson("{'name': 'v1', 'name1':'v11'}", RecordWithCustomNames.class).b);
-    assertEquals("v2", gson.fromJson("{'name': 'v1', 'name2':'v2'}", RecordWithCustomNames.class).b);
-    assertEquals("v3", gson.fromJson("{'name': 'v1', 'name3':'v3'}", RecordWithCustomNames.class).b);
+    assertThat(gson.fromJson("{'name': 'v1', 'name1':'v11'}", RecordWithCustomNames.class).b).isEqualTo("v11");
+    assertThat(gson.fromJson("{'name': 'v1', 'name2':'v2'}", RecordWithCustomNames.class).b).isEqualTo("v2");
+    assertThat(gson.fromJson("{'name': 'v1', 'name3':'v3'}", RecordWithCustomNames.class).b).isEqualTo("v3");
   }
 
   @Test
   public void testMultipleNamesInTheSameString() {
     // The last value takes precedence
-    assertEquals("v3",
-        gson.fromJson("{'name': 'foo', 'name1':'v1','name2':'v2','name3':'v3'}", RecordWithCustomNames.class).b);
+    assertThat(gson.fromJson("{'name': 'foo', 'name1':'v1','name2':'v2','name3':'v3'}", RecordWithCustomNames.class).b)
+        .isEqualTo("v3");
   }
 
   private record RecordWithCustomNames(
@@ -90,8 +87,8 @@ public final class Java17RecordTest {
     }
 
     var exception = assertThrows(JsonIOException.class, () -> gson.getAdapter(LocalRecord.class));
-    assertEquals("@SerializedName on method '" + LocalRecord.class.getName() + "#i()' is not supported",
-        exception.getMessage());
+    assertThat(exception).hasMessageThat()
+            .isEqualTo("@SerializedName on method '" + LocalRecord.class.getName() + "#i()' is not supported");
   }
 
   @Test
@@ -102,8 +99,8 @@ public final class Java17RecordTest {
         .setFieldNamingStrategy(f -> f.getName() + "-custom")
         .create();
 
-    assertEquals("{\"i-custom\":1}", gson.toJson(new LocalRecord(1)));
-    assertEquals(new LocalRecord(2), gson.fromJson("{\"i-custom\":2}", LocalRecord.class));
+    assertThat(gson.toJson(new LocalRecord(1))).isEqualTo("{\"i-custom\":1}");
+    assertThat(gson.fromJson("{\"i-custom\":2}", LocalRecord.class)).isEqualTo(new LocalRecord(2));
   }
 
   @Test
@@ -111,7 +108,7 @@ public final class Java17RecordTest {
     record LocalRecord(int i) {}
 
     // Unknown property 'x' should be ignored
-    assertEquals(new LocalRecord(1), gson.fromJson("{\"i\":1,\"x\":2}", LocalRecord.class));
+    assertThat(gson.fromJson("{\"i\":1,\"x\":2}", LocalRecord.class)).isEqualTo(new LocalRecord(1));
   }
 
   @Test
@@ -120,7 +117,7 @@ public final class Java17RecordTest {
 
     String json = "{\"a\":null,\"a\":2,\"b\":1,\"b\":null}";
     // Should use value of last occurrence
-    assertEquals(new LocalRecord(2, null), gson.fromJson(json, LocalRecord.class));
+    assertThat(gson.fromJson(json, LocalRecord.class)).isEqualTo(new LocalRecord(2, null));
   }
 
   @Test
@@ -132,8 +129,8 @@ public final class Java17RecordTest {
     }
 
     LocalRecord deserialized = gson.fromJson("{\"s\": null}", LocalRecord.class);
-    assertEquals(new LocalRecord(null), deserialized);
-    assertEquals("custom-null", deserialized.s());
+    assertThat(deserialized).isEqualTo(new LocalRecord(null));
+    assertThat(deserialized.s()).isEqualTo("custom-null");
   }
 
   /** Tests behavior when the canonical constructor throws an exception */
@@ -154,9 +151,9 @@ public final class Java17RecordTest {
     }
     // TODO: Adjust this once Gson throws more specific exception type
     catch (RuntimeException e) {
-      assertEquals("Failed to invoke constructor '" + LocalRecord.class.getName() + "(String)' with args [value]",
-          e.getMessage());
-      assertSame(LocalRecord.thrownException, e.getCause());
+      assertThat(e).hasMessageThat()
+              .isEqualTo("Failed to invoke constructor '" + LocalRecord.class.getName() + "(String)' with args [value]");
+      assertThat(e).hasCauseThat().isSameInstanceAs(LocalRecord.thrownException);
     }
   }
 
@@ -169,7 +166,7 @@ public final class Java17RecordTest {
       }
     }
 
-    assertEquals("{\"s\":\"accessor-value\"}", gson.toJson(new LocalRecord(null)));
+    assertThat(gson.toJson(new LocalRecord(null))).isEqualTo("{\"s\":\"accessor-value\"}");
   }
 
   /** Tests behavior when a record accessor method throws an exception */
@@ -188,9 +185,9 @@ public final class Java17RecordTest {
       gson.toJson(new LocalRecord("a"));
       fail();
     } catch (JsonIOException e) {
-      assertEquals("Accessor method '" + LocalRecord.class.getName() + "#s()' threw exception",
-          e.getMessage());
-      assertSame(LocalRecord.thrownException, e.getCause());
+      assertThat(e).hasMessageThat()
+          .isEqualTo("Accessor method '" + LocalRecord.class.getName() + "#s()' threw exception");
+      assertThat(e).hasCauseThat().isSameInstanceAs(LocalRecord.thrownException);
     }
   }
 
@@ -199,8 +196,8 @@ public final class Java17RecordTest {
   public void testEmptyRecord() {
     record EmptyRecord() {}
 
-    assertEquals("{}", gson.toJson(new EmptyRecord()));
-    assertEquals(new EmptyRecord(), gson.fromJson("{}", EmptyRecord.class));
+    assertThat(gson.toJson(new EmptyRecord())).isEqualTo("{}");
+    assertThat(gson.fromJson("{}", EmptyRecord.class)).isEqualTo(new EmptyRecord());
   }
 
   /**
@@ -212,22 +209,22 @@ public final class Java17RecordTest {
     record LocalRecord(int i) {}
 
     TypeAdapter<LocalRecord> adapter = gson.getAdapter(LocalRecord.class);
-    assertEquals("null", adapter.toJson(null));
-    assertNull(adapter.fromJson("null"));
+    assertThat(adapter.toJson(null)).isEqualTo("null");
+    assertThat(adapter.fromJson("null")).isNull();
   }
 
   @Test
   public void testPrimitiveDefaultValues() {
     RecordWithPrimitives expected = new RecordWithPrimitives("s", (byte) 0, (short) 0, 0, 0, 0, 0, '\0', false);
-    assertEquals(expected, gson.fromJson("{'aString': 's'}", RecordWithPrimitives.class));
+    assertThat(gson.fromJson("{'aString': 's'}", RecordWithPrimitives.class)).isEqualTo(expected);
   }
 
   @Test
   public void testPrimitiveJsonNullValue() {
     String s = "{'aString': 's', 'aByte': null, 'aShort': 0}";
     var e = assertThrows(JsonParseException.class, () -> gson.fromJson(s, RecordWithPrimitives.class));
-    assertEquals("null is not allowed as value for record component 'aByte' of primitive type; at path $.aByte",
-        e.getMessage());
+    assertThat(e).hasMessageThat()
+            .isEqualTo("null is not allowed as value for record component 'aByte' of primitive type; at path $.aByte");
   }
 
   /**
@@ -252,8 +249,8 @@ public final class Java17RecordTest {
 
     String s = "{'aString': 's', 'aByte': 0}";
     var exception = assertThrows(JsonParseException.class, () -> gson.fromJson(s, RecordWithPrimitives.class));
-    assertEquals("null is not allowed as value for record component 'aByte' of primitive type; at path $.aByte",
-        exception.getMessage());
+    assertThat(exception).hasMessageThat()
+        .isEqualTo("null is not allowed as value for record component 'aByte' of primitive type; at path $.aByte");
   }
 
   private record RecordWithPrimitives(
@@ -264,7 +261,7 @@ public final class Java17RecordTest {
   public void testObjectDefaultValue() {
     record LocalRecord(String s, int i) {}
 
-    assertEquals(new LocalRecord(null, 1), gson.fromJson("{\"i\":1}", LocalRecord.class));
+    assertThat(gson.fromJson("{\"i\":1}", LocalRecord.class)).isEqualTo(new LocalRecord(null, 1));
   }
 
   /**
@@ -276,7 +273,7 @@ public final class Java17RecordTest {
   @Test
   public void testStaticFieldSerialization() {
     // By default Gson should ignore static fields
-    assertEquals("{}", gson.toJson(new RecordWithStaticField()));
+    assertThat(gson.toJson(new RecordWithStaticField())).isEqualTo("{}");
 
     Gson gson = new GsonBuilder()
         // Include static fields
@@ -284,7 +281,7 @@ public final class Java17RecordTest {
         .create();
 
     String json = gson.toJson(new RecordWithStaticField());
-    assertEquals("{\"s\":\"initial\"}", json);
+    assertThat(json).isEqualTo("{\"s\":\"initial\"}");
   }
 
   /**
@@ -297,7 +294,7 @@ public final class Java17RecordTest {
   public void testStaticFieldDeserialization() {
     // By default Gson should ignore static fields
     gson.fromJson("{\"s\":\"custom\"}", RecordWithStaticField.class);
-    assertEquals("initial", RecordWithStaticField.s);
+    assertThat(RecordWithStaticField.s).isEqualTo("initial");
 
     Gson gson = new GsonBuilder()
         // Include static fields
@@ -307,9 +304,9 @@ public final class Java17RecordTest {
     String oldValue = RecordWithStaticField.s;
     try {
       RecordWithStaticField obj = gson.fromJson("{\"s\":\"custom\"}", RecordWithStaticField.class);
-      assertNotNull(obj);
+      assertThat(obj).isNotNull();
       // Currently record deserialization always ignores static fields
-      assertEquals("initial", RecordWithStaticField.s);
+      assertThat(RecordWithStaticField.s).isEqualTo("initial");
     } finally {
       RecordWithStaticField.s = oldValue;
     }
@@ -328,7 +325,7 @@ public final class Java17RecordTest {
 
     Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
     String json = gson.toJson(new RecordWithExpose(1, 2));
-    assertEquals("{\"a\":1}", json);
+    assertThat(json).isEqualTo("{\"a\":1}");
   }
 
   @Test
@@ -347,7 +344,7 @@ public final class Java17RecordTest {
         })
         .create();
 
-    assertEquals("{\"b\":2}", gson.toJson(new LocalRecord(1, 2, 3.0)));
+    assertThat(gson.toJson(new LocalRecord(1, 2, 3.0))).isEqualTo("{\"b\":2}");
   }
 
   @Test
@@ -365,8 +362,8 @@ public final class Java17RecordTest {
         @JsonAdapter(Adapter.class) String s
     ) {}
 
-    assertEquals("{\"s\":\"serializer-a\"}", gson.toJson(new LocalRecord("a")));
-    assertEquals(new LocalRecord("deserializer-a"), gson.fromJson("{\"s\":\"a\"}", LocalRecord.class));
+    assertThat(gson.toJson(new LocalRecord("a"))).isEqualTo("{\"s\":\"serializer-a\"}");
+    assertThat(gson.fromJson("{\"s\":\"a\"}", LocalRecord.class)).isEqualTo(new LocalRecord("deserializer-a"));
   }
 
   @Test
@@ -379,12 +376,12 @@ public final class Java17RecordTest {
         .create();
 
     String json = gson.toJson(new Allowed(1));
-    assertEquals("{\"a\":1}", json);
+    assertThat(json).isEqualTo("{\"a\":1}");
 
     var exception = assertThrows(JsonIOException.class, () -> gson.toJson(new Blocked(1)));
-    assertEquals("ReflectionAccessFilter does not permit using reflection for class " + Blocked.class.getName() +
-        ". Register a TypeAdapter for this type or adjust the access filter.",
-        exception.getMessage());
+    assertThat(exception).hasMessageThat()
+            .isEqualTo("ReflectionAccessFilter does not permit using reflection for class " + Blocked.class.getName() +
+                ". Register a TypeAdapter for this type or adjust the access filter.");
   }
 
   @Test
@@ -394,19 +391,19 @@ public final class Java17RecordTest {
         .create();
 
     var exception = assertThrows(JsonIOException.class, () -> gson.toJson(new PrivateRecord(1)));
-    assertEquals("Constructor 'com.google.gson.functional.Java17RecordTest$PrivateRecord(int)' is not accessible and"
-        + " ReflectionAccessFilter does not permit making it accessible. Register a TypeAdapter for the declaring"
-        + " type, adjust the access filter or increase the visibility of the element and its declaring type.",
-        exception.getMessage());
+    assertThat(exception).hasMessageThat()
+            .isEqualTo("Constructor 'com.google.gson.functional.Java17RecordTest$PrivateRecord(int)' is not accessible and"
+                + " ReflectionAccessFilter does not permit making it accessible. Register a TypeAdapter for the declaring"
+                + " type, adjust the access filter or increase the visibility of the element and its declaring type.");
 
     exception = assertThrows(JsonIOException.class, () -> gson.fromJson("{}", PrivateRecord.class));
-    assertEquals("Constructor 'com.google.gson.functional.Java17RecordTest$PrivateRecord(int)' is not accessible and"
-        + " ReflectionAccessFilter does not permit making it accessible. Register a TypeAdapter for the declaring"
-        + " type, adjust the access filter or increase the visibility of the element and its declaring type.",
-        exception.getMessage());
+    assertThat(exception).hasMessageThat()
+            .isEqualTo("Constructor 'com.google.gson.functional.Java17RecordTest$PrivateRecord(int)' is not accessible and"
+                + " ReflectionAccessFilter does not permit making it accessible. Register a TypeAdapter for the declaring"
+                + " type, adjust the access filter or increase the visibility of the element and its declaring type.");
 
-    assertEquals("{\"i\":1}", gson.toJson(new PublicRecord(1)));
-    assertEquals(new PublicRecord(2), gson.fromJson("{\"i\":2}", PublicRecord.class));
+    assertThat(gson.toJson(new PublicRecord(1))).isEqualTo("{\"i\":1}");
+    assertThat(gson.fromJson("{\"i\":2}", PublicRecord.class)).isEqualTo(new PublicRecord(2));
   }
 
   private record PrivateRecord(int i) {}
@@ -420,11 +417,11 @@ public final class Java17RecordTest {
   public void testRecordBaseClass() {
     record LocalRecord(int i) {}
 
-    assertEquals("{}", gson.toJson(new LocalRecord(1), Record.class));
+    assertThat(gson.toJson(new LocalRecord(1), Record.class)).isEqualTo("{}");
 
     var exception = assertThrows(JsonIOException.class, () -> gson.fromJson("{}", Record.class));
-    assertEquals("Abstract classes can't be instantiated! Register an InstanceCreator or a TypeAdapter for"
-        + " this type. Class name: java.lang.Record",
-        exception.getMessage());
+    assertThat(exception).hasMessageThat()
+            .isEqualTo("Abstract classes can't be instantiated! Register an InstanceCreator or a TypeAdapter for"
+                + " this type. Class name: java.lang.Record");
   }
 }

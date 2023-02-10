@@ -16,31 +16,37 @@
 
 package com.google.gson.internal.bind;
 
-import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
+import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
+import static org.junit.Assert.fail;
+
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.JavaVersion;
 import com.google.gson.internal.bind.DefaultDateTypeAdapter.DateType;
 import com.google.gson.reflect.TypeToken;
-import junit.framework.TestCase;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
+import org.junit.Test;
 
 /**
  * A simple unit test for the {@link DefaultDateTypeAdapter} class.
  *
  * @author Joel Leitch
  */
-public class DefaultDateTypeAdapterTest extends TestCase {
+public class DefaultDateTypeAdapterTest {
 
+  @Test
   public void testFormattingInEnUs() {
     assertFormattingAlwaysEmitsUsLocale(Locale.US);
   }
 
+  @Test
   public void testFormattingInFr() {
     assertFormattingAlwaysEmitsUsLocale(Locale.FRANCE);
   }
@@ -73,32 +79,37 @@ public class DefaultDateTypeAdapterTest extends TestCase {
     }
   }
 
+  @Test
   public void testParsingDatesFormattedWithSystemLocale() throws Exception {
-    // TODO(eamonnmcmanus): fix this test, which fails on JDK 8 and 17
-    if (JavaVersion.getMajorJavaVersion() != 11) {
-      return;
-    }
     TimeZone defaultTimeZone = TimeZone.getDefault();
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     Locale defaultLocale = Locale.getDefault();
     Locale.setDefault(Locale.FRANCE);
     try {
-      String afterYearSep = JavaVersion.isJava9OrLater() ? " à " : " ";
-      assertParsed(String.format("1 janv. 1970%s00:00:00", afterYearSep),
+      Date date = new Date(0);
+      assertParsed(
+          DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM).format(date),
           DateType.DATE.createDefaultsAdapterFactory());
-      assertParsed("01/01/70", DateType.DATE.createAdapterFactory(DateFormat.SHORT));
-      assertParsed("1 janv. 1970", DateType.DATE.createAdapterFactory(DateFormat.MEDIUM));
-      assertParsed("1 janvier 1970", DateType.DATE.createAdapterFactory(DateFormat.LONG));
-      assertParsed("01/01/70 00:00",
+      assertParsed(
+          DateFormat.getDateInstance(DateFormat.SHORT).format(date),
+          DateType.DATE.createAdapterFactory(DateFormat.SHORT));
+      assertParsed(
+          DateFormat.getDateInstance(DateFormat.MEDIUM).format(date),
+          DateType.DATE.createAdapterFactory(DateFormat.MEDIUM));
+      assertParsed(
+          DateFormat.getDateInstance(DateFormat.LONG).format(date),
+          DateType.DATE.createAdapterFactory(DateFormat.LONG));
+      assertParsed(
+          DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(date),
           DateType.DATE.createAdapterFactory(DateFormat.SHORT, DateFormat.SHORT));
-      assertParsed(String.format("1 janv. 1970%s00:00:00", afterYearSep),
+      assertParsed(
+          DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM).format(date),
           DateType.DATE.createAdapterFactory(DateFormat.MEDIUM, DateFormat.MEDIUM));
-      assertParsed(String.format("1 janvier 1970%s00:00:00 UTC", afterYearSep),
+      assertParsed(
+          DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG).format(date),
           DateType.DATE.createAdapterFactory(DateFormat.LONG, DateFormat.LONG));
-      assertParsed(JavaVersion.isJava9OrLater() ? (JavaVersion.getMajorJavaVersion() <11 ?
-                      "jeudi 1 janvier 1970 à 00:00:00 Coordinated Universal Time" :
-                      "jeudi 1 janvier 1970 à 00:00:00 Temps universel coordonné") :
-                      "jeudi 1 janvier 1970 00 h 00 UTC",
+      assertParsed(
+          DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL).format(date),
           DateType.DATE.createAdapterFactory(DateFormat.FULL, DateFormat.FULL));
     } finally {
       TimeZone.setDefault(defaultTimeZone);
@@ -106,6 +117,7 @@ public class DefaultDateTypeAdapterTest extends TestCase {
     }
   }
 
+  @Test
   public void testParsingDatesFormattedWithUsLocale() throws Exception {
     TimeZone defaultTimeZone = TimeZone.getDefault();
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
@@ -130,6 +142,7 @@ public class DefaultDateTypeAdapterTest extends TestCase {
     }
   }
 
+  @Test
   public void testFormatUsesDefaultTimezone() throws Exception {
     TimeZone defaultTimeZone = TimeZone.getDefault();
     TimeZone.setDefault(TimeZone.getTimeZone("America/Los_Angeles"));
@@ -146,6 +159,7 @@ public class DefaultDateTypeAdapterTest extends TestCase {
     }
   }
 
+  @Test
   public void testDateDeserializationISO8601() throws Exception {
     TypeAdapterFactory adapterFactory = DateType.DATE.createDefaultsAdapterFactory();
     assertParsed("1970-01-01T00:00:00.000Z", adapterFactory);
@@ -155,39 +169,44 @@ public class DefaultDateTypeAdapterTest extends TestCase {
     assertParsed("1970-01-01T01:00:00+01", adapterFactory);
   }
 
-  public void testDateSerialization() throws Exception {
+  @Test
+  public void testDateSerialization() {
     int dateStyle = DateFormat.LONG;
     TypeAdapter<Date> dateTypeAdapter = dateAdapter(DateType.DATE.createAdapterFactory(dateStyle));
     DateFormat formatter = DateFormat.getDateInstance(dateStyle, Locale.US);
     Date currentDate = new Date();
 
     String dateString = dateTypeAdapter.toJson(currentDate);
-    assertEquals(toLiteral(formatter.format(currentDate)), dateString);
+    assertThat(dateString).isEqualTo(toLiteral(formatter.format(currentDate)));
   }
 
-  public void testDatePattern() throws Exception {
+  @Test
+  public void testDatePattern() {
     String pattern = "yyyy-MM-dd";
     TypeAdapter<Date> dateTypeAdapter = dateAdapter(DateType.DATE.createAdapterFactory(pattern));
     DateFormat formatter = new SimpleDateFormat(pattern);
     Date currentDate = new Date();
 
     String dateString = dateTypeAdapter.toJson(currentDate);
-    assertEquals(toLiteral(formatter.format(currentDate)), dateString);
+    assertThat(dateString).isEqualTo(toLiteral(formatter.format(currentDate)));
   }
 
-  public void testInvalidDatePattern() throws Exception {
+  @Test
+  public void testInvalidDatePattern() {
     try {
       DateType.DATE.createAdapterFactory("I am a bad Date pattern....");
       fail("Invalid date pattern should fail.");
     } catch (IllegalArgumentException expected) { }
   }
 
+  @Test
   public void testNullValue() throws Exception {
     TypeAdapter<Date> adapter = dateAdapter(DateType.DATE.createDefaultsAdapterFactory());
-    assertNull(adapter.fromJson("null"));
-    assertEquals("null", adapter.toJson(null));
+    assertThat(adapter.fromJson("null")).isNull();
+    assertThat(adapter.toJson(null)).isEqualTo("null");
   }
 
+  @Test
   public void testUnexpectedToken() throws Exception {
     try {
       TypeAdapter<Date> adapter = dateAdapter(DateType.DATE.createDefaultsAdapterFactory());
@@ -198,19 +217,19 @@ public class DefaultDateTypeAdapterTest extends TestCase {
 
   private static TypeAdapter<Date> dateAdapter(TypeAdapterFactory adapterFactory) {
     TypeAdapter<Date> adapter = adapterFactory.create(new Gson(), TypeToken.get(Date.class));
-    assertNotNull(adapter);
+    assertThat(adapter).isNotNull();
     return adapter;
   }
 
   private static void assertFormatted(String formatted, TypeAdapterFactory adapterFactory) {
     TypeAdapter<Date> adapter = dateAdapter(adapterFactory);
-    assertEquals(toLiteral(formatted), adapter.toJson(new Date(0)));
+    assertThat(adapter.toJson(new Date(0))).isEqualTo(toLiteral(formatted));
   }
 
   private static void assertParsed(String date, TypeAdapterFactory adapterFactory) throws IOException {
     TypeAdapter<Date> adapter = dateAdapter(adapterFactory);
-    assertEquals(date, new Date(0), adapter.fromJson(toLiteral(date)));
-    assertEquals("ISO 8601", new Date(0), adapter.fromJson(toLiteral("1970-01-01T00:00:00Z")));
+    assertWithMessage(date).that(adapter.fromJson(toLiteral(date))).isEqualTo(new Date(0));
+    assertWithMessage("ISO 8601").that(adapter.fromJson(toLiteral("1970-01-01T00:00:00Z"))).isEqualTo(new Date(0));
   }
 
   private static String toLiteral(String s) {

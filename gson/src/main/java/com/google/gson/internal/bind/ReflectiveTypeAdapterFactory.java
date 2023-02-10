@@ -139,7 +139,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     }
   }
 
-  private ReflectiveTypeAdapterFactory.BoundField createBoundField(
+  private BoundField createBoundField(
       final Gson context, final Field field, final Method accessor, final String name,
       final TypeToken<?> fieldType, boolean serialize, boolean deserialize,
       final boolean blockInaccessible) {
@@ -161,7 +161,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
 
     @SuppressWarnings("unchecked")
     final TypeAdapter<Object> typeAdapter = (TypeAdapter<Object>) mapped;
-    return new ReflectiveTypeAdapterFactory.BoundField(name, field.getName(), serialize, deserialize) {
+    return new BoundField(name, field, serialize, deserialize) {
       @Override void write(JsonWriter writer, Object source)
           throws IOException, IllegalAccessException {
         if (!serialized) return;
@@ -232,7 +232,6 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       return result;
     }
 
-    Type declaredType = type.getType();
     Class<?> originalRaw = raw;
     while (raw != Object.class) {
       Field[] fields = raw.getDeclaredFields();
@@ -298,8 +297,9 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           if (previous == null) previous = replaced;
         }
         if (previous != null) {
-          throw new IllegalArgumentException(declaredType
-              + " declares multiple JSON fields named " + previous.name);
+          throw new IllegalArgumentException("Class " + originalRaw.getName()
+              + " declares multiple JSON fields named '" + previous.name + "'; conflict is caused"
+              + " by fields " + ReflectionHelper.fieldToString(previous.field) + " and " + ReflectionHelper.fieldToString(field));
         }
       }
       type = TypeToken.get($Gson$Types.resolve(type.getType(), raw, raw.getGenericSuperclass()));
@@ -310,14 +310,16 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
 
   static abstract class BoundField {
     final String name;
+    final Field field;
     /** Name of the underlying field */
     final String fieldName;
     final boolean serialized;
     final boolean deserialized;
 
-    protected BoundField(String name, String fieldName, boolean serialized, boolean deserialized) {
+    protected BoundField(String name, Field field, boolean serialized, boolean deserialized) {
       this.name = name;
-      this.fieldName = fieldName;
+      this.field = field;
+      this.fieldName = field.getName();
       this.serialized = serialized;
       this.deserialized = deserialized;
     }

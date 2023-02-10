@@ -15,6 +15,8 @@
  */
 package com.google.gson.functional;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
@@ -35,7 +37,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
 /**
  * Functional tests for the support of custom serializer and deserializers.
@@ -43,15 +47,15 @@ import junit.framework.TestCase;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class CustomTypeAdaptersTest extends TestCase {
+public class CustomTypeAdaptersTest {
   private GsonBuilder builder;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void setUp() throws Exception {
     builder = new GsonBuilder();
   }
 
+  @Test
   public void testCustomSerializers() {
     Gson gson = builder.registerTypeAdapter(
         ClassWithCustomTypeConverter.class, new JsonSerializer<ClassWithCustomTypeConverter>() {
@@ -64,9 +68,10 @@ public class CustomTypeAdaptersTest extends TestCase {
       }
     }).create();
     ClassWithCustomTypeConverter target = new ClassWithCustomTypeConverter();
-    assertEquals("{\"bag\":5,\"value\":25}", gson.toJson(target));
+    assertThat(gson.toJson(target)).isEqualTo("{\"bag\":5,\"value\":25}");
   }
 
+  @Test
   public void testCustomDeserializers() {
     Gson gson = new GsonBuilder().registerTypeAdapter(
         ClassWithCustomTypeConverter.class, new JsonDeserializer<ClassWithCustomTypeConverter>() {
@@ -80,9 +85,11 @@ public class CustomTypeAdaptersTest extends TestCase {
     }).create();
     String json = "{\"bag\":5,\"value\":25}";
     ClassWithCustomTypeConverter target = gson.fromJson(json, ClassWithCustomTypeConverter.class);
-    assertEquals(5, target.getBag().getIntValue());
+    assertThat(target.getBag().getIntValue()).isEqualTo(5);
   }
 
+  @Test
+  @Ignore
   public void disable_testCustomSerializersOfSelf() {
     Gson gson = createGsonObjectWithFooTypeAdapter();
     Gson basicGson = new Gson();
@@ -90,9 +97,11 @@ public class CustomTypeAdaptersTest extends TestCase {
     String jsonFromCustomSerializer = gson.toJson(newFooObject);
     String jsonFromGson = basicGson.toJson(newFooObject);
 
-    assertEquals(jsonFromGson, jsonFromCustomSerializer);
+    assertThat(jsonFromCustomSerializer).isEqualTo(jsonFromGson);
   }
 
+  @Test
+  @Ignore
   public void disable_testCustomDeserializersOfSelf() {
     Gson gson = createGsonObjectWithFooTypeAdapter();
     Gson basicGson = new Gson();
@@ -100,10 +109,11 @@ public class CustomTypeAdaptersTest extends TestCase {
     String json = basicGson.toJson(expectedFoo);
     Foo newFooObject = gson.fromJson(json, Foo.class);
 
-    assertEquals(expectedFoo.key, newFooObject.key);
-    assertEquals(expectedFoo.value, newFooObject.value);
+    assertThat(newFooObject.key).isEqualTo(expectedFoo.key);
+    assertThat(newFooObject.value).isEqualTo(expectedFoo.value);
   }
 
+  @Test
   public void testCustomNestedSerializers() {
     Gson gson = new GsonBuilder().registerTypeAdapter(
         BagOfPrimitives.class, new JsonSerializer<BagOfPrimitives>() {
@@ -113,9 +123,10 @@ public class CustomTypeAdaptersTest extends TestCase {
       }
     }).create();
     ClassWithCustomTypeConverter target = new ClassWithCustomTypeConverter();
-    assertEquals("{\"bag\":6,\"value\":10}", gson.toJson(target));
+    assertThat(gson.toJson(target)).isEqualTo("{\"bag\":6,\"value\":10}");
   }
 
+  @Test
   public void testCustomNestedDeserializers() {
     Gson gson = new GsonBuilder().registerTypeAdapter(
         BagOfPrimitives.class, new JsonDeserializer<BagOfPrimitives>() {
@@ -127,9 +138,10 @@ public class CustomTypeAdaptersTest extends TestCase {
     }).create();
     String json = "{\"bag\":7,\"value\":25}";
     ClassWithCustomTypeConverter target = gson.fromJson(json, ClassWithCustomTypeConverter.class);
-    assertEquals(7, target.getBag().getIntValue());
+    assertThat(target.getBag().getIntValue()).isEqualTo(7);
   }
 
+  @Test
   public void testCustomTypeAdapterDoesNotAppliesToSubClasses() {
     Gson gson = new GsonBuilder().registerTypeAdapter(Base.class, new JsonSerializer<Base> () {
       @Override
@@ -141,12 +153,13 @@ public class CustomTypeAdaptersTest extends TestCase {
     }).create();
     Base b = new Base();
     String json = gson.toJson(b);
-    assertTrue(json.contains("value"));
+    assertThat(json).contains("value");
     b = new Derived();
     json = gson.toJson(b);
-    assertTrue(json.contains("derivedValue"));
+    assertThat(json).contains("derivedValue");
   }
 
+  @Test
   public void testCustomTypeAdapterAppliesToSubClassesSerializedAsBaseClass() {
     Gson gson = new GsonBuilder().registerTypeAdapter(Base.class, new JsonSerializer<Base> () {
       @Override
@@ -158,11 +171,11 @@ public class CustomTypeAdaptersTest extends TestCase {
     }).create();
     Base b = new Base();
     String json = gson.toJson(b);
-    assertTrue(json.contains("value"));
+    assertThat(json).contains("value");
     b = new Derived();
     json = gson.toJson(b, Base.class);
-    assertTrue(json.contains("value"));
-    assertFalse(json.contains("derivedValue"));
+    assertThat(json).contains("value");
+    assertThat(json).doesNotContain("derivedValue");
   }
 
   private static class Base {
@@ -206,6 +219,7 @@ public class CustomTypeAdaptersTest extends TestCase {
     }
   }
 
+  @Test
   public void testCustomSerializerInvokedForPrimitives() {
     Gson gson = new GsonBuilder()
         .registerTypeAdapter(boolean.class, new JsonSerializer<Boolean>() {
@@ -214,10 +228,11 @@ public class CustomTypeAdaptersTest extends TestCase {
           }
         })
         .create();
-    assertEquals("1", gson.toJson(true, boolean.class));
-    assertEquals("true", gson.toJson(true, Boolean.class));
+    assertThat(gson.toJson(true, boolean.class)).isEqualTo("1");
+    assertThat(gson.toJson(true, Boolean.class)).isEqualTo("true");
   }
 
+  @Test
   public void testCustomDeserializerInvokedForPrimitives() {
     Gson gson = new GsonBuilder()
         .registerTypeAdapter(boolean.class, new JsonDeserializer<Boolean>() {
@@ -227,10 +242,11 @@ public class CustomTypeAdaptersTest extends TestCase {
           }
         })
         .create();
-    assertEquals(Boolean.TRUE, gson.fromJson("1", boolean.class));
-    assertEquals(Boolean.TRUE, gson.fromJson("true", Boolean.class));
+    assertThat(gson.fromJson("1", boolean.class)).isEqualTo(Boolean.TRUE);
+    assertThat(gson.fromJson("true", Boolean.class)).isEqualTo(Boolean.TRUE);
   }
 
+  @Test
   public void testCustomByteArraySerializer() {
     Gson gson = new GsonBuilder().registerTypeAdapter(byte[].class, new JsonSerializer<byte[]>() {
       @Override
@@ -244,9 +260,10 @@ public class CustomTypeAdaptersTest extends TestCase {
     }).create();
     byte[] data = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
     String json = gson.toJson(data);
-    assertEquals("\"0123456789\"", json);
+    assertThat(json).isEqualTo("\"0123456789\"");
   }
 
+  @Test
   public void testCustomByteArrayDeserializerAndInstanceCreator() {
     GsonBuilder gsonBuilder = new GsonBuilder().registerTypeAdapter(byte[].class,
         new JsonDeserializer<byte[]>() {
@@ -265,7 +282,7 @@ public class CustomTypeAdaptersTest extends TestCase {
     byte[] actual = gson.fromJson(json, byte[].class);
     byte[] expected = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
     for (int i = 0; i < actual.length; ++i) {
-      assertEquals(expected[i], actual[i]);
+      assertThat(actual[i]).isEqualTo(expected[i]);
     }
   }
 
@@ -305,6 +322,7 @@ public class CustomTypeAdaptersTest extends TestCase {
   }
 
   // Test created from Issue 70
+  @Test
   public void testCustomAdapterInvokedForCollectionElementSerializationWithType() {
     Gson gson = new GsonBuilder()
       .registerTypeAdapter(StringHolder.class, new StringHolderTypeAdapter())
@@ -314,10 +332,11 @@ public class CustomTypeAdaptersTest extends TestCase {
     Set<StringHolder> setOfHolders = new HashSet<>();
     setOfHolders.add(holder);
     String json = gson.toJson(setOfHolders, setType);
-    assertTrue(json.contains("Jacob:Tomaw"));
+    assertThat(json).contains("Jacob:Tomaw");
   }
 
   // Test created from Issue 70
+  @Test
   public void testCustomAdapterInvokedForCollectionElementSerialization() {
     Gson gson = new GsonBuilder()
       .registerTypeAdapter(StringHolder.class, new StringHolderTypeAdapter())
@@ -326,23 +345,25 @@ public class CustomTypeAdaptersTest extends TestCase {
     Set<StringHolder> setOfHolders = new HashSet<>();
     setOfHolders.add(holder);
     String json = gson.toJson(setOfHolders);
-    assertTrue(json.contains("Jacob:Tomaw"));
+    assertThat(json).contains("Jacob:Tomaw");
   }
 
   // Test created from Issue 70
+  @Test
   public void testCustomAdapterInvokedForCollectionElementDeserialization() {
     Gson gson = new GsonBuilder()
       .registerTypeAdapter(StringHolder.class, new StringHolderTypeAdapter())
       .create();
     Type setType = new TypeToken<Set<StringHolder>>() {}.getType();
     Set<StringHolder> setOfHolders = gson.fromJson("['Jacob:Tomaw']", setType);
-    assertEquals(1, setOfHolders.size());
+    assertThat(setOfHolders.size()).isEqualTo(1);
     StringHolder foo = setOfHolders.iterator().next();
-    assertEquals("Jacob", foo.part1);
-    assertEquals("Tomaw", foo.part2);
+    assertThat(foo.part1).isEqualTo("Jacob");
+    assertThat(foo.part2).isEqualTo("Tomaw");
   }
 
   // Test created from Issue 70
+  @Test
   public void testCustomAdapterInvokedForMapElementSerializationWithType() {
     Gson gson = new GsonBuilder()
       .registerTypeAdapter(StringHolder.class, new StringHolderTypeAdapter())
@@ -352,10 +373,11 @@ public class CustomTypeAdaptersTest extends TestCase {
     Map<String, StringHolder> mapOfHolders = new HashMap<>();
     mapOfHolders.put("foo", holder);
     String json = gson.toJson(mapOfHolders, mapType);
-    assertTrue(json.contains("\"foo\":\"Jacob:Tomaw\""));
+    assertThat(json).contains("\"foo\":\"Jacob:Tomaw\"");
   }
 
   // Test created from Issue 70
+  @Test
   public void testCustomAdapterInvokedForMapElementSerialization() {
     Gson gson = new GsonBuilder()
       .registerTypeAdapter(StringHolder.class, new StringHolderTypeAdapter())
@@ -364,49 +386,53 @@ public class CustomTypeAdaptersTest extends TestCase {
     Map<String, StringHolder> mapOfHolders = new HashMap<>();
     mapOfHolders.put("foo", holder);
     String json = gson.toJson(mapOfHolders);
-    assertTrue(json.contains("\"foo\":\"Jacob:Tomaw\""));
+    assertThat(json).contains("\"foo\":\"Jacob:Tomaw\"");
   }
 
   // Test created from Issue 70
+  @Test
   public void testCustomAdapterInvokedForMapElementDeserialization() {
     Gson gson = new GsonBuilder()
       .registerTypeAdapter(StringHolder.class, new StringHolderTypeAdapter())
       .create();
     Type mapType = new TypeToken<Map<String, StringHolder>>() {}.getType();
     Map<String, StringHolder> mapOfFoo = gson.fromJson("{'foo':'Jacob:Tomaw'}", mapType);
-    assertEquals(1, mapOfFoo.size());
+    assertThat(mapOfFoo.size()).isEqualTo(1);
     StringHolder foo = mapOfFoo.get("foo");
-    assertEquals("Jacob", foo.part1);
-    assertEquals("Tomaw", foo.part2);
+    assertThat(foo.part1).isEqualTo("Jacob");
+    assertThat(foo.part2).isEqualTo("Tomaw");
   }
 
+  @Test
   public void testEnsureCustomSerializerNotInvokedForNullValues() {
     Gson gson = new GsonBuilder()
         .registerTypeAdapter(DataHolder.class, new DataHolderSerializer())
         .create();
     DataHolderWrapper target = new DataHolderWrapper(new DataHolder("abc"));
     String json = gson.toJson(target);
-    assertEquals("{\"wrappedData\":{\"myData\":\"abc\"}}", json);
+    assertThat(json).isEqualTo("{\"wrappedData\":{\"myData\":\"abc\"}}");
   }
 
+  @Test
   public void testEnsureCustomDeserializerNotInvokedForNullValues() {
     Gson gson = new GsonBuilder()
         .registerTypeAdapter(DataHolder.class, new DataHolderDeserializer())
         .create();
     String json = "{wrappedData:null}";
     DataHolderWrapper actual = gson.fromJson(json, DataHolderWrapper.class);
-    assertNull(actual.wrappedData);
+    assertThat(actual.wrappedData).isNull();
   }
 
   // Test created from Issue 352
+  @Test
   public void testRegisterHierarchyAdapterForDate() {
     Gson gson = new GsonBuilder()
         .registerTypeHierarchyAdapter(Date.class, new DateTypeAdapter())
         .create();
-    assertEquals("0", gson.toJson(new Date(0)));
-    assertEquals("0", gson.toJson(new java.sql.Date(0)));
-    assertEquals(new Date(0), gson.fromJson("0", Date.class));
-    assertEquals(new java.sql.Date(0), gson.fromJson("0", java.sql.Date.class));
+    assertThat(gson.toJson(new Date(0))).isEqualTo("0");
+    assertThat(gson.toJson(new java.sql.Date(0))).isEqualTo("0");
+    assertThat(gson.fromJson("0", Date.class)).isEqualTo(new Date(0));
+    assertThat(gson.fromJson("0", java.sql.Date.class)).isEqualTo(new java.sql.Date(0));
   }
 
   private static class DataHolder {

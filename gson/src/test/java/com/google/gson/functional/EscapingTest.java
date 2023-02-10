@@ -16,12 +16,15 @@
 
 package com.google.gson.functional;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import java.util.ArrayList;
 import java.util.List;
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Performs some functional test involving JSON output escaping.
@@ -29,23 +32,24 @@ import junit.framework.TestCase;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class EscapingTest extends TestCase {
+public class EscapingTest {
   private Gson gson;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void setUp() throws Exception {
     gson = new Gson();
   }
 
-  public void testEscapingQuotesInStringArray() throws Exception {
+  @Test
+  public void testEscapingQuotesInStringArray() {
     String[] valueWithQuotes = { "beforeQuote\"afterQuote" };
     String jsonRepresentation = gson.toJson(valueWithQuotes);
     String[] target = gson.fromJson(jsonRepresentation, String[].class);
-    assertEquals(1, target.length);
-    assertEquals(valueWithQuotes[0], target[0]);
+    assertThat(target.length).isEqualTo(1);
+    assertThat(target[0]).isEqualTo(valueWithQuotes[0]);
   }
 
+  @Test
   public void testEscapeAllHtmlCharacters() {
     List<String> strings = new ArrayList<>();
     strings.add("<");
@@ -54,39 +58,41 @@ public class EscapingTest extends TestCase {
     strings.add("&");
     strings.add("'");
     strings.add("\"");
-    assertEquals("[\"\\u003c\",\"\\u003e\",\"\\u003d\",\"\\u0026\",\"\\u0027\",\"\\\"\"]",
-        gson.toJson(strings));
+    assertThat(gson.toJson(strings)).isEqualTo("[\"\\u003c\",\"\\u003e\",\"\\u003d\",\"\\u0026\",\"\\u0027\",\"\\\"\"]");
   }
 
-  public void testEscapingObjectFields() throws Exception {
+  @Test
+  public void testEscapingObjectFields() {
     BagOfPrimitives objWithPrimitives = new BagOfPrimitives(1L, 1, true, "test with\" <script>");
     String jsonRepresentation = gson.toJson(objWithPrimitives);
-    assertFalse(jsonRepresentation.contains("<"));
-    assertFalse(jsonRepresentation.contains(">"));
-    assertTrue(jsonRepresentation.contains("\\\""));
+    assertThat(jsonRepresentation).doesNotContain("<");
+    assertThat(jsonRepresentation).doesNotContain(">");
+    assertThat(jsonRepresentation).contains("\\\"");
 
     BagOfPrimitives expectedObject = gson.fromJson(jsonRepresentation, BagOfPrimitives.class);
-    assertEquals(objWithPrimitives.getExpectedJson(), expectedObject.getExpectedJson());
+    assertThat(expectedObject.getExpectedJson()).isEqualTo(objWithPrimitives.getExpectedJson());
   }
   
-  public void testGsonAcceptsEscapedAndNonEscapedJsonDeserialization() throws Exception {
+  @Test
+  public void testGsonAcceptsEscapedAndNonEscapedJsonDeserialization() {
     Gson escapeHtmlGson = new GsonBuilder().create();
     Gson noEscapeHtmlGson = new GsonBuilder().disableHtmlEscaping().create();
     
     BagOfPrimitives target = new BagOfPrimitives(1L, 1, true, "test' / w'ith\" / \\ <script>");
     String escapedJsonForm = escapeHtmlGson.toJson(target);
     String nonEscapedJsonForm = noEscapeHtmlGson.toJson(target);
-    assertFalse(escapedJsonForm.equals(nonEscapedJsonForm));
+    assertThat(escapedJsonForm.equals(nonEscapedJsonForm)).isFalse();
     
-    assertEquals(target, noEscapeHtmlGson.fromJson(escapedJsonForm, BagOfPrimitives.class));
-    assertEquals(target, escapeHtmlGson.fromJson(nonEscapedJsonForm, BagOfPrimitives.class));
+    assertThat(noEscapeHtmlGson.fromJson(escapedJsonForm, BagOfPrimitives.class)).isEqualTo(target);
+    assertThat(escapeHtmlGson.fromJson(nonEscapedJsonForm, BagOfPrimitives.class)).isEqualTo(target);
   }
 
+  @Test
   public void testGsonDoubleDeserialization() {
     BagOfPrimitives expected = new BagOfPrimitives(3L, 4, true, "value1");
     String json = gson.toJson(gson.toJson(expected));
     String value = gson.fromJson(json, String.class);
     BagOfPrimitives actual = gson.fromJson(value, BagOfPrimitives.class);
-    assertEquals(expected, actual);
+    assertThat(actual).isEqualTo(expected);
   }
 }

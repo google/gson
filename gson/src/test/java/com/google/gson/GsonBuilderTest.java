@@ -16,9 +16,7 @@
 
 package com.google.gson;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import com.google.gson.stream.JsonReader;
@@ -48,8 +46,8 @@ public class GsonBuilderTest {
   public void testCreatingMoreThanOnce() {
     GsonBuilder builder = new GsonBuilder();
     Gson gson = builder.create();
-    assertNotNull(gson);
-    assertNotNull(builder.create());
+    assertThat(gson).isNotNull();
+    assertThat(builder.create()).isNotNull();
 
     builder.setFieldNamingStrategy(new FieldNamingStrategy() {
       @Override public String translateName(Field f) {
@@ -58,9 +56,9 @@ public class GsonBuilderTest {
     });
 
     Gson otherGson = builder.create();
-    assertNotNull(otherGson);
+    assertThat(otherGson).isNotNull();
     // Should be different instances because builder has been modified in the meantime
-    assertNotSame(gson, otherGson);
+    assertThat(gson).isNotSameInstanceAs(otherGson);
   }
 
   /**
@@ -74,7 +72,7 @@ public class GsonBuilderTest {
 
     // Modifications of `gsonBuilder` should not affect `gson` object
     gsonBuilder.registerTypeAdapter(CustomClass1.class, new TypeAdapter<CustomClass1>() {
-      @Override public CustomClass1 read(JsonReader in) throws IOException {
+      @Override public CustomClass1 read(JsonReader in) {
         throw new UnsupportedOperationException();
       }
 
@@ -93,6 +91,7 @@ public class GsonBuilderTest {
       }
     });
 
+
     assertDefaultGson(gson);
     // New GsonBuilder created from `gson` should not have been affected by changes
     // to `gsonBuilder` either
@@ -105,26 +104,26 @@ public class GsonBuilderTest {
   private static void assertDefaultGson(Gson gson) {
     // Should use default reflective adapter
     String json1 = gson.toJson(new CustomClass1());
-    assertEquals("{}", json1);
+    assertThat(json1).isEqualTo("{}");
 
     // Should use default reflective adapter
     String json2 = gson.toJson(new CustomClass2());
-    assertEquals("{}", json2);
+    assertThat(json2).isEqualTo("{}");
 
     // Should use default instance creator
     CustomClass3 customClass3 = gson.fromJson("{}", CustomClass3.class);
-    assertEquals(CustomClass3.NO_ARG_CONSTRUCTOR_VALUE, customClass3.s);
+    assertThat(customClass3.s).isEqualTo(CustomClass3.NO_ARG_CONSTRUCTOR_VALUE);
   }
 
   private static void assertCustomGson(Gson gson) {
     String json1 = gson.toJson(new CustomClass1());
-    assertEquals("\"custom-adapter\"", json1);
+    assertThat(json1).isEqualTo("\"custom-adapter\"");
 
     String json2 = gson.toJson(new CustomClass2());
-    assertEquals("\"custom-hierarchy-adapter\"", json2);
+    assertThat(json2).isEqualTo("\"custom-hierarchy-adapter\"");
 
     CustomClass3 customClass3 = gson.fromJson("{}", CustomClass3.class);
-    assertEquals("custom-instance", customClass3.s);
+    assertThat(customClass3.s).isEqualTo("custom-instance");
   }
 
   static class CustomClass1 { }
@@ -148,7 +147,7 @@ public class GsonBuilderTest {
     Gson gson = new GsonBuilder()
         .excludeFieldsWithModifiers(Modifier.VOLATILE, Modifier.PRIVATE)
         .create();
-    assertEquals("{\"d\":\"d\"}", gson.toJson(new HasModifiers()));
+    assertThat(gson.toJson(new HasModifiers())).isEqualTo("{\"d\":\"d\"}");
   }
 
   @SuppressWarnings("unused")
@@ -164,7 +163,7 @@ public class GsonBuilderTest {
     Gson gson = new GsonBuilder()
         .excludeFieldsWithModifiers()
         .create();
-    assertEquals("{\"a\":\"a\"}", gson.toJson(new HasTransients()));
+    assertThat(gson.toJson(new HasTransients())).isEqualTo("{\"a\":\"a\"}");
   }
 
   static class HasTransients {
@@ -195,12 +194,10 @@ public class GsonBuilderTest {
       gson.fromJson("{}", ClassWithoutNoArgsConstructor.class);
       fail("Expected exception");
     } catch (JsonIOException expected) {
-      assertEquals(
-        "Unable to create instance of class com.google.gson.GsonBuilderTest$ClassWithoutNoArgsConstructor; "
-        + "usage of JDK Unsafe is disabled. Registering an InstanceCreator or a TypeAdapter for this type, "
-        + "adding a no-args constructor, or enabling usage of JDK Unsafe may fix this problem.",
-        expected.getMessage()
-      );
+      assertThat(expected).hasMessageThat().isEqualTo(
+          "Unable to create instance of class com.google.gson.GsonBuilderTest$ClassWithoutNoArgsConstructor; "
+          + "usage of JDK Unsafe is disabled. Registering an InstanceCreator or a TypeAdapter for this type, "
+          + "adding a no-args constructor, or enabling usage of JDK Unsafe may fix this problem.");
     }
   }
 
@@ -217,14 +214,14 @@ public class GsonBuilderTest {
       builder.setVersion(Double.NaN);
       fail();
     } catch (IllegalArgumentException e) {
-      assertEquals("Invalid version: NaN", e.getMessage());
+      assertThat(e).hasMessageThat().isEqualTo("Invalid version: NaN");
     }
 
     try {
       builder.setVersion(-0.1);
       fail();
     } catch (IllegalArgumentException e) {
-      assertEquals("Invalid version: -0.1", e.getMessage());
+      assertThat(e).hasMessageThat().isEqualTo("Invalid version: -0.1");
     }
   }
 }

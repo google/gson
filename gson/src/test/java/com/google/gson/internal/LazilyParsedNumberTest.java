@@ -15,28 +15,32 @@
  */
 package com.google.gson.internal;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.math.BigDecimal;
+import org.junit.Test;
 
-import junit.framework.TestCase;
-
-public class LazilyParsedNumberTest extends TestCase {
+public class LazilyParsedNumberTest {
+  @Test
   public void testHashCode() {
     LazilyParsedNumber n1 = new LazilyParsedNumber("1");
     LazilyParsedNumber n1Another = new LazilyParsedNumber("1");
-    assertEquals(n1.hashCode(), n1Another.hashCode());
+    assertThat(n1Another.hashCode()).isEqualTo(n1.hashCode());
   }
 
+  @Test
   public void testEquals() {
     LazilyParsedNumber n1 = new LazilyParsedNumber("1");
     LazilyParsedNumber n1Another = new LazilyParsedNumber("1");
-    assertTrue(n1.equals(n1Another));
+    assertThat(n1.equals(n1Another)).isTrue();
   }
 
+  @Test
   public void testJavaSerialization() throws IOException, ClassNotFoundException {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     ObjectOutputStream objOut = new ObjectOutputStream(out);
@@ -45,6 +49,6 @@ public class LazilyParsedNumberTest extends TestCase {
 
     ObjectInputStream objIn = new ObjectInputStream(new ByteArrayInputStream(out.toByteArray()));
     Number deserialized = (Number) objIn.readObject();
-    assertEquals(new BigDecimal("123"), deserialized);
+    assertThat(deserialized).isEqualTo(new BigDecimal("123"));
   }
 }

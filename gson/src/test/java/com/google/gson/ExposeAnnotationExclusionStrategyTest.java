@@ -16,54 +16,60 @@
 
 package com.google.gson;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import com.google.gson.annotations.Expose;
-
 import com.google.gson.internal.Excluder;
-import junit.framework.TestCase;
-
 import java.lang.reflect.Field;
+import org.junit.Test;
 
 /**
  * Unit tests for GsonBuilder.REQUIRE_EXPOSE_DESERIALIZE.
  *
  * @author Joel Leitch
  */
-public class ExposeAnnotationExclusionStrategyTest extends TestCase {
+public class ExposeAnnotationExclusionStrategyTest {
   private Excluder excluder = Excluder.DEFAULT.excludeFieldsWithoutExposeAnnotation();
 
-  public void testNeverSkipClasses() throws Exception {
-    assertFalse(excluder.excludeClass(MockObject.class, true));
-    assertFalse(excluder.excludeClass(MockObject.class, false));
+  @Test
+  public void testNeverSkipClasses() {
+    assertThat(excluder.excludeClass(MockObject.class, true)).isFalse();
+    assertThat(excluder.excludeClass(MockObject.class, false)).isFalse();
   }
 
+  @Test
   public void testSkipNonAnnotatedFields() throws Exception {
     Field f = createFieldAttributes("hiddenField");
-    assertTrue(excluder.excludeField(f, true));
-    assertTrue(excluder.excludeField(f, false));
+    assertThat(excluder.excludeField(f, true)).isTrue();
+    assertThat(excluder.excludeField(f, false)).isTrue();
   }
 
+  @Test
   public void testSkipExplicitlySkippedFields() throws Exception {
     Field f = createFieldAttributes("explicitlyHiddenField");
-    assertTrue(excluder.excludeField(f, true));
-    assertTrue(excluder.excludeField(f, false));
+    assertThat(excluder.excludeField(f, true)).isTrue();
+    assertThat(excluder.excludeField(f, false)).isTrue();
   }
 
+  @Test
   public void testNeverSkipExposedAnnotatedFields() throws Exception {
     Field f = createFieldAttributes("exposedField");
-    assertFalse(excluder.excludeField(f, true));
-    assertFalse(excluder.excludeField(f, false));
+    assertThat(excluder.excludeField(f, true)).isFalse();
+    assertThat(excluder.excludeField(f, false)).isFalse();
   }
 
+  @Test
   public void testNeverSkipExplicitlyExposedAnnotatedFields() throws Exception {
     Field f = createFieldAttributes("explicitlyExposedField");
-    assertFalse(excluder.excludeField(f, true));
-    assertFalse(excluder.excludeField(f, false));
+    assertThat(excluder.excludeField(f, true)).isFalse();
+    assertThat(excluder.excludeField(f, false)).isFalse();
   }
 
+  @Test
   public void testDifferentSerializeAndDeserializeField() throws Exception {
     Field f = createFieldAttributes("explicitlyDifferentModeField");
-    assertFalse(excluder.excludeField(f, true));
-    assertTrue(excluder.excludeField(f, false));
+    assertThat(excluder.excludeField(f, true)).isFalse();
+    assertThat(excluder.excludeField(f, false)).isTrue();
   }
 
   private static Field createFieldAttributes(String fieldName) throws Exception {

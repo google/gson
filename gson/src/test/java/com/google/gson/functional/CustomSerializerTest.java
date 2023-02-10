@@ -16,6 +16,8 @@
 
 package com.google.gson.functional;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -29,10 +31,8 @@ import com.google.gson.common.TestTypes.ClassWithBaseArrayField;
 import com.google.gson.common.TestTypes.ClassWithBaseField;
 import com.google.gson.common.TestTypes.Sub;
 import com.google.gson.common.TestTypes.SubSerializer;
-
-import junit.framework.TestCase;
-
 import java.lang.reflect.Type;
+import org.junit.Test;
 
 /**
  * Functional Test exercising custom serialization only.  When test applies to both
@@ -40,9 +40,10 @@ import java.lang.reflect.Type;
  *
  * @author Inderjeet Singh
  */
-public class CustomSerializerTest extends TestCase {
+public class CustomSerializerTest {
 
-   public void testBaseClassSerializerInvokedForBaseClassFields() {
+  @Test
+  public void testBaseClassSerializerInvokedForBaseClassFields() {
      Gson gson = new GsonBuilder()
          .registerTypeAdapter(Base.class, new BaseSerializer())
          .registerTypeAdapter(Sub.class, new SubSerializer())
@@ -50,10 +51,11 @@ public class CustomSerializerTest extends TestCase {
      ClassWithBaseField target = new ClassWithBaseField(new Base());
      JsonObject json = (JsonObject) gson.toJsonTree(target);
      JsonObject base = json.get("base").getAsJsonObject();
-     assertEquals(BaseSerializer.NAME, base.get(Base.SERIALIZER_KEY).getAsString());
+     assertThat(base.get(Base.SERIALIZER_KEY).getAsString()).isEqualTo(BaseSerializer.NAME);
    }
 
-   public void testSubClassSerializerInvokedForBaseClassFieldsHoldingSubClassInstances() {
+  @Test
+  public void testSubClassSerializerInvokedForBaseClassFieldsHoldingSubClassInstances() {
      Gson gson = new GsonBuilder()
          .registerTypeAdapter(Base.class, new BaseSerializer())
          .registerTypeAdapter(Sub.class, new SubSerializer())
@@ -61,10 +63,11 @@ public class CustomSerializerTest extends TestCase {
      ClassWithBaseField target = new ClassWithBaseField(new Sub());
      JsonObject json = (JsonObject) gson.toJsonTree(target);
      JsonObject base = json.get("base").getAsJsonObject();
-     assertEquals(SubSerializer.NAME, base.get(Base.SERIALIZER_KEY).getAsString());
+     assertThat(base.get(Base.SERIALIZER_KEY).getAsString()).isEqualTo(SubSerializer.NAME);
    }
 
-   public void testSubClassSerializerInvokedForBaseClassFieldsHoldingArrayOfSubClassInstances() {
+  @Test
+  public void testSubClassSerializerInvokedForBaseClassFieldsHoldingArrayOfSubClassInstances() {
      Gson gson = new GsonBuilder()
          .registerTypeAdapter(Base.class, new BaseSerializer())
          .registerTypeAdapter(Sub.class, new SubSerializer())
@@ -74,21 +77,23 @@ public class CustomSerializerTest extends TestCase {
      JsonArray array = json.get("base").getAsJsonArray();
      for (JsonElement element : array) {
        JsonElement serializerKey = element.getAsJsonObject().get(Base.SERIALIZER_KEY);
-      assertEquals(SubSerializer.NAME, serializerKey.getAsString());
+      assertThat(serializerKey.getAsString()).isEqualTo(SubSerializer.NAME);
      }
    }
 
-   public void testBaseClassSerializerInvokedForBaseClassFieldsHoldingSubClassInstances() {
+  @Test
+  public void testBaseClassSerializerInvokedForBaseClassFieldsHoldingSubClassInstances() {
      Gson gson = new GsonBuilder()
          .registerTypeAdapter(Base.class, new BaseSerializer())
          .create();
      ClassWithBaseField target = new ClassWithBaseField(new Sub());
      JsonObject json = (JsonObject) gson.toJsonTree(target);
      JsonObject base = json.get("base").getAsJsonObject();
-     assertEquals(BaseSerializer.NAME, base.get(Base.SERIALIZER_KEY).getAsString());
+     assertThat(base.get(Base.SERIALIZER_KEY).getAsString()).isEqualTo(BaseSerializer.NAME);
    }
 
-   public void testSerializerReturnsNull() {
+  @Test
+  public void testSerializerReturnsNull() {
      Gson gson = new GsonBuilder()
        .registerTypeAdapter(Base.class, new JsonSerializer<Base>() {
          @Override public JsonElement serialize(Base src, Type typeOfSrc, JsonSerializationContext context) {
@@ -97,6 +102,6 @@ public class CustomSerializerTest extends TestCase {
        })
        .create();
        JsonElement json = gson.toJsonTree(new Base());
-       assertTrue(json.isJsonNull());
+       assertThat(json.isJsonNull()).isTrue();
    }
 }

@@ -16,24 +16,28 @@
 
 package com.google.gson;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.math.BigDecimal;
+import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.fail;
+
 import com.google.gson.internal.LazilyParsedNumber;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.MalformedJsonException;
-import junit.framework.TestCase;
+import java.io.IOException;
+import java.io.StringReader;
+import java.math.BigDecimal;
+import org.junit.Test;
 
-public class ToNumberPolicyTest extends TestCase {
+public class ToNumberPolicyTest {
+  @Test
   public void testDouble() throws IOException {
     ToNumberStrategy strategy = ToNumberPolicy.DOUBLE;
-    assertEquals(10.1, strategy.readNumber(fromString("10.1")));
-    assertEquals(3.141592653589793D, strategy.readNumber(fromString("3.141592653589793238462643383279")));
+    assertThat(strategy.readNumber(fromString("10.1"))).isEqualTo(10.1);
+    assertThat(strategy.readNumber(fromString("3.141592653589793238462643383279"))).isEqualTo(3.141592653589793D);
     try {
       strategy.readNumber(fromString("1e400"));
       fail();
     } catch (MalformedJsonException expected) {
-      assertEquals("JSON forbids NaN and infinities: Infinity at line 1 column 6 path $", expected.getMessage());
+      assertThat(expected).hasMessageThat().isEqualTo("JSON forbids NaN and infinities: Infinity at line 1 column 6 path $");
     }
     try {
       strategy.readNumber(fromString("\"not-a-number\""));
@@ -42,68 +46,72 @@ public class ToNumberPolicyTest extends TestCase {
     }
   }
 
+  @Test
   public void testLazilyParsedNumber() throws IOException {
     ToNumberStrategy strategy = ToNumberPolicy.LAZILY_PARSED_NUMBER;
-    assertEquals(new LazilyParsedNumber("10.1"), strategy.readNumber(fromString("10.1")));
-    assertEquals(new LazilyParsedNumber("3.141592653589793238462643383279"), strategy.readNumber(fromString("3.141592653589793238462643383279")));
-    assertEquals(new LazilyParsedNumber("1e400"), strategy.readNumber(fromString("1e400")));
+    assertThat(strategy.readNumber(fromString("10.1"))).isEqualTo(new LazilyParsedNumber("10.1"));
+    assertThat(strategy.readNumber(fromString("3.141592653589793238462643383279"))).isEqualTo(new LazilyParsedNumber("3.141592653589793238462643383279"));
+    assertThat(strategy.readNumber(fromString("1e400"))).isEqualTo(new LazilyParsedNumber("1e400"));
   }
 
+  @Test
   public void testLongOrDouble() throws IOException {
     ToNumberStrategy strategy = ToNumberPolicy.LONG_OR_DOUBLE;
-    assertEquals(10L, strategy.readNumber(fromString("10")));
-    assertEquals(10.1, strategy.readNumber(fromString("10.1")));
-    assertEquals(3.141592653589793D, strategy.readNumber(fromString("3.141592653589793238462643383279")));
+    assertThat(strategy.readNumber(fromString("10"))).isEqualTo(10L);
+    assertThat(strategy.readNumber(fromString("10.1"))).isEqualTo(10.1);
+    assertThat(strategy.readNumber(fromString("3.141592653589793238462643383279"))).isEqualTo(3.141592653589793D);
     try {
       strategy.readNumber(fromString("1e400"));
       fail();
     } catch (MalformedJsonException expected) {
-      assertEquals("JSON forbids NaN and infinities: Infinity; at path $", expected.getMessage());
+      assertThat(expected).hasMessageThat().isEqualTo("JSON forbids NaN and infinities: Infinity; at path $");
     }
     try {
       strategy.readNumber(fromString("\"not-a-number\""));
       fail();
     } catch (JsonParseException expected) {
-      assertEquals("Cannot parse not-a-number; at path $", expected.getMessage());
+      assertThat(expected).hasMessageThat().isEqualTo("Cannot parse not-a-number; at path $");
     }
 
-    assertEquals(Double.NaN, strategy.readNumber(fromStringLenient("NaN")));
-    assertEquals(Double.POSITIVE_INFINITY, strategy.readNumber(fromStringLenient("Infinity")));
-    assertEquals(Double.NEGATIVE_INFINITY, strategy.readNumber(fromStringLenient("-Infinity")));
+    assertThat(strategy.readNumber(fromStringLenient("NaN"))).isEqualTo(Double.NaN);
+    assertThat(strategy.readNumber(fromStringLenient("Infinity"))).isEqualTo(Double.POSITIVE_INFINITY);
+    assertThat(strategy.readNumber(fromStringLenient("-Infinity"))).isEqualTo(Double.NEGATIVE_INFINITY);
     try {
       strategy.readNumber(fromString("NaN"));
       fail();
     } catch (MalformedJsonException expected) {
-      assertEquals("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 1 path $", expected.getMessage());
+      assertThat(expected).hasMessageThat().isEqualTo("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 1 path $");
     }
     try {
       strategy.readNumber(fromString("Infinity"));
       fail();
     } catch (MalformedJsonException expected) {
-      assertEquals("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 1 path $", expected.getMessage());
+      assertThat(expected).hasMessageThat().isEqualTo("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 1 path $");
     }
     try {
       strategy.readNumber(fromString("-Infinity"));
       fail();
     } catch (MalformedJsonException expected) {
-      assertEquals("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 1 path $", expected.getMessage());
+      assertThat(expected).hasMessageThat().isEqualTo("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 1 path $");
     }
   }
 
+  @Test
   public void testBigDecimal() throws IOException {
     ToNumberStrategy strategy = ToNumberPolicy.BIG_DECIMAL;
-    assertEquals(new BigDecimal("10.1"), strategy.readNumber(fromString("10.1")));
-    assertEquals(new BigDecimal("3.141592653589793238462643383279"), strategy.readNumber(fromString("3.141592653589793238462643383279")));
-    assertEquals(new BigDecimal("1e400"), strategy.readNumber(fromString("1e400")));
+    assertThat(strategy.readNumber(fromString("10.1"))).isEqualTo(new BigDecimal("10.1"));
+    assertThat(strategy.readNumber(fromString("3.141592653589793238462643383279"))).isEqualTo(new BigDecimal("3.141592653589793238462643383279"));
+    assertThat(strategy.readNumber(fromString("1e400"))).isEqualTo(new BigDecimal("1e400"));
 
     try {
       strategy.readNumber(fromString("\"not-a-number\""));
       fail();
     } catch (JsonParseException expected) {
-      assertEquals("Cannot parse not-a-number; at path $", expected.getMessage());
+      assertThat(expected).hasMessageThat().isEqualTo("Cannot parse not-a-number; at path $");
     }
   }
 
+  @Test
   public void testNullsAreNeverExpected() throws IOException {
     try {
       ToNumberPolicy.DOUBLE.readNumber(fromString("null"));

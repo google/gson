@@ -15,6 +15,9 @@
  */
 package com.google.gson.internal.bind;
 
+import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.fail;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
@@ -27,17 +30,19 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.Arrays;
 import java.util.List;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 @SuppressWarnings("resource")
-public class JsonTreeReaderTest extends TestCase {
+public class JsonTreeReaderTest {
+  @Test
   public void testSkipValue_emptyJsonObject() throws IOException {
     JsonTreeReader in = new JsonTreeReader(new JsonObject());
     in.skipValue();
-    assertEquals(JsonToken.END_DOCUMENT, in.peek());
-    assertEquals("$", in.getPath());
+    assertThat(in.peek()).isEqualTo(JsonToken.END_DOCUMENT);
+    assertThat(in.getPath()).isEqualTo("$");
   }
 
+  @Test
   public void testSkipValue_filledJsonObject() throws IOException {
     JsonObject jsonObject = new JsonObject();
     JsonArray jsonArray = new JsonArray();
@@ -53,56 +58,62 @@ public class JsonTreeReaderTest extends TestCase {
     jsonObject.addProperty("s", "text");
     JsonTreeReader in = new JsonTreeReader(jsonObject);
     in.skipValue();
-    assertEquals(JsonToken.END_DOCUMENT, in.peek());
-    assertEquals("$", in.getPath());
+    assertThat(in.peek()).isEqualTo(JsonToken.END_DOCUMENT);
+    assertThat(in.getPath()).isEqualTo("$");
   }
 
+  @Test
   public void testSkipValue_name() throws IOException {
     JsonObject jsonObject = new JsonObject();
     jsonObject.addProperty("a", "value");
     JsonTreeReader in = new JsonTreeReader(jsonObject);
     in.beginObject();
     in.skipValue();
-    assertEquals(JsonToken.STRING, in.peek());
-    assertEquals("$.<skipped>", in.getPath());
-    assertEquals("value", in.nextString());
+    assertThat(in.peek()).isEqualTo(JsonToken.STRING);
+    assertThat(in.getPath()).isEqualTo("$.<skipped>");
+    assertThat(in.nextString()).isEqualTo("value");
   }
 
+  @Test
   public void testSkipValue_afterEndOfDocument() throws IOException {
     JsonTreeReader reader = new JsonTreeReader(new JsonObject());
     reader.beginObject();
     reader.endObject();
-    assertEquals(JsonToken.END_DOCUMENT, reader.peek());
+    assertThat(reader.peek()).isEqualTo(JsonToken.END_DOCUMENT);
 
-    assertEquals("$", reader.getPath());
+    assertThat(reader.getPath()).isEqualTo("$");
     reader.skipValue();
-    assertEquals(JsonToken.END_DOCUMENT, reader.peek());
-    assertEquals("$", reader.getPath());
+    assertThat(reader.peek()).isEqualTo(JsonToken.END_DOCUMENT);
+    assertThat(reader.getPath()).isEqualTo("$");
   }
 
+  @Test
   public void testSkipValue_atArrayEnd() throws IOException {
     JsonTreeReader reader = new JsonTreeReader(new JsonArray());
     reader.beginArray();
     reader.skipValue();
-    assertEquals(JsonToken.END_DOCUMENT, reader.peek());
-    assertEquals("$", reader.getPath());
+    assertThat(reader.peek()).isEqualTo(JsonToken.END_DOCUMENT);
+    assertThat(reader.getPath()).isEqualTo("$");
   }
 
+  @Test
   public void testSkipValue_atObjectEnd() throws IOException {
     JsonTreeReader reader = new JsonTreeReader(new JsonObject());
     reader.beginObject();
     reader.skipValue();
-    assertEquals(JsonToken.END_DOCUMENT, reader.peek());
-    assertEquals("$", reader.getPath());
+    assertThat(reader.peek()).isEqualTo(JsonToken.END_DOCUMENT);
+    assertThat(reader.getPath()).isEqualTo("$");
   }
 
+  @Test
   public void testHasNext_endOfDocument() throws IOException {
     JsonTreeReader reader = new JsonTreeReader(new JsonObject());
     reader.beginObject();
     reader.endObject();
-    assertFalse(reader.hasNext());
+    assertThat(reader.hasNext()).isFalse();
   }
 
+  @Test
   public void testCustomJsonElementSubclass() throws IOException {
     @SuppressWarnings("deprecation") // superclass constructor
     class CustomSubclass extends JsonElement {
@@ -122,8 +133,7 @@ public class JsonTreeReaderTest extends TestCase {
       reader.peek();
       fail();
     } catch (MalformedJsonException expected) {
-      assertEquals("Custom JsonElement subclass " + CustomSubclass.class.getName() + " is not supported",
-          expected.getMessage());
+      assertThat(expected.getMessage()).isEqualTo("Custom JsonElement subclass " + CustomSubclass.class.getName() + " is not supported");
     }
   }
 
@@ -132,6 +142,7 @@ public class JsonTreeReaderTest extends TestCase {
    * read from a {@link JsonElement} instead of a {@link Reader}. Therefore all relevant methods of
    * {@code JsonReader} must be overridden.
    */
+  @Test
   public void testOverrides() {
     List<String> ignoredMethods = Arrays.asList("setLenient(boolean)", "isLenient()");
     MoreAsserts.assertOverridesMethods(JsonReader.class, JsonTreeReader.class, ignoredMethods);

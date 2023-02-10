@@ -63,6 +63,9 @@ import java.lang.reflect.Type;
  * Gson gson = new GsonBuilder().registerTypeAdapter(Id.class, new IdDeserializer()).create();
  * </pre>
  *
+ * <p>Deserializers should be stateless and thread-safe, otherwise the thread-safety
+ * guarantees of {@link Gson} might not apply.
+ *
  * <p>New applications should prefer {@link TypeAdapter}, whose streaming API
  * is more efficient than this interface's tree API.
  *
@@ -80,7 +83,7 @@ public interface JsonDeserializer<T> {
    * <p>In the implementation of this call-back method, you should consider invoking
    * {@link JsonDeserializationContext#deserialize(JsonElement, Type)} method to create objects
    * for any non-trivial field of the returned object. However, you should never invoke it on the
-   * the same type passing {@code json} since that will cause an infinite loop (Gson will call your
+   * same type passing {@code json} since that will cause an infinite loop (Gson will call your
    * call-back method again).
    *
    * @param json The Json data being deserialized

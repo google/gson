@@ -737,7 +737,9 @@ public class JsonReader implements Closeable {
     }
 
     // We've read a complete number. Decide if it's a PEEKED_LONG or a PEEKED_NUMBER.
-    if (last == NUMBER_CHAR_DIGIT && fitsInLong && (value != Long.MIN_VALUE || negative) && (value!=0 || false==negative)) {
+    // Don't store -0 as long; user might want to read it as double -0.0
+    // Don't try to convert Long.MIN_VALUE to positive long; it would overflow MAX_VALUE
+    if (last == NUMBER_CHAR_DIGIT && fitsInLong && (value != Long.MIN_VALUE || negative) && (value!=0 || !negative)) {
       peekedLong = negative ? value : -value;
       pos += i;
       return peeked = PEEKED_LONG;
@@ -1545,7 +1547,7 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Returns a <a href="https://goessner.net/articles/JsonPath/">JsonPath</a>
+   * Returns a <a href="https://goessner.net/articles/JsonPath/">JSONPath</a>
    * in <i>dot-notation</i> to the previous (or current) location in the JSON document:
    * <ul>
    *   <li>For JSON arrays the path points to the index of the previous element.<br>
@@ -1562,7 +1564,7 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Returns a <a href="https://goessner.net/articles/JsonPath/">JsonPath</a>
+   * Returns a <a href="https://goessner.net/articles/JsonPath/">JSONPath</a>
    * in <i>dot-notation</i> to the next (or current) location in the JSON document:
    * <ul>
    *   <li>For JSON arrays the path points to the index of the next element (even

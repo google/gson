@@ -16,7 +16,8 @@
 
 package com.google.gson.functional;
 
-import static org.junit.Assert.assertArrayEquals;
+import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.fail;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -31,7 +32,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Functional tests for Json primitive values: integers, and floating point numbers.
@@ -39,414 +41,460 @@ import junit.framework.TestCase;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class PrimitiveTest extends TestCase {
+public class PrimitiveTest {
   private Gson gson;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void setUp() throws Exception {
     gson = new Gson();
   }
 
+  @Test
   public void testPrimitiveIntegerAutoboxedSerialization() {
-    assertEquals("1", gson.toJson(1));
+    assertThat(gson.toJson(1)).isEqualTo("1");
   }
 
+  @Test
   public void testPrimitiveIntegerAutoboxedDeserialization() {
     int expected = 1;
     int actual = gson.fromJson("1", int.class);
-    assertEquals(expected, actual);
+    assertThat(actual).isEqualTo(expected);
 
     actual = gson.fromJson("1", Integer.class);
-    assertEquals(expected, actual);
+    assertThat(actual).isEqualTo(expected);
   }
 
+  @Test
   public void testByteSerialization() {
-    assertEquals("1", gson.toJson(1, byte.class));
-    assertEquals("1", gson.toJson(1, Byte.class));
-    assertEquals(Byte.toString(Byte.MIN_VALUE), gson.toJson(Byte.MIN_VALUE, Byte.class));
-    assertEquals(Byte.toString(Byte.MAX_VALUE), gson.toJson(Byte.MAX_VALUE, Byte.class));
+    assertThat(gson.toJson(1, byte.class)).isEqualTo("1");
+    assertThat(gson.toJson(1, Byte.class)).isEqualTo("1");
+    assertThat(gson.toJson(Byte.MIN_VALUE, Byte.class)).isEqualTo(Byte.toString(Byte.MIN_VALUE));
+    assertThat(gson.toJson(Byte.MAX_VALUE, Byte.class)).isEqualTo(Byte.toString(Byte.MAX_VALUE));
     // Should perform narrowing conversion
-    assertEquals("-128", gson.toJson(128, Byte.class));
-    assertEquals("1", gson.toJson(1.5, Byte.class));
+    assertThat(gson.toJson(128, Byte.class)).isEqualTo("-128");
+    assertThat(gson.toJson(1.5, Byte.class)).isEqualTo("1");
   }
 
+  @Test
   public void testByteDeserialization() {
     Byte boxed = gson.fromJson("1", Byte.class);
-    assertEquals(1, (byte)boxed);
+    assertThat(boxed).isEqualTo(1);
     byte primitive = gson.fromJson("1", byte.class);
-    assertEquals(1, primitive);
+    assertThat(primitive).isEqualTo(1);
 
     byte[] bytes = gson.fromJson("[-128, 0, 127, 255]", byte[].class);
-    assertArrayEquals(new byte[] {-128, 0, 127, -1}, bytes);
+    assertThat(bytes).isEqualTo(new byte[] {-128, 0, 127, -1});
   }
 
+  @Test
   public void testByteDeserializationLossy() {
     try {
       gson.fromJson("-129", byte.class);
       fail();
     } catch (JsonSyntaxException e) {
-      assertEquals("Lossy conversion from -129 to byte; at path $", e.getMessage());
+      assertThat(e.getMessage()).isEqualTo("Lossy conversion from -129 to byte; at path $");
     }
 
     try {
       gson.fromJson("256", byte.class);
       fail();
     } catch (JsonSyntaxException e) {
-      assertEquals("Lossy conversion from 256 to byte; at path $", e.getMessage());
+      assertThat(e.getMessage()).isEqualTo("Lossy conversion from 256 to byte; at path $");
     }
 
     try {
       gson.fromJson("2147483648", byte.class);
       fail();
     } catch (JsonSyntaxException e) {
-      assertEquals("java.lang.NumberFormatException: Expected an int but was 2147483648 at line 1 column 11 path $", e.getMessage());
+      assertThat(e.getMessage()).isEqualTo("java.lang.NumberFormatException: Expected an int but was 2147483648 at line 1 column 11 path $");
     }
   }
 
+  @Test
   public void testShortSerialization() {
-    assertEquals("1", gson.toJson(1, short.class));
-    assertEquals("1", gson.toJson(1, Short.class));
-    assertEquals(Short.toString(Short.MIN_VALUE), gson.toJson(Short.MIN_VALUE, Short.class));
-    assertEquals(Short.toString(Short.MAX_VALUE), gson.toJson(Short.MAX_VALUE, Short.class));
+    assertThat(gson.toJson(1, short.class)).isEqualTo("1");
+    assertThat(gson.toJson(1, Short.class)).isEqualTo("1");
+    assertThat(gson.toJson(Short.MIN_VALUE, Short.class)).isEqualTo(Short.toString(Short.MIN_VALUE));
+    assertThat(gson.toJson(Short.MAX_VALUE, Short.class)).isEqualTo(Short.toString(Short.MAX_VALUE));
     // Should perform widening conversion
-    assertEquals("1", gson.toJson((byte) 1, Short.class));
+    assertThat(gson.toJson((byte) 1, Short.class)).isEqualTo("1");
     // Should perform narrowing conversion
-    assertEquals("-32768", gson.toJson(32768, Short.class));
-    assertEquals("1", gson.toJson(1.5, Short.class));
+    assertThat(gson.toJson(32768, Short.class)).isEqualTo("-32768");
+    assertThat(gson.toJson(1.5, Short.class)).isEqualTo("1");
   }
 
+  @Test
   public void testShortDeserialization() {
     Short boxed = gson.fromJson("1", Short.class);
-    assertEquals(1, (short)boxed);
+    assertThat(boxed).isEqualTo(1);
     short primitive = gson.fromJson("1", short.class);
-    assertEquals(1, primitive);
+    assertThat(primitive).isEqualTo(1);
 
     short[] shorts = gson.fromJson("[-32768, 0, 32767, 65535]", short[].class);
-    assertArrayEquals(new short[] {-32768, 0, 32767, -1}, shorts);
+    assertThat(shorts).isEqualTo(new short[] {-32768, 0, 32767, -1});
   }
 
+  @Test
   public void testShortDeserializationLossy() {
     try {
       gson.fromJson("-32769", short.class);
       fail();
     } catch (JsonSyntaxException e) {
-      assertEquals("Lossy conversion from -32769 to short; at path $", e.getMessage());
+      assertThat(e.getMessage()).isEqualTo("Lossy conversion from -32769 to short; at path $");
     }
 
     try {
       gson.fromJson("65536", short.class);
       fail();
     } catch (JsonSyntaxException e) {
-      assertEquals("Lossy conversion from 65536 to short; at path $", e.getMessage());
+      assertThat(e.getMessage()).isEqualTo("Lossy conversion from 65536 to short; at path $");
     }
 
     try {
       gson.fromJson("2147483648", short.class);
       fail();
     } catch (JsonSyntaxException e) {
-      assertEquals("java.lang.NumberFormatException: Expected an int but was 2147483648 at line 1 column 11 path $", e.getMessage());
+      assertThat(e.getMessage()).isEqualTo("java.lang.NumberFormatException: Expected an int but was 2147483648 at line 1 column 11 path $");
     }
   }
 
+  @Test
   public void testIntSerialization() {
-    assertEquals("1", gson.toJson(1, int.class));
-    assertEquals("1", gson.toJson(1, Integer.class));
-    assertEquals(Integer.toString(Integer.MIN_VALUE), gson.toJson(Integer.MIN_VALUE, Integer.class));
-    assertEquals(Integer.toString(Integer.MAX_VALUE), gson.toJson(Integer.MAX_VALUE, Integer.class));
+    assertThat(gson.toJson(1, int.class)).isEqualTo("1");
+    assertThat(gson.toJson(1, Integer.class)).isEqualTo("1");
+    assertThat(gson.toJson(Integer.MIN_VALUE, Integer.class)).isEqualTo(Integer.toString(Integer.MIN_VALUE));
+    assertThat(gson.toJson(Integer.MAX_VALUE, Integer.class)).isEqualTo(Integer.toString(Integer.MAX_VALUE));
     // Should perform widening conversion
-    assertEquals("1", gson.toJson((byte) 1, Integer.class));
+    assertThat(gson.toJson((byte) 1, Integer.class)).isEqualTo("1");
     // Should perform narrowing conversion
-    assertEquals("-2147483648", gson.toJson(2147483648L, Integer.class));
-    assertEquals("1", gson.toJson(1.5, Integer.class));
+    assertThat(gson.toJson(2147483648L, Integer.class)).isEqualTo("-2147483648");
+    assertThat(gson.toJson(1.5, Integer.class)).isEqualTo("1");
   }
 
+  @Test
   public void testLongSerialization() {
-    assertEquals("1", gson.toJson(1L, long.class));
-    assertEquals("1", gson.toJson(1L, Long.class));
-    assertEquals(Long.toString(Long.MIN_VALUE), gson.toJson(Long.MIN_VALUE, Long.class));
-    assertEquals(Long.toString(Long.MAX_VALUE), gson.toJson(Long.MAX_VALUE, Long.class));
+    assertThat(gson.toJson(1L, long.class)).isEqualTo("1");
+    assertThat(gson.toJson(1L, Long.class)).isEqualTo("1");
+    assertThat(gson.toJson(Long.MIN_VALUE, Long.class)).isEqualTo(Long.toString(Long.MIN_VALUE));
+    assertThat(gson.toJson(Long.MAX_VALUE, Long.class)).isEqualTo(Long.toString(Long.MAX_VALUE));
     // Should perform widening conversion
-    assertEquals("1", gson.toJson((byte) 1, Long.class));
+    assertThat(gson.toJson((byte) 1, Long.class)).isEqualTo("1");
     // Should perform narrowing conversion
-    assertEquals("1", gson.toJson(1.5, Long.class));
+    assertThat(gson.toJson(1.5, Long.class)).isEqualTo("1");
   }
 
+  @Test
   public void testFloatSerialization() {
-    assertEquals("1.5", gson.toJson(1.5f, float.class));
-    assertEquals("1.5", gson.toJson(1.5f, Float.class));
-    assertEquals(Float.toString(Float.MIN_VALUE), gson.toJson(Float.MIN_VALUE, Float.class));
-    assertEquals(Float.toString(Float.MAX_VALUE), gson.toJson(Float.MAX_VALUE, Float.class));
+    assertThat(gson.toJson(1.5f, float.class)).isEqualTo("1.5");
+    assertThat(gson.toJson(1.5f, Float.class)).isEqualTo("1.5");
+    assertThat(gson.toJson(Float.MIN_VALUE, Float.class)).isEqualTo(Float.toString(Float.MIN_VALUE));
+    assertThat(gson.toJson(Float.MAX_VALUE, Float.class)).isEqualTo(Float.toString(Float.MAX_VALUE));
     // Should perform widening conversion
-    assertEquals("1.0", gson.toJson((byte) 1, Float.class));
+    assertThat(gson.toJson((byte) 1, Float.class)).isEqualTo("1.0");
     // (This widening conversion is actually lossy)
-    assertEquals(Float.toString(Long.MAX_VALUE - 10L), gson.toJson(Long.MAX_VALUE - 10L, Float.class));
+    assertThat(gson.toJson(Long.MAX_VALUE - 10L, Float.class)).isEqualTo(Float.toString(Long.MAX_VALUE - 10L));
     // Should perform narrowing conversion
     gson = new GsonBuilder().serializeSpecialFloatingPointValues().create();
-    assertEquals("Infinity", gson.toJson(Double.MAX_VALUE, Float.class));
+    assertThat(gson.toJson(Double.MAX_VALUE, Float.class)).isEqualTo("Infinity");
   }
 
+  @Test
   public void testDoubleSerialization() {
-    assertEquals("1.5", gson.toJson(1.5, double.class));
-    assertEquals("1.5", gson.toJson(1.5, Double.class));
-    assertEquals(Double.toString(Double.MIN_VALUE), gson.toJson(Double.MIN_VALUE, Double.class));
-    assertEquals(Double.toString(Double.MAX_VALUE), gson.toJson(Double.MAX_VALUE, Double.class));
+    assertThat(gson.toJson(1.5, double.class)).isEqualTo("1.5");
+    assertThat(gson.toJson(1.5, Double.class)).isEqualTo("1.5");
+    assertThat(gson.toJson(Double.MIN_VALUE, Double.class)).isEqualTo(Double.toString(Double.MIN_VALUE));
+    assertThat(gson.toJson(Double.MAX_VALUE, Double.class)).isEqualTo(Double.toString(Double.MAX_VALUE));
     // Should perform widening conversion
-    assertEquals("1.0", gson.toJson((byte) 1, Double.class));
+    assertThat(gson.toJson((byte) 1, Double.class)).isEqualTo("1.0");
     // (This widening conversion is actually lossy)
-    assertEquals(Double.toString(Long.MAX_VALUE - 10L), gson.toJson(Long.MAX_VALUE - 10L, Double.class));
+    assertThat(gson.toJson(Long.MAX_VALUE - 10L, Double.class)).isEqualTo(Double.toString(Long.MAX_VALUE - 10L));
   }
 
+  @Test
   public void testPrimitiveIntegerAutoboxedInASingleElementArraySerialization() {
-    int target[] = {-9332};
-    assertEquals("[-9332]", gson.toJson(target));
-    assertEquals("[-9332]", gson.toJson(target, int[].class));
-    assertEquals("[-9332]", gson.toJson(target, Integer[].class));
+    int[] target = {-9332};
+    assertThat(gson.toJson(target)).isEqualTo("[-9332]");
+    assertThat(gson.toJson(target, int[].class)).isEqualTo("[-9332]");
+    assertThat(gson.toJson(target, Integer[].class)).isEqualTo("[-9332]");
   }
 
+  @Test
   public void testReallyLongValuesSerialization() {
     long value = 333961828784581L;
-    assertEquals("333961828784581", gson.toJson(value));
+    assertThat(gson.toJson(value)).isEqualTo("333961828784581");
   }
 
+  @Test
   public void testReallyLongValuesDeserialization() {
     String json = "333961828784581";
     long value = gson.fromJson(json, Long.class);
-    assertEquals(333961828784581L, value);
+    assertThat(value).isEqualTo(333961828784581L);
   }
 
+  @Test
   public void testPrimitiveLongAutoboxedSerialization() {
-    assertEquals("1", gson.toJson(1L, long.class));
-    assertEquals("1", gson.toJson(1L, Long.class));
+    assertThat(gson.toJson(1L, long.class)).isEqualTo("1");
+    assertThat(gson.toJson(1L, Long.class)).isEqualTo("1");
   }
 
+  @Test
   public void testPrimitiveLongAutoboxedDeserialization() {
     long expected = 1L;
     long actual = gson.fromJson("1", long.class);
-    assertEquals(expected, actual);
+    assertThat(actual).isEqualTo(expected);
 
     actual = gson.fromJson("1", Long.class);
-    assertEquals(expected, actual);
+    assertThat(actual).isEqualTo(expected);
   }
 
+  @Test
   public void testPrimitiveLongAutoboxedInASingleElementArraySerialization() {
     long[] target = {-23L};
-    assertEquals("[-23]", gson.toJson(target));
-    assertEquals("[-23]", gson.toJson(target, long[].class));
-    assertEquals("[-23]", gson.toJson(target, Long[].class));
+    assertThat(gson.toJson(target)).isEqualTo("[-23]");
+    assertThat(gson.toJson(target, long[].class)).isEqualTo("[-23]");
+    assertThat(gson.toJson(target, Long[].class)).isEqualTo("[-23]");
   }
 
+  @Test
   public void testPrimitiveBooleanAutoboxedSerialization() {
-    assertEquals("true", gson.toJson(true));
-    assertEquals("false", gson.toJson(false));
+    assertThat(gson.toJson(true)).isEqualTo("true");
+    assertThat(gson.toJson(false)).isEqualTo("false");
   }
 
+  @Test
   public void testBooleanDeserialization() {
     boolean value = gson.fromJson("false", boolean.class);
-    assertEquals(false, value);
+    assertThat(value).isEqualTo(false);
     value = gson.fromJson("true", boolean.class);
-    assertEquals(true, value);
+    assertThat(value).isEqualTo(true);
   }
 
+  @Test
   public void testPrimitiveBooleanAutoboxedInASingleElementArraySerialization() {
-    boolean target[] = {false};
-    assertEquals("[false]", gson.toJson(target));
-    assertEquals("[false]", gson.toJson(target, boolean[].class));
-    assertEquals("[false]", gson.toJson(target, Boolean[].class));
+    boolean[] target = {false};
+    assertThat(gson.toJson(target)).isEqualTo("[false]");
+    assertThat(gson.toJson(target, boolean[].class)).isEqualTo("[false]");
+    assertThat(gson.toJson(target, Boolean[].class)).isEqualTo("[false]");
   }
 
+  @Test
   public void testNumberSerialization() {
     Number expected = 1L;
     String json = gson.toJson(expected);
-    assertEquals(expected.toString(), json);
+    assertThat(json).isEqualTo(expected.toString());
 
     json = gson.toJson(expected, Number.class);
-    assertEquals(expected.toString(), json);
+    assertThat(json).isEqualTo(expected.toString());
   }
 
+  @Test
   public void testNumberDeserialization() {
     String json = "1";
     Number expected = Integer.valueOf(json);
     Number actual = gson.fromJson(json, Number.class);
-    assertEquals(expected.intValue(), actual.intValue());
+    assertThat(actual.intValue()).isEqualTo(expected.intValue());
 
     json = String.valueOf(Long.MAX_VALUE);
     expected = Long.valueOf(json);
     actual = gson.fromJson(json, Number.class);
-    assertEquals(expected.longValue(), actual.longValue());
+    assertThat(actual.longValue()).isEqualTo(expected.longValue());
 
     json = "1.0";
     actual = gson.fromJson(json, Number.class);
-    assertEquals(1L, actual.longValue());
+    assertThat(actual.longValue()).isEqualTo(1L);
   }
 
+  @Test
   public void testNumberAsStringDeserialization() {
     Number value = gson.fromJson("\"18\"", Number.class);
-    assertEquals(18, value.intValue());
+    assertThat(value.intValue()).isEqualTo(18);
   }
 
+  @Test
   public void testPrimitiveDoubleAutoboxedSerialization() {
-    assertEquals("-122.08234335", gson.toJson(-122.08234335D));
-    assertEquals("122.08112002", gson.toJson(122.08112002D));
+    assertThat(gson.toJson(-122.08234335D)).isEqualTo("-122.08234335");
+    assertThat(gson.toJson(122.08112002D)).isEqualTo("122.08112002");
   }
 
+  @Test
   public void testPrimitiveDoubleAutoboxedDeserialization() {
     double actual = gson.fromJson("-122.08858585", double.class);
-    assertEquals(-122.08858585D, actual);
+    assertThat(actual).isEqualTo(-122.08858585D);
 
     actual = gson.fromJson("122.023900008000", Double.class);
-    assertEquals(122.023900008D, actual);
+    assertThat(actual).isEqualTo(122.023900008D);
   }
 
+  @Test
   public void testPrimitiveDoubleAutoboxedInASingleElementArraySerialization() {
     double[] target = {-122.08D};
-    assertEquals("[-122.08]", gson.toJson(target));
-    assertEquals("[-122.08]", gson.toJson(target, double[].class));
-    assertEquals("[-122.08]", gson.toJson(target, Double[].class));
+    assertThat(gson.toJson(target)).isEqualTo("[-122.08]");
+    assertThat(gson.toJson(target, double[].class)).isEqualTo("[-122.08]");
+    assertThat(gson.toJson(target, Double[].class)).isEqualTo("[-122.08]");
   }
 
+  @Test
   public void testDoubleAsStringRepresentationDeserialization() {
     String doubleValue = "1.0043E+5";
     Double expected = Double.valueOf(doubleValue);
     Double actual = gson.fromJson(doubleValue, Double.class);
-    assertEquals(expected, actual);
+    assertThat(actual).isEqualTo(expected);
 
     double actual1 = gson.fromJson(doubleValue, double.class);
-    assertEquals(expected.doubleValue(), actual1);
+    assertThat(actual1).isEqualTo(expected);
   }
 
+  @Test
   public void testDoubleNoFractAsStringRepresentationDeserialization() {
     String doubleValue = "1E+5";
     Double expected = Double.valueOf(doubleValue);
     Double actual = gson.fromJson(doubleValue, Double.class);
-    assertEquals(expected, actual);
+    assertThat(actual).isEqualTo(expected);
 
     double actual1 = gson.fromJson(doubleValue, double.class);
-    assertEquals(expected.doubleValue(), actual1);
+    assertThat(actual1).isEqualTo(expected);
   }
 
+  @Test
   public void testDoubleArrayDeserialization() {
       String json = "[0.0, 0.004761904761904762, 3.4013606962703525E-4, 7.936508173034305E-4,"
               + "0.0011904761904761906, 0.0]";
       double[] values = gson.fromJson(json, double[].class);
-      assertEquals(6, values.length);
-      assertEquals(0.0, values[0]);
-      assertEquals(0.004761904761904762, values[1]);
-      assertEquals(3.4013606962703525E-4, values[2]);
-      assertEquals(7.936508173034305E-4, values[3]);
-      assertEquals(0.0011904761904761906, values[4]);
-      assertEquals(0.0, values[5]);
+
+      assertThat(values).hasLength(6);
+      assertThat(values[0]).isEqualTo(0.0);
+      assertThat(values[1]).isEqualTo(0.004761904761904762);
+      assertThat(values[2]).isEqualTo(3.4013606962703525E-4);
+      assertThat(values[3]).isEqualTo(7.936508173034305E-4);
+      assertThat(values[4]).isEqualTo(0.0011904761904761906);
+      assertThat(values[5]).isEqualTo(0.0);
   }
 
+  @Test
   public void testLargeDoubleDeserialization() {
     String doubleValue = "1.234567899E8";
     Double expected = Double.valueOf(doubleValue);
     Double actual = gson.fromJson(doubleValue, Double.class);
-    assertEquals(expected, actual);
+    assertThat(actual).isEqualTo(expected);
 
     double actual1 = gson.fromJson(doubleValue, double.class);
-    assertEquals(expected.doubleValue(), actual1);
+    assertThat(actual1).isEqualTo(expected);
   }
 
+  @Test
   public void testBigDecimalSerialization() {
     BigDecimal target = new BigDecimal("-122.0e-21");
     String json = gson.toJson(target);
-    assertEquals(target, new BigDecimal(json));
+    assertThat(new BigDecimal(json)).isEqualTo(target);
   }
 
+  @Test
   public void testBigDecimalDeserialization() {
     BigDecimal target = new BigDecimal("-122.0e-21");
     String json = "-122.0e-21";
-    assertEquals(target, gson.fromJson(json, BigDecimal.class));
+    assertThat(gson.fromJson(json, BigDecimal.class)).isEqualTo(target);
   }
 
+  @Test
   public void testBigDecimalInASingleElementArraySerialization() {
     BigDecimal[] target = {new BigDecimal("-122.08e-21")};
     String json = gson.toJson(target);
     String actual = extractElementFromArray(json);
-    assertEquals(target[0], new BigDecimal(actual));
+    assertThat(new BigDecimal(actual)).isEqualTo(target[0]);
 
     json = gson.toJson(target, BigDecimal[].class);
     actual = extractElementFromArray(json);
-    assertEquals(target[0], new BigDecimal(actual));
+    assertThat(new BigDecimal(actual)).isEqualTo(target[0]);
   }
 
+  @Test
   public void testSmallValueForBigDecimalSerialization() {
     BigDecimal target = new BigDecimal("1.55");
     String actual = gson.toJson(target);
-    assertEquals(target.toString(), actual);
+    assertThat(actual).isEqualTo(target.toString());
   }
 
+  @Test
   public void testSmallValueForBigDecimalDeserialization() {
     BigDecimal expected = new BigDecimal("1.55");
     BigDecimal actual = gson.fromJson("1.55", BigDecimal.class);
-    assertEquals(expected, actual);
+    assertThat(actual).isEqualTo(expected);
   }
 
+  @Test
   public void testBigDecimalPreservePrecisionSerialization() {
     String expectedValue = "1.000";
     BigDecimal obj = new BigDecimal(expectedValue);
     String actualValue = gson.toJson(obj);
 
-    assertEquals(expectedValue, actualValue);
+    assertThat(actualValue).isEqualTo(expectedValue);
   }
 
+  @Test
   public void testBigDecimalPreservePrecisionDeserialization() {
     String json = "1.000";
     BigDecimal expected = new BigDecimal(json);
     BigDecimal actual = gson.fromJson(json, BigDecimal.class);
 
-    assertEquals(expected, actual);
+    assertThat(actual).isEqualTo(expected);
   }
 
+  @Test
   public void testBigDecimalAsStringRepresentationDeserialization() {
     String doubleValue = "0.05E+5";
     BigDecimal expected = new BigDecimal(doubleValue);
     BigDecimal actual = gson.fromJson(doubleValue, BigDecimal.class);
-    assertEquals(expected, actual);
+    assertThat(actual).isEqualTo(expected);
   }
 
+  @Test
   public void testBigDecimalNoFractAsStringRepresentationDeserialization() {
     String doubleValue = "5E+5";
     BigDecimal expected = new BigDecimal(doubleValue);
     BigDecimal actual = gson.fromJson(doubleValue, BigDecimal.class);
-    assertEquals(expected, actual);
+    assertThat(actual).isEqualTo(expected);
   }
 
+  @Test
   public void testBigIntegerSerialization() {
     BigInteger target = new BigInteger("12121211243123245845384534687435634558945453489543985435");
-    assertEquals(target.toString(), gson.toJson(target));
+    assertThat(gson.toJson(target)).isEqualTo(target.toString());
   }
 
+  @Test
   public void testBigIntegerDeserialization() {
     String json = "12121211243123245845384534687435634558945453489543985435";
     BigInteger target = new BigInteger(json);
-    assertEquals(target, gson.fromJson(json, BigInteger.class));
+    assertThat(gson.fromJson(json, BigInteger.class)).isEqualTo(target);
   }
 
+  @Test
   public void testBigIntegerInASingleElementArraySerialization() {
     BigInteger[] target = {new BigInteger("1212121243434324323254365345367456456456465464564564")};
     String json = gson.toJson(target);
     String actual = extractElementFromArray(json);
-    assertEquals(target[0], new BigInteger(actual));
+    assertThat(new BigInteger(actual)).isEqualTo(target[0]);
 
     json = gson.toJson(target, BigInteger[].class);
     actual = extractElementFromArray(json);
-    assertEquals(target[0], new BigInteger(actual));
+    assertThat(new BigInteger(actual)).isEqualTo(target[0]);
   }
 
+  @Test
   public void testSmallValueForBigIntegerSerialization() {
     BigInteger target = new BigInteger("15");
     String actual = gson.toJson(target);
-    assertEquals(target.toString(), actual);
+    assertThat(actual).isEqualTo(target.toString());
   }
 
+  @Test
   public void testSmallValueForBigIntegerDeserialization() {
     BigInteger expected = new BigInteger("15");
     BigInteger actual = gson.fromJson("15", BigInteger.class);
-    assertEquals(expected, actual);
+    assertThat(actual).isEqualTo(expected);
   }
 
+  @Test
   public void testBadValueForBigIntegerDeserialization() {
     try {
       gson.fromJson("15.099", BigInteger.class);
@@ -454,18 +502,21 @@ public class PrimitiveTest extends TestCase {
     } catch (JsonSyntaxException expected) { }
   }
 
+  @Test
   public void testLazilyParsedNumberSerialization() {
     LazilyParsedNumber target = new LazilyParsedNumber("1.5");
     String actual = gson.toJson(target);
-    assertEquals("1.5", actual);
+    assertThat(actual).isEqualTo("1.5");
   }
 
+  @Test
   public void testLazilyParsedNumberDeserialization() {
     LazilyParsedNumber expected = new LazilyParsedNumber("1.5");
     LazilyParsedNumber actual = gson.fromJson("1.5", LazilyParsedNumber.class);
-    assertEquals(expected, actual);
+    assertThat(actual).isEqualTo(expected);
   }
 
+  @Test
   public void testMoreSpecificSerialization() {
     Gson gson = new Gson();
     String expected = "This is a string";
@@ -473,13 +524,14 @@ public class PrimitiveTest extends TestCase {
 
     Serializable serializableString = expected;
     String actualJson = gson.toJson(serializableString, Serializable.class);
-    assertFalse(expectedJson.equals(actualJson));
+    assertThat(actualJson).isNotEqualTo(expectedJson);
   }
 
   private String extractElementFromArray(String json) {
     return json.substring(json.indexOf('[') + 1, json.indexOf(']'));
   }
 
+  @Test
   public void testDoubleNaNSerializationNotSupportedByDefault() {
     try {
       double nan = Double.NaN;
@@ -494,18 +546,21 @@ public class PrimitiveTest extends TestCase {
     }
   }
 
+  @Test
   public void testDoubleNaNSerialization() {
     Gson gson = new GsonBuilder().serializeSpecialFloatingPointValues().create();
     double nan = Double.NaN;
-    assertEquals("NaN", gson.toJson(nan));
-    assertEquals("NaN", gson.toJson(Double.NaN));
+    assertThat(gson.toJson(nan)).isEqualTo("NaN");
+    assertThat(gson.toJson(Double.NaN)).isEqualTo("NaN");
   }
 
+  @Test
   public void testDoubleNaNDeserialization() {
-    assertTrue(Double.isNaN(gson.fromJson("NaN", Double.class)));
-    assertTrue(Double.isNaN(gson.fromJson("NaN", double.class)));
+    assertThat(Double.isNaN(gson.fromJson("NaN", Double.class))).isTrue();
+    assertThat(Double.isNaN(gson.fromJson("NaN", double.class))).isTrue();
   }
 
+  @Test
   public void testFloatNaNSerializationNotSupportedByDefault() {
     try {
       float nan = Float.NaN;
@@ -520,18 +575,21 @@ public class PrimitiveTest extends TestCase {
     }
   }
 
+  @Test
   public void testFloatNaNSerialization() {
     Gson gson = new GsonBuilder().serializeSpecialFloatingPointValues().create();
     float nan = Float.NaN;
-    assertEquals("NaN", gson.toJson(nan));
-    assertEquals("NaN", gson.toJson(Float.NaN));
+    assertThat(gson.toJson(nan)).isEqualTo("NaN");
+    assertThat(gson.toJson(Float.NaN)).isEqualTo("NaN");
   }
 
+  @Test
   public void testFloatNaNDeserialization() {
-    assertTrue(Float.isNaN(gson.fromJson("NaN", Float.class)));
-    assertTrue(Float.isNaN(gson.fromJson("NaN", float.class)));
+    assertThat(Float.isNaN(gson.fromJson("NaN", Float.class))).isTrue();
+    assertThat(Float.isNaN(gson.fromJson("NaN", float.class))).isTrue();
   }
 
+  @Test
   public void testBigDecimalNaNDeserializationNotSupported() {
     try {
       gson.fromJson("NaN", BigDecimal.class);
@@ -540,6 +598,7 @@ public class PrimitiveTest extends TestCase {
     }
   }
 
+  @Test
   public void testDoubleInfinitySerializationNotSupportedByDefault() {
     try {
       double infinity = Double.POSITIVE_INFINITY;
@@ -554,18 +613,21 @@ public class PrimitiveTest extends TestCase {
     }
   }
 
+  @Test
   public void testDoubleInfinitySerialization() {
     Gson gson = new GsonBuilder().serializeSpecialFloatingPointValues().create();
     double infinity = Double.POSITIVE_INFINITY;
-    assertEquals("Infinity", gson.toJson(infinity));
-    assertEquals("Infinity", gson.toJson(Double.POSITIVE_INFINITY));
+    assertThat(gson.toJson(infinity)).isEqualTo("Infinity");
+    assertThat(gson.toJson(Double.POSITIVE_INFINITY)).isEqualTo("Infinity");
   }
 
+  @Test
   public void testDoubleInfinityDeserialization() {
-    assertTrue(Double.isInfinite(gson.fromJson("Infinity", Double.class)));
-    assertTrue(Double.isInfinite(gson.fromJson("Infinity", double.class)));
+    assertThat(Double.isInfinite(gson.fromJson("Infinity", Double.class))).isTrue();
+    assertThat(Double.isInfinite(gson.fromJson("Infinity", double.class))).isTrue();
   }
 
+  @Test
   public void testFloatInfinitySerializationNotSupportedByDefault() {
     try {
       float infinity = Float.POSITIVE_INFINITY;
@@ -580,18 +642,21 @@ public class PrimitiveTest extends TestCase {
     }
   }
 
+  @Test
   public void testFloatInfinitySerialization() {
     Gson gson = new GsonBuilder().serializeSpecialFloatingPointValues().create();
     float infinity = Float.POSITIVE_INFINITY;
-    assertEquals("Infinity", gson.toJson(infinity));
-    assertEquals("Infinity", gson.toJson(Float.POSITIVE_INFINITY));
+    assertThat(gson.toJson(infinity)).isEqualTo("Infinity");
+    assertThat(gson.toJson(Float.POSITIVE_INFINITY)).isEqualTo("Infinity");
   }
 
+  @Test
   public void testFloatInfinityDeserialization() {
-    assertTrue(Float.isInfinite(gson.fromJson("Infinity", Float.class)));
-    assertTrue(Float.isInfinite(gson.fromJson("Infinity", float.class)));
+    assertThat(Float.isInfinite(gson.fromJson("Infinity", Float.class))).isTrue();
+    assertThat(Float.isInfinite(gson.fromJson("Infinity", float.class))).isTrue();
   }
 
+  @Test
   public void testBigDecimalInfinityDeserializationNotSupported() {
     try {
       gson.fromJson("Infinity", BigDecimal.class);
@@ -600,6 +665,7 @@ public class PrimitiveTest extends TestCase {
     }
   }
 
+  @Test
   public void testNegativeInfinitySerializationNotSupportedByDefault() {
     try {
       double negativeInfinity = Double.NEGATIVE_INFINITY;
@@ -614,18 +680,21 @@ public class PrimitiveTest extends TestCase {
     }
   }
 
+  @Test
   public void testNegativeInfinitySerialization() {
     Gson gson = new GsonBuilder().serializeSpecialFloatingPointValues().create();
     double negativeInfinity = Double.NEGATIVE_INFINITY;
-    assertEquals("-Infinity", gson.toJson(negativeInfinity));
-    assertEquals("-Infinity", gson.toJson(Double.NEGATIVE_INFINITY));
+    assertThat(gson.toJson(negativeInfinity)).isEqualTo("-Infinity");
+    assertThat(gson.toJson(Double.NEGATIVE_INFINITY)).isEqualTo("-Infinity");
   }
 
+  @Test
   public void testNegativeInfinityDeserialization() {
-    assertTrue(Double.isInfinite(gson.fromJson("-Infinity", double.class)));
-    assertTrue(Double.isInfinite(gson.fromJson("-Infinity", Double.class)));
+    assertThat(Double.isInfinite(gson.fromJson("-Infinity", double.class))).isTrue();
+    assertThat(Double.isInfinite(gson.fromJson("-Infinity", Double.class))).isTrue();
   }
 
+  @Test
   public void testNegativeInfinityFloatSerializationNotSupportedByDefault() {
     try {
       float negativeInfinity = Float.NEGATIVE_INFINITY;
@@ -640,18 +709,21 @@ public class PrimitiveTest extends TestCase {
     }
   }
 
+  @Test
   public void testNegativeInfinityFloatSerialization() {
     Gson gson = new GsonBuilder().serializeSpecialFloatingPointValues().create();
     float negativeInfinity = Float.NEGATIVE_INFINITY;
-    assertEquals("-Infinity", gson.toJson(negativeInfinity));
-    assertEquals("-Infinity", gson.toJson(Float.NEGATIVE_INFINITY));
+    assertThat(gson.toJson(negativeInfinity)).isEqualTo("-Infinity");
+    assertThat(gson.toJson(Float.NEGATIVE_INFINITY)).isEqualTo("-Infinity");
   }
 
+  @Test
   public void testNegativeInfinityFloatDeserialization() {
-    assertTrue(Float.isInfinite(gson.fromJson("-Infinity", float.class)));
-    assertTrue(Float.isInfinite(gson.fromJson("-Infinity", Float.class)));
+    assertThat(Float.isInfinite(gson.fromJson("-Infinity", float.class))).isTrue();
+    assertThat(Float.isInfinite(gson.fromJson("-Infinity", Float.class))).isTrue();
   }
 
+  @Test
   public void testBigDecimalNegativeInfinityDeserializationNotSupported() {
     try {
       gson.fromJson("-Infinity", BigDecimal.class);
@@ -660,36 +732,40 @@ public class PrimitiveTest extends TestCase {
     }
   }
 
-  public void testLongAsStringSerialization() throws Exception {
+  @Test
+  public void testLongAsStringSerialization() {
     gson = new GsonBuilder().setLongSerializationPolicy(LongSerializationPolicy.STRING).create();
     String result = gson.toJson(15L);
-    assertEquals("\"15\"", result);
+    assertThat(result).isEqualTo("\"15\"");
 
     // Test with an integer and ensure its still a number
     result = gson.toJson(2);
-    assertEquals("2", result);
+    assertThat(result).isEqualTo("2");
   }
 
-  public void testLongAsStringDeserialization() throws Exception {
+  @Test
+  public void testLongAsStringDeserialization() {
     long value = gson.fromJson("\"15\"", long.class);
-    assertEquals(15, value);
+    assertThat(value).isEqualTo(15);
 
     gson = new GsonBuilder().setLongSerializationPolicy(LongSerializationPolicy.STRING).create();
     value = gson.fromJson("\"25\"", long.class);
-    assertEquals(25, value);
+    assertThat(value).isEqualTo(25);
   }
 
-  public void testQuotedStringSerializationAndDeserialization() throws Exception {
+  @Test
+  public void testQuotedStringSerializationAndDeserialization() {
     String value = "String Blah Blah Blah...1, 2, 3";
     String serializedForm = gson.toJson(value);
-    assertEquals("\"" + value + "\"", serializedForm);
+    assertThat(serializedForm).isEqualTo("\"" + value + "\"");
 
     String actual = gson.fromJson(serializedForm, String.class);
-    assertEquals(value, actual);
+    assertThat(actual).isEqualTo(value);
   }
 
-  public void testUnquotedStringDeserializationFails() throws Exception {
-    assertEquals("UnquotedSingleWord", gson.fromJson("UnquotedSingleWord", String.class));
+  @Test
+  public void testUnquotedStringDeserializationFails() {
+    assertThat(gson.fromJson("UnquotedSingleWord", String.class)).isEqualTo("UnquotedSingleWord");
 
     String value = "String Blah Blah Blah...1, 2, 3";
     try {
@@ -698,32 +774,36 @@ public class PrimitiveTest extends TestCase {
     } catch (JsonSyntaxException expected) { }
   }
 
-  public void testHtmlCharacterSerialization() throws Exception {
+  @Test
+  public void testHtmlCharacterSerialization() {
     String target = "<script>var a = 12;</script>";
     String result = gson.toJson(target);
-    assertFalse(result.equals('"' + target + '"'));
+    assertThat(result).isNotEqualTo('"' + target + '"');
 
     gson = new GsonBuilder().disableHtmlEscaping().create();
     result = gson.toJson(target);
-    assertTrue(result.equals('"' + target + '"'));
+    assertThat(result).isEqualTo('"' + target + '"');
   }
 
+  @Test
   public void testDeserializePrimitiveWrapperAsObjectField() {
     String json = "{i:10}";
     ClassWithIntegerField target = gson.fromJson(json, ClassWithIntegerField.class);
-    assertEquals(10, target.i.intValue());
+    assertThat(target.i).isEqualTo(10);
   }
 
   private static class ClassWithIntegerField {
     Integer i;
   }
 
+  @Test
   public void testPrimitiveClassLiteral() {
-    assertEquals(1, gson.fromJson("1", int.class).intValue());
-    assertEquals(1, gson.fromJson(new StringReader("1"), int.class).intValue());
-    assertEquals(1, gson.fromJson(new JsonPrimitive(1), int.class).intValue());
+    assertThat(gson.fromJson("1", int.class)).isEqualTo(1);
+    assertThat(gson.fromJson(new StringReader("1"), int.class)).isEqualTo(1);
+    assertThat(gson.fromJson(new JsonPrimitive(1), int.class)).isEqualTo(1);
   }
 
+  @Test
   public void testDeserializeJsonObjectAsLongPrimitive() {
     try {
       gson.fromJson("{'abc':1}", long.class);
@@ -731,6 +811,7 @@ public class PrimitiveTest extends TestCase {
     } catch (JsonSyntaxException expected) {}
   }
 
+  @Test
   public void testDeserializeJsonArrayAsLongWrapper() {
     try {
       gson.fromJson("[1,2,3]", Long.class);
@@ -738,6 +819,7 @@ public class PrimitiveTest extends TestCase {
     } catch (JsonSyntaxException expected) {}
   }
 
+  @Test
   public void testDeserializeJsonArrayAsInt() {
     try {
       gson.fromJson("[1, 2, 3, 4]", int.class);
@@ -745,6 +827,7 @@ public class PrimitiveTest extends TestCase {
     } catch (JsonSyntaxException expected) {}
   }
 
+  @Test
   public void testDeserializeJsonObjectAsInteger() {
     try {
       gson.fromJson("{}", Integer.class);
@@ -752,6 +835,7 @@ public class PrimitiveTest extends TestCase {
     } catch (JsonSyntaxException expected) {}
   }
 
+  @Test
   public void testDeserializeJsonObjectAsShortPrimitive() {
     try {
       gson.fromJson("{'abc':1}", short.class);
@@ -759,6 +843,7 @@ public class PrimitiveTest extends TestCase {
     } catch (JsonSyntaxException expected) {}
   }
 
+  @Test
   public void testDeserializeJsonArrayAsShortWrapper() {
     try {
       gson.fromJson("['a','b']", Short.class);
@@ -766,6 +851,7 @@ public class PrimitiveTest extends TestCase {
     } catch (JsonSyntaxException expected) {}
   }
 
+  @Test
   public void testDeserializeJsonArrayAsDoublePrimitive() {
     try {
       gson.fromJson("[1,2]", double.class);
@@ -773,6 +859,7 @@ public class PrimitiveTest extends TestCase {
     } catch (JsonSyntaxException expected) {}
   }
 
+  @Test
   public void testDeserializeJsonObjectAsDoubleWrapper() {
     try {
       gson.fromJson("{'abc':1}", Double.class);
@@ -780,6 +867,7 @@ public class PrimitiveTest extends TestCase {
     } catch (JsonSyntaxException expected) {}
   }
 
+  @Test
   public void testDeserializeJsonObjectAsFloatPrimitive() {
     try {
       gson.fromJson("{'abc':1}", float.class);
@@ -787,6 +875,7 @@ public class PrimitiveTest extends TestCase {
     } catch (JsonSyntaxException expected) {}
   }
 
+  @Test
   public void testDeserializeJsonArrayAsFloatWrapper() {
     try {
       gson.fromJson("[1,2,3]", Float.class);
@@ -794,6 +883,7 @@ public class PrimitiveTest extends TestCase {
     } catch (JsonSyntaxException expected) {}
   }
 
+  @Test
   public void testDeserializeJsonObjectAsBytePrimitive() {
     try {
       gson.fromJson("{'abc':1}", byte.class);
@@ -801,6 +891,7 @@ public class PrimitiveTest extends TestCase {
     } catch (JsonSyntaxException expected) {}
   }
 
+  @Test
   public void testDeserializeJsonArrayAsByteWrapper() {
     try {
       gson.fromJson("[1,2,3,4]", Byte.class);
@@ -808,6 +899,7 @@ public class PrimitiveTest extends TestCase {
     } catch (JsonSyntaxException expected) {}
   }
 
+  @Test
   public void testDeserializeJsonObjectAsBooleanPrimitive() {
     try {
       gson.fromJson("{'abc':1}", boolean.class);
@@ -815,6 +907,7 @@ public class PrimitiveTest extends TestCase {
     } catch (JsonSyntaxException expected) {}
   }
 
+  @Test
   public void testDeserializeJsonArrayAsBooleanWrapper() {
     try {
       gson.fromJson("[1,2,3,4]", Boolean.class);
@@ -822,6 +915,7 @@ public class PrimitiveTest extends TestCase {
     } catch (JsonSyntaxException expected) {}
   }
 
+  @Test
   public void testDeserializeJsonArrayAsBigDecimal() {
     try {
       gson.fromJson("[1,2,3,4]", BigDecimal.class);
@@ -829,6 +923,7 @@ public class PrimitiveTest extends TestCase {
     } catch (JsonSyntaxException expected) {}
   }
 
+  @Test
   public void testDeserializeJsonObjectAsBigDecimal() {
     try {
       gson.fromJson("{'a':1}", BigDecimal.class);
@@ -836,6 +931,7 @@ public class PrimitiveTest extends TestCase {
     } catch (JsonSyntaxException expected) {}
   }
 
+  @Test
   public void testDeserializeJsonArrayAsBigInteger() {
     try {
       gson.fromJson("[1,2,3,4]", BigInteger.class);
@@ -843,6 +939,7 @@ public class PrimitiveTest extends TestCase {
     } catch (JsonSyntaxException expected) {}
   }
 
+  @Test
   public void testDeserializeJsonObjectAsBigInteger() {
     try {
       gson.fromJson("{'c':2}", BigInteger.class);
@@ -850,6 +947,7 @@ public class PrimitiveTest extends TestCase {
     } catch (JsonSyntaxException expected) {}
   }
 
+  @Test
   public void testDeserializeJsonArrayAsNumber() {
     try {
       gson.fromJson("[1,2,3,4]", Number.class);
@@ -857,6 +955,7 @@ public class PrimitiveTest extends TestCase {
     } catch (JsonSyntaxException expected) {}
   }
 
+  @Test
   public void testDeserializeJsonObjectAsNumber() {
     try {
       gson.fromJson("{'c':2}", Number.class);
@@ -864,10 +963,12 @@ public class PrimitiveTest extends TestCase {
     } catch (JsonSyntaxException expected) {}
   }
 
+  @Test
   public void testDeserializingDecimalPointValueZeroSucceeds() {
-    assertEquals(1, (int) gson.fromJson("1.0", Integer.class));
+    assertThat(gson.fromJson("1.0", Integer.class)).isEqualTo(1);
   }
 
+  @Test
   public void testDeserializingNonZeroDecimalPointValuesAsIntegerFails() {
     try {
       gson.fromJson("1.02", Byte.class);
@@ -891,6 +992,7 @@ public class PrimitiveTest extends TestCase {
     }
   }
 
+  @Test
   public void testDeserializingBigDecimalAsIntegerFails() {
     try {
       gson.fromJson("-122.08e-213", Integer.class);
@@ -899,6 +1001,7 @@ public class PrimitiveTest extends TestCase {
     }
   }
 
+  @Test
   public void testDeserializingBigIntegerAsInteger() {
     try {
       gson.fromJson("12121211243123245845384534687435634558945453489543985435", Integer.class);
@@ -907,6 +1010,7 @@ public class PrimitiveTest extends TestCase {
     }
   }
 
+  @Test
   public void testDeserializingBigIntegerAsLong() {
     try {
       gson.fromJson("12121211243123245845384534687435634558945453489543985435", Long.class);
@@ -915,29 +1019,33 @@ public class PrimitiveTest extends TestCase {
     }
   }
 
+  @Test
   public void testValueVeryCloseToZeroIsZero() {
-    assertEquals(0, (byte) gson.fromJson("-122.08e-2132", byte.class));
-    assertEquals(0, (short) gson.fromJson("-122.08e-2132", short.class));
-    assertEquals(0, (int) gson.fromJson("-122.08e-2132", int.class));
-    assertEquals(0, (long) gson.fromJson("-122.08e-2132", long.class));
-    assertEquals(-0.0f, gson.fromJson("-122.08e-2132", float.class));
-    assertEquals(-0.0, gson.fromJson("-122.08e-2132", double.class));
-    assertEquals(0.0f, gson.fromJson("122.08e-2132", float.class));
-    assertEquals(0.0, gson.fromJson("122.08e-2132", double.class));
+    assertThat(gson.fromJson("-122.08e-2132", byte.class)).isEqualTo(0);
+    assertThat(gson.fromJson("-122.08e-2132", short.class)).isEqualTo(0);
+    assertThat(gson.fromJson("-122.08e-2132", int.class)).isEqualTo(0);
+    assertThat(gson.fromJson("-122.08e-2132", long.class)).isEqualTo(0);
+    assertThat(gson.fromJson("-122.08e-2132", float.class)).isEqualTo(-0.0f);
+    assertThat(gson.fromJson("-122.08e-2132", double.class)).isEqualTo(-0.0);
+    assertThat(gson.fromJson("122.08e-2132", float.class)).isEqualTo(0.0f);
+    assertThat(gson.fromJson("122.08e-2132", double.class)).isEqualTo(0.0);
   }
 
+  @Test
   public void testDeserializingBigDecimalAsFloat() {
     String json = "-122.08e-2132332";
     float actual = gson.fromJson(json, float.class);
-    assertEquals(-0.0f, actual);
+    assertThat(actual).isEqualTo(-0.0f);
   }
 
+  @Test
   public void testDeserializingBigDecimalAsDouble() {
     String json = "-122.08e-2132332";
     double actual = gson.fromJson(json, double.class);
-    assertEquals(-0.0d, actual);
+    assertThat(actual).isEqualTo(-0.0d);
   }
 
+  @Test
   public void testDeserializingBigDecimalAsBigIntegerFails() {
     try {
       gson.fromJson("-122.08e-213", BigInteger.class);
@@ -946,15 +1054,16 @@ public class PrimitiveTest extends TestCase {
     }
   }
 
+  @Test
   public void testDeserializingBigIntegerAsBigDecimal() {
     BigDecimal actual =
       gson.fromJson("12121211243123245845384534687435634558945453489543985435", BigDecimal.class);
-    assertEquals("12121211243123245845384534687435634558945453489543985435", actual.toPlainString());
+    assertThat(actual.toPlainString()).isEqualTo("12121211243123245845384534687435634558945453489543985435");
   }
 
+  @Test
   public void testStringsAsBooleans() {
     String json = "['true', 'false', 'TRUE', 'yes', '1']";
-    assertEquals(Arrays.asList(true, false, true, false, false),
-        gson.<List<Boolean>>fromJson(json, new TypeToken<List<Boolean>>() {}.getType()));
+    assertThat(        gson.<List<Boolean>>fromJson(json, new TypeToken<List<Boolean>>() {}.getType())).isEqualTo(Arrays.asList(true, false, true, false, false));
   }
 }

@@ -15,6 +15,9 @@
  */
 package com.google.gson.functional;
 
+import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.fail;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -23,13 +26,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.common.TestTypes.ClassOverridingEquals;
-
 import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
-import junit.framework.TestCase;
-
-import java.lang.reflect.Type;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Functional tests that do not fall neatly into any of the existing classification.
@@ -37,16 +39,16 @@ import java.lang.reflect.Type;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class UncategorizedTest extends TestCase {
+public class UncategorizedTest {
 
   private Gson gson = null;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void setUp() throws Exception {
     gson = new Gson();
   }
 
+  @Test
   public void testInvalidJsonDeserializationFails() throws Exception {
     try {
       gson.fromJson("adfasdf1112,,,\":", BagOfPrimitives.class);
@@ -59,24 +61,27 @@ public class UncategorizedTest extends TestCase {
     } catch (JsonParseException expected) { }
   }
 
-  public void testObjectEqualButNotSameSerialization() throws Exception {
+  @Test
+  public void testObjectEqualButNotSameSerialization() {
     ClassOverridingEquals objA = new ClassOverridingEquals();
     ClassOverridingEquals objB = new ClassOverridingEquals();
     objB.ref = objA;
     String json = gson.toJson(objB);
-    assertEquals(objB.getExpectedJson(), json);
+    assertThat(json).isEqualTo(objB.getExpectedJson());
   }
 
+  @Test
   public void testStaticFieldsAreNotSerialized() {
     BagOfPrimitives target = new BagOfPrimitives();
-    assertFalse(gson.toJson(target).contains("DEFAULT_VALUE"));
+    assertThat(gson.toJson(target)).doesNotContain("DEFAULT_VALUE");
   }
 
+  @Test
   public void testGsonInstanceReusableForSerializationAndDeserialization() {
     BagOfPrimitives bag = new BagOfPrimitives();
     String json = gson.toJson(bag);
     BagOfPrimitives deserialized = gson.fromJson(json, BagOfPrimitives.class);
-    assertEquals(bag, deserialized);
+    assertThat(deserialized).isEqualTo(bag);
   }
 
   /**
@@ -84,27 +89,29 @@ public class UncategorizedTest extends TestCase {
    * base class object. For a motivation for this test, see Issue 37 and
    * http://groups.google.com/group/google-gson/browse_thread/thread/677d56e9976d7761
    */
+  @Test
   public void testReturningDerivedClassesDuringDeserialization() {
     Gson gson = new GsonBuilder().registerTypeAdapter(Base.class, new BaseTypeAdapter()).create();
     String json = "{\"opType\":\"OP1\"}";
     Base base = gson.fromJson(json, Base.class);
-    assertTrue(base instanceof Derived1);
-    assertEquals(OperationType.OP1, base.opType);
+    assertThat(base).isInstanceOf(Derived1.class);
+    assertThat(base.opType).isEqualTo(OperationType.OP1);
 
     json = "{\"opType\":\"OP2\"}";
     base = gson.fromJson(json, Base.class);
-    assertTrue(base instanceof Derived2);
-    assertEquals(OperationType.OP2, base.opType);
+    assertThat(base).isInstanceOf(Derived2.class);
+    assertThat(base.opType).isEqualTo(OperationType.OP2);
   }
 
   /**
    * Test that trailing whitespace is ignored.
    * http://code.google.com/p/google-gson/issues/detail?id=302
    */
+  @Test
   public void testTrailingWhitespace() throws Exception {
     List<Integer> integers = gson.fromJson("[1,2,3]  \n\n  ",
         new TypeToken<List<Integer>>() {}.getType());
-    assertEquals(Arrays.asList(1, 2, 3), integers);
+    assertThat(integers).containsExactly(1, 2, 3).inOrder();
   }
 
   private enum OperationType { OP1, OP2 }

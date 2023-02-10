@@ -15,14 +15,15 @@
  */
 package com.google.gson.functional;
 
+import static com.google.common.truth.Truth.assertThat;
+
+import com.google.gson.Gson;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import junit.framework.TestCase;
-
-import com.google.gson.Gson;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Tests for ensuring Gson thread-safety.
@@ -30,12 +31,11 @@ import com.google.gson.Gson;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class ConcurrencyTest extends TestCase {
+public class ConcurrencyTest {
   private Gson gson;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void setUp() throws Exception {
     gson = new Gson();
   }
 
@@ -43,6 +43,7 @@ public class ConcurrencyTest extends TestCase {
    * Source-code based on
    * http://groups.google.com/group/google-gson/browse_thread/thread/563bb51ee2495081
    */
+  @Test
   public void testSingleThreadSerialization() { 
     MyObject myObj = new MyObject(); 
     for (int i = 0; i < 10; i++) { 
@@ -54,6 +55,7 @@ public class ConcurrencyTest extends TestCase {
    * Source-code based on
    * http://groups.google.com/group/google-gson/browse_thread/thread/563bb51ee2495081
    */
+  @Test
   public void testSingleThreadDeserialization() { 
     for (int i = 0; i < 10; i++) { 
       gson.fromJson("{'a':'hello','b':'world','i':1}", MyObject.class); 
@@ -64,6 +66,7 @@ public class ConcurrencyTest extends TestCase {
    * Source-code based on
    * http://groups.google.com/group/google-gson/browse_thread/thread/563bb51ee2495081
    */
+  @Test
   public void testMultiThreadSerialization() throws InterruptedException {
     final CountDownLatch startLatch = new CountDownLatch(1);
     final CountDownLatch finishedLatch = new CountDownLatch(10);
@@ -88,13 +91,14 @@ public class ConcurrencyTest extends TestCase {
     }
     startLatch.countDown();
     finishedLatch.await();
-    assertFalse(failed.get());
+    assertThat(failed.get()).isFalse();
   }
 
   /**
    * Source-code based on
    * http://groups.google.com/group/google-gson/browse_thread/thread/563bb51ee2495081
    */
+  @Test
   public void testMultiThreadDeserialization() throws InterruptedException {
     final CountDownLatch startLatch = new CountDownLatch(1);
     final CountDownLatch finishedLatch = new CountDownLatch(10);
@@ -118,7 +122,7 @@ public class ConcurrencyTest extends TestCase {
     }
     startLatch.countDown();
     finishedLatch.await();
-    assertFalse(failed.get());
+    assertThat(failed.get()).isFalse();
   }
   
   @SuppressWarnings("unused")

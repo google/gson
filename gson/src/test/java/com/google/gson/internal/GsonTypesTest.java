@@ -16,22 +16,25 @@
 
 package com.google.gson.internal;
 
+import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.fail;
+
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
+import org.junit.Test;
 
-import junit.framework.TestCase;
+public final class GsonTypesTest {
 
-public final class GsonTypesTest extends TestCase {
-
+  @Test
   public void testNewParameterizedTypeWithoutOwner() throws Exception {
     // List<A>. List is a top-level class
     Type type = $Gson$Types.newParameterizedTypeWithOwner(null, List.class, A.class);
-    assertEquals(A.class, getFirstTypeArgument(type));
+    assertThat(getFirstTypeArgument(type)).isEqualTo(A.class);
 
     // A<B>. A is a static inner class.
     type = $Gson$Types.newParameterizedTypeWithOwner(null, A.class, B.class);
-    assertEquals(B.class, getFirstTypeArgument(type));
+    assertThat(getFirstTypeArgument(type)).isEqualTo(B.class);
 
     final class D {
     }
@@ -43,14 +46,15 @@ public final class GsonTypesTest extends TestCase {
 
     // A<D> is allowed.
     type = $Gson$Types.newParameterizedTypeWithOwner(null, A.class, D.class);
-    assertEquals(D.class, getFirstTypeArgument(type));
+    assertThat(getFirstTypeArgument(type)).isEqualTo(D.class);
   }
 
+  @Test
   public void testGetFirstTypeArgument() throws Exception {
-    assertNull(getFirstTypeArgument(A.class));
+    assertThat(getFirstTypeArgument(A.class)).isNull();
 
     Type type = $Gson$Types.newParameterizedTypeWithOwner(null, A.class, B.class, C.class);
-    assertEquals(B.class, getFirstTypeArgument(type));
+    assertThat(getFirstTypeArgument(type)).isEqualTo(B.class);
   }
 
   private static final class A {

@@ -16,7 +16,7 @@
 
 package com.google.gson.functional;
 
-import java.lang.reflect.Type;
+import static com.google.common.truth.Truth.assertThat;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonDeserializationContext;
@@ -27,22 +27,23 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.JsonAdapter;
-
-import junit.framework.TestCase;
+import java.lang.reflect.Type;
+import org.junit.Test;
 
 /**
  * Functional tests for the {@link JsonAdapter} annotation on fields where the value is of
  * type {@link JsonSerializer} or {@link JsonDeserializer}.
  */
-public final class JsonAdapterSerializerDeserializerTest extends TestCase {
+public final class JsonAdapterSerializerDeserializerTest {
 
+  @Test
   public void testJsonSerializerDeserializerBasedJsonAdapterOnFields() {
     Gson gson = new Gson();
     String json = gson.toJson(new Computer(new User("Inderjeet Singh"), null, new User("Jesse Wilson")));
-    assertEquals("{\"user1\":\"UserSerializer\",\"user3\":\"UserSerializerDeserializer\"}", json);
+    assertThat(json).isEqualTo("{\"user1\":\"UserSerializer\",\"user3\":\"UserSerializerDeserializer\"}");
     Computer computer = gson.fromJson("{'user2':'Jesse Wilson','user3':'Jake Wharton'}", Computer.class);
-    assertEquals("UserSerializer", computer.user2.name);
-    assertEquals("UserSerializerDeserializer", computer.user3.name);
+    assertThat(computer.user2.name).isEqualTo("UserSerializer");
+    assertThat(computer.user3.name).isEqualTo("UserSerializerDeserializer");
   }
 
   private static final class Computer {
@@ -90,12 +91,13 @@ public final class JsonAdapterSerializerDeserializerTest extends TestCase {
     }
   }
 
+  @Test
   public void testJsonSerializerDeserializerBasedJsonAdapterOnClass() {
     Gson gson = new Gson();
     String json = gson.toJson(new Computer2(new User2("Inderjeet Singh")));
-    assertEquals("{\"user\":\"UserSerializerDeserializer2\"}", json);
+    assertThat(json).isEqualTo("{\"user\":\"UserSerializerDeserializer2\"}");
     Computer2 computer = gson.fromJson("{'user':'Inderjeet Singh'}", Computer2.class);
-    assertEquals("UserSerializerDeserializer2", computer.user.name);
+    assertThat(computer.user.name).isEqualTo("UserSerializerDeserializer2");
   }
 
   private static final class Computer2 {
@@ -125,12 +127,13 @@ public final class JsonAdapterSerializerDeserializerTest extends TestCase {
     }
   }
 
+  @Test
   public void testDifferentJsonAdaptersForGenericFieldsOfSameRawType() {
     Container c = new Container("Foo", 10);
     Gson gson = new Gson();
     String json = gson.toJson(c);
-    assertTrue(json.contains("\"a\":\"BaseStringAdapter\""));
-    assertTrue(json.contains("\"b\":\"BaseIntegerAdapter\""));
+    assertThat(json).contains("\"a\":\"BaseStringAdapter\"");
+    assertThat(json).contains("\"b\":\"BaseIntegerAdapter\"");
   }
 
   private static final class Container {
@@ -162,13 +165,14 @@ public final class JsonAdapterSerializerDeserializerTest extends TestCase {
     }
   }
 
+  @Test
   public void testJsonAdapterNullSafe() {
     Gson gson = new Gson();
     String json = gson.toJson(new Computer3(null, null));
-    assertEquals("{\"user1\":\"UserSerializerDeserializer\"}", json);
+    assertThat(json).isEqualTo("{\"user1\":\"UserSerializerDeserializer\"}");
     Computer3 computer3 = gson.fromJson("{\"user1\":null, \"user2\":null}", Computer3.class);
-    assertEquals("UserSerializerDeserializer", computer3.user1.name);
-    assertNull(computer3.user2);
+    assertThat(computer3.user1.name).isEqualTo("UserSerializerDeserializer");
+    assertThat(computer3.user2).isNull();
   }
 
   private static final class Computer3 {

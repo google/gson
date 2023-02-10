@@ -1,9 +1,22 @@
+/*
+ * Copyright (C) 2022 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.google.gson;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import com.google.gson.common.MoreAsserts;
@@ -26,15 +39,15 @@ public class JsonObjectAsMapTest {
   @Test
   public void testSize() {
     JsonObject o = new JsonObject();
-    assertEquals(0, o.asMap().size());
+    assertThat(o.asMap().size()).isEqualTo(0);
 
     o.addProperty("a", 1);
     Map<String, JsonElement> map = o.asMap();
-    assertEquals(1, map.size());
+    assertThat(map).hasSize(1);
 
     map.clear();
-    assertEquals(0, map.size());
-    assertEquals(0, o.size());
+    assertThat(map).hasSize(0);
+    assertThat(o.size()).isEqualTo(0);
   }
 
   @Test
@@ -43,9 +56,9 @@ public class JsonObjectAsMapTest {
     o.addProperty("a", 1);
 
     Map<String, JsonElement> map = o.asMap();
-    assertTrue(map.containsKey("a"));
-    assertFalse(map.containsKey("b"));
-    assertFalse(map.containsKey(null));
+    assertThat(map.containsKey("a")).isTrue();
+    assertThat(map.containsKey("b")).isFalse();
+    assertThat(map.containsKey(null)).isFalse();
   }
 
   @Test
@@ -55,13 +68,13 @@ public class JsonObjectAsMapTest {
     o.add("b", JsonNull.INSTANCE);
 
     Map<String, JsonElement> map = o.asMap();
-    assertTrue(map.containsValue(new JsonPrimitive(1)));
-    assertFalse(map.containsValue(new JsonPrimitive(2)));
-    assertFalse(map.containsValue(null));
+    assertThat(map.containsValue(new JsonPrimitive(1))).isTrue();
+    assertThat(map.containsValue(new JsonPrimitive(2))).isFalse();
+    assertThat(map.containsValue(null)).isFalse();
 
     @SuppressWarnings({"unlikely-arg-type", "CollectionIncompatibleType"})
     boolean containsInt = map.containsValue(1); // should only contain JsonPrimitive(1)
-    assertFalse(containsInt);
+    assertThat(containsInt).isFalse();
   }
 
   @Test
@@ -70,9 +83,9 @@ public class JsonObjectAsMapTest {
     o.addProperty("a", 1);
 
     Map<String, JsonElement> map = o.asMap();
-    assertEquals(new JsonPrimitive(1), map.get("a"));
-    assertNull(map.get("b"));
-    assertNull(map.get(null));
+    assertThat(map.get("a")).isEqualTo(new JsonPrimitive(1));
+    assertThat(map.get("b")).isNull();
+    assertThat(map.get(null)).isNull();
   }
 
   @Test
@@ -80,31 +93,30 @@ public class JsonObjectAsMapTest {
     JsonObject o = new JsonObject();
     Map<String, JsonElement> map = o.asMap();
 
-    assertNull(map.put("a", new JsonPrimitive(1)));
-    assertEquals(1, map.size());
-    assertEquals(new JsonPrimitive(1), map.get("a"));
+    assertThat(map.put("a", new JsonPrimitive(1))).isNull();
+    assertThat(map.get("a")).isEqualTo(new JsonPrimitive(1));
 
     JsonElement old = map.put("a", new JsonPrimitive(2));
-    assertEquals(new JsonPrimitive(1), old);
-    assertEquals(1, map.size());
-    assertEquals(new JsonPrimitive(2), map.get("a"));
-    assertEquals(new JsonPrimitive(2), o.get("a"));
+    assertThat(old).isEqualTo(new JsonPrimitive(1));
+    assertThat(map).hasSize(1);
+    assertThat(map.get("a")).isEqualTo(new JsonPrimitive(2));
+    assertThat(o.get("a")).isEqualTo(new JsonPrimitive(2));
 
-    assertNull(map.put("b", JsonNull.INSTANCE));
-    assertEquals(JsonNull.INSTANCE, map.get("b"));
+    assertThat(map.put("b", JsonNull.INSTANCE)).isNull();
+    assertThat(map.get("b")).isEqualTo(JsonNull.INSTANCE);
 
     try {
       map.put(null, new JsonPrimitive(1));
       fail();
     } catch (NullPointerException e) {
-      assertEquals("key == null", e.getMessage());
+      assertThat(e).hasMessageThat().isEqualTo("key == null");
     }
 
     try {
       map.put("a", null);
       fail();
     } catch (NullPointerException e) {
-      assertEquals("value == null", e.getMessage());
+      assertThat(e).hasMessageThat().isEqualTo("value == null");
     }
   }
 
@@ -114,18 +126,18 @@ public class JsonObjectAsMapTest {
     o.addProperty("a", 1);
 
     Map<String, JsonElement> map = o.asMap();
-    assertNull(map.remove("b"));
-    assertEquals(1, map.size());
+    assertThat(map.remove("b")).isNull();
+    assertThat(map).hasSize(1);
 
     JsonElement old = map.remove("a");
-    assertEquals(new JsonPrimitive(1), old);
-    assertEquals(0, map.size());
+    assertThat(old).isEqualTo(new JsonPrimitive(1));
+    assertThat(map).hasSize(0);
 
-    assertNull(map.remove("a"));
-    assertEquals(0, map.size());
-    assertEquals(0, o.size());
+    assertThat(map.remove("a")).isNull();
+    assertThat(map).hasSize(0);
+    assertThat(o.size()).isEqualTo(0);
 
-    assertNull(map.remove(null));
+    assertThat(map.remove(null)).isNull();
   }
 
   @Test
@@ -139,22 +151,22 @@ public class JsonObjectAsMapTest {
 
     Map<String, JsonElement> map = o.asMap();
     map.putAll(otherMap);
-    assertEquals(2, map.size());
-    assertEquals(new JsonPrimitive(2), map.get("a"));
-    assertEquals(new JsonPrimitive(3), map.get("b"));
+    assertThat(map).hasSize(2);
+    assertThat(map.get("a")).isEqualTo(new JsonPrimitive(2));
+    assertThat(map.get("b")).isEqualTo(new JsonPrimitive(3));
 
     try {
       map.putAll(Collections.<String, JsonElement>singletonMap(null, new JsonPrimitive(1)));
       fail();
     } catch (NullPointerException e) {
-      assertEquals("key == null", e.getMessage());
+      assertThat(e).hasMessageThat().isEqualTo("key == null");
     }
 
     try {
       map.putAll(Collections.<String, JsonElement>singletonMap("a", null));
       fail();
     } catch (NullPointerException e) {
-      assertEquals("value == null", e.getMessage());
+      assertThat(e).hasMessageThat().isEqualTo("value == null");
     }
   }
 
@@ -165,8 +177,8 @@ public class JsonObjectAsMapTest {
 
     Map<String, JsonElement> map = o.asMap();
     map.clear();
-    assertEquals(0, map.size());
-    assertEquals(0, o.size());
+    assertThat(map).hasSize(0);
+    assertThat(o.size()).isEqualTo(0);
   }
 
   @Test
@@ -178,7 +190,7 @@ public class JsonObjectAsMapTest {
     Map<String, JsonElement> map = o.asMap();
     Set<String> keySet = map.keySet();
     // Should contain keys in same order
-    assertEquals(Arrays.asList("b", "a"), new ArrayList<>(keySet));
+    assertThat(keySet).containsExactly("b", "a").inOrder();
 
     // Key set doesn't support insertions
     try {
@@ -187,9 +199,9 @@ public class JsonObjectAsMapTest {
     } catch (UnsupportedOperationException e) {
     }
 
-    assertTrue(keySet.remove("a"));
-    assertEquals(Collections.singleton("b"), map.keySet());
-    assertEquals(Collections.singleton("b"), o.keySet());
+    assertThat(keySet.remove("a")).isTrue();
+    assertThat(map.keySet()).isEqualTo(Collections.singleton("b"));
+    assertThat(o.keySet()).isEqualTo(Collections.singleton("b"));
   }
 
   @Test
@@ -201,7 +213,7 @@ public class JsonObjectAsMapTest {
     Map<String, JsonElement> map = o.asMap();
     Collection<JsonElement> values = map.values();
     // Should contain values in same order
-    assertEquals(Arrays.asList(new JsonPrimitive(2), new JsonPrimitive(1)), new ArrayList<>(values));
+    assertThat(values).containsExactly(new JsonPrimitive(2), new JsonPrimitive(1)).inOrder();
 
     // Values collection doesn't support insertions
     try {
@@ -210,10 +222,10 @@ public class JsonObjectAsMapTest {
     } catch (UnsupportedOperationException e) {
     }
 
-    assertTrue(values.remove(new JsonPrimitive(2)));
-    assertEquals(Collections.singletonList(new JsonPrimitive(1)), new ArrayList<>(map.values()));
-    assertEquals(1, o.size());
-    assertEquals(new JsonPrimitive(1), o.get("b"));
+    assertThat(values.remove(new JsonPrimitive(2))).isTrue();
+    assertThat(new ArrayList<>(map.values())).isEqualTo(Collections.singletonList(new JsonPrimitive(1)));
+    assertThat(o.size()).isEqualTo(1);
+    assertThat(o.get("b")).isEqualTo(new JsonPrimitive(1));
   }
 
   @Test
@@ -230,7 +242,7 @@ public class JsonObjectAsMapTest {
         new SimpleEntry<>("a", new JsonPrimitive(1))
     );
     // Should contain entries in same order
-    assertEquals(expectedEntrySet, new ArrayList<>(entrySet));
+    assertThat(new ArrayList<>(entrySet)).isEqualTo(expectedEntrySet);
 
     try {
       entrySet.add(new SimpleEntry<String, JsonElement>("c", new JsonPrimitive(3)));
@@ -238,24 +250,24 @@ public class JsonObjectAsMapTest {
     } catch (UnsupportedOperationException e) {
     }
 
-    assertTrue(entrySet.remove(new SimpleEntry<>("a", new JsonPrimitive(1))));
-    assertEquals(Collections.singleton(new SimpleEntry<>("b", new JsonPrimitive(2))), map.entrySet());
-    assertEquals(Collections.singleton(new SimpleEntry<>("b", new JsonPrimitive(2))), o.entrySet());
+    assertThat(entrySet.remove(new SimpleEntry<>("a", new JsonPrimitive(1)))).isTrue();
+    assertThat(map.entrySet()).isEqualTo(Collections.singleton(new SimpleEntry<>("b", new JsonPrimitive(2))));
+    assertThat(o.entrySet()).isEqualTo(Collections.singleton(new SimpleEntry<>("b", new JsonPrimitive(2))));
 
     // Should return false because entry has already been removed
-    assertFalse(entrySet.remove(new SimpleEntry<>("a", new JsonPrimitive(1))));
+    assertThat(entrySet.remove(new SimpleEntry<>("a", new JsonPrimitive(1)))).isFalse();
 
     Entry<String, JsonElement> entry = entrySet.iterator().next();
     JsonElement old = entry.setValue(new JsonPrimitive(3));
-    assertEquals(new JsonPrimitive(2), old);
-    assertEquals(Collections.singleton(new SimpleEntry<>("b", new JsonPrimitive(3))), map.entrySet());
-    assertEquals(Collections.singleton(new SimpleEntry<>("b", new JsonPrimitive(3))), o.entrySet());
+    assertThat(old).isEqualTo(new JsonPrimitive(2));
+    assertThat(map.entrySet()).isEqualTo(Collections.singleton(new SimpleEntry<>("b", new JsonPrimitive(3))));
+    assertThat(o.entrySet()).isEqualTo(Collections.singleton(new SimpleEntry<>("b", new JsonPrimitive(3))));
 
     try {
       entry.setValue(null);
       fail();
     } catch (NullPointerException e) {
-      assertEquals("value == null", e.getMessage());
+      assertThat(e).hasMessageThat().isEqualTo("value == null");
     }
   }
 
@@ -266,8 +278,8 @@ public class JsonObjectAsMapTest {
 
     Map<String, JsonElement> map = o.asMap();
     MoreAsserts.assertEqualsAndHashCode(map, Collections.singletonMap("a", new JsonPrimitive(1)));
-    assertFalse(map.equals(Collections.emptyMap()));
-    assertFalse(map.equals(Collections.singletonMap("a", new JsonPrimitive(2))));
+    assertThat(map.equals(Collections.emptyMap())).isFalse();
+    assertThat(map.equals(Collections.singletonMap("a", new JsonPrimitive(2)))).isFalse();
   }
 
   /** Verify that {@code JsonObject} updates are visible to view and vice versa */
@@ -277,11 +289,11 @@ public class JsonObjectAsMapTest {
     Map<String, JsonElement> map = o.asMap();
 
     o.addProperty("a", 1);
-    assertEquals(1, map.size());
-    assertEquals(new JsonPrimitive(1), map.get("a"));
+    assertThat(map).hasSize(1);
+    assertThat(map.get("a")).isEqualTo(new JsonPrimitive(1));
 
     map.put("b", new JsonPrimitive(2));
-    assertEquals(2, o.size());
-    assertEquals(new JsonPrimitive(2), o.get("b"));
+    assertThat(o.size()).isEqualTo(2);
+    assertThat(map.get("b")).isEqualTo(new JsonPrimitive(2));
   }
 }

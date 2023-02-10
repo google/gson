@@ -16,6 +16,8 @@
 
 package com.google.gson.functional;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -25,10 +27,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.common.TestTypes.Base;
 import com.google.gson.common.TestTypes.ClassWithBaseField;
-
-import junit.framework.TestCase;
-
 import java.lang.reflect.Type;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Functional Test exercising custom deserialization only. When test applies to both
@@ -36,32 +37,33 @@ import java.lang.reflect.Type;
  *
  * @author Joel Leitch
  */
-public class CustomDeserializerTest extends TestCase {
+public class CustomDeserializerTest {
   private static final String DEFAULT_VALUE = "test123";
   private static final String SUFFIX = "blah";
 
   private Gson gson;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void setUp() throws Exception {
     gson = new GsonBuilder().registerTypeAdapter(DataHolder.class, new DataHolderDeserializer()).create();
   }
 
-  public void testDefaultConstructorNotCalledOnObject() throws Exception {
+  @Test
+  public void testDefaultConstructorNotCalledOnObject() {
     DataHolder data = new DataHolder(DEFAULT_VALUE);
     String json = gson.toJson(data);
 
     DataHolder actual = gson.fromJson(json, DataHolder.class);
-    assertEquals(DEFAULT_VALUE + SUFFIX, actual.getData());
+    assertThat(actual.getData()).isEqualTo(DEFAULT_VALUE + SUFFIX);
   }
 
-  public void testDefaultConstructorNotCalledOnField() throws Exception {
+  @Test
+  public void testDefaultConstructorNotCalledOnField() {
     DataHolderWrapper dataWrapper = new DataHolderWrapper(new DataHolder(DEFAULT_VALUE));
     String json = gson.toJson(dataWrapper);
 
     DataHolderWrapper actual = gson.fromJson(json, DataHolderWrapper.class);
-    assertEquals(DEFAULT_VALUE + SUFFIX, actual.getWrappedData().getData());
+    assertThat(actual.getWrappedData().getData()).isEqualTo(DEFAULT_VALUE + SUFFIX);
   }
 
   private static class DataHolder {
@@ -110,6 +112,7 @@ public class CustomDeserializerTest extends TestCase {
     }
   }
 
+  @Test
   public void testJsonTypeFieldBasedDeserialization() {
     String json = "{field1:'abc',field2:'def',__type__:'SUB_TYPE1'}";
     Gson gson = new GsonBuilder().registerTypeAdapter(MyBase.class, new JsonDeserializer<MyBase>() {
@@ -120,7 +123,7 @@ public class CustomDeserializerTest extends TestCase {
       }
     }).create();
     SubType1 target = (SubType1) gson.fromJson(json, MyBase.class);
-    assertEquals("abc", target.field1);
+    assertThat(target.field1).isEqualTo("abc");
   }
 
   private static class MyBase {
@@ -148,6 +151,7 @@ public class CustomDeserializerTest extends TestCase {
     String field2;
   }
 
+  @Test
   public void testCustomDeserializerReturnsNullForTopLevelObject() {
     Gson gson = new GsonBuilder()
       .registerTypeAdapter(Base.class, new JsonDeserializer<Base>() {
@@ -159,9 +163,10 @@ public class CustomDeserializerTest extends TestCase {
       }).create();
     String json = "{baseName:'Base',subName:'SubRevised'}";
     Base target = gson.fromJson(json, Base.class);
-    assertNull(target);
+    assertThat(target).isNull();
   }
 
+  @Test
   public void testCustomDeserializerReturnsNull() {
     Gson gson = new GsonBuilder()
       .registerTypeAdapter(Base.class, new JsonDeserializer<Base>() {
@@ -173,9 +178,10 @@ public class CustomDeserializerTest extends TestCase {
       }).create();
     String json = "{base:{baseName:'Base',subName:'SubRevised'}}";
     ClassWithBaseField target = gson.fromJson(json, ClassWithBaseField.class);
-    assertNull(target.base);
+    assertThat(target.base).isNull();
   }
 
+  @Test
   public void testCustomDeserializerReturnsNullForArrayElements() {
     Gson gson = new GsonBuilder()
       .registerTypeAdapter(Base.class, new JsonDeserializer<Base>() {
@@ -187,10 +193,11 @@ public class CustomDeserializerTest extends TestCase {
       }).create();
     String json = "[{baseName:'Base'},{baseName:'Base'}]";
     Base[] target = gson.fromJson(json, Base[].class);
-    assertNull(target[0]);
-    assertNull(target[1]);
+    assertThat(target[0]).isNull();
+    assertThat(target[1]).isNull();
   }
 
+  @Test
   public void testCustomDeserializerReturnsNullForArrayElementsForArrayField() {
     Gson gson = new GsonBuilder()
       .registerTypeAdapter(Base.class, new JsonDeserializer<Base>() {
@@ -202,8 +209,8 @@ public class CustomDeserializerTest extends TestCase {
       }).create();
     String json = "{bases:[{baseName:'Base'},{baseName:'Base'}]}";
     ClassWithBaseArray target = gson.fromJson(json, ClassWithBaseArray.class);
-    assertNull(target.bases[0]);
-    assertNull(target.bases[1]);
+    assertThat(target.bases[0]).isNull();
+    assertThat(target.bases[1]).isNull();
   }
 
   private static final class ClassWithBaseArray {

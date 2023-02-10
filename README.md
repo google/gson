@@ -19,7 +19,7 @@ There are a few open-source projects that can convert Java objects to JSON. Howe
 Gradle:
 ```gradle
 dependencies {
-  implementation 'com.google.code.gson:gson:2.10'
+  implementation 'com.google.code.gson:gson:2.10.1'
 }
 ```
 
@@ -28,7 +28,7 @@ Maven:
 <dependency>
   <groupId>com.google.code.gson</groupId>
   <artifactId>gson</artifactId>
-  <version>2.10</version>
+  <version>2.10.1</version>
 </dependency>
 ```
 
@@ -57,9 +57,10 @@ see [`GsonBuilder.disableJdkUnsafe()`](https://javadoc.io/doc/com.google.code.gs
 
 ### Documentation
   * [API Javadoc](https://www.javadoc.io/doc/com.google.code.gson/gson): Documentation for the current release
-  * [User guide](https://github.com/google/gson/blob/master/UserGuide.md): This guide contains examples on how to use Gson in your code.
-  * [Change log](https://github.com/google/gson/blob/master/CHANGELOG.md): Changes in the recent versions
-  * [Design document](https://github.com/google/gson/blob/master/GsonDesignDocument.md): This document discusses issues we faced while designing Gson. It also includes a comparison of Gson with other Java libraries that can be used for Json conversion
+  * [User guide](UserGuide.md): This guide contains examples on how to use Gson in your code
+  * [Troubleshooting guide](Troubleshooting.md): Describes how to solve common issues when using Gson
+  * [Change log](CHANGELOG.md): Changes in the recent versions
+  * [Design document](GsonDesignDocument.md): This document discusses issues we faced while designing Gson. It also includes a comparison of Gson with other Java libraries that can be used for Json conversion
 
 Please use the ['gson' tag on StackOverflow](https://stackoverflow.com/questions/tagged/gson) or the [google-gson Google group](https://groups.google.com/group/google-gson) to discuss Gson or to post questions.
 

@@ -38,10 +38,10 @@ import java.util.Map;
  */
 public final class JsonTreeReader extends JsonReader {
   private static final Reader UNREADABLE_READER = new Reader() {
-    @Override public int read(char[] buffer, int offset, int count) throws IOException {
+    @Override public int read(char[] buffer, int offset, int count) {
       throw new AssertionError();
     }
-    @Override public void close() throws IOException {
+    @Override public void close() {
       throw new AssertionError();
     }
   };

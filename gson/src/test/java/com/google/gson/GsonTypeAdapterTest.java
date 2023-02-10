@@ -16,11 +16,15 @@
 
 package com.google.gson;
 
+import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.fail;
+
 import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Contains numerous tests involving registered type converters with a Gson instance.
@@ -28,18 +32,18 @@ import junit.framework.TestCase;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class GsonTypeAdapterTest extends TestCase {
+public class GsonTypeAdapterTest {
   private Gson gson;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void setUp() throws Exception {
     gson = new GsonBuilder()
         .registerTypeAdapter(AtomicLong.class, new ExceptionTypeAdapter())
         .registerTypeAdapter(AtomicInteger.class, new AtomicIntegerTypeAdapter())
         .create();
   }
 
+  @Test
   public void testDefaultTypeAdapterThrowsParseException() throws Exception {
     try {
       gson.fromJson("{\"abc\":123}", BigInteger.class);
@@ -47,6 +51,7 @@ public class GsonTypeAdapterTest extends TestCase {
     } catch (JsonParseException expected) { }
   }
 
+  @Test
   public void testTypeAdapterThrowsException() throws Exception {
     try {
       gson.toJson(new AtomicLong(0));
@@ -54,7 +59,7 @@ public class GsonTypeAdapterTest extends TestCase {
     } catch (IllegalStateException expected) { }
 
     // Verify that serializer is made null-safe, i.e. it is not called for null
-    assertEquals("null", gson.toJson(null, AtomicLong.class));
+    assertThat(gson.toJson(null, AtomicLong.class)).isEqualTo("null");
 
     try {
       gson.fromJson("123", AtomicLong.class);
@@ -62,26 +67,28 @@ public class GsonTypeAdapterTest extends TestCase {
     } catch (JsonParseException expected) { }
 
     // Verify that deserializer is made null-safe, i.e. it is not called for null
-    assertNull(gson.fromJson(JsonNull.INSTANCE, AtomicLong.class));
+    assertThat(gson.fromJson(JsonNull.INSTANCE, AtomicLong.class)).isNull();
   }
 
-  public void testTypeAdapterProperlyConvertsTypes() throws Exception {
+  @Test
+  public void testTypeAdapterProperlyConvertsTypes() {
     int intialValue = 1;
     AtomicInteger atomicInt = new AtomicInteger(intialValue);
     String json = gson.toJson(atomicInt);
-    assertEquals(intialValue + 1, Integer.parseInt(json));
+    assertThat(Integer.parseInt(json)).isEqualTo(intialValue + 1);
 
     atomicInt = gson.fromJson(json, AtomicInteger.class);
-    assertEquals(intialValue, atomicInt.get());
+    assertThat(atomicInt.get()).isEqualTo(intialValue);
   }
 
-  public void testTypeAdapterDoesNotAffectNonAdaptedTypes() throws Exception {
+  @Test
+  public void testTypeAdapterDoesNotAffectNonAdaptedTypes() {
     String expected = "blah";
     String actual = gson.toJson(expected);
-    assertEquals("\"" + expected + "\"", actual);
+    assertThat(actual).isEqualTo("\"" + expected + "\"");
 
     actual = gson.fromJson(actual, String.class);
-    assertEquals(expected, actual);
+    assertThat(actual).isEqualTo(expected);
   }
 
   private static class ExceptionTypeAdapter
@@ -119,6 +126,7 @@ public class GsonTypeAdapterTest extends TestCase {
   }
 
   // https://groups.google.com/d/topic/google-gson/EBmOCa8kJPE/discussion
+  @Test
   public void testDeserializerForAbstractClass() {
     Concrete instance = new Concrete();
     instance.a = "android";
@@ -149,6 +157,6 @@ public class GsonTypeAdapterTest extends TestCase {
       builder.registerTypeHierarchyAdapter(Abstract.class, deserializer);
     }
     Gson gson = builder.create();
-    assertEquals(expected, gson.toJson(instance, instanceType));
+    assertThat(gson.toJson(instance, instanceType)).isEqualTo(expected);
   }
 }
