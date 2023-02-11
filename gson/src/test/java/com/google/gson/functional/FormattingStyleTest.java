@@ -129,13 +129,13 @@ public class FormattingStyleTest {
     try {
       // TBD if we want to accept \u2028 and \u2029. For now we don't.
       FormattingStyle.DEFAULT.withNewline("\u2028");
-      fail("Gson should not accept anything but \r and \r for newline");
+      fail("Gson should not accept anything but \r and \n for newline");
     } catch (IllegalArgumentException expected) {
     }
 
     try {
       FormattingStyle.DEFAULT.withNewline("NL");
-      fail("Gson should not accept anything but \r and \r for newline");
+      fail("Gson should not accept anything but \r and \n for newline");
     } catch (IllegalArgumentException expected) {
     }
 

@@ -19,7 +19,10 @@ package com.google.gson;
 import java.util.Objects;
 
 /**
- * An enumeration that defines the kind of newline to use for serialization.
+ * A class used to control what the serialization looks like.
+ *
+ * <p>It currently defines the kind of newline to use, and the indent, but
+ * might add more in the future.</p>
  *
  * @see <a href="https://en.wikipedia.org/wiki/Newline">Wikipedia Newline article</a>
  *
@@ -37,32 +40,58 @@ public class FormattingStyle {
     Objects.requireNonNull(indent, "indent == null");
     if (!newline.matches("[\r\n]*")) {
       throw new IllegalArgumentException(
-          "Only \\n and \\r are allowed in newline.");
+          "Only combinations of \\n and \\r are allowed in newline.");
     }
     if (!indent.matches("[ \t]*")) {
-      throw new IllegalArgumentException("Only spaces and tabs allowed in indent.");
+      throw new IllegalArgumentException(
+          "Only combinations of spaces and tabs allowed in indent.");
     }
     this.newline = newline;
     this.indent = indent;
   }
 
+  /**
+   * Creates a {@link FormattingStyle} with the specified newline setting.
+   *
+   * <p>It can be used to accommodate certain OS convention, for example
+   * hardcode {@code "\r"} for Linux and macos, {@code "\r\n"} for Windows, or
+   * call {@link java.lang.System#lineSeparator()} to match the current OS.</p>
+   *
+   * <p>Only combinations of {@code \n} and {@code \r} are allowed.</p>
+   *
+   * @param newline the string value that will be used as newline.
+   * @return a newly created {@link FormattingStyle}
+   */
   public FormattingStyle withNewline(String newline) {
     return new FormattingStyle(newline, this.indent);
   }
 
+  /**
+   * Creates a {@link FormattingStyle} with the specified indent string.
+   *
+   * <p>Only combinations of spaces and tabs allowed in indent.</p>
+   *
+   * @param indent the string value that will be used as indent.
+   * @return a newly created {@link FormattingStyle}
+   */
   public FormattingStyle withIndent(String indent) {
     return new FormattingStyle(this.newline, indent);
   }
 
   /**
-   * The string value that will be used as newline.
+   * The string value that will be used as a newline.
    *
    * @return the newline value.
-  */
+   */
   public String getNewline() {
     return this.newline;
   }
 
+  /**
+   * The string value that will be used as indent.
+   *
+   * @return the indent value.
+   */
   public String getIndent() {
     return this.indent;
   }
