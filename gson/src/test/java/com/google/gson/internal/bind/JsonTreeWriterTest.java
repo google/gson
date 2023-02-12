@@ -278,8 +278,12 @@ public final class JsonTreeWriterTest {
    */
   @Test
   public void testOverrides() {
-    List<String> ignoredMethods = Arrays.asList("setLenient(boolean)", "isLenient()", "setIndent(java.lang.String)",
-        "setHtmlSafe(boolean)", "isHtmlSafe()", "setSerializeNulls(boolean)", "getSerializeNulls()");
+    List<String> ignoredMethods = Arrays.asList(
+        "setLenient(boolean)", "isLenient()",
+        "setIndent(java.lang.String)",
+        "setHtmlSafe(boolean)", "isHtmlSafe()",
+        "setFormattingStyle(com.google.gson.FormattingStyle)", "getFormattingStyle()",
+        "setSerializeNulls(boolean)", "getSerializeNulls()");
     MoreAsserts.assertOverridesMethods(JsonWriter.class, JsonTreeWriter.class, ignoredMethods);
   }
 }

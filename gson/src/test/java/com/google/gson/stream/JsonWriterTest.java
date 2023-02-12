@@ -19,6 +19,7 @@ package com.google.gson.stream;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
+import com.google.gson.FormattingStyle;
 import com.google.gson.internal.LazilyParsedNumber;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -843,5 +844,31 @@ public final class JsonWriterTest {
     writer.endArray();
     writer.close();
     writer.close();
+  }
+
+  @Test
+  public void testSetGetFormattingStyle() throws IOException {
+    String lineSeparator = "\r\n";
+
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter jsonWriter = new JsonWriter(stringWriter);
+    jsonWriter.setFormattingStyle(FormattingStyle.DEFAULT.withIndent(" \t ").withNewline(lineSeparator));
+
+    jsonWriter.beginArray();
+    jsonWriter.value(true);
+    jsonWriter.value("text");
+    jsonWriter.value(5.0);
+    jsonWriter.nullValue();
+    jsonWriter.endArray();
+
+    String expected = "[\r\n"
+        + " \t true,\r\n"
+        + " \t \"text\",\r\n"
+        + " \t 5.0,\r\n"
+        + " \t null\r\n"
+        + "]";
+    assertThat(stringWriter.toString()).isEqualTo(expected);
+
+    assertThat(jsonWriter.getFormattingStyle().getNewline()).isEqualTo(lineSeparator);
   }
 }

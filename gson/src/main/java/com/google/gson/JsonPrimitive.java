@@ -106,7 +106,7 @@ public final class JsonPrimitive extends JsonElement {
     if (isBoolean()) {
       return (Boolean) value;
     }
-	// Check to see if the value as a String is "true" in any case.
+    // Check to see if the value as a String is "true" in any case.
     return Boolean.parseBoolean(getAsString());
   }
 
