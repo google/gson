@@ -342,8 +342,8 @@ public final class ConstructorConstructor {
             return (T) new TreeMap<>();
           }
         };
-      } else if (type instanceof ParameterizedType && !(String.class.isAssignableFrom(
-          TypeToken.get(((ParameterizedType) type).getActualTypeArguments()[0]).getRawType()))) {
+      } else if (type instanceof ParameterizedType && !String.class.isAssignableFrom(
+          TypeToken.get(((ParameterizedType) type).getActualTypeArguments()[0]).getRawType())) {
         return new ObjectConstructor<T>() {
           @Override public T construct() {
             return (T) new LinkedHashMap<>();
