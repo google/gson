@@ -312,10 +312,10 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
     }
 
     if (parent != null) {
-      if (parent.left == node) {
+      if (node.equals(parent.left)) {
         parent.left = replacement;
       } else {
-        assert (parent.right == node);
+        assert (node.equals(parent.right));
         parent.right = replacement;
       }
     } else {
