@@ -565,7 +565,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
 
     final Node<K, V> nextNode() {
       Node<K, V> e = next;
-      if (e == header) {
+      if (e.equals(header)) {
         throw new NoSuchElementException();
       }
       if (modCount != expectedModCount) {
