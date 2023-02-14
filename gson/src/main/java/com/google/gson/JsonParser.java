@@ -15,6 +15,7 @@
  */
 package com.google.gson;
 
+import com.google.errorprone.annotations.InlineMe;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -111,18 +112,21 @@ public final class JsonParser {
 
   /** @deprecated Use {@link JsonParser#parseString} */
   @Deprecated
+  @InlineMe(replacement = "JsonParser.parseString(json)", imports = "com.google.gson.JsonParser")
   public JsonElement parse(String json) throws JsonSyntaxException {
     return parseString(json);
   }
 
   /** @deprecated Use {@link JsonParser#parseReader(Reader)} */
   @Deprecated
+  @InlineMe(replacement = "JsonParser.parseReader(json)", imports = "com.google.gson.JsonParser")
   public JsonElement parse(Reader json) throws JsonIOException, JsonSyntaxException {
     return parseReader(json);
   }
 
   /** @deprecated Use {@link JsonParser#parseReader(JsonReader)} */
   @Deprecated
+  @InlineMe(replacement = "JsonParser.parseReader(json)", imports = "com.google.gson.JsonParser")
   public JsonElement parse(JsonReader json) throws JsonIOException, JsonSyntaxException {
     return parseReader(json);
   }
