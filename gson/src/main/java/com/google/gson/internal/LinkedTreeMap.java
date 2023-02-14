@@ -560,7 +560,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
     }
 
     @Override public final boolean hasNext() {
-      return next != header;
+      return !next.equals(header);
     }
 
     final Node<K, V> nextNode() {
