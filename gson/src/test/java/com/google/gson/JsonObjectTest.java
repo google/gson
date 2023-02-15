@@ -19,6 +19,7 @@ package com.google.gson;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
+import com.google.common.testing.EqualsTester;
 import com.google.gson.common.MoreAsserts;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayDeque;
@@ -163,12 +164,11 @@ public class JsonObjectTest {
   }
 
   @Test
-  @SuppressWarnings("TruthSelfEquals")
   public void testEqualsNonEmptyObject() {
     JsonObject a = new JsonObject();
     JsonObject b = new JsonObject();
 
-    assertThat(a).isEqualTo(a);
+    new EqualsTester().addEqualityGroup(a).testEquals();
 
     a.add("foo", new JsonObject());
     assertThat(a.equals(b)).isFalse();

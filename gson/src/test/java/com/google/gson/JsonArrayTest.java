@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.fail;
 
+import com.google.common.testing.EqualsTester;
 import com.google.gson.common.MoreAsserts;
 import java.math.BigInteger;
 import org.junit.Test;
@@ -35,12 +36,11 @@ public final class JsonArrayTest {
   }
 
   @Test
-  @SuppressWarnings("TruthSelfEquals")
   public void testEqualsNonEmptyArray() {
     JsonArray a = new JsonArray();
     JsonArray b = new JsonArray();
 
-    assertThat(a).isEqualTo(a);
+    new EqualsTester().addEqualityGroup(a).testEquals();
 
     a.add(new JsonObject());
     assertThat(a.equals(b)).isFalse();
