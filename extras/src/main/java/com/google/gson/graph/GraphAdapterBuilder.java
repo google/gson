@@ -79,7 +79,8 @@ public final class GraphAdapterBuilder {
 
   static class Factory implements TypeAdapterFactory, InstanceCreator<Object> {
     private final Map<Type, InstanceCreator<?>> instanceCreators;
-    private static final ThreadLocal<Graph> graphThreadLocal = new ThreadLocal<>();
+    @SuppressWarnings("ThreadLocalUsage")
+    private final ThreadLocal<Graph> graphThreadLocal = new ThreadLocal<>();
 
     Factory(Map<Type, InstanceCreator<?>> instanceCreators) {
       this.instanceCreators = instanceCreators;
