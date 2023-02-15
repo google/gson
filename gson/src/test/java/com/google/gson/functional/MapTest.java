@@ -301,7 +301,7 @@ public class MapTest {
   public void testMapStandardSubclassDeserialization() {
     String json = "{a:'1',b:'2'}";
     Type type = new TypeToken<LinkedHashMap<String, String>>() {}.getType();
-    LinkedHashMap<String, Integer> map = gson.fromJson(json, type);
+    LinkedHashMap<String, String> map = gson.fromJson(json, type);
     assertThat(map).containsEntry("a", "1");
     assertThat(map).containsEntry("b", "2");
   }
