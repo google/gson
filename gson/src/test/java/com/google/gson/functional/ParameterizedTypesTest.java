@@ -161,7 +161,7 @@ public class ParameterizedTypesTest {
         .create();
 
     Reader json = new StringReader(expected.getExpectedJson());
-    MyParameterizedType<Integer> actual = gson.fromJson(json, expectedType);
+    MyParameterizedType<BagOfPrimitives> actual = gson.fromJson(json, expectedType);
     assertThat(actual).isEqualTo(expected);
   }
 
