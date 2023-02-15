@@ -46,7 +46,7 @@ public final class InterceptorFactory implements TypeAdapterFactory {
     public InterceptorAdapter(TypeAdapter<T> delegate, Intercept intercept) {
       try {
         this.delegate = delegate;
-        this.postDeserializer = intercept.postDeserialize().newInstance();
+        this.postDeserializer = intercept.postDeserialize().getDeclaredConstructor().newInstance();
       } catch (Exception e) {
         throw new RuntimeException(e);
       }

@@ -158,7 +158,7 @@ public final class TreeTypeAdapter<T> extends SerializationDelegatingTypeAdapter
     @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
       boolean matches = exactType != null
-          ? exactType.equals(type) || matchRawType && exactType.getType() == type.getRawType()
+          ? exactType.equals(type) || (matchRawType && exactType.getType() == type.getRawType())
           : hierarchyType.isAssignableFrom(type.getRawType());
       return matches
           ? new TreeTypeAdapter<>((JsonSerializer<T>) serializer,

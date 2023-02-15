@@ -637,7 +637,7 @@ public class JsonWriter implements Closeable, Flushable {
     out.close();
 
     int size = stackSize;
-    if (size > 1 || size == 1 && stack[size - 1] != NONEMPTY_DOCUMENT) {
+    if (size > 1 || (size == 1 && stack[size - 1] != NONEMPTY_DOCUMENT)) {
       throw new IOException("Incomplete document");
     }
     stackSize = 0;

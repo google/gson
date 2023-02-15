@@ -31,10 +31,10 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 
@@ -79,6 +79,7 @@ public final class GraphAdapterBuilder {
 
   static class Factory implements TypeAdapterFactory, InstanceCreator<Object> {
     private final Map<Type, InstanceCreator<?>> instanceCreators;
+    @SuppressWarnings("ThreadLocalUsage")
     private final ThreadLocal<Graph> graphThreadLocal = new ThreadLocal<>();
 
     Factory(Map<Type, InstanceCreator<?>> instanceCreators) {
@@ -240,7 +241,7 @@ public final class GraphAdapterBuilder {
      * The queue of elements to write during serialization. Unused during
      * deserialization.
      */
-    private final Queue<Element<?>> queue = new LinkedList<>();
+    private final Queue<Element<?>> queue = new ArrayDeque<>();
 
     /**
      * The instance currently being deserialized. Used as a backdoor between

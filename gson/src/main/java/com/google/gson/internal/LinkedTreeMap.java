@@ -304,6 +304,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
     return node;
   }
 
+  @SuppressWarnings("ReferenceEquality")
   private void replaceInParent(Node<K, V> node, Node<K, V> replacement) {
     Node<K, V> parent = node.parent;
     node.parent = null;
@@ -315,7 +316,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
       if (parent.left == node) {
         parent.left = replacement;
       } else {
-        assert (parent.right == node);
+        assert parent.right == node;
         parent.right = replacement;
       }
     } else {
@@ -559,10 +560,13 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
     LinkedTreeMapIterator() {
     }
 
-    @Override public final boolean hasNext() {
+    @Override
+    @SuppressWarnings("ReferenceEquality")
+    public final boolean hasNext() {
       return next != header;
     }
 
+    @SuppressWarnings("ReferenceEquality")
     final Node<K, V> nextNode() {
       Node<K, V> e = next;
       if (e == header) {
