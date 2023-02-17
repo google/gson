@@ -98,6 +98,7 @@ public class ReflectionAccessFilterHelper {
             }
           };
         } catch (NoSuchMethodException ignored) {
+          // Ignored exception
         }
       }
 
