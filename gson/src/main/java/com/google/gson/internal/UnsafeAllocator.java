@@ -64,6 +64,7 @@ public abstract class UnsafeAllocator {
         }
       };
     } catch (Exception ignored) {
+      // Ignored exception
     }
 
     // try dalvikvm, post-gingerbread
@@ -88,6 +89,7 @@ public abstract class UnsafeAllocator {
         }
       };
     } catch (Exception ignored) {
+      // Ignored exception
     }
 
     // try dalvikvm, pre-gingerbread
@@ -108,6 +110,7 @@ public abstract class UnsafeAllocator {
         }
       };
     } catch (Exception ignored) {
+      // Ignored exception
     }
 
     // give up
