@@ -83,12 +83,14 @@ import java.lang.annotation.Target;
 public @interface SerializedName {
 
   /**
-   * A String that indicates the desired name of the field when it is serialized or deserialized.
+   * The desired name of the field when it is serialized or deserialized.
+   *
    * @return the desired name of the field when it is serialized or deserialized
    */
   String value();
   /**
-   * An array of strings that indicates the alternative names of the field when it is deserialized
+   * The alternative names of the field when it is deserialized
+   *
    * @return the alternative names of the field when it is deserialized
    */
   String[] alternate() default {};

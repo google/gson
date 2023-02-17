@@ -155,7 +155,7 @@ public final class DefaultDateTypeAdapter<T extends Date> extends TypeAdapter<T>
         try {
           return dateFormat.parse(s);
         } catch (ParseException ignored) {
-          // Ignored exception
+          // OK: try the next format
         }
       }
     }

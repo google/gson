@@ -82,7 +82,7 @@ public final class DateTypeAdapter extends TypeAdapter<Date> {
         try {
           return dateFormat.parse(s);
         } catch (ParseException ignored) {
-          // Ignored exception
+          // OK: try the next format
         }
       }
     }

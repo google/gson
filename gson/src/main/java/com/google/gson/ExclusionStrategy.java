@@ -93,14 +93,16 @@ package com.google.gson;
 public interface ExclusionStrategy {
 
   /**
-   * Method use to decide if a field should be serialized or deserialized
+   * Decides if a field should be skipped during serialization or deserialization.
+   *
    * @param f the field object that is under test
    * @return true if the field should be ignored; otherwise false
    */
   public boolean shouldSkipField(FieldAttributes f);
 
   /**
-   * Method use to decide if a class should be serialized or deserialized
+   * Decides if a class should be serialized or deserialized
+   *
    * @param clazz the class object that is under test
    * @return true if the class should be ignored; otherwise false
    */
