@@ -46,6 +46,8 @@ public final class FieldAttributes {
   }
 
   /**
+   * Gets the declaring Class that contains this field
+   *
    * @return the declaring class that contains this field
    */
   public Class<?> getDeclaringClass() {
@@ -53,6 +55,8 @@ public final class FieldAttributes {
   }
 
   /**
+   * Gets the name of the field
+   *
    * @return the name of the field
    */
   public String getName() {

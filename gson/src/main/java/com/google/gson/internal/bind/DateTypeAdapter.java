@@ -81,7 +81,9 @@ public final class DateTypeAdapter extends TypeAdapter<Date> {
       for (DateFormat dateFormat : dateFormats) {
         try {
           return dateFormat.parse(s);
-        } catch (ParseException ignored) {}
+        } catch (ParseException ignored) {
+          // OK: try the next format
+        }
       }
     }
     try {

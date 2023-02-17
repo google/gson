@@ -75,6 +75,8 @@ public final class JavaVersion {
   }
 
   /**
+   * Gets the major Java version
+   *
    * @return the major Java version, i.e. '8' for Java 1.8, '9' for Java 9 etc.
    */
   public static int getMajorJavaVersion() {
@@ -82,6 +84,8 @@ public final class JavaVersion {
   }
 
   /**
+   * Gets a boolean value depending if the application is running on Java 9 or later
+   *
    * @return {@code true} if the application is running on Java 9 or later; and {@code false} otherwise.
    */
   public static boolean isJava9OrLater() {
