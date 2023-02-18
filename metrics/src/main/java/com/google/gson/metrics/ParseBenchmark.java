@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.google.caliper.BeforeExperiment;
 import com.google.caliper.Param;
+import com.google.errorprone.annotations.Immutable;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
@@ -64,7 +65,9 @@ public final class ParseBenchmark {
     READER_SHORT(new TypeToken<Feed>() {}, new TypeReference<Feed>() {}),
     READER_LONG(new TypeToken<Feed>() {}, new TypeReference<Feed>() {});
 
+    @SuppressWarnings("ImmutableEnumChecker")
     private final TypeToken<?> gsonType;
+    @SuppressWarnings("ImmutableEnumChecker")
     private final TypeReference<?> jacksonType;
 
     private Document(TypeToken<?> typeToken, TypeReference<?> typeReference) {
