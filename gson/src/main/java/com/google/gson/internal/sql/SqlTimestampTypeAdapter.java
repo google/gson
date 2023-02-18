@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Date;
 
+@SuppressWarnings("JavaUtilDate")
 class SqlTimestampTypeAdapter extends TypeAdapter<Timestamp> {
   static final TypeAdapterFactory FACTORY = new TypeAdapterFactory() {
     @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
