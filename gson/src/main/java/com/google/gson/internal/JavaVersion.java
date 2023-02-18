@@ -16,8 +16,6 @@
 
 package com.google.gson.internal;
 
-import java.util.Arrays;
-
 /**
  * Utility to check the major Java version of the current JVM.
  */
