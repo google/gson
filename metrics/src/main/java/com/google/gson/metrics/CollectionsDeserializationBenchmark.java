@@ -64,6 +64,7 @@ public class CollectionsDeserializationBenchmark {
   /**
    * Benchmark to measure deserializing objects by hand
    */
+  @SuppressWarnings("ModifiedButNotUsed")
   public void timeCollectionsStreaming(int reps) throws IOException {
     for (int i=0; i<reps; ++i) {
       StringReader reader = new StringReader(json);
@@ -102,6 +103,7 @@ public class CollectionsDeserializationBenchmark {
    * setting object values by reflection. We should strive to reduce the discrepancy between this
    * and {@link #timeCollectionsDefault(int)} .
    */
+  @SuppressWarnings("ModifiedButNotUsed")
   public void timeCollectionsReflectionStreaming(int reps) throws Exception {
     for (int i=0; i<reps; ++i) {
       StringReader reader = new StringReader(json);
