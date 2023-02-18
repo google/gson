@@ -1590,7 +1590,7 @@ public class JsonReader implements Closeable {
    * @throws NumberFormatException if any unicode escape sequences are
    *     malformed.
    */
-  @SuppressWarnings("fallthrough")
+  @SuppressWarnings({"fallthrough", "NarrowingCompoundAssignment"})
   private char readEscapeCharacter() throws IOException {
     if (pos == limit && !fillBuffer(1)) {
       throw syntaxError("Unterminated escape sequence");
