@@ -18,6 +18,7 @@ package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.common.base.Objects;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -429,54 +430,18 @@ public class ParameterizedTypesTest {
       return result;
     }
     @Override
-    @SuppressWarnings("unchecked")
-    public boolean equals(Object obj) {
-      if (this == obj) {
+    public boolean equals(Object o) {
+      if (this == o) {
         return true;
       }
-      if (obj == null) {
+      if (!(o instanceof MultiParameters<?, ?, ?, ?, ?> that)) {
         return false;
       }
-      if (getClass() != obj.getClass()) {
-        return false;
-      }
-      MultiParameters<A, B, C, D, E> other = (MultiParameters<A, B, C, D, E>) obj;
-      if (a == null) {
-        if (other.a != null) {
-          return false;
-        }
-      } else if (!a.equals(other.a)) {
-        return false;
-      }
-      if (b == null) {
-        if (other.b != null) {
-          return false;
-        }
-      } else if (!b.equals(other.b)) {
-        return false;
-      }
-      if (c == null) {
-        if (other.c != null) {
-          return false;
-        }
-      } else if (!c.equals(other.c)) {
-        return false;
-      }
-      if (d == null) {
-        if (other.d != null) {
-          return false;
-        }
-      } else if (!d.equals(other.d)) {
-        return false;
-      }
-      if (e == null) {
-        if (other.e != null) {
-          return false;
-        }
-      } else if (!e.equals(other.e)) {
-        return false;
-      }
-      return true;
+      return Objects.equal(a, that.a)
+          && Objects.equal(b, that.b)
+          && Objects.equal(c, that.c)
+          && Objects.equal(d, that.d)
+          && Objects.equal(e, that.e);
     }
   }
 

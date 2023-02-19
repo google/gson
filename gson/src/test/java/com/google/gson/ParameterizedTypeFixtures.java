@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import com.google.common.base.Objects;
 import com.google.gson.internal.$Gson$Types;
 
 import com.google.gson.internal.Primitives;
@@ -80,27 +81,15 @@ public class ParameterizedTypeFixtures {
       return value == null ? 0 : value.hashCode();
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public boolean equals(Object obj) {
       if (this == obj) {
         return true;
       }
-      if (obj == null) {
+      if (!(obj instanceof MyParameterizedType<?> that)) {
         return false;
       }
-      if (getClass() != obj.getClass()) {
-        return false;
-      }
-      MyParameterizedType<T> other = (MyParameterizedType<T>) obj;
-      if (value == null) {
-        if (other.value != null) {
-          return false;
-        }
-      } else if (!value.equals(other.value)) {
-        return false;
-      }
-      return true;
+      return Objects.equal(getValue(), that.getValue());
     }
   }
 
