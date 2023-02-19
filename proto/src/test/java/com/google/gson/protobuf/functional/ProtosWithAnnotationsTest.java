@@ -111,7 +111,7 @@ public class ProtosWithAnnotationsTest {
     assertThat(proto.hasInnerMessage1()).isFalse();
     assertThat(proto.getInnerMessage2()).isEqualTo(InnerMessage.newBuilder()
         .setNIdCt(98798465)
-        .setContent(Type.TEXT)
+        .setContent(InnerMessage.Type.TEXT)
         .addData(Data.newBuilder()
             .setData("OFIN8e9fhwoeh8((⁹8efywoih")
             .setHeight(665))
