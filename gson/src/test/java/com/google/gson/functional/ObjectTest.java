@@ -562,6 +562,7 @@ public class ObjectTest {
 
   // http://code.google.com/p/google-gson/issues/detail?id=270
   @Test
+  @SuppressWarnings("JavaUtilDate")
   public void testDateAsMapObjectField() {
     HasObjectMap a = new HasObjectMap();
     a.map.put("date", new Date(0));

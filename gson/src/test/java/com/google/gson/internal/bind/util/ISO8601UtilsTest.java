@@ -57,6 +57,7 @@ public class ISO8601UtilsTest {
     }
 
   @Test
+  @SuppressWarnings("JavaUtilDate")
   public void testDateFormatWithMilliseconds() {
         long time = 1530209176870L;
         Date date = new Date(time);
@@ -66,6 +67,7 @@ public class ISO8601UtilsTest {
     }
 
   @Test
+  @SuppressWarnings("JavaUtilDate")
   public void testDateFormatWithTimezone() {
         long time = 1530209176870L;
         Date date = new Date(time);

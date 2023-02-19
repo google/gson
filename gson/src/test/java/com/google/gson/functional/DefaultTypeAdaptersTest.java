@@ -68,6 +68,7 @@ import org.junit.Test;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
+@SuppressWarnings("JavaUtilDate")
 public class DefaultTypeAdaptersTest {
   private Gson gson;
   private TimeZone oldTimeZone;

@@ -425,6 +425,7 @@ public class CustomTypeAdaptersTest {
 
   // Test created from Issue 352
   @Test
+  @SuppressWarnings("JavaUtilDate")
   public void testRegisterHierarchyAdapterForDate() {
     Gson gson = new GsonBuilder()
         .registerTypeHierarchyAdapter(Date.class, new DateTypeAdapter())
@@ -473,6 +474,7 @@ public class CustomTypeAdaptersTest {
     }
   }
 
+  @SuppressWarnings("JavaUtilDate")
   private static class DateTypeAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
     @Override
     public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {

@@ -39,6 +39,7 @@ import org.junit.Test;
  *
  * @author Joel Leitch
  */
+@SuppressWarnings("JavaUtilDate")
 public class DefaultDateTypeAdapterTest {
 
   @Test
