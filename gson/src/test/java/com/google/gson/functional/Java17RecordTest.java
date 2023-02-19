@@ -72,6 +72,7 @@ public final class Java17RecordTest {
         .isEqualTo("v3");
   }
 
+  @SuppressWarnings("unused")
   private record RecordWithCustomNames(
       @SerializedName("name") String a,
       @SerializedName(value = "name1", alternate = {"name2", "name3"}) String b) {}
@@ -253,6 +254,7 @@ public final class Java17RecordTest {
         .isEqualTo("null is not allowed as value for record component 'aByte' of primitive type; at path $.aByte");
   }
 
+  @SuppressWarnings("unused")
   private record RecordWithPrimitives(
       String aString, byte aByte, short aShort, int anInt, long aLong, float aFloat, double aDouble, char aChar, boolean aBoolean) {}
 
@@ -406,7 +408,9 @@ public final class Java17RecordTest {
     assertThat(gson.fromJson("{\"i\":2}", PublicRecord.class)).isEqualTo(new PublicRecord(2));
   }
 
+  @SuppressWarnings("unused")
   private record PrivateRecord(int i) {}
+  @SuppressWarnings("unused")
   public record PublicRecord(int i) {}
 
   /**
