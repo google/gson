@@ -434,9 +434,10 @@ public class ParameterizedTypesTest {
       if (this == o) {
         return true;
       }
-      if (!(o instanceof MultiParameters<?, ?, ?, ?, ?> that)) {
+      if (!(o instanceof MultiParameters<?, ?, ?, ?, ?>)) {
         return false;
       }
+      MultiParameters<?, ?, ?, ?, ?> that = (MultiParameters<?, ?, ?, ?, ?>) o;
       return Objects.equal(a, that.a)
           && Objects.equal(b, that.b)
           && Objects.equal(c, that.c)

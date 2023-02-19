@@ -86,9 +86,10 @@ public class ParameterizedTypeFixtures {
       if (this == obj) {
         return true;
       }
-      if (!(obj instanceof MyParameterizedType<?> that)) {
+      if (!(obj instanceof MyParameterizedType<?>)) {
         return false;
       }
+      MyParameterizedType<?> that = (MyParameterizedType<?>) obj;
       return Objects.equal(getValue(), that.getValue());
     }
   }

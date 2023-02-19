@@ -151,9 +151,10 @@ public class TestTypes {
       if (this == o) {
         return true;
       }
-      if (!(o instanceof BagOfPrimitives that)) {
+      if (!(o instanceof BagOfPrimitives)) {
         return false;
       }
+      BagOfPrimitives that = (BagOfPrimitives) o;
       return longValue == that.longValue
           && getIntValue() == that.getIntValue()
           && booleanValue == that.booleanValue
