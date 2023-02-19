@@ -29,7 +29,6 @@ import com.google.gson.protobuf.generated.Bag.OuterMessage;
 import com.google.gson.protobuf.generated.Bag.ProtoWithAnnotations;
 import com.google.gson.protobuf.generated.Bag.ProtoWithAnnotations.InnerMessage;
 import com.google.gson.protobuf.generated.Bag.ProtoWithAnnotations.InnerMessage.Data;
-import com.google.gson.protobuf.generated.Bag.ProtoWithAnnotations.InnerMessage.Type;
 import com.google.protobuf.GeneratedMessageV3;
 import org.junit.Before;
 import org.junit.Test;
@@ -149,7 +148,7 @@ public class ProtosWithAnnotationsTest {
         + "   \"content\":\"UNKNOWN\"%n"
         + "}");
     InnerMessage proto = gson.fromJson(json, InnerMessage.class);
-    assertThat(proto.getContent()).isEqualTo(Type.UNKNOWN);
+    assertThat(proto.getContent()).isEqualTo(InnerMessage.Type.UNKNOWN);
   }
 
   @Test
@@ -171,7 +170,7 @@ public class ProtosWithAnnotationsTest {
         + "   \"content\":\"0\"%n"
         + "}");
     InnerMessage proto = gsonWithEnumNumbers.fromJson(json, InnerMessage.class);
-    assertThat(proto.getContent()).isEqualTo(Type.UNKNOWN);
+    assertThat(proto.getContent()).isEqualTo(InnerMessage.Type.UNKNOWN);
     String rebuilt = gsonWithEnumNumbers.toJson(proto);
     assertThat(rebuilt).isEqualTo("{\"content\":0}");
 
@@ -179,7 +178,7 @@ public class ProtosWithAnnotationsTest {
         + "   \"content\":\"2\"%n"
         + "}");
     proto = gsonWithEnumNumbers.fromJson(json, InnerMessage.class);
-    assertThat(proto.getContent()).isEqualTo(Type.IMAGE);
+    assertThat(proto.getContent()).isEqualTo(InnerMessage.Type.IMAGE);
     rebuilt = gsonWithEnumNumbers.toJson(proto);
     assertThat(rebuilt).isEqualTo("{\"content\":2}");
   }
@@ -194,7 +193,7 @@ public class ProtosWithAnnotationsTest {
             .setLongTimestamp(468406876880768L))
         .setInnerMessage1(InnerMessage.newBuilder()
             .setNIdCt(12)
-            .setContent(Type.IMAGE)
+            .setContent(InnerMessage.Type.IMAGE)
             .addData(Data.newBuilder()
                 .setData("data$$")
                 .setWidth(200))
