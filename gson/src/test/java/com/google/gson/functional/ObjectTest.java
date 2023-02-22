@@ -161,7 +161,7 @@ public class ObjectTest {
   private static class Subclass extends Superclass1 {
   }
   private static class Superclass1 extends Superclass2 {
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "HidingField"})
     String s;
   }
   private static class Superclass2 {
