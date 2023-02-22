@@ -79,7 +79,8 @@ public class PrintFormattingTest {
   }
 
   private static void assertContainsNoWhiteSpace(String str) {
-    for (char c : str.toCharArray()) {
+    for (int i = 0; i < str.length(); i++) {
+      char c = str.charAt(i);
       assertThat(Character.isWhitespace(c)).isFalse();
     }
   }
