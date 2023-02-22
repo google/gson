@@ -16,6 +16,7 @@
 package com.google.gson.internal;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
@@ -40,6 +41,7 @@ public final class UnsafeAllocatorInstantiationTest {
    * to instantiate an interface
    */
   @Test
+  @SuppressWarnings("AssertionFailureIgnored")
   public void testInterfaceInstantiation() throws Exception {
     try {
       UnsafeAllocator.INSTANCE.newInstance(Interface.class);
@@ -54,6 +56,7 @@ public final class UnsafeAllocatorInstantiationTest {
    * to instantiate an abstract class
    */
   @Test
+  @SuppressWarnings("AssertionFailureIgnored")
   public void testAbstractClassInstantiation() throws Exception {
     try {
       UnsafeAllocator.INSTANCE.newInstance(AbstractClass.class);

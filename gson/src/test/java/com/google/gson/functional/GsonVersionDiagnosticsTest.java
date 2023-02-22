@@ -59,6 +59,7 @@ public class GsonVersionDiagnosticsTest {
   }
 
   @Test
+  @SuppressWarnings("AssertionFailureIgnored")
   public void testAssertionErrorInSerializationPrintsVersion() {
     try {
       gson.toJson(new TestType());
@@ -69,6 +70,7 @@ public class GsonVersionDiagnosticsTest {
   }
 
   @Test
+  @SuppressWarnings("AssertionFailureIgnored")
   public void testAssertionErrorInDeserializationPrintsVersion() {
     try {
       gson.fromJson("{'a':'abc'}", TestType.class);
