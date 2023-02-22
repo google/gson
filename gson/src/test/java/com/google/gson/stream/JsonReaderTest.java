@@ -740,6 +740,7 @@ public final class JsonReaderTest {
    */
   @Test
   @Ignore
+  @SuppressWarnings("FloatingPointLiteralPrecision")
   public void disabled_testPeekLargerThanLongMinValue() throws IOException {
     JsonReader reader = new JsonReader(reader("[-9223372036854775809]"));
     reader.setLenient(true);
@@ -768,6 +769,7 @@ public final class JsonReaderTest {
   }
 
   @Test
+  @SuppressWarnings("FloatingPointLiteralPrecision")
   public void testPeekMuchLargerThanLongMinValue() throws IOException {
     JsonReader reader = new JsonReader(reader("[-92233720368547758080]"));
     reader.setLenient(true);
