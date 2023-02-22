@@ -28,7 +28,6 @@ import com.google.gson.protobuf.generated.Annotations;
 import com.google.gson.protobuf.generated.Bag.OuterMessage;
 import com.google.gson.protobuf.generated.Bag.ProtoWithAnnotations;
 import com.google.gson.protobuf.generated.Bag.ProtoWithAnnotations.InnerMessage;
-import com.google.gson.protobuf.generated.Bag.ProtoWithAnnotations.InnerMessage.Data;
 import com.google.protobuf.GeneratedMessageV3;
 import org.junit.Before;
 import org.junit.Test;
@@ -111,10 +110,10 @@ public class ProtosWithAnnotationsTest {
     assertThat(proto.getInnerMessage2()).isEqualTo(InnerMessage.newBuilder()
         .setNIdCt(98798465)
         .setContent(InnerMessage.Type.TEXT)
-        .addData(Data.newBuilder()
+        .addData(InnerMessage.Data.newBuilder()
             .setData("OFIN8e9fhwoeh8((⁹8efywoih")
             .setHeight(665))
-        .addData(Data.newBuilder()
+        .addData(InnerMessage.Data.newBuilder()
             .setData("65")
             .setWidth(-56684))
         .build());
@@ -194,10 +193,10 @@ public class ProtosWithAnnotationsTest {
         .setInnerMessage1(InnerMessage.newBuilder()
             .setNIdCt(12)
             .setContent(InnerMessage.Type.IMAGE)
-            .addData(Data.newBuilder()
+            .addData(InnerMessage.Data.newBuilder()
                 .setData("data$$")
                 .setWidth(200))
-            .addData(Data.newBuilder()
+            .addData(InnerMessage.Data.newBuilder()
                 .setHeight(56)))
         .build();
 

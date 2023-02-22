@@ -74,7 +74,7 @@ public class BagOfPrimitives {
     }
     BagOfPrimitives that = (BagOfPrimitives) o;
     return longValue == that.longValue
-        && getIntValue() == that.getIntValue()
+        && intValue == that.intValue
         && booleanValue == that.booleanValue
         && Objects.equal(stringValue, that.stringValue);
   }
