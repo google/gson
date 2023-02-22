@@ -239,8 +239,8 @@ public class EnumTest {
 
   private enum Color {
     RED("red", 1), BLUE("blue", 2), GREEN("green", 3);
-    String value;
-    int index;
+    final String value;
+    final int index;
     private Color(String value, int index) {
       this.value = value;
       this.index = index;

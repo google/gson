@@ -18,6 +18,7 @@ package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.errorprone.annotations.Immutable;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -130,6 +131,7 @@ public class CustomDeserializerTest {
     static final String TYPE_ACCESS = "__type__";
   }
 
+  @SuppressWarnings("ImmutableEnumChecker")
   private enum SubTypes {
     SUB_TYPE1(SubType1.class),
     SUB_TYPE2(SubType2.class);
