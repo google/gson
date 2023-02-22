@@ -61,6 +61,7 @@ public final class LinkedTreeMapTest {
   }
 
   @Test
+  @SuppressWarnings("ModifiedButNotUsed")
   public void testPutNullKeyFails() {
     LinkedTreeMap<String, String> map = new LinkedTreeMap<>();
     try {
@@ -71,6 +72,7 @@ public final class LinkedTreeMapTest {
   }
 
   @Test
+  @SuppressWarnings("ModifiedButNotUsed")
   public void testPutNonComparableKeyFails() {
     LinkedTreeMap<Object, String> map = new LinkedTreeMap<>();
     try {
