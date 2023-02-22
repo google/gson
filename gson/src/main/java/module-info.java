@@ -25,7 +25,7 @@ module com.google.gson {
   exports com.google.gson.stream;
 
   // Dependency on Error Prone Annotations
-  requires com.google.errorprone.annotations;
+  requires static com.google.errorprone.annotations;
 
   // Optional dependency on java.sql
   requires static java.sql;

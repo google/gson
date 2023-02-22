@@ -400,7 +400,7 @@ public class ParameterizedTypesTest {
     }
   }
 
-  private static class MultiParameters<A, B, C, D, E> {
+  private static final class MultiParameters<A, B, C, D, E> {
     A a;
     B b;
     C c;

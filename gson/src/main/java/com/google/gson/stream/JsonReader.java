@@ -1590,7 +1590,7 @@ public class JsonReader implements Closeable {
    * @throws NumberFormatException if any unicode escape sequences are
    *     malformed.
    */
-  @SuppressWarnings({"fallthrough", "NarrowingCompoundAssignment"})
+  @SuppressWarnings("fallthrough")
   private char readEscapeCharacter() throws IOException {
     if (pos == limit && !fillBuffer(1)) {
       throw syntaxError("Unterminated escape sequence");
@@ -1603,7 +1603,7 @@ public class JsonReader implements Closeable {
         throw syntaxError("Unterminated escape sequence");
       }
       // Equivalent to Integer.parseInt(stringPool.get(buffer, pos, 4), 16);
-      char result = 0;
+      int result = 0;
       for (int i = pos, end = i + 4; i < end; i++) {
         char c = buffer[i];
         result <<= 4;
@@ -1618,7 +1618,7 @@ public class JsonReader implements Closeable {
         }
       }
       pos += 4;
-      return result;
+      return (char) result;
 
     case 't':
       return '\t';
