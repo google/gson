@@ -657,6 +657,7 @@ public class ObjectTest {
     }
   }
 
+  @SuppressWarnings("StaticAssignmentOfThrowable")
   static class ClassWithThrowingConstructor {
     static final RuntimeException thrownException = new RuntimeException("Custom exception");
 

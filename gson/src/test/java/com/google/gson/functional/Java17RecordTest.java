@@ -136,6 +136,7 @@ public final class Java17RecordTest {
 
   /** Tests behavior when the canonical constructor throws an exception */
   @Test
+  @SuppressWarnings("StaticAssignmentOfThrowable")
   public void testThrowingConstructor() {
     record LocalRecord(String s) {
       static final RuntimeException thrownException = new RuntimeException("Custom exception");
@@ -172,6 +173,7 @@ public final class Java17RecordTest {
 
   /** Tests behavior when a record accessor method throws an exception */
   @Test
+  @SuppressWarnings("StaticAssignmentOfThrowable")
   public void testThrowingAccessor() {
     record LocalRecord(String s) {
       static final RuntimeException thrownException = new RuntimeException("Custom exception");
