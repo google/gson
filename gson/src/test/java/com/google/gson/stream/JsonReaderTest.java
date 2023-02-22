@@ -706,7 +706,6 @@ public final class JsonReaderTest {
 
   /**
    * Issue 1053, negative zero.
-   * @throws Exception
    */
   @Test
   public void testNegativeZero() throws Exception {

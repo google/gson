@@ -103,7 +103,7 @@ public class ParameterizedTypeFixtures {
      * This is usually fine in tests since there we deserialize just once, but quite
      * dangerous in practice.
      *
-     * @param instanceOfT
+     * @param instanceOfT Instance of Type
      */
     public MyParameterizedTypeInstanceCreator(T instanceOfT) {
       this.instanceOfT = instanceOfT;
