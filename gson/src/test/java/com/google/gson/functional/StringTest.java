@@ -149,6 +149,7 @@ public class StringTest {
    * Created in response to http://groups.google.com/group/google-gson/browse_thread/thread/2431d4a3d0d6cb23
    */
   @Test
+  @SuppressWarnings("UnicodeEscape")
   public void testAssignmentCharDeserialization() {
     String json = "\"abc=\"";
     String value = gson.fromJson(json, String.class);

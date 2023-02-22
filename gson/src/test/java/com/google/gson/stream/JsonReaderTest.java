@@ -785,6 +785,7 @@ public final class JsonReaderTest {
   }
 
   @Test
+  @SuppressWarnings("UnicodeEscape")
   public void testQuotedNumberWithEscape() throws IOException {
     JsonReader reader = new JsonReader(reader("[\"12\u00334\"]"));
     reader.setLenient(true);
