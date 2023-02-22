@@ -17,6 +17,7 @@ package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.common.base.Splitter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
@@ -35,6 +36,7 @@ import java.lang.reflect.Type;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.junit.Before;
@@ -291,9 +293,9 @@ public class CustomTypeAdaptersTest {
     String part2;
 
     public StringHolder(String string) {
-      String[] parts = string.split(":");
-      part1 = parts[0];
-      part2 = parts[1];
+      List<String> parts = Splitter.on(':').splitToList(string);
+      part1 = parts.get(0);
+      part2 = parts.get(1);
     }
     public StringHolder(String part1, String part2) {
       this.part1 = part1;
