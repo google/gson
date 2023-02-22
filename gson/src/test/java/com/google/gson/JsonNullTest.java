@@ -21,9 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.gson.common.MoreAsserts;
 import org.junit.Test;
 
-/**
- * @author Jesse Wilson
- */
+
 public final class JsonNullTest {
 
   @SuppressWarnings("deprecation")

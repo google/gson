@@ -25,9 +25,7 @@ import com.google.gson.common.MoreAsserts;
 import java.math.BigInteger;
 import org.junit.Test;
 
-/**
- * @author Jesse Wilson
- */
+
 public final class JsonArrayTest {
 
   @Test

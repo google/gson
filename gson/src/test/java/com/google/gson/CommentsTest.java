@@ -22,9 +22,7 @@ import com.google.gson.reflect.TypeToken;
 import java.util.List;
 import org.junit.Test;
 
-/**
- * @author Jesse Wilson
- */
+
 public final class CommentsTest {
 
   /**
