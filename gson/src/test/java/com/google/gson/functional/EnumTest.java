@@ -207,6 +207,7 @@ public class EnumTest {
       }
     };
 
+    @SuppressWarnings("unused")
     abstract Roshambo defeats();
   }
 
