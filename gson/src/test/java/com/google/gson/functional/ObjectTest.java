@@ -414,6 +414,8 @@ public class ObjectTest {
   private static class Parent {
     @SuppressWarnings("unused")
     int value1 = 1;
+
+    @SuppressWarnings("ClassCanBeStatic")
     private class Child {
       int value2 = 2;
     }

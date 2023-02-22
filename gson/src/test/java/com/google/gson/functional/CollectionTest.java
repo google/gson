@@ -418,9 +418,9 @@ public class CollectionTest {
     }
   }
 
-  private class BigClass { private Map<String, ? extends List<SmallClass>> inBig; }
+  private static class BigClass { private Map<String, ? extends List<SmallClass>> inBig; }
 
-  private class SmallClass { private String inSmall; }
+  private static class SmallClass { private String inSmall; }
 
   @Test
   public void testIssue1107() {

@@ -112,7 +112,7 @@ public final class ObjectTypeAdapterTest {
   }
 
   @SuppressWarnings("unused")
-  private class RuntimeType {
+  private static class RuntimeType {
     Object a = 5;
     Object b = Arrays.asList(1, 2, null);
   }
