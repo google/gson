@@ -702,7 +702,7 @@ public class DefaultTypeAdaptersTest {
 
   @Test
   public void testStringBufferSerialization() {
-    StringBuffer sb = new StringBuffer("abc");
+    StringBuilder sb = new StringBuilder("abc");
     String json = gson.toJson(sb);
     assertThat(json).isEqualTo("\"abc\"");
   }

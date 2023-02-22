@@ -93,6 +93,7 @@ public class CollectionTest {
   }
 
   @Test
+  @SuppressWarnings("JdkObsolete")
   public void testLinkedListSerialization() {
     List<String> list = new LinkedList<>();
     list.add("a1");
@@ -113,6 +114,7 @@ public class CollectionTest {
   }
 
   @Test
+  @SuppressWarnings("JdkObsolete")
   public void testQueueSerialization() {
     Queue<String> queue = new LinkedList<>();
     queue.add("a1");
