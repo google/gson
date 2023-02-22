@@ -121,7 +121,7 @@ public class EnumTest {
    */
   @Test
   public void testEnumSubclass() {
-    assertThat(Roshambo.ROCK.getClass()).isAssignableTo(Roshambo.class);
+    assertThat(Roshambo.ROCK.getDeclaringClass()).isAssignableTo(Roshambo.class);
     assertThat(gson.toJson(Roshambo.ROCK)).isEqualTo("\"ROCK\"");
     assertThat(gson.toJson(EnumSet.allOf(Roshambo.class))).isEqualTo("[\"ROCK\",\"PAPER\",\"SCISSORS\"]");
     assertThat(gson.fromJson("\"ROCK\"", Roshambo.class)).isEqualTo(Roshambo.ROCK);
@@ -135,7 +135,7 @@ public class EnumTest {
     gson = new GsonBuilder()
         .registerTypeHierarchyAdapter(Roshambo.class, new MyEnumTypeAdapter())
         .create();
-    assertThat(Roshambo.ROCK.getClass()).isAssignableTo(Roshambo.class);
+    assertThat(Roshambo.ROCK.getDeclaringClass()).isAssignableTo(Roshambo.class);
     assertThat(gson.toJson(Roshambo.ROCK)).isEqualTo("\"123ROCK\"");
     assertThat(gson.toJson(EnumSet.allOf(Roshambo.class))).isEqualTo("[\"123ROCK\",\"123PAPER\",\"123SCISSORS\"]");
     assertThat(gson.fromJson("\"123ROCK\"", Roshambo.class)).isEqualTo(Roshambo.ROCK);
