@@ -119,6 +119,7 @@ public class ReflectionAccessTest {
    * <p>See https://github.com/google/gson/issues/1875
    */
   @Test
+  @SuppressWarnings("CatchFail")
   public void testSerializeInternalImplementationObject() {
     Gson gson = new Gson();
     String json = gson.toJson(Collections.emptyList());
