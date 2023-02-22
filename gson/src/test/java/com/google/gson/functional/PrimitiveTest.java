@@ -207,7 +207,7 @@ public class PrimitiveTest {
     // Should perform widening conversion
     assertThat(gson.toJson((byte) 1, Double.class)).isEqualTo("1.0");
     // (This widening conversion is actually lossy)
-    assertThat(gson.toJson(Long.MAX_VALUE - 10L, Double.class)).isEqualTo(Double.toString(Long.MAX_VALUE - 10L));
+    assertThat(gson.toJson(Long.MAX_VALUE - 10L, Double.class)).isEqualTo(Double.toString((double) (Long.MAX_VALUE - 10L)));
   }
 
   @Test
