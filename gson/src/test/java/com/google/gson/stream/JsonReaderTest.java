@@ -642,6 +642,7 @@ public final class JsonReaderTest {
       strictReader.nextDouble();
       fail("Should have failed reading " + s + " as double");
     } catch (MalformedJsonException e) {
+      // OK:  Should fail because `s` can't be read as double
     }
   }
 
@@ -2007,6 +2008,7 @@ public final class JsonReaderTest {
           reader.peek();
           fail();
         } catch (IOException expected) {
+          // OK: Should fail
         }
       } else {
         throw new AssertionError();
