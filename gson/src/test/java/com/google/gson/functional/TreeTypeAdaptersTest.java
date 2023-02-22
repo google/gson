@@ -79,6 +79,7 @@ public class TreeTypeAdaptersTest {
     assertThat(target.getId().getValue()).isEqualTo("1");
   }
 
+  @SuppressWarnings("UnusedTypeParameter")
   private static final class Id<R> {
     final String value;
     @SuppressWarnings("unused")
