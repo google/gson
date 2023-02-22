@@ -268,11 +268,11 @@ public class CollectionTest {
   }
 
   @Test
-  public void testRawCollectionDeserializationNotAlllowed() {
+  public void testRawCollectionDeserializationNotAllowed() {
     String json = "[0,1,2,3,4,5,6,7,8,9]";
     Collection<?> integers = gson.fromJson(json, Collection.class);
     // JsonReader converts numbers to double by default so we need a floating point comparison
-    assertThat(integers).isEqualTo(Arrays.asList(0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0));
+    assertThat(integers).containsExactly(0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0);
 
     json = "[\"Hello\", \"World\"]";
     Collection<?> strings = gson.fromJson(json, Collection.class);

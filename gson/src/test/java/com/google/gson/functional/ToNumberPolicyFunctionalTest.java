@@ -110,10 +110,10 @@ public class ToNumberPolicyFunctionalTest {
     expected.add(10.0);
     Type objectCollectionType = new TypeToken<Collection<Object>>() { }.getType();
     Collection<Object> objects = gson.fromJson("[null,10,10.0]", objectCollectionType);
-    assertThat(objects).isEqualTo(expected);
+    assertThat(objects).containsExactlyElementsIn(expected);
     Type numberCollectionType = new TypeToken<Collection<Number>>() { }.getType();
     Collection<Object> numbers = gson.fromJson("[null,10,10.0]", numberCollectionType);
-    assertThat(numbers).isEqualTo(expected);
+    assertThat(numbers).containsExactlyElementsIn(expected);
   }
 
   @Test

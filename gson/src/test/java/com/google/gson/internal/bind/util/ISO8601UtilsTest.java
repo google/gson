@@ -77,6 +77,7 @@ public class ISO8601UtilsTest {
     }
 
   @Test
+  @SuppressWarnings("UndefinedEquals")
   public void testDateParseWithDefaultTimezone() throws ParseException {
         String dateStr = "2018-06-25";
         Date date = ISO8601Utils.parse(dateStr, new ParsePosition(0));
@@ -105,6 +106,7 @@ public class ISO8601UtilsTest {
     }
 
   @Test
+  @SuppressWarnings("UndefinedEquals")
   public void testDateParseWithTimezone() throws ParseException {
         String dateStr = "2018-06-25T00:00:00-03:00";
         Date date = ISO8601Utils.parse(dateStr, new ParsePosition(0));
@@ -115,6 +117,7 @@ public class ISO8601UtilsTest {
     }
 
   @Test
+  @SuppressWarnings("UndefinedEquals")
   public void testDateParseSpecialTimezone() throws ParseException {
         String dateStr = "2018-06-25T00:02:00-02:58";
         Date date = ISO8601Utils.parse(dateStr, new ParsePosition(0));

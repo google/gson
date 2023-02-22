@@ -425,7 +425,7 @@ public class CustomTypeAdaptersTest {
 
   // Test created from Issue 352
   @Test
-  @SuppressWarnings("JavaUtilDate")
+  @SuppressWarnings({"JavaUtilDate", "UndefinedEquals"})
   public void testRegisterHierarchyAdapterForDate() {
     Gson gson = new GsonBuilder()
         .registerTypeHierarchyAdapter(Date.class, new DateTypeAdapter())
