@@ -805,6 +805,75 @@ public final class JsonReaderTest {
   }
 
   @Test
+  public void testCapitalizedTrueFailWhenStrict() throws IOException {
+    JsonReader reader = new JsonReader(reader("{ \"a\": TRUE }"));
+    reader.setStrict(true);
+    reader.beginObject();
+    assertThat(reader.nextName()).isEqualTo("a");
+    try {
+      reader.nextBoolean();
+      fail();
+    } catch (IOException expected) {
+    }
+
+    reader = new JsonReader(reader("{ \"a\": tRue }"));
+    reader.setStrict(true);
+    reader.beginObject();
+    assertThat(reader.nextName()).isEqualTo("a");
+    try {
+      reader.nextBoolean();
+      fail();
+    } catch (IOException expected) {
+    }
+  }
+
+  @Test
+  public void testCapitalizedNullFailWhenStrict() throws IOException {
+    JsonReader reader = new JsonReader(reader("{ \"a\": NULL }"));
+    reader.setStrict(true);
+    reader.beginObject();
+    assertThat(reader.nextName()).isEqualTo("a");
+    try {
+      reader.nextNull();
+      fail();
+    } catch (IOException expected) {
+    }
+
+    reader = new JsonReader(reader("{ \"a\": nuLl }"));
+    reader.setStrict(true);
+    reader.beginObject();
+    assertThat(reader.nextName()).isEqualTo("a");
+    try {
+      reader.nextNull();
+      fail();
+    } catch (IOException expected) {
+    }
+  }
+
+  @Test
+  public void testCapitalizedFalseFailWhenStrict() throws IOException {
+    JsonReader reader = new JsonReader(reader("{ \"a\": FALSE }"));
+    reader.setStrict(true);
+    reader.beginObject();
+    assertThat(reader.nextName()).isEqualTo("a");
+    try {
+      reader.nextBoolean();
+      fail();
+    } catch (IOException expected) {
+    }
+
+    reader = new JsonReader(reader("{ \"a\": fAlse }"));
+    reader.setStrict(true);
+    reader.beginObject();
+    assertThat(reader.nextName()).isEqualTo("a");
+    try {
+      reader.nextBoolean();
+      fail();
+    } catch (IOException expected) {
+    }
+  }
+
+  @Test
   public void testMissingValue() throws IOException {
     JsonReader reader = new JsonReader(reader("{\"a\":}"));
     reader.beginObject();
