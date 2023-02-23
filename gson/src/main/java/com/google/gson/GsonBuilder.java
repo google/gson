@@ -16,18 +16,6 @@
 
 package com.google.gson;
 
-import static com.google.gson.Gson.DEFAULT_COMPLEX_MAP_KEYS;
-import static com.google.gson.Gson.DEFAULT_DATE_PATTERN;
-import static com.google.gson.Gson.DEFAULT_ESCAPE_HTML;
-import static com.google.gson.Gson.DEFAULT_FORMATTING_STYLE;
-import static com.google.gson.Gson.DEFAULT_JSON_NON_EXECUTABLE;
-import static com.google.gson.Gson.DEFAULT_LENIENT;
-import static com.google.gson.Gson.DEFAULT_NUMBER_TO_NUMBER_STRATEGY;
-import static com.google.gson.Gson.DEFAULT_OBJECT_TO_NUMBER_STRATEGY;
-import static com.google.gson.Gson.DEFAULT_SERIALIZE_NULLS;
-import static com.google.gson.Gson.DEFAULT_SPECIALIZE_FLOAT_VALUES;
-import static com.google.gson.Gson.DEFAULT_USE_JDK_UNSAFE;
-
 import com.google.gson.annotations.Since;
 import com.google.gson.annotations.Until;
 import com.google.gson.internal.$Gson$Preconditions;
@@ -49,6 +37,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import static com.google.gson.Gson.*;
 
 /**
  * <p>Use this builder to construct a {@link Gson} instance when you need to set configuration
@@ -101,6 +91,7 @@ public final class GsonBuilder {
   private FormattingStyle formattingStyle = DEFAULT_FORMATTING_STYLE;
   private boolean generateNonExecutableJson = DEFAULT_JSON_NON_EXECUTABLE;
   private boolean lenient = DEFAULT_LENIENT;
+  private boolean strict = DEFAULT_STRICT;
   private boolean useJdkUnsafe = DEFAULT_USE_JDK_UNSAFE;
   private ToNumberStrategy objectToNumberStrategy = DEFAULT_OBJECT_TO_NUMBER_STRATEGY;
   private ToNumberStrategy numberToNumberStrategy = DEFAULT_NUMBER_TO_NUMBER_STRATEGY;
@@ -131,6 +122,7 @@ public final class GsonBuilder {
     this.escapeHtmlChars = gson.htmlSafe;
     this.formattingStyle = gson.formattingStyle;
     this.lenient = gson.lenient;
+    this.strict = gson.strict;
     this.serializeSpecialFloatingPointValues = gson.serializeSpecialFloatingPointValues;
     this.longSerializationPolicy = gson.longSerializationPolicy;
     this.datePattern = gson.datePattern;
@@ -516,6 +508,12 @@ public final class GsonBuilder {
     return this;
   }
 
+  // Todo: Add javadoc
+  public GsonBuilder setStrict() {
+    strict = true;
+    return this;
+  }
+
   /**
    * By default, Gson escapes HTML characters such as &lt; &gt; etc. Use this option to configure
    * Gson to pass-through HTML characters as is.
@@ -774,7 +772,7 @@ public final class GsonBuilder {
 
     return new Gson(excluder, fieldNamingPolicy, new HashMap<>(instanceCreators),
         serializeNulls, complexMapKeySerialization,
-        generateNonExecutableJson, escapeHtmlChars, formattingStyle, lenient,
+        generateNonExecutableJson, escapeHtmlChars, formattingStyle, lenient, strict,
         serializeSpecialFloatingPointValues, useJdkUnsafe, longSerializationPolicy,
         datePattern, dateStyle, timeStyle, new ArrayList<>(this.factories),
         new ArrayList<>(this.hierarchyFactories), factories,

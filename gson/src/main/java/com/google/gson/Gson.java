@@ -141,6 +141,7 @@ import java.util.concurrent.atomic.AtomicLongArray;
 public final class Gson {
   static final boolean DEFAULT_JSON_NON_EXECUTABLE = false;
   static final boolean DEFAULT_LENIENT = false;
+  static final boolean DEFAULT_STRICT = false;
   static final FormattingStyle DEFAULT_FORMATTING_STYLE = null;
   static final boolean DEFAULT_ESCAPE_HTML = true;
   static final boolean DEFAULT_SERIALIZE_NULLS = false;
@@ -185,6 +186,7 @@ public final class Gson {
   final boolean htmlSafe;
   final FormattingStyle formattingStyle;
   final boolean lenient;
+  final boolean strict;
   final boolean serializeSpecialFloatingPointValues;
   final boolean useJdkUnsafe;
   final String datePattern;
@@ -237,7 +239,7 @@ public final class Gson {
     this(Excluder.DEFAULT, DEFAULT_FIELD_NAMING_STRATEGY,
         Collections.<Type, InstanceCreator<?>>emptyMap(), DEFAULT_SERIALIZE_NULLS,
         DEFAULT_COMPLEX_MAP_KEYS, DEFAULT_JSON_NON_EXECUTABLE, DEFAULT_ESCAPE_HTML,
-        DEFAULT_FORMATTING_STYLE, DEFAULT_LENIENT, DEFAULT_SPECIALIZE_FLOAT_VALUES,
+        DEFAULT_FORMATTING_STYLE, DEFAULT_LENIENT, DEFAULT_STRICT, DEFAULT_SPECIALIZE_FLOAT_VALUES,
         DEFAULT_USE_JDK_UNSAFE,
         LongSerializationPolicy.DEFAULT, DEFAULT_DATE_PATTERN, DateFormat.DEFAULT, DateFormat.DEFAULT,
         Collections.<TypeAdapterFactory>emptyList(), Collections.<TypeAdapterFactory>emptyList(),
@@ -248,7 +250,7 @@ public final class Gson {
   Gson(Excluder excluder, FieldNamingStrategy fieldNamingStrategy,
       Map<Type, InstanceCreator<?>> instanceCreators, boolean serializeNulls,
       boolean complexMapKeySerialization, boolean generateNonExecutableGson, boolean htmlSafe,
-      FormattingStyle formattingStyle, boolean lenient, boolean serializeSpecialFloatingPointValues,
+      FormattingStyle formattingStyle, boolean lenient, boolean strict, boolean serializeSpecialFloatingPointValues,
       boolean useJdkUnsafe,
       LongSerializationPolicy longSerializationPolicy, String datePattern, int dateStyle,
       int timeStyle, List<TypeAdapterFactory> builderFactories,
@@ -266,6 +268,7 @@ public final class Gson {
     this.htmlSafe = htmlSafe;
     this.formattingStyle = formattingStyle;
     this.lenient = lenient;
+    this.strict = strict;
     this.serializeSpecialFloatingPointValues = serializeSpecialFloatingPointValues;
     this.useJdkUnsafe = useJdkUnsafe;
     this.longSerializationPolicy = longSerializationPolicy;
@@ -920,6 +923,7 @@ public final class Gson {
   public JsonReader newJsonReader(Reader reader) {
     JsonReader jsonReader = new JsonReader(reader);
     jsonReader.setLenient(lenient);
+    jsonReader.setStrict(strict);
     return jsonReader;
   }
 

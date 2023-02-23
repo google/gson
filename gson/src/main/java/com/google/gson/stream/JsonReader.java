@@ -229,6 +229,8 @@ public class JsonReader implements Closeable {
   /** True to accept non-spec compliant JSON */
   private boolean lenient = false;
 
+  private boolean strict = false;
+
   static final int BUFFER_SIZE = 1024;
   /**
    * Use a manual buffer to easily read and unread upcoming characters, and
@@ -341,6 +343,15 @@ public class JsonReader implements Closeable {
     return lenient;
   }
 
+  // todo: add javadoc
+  public final void setStrict(boolean strict) {
+    this.strict = strict;
+  }
+
+  // todo: add javadoc
+  public final boolean isStrict() {
+    return strict;
+  }
   /**
    * Consumes the next token from the JSON stream and asserts that it is the
    * beginning of a new array.
