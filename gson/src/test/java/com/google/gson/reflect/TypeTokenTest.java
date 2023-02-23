@@ -28,7 +28,11 @@ import java.util.RandomAccess;
 import java.util.Set;
 import org.junit.Test;
 
-
+/**
+ * Tests for {@link TypeToken}.
+ *
+ * @author Jesse Wilson
+ */
 public final class TypeTokenTest {
   // These fields are accessed using reflection by the tests below
   List<Integer> listOfInteger = null;

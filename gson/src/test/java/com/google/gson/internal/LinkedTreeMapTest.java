@@ -181,7 +181,7 @@ public final class LinkedTreeMapTest {
     LinkedTreeMap<String, String> map = new LinkedTreeMap<>();
     String[] keys = new String[1000];
     for (int i = 0; i < keys.length; i++) {
-      keys[i] = Integer.toString(Math.abs(random.nextInt(Integer.MAX_VALUE)), 36) + "-" + i;
+      keys[i] = Integer.toString(random.nextInt(), 36) + "-" + i;
       map.put(keys[i], "" + i);
     }
 

@@ -740,8 +740,9 @@ public final class JsonReaderTest {
    */
   @Test
   @Ignore
-  @SuppressWarnings("FloatingPointLiteralPrecision")
   public void disabled_testPeekLargerThanLongMinValue() throws IOException {
+    @SuppressWarnings("FloatingPointLiteralPrecision")
+    double d = -9223372036854775809d;
     JsonReader reader = new JsonReader(reader("[-9223372036854775809]"));
     reader.setLenient(true);
     reader.beginArray();
@@ -751,7 +752,7 @@ public final class JsonReaderTest {
       fail();
     } catch (NumberFormatException expected) {
     }
-    assertThat(reader.nextDouble()).isEqualTo(-9223372036854775809d);
+    assertThat(reader.nextDouble()).isEqualTo(d);
   }
 
   /**
@@ -769,8 +770,9 @@ public final class JsonReaderTest {
   }
 
   @Test
-  @SuppressWarnings("FloatingPointLiteralPrecision")
   public void testPeekMuchLargerThanLongMinValue() throws IOException {
+    @SuppressWarnings("FloatingPointLiteralPrecision")
+    double d = -92233720368547758080d;
     JsonReader reader = new JsonReader(reader("[-92233720368547758080]"));
     reader.setLenient(true);
     reader.beginArray();
@@ -780,7 +782,7 @@ public final class JsonReaderTest {
       fail();
     } catch (NumberFormatException expected) {
     }
-    assertThat(reader.nextDouble()).isEqualTo(-92233720368547758080d);
+    assertThat(reader.nextDouble()).isEqualTo(d);
   }
 
   @Test

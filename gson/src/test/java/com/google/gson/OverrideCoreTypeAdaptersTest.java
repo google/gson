@@ -24,7 +24,11 @@ import java.io.IOException;
 import java.util.Locale;
 import org.junit.Test;
 
-
+/**
+ * Tests handling of Core Type Adapters
+ *
+ * @author Jesse Wilson
+ */
 public class OverrideCoreTypeAdaptersTest {
   private static final TypeAdapter<Boolean> booleanAsIntAdapter = new TypeAdapter<Boolean>() {
     @Override public void write(JsonWriter out, Boolean value) throws IOException {

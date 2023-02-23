@@ -701,8 +701,9 @@ public class DefaultTypeAdaptersTest {
   }
 
   @Test
+  @SuppressWarnings("JdkObsolete")
   public void testStringBufferSerialization() {
-    StringBuilder sb = new StringBuilder("abc");
+    StringBuffer sb = new StringBuffer("abc");
     String json = gson.toJson(sb);
     assertThat(json).isEqualTo("\"abc\"");
   }

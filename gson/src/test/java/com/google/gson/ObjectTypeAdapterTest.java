@@ -111,8 +111,8 @@ public final class ObjectTypeAdapterTest {
     assertThat(actualTimes).isEqualTo(times);
   }
 
-  @SuppressWarnings("unused")
-  private static class RuntimeType {
+  @SuppressWarnings({"unused", "ClassCanBeStatic"})
+  private class RuntimeType {
     Object a = 5;
     Object b = Arrays.asList(1, 2, null);
   }
