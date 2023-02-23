@@ -620,15 +620,17 @@ public class JsonReader implements Closeable {
     String keyword;
     String keywordUpper;
     int peeking;
-    if (c == 't' || c == 'T') {
+
+    // Uppercase letters are not recognized if strict mode is used.
+    if (c == 't' || (!strict && c == 'T')) {
       keyword = "true";
       keywordUpper = "TRUE";
       peeking = PEEKED_TRUE;
-    } else if (c == 'f' || c == 'F') {
+    } else if (c == 'f' || (!strict && c == 'F')) {
       keyword = "false";
       keywordUpper = "FALSE";
       peeking = PEEKED_FALSE;
-    } else if (c == 'n' || c == 'N') {
+    } else if (c == 'n' || (!strict && c == 'N')) {
       keyword = "null";
       keywordUpper = "NULL";
       peeking = PEEKED_NULL;
@@ -643,7 +645,8 @@ public class JsonReader implements Closeable {
         return PEEKED_NONE;
       }
       c = buffer[pos + i];
-      if (c != keyword.charAt(i) && c != keywordUpper.charAt(i)) {
+      // Again, upper case letters are valid if the strict keyword is used.
+      if (c != keyword.charAt(i) && (strict || c != keywordUpper.charAt(i))) {
         return PEEKED_NONE;
       }
     }
