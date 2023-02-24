@@ -1021,7 +1021,9 @@ public class JsonReader implements Closeable {
       while (p < l) {
         int c = buffer[p++];
 
-        if (c == quote) {
+        if (strict && c <= '\u001F') {
+          throw syntaxError("Unescaped control characters (\\u0000-\\u001F) are not allowed in strict mode.");
+        } else if (c == quote) {
           pos = p;
           int len = p - start - 1;
           if (builder == null) {
@@ -1650,11 +1652,15 @@ public class JsonReader implements Closeable {
       return '\f';
 
     case '\n':
+      if (strict) {
+        throw syntaxError("Cannot espace a newline character in strict mode!");
+      }
       lineNumber++;
       lineStart = pos;
       // fall-through
 
     case '\'':
+      if (this.strict) throw syntaxError("Invalid escaped character \"'\" in strict mode");
     case '"':
     case '\\':
     case '/':

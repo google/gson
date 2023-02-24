@@ -39,6 +39,46 @@ import org.junit.Test;
 @SuppressWarnings("resource")
 public final class JsonReaderTest {
   @Test
+  public void testEscapedNewlineNotAllowedInStrictMode() throws IOException {
+    String json = "\"\\\n\"";
+    JsonReader reader = new JsonReader(reader(json));
+    reader.setStrict(true);
+    try {
+      reader.nextString();
+      fail();
+    } catch (IOException expected) {
+
+    }
+  }
+
+  @Test
+  public void testEscapedNewlineAllowedInDefaultMode() throws IOException {
+    String json = "\"\\\n\"";
+    JsonReader reader = new JsonReader(reader(json));
+    assertThat(reader.nextString()).isEqualTo("\n");
+  }
+
+  @Test
+  public void testStrictModeFailsToParseUnespacedControlCharacter() {
+    String json = "\"\t\"";
+    JsonReader reader = new JsonReader(reader(json));
+    reader.setStrict(true);
+    try {
+      reader.nextString();
+      fail();
+    } catch (IOException e) {
+      assertThat(e.getMessage()).contains("strict");
+    }
+  }
+
+  @Test
+  public void testNonStrictModeParsesUnespacedControlCharacter() throws IOException {
+    String json = "\"\t\"";
+    JsonReader reader = new JsonReader(reader(json));
+    assertThat(reader.nextString()).isEqualTo("\t");
+  }
+
+  @Test
   public void testCapitalizedTrueFailWhenStrict() throws IOException {
     JsonReader reader = new JsonReader(reader("TRUE"));
     reader.setStrict(true);
@@ -402,6 +442,25 @@ public final class JsonReaderTest {
     assertThat(reader.nextString()).isEqualTo("\u20AC");
     reader.endArray();
     assertThat(reader.peek()).isEqualTo(JsonToken.END_DOCUMENT);
+  }
+
+  @Test
+  public void testEscapeCharacterQuoteInStrictMode() throws IOException {
+    String json = "\"\\'\"";
+    JsonReader reader = new JsonReader(reader(json));
+    reader.setStrict(true);
+    try {
+      reader.nextString();
+      fail();
+    } catch (IOException expected) {
+    }
+  }
+
+  @Test
+  public void testEscapeCharacterQuoteWithoutStrictMode() throws IOException {
+    String json = "\"\\'\"";
+    JsonReader reader = new JsonReader(reader(json));
+    assertThat(reader.nextString()).isEqualTo("'");
   }
 
   @Test
