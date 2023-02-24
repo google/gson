@@ -61,6 +61,26 @@ public final class JsonReaderTest {
   }
 
   @Test
+  public void testStrictModeFailsToParseUnespacedControlCharacter() {
+    String json = "\"\t\"";
+    JsonReader reader = new JsonReader(reader(json));
+    reader.setStrict(true);
+    try {
+      reader.nextString();
+      fail();
+    } catch (IOException e) {
+      assertThat(e.getMessage()).contains("strict");
+    }
+  }
+
+  @Test
+  public void testNonStrictModeParsesUnespacedControlCharacter() throws IOException {
+    String json = "\"\t\"";
+    JsonReader reader = new JsonReader(reader(json));
+    assertThat(reader.nextString()).isEqualTo("\t");
+  }
+
+  @Test
   public void testReadArray() throws IOException {
     JsonReader reader = new JsonReader(reader("[true, true]"));
     reader.beginArray();
@@ -120,19 +140,6 @@ public final class JsonReaderTest {
     assertThat(reader.nextInt()).isEqualTo(123);
     reader.endObject();
     assertThat(reader.peek()).isEqualTo(JsonToken.END_DOCUMENT);
-  }
-
-  @Test
-  public void testStrictModeFailsToParseUnespacedControlCharacter() {
-    String json = "\"\t\"";
-    JsonReader reader = new JsonReader(reader(json));
-    reader.setStrict(true);
-    try {
-      reader.nextString();
-      fail();
-    } catch (IOException e) {
-      assertThat(e.getMessage()).contains("strict");
-    }
   }
 
   @Test
