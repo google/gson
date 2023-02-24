@@ -39,6 +39,63 @@ import org.junit.Test;
 @SuppressWarnings("resource")
 public final class JsonReaderTest {
   @Test
+  public void testCapitalizedTrueFailWhenStrict() throws IOException {
+    JsonReader reader = new JsonReader(reader("TRUE"));
+    reader.setStrict(true);
+    try {
+      reader.nextBoolean();
+      fail();
+    } catch (IOException expected) {
+    }
+
+    reader = new JsonReader(reader("tRue"));
+    reader.setStrict(true);
+    try {
+      reader.nextBoolean();
+      fail();
+    } catch (IOException expected) {
+    }
+  }
+
+  @Test
+  public void testCapitalizedNullFailWhenStrict() throws IOException {
+    JsonReader reader = new JsonReader(reader("NULL"));
+    reader.setStrict(true);
+    try {
+      reader.nextNull();
+      fail();
+    } catch (IOException expected) {
+    }
+
+    reader = new JsonReader(reader("nulL"));
+    reader.setStrict(true);
+    try {
+      reader.nextNull();
+      fail();
+    } catch (IOException expected) {
+    }
+  }
+
+  @Test
+  public void testCapitalizedFalseFailWhenStrict() throws IOException {
+    JsonReader reader = new JsonReader(reader("FALSE"));
+    reader.setStrict(true);
+    try {
+      reader.nextBoolean();
+      fail();
+    } catch (IOException expected) {
+    }
+
+    reader = new JsonReader(reader("FaLse"));
+    reader.setStrict(true);
+    try {
+      reader.nextBoolean();
+      fail();
+    } catch (IOException expected) {
+    }
+  }
+
+  @Test
   public void testReadArray() throws IOException {
     JsonReader reader = new JsonReader(reader("[true, true]"));
     reader.beginArray();
@@ -802,75 +859,6 @@ public final class JsonReaderTest {
     reader.nextNull();
     reader.endArray();
     assertThat(reader.peek()).isEqualTo(JsonToken.END_DOCUMENT);
-  }
-
-  @Test
-  public void testCapitalizedTrueFailWhenStrict() throws IOException {
-    JsonReader reader = new JsonReader(reader("{ \"a\": TRUE }"));
-    reader.setStrict(true);
-    reader.beginObject();
-    assertThat(reader.nextName()).isEqualTo("a");
-    try {
-      reader.nextBoolean();
-      fail();
-    } catch (IOException expected) {
-    }
-
-    reader = new JsonReader(reader("{ \"a\": tRue }"));
-    reader.setStrict(true);
-    reader.beginObject();
-    assertThat(reader.nextName()).isEqualTo("a");
-    try {
-      reader.nextBoolean();
-      fail();
-    } catch (IOException expected) {
-    }
-  }
-
-  @Test
-  public void testCapitalizedNullFailWhenStrict() throws IOException {
-    JsonReader reader = new JsonReader(reader("{ \"a\": NULL }"));
-    reader.setStrict(true);
-    reader.beginObject();
-    assertThat(reader.nextName()).isEqualTo("a");
-    try {
-      reader.nextNull();
-      fail();
-    } catch (IOException expected) {
-    }
-
-    reader = new JsonReader(reader("{ \"a\": nuLl }"));
-    reader.setStrict(true);
-    reader.beginObject();
-    assertThat(reader.nextName()).isEqualTo("a");
-    try {
-      reader.nextNull();
-      fail();
-    } catch (IOException expected) {
-    }
-  }
-
-  @Test
-  public void testCapitalizedFalseFailWhenStrict() throws IOException {
-    JsonReader reader = new JsonReader(reader("{ \"a\": FALSE }"));
-    reader.setStrict(true);
-    reader.beginObject();
-    assertThat(reader.nextName()).isEqualTo("a");
-    try {
-      reader.nextBoolean();
-      fail();
-    } catch (IOException expected) {
-    }
-
-    reader = new JsonReader(reader("{ \"a\": fAlse }"));
-    reader.setStrict(true);
-    reader.beginObject();
-    assertThat(reader.nextName()).isEqualTo("a");
-    try {
-      reader.nextBoolean();
-      fail();
-    } catch (IOException expected) {
-    }
   }
 
   @Test
