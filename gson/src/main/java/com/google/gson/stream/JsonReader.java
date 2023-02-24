@@ -1021,7 +1021,9 @@ public class JsonReader implements Closeable {
       while (p < l) {
         int c = buffer[p++];
 
-        if (c == quote) {
+        if (strict && c <= '\u001F') {
+          throw syntaxError("Unescaped control characters (\\u0000-\\u001F) are not allowed in strict mode.");
+        } else if (c == quote) {
           pos = p;
           int len = p - start - 1;
           if (builder == null) {
