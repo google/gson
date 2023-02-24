@@ -33,6 +33,8 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Arrays;
+
+import org.checkerframework.common.value.qual.StaticallyExecutable;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -98,6 +100,19 @@ public final class JsonReaderTest {
     assertThat(reader.nextInt()).isEqualTo(123);
     reader.endObject();
     assertThat(reader.peek()).isEqualTo(JsonToken.END_DOCUMENT);
+  }
+
+  @Test
+  public void testStrictModeFailsToParseUnespacedControlCharacter() {
+    String json = "\"\t\"";
+    JsonReader reader = new JsonReader(reader(json));
+    reader.setStrict(true);
+    try {
+      reader.nextString();
+      fail();
+    } catch (IOException e) {
+      assertThat(e.getMessage()).contains("strict");
+    }
   }
 
   @Test
