@@ -102,8 +102,6 @@ public class ParameterizedTypeFixtures {
      * This means that the fields of the same objects will be overwritten by Gson.
      * This is usually fine in tests since there we deserialize just once, but quite
      * dangerous in practice.
-     *
-     * @param instanceOfT Instance of Type
      */
     public MyParameterizedTypeInstanceCreator(T instanceOfT) {
       this.instanceOfT = instanceOfT;

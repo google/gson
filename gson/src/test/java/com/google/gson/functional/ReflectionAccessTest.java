@@ -119,7 +119,6 @@ public class ReflectionAccessTest {
    * <p>See https://github.com/google/gson/issues/1875
    */
   @Test
-  @SuppressWarnings("CatchFail")
   public void testSerializeInternalImplementationObject() {
     Gson gson = new Gson();
     String json = gson.toJson(Collections.emptyList());
@@ -131,7 +130,7 @@ public class ReflectionAccessTest {
       gson.fromJson("[]", internalClass);
       fail("Missing exception; test has to be run with `--illegal-access=deny`");
     } catch (JsonSyntaxException e) {
-      fail("Unexpected exception; test has to be run with `--illegal-access=deny`");
+      throw new AssertionError("Unexpected exception; test has to be run with `--illegal-access=deny`", e);
     } catch (JsonIOException expected) {
       assertThat(expected).hasMessageThat().startsWith("Failed making constructor 'java.util.Collections$EmptyList()' accessible;"
           + " either increase its visibility or write a custom InstanceCreator or TypeAdapter for its declaring type: ");

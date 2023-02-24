@@ -18,7 +18,6 @@ package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.errorprone.annotations.Immutable;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;

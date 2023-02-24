@@ -17,7 +17,6 @@ package com.google.gson.internal;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
@@ -41,14 +40,11 @@ public final class UnsafeAllocatorInstantiationTest {
    * to instantiate an interface
    */
   @Test
-  @SuppressWarnings("AssertionFailureIgnored")
-  public void testInterfaceInstantiation() throws Exception {
-    try {
-      UnsafeAllocator.INSTANCE.newInstance(Interface.class);
-      fail();
-    } catch (AssertionError e) {
-      assertThat(e).hasMessageThat().startsWith("UnsafeAllocator is used for non-instantiable type");
-    }
+  public void testInterfaceInstantiation() {
+    AssertionError e = assertThrows(AssertionError.class,
+        () -> UnsafeAllocator.INSTANCE.newInstance(Interface.class));
+
+    assertThat(e).hasMessageThat().startsWith("UnsafeAllocator is used for non-instantiable type");
   }
 
   /**
@@ -56,14 +52,11 @@ public final class UnsafeAllocatorInstantiationTest {
    * to instantiate an abstract class
    */
   @Test
-  @SuppressWarnings("AssertionFailureIgnored")
-  public void testAbstractClassInstantiation() throws Exception {
-    try {
-      UnsafeAllocator.INSTANCE.newInstance(AbstractClass.class);
-      fail();
-    } catch (AssertionError e) {
-      assertThat(e).hasMessageThat().startsWith("UnsafeAllocator is used for non-instantiable type");
-    }
+  public void testAbstractClassInstantiation() {
+    AssertionError e = assertThrows(AssertionError.class,
+        () -> UnsafeAllocator.INSTANCE.newInstance(AbstractClass.class));
+
+    assertThat(e).hasMessageThat().startsWith("UnsafeAllocator is used for non-instantiable type");
   }
 
   /**

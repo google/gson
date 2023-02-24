@@ -642,7 +642,7 @@ public final class JsonReaderTest {
       strictReader.nextDouble();
       fail("Should have failed reading " + s + " as double");
     } catch (MalformedJsonException e) {
-      // OK:  Should fail because `s` can't be read as double
+      assertThat(e).hasMessageThat().startsWith("Use JsonReader.setLenient(true) to accept malformed JSON");
     }
   }
 
@@ -786,9 +786,8 @@ public final class JsonReaderTest {
   }
 
   @Test
-  @SuppressWarnings("UnicodeEscape")
   public void testQuotedNumberWithEscape() throws IOException {
-    JsonReader reader = new JsonReader(reader("[\"12\u00334\"]"));
+    JsonReader reader = new JsonReader(reader("[\"12\\u00334\"]"));
     reader.setLenient(true);
     reader.beginArray();
     assertThat(reader.peek()).isEqualTo(STRING);
