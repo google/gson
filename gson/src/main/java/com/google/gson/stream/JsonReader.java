@@ -1655,7 +1655,7 @@ public class JsonReader implements Closeable {
       // fall-through
 
     case '\'':
-      if (this.strict) throw syntaxError("Invalid escape sequence in strict mode");
+      if (this.strict) throw syntaxError("Invalid escaped character \"'\" in strict mode");
     case '"':
     case '\\':
     case '/':
