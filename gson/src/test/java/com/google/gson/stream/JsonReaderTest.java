@@ -349,12 +349,9 @@ public final class JsonReaderTest {
 
   @Test
   public void testEscapeCharacterQuoteInStrictMode() throws IOException {
-    String json = "["
-            + "\"\\'\""
-            + "]";
+    String json = "\"\\'\"";
     JsonReader reader = new JsonReader(reader(json));
     reader.setStrict(true);
-    reader.beginArray();
     try {
       reader.nextString();
       fail();
@@ -362,17 +359,11 @@ public final class JsonReaderTest {
     }
   }
 
-  // Maybe unnecessary since already covered by the added code in "testCharacterUnescaping"
   @Test
   public void testEscapeCharacterQuoteWithoutStrictMode() throws IOException {
-    String json = "["
-            + "\"\\'\""
-            + "]";
+    String json = "\"\\'\"";
     JsonReader reader = new JsonReader(reader(json));
-    reader.beginArray();
-    assertThat(reader.nextString()).isEqualTo("\'");
-    reader.endArray();
-    assertThat(reader.peek()).isEqualTo(JsonToken.END_DOCUMENT);
+    assertThat(reader.nextString()).isEqualTo("'");
   }
 
   @Test
