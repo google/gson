@@ -41,6 +41,26 @@ import org.junit.Test;
 @SuppressWarnings("resource")
 public final class JsonReaderTest {
   @Test
+  public void testEscapedNewlineNotAllowedInStrictMode() throws IOException {
+    String json = "\"\\\n\"";
+    JsonReader reader = new JsonReader(reader(json));
+    reader.setStrict(true);
+    try {
+      reader.nextString();
+      fail();
+    } catch (IOException expected) {
+
+    }
+  }
+
+  @Test
+  public void testEscapedNewlineAllowedInDefaultMode() throws IOException {
+    String json = "\"\\\n\"";
+    JsonReader reader = new JsonReader(reader(json));
+    assertThat(reader.nextString()).isEqualTo("\n");
+  }
+
+  @Test
   public void testReadArray() throws IOException {
     JsonReader reader = new JsonReader(reader("[true, true]"));
     reader.beginArray();
