@@ -1652,6 +1652,9 @@ public class JsonReader implements Closeable {
       return '\f';
 
     case '\n':
+      if (strict) {
+        throw syntaxError("Cannot espace a newline character in strict mode!");
+      }
       lineNumber++;
       lineStart = pos;
       // fall-through
