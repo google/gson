@@ -283,5 +283,15 @@
         <excludeTestCompilation />
       </properties>
     </profile>
+    <profile>
+      <id>JDK11</id>
+      <activation>
+        <jdk>(,17)</jdk>
+      </activation>
+      <properties>
+        <maven.compiler.testRelease>11</maven.compiler.testRelease>
+        <excludeTestCompilation />
+      </properties>
+    </profile>
   </profiles>
 </project>
