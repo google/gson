@@ -16,6 +16,7 @@
 
 package com.google.gson.stream;
 
+import com.google.gson.Strictness;
 import com.google.gson.internal.JsonReaderInternalAccess;
 import com.google.gson.internal.bind.JsonTreeReader;
 import java.io.Closeable;
@@ -227,9 +228,7 @@ public class JsonReader implements Closeable {
   private final Reader in;
 
   /** True to accept non-spec compliant JSON */
-  private boolean lenient = false;
-
-  private boolean strict = false;
+  private Strictness strictness = Strictness.DEFAULT;
 
   static final int BUFFER_SIZE = 1024;
   /**
@@ -333,24 +332,25 @@ public class JsonReader implements Closeable {
    * </ul>
    */
   public final void setLenient(boolean lenient) {
-    this.lenient = lenient;
+    this.strictness = lenient ? Strictness.LENIENT : Strictness.DEFAULT;
   }
 
   /**
    * Returns true if this parser is liberal in what it accepts.
    */
   public final boolean isLenient() {
-    return lenient;
+    return strictness == Strictness.LENIENT;
   }
 
   // todo: add javadoc
-  public final void setStrict(boolean strict) {
-    this.strict = strict;
+  public final void setStrictness(Strictness strictness) {
+    Objects.requireNonNull(strictness);
+    this.strictness = strictness;
   }
 
   // todo: add javadoc
-  public final boolean isStrict() {
-    return strict;
+  public final Strictness getStrictness() {
+    return strictness;
   }
   /**
    * Consumes the next token from the JSON stream and asserts that it is the
@@ -550,7 +550,7 @@ public class JsonReader implements Closeable {
         throw syntaxError("Expected ':'");
       }
     } else if (peekStack == JsonScope.EMPTY_DOCUMENT) {
-      if (lenient) {
+      if (strictness == Strictness.LENIENT) {
         consumeNonExecutePrefix();
       }
       stack[stackSize - 1] = JsonScope.NONEMPTY_DOCUMENT;
@@ -622,15 +622,15 @@ public class JsonReader implements Closeable {
     int peeking;
 
     // Uppercase letters are not recognized if strict mode is used.
-    if (c == 't' || (!strict && c == 'T')) {
+    if (c == 't' || (strictness != Strictness.STRICT && c == 'T')) {
       keyword = "true";
       keywordUpper = "TRUE";
       peeking = PEEKED_TRUE;
-    } else if (c == 'f' || (!strict && c == 'F')) {
+    } else if (c == 'f' || (strictness != Strictness.STRICT && c == 'F')) {
       keyword = "false";
       keywordUpper = "FALSE";
       peeking = PEEKED_FALSE;
-    } else if (c == 'n' || (!strict && c == 'N')) {
+    } else if (c == 'n' || (strictness != Strictness.STRICT && c == 'N')) {
       keyword = "null";
       keywordUpper = "NULL";
       peeking = PEEKED_NULL;
@@ -646,7 +646,7 @@ public class JsonReader implements Closeable {
       }
       c = buffer[pos + i];
       // Again, upper case letters are valid if the strict keyword is used.
-      if (c != keyword.charAt(i) && (strict || c != keywordUpper.charAt(i))) {
+      if (c != keyword.charAt(i) && (strictness == Strictness.STRICT || c != keywordUpper.charAt(i))) {
         return PEEKED_NONE;
       }
     }
@@ -934,7 +934,7 @@ public class JsonReader implements Closeable {
 
     peeked = PEEKED_BUFFERED;
     double result = Double.parseDouble(peekedString); // don't catch this NumberFormatException.
-    if (!lenient && (Double.isNaN(result) || Double.isInfinite(result))) {
+    if (strictness != Strictness.LENIENT && (Double.isNaN(result) || Double.isInfinite(result))) {
       throw new MalformedJsonException(
           "JSON forbids NaN and infinities: " + result + locationString());
     }
@@ -1021,7 +1021,7 @@ public class JsonReader implements Closeable {
       while (p < l) {
         int c = buffer[p++];
 
-        if (strict && c <= '\u001F') {
+        if (strictness == Strictness.STRICT && c <= '\u001F') {
           throw syntaxError("Unescaped control characters (\\u0000-\\u001F) are not allowed in strict mode.");
         } else if (c == quote) {
           pos = p;
@@ -1477,7 +1477,7 @@ public class JsonReader implements Closeable {
   }
 
   private void checkLenient() throws IOException {
-    if (!lenient) {
+    if (strictness != Strictness.LENIENT) {
       throw syntaxError("Use JsonReader.setLenient(true) to accept malformed JSON");
     }
   }
@@ -1652,7 +1652,7 @@ public class JsonReader implements Closeable {
       return '\f';
 
     case '\n':
-      if (strict) {
+      if (strictness == Strictness.STRICT) {
         throw syntaxError("Cannot espace a newline character in strict mode!");
       }
       lineNumber++;
@@ -1660,7 +1660,7 @@ public class JsonReader implements Closeable {
       // fall-through
 
     case '\'':
-      if (this.strict) throw syntaxError("Invalid escaped character \"'\" in strict mode");
+      if (strictness == Strictness.STRICT) throw syntaxError("Invalid escaped character \"'\" in strict mode");
     case '"':
     case '\\':
     case '/':

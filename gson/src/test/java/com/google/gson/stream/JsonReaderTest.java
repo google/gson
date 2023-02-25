@@ -33,6 +33,8 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Arrays;
+
+import com.google.gson.Strictness;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -42,7 +44,7 @@ public final class JsonReaderTest {
   public void testEscapedNewlineNotAllowedInStrictMode() throws IOException {
     String json = "\"\\\n\"";
     JsonReader reader = new JsonReader(reader(json));
-    reader.setStrict(true);
+    reader.setStrictness(Strictness.STRICT);
     try {
       reader.nextString();
       fail();
@@ -62,7 +64,7 @@ public final class JsonReaderTest {
   public void testStrictModeFailsToParseUnespacedControlCharacter() {
     String json = "\"\t\"";
     JsonReader reader = new JsonReader(reader(json));
-    reader.setStrict(true);
+    reader.setStrictness(Strictness.STRICT);
     try {
       reader.nextString();
       fail();
@@ -81,7 +83,7 @@ public final class JsonReaderTest {
   @Test
   public void testCapitalizedTrueFailWhenStrict() throws IOException {
     JsonReader reader = new JsonReader(reader("TRUE"));
-    reader.setStrict(true);
+    reader.setStrictness(Strictness.STRICT);
     try {
       reader.nextBoolean();
       fail();
@@ -89,7 +91,7 @@ public final class JsonReaderTest {
     }
 
     reader = new JsonReader(reader("tRue"));
-    reader.setStrict(true);
+    reader.setStrictness(Strictness.STRICT);
     try {
       reader.nextBoolean();
       fail();
@@ -100,7 +102,7 @@ public final class JsonReaderTest {
   @Test
   public void testCapitalizedNullFailWhenStrict() throws IOException {
     JsonReader reader = new JsonReader(reader("NULL"));
-    reader.setStrict(true);
+    reader.setStrictness(Strictness.STRICT);
     try {
       reader.nextNull();
       fail();
@@ -108,7 +110,7 @@ public final class JsonReaderTest {
     }
 
     reader = new JsonReader(reader("nulL"));
-    reader.setStrict(true);
+    reader.setStrictness(Strictness.STRICT);
     try {
       reader.nextNull();
       fail();
@@ -119,7 +121,7 @@ public final class JsonReaderTest {
   @Test
   public void testCapitalizedFalseFailWhenStrict() throws IOException {
     JsonReader reader = new JsonReader(reader("FALSE"));
-    reader.setStrict(true);
+    reader.setStrictness(Strictness.STRICT);
     try {
       reader.nextBoolean();
       fail();
@@ -127,7 +129,7 @@ public final class JsonReaderTest {
     }
 
     reader = new JsonReader(reader("FaLse"));
-    reader.setStrict(true);
+    reader.setStrictness(Strictness.STRICT);
     try {
       reader.nextBoolean();
       fail();
@@ -448,7 +450,7 @@ public final class JsonReaderTest {
   public void testEscapeCharacterQuoteInStrictMode() throws IOException {
     String json = "\"\\'\"";
     JsonReader reader = new JsonReader(reader(json));
-    reader.setStrict(true);
+    reader.setStrictness(Strictness.STRICT);
     try {
       reader.nextString();
       fail();

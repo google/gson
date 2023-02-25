@@ -140,8 +140,7 @@ import java.util.concurrent.atomic.AtomicLongArray;
  */
 public final class Gson {
   static final boolean DEFAULT_JSON_NON_EXECUTABLE = false;
-  static final boolean DEFAULT_LENIENT = false;
-  static final boolean DEFAULT_STRICT = false;
+  static final Strictness DEFAULT_STRICTNESS = Strictness.DEFAULT;
   static final FormattingStyle DEFAULT_FORMATTING_STYLE = null;
   static final boolean DEFAULT_ESCAPE_HTML = true;
   static final boolean DEFAULT_SERIALIZE_NULLS = false;
@@ -185,8 +184,7 @@ public final class Gson {
   final boolean generateNonExecutableJson;
   final boolean htmlSafe;
   final FormattingStyle formattingStyle;
-  final boolean lenient;
-  final boolean strict;
+  final Strictness strictness;
   final boolean serializeSpecialFloatingPointValues;
   final boolean useJdkUnsafe;
   final String datePattern;
@@ -239,7 +237,7 @@ public final class Gson {
     this(Excluder.DEFAULT, DEFAULT_FIELD_NAMING_STRATEGY,
         Collections.<Type, InstanceCreator<?>>emptyMap(), DEFAULT_SERIALIZE_NULLS,
         DEFAULT_COMPLEX_MAP_KEYS, DEFAULT_JSON_NON_EXECUTABLE, DEFAULT_ESCAPE_HTML,
-        DEFAULT_FORMATTING_STYLE, DEFAULT_LENIENT, DEFAULT_STRICT, DEFAULT_SPECIALIZE_FLOAT_VALUES,
+        DEFAULT_FORMATTING_STYLE, DEFAULT_STRICTNESS, DEFAULT_SPECIALIZE_FLOAT_VALUES,
         DEFAULT_USE_JDK_UNSAFE,
         LongSerializationPolicy.DEFAULT, DEFAULT_DATE_PATTERN, DateFormat.DEFAULT, DateFormat.DEFAULT,
         Collections.<TypeAdapterFactory>emptyList(), Collections.<TypeAdapterFactory>emptyList(),
@@ -250,7 +248,7 @@ public final class Gson {
   Gson(Excluder excluder, FieldNamingStrategy fieldNamingStrategy,
       Map<Type, InstanceCreator<?>> instanceCreators, boolean serializeNulls,
       boolean complexMapKeySerialization, boolean generateNonExecutableGson, boolean htmlSafe,
-      FormattingStyle formattingStyle, boolean lenient, boolean strict, boolean serializeSpecialFloatingPointValues,
+      FormattingStyle formattingStyle, Strictness strictness, boolean serializeSpecialFloatingPointValues,
       boolean useJdkUnsafe,
       LongSerializationPolicy longSerializationPolicy, String datePattern, int dateStyle,
       int timeStyle, List<TypeAdapterFactory> builderFactories,
@@ -267,8 +265,7 @@ public final class Gson {
     this.generateNonExecutableJson = generateNonExecutableGson;
     this.htmlSafe = htmlSafe;
     this.formattingStyle = formattingStyle;
-    this.lenient = lenient;
-    this.strict = strict;
+    this.strictness = strictness;
     this.serializeSpecialFloatingPointValues = serializeSpecialFloatingPointValues;
     this.useJdkUnsafe = useJdkUnsafe;
     this.longSerializationPolicy = longSerializationPolicy;
@@ -907,7 +904,7 @@ public final class Gson {
     JsonWriter jsonWriter = new JsonWriter(writer);
     jsonWriter.setFormattingStyle(formattingStyle);
     jsonWriter.setHtmlSafe(htmlSafe);
-    jsonWriter.setLenient(lenient);
+    jsonWriter.setLenient(this.strictness == Strictness.LENIENT);
     jsonWriter.setSerializeNulls(serializeNulls);
     return jsonWriter;
   }
@@ -922,8 +919,7 @@ public final class Gson {
    */
   public JsonReader newJsonReader(Reader reader) {
     JsonReader jsonReader = new JsonReader(reader);
-    jsonReader.setLenient(lenient);
-    jsonReader.setStrict(strict);
+    jsonReader.setStrictness(strictness);
     return jsonReader;
   }
 
@@ -1173,7 +1169,7 @@ public final class Gson {
    * <p>Unlike the other {@code fromJson} methods, no exception is thrown if the JSON data has
    * multiple top-level JSON elements, or if there is trailing data.
    *
-   * <p>The JSON data is parsed in {@linkplain JsonReader#setLenient(boolean) lenient mode},
+   * <p>//todo: update javadoc The JSON data is parsed in {@linkplain JsonReader # setLenient(boolean) lenient mode},
    * regardless of the lenient mode setting of the provided reader. The lenient mode setting
    * of the reader is restored once this method returns.
    *
@@ -1202,7 +1198,7 @@ public final class Gson {
    * <p>Unlike the other {@code fromJson} methods, no exception is thrown if the JSON data has
    * multiple top-level JSON elements, or if there is trailing data.
    *
-   * <p>The JSON data is parsed in {@linkplain JsonReader#setLenient(boolean) lenient mode},
+   * <p>//todo: update javadoc The JSON data is parsed in {@ linkplain JsonReader#setLenient(boolean) lenient mode},
    * regardless of the lenient mode setting of the provided reader. The lenient mode setting
    * of the reader is restored once this method returns.
    *
@@ -1224,8 +1220,8 @@ public final class Gson {
    */
   public <T> T fromJson(JsonReader reader, TypeToken<T> typeOfT) throws JsonIOException, JsonSyntaxException {
     boolean isEmpty = true;
-    boolean oldLenient = reader.isLenient();
-    reader.setLenient(true);
+    Strictness oldStrictness = reader.getStrictness();
+    reader.setStrictness(Strictness.LENIENT);
     try {
       reader.peek();
       isEmpty = false;
@@ -1248,7 +1244,7 @@ public final class Gson {
     } catch (AssertionError e) {
       throw new AssertionError("AssertionError (GSON " + GsonBuildConfig.VERSION + "): " + e.getMessage(), e);
     } finally {
-      reader.setLenient(oldLenient);
+      reader.setStrictness(oldStrictness);
     }
   }
 

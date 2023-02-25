@@ -90,8 +90,7 @@ public final class GsonBuilder {
   private boolean escapeHtmlChars = DEFAULT_ESCAPE_HTML;
   private FormattingStyle formattingStyle = DEFAULT_FORMATTING_STYLE;
   private boolean generateNonExecutableJson = DEFAULT_JSON_NON_EXECUTABLE;
-  private boolean lenient = DEFAULT_LENIENT;
-  private boolean strict = DEFAULT_STRICT;
+  private Strictness strictness = Strictness.DEFAULT;
   private boolean useJdkUnsafe = DEFAULT_USE_JDK_UNSAFE;
   private ToNumberStrategy objectToNumberStrategy = DEFAULT_OBJECT_TO_NUMBER_STRATEGY;
   private ToNumberStrategy numberToNumberStrategy = DEFAULT_NUMBER_TO_NUMBER_STRATEGY;
@@ -121,8 +120,7 @@ public final class GsonBuilder {
     this.generateNonExecutableJson = gson.generateNonExecutableJson;
     this.escapeHtmlChars = gson.htmlSafe;
     this.formattingStyle = gson.formattingStyle;
-    this.lenient = gson.lenient;
-    this.strict = gson.strict;
+    this.strictness = gson.strictness;
     this.serializeSpecialFloatingPointValues = gson.serializeSpecialFloatingPointValues;
     this.longSerializationPolicy = gson.longSerializationPolicy;
     this.datePattern = gson.datePattern;
@@ -504,13 +502,14 @@ public final class GsonBuilder {
    * @see JsonWriter#setLenient(boolean)
    */
   public GsonBuilder setLenient() {
-    lenient = true;
+    strictness = Strictness.LENIENT;
     return this;
   }
 
   // Todo: Add javadoc
-  public GsonBuilder setStrict() {
-    strict = true;
+  public GsonBuilder setStrictness(Strictness strictness) {
+    Objects.requireNonNull(strictness);
+    this.strictness = strictness;
     return this;
   }
 
@@ -772,7 +771,7 @@ public final class GsonBuilder {
 
     return new Gson(excluder, fieldNamingPolicy, new HashMap<>(instanceCreators),
         serializeNulls, complexMapKeySerialization,
-        generateNonExecutableJson, escapeHtmlChars, formattingStyle, lenient, strict,
+        generateNonExecutableJson, escapeHtmlChars, formattingStyle, strictness,
         serializeSpecialFloatingPointValues, useJdkUnsafe, longSerializationPolicy,
         datePattern, dateStyle, timeStyle, new ArrayList<>(this.factories),
         new ArrayList<>(this.hierarchyFactories), factories,
