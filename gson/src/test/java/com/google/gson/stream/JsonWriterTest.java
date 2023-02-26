@@ -871,4 +871,19 @@ public final class JsonWriterTest {
 
     assertThat(jsonWriter.getFormattingStyle().getNewline()).isEqualTo(lineSeparator);
   }
+
+  @Test
+  public void testSetGetFormattingStyle_Compact() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter jsonWriter = new JsonWriter(stringWriter);
+    jsonWriter.setFormattingStyle(null);
+
+    jsonWriter.beginArray();
+    jsonWriter.value(1);
+    jsonWriter.value(2);
+    jsonWriter.endArray();
+
+    assertThat(stringWriter.toString()).isEqualTo("[1,2]");
+    assertThat(jsonWriter.getFormattingStyle()).isNull();
+  }
 }

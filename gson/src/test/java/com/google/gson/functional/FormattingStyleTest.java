@@ -40,6 +40,7 @@ public class FormattingStyleTest {
   private static final String EXPECTED_CR = buildExpected("\r", "  ");
   private static final String EXPECTED_LF = buildExpected("\n", "  ");
   private static final String EXPECTED_CRLF = buildExpected("\r\n", "  ");
+  private static final String EXPECTED_COMPACT = buildExpected("", "");
 
   // Various valid strings that can be used for newline and indent
   private static final String[] TEST_NEWLINES = {
@@ -90,6 +91,13 @@ public class FormattingStyleTest {
   }
 
   @Test
+  public void testCompact() {
+    Gson gson = new GsonBuilder().setPrettyPrinting(null).create();
+    String json = gson.toJson(INPUT);
+    assertEquals(EXPECTED_COMPACT, json);
+  }
+
+  @Test
   public void testVariousCombinationsToString() {
     for (String indent : TEST_INDENTS) {
       for (String newline : TEST_NEWLINES) {
@@ -127,7 +135,8 @@ public class FormattingStyleTest {
   @Test
   public void testStyleValidations() {
     try {
-      // TBD if we want to accept \u2028 and \u2029. For now we don't.
+      // TBD if we want to accept \u2028 and \u2029. For now we don't because JSON specification
+      // does not consider them to be newlines
       FormattingStyle.DEFAULT.withNewline("\u2028");
       fail("Gson should not accept anything but \\r and \\n for newline");
     } catch (IllegalArgumentException expected) {
