@@ -481,7 +481,7 @@ public final class GsonBuilder {
    * Configures Gson to output JSON that fits in a page for pretty printing. This option only
    * affects JSON serialization.
    *
-   * <p>This method is a convenience method which simply calls {@link GsonBuilder#setPrettyPrinting(FormattingStyle)}
+   * <p>This is a convenience method which simply calls {@link #setPrettyPrinting(FormattingStyle)}
    * with {@link FormattingStyle#DEFAULT}.
    *
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern

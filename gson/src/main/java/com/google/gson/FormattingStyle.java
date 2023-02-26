@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import com.google.gson.stream.JsonWriter;
 import java.util.Objects;
 
 /**
@@ -24,6 +25,8 @@ import java.util.Objects;
  * <p>It currently defines the kind of newline to use, and the indent, but
  * might add more in the future.</p>
  *
+ * @see GsonBuilder#setPrettyPrinting(FormattingStyle)
+ * @see JsonWriter#setFormattingStyle(FormattingStyle)
  * @see <a href="https://en.wikipedia.org/wiki/Newline">Wikipedia Newline article</a>
  *
  * @since $next-version$
