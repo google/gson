@@ -36,6 +36,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.release>7</maven.compiler.release>
+    <maven.compiler.testRelease>11</maven.compiler.testRelease>
   </properties>
 
   <scm>
