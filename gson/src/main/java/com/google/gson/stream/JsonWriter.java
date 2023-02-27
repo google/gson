@@ -258,33 +258,42 @@ public class JsonWriter implements Closeable, Flushable {
   }
 
   /**
-   * Configure this writer to relax its syntax rules. By default, this writer
-   * only emits well-formed JSON as specified by <a
-   * href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>. Setting the writer
-   * to lenient permits the following:
-   * <ul>
-   *   <li>Numbers may be {@link Double#isNaN() NaNs} or {@link
-   *       Double#isInfinite() infinities}.
-   * </ul>
+   * Set the strictness of this writer. See {@link JsonWriter#setStrictness(Strictness)} on what this entaisl.
+   * @param lenient Whether this writer should be lenient. If true, the strictness is set to {@link Strictness#LENIENT}.
+   *                If false, the strictness is set to {@link Strictness#DEFAULT}.
    */
   public final void setLenient(boolean lenient) {
     this.strictness = lenient ? Strictness.LENIENT : Strictness.DEFAULT;
   }
 
   /**
-   * Returns true if this writer has relaxed syntax rules.
+   * Returns true if this writer has a <code>strictness</code> value of {@link Strictness#LENIENT}. See
+   * {@link JsonWriter#setStrictness(Strictness)} for details on what this entails.
+   * @see JsonWriter#setStrictness(Strictness)
    */
   public boolean isLenient() {
     return strictness == Strictness.LENIENT;
   }
 
+  /**
+   * Configure how strict this writer is with regard to the syntax rules specified in <a
+   * href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>. By default, {@link Strictness#DEFAULT} is used.
+   * <ul>
+   *     <li>{@link Strictness#DEFAULT} and {@link Strictness#DEFAULT}: The behavior of these
+   *     is currently identical. In these strictness modes, the writer only writes JSON in accordance to
+   *     <a href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>.</li>
+   *     <li>{@link Strictness#LENIENT}: This mode relaxes the behavior of the writer to allow the writing of
+   *     {@link Double#isNaN() NaNs} and {@link Double#isInfinite() infinities}.</li>
+   * </ul>
+   * @param strictness the new strictness of this writer. Can not be null.
+   * @throws NullPointerException A null pointer exception is thrown if the provided <code>strictness</code> is null.
+   */
   public final void setStrictness(Strictness strictness) {
     this.strictness = Objects.requireNonNull(strictness);
   }
 
   /**
-   * Returns
-   * @return
+   * Returns how strict this writer is. See {@linkplain JsonWriter#setStrictness(Strictness)} for more details.
    */
   public final Strictness getStrictness() {
     return strictness;
