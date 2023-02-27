@@ -60,6 +60,11 @@ public final class GsonTest {
   private static final ToNumberStrategy CUSTOM_NUMBER_TO_NUMBER_STRATEGY = ToNumberPolicy.LAZILY_PARSED_NUMBER;
 
   @Test
+  public void testStrictnessDefault() {
+    assertThat(new Gson().strictness).isEqualTo(Strictness.DEFAULT);
+  }
+
+  @Test
   public void testOverridesDefaultExcluder() {
     Gson gson = new Gson(CUSTOM_EXCLUDER, CUSTOM_FIELD_NAMING_STRATEGY,
         new HashMap<Type, InstanceCreator<?>>(), true, false, true, false,

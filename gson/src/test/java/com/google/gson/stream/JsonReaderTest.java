@@ -482,7 +482,7 @@ public final class JsonReaderTest {
   public void testUnescapedControlCharactersInStrictMode() throws IOException {
     String json = "[\"\u0014\"]";
     JsonReader reader = new JsonReader(reader(json));
-    reader.setStrict(true);
+    reader.setStrictness(Strictness.STRICT);
     reader.beginArray();
     try {
       reader.nextString();
