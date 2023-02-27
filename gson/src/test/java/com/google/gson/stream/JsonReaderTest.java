@@ -61,6 +61,44 @@ public final class JsonReaderTest {
   }
 
   @Test
+  public void testStrictModeValidLineTerminator() throws IOException {
+    String json = "\"\u2028\u2029\"";
+    JsonReader reader = new JsonReader((reader(json)));
+    reader.setStrictness(Strictness.STRICT);
+    assertThat(reader.nextString()).isEqualTo("\u2028\u2029");
+  }
+  @Test
+  public void testStrictModeInvalidLineTerminator() throws IOException {
+    String json = "[\u2028]";
+    JsonReader reader = new JsonReader((reader(json)));
+    reader.beginArray();
+    reader.setStrictness(Strictness.STRICT);
+    try {
+      reader.nextString();
+      fail();
+    } catch (IOException expected) {
+    }
+
+    json = "[\u2029]";
+    reader = new JsonReader((reader(json)));
+    reader.beginArray();
+    reader.setStrictness(Strictness.STRICT);
+    try {
+      reader.nextString();
+      fail();
+    } catch (IOException expected) {
+    }
+  }
+
+  @Test
+  public void testStrictModeUnlistedControlCharacter() throws IOException {
+    String json = "\"\u007F\u009F\"";
+    JsonReader reader = new JsonReader((reader(json)));
+    reader.setStrictness(Strictness.STRICT);
+    assertThat(reader.nextString()).isEqualTo("\u007F\u009F");
+  }
+
+  @Test
   public void testStrictModeFailsToParseUnespacedControlCharacter() {
     String json = "\"\t\"";
     JsonReader reader = new JsonReader(reader(json));
