@@ -1199,8 +1199,8 @@ public final class Gson {
    * <p>Unlike the other {@code fromJson} methods, no exception is thrown if the JSON data has
    * multiple top-level JSON elements, or if there is trailing data.
    *
-   * <p>//todo: update javadoc The JSON data is parsed in {@ linkplain JsonReader#setLenient(boolean) lenient mode},
-   * regardless of the lenient mode setting of the provided reader. The lenient mode setting
+   * <p>The JSON data is parsed in {@linkplain JsonReader#setStrictness(Strictness) lenient mode},
+   * regardless of the lenient mode setting of the provided reader. The strictness setting
    * of the reader is restored once this method returns.
    *
    * @param <T> the type of the desired object
