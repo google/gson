@@ -37,6 +37,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
 
 import com.google.gson.FormattingStyle;
+import com.google.gson.Strictness;
 
 /**
  * Writes a JSON (<a href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>)
@@ -191,7 +192,7 @@ public class JsonWriter implements Closeable, Flushable {
    */
   private String separator = ":";
 
-  private boolean lenient;
+  private Strictness strictness = Strictness.DEFAULT;
 
   private boolean htmlSafe;
 
@@ -267,14 +268,26 @@ public class JsonWriter implements Closeable, Flushable {
    * </ul>
    */
   public final void setLenient(boolean lenient) {
-    this.lenient = lenient;
+    this.strictness = lenient ? Strictness.LENIENT : Strictness.DEFAULT;
   }
 
   /**
    * Returns true if this writer has relaxed syntax rules.
    */
   public boolean isLenient() {
-    return lenient;
+    return strictness == Strictness.LENIENT;
+  }
+
+  public final void setStrictness(Strictness strictness) {
+    this.strictness = Objects.requireNonNull(strictness);
+  }
+
+  /**
+   * Returns
+   * @return
+   */
+  public final Strictness getStrictness() {
+    return strictness;
   }
 
   /**
@@ -532,7 +545,7 @@ public class JsonWriter implements Closeable, Flushable {
    */
   public JsonWriter value(float value) throws IOException {
     writeDeferredName();
-    if (!lenient && (Float.isNaN(value) || Float.isInfinite(value))) {
+    if (strictness != Strictness.LENIENT && (Float.isNaN(value) || Float.isInfinite(value))) {
       throw new IllegalArgumentException("Numeric values must be finite, but was " + value);
     }
     beforeValue();
@@ -551,7 +564,7 @@ public class JsonWriter implements Closeable, Flushable {
    */
   public JsonWriter value(double value) throws IOException {
     writeDeferredName();
-    if (!lenient && (Double.isNaN(value) || Double.isInfinite(value))) {
+    if (strictness != Strictness.LENIENT && (Double.isNaN(value) || Double.isInfinite(value))) {
       throw new IllegalArgumentException("Numeric values must be finite, but was " + value);
     }
     beforeValue();
@@ -601,7 +614,7 @@ public class JsonWriter implements Closeable, Flushable {
     writeDeferredName();
     String string = value.toString();
     if (string.equals("-Infinity") || string.equals("Infinity") || string.equals("NaN")) {
-      if (!lenient) {
+      if (strictness != Strictness.LENIENT) {
         throw new IllegalArgumentException("Numeric values must be finite, but was " + string);
       }
     } else {
@@ -710,7 +723,7 @@ public class JsonWriter implements Closeable, Flushable {
   private void beforeValue() throws IOException {
     switch (peek()) {
     case NONEMPTY_DOCUMENT:
-      if (!lenient) {
+      if (strictness != Strictness.LENIENT) {
         throw new IllegalStateException(
             "JSON must have only one top-level value.");
       }
