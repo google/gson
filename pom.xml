@@ -36,6 +36,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.release>7</maven.compiler.release>
+    <maven.compiler.testRelease>11</maven.compiler.testRelease>
   </properties>
 
   <scm>
@@ -291,15 +292,6 @@
   </build>
 
   <profiles>
-    <profile>
-      <id>JDK11</id>
-      <activation>
-        <jdk>(,11]</jdk>
-      </activation>
-      <properties>
-        <maven.compiler.testRelease>11</maven.compiler.testRelease>
-      </properties>
-    </profile>
     <!-- Disable Error Prone in Java 15 -->
     <profile>
       <id>jdk15</id>
