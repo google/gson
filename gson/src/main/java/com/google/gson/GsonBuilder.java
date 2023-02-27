@@ -16,6 +16,17 @@
 
 package com.google.gson;
 
+import static com.google.gson.Gson.DEFAULT_COMPLEX_MAP_KEYS;
+import static com.google.gson.Gson.DEFAULT_DATE_PATTERN;
+import static com.google.gson.Gson.DEFAULT_ESCAPE_HTML;
+import static com.google.gson.Gson.DEFAULT_FORMATTING_STYLE;
+import static com.google.gson.Gson.DEFAULT_JSON_NON_EXECUTABLE;
+import static com.google.gson.Gson.DEFAULT_NUMBER_TO_NUMBER_STRATEGY;
+import static com.google.gson.Gson.DEFAULT_OBJECT_TO_NUMBER_STRATEGY;
+import static com.google.gson.Gson.DEFAULT_SERIALIZE_NULLS;
+import static com.google.gson.Gson.DEFAULT_SPECIALIZE_FLOAT_VALUES;
+import static com.google.gson.Gson.DEFAULT_USE_JDK_UNSAFE;
+
 import com.google.gson.annotations.Since;
 import com.google.gson.annotations.Until;
 import com.google.gson.internal.$Gson$Preconditions;
@@ -38,7 +49,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.google.gson.Gson.*;
 
 /**
  * <p>Use this builder to construct a {@link Gson} instance when you need to set configuration
