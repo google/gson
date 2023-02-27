@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import com.google.gson.FormattingStyle;
+import com.google.gson.Strictness;
 import com.google.gson.internal.LazilyParsedNumber;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -29,6 +30,55 @@ import org.junit.Test;
 
 @SuppressWarnings("resource")
 public final class JsonWriterTest {
+
+  @Test
+  public void testDefaultStrictness() throws IOException {
+    JsonWriter jsonWriter = new JsonWriter(new StringWriter());
+    assertThat(jsonWriter.getStrictness()).isEqualTo(Strictness.DEFAULT);
+    jsonWriter.value(false);
+    jsonWriter.close();
+  }
+
+  @Test
+  public void testSetLenientTrue() throws IOException {
+    JsonWriter jsonWriter = new JsonWriter(new StringWriter());
+    jsonWriter.setLenient(true);
+    assertThat(jsonWriter.getStrictness()).isEqualTo(Strictness.LENIENT);
+    jsonWriter.value(false);
+    jsonWriter.close();
+  }
+
+  @Test
+  public void testSetLenientFalse() throws IOException {
+    JsonWriter jsonWriter = new JsonWriter(new StringWriter());
+    jsonWriter.setLenient(false);
+    assertThat(jsonWriter.getStrictness()).isEqualTo(Strictness.DEFAULT);
+    jsonWriter.value(false);
+    jsonWriter.close();
+  }
+
+  @Test
+  public void testSetStrictness() throws IOException {
+    JsonWriter jsonWriter = new JsonWriter(new StringWriter());
+    jsonWriter.setStrictness(Strictness.STRICT);
+    assertThat(jsonWriter.getStrictness()).isEqualTo(Strictness.STRICT);
+    jsonWriter.value(false);
+    jsonWriter.close();
+  }
+
+  @Test
+  public void testSetStrictnessNull() throws IOException {
+    JsonWriter jsonWriter = new JsonWriter(new StringWriter());
+    try {
+      jsonWriter.setStrictness(null);
+      fail();
+    } catch (NullPointerException expected) {
+      // Setting the strictness to null should throw a null pointer exception!
+    } finally {
+      jsonWriter.value(false);
+      jsonWriter.close();
+    }
+  }
 
   @Test
   public void testTopLevelValueTypes() throws IOException {
