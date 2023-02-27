@@ -26,6 +26,7 @@ import static com.google.gson.stream.JsonToken.NULL;
 import static com.google.gson.stream.JsonToken.NUMBER;
 import static com.google.gson.stream.JsonToken.STRING;
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.EOFException;
@@ -474,6 +475,19 @@ public final class JsonReaderTest {
       reader.nextString();
       fail();
     } catch (NumberFormatException expected) {
+    }
+  }
+
+  @Test
+  public void testUnescapedControlCharactersInStrictMode() throws IOException {
+    String json = "[\"\u0014\"]";
+    JsonReader reader = new JsonReader(reader(json));
+    reader.setStrict(true);
+    reader.beginArray();
+    try {
+      reader.nextString();
+    } catch (IOException expected) {
+      assertTrue(expected.getMessage().contains("Unescaped control characters"));
     }
   }
 
