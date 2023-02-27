@@ -293,62 +293,83 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Configure this parser to be liberal in what it accepts. By default,
-   * this parser is strict and only accepts JSON as specified by <a
-   * href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>. Setting the
-   * parser to lenient causes it to ignore the following syntax errors:
-   *
-   * <ul>
-   *   <li>Streams that start with the <a href="#nonexecuteprefix">non-execute
-   *       prefix</a>, <code>")]}'\n"</code>.
-   *   <li>Streams that include multiple top-level values. With strict parsing,
-   *       each stream must contain exactly one top-level value.
-   *   <li>Numbers may be {@link Double#isNaN() NaNs} or {@link
-   *       Double#isInfinite() infinities}.
-   *   <li>End of line comments starting with {@code //} or {@code #} and
-   *       ending with a newline character.
-   *   <li>C-style comments starting with {@code /*} and ending with
-   *       {@code *}{@code /}. Such comments may not be nested.
-   *   <li>Names that are unquoted or {@code 'single quoted'}.
-   *   <li>Strings that are unquoted or {@code 'single quoted'}.
-   *   <li>Array elements separated by {@code ;} instead of {@code ,}.
-   *   <li>Unnecessary array separators. These are interpreted as if null
-   *       was the omitted value.
-   *   <li>Names and values separated by {@code =} or {@code =>} instead of
-   *       {@code :}.
-   *   <li>Name/value pairs separated by {@code ;} instead of {@code ,}.
-   * </ul>
-   *
-   * <p>Note: Even in strict mode there are slight derivations from the JSON
-   * specification:
-   * <ul>
-   *   <li>JsonReader allows the literals {@code true}, {@code false} and {@code null}
-   *       to have any capitalization, for example {@code fAlSe}
-   *   <li>JsonReader supports the escape sequence {@code \'}, representing a {@code '}
-   *   <li>JsonReader supports the escape sequence <code>\<i>LF</i></code> (with {@code LF}
-   *       being the Unicode character U+000A), resulting in a {@code LF} within the
-   *       read JSON string
-   *   <li>JsonReader allows unescaped control characters (U+0000 through U+001F)
-   * </ul>
+   * Set the strictness this JSONReader to {@link Strictness#LENIENT} if the provided argument is true and
+   * set the strictness to {@link Strictness#STRICT} if the provided argument if false.
+   * @param lenient Provoding <code>true</code> will set the strictness of this reader to {@link Strictness#LENIENT} and
+   *                passing <code>false</code> will set the strictness of this reader to {@link Strictness#DEFAULT}.
+   * @see #setStrictness(Strictness)  
    */
   public final void setLenient(boolean lenient) {
     this.strictness = lenient ? Strictness.LENIENT : Strictness.DEFAULT;
   }
 
   /**
-   * Returns true if this parser is liberal in what it accepts.
+   * Returns true if the {@link Strictness} of this reader is equal to {@link Strictness#STRICT}.
+   * @see #setStrictness(Strictness)
    */
   public final boolean isLenient() {
     return strictness == Strictness.LENIENT;
   }
 
-  // todo: add javadoc
+  /**
+   * Configure how liberal this parser is in what it accepts. In {@linkplain Strictness#STRICT strict} mode, the
+   * parser only accepts JSON in accordance with <a href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>.
+   * {@linkplain Strictness#LENIENT lenient} mode, all sort of non-spec compliant JSON is accepted (see below).
+   * In {@linkplain Strictness#DEFAULT default} mode, only JSON in accordance with <a
+   * href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a> is accepted, with a few exceptions denoted below
+   * for backwards compatibility reasons.
+   * <ul>
+   *     <li>
+   *         {@link Strictness#LENIENT}: In lenient mode, the following syntax erros are accepted:
+   *         <ul>
+   *             <li>Streams that start with the <a href="#nonexecuteprefix">non-execute prefix</a>, <code>")]}'\n"
+   *                 </code>.
+   *             <li>Streams that include multiple top-level values. With default or strict parsing,
+   *                 each stream must contain exactly one top-level value.
+   *             <li>Numbers may be {@link Double#isNaN() NaNs} or {@link Double#isInfinite() infinities}.
+   *             <li>End of line comments starting with {@code //} or {@code #} and ending with a newline character.
+   *             <li>C-style comments starting with {@code /*} and ending with
+   *                 {@code *}{@code /}. Such comments may not be nested.
+   *             <li>Names that are unquoted or {@code 'single quoted'}.
+   *             <li>Strings that are unquoted or {@code 'single quoted'}.
+   *             <li>Array elements separated by {@code ;} instead of {@code ,}.
+   *             <li>Unnecessary array separators. These are interpreted as if null
+   *                 was the omitted value.
+   *             <li>Names and values separated by {@code =} or {@code =>} instead of
+   *                 {@code :}.
+   *             <li>Name/value pairs separated by {@code ;} instead of {@code ,}.
+   *         </ul>
+   *     </li>
+   *     <li>
+   *         {@link Strictness#STRICT}: In strict mode, the only <a href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627
+   *         </a> is parsed. This means that the following syntax errors that are allowed in default and lenient mode
+   *         are not allowed:
+   *         <ul>
+   *             <li>JsonReader allows the literals {@code true}, {@code false} and {@code null}
+   *                 to have any capitalization, for example {@code fAlSe}
+   *             <li>JsonReader supports the escape sequence {@code \'}, representing a {@code '}
+   *             <li>JsonReader supports the escape sequence <code>\<i>LF</i></code> (with {@code LF}
+   *                 being the Unicode character U+000A), resulting in a {@code LF} within the
+   *                 read JSON string
+   *             <li>JsonReader allows unescaped control characters (U+0000 through U+001F)
+   *         </ul>
+   *     </li>
+   *     <li>
+   *         {@link Strictness#DEFAULT}: In default mode, the syntax errors allowed in leninet mode are not allowed.
+   *         However, the syntax errors of strict mode are allowed.
+   *     </li>
+   * </ul>
+   * @param strictness The new strictness value of this reader. May not be null.
+   * @throws NullPointerException if the provided <code>strictness</code> is <code>null</code>.
+   */
   public final void setStrictness(Strictness strictness) {
     Objects.requireNonNull(strictness);
     this.strictness = strictness;
   }
 
-  // todo: add javadoc
+  /**
+   * Returns the {@linkplain Strictness strictness} of this writer. See {@link #setStrictness(Strictness)} for details.
+   */
   public final Strictness getStrictness() {
     return strictness;
   }

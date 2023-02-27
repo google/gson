@@ -107,7 +107,7 @@ import java.util.concurrent.atomic.AtomicLongArray;
  *
  * <h2>Lenient JSON handling</h2>
  * For legacy reasons most of the {@code Gson} methods allow JSON data which does not
- * comply with the JSON specification, regardless of whether {@link GsonBuilder#setLenient()}
+ * comply with the JSON specification, regardless of whether {@link Strictness#DEFAULT} or {@link Strictness#STRICT}
  * is used or not. If this behavior is not desired, the following workarounds can be used:
  *
  * <h3>Serialization</h3>
@@ -231,6 +231,7 @@ public final class Gson {
    *   <li>By default, Gson excludes <code>transient</code> or <code>static</code> fields from
    *   consideration for serialization and deserialization. You can change this behavior through
    *   {@link GsonBuilder#excludeFieldsWithModifiers(int...)}.</li>
+   *   <li>The strictness is set to {@link Strictness#DEFAULT}.</li>
    * </ul>
    */
   public Gson() {
@@ -822,9 +823,9 @@ public final class Gson {
    * Writes the JSON representation of {@code src} of type {@code typeOfSrc} to
    * {@code writer}.
    *
-   * <p>The JSON data is written in {@linkplain JsonWriter#setLenient(boolean) lenient mode},
-   * regardless of the lenient mode setting of the provided writer. The lenient mode setting
-   * of the writer is restored once this method returns.
+   * <p>The JSON data is written in {@linkplain JsonWriter#setStrictness(Strictness)} (boolean)
+   * {@linkplain Strictness#LENIENT lenient} mode}, regardless of the lenient mode setting of the provided writer.
+   * The strictness setting of the writer is restored once this method returns.
    *
    * <p>The 'HTML-safe' and 'serialize {@code null}' settings of this {@code Gson} instance
    * (configured by the {@link GsonBuilder}) are applied, and the original settings of the
@@ -892,7 +893,7 @@ public final class Gson {
    *   <li>{@link GsonBuilder#disableHtmlEscaping()}</li>
    *   <li>{@link GsonBuilder#generateNonExecutableJson()}</li>
    *   <li>{@link GsonBuilder#serializeNulls()}</li>
-   *   <li>{@link GsonBuilder#setLenient()}</li>
+   *   <li>{@link GsonBuilder#setStrictness(Strictness)}</li>
    *   <li>{@link GsonBuilder#setPrettyPrinting()}</li>
    *   <li>{@link GsonBuilder#setPrettyPrinting(FormattingStyle)}</li>
    * </ul>
@@ -904,7 +905,7 @@ public final class Gson {
     JsonWriter jsonWriter = new JsonWriter(writer);
     jsonWriter.setFormattingStyle(formattingStyle);
     jsonWriter.setHtmlSafe(htmlSafe);
-    jsonWriter.setLenient(this.strictness == Strictness.LENIENT);
+    jsonWriter.setStrictness(strictness);
     jsonWriter.setSerializeNulls(serializeNulls);
     return jsonWriter;
   }
@@ -914,7 +915,7 @@ public final class Gson {
    *
    * <p>The following settings are considered:
    * <ul>
-   *   <li>{@link GsonBuilder#setLenient()}</li>
+   *   <li>{@link GsonBuilder#setStrictness(Strictness)}</li>
    * </ul>
    */
   public JsonReader newJsonReader(Reader reader) {
