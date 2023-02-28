@@ -166,8 +166,8 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       writeTypeAdapter = jsonAdapterPresent ? typeAdapter
           : new TypeAdapterRuntimeTypeWrapper<>(context, typeAdapter, fieldType.getType());
     } else {
-      // The field will never be serialized, skip the unnecessary type adapter construction
-      writeTypeAdapter = null;
+      // Will never actually be used, but we set it to avoid confusing nullness-analysis tools
+      writeTypeAdapter = typeAdapter;
     }
     return new BoundField(name, field, serialize, deserialize) {
       @Override void write(JsonWriter writer, Object source)
