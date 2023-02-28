@@ -650,32 +650,37 @@ public class JsonReader implements Closeable {
     String keywordUpper;
     int peeking;
 
-    // Uppercase letters are not recognized if strict mode is used.
-    if (c == 't' || (strictness != Strictness.STRICT && c == 'T')) {
+    char lowerCaseFirstChar = Character.toLowerCase(c);
+
+    // Look at the first lower case letter to determine what keyword we are trying to match.
+    if (lowerCaseFirstChar == 't') {
       keyword = "true";
-      keywordUpper = "TRUE";
       peeking = PEEKED_TRUE;
-    } else if (c == 'f' || (strictness != Strictness.STRICT && c == 'F')) {
+    } else if (lowerCaseFirstChar == 'f') {
       keyword = "false";
-      keywordUpper = "FALSE";
       peeking = PEEKED_FALSE;
-    } else if (c == 'n' || (strictness != Strictness.STRICT && c == 'N')) {
+    } else if (lowerCaseFirstChar == 'n') {
       keyword = "null";
-      keywordUpper = "NULL";
       peeking = PEEKED_NULL;
     } else {
       return PEEKED_NONE;
     }
 
+    // In strict mode, we do not allow any of the characters in the keyword to be uppercase.
+    // In default and lenient mode, we allow any combination of uppercase and lowercase letters in the keyword.
+    // By setting the keywordUpper equal to the keyword in strict mode,
+    // any upper case letters in the buffer are not matched
+    keywordUpper = strictness == Strictness.STRICT ? keyword : keyword.toUpperCase();
+
     // Confirm that chars [1..length) match the keyword.
     int length = keyword.length();
-    for (int i = 1; i < length; i++) {
+    for (int i = 0; i < length; i++) {
       if (pos + i >= limit && !fillBuffer(i + 1)) {
         return PEEKED_NONE;
       }
       c = buffer[pos + i];
       // Again, upper case letters are valid if the strict keyword is used.
-      if (c != keyword.charAt(i) && (strictness == Strictness.STRICT || c != keywordUpper.charAt(i))) {
+      if (c != keyword.charAt(i) && c != keywordUpper.charAt(i)) {
         return PEEKED_NONE;
       }
     }

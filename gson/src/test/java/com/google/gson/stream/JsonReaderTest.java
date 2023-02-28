@@ -89,9 +89,11 @@ public final class JsonReaderTest {
       reader.nextBoolean();
       fail();
     } catch (IOException expected) {
+      assertThat(expected).hasMessageThat().isEqualTo("Use JsonReader.setLenient(true) to accept malformed" +
+              " JSON at line 1 column 1 path $");
     }
 
-    reader = new JsonReader(reader("tRue"));
+    reader = new JsonReader(reader("True"));
     reader.setStrictness(Strictness.STRICT);
     try {
       reader.nextBoolean();
