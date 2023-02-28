@@ -258,17 +258,19 @@ public class JsonWriter implements Closeable, Flushable {
   }
 
   /**
-   * Set the strictness of this writer. See {@link JsonWriter#setStrictness(Strictness)} on what this entaisl.
-   * @param lenient Whether this writer should be lenient. If true, the strictness is set to {@link Strictness#LENIENT}.
+   * Set the strictness of this writer.
+   *
+   * @param lenient whether this writer should be lenient. If true, the strictness is set to {@link Strictness#LENIENT}.
    *                If false, the strictness is set to {@link Strictness#DEFAULT}.
+   * @see #setStrictness(Strictness)
    */
   public final void setLenient(boolean lenient) {
     this.strictness = lenient ? Strictness.LENIENT : Strictness.DEFAULT;
   }
 
   /**
-   * Returns true if this writer has a <code>strictness</code> value of {@link Strictness#LENIENT}. See
-   * {@link JsonWriter#setStrictness(Strictness)} for details on what this entails.
+   * Returns true if this writer has a <code>strictness</code> value of {@link Strictness#LENIENT}, false otherwise.
+   *
    * @see JsonWriter#setStrictness(Strictness)
    */
   public boolean isLenient() {
@@ -278,6 +280,7 @@ public class JsonWriter implements Closeable, Flushable {
   /**
    * Configure how strict this writer is with regard to the syntax rules specified in <a
    * href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>. By default, {@link Strictness#DEFAULT} is used.
+   *
    * <ul>
    *     <li>{@link Strictness#DEFAULT} and {@link Strictness#DEFAULT}: The behavior of these
    *     is currently identical. In these strictness modes, the writer only writes JSON in accordance to
@@ -285,6 +288,7 @@ public class JsonWriter implements Closeable, Flushable {
    *     <li>{@link Strictness#LENIENT}: This mode relaxes the behavior of the writer to allow the writing of
    *     {@link Double#isNaN() NaNs} and {@link Double#isInfinite() infinities}.</li>
    * </ul>
+   *
    * @param strictness the new strictness of this writer. Can not be null.
    * @throws NullPointerException A null pointer exception is thrown if the provided <code>strictness</code> is null.
    */
@@ -293,7 +297,9 @@ public class JsonWriter implements Closeable, Flushable {
   }
 
   /**
-   * Returns how strict this writer is. See {@linkplain JsonWriter#setStrictness(Strictness)} for more details.
+   * Returns how strict this writer is.
+   *
+   * @see #setStrictness(Strictness)
    */
   public final Strictness getStrictness() {
     return strictness;

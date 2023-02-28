@@ -97,6 +97,8 @@ public final class JsonReaderTest {
       reader.nextBoolean();
       fail();
     } catch (IOException expected) {
+      assertThat(expected).hasMessageThat().isEqualTo("Use JsonReader.setLenient(true) to accept malformed" +
+              " JSON at line 1 column 1 path $");
     }
   }
 
@@ -108,6 +110,8 @@ public final class JsonReaderTest {
       reader.nextNull();
       fail();
     } catch (IOException expected) {
+      assertThat(expected).hasMessageThat().isEqualTo("Use JsonReader.setLenient(true) to accept malformed" +
+              " JSON at line 1 column 1 path $");
     }
 
     reader = new JsonReader(reader("nulL"));
@@ -116,6 +120,8 @@ public final class JsonReaderTest {
       reader.nextNull();
       fail();
     } catch (IOException expected) {
+      assertThat(expected).hasMessageThat().isEqualTo("Use JsonReader.setLenient(true) to accept malformed" +
+              " JSON at line 1 column 1 path $");
     }
   }
 
@@ -127,6 +133,8 @@ public final class JsonReaderTest {
       reader.nextBoolean();
       fail();
     } catch (IOException expected) {
+      assertThat(expected).hasMessageThat().isEqualTo("Use JsonReader.setLenient(true) to accept malformed" +
+              " JSON at line 1 column 1 path $");
     }
 
     reader = new JsonReader(reader("FaLse"));
@@ -135,6 +143,8 @@ public final class JsonReaderTest {
       reader.nextBoolean();
       fail();
     } catch (IOException expected) {
+      assertThat(expected).hasMessageThat().isEqualTo("Use JsonReader.setLenient(true) to accept malformed" +
+              " JSON at line 1 column 1 path $");
     }
   }
 
@@ -456,6 +466,7 @@ public final class JsonReaderTest {
       reader.nextString();
       fail();
     } catch (IOException expected) {
+      assertThat(expected).hasMessageThat().contains("Invalid escaped character \"'\" in strict mode");
     }
   }
 
@@ -487,7 +498,7 @@ public final class JsonReaderTest {
     try {
       reader.nextString();
     } catch (IOException expected) {
-      assertTrue(expected.getMessage().contains("Unescaped control characters"));
+      assertThat(expected).hasMessageThat().contains("Unescaped control characters");
     }
   }
 

@@ -73,7 +73,7 @@ public final class JsonWriterTest {
       jsonWriter.setStrictness(null);
       fail();
     } catch (NullPointerException expected) {
-      // Setting the strictness to null should throw a null pointer exception!
+      // OK: Setting the strictness to null should throw a null pointer exception!
     } finally {
       jsonWriter.value(false);
       jsonWriter.close();

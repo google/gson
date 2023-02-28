@@ -294,8 +294,9 @@ public class JsonReader implements Closeable {
 
   /**
    * Set the strictness this JSONReader to {@link Strictness#LENIENT} if the provided argument is true and
-   * set the strictness to {@link Strictness#STRICT} if the provided argument if false.
-   * @param lenient Provoding <code>true</code> will set the strictness of this reader to {@link Strictness#LENIENT} and
+   * set the strictness to {@link Strictness#DEFAULT} if the provided argument if false.
+   *
+   * @param lenient provoding <code>true</code> will set the strictness of this reader to {@link Strictness#LENIENT} and
    *                passing <code>false</code> will set the strictness of this reader to {@link Strictness#DEFAULT}.
    * @see #setStrictness(Strictness)  
    */
@@ -305,6 +306,7 @@ public class JsonReader implements Closeable {
 
   /**
    * Returns true if the {@link Strictness} of this reader is equal to {@link Strictness#STRICT}.
+   *
    * @see #setStrictness(Strictness)
    */
   public final boolean isLenient() {
@@ -312,12 +314,15 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Configure how liberal this parser is in what it accepts. In {@linkplain Strictness#STRICT strict} mode, the
+   * Configure how liberal this parser is in what it accepts.
+   *
+   * <p>In {@linkplain Strictness#STRICT strict} mode, the
    * parser only accepts JSON in accordance with <a href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>.
    * {@linkplain Strictness#LENIENT lenient} mode, all sort of non-spec compliant JSON is accepted (see below).
    * In {@linkplain Strictness#DEFAULT default} mode, only JSON in accordance with <a
    * href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a> is accepted, with a few exceptions denoted below
-   * for backwards compatibility reasons.
+   * for backwards compatibility reasons.</p>
+   *
    * <ul>
    *     <li>
    *         {@link Strictness#LENIENT}: In lenient mode, the following syntax erros are accepted:
@@ -359,7 +364,8 @@ public class JsonReader implements Closeable {
    *         However, the syntax errors of strict mode are allowed.
    *     </li>
    * </ul>
-   * @param strictness The new strictness value of this reader. May not be null.
+   *
+   * @param strictness the new strictness value of this reader. May not be null.
    * @throws NullPointerException if the provided <code>strictness</code> is <code>null</code>.
    */
   public final void setStrictness(Strictness strictness) {
@@ -368,7 +374,9 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Returns the {@linkplain Strictness strictness} of this writer. See {@link #setStrictness(Strictness)} for details.
+   * Returns the {@linkplain Strictness strictness} of this writer.
+   *
+   * @see #setStrictness(Strictness)
    */
   public final Strictness getStrictness() {
     return strictness;
