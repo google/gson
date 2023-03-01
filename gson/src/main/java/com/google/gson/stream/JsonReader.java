@@ -346,8 +346,7 @@ public class JsonReader implements Closeable {
    *     <dt>{@link Strictness#LENIENT}</dt>
    *     <dd>
    *         In lenient mode, all input that is accepted in default mode is accepted in addition to the following
-   *         departures from <a href="http://www.ietf.org/rfc/rfc8259.txt">RFC 8259
-   *    *         </a>:
+   *         departures from <a href="http://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>:
    *         <ul>
    *             <li>Streams that start with the <a href="#nonexecuteprefix">non-execute prefix</a>, <code>")]}'\n"
    *                 </code>.
