@@ -41,6 +41,39 @@ import org.junit.Test;
 
 @SuppressWarnings("resource")
 public final class JsonReaderTest {
+
+  @Test
+  public void testSetLenientTrue() {
+    JsonReader reader = new JsonReader(reader("{}"));
+    reader.setLenient(true);
+    assertThat(reader.getStrictness()).isEqualTo(Strictness.LENIENT);
+  }
+
+  @Test
+  public void testSetLenientFalse() {
+    JsonReader reader = new JsonReader(reader("{}"));
+    reader.setLenient(false);
+    assertThat(reader.getStrictness()).isEqualTo(Strictness.DEFAULT);
+  }
+
+  @Test
+  public void testSetStrictness() {
+    JsonReader reader = new JsonReader(reader("{}"));
+    reader.setStrictness(Strictness.STRICT);
+    assertThat(reader.getStrictness()).isEqualTo(Strictness.STRICT);
+  }
+
+  @Test
+  public void testSetStrictnessNull() {
+    JsonReader reader = new JsonReader(reader("{}"));
+    try {
+      reader.setStrictness(null);
+      fail();
+    } catch (NullPointerException expected) {
+      //OK: It should not be possible to set the strictness to null.
+    }
+  }
+
   @Test
   public void testEscapedNewlineNotAllowedInStrictMode() throws IOException {
     String json = "\"\\\n\"";
