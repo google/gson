@@ -37,6 +37,7 @@ import java.util.Date;
  * this class state. DateFormat isn't thread safe either, so this class has
  * to synchronize its read and write methods.
  */
+@SuppressWarnings("JavaUtilDate")
 final class SqlTimeTypeAdapter extends TypeAdapter<Time> {
   static final TypeAdapterFactory FACTORY = new TypeAdapterFactory() {
     @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal

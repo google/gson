@@ -29,6 +29,8 @@ import java.util.Set;
 import org.junit.Test;
 
 /**
+ * Tests for {@link TypeToken}.
+ *
  * @author Jesse Wilson
  */
 public final class TypeTokenTest {

@@ -99,7 +99,7 @@
             <compilerArgs>
               <!-- Args related to Error Prone, see: https://errorprone.info/docs/installation#maven -->
               <arg>-XDcompilePolicy=simple</arg>
-              <arg>-Xplugin:ErrorProne -XepExcludedPaths:.*gson/src/test.*|.*extras/src/test.*|.*proto.*</arg>
+              <arg>-Xplugin:ErrorProne -XepExcludedPaths:.*/generated-test-sources/protobuf/.*</arg>
               <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
               <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
               <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
@@ -144,6 +144,7 @@
             <detectJavaApiLink>false</detectJavaApiLink>
             <links>
               <link>https://docs.oracle.com/en/java/javase/11/docs/api/</link>
+              <link>https://errorprone.info/api/latest/</link>
             </links>
             <!-- Disable detection of offline links between Maven modules: 
               (1) Only `gson` module is published, so for other modules Javadoc links don't 

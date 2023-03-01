@@ -25,6 +25,8 @@ import java.util.Locale;
 import org.junit.Test;
 
 /**
+ * Tests handling of Core Type Adapters
+ *
  * @author Jesse Wilson
  */
 public class OverrideCoreTypeAdaptersTest {

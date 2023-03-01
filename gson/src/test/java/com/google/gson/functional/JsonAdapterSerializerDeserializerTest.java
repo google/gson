@@ -18,6 +18,7 @@ package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.errorprone.annotations.Keep;
 import com.google.gson.Gson;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -47,9 +48,15 @@ public final class JsonAdapterSerializerDeserializerTest {
   }
 
   private static final class Computer {
-    @JsonAdapter(UserSerializer.class) final User user1;
-    @JsonAdapter(UserDeserializer.class) final User user2;
-    @JsonAdapter(UserSerializerDeserializer.class) final User user3;
+    @JsonAdapter(UserSerializer.class)
+    @Keep
+    final User user1;
+    @JsonAdapter(UserDeserializer.class)
+    @Keep
+    final User user2;
+    @JsonAdapter(UserSerializerDeserializer.class)
+    @Keep
+    final User user3;
     Computer(User user1, User user2, User user3) {
       this.user1 = user1;
       this.user2 = user2;
@@ -137,8 +144,12 @@ public final class JsonAdapterSerializerDeserializerTest {
   }
 
   private static final class Container {
-    @JsonAdapter(BaseStringAdapter.class) Base<String> a;
-    @JsonAdapter(BaseIntegerAdapter.class) Base<Integer> b;
+    @JsonAdapter(BaseStringAdapter.class)
+    @Keep
+    Base<String> a;
+    @JsonAdapter(BaseIntegerAdapter.class)
+    @Keep
+    Base<Integer> b;
     Container(String a, int b) {
       this.a = new Base<>(a);
       this.b = new Base<>(b);

@@ -81,6 +81,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   }
 
   /** first element holds the default name */
+  @SuppressWarnings("MixedMutabilityReturnType")
   private List<String> getFieldNames(Field f) {
     SerializedName annotation = f.getAnnotation(SerializedName.class);
     if (annotation == null) {

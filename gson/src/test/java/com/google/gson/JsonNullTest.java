@@ -22,6 +22,8 @@ import com.google.gson.common.MoreAsserts;
 import org.junit.Test;
 
 /**
+ * Tests handling of JSON nulls.
+ *
  * @author Jesse Wilson
  */
 public final class JsonNullTest {

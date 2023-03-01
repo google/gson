@@ -23,6 +23,8 @@ import java.util.List;
 import org.junit.Test;
 
 /**
+ * Tests that by default Gson accepts several forms of comments.
+ *
  * @author Jesse Wilson
  */
 public final class CommentsTest {

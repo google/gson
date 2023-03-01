@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import com.google.common.base.Objects;
 import com.google.gson.internal.$Gson$Types;
 
 import com.google.gson.internal.Primitives;
@@ -35,7 +36,7 @@ import java.lang.reflect.Type;
  */
 public class ParameterizedTypeFixtures {
 
-  public static class MyParameterizedType<T> {
+  public static final class MyParameterizedType<T> {
     public final T value;
     public MyParameterizedType(T value) {
       this.value = value;
@@ -80,27 +81,16 @@ public class ParameterizedTypeFixtures {
       return value == null ? 0 : value.hashCode();
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public boolean equals(Object obj) {
       if (this == obj) {
         return true;
       }
-      if (obj == null) {
+      if (!(obj instanceof MyParameterizedType<?>)) {
         return false;
       }
-      if (getClass() != obj.getClass()) {
-        return false;
-      }
-      MyParameterizedType<T> other = (MyParameterizedType<T>) obj;
-      if (value == null) {
-        if (other.value != null) {
-          return false;
-        }
-      } else if (!value.equals(other.value)) {
-        return false;
-      }
-      return true;
+      MyParameterizedType<?> that = (MyParameterizedType<?>) obj;
+      return Objects.equal(getValue(), that.getValue());
     }
   }
 
@@ -112,8 +102,6 @@ public class ParameterizedTypeFixtures {
      * This means that the fields of the same objects will be overwritten by Gson.
      * This is usually fine in tests since there we deserialize just once, but quite
      * dangerous in practice.
-     *
-     * @param instanceOfT
      */
     public MyParameterizedTypeInstanceCreator(T instanceOfT) {
       this.instanceOfT = instanceOfT;

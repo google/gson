@@ -93,6 +93,7 @@ public class CollectionTest {
   }
 
   @Test
+  @SuppressWarnings("JdkObsolete")
   public void testLinkedListSerialization() {
     List<String> list = new LinkedList<>();
     list.add("a1");
@@ -113,6 +114,7 @@ public class CollectionTest {
   }
 
   @Test
+  @SuppressWarnings("JdkObsolete")
   public void testQueueSerialization() {
     Queue<String> queue = new LinkedList<>();
     queue.add("a1");
@@ -266,11 +268,11 @@ public class CollectionTest {
   }
 
   @Test
-  public void testRawCollectionDeserializationNotAlllowed() {
+  public void testRawCollectionDeserializationNotAllowed() {
     String json = "[0,1,2,3,4,5,6,7,8,9]";
     Collection<?> integers = gson.fromJson(json, Collection.class);
     // JsonReader converts numbers to double by default so we need a floating point comparison
-    assertThat(integers).isEqualTo(Arrays.asList(0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0));
+    assertThat(integers).containsExactly(0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0).inOrder();
 
     json = "[\"Hello\", \"World\"]";
     Collection<?> strings = gson.fromJson(json, Collection.class);
@@ -416,9 +418,9 @@ public class CollectionTest {
     }
   }
 
-  private class BigClass { private Map<String, ? extends List<SmallClass>> inBig; }
+  private static class BigClass { private Map<String, ? extends List<SmallClass>> inBig; }
 
-  private class SmallClass { private String inSmall; }
+  private static class SmallClass { private String inSmall; }
 
   @Test
   public void testIssue1107() {

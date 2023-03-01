@@ -162,6 +162,7 @@ public class InheritanceTest {
   }
 
   @Test
+  @SuppressWarnings("JdkObsolete")
   public void testSubInterfacesOfCollectionSerialization() {
     List<Integer> list = new LinkedList<>();
     list.add(0);

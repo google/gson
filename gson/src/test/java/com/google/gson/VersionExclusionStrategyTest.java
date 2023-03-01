@@ -18,6 +18,7 @@ package com.google.gson;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.errorprone.annotations.Keep;
 import com.google.gson.annotations.Since;
 import com.google.gson.annotations.Until;
 import com.google.gson.internal.Excluder;
@@ -75,6 +76,7 @@ public class VersionExclusionStrategyTest {
   private static class MockClassSince {
 
     @Since(VERSION)
+    @Keep
     public final int someField = 0;
   }
 
@@ -82,6 +84,7 @@ public class VersionExclusionStrategyTest {
   private static class MockClassUntil {
 
     @Until(VERSION)
+    @Keep
     public final int someField = 0;
   }
 
@@ -91,6 +94,7 @@ public class VersionExclusionStrategyTest {
 
     @Since(VERSION)
     @Until(VERSION + 2)
+    @Keep
     public final int someField = 0;
   }
 }

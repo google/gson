@@ -38,7 +38,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
-import java.lang.reflect.Type;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -64,7 +63,9 @@ public final class ParseBenchmark {
     READER_SHORT(new TypeToken<Feed>() {}, new TypeReference<Feed>() {}),
     READER_LONG(new TypeToken<Feed>() {}, new TypeReference<Feed>() {});
 
+    @SuppressWarnings("ImmutableEnumChecker")
     private final TypeToken<?> gsonType;
+    @SuppressWarnings("ImmutableEnumChecker")
     private final TypeReference<?> jacksonType;
 
     private Document(TypeToken<?> typeToken, TypeReference<?> typeReference) {

@@ -29,6 +29,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 import org.junit.Test;
 
+@SuppressWarnings("JavaUtilDate")
 public final class UtcDateTypeAdapterTest {
   private final Gson gson = new GsonBuilder()
     .registerTypeAdapter(Date.class, new UtcDateTypeAdapter())

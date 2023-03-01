@@ -75,6 +75,8 @@ public class FieldExclusionTest {
   }
 
   private static class Outer {
+
+    @SuppressWarnings("ClassCanBeStatic")
     private class Inner extends NestedClass {
       public Inner(String value) {
         super(value);

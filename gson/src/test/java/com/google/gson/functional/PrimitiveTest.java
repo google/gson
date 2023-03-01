@@ -192,7 +192,7 @@ public class PrimitiveTest {
     // Should perform widening conversion
     assertThat(gson.toJson((byte) 1, Float.class)).isEqualTo("1.0");
     // (This widening conversion is actually lossy)
-    assertThat(gson.toJson(Long.MAX_VALUE - 10L, Float.class)).isEqualTo(Float.toString(Long.MAX_VALUE - 10L));
+    assertThat(gson.toJson(Long.MAX_VALUE - 10L, Float.class)).isEqualTo(Float.toString((float) (Long.MAX_VALUE - 10L)));
     // Should perform narrowing conversion
     gson = new GsonBuilder().serializeSpecialFloatingPointValues().create();
     assertThat(gson.toJson(Double.MAX_VALUE, Float.class)).isEqualTo("Infinity");
@@ -207,7 +207,7 @@ public class PrimitiveTest {
     // Should perform widening conversion
     assertThat(gson.toJson((byte) 1, Double.class)).isEqualTo("1.0");
     // (This widening conversion is actually lossy)
-    assertThat(gson.toJson(Long.MAX_VALUE - 10L, Double.class)).isEqualTo(Double.toString(Long.MAX_VALUE - 10L));
+    assertThat(gson.toJson(Long.MAX_VALUE - 10L, Double.class)).isEqualTo(Double.toString((double) (Long.MAX_VALUE - 10L)));
   }
 
   @Test
