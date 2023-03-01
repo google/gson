@@ -279,17 +279,17 @@ public class JsonWriter implements Closeable, Flushable {
 
   /**
    * Configure how strict this writer is with regard to the syntax rules specified in <a
-   * href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>. By default, {@link Strictness#DEFAULT} is used.
+   * href="http://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>. By default, {@link Strictness#DEFAULT} is used.
    *
    * <ul>
-   *     <li>{@link Strictness#DEFAULT} and {@link Strictness#DEFAULT}: The behavior of these
+   *     <li>{@link Strictness#DEFAULT} and {@link Strictness#STRICT}: The behavior of these
    *     is currently identical. In these strictness modes, the writer only writes JSON in accordance to
-   *     <a href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>.</li>
+   *     <a href="http://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>.</li>
    *     <li>{@link Strictness#LENIENT}: This mode relaxes the behavior of the writer to allow the writing of
    *     {@link Double#isNaN() NaNs} and {@link Double#isInfinite() infinities}.</li>
    * </ul>
    *
-   * @param strictness the new strictness of this writer. Can not be null.
+   * @param strictness the new strictness of this writer. May not be null.
    * @throws NullPointerException A null pointer exception is thrown if the provided <code>strictness</code> is null.
    */
   public final void setStrictness(Strictness strictness) {

@@ -296,7 +296,7 @@ public class JsonReader implements Closeable {
    * Set the strictness this JSONReader to {@link Strictness#LENIENT} if the provided argument is true and
    * set the strictness to {@link Strictness#DEFAULT} if the provided argument if false.
    *
-   * @param lenient provoding <code>true</code> will set the strictness of this reader to {@link Strictness#LENIENT} and
+   * @param lenient passing <code>true</code> will set the strictness of this reader to {@link Strictness#LENIENT} and
    *                passing <code>false</code> will set the strictness of this reader to {@link Strictness#DEFAULT}.
    * @see #setStrictness(Strictness)  
    */
@@ -317,21 +317,44 @@ public class JsonReader implements Closeable {
    * Configure how liberal this parser is in what it accepts.
    *
    * <p>In {@linkplain Strictness#STRICT strict} mode, the
-   * parser only accepts JSON in accordance with <a href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>.
-   * {@linkplain Strictness#LENIENT lenient} mode, all sort of non-spec compliant JSON is accepted (see below).
-   * In {@linkplain Strictness#DEFAULT default} mode, only JSON in accordance with <a
-   * href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a> is accepted, with a few exceptions denoted below
-   * for backwards compatibility reasons.</p>
+   * parser only accepts JSON in accordance with <a href="http://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>.
+   * In {@linkplain Strictness#DEFAULT default} mode, only JSON in accordance with the <a
+   * href="http://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>.is accepted, with a few exceptions denoted below
+   * for backwards compatibility reasons. In {@linkplain Strictness#LENIENT lenient} mode,
+   * all sort of non-spec compliant JSON is accepted (see below).</p>
    *
-   * <ul>
-   *     <li>
-   *         {@link Strictness#LENIENT}: In lenient mode, the following syntax erros are accepted:
+   * <dl>
+   *     <dt>{@link Strictness#STRICT}</dt>
+   *     <dd>
+   *         In strict mode, only input compliant with <a href="http://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>
+   *         is parsed.
+   *     </dd>
+   *     <dt>{@link Strictness#DEFAULT}</dt>
+   *     <dd>
+   *         In default mode, the following departures from <a href="http://www.ietf.org/rfc/rfc8259.txt">RFC 8259
+   *         </a> are accepted:
+   *         <ul>
+   *             <li>JsonReader allows the literals {@code true}, {@code false} and {@code null}
+   *                 to have any capitalization, for example {@code fAlSe} or {@code NULL}.
+   *             <li>JsonReader supports the escape sequence {@code \'}, representing a {@code '} (single-quote)
+   *             <li>JsonReader supports the escape sequence <code>\<i>LF</i></code> (with {@code LF}
+   *                 being the Unicode character U+000A), resulting in a {@code LF} within the
+   *                 read JSON string
+   *            <li>JsonReader allows unescaped control characters (U+0000 through U+001F)
+   *         </ul>
+   *     </dd>
+   *     <dt>{@link Strictness#LENIENT}</dt>
+   *     <dd>
+   *         In lenient mode, all input that is accepted in default mode is accepted in addition to the following
+   *         departures from <a href="http://www.ietf.org/rfc/rfc8259.txt">RFC 8259
+   *    *         </a>:
    *         <ul>
    *             <li>Streams that start with the <a href="#nonexecuteprefix">non-execute prefix</a>, <code>")]}'\n"
    *                 </code>.
    *             <li>Streams that include multiple top-level values. With default or strict parsing,
    *                 each stream must contain exactly one top-level value.
-   *             <li>Numbers may be {@link Double#isNaN() NaNs} or {@link Double#isInfinite() infinities}.
+   *             <li>Numbers may be {@link Double#isNaN() NaNs} or {@link Double#isInfinite() infinities} represented by
+   *                 {@code NaN} and {@code (-)Infinity} respectively.
    *             <li>End of line comments starting with {@code //} or {@code #} and ending with a newline character.
    *             <li>C-style comments starting with {@code /*} and ending with
    *                 {@code *}{@code /}. Such comments may not be nested.
@@ -344,26 +367,8 @@ public class JsonReader implements Closeable {
    *                 {@code :}.
    *             <li>Name/value pairs separated by {@code ;} instead of {@code ,}.
    *         </ul>
-   *     </li>
-   *     <li>
-   *         {@link Strictness#STRICT}: In strict mode, the only <a href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627
-   *         </a> is parsed. This means that the following syntax errors that are allowed in default and lenient mode
-   *         are not allowed:
-   *         <ul>
-   *             <li>JsonReader allows the literals {@code true}, {@code false} and {@code null}
-   *                 to have any capitalization, for example {@code fAlSe}
-   *             <li>JsonReader supports the escape sequence {@code \'}, representing a {@code '}
-   *             <li>JsonReader supports the escape sequence <code>\<i>LF</i></code> (with {@code LF}
-   *                 being the Unicode character U+000A), resulting in a {@code LF} within the
-   *                 read JSON string
-   *             <li>JsonReader allows unescaped control characters (U+0000 through U+001F)
-   *         </ul>
-   *     </li>
-   *     <li>
-   *         {@link Strictness#DEFAULT}: In default mode, the syntax errors allowed in leninet mode are not allowed.
-   *         However, the syntax errors of strict mode are allowed.
-   *     </li>
-   * </ul>
+   *     </dd>
+   * </dl>
    *
    * @param strictness the new strictness value of this reader. May not be null.
    * @throws NullPointerException if the provided <code>strictness</code> is <code>null</code>.
