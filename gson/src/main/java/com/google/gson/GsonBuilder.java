@@ -523,7 +523,7 @@ public final class GsonBuilder {
    * Set the strictness of this builder to the provided parameter.
    *
    * <p>This changes how strict the
-   * <a href="http://www.ietf.org/rfc/rfc7159.txt">RFC7159 JSON specification</a> is enforced when parsing or
+   * <a href="http://www.ietf.org/rfc/rfc8259.txt">RFC 8259 JSON specification</a> is enforced when parsing or
    * writing JSON. For details on this, refer to {@link JsonReader#setStrictness(Strictness)} and
    * {@link JsonWriter#setStrictness(Strictness)}</p>
    *
