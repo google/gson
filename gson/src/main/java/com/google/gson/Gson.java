@@ -107,8 +107,11 @@ import java.util.concurrent.atomic.AtomicLongArray;
  *
  * <h2>Lenient JSON handling</h2>
  * For legacy reasons most of the {@code Gson} methods allow JSON data which does not
- * comply with the JSON specification, regardless of whether {@link Strictness#DEFAULT} or {@link Strictness#STRICT}
- * is used or not. If this behavior is not desired, the following workarounds can be used:
+ * comply with the JSON specification, even when the strictness {@link Strictness#DEFAULT}
+ * is used. To restrict a {@code Gson} instance from parsing JSON that
+ * does not comply with the JSON specification, {@linkplain Strictness#STRICT strict} mode should be used.
+ * Alternatively, if you do not with to use {@linkplain Strictness#STRICT strict} mode,
+ * the following workarounds can be used:
  *
  * <h3>Serialization</h3>
  * <ol>
@@ -823,24 +826,37 @@ public final class Gson {
    * Writes the JSON representation of {@code src} of type {@code typeOfSrc} to
    * {@code writer}.
    *
-   * <p>The JSON data is written in {@linkplain JsonWriter#setStrictness(Strictness)} (boolean)
-   * {@linkplain Strictness#LENIENT lenient} mode}, regardless of the lenient mode setting of the provided writer.
-   * The strictness setting of the writer is restored once this method returns.
+   * <p> The JSON is written in the {@linkplain Strictness strictness} mode of the
+   * the provided {@link JsonWriter JsonWriter} except when the writer is in
+   * {@linkplain Strictness#DEFAULT default} mode. In that case, for legacy reasons,
+   * the JSON is written in {@link Strictness#LENIENT lenient} mode.
+   * The original strictness mode of the writer is returned when this method returns.
    *
    * <p>The 'HTML-safe' and 'serialize {@code null}' settings of this {@code Gson} instance
    * (configured by the {@link GsonBuilder}) are applied, and the original settings of the
    * writer are restored once this method returns.
+   *
+   * @param src the object to be written.
+   * @param typeOfSrc the type of the object to be written.
+   * @param writer the {@link JsonWriter} writer to which the provided object will be written.
+   *               Note that the strictness of the provided writer will be used regardless of the
+   *               strictness of the {@code Gson} instance.
    *
    * @throws JsonIOException if there was a problem writing to the writer
    */
   public void toJson(Object src, Type typeOfSrc, JsonWriter writer) throws JsonIOException {
     @SuppressWarnings("unchecked")
     TypeAdapter<Object> adapter = (TypeAdapter<Object>) getAdapter(TypeToken.get(typeOfSrc));
-    boolean oldLenient = writer.isLenient();
-    writer.setLenient(true);
+
+    Strictness oldStrictness = writer.getStrictness();
+    if (oldStrictness == Strictness.DEFAULT) {
+      writer.setStrictness(Strictness.LENIENT);
+    }
+
     boolean oldHtmlSafe = writer.isHtmlSafe();
-    writer.setHtmlSafe(htmlSafe);
     boolean oldSerializeNulls = writer.getSerializeNulls();
+
+    writer.setHtmlSafe(htmlSafe);
     writer.setSerializeNulls(serializeNulls);
     try {
       adapter.write(writer, src);
@@ -849,7 +865,7 @@ public final class Gson {
     } catch (AssertionError e) {
       throw new AssertionError("AssertionError (GSON " + GsonBuildConfig.VERSION + "): " + e.getMessage(), e);
     } finally {
-      writer.setLenient(oldLenient);
+      writer.setStrictness(strictness);
       writer.setHtmlSafe(oldHtmlSafe);
       writer.setSerializeNulls(oldSerializeNulls);
     }
@@ -927,23 +943,31 @@ public final class Gson {
   /**
    * Writes the JSON for {@code jsonElement} to {@code writer}.
    *
-   * <p>The JSON data is written in {@linkplain JsonWriter#setLenient(boolean) lenient mode},
-   * regardless of the lenient mode setting of the provided writer. The lenient mode setting
-   * of the writer is restored once this method returns.
+   * <p> The JSON is written using the {@linkplain Strictness strictness} of the provided writer except
+   * when the provided writer is in {@linkplain Strictness#DEFAULT default} mode. In that case, the
+   * JSON is written in {@linkplain Strictness#LENIENT lenient} mode. The old strictness of the writer
+   * is restored when the method returns.
    *
    * <p>The 'HTML-safe' and 'serialize {@code null}' settings of this {@code Gson} instance
    * (configured by the {@link GsonBuilder}) are applied, and the original settings of the
    * writer are restored once this method returns.
    *
+   * @param jsonElement the JSON element to be written.
+   * @param writer the JSON writer to which the provided element will be written.
    * @throws JsonIOException if there was a problem writing to the writer
    */
   public void toJson(JsonElement jsonElement, JsonWriter writer) throws JsonIOException {
-    boolean oldLenient = writer.isLenient();
-    writer.setLenient(true);
+    Strictness oldStrictness = writer.getStrictness();
     boolean oldHtmlSafe = writer.isHtmlSafe();
-    writer.setHtmlSafe(htmlSafe);
     boolean oldSerializeNulls = writer.getSerializeNulls();
+
+    writer.setHtmlSafe(htmlSafe);
     writer.setSerializeNulls(serializeNulls);
+
+    if (writer.getStrictness() == Strictness.DEFAULT) {
+      writer.setStrictness(Strictness.LENIENT);
+    }
+
     try {
       Streams.write(jsonElement, writer);
     } catch (IOException e) {
@@ -951,7 +975,7 @@ public final class Gson {
     } catch (AssertionError e) {
       throw new AssertionError("AssertionError (GSON " + GsonBuildConfig.VERSION + "): " + e.getMessage(), e);
     } finally {
-      writer.setLenient(oldLenient);
+      writer.setStrictness(oldStrictness);
       writer.setHtmlSafe(oldHtmlSafe);
       writer.setSerializeNulls(oldSerializeNulls);
     }
@@ -1199,9 +1223,10 @@ public final class Gson {
    * <p>Unlike the other {@code fromJson} methods, no exception is thrown if the JSON data has
    * multiple top-level JSON elements, or if there is trailing data.
    *
-   * <p>The JSON data is parsed in {@linkplain JsonReader#setStrictness(Strictness) lenient mode},
-   * regardless of the lenient mode setting of the provided reader. The strictness setting
-   * of the reader is restored once this method returns.
+   * <p>The {@linkplain JsonReader#setStrictness(Strictness) strictness} of the provided reader
+   * will be used except when when the reader is in {@linkplain Strictness#DEFAULT} mode.
+   * In that case, for legacy reasons, the strictness of the reader will temporarily be set to
+   * {@linkplain Strictness#LENIENT lenient}. The old strictness value is restored when the method returns.
    *
    * @param <T> the type of the desired object
    * @param reader the reader whose next JSON value should be deserialized
@@ -1222,7 +1247,9 @@ public final class Gson {
   public <T> T fromJson(JsonReader reader, TypeToken<T> typeOfT) throws JsonIOException, JsonSyntaxException {
     boolean isEmpty = true;
     Strictness oldStrictness = reader.getStrictness();
-    reader.setStrictness(Strictness.LENIENT);
+    if (oldStrictness == Strictness.DEFAULT) {
+      reader.setStrictness(Strictness.LENIENT);
+    }
     try {
       reader.peek();
       isEmpty = false;
