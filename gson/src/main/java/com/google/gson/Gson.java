@@ -865,7 +865,7 @@ public final class Gson {
     } catch (AssertionError e) {
       throw new AssertionError("AssertionError (GSON " + GsonBuildConfig.VERSION + "): " + e.getMessage(), e);
     } finally {
-      writer.setStrictness(strictness);
+      writer.setStrictness(oldStrictness);
       writer.setHtmlSafe(oldHtmlSafe);
       writer.setSerializeNulls(oldSerializeNulls);
     }
