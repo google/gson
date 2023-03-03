@@ -319,7 +319,7 @@ public class JsonReader implements Closeable {
    * <p>In {@linkplain Strictness#STRICT strict} mode, the
    * parser only accepts JSON in accordance with <a href="http://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>.
    * In {@linkplain Strictness#DEFAULT default} mode, only JSON in accordance with the <a
-   * href="http://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>.is accepted, with a few exceptions denoted below
+   * href="http://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a> is accepted, with a few exceptions denoted below
    * for backwards compatibility reasons. In {@linkplain Strictness#LENIENT lenient} mode,
    * all sort of non-spec compliant JSON is accepted (see below).</p>
    *
@@ -331,8 +331,8 @@ public class JsonReader implements Closeable {
    *     </dd>
    *     <dt>{@link Strictness#DEFAULT}</dt>
    *     <dd>
-   *         In default mode, the following departures from <a href="http://www.ietf.org/rfc/rfc8259.txt">RFC 8259
-   *         </a> are accepted:
+   *         In default mode, the following departures from <a href="http://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>
+   *         are accepted:
    *         <ul>
    *             <li>JsonReader allows the literals {@code true}, {@code false} and {@code null}
    *                 to have any capitalization, for example {@code fAlSe} or {@code NULL}.
@@ -683,7 +683,7 @@ public class JsonReader implements Closeable {
         return PEEKED_NONE;
       }
       c = buffer[pos + i];
-      // Again, upper case letters are valid if the strict keyword is used.
+      // Again, upper case letters are valid in default or lenient mode.
       if (c != keyword.charAt(i) && c != keywordUpper.charAt(i)) {
         return PEEKED_NONE;
       }
