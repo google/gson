@@ -56,6 +56,7 @@ public class InnerClassExclusionStrategyTest {
     assertThat(excluder.excludeField(f, true)).isFalse();
   }
 
+  @SuppressWarnings("ClassCanBeStatic")
   class InnerClass {
   }
 

@@ -29,7 +29,6 @@ import com.google.gson.stream.JsonReader;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 import org.junit.Test;
 
@@ -103,16 +102,12 @@ public class ToNumberPolicyFunctionalTest {
         .setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
         .setNumberToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
         .create();
-    List<Object> expected = new LinkedList<>();
-    expected.add(null);
-    expected.add(10L);
-    expected.add(10.0);
     Type objectCollectionType = new TypeToken<Collection<Object>>() { }.getType();
     Collection<Object> objects = gson.fromJson("[null,10,10.0]", objectCollectionType);
-    assertThat(objects).isEqualTo(expected);
+    assertThat(objects).containsExactly(null, 10L, 10.0).inOrder();
     Type numberCollectionType = new TypeToken<Collection<Number>>() { }.getType();
     Collection<Object> numbers = gson.fromJson("[null,10,10.0]", numberCollectionType);
-    assertThat(numbers).isEqualTo(expected);
+    assertThat(numbers).containsExactly(null, 10L, 10.0).inOrder();
   }
 
   @Test

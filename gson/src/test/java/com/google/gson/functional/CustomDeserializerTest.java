@@ -130,6 +130,7 @@ public class CustomDeserializerTest {
     static final String TYPE_ACCESS = "__type__";
   }
 
+  @SuppressWarnings("ImmutableEnumChecker")
   private enum SubTypes {
     SUB_TYPE1(SubType1.class),
     SUB_TYPE2(SubType2.class);

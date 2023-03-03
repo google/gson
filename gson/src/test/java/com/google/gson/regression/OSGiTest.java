@@ -18,6 +18,7 @@ package com.google.gson.regression;
 import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.fail;
 
+import com.google.common.base.Splitter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -41,7 +42,7 @@ public class OSGiTest {
         Manifest mf = findManifest("com.google.gson");
         String importPkg = mf.getMainAttributes().getValue("Import-Package");
     assertWithMessage("Import-Package statement is there").that(importPkg).isNotNull();
-        for (String dep : importPkg.split(",")) {
+        for (String dep : Splitter.on(',').split(importPkg)) {
             if (dep.contains("sun.misc")) {
                 assertSubstring("sun.misc import is optional", dep, "resolution:=optional");
                 return;

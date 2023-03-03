@@ -36,6 +36,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.release>7</maven.compiler.release>
+    <maven.compiler.testRelease>11</maven.compiler.testRelease>
   </properties>
 
   <scm>
@@ -90,7 +91,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.10.1</version>
+          <version>3.11.0</version>
           <configuration>
             <showWarnings>true</showWarnings>
             <showDeprecation>true</showDeprecation>
@@ -98,7 +99,7 @@
             <compilerArgs>
               <!-- Args related to Error Prone, see: https://errorprone.info/docs/installation#maven -->
               <arg>-XDcompilePolicy=simple</arg>
-              <arg>-Xplugin:ErrorProne -XepExcludedPaths:.*gson/src/test.*|.*extras/src/test.*|.*proto.*</arg>
+              <arg>-Xplugin:ErrorProne -XepExcludedPaths:.*/generated-test-sources/protobuf/.*</arg>
               <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
               <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
               <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
@@ -143,6 +144,7 @@
             <detectJavaApiLink>false</detectJavaApiLink>
             <links>
               <link>https://docs.oracle.com/en/java/javase/11/docs/api/</link>
+              <link>https://errorprone.info/api/latest/</link>
             </links>
             <!-- Disable detection of offline links between Maven modules: 
               (1) Only `gson` module is published, so for other modules Javadoc links don't 
@@ -259,7 +261,7 @@
         <plugin>
           <groupId>com.github.siom79.japicmp</groupId>
           <artifactId>japicmp-maven-plugin</artifactId>
-          <version>0.17.1</version>
+          <version>0.17.2</version>
           <configuration>
             <oldVersion>
               <dependency>

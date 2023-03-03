@@ -154,7 +154,7 @@ public class StringTest {
     String value = gson.fromJson(json, String.class);
     assertThat(value).isEqualTo("abc=");
 
-    json = "'abc\u003d'";
+    json = "'abc\\u003d'";
     value = gson.fromJson(json, String.class);
     assertThat(value).isEqualTo("abc=");
   }

@@ -1036,7 +1036,7 @@ public final class Gson {
    * @see #fromJson(String, Class)
    * @see #fromJson(String, TypeToken)
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
   public <T> T fromJson(String json, Type typeOfT) throws JsonSyntaxException {
     return (T) fromJson(json, TypeToken.get(typeOfT));
   }
@@ -1129,7 +1129,7 @@ public final class Gson {
    * @see #fromJson(Reader, Class)
    * @see #fromJson(Reader, TypeToken)
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
   public <T> T fromJson(Reader json, Type typeOfT) throws JsonIOException, JsonSyntaxException {
     return (T) fromJson(json, TypeToken.get(typeOfT));
   }
@@ -1208,7 +1208,7 @@ public final class Gson {
    * @see #fromJson(Reader, Type)
    * @see #fromJson(JsonReader, TypeToken)
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
   public <T> T fromJson(JsonReader reader, Type typeOfT) throws JsonIOException, JsonSyntaxException {
     return (T) fromJson(reader, TypeToken.get(typeOfT));
   }
@@ -1325,7 +1325,7 @@ public final class Gson {
    * @see #fromJson(JsonElement, Class)
    * @see #fromJson(JsonElement, TypeToken)
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
   public <T> T fromJson(JsonElement json, Type typeOfT) throws JsonSyntaxException {
     return (T) fromJson(json, TypeToken.get(typeOfT));
   }

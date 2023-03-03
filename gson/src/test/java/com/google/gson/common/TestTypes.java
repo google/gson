@@ -16,6 +16,7 @@
 
 package com.google.gson.common;
 
+import com.google.common.base.Objects;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
@@ -146,26 +147,18 @@ public class TestTypes {
     }
 
     @Override
-    public boolean equals(Object obj) {
-      if (this == obj)
+    public boolean equals(Object o) {
+      if (this == o) {
         return true;
-      if (obj == null)
+      }
+      if (!(o instanceof BagOfPrimitives)) {
         return false;
-      if (getClass() != obj.getClass())
-        return false;
-      BagOfPrimitives other = (BagOfPrimitives) obj;
-      if (booleanValue != other.booleanValue)
-        return false;
-      if (intValue != other.intValue)
-        return false;
-      if (longValue != other.longValue)
-        return false;
-      if (stringValue == null) {
-        if (other.stringValue != null)
-          return false;
-      } else if (!stringValue.equals(other.stringValue))
-        return false;
-      return true;
+      }
+      BagOfPrimitives that = (BagOfPrimitives) o;
+      return longValue == that.longValue
+          && getIntValue() == that.getIntValue()
+          && booleanValue == that.booleanValue
+          && Objects.equal(stringValue, that.stringValue);
     }
 
     @Override
@@ -233,7 +226,7 @@ public class TestTypes {
     // Nothing here..
     @Override
     public boolean equals(Object other) {
-      return other.getClass() == ClassWithNoFields.class;
+      return other instanceof ClassWithNoFields;
     }
   }
 
