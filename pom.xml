@@ -86,6 +86,31 @@
   </dependencyManagement>
 
   <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>3.2.1</version>
+        <executions>
+          <!-- Enforce that correct JDK version is used to avoid cryptic build errors -->
+          <execution>
+            <id>enforce-jdk-version</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireJavaVersion>
+                  <!-- Other plugins of this build require at least JDK 11 -->
+                  <version>[11,)</version>
+                </requireJavaVersion>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+
     <pluginManagement>
       <plugins>
         <plugin>
@@ -121,9 +146,6 @@
                 <version>2.18.0</version>
               </path>
             </annotationProcessorPaths>
-            <jdkToolchain>
-              <version>[11,)</version>
-            </jdkToolchain>
           </configuration>
         </plugin>
         <plugin>
@@ -131,9 +153,6 @@
           <artifactId>maven-javadoc-plugin</artifactId>
           <version>3.5.0</version>
           <configuration>
-            <jdkToolchain>
-              <version>[11,)</version>
-            </jdkToolchain>
             <!-- Specify newer JDK as target to allow linking to newer Java API, and to generate
               module overview in Javadoc for Gson's module descriptor -->
             <release>11</release>
