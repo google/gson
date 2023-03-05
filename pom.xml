@@ -186,7 +186,7 @@
             <detectOfflineLinks>false</detectOfflineLinks>
             <!-- Only show warnings and errors -->
             <quiet>true</quiet>
-            <failOnWarning>true</failOnWarning>
+            <failOnWarnings>true</failOnWarnings>
           </configuration>
         </plugin>
         <plugin>
