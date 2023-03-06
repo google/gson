@@ -1614,7 +1614,7 @@ public class JsonReader implements Closeable {
         } else if (c >= 'A' && c <= 'F') {
           result += (c - 'A' + 10);
         } else {
-            throw new MalformedJsonException("\\u" + new String(buffer, pos, 4));
+          throw new MalformedJsonException("\\u" + new String(buffer, pos, 4));
         }
       }
       pos += 4;
