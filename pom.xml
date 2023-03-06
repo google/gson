@@ -88,7 +88,7 @@
   <dependencies>
     <!-- Error Prone Annotations is only directly used by gson module, but since this is an optional
       dependency and other modules depend on gson module they also need the dependency to avoid
-      compiler warnings, see comments on https://bugs.openjdk.org/browse/JDK-6331821 -->
+      compiler warnings, see also comments on https://bugs.openjdk.org/browse/JDK-6365854 -->
     <dependency>
       <groupId>com.google.errorprone</groupId>
       <artifactId>error_prone_annotations</artifactId>
