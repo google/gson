@@ -105,7 +105,7 @@
         <version>3.2.1</version>
         <executions>
           <execution>
-            <id>enforce-maven-version</id>
+            <id>enforce-versions</id>
             <goals>
               <goal>enforce</goal>
             </goals>
@@ -115,17 +115,8 @@
                   <!-- Usage of `.mvn/jvm.config` for Error Prone requires at least Maven 3.3.1 -->
                   <version>[3.3.1,)</version>
                 </requireMavenVersion>
-              </rules>    
-            </configuration>
-          </execution>
-          <!-- Enforce that correct JDK version is used to avoid cryptic build errors -->
-          <execution>
-            <id>enforce-jdk-version</id>
-            <goals>
-              <goal>enforce</goal>
-            </goals>
-            <configuration>
-              <rules>
+
+                <!-- Enforce that correct JDK version is used to avoid cryptic build errors -->
                 <requireJavaVersion>
                   <!-- Other plugins of this build require at least JDK 11 -->
                   <version>[11,)</version>
