@@ -530,13 +530,13 @@ public final class GsonBuilder {
    *
    * @param strictness the new strictness method of this factory. May not be null.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern.
-   * @throws NullPointerException if the provided <code>strictness</code> is <code>null</code>.
+   * @throws NullPointerException if the provided {@code strictness} is {@code null}.
    * @see JsonWriter#setStrictness(Strictness) 
    * @see JsonReader#setStrictness(Strictness)
    * @since $next-version$
    */
   public GsonBuilder setStrictness(Strictness strictness) {
-    this.strictness = Objects.requireNonNull(strictness);;
+    this.strictness = Objects.requireNonNull(strictness);
     return this;
   }
 

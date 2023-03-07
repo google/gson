@@ -269,7 +269,7 @@ public class JsonWriter implements Closeable, Flushable {
   }
 
   /**
-   * Returns true if this writer has a <code>strictness</code> value of {@link Strictness#LENIENT}, false otherwise.
+   * Returns true if this writer has a {@code strictness} value of {@link Strictness#LENIENT}, false otherwise.
    *
    * @see JsonWriter#setStrictness(Strictness)
    */
@@ -284,13 +284,14 @@ public class JsonWriter implements Closeable, Flushable {
    * <ul>
    *     <li>{@link Strictness#DEFAULT} and {@link Strictness#STRICT}: The behavior of these
    *     is currently identical. In these strictness modes, the writer only writes JSON in accordance to
-   *     <a href="http://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>.</li>
+   *     <a href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>.</li>
    *     <li>{@link Strictness#LENIENT}: This mode relaxes the behavior of the writer to allow the writing of
-   *     {@link Double#isNaN() NaNs} and {@link Double#isInfinite() infinities}.</li>
+   *     {@link Double#isNaN() NaNs} and {@link Double#isInfinite() infinities}. It also allows you
+   *     writing JSON objects with multiple top level values.</li>
    * </ul>
    *
    * @param strictness the new strictness of this writer. May not be null.
-   * @throws NullPointerException A null pointer exception is thrown if the provided <code>strictness</code> is null.
+   * @throws NullPointerException A null pointer exception is thrown if the provided {@code strictness} is {@code null}.
    * @since $next-version$
    */
   public final void setStrictness(Strictness strictness) {

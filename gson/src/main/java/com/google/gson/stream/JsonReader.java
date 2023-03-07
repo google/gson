@@ -293,7 +293,7 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Set the strictness this JSONReader to {@link Strictness#LENIENT} if the provided argument is true and
+   * Set the strictness this reader to {@link Strictness#LENIENT} if the provided argument is true and
    * set the strictness to {@link Strictness#DEFAULT} if the provided argument if false.
    *
    * @param lenient passing <code>true</code> will set the strictness of this reader to {@link Strictness#LENIENT} and
@@ -305,7 +305,7 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Returns true if the {@link Strictness} of this reader is equal to {@link Strictness#STRICT}.
+   * Returns true if the {@link Strictness} of this reader is equal to {@link Strictness#LENIENT}.
    *
    * @see #setStrictness(Strictness)
    */
@@ -317,21 +317,21 @@ public class JsonReader implements Closeable {
    * Configure how liberal this parser is in what it accepts.
    *
    * <p>In {@linkplain Strictness#STRICT strict} mode, the
-   * parser only accepts JSON in accordance with <a href="http://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>.
+   * parser only accepts JSON in accordance with <a href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>.
    * In {@linkplain Strictness#DEFAULT default} mode, only JSON in accordance with the <a
-   * href="http://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a> is accepted, with a few exceptions denoted below
+   * href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a> is accepted, with a few exceptions denoted below
    * for backwards compatibility reasons. In {@linkplain Strictness#LENIENT lenient} mode,
    * all sort of non-spec compliant JSON is accepted (see below).</p>
    *
    * <dl>
    *     <dt>{@link Strictness#STRICT}</dt>
    *     <dd>
-   *         In strict mode, only input compliant with <a href="http://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>
+   *         In strict mode, only input compliant with <a href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>
    *         is parsed.
    *     </dd>
    *     <dt>{@link Strictness#DEFAULT}</dt>
    *     <dd>
-   *         In default mode, the following departures from <a href="http://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>
+   *         In default mode, the following departures from <a href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>
    *         are accepted:
    *         <ul>
    *             <li>JsonReader allows the literals {@code true}, {@code false} and {@code null}
@@ -340,16 +340,15 @@ public class JsonReader implements Closeable {
    *             <li>JsonReader supports the escape sequence <code>\<i>LF</i></code> (with {@code LF}
    *                 being the Unicode character U+000A), resulting in a {@code LF} within the
    *                 read JSON string
-   *            <li>JsonReader allows unescaped control characters (U+0000 through U+001F)
+   *             <li>JsonReader allows unescaped control characters (U+0000 through U+001F)
    *         </ul>
    *     </dd>
    *     <dt>{@link Strictness#LENIENT}</dt>
    *     <dd>
    *         In lenient mode, all input that is accepted in default mode is accepted in addition to the following
-   *         departures from <a href="http://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>:
+   *         departures from <a href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>:
    *         <ul>
-   *             <li>Streams that start with the <a href="#nonexecuteprefix">non-execute prefix</a>, <code>")]}'\n"
-   *                 </code>.
+   *             <li>Streams that start with the <a href="#nonexecuteprefix">non-execute prefix</a>, {@code ")]}'\n"}
    *             <li>Streams that include multiple top-level values. With default or strict parsing,
    *                 each stream must contain exactly one top-level value.
    *             <li>Numbers may be {@link Double#isNaN() NaNs} or {@link Double#isInfinite() infinities} represented by
@@ -370,7 +369,7 @@ public class JsonReader implements Closeable {
    * </dl>
    *
    * @param strictness the new strictness value of this reader. May not be null.
-   * @throws NullPointerException if the provided <code>strictness</code> is <code>null</code>.
+   * @throws NullPointerException if the provided {@code strictness} is {@code null}.
    * @since $next-version$
    */
   public final void setStrictness(Strictness strictness) {
@@ -379,7 +378,7 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Returns the {@linkplain Strictness strictness} of this writer.
+   * Returns the {@linkplain Strictness strictness} of this reader.
    *
    * @see #setStrictness(Strictness)
    * @since $next-version$
@@ -678,7 +677,7 @@ public class JsonReader implements Closeable {
     // any upper case letters in the buffer are not matched
     keywordUpper = strictness == Strictness.STRICT ? keyword : keyword.toUpperCase();
 
-    // Confirm that chars [1..length) match the keyword.
+    // Confirm that chars [0..length) match the keyword.
     int length = keyword.length();
     for (int i = 0; i < length; i++) {
       if (pos + i >= limit && !fillBuffer(i + 1)) {

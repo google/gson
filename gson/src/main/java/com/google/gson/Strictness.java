@@ -1,17 +1,20 @@
 package com.google.gson;
 
+import com.google.gson.stream.JsonWriter;
+import com.google.gson.stream.JsonReader;
+
 /**
- * Modes that indicate how strictly a JSON {@linkplain com.google.gson.stream.JsonReader reader} or
- * {@linkplain com.google.gson.stream.JsonWriter writer} follows the syntax laid out in the
- * <a href="http://www.ietf.org/rfc/rfc8259.txt">RFC 8259 JSON specification</a>.
+ * Modes that indicate how strictly a JSON {@linkplain JsonReader reader} or
+ * {@linkplain JsonWriter writer} follows the syntax laid out in the
+ * <a href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259 JSON specification</a>.
  *
- * <p>You can look at {@link com.google.gson.stream.JsonWriter#setStrictness(Strictness)} to see how the strictness
- * affects the {@link com.google.gson.stream.JsonWriter} and you can look at
- * {@link com.google.gson.stream.JsonReader#setStrictness(Strictness)} to see how the strictness
- * affects the {@link com.google.gson.stream.JsonReader} </p>
+ * <p>You can look at {@link JsonWriter#setStrictness(Strictness)} to see how the strictness
+ * affects the {@link JsonWriter} and you can look at
+ * {@link JsonReader#setStrictness(Strictness)} to see how the strictness
+ * affects the {@link JsonReader}.</p>
  *
- * @see com.google.gson.stream.JsonReader#setStrictness(Strictness)
- * @see com.google.gson.stream.JsonWriter#setStrictness(Strictness)
+ * @see JsonReader#setStrictness(Strictness)
+ * @see JsonWriter#setStrictness(Strictness)
  * @since $next-version$
  */
 public enum Strictness {
