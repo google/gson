@@ -526,7 +526,7 @@ public final class GsonBuilder {
    * <p>This changes how strict the
    * <a href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259 JSON specification</a> is enforced when parsing or
    * writing JSON. For details on this, refer to {@link JsonReader#setStrictness(Strictness)} and
-   * {@link JsonWriter#setStrictness(Strictness)}</p>
+   * {@link JsonWriter#setStrictness(Strictness)}.</p>
    *
    * @param strictness the new strictness method of this factory. May not be null.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern.
