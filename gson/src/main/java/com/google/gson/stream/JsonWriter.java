@@ -291,6 +291,7 @@ public class JsonWriter implements Closeable, Flushable {
    *
    * @param strictness the new strictness of this writer. May not be null.
    * @throws NullPointerException A null pointer exception is thrown if the provided <code>strictness</code> is null.
+   * @since $next-version$
    */
   public final void setStrictness(Strictness strictness) {
     this.strictness = Objects.requireNonNull(strictness);
@@ -300,6 +301,7 @@ public class JsonWriter implements Closeable, Flushable {
    * Returns how strict this writer is.
    *
    * @see #setStrictness(Strictness)
+   * @since $next-version$
    */
   public final Strictness getStrictness() {
     return strictness;

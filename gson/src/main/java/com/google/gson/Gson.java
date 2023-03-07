@@ -827,7 +827,7 @@ public final class Gson {
    * {@code writer}.
    *
    * <p> The JSON is written in the {@linkplain Strictness strictness} mode of the
-   * the provided {@link JsonWriter JsonWriter} except when the writer is in
+   * the provided {@link JsonWriter} except when the writer is in
    * {@linkplain Strictness#DEFAULT default} mode. In that case, for legacy reasons,
    * the JSON is written in {@link Strictness#LENIENT lenient} mode.
    * The original strictness mode of the writer is returned when this method returns.

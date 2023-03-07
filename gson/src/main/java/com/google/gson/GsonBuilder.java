@@ -504,10 +504,11 @@ public final class GsonBuilder {
   /**
    * Sets the strictness of this builder to {@link Strictness#LENIENT}.
    *
-   * <p>Calling this method is equivalent to <code>setStrictness(Strictness.LENIENT)</code>.</p>
+   * <p>Calling this method is equivalent to {@code setStrictness(Strictness.LENIENT)}</p>
    *
-   * <p>Note: Due to legacy reasons most methods of Gson are always lenient, regardless of
-   * whether this builder method is used.
+   * <p>Note: Due to legacy reasons most methods of Gson are {@linkplain Strictness#LENIENT lenient}
+   * even when {@linkplain Strictness#DEFAULT default} mode is used. In
+   * {@linkplain Strictness#STRICT strict} mode, this does not happen.
    *
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern.
    * @see JsonReader#setStrictness(Strictness)
@@ -523,7 +524,7 @@ public final class GsonBuilder {
    * Set the strictness of this builder to the provided parameter.
    *
    * <p>This changes how strict the
-   * <a href="http://www.ietf.org/rfc/rfc8259.txt">RFC 8259 JSON specification</a> is enforced when parsing or
+   * <a href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259 JSON specification</a> is enforced when parsing or
    * writing JSON. For details on this, refer to {@link JsonReader#setStrictness(Strictness)} and
    * {@link JsonWriter#setStrictness(Strictness)}</p>
    *
@@ -532,6 +533,7 @@ public final class GsonBuilder {
    * @throws NullPointerException if the provided <code>strictness</code> is <code>null</code>.
    * @see JsonWriter#setStrictness(Strictness) 
    * @see JsonReader#setStrictness(Strictness)
+   * @since $next-version$
    */
   public GsonBuilder setStrictness(Strictness strictness) {
     this.strictness = Objects.requireNonNull(strictness);;

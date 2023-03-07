@@ -12,9 +12,15 @@ package com.google.gson;
  *
  * @see com.google.gson.stream.JsonReader#setStrictness(Strictness)
  * @see com.google.gson.stream.JsonWriter#setStrictness(Strictness)
+ * @since $next-version$
  */
 public enum Strictness {
+    /** Allow large deviations from the JSON specification. */
     LENIENT,
+
+    /** Allow certain small deviations from the JSON specification. */
     DEFAULT,
+
+    /** Strict compliance with the JSON specification. */
     STRICT
 }

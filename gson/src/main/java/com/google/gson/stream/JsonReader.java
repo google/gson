@@ -371,6 +371,7 @@ public class JsonReader implements Closeable {
    *
    * @param strictness the new strictness value of this reader. May not be null.
    * @throws NullPointerException if the provided <code>strictness</code> is <code>null</code>.
+   * @since $next-version$
    */
   public final void setStrictness(Strictness strictness) {
     Objects.requireNonNull(strictness);
@@ -381,6 +382,7 @@ public class JsonReader implements Closeable {
    * Returns the {@linkplain Strictness strictness} of this writer.
    *
    * @see #setStrictness(Strictness)
+   * @since $next-version$
    */
   public final Strictness getStrictness() {
     return strictness;
