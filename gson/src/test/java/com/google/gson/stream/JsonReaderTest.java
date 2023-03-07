@@ -35,7 +35,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Arrays;
-
 import com.google.gson.Strictness;
 import org.junit.Ignore;
 import org.junit.Test;
