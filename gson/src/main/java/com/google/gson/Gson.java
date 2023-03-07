@@ -110,7 +110,7 @@ import java.util.concurrent.atomic.AtomicLongArray;
  * comply with the JSON specification, even when the strictness {@link Strictness#DEFAULT}
  * is used. To restrict a {@code Gson} instance from parsing JSON that
  * does not comply with the JSON specification, {@linkplain Strictness#STRICT strict} mode should be used.
- * Alternatively, if you do not with to use {@linkplain Strictness#STRICT strict} mode,
+ * Alternatively, if you do not want to use {@linkplain Strictness#STRICT strict} mode,
  * the following workarounds can be used:
  *
  * <h3>Serialization</h3>
@@ -830,7 +830,7 @@ public final class Gson {
    * the provided {@link JsonWriter} except when the writer is in
    * {@linkplain Strictness#DEFAULT default} mode. In that case, for legacy reasons,
    * the JSON is written in {@link Strictness#LENIENT lenient} mode.
-   * The original strictness mode of the writer is returned when this method returns.
+   * The original strictness mode of the writer is restored when this method returns.
    *
    * <p>The 'HTML-safe' and 'serialize {@code null}' settings of this {@code Gson} instance
    * (configured by the {@link GsonBuilder}) are applied, and the original settings of the
