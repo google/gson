@@ -104,14 +104,19 @@
         <artifactId>maven-enforcer-plugin</artifactId>
         <version>3.2.1</version>
         <executions>
-          <!-- Enforce that correct JDK version is used to avoid cryptic build errors -->
           <execution>
-            <id>enforce-jdk-version</id>
+            <id>enforce-versions</id>
             <goals>
               <goal>enforce</goal>
             </goals>
             <configuration>
               <rules>
+                <requireMavenVersion>
+                  <!-- Usage of `.mvn/jvm.config` for Error Prone requires at least Maven 3.3.1 -->
+                  <version>[3.3.1,)</version>
+                </requireMavenVersion>
+
+                <!-- Enforce that correct JDK version is used to avoid cryptic build errors -->
                 <requireJavaVersion>
                   <!-- Other plugins of this build require at least JDK 11 -->
                   <version>[11,)</version>
@@ -133,21 +138,10 @@
             <showWarnings>true</showWarnings>
             <showDeprecation>true</showDeprecation>
             <failOnWarning>true</failOnWarning>
-            <fork>true</fork>
             <compilerArgs>
               <!-- Args related to Error Prone, see: https://errorprone.info/docs/installation#maven -->
               <arg>-XDcompilePolicy=simple</arg>
               <arg>-Xplugin:ErrorProne -XepExcludedPaths:.*/generated-test-sources/protobuf/.*</arg>
-              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
-              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
-              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
-              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
-              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>
-              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
-              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
-              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
-              <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
-              <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
               <!-- Enable all warnings, except for ones which cause issues when building with newer JDKs, see also
                 https://docs.oracle.com/en/java/javase/11/tools/javac.html -->
               <compilerArg>-Xlint:all,-options</compilerArg>
