@@ -60,6 +60,17 @@ import com.google.gson.FormattingStyle;
  *       Finally close the object using {@link #endObject()}.
  * </ul>
  *
+ * <h2>Configuration</h2>
+ * The behavior of this writer can be customized with the following methods:
+ * <ul>
+ *   <li>{@link #setFormattingStyle(FormattingStyle)}, by default a compact
+ *       formatting style is used which does not write any whitespace
+ *   <li>{@link #setHtmlSafe(boolean)}, by default HTML characters are not escaped
+ *       in the JSON output
+ *   <li>{@link #setLenient(boolean)}, by default the writer is not lenient
+ *   <li>{@link #setSerializeNulls(boolean)}, by default {@code null} is serialized
+ * </ul>
+ *
  * <h2>Example</h2>
  * Suppose we'd like to encode a stream of messages such as the following: <pre> {@code
  * [
@@ -368,7 +379,7 @@ public class JsonWriter implements Closeable, Flushable {
    * given bracket.
    */
   private JsonWriter close(int empty, int nonempty, char closeBracket)
-      throws IOException {
+          throws IOException {
     int context = peek();
     if (context != nonempty && context != empty) {
       throw new IllegalStateException("Nesting problem.");
@@ -418,7 +429,7 @@ public class JsonWriter implements Closeable, Flushable {
   public JsonWriter name(String name) throws IOException {
     Objects.requireNonNull(name, "name == null");
     if (deferredName != null) {
-      throw new IllegalStateException();
+      throw new IllegalStateException("Already wrote a name, expecting a value");
     }
     if (stackSize == 0) {
       throw new IllegalStateException("JsonWriter is closed.");
@@ -579,7 +590,7 @@ public class JsonWriter implements Closeable, Flushable {
     // Note: Don't consider LazilyParsedNumber trusted because it could contain
     // an arbitrary malformed string
     return c == Integer.class || c == Long.class || c == Double.class || c == Float.class || c == Byte.class || c == Short.class
-        || c == BigDecimal.class || c == BigInteger.class || c == AtomicInteger.class || c == AtomicLong.class;
+            || c == BigDecimal.class || c == BigInteger.class || c == AtomicInteger.class || c == AtomicLong.class;
   }
 
   /**
@@ -709,33 +720,33 @@ public class JsonWriter implements Closeable, Flushable {
   @SuppressWarnings("fallthrough")
   private void beforeValue() throws IOException {
     switch (peek()) {
-    case NONEMPTY_DOCUMENT:
-      if (!lenient) {
-        throw new IllegalStateException(
-            "JSON must have only one top-level value.");
-      }
-      // fall-through
-    case EMPTY_DOCUMENT: // first in document
-      replaceTop(NONEMPTY_DOCUMENT);
-      break;
+      case NONEMPTY_DOCUMENT:
+        if (!lenient) {
+          throw new IllegalStateException(
+                  "JSON must have only one top-level value.");
+        }
+        // fall-through
+      case EMPTY_DOCUMENT: // first in document
+        replaceTop(NONEMPTY_DOCUMENT);
+        break;
 
-    case EMPTY_ARRAY: // first in array
-      replaceTop(NONEMPTY_ARRAY);
-      newline();
-      break;
+      case EMPTY_ARRAY: // first in array
+        replaceTop(NONEMPTY_ARRAY);
+        newline();
+        break;
 
-    case NONEMPTY_ARRAY: // another in array
-      out.append(',');
-      newline();
-      break;
+      case NONEMPTY_ARRAY: // another in array
+        out.append(',');
+        newline();
+        break;
 
-    case DANGLING_NAME: // value for name
-      out.append(separator);
-      replaceTop(NONEMPTY_OBJECT);
-      break;
+      case DANGLING_NAME: // value for name
+        out.append(separator);
+        replaceTop(NONEMPTY_OBJECT);
+        break;
 
-    default:
-      throw new IllegalStateException("Nesting problem.");
+      default:
+        throw new IllegalStateException("Nesting problem.");
     }
   }
 }
