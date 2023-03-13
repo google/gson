@@ -379,7 +379,7 @@ public class JsonWriter implements Closeable, Flushable {
    * given bracket.
    */
   private JsonWriter close(int empty, int nonempty, char closeBracket)
-          throws IOException {
+      throws IOException {
     int context = peek();
     if (context != nonempty && context != empty) {
       throw new IllegalStateException("Nesting problem.");
@@ -590,7 +590,7 @@ public class JsonWriter implements Closeable, Flushable {
     // Note: Don't consider LazilyParsedNumber trusted because it could contain
     // an arbitrary malformed string
     return c == Integer.class || c == Long.class || c == Double.class || c == Float.class || c == Byte.class || c == Short.class
-            || c == BigDecimal.class || c == BigInteger.class || c == AtomicInteger.class || c == AtomicLong.class;
+        || c == BigDecimal.class || c == BigInteger.class || c == AtomicInteger.class || c == AtomicLong.class;
   }
 
   /**
@@ -720,33 +720,33 @@ public class JsonWriter implements Closeable, Flushable {
   @SuppressWarnings("fallthrough")
   private void beforeValue() throws IOException {
     switch (peek()) {
-      case NONEMPTY_DOCUMENT:
-        if (!lenient) {
-          throw new IllegalStateException(
-                  "JSON must have only one top-level value.");
-        }
-        // fall-through
-      case EMPTY_DOCUMENT: // first in document
-        replaceTop(NONEMPTY_DOCUMENT);
-        break;
+    case NONEMPTY_DOCUMENT:
+      if (!lenient) {
+        throw new IllegalStateException(
+            "JSON must have only one top-level value.");
+      }
+      // fall-through
+    case EMPTY_DOCUMENT: // first in document
+      replaceTop(NONEMPTY_DOCUMENT);
+      break;
 
-      case EMPTY_ARRAY: // first in array
-        replaceTop(NONEMPTY_ARRAY);
-        newline();
-        break;
+    case EMPTY_ARRAY: // first in array
+      replaceTop(NONEMPTY_ARRAY);
+      newline();
+      break;
 
-      case NONEMPTY_ARRAY: // another in array
-        out.append(',');
-        newline();
-        break;
+    case NONEMPTY_ARRAY: // another in array
+      out.append(',');
+      newline();
+      break;
 
-      case DANGLING_NAME: // value for name
-        out.append(separator);
-        replaceTop(NONEMPTY_OBJECT);
-        break;
+    case DANGLING_NAME: // value for name
+      out.append(separator);
+      replaceTop(NONEMPTY_OBJECT);
+      break;
 
-      default:
-        throw new IllegalStateException("Nesting problem.");
+    default:
+      throw new IllegalStateException("Nesting problem.");
     }
   }
 }
