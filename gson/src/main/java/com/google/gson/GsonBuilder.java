@@ -496,7 +496,7 @@ public final class GsonBuilder {
    *
    * <p>Has no effect if the serialized format is a single line.</p>
    *
-   * @param formattingStyle the formatting style to use, {@code null} for compact JSON output.
+   * @param formattingStyle the formatting style to use.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since $next-version$
    */

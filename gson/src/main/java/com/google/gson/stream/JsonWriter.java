@@ -226,7 +226,7 @@ public class JsonWriter implements Closeable, Flushable {
 
   /**
    * Sets the pretty printing style to be used in the encoded document.
-   * No pretty printing is used if the given style is {@code null}.
+   * No pretty printing is done if the given style is {@code null}.
    *
    * <p>Sets the various attributes to be used in the encoded document. 
    * For example the indentation string to be repeated for each level of indentation.
@@ -249,8 +249,7 @@ public class JsonWriter implements Closeable, Flushable {
   /**
    * Returns the pretty printing style used by this writer.
    *
-   * @return the {@code FormattingStyle} that will be used, {@code null} if compact
-   *   JSON output is produced.
+   * @return the {@code FormattingStyle} that will be used.
    * @since $next-version$
    */
   public final FormattingStyle getFormattingStyle() {

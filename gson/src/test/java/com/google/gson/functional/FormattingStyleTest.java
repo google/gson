@@ -39,7 +39,6 @@ public class FormattingStyleTest {
   private static final String EXPECTED_CR = buildExpected("\r", "  ");
   private static final String EXPECTED_LF = buildExpected("\n", "  ");
   private static final String EXPECTED_CRLF = buildExpected("\r\n", "  ");
-  private static final String EXPECTED_COMPACT = buildExpected("", "");
 
   // Various valid strings that can be used for newline and indent
   private static final String[] TEST_NEWLINES = {
@@ -87,13 +86,6 @@ public class FormattingStyleTest {
     Gson gson = new GsonBuilder().setPrettyPrinting(style).create();
     String json = gson.toJson(INPUT);
     assertThat(json).isEqualTo(EXPECTED_OS);
-  }
-
-  @Test
-  public void testCompact() {
-    Gson gson = new GsonBuilder().setPrettyPrinting(null).create();
-    String json = gson.toJson(INPUT);
-    assertThat(json).isEqualTo(EXPECTED_COMPACT);
   }
 
   @Test

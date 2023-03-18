@@ -58,7 +58,7 @@ public class FormattingStyle {
   }
 
   /**
-   * Creates a {@code FormattingStyle} with the specified newline setting.
+   * Creates a {@link FormattingStyle} with the specified newline setting.
    *
    * <p>It can be used to accommodate certain OS convention, for example
    * hardcode {@code "\n"} for Linux and macOS, {@code "\r\n"} for Windows, or
@@ -67,19 +67,19 @@ public class FormattingStyle {
    * <p>Only combinations of {@code \n} and {@code \r} are allowed.</p>
    *
    * @param newline the string value that will be used as newline.
-   * @return a newly created {@code FormattingStyle}
+   * @return a newly created {@link FormattingStyle}
    */
   public FormattingStyle withNewline(String newline) {
     return new FormattingStyle(newline, this.indent);
   }
 
   /**
-   * Creates a {@code FormattingStyle} with the specified indent string.
+   * Creates a {@link FormattingStyle} with the specified indent string.
    *
    * <p>Only combinations of spaces and tabs allowed in indent.</p>
    *
    * @param indent the string value that will be used as indent.
-   * @return a newly created {@code FormattingStyle}
+   * @return a newly created {@link FormattingStyle}
    */
   public FormattingStyle withIndent(String indent) {
     return new FormattingStyle(this.newline, indent);
