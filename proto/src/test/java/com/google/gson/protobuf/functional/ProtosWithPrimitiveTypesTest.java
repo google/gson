@@ -57,7 +57,6 @@ public class ProtosWithPrimitiveTypesTest {
 
   @Test
   public void testSerializeProto() {
-    Descriptor descriptor = SimpleProto.getDescriptor();
     SimpleProto proto = SimpleProto.newBuilder()
       .setCount(3)
       .setMsg("foo")

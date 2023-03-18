@@ -45,7 +45,7 @@ public final class JavaVersion {
   // Parses both legacy 1.8 style and newer 9.0.4 style 
   private static int parseDotted(String javaVersion) {
     try {
-      String[] parts = javaVersion.split("[._]");
+      String[] parts = javaVersion.split("[._]", 3);
       int firstVer = Integer.parseInt(parts[0]);
       if (firstVer == 1 && parts.length > 1) {
         return Integer.parseInt(parts[1]);

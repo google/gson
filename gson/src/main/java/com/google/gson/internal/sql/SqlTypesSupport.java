@@ -33,6 +33,7 @@ import com.google.gson.internal.bind.DefaultDateTypeAdapter.DateType;
  * it is {@code false} all other constants will be {@code null} and
  * there will be no support for {@code java.sql} types.
  */
+@SuppressWarnings("JavaUtilDate")
 public final class SqlTypesSupport {
   /**
    * {@code true} if {@code java.sql} types are supported,

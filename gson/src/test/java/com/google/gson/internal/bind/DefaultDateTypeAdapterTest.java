@@ -39,6 +39,7 @@ import org.junit.Test;
  *
  * @author Joel Leitch
  */
+@SuppressWarnings("JavaUtilDate")
 public class DefaultDateTypeAdapterTest {
 
   @Test
@@ -226,6 +227,7 @@ public class DefaultDateTypeAdapterTest {
     assertThat(adapter.toJson(new Date(0))).isEqualTo(toLiteral(formatted));
   }
 
+  @SuppressWarnings("UndefinedEquals")
   private static void assertParsed(String date, TypeAdapterFactory adapterFactory) throws IOException {
     TypeAdapter<Date> adapter = dateAdapter(adapterFactory);
     assertWithMessage(date).that(adapter.fromJson(toLiteral(date))).isEqualTo(new Date(0));

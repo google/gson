@@ -36,6 +36,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.release>7</maven.compiler.release>
+    <maven.compiler.testRelease>11</maven.compiler.testRelease>
   </properties>
 
   <scm>
@@ -84,31 +85,63 @@
     </dependencies>
   </dependencyManagement>
 
+  <dependencies>
+    <!-- Error Prone Annotations is only directly used by gson module, but since this is an optional
+      dependency and other modules depend on gson module they also need the dependency to avoid
+      compiler warnings, see also comments on https://bugs.openjdk.org/browse/JDK-6365854 -->
+    <dependency>
+      <groupId>com.google.errorprone</groupId>
+      <artifactId>error_prone_annotations</artifactId>
+      <version>2.18.0</version>
+      <optional>true</optional>
+    </dependency>
+  </dependencies>
+
   <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>3.2.1</version>
+        <executions>
+          <execution>
+            <id>enforce-versions</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireMavenVersion>
+                  <!-- Usage of `.mvn/jvm.config` for Error Prone requires at least Maven 3.3.1 -->
+                  <version>[3.3.1,)</version>
+                </requireMavenVersion>
+
+                <!-- Enforce that correct JDK version is used to avoid cryptic build errors -->
+                <requireJavaVersion>
+                  <!-- Other plugins of this build require at least JDK 11 -->
+                  <version>[11,)</version>
+                </requireJavaVersion>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+
     <pluginManagement>
       <plugins>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.10.1</version>
+          <version>3.11.0</version>
           <configuration>
             <showWarnings>true</showWarnings>
             <showDeprecation>true</showDeprecation>
-            <fork>true</fork>
+            <failOnWarning>true</failOnWarning>
             <compilerArgs>
               <!-- Args related to Error Prone, see: https://errorprone.info/docs/installation#maven -->
               <arg>-XDcompilePolicy=simple</arg>
-              <arg>-Xplugin:ErrorProne -XepExcludedPaths:.*gson/src/test.*|.*extras/src/test.*|.*proto.*</arg>
-              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
-              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
-              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
-              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
-              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>
-              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
-              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
-              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
-              <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
-              <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
+              <arg>-Xplugin:ErrorProne -XepExcludedPaths:.*/generated-test-sources/protobuf/.*</arg>
               <!-- Enable all warnings, except for ones which cause issues when building with newer JDKs, see also
                 https://docs.oracle.com/en/java/javase/11/tools/javac.html -->
               <compilerArg>-Xlint:all,-options</compilerArg>
@@ -120,9 +153,6 @@
                 <version>2.18.0</version>
               </path>
             </annotationProcessorPaths>
-            <jdkToolchain>
-              <version>[11,)</version>
-            </jdkToolchain>
           </configuration>
         </plugin>
         <plugin>
@@ -130,9 +160,6 @@
           <artifactId>maven-javadoc-plugin</artifactId>
           <version>3.5.0</version>
           <configuration>
-            <jdkToolchain>
-              <version>[11,)</version>
-            </jdkToolchain>
             <!-- Specify newer JDK as target to allow linking to newer Java API, and to generate
               module overview in Javadoc for Gson's module descriptor -->
             <release>11</release>
@@ -143,6 +170,7 @@
             <detectJavaApiLink>false</detectJavaApiLink>
             <links>
               <link>https://docs.oracle.com/en/java/javase/11/docs/api/</link>
+              <link>https://errorprone.info/api/latest/</link>
             </links>
             <!-- Disable detection of offline links between Maven modules: 
               (1) Only `gson` module is published, so for other modules Javadoc links don't 
@@ -152,6 +180,7 @@
             <detectOfflineLinks>false</detectOfflineLinks>
             <!-- Only show warnings and errors -->
             <quiet>true</quiet>
+            <failOnWarnings>true</failOnWarnings>
           </configuration>
         </plugin>
         <plugin>
@@ -259,7 +288,7 @@
         <plugin>
           <groupId>com.github.siom79.japicmp</groupId>
           <artifactId>japicmp-maven-plugin</artifactId>
-          <version>0.17.1</version>
+          <version>0.17.2</version>
           <configuration>
             <oldVersion>
               <dependency>

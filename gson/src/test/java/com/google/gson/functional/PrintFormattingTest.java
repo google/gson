@@ -78,6 +78,7 @@ public class PrintFormattingTest {
     assertThat(json).contains("field2");
   }
 
+  @SuppressWarnings("LoopOverCharArray")
   private static void assertContainsNoWhiteSpace(String str) {
     for (char c : str.toCharArray()) {
       assertThat(Character.isWhitespace(c)).isFalse();

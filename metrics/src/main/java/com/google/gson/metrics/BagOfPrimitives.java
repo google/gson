@@ -15,6 +15,8 @@
  */
 package com.google.gson.metrics;
 
+import com.google.common.base.Objects;
+
 /**
  * Class with a bunch of primitive fields
  *
@@ -63,19 +65,18 @@ public class BagOfPrimitives {
   }
 
   @Override
-  public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
-    BagOfPrimitives other = (BagOfPrimitives) obj;
-    if (booleanValue != other.booleanValue) return false;
-    if (intValue != other.intValue) return false;
-    if (longValue != other.longValue) return false;
-    if (stringValue == null) {
-      return other.stringValue == null;
-    } else {
-      return stringValue.equals(other.stringValue);
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
     }
+    if (!(o instanceof BagOfPrimitives)) {
+      return false;
+    }
+    BagOfPrimitives that = (BagOfPrimitives) o;
+    return longValue == that.longValue
+        && intValue == that.intValue
+        && booleanValue == that.booleanValue
+        && Objects.equal(stringValue, that.stringValue);
   }
 
   @Override

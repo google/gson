@@ -1587,7 +1587,7 @@ public class JsonReader implements Closeable {
    * been read. This supports both unicode escapes "u000A" and two-character
    * escapes "\n".
    *
-   * @throws NumberFormatException if any unicode escape sequences are
+   * @throws MalformedJsonException if any unicode escape sequences are
    *     malformed.
    */
   @SuppressWarnings("fallthrough")
@@ -1603,7 +1603,7 @@ public class JsonReader implements Closeable {
         throw syntaxError("Unterminated escape sequence");
       }
       // Equivalent to Integer.parseInt(stringPool.get(buffer, pos, 4), 16);
-      char result = 0;
+      int result = 0;
       for (int i = pos, end = i + 4; i < end; i++) {
         char c = buffer[i];
         result <<= 4;
@@ -1614,11 +1614,11 @@ public class JsonReader implements Closeable {
         } else if (c >= 'A' && c <= 'F') {
           result += (c - 'A' + 10);
         } else {
-          throw new NumberFormatException("\\u" + new String(buffer, pos, 4));
+          throw new MalformedJsonException("\\u" + new String(buffer, pos, 4));
         }
       }
       pos += 4;
-      return result;
+      return (char) result;
 
     case 't':
       return '\t';

@@ -19,6 +19,7 @@ package com.google.gson.functional;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
+import com.google.common.base.Splitter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -36,6 +37,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.List;
 import java.util.Locale;
 import org.junit.Test;
 
@@ -226,9 +228,9 @@ public final class JsonAdapterAnnotationOnClassesTest {
       // implement read: split name into firstName and lastName
       in.beginObject();
       in.nextName();
-      String[] nameParts = in.nextString().split(" ");
+      List<String> nameParts = Splitter.on(" ").splitToList(in.nextString());
       in.endObject();
-      return new User(nameParts[0], nameParts[1]);
+      return new User(nameParts.get(0), nameParts.get(1));
     }
   }
 

@@ -23,6 +23,7 @@ import com.google.gson.common.TestTypes.ArrayOfObjects;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -51,7 +52,7 @@ public class PrettyPrintingTest {
   @Test
   public void testPrettyPrintList() {
     BagOfPrimitives b = new BagOfPrimitives();
-    List<BagOfPrimitives> listOfB = new LinkedList<>();
+    List<BagOfPrimitives> listOfB = new ArrayList<>();
     for (int i = 0; i < 15; ++i) {
       listOfB.add(b);
     }

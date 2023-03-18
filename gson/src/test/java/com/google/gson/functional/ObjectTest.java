@@ -161,7 +161,7 @@ public class ObjectTest {
   private static class Subclass extends Superclass1 {
   }
   private static class Superclass1 extends Superclass2 {
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "HidingField"})
     String s;
   }
   private static class Superclass2 {
@@ -414,6 +414,8 @@ public class ObjectTest {
   private static class Parent {
     @SuppressWarnings("unused")
     int value1 = 1;
+
+    @SuppressWarnings("ClassCanBeStatic")
     private class Child {
       int value2 = 2;
     }
@@ -562,6 +564,7 @@ public class ObjectTest {
 
   // http://code.google.com/p/google-gson/issues/detail?id=270
   @Test
+  @SuppressWarnings("JavaUtilDate")
   public void testDateAsMapObjectField() {
     HasObjectMap a = new HasObjectMap();
     a.map.put("date", new Date(0));
@@ -654,6 +657,7 @@ public class ObjectTest {
     }
   }
 
+  @SuppressWarnings("StaticAssignmentOfThrowable")
   static class ClassWithThrowingConstructor {
     static final RuntimeException thrownException = new RuntimeException("Custom exception");
 

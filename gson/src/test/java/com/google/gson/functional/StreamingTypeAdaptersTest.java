@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.fail;
 
+import com.google.common.base.Splitter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -172,8 +173,8 @@ public final class StreamingTypeAdaptersTest {
   public void testNullSafe() {
     TypeAdapter<Person> typeAdapter = new TypeAdapter<Person>() {
       @Override public Person read(JsonReader in) throws IOException {
-        String[] values = in.nextString().split(",");
-        return new Person(values[0], Integer.parseInt(values[1]));
+        List<String> values = Splitter.on(',').splitToList(in.nextString());
+        return new Person(values.get(0), Integer.parseInt(values.get(1)));
       }
       @Override public void write(JsonWriter out, Person person) throws IOException {
         out.value(person.name + "," + person.age);

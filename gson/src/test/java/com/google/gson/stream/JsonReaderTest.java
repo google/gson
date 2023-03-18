@@ -355,7 +355,7 @@ public final class JsonReaderTest {
     try {
       reader.nextString();
       fail();
-    } catch (NumberFormatException expected) {
+    } catch (MalformedJsonException expected) {
     }
   }
 
@@ -642,6 +642,7 @@ public final class JsonReaderTest {
       strictReader.nextDouble();
       fail("Should have failed reading " + s + " as double");
     } catch (MalformedJsonException e) {
+      assertThat(e).hasMessageThat().startsWith("Use JsonReader.setLenient(true) to accept malformed JSON");
     }
   }
 
@@ -705,7 +706,6 @@ public final class JsonReaderTest {
 
   /**
    * Issue 1053, negative zero.
-   * @throws Exception
    */
   @Test
   public void testNegativeZero() throws Exception {
@@ -741,6 +741,8 @@ public final class JsonReaderTest {
   @Test
   @Ignore
   public void disabled_testPeekLargerThanLongMinValue() throws IOException {
+    @SuppressWarnings("FloatingPointLiteralPrecision")
+    double d = -9223372036854775809d;
     JsonReader reader = new JsonReader(reader("[-9223372036854775809]"));
     reader.setLenient(true);
     reader.beginArray();
@@ -750,7 +752,7 @@ public final class JsonReaderTest {
       fail();
     } catch (NumberFormatException expected) {
     }
-    assertThat(reader.nextDouble()).isEqualTo(-9223372036854775809d);
+    assertThat(reader.nextDouble()).isEqualTo(d);
   }
 
   /**
@@ -769,6 +771,8 @@ public final class JsonReaderTest {
 
   @Test
   public void testPeekMuchLargerThanLongMinValue() throws IOException {
+    @SuppressWarnings("FloatingPointLiteralPrecision")
+    double d = -92233720368547758080d;
     JsonReader reader = new JsonReader(reader("[-92233720368547758080]"));
     reader.setLenient(true);
     reader.beginArray();
@@ -778,12 +782,12 @@ public final class JsonReaderTest {
       fail();
     } catch (NumberFormatException expected) {
     }
-    assertThat(reader.nextDouble()).isEqualTo(-92233720368547758080d);
+    assertThat(reader.nextDouble()).isEqualTo(d);
   }
 
   @Test
   public void testQuotedNumberWithEscape() throws IOException {
-    JsonReader reader = new JsonReader(reader("[\"12\u00334\"]"));
+    JsonReader reader = new JsonReader(reader("[\"12\\u00334\"]"));
     reader.setLenient(true);
     reader.beginArray();
     assertThat(reader.peek()).isEqualTo(STRING);
@@ -2005,6 +2009,7 @@ public final class JsonReaderTest {
           reader.peek();
           fail();
         } catch (IOException expected) {
+          // OK: Should fail
         }
       } else {
         throw new AssertionError();
