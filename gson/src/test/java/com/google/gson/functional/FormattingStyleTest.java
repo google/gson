@@ -34,7 +34,7 @@ import org.junit.runners.JUnit4;
 public class FormattingStyleTest {
 
   private static final String[] INPUT = {"v1", "v2"};
-  private static final String EXPECTED = "[<EOL><INDENT>\"v1\",<EOL><INDENT>\"v2\"<EOL>]";
+  private static final String EXPECTED = "[<EOL><INDENT>\"v1\",<SPACE><EOL><INDENT>\"v2\"<EOL>]";
   private static final String EXPECTED_OS = buildExpected(System.lineSeparator(), "  ");
   private static final String EXPECTED_CR = buildExpected("\r", "  ");
   private static final String EXPECTED_LF = buildExpected("\n", "  ");
@@ -58,32 +58,32 @@ public class FormattingStyleTest {
 
   @Test
   public void testNewlineCrLf() {
-    FormattingStyle style = FormattingStyle.DEFAULT.withNewline("\r\n");
-    Gson gson = new GsonBuilder().setPrettyPrinting(style).create();
+    FormattingStyle style = FormattingStyle.PRETTY.withNewline("\r\n");
+    Gson gson = new GsonBuilder().setFormattingStyle(style).create();
     String json = gson.toJson(INPUT);
     assertThat(json).isEqualTo(EXPECTED_CRLF);
   }
 
   @Test
   public void testNewlineLf() {
-    FormattingStyle style = FormattingStyle.DEFAULT.withNewline("\n");
-    Gson gson = new GsonBuilder().setPrettyPrinting(style).create();
+    FormattingStyle style = FormattingStyle.PRETTY.withNewline("\n");
+    Gson gson = new GsonBuilder().setFormattingStyle(style).create();
     String json = gson.toJson(INPUT);
     assertThat(json).isEqualTo(EXPECTED_LF);
   }
 
   @Test
   public void testNewlineCr() {
-    FormattingStyle style = FormattingStyle.DEFAULT.withNewline("\r");
-    Gson gson = new GsonBuilder().setPrettyPrinting(style).create();
+    FormattingStyle style = FormattingStyle.PRETTY.withNewline("\r");
+    Gson gson = new GsonBuilder().setFormattingStyle(style).create();
     String json = gson.toJson(INPUT);
     assertThat(json).isEqualTo(EXPECTED_CR);
   }
 
   @Test
   public void testNewlineOs() {
-    FormattingStyle style = FormattingStyle.DEFAULT.withNewline(System.lineSeparator());
-    Gson gson = new GsonBuilder().setPrettyPrinting(style).create();
+    FormattingStyle style = FormattingStyle.PRETTY.withNewline(System.lineSeparator());
+    Gson gson = new GsonBuilder().setFormattingStyle(style).create();
     String json = gson.toJson(INPUT);
     assertThat(json).isEqualTo(EXPECTED_OS);
   }
@@ -92,8 +92,8 @@ public class FormattingStyleTest {
   public void testVariousCombinationsToString() {
     for (String indent : TEST_INDENTS) {
       for (String newline : TEST_NEWLINES) {
-        FormattingStyle style = FormattingStyle.DEFAULT.withNewline(newline).withIndent(indent);
-        Gson gson = new GsonBuilder().setPrettyPrinting(style).create();
+        FormattingStyle style = FormattingStyle.PRETTY.withNewline(newline).withIndent(indent);
+        Gson gson = new GsonBuilder().setFormattingStyle(style).create();
         String json = gson.toJson(INPUT);
         assertThat(json).isEqualTo(buildExpected(newline, indent));
       }
@@ -109,8 +109,8 @@ public class FormattingStyleTest {
     // Test all that all combinations of newline can be parsed and generate the same INPUT.
     for (String indent : TEST_INDENTS) {
       for (String newline : TEST_NEWLINES) {
-        FormattingStyle style = FormattingStyle.DEFAULT.withNewline(newline).withIndent(indent);
-        Gson gson = new GsonBuilder().setPrettyPrinting(style).create();
+        FormattingStyle style = FormattingStyle.PRETTY.withNewline(newline).withIndent(indent);
+        Gson gson = new GsonBuilder().setFormattingStyle(style).create();
 
         String toParse = buildExpected(newline, indent);
         actualParsed = gson.fromJson(toParse, INPUT.getClass());
@@ -128,7 +128,7 @@ public class FormattingStyleTest {
     try {
       // TBD if we want to accept \u2028 and \u2029. For now we don't because JSON specification
       // does not consider them to be newlines
-      FormattingStyle.DEFAULT.withNewline("\u2028");
+      FormattingStyle.PRETTY.withNewline("\u2028");
       fail("Gson should not accept anything but \\r and \\n for newline");
     } catch (IllegalArgumentException expected) {
       assertThat(expected).hasMessageThat()
@@ -136,7 +136,7 @@ public class FormattingStyleTest {
     }
 
     try {
-      FormattingStyle.DEFAULT.withNewline("NL");
+      FormattingStyle.PRETTY.withNewline("NL");
       fail("Gson should not accept anything but \\r and \\n for newline");
     } catch (IllegalArgumentException expected) {
       assertThat(expected).hasMessageThat()
@@ -144,7 +144,7 @@ public class FormattingStyleTest {
     }
 
     try {
-      FormattingStyle.DEFAULT.withIndent("\f");
+      FormattingStyle.PRETTY.withIndent("\f");
       fail("Gson should not accept anything but space and tab for indent");
     } catch (IllegalArgumentException expected) {
       assertThat(expected).hasMessageThat()
@@ -153,6 +153,7 @@ public class FormattingStyleTest {
   }
 
   private static String buildExpected(String newline, String indent) {
-    return EXPECTED.replace("<EOL>", newline).replace("<INDENT>", indent);
+    return EXPECTED.replace("<EOL>", newline).replace("<INDENT>", indent)
+        .replace("<SPACE>", newline.isEmpty() ? " " : "");
   }
 }

@@ -852,7 +852,7 @@ public final class JsonWriterTest {
 
     StringWriter stringWriter = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
-    jsonWriter.setFormattingStyle(FormattingStyle.DEFAULT.withIndent(" \t ").withNewline(lineSeparator));
+    jsonWriter.setFormattingStyle(FormattingStyle.PRETTY.withIndent(" \t ").withNewline(lineSeparator));
 
     jsonWriter.beginArray();
     jsonWriter.value(true);
