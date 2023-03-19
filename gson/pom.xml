@@ -38,6 +38,17 @@
   </properties>
 
   <dependencies>
+    <!-- This dependency can be considered optional; omitting it during runtime will most likely
+      not cause any issues. However, it is not declared with `<optional>true</optional>` because
+      that can lead to cryptic compiler warnings for consumers, and to be on the safe side in case
+      there are actually issues which could occur when the dependency is missing at runtime.
+      See also discussion at https://github.com/google/gson/pull/2320#issuecomment-1455233938 -->
+    <dependency>
+      <groupId>com.google.errorprone</groupId>
+      <artifactId>error_prone_annotations</artifactId>
+      <version>2.18.0</version>
+    </dependency>
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
