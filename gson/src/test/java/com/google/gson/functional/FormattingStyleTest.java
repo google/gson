@@ -15,8 +15,7 @@
  */
 package com.google.gson.functional;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import com.google.gson.FormattingStyle;
@@ -54,7 +53,7 @@ public class FormattingStyleTest {
     Gson gson = new GsonBuilder().setPrettyPrinting().create();
     String json = gson.toJson(INPUT);
     // Make sure the default uses LF, like before.
-    assertEquals(EXPECTED_LF, json);
+    assertThat(json).isEqualTo(EXPECTED_LF);
   }
 
   @Test
@@ -62,7 +61,7 @@ public class FormattingStyleTest {
     FormattingStyle style = FormattingStyle.DEFAULT.withNewline("\r\n");
     Gson gson = new GsonBuilder().setPrettyPrinting(style).create();
     String json = gson.toJson(INPUT);
-    assertEquals(EXPECTED_CRLF, json);
+    assertThat(json).isEqualTo(EXPECTED_CRLF);
   }
 
   @Test
@@ -70,7 +69,7 @@ public class FormattingStyleTest {
     FormattingStyle style = FormattingStyle.DEFAULT.withNewline("\n");
     Gson gson = new GsonBuilder().setPrettyPrinting(style).create();
     String json = gson.toJson(INPUT);
-    assertEquals(EXPECTED_LF, json);
+    assertThat(json).isEqualTo(EXPECTED_LF);
   }
 
   @Test
@@ -78,7 +77,7 @@ public class FormattingStyleTest {
     FormattingStyle style = FormattingStyle.DEFAULT.withNewline("\r");
     Gson gson = new GsonBuilder().setPrettyPrinting(style).create();
     String json = gson.toJson(INPUT);
-    assertEquals(EXPECTED_CR, json);
+    assertThat(json).isEqualTo(EXPECTED_CR);
   }
 
   @Test
@@ -86,7 +85,7 @@ public class FormattingStyleTest {
     FormattingStyle style = FormattingStyle.DEFAULT.withNewline(System.lineSeparator());
     Gson gson = new GsonBuilder().setPrettyPrinting(style).create();
     String json = gson.toJson(INPUT);
-    assertEquals(EXPECTED_OS, json);
+    assertThat(json).isEqualTo(EXPECTED_OS);
   }
 
   @Test
@@ -96,7 +95,7 @@ public class FormattingStyleTest {
         FormattingStyle style = FormattingStyle.DEFAULT.withNewline(newline).withIndent(indent);
         Gson gson = new GsonBuilder().setPrettyPrinting(style).create();
         String json = gson.toJson(INPUT);
-        assertEquals(buildExpected(newline, indent), json);
+        assertThat(json).isEqualTo(buildExpected(newline, indent));
       }
     }
   }
@@ -115,11 +114,11 @@ public class FormattingStyleTest {
 
         String toParse = buildExpected(newline, indent);
         actualParsed = gson.fromJson(toParse, INPUT.getClass());
-        assertArrayEquals(INPUT, actualParsed);
+        assertThat(actualParsed).isEqualTo(INPUT);
 
         // Parse the mixed string with the gson parsers configured with various newline / indents.
         actualParsed = gson.fromJson(jsonStringMix, INPUT.getClass());
-        assertArrayEquals(INPUT, actualParsed);
+        assertThat(actualParsed).isEqualTo(INPUT);
       }
     }
   }
@@ -127,22 +126,29 @@ public class FormattingStyleTest {
   @Test
   public void testStyleValidations() {
     try {
-      // TBD if we want to accept \u2028 and \u2029. For now we don't.
+      // TBD if we want to accept \u2028 and \u2029. For now we don't because JSON specification
+      // does not consider them to be newlines
       FormattingStyle.DEFAULT.withNewline("\u2028");
       fail("Gson should not accept anything but \\r and \\n for newline");
     } catch (IllegalArgumentException expected) {
+      assertThat(expected).hasMessageThat()
+          .isEqualTo("Only combinations of \\n and \\r are allowed in newline.");
     }
 
     try {
       FormattingStyle.DEFAULT.withNewline("NL");
       fail("Gson should not accept anything but \\r and \\n for newline");
     } catch (IllegalArgumentException expected) {
+      assertThat(expected).hasMessageThat()
+          .isEqualTo("Only combinations of \\n and \\r are allowed in newline.");
     }
 
     try {
       FormattingStyle.DEFAULT.withIndent("\f");
       fail("Gson should not accept anything but space and tab for indent");
     } catch (IllegalArgumentException expected) {
+      assertThat(expected).hasMessageThat()
+          .isEqualTo("Only combinations of spaces and tabs are allowed in indent.");
     }
   }
 

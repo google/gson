@@ -217,7 +217,7 @@ public class JsonWriter implements Closeable, Flushable {
    * @param indent a string containing only whitespace.
    */
   public final void setIndent(String indent) {
-    if (indent.length() == 0) {
+    if (indent.isEmpty()) {
       setFormattingStyle(null);
     } else {
       setFormattingStyle(FormattingStyle.DEFAULT.withIndent(indent));
@@ -226,7 +226,7 @@ public class JsonWriter implements Closeable, Flushable {
 
   /**
    * Sets the pretty printing style to be used in the encoded document.
-   * No pretty printing if null.
+   * No pretty printing is done if the given style is {@code null}.
    *
    * <p>Sets the various attributes to be used in the encoded document. 
    * For example the indentation string to be repeated for each level of indentation.
@@ -234,7 +234,7 @@ public class JsonWriter implements Closeable, Flushable {
    *
    * <p>Has no effect if the serialized format is a single line.</p>
    *
-   * @param formattingStyle the style used for pretty printing, no pretty printing if null.
+   * @param formattingStyle the style used for pretty printing, no pretty printing if {@code null}.
    * @since $next-version$
    */
   public final void setFormattingStyle(FormattingStyle formattingStyle) {
@@ -249,7 +249,7 @@ public class JsonWriter implements Closeable, Flushable {
   /**
    * Returns the pretty printing style used by this writer.
    *
-   * @return the FormattingStyle that will be used.
+   * @return the {@code FormattingStyle} that will be used.
    * @since $next-version$
    */
   public final FormattingStyle getFormattingStyle() {

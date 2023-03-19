@@ -16,14 +16,17 @@
 
 package com.google.gson;
 
+import com.google.gson.stream.JsonWriter;
 import java.util.Objects;
 
 /**
- * A class used to control what the serialization looks like.
+ * A class used to control what the serialization output looks like.
  *
  * <p>It currently defines the kind of newline to use, and the indent, but
  * might add more in the future.</p>
  *
+ * @see GsonBuilder#setPrettyPrinting(FormattingStyle)
+ * @see JsonWriter#setFormattingStyle(FormattingStyle)
  * @see <a href="https://en.wikipedia.org/wiki/Newline">Wikipedia Newline article</a>
  *
  * @since $next-version$
@@ -32,7 +35,11 @@ public class FormattingStyle {
   private final String newline;
   private final String indent;
 
-  static public final FormattingStyle DEFAULT =
+  /**
+   * The default pretty printing formatting style using {@code "\n"} as
+   * newline and two spaces as indent.
+   */
+  public static final FormattingStyle DEFAULT =
       new FormattingStyle("\n", "  ");
 
   private FormattingStyle(String newline, String indent) {
@@ -44,7 +51,7 @@ public class FormattingStyle {
     }
     if (!indent.matches("[ \t]*")) {
       throw new IllegalArgumentException(
-          "Only combinations of spaces and tabs allowed in indent.");
+          "Only combinations of spaces and tabs are allowed in indent.");
     }
     this.newline = newline;
     this.indent = indent;
@@ -54,7 +61,7 @@ public class FormattingStyle {
    * Creates a {@link FormattingStyle} with the specified newline setting.
    *
    * <p>It can be used to accommodate certain OS convention, for example
-   * hardcode {@code "\r"} for Linux and macos, {@code "\r\n"} for Windows, or
+   * hardcode {@code "\n"} for Linux and macOS, {@code "\r\n"} for Windows, or
    * call {@link java.lang.System#lineSeparator()} to match the current OS.</p>
    *
    * <p>Only combinations of {@code \n} and {@code \r} are allowed.</p>

@@ -481,6 +481,9 @@ public final class GsonBuilder {
    * Configures Gson to output JSON that fits in a page for pretty printing. This option only
    * affects JSON serialization.
    *
+   * <p>This is a convenience method which simply calls {@link #setPrettyPrinting(FormattingStyle)}
+   * with {@link FormattingStyle#DEFAULT}.
+   *
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
   public GsonBuilder setPrettyPrinting() {
@@ -488,11 +491,12 @@ public final class GsonBuilder {
   }
 
   /**
-   * Configures Gson to output JSON that uses a certain kind of formatting stile (for example newline and indent).
-   * This option only affects JSON serialization.
+   * Configures Gson to output JSON that uses a certain kind of formatting style (for example newline and indent).
+   * This option only affects JSON serialization. By default Gson produces compact JSON output without any formatting.
    *
    * <p>Has no effect if the serialized format is a single line.</p>
    *
+   * @param formattingStyle the formatting style to use.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since $next-version$
    */
