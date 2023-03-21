@@ -13,7 +13,7 @@ The following is a step-by-step procedure for releasing a new version of Google-
 1. [Log in to Nexus repository manager](https://oss.sonatype.org/index.html#welcome) at Sonatype and close the staging repository for Gson.
 1. Download and sanity check all downloads. Do not skip this step! Once you release the staging repository, there is no going back. It will get synced with Maven Central and you will not be able to update or delete anything. Your only recourse will be to release a new version of Gson and hope that no one uses the old one.
 1. Release the staging repository for Gson. Gson will now get synced to Maven Central with-in the next hour. For issues consult [Sonatype Guide](https://central.sonatype.org/publish/release/).
-1. Update [Gson Changelog](CHANGELOG.md). Also, look at all bugs that were fixed and add a few lines describing what changed in the release.
+1. Create a [GitHub release](https://github.com/google/gson/releases) for the new version. You can let GitHub [automatically generate the description for the release](https://docs.github.com/en/repositories/releasing-projects-on-github/automatically-generated-release-notes), but you should edit it manually to point out the most important changes and potentially incompatible changes.
 1. Update version references in (version might be referenced multiple times):
     - [`README.md`](README.md)
     - [`UserGuide.md`](UserGuide.md)
