@@ -211,6 +211,12 @@ public class JsonWriter implements Closeable, Flushable {
    * will be compact. Otherwise the encoded document will be more
    * human-readable.
    *
+   * <p>This is a convenience method which overwrites any previously
+   * {@linkplain #setFormattingStyle(FormattingStyle) set formatting style} with
+   * either {@link FormattingStyle#COMPACT} if the given indent string is
+   * empty, or {@link FormattingStyle#PRETTY} with the given indent if
+   * not empty.
+   *
    * @param indent a string containing only whitespace.
    */
   public final void setIndent(String indent) {
@@ -224,11 +230,11 @@ public class JsonWriter implements Closeable, Flushable {
   /**
    * Sets the formatting style to be used in the encoded document.
    *
-   * <p>Sets the various attributes to be used in the encoded document.
-   * For example the indentation string to be repeated for each level of indentation.
-   * Or the newline style, to accommodate various OS styles.</p>
+   * <p>The formatting style specifies for example the indentation string to be
+   * repeated for each level of indentation, or the newline style, to accommodate
+   * various OS styles.</p>
    *
-   * @param formattingStyle the formatting style to use.
+   * @param formattingStyle the formatting style to use, must not be {@code null}.
    * @since $next-version$
    */
   public final void setFormattingStyle(FormattingStyle formattingStyle) {
@@ -416,7 +422,7 @@ public class JsonWriter implements Closeable, Flushable {
   /**
    * Encodes the property name.
    *
-   * @param name the name of the forthcoming value. May not be null.
+   * @param name the name of the forthcoming value. May not be {@code null}.
    * @return this writer.
    */
   public JsonWriter name(String name) throws IOException {
@@ -680,11 +686,13 @@ public class JsonWriter implements Closeable, Flushable {
   }
 
   private void newline() throws IOException {
-    if (!usesEmptyNewlineAndIndent) {
-      out.write(formattingStyle.getNewline());
-      for (int i = 1, size = stackSize; i < size; i++) {
-        out.write(formattingStyle.getIndent());
-      }
+    if (usesEmptyNewlineAndIndent) {
+      return;
+    }
+
+    out.write(formattingStyle.getNewline());
+    for (int i = 1, size = stackSize; i < size; i++) {
+      out.write(formattingStyle.getIndent());
     }
   }
 
