@@ -45,11 +45,11 @@ public class FormattingStyleTest {
     return map;
   }
 
-  private static String buildExpected(String newline, String indent, boolean spaceAfterSeparator) {
+  private static String buildExpected(String newline, String indent, boolean spaceAfterSeparators) {
     String expected = "{<EOL><INDENT>\"a\":<COLON_SPACE>[<EOL><INDENT><INDENT>1,<COMMA_SPACE><EOL><INDENT><INDENT>2<EOL><INDENT>]<EOL>}";
-    String commaSpace = spaceAfterSeparator && newline.isEmpty() ? " " : "";
+    String commaSpace = spaceAfterSeparators && newline.isEmpty() ? " " : "";
     return expected.replace("<EOL>", newline).replace("<INDENT>", indent)
-        .replace("<COLON_SPACE>", spaceAfterSeparator ? " " : "")
+        .replace("<COLON_SPACE>", spaceAfterSeparators ? " " : "")
         .replace("<COMMA_SPACE>", commaSpace);
   }
 
@@ -100,12 +100,12 @@ public class FormattingStyleTest {
   public void testFormat() {
     for (String newline : TEST_NEWLINES) {
       for (String indent : TEST_INDENTS) {
-        for (boolean spaceAfterSeparator : new boolean[] {true, false}) {
+        for (boolean spaceAfterSeparators : new boolean[] {true, false}) {
           FormattingStyle style = FormattingStyle.COMPACT.withNewline(newline)
-              .withIndent(indent).withSpaceAfterSeparator(spaceAfterSeparator);
+              .withIndent(indent).withSpaceAfterSeparators(spaceAfterSeparators);
 
           String json = toJson(createInput(), style);
-          String expectedJson = buildExpected(newline, indent, spaceAfterSeparator);
+          String expectedJson = buildExpected(newline, indent, spaceAfterSeparators);
           assertThat(json).isEqualTo(expectedJson);
         }
       }
@@ -119,7 +119,7 @@ public class FormattingStyleTest {
   @Test
   public void testCompactToPretty() {
     FormattingStyle style = FormattingStyle.COMPACT.withNewline("\n").withIndent("  ")
-        .withSpaceAfterSeparator(true);
+        .withSpaceAfterSeparators(true);
 
     String json = toJson(createInput(), style);
     String expectedJson = toJson(createInput(), FormattingStyle.PRETTY);
@@ -133,7 +133,7 @@ public class FormattingStyleTest {
   @Test
   public void testPrettyToCompact() {
     FormattingStyle style = FormattingStyle.PRETTY.withNewline("").withIndent("")
-        .withSpaceAfterSeparator(false);
+        .withSpaceAfterSeparators(false);
 
     String json = toJson(createInput(), style);
     String expectedJson = toJson(createInput(), FormattingStyle.COMPACT);

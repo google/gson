@@ -241,7 +241,7 @@ public class JsonWriter implements Closeable, Flushable {
     this.formattingStyle = Objects.requireNonNull(formattingStyle);
 
     this.formattedComma = ",";
-    if (this.formattingStyle.usesSpaceAfterSeparator()) {
+    if (this.formattingStyle.usesSpaceAfterSeparators()) {
       this.formattedColon = ": ";
 
       // Only add space if no newline is written

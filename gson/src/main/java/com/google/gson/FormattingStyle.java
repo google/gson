@@ -27,7 +27,7 @@ import java.util.Objects;
  * <ul>
  *   <li>{@link #withNewline(String)}
  *   <li>{@link #withIndent(String)}
- *   <li>{@link #withSpaceAfterSeparator(boolean)}
+ *   <li>{@link #withSpaceAfterSeparators(boolean)}
  * </ul>
  *
  * @see GsonBuilder#setFormattingStyle(FormattingStyle)
@@ -39,7 +39,7 @@ import java.util.Objects;
 public class FormattingStyle {
   private final String newline;
   private final String indent;
-  private final boolean spaceAfterSeparator;
+  private final boolean spaceAfterSeparators;
 
   /**
    * The default compact formatting style:
@@ -62,7 +62,7 @@ public class FormattingStyle {
   public static final FormattingStyle PRETTY =
       new FormattingStyle("\n", "  ", true);
 
-  private FormattingStyle(String newline, String indent, boolean spaceAfterSeparator) {
+  private FormattingStyle(String newline, String indent, boolean spaceAfterSeparators) {
     Objects.requireNonNull(newline, "newline == null");
     Objects.requireNonNull(indent, "indent == null");
     if (!newline.matches("[\r\n]*")) {
@@ -75,7 +75,7 @@ public class FormattingStyle {
     }
     this.newline = newline;
     this.indent = indent;
-    this.spaceAfterSeparator = spaceAfterSeparator;
+    this.spaceAfterSeparators = spaceAfterSeparators;
   }
 
   /**
@@ -91,7 +91,7 @@ public class FormattingStyle {
    * @return a newly created {@link FormattingStyle}
    */
   public FormattingStyle withNewline(String newline) {
-    return new FormattingStyle(newline, this.indent, this.spaceAfterSeparator);
+    return new FormattingStyle(newline, this.indent, this.spaceAfterSeparators);
   }
 
   /**
@@ -103,7 +103,7 @@ public class FormattingStyle {
    * @return a newly created {@link FormattingStyle}
    */
   public FormattingStyle withIndent(String indent) {
-    return new FormattingStyle(this.newline, indent, this.spaceAfterSeparator);
+    return new FormattingStyle(this.newline, indent, this.spaceAfterSeparators);
   }
 
   /**
@@ -114,11 +114,11 @@ public class FormattingStyle {
    * If a non-empty newline is configured, it will always be added after
    * {@code ','} and no space is added after the {@code ','} in that case.</p>
    *
-   * @param spaceAfterSeparator whether to output a space after {@code ','} and {@code ':'}.
+   * @param spaceAfterSeparators whether to output a space after {@code ','} and {@code ':'}.
    * @return a newly created {@link FormattingStyle}
    */
-  public FormattingStyle withSpaceAfterSeparator(boolean spaceAfterSeparator) {
-    return new FormattingStyle(this.newline, this.indent, spaceAfterSeparator);
+  public FormattingStyle withSpaceAfterSeparators(boolean spaceAfterSeparators) {
+    return new FormattingStyle(this.newline, this.indent, spaceAfterSeparators);
   }
 
   /**
@@ -142,7 +142,7 @@ public class FormattingStyle {
   /**
    * Returns whether a space will be used after {@code ','} and {@code ':'}.
    */
-  public boolean usesSpaceAfterSeparator() {
-    return this.spaceAfterSeparator;
+  public boolean usesSpaceAfterSeparators() {
+    return this.spaceAfterSeparators;
   }
 }
