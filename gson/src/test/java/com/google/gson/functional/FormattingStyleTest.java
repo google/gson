@@ -97,6 +97,40 @@ public class FormattingStyleTest {
   }
 
   @Test
+  public void testFormatCompact() {
+    String json = toJson(createInput(), FormattingStyle.COMPACT);
+    String expectedJson = buildExpected("", "", false);
+    assertThat(json).isEqualTo(expectedJson);
+    // Sanity check to verify that `buildExpected` works correctly
+    assertThat(json).isEqualTo("{\"a\":[1,2]}");
+  }
+
+  @Test
+  public void testFormatPretty() {
+    String json = toJson(createInput(), FormattingStyle.PRETTY);
+    String expectedJson = buildExpected("\n", "  ", true);
+    assertThat(json).isEqualTo(expectedJson);
+    // Sanity check to verify that `buildExpected` works correctly
+    assertThat(json).isEqualTo(
+        "{\n"
+        + "  \"a\": [\n"
+        + "    1,\n"
+        + "    2\n"
+        + "  ]\n"
+        + "}");
+  }
+
+  @Test
+  public void testFormatPrettySingleLine() {
+    FormattingStyle style = FormattingStyle.COMPACT.withSpaceAfterSeparators(true);
+    String json = toJson(createInput(), style);
+    String expectedJson = buildExpected("", "", true);
+    assertThat(json).isEqualTo(expectedJson);
+    // Sanity check to verify that `buildExpected` works correctly
+    assertThat(json).isEqualTo("{\"a\": [1, 2]}");
+  }
+
+  @Test
   public void testFormat() {
     for (String newline : TEST_NEWLINES) {
       for (String indent : TEST_INDENTS) {
