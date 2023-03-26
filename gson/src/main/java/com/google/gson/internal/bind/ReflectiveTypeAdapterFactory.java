@@ -21,10 +21,12 @@ import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.MissingFieldValueStrategy;
 import com.google.gson.ReflectionAccessFilter;
 import com.google.gson.ReflectionAccessFilter.FilterResult;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
+import com.google.gson.UnknownFieldStrategy;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.internal.$Gson$Types;
@@ -63,16 +65,21 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   private final FieldNamingStrategy fieldNamingPolicy;
   private final Excluder excluder;
   private final JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory;
+  private final MissingFieldValueStrategy missingFieldValueStrategy;
+  private final UnknownFieldStrategy unknownFieldStrategy;
   private final List<ReflectionAccessFilter> reflectionFilters;
 
   public ReflectiveTypeAdapterFactory(ConstructorConstructor constructorConstructor,
       FieldNamingStrategy fieldNamingPolicy, Excluder excluder,
       JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory,
+      MissingFieldValueStrategy missingFieldValueStrategy, UnknownFieldStrategy unknownFieldStrategy,
       List<ReflectionAccessFilter> reflectionFilters) {
     this.constructorConstructor = constructorConstructor;
     this.fieldNamingPolicy = fieldNamingPolicy;
     this.excluder = excluder;
     this.jsonAdapterFactory = jsonAdapterFactory;
+    this.missingFieldValueStrategy = missingFieldValueStrategy;
+    this.unknownFieldStrategy = unknownFieldStrategy;
     this.reflectionFilters = reflectionFilters;
   }
 
@@ -122,13 +129,15 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     // on JVMs that do not support records.
     if (ReflectionHelper.isRecord(raw)) {
       @SuppressWarnings("unchecked")
-      TypeAdapter<T> adapter = (TypeAdapter<T>) new RecordAdapter<>(raw,
+      TypeAdapter<T> adapter = new RecordAdapter<>(gson,
+          missingFieldValueStrategy, unknownFieldStrategy, type, (Class<T>) raw,
           getBoundFields(gson, type, raw, blockInaccessible, true), blockInaccessible);
       return adapter;
     }
 
     ObjectConstructor<T> constructor = constructorConstructor.get(type);
-    return new FieldReflectionAdapter<>(constructor, getBoundFields(gson, type, raw, blockInaccessible, false));
+    return new FieldReflectionAdapter<>(gson, missingFieldValueStrategy, unknownFieldStrategy,
+        constructor, type, getBoundFields(gson, type, raw, blockInaccessible, false));
   }
 
   private static <M extends AccessibleObject & Member> void checkAccessible(Object object, M member) {
@@ -170,7 +179,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       // Will never actually be used, but we set it to avoid confusing nullness-analysis tools
       writeTypeAdapter = typeAdapter;
     }
-    return new BoundField(name, field, serialize, deserialize) {
+    return new BoundField(name, field, fieldType, serialize, deserialize) {
       @Override void write(JsonWriter writer, Object source)
           throws IOException, IllegalAccessException {
         if (!serialized) return;
@@ -217,6 +226,11 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       void readIntoField(JsonReader reader, Object target)
           throws IOException, IllegalAccessException {
         Object fieldValue = typeAdapter.read(reader);
+        putIntoField(fieldValue, target);
+      }
+
+      @Override
+      void putIntoField(Object fieldValue, Object target) throws IllegalAccessException {
         if (fieldValue != null || !isPrimitive) {
           if (blockInaccessible) {
             checkAccessible(target, field);
@@ -320,25 +334,30 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     final Field field;
     /** Name of the underlying field */
     final String fieldName;
+    final TypeToken<?> resolvedType;
     final boolean serialized;
     final boolean deserialized;
 
-    protected BoundField(String name, Field field, boolean serialized, boolean deserialized) {
+    protected BoundField(String name, Field field, TypeToken<?> resolvedType, boolean serialized, boolean deserialized) {
       this.name = name;
       this.field = field;
       this.fieldName = field.getName();
+      this.resolvedType = resolvedType;
       this.serialized = serialized;
       this.deserialized = deserialized;
     }
 
-    /** Read this field value from the source, and append its JSON value to the writer */
+    /** Reads this field value from the source, and append its JSON value to the writer */
     abstract void write(JsonWriter writer, Object source) throws IOException, IllegalAccessException;
 
-    /** Read the value into the target array, used to provide constructor arguments for records */
+    /** Reads the value into the target array, used to provide constructor arguments for records */
     abstract void readIntoArray(JsonReader reader, int index, Object[] target) throws IOException, JsonParseException;
 
-    /** Read the value from the reader, and set it on the corresponding field on target via reflection */
+    /** Reads the value from the reader, and set it on the corresponding field on target via reflection */
     abstract void readIntoField(JsonReader reader, Object target) throws IOException, IllegalAccessException;
+
+    /** Puts the field value {@code fieldValue} into the field of {@code target} */
+    abstract void putIntoField(Object fieldValue, Object target) throws IllegalAccessException;
   }
 
   /**
@@ -356,10 +375,33 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
    */
   // This class is public because external projects check for this class with `instanceof` (even though it is internal)
   public static abstract class Adapter<T, A> extends TypeAdapter<T> {
+    final Gson gson;
+    final MissingFieldValueStrategy missingFieldValueStrategy;
+    final UnknownFieldStrategy unknownFieldStrategy;
+    final TypeToken<T> type;
     final Map<String, BoundField> boundFields;
+    /** Fields to consider for missing field handling; {@code null} if missing fields should be ignored */
+    final Map<Field, BoundField> missingFieldsToCheck;
 
-    Adapter(Map<String, BoundField> boundFields) {
+    Adapter(Gson gson, MissingFieldValueStrategy missingFieldValueStrategy, UnknownFieldStrategy unknownFieldStrategy,
+        TypeToken<T> type, Map<String, BoundField> boundFields) {
+      this.gson = gson;
+      this.missingFieldValueStrategy = missingFieldValueStrategy;
+      this.unknownFieldStrategy = unknownFieldStrategy;
+      this.type = type;
       this.boundFields = boundFields;
+
+      if (missingFieldValueStrategy == MissingFieldValueStrategy.DO_NOTHING) {
+        missingFieldsToCheck = null;
+      } else {
+        // Track the underlying Field because there might be multiple BoundField entries when using @SerializedName
+        missingFieldsToCheck = new LinkedHashMap<>(boundFields.size());
+        for (BoundField boundField : this.boundFields.values()) {
+          if (boundField.deserialized) {
+            missingFieldsToCheck.put(boundField.field, boundField);
+          }
+        }
+      }
     }
 
     @Override
@@ -388,6 +430,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       }
 
       A accumulator = createAccumulator();
+      Map<Field, BoundField> missingFields = missingFieldsToCheck == null ? null : new LinkedHashMap<>(missingFieldsToCheck);
 
       try {
         in.beginObject();
@@ -395,9 +438,25 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           String name = in.nextName();
           BoundField field = boundFields.get(name);
           if (field == null || !field.deserialized) {
-            in.skipValue();
+            try {
+              unknownFieldStrategy.handleUnknownField(type, createObjectForFieldStrategy(accumulator), name, in, gson);
+            } catch (IOException e) {
+              // Don't wrap IOException; it is most likely unrelated to unknownFieldStrategy, but instead caused by JSON data
+              throw e;
+            } catch (Exception e) {
+              // UnknownFieldStrategy.THROW_EXCEPTION provides enough context, can directly rethrow
+              if (unknownFieldStrategy == UnknownFieldStrategy.THROW_EXCEPTION) {
+                throw e;
+              }
+              // TODO Proper exception type
+              throw new RuntimeException("Failed handling unknown field '" + name + "' for " + type.getRawType() + " at path " + in.getPath(), e);
+            }
           } else {
             readField(accumulator, in, field);
+
+            if (missingFields != null) {
+              missingFields.remove(field.field);
+            }
           }
         }
       } catch (IllegalStateException e) {
@@ -406,26 +465,70 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         throw ReflectionHelper.createExceptionForUnexpectedIllegalAccess(e);
       }
       in.endObject();
+
+      if (missingFields != null && !missingFields.isEmpty()) {
+        for (Map.Entry<Field, BoundField> fieldEntry : missingFields.entrySet()) {
+          Field field = fieldEntry.getKey();
+          BoundField boundField = fieldEntry.getValue();
+          Object newValue;
+          try {
+            newValue = missingFieldValueStrategy.handleMissingField(type, createObjectForFieldStrategy(accumulator), field, boundField.resolvedType);
+          } catch (Exception e) {
+            // TODO Proper exception type
+            throw new RuntimeException("Failed handling missing field '" + ReflectionHelper.fieldToString(field) + "' at path " + in.getPath(), e);
+          }
+
+          // For null values keep the existing initial value
+          if (newValue != null) {
+            try {
+              addMissingFieldValue(accumulator, boundField, newValue);
+            } catch (Exception e) {
+              // TODO Proper exception type
+              throw new RuntimeException("Failed storing " + newValue.getClass().getName() + " provided by " + missingFieldValueStrategy + " into field '" + ReflectionHelper.fieldToString(field) + "' at path " + in.getPreviousPath(), e);
+            }
+          }
+        }
+      }
+
       return finalize(accumulator);
     }
 
-    /** Create the Object that will be used to collect each field value */
+    /** Creates the Object that will be used to collect each field value */
     abstract A createAccumulator();
+
     /**
-     * Read a single BoundField into the accumulator. The JsonReader will be pointed at the
+     * Creates the Object based on the accumulator that will be passed as {@code instance}
+     * to the {@link MissingFieldValueStrategy} and {@link UnknownFieldStrategy}.
+     *
+     * @return the object for missing and unknown field strategies, can be {@code null}
+     */
+    abstract Object createObjectForFieldStrategy(A accumulator);
+
+    /**
+     * Reads a single BoundField into the accumulator. The JsonReader will be pointed at the
      * start of the value for the BoundField to read from.
      */
     abstract void readField(A accumulator, JsonReader in, BoundField field)
         throws IllegalAccessException, IOException;
-    /** Convert the accumulator to a final instance of T. */
+
+    /**
+     * Called for the {@link MissingFieldValueStrategy} to add {@code value} as value
+     * for {@code field}.
+     *
+     * @param value the field value, must not be {@code null}
+     */
+    abstract void addMissingFieldValue(A accumulator, BoundField field, Object value);
+
+    /** Converts the accumulator to a final instance of T. */
     abstract T finalize(A accumulator);
   }
 
   private static final class FieldReflectionAdapter<T> extends Adapter<T, T> {
     private final ObjectConstructor<T> constructor;
 
-    FieldReflectionAdapter(ObjectConstructor<T> constructor, Map<String, BoundField> boundFields) {
-      super(boundFields);
+    FieldReflectionAdapter(Gson gson, MissingFieldValueStrategy missingFieldValueStrategy, UnknownFieldStrategy unknownFieldStrategy,
+        ObjectConstructor<T> constructor, TypeToken<T> type, Map<String, BoundField> boundFields) {
+      super(gson, missingFieldValueStrategy, unknownFieldStrategy, type, boundFields);
       this.constructor = constructor;
     }
 
@@ -435,9 +538,24 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     }
 
     @Override
+    Object createObjectForFieldStrategy(T accumulator) {
+      // Let missing and unknown field strategies directly access constructed object
+      return accumulator;
+    }
+
+    @Override
     void readField(T accumulator, JsonReader in, BoundField field)
         throws IllegalAccessException, IOException {
       field.readIntoField(in, accumulator);
+    }
+
+    @Override
+    void addMissingFieldValue(T accumulator, BoundField field, Object value) {
+      try {
+        field.putIntoField(value, accumulator);
+      } catch (IllegalAccessException e) {
+        throw ReflectionHelper.createExceptionForUnexpectedIllegalAccess(e);
+      }
     }
 
     @Override
@@ -456,8 +574,9 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     // Map from component names to index into the constructors arguments.
     private final Map<String, Integer> componentIndices = new HashMap<>();
 
-    RecordAdapter(Class<T> raw, Map<String, BoundField> boundFields, boolean blockInaccessible) {
-      super(boundFields);
+    RecordAdapter(Gson gson, MissingFieldValueStrategy missingFieldValueStrategy, UnknownFieldStrategy unknownFieldStrategy,
+        TypeToken<T> type, Class<T> raw, Map<String, BoundField> boundFields, boolean blockInaccessible) {
+      super(gson, missingFieldValueStrategy, unknownFieldStrategy, type, boundFields);
       constructor = ReflectionHelper.getCanonicalRecordConstructor(raw);
 
       if (blockInaccessible) {
@@ -501,19 +620,37 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     }
 
     @Override
-    void readField(Object[] accumulator, JsonReader in, BoundField field) throws IOException {
+    Object createObjectForFieldStrategy(Object[] accumulator) {
+      // Don't let missing and unknown field strategies directly access internal accumulator object
+      // TODO: In the future maybe provide a Map-like object which encapsulates accumulator,
+      //   but restricts operations only to valid component names / property names?
+      return null;
+    }
+
+    private int getComponentIndex(String fieldName) {
       // Obtain the component index from the name of the field backing it
-      Integer componentIndex = componentIndices.get(field.fieldName);
+      Integer componentIndex = componentIndices.get(fieldName);
       if (componentIndex == null) {
         throw new IllegalStateException(
             "Could not find the index in the constructor '" + ReflectionHelper.constructorToString(constructor) + "'"
-                + " for field with name '" + field.fieldName + "',"
+                + " for field with name '" + fieldName + "',"
                 + " unable to determine which argument in the constructor the field corresponds"
                 + " to. This is unexpected behavior, as we expect the RecordComponents to have the"
                 + " same names as the fields in the Java class, and that the order of the"
                 + " RecordComponents is the same as the order of the canonical constructor parameters.");
       }
-      field.readIntoArray(in, componentIndex, accumulator);
+      return componentIndex;
+    }
+
+    @Override
+    void readField(Object[] accumulator, JsonReader in, BoundField field) throws IOException {
+      field.readIntoArray(in, getComponentIndex(field.fieldName), accumulator);
+    }
+
+    @Override
+    void addMissingFieldValue(Object[] accumulator, BoundField field, Object value) {
+      assert(value != null);
+      accumulator[getComponentIndex(field.fieldName)] = value;
     }
 
     @Override

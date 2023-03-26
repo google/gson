@@ -124,6 +124,10 @@ public interface ReflectionAccessFilter {
         ? FilterResult.BLOCK_INACCESSIBLE
         : FilterResult.INDECISIVE;
     }
+
+    @Override public String toString() {
+      return "ReflectionAccessFilter.BLOCK_INACCESSIBLE_JAVA";
+    }
   };
 
   /**
@@ -149,6 +153,10 @@ public interface ReflectionAccessFilter {
         ? FilterResult.BLOCK_ALL
         : FilterResult.INDECISIVE;
     }
+
+    @Override public String toString() {
+      return "ReflectionAccessFilter.BLOCK_ALL_JAVA";
+    }
   };
 
   /**
@@ -172,6 +180,10 @@ public interface ReflectionAccessFilter {
       return ReflectionAccessFilterHelper.isAndroidType(rawClass)
         ? FilterResult.BLOCK_ALL
         : FilterResult.INDECISIVE;
+    }
+
+    @Override public String toString() {
+      return "ReflectionAccessFilter.BLOCK_ALL_ANDROID";
     }
   };
 
@@ -197,6 +209,10 @@ public interface ReflectionAccessFilter {
       return ReflectionAccessFilterHelper.isAnyPlatformType(rawClass)
         ? FilterResult.BLOCK_ALL
         : FilterResult.INDECISIVE;
+    }
+
+    @Override public String toString() {
+      return "ReflectionAccessFilter.BLOCK_ALL_PLATFORM";
     }
   };
 
