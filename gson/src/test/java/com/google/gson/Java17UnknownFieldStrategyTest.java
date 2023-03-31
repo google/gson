@@ -6,7 +6,9 @@ import static org.junit.Assert.fail;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import org.junit.Test;
 
@@ -80,5 +82,25 @@ public class Java17UnknownFieldStrategyTest {
     assertThat(unknownFieldsMap).containsExactly("b", 2.0);
   }
 
+  @Test
+  public void testResolvedDeclaringType() {
+    List<TypeToken<?>> declaringTypes = new ArrayList<>();
+    Gson gson = new GsonBuilder().setUnknownFieldStrategy(new UnknownFieldStrategy() {
+      @Override
+      public void handleUnknownField(TypeToken<?> declaringType, Object instance, String fieldName,
+          JsonReader jsonReader, Gson gson) throws IOException {
+        declaringTypes.add(declaringType);
+        jsonReader.skipValue();
+      }
+    }).create();
+
+    TypeToken<WithTypeVariable<String>> typeToken = new TypeToken<WithTypeVariable<String>>() {};
+    gson.fromJson("{\"a\":1}", typeToken);
+    assertThat(declaringTypes).containsExactly(typeToken);
+  }
+
   record CustomRecord(int a) { }
+
+  @SuppressWarnings("UnusedTypeParameter")
+  record WithTypeVariable<T>() { }
 }

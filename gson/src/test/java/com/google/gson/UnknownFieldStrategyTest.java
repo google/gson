@@ -150,6 +150,23 @@ public class UnknownFieldStrategyTest {
     assertThat(unknownFields).containsExactly("a");
   }
 
+  @Test
+  public void testResolvedDeclaringType() {
+    List<TypeToken<?>> declaringTypes = new ArrayList<>();
+    Gson gson = new GsonBuilder().setUnknownFieldStrategy(new UnknownFieldStrategy() {
+      @Override
+      public void handleUnknownField(TypeToken<?> declaringType, Object instance, String fieldName,
+          JsonReader jsonReader, Gson gson) throws IOException {
+        declaringTypes.add(declaringType);
+        jsonReader.skipValue();
+      }
+    }).create();
+
+    TypeToken<WithTypeVariable<String>> typeToken = new TypeToken<WithTypeVariable<String>>() {};
+    gson.fromJson("{\"a\":1}", typeToken);
+    assertThat(declaringTypes).containsExactly(typeToken);
+  }
+
   private static class CustomClass {
     int a;
 
@@ -159,5 +176,8 @@ public class UnknownFieldStrategyTest {
   private static class WithExcluded {
     @Expose(deserialize = false, serialize = true)
     int a;
+  }
+
+  private static class WithTypeVariable<T> {
   }
 }

@@ -94,17 +94,21 @@ public class MissingFieldValueStrategyTest {
 
   @Test
   public void testResolvedFieldType() {
+    List<TypeToken<?>> declaringTypes = new ArrayList<>();
     List<TypeToken<?>> fieldTypes = new ArrayList<>();
     Gson gson = new GsonBuilder().setMissingFieldValueStrategy(new MissingFieldValueStrategy() {
       @Override
       public Object handleMissingField(TypeToken<?> declaringType, Object instance, Field field,
           TypeToken<?> resolvedFieldType) {
+        declaringTypes.add(declaringType);
         fieldTypes.add(resolvedFieldType);
         return null;
       }
     }).create();
 
-    gson.fromJson("{}", new TypeToken<WithTypeVariable<String>>() {});
+    TypeToken<WithTypeVariable<String>> typeToken = new TypeToken<WithTypeVariable<String>>() {};
+    gson.fromJson("{}", typeToken);
+    assertThat(declaringTypes).containsExactly(typeToken);
     assertThat(fieldTypes).containsExactly(TypeToken.get(String.class));
   }
 
