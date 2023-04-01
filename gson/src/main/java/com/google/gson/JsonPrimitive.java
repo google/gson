@@ -290,11 +290,10 @@ public final class JsonPrimitive extends JsonElement {
           : this.getAsNumber().longValue() == other.getAsNumber().longValue();
     }
     if (value instanceof Number && other.value instanceof Number) {
-      double a = getAsNumber().doubleValue();
-      // Java standard types other than double return true for two NaN. So, need
-      // special handling for double.
-      double b = other.getAsNumber().doubleValue();
-      return a == b || (Double.isNaN(a) && Double.isNaN(b));
+      return this.value instanceof BigDecimal || other.value instanceof BigDecimal
+          ? this.getAsBigDecimal().equals(other.getAsBigDecimal())
+          : this.getAsDouble() == other.getAsDouble()
+              || (Double.isNaN(this.getAsDouble()) && Double.isNaN(other.getAsDouble()));
     }
     return value.equals(other.value);
   }
