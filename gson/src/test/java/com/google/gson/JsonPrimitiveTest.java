@@ -316,4 +316,16 @@ public class JsonPrimitiveTest {
     JsonPrimitive a = new JsonPrimitive("a");
     assertThat(a).isSameInstanceAs(a.deepCopy()); // Primitives are immutable!
   }
+
+  @Test
+  public void testBigDecimalEquals() {
+    JsonPrimitive small = new JsonPrimitive(1.0);
+    JsonPrimitive large = new JsonPrimitive(2.0);
+    assertThat(small.equals(large)).isFalse();
+
+    BigDecimal doubleMax = BigDecimal.valueOf(Double.MAX_VALUE);
+    JsonPrimitive smallBD = new JsonPrimitive(doubleMax.add(new BigDecimal("100.0")));
+    JsonPrimitive largeBD = new JsonPrimitive(doubleMax.add(new BigDecimal("200.0")));
+    assertThat(smallBD.equals(largeBD)).isFalse();
+  }
 }
