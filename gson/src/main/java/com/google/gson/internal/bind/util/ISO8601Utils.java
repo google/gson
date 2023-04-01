@@ -25,15 +25,15 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 /**
- * Utilities methods for manipulating dates in iso8601 format. This is much much faster and GC friendly than using SimpleDateFormat so
+ * Utilities methods for manipulating dates in iso8601 format. This is much faster and GC friendly than using SimpleDateFormat so
  * highly suitable if you (un)serialize lots of date objects.
  * 
  * Supported parse format: [yyyy-MM-dd|yyyyMMdd][T(hh:mm[:ss[.sss]]|hhmm[ss[.sss]])]?[Z|[+-]hh[:]mm]]
  * 
  * @see <a href="http://www.w3.org/TR/NOTE-datetime">this specification</a>
  */
-//Date parsing code from Jackson databind ISO8601Utils.java
-// https://github.com/FasterXML/jackson-databind/blob/master/src/main/java/com/fasterxml/jackson/databind/util/ISO8601Utils.java
+// Date parsing code from Jackson databind ISO8601Utils.java
+// https://github.com/FasterXML/jackson-databind/blob/2.8/src/main/java/com/fasterxml/jackson/databind/util/ISO8601Utils.java
 public class ISO8601Utils
 {
     /**
