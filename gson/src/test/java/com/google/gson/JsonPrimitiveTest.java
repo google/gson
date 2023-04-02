@@ -341,6 +341,6 @@ public class JsonPrimitiveTest {
   @Test
   public void testEqualsDoubleNaNAndBigDecimal() {
     assertThat(new JsonPrimitive(Double.NaN)
-            .equals(new JsonPrimitive(new BigDecimal("1.0")))).isFalse();
+        .equals(new JsonPrimitive(new BigDecimal("1.0")))).isFalse();
   }
 }
