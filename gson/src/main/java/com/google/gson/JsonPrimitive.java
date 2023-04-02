@@ -290,8 +290,8 @@ public final class JsonPrimitive extends JsonElement {
           : this.getAsNumber().longValue() == other.getAsNumber().longValue();
     }
     if (value instanceof Number && other.value instanceof Number) {
-      return this.value instanceof BigDecimal || other.value instanceof BigDecimal
-          ? this.getAsBigDecimal().equals(other.getAsBigDecimal())
+      return this.value instanceof BigDecimal && other.value instanceof BigDecimal
+          ? this.getAsBigDecimal().compareTo(other.getAsBigDecimal()) == 0
           : this.getAsDouble() == other.getAsDouble()
               || (Double.isNaN(this.getAsDouble()) && Double.isNaN(other.getAsDouble()));
     }
