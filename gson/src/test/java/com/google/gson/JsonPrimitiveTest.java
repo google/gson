@@ -16,15 +16,14 @@
 
 package com.google.gson;
 
-import com.google.gson.common.MoreAsserts;
-import org.junit.Test;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
-
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.fail;
+
+import com.google.gson.common.MoreAsserts;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import org.junit.Test;
 
 /**
  * Unit test for the {@link JsonPrimitive} class.
