@@ -1194,7 +1194,7 @@ public final class Gson {
    * <p>Unlike the other {@code fromJson} methods, no exception is thrown if the JSON data has
    * multiple top-level JSON elements, or if there is trailing data.
    *
-   * <p>he JSON data is parsed in {@linkplain JsonReader#setStrictness(Strictness) lenient mode},
+   * <p>The JSON data is parsed in {@linkplain JsonReader#setStrictness(Strictness) lenient mode},
    * regardless of the strictness setting of the provided reader. The strictness setting
    * of the reader is restored once this method returns.
    *

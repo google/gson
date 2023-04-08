@@ -27,7 +27,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 /**
- * Reads a JSON (<a href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>)
+ * Reads a JSON (<a href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>)
  * encoded value as a stream of tokens. This stream includes both literal
  * values (strings, numbers, booleans, and nulls) as well as the begin and
  * end delimiters of objects and arrays. The tokens are traversed in
@@ -293,12 +293,11 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Set the strictness this reader to {@link Strictness#LENIENT} if the provided argument is true and
-   * set the strictness to {@link Strictness#DEFAULT} if the provided argument if false.
+   * Sets the strictness of this reader.
    *
-   * @param lenient passing <code>true</code> will set the strictness of this reader to {@link Strictness#LENIENT} and
-   *                passing <code>false</code> will set the strictness of this reader to {@link Strictness#DEFAULT}.
-   * @see #setStrictness(Strictness)  
+   * @param lenient whether this reader should be lenient. If true, the strictness is set to {@link Strictness#LENIENT}.
+   *                If false, the strictness is set to {@link Strictness#DEFAULT}.
+   * @see #setStrictness(Strictness)
    */
   public final void setLenient(boolean lenient) {
     this.strictness = lenient ? Strictness.LENIENT : Strictness.DEFAULT;
@@ -314,7 +313,7 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Configure how liberal this parser is in what it accepts.
+   * Configures how liberal this parser is in what it accepts.
    *
    * <p>In {@linkplain Strictness#STRICT strict} mode, the
    * parser only accepts JSON in accordance with <a href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>.
@@ -327,7 +326,7 @@ public class JsonReader implements Closeable {
    *     <dt>{@link Strictness#STRICT}</dt>
    *     <dd>
    *         In strict mode, only input compliant with <a href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>
-   *         is parsed.
+   *         is accepted.
    *     </dd>
    *     <dt>{@link Strictness#DEFAULT}</dt>
    *     <dd>
@@ -338,9 +337,9 @@ public class JsonReader implements Closeable {
    *                 to have any capitalization, for example {@code fAlSe} or {@code NULL}.
    *             <li>JsonReader supports the escape sequence {@code \'}, representing a {@code '} (single-quote)
    *             <li>JsonReader supports the escape sequence <code>\<i>LF</i></code> (with {@code LF}
-   *                 being the Unicode character U+000A), resulting in a {@code LF} within the
+   *                 being the Unicode character {@code U+000A}), resulting in a {@code LF} within the
    *                 read JSON string
-   *             <li>JsonReader allows unescaped control characters (U+0000 through U+001F)
+   *             <li>JsonReader allows unescaped control characters ({@code U+0000} through {@code U+001F})
    *         </ul>
    *     </dd>
    *     <dt>{@link Strictness#LENIENT}</dt>
@@ -368,8 +367,7 @@ public class JsonReader implements Closeable {
    *     </dd>
    * </dl>
    *
-   * @param strictness the new strictness value of this reader. May not be null.
-   * @throws NullPointerException if the provided {@code strictness} is {@code null}.
+   * @param strictness the new strictness value of this reader. May not be {@code null}.
    * @since $next-version$
    */
   public final void setStrictness(Strictness strictness) {
@@ -655,27 +653,25 @@ public class JsonReader implements Closeable {
     String keywordUpper;
     int peeking;
 
-    char lowerCaseFirstChar = Character.toLowerCase(c);
-
     // Look at the first lower case letter to determine what keyword we are trying to match.
-    if (lowerCaseFirstChar == 't') {
+    if (c == 't' || c == 'T') {
       keyword = "true";
+      keywordUpper = "TRUE";
       peeking = PEEKED_TRUE;
-    } else if (lowerCaseFirstChar == 'f') {
+    } else if (c == 'f' || c == 'F') {
       keyword = "false";
+      keywordUpper = "FALSE";
       peeking = PEEKED_FALSE;
-    } else if (lowerCaseFirstChar == 'n') {
+    } else if (c == 'n' || c == 'N') {
       keyword = "null";
+      keywordUpper = "NULL";
       peeking = PEEKED_NULL;
     } else {
       return PEEKED_NONE;
     }
 
-    // In strict mode, we do not allow any of the characters in the keyword to be uppercase.
-    // In default and lenient mode, we allow any combination of uppercase and lowercase letters in the keyword.
-    // By setting the keywordUpper equal to the keyword in strict mode,
-    // any upper case letters in the buffer are not matched
-    keywordUpper = strictness == Strictness.STRICT ? keyword : keyword.toUpperCase();
+    // Upper cased keywords are not allowed in STRICT mode
+    boolean allowsUpperCased = strictness != Strictness.STRICT;
 
     // Confirm that chars [0..length) match the keyword.
     int length = keyword.length();
@@ -684,8 +680,7 @@ public class JsonReader implements Closeable {
         return PEEKED_NONE;
       }
       c = buffer[pos + i];
-      // Again, upper case letters are valid in default or lenient mode.
-      if (c != keyword.charAt(i) && c != keywordUpper.charAt(i)) {
+      if (c != keyword.charAt(i) && !(allowsUpperCased && c == keywordUpper.charAt(i))) {
         return PEEKED_NONE;
       }
     }

@@ -24,6 +24,8 @@ import static com.google.gson.stream.JsonScope.NONEMPTY_ARRAY;
 import static com.google.gson.stream.JsonScope.NONEMPTY_DOCUMENT;
 import static com.google.gson.stream.JsonScope.NONEMPTY_OBJECT;
 
+import com.google.gson.FormattingStyle;
+import com.google.gson.Strictness;
 import java.io.Closeable;
 import java.io.Flushable;
 import java.io.IOException;
@@ -36,11 +38,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
 
-import com.google.gson.FormattingStyle;
-import com.google.gson.Strictness;
-
 /**
- * Writes a JSON (<a href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>)
+ * Writes a JSON (<a href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>)
  * encoded value to a stream, one token at a time. The stream includes both
  * literal values (strings, numbers, booleans and nulls) as well as the begin
  * and end delimiters of objects and arrays.
@@ -142,7 +141,7 @@ public class JsonWriter implements Closeable, Flushable {
   private static final Pattern VALID_JSON_NUMBER_PATTERN = Pattern.compile("-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:[eE][-+]?[0-9]+)?");
 
   /*
-   * From RFC 7159, "All Unicode characters may be placed within the
+   * From RFC 8259, "All Unicode characters may be placed within the
    * quotation marks except for the characters that must be escaped:
    * quotation mark, reverse solidus, and the control characters
    * (U+0000 through U+001F)."
@@ -229,7 +228,7 @@ public class JsonWriter implements Closeable, Flushable {
    * Sets the pretty printing style to be used in the encoded document.
    * No pretty printing if null.
    *
-   * <p>Sets the various attributes to be used in the encoded document. 
+   * <p>Sets the various attributes to be used in the encoded document.
    * For example the indentation string to be repeated for each level of indentation.
    * Or the newline style, to accommodate various OS styles.</p>
    *
@@ -258,7 +257,7 @@ public class JsonWriter implements Closeable, Flushable {
   }
 
   /**
-   * Set the strictness of this writer.
+   * Sets the strictness of this writer.
    *
    * @param lenient whether this writer should be lenient. If true, the strictness is set to {@link Strictness#LENIENT}.
    *                If false, the strictness is set to {@link Strictness#DEFAULT}.
@@ -269,7 +268,7 @@ public class JsonWriter implements Closeable, Flushable {
   }
 
   /**
-   * Returns true if this writer has a {@code strictness} value of {@link Strictness#LENIENT}, false otherwise.
+   * Returns true if the {@link Strictness} of this writer is equal to {@link Strictness#LENIENT}.
    *
    * @see JsonWriter#setStrictness(Strictness)
    */
@@ -278,20 +277,23 @@ public class JsonWriter implements Closeable, Flushable {
   }
 
   /**
-   * Configure how strict this writer is with regard to the syntax rules specified in <a
-   * href="http://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>. By default, {@link Strictness#DEFAULT} is used.
+   * Configures how strict this writer is with regard to the syntax rules specified in <a
+   * href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>. By default, {@link Strictness#DEFAULT} is used.
    *
-   * <ul>
-   *     <li>{@link Strictness#DEFAULT} and {@link Strictness#STRICT}: The behavior of these
-   *     is currently identical. In these strictness modes, the writer only writes JSON in accordance to
-   *     <a href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>.</li>
-   *     <li>{@link Strictness#LENIENT}: This mode relaxes the behavior of the writer to allow the writing of
-   *     {@link Double#isNaN() NaNs} and {@link Double#isInfinite() infinities}. It also allows you
-   *     writing JSON objects with multiple top level values.</li>
-   * </ul>
+   * <dl>
+   *     <dt>{@link Strictness#STRICT} &amp; {@link Strictness#DEFAULT}</dt>
+   *     <dd>
+   *         The behavior of these is currently identical. In these strictness modes, the writer only writes JSON
+   *         in accordance with <a href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>.
+   *     </dd>
+   *     <dt>{@link Strictness#LENIENT}</dt>
+   *     <dd>
+   *         This mode relaxes the behavior of the writer to allow the writing of {@link Double#isNaN() NaNs}
+   *         and {@link Double#isInfinite() infinities}. It also allows writing multiple top level values.
+   *     </dd>
+   * </dl>
    *
-   * @param strictness the new strictness of this writer. May not be null.
-   * @throws NullPointerException A null pointer exception is thrown if the provided {@code strictness} is {@code null}.
+   * @param strictness the new strictness of this writer. May not be {@code null}.
    * @since $next-version$
    */
   public final void setStrictness(Strictness strictness) {
@@ -309,7 +311,7 @@ public class JsonWriter implements Closeable, Flushable {
   }
 
   /**
-   * Configure this writer to emit JSON that's safe for direct inclusion in HTML
+   * Configures this writer to emit JSON that's safe for direct inclusion in HTML
    * and XML documents. This escapes the HTML characters {@code <}, {@code >},
    * {@code &} and {@code =} before writing them to the stream. Without this
    * setting, your XML/HTML encoder should replace these characters with the

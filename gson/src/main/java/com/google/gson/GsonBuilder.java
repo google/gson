@@ -521,17 +521,16 @@ public final class GsonBuilder {
   }
 
   /**
-   * Set the strictness of this builder to the provided parameter.
+   * Sets the strictness of this builder to the provided parameter.
    *
    * <p>This changes how strict the
    * <a href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259 JSON specification</a> is enforced when parsing or
    * writing JSON. For details on this, refer to {@link JsonReader#setStrictness(Strictness)} and
    * {@link JsonWriter#setStrictness(Strictness)}.</p>
    *
-   * @param strictness the new strictness method of this factory. May not be null.
+   * @param strictness the new strictness mode. May not be {@code null}.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern.
-   * @throws NullPointerException if the provided {@code strictness} is {@code null}.
-   * @see JsonWriter#setStrictness(Strictness) 
+   * @see JsonWriter#setStrictness(Strictness)
    * @see JsonReader#setStrictness(Strictness)
    * @since $next-version$
    */
@@ -708,7 +707,7 @@ public final class GsonBuilder {
   }
 
   /**
-   * Section 2.4 of <a href="http://www.ietf.org/rfc/rfc4627.txt">JSON specification</a> disallows
+   * Section 6 of <a href="https://www.ietf.org/rfc/rfc8259.txt">JSON specification</a> disallows
    * special double values (NaN, Infinity, -Infinity). However,
    * <a href="http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-262.pdf">Javascript
    * specification</a> (see section 4.3.20, 4.3.22, 4.3.23) allows these values as valid Javascript
