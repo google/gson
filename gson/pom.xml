@@ -136,7 +136,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.0.0-M9</version>
+        <version>3.0.0</version>
         <configuration>
           <!-- Deny illegal access, this is required for ReflectionAccessTest -->
           <!-- Requires Java >= 9; Important: In case future Java versions 
