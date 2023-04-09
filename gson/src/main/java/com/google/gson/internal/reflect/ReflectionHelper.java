@@ -45,7 +45,8 @@ public class ReflectionHelper {
     // Class was added in Java 9, therefore cannot use instanceof
     if (e.getClass().getName().equals("java.lang.reflect.InaccessibleObjectException")) {
       String message = e.getMessage();
-      String troubleshootingId = message != null && message.contains("to module com.google.gson") ? "t3" : "t2";
+      String troubleshootingId = message != null && message.contains("to module com.google.gson")
+          ? "reflection-inaccessible-to-module-gson" : "reflection-inaccessible";
       return "\nSee " + TroubleshootingGuide.createUrl(troubleshootingId);
     }
     return "";

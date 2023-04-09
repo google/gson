@@ -308,7 +308,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           throw new IllegalArgumentException("Class " + originalRaw.getName()
               + " declares multiple JSON fields named '" + previous.name + "'; conflict is caused"
               + " by fields " + ReflectionHelper.fieldToString(previous.field) + " and " + ReflectionHelper.fieldToString(field)
-              + "\nSee " + TroubleshootingGuide.createUrl("t18"));
+              + "\nSee " + TroubleshootingGuide.createUrl("duplicate-fields"));
         }
       }
       type = TypeToken.get($Gson$Types.resolve(type.getType(), raw, raw.getGenericSuperclass()));

@@ -1657,12 +1657,13 @@ public class JsonReader implements Closeable {
    */
   private IOException syntaxError(String message) throws IOException {
     throw new MalformedJsonException(message + locationString()
-      + "\nSee " + TroubleshootingGuide.createUrl("t9"));
+      + "\nSee " + TroubleshootingGuide.createUrl("malformed-json"));
   }
 
   private IllegalStateException unexpectedTokenError(String expected) throws IOException {
     JsonToken peeked = peek();
-    String troubleshootingId = peeked == JsonToken.NULL ? "t13" : "t12";
+    String troubleshootingId = peeked == JsonToken.NULL
+        ? "adapter-not-null-safe" : "unexpected-json-structure";
     return new IllegalStateException("Expected " + expected + " but was " + peek() + locationString()
         + "\nSee " + TroubleshootingGuide.createUrl(troubleshootingId));
   }

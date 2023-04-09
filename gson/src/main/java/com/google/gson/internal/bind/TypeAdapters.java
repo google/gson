@@ -75,13 +75,13 @@ public final class TypeAdapters {
     public void write(JsonWriter out, Class value) throws IOException {
       throw new UnsupportedOperationException("Attempted to serialize java.lang.Class: "
           + value.getName() + ". Forgot to register a type adapter?"
-          + "\nSee " + TroubleshootingGuide.createUrl("t19"));
+          + "\nSee " + TroubleshootingGuide.createUrl("java-lang-class-unsupported"));
     }
     @Override
     public Class read(JsonReader in) throws IOException {
       throw new UnsupportedOperationException(
           "Attempted to deserialize a java.lang.Class. Forgot to register a type adapter?"
-          + "\nSee " + TroubleshootingGuide.createUrl("t19"));
+          + "\nSee " + TroubleshootingGuide.createUrl("java-lang-class-unsupported"));
     }
   }.nullSafe();
 

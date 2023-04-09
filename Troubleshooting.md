@@ -2,9 +2,10 @@
 
 This guide describes how to troubleshoot common issues when using Gson.
 
-<!-- The '<a id="t..."></a>' anchors below are used to create stable links; their numbering does not matter -->
+<!-- The '<a id="..."></a>' anchors below are used to create stable links; don't remove or rename them -->
+<!-- Use only lowercase IDs, GitHub seems to not support uppercase IDs, see also https://github.com/orgs/community/discussions/50962 -->
 
-## <a id="t1"></a> `ClassCastException` when using deserialized object
+## <a id="class-cast-exception"></a> `ClassCastException` when using deserialized object
 
 **Symptom:** `ClassCastException` is thrown when accessing an object deserialized by Gson
 
@@ -18,7 +19,7 @@ This guide describes how to troubleshoot common issues when using Gson.
   The overloads with `Type` parameter do not provide any type-safety guarantees.
 - When using `TypeToken` make sure you don't capture a type variable. For example avoid something like `new TypeToken<List<T>>()` (where `T` is a type variable). Due to Java type erasure the actual type of `T` is not available at runtime. Refactor your code to pass around `TypeToken` instances or use [`TypeToken.getParameterized(...)`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/reflect/TypeToken.html#getParameterized(java.lang.reflect.Type,java.lang.reflect.Type...)), for example `TypeToken.getParameterized(List.class, elementClass)`.
 
-## <a id="t2"></a> `InaccessibleObjectException`: 'module ... does not "opens ..." to unnamed module'
+## <a id="reflection-inaccessible"></a> `InaccessibleObjectException`: 'module ... does not "opens ..." to unnamed module'
 
 **Symptom:** An exception with a message in the form 'module ... does not "opens ..." to unnamed module' is thrown
 
@@ -32,7 +33,7 @@ When no built-in adapter for a type exists and no custom adapter has been regist
 
 If you want to prevent using reflection on third-party classes in the future you can write your own [`ReflectionAccessFilter`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/ReflectionAccessFilter.html) or use one of the predefined ones, such as `ReflectionAccessFilter.BLOCK_ALL_PLATFORM`.
 
-## <a id="t3"></a> `InaccessibleObjectException`: 'module ... does not "opens ..." to module com.google.gson'
+## <a id="reflection-inaccessible-to-module-gson"></a> `InaccessibleObjectException`: 'module ... does not "opens ..." to module com.google.gson'
 
 **Symptom:** An exception with a message in the form 'module ... does not "opens ..." to module com.google.gson' is thrown
 
@@ -53,7 +54,7 @@ module mymodule {
 
 Or in case this occurs for a field in one of your classes which you did not actually want to serialize or deserialize in the first place, you can exclude that field, see the [user guide](UserGuide.md#excluding-fields-from-serialization-and-deserialization).
 
-## <a id="t4"></a> Android app not working in Release mode; random property names
+## <a id="android-app-random-names"></a> Android app not working in Release mode; random property names
 
 **Symptom:** Your Android app is working fine in Debug mode but fails in Release mode and the JSON properties have seemingly random names such as `a`, `b`, ...
 
@@ -61,7 +62,7 @@ Or in case this occurs for a field in one of your classes which you did not actu
 
 **Solution:** Make sure you have configured ProGuard / R8 correctly to preserve the names of your fields. See the [Android example](examples/android-proguard-example/README.md) for more information.
 
-## <a id="t5"></a> Android app unable to parse JSON after app update
+## <a id="android-app-broken-after-app-update"></a> Android app unable to parse JSON after app update
 
 **Symptom:** You released a new version of your Android app and it fails to parse JSON data created by the previous version of your app
 
@@ -73,7 +74,7 @@ If you want to preserve backward compatibility for you app you can use [`@Serial
 
 Normally ProGuard and R8 produce a mapping file, this makes it easier to find out the obfuscated field names instead of having to find them out through trial and error or other means. See the [Android Studio user guide](https://developer.android.com/studio/build/shrink-code.html#retracing) for more information.
 
-## <a id="t6"></a> Default field values not present after deserialization
+## <a id="default-field-values-missing"></a> Default field values not present after deserialization
 
 **Symptom:** You have assign default values to fields but after deserialization the fields have their standard value (such as `null` or `0`)
 
@@ -86,7 +87,7 @@ Normally ProGuard and R8 produce a mapping file, this makes it easier to find ou
 
 Otherwise Gson will by default try to use JDK `Unsafe` or similar means to create an instance of your class without invoking the constructor and without running any initializers. You can also disable that behavior through [`GsonBuilder.disableJdkUnsafe()`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/GsonBuilder.html#disableJdkUnsafe()) to notice such issues early on.
 
-## <a id="t7"></a> `null` values for anonymous and local classes
+## <a id="anonymous-local-null"></a> `null` values for anonymous and local classes
 
 **Symptom:** Objects of a class are always serialized as JSON `null` / always deserialized as Java `null`
 
@@ -99,7 +100,7 @@ Notes:
 - "double brace-initialization" also creates anonymous classes
 - Local record classes (feature added in Java 16) are supported by Gson and are not affected by this
 
-## <a id="t8"></a> Map keys having unexpected format in JSON
+## <a id="map-key-wrong-json"></a> Map keys having unexpected format in JSON
 
 **Symptom:** JSON output for `Map` keys is unexpected / cannot be deserialized again
 
@@ -107,7 +108,7 @@ Notes:
 
 **Solution:** Use [`GsonBuilder.enableComplexMapKeySerialization()`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/GsonBuilder.html#enableComplexMapKeySerialization()). See also the [user guide](UserGuide.md#maps-examples) for more information.
 
-## <a id="t9"></a> Parsing JSON fails with `MalformedJsonException`
+## <a id="malformed-json"></a> Parsing JSON fails with `MalformedJsonException`
 
 **Symptom:** JSON parsing fails with `MalformedJsonException`
 
@@ -132,7 +133,7 @@ The proper solution here is to fix the malformed JSON data.
 
 To spot syntax errors in the JSON data easily you can open it in an editor with support for JSON, for example Visual Studio Code. It will highlight within the JSON data the error location and show why the JSON data is considered invalid.
 
-## <a id="t10"></a> Integral JSON number is parsed as `double`
+## <a id="number-parsed-as-double"></a> Integral JSON number is parsed as `double`
 
 **Symptom:** JSON data contains an integral number such as `45` but Gson returns it as `double`
 
@@ -140,7 +141,7 @@ To spot syntax errors in the JSON data easily you can open it in an editor with 
 
 **Solution:** Use [`GsonBuilder.setObjectToNumberStrategy`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/GsonBuilder.html#setObjectToNumberStrategy(com.google.gson.ToNumberStrategy)) to specify what type of number should be returned
 
-## <a id="t11"></a> Malformed JSON not rejected
+## <a id="default-lenient"></a> Malformed JSON not rejected
 
 **Symptom:** Gson parses malformed JSON without throwing any exceptions
 
@@ -150,7 +151,7 @@ To spot syntax errors in the JSON data easily you can open it in an editor with 
 
 Note: Even in non-lenient mode Gson deviates slightly from the JSON specification, see [`JsonReader.setLenient`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/stream/JsonReader.html#setLenient(boolean)) for more details.
 
-## <a id="t12"></a> `IllegalStateException`: "Expected ... but was ..."
+## <a id="unexpected-json-structure"></a> `IllegalStateException`: "Expected ... but was ..."
 
 **Symptom:** An `IllegalStateException` with a message in the form "Expected ... but was ..." is thrown
 
@@ -178,7 +179,7 @@ This will fail with an exception similar to this one: `IllegalStateException: Ex
 This means Gson expected a JSON string value but found the beginning of a JSON array (`[`). The location information "line 2 column 17" points to the `[` in the JSON data (with some slight inaccuracies), so does the JSONPath `$.languages` in the exception message. It refers to the `languages` member of the root object (`$.`).  
 The solution here is to change in the `WebPage` class the field `String languages` to `List<String> languages`.
 
-## <a id="t13"></a> `IllegalStateException`: "Expected ... but was NULL"
+## <a id="adapter-not-null-safe"></a> `IllegalStateException`: "Expected ... but was NULL"
 
 **Symptom:** An `IllegalStateException` with a message in the form "Expected ... but was NULL" is thrown
 
@@ -203,7 +204,7 @@ public MyClass read(JsonReader in) throws IOException {
 
 Alternatively you can call [`nullSafe()`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/TypeAdapter.html#nullSafe()) on the adapter instance you created.
 
-## <a id="t14"></a> Properties missing in JSON
+## <a id="serialize-nulls"></a> Properties missing in JSON
 
 **Symptom:** Properties are missing in the JSON output
 
@@ -213,7 +214,7 @@ Alternatively you can call [`nullSafe()`](https://www.javadoc.io/doc/com.google.
 
 Note: Gson does not support anonymous and local classes and will serialize them as JSON null, see the [related troubleshooting point](#null-values-for-anonymous-and-local-classes).
 
-## <a id="t15"></a> JSON output changes for newer Android versions
+## <a id="android-internal-fields"></a> JSON output changes for newer Android versions
 
 **Symptom:** The JSON output differs when running on newer Android versions
 
@@ -227,7 +228,7 @@ When no built-in adapter for a type exists and no custom adapter has been regist
 
 If you want to prevent using reflection on third-party classes in the future you can write your own [`ReflectionAccessFilter`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/ReflectionAccessFilter.html) or use one of the predefined ones, such as `ReflectionAccessFilter.BLOCK_ALL_PLATFORM`.
 
-## <a id="t16"></a> JSON output contains values of `static` fields
+## <a id="json-static-fields"></a> JSON output contains values of `static` fields
 
 **Symptom:** The JSON output contains values of `static` fields
 
@@ -235,7 +236,7 @@ If you want to prevent using reflection on third-party classes in the future you
 
 **Solution:** When calling `GsonBuilder.excludeFieldsWithModifiers` you overwrite the default excluded modifiers. Therefore, you have to explicitly exclude `static` fields if desired. This can be done by adding `Modifier.STATIC` as additional argument.
 
-## <a id="t17"></a> `NoSuchMethodError` when calling Gson methods
+## <a id="no-such-method-error"></a> `NoSuchMethodError` when calling Gson methods
 
 **Symptom:** A `java.lang.NoSuchMethodError` is thrown when trying to call certain Gson methods
 
@@ -253,7 +254,7 @@ System.out.println(Gson.class.getProtectionDomain().getCodeSource().getLocation(
 
 If that fails with a `NullPointerException` you have to try one of the other ways to find out where a class is loaded from.
 
-## <a id="t18"></a> `IllegalArgumentException`: 'Class ... declares multiple JSON fields named '...''
+## <a id="duplicate-fields"></a> `IllegalArgumentException`: 'Class ... declares multiple JSON fields named '...''
 
 **Symptom:** An exception with the message 'Class ... declares multiple JSON fields named '...'' is thrown
 
@@ -267,7 +268,7 @@ Gson prevents multiple fields with the same name because during deserialization 
 
 **Solution:** First identify the fields with conflicting names based on the exception message. Then decide if you want to rename one of them using the [`@SerializedName`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/annotations/SerializedName.html) annotation, or if you want to [exclude](UserGuide.md#excluding-fields-from-serialization-and-deserialization) one of them. When excluding one of the fields you have to include it for both serialization and deserialization (even if your application only performs one of these actions) because the duplicate field check cannot differentiate between these actions.
 
-## <a id="t19"></a> `UnsupportedOperationException` when serializing or deserializing `java.lang.Class`
+## <a id="java-lang-class-unsupported"></a> `UnsupportedOperationException` when serializing or deserializing `java.lang.Class`
 
 **Symptom:** An `UnsupportedOperationException` is thrown when trying to serialize or deserialize `java.lang.Class`
 
