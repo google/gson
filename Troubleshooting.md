@@ -115,6 +115,23 @@ Notes:
 
 **Solution:** During debugging, log the JSON data right before calling Gson methods or set a breakpoint to inspect the data and make sure it has the expected format. Sometimes APIs might return HTML error pages (instead of JSON data) when reaching rate limits or when other errors occur. Also read the location information of the `MalformedJsonException` exception message, it indicates where exactly in the document the malformed data was detected, including the [JSONPath](https://goessner.net/articles/JsonPath/).
 
+For example, let's assume you want to deserialize the following JSON data:
+
+```json
+{
+  "languages": [
+    "English",
+    "French",
+  ]
+}
+```
+
+This will fail with an exception similar to this one: `MalformedJsonException: Use JsonReader.setLenient(true) to accept malformed JSON at line 5 column 4 path $.languages[2]`  
+The problem here is the trailing comma (`,`) after `"French"`, trailing commas are not allowed by the JSON specification. The location information "line 5 column 4" points to the `]` in the JSON data (with some slight inaccuracies) because Gson expected another value after `,` instead of the closing `]`. The JSONPath `$.languages[2]` in the exception message also points there: `$.` refers to the root object, `languages` refers to its member of that name and `[2]` refers to the (missing) third value in the JSON array value of that member (numbering starts at 0, so it is `[2]` instead of `[3]`).  
+The proper solution here is to fix the malformed JSON data.
+
+To spot syntax errors in the JSON data easily you can open it in an editor with support for JSON, for example Visual Studio Code. It will highlight within the JSON data the error location and show why the JSON data is considered invalid.
+
 ## <a id="t10"></a> Integral JSON number is parsed as `double`
 
 **Symptom:** JSON data contains an integral number such as `45` but Gson returns it as `double`
@@ -129,7 +146,7 @@ Notes:
 
 **Reason:** Due to legacy reasons Gson performs parsing by default in lenient mode
 
-**Solution:** See [`Gson` class documentation](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/Gson.html) section "Lenient JSON handling"
+**Solution:** See [`Gson` class documentation](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/Gson.html#default-lenient) section "Lenient JSON handling"
 
 Note: Even in non-lenient mode Gson deviates slightly from the JSON specification, see [`JsonReader.setLenient`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/stream/JsonReader.html#setLenient(boolean)) for more details.
 
@@ -140,6 +157,26 @@ Note: Even in non-lenient mode Gson deviates slightly from the JSON specificatio
 **Reason:** The JSON data does not have the correct format
 
 **Solution:** Make sure that your classes correctly model the JSON data. Also during debugging log the JSON data right before calling Gson methods or set a breakpoint to inspect the data and make sure it has the expected format. Read the location information of the exception message, it indicates where exactly in the document the error occurred, including the [JSONPath](https://goessner.net/articles/JsonPath/).
+
+For example, let's assume you have the following Java class:
+
+```java
+class WebPage {
+    String languages;
+}
+```
+
+And you want to deserialize the following JSON data:
+
+```json
+{
+  "languages": ["English", "French"]
+}
+```
+
+This will fail with an exception similar to this one: `IllegalStateException: Expected a string but was BEGIN_ARRAY at line 2 column 17 path $.languages`  
+This means Gson expected a JSON string value but found the beginning of a JSON array (`[`). The location information "line 2 column 17" points to the `[` in the JSON data (with some slight inaccuracies), so does the JSONPath `$.languages` in the exception message. It refers to the `languages` member of the root object (`$.`).  
+The solution here is to change in the `WebPage` class the field `String languages` to `List<String> languages`.
 
 ## <a id="t13"></a> `IllegalStateException`: "Expected ... but was NULL"
 
