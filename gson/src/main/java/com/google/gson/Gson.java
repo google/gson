@@ -106,12 +106,13 @@ import java.util.concurrent.atomic.AtomicLongArray;
  * for a more complete set of examples.</p>
  *
  * <h2>Lenient JSON handling</h2>
- * For legacy reasons most of the {@code Gson} methods allow JSON data which does not
+ * For legacy reasons most of the {@code Gson} methods by default allow JSON data which does not
  * comply with the JSON specification, even when the strictness {@link Strictness#DEFAULT}
  * is used. To restrict a {@code Gson} instance from parsing JSON that
- * does not comply with the JSON specification, {@linkplain Strictness#STRICT strict} mode should be used.
- * Alternatively, if you do not want to use {@linkplain Strictness#STRICT strict} mode,
- * the following workarounds can be used:
+ * does not comply with the JSON specification, {@link Strictness#STRICT} mode should be used.
+ *
+ * <p>For older Gson versions which don't have the {@link Strictness} mode API the following
+ * workarounds can be used:
  *
  * <h3>Serialization</h3>
  * <ol>
