@@ -767,7 +767,7 @@ public final class GsonBuilder {
    *
    * @return an instance of Gson configured with the options currently set in this builder
    */
-  public Gson create() {
+  public Gson build() {
     List<TypeAdapterFactory> factories = new ArrayList<>(this.factories.size() + this.hierarchyFactories.size() + 3);
     factories.addAll(this.factories);
     Collections.reverse(factories);
