@@ -354,15 +354,7 @@ public final class Gson {
     return new GsonBuilder(this);
   }
 
-  /**
-   * @deprecated This method by accident exposes an internal Gson class; it might be removed in a
-   * future version.
-   */
-  @Deprecated
-  public Excluder excluder() {
-    return excluder;
-  }
-
+  
   /**
    * Returns the field naming strategy used by this Gson instance.
    *
