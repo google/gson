@@ -124,11 +124,11 @@ public class DefaultTypeAdaptersTest {
   public void testUrlDeserialization() {
     String urlValue = "http://google.com/";
     String json = "'http:\\/\\/google.com\\/'";
-    URL target = gson.fromJson(json, URL.class);
-    assertThat(target.toExternalForm()).isEqualTo(urlValue);
+    URL target1 = gson.fromJson(json, URL.class);
+    assertThat(target1.toExternalForm()).isEqualTo(urlValue);
 
-    URL unused = gson.fromJson('"' + urlValue + '"', URL.class);
-    assertThat(target.toExternalForm()).isEqualTo(urlValue);
+    URL target2 = gson.fromJson('"' + urlValue + '"', URL.class);
+    assertThat(target2.toExternalForm()).isEqualTo(urlValue);
   }
 
   @Test
