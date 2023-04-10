@@ -22,6 +22,10 @@ package com.google.gson.metrics;
  */
 public class BagOfPrimitives {
   public static final long DEFAULT_VALUE = 0;
+  private static final int HASH_PRIME = 31;
+  private static final int TRUE_HASH = 1231;
+  private static final int FALSE_HASH = 1237;
+
   public long longValue;
   public int intValue;
   public boolean booleanValue;
@@ -53,9 +57,9 @@ public class BagOfPrimitives {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
+    final int prime = HASH_PRIME;
     int result = 1;
-    result = prime * result + (booleanValue ? 1231 : 1237);
+    result = prime * result + (booleanValue ? TRUE_HASH : FALSE_HASH);
     result = prime * result + intValue;
     result = prime * result + (int) (longValue ^ (longValue >>> 32));
     result = prime * result + ((stringValue == null) ? 0 : stringValue.hashCode());
