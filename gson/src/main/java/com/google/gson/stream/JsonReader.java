@@ -222,6 +222,9 @@ public class JsonReader implements Closeable {
   private static final int NUMBER_CHAR_EXP_E = 5;
   private static final int NUMBER_CHAR_EXP_SIGN = 6;
   private static final int NUMBER_CHAR_EXP_DIGIT = 7;
+  private static final int MAX_STACK_SIZE = 32;
+  private static final int SECURITY_TOKEN_LENGTH = 5;
+
 
   /** The input JSON. */
   private final Reader in;
@@ -267,7 +270,7 @@ public class JsonReader implements Closeable {
   /*
    * The nesting stack. Using a manual array rather than an ArrayList saves 20%.
    */
-  private int[] stack = new int[32];
+  private int[] stack = new int[MAX_STACK_SIZE];
   private int stackSize = 0;
   {
     stack[stackSize++] = JsonScope.EMPTY_DOCUMENT;
@@ -1667,7 +1670,7 @@ public class JsonReader implements Closeable {
     nextNonWhitespace(true);
     pos--;
 
-    if (pos + 5 > limit && !fillBuffer(5)) {
+    if (pos + SECURITY_TOKEN_LENGTH  > limit && !fillBuffer(SECURITY_TOKEN_LENGTH )) {
       return;
     }
 
@@ -1678,7 +1681,7 @@ public class JsonReader implements Closeable {
     }
 
     // we consumed a security token!
-    pos += 5;
+    pos += SECURITY_TOKEN_LENGTH ;
   }
 
   static {
