@@ -17,6 +17,7 @@ package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -40,7 +41,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Functional tests for Json serialization and deserialization of classes with 
+ * Functional tests for Json serialization and deserialization of classes with
  * inheritance hierarchies.
  *
  * @author Inderjeet Singh
@@ -85,7 +86,7 @@ public class InheritanceTest {
     ClassWithBaseArrayField sub = new ClassWithBaseArrayField(baseClasses);
     JsonObject json = gson.toJsonTree(sub).getAsJsonObject();
     JsonArray bases = json.get(ClassWithBaseArrayField.FIELD_KEY).getAsJsonArray();
-    for (JsonElement element : bases) { 
+    for (JsonElement element : bases) {
       assertThat(element.getAsJsonObject().get(Sub.SUB_FIELD_KEY).getAsString()).isEqualTo(Sub.SUB_NAME);
     }
   }
@@ -98,7 +99,7 @@ public class InheritanceTest {
     ClassWithBaseCollectionField sub = new ClassWithBaseCollectionField(baseClasses);
     JsonObject json = gson.toJsonTree(sub).getAsJsonObject();
     JsonArray bases = json.get(ClassWithBaseArrayField.FIELD_KEY).getAsJsonArray();
-    for (JsonElement element : bases) { 
+    for (JsonElement element : bases) {
       assertThat(element.getAsJsonObject().get(Sub.SUB_FIELD_KEY).getAsString()).isEqualTo(Sub.SUB_NAME);
     }
   }
@@ -194,14 +195,14 @@ public class InheritanceTest {
     String json = "{\"list\":[0,1,2,3],\"queue\":[0,1,2,3],\"set\":[0.1,0.2,0.3,0.4],"
         + "\"sortedSet\":[\"a\",\"b\",\"c\",\"d\"]"
         + "}";
-    ClassWithSubInterfacesOfCollection target = 
+    ClassWithSubInterfacesOfCollection target =
       gson.fromJson(json, ClassWithSubInterfacesOfCollection.class);
     assertThat(target.listContains(0, 1, 2, 3)).isTrue();
     assertThat(target.queueContains(0, 1, 2, 3)).isTrue();
     assertThat(target.setContains(0.1F, 0.2F, 0.3F, 0.4F)).isTrue();
     assertThat(target.sortedSetContains('a', 'b', 'c', 'd')).isTrue();
   }
-  
+
   private static class ClassWithSubInterfacesOfCollection {
     private List<Integer> list;
     private Queue<Long> queue;
@@ -224,7 +225,7 @@ public class InheritanceTest {
       }
       return true;
     }
-    
+
     boolean queueContains(long... values) {
       for (long value : values) {
         if (!queue.contains(value)) {
@@ -233,7 +234,7 @@ public class InheritanceTest {
       }
       return true;
     }
-    
+
     boolean setContains(float... values) {
       for (float value : values) {
         if (!set.contains(value)) {
@@ -251,7 +252,7 @@ public class InheritanceTest {
       }
       return true;
     }
-    
+
     public String getExpectedJson() {
       StringBuilder sb = new StringBuilder();
       sb.append("{");
@@ -267,6 +268,7 @@ public class InheritanceTest {
       return sb.toString();
     }
 
+    @CanIgnoreReturnValue
     private StringBuilder append(StringBuilder sb, Collection<?> c) {
       sb.append("[");
       boolean first = true;

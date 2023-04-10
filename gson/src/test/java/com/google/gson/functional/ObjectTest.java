@@ -539,17 +539,17 @@ public class ObjectTest {
     Gson gson = new Gson();
     Product product = new Product();
     assertThat(gson.toJson(product)).isEqualTo("{\"attributes\":[],\"departments\":[]}");
-    gson.fromJson(gson.toJson(product), Product.class);
+    Product unused1 = gson.fromJson(gson.toJson(product), Product.class);
 
     product.departments.add(new Department());
     assertThat(gson.toJson(product))
         .isEqualTo("{\"attributes\":[],\"departments\":[{\"name\":\"abc\",\"code\":\"123\"}]}");
-    gson.fromJson(gson.toJson(product), Product.class);
+    Product unused2 = gson.fromJson(gson.toJson(product), Product.class);
 
     product.attributes.add("456");
     assertThat(gson.toJson(product))
         .isEqualTo("{\"attributes\":[\"456\"],\"departments\":[{\"name\":\"abc\",\"code\":\"123\"}]}");
-    gson.fromJson(gson.toJson(product), Product.class);
+    Product unused3 = gson.fromJson(gson.toJson(product), Product.class);
   }
 
   static final class Department {
@@ -611,7 +611,7 @@ public class ObjectTest {
   @Test
   public void testStaticFieldDeserialization() {
     // By default Gson should ignore static fields
-    gson.fromJson("{\"s\":\"custom\"}", ClassWithStaticField.class);
+    ClassWithStaticField unused = gson.fromJson("{\"s\":\"custom\"}", ClassWithStaticField.class);
     assertThat(ClassWithStaticField.s).isEqualTo("initial");
 
     Gson gson = new GsonBuilder()

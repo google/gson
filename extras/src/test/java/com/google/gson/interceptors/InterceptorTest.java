@@ -110,9 +110,9 @@ public final class InterceptorTest {
 
           @Override public User read(JsonReader in) throws IOException {
             in.beginObject();
-            in.nextName();
+            String unused1 = in.nextName();
             String name = in.nextString();
-            in.nextName();
+            String unused2 = in.nextName();
             String password = in.nextString();
             in.endObject();
             return new User(name, password);
