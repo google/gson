@@ -195,7 +195,7 @@ public final class Gson {
   final ToNumberStrategy objectToNumberStrategy;
   final ToNumberStrategy numberToNumberStrategy;
   final List<ReflectionAccessFilter> reflectionFilters;
-
+  private static final String GSON_ASSERTION_ERROR_MESSAGE = "AssertionError (GSON " + GsonBuildConfig.VERSION + "): ";
   /**
    * Constructs a Gson object with default configuration. The default configuration has the
    * following settings:
@@ -835,7 +835,7 @@ public final class Gson {
     } catch (IOException e) {
       throw new JsonIOException(e);
     } catch (AssertionError e) {
-      throw new AssertionError("AssertionError (GSON " + GsonBuildConfig.VERSION + "): " + e.getMessage(), e);
+      throw new AssertionError(GSON_ASSERTION_ERROR_MESSAGE  + e.getMessage(), e);
     } finally {
       writer.setLenient(oldLenient);
       writer.setHtmlSafe(oldHtmlSafe);
@@ -938,7 +938,7 @@ public final class Gson {
     } catch (IOException e) {
       throw new JsonIOException(e);
     } catch (AssertionError e) {
-      throw new AssertionError("AssertionError (GSON " + GsonBuildConfig.VERSION + "): " + e.getMessage(), e);
+      throw new AssertionError(GSON_ASSERTION_ERROR_MESSAGE  + e.getMessage(), e);
     } finally {
       writer.setLenient(oldLenient);
       writer.setHtmlSafe(oldHtmlSafe);
@@ -1232,7 +1232,7 @@ public final class Gson {
       // TODO(inder): Figure out whether it is indeed right to rethrow this as JsonSyntaxException
       throw new JsonSyntaxException(e);
     } catch (AssertionError e) {
-      throw new AssertionError("AssertionError (GSON " + GsonBuildConfig.VERSION + "): " + e.getMessage(), e);
+      throw new AssertionError(GSON_ASSERTION_ERROR_MESSAGE  + e.getMessage(), e);
     } finally {
       reader.setLenient(oldLenient);
     }
