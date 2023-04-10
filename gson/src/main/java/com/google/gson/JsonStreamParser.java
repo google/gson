@@ -15,6 +15,7 @@
  */
 package com.google.gson;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -33,7 +34,7 @@ import java.util.NoSuchElementException;
  * <p>This class is conditionally thread-safe (see Item 70, Effective Java second edition). To
  * properly use this class across multiple threads, you will need to add some external
  * synchronization. For example:
- * 
+ *
  * <pre>
  * JsonStreamParser parser = new JsonStreamParser("['first'] {'second':10} 'third'");
  * JsonElement element;

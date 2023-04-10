@@ -17,6 +17,7 @@
 
 package com.google.gson.internal;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
@@ -107,6 +108,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
     return findByObject(key) != null;
   }
 
+  @CanIgnoreReturnValue
   @Override public V put(K key, V value) {
     if (key == null) {
       throw new NullPointerException("key == null");

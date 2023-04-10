@@ -70,8 +70,8 @@ public class JsonStreamParserTest {
 
   @Test
   public void testCallingNextBeyondAvailableInput() {
-    parser.next();
-    parser.next();
+    JsonElement unused1 = parser.next();
+    JsonElement unused2 = parser.next();
     try {
       parser.next();
       fail("Parser should not go beyond available input");
