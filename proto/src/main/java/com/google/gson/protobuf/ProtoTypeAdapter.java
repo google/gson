@@ -20,6 +20,7 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.MapMaker;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -102,6 +103,7 @@ public class ProtoTypeAdapter
       setFieldNameSerializationFormat(fromFieldNameFormat, toFieldNameFormat);
     }
 
+    @CanIgnoreReturnValue
     public Builder setEnumSerialization(EnumSerialization enumSerialization) {
       this.enumSerialization = requireNonNull(enumSerialization);
       return this;
@@ -122,6 +124,7 @@ public class ProtoTypeAdapter
      * n__id_ct       nIdCt
      * }</pre>
      */
+    @CanIgnoreReturnValue
     public Builder setFieldNameSerializationFormat(CaseFormat fromFieldNameFormat,
         CaseFormat toFieldNameFormat) {
       this.protoFormat = fromFieldNameFormat;
@@ -141,6 +144,7 @@ public class ProtoTypeAdapter
      * ...the adapter will serialize the field using '{@code appId}' instead of the default '
      * {@code clientAppId}'. This lets you customize the name serialization of any proto field.
      */
+    @CanIgnoreReturnValue
     public Builder addSerializedNameExtension(
         Extension<FieldOptions, String> serializedNameExtension) {
       serializedNameExtensions.add(requireNonNull(serializedNameExtension));
@@ -166,6 +170,7 @@ public class ProtoTypeAdapter
      * Note that you need to set the enum serialization of this adapter to
      * {@link EnumSerialization#NAME}, otherwise these annotations will be ignored.
      */
+    @CanIgnoreReturnValue
     public Builder addSerializedEnumValueExtension(
         Extension<EnumValueOptions, String> serializedEnumValueExtension) {
       serializedEnumValueExtensions.add(requireNonNull(serializedEnumValueExtension));

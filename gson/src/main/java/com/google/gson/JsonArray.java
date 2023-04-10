@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.gson.internal.NonNullElementWrapperList;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -145,6 +146,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * @return the element previously at the specified position
    * @throws IndexOutOfBoundsException if the specified index is outside the array bounds
    */
+  @CanIgnoreReturnValue
   public JsonElement set(int index, JsonElement element) {
     return elements.set(index, element == null ? JsonNull.INSTANCE : element);
   }
@@ -157,6 +159,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * @return true if this array contained the specified element, false otherwise
    * @since 2.3
    */
+  @CanIgnoreReturnValue
   public boolean remove(JsonElement element) {
     return elements.remove(element);
   }
@@ -171,6 +174,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * @throws IndexOutOfBoundsException if the specified index is outside the array bounds
    * @since 2.3
    */
+  @CanIgnoreReturnValue
   public JsonElement remove(int index) {
     return elements.remove(index);
   }

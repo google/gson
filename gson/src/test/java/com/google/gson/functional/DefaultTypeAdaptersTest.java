@@ -127,7 +127,7 @@ public class DefaultTypeAdaptersTest {
     URL target = gson.fromJson(json, URL.class);
     assertThat(target.toExternalForm()).isEqualTo(urlValue);
 
-    gson.fromJson('"' + urlValue + '"', URL.class);
+    URL unused = gson.fromJson('"' + urlValue + '"', URL.class);
     assertThat(target.toExternalForm()).isEqualTo(urlValue);
   }
 

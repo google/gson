@@ -1223,7 +1223,7 @@ public final class Gson {
     boolean oldLenient = reader.isLenient();
     reader.setLenient(true);
     try {
-      reader.peek();
+      JsonToken unused = reader.peek();
       isEmpty = false;
       TypeAdapter<T> typeAdapter = getAdapter(typeOfT);
       return typeAdapter.read(reader);

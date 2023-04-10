@@ -27,7 +27,7 @@ import org.junit.Test;
 
 /**
  * Tests for ensuring Gson thread-safety.
- * 
+ *
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
@@ -44,23 +44,23 @@ public class ConcurrencyTest {
    * http://groups.google.com/group/google-gson/browse_thread/thread/563bb51ee2495081
    */
   @Test
-  public void testSingleThreadSerialization() { 
-    MyObject myObj = new MyObject(); 
-    for (int i = 0; i < 10; i++) { 
-      gson.toJson(myObj); 
-    } 
-  } 
+  public void testSingleThreadSerialization() {
+    MyObject myObj = new MyObject();
+    for (int i = 0; i < 10; i++) {
+      String unused = gson.toJson(myObj);
+    }
+  }
 
   /**
    * Source-code based on
    * http://groups.google.com/group/google-gson/browse_thread/thread/563bb51ee2495081
    */
   @Test
-  public void testSingleThreadDeserialization() { 
-    for (int i = 0; i < 10; i++) { 
-      gson.fromJson("{'a':'hello','b':'world','i':1}", MyObject.class); 
-    } 
-  } 
+  public void testSingleThreadDeserialization() {
+    for (int i = 0; i < 10; i++) {
+      MyObject unused = gson.fromJson("{'a':'hello','b':'world','i':1}", MyObject.class);
+    }
+  }
 
   /**
    * Source-code based on
@@ -79,7 +79,7 @@ public class ConcurrencyTest {
           try {
             startLatch.await();
             for (int i = 0; i < 10; i++) {
-              gson.toJson(myObj);
+              String unused = gson.toJson(myObj);
             }
           } catch (Throwable t) {
             failed.set(true);
@@ -110,7 +110,7 @@ public class ConcurrencyTest {
           try {
             startLatch.await();
             for (int i = 0; i < 10; i++) {
-              gson.fromJson("{'a':'hello','b':'world','i':1}", MyObject.class); 
+              MyObject unused = gson.fromJson("{'a':'hello','b':'world','i':1}", MyObject.class);
             }
           } catch (Throwable t) {
             failed.set(true);
@@ -124,7 +124,7 @@ public class ConcurrencyTest {
     finishedLatch.await();
     assertThat(failed.get()).isFalse();
   }
-  
+
   @SuppressWarnings("unused")
   private static class MyObject {
     String a;
