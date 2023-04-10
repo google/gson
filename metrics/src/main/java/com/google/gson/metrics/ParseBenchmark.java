@@ -57,6 +57,8 @@ import java.util.zip.ZipFile;
 public final class ParseBenchmark {
   @Param Document document;
   @Param Api api;
+  private static final int BUFFER_SIZE = 8192;
+
 
   private enum Document {
     TWEETS(new TypeToken<List<Tweet>>() {}, new TypeReference<List<Tweet>>() {}),
@@ -138,7 +140,7 @@ public final class ParseBenchmark {
     try {
       ZipEntry zipEntry = zipFile.getEntry(fileName);
       Reader reader = new InputStreamReader(zipFile.getInputStream(zipEntry));
-      char[] buffer = new char[8192];
+      char[] buffer = new char[BUFFER_SIZE];
       StringWriter writer = new StringWriter();
       int count;
       while ((count = reader.read(buffer)) != -1) {
