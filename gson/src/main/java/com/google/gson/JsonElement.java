@@ -144,7 +144,7 @@ public abstract class JsonElement {
    * @throws IllegalStateException if this element is of another type.
    * @since 1.2
    */
-  @CanIgnoreReturnValue
+  @CanIgnoreReturnValue // When this method is used only to verify that the value is JsonNull
   public JsonNull getAsJsonNull() {
     if (isJsonNull()) {
       return (JsonNull) this;
