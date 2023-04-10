@@ -603,24 +603,43 @@ public final class GsonBuilder {
    */
   public GsonBuilder registerTypeAdapter(Type type, Object typeAdapter) {
     Objects.requireNonNull(type);
-    $Gson$Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
-        || typeAdapter instanceof JsonDeserializer<?>
-        || typeAdapter instanceof InstanceCreator<?>
-        || typeAdapter instanceof TypeAdapter<?>);
+    $Gson$Preconditions.checkArgument(isValidTypeAdapter(typeAdapter));
+       
     if (typeAdapter instanceof InstanceCreator<?>) {
-      instanceCreators.put(type, (InstanceCreator<?>) typeAdapter);
+    	registerInstanceCreator(type, (InstanceCreator<?>) typeAdapter);
     }
     if (typeAdapter instanceof JsonSerializer<?> || typeAdapter instanceof JsonDeserializer<?>) {
-      TypeToken<?> typeToken = TypeToken.get(type);
-      factories.add(TreeTypeAdapter.newFactoryWithMatchRawType(typeToken, typeAdapter));
+    	registerTypeAdapterFactory(type, typeAdapter);
     }
     if (typeAdapter instanceof TypeAdapter<?>) {
-      @SuppressWarnings({"unchecked", "rawtypes"})
-      TypeAdapterFactory factory = TypeAdapters.newFactory(TypeToken.get(type), (TypeAdapter)typeAdapter);
-      factories.add(factory);
+    	registerTypeAdapterFactory(type, (TypeAdapter<?>) typeAdapter);
+
     }
     return this;
   }
+  
+  private boolean isValidTypeAdapter(Object typeAdapter) {
+	    return typeAdapter instanceof JsonSerializer<?>
+	            || typeAdapter instanceof JsonDeserializer<?>
+	            || typeAdapter instanceof InstanceCreator<?>
+	            || typeAdapter instanceof TypeAdapter<?>;
+	}
+  
+  private void registerInstanceCreator(Type type, InstanceCreator<?> instanceCreator) {
+	    instanceCreators.put(type, instanceCreator);
+	}
+  
+
+  private void registerTypeAdapterFactory(Type type, Object typeAdapter) {
+    TypeToken<?> typeToken = TypeToken.get(type);
+    factories.add(TreeTypeAdapter.newFactoryWithMatchRawType(typeToken, typeAdapter));
+  }
+
+  private void registerTypeAdapterFactory(Type type, TypeAdapter<?> typeAdapter) {
+    TypeAdapterFactory factory = TypeAdapters.newFactory(TypeToken.get(type), typeAdapter);
+    factories.add(factory);
+  }
+
 
   /**
    * Register a factory for type adapters. Registering a factory is useful when the type
