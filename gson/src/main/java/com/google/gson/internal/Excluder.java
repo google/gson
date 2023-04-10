@@ -65,13 +65,25 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
       throw new AssertionError(e);
     }
   }
-
+  /**
+   * Creates and returns a copy of this Excluder instance that ignores fields and
+   * types with a version attribute after {@code ignoreVersionsAfter}.
+   *
+   * @param ignoreVersionsAfter the version after which fields and types will be ignored
+   * @return a new Excluder instance with the version attribute after {@code ignoreVersionsAfter}
+   */
   public Excluder withVersion(double ignoreVersionsAfter) {
     Excluder result = clone();
     result.version = ignoreVersionsAfter;
     return result;
   }
-
+  /**
+   * Creates and returns a copy of this Excluder instance that ignores fields with
+   * any of the specified modifiers.
+   *
+   * @param modifiers the modifiers to ignore
+   * @return a new Excluder instance with the modifiers in {@code modifiers} ignored
+   */
   public Excluder withModifiers(int... modifiers) {
     Excluder result = clone();
     result.modifiers = 0;
@@ -80,18 +92,42 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
     }
     return result;
   }
-
+  
+  /**
+   * Creates and returns a copy of this Excluder instance that does not serialize
+   * inner classes.
+   *
+   * @return a new Excluder instance that does not serialize inner classes
+   */
   public Excluder disableInnerClassSerialization() {
     Excluder result = clone();
     result.serializeInnerClasses = false;
     return result;
   }
+  
+  /**
+   * Creates and returns a copy of this Excluder instance that requires fields to
+   * have the {@link Expose} annotation to be serialized or deserialized.
+   *
+   * @return a new Excluder instance that requires fields to have the {@link Expose} annotation
+   */
 
   public Excluder excludeFieldsWithoutExposeAnnotation() {
     Excluder result = clone();
     result.requireExpose = true;
     return result;
   }
+  
+  /**
+   * Creates a new instance of Excluder with the specified exclusion strategy.
+   * The `serialization` and `deserialization` parameters determine whether the exclusion
+   * strategy should be applied to serialization, deserialization, or both.
+   *
+   * @param exclusionStrategy the exclusion strategy to add to this Excluder instance
+   * @param serialization     whether to apply the exclusion strategy during serialization
+   * @param deserialization   whether to apply the exclusion strategy during deserialization
+   * @return a new instance of Excluder with the specified exclusion strategy
+   */
 
   public Excluder withExclusionStrategy(ExclusionStrategy exclusionStrategy,
       boolean serialization, boolean deserialization) {
@@ -106,6 +142,15 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
     }
     return result;
   }
+  
+  /**
+   * Creates a new TypeAdapter for the specified type, applying any configured exclusion strategies
+   * to determine whether fields or classes should be excluded from serialization and/or deserialization.
+   *
+   * @param gson the Gson instance
+   * @param type the type to create a TypeAdapter for
+   * @return a new TypeAdapter for the specified type, or null if no fields or classes are excluded
+   */
 
   @Override public <T> TypeAdapter<T> create(final Gson gson, final TypeToken<T> type) {
     Class<?> rawType = type.getRawType();
@@ -146,6 +191,15 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
       }
     };
   }
+  
+  /**
+   * Determines whether the specified field should be excluded from serialization and/or deserialization
+   * based on user-defined exclusion strategies and other configured settings.
+   *
+   * @param field     the field to check for exclusion
+   * @param serialize whether the field is being serialized (true) or deserialized (false)
+   * @return true if the field should be excluded, false otherwise
+   */
 
   public boolean excludeField(Field field, boolean serialize) {
     if ((modifiers & field.getModifiers()) != 0) {
@@ -200,12 +254,28 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
 
       return isAnonymousOrNonStaticLocal(clazz);
   }
+  /**
+   * Determines whether the specified class should be excluded from serialization and/or deserialization
+   * based on user-defined exclusion strategies and other configured settings.
+   *
+   * @param clazz     the class to check for exclusion
+   * @param serialize whether the class is being serialized (true) or deserialized (false)
+   * @return true if the class should be excluded, false otherwise
+   */
 
   public boolean excludeClass(Class<?> clazz, boolean serialize) {
       return excludeClassChecks(clazz) ||
               excludeClassInStrategy(clazz, serialize);
   }
 
+  /**
+   * Determines whether the specified class should be excluded from serialization and/or deserialization
+   * based on user-defined exclusion strategies.
+   *
+   * @param clazz     the class to check for exclusion
+   * @param serialize whether the class is being serialized (true) or deserialized (false)
+   * @return true if the class should be excluded, false otherwise
+   */
   private boolean excludeClassInStrategy(Class<?> clazz, boolean serialize) {
       List<ExclusionStrategy> list = serialize ? serializationStrategies : deserializationStrategies;
       for (ExclusionStrategy exclusionStrategy : list) {
@@ -215,6 +285,12 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
       }
       return false;
   }
+  /**
+   * Determines whether the specified class is an anonymous or non-static local class.
+   *
+   * @param clazz the class to check
+   * @return true if the class is anonymous or non-static local, false otherwise
+   */
 
   private boolean isAnonymousOrNonStaticLocal(Class<?> clazz) {
     return !Enum.class.isAssignableFrom(clazz) && !isStatic(clazz)
