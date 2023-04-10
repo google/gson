@@ -222,7 +222,7 @@ Gson gson = new Gson();
 Collection<Integer> ints = Arrays.asList(1,2,3,4,5);
 
 // Serialization
-String json = gson.toJson(ints);  // ==> json is [1,2,3,4,5]
+String json = gson.toJson(ints);  // ==> [1,2,3,4,5]
 
 // Deserialization
 TypeToken<Collection<Integer>> collectionType = new TypeToken<Collection<Integer>>(){};
