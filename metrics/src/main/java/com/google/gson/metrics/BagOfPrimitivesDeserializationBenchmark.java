@@ -62,20 +62,16 @@ public class BagOfPrimitivesDeserializationBenchmark {
       StringReader reader = new StringReader(json);
       JsonReader jr = new JsonReader(reader);
       jr.beginObject();
-      long longValue = 0;
-      int intValue = 0;
-      boolean booleanValue = false;
-      String stringValue = null;
       while(jr.hasNext()) {
         String name = jr.nextName();
         if (name.equals("longValue")) {
-          longValue = jr.nextLong();
+          jr.nextLong();
         } else if (name.equals("intValue")) {
-          intValue = jr.nextInt();
+         jr.nextInt();
         } else if (name.equals("booleanValue")) {
-          booleanValue = jr.nextBoolean();
+          jr.nextBoolean();
         } else if (name.equals("stringValue")) {
-          stringValue = jr.nextString();
+         jr.nextString();
         } else {
           throw new IOException("Unexpected name: " + name);
         }
