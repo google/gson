@@ -28,6 +28,13 @@ import org.junit.Test;
  * @author Jesse Wilson
  */
 public final class JsonArrayTest {
+	
+ private JsonArray jsonArray;
+
+ @Before
+ public void setUp() {
+	  jsonArray = new JsonArray();
+ }
 
   @Test
   public void testEqualsOnEmptyArray() {
@@ -36,68 +43,68 @@ public final class JsonArrayTest {
 
   @Test
   public void testEqualsNonEmptyArray() {
-    JsonArray a = new JsonArray();
+    
     JsonArray b = new JsonArray();
 
-    assertThat(a).isEqualTo(a);
+    assertThat(jsonArray).isEqualTo(jsonArray);
 
     a.add(new JsonObject());
-    assertThat(a.equals(b)).isFalse();
-    assertThat(b.equals(a)).isFalse();
+    assertThat(jsonArray.equals(b)).isFalse();
+    assertThat(b.equals(jsonArray)).isFalse();
 
     b.add(new JsonObject());
-    MoreAsserts.assertEqualsAndHashCode(a, b);
+    MoreAsserts.assertEqualsAndHashCode(jsonArray, b);
 
-    a.add(new JsonObject());
-    assertThat(a.equals(b)).isFalse();
-    assertThat(b.equals(a)).isFalse();
+    jsonArray.add(new JsonObject());
+    assertThat(jsonArray.equals(b)).isFalse();
+    assertThat(b.equals(jsonArray)).isFalse();
 
     b.add(JsonNull.INSTANCE);
-    assertThat(a.equals(b)).isFalse();
-    assertThat(b.equals(a)).isFalse();
+    assertThat(jsonArray.equals(b)).isFalse();
+    assertThat(b.equals(jsonArray)).isFalse();
   }
 
   @Test
   public void testRemove() {
-    JsonArray array = new JsonArray();
+    
     try {
-      array.remove(0);
+      jsonArray.remove(0);
       fail();
     } catch (IndexOutOfBoundsException expected) {}
     JsonPrimitive a = new JsonPrimitive("a");
     array.add(a);
-    assertThat(array.remove(a)).isTrue();
-    assertThat(array).doesNotContain(a);
-    array.add(a);
-    array.add(new JsonPrimitive("b"));
-    assertThat(array.remove(1).getAsString()).isEqualTo("b");
-    assertThat(array).hasSize(1);
-    assertThat(array).contains(a);
+    assertThat(jsonArray.remove(a)).isTrue();
+    assertThat(jsonArray).doesNotContain(a);
+    jsonArray.add(a);
+    jsonArray.add(new JsonPrimitive("b"));
+    assertThat(jsonArray.remove(1).getAsString()).isEqualTo("b");
+    assertThat(jsonArray).hasSize(1);
+    assertThat(jsonArray).contains(a);
   }
 
   @Test
   public void testSet() {
-    JsonArray array = new JsonArray();
+    
     try {
       array.set(0, new JsonPrimitive(1));
       fail();
     } catch (IndexOutOfBoundsException expected) {}
     JsonPrimitive a = new JsonPrimitive("a");
-    array.add(a);
+    jsonArray.add(a);
 
     JsonPrimitive b = new JsonPrimitive("b");
-    JsonElement oldValue = array.set(0, b);
+    JsonElement oldValue = jsonArray.set(0, b);
     assertThat(oldValue).isEqualTo(a);
     assertThat(array.get(0).getAsString()).isEqualTo("b");
 
-    oldValue = array.set(0, null);
+    oldValue = jsonArray.set(0, null);
     assertThat(oldValue).isEqualTo(b);
     assertThat(array.get(0)).isEqualTo(JsonNull.INSTANCE);
 
-    oldValue = array.set(0, new JsonPrimitive("c"));
+    oldValue = jsonArray.set(0, new JsonPrimitive("c"));
     assertThat(oldValue).isEqualTo(JsonNull.INSTANCE);
-    assertThat(array.get(0).getAsString()).isEqualTo("c");
-    assertThat(array).hasSize(1);
+    assertThat(jsonArray.get(0).getAsString()).isEqualTo("c");
+    assertThat(jsonArray).hasSize(1);
   }
 
   @Test
@@ -118,15 +125,15 @@ public final class JsonArrayTest {
 
   @Test
   public void testIsEmpty() {
-    JsonArray array = new JsonArray();
-    assertThat(array).isEmpty();
+    
+    assertThat(jsonArray).isEmpty();
 
     JsonPrimitive a = new JsonPrimitive("a");
-    array.add(a);
-    assertThat(array).isNotEmpty();
+    jsonArray.add(a);
+    assertThat(jsonArray).isNotEmpty();
 
     array.remove(0);
-    assertThat(array).isEmpty();
+    assertThat(jsonArray).isEmpty();
   }
 
   @Test
