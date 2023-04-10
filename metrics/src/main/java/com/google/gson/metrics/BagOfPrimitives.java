@@ -31,10 +31,21 @@ public class BagOfPrimitives {
   public boolean booleanValue;
   public String stringValue;
 
+
+  /**
+   * Constructs a BagOfPrimitives object with the default values.
+   */
   public BagOfPrimitives() {
     this(DEFAULT_VALUE, 0, false, "");
   }
-
+  /**
+   * Constructs a BagOfPrimitives object with the specified values.
+   * 
+   * @param longValue the value of the long field.
+   * @param intValue the value of the int field.
+   * @param booleanValue the value of the boolean field.
+   * @param stringValue the value of the String field.
+   */
   public BagOfPrimitives(long longValue, int intValue, boolean booleanValue, String stringValue) {
     this.longValue = longValue;
     this.intValue = intValue;
@@ -42,10 +53,20 @@ public class BagOfPrimitives {
     this.stringValue = stringValue;
   }
 
+  /**
+   * Returns the value of the int field.
+   * 
+   * @return the value of the int field.
+   */
   public int getIntValue() {
     return intValue;
   }
 
+  /**
+   * Returns the expected JSON representation of this object.
+   * 
+   * @return the expected JSON representation of this object.
+   */
   public String getExpectedJson() {
     return "{"
         + "\"longValue\":" + longValue + ","
@@ -55,6 +76,11 @@ public class BagOfPrimitives {
         + "}";
   }
 
+  /**
+   * Returns the hash code for this object.
+   * 
+   * @return the hash code for this object.
+   */
   @Override
   public int hashCode() {
     final int prime = HASH_PRIME;
@@ -65,6 +91,12 @@ public class BagOfPrimitives {
     result = prime * result + ((stringValue == null) ? 0 : stringValue.hashCode());
     return result;
   }
+  /**
+   * Compares this object to the specified object for equality.
+   * 
+   * @param obj the object to compare to.
+   * @return true if the objects are equal, false otherwise.
+   */
 
   @Override
   public boolean equals(Object obj) {
