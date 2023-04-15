@@ -129,8 +129,9 @@ public final class GraphAdapterBuilderTest {
   @Test
   public void testSerializationWithMultipleTypes() {
     Company google = new Company("Google");
-    new Employee("Jesse", google);
-    new Employee("Joel", google);
+    // Employee constructor adds `this` to the given Company object
+    Employee unused1 = new Employee("Jesse", google);
+    Employee unused2 = new Employee("Joel", google);
 
     GsonBuilder gsonBuilder = new GsonBuilder();
     new GraphAdapterBuilder()

@@ -18,6 +18,7 @@ package com.google.gson.functional;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonStreamParser;
@@ -155,12 +156,14 @@ public class ReadersWritersTest {
       final StringBuilder stringBuilder = new StringBuilder();
       int toStringCallCount = 0;
 
+      @CanIgnoreReturnValue
       @Override
       public Appendable append(char c) throws IOException {
         stringBuilder.append(c);
         return this;
       }
 
+      @CanIgnoreReturnValue
       @Override
       public Appendable append(CharSequence csq) throws IOException {
         if (csq == null) {
@@ -170,6 +173,7 @@ public class ReadersWritersTest {
         return this;
       }
 
+      @CanIgnoreReturnValue
       @Override
       public Appendable append(CharSequence csq, int start, int end) throws IOException {
         if (csq == null) {
