@@ -1681,27 +1681,27 @@ public class JsonReader implements Closeable {
     pos += 5;
   }
 
+  protected void promoteNameToValue() throws IOException {
+    int p = this.peeked;
+    if (p == PEEKED_NONE) {
+      p = this.doPeek();
+    }
+    if (p == PEEKED_DOUBLE_QUOTED_NAME) {
+      this.peeked = PEEKED_DOUBLE_QUOTED;
+    } else if (p == PEEKED_SINGLE_QUOTED_NAME) {
+      this.peeked = PEEKED_SINGLE_QUOTED;
+    } else if (p == PEEKED_UNQUOTED_NAME) {
+      this.peeked = PEEKED_UNQUOTED;
+    } else {
+      throw new IllegalStateException(
+        "Expected a name but was " + this.peek() + this.locationString());
+    }
+  }
+
   static {
     JsonReaderInternalAccess.INSTANCE = new JsonReaderInternalAccess() {
       @Override public void promoteNameToValue(JsonReader reader) throws IOException {
-        if (reader instanceof JsonTreeReader) {
-          ((JsonTreeReader)reader).promoteNameToValue();
-          return;
-        }
-        int p = reader.peeked;
-        if (p == PEEKED_NONE) {
-          p = reader.doPeek();
-        }
-        if (p == PEEKED_DOUBLE_QUOTED_NAME) {
-          reader.peeked = PEEKED_DOUBLE_QUOTED;
-        } else if (p == PEEKED_SINGLE_QUOTED_NAME) {
-          reader.peeked = PEEKED_SINGLE_QUOTED;
-        } else if (p == PEEKED_UNQUOTED_NAME) {
-          reader.peeked = PEEKED_UNQUOTED;
-        } else {
-          throw new IllegalStateException(
-              "Expected a name but was " + reader.peek() + reader.locationString());
-        }
+        reader.promoteNameToValue();
       }
     };
   }
