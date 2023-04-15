@@ -235,21 +235,21 @@ public final class TypeTokenTest {
       new SubTypeToken<Integer>() {};
       fail();
     } catch (IllegalStateException expected) {
-      assertThat(expected.getMessage()).isEqualTo("Must only create direct subclasses of TypeToken");
+      assertThat(expected).hasMessageThat().isEqualTo("Must only create direct subclasses of TypeToken");
     }
 
     try {
       new SubSubTypeToken1<Integer>();
       fail();
     } catch (IllegalStateException expected) {
-      assertThat(expected.getMessage()).isEqualTo("Must only create direct subclasses of TypeToken");
+      assertThat(expected).hasMessageThat().isEqualTo("Must only create direct subclasses of TypeToken");
     }
 
     try {
       new SubSubTypeToken2();
       fail();
     } catch (IllegalStateException expected) {
-      assertThat(expected.getMessage()).isEqualTo("Must only create direct subclasses of TypeToken");
+      assertThat(expected).hasMessageThat().isEqualTo("Must only create direct subclasses of TypeToken");
     }
   }
 
