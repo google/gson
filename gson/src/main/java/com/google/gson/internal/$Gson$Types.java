@@ -33,8 +33,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Properties;
 import java.util.Objects;
+import java.util.Properties;
 
 /**
  * Static methods for working with types.
@@ -138,9 +138,8 @@ public final class $Gson$Types {
     } else if (type instanceof ParameterizedType) {
       ParameterizedType parameterizedType = (ParameterizedType) type;
 
-      // I'm not exactly sure why getRawType() returns Type instead of Class.
-      // Neal isn't either but suspects some pathological case related
-      // to nested classes exists.
+      // getRawType() returns Type instead of Class; that seems to be an API mistake,
+      // see https://bugs.openjdk.org/browse/JDK-8250659
       Type rawType = parameterizedType.getRawType();
       checkArgument(rawType instanceof Class);
       return (Class<?>) rawType;
@@ -481,19 +480,33 @@ public final class $Gson$Types {
     checkArgument(!(type instanceof Class<?>) || !((Class<?>) type).isPrimitive());
   }
 
+  /**
+   * Whether an {@linkplain ParameterizedType#getOwnerType() owner type} must be specified when
+   * constructing a {@link ParameterizedType} for {@code rawType}.
+   *
+   * <p>Note that this method might not require an owner type for all cases where Java reflection
+   * would create parameterized types with owner type.
+   */
+  public static boolean requiresOwnerType(Type rawType) {
+    if (rawType instanceof Class<?>) {
+      Class<?> rawTypeAsClass = (Class<?>) rawType;
+      return !Modifier.isStatic(rawTypeAsClass.getModifiers())
+          && rawTypeAsClass.getDeclaringClass() != null;
+    }
+    return false;
+  }
+
   private static final class ParameterizedTypeImpl implements ParameterizedType, Serializable {
     private final Type ownerType;
     private final Type rawType;
     private final Type[] typeArguments;
 
     public ParameterizedTypeImpl(Type ownerType, Type rawType, Type... typeArguments) {
+      // TODO: Should this enforce that rawType is a Class? See JDK implementation of
+      // the ParameterizedType interface and https://bugs.openjdk.org/browse/JDK-8250659
       requireNonNull(rawType);
-      // require an owner type if the raw type needs it
-      if (rawType instanceof Class<?>) {
-        Class<?> rawTypeAsClass = (Class<?>) rawType;
-        boolean isStaticOrTopLevelClass = Modifier.isStatic(rawTypeAsClass.getModifiers())
-            || rawTypeAsClass.getEnclosingClass() == null;
-        checkArgument(ownerType != null || isStaticOrTopLevelClass);
+      if (ownerType == null && requiresOwnerType(rawType)) {
+        throw new IllegalArgumentException("Must specify owner type for " + rawType);
       }
 
       this.ownerType = ownerType == null ? null : canonicalize(ownerType);

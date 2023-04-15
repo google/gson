@@ -97,8 +97,8 @@ public class TypeToken<T> {
     }
     // Check for raw TypeToken as superclass
     else if (superclass == TypeToken.class) {
-      throw new IllegalStateException("TypeToken must be created with a type argument: new TypeToken<...>() {}; "
-          + "When using code shrinkers (ProGuard, R8, ...) make sure that generic signatures are preserved.");
+      throw new IllegalStateException("TypeToken must be created with a type argument: new TypeToken<...>() {};"
+          + " When using code shrinkers (ProGuard, R8, ...) make sure that generic signatures are preserved.");
     }
 
     // User created subclass of subclass of TypeToken
@@ -335,8 +335,8 @@ public class TypeToken<T> {
    * and care must be taken to pass in the correct number of type arguments.
    *
    * @throws IllegalArgumentException
-   *   If {@code rawType} is not of type {@code Class}, or if the type arguments are invalid for
-   *   the raw type
+   *   If {@code rawType} is not of type {@code Class}, if it is not a generic type, or if the
+   *   type arguments are invalid for the raw type
    */
   public static TypeToken<?> getParameterized(Type rawType, Type... typeArguments) {
     Objects.requireNonNull(rawType);
@@ -351,6 +351,18 @@ public class TypeToken<T> {
     Class<?> rawClass = (Class<?>) rawType;
     TypeVariable<?>[] typeVariables = rawClass.getTypeParameters();
 
+    // Note: Does not check if owner type of rawType is generic because this factory method
+    // does not support specifying owner type
+    if (typeVariables.length == 0) {
+      throw new IllegalArgumentException(rawClass.getName() + " is not a generic type");
+    }
+
+    // Check for this here to avoid misleading exception thrown by ParameterizedTypeImpl
+    if ($Gson$Types.requiresOwnerType(rawType)) {
+      throw new IllegalArgumentException("Raw type " + rawClass.getName() + " is not supported because"
+          + " it requires specifying an owner type");
+    }
+
     int expectedArgsCount = typeVariables.length;
     int actualArgsCount = typeArguments.length;
     if (actualArgsCount != expectedArgsCount) {
@@ -359,7 +371,7 @@ public class TypeToken<T> {
     }
 
     for (int i = 0; i < expectedArgsCount; i++) {
-      Type typeArgument = typeArguments[i];
+      Type typeArgument = Objects.requireNonNull(typeArguments[i], "Type argument must not be null");
       Class<?> rawTypeArgument = $Gson$Types.getRawType(typeArgument);
       TypeVariable<?> typeVariable = typeVariables[i];
 
@@ -367,8 +379,8 @@ public class TypeToken<T> {
         Class<?> rawBound = $Gson$Types.getRawType(bound);
 
         if (!rawBound.isAssignableFrom(rawTypeArgument)) {
-          throw new IllegalArgumentException("Type argument " + typeArgument + " does not satisfy bounds "
-              + "for type variable " + typeVariable + " declared by " + rawType);
+          throw new IllegalArgumentException("Type argument " + typeArgument + " does not satisfy bounds"
+              + " for type variable " + typeVariable + " declared by " + rawType);
         }
       }
     }
