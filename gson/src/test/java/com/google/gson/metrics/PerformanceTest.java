@@ -123,7 +123,7 @@ public class PerformanceTest {
     for (int i = 0; i < count; ++i) {
       list.add(new CollectionEntry("name"+i,"value"+i));
     }
-    gson.toJson(list);
+    String unused = gson.toJson(list);
   }
 
   /**
@@ -163,7 +163,7 @@ public class PerformanceTest {
       for (int i = 0; i < size; ++i) {
         ba[i] = 0x05;
       }
-      gson.toJson(ba);
+      String unused = gson.toJson(ba);
       System.out.printf("Gson could serialize a byte array of size: %d\n", size);
     }
   }
@@ -248,7 +248,7 @@ public class PerformanceTest {
     System.out.printf("Large object serialized in: %d ms\n", (t2 - t1));
 
     t1 = System.currentTimeMillis();
-    gson.fromJson(json, new TypeToken<Map<String, Long>>() {}.getType());
+    Map<String, Long> unused = gson.fromJson(json, new TypeToken<Map<String, Long>>() {}.getType());
     t2 = System.currentTimeMillis();
     System.out.printf("Large object deserialized in: %d ms\n", (t2 - t1));
 
@@ -297,7 +297,7 @@ public class PerformanceTest {
     Gson gson = new Gson();
     String json = gson.toJson(original);
     Type longToLong = new TypeToken<Map<Long, Long>>(){}.getType();
-    gson.fromJson(json, longToLong);
+    Map<Long, Long> unused = gson.fromJson(json, longToLong);
   }
 
   private String buildJsonForClassWithList() {

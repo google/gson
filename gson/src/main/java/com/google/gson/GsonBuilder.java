@@ -28,6 +28,7 @@ import static com.google.gson.Gson.DEFAULT_SERIALIZE_NULLS;
 import static com.google.gson.Gson.DEFAULT_SPECIALIZE_FLOAT_VALUES;
 import static com.google.gson.Gson.DEFAULT_USE_JDK_UNSAFE;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.gson.annotations.Since;
 import com.google.gson.annotations.Until;
 import com.google.gson.internal.$Gson$Preconditions;
@@ -159,6 +160,7 @@ public final class GsonBuilder {
    * @see Since
    * @see Until
    */
+  @CanIgnoreReturnValue
   public GsonBuilder setVersion(double version) {
     if (Double.isNaN(version) || version < 0.0) {
       throw new IllegalArgumentException("Invalid version: " + version);
@@ -181,6 +183,7 @@ public final class GsonBuilder {
    * {@link java.lang.reflect.Modifier#STATIC}.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
+  @CanIgnoreReturnValue
   public GsonBuilder excludeFieldsWithModifiers(int... modifiers) {
     Objects.requireNonNull(modifiers);
     excluder = excluder.withModifiers(modifiers);
@@ -196,6 +199,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.3
    */
+  @CanIgnoreReturnValue
   public GsonBuilder generateNonExecutableJson() {
     this.generateNonExecutableJson = true;
     return this;
@@ -210,6 +214,7 @@ public final class GsonBuilder {
    *
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
+  @CanIgnoreReturnValue
   public GsonBuilder excludeFieldsWithoutExposeAnnotation() {
     excluder = excluder.excludeFieldsWithoutExposeAnnotation();
     return this;
@@ -222,6 +227,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.2
    */
+  @CanIgnoreReturnValue
   public GsonBuilder serializeNulls() {
     this.serializeNulls = true;
     return this;
@@ -306,6 +312,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.7
    */
+  @CanIgnoreReturnValue
   public GsonBuilder enableComplexMapKeySerialization() {
     complexMapKeySerialization = true;
     return this;
@@ -330,6 +337,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.3
    */
+  @CanIgnoreReturnValue
   public GsonBuilder disableInnerClassSerialization() {
     excluder = excluder.disableInnerClassSerialization();
     return this;
@@ -343,6 +351,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.3
    */
+  @CanIgnoreReturnValue
   public GsonBuilder setLongSerializationPolicy(LongSerializationPolicy serializationPolicy) {
     this.longSerializationPolicy = Objects.requireNonNull(serializationPolicy);
     return this;
@@ -354,6 +363,7 @@ public final class GsonBuilder {
    *
    * <p>This method just delegates to {@link #setFieldNamingStrategy(FieldNamingStrategy)}.
    */
+  @CanIgnoreReturnValue
   public GsonBuilder setFieldNamingPolicy(FieldNamingPolicy namingConvention) {
     return setFieldNamingStrategy(namingConvention);
   }
@@ -370,6 +380,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.3
    */
+  @CanIgnoreReturnValue
   public GsonBuilder setFieldNamingStrategy(FieldNamingStrategy fieldNamingStrategy) {
     this.fieldNamingPolicy = Objects.requireNonNull(fieldNamingStrategy);
     return this;
@@ -383,6 +394,7 @@ public final class GsonBuilder {
    * @see ToNumberPolicy#DOUBLE The default object-to-number strategy
    * @since 2.8.9
    */
+  @CanIgnoreReturnValue
   public GsonBuilder setObjectToNumberStrategy(ToNumberStrategy objectToNumberStrategy) {
     this.objectToNumberStrategy = Objects.requireNonNull(objectToNumberStrategy);
     return this;
@@ -396,6 +408,7 @@ public final class GsonBuilder {
    * @see ToNumberPolicy#LAZILY_PARSED_NUMBER The default number-to-number strategy
    * @since 2.8.9
    */
+  @CanIgnoreReturnValue
   public GsonBuilder setNumberToNumberStrategy(ToNumberStrategy numberToNumberStrategy) {
     this.numberToNumberStrategy = Objects.requireNonNull(numberToNumberStrategy);
     return this;
@@ -427,6 +440,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.4
    */
+  @CanIgnoreReturnValue
   public GsonBuilder setExclusionStrategies(ExclusionStrategy... strategies) {
     Objects.requireNonNull(strategies);
     for (ExclusionStrategy strategy : strategies) {
@@ -450,6 +464,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.7
    */
+  @CanIgnoreReturnValue
   public GsonBuilder addSerializationExclusionStrategy(ExclusionStrategy strategy) {
     Objects.requireNonNull(strategy);
     excluder = excluder.withExclusionStrategy(strategy, true, false);
@@ -471,6 +486,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.7
    */
+  @CanIgnoreReturnValue
   public GsonBuilder addDeserializationExclusionStrategy(ExclusionStrategy strategy) {
     Objects.requireNonNull(strategy);
     excluder = excluder.withExclusionStrategy(strategy, false, true);
@@ -486,6 +502,7 @@ public final class GsonBuilder {
    *
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
+  @CanIgnoreReturnValue
   public GsonBuilder setPrettyPrinting() {
     return setPrettyPrinting(FormattingStyle.DEFAULT);
   }
@@ -500,6 +517,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since $next-version$
    */
+  @CanIgnoreReturnValue
   public GsonBuilder setPrettyPrinting(FormattingStyle formattingStyle) {
     this.formattingStyle = formattingStyle;
     return this;
@@ -515,6 +533,7 @@ public final class GsonBuilder {
    * @see JsonReader#setLenient(boolean)
    * @see JsonWriter#setLenient(boolean)
    */
+  @CanIgnoreReturnValue
   public GsonBuilder setLenient() {
     lenient = true;
     return this;
@@ -527,6 +546,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.3
    */
+  @CanIgnoreReturnValue
   public GsonBuilder disableHtmlEscaping() {
     this.escapeHtmlChars = false;
     return this;
@@ -548,6 +568,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.2
    */
+  @CanIgnoreReturnValue
   public GsonBuilder setDateFormat(String pattern) {
     // TODO(Joel): Make this fail fast if it is an invalid date format
     this.datePattern = pattern;
@@ -568,6 +589,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.2
    */
+  @CanIgnoreReturnValue
   public GsonBuilder setDateFormat(int style) {
     this.dateStyle = style;
     this.datePattern = null;
@@ -589,6 +611,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.2
    */
+  @CanIgnoreReturnValue
   public GsonBuilder setDateFormat(int dateStyle, int timeStyle) {
     this.dateStyle = dateStyle;
     this.timeStyle = timeStyle;
@@ -618,6 +641,7 @@ public final class GsonBuilder {
    * {@link InstanceCreator}, {@link JsonSerializer}, and a {@link JsonDeserializer} interfaces.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */
+  @CanIgnoreReturnValue
   public GsonBuilder registerTypeAdapter(Type type, Object typeAdapter) {
     Objects.requireNonNull(type);
     $Gson$Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
@@ -651,6 +675,7 @@ public final class GsonBuilder {
    *
    * @since 2.1
    */
+  @CanIgnoreReturnValue
   public GsonBuilder registerTypeAdapterFactory(TypeAdapterFactory factory) {
     Objects.requireNonNull(factory);
     factories.add(factory);
@@ -671,6 +696,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.7
    */
+  @CanIgnoreReturnValue
   public GsonBuilder registerTypeHierarchyAdapter(Class<?> baseType, Object typeAdapter) {
     Objects.requireNonNull(baseType);
     $Gson$Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
@@ -707,6 +733,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.3
    */
+  @CanIgnoreReturnValue
   public GsonBuilder serializeSpecialFloatingPointValues() {
     this.serializeSpecialFloatingPointValues = true;
     return this;
@@ -728,6 +755,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 2.9.0
    */
+  @CanIgnoreReturnValue
   public GsonBuilder disableJdkUnsafe() {
     this.useJdkUnsafe = false;
     return this;
@@ -753,6 +781,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 2.9.1
    */
+  @CanIgnoreReturnValue
   public GsonBuilder addReflectionAccessFilter(ReflectionAccessFilter filter) {
     Objects.requireNonNull(filter);
     reflectionFilters.addFirst(filter);

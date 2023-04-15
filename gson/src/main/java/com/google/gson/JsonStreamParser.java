@@ -33,7 +33,7 @@ import java.util.NoSuchElementException;
  * <p>This class is conditionally thread-safe (see Item 70, Effective Java second edition). To
  * properly use this class across multiple threads, you will need to add some external
  * synchronization. For example:
- * 
+ *
  * <pre>
  * JsonStreamParser parser = new JsonStreamParser("['first'] {'second':10} 'third'");
  * JsonElement element;

@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Arrays;
+import com.google.gson.stream.JsonToken;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -875,8 +876,8 @@ public final class JsonReaderTest {
 
     reader = new JsonReader(reader("{\"a\":true}"));
     reader.beginObject();
-    reader.nextName();
-    reader.peek();
+    String unused1 = reader.nextName();
+    JsonToken unused2 = reader.peek();
     reader.close();
     try {
       reader.nextBoolean();
@@ -891,14 +892,14 @@ public final class JsonReaderTest {
     JsonReader reader = new JsonReader(reader("{\"a\":true}"));
     reader.beginObject();
     try {
-      reader.nextString();
+      String unused = reader.nextString();
       fail();
     } catch (IllegalStateException expected) {
       assertUnexpectedStructureError(expected, "a string", "NAME", "line 1 column 3 path $.");
     }
     assertThat(reader.nextName()).isEqualTo("a");
     try {
-      reader.nextName();
+      String unused = reader.nextName();
       fail();
     } catch (IllegalStateException expected) {
       assertUnexpectedStructureError(expected, "a name", "BOOLEAN", "line 1 column 10 path $.a");
@@ -1286,7 +1287,7 @@ public final class JsonReaderTest {
     JsonReader reader = new JsonReader(reader("[true;true]"));
     reader.beginArray();
     try {
-      reader.nextBoolean();
+      boolean unused = reader.nextBoolean();
       fail();
     } catch (MalformedJsonException expected) {
       assertStrictError(expected, "line 1 column 2 path $[0]");
@@ -1320,7 +1321,7 @@ public final class JsonReaderTest {
     reader.beginObject();
     assertThat(reader.nextName()).isEqualTo("a");
     try {
-      reader.nextBoolean();
+      boolean unused = reader.nextBoolean();
       fail();
     } catch (MalformedJsonException expected) {
       assertStrictError(expected, "line 1 column 6 path $.a");
@@ -1668,9 +1669,9 @@ public final class JsonReaderTest {
     JsonReader reader1 = new JsonReader(reader(json));
     reader1.setLenient(true);
     reader1.beginArray();
-    reader1.nextString();
+    String unused1 = reader1.nextString();
     try {
-      reader1.peek();
+      JsonToken unused2 = reader1.peek();
       fail();
     } catch (MalformedJsonException expected) {
       assertThat(expected).hasMessageThat().isEqualTo(message + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#malformed-json");
@@ -1682,7 +1683,7 @@ public final class JsonReaderTest {
     reader2.beginArray();
     reader2.skipValue();
     try {
-      reader2.peek();
+      JsonToken unused3 = reader2.peek();
       fail();
     } catch (MalformedJsonException expected) {
       assertThat(expected).hasMessageThat().isEqualTo(message + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#malformed-json");
@@ -1693,14 +1694,14 @@ public final class JsonReaderTest {
   public void testFailWithPositionDeepPath() throws IOException {
     JsonReader reader = new JsonReader(reader("[1,{\"a\":[2,3,}"));
     reader.beginArray();
-    reader.nextInt();
+    int unused1 = reader.nextInt();
     reader.beginObject();
-    reader.nextName();
+    String unused2 = reader.nextName();
     reader.beginArray();
-    reader.nextInt();
-    reader.nextInt();
+    int unused3 = reader.nextInt();
+    int unused4 = reader.nextInt();
     try {
-      reader.peek();
+      JsonToken unused5 = reader.peek();
       fail();
     } catch (MalformedJsonException expected) {
       assertThat(expected).hasMessageThat().isEqualTo(
