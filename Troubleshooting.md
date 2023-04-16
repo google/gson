@@ -17,7 +17,7 @@ This guide describes how to troubleshoot common issues when using Gson.
   See the [user guide](UserGuide.md#collections-examples) for more information.
 - When using `TypeToken` prefer the `Gson.fromJson` overloads with `TypeToken` parameter such as [`fromJson(Reader, TypeToken)`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/Gson.html#fromJson(java.io.Reader,com.google.gson.reflect.TypeToken)).
   The overloads with `Type` parameter do not provide any type-safety guarantees.
-- When using `TypeToken` make sure you don't capture a type variable. For example avoid something like `new TypeToken<List<T>>()` (where `T` is a type variable). Due to Java type erasure the actual type of `T` is not available at runtime. Refactor your code to pass around `TypeToken` instances or use [`TypeToken.getParameterized(...)`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/reflect/TypeToken.html#getParameterized(java.lang.reflect.Type,java.lang.reflect.Type...)), for example `TypeToken.getParameterized(List.class, elementClass)`.
+- When using `TypeToken` make sure you don't capture a type variable. For example avoid something like `new TypeToken<List<T>>()` (where `T` is a type variable). Due to Java [type erasure](https://dev.java/learn/generics/type-erasure/) the actual type of `T` is not available at runtime. Refactor your code to pass around `TypeToken` instances or use [`TypeToken.getParameterized(...)`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/reflect/TypeToken.html#getParameterized(java.lang.reflect.Type,java.lang.reflect.Type...)), for example `TypeToken.getParameterized(List.class, elementType)` where `elementType` is a type you have to provide separately.
 
 ## <a id="reflection-inaccessible"></a> `InaccessibleObjectException`: 'module ... does not "opens ..." to unnamed module'
 
@@ -327,3 +327,23 @@ Note: For newer Gson versions these rules might be applied automatically; make s
 For Android you can add this rule to the `proguard-rules.pro` file, see also the [Android documentation](https://developer.android.com/build/shrink-code#keep-code). In case the class name in the exception message is obfuscated, see the Android documentation about [retracing](https://developer.android.com/build/shrink-code#retracing).
 
 Note: If the class which you are trying to deserialize is actually abstract, then this exception is probably unrelated to R8 and you will have to implement a custom [`InstanceCreator`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/InstanceCreator.html) or [`TypeAdapter`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/TypeAdapter.html) which creates an instance of a non-abstract subclass of the class.
+
+## <a id="typetoken-type-variable"></a> `IllegalArgumentException`: 'TypeToken type argument must not contain a type variable'
+
+**Symptom:** An exception with the message 'TypeToken type argument must not contain a type variable' is thrown
+
+**Reason:** This exception is thrown when you create an anonymous `TypeToken` subclass which captures a type variable, for example `new TypeToken<List<T>>() {}` (where `T` is a type variable). At compile time such code looks safe and you can use the type `List<T>` without any warnings. However, this code is not actually type safe because at runtime due to [type erasure](https://dev.java/learn/generics/type-erasure/) only the upper bound of the type variable is available. For the previous example that would be `List<Object>`. When using such a `TypeToken` with any Gson methods performing deserialization this would lead to confusing and difficult to debug `ClassCastException`s. For serialization it can in some cases also lead to undesired results.
+
+Note: Earlier version of Gson unfortunately did not prevent capturing type variables, which caused many users to unwittingly write type unsafe code.
+
+**Solution:**
+
+- Use [`TypeToken.getParameterized(...)`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/reflect/TypeToken.html#getParameterized(java.lang.reflect.Type,java.lang.reflect.Type...)), for example `TypeToken.getParameterized(List.class, elementType)` where `elementType` is a type you have to provide separately.
+- For Kotlin users: Use [`reified` type parameters](https://kotlinlang.org/docs/inline-functions.html#reified-type-parameters), that means change `<T>` to `<reified T>`, if possible. If you have a chain of functions with type parameters you will probably have to make all of them `reified`.
+- If you don't actually use Gson's `TypeToken` for any Gson method, use a general purpose 'type token' implementation provided by a different library instead, for example Guava's [`com.google.common.reflect.TypeToken`](https://javadoc.io/doc/com.google.guava/guava/latest/com/google/common/reflect/TypeToken.html).
+
+For backward compatibility it is possible to restore Gson's old behavior of allowing `TypeToken` to capture type variables by setting the [system property](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/System.html#setProperty(java.lang.String,java.lang.String)) `gson.allow-capturing-type-variables` to `"true"`.  
+**Important:**
+
+- This does not solve any of the type safety problems mentioned above; in the long term you should prefer one of the other solutions listed above. This system property might be removed in future Gson versions.
+- You should only ever set the property to `"true"`, but never to any other value or manually clear it. Otherwise this might counteract any libraries you are using which might have deliberately set the system property because they rely on its behavior.
