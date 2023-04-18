@@ -144,7 +144,7 @@ import java.util.concurrent.atomic.AtomicLongArray;
  */
 public final class Gson {
   static final boolean DEFAULT_JSON_NON_EXECUTABLE = false;
-  static final Strictness DEFAULT_STRICTNESS = Strictness.DEFAULT;
+  static final Strictness DEFAULT_STRICTNESS = null;
   static final FormattingStyle DEFAULT_FORMATTING_STYLE = null;
   static final boolean DEFAULT_ESCAPE_HTML = true;
   static final boolean DEFAULT_SERIALIZE_NULLS = false;
@@ -850,7 +850,9 @@ public final class Gson {
     TypeAdapter<Object> adapter = (TypeAdapter<Object>) getAdapter(TypeToken.get(typeOfSrc));
 
     Strictness oldStrictness = writer.getStrictness();
-    if (oldStrictness == Strictness.DEFAULT) {
+    if (this.strictness != null) {
+      writer.setStrictness(this.strictness);
+    } else if (writer.getStrictness() == Strictness.DEFAULT){
       writer.setStrictness(Strictness.LENIENT);
     }
 
@@ -922,7 +924,7 @@ public final class Gson {
     JsonWriter jsonWriter = new JsonWriter(writer);
     jsonWriter.setFormattingStyle(formattingStyle);
     jsonWriter.setHtmlSafe(htmlSafe);
-    jsonWriter.setStrictness(strictness);
+    jsonWriter.setStrictness(strictness == null ? Strictness.DEFAULT : strictness);
     jsonWriter.setSerializeNulls(serializeNulls);
     return jsonWriter;
   }
@@ -937,7 +939,7 @@ public final class Gson {
    */
   public JsonReader newJsonReader(Reader reader) {
     JsonReader jsonReader = new JsonReader(reader);
-    jsonReader.setStrictness(strictness);
+    jsonReader.setStrictness(strictness == null ? Strictness.DEFAULT : strictness);
     return jsonReader;
   }
 
@@ -1248,9 +1250,13 @@ public final class Gson {
   public <T> T fromJson(JsonReader reader, TypeToken<T> typeOfT) throws JsonIOException, JsonSyntaxException {
     boolean isEmpty = true;
     Strictness oldStrictness = reader.getStrictness();
-    if (oldStrictness == Strictness.DEFAULT) {
+
+    if (this.strictness != null) {
+      reader.setStrictness(this.strictness);
+    } else if (reader.getStrictness() == Strictness.DEFAULT){
       reader.setStrictness(Strictness.LENIENT);
     }
+
     try {
       reader.peek();
       isEmpty = false;

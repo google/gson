@@ -61,7 +61,7 @@ public final class GsonTest {
 
   @Test
   public void testStrictnessDefault() {
-    assertThat(new Gson().strictness).isEqualTo(Strictness.DEFAULT);
+    assertThat(new Gson().strictness).isNull();
   }
 
   @Test
