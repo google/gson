@@ -105,11 +105,12 @@ import java.util.concurrent.atomic.AtomicLongArray;
  * <p>See the <a href="https://github.com/google/gson/blob/master/UserGuide.md">Gson User Guide</a>
  * for a more complete set of examples.</p>
  *
- * <h2>Lenient JSON handling</h2>
- * For legacy reasons most of the {@code Gson} methods by default allow JSON data which does not
- * comply with the JSON specification, even when the strictness {@link Strictness#LEGACY_STRICT}
- * is used. To restrict a {@code Gson} instance from parsing JSON that
- * does not comply with the JSON specification, {@link Strictness#STRICT} mode should be used.
+ * <h2>JSON Strictness handling</h2>
+ * For legacy reasons most of the {@code Gson} methods allow JSON data which does not
+ * comply with the JSON specification when the strictness is set to {@code null} (the default value).
+ * To specify the {@linkplain Strictness strictness} of a {@code Gson} instance, you should set it through
+ * {@link GsonBuilder#setStrictness(Strictness)}. If the strictness of a {@code Gson} instance is set to a not-null
+ * value, the strictness will always be enforced.
  *
  * <p>For older Gson versions which don't have the {@link Strictness} mode API the following
  * workarounds can be used:
@@ -235,7 +236,7 @@ public final class Gson {
    *   <li>By default, Gson excludes <code>transient</code> or <code>static</code> fields from
    *   consideration for serialization and deserialization. You can change this behavior through
    *   {@link GsonBuilder#excludeFieldsWithModifiers(int...)}.</li>
-   *   <li>The strictness is set to {@link Strictness#LEGACY_STRICT}.</li>
+   *   <li>The strictness is set to {@code null}.</li>
    * </ul>
    */
   public Gson() {
@@ -827,11 +828,11 @@ public final class Gson {
    * Writes the JSON representation of {@code src} of type {@code typeOfSrc} to
    * {@code writer}.
    *
-   * <p> The JSON is written in the {@linkplain Strictness strictness} mode of the
-   * the provided {@link JsonWriter} except when the writer is in
-   * {@linkplain Strictness#LEGACY_STRICT default} mode. In that case, for legacy reasons,
-   * the JSON is written in {@link Strictness#LENIENT lenient} mode.
-   * The original strictness mode of the writer is restored when this method returns.
+   <p> If the {@code Gson} instance has a not-null strictness setting, this setting will be used for reading the JSON
+   * regardless of the {@linkplain JsonReader#getStrictness() strictness} of the provided {@link JsonReader}. For legacy
+   * reasons, if the {@code Gson} instance has {@code null} as its strictness setting and the provided {@link JsonReader}
+   * has a strictness of {@link Strictness#LEGACY_STRICT}, the JSON will be read in {@linkplain Strictness#LENIENT}
+   * mode. Note that in both cases the old strictness value of the reader will be restored when this method returns.
    *
    * <p>The 'HTML-safe' and 'serialize {@code null}' settings of this {@code Gson} instance
    * (configured by the {@link GsonBuilder}) are applied, and the original settings of the
@@ -840,8 +841,6 @@ public final class Gson {
    * @param src the object to be written.
    * @param typeOfSrc the type of the object to be written.
    * @param writer the {@link JsonWriter} writer to which the provided object will be written.
-   *               Note that the strictness of the provided writer will be used regardless of the
-   *               strictness of the {@code Gson} instance.
    *
    * @throws JsonIOException if there was a problem writing to the writer
    */
@@ -912,7 +911,9 @@ public final class Gson {
    *   <li>{@link GsonBuilder#disableHtmlEscaping()}</li>
    *   <li>{@link GsonBuilder#generateNonExecutableJson()}</li>
    *   <li>{@link GsonBuilder#serializeNulls()}</li>
-   *   <li>{@link GsonBuilder#setStrictness(Strictness)}</li>
+   *   <li>{@link GsonBuilder#setStrictness(Strictness)}. If the strictness of this {@code Gson} instance
+   *   is set to {@code null}, the created writer will have a strictness of {@link Strictness#LEGACY_STRICT}.
+   *   If the strictness is set to a non-null value, this strictness will be used for the created writer.</li>
    *   <li>{@link GsonBuilder#setPrettyPrinting()}</li>
    *   <li>{@link GsonBuilder#setPrettyPrinting(FormattingStyle)}</li>
    * </ul>
@@ -934,7 +935,9 @@ public final class Gson {
    *
    * <p>The following settings are considered:
    * <ul>
-   *   <li>{@link GsonBuilder#setStrictness(Strictness)}</li>
+   *   <li>{@link GsonBuilder#setStrictness(Strictness)}. If the strictness of this {@code Gson} instance
+   *   is set to {@code null}, the created reader will have a strictness of {@link Strictness#LEGACY_STRICT}.
+   *   If the strictness is set to a non-null value, this strictness will be used for the created reader.</li>
    * </ul>
    */
   public JsonReader newJsonReader(Reader reader) {
@@ -946,10 +949,11 @@ public final class Gson {
   /**
    * Writes the JSON for {@code jsonElement} to {@code writer}.
    *
-   * <p> The JSON is written using the {@linkplain Strictness strictness} of the provided writer except
-   * when the provided writer is in {@linkplain Strictness#LEGACY_STRICT default} mode. In that case, the
-   * JSON is written in {@linkplain Strictness#LENIENT lenient} mode. The old strictness of the writer
-   * is restored when the method returns.
+   * <p> If the {@code Gson} instance has a not-null strictness setting, this setting will be used for writing the JSON
+   * regardless of the {@linkplain JsonWriter#getStrictness() strictness} of the provided {@link JsonWriter}. For legacy
+   * reasons, if the {@code Gson} instance has {@code null} as its strictness setting and the provided {@link JsonWriter}
+   * has a strictness of {@link Strictness#LEGACY_STRICT}, the JSON will be written in {@linkplain Strictness#LENIENT}
+   * mode. Note that in both cases the old strictness value of the writer will be restored when this method returns.
    *
    * <p>The 'HTML-safe' and 'serialize {@code null}' settings of this {@code Gson} instance
    * (configured by the {@link GsonBuilder}) are applied, and the original settings of the
@@ -967,7 +971,9 @@ public final class Gson {
     writer.setHtmlSafe(htmlSafe);
     writer.setSerializeNulls(serializeNulls);
 
-    if (writer.getStrictness() == Strictness.LEGACY_STRICT) {
+    if (this.strictness != null) {
+      writer.setStrictness(this.strictness);
+    } else if (writer.getStrictness() == Strictness.LEGACY_STRICT) {
       writer.setStrictness(Strictness.LENIENT);
     }
 
@@ -1226,10 +1232,11 @@ public final class Gson {
    * <p>Unlike the other {@code fromJson} methods, no exception is thrown if the JSON data has
    * multiple top-level JSON elements, or if there is trailing data.
    *
-   * <p>The {@linkplain JsonReader#setStrictness(Strictness) strictness} of the provided reader
-   * will be used except when when the reader is in {@linkplain Strictness#LEGACY_STRICT} mode.
-   * In that case, for legacy reasons, the strictness of the reader will temporarily be set to
-   * {@linkplain Strictness#LENIENT lenient}. The old strictness value is restored when the method returns.
+   * <p> If the {@code Gson} instance has a not-null strictness setting, this setting will be used for reading the JSON
+   * regardless of the {@linkplain JsonReader#getStrictness() strictness} of the provided {@link JsonReader}. For legacy
+   * reasons, if the {@code Gson} instance has {@code null} as its strictness setting and the provided {@link JsonReader}
+   * has a strictness of {@link Strictness#LEGACY_STRICT}, the JSON will be read in {@linkplain Strictness#LENIENT}
+   * mode. Note that in both cases the old strictness value of the reader will be restored when this method returns.
    *
    * @param <T> the type of the desired object
    * @param reader the reader whose next JSON value should be deserialized
