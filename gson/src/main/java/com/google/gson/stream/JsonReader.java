@@ -317,7 +317,7 @@ public class JsonReader implements Closeable {
    *
    * <p>In {@linkplain Strictness#STRICT strict} mode, the
    * parser only accepts JSON in accordance with <a href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>.
-   * In {@linkplain Strictness#LEGACY_STRICT default} mode, only JSON in accordance with the <a
+   * In {@linkplain Strictness#LEGACY_STRICT legacy strict} mode, only JSON in accordance with the <a
    * href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a> is accepted, with a few exceptions denoted below
    * for backwards compatibility reasons. In {@linkplain Strictness#LENIENT lenient} mode,
    * all sort of non-spec compliant JSON is accepted (see below).</p>
@@ -330,7 +330,7 @@ public class JsonReader implements Closeable {
    *     </dd>
    *     <dt>{@link Strictness#LEGACY_STRICT}</dt>
    *     <dd>
-   *         In default mode, the following departures from <a href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>
+   *         In legacy strict mode, the following departures from <a href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>
    *         are accepted:
    *         <ul>
    *             <li>JsonReader allows the literals {@code true}, {@code false} and {@code null}
@@ -344,11 +344,11 @@ public class JsonReader implements Closeable {
    *     </dd>
    *     <dt>{@link Strictness#LENIENT}</dt>
    *     <dd>
-   *         In lenient mode, all input that is accepted in default mode is accepted in addition to the following
+   *         In lenient mode, all input that is accepted in legacy strict mode is accepted in addition to the following
    *         departures from <a href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>:
    *         <ul>
    *             <li>Streams that start with the <a href="#nonexecuteprefix">non-execute prefix</a>, {@code ")]}'\n"}
-   *             <li>Streams that include multiple top-level values. With default or strict parsing,
+   *             <li>Streams that include multiple top-level values. With legacy strict or strict parsing,
    *                 each stream must contain exactly one top-level value.
    *             <li>Numbers may be {@link Double#isNaN() NaNs} or {@link Double#isInfinite() infinities} represented by
    *                 {@code NaN} and {@code (-)Infinity} respectively.
