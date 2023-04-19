@@ -508,7 +508,7 @@ public final class GsonBuilder {
    * <p>Calling this method is equivalent to {@code setStrictness(Strictness.LENIENT)}</p>
    *
    * <p>Note: Due to legacy reasons most methods of Gson are {@linkplain Strictness#LENIENT lenient}
-   * even when {@linkplain Strictness#DEFAULT default} mode is used. In
+   * even when {@linkplain Strictness#LEGACY_STRICT default} mode is used. In
    * {@linkplain Strictness#STRICT strict} mode, this does not happen.
    *
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern.

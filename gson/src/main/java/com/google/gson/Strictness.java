@@ -21,8 +21,8 @@ public enum Strictness {
     /** Allow large deviations from the JSON specification. */
     LENIENT,
 
-    /** Allow certain small deviations from the JSON specification. */
-    DEFAULT,
+    /** Allow certain small deviations from the JSON specification for legacy reasons. */
+    LEGACY_STRICT,
 
     /** Strict compliance with the JSON specification. */
     STRICT

@@ -191,7 +191,7 @@ public class JsonWriter implements Closeable, Flushable {
    */
   private String separator = ":";
 
-  private Strictness strictness = Strictness.DEFAULT;
+  private Strictness strictness = Strictness.LEGACY_STRICT;
 
   private boolean htmlSafe;
 
@@ -260,11 +260,11 @@ public class JsonWriter implements Closeable, Flushable {
    * Sets the strictness of this writer.
    *
    * @param lenient whether this writer should be lenient. If true, the strictness is set to {@link Strictness#LENIENT}.
-   *                If false, the strictness is set to {@link Strictness#DEFAULT}.
+   *                If false, the strictness is set to {@link Strictness#LEGACY_STRICT}.
    * @see #setStrictness(Strictness)
    */
   public final void setLenient(boolean lenient) {
-    this.strictness = lenient ? Strictness.LENIENT : Strictness.DEFAULT;
+    this.strictness = lenient ? Strictness.LENIENT : Strictness.LEGACY_STRICT;
   }
 
   /**
@@ -278,10 +278,10 @@ public class JsonWriter implements Closeable, Flushable {
 
   /**
    * Configures how strict this writer is with regard to the syntax rules specified in <a
-   * href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>. By default, {@link Strictness#DEFAULT} is used.
+   * href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>. By default, {@link Strictness#LEGACY_STRICT} is used.
    *
    * <dl>
-   *     <dt>{@link Strictness#STRICT} &amp; {@link Strictness#DEFAULT}</dt>
+   *     <dt>{@link Strictness#STRICT} &amp; {@link Strictness#LEGACY_STRICT}</dt>
    *     <dd>
    *         The behavior of these is currently identical. In these strictness modes, the writer only writes JSON
    *         in accordance with <a href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>.

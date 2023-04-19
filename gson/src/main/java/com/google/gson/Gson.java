@@ -107,7 +107,7 @@ import java.util.concurrent.atomic.AtomicLongArray;
  *
  * <h2>Lenient JSON handling</h2>
  * For legacy reasons most of the {@code Gson} methods by default allow JSON data which does not
- * comply with the JSON specification, even when the strictness {@link Strictness#DEFAULT}
+ * comply with the JSON specification, even when the strictness {@link Strictness#LEGACY_STRICT}
  * is used. To restrict a {@code Gson} instance from parsing JSON that
  * does not comply with the JSON specification, {@link Strictness#STRICT} mode should be used.
  *
@@ -235,7 +235,7 @@ public final class Gson {
    *   <li>By default, Gson excludes <code>transient</code> or <code>static</code> fields from
    *   consideration for serialization and deserialization. You can change this behavior through
    *   {@link GsonBuilder#excludeFieldsWithModifiers(int...)}.</li>
-   *   <li>The strictness is set to {@link Strictness#DEFAULT}.</li>
+   *   <li>The strictness is set to {@link Strictness#LEGACY_STRICT}.</li>
    * </ul>
    */
   public Gson() {
@@ -829,7 +829,7 @@ public final class Gson {
    *
    * <p> The JSON is written in the {@linkplain Strictness strictness} mode of the
    * the provided {@link JsonWriter} except when the writer is in
-   * {@linkplain Strictness#DEFAULT default} mode. In that case, for legacy reasons,
+   * {@linkplain Strictness#LEGACY_STRICT default} mode. In that case, for legacy reasons,
    * the JSON is written in {@link Strictness#LENIENT lenient} mode.
    * The original strictness mode of the writer is restored when this method returns.
    *
@@ -852,7 +852,7 @@ public final class Gson {
     Strictness oldStrictness = writer.getStrictness();
     if (this.strictness != null) {
       writer.setStrictness(this.strictness);
-    } else if (writer.getStrictness() == Strictness.DEFAULT){
+    } else if (writer.getStrictness() == Strictness.LEGACY_STRICT){
       writer.setStrictness(Strictness.LENIENT);
     }
 
@@ -924,7 +924,7 @@ public final class Gson {
     JsonWriter jsonWriter = new JsonWriter(writer);
     jsonWriter.setFormattingStyle(formattingStyle);
     jsonWriter.setHtmlSafe(htmlSafe);
-    jsonWriter.setStrictness(strictness == null ? Strictness.DEFAULT : strictness);
+    jsonWriter.setStrictness(strictness == null ? Strictness.LEGACY_STRICT : strictness);
     jsonWriter.setSerializeNulls(serializeNulls);
     return jsonWriter;
   }
@@ -939,7 +939,7 @@ public final class Gson {
    */
   public JsonReader newJsonReader(Reader reader) {
     JsonReader jsonReader = new JsonReader(reader);
-    jsonReader.setStrictness(strictness == null ? Strictness.DEFAULT : strictness);
+    jsonReader.setStrictness(strictness == null ? Strictness.LEGACY_STRICT : strictness);
     return jsonReader;
   }
 
@@ -947,7 +947,7 @@ public final class Gson {
    * Writes the JSON for {@code jsonElement} to {@code writer}.
    *
    * <p> The JSON is written using the {@linkplain Strictness strictness} of the provided writer except
-   * when the provided writer is in {@linkplain Strictness#DEFAULT default} mode. In that case, the
+   * when the provided writer is in {@linkplain Strictness#LEGACY_STRICT default} mode. In that case, the
    * JSON is written in {@linkplain Strictness#LENIENT lenient} mode. The old strictness of the writer
    * is restored when the method returns.
    *
@@ -967,7 +967,7 @@ public final class Gson {
     writer.setHtmlSafe(htmlSafe);
     writer.setSerializeNulls(serializeNulls);
 
-    if (writer.getStrictness() == Strictness.DEFAULT) {
+    if (writer.getStrictness() == Strictness.LEGACY_STRICT) {
       writer.setStrictness(Strictness.LENIENT);
     }
 
@@ -1227,7 +1227,7 @@ public final class Gson {
    * multiple top-level JSON elements, or if there is trailing data.
    *
    * <p>The {@linkplain JsonReader#setStrictness(Strictness) strictness} of the provided reader
-   * will be used except when when the reader is in {@linkplain Strictness#DEFAULT} mode.
+   * will be used except when when the reader is in {@linkplain Strictness#LEGACY_STRICT} mode.
    * In that case, for legacy reasons, the strictness of the reader will temporarily be set to
    * {@linkplain Strictness#LENIENT lenient}. The old strictness value is restored when the method returns.
    *
@@ -1253,7 +1253,7 @@ public final class Gson {
 
     if (this.strictness != null) {
       reader.setStrictness(this.strictness);
-    } else if (reader.getStrictness() == Strictness.DEFAULT){
+    } else if (reader.getStrictness() == Strictness.LEGACY_STRICT){
       reader.setStrictness(Strictness.LENIENT);
     }
 

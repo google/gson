@@ -228,7 +228,7 @@ public class JsonReader implements Closeable {
   private final Reader in;
 
   /** True to accept non-spec compliant JSON */
-  private Strictness strictness = Strictness.DEFAULT;
+  private Strictness strictness = Strictness.LEGACY_STRICT;
 
   static final int BUFFER_SIZE = 1024;
   /**
@@ -296,11 +296,11 @@ public class JsonReader implements Closeable {
    * Sets the strictness of this reader.
    *
    * @param lenient whether this reader should be lenient. If true, the strictness is set to {@link Strictness#LENIENT}.
-   *                If false, the strictness is set to {@link Strictness#DEFAULT}.
+   *                If false, the strictness is set to {@link Strictness#LEGACY_STRICT}.
    * @see #setStrictness(Strictness)
    */
   public final void setLenient(boolean lenient) {
-    this.strictness = lenient ? Strictness.LENIENT : Strictness.DEFAULT;
+    this.strictness = lenient ? Strictness.LENIENT : Strictness.LEGACY_STRICT;
   }
 
   /**
@@ -317,7 +317,7 @@ public class JsonReader implements Closeable {
    *
    * <p>In {@linkplain Strictness#STRICT strict} mode, the
    * parser only accepts JSON in accordance with <a href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>.
-   * In {@linkplain Strictness#DEFAULT default} mode, only JSON in accordance with the <a
+   * In {@linkplain Strictness#LEGACY_STRICT default} mode, only JSON in accordance with the <a
    * href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a> is accepted, with a few exceptions denoted below
    * for backwards compatibility reasons. In {@linkplain Strictness#LENIENT lenient} mode,
    * all sort of non-spec compliant JSON is accepted (see below).</p>
@@ -328,7 +328,7 @@ public class JsonReader implements Closeable {
    *         In strict mode, only input compliant with <a href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>
    *         is accepted.
    *     </dd>
-   *     <dt>{@link Strictness#DEFAULT}</dt>
+   *     <dt>{@link Strictness#LEGACY_STRICT}</dt>
    *     <dd>
    *         In default mode, the following departures from <a href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>
    *         are accepted:

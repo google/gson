@@ -35,7 +35,7 @@ public final class JsonWriterTest {
   @Test
   public void testDefaultStrictness() throws IOException {
     JsonWriter jsonWriter = new JsonWriter(new StringWriter());
-    assertThat(jsonWriter.getStrictness()).isEqualTo(Strictness.DEFAULT);
+    assertThat(jsonWriter.getStrictness()).isEqualTo(Strictness.LEGACY_STRICT);
     jsonWriter.value(false);
     jsonWriter.close();
   }
@@ -53,7 +53,7 @@ public final class JsonWriterTest {
   public void testSetLenientFalse() throws IOException {
     JsonWriter jsonWriter = new JsonWriter(new StringWriter());
     jsonWriter.setLenient(false);
-    assertThat(jsonWriter.getStrictness()).isEqualTo(Strictness.DEFAULT);
+    assertThat(jsonWriter.getStrictness()).isEqualTo(Strictness.LEGACY_STRICT);
     jsonWriter.value(false);
     jsonWriter.close();
   }

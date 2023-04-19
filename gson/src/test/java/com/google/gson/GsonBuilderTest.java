@@ -231,8 +231,8 @@ public class GsonBuilderTest {
   public void testDefaultStrictness() throws IOException {
     GsonBuilder builder = new GsonBuilder();
     Gson gson = builder.create();
-    assertThat(gson.newJsonReader(new StringReader("{}}")).getStrictness()).isEqualTo(Strictness.DEFAULT);
-    assertThat(gson.newJsonWriter(new StringWriter()).getStrictness()).isEqualTo(Strictness.DEFAULT);
+    assertThat(gson.newJsonReader(new StringReader("{}}")).getStrictness()).isEqualTo(Strictness.LEGACY_STRICT);
+    assertThat(gson.newJsonWriter(new StringWriter()).getStrictness()).isEqualTo(Strictness.LEGACY_STRICT);
   }
 
   @Test

@@ -52,7 +52,7 @@ public final class JsonReaderTest {
   public void testSetLenientFalse() {
     JsonReader reader = new JsonReader(reader("{}"));
     reader.setLenient(false);
-    assertThat(reader.getStrictness()).isEqualTo(Strictness.DEFAULT);
+    assertThat(reader.getStrictness()).isEqualTo(Strictness.LEGACY_STRICT);
   }
 
   @Test
