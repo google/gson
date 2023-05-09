@@ -132,7 +132,11 @@
             <compilerArgs>
               <!-- Args related to Error Prone, see: https://errorprone.info/docs/installation#maven -->
               <arg>-XDcompilePolicy=simple</arg>
-              <arg>-Xplugin:ErrorProne -XepExcludedPaths:.*/generated-test-sources/protobuf/.*</arg>
+              <arg>-Xplugin:ErrorProne
+                -XepExcludedPaths:.*/generated-test-sources/protobuf/.*
+                -Xep:HidingField:OFF <!-- https://github.com/google/error-prone/issues/3895 -->
+                -Xep:NotJavadoc:OFF <!-- Triggered by local class. -->
+              </arg>
               <!-- Enable all warnings, except for ones which cause issues when building with newer JDKs, see also
                 https://docs.oracle.com/en/java/javase/11/tools/javac.html -->
               <compilerArg>-Xlint:all,-options</compilerArg>
@@ -141,7 +145,7 @@
               <path>
                 <groupId>com.google.errorprone</groupId>
                 <artifactId>error_prone_core</artifactId>
-                <version>2.18.0</version>
+                <version>2.19.0</version>
               </path>
             </annotationProcessorPaths>
           </configuration>
