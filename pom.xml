@@ -132,8 +132,7 @@
             <compilerArgs>
               <!-- Args related to Error Prone, see: https://errorprone.info/docs/installation#maven -->
               <arg>-XDcompilePolicy=simple</arg>
-              <arg>-Xplugin:ErrorProne</arg>
-              <arg>-XepExcludedPaths:.*/generated-test-sources/protobuf/.*</arg>
+              <arg>-Xplugin:ErrorProne -XepExcludedPaths:.*/generated-test-sources/protobuf/.*</arg>
               <!-- Disable Error Prone's HidingField because of a NoSuchMethodError bug. -->
               <arg>-Xep:HidingField:OFF</arg>
               <!-- Enable all warnings, except for ones which cause issues when building with newer JDKs, see also
