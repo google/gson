@@ -134,7 +134,6 @@
               <arg>-XDcompilePolicy=simple</arg>
               <arg>-Xplugin:ErrorProne
                 -XepExcludedPaths:.*/generated-test-sources/protobuf/.*
-                -Xep:HidingField:OFF <!-- https://github.com/google/error-prone/issues/3895 -->
                 -Xep:NotJavadoc:OFF <!-- Triggered by local class. -->
               </arg>
               <!-- Enable all warnings, except for ones which cause issues when building with newer JDKs, see also
