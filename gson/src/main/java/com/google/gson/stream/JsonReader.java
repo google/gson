@@ -680,7 +680,8 @@ public class JsonReader implements Closeable {
         return PEEKED_NONE;
       }
       c = buffer[pos + i];
-      if (c != keyword.charAt(i) && !(allowsUpperCased && c == keywordUpper.charAt(i))) {
+      boolean matched = c == keyword.charAt(i) || (allowsUpperCased && c == keywordUpper.charAt(i));
+      if (!matched) {
         return PEEKED_NONE;
       }
     }
