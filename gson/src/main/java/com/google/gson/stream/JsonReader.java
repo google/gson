@@ -295,10 +295,15 @@ public class JsonReader implements Closeable {
   /**
    * Sets the strictness of this reader.
    *
+   * <p>This method is deprecated. Please use {@link JsonReader#setStrictness(Strictness)} instead.
+   * {@code JsonReader.setLenient(true)} should be replaced by {@code JsonReader.setStrictness(Strictness.LENIENT)}
+   * and {@code JsonReader.setLenient(false)} should be replaced by {@code JsonReader.setStrictness(Strictness.LEGACY_STRICT)}.
+   *
    * @param lenient whether this reader should be lenient. If true, the strictness is set to {@link Strictness#LENIENT}.
    *                If false, the strictness is set to {@link Strictness#LEGACY_STRICT}.
    * @see #setStrictness(Strictness)
    */
+  @Deprecated
   public final void setLenient(boolean lenient) {
     this.strictness = lenient ? Strictness.LENIENT : Strictness.LEGACY_STRICT;
   }

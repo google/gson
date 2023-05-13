@@ -259,10 +259,15 @@ public class JsonWriter implements Closeable, Flushable {
   /**
    * Sets the strictness of this writer.
    *
+   * <p>This method is deprecated. Please use {@link JsonWriter#setStrictness(Strictness)} instead.
+   * {@code JsonWriter.setLenient(true)} should be replaced by {@code JsonWriter.setStrictness(Strictness.LENIENT)}
+   * and {@code JsonWriter.setLenient(false)} should be replaced by {@code JsonWriter.setStrictness(Strictness.LEGACY_STRICT)}.
+   *
    * @param lenient whether this writer should be lenient. If true, the strictness is set to {@link Strictness#LENIENT}.
    *                If false, the strictness is set to {@link Strictness#LEGACY_STRICT}.
    * @see #setStrictness(Strictness)
    */
+  @Deprecated
   public final void setLenient(boolean lenient) {
     this.strictness = lenient ? Strictness.LENIENT : Strictness.LEGACY_STRICT;
   }
