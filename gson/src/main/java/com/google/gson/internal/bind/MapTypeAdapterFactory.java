@@ -24,7 +24,6 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.internal.ConstructorConstructor;
-import com.google.gson.internal.JsonReaderInternalAccess;
 import com.google.gson.internal.ObjectConstructor;
 import com.google.gson.internal.Streams;
 import com.google.gson.reflect.TypeToken;
@@ -181,7 +180,7 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
       } else {
         in.beginObject();
         while (in.hasNext()) {
-          JsonReaderInternalAccess.INSTANCE.promoteNameToValue(in);
+          in.promoteNameToValue();
           K key = keyTypeAdapter.read(in);
           V value = valueTypeAdapter.read(in);
           V replaced = map.put(key, value);
