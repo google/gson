@@ -277,7 +277,7 @@ Gson prevents multiple fields with the same name because during deserialization 
 **Solution:** First check if you really need to serialize or deserialize a `Class`. Often it is possible to use string aliases and then map them to the known `Class`; you could write a custom [`TypeAdapter`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/TypeAdapter.html) to do this. If the `Class` values are not known in advance, try to introduce a common base class or interface for all these classes and then verify that the deserialized class is a subclass. For example assuming the base class is called `MyBaseClass`, your custom `TypeAdapter` should load the class like this:
 
 ```java
-Class.forName(jsonString, false, getClass().getClassLoader()).asSubclass(MyBaseClass.cla‌​ss)
+Class.forName(jsonString, false, getClass().getClassLoader()).asSubclass(MyBaseClass.class)
 ```
 
 This will not initialize arbitrary classes, and it will throw a `ClassCastException` if the loaded class is not the same as or a subclass of `MyBaseClass`.
