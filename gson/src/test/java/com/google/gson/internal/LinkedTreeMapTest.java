@@ -99,7 +99,7 @@ public final class LinkedTreeMapTest {
       map.put("a", null);
       fail();
     } catch (NullPointerException e) {
-      assertThat(e.getMessage()).isEqualTo("value == null");
+      assertThat(e).hasMessageThat().isEqualTo("value == null");
     }
     assertThat(map).hasSize(0);
     assertThat(map).doesNotContainKey("a");
@@ -132,7 +132,7 @@ public final class LinkedTreeMapTest {
       entry.setValue(null);
       fail();
     } catch (NullPointerException e) {
-      assertThat(e.getMessage()).isEqualTo("value == null");
+      assertThat(e).hasMessageThat().isEqualTo("value == null");
     }
     assertThat(entry.getValue()).isEqualTo("1");
     assertThat(map.get("a")).isEqualTo("1");

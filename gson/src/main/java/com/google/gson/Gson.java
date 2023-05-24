@@ -105,7 +105,7 @@ import java.util.concurrent.atomic.AtomicLongArray;
  * <p>See the <a href="https://github.com/google/gson/blob/master/UserGuide.md">Gson User Guide</a>
  * for a more complete set of examples.</p>
  *
- * <h2>Lenient JSON handling</h2>
+ * <h2 id="default-lenient">Lenient JSON handling</h2>
  * For legacy reasons most of the {@code Gson} methods allow JSON data which does not
  * comply with the JSON specification, regardless of whether {@link GsonBuilder#setLenient()}
  * is used or not. If this behavior is not desired, the following workarounds can be used:

@@ -17,7 +17,6 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth.assertWithMessage;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -57,8 +56,8 @@ public class MoreSpecificTypeSerializationTest {
     list.add(new Sub(2, 3));
     ClassWithContainersOfBaseFields target = new ClassWithContainersOfBaseFields(list, null);
     String json = gson.toJson(target);
-    assertWithMessage(json).that(json).contains("{\"b\":1}");
-    assertWithMessage(json).that(json).contains("{\"s\":3,\"b\":2}");
+    assertThat(json).contains("{\"b\":1}");
+    assertThat(json).contains("{\"s\":3,\"b\":2}");
   }
 
   @Test
@@ -98,8 +97,8 @@ public class MoreSpecificTypeSerializationTest {
     ClassWithContainersOfParameterizedBaseFields target =
       new ClassWithContainersOfParameterizedBaseFields(list, null);
     String json = gson.toJson(target);
-    assertWithMessage(json).that(json).contains("{\"t\":\"one\"}");
-    assertWithMessage(json).that(json).doesNotContain("\"s\":");
+    assertThat(json).contains("{\"t\":\"one\"}");
+    assertThat(json).doesNotContain("\"s\":");
   }
 
   /**

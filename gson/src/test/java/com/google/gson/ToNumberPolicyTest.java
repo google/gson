@@ -37,7 +37,9 @@ public class ToNumberPolicyTest {
       strategy.readNumber(fromString("1e400"));
       fail();
     } catch (MalformedJsonException expected) {
-      assertThat(expected).hasMessageThat().isEqualTo("JSON forbids NaN and infinities: Infinity at line 1 column 6 path $");
+      assertThat(expected).hasMessageThat().isEqualTo(
+          "JSON forbids NaN and infinities: Infinity at line 1 column 6 path $"
+          + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#malformed-json");
     }
     try {
       strategy.readNumber(fromString("\"not-a-number\""));
@@ -80,19 +82,25 @@ public class ToNumberPolicyTest {
       strategy.readNumber(fromString("NaN"));
       fail();
     } catch (MalformedJsonException expected) {
-      assertThat(expected).hasMessageThat().isEqualTo("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 1 path $");
+      assertThat(expected).hasMessageThat().isEqualTo(
+          "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 1 path $"
+          + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#malformed-json");
     }
     try {
       strategy.readNumber(fromString("Infinity"));
       fail();
     } catch (MalformedJsonException expected) {
-      assertThat(expected).hasMessageThat().isEqualTo("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 1 path $");
+      assertThat(expected).hasMessageThat().isEqualTo(
+          "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 1 path $"
+          + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#malformed-json");
     }
     try {
       strategy.readNumber(fromString("-Infinity"));
       fail();
     } catch (MalformedJsonException expected) {
-      assertThat(expected).hasMessageThat().isEqualTo("Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 1 path $");
+      assertThat(expected).hasMessageThat().isEqualTo(
+          "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 1 path $"
+          + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#malformed-json");
     }
   }
 
@@ -117,21 +125,29 @@ public class ToNumberPolicyTest {
       ToNumberPolicy.DOUBLE.readNumber(fromString("null"));
       fail();
     } catch (IllegalStateException expected) {
+      assertThat(expected).hasMessageThat().isEqualTo("Expected a double but was NULL at line 1 column 5 path $"
+          + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#adapter-not-null-safe");
     }
     try {
       ToNumberPolicy.LAZILY_PARSED_NUMBER.readNumber(fromString("null"));
       fail();
     } catch (IllegalStateException expected) {
+      assertThat(expected).hasMessageThat().isEqualTo("Expected a string but was NULL at line 1 column 5 path $"
+          + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#adapter-not-null-safe");
     }
     try {
       ToNumberPolicy.LONG_OR_DOUBLE.readNumber(fromString("null"));
       fail();
     } catch (IllegalStateException expected) {
+      assertThat(expected).hasMessageThat().isEqualTo("Expected a string but was NULL at line 1 column 5 path $"
+          + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#adapter-not-null-safe");
     }
     try {
       ToNumberPolicy.BIG_DECIMAL.readNumber(fromString("null"));
       fail();
     } catch (IllegalStateException expected) {
+      assertThat(expected).hasMessageThat().isEqualTo("Expected a string but was NULL at line 1 column 5 path $"
+          + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#adapter-not-null-safe");
     }
   }
 

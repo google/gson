@@ -472,7 +472,7 @@ public final class JsonWriterTest {
         jsonWriter.value(new LazilyParsedNumber(malformedNumber));
         fail("Should have failed writing malformed number: " + malformedNumber);
       } catch (IllegalArgumentException e) {
-        assertThat(e.getMessage()).isEqualTo("String created by class com.google.gson.internal.LazilyParsedNumber is not a valid JSON number: " + malformedNumber);
+        assertThat(e).hasMessageThat().isEqualTo("String created by class com.google.gson.internal.LazilyParsedNumber is not a valid JSON number: " + malformedNumber);
       }
     }
   }

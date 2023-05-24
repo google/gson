@@ -17,7 +17,6 @@
 package com.google.gson;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.fail;
 
 import com.google.common.testing.EqualsTester;
@@ -140,22 +139,19 @@ public final class JsonArrayTest {
       jsonArray.getAsBoolean();
       fail("expected getBoolean to fail");
     } catch (UnsupportedOperationException e) {
-      assertWithMessage("Expected an exception message")
-          .that(e).hasMessageThat().isEqualTo("JsonObject");
+      assertThat(e).hasMessageThat().isEqualTo("JsonObject");
     }
     try {
       jsonArray.get(-1);
       fail("expected get to fail");
     } catch (IndexOutOfBoundsException e) {
-      assertWithMessage("Expected an exception message")
-          .that(e).hasMessageThat().isEqualTo("Index -1 out of bounds for length 1");
+      assertThat(e).hasMessageThat().isEqualTo("Index -1 out of bounds for length 1");
     }
     try {
       jsonArray.getAsString();
       fail("expected getString to fail");
     } catch (UnsupportedOperationException e) {
-      assertWithMessage("Expected an exception message")
-          .that(e).hasMessageThat().isEqualTo("JsonObject");
+      assertThat(e).hasMessageThat().isEqualTo("JsonObject");
     }
 
     jsonArray.remove(0);
@@ -164,36 +160,31 @@ public final class JsonArrayTest {
       jsonArray.getAsDouble();
       fail("expected getDouble to fail");
     } catch (NumberFormatException e) {
-      assertWithMessage("Expected an exception message")
-          .that(e).hasMessageThat().isEqualTo("For input string: \"hello\"");
+      assertThat(e).hasMessageThat().isEqualTo("For input string: \"hello\"");
     }
     try {
       jsonArray.getAsInt();
       fail("expected getInt to fail");
     } catch (NumberFormatException e) {
-      assertWithMessage("Expected an exception message")
-          .that(e).hasMessageThat().isEqualTo("For input string: \"hello\"");
+      assertThat(e).hasMessageThat().isEqualTo("For input string: \"hello\"");
     }
     try {
       jsonArray.get(0).getAsJsonArray();
       fail("expected getJSONArray to fail");
     } catch (IllegalStateException e) {
-      assertWithMessage("Expected an exception message")
-          .that(e).hasMessageThat().isEqualTo("Not a JSON Array: \"hello\"");
+      assertThat(e).hasMessageThat().isEqualTo("Not a JSON Array: \"hello\"");
     }
     try {
       jsonArray.getAsJsonObject();
       fail("expected getJSONObject to fail");
     } catch (IllegalStateException e) {
-      assertWithMessage("Expected an exception message")
-          .that(e).hasMessageThat().isEqualTo( "Not a JSON Object: [\"hello\"]");
+      assertThat(e).hasMessageThat().isEqualTo("Not a JSON Object: [\"hello\"]");
     }
     try {
       jsonArray.getAsLong();
       fail("expected getLong to fail");
     } catch (NumberFormatException e) {
-      assertWithMessage("Expected an exception message")
-          .that(e).hasMessageThat().isEqualTo("For input string: \"hello\"");
+      assertThat(e).hasMessageThat().isEqualTo("For input string: \"hello\"");
     }
   }
 

@@ -33,6 +33,7 @@ import com.google.gson.internal.Excluder;
 import com.google.gson.internal.ObjectConstructor;
 import com.google.gson.internal.Primitives;
 import com.google.gson.internal.ReflectionAccessFilterHelper;
+import com.google.gson.internal.TroubleshootingGuide;
 import com.google.gson.internal.reflect.ReflectionHelper;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
@@ -114,7 +115,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     if (filterResult == FilterResult.BLOCK_ALL) {
       throw new JsonIOException(
           "ReflectionAccessFilter does not permit using reflection for " + raw
-              + ". Register a TypeAdapter for this type or adjust the access filter.");
+          + ". Register a TypeAdapter for this type or adjust the access filter.");
     }
     boolean blockInaccessible = filterResult == FilterResult.BLOCK_INACCESSIBLE;
 
@@ -306,7 +307,8 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         if (previous != null) {
           throw new IllegalArgumentException("Class " + originalRaw.getName()
               + " declares multiple JSON fields named '" + previous.name + "'; conflict is caused"
-              + " by fields " + ReflectionHelper.fieldToString(previous.field) + " and " + ReflectionHelper.fieldToString(field));
+              + " by fields " + ReflectionHelper.fieldToString(previous.field) + " and " + ReflectionHelper.fieldToString(field)
+              + "\nSee " + TroubleshootingGuide.createUrl("duplicate-fields"));
         }
       }
       type = TypeToken.get($Gson$Types.resolve(type.getType(), raw, raw.getGenericSuperclass()));

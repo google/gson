@@ -92,21 +92,21 @@ public class PrimitiveTest {
       gson.fromJson("-129", byte.class);
       fail();
     } catch (JsonSyntaxException e) {
-      assertThat(e.getMessage()).isEqualTo("Lossy conversion from -129 to byte; at path $");
+      assertThat(e).hasMessageThat().isEqualTo("Lossy conversion from -129 to byte; at path $");
     }
 
     try {
       gson.fromJson("256", byte.class);
       fail();
     } catch (JsonSyntaxException e) {
-      assertThat(e.getMessage()).isEqualTo("Lossy conversion from 256 to byte; at path $");
+      assertThat(e).hasMessageThat().isEqualTo("Lossy conversion from 256 to byte; at path $");
     }
 
     try {
       gson.fromJson("2147483648", byte.class);
       fail();
     } catch (JsonSyntaxException e) {
-      assertThat(e.getMessage()).isEqualTo("java.lang.NumberFormatException: Expected an int but was 2147483648 at line 1 column 11 path $");
+      assertThat(e).hasMessageThat().isEqualTo("java.lang.NumberFormatException: Expected an int but was 2147483648 at line 1 column 11 path $");
     }
   }
 
@@ -140,21 +140,21 @@ public class PrimitiveTest {
       gson.fromJson("-32769", short.class);
       fail();
     } catch (JsonSyntaxException e) {
-      assertThat(e.getMessage()).isEqualTo("Lossy conversion from -32769 to short; at path $");
+      assertThat(e).hasMessageThat().isEqualTo("Lossy conversion from -32769 to short; at path $");
     }
 
     try {
       gson.fromJson("65536", short.class);
       fail();
     } catch (JsonSyntaxException e) {
-      assertThat(e.getMessage()).isEqualTo("Lossy conversion from 65536 to short; at path $");
+      assertThat(e).hasMessageThat().isEqualTo("Lossy conversion from 65536 to short; at path $");
     }
 
     try {
       gson.fromJson("2147483648", short.class);
       fail();
     } catch (JsonSyntaxException e) {
-      assertThat(e.getMessage()).isEqualTo("java.lang.NumberFormatException: Expected an int but was 2147483648 at line 1 column 11 path $");
+      assertThat(e).hasMessageThat().isEqualTo("java.lang.NumberFormatException: Expected an int but was 2147483648 at line 1 column 11 path $");
     }
   }
 
@@ -1064,6 +1064,7 @@ public class PrimitiveTest {
   @Test
   public void testStringsAsBooleans() {
     String json = "['true', 'false', 'TRUE', 'yes', '1']";
-    assertThat(        gson.<List<Boolean>>fromJson(json, new TypeToken<List<Boolean>>() {}.getType())).isEqualTo(Arrays.asList(true, false, true, false, false));
+    List<Boolean> deserialized = gson.fromJson(json, new TypeToken<List<Boolean>>() {});
+    assertThat(deserialized).isEqualTo(Arrays.asList(true, false, true, false, false));
   }
 }
