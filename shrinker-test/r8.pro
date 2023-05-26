@@ -4,14 +4,6 @@
 ### The following rules are needed for R8 in "full mode", which performs more aggressive optimizations than ProGuard
 ### See https://r8.googlesource.com/r8/+/refs/heads/master/compatibility-faq.md#r8-full-mode
 
-# Keep the no-args constructor of classes referenced by @JsonAdapter
--keep class com.example.ClassWithAdapter$Adapter {
-  <init>();
-}
--keep class com.example.ClassWithAnnotations$DummyAdapter {
-  <init>();
-}
-
 # Keep the no-args constructor of deserialized class
 -keep class com.example.ClassWithDefaultConstructor {
   <init>();

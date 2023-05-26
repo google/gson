@@ -62,3 +62,18 @@
   @com.google.gson.annotations.Since <fields>;
   @com.google.gson.annotations.Until <fields>;
 }
+
+# Keep no-args constructor of classes which can be used with @JsonAdapter
+# By default their no-args constructor is invoked to create an adapter instance
+-keep class * extends com.google.gson.TypeAdapter {
+  <init>();
+}
+-keep class * implements com.google.gson.TypeAdapterFactory {
+  <init>();
+}
+-keep class * implements com.google.gson.JsonSerializer {
+  <init>();
+}
+-keep class * implements com.google.gson.JsonDeserializer {
+  <init>();
+}
