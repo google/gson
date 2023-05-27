@@ -11,3 +11,7 @@ details on how ProGuard can be configured.
 
 The R8 code shrinker uses the same rule format as ProGuard, but there are differences between these two
 tools. Have a look at R8's Compatibility FAQ, and especially at the [Gson section](https://r8.googlesource.com/r8/+/refs/heads/main/compatibility-faq.md#gson).
+
+Note that newer Gson versions apply some of the rules shown in `proguard.cfg` automatically by default,
+see the file [`gson/META-INF/proguard/gson.pro`](/gson/src/main/resources/META-INF/proguard/gson.pro) for
+the Gson version you are using.

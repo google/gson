@@ -88,7 +88,13 @@
         </executions>
         <configuration>
           <obfuscate>true</obfuscate>
-          <proguardInclude>${basedir}/proguard.pro</proguardInclude>
+          <proguardInclude>${project.basedir}/proguard.pro</proguardInclude>
+          <options>
+            <!-- Hacky solution to make ProGuard use the library rules file; only the Android plugin of ProGuard
+              seems to consider it automatically at the moment, see https://github.com/Guardsquare/proguard/issues/337
+              However, R8 defined further below always considers it automatically -->
+            <option>-include</option><option>${project.basedir}/../gson/src/main/resources/META-INF/proguard/gson.pro</option>
+          </options>
           <libs>
             <lib>${java.home}/jmods/java.base.jmod</lib>
             <!-- Used by Gson for optional SQL types support -->
@@ -165,7 +171,7 @@
                 <!-- Produce Java class files instead of Android DEX files -->
                 <argument>--classfile</argument>
                 <argument>--lib</argument><argument>${java.home}</argument>
-                <argument>--pg-conf</argument><argument>${basedir}/r8.pro</argument>
+                <argument>--pg-conf</argument><argument>${project.basedir}/r8.pro</argument>
                 <!-- Create mapping file to make debugging test failures easier -->
                 <argument>--pg-map-output</argument><argument>${project.build.directory}/r8_map.txt</argument>
                 <argument>--output</argument><argument>${project.build.directory}/r8-output.jar</argument>
