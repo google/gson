@@ -292,7 +292,7 @@ This will not initialize arbitrary classes, and it will throw a `ClassCastExcept
 
 ```
 # Keep the no-args constructor of the deserialized class
--keep class com.example.MyClass {
+-keepclassmembers class com.example.MyClass {
   <init>();
 }
 ```

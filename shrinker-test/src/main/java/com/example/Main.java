@@ -2,6 +2,10 @@ package com.example;
 
 import static com.example.TestExecutor.same;
 
+import com.example.GenericClasses.DummyClass;
+import com.example.GenericClasses.GenericClass;
+import com.example.GenericClasses.GenericUsingGenericClass;
+import com.example.GenericClasses.UsingGenericClass;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -34,7 +38,10 @@ public class Main {
     testEnumSerializedName(outputConsumer);
 
     testExposeAnnotation(outputConsumer);
-    testAnnotations(outputConsumer);
+    testVersionAnnotations(outputConsumer);
+    testJsonAdapterAnnotation(outputConsumer);
+
+    testGenericClasses(outputConsumer);
   }
 
   private static void testTypeTokenWriteRead(BiConsumer<String, String> outputConsumer, String description, Supplier<TypeToken<?>> typeTokenSupplier) {
@@ -113,8 +120,23 @@ public class Main {
     TestExecutor.run(outputConsumer, "Write: @Expose", () -> toJson(gson, new ClassWithExposeAnnotation()));
   }
 
-  private static void testAnnotations(BiConsumer<String, String> outputConsumer) {
+  private static void testVersionAnnotations(BiConsumer<String, String> outputConsumer) {
     Gson gson = new GsonBuilder().setVersion(1).create();
-    TestExecutor.run(outputConsumer, "Write: Annotations", () -> toJson(gson, new ClassWithAnnotations()));
+    TestExecutor.run(outputConsumer, "Write: Version annotations", () -> toJson(gson, new ClassWithVersionAnnotations()));
+  }
+
+  private static void testJsonAdapterAnnotation(BiConsumer<String, String> outputConsumer) {
+    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    TestExecutor.run(outputConsumer, "Write: JsonAdapter on fields", () -> toJson(gson, new ClassWithJsonAdapterAnnotation(1, 2, 3, 4)));
+
+    String json = "{\"f1\": 1, \"f2\": 2, \"f3\": {\"s\": \"3\"}, \"f4\": 4}";
+    TestExecutor.run(outputConsumer, "Read: JsonAdapter on fields", () -> fromJson(gson, json, ClassWithJsonAdapterAnnotation.class).toString());
+  }
+
+  private static void testGenericClasses(BiConsumer<String, String> outputConsumer) {
+    Gson gson = new Gson();
+    TestExecutor.run(outputConsumer, "Read: Generic TypeToken", () -> gson.fromJson("{\"t\": 1}", new TypeToken<GenericClass<DummyClass>>() {}).toString());
+    TestExecutor.run(outputConsumer, "Read: Using Generic", () -> fromJson(gson, "{\"g\": {\"t\": 1}}", UsingGenericClass.class).toString());
+    TestExecutor.run(outputConsumer, "Read: Using Generic TypeToken", () -> gson.fromJson("{\"g\": {\"t\": 1}}", new TypeToken<GenericUsingGenericClass<DummyClass>>() {}).toString());
   }
 }
