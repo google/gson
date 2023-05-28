@@ -281,3 +281,49 @@ Class.forName(jsonString, false, getClass().getClassLoader()).asSubclass(MyBaseC
 ```
 
 This will not initialize arbitrary classes, and it will throw a `ClassCastException` if the loaded class is not the same as or a subclass of `MyBaseClass`.
+
+## <a id="type-token-raw"></a> `IllegalStateException`: 'TypeToken must be created with a type argument' <br> `RuntimeException`: 'Missing type parameter'
+
+**Symptom:** An `IllegalStateException` with the message 'TypeToken must be created with a type argument' is thrown.  
+For older Gson versions a `RuntimeException` with message 'Missing type parameter' is thrown.
+
+**Reason:**
+
+- You created a `TypeToken` without type argument, for example `new TypeToken() {}` (note the missing `<...>`). You always have to provide the type argument, for example like this: `new TypeToken<List<String>>() {}`. Normally the compiler will also emit a 'raw types' warning when you forget the `<...>`.
+- You are using a code shrinking tool such as ProGuard or R8 (Android app builds normally have this enabled by default) but have not configured it correctly for usage with Gson.
+
+**Solution:** When you are using a code shrinking tool such as ProGuard or R8 you have to adjust your configuration to include the following rules:
+
+```
+# Keep generic signatures; needed for correct type resolution
+-keepattributes Signature
+
+# Keep class TypeToken (respectively its generic signature)
+-keep class com.google.gson.reflect.TypeToken { *; }
+
+# Keep any (anonymous) classes extending TypeToken
+-keep class * extends com.google.gson.reflect.TypeToken
+```
+
+See also the [Android example](examples/android-proguard-example/README.md) for more information.
+
+Note: For newer Gson versions these rules might be applied automatically; make sure you are using the latest Gson version and the latest version of the code shrinking tool.
+
+## <a id="r8-abstract-class"></a> `JsonIOException`: 'Abstract classes can't be instantiated!' (R8)
+
+**Symptom:** A `JsonIOException` with the message 'Abstract classes can't be instantiated!' is thrown; the class mentioned in the exception message is not actually `abstract` in your source code, and you are using the code shrinking tool R8 (Android app builds normally have this configured by default).
+
+**Reason:** The code shrinking tool R8 performs optimizations where it removes the no-args constructor from a class and makes the class `abstract`. Due to this Gson cannot create an instance of the class.
+
+**Solution:** Make sure the class has a no-args constructor, then adjust your R8 configuration file to keep the constructor of the class. For example:
+
+```
+# Keep the no-args constructor of the deserialized class
+-keepclassmembers class com.example.MyClass {
+  <init>();
+}
+```
+
+For Android you can add this rule to the `proguard-rules.pro` file, see also the [Android documentation](https://developer.android.com/build/shrink-code#keep-code). In case the class name in the exception message is obfuscated, see the Android documentation about [retracing](https://developer.android.com/build/shrink-code#retracing).
+
+Note: If the class which you are trying to deserialize is actually abstract, then this exception is probably unrelated to R8 and you will have to implement a custom [`InstanceCreator`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/InstanceCreator.html) or [`TypeAdapter`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/TypeAdapter.html) which creates an instance of a non-abstract subclass of the class.
