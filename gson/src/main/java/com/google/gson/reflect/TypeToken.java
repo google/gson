@@ -17,6 +17,7 @@
 package com.google.gson.reflect;
 
 import com.google.gson.internal.$Gson$Types;
+import com.google.gson.internal.TroubleshootingGuide;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -97,8 +98,10 @@ public class TypeToken<T> {
     }
     // Check for raw TypeToken as superclass
     else if (superclass == TypeToken.class) {
-      throw new IllegalStateException("TypeToken must be created with a type argument: new TypeToken<...>() {}; "
-          + "When using code shrinkers (ProGuard, R8, ...) make sure that generic signatures are preserved.");
+      throw new IllegalStateException("TypeToken must be created with a type argument: new TypeToken<...>() {};"
+          + " When using code shrinkers (ProGuard, R8, ...) make sure that generic signatures are preserved."
+          + "\nSee " + TroubleshootingGuide.createUrl("type-token-raw")
+      );
     }
 
     // User created subclass of subclass of TypeToken
