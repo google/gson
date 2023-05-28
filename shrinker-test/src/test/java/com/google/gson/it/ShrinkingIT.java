@@ -199,4 +199,25 @@ public class ShrinkingIT {
       }
     });
   }
+
+  @Test
+  public void testDefaultConstructorNoJdkUnsafe() throws Exception {
+    runTest("com.example.DefaultConstructorMain", c -> {
+      Method m = c.getMethod("runTestNoJdkUnsafe");
+
+      if (jarToTest.equals(PROGUARD_RESULT_PATH)) {
+        Object result = m.invoke(null);
+        assertThat(result).isEqualTo("value");
+      } else {
+        // R8 performs more aggressive optimizations
+        Exception e = assertThrows(InvocationTargetException.class, () -> m.invoke(null));
+        assertThat(e).hasCauseThat().hasMessageThat().isEqualTo(
+            "Unable to create instance of class com.example.DefaultConstructorMain$TestClassNotAbstract;"
+            + " usage of JDK Unsafe is disabled. Registering an InstanceCreator or a TypeAdapter for this type,"
+            + " adding a no-args constructor, or enabling usage of JDK Unsafe may fix this problem. Or adjust"
+            + " your R8 configuration to keep the no-args constructor of the class."
+        );
+      }
+    });
+  }
 }

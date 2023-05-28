@@ -152,9 +152,9 @@ public final class ConstructorConstructor {
       // finally try unsafe
       return newUnsafeAllocator(rawType);
     } else {
-      final String message = "Unable to create instance of " + rawType + "; ReflectionAccessFilter "
-          + "does not permit using reflection or Unsafe. Register an InstanceCreator or a TypeAdapter "
-          + "for this type or adjust the access filter to allow using reflection.";
+      final String message = "Unable to create instance of " + rawType + "; ReflectionAccessFilter"
+          + " does not permit using reflection or Unsafe. Register an InstanceCreator or a TypeAdapter"
+          + " for this type or adjust the access filter to allow using reflection.";
       return new ObjectConstructor<T>() {
         @Override public T construct() {
           throw new JsonIOException(message);
@@ -227,10 +227,10 @@ public final class ConstructorConstructor {
         && (filterResult != FilterResult.BLOCK_ALL || Modifier.isPublic(constructor.getModifiers())));
 
     if (!canAccess) {
-      final String message = "Unable to invoke no-args constructor of " + rawType + "; "
-          + "constructor is not accessible and ReflectionAccessFilter does not permit making "
-          + "it accessible. Register an InstanceCreator or a TypeAdapter for this type, change "
-          + "the visibility of the constructor or adjust the access filter.";
+      final String message = "Unable to invoke no-args constructor of " + rawType + ";"
+          + " constructor is not accessible and ReflectionAccessFilter does not permit making"
+          + " it accessible. Register an InstanceCreator or a TypeAdapter for this type, change"
+          + " the visibility of the constructor or adjust the access filter.";
       return new ObjectConstructor<T>() {
         @Override public T construct() {
           throw new JsonIOException(message);
@@ -378,19 +378,29 @@ public final class ConstructorConstructor {
             T newInstance = (T) UnsafeAllocator.INSTANCE.newInstance(rawType);
             return newInstance;
           } catch (Exception e) {
-            throw new RuntimeException(("Unable to create instance of " + rawType + ". "
-                + "Registering an InstanceCreator or a TypeAdapter for this type, or adding a no-args "
-                + "constructor may fix this problem."), e);
+            throw new RuntimeException(("Unable to create instance of " + rawType + "."
+                + " Registering an InstanceCreator or a TypeAdapter for this type, or adding a no-args"
+                + " constructor may fix this problem."), e);
           }
         }
       };
     } else {
-      final String exceptionMessage = "Unable to create instance of " + rawType + "; usage of JDK Unsafe "
-          + "is disabled. Registering an InstanceCreator or a TypeAdapter for this type, adding a no-args "
-          + "constructor, or enabling usage of JDK Unsafe may fix this problem.";
+      String exceptionMessage = "Unable to create instance of " + rawType + "; usage of JDK Unsafe"
+          + " is disabled. Registering an InstanceCreator or a TypeAdapter for this type, adding a no-args"
+          + " constructor, or enabling usage of JDK Unsafe may fix this problem.";
+
+      // Check if R8 removed all constructors
+      if (rawType.getDeclaredConstructors().length == 0) {
+        // R8 with Unsafe disabled might not be common enough to warrant a separate Troubleshooting Guide entry
+        exceptionMessage += " Or adjust your R8 configuration to keep the no-args constructor of the class.";
+      }
+
+      // Explicit final variable to allow usage in the anonymous class below
+      final String exceptionMessageF = exceptionMessage;
+
       return new ObjectConstructor<T>() {
         @Override public T construct() {
-          throw new JsonIOException(exceptionMessage);
+          throw new JsonIOException(exceptionMessageF);
         }
       };
     }

@@ -17,6 +17,7 @@
 }
 -keep class com.example.DefaultConstructorMain {
   public static java.lang.String runTest();
+  public static java.lang.String runTestNoJdkUnsafe();
 }
 
 
