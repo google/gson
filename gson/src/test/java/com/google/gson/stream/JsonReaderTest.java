@@ -27,17 +27,132 @@ import static com.google.gson.stream.JsonToken.NUMBER;
 import static com.google.gson.stream.JsonToken.STRING;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Arrays;
+import com.google.gson.Strictness;
 import org.junit.Ignore;
 import org.junit.Test;
 
 @SuppressWarnings("resource")
 public final class JsonReaderTest {
+
+  @Test
+  public void testSetLenientTrue() {
+    JsonReader reader = new JsonReader(reader("{}"));
+    reader.setLenient(true);
+    assertThat(reader.getStrictness()).isEqualTo(Strictness.LENIENT);
+  }
+
+  @Test
+  public void testSetLenientFalse() {
+    JsonReader reader = new JsonReader(reader("{}"));
+    reader.setLenient(false);
+    assertThat(reader.getStrictness()).isEqualTo(Strictness.LEGACY_STRICT);
+  }
+
+  @Test
+  public void testSetStrictness() {
+    JsonReader reader = new JsonReader(reader("{}"));
+    reader.setStrictness(Strictness.STRICT);
+    assertThat(reader.getStrictness()).isEqualTo(Strictness.STRICT);
+  }
+
+  @Test
+  public void testSetStrictnessNull() {
+    JsonReader reader = new JsonReader(reader("{}"));
+    assertThrows(NullPointerException.class, () -> reader.setStrictness(null));
+  }
+
+  @Test
+  public void testEscapedNewlineNotAllowedInStrictMode() throws IOException {
+    String json = "\"\\\n\"";
+    JsonReader reader = new JsonReader(reader(json));
+    reader.setStrictness(Strictness.STRICT);
+
+    IOException expected = assertThrows(IOException.class, reader::nextString);
+    assertThat(expected.getMessage()).contains("Cannot escape a newline character in strict mode!");
+  }
+
+  @Test
+  public void testEscapedNewlineAllowedInDefaultMode() throws IOException {
+    String json = "\"\\\n\"";
+    JsonReader reader = new JsonReader(reader(json));
+    assertThat(reader.nextString()).isEqualTo("\n");
+  }
+
+  @Test
+  public void testStrictModeFailsToParseUnescapedControlCharacter() {
+    String json = "\"\t\"";
+    JsonReader reader = new JsonReader(reader(json));
+    reader.setStrictness(Strictness.STRICT);
+
+    IOException expected = assertThrows(IOException.class, reader::nextString);
+    assertThat(expected.getMessage()).contains("Unescaped control characters (\\u0000-\\u001F) are not allowed in strict mode.");
+  }
+
+  @Test
+  public void testNonStrictModeParsesUnescapedControlCharacter() throws IOException {
+    String json = "\"\t\"";
+    JsonReader reader = new JsonReader(reader(json));
+    assertThat(reader.nextString()).isEqualTo("\t");
+  }
+
+  @Test
+  public void testCapitalizedTrueFailWhenStrict() throws IOException {
+    JsonReader reader = new JsonReader(reader("TRUE"));
+    reader.setStrictness(Strictness.STRICT);
+
+    IOException expected = assertThrows(IOException.class, reader::nextString);
+    assertThat(expected).hasMessageThat().isEqualTo("Use JsonReader.setLenient(true) to accept malformed" +
+            " JSON at line 1 column 1 path $");
+
+    reader = new JsonReader(reader("True"));
+    reader.setStrictness(Strictness.STRICT);
+
+    expected = assertThrows(IOException.class, reader::nextString);
+    assertThat(expected).hasMessageThat().isEqualTo("Use JsonReader.setLenient(true) to accept malformed" +
+            " JSON at line 1 column 1 path $");
+  }
+
+  @Test
+  public void testCapitalizedNullFailWhenStrict() throws IOException {
+    JsonReader reader = new JsonReader(reader("NULL"));
+    reader.setStrictness(Strictness.STRICT);
+
+    IOException expected = assertThrows(IOException.class, reader::nextNull);
+    assertThat(expected).hasMessageThat().isEqualTo("Use JsonReader.setLenient(true) to accept malformed" +
+            " JSON at line 1 column 1 path $");
+
+    reader = new JsonReader(reader("nulL"));
+    reader.setStrictness(Strictness.STRICT);
+
+    expected = assertThrows(IOException.class, reader::nextNull);
+    assertThat(expected).hasMessageThat().isEqualTo("Use JsonReader.setLenient(true) to accept malformed" +
+            " JSON at line 1 column 1 path $");
+  }
+
+  @Test
+  public void testCapitalizedFalseFailWhenStrict() throws IOException {
+    JsonReader reader = new JsonReader(reader("FALSE"));
+    reader.setStrictness(Strictness.STRICT);
+
+    IOException expected = assertThrows(IOException.class, reader::nextBoolean);
+    assertThat(expected).hasMessageThat().isEqualTo("Use JsonReader.setLenient(true) to accept malformed" +
+            " JSON at line 1 column 1 path $");
+
+    reader = new JsonReader(reader("FaLse"));
+    reader.setStrictness(Strictness.STRICT);
+
+    expected = assertThrows(IOException.class, reader::nextBoolean);
+    assertThat(expected).hasMessageThat().isEqualTo("Use JsonReader.setLenient(true) to accept malformed" +
+            " JSON at line 1 column 1 path $");
+  }
+
   @Test
   public void testReadArray() throws IOException {
     JsonReader reader = new JsonReader(reader("[true, true]"));
@@ -348,6 +463,43 @@ public final class JsonReaderTest {
   }
 
   @Test
+  public void testReaderDoesNotTreatU2028U2029AsNewline() throws IOException {
+    // This test shows that the JSON String [\n"whatever'] is seen as valid
+    // And the JSON string [\u2028"whatever"] is not.
+    String jsonInvalid2028 = "[\u2028\"whatever\"]";
+    JsonReader readerInvalid2028 = new JsonReader((reader(jsonInvalid2028)));
+    readerInvalid2028.beginArray();
+    assertThrows(IOException.class, readerInvalid2028::nextString);
+
+    String jsonInvalid2029 = "[\u2029\"whatever\"]";
+    JsonReader readerInvalid2029 = new JsonReader((reader(jsonInvalid2029)));
+    readerInvalid2029.beginArray();
+    assertThrows(IOException.class, readerInvalid2029::nextString);
+
+    String jsonValid = "[\n\"whatever\"]";
+    JsonReader readerValid = new JsonReader(reader(jsonValid));
+    readerValid.beginArray();
+    assertThat(readerValid.nextString()).isEqualTo("whatever");
+  }
+
+  @Test
+  public void testEscapeCharacterQuoteInStrictMode() throws IOException {
+    String json = "\"\\'\"";
+    JsonReader reader = new JsonReader(reader(json));
+    reader.setStrictness(Strictness.STRICT);
+
+    IOException expected = assertThrows(IOException.class, reader::nextString);
+    assertThat(expected).hasMessageThat().contains("Invalid escaped character \"'\" in strict mode");
+  }
+
+  @Test
+  public void testEscapeCharacterQuoteWithoutStrictMode() throws IOException {
+    String json = "\"\\'\"";
+    JsonReader reader = new JsonReader(reader(json));
+    assertThat(reader.nextString()).isEqualTo("'");
+  }
+
+  @Test
   public void testUnescapingInvalidCharacters() throws IOException {
     String json = "[\"\\u000g\"]";
     JsonReader reader = new JsonReader(reader(json));
@@ -357,6 +509,17 @@ public final class JsonReaderTest {
       fail();
     } catch (NumberFormatException expected) {
     }
+  }
+
+  @Test
+  public void testUnescapedControlCharactersInStrictMode() throws IOException {
+    String json = "[\"\u0014\"]";
+    JsonReader reader = new JsonReader(reader(json));
+    reader.setStrictness(Strictness.STRICT);
+    reader.beginArray();
+
+    IOException expected = assertThrows(IOException.class, reader::nextString);
+    assertThat(expected).hasMessageThat().contains("Unescaped control characters");
   }
 
   @Test

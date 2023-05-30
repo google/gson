@@ -60,10 +60,15 @@ public final class GsonTest {
   private static final ToNumberStrategy CUSTOM_NUMBER_TO_NUMBER_STRATEGY = ToNumberPolicy.LAZILY_PARSED_NUMBER;
 
   @Test
+  public void testStrictnessDefault() {
+    assertThat(new Gson().strictness).isNull();
+  }
+
+  @Test
   public void testOverridesDefaultExcluder() {
     Gson gson = new Gson(CUSTOM_EXCLUDER, CUSTOM_FIELD_NAMING_STRATEGY,
         new HashMap<Type, InstanceCreator<?>>(), true, false, true, false,
-        FormattingStyle.DEFAULT, true, false, true,
+        FormattingStyle.DEFAULT, Strictness.LENIENT, false, true,
         LongSerializationPolicy.DEFAULT, null, DateFormat.DEFAULT,
         DateFormat.DEFAULT, new ArrayList<TypeAdapterFactory>(),
         new ArrayList<TypeAdapterFactory>(), new ArrayList<TypeAdapterFactory>(),
@@ -80,7 +85,7 @@ public final class GsonTest {
   public void testClonedTypeAdapterFactoryListsAreIndependent() {
     Gson original = new Gson(CUSTOM_EXCLUDER, CUSTOM_FIELD_NAMING_STRATEGY,
         new HashMap<Type, InstanceCreator<?>>(), true, false, true, false,
-        FormattingStyle.DEFAULT, true, false, true,
+        FormattingStyle.DEFAULT, Strictness.LENIENT, false, true,
         LongSerializationPolicy.DEFAULT, null, DateFormat.DEFAULT,
         DateFormat.DEFAULT, new ArrayList<TypeAdapterFactory>(),
         new ArrayList<TypeAdapterFactory>(), new ArrayList<TypeAdapterFactory>(),

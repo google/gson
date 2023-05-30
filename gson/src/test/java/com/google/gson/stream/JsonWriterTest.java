@@ -17,9 +17,11 @@
 package com.google.gson.stream;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 
 import com.google.gson.FormattingStyle;
+import com.google.gson.Strictness;
 import com.google.gson.internal.LazilyParsedNumber;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -29,6 +31,49 @@ import org.junit.Test;
 
 @SuppressWarnings("resource")
 public final class JsonWriterTest {
+
+  @Test
+  public void testDefaultStrictness() throws IOException {
+    JsonWriter jsonWriter = new JsonWriter(new StringWriter());
+    assertThat(jsonWriter.getStrictness()).isEqualTo(Strictness.LEGACY_STRICT);
+    jsonWriter.value(false);
+    jsonWriter.close();
+  }
+
+  @Test
+  public void testSetLenientTrue() throws IOException {
+    JsonWriter jsonWriter = new JsonWriter(new StringWriter());
+    jsonWriter.setLenient(true);
+    assertThat(jsonWriter.getStrictness()).isEqualTo(Strictness.LENIENT);
+    jsonWriter.value(false);
+    jsonWriter.close();
+  }
+
+  @Test
+  public void testSetLenientFalse() throws IOException {
+    JsonWriter jsonWriter = new JsonWriter(new StringWriter());
+    jsonWriter.setLenient(false);
+    assertThat(jsonWriter.getStrictness()).isEqualTo(Strictness.LEGACY_STRICT);
+    jsonWriter.value(false);
+    jsonWriter.close();
+  }
+
+  @Test
+  public void testSetStrictness() throws IOException {
+    JsonWriter jsonWriter = new JsonWriter(new StringWriter());
+    jsonWriter.setStrictness(Strictness.STRICT);
+    assertThat(jsonWriter.getStrictness()).isEqualTo(Strictness.STRICT);
+    jsonWriter.value(false);
+    jsonWriter.close();
+  }
+
+  @Test
+  public void testSetStrictnessNull() throws IOException {
+    JsonWriter jsonWriter = new JsonWriter(new StringWriter());
+    assertThrows(NullPointerException.class, () -> jsonWriter.setStrictness(null));
+    jsonWriter.value(false);
+    jsonWriter.close();
+  }
 
   @Test
   public void testTopLevelValueTypes() throws IOException {

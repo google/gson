@@ -129,7 +129,7 @@ Notes:
 
 **Solution:** See [`Gson` class documentation](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/Gson.html) section "Lenient JSON handling"
 
-Note: Even in non-lenient mode Gson deviates slightly from the JSON specification, see [`JsonReader.setLenient`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/stream/JsonReader.html#setLenient(boolean)) for more details.
+Note: Even in non-lenient mode Gson deviates slightly from the JSON specification, see [`JsonReader.setStrictness`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/stream/JsonReader.html#setStrictness(Strictness)) for more details.
 
 ## `IllegalStateException`: "Expected ... but was ..."
 

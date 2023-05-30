@@ -22,6 +22,8 @@ import static org.junit.Assert.fail;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
@@ -223,5 +225,32 @@ public class GsonBuilderTest {
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessageThat().isEqualTo("Invalid version: -0.1");
     }
+  }
+
+  @Test
+  public void testDefaultStrictness() throws IOException {
+    GsonBuilder builder = new GsonBuilder();
+    Gson gson = builder.create();
+    assertThat(gson.newJsonReader(new StringReader("{}}")).getStrictness()).isEqualTo(Strictness.LEGACY_STRICT);
+    assertThat(gson.newJsonWriter(new StringWriter()).getStrictness()).isEqualTo(Strictness.LEGACY_STRICT);
+  }
+
+  @Test
+  public void testSetLenient() throws IOException {
+    GsonBuilder builder = new GsonBuilder();
+    builder.setLenient();
+    Gson gson = builder.create();
+    assertThat(gson.newJsonReader(new StringReader("{}}")).getStrictness()).isEqualTo(Strictness.LENIENT);
+    assertThat(gson.newJsonWriter(new StringWriter()).getStrictness()).isEqualTo(Strictness.LENIENT);
+  }
+
+  @Test
+  public void testSetStrictness() throws IOException {
+    final Strictness STRICTNESS = Strictness.STRICT;
+    GsonBuilder builder = new GsonBuilder();
+    builder.setStrictness(STRICTNESS);
+    Gson gson = builder.create();
+    assertThat(gson.newJsonReader(new StringReader("{}}")).getStrictness()).isEqualTo(STRICTNESS);
+    assertThat(gson.newJsonWriter(new StringWriter()).getStrictness()).isEqualTo(STRICTNESS);
   }
 }
