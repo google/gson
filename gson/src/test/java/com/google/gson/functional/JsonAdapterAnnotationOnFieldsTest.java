@@ -118,7 +118,7 @@ public final class JsonAdapterAnnotationOnFieldsTest {
       out.value("PartJsonFieldAnnotationAdapter");
     }
     @Override public Part read(JsonReader in) throws IOException {
-      in.nextString();
+      String unused = in.nextString();
       return new Part("PartJsonFieldAnnotationAdapter");
     }
   }
@@ -131,7 +131,7 @@ public final class JsonAdapterAnnotationOnFieldsTest {
         }
         @SuppressWarnings("unchecked")
         @Override public T read(JsonReader in) throws IOException {
-          in.nextString();
+          String unused = in.nextString();
           return (T) new Part("GizmoPartTypeAdapterFactory");
         }
       };
@@ -158,7 +158,7 @@ public final class JsonAdapterAnnotationOnFieldsTest {
       out.value("UserClassAnnotationAdapter");
     }
     @Override public User read(JsonReader in) throws IOException {
-      in.nextString();
+      String unused = in.nextString();
       return new User("UserClassAnnotationAdapter");
     }
   }
@@ -177,7 +177,7 @@ public final class JsonAdapterAnnotationOnFieldsTest {
       out.value("UserFieldAnnotationAdapter");
     }
     @Override public User read(JsonReader in) throws IOException {
-      in.nextString();
+      String unused = in.nextString();
       return new User("UserFieldAnnotationAdapter");
     }
   }
@@ -187,7 +187,7 @@ public final class JsonAdapterAnnotationOnFieldsTest {
       out.value("RegisteredUserAdapter");
     }
     @Override public User read(JsonReader in) throws IOException {
-      in.nextString();
+      String unused = in.nextString();
       return new User("RegisteredUserAdapter");
     }
   }
@@ -307,7 +307,7 @@ public final class JsonAdapterAnnotationOnFieldsTest {
         }
         @SuppressWarnings("unchecked")
         @Override public T read(JsonReader in) throws IOException {
-          in.nextString();
+          String unused = in.nextString();
           return (T) Arrays.asList(new Part("GizmoPartTypeAdapterFactory"));
         }
       };

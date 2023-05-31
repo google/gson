@@ -30,7 +30,7 @@ public class JsonAdapterNullSafeTest {
   @Test
   public void testNullSafeBugSerialize() {
     Device device = new Device("ec57803e");
-    gson.toJson(device);
+    String unused = gson.toJson(device);
   }
 
   @Test

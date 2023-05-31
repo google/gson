@@ -235,21 +235,21 @@ public final class TypeTokenTest {
       new SubTypeToken<Integer>() {};
       fail();
     } catch (IllegalStateException expected) {
-      assertThat(expected.getMessage()).isEqualTo("Must only create direct subclasses of TypeToken");
+      assertThat(expected).hasMessageThat().isEqualTo("Must only create direct subclasses of TypeToken");
     }
 
     try {
       new SubSubTypeToken1<Integer>();
       fail();
     } catch (IllegalStateException expected) {
-      assertThat(expected.getMessage()).isEqualTo("Must only create direct subclasses of TypeToken");
+      assertThat(expected).hasMessageThat().isEqualTo("Must only create direct subclasses of TypeToken");
     }
 
     try {
       new SubSubTypeToken2();
       fail();
     } catch (IllegalStateException expected) {
-      assertThat(expected.getMessage()).isEqualTo("Must only create direct subclasses of TypeToken");
+      assertThat(expected).hasMessageThat().isEqualTo("Must only create direct subclasses of TypeToken");
     }
   }
 
@@ -260,8 +260,10 @@ public final class TypeTokenTest {
       new TypeToken() {};
       fail();
     } catch (IllegalStateException expected) {
-      assertThat(expected).hasMessageThat().isEqualTo("TypeToken must be created with a type argument: new TypeToken<...>() {}; "
-          + "When using code shrinkers (ProGuard, R8, ...) make sure that generic signatures are preserved.");
+      assertThat(expected).hasMessageThat().isEqualTo("TypeToken must be created with a type argument: new TypeToken<...>() {};"
+          + " When using code shrinkers (ProGuard, R8, ...) make sure that generic signatures are preserved."
+          + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#type-token-raw"
+      );
     }
   }
 }

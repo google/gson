@@ -105,7 +105,7 @@ import java.util.concurrent.atomic.AtomicLongArray;
  * <p>See the <a href="https://github.com/google/gson/blob/master/UserGuide.md">Gson User Guide</a>
  * for a more complete set of examples.</p>
  *
- * <h2>JSON Strictness handling</h2>
+ * <h2 id="default-lenient">JSON Strictness handling</h2>
  * For legacy reasons most of the {@code Gson} methods allow JSON data which does not
  * comply with the JSON specification when the strictness is set to {@code null} (the default value).
  * To specify the {@linkplain Strictness strictness} of a {@code Gson} instance, you should set it through
@@ -146,7 +146,7 @@ import java.util.concurrent.atomic.AtomicLongArray;
 public final class Gson {
   static final boolean DEFAULT_JSON_NON_EXECUTABLE = false;
   static final Strictness DEFAULT_STRICTNESS = null;
-  static final FormattingStyle DEFAULT_FORMATTING_STYLE = null;
+  static final FormattingStyle DEFAULT_FORMATTING_STYLE = FormattingStyle.COMPACT;
   static final boolean DEFAULT_ESCAPE_HTML = true;
   static final boolean DEFAULT_SERIALIZE_NULLS = false;
   static final boolean DEFAULT_COMPLEX_MAP_KEYS = false;
@@ -210,7 +210,7 @@ public final class Gson {
    *   means that all the unneeded white-space is removed. You can change this behavior with
    *   {@link GsonBuilder#setPrettyPrinting()}.</li>
    *   <li>When the JSON generated contains more than one line, the kind of newline and indent to
-   *   use can be configured with {@link GsonBuilder#setPrettyPrinting(FormattingStyle)}.</li>
+   *   use can be configured with {@link GsonBuilder#setFormattingStyle(FormattingStyle)}.</li>
    *   <li>The generated JSON omits all the fields that are null. Note that nulls in arrays are
    *   kept as is since an array is an ordered list. Moreover, if a field is not null, but its
    *   generated JSON is empty, the field is kept. You can configure Gson to serialize null values
@@ -915,7 +915,7 @@ public final class Gson {
    *   is set to {@code null}, the created writer will have a strictness of {@link Strictness#LEGACY_STRICT}.
    *   If the strictness is set to a non-null value, this strictness will be used for the created writer.</li>
    *   <li>{@link GsonBuilder#setPrettyPrinting()}</li>
-   *   <li>{@link GsonBuilder#setPrettyPrinting(FormattingStyle)}</li>
+   *   <li>{@link GsonBuilder#setFormattingStyle(FormattingStyle)}</li>
    * </ul>
    */
   public JsonWriter newJsonWriter(Writer writer) throws IOException {
@@ -1265,7 +1265,7 @@ public final class Gson {
     }
 
     try {
-      reader.peek();
+      JsonToken unused = reader.peek();
       isEmpty = false;
       TypeAdapter<T> typeAdapter = getAdapter(typeOfT);
       return typeAdapter.read(reader);

@@ -26,6 +26,7 @@ import com.google.gson.annotations.SerializedName;
 import com.google.gson.common.TestTypes.ClassWithSerializedNameFields;
 import com.google.gson.common.TestTypes.StringWrapper;
 import java.lang.reflect.Field;
+import java.util.Locale;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -137,7 +138,29 @@ public class NamingPolicyTest {
       assertThat(expected).hasMessageThat()
           .isEqualTo("Class com.google.gson.functional.NamingPolicyTest$ClassWithDuplicateFields declares multiple JSON fields named 'a';"
           + " conflict is caused by fields com.google.gson.functional.NamingPolicyTest$ClassWithDuplicateFields#a and"
-          + " com.google.gson.functional.NamingPolicyTest$ClassWithDuplicateFields#b");
+          + " com.google.gson.functional.NamingPolicyTest$ClassWithDuplicateFields#b"
+          + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#duplicate-fields");
+    }
+  }
+
+  @Test
+  public void testGsonDuplicateNameDueToBadNamingPolicy() {
+    Gson gson = builder.setFieldNamingStrategy(new FieldNamingStrategy() {
+          @Override
+          public String translateName(Field f) {
+            return "x";
+          }
+        }).create();
+
+    try {
+      gson.toJson(new ClassWithTwoFields());
+      fail();
+    } catch (IllegalArgumentException expected) {
+      assertThat(expected).hasMessageThat()
+          .isEqualTo("Class com.google.gson.functional.NamingPolicyTest$ClassWithTwoFields declares multiple JSON fields named 'x';"
+          + " conflict is caused by fields com.google.gson.functional.NamingPolicyTest$ClassWithTwoFields#a and"
+          + " com.google.gson.functional.NamingPolicyTest$ClassWithTwoFields#b"
+          + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#duplicate-fields");
     }
   }
 
@@ -209,7 +232,7 @@ public class NamingPolicyTest {
   private static final class UpperCaseNamingStrategy implements FieldNamingStrategy {
     @Override
     public String translateName(Field f) {
-      return f.getName().toUpperCase();
+      return f.getName().toUpperCase(Locale.ROOT);
     }
   }
 
@@ -238,5 +261,13 @@ public class NamingPolicyTest {
     ClassWithComplexFieldName(long value) {
       this.value = value;
     }
+  }
+
+  @SuppressWarnings("unused")
+  private static class ClassWithTwoFields {
+    public int a;
+    public int b;
+
+    public ClassWithTwoFields() {}
   }
 }

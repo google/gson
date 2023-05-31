@@ -99,7 +99,7 @@ public class FieldNamingPolicyTest {
     try {
       // Verify that default Locale has different case conversion rules
       assertWithMessage("Test setup is broken")
-          .that(name.toUpperCase()).doesNotMatch(expected);
+          .that(name.toUpperCase(Locale.getDefault())).doesNotMatch(expected);
 
       for (FieldNamingPolicy policy : policies) {
         // Should ignore default Locale
@@ -138,7 +138,7 @@ public class FieldNamingPolicyTest {
     try {
       // Verify that default Locale has different case conversion rules
       assertWithMessage("Test setup is broken")
-          .that(name.toLowerCase()).doesNotMatch(expected);
+          .that(name.toLowerCase(Locale.getDefault())).doesNotMatch(expected);
 
       for (FieldNamingPolicy policy : policies) {
         // Should ignore default Locale

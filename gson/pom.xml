@@ -38,6 +38,17 @@
   </properties>
 
   <dependencies>
+    <!-- This dependency can be considered optional; omitting it during runtime will most likely
+      not cause any issues. However, it is not declared with `<optional>true</optional>` because
+      that can lead to cryptic compiler warnings for consumers, and to be on the safe side in case
+      there are actually issues which could occur when the dependency is missing at runtime.
+      See also discussion at https://github.com/google/gson/pull/2320#issuecomment-1455233938 -->
+    <dependency>
+      <groupId>com.google.errorprone</groupId>
+      <artifactId>error_prone_annotations</artifactId>
+      <version>2.19.1</version>
+    </dependency>
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -46,20 +57,13 @@
     <dependency>
       <groupId>com.google.truth</groupId>
       <artifactId>truth</artifactId>
-      <version>1.1.3</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava-testlib</artifactId>
-      <version>31.1-jre</version>
+      <version>32.0.0-jre</version>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.google.errorprone</groupId>
-      <artifactId>error_prone_annotations</artifactId>
-      <version>2.18.0</version>
-      <optional>true</optional>
     </dependency>
   </dependencies>
 
@@ -79,7 +83,7 @@
               <goal>filter-sources</goal>
             </goals>
             <configuration>
-              <sourceDirectory>${basedir}/src/main/java-templates</sourceDirectory>
+              <sourceDirectory>${project.basedir}/src/main/java-templates</sourceDirectory>
               <outputDirectory>${project.build.directory}/generated-sources/java-templates</outputDirectory>
             </configuration>
           </execution>
@@ -131,7 +135,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.0.0-M9</version>
+        <version>3.1.0</version>
         <configuration>
           <!-- Deny illegal access, this is required for ReflectionAccessTest -->
           <!-- Requires Java >= 9; Important: In case future Java versions 
@@ -187,7 +191,7 @@
           <injar>test-classes-obfuscated-injar</injar>
           <outjar>test-classes-obfuscated-outjar</outjar>
           <inFilter>**/*.class</inFilter>
-          <proguardInclude>${basedir}/src/test/resources/testcases-proguard.conf</proguardInclude>
+          <proguardInclude>${project.basedir}/src/test/resources/testcases-proguard.conf</proguardInclude>
           <libs>
             <lib>${project.build.directory}/classes</lib>
             <lib>${java.home}/jmods/java.base.jmod</lib>
@@ -196,7 +200,7 @@
       </plugin>
       <plugin>
         <artifactId>maven-resources-plugin</artifactId>
-        <version>3.3.0</version>
+        <version>3.3.1</version>
         <executions>
           <execution>
             <id>post-obfuscate-class</id>
@@ -241,7 +245,7 @@
       <plugin>
         <groupId>org.moditect</groupId>
         <artifactId>moditect-maven-plugin</artifactId>
-        <version>1.0.0.RC2</version>
+        <version>1.0.0.Final</version>
         <executions>
           <execution>
             <id>add-module-info</id>

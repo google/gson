@@ -18,6 +18,7 @@ package com.google.gson.internal.reflect;
 
 import com.google.gson.JsonIOException;
 import com.google.gson.internal.GsonBuildConfig;
+import com.google.gson.internal.TroubleshootingGuide;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -40,6 +41,17 @@ public class ReflectionHelper {
 
   private ReflectionHelper() {}
 
+  private static String getInaccessibleTroubleshootingSuffix(Exception e) {
+    // Class was added in Java 9, therefore cannot use instanceof
+    if (e.getClass().getName().equals("java.lang.reflect.InaccessibleObjectException")) {
+      String message = e.getMessage();
+      String troubleshootingId = message != null && message.contains("to module com.google.gson")
+          ? "reflection-inaccessible-to-module-gson" : "reflection-inaccessible";
+      return "\nSee " + TroubleshootingGuide.createUrl(troubleshootingId);
+    }
+    return "";
+  }
+
   /**
    * Internal implementation of making an {@link AccessibleObject} accessible.
    *
@@ -52,7 +64,8 @@ public class ReflectionHelper {
     } catch (Exception exception) {
       String description = getAccessibleObjectDescription(object, false);
       throw new JsonIOException("Failed making " + description + " accessible; either increase its visibility"
-              + " or write a custom TypeAdapter for its declaring type.", exception);
+          + " or write a custom TypeAdapter for its declaring type." + getInaccessibleTroubleshootingSuffix(exception),
+          exception);
     }
   }
 
@@ -142,7 +155,7 @@ public class ReflectionHelper {
       return "Failed making constructor '" + constructorToString(constructor) + "' accessible;"
           + " either increase its visibility or write a custom InstanceCreator or TypeAdapter for"
           // Include the message since it might contain more detailed information
-          + " its declaring type: " + exception.getMessage();
+          + " its declaring type: " + exception.getMessage() + getInaccessibleTroubleshootingSuffix(exception);
     }
   }
 

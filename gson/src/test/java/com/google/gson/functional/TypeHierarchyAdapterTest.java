@@ -136,7 +136,7 @@ public final class TypeHierarchyAdapterTest {
   /** This behaviour changed in Gson 2.1; it used to throw. */
   @Test
   public void testRegisterSubTypeFirstAllowed() {
-    new GsonBuilder()
+    Gson unused = new GsonBuilder()
         .registerTypeHierarchyAdapter(Manager.class, new ManagerAdapter())
         .registerTypeHierarchyAdapter(Employee.class, new EmployeeAdapter())
         .create();

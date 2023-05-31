@@ -133,7 +133,7 @@ public class JsonTreeReaderTest {
       reader.peek();
       fail();
     } catch (MalformedJsonException expected) {
-      assertThat(expected.getMessage()).isEqualTo("Custom JsonElement subclass " + CustomSubclass.class.getName() + " is not supported");
+      assertThat(expected).hasMessageThat().isEqualTo("Custom JsonElement subclass " + CustomSubclass.class.getName() + " is not supported");
     }
   }
 

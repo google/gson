@@ -59,7 +59,7 @@ public class MapAsArrayTypeAdapterTest {
 
   @Test
   @Ignore
-  public void disabled_testTwoTypesCollapseToOneSerialize() {
+  public void testTwoTypesCollapseToOneSerialize() {
     Gson gson = new GsonBuilder()
         .enableComplexMapKeySerialization()
         .create();

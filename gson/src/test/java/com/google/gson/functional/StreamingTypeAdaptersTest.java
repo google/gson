@@ -17,7 +17,6 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.fail;
 
 import com.google.common.base.Splitter;
@@ -151,7 +150,7 @@ public final class StreamingTypeAdaptersTest {
   public void testDeserialize1dArray() throws IOException {
     TypeAdapter<double[]> arrayAdapter = miniGson.getAdapter(new TypeToken<double[]>() {});
     double[] array = arrayAdapter.fromJson("[1.0,2.0,3.0]");
-    assertWithMessage(Arrays.toString(array)).that(Arrays.equals(new double[]{1.0, 2.0, 3.0}, array)).isTrue();
+    assertThat(array).isEqualTo(new double[]{1.0, 2.0, 3.0});
   }
 
   @Test
@@ -166,7 +165,7 @@ public final class StreamingTypeAdaptersTest {
     TypeAdapter<double[][]> arrayAdapter = miniGson.getAdapter(new TypeToken<double[][]>() {});
     double[][] array = arrayAdapter.fromJson("[[1.0,2.0],[3.0]]");
     double[][] expected = { {1.0, 2.0 }, { 3.0 } };
-    assertWithMessage(Arrays.toString(array)).that(Arrays.deepEquals(expected, array)).isTrue();
+    assertThat(array).isEqualTo(expected);
   }
 
   @Test
@@ -195,7 +194,10 @@ public final class StreamingTypeAdaptersTest {
     try {
       gson.fromJson(json, Truck.class);
       fail();
-    } catch (JsonSyntaxException expected) {}
+    } catch (JsonSyntaxException expected) {
+      assertThat(expected).hasMessageThat().isEqualTo("java.lang.IllegalStateException: Expected a string but was NULL at line 1 column 33 path $.passengers[0]"
+          + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#adapter-not-null-safe");
+    }
     gson = new GsonBuilder().registerTypeAdapter(Person.class, typeAdapter.nullSafe()).create();
     assertThat(gson.toJson(truck, Truck.class))
         .isEqualTo("{\"horsePower\":1.0,\"passengers\":[null,\"jesse,30\"]}");
@@ -216,7 +218,7 @@ public final class StreamingTypeAdaptersTest {
             + "'left':{'label':'left','left':null,'right':null},"
             + "'right':{'label':'right','left':null,'right':null}}");
   }
-  
+
   @Test
   public void testFromJsonTree() {
     JsonObject truckObject = new JsonObject();

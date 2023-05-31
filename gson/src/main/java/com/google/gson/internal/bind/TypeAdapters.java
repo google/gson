@@ -28,6 +28,7 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.internal.LazilyParsedNumber;
+import com.google.gson.internal.TroubleshootingGuide;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -73,12 +74,14 @@ public final class TypeAdapters {
     @Override
     public void write(JsonWriter out, Class value) throws IOException {
       throw new UnsupportedOperationException("Attempted to serialize java.lang.Class: "
-              + value.getName() + ". Forgot to register a type adapter?");
+          + value.getName() + ". Forgot to register a type adapter?"
+          + "\nSee " + TroubleshootingGuide.createUrl("java-lang-class-unsupported"));
     }
     @Override
     public Class read(JsonReader in) throws IOException {
       throw new UnsupportedOperationException(
-              "Attempted to deserialize a java.lang.Class. Forgot to register a type adapter?");
+          "Attempted to deserialize a java.lang.Class. Forgot to register a type adapter?"
+          + "\nSee " + TroubleshootingGuide.createUrl("java-lang-class-unsupported"));
     }
   }.nullSafe();
 

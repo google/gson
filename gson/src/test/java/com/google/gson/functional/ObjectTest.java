@@ -177,7 +177,8 @@ public class ObjectTest {
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessageThat().isEqualTo("Class com.google.gson.functional.ObjectTest$Subclass declares multiple JSON fields named 's';"
           + " conflict is caused by fields com.google.gson.functional.ObjectTest$Superclass1#s and"
-          + " com.google.gson.functional.ObjectTest$Superclass2#s");
+          + " com.google.gson.functional.ObjectTest$Superclass2#s"
+          + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#duplicate-fields");
     }
   }
 
@@ -196,6 +197,7 @@ public class ObjectTest {
     Nested target = gson.fromJson(json, Nested.class);
     assertThat(target.getExpectedJson()).isEqualTo(json);
   }
+
   @Test
   public void testNullSerialization() {
     assertThat(gson.toJson(null)).isEqualTo("null");
@@ -539,17 +541,17 @@ public class ObjectTest {
     Gson gson = new Gson();
     Product product = new Product();
     assertThat(gson.toJson(product)).isEqualTo("{\"attributes\":[],\"departments\":[]}");
-    gson.fromJson(gson.toJson(product), Product.class);
+    Product unused1 = gson.fromJson(gson.toJson(product), Product.class);
 
     product.departments.add(new Department());
     assertThat(gson.toJson(product))
         .isEqualTo("{\"attributes\":[],\"departments\":[{\"name\":\"abc\",\"code\":\"123\"}]}");
-    gson.fromJson(gson.toJson(product), Product.class);
+    Product unused2 = gson.fromJson(gson.toJson(product), Product.class);
 
     product.attributes.add("456");
     assertThat(gson.toJson(product))
         .isEqualTo("{\"attributes\":[\"456\"],\"departments\":[{\"name\":\"abc\",\"code\":\"123\"}]}");
-    gson.fromJson(gson.toJson(product), Product.class);
+    Product unused3 = gson.fromJson(gson.toJson(product), Product.class);
   }
 
   static final class Department {
@@ -611,7 +613,7 @@ public class ObjectTest {
   @Test
   public void testStaticFieldDeserialization() {
     // By default Gson should ignore static fields
-    gson.fromJson("{\"s\":\"custom\"}", ClassWithStaticField.class);
+    ClassWithStaticField unused = gson.fromJson("{\"s\":\"custom\"}", ClassWithStaticField.class);
     assertThat(ClassWithStaticField.s).isEqualTo("initial");
 
     Gson gson = new GsonBuilder()
@@ -632,7 +634,7 @@ public class ObjectTest {
       gson.fromJson("{\"s\":\"custom\"}", ClassWithStaticFinalField.class);
       fail();
     } catch (JsonIOException e) {
-      assertThat(          e.getMessage()).isEqualTo("Cannot set value of 'static final' field 'com.google.gson.functional.ObjectTest$ClassWithStaticFinalField#s'");
+      assertThat(e).hasMessageThat().isEqualTo("Cannot set value of 'static final' field 'com.google.gson.functional.ObjectTest$ClassWithStaticFinalField#s'");
     }
   }
 
@@ -652,7 +654,7 @@ public class ObjectTest {
     }
     // TODO: Adjust this once Gson throws more specific exception type
     catch (RuntimeException e) {
-      assertThat(          e.getMessage()).isEqualTo("Failed to invoke constructor 'com.google.gson.functional.ObjectTest$ClassWithThrowingConstructor()' with no args");
+      assertThat(e).hasMessageThat().isEqualTo("Failed to invoke constructor 'com.google.gson.functional.ObjectTest$ClassWithThrowingConstructor()' with no args");
       assertThat(e).hasCauseThat().isSameInstanceAs(ClassWithThrowingConstructor.thrownException);
     }
   }

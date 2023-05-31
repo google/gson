@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2023 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.google.code.gson</groupId>
+    <artifactId>gson-parent</artifactId>
+    <version>2.10.2-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>shrinker-test</artifactId>
+
+  <properties>
+    <maven.compiler.release>8</maven.compiler.release>
+  </properties>
+
+  <pluginRepositories>
+    <!-- R8 currently only exists in Google Maven repository -->
+    <pluginRepository>
+      <id>google</id>
+      <url>https://maven.google.com</url>
+    </pluginRepository>
+  </pluginRepositories>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.truth</groupId>
+      <artifactId>truth</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>com.github.siom79.japicmp</groupId>
+          <artifactId>japicmp-maven-plugin</artifactId>
+          <configuration>
+            <!-- This module is not supposed to be consumed as library, so no need to check API -->
+            <skip>true</skip>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <configuration>
+            <!-- Not deployed -->
+            <skip>true</skip>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
+    <plugins>
+      <!-- Process JAR with ProGuard -->
+      <plugin>
+        <groupId>com.github.wvengen</groupId>
+        <artifactId>proguard-maven-plugin</artifactId>
+        <version>2.6.0</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>proguard</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <obfuscate>true</obfuscate>
+          <proguardInclude>${project.basedir}/proguard.pro</proguardInclude>
+          <options>
+            <!-- Hacky solution to make ProGuard use the library rules file; only the Android plugin of ProGuard
+              seems to consider it automatically at the moment, see https://github.com/Guardsquare/proguard/issues/337
+              However, R8 defined further below always considers it automatically -->
+            <option>-include</option><option>${project.basedir}/../gson/src/main/resources/META-INF/proguard/gson.pro</option>
+          </options>
+          <libs>
+            <lib>${java.home}/jmods/java.base.jmod</lib>
+            <!-- Used by Gson for optional SQL types support -->
+            <lib>${java.home}/jmods/java.sql.jmod</lib>
+            <!-- Used by transitive Error Prone annotations dependency -->
+            <lib>${java.home}/jmods/java.compiler.jmod</lib>
+          </libs>
+          <!-- Include dependencies in the final JAR -->
+          <includeDependencyInjar>true</includeDependencyInjar>
+          <outjar>proguard-output.jar</outjar>
+        </configuration>
+      </plugin>
+
+      <!-- Prepare a JAR with dependencies for R8 -->
+      <!-- Once there is a proper R8 Maven plugin in the future, prefer that and provide
+        dependencies as additional input JARs there instead of using the Shade plugin -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.4.1</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <createDependencyReducedPom>false</createDependencyReducedPom>
+              <!-- Replace the main JAR -->
+              <shadedArtifactAttached>false</shadedArtifactAttached>
+              <filters>
+                <filter>
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <!-- Ignore duplicate files in dependencies -->
+                    <exclude>META-INF/MANIFEST.MF</exclude>
+                  </excludes>
+                </filter>
+              </filters>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Process JAR with R8; currently has no dedicated plugin so use Exec Maven Plugin instead -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <id>r8</id>
+            <phase>package</phase>
+            <goals>
+              <goal>java</goal>
+            </goals>
+            <configuration>
+              <!-- R8 runs as standalone JAR, does not need any of the project classes -->
+              <addOutputToClasspath>false</addOutputToClasspath>
+              <includeProjectDependencies>false</includeProjectDependencies>
+              <!-- R8 is specified as plugin dependency, see further below -->
+              <includePluginDependencies>true</includePluginDependencies>
+              <executableDependency>
+                <!-- Uses R8 dependency declared below -->
+                <groupId>com.android.tools</groupId>
+                <artifactId>r8</artifactId>
+              </executableDependency>
+              <!-- See https://r8.googlesource.com/r8/+/refs/heads/main/README.md#running-r8 -->
+              <!-- Without `pg-compat` argument this acts like "full mode", see
+                https://r8.googlesource.com/r8/+/refs/heads/master/compatibility-faq.md#r8-full-mode -->
+              <mainClass>com.android.tools.r8.R8</mainClass>
+              <arguments>
+                <argument>--release</argument>
+                <!-- Produce Java class files instead of Android DEX files -->
+                <argument>--classfile</argument>
+                <argument>--lib</argument><argument>${java.home}</argument>
+                <argument>--pg-conf</argument><argument>${project.basedir}/r8.pro</argument>
+                <!-- Create mapping file to make debugging test failures easier -->
+                <argument>--pg-map-output</argument><argument>${project.build.directory}/r8_map.txt</argument>
+                <argument>--output</argument><argument>${project.build.directory}/r8-output.jar</argument>
+                <argument>${project.build.directory}/${project.build.finalName}.jar</argument>
+              </arguments>
+            </configuration>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <!-- R8 dependency used above -->
+            <groupId>com.android.tools</groupId>
+            <artifactId>r8</artifactId>
+            <version>8.0.40</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+
+
+      <!-- Run integration tests to verify shrunken JAR behavior -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

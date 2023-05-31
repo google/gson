@@ -51,6 +51,8 @@ public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapte
 
   TypeAdapter<?> getTypeAdapter(ConstructorConstructor constructorConstructor, Gson gson,
       TypeToken<?> type, JsonAdapter annotation) {
+    // TODO: The exception messages created by ConstructorConstructor are currently written in the context of
+    // deserialization and for example suggest usage of TypeAdapter, which would not work for @JsonAdapter usage
     Object instance = constructorConstructor.get(TypeToken.get(annotation.value())).construct();
 
     TypeAdapter<?> typeAdapter;

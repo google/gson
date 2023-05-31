@@ -75,7 +75,7 @@ public final class TypeAdapterPrecedenceTest {
         .registerTypeAdapter(Foo.class, newDeserializer("deserializer"))
         .create();
     assertThat(gson.toJson(new Foo("foo"))).isEqualTo("\"foo via serializer\"");
-    assertThat( gson.fromJson("foo", Foo.class).name).isEqualTo("foo via deserializer");
+    assertThat(gson.fromJson("foo", Foo.class).name).isEqualTo("foo via deserializer");
   }
 
   @Test

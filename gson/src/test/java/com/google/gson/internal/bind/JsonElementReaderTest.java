@@ -63,21 +63,21 @@ public final class JsonElementReaderTest {
       reader.nextDouble();
       fail();
     } catch (MalformedJsonException e) {
-      assertThat(e.getMessage()).isEqualTo("JSON forbids NaN and infinities: NaN");
+      assertThat(e).hasMessageThat().isEqualTo("JSON forbids NaN and infinities: NaN");
     }
     assertThat(reader.nextString()).isEqualTo("NaN");
     try {
       reader.nextDouble();
       fail();
     } catch (MalformedJsonException e) {
-      assertThat(e.getMessage()).isEqualTo("JSON forbids NaN and infinities: -Infinity");
+      assertThat(e).hasMessageThat().isEqualTo("JSON forbids NaN and infinities: -Infinity");
     }
     assertThat(reader.nextString()).isEqualTo("-Infinity");
     try {
       reader.nextDouble();
       fail();
     } catch (MalformedJsonException e) {
-      assertThat(e.getMessage()).isEqualTo("JSON forbids NaN and infinities: Infinity");
+      assertThat(e).hasMessageThat().isEqualTo("JSON forbids NaN and infinities: Infinity");
     }
     assertThat(reader.nextString()).isEqualTo("Infinity");
     reader.endArray();
@@ -332,9 +332,9 @@ public final class JsonElementReaderTest {
       fail();
     } catch (IllegalStateException expected) {
     }
-    reader.nextName();
+    String unused1 = reader.nextName();
     assertThat(new JsonPrimitive(1)).isEqualTo(reader.nextJsonElement());
-    reader.nextName();
+    String unused2 = reader.nextName();
     reader.beginObject();
     try {
       reader.nextJsonElement();
@@ -342,7 +342,7 @@ public final class JsonElementReaderTest {
     } catch (IllegalStateException expected) {
     }
     reader.endObject();
-    reader.nextName();
+    String unused3 = reader.nextName();
     reader.beginArray();
     try {
       reader.nextJsonElement();
