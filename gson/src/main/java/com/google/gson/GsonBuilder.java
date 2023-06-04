@@ -51,7 +51,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-
 /**
  * <p>Use this builder to construct a {@link Gson} instance when you need to set configuration
  * options other than the default. For {@link Gson} with default configuration, it is simpler to
@@ -73,12 +72,16 @@ import java.util.Objects;
  *     .create();
  * </pre>
  *
- * <p>NOTES:
+ * <p>Notes:
  * <ul>
- * <li> the order of invocation of configuration methods does not matter.</li>
- * <li> The default serialization of {@link Date} and its subclasses in Gson does
+ * <li>The order of invocation of configuration methods does not matter.</li>
+ * <li>The default serialization of {@link Date} and its subclasses in Gson does
  *  not contain time-zone information. So, if you are using date/time instances,
  *  use {@code GsonBuilder} and its {@code setDateFormat} methods.</li>
+ * <li>By default no explicit {@link Strictness} is set; some of the {@link Gson} methods
+ *  behave as if {@link Strictness#LEGACY_STRICT} was used whereas others behave as
+ *  if {@link Strictness#LENIENT} was used. Prefer explicitly setting a strictness
+ *  with {@link #setStrictness(Strictness)} to avoid this legacy behavior.
  * </ul>
  *
  * @author Inderjeet Singh
@@ -549,10 +552,11 @@ public final class GsonBuilder {
    *
    * @param strictness the new strictness mode. May not be {@code null}.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern.
-   * @see JsonWriter#setStrictness(Strictness)
    * @see JsonReader#setStrictness(Strictness)
+   * @see JsonWriter#setStrictness(Strictness)
    * @since $next-version$
    */
+  @CanIgnoreReturnValue
   public GsonBuilder setStrictness(Strictness strictness) {
     this.strictness = Objects.requireNonNull(strictness);
     return this;

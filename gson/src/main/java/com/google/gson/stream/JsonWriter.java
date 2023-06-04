@@ -300,7 +300,7 @@ public class JsonWriter implements Closeable, Flushable {
    *     <dt>{@link Strictness#STRICT} &amp; {@link Strictness#LEGACY_STRICT}</dt>
    *     <dd>
    *         The behavior of these is currently identical. In these strictness modes, the writer only writes JSON
-   *         in accordance with <a href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>.
+   *         in accordance with RFC 8259.
    *     </dd>
    *     <dt>{@link Strictness#LENIENT}</dt>
    *     <dd>
@@ -474,7 +474,7 @@ public class JsonWriter implements Closeable, Flushable {
   public JsonWriter name(String name) throws IOException {
     Objects.requireNonNull(name, "name == null");
     if (deferredName != null) {
-      throw new IllegalStateException();
+      throw new IllegalStateException("Already wrote a name, expecting a value.");
     }
     if (stackSize == 0) {
       throw new IllegalStateException("JsonWriter is closed.");

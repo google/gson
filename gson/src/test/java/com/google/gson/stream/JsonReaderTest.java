@@ -26,11 +26,10 @@ import static com.google.gson.stream.JsonToken.NAME;
 import static com.google.gson.stream.JsonToken.NULL;
 import static com.google.gson.stream.JsonToken.NUMBER;
 import static com.google.gson.stream.JsonToken.STRING;
-import static org.junit.Assert.fail;
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.fail;
 
 import com.google.gson.Strictness;
-import com.google.gson.stream.JsonToken;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
@@ -76,7 +75,7 @@ public final class JsonReaderTest {
     reader.setStrictness(Strictness.STRICT);
 
     IOException expected = assertThrows(IOException.class, reader::nextString);
-    assertThat(expected.getMessage()).contains("Cannot escape a newline character in strict mode!");
+    assertThat(expected).hasMessageThat().startsWith("Cannot escape a newline character in strict mode");
   }
 
   @Test
@@ -88,12 +87,35 @@ public final class JsonReaderTest {
 
   @Test
   public void testStrictModeFailsToParseUnescapedControlCharacter() {
-    String json = "\"\t\"";
+    String json = "\"\0\"";
     JsonReader reader = new JsonReader(reader(json));
     reader.setStrictness(Strictness.STRICT);
 
     IOException expected = assertThrows(IOException.class, reader::nextString);
-    assertThat(expected.getMessage()).contains("Unescaped control characters (\\u0000-\\u001F) are not allowed in strict mode.");
+    assertThat(expected).hasMessageThat().startsWith("Unescaped control characters (\\u0000-\\u001F) are not allowed in strict mode");
+
+    json = "\"\t\"";
+    reader = new JsonReader(reader(json));
+    reader.setStrictness(Strictness.STRICT);
+
+    expected = assertThrows(IOException.class, reader::nextString);
+    assertThat(expected).hasMessageThat().startsWith("Unescaped control characters (\\u0000-\\u001F) are not allowed in strict mode");
+
+    json = "\"\u001F\"";
+    reader = new JsonReader(reader(json));
+    reader.setStrictness(Strictness.STRICT);
+
+    expected = assertThrows(IOException.class, reader::nextString);
+    assertThat(expected).hasMessageThat().startsWith("Unescaped control characters (\\u0000-\\u001F) are not allowed in strict mode");
+  }
+
+  @Test
+  public void testStrictModeAllowsOtherControlCharacters() throws IOException {
+    // JSON specification only forbids control characters U+0000 - U+001F, other control characters should be allowed
+    String json = "\"\u007F\u009F\"";
+    JsonReader reader = new JsonReader(reader(json));
+    reader.setStrictness(Strictness.STRICT);
+    assertThat(reader.nextString()).isEqualTo("\u007F\u009F");
   }
 
   @Test
@@ -108,16 +130,16 @@ public final class JsonReaderTest {
     JsonReader reader = new JsonReader(reader("TRUE"));
     reader.setStrictness(Strictness.STRICT);
 
-    IOException expected = assertThrows(IOException.class, reader::nextString);
-    assertThat(expected).hasMessageThat().contains("Use JsonReader.setLenient(true) to accept malformed" +
-            " JSON at line 1 column 1 path $");
+    IOException expected = assertThrows(IOException.class, reader::nextBoolean);
+    assertThat(expected).hasMessageThat().startsWith("Use JsonReader.setLenient(true) to accept malformed" +
+        " JSON at line 1 column 1 path $");
 
     reader = new JsonReader(reader("True"));
     reader.setStrictness(Strictness.STRICT);
 
-    expected = assertThrows(IOException.class, reader::nextString);
-    assertThat(expected).hasMessageThat().contains("Use JsonReader.setLenient(true) to accept malformed" +
-            " JSON at line 1 column 1 path $");
+    expected = assertThrows(IOException.class, reader::nextBoolean);
+    assertThat(expected).hasMessageThat().startsWith("Use JsonReader.setLenient(true) to accept malformed" +
+        " JSON at line 1 column 1 path $");
   }
 
   @Test
@@ -126,15 +148,15 @@ public final class JsonReaderTest {
     reader.setStrictness(Strictness.STRICT);
 
     IOException expected = assertThrows(IOException.class, reader::nextNull);
-    assertThat(expected).hasMessageThat().contains("Use JsonReader.setLenient(true) to accept malformed" +
-            " JSON at line 1 column 1 path $");
+    assertThat(expected).hasMessageThat().startsWith("Use JsonReader.setLenient(true) to accept malformed" +
+        " JSON at line 1 column 1 path $");
 
     reader = new JsonReader(reader("nulL"));
     reader.setStrictness(Strictness.STRICT);
 
     expected = assertThrows(IOException.class, reader::nextNull);
-    assertThat(expected).hasMessageThat().contains("Use JsonReader.setLenient(true) to accept malformed" +
-            " JSON at line 1 column 1 path $");
+    assertThat(expected).hasMessageThat().startsWith("Use JsonReader.setLenient(true) to accept malformed" +
+        " JSON at line 1 column 1 path $");
   }
 
   @Test
@@ -143,15 +165,15 @@ public final class JsonReaderTest {
     reader.setStrictness(Strictness.STRICT);
 
     IOException expected = assertThrows(IOException.class, reader::nextBoolean);
-    assertThat(expected).hasMessageThat().contains("Use JsonReader.setLenient(true) to accept malformed" +
-            " JSON at line 1 column 1 path $");
+    assertThat(expected).hasMessageThat().startsWith("Use JsonReader.setLenient(true) to accept malformed" +
+        " JSON at line 1 column 1 path $");
 
     reader = new JsonReader(reader("FaLse"));
     reader.setStrictness(Strictness.STRICT);
 
     expected = assertThrows(IOException.class, reader::nextBoolean);
-    assertThat(expected).hasMessageThat().contains("Use JsonReader.setLenient(true) to accept malformed" +
-            " JSON at line 1 column 1 path $");
+    assertThat(expected).hasMessageThat().startsWith("Use JsonReader.setLenient(true) to accept malformed" +
+        " JSON at line 1 column 1 path $");
   }
 
   @Test
@@ -483,6 +505,13 @@ public final class JsonReaderTest {
     JsonReader readerValid = new JsonReader(reader(jsonValid));
     readerValid.beginArray();
     assertThat(readerValid.nextString()).isEqualTo("whatever");
+
+    // And even in STRICT mode U+2028 and U+2029 are not considered control characters
+    // and can appear unescaped in JSON string
+    String jsonValid2028And2029 = "\"whatever\u2028\u2029\"";
+    JsonReader readerValid2028And2029 = new JsonReader(reader(jsonValid2028And2029));
+    readerValid2028And2029.setStrictness(Strictness.STRICT);
+    assertThat(readerValid2028And2029.nextString()).isEqualTo("whatever\u2028\u2029");
   }
 
   @Test
@@ -492,7 +521,7 @@ public final class JsonReaderTest {
     reader.setStrictness(Strictness.STRICT);
 
     IOException expected = assertThrows(IOException.class, reader::nextString);
-    assertThat(expected).hasMessageThat().contains("Invalid escaped character \"'\" in strict mode");
+    assertThat(expected).hasMessageThat().startsWith("Invalid escaped character \"'\" in strict mode");
   }
 
   @Test
@@ -514,17 +543,6 @@ public final class JsonReaderTest {
       assertThat(expected).hasMessageThat().isEqualTo("Malformed Unicode escape \\u000g at line 1 column 5 path $[0]"
           + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#malformed-json");
     }
-  }
-
-  @Test
-  public void testUnescapedControlCharactersInStrictMode() throws IOException {
-    String json = "[\"\u0014\"]";
-    JsonReader reader = new JsonReader(reader(json));
-    reader.setStrictness(Strictness.STRICT);
-    reader.beginArray();
-
-    IOException expected = assertThrows(IOException.class, reader::nextString);
-    assertThat(expected).hasMessageThat().contains("Unescaped control characters");
   }
 
   @Test
