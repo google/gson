@@ -83,7 +83,7 @@ public class ToNumberPolicyTest {
       fail();
     } catch (MalformedJsonException expected) {
       assertThat(expected).hasMessageThat().isEqualTo(
-          "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 1 path $"
+          "Use JsonReader.setStrictness(Strictness.LENIENT) to accept malformed JSON at line 1 column 1 path $"
           + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#malformed-json");
     }
     try {
@@ -91,7 +91,7 @@ public class ToNumberPolicyTest {
       fail();
     } catch (MalformedJsonException expected) {
       assertThat(expected).hasMessageThat().isEqualTo(
-          "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 1 path $"
+          "Use JsonReader.setStrictness(Strictness.LENIENT) to accept malformed JSON at line 1 column 1 path $"
           + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#malformed-json");
     }
     try {
@@ -99,7 +99,7 @@ public class ToNumberPolicyTest {
       fail();
     } catch (MalformedJsonException expected) {
       assertThat(expected).hasMessageThat().isEqualTo(
-          "Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 1 path $"
+          "Use JsonReader.setStrictness(Strictness.LENIENT) to accept malformed JSON at line 1 column 1 path $"
           + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#malformed-json");
     }
   }
@@ -157,7 +157,7 @@ public class ToNumberPolicyTest {
 
   private static JsonReader fromStringLenient(String json) {
     JsonReader jsonReader = fromString(json);
-    jsonReader.setLenient(true);
+    jsonReader.setStrictness(Strictness.LENIENT);
     return jsonReader;
   }
 }

@@ -271,16 +271,19 @@ public class JsonWriter implements Closeable, Flushable {
   /**
    * Sets the strictness of this writer.
    *
-   * <p>This method is deprecated. Please use {@link JsonWriter#setStrictness(Strictness)} instead.
+   * @deprecated Please use {@link JsonWriter#setStrictness(Strictness)} instead.
    * {@code JsonWriter.setLenient(true)} should be replaced by {@code JsonWriter.setStrictness(Strictness.LENIENT)}
-   * and {@code JsonWriter.setLenient(false)} should be replaced by {@code JsonWriter.setStrictness(Strictness.LEGACY_STRICT)}.
+   * and {@code JsonWriter.setLenient(false)} should be replaced by {@code JsonWriter.setStrictness(Strictness.LEGACY_STRICT)}.<br>
+   * However, if you used {@code setLenient(false)} before, you might prefer {@link Strictness#STRICT} now instead.
    *
    * @param lenient whether this writer should be lenient. If true, the strictness is set to {@link Strictness#LENIENT}.
    *                If false, the strictness is set to {@link Strictness#LEGACY_STRICT}.
    * @see #setStrictness(Strictness)
    */
+  @Deprecated
+  @SuppressWarnings("InlineMeSuggester") // Don't specify @InlineMe, so caller with `setLenient(false)` becomes aware of new Strictness.STRICT
   public final void setLenient(boolean lenient) {
-    this.strictness = lenient ? Strictness.LENIENT : Strictness.LEGACY_STRICT;
+    setStrictness(lenient ? Strictness.LENIENT : Strictness.LEGACY_STRICT);
   }
 
   /**
@@ -583,12 +586,12 @@ public class JsonWriter implements Closeable, Flushable {
   /**
    * Encodes {@code value}.
    *
-   * @param value a finite value, or if {@link #setLenient(boolean) lenient},
+   * @param value a finite value, or if {@link #setStrictness(Strictness) lenient},
    *     also {@link Float#isNaN() NaN} or {@link Float#isInfinite()
    *     infinity}.
    * @return this writer.
    * @throws IllegalArgumentException if the value is NaN or Infinity and this writer is not {@link
-   *     #setLenient(boolean) lenient}.
+   *     #setStrictness(Strictness) lenient}.
    * @since 2.9.1
    */
   @CanIgnoreReturnValue
@@ -605,11 +608,11 @@ public class JsonWriter implements Closeable, Flushable {
   /**
    * Encodes {@code value}.
    *
-   * @param value a finite value, or if {@link #setLenient(boolean) lenient},
+   * @param value a finite value, or if {@link #setStrictness(Strictness) lenient},
    *     also {@link Double#isNaN() NaN} or {@link Double#isInfinite() infinity}.
    * @return this writer.
    * @throws IllegalArgumentException if the value is NaN or Infinity and this writer is
-   *     not {@link #setLenient(boolean) lenient}.
+   *     not {@link #setStrictness(Strictness) lenient}.
    */
   @CanIgnoreReturnValue
   public JsonWriter value(double value) throws IOException {
@@ -650,11 +653,11 @@ public class JsonWriter implements Closeable, Flushable {
    * Encodes {@code value}. The value is written by directly writing the {@link Number#toString()}
    * result to JSON. Implementations must make sure that the result represents a valid JSON number.
    *
-   * @param value a finite value, or if {@link #setLenient(boolean) lenient},
+   * @param value a finite value, or if {@link #setStrictness(Strictness) lenient},
    *     also {@link Double#isNaN() NaN} or {@link Double#isInfinite() infinity}.
    * @return this writer.
    * @throws IllegalArgumentException if the value is NaN or Infinity and this writer is
-   *     not {@link #setLenient(boolean) lenient}; or if the {@code toString()} result is not a
+   *     not {@link #setStrictness(Strictness) lenient}; or if the {@code toString()} result is not a
    *     valid JSON number.
    */
   @CanIgnoreReturnValue

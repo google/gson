@@ -182,7 +182,7 @@ import java.util.Objects;
  * <p>Prefixing JSON files with <code>")]}'\n"</code> makes them non-executable
  * by {@code <script>} tags, disarming the attack. Since the prefix is malformed
  * JSON, strict parsing fails when it is encountered. This class permits the
- * non-execute prefix when {@link #setLenient(boolean) lenient parsing} is
+ * non-execute prefix when {@link #setStrictness(Strictness) lenient parsing} is
  * enabled.
  *
  * <p>Each {@code JsonReader} may be used to read a single JSON stream. Instances
@@ -295,16 +295,19 @@ public class JsonReader implements Closeable {
   /**
    * Sets the strictness of this reader.
    *
-   * <p>This method is deprecated. Please use {@link JsonReader#setStrictness(Strictness)} instead.
+   * @deprecated Please use {@link JsonReader#setStrictness(Strictness)} instead.
    * {@code JsonReader.setLenient(true)} should be replaced by {@code JsonReader.setStrictness(Strictness.LENIENT)}
-   * and {@code JsonReader.setLenient(false)} should be replaced by {@code JsonReader.setStrictness(Strictness.LEGACY_STRICT)}.
+   * and {@code JsonReader.setLenient(false)} should be replaced by {@code JsonReader.setStrictness(Strictness.LEGACY_STRICT)}.<br>
+   * However, if you used {@code setLenient(false)} before, you might prefer {@link Strictness#STRICT} now instead.
    *
    * @param lenient whether this reader should be lenient. If true, the strictness is set to {@link Strictness#LENIENT}.
    *                If false, the strictness is set to {@link Strictness#LEGACY_STRICT}.
    * @see #setStrictness(Strictness)
    */
+  @Deprecated
+  @SuppressWarnings("InlineMeSuggester") // Don't specify @InlineMe, so caller with `setLenient(false)` becomes aware of new Strictness.STRICT
   public final void setLenient(boolean lenient) {
-    this.strictness = lenient ? Strictness.LENIENT : Strictness.LEGACY_STRICT;
+    setStrictness(lenient ? Strictness.LENIENT : Strictness.LEGACY_STRICT);
   }
 
   /**
@@ -943,7 +946,7 @@ public class JsonReader implements Closeable {
    * @throws NumberFormatException if the next literal value cannot be parsed
    *     as a double.
    * @throws MalformedJsonException if the next literal value is NaN or Infinity
-   *     and this reader is not {@link #setLenient(boolean) lenient}.
+   *     and this reader is not {@link #setStrictness(Strictness) lenient}.
    */
   public double nextDouble() throws IOException {
     int p = peeked;
@@ -1514,7 +1517,7 @@ public class JsonReader implements Closeable {
 
   private void checkLenient() throws IOException {
     if (strictness != Strictness.LENIENT) {
-      throw syntaxError("Use JsonReader.setLenient(true) to accept malformed JSON");
+      throw syntaxError("Use JsonReader.setStrictness(Strictness.LENIENT) to accept malformed JSON");
     }
   }
 

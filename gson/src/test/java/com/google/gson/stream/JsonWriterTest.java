@@ -40,6 +40,7 @@ public final class JsonWriterTest {
     jsonWriter.close();
   }
 
+  @SuppressWarnings("deprecation") // for JsonWriter.setLenient
   @Test
   public void testSetLenientTrue() throws IOException {
     JsonWriter jsonWriter = new JsonWriter(new StringWriter());
@@ -49,6 +50,7 @@ public final class JsonWriterTest {
     jsonWriter.close();
   }
 
+  @SuppressWarnings("deprecation") // for JsonWriter.setLenient
   @Test
   public void testSetLenientFalse() throws IOException {
     JsonWriter jsonWriter = new JsonWriter(new StringWriter());
@@ -264,7 +266,7 @@ public final class JsonWriterTest {
   }
 
   @Test
-  public void testNonFiniteFloatsStrict() throws IOException {
+  public void testNonFiniteFloatsWhenStrict() throws IOException {
     StringWriter stringWriter = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
     jsonWriter.setStrictness(Strictness.STRICT);
@@ -297,7 +299,7 @@ public final class JsonWriterTest {
   }
 
   @Test
-  public void testNonFiniteDoublesStrict() throws IOException {
+  public void testNonFiniteDoublesWhenStrict() throws IOException {
     StringWriter stringWriter = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
     jsonWriter.setStrictness(Strictness.STRICT);
@@ -333,7 +335,7 @@ public final class JsonWriterTest {
   }
 
   @Test
-  public void testNonFiniteNumbersStrict() throws IOException {
+  public void testNonFiniteNumbersWhenStrict() throws IOException {
     StringWriter stringWriter = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
     jsonWriter.setStrictness(Strictness.STRICT);
@@ -356,7 +358,7 @@ public final class JsonWriterTest {
   public void testNonFiniteFloatsWhenLenient() throws IOException {
     StringWriter stringWriter = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
-    jsonWriter.setLenient(true);
+    jsonWriter.setStrictness(Strictness.LENIENT);
     jsonWriter.beginArray();
     jsonWriter.value(Float.NaN);
     jsonWriter.value(Float.NEGATIVE_INFINITY);
@@ -369,7 +371,7 @@ public final class JsonWriterTest {
   public void testNonFiniteDoublesWhenLenient() throws IOException {
     StringWriter stringWriter = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
-    jsonWriter.setLenient(true);
+    jsonWriter.setStrictness(Strictness.LENIENT);
     jsonWriter.beginArray();
     jsonWriter.value(Double.NaN);
     jsonWriter.value(Double.NEGATIVE_INFINITY);
@@ -382,7 +384,7 @@ public final class JsonWriterTest {
   public void testNonFiniteNumbersWhenLenient() throws IOException {
     StringWriter stringWriter = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
-    jsonWriter.setLenient(true);
+    jsonWriter.setStrictness(Strictness.LENIENT);
     jsonWriter.beginArray();
     jsonWriter.value(Double.valueOf(Double.NaN));
     jsonWriter.value(Double.valueOf(Double.NEGATIVE_INFINITY));
@@ -829,7 +831,7 @@ public final class JsonWriterTest {
   public void testLenientWriterPermitsMultipleTopLevelValues() throws IOException {
     StringWriter stringWriter = new StringWriter();
     JsonWriter writer = new JsonWriter(stringWriter);
-    writer.setLenient(true);
+    writer.setStrictness(Strictness.LENIENT);
     writer.beginArray();
     writer.endArray();
     writer.beginArray();
@@ -848,6 +850,7 @@ public final class JsonWriterTest {
       writer.beginArray();
       fail();
     } catch (IllegalStateException expected) {
+      assertThat(expected).hasMessageThat().isEqualTo("JSON must have only one top-level value.");
     }
   }
 

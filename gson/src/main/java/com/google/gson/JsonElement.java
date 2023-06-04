@@ -321,7 +321,8 @@ public abstract class JsonElement {
     try {
       StringWriter stringWriter = new StringWriter();
       JsonWriter jsonWriter = new JsonWriter(stringWriter);
-      jsonWriter.setLenient(true);
+      // Make writer lenient because toString() must not fail, even if for example JsonPrimitive contains NaN
+      jsonWriter.setStrictness(Strictness.LENIENT);
       Streams.write(this, jsonWriter);
       return stringWriter.toString();
     } catch (IOException e) {

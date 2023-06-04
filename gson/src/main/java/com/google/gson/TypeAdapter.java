@@ -134,10 +134,10 @@ public abstract class TypeAdapter<T> {
 
   /**
    * Converts {@code value} to a JSON document and writes it to {@code out}.
-   * Unlike Gson's similar {@link Gson#toJson(JsonElement, Appendable) toJson}
-   * method, this write is strict. Create a {@link
-   * JsonWriter#setLenient(boolean) lenient} {@code JsonWriter} and call
-   * {@link #write(JsonWriter, Object)} for lenient writing.
+   * The strictness {@link Strictness#LEGACY_STRICT} is used for writing the JSON data.
+   * To use a different strictness setting create a {@link JsonWriter}, call its
+   * {@link JsonWriter#setStrictness(Strictness)} method and then use
+   * {@link #write(JsonWriter, Object)} for writing.
    *
    * @param value the Java object to convert. May be null.
    * @since 2.2
@@ -207,10 +207,11 @@ public abstract class TypeAdapter<T> {
   }
 
   /**
-   * Converts {@code value} to a JSON document. Unlike Gson's similar {@link
-   * Gson#toJson(Object) toJson} method, this write is strict. Create a {@link
-   * JsonWriter#setLenient(boolean) lenient} {@code JsonWriter} and call
-   * {@link #write(JsonWriter, Object)} for lenient writing.
+   * Converts {@code value} to a JSON document.
+   * The strictness {@link Strictness#LEGACY_STRICT} is used for writing the JSON data.
+   * To use a different strictness setting create a {@link JsonWriter}, call its
+   * {@link JsonWriter#setStrictness(Strictness)} method and then use
+   * {@link #write(JsonWriter, Object)} for writing.
    *
    * @throws JsonIOException wrapping {@code IOException}s thrown by {@link #write(JsonWriter, Object)}
    * @param value the Java object to convert. May be null.
@@ -253,10 +254,10 @@ public abstract class TypeAdapter<T> {
   public abstract T read(JsonReader in) throws IOException;
 
   /**
-   * Converts the JSON document in {@code in} to a Java object. Unlike Gson's
-   * similar {@link Gson#fromJson(Reader, Class) fromJson} method, this
-   * read is strict. Create a {@link JsonReader#setLenient(boolean) lenient}
-   * {@code JsonReader} and call {@link #read(JsonReader)} for lenient reading.
+   * Converts the JSON document in {@code in} to a Java object. The strictness
+   * {@link Strictness#LEGACY_STRICT} is used for reading the JSON data. To use a different
+   * strictness setting create a {@link JsonReader}, call its {@link JsonReader#setStrictness(Strictness)}
+   * method and then use {@link #read(JsonReader)} for reading.
    *
    * <p>No exception is thrown if the JSON data has multiple top-level JSON elements,
    * or if there is trailing data.
@@ -270,10 +271,10 @@ public abstract class TypeAdapter<T> {
   }
 
   /**
-   * Converts the JSON document in {@code json} to a Java object. Unlike Gson's
-   * similar {@link Gson#fromJson(String, Class) fromJson} method, this read is
-   * strict. Create a {@link JsonReader#setLenient(boolean) lenient} {@code
-   * JsonReader} and call {@link #read(JsonReader)} for lenient reading.
+   * Converts the JSON document in {@code json} to a Java object. The strictness
+   * {@link Strictness#LEGACY_STRICT} is used for reading the JSON data. To use a different
+   * strictness setting create a {@link JsonReader}, call its {@link JsonReader#setStrictness(Strictness)}
+   * method and then use {@link #read(JsonReader)} for reading.
    *
    * <p>No exception is thrown if the JSON data has multiple top-level JSON elements,
    * or if there is trailing data.

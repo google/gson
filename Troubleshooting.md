@@ -127,7 +127,7 @@ For example, let's assume you want to deserialize the following JSON data:
 }
 ```
 
-This will fail with an exception similar to this one: `MalformedJsonException: Use JsonReader.setLenient(true) to accept malformed JSON at line 5 column 4 path $.languages[2]`  
+This will fail with an exception similar to this one: `MalformedJsonException: Use JsonReader.setStrictness(Strictness.LENIENT) to accept malformed JSON at line 5 column 4 path $.languages[2]`  
 The problem here is the trailing comma (`,`) after `"French"`, trailing commas are not allowed by the JSON specification. The location information "line 5 column 4" points to the `]` in the JSON data (with some slight inaccuracies) because Gson expected another value after `,` instead of the closing `]`. The JSONPath `$.languages[2]` in the exception message also points there: `$.` refers to the root object, `languages` refers to its member of that name and `[2]` refers to the (missing) third value in the JSON array value of that member (numbering starts at 0, so it is `[2]` instead of `[3]`).  
 The proper solution here is to fix the malformed JSON data.
 

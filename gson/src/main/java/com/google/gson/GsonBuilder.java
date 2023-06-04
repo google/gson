@@ -29,6 +29,7 @@ import static com.google.gson.Gson.DEFAULT_STRICTNESS;
 import static com.google.gson.Gson.DEFAULT_USE_JDK_UNSAFE;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import com.google.errorprone.annotations.InlineMe;
 import com.google.gson.annotations.Since;
 import com.google.gson.annotations.Until;
 import com.google.gson.internal.$Gson$Preconditions;
@@ -528,18 +529,19 @@ public final class GsonBuilder {
   /**
    * Sets the strictness of this builder to {@link Strictness#LENIENT}.
    *
-   * <p>This method has been deprecated. Please use {@link GsonBuilder#setStrictness(Strictness)} instead.
-   * Calling this method is equivalent to {@code setStrictness(Strictness.LENIENT)}</p>
+   * @deprecated This method is equivalent to calling {@link #setStrictness(Strictness)} with
+   * {@link Strictness#LENIENT}: {@code setStrictness(Strictness.LENIENT)}
    *
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern.
    * @see JsonReader#setStrictness(Strictness)
    * @see JsonWriter#setStrictness(Strictness)
    * @see #setStrictness(Strictness)
    */
+  @Deprecated
+  @InlineMe(replacement = "this.setStrictness(Strictness.LENIENT)", imports = "com.google.gson.Strictness")
   @CanIgnoreReturnValue
   public GsonBuilder setLenient() {
-    strictness = Strictness.LENIENT;
-    return this;
+    return setStrictness(Strictness.LENIENT);
   }
 
   /**
