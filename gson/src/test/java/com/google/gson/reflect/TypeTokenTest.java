@@ -262,7 +262,7 @@ public final class TypeTokenTest {
     } catch (IllegalStateException expected) {
       assertThat(expected).hasMessageThat().isEqualTo("TypeToken must be created with a type argument: new TypeToken<...>() {};"
           + " When using code shrinkers (ProGuard, R8, ...) make sure that generic signatures are preserved."
-          + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#type-token-raw"
+          + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#type-token-raw"
       );
     }
   }

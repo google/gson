@@ -102,7 +102,7 @@ import java.util.concurrent.atomic.AtomicLongArray;
  * List&lt;MyType&gt; target2 = gson.fromJson(json, listType);
  * </pre>
  *
- * <p>See the <a href="https://github.com/google/gson/blob/master/UserGuide.md">Gson User Guide</a>
+ * <p>See the <a href="https://github.com/google/gson/blob/main/UserGuide.md">Gson User Guide</a>
  * for a more complete set of examples.</p>
  *
  * <h2 id="default-lenient">Lenient JSON handling</h2>

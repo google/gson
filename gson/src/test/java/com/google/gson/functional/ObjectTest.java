@@ -178,7 +178,7 @@ public class ObjectTest {
       assertThat(e).hasMessageThat().isEqualTo("Class com.google.gson.functional.ObjectTest$Subclass declares multiple JSON fields named 's';"
           + " conflict is caused by fields com.google.gson.functional.ObjectTest$Superclass1#s and"
           + " com.google.gson.functional.ObjectTest$Superclass2#s"
-          + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#duplicate-fields");
+          + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#duplicate-fields");
     }
   }
 

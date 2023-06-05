@@ -18,7 +18,7 @@
 
 ### The following rules are needed for R8 in "full mode" which only adheres to `-keepattribtues` if
 ### the corresponding class or field is matches by a `-keep` rule as well, see
-### https://r8.googlesource.com/r8/+/refs/heads/master/compatibility-faq.md#r8-full-mode
+### https://r8.googlesource.com/r8/+/refs/heads/main/compatibility-faq.md#r8-full-mode
 
 # Keep class TypeToken (respectively its generic signature)
 -keep class com.google.gson.reflect.TypeToken { *; }

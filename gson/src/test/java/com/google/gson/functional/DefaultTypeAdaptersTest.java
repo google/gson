@@ -96,7 +96,7 @@ public class DefaultTypeAdaptersTest {
       fail();
     } catch (UnsupportedOperationException expected) {
       assertThat(expected).hasMessageThat().isEqualTo("Attempted to serialize java.lang.Class: java.lang.String. Forgot to register a type adapter?"
-          + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#java-lang-class-unsupported");
+          + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#java-lang-class-unsupported");
     }
     // Override with a custom type adapter for class.
     gson = new GsonBuilder().registerTypeAdapter(Class.class, new MyClassTypeAdapter()).create();
@@ -110,7 +110,7 @@ public class DefaultTypeAdaptersTest {
       fail();
     } catch (UnsupportedOperationException expected) {
       assertThat(expected).hasMessageThat().isEqualTo("Attempted to deserialize a java.lang.Class. Forgot to register a type adapter?"
-          + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#java-lang-class-unsupported");
+          + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#java-lang-class-unsupported");
     }
     // Override with a custom type adapter for class.
     gson = new GsonBuilder().registerTypeAdapter(Class.class, new MyClassTypeAdapter()).create();
