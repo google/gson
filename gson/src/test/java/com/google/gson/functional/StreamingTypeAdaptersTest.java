@@ -196,7 +196,7 @@ public final class StreamingTypeAdaptersTest {
       fail();
     } catch (JsonSyntaxException expected) {
       assertThat(expected).hasMessageThat().isEqualTo("java.lang.IllegalStateException: Expected a string but was NULL at line 1 column 33 path $.passengers[0]"
-          + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#adapter-not-null-safe");
+          + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#adapter-not-null-safe");
     }
     gson = new GsonBuilder().registerTypeAdapter(Person.class, typeAdapter.nullSafe()).create();
     assertThat(gson.toJson(truck, Truck.class))

@@ -172,7 +172,7 @@
               </executableDependency>
               <!-- See https://r8.googlesource.com/r8/+/refs/heads/main/README.md#running-r8 -->
               <!-- Without `pg-compat` argument this acts like "full mode", see
-                https://r8.googlesource.com/r8/+/refs/heads/master/compatibility-faq.md#r8-full-mode -->
+                https://r8.googlesource.com/r8/+/refs/heads/main/compatibility-faq.md#r8-full-mode -->
               <mainClass>com.android.tools.r8.R8</mainClass>
               <arguments>
                 <argument>--release</argument>

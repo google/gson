@@ -2,7 +2,7 @@
 -include proguard.pro
 
 ### The following rules are needed for R8 in "full mode", which performs more aggressive optimizations than ProGuard
-### See https://r8.googlesource.com/r8/+/refs/heads/master/compatibility-faq.md#r8-full-mode
+### See https://r8.googlesource.com/r8/+/refs/heads/main/compatibility-faq.md#r8-full-mode
 
 # Keep the no-args constructor of deserialized classes
 -keepclassmembers class com.example.ClassWithDefaultConstructor {

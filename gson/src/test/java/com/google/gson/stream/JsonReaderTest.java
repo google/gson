@@ -275,7 +275,7 @@ public final class JsonReaderTest {
       fail();
     } catch (MalformedJsonException expected) {
       assertThat(expected).hasMessageThat().isEqualTo("Invalid escape sequence at line 2 column 8 path $."
-          + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#malformed-json");
+          + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
     }
   }
 
@@ -360,7 +360,7 @@ public final class JsonReaderTest {
       fail();
     } catch (MalformedJsonException expected) {
       assertThat(expected).hasMessageThat().isEqualTo("Malformed Unicode escape \\u000g at line 1 column 5 path $[0]"
-          + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#malformed-json");
+          + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
     }
   }
 
@@ -374,7 +374,7 @@ public final class JsonReaderTest {
       fail();
     } catch (MalformedJsonException expected) {
       assertThat(expected).hasMessageThat().isEqualTo("Unterminated escape sequence at line 1 column 5 path $[0]"
-          + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#malformed-json");
+          + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
     }
   }
 
@@ -388,7 +388,7 @@ public final class JsonReaderTest {
       fail();
     } catch (MalformedJsonException expected) {
       assertThat(expected).hasMessageThat().isEqualTo("Unterminated escape sequence at line 1 column 4 path $[0]"
-          + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#malformed-json");
+          + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
     }
   }
 
@@ -468,7 +468,7 @@ public final class JsonReaderTest {
       fail();
     } catch (MalformedJsonException expected) {
       assertThat(expected).hasMessageThat().isEqualTo("JSON forbids NaN and infinities: NaN at line 1 column 7 path $[0]"
-          + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#malformed-json");
+          + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
     }
   }
 
@@ -836,7 +836,7 @@ public final class JsonReaderTest {
       fail();
     } catch (MalformedJsonException expected) {
       assertThat(expected).hasMessageThat().isEqualTo("Expected value at line 1 column 6 path $.a"
-          + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#malformed-json");
+          + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
     }
   }
 
@@ -1588,7 +1588,7 @@ public final class JsonReaderTest {
       fail();
     } catch (MalformedJsonException expected) {
       assertThat(expected).hasMessageThat().isEqualTo("Unexpected value at line 1 column 3 path $"
-          + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#malformed-json");
+          + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
     }
   }
 
@@ -1674,7 +1674,7 @@ public final class JsonReaderTest {
       JsonToken unused2 = reader1.peek();
       fail();
     } catch (MalformedJsonException expected) {
-      assertThat(expected).hasMessageThat().isEqualTo(message + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#malformed-json");
+      assertThat(expected).hasMessageThat().isEqualTo(message + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
     }
 
     // Also validate that it works when skipping.
@@ -1686,7 +1686,7 @@ public final class JsonReaderTest {
       JsonToken unused3 = reader2.peek();
       fail();
     } catch (MalformedJsonException expected) {
-      assertThat(expected).hasMessageThat().isEqualTo(message + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#malformed-json");
+      assertThat(expected).hasMessageThat().isEqualTo(message + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
     }
   }
 
@@ -1706,7 +1706,7 @@ public final class JsonReaderTest {
     } catch (MalformedJsonException expected) {
       assertThat(expected).hasMessageThat().isEqualTo(
           "Expected value at line 1 column 14 path $[1].a[2]"
-          + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#malformed-json");
+          + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
     }
   }
 
@@ -1792,7 +1792,7 @@ public final class JsonReaderTest {
       fail();
     } catch (MalformedJsonException expected) {
       assertThat(expected).hasMessageThat().isEqualTo("Expected value at line 1 column 1 path $"
-          + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#malformed-json");
+          + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
     }
   }
 
@@ -1805,7 +1805,7 @@ public final class JsonReaderTest {
       fail();
     } catch (MalformedJsonException expected) {
       assertThat(expected).hasMessageThat().isEqualTo("Expected value at line 1 column 10 path $"
-          + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#malformed-json");
+          + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
     }
   }
 
@@ -1818,7 +1818,7 @@ public final class JsonReaderTest {
       fail();
     } catch (MalformedJsonException expected) {
       assertThat(expected).hasMessageThat().isEqualTo("Expected value at line 1 column 1 path $"
-          + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#malformed-json");
+          + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
     }
   }
 
@@ -1834,7 +1834,7 @@ public final class JsonReaderTest {
       fail();
     } catch (MalformedJsonException expected) {
       assertThat(expected).hasMessageThat().isEqualTo("Unterminated object at line 1 column 16 path $.a"
-          + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#malformed-json");
+          + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
     }
   }
 
@@ -1963,7 +1963,7 @@ public final class JsonReaderTest {
       fail();
     } catch (MalformedJsonException expected) {
       assertThat(expected).hasMessageThat().isEqualTo("Expected name at line 1 column 11 path $.a"
-          + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#malformed-json");
+          + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
     }
   }
 
@@ -1979,7 +1979,7 @@ public final class JsonReaderTest {
       fail();
     } catch (MalformedJsonException expected) {
       assertThat(expected).hasMessageThat().isEqualTo("Expected name at line 1 column 11 path $.a"
-          + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#malformed-json");
+          + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
     }
   }
 
@@ -2047,7 +2047,7 @@ public final class JsonReaderTest {
       fail();
     } catch (MalformedJsonException expected) {
       assertThat(expected).hasMessageThat().isEqualTo("Unterminated string at line 1 column 9 path $[0]"
-          + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#malformed-json");
+          + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
     }
   }
 
@@ -2069,13 +2069,13 @@ public final class JsonReaderTest {
 
   private static void assertStrictError(MalformedJsonException exception, String expectedLocation) {
     assertThat(exception).hasMessageThat().isEqualTo("Use JsonReader.setLenient(true) to accept malformed JSON at " + expectedLocation
-        + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#malformed-json");
+        + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
   }
 
   private static void assertUnexpectedStructureError(IllegalStateException exception, String expectedToken, String actualToken, String expectedLocation) {
     String troubleshootingId = actualToken.equals("NULL") ? "adapter-not-null-safe" : "unexpected-json-structure";
     assertThat(exception).hasMessageThat().isEqualTo("Expected " + expectedToken + " but was " + actualToken + " at " + expectedLocation
-        + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#" + troubleshootingId);
+        + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#" + troubleshootingId);
   }
 
   private void assertDocument(String document, Object... expectations) throws IOException {

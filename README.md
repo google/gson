@@ -80,7 +80,7 @@ JDK 11 or newer is required for building, JDK 17 is recommended.
 
 ### Contributing
 
-See the [contributing guide](https://github.com/google/.github/blob/master/CONTRIBUTING.md).  
+See the [contributing guide](https://github.com/google/.github/blob/main/CONTRIBUTING.md).  
 Please perform a quick search to check if there are already existing issues or pull requests related to your contribution.
 
 Keep in mind that Gson is in maintenance mode. If you want to add a new feature, please first search for existing GitHub issues, or create a new one to discuss the feature and get feedback.
