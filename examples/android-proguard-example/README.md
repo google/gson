@@ -15,3 +15,6 @@ tools. Have a look at R8's Compatibility FAQ, and especially at the [Gson sectio
 Note that newer Gson versions apply some of the rules shown in `proguard.cfg` automatically by default,
 see the file [`gson/META-INF/proguard/gson.pro`](/gson/src/main/resources/META-INF/proguard/gson.pro) for
 the Gson version you are using.
+
+An alternative to writing custom keep rules for your classes in the ProGuard configuration can be to use
+Android's [`@Keep` annotation](https://developer.android.com/studio/write/annotations#keep).

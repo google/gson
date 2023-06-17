@@ -27,3 +27,21 @@
 -keepclassmembers class com.example.ClassWithNamedFields {
   !transient <fields>;
 }
+
+-keepclassmembernames class com.example.ClassWithExposeAnnotation {
+  <fields>;
+}
+-keepclassmembernames class com.example.ClassWithJsonAdapterAnnotation {
+  ** f;
+}
+-keepclassmembernames class com.example.ClassWithVersionAnnotations {
+  <fields>;
+}
+
+
+-keepclassmembernames class com.example.DefaultConstructorMain$TestClass {
+  <fields>;
+}
+-keepclassmembernames class com.example.DefaultConstructorMain$TestClassNotAbstract {
+  <fields>;
+}

@@ -4,20 +4,6 @@
 ### The following rules are needed for R8 in "full mode", which performs more aggressive optimizations than ProGuard
 ### See https://r8.googlesource.com/r8/+/refs/heads/main/compatibility-faq.md#r8-full-mode
 
-# Keep the no-args constructor of deserialized classes
--keepclassmembers class com.example.ClassWithDefaultConstructor {
-  <init>();
-}
--keepclassmembers class com.example.GenericClasses$GenericClass {
-  <init>();
-}
--keepclassmembers class com.example.GenericClasses$UsingGenericClass {
-  <init>();
-}
--keepclassmembers class com.example.GenericClasses$GenericUsingGenericClass {
-  <init>();
-}
-
 # For classes with generic type parameter R8 in "full mode" requires to have a keep rule to
 # preserve the generic signature
 -keep,allowshrinking,allowoptimization,allowobfuscation,allowaccessmodification class com.example.GenericClasses$GenericClass
@@ -31,6 +17,6 @@
 }
 
 # Keep enum constants which are not explicitly used in code
--keep class com.example.EnumClass {
+-keepclassmembers class com.example.EnumClass {
   ** SECOND;
 }

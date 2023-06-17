@@ -4,17 +4,14 @@ import static com.example.TestExecutor.same;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.annotations.SerializedName;
 
 public class DefaultConstructorMain {
   static class TestClass {
-    @SerializedName("s")
     public String s;
   }
 
   // R8 rule for this class still removes no-args constructor, but doesn't make class abstract
   static class TestClassNotAbstract {
-    @SerializedName("s")
     public String s;
   }
 
