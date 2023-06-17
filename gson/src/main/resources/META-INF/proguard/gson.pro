@@ -60,7 +60,7 @@
 }
 
 # If a class still exists after shrinking, and has fields annotated with @SerializedName,
-# keep the constructors
+# keep the no-args constructor
 # Note: This behavior is not officially documented somewhere; based on https://issuetracker.google.com/issues/150189783#comment11
 # and discussion in https://github.com/google/gson/pull/2397
 -if class *
