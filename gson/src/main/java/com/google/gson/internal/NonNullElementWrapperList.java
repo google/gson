@@ -33,6 +33,7 @@ public class NonNullElementWrapperList<E> extends AbstractList<E> implements Ran
   // Explicitly specify ArrayList as type to guarantee that delegate implements RandomAccess
   private final ArrayList<E> delegate;
 
+  @SuppressWarnings("NonApiType")
   public NonNullElementWrapperList(ArrayList<E> delegate) {
     this.delegate = Objects.requireNonNull(delegate);
   }
