@@ -691,6 +691,7 @@ public class DefaultTypeAdaptersTest {
     assertThat(treeSet).contains("Value1");
   }
 
+  @SuppressWarnings("UnnecessaryStringBuilder") // TODO: b/287969247 - remove when EP bug fixed
   @Test
   public void testStringBuilderSerialization() {
     StringBuilder sb = new StringBuilder("abc");
