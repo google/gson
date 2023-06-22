@@ -326,7 +326,7 @@ Note: If the class which you are trying to deserialize is actually abstract, the
 }
 ```
 
-You can also use `<init>(...);` to keep all constructors of that class, but then you might actually rely on JDK Unsafe to create classes without no-args constructor, see [`GsonBuilder.disableJdkUnsafe()`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/GsonBuilder.html#disableJdkUnsafe()) for more information.
+You can also use `<init>(...);` to keep all constructors of that class, but then you might actually rely on `sun.misc.Unsafe` on both JDK and Android to create classes without no-args constructor, see [`GsonBuilder.disableJdkUnsafe()`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/GsonBuilder.html#disableJdkUnsafe()) for more information.
 
 For Android you can add this rule to the `proguard-rules.pro` file, see also the [Android documentation](https://developer.android.com/build/shrink-code#keep-code). In case the class name in the exception message is obfuscated, see the Android documentation about [retracing](https://developer.android.com/build/shrink-code#retracing).
 
