@@ -331,3 +331,5 @@ You can also use `<init>(...);` to keep all constructors of that class, but then
 For Android you can add this rule to the `proguard-rules.pro` file, see also the [Android documentation](https://developer.android.com/build/shrink-code#keep-code). In case the class name in the exception message is obfuscated, see the Android documentation about [retracing](https://developer.android.com/build/shrink-code#retracing).
 
 For Android you can alternatively use the [`@Keep` annotation](https://developer.android.com/studio/write/annotations#keep) on the class or constructor you want to keep. That might be easier than having to maintain a custom R8 configuration.
+
+Note that the latest Gson versions (> 2.10.1) specify a default R8 configuration. If your class is a top-level class or is `static`, has a no-args constructor and its fields are annotated with Gson's [`@SerializedName`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/annotations/SerializedName.html), you might not have to perform any additional R8 configuration.

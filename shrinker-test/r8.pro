@@ -11,6 +11,8 @@
 
 # Don't obfuscate class name, to check it in exception message
 -keep,allowshrinking,allowoptimization class com.example.DefaultConstructorMain$TestClass
+-keep,allowshrinking,allowoptimization class com.example.DefaultConstructorMain$TestClassWithoutDefaultConstructor
+
 # This rule has the side-effect that R8 still removes the no-args constructor, but does not make the class abstract
 -keep class com.example.DefaultConstructorMain$TestClassNotAbstract {
   @com.google.gson.annotations.SerializedName <fields>;
