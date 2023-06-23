@@ -139,7 +139,7 @@ public class NamingPolicyTest {
           .isEqualTo("Class com.google.gson.functional.NamingPolicyTest$ClassWithDuplicateFields declares multiple JSON fields named 'a';"
           + " conflict is caused by fields com.google.gson.functional.NamingPolicyTest$ClassWithDuplicateFields#a and"
           + " com.google.gson.functional.NamingPolicyTest$ClassWithDuplicateFields#b"
-          + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#duplicate-fields");
+          + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#duplicate-fields");
     }
   }
 
@@ -160,7 +160,7 @@ public class NamingPolicyTest {
           .isEqualTo("Class com.google.gson.functional.NamingPolicyTest$ClassWithTwoFields declares multiple JSON fields named 'x';"
           + " conflict is caused by fields com.google.gson.functional.NamingPolicyTest$ClassWithTwoFields#a and"
           + " com.google.gson.functional.NamingPolicyTest$ClassWithTwoFields#b"
-          + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#duplicate-fields");
+          + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#duplicate-fields");
     }
   }
 

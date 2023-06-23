@@ -852,7 +852,9 @@ public final class JsonWriterTest {
 
     StringWriter stringWriter = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
-    jsonWriter.setFormattingStyle(FormattingStyle.DEFAULT.withIndent(" \t ").withNewline(lineSeparator));
+    // Default should be FormattingStyle.COMPACT
+    assertThat(jsonWriter.getFormattingStyle()).isSameInstanceAs(FormattingStyle.COMPACT);
+    jsonWriter.setFormattingStyle(FormattingStyle.PRETTY.withIndent(" \t ").withNewline(lineSeparator));
 
     jsonWriter.beginArray();
     jsonWriter.value(true);
@@ -870,5 +872,30 @@ public final class JsonWriterTest {
     assertThat(stringWriter.toString()).isEqualTo(expected);
 
     assertThat(jsonWriter.getFormattingStyle().getNewline()).isEqualTo(lineSeparator);
+  }
+
+  @Test
+  public void testIndentOverwritesFormattingStyle() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter jsonWriter = new JsonWriter(stringWriter);
+    jsonWriter.setFormattingStyle(FormattingStyle.COMPACT);
+    // Should overwrite formatting style
+    jsonWriter.setIndent("  ");
+
+    jsonWriter.beginObject();
+    jsonWriter.name("a");
+    jsonWriter.beginArray();
+    jsonWriter.value(1);
+    jsonWriter.value(2);
+    jsonWriter.endArray();
+    jsonWriter.endObject();
+
+    String expected = "{\n"
+        + "  \"a\": [\n"
+        + "    1,\n"
+        + "    2\n"
+        + "  ]\n"
+        + "}";
+    assertThat(stringWriter.toString()).isEqualTo(expected);
   }
 }

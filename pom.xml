@@ -29,6 +29,7 @@
 
   <modules>
     <module>gson</module>
+    <module>shrinker-test</module>
     <module>extras</module>
     <module>metrics</module>
     <module>proto</module>
@@ -83,7 +84,12 @@
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
         <version>4.13.2</version>
-        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.truth</groupId>
+        <artifactId>truth</artifactId>
+        <version>1.1.5</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -132,7 +138,10 @@
             <compilerArgs>
               <!-- Args related to Error Prone, see: https://errorprone.info/docs/installation#maven -->
               <arg>-XDcompilePolicy=simple</arg>
-              <arg>-Xplugin:ErrorProne -XepExcludedPaths:.*/generated-test-sources/protobuf/.*</arg>
+              <arg>-Xplugin:ErrorProne
+                -XepExcludedPaths:.*/generated-test-sources/protobuf/.*
+                -Xep:NotJavadoc:OFF <!-- Triggered by local class. -->
+              </arg>
               <!-- Enable all warnings, except for ones which cause issues when building with newer JDKs, see also
                 https://docs.oracle.com/en/java/javase/11/tools/javac.html -->
               <compilerArg>-Xlint:all,-options</compilerArg>
@@ -141,7 +150,7 @@
               <path>
                 <groupId>com.google.errorprone</groupId>
                 <artifactId>error_prone_core</artifactId>
-                <version>2.18.0</version>
+                <version>2.20.0</version>
               </path>
             </annotationProcessorPaths>
           </configuration>
@@ -182,17 +191,17 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-source-plugin</artifactId>
-          <version>3.2.1</version>
+          <version>3.3.0</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-gpg-plugin</artifactId>
-          <version>3.0.1</version>
+          <version>3.1.0</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-release-plugin</artifactId>
-          <version>3.0.0</version>
+          <version>3.0.1</version>
           <configuration>
             <autoVersionSubmodules>true</autoVersionSubmodules>
             <!-- Disable Maven Super POM release profile and instead use own one -->

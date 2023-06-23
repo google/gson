@@ -235,7 +235,8 @@ public final class TypeTokenTest {
   public void testTypeTokenRaw() {
     IllegalStateException e = assertThrows(IllegalStateException.class, () -> new TypeToken() {});
     assertThat(e).hasMessageThat().isEqualTo("TypeToken must be created with a type argument: new TypeToken<...>() {};"
-        + " When using code shrinkers (ProGuard, R8, ...) make sure that generic signatures are preserved.");
+        + " When using code shrinkers (ProGuard, R8, ...) make sure that generic signatures are preserved."
+        + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#type-token-raw");
   }
 }
 

@@ -115,7 +115,7 @@ public class ReflectionAccessTest {
     } catch (JsonSyntaxException e) {
       throw new AssertionError("Unexpected exception; test has to be run with `--illegal-access=deny`", e);
     } catch (JsonIOException expected) {
-      assertThat(expected).hasMessageThat().endsWith("\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#reflection-inaccessible");
+      assertThat(expected).hasMessageThat().endsWith("\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#reflection-inaccessible");
       // Return exception for further assertions
       return expected;
     }
