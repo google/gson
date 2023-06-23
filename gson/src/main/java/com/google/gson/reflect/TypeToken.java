@@ -386,7 +386,7 @@ public class TypeToken<T> {
    * Class<V> valueClass = ...;
    * TypeToken<?> mapTypeToken = TypeToken.getParameterized(Map.class, keyClass, valueClass);
    * }</pre>
-   * As seen here the result is a {@code TypeToken<?>}; this method cannot provide any type safety,
+   * As seen here the result is a {@code TypeToken<?>}; this method cannot provide any type-safety,
    * and care must be taken to pass in the correct number of type arguments.
    *
    * @throws IllegalArgumentException

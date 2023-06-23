@@ -301,7 +301,7 @@ public final class TypeTokenTest {
             + " captured type variable M declared by " + testMethod
             + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#typetoken-type-variable",
             // Note: When running this test in Eclipse IDE or with certain Java versions it seems to capture `null`
-            // instead of the type variable
+            // instead of the type variable, see https://github.com/eclipse-jdt/eclipse.jdt.core/issues/975
             "TypeToken captured `null` as type argument; probably a compiler / runtime bug");
       }
     }

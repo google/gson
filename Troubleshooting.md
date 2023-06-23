@@ -332,9 +332,9 @@ Note: If the class which you are trying to deserialize is actually abstract, the
 
 **Symptom:** An exception with the message 'TypeToken type argument must not contain a type variable' is thrown
 
-**Reason:** This exception is thrown when you create an anonymous `TypeToken` subclass which captures a type variable, for example `new TypeToken<List<T>>() {}` (where `T` is a type variable). At compile time such code looks safe and you can use the type `List<T>` without any warnings. However, this code is not actually type safe because at runtime due to [type erasure](https://dev.java/learn/generics/type-erasure/) only the upper bound of the type variable is available. For the previous example that would be `List<Object>`. When using such a `TypeToken` with any Gson methods performing deserialization this would lead to confusing and difficult to debug `ClassCastException`s. For serialization it can in some cases also lead to undesired results.
+**Reason:** This exception is thrown when you create an anonymous `TypeToken` subclass which captures a type variable, for example `new TypeToken<List<T>>() {}` (where `T` is a type variable). At compile time such code looks safe and you can use the type `List<T>` without any warnings. However, this code is not actually type-safe because at runtime due to [type erasure](https://dev.java/learn/generics/type-erasure/) only the upper bound of the type variable is available. For the previous example that would be `List<Object>`. When using such a `TypeToken` with any Gson methods performing deserialization this would lead to confusing and difficult to debug `ClassCastException`s. For serialization it can in some cases also lead to undesired results.
 
-Note: Earlier version of Gson unfortunately did not prevent capturing type variables, which caused many users to unwittingly write type unsafe code.
+Note: Earlier version of Gson unfortunately did not prevent capturing type variables, which caused many users to unwittingly write type-unsafe code.
 
 **Solution:**
 
@@ -342,8 +342,7 @@ Note: Earlier version of Gson unfortunately did not prevent capturing type varia
 - For Kotlin users: Use [`reified` type parameters](https://kotlinlang.org/docs/inline-functions.html#reified-type-parameters), that means change `<T>` to `<reified T>`, if possible. If you have a chain of functions with type parameters you will probably have to make all of them `reified`.
 - If you don't actually use Gson's `TypeToken` for any Gson method, use a general purpose 'type token' implementation provided by a different library instead, for example Guava's [`com.google.common.reflect.TypeToken`](https://javadoc.io/doc/com.google.guava/guava/latest/com/google/common/reflect/TypeToken.html).
 
-For backward compatibility it is possible to restore Gson's old behavior of allowing `TypeToken` to capture type variables by setting the [system property](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/System.html#setProperty(java.lang.String,java.lang.String)) `gson.allow-capturing-type-variables` to `"true"`.  
-**Important:**
+For backward compatibility it is possible to restore Gson's old behavior of allowing `TypeToken` to capture type variables by setting the [system property](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/System.html#setProperty(java.lang.String,java.lang.String)) `gson.allow-capturing-type-variables` to `"true"`, **however**:
 
-- This does not solve any of the type safety problems mentioned above; in the long term you should prefer one of the other solutions listed above. This system property might be removed in future Gson versions.
+- This does not solve any of the type-safety problems mentioned above; in the long term you should prefer one of the other solutions listed above. This system property might be removed in future Gson versions.
 - You should only ever set the property to `"true"`, but never to any other value or manually clear it. Otherwise this might counteract any libraries you are using which might have deliberately set the system property because they rely on its behavior.
