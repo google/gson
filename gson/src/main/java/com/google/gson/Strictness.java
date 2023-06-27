@@ -1,17 +1,17 @@
 package com.google.gson;
 
-import com.google.gson.stream.JsonWriter;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 
 /**
  * Modes that indicate how strictly a JSON {@linkplain JsonReader reader} or
  * {@linkplain JsonWriter writer} follows the syntax laid out in the
  * <a href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259 JSON specification</a>.
  *
- * <p>You can look at {@link JsonWriter#setStrictness(Strictness)} to see how the strictness
- * affects the {@link JsonWriter} and you can look at
- * {@link JsonReader#setStrictness(Strictness)} to see how the strictness
- * affects the {@link JsonReader}.</p>
+ * <p>You can look at {@link JsonReader#setStrictness(Strictness)} to see how the strictness
+ * affects the {@link JsonReader} and you can look at
+ * {@link JsonWriter#setStrictness(Strictness)} to see how the strictness
+ * affects the {@link JsonWriter}.</p>
  *
  * @see JsonReader#setStrictness(Strictness)
  * @see JsonWriter#setStrictness(Strictness)

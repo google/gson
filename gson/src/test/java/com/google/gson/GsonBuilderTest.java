@@ -231,16 +231,17 @@ public class GsonBuilderTest {
   public void testDefaultStrictness() throws IOException {
     GsonBuilder builder = new GsonBuilder();
     Gson gson = builder.create();
-    assertThat(gson.newJsonReader(new StringReader("{}}")).getStrictness()).isEqualTo(Strictness.LEGACY_STRICT);
+    assertThat(gson.newJsonReader(new StringReader("{}")).getStrictness()).isEqualTo(Strictness.LEGACY_STRICT);
     assertThat(gson.newJsonWriter(new StringWriter()).getStrictness()).isEqualTo(Strictness.LEGACY_STRICT);
   }
 
+  @SuppressWarnings({"deprecation", "InlineMeInliner"}) // for GsonBuilder.setLenient
   @Test
   public void testSetLenient() throws IOException {
     GsonBuilder builder = new GsonBuilder();
     builder.setLenient();
     Gson gson = builder.create();
-    assertThat(gson.newJsonReader(new StringReader("{}}")).getStrictness()).isEqualTo(Strictness.LENIENT);
+    assertThat(gson.newJsonReader(new StringReader("{}")).getStrictness()).isEqualTo(Strictness.LENIENT);
     assertThat(gson.newJsonWriter(new StringWriter()).getStrictness()).isEqualTo(Strictness.LENIENT);
   }
 
@@ -250,7 +251,7 @@ public class GsonBuilderTest {
     GsonBuilder builder = new GsonBuilder();
     builder.setStrictness(STRICTNESS);
     Gson gson = builder.create();
-    assertThat(gson.newJsonReader(new StringReader("{}}")).getStrictness()).isEqualTo(STRICTNESS);
+    assertThat(gson.newJsonReader(new StringReader("{}")).getStrictness()).isEqualTo(STRICTNESS);
     assertThat(gson.newJsonWriter(new StringWriter()).getStrictness()).isEqualTo(STRICTNESS);
   }
 }

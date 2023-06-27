@@ -29,6 +29,7 @@ import static com.google.gson.Gson.DEFAULT_STRICTNESS;
 import static com.google.gson.Gson.DEFAULT_USE_JDK_UNSAFE;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import com.google.errorprone.annotations.InlineMe;
 import com.google.gson.annotations.Since;
 import com.google.gson.annotations.Until;
 import com.google.gson.internal.$Gson$Preconditions;
@@ -51,7 +52,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-
 /**
  * <p>Use this builder to construct a {@link Gson} instance when you need to set configuration
  * options other than the default. For {@link Gson} with default configuration, it is simpler to
@@ -73,12 +73,16 @@ import java.util.Objects;
  *     .create();
  * </pre>
  *
- * <p>NOTES:
+ * <p>Notes:
  * <ul>
- * <li> the order of invocation of configuration methods does not matter.</li>
- * <li> The default serialization of {@link Date} and its subclasses in Gson does
+ * <li>The order of invocation of configuration methods does not matter.</li>
+ * <li>The default serialization of {@link Date} and its subclasses in Gson does
  *  not contain time-zone information. So, if you are using date/time instances,
  *  use {@code GsonBuilder} and its {@code setDateFormat} methods.</li>
+ * <li>By default no explicit {@link Strictness} is set; some of the {@link Gson} methods
+ *  behave as if {@link Strictness#LEGACY_STRICT} was used whereas others behave as
+ *  if {@link Strictness#LENIENT} was used. Prefer explicitly setting a strictness
+ *  with {@link #setStrictness(Strictness)} to avoid this legacy behavior.
  * </ul>
  *
  * @author Inderjeet Singh
@@ -525,18 +529,19 @@ public final class GsonBuilder {
   /**
    * Sets the strictness of this builder to {@link Strictness#LENIENT}.
    *
-   * <p>This method has been deprecated. Please use {@link GsonBuilder#setStrictness(Strictness)} instead.
-   * Calling this method is equivalent to {@code setStrictness(Strictness.LENIENT)}</p>
+   * @deprecated This method is equivalent to calling {@link #setStrictness(Strictness)} with
+   * {@link Strictness#LENIENT}: {@code setStrictness(Strictness.LENIENT)}
    *
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern.
    * @see JsonReader#setStrictness(Strictness)
    * @see JsonWriter#setStrictness(Strictness)
    * @see #setStrictness(Strictness)
    */
+  @Deprecated
+  @InlineMe(replacement = "this.setStrictness(Strictness.LENIENT)", imports = "com.google.gson.Strictness")
   @CanIgnoreReturnValue
   public GsonBuilder setLenient() {
-    strictness = Strictness.LENIENT;
-    return this;
+    return setStrictness(Strictness.LENIENT);
   }
 
   /**
@@ -549,10 +554,11 @@ public final class GsonBuilder {
    *
    * @param strictness the new strictness mode. May not be {@code null}.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern.
-   * @see JsonWriter#setStrictness(Strictness)
    * @see JsonReader#setStrictness(Strictness)
+   * @see JsonWriter#setStrictness(Strictness)
    * @since $next-version$
    */
+  @CanIgnoreReturnValue
   public GsonBuilder setStrictness(Strictness strictness) {
     this.strictness = Objects.requireNonNull(strictness);
     return this;
