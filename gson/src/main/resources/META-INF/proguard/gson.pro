@@ -59,10 +59,10 @@
   <init>();
 }
 
-# If a class still exists after shrinking, and has fields annotated with @SerializedName,
-# keep the no-args constructor
-# Note: This behavior is not officially documented somewhere; based on https://issuetracker.google.com/issues/150189783#comment11
-# and discussion in https://github.com/google/gson/pull/2397
+# If a class is used in some way by the application, and has fields annotated with @SerializedName
+# and a no-args constructor, keep those fields and the constructor
+# Based on https://issuetracker.google.com/issues/150189783#comment11
+# See also https://github.com/google/gson/pull/2420#discussion_r1241813541 for a more detailed explanation
 -if class *
 -keepclasseswithmembers,allowobfuscation,allowoptimization class <1> {
   <init>();
