@@ -16,7 +16,6 @@
 
 package com.google.gson.stream;
 
-import com.google.gson.internal.JsonReaderInternalAccess;
 import com.google.gson.internal.TroubleshootingGuide;
 import com.google.gson.internal.bind.JsonTreeReader;
 import java.io.Closeable;
@@ -1690,27 +1689,24 @@ public class JsonReader implements Closeable {
     pos += 5;
   }
 
-  static {
-    JsonReaderInternalAccess.INSTANCE = new JsonReaderInternalAccess() {
-      @Override public void promoteNameToValue(JsonReader reader) throws IOException {
-        if (reader instanceof JsonTreeReader) {
-          ((JsonTreeReader)reader).promoteNameToValue();
-          return;
-        }
-        int p = reader.peeked;
-        if (p == PEEKED_NONE) {
-          p = reader.doPeek();
-        }
-        if (p == PEEKED_DOUBLE_QUOTED_NAME) {
-          reader.peeked = PEEKED_DOUBLE_QUOTED;
-        } else if (p == PEEKED_SINGLE_QUOTED_NAME) {
-          reader.peeked = PEEKED_SINGLE_QUOTED;
-        } else if (p == PEEKED_UNQUOTED_NAME) {
-          reader.peeked = PEEKED_UNQUOTED;
-        } else {
-          throw reader.unexpectedTokenError("a name");
-        }
-      }
-    };
+  /**
+   * Changes the type of the current property name token to a string value.
+   *
+   * @since $next-version$
+   */
+  public void promoteNameToValue() throws IOException {
+    int p = peeked;
+    if (p == PEEKED_NONE) {
+      p = doPeek();
+    }
+    if (p == PEEKED_DOUBLE_QUOTED_NAME) {
+      peeked = PEEKED_DOUBLE_QUOTED;
+    } else if (p == PEEKED_SINGLE_QUOTED_NAME) {
+      peeked = PEEKED_SINGLE_QUOTED;
+    } else if (p == PEEKED_UNQUOTED_NAME) {
+      peeked = PEEKED_UNQUOTED;
+    } else {
+      throw unexpectedTokenError("a name");
+    }
   }
 }

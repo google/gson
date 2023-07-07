@@ -304,7 +304,7 @@ public final class JsonTreeReader extends JsonReader {
     return getClass().getSimpleName() + locationString();
   }
 
-  public void promoteNameToValue() throws IOException {
+  @Override public void promoteNameToValue() throws IOException {
     expect(JsonToken.NAME);
     Iterator<?> i = (Iterator<?>) peekStack();
     Map.Entry<?, ?> entry = (Map.Entry<?, ?>) i.next();
