@@ -1,0 +1,29 @@
+# For security reasons this is a separate GitHub workflow, see https://github.com/google/gson/issues/2429#issuecomment-1622522842
+# Once https://github.com/mojohaus/animal-sniffer/issues/252 or https://github.com/mojohaus/animal-sniffer/pull/253
+# are resolved, can consider adjusting pom.xml to include this as part of normal Maven build
+
+name: Check Android compatibility
+
+on: [push, pull_request]
+
+permissions:
+  contents: read #  to fetch code (actions/checkout)
+
+jobs:
+  check-android-compatibility:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+          cache: 'maven'
+
+      - name: Check Android compatibility
+        run: |
+          # Run 'test' phase because plugin normally expects to be executed after tests have been compiled
+          mvn --batch-mode --no-transfer-progress test animal-sniffer:check@check-android-compatibility -DskipTests
