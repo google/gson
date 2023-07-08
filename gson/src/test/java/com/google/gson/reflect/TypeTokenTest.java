@@ -273,7 +273,7 @@ public final class TypeTokenTest {
         e = assertThrows(IllegalArgumentException.class, () -> new TypeToken<Enclosing<T>.Inner>() {});
         assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
 
-        String systemProperty = "gson.allow-capturing-type-variables";
+        String systemProperty = "gson.allowCapturingTypeVariables";
         try {
           // Any value other than 'true' should be ignored
           System.setProperty(systemProperty, "some-value");
