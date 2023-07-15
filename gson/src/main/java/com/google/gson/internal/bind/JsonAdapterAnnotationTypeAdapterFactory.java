@@ -40,6 +40,7 @@ public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapte
       throw new AssertionError("Factory should not be used");
     }
   }
+
   /**
    * Factory used for {@link TreeTypeAdapter}s created for {@code @JsonAdapter}
    * on a class.
@@ -50,6 +51,7 @@ public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapte
   /**
    * For a class, if it is annotated with {@code @JsonAdapter} and refers to a {@code TypeAdapterFactory}
    * stores the factory instance, in case it has been requested already.
+   * Has to be a {@link ConcurrentMap} because {@link Gson} guarantees to be thread-safe.
    */
   // Note: In case these strong reference to TypeAdapterFactory instances are considered
   // a memory leak in the future, could consider switching to WeakReference<TypeAdapterFactory>
@@ -98,7 +100,7 @@ public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapte
     if (instance instanceof TypeAdapter) {
       typeAdapter = (TypeAdapter<?>) instance;
     } else if (instance instanceof TypeAdapterFactory) {
-      TypeAdapterFactory factory = ((TypeAdapterFactory) instance);
+      TypeAdapterFactory factory = (TypeAdapterFactory) instance;
 
       if (isClassAnnotation) {
         factory = putFactoryAndGetCurrent(type.getRawType(), factory);
