@@ -17,6 +17,7 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -33,7 +34,7 @@ import java.util.TreeSet;
 import org.junit.Test;
 
 /**
- * Functional Test exercising custom serialization only. When test applies to both
+ * Functional Test exercising custom deserialization only. When test applies to both
  * serialization and deserialization then add it to CustomTypeAdapterTest.
  *
  * @author Inderjeet Singh
@@ -128,5 +129,49 @@ public class InstanceCreatorTest {
     set = gson.fromJson("[\"b\"]", SortedSet.class);
     assertThat(set.first()).isEqualTo("b");
     assertThat(set.getClass()).isEqualTo(SubTreeSet.class);
+  }
+
+  private static class CustomClass {}
+
+  @Test
+  public void testInstanceCreatorReturnsNull() {
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapter(CustomClass.class, new InstanceCreator<CustomClass>() {
+          @Override
+          public CustomClass createInstance(Type type) {
+            return null;
+          }
+
+          @Override
+          public String toString() {
+            return "bad-instance-creator";
+          }
+        })
+        .create();
+
+    RuntimeException e = assertThrows(RuntimeException.class, () -> gson.fromJson("{}", CustomClass.class));
+    assertThat(e).hasMessageThat().isEqualTo("InstanceCreator bad-instance-creator returned null for"
+        + " type class " + CustomClass.class.getName());
+  }
+
+  @Test
+  public void testInstanceCreatorReturnsWrongInstance() {
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapter(CustomClass.class, new InstanceCreator<String>() {
+          @Override
+          public String createInstance(Type type) {
+            return "test";
+          }
+
+          @Override
+          public String toString() {
+            return "bad-instance-creator";
+          }
+        })
+        .create();
+
+    ClassCastException e = assertThrows(ClassCastException.class, () -> gson.fromJson("{}", CustomClass.class));
+    assertThat(e).hasMessageThat().isEqualTo("InstanceCreator bad-instance-creator created instance of wrong type;"
+        + " expected " + CustomClass.class.getName() + " but got instance of unrelated type java.lang.String");
   }
 }

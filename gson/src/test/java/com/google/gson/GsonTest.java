@@ -272,6 +272,70 @@ public final class GsonTest {
   }
 
   @Test
+  public void testGetDelegateAdapter() {
+    class DummyAdapter extends TypeAdapter<Number> {
+      private final int number;
+
+      DummyAdapter(int number) {
+        this.number = number;
+      }
+
+      @Override
+      public Number read(JsonReader in) throws IOException {
+        throw new AssertionError("not needed for test");
+      }
+
+      @Override
+      public void write(JsonWriter out, Number value) throws IOException {
+        throw new AssertionError("not needed for test");
+      }
+
+      // Override toString() for better assertion error messages
+      @Override
+      public String toString() {
+        return "adapter-" + number;
+      }
+    }
+
+    class DummyFactory implements TypeAdapterFactory {
+      private final DummyAdapter adapter;
+
+      DummyFactory(DummyAdapter adapter) {
+        this.adapter = adapter;
+      }
+
+      @SuppressWarnings("unchecked")
+      @Override
+      public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+        return (TypeAdapter<T>) adapter;
+      }
+    }
+
+    DummyAdapter adapter1 = new DummyAdapter(1);
+    DummyFactory factory1 = new DummyFactory(adapter1);
+    DummyAdapter adapter2 = new DummyAdapter(2);
+    DummyFactory factory2 = new DummyFactory(adapter2);
+
+    Gson gson = new GsonBuilder()
+        // Note: This is 'last in, first out' order; Gson will first use factory2, then factory1
+        .registerTypeAdapterFactory(factory1)
+        .registerTypeAdapterFactory(factory2)
+        .create();
+
+    TypeToken<?> type = TypeToken.get(Number.class);
+
+    // For unknown factory the first adapter for that type should be returned
+    assertThat(gson.getDelegateAdapter(new DummyFactory(new DummyAdapter(0)), type)).isEqualTo(adapter2);
+
+    // For null as 'skipPast' the first adapter for that type should be returned
+    assertThat(gson.getDelegateAdapter(null, type)).isEqualTo(adapter2);
+
+    assertThat(gson.getDelegateAdapter(factory2, type)).isEqualTo(adapter1);
+    // Default Gson adapter should be returned
+    assertThat(gson.getDelegateAdapter(factory1, type)).isNotInstanceOf(DummyAdapter.class);
+  }
+
+  @Test
   public void testNewJsonWriter_Default() throws IOException {
     StringWriter writer = new StringWriter();
     JsonWriter jsonWriter = new Gson().newJsonWriter(writer);

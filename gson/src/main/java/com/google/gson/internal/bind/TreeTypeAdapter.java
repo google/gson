@@ -43,6 +43,10 @@ public final class TreeTypeAdapter<T> extends SerializationDelegatingTypeAdapter
   private final JsonDeserializer<T> deserializer;
   final Gson gson;
   private final TypeToken<T> typeToken;
+  /**
+   * Only intended as {@code skipPast} for {@link Gson#getDelegateAdapter(TypeAdapterFactory, TypeToken)},
+   * must not be used in any other way.
+   */
   private final TypeAdapterFactory skipPast;
   private final GsonContextImpl context = new GsonContextImpl();
   private final boolean nullSafe;

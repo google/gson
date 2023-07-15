@@ -88,6 +88,19 @@ public final class ConstructorConstructor {
     return null;
   }
 
+  private static <T> T useInstanceCreator(InstanceCreator<T> instanceCreator, Type type, Class<?> rawType) {
+    T instance = instanceCreator.createInstance(type);
+    if (instance == null) {
+      throw new RuntimeException("InstanceCreator " + instanceCreator + " returned null for type " + type);
+    }
+
+    if (!rawType.isInstance(instance)) {
+      throw new ClassCastException("InstanceCreator " + instanceCreator + " created instance of wrong type;"
+          + " expected " + rawType.getName() + " but got instance of unrelated type " + instance.getClass().getName());
+    }
+    return instance;
+  }
+
   public <T> ObjectConstructor<T> get(TypeToken<T> typeToken) {
     final Type type = typeToken.getType();
     final Class<? super T> rawType = typeToken.getRawType();
@@ -99,7 +112,7 @@ public final class ConstructorConstructor {
     if (typeCreator != null) {
       return new ObjectConstructor<T>() {
         @Override public T construct() {
-          return typeCreator.createInstance(type);
+          return useInstanceCreator(typeCreator, type, rawType);
         }
       };
     }
@@ -111,7 +124,7 @@ public final class ConstructorConstructor {
     if (rawTypeCreator != null) {
       return new ObjectConstructor<T>() {
         @Override public T construct() {
-          return rawTypeCreator.createInstance(type);
+          return useInstanceCreator(rawTypeCreator, type, rawType);
         }
       };
     }
