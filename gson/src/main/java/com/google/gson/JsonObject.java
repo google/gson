@@ -173,9 +173,17 @@ public final class JsonObject extends JsonElement {
    * @param memberName name of the member that is being checked for presence.
    * @return true if there is a member with the specified name, false otherwise.
    */
-  public boolean has(String memberName) {
+  public boolean containsKey(String memberName) {
     return members.containsKey(memberName);
   }
+
+  /**
+   * Convenience method to check if a member is present in this object.
+   *
+   * @param member member that is being checked for presence.
+   * @return true if there is the member, false otherwise.
+   */
+  public boolean containsValue(JsonElement member) { return members.containsValue(member); }
 
   /**
    * Returns the member with the specified name.
