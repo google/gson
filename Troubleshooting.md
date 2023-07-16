@@ -25,7 +25,9 @@ This guide describes how to troubleshoot common issues when using Gson.
 
 **Reason:** You use Gson by accident to access internal fields of third-party classes
 
-**Solution:** Write custom Gson [`TypeAdapter`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/TypeAdapter.html) implementations for the affected classes or change the type of your data. If this occurs for a field in one of your classes which you did not actually want to serialize or deserialize in the first place, you can exclude that field, see the [user guide](UserGuide.md#excluding-fields-from-serialization-and-deserialization).
+**Solution:** Write custom Gson [`TypeAdapter`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/TypeAdapter.html) implementations for the affected classes or change the type of your data.
+If you already wrote a custom adapter, but it is not used, see [this troubleshooting point](#custom-adapter-not-used).  
+If this occurs for a field in one of your classes which you did not actually want to serialize or deserialize in the first place, you can exclude that field, see the [user guide](UserGuide.md#excluding-fields-from-serialization-and-deserialization).
 
 **Explanation:**
 
@@ -284,6 +286,28 @@ Class.forName(jsonString, false, getClass().getClassLoader()).asSubclass(MyBaseC
 ```
 
 This will not initialize arbitrary classes, and it will throw a `ClassCastException` if the loaded class is not the same as or a subclass of `MyBaseClass`.
+
+## <a id="custom-adapter-not-used"></a> Custom type adapter is not used
+
+**Symptom:** You have registered a custom `TypeAdapter` (or `JsonSerializer` or `JsonDeserializer`) on a `GsonBuilder`, but Gson is not using your adapter
+
+**Reason:**
+
+- You registered the adapter for the wrong type
+- Or, you are serializing or deserializing a subclass
+
+**Solution:**
+
+- Verify that you are registering the adapter for the correct type. `GsonBuilder`'s `registerTypeAdapter` method unfortunately takes an `Object` as argument, so you will not see a compilation error when you provide the wrong type.
+  For example when you want to register an adapter for `MyClass`, you should call `registerTypeAdapter(MyClass.class, new MyClassAdapter())`.  
+  Also pay close attention to the package name, there might be classes with the same name in different packages, such as `java.util.Date` and `java.sql.Date`.
+- If you want to register an adapter for a primitive type such as `boolean`, you might also want to register it for the wrapper type `java.lang.Boolean`, and the other way around.
+- Be careful with parameterized types for `registerTypeAdapter` because Gson only uses the adapter if there is an exact match for the types.
+  For example if you register an adapter for `List<Number>` it won't be used for `List` (raw type), `List<Integer>` or `ArrayList<Number>`.
+  You can solve this by writing a [`TypeAdapterFactory`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/TypeAdapterFactory.html) instead, which checks manually if the type matches.
+- `registerTypeAdapter` only registers an adapter for the specified class, _but not for subclasses_. Use [`registerTypeHierarchyAdapter`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/GsonBuilder.html#registerTypeHierarchyAdapter(java.lang.Class,java.lang.Object))
+  to also handle subclasses.
+- The built-in adapters for `JsonElement` (and subclasses) and for `Object` cannot be overwritten. However, as workaround for a field of those types you can use the [`@JsonAdapter` annotation](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/annotations/JsonAdapter.html) to specify a custom adapter.
 
 ## <a id="type-token-raw"></a> `IllegalStateException`: 'TypeToken must be created with a type argument' <br> `RuntimeException`: 'Missing type parameter'
 
