@@ -42,7 +42,7 @@ Gson uses inner classes substantially. Many of the public interfaces are inner i
 
 **Why do you provide two ways of constructing Gson?**
 
-Gson can be constructed in two ways: by invoking new Gson() or by using a GsonBuilder. We chose to provide a simple no-args constructor to handle simple use-cases for Gson where you want to use default options, and quickly want to get going with writing code. For all other situations, where you need to configure Gson with options such as formatters, version controls etc, we use a builder pattern. The builder pattern allows a user to specify multiple optional settings for what essentially become constructor parameters for Gson. 
+Gson can be constructed in two ways: by invoking new Gson() or by using a GsonBuilder. We chose to provide a simple no-args constructor to handle simple use-cases for Gson where you want to use default options, and quickly want to get going with writing code. For all other situations, where you need to configure Gson with options such as formatters, version controls etc., we use a builder pattern. The builder pattern allows a user to specify multiple optional settings for what essentially become constructor parameters for Gson. 
 
 **Comparing Gson with Alternate Approaches**
 
