@@ -89,7 +89,7 @@
       <dependency>
         <groupId>com.google.truth</groupId>
         <artifactId>truth</artifactId>
-        <version>1.1.3</version>
+        <version>1.1.5</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -150,7 +150,7 @@
               <path>
                 <groupId>com.google.errorprone</groupId>
                 <artifactId>error_prone_core</artifactId>
-                <version>2.19.1</version>
+                <version>2.20.0</version>
               </path>
             </annotationProcessorPaths>
           </configuration>
@@ -201,7 +201,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-release-plugin</artifactId>
-          <version>3.0.0</version>
+          <version>3.0.1</version>
           <configuration>
             <autoVersionSubmodules>true</autoVersionSubmodules>
             <!-- Disable Maven Super POM release profile and instead use own one -->
@@ -314,6 +314,33 @@
               <reportOnlyFilename>true</reportOnlyFilename>
             </parameter>
           </configuration>
+        </plugin>
+        <!-- Plugin for checking compatibility with Android API -->
+        <!-- Note: For now this is not part of a normal Maven build but instead executed only by a
+          GitHub workflow because the Animal Sniffer signature files use Java Serialization, so they
+          could in theory contain malicious data (in case we don't fully trust the author) -->
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>animal-sniffer-maven-plugin</artifactId>
+          <version>1.23</version>
+          <executions>
+            <execution>
+              <id>check-android-compatibility</id>
+              <goals>
+                <goal>check</goal>
+              </goals>
+              <configuration>
+                <signature>
+                  <!-- Note: In case Android compatibility impedes Gson development too much in the
+                    future, could consider switching to https://github.com/open-toast/gummy-bears
+                    which accounts for Android desugaring and might allow usage of more Java classes -->
+                  <groupId>net.sf.androidscents.signature</groupId>
+                  <artifactId>android-api-level-21</artifactId>
+                  <version>5.0.1_r2</version>
+                </signature>
+              </configuration>
+            </execution>
+          </executions>
         </plugin>
       </plugins>
     </pluginManagement>

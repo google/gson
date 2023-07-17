@@ -194,7 +194,7 @@ public class ShrinkingIT {
         assertThat(e).hasCauseThat().hasMessageThat().isEqualTo(
             "Abstract classes can't be instantiated! Adjust the R8 configuration or register an InstanceCreator"
             + " or a TypeAdapter for this type. Class name: com.example.DefaultConstructorMain$TestClass"
-            + "\nSee https://github.com/google/gson/blob/master/Troubleshooting.md#r8-abstract-class"
+            + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#r8-abstract-class"
         );
       }
     });
