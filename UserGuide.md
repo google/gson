@@ -378,10 +378,64 @@ This approach is practical only if the array appears as a top-level element or i
 
 ### Built-in Serializers and Deserializers
 
-Gson has built-in serializers and deserializers for commonly used classes whose default representation may be inappropriate, for instance
+Gson has built-in serializers and deserializers for commonly used classes whose default representation may be inappropriate.
+Gson provides built-in serializers and deserializers for basic Java types (e.g., primitive types, strings, arrays) as well as some commonly used classes like `Date`, `BigInteger`, `BigDecimal`, and more. When you use Gson to convert Java objects to JSON or JSON to Java objects, these built-in serializers and deserializers handle the conversion automatically for these basic types and classes.
 
-* `java.net.URL` to match it with strings like `"https://github.com/google/gson/"`
-* `java.net.URI` to match it with strings like `"/google/gson/"`
+For example, suppose you have a Java class `Person`:
+
+```java
+public class Person {
+private String name;
+private int age;
+// constructors, getters, setters, etc.
+}
+```
+You can serialize an instance of `Person` to JSON using Gson like this:
+
+```java
+Person person = new Person("John Doe", 30);
+Gson gson = new Gson();
+String json = gson.toJson(person);
+```
+The output JSON would be: `{"name":"John Doe","age":30}`.
+
+And you can deserialize the JSON back to a `Person` object like this:
+
+```java
+String json = "{\"name\":\"Jane Smith\",\"age\":25}";
+Person person = gson.fromJson(json, Person.class);
+```
+The `gson.fromJson()` method uses the built-in deserializers to convert the JSON back into a `Person` object.
+
+Gson also allows you to customize serialization and deserialization by providing your own custom serializers and deserializers for specific types if needed.
+
+Below is a list of some of the classes supported by Gson's built-in serializers and deserializers:
+
+1. Primitive Types:
+    * `int, Integer, long, Long, float, Float, double, Double, boolean, Boolean, char, Character, byte, Byte, short, Short.`
+2. Arrays:
+    * Arrays of primitive types and their wrappers.
+    * Arrays of objects.
+3. Collections:
+    * java.util.List: List of objects.
+    * java.util.Set: Set of objects.
+    * java.util.Map: Map of key-value pairs.
+4. Date and Time:
+    * java.util.Date: Serialized as a Unix timestamp (milliseconds since January 1, 1970, 00:00:00 GMT).
+    * java.sql.Date: Serialized as a string in the format "yyyy-MM-dd".
+    * java.sql.Time: Serialized as a string in the format "HH:mm:ss".
+    * java.sql.Timestamp: Serialized as a string in the format "yyyy-MM-dd HH:mm:ss".
+5. BigInteger and BigDecimal:
+    * java.math.BigInteger: Serialized as a string.
+    * java.math.BigDecimal: Serialized as a string.
+6. Enumerations:
+    * Enum types are serialized as strings by default. You can also customize the serialization using @SerializedName annotation.
+7. Optional:
+    * java.util.Optional: Serializes the value if present; otherwise, it serializes as null.
+8. Custom Objects:
+    * Gson can automatically serialize and deserialize custom Java objects using reflection. It serializes the non-static, non-transient fields of an object. 
+    
+It's important to note that Gson's built-in serializers and deserializers can handle nested objects and collections of objects as well. If a class is not supported by Gson's default behavior, you can provide custom serialization and deserialization logic using Gson's JsonSerializer and JsonDeserializer interfaces.
 
 For many more, see the internal class [`TypeAdapters`](gson/src/main/java/com/google/gson/internal/bind/TypeAdapters.java).
 
