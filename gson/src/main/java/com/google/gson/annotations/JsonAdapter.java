@@ -17,6 +17,8 @@
 package com.google.gson.annotations;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.InstanceCreator;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonSerializer;
 import com.google.gson.TypeAdapter;
@@ -35,11 +37,13 @@ import java.lang.annotation.Target;
  * &#64;JsonAdapter(UserJsonAdapter.class)
  * public class User {
  *   public final String firstName, lastName;
+ *
  *   private User(String firstName, String lastName) {
  *     this.firstName = firstName;
  *     this.lastName = lastName;
  *   }
  * }
+ *
  * public class UserJsonAdapter extends TypeAdapter&lt;User&gt; {
  *   &#64;Override public void write(JsonWriter out, User user) throws IOException {
  *     // implement write: combine firstName and lastName into name
@@ -47,8 +51,8 @@ import java.lang.annotation.Target;
  *     out.name("name");
  *     out.value(user.firstName + " " + user.lastName);
  *     out.endObject();
- *     // implement the write method
  *   }
+ *
  *   &#64;Override public User read(JsonReader in) throws IOException {
  *     // implement read: split name into firstName and lastName
  *     in.beginObject();
@@ -60,14 +64,15 @@ import java.lang.annotation.Target;
  * }
  * </pre>
  *
- * Since User class specified UserJsonAdapter.class in &#64;JsonAdapter annotation, it
- * will automatically be invoked to serialize/deserialize User instances.
+ * Since {@code User} class specified {@code UserJsonAdapter.class} in {@code @JsonAdapter}
+ * annotation, it will automatically be invoked to serialize/deserialize {@code User} instances.
  *
- * <p> Here is an example of how to apply this annotation to a field.
+ * <p>Here is an example of how to apply this annotation to a field.
  * <pre>
  * private static final class Gadget {
- *   &#64;JsonAdapter(UserJsonAdapter2.class)
+ *   &#64;JsonAdapter(UserJsonAdapter.class)
  *   final User user;
+ *
  *   Gadget(User user) {
  *     this.user = user;
  *   }
@@ -75,15 +80,30 @@ import java.lang.annotation.Target;
  * </pre>
  *
  * It's possible to specify different type adapters on a field, that
- * field's type, and in the {@link com.google.gson.GsonBuilder}. Field
- * annotations take precedence over {@code GsonBuilder}-registered type
+ * field's type, and in the {@link GsonBuilder}. Field annotations
+ * take precedence over {@code GsonBuilder}-registered type
  * adapters, which in turn take precedence over annotated types.
  *
  * <p>The class referenced by this annotation must be either a {@link
  * TypeAdapter} or a {@link TypeAdapterFactory}, or must implement one
  * or both of {@link JsonDeserializer} or {@link JsonSerializer}.
  * Using {@link TypeAdapterFactory} makes it possible to delegate
- * to the enclosing {@link Gson} instance.
+ * to the enclosing {@link Gson} instance. By default the specified
+ * adapter will not be called for {@code null} values; set {@link #nullSafe()}
+ * to {@code false} to let the adapter handle {@code null} values itself.
+ *
+ * <p>The type adapter is created in the same way Gson creates instances of
+ * custom classes during deserialization, that means:
+ * <ol>
+ *   <li>If a custom {@link InstanceCreator} has been registered for the
+ *       adapter class, it will be used to create the instance
+ *   <li>Otherwise, if the adapter class has a no-args constructor
+ *       (regardless of which visibility), it will be invoked to create
+ *       the instance
+ *   <li>Otherwise, JDK {@code Unsafe} will be used to create the instance;
+ *       see {@link GsonBuilder#disableJdkUnsafe()} for the unexpected
+ *       side-effects this might have
+ * </ol>
  *
  * <p>{@code Gson} instances might cache the adapter they create for
  * a {@code @JsonAdapter} annotation. It is not guaranteed that a new

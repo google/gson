@@ -606,4 +606,65 @@ public final class JsonAdapterAnnotationOnClassesTest {
       }
     }
   }
+
+  /**
+   * Tests creation of the adapter referenced by {@code @JsonAdapter} using an {@link InstanceCreator}.
+   */
+  @Test
+  public void testAdapterCreatedByInstanceCreator() {
+    CreatedByInstanceCreator.Serializer serializer = new CreatedByInstanceCreator.Serializer("custom");
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapter(CreatedByInstanceCreator.Serializer.class, (InstanceCreator<?>) t -> serializer)
+        .create();
+
+    String json = gson.toJson(new CreatedByInstanceCreator());
+    assertThat(json).isEqualTo("\"custom\"");
+  }
+  @JsonAdapter(CreatedByInstanceCreator.Serializer.class)
+  private static class CreatedByInstanceCreator {
+    static class Serializer implements JsonSerializer<CreatedByInstanceCreator> {
+      private final String value;
+
+      @SuppressWarnings("unused")
+      public Serializer() {
+        throw new AssertionError("should not be called");
+      }
+
+      public Serializer(String value) {
+        this.value = value;
+      }
+
+      @Override
+      public JsonElement serialize(CreatedByInstanceCreator src, Type typeOfSrc, JsonSerializationContext context) {
+        return new JsonPrimitive(value);
+      }
+    }
+  }
+
+  /**
+   * Tests creation of the adapter referenced by {@code @JsonAdapter} using JDK Unsafe.
+   */
+  @Test
+  public void testAdapterCreatedByJdkUnsafe() {
+    String json = new Gson().toJson(new CreatedByJdkUnsafe());
+    assertThat(json).isEqualTo("false");
+  }
+  @JsonAdapter(CreatedByJdkUnsafe.Serializer.class)
+  private static class CreatedByJdkUnsafe {
+    static class Serializer implements JsonSerializer<CreatedByJdkUnsafe> {
+      // JDK Unsafe leaves this at default value `false`
+      private boolean wasInitialized = true;
+
+      // Explicit constructor with args to remove implicit no-args constructor
+      @SuppressWarnings("unused")
+      public Serializer(int i) {
+        throw new AssertionError("should not be called");
+      }
+
+      @Override
+      public JsonElement serialize(CreatedByJdkUnsafe src, Type typeOfSrc, JsonSerializationContext context) {
+        return new JsonPrimitive(wasInitialized);
+      }
+    }
+  }
 }
