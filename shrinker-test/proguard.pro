@@ -18,6 +18,7 @@
 -keep class com.example.DefaultConstructorMain {
   public static java.lang.String runTest();
   public static java.lang.String runTestNoJdkUnsafe();
+  public static java.lang.String runTestNoDefaultConstructor();
 }
 
 
@@ -26,4 +27,22 @@
 # Keep fields without annotations which should be preserved
 -keepclassmembers class com.example.ClassWithNamedFields {
   !transient <fields>;
+}
+
+-keepclassmembernames class com.example.ClassWithExposeAnnotation {
+  <fields>;
+}
+-keepclassmembernames class com.example.ClassWithJsonAdapterAnnotation {
+  ** f;
+}
+-keepclassmembernames class com.example.ClassWithVersionAnnotations {
+  <fields>;
+}
+
+
+-keepclassmembernames class com.example.DefaultConstructorMain$TestClass {
+  <fields>;
+}
+-keepclassmembernames class com.example.DefaultConstructorMain$TestClassNotAbstract {
+  <fields>;
 }
