@@ -220,4 +220,24 @@ public class ShrinkingIT {
       }
     });
   }
+
+  @Test
+  public void testNoDefaultConstructor() throws Exception {
+    runTest("com.example.DefaultConstructorMain", c -> {
+      Method m = c.getMethod("runTestNoDefaultConstructor");
+
+      if (jarToTest.equals(PROGUARD_RESULT_PATH)) {
+        Object result = m.invoke(null);
+        assertThat(result).isEqualTo("value");
+      } else {
+        // R8 performs more aggressive optimizations
+        Exception e = assertThrows(InvocationTargetException.class, () -> m.invoke(null));
+        assertThat(e).hasCauseThat().hasMessageThat().isEqualTo(
+            "Abstract classes can't be instantiated! Adjust the R8 configuration or register an InstanceCreator"
+            + " or a TypeAdapter for this type. Class name: com.example.DefaultConstructorMain$TestClassWithoutDefaultConstructor"
+            + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#r8-abstract-class"
+        );
+      }
+    });
+  }
 }
