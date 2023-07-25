@@ -411,33 +411,34 @@ Gson also allows you to customize serialization and deserialization by providing
 
 Below is a list of some of the classes supported by Gson's built-in serializers and deserializers:
 
-1. Primitive Types:
-    * `int, Integer, long, Long, float, Float, double, Double, boolean, Boolean, char, Character, byte, Byte, short, Short.`
-2. Arrays:
+* Primitive Types:
+    * `int`, `long`, `float`, `double`, `boolean`, `char`, `byte`, `short` and their wrapper types.
+* Arrays:
     * Arrays of primitive types and their wrappers.
     * Arrays of objects.
-3. Collections:
-    * java.util.List: List of objects.
-    * java.util.Set: Set of objects.
-    * java.util.Map: Map of key-value pairs.
-4. Date and Time:
+* Collections:
+    * `java.util.Collection`: Collection of objects, and collection subtypes such as:
+      * `java.util.List`: List of objects.
+      * `java.util.Set`: Set of objects.
+      * `java.util.Map`: Map of key-value pairs.
+* Date and Time:
     * java.util.Date: Serialized as a Unix timestamp (milliseconds since January 1, 1970, 00:00:00 GMT).
     * java.sql.Date: Serialized as a string in the format "yyyy-MM-dd".
     * java.sql.Time: Serialized as a string in the format "HH:mm:ss".
     * java.sql.Timestamp: Serialized as a string in the format "yyyy-MM-dd HH:mm:ss".
-5. BigInteger and BigDecimal:
+* BigInteger and BigDecimal:
     * java.math.BigInteger: Serialized as a string.
     * java.math.BigDecimal: Serialized as a string.
-6. Enumerations:
-    * Enum types are serialized as strings by default. You can also customize the serialization using @SerializedName annotation.
-7. Optional:
+* Enum Types:
+    * Enum constants are serialized using their name by default. You can also customize the serialization using the `@SerializedName` annotation on an enum constant.
+* Optional:
     * java.util.Optional: Serializes the value if present; otherwise, it serializes as null.
-8. Custom Objects:
-    * Gson can automatically serialize and deserialize custom Java objects using reflection. It serializes the non-static, non-transient fields of an object. 
+* Custom Objects:
+    * Gson can automatically serialize and deserialize custom Java objects using reflection. By default, it serializes the non-static, non-transient fields of an object. 
     
-It's important to note that Gson's built-in serializers and deserializers can handle nested objects and collections of objects as well. If a class is not supported by Gson's default behavior, you can provide custom serialization and deserialization logic using Gson's JsonSerializer and JsonDeserializer interfaces.
+It's important to note that Gson's built-in serializers and deserializers can handle nested objects and collections of objects as well. If a class is not supported by Gson's default behavior, you can provide custom serialization and deserialization logic using Gson's `TypeAdapter` class.
 
-For many more, see the internal class [`TypeAdapters`](gson/src/main/java/com/google/gson/internal/bind/TypeAdapters.java).
+For more of the built-in serializers and deserializers, see the internal class [`TypeAdapters`](gson/src/main/java/com/google/gson/internal/bind/TypeAdapters.java).
 
 You can also find source code for some commonly used classes such as JodaTime at [this page](https://sites.google.com/site/gson/gson-type-adapters-for-common-classes-1).
 
