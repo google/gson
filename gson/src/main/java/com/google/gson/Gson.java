@@ -151,6 +151,8 @@ public final class Gson {
   static final FieldNamingStrategy DEFAULT_FIELD_NAMING_STRATEGY = FieldNamingPolicy.IDENTITY;
   static final ToNumberStrategy DEFAULT_OBJECT_TO_NUMBER_STRATEGY = ToNumberPolicy.DOUBLE;
   static final ToNumberStrategy DEFAULT_NUMBER_TO_NUMBER_STRATEGY = ToNumberPolicy.LAZILY_PARSED_NUMBER;
+  static final MissingFieldValueStrategy DEFAULT_MISSING_FIELD_VALUE_STRATEGY = MissingFieldValueStrategy.DO_NOTHING;
+  static final UnknownFieldStrategy DEFAULT_UNKNOWN_FIELD_STRATEGY = UnknownFieldStrategy.IGNORE;
 
   private static final String JSON_NON_EXECUTABLE_PREFIX = ")]}'\n";
 
@@ -195,6 +197,8 @@ public final class Gson {
   final List<TypeAdapterFactory> builderHierarchyFactories;
   final ToNumberStrategy objectToNumberStrategy;
   final ToNumberStrategy numberToNumberStrategy;
+  final MissingFieldValueStrategy missingFieldValueStrategy;
+  final UnknownFieldStrategy unknownFieldStrategy;
   final List<ReflectionAccessFilter> reflectionFilters;
 
   /**
@@ -242,6 +246,7 @@ public final class Gson {
         LongSerializationPolicy.DEFAULT, DEFAULT_DATE_PATTERN, DateFormat.DEFAULT, DateFormat.DEFAULT,
         Collections.<TypeAdapterFactory>emptyList(), Collections.<TypeAdapterFactory>emptyList(),
         Collections.<TypeAdapterFactory>emptyList(), DEFAULT_OBJECT_TO_NUMBER_STRATEGY, DEFAULT_NUMBER_TO_NUMBER_STRATEGY,
+        DEFAULT_MISSING_FIELD_VALUE_STRATEGY, DEFAULT_UNKNOWN_FIELD_STRATEGY,
         Collections.<ReflectionAccessFilter>emptyList());
   }
 
@@ -255,6 +260,7 @@ public final class Gson {
       List<TypeAdapterFactory> builderHierarchyFactories,
       List<TypeAdapterFactory> factoriesToBeAdded,
       ToNumberStrategy objectToNumberStrategy, ToNumberStrategy numberToNumberStrategy,
+      MissingFieldValueStrategy missingFieldValueStrategy, UnknownFieldStrategy unknownFieldStrategy,
       List<ReflectionAccessFilter> reflectionFilters) {
     this.excluder = excluder;
     this.fieldNamingStrategy = fieldNamingStrategy;
@@ -276,6 +282,8 @@ public final class Gson {
     this.builderHierarchyFactories = builderHierarchyFactories;
     this.objectToNumberStrategy = objectToNumberStrategy;
     this.numberToNumberStrategy = numberToNumberStrategy;
+    this.missingFieldValueStrategy = missingFieldValueStrategy;
+    this.unknownFieldStrategy = unknownFieldStrategy;
     this.reflectionFilters = reflectionFilters;
 
     List<TypeAdapterFactory> factories = new ArrayList<>();
@@ -341,7 +349,8 @@ public final class Gson {
     factories.add(jsonAdapterFactory);
     factories.add(TypeAdapters.ENUM_FACTORY);
     factories.add(new ReflectiveTypeAdapterFactory(
-        constructorConstructor, fieldNamingStrategy, excluder, jsonAdapterFactory, reflectionFilters));
+        constructorConstructor, fieldNamingStrategy, excluder, jsonAdapterFactory,
+        missingFieldValueStrategy, unknownFieldStrategy, reflectionFilters));
 
     this.factories = Collections.unmodifiableList(factories);
   }

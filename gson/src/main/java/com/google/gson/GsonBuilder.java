@@ -22,10 +22,12 @@ import static com.google.gson.Gson.DEFAULT_ESCAPE_HTML;
 import static com.google.gson.Gson.DEFAULT_FORMATTING_STYLE;
 import static com.google.gson.Gson.DEFAULT_JSON_NON_EXECUTABLE;
 import static com.google.gson.Gson.DEFAULT_LENIENT;
+import static com.google.gson.Gson.DEFAULT_MISSING_FIELD_VALUE_STRATEGY;
 import static com.google.gson.Gson.DEFAULT_NUMBER_TO_NUMBER_STRATEGY;
 import static com.google.gson.Gson.DEFAULT_OBJECT_TO_NUMBER_STRATEGY;
 import static com.google.gson.Gson.DEFAULT_SERIALIZE_NULLS;
 import static com.google.gson.Gson.DEFAULT_SPECIALIZE_FLOAT_VALUES;
+import static com.google.gson.Gson.DEFAULT_UNKNOWN_FIELD_STRATEGY;
 import static com.google.gson.Gson.DEFAULT_USE_JDK_UNSAFE;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -57,7 +59,7 @@ import java.util.Objects;
  * use {@code new Gson()}. {@code GsonBuilder} is best used by creating it, and then invoking its
  * various configuration methods, and finally calling create.</p>
  *
- * <p>The following is an example shows how to use the {@code GsonBuilder} to construct a Gson
+ * <p>The following example shows how to use the {@code GsonBuilder} to construct a Gson
  * instance:
  *
  * <pre>
@@ -74,8 +76,8 @@ import java.util.Objects;
  *
  * <p>NOTES:
  * <ul>
- * <li> the order of invocation of configuration methods does not matter.</li>
- * <li> The default serialization of {@link Date} and its subclasses in Gson does
+ * <li>the order of invocation of configuration methods does not matter.</li>
+ * <li>the default serialization of {@link Date} and its subclasses in Gson does
  *  not contain time-zone information. So, if you are using date/time instances,
  *  use {@code GsonBuilder} and its {@code setDateFormat} methods.</li>
  * </ul>
@@ -105,6 +107,8 @@ public final class GsonBuilder {
   private boolean useJdkUnsafe = DEFAULT_USE_JDK_UNSAFE;
   private ToNumberStrategy objectToNumberStrategy = DEFAULT_OBJECT_TO_NUMBER_STRATEGY;
   private ToNumberStrategy numberToNumberStrategy = DEFAULT_NUMBER_TO_NUMBER_STRATEGY;
+  private MissingFieldValueStrategy missingFieldValueStrategy = DEFAULT_MISSING_FIELD_VALUE_STRATEGY;
+  private UnknownFieldStrategy unknownFieldStrategy = DEFAULT_UNKNOWN_FIELD_STRATEGY;
   private final ArrayDeque<ReflectionAccessFilter> reflectionFilters = new ArrayDeque<>();
 
   /**
@@ -142,6 +146,8 @@ public final class GsonBuilder {
     this.useJdkUnsafe = gson.useJdkUnsafe;
     this.objectToNumberStrategy = gson.objectToNumberStrategy;
     this.numberToNumberStrategy = gson.numberToNumberStrategy;
+    this.missingFieldValueStrategy = gson.missingFieldValueStrategy;
+    this.unknownFieldStrategy = gson.unknownFieldStrategy;
     this.reflectionFilters.addAll(gson.reflectionFilters);
   }
 
@@ -397,6 +403,37 @@ public final class GsonBuilder {
   @CanIgnoreReturnValue
   public GsonBuilder setObjectToNumberStrategy(ToNumberStrategy objectToNumberStrategy) {
     this.objectToNumberStrategy = Objects.requireNonNull(objectToNumberStrategy);
+    return this;
+  }
+
+  /**
+   * Configures Gson to apply a specific missing field value strategy during deserialization.
+   * The strategy is used during reflection-based deserialization when the JSON data does
+   * not contain a value for a field. A field with explicit JSON null is not considered missing.
+   *
+   * @param missingFieldValueStrategy strategy handling missing field values
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @see MissingFieldValueStrategy#DO_NOTHING The default missing field value strategy
+   * @since $next-version$
+   */
+  public GsonBuilder setMissingFieldValueStrategy(MissingFieldValueStrategy missingFieldValueStrategy) {
+    this.missingFieldValueStrategy = Objects.requireNonNull(missingFieldValueStrategy);
+    return this;
+  }
+
+  /**
+   * Configures Gson to apply a specific unknown field strategy during deserialization.
+   * The strategy is used during reflection-based deserialization when an unknown field
+   * is encountered in the JSON data. If a field which is excluded from deserialization
+   * appears in the JSON data it is considered unknown as well.
+   *
+   * @param unknownFieldStrategy strategy handling unknown fields
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @see UnknownFieldStrategy#IGNORE The default unknown field strategy
+   * @since $next-version$
+   */
+  public GsonBuilder setUnknownFieldStrategy(UnknownFieldStrategy unknownFieldStrategy) {
+    this.unknownFieldStrategy = Objects.requireNonNull(unknownFieldStrategy);
     return this;
   }
 
@@ -809,7 +846,8 @@ public final class GsonBuilder {
         serializeSpecialFloatingPointValues, useJdkUnsafe, longSerializationPolicy,
         datePattern, dateStyle, timeStyle, new ArrayList<>(this.factories),
         new ArrayList<>(this.hierarchyFactories), factories,
-        objectToNumberStrategy, numberToNumberStrategy, new ArrayList<>(reflectionFilters));
+        objectToNumberStrategy, numberToNumberStrategy,
+        missingFieldValueStrategy, unknownFieldStrategy, new ArrayList<>(reflectionFilters));
   }
 
   private void addTypeAdaptersForDate(String datePattern, int dateStyle, int timeStyle,

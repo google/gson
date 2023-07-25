@@ -68,6 +68,7 @@ public final class GsonTest {
         DateFormat.DEFAULT, new ArrayList<TypeAdapterFactory>(),
         new ArrayList<TypeAdapterFactory>(), new ArrayList<TypeAdapterFactory>(),
         CUSTOM_OBJECT_TO_NUMBER_STRATEGY, CUSTOM_NUMBER_TO_NUMBER_STRATEGY,
+        MissingFieldValueStrategy.THROW_EXCEPTION, UnknownFieldStrategy.THROW_EXCEPTION,
         Collections.<ReflectionAccessFilter>emptyList());
 
     assertThat(gson.excluder).isEqualTo(CUSTOM_EXCLUDER);
@@ -85,6 +86,7 @@ public final class GsonTest {
         DateFormat.DEFAULT, new ArrayList<TypeAdapterFactory>(),
         new ArrayList<TypeAdapterFactory>(), new ArrayList<TypeAdapterFactory>(),
         CUSTOM_OBJECT_TO_NUMBER_STRATEGY, CUSTOM_NUMBER_TO_NUMBER_STRATEGY,
+        MissingFieldValueStrategy.THROW_EXCEPTION, UnknownFieldStrategy.THROW_EXCEPTION,
         Collections.<ReflectionAccessFilter>emptyList());
 
     Gson clone = original.newBuilder()
