@@ -227,16 +227,16 @@ public class DefaultDateTypeAdapterTest {
     try {
       assertThat(json).matches(toLiteral(formattedPattern));
     } catch (AssertionError e) {
+      StringBuilder sb = new StringBuilder();
       char[] chars = json.toCharArray();
       for (char c : chars) {
         if (c >= ' ' && c <= '~') {
-          System.err.print(c);
+          sb.append(c);
         } else {
-          System.err.printf("\\u%04x", (int) c);
+          sb.append(String.format("\\u%04x", (int) c));
         }
       }
-      System.err.println();
-      throw e;
+      throw new AssertionError(sb.toString(), e);
     }
   }
 
