@@ -65,6 +65,6 @@
 # See also https://github.com/google/gson/pull/2420#discussion_r1241813541 for a more detailed explanation
 -if class *
 -keepclasseswithmembers,allowobfuscation,allowoptimization class <1> {
-  <init>();
+  <init>(...);
   @com.google.gson.annotations.SerializedName <fields>;
 }
