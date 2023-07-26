@@ -223,7 +223,21 @@ public class DefaultDateTypeAdapterTest {
 
   private static void assertFormatted(String formattedPattern, TypeAdapterFactory adapterFactory) {
     TypeAdapter<Date> adapter = dateAdapter(adapterFactory);
-    assertThat(adapter.toJson(new Date(0))).matches(toLiteral(formattedPattern));
+    String json = adapter.toJson(new Date(0));
+    try {
+      assertThat(json).matches(toLiteral(formattedPattern));
+    } catch (AssertionError e) {
+      char[] chars = json.toCharArray();
+      for (char c : chars) {
+        if (c >= ' ' && c <= '~') {
+          System.err.print(c);
+        } else {
+          System.err.printf("\\u%04x", (int) c);
+        }
+      }
+      System.err.println();
+      throw e;
+    }
   }
 
   @SuppressWarnings("UndefinedEquals")
