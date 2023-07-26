@@ -19,17 +19,18 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONString;
 import org.junit.Test;
@@ -212,7 +213,7 @@ public class JsonOrgInteropTest {
         this.jsonElementAdapter = jsonElementAdapter;
       }
 
-      protected abstract T readJsonOrgValue(String json);
+      protected abstract T readJsonOrgValue(String json) throws JSONException;
 
       @Override
       public T read(JsonReader in) throws IOException {
@@ -227,7 +228,13 @@ public class JsonOrgInteropTest {
         // However, unlike JSONObject this will not prevent duplicate member names
         JsonElement jsonElement = jsonElementAdapter.read(in);
         String json = jsonElementAdapter.toJson(jsonElement);
-        return readJsonOrgValue(json);
+        try {
+          return readJsonOrgValue(json);
+        }
+        // For Android this is a checked exception; for the latest JSON-java artifacts it isn't anymore
+        catch (JSONException e) {
+          throw new RuntimeException(e);
+        }
       }
 
       @Override
@@ -259,14 +266,14 @@ public class JsonOrgInteropTest {
       if (rawType == JSONArray.class) {
         adapter = new JsonOrgAdapter<JSONArray>(jsonElementAdapter) {
           @Override
-          protected JSONArray readJsonOrgValue(String json) {
+          protected JSONArray readJsonOrgValue(String json) throws JSONException {
             return new JSONArray(json);
           }
         };
       } else {
         adapter = new JsonOrgAdapter<JSONObject>(jsonElementAdapter) {
           @Override
-          protected JSONObject readJsonOrgValue(String json) {
+          protected JSONObject readJsonOrgValue(String json) throws JSONException {
             return new JSONObject(json);
           }
         };
@@ -286,7 +293,7 @@ public class JsonOrgInteropTest {
    * as expected.
    */
   @Test
-  public void testCustomAdapters() {
+  public void testCustomAdapters() throws JSONException {
     Gson gson = new GsonBuilder()
         .serializeNulls()
         .registerTypeAdapterFactory(new JsonOrgAdapterFactory())
@@ -297,7 +304,7 @@ public class JsonOrgInteropTest {
         JSONObject.NULL,
         new CustomClass(),
         new CustomJsonStringClass(),
-        new BigDecimal("123.4"),
+        123.4,
         true,
         new JSONObject(Collections.singletonMap("key", 1)),
         new JSONArray(Arrays.asList(2)),
@@ -306,14 +313,14 @@ public class JsonOrgInteropTest {
         new boolean[] {false}
     ));
     assertThat(gson.toJson(array)).isEqualTo(
-        "[null,null,{},\"custom\",123.4,true,{\"key\":1},[2],{\"key\":3},[4],[false]]");
+        "[null,null,\"custom-toString\",\"custom\",123.4,true,{\"key\":1},[2],{\"key\":3},[4],[false]]");
     assertThat(gson.toJson(null, JSONArray.class)).isEqualTo("null");
 
     JSONObject object = new JSONObject();
     object.put("1", JSONObject.NULL);
     object.put("2", new CustomClass());
     object.put("3", new CustomJsonStringClass());
-    object.put("4", new BigDecimal("123.4"));
+    object.put("4", 123.4);
     object.put("5", true);
     object.put("6", new JSONObject(Collections.singletonMap("key", 1)));
     object.put("7", new JSONArray(Arrays.asList(2)));
@@ -369,7 +376,7 @@ public class JsonOrgInteropTest {
         this.wrappedTypeAdapter = wrappedTypeAdapter;
       }
 
-      protected abstract T createJsonOrgValue(W wrapped);
+      protected abstract T createJsonOrgValue(W wrapped) throws JSONException;
 
       @Override
       public T read(JsonReader in) throws IOException {
@@ -383,7 +390,14 @@ public class JsonOrgInteropTest {
         if (!name.equals(fieldName)) {
           throw new IllegalArgumentException("Unexpected name '" + name + "', expected '" + fieldName + "' at " + in.getPath());
         }
-        T value = createJsonOrgValue(wrappedTypeAdapter.read(in));
+        T value;
+        try {
+          value = createJsonOrgValue(wrappedTypeAdapter.read(in));
+        }
+        // For Android this is a checked exception; for the latest JSON-java artifacts it isn't anymore
+        catch (JSONException e) {
+          throw new RuntimeException(e);
+        }
         in.endObject();
 
         return value;
@@ -435,11 +449,13 @@ public class JsonOrgInteropTest {
         TypeAdapter<List<Object>> wrappedAdapter = gson.getAdapter(new TypeToken<List<Object>> () {});
         adapter = new JsonOrgBackwardCompatibleAdapter<List<Object>, JSONArray>("myArrayList", wrappedAdapter) {
           @Override
-          protected JSONArray createJsonOrgValue(List<Object> wrapped) {
-            JSONArray jsonArray = new JSONArray(wrapped.size());
-            // Unlike JSONArray(Collection) constructor, putAll does not wrap elements and is therefore closer
+          protected JSONArray createJsonOrgValue(List<Object> wrapped) throws JSONException {
+            JSONArray jsonArray = new JSONArray();
+            // Unlike JSONArray(Collection) constructor, `put` does not wrap elements and is therefore closer
             // to original Gson reflection-based behavior
-            jsonArray.putAll(wrapped);
+            for (Object element : wrapped) {
+              jsonArray.put(element);
+            }
 
             return jsonArray;
           }
@@ -448,7 +464,9 @@ public class JsonOrgInteropTest {
           protected List<Object> getWrapped(JSONArray jsonArray) {
             // Cannot use JSONArray.toList() because that converts elements
             List<Object> list = new ArrayList<>(jsonArray.length());
-            for (Object element : jsonArray) {
+            for (int i = 0; i < jsonArray.length(); i++) {
+              // Use opt(int) because get(int) cannot handle null values
+              Object element = jsonArray.opt(i);
               list.add(element);
             }
 
@@ -459,7 +477,7 @@ public class JsonOrgInteropTest {
         TypeAdapter<Map<String, Object>> wrappedAdapter = gson.getAdapter(new TypeToken<Map<String, Object>> () {});
         adapter = new JsonOrgBackwardCompatibleAdapter<Map<String, Object>, JSONObject>("map", wrappedAdapter) {
           @Override
-          protected JSONObject createJsonOrgValue(Map<String, Object> map) {
+          protected JSONObject createJsonOrgValue(Map<String, Object> map) throws JSONException {
             // JSONObject(Map) constructor wraps elements, so instead put elements separately to be closer
             // to original Gson reflection-based behavior
             JSONObject jsonObject = new JSONObject();
@@ -474,7 +492,10 @@ public class JsonOrgInteropTest {
           protected Map<String, Object> getWrapped(JSONObject jsonObject) {
             // Cannot use JSONObject.toMap() because that converts elements
             Map<String, Object> map = new LinkedHashMap<>(jsonObject.length());
-            for (String name : jsonObject.keySet()) {
+            @SuppressWarnings("unchecked") // Old JSON-java versions return just `Iterator` instead of `Iterator<String>`
+            Iterator<String> names = jsonObject.keys();
+            while (names.hasNext()) {
+              String name = names.next();
               // Use opt(String) because get(String) cannot handle null values
               // Most likely null values cannot occur normally though; they would be JSONObject.NULL
               map.put(name, jsonObject.opt(name));
@@ -501,7 +522,7 @@ public class JsonOrgInteropTest {
    * as expected.
    */
   @Test
-  public void testCustomBackwardCompatibleAdapters() {
+  public void testCustomBackwardCompatibleAdapters() throws JSONException {
     Gson gson = new GsonBuilder()
         .serializeNulls()
         .registerTypeAdapterFactory(new JsonOrgBackwardCompatibleAdapterFactory())
@@ -510,7 +531,7 @@ public class JsonOrgInteropTest {
     JSONArray array = new JSONArray(Arrays.asList(
         null,
         JSONObject.NULL,
-        new BigDecimal("123.4"),
+        123.4,
         true,
         new JSONObject(Collections.singletonMap("key", 1)),
         new JSONArray(Arrays.asList(2)),
@@ -519,12 +540,12 @@ public class JsonOrgInteropTest {
         new boolean[] {false}
     ));
     assertThat(gson.toJson(array)).isEqualTo(
-        "{\"myArrayList\":[null,null,123.4,true,{\"map\":{\"key\":1}},{\"myArrayList\":[2]},{\"map\":{\"key\":3}},{\"myArrayList\":[4]},{\"myArrayList\":[false]}]}");
+        "{\"myArrayList\":[null,null,123.4,true,{\"map\":{\"key\":1}},{\"myArrayList\":[2]},{\"key\":3},[4],[false]]}");
     assertThat(gson.toJson(null, JSONArray.class)).isEqualTo("null");
 
     JSONObject object = new JSONObject();
     object.put("1", JSONObject.NULL);
-    object.put("2", new BigDecimal("123.4"));
+    object.put("2", 123.4);
     object.put("3", true);
     object.put("4", new JSONObject(Collections.singletonMap("key", 1)));
     object.put("5", new JSONArray(Arrays.asList(2)));

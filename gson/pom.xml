@@ -53,7 +53,9 @@
     <dependency>
       <groupId>org.json</groupId>
       <artifactId>json</artifactId>
-      <version>20230618</version>
+      <!-- Uses an ancient version because it matches roughly the API of the same classes from Android
+        See also https://stackoverflow.com/q/39564936 -->
+      <version>20090211</version>
       <scope>test</scope>
     </dependency>
 
