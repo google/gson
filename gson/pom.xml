@@ -49,6 +49,14 @@
       <version>2.20.0</version>
     </dependency>
 
+    <!-- For testing interoperability with other JSON libraries -->
+    <dependency>
+      <groupId>org.json</groupId>
+      <artifactId>json</artifactId>
+      <version>20230618</version>
+      <scope>test</scope>
+    </dependency>
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
