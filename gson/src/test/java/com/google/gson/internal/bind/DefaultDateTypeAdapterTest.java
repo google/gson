@@ -71,7 +71,7 @@ public class DefaultDateTypeAdapterTest {
           DateType.DATE.createAdapterFactory(DateFormat.SHORT, DateFormat.SHORT));
       assertFormatted("Jan 1, 1970,? 12:00:00\\hAM",
           DateType.DATE.createAdapterFactory(DateFormat.MEDIUM, DateFormat.MEDIUM));
-      assertFormatted("January 1, 1970,? 12:00:00\\hAM UTC",
+      assertFormatted("January 1, 1970(,| at)? 12:00:00\\hAM UTC",
           DateType.DATE.createAdapterFactory(DateFormat.LONG, DateFormat.LONG));
       assertFormatted("Thursday, January 1, 1970(,| at)? 12:00:00\\hAM " + utcFull,
           DateType.DATE.createAdapterFactory(DateFormat.FULL, DateFormat.FULL));
@@ -224,20 +224,7 @@ public class DefaultDateTypeAdapterTest {
   private static void assertFormatted(String formattedPattern, TypeAdapterFactory adapterFactory) {
     TypeAdapter<Date> adapter = dateAdapter(adapterFactory);
     String json = adapter.toJson(new Date(0));
-    try {
-      assertThat(json).matches(toLiteral(formattedPattern));
-    } catch (AssertionError e) {
-      StringBuilder sb = new StringBuilder();
-      char[] chars = json.toCharArray();
-      for (char c : chars) {
-        if (c >= ' ' && c <= '~') {
-          sb.append(c);
-        } else {
-          sb.append(String.format("\\u%04x", (int) c));
-        }
-      }
-      throw new AssertionError(sb.toString(), e);
-    }
+    assertThat(json).matches(toLiteral(formattedPattern));
   }
 
   @SuppressWarnings("UndefinedEquals")
