@@ -570,11 +570,8 @@ public class ObjectTest {
   public void testDateAsMapObjectField() {
     HasObjectMap a = new HasObjectMap();
     a.map.put("date", new Date(0));
-    if (JavaVersion.isJava9OrLater()) {
-      assertThat(gson.toJson(a)).isEqualTo("{\"map\":{\"date\":\"Dec 31, 1969, 4:00:00 PM\"}}");
-    } else {
-      assertThat(gson.toJson(a)).isEqualTo("{\"map\":{\"date\":\"Dec 31, 1969 4:00:00 PM\"}}");
-    }
+    assertThat(gson.toJson(a))
+        .matches("\\{\"map\":\\{\"date\":\"Dec 31, 1969,? 4:00:00\\hPM\"\\}\\}");
   }
 
   static class HasObjectMap {

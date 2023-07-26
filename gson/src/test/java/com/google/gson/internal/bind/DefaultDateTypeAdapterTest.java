@@ -58,21 +58,22 @@ public class DefaultDateTypeAdapterTest {
     Locale defaultLocale = Locale.getDefault();
     Locale.setDefault(locale);
     try {
-      String afterYearSep = JavaVersion.isJava9OrLater() ? ", " : " ";
-      String afterYearLongSep = JavaVersion.isJava9OrLater() ? " at " : " ";
-      String utcFull = JavaVersion.isJava9OrLater() ? "Coordinated Universal Time" : "UTC";
-      assertFormatted(String.format("Jan 1, 1970%s12:00:00 AM", afterYearSep),
-          DateType.DATE.createDefaultsAdapterFactory());
+      // The patterns here attempt to accommodate minor date-time formatting differences between JDK
+      // versions. Ideally Gson would serialize in a way that is independent of the JDK version.
+      // Note: \h means "horizontal space", because some JDK versions use Narrow No Break Space
+      // (U+202F) before the AM or PM indication.
+      String utcFull = "(Coordinated Universal Time|UTC)";
+      assertFormatted("Jan 1, 1970,? 12:00:00\\hAM", DateType.DATE.createDefaultsAdapterFactory());
       assertFormatted("1/1/70", DateType.DATE.createAdapterFactory(DateFormat.SHORT));
       assertFormatted("Jan 1, 1970", DateType.DATE.createAdapterFactory(DateFormat.MEDIUM));
       assertFormatted("January 1, 1970", DateType.DATE.createAdapterFactory(DateFormat.LONG));
-      assertFormatted(String.format("1/1/70%s12:00 AM", afterYearSep),
+      assertFormatted("1/1/70,? 12:00\\hAM",
           DateType.DATE.createAdapterFactory(DateFormat.SHORT, DateFormat.SHORT));
-      assertFormatted(String.format("Jan 1, 1970%s12:00:00 AM", afterYearSep),
+      assertFormatted("Jan 1, 1970,? 12:00:00\\hAM",
           DateType.DATE.createAdapterFactory(DateFormat.MEDIUM, DateFormat.MEDIUM));
-      assertFormatted(String.format("January 1, 1970%s12:00:00 AM UTC", afterYearLongSep),
+      assertFormatted("January 1, 1970,? 12:00:00\\hAM UTC",
           DateType.DATE.createAdapterFactory(DateFormat.LONG, DateFormat.LONG));
-      assertFormatted(String.format("Thursday, January 1, 1970%s12:00:00 AM %s", afterYearLongSep, utcFull),
+      assertFormatted("Thursday, January 1, 1970(,| at)? 12:00:00\\hAM " + utcFull,
           DateType.DATE.createAdapterFactory(DateFormat.FULL, DateFormat.FULL));
     } finally {
       TimeZone.setDefault(defaultTimeZone);
@@ -150,9 +151,7 @@ public class DefaultDateTypeAdapterTest {
     Locale defaultLocale = Locale.getDefault();
     Locale.setDefault(Locale.US);
     try {
-      String afterYearSep = JavaVersion.isJava9OrLater() ? ", " : " ";
-      assertFormatted(String.format("Dec 31, 1969%s4:00:00 PM", afterYearSep),
-          DateType.DATE.createDefaultsAdapterFactory());
+      assertFormatted("Dec 31, 1969,? 4:00:00\\hPM", DateType.DATE.createDefaultsAdapterFactory());
       assertParsed("Dec 31, 1969 4:00:00 PM", DateType.DATE.createDefaultsAdapterFactory());
     } finally {
       TimeZone.setDefault(defaultTimeZone);
@@ -222,9 +221,9 @@ public class DefaultDateTypeAdapterTest {
     return adapter;
   }
 
-  private static void assertFormatted(String formatted, TypeAdapterFactory adapterFactory) {
+  private static void assertFormatted(String formattedPattern, TypeAdapterFactory adapterFactory) {
     TypeAdapter<Date> adapter = dateAdapter(adapterFactory);
-    assertThat(adapter.toJson(new Date(0))).isEqualTo(toLiteral(formatted));
+    assertThat(adapter.toJson(new Date(0))).matches(toLiteral(formattedPattern));
   }
 
   @SuppressWarnings("UndefinedEquals")
