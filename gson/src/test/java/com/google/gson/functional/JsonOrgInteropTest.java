@@ -42,6 +42,11 @@ public class JsonOrgInteropTest {
   @Test
   public void testNoCustomAdapter() {
     Gson gson = new Gson();
+
+    // Merely requesting the adapter should not throw an exception
+    assertThat(gson.getAdapter(JSONArray.class)).isNotNull();
+    assertThat(gson.getAdapter(JSONObject.class)).isNotNull();
+
     String expectedMessageArray = "Unsupported class from other JSON library: org.json.JSONArray"
         + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#unsupported-json-library-class";
     String expectedMessageObject = "Unsupported class from other JSON library: org.json.JSONObject"
