@@ -384,11 +384,7 @@ public class DefaultTypeAdaptersTest {
   public void testDefaultDateSerialization() {
     Date now = new Date(1315806903103L);
     String json = gson.toJson(now);
-    if (JavaVersion.isJava9OrLater()) {
-      assertThat(json).isEqualTo("\"Sep 11, 2011, 10:55:03 PM\"");
-    } else {
-      assertThat(json).isEqualTo("\"Sep 11, 2011 10:55:03 PM\"");
-    }
+    assertThat(json).matches("\"Sep 11, 2011,? 10:55:03\\hPM\"");
   }
 
   @Test
@@ -420,11 +416,7 @@ public class DefaultTypeAdaptersTest {
     Gson gson = new GsonBuilder().create();
     Date now = new Date(1315806903103L);
     String json = gson.toJson(now);
-    if (JavaVersion.isJava9OrLater()) {
-      assertThat(json).isEqualTo("\"Sep 11, 2011, 10:55:03 PM\"");
-    } else {
-      assertThat(json).isEqualTo("\"Sep 11, 2011 10:55:03 PM\"");
-    }
+    assertThat(json).matches("\"Sep 11, 2011,? 10:55:03\\hPM\"");
   }
 
   @Test
