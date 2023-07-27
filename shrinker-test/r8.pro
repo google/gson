@@ -1,5 +1,5 @@
-# Extend the ProGuard rules
--include proguard.pro
+# Include common rules
+-include common.pro
 
 ### The following rules are needed for R8 in "full mode", which performs more aggressive optimizations than ProGuard
 ### See https://r8.googlesource.com/r8/+/refs/heads/main/compatibility-faq.md#r8-full-mode

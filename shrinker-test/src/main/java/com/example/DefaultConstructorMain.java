@@ -20,7 +20,7 @@ public class DefaultConstructorMain {
   // making class abstract); other constructors are ignored to suggest to user adding default
   // constructor instead of implicitly relying on JDK Unsafe
   static class TestClassWithoutDefaultConstructor {
-    @SerializedName("s")
+    // No @SerializedName annotation to avoid matching the consumer rules from gson.pro.
     public String s;
 
     public TestClassWithoutDefaultConstructor(String s) {
