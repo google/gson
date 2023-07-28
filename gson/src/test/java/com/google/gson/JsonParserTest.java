@@ -35,12 +35,9 @@ import org.junit.Test;
  */
 public class JsonParserTest {
 
-  @Test
+  @Test(expected = JsonSyntaxException.class)
   public void testParseInvalidJson() {
-    try {
-      JsonParser.parseString("[[]");
-      fail();
-    } catch (JsonSyntaxException expected) { }
+    JsonParser.parseString("[[]");
   }
 
   @Test
@@ -79,13 +76,9 @@ public class JsonParserTest {
     assertThat(JsonParser.parseString("Test").getAsString()).isEqualTo("Test");
   }
 
-  @Test
+  @Test(expected = JsonSyntaxException.class)
   public void testParseUnquotedMultiWordStringFails() {
-    String unquotedSentence = "Test is a test..blah blah";
-    try {
-      JsonParser.parseString(unquotedSentence);
-      fail();
-    } catch (JsonSyntaxException expected) { }
+    JsonParser.parseString("Test is a test..blah blah");
   }
 
   @Test
