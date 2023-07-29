@@ -63,7 +63,7 @@ public class TypeAdapterTest {
     assertThat(e.getCause()).isEqualTo(exception);
 
     e = assertThrows(JsonIOException.class, () -> adapter.toJsonTree(1));
-    assertThat(e.getCause()).isEqualTo(exception);
+    assertThat(e).hasCauseThat().isEqualTo(exception);
   }
 
   private static final TypeAdapter<String> adapter = new TypeAdapter<String>() {
