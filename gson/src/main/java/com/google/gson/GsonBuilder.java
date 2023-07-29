@@ -58,8 +58,7 @@ import java.util.Objects;
  * use {@code new Gson()}. {@code GsonBuilder} is best used by creating it, and then invoking its
  * various configuration methods, and finally calling create.</p>
  *
- * <p>The following is an example shows how to use the {@code GsonBuilder} to construct a Gson
- * instance:
+ * <p>The following example shows how to use the {@code GsonBuilder} to construct a Gson instance:
  *
  * <pre>
  * Gson gson = new GsonBuilder()
@@ -125,7 +124,7 @@ public final class GsonBuilder {
    * Constructs a GsonBuilder instance from a Gson instance. The newly constructed GsonBuilder
    * has the same configuration as the previously built Gson instance.
    *
-   * @param gson the gson instance whose configuration should by applied to a new GsonBuilder.
+   * @param gson the gson instance whose configuration should be applied to a new GsonBuilder.
    */
   GsonBuilder(Gson gson) {
     this.excluder = gson.excluder;
@@ -279,7 +278,7 @@ public final class GsonBuilder {
    * {"x":2,"y":3}}.
    *
    * <p>Given the assumption above, a {@code Map<Point, String>} will be
-   * serialize as an array of arrays (can be viewed as an entry set of pairs).
+   * serialized as an array of arrays (can be viewed as an entry set of pairs).
    *
    * <p>Below is an example of serializing complex types as JSON arrays:
    * <pre> {@code
@@ -601,7 +600,7 @@ public final class GsonBuilder {
   }
 
   /**
-   * Configures Gson to to serialize {@code Date} objects according to the style value provided.
+   * Configures Gson to serialize {@code Date} objects according to the style value provided.
    * You can call this method or {@link #setDateFormat(String)} multiple times, but only the last
    * invocation will be used to decide the serialization format.
    *
@@ -622,7 +621,7 @@ public final class GsonBuilder {
   }
 
   /**
-   * Configures Gson to to serialize {@code Date} objects according to the style value provided.
+   * Configures Gson to serialize {@code Date} objects according to the style value provided.
    * You can call this method or {@link #setDateFormat(String)} multiple times, but only the last
    * invocation will be used to decide the serialization format.
    *
