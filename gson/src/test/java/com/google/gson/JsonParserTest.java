@@ -17,7 +17,7 @@
 package com.google.gson;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.internal.Streams;
@@ -35,9 +35,9 @@ import org.junit.Test;
  */
 public class JsonParserTest {
 
-  @Test(expected = JsonSyntaxException.class)
+  @Test
   public void testParseInvalidJson() {
-    JsonParser.parseString("[[]");
+    assertThrows(JsonSyntaxException.class, () -> JsonParser.parseString("[[]"));
   }
 
   @Test
@@ -76,9 +76,9 @@ public class JsonParserTest {
     assertThat(JsonParser.parseString("Test").getAsString()).isEqualTo("Test");
   }
 
-  @Test(expected = JsonSyntaxException.class)
+  @Test
   public void testParseUnquotedMultiWordStringFails() {
-    JsonParser.parseString("Test is a test..blah blah");
+    assertThrows(JsonSyntaxException.class, () -> JsonParser.parseString("Test is a test..blah blah"));
   }
 
   @Test

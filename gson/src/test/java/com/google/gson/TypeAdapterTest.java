@@ -17,7 +17,7 @@
 package com.google.gson;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
@@ -59,19 +59,11 @@ public class TypeAdapterTest {
       }
     };
 
-    try {
-      adapter.toJson(1);
-      fail();
-    } catch (JsonIOException e) {
-      assertThat(e.getCause()).isEqualTo(exception);
-    }
+    JsonIOException e = assertThrows(JsonIOException.class, () -> adapter.toJson(1));
+    assertThat(e.getCause()).isEqualTo(exception);
 
-    try {
-      adapter.toJsonTree(1);
-      fail();
-    } catch (JsonIOException e) {
-      assertThat(e.getCause()).isEqualTo(exception);
-    }
+    e = assertThrows(JsonIOException.class, () -> adapter.toJsonTree(1));
+    assertThat(e.getCause()).isEqualTo(exception);
   }
 
   private static final TypeAdapter<String> adapter = new TypeAdapter<String>() {
