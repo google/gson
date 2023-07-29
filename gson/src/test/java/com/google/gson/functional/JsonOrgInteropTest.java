@@ -444,6 +444,7 @@ public class JsonOrgInteropTest {
      * For multiple alternative field names, tries to find the first which exists on the class.
      */
     private static String getFieldName(Class<?> c, String... names) throws NoSuchFieldException {
+      assert(names.length > 0);
       NoSuchFieldException exception = null;
 
       for (String name : names) {
