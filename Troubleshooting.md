@@ -363,7 +363,7 @@ If you cannot switch the classes you are using, see the library-specific solutio
 
 </details>
 
-**Important:** Verify carefully that these `TypeAdapterFactory` classes work as expected for your use case and produce the desired JSON data or parse the JSON data without issues. There might be corner cases where they behave slightly differently than Gson's reflection-based adapter, respectively behave differently than the other JSON library would behave.
+**Important:** Verify carefully that these solutions work as expected for your use case and produce the desired JSON data or parse the JSON data without issues. There might be corner cases where they behave slightly differently than Gson's reflection-based adapter, respectively behave differently than the other JSON library would behave.
 
 ## <a id="android-app-random-names"></a> Android app not working in Release mode; random property names
 

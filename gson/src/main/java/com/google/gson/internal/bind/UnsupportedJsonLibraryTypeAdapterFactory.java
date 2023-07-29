@@ -32,9 +32,9 @@ import java.util.Set;
  * {@code TypeAdapterFactory} which throws an exception when trying to serialize or
  * deserialize unsupported classes from third-party JSON libraries.
  *
- * <p>This is mainly intended as help for users who accidentally mix Gson and non-Gson
- * code and are then surprised by unexpected JSON data or issues when trying to
- * deserialize the JSON data.
+ * <p>This is mainly intended as help for users who accidentally mix Gson and other
+ * JSON libraries and are then surprised by unexpected JSON data or issues when trying
+ * to deserialize the JSON data.
  */
 public class UnsupportedJsonLibraryTypeAdapterFactory implements TypeAdapterFactory {
   public static final UnsupportedJsonLibraryTypeAdapterFactory INSTANCE = new UnsupportedJsonLibraryTypeAdapterFactory();

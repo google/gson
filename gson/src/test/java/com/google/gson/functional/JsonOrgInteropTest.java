@@ -113,7 +113,6 @@ public class JsonOrgInteropTest {
   }
 
   private abstract static class JsonOrgBaseSubject extends Subject {
-
     protected JsonOrgBaseSubject(FailureMetadata metadata, @Nullable Object actual) {
       super(metadata, actual);
     }
