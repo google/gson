@@ -36,8 +36,8 @@ public class ToNumberPolicyTest {
 
     MalformedJsonException e = assertThrows(MalformedJsonException.class, () -> strategy.readNumber(fromString("1e400")));
     assertThat(e).hasMessageThat().isEqualTo(
-            "JSON forbids NaN and infinities: Infinity at line 1 column 6 path $"
-                    + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json"
+        "JSON forbids NaN and infinities: Infinity at line 1 column 6 path $"
+        + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json"
     );
 
     assertThrows(NumberFormatException.class, () -> strategy.readNumber(fromString("\"not-a-number\"")));
