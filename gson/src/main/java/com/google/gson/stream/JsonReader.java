@@ -182,7 +182,7 @@ import java.util.Objects;
  * <p>Prefixing JSON files with <code>")]}'\n"</code> makes them non-executable
  * by {@code <script>} tags, disarming the attack. Since the prefix is malformed
  * JSON, strict parsing fails when it is encountered. This class permits the
- * non-execute prefix when {@link #setStrictness(Strictness) lenient parsing} is
+ * non-execute prefix when {@linkplain #setStrictness(Strictness) lenient parsing} is
  * enabled.
  *
  * <p>Each {@code JsonReader} may be used to read a single JSON stream. Instances
@@ -295,7 +295,7 @@ public class JsonReader implements Closeable {
   /**
    * Sets the strictness of this reader.
    *
-   * @deprecated Please use {@link JsonReader#setStrictness(Strictness)} instead.
+   * @deprecated Please use {@link #setStrictness(Strictness)} instead.
    * {@code JsonReader.setLenient(true)} should be replaced by {@code JsonReader.setStrictness(Strictness.LENIENT)}
    * and {@code JsonReader.setLenient(false)} should be replaced by {@code JsonReader.setStrictness(Strictness.LEGACY_STRICT)}.<br>
    * However, if you used {@code setLenient(false)} before, you might prefer {@link Strictness#STRICT} now instead.

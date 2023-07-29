@@ -147,9 +147,12 @@ To spot syntax errors in the JSON data easily you can open it in an editor with 
 
 **Reason:** Due to legacy reasons Gson performs parsing by default in lenient mode
 
-**Solution:** See [`Gson` class documentation](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/Gson.html#default-lenient) section "Lenient JSON handling"
-
-Note: Even in non-lenient mode Gson deviates slightly from the JSON specification, see [`JsonReader.setStrictness`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/stream/JsonReader.html#setStrictness(Strictness)) for more details.
+**Solution:** If you are using Gson 2.11.0 or newer, call [`GsonBuilder.setStrictness`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/GsonBuilder.html#setStrictness(com.google.gson.Strictness)),
+[`JsonReader.setStrictness`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/stream/JsonReader.html#setStrictness(com.google.gson.Strictness))
+and [`JsonWriter.setStrictness`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/stream/JsonWriter.html#setStrictness(com.google.gson.Strictness))
+with `Strictness.STRICT` to overwrite the default lenient behavior of `Gson` and make these classes strictly adhere to the JSON specification.
+Otherwise if you are using an older Gson version, see the [`Gson` class documentation](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/Gson.html#default-lenient)
+section "JSON Strictness handling" for alternative solutions.
 
 ## <a id="unexpected-json-structure"></a> `IllegalStateException`: "Expected ... but was ..."
 

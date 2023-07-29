@@ -186,6 +186,19 @@ public final class JsonWriterTest {
   }
 
   @Test
+  public void testMultipleTopLevelValuesLenient() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter writer = new JsonWriter(stringWriter);
+    writer.setStrictness(Strictness.LENIENT);
+    writer.beginArray();
+    writer.endArray();
+    writer.beginArray();
+    writer.endArray();
+    writer.close();
+    assertThat(stringWriter.toString()).isEqualTo("[][]");
+  }
+
+  @Test
   public void testBadNestingObject() throws IOException {
     StringWriter stringWriter = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
@@ -825,33 +838,6 @@ public final class JsonWriterTest {
         + "   ]\n"
         + "]";
     assertThat(stringWriter.toString()).isEqualTo(expected);
-  }
-
-  @Test
-  public void testLenientWriterPermitsMultipleTopLevelValues() throws IOException {
-    StringWriter stringWriter = new StringWriter();
-    JsonWriter writer = new JsonWriter(stringWriter);
-    writer.setStrictness(Strictness.LENIENT);
-    writer.beginArray();
-    writer.endArray();
-    writer.beginArray();
-    writer.endArray();
-    writer.close();
-    assertThat(stringWriter.toString()).isEqualTo("[][]");
-  }
-
-  @Test
-  public void testStrictWriterDoesNotPermitMultipleTopLevelValues() throws IOException {
-    StringWriter stringWriter = new StringWriter();
-    JsonWriter writer = new JsonWriter(stringWriter);
-    writer.beginArray();
-    writer.endArray();
-    try {
-      writer.beginArray();
-      fail();
-    } catch (IllegalStateException expected) {
-      assertThat(expected).hasMessageThat().isEqualTo("JSON must have only one top-level value.");
-    }
   }
 
   @Test

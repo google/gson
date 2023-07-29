@@ -136,6 +136,10 @@ import java.util.concurrent.atomic.AtomicLongArray;
  *       to make sure there is no trailing data
  * </ol>
  *
+ * Note that the {@code JsonReader} created this way is only 'legacy strict', it mostly adheres
+ * to the JSON specification but allows small deviations. See {@link JsonReader#setStrictness(Strictness)}
+ * for details.
+ *
  * @see TypeToken
  *
  * @author Inderjeet Singh
@@ -915,7 +919,7 @@ public final class Gson {
    *   <li>{@link GsonBuilder#serializeNulls()}</li>
    *   <li>{@link GsonBuilder#setStrictness(Strictness)}. If no
    *   {@linkplain GsonBuilder#setStrictness(Strictness) explicit strictness has been set} the created
-   *   writer will have a strictness of {@link Strictness#LEGACY_STRICT}. Otherwise, this strictness of
+   *   writer will have a strictness of {@link Strictness#LEGACY_STRICT}. Otherwise, the strictness of
    *   the {@code Gson} instance will be used for the created writer.</li>
    *   <li>{@link GsonBuilder#setPrettyPrinting()}</li>
    *   <li>{@link GsonBuilder#setFormattingStyle(FormattingStyle)}</li>
@@ -940,7 +944,7 @@ public final class Gson {
    * <ul>
    *   <li>{@link GsonBuilder#setStrictness(Strictness)}. If no
    *   {@linkplain GsonBuilder#setStrictness(Strictness) explicit strictness has been set} the created
-   *   reader will have a strictness of {@link Strictness#LEGACY_STRICT}. Otherwise, this strictness of
+   *   reader will have a strictness of {@link Strictness#LEGACY_STRICT}. Otherwise, the strictness of
    *   the {@code Gson} instance will be used for the created reader.</li>
    * </ul>
    */
