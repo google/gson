@@ -72,6 +72,7 @@ public class JsonStreamParserTest {
   public void testCallingNextBeyondAvailableInput() {
     JsonElement unused1 = parser.next();
     JsonElement unused2 = parser.next();
+    // Parser should not go beyond available input
     assertThrows(NoSuchElementException.class, parser::next);
   }
 
