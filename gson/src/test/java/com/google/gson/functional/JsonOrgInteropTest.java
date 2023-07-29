@@ -35,6 +35,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -388,7 +389,7 @@ public class JsonOrgInteropTest {
    */
   private static class JsonOrgBackwardCompatibleAdapterFactory implements TypeAdapterFactory {
     private abstract static class JsonOrgBackwardCompatibleAdapter<W, T> extends TypeAdapter<T> {
-      /** Internal field name used by JSON-java for the respective JSON value class */
+      /** Internal field name used by JSON-java / Android for the respective JSON value class */
       private final String fieldName;
       private final TypeAdapter<W> wrappedTypeAdapter;
 
@@ -440,6 +441,24 @@ public class JsonOrgInteropTest {
       }
     }
 
+    /**
+     * For multiple alternative field names, tries to find the first which exists on the class.
+     */
+    private static String getFieldName(Class<?> c, String... names) throws NoSuchFieldException {
+      NoSuchFieldException exception = null;
+
+      for (String name : names) {
+        try {
+          Field unused = c.getDeclaredField(name);
+          return name;
+        } catch (NoSuchFieldException e) {
+          exception = e;
+        }
+      }
+
+      throw exception;
+    }
+
     @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
       Class<?> rawType = type.getRawType();
@@ -467,8 +486,18 @@ public class JsonOrgInteropTest {
 
       TypeAdapter<?> adapter;
       if (rawType == JSONArray.class) {
+        // Choose correct field name depending on whether JSON-java or Android is used
+        String fieldName;
+        try {
+          String jsonJavaName = "myArrayList";
+          String androidName = "values";
+          fieldName = getFieldName(JSONArray.class, jsonJavaName, androidName);
+        } catch (NoSuchFieldException e) {
+          throw new RuntimeException("Unable to get internal field name for JSONArray", e);
+        }
+
         TypeAdapter<List<Object>> wrappedAdapter = gson.getAdapter(new TypeToken<List<Object>> () {});
-        adapter = new JsonOrgBackwardCompatibleAdapter<List<Object>, JSONArray>("myArrayList", wrappedAdapter) {
+        adapter = new JsonOrgBackwardCompatibleAdapter<List<Object>, JSONArray>(fieldName, wrappedAdapter) {
           @Override
           protected JSONArray createJsonOrgValue(List<Object> wrapped) throws JSONException {
             JSONArray jsonArray = new JSONArray();
@@ -495,8 +524,18 @@ public class JsonOrgInteropTest {
           }
         };
       } else {
+        // Choose correct field name depending on whether JSON-java or Android is used
+        String fieldName;
+        try {
+          String jsonJavaName = "map";
+          String androidName = "nameValuePairs";
+          fieldName = getFieldName(JSONObject.class, jsonJavaName, androidName);
+        } catch (NoSuchFieldException e) {
+          throw new RuntimeException("Unable to get internal field name for JSONObject", e);
+        }
+
         TypeAdapter<Map<String, Object>> wrappedAdapter = gson.getAdapter(new TypeToken<Map<String, Object>> () {});
-        adapter = new JsonOrgBackwardCompatibleAdapter<Map<String, Object>, JSONObject>("map", wrappedAdapter) {
+        adapter = new JsonOrgBackwardCompatibleAdapter<Map<String, Object>, JSONObject>(fieldName, wrappedAdapter) {
           @Override
           protected JSONObject createJsonOrgValue(Map<String, Object> map) throws JSONException {
             // JSONObject(Map) constructor wraps elements, so instead put elements separately to be closer

@@ -176,7 +176,7 @@ If you cannot switch the classes you are using, see the library-specific solutio
    */
   public class JsonOrgBackwardCompatibleAdapterFactory implements TypeAdapterFactory {
     private abstract static class JsonOrgBackwardCompatibleAdapter<W, T> extends TypeAdapter<T> {
-      /** Internal field name used by JSON-java for the respective JSON value class */
+      /** Internal field name used by JSON-java / Android for the respective JSON value class */
       private final String fieldName;
       private final TypeAdapter<W> wrappedTypeAdapter;
 
@@ -228,6 +228,24 @@ If you cannot switch the classes you are using, see the library-specific solutio
       }
     }
 
+    /**
+     * For multiple alternative field names, tries to find the first which exists on the class.
+     */
+    private static String getFieldName(Class<?> c, String... names) throws NoSuchFieldException {
+      NoSuchFieldException exception = null;
+
+      for (String name : names) {
+        try {
+          Field unused = c.getDeclaredField(name);
+          return name;
+        } catch (NoSuchFieldException e) {
+          exception = e;
+        }
+      }
+
+      throw exception;
+    }
+
     @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
       Class<?> rawType = type.getRawType();
@@ -255,8 +273,18 @@ If you cannot switch the classes you are using, see the library-specific solutio
 
       TypeAdapter<?> adapter;
       if (rawType == JSONArray.class) {
+        // Choose correct field name depending on whether JSON-java or Android is used
+        String fieldName;
+        try {
+          String jsonJavaName = "myArrayList";
+          String androidName = "values";
+          fieldName = getFieldName(JSONArray.class, jsonJavaName, androidName);
+        } catch (NoSuchFieldException e) {
+          throw new RuntimeException("Unable to get internal field name for JSONArray", e);
+        }
+
         TypeAdapter<List<Object>> wrappedAdapter = gson.getAdapter(new TypeToken<List<Object>> () {});
-        adapter = new JsonOrgBackwardCompatibleAdapter<List<Object>, JSONArray>("myArrayList", wrappedAdapter) {
+        adapter = new JsonOrgBackwardCompatibleAdapter<List<Object>, JSONArray>(fieldName, wrappedAdapter) {
           @Override
           protected JSONArray createJsonOrgValue(List<Object> wrapped) throws JSONException {
             JSONArray jsonArray = new JSONArray();
@@ -283,8 +311,18 @@ If you cannot switch the classes you are using, see the library-specific solutio
           }
         };
       } else {
+        // Choose correct field name depending on whether JSON-java or Android is used
+        String fieldName;
+        try {
+          String jsonJavaName = "map";
+          String androidName = "nameValuePairs";
+          fieldName = getFieldName(JSONObject.class, jsonJavaName, androidName);
+        } catch (NoSuchFieldException e) {
+          throw new RuntimeException("Unable to get internal field name for JSONObject", e);
+        }
+
         TypeAdapter<Map<String, Object>> wrappedAdapter = gson.getAdapter(new TypeToken<Map<String, Object>> () {});
-        adapter = new JsonOrgBackwardCompatibleAdapter<Map<String, Object>, JSONObject>("map", wrappedAdapter) {
+        adapter = new JsonOrgBackwardCompatibleAdapter<Map<String, Object>, JSONObject>(fieldName, wrappedAdapter) {
           @Override
           protected JSONObject createJsonOrgValue(Map<String, Object> map) throws JSONException {
             // JSONObject(Map) constructor wraps elements, so instead put elements separately to be closer
@@ -323,9 +361,9 @@ If you cannot switch the classes you are using, see the library-specific solutio
   }
   ```
 
-  **Important:** Verify carefully that these `TypeAdapterFactory` classes work as expected for your use case and produce the desired JSON data or parse the JSON data without issues. There might be corner cases where they behave slightly differently than Gson's reflection-based adapter, respectively behave differently than the other JSON library would behave.
-
 </details>
+
+**Important:** Verify carefully that these `TypeAdapterFactory` classes work as expected for your use case and produce the desired JSON data or parse the JSON data without issues. There might be corner cases where they behave slightly differently than Gson's reflection-based adapter, respectively behave differently than the other JSON library would behave.
 
 ## <a id="android-app-random-names"></a> Android app not working in Release mode; random property names
 
