@@ -52,6 +52,8 @@ module mymodule {
 }
 ```
 
+Or in case this occurs for a field in one of your classes which you did not actually want to serialize or deserialize in the first place, you can exclude that field, see the [user guide](UserGuide.md#excluding-fields-from-serialization-and-deserialization).
+
 ## <a id="unsupported-json-library-class"></a>`RuntimeException`: 'Unsupported class from other JSON library: ...'
 
 **Symptom:** An exception with a message in the form 'Unsupported class from other JSON library: ...' is thrown
