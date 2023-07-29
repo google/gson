@@ -80,7 +80,7 @@ public class JsonStreamParserTest {
   public void testEmptyInput() {
     JsonStreamParser parser = new JsonStreamParser("");
     JsonIOException e = assertThrows(JsonIOException.class, parser::next);
-    assertThat(e.getCause()).isInstanceOf(EOFException.class);
+    assertThat(e).hasCauseThat().isInstanceOf(EOFException.class);
 
     parser = new JsonStreamParser("");
     e = assertThrows(JsonIOException.class, parser::hasNext);
