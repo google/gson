@@ -84,7 +84,7 @@ public class JsonStreamParserTest {
 
     parser = new JsonStreamParser("");
     e = assertThrows(JsonIOException.class, parser::hasNext);
-    assertThat(e.getCause()).isInstanceOf(EOFException.class);
+    assertThat(e).hasCauseThat().isInstanceOf(EOFException.class);
   }
 
   @Test
