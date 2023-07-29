@@ -278,6 +278,7 @@ public final class GsonTest {
     jsonWriter.value(true);
     jsonWriter.endObject();
 
+    // Additional top-level value
     IllegalStateException e = assertThrows(IllegalStateException.class, () -> jsonWriter.value(1));
     assertThat(e).hasMessageThat().isEqualTo("JSON must have only one top-level value.");
 
