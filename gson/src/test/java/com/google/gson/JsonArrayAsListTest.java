@@ -112,9 +112,9 @@ public class JsonArrayAsListTest {
     list.addAll(Arrays.asList(new JsonPrimitive(2), new JsonPrimitive(3)));
 
     List<JsonElement> expectedList = Arrays.<JsonElement>asList(
-            new JsonPrimitive(1),
-            new JsonPrimitive(2),
-            new JsonPrimitive(3)
+        new JsonPrimitive(1),
+        new JsonPrimitive(2),
+        new JsonPrimitive(3)
     );
     assertThat(list).isEqualTo(expectedList);
     assertThat(list).isEqualTo(expectedList);
