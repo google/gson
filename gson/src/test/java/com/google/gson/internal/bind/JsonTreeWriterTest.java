@@ -21,6 +21,7 @@ import static org.junit.Assert.fail;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
+import com.google.gson.Strictness;
 import com.google.gson.common.MoreAsserts;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
@@ -86,7 +87,7 @@ public final class JsonTreeWriterTest {
   @Test
   public void testWriteAfterClose() throws Exception {
     JsonTreeWriter writer = new JsonTreeWriter();
-    writer.setLenient(true);
+    writer.setStrictness(Strictness.LENIENT);
     writer.beginArray();
     writer.value("A");
     writer.endArray();
@@ -101,12 +102,13 @@ public final class JsonTreeWriterTest {
   @Test
   public void testPrematureClose() throws Exception {
     JsonTreeWriter writer = new JsonTreeWriter();
-    writer.setLenient(true);
+    writer.setStrictness(Strictness.LENIENT);
     writer.beginArray();
     try {
       writer.close();
       fail();
     } catch (IOException expected) {
+      assertThat(expected).hasMessageThat().isEqualTo("Incomplete document");
     }
   }
 
@@ -174,7 +176,7 @@ public final class JsonTreeWriterTest {
   @Test
   public void testLenientNansAndInfinities() throws IOException {
     JsonTreeWriter writer = new JsonTreeWriter();
-    writer.setLenient(true);
+    writer.setStrictness(Strictness.LENIENT);
     writer.beginArray();
     writer.value(Float.NaN);
     writer.value(Float.NEGATIVE_INFINITY);
@@ -189,7 +191,7 @@ public final class JsonTreeWriterTest {
   @Test
   public void testStrictNansAndInfinities() throws IOException {
     JsonTreeWriter writer = new JsonTreeWriter();
-    writer.setLenient(false);
+    writer.setStrictness(Strictness.LEGACY_STRICT);
     writer.beginArray();
     try {
       writer.value(Float.NaN);
@@ -226,7 +228,7 @@ public final class JsonTreeWriterTest {
   @Test
   public void testStrictBoxedNansAndInfinities() throws IOException {
     JsonTreeWriter writer = new JsonTreeWriter();
-    writer.setLenient(false);
+    writer.setStrictness(Strictness.LEGACY_STRICT);
     writer.beginArray();
     try {
       writer.value(Float.valueOf(Float.NaN));
@@ -280,6 +282,7 @@ public final class JsonTreeWriterTest {
   public void testOverrides() {
     List<String> ignoredMethods = Arrays.asList(
         "setLenient(boolean)", "isLenient()",
+        "setStrictness(com.google.gson.Strictness)", "getStrictness()",
         "setIndent(java.lang.String)",
         "setHtmlSafe(boolean)", "isHtmlSafe()",
         "setFormattingStyle(com.google.gson.FormattingStyle)", "getFormattingStyle()",
