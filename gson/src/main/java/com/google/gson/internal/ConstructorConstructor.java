@@ -76,14 +76,15 @@ public final class ConstructorConstructor {
     if (Modifier.isAbstract(modifiers)) {
       // R8 performs aggressive optimizations where it removes the default constructor of a class
       // and makes the class `abstract`; check for that here explicitly
-      if (c.getDeclaredConstructors().length == 0) {
-        return "Abstract classes can't be instantiated! Adjust the R8 configuration or register"
-            + " an InstanceCreator or a TypeAdapter for this type. Class name: " + c.getName()
-            + "\nSee " + TroubleshootingGuide.createUrl("r8-abstract-class");
-      }
-
-      return "Abstract classes can't be instantiated! Register an InstanceCreator"
-          + " or a TypeAdapter for this type. Class name: " + c.getName();
+      /*
+       * Note: Ideally should only show this R8-specific message when it is clear that R8 was
+       * used (e.g. when `c.getDeclaredConstructors().length == 0`), but on Android where this
+       * issue with R8 occurs most, R8 seems to keep some constructors for some reason while
+       * still making the class abstract
+       */
+      return "Abstract classes can't be instantiated! Adjust the R8 configuration or register"
+          + " an InstanceCreator or a TypeAdapter for this type. Class name: " + c.getName()
+          + "\nSee " + TroubleshootingGuide.createUrl("r8-abstract-class");
     }
     return null;
   }

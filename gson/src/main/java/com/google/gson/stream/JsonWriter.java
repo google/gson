@@ -271,7 +271,7 @@ public class JsonWriter implements Closeable, Flushable {
   /**
    * Sets the strictness of this writer.
    *
-   * @deprecated Please use {@link JsonWriter#setStrictness(Strictness)} instead.
+   * @deprecated Please use {@link #setStrictness(Strictness)} instead.
    * {@code JsonWriter.setLenient(true)} should be replaced by {@code JsonWriter.setStrictness(Strictness.LENIENT)}
    * and {@code JsonWriter.setLenient(false)} should be replaced by {@code JsonWriter.setStrictness(Strictness.LEGACY_STRICT)}.<br>
    * However, if you used {@code setLenient(false)} before, you might prefer {@link Strictness#STRICT} now instead.
@@ -320,7 +320,7 @@ public class JsonWriter implements Closeable, Flushable {
   }
 
   /**
-   * Returns how strict this writer is.
+   * Returns the {@linkplain Strictness strictness} of this writer.
    *
    * @see #setStrictness(Strictness)
    * @since $next-version$
