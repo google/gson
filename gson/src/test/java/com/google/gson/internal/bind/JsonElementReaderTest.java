@@ -22,6 +22,7 @@ import static org.junit.Assert.fail;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
+import com.google.gson.Strictness;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.MalformedJsonException;
 import java.io.IOException;
@@ -45,7 +46,7 @@ public final class JsonElementReaderTest {
   public void testLenientNansAndInfinities() throws IOException {
     JsonElement element = JsonParser.parseString("[NaN, -Infinity, Infinity]");
     JsonTreeReader reader = new JsonTreeReader(element);
-    reader.setLenient(true);
+    reader.setStrictness(Strictness.LENIENT);
     reader.beginArray();
     assertThat(Double.isNaN(reader.nextDouble())).isTrue();
     assertThat(reader.nextDouble()).isEqualTo(Double.NEGATIVE_INFINITY);
@@ -57,7 +58,7 @@ public final class JsonElementReaderTest {
   public void testStrictNansAndInfinities() throws IOException {
     JsonElement element = JsonParser.parseString("[NaN, -Infinity, Infinity]");
     JsonTreeReader reader = new JsonTreeReader(element);
-    reader.setLenient(false);
+    reader.setStrictness(Strictness.LEGACY_STRICT);
     reader.beginArray();
     try {
       reader.nextDouble();

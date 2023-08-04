@@ -16,7 +16,7 @@
 package com.google.gson;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import java.io.EOFException;
 import java.util.NoSuchElementException;
@@ -72,57 +72,34 @@ public class JsonStreamParserTest {
   public void testCallingNextBeyondAvailableInput() {
     JsonElement unused1 = parser.next();
     JsonElement unused2 = parser.next();
-    try {
-      parser.next();
-      fail("Parser should not go beyond available input");
-    } catch (NoSuchElementException expected) {
-    }
+    // Parser should not go beyond available input
+    assertThrows(NoSuchElementException.class, parser::next);
   }
 
   @Test
   public void testEmptyInput() {
     JsonStreamParser parser = new JsonStreamParser("");
-    try {
-      parser.next();
-      fail();
-    } catch (JsonIOException e) {
-      assertThat(e.getCause()).isInstanceOf(EOFException.class);
-    }
+    JsonIOException e = assertThrows(JsonIOException.class, parser::next);
+    assertThat(e).hasCauseThat().isInstanceOf(EOFException.class);
 
     parser = new JsonStreamParser("");
-    try {
-      parser.hasNext();
-      fail();
-    } catch (JsonIOException e) {
-      assertThat(e.getCause()).isInstanceOf(EOFException.class);
-    }
+    e = assertThrows(JsonIOException.class, parser::hasNext);
+    assertThat(e).hasCauseThat().isInstanceOf(EOFException.class);
   }
 
   @Test
   public void testIncompleteInput() {
     JsonStreamParser parser = new JsonStreamParser("[");
     assertThat(parser.hasNext()).isTrue();
-    try {
-      parser.next();
-      fail();
-    } catch (JsonSyntaxException e) {
-    }
+    assertThrows(JsonSyntaxException.class, parser::next);
   }
 
   @Test
   public void testMalformedInput() {
     JsonStreamParser parser = new JsonStreamParser(":");
-    try {
-      parser.hasNext();
-      fail();
-    } catch (JsonSyntaxException e) {
-    }
+    assertThrows(JsonSyntaxException.class, parser::hasNext);
 
     parser = new JsonStreamParser(":");
-    try {
-      parser.next();
-      fail();
-    } catch (JsonSyntaxException e) {
-    }
+    assertThrows(JsonSyntaxException.class, parser::next);
   }
 }
