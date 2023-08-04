@@ -60,11 +60,14 @@ public class ExposeFieldsTest {
     ClassWithExposedFields[] objects = { object1, object2, object3 };
 
     String json = gson.toJson(objects);
-    String expected = new StringBuilder()
-        .append('[').append(object1.getExpectedJson()).append(',')
-        .append(object2.getExpectedJson()).append(',')
-        .append(object3.getExpectedJson()).append(']')
-        .toString();
+    String expected =
+        '['
+            + object1.getExpectedJson()
+            + ','
+            + object2.getExpectedJson()
+            + ','
+            + object3.getExpectedJson()
+            + ']';
 
     assertThat(json).isEqualTo(expected);
   }

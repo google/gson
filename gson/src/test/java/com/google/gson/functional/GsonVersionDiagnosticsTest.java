@@ -53,8 +53,8 @@ public class GsonVersionDiagnosticsTest {
 
   @Test
   public void testVersionPattern() {
-    assertThat(GSON_VERSION_PATTERN.matcher("(GSON 2.8.5)").matches()).isTrue();
-    assertThat(GSON_VERSION_PATTERN.matcher("(GSON 2.8.5-SNAPSHOT)").matches()).isTrue();
+    assertThat("(GSON 2.8.5)").matches(GSON_VERSION_PATTERN);
+    assertThat("(GSON 2.8.5-SNAPSHOT)").matches(GSON_VERSION_PATTERN);
   }
 
   @Test
@@ -80,7 +80,7 @@ public class GsonVersionDiagnosticsTest {
     assertThat(end > 0 && end > start + 6).isTrue();
     String version = msg.substring(start, end);
     // System.err.println(version);
-    assertThat(GSON_VERSION_PATTERN.matcher(version).matches()).isTrue();
+    assertThat(version).matches(GSON_VERSION_PATTERN);
   }
 
   private static final class TestType {

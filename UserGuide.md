@@ -135,7 +135,7 @@ BagOfPrimitives obj = new BagOfPrimitives();
 Gson gson = new Gson();
 String json = gson.toJson(obj);
 
-// ==> json is {"value1":1,"value2":"abc"}
+// ==> {"value1":1,"value2":"abc"}
 ```
 
 Note that you can not serialize objects with circular references since that will result in infinite recursion.
@@ -222,7 +222,7 @@ Gson gson = new Gson();
 Collection<Integer> ints = Arrays.asList(1,2,3,4,5);
 
 // Serialization
-String json = gson.toJson(ints);  // ==> json is [1,2,3,4,5]
+String json = gson.toJson(ints);  // ==> [1,2,3,4,5]
 
 // Deserialization
 TypeToken<Collection<Integer>> collectionType = new TypeToken<Collection<Integer>>(){};
@@ -251,14 +251,14 @@ stringMap.put("key", "value");
 stringMap.put(null, "null-entry");
 
 // Serialization
-String json = gson.toJson(stringMap); // ==> json is {"key":"value","null":"null-entry"}
+String json = gson.toJson(stringMap); // ==> {"key":"value","null":"null-entry"}
 
 Map<Integer, Integer> intMap = new LinkedHashMap<>();
 intMap.put(2, 4);
 intMap.put(3, 6);
 
 // Serialization
-String json = gson.toJson(intMap); // ==> json is {"2":4,"3":6}
+String json = gson.toJson(intMap); // ==> {"2":4,"3":6}
 ```
 
 For deserialization Gson uses the `read` method of the `TypeAdapter` registered for the Map key type. Similar to the Collection example shown above, for deserialization a `TypeToken` has to be used to tell Gson what types the Map keys and values have:
@@ -297,12 +297,12 @@ complexMap.put(new PersonName("Jane", "Doe"), 35);
 
 // Serialization; complex map is serialized as a JSON array containing key-value pairs (as JSON arrays)
 String json = gson.toJson(complexMap);
-// ==> json is [[{"firstName":"John","lastName":"Doe"},30],[{"firstName":"Jane","lastName":"Doe"},35]]
+// ==> [[{"firstName":"John","lastName":"Doe"},30],[{"firstName":"Jane","lastName":"Doe"},35]]
 
 Map<String, String> stringMap = new LinkedHashMap<>();
 stringMap.put("key", "value");
 // Serialization; non-complex map is serialized as a regular JSON object
-String json = gson.toJson(stringMap); // json is {"key":"value"}
+String json = gson.toJson(stringMap); // ==> {"key":"value"}
 ```
 
 **Important:** Because Gson by default uses `toString()` to serialize Map keys, this can lead to malformed encoded keys or can cause mismatch between serialization and deserialization of the keys, for example when `toString()` is not properly implemented. A workaround for this can be to use `enableComplexMapKeySerialization()` to make sure the `TypeAdapter` registered for the Map key type is used for deserialization _and_ serialization. As shown in the example above, when none of the keys are serialized by the adapter as JSON array or JSON object, the Map is serialized as a regular JSON object, as desired.
@@ -651,7 +651,6 @@ public class SampleObjectForTest {
   @Foo private final int annotatedField;
   private final String stringField;
   private final long longField;
-  private final Class<?> clazzField;
 
   public SampleObjectForTest() {
     annotatedField = 5;

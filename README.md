@@ -55,11 +55,18 @@ When this module is present, Gson can use the `Unsafe` class to create instances
 However, care should be taken when relying on this. `Unsafe` is not available in all environments and its usage has some pitfalls,
 see [`GsonBuilder.disableJdkUnsafe()`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/GsonBuilder.html#disableJdkUnsafe()).
 
+#### Minimum Android API level
+
+- Gson 2.11.0 and newer: API level 21
+- Gson 2.10.1 and older: API level 19
+
+Older Gson versions may also support lower API levels, however this has not been verified.
+
 ### Documentation
   * [API Javadoc](https://www.javadoc.io/doc/com.google.code.gson/gson): Documentation for the current release
   * [User guide](UserGuide.md): This guide contains examples on how to use Gson in your code
   * [Troubleshooting guide](Troubleshooting.md): Describes how to solve common issues when using Gson
-  * [Change log](CHANGELOG.md): Changes in the recent versions
+  * [Releases and change log](https://github.com/google/gson/releases): Latest releases and changes in these versions; for older releases see [`CHANGELOG.md`](CHANGELOG.md)
   * [Design document](GsonDesignDocument.md): This document discusses issues we faced while designing Gson. It also includes a comparison of Gson with other Java libraries that can be used for Json conversion
 
 Please use the ['gson' tag on StackOverflow](https://stackoverflow.com/questions/tagged/gson) or the [google-gson Google group](https://groups.google.com/group/google-gson) to discuss Gson or to post questions.

@@ -14,7 +14,8 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
+    child.project.url.inherit.append.path="false">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.google.code.gson</groupId>
@@ -28,6 +29,7 @@
 
   <modules>
     <module>gson</module>
+    <module>shrinker-test</module>
     <module>extras</module>
     <module>metrics</module>
     <module>proto</module>
@@ -39,7 +41,9 @@
     <maven.compiler.testRelease>11</maven.compiler.testRelease>
   </properties>
 
-  <scm>
+  <!-- These attributes specify that the URLs should be inherited by the modules as is, to avoid constructing
+    invalid URLs, see also https://maven.apache.org/ref/3.9.1/maven-model-builder/index.html#inheritance-assembly -->
+  <scm child.scm.url.inherit.append.path="false" child.scm.connection.inherit.append.path="false" child.scm.developerConnection.inherit.append.path="false">
     <url>https://github.com/google/gson/</url>
     <connection>scm:git:https://github.com/google/gson.git</connection>
     <developerConnection>scm:git:git@github.com:google/gson.git</developerConnection>
@@ -80,29 +84,22 @@
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
         <version>4.13.2</version>
-        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.truth</groupId>
+        <artifactId>truth</artifactId>
+        <version>1.1.5</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
-
-  <dependencies>
-    <!-- Error Prone Annotations is only directly used by gson module, but since this is an optional
-      dependency and other modules depend on gson module they also need the dependency to avoid
-      compiler warnings, see also comments on https://bugs.openjdk.org/browse/JDK-6365854 -->
-    <dependency>
-      <groupId>com.google.errorprone</groupId>
-      <artifactId>error_prone_annotations</artifactId>
-      <version>2.18.0</version>
-      <optional>true</optional>
-    </dependency>
-  </dependencies>
 
   <build>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>3.2.1</version>
+        <version>3.3.0</version>
         <executions>
           <execution>
             <id>enforce-versions</id>
@@ -141,7 +138,10 @@
             <compilerArgs>
               <!-- Args related to Error Prone, see: https://errorprone.info/docs/installation#maven -->
               <arg>-XDcompilePolicy=simple</arg>
-              <arg>-Xplugin:ErrorProne -XepExcludedPaths:.*/generated-test-sources/protobuf/.*</arg>
+              <arg>-Xplugin:ErrorProne
+                -XepExcludedPaths:.*/generated-test-sources/protobuf/.*
+                -Xep:NotJavadoc:OFF <!-- Triggered by local class. -->
+              </arg>
               <!-- Enable all warnings, except for ones which cause issues when building with newer JDKs, see also
                 https://docs.oracle.com/en/java/javase/11/tools/javac.html -->
               <compilerArg>-Xlint:all,-options</compilerArg>
@@ -150,7 +150,7 @@
               <path>
                 <groupId>com.google.errorprone</groupId>
                 <artifactId>error_prone_core</artifactId>
-                <version>2.18.0</version>
+                <version>2.20.0</version>
               </path>
             </annotationProcessorPaths>
           </configuration>
@@ -191,17 +191,17 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-source-plugin</artifactId>
-          <version>3.2.1</version>
+          <version>3.3.0</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-gpg-plugin</artifactId>
-          <version>3.0.1</version>
+          <version>3.1.0</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-release-plugin</artifactId>
-          <version>3.0.0-M7</version>
+          <version>3.0.1</version>
           <configuration>
             <autoVersionSubmodules>true</autoVersionSubmodules>
             <!-- Disable Maven Super POM release profile and instead use own one -->
@@ -314,6 +314,33 @@
               <reportOnlyFilename>true</reportOnlyFilename>
             </parameter>
           </configuration>
+        </plugin>
+        <!-- Plugin for checking compatibility with Android API -->
+        <!-- Note: For now this is not part of a normal Maven build but instead executed only by a
+          GitHub workflow because the Animal Sniffer signature files use Java Serialization, so they
+          could in theory contain malicious data (in case we don't fully trust the author) -->
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>animal-sniffer-maven-plugin</artifactId>
+          <version>1.23</version>
+          <executions>
+            <execution>
+              <id>check-android-compatibility</id>
+              <goals>
+                <goal>check</goal>
+              </goals>
+              <configuration>
+                <signature>
+                  <!-- Note: In case Android compatibility impedes Gson development too much in the
+                    future, could consider switching to https://github.com/open-toast/gummy-bears
+                    which accounts for Android desugaring and might allow usage of more Java classes -->
+                  <groupId>net.sf.androidscents.signature</groupId>
+                  <artifactId>android-api-level-21</artifactId>
+                  <version>5.0.1_r2</version>
+                </signature>
+              </configuration>
+            </execution>
+          </executions>
         </plugin>
       </plugins>
     </pluginManagement>

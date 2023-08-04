@@ -62,7 +62,7 @@ public final class UtcDateTypeAdapter extends TypeAdapter<Date> {
   }
 
   // Date parsing code from Jackson databind ISO8601Utils.java
-  // https://github.com/FasterXML/jackson-databind/blob/master/src/main/java/com/fasterxml/jackson/databind/util/ISO8601Utils.java
+  // https://github.com/FasterXML/jackson-databind/blob/2.8/src/main/java/com/fasterxml/jackson/databind/util/ISO8601Utils.java
   private static final String GMT_ID = "GMT";
 
   /**

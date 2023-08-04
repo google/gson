@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.gson.internal.LinkedTreeMap;
 import java.util.Map;
 import java.util.Set;
@@ -77,6 +78,7 @@ public final class JsonObject extends JsonElement {
    *   member with this name exists.
    * @since 1.3
    */
+  @CanIgnoreReturnValue
   public JsonElement remove(String property) {
     return members.remove(property);
   }

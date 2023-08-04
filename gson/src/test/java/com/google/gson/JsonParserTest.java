@@ -17,7 +17,7 @@
 package com.google.gson;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.internal.Streams;
@@ -37,10 +37,7 @@ public class JsonParserTest {
 
   @Test
   public void testParseInvalidJson() {
-    try {
-      JsonParser.parseString("[[]");
-      fail();
-    } catch (JsonSyntaxException expected) { }
+    assertThrows(JsonSyntaxException.class, () -> JsonParser.parseString("[[]"));
   }
 
   @Test
@@ -81,11 +78,7 @@ public class JsonParserTest {
 
   @Test
   public void testParseUnquotedMultiWordStringFails() {
-    String unquotedSentence = "Test is a test..blah blah";
-    try {
-      JsonParser.parseString(unquotedSentence);
-      fail();
-    } catch (JsonSyntaxException expected) { }
+    assertThrows(JsonSyntaxException.class, () -> JsonParser.parseString("Test is a test..blah blah"));
   }
 
   @Test
@@ -170,12 +163,24 @@ public class JsonParserTest {
     CharArrayReader reader = new CharArrayReader(writer.toCharArray());
 
     JsonReader parser = new JsonReader(reader);
-    parser.setLenient(true);
+    parser.setStrictness(Strictness.LENIENT);
     JsonElement element1 = Streams.parse(parser);
     JsonElement element2 = Streams.parse(parser);
     BagOfPrimitives actualOne = gson.fromJson(element1, BagOfPrimitives.class);
     assertThat(actualOne.stringValue).isEqualTo("one");
     BagOfPrimitives actualTwo = gson.fromJson(element2, BagOfPrimitives.class);
     assertThat(actualTwo.stringValue).isEqualTo("two");
+  }
+
+  @Test
+  public void testStrict() {
+    JsonReader reader = new JsonReader(new StringReader("faLsE"));
+    Strictness strictness = Strictness.STRICT;
+    // Strictness is ignored by JsonParser later; always parses in lenient mode
+    reader.setStrictness(strictness);
+
+    assertThat(JsonParser.parseReader(reader)).isEqualTo(new JsonPrimitive(false));
+    // Original strictness was restored
+    assertThat(reader.getStrictness()).isEqualTo(strictness);
   }
 }

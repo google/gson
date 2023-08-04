@@ -17,7 +17,7 @@
 package com.google.gson;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.Gson.FutureTypeAdapter;
 import com.google.gson.internal.Excluder;
@@ -60,10 +60,15 @@ public final class GsonTest {
   private static final ToNumberStrategy CUSTOM_NUMBER_TO_NUMBER_STRATEGY = ToNumberPolicy.LAZILY_PARSED_NUMBER;
 
   @Test
+  public void testStrictnessDefault() {
+    assertThat(new Gson().strictness).isNull();
+  }
+
+  @Test
   public void testOverridesDefaultExcluder() {
     Gson gson = new Gson(CUSTOM_EXCLUDER, CUSTOM_FIELD_NAMING_STRATEGY,
         new HashMap<Type, InstanceCreator<?>>(), true, false, true, false,
-        FormattingStyle.DEFAULT, true, false, true,
+        FormattingStyle.PRETTY, Strictness.LENIENT, false, true,
         LongSerializationPolicy.DEFAULT, null, DateFormat.DEFAULT,
         DateFormat.DEFAULT, new ArrayList<TypeAdapterFactory>(),
         new ArrayList<TypeAdapterFactory>(), new ArrayList<TypeAdapterFactory>(),
@@ -80,7 +85,7 @@ public final class GsonTest {
   public void testClonedTypeAdapterFactoryListsAreIndependent() {
     Gson original = new Gson(CUSTOM_EXCLUDER, CUSTOM_FIELD_NAMING_STRATEGY,
         new HashMap<Type, InstanceCreator<?>>(), true, false, true, false,
-        FormattingStyle.DEFAULT, true, false, true,
+        FormattingStyle.PRETTY, Strictness.LENIENT, false, true,
         LongSerializationPolicy.DEFAULT, null, DateFormat.DEFAULT,
         DateFormat.DEFAULT, new ArrayList<TypeAdapterFactory>(),
         new ArrayList<TypeAdapterFactory>(), new ArrayList<TypeAdapterFactory>(),
@@ -104,12 +109,8 @@ public final class GsonTest {
   @Test
   public void testGetAdapter_Null() {
     Gson gson = new Gson();
-    try {
-      gson.getAdapter((TypeToken<?>) null);
-      fail();
-    } catch (NullPointerException e) {
-      assertThat(e).hasMessageThat().isEqualTo("type must not be null");
-    }
+    NullPointerException e = assertThrows(NullPointerException.class, () -> gson.getAdapter((TypeToken<?>) null));
+    assertThat(e).hasMessageThat().isEqualTo("type must not be null");
   }
 
   @Test
@@ -282,18 +283,15 @@ public final class GsonTest {
     jsonWriter.value(true);
     jsonWriter.endObject();
 
-    try {
-      // Additional top-level value
-      jsonWriter.value(1);
-      fail();
-    } catch (IllegalStateException expected) {
-      assertThat(expected).hasMessageThat().isEqualTo("JSON must have only one top-level value.");
-    }
+    // Additional top-level value
+    IllegalStateException e = assertThrows(IllegalStateException.class, () -> jsonWriter.value(1));
+    assertThat(e).hasMessageThat().isEqualTo("JSON must have only one top-level value.");
 
     jsonWriter.close();
     assertThat(writer.toString()).isEqualTo("{\"\\u003ctest2\":true}");
   }
 
+  @SuppressWarnings({"deprecation", "InlineMeInliner"}) // for GsonBuilder.setLenient
   @Test
   public void testNewJsonWriter_Custom() throws IOException {
     StringWriter writer = new StringWriter();
@@ -323,14 +321,11 @@ public final class GsonTest {
   public void testNewJsonReader_Default() throws IOException {
     String json = "test"; // String without quotes
     JsonReader jsonReader = new Gson().newJsonReader(new StringReader(json));
-    try {
-      jsonReader.nextString();
-      fail();
-    } catch (MalformedJsonException expected) {
-    }
+    assertThrows(MalformedJsonException.class, jsonReader::nextString);
     jsonReader.close();
   }
 
+  @SuppressWarnings({"deprecation", "InlineMeInliner"}) // for GsonBuilder.setLenient
   @Test
   public void testNewJsonReader_Custom() throws IOException {
     String json = "test"; // String without quotes
