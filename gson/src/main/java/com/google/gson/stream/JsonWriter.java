@@ -26,6 +26,8 @@ import static com.google.gson.stream.JsonScope.NONEMPTY_OBJECT;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.gson.FormattingStyle;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.Strictness;
 import java.io.Closeable;
 import java.io.Flushable;
@@ -64,14 +66,16 @@ import java.util.regex.Pattern;
  * <h2>Configuration</h2>
  * The behavior of this writer can be customized with the following methods:
  * <ul>
- *   <li>{@link #setFormattingStyle(FormattingStyle)}, by default a compact
- *       formatting style is used which does not write any whitespace
+ *   <li>{@link #setFormattingStyle(FormattingStyle)}, the default is {@link FormattingStyle#COMPACT}
  *   <li>{@link #setHtmlSafe(boolean)}, by default HTML characters are not escaped
  *       in the JSON output
- *   <li>{@link #setStrictness(Strictness)}, the default strictness is
- *       {@link Strictness#LEGACY_STRICT}
+ *   <li>{@link #setStrictness(Strictness)}, the default is {@link Strictness#LEGACY_STRICT}
  *   <li>{@link #setSerializeNulls(boolean)}, by default {@code null} is serialized
  * </ul>
+ *
+ * The default configuration of {@code JsonWriter} instances used internally by
+ * the {@link Gson} class differs, and can be adjusted with the various
+ * {@link GsonBuilder} methods.
  *
  * <h2>Example</h2>
  * Suppose we'd like to encode a stream of messages such as the following: <pre> {@code

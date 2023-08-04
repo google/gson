@@ -130,9 +130,10 @@ public abstract class TypeAdapter<T> {
 
   /**
    * Converts {@code value} to a JSON document and writes it to {@code out}.
-   * A {@link JsonWriter} with default configuration is used for writing the JSON
-   * data. To customize this behavior, create a {@link JsonWriter}, configure it
-   * and then use {@link #write(JsonWriter, Object)} instead.
+   *
+   * <p>A {@link JsonWriter} with default configuration is used for writing the
+   * JSON data. To customize this behavior, create a {@link JsonWriter}, configure
+   * it and then use {@link #write(JsonWriter, Object)} instead.
    *
    * @param value the Java object to convert. May be {@code null}.
    * @since 2.2
@@ -201,9 +202,10 @@ public abstract class TypeAdapter<T> {
 
   /**
    * Converts {@code value} to a JSON document.
-   * A {@link JsonWriter} with default configuration is used for writing the JSON
-   * data. To customize this behavior, create a {@link JsonWriter}, configure it
-   * and then use {@link #write(JsonWriter, Object)} instead.
+   *
+   * <p>A {@link JsonWriter} with default configuration is used for writing the
+   * JSON data. To customize this behavior, create a {@link JsonWriter}, configure
+   * it and then use {@link #write(JsonWriter, Object)} instead.
    *
    * @throws JsonIOException wrapping {@code IOException}s thrown by {@link #write(JsonWriter, Object)}
    * @param value the Java object to convert. May be {@code null}.
@@ -247,7 +249,8 @@ public abstract class TypeAdapter<T> {
 
   /**
    * Converts the JSON document in {@code in} to a Java object.
-   * A {@link JsonReader} with default configuration (that is with
+   *
+   * <p>A {@link JsonReader} with default configuration (that is with
    * {@link Strictness#LEGACY_STRICT} as strictness) is used for reading the JSON data.
    * To customize this behavior, create a {@link JsonReader}, configure it and then
    * use {@link #read(JsonReader)} instead.
@@ -265,7 +268,8 @@ public abstract class TypeAdapter<T> {
 
   /**
    * Converts the JSON document in {@code json} to a Java object.
-   * A {@link JsonReader} with default configuration (that is with
+   *
+   * <p>A {@link JsonReader} with default configuration (that is with
    * {@link Strictness#LEGACY_STRICT} as strictness) is used for reading the JSON data.
    * To customize this behavior, create a {@link JsonReader}, configure it and then
    * use {@link #read(JsonReader)} instead.
