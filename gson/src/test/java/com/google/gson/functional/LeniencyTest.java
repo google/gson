@@ -32,6 +32,7 @@ public class LeniencyTest {
 
   private Gson gson;
 
+  @SuppressWarnings({"deprecation", "InlineMeInliner"}) // for GsonBuilder.setLenient
   @Before
   public void setUp() throws Exception {
     gson = new GsonBuilder().setLenient().create();

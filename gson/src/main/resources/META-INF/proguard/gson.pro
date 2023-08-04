@@ -13,7 +13,7 @@
 
 # Keep Gson annotations
 # Note: Cannot perform finer selection here to only cover Gson annotations, see also https://stackoverflow.com/q/47515093
--keepattributes *Annotation*
+-keepattributes RuntimeVisibleAnnotations,AnnotationDefault
 
 
 ### The following rules are needed for R8 in "full mode" which only adheres to `-keepattribtues` if
@@ -24,10 +24,10 @@
 -keep class com.google.gson.reflect.TypeToken { *; }
 
 # Keep any (anonymous) classes extending TypeToken
--keep class * extends com.google.gson.reflect.TypeToken
+-keep,allowobfuscation class * extends com.google.gson.reflect.TypeToken
 
 # Keep classes with @JsonAdapter annotation
--keep @com.google.gson.annotations.JsonAdapter class *
+-keep,allowobfuscation,allowoptimization @com.google.gson.annotations.JsonAdapter class *
 
 # Keep fields with @SerializedName annotation, but allow obfuscation of their names
 -keepclassmembers,allowobfuscation class * {
@@ -35,7 +35,9 @@
 }
 
 # Keep fields with any other Gson annotation
--keepclassmembers class * {
+# Also allow obfuscation, assuming that users will additionally use @SerializedName or
+# other means to preserve the field names
+-keepclassmembers,allowobfuscation class * {
   @com.google.gson.annotations.Expose <fields>;
   @com.google.gson.annotations.JsonAdapter <fields>;
   @com.google.gson.annotations.Since <fields>;
@@ -44,15 +46,25 @@
 
 # Keep no-args constructor of classes which can be used with @JsonAdapter
 # By default their no-args constructor is invoked to create an adapter instance
--keep class * extends com.google.gson.TypeAdapter {
+-keepclassmembers class * extends com.google.gson.TypeAdapter {
   <init>();
 }
--keep class * implements com.google.gson.TypeAdapterFactory {
+-keepclassmembers class * implements com.google.gson.TypeAdapterFactory {
   <init>();
 }
--keep class * implements com.google.gson.JsonSerializer {
+-keepclassmembers class * implements com.google.gson.JsonSerializer {
   <init>();
 }
--keep class * implements com.google.gson.JsonDeserializer {
+-keepclassmembers class * implements com.google.gson.JsonDeserializer {
   <init>();
+}
+
+# If a class is used in some way by the application, and has fields annotated with @SerializedName
+# and a no-args constructor, keep those fields and the constructor
+# Based on https://issuetracker.google.com/issues/150189783#comment11
+# See also https://github.com/google/gson/pull/2420#discussion_r1241813541 for a more detailed explanation
+-if class *
+-keepclasseswithmembers,allowobfuscation,allowoptimization class <1> {
+  <init>();
+  @com.google.gson.annotations.SerializedName <fields>;
 }

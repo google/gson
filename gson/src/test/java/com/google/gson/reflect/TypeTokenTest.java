@@ -148,6 +148,9 @@ public final class TypeTokenTest {
     class LocalGenericClass<T> {}
     TypeToken<?> expectedLocalType = new TypeToken<LocalGenericClass<Integer>>() {};
     assertThat(TypeToken.getParameterized(LocalGenericClass.class, Integer.class)).isEqualTo(expectedLocalType);
+
+    // For legacy reasons, if requesting parameterized type for non-generic class, create a `TypeToken(Class)`
+    assertThat(TypeToken.getParameterized(String.class)).isEqualTo(TypeToken.get(String.class));
   }
 
   @Test
@@ -160,7 +163,7 @@ public final class TypeTokenTest {
     assertThat(e).hasMessageThat().isEqualTo("rawType must be of type Class, but was java.lang.String[]");
 
     e = assertThrows(IllegalArgumentException.class, () -> TypeToken.getParameterized(String.class, Number.class));
-    assertThat(e).hasMessageThat().isEqualTo("java.lang.String is not a generic type");
+    assertThat(e).hasMessageThat().isEqualTo("java.lang.String requires 0 type arguments, but got 1");
 
     e = assertThrows(IllegalArgumentException.class, () -> TypeToken.getParameterized(List.class, new Type[0]));
     assertThat(e).hasMessageThat().isEqualTo("java.util.List requires 1 type arguments, but got 0");

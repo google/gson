@@ -127,7 +127,7 @@ For example, let's assume you want to deserialize the following JSON data:
 }
 ```
 
-This will fail with an exception similar to this one: `MalformedJsonException: Use JsonReader.setLenient(true) to accept malformed JSON at line 5 column 4 path $.languages[2]`  
+This will fail with an exception similar to this one: `MalformedJsonException: Use JsonReader.setStrictness(Strictness.LENIENT) to accept malformed JSON at line 5 column 4 path $.languages[2]`  
 The problem here is the trailing comma (`,`) after `"French"`, trailing commas are not allowed by the JSON specification. The location information "line 5 column 4" points to the `]` in the JSON data (with some slight inaccuracies) because Gson expected another value after `,` instead of the closing `]`. The JSONPath `$.languages[2]` in the exception message also points there: `$.` refers to the root object, `languages` refers to its member of that name and `[2]` refers to the (missing) third value in the JSON array value of that member (numbering starts at 0, so it is `[2]` instead of `[3]`).  
 The proper solution here is to fix the malformed JSON data.
 
@@ -147,9 +147,12 @@ To spot syntax errors in the JSON data easily you can open it in an editor with 
 
 **Reason:** Due to legacy reasons Gson performs parsing by default in lenient mode
 
-**Solution:** See [`Gson` class documentation](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/Gson.html#default-lenient) section "Lenient JSON handling"
-
-Note: Even in non-lenient mode Gson deviates slightly from the JSON specification, see [`JsonReader.setLenient`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/stream/JsonReader.html#setLenient(boolean)) for more details.
+**Solution:** If you are using Gson 2.11.0 or newer, call [`GsonBuilder.setStrictness`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/GsonBuilder.html#setStrictness(com.google.gson.Strictness)),
+[`JsonReader.setStrictness`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/stream/JsonReader.html#setStrictness(com.google.gson.Strictness))
+and [`JsonWriter.setStrictness`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/stream/JsonWriter.html#setStrictness(com.google.gson.Strictness))
+with `Strictness.STRICT` to overwrite the default lenient behavior of `Gson` and make these classes strictly adhere to the JSON specification.
+Otherwise if you are using an older Gson version, see the [`Gson` class documentation](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/Gson.html#default-lenient)
+section "JSON Strictness handling" for alternative solutions.
 
 ## <a id="unexpected-json-structure"></a> `IllegalStateException`: "Expected ... but was ..."
 
@@ -313,6 +316,8 @@ Note: For newer Gson versions these rules might be applied automatically; make s
 
 **Symptom:** A `JsonIOException` with the message 'Abstract classes can't be instantiated!' is thrown; the class mentioned in the exception message is not actually `abstract` in your source code, and you are using the code shrinking tool R8 (Android app builds normally have this configured by default).
 
+Note: If the class which you are trying to deserialize is actually abstract, then this exception is probably unrelated to R8 and you will have to implement a custom [`InstanceCreator`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/InstanceCreator.html) or [`TypeAdapter`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/TypeAdapter.html) which creates an instance of a non-abstract subclass of the class.
+
 **Reason:** The code shrinking tool R8 performs optimizations where it removes the no-args constructor from a class and makes the class `abstract`. Due to this Gson cannot create an instance of the class.
 
 **Solution:** Make sure the class has a no-args constructor, then adjust your R8 configuration file to keep the constructor of the class. For example:
@@ -324,9 +329,13 @@ Note: For newer Gson versions these rules might be applied automatically; make s
 }
 ```
 
+You can also use `<init>(...);` to keep all constructors of that class, but then you might actually rely on `sun.misc.Unsafe` on both JDK and Android to create classes without no-args constructor, see [`GsonBuilder.disableJdkUnsafe()`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/GsonBuilder.html#disableJdkUnsafe()) for more information.
+
 For Android you can add this rule to the `proguard-rules.pro` file, see also the [Android documentation](https://developer.android.com/build/shrink-code#keep-code). In case the class name in the exception message is obfuscated, see the Android documentation about [retracing](https://developer.android.com/build/shrink-code#retracing).
 
-Note: If the class which you are trying to deserialize is actually abstract, then this exception is probably unrelated to R8 and you will have to implement a custom [`InstanceCreator`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/InstanceCreator.html) or [`TypeAdapter`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/TypeAdapter.html) which creates an instance of a non-abstract subclass of the class.
+For Android you can alternatively use the [`@Keep` annotation](https://developer.android.com/studio/write/annotations#keep) on the class or constructor you want to keep. That might be easier than having to maintain a custom R8 configuration.
+
+Note that the latest Gson versions (> 2.10.1) specify a default R8 configuration. If your class is a top-level class or is `static`, has a no-args constructor and its fields are annotated with Gson's [`@SerializedName`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/annotations/SerializedName.html), you might not have to perform any additional R8 configuration.
 
 ## <a id="typetoken-type-variable"></a> `IllegalArgumentException`: 'TypeToken type argument must not contain a type variable'
 

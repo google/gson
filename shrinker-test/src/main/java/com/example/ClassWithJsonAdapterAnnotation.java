@@ -23,6 +23,7 @@ import java.lang.reflect.Type;
  */
 public class ClassWithJsonAdapterAnnotation {
   // For this field don't use @SerializedName and ignore it for deserialization
+  // Has custom ProGuard rule to keep the field name
   @JsonAdapter(value = Adapter.class, nullSafe = false)
   DummyClass f;
 
