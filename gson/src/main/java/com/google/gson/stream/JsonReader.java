@@ -16,6 +16,8 @@
 
 package com.google.gson.stream;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.Strictness;
 import com.google.gson.internal.JsonReaderInternalAccess;
 import com.google.gson.internal.TroubleshootingGuide;
@@ -63,6 +65,16 @@ import java.util.Objects;
  * <p>If a value may be null, you should first check using {@link #peek()}.
  * Null literals can be consumed using either {@link #nextNull()} or {@link
  * #skipValue()}.
+ *
+ * <h2>Configuration</h2>
+ * The behavior of this reader can be customized with the following methods:
+ * <ul>
+ *   <li>{@link #setStrictness(Strictness)}, the default is {@link Strictness#LEGACY_STRICT}
+ * </ul>
+ *
+ * The default configuration of {@code JsonReader} instances used internally by
+ * the {@link Gson} class differs, and can be adjusted with the various
+ * {@link GsonBuilder} methods.
  *
  * <h2>Example</h2>
  * Suppose we'd like to parse a stream of messages such as the following: <pre> {@code
