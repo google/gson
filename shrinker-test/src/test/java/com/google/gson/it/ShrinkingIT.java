@@ -127,6 +127,14 @@ public class ShrinkingIT {
         "Read: SerializedName",
         "3",
         "===",
+        "Write: No default constructor",
+        "{",
+        "  \"myField\": 2",
+        "}",
+        "===",
+        "Read: No default constructor",
+        "3",
+        "===",
         "Read: No JDK Unsafe; initial constructor value",
         "-3",
         "===",
@@ -181,8 +189,8 @@ public class ShrinkingIT {
   }
 
   @Test
-  public void testDefaultConstructor() throws Exception {
-    runTest("com.example.DefaultConstructorMain", c -> {
+  public void testNoSerializedName_DefaultConstructor() throws Exception {
+    runTest("com.example.NoSerializedNameMain", c -> {
       Method m = c.getMethod("runTest");
 
       if (jarToTest.equals(PROGUARD_RESULT_PATH)) {
@@ -193,7 +201,7 @@ public class ShrinkingIT {
         Exception e = assertThrows(InvocationTargetException.class, () -> m.invoke(null));
         assertThat(e).hasCauseThat().hasMessageThat().isEqualTo(
             "Abstract classes can't be instantiated! Adjust the R8 configuration or register an InstanceCreator"
-            + " or a TypeAdapter for this type. Class name: com.example.DefaultConstructorMain$TestClass"
+            + " or a TypeAdapter for this type. Class name: com.example.NoSerializedNameMain$TestClass"
             + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#r8-abstract-class"
         );
       }
@@ -201,8 +209,8 @@ public class ShrinkingIT {
   }
 
   @Test
-  public void testDefaultConstructorNoJdkUnsafe() throws Exception {
-    runTest("com.example.DefaultConstructorMain", c -> {
+  public void testNoSerializedName_DefaultConstructorNoJdkUnsafe() throws Exception {
+    runTest("com.example.NoSerializedNameMain", c -> {
       Method m = c.getMethod("runTestNoJdkUnsafe");
 
       if (jarToTest.equals(PROGUARD_RESULT_PATH)) {
@@ -212,7 +220,7 @@ public class ShrinkingIT {
         // R8 performs more aggressive optimizations
         Exception e = assertThrows(InvocationTargetException.class, () -> m.invoke(null));
         assertThat(e).hasCauseThat().hasMessageThat().isEqualTo(
-            "Unable to create instance of class com.example.DefaultConstructorMain$TestClassNotAbstract;"
+            "Unable to create instance of class com.example.NoSerializedNameMain$TestClassNotAbstract;"
             + " usage of JDK Unsafe is disabled. Registering an InstanceCreator or a TypeAdapter for this type,"
             + " adding a no-args constructor, or enabling usage of JDK Unsafe may fix this problem. Or adjust"
             + " your R8 configuration to keep the no-args constructor of the class."
@@ -222,8 +230,8 @@ public class ShrinkingIT {
   }
 
   @Test
-  public void testNoDefaultConstructor() throws Exception {
-    runTest("com.example.DefaultConstructorMain", c -> {
+  public void testNoSerializedName_NoDefaultConstructor() throws Exception {
+    runTest("com.example.NoSerializedNameMain", c -> {
       Method m = c.getMethod("runTestNoDefaultConstructor");
 
       if (jarToTest.equals(PROGUARD_RESULT_PATH)) {
@@ -234,7 +242,7 @@ public class ShrinkingIT {
         Exception e = assertThrows(InvocationTargetException.class, () -> m.invoke(null));
         assertThat(e).hasCauseThat().hasMessageThat().isEqualTo(
             "Abstract classes can't be instantiated! Adjust the R8 configuration or register an InstanceCreator"
-            + " or a TypeAdapter for this type. Class name: com.example.DefaultConstructorMain$TestClassWithoutDefaultConstructor"
+            + " or a TypeAdapter for this type. Class name: com.example.NoSerializedNameMain$TestClassWithoutDefaultConstructor"
             + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#r8-abstract-class"
         );
       }

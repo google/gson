@@ -59,8 +59,9 @@
   <init>();
 }
 
-# If a class is used in some way by the application, and has fields annotated with @SerializedName
-# and a no-args constructor, keep those fields and the constructor
+# If a class is used in some way by the application and has fields annotated with @SerializedName,
+# keep those fields and the constructors of the class
+# For convenience this also matches classes without no-args constructor, in which case Gson uses JDK Unsafe
 # Based on https://issuetracker.google.com/issues/150189783#comment11
 # See also https://github.com/google/gson/pull/2420#discussion_r1241813541 for a more detailed explanation
 -if class *

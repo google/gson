@@ -15,7 +15,7 @@
 -keep class com.example.Main {
   public static void runTests(...);
 }
--keep class com.example.DefaultConstructorMain {
+-keep class com.example.NoSerializedNameMain {
   public static java.lang.String runTest();
   public static java.lang.String runTestNoJdkUnsafe();
   public static java.lang.String runTestNoDefaultConstructor();
@@ -36,13 +36,5 @@
   ** f;
 }
 -keepclassmembernames class com.example.ClassWithVersionAnnotations {
-  <fields>;
-}
-
-
--keepclassmembernames class com.example.DefaultConstructorMain$TestClass {
-  <fields>;
-}
--keepclassmembernames class com.example.DefaultConstructorMain$TestClassNotAbstract {
   <fields>;
 }
