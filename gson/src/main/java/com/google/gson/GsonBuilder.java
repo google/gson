@@ -21,14 +21,15 @@ import static com.google.gson.Gson.DEFAULT_DATE_PATTERN;
 import static com.google.gson.Gson.DEFAULT_ESCAPE_HTML;
 import static com.google.gson.Gson.DEFAULT_FORMATTING_STYLE;
 import static com.google.gson.Gson.DEFAULT_JSON_NON_EXECUTABLE;
-import static com.google.gson.Gson.DEFAULT_LENIENT;
 import static com.google.gson.Gson.DEFAULT_NUMBER_TO_NUMBER_STRATEGY;
 import static com.google.gson.Gson.DEFAULT_OBJECT_TO_NUMBER_STRATEGY;
 import static com.google.gson.Gson.DEFAULT_SERIALIZE_NULLS;
 import static com.google.gson.Gson.DEFAULT_SPECIALIZE_FLOAT_VALUES;
+import static com.google.gson.Gson.DEFAULT_STRICTNESS;
 import static com.google.gson.Gson.DEFAULT_USE_JDK_UNSAFE;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import com.google.errorprone.annotations.InlineMe;
 import com.google.gson.annotations.Since;
 import com.google.gson.annotations.Until;
 import com.google.gson.internal.$Gson$Preconditions;
@@ -71,12 +72,16 @@ import java.util.Objects;
  *     .create();
  * </pre>
  *
- * <p>NOTES:
+ * <p>Notes:
  * <ul>
- * <li> the order of invocation of configuration methods does not matter.</li>
- * <li> The default serialization of {@link Date} and its subclasses in Gson does
+ * <li>The order of invocation of configuration methods does not matter.</li>
+ * <li>The default serialization of {@link Date} and its subclasses in Gson does
  *  not contain time-zone information. So, if you are using date/time instances,
  *  use {@code GsonBuilder} and its {@code setDateFormat} methods.</li>
+ * <li>By default no explicit {@link Strictness} is set; some of the {@link Gson} methods
+ *  behave as if {@link Strictness#LEGACY_STRICT} was used whereas others behave as
+ *  if {@link Strictness#LENIENT} was used. Prefer explicitly setting a strictness
+ *  with {@link #setStrictness(Strictness)} to avoid this legacy behavior.
  * </ul>
  *
  * @author Inderjeet Singh
@@ -100,7 +105,7 @@ public final class GsonBuilder {
   private boolean escapeHtmlChars = DEFAULT_ESCAPE_HTML;
   private FormattingStyle formattingStyle = DEFAULT_FORMATTING_STYLE;
   private boolean generateNonExecutableJson = DEFAULT_JSON_NON_EXECUTABLE;
-  private boolean lenient = DEFAULT_LENIENT;
+  private Strictness strictness = DEFAULT_STRICTNESS;
   private boolean useJdkUnsafe = DEFAULT_USE_JDK_UNSAFE;
   private ToNumberStrategy objectToNumberStrategy = DEFAULT_OBJECT_TO_NUMBER_STRATEGY;
   private ToNumberStrategy numberToNumberStrategy = DEFAULT_NUMBER_TO_NUMBER_STRATEGY;
@@ -130,7 +135,7 @@ public final class GsonBuilder {
     this.generateNonExecutableJson = gson.generateNonExecutableJson;
     this.escapeHtmlChars = gson.htmlSafe;
     this.formattingStyle = gson.formattingStyle;
-    this.lenient = gson.lenient;
+    this.strictness = gson.strictness;
     this.serializeSpecialFloatingPointValues = gson.serializeSpecialFloatingPointValues;
     this.longSerializationPolicy = gson.longSerializationPolicy;
     this.datePattern = gson.datePattern;
@@ -521,18 +526,40 @@ public final class GsonBuilder {
   }
 
   /**
-   * Configures Gson to allow JSON data which does not strictly comply with the JSON specification.
+   * Sets the strictness of this builder to {@link Strictness#LENIENT}.
    *
-   * <p>Note: Due to legacy reasons most methods of Gson are always lenient, regardless of
-   * whether this builder method is used.
+   * @deprecated This method is equivalent to calling {@link #setStrictness(Strictness)} with
+   * {@link Strictness#LENIENT}: {@code setStrictness(Strictness.LENIENT)}
    *
-   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
-   * @see JsonReader#setLenient(boolean)
-   * @see JsonWriter#setLenient(boolean)
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern.
+   * @see JsonReader#setStrictness(Strictness)
+   * @see JsonWriter#setStrictness(Strictness)
+   * @see #setStrictness(Strictness)
    */
+  @Deprecated
+  @InlineMe(replacement = "this.setStrictness(Strictness.LENIENT)", imports = "com.google.gson.Strictness")
   @CanIgnoreReturnValue
   public GsonBuilder setLenient() {
-    lenient = true;
+    return setStrictness(Strictness.LENIENT);
+  }
+
+  /**
+   * Sets the strictness of this builder to the provided parameter.
+   *
+   * <p>This changes how strict the
+   * <a href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259 JSON specification</a> is enforced when parsing or
+   * writing JSON. For details on this, refer to {@link JsonReader#setStrictness(Strictness)} and
+   * {@link JsonWriter#setStrictness(Strictness)}.</p>
+   *
+   * @param strictness the new strictness mode. May not be {@code null}.
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern.
+   * @see JsonReader#setStrictness(Strictness)
+   * @see JsonWriter#setStrictness(Strictness)
+   * @since $next-version$
+   */
+  @CanIgnoreReturnValue
+  public GsonBuilder setStrictness(Strictness strictness) {
+    this.strictness = Objects.requireNonNull(strictness);
     return this;
   }
 
@@ -711,7 +738,7 @@ public final class GsonBuilder {
   }
 
   /**
-   * Section 2.4 of <a href="http://www.ietf.org/rfc/rfc4627.txt">JSON specification</a> disallows
+   * Section 6 of <a href="https://www.ietf.org/rfc/rfc8259.txt">JSON specification</a> disallows
    * special double values (NaN, Infinity, -Infinity). However,
    * <a href="http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-262.pdf">Javascript
    * specification</a> (see section 4.3.20, 4.3.22, 4.3.23) allows these values as valid Javascript
@@ -804,7 +831,7 @@ public final class GsonBuilder {
 
     return new Gson(excluder, fieldNamingPolicy, new HashMap<>(instanceCreators),
         serializeNulls, complexMapKeySerialization,
-        generateNonExecutableJson, escapeHtmlChars, formattingStyle, lenient,
+        generateNonExecutableJson, escapeHtmlChars, formattingStyle, strictness,
         serializeSpecialFloatingPointValues, useJdkUnsafe, longSerializationPolicy,
         datePattern, dateStyle, timeStyle, new ArrayList<>(this.factories),
         new ArrayList<>(this.hierarchyFactories), factories,
