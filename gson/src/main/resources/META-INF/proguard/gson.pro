@@ -15,24 +15,19 @@
 # Note: Cannot perform finer selection here to only cover Gson annotations, see also https://stackoverflow.com/q/47515093
 -keepattributes RuntimeVisibleAnnotations,AnnotationDefault
 
-
 ### The following rules are needed for R8 in "full mode" which only adheres to `-keepattribtues` if
 ### the corresponding class or field is matches by a `-keep` rule as well, see
 ### https://r8.googlesource.com/r8/+/refs/heads/main/compatibility-faq.md#r8-full-mode
 
-# Keep class TypeToken (respectively its generic signature)
--keep class com.google.gson.reflect.TypeToken { *; }
+# Keep class TypeToken (respectively its generic signature) if present
+-if class com.google.gson.reflect.TypeToken
+-keep,allowobfuscation class com.google.gson.reflect.TypeToken
 
 # Keep any (anonymous) classes extending TypeToken
 -keep,allowobfuscation class * extends com.google.gson.reflect.TypeToken
 
 # Keep classes with @JsonAdapter annotation
 -keep,allowobfuscation,allowoptimization @com.google.gson.annotations.JsonAdapter class *
-
-# Keep fields with @SerializedName annotation, but allow obfuscation of their names
--keepclassmembers,allowobfuscation class * {
-  @com.google.gson.annotations.SerializedName <fields>;
-}
 
 # Keep fields with any other Gson annotation
 # Also allow obfuscation, assuming that users will additionally use @SerializedName or
@@ -59,13 +54,16 @@
   <init>();
 }
 
-# If a class is used in some way by the application and has fields annotated with @SerializedName,
-# keep those fields and the constructors of the class
-# For convenience this also matches classes without no-args constructor, in which case Gson uses JDK Unsafe
-# Based on https://issuetracker.google.com/issues/150189783#comment11
-# See also https://github.com/google/gson/pull/2420#discussion_r1241813541 for a more detailed explanation
+# Keep fields annotated with @SerializedName for classes which are present.
+# If classes with fields annotated with @SerializedName have a no-args
+# constructor keep that as well.
 -if class *
--keepclasseswithmembers,allowobfuscation,allowoptimization class <1> {
-  <init>(...);
+-keepclasseswithmembers,allowobfuscation class <1> {
   @com.google.gson.annotations.SerializedName <fields>;
+}
+-if class * {
+  @com.google.gson.annotations.SerializedName <fields>;
+}
+-keepclassmembers,allowobfuscation class <1> {
+  <init>();
 }
