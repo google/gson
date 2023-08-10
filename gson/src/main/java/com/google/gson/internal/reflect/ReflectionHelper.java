@@ -33,7 +33,7 @@ public class ReflectionHelper {
     try {
       // Try to construct the RecordSupportedHelper, if this fails, records are not supported on this JVM.
       instance = new RecordSupportedHelper();
-    } catch (NoSuchMethodException e) {
+    } catch (ReflectiveOperationException e) {
       instance = new RecordNotSupportedHelper();
     }
     RECORD_HELPER = instance;
@@ -215,11 +215,10 @@ public class ReflectionHelper {
     private final Method getName;
     private final Method getType;
 
-    private RecordSupportedHelper() throws NoSuchMethodException {
+    private RecordSupportedHelper() throws NoSuchMethodException, ClassNotFoundException {
       isRecord = Class.class.getMethod("isRecord");
       getRecordComponents = Class.class.getMethod("getRecordComponents");
-      // Class java.lang.reflect.RecordComponent
-      Class<?> classRecordComponent = getRecordComponents.getReturnType().getComponentType();
+      Class<?> classRecordComponent = Class.forName("java.lang.reflect.RecordComponent");
       getName = classRecordComponent.getMethod("getName");
       getType = classRecordComponent.getMethod("getType");
     }
