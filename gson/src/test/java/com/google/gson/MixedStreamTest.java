@@ -81,6 +81,7 @@ public final class MixedStreamTest {
     jsonReader.endArray();
   }
 
+  @SuppressWarnings("deprecation") // for JsonReader.setLenient
   @Test
   public void testReaderDoesNotMutateState() throws IOException {
     Gson gson = new Gson();
@@ -96,6 +97,7 @@ public final class MixedStreamTest {
     assertThat(jsonReader.isLenient()).isTrue();
   }
 
+  @SuppressWarnings("deprecation") // for JsonWriter.setLenient
   @Test
   public void testWriteDoesNotMutateState() throws IOException {
     Gson gson = new Gson();

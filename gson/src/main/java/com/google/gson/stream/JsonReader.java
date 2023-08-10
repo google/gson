@@ -16,6 +16,9 @@
 
 package com.google.gson.stream;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.Strictness;
 import com.google.gson.internal.JsonReaderInternalAccess;
 import com.google.gson.internal.TroubleshootingGuide;
 import com.google.gson.internal.bind.JsonTreeReader;
@@ -27,7 +30,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 /**
- * Reads a JSON (<a href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>)
+ * Reads a JSON (<a href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>)
  * encoded value as a stream of tokens. This stream includes both literal
  * values (strings, numbers, booleans, and nulls) as well as the begin and
  * end delimiters of objects and arrays. The tokens are traversed in
@@ -62,6 +65,16 @@ import java.util.Objects;
  * <p>If a value may be null, you should first check using {@link #peek()}.
  * Null literals can be consumed using either {@link #nextNull()} or {@link
  * #skipValue()}.
+ *
+ * <h2>Configuration</h2>
+ * The behavior of this reader can be customized with the following methods:
+ * <ul>
+ *   <li>{@link #setStrictness(Strictness)}, the default is {@link Strictness#LEGACY_STRICT}
+ * </ul>
+ *
+ * The default configuration of {@code JsonReader} instances used internally by
+ * the {@link Gson} class differs, and can be adjusted with the various
+ * {@link GsonBuilder} methods.
  *
  * <h2>Example</h2>
  * Suppose we'd like to parse a stream of messages such as the following: <pre> {@code
@@ -181,7 +194,7 @@ import java.util.Objects;
  * <p>Prefixing JSON files with <code>")]}'\n"</code> makes them non-executable
  * by {@code <script>} tags, disarming the attack. Since the prefix is malformed
  * JSON, strict parsing fails when it is encountered. This class permits the
- * non-execute prefix when {@link #setLenient(boolean) lenient parsing} is
+ * non-execute prefix when {@linkplain #setStrictness(Strictness) lenient parsing} is
  * enabled.
  *
  * <p>Each {@code JsonReader} may be used to read a single JSON stream. Instances
@@ -227,8 +240,7 @@ public class JsonReader implements Closeable {
   /** The input JSON. */
   private final Reader in;
 
-  /** True to accept non-spec compliant JSON */
-  private boolean lenient = false;
+  private Strictness strictness = Strictness.LEGACY_STRICT;
 
   static final int BUFFER_SIZE = 1024;
   /**
@@ -293,55 +305,101 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Configure this parser to be liberal in what it accepts. By default,
-   * this parser is strict and only accepts JSON as specified by <a
-   * href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>. Setting the
-   * parser to lenient causes it to ignore the following syntax errors:
+   * Sets the strictness of this reader.
    *
-   * <ul>
-   *   <li>Streams that start with the <a href="#nonexecuteprefix">non-execute
-   *       prefix</a>, <code>")]}'\n"</code>.
-   *   <li>Streams that include multiple top-level values. With strict parsing,
-   *       each stream must contain exactly one top-level value.
-   *   <li>Numbers may be {@link Double#isNaN() NaNs} or {@link
-   *       Double#isInfinite() infinities}.
-   *   <li>End of line comments starting with {@code //} or {@code #} and
-   *       ending with a newline character.
-   *   <li>C-style comments starting with {@code /*} and ending with
-   *       {@code *}{@code /}. Such comments may not be nested.
-   *   <li>Names that are unquoted or {@code 'single quoted'}.
-   *   <li>Strings that are unquoted or {@code 'single quoted'}.
-   *   <li>Array elements separated by {@code ;} instead of {@code ,}.
-   *   <li>Unnecessary array separators. These are interpreted as if null
-   *       was the omitted value.
-   *   <li>Names and values separated by {@code =} or {@code =>} instead of
-   *       {@code :}.
-   *   <li>Name/value pairs separated by {@code ;} instead of {@code ,}.
-   * </ul>
+   * @deprecated Please use {@link #setStrictness(Strictness)} instead.
+   * {@code JsonReader.setLenient(true)} should be replaced by {@code JsonReader.setStrictness(Strictness.LENIENT)}
+   * and {@code JsonReader.setLenient(false)} should be replaced by {@code JsonReader.setStrictness(Strictness.LEGACY_STRICT)}.<br>
+   * However, if you used {@code setLenient(false)} before, you might prefer {@link Strictness#STRICT} now instead.
    *
-   * <p>Note: Even in strict mode there are slight derivations from the JSON
-   * specification:
-   * <ul>
-   *   <li>JsonReader allows the literals {@code true}, {@code false} and {@code null}
-   *       to have any capitalization, for example {@code fAlSe}
-   *   <li>JsonReader supports the escape sequence {@code \'}, representing a {@code '}
-   *   <li>JsonReader supports the escape sequence <code>\<i>LF</i></code> (with {@code LF}
-   *       being the Unicode character U+000A), resulting in a {@code LF} within the
-   *       read JSON string
-   *   <li>JsonReader allows unescaped control characters (U+0000 through U+001F)
-   * </ul>
+   * @param lenient whether this reader should be lenient. If true, the strictness is set to {@link Strictness#LENIENT}.
+   *                If false, the strictness is set to {@link Strictness#LEGACY_STRICT}.
+   * @see #setStrictness(Strictness)
    */
+  @Deprecated
+  @SuppressWarnings("InlineMeSuggester") // Don't specify @InlineMe, so caller with `setLenient(false)` becomes aware of new Strictness.STRICT
   public final void setLenient(boolean lenient) {
-    this.lenient = lenient;
+    setStrictness(lenient ? Strictness.LENIENT : Strictness.LEGACY_STRICT);
   }
 
   /**
-   * Returns true if this parser is liberal in what it accepts.
+   * Returns true if the {@link Strictness} of this reader is equal to {@link Strictness#LENIENT}.
+   *
+   * @see #setStrictness(Strictness)
    */
   public final boolean isLenient() {
-    return lenient;
+    return strictness == Strictness.LENIENT;
   }
 
+  /**
+   * Configures how liberal this parser is in what it accepts.
+   *
+   * <p>In {@linkplain Strictness#STRICT strict} mode, the
+   * parser only accepts JSON in accordance with <a href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>.
+   * In {@linkplain Strictness#LEGACY_STRICT legacy strict} mode (the default), only JSON in accordance with the
+   * RFC 8259 is accepted, with a few exceptions denoted below for backwards compatibility reasons.
+   * In {@linkplain Strictness#LENIENT lenient} mode, all sort of non-spec compliant JSON is accepted (see below).</p>
+   *
+   * <dl>
+   *     <dt>{@link Strictness#STRICT}</dt>
+   *     <dd>
+   *         In strict mode, only input compliant with RFC 8259 is accepted.
+   *     </dd>
+   *     <dt>{@link Strictness#LEGACY_STRICT}</dt>
+   *     <dd>
+   *         In legacy strict mode, the following departures from RFC 8259 are accepted:
+   *         <ul>
+   *             <li>JsonReader allows the literals {@code true}, {@code false} and {@code null}
+   *                 to have any capitalization, for example {@code fAlSe} or {@code NULL}
+   *             <li>JsonReader supports the escape sequence {@code \'}, representing a {@code '} (single-quote)
+   *             <li>JsonReader supports the escape sequence <code>\<i>LF</i></code> (with {@code LF}
+   *                 being the Unicode character {@code U+000A}), resulting in a {@code LF} within the
+   *                 read JSON string
+   *             <li>JsonReader allows unescaped control characters ({@code U+0000} through {@code U+001F})
+   *         </ul>
+   *     </dd>
+   *     <dt>{@link Strictness#LENIENT}</dt>
+   *     <dd>
+   *         In lenient mode, all input that is accepted in legacy strict mode is accepted in addition to the following
+   *         departures from RFC 8259:
+   *         <ul>
+   *             <li>Streams that start with the <a href="#nonexecuteprefix">non-execute prefix</a>, {@code ")]}'\n"}
+   *             <li>Streams that include multiple top-level values. With legacy strict or strict parsing,
+   *                 each stream must contain exactly one top-level value.
+   *             <li>Numbers may be {@link Double#isNaN() NaNs} or {@link Double#isInfinite() infinities} represented by
+   *                 {@code NaN} and {@code (-)Infinity} respectively.
+   *             <li>End of line comments starting with {@code //} or {@code #} and ending with a newline character.
+   *             <li>C-style comments starting with {@code /*} and ending with
+   *                 {@code *}{@code /}. Such comments may not be nested.
+   *             <li>Names that are unquoted or {@code 'single quoted'}.
+   *             <li>Strings that are unquoted or {@code 'single quoted'}.
+   *             <li>Array elements separated by {@code ;} instead of {@code ,}.
+   *             <li>Unnecessary array separators. These are interpreted as if null
+   *                 was the omitted value.
+   *             <li>Names and values separated by {@code =} or {@code =>} instead of
+   *                 {@code :}.
+   *             <li>Name/value pairs separated by {@code ;} instead of {@code ,}.
+   *         </ul>
+   *     </dd>
+   * </dl>
+   *
+   * @param strictness the new strictness value of this reader. May not be {@code null}.
+   * @since $next-version$
+   */
+  public final void setStrictness(Strictness strictness) {
+    Objects.requireNonNull(strictness);
+    this.strictness = strictness;
+  }
+
+  /**
+   * Returns the {@linkplain Strictness strictness} of this reader.
+   *
+   * @see #setStrictness(Strictness)
+   * @since $next-version$
+   */
+  public final Strictness getStrictness() {
+    return strictness;
+  }
   /**
    * Consumes the next token from the JSON stream and asserts that it is the
    * beginning of a new array.
@@ -540,7 +598,7 @@ public class JsonReader implements Closeable {
         throw syntaxError("Expected ':'");
       }
     } else if (peekStack == JsonScope.EMPTY_DOCUMENT) {
-      if (lenient) {
+      if (strictness == Strictness.LENIENT) {
         consumeNonExecutePrefix();
       }
       stack[stackSize - 1] = JsonScope.NONEMPTY_DOCUMENT;
@@ -610,6 +668,8 @@ public class JsonReader implements Closeable {
     String keyword;
     String keywordUpper;
     int peeking;
+
+    // Look at the first letter to determine what keyword we are trying to match.
     if (c == 't' || c == 'T') {
       keyword = "true";
       keywordUpper = "TRUE";
@@ -626,14 +686,18 @@ public class JsonReader implements Closeable {
       return PEEKED_NONE;
     }
 
-    // Confirm that chars [1..length) match the keyword.
+    // Upper cased keywords are not allowed in STRICT mode
+    boolean allowsUpperCased = strictness != Strictness.STRICT;
+
+    // Confirm that chars [0..length) match the keyword.
     int length = keyword.length();
-    for (int i = 1; i < length; i++) {
+    for (int i = 0; i < length; i++) {
       if (pos + i >= limit && !fillBuffer(i + 1)) {
         return PEEKED_NONE;
       }
       c = buffer[pos + i];
-      if (c != keyword.charAt(i) && c != keywordUpper.charAt(i)) {
+      boolean matched = c == keyword.charAt(i) || (allowsUpperCased && c == keywordUpper.charAt(i));
+      if (!matched) {
         return PEEKED_NONE;
       }
     }
@@ -894,7 +958,7 @@ public class JsonReader implements Closeable {
    * @throws NumberFormatException if the next literal value cannot be parsed
    *     as a double.
    * @throws MalformedJsonException if the next literal value is NaN or Infinity
-   *     and this reader is not {@link #setLenient(boolean) lenient}.
+   *     and this reader is not {@link #setStrictness(Strictness) lenient}.
    */
   public double nextDouble() throws IOException {
     int p = peeked;
@@ -921,7 +985,7 @@ public class JsonReader implements Closeable {
 
     peeked = PEEKED_BUFFERED;
     double result = Double.parseDouble(peekedString); // don't catch this NumberFormatException.
-    if (!lenient && (Double.isNaN(result) || Double.isInfinite(result))) {
+    if (strictness != Strictness.LENIENT && (Double.isNaN(result) || Double.isInfinite(result))) {
       throw syntaxError("JSON forbids NaN and infinities: " + result);
     }
     peekedString = null;
@@ -1007,7 +1071,10 @@ public class JsonReader implements Closeable {
       while (p < l) {
         int c = buffer[p++];
 
-        if (c == quote) {
+        // In strict mode, throw an exception when meeting unescaped control characters (U+0000 through U+001F)
+        if (strictness == Strictness.STRICT && c < 0x20) {
+          throw syntaxError("Unescaped control characters (\\u0000-\\u001F) are not allowed in strict mode");
+        } else if (c == quote) {
           pos = p;
           int len = p - start - 1;
           if (builder == null) {
@@ -1461,8 +1528,8 @@ public class JsonReader implements Closeable {
   }
 
   private void checkLenient() throws IOException {
-    if (!lenient) {
-      throw syntaxError("Use JsonReader.setLenient(true) to accept malformed JSON");
+    if (strictness != Strictness.LENIENT) {
+      throw syntaxError("Use JsonReader.setStrictness(Strictness.LENIENT) to accept malformed JSON");
     }
   }
 
@@ -1636,11 +1703,17 @@ public class JsonReader implements Closeable {
       return '\f';
 
     case '\n':
+      if (strictness == Strictness.STRICT) {
+        throw syntaxError("Cannot escape a newline character in strict mode");
+      }
       lineNumber++;
       lineStart = pos;
       // fall-through
 
     case '\'':
+      if (strictness == Strictness.STRICT) {
+        throw syntaxError("Invalid escaped character \"'\" in strict mode");
+      }
     case '"':
     case '\\':
     case '/':

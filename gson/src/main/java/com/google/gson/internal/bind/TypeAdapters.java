@@ -570,7 +570,11 @@ public final class TypeAdapters {
         return null;
       }
       // regrettably, this should have included both the host name and the host address
-      return InetAddress.getByName(in.nextString());
+      // For compatibility, we use InetAddress.getByName rather than the possibly-better
+      // .getAllByName
+      @SuppressWarnings("AddressSelection")
+      InetAddress addr = InetAddress.getByName(in.nextString());
+      return addr;
     }
     @Override
     public void write(JsonWriter out, InetAddress value) throws IOException {
