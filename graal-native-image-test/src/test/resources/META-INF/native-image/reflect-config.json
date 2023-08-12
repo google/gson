@@ -1,0 +1,101 @@
+[
+{
+  "name":"com.google.gson.native_test.ReflectionTest$ClassWithDefaultConstructor",
+  "allDeclaredFields":true,
+  "allDeclaredConstructors": true
+},
+{
+  "name":"com.google.gson.native_test.ReflectionTest$ClassWithCustomDefaultConstructor",
+  "allDeclaredFields":true,
+  "allDeclaredConstructors": true
+},
+{
+  "name":"com.google.gson.native_test.ReflectionTest$ClassWithoutDefaultConstructor",
+  "allDeclaredFields":true,
+  "allDeclaredConstructors": true
+},
+{
+  "name":"com.google.gson.native_test.ReflectionTest$ClassWithFinalField",
+  "allDeclaredFields":true,
+  "allDeclaredConstructors": true
+},
+{
+  "name":"com.google.gson.native_test.ReflectionTest$ClassWithSerializedName",
+  "allDeclaredFields":true,
+  "allDeclaredConstructors": true
+},
+{
+  "name":"com.google.gson.native_test.ReflectionTest$ClassWithCustomFieldAdapter",
+  "allDeclaredFields":true,
+  "allDeclaredConstructors": true
+},
+
+{
+  "name":"com.google.gson.native_test.ReflectionTest$ClassWithCustomClassAdapter$CustomAdapter",
+  "allDeclaredConstructors": true
+},
+{
+  "name":"com.google.gson.native_test.ReflectionTest$ClassWithCustomFieldAdapter$CustomAdapter",
+  "allDeclaredConstructors": true
+},
+
+
+
+{
+  "name":"com.google.gson.native_test.Java17RecordReflectionTest$PublicRecord",
+  "allDeclaredFields":true,
+  "allPublicMethods": true,
+  "allDeclaredConstructors": true
+},
+{
+  "name":"com.google.gson.native_test.Java17RecordReflectionTest$PrivateRecord",
+  "allDeclaredFields":true,
+  "allPublicMethods": true,
+  "allDeclaredConstructors": true
+},
+{
+  "name":"com.google.gson.native_test.Java17RecordReflectionTest$RecordWithSerializedName",
+  "allDeclaredFields":true,
+  "allPublicMethods": true,
+  "allDeclaredConstructors": true
+},
+{
+  "name":"com.google.gson.native_test.Java17RecordReflectionTest$RecordWithCustomConstructor",
+  "allDeclaredFields":true,
+  "allPublicMethods": true,
+  "allDeclaredConstructors": true
+},
+{
+  "name":"com.google.gson.native_test.Java17RecordReflectionTest$RecordWithCustomAccessor",
+  "allDeclaredFields":true,
+  "allPublicMethods": true,
+  "allDeclaredConstructors": true
+},
+{
+  "name":"com.google.gson.native_test.Java17RecordReflectionTest$RecordWithCustomFieldAdapter",
+  "allDeclaredFields":true,
+  "allPublicMethods": true,
+  "allDeclaredConstructors": true
+},
+{
+  "name":"com.google.gson.native_test.Java17RecordReflectionTest$1LocalRecordDeserialization",
+  "allDeclaredFields":true,
+  "allPublicMethods": true,
+  "allDeclaredConstructors": true
+},
+{
+  "name":"com.google.gson.native_test.Java17RecordReflectionTest$1LocalRecordSerialization",
+  "allDeclaredFields":true,
+  "allPublicMethods": true,
+  "allDeclaredConstructors": true
+},
+
+{
+  "name":"com.google.gson.native_test.Java17RecordReflectionTest$RecordWithCustomClassAdapter$CustomAdapter",
+  "allDeclaredConstructors": true
+},
+{
+  "name":"com.google.gson.native_test.Java17RecordReflectionTest$RecordWithCustomFieldAdapter$CustomAdapter",
+  "allDeclaredConstructors": true
+}
+]
