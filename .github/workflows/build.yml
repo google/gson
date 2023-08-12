@@ -23,4 +23,4 @@ jobs:
           cache: 'maven'
       - name: Build with Maven
         # This also runs javadoc:jar to detect any issues with the Javadoc generated during release
-        run: mvn --batch-mode --update-snapshots --no-transfer-progress verify javadoc:jar
+        run: ./mvnw --batch-mode --update-snapshots --no-transfer-progress verify javadoc:jar
