@@ -93,6 +93,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <executions>
+          <!-- Adjust standard `default-compile` execution -->
           <execution>
             <id>default-compile</id>
             <configuration>
@@ -102,6 +103,7 @@
               </excludes>
             </configuration>
           </execution>
+          <!-- Adjust standard `default-testCompile` execution -->
           <execution>
             <id>default-testCompile</id>
             <phase>test-compile</phase>
@@ -135,7 +137,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.1.2</version>
         <configuration>
           <!-- Deny illegal access, this is required for ReflectionAccessTest -->
           <!-- Requires Java >= 9; Important: In case future Java versions 
