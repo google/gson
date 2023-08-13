@@ -149,6 +149,9 @@
                 <goals>
                   <goal>test</goal>
                 </goals>
+                <configuration>
+                  <quickBuild>true</quickBuild>
+                </configuration>
               </execution>
             </executions>
             <dependencies>
