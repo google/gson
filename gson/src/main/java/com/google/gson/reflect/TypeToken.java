@@ -93,8 +93,7 @@ public class TypeToken<T> {
   }
 
   private static boolean isCapturingTypeVariablesForbidden() {
-    String value = System.getProperty("gson.allowCapturingTypeVariables");
-    return value == null || !value.equals("true");
+    return !Objects.equals(System.getProperty("gson.allowCapturingTypeVariables"), "true");
   }
 
   /**
