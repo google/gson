@@ -170,7 +170,7 @@
                 <artifactId>plexus-utils</artifactId>
                 <!-- Don't upgrade version to >= 4 because that seems to contain potentially backward
                   incompatible changes -->
-                <version>3.5.1</version>
+                <version>4.0.0</version>
               </dependency>
             </dependencies>
           </plugin>
