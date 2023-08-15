@@ -38,3 +38,5 @@
 -keepclassmembernames class com.example.ClassWithVersionAnnotations {
   <fields>;
 }
+
+-dontobfuscate

@@ -22,6 +22,7 @@
 # Keep class TypeToken (respectively its generic signature) if present
 -if class com.google.gson.reflect.TypeToken
 -keep,allowobfuscation class com.google.gson.reflect.TypeToken
+#-keep class com.google.gson.reflect.TypeToken { *; }
 
 # Keep any (anonymous) classes extending TypeToken
 -keep,allowobfuscation class * extends com.google.gson.reflect.TypeToken
@@ -54,9 +55,12 @@
   <init>();
 }
 
-# Keep fields annotated with @SerializedName for classes which are present.
+# Keep fields annotated with @SerializedName for classes which are referenced.
 # If classes with fields annotated with @SerializedName have a no-args
-# constructor keep that as well.
+# constructor keep that as well. Based on
+# https://issuetracker.google.com/issues/150189783#comment11.
+# See also https://github.com/google/gson/pull/2420#discussion_r1241813541
+# for a more detailed explanation.
 -if class *
 -keepclasseswithmembers,allowobfuscation class <1> {
   @com.google.gson.annotations.SerializedName <fields>;
@@ -64,6 +68,6 @@
 -if class * {
   @com.google.gson.annotations.SerializedName <fields>;
 }
--keepclassmembers,allowobfuscation class <1> {
+-keepclassmembers,allowobfuscation,allowoptimization class <1> {
   <init>();
 }
