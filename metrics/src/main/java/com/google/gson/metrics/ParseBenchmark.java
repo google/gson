@@ -351,7 +351,7 @@ public final class ParseBenchmark {
     @JsonProperty boolean geo_enabled;
     @JsonProperty boolean verified;
     @JsonProperty String profile_background_image_url;
-    @JsonProperty boolean defalut_profile_image;
+    @JsonProperty boolean default_profile_image;
     @JsonProperty int friends_count;
     @JsonProperty int statuses_count;
     @JsonProperty String screen_name;
