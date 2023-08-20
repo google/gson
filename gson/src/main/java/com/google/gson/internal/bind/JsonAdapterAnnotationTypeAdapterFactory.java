@@ -45,7 +45,13 @@ public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapte
    * Factory used for {@link TreeTypeAdapter}s created for {@code @JsonAdapter}
    * on a class.
    */
-  private static final TypeAdapterFactory TREE_TYPE_DUMMY_FACTORY = new DummyTypeAdapterFactory();
+  private static final TypeAdapterFactory TREE_TYPE_CLASS_DUMMY_FACTORY = new DummyTypeAdapterFactory();
+
+  /**
+   * Factory used for {@link TreeTypeAdapter}s created for {@code @JsonAdapter}
+   * on a field.
+   */
+  private static final TypeAdapterFactory TREE_TYPE_FIELD_DUMMY_FACTORY = new DummyTypeAdapterFactory();
 
   private final ConstructorConstructor constructorConstructor;
   /**
@@ -115,12 +121,17 @@ public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapte
           ? (JsonDeserializer<?>) instance
           : null;
 
-      TypeAdapterFactory skipPast = null;
+      TypeAdapterFactory skipPast;
       if (isClassAnnotation) {
-        // Use dummy `skipPast` value; otherwise TreeTypeAdapter's call to `Gson.getDelegateAdapter` would
-        // cause infinite recursion because it would keep returning adapter specified by @JsonAdapter
-        skipPast = TREE_TYPE_DUMMY_FACTORY;
+        // Use dummy `skipPast` value and put it into factory map; otherwise TreeTypeAdapter's call to
+        // `Gson.getDelegateAdapter` would cause infinite recursion because it would keep returning the
+        // adapter specified by @JsonAdapter
+        skipPast = TREE_TYPE_CLASS_DUMMY_FACTORY;
         adapterFactoryMap.put(type.getRawType(), skipPast);
+      } else {
+        // Use dummy `skipPast` value, but don't put it into factory map; this way `Gson.getDelegateAdapter`
+        // will return regular adapter for field type without actually skipping past any factory
+        skipPast = TREE_TYPE_FIELD_DUMMY_FACTORY;
       }
       @SuppressWarnings({ "unchecked", "rawtypes" })
       TypeAdapter<?> tempAdapter = new TreeTypeAdapter(serializer, deserializer, gson, type, skipPast, nullSafe);

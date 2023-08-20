@@ -642,33 +642,28 @@ public final class Gson {
    * types, our stats factory will not count the number of String or primitives that will be
    * read or written.
    *
-   * <p>If {@code skipPast} is {@code null} or a factory which has neither been registered
-   * on the {@link GsonBuilder} nor specified with the {@link JsonAdapter @JsonAdapter} annotation
-   * on a class, then this method behaves as if {@link #getAdapter(TypeToken)} had been called.
-   * This also means that for fields with {@code @JsonAdapter} annotation this method behaves
-   * normally like {@code getAdapter} (except for corner cases where a custom {@link InstanceCreator}
-   * is used to create an instance of the factory).
+   * <p>If {@code skipPast} is a factory which has neither been registered on the {@link GsonBuilder}
+   * nor specified with the {@link JsonAdapter @JsonAdapter} annotation on a class, then this
+   * method behaves as if {@link #getAdapter(TypeToken)} had been called. This also means that
+   * for fields with {@code @JsonAdapter} annotation this method behaves normally like {@code getAdapter}
+   * (except for corner cases where a custom {@link InstanceCreator} is used to create an
+   * instance of the factory).
    *
    * @param skipPast The type adapter factory that needs to be skipped while searching for
    *   a matching type adapter. In most cases, you should just pass <i>this</i> (the type adapter
-   *   factory from where {@code getDelegateAdapter} method is being invoked). May be {@code null}.
+   *   factory from where {@code getDelegateAdapter} method is being invoked).
    * @param type Type for which the delegate adapter is being searched for.
    *
    * @since 2.2
    */
   public <T> TypeAdapter<T> getDelegateAdapter(TypeAdapterFactory skipPast, TypeToken<T> type) {
+    Objects.requireNonNull(skipPast, "skipPast must not be null");
     Objects.requireNonNull(type, "type must not be null");
 
-    if (skipPast != null) {
-      if (jsonAdapterFactory.isClassJsonAdapterFactory(type.getRawType(), skipPast)) {
-        skipPast = jsonAdapterFactory;
-      } else if (!factories.contains(skipPast)) {
-        // Probably a factory from @JsonAdapter on a field
-        skipPast = null;
-      }
-    }
-
-    if (skipPast == null) {
+    if (jsonAdapterFactory.isClassJsonAdapterFactory(type.getRawType(), skipPast)) {
+      skipPast = jsonAdapterFactory;
+    } else if (!factories.contains(skipPast)) {
+      // Probably a factory from @JsonAdapter on a field
       return getAdapter(type);
     }
 

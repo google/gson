@@ -325,11 +325,11 @@ public final class GsonTest {
 
     TypeToken<?> type = TypeToken.get(Number.class);
 
+    assertThrows(NullPointerException.class, () -> gson.getDelegateAdapter(null, type));
+    assertThrows(NullPointerException.class, () -> gson.getDelegateAdapter(factory1, null));
+
     // For unknown factory the first adapter for that type should be returned
     assertThat(gson.getDelegateAdapter(new DummyFactory(new DummyAdapter(0)), type)).isEqualTo(adapter2);
-
-    // For null as 'skipPast' the first adapter for that type should be returned
-    assertThat(gson.getDelegateAdapter(null, type)).isEqualTo(adapter2);
 
     assertThat(gson.getDelegateAdapter(factory2, type)).isEqualTo(adapter1);
     // Default Gson adapter should be returned
