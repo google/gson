@@ -29,6 +29,7 @@
 
   <modules>
     <module>gson</module>
+    <module>graal-native-image-test</module>
     <module>shrinker-test</module>
     <module>extras</module>
     <module>metrics</module>
@@ -150,7 +151,7 @@
               <path>
                 <groupId>com.google.errorprone</groupId>
                 <artifactId>error_prone_core</artifactId>
-                <version>2.20.0</version>
+                <version>2.21.1</version>
               </path>
             </annotationProcessorPaths>
           </configuration>
@@ -185,8 +186,18 @@
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>3.1.2</version>
+          </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
           <version>3.3.0</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-install-plugin</artifactId>
+          <version>3.1.1</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -367,6 +378,7 @@
         </plugins>
       </build>
     </profile>
+
     <!-- Profile defining additional plugins to be executed for release -->
     <profile>
       <id>release</id>

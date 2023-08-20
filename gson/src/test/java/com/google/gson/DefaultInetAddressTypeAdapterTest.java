@@ -37,6 +37,7 @@ public class DefaultInetAddressTypeAdapterTest {
   
   @Test
   public void testInetAddressSerializationAndDeserialization() throws Exception {
+    @SuppressWarnings("AddressSelection") // we really do want this method
     InetAddress address = InetAddress.getByName("8.8.8.8");
     String jsonAddress = gson.toJson(address);
     assertThat(jsonAddress).isEqualTo("\"8.8.8.8\"");

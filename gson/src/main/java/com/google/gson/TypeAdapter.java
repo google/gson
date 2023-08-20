@@ -34,8 +34,7 @@ import java.io.Writer;
  * By default Gson converts application classes to JSON using its built-in type
  * adapters. If Gson's default JSON conversion isn't appropriate for a type,
  * extend this class to customize the conversion. Here's an example of a type
- * adapter for an (X,Y) coordinate point: <pre>   {@code
- *
+ * adapter for an (X,Y) coordinate point: <pre>{@code
  *   public class PointAdapter extends TypeAdapter<Point> {
  *     public Point read(JsonReader reader) throws IOException {
  *       if (reader.peek() == JsonToken.NULL) {
@@ -85,8 +84,7 @@ import java.io.Writer;
  * guarantees of {@link Gson} might not apply.
  *
  * <p>To use a custom type adapter with Gson, you must <i>register</i> it with a
- * {@link GsonBuilder}: <pre>   {@code
- *
+ * {@link GsonBuilder}: <pre>{@code
  *   GsonBuilder builder = new GsonBuilder();
  *   builder.registerTypeAdapter(Point.class, new PointAdapter());
  *   // if PointAdapter didn't check for nulls in its read/write methods, you should instead use
@@ -102,14 +100,12 @@ import java.io.Writer;
 // <h2>JSON Conversion</h2>
 // <p>A type adapter registered with Gson is automatically invoked while serializing
 // or deserializing JSON. However, you can also use type adapters directly to serialize
-// and deserialize JSON. Here is an example for deserialization: <pre>   {@code
-//
+// and deserialize JSON. Here is an example for deserialization: <pre>{@code
 //   String json = "{'origin':'0,0','points':['1,2','3,4']}";
 //   TypeAdapter<Graph> graphAdapter = gson.getAdapter(Graph.class);
 //   Graph graph = graphAdapter.fromJson(json);
 // }</pre>
-// And an example for serialization: <pre>   {@code
-//
+// And an example for serialization: <pre>{@code
 //   Graph graph = new Graph(...);
 //   TypeAdapter<Graph> graphAdapter = gson.getAdapter(Graph.class);
 //   String json = graphAdapter.toJson(graph);
@@ -134,12 +130,12 @@ public abstract class TypeAdapter<T> {
 
   /**
    * Converts {@code value} to a JSON document and writes it to {@code out}.
-   * The strictness {@link Strictness#LEGACY_STRICT} is used for writing the JSON data.
-   * To use a different strictness setting create a {@link JsonWriter}, call its
-   * {@link JsonWriter#setStrictness(Strictness)} method and then use
-   * {@link #write(JsonWriter, Object)} for writing.
    *
-   * @param value the Java object to convert. May be null.
+   * <p>A {@link JsonWriter} with default configuration is used for writing the
+   * JSON data. To customize this behavior, create a {@link JsonWriter}, configure
+   * it and then use {@link #write(JsonWriter, Object)} instead.
+   *
+   * @param value the Java object to convert. May be {@code null}.
    * @since 2.2
    */
   public final void toJson(Writer out, T value) throws IOException {
@@ -151,8 +147,7 @@ public abstract class TypeAdapter<T> {
    * This wrapper method is used to make a type adapter null tolerant. In general, a
    * type adapter is required to handle nulls in write and read methods. Here is how this
    * is typically done:<br>
-   * <pre>   {@code
-   *
+   * <pre>{@code
    * Gson gson = new GsonBuilder().registerTypeAdapter(Foo.class,
    *   new TypeAdapter<Foo>() {
    *     public Foo read(JsonReader in) throws IOException {
@@ -173,8 +168,7 @@ public abstract class TypeAdapter<T> {
    * }</pre>
    * You can avoid this boilerplate handling of nulls by wrapping your type adapter with
    * this method. Here is how we will rewrite the above example:
-   * <pre>   {@code
-   *
+   * <pre>{@code
    * Gson gson = new GsonBuilder().registerTypeAdapter(Foo.class,
    *   new TypeAdapter<Foo>() {
    *     public Foo read(JsonReader in) throws IOException {
@@ -208,13 +202,13 @@ public abstract class TypeAdapter<T> {
 
   /**
    * Converts {@code value} to a JSON document.
-   * The strictness {@link Strictness#LEGACY_STRICT} is used for writing the JSON data.
-   * To use a different strictness setting create a {@link JsonWriter}, call its
-   * {@link JsonWriter#setStrictness(Strictness)} method and then use
-   * {@link #write(JsonWriter, Object)} for writing.
+   *
+   * <p>A {@link JsonWriter} with default configuration is used for writing the
+   * JSON data. To customize this behavior, create a {@link JsonWriter}, configure
+   * it and then use {@link #write(JsonWriter, Object)} instead.
    *
    * @throws JsonIOException wrapping {@code IOException}s thrown by {@link #write(JsonWriter, Object)}
-   * @param value the Java object to convert. May be null.
+   * @param value the Java object to convert. May be {@code null}.
    * @since 2.2
    */
   public final String toJson(T value) {
@@ -230,7 +224,7 @@ public abstract class TypeAdapter<T> {
   /**
    * Converts {@code value} to a JSON tree.
    *
-   * @param value the Java object to convert. May be null.
+   * @param value the Java object to convert. May be {@code null}.
    * @return the converted JSON tree. May be {@link JsonNull}.
    * @throws JsonIOException wrapping {@code IOException}s thrown by {@link #write(JsonWriter, Object)}
    * @since 2.2
@@ -249,20 +243,22 @@ public abstract class TypeAdapter<T> {
    * Reads one JSON value (an array, object, string, number, boolean or null)
    * and converts it to a Java object. Returns the converted object.
    *
-   * @return the converted Java object. May be null.
+   * @return the converted Java object. May be {@code null}.
    */
   public abstract T read(JsonReader in) throws IOException;
 
   /**
-   * Converts the JSON document in {@code in} to a Java object. The strictness
-   * {@link Strictness#LEGACY_STRICT} is used for reading the JSON data. To use a different
-   * strictness setting create a {@link JsonReader}, call its {@link JsonReader#setStrictness(Strictness)}
-   * method and then use {@link #read(JsonReader)} for reading.
+   * Converts the JSON document in {@code in} to a Java object.
+   *
+   * <p>A {@link JsonReader} with default configuration (that is with
+   * {@link Strictness#LEGACY_STRICT} as strictness) is used for reading the JSON data.
+   * To customize this behavior, create a {@link JsonReader}, configure it and then
+   * use {@link #read(JsonReader)} instead.
    *
    * <p>No exception is thrown if the JSON data has multiple top-level JSON elements,
    * or if there is trailing data.
    *
-   * @return the converted Java object. May be null.
+   * @return the converted Java object. May be {@code null}.
    * @since 2.2
    */
   public final T fromJson(Reader in) throws IOException {
@@ -271,15 +267,17 @@ public abstract class TypeAdapter<T> {
   }
 
   /**
-   * Converts the JSON document in {@code json} to a Java object. The strictness
-   * {@link Strictness#LEGACY_STRICT} is used for reading the JSON data. To use a different
-   * strictness setting create a {@link JsonReader}, call its {@link JsonReader#setStrictness(Strictness)}
-   * method and then use {@link #read(JsonReader)} for reading.
+   * Converts the JSON document in {@code json} to a Java object.
+   *
+   * <p>A {@link JsonReader} with default configuration (that is with
+   * {@link Strictness#LEGACY_STRICT} as strictness) is used for reading the JSON data.
+   * To customize this behavior, create a {@link JsonReader}, configure it and then
+   * use {@link #read(JsonReader)} instead.
    *
    * <p>No exception is thrown if the JSON data has multiple top-level JSON elements,
    * or if there is trailing data.
    *
-   * @return the converted Java object. May be null.
+   * @return the converted Java object. May be {@code null}.
    * @since 2.2
    */
   public final T fromJson(String json) throws IOException {
@@ -290,7 +288,7 @@ public abstract class TypeAdapter<T> {
    * Converts {@code jsonTree} to a Java object.
    *
    * @param jsonTree the JSON element to convert. May be {@link JsonNull}.
-   * @return the converted Java object. May be null.
+   * @return the converted Java object. May be {@code null}.
    * @throws JsonIOException wrapping {@code IOException}s thrown by {@link #read(JsonReader)}
    * @since 2.2
    */
