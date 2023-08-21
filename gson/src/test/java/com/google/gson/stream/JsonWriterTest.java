@@ -981,9 +981,9 @@ public final class JsonWriterTest {
   }
 
   /**
-   * This method wites a json object and return the jsonwriter object
+   * This method wites a json object and return a jsonwriter object
    * that we can use for the testing purpose
-   * @return JsonWriter Object that has written as json with nesetd object and an array
+   * @return JsonWriter Object with nested object and an array
    */
   private JsonWriter getJsonWriterWithObjects() throws IOException {
     StringWriter stringWriter = new StringWriter();
