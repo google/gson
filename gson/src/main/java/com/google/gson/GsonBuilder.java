@@ -668,10 +668,11 @@ public final class GsonBuilder {
   @CanIgnoreReturnValue
   public GsonBuilder registerTypeAdapter(Type type, Object typeAdapter) {
     Objects.requireNonNull(type);
-    $Gson$Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
+    $Gson$Preconditions.checkArgument((typeAdapter instanceof JsonSerializer<?>
         || typeAdapter instanceof JsonDeserializer<?>
         || typeAdapter instanceof InstanceCreator<?>
-        || typeAdapter instanceof TypeAdapter<?>);
+        || typeAdapter instanceof TypeAdapter<?>)
+        && !isTypeObjectOrJsonElements(type));
     if (typeAdapter instanceof InstanceCreator<?>) {
       instanceCreators.put(type, (InstanceCreator<?>) typeAdapter);
     }
@@ -685,6 +686,11 @@ public final class GsonBuilder {
       factories.add(factory);
     }
     return this;
+  }
+
+  private boolean isTypeObjectOrJsonElements(Type type) {
+    return (type == Object.class
+            || JsonElement.class.isAssignableFrom((Class<?>) type));
   }
 
   /**
@@ -723,9 +729,10 @@ public final class GsonBuilder {
   @CanIgnoreReturnValue
   public GsonBuilder registerTypeHierarchyAdapter(Class<?> baseType, Object typeAdapter) {
     Objects.requireNonNull(baseType);
-    $Gson$Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
+    $Gson$Preconditions.checkArgument((typeAdapter instanceof JsonSerializer<?>
         || typeAdapter instanceof JsonDeserializer<?>
-        || typeAdapter instanceof TypeAdapter<?>);
+        || typeAdapter instanceof TypeAdapter<?>)
+        && !JsonElement.class.isAssignableFrom(baseType));
     if (typeAdapter instanceof JsonDeserializer || typeAdapter instanceof JsonSerializer) {
       hierarchyFactories.add(TreeTypeAdapter.newTypeHierarchyFactory(baseType, typeAdapter));
     }

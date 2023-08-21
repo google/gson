@@ -17,6 +17,7 @@
 package com.google.gson;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 
 import com.google.gson.stream.JsonReader;
@@ -183,7 +184,8 @@ public class GsonBuilderTest {
         String.class,
     };
     for (Type type : types) {
-      new GsonBuilder().registerTypeAdapter(type, NULL_TYPE_ADAPTER);
+      GsonBuilder gsonBuilder = new GsonBuilder();
+      assertThat(gsonBuilder.registerTypeAdapter(type, NULL_TYPE_ADAPTER)).isEqualTo(gsonBuilder);
     }
   }
 
@@ -253,5 +255,33 @@ public class GsonBuilderTest {
     Gson gson = builder.create();
     assertThat(gson.newJsonReader(new StringReader("{}")).getStrictness()).isEqualTo(STRICTNESS);
     assertThat(gson.newJsonWriter(new StringWriter()).getStrictness()).isEqualTo(STRICTNESS);
+  }
+
+  @Test
+  public void testRegisterTypeAdapterForObjectAndJsonElements() {
+    Type[] types = {
+            Object.class,
+            JsonElement.class,
+            JsonArray.class,
+    };
+    GsonBuilder gsonBuilder = new GsonBuilder();
+    for (Type type : types) {
+      assertThrows(IllegalArgumentException.class, () ->  gsonBuilder.registerTypeAdapter(type, NULL_TYPE_ADAPTER));
+    }
+  }
+
+
+  @Test
+  public void testRegisterTypeHierarchyAdapterJsonElements() {
+    Type[] types = {
+            JsonElement.class,
+            JsonArray.class,
+    };
+    GsonBuilder gsonBuilder = new GsonBuilder();
+    for (Type type : types) {
+      assertThrows(IllegalArgumentException.class,
+              () ->  gsonBuilder.registerTypeHierarchyAdapter((Class<?>) type, NULL_TYPE_ADAPTER));
+    }
+    assertThat(gsonBuilder.registerTypeHierarchyAdapter(Object.class, NULL_TYPE_ADAPTER)).isEqualTo(gsonBuilder);
   }
 }
