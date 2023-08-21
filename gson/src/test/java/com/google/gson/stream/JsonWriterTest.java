@@ -117,35 +117,16 @@ public final class JsonWriterTest {
     StringWriter stringWriter = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
     assertThrows(IllegalStateException.class, () -> jsonWriter.name("hello"));
-    //removed nested exception test on jsonwriter.writevalue as it seems currently valid case per code
   }
 
   @Test
   public void closeAllObjectsAndTryToAddElements() throws IOException {
-    StringWriter stringWriter = new StringWriter();
-    JsonWriter jsonWriter = new JsonWriter(stringWriter);
-    jsonWriter.beginObject();
-    jsonWriter.name("a").value(20);
-    jsonWriter.name("age").value(30);
-
-    // Start the nested "address" object
-    jsonWriter.name("address").beginObject();
-    jsonWriter.name("city").value("New York");
-    jsonWriter.name("country").value("USA");
-    jsonWriter.endObject(); // End the nested "address" object
-    jsonWriter.name("random_prop").value(78);
-    // Add an array of phone numbers (list of numbers)
-    List<Integer> phoneNumbers = Arrays.asList(1234567890, 98989, 9909);
-    jsonWriter.name("phoneNumbers").beginArray();
-    for (Integer phoneNumber : phoneNumbers) {
-      jsonWriter.value(phoneNumber);
-    }
-    jsonWriter.endArray(); // End the array
-    jsonWriter.endObject(); // End the outer object
-    assertThrows(IllegalStateException.class, () -> jsonWriter.name("this_throw_exception_as_all_objects_are_closed"));
-    assertThrows(IllegalStateException.class, () -> jsonWriter.value("this_throw_exception_as_only_one_top_level_entry"));
-    jsonWriter.close();
-
+    JsonWriter jsonWriterForNameAddition = getJsonWriterWithObjects();
+    assertThrows(IllegalStateException.class, () -> jsonWriterForNameAddition.name("this_throw_exception_as_all_objects_are_closed"));
+    jsonWriterForNameAddition.close();
+    JsonWriter jsonWriterForValueAddition = getJsonWriterWithObjects();
+    assertThrows(IllegalStateException.class, () -> jsonWriterForValueAddition.value("this_throw_exception_as_only_one_top_level_entry"));
+    jsonWriterForValueAddition.close();
   }
 
   @Test
@@ -997,5 +978,34 @@ public final class JsonWriterTest {
         + "  ]\n"
         + "}";
     assertThat(stringWriter.toString()).isEqualTo(expected);
+  }
+
+  /**
+   * This method wites a json object and return the jsonwriter object
+   * that we can use for the testing purpose
+   * @return JsonWriter Object that has written as json with nesetd object and an array
+   */
+  private JsonWriter getJsonWriterWithObjects() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter jsonWriter = new JsonWriter(stringWriter);
+    jsonWriter.beginObject();
+    jsonWriter.name("a").value(20);
+    jsonWriter.name("age").value(30);
+
+    // Start the nested "address" object
+    jsonWriter.name("address").beginObject();
+    jsonWriter.name("city").value("New York");
+    jsonWriter.name("country").value("USA");
+    jsonWriter.endObject(); // End the nested "address" object
+    jsonWriter.name("random_prop").value(78);
+    // Add an array of phone numbers (list of numbers)
+    List<Integer> phoneNumbers = Arrays.asList(1234567890, 98989, 9909);
+    jsonWriter.name("phoneNumbers").beginArray();
+    for (Integer phoneNumber : phoneNumbers) {
+      jsonWriter.value(phoneNumber);
+    }
+    jsonWriter.endArray(); // End the array
+    jsonWriter.endObject(); // End the outer object
+    return jsonWriter;
   }
 }
