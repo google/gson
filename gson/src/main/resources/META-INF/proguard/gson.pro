@@ -22,7 +22,6 @@
 # Keep class TypeToken (respectively its generic signature) if present
 -if class com.google.gson.reflect.TypeToken
 -keep,allowobfuscation class com.google.gson.reflect.TypeToken
-#-keep class com.google.gson.reflect.TypeToken { *; }
 
 # Keep any (anonymous) classes extending TypeToken
 -keep,allowobfuscation class * extends com.google.gson.reflect.TypeToken
