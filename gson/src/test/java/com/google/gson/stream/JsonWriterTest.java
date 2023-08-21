@@ -28,6 +28,8 @@ import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import org.junit.Test;
+import java.util.Arrays;
+import java.util.List;
 
 @SuppressWarnings("resource")
 public final class JsonWriterTest {
@@ -114,13 +116,36 @@ public final class JsonWriterTest {
   public void testInvalidTopLevelTypes() throws IOException {
     StringWriter stringWriter = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
-    jsonWriter.name("hello"); // TODO: This should throw, see https://github.com/google/gson/issues/2407
-    try {
-      jsonWriter.value("world");
-      fail();
-    } catch (IllegalStateException expected) {
-      assertThat(expected).hasMessageThat().isEqualTo("Nesting problem.");
+    assertThrows(IllegalStateException.class, () -> jsonWriter.name("hello"));
+    //removed nested exception test on jsonwriter.writevalue as it seems currently valid case per code
+  }
+
+  @Test
+  public void closeAllObjectsAndTryToAddElements() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter jsonWriter = new JsonWriter(stringWriter);
+    jsonWriter.beginObject();
+    jsonWriter.name("a").value(20);
+    jsonWriter.name("age").value(30);
+
+    // Start the nested "address" object
+    jsonWriter.name("address").beginObject();
+    jsonWriter.name("city").value("New York");
+    jsonWriter.name("country").value("USA");
+    jsonWriter.endObject(); // End the nested "address" object
+    jsonWriter.name("random_prop").value(78);
+    // Add an array of phone numbers (list of numbers)
+    List<Integer> phoneNumbers = Arrays.asList(1234567890, 98989, 9909);
+    jsonWriter.name("phoneNumbers").beginArray();
+    for (Integer phoneNumber : phoneNumbers) {
+      jsonWriter.value(phoneNumber);
     }
+    jsonWriter.endArray(); // End the array
+    jsonWriter.endObject(); // End the outer object
+    assertThrows(IllegalStateException.class, () -> jsonWriter.name("this_throw_exception_as_all_objects_are_closed"));
+    assertThrows(IllegalStateException.class, () -> jsonWriter.value("this_throw_exception_as_only_one_top_level_entry"));
+    jsonWriter.close();
+
   }
 
   @Test
