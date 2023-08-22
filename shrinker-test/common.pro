@@ -38,3 +38,7 @@
 -keepclassmembernames class com.example.ClassWithVersionAnnotations {
   <fields>;
 }
+
+# Keep the name of the class to allow using reflection to check if this class still exists
+# after shrinking
+-keepnames class com.example.UnusedClass
