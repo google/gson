@@ -631,16 +631,16 @@ public final class Gson {
    * StatsTypeAdapterFactory stats = new StatsTypeAdapterFactory();
    * Gson gson = new GsonBuilder().registerTypeAdapterFactory(stats).create();
    * // Call gson.toJson() and fromJson methods on objects
-   * System.out.println("Num JSON reads" + stats.numReads);
-   * System.out.println("Num JSON writes" + stats.numWrites);
+   * System.out.println("Num JSON reads: " + stats.numReads);
+   * System.out.println("Num JSON writes: " + stats.numWrites);
    * }</pre>
    * Note that this call will skip all factories registered before {@code skipPast}. In case of
    * multiple TypeAdapterFactories registered it is up to the caller of this function to insure
    * that the order of registration does not prevent this method from reaching a factory they
    * would expect to reply from this call.
-   * Note that since you can not override type adapter factories for String and Java primitive
-   * types, our stats factory will not count the number of String or primitives that will be
-   * read or written.
+   * Note that since you can not override the type adapter factories for some types, see
+   * {@link GsonBuilder#registerTypeAdapter(Type, Object)}, our stats factory will not count
+   * the number of instances of those types that will be read or written.
    *
    * <p>If {@code skipPast} is a factory which has neither been registered on the {@link GsonBuilder}
    * nor specified with the {@link JsonAdapter @JsonAdapter} annotation on a class, then this
@@ -660,11 +660,8 @@ public final class Gson {
     Objects.requireNonNull(skipPast, "skipPast must not be null");
     Objects.requireNonNull(type, "type must not be null");
 
-    if (jsonAdapterFactory.isClassJsonAdapterFactory(type.getRawType(), skipPast)) {
+    if (jsonAdapterFactory.isClassJsonAdapterFactory(type, skipPast)) {
       skipPast = jsonAdapterFactory;
-    } else if (!factories.contains(skipPast)) {
-      // Probably a factory from @JsonAdapter on a field
-      return getAdapter(type);
     }
 
     boolean skipPastFound = false;
@@ -681,7 +678,13 @@ public final class Gson {
         return candidate;
       }
     }
-    throw new IllegalArgumentException("GSON cannot serialize " + type);
+
+    if (skipPastFound) {
+      throw new IllegalArgumentException("GSON cannot serialize " + type);
+    } else {
+      // Probably a factory from @JsonAdapter on a field
+      return getAdapter(type);
+    }
   }
 
   /**

@@ -54,9 +54,10 @@ public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapte
   private static final TypeAdapterFactory TREE_TYPE_FIELD_DUMMY_FACTORY = new DummyTypeAdapterFactory();
 
   private final ConstructorConstructor constructorConstructor;
+
   /**
-   * For a class, if it is annotated with {@code @JsonAdapter} and refers to a {@code TypeAdapterFactory}
-   * stores the factory instance, in case it has been requested already.
+   * For a class, if it is annotated with {@code @JsonAdapter} and refers to a {@link TypeAdapterFactory},
+   * stores the factory instance in case it has been requested already.
    * Has to be a {@link ConcurrentMap} because {@link Gson} guarantees to be thread-safe.
    */
   // Note: In case these strong reference to TypeAdapterFactory instances are considered
@@ -121,16 +122,12 @@ public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapte
           ? (JsonDeserializer<?>) instance
           : null;
 
+      // Uses dummy factory instances because TreeTypeAdapter needs a 'skipPast' factory for `Gson.getDelegateAdapter`
+      // call and has to differentiate there whether TreeTypeAdapter was created for @JsonAdapter on class or field
       TypeAdapterFactory skipPast;
       if (isClassAnnotation) {
-        // Use dummy `skipPast` value and put it into factory map; otherwise TreeTypeAdapter's call to
-        // `Gson.getDelegateAdapter` would cause infinite recursion because it would keep returning the
-        // adapter specified by @JsonAdapter
         skipPast = TREE_TYPE_CLASS_DUMMY_FACTORY;
-        adapterFactoryMap.put(type.getRawType(), skipPast);
       } else {
-        // Use dummy `skipPast` value, but don't put it into factory map; this way `Gson.getDelegateAdapter`
-        // will return regular adapter for field type without actually skipping past any factory
         skipPast = TREE_TYPE_FIELD_DUMMY_FACTORY;
       }
       @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -154,11 +151,18 @@ public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapte
 
   /**
    * Returns whether {@code factory} is a type adapter factory created for {@code @JsonAdapter}
-   * placed on {@code rawType}.
+   * placed on {@code type}.
    */
-  public boolean isClassJsonAdapterFactory(Class<?> rawType, TypeAdapterFactory factory) {
-    Objects.requireNonNull(rawType);
+  public boolean isClassJsonAdapterFactory(TypeToken<?> type, TypeAdapterFactory factory) {
+    Objects.requireNonNull(type);
     Objects.requireNonNull(factory);
+
+    if (factory == TREE_TYPE_CLASS_DUMMY_FACTORY) {
+      return true;
+    }
+
+    // Using raw type to match behavior of `create(Gson, TypeToken<T>)` above
+    Class<?> rawType = type.getRawType();
 
     TypeAdapterFactory existingFactory = adapterFactoryMap.get(rawType);
     if (existingFactory != null) {

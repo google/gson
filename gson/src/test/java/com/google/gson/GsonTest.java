@@ -310,6 +310,18 @@ public final class GsonTest {
       public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
         return (TypeAdapter<T>) adapter;
       }
+
+      // Override equals to verify that reference equality check is performed by Gson,
+      // and this method is ignored
+      @Override
+      public boolean equals(Object obj) {
+        return obj instanceof DummyFactory && ((DummyFactory) obj).adapter.equals(adapter);
+      }
+
+      @Override
+      public int hashCode() {
+        return adapter.hashCode();
+      }
     }
 
     DummyAdapter adapter1 = new DummyAdapter(1);
@@ -334,6 +346,14 @@ public final class GsonTest {
     assertThat(gson.getDelegateAdapter(factory2, type)).isEqualTo(adapter1);
     // Default Gson adapter should be returned
     assertThat(gson.getDelegateAdapter(factory1, type)).isNotInstanceOf(DummyAdapter.class);
+
+    DummyFactory factory1Eq = new DummyFactory(adapter1);
+    // Verify that test setup is correct
+    assertThat(factory1.equals(factory1Eq)).isTrue();
+    // Should only consider reference equality and ignore that custom `equals` method considers
+    // factories to be equal, therefore returning `adapter2` which came from `factory2` instead
+    // of skipping past `factory1`
+    assertThat(gson.getDelegateAdapter(factory1Eq, type)).isEqualTo(adapter2);
   }
 
   @Test

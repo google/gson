@@ -283,17 +283,21 @@ public final class JsonAdapterAnnotationOnClassesTest {
    */
   @Test
   public void testDelegatingAdapterFactory() {
-    WithDelegatingFactory deserialized = new Gson().fromJson("{\"custom\":{\"f\":\"de\"}}", WithDelegatingFactory.class);
+    @SuppressWarnings("unchecked")
+    WithDelegatingFactory<String> deserialized = new Gson().fromJson("{\"custom\":{\"f\":\"de\"}}", WithDelegatingFactory.class);
     assertThat(deserialized.f).isEqualTo("de");
 
-    WithDelegatingFactory serialized = new WithDelegatingFactory("se");
+    deserialized = new Gson().fromJson("{\"custom\":{\"f\":\"de\"}}", new TypeToken<WithDelegatingFactory<String>>() {});
+    assertThat(deserialized.f).isEqualTo("de");
+
+    WithDelegatingFactory<String> serialized = new WithDelegatingFactory<>("se");
     assertThat(new Gson().toJson(serialized)).isEqualTo("{\"custom\":{\"f\":\"se\"}}");
   }
   @JsonAdapter(WithDelegatingFactory.Factory.class)
-  private static class WithDelegatingFactory {
-    String f;
+  private static class WithDelegatingFactory<T> {
+    T f;
 
-    WithDelegatingFactory(String f) {
+    WithDelegatingFactory(T f) {
       this.f = f;
     }
 
@@ -396,10 +400,10 @@ public final class JsonAdapterAnnotationOnClassesTest {
         .create();
 
     // Should use both factories, and therefore have `{"custom": ... }` twice
-    WithDelegatingFactory deserialized = gson.fromJson("{\"custom\":{\"custom\":{\"f\":\"de\"}}}", WithDelegatingFactory.class);
+    WithDelegatingFactory<?> deserialized = gson.fromJson("{\"custom\":{\"custom\":{\"f\":\"de\"}}}", WithDelegatingFactory.class);
     assertThat(deserialized.f).isEqualTo("de");
 
-    WithDelegatingFactory serialized = new WithDelegatingFactory("se");
+    WithDelegatingFactory<String> serialized = new WithDelegatingFactory<>("se");
     assertThat(gson.toJson(serialized)).isEqualTo("{\"custom\":{\"custom\":{\"f\":\"se\"}}}");
   }
 
@@ -425,10 +429,10 @@ public final class JsonAdapterAnnotationOnClassesTest {
     // or not, it can only work based on the `skipPast` factory, so if the same factory instance is used
     // the one registered with `GsonBuilder.registerTypeAdapterFactory` actually skips past the @JsonAdapter
     // one, so the JSON string is `{"custom": ...}` instead of `{"custom":{"custom":...}}`
-    WithDelegatingFactory deserialized = gson.fromJson("{\"custom\":{\"f\":\"de\"}}", WithDelegatingFactory.class);
+    WithDelegatingFactory<?> deserialized = gson.fromJson("{\"custom\":{\"f\":\"de\"}}", WithDelegatingFactory.class);
     assertThat(deserialized.f).isEqualTo("de");
 
-    WithDelegatingFactory serialized = new WithDelegatingFactory("se");
+    WithDelegatingFactory<String> serialized = new WithDelegatingFactory<>("se");
     assertThat(gson.toJson(serialized)).isEqualTo("{\"custom\":{\"f\":\"se\"}}");
   }
 

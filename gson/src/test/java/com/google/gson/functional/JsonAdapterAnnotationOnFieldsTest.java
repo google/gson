@@ -477,17 +477,21 @@ public final class JsonAdapterAnnotationOnFieldsTest {
    */
   @Test
   public void testDelegatingAdapterFactory() {
-    WithDelegatingFactory deserialized = new Gson().fromJson("{\"f\":\"test\"}", WithDelegatingFactory.class);
+    @SuppressWarnings("unchecked")
+    WithDelegatingFactory<String> deserialized = new Gson().fromJson("{\"f\":\"test\"}", WithDelegatingFactory.class);
     assertThat(deserialized.f).isEqualTo("test-custom");
 
-    WithDelegatingFactory serialized = new WithDelegatingFactory();
+    deserialized = new Gson().fromJson("{\"f\":\"test\"}", new TypeToken<WithDelegatingFactory<String>>() {});
+    assertThat(deserialized.f).isEqualTo("test-custom");
+
+    WithDelegatingFactory<String> serialized = new WithDelegatingFactory<>();
     serialized.f = "value";
     assertThat(new Gson().toJson(serialized)).isEqualTo("{\"f\":\"value-custom\"}");
   }
-  private static class WithDelegatingFactory {
+  private static class WithDelegatingFactory<T> {
     @SuppressWarnings("SameNameButDifferent") // suppress Error Prone warning; should be clear that `Factory` refers to nested class
     @JsonAdapter(Factory.class)
-    String f;
+    T f;
 
     static class Factory implements TypeAdapterFactory {
       @SuppressWarnings("unchecked")
