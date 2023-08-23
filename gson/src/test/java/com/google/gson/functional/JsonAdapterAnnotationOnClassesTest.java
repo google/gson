@@ -147,10 +147,13 @@ public final class JsonAdapterAnnotationOnClassesTest {
   }
 
   @Test
-  public void testNullSafeObjectFromJson() {
+  public void testNullSafeObject() {
     Gson gson = new Gson();
     NullableClass fromJson = gson.fromJson("null", NullableClass.class);
     assertThat(fromJson).isNull();
+
+    String json = gson.toJson(null, NullableClass.class);
+    assertThat(json).isEqualTo("null");
   }
 
   @JsonAdapter(A.JsonAdapter.class)
@@ -223,7 +226,6 @@ public final class JsonAdapterAnnotationOnClassesTest {
       out.name("name");
       out.value(user.firstName + " " + user.lastName);
       out.endObject();
-      // implement the write method
     }
     @Override public User read(JsonReader in) throws IOException {
       // implement read: split name into firstName and lastName

@@ -134,6 +134,7 @@ public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapte
       TypeAdapter<?> tempAdapter = new TreeTypeAdapter(serializer, deserializer, gson, type, skipPast, nullSafe);
       typeAdapter = tempAdapter;
 
+      // TreeTypeAdapter handles nullSafe; don't additionally call `nullSafe()`
       nullSafe = false;
     } else {
       throw new IllegalArgumentException("Invalid attempt to bind an instance of "

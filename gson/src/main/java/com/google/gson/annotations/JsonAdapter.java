@@ -124,7 +124,13 @@ public @interface JsonAdapter {
   /** Either a {@link TypeAdapter} or {@link TypeAdapterFactory}, or one or both of {@link JsonDeserializer} or {@link JsonSerializer}. */
   Class<?> value();
 
-  /** false, to be able to handle {@code null} values within the adapter, default value is true. */
+  /**
+   * Whether the adapter referenced by {@link #value()} should be made {@linkplain TypeAdapter#nullSafe() null-safe}.
+   *
+   * <p>If {@code true} (the default), it will be made null-safe and Gson will handle {@code null} Java objects
+   * on serialization and JSON {@code null} on deserialization without calling the adapter. If {@code false},
+   * the adapter will have to handle the {@code null} values.
+   */
   boolean nullSafe() default true;
 
 }
