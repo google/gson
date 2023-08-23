@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assume.assumeTrue;
 
 import com.google.gson.JsonElement;
+import com.google.gson.Strictness;
 import com.google.gson.internal.Streams;
 import com.google.gson.internal.bind.JsonTreeReader;
 import java.io.IOException;
@@ -201,7 +202,7 @@ public class JsonReaderPathTest {
     assumeTrue(factory == Factory.STRING_READER);
 
     JsonReader reader = factory.create("[][]");
-    reader.setLenient(true);
+    reader.setStrictness(Strictness.LENIENT);
     reader.beginArray();
     reader.endArray();
     assertThat(reader.getPreviousPath()).isEqualTo("$");

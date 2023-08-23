@@ -23,6 +23,7 @@ import java.lang.reflect.Type;
  */
 public class ClassWithJsonAdapterAnnotation {
   // For this field don't use @SerializedName and ignore it for deserialization
+  // Has custom ProGuard rule to keep the field name
   @JsonAdapter(value = Adapter.class, nullSafe = false)
   DummyClass f;
 
@@ -77,7 +78,7 @@ public class ClassWithJsonAdapterAnnotation {
   static class Factory implements TypeAdapterFactory {
     @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-      @SuppressWarnings("unchecked") // the code below is not type safe, but does not matter for this test
+      @SuppressWarnings("unchecked") // the code below is not type-safe, but does not matter for this test
       TypeAdapter<T> r = (TypeAdapter<T>) new TypeAdapter<DummyClass>() {
         @Override
         public DummyClass read(JsonReader in) throws IOException {

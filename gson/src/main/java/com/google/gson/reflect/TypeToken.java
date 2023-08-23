@@ -22,6 +22,7 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -38,11 +39,12 @@ import java.util.Objects;
  * <p>
  * {@code TypeToken<List<String>> list = new TypeToken<List<String>>() {};}
  *
- * <p>Capturing a type variable as type argument of a {@code TypeToken} should
- * be avoided. Due to type erasure the runtime type of a type variable is not
- * available to Gson and therefore it cannot provide the functionality one
- * might expect, which gives a false sense of type-safety at compilation time
- * and can lead to an unexpected {@code ClassCastException} at runtime.
+ * <p>Capturing a type variable as type argument of an anonymous {@code TypeToken}
+ * subclass is not allowed, for example {@code TypeToken<List<T>>}.
+ * Due to type erasure the runtime type of a type variable is not available
+ * to Gson and therefore it cannot provide the functionality one might expect.
+ * This would give a false sense of type-safety at compile time and could
+ * lead to an unexpected {@code ClassCastException} at runtime.
  *
  * <p>If the type arguments of the parameterized type are only available at
  * runtime, for example when you want to create a {@code List<E>} based on
@@ -64,7 +66,14 @@ public class TypeToken<T> {
    *
    * <p>Clients create an empty anonymous subclass. Doing so embeds the type
    * parameter in the anonymous class's type hierarchy so we can reconstitute it
-   * at runtime despite erasure.
+   * at runtime despite erasure, for example:
+   * <p>
+   * {@code new TypeToken<List<String>>() {}}
+   *
+   * @throws IllegalArgumentException
+   *   If the anonymous {@code TypeToken} subclass captures a type variable,
+   *   for example {@code TypeToken<List<T>>}. See the {@code TypeToken}
+   *   class documentation for more details.
    */
   @SuppressWarnings("unchecked")
   protected TypeToken() {
@@ -83,6 +92,10 @@ public class TypeToken<T> {
     this.hashCode = this.type.hashCode();
   }
 
+  private static boolean isCapturingTypeVariablesForbidden() {
+    return !Objects.equals(System.getProperty("gson.allowCapturingTypeVariables"), "true");
+  }
+
   /**
    * Verifies that {@code this} is an instance of a direct subclass of TypeToken and
    * returns the type argument for {@code T} in {@link $Gson$Types#canonicalize
@@ -93,7 +106,12 @@ public class TypeToken<T> {
     if (superclass instanceof ParameterizedType) {
       ParameterizedType parameterized = (ParameterizedType) superclass;
       if (parameterized.getRawType() == TypeToken.class) {
-        return $Gson$Types.canonicalize(parameterized.getActualTypeArguments()[0]);
+        Type typeArgument = $Gson$Types.canonicalize(parameterized.getActualTypeArguments()[0]);
+
+        if (isCapturingTypeVariablesForbidden()) {
+          verifyNoTypeVariable(typeArgument);
+        }
+        return typeArgument;
       }
     }
     // Check for raw TypeToken as superclass
@@ -106,6 +124,39 @@ public class TypeToken<T> {
 
     // User created subclass of subclass of TypeToken
     throw new IllegalStateException("Must only create direct subclasses of TypeToken");
+  }
+
+  private static void verifyNoTypeVariable(Type type) {
+    if (type instanceof TypeVariable) {
+      TypeVariable<?> typeVariable = (TypeVariable<?>) type;
+      throw new IllegalArgumentException("TypeToken type argument must not contain a type variable; captured type variable "
+          + typeVariable.getName() + " declared by " + typeVariable.getGenericDeclaration()
+          + "\nSee " + TroubleshootingGuide.createUrl("typetoken-type-variable"));
+    } else if (type instanceof GenericArrayType) {
+      verifyNoTypeVariable(((GenericArrayType) type).getGenericComponentType());
+    } else if (type instanceof ParameterizedType) {
+      ParameterizedType parameterizedType = (ParameterizedType) type;
+      Type ownerType = parameterizedType.getOwnerType();
+      if (ownerType != null) {
+        verifyNoTypeVariable(ownerType);
+      }
+
+      for (Type typeArgument : parameterizedType.getActualTypeArguments()) {
+        verifyNoTypeVariable(typeArgument);
+      }
+    } else if (type instanceof WildcardType) {
+      WildcardType wildcardType = (WildcardType) type;
+      for (Type bound : wildcardType.getLowerBounds()) {
+        verifyNoTypeVariable(bound);
+      }
+      for (Type bound : wildcardType.getUpperBounds()) {
+        verifyNoTypeVariable(bound);
+      }
+    } else if (type == null) {
+      // Occurs in Eclipse IDE and certain Java versions (e.g. Java 11.0.18) when capturing type variable
+      // declared by method of local class, see https://github.com/eclipse-jdt/eclipse.jdt.core/issues/975
+      throw new IllegalArgumentException("TypeToken captured `null` as type argument; probably a compiler / runtime bug");
+    }
   }
 
   /**
@@ -334,12 +385,15 @@ public class TypeToken<T> {
    * Class<V> valueClass = ...;
    * TypeToken<?> mapTypeToken = TypeToken.getParameterized(Map.class, keyClass, valueClass);
    * }</pre>
-   * As seen here the result is a {@code TypeToken<?>}; this method cannot provide any type safety,
+   * As seen here the result is a {@code TypeToken<?>}; this method cannot provide any type-safety,
    * and care must be taken to pass in the correct number of type arguments.
    *
+   * <p>If {@code rawType} is a non-generic class and no type arguments are provided, this method
+   * simply delegates to {@link #get(Class)} and creates a {@code TypeToken(Class)}.
+   *
    * @throws IllegalArgumentException
-   *   If {@code rawType} is not of type {@code Class}, if it is not a generic type, or if the
-   *   type arguments are invalid for the raw type
+   *   If {@code rawType} is not of type {@code Class}, or if the type arguments are invalid for
+   *   the raw type
    */
   public static TypeToken<?> getParameterized(Type rawType, Type... typeArguments) {
     Objects.requireNonNull(rawType);
@@ -354,23 +408,22 @@ public class TypeToken<T> {
     Class<?> rawClass = (Class<?>) rawType;
     TypeVariable<?>[] typeVariables = rawClass.getTypeParameters();
 
-    // Note: Does not check if owner type of rawType is generic because this factory method
-    // does not support specifying owner type
-    if (typeVariables.length == 0) {
-      throw new IllegalArgumentException(rawClass.getName() + " is not a generic type");
+    int expectedArgsCount = typeVariables.length;
+    int actualArgsCount = typeArguments.length;
+    if (actualArgsCount != expectedArgsCount) {
+      throw new IllegalArgumentException(rawClass.getName() + " requires " + expectedArgsCount +
+          " type arguments, but got " + actualArgsCount);
+    }
+
+    // For legacy reasons create a TypeToken(Class) if the type is not generic
+    if (typeArguments.length == 0) {
+      return get(rawClass);
     }
 
     // Check for this here to avoid misleading exception thrown by ParameterizedTypeImpl
     if ($Gson$Types.requiresOwnerType(rawType)) {
       throw new IllegalArgumentException("Raw type " + rawClass.getName() + " is not supported because"
           + " it requires specifying an owner type");
-    }
-
-    int expectedArgsCount = typeVariables.length;
-    int actualArgsCount = typeArguments.length;
-    if (actualArgsCount != expectedArgsCount) {
-      throw new IllegalArgumentException(rawClass.getName() + " requires " + expectedArgsCount +
-          " type arguments, but got " + actualArgsCount);
     }
 
     for (int i = 0; i < expectedArgsCount; i++) {

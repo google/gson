@@ -26,7 +26,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import org.junit.Before;
@@ -92,7 +91,7 @@ public class PrettyPrintingTest {
     assertThat(json).isEqualTo("[\n  [\n    1,\n    2\n  ],\n  [\n    3,\n    4\n  ],\n  [\n    5,\n    6\n  ],"
         + "\n  [\n    7,\n    8\n  ],\n  [\n    9,\n    0\n  ],\n  [\n    10\n  ]\n]");
   }
-  
+
   @Test
   public void testMap() {
     Map<String, Integer> map = new LinkedHashMap<>();
