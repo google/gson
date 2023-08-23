@@ -63,7 +63,7 @@ import java.lang.reflect.Type;
  * </pre>
  *
  * <p>Note that it does not matter what the fields of the created instance contain since Gson will
- * overwrite them with the deserialized values specified in Json. You should also ensure that a
+ * overwrite them with the deserialized values specified in JSON. You should also ensure that a
  * <i>new</i> object is returned, not a common object since its fields will be overwritten.
  * The developer will need to register {@code IdInstanceCreator} with Gson as follows:</p>
  *
@@ -81,7 +81,7 @@ public interface InstanceCreator<T> {
   /**
    * Gson invokes this call-back method during deserialization to create an instance of the
    * specified type. The fields of the returned instance are overwritten with the data present
-   * in the Json. Since the prior contents of the object are destroyed and overwritten, do not
+   * in the JSON. Since the prior contents of the object are destroyed and overwritten, do not
    * return an instance that is useful elsewhere. In particular, do not return a common instance,
    * always use {@code new} to create a new instance.
    *

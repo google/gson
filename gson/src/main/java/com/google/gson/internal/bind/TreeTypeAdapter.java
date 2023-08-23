@@ -43,11 +43,18 @@ public final class TreeTypeAdapter<T> extends SerializationDelegatingTypeAdapter
   private final JsonDeserializer<T> deserializer;
   final Gson gson;
   private final TypeToken<T> typeToken;
-  private final TypeAdapterFactory skipPast;
+  /**
+   * Only intended as {@code skipPast} for {@link Gson#getDelegateAdapter(TypeAdapterFactory, TypeToken)},
+   * must not be used in any other way.
+   */
+  private final TypeAdapterFactory skipPastForGetDelegateAdapter;
   private final GsonContextImpl context = new GsonContextImpl();
   private final boolean nullSafe;
 
-  /** The delegate is lazily created because it may not be needed, and creating it may fail. */
+  /**
+   * The delegate is lazily created because it may not be needed, and creating it may fail.
+   * Field has to be {@code volatile} because {@link Gson} guarantees to be thread-safe.
+   */
   private volatile TypeAdapter<T> delegate;
 
   public TreeTypeAdapter(JsonSerializer<T> serializer, JsonDeserializer<T> deserializer,
@@ -56,7 +63,7 @@ public final class TreeTypeAdapter<T> extends SerializationDelegatingTypeAdapter
     this.deserializer = deserializer;
     this.gson = gson;
     this.typeToken = typeToken;
-    this.skipPast = skipPast;
+    this.skipPastForGetDelegateAdapter = skipPast;
     this.nullSafe = nullSafe;
   }
 
@@ -94,7 +101,7 @@ public final class TreeTypeAdapter<T> extends SerializationDelegatingTypeAdapter
     TypeAdapter<T> d = delegate;
     return d != null
         ? d
-        : (delegate = gson.getDelegateAdapter(skipPast, typeToken));
+        : (delegate = gson.getDelegateAdapter(skipPastForGetDelegateAdapter, typeToken));
   }
 
   /**
