@@ -37,6 +37,7 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Locale;
@@ -154,6 +155,71 @@ public final class JsonAdapterAnnotationOnClassesTest {
 
     String json = gson.toJson(null, NullableClass.class);
     assertThat(json).isEqualTo("null");
+  }
+
+  /**
+   * Tests behavior when a {@link TypeAdapterFactory} registered with {@code @JsonAdapter} returns
+   * {@code null}, indicating that it cannot handle the type and Gson should try a different factory
+   * instead.
+   */
+  @Test
+  public void testFactoryReturningNull() {
+    Gson gson = new Gson();
+
+    assertThat(gson.fromJson("null", WithNullReturningFactory.class)).isNull();
+    assertThat(gson.toJson(null, WithNullReturningFactory.class)).isEqualTo("null");
+
+    TypeToken<WithNullReturningFactory<String>> stringTypeArg = new TypeToken<WithNullReturningFactory<String>>() {};
+    WithNullReturningFactory<?> deserialized = gson.fromJson("\"a\"", stringTypeArg);
+    assertThat(deserialized.t).isEqualTo("custom-read:a");
+    assertThat(gson.fromJson("null", stringTypeArg)).isNull();
+    assertThat(gson.toJson(new WithNullReturningFactory<>("b"), stringTypeArg.getType())).isEqualTo("\"custom-write:b\"");
+    assertThat(gson.toJson(null, stringTypeArg.getType())).isEqualTo("null");
+
+    // Factory should return `null` for this type and Gson should fall back to reflection-based adapter
+    TypeToken<WithNullReturningFactory<Integer>> numberTypeArg = new TypeToken<WithNullReturningFactory<Integer>>() {};
+    deserialized = gson.fromJson("{\"t\":1}", numberTypeArg);
+    assertThat(deserialized.t).isEqualTo(1);
+    assertThat(gson.toJson(new WithNullReturningFactory<>(2), numberTypeArg.getType())).isEqualTo("{\"t\":2}");
+  }
+  // Also set `nullSafe = true` to verify that this does not cause a NullPointerException by calling
+  // `nullSafe()` on null
+  @JsonAdapter(value = WithNullReturningFactory.NullReturningFactory.class, nullSafe = true)
+  private static class WithNullReturningFactory<T> {
+    T t;
+
+    public WithNullReturningFactory(T t) {
+      this.t = t;
+    }
+
+    static class NullReturningFactory implements TypeAdapterFactory {
+      @Override
+      public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+        // Don't handle raw (non-parameterized) type
+        if (type.getType() instanceof Class) {
+          return null;
+        }
+        ParameterizedType parameterizedType = (ParameterizedType) type.getType();
+        // Makes this test a bit more realistic by only conditionally returning null (instead of always)
+        if (parameterizedType.getActualTypeArguments()[0] != String.class) {
+          return null;
+        }
+
+        @SuppressWarnings("unchecked")
+        TypeAdapter<T> adapter = (TypeAdapter<T>) new TypeAdapter<WithNullReturningFactory<String>>() {
+          @Override
+          public void write(JsonWriter out, WithNullReturningFactory<String> value) throws IOException {
+            out.value("custom-write:" + value.t);
+          }
+
+          @Override
+          public WithNullReturningFactory<String> read(JsonReader in) throws IOException {
+            return new WithNullReturningFactory<>("custom-read:" + in.nextString());
+          }
+        };
+        return adapter;
+      }
+    }
   }
 
   @JsonAdapter(A.JsonAdapter.class)
